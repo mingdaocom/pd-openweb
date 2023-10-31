@@ -59,7 +59,7 @@ export default function confirm(props) {
       bindEnterTriggerOk
       overlayClosable={props.overlayClosable || false}
       description={props.description}
-      footer={footer}
+      footer={props.footer || footer}
       onOk={handleClose}
       confirmOnOk={props.onOk}
       onCancel={handleClose}

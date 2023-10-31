@@ -21,6 +21,8 @@ export default class ApprovalProcess extends Component {
       data: {},
       saveRequest: false,
       showSelectUserDialog: false,
+      cacheKey: +new Date(),
+      isCorrect: true,
     };
   }
 
@@ -48,17 +50,27 @@ export default class ApprovalProcess extends Component {
    */
   getNodeDetail(props, { sId, fields } = {}) {
     const { processId, selectNodeId, selectNodeType } = props;
+    const { data } = this.state;
 
     flowNode
       .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, selectNodeId: sId, fields })
       .then(result => {
+        if (sId) {
+          result.name = data.name;
+        }
+
         if (sId && !fields) {
           result.fields = [];
           result.flowNodeMap = Object.assign({ [OPERATION_TYPE.BEFORE]: result.flowNodeMap[OPERATION_TYPE.BEFORE] });
         }
 
         if (fields) {
-          result = Object.assign(this.state.data, { fields: result.fields, flowNodeMap: result.flowNodeMap });
+          result = Object.assign(this.state.data, {
+            fields: result.fields,
+            flowNodeMap: Object.assign(result.flowNodeMap, {
+              [OPERATION_TYPE.BEFORE]: this.state.data.flowNodeMap[OPERATION_TYPE.BEFORE],
+            }),
+          });
         }
 
         if (!result.processConfig.userTaskNullMaps || result.processConfig.userTaskNullMaps[0]) {
@@ -66,7 +78,11 @@ export default class ApprovalProcess extends Component {
           result.processConfig.userTaskNullPass = false;
         }
 
-        this.setState({ data: result });
+        this.setState({
+          data: result,
+          cacheKey: +new Date(),
+          isCorrect: result.startAppId === result.selectNodeObj.appId || sId || fields,
+        });
       });
   }
 
@@ -132,7 +148,7 @@ export default class ApprovalProcess extends Component {
    * 渲染内容
    */
   renderContent() {
-    const { data, showSelectUserDialog } = this.state;
+    const { data, showSelectUserDialog, cacheKey, isCorrect } = this.state;
     const InitiatorAction = [
       { text: _l('允许发起人撤回'), key: 'allowRevoke' },
       { text: _l('允许发起人催办'), key: 'allowUrge' },
@@ -143,7 +159,7 @@ export default class ApprovalProcess extends Component {
         <div className="Font13 mTop20 bold">{_l('发起审批的数据对象')}</div>
         <SelectNodeObject
           appList={data.flowNodeList}
-          selectNodeId={data.selectNodeId}
+          selectNodeId={isCorrect && data.selectNodeId}
           selectNodeObj={data.selectNodeObj}
           onChange={this.switchDataSource}
         />
@@ -194,6 +210,7 @@ export default class ApprovalProcess extends Component {
 
             <ApprovalProcessSettings
               {...this.props}
+              cacheKey={cacheKey}
               processId={data.appId}
               selectNodeId={data.startNodeId}
               data={data}

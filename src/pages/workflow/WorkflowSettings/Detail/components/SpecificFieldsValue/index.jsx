@@ -4,6 +4,7 @@ import { DateTime } from 'ming-ui/components/NewDateTimePicker';
 import SelectOtherFields from '../SelectOtherFields';
 import Tag from '../Tag';
 import moment from 'moment';
+import { handleGlobalVariableName } from '../../../utils';
 
 export default class SpecificFieldsValue extends Component {
   constructor(props) {
@@ -30,7 +31,7 @@ export default class SpecificFieldsValue extends Component {
             flowNodeType={data.fieldNodeType}
             appType={data.fieldAppType}
             actionId={data.fieldActionId}
-            nodeName={data.fieldNodeName}
+            nodeName={handleGlobalVariableName(data.fieldNodeId, data.sourceType, data.fieldNodeName)}
             controlId={data.fieldControlId}
             controlName={data.fieldControlName}
           />
@@ -54,13 +55,15 @@ export default class SpecificFieldsValue extends Component {
   };
 
   renderOtherFields = () => {
-    const { processId, selectNodeId, updateSource, type } = this.props;
+    const { projectId, processId, relationId, selectNodeId, updateSource, type } = this.props;
 
     return (
       <SelectOtherFields
         item={{ type: type === 'date' ? 16 : 6 }}
         fieldsVisible={this.state.fieldsVisible}
+        projectId={projectId}
         processId={processId}
+        relationId={relationId}
         selectNodeId={selectNodeId}
         handleFieldClick={({
           actionId,
@@ -72,6 +75,7 @@ export default class SpecificFieldsValue extends Component {
           nodeName,
           nodeTypeId,
           fieldValueType,
+          sourceType,
         }) => {
           updateSource({
             fieldActionId: actionId,
@@ -83,6 +87,7 @@ export default class SpecificFieldsValue extends Component {
             fieldValue,
             fieldControlId: fieldValueId,
             fieldControlType: fieldValueType,
+            sourceType,
           });
         }}
         openLayer={() => this.setState({ fieldsVisible: true })}

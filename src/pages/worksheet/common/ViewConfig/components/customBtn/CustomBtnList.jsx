@@ -1,7 +1,6 @@
 import React from 'react';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import { Icon } from 'ming-ui';
-import { COLORS, ICONS } from 'src/pages/worksheet/common/CreateCustomBtn/config.js';
 import cx from 'classnames';
 import _ from 'lodash';
 
@@ -27,6 +26,7 @@ class CustomBtnList extends React.Component {
               <ul className="btnListUl">
                 <li className="Gray_9e">{_l('选择已有按钮')}</li>
                 {_.map(data, (item, i) => {
+                  const { color, icon, name } = item;
                   return (
                     <li
                       className="Gray overflow_ellipsis WordBreak btnList"
@@ -36,11 +36,14 @@ class CustomBtnList extends React.Component {
                       }}
                     >
                       <Icon
-                        icon={item.icon || 'custom_actions'}
-                        style={{ color: item.color && item.icon ? item.color : '#e0e0e0' }}
-                        className={cx('mRight12 Font18')}
+                        icon={icon || 'custom_actions'}
+                        style={{ color: color }}
+                        className={cx(
+                          'mRight12 Font18',
+                          !icon ? 'Gray_bd' : !color ? 'ThemeColor3' : color === 'transparent' ? 'Gray' : '',
+                        )}
                       />
-                      {item.name}
+                      {name}
                     </li>
                   );
                 })}
@@ -48,7 +51,7 @@ class CustomBtnList extends React.Component {
               <div
                 className="creatBtn Hand"
                 onClick={() => {
-                  this.props.showCreateCustomBtnFn(true, false);
+                  this.props.onShowCreateCustomBtn(true, false);
                 }}
               >
                 <i className="icon icon-add Font16 mRight5"></i>

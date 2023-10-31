@@ -8,15 +8,16 @@ import { navigateTo } from 'src/router/navigateTo';
 import GalleryView from 'worksheet/views/GalleryView';
 import CalendarView from 'worksheet/views/CalendarView';
 import GunterView from 'worksheet/views/GunterView/enter';
-import Skeleton from 'src/router/Application/Skeleton';
+import { Skeleton } from 'ming-ui';
 import UnNormal from 'worksheet/views/components/UnNormal';
 import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import styled from 'styled-components';
 import _ from 'lodash';
 import HierarchyVerticalView from './HierarchyVerticalView';
 import HierarchyMixView from './HierarchyMixView';
+import DetailView from './DetailView';
 
-const { board, sheet, calendar, gallery, structure, gunter } = VIEW_DISPLAY_TYPE;
+const { board, sheet, calendar, gallery, structure, gunter, detail } = VIEW_DISPLAY_TYPE;
 
 const Con = styled.div`
   height: 100%;
@@ -34,6 +35,7 @@ const TYPE_TO_COMP = {
   [calendar]: props => <CalendarView watchHeight {...props} />,
   [structure]: HierarchyView,
   [gunter]: GunterView,
+  [detail]: DetailView,
   structureVertical: HierarchyVerticalView,
   structureMix: HierarchyMixView,
 };
@@ -102,9 +104,9 @@ function View(props) {
 
   let viewType = String(showAsSheetView ? sheet : view.viewType);
 
-  if(!showAsSheetView && view.viewType===2 && advancedSetting.hierarchyViewType === '1') {
+  if (!showAsSheetView && view.viewType === 2 && advancedSetting.hierarchyViewType === '1') {
     viewType = 'structureVertical';
-  } else if(!showAsSheetView && view.viewType===2 && advancedSetting.hierarchyViewType === '2') {
+  } else if (!showAsSheetView && view.viewType === 2 && advancedSetting.hierarchyViewType === '2') {
     viewType = 'structureMix';
   }
 

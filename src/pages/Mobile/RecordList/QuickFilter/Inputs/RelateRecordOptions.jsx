@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import cx from 'classnames';
 import worksheetAjax from 'src/api/worksheet';
@@ -7,6 +7,15 @@ import { getFilter } from 'worksheet/common/WorkSheetFilter/util';
 import { arrayOf, bool, func, shape } from 'prop-types';
 import { Option } from './Options';
 import _ from 'lodash';
+
+const useCompare = value => {
+  const ref = useRef(null);
+  if (!_.isEqual(value, ref.current)) {
+    ref.current = value;
+  }
+
+  return ref.current;
+};
 
 export default function RelateRecordOptions(props) {
   const {
@@ -18,6 +27,7 @@ export default function RelateRecordOptions(props) {
     advancedSetting,
     prefixRecords = [],
     staticRecords = [],
+    formData,
   } = props;
   const { navshow } = advancedSetting;
   const [records, setRecords] = useState(staticRecords);
@@ -28,6 +38,10 @@ export default function RelateRecordOptions(props) {
   async function load() {
     if (!_.isEmpty(staticRecords)) {
       return;
+    }
+    let filterControls;
+    if (control && control.advancedSetting.filters) {
+      filterControls = getFilter({ control, formData });
     }
     setLoading(true);
     const args = {
@@ -41,7 +55,7 @@ export default function RelateRecordOptions(props) {
       getType: 7,
     };
     if (navshow === '3') {
-      args.filterControls = getFilter({ control });
+      args.filterControls = filterControls || [];
     }
     const res = await worksheetAjax.getFilterRows(args);
     setLoading(false);
@@ -49,7 +63,7 @@ export default function RelateRecordOptions(props) {
   }
   useEffect(() => {
     load();
-  }, []);
+  }, [useCompare(formData)]);
   return (
     <div>
       {prefixRecords.concat(newRecords).map((record, i) => {

@@ -1,34 +1,75 @@
-import React from 'react';
-import styled from 'styled-components';
-import { DEFAULT_DATA } from '../../config/widget';
-import { enumWidgetType } from '../../util';
+import React, { Fragment } from 'react';
+import cx from 'classnames';
+import { SettingItem } from '../../styled';
+import { SectionItem } from '../components/SplitLineConfig/style';
+import SplitLineConfig from '../components/SplitLineConfig';
+import { THEME_COLOR_OPTIONS, TEXT_COLOR_OPTIONS } from '../components/SplitLineConfig/config';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
 
-const SplitLineWrap = styled.div`
-  width: 100%;
-  background: #fffad2;
-  border: 1px solid #f3dd8b;
-  border-radius: 3px;
-  margin: 24px 0;
-  padding: 14px;
-`;
+const { ColorSetting, IconSetting } = SplitLineConfig;
 
-export default function SplitLine({ data, onChange }) {
-  const { emunDefault } = data;
+const FOLD_DISPLAY = [
+  { text: _l('展开'), value: 1 },
+  { text: _l('收起'), value: 2 },
+  { text: _l('不折叠'), value: 0 },
+];
+
+export default function SplitLine(props) {
+  const { data, globalSheetInfo, styleInfo: { info = {} } = {}, onChange } = props;
+  const { enumDefault2 = 1 } = data;
+  const { theme = '#2196f3', color = '#333', icon = '' } = getAdvanceSetting(data);
 
   return (
-    <SplitLineWrap>
-      <div className="Bold Font15 mBottom12">{_l('这是一个旧的分段字段')}</div>
-      <div>{_l('新分段可以在分段内添加字段。从而支持进行展开、折叠操作，或整体控制分段内所有字段的显隐。')}</div>
-      <div>{_l('因为结构不兼容，旧的分段字段需要手动转为新类型后使用。')}</div>
-      <div
-        className="ThemeColor3 pointer ThemeHoverColor2 mTop12"
-        onClick={() => {
-          const widgetType = enumWidgetType[52];
-          onChange({ type: 52, ...DEFAULT_DATA[widgetType] });
-        }}
-      >
-        {_l('转为新分段类型')}
-      </div>
-    </SplitLineWrap>
+    <Fragment>
+      <SettingItem>
+        <div className="settingItemTitle">{_l('样式')}</div>
+        <SectionItem>
+          <div className="label">{_l('文字')}</div>
+          <ColorSetting
+            defaultValue="#333333"
+            value={color}
+            onChange={value => onChange(handleAdvancedSettingChange(data, { color: value }))}
+          />
+        </SectionItem>
+        {!_.includes(['1', '2'], info.sectionstyle) && (
+          <SectionItem>
+            <div className="label">{_l('图标')}</div>
+            <IconSetting
+              icon={icon}
+              iconColor={theme}
+              projectId={globalSheetInfo.projectId}
+              handleClick={value =>
+                onChange(handleAdvancedSettingChange(data, { icon: value ? JSON.stringify(value) : '' }))
+              }
+            />
+          </SectionItem>
+        )}
+        <SectionItem>
+          <div className="label">{_l('颜色')}</div>
+          <ColorSetting
+            defaultValue="#2196f3"
+            value={theme}
+            onChange={value => {
+              onChange(handleAdvancedSettingChange(data, { theme: value }));
+            }}
+          />
+        </SectionItem>
+      </SettingItem>
+      <SettingItem>
+        <div className="settingItemTitle">{_l('默认状态')}</div>
+        <SectionItem className="mTop0">
+          <div className="selectWrap">
+            {FOLD_DISPLAY.map(item => (
+              <div
+                className={cx('animaItem', { active: item.value === enumDefault2 })}
+                onClick={() => onChange({ enumDefault2: item.value })}
+              >
+                {item.text}
+              </div>
+            ))}
+          </div>
+        </SectionItem>
+      </SettingItem>
+    </Fragment>
   );
 }

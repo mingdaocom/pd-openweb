@@ -242,12 +242,6 @@ export default function GunterSet(props) {
           viewControl,
         }}
       />
-      <Color
-        {...props}
-        handleChange={handleChange}
-        title={_l('颜色')}
-        txt={_l('选择一个单选字段，时间块将按照此字段中的选项颜色来显示，用于区分记录类型')}
-      />
       <div className="title Font13 bold mTop32">{_l('默认视图')}</div>
       <GunterTypeChoose>
         <ul className="calendartypeChoose">

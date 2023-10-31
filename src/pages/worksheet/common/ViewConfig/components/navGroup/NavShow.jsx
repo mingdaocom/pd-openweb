@@ -110,7 +110,16 @@ const SwitchStyle = styled.div`
   }
 `;
 export default function NavShow(props) {
-  const { params, onChange, value = '0', filterInfo = {}, advancedSetting = {}, canShowNull, canShowAll } = props;
+  const {
+    params,
+    onChange,
+    value = '0',
+    filterInfo = {},
+    advancedSetting = {},
+    canShowNull,
+    canShowAll,
+    fromCondition,
+  } = props;
   const [
     { filterVisible, filters, relateControls, data, showSysWorkflow, showChangeName, showName, loading },
     setState,
@@ -172,7 +181,7 @@ export default function NavShow(props) {
         ...newValue,
         navfilters:
           value === '3'
-            ? JSON.stringify(filters.map(handleCondition))
+            ? JSON.stringify(filters.map(o => handleCondition(o)))
             : JSON.stringify(
                 filters.map(info => {
                   if ([19, 23, 24, 26, 27, 29, 35, 48].includes(data.type) && value === '2') {
@@ -232,7 +241,10 @@ export default function NavShow(props) {
             controlId={data.controlId}
             active={false}
             from={'NavShow'}
-            control={data}
+            control={{
+              ...data,
+              advancedSetting: _.includes([9, 10, 11] ? { ...data.advancedSetting, allowadd: '0' } : {}),
+            }}
             advancedSetting={{ direction: '2', allowitem: '2' }}
             values={formatFilterValues(data.type, filters)}
             onChange={info => {
@@ -264,19 +276,23 @@ export default function NavShow(props) {
           filters={filters}
           allControls={filterInfo.allControls}
           globalSheetInfo={filterInfo.globalSheetInfo}
+          globalSheetControls={filterInfo.globalSheetControls}
           onChange={({ filters }) => {
             onFormatChange({ navfilters: JSON.stringify(filters.map(handleCondition)) });
             setState({ filterVisible: false });
           }}
+          fromCondition={fromCondition}
           onClose={() => setState({ filterVisible: false })}
         />
       )}
       {filters.length > 0 && value === '3' && !loading && (
         <FilterItemTexts
+          fromCondition={fromCondition}
           className={'mBottom0'}
           data={data}
           filters={filters}
           loading={false}
+          globalSheetControls={filterInfo.globalSheetControls}
           globalSheetInfo={filterInfo.globalSheetInfo}
           controls={relateControls || []}
           allControls={filterInfo.allControls}

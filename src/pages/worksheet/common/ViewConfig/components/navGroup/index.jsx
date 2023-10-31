@@ -259,10 +259,17 @@ export default function NavGroup(params) {
   };
   const addNavGroups = data => {
     const d = getSetDefault(data);
+    let info = {};
+    if ([35].includes(data.type)) {
+      info = {
+        showallitem: '',
+      };
+    }
     updateView(d, {
       navshow: !['0', '1'].includes(navshow + '') ? '0' : navshow, //新配置需要前端把这个值设为1
       navfilters: JSON.stringify([]),
       usenav: '1', //新配置需要前端把这个值设为1
+      ...info,
     });
     setShowAddCondition(false);
     data.type === 29 && data.dataSource && getRelate(data.dataSource);

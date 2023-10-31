@@ -619,7 +619,9 @@ export default class Workwx extends React.Component {
     if (featureType === '2') {
       return (
         <div className="orgManagementWrap">
-          {buriedUpgradeVersionDialog(Config.projectId, VersionProductType.workwxIntergration, 'content')}
+          {buriedUpgradeVersionDialog(Config.projectId, VersionProductType.workwxIntergration, {
+            dialogType: 'content',
+          })}
         </div>
       );
     }

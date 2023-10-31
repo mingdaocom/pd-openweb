@@ -9,12 +9,14 @@ import {
   FILTER_CONDITION_TYPE,
   API_ENUM_TO_TYPE,
   DATE_OPTIONS,
+  DEFAULT_COLUMNS,
 } from 'src/pages/worksheet/common/WorkSheetFilter/enum.js';
 import { getIconByType, getSwitchItemNames } from 'src/pages/widgetConfig/util';
 import { WIDGETS_TO_API_TYPE_ENUM, SYS_CONTROLS } from 'pages/widgetConfig/config/widget';
 import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting';
 import _ from 'lodash';
 import moment from 'moment';
+import { isRelateRecordTableControl } from 'worksheet/util';
 
 //初始规则数据
 export const originRuleItem = {
@@ -71,58 +73,68 @@ export function getReTree(tree) {
 
 //根据controlId找到node
 function deepSearch(tree = [], controlId) {
-  let isGet = false;
-  let retNode = null;
   for (let i = 0; i < tree.length; i++) {
-    if (controlId === tree[i].controlId || isGet) {
-      isGet || (retNode = tree[i]);
-      isGet = true;
-      break;
+    const item = tree[i];
+    if (item.controlId === controlId) {
+      return item;
+    } else if (!_.isEmpty(item.relationControls)) {
+      const result = deepSearch(item.relationControls, controlId);
+      if (result) return result;
     }
   }
-  return retNode;
-}
-
-//备注、分段没有标题（兼容）
-export function getControlSpecialName(type) {
-  return type ? (type === 10010 ? _l('备注') : _l('分段')) : _l('字段已删除');
+  return null;
 }
 
 //根据controls获取controlName
-export function getTextById(tree, controls = []) {
+export function getTextById(data, controls = [], actionType) {
+  const tree = getNewDropDownData(data, actionType);
   let currentArr = [];
+  if (_.find(tree, i => i.sectionId)) return;
+
   controls.map(controlsItem => {
     const { childControlIds = [], controlId = '' } = controlsItem;
-    if (controlId) {
-      const parentNode = deepSearch(tree, controlId) || {};
-      if (!childControlIds.length) {
+    const parentNode = deepSearch(tree, controlId);
+    // 由于标签页内控件按普通字段存，父级名称得在查，特殊处理兼容
+    const sectionNode = parentNode && parentNode.sectionId ? deepSearch(tree, parentNode.sectionId) : '';
+    if (_.isEmpty(childControlIds)) {
+      currentArr.push({
+        parentId: '',
+        controlId,
+        name:
+          sectionNode && parentNode
+            ? _l('%0 / %1', sectionNode.controlName, parentNode.controlName)
+            : _.get(parentNode, 'controlName') || _l('字段已删除'),
+        isDel: !parentNode,
+      });
+    } else {
+      childControlIds.map(child => {
+        const childNode = _.find(_.get(parentNode, 'relationControls') || [], i => i.controlId === child);
+        const isDelete = !parentNode || !childNode;
         currentArr.push({
-          controlId,
-          name: parentNode.controlName || getControlSpecialName(parentNode.type),
-          isDel: !parentNode.type,
+          parentId: controlId,
+          controlId: child,
+          isDel: isDelete,
+          name: isDelete ? _l('字段已删除') : _l('%0 / %1', parentNode.controlName, childNode.controlName),
         });
-      } else {
-        childControlIds.map(child => {
-          const childNode = deepSearch(parentNode.relationControls, child) || {};
-          const isDelete = _.includes(parentNode.showControls || [], childNode.controlId);
-          currentArr.push({
-            controlId,
-            childControlId: child,
-            isDel: !isDelete,
-            name: isDelete
-              ? _l('%0 / %1', parentNode.controlName, childNode.controlName || getControlSpecialName(childNode.type))
-              : _l('字段已删除'),
-          });
-        });
-      }
+      });
     }
   });
   return currentArr;
 }
 
-//过滤隐藏的子表字段
-export function getNewDropDownData(dropDownData = [], actionType) {
-  // 公式 汇总 文本组合 自动编号 他表字段 分段 大写金额 备注 文本识别
+function formatSectionData(data = []) {
+  const newData = [];
+  data.forEach(item => {
+    if (item.type === 52) {
+      item.relationControls = data.filter(i => i.sectionId === item.controlId);
+    }
+    if (!item.sectionId) newData.push(item);
+  });
+  return newData;
+}
+
+function filterDropDown(controls = [], actionType) {
+  // 公式 汇总 文本组合 自动编号 他表字段 分割线 大写金额 备注 文本识别
   let filterControls = [];
   if (_.includes([3, 4, 5], actionType)) {
     filterControls.push(31, 38, 37, 32, 33, 30, 22, 25, 45, 47, 51, 10010);
@@ -131,22 +143,42 @@ export function getNewDropDownData(dropDownData = [], actionType) {
     }
   }
 
-  let newDropDownData = _.cloneDeep(dropDownData);
-  newDropDownData.forEach(item => {
-    if (_.includes([29, 34], item.type) && item.relationControls) {
-      item.relationControls = item.relationControls
-        .filter(re => _.includes(item.showControls || [], re.controlId))
-        .filter(re => !_.includes(SYS_CONTROLS, re.controlId))
-        .filter(i => !_.includes(filterControls, i.type));
-      if (!item.relationControls.length) {
-        delete item.relationControls;
+  controls.forEach(item => {
+    if (_.includes([29, 34, 52], item.type)) {
+      if (item.type !== 52) {
+        item.relationControls = (item.relationControls || [])
+          .filter(re => _.includes(item.showControls || [], re.controlId))
+          .filter(re => !_.includes(SYS_CONTROLS, re.controlId))
+          .filter(re => re.type !== 52);
+        // 关联卡片、下拉框在以下情况下不支持配置内部控件
+        if (item.type === 29 && _.get(item, 'advancedSetting.showtype') !== '2' && _.includes([3, 4, 5], actionType)) {
+          item.relationControls = [];
+        }
+      } else {
+        item.relationControls = filterDropDown(item.relationControls, actionType);
       }
     } else {
-      delete item.relationControls;
+      // 防止关联单挑等渲染出子集情况
+      if (item.relationControls) item.relationControls = [];
     }
   });
-  newDropDownData = newDropDownData.filter(item => !_.includes(filterControls, item.type));
-  return newDropDownData;
+  return controls.filter(item => !_.includes(filterControls, item.type));
+}
+
+//过滤隐藏的子表字段
+export function getNewDropDownData(dropDownData = [], actionType) {
+  const deepData = dropDownData.concat([]);
+  const newData = formatSectionData(deepData);
+  let filterData = filterDropDown(newData, actionType);
+  // 空标签页在以下情况下过滤，
+  if (_.includes([3, 4, 5], actionType)) {
+    filterData = filterData.filter(i => !(i.type === 52 && _.isEmpty(i.relationControls)));
+  }
+  // 必填过滤关联多条列表
+  if (_.includes([5], actionType)) {
+    filterData = filterData.filter(i => !isRelateRecordTableControl(i));
+  }
+  return filterData;
 }
 
 // 过滤不符合条件的已选字段
@@ -452,6 +484,7 @@ export const filterDataRelationText = (dynamicSource = [], columns, sourceContro
 };
 
 export const filterData = (columns = [], filterItem = [], isSetting, relationControls = [], sourceControlId = '') => {
+  columns = columns.concat(DEFAULT_COLUMNS);
   let dataList = [];
   filterItem.forEach((item, index) => {
     if (item.isGroup && item.groupFilters) {

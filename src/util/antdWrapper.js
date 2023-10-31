@@ -54,11 +54,7 @@ export function antAlert(msg, type = 1, timeout = 3000, callback, key) {
   message[func]({
     className: 'pcToast',
     icon: getIcon(func),
-    content: (
-      <span className="ellipsis" style={{ maxWidth: window.innerWidth * 0.5, display: 'inline-block' }}>
-        {msg.props ? msg : String(msg || '').replace(/(<([^>]+)>)/gi, '')}
-      </span>
-    ),
+    content: msg.props ? msg : String(msg || '').replace(/(<([^>]+)>)/gi, ''),
     duration: timeout / 1000,
     onClose: callback,
     key,

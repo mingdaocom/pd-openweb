@@ -4,12 +4,11 @@ import { bindActionCreators } from 'redux';
 import { Icon, WaterMark, LoadDiv } from 'ming-ui';
 import cx from 'classnames';
 import DocumentTitle from 'react-document-title';
-import { Flex, ActivityIndicator, WingBlank, Button, Tabs, Modal, ActionSheet, Toast } from 'antd-mobile';
+import { Flex, ActivityIndicator, WingBlank, Button, Modal, ActionSheet, Toast } from 'antd-mobile';
 import copy from 'copy-to-clipboard';
 import worksheetAjax from 'src/api/worksheet';
 import publicWorksheetApi from 'src/api/publicWorksheet';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
-import RelationList from 'mobile/RelationRow/RelationList';
 import RelationAction from 'mobile/RelationRow/RelationAction';
 import * as actions from 'mobile/RelationRow/redux/actions';
 import * as reacordActions from '../RecordList/redux/actions';
@@ -18,17 +17,29 @@ import CustomFields from 'src/components/newCustomFields';
 import SheetWorkflow from 'src/pages/workflow/components/SheetWorkflow';
 import { updateRulesData, checkRuleLocked } from 'src/components/newCustomFields/tools/filterFn';
 import { formatControlToServer, controlState } from 'src/components/newCustomFields/tools/utils';
+import { MobileRecordRecoverConfirm } from 'worksheet/common/newRecord/MobileNewRecord';
 import Back from '../components/Back';
-import { isRelateRecordTableControl, getSubListError, checkCellIsEmpty, filterHidedSubList } from 'worksheet/util';
+import {
+  isRelateRecordTableControl,
+  getSubListError,
+  checkCellIsEmpty,
+  getRecordTempValue,
+  saveTempRecordValueToLocal,
+  removeTempRecordValueFromLocal,
+  KVGet,
+  filterHidedSubList,
+} from 'worksheet/util';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import ChatCount from '../components/ChatCount';
+import CustomButtons from './RecordAction/CustomButtons';
 import './index.less';
 import externalPortalAjax from 'src/api/externalPortal';
 import { FORM_HIDDEN_CONTROL_IDS } from 'src/pages/widgetConfig/config/widget';
 import FormCover from 'src/pages/worksheet/common/recordInfo/RecordForm/FormCover.jsx';
 import { navigateTo } from 'src/router/navigateTo';
+import { commonControlsAddTab } from './utils';
 import _ from 'lodash';
 
 const formatParams = params => {
@@ -54,7 +65,10 @@ class Record extends Component {
       random: '',
       abnormal: null,
       originalData: null,
-      currentTab: {},
+      currentTab: {
+        name: _l('详情'),
+        index: 0,
+      },
       externalPortalConfig: {},
       approveCount: 0,
       btnDisable: {},
@@ -70,7 +84,13 @@ class Record extends Component {
   }
   componentDidMount() {
     this.loadRow();
-    if (this.props.getDataType !== 21 && !this.isSharePage) {
+    if (
+      this.props.getDataType !== 21 &&
+      !this.isSharePage &&
+      !_.get(window, 'shareState.isPublicForm') &&
+      !_.get(window, 'shareState.isPublicWorkflowRecord') &&
+      !_.get(window, 'shareState.isPublicPrint')
+    ) {
       this.loadCustomBtns();
       this.getPortalConfigSet();
       this.getApproveTodoList();
@@ -86,6 +106,8 @@ class Record extends Component {
     const { getDataType, from } = this.props;
     const baseIds = this.getBaseIds();
     const isPublicForm = _.get(window, 'shareState.isPublicForm') && window.shareState.shareId;
+    const isPublic = location.pathname.indexOf('public') > -1;
+
     const getRowByIdRequest = isPublicForm
       ? publicWorksheetApi.getRowDetail({
           rowId: baseIds.rowId,
@@ -98,6 +120,7 @@ class Record extends Component {
           ...baseIds,
           getType: getDataType ? getDataType : location.search.includes('share') || this.isSharePage ? 3 : 1,
           checkView: true,
+          getTemplate: isPublic ? true : false,
           ...(_.get(window, 'shareState.isPublicWorkflowRecord') && _.get(window, 'shareState.shareId')
             ? { shareId: _.get(window, 'shareState.shareId') }
             : {}),
@@ -111,9 +134,10 @@ class Record extends Component {
     });
     Promise.all([getRowByIdRequest, getWorksheetInfoRequest]).then(data => {
       const [rowResult, worksheetInfoResult] = data;
-      const controls = isPublicForm
-        ? _.get(rowResult, 'templateControls') || []
-        : _.get(worksheetInfoResult, 'template.controls') || [];
+      const controls =
+        isPublicForm || isPublic
+          ? _.get(rowResult, 'templateControls') || []
+          : _.get(worksheetInfoResult, 'template.controls') || [];
       const viewControls = _.get(rowResult, 'view.controls') || [];
       const rowData = safeParse(rowResult.rowData);
       let controlPermissions = safeParse(rowData.controlpermissions);
@@ -158,7 +182,7 @@ class Record extends Component {
         advancedSetting: worksheetInfoResult.advancedSetting,
         switchPermit: worksheetInfoResult.switches,
         formStyleImggeData,
-        rulesLocked: checkRuleLocked(worksheetInfoResult.rules, rowResult.receiveControls),
+        rulesLocked: checkRuleLocked(worksheetInfoResult.rules, rowResult.receiveControls, baseIds.rowId),
         childTableControlIds: !_.isEmpty(childTableControlIds) ? childTableControlIds : undefined,
       });
 
@@ -167,9 +191,61 @@ class Record extends Component {
       }
     });
   };
+  loadTempValue = updateTime => {
+    const { rowId, viewId } = this.getBaseIds();
+    const { sheetRow } = this.state;
+    const formData = sheetRow.receiveControls;
+    if (!viewId) return;
+    let tempData;
+    const handleFillValue = () => {
+      if (tempData && !this.formChanged) {
+        const savedData = safeParse(tempData);
+        if (_.isEmpty(savedData)) return;
+        const { create_at, value } = savedData;
+        const tempRecordCreateTime = new Date(create_at);
+        const recordUpdateTime = new Date(updateTime);
+        if (tempRecordCreateTime > recordUpdateTime) {
+          this.setState({
+            restoreVisible: tempRecordCreateTime,
+            sheetRow: {
+              ...sheetRow,
+              receiveControls: formData.map(c =>
+                value[c.controlId] && !_.includes([29, 34], c.type)
+                  ? {
+                      ...c,
+                      value:
+                        c.type === 34
+                          ? {
+                              rows: value[c.controlId],
+                            }
+                          : value[c.controlId],
+                    }
+                  : c,
+              ),
+            },
+            random: Date.now(),
+          });
+          setTimeout(() => {
+            this.customwidget.current.dataFormat.controlIds = formData
+              .filter(c => value[c.controlId] && !_.includes([29, 34], c.type))
+              .map(c => c.controlId);
+          }, 10);
+        }
+      }
+    };
+    const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
+    if (isWxWork) {
+      KVGet(`${md.global.Account.accountId}${viewId}-${rowId}-recordInfo`).then(data => {
+        tempData = data;
+        handleFillValue();
+      });
+    } else {
+      tempData = localStorage.getItem(`recordInfo_${viewId}-${rowId}`);
+      handleFillValue();
+    }
+  };
   loadCustomBtns = () => {
-    const isPublicForm = _.get(window, 'shareState.isPublicForm') && window.shareState.shareId;
-    if (isPublicForm) return;
+    if (location.pathname.indexOf('public') > -1) return;
     const baseIds = this.getBaseIds();
     worksheetAjax.getWorksheetBtns(baseIds).then(data => {
       this.setState({
@@ -189,6 +265,7 @@ class Record extends Component {
       });
   }
   handleSave = () => {
+    this.formChanged = false;
     this.setState({ submitLoading: true, tempFormData: [] });
     this.customwidget.current.submitFormData();
   };
@@ -267,6 +344,7 @@ class Record extends Component {
   };
   handleClose = () => {
     const { sheetRow, originalData } = this.state;
+    this.formChanged = false;
     this.setState({
       isEdit: false,
       random: Date.now(),
@@ -395,6 +473,7 @@ class Record extends Component {
       });
   };
   onSave = (error, { data, updateControlIds }) => {
+    const { allowEmptySubmit } = this.props;
     let hasError = false;
     const baseIds = this.getBaseIds();
     const { sheetRow, originalData } = this.state;
@@ -470,7 +549,7 @@ class Record extends Component {
       return;
     }
 
-    if (_.isEmpty(cells)) {
+    if (_.isEmpty(cells) && !allowEmptySubmit) {
       this.setState({
         isEdit: false,
         submitLoading: false,
@@ -575,15 +654,16 @@ class Record extends Component {
   };
   handleScroll = event => {
     const { rowId } = this.getBaseIds();
-    const { isModal, loadParams, updatePageIndex } = this.props;
+    const { isModal, loadParams, updatePageIndex, relationRow } = this.props;
     const { isEdit, currentTab } = this.state;
     const { clientHeight, scrollHeight, scrollTop, className } = event.target;
     const targetVlaue = scrollHeight - clientHeight - 30;
+    const isLoadMore = _.includes([29, 51], currentTab.type) ? relationRow.count : currentTab.value;
     const { loading, isMore, pageIndex } = loadParams;
     if (isEdit || !className.includes('recordScroll')) {
       return;
     }
-    if (targetVlaue <= scrollTop && currentTab.value && !loading && isMore) {
+    if (targetVlaue <= scrollTop && isLoadMore && !loading && isMore) {
       updatePageIndex(pageIndex + 1);
     }
     const wrapEl = document.querySelector(`.mobileSheetRowRecord-${rowId}`);
@@ -676,25 +756,53 @@ class Record extends Component {
 
   renderRecordBtns() {
     const { isSubList, editable, getDataType } = this.props;
-    const { isEdit, sheetRow, customBtns, advancedSetting, rules, rulesLocked, childTableControlIds, canSubmitDraft } =
-      this.state;
+    const {
+      isEdit,
+      sheetRow,
+      customBtns,
+      advancedSetting,
+      rules,
+      rulesLocked,
+      restoreVisible,
+      originalData,
+      childTableControlIds,
+      canSubmitDraft,
+    } = this.state;
     const baseIds = this.getBaseIds();
     const allowEdit = sheetRow.allowEdit || editable;
     const allowDelete = sheetRow.allowDelete || (isSubList && editable);
     const allowShare = !md.global.Account.isPortal;
-    let copyCustomBtns = _.cloneDeep(customBtns);
-    let showBtnsOut =
-      copyCustomBtns.length && copyCustomBtns.length >= 2
-        ? customBtns.slice(0, 2)
-        : copyCustomBtns.length
-        ? copyCustomBtns
-        : [];
 
     return (
       <div className="btnsWrapper">
         <div className="flexRow">
           {isEdit ? (
             <Fragment>
+              <MobileRecordRecoverConfirm
+                visible={!!restoreVisible}
+                title={
+                  restoreVisible
+                    ? _l('已恢复到上次中断内容（%0）', window.createTimeSpan(new Date(restoreVisible)))
+                    : _l('已恢复到上次中断内容')
+                }
+                updateText={_l('确认')}
+                cancelText={_l('清空')}
+                onUpdate={() => {
+                  removeTempRecordValueFromLocal('recordInfo', baseIds.viewId + '-' + baseIds.rowId);
+                  this.setState({ restoreVisible: false });
+                }}
+                onCancel={() => {
+                  removeTempRecordValueFromLocal('recordInfo', baseIds.viewId + '-' + baseIds.rowId);
+                  this.setState({
+                    restoreVisible: false,
+                    sheetRow: {
+                      ...sheetRow,
+                      receiveControls: originalData,
+                    },
+                    random: Date.now(),
+                  });
+                }}
+              />
               <WingBlank className="flex" size="sm">
                 <Button
                   className="Font13 bold Gray_75"
@@ -740,10 +848,12 @@ class Record extends Component {
                     disabled={rulesLocked}
                     className="Font13 edit letterSpacing"
                     onClick={() => {
-                      this.setState({ isEdit: true, random: Date.now() });
+                      this.setState({ isEdit: true, random: Date.now() }, () => {
+                        this.loadTempValue(sheetRow.updateTime);
+                      });
                     }}
                   >
-                    <Icon icon="edit" className="Font15 mRight7" />
+                    <Icon icon="edit" className="Font15 mRight6" />
                     <span>{_l('编辑')}</span>
                   </Button>
                 </WingBlank>
@@ -763,31 +873,17 @@ class Record extends Component {
                     </Button>
                   </WingBlank>
                 )}
-              {showBtnsOut.map(item => {
-                let disabled = (this.recordRef.current && this.state.btnDisable[item.btnId]) || item.disabled;
-                return (
-                  <WingBlank className="flex flexShink flexRow mLeft6 mRight6" size="sm" key={item.btnId}>
-                    <Button
-                      className={cx('Font13 flex', { disabled })}
-                      style={disabled ? {} : { backgroundColor: item.color, color: '#fff' }}
-                      onClick={() => {
-                        if (disabled) {
-                          return;
-                        }
-                        if (this.recordRef.current) {
-                          this.recordRef.current.handleTriggerCustomBtn(item);
-                        }
-                      }}
-                    >
-                      <Icon
-                        icon={item.icon || 'custom_actions'}
-                        className={cx('Font15 mRight7', { opcIcon: !item.icon && !disabled })}
-                      />
-                      <span>{item.name}</span>
-                    </Button>
-                  </WingBlank>
-                );
-              })}
+              <CustomButtons
+                classNames="flex flexShink flexRow ellipsis mLeft6 mRight6 justifyContentCenter"
+                customBtns={customBtns}
+                isSlice
+                btnDisable={this.state.btnDisable}
+                handleClick={btn => {
+                  if (this.recordRef.current) {
+                    this.recordRef.current.handleTriggerCustomBtn(btn);
+                  }
+                }}
+              />
               {(!getDataType || getDataType !== 21) &&
                 (allowDelete || allowShare) &&
                 !customBtns.length &&
@@ -830,11 +926,37 @@ class Record extends Component {
   };
   renderCustomFields() {
     const baseIds = this.getBaseIds();
-    const { getDataType, from } = this.props;
-    const { sheetRow, isEdit, random, rules, isWorksheetQuery, switchPermit, advancedSetting } = this.state;
+    const { getDataType, from, relationRow } = this.props;
+    const {
+      sheetRow,
+      isEdit,
+      random,
+      rules,
+      isWorksheetQuery,
+      switchPermit,
+      advancedSetting,
+      externalPortalConfig,
+      approveCount,
+      currentTab,
+    } = this.state;
+    const { roleType, projectId } = sheetRow;
+    const allowApprove =
+      isOpenPermit(permitList.approveDetailsSwitch, switchPermit, baseIds.viewId) &&
+      !this.isSharePage &&
+      getDataType !== 21 &&
+      !_.get(window, 'shareState.isPublicForm') &&
+      !_.get(window, 'shareState.isPublicWorkflowRecord') &&
+      (md.global.Account.isPortal ? externalPortalConfig.approved : true);
+    const isDing = window.navigator.userAgent.toLowerCase().includes('dingtalk');
 
     return (
-      <div className={cx('flex customFieldsWrapper', { edit: isEdit })} ref={con => (this.con = con)}>
+      <div
+        className={cx('flex customFieldsWrapper', {
+          edit: isEdit,
+          overflowHidden: !isEdit && _.includes([29, 51], currentTab.type) && !isDing,
+        })}
+        ref={con => (this.con = con)}
+      >
         <CustomFields
           projectId={sheetRow.projectId}
           appId={baseIds.appId || ''}
@@ -847,7 +969,7 @@ class Record extends Component {
             addRefreshEvents: (id, fn) => {
               this.refreshEvents[id] = fn;
             },
-            refreshRecord: this.loadRow
+            refreshRecord: this.loadRow,
           }}
           registerCell={({ item, cell }) => (this.cellObjs[item.controlId] = { item, cell })}
           isWorksheetQuery={isWorksheetQuery}
@@ -856,173 +978,86 @@ class Record extends Component {
           recordId={baseIds.rowId}
           worksheetId={baseIds.worksheetId}
           showError={false}
-          data={sheetRow.receiveControls.filter(item => {
-            const result = item.type === 29 && (item.advancedSetting || {}).showtype === '2';
-            return isEdit ? !result : item.type !== 43;
-          })}
+          data={commonControlsAddTab(
+            sheetRow.receiveControls.filter(item => {
+              return isEdit ? true : item.type !== 43;
+            }),
+            { rules, from: from || 6, showDetailTab: allowApprove && !isEdit },
+          )}
           sheetSwitchPermit={switchPermit}
           onSave={this.onSave}
           onChange={data => {
+            this.formChanged = true;
             this.setState({
               tempFormData: data,
             });
+            if (baseIds.viewId) {
+              const tempRecordValue = getRecordTempValue(data);
+              saveTempRecordValueToLocal(
+                'recordInfo',
+                baseIds.viewId + '-' + baseIds.rowId,
+                JSON.stringify({ create_at: Date.now(), value: tempRecordValue }),
+              );
+            }
           }}
           verifyAllControls={getDataType === 21}
           widgetStyle={advancedSetting}
           getChildTableControlIds={this.getChildTableControlIds}
+          tabControlProp={{
+            activeRelationTab:
+              currentTab.type === 29 ? { ...currentTab, value: relationRow.count || currentTab.value } : undefined,
+            otherTabs:
+              allowApprove && !isEdit
+                ? [
+                    {
+                      controlName: _l('审批') + (approveCount ? `(${approveCount})` : ''),
+                      controlId: 'approve',
+                      showTabLine: true,
+                      tabContentNode: (
+                        <div className="flexColumn h100" style={{ backgroundColor: '#f8f8f8' }}>
+                          <SheetWorkflow
+                            isCharge={roleType === 2}
+                            projectId={projectId}
+                            worksheetId={baseIds.worksheetId}
+                            recordId={baseIds.rowId}
+                          />
+                        </div>
+                      ),
+                    },
+                  ]
+                : [],
+            changeMobileTab: tab => this.setState({ currentTab: { id: tab.controlId, ...tab } }),
+          }}
         />
       </div>
     );
   }
   renderAction() {
-    const { currentTab, rulesLocked } = this.state;
-    if (currentTab.id) {
-      if (rulesLocked) {
-        return undefined;
-      }
-      return currentTab.id === 'approve' ? undefined : (
-        <RelationAction controlId={currentTab.id} getDataType={this.props.getDataType} />
-      );
-    } else {
-      return this.renderRecordBtns();
-    }
-  }
-  renderTabs(tabs, isRenderContent = true) {
     const { currentTab } = this.state;
-    const index = currentTab.id ? _.findIndex(tabs, { id: currentTab.id }) : 0;
-    return (
-      <Tabs
-        tabBarInactiveTextColor="#757575"
-        prerenderingSiblingsNumber={0}
-        destroyInactiveTab={true}
-        animated={false}
-        swipeable={false}
-        tabs={tabs}
-        page={index}
-        renderTab={tab =>
-          tab.value ? (
-            <Fragment>
-              <span className="tabName ellipsis mRight2">{tab.name}</span>
-              {_.get(tab, 'control.type') !== 51 && <span>{`(${tab.value})`}</span>}
-            </Fragment>
-          ) : (
-            <Fragment>
-              {tab.id === 'approve' && <i className="approveTabLine" />}
-              <span className={cx('tabName ellipsis', { approveTab: tab.id === 'approve' })}>{tab.name}</span>
-            </Fragment>
-          )
-        }
-        onChange={tab => {
-          this.setState({
-            currentTab: tab,
-          });
-          this.props.reset();
-        }}
-      >
-        {isRenderContent && this.renderTabContent}
-      </Tabs>
-    );
-  }
-  renderTabContent = tab => {
-    if (tab.id) {
-      const baseIds = this.getBaseIds();
-      if (tab.id === 'approve') {
-        const { roleType, projectId } = this.state.sheetRow;
-        return (
-          <div className="flexColumn h100" style={{ backgroundColor: '#f8f8f8' }}>
-            <SheetWorkflow
-              isCharge={roleType === 2}
-              projectId={projectId}
-              worksheetId={baseIds.worksheetId}
-              recordId={baseIds.rowId}
-            />
-          </div>
-        );
-      } else {
-        return (
-          <div className="flexColumn h100">
-            <RelationList
-              rowId={baseIds.rowId}
-              worksheetId={baseIds.worksheetId}
-              appId={baseIds.appId}
-              viewId={baseIds.viewId}
-              controlId={tab.id}
-              control={tab.control}
-              getType={this.props.getDataType}
-            />
-          </div>
-        );
-      }
-    } else {
-      return <div className="flexColumn h100">{this.renderCustomFields()}</div>;
+    const { id, type } = currentTab;
+    if (_.get(window, 'shareState.isPublicPrint') || id === 'approve' || type === 51) {
+      return undefined;
     }
-  };
+    if (type === 29) {
+      return <RelationAction controlId={id} getDataType={this.props.getDataType} />;
+    }
+    return this.renderRecordBtns();
+  }
+
   renderContent() {
     const baseIds = this.getBaseIds();
     const {
       sheetRow,
       isEdit,
       random,
-      currentTab,
-      rules,
-      approveCount,
+
       advancedSetting,
-      switchPermit,
       formStyleImggeData = [],
-      externalPortalConfig,
     } = this.state;
-    const { relationRow, isModal, onClose, getDataType } = this.props;
-    const viewHideControls = _.get(sheetRow, 'view.controls') || [];
+    const { isModal, onClose, getDataType } = this.props;
     const titleControl = _.find(this.formData || [], control => control.attribute === 1);
     const defaultTitle = _l('未命名');
     const recordTitle = titleControl ? renderCellText(titleControl) || defaultTitle : defaultTitle;
-    const allowApprove =
-      isOpenPermit(permitList.approveDetailsSwitch, switchPermit, baseIds.viewId) &&
-      !this.isSharePage &&
-      getDataType !== 21 &&
-      (md.global.Account.isPortal ? externalPortalConfig.approved : true);
-    const recordMuster = _.sortBy(
-      updateRulesData({ rules: rules, data: sheetRow.receiveControls }).filter(
-        control =>
-          isRelateRecordTableControl(control) &&
-          controlState(control, 6).visible &&
-          !viewHideControls.includes(control.controlId),
-      ),
-      'row',
-    );
-    const tabs = [
-      {
-        name: _l('详情'),
-        index: 0,
-      },
-    ]
-      .concat(
-        recordMuster.map((item, index) => {
-          const isCurrentTab = currentTab.id === item.controlId;
-          const value = Number(item.value);
-          const newValue = isCurrentTab ? relationRow.count : value;
-          if (isCurrentTab) {
-            item.value = newValue;
-          }
-          return {
-            id: item.controlId,
-            name: item.controlName,
-            value: newValue,
-            index: index + 1,
-            control: item,
-          };
-        }),
-      )
-      .concat(
-        allowApprove
-          ? {
-              name: _l('审批') + (approveCount ? `(${approveCount})` : ''),
-              index: 1 + recordMuster.length + 1,
-              id: 'approve',
-            }
-          : undefined,
-      )
-      .filter(_ => _);
 
     return (
       <Fragment>
@@ -1086,17 +1121,8 @@ class Record extends Component {
               <div className="title">{recordTitle}</div>
             </div>
           )}
-          {recordMuster.length || allowApprove ? (
-            <div className={cx('recordViewTabs tabsWrapper flex', { edit: isEdit })}>{this.renderTabs(tabs)}</div>
-          ) : (
-            <div className="flexColumn flex">{this.renderCustomFields()}</div>
-          )}
+          <div className="flexColumn flex">{this.renderCustomFields()}</div>
         </div>
-        {(!_.isEmpty(recordMuster) || allowApprove) && !isEdit && (
-          <div className={cx('fixedTabs recordViewTabs Fixed w100 hide', { top: isModal })}>
-            {this.renderTabs(tabs, false)}
-          </div>
-        )}
         {(!this.isSharePage || this.props.hideOtherOperate) && this.renderAction()}
       </Fragment>
     );
@@ -1142,7 +1168,7 @@ class Record extends Component {
     const { isPortal } = md.global.Account;
 
     const content = (
-      <div className={cx('mobileSheetRowRecord flexColumn h100', `mobileSheetRowRecord-${rowId}`)}>
+      <div className={cx('mobileSheetRowRecord flexColumn h100 overflowHidden', `mobileSheetRowRecord-${rowId}`)}>
         {submitLoading && (
           <div className="loadingMask">
             <LoadDiv />

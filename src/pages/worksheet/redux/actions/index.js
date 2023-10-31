@@ -16,15 +16,16 @@ import { resetLoadGunterView, addNewRecord as addGunterNewRecord } from './gunte
 import { initBoardViewData } from './boardView';
 import { getDefaultHierarchyData, updateHierarchySearchRecord } from './hierarchy';
 import { updateGunterSearchRecord } from './gunterview';
+import { refresh as detailViewRefresh } from './detailView';
 import { refreshBtnData } from 'src/pages/FormSet/util';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
+import { getFilledRequestParams } from 'src/pages/worksheet/util';
 import _ from 'lodash';
 
 export const updateBase = base => {
   return (dispatch, getState) => {
-    dispatch(loadCustomButtons({ worksheetId: base.worksheetId }));
     dispatch({
       type: 'WORKSHEET_UPDATE_BASE',
       base: Object.assign({}, base, {
@@ -108,9 +109,9 @@ export function loadWorksheet(worksheetId) {
               !chartId
                 ? res
                 : {
-                    ...res,
-                    views: res.views.map(v => ({ ...v, viewType: 0 })),
-                  },
+                  ...res,
+                  views: res.views.map(v => ({ ...v, viewType: 0 })),
+                },
               {
                 isRequestingRelationControls: res.requestAgain,
               },
@@ -226,7 +227,7 @@ export const updateView = view => ({
 export function saveView(viewId, newConfig, cb) {
   return (dispatch, getState) => {
     const sheet = getState().sheet;
-    const { base, views } = sheet;
+    const { base, views, navGroupFilters } = sheet;
     const view = _.find(views, v => v.viewId === viewId);
     const saveParams = { ...newConfig };
     const editAttrs = Object.keys(saveParams);
@@ -237,7 +238,9 @@ export function saveView(viewId, newConfig, cb) {
     // 筛选需要在保存成功后再触发界面更新
     const updateAfterSave =
       _.some(['filters', 'moreSort', 'viewControl', 'fastFilters'].map(k => editAttrs.includes(k))) ||
-      (editAttrs.includes('advancedSetting') && !!_.get(saveParams, ['advancedSetting', 'navfilters']));
+      (editAttrs.includes('advancedSetting') &&
+        (!!_.get(saveParams, ['advancedSetting', 'navfilters']) ||
+          !!_.get(saveParams, ['advancedSetting', 'colorid'])));
     if (!updateAfterSave) {
       dispatch({
         type: 'WORKSHEET_UPDATE_VIEW',
@@ -262,6 +265,16 @@ export function saveView(viewId, newConfig, cb) {
           },
           { ...view, ...newConfig },
         );
+        if (
+          _.get(newConfig, 'advancedSetting.shownullitem') !== _.get(view, 'advancedSetting.shownullitem') &&
+          _.get(newConfig, 'advancedSetting.shownullitem') === '' &&
+          navGroupFilters &&
+          navGroupFilters.length > 0
+        ) {
+          if (navGroupFilters[0].values.length <= 0) {
+            dispatch(updateGroupFilter([]));
+          }
+        }
         if (editAttrs.includes('navGroup')) {
           dispatch(updateGroupFilter([], nextView));
           dispatch(getNavGroupCount());
@@ -271,7 +284,10 @@ export function saveView(viewId, newConfig, cb) {
             type: 'WORKSHEET_UPDATE_VIEW',
             view: nextView,
           });
-          if (_.includes(editAttrs, 'filters') && !_.isEqual(view.filters, nextView.filters)) {
+          if (
+            (_.includes(editAttrs, 'filters') && !_.isEqual(view.filters, nextView.filters)) ||
+            _.get(view, 'advancedSetting.colorid') !== _.get(nextView, 'advancedSetting.colorid')
+          ) {
             dispatch(refreshSheet(nextView));
           }
         }
@@ -300,6 +316,8 @@ export function refreshSheet(view, options) {
       dispatch(galleryViewRefresh());
     } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.gunter) {
       dispatch(resetLoadGunterView());
+    } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.detail) {
+      dispatch(detailViewRefresh());
     }
   };
 }
@@ -320,6 +338,8 @@ export function addNewRecord(data, view) {
       dispatch(getNavGroupCount());
     } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.gunter) {
       dispatch(addGunterNewRecord(data));
+    } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.detail) {
+      dispatch(detailViewRefresh());
     }
   };
 }
@@ -329,7 +349,7 @@ export function openNewRecord() {
   return (dispatch, getState) => {
     const { base, views, worksheetInfo, navGroupFilters, sheetSwitchPermit, isCharge, draftDataCount, appPkgData } =
       getState().sheet;
-    const { appId, viewId, worksheetId } = base;
+    const { appId, viewId, groupId, worksheetId } = base;
     const view = _.find(views, { viewId }) || (!viewId && views[0]) || {};
     const { advancedSetting = {} } = view;
     let { usenav } = advancedSetting;
@@ -346,6 +366,7 @@ export function openNewRecord() {
         viewId,
         worksheetId,
         worksheetInfo,
+        groupId,
         projectId: worksheetInfo.projectId,
         needCache: true,
         addType: 1,
@@ -482,7 +503,7 @@ export function updateGroupFilter(navGroupFilters = [], view) {
     });
   };
 }
-
+let getNavGroupRequest = null;
 // 获取分组筛选的count
 export function getNavGroupCount() {
   return (dispatch, getState) => {
@@ -490,11 +511,14 @@ export function getNavGroupCount() {
     const { filters = {}, base = {}, quickFilter = {} } = sheet;
     const { worksheetId, viewId } = base;
     const { filterControls, filtersGroup, keyWords, searchType } = filters;
+    if (getNavGroupRequest && getNavGroupRequest.state() === 'pending' && getNavGroupRequest.abort) {
+      getNavGroupRequest.abort();
+    }
     if (!worksheetId && !viewId) {
       return;
     }
-    worksheetAjax
-      .getNavGroup({
+    getNavGroupRequest = worksheetAjax.getNavGroup(
+      getFilledRequestParams({
         worksheetId,
         viewId,
         filterControls,
@@ -514,13 +538,15 @@ export function getNavGroupCount() {
           ]),
         ),
         keyWords,
-      })
-      .then(data => {
-        dispatch({
-          type: 'WORKSHEET_NAVGROUP_COUNT',
-          data,
-        });
+      }),
+    );
+
+    getNavGroupRequest.then(data => {
+      dispatch({
+        type: 'WORKSHEET_NAVGROUP_COUNT',
+        data,
       });
+    });
   };
 }
 
@@ -596,20 +622,20 @@ export function initMobileGunter({ appId, worksheetId, viewId, access_token }) {
 // 获取草稿箱数据
 export const loadDraftDataCount =
   ({ appId, worksheetId }) =>
-  (dispatch, getState) => {
-    if (_.get(window, 'shareState.isPublicView')) {
-      return;
-    }
-    worksheetAjax
-      .getFilterRowsTotalNum({
-        appId,
-        worksheetId,
-        getType: 21,
-      })
-      .then(res => {
-        dispatch({
-          type: 'UPDATE_DRAFT_DATA_COUNT',
-          data: Number(res) || 0,
+    (dispatch, getState) => {
+      if (_.get(window, 'shareState.isPublicView')) {
+        return;
+      }
+      worksheetAjax
+        .getFilterRowsTotalNum({
+          appId,
+          worksheetId,
+          getType: 21,
+        })
+        .then(res => {
+          dispatch({
+            type: 'UPDATE_DRAFT_DATA_COUNT',
+            data: Number(res) || 0,
+          });
         });
-      });
-  };
+    };

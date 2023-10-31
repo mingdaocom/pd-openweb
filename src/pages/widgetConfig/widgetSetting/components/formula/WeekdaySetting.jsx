@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Checkbox, ClickAway } from 'ming-ui';
+import { Tooltip } from 'antd';
 import { SettingItem } from '../../../styled';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../util/setting';
 import PointerConfig from '../PointerConfig';
+import PreSuffix from '../PreSuffix';
 import styled from 'styled-components';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -50,7 +52,7 @@ const WEEKDAY_TYPE = [
 
 export default function WeekdaySetting({ data, onChange }) {
   const { unit } = data;
-  const { weekday = '' } = getAdvanceSetting(data);
+  const { weekday = '', autocarry = '0' } = getAdvanceSetting(data);
   const [visible, setVisible] = useState(false);
   const weekdayArr = weekday.split('');
 
@@ -109,14 +111,45 @@ export default function WeekdaySetting({ data, onChange }) {
 
   return (
     <SettingItem>
+      <div className="settingItemTitle">{_l('设置')}</div>
+      {!_.includes(['5'], unit) && (
+        <div className="labelWrap">
+          <Checkbox
+            size="small"
+            checked={autocarry === '1'}
+            onClick={checked => {
+              onChange(
+                handleAdvancedSettingChange(data, {
+                  autocarry: checked ? '0' : '1',
+                  ...(!checked ? { prefix: '', suffix: '' } : {}),
+                }),
+              );
+            }}
+          >
+            <span style={{ marginRight: '6px' }}>{_l('自动进位')}</span>
+            <Tooltip
+              popupPlacement="bottom"
+              title={
+                <span>{_l('超过12个月/24小时/60分钟的部分，分别进位为年/天/小时。如 90分钟 呈现为 1小时30分钟')}</span>
+              }
+            >
+              <i className="icon-help Gray_bd Font16 pointer"></i>
+            </Tooltip>
+          </Checkbox>
+        </div>
+      )}
       {pointerStr.indexOf(unit) > -1 && (
         <PointerConfig
           data={data}
           onChange={value => {
-            if (value.advanceSetting) {
+            if (value.advancedSetting) {
               onChange(value);
             } else {
-              onChange({ ...handleAdvancedSettingChange(data, value), ...value });
+              let newVal = value || {};
+              if (!Number(value.dot)) {
+                newVal.dotformat = '0';
+              }
+              onChange({ ...handleAdvancedSettingChange(data, newVal), ...value });
             }
           }}
         />
@@ -138,6 +171,12 @@ export default function WeekdaySetting({ data, onChange }) {
             </div>
           )}
         </div>
+      )}
+      {_.includes(['3', '4', '5'], unit) && autocarry !== '1' && (
+        <SettingItem>
+          <div className="settingItemTitle">{_l('单位')}</div>
+          <PreSuffix data={data} onChange={onChange} />
+        </SettingItem>
       )}
     </SettingItem>
   );

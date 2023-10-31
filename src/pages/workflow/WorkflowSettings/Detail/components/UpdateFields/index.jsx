@@ -7,9 +7,11 @@ import _ from 'lodash';
 export default class UpdateFields extends Component {
   static defaultProps = {
     type: 1, // 1：更新字段 2：更新参数
+    isBatch: false,
     isSubProcessNode: false,
     companyId: '',
     processId: '',
+    relationId: '',
     selectNodeId: '',
     nodeId: '',
     controls: [],
@@ -98,7 +100,7 @@ export default class UpdateFields extends Component {
    * 渲染操作类型
    */
   renderOperatorType(item, i) {
-    const { type } = this.props;
+    const { type, isBatch } = this.props;
     const TYPES = [
       { text: _l('设为'), value: 0 },
       { text: _l('增加'), value: 1 },
@@ -114,7 +116,8 @@ export default class UpdateFields extends Component {
     if (
       item.fieldId &&
       (_.includes([6, 8, 9, 10, 11, 14, 26, 27], item.type) || (item.type === 29 && item.enumDefault === 2)) &&
-      type === 1
+      type === 1 &&
+      !isBatch
     ) {
       return (
         <Dropdown
@@ -150,12 +153,14 @@ export default class UpdateFields extends Component {
       formulaMap,
       updateSource,
       companyId,
+      relationId,
       processId,
       selectNodeId,
       type,
       nodeId,
       isSubProcessNode,
       showCurrent,
+      isBatch,
     } = this.props;
     const relationList = controls
       .filter(v => v.type === 29)
@@ -216,8 +221,10 @@ export default class UpdateFields extends Component {
                 <SingleControlValue
                   showClear
                   showCurrent={showCurrent}
+                  isBatch={isBatch}
                   companyId={companyId}
                   processId={processId}
+                  relationId={relationId}
                   selectNodeId={selectNodeId}
                   sourceNodeId={nodeId}
                   controls={controls}

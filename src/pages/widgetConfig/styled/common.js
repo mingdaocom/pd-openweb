@@ -29,6 +29,7 @@ export const DropdownOverlay = styled.div`
   border-radius: 3px;
   box-shadow: 0px 4px 16px 0px rgba(0, 0, 0, 0.24);
   padding: 6px 0;
+  max-width: 310px;
   .searchWrap {
     display: flex;
     align-items: center;
@@ -79,6 +80,15 @@ export const DropdownOverlay = styled.div`
           color: #ffffff;
           i {
             color: #ffffff;
+          }
+        }
+      }
+      &.delete {
+        &:not(disabled):hover {
+          background-color: rgba(251, 0, 56, 0.08);
+          color: #fb0038;
+          i {
+            color: #fb0038;
           }
         }
       }

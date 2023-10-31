@@ -5,7 +5,18 @@ import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 
 export default function RecordInfoRight(props) {
-  const { className, recordbase, workflow, approval, sheetSwitchPermit, onFold, projectId, formFlag, formdata } = props;
+  const {
+    className,
+    recordbase,
+    workflow,
+    approval,
+    isOpenNewAddedRecord,
+    sheetSwitchPermit,
+    onFold,
+    projectId,
+    formFlag,
+    formdata,
+  } = props;
   const { isSubList, appId, viewId, appSectionId, worksheetId, recordId, recordTitle } = recordbase;
   let hiddenTabs = [];
   const noApproved =
@@ -57,6 +68,7 @@ export default function RecordInfoRight(props) {
   return (
     <div className={`recordInfoInfo ${className || ''}`}>
       <DiscussLogFile
+        isOpenNewAddedRecord={isOpenNewAddedRecord}
         workflow={workflow}
         approval={approval}
         hiddenTabs={hiddenTabs}
@@ -81,6 +93,7 @@ export default function RecordInfoRight(props) {
 }
 
 RecordInfoRight.propTypes = {
+  isOpenNewAddedRecord: PropTypes.bool,
   className: PropTypes.string,
   workflow: PropTypes.element,
   approval: PropTypes.element,

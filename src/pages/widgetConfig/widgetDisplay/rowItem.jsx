@@ -6,6 +6,7 @@ import { useDrop } from 'react-dnd-latest';
 import DisplayItem from './displayItem';
 import { DRAG_ITEMS, DRAG_MODE } from '../config/Drag';
 import { isFullLineDragItem } from '../util/drag';
+import { relateOrSectionTab } from '../util';
 import { isFullLineControl } from '../util/widgets';
 
 const DisplayRowWrap = styled.div`
@@ -15,17 +16,24 @@ const DisplayRowWrap = styled.div`
   margin: 0;
 `;
 
-export default function RowItem({ row, index, displayItemType, ...rest }) {
+export default function RowItem({ row, sectionId, index, ...rest }) {
   const [pointerDir, setPointerDir] = useState('');
   const $ref = useRef(null);
   const [{ isOver }, drop] = useDrop({
-    accept:
-      displayItemType === 'relate' ? [DRAG_ITEMS.DISPLAY_ITEM_RELATE] : [DRAG_ITEMS.LIST_ITEM, DRAG_ITEMS.DISPLAY_ITEM],
-    canDrop(item, monitor) {
+    accept: [DRAG_ITEMS.LIST_ITEM, DRAG_ITEMS.DISPLAY_ITEM],
+    canDrop(item) {
       const { path } = item;
       // 同一行的不能拖拽
       if (!isEmpty(path) && head(path) === index) return false;
-
+      // 标签页内不允子表、标签页、多条列表等拖拽
+      if (
+        sectionId &&
+        (_.includes(['SUB_LIST', 'SECTION', 'RELATION_SEARCH'], item.enumType) ||
+          relateOrSectionTab(item.data) ||
+          _.get(item, 'data.type') === 34)
+      ) {
+        return false;
+      }
       return true;
     },
     hover(item, monitor) {
@@ -53,7 +61,6 @@ export default function RowItem({ row, index, displayItemType, ...rest }) {
     drop(item, monitor) {
       if (monitor.isOver({ shallow: true })) {
         if (!pointerDir) return;
-        const sectionId = get(head(row), 'type') === 52 ? get(head(row), 'controlId') : get(head(row), 'sectionId');
         if (pointerDir === 'right') {
           return { mode: DRAG_MODE.INSERT_TO_ROW_END, rowIndex: index, sectionId };
         }
@@ -65,20 +72,13 @@ export default function RowItem({ row, index, displayItemType, ...rest }) {
       return { isOver: monitor.canDrop() && monitor.isOver({ shallow: true }) };
     },
   });
+
   drop($ref);
   return (
-    <div ref={$ref} className={'displayRow'}>
+    <div ref={$ref} className="displayRow">
       <DisplayRowWrap>
         {row.map((data, columnIndex) => {
-          return (
-            <DisplayItem
-              key={`${displayItemType}-${data.controlId}`}
-              data={data}
-              path={[index, columnIndex]}
-              displayItemType={displayItemType}
-              {...rest}
-            />
-          );
+          return <DisplayItem key={data.controlId} data={data} path={[index, columnIndex]} {...rest} />;
         })}
       </DisplayRowWrap>
       {isOver && pointerDir && <div className={cx('insertPointer', pointerDir)}></div>}

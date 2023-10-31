@@ -10,6 +10,7 @@ import './index.less';
 import { generate } from '@ant-design/colors';
 import _ from 'lodash';
 import IconTabs from './IconTabs';
+import { getThemeColors } from 'src/util';
 
 const DEFAULT_COLOR = '#2196f3';
 
@@ -28,7 +29,7 @@ class SelectIcon extends Component {
     index: number,
     // 选颜色的标题
     pickColorTitle: string,
-    colorList: arrayOf(string),
+    // colorList: arrayOf(string),
     onChange: func,
     onModify: func,
     onClose: func,
@@ -40,7 +41,7 @@ class SelectIcon extends Component {
     index: 0,
     pickColorTitle: _l('默认图标'),
     icon: 'custom_style',
-    colorList: COLORS,
+    // colorList: COLORS,
     onChange: _.noop,
     onModify: _.noop,
     onClose: _.noop,
@@ -48,11 +49,12 @@ class SelectIcon extends Component {
 
   constructor(props) {
     super(props);
-    const { icon, iconColor, navColor, colorList, index } = props;
+    const { icon, projectId, iconColor, navColor, index } = props;
+    const colorList = getThemeColors(projectId);
     this.$nameRef = createRef();
     this.state = {
       icon: icon,
-      iconColor: iconColor || colorList[index % colorList.length] ,
+      iconColor: iconColor || colorList[index % colorList.length],
       navColor,
       customColors: (localStorage.getItem('customColors') || '').split(',').filter(_ => _),
       addColorDialogVisible: false,
@@ -212,15 +214,15 @@ class SelectIcon extends Component {
   }
   render() {
     const {
+      projectId,
       className,
       style = {},
-      colorList,
       name,
       hideInput,
       hideColor,
       onClearIcon,
     } = this.props;
-
+    const colorList = getThemeColors(projectId);
     const { iconColor, navColor } = this.state;
 
     return (
@@ -251,7 +253,7 @@ class SelectIcon extends Component {
                 <div className="bold">{_l('主题色')}</div>
                 <ul className="colorsWrap">
                   {colorList.map((item, index) => (
-                    <Tooltip key={item} title={COLORS_TEST[index]} color="#000" placement="bottom">
+                    <Tooltip key={item} color="#000" placement="bottom">
                       <li
                         className={cx({ isCurrentColor: item.toLocaleUpperCase() === iconColor.toLocaleUpperCase() })}
                         style={{ backgroundColor: item }}

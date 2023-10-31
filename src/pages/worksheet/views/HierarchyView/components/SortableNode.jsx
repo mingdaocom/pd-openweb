@@ -9,6 +9,7 @@ import { getPosition } from '../util';
 import SVG from 'svg.js';
 import DraggableRecord from './DraggableRecord';
 import { browserIsMobile, addBehaviorLog } from 'src/util';
+import { handleRecordClick } from 'worksheet/util';
 
 const isMobile = browserIsMobile();
 
@@ -180,6 +181,7 @@ export default class SortableRecordItem extends Component {
       hideHierarchyRecord,
       sheetSwitchPermit,
       view = {},
+      treeData,
       worksheetInfo,
       isStraightLine,
     } = this.props;
@@ -212,10 +214,12 @@ export default class SortableRecordItem extends Component {
               updateHierarchyData({ path, pathId, recordId: rowId, value, relateSheet })
             }
             onClick={() => {
-              this.handleRecordVisible(rowId);
-              if (location.pathname.indexOf('public') === -1) {
-                addBehaviorLog('worksheetRecord', worksheetInfo.worksheetId, { rowId }); // 埋点
-              }
+              handleRecordClick(view, treeData[rowId], () => {
+                this.handleRecordVisible(rowId);
+                if (location.pathname.indexOf('public') === -1) {
+                  addBehaviorLog('worksheetRecord', worksheetInfo.worksheetId, { rowId }); // 埋点
+                }
+              });
             }}
           />
         </div>

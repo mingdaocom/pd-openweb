@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import preall from 'src/common/preall';
-import PayHeader from 'src/components/commonHeader/PayHeader';
+import PayHeader from '../payHeader';
 import styled from 'styled-components';
 
 const PayFailedWrap = styled.div`

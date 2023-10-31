@@ -537,7 +537,7 @@ export default class Ding extends React.Component {
     if (featureType === '2') {
       return (
         <div className="orgManagementWrap">
-          {buriedUpgradeVersionDialog(Config.projectId, VersionProductType.dingIntergration, 'content')}
+          {buriedUpgradeVersionDialog(Config.projectId, VersionProductType.dingIntergration, { dialogType: 'content' })}
         </div>
       );
     }

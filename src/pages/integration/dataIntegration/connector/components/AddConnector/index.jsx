@@ -225,6 +225,19 @@ export default function AddConnector(props) {
       return false;
     }
 
+    //目的地是工作表-选择已有，未设置识别重复数据字段
+    // if (
+    //   submitData.filter(
+    //     item =>
+    //       _.get(item, ['destNode', 'config', 'dsType']) === DATABASE_TYPE.APPLICATION_WORKSHEET &&
+    //       !_.get(item, ['destNode', 'config', 'createTable']) &&
+    //       !_.get(item, ['destNode', 'config', 'fieldForIdentifyDuplicate']),
+    //   ).length > 0
+    // ) {
+    //   alert(_l('未设置重复数据识别方式'), 2);
+    //   return false;
+    // }
+
     //是否有勾选
     let hasCheck = true;
     //字段信息是否填写完整

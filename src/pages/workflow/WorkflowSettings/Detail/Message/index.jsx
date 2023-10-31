@@ -15,6 +15,7 @@ import {
   TestParameter,
 } from '../components';
 import styled from 'styled-components';
+import { handleGlobalVariableName } from '../../utils';
 
 const TagBox = styled.div`
   padding: 0 7px;
@@ -356,7 +357,9 @@ export default class Message extends Component {
   renderTemplateList() {
     const { data, keywords } = this.state;
     const templates = data.templates.filter(
-      item => item.companySignature.indexOf(keywords) > -1 || item.messageContent.indexOf(keywords) > -1,
+      item =>
+        item.companySignature.toLocaleLowerCase().indexOf(keywords.toLocaleLowerCase()) > -1 ||
+        item.messageContent.toLocaleLowerCase().indexOf(keywords.toLocaleLowerCase()) > -1,
     );
 
     return (
@@ -538,7 +541,9 @@ export default class Message extends Component {
         </div>
         <CustomTextarea
           className="minH100"
+          projectId={this.props.companyId}
           processId={this.props.processId}
+          relationId={this.props.relationId}
           selectNodeId={this.props.selectNodeId}
           type={2}
           content={messageContent}
@@ -731,7 +736,7 @@ export default class Message extends Component {
                   flowNodeType={nodeObj.type}
                   appType={nodeObj.appType}
                   actionId={nodeObj.actionId}
-                  nodeName={nodeObj.name}
+                  nodeName={handleGlobalVariableName(ids[0], controlObj.sourceType, nodeObj.name)}
                   controlName={controlObj.name}
                   onClick={() => this.insertFields(tag)}
                 />

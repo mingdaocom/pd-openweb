@@ -8,6 +8,7 @@ import _ from 'lodash';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { SYS_CONTROLS_WORKFLOW } from 'src/pages/widgetConfig/config/widget.js';
+import { getRecordColor, getRecordColorConfig } from 'worksheet/util';
 
 const defaultColor = '#C9E6FC';
 export const eventStr = {
@@ -100,6 +101,21 @@ export const setDataFormat = pram => {
   let titleControls = getTitleControls(worksheetControls);
   //无选项且无默认值，才用默认颜色
   let stringColor = getStringColor(calendarData, data, currentView, worksheetControls);
+  const recordColorConfig = getRecordColorConfig(currentView);
+  let recordColor =
+    recordColorConfig &&
+    getRecordColor({
+      controlId: recordColorConfig.controlId,
+      colorItems: recordColorConfig.colorItems,
+      controls: worksheetControls,
+      row: data,
+    });
+  if (recordColor) {
+    recordColor = {
+      ...recordColorConfig,
+      ...recordColor,
+    };
+  }
   let list = [];
   calendarInfo.map(o => {
     let editable = controlState(o.startData).editable;
@@ -115,6 +131,7 @@ export const setDataFormat = pram => {
         extendedProps: {
           ...data,
           editable,
+          recordColor,
           stringColor,
         },
         title:
@@ -151,6 +168,21 @@ export const setDataFormatByRowId = pram => {
 
   //无选项且无默认值，才用默认颜色
   let stringColor = getStringColor(calendarData, data, currentView, worksheetControls);
+  const recordColorConfig = getRecordColorConfig(currentView);
+  let recordColor =
+    recordColorConfig &&
+    getRecordColor({
+      controlId: recordColorConfig.controlId,
+      colorItems: recordColorConfig.colorItems,
+      controls: worksheetControls,
+      row: data,
+    });
+  if (recordColor) {
+    recordColor = {
+      ...recordColorConfig,
+      ...recordColor,
+    };
+  }
   let timeList = [];
   calendarInfo.map(o => {
     let start = getStart(data, o);
@@ -170,6 +202,7 @@ export const setDataFormatByRowId = pram => {
       extendedProps: {
         ...data,
         stringColor,
+        recordColor,
       },
       title:
         renderCellText({

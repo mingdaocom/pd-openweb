@@ -3,8 +3,9 @@ import { useSetState } from 'react-use';
 import { Input } from 'ming-ui';
 import FieldMappingList from 'src/pages/integration/dataIntegration/components/FieldsMappingList';
 import { DATABASE_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
-import { mdJoinPkData } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config.js';
+import { mdUniquePkData } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config.js';
 import _ from 'lodash';
+import { hsMorePkControl } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/util.js';
 
 export default function DestEdit(props) {
   const { onChangeInfo, list, state, flowData } = props;
@@ -26,9 +27,9 @@ export default function DestEdit(props) {
   }, [props]);
 
   const formatData = () => {
-    const hsMorePkData = (_.get(preNode, 'nodeConfig.fields') || []).filter(o => o.isPk).length > 1;
+    const hsMorePkData = hsMorePkControl(preNode);
     let fields = (_.get(preNode, 'nodeConfig.fields') || []).filter(o => o.isCheck);
-    fields = hsMorePkData ? [mdJoinPkData, ...fields] : fields;
+    fields = hsMorePkData ? [mdUniquePkData, ...fields] : fields;
     let mapData = getMapData();
     setState({
       preFields: fields,
@@ -39,24 +40,25 @@ export default function DestEdit(props) {
     const { list } = props;
     const { node = {}, isSetDefaultMap } = props.state;
     const preNode = list.filter(o => o.pathIds.length > 0 && o.pathIds[0].toDt.nodeId === node.nodeId)[0];
-    const hsMorePkData = (_.get(preNode, 'nodeConfig.fields') || []).filter(o => o.isPk).length > 1;
+    const hsMorePkData = hsMorePkControl(preNode);
     let fieldsMapping = _.get(node, ['nodeConfig', 'config', 'fieldsMapping']) || [];
-    if (hsMorePkData && !fieldsMapping.find(o => !!o.sourceField.isJoinPk)) {
-      //上一节点存在多主键，且映射不存在生成 mdJoinPkData 则补充映射
-      fieldsMapping = [{ sourceField: mdJoinPkData, destField: null }, ...fieldsMapping];
+    if (hsMorePkData && !fieldsMapping.find(o => !!o.sourceField.isUniquePk)) {
+      //上一节点存在多主键，且映射不存在生成 mdUniquePkData 则补充映射
+      fieldsMapping = [{ sourceField: mdUniquePkData, destField: null }, ...fieldsMapping];
     }
     if (isSetDefaultMap) {
       return fieldsMapping;
     }
-    let sourceControlIds = [];
-
+    let sourceControls = [];
     let fields = (_.get(preNode, 'nodeConfig.fields') || []).filter(o => o.isCheck);
-    fields = hsMorePkData ? [mdJoinPkData, ...fields] : fields;
-    const ids = fields.map(it => it.id);
+    fields = hsMorePkData ? [mdUniquePkData, ...fields] : fields;
     fieldsMapping = fieldsMapping.map(o => {
       //isDelete用作目的地映射的源字段删除显示
-      sourceControlIds.push(o.sourceField.id);
-      if (!ids.includes(_.get(o, 'sourceField.id'))) {
+      sourceControls.push(o.sourceField);
+      let sourceInfo = fields.find(
+        it => !!it.isPk === !!_.get(o, 'sourceField.isPk') && it.id === _.get(o, 'sourceField.id'),
+      );
+      if (!sourceInfo) {
         return {
           ...o,
           sourceField: {
@@ -68,15 +70,14 @@ export default function DestEdit(props) {
         return {
           ...o,
           sourceField: {
-            ...o.sourceField,
-            alias: (fields.find(it => it.id === o.sourceField.id) || {}).alias || o.sourceField.alias,
+            ...sourceInfo,
             isDelete: false,
           },
         };
       }
     });
     fields.map(o => {
-      if (!sourceControlIds.includes(o.id)) {
+      if (!sourceControls.find(it => !!it.isPk === !!_.get(o, 'isPk') && it.id === _.get(o, 'id'))) {
         fieldsMapping.push({ sourceField: o, destField: null });
       }
     });

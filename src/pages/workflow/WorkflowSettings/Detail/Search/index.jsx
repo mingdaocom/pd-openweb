@@ -51,6 +51,7 @@ export default class Search extends Component {
    */
   getNodeDetail(props, obj = {}) {
     const { processId, selectNodeId, selectNodeType } = props;
+    const { data } = this.state;
 
     flowNode
       .getNodeDetail({
@@ -67,7 +68,7 @@ export default class Search extends Component {
           result.findFields = [];
         }
 
-        this.setState({ data: result, cacheKey: +new Date() });
+        this.setState({ data: _.isEmpty(obj) ? result : { ...result, name: data.name }, cacheKey: +new Date() });
       });
   }
 
@@ -237,6 +238,7 @@ export default class Search extends Component {
             <SingleControlValue
               companyId={this.props.companyId}
               processId={this.props.processId}
+              relationId={this.props.relationId}
               selectNodeId={this.props.selectNodeId}
               controls={data.controls}
               formulaMap={data.formulaMap}
@@ -291,6 +293,7 @@ export default class Search extends Component {
                     key={cacheKey + i}
                     companyId={this.props.companyId}
                     processId={this.props.processId}
+                    relationId={this.props.relationId}
                     selectNodeId={this.props.selectNodeId}
                     controls={data.addControls}
                     formulaMap={data.formulaMap}
@@ -461,6 +464,7 @@ export default class Search extends Component {
       <FilterAndSort
         key={cacheKey}
         companyId={this.props.companyId}
+        relationId={this.props.relationId}
         processId={this.props.processId}
         selectNodeId={this.props.selectNodeId}
         openNewFilter={!data.conditions.length}
@@ -490,7 +494,9 @@ export default class Search extends Component {
         </div>
         <div className="mTop10">
           <CustomTextarea
+            projectId={this.props.companyId}
             processId={this.props.processId}
+            relationId={this.props.relationId}
             selectNodeId={this.props.selectNodeId}
             type={2}
             height={0}

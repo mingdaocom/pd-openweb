@@ -23,6 +23,7 @@ export default class SortColumns extends React.Component {
     controlsSorts: PropTypes.arrayOf(PropTypes.string).isRequired,
     children: PropTypes.element,
     onChange: PropTypes.func.isRequired,
+    showTabs: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -56,6 +57,7 @@ export default class SortColumns extends React.Component {
       maxHeight,
       isShowColumns = false,
       sortAutoChange = false,
+      showTabs = false,
     } = this.props;
     const columns = this.props.columns.filter(c => !_.find(ghostControlIds, gcid => gcid === c.controlId));
     const displayControls = showControls.filter(dcid => _.find(columns, fc => fc.controlId === dcid));
@@ -83,6 +85,7 @@ export default class SortColumns extends React.Component {
               }}
               isShowColumns={isShowColumns}
               sortAutoChange={sortAutoChange}
+              showTabs={showTabs}
             />
           }
         >
@@ -118,6 +121,7 @@ export default class SortColumns extends React.Component {
             maxHeight={maxHeight}
             isShowColumns={isShowColumns}
             sortAutoChange={sortAutoChange}
+            showTabs={showTabs}
           />
         </div>
       );

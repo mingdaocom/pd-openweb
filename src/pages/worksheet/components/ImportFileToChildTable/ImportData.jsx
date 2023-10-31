@@ -152,7 +152,7 @@ Input.propTypes = {
 };
 
 function PasteEdit(props) {
-  const { importDataActiveType, controls, onParsePaste } = props;
+  const { dialogHeight, importDataActiveType, controls, onParsePaste } = props;
   const [splitCharType, setSplitCharType] = useState(1);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
@@ -292,7 +292,7 @@ function PasteEdit(props) {
           </Tooltip>
         </div>
       </PasteHeader>
-      <div style={{ height: 390 }}>
+      <div style={{ height: dialogHeight - 210 }}>
         <PreviewTable
           rowCount={data.length + 1}
           activeIndex={activeIndex}
@@ -359,6 +359,7 @@ function PasteEdit(props) {
 }
 
 PasteEdit.propTypes = {
+  dialogHeight: number,
   importDataActiveType: number,
   controls: arrayOf(shape({})),
   onParsePaste: func,
@@ -367,6 +368,7 @@ PasteEdit.propTypes = {
 export default function ImportData(props) {
   const {
     projectId,
+    dialogHeight,
     importDataActiveType,
     worksheetId,
     controls,
@@ -414,7 +416,12 @@ export default function ImportData(props) {
           </Fragment>
         )}
         {importDataActiveType === 1 && (
-          <PasteEdit controls={controls} onParsePaste={onParsePaste} importDataActiveType={importDataActiveType} />
+          <PasteEdit
+            controls={controls}
+            dialogHeight={dialogHeight}
+            onParsePaste={onParsePaste}
+            importDataActiveType={importDataActiveType}
+          />
         )}
       </Content>
     </Fragment>
@@ -423,6 +430,7 @@ export default function ImportData(props) {
 
 ImportData.propTypes = {
   worksheetId: string,
+  dialogHeight: number,
   importDataActiveType: number,
   controls: arrayOf(shape({})),
   onParseExcel: func,

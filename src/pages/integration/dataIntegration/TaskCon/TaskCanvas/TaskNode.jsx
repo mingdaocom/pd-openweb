@@ -3,9 +3,8 @@ import { Icon, Menu, MenuItem } from 'ming-ui';
 import styled from 'styled-components';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
-import { tW, tH, tLine, tBottom, NODE_TYPE_LIST, ACTION_LIST, JOIN_TYPE, UNION_TYPE_LIST } from './config';
+import { tW, tH, tLine, tBottom, NODE_TYPE_LIST, ACTION_LIST } from './config';
 import ChangeName from 'src/pages/integration/components/ChangeName';
-import { v4 as uuidv4 } from 'uuid';
 import _ from 'lodash';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
@@ -85,13 +84,13 @@ export const AddNode = styled(Circle)`
   }
 `;
 const WrapAct = styled.div`
-  width: 160px;
+  min-width: 160px;
   background: #ffffff;
   box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.25);
   border-radius: 3px;
   padding: 6px 0;
   li {
-    padding-left: 16px;
+    padding: 0 16px;
     height: 36px;
     i {
       width: 24px;
@@ -237,7 +236,6 @@ class TaskNode extends Component {
     if (pathIds.length <= 0) {
       return;
     }
-    // const { fromDt = {}, toDt = {} } = pathIds[0];
     const featureType = getFeatureStatus(currentProjectId, VersionProductType.datantergration);
     return (
       <WrapAct>
@@ -246,9 +244,11 @@ class TaskNode extends Component {
             return (
               <React.Fragment>
                 <li
-                  className={cx('flexRow alignItemsCenter Hand', { Alpha3: !['FILTER', 'JOIN'].includes(o.type) })}
+                  className={cx('flexRow alignItemsCenter Hand', {
+                    Alpha3: !['FILTER', 'JOIN', 'AGGREGATE'].includes(o.type),
+                  })}
                   onClick={() => {
-                    if (!['FILTER', 'JOIN'].includes(o.type)) {
+                    if (!['FILTER', 'JOIN', 'AGGREGATE'].includes(o.type)) {
                       return;
                     }
                     //公有云的旗舰版可用
@@ -256,57 +256,6 @@ class TaskNode extends Component {
                       buriedUpgradeVersionDialog(currentProjectId, VersionProductType.datantergration);
                       return;
                     }
-                    // let nodeId = uuidv4();
-                    // let addNodes = [];
-                    // let updateNodes = [];
-                    // //添加出两个节点（源+本身）
-                    // if (['JOIN', 'UNION'].includes(o.type)) {
-                    //   let sourceNodeId = uuidv4();
-                    //   const newNode = {
-                    //     nodeId,
-                    //     name: NODE_TYPE_LIST.find(a => a.nodeType === o.type).name,
-                    //     nodeType: o.type,
-                    //     prevIds: nodeData.y === 0 ? [sourceNodeId] : [nodeData.nodeId, sourceNodeId],
-                    //     nextIds: nodeData.y === 0 ? [toDt.nodeId] : [],
-                    //   };
-                    //   const sourceNode = {
-                    //     nodeId: sourceNodeId,
-                    //     nodeType: 'SOURCE_TABLE',
-                    //     name: NODE_TYPE_LIST.find(a => a.nodeType === 'SOURCE_TABLE').name,
-                    //     prevIds: [],
-                    //     nextIds: [],
-                    //   };
-                    //   addNodes = [newNode, sourceNode];
-                    // } else {
-                    //   const newNode = {
-                    //     nodeId,
-                    //     nodeType: o.type,
-                    //     name: NODE_TYPE_LIST.find(a => a.nodeType === o.type).name,
-                    //     nextIds: nodeData.y === 0 ? [toDt.nodeId] : [],
-                    //     prevIds: nodeData.y === 0 ? [] : [fromDt.nodeId],
-                    //   };
-                    //   addNodes = [newNode];
-                    // }
-                    // if (nodeData.y === 0) {
-                    //   let from = {
-                    //     ..._.omit(
-                    //       this.props.list.find(a => a.nodeId === fromDt.nodeId),
-                    //       ['x', 'y', 'pathIds'],
-                    //     ),
-                    //     nextIds: [nodeId],
-                    //   };
-                    //   updateNodes = [from];
-                    // } else {
-                    //   let to = {
-                    //     ..._.omit(
-                    //       this.props.list.find(a => a.nodeId === toDt.nodeId),
-                    //       ['x', 'y', 'pathIds'],
-                    //     ),
-                    //     prevIds: [...toDt.prevIds.filter(o => o !== nodeData.nodeId), nodeId],
-                    //   };
-                    //   updateNodes = [to];
-                    // }
-                    // onAddNodes({ toAdd: addNodes, toUpdate: updateNodes, toDeleteIds: [] });
                     this.onAddNode({
                       name: NODE_TYPE_LIST.find(a => a.nodeType === o.type).name,
                       nodeType: o.type,
@@ -317,7 +266,7 @@ class TaskNode extends Component {
                 >
                   <Icon type={o.icon} style={{ color: o.color }} className="Font17" />
                   <span className="Font14">{o.txt}</span>
-                  {['FILTER', 'JOIN'].includes(o.type) && featureType === '2' && (
+                  {featureType === '2' && (
                     <Icon type={'auto_awesome'} style={{ color: '#FBB400' }} className="Font17 mLeft10" />
                   )}
                 </li>
@@ -392,7 +341,7 @@ class TaskNode extends Component {
               {_l('确定')}
             </span>
           </div>
-        </DelNode>{' '}
+        </DelNode>
       </ClickAwayable>
     );
   };

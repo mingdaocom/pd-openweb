@@ -1,8 +1,6 @@
 ﻿import UploadFiles from 'src/components/UploadFiles';
 import React from 'react';
 import ReactDom from 'react-dom';
-import DateTimeRangePicker from 'ming-ui/components/NewDateTimePicker/date-time-range';
-import wrap from 'ming-ui/utils/JQueryWrapper';
 import createShare from 'src/components/createShare/createShare';
 import Store from 'redux/configureStore';
 import { addTask } from 'src/pages/task/redux/actions';
@@ -22,44 +20,7 @@ import 'src/components/select/select';
 import 'src/components/autoTextarea/autoTextarea';
 import '@mdfe/jquery-plupload';
 import moment from 'moment';
-
-const commonProps = {
-  timePicker: true,
-  mode: 'task',
-  separator: '至',
-  placeholder: '请选择',
-  selectedValue: [],
-  timeMode: 'hour',
-};
-
-wrap(DateTimeRangePicker, {
-  name: 'reactTaskCalendarRangePickerClick',
-  picker: {
-    defaultProps: {
-      visible: true,
-      isInit: true,
-      onHide() {
-        this.destroy();
-      },
-    },
-  },
-  defaultProps: {
-    ...commonProps,
-    onOk(selectedValue) {
-      let [start, end] = selectedValue;
-      if (start && end && start >= end) {
-        alert(_l('结束时间不能早于或等于开始时间'), 2);
-        return false;
-      }
-
-      this.submit(selectedValue);
-      this.destroy();
-    },
-    onSelect(selectedValue) {
-      this.setProps({ selectedValue });
-    },
-  },
-});
+import { DateTimeRange } from 'ming-ui/components/NewDateTimePicker';
 
 var CreateTask = function (opts) {
   var _this = this;
@@ -702,7 +663,7 @@ $.extend(CreateTask.prototype, {
       );
     }
 
-    $txtLastDate.on('click', () => {
+    const bindDate = () => {
       let { start: defaultStart, end: defaultEnd } = $txtLastDate.data();
 
       if ($('#taskGantt').length) {
@@ -710,29 +671,46 @@ $.extend(CreateTask.prototype, {
         defaultEnd = defaultEnd || moment().format('YYYY-MM-DD 18:00');
       }
 
-      $txtLastDate.reactTaskCalendarRangePickerClick({
-        props: {
-          selectedValue: [defaultStart, defaultEnd],
-          onClear() {
-            delete $txtLastDate.data().start;
-            delete $txtLastDate.data().end;
-            $txtLastDate.html(_l('未指定起止时间'));
-            this.destroy();
-          },
-        },
-        publicMethods: {
-          setProps() {},
-          submit(selectedValue) {
+      ReactDom.render(
+        <DateTimeRange
+          selectedValue={[defaultStart, defaultEnd]}
+          mode="task"
+          timePicker
+          separator={_l('至')}
+          timeMode="hour"
+          placeholder={_l('未指定起止时间')}
+          onOk={selectedValue => {
             let [start, end] = selectedValue;
+
+            if (start && end && start >= end) {
+              alert(_l('结束时间不能早于或等于开始时间'), 2);
+              return false;
+            }
+
             start = start ? start.format('YYYY-MM-DD HH:00') : '';
             end = end ? end.format('YYYY-MM-DD HH:00') : '';
             $txtLastDate.data('start', start);
             $txtLastDate.data('end', end);
-            $txtLastDate.html(!start && !end ? _l('未指定起止时间') : formatTaskTime(false, start, end, '', '', true));
-          },
-        },
-      });
-    });
+
+            $('#txtLastDateText').html(
+              !start && !end ? _l('未指定起止时间') : formatTaskTime(false, start, end, '', '', true),
+            );
+          }}
+          onClear={() => {
+            delete $txtLastDate.data().start;
+            delete $txtLastDate.data().end;
+
+            ReactDom.unmountComponentAtNode($txtLastDate[0]);
+            bindDate();
+          }}
+        >
+          <div id="txtLastDateText">{_l('未指定起止时间')}</div>
+        </DateTimeRange>,
+        $txtLastDate[0],
+      );
+    };
+
+    bindDate();
   },
 
   // 初始化附件事件

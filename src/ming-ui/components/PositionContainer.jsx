@@ -1,14 +1,7 @@
-/* eslint-disable */
-/* eslint-disable */
-/* eslint-disable */
-/* eslint-disable */
 import PropTypes from 'prop-types';
-
-import React, { Component, DOM } from 'react';
+import React, { Component } from 'react';
 import ReactDom from 'react-dom';
 import { render } from 'react-dom';
-import cx from 'classnames';
-import { isDescendant } from 'ming-ui/utils/DomHelpers';
 import './less/PositionContainer.less';
 import _ from 'lodash';
 
@@ -123,14 +116,14 @@ class PositionContainer extends Component {
         } catch (err) {
           return null;
         }
-      })
+      }),
     );
 
     if (
       props.visible &&
       target &&
       this.getHasParent(target, 'PositionContainer-wrapper') &&
-      _.every(_.flatten(exceptions), item => target !== item && !isDescendant(item, target))
+      _.every(_.flatten(exceptions), item => target !== item && !$(target).closest($(item)).length)
     ) {
       props.onHide();
     }

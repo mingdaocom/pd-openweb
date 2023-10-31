@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, Checkbox, LoadDiv, Tooltip, Icon } from 'ming-ui';
+import { ScrollView, Checkbox, LoadDiv, Tooltip, Icon, Support } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
 import _ from 'lodash';
 import {
@@ -191,7 +191,7 @@ export default class Write extends Component {
     const { tabIndex } = this.state;
     const TABS = [
       { text: _l('填写设置'), value: 1 },
-      { text: _l('字段权限'), value: 2 },
+      { text: _l('字段设置'), value: 2 },
       { text: _l('数据更新'), value: 3 },
     ];
 
@@ -308,7 +308,11 @@ export default class Write extends Component {
 
                   <OperatorEmpty
                     projectId={this.props.companyId}
+                    isApproval={this.props.isApproval}
                     title={_l('填写人为空时')}
+                    titleInfo={_l(
+                      '设置当前节点负责人为空时的处理方式。当使用默认设置时，按照流程发起节点中设置的统一的处理方式',
+                    )}
                     showDefaultItem
                     userTaskNullMap={data.userTaskNullMap}
                     updateSource={userTaskNullMap => this.updateSource({ userTaskNullMap })}
@@ -360,14 +364,24 @@ export default class Write extends Component {
                       this.updateSource({ schedule: Object.assign({}, data.schedule, { enable: !checked }) })
                     }
                   />
-                  <Schedule schedule={data.schedule} updateSource={this.updateSource} {...this.props} />
+                  <Schedule {...this.props} schedule={data.schedule} updateSource={this.updateSource} />
                 </Fragment>
               )}
 
               {tabIndex === 2 && (
                 <Fragment>
+                  <div className="Gray_75 mTop15">
+                    {_l('设置填写时可以查看、编辑、必填的字段。设为摘要的字段可以在流程待办列表中直接显示。')}
+                    <Support
+                      type={3}
+                      text={_l('帮助')}
+                      className="ThemeColor3 ThemeHoverColor2"
+                      href="https://help.mingdao.com/flow41"
+                    />
+                  </div>
+
                   {data.selectNodeId ? (
-                    <div className="Font13 mTop25">
+                    <div className="Font13 mTop15">
                       {data.selectNodeObj.nodeName && !data.selectNodeObj.appName ? (
                         <div className="Gray_9e Font13 flexRow flowDetailTips">
                           <i className="icon-task-setting_promet Font16" />
@@ -393,7 +407,7 @@ export default class Write extends Component {
                       )}
                     </div>
                   ) : (
-                    <div className="Gray_9e Font13 flexRow flowDetailTips mTop25">
+                    <div className="Gray_9e Font13 flexRow flowDetailTips mTop15">
                       <i className="icon-task-setting_promet Font16" />
                       <div className="flex mLeft10">{_l('必须先选择一个对象后，才能设置字段权限')}</div>
                     </div>
@@ -413,6 +427,7 @@ export default class Write extends Component {
                         type={1}
                         companyId={this.props.companyId}
                         processId={this.props.processId}
+                        relationId={this.props.relationId}
                         selectNodeId={this.props.selectNodeId}
                         nodeId={data.flowNodeMap[OPERATION_TYPE.BEFORE].selectNodeId}
                         controls={data.flowNodeMap[OPERATION_TYPE.BEFORE].controls.filter(o => o.type !== 29)}

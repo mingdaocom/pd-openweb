@@ -74,11 +74,18 @@ export const formatFields = (checked, fieldId, key, fields) => {
     } else if (!!field.sectionId) {
       const bros = list.filter(o => o.sectionId === field.sectionId);
       const brosC = bros.filter(o => o[key] === checked);
-      if (bros.length <= brosC.length) {
+      if (bros.length <= brosC.length || !checked) {
         return list.map(o => {
           if (field.sectionId === o.fieldId) {
+            let obj = {};
+            if (key === 'notEdit' && !checked) {
+              obj = {
+                notRead: false,
+              };
+            }
             return {
               ...o,
+              ...obj,
               [key]: checked,
               notEdit: checked && key === 'notRead' ? true : o.notEdit,
               isDecrypt: checked && key === 'notRead' ? false : o.isDecrypt,

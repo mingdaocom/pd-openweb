@@ -44,7 +44,8 @@ class ProgressChart extends Component {
       displaySetup.magnitudeUpdateFlag !== oldDisplaySetup.magnitudeUpdateFlag ||
       displaySetup.showNumber !== oldDisplaySetup.showNumber ||
       !_.isEqual(displaySetup.colorRules, oldDisplaySetup.colorRules) ||
-      style.showValueType !== oldStyle.showValueType
+      style.showValueType !== oldStyle.showValueType ||
+      nextProps.color !== this.props.color
     ) {
       const { ProgressChartConfig } = this.getComponentConfig(nextProps);
       this.ProgressChart.update(ProgressChartConfig);
@@ -234,8 +235,10 @@ class ProgressChart extends Component {
 
 
 export default (props) => {
-  const { map, yaxisList, style } = props.reportData;
-  const color = getChartColors(style);
+  const { themeColor, projectId, customPageConfig, reportData } = props;
+  const { chartColor } = customPageConfig;
+  const { map, yaxisList, style } = reportData;
+  const color = getChartColors(chartColor || style, themeColor, projectId);
   const controlMinAndMax = getControlMinAndMax(map);
   return (
     <div

@@ -14,6 +14,9 @@ const SideWrap = styled.div`
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
   }
+  &.white .sideContentWrap {
+    background-color: #fff;
+  }
   .sideContentWrap {
     position: fixed;
     right: 0;
@@ -23,7 +26,7 @@ const SideWrap = styled.div`
     background-color: #f5f5f5;
     box-shadow: 0 16px 30px rgba(0, 0, 0, 0.3);
     header {
-      i {
+      .icon-close {
         color: #9e9e9e;
         &:hover {
           color: #2196f3;
@@ -54,13 +57,14 @@ const SideWrap = styled.div`
     }
   }
 `;
-export default function sideWrap({ className, children, headerText, onClick, onClose }) {
+
+export default function sideWrap({ isMask = true, className, children, headerText, onClick, onClose }) {
   return (
     <SideWrap className={className} onClick={onClick}>
-      <div className="mask"></div>
+      {isMask && <div className="mask"></div>}
       <div className="sideContentWrap">
         <header>
-          <span>{headerText}</span>
+          <div className="flexRow alignItemsCenter">{headerText}</div>
           <i className="icon-close Font22" onClick={onClose}></i>
         </header>
         <div className="sideContent">{children}</div>

@@ -13,6 +13,7 @@ import { FORM_ERROR_TYPE } from './config';
 import { accDiv } from 'src/util';
 import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting';
 import _ from 'lodash';
+import { filterEmptyChildTableRows } from 'worksheet/util';
 
 export const isEmptyValue = value => {
   return _.isUndefined(value) || _.isNull(value) || String(value).trim() === '';
@@ -237,7 +238,7 @@ const dayFn = (filterData = {}, value, isGT, type) => {
   }
 };
 
-export const filterFn = (filterData, originControl, data = []) => {
+export const filterFn = (filterData, originControl, data = [], recordId) => {
   try {
     let { filterType = '', dataType = '', dynamicSource = [], dateRange } = filterData;
     const control = redefineComplexControl(originControl);
@@ -280,7 +281,17 @@ export const filterFn = (filterData, originControl, data = []) => {
     //是否多选
     if (dynamicSource.length > 0) {
       const { cid = '' } = dynamicSource[0];
-      currentControl = _.cloneDeep(_.find(data, it => it.controlId === cid)) || {};
+      if (cid === 'rowid') {
+        currentControl = { type: 2, value: recordId };
+      } else if (cid === 'currenttime') {
+        currentControl = {
+          type: 16,
+          advancedSetting: { showtype: '6' },
+          value: moment(new Date()).format('YYYY-MM-DD HH:mm:ss'),
+        };
+      } else {
+        currentControl = _.cloneDeep(_.find(data, it => it.controlId === cid)) || {};
+      }
       // 他表字段取原字段类型，不然日期值截取有问题，比较出错
       if (currentControl.type === 30) {
         currentControl.type = currentControl.sourceControlType;
@@ -701,7 +712,7 @@ export const filterFn = (filterData, originControl, data = []) => {
               return !value;
             } else {
               if (value.rows) {
-                return value.rows.length <= 0;
+                return filterEmptyChildTableRows(value.rows).length <= 0;
               } else {
                 return value === '0';
               }
@@ -1249,7 +1260,7 @@ const getResult = (arr, index, result, ava) => {
 };
 
 //判断业务规则配置条件是否满足
-export const checkValueAvailable = (rule = {}, data = [], from) => {
+export const checkValueAvailable = (rule = {}, data = [], recordId, from) => {
   let isAvailable = false;
   //不满足条件的id,过滤错误
   let filterControlIds = {};
@@ -1258,12 +1269,17 @@ export const checkValueAvailable = (rule = {}, data = [], from) => {
   let transFilters = rule.filters || [[]]; //条件二维数组
 
   //条件字段或字段值都隐藏
+  // 记录id存在才参与业务规则
   if (from) {
     transFilters = transFilters.filter(arr => {
       const ids = getIds(arr);
       return _.some(ids, id => {
         const da = _.find(data, d => d.controlId === id);
-        return da && controlState(da, from).visible & !da.hidden;
+        return (
+          (recordId && id === 'rowid') ||
+          _.includes(['currenttime'], id) ||
+          (da && controlState(da, from).visible & !da.hidden)
+        );
       });
     });
   }
@@ -1281,7 +1297,7 @@ export const checkValueAvailable = (rule = {}, data = [], from) => {
       arr.groupFilters.forEach((its, index) => {
         let filterControl = data.find(a => a.controlId === its.controlId);
         if (filterControl && !isRelateMoreList(filterControl, its)) {
-          const result = filterFn(its, filterControl, data);
+          const result = filterFn(its, filterControl, data, recordId);
           childItemAvailable = getResult(arr.groupFilters, index, result, childItemAvailable);
 
           const ids = getFieldIds(its);
@@ -1315,14 +1331,14 @@ export const checkValueAvailable = (rule = {}, data = [], from) => {
 };
 
 //判断所有业务规则是否满足条件
-export const checkAllValueAvailable = (rules = [], data = [], from) => {
+export const checkAllValueAvailable = (rules = [], data = [], recordId, from) => {
   let errors = [];
-  const filterRules = getAvailableFilters(rules, data);
+  const filterRules = getAvailableFilters(rules, data, recordId);
   if (filterRules && filterRules.length > 0) {
     filterRules.map(rule => {
       rule.ruleItems.map(item => {
         if (item.type === 6) {
-          const { isAvailable } = checkValueAvailable(rule, data, from);
+          const { isAvailable } = checkValueAvailable(rule, data, recordId, from);
           isAvailable && errors.push(item.message);
         }
       });
@@ -1332,15 +1348,15 @@ export const checkAllValueAvailable = (rules = [], data = [], from) => {
 };
 
 //判断所有业务规则是否有锁定状态
-export const checkRuleLocked = (rules = [], data = []) => {
+export const checkRuleLocked = (rules = [], data = [], recordId) => {
   let isLocked = false;
-  const filterRules = getAvailableFilters(rules, data);
+  const filterRules = getAvailableFilters(rules, data, recordId);
   if (filterRules && filterRules.length > 0) {
     filterRules.forEach(rule => {
       if (isLocked) return;
       rule.ruleItems.map(item => {
         if (item.type === 7) {
-          const { isAvailable } = checkValueAvailable(rule, data);
+          const { isAvailable } = checkValueAvailable(rule, data, recordId);
           isAvailable && (isLocked = true);
         }
       });
@@ -1349,7 +1365,7 @@ export const checkRuleLocked = (rules = [], data = []) => {
   return isLocked;
 };
 
-const replaceStr = (str, index, value) => {
+export const replaceStr = (str, index, value) => {
   return str.substring(0, index) + value + str.substring(index + 1);
 };
 
@@ -1402,14 +1418,21 @@ const updataDataPermission = ({ attrs = [], it, checkRuleValidator, from, item =
 };
 
 // 过滤不必要走（字段都删除）的业务规则
-const getAvailableFilters = (rules = [], formatData = []) => {
+const getAvailableFilters = (rules = [], formatData = [], recordId) => {
   //过滤禁用规则及单个且数组中字段全部删除情况
+  // 注意如果是记录id，data里不包含系统字段，所以必须recordId存在才生效
   let filterRules = [];
   rules.map(o => {
     if (!o.disabled) {
       let filterTrs = [];
       (o.filters || []).map(tr => {
-        if (_.some(tr.groupFilters || [], t => _.findIndex(formatData, da => da.controlId === t.controlId) > -1)) {
+        if (
+          _.some(tr.groupFilters || [], t =>
+            _.get(t, 'dynamicSource[0].cid') === 'rowid'
+              ? recordId
+              : _.findIndex(formatData, da => da.controlId === t.controlId) > -1,
+          )
+        ) {
           filterTrs = filterTrs.concat(tr);
         }
       });
@@ -1435,6 +1458,7 @@ const removeRequireError = (controls = [], checkRuleValidator = () => {}) => {
 export const updateRulesData = ({
   rules = [],
   data = [],
+  recordId,
   checkRuleValidator = () => {},
   from,
   checkAllUpdate = false,
@@ -1467,12 +1491,12 @@ export const updateRulesData = ({
   }
 
   if (rules.length > 0) {
-    const filterRules = getAvailableFilters(rules, formatData);
+    const filterRules = getAvailableFilters(rules, formatData, recordId);
 
     if (filterRules && filterRules.length > 0) {
       filterRules.map(rule => {
         rule.ruleItems.map(({ type, controls = [] }) => {
-          let { isAvailable } = checkValueAvailable(rule, formatData);
+          let { isAvailable } = checkValueAvailable(rule, formatData, recordId);
           let currentType = type;
           //显示隐藏无论满足条件与否都要操作
           if (currentType === 1) {
@@ -1538,7 +1562,7 @@ export const updateRulesData = ({
             filterControlIds = [],
             availableControlIds = [],
             isAvailable,
-          } = checkValueAvailable(rule, formatData, from);
+          } = checkValueAvailable(rule, formatData, recordId, from);
           if (_.includes([6], type)) {
             //过滤已经塞进去的错误
             filterControlIds.map(id => checkRuleValidator(id, FORM_ERROR_TYPE.RULE_ERROR, '', rule.ruleId));

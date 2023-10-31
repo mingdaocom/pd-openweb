@@ -317,20 +317,24 @@ export const DEFAULT_CONFIG = {
     icon: 'api',
     widgetName: _l('API查询'),
     featureId: 5,
+    intro: _l('可调用API接口获取数据，并将数据填充到字段。'),
   },
   SEARCH: {
     icon: 'api',
     widgetName: _l('API查询'),
     featureId: 5,
+    intro: _l('可调用API接口获取数据，并将数据填充到字段。'),
   },
   RELATION_SEARCH: {
     icon: 'Worksheet_query',
     widgetName: _l('查询记录'),
+    intro: _l('可用于快速查看其他表的数据。'),
   },
-  // SECTION: {
-  //   icon: 'view_agenda',
-  //   widgetName: _l('分段'),
-  // },
+  SECTION: {
+    icon: 'tab',
+    widgetName: _l('标签页'),
+    intro: _l('可用于分组字段，组织相关的信息或功能。'),
+  },
 };
 
 export const DEFAULT_DATA = {
@@ -372,6 +376,7 @@ export const DEFAULT_DATA = {
     hint: _l('请填写数值'),
     advancedSetting: {
       showtype: '0',
+      roundtype: '2',
     },
   },
   CRED: {
@@ -390,6 +395,7 @@ export const DEFAULT_DATA = {
     hint: _l('请填写金额'),
     advancedSetting: {
       suffix: _l('元'),
+      roundtype: '2',
     },
   },
   FLAT_MENU: {
@@ -458,9 +464,11 @@ export const DEFAULT_DATA = {
   SPLIT_LINE: {
     controlName: _l('分段%04006'),
     size: 12,
-    // enumDefault: 2, // 根据enumDefault区分新旧分割线，2：新
+    enumDefault2: 1,
+    enumDefault: 0,
     advancedSetting: {
-      hidetitle: '1',
+      theme: '#2196F3',
+      color: '#333333',
     },
   },
   AREA_CITY: {
@@ -542,6 +550,12 @@ export const DEFAULT_DATA = {
       allowsingle: '1',
       allowexport: '1',
       rowheight: '0',
+      enablelimit: '0',
+      min: '0',
+      max: '200',
+      showtype: '1',
+      blankrow: '1',
+      rownum: '15',
     },
   },
   SWITCH: {
@@ -557,11 +571,17 @@ export const DEFAULT_DATA = {
     size: 6,
     enumDefault: 6,
     enumDefault2: 6,
+    advancedSetting: {
+      roundtype: '2',
+    },
   },
   FORMULA_NUMBER: {
     controlName: _l('公式'),
     size: 6,
     dot: 2,
+    advancedSetting: {
+      roundtype: '2',
+    },
   },
   FORMULA_DATE: {
     controlName: _l('日期公式'),
@@ -653,18 +673,10 @@ export const DEFAULT_DATA = {
     enumDefault: 2,
     enumDefault2: 1,
   },
-  // SECTION: {
-  //   controlName: _l('分段'),
-  //   size: 12,
-  //   advancedSetting: {
-  //     theme: '#2196F3',
-  //     title: '#333333',
-  //     titlealign: '1',
-  //     background: '',
-  //   },
-  //   enumDefault: 1,
-  //   enumDefault2: 0,
-  // },
+  SECTION: {
+    controlName: _l('标签页'),
+    size: 12,
+  },
 };
 export const WORKFLOW_SYSTEM_CONTROL = [
   { controlId: 'wfname', controlName: _l('流程名称'), type: 2, display: true },
@@ -804,7 +816,7 @@ export const RELATE_WIDGETS = pick(DEFAULT_CONFIG, [
   'RELATION',
 ]);
 
-export const SPECIAL_WIDGETS = pick(DEFAULT_CONFIG, ['REMARK', 'SPLIT_LINE']);
+export const SPECIAL_WIDGETS = pick(DEFAULT_CONFIG, ['SPLIT_LINE', 'SECTION', 'REMARK']);
 
 export const WIDGET_GROUP_TYPE = {
   COMMON_USE: { widgets: COMMON_USE_WIDGETS, title: _l('常用') },

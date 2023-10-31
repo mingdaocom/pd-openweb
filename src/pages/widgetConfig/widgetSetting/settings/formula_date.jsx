@@ -169,7 +169,8 @@ export default function FormulaDate(props) {
     if ($ref.current) {
       $ref.current.setValue(data.dataSource || '');
     }
-    if (enumDefault !== 1) {
+    // 为日期加减时间没有小数配置
+    if (enumDefault === 2) {
       onChange(handleAdvancedSettingChange({ ...data, dot: 0 }, { dot: '0' }));
     }
   }, [data.controlId, enumDefault]);

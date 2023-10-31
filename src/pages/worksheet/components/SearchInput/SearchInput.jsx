@@ -2,12 +2,15 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import Tooltip from 'ming-ui/components/Tooltip';
+import { browserIsMobile } from 'src/util';
 import './SearchInput.less';
 
 export default class SearchInput extends Component {
   static propTypes = {
     active: PropTypes.bool,
     className: PropTypes.string,
+    focusedClass: PropTypes.string,
+    style: PropTypes.shape({}),
     placeholder: PropTypes.string,
     onClear: PropTypes.func,
     onOk: PropTypes.func,
@@ -15,6 +18,7 @@ export default class SearchInput extends Component {
     onBlur: PropTypes.func,
   };
   static defaultProps = {
+    style: {},
     onClear: () => {},
     onFocus: () => {},
     onBlur: () => {},
@@ -36,32 +40,58 @@ export default class SearchInput extends Component {
     }
   }
   render() {
+    const { focusedClass, style, searchIcon } = this.props;
     const { value, isFocus } = this.state;
     const { className, keyWords, onOk, onClear, onFocus, onBlur, placeholder } = this.props;
     return (
-      <div className={cx('searchInputComp', className, { default: !isFocus })}>
+      <div
+        className={cx(
+          'searchInputComp',
+          className,
+          { default: !isFocus, flex: isFocus && browserIsMobile() },
+          isFocus ? focusedClass : '',
+        )}
+        style={style}
+      >
         <div className="inputCon">
           <Tooltip disable={isFocus} popupPlacement="bottom" text={<span>{placeholder || _l('搜索')}</span>}>
-            <i
-              className="icon icon-search Gray_9e"
-              onClick={() => {
-                this.setState(
-                  {
-                    isFocus: true,
-                  },
-                  () => {
-                    $(this.inputEl).focus();
-                  },
-                );
-              }}
-            />
+            {!isFocus && searchIcon ? (
+              <span
+                onClick={() => {
+                  this.setState(
+                    {
+                      isFocus: true,
+                    },
+                    () => {
+                      $(this.inputEl).focus();
+                    },
+                  );
+                }}
+              >
+                {searchIcon}
+              </span>
+            ) : (
+              <i
+                className="icon icon-search Gray_9e"
+                onClick={() => {
+                  this.setState(
+                    {
+                      isFocus: true,
+                    },
+                    () => {
+                      $(this.inputEl).focus();
+                    },
+                  );
+                }}
+              />
+            )}
           </Tooltip>
           <input
             ref={inputEl => {
               this.inputEl = inputEl;
             }}
             placeholder={placeholder || _l('搜索')}
-            type="text"
+            type={browserIsMobile() ? 'search' : 'text'}
             value={value}
             onKeyUp={e => {
               if (e.keyCode === 13) {

@@ -2,6 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useSetState } from 'react-use';
 import Trigger from 'rc-trigger';
+import cx from 'classnames';
+import { Icon } from 'ming-ui';
+import { getIconByType } from 'src/pages/widgetConfig/util';
+
 const WrapChoose = styled.div`
   width: 260px;
   max-height: 300px;
@@ -30,16 +34,27 @@ const WrapChoose = styled.div`
       background: #f5f5f5;
     }
   }
+  .disabled {
+    cursor: not-allowed;
+    color: #9e9e9e;
+  }
 `;
 export default function DropChoose(props) {
   const [{ keywords, list, visible }, setState] = useSetState({
     keywords: '',
     visible: false,
-    list: props.list || [],
+    list: [],
   });
   useEffect(() => {
     setState({
-      list: !!keywords ? props.list.filter(o => o.name.indexOf(keywords) >= 0) : props.list,
+      list: props.list || [],
+    });
+  }, [props]);
+  useEffect(() => {
+    setState({
+      list: !!keywords
+        ? props.list.filter(o => o.alias.toLocaleLowerCase().indexOf(keywords.toLocaleLowerCase()) >= 0)
+        : props.list,
     });
   }, [keywords]);
   return (
@@ -71,12 +86,25 @@ export default function DropChoose(props) {
                   return (
                     <li
                       onClick={() => {
+                        if (o.disabled) {
+                          return;
+                        }
                         props.onChange(o);
+                        setState({ visible: false, keywords: '' });
                       }}
-                      className="Hand flexRow"
+                      className={`flexRow alignItemsCenter ${o.disabled ? 'disabled' : 'Hand'} flexRow`}
                     >
-                      <span className="Gray_bd">{`[${o.dataType}]`}</span>
-                      <span className="Gray flex WordBreak overflow_ellipsis">{o.name}</span>
+                      {!!o.mdType ? (
+                        <Icon
+                          icon={getIconByType(o.mdType, false)}
+                          className={cx('Font16 Gray_bd customIcon TxtMiddle')}
+                        />
+                      ) : (
+                        !!o.dataType && <span className="Gray_bd">{`[${o.dataType}]`}</span>
+                      )}
+                      <span className={cx('Gray flex WordBreak overflow_ellipsis mLeft5', { Gray_bd: o.disabled })}>
+                        {o.alias || o.name}
+                      </span>
                     </li>
                   );
                 })
@@ -87,14 +115,14 @@ export default function DropChoose(props) {
       }}
       getPopupContainer={() => document.body}
       onPopupVisibleChange={visible => {
-        setState({ visible });
+        setState({ visible, keywords: '' });
       }}
       popupAlign={{
         points: ['cl', 'cr'],
         overflow: { adjustX: true, adjustY: true },
       }}
     >
-      <i className="icon icon-task_add-02 mTop12 Hand Font24 TxtMiddle" style={{ color: '#DFDFDF' }}></i>
+      <i className="icon icon-task_add-02 mTop12 Hand Font24 TxtBottom InlineBlock" style={{ color: '#DFDFDF' }}></i>
     </Trigger>
   );
 }

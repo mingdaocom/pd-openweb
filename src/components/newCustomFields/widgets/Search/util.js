@@ -204,6 +204,8 @@ export const getShowValue = (control, value = '') => {
       curValue = safeParse(value || '[]').map(i => i.fullname);
     } else if (control.type === 27) {
       curValue = safeParse(value || '[]').map(i => i.departmentName);
+    } else if (control.type === 48) {
+      curValue = safeParse(value || '[]').map(i => i.organizeName);
     } else {
       return clearValue(value);
     }

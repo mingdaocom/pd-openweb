@@ -20,7 +20,19 @@ class RelationList extends Component {
     }
   }
   componentDidMount() {
-    const { controlId, control, instanceId, workId, worksheetId, rowId, getType } = this.props;
+    this.loadData(this.props);
+  }
+  componentWillReceiveProps(nextProps) {
+    if (this.props.controlId !== nextProps.controlId) {
+      nextProps.reset();
+      this.loadData(nextProps);
+    }
+  }
+  componentWillUnmount() {
+    this.props.reset();
+  }
+  loadData = props => {
+    const { controlId, control, instanceId, workId, worksheetId, rowId, getType } = props;
     let newParams = null;
     if (instanceId && workId) {
       newParams = {
@@ -31,7 +43,7 @@ class RelationList extends Component {
         controlId,
       };
     } else {
-      const { viewId, appId } = this.props;
+      const { viewId, appId } = props;
       newParams = {
         viewId,
         appId,
@@ -40,12 +52,9 @@ class RelationList extends Component {
         controlId,
       };
     }
-    this.props.updateBase(newParams);
-    this.props.loadRow(control, getType);
-  }
-  componentWillUnmount() {
-    this.props.reset();
-  }
+    props.updateBase(newParams);
+    props.loadRow(control, getType);
+  };
   handleSelect = (record, selected) => {
     const { relationRow, actionParams, updateActionParams, permissionInfo } = this.props;
     const { worksheet } = relationRow;

@@ -7,14 +7,24 @@ import { USER_TYPE } from '../../../enum';
 import quickSelectUser from 'ming-ui/functions/quickSelectUser';
 import Member from '../Member';
 
-export default ({ projectId, processId, isApproval, title, userTaskNullMap, showDefaultItem, updateSource }) => {
+export default ({
+  projectId,
+  processId,
+  hideGoToSettings,
+  isApproval,
+  title,
+  titleInfo,
+  userTaskNullMap,
+  showDefaultItem,
+  updateSource,
+}) => {
   const userTaskNullType = parseInt(Object.keys(userTaskNullMap)[0]);
   const USER_TASK_NULL_TYPE = [
     { text: _l('自动进入下一个节点'), value: 1 },
     { text: _l('由流程拥有者代理'), value: 2 },
     { text: _l('指定人员代理'), value: 5 },
     { text: _l('流程结束'), value: 3 },
-    { text: _l('默认设置'), value: 0 },
+    { text: isApproval ? _l('使用发起节点中的默认设置') : _l('使用流程默认设置'), value: 0 },
   ];
   const selectCharge = event => {
     quickSelectUser(event.target, {
@@ -53,11 +63,8 @@ export default ({ projectId, processId, isApproval, title, userTaskNullMap, show
     <Fragment>
       <div className="Font13 mTop20 bold">
         {title}
-        {isApproval && (
-          <span
-            className="workflowDetailTipsWidth mLeft5 tip-top-right"
-            data-tip={_l('设置节点负责人为空时的默认处理方式，在每个节点中也可单独设置。')}
-          >
+        {titleInfo && (
+          <span className="workflowDetailTipsWidth mLeft5 tip-top-right" data-tip={titleInfo}>
             <Icon className="Font16 Gray_9e" icon="info" />
           </span>
         )}
@@ -66,7 +73,7 @@ export default ({ projectId, processId, isApproval, title, userTaskNullMap, show
         className="flowDropdown mTop10"
         data={USER_TASK_NULL_TYPE}
         value={userTaskNullType || undefined}
-        placeholder={_l('默认设置')}
+        placeholder={isApproval ? _l('使用发起节点中的默认设置') : _l('使用流程默认设置')}
         border
         renderTitle={() => (
           <Fragment>
@@ -88,7 +95,7 @@ export default ({ projectId, processId, isApproval, title, userTaskNullMap, show
       {processId && userTaskNullType === 2 && (
         <div className="Gray_75 mTop5">
           {_l('当前流程还没有流程拥有者')}
-          {isApproval ? (
+          {hideGoToSettings ? (
             _l('，请在 流程发起节点 中配置')
           ) : (
             <span

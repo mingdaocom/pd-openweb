@@ -6,7 +6,8 @@ import { DATABASE_TYPE } from 'src/pages/integration/dataIntegration/constant.js
 import _ from 'lodash';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import Des from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/components/Des';
-import { ACTION_LIST } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config.js';
+import { ACTION_LIST, OPERATION_TYPE_DATA } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config.js';
+
 import DestEdit from './Dest';
 const WrapCon = styled.div`
   .setSheetName,
@@ -186,6 +187,9 @@ export default function SlideLayerTem(props) {
                   />
                 )}
                 <span className={cx({ Red: item.isErr })}> {item.name}</span>
+                {item.aggFuncType && (
+                  <span className="Gray_9e">({OPERATION_TYPE_DATA.find(o => o.value === item.aggFuncType).text})</span>
+                )}
                 {item.isErr && (
                   <div data-tip={_l('字段已删除')} className="tip-top">
                     <Icon icon="info1" className="Red mLeft5 isNoMatchOption" />

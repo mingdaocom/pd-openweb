@@ -6,7 +6,7 @@ import { DateTime, DateTimeRange } from 'ming-ui/components/NewDateTimePicker';
 import DialogSelectDept from 'src/components/dialogSelectDept';
 import Tag from '../Tag';
 import SelectOtherFields from '../SelectOtherFields';
-import { getIcons } from '../../../utils';
+import { getIcons, handleGlobalVariableName } from '../../../utils';
 import { previewQiniuUrl } from 'src/components/previewAttachments';
 import { TimePicker } from 'antd';
 import { FORMAT_TEXT } from '../../../enum';
@@ -85,7 +85,7 @@ export default class SingleControlValue extends Component {
             flowNodeType={item.nodeTypeId}
             appType={item.nodeAppType || item.appType}
             actionId={item.nodeActionId || item.actionId}
-            nodeName={item.nodeName}
+            nodeName={handleGlobalVariableName(item.nodeId, item.sourceType, item.nodeName)}
             controlId={item.fieldValueId}
             controlName={item.fieldValueName}
             isSourceApp={item.isSourceApp}
@@ -146,9 +146,12 @@ export default class SingleControlValue extends Component {
       <SelectOtherFields
         showClear={this.props.showClear}
         showCurrent={this.props.showCurrent}
+        disabledInterface={this.props.isBatch && item.type === 14}
         item={item}
         fieldsVisible={this.state.moreFieldsIndex === i}
+        projectId={this.props.companyId}
         processId={this.props.processId}
+        relationId={this.props.relationId}
         selectNodeId={this.props.selectNodeId}
         sourceAppId={this.props.sourceAppId}
         sourceNodeId={this.props.sourceNodeId}
@@ -334,7 +337,7 @@ export default class SingleControlValue extends Component {
         name: obj.nodeName,
         isSourceApp: obj.isSourceApp.toString(),
       };
-      formulaMap[obj.fieldValueId] = { type: obj.fieldValueType, name: obj.fieldValueName };
+      formulaMap[obj.fieldValueId] = { type: obj.fieldValueType, name: obj.fieldValueName, sourceType: obj.sourceType };
 
       updateSource({ formulaMap }, () => {
         if (this.tagtextarea) {
@@ -454,7 +457,7 @@ export default class SingleControlValue extends Component {
                   flowNodeType={nodeObj.type}
                   appType={nodeObj.appType}
                   actionId={nodeObj.actionId}
-                  nodeName={nodeObj.name || ''}
+                  nodeName={handleGlobalVariableName(ids[0], controlObj.sourceType, nodeObj.name)}
                   controlId={ids[1]}
                   controlName={controlObj.name || ''}
                   isSourceApp={nodeObj.isSourceApp === 'true'}

@@ -678,7 +678,7 @@ function BtnSetting(props) {
                     <div className="settingTitle Normal">{_l('搜索字段')}</div>
                     <Dropdown
                       value={searchId || undefined}
-                      data={controls.map(item => {
+                      data={controls.filter(c => ![52].includes(c.type)).map(item => {
                         return {
                           text: item.controlName,
                           value: item.controlId

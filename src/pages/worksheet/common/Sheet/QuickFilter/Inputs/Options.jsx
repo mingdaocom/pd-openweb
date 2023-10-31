@@ -56,6 +56,7 @@ const Con = styled.div`
       }
     }
     .isEmpty {
+      color: inherit !important;
       margin-left: 0px !important;
       padding-left: 0px !important;
       .icon-close {

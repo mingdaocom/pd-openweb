@@ -1,8 +1,8 @@
 @font-face {
   font-family: "MD_Icon"; /* Project id 2032949 */
-  src: url('iconfont.woff2?t=1692359766973') format('woff2'),
-       url('iconfont.woff?t=1692359766973') format('woff'),
-       url('iconfont.ttf?t=1692359766973') format('truetype');
+  src: url('iconfont.woff2?t=1697557036919') format('woff2'),
+       url('iconfont.woff?t=1697557036919') format('woff'),
+       url('iconfont.ttf?t=1697557036919') format('truetype');
 }
 
 .MD_Icon {
@@ -11,6 +11,46 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-T2:before {
+  content: "\e66f";
+}
+
+.icon-T4:before {
+  content: "\e670";
+}
+
+.icon-T1:before {
+  content: "\e66d";
+}
+
+.icon-T3:before {
+  content: "\e66c";
+}
+
+.icon-format_bold:before {
+  content: "\e668";
+}
+
+.icon-format_italic:before {
+  content: "\e669";
+}
+
+.icon-format_underlined:before {
+  content: "\e66a";
+}
+
+.icon-strikethrough_s:before {
+  content: "\e66b";
+}
+
+.icon-watermark:before {
+  content: "\ec2c";
+}
+
+.icon-new:before {
+  content: "\e666";
 }
 
 .icon-reader:before {
@@ -33,7 +73,7 @@
   content: "\e992";
 }
 
-.icon-cloud_sync_black_24dp:before {
+.icon-cloud_sync:before {
   content: "\e943";
 }
 

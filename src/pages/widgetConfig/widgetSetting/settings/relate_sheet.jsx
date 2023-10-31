@@ -225,7 +225,7 @@ export default function RelateSheet(props) {
   const selectedOpenViewIsDelete = !loading && openview && !_.find(views, sheet => sheet.viewId === openview);
 
   const isListDisplay = String(showtype) === '2';
-  const filterControls = getFilterRelateControls(relationControls);
+  const filterControls = getFilterRelateControls(relationControls, showControls);
   const titleControl = _.find(filterControls, item => item.attribute === 1);
   const disableOpenViewDrop = !openview && viewId && !selectedViewIsDeleted;
   const scanControls = formatControlsToDropdown(relationControls.filter(item => TEXT_TYPE_CONTROL.includes(item.type)));
@@ -320,6 +320,7 @@ export default function RelateSheet(props) {
           <FilterDialog
             {...props}
             title={title}
+            showCustom
             filters={filterData}
             supportGroup
             relationControls={controls}

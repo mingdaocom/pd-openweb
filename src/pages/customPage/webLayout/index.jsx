@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { EditWidget, WidgetList, WidgetContent } from '../components';
 import cx from 'classnames';
 import _ from 'lodash';
+import { replaceColor, isLightColor } from 'src/pages/customPage/util';
 
 const ContentWrap = styled.div`
   box-sizing: border-box;
@@ -15,6 +16,9 @@ const ContentWrap = styled.div`
   height: 100%;
   flex: 1;
   overflow: auto;
+  &.darkTheme .componentTitle {
+    color: rgba(255, 255, 255, 1) !important;
+  }
   &.componentsEmpty {
     display: flex;
     align-items: center;
@@ -48,18 +52,26 @@ const ContentWrap = styled.div`
 `;
 
 function webLayout(props) {
-  const { editable = true, components = [], updateWidget = _.noop, className = '', emptyPlaceholder, ...rest } = props;
-
+  const { editable = true, components = [], updateWidget = _.noop, className = '', emptyPlaceholder, config, appPkg, ...rest } = props;
   const [editingWidget, setWidget] = useState({});
   const $ref = useRef(null);
-
+  const { iconColor } = rest.apk;
+  const pageConfig = replaceColor(config || {}, appPkg.iconColor || rest.apk.iconColor);
   return (
     <Fragment>
       {editable && <WidgetList {...props} />}
-      <ContentWrap ref={$ref} className={cx(className, { componentsEmpty: components <= 0 })} id="componentsWrap">
+      <ContentWrap
+        ref={$ref}
+        className={cx(className, {
+          componentsEmpty: components <= 0,
+          darkTheme: pageConfig.pageBgColor && !isLightColor(pageConfig.pageBgColor)
+        })}
+        id="componentsWrap"
+        style={{ backgroundColor: appPkg.pcNaviStyle === 1 ? pageConfig.darkenPageBgColor || pageConfig.pageBgColor : pageConfig.pageBgColor }}
+      >
         {components.length > 0 ? (
           <div className="componentsWrap">
-            <WidgetContent {...props} editingWidget={editingWidget} setWidget={setWidget} />
+            <WidgetContent {...props} editingWidget={editingWidget} setWidget={setWidget} config={pageConfig} />
           </div>
         ) : (
           emptyPlaceholder || (

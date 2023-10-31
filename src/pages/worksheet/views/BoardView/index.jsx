@@ -67,6 +67,7 @@ function BoardView(props) {
     addRecord,
     updateMultiSelectBoard,
     refreshSheet,
+    navGroupFilters,
     ...rest
   } = props;
 
@@ -88,6 +89,7 @@ function BoardView(props) {
     },
   });
 
+  const cache = useRef({});
   const $listWrapRef = useRef(null);
   const flagRef = useRef({ preScrollLeft: 0, pending: false });
 
@@ -156,7 +158,19 @@ function BoardView(props) {
   }, []);
 
   useEffect(() => {
-    initBoardViewData();
+    if (
+      cache.current.prevColorId &&
+      view.advancedSetting.colorid &&
+      view.advancedSetting.colorid !== cache.current.prevColorId
+    ) {
+      // 修改颜色字段时晚一点取, 不然返回的数据还是不包括新改的字段的值
+      setTimeout(() => {
+        initBoardViewData();
+      }, 200);
+    } else {
+      initBoardViewData();
+    }
+    cache.current.prevColorId = view.advancedSetting.colorid;
   }, [
     viewId,
     view.viewControl,
@@ -165,6 +179,8 @@ function BoardView(props) {
     view.advancedSetting.freezenav,
     view.advancedSetting.navempty,
     view.moreSort,
+    view.advancedSetting.colorid,
+    navGroupFilters,
   ]);
 
   const handleSelectField = obj => {

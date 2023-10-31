@@ -39,7 +39,7 @@ const CASCADER_CONFIG = [
 export default function WidgetConfig(props) {
   const { data, onChange } = props;
   const { type, enumDefault, advancedSetting = {}, strDefault } = data;
-  const { showxy, showtype, analysislink, uselast, sorttype = 'zh' } = getAdvanceSetting(data);
+  const { showxy, showtype, analysislink, uselast, sorttype = 'zh', anylevel } = getAdvanceSetting(data);
 
   const getConfig = () => {
     if (type === 2 || type === 32) {
@@ -116,6 +116,19 @@ export default function WidgetConfig(props) {
           </Checkbox>
         </div>
       ));
+    }
+    if (_.includes([23, 24], type)) {
+      return (
+        <div className="labelWrap">
+          <Checkbox
+            size="small"
+            checked={anylevel === '1'}
+            onClick={checked => onChange(handleAdvancedSettingChange(data, { anylevel: checked ? '0' : '1' }))}
+          >
+            <span>{_l('必须选择到最后一级')}</span>
+          </Checkbox>
+        </div>
+      );
     }
     if (type === 42) {
       return (

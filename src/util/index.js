@@ -2,10 +2,11 @@ import EventEmitter from 'events';
 import JSEncrypt from 'jsencrypt';
 import React from 'react';
 import update from 'immutability-helper';
-import { get, upperFirst, isString } from 'lodash';
+import _, { get, upperFirst, isString, isNaN, isNumber } from 'lodash';
+import tinycolor from '@ctrl/tinycolor';
 import { Dialog } from 'ming-ui';
 import 'src/pages/PageHeader/components/NetState/index.less';
-import { LIGHT_COLOR, PUBLIC_KEY, APPLICATION_ICON } from './enum';
+import { PUBLIC_KEY, APPLICATION_ICON, VersionProductHelpLink } from './enum';
 import { getPssId } from 'src/util/pssId';
 import qs from 'query-string';
 import qiniuAjax from 'src/api/qiniu';
@@ -13,20 +14,30 @@ import projectAjax from 'src/api/project';
 import captcha from 'src/components/captcha';
 import accountAjax from 'src/api/account';
 import actionLogAjax from 'src/api/actionLog';
-import { purchaseMethodFunc } from 'src/components/upgrade/choose/PurchaseMethodModal';
+import { SYS_COLOR, SYS_CHART_COLORS } from 'src/pages/Admin/settings/config';
 
 export const emitter = new EventEmitter();
 
-// 判断选项颜色是否为浅色系
-export const isLightColor = (color = '') => _.includes(LIGHT_COLOR, color.toUpperCase());
+const SPECIAL_DRAK_COLORS = ['ff9300', 'fa8c16', '808080', '4caf50', 'fa8c16', '08c9c9', 'fad714', 'faad14'];
 
-export const getCurrentProject = id => {
-  if (id === 'external' && browserIsMobile()) {
-    return { projectId: id, companyName: _l('外部协作') };
+// 判断选项颜色是否为浅色系
+export const isLightColor = (color = '') =>
+  SPECIAL_DRAK_COLORS.find(l => l === tinycolor(color).toHex()) ? false : tinycolor(color).isLight();
+
+export const getCurrentProject = (id, isExternalProject) => {
+  if (!id) return {};
+
+  const externalProjects = _.get(md, ['global', 'Account', 'externalProjects']) || [];
+  const projects = (_.get(md, ['global', 'Account', 'projects']) || []).concat(
+    isExternalProject ? externalProjects : [],
+  );
+  let info = _.find(projects, item => item.projectId === id);
+
+  if (!info && isExternalProject) {
+    return getSyncLicenseInfo(id);
   }
 
-  const projects = _.get(md, ['global', 'Account', 'projects']) || [];
-  return _.find(projects, item => item.projectId === id) || {};
+  return info || {};
 };
 
 export const encrypt = text => {
@@ -88,7 +99,8 @@ export const getItem = key => {
 };
 
 export const formatNumberFromInput = (value, pointReturnEmpty = true) => {
-  value = value
+  value = (value || '')
+    .replace('。', '.')
     .replace(/[^-\d.]/g, '')
     .replace(/^\./g, '')
     .replace(/^-/, '$#$')
@@ -704,6 +716,7 @@ export const upgradeVersionDialog = options => {
   const explainText = options.explainText;
   const versionType = options.versionType ? options.versionType : undefined;
   const isExternal = _.isEmpty(getCurrentProject(options.projectId)); // 是否为外协人员
+  const helpLink = VersionProductHelpLink[options.featureId]; // 帮助链接
 
   if (options.dialogType === 'content') {
     return (
@@ -767,10 +780,10 @@ export function getFeatureStatus(projectId, featureId) {
 /**
  * 功能埋点授权显示升级版本内容dialogType： dialog弹层（默认） content 页面
  */
-export function buriedUpgradeVersionDialog(projectId, featureId, dialogType, extra) {
+export function buriedUpgradeVersionDialog(projectId, featureId, extra) {
   const { Versions = [] } = md.global || {};
   const { licenseType } = getSyncLicenseInfo(projectId);
-  const { explainText = '' } = extra || {};
+  const { explainText = '', dialogType } = extra || {};
   let upgradeName, versionType;
 
   if (!md.global.Config.IsLocal) {
@@ -791,6 +804,7 @@ export function buriedUpgradeVersionDialog(projectId, featureId, dialogType, ext
   if (dialogType === 'content') {
     return upgradeVersionDialog({
       projectId,
+      featureId,
       isFree: licenseType === 0 || licenseType === 2,
       explainText:
         md.global.Config.IsLocal || md.global.Account.isPortal
@@ -804,6 +818,7 @@ export function buriedUpgradeVersionDialog(projectId, featureId, dialogType, ext
   } else {
     upgradeVersionDialog({
       projectId,
+      featureId,
       isFree: licenseType === 0 || licenseType === 2,
       explainText:
         md.global.Config.IsLocal || md.global.Account.isPortal
@@ -831,7 +846,7 @@ export function toFixed(num, dot = 0) {
   if (!/\./.test(strOfNum)) {
     return strOfNum + '.' + ''.padEnd(dot, '0');
   }
-  const decimal = (strOfNum.match(/\.(\d+)/)[1] || '').length;
+  const decimal = ((strOfNum.match(/\.(\d+)/) || '')[1] || '').length;
   if (decimal === dot) {
     return strOfNum;
   } else if (decimal < dot) {
@@ -962,13 +977,6 @@ export const addBehaviorLog = (type, entityId, params = {}) => {
 };
 
 /**
- * 判断是否是uuid
- */
-export function isUUID(id = '') {
-  return /^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/.test(id);
-}
-
-/**
  * 随机密码
  */
 export const randomPassword = length => {
@@ -990,4 +998,91 @@ export const randomPassword = length => {
     }
   }
   return password.join('');
+};
+
+export function parseNumber(numStr) {
+  if (numStr === '') {
+    return;
+  }
+  const result = Number(numStr);
+  if (!isNumber(result)) {
+    return;
+  } else if (isNaN(result)) {
+    return;
+  } else {
+    return result;
+  }
+}
+/**
+ *十六进制颜色转为rgba
+ */
+export const hexToRgba = (hex, opacity = 1) => {
+  return (
+    'rgba(' +
+    parseInt('0x' + hex.slice(1, 3)) +
+    ',' +
+    parseInt('0x' + hex.slice(3, 5)) +
+    ',' +
+    parseInt('0x' + hex.slice(5, 7)) +
+    ',' +
+    opacity +
+    ')'
+  );
+};
+
+/**
+ * 获取组织管理颜色配置
+ */
+export const getProjectColor = projectId => {
+  const { PorjectColor, Account } = md.global;
+  const { projects = [] } = Account;
+  const currentProjectId = localStorage.getItem('currentProjectId');
+  const id = projectId || currentProjectId || _.get(projects[0], 'projectId');
+  const data = _.find(PorjectColor, { projectId: id });
+  if (data) {
+    const mapColor = colors =>
+      colors.map(item => {
+        const data = _.find(SYS_CHART_COLORS, { id: item.id });
+        return {
+          ...data,
+          enable: item.enable,
+        };
+      });
+    data.chartColor.system = _.isEmpty(data.chartColor.system) ? SYS_CHART_COLORS : mapColor(data.chartColor.system);
+    data.themeColor.system = _.isEmpty(data.themeColor.system) ? SYS_COLOR : data.themeColor.system;
+    return data;
+  } else {
+    return {
+      chartColor: {
+        custom: [],
+        system: SYS_CHART_COLORS,
+      },
+      themeColor: {
+        custom: [],
+        system: SYS_COLOR,
+      },
+    };
+  }
+};
+
+/**
+ * 获取组织管理主题色
+ */
+export const getThemeColors = projectId => {
+  const { themeColor } = getProjectColor(projectId);
+  const systemColorList = (themeColor.system || []).filter(item => item.enable !== false).map(item => item.color);
+  const customColorList = (themeColor.custom || []).filter(item => item.enable !== false).map(item => item.color);
+  return systemColorList.concat(customColorList);
+};
+
+/**
+ * 设置应用favicon
+ */
+export const setFavicon = (iconUrl, iconColor) => {
+  fetch(iconUrl)
+    .then(res => res.text())
+    .then(data => {
+      data = btoa(data.replace(/fill=\".*?\"/g, '').replace(/\<svg/, `<svg fill="${iconColor}"`));
+      $('[rel="icon"]').attr('href', `data:image/svg+xml;base64,${data}`);
+    });
 };

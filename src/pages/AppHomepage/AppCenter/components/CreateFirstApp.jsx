@@ -3,8 +3,8 @@ import styled from 'styled-components';
 import { ScrollView } from 'ming-ui';
 import homeAppAjax from 'src/api/homeApp';
 import { navigateTo } from 'router/navigateTo';
-import { COLORS } from 'src/pages/AppHomepage/components/SelectIcon/config';
 import DialogImportExcelCreate from 'src/pages/worksheet/components/DialogImportExcelCreate';
+import { getThemeColors } from 'src/util';
 import bgPng from '../assets/welcome.png';
 import _ from 'lodash';
 
@@ -110,11 +110,11 @@ export default function CreateFirstApp(props) {
                   className="introItem"
                   onClick={() => {
                     if (type === 'excel_create') {
-                      console.log('excel_create');
                       setDialogImportExcel(true);
                       return;
                     }
                     if (type === 'create') {
+                      const COLORS = getThemeColors(projectId);
                       homeAppAjax
                         .createApp({
                           projectId,

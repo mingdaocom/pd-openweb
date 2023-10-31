@@ -5,6 +5,7 @@ import _ from 'lodash';
 import { getWithToken, postWithToken } from 'worksheet/util';
 import convert from './convertData';
 import PreviewTable from './PreviewTable';
+import { arrayOf, func, number, shape, string } from 'prop-types';
 
 const Header = styled.div`
   height: 52px;
@@ -69,6 +70,8 @@ const ConvertingMask = styled.div`
 
 export default function PreviewData(props) {
   const {
+    maxCount = 1000,
+    dialogHeight,
     dataFrom,
     dataCount,
     projectId,
@@ -88,7 +91,7 @@ export default function PreviewData(props) {
   const [sheetIndex, setSheetIndex] = useState(0);
   const needImportCellData = (dataFrom === 'excel' ? cellsData.slice(headRowIndex) : cellsData).slice(
     0,
-    200 - dataCount,
+    maxCount - dataCount,
   );
   const valuedData = needImportCellData.filter(row => !_.isEmpty(row.filter(_.identity)));
   const [mapConfig, setMapConfig] = useState(
@@ -97,7 +100,7 @@ export default function PreviewData(props) {
       .reduce((a, b) => Object.assign({}, a, b)),
   );
   const showHeader = dataFrom === 'excel' || sheets.length > 1;
-  const height = showHeader ? 423 : 473;
+  const height = showHeader ? dialogHeight - 177 : dialogHeight - 127;
   return (
     <Fragment>
       {isConverting && (
@@ -239,3 +242,19 @@ export default function PreviewData(props) {
     </Fragment>
   );
 }
+
+PreviewData.propTypes = {
+  dialogHeight: number,
+  maxCount: number,
+  dataFrom: number,
+  dataCount: number,
+  projectId: string,
+  worksheetId: string,
+  controlId: string,
+  excelUrl: string,
+  sheets: arrayOf(shape({})),
+  controls: arrayOf(shape({})),
+  setStep: func,
+  onClose: func,
+  onAddRows: func,
+};

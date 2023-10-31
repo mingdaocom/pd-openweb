@@ -1,6 +1,5 @@
 import React, { useState, useEffect, Fragment } from 'react';
-import { ScrollView } from 'ming-ui';
-import Skeleton from 'src/router/Application/Skeleton';
+import { ScrollView, Skeleton } from 'ming-ui';
 import { useSetState } from 'react-use';
 import api from 'api/homeApp';
 import './index.less';

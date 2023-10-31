@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { Dialog, ConfirmPanel } from 'ming-ui';
+import _ from 'lodash';
 import RecordOperate from 'worksheet/components/RecordOperate';
 import ChangeSheetLayout from 'worksheet/components/ChangeSheetLayout';
 
@@ -56,10 +57,12 @@ export default function RowHead(props) {
     recordId,
     relateRecordControlId,
     deleteRelateRow,
+    updateRows = () => {},
     addReocord = () => {},
     saveSheetLayout = () => {},
     resetSheetLayout = () => {},
     removeRecords = () => {},
+    onRecreate = () => {},
   } = props;
   return (
     <ConfirmPanel
@@ -102,12 +105,11 @@ export default function RowHead(props) {
               allowCopy
               allowAdd={allowAdd}
               isRelateRecordTable
-              shows={cx('share', 'print', 'copy', {
+              shows={cx('share', 'print', 'copy', 'recreate', {
                 openinnew: viewId && allowOpenRecord,
                 removeRelation: allowRemoveRelation,
               })}
               formdata={tableControls.map(c => ({ ...c, value: row[c.controlId] }))}
-              disableLoadCustomButtons={!viewId}
               allowDelete={row.allowdelete}
               showTask={false}
               sheetSwitchPermit={sheetSwitchPermit}
@@ -125,6 +127,10 @@ export default function RowHead(props) {
               onCopySuccess={addReocord}
               onDeleteSuccess={() => {
                 removeRecords([row]);
+              }}
+              onRecreate={onRecreate}
+              onUpdate={(rowdata, row) => {
+                updateRows(_.omit(row, ['allowedit', 'allowdelete']));
               }}
             />
           ) : (
@@ -160,5 +166,6 @@ RowHead.propTypes = {
   rowIndex: PropTypes.number,
   style: PropTypes.shape({}),
   deleteRelateRow: PropTypes.func,
+  updateRows: PropTypes.func,
   onDelete: PropTypes.func,
 };

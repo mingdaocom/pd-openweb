@@ -240,12 +240,16 @@ export default class extends Component {
       });
     }
     if (!nextProps.loading && this.props.loading) {
-      const { map, yaxisList, summary } = nextProps.reportData;
+      const { map, yaxisList, summary, style } = nextProps.reportData;
       const data = setColorLavel(map);
       const { CountryLayerChart } = this;
       if (CountryLayerChart && typeof CountryLayerChart.updateData === 'function') {
         this.setCount(formatYaxisList(data, yaxisList), summary);
-        CountryLayerChart.updateData(data);
+        if (_.get(style, 'isDrillDownLayer')) {
+          CountryLayerChart.updateData(CountryLayerChart.drillState, data);
+        } else {
+          CountryLayerChart.updateData(data);
+        }
       }
     }
   }

@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { toFixed } from 'src/util';
+import { getProjectColor, toFixed } from 'src/util';
 
 /**
  * 图表类型
@@ -23,7 +23,7 @@ export const reportTypes = {
 };
 
 /**
- * 图表颜色集合
+ * 图表颜色集合 (旧的颜色配置)
  */
 export const colorGroup = {
   0: {
@@ -77,15 +77,35 @@ export const colorGroup = {
 }
 
 /**
+ * 获取组织管理主题色
+ */
+export const getPorjectChartColors = projectId => {
+  const { chartColor } = getProjectColor(projectId);
+  const systemColorList = (chartColor.system || []).filter(item => item.enable !== false && !_.isEmpty(item.colors));
+  const customColorList = (chartColor.custom || []).filter(item => item.enable !== false && !_.isEmpty(item.colors));
+  return systemColorList.concat(customColorList);
+}
+
+/**
  * 获取图表颜色
  */
-export const getChartColors = (style) => {
-  const { colorType, colorGroupIndex, customColors } = style ? style : {};
+export const getChartColors = (style, themeColor, projectId) => {
+  const chartColors = getPorjectChartColors(projectId);
+  const { colorType, colorGroupIndex, colorGroupId, customColors } = style ? style : {};
   if ([0, 1].includes(colorType)) {
-    const data = colorGroup[colorGroupIndex] || colorGroup[0];
-    return data.value;
+    // 新颜色配置
+    if (colorGroupId === 'adaptThemeColor' && themeColor) {
+      const adaptThemeColors = chartColors.filter(item => (item.themeColors || []).includes(themeColor.toLocaleUpperCase()));
+      return (adaptThemeColors[0] || chartColors[0]).colors;
+    } else if (colorGroupId) {
+      return (_.find(chartColors, { id: colorGroupId }) || chartColors[0]).colors;
+    } else if (colorGroup[colorGroupIndex]) {
+      return colorGroup[colorGroupIndex].value;
+    } else {
+      return chartColors[0].colors;
+    }
   } else {
-    return customColors || colorGroup[0].value;
+    return customColors || chartColors[0].colors;
   }
 }
 
@@ -278,8 +298,8 @@ export const numberLevel = [{
   format: value => value / 1000
 }, {
   value: 3,
-  text: _l('万'),
-  suffix: _l('万'),
+  text: _l('万%06003'),
+  suffix: _l('万%06003'),
   format: value => value / 10000
 }, {
   value: 4,
@@ -288,8 +308,8 @@ export const numberLevel = [{
   format: value => value / 1000000
 }, {
   value: 5,
-  text: _l('亿'),
-  suffix: _l('亿'),
+  text: _l('亿%06004'),
+  suffix: _l('亿%06004'),
   format: value => value / 100000000
 }, {
   value: 6,

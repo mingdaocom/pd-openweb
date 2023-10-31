@@ -123,7 +123,7 @@ export default class ShowControlModal extends Component {
   componentWillReceiveProps(nextProps) {
     if (nextProps.dialogVisible && !this.props.dialogVisible) {
       const columns = nextProps.relationControls.filter(item => {
-        return ![10010, 21, 22, 25, 29, 41, 42, 43, 45, 47, 49, 51].includes(item.type) && !_.find(nextProps.fields, { controlId: item.controlId });
+        return ![10010, 21, 22, 25, 29, 41, 42, 43, 45, 47, 49, 51, 52].includes(item.type) && !_.find(nextProps.fields, { controlId: item.controlId });
       }).sort((a, b) => {
         if (a.row === b.row) {
           return a.col - b.col;
@@ -224,7 +224,7 @@ export default class ShowControlModal extends Component {
     const { dialogVisible, relationControls } = this.props;
     const { searchValue, columns, selected } = this.state;
     const filteredColumns = columns.filter(
-      column => column.controlName.includes(searchValue),
+      column => (column.controlName || '').toLocaleLowerCase().includes(searchValue.toLocaleLowerCase()),
     );
     return (
       <Modal

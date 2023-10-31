@@ -679,7 +679,8 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.worksheetId 工作表id
   * @param {string} args.controlId ocr控件id
-  * @param {string} args.url 待识别文件url ，图片的 Url 地址。要求图片经Base64编码后不超过 7M，分辨率建议500*800以上，支持PNG、JPG、JPEG、BMP格式。建议卡片部分占据图片2/3以上。 建议图片存储于腾讯云，可保障更高的下载速度和稳定性。
+  * @param {array} args.data ocr映射url数组(不管单个还是多个批量,都是数组)
+remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码后不超过 7M，分辨率建议500*800以上，支持PNG、JPG、JPEG、BMP格式。建议卡片部分占据图片2/3以上。 建议图片存储于腾讯云，可保障更高的下载速度和稳定性
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -734,6 +735,8 @@ export default {
   * @param {integer} args.sourceType 1 = 本表，2 = 他表
   * @param {array} args.items 筛选条件
   * @param {array} args.configs 映射字段
+  * @param {integer} args.moreType 0 = 获取第一条时，按配置来，1= 不赋值
+  * @param {array} args.moreSort 排序
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -2291,7 +2294,7 @@ export default {
   * @param {string} args.viewId 视图ID
   * @param {string} args.btnId 按钮ID
   * @param {string} args.worksheetId 工作表ID
-  * @param {integer} args.optionType 操作类型 1：视图添加按钮 2：视图删除按钮 9：删除按钮, 11:恢复按钮 999：彻底删除
+  * @param {} args.optionType 操作类型 1：视图添加按钮 2：视图删除按钮 9：删除按钮, 11:恢复按钮 999：彻底删除
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -2329,6 +2332,7 @@ export default {
   * @param {boolean} args.verifyPwd
   * @param {boolean} args.enableConfirm
   * @param {object} args.advancedSetting
+  * @param {boolean} args.isBatch
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -2344,7 +2348,7 @@ export default {
   * @param {string} args.viewId 视图ID
   * @param {string} args.btnId 按钮ID
   * @param {string} args.worksheetId 工作表ID
-  * @param {integer} args.optionType 操作类型 1：视图添加按钮 2：视图删除按钮 9：删除按钮, 11:恢复按钮 999：彻底删除
+  * @param {} args.optionType 操作类型 1：视图添加按钮 2：视图删除按钮 9：删除按钮, 11:恢复按钮 999：彻底删除
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

@@ -106,7 +106,10 @@ export default class WebhookContent extends Component {
     const { data, updateSource, onSave } = this.props;
     const { type, count, maxCount, contentType } = this.state;
     const overtime = !data.controls.length && count >= maxCount;
-    const contentTypes = [{ text: 'key-value pairs', value: 1 }, { text: 'JSON', value: 2 }];
+    const contentTypes = [
+      { text: 'key-value pairs', value: 1 },
+      { text: 'JSON', value: 2 },
+    ];
 
     return (
       <Fragment>
@@ -243,7 +246,9 @@ export default class WebhookContent extends Component {
               <div className="mTop20 bold">{_l('从key-value pairs生成')}</div>
               <KeyPairs
                 key={this.props.selectNodeId}
+                projectId={this.props.companyId}
                 processId={this.props.processId}
+                relationId={this.props.relationId}
                 selectNodeId={this.props.selectNodeId}
                 appId={data.appId}
                 source={data.params}
@@ -332,7 +337,9 @@ export default class WebhookContent extends Component {
                   {contentType === 1 ? (
                     <KeyPairs
                       key={this.props.selectNodeId}
+                      projectId={this.props.companyId}
                       processId={this.props.processId}
+                      relationId={this.props.relationId}
                       selectNodeId={this.props.selectNodeId}
                       appId={data.appId}
                       source={data.returns.length ? data.returns : [{ name: '', value: '' }]}
@@ -343,7 +350,9 @@ export default class WebhookContent extends Component {
                   ) : (
                     <CustomTextarea
                       className="minH100"
+                      projectId={this.props.companyId}
                       processId={this.props.processId}
+                      relationId={this.props.relationId}
                       selectNodeId={this.props.selectNodeId}
                       sourceAppId={data.appId}
                       type={2}

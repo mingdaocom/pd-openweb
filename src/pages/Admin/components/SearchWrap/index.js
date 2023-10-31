@@ -99,10 +99,12 @@ export default function SearchWrap(props) {
   };
 
   useEffect(() => {
-    resizeObserver = new ResizeObserver(entries => {
-      setWidth(searchBoxRef && searchBoxRef.current && searchBoxRef.current.clientWidth);
-    });
-    resizeObserver.observe(searchBoxRef.current);
+    if (window.ResizeObserver && typeof window.ResizeObserver !== 'undefined') {
+      resizeObserver = new ResizeObserver(entries => {
+        setWidth(searchBoxRef && searchBoxRef.current && searchBoxRef.current.clientWidth);
+      });
+      resizeObserver.observe(searchBoxRef.current);
+    }
   }, []);
 
   return (

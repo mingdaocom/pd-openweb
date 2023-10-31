@@ -28,10 +28,11 @@ class AppList extends Component {
   getAppListInfo = () => {
     const { params = {} } = this.props.match;
     const { groupId, groupType } = params;
-    const { projectId } = getCurrentProject(
-      localStorage.getItem('currentProjectId') ||
-        (md.global.Account.projects[0] || { projectId: 'external' }).projectId,
+    const projectObj = getCurrentProject(
+      localStorage.getItem('currentProjectId') || (md.global.Account.projects[0] || {}).projectId,
     );
+    const currentProject = !_.isEmpty(projectObj) ? projectObj : { projectId: 'external', companyName: _l('外部协作') };
+    const { projectId } = currentProject;
     homeAppAjax.getGroup({ projectId, id: groupId, groupType }).then(res => {
       this.setState({ currentGroupList: res.apps || [], loading: false, groupInfo: res });
     });

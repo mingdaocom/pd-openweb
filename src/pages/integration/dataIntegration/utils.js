@@ -12,7 +12,7 @@ import _ from 'lodash';
 
 export const getInitFieldsMapping = (sourceFields, isSourceAppType, isDestAppType) => {
   const needReplace = !isSourceAppType || !isDestAppType;
-  const isExistJoinPk = !!(sourceFields || []).filter(item => item.isJoinPk).length;
+  const isExistJoinPk = !!(sourceFields || []).filter(item => item.isUniquePk).length;
   const mapping = sourceFields.map(item => {
     return {
       sourceField: item,
@@ -21,16 +21,16 @@ export const getInitFieldsMapping = (sourceFields, isSourceAppType, isDestAppTyp
         isCheck: item.isPk,
         //存在多表连接主键，joinPK不允许为null, 其余主键必须允许为null;
         //不存在多表连接，主键不允许为null
-        isNotNull: isExistJoinPk ? item.isJoinPk : item.isPk,
+        isNotNull: isExistJoinPk ? item.isUniquePk : item.isPk,
         isPk: item.isPk,
-        isJoinPk: item.isJoinPk,
+        isUniquePk: item.isUniquePk,
         name:
-          isSourceAppType && isDestAppType && item.isJoinPk
+          isSourceAppType && isDestAppType && item.isUniquePk
             ? 'rowid'
             : needReplace
             ? item.alias.replace(namePattern, '') || item.name.replace(namePattern, '')
             : item.alias || item.name,
-        alias: item.isJoinPk
+        alias: item.isUniquePk
           ? 'rowid'
           : needReplace
           ? item.alias.replace(namePattern, '') || item.name.replace(namePattern, '')
@@ -39,7 +39,7 @@ export const getInitFieldsMapping = (sourceFields, isSourceAppType, isDestAppTyp
         jdbcTypeId: null,
         precision: null,
         scale: null,
-        mdType: item.isJoinPk ? item.mdType : null, //仅用于工作表
+        mdType: item.isUniquePk ? item.mdType : null, //仅用于工作表
         controlSetting: null, //仅用于工作表
 
         id: null,
@@ -248,7 +248,7 @@ export const getDefaultData = (mapping, types, isSetDefaultFields, destFields, i
         precision: (initOption || itemOptions[0]).maxLength,
         scale: (initOption || itemOptions[0]).defaultScale,
         //工作表
-        mdType: item.destField.isJoinPk ? 2 : (initOption || itemOptions[0]).mdType,
+        mdType: item.destField.isUniquePk ? 2 : (initOption || itemOptions[0]).mdType,
         controlSetting: isDestAppType ? _.pick(settingData, ['advancedSetting', 'enumDefault', 'type', 'dot']) : null,
       },
     };

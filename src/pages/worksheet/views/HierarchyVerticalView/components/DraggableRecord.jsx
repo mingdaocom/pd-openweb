@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { FlexCenter } from 'worksheet/styled';
 import { useDrag, useDrop } from 'react-dnd-latest';
 import { noop, pick } from 'lodash';
+import { getRecordColorConfig } from 'worksheet/util';
 import { browserIsMobile } from 'src/util';
 import AddRecord from '../../HierarchyView/components/AddRecord';
 import { dealHierarchyData, getRelateDefaultValue } from '../../HierarchyView/util';
@@ -62,8 +63,6 @@ export default function DraggableRecord(props) {
     worksheetInfo,
     appId,
     searchRecordId,
-    sheetButtons = [],
-    viewId,
     isCharge,
     isNarrow,
     onClick,
@@ -197,14 +196,13 @@ export default function DraggableRecord(props) {
       >
         <Components.EditableCard
           {...pick(props, ['viewParaOfRecord', 'sheetSwitchPermit', 'onUpdate', 'onDelete'])}
-          data={{ ...recordData, rowId }}
+          data={{ ...recordData, rowId, rawRow: treeData[rowId], recordColorConfig: getRecordColorConfig(view) }}
           stateData={data}
           ref={$ref}
           currentView={{
             ...view,
             projectId: worksheetInfo.projectId,
             appId,
-            customButtons: sheetButtons.filter(o => o.isAllView === 1 || o.displayViews.includes(viewId)), //筛选出当前视图的按钮
           }}
           isCharge={isCharge}
           editTitle={() => setEditTitle(true)}

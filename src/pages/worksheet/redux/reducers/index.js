@@ -8,6 +8,7 @@ import * as galleryview from './galleryview';
 import * as calendarview from './calendarview';
 import * as gunterView from './gunterview';
 import * as excelCreateAppAndSheet from './excelCreateAppAndSheet';
+import * as detailView from './detailView';
 
 function base(state = {}, action) {
   switch (action.type) {
@@ -28,7 +29,7 @@ function base(state = {}, action) {
         });
         return {
           ...state,
-          viewId: _.get((showViews.length ? showViews : action.value.views)[0], 'viewId')
+          viewId: _.get((showViews.length ? showViews : action.value.views)[0], 'viewId'),
         };
       }
       return state;
@@ -83,4 +84,5 @@ export default combineReducers({
   calendarview: combineReducers(calendarview),
   gunterView: combineReducers(gunterView),
   excelCreateAppAndSheet: combineReducers(excelCreateAppAndSheet),
+  detailView: combineReducers(detailView),
 });

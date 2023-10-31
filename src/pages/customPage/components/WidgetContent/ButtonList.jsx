@@ -34,19 +34,28 @@ const ButtonListWrap = styled.div`
 
 const getDepartments = (projectId, accountId) => {
   return new Promise((resolve, reject) => {
-    departmentAjax.getDepartmentsByAccountId({
-      projectId,
-      accountIds: [accountId]
-    }).then(data => {
-      const { maps } = data;
-      const { departments } = _.find(maps, { accountId }) || {};
-      resolve(departments || []);
-    });
+    departmentAjax
+      .getDepartmentsByAccountId({
+        projectId,
+        accountIds: [accountId],
+      })
+      .then(data => {
+        const { maps } = data;
+        const { departments } = _.find(maps, { accountId }) || {};
+        resolve(departments || []);
+      });
   });
-}
+};
 
 export function ButtonList({ button = {}, editable, layoutType, addRecord, info }) {
-  const [createRecordInfo, setInfo] = useState({ visible: false, value: '', viewId: '', appId: '', name: '', writeControls: [] });
+  const [createRecordInfo, setInfo] = useState({
+    visible: false,
+    value: '',
+    viewId: '',
+    appId: '',
+    name: '',
+    writeControls: [],
+  });
   const { visible, value: worksheetId, viewId, appId, name, writeControls = [] } = createRecordInfo;
   const isMobile = browserIsMobile();
   const scanQRCodeRef = useRef();
@@ -74,44 +83,46 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
     if (isRequestDepartments) {
       departments = await getDepartments(projectId, accountId);
     }
-    processAjax.startProcessByPBC({
-      pushUniqueId: isMingdao ? (pushUniqueId || md.global.Config.pushUniqueId) : md.global.Config.pushUniqueId,
-      appId,
-      triggerId: id,
-      title: name,
-      processId,
-      controls: inputs.filter(item => item.value.length).map(input => {
-        const value = input.value.map(item => {
-          if (item.cid === 'triggerUser') {
-            if (input.type === WIDGETS_TO_API_TYPE_ENUM.USER_PICKER) {
-              return JSON.stringify([accountId]);
-            } else {
-              return md.global.Account.fullname;
-            }
-          }
-          if (item.cid === 'triggerDepartment') {
-            if (input.type === WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT) {
-              return JSON.stringify(departments.map(item => item.id));
-            } else {
-              return JSON.stringify(departments.map(item => item.name));
-            }
-          }
-          if (item.cid === 'triggerTime') {
-            return moment().format('YYYY-MM-DD HH:mm:ss');
-          }
-          if (item.cid === 'codeResult') {
-            return scanQRCodeResult;
-          }
-          return item.staticValue;
-        });
-        return {
-          ...input,
-          value: value.join('')
-        }
+    processAjax
+      .startProcessByPBC({
+        pushUniqueId: isMingdao ? pushUniqueId || md.global.Config.pushUniqueId : md.global.Config.pushUniqueId,
+        appId,
+        triggerId: id,
+        title: name,
+        processId,
+        controls: inputs
+          .filter(item => item.value.length)
+          .map(input => {
+            const value = input.value.map(item => {
+              if (item.cid === 'triggerUser') {
+                if (input.type === WIDGETS_TO_API_TYPE_ENUM.USER_PICKER) {
+                  return JSON.stringify([accountId]);
+                } else {
+                  return md.global.Account.fullname;
+                }
+              }
+              if (item.cid === 'triggerDepartment') {
+                if (input.type === WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT) {
+                  return JSON.stringify(departments.map(item => item.id));
+                } else {
+                  return JSON.stringify(departments.map(item => item.name));
+                }
+              }
+              if (item.cid === 'triggerTime') {
+                return moment().format('YYYY-MM-DD HH:mm:ss');
+              }
+              if (item.cid === 'codeResult') {
+                return scanQRCodeResult;
+              }
+              return item.staticValue;
+            });
+            return {
+              ...input,
+              value: value.join(''),
+            };
+          }),
       })
-    }).then(data => {
-      
-    });
+      .then(data => {});
   }
 
   async function handleClick(item) {
@@ -218,7 +229,7 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
               runStartProcessByPBC(item);
             },
             okText: sureName,
-            cancelText: cancelName
+            cancelText: cancelName,
           });
         }
         return;
@@ -232,12 +243,15 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
     const { config = {}, value, viewId } = scanBtn;
     const showModal = () => {
       Modal.alert(<div className="WordBreak">{result}</div>, '', [
-        { text: _l('复制'), onPress: () => {
-          copy(result);
-          alert(_l('复制成功'), 1);
-        } }
+        {
+          text: _l('复制'),
+          onPress: () => {
+            copy(result);
+            alert(_l('复制成功'), 1);
+          },
+        },
       ]);
-    }
+    };
 
     // 链接
     if (hrefReg.test(result)) {
@@ -252,7 +266,7 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
           } else {
             window.open(result);
           }
-        }
+        };
         if (result.includes('worksheetshare') || result.includes('public/record')) {
           const shareId = (result.match(/\/worksheetshare\/(.*)/) || result.match(/\/public\/record\/(.*)/))[1];
           Toast.loading(_l('加载中，请稍后'));
@@ -264,7 +278,10 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
           const [url, appId, worksheetId, viewId, rowId] = data;
           if (appId && worksheetId && viewId && rowId) {
             run({
-              appId, worksheetId, viewId, rowId
+              appId,
+              worksheetId,
+              viewId,
+              rowId,
             });
           } else {
             run();
@@ -293,7 +310,11 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
       isMobile && Toast.hide();
       const filterId = isFilter && scanBtn.filterId ? scanBtn.filterId : '';
       const searchId = scanBtn.searchId ? scanBtn.searchId : '';
-      window.mobileNavigateTo(`/mobile/searchRecord/${appId}/${value}/${viewId}?keyWords=${encodeURIComponent(result)}&filterId=${filterId}&searchId=${searchId}`);
+      window.mobileNavigateTo(
+        `/mobile/searchRecord/${appId}/${value}/${viewId}?keyWords=${encodeURIComponent(
+          result,
+        )}&filterId=${filterId}&searchId=${searchId}`,
+      );
     }
     // 文本，调用封装业务流程
     if (config.text === 2) {
@@ -306,11 +327,14 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
   return (
     <ButtonListWrap>
       <ButtonDisplay displayMode="display" layoutType={layoutType} onClick={handleClick} {...button} />
-      {includeScanQRCode && <ScanQRCode ref={scanQRCodeRef} projectId={projectId} onScanQRCodeResult={handleScanQRCodeResult} />}
+      {includeScanQRCode && (
+        <ScanQRCode ref={scanQRCodeRef} projectId={projectId} onScanQRCodeResult={handleScanQRCodeResult} />
+      )}
       {visible && (
         <NewRecordComponent
           visible
           showFillNext={true}
+          needCache={true}
           onAdd={data => {
             alert(_l('添加成功'));
             addRecord(data);
@@ -321,14 +345,18 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
           viewId={viewId}
           writeControls={writeControls}
           showDraftsEntry={isMobile ? true : false}
-          openRecord={isMobile ? (recordId, viewId) => {
-            setPreviewRecord({
-              appId,
-              worksheetId,
-              viewId,
-              rowId: recordId
-            });
-          } : undefined}
+          openRecord={
+            isMobile
+              ? (recordId, viewId) => {
+                  setPreviewRecord({
+                    appId,
+                    worksheetId,
+                    viewId,
+                    rowId: recordId,
+                  });
+                }
+              : undefined
+          }
           hideNewRecord={() => setInfo({ visible: false })}
         />
       )}
@@ -352,6 +380,6 @@ export default connect(({ sheet, appPkg, customPage }) => ({
     ...sheet.base,
     projectId: appPkg.projectId,
     itemId: customPage.pageId,
-    apk: customPage.apk
+    apk: customPage.apk,
   },
 }))(ButtonList);

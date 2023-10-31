@@ -37,6 +37,7 @@ export default class Controls extends React.Component {
             showControls={columns.filter(item => !viewcontrols.includes(item.controlId)).map(item => item.controlId)}
             columns={formatColumnsListForControls(columns)}
             onChange={columnChange}
+            showTabs={true}
           />
         </div>
       </div>

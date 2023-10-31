@@ -37,6 +37,7 @@ export default class ActionFields extends Component {
             field: PropTypes.string,
             text: PropTypes.string,
             cAlias: PropTypes.any,
+            sourceType: PropTypes.any,
           }).isRequired,
         ).isRequired,
       }).isRequired,
@@ -128,7 +129,7 @@ export default class ActionFields extends Component {
               />
             </div>
           )}
-          <div className="conditionWrap">
+          <div className={cx('conditionWrap', { 'pTop6 pBottom6': condition.length || noData || keywords })}>
             <div className="conditionScrollWrap">
               {!condition.length && keywords && (
                 <div className="conditionDetail flexRow Gray_9e">{_l('无搜索结果')}</div>
@@ -189,6 +190,7 @@ export default class ActionFields extends Component {
                               isSourceApp: item.isSourceApp,
                               nAlias: item.nAlias,
                               cAlias: obj.cAlias,
+                              sourceType: obj.sourceType,
                             });
                           }}
                         >

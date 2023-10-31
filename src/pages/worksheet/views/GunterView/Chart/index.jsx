@@ -1,7 +1,7 @@
 import React, { Component, Fragment, createRef } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Icon } from 'ming-ui';
+import { Icon, Skeleton } from 'ming-ui';
 import cx from 'classnames';
 import Header from './components/Header';
 import ToolBar from './components/ToolBar';
@@ -10,7 +10,6 @@ import TimeCanvas from './components/TimeCanvas';
 import TimeDot from './components/TimeDot';
 import SpeedCreateTime from './components/SpeedCreateTime';
 import IScroll from 'worksheet/views/GunterView/components/Iscroll';
-import Skeleton from 'src/router/Application/Skeleton';
 import * as actions from 'worksheet/redux/actions/gunterview';
 import './index.less';
 import _ from 'lodash';
@@ -110,7 +109,7 @@ export default class GunterChart extends Component {
     const { chartScroll } = this.props.gunterView;
     chartScroll.scrollTo(chartScroll.x + value, chartScroll.y);
     chartScroll._execEvent('scroll');
-  }
+  };
   handleScroll = event => {
     const { chartScroll, viewConfig } = this.props.gunterView;
     const { loading } = this.state;
@@ -174,7 +173,7 @@ export default class GunterChart extends Component {
     }
     this.headerEl && (this.headerEl.style.transform = `translateX(${chartScroll.x}px)`);
     this.timeDotWrapperEl && (this.timeDotWrapperEl.style.transform = `translateY(${chartScroll.y}px)`);
-  }
+  };
   linkageScroll = () => {
     const { groupingScroll, chartScroll } = this.props.gunterView;
     if (window.groupingScrollLock) {
@@ -184,10 +183,10 @@ export default class GunterChart extends Component {
       groupingScroll.scrollTo(groupingScroll.x, chartScroll.y);
       groupingScroll._execEvent('scroll');
     }
-  }
+  };
   handleUpdateGroupingVisible = () => {
     this.props.updateGroupingVisible();
-  }
+  };
   renderContent() {
     const { gunterView } = this.props;
     const { grouping, withoutArrangementVisible } = gunterView;
@@ -234,9 +233,7 @@ export default class GunterChart extends Component {
         <Header />
         <div className="flex Relative overflowHidden">
           <div className="gunterChartWrapper" ref={this.$ref}>
-            <div className={cx('gunterChartScroller', { w100: loading })}>
-              {!loading && this.renderContent()}
-            </div>
+            <div className={cx('gunterChartScroller', { w100: loading })}>{!loading && this.renderContent()}</div>
           </div>
           {loading && this.renderLoading()}
           {!loading && (

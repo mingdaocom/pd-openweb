@@ -71,7 +71,7 @@ export default class Inbox extends React.Component {
       inboxFavorite,
       inboxType,
       filter,
-      title: TYPENAMES[inboxType],
+      title: INBOXTYPES.WORKSHEET === inboxType && md.global.Account.isPortal ? _l('消息') : TYPENAMES[inboxType],
       dropdownData: DROPDOWN_GROUPLIST[inboxType],
       changeType: this.changeType,
       changeFaviorite: this.changeFaviorite,

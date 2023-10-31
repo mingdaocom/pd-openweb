@@ -58,16 +58,16 @@ export const ACTION_LIST = [
     icon: 'join_inner',
   },
   {
-    txt: _l('数据合并'),
-    type: 'UNION',
-    color: '#1FBCD4',
-    icon: 'merge',
-  },
-  {
     txt: _l('分类汇总'),
     type: 'AGGREGATE',
     color: '#FFA340',
     icon: 'classify',
+  },
+  {
+    txt: _l('数据合并'),
+    type: 'UNION',
+    color: '#1FBCD4',
+    icon: 'merge',
   },
 ];
 //表连接类型
@@ -126,7 +126,7 @@ export const OPERATION_TYPE_DATA = [
   { text: _l('最小值'), value: 'MIN' },
   { text: _l('平均值'), value: 'AVG' },
   { text: _l('计数'), value: 'COUNT' },
-  // { text: _l('去重计数'), value: 'COUNT' },
+  { text: _l('去重计数'), value: 'DISTINCT_COUNT' },
 ];
 
 //数据合并类型
@@ -329,21 +329,21 @@ export const schemaTypes = [
   },
 ].filter(o => o.hasSchema).map(o => { return o.className });
 
-export const mdJoinPkData = {
-  id: 'join_pk_mdy0000',
-  oid: 'join_pk_mdy0000',
-  dependFieldIds: ['join_pk_mdy0000'],
-  name: 'join_pk_mdy0000',
+export const mdUniquePkData = {
+  id: 'unique_pk_mdy0000',
+  oid: 'unique_pk_mdy0000',
+  dependFieldIds: ['unique_pk_mdy0000'],
+  name: 'unique_pk_mdy0000',
   dataType: 'varchar',
   jdbcTypeId: 12,
   precision: 255,
   scale: 0,
   isPk: true,
-  isJoinPk: true,
+  isUniquePk: true,
   mdType: 2,
   isTitle: null,
   isNotNull: true,
-  alias: 'join_pk_mdy0000',
+  alias: 'unique_pk_mdy0000',
   isCheck: true,
   orderNo: 0,
   status: 'NORMAL',
@@ -351,3 +351,7 @@ export const mdJoinPkData = {
   comment: null,
   controlSetting: null,
 }
+//文本类
+export const text_jdbcTypeIds = [12, -1, -15, -16, -9, 1]
+//数值类
+export const num_jdbcTypeIds = [-7, -6, 5, 4, -5, 2, 3, 6, 7, 8, 91, 92, 93, 2013, 2014]

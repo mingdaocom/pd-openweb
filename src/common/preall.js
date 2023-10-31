@@ -1,7 +1,6 @@
 import React from 'react';
 import qs from 'query-string';
 import global from 'src/api/global';
-import project from 'src/api/project';
 import redirect from './redirect';
 import { LoadDiv } from 'ming-ui';
 import { getPssId, setPssId } from 'src/util/pssId';
@@ -9,15 +8,23 @@ import _ from 'lodash';
 import moment from 'moment';
 import accountSetting from 'src/api/accountSetting';
 
+function getMomentLocale(lang) {
+  if (lang === 'en') {
+    return 'en';
+  } else if (lang === 'zh-Hant') {
+    return 'zh-tw';
+  } else if (lang === 'ja') {
+    return 'ja';
+  } else {
+    return 'zh-cn';
+  }
+}
+
 /** 存储分发类入口 状态 和 分享id */
 function parseShareId() {
   window.shareState = {};
-  if (/\/worksheetshare/.test(location.pathname)) {
-    window.shareState.isRecordShare = true;
-    window.shareState.shareId = (location.pathname.match(/.*\/worksheetshare\/(\w{24})/) || '')[1];
-  }
   if (/\/public\/print/.test(location.pathname)) {
-    window.shareState.isPrintShare = true;
+    window.shareState.isPublicPrint = true;
     window.shareState.shareId = (location.pathname.match(/.*\/public\/print\/(\w{24})/) || '')[1];
   }
   if (/\/public\/query/.test(location.pathname)) {
@@ -56,12 +63,14 @@ function clearLocalStorage() {
   } catch (err) {}
 }
 
-function getGlobalMeta({ allownotlogin } = {}, cb = () => {}) {
+function getGlobalMeta({ allownotlogin, requestParams } = {}) {
   const lang = getCookie('i18n_langtag') || getNavigatorLang();
   const urlparams = qs.parse(unescape(unescape(window.location.search.slice(1))));
-  let args = {};
+  let args = requestParams || {};
   const urlObj = new URL(decodeURIComponent(location.href));
 
+  // 处理location.href方法异步的问题
+  window.isWaiting = false;
   // 设置语言
   $('body').attr('id', lang);
 
@@ -78,9 +87,10 @@ function getGlobalMeta({ allownotlogin } = {}, cb = () => {}) {
   }
   parseShareId();
   clearLocalStorage(); // 清除 AMap 和 体积大于200k的 localStorage
-  global.getGlobalMeta(args).then(data => {
+
+  global.getGlobalMeta(args, { ajaxOptions: { async: false } }).then(data => {
     if (allownotlogin || window.isPublicApp) {
-      window.config = data.config;
+      window.config = data.config || {};
       if (!window.md) {
         window.md = { global: data['md.global'] };
       } else {
@@ -93,7 +103,6 @@ function getGlobalMeta({ allownotlogin } = {}, cb = () => {}) {
       if (!SysSettings) {
         window.md.global.SysSettings = _.get(md.staticglobal, ['SysSettings']);
       }
-      cb();
       return;
     }
 
@@ -101,6 +110,7 @@ function getGlobalMeta({ allownotlogin } = {}, cb = () => {}) {
       const host = location.host;
       const url = `?ReturnUrl=${encodeURIComponent(location.href)}`;
       location.href = `${window.subPath || ''}/network${url}`;
+      window.isWaiting = true;
       return;
     }
 
@@ -112,10 +122,12 @@ function getGlobalMeta({ allownotlogin } = {}, cb = () => {}) {
       location.href = `${
         data['md.global'].Account.isPortal ? '' : window.subPath || ''
       }/logout?ReturnUrl=${encodeURIComponent(location.href)}`;
+
+      window.isWaiting = true;
       return;
     }
 
-    window.config = data.config;
+    window.config = data.config || {};
     window.md.global = data['md.global'];
     window.md.global.Config.ServiceTel = '400-665-6655';
     let SysSettings = _.get(window.md.global, ['SysSettings']);
@@ -130,7 +142,7 @@ function getGlobalMeta({ allownotlogin } = {}, cb = () => {}) {
 
     // 检测语言是否一致
     if (md.global.Account.lang && md.global.Account.lang !== lang && !md.global.Account.isPortal) {
-      if (md.global.Account.defaultLang === lang) {
+      if (md.global.Config.defaultLang === lang) {
         setCookie('i18n_langtag', md.global.Account.lang);
         window.location.reload();
       } else {
@@ -143,15 +155,17 @@ function getGlobalMeta({ allownotlogin } = {}, cb = () => {}) {
       }
     }
 
+    moment.locale(getMomentLocale(lang));
+    // 设置md_pss_id
     setPssId(getPssId());
+    
     if (redirect(location.pathname)) {
       return;
     }
-    cb();
   });
 }
 
-const wrapComponent = function (Comp, { allownotlogin } = {}) {
+const wrapComponent = function (Comp, { allownotlogin, requestParams } = {}) {
   class Pre extends React.Component {
     constructor(props) {
       super(props);
@@ -160,11 +174,8 @@ const wrapComponent = function (Comp, { allownotlogin } = {}) {
       };
     }
     componentDidMount() {
-      getGlobalMeta({ allownotlogin }, () => {
-        this.setState({
-          loading: false,
-        });
-      });
+      getGlobalMeta({ allownotlogin, requestParams });
+      this.setState({ loading: false });
     }
 
     render() {
@@ -177,17 +188,17 @@ const wrapComponent = function (Comp, { allownotlogin } = {}) {
         document.title = _l('应用');
       }
 
-      return loading ? <LoadDiv size="big" className="pre" /> : <Comp {...this.props} />;
+      return loading || window.isWaiting ? <LoadDiv size="big" className="pre" /> : <Comp {...this.props} />;
     }
   }
 
   return Pre;
 };
 
-export default function (Comp, { allownotlogin, preloadcb } = {}) {
+export default function (Comp, { allownotlogin, requestParams } = {}) {
   if (_.isObject(Comp) && Comp.type === 'function') {
-    getGlobalMeta({ allownotlogin }, preloadcb);
+    getGlobalMeta({ allownotlogin, requestParams });
   } else {
-    return wrapComponent(Comp, { allownotlogin });
+    return wrapComponent(Comp, { allownotlogin, requestParams });
   }
 }

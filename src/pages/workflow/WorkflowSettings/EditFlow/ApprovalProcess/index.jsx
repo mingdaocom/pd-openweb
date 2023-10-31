@@ -200,7 +200,12 @@ export default props => {
       className={cx(
         'flexRow alignItemsCenter',
         { workflowItemDisabled: disabled || isCopy },
-        { errorShadow: item.selectNodeId && item.isException && _.isEmpty(flowNodeMap) },
+        {
+          errorShadow:
+            item.selectNodeId &&
+            item.isException &&
+            (_.isEmpty(flowNodeMap) || item.sourceAppId !== flowNodeMap[startEventId].appId),
+        },
         { active: selectNodeId === item.id },
         { foldNode: isHide },
       )}

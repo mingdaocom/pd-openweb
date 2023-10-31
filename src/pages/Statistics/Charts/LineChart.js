@@ -12,9 +12,8 @@ import {
   getAuxiliaryLineConfig
 } from './common';
 import { Dropdown, Menu } from 'antd';
-import { formatSummaryName, isFormatNumber } from 'statistics/common';
+import { formatSummaryName, isFormatNumber, isTimeControl } from 'statistics/common';
 import _ from 'lodash';
-import moment from 'moment';
 import { toFixed } from 'src/util';
 
 const lastDateText = _l('上一期');
@@ -34,6 +33,21 @@ const mergeDataTime = (data, contrastData) => {
   });
   return newData.concat(newcontrastData);
 };
+
+const mergeData = (data, contrastData) => {
+  const longData = data.length >= contrastData.length ? data : contrastData;
+  const shortData = data.length < contrastData.length ? data : contrastData;
+  const newData = longData.map(item => {
+    const { originalId } = item;
+    const shortItem = _.find(shortData, { originalId });
+    return data.length >= contrastData.length ? [item, shortItem] : [shortItem, item];
+  });
+  const result = _.flatten(newData).filter(_ => _);
+  const notFindData = shortData.filter(item => {
+    return !_.find(result, { originalId: item.originalId });
+  });
+  return notFindData.concat(result);
+}
 
 const formatPerPileChartData = result => {
   const groupResult = _.groupBy(result, 'name');
@@ -81,8 +95,8 @@ export const formatChartData = (data, yaxisList, { isPile, isAccumulate }, split
       });
       if (current.length) {
         const { rename, emptyShowType } = element.c_id ? (_.find(yaxisList, { controlId: element.c_id }) || {}) : yaxisList[0];
-        const hideEmptyValue = !emptyShowType && !current[0].v;
-        if (!hideEmptyValue) {
+        const hideEmptyValue = !emptyShowType && current[0].v === null;
+        if (!hideEmptyValue && element.originalKey) {
           result.push({
             controlId: element.c_id,
             groupName: `${splitControlId ? element.key : (rename || element.key)}-md-${reportTypes.LineChart}-chart-${element.c_id || index}`,
@@ -136,8 +150,10 @@ export default class extends Component {
     this.LineChart && this.LineChart.destroy();
   }
   componentWillReceiveProps(nextProps) {
-    const { displaySetup } = nextProps.reportData;
-    const { displaySetup: oldDisplaySetup } = this.props.reportData;
+    const { displaySetup, style } = nextProps.reportData;
+    const { displaySetup: oldDisplaySetup, style: oldStyle } = this.props.reportData;
+    const chartColor = _.get(nextProps, 'customPageConfig.chartColor');
+    const oldChartColor = _.get(this.props, 'customPageConfig.chartColor');
     // 显示设置
     if (
       displaySetup.fontStyle !== oldDisplaySetup.fontStyle ||
@@ -156,7 +172,10 @@ export default class extends Component {
       displaySetup.ydisplay.minValue !== oldDisplaySetup.ydisplay.minValue ||
       displaySetup.ydisplay.maxValue !== oldDisplaySetup.ydisplay.maxValue ||
       displaySetup.ydisplay.lineStyle !== oldDisplaySetup.ydisplay.lineStyle ||
-      !_.isEqual(displaySetup.auxiliaryLines, oldDisplaySetup.auxiliaryLines)
+      !_.isEqual(displaySetup.auxiliaryLines, oldDisplaySetup.auxiliaryLines) ||
+      style.showXAxisSlider !== oldStyle.showXAxisSlider ||
+      !_.isEqual(chartColor, oldChartColor) ||
+      nextProps.themeColor !== this.props.themeColor
     ) {
       const { LineChartConfig } = this.getComponentConfig(nextProps);
       this.LineChart.update(LineChartConfig);
@@ -224,7 +243,9 @@ export default class extends Component {
     }
   }
   getComponentConfig(props) {
-    const { map, contrastMap, displaySetup, xaxes, yaxisList, style = {}, split } = props.reportData;
+    const { themeColor, projectId, customPageConfig, reportData } = props;
+    const { chartColor } = customPageConfig;
+    const { map, contrastMap, displaySetup, xaxes, yaxisList, style = {}, split } = reportData;
     const { isPile, isPerPile, isAccumulate, xdisplay, ydisplay, legendType, auxiliaryLines } = displaySetup;
     const { position } = getLegendType(legendType);
     const { length } = _.isEmpty(map) ? contrastMap[0].value : map[0].value;
@@ -236,7 +257,7 @@ export default class extends Component {
     const minValue = getMinValue(sortData, contrastMap.length ? formatChartData(contrastMap, yaxisList, displaySetup, split.controlId) : null);
     const { Line, Area } = this.g2plotComponent;
     const ChartComponent = displaySetup.showChartType === 2 ? Area : Line;
-    const colors = getChartColors(style);
+    const colors = getChartColors(chartColor || style, themeColor, projectId);
     const auxiliaryLineConfig = getAuxiliaryLineConfig(auxiliaryLines, sortData, { yaxisList: isPile || isPerPile || isAccumulate ? [] : yaxisList, colors });
     const yAxisLabel = {
       formatter: (value, obj) => {
@@ -268,11 +289,12 @@ export default class extends Component {
       connectNulls: xaxes.emptyType !== 3,
       smooth: displaySetup.showChartType,
       animation: true,
-      slider: sortData.length > 5000 ? {
+      slider: style.showXAxisSlider ? {
         start: 0,
         end: 0.5,
+        formatter: () => null
       } : undefined,
-      legend: displaySetup.showLegend && (yaxisList.length > 1 || split.controlId)
+      legend: displaySetup.showLegend && (yaxisList.length > 1 || split.controlId || contrastMap.length)
         ? {
             position,
             flipPage: true,
@@ -391,7 +413,13 @@ export default class extends Component {
         displaySetup,
         split.controlId
       );
-      const newData = mergeDataTime(sortData, contrastData);
+      const isTime = isTimeControl(xaxes.controlType);
+      const newData = isTime ? mergeDataTime(sortData, contrastData) : mergeData(sortData, contrastData);
+      const data = sortData.length >= contrastData.length ? sortData : contrastData;
+      baseConfig.meta.originalId.formatter = value => {
+        const item = _.find(data, { originalId: value });
+        return item ? item.name || _l('空') : value;
+      }
       return {
         LineChartComponent: ChartComponent,
         LineChartConfig: Object.assign({}, baseConfig, {
@@ -406,15 +434,17 @@ export default class extends Component {
               const { dot } = _.find(yaxisList, { controlId: id }) || {};
               const newValue = _.isNumber(value) ? value.toLocaleString('zh', { minimumFractionDigits: dot }) : '--';
               if (name === lastDateText) {
-                const { originalName } = _.find(contrastData, { originalId: xName }) || {};
+                const item = _.find(contrastData, { originalId: xName }) || {};
+                const xAxisName = isTime ? item.originalName : item.name;
                 return {
-                  name: moment(originalName).isValid() ? `${name} ${originalName} ` : name,
+                  name: xAxisName ? `${name} ${xAxisName} ` : name,
                   value: newValue,
                 }
               } else {
-                const { originalName } = _.find(sortData, { originalId: xName }) || {};
+                const item = _.find(sortData, { originalId: xName }) || {};
+                const xAxisName = isTime ? item.originalName : item.name;
                 return {
-                  name: moment(originalName).isValid() ? `${name} ${originalName} ` : name,
+                  name: xAxisName ? `${name} ${xAxisName} ` : name,
                   value: newValue,
                 }
               }

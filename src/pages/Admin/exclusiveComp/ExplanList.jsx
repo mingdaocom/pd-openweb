@@ -386,7 +386,6 @@ function ExplanList(props) {
       <div className="exclusiveCompHeader valignWrapper">
         <div className="Font17 bold flex">
           {_l('专属算力')}
-          <i className="icon-beta1 betaIcon" />
         </div>
         {!config.isInit && (
           <div className="refresh Hand Font20 mRight24 " onClick={getData}>

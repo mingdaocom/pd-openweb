@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Checkbox } from 'ming-ui';
 import { Tooltip } from 'antd';
-import { SettingItem } from '../../../styled';
+import { SettingItem, NumberRange } from '../../../styled';
 import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
 import InputValue from './InputValue';
 import DateVerify from './DateVerify';
 import TextVerify from './TextVerify';
 import AttachmentVerify from './AttachmentVerify';
+import SubListVerify from './SubListVerify';
 import _ from 'lodash';
 
 const CompConfig = {
@@ -15,6 +16,7 @@ const CompConfig = {
   14: AttachmentVerify,
   15: DateVerify,
   16: DateVerify,
+  34: SubListVerify,
   46: DateVerify,
 };
 
@@ -40,7 +42,7 @@ const TYPES_SETTING_PORTAL = {
 };
 
 const TYPE_TO_TEXT = {
-  2: { title: _l('限定字数'), placeholder: [_l('最少'), _l('最多')] },
+  2: { title: _l('限定字数'), placeholder: [_l('最小'), _l('最大')] },
   6: { title: _l('限定数值范围'), placeholder: [_l('最小'), _l('最大')] },
   8: { title: _l('限定金额范围'), placeholder: [_l('最小'), _l('最大')] },
   10: { title: _l('限定可选项数'), placeholder: [_l('最少'), _l('最多')] },
@@ -51,20 +53,6 @@ const SWITCH_TYPE_TO_TEXT = {
   1: _l('必须开启'),
   2: _l('必须选是'),
 };
-
-const NumberRange = styled.div`
-  margin-top: 8px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  span {
-    margin: 0 8px;
-    color: #9e9e9e;
-  }
-  input {
-    width: 100%;
-  }
-`;
 
 const VerifySettingItem = styled(SettingItem)`
   .widgetDisplaySettingWrap {

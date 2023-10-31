@@ -91,7 +91,7 @@ const SortableList = SortableContainer(props => {
     <div style={style} ref={ref} className={cx('overflowHidden', { mTop8: !['3'].includes(showType), hide: !list.length })}>
       <div className={cx(className, 'attachmentFilesWrap', showTypes[showType], { mobile: isMobile, smallSize })}>
         {list.map((data, index) => (
-          <SortableItem key={data.fileID} index={index} sortIndex={index} data={data} {...otherProps} />
+          <SortableItem key={data.fileID} index={index} sortIndex={index} data={data || {}} {...otherProps} />
         ))}
         {['1', '2'].includes(showType) && (
           Array.from({ length: 10 }).map((_, index) => <i key={index} className={cx('fileEmpty', showType === '1' ? 'attachmentImageCard' : 'attachmentSmallCard', { mobile: isMobile })} />)
@@ -136,10 +136,10 @@ const Files = props => {
           setViewMore(true);
           setViewMoreVisible(clientHeight > el.clientHeight);
         }
-        if (!isMobile && ['1'].includes(showType)) {
+        if (!isMobile && clientWidth && ['1'].includes(showType)) {
           setSmallSize(clientWidth <= 160);
         }
-        if (!isMobile && ['2', '3'].includes(showType)) {
+        if (!isMobile && clientWidth && ['2', '3'].includes(showType)) {
           setSmallSize(clientWidth <= 300);
         }
       } else {

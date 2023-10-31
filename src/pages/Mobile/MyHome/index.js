@@ -26,9 +26,11 @@ class MyHome extends Component {
     });
   };
   render() {
-    let currentProject = !_.isEmpty(getCurrentProject(localStorage.getItem('currentProjectId')))
-      ? getCurrentProject(localStorage.getItem('currentProjectId'))
-      : getCurrentProject((md.global.Account.projects[0] || { projectId: 'external' }).projectId);
+    const projectObj = getCurrentProject(
+      localStorage.getItem('currentProjectId') || (md.global.Account.projects[0] || {}).projectId,
+    );
+    const currentProject = !_.isEmpty(projectObj) ? projectObj : { projectId: 'external', companyName: _l('外部协作') };
+
     return (
       <div className="MyHome flexColumn h100">
         <div className="flex flexColumn WhiteBG">

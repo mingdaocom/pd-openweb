@@ -228,6 +228,12 @@ class PortalSetting extends React.Component {
     if (getStringBytes(smsSignature) > 16) {
       return alert(_l('短信签名最多只能16个字节'), 3);
     }
+    if (
+      _.get(portalSetModel, 'registerInfo.enable') &&
+      (!_.get(portalSetModel, 'registerInfo.startTime') && !_.get(portalSetModel, 'registerInfo.endTime'))
+    ) {
+      return alert(_l('已开启外部用户注册开始/停止时间，但未选择开始/停止时间'), 3);
+    }
     if (!noClose) {
       this.setState({
         saveLoading: true,
@@ -255,6 +261,9 @@ class PortalSetting extends React.Component {
             'approvedEmail',
             'refusedEmail',
             'inviteEmail',
+            'twoAuthenticationEnabled',
+            'registerInfo',
+            'watermark',
           ]),
           epDiscussWorkFlow,
           appId,

@@ -5,7 +5,7 @@ import Time from 'ming-ui/components/NewTimePicker';
 import SpecificFieldsValue from '../SpecificFieldsValue';
 import _ from 'lodash';
 
-export default ({ processId, selectNodeId, data, text, minDate, onChange }) => {
+export default ({ projectId, processId, relationId, selectNodeId, data, text, minDate, onChange }) => {
   const UNIT_List = [
     { text: TIME_TYPE_NAME[TIME_TYPE.MINUTE], value: TIME_TYPE.MINUTE },
     { text: TIME_TYPE_NAME[TIME_TYPE.HOUR], value: TIME_TYPE.HOUR },
@@ -17,7 +17,9 @@ export default ({ processId, selectNodeId, data, text, minDate, onChange }) => {
       {text && <div className="mRight10">{text}</div>}
       <div className="flex">
         <SpecificFieldsValue
+          projectId={projectId}
           processId={processId}
+          relationId={relationId}
           selectNodeId={selectNodeId}
           type="number"
           min={1}
@@ -41,7 +43,9 @@ export default ({ processId, selectNodeId, data, text, minDate, onChange }) => {
     <div className="flexRow alignItemsCenter mTop10">
       <div className="flex">
         <SpecificFieldsValue
+          projectId={projectId}
           processId={processId}
+          relationId={relationId}
           selectNodeId={selectNodeId}
           type="date"
           timePicker

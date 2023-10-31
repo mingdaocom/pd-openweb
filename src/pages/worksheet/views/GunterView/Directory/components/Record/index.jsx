@@ -14,6 +14,7 @@ import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import _ from 'lodash';
+import { handleRecordClick } from 'worksheet/util';
 
 export const RecordWrapper = styled.div`
   height: 32px;
@@ -87,7 +88,7 @@ export const RecordWrapper = styled.div`
 
 @connect(
   state => ({
-    ..._.pick(state.sheet, ['base', 'controls', 'sheetSwitchPermit', 'buttons', 'worksheetInfo', 'gunterView']),
+    ..._.pick(state.sheet, ['base', 'controls', 'sheetSwitchPermit', 'worksheetInfo', 'gunterView']),
   }),
   dispatch => bindActionCreators(actions, dispatch),
 )
@@ -107,23 +108,31 @@ export default class Record extends Component {
   }
   handleClick = () => {
     const { row, base, controls, sheetSwitchPermit, gunterView } = this.props;
-    const { titleDisable } = gunterView.viewConfig;
-    const titleControl = _.find(controls, { attribute: 1 });
-    if (this.clicktimer) {
-      clearTimeout(this.clicktimer);
-      this.clicktimer = null;
-      this.canedit &&
-        titleControl.type === 2 &&
-        !titleDisable &&
-        this.props.updateGroupingRow({ isEdit: true }, row.rowid);
-    } else {
-      this.clicktimer = setTimeout(() => {
-        this.clicktimer = null;
-        this.setState({
-          recordInfoVisible: true,
-        });
-      }, 260);
-    }
+    handleRecordClick(
+      {
+        advancedSetting: { clicktype: gunterView.viewConfig.clickType },
+      },
+      row,
+      () => {
+        const { titleDisable } = gunterView.viewConfig;
+        const titleControl = _.find(controls, { attribute: 1 });
+        if (this.clicktimer) {
+          clearTimeout(this.clicktimer);
+          this.clicktimer = null;
+          this.canedit &&
+            titleControl.type === 2 &&
+            !titleDisable &&
+            this.props.updateGroupingRow({ isEdit: true }, row.rowid);
+        } else {
+          this.clicktimer = setTimeout(() => {
+            this.clicktimer = null;
+            this.setState({
+              recordInfoVisible: true,
+            });
+          }, 260);
+        }
+      },
+    );
   };
   handleCreate = (event, title, titleControl) => {
     const { row, addRecord, updateRecordTitle } = this.props;
@@ -266,7 +275,7 @@ export default class Record extends Component {
     );
   }
   renderMore() {
-    const { row, base, sheetSwitchPermit, buttons, worksheetInfo, groupKey, gunterView } = this.props;
+    const { row, base, sheetSwitchPermit, worksheetInfo, groupKey, gunterView } = this.props;
     const { appId, worksheetId, viewId } = base;
     return (
       <RecordOperate
@@ -281,7 +290,6 @@ export default class Record extends Component {
         appId={appId}
         worksheetId={worksheetId}
         sheetSwitchPermit={sheetSwitchPermit}
-        defaultCustomButtons={buttons}
         viewId={viewId}
         recordId={row.rowid}
         onUpdate={(updateControls, newItem) => {
@@ -354,7 +362,7 @@ export default class Record extends Component {
     const { row } = this.props;
     return (
       <RecordWrapper className={cx('valignWrapper gunterRecord', `gunterRecord-${row.rowid}`)}>
-        {window.share ? <div style={{ width: 22 }}/> : this.renderMore()}
+        {window.share ? <div style={{ width: 22 }} /> : this.renderMore()}
         {this.renderTitle()}
         {this.renderStartTime()}
         {this.renderEndTime()}

@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
 import { Switch } from 'react-router-dom';
 import genRouteComponent from '../genRouteComponent';
-import ROUTE_CONFIG from './config';
-import PORTAL_ROUTE_CONFIG from './portalConfig';
+import { ROUTE_CONFIG, PORTAL_ROUTE_CONFIG } from './config';
 import ajaxRequest from 'src/api/homeApp';
 import { LoadDiv } from 'ming-ui';
-import UnusualContent from './UnusualContent';
-import FixedContent from './FixedContent';
+import UnusualContent from 'src/components/UnusualContent';
+import FixedContent from 'src/components/FixedContent';
 import { getIds } from '../../pages/PageHeader/util';
 import { connect } from 'react-redux';
 import { setAppStatus } from '../../pages/PageHeader/redux/action';
@@ -80,7 +79,7 @@ export default class Application extends Component {
         }
       })
       .fail(() => {
-        this.setState({ status: 3 });
+        this.setState({ status: 6 });
       });
   }
 
@@ -96,15 +95,19 @@ export default class Application extends Component {
     }
     const { permissionType, fixed, pcDisplay } = appPkg;
     const isAuthorityApp = canEditApp(permissionType);
+
     if (status === 0) {
       return <LoadDiv />;
     }
+
     if ((pcDisplay || fixed) && !isAuthorityApp && !_.includes(pathname, 'role')) {
       return <FixedContent appPkg={appPkg} isNoPublish={pcDisplay} />;
     }
+
     if (_.includes([1], status) || (status === 5 && _.includes(pathname, 'role'))) {
       return <Switch>{this.genRouteComponent(md.global.Account.isPortal ? PORTAL_ROUTE_CONFIG : ROUTE_CONFIG)}</Switch>;
     }
+
     return <UnusualContent appPkg={appPkg} status={status} appId={appId} />;
   }
 }

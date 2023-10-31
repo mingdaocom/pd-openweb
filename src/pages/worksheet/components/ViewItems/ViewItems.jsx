@@ -66,7 +66,7 @@ export default class ViewItems extends Component {
       sideMenuVisible: false,
     };
     this.searchRef = React.createRef();
-    this.containerWrapper = document.getElementById('containerWrapper');
+    this.containerWrapper = document.getElementById('wrapper');
     this.containerWrapper.addEventListener('click', this.clickDrawerArea);
   }
   componentWillReceiveProps(nextProps) {
@@ -133,7 +133,7 @@ export default class ViewItems extends Component {
       'controlId',
     );
     const defaultDisplayControls = worksheetControls
-      .filter(item => item.controlId !== titleControl && !_.includes([22, 10010, 45], item.type))
+      .filter(item => item.controlId !== titleControl && !_.includes([22, 43, 10010, 45, 51], item.type)) //卡片上不显示的类型
       .map(item => item.controlId);
     const coverId = _.get(
       _.find(worksheetControls, item => item.type === 14),

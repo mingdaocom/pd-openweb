@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import { Checkbox, Icon } from 'ming-ui';
 import { Modal, List, Button } from 'antd-mobile';
+import { ModalWrap } from 'src/pages/Mobile/baseStyled.jsx';
 import './less/MobileCheckbox.less';
 import _ from 'lodash';
 
@@ -42,7 +43,7 @@ export default class MobileCheckbox extends Component {
   }
 
   render() {
-    const { disabled, allowAdd, children, data, checked, callback, renderText, otherValue } = this.props;
+    const { disabled, allowAdd, children, data, checked, callback, renderText, otherValue, controlName } = this.props;
     const { visible, selectChecked, keywords } = this.state;
     let source = [].concat(data);
 
@@ -64,13 +65,43 @@ export default class MobileCheckbox extends Component {
           {children ||
             source.map(item => {
               return (
-                <Checkbox key={item.key} text={item.value} value={item.key} checked={_.includes(checked, item.key)} />
+                <Checkbox
+                  className="flexRow alignItemsCenter"
+                  key={item.key}
+                  text={item.value}
+                  value={item.key}
+                  checked={_.includes(checked, item.key)}
+                />
               );
             })}
         </span>
 
-        <Modal visible={visible} animationType="slide-up" maskClosable={false} className="mobileCheckboxDialog">
-          <div className="flexColumn" style={{ height: document.documentElement.clientHeight }}>
+        <ModalWrap
+          popup
+          visible={visible}
+          animationType="slide-up"
+          maskClosable={false}
+          className="mobileCheckboxDialog"
+        >
+          <div className="flexColumn h100">
+            <div className="flexRow valignWrapper mobileCheckboxBtnsWrapper pLeft15 pRight15">
+              <div
+                className="Hand ThemeColor bold Font15 mRight10"
+                onClick={() => this.setState({ selectChecked: [], visible: false })}
+              >
+                {_l('关闭')}
+              </div>
+              <div className="Font15 Gray bold flex ellipsis TxtCenter">{controlName}</div>
+              <div
+                className="Hand ThemeColor bold Font15 mLeft10"
+                onClick={() => {
+                  this.setState({ visible: false });
+                  callback(selectChecked);
+                }}
+              >
+                {_l('确定')}
+              </div>
+            </div>
             <div className="mobileCheckboxSearchWrapper">
               <Icon icon="h5_search" />
               <input
@@ -91,8 +122,8 @@ export default class MobileCheckbox extends Component {
             </div>
             <List className="flex" style={{ overflow: 'auto' }}>
               {!keywords.length && !!selectChecked.length && (
-                <List.Item onClick={() => this.setState({ selectChecked: [] })}>
-                  <span className="Font15 ThemeColor3 mLeft25">{_l('清除选择')}</span>
+                <List.Item className="mLeft31" onClick={() => this.setState({ selectChecked: [] })}>
+                  <span className="Font15 ThemeColor3">{_l('清除选择')}</span>
                 </List.Item>
               )}
 
@@ -120,27 +151,8 @@ export default class MobileCheckbox extends Component {
                 </List.Item>
               )}
             </List>
-
-            <div className="flexRow valignWrapper mobileCheckboxBtnsWrapper">
-              <Button
-                className="mLeft10 mRight10 flex Font14 bold Gray_75"
-                onClick={() => this.setState({ selectChecked: [], visible: false })}
-              >
-                {_l('取消')}
-              </Button>
-              <Button
-                type="primary"
-                className="mLeft10 mRight10 flex Font14 bold"
-                onClick={() => {
-                  this.setState({ visible: false });
-                  callback(selectChecked);
-                }}
-              >
-                {_l('确定')}
-              </Button>
-            </div>
           </div>
-        </Modal>
+        </ModalWrap>
       </Fragment>
     );
   }

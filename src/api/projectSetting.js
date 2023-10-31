@@ -562,6 +562,32 @@ MD.Enum.ProjectSetting.UserFillDepartmentEnabled
      return $.api('ProjectSetting', 'UpdateLdapState', args, options);
    },
   /**
+  * 获取自定义颜色设置
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getColorSettings: function (args, options = {}) {
+     
+     return $.api('ProjectSetting', 'GetColorSettings', args, options);
+   },
+  /**
+  * 编辑自定义颜色设置
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {} args.themeColor 主题色配置
+  * @param {} args.charColor 图标颜色配置
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editColorSettings: function (args, options = {}) {
+     
+     return $.api('ProjectSetting', 'EditColorSettings', args, options);
+   },
+  /**
   * 开启api网络代理
   * @param {Object} args 请求参数
   * @param {string} args.projectId 组织id

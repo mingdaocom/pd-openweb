@@ -15,8 +15,6 @@ export default function DraggableItem({ activeWidget = {}, item, addWidget, glob
       buriedUpgradeVersionDialog(globalSheetInfo.projectId, item.featureId);
       return;
     }
-    // 分段禁止多层嵌套
-    if (activeWidget.type === 52 && enumWidgetType[enumType] === 52) return;
     const data = {
       ...DEFAULT_DATA[enumType],
       type: enumWidgetType[enumType],
@@ -26,7 +24,11 @@ export default function DraggableItem({ activeWidget = {}, item, addWidget, glob
   };
 
   const [collectDrag, drag, preview] = useDrag({
-    item: { enumType: enumType, type: DRAG_ITEMS.LIST_ITEM, widgetType: WIDGETS_TO_API_TYPE_ENUM[enumType] },
+    item: {
+      enumType: enumType,
+      type: _.includes(['SECTION'], enumType) ? DRAG_ITEMS.LIST_TAB : DRAG_ITEMS.LIST_ITEM,
+      widgetType: WIDGETS_TO_API_TYPE_ENUM[enumType],
+    },
 
     previewOptions: { captureDraggingState: true },
 

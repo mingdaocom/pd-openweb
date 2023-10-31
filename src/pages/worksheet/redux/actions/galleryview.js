@@ -1,6 +1,6 @@
 import worksheetAjax from 'src/api/worksheet';
 import { getNavGroupCount } from './index';
-import { formatQuickFilter } from 'worksheet/util';
+import { formatQuickFilter, getFilledRequestParams } from 'worksheet/util';
 import _ from 'lodash';
 export const fetch = index => {
   return (dispatch, getState) => {
@@ -28,7 +28,7 @@ export const fetch = index => {
       args.pageIndex = 1;
       args.pageSize = maxCount;
     }
-    worksheetAjax.getFilterRows(args).then(res => {
+    worksheetAjax.getFilterRows(getFilledRequestParams(args)).then(res => {
       dispatch({
         type: 'CHANGE_GALLERY_VIEW_DATA',
         list: index > 1 ? gallery.concat(res.data) : res.data,

@@ -48,7 +48,6 @@ const FilterWrapper = styled.div`
 
 export default function QuickFilterSearch(props) {
   const {
-    textFilters,
     excludeTextFilter,
     isFilter,
     filters = {},
@@ -86,7 +85,7 @@ export default function QuickFilterSearch(props) {
 
   return (
     <SearchWrapper className="searchWrapper flexRow valignWrapper pLeft12 pRight12 pTop15 pBottom5">
-      <Search textFilters={textFilters} />
+      <Search textFilters={[]} />
       {!_.isEmpty(excludeTextFilter) && (
         <FilterWrapper>
           <Icon icon="filter" className={cx('Font20 Gray_9e', { active: isFilter })} onClick={handleOpenDrawer} />

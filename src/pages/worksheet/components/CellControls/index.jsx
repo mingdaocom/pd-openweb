@@ -305,6 +305,7 @@ export default class CellControl extends React.Component {
     if ((e.metaKey || e.ctrlKey) && !(e.key === 'v' && checkIsTextControl(cell.type))) {
       return;
     }
+    window.cellLastKey = e.key;
     switch (e.key) {
       case 'Backspace':
         if (this.editable && haveEditingStatus && !isediting && !cell.required) {
@@ -312,7 +313,10 @@ export default class CellControl extends React.Component {
         }
         break;
       case ' ':
-        if (e.target.tagName.toLowerCase() === 'body' || e.target.classList.contains('body')) {
+        if (
+          (_.get(e, 'target.tagName') || '').toLowerCase() === 'body' ||
+          (_.get(e, 'target.classList') && e.target.classList.contains('body'))
+        ) {
           onClick();
         }
         break;
@@ -546,7 +550,9 @@ export default class CellControl extends React.Component {
       cell.isSubtotal = true;
       if (cell.advancedSetting && cell.advancedSetting.summaryresult === '1') {
         cell.type = 2;
-        cell.value = _.round(parseFloat(cell.value) * 100, cell.dot || 0).toFixed(cell.dot || 0) + '%';
+        cell.value = _.isUndefined(cell.value)
+          ? ''
+          : _.round(parseFloat(cell.value) * 100, cell.dot || 0).toFixed(cell.dot || 0) + '%';
       } else {
         if (_.includes([15, 16], cell.enumDefault2) && _.includes([2, 3], cell.enumDefault)) {
           cell.advancedSetting = { ...cell.advancedSetting, showtype: cell.unit };

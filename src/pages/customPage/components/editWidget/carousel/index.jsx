@@ -52,7 +52,7 @@ const defaultConfig = {
   effect: 'scrollx',
   autoplaySpeed: 3,
   fill: 1,
-  fillColor: '#333333',
+  fillColor: '#454545',
   displayMode: 0,
 };
 

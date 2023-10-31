@@ -1,3 +1,5 @@
+import { VersionProductType } from 'src/util/enum.js';
+
 export const permissionObj = {
   // 组织管理('首页'， ‘成员与部门’，'组织角色', ‘汇报关系’, '群组与外协'，’通讯录隔离‘， ’离职交接‘， ’组织信息‘， ’账务‘，’管理员‘，’工具‘， ’其他‘)
   PROJECT_ADMIN: [
@@ -28,7 +30,7 @@ export const permissionObj = {
     'loginLog',
   ],
   // 应用管理('应用‘，’工作流‘，‘使用分析’)
-  APK_ADMIN: ['app', 'workflows', 'analytics', 'computing', 'appLog'],
+  APK_ADMIN: ['app', 'workflows', 'analytics', 'computing', 'variables', 'appLog'],
   // 钉钉
   HAS_DING: ['ding'],
   // 微信集成
@@ -54,7 +56,7 @@ export const menuList = [
             component: () => import('./homePage/index.jsx'),
           },
           {
-            path: '/admin/upgradeservice/(.*)',
+            path: '/admin/upgradeservice/:projectId/:vertionType?',
             component: () => import('./billCenter/upgradeService'),
           },
           {
@@ -279,11 +281,25 @@ export const menuList = [
         ],
       },
       {
+        icon: 'icon-global_variable',
+        name: _l('全局变量'),
+        key: 'variables',
+        isNew: true,
+        featureId: VersionProductType.globalVariable,
+        routes: [
+          {
+            path: '/admin/variables/:projectId',
+            exact: true,
+            component: () => import('./globalVariable'),
+          },
+        ],
+      },
+      {
         icon: 'icon-dns1',
         name: _l('专属算力'),
         featureId: 30,
         key: 'computing',
-        hasBeta: true,
+        hasBeta: false,
         routes: [
           {
             path: '/admin/computing/:projectId/:explanId?',

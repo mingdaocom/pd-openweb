@@ -130,7 +130,7 @@ export default function Users(props) {
             },
             zIndex: 10001,
             filterAccountIds: [md.global.Account.accountId],
-            staticAccounts: (shownullitem === '1'
+            prefixAccounts: (shownullitem === '1'
               ? [
                   {
                     avatar:

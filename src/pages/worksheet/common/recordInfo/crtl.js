@@ -83,6 +83,7 @@ export function updateRecord(
     isDraft,
     triggerUniqueError,
     updateSuccess,
+    allowEmptySubmit,
   },
   callback = () => {},
 ) {
@@ -114,7 +115,7 @@ export function updateRecord(
   }
 
   // 处理工作流的暂存直接点击的情况
-  if (!updatedControls.length) {
+  if (!updatedControls.length && !allowEmptySubmit) {
     if (!(instanceId && workId)) {
       alert(_l('没有需要保存的字段'), 2);
     }

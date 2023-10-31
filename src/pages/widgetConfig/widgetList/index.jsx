@@ -5,6 +5,7 @@ import DraggableItem from './draggableItem';
 import { WIDGET_GROUP_TYPE } from '../config/widget';
 import ListItemLayer from './ListItemLayer';
 import { getFeatureStatus } from 'src/util';
+import { relateOrSectionTab } from '../util';
 import { handleAddWidgets } from 'src/pages/widgetConfig/util/data';
 
 const WidgetList = styled.div`
@@ -76,11 +77,20 @@ const WidgetList = styled.div`
 export default function List(props) {
   const { globalSheetInfo = {}, activeWidget = {} } = props;
 
-  const handleAdd = (data, para) => {
-    const newData = {
+  const handleAdd = (data, para = {}) => {
+    let newData = {
       ...data,
-      sectionId: activeWidget.type === 52 ? activeWidget.controlId : activeWidget.sectionId,
+      sectionId:
+        activeWidget.type === 52 && !para.sectionId
+          ? activeWidget.controlId
+          : para.type === 'click'
+          ? activeWidget.sectionId
+          : para.sectionId || '',
     };
+    // 子表、标签页、关联多条列表等不能嵌套
+    if (relateOrSectionTab(newData) || newData.type === 34) {
+      newData.sectionId = '';
+    }
     handleAddWidgets([newData], para, props);
   };
 

@@ -138,11 +138,15 @@ class External extends Component {
       <React.Fragment>
         {eventData.map(it => {
           const { extendedProps = {}, timeList = [] } = it;
-          const { rowid, stringColor = '' } = extendedProps;
+          const { rowid, stringColor = '', recordColor } = extendedProps;
+          console.log(recordColor);
           let editable = timeList.length > 1 ? timeList.filter(o => o.editable).length > 0 : timeList[0].editable; //多组时间,且有可编辑的权限，拖拽后选择时间组
           return (
             <div
               className={cx('clearfix fcEventCon', { fcEvent: editable })}
+              style={{
+                backgroundColor: recordColor && recordColor.showBg && recordColor.lightColor,
+              }}
               rowid={rowid}
               key={`${rowid}-${it.begin}`}
               keyId={`${rowid}-${it.begin}`}
@@ -151,7 +155,9 @@ class External extends Component {
                 this.props.showRecordInfo(rowid, it, eventData);
               }}
             >
-              {<div className="colorLeft" style={{ backgroundColor: stringColor }}></div>}
+              {recordColor && recordColor.showLine && (
+                <div className="colorLeft" style={{ backgroundColor: recordColor.color }}></div>
+              )}
               <div className="title Font14 Bold" title={it.title} style={{ WebkitBoxOrient: 'vertical' }}>
                 {it.title}
               </div>

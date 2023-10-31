@@ -89,7 +89,7 @@ export default class SubList extends React.Component {
         this.setState({
           loading: false,
           searchConfig: formatSearchConfigs(queryRes),
-          controls: info.template.controls.map(c => ({
+          controls: (_.get(info, 'template.controls') || []).map(c => ({
             ...c,
             ...(isWorkflow
               ? {}
@@ -108,6 +108,8 @@ export default class SubList extends React.Component {
   @autobind
   handleChange({ rows, originRows = [], lastAction = {} }, mode) {
     if (mode === 'childTableDialog') {
+      if (!this.childTable.current) return;
+
       this.childTable.current.store.dispatch({
         type: 'INIT_ROWS',
         rows,
@@ -134,8 +136,8 @@ export default class SubList extends React.Component {
         let deleted = [];
         let updated = [];
         try {
-          deleted = value.deleted || [];
-          updated = value.updated || [];
+          deleted = value.deleted || lastAction.deleted || [];
+          updated = value.updated || lastAction.updated || [];
         } catch (err) {}
         if (lastAction.type === 'DELETE_ROW') {
           deleted = _.uniqBy(deleted.concat(lastAction.rowid)).filter(id => !/^(temp|default)/.test(id));
@@ -192,6 +194,8 @@ export default class SubList extends React.Component {
       >
         {!loading && (
           <ChildTable
+            showSearch
+            showExport
             ref={this.childTable}
             isWorkflow={((instanceId && workId) || this.linkId) && info.workflowChildTableSwitch !== false}
             initSource={initSource}

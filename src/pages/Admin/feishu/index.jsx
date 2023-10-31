@@ -453,7 +453,7 @@ export default class FeiShu extends React.Component {
     if (featureType === '2') {
       return (
         <div className="orgManagementWrap">
-          {buriedUpgradeVersionDialog(Config.projectId, VersionProductType.feishuIntergration, 'content')}
+          {buriedUpgradeVersionDialog(Config.projectId, VersionProductType.feishuIntergration,{ dialogType: 'content' })}
         </div>
       );
     }

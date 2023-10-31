@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import { Menu, MenuItem, Icon } from 'ming-ui';
-import GroupType from './GroupType';
+import { Menu, MenuItem } from 'ming-ui';
 import { useSetState } from 'react-use';
 import Trigger from 'rc-trigger';
+import cx from 'classnames';
+
 const MenuWrap = styled(Menu)`
   position: relative !important;
   padding: 6px 0 !important;
@@ -11,6 +12,20 @@ const MenuWrap = styled(Menu)`
   .ming.MenuItem .Item-content {
     overflow: initial;
     position: relative;
+  }
+  .ming.MenuItem {
+    z-index: 1;
+    &.cur {
+      .Item-content,
+      .Item-content:not(.disabled):hover {
+        background-color: #1e88e5 !important;
+        color: #fff !important;
+      }
+    }
+    .Item-content:not(.disabled):hover {
+      background: #f5f5f5 !important;
+      color: #2196f3 !important;
+    }
   }
   .GroupTypeMenuWrap {
     position: absolute;
@@ -33,25 +48,30 @@ const MenuWrap = styled(Menu)`
       }
     }
   }
+  .bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 0;
+  }
 `;
 export default function DropOption(props) {
-  const [{ keywords, optionVisible, popupVisible }, setState] = useSetState({
-    keywords: '',
-    popupVisible: false,
-    optionVisible: false,
+  const [{ popupVisible }, setState] = useSetState({
+    popupVisible: props.popupVisible,
   });
-  useEffect(() => {
-    setState({
-      list: !!keywords ? props.list.filter(o => o.controlName.indexOf(keywords) >= 0) : props.list,
-    });
-  }, [keywords]);
   return (
     <Trigger
       action={['click']}
       popupClassName="moOption"
       getPopupContainer={() => document.body}
       popupVisible={popupVisible}
+      zIndex={1000}
       onPopupVisibleChange={popupVisible => {
+        if (!props.value && !popupVisible) {
+          return alert(_l('请选择类型'), 3);
+        }
         setState({ popupVisible });
       }}
       popupAlign={{
@@ -61,6 +81,30 @@ export default function DropOption(props) {
       }}
       popup={
         <MenuWrap>
+          {!props.value && (
+            <div
+              className="bg"
+              onClick={() => {
+                return alert(_l('请选择类型'), 3);
+              }}
+            ></div>
+          )}
+          {props.list.map(({ text, value, disabled }) => (
+            <MenuItem
+              key={value}
+              className={cx({ cur: value === props.value })}
+              onClick={() => {
+                if (value !== props.value) {
+                  props.handleChangeType(value);
+                }
+                setState({ popupVisible: false });
+              }}
+              disabled={disabled}
+            >
+              <span className="viewName">{text}</span>
+            </MenuItem>
+          ))}
+          <div className="mTop3 mBottom3" style={{ borderBottom: '1px solid #EAEAEA' }}></div>
           <MenuItem
             onClick={e => {
               props.handleOpenChangeName();
@@ -70,30 +114,10 @@ export default function DropOption(props) {
           >
             {_l('重命名')}
           </MenuItem>
-          {props.showAction && (
-            <MenuItem
-              className=""
-              style={{ overflow: 'initial' }}
-              onMouseEnter={() => setState({ optionVisible: true })}
-              onMouseLeave={() => setState({ optionVisible: false })}
-            >
-              <span className="text">{_l('汇总方式')}</span>
-              <Icon icon="arrow-right-tip Font15" style={{ fontSize: '16px', right: '10px', left: 'initial' }} />
-              {optionVisible && (
-                <GroupType
-                  onClickAway={() => setState({ optionVisible: false })}
-                  onClick={type => {
-                    props.handleChangeType(type);
-                    setState({ optionVisible: false, visible: false });
-                  }}
-                />
-              )}
-            </MenuItem>
-          )}
         </MenuWrap>
       }
     >
-      <i className="icon icon-expand_more Hand Font16 mLeft10"></i>
+      <i className="icon icon-expand_more InlineBlock Hand Font16 mLeft10"></i>
     </Trigger>
   );
 }

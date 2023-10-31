@@ -45,6 +45,7 @@ export default function FilterDialog(props) {
         filterResigned={false}
         from={'relateSheet'}
         currentColumns={allControls}
+        showCustom={true}
         onConditionsChange={conditions => {
           setFilters(conditions);
         }}

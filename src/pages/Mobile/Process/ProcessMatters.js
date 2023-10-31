@@ -748,7 +748,7 @@ export default class ProcessMatters extends Component {
           />
         )}
         {!batchApproval && topTab && (topTab.id === 'waitingApproval' || topTab.id === 'waitingWrite') && (
-          <ProcessDelegation topTab={topTab} className={cx({ bottom60: !list.length })} />
+          <ProcessDelegation topTab={topTab} className={cx({ bottom120: !list.length })} />
         )}
         {topTab && topTab.id === 'waitingApproval' && !batchApproval && !!list.length && (
           <Flex

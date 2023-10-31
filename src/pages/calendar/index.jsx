@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import './modules/calendarControl/css/fullcalendar.less';
 import './modules/css/share.less';
-import './modules/calendarControl/javascript/fullcalendar';
+import fullCalendar from './modules/calendarControl/javascript/fullcalendar';
 
 import toolBar from './modules/toolbar/toolbar';
 import LoadDiv from 'ming-ui/components/LoadDiv';
@@ -14,6 +14,8 @@ export default class CalendarEntrypoint extends Component {
       openTaskDetail: false,
       taskId: '',
     };
+
+    fullCalendar();
   }
   componentDidMount() {
     $('html').addClass('AppCalendar');

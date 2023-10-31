@@ -50,6 +50,7 @@ export default class PBC extends Component {
    */
   getNodeDetail(props, { appId } = {}) {
     const { processId, selectNodeId, selectNodeType } = props;
+    const { data } = this.state;
 
     flowNode.getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, appId }).then(result => {
       if (result.actionId === ACTION_ID.PBC_OUT && !result.fields.length) {
@@ -58,6 +59,8 @@ export default class PBC extends Component {
 
       if (appId && result.name === _l('调用封装业务流程')) {
         result.name = result.appList.find(item => item.id === appId).name;
+      } else if (appId) {
+        result.name = data.name;
       }
 
       if (result.subProcessVariables.length) {
@@ -242,6 +245,7 @@ export default class PBC extends Component {
             <div className="flex mLeft10" style={{ minWidth: 0 }}>
               <SingleControlValue
                 companyId={this.props.companyId}
+                relationId={this.props.relationId}
                 processId={this.props.processId}
                 selectNodeId={this.props.selectNodeId}
                 sourceNodeId={item.dataSource ? parentNode.nodeId : ''}
@@ -545,7 +549,9 @@ export default class PBC extends Component {
         {execCountType === 1 ? (
           <div className="mTop10">
             <SpecificFieldsValue
+              projectId={this.props.companyId}
               processId={this.props.processId}
+              relationId={this.props.relationId}
               selectNodeId={this.props.selectNodeId}
               updateSource={number => this.updateSource({ number })}
               type="number"

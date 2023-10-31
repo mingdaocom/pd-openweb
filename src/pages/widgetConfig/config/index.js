@@ -91,9 +91,8 @@ export const HAS_EXPLAIN_CONTROL = [2, 3, 4, 5, 6, 7, 8, 14, 35, 43, 49, 50];
  * 检查框
  * 富文本
  * 签名
- * 分割线
  */
-export const NO_CUSTOM_SETTING_CONTROL = [5, 22, 41, 42];
+export const NO_CUSTOM_SETTING_CONTROL = [5, 41, 42];
 
 export const HAS_DYNAMIC_DEFAULT_VALUE_CONTROL = [2, 3, 4, 5, 8, 9, 10, 11, 15, 16, 19, 23, 24, 26, 27, 28, 36, 46, 48];
 
@@ -122,7 +121,7 @@ export const NEED_SPECIAL_DISPLAY_CONTROLS = [
   10010,
 ];
 
-export const HAVE_CONFIG_CONTROL = [2, 3, 9, 10, 11, 15, 16, 26, 28, 32, 35, 40, 42, 46];
+export const HAVE_CONFIG_CONTROL = [2, 3, 9, 10, 11, 15, 16, 23, 24, 26, 28, 32, 35, 40, 42, 46];
 // 独占一行的控件
 export const FULL_LINE_CONTROL = [21, 22, 34, 41, 52, 10010];
 

@@ -1,11 +1,13 @@
 import React from 'react';
 import { Checkbox } from 'ming-ui';
 import { Tooltip } from 'antd';
-import Icon from 'src/components/Icon';
+import Components from '../../components';
 import { NOT_NEED_SET_READONLY_CONTROL } from '../../config';
 import { updateConfig } from '../../util/setting';
 import { SettingItem } from '../../styled';
 import _ from 'lodash';
+
+const Icon = Components.Icon
 
 export default ({ from, data, info, onChange }) => {
   let { fieldPermission = '111', type } = data || {};

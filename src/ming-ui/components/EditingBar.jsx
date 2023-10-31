@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import cx from 'classnames';
 import { Motion, spring } from 'react-motion';
 import styled from 'styled-components';
 
@@ -47,8 +48,13 @@ const OkButton = styled(Button)`
   color: #3ea4fc;
   background-color: #fff;
   font-weight: 600;
-  &:hover {
+  user-select: none;
+  &:not(.disabled):hover {
     background-color: #e2f1fe;
+  }
+  &.disabled {
+    color: #ddd;
+    cursor: not-allowed;
   }
 `;
 const CancelButton = styled(Button)`
@@ -66,6 +72,7 @@ export default function EditingBar(props) {
     defaultTop,
     visibleTop,
     title,
+    okDisabled,
     updateText = _l('保存'),
     cancelText = _l('取消'),
     onUpdate = () => {},
@@ -94,6 +101,7 @@ export default function EditingBar(props) {
             style,
           )}
           onClick={e => e.stopPropagation()}
+          className="editingBar"
         >
           <Con>
             <span className="flex bold">{title}</span>
@@ -104,7 +112,11 @@ export default function EditingBar(props) {
               </CancelButton>
             )}
             {!loading && (
-              <OkButton onMouseDown={onOkMouseDown} onClick={onUpdate}>
+              <OkButton
+                className={cx({ disabled: okDisabled })}
+                onMouseDown={onOkMouseDown}
+                onClick={okDisabled ? () => {} : onUpdate}
+              >
                 {updateText}
               </OkButton>
             )}
@@ -118,6 +130,7 @@ export default function EditingBar(props) {
 EditingBar.propTypes = {
   style: PropTypes.shape({}),
   visible: PropTypes.bool,
+  okDisabled: PropTypes.bool,
   loading: PropTypes.bool,
   title: PropTypes.string,
   defaultTop: PropTypes.number,

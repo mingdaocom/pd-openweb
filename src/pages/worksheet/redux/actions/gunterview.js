@@ -16,7 +16,7 @@ import {
   formatWeekDay,
   sortGrouping,
 } from 'src/pages/worksheet/views/GunterView/util';
-import { formatQuickFilter } from 'worksheet/util';
+import { formatQuickFilter, getFilledRequestParams } from 'worksheet/util';
 import { PERIOD_TYPE } from 'src/pages/worksheet/views/GunterView/config';
 import { getRequest } from 'src/util';
 import _ from 'lodash';
@@ -63,14 +63,14 @@ export const fetchRows = () => {
     dispatch({ type: 'CHANGE_GUNTER_LOADINNG', data: true });
     sheetAjax
       .getFilterRows(
-        {
+        getFilledRequestParams({
           appId: base.appId,
           viewId: base.viewId,
           worksheetId: base.worksheetId,
           relationWorksheetId: selectControl && selectControl.type === 29 ? selectControl.dataSource : null,
           ...filters,
           fastFilters: formatQuickFilter(quickFilter),
-        },
+        }),
         access_token ? { headersConfig } : {},
       )
       .then(({ data, count, resultCode }) => {
@@ -253,7 +253,7 @@ export const updateViewConfig = view => {
   return (dispatch, getState) => {
     const { base, views, gunterView, controls } = getState().sheet;
     const { advancedSetting, viewControl } = base.viewId ? _.find(views, { viewId: base.viewId }) : views[0];
-    const { unweekday, begindate, enddate, colorid, calendartype, milepost } = advancedSetting;
+    const { unweekday, begindate, enddate, colorid, calendartype, milepost, clicktype } = advancedSetting;
     const titleControl = _.find(controls, { attribute: 1 }) || {};
     const startControl = _.find(controls, { controlId: begindate }) || {};
     const endControl = _.find(controls, { controlId: enddate }) || {};
@@ -275,6 +275,7 @@ export const updateViewConfig = view => {
       startDisable: (startControl.fieldPermission || '').split('')[1] === '0' || begindate.includes('time'),
       endDisable: (endControl.fieldPermission || '').split('')[1] === '0' || enddate.includes('time'),
       titleDisable: (titleControl.fieldPermission || '').split('')[1] === '0',
+      clickType: clicktype || '0',
     };
     dispatch({ type: 'CHANGE_GUNTER_VIEW_CONFIG', data: newConfig });
   };

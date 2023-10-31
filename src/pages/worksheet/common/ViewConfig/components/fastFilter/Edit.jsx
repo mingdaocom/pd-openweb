@@ -506,6 +506,7 @@ function Edit(params) {
             return (
               <NavShow
                 canShowNull
+                fromCondition={'fastFilter'}
                 params={{
                   types: NAVSHOW_TYPE.filter(o => o.value !== '1').filter(o => {
                     //选项作为分组，分组没有筛选
@@ -537,6 +538,15 @@ function Edit(params) {
                     'worksheetId',
                     'switches',
                   ]),
+                  globalSheetControls: [
+                    ...view.fastFilters.map(o => worksheetControls.find(it => it.controlId === o.controlId)),
+                    view.navGroup && view.navGroup.length > 0
+                      ? {
+                          ...worksheetControls.find(it => it.controlId === view.navGroup[0].controlId),
+                          isNavGroup: true,
+                        }
+                      : null,
+                  ].filter(it => !!it && _.get(it, 'controlId') !== activeFastFilterId),
                   columns: worksheetControls,
                   viewControl: controlId,
                 }}

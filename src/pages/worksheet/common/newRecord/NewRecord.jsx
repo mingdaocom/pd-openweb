@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { Checkbox, Modal, LoadDiv, ScrollView } from 'ming-ui';
-import { removeFromLocal } from 'worksheet/util';
+import { removeTempRecordValueFromLocal } from 'worksheet/util';
 import NewRecordContent from './NewRecordContent';
 import AdvancedSettingHandler from './AdvancedSettingHandler';
 
@@ -16,7 +16,7 @@ export const BUTTON_ACTION_TYPE = {
 function NewRecord(props) {
   const {
     visible,
-    viewId,
+    worksheetId,
     title,
     notDialog,
     className,
@@ -144,7 +144,7 @@ function NewRecord(props) {
     onCancel: () => {
       onCloseDialog();
       hideNewRecord();
-      removeFromLocal('tempNewRecord', viewId);
+      removeTempRecordValueFromLocal('tempNewRecord', worksheetId);
     },
     footer,
     visible,

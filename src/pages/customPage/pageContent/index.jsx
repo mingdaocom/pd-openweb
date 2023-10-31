@@ -25,6 +25,7 @@ import DocumentTitle from 'react-document-title';
 import { pick } from 'lodash';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import { getEmbedValue } from 'src/components/newCustomFields/tools/utils.js';
+import { defaultConfig } from 'src/pages/customPage/components/ConfigSideWrap';
 
 const CustomPageContentWrap = styled.div`
   flex: 1;
@@ -92,7 +93,7 @@ const CustomPageContentWrap = styled.div`
       border-radius: 3px;
     }
     .hoverGray:hover {
-      background: #f5f5f5;
+      // background: #f5f5f5;
     }
   }
   .content {
@@ -110,6 +111,14 @@ const CustomPageContentWrap = styled.div`
     top: 40px;
     left: 10px;
   }
+  .darkTheme {
+    .pageName, .moreOperateIcon, .iconWrap .icon, .componentTitle, .createSource a {
+      color: rgba(255, 255, 255, 1) !important;
+    }
+    .createSource {
+      color: rgba(255, 255, 255, 0.8) !important;
+    }
+  }
 `;
 
 function CustomPageContent(props) {
@@ -119,6 +128,7 @@ function CustomPageContent(props) {
     visible,
     activeSheetId,
     adjustScreen,
+    config,
     updatePageInfo,
     updateLoading,
     apk,
@@ -152,6 +162,9 @@ function CustomPageContent(props) {
       getPage();
     }
     if (urlTemplate) {
+      updatePageInfo({
+        config: {},
+      });
       updateLoading(false);
     }
   }, [pageId]);
@@ -161,13 +174,14 @@ function CustomPageContent(props) {
       appId: pageId
     }, {
       fireImmediately: true
-    }).then(({ components, desc, apk, adjustScreen, name }) => {
+    }).then(({ components, desc, apk, adjustScreen, name, config }) => {
       updatePageInfo({
         components: isMobile ? components.filter(item => item.mobile.visible) : components,
         desc,
         adjustScreen,
         pageId,
         apk: apk || {},
+        config: config || defaultConfig,
         pageName: name
       });
     }).always(() => updateLoading(false));
@@ -213,6 +227,8 @@ function CustomPageContent(props) {
       <WebLayout
         layoutType={isMobile ? 'mobile' : 'web'}
         adjustScreen={adjustScreen}
+        config={config}
+        appPkg={appPkg}
         className={cx('customPageContent', { isFullscreen })}
         from="display"
         ids={ids}
@@ -234,7 +250,7 @@ function CustomPageContent(props) {
     <Fragment>
       <CustomPageContentWrap className="CustomPageContentWrap flexColumn">
         {(appName || pageName) && <DocumentTitle title={`${appName} - ${pageName}`} />}
-        {!loading && (urlTemplate ? configuration.hideHeaderBar === '0' : true) && (
+        {!loading && (
           <CustomPageHeader {...props} currentSheet={currentSheet} toggle={showFullscreen} resetPage={resetPage} />
         )}
         <div className="content">
@@ -250,7 +266,7 @@ function CustomPageContent(props) {
 
 export default connect(
   ({ appPkg, customPage, sheet: { isCharge, base }, sheetList: { data, appSectionDetail } }) => ({
-    ...pick(customPage, ['loading', 'visible', 'desc', 'adjustScreen', 'apk', 'pageName', 'flag']),
+    ...pick(customPage, ['loading', 'visible', 'desc', 'adjustScreen', 'apk', 'pageName', 'flag', 'config']),
     isCharge,
     appName: appPkg.name,
     sheetList: data,

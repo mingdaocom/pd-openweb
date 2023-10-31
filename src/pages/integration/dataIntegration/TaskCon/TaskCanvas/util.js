@@ -357,3 +357,7 @@ export const formatFieldsByType = list => {
   });
   return initWorkSheetFields;
 };
+
+export const hsMorePkControl = preNode => {
+  return (_.get(preNode, 'nodeConfig.fields') || []).filter(o => o.isPk).length > 1;
+};

@@ -7,7 +7,7 @@ import DialogSelectDept from 'src/components/dialogSelectDept';
 import cx from 'classnames';
 import TagInput from '../TagInput';
 import { CONTROLS_NAME, CONDITION_TYPE, DATE_LIST, FORMAT_TEXT } from '../../../enum';
-import { getConditionList, getConditionNumber, getFilterText } from '../../../utils';
+import { getConditionList, getConditionNumber, getFilterText, handleGlobalVariableName } from '../../../utils';
 import ActionFields from '../ActionFields';
 import Tag from '../Tag';
 import SelectOtherFields from '../SelectOtherFields';
@@ -94,6 +94,7 @@ export default class TriggerCondition extends Component {
               value: o.controlId,
               field: CONTROLS_NAME[o.type],
               text: o.controlName,
+              sourceType: o.sourceControlType,
             };
           }),
         };
@@ -337,7 +338,7 @@ export default class TriggerCondition extends Component {
                     flowNodeType={item.nodeType}
                     appType={item.appType}
                     actionId={item.actionId}
-                    nodeName={item.nodeName}
+                    nodeName={handleGlobalVariableName(item.nodeId, item.sourceType, item.nodeName)}
                     controlId={item.filedId}
                     controlName={item.filedValue}
                   />
@@ -373,7 +374,7 @@ export default class TriggerCondition extends Component {
             noItemTips={_l('没有可用的字段')}
             condition={controlsData}
             openSearch
-            handleFieldClick={({ fieldValueId, nodeId, nodeName, nodeTypeId, appType, actionId }) => {
+            handleFieldClick={({ fieldValueId, nodeId, nodeName, nodeTypeId, appType, actionId, sourceType }) => {
               this.switchField({
                 i,
                 j,
@@ -383,6 +384,7 @@ export default class TriggerCondition extends Component {
                 nodeType: nodeTypeId,
                 appType,
                 actionId,
+                sourceType,
               });
               this.setState({ showControlsIndex: '' });
             }}
@@ -396,7 +398,17 @@ export default class TriggerCondition extends Component {
   /**
    * 切换字段
    */
-  switchField = ({ filedId, i, j, nodeId = '', nodeName = '', nodeType = -1, appType = -1, actionId = '' }) => {
+  switchField = ({
+    filedId,
+    i,
+    j,
+    nodeId = '',
+    nodeName = '',
+    nodeType = -1,
+    appType = -1,
+    actionId = '',
+    sourceType,
+  }) => {
     const data = _.cloneDeep(this.props.data);
     const { controls, updateSource, isNodeHeader, selectNodeId } = this.props;
     let single;
@@ -423,6 +435,7 @@ export default class TriggerCondition extends Component {
       enumDefault: single.enumDefault,
       conditionId: (getConditionList(single.type, single.enumDefault) || {}).defaultConditionId,
       conditionValues: [],
+      sourceType,
     };
 
     updateSource(data);
@@ -1193,7 +1206,7 @@ export default class TriggerCondition extends Component {
    * 更多节点的值
    */
   renderOtherFields(item, i, j, second = false) {
-    const { processId, selectNodeId, sourceAppId, isIntegration, controls } = this.props;
+    const { projectId, processId, relationId, selectNodeId, sourceAppId, isIntegration, controls } = this.props;
     const { moreFieldsIndex } = this.state;
     let dataSource = '';
 
@@ -1216,7 +1229,9 @@ export default class TriggerCondition extends Component {
         isFilter={true}
         item={Object.assign({}, item, { type: item.filedTypeId })}
         fieldsVisible={moreFieldsIndex === `${i}-${j}-${second}`}
+        projectId={projectId}
         processId={processId}
+        relationId={relationId}
         selectNodeId={selectNodeId}
         sourceAppId={sourceAppId}
         isIntegration={isIntegration}
@@ -1244,6 +1259,7 @@ export default class TriggerCondition extends Component {
     j,
     second,
     isDel,
+    sourceType,
   }) => {
     const data = _.cloneDeep(this.props.data);
     const { updateSource } = this.props;
@@ -1266,6 +1282,7 @@ export default class TriggerCondition extends Component {
         nodeId,
         nodeName,
         nodeType: nodeTypeId,
+        sourceType,
       };
     }
 
@@ -1287,7 +1304,7 @@ export default class TriggerCondition extends Component {
             flowNodeType={item.nodeType}
             appType={item.appType}
             actionId={item.actionId}
-            nodeName={item.nodeName}
+            nodeName={handleGlobalVariableName(item.nodeId, item.sourceType, item.nodeName)}
             controlId={item.controlId}
             controlName={item.controlName}
           />

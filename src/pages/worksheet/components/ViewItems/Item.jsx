@@ -110,6 +110,9 @@ export default class Item extends Component {
                           advancedSetting: _.omit(item.advancedSetting || {}, ['navfilters', 'navshow']), //更换视图类型，把分组清空
                         }),
                       );
+                      if (viewType === 'detail') {
+                        this.props.onOpenView(item);
+                      }
                     }
                     this.setState({ changeViewDisplayTypeVisible: false, visible: false });
                   }}

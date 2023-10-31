@@ -174,15 +174,20 @@ export function getSelectedOptions(options, value) {
   let selectedKeys = [];
   try {
     selectedKeys = JSON.parse(value);
-  } catch (err) {}
-  return options.filter(option =>
-    _.find(selectedKeys, s => {
-      if (s.indexOf('other') > -1 || s.indexOf('add_') > -1) {
-        return s.indexOf(option.key) > -1;
-      }
-      return s === option.key;
-    }),
-  );
+    return selectedKeys
+      .map(key =>
+        _.find(options, option => {
+          if (key.indexOf('other') > -1 || key.indexOf('add_') > -1) {
+            return key.indexOf(option.key) > -1;
+          }
+          return key === option.key;
+        }),
+      )
+      .filter(_.identity);
+  } catch (err) {
+    console.log(err);
+    return [];
+  }
 }
 
 function transformLat(lng, lat) {

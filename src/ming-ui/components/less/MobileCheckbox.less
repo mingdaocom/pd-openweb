@@ -1,6 +1,9 @@
 .mobileCheckboxBtnsWrapper {
   height: 50px;
-  border-top: 1px solid #f5f5f5;
+  display: flex;
+  background: #fff;
+  padding: 0 20px;
+  border-bottom: 1px solid #f5f5f5;
   .am-button {
     height: 36px;
     line-height: 36px;
@@ -16,8 +19,8 @@
 }
 
 .mobileCheckboxSearchWrapper {
-  background-color: #f2f2f3;
-  margin: 12px 15px 6px;
+  background-color: #f5f5f5;
+  margin: 5px 10px 6px;
   display: flex;
   align-items: center;
   border-radius: 24px;
@@ -29,12 +32,26 @@
 }
 
 .mobileCheckboxDialog {
+  .am-list-body::before {
+    content: none !important;
+  }
   .ming.Radio {
-    margin-right: 8px !important;
+    margin-right: 2px !important;
   }
   .am-list-body div:last-child .am-list-line::after {
     width: 0;
     height: 0;
+  }
+  .ming.Checkbox {
+    span:nth-child(2) {
+      flex: 1 !important;
+    }
+    .Checkbox-box {
+      margin-right: 14px;
+    }
+  }
+  .mLeft31 {
+    margin-left: 31px;
   }
 }
 .otherInputHeight {

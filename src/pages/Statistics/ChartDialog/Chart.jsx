@@ -86,7 +86,7 @@ export default class Chart extends Component {
     });
   }
   renderChart() {
-    const { reportData, currentReport, base, direction, getReportSingleCacheId, requestOriginalData, changeCurrentReport } = this.props;
+    const { projectId, themeColor, reportData, currentReport, base, direction, getReportSingleCacheId, requestOriginalData, changeCurrentReport } = this.props;
     const { settingVisible, report = {}, sourceType } = base;
     const reportId = report.id;
     const { reportType, valueMap } = reportData;
@@ -95,10 +95,13 @@ export default class Chart extends Component {
     const isPublicSharePage = location.href.includes('public/page') || window.shareAuthor || window.share;
 
     const props = {
+      projectId,
       sourceType,
       isViewOriginalData: !settingVisible && !isMobile && !isPublicShareChart && !isPublicSharePage,
       requestOriginalData,
       direction,
+      themeColor,
+      customPageConfig: {}
     };
 
     if ([reportTypes.PivotTable].includes(reportType)) {

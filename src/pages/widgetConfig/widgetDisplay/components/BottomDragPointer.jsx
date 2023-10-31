@@ -1,15 +1,17 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import { useDrop } from 'react-dnd-latest';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { DRAG_ITEMS, DRAG_MODE } from '../../config/Drag';
-import { EmptyControl } from '../../widgetSetting/components/SectionConfig/style';
+import { relateOrSectionTab } from '../../util';
+import { EmptyControl } from 'src/pages/widgetConfig/widgetSetting/components/SplitLineConfig/style';
 
 const DragPointer = styled.div`
   flex: 1;
   width: 100%;
   overflow: hidden;
-  ${props => (props.height ? `min-height:${props.height}px;` : '')}
+  min-height: 20px;
+  min-width: 20px;
   .line {
     margin-top: 0px;
     height: 4px;
@@ -21,15 +23,22 @@ const DragPointer = styled.div`
   }
 `;
 
-export default function BottomDragPointer(props) {
-  const { rowIndex, displayItemType, showEmpty, sectionId, height } = props;
+export default function BottomDragPointer({ rowIndex, displayItemType, showEmpty, sectionId }) {
   const ref = useRef(null);
-  const [{ isOver }, drop] = useDrop({
+  const [{ isOver, canDrop }, drop] = useDrop({
     accept:
-      displayItemType === 'relate' ? [DRAG_ITEMS.DISPLAY_ITEM_RELATE] : [DRAG_ITEMS.DISPLAY_ITEM, DRAG_ITEMS.LIST_ITEM],
+      displayItemType === 'tab'
+        ? [DRAG_ITEMS.LIST_TAB, DRAG_ITEMS.DISPLAY_TAB]
+        : [DRAG_ITEMS.LIST_ITEM, DRAG_ITEMS.DISPLAY_ITEM],
     canDrop(item, monitor) {
-      // 分段禁止多层嵌套
-      if (sectionId && item.widgetType === 52) return false;
+      // 标签页内不允许子表、标签页、多条列表等拖拽
+      if (
+        sectionId &&
+        (_.includes(['SUB_LIST', 'SECTION', 'RELATION_SEARCH'], item.enumType) ||
+          relateOrSectionTab(item.data) ||
+          _.get(item, 'data.type') === 34)
+      )
+        return false;
 
       return true;
     },
@@ -43,12 +52,14 @@ export default function BottomDragPointer(props) {
 
   drop(ref);
   return (
-    <DragPointer ref={ref} className={cx({ isOver })} height={height}>
-      <div className="line"></div>
-      {showEmpty && (
+    <DragPointer ref={ref} className={cx({ isOver, canDrop })}>
+      {showEmpty ? (
         <EmptyControl>
+          <div className="line"></div>
           <div className="emptyText">{_l('将字段拖拽到这里添加')}</div>
         </EmptyControl>
+      ) : (
+        <div className="line"></div>
       )}
     </DragPointer>
   );

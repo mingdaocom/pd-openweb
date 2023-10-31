@@ -1,13 +1,26 @@
-import React from 'react';
-import styled from 'styled-components';
+import React, { useState, useEffect } from 'react';
+import { head } from 'lodash';
+import SplitLineSection from '../../widgetSetting/components/SplitLineConfig/SplitLineSection';
 
-const Line = styled.div`
-  width: 100%;
-  height: 1px;
-  background-color: #bdbdbd;
-  margin-top: 12px;
-`;
+export default function SplitLine(props) {
+  const { data, styleInfo, path = [], widgets = [], activeWidget } = props;
+  const row = head(path);
+  const styleConfig = _.get(styleInfo, 'info.sectionstyle') || '0';
+  const [sectionStyle, setStyle] = useState(styleConfig);
 
-export default function Relation(props) {
-  return <Line />;
+  useEffect(() => {
+    if (styleConfig !== sectionStyle) {
+      setStyle(styleConfig);
+    }
+  }, [data.controlId, styleConfig]);
+
+  return (
+    <SplitLineSection
+      row={row}
+      data={data}
+      widgets={widgets}
+      sectionstyle={sectionStyle}
+      activeWidget={activeWidget}
+    />
+  );
 }

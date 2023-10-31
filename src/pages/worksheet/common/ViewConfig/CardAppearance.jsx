@@ -122,12 +122,29 @@ const HierarchyViewConnectLineConfigWrap = styled(RadioGroup)`
     margin-right: 60px;
   }
 `;
+
+const DetailRecordTypeRadioGroup = styled(RadioGroup)`
+  margin-bottom: 24px;
+  .ming.Radio:first-child {
+    margin-right: 128px;
+  }
+`;
+
+const DetailRadioWrapper = styled.div`
+  position: relative;
+  .singleDesc {
+    position: absolute;
+    right: 115px;
+    top: 2px;
+  }
+`;
+
 export default class CardAppearance extends Component {
   static propTypes = {};
   static defaultProps = {};
   constructor(props) {
     super(props);
-    const { advancedSetting = {} } = props.view;
+    const { advancedSetting = {}, childType } = props.view;
     this.state = {
       relateControls: [],
       emptyname: '',
@@ -135,6 +152,7 @@ export default class CardAppearance extends Component {
       hierarchyViewType: advancedSetting.hierarchyViewType || '0',
       hierarchyViewConnectLine: advancedSetting.hierarchyViewConnectLine || '0',
       minHierarchyLevel: advancedSetting.minHierarchyLevel || '0',
+      detailRecordType: childType || 2,
     };
   }
 
@@ -143,6 +161,7 @@ export default class CardAppearance extends Component {
     const { emptyname = '' } = getAdvanceSetting(view);
     this.setState({
       emptyname,
+      detailRecordType: view.childType || 2,
     });
   }
 
@@ -154,10 +173,12 @@ export default class CardAppearance extends Component {
         emptyname,
       });
     }
+    this.setState({ detailRecordType: view.childType || 2 });
   }
 
   render() {
-    const { showChangeName, hierarchyViewType, hierarchyViewConnectLine, minHierarchyLevel } = this.state;
+    const { showChangeName, hierarchyViewType, hierarchyViewConnectLine, minHierarchyLevel, detailRecordType } =
+      this.state;
     const { worksheetControls, currentSheetInfo, updateCurrentView, view, appId, columns } = this.props;
     const allCanSelectFieldsInBoardControls = filterAndFormatterControls({
       controls: worksheetControls,
@@ -178,6 +199,7 @@ export default class CardAppearance extends Component {
     const isBoardView = String(viewType) === '1';
     const isHierarchyView = String(viewType) === '2';
     const isGallery = String(viewType) === '3';
+    const isDetailView = String(viewType) === '6';
     const isMultiHierarchyView = isHierarchyView && String(childType) === '2';
     let navfilters = getAdvanceSetting(view).navfilters;
     // const isShowDisplayConfig = () => {
@@ -205,7 +227,7 @@ export default class CardAppearance extends Component {
     };
     return (
       <ViewSettingWrap>
-        {!isMultiHierarchyView && !isGallery && (
+        {!isMultiHierarchyView && !isGallery && !isDetailView && (
           <Fragment>
             <div className="title withSwitchConfig" style={{ marginTop: '0px', height: '24px' }}>
               {isHierarchyView ? _l('关联本表字段') : _l('分组字段')}
@@ -500,92 +522,133 @@ export default class CardAppearance extends Component {
             />
           </Fragment>
         )}
-        <div className="title mBottom24 bold">{_l('卡片外观')}</div>
-        {/* abstract：摘要控件ID */}
-        <Abstract
-          {...this.props}
-          advancedSetting={advancedSetting}
-          handleChange={value => {
-            updateCurrentView({
-              ...view,
-              appId,
-              advancedSetting: updateViewAdvancedSetting(view, { abstract: value }),
-              editAttrs: ['advancedSetting'],
-            });
-          }}
-        />
-        {/* 显示字段 */}
-        <DisplayControl
-          {...this.props}
-          handleChange={checked => {
-            updateCurrentView({ ...view, appId, showControlName: checked, editAttrs: ['showControlName'] }, false);
-          }}
-          handleChangeSort={({ newControlSorts, newShowControls }) => {
-            updateCurrentView(
-              {
-                ...view,
-                appId,
-                controlsSorts: newControlSorts,
-                displayControls: newShowControls,
-                editAttrs: ['controlsSorts', 'displayControls'],
-              },
-              false,
-            );
-          }}
-        />
-        {/* 封面图片 */}
-        <CoverSetting
-          {...this.props}
-          advancedSetting={advancedSetting}
-          // 是否显示
-          handleChangeIsCover={value =>
-            updateCurrentView({
-              ...view,
-              appId,
-              coverCid: value === 'notDisplay' ? '' : value,
-              editAttrs: ['coverCid'],
-            })
-          }
-          // 显示位置
-          handleChangePosition={(value, coverTypeValue) => {
-            updateCurrentView({
-              ...view,
-              appId,
-              coverType: coverTypeValue,
-              advancedSetting: updateViewAdvancedSetting(view, { coverposition: value }),
-              editAttrs: ['coverType', 'advancedSetting'],
-            });
-          }}
-          // 显示方式
-          handleChangeType={value =>
-            updateCurrentView({ ...view, appId, coverType: value, editAttrs: ['coverType'] }, false)
-          }
-          // 允许点击查看
-          handleChangeOpencover={value => {
-            updateCurrentView({
-              ...view,
-              appId,
-              advancedSetting: updateViewAdvancedSetting(view, { opencover: value }),
-              editAttrs: ['advancedSetting'],
-            });
-          }}
-        />
-        {showChangeName && (
-          <ChangeName
-            onChange={value => {
-              updateCurrentView({
-                ...view,
-                appId,
-                advancedSetting: updateViewAdvancedSetting(view, { emptyname: value.trim() }),
-                editAttrs: ['advancedSetting'],
-              });
-              this.setState({ showChangeName: false });
-            }}
-            name={advancedSetting.emptyname}
-            onCancel={() => {
-              this.setState({ showChangeName: false });
-            }}
-          />
+
+        {isDetailView && (
+          <Fragment>
+            <div className="bold mBottom20">{_l('记录数量')}</div>
+            <DetailRadioWrapper>
+              <DetailRecordTypeRadioGroup
+                size="middle"
+                checkedValue={detailRecordType}
+                data={[
+                  { text: _l('多条'), value: 2 },
+                  { text: _l('一条'), value: 1 },
+                ]}
+                onChange={value => {
+                  if (detailRecordType === value) {
+                    return;
+                  }
+                  this.setState(
+                    {
+                      detailRecordType: value,
+                    },
+                    () => {
+                      updateCurrentView({
+                        ...view,
+                        appId,
+                        childType: value,
+                        editAttrs: value === 1 ? ['childType', 'fastFilters'] : ['childType'],
+                        ...(value === 1 ? { fastFilters: [] } : {}),
+                      });
+                    },
+                  );
+                }}
+              />
+              <span className="Gray_9e singleDesc">{_l('（第一条记录）')}</span>
+            </DetailRadioWrapper>
+          </Fragment>
+        )}
+
+        {(!isDetailView || childType === 2) && (
+          <Fragment>
+            <div className="title mBottom24 bold">{_l('卡片外观')}</div>
+            {/* abstract：摘要控件ID */}
+            <Abstract
+              {...this.props}
+              advancedSetting={advancedSetting}
+              handleChange={value => {
+                updateCurrentView({
+                  ...view,
+                  appId,
+                  advancedSetting: updateViewAdvancedSetting(view, { abstract: value }),
+                  editAttrs: ['advancedSetting'],
+                });
+              }}
+            />
+            {/* 显示字段 */}
+            <DisplayControl
+              {...this.props}
+              handleChange={checked => {
+                updateCurrentView({ ...view, appId, showControlName: checked, editAttrs: ['showControlName'] }, false);
+              }}
+              handleChangeSort={({ newControlSorts, newShowControls }) => {
+                updateCurrentView(
+                  {
+                    ...view,
+                    appId,
+                    controlsSorts: newControlSorts,
+                    displayControls: newShowControls,
+                    editAttrs: ['controlsSorts', 'displayControls'],
+                  },
+                  false,
+                );
+              }}
+            />
+            {/* 封面图片 */}
+            <CoverSetting
+              {...this.props}
+              advancedSetting={advancedSetting}
+              // 是否显示
+              handleChangeIsCover={value =>
+                updateCurrentView({
+                  ...view,
+                  appId,
+                  coverCid: value === 'notDisplay' ? '' : value,
+                  editAttrs: ['coverCid'],
+                })
+              }
+              // 显示位置
+              handleChangePosition={(value, coverTypeValue) => {
+                updateCurrentView({
+                  ...view,
+                  appId,
+                  coverType: coverTypeValue,
+                  advancedSetting: updateViewAdvancedSetting(view, { coverposition: value }),
+                  editAttrs: ['coverType', 'advancedSetting'],
+                });
+              }}
+              // 显示方式
+              handleChangeType={value =>
+                updateCurrentView({ ...view, appId, coverType: value, editAttrs: ['coverType'] }, false)
+              }
+              // 允许点击查看
+              handleChangeOpencover={value => {
+                updateCurrentView({
+                  ...view,
+                  appId,
+                  advancedSetting: updateViewAdvancedSetting(view, { opencover: value }),
+                  editAttrs: ['advancedSetting'],
+                });
+              }}
+            />
+            {showChangeName && (
+              <ChangeName
+                onChange={value => {
+                  updateCurrentView({
+                    ...view,
+                    appId,
+                    advancedSetting: updateViewAdvancedSetting(view, { emptyname: value.trim() }),
+                    editAttrs: ['advancedSetting'],
+                  });
+                  this.setState({ showChangeName: false });
+                }}
+                name={advancedSetting.emptyname}
+                onCancel={() => {
+                  this.setState({ showChangeName: false });
+                }}
+              />
+            )}
+          </Fragment>
         )}
       </ViewSettingWrap>
     );

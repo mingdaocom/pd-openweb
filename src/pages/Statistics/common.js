@@ -233,6 +233,16 @@ export function initConfigDetail(id, data, currentReport) {
       currentReport.split = {};
       result.split = {};
     }
+    if (reportTypes.GaugeChart === currentReport.reportType) {
+      result.config = {
+        min: null,
+        max: null,
+        targetList: []
+      }
+    }
+    if (reportTypes.ScatterChart === reportType) {
+      result.yaxisList = currentReport.yaxisList.filter((n, index) => index < 3);
+    }
     if (reportTypes.DualAxes === reportType) {
       result.yaxisList = currentReport.yaxisList.length ? [currentReport.yaxisList[0]] : [];
       rightY.yaxisList = currentReport.yaxisList.length > 1 ? [currentReport.yaxisList[1]] : [];
@@ -244,7 +254,7 @@ export function initConfigDetail(id, data, currentReport) {
       }
     }
     if ([reportTypes.FunnelChart, reportTypes.PieChart].includes(reportType)) {
-      result.yaxisList = currentReport.yaxisList;
+      result.yaxisList = currentReport.yaxisList.length ? [currentReport.yaxisList[0]] : [];
       if (isTimeControl(currentReport.xaxes.controlType)) {
         result.xaxes = {};
       }
@@ -296,6 +306,8 @@ export function initConfigDetail(id, data, currentReport) {
       result.displaySetup.ydisplay.title = result.yaxisList.length ? result.yaxisList[0].controlName : '';
       result.displaySetup.showChartType = 1;
       result.displaySetup.colorRules = [];
+      result.displaySetup.contrastType = 0;
+      result.displaySetup.contrast = false;
     }
   }
 
@@ -547,27 +559,36 @@ export const defaultDropdownScopeData = 18;
  * 处理数值图数据对比的周期文案
  */
 export const formatContrastTypes = ({ rangeType, rangeValue }) => {
-  const base = [];
+  let base = [];
   switch (rangeType) {
+    case 1:
+    case 2:
+    case 3:
+      base = [
+        { text: _l('周同比'), value: 3 },
+        { text: _l('月同比'), value: 4 },
+        { text: _l('年同比'), value: 2 }
+      ];
+      break;
     case 4:
     case 5:
     case 6:
-      base.push({ text: _l('与上周同比'), value: 2 });
+      base.push({ text: _l('周同比'), value: 2 });
       break;
     case 8:
     case 9:
     case 10:
-      base.push({ text: _l('与上个月同比'), value: 2 });
+      base.push({ text: _l('月同比'), value: 2 });
       break;
     case 11:
     case 12:
     case 13:
-      base.push({ text: _l('与上个季度同比'), value: 2 });
+      base.push({ text: _l('季度同比'), value: 2 });
       break;
     case 15:
     case 16:
     case 17:
-      base.push({ text: _l('与上一年同比'), value: 2 });
+      base.push({ text: _l('年同比'), value: 2 });
       break;
     default:
       break;
@@ -710,6 +731,14 @@ export const dropdownScopeData = [
   {
     text: _l('下一年'),
     value: 17,
+  },
+  {
+    text: _l('上半年'),
+    value: 22,
+  },
+  {
+    text: _l('下半年'),
+    value: 23,
   },
   {
     text: _l('过去...天'),
@@ -1182,6 +1211,7 @@ export const fillValueMap = result => {
 
   if ([reportTypes.FunnelChart, reportTypes.LineChart].includes(reportType)) {
     result.contrastMap.forEach(control => {
+      control.originalKey = control.key;
       control.value.forEach(item => {
         item.originalX = item.x;
         item.x = _.isEmpty(xaxisValueMap) ? item.x : xaxisValueMap[item.x] || item.x;

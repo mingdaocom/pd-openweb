@@ -92,12 +92,12 @@ class CityPicker extends Component {
       visible: false,
     });
   }
-  handleCallback(array) {
+  handleCallback(array, panelIndex) {
     const values = array.map(item => item.name);
     this.setState({
       value: values.join('/'),
     });
-    this.props.callback(array);
+    this.props.callback(array, panelIndex);
   }
   render() {
     const { placeholder, className, popupParentNode, defaultValue, disabled, destroyPopupOnHide, level } = this.props;

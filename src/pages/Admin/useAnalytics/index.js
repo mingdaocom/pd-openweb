@@ -33,7 +33,9 @@ export default class UseAnalytics extends Component {
     const featureType = getFeatureStatus(params.projectId, VersionProductType.analysis);
     if (featureType === '2') {
       return (
-        <div className="orgManagementWrap">{buriedUpgradeVersionDialog(params.projectId, VersionProductType.analysis, 'content')}</div>
+        <div className="orgManagementWrap">
+          {buriedUpgradeVersionDialog(params.projectId, VersionProductType.analysis, { dialogType: 'content' })}
+        </div>
       );
     }
     let deadLine = moment().subtract(1, 'days').format(_l('YYYY年MM月DD日'));

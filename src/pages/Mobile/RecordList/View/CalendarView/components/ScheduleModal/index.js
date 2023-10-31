@@ -90,13 +90,18 @@ class ScheduleModal extends Component {
       <React.Fragment>
         {eventData.map(it => {
           const { extendedProps = {} } = it;
-          const { rowid, wsid, stringColor = '' } = extendedProps;
+          const { rowid, wsid, stringColor = '', recordColor } = extendedProps;
+
           return (
             <div
               className="listItem"
               rowid={rowid}
               key={`${rowid}-${it.begin}`}
               enddate={it.enddate}
+              style={{
+                backgroundColor: recordColor && recordColor.showBg ? recordColor.lightColor : undefined,
+                border: `1px solid ${recordColor && recordColor.showBg ? recordColor.lightColor : '#fff'}`,
+              }}
               onClick={() => {
                 const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
                 if (isMingdao) {
@@ -107,7 +112,9 @@ class ScheduleModal extends Component {
                 this.setState({ previewRecordId: rowid, wsid });
               }}
             >
-              {<div className="colorLeft" style={{ backgroundColor: stringColor }}></div>}
+              {recordColor && recordColor.showLine && (
+                <div className="colorLeft" style={{ backgroundColor: recordColor.color }}></div>
+              )}
               <div className="title Font14 Bold ellipsis" title={it.title} style={{ WebkitBoxOrient: 'vertical' }}>
                 {it.title}
               </div>

@@ -651,7 +651,7 @@ export default class ChartStyle extends Component {
   renderLegend() {
     const { displaySetup, yaxisList, split, reportType } = this.props.currentReport;
 
-    if ([reportTypes.LineChart, reportTypes.BarChart, reportTypes.RadarChart].includes(reportType) && !(yaxisList.length > 1 || split.controlId)) {
+    if ([reportTypes.LineChart, reportTypes.BarChart, reportTypes.RadarChart].includes(reportType) && !(yaxisList.length > 1 || split.controlId || displaySetup.contrastType)) {
       return null;
     }
 
@@ -847,11 +847,18 @@ export default class ChartStyle extends Component {
                   showTitle: checked,
                 },
               });
+              this.handleChangeStyle({
+                showXAxisSlider: checked
+              });
             }}
           />
         }
       >
-        <XAxis currentReport={currentReport} onChangeDisplayValue={this.handleChangeDisplayValue} />
+        <XAxis
+          currentReport={currentReport}
+          onChangeDisplayValue={this.handleChangeDisplayValue}
+          onChangeStyle={this.handleChangeStyle}
+        />
       </Collapse.Panel>
     );
   }
@@ -1049,7 +1056,7 @@ export default class ChartStyle extends Component {
     return (
       <Collapse.Panel header={_l('图形颜色')} key="color">
         <Color
-          columns={worksheetInfo.columns}
+          worksheetInfo={worksheetInfo}
           currentReport={currentReport}
           onChangeCurrentReport={changeCurrentReport}
           onChangeDisplayValue={this.handleChangeDisplayValue}

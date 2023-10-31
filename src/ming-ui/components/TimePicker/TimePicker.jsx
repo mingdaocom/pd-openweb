@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import moment from 'moment';
 import Panel from './Panel';
 import PositionContainer from 'ming-ui/components/PositionContainer';
-import { isDescendant } from 'ming-ui/utils/DomHelpers';
 import '../less/TimePicker.less';
 
 const getComputedStyle = (element, attr) => {
@@ -166,7 +165,7 @@ class TimePicker extends Component {
   };
 
   withClickAway = event => {
-    if (this._panel && !isDescendant(this._panel, event.target) && this._timepicker !== event.target) {
+    if (this._panel && !$(event.target).closest($(this._panel)).length && this._timepicker !== event.target) {
       this.handleClose();
     }
   };

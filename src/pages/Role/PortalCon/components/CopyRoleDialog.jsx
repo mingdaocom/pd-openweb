@@ -16,7 +16,7 @@ const CopyDialogWrap = styled.div`
   }
 `;
 export default function CopyRoleDialog(props) {
-  const { copyData, setCopyData, updataRoleData, appId } = props;
+  const { copyData, setCopyData, updataRoleData, appId, editType } = props;
   const { name, roleId } = copyData || {};
   const [roleName, setRoleName] = useState(name + _l('-复制'));
   const inputRef = useRef(null);
@@ -42,9 +42,12 @@ export default function CopyRoleDialog(props) {
           appId,
           roleId,
           roleName: roleName.trim(),
+          copyPortalRole: editType === 1 ? true : false,
         }).then(res => {
-          if (res) {
-            updataRoleData(res);
+          if (res.resultCode === 1) {
+            updataRoleData(res.roleId);
+          } else if (res.resultCode === 2) {
+            alert(_l('角色名称重复，请重新命名'), 3);
           } else {
             alert(_l('复制失败'), 2);
           }

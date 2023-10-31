@@ -126,14 +126,10 @@ function EditPanel(props) {
 }
 
 export default function EditGroupMenuItem(props) {
-  const { keywords, isAdmin, groups = [] } = props;
+  const { isAdmin, groups = [] } = props;
   const itemRef = useRef();
-  const personalGroups = groups.filter(
-    g => g.groupType === 0 && (!keywords || new RegExp(keywords.toUpperCase()).test(g.name)),
-  );
-  const projectGroups = groups.filter(
-    g => g.groupType === 1 && (!keywords || new RegExp(keywords.toUpperCase()).test(g.name)),
-  );
+  const personalGroups = groups.filter(g => g.groupType === 0);
+  const projectGroups = groups.filter(g => g.groupType === 1);
   const isEmpty = !personalGroups.length && (!projectGroups.length || !isAdmin);
   return (
     <Trigger

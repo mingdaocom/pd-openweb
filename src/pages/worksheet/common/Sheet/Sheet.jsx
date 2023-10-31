@@ -6,7 +6,6 @@ import { connect } from 'react-redux';
 import DocumentTitle from 'react-document-title';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import * as actions from 'worksheet/redux/actions';
-import Skeleton from 'src/router/Application/Skeleton';
 import View from 'worksheet/views';
 import SheetContext from './SheetContext';
 import SheetHeader from './SheetHeader';
@@ -15,8 +14,8 @@ import QuickFilter from './QuickFilter';
 import GroupFilter from './GroupFilter';
 import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import DragMask from 'worksheet/common/DragMask';
-import { Icon } from 'ming-ui';
-const { sheet, gallery, board, calendar, gunter } = VIEW_DISPLAY_TYPE;
+import { Skeleton } from 'ming-ui';
+const { sheet, gallery, board, calendar, gunter, detail } = VIEW_DISPLAY_TYPE;
 import './style.less';
 import _ from 'lodash';
 import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
@@ -84,12 +83,12 @@ function Sheet(props) {
     updateGroupFilter,
     updateFilters,
     config = {},
-    navGroupFilters = [],
     filtersGroup,
     chartId,
     showControlIds,
     showAsSheetView,
     quickFilter,
+    navGroupFilters,
     openNewRecord,
   } = props;
   const [viewConfigVisible, setViewConfigVisible] = useState(false);
@@ -107,16 +106,28 @@ function Sheet(props) {
     return !showhide.includes('hpc') && !showhide.includes('hide');
   });
   const view = _.find(views, { viewId }) || (!viewId && !chartId && (showViews.length ? showViews : views)[0]) || {};
+  const navData = (_.get(worksheetInfo, 'template.controls') || []).find(
+    o => o.controlId === _.get(view, 'navGroup[0].controlId'),
+  );
   const hasGroupFilter =
-    !_.isEmpty(view.navGroup) && view.navGroup.length > 0 && _.includes([sheet, gallery], String(view.viewType));
+    !_.isEmpty(view.navGroup) &&
+    view.navGroup.length > 0 &&
+    _.includes([sheet, gallery], String(view.viewType)) &&
+    navData;
   const showQuickFilter =
     !_.isEmpty(view.fastFilters) &&
-    _.includes([sheet, gallery, board, calendar, gunter], String(view.viewType)) &&
+    _.includes([sheet, gallery, board, calendar, gunter, detail], String(view.viewType)) &&
     !chartId;
   const needClickToSearch =
     showQuickFilter &&
     !_.includes([sheet], String(view.viewType)) &&
     _.get(view, 'advancedSetting.clicksearch') === '1';
+  //设置了筛选列表，且不显示全部，需手动选择分组后展示数据
+  const navGroupToSearch =
+    hasGroupFilter &&
+    !_.includes([sheet], String(view.viewType)) &&
+    !chartId &&
+    _.get(view, 'advancedSetting.showallitem') === '1';
   const basePara = {
     type,
     loading,
@@ -138,9 +149,14 @@ function Sheet(props) {
     showControlIds,
     showAsSheetView,
   };
+  const navGroupData = (_.get(worksheetInfo, 'template.controls') || []).find(
+    o => o.controlId === _.get(view, 'navGroup[0].controlId'),
+  );
   const viewComp =
     needClickToSearch && _.isEmpty(quickFilter) ? (
       <EmptyStatus>{_l('执行查询后显示结果')}</EmptyStatus>
+    ) : navGroupToSearch && _.isEmpty(navGroupFilters) ? (
+      <EmptyStatus>{_l('请从左侧选择一个%0查看', navGroupData.controlName)}</EmptyStatus>
     ) : (
       <View {...basePara} />
     );
@@ -269,6 +285,7 @@ export default connect(
     views: state.sheet.views,
     activeViewStatus: state.sheet.activeViewStatus,
     quickFilter: state.sheet.quickFilter,
+    navGroupFilters: state.sheet.navGroupFilters,
   }),
   dispatch =>
     bindActionCreators(

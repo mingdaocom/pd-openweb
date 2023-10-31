@@ -12,6 +12,7 @@ import { createDiscussion } from '../../utils/group';
 import AddressBook from '../../lib/addressBook';
 import Tooltip from 'ming-ui/components/Tooltip';
 import CreateGroup from 'src/components/group/create/creatGroup';
+import addFriends from 'src/components/addFriends';
 
 class Btns extends Component {
   constructor(props) {
@@ -79,9 +80,7 @@ class Btns extends Component {
     });
   }
   handleInvite() {
-    import('src/components/invite').then(invite => {
-      invite();
-    });
+    addFriends({ selectProject: true });
     this.handleMenuChange();
   }
   handleAddSession() {

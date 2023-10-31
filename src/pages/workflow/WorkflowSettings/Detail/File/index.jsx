@@ -38,11 +38,12 @@ export default class File extends Component {
    */
   getNodeDetail(props, sId) {
     const { processId, selectNodeId, selectNodeType } = props;
+    const { data } = this.state;
 
     flowNode
       .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, selectNodeId: sId })
       .then(result => {
-        this.setState({ data: result });
+        this.setState({ data: !sId ? result : { ...result, name: data.name } });
       });
   }
 
@@ -154,7 +155,9 @@ export default class File extends Component {
           {_l('系统默认使用记录标题作为文件名，自定义名称时不得包含英文字符/:*?"<>|')}
         </div>
         <CustomTextarea
+          projectId={this.props.companyId}
           processId={this.props.processId}
+          relationId={this.props.relationId}
           selectNodeId={this.props.selectNodeId}
           type={2}
           height={0}

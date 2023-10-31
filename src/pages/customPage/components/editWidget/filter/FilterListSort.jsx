@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef, Fragment } from 'react';
 import { Modal } from 'antd';
-import { Button } from 'ming-ui';
-import { Icon } from 'src';
+import { Button, Icon } from 'ming-ui';
 import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
 import styled from 'styled-components';
 
@@ -70,7 +69,7 @@ export default function FilterListSort({ filters, onSortEnd }) {
     <Fragment>
       <SortableBtnIconWrap className="mLeft10" onClick={() => setVisible(true)}>
         <div className="valignWrapper Gray_75 pointer mLeft20">
-          <Icon className="Font22" icon="import_export" />
+          <Icon className="Font22 Gray_9e ThemeHoverColor3" icon="import_export" />
           <span className="Font13">{_l('排序')}</span>
         </div>
       </SortableBtnIconWrap>
@@ -83,7 +82,8 @@ export default function FilterListSort({ filters, onSortEnd }) {
         wrapClassName="customPageBtnSortModalWrap"
         visible={visible}
         onCancel={() => setVisible(false)}
-        footer={null}>
+        footer={null}
+      >
         <ModalContentWrap>
           <SortableBtnList
             helperClass="customPageBtnSortHelper"

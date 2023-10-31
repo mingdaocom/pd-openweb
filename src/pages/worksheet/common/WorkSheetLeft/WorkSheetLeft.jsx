@@ -5,8 +5,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { DndProvider } from 'react-dnd-latest';
 import { HTML5Backend } from 'react-dnd-html5-backend-latest';
-import { ScrollView, Icon, Tooltip } from 'ming-ui';
-import Skeleton from 'src/router/Application/Skeleton';
+import { ScrollView, Icon, Tooltip, Skeleton } from 'ming-ui';
 import Guidance from 'src/pages/worksheet/components/Guidance';
 import * as sheetListActions from 'src/pages/worksheet/redux/actions/sheetList';
 import WorkSheetItem from './WorkSheetItem';
@@ -36,7 +35,7 @@ class WorkSheetLeft extends Component {
     sheetListActions: PropTypes.object,
     sheetList: PropTypes.array,
     activeSheetId: PropTypes.string,
-  }
+  };
   constructor(props) {
     super(props);
     this.state = {
@@ -45,7 +44,7 @@ class WorkSheetLeft extends Component {
   }
   componentWillMount = function () {
     this.getSheetList(this.props);
-  }
+  };
   componentWillUnmount() {
     this.props.sheetListActions.updateSheetListLoading(true);
     this.props.sheetListActions.clearSheetList();
@@ -58,7 +57,7 @@ class WorkSheetLeft extends Component {
       this.getSheetList(nextProps);
     }
   }
-  getSheetList = (props) => {
+  getSheetList = props => {
     const { appId, groupId, groupData } = props || this.props;
     if (groupData) {
       this.props.sheetListActions.updateSheetList(groupData);
@@ -69,12 +68,15 @@ class WorkSheetLeft extends Component {
         appSectionId: groupId,
       });
     }
-  }
+  };
   get data() {
     const { data, isCharge, appPkg } = this.props;
     const isOperation = appPkg.permissionType === 2;
-    const filterEmptyAppItem = (isCharge || isOperation) ? item => true : item => !(item.type === 2 && _.isEmpty(item.items));
-    return (isCharge || isOperation) && appPkg.viewHideNavi ? data : data.filter(item => item.status === 1 && !item.navigateHide).filter(filterEmptyAppItem);
+    const filterEmptyAppItem =
+      isCharge || isOperation ? item => true : item => !(item.type === 2 && _.isEmpty(item.items));
+    return (isCharge || isOperation) && appPkg.viewHideNavi
+      ? data
+      : data.filter(item => item.status === 1 && !item.navigateHide).filter(filterEmptyAppItem);
   }
   renderSheetAppItem(item, workSheetItemProps, index) {
     const { groupId } = this.props;
@@ -84,13 +86,7 @@ class WorkSheetLeft extends Component {
     item.isAppItem = isAppItem;
     item.parentId = groupId;
     item.index = index;
-    return (
-      <Wrap
-        key={item.workSheetId}
-        appItem={item}
-        {...workSheetItemProps}
-      />
-    );
+    return <Wrap key={item.workSheetId} appItem={item} {...workSheetItemProps} />;
   }
   renderContent(data) {
     const { worksheetId, isCharge, appPkg, secondLevelGroup = false } = this.props;
@@ -106,7 +102,7 @@ class WorkSheetLeft extends Component {
       isCharge,
       sheetListVisible: isUnfold,
       appPkg,
-      projectId
+      projectId,
     };
     return (
       <Fragment>
@@ -153,11 +149,18 @@ class WorkSheetLeft extends Component {
     // 获取url参数
     const { ln } = getAppFeaturesVisible();
     return (
-      <div className={cx('workSheetLeft flexRow', { workSheetLeftHide: appPkg.currentPcNaviStyle === 0 ? !isUnfold && ln : false, hide: !ln })}>
+      <div
+        className={cx('workSheetLeft flexRow', {
+          workSheetLeftHide: appPkg.currentPcNaviStyle === 0 ? !isUnfold && ln : false,
+          hide: !ln,
+        })}
+      >
         {secondLevelGroup ? (
           this.renderContent(data)
+        ) : loading || _.isEmpty(data) ? (
+          <Skeleton active={true} />
         ) : (
-          loading || _.isEmpty(data) ? <Skeleton active={true} /> : this.renderContent(data)
+          this.renderContent(data)
         )}
         {guidanceVisible && sheetInfo.type === 0 && (
           <Guidance

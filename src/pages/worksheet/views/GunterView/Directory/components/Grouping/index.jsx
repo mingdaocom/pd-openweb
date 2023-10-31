@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import styled from 'styled-components';
 import * as actions from 'worksheet/redux/actions/gunterview';
-import Skeleton from 'src/router/Application/Skeleton';
+import { Skeleton } from 'ming-ui';
 import IScroll from 'worksheet/views/GunterView/components/Iscroll';
 import Group from '../Group';
 import _ from 'lodash';
@@ -81,7 +81,8 @@ export default class Grouping extends Component {
       const el = document.querySelector(`.gunterView-${base.viewId} .groupingControlHeader`);
       this.groupingControlHeaderEl = el;
     }
-    this.groupingControlHeaderEl && (this.groupingControlHeaderEl.style.transform = `translateX(${groupingScroll.x}px)`);
+    this.groupingControlHeaderEl &&
+      (this.groupingControlHeaderEl.style.transform = `translateX(${groupingScroll.x}px)`);
   };
   linkageScroll = event => {
     if (window.chartScrollLock) {
@@ -144,10 +145,7 @@ export default class Grouping extends Component {
     return (
       <div className="flex Relative overflowHidden">
         <div className="gunterGroupingWrapper" ref={this.$groupingWrapperRef}>
-          <div
-            className={cx('gunterGroupingScroller', { w100: loading })}
-            style={{ width: '100%' }}
-          >
+          <div className={cx('gunterGroupingScroller', { w100: loading })} style={{ width: '100%' }}>
             {loading ? this.renderLoading() : this.renderContent()}
           </div>
         </div>

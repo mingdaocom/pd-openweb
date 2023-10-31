@@ -25,14 +25,25 @@ export default class Widgets extends Component {
     super(props);
   }
 
-  onChange = data => {
+  onChange = (data, panelIndex) => {
+    const { anylevel } = _.get(this.props, 'advancedSetting') || {};
     const code = data[data.length - 1].id;
+
+    // 必须选择最后一级
+    // 海外比较特殊，不控制
+    if (anylevel === '1' && code !== '910000') {
+      // 省市
+      if ((this.props.type === 23 && panelIndex !== 2) || (this.props.type === 24 && panelIndex !== 3)) {
+        return;
+      }
+    }
     const name = data.map(item => item.name).join(' / ');
     this.props.onChange(JSON.stringify({ code, name }));
   };
 
   render() {
-    const { disabled, type, from, value, onChange } = this.props;
+    const { disabled, type, from, value, onChange, advancedSetting } = this.props;
+    const { anylevel } = advancedSetting || {};
 
     let city;
     try {
@@ -46,11 +57,16 @@ export default class Widgets extends Component {
         level={type === 19 ? 1 : type === 23 ? 2 : 3}
         disabled={disabled}
         callback={this.onChange}
+        destroyPopupOnHide={true}
         onClear={() => onChange('')}
+        showConfirmBtn={anylevel !== '1'}
       >
         <button
           type="button"
-          className={cx('customFormControlBox customFormButton flexRow', { controlDisabled: disabled })}
+          className={cx('customFormControlBox customFormButton flexRow', {
+            controlDisabled: disabled,
+            mobileCustomFormButton: browserIsMobile(),
+          })}
           disabled={disabled}
         >
           <span className={cx('flex mRight20 ellipsis', { Gray_bd: !city })}>{city ? city.name : HINT_TEXT[type]}</span>

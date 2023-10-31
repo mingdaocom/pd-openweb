@@ -6,7 +6,6 @@ import * as actions from 'mobile/RecordList/redux/actions';
 import * as galleryActions from 'src/pages/worksheet/redux/actions/galleryview.js';
 import QuickFilterSearch from 'mobile/RecordList/QuickFilter/QuickFilterSearch';
 import { getAdvanceSetting } from 'src/util';
-import { TextTypes } from 'src/pages/worksheet/common/Sheet/QuickFilter/Inputs';
 
 class MobileGalleryView extends Component {
   constructor(props) {
@@ -42,15 +41,12 @@ class MobileGalleryView extends Component {
         control: _.find(sheetControls, c => c.controlId === filter.controlId),
       }))
       .filter(c => c.control);
-    const excludeTextFilter = filters.filter(item => !TextTypes.includes(item.dataType));
-    const textFilters = filters.filter(item => TextTypes.includes(item.dataType));
-    const isFilter = quickFilter.filter(item => !TextTypes.includes(item.dataType)).length;
+    const isFilter = quickFilter.length;
 
     return (
       <Fragment>
         <QuickFilterSearch
-          textFilters={textFilters}
-          excludeTextFilter={excludeTextFilter}
+          excludeTextFilter={filters}
           isFilter={isFilter}
           filters={this.props.filters}
           detail={detail}

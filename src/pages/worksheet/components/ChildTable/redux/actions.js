@@ -37,6 +37,23 @@ export const updateRow = ({ rowid, value }) => {
   };
 };
 
+async function batchLoadRows(args) {
+  let rows = [];
+  let total, res;
+  while (_.isUndefined(total) || rows.length < total) {
+    res = await worksheetAjax.getRowRelationRows(args);
+    rows = rows.concat(res.data || []).map((row, i) => ({ ...row, allowedit: true, addTime: i }));
+    if (!total) {
+      total = res.count;
+    }
+    args.pageIndex += 1;
+  }
+  return {
+    res,
+    rows: rows.slice(0, 1000),
+  };
+}
+
 export const loadRows = ({
   worksheetId,
   recordId,
@@ -61,14 +78,14 @@ export const loadRows = ({
       _.get(window, 'shareState.isPublicRecord') ||
       _.get(window, 'shareState.isPublicView') ||
       _.get(window, 'shareState.isPublicWorkflowRecord') ||
-      _.get(window, 'shareState.isPrintShare') ||
+      _.get(window, 'shareState.isPublicPrint') ||
       _.get(window, 'shareState.isPublicQuery') ||
       _.get(window, 'shareState.isPublicForm')
     ) {
       args.shareId = _.get(window, 'shareState.shareId');
     }
-    worksheetAjax.getRowRelationRows(args).then(res => {
-      const rows = (res.data || []).map((row, i) => ({ ...row, allowedit: true, addTime: i }));
+    batchLoadRows(args).then(batchRes => {
+      const { res, rows } = batchRes;
       dispatch({ type: 'LOAD_ROWS', rows });
       dispatch(initRows(rows));
       if (isCustomButtonFillRecord && rows.length) {
@@ -79,7 +96,7 @@ export const loadRows = ({
   };
 };
 
-export const addRows = rows => ({ type: 'ADD_ROWS', rows });
+export const addRows = (rows, options = {}) => ({ type: 'ADD_ROWS', rows, ...options });
 
 export const sortRows = ({ control, isAsc }) => {
   return (dispatch, getState) => {
@@ -99,7 +116,7 @@ export const exportSheet = ({ worksheetId, rowId, controlId, fileName, onDownloa
           rowId,
           controlId,
           pageIndex: 1,
-          pageSize: 200,
+          pageSize: 10000,
         },
         {
           responseType: 'blob',

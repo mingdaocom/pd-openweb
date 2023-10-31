@@ -96,6 +96,7 @@ const appPermissions = (Component) => {
       }
       if (path.includes('recordList')) {
         homeAppAjax.getPageInfo({
+          appId: params.appId,
           id: params.worksheetId,
           sectionId: params.groupId
         }).then(data => {

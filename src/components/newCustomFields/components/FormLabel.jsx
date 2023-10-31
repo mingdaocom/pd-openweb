@@ -114,8 +114,16 @@ export default ({
             mTop8: displayRow && isMobile && disabled,
             mTop12: displayRow && isMobile && disabled && !item.value,
             customFormItemLabelRow: displayRow && !isMobile,
+            'LineHeight28 mBottom6': isMobile && item.type === 34,
           },
         )}
+        style={
+          !isMobile && item.type === 34
+            ? {
+                maxWidth: 'calc(100% - 140px)',
+              }
+            : {}
+        }
       >
         {item.required && !item.disabled && isEditable && <div className="requiredBtn">*</div>}
 

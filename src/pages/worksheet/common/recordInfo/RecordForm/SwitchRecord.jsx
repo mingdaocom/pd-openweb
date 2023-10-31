@@ -23,9 +23,7 @@ export default function SwitchRecord(props) {
           offset={[-18, 0]}
           text={
             <span>
-              {navigator.userAgent.indexOf('Mac OS') > 0
-                ? _l('上个记录（⌘ + ⇧ + ,）')
-                : _l('上个记录（Ctrl + Shift + ,）')}
+              {navigator.userAgent.indexOf('Mac OS') > 0 ? _l('上一条（⌘ + ⇧ + ,）') : _l('上一条（Ctrl + Shift + ,）')}
             </span>
           }
         >
@@ -45,9 +43,7 @@ export default function SwitchRecord(props) {
         <Tooltip
           text={
             <span>
-              {navigator.userAgent.indexOf('Mac OS') > 0
-                ? _l('下个记录（⌘ + ⇧ + .）')
-                : _l('下个记录（Ctrl + Shift + .）')}
+              {navigator.userAgent.indexOf('Mac OS') > 0 ? _l('下一条（⌘ + ⇧ + .）') : _l('下一条（Ctrl + Shift + .）')}
             </span>
           }
         >

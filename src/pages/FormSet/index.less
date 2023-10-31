@@ -571,18 +571,12 @@
   width: 100%;
 }
 
-.ruleGrabbing {
-  cursor: grabbing;
-}
-.ruleGrab {
-  cursor: grab;
-}
-
 .ruleDrabItemContainer {
   display: flex;
   align-items: center;
   visibility: visible !important;
   opacity: 1 !important;
+  cursor: grab;
   &:hover {
     .grabIcon {
       visibility: visible;
@@ -596,9 +590,6 @@
     visibility: hidden;
     margin-right: 3px;
     margin-top: 18px;
-    &:hover {
-      cursor: move;
-    }
     .icon {
       color: #9e9e9e;
     }
@@ -622,11 +613,14 @@
   &:hover {
     box-shadow: inset 0 0 0 2px #eaeaea;
     .ruleItemOptions {
-      display: block;
+      visibility: visible;
     }
   }
   &.active {
     box-shadow: inset 0 0 0 2px #2196f3;
+    .ruleItemOptions {
+      visibility: visible;
+    }
   }
   // &.disabled {
   //   box-shadow: inset 0 0 0 1px #eaeaea;
@@ -639,30 +633,15 @@
     top: -16px;
     width: 117px;
     height: 32px;
+    z-index: 2;
     background: #ffffff;
     border: 1px solid #eaeaea;
     border-radius: 17px;
-    display: none;
-    line-height: 30px;
+    visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
     right: 12px;
-    .icon {
-      vertical-align: middle;
-      margin-left: 16px;
-    }
-    .Switch {
-      width: 19px !important;
-      height: 10px !important;
-      vertical-align: middle;
-      &.Switch--on {
-        .dot {
-          left: 12px !important;
-        }
-      }
-      .dot {
-        width: 6px !important;
-        height: 6px !important;
-      }
-    }
     .RedHover {
       &:hover {
         color: #db493f;

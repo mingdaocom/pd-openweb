@@ -8,6 +8,7 @@ const noop = () => {};
 
 export default ({
   style,
+  bodyStyle = {},
   footer,
   className,
   description,
@@ -76,33 +77,35 @@ export default ({
       description={description}
       footer={_.isUndefined(footer) ? renderFooter() : footer}
     >
-      {data.length > 1 ? (
-        <RadioGroup
-          needDefaultUpdate
-          data={data}
-          vertical
-          radioItemClassName="deleteReconfirmRadioItem"
-          onChange={onChange}
-        />
-      ) : (
-        <div>
-          {data.map(({ text, value }) =>
-            clickOmitText ? (
-              <Fragment key={value}>
-                <Checkbox
-                  style={{ display: 'inline' }}
-                  value={value}
-                  text={null}
-                  onClick={(checkd, value) => onChange(checkd ? value : undefined)}
-                />
-                <span>{text}</span>
-              </Fragment>
-            ) : (
-              <Checkbox value={value} text={text} onClick={(checkd, value) => onChange(checkd ? value : undefined)} />
-            ),
-          )}
-        </div>
-      )}
+      <div style={bodyStyle}>
+        {data.length > 1 ? (
+          <RadioGroup
+            needDefaultUpdate
+            data={data}
+            vertical
+            radioItemClassName="deleteReconfirmRadioItem"
+            onChange={onChange}
+          />
+        ) : (
+          <div>
+            {data.map(({ text, value }) =>
+              clickOmitText ? (
+                <Fragment key={value}>
+                  <Checkbox
+                    style={{ display: 'inline' }}
+                    value={value}
+                    text={null}
+                    onClick={(checkd, value) => onChange(checkd ? value : undefined)}
+                  />
+                  <span>{text}</span>
+                </Fragment>
+              ) : (
+                <Checkbox value={value} text={text} onClick={(checkd, value) => onChange(checkd ? value : undefined)} />
+              ),
+            )}
+          </div>
+        )}
+      </div>
     </Dialog>,
     container,
   );

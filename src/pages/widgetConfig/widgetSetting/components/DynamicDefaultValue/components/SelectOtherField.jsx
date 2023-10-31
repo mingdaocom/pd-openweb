@@ -262,11 +262,7 @@ export default class SelectOtherField extends Component {
           </Trigger>
         </div>
         {searchVisible && (
-          <SearchWorksheetDialog
-            {...this.props}
-            fromCondition={'relateSheet'}
-            onClose={() => this.setState({ searchVisible: false })}
-          />
+          <SearchWorksheetDialog {...this.props} onClose={() => this.setState({ searchVisible: false })} />
         )}
         {fxVisible && (
           <FunctionEditorDialog

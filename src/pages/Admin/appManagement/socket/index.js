@@ -11,6 +11,7 @@ const TYPES = {
   5: _l('文件处理'),
 };
 export default () => {
+  if (!window.IM) return;
   IM.socket.on('mdy_export', ({ state, type, apps = [], id, index, totalIndex }) => {
     let message = '';
     let description = '';

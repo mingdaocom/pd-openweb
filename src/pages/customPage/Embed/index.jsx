@@ -7,11 +7,10 @@ import CustomPageContent from 'src/pages/customPage/pageContent';
 import MobileCustomPage from 'src/pages/Mobile/CustomPage';
 import { LoadDiv } from 'ming-ui';
 import homeApp from 'src/api/homeApp';
-import UnusualContent from 'src/router/Application/UnusualContent';
+import UnusualContent from 'src/components/UnusualContent';
 import { socketInit } from 'src/socket/mobileSocketInit';
 import { browserIsMobile } from 'src/util';
 import './index.less';
-import 'src/router/Application/index.less';
 
 const isMobile = browserIsMobile();
 

@@ -26,7 +26,7 @@ import { expireDialogAsync, existAccountHint } from 'src/components/common/funct
 import DialogSelectMapGroupDepart from 'src/components/dialogSelectMapGroupDepart/dialogSelectMapGroupDepart';
 import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import 'src/components/uploadAttachment/uploadAttachment';
-import addFriends from 'src/components/addFriends/addFriends';
+import addFriends from 'src/components/addFriends';
 import 'src/components/select/select';
 import moment from 'moment';
 

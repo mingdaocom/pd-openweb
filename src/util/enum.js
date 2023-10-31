@@ -10,32 +10,6 @@ export const lang = () => ({
   系统编号: _l('系统编号'),
 });
 
-export const LIGHT_COLOR = [
-  '#C9E6FC',
-  '#C3F2F2',
-  '#C2F1D2',
-  '#FEF6C6',
-  '#FFE5C2',
-  '#FDCACA',
-  '#FACDE6',
-  '#DEC2FA',
-  '#CCD2F1',
-  '#D3D3D3',
-  '#A3D6FF',
-  '#A9E9E9',
-  '#A3E9BC',
-  '#FDF1AA',
-  '#FFD8A3',
-  '#FCAFAF',
-  '#F8B4D9',
-  '#CDA3F8',
-  '#B3BCEA',
-  '#BDBDBD',
-  '#E8E8E8',
-  '#E5F1FE',
-  'TRANSPARENT',
-];
-
 export const PUBLIC_KEY = `-----BEGIN PUBLIC KEY-----
 MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC1xzCYtdu8bZEinh6Oh7/p+6xc
 ilHgV/ChU3bZXyezLQqf6mzOnLH6GVZMMDafMw3uMtljWyECCqnECy2UhZPa5BFc
@@ -95,4 +69,34 @@ export const VersionProductType = {
   exclusiveResource: 30, // 专属隔离计算实例资源
   glabalLog: 31, // 全局日志
   globalBehaviorLog: 32, // 全局行为日志
+  globalVariable: 33, // 全局变量
+};
+
+export const VersionProductHelpLink = {
+  1: 'https://help.mingdao.com/backup',
+  2: 'https://help.mingdao.com/apply3',
+  3: 'https://help.mingdao.com/integration',
+  4: 'https://help.mingdao.com/flow60',
+  5: 'https://help.mingdao.com/sheet47',
+  6: 'https://help.mingdao.com/geli',
+  8: 'https://help.mingdao.com/flow34',
+  10: 'https://help.mingdao.com/dingding',
+  11: 'https://help.mingdao.com/external',
+  12: 'https://help.mingdao.com/feishu',
+  13: 'https://help.mingdao.com/flow30',
+  14: 'https://help.mingdao.com/flow32',
+  16: 'https://help.mingdao.com/recycle',
+  17: 'https://help.mingdao.com/apply16',
+  19: 'https://help.mingdao.com/wecom',
+  20: 'https://help.mingdao.com/operation17',
+  21: 'https://help.mingdao.com/api1',
+  22: 'https://help.mingdao.com/apiproxy',
+  23: 'https://help.mingdao.com/flow_pbp',
+  25: 'https://help.mingdao.com/sse.html',
+  26: 'https://help.mingdao.com/integration2',
+  27: 'https://help.mingdao.com/user4',
+  29: 'https://help.mingdao.com/sheet29',
+  30: 'https://help.mingdao.com/apply18',
+  31: 'https://help.mingdao.com/apply11',
+  33: '',
 };

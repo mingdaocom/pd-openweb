@@ -6,7 +6,7 @@ import homeAppAjax from 'src/api/homeApp';
 import worksheetAjax from 'src/api/worksheet';
 import { navigateTo } from 'src/router/navigateTo';
 import RecordInfoWrapper from '../../common/recordInfo/RecordInfoWrapper';
-import FixedContent from 'src/router/Application/FixedContent';
+import FixedContent from 'src/components/FixedContent';
 import { connect } from 'react-redux';
 import './WorksheetRowLand.less';
 import { canEditApp } from 'src/pages/worksheet/redux/actions/util';

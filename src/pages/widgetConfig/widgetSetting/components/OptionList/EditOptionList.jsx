@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Dialog } from 'ming-ui';
 import { Input, Switch } from 'antd';
-import { Icon } from 'src';
+import Components from '../../../components';
 import { isEmpty } from 'lodash';
 import update from 'immutability-helper';
 import { v4 as uuidv4 } from 'uuid';
@@ -9,6 +9,8 @@ import worksheetAjax from 'src/api/worksheet';
 import Options from './Options';
 import { SettingItem } from '../../../styled';
 import { getDefaultOptions } from '../../../util/setting';
+
+const Icon = Components.Icon;
 
 export default function EditOptionList(props) {
   const { onOk, options, globalSheetInfo = {}, onCancel, ...rest } = props;

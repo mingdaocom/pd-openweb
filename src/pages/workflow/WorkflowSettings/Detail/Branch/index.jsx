@@ -16,11 +16,12 @@ export default class Branch extends Component {
 
   componentDidMount() {
     const { processId, selectNodeId, selectNodeType } = this.props;
+    const { data } = this.state;
 
     flowNode.getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType }).then(result => {
       this.setState({
         name: result.name,
-        data: result.conditions,
+        data: result.conditions.length ? result.conditions : data,
         controls: result.flowNodeAppDtos,
       });
     });
@@ -90,6 +91,7 @@ export default class Branch extends Component {
       >
         <TriggerCondition
           processId={this.props.processId}
+          relationId={this.props.relationId}
           selectNodeId={this.props.selectNodeId}
           isNodeHeader={true}
           controls={controls}

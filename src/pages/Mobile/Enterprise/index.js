@@ -183,12 +183,16 @@ class ProjectCard extends Component {
 class Enterprise extends Component {
   constructor(props) {
     super(props);
+
+    const projectObj = getCurrentProject(
+      localStorage.getItem('currentProjectId') || (md.global.Account.projects[0] || {}).projectId,
+    );
+    const currentProject = !_.isEmpty(projectObj) ? projectObj : { projectId: 'external', companyName: _l('外部协作') };
+
     this.state = {
       loading: true,
       projectList: [],
-      checkedProjectId:
-        getCurrentProject(localStorage.getItem('currentProjectId')).projectId ||
-        getCurrentProject((md.global.Account.projects[0] || { projectId: 'external' }).projectId).projectId,
+      checkedProjectId: currentProject.projectId,
     };
   }
   componentDidMount() {
@@ -242,10 +246,11 @@ class Enterprise extends Component {
   };
   render() {
     const { loading, projectList = [], checkedProjectId } = this.state;
-    const currentProject = getCurrentProject(
-      localStorage.getItem('currentProjectId') ||
-        (md.global.Account.projects[0] || { projectId: 'external' }).projectId,
+    const projectObj = getCurrentProject(
+      localStorage.getItem('currentProjectId') || (md.global.Account.projects[0] || {}).projectId,
     );
+    const currentProject = !_.isEmpty(projectObj) ? projectObj : { projectId: 'external', companyName: _l('外部协作') };
+
     return (
       <div className="h100" style={{ background: '#f5f5f5', paddingTop: 10, overflowY: 'auto' }}>
         {loading ? (

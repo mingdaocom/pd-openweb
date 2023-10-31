@@ -33,6 +33,7 @@ const RecordShare = props => {
         worksheetId={worksheetId}
         viewId={viewId}
         rowId={rowId}
+        editable={true}
       />
     );
   }

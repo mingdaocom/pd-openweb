@@ -2,10 +2,12 @@ import React, { useState, Fragment, useEffect } from 'react';
 import styled from 'styled-components';
 import { useSetState } from 'react-use';
 import { Dialog, Dropdown, Button, RadioGroup, Checkbox } from 'ming-ui';
-import Icon from 'src/components/Icon';
+import Components from '../../../components';
 import { Input, Tooltip } from 'antd';
 import { parseInt, isString } from 'lodash';
 import { SettingItem } from '../../../styled';
+
+const Icon = Components.Icon;
 
 const NumberConfigWrap = styled.div`
   .settingItem {
@@ -60,8 +62,8 @@ const NumberConfigWrap = styled.div`
 `;
 
 const NUMBER_TYPE = [
-  { value: 'nature', text: _l('自然数编号') },
-  { value: 'assign', text: _l('指定位数编号') },
+  { value: 'nature', text: _l('自然数编号%04018') },
+  { value: 'assign', text: _l('指定位数编号%04019') },
 ];
 const RESET_TYPE = [
   {
@@ -108,10 +110,10 @@ export default function AutoNumberConfig(props) {
   };
 
   return (
-    <Dialog style={{ width: '480px' }} visible title={_l('编号设置')} footer={null} onCancel={onClose}>
+    <Dialog style={{ width: '560px' }} visible title={_l('编号设置')} footer={null} onCancel={onClose}>
       <NumberConfigWrap>
         <SettingItem className="settingItem">
-          <div className="title">{_l('编号方式')}</div>
+          <div className="title">{_l('编号方式%04017')}</div>
           <div className="content">
             <RadioGroup
               size="middle"

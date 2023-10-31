@@ -22,6 +22,7 @@ export default class RecordInfoWrapper extends Component {
     hideRecordInfo: PropTypes.func,
     onError: PropTypes.func,
     allowEdit: PropTypes.bool,
+    allowEmptySubmit: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -155,7 +156,7 @@ export default class RecordInfoWrapper extends Component {
         {content}
       </Modal>
     ) : (
-      <div className="workSheetRecordInfo">{content}</div>
+      <div className="workSheetRecordInfo h100">{content}</div>
     );
   }
 }

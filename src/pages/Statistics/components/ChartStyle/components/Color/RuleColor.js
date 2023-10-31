@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { Modal, ConfigProvider, Button, Radio, Input, Select, Checkbox } from 'antd';
 import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
-import { Icon } from 'ming-ui';
+import { Icon, ColorPicker } from 'ming-ui';
 import { colorGroup, reportTypes } from 'statistics/Charts/common';
 import { getIsAlienationColor } from 'statistics/common';
 import { formatNumberFromInput } from 'src/util';
@@ -99,18 +99,18 @@ const SortableItem = SortableElement(({ item, ruleIndex, rulesLength, isPercent,
         )}
       </div>
       <div className="mLeft10 mRight10">{_l('则为')}</div>
-      <div className="palette valignWrapper">
-        <div className="colorBox" style={{ backgroundColor: color }}></div>
-        <input
-          type="color"
-          className="colorInput pointer"
-          value={color}
-          onChange={(event) => {
-            otherProps.onSetRule({ color: event.target.value }, ruleIndex);
-          }}
-        />
-        <Icon icon="expand_more" className="Gray_9e Font20" />
-      </div>
+      <ColorPicker
+        isPopupBody
+        value={color}
+        onChange={value => {
+          otherProps.onSetRule({ color: value }, ruleIndex);
+        }}
+      >
+        <div className="palette valignWrapper pointer">
+          <div className="colorBox" style={{ backgroundColor: color }}></div>
+          <Icon icon="expand_more" className="Gray_9e Font20" />
+        </div>
+      </ColorPicker>
       <Icon
         className={cx('pointer Font20 mLeft5', rulesLength === 1 ? 'Gray_d' : 'Gray_bd')}
         icon="close"
@@ -209,21 +209,22 @@ class ColorLevel extends Component {
       <Fragment>
         <div className="mTop16 mBottom8">{name}</div>
         <div className="flexRow valignWrapper">
-          <div className="palette valignWrapper mRight10">
-            <div className="colorBox" style={{ backgroundColor: color }}></div>
-            <input
-              type="color"
-              className="colorInput pointer"
-              value={color}
-              onChange={(event) => {
-                onChange({
-                  ...data,
-                  color: event.target.value
-                });
-              }}
-            />
-            <Icon icon="expand_more" className="Gray_9e Font20" />
-          </div>
+          <ColorPicker
+            isPopupBody
+            className="mRight10"
+            value={color}
+            onChange={value => {
+              onChange({
+                ...data,
+                color: value
+              });
+            }}
+          >
+            <div className="palette valignWrapper pointer">
+              <div className="colorBox" style={{ backgroundColor: color }}></div>
+              <Icon icon="expand_more" className="Gray_9e Font20" />
+            </div>
+          </ColorPicker>
           <Input
             value={value}
             placeholder={placeholder}

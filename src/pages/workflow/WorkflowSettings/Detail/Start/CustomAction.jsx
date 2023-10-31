@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { CUSTOM_ACTION_TEXT } from '../../enum';
+import { CUSTOM_ACTION_TEXT, ACTION_ID } from '../../enum';
 
 export default ({ data }) => {
   return (
@@ -14,6 +14,12 @@ export default ({ data }) => {
         <div className="ellipsis">
           {_l('工作表')}
           <span className="mLeft10 bold">{data.appName}</span>
+        </div>
+        <div className="ellipsis mTop15">
+          {_l('数据源')}
+          <span className="mLeft10 bold">
+            {data.actionId === ACTION_ID.BATCH_ACTION ? _l('多条记录') : _l('单条记录')}
+          </span>
         </div>
         <div className="mTop20 bold">{_l('按钮')}</div>
         <div className="workflowDetailDesc mTop10" style={{ padding: '8px 16px', border: '1px solid #ddd' }}>

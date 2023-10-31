@@ -11,11 +11,12 @@ import { FILL_TIMES, WECHAT_FIELD_KEY } from '../publicWorksheetConfig/enum';
 import { FILL_STATUS, SYSTEM_FIELD_IDS } from './enum';
 import moment from 'moment';
 import { themes } from 'src/pages/publicWorksheetConfig/enum';
-import { COLORS } from '../AppHomepage/components/SelectIcon/config';
 import globalApi from 'src/api/global';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { v4 as uuidv4 } from 'uuid';
 import { setPssId } from 'src/util/pssId';
+import { getSignatureValue, formatAttachmentValue } from 'src/util/transControlDefaultValue';
+import preall from 'src/common/preall';
 
 function getVisibleControls(data) {
   const disabledControlIds = getDisabledControls(
@@ -31,7 +32,12 @@ function getVisibleControls(data) {
     ]),
   );
   const needHidedControlIds = data.hidedControlIds.concat(disabledControlIds);
-  return overridePos(data.originalControls, data.controls).map(c => ({
+  return overridePos(
+    data.originalControls.filter(
+      control => !(control.type === 51 && _.get(control, 'advancedSetting.showtype') === '2'),
+    ),
+    data.controls,
+  ).map(c => ({
     ...c,
     advancedSetting: {
       ...(c.advancedSetting || {}),
@@ -48,7 +54,7 @@ function getVisibleControls(data) {
 
 function getThemeBgColor(themeIndex, themeBgColor) {
   if (!themeBgColor) {
-    return !themes[themeIndex] ? COLORS[12] : (themes[themeIndex] || {}).main;
+    return !themes[themeIndex] ? '#2196f3' : (themes[themeIndex] || {}).main;
   } else {
     return themeBgColor;
   }
@@ -91,6 +97,7 @@ async function getStatus(data, shareId) {
     completeNumber,
     writeScope,
     projectId,
+    returnUrl,
   } = data;
   const isWeChatEnv = navigator.userAgent.toLowerCase().indexOf('micromessenger') !== -1;
 
@@ -126,7 +133,7 @@ async function getStatus(data, shareId) {
   }
 
   // 微信打开
-  if (isWeChatEnv) {
+  if (isWeChatEnv && returnUrl) {
     if (weChatSetting.isCollectWxInfo || writeScope !== 1) {
       // 记录初始的 url 地址，用于微信鉴权
       sessionStorage.setItem('entryUrl', location.href);
@@ -251,39 +258,6 @@ function fillWxInfo(formData, weChatSetting) {
     });
   }
   return data;
-}
-
-function formatAttachmentValue(value) {
-  const attachmentArr = JSON.parse(value || '[]');
-  let attachmentValue = attachmentArr;
-  if (attachmentArr.length) {
-    attachmentValue = attachmentArr
-      .filter(item => !item.refId)
-      .map((item, index) => {
-        const url = new URL(item.fileUrl || '');
-        const urlPathNameArr = (url.pathname || '').split('/');
-        const fileName = (urlPathNameArr[urlPathNameArr.length - 1] || '').split('.')[0];
-        const filePath = (url.pathname || '').slice(1).replace(fileName + item.ext, '');
-        return {
-          fileID: item.fileId,
-          fileSize: item.filesize,
-          url: item.fileUrl + (item.fileUrl.indexOf('?') > -1 ? '' : '?'),
-          serverName: url.origin + '/',
-          filePath,
-          fileName,
-          fileExt: item.ext,
-          originalFileName: item.originalFilename,
-          key: (url.pathname || '').slice(1),
-          oldOriginalFileName: item.originalFilename,
-          index,
-        };
-      });
-  }
-  return JSON.stringify({
-    attachments: attachmentValue,
-    knowledgeAtts: [],
-    attachmentData: [],
-  });
 }
 
 async function fillRowRelationRows(control, rowId, worksheetId) {
@@ -448,8 +422,11 @@ export function getPublicWorksheet(params, cb = info => {}) {
     .getPublicWorksheet(params)
     .then(async data => {
       if (data.clientId) {
-        sessionStorage.setItem('clientId', data.clientId);
+        window.clientId = data.clientId;
       }
+
+      localStorage.setItem('currentProjectId', data.projectId);
+      preall({ type: 'function' }, { allownotlogin: true, requestParams: { projectId: data.projectId } });
 
       const status = await getStatus(data, params.shareId);
 
@@ -584,17 +561,6 @@ function formatFileControls(controls) {
     }
     return control;
   });
-}
-
-function getSignatureValue(value) {
-  if (value === 'undefined' || value === '' || value === '[]' || value === '["",""]' || value === null) {
-    return value;
-  }
-  try {
-    return value.startsWith('http') ? JSON.stringify({ bucket: 4, key: new URL(value).pathname.slice(1) }) : value;
-  } catch (err) {
-    return;
-  }
 }
 
 export function addWorksheetRow(

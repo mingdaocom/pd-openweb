@@ -1,9 +1,7 @@
-
 import PropTypes from 'prop-types';
 import React from 'react';
 import ReactDom from 'react-dom';
 import { compact, map, every, flatten } from 'lodash';
-import { isDescendant } from 'ming-ui/utils/DomHelpers';
 
 function withClickAway(exceptionList, Component = exceptionList) {
   class ClickAwayableComponent extends React.Component {
@@ -53,8 +51,8 @@ function withClickAway(exceptionList, Component = exceptionList) {
       if (
         this.props.onClickAway &&
         e.target !== el &&
-        !isDescendant(el, e.target) &&
-        every(flatten(exceptions), item => e.target !== item && !isDescendant(item, e.target)) &&
+        !$(e.target).closest($(el)).length &&
+        every(flatten(exceptions), item => e.target !== item && !$(e.target).closest($(item)).length) &&
         document.documentElement.contains(e.target)
       ) {
         // �������Զ������жϺ�������ִ��

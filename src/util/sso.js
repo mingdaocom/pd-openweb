@@ -104,6 +104,22 @@ export const replenishRet = (ret, pc_slide) => {
   }
 };
 
+export const formatOtherParam = param => {
+  let result = '';
+  for(let i in param) {
+    result = `${result ? `${result}&` : ``}` + `${i}=${param[i]}`;
+  }
+  return result;
+}
+
+export const addOtherParam = (url, param) => {
+  if (url) {
+    return url.includes('?') ? `${url}&${param}` : `${url}?${param}`;
+  } else {
+    return url;
+  }
+}
+
 export const checkLogin = () => {
   let isLoing = false;
   ajax.post({

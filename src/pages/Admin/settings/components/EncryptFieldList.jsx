@@ -287,7 +287,7 @@ export default class EncryptFieldList extends Component {
                     <div className="appName w20 flexRow alignItemsCenter">
                       {!!appName ? (
                         <Fragment>
-                          <div className="iconWrap pTop2" style={{ backgroundColor: 'rgb(212, 136, 37)' }}>
+                          <div className="iconWrap pTop2" style={{ backgroundColor: iconColor }}>
                             <SvgIcon url={appIconUrl} fill="#fff" size={12} />
                           </div>
                           <div className="flex ellipsis">{appName}</div>

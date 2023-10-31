@@ -97,6 +97,7 @@ export default class RelationFields extends Component {
           <Fragment>
             <FilterAndSort
               companyId={this.props.companyId}
+              relationId={this.props.relationId}
               processId={this.props.processId}
               selectNodeId={this.props.selectNodeId}
               openNewFilter={!data.conditions.length}

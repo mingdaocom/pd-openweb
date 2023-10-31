@@ -94,7 +94,6 @@ export default function Filter(props) {
                 };
               }
             });
-            // onChange({ navfilters: JSON.stringify(filters.map(handleCondition)) });
             setData({
               items,
             });

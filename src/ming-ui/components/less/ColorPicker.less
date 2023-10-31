@@ -1,0 +1,165 @@
+.ColorPickerPanelTrigger {
+  background: #fff;
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
+  .react-colorful {
+    width: 234px;
+    height: auto;
+  }
+  .react-colorful__saturation {
+    margin-bottom: 12px;
+    height: 160px;
+    border-radius: 4px;
+    border: none;
+    box-shadow: inset 0 0 1px 0 rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+  }
+  .react-colorful__pointer {
+    width: 16px;
+    height: 16px;
+  }
+  .react-colorful__hue,
+  .react-colorful__alpha {
+    width: 194px;
+    height: 8px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+    .react-colorful__pointer {
+      width: 12px;
+      height: 12px;
+    }
+  }
+  .inputOptionWrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    .ming.Dropdown .Dropdown--input,
+    .dropdownTrigger .Dropdown--input {
+      padding: 0;
+    }
+    .selectType {
+      margin-inline-end: 8px;
+      width: auto;
+    }
+    .colorInputWrap {
+      flex: 1;
+      width: 0;
+      .hexColorInputWrap {
+        display: flex;
+        align-items: center;
+        border-radius: 4px;
+        padding: 0 8px;
+        border: 1px solid #d9d9d9;
+        &:hover {
+          border: 1px solid #4096ff;
+        }
+        .prefix {
+          font-size: 14px;
+          color: rgba(0, 0, 0, 0.25);
+        }
+        .hexColorInput {
+          width: 100%;
+          border: none;
+        }
+      }
+      .rgbInputWrap {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-inline-start: 4px;
+        font-size: 12px;
+        gap: 4px;
+        .ant-input-number-input{
+          padding-inline-start: 4px;
+          padding-inline-end: 0;
+          font-size: 12px;
+        }
+      }
+    }
+    .alphaInput {
+      flex: 0 0 44px;
+      margin-inline-start: 4px;
+      font-size: 12px;
+      .ant-input-number-input{
+        padding-inline-start: 4px;
+        padding-inline-end: 0;
+      }
+    }
+  }
+  .colorValue {
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    position: absolute;
+    right: 0;
+    bottom: 36px;
+  }
+  .colorPickerWrap {
+    position: relative;
+  }
+  .commonColorPickerWrap {
+    margin-right: 8px;
+    padding-right: 8px;
+    border-right: 1px solid rgba(5, 5, 5, 0.06);
+    flex: 1 1 0%;
+    .title {
+      font-size: 12px;
+      line-height: 20px;
+      display: flex;
+      align-items: center;
+      .expandIcon {
+        transition: transform 0.3s;
+      }
+      .rotate90 {
+        transform: rotate(-90deg);
+      }
+    }
+    .commonColors {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      padding: 8px 0;
+      transition: all 0.3s;
+      .commonColorItem {
+        width: 18px;
+        height: 18px;
+        box-shadow: inset 0 0 1px 0 rgba(0,0,0,.25);
+        border: 1px solid rgba(0,0,0,.06);
+        cursor: pointer;
+        border-radius: 4px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        &:hover::before {
+          border-color: rgba(0,0,0,.15);
+        }
+        &::before {
+          content: "";
+          pointer-events: none;
+          width: 22px;
+          height: 22px;
+          position: absolute;
+          top: -3px;
+          inset-inline-start: -3px;
+          border-radius: 6px;
+          border: 1px solid transparent;
+        }
+      }
+    }
+  }
+  .colorPickerCon {
+    display: flex;
+    justify-content: space-between;
+  }
+}
+.ColorPickerPanel {
+  position: relative;
+}
+.ColorPickerPanelTrigger.ColorPickerPanelTriggerMin {
+  width: 258px;
+}
+.ColorPickerPanelTrigger.ColorPickerPanelTriggerMax {
+  width: 492px;
+}

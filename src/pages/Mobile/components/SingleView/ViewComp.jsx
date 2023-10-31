@@ -38,15 +38,15 @@ function ViewComp(props) {
 
   useEffect(() => {
     if (appId && worksheetId) {
-      loadWorksheet();
+      loadWorksheet(true);
     }
   }, [appId, worksheetId]);
 
   useEffect(() => {
-    if (view.viewType) {
-      updateFilters({ filtersGroup }, view);
-    } else {
+    if ([0, 6].includes(view.viewType)) {
       updateFiltersGroup(filtersGroup);
+    } else {
+      updateFilters({ filtersGroup }, view);
     }
   }, [filtersGroup]);
 

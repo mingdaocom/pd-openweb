@@ -6,7 +6,7 @@ import SelectOtherFields from '../SelectOtherFields';
 import _ from 'lodash';
 import styled from 'styled-components';
 import cx from 'classnames';
-import { getIcons } from '../../../utils';
+import { getIcons, handleGlobalVariableName } from '../../../utils';
 
 const NodeListIcon = styled.div`
   width: 34px;
@@ -38,7 +38,9 @@ const TextareaBox = styled(Textarea)`
 `;
 
 export default ({
+  projectId = '',
   processId = '',
+  relationId = '',
   selectNodeId = '',
   isIntegration = false,
   appId = '',
@@ -96,7 +98,7 @@ export default ({
             flowNodeType={nodeObj.type}
             appType={nodeObj.appType}
             actionId={nodeObj.actionId}
-            nodeName={nodeObj.name || ''}
+            nodeName={handleGlobalVariableName(ids[0], controlObj.sourceType, nodeObj.name)}
             controlId={ids[1]}
             controlName={controlObj.name || ''}
           />
@@ -114,7 +116,9 @@ export default ({
       <SelectOtherFields
         item={{ type: 14 }}
         fieldsVisible={fieldsVisible === i}
+        projectId={projectId}
         processId={processId}
+        relationId={relationId}
         selectNodeId={selectNodeId}
         sourceAppId={appId}
         isIntegration={isIntegration}
@@ -126,7 +130,11 @@ export default ({
             actionId: obj.actionId,
             name: obj.nodeName,
           };
-          newFormulaMap[obj.fieldValueId] = { type: obj.fieldValueType, name: obj.fieldValueName };
+          newFormulaMap[obj.fieldValueId] = {
+            type: obj.fieldValueType,
+            name: obj.fieldValueName,
+            sourceType: obj.sourceType,
+          };
 
           updateSource({ formulaMap: newFormulaMap }, () => {
             updateKeyValues({ key: 'value', value: `$${obj.nodeId}-${obj.fieldValueId}$`, i });
@@ -151,7 +159,7 @@ export default ({
         {selected && (
           <MenuItem
             onClick={() => {
-              updateKeyValues({ key: 'value', i });
+              updateKeyValues({ key: 'value', value: '', i });
               onHideMenu();
             }}
           >
@@ -172,9 +180,10 @@ export default ({
               {item.appId && item.appName ? (
                 <Fragment>
                   <span className="Font14 mLeft5 bold flowDropdownGray">{item.appTypeName}</span>
-                  <span className="Font14 mLeft5 bold flowDropdownGray ellipsis" style={{ maxWidth: 150 }}>{`“${
-                    item.appName
-                  }”`}</span>
+                  <span
+                    className="Font14 mLeft5 bold flowDropdownGray ellipsis"
+                    style={{ maxWidth: 150 }}
+                  >{`“${item.appName}”`}</span>
                 </Fragment>
               ) : (
                 <span className="Font14 mLeft5 Gray_75">
@@ -200,7 +209,7 @@ export default ({
           flowNodeType={current.nodeTypeId}
           appType={current.appType}
           actionId={current.appId}
-          nodeName={current.appName}
+          nodeName={handleGlobalVariableName(current.nodeId, current.sourceType, current.appName)}
           controlId={current.nodeId}
           controlName={current.nodeName}
         />
@@ -228,7 +237,10 @@ export default ({
               <Dropdown
                 className="flowDropdown mTop10 mRight10"
                 style={{ width: 100 }}
-                data={[{ text: _l('文本'), value: 2 }, { text: _l('附件'), value: 14 }]}
+                data={[
+                  { text: _l('文本'), value: 2 },
+                  { text: _l('附件'), value: 14 },
+                ]}
                 value={item.type || 2}
                 border
                 onChange={type => updateKeyValues({ key: 'type', value: type, i })}
@@ -254,7 +266,9 @@ export default ({
                 </div>
               ) : (
                 <CustomTextarea
+                  projectId={projectId}
                   processId={processId}
+                  relationId={relationId}
                   selectNodeId={selectNodeId}
                   sourceAppId={appId}
                   isIntegration={isIntegration}

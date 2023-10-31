@@ -16,6 +16,7 @@ import processAjax from 'src/pages/workflow/api/process';
 import _ from 'lodash';
 import FunctionWrap from 'ming-ui/components/FunctionWrap';
 import CustomButtonConfirm from './CustomButtonConfirm';
+import { getButtonColor } from 'worksheet/util';
 
 const MenuItemWrap = styled(MenuItem)`
   .btnName {
@@ -102,6 +103,7 @@ export default class CustomButtons extends React.Component {
             btnId: btn.btnId,
             btnWorksheetId: worksheetId,
             btnRowId: recordId,
+            noAlert: true,
           });
           return;
         }
@@ -113,6 +115,7 @@ export default class CustomButtons extends React.Component {
           btnId: btn.btnId,
           btnWorksheetId: worksheetId,
           btnRowId: recordId,
+          noAlert: true,
         });
       } else {
         trigger(btn);
@@ -149,18 +152,19 @@ export default class CustomButtons extends React.Component {
       if (btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.FILL_RECORD) {
         _this.fillRecord({
           ...btn,
-          confirm: needConfirm
-            ? () =>
-                new Promise((resolve, reject) => {
-                  confirm({
-                    onOk: ({ remark }) => {
-                      _this.remark = remark;
-                      resolve(remark);
-                    },
-                    onClose: reject,
-                  });
-                })
-            : undefined,
+          confirm:
+            needConfirm || btn.verifyPwd
+              ? () =>
+                  new Promise((resolve, reject) => {
+                    confirm({
+                      onOk: ({ remark }) => {
+                        _this.remark = remark;
+                        resolve(remark);
+                      },
+                      onClose: reject,
+                    });
+                  })
+              : undefined,
         });
         return;
       }
@@ -598,14 +602,14 @@ export default class CustomButtons extends React.Component {
         const buttonComponent = (
           <span key={i} className="InlineBlock borderBox mRight6">
             <Button
-              className={cx('recordCustomButton overflowHidden')}
+              className={cx('recordCustomButton overflowHidden', {
+                transparentButton: button.color === 'transparent',
+              })}
               size="small"
               type="ghost"
               disabled={btnDisable[button.btnId] || button.disabled}
               style={{
-                backgroundColor: button.color || '#2196f3',
-                borderColor: button.color || '#2196f3',
-                color: '#fff',
+                ...getButtonColor(button.color),
                 maxWidth: '100%',
                 minWidth: 'inherit',
               }}
@@ -637,7 +641,7 @@ export default class CustomButtons extends React.Component {
         <IconText
           disabled={btnDisable[button.btnId] || button.disabled}
           icon={button.icon || 'custom_actions'}
-          iconColor={button.color}
+          iconColor={!button.icon ? '#bdbdbd' : button.color === 'transparent' ? '#333' : button.color}
           text={button.name}
           onClick={evt => {
             if (btnDisable[button.btnId] || button.disabled) {
@@ -654,9 +658,13 @@ export default class CustomButtons extends React.Component {
           key={i}
           icon={
             button.icon ? (
-              <Icon style={{ color: button.color }} icon={button.icon || 'custom_actions'} className="Font17 mLeft5" />
+              <Icon
+                style={{ color: button.color === 'transparent' ? '#333' : button.color }}
+                icon={button.icon || 'custom_actions'}
+                className="Font17 mLeft5"
+              />
             ) : (
-              <Icon icon="custom_actions" className="Font17 mLeft5" />
+              <Icon icon="custom_actions" className="Font17 mLeft5 Gray_bd" />
             )
           }
           className={cx({ disabled: btnDisable[button.btnId] || button.disabled })}

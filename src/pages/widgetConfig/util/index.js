@@ -16,7 +16,6 @@ import { navigateTo } from 'src/router/navigateTo';
 import { WHOLE_SIZE } from '../config/Drag';
 import { NOT_AS_TITLE_CONTROL } from '../config';
 import { RELATION_OPTIONS, DEFAULT_TEXT } from '../config/setting';
-import { isRelateRecordTableControl } from 'src/pages/worksheet/util.js';
 import { compose } from 'redux';
 import { DEFAULT_CONFIG, DEFAULT_DATA, WIDGETS_TO_API_TYPE_ENUM, SYS_CONTROLS } from '../config/widget';
 import { getCurrentRowSize } from './widgets';
@@ -121,23 +120,22 @@ export const getDefaultSizeByData = data => {
   return getDefaultSizeByType(type);
 };
 
-// export const putControlBySection = controls => {
-//   const map = {};
-//   let result = [];
+// 根据标签页归类
+export const putControlBySection = controls => {
+  let result = [];
 
-//   controls.forEach(item => {
-//     map[item.controlId] = item;
-//   });
-//   controls.forEach(item => {
-//     const parent = map[item.sectionId];
-//     if (parent) {
-//       parent.sectionControls = (parent.sectionControls || []).concat(item);
-//     } else {
-//       result.push(item);
-//     }
-//   });
-//   return result;
-// };
+  controls.forEach(item => {
+    if (item.type === 52) {
+      item.relationControls = controls.filter(i => i.sectionId === item.controlId);
+    }
+
+    // 有sectionId,但是标签页被删除，按普通字段呈现
+    if (!item.sectionId || (item.sectionId && !_.find(controls, c => c.controlId === item.sectionId))) {
+      result.push({ ...item, sectionId: '' });
+    }
+  });
+  return result;
+};
 
 // 按顺序将控件摆放在二维数组中
 export const putControlByOrder = controls => {
@@ -205,11 +203,27 @@ export const replaceHalfWithSizeControls = controls =>
     return omit(item, 'half');
   });
 
+// 矫正数据row、col与呈现不一致的情况，有些表老数据有问题
+const replaceRowWithControls = widgets => {
+  const { commonWidgets = [], tabWidgets = [] } = getSectionWidgets(widgets);
+  const flattenTabs = [];
+  tabWidgets.map(item => {
+    flattenTabs.push([item]);
+    const childWidgets = putControlByOrder(item.relationControls || []);
+    if (childWidgets.length > 0) {
+      flattenTabs.push(...childWidgets);
+    }
+  });
+  const newWidgets = commonWidgets.concat(flattenTabs.filter(_.identity));
+  return genWidgetRowAndCol(newWidgets);
+};
+
 export const genWidgetsByControls = (controls = []) => {
   /**
    * 依次处理数据
    */
-  return compose(putControlByOrder, dealControlData, replaceHalfWithSizeControls)(controls);
+  const newControls = compose(putControlByOrder, dealControlData, replaceHalfWithSizeControls)(controls);
+  return replaceRowWithControls(newControls);
 };
 
 export const resortControlByColRow = (controls = []) => {
@@ -306,11 +320,7 @@ export const getWidgetInfo = type => {
   if (typeof type === 'number') {
     type = enumWidgetType[type];
   }
-  let info = DEFAULT_CONFIG[type] || {};
-  // if (type === 'SPLIT_LINE') {
-  //   info.widgetName = _l('分段（旧）');
-  // }
-  return info;
+  return DEFAULT_CONFIG[type] || {};
 };
 
 export const getIconByType = type => {
@@ -422,6 +432,56 @@ export const supportDisplayRow = item => {
 };
 
 // 关联记录、关联查询须过滤的字段
-export const getFilterRelateControls = (controls = []) => {
-  return _.filter(controls, item => !_.includes([22, 43, 45, 47, 49, 51, ...SYS_CONTROLS], item.type));
+export const getFilterRelateControls = (controls = [], showControls = []) => {
+  const filterIds = [22, 43, 45, 47, 49, 51, 52, ...SYS_CONTROLS];
+  return _.filter(controls, item => !_.includes(filterIds, item.type) || _.includes(showControls, item.controlId));
 };
+
+// 按标签页显示的控件
+export const relateOrSectionTab = (data = {}) => {
+  return (includes([29, 51], data.type) && get(data, 'advancedSetting.showtype') === '2') || data.type === 52;
+};
+
+// 需要固定在底部的控件
+export const fixedBottomWidgets = data => {
+  return data.type === 52;
+};
+
+// 获取标签页等控件与普通控件的分界位置
+export const getBoundRowByTab = widgets => {
+  for (var i = 0; i < widgets.length; i++) {
+    const row = widgets[i];
+    for (var j = 0; j < row.length; j++) {
+      const item = widgets[i][j];
+      if (fixedBottomWidgets(item)) return i;
+    }
+  }
+  return -1;
+};
+
+//将widgets分成普通和标签页，分别单独渲染
+export const getSectionWidgets = widgets => {
+  // 新建的没有row、col,重设一遍，防止重排出错
+  const dealRowAndCol = genWidgetRowAndCol(widgets);
+  const flattenWidgets = putControlBySection(flatten(dealRowAndCol));
+  let commonWidgets = [];
+  let tabWidgets = [];
+
+  flattenWidgets.map(i => {
+    if (_.get(i, 'type') === 52) {
+      tabWidgets.push(i);
+    } else {
+      commonWidgets.push(i);
+    }
+  });
+
+  tabWidgets = tabWidgets.sort((a, b) => {
+    return a.row - b.row;
+  });
+  return { commonWidgets: putControlByOrder(commonWidgets), tabWidgets };
+};
+
+// 搜索忽略大小写
+export function SearchFn(keywords = '', value = '') {
+  return value.search(new RegExp(keywords.trim().replace(/([,.+?:()*\[\]^$|{}\\-])/g, '\\$1'), 'i')) !== -1;
+}

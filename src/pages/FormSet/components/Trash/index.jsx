@@ -182,6 +182,24 @@ export default function TrashDialog(props) {
         }
       });
   };
+  const renderTxt = it => {
+    const list = safeParse(_.get(it, 'advancedSetting.listviews'), 'array');
+    const dt = safeParse(_.get(it, 'advancedSetting.detailviews'), 'array');
+    const data = _.uniq([...list, ...dt]);
+    if (data.length > 0) {
+      return (
+        <span className="">
+          {data
+            .map(item => {
+              let view = views.find(o => o.viewId === item) || {};
+              return view.name || _l('该视图已删除');
+            })
+            .join(',')}
+        </span>
+      );
+    }
+    return _l('未分配视图');
+  };
   const columns = [
     {
       id: 'name',
@@ -191,12 +209,15 @@ export default function TrashDialog(props) {
         return (
           <div className="flexRow flex alignItemsCenter">
             <div
-              className={cx('iconWrap')}
+              className={cx('iconWrap', { 'Border BorderGrayColor': data.color === 'transparent' })}
               style={{
-                backgroundColor: data.color,
+                backgroundColor: !data.color ? '#9e9e9e' : data.color,
               }}
             >
-              <Icon icon={data.icon || 'custom_actions'} style={{ color: '##fff' }} className="iconTitle Font16" />{' '}
+              <Icon
+                icon={data.icon || 'custom_actions'}
+                className={cx('iconTitle Font16 White', { Gray: data.color === 'transparent' })}
+              />
             </div>
             <div className="flex name Font14 mLeft10 mRight24 WordBreak overflow_ellipsis" title={data.name}>
               {data.name}
@@ -221,29 +242,9 @@ export default function TrashDialog(props) {
               <span
                 className="viewText Gray_9e WordBreak overflow_ellipsis"
                 style={{ WebkitBoxOrient: 'vertical' }}
-                title={
-                  it.displayViews.length > 0 && it.displayViews[0] !== ''
-                    ? it.displayViews
-                        .map((item, i) => {
-                          let view = (views || []).find(o => o.viewId === item) || {};
-                          return view.name || _l('该视图已删除');
-                        })
-                        .join(',')
-                    : _l('未分配视图')
-                }
+                title={renderTxt(it)}
               >
-                {it.displayViews.length > 0 && it.displayViews[0] !== '' ? (
-                  <React.Fragment>
-                    {it.displayViews
-                      .map((item, i) => {
-                        let view = (views || []).find(o => o.viewId === item) || {};
-                        return view.name || _l('该视图已删除');
-                      })
-                      .join(',')}
-                  </React.Fragment>
-                ) : (
-                  _l('未分配视图')
-                )}
+                {renderTxt(it)}
               </span>
             )}
           </div>
@@ -258,6 +259,7 @@ export default function TrashDialog(props) {
           <div className="flexRow alignItemsCenter">
             <UserHead
               size={28}
+              bindBusinessCard={!!_.get(data, 'updateAccount.accountId')}
               user={{
                 userHead: _.get(data, 'updateAccount.avatar'),
                 accountId: _.get(data, 'updateAccount.accountId'),
@@ -346,7 +348,6 @@ export default function TrashDialog(props) {
       className="btnTrashDialog"
       width="1000"
       headerClass="pAll0"
-      style={{}}
       visible={true}
       title={null}
       footer={null}

@@ -113,7 +113,6 @@ export default function RecordOperate(props) {
     shows = [],
     showHr = true,
     maxHeight,
-    disableLoadCustomButtons,
     children,
     preMenuItems = [],
     popupContainer,
@@ -130,6 +129,7 @@ export default function RecordOperate(props) {
     allowDelete,
     allowCopy,
     formdata,
+    defaultCustomButtons,
     sheetSwitchPermit = [],
     reloadRecord = () => {},
     onDelete,
@@ -140,21 +140,22 @@ export default function RecordOperate(props) {
     onRemoveRelation = () => {},
     onPopupVisibleChange = () => {},
     hideRecordInfo = () => {},
+    onRecreate = () => {},
   } = props;
   const showShare = _.includes(shows, 'share') && !md.global.Account.isPortal;
   const showCopy =
     _.includes(shows, 'copy') &&
     allowCopy &&
     (isOpenPermit(permitList.recordCopySwitch, sheetSwitchPermit, viewId) || isSubList);
+  const showRecreate =
+    _.includes(shows, 'recreate') &&
+    allowCopy &&
+    (isOpenPermit(permitList.recordRecreateSwitch, sheetSwitchPermit, viewId) || isSubList);
   const showPrint = _.includes(shows, 'print');
   const showTask = _.includes(shows, 'task') && !md.global.Account.isPortal;
   const showRemoveRelation = _.includes(shows, 'removeRelation');
   const showEditForm = _.includes(shows, 'editform') && isCharge;
   const showOpenInNew = _.includes(shows, 'openinnew');
-  let { defaultCustomButtons = [] } = props;
-  if (_.isFunction(defaultCustomButtons)) {
-    defaultCustomButtons = defaultCustomButtons();
-  }
   const customButtonActive = useRef();
   const [customButtons, setCustomButtons] = useState([]);
   const [customButtonLoading, setCustomButtonLoading] = useState();
@@ -182,7 +183,7 @@ export default function RecordOperate(props) {
     }
   }
   useEffect(() => {
-    if (popupVisible && !disableLoadCustomButtons && !customButtons.length) {
+    if (popupVisible && !defaultCustomButtons) {
       loadButtons();
     }
   }, [popupVisible]);
@@ -268,16 +269,16 @@ export default function RecordOperate(props) {
             !showOpenInNew &&
             !allowDelete &&
             !showEditForm && <Empty>{_l('无可用的操作')}</Empty>}
-          {customButtonLoading && (!props.defaultCustomButtons || !!props.defaultCustomButtons.length) && (
+          {customButtonLoading && (!defaultCustomButtons || !!defaultCustomButtons.length) && (
             <Loading>
               <i className="icon icon-loading_button"></i>
             </Loading>
           )}
-          {!!(disableLoadCustomButtons ? defaultCustomButtons : customButtons).length && (
+          {!!(defaultCustomButtons || customButtons).length && (
             <CustomButtons
               type="menu"
               {...{ projectId, appId, viewId, worksheetId, recordId, isCharge }}
-              buttons={disableLoadCustomButtons ? defaultCustomButtons : customButtons}
+              buttons={defaultCustomButtons || customButtons}
               loadBtns={loadButtons}
               triggerCallback={() => changePopupVisible(false)}
               onUpdate={onUpdate}
@@ -343,6 +344,22 @@ export default function RecordOperate(props) {
               }}
             >
               {_l('复制%02003')}
+            </MenuItemWrap>
+          )}
+          {showRecreate && (
+            <MenuItemWrap
+              className="printItem"
+              icon={<Icon icon="copy_all" className="Font17 mLeft5" />}
+              onClick={() => {
+                if (window.isPublicApp) {
+                  alert(_l('预览模式下，不能操作'), 3);
+                  return;
+                }
+                changePopupVisible(false);
+                onRecreate();
+              }}
+            >
+              {_l('重新创建')}
             </MenuItemWrap>
           )}
           {showPrint && (
@@ -473,7 +490,6 @@ RecordOperate.propTypes = {
   showHr: PropTypes.bool,
   shows: PropTypes.arrayOf(PropTypes.string),
   maxHeight: PropTypes.number,
-  disableLoadCustomButtons: PropTypes.bool,
   children: PropTypes.element,
   preMenuItems: PropTypes.arrayOf(PropTypes.shape({})),
   popupContainer: PropTypes.element,
@@ -489,7 +505,6 @@ RecordOperate.propTypes = {
   instanceId: PropTypes.string,
   formdata: PropTypes.arrayOf(PropTypes.shape({})),
   /** ********** */
-  defaultCustomButtons: PropTypes.arrayOf(PropTypes.shape({})),
   sheetSwitchPermit: PropTypes.arrayOf(PropTypes.shape({})),
   onDelete: PropTypes.func,
   onDeleteSuccess: PropTypes.func,

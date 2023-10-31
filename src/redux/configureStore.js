@@ -4,7 +4,7 @@ import { applyMiddleware, compose, createStore } from 'redux';
 import { makeRootReducer } from './reducers';
 
 function promiseMiddleware({ dispatch }) {
-  return next => action => (action && action.then ? action.then(dispatch) : next(action));
+  return next => action => action && action.then ? action.then(dispatch) : next(action);
 }
 
 function eventMiddleware(emitter) {

@@ -1,10 +1,11 @@
 import _ from 'lodash';
 import moment from 'moment';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
-import { getFormData, getSelectedOptions } from 'src/pages/worksheet/util';
+import { checkIsTextControl, getFormData, getSelectedOptions } from 'src/pages/worksheet/util';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting.js';
+import { validate } from 'src/pages/Mobile/RecordList/QuickFilter/Inputs';
 import {
   CONTROL_FILTER_WHITELIST,
   FILTER_CONDITION_TYPE,
@@ -256,7 +257,7 @@ export function checkConditionAvailable(condition) {
   }
 }
 
-export function getConditionOverrideValue(type, condition) {
+export function getConditionOverrideValue(type, condition, valueType) {
   const { conditionGroupType, value, values, dateRange, dateRangeType, fullValues } = condition;
   const base = {
     type,
@@ -266,7 +267,16 @@ export function getConditionOverrideValue(type, condition) {
     value: undefined,
     dateRange: 0,
     dateRangeType: 1,
-    dynamicSource: [],
+    dynamicSource:
+      valueType === 2
+        ? [
+            {
+              cid: '',
+              rcid: 'url',
+              staticValue: '',
+            },
+          ]
+        : [],
     isDynamicsource: false,
     // 兼容values清空，fullValues值还存在的问题
     ...(_.isUndefined(fullValues) ? {} : { fullValues: _.isEmpty(values) ? [] : fullValues }),
@@ -661,7 +671,7 @@ export function redefineComplexControl(contorl) {
 /**
  * 动态筛选值规则
  *  */
-export function relateDy(conditionType, contorls, control, defaultValue) {
+export function relateDy(conditionType, controls, control, defaultValue) {
   if (
     defaultValue === FILTER_CONDITION_TYPE.ISNULL || // 为空
     defaultValue === FILTER_CONDITION_TYPE.HASVALUE || // 不为空
@@ -687,7 +697,7 @@ export function relateDy(conditionType, contorls, control, defaultValue) {
     case API_ENUM_TO_TYPE.CONCATENATE:
     case API_ENUM_TO_TYPE.AUTOID:
       // 除了检查框、自由连接、等级、他表字段以外所有能取到文本值的字段类型
-      // 除分割线、备注、富文本、单选项、多选项、地区、人员、部门、检查框、附件、自由连接、签名、表关联、他表字段、汇总、子表外
+      // 除分割线、备注、富文本、单选项、多选项、地区、人员、部门、检查框、附件、自由连接、签名、表关联、他表字段、汇总、子表、标签页外
       typeList = [
         API_ENUM_TO_TYPE.SWITCH,
         API_ENUM_TO_TYPE.RELATION,
@@ -713,8 +723,9 @@ export function relateDy(conditionType, contorls, control, defaultValue) {
         API_ENUM_TO_TYPE.BARCODE,
         API_ENUM_TO_TYPE.CASCADER,
         API_ENUM_TO_TYPE.RELATESEARCH,
+        API_ENUM_TO_TYPE.SECTION,
       ];
-      return _.filter(contorls, items => !_.includes(typeList, items.type));
+      return _.filter(controls, items => !_.includes(typeList, items.type));
     // 电话、证件、邮件
     case API_ENUM_TO_TYPE.PHONE_NUMBER_3:
     case API_ENUM_TO_TYPE.PHONE_NUMBER_4:
@@ -729,7 +740,7 @@ export function relateDy(conditionType, contorls, control, defaultValue) {
         API_ENUM_TO_TYPE.TEXTAREA_INPUT_2,
         API_ENUM_TO_TYPE.EMAIL_INPUT, // 邮件
       ];
-      return _.filter(contorls, items => _.includes(typeList, items.type));
+      return _.filter(controls, items => _.includes(typeList, items.type));
     // 数值、金额、公式
     case API_ENUM_TO_TYPE.NUMBER_INPUT:
     case API_ENUM_TO_TYPE.MONEY_AMOUNT_8:
@@ -745,7 +756,7 @@ export function relateDy(conditionType, contorls, control, defaultValue) {
         API_ENUM_TO_TYPE.NUMBER_INPUT,
       ];
       return _.filter(
-        _.filter(contorls, items => _.includes(typeList, items.type)),
+        _.filter(controls, items => _.includes(typeList, items.type)),
         it =>
           !_.includes([API_ENUM_TO_TYPE.SUBTOTAL], it.type) ||
           (it.type === API_ENUM_TO_TYPE.SUBTOTAL && 6 === it.enumDefault2), //汇总（数值类型
@@ -762,7 +773,7 @@ export function relateDy(conditionType, contorls, control, defaultValue) {
           API_ENUM_TO_TYPE.AUTOID,
         ];
         return _.filter(
-          _.filter(contorls, items => _.includes(typeList, items.type)),
+          _.filter(controls, items => _.includes(typeList, items.type)),
           it =>
             !_.includes([API_ENUM_TO_TYPE.SUBTOTAL], it.type) ||
             (it.type === API_ENUM_TO_TYPE.SUBTOTAL && control.enumDefault2 === it.enumDefault2),
@@ -776,7 +787,7 @@ export function relateDy(conditionType, contorls, control, defaultValue) {
           API_ENUM_TO_TYPE.SUBTOTAL,
         ];
         return _.filter(
-          _.filter(contorls, items => _.includes(typeList, items.type)),
+          _.filter(controls, items => _.includes(typeList, items.type)),
           it =>
             !_.includes([API_ENUM_TO_TYPE.SUBTOTAL], it.type) ||
             (it.type === API_ENUM_TO_TYPE.SUBTOTAL && control.enumDefault2 === it.enumDefault2),
@@ -795,7 +806,7 @@ export function relateDy(conditionType, contorls, control, defaultValue) {
         API_ENUM_TO_TYPE.SUBTOTAL,
       ];
       return _.filter(
-        _.filter(contorls, items => _.includes(typeList, items.type)),
+        _.filter(controls, items => _.includes(typeList, items.type)),
         it =>
           !_.includes([API_ENUM_TO_TYPE.SUBTOTAL], it.type) ||
           (it.type === API_ENUM_TO_TYPE.SUBTOTAL && 6 !== it.enumDefault2), //汇总（日期类型）
@@ -807,29 +818,29 @@ export function relateDy(conditionType, contorls, control, defaultValue) {
     case API_ENUM_TO_TYPE.OPTIONS_11:
       // 单选项、多选项(相同选项集的其他字段)
       typeList = [API_ENUM_TO_TYPE.OPTIONS_9, API_ENUM_TO_TYPE.OPTIONS_10, API_ENUM_TO_TYPE.OPTIONS_11];
-      return _.filter(contorls, items => _.includes(typeList, items.type) && items.dataSource === control.dataSource);
+      return _.filter(controls, items => _.includes(typeList, items.type) && items.dataSource === control.dataSource);
     // 关联单条、级联选择
     case API_ENUM_TO_TYPE.RELATESHEET:
     case API_ENUM_TO_TYPE.CASCADER:
       typeList = [API_ENUM_TO_TYPE.RELATESHEET, API_ENUM_TO_TYPE.CASCADER];
       return _.filter(
-        contorls,
+        controls,
         items =>
           _.includes(typeList, items.type) &&
           items.dataSource === control.dataSource &&
-          !(items.type === 29 && items.advancedSetting.showtype === '2'),
+          !(items.type === 29 && _.get(items, 'advancedSetting.showtype') === '2'),
       );
     // 人员单选 人员多选
     case API_ENUM_TO_TYPE.USER_PICKER:
       // 人员单选、人员多选
-      return _.filter(contorls, items => items.type === API_ENUM_TO_TYPE.USER_PICKER);
+      return _.filter(controls, items => items.type === API_ENUM_TO_TYPE.USER_PICKER);
     // 部门单选
     case API_ENUM_TO_TYPE.GROUP_PICKER:
       // 部门
-      return _.filter(contorls, items => items.type === API_ENUM_TO_TYPE.GROUP_PICKER);
+      return _.filter(controls, items => items.type === API_ENUM_TO_TYPE.GROUP_PICKER);
     // 组织角色
     case API_ENUM_TO_TYPE.ORG_ROLE:
-      return _.filter(contorls, items => items.type === API_ENUM_TO_TYPE.ORG_ROLE);
+      return _.filter(controls, items => items.type === API_ENUM_TO_TYPE.ORG_ROLE);
     // 地区，检查框，附件
     case API_ENUM_TO_TYPE.AREA_INPUT_24:
     case API_ENUM_TO_TYPE.AREA_INPUT_19:
@@ -841,9 +852,14 @@ export function relateDy(conditionType, contorls, control, defaultValue) {
     // 等级
     case API_ENUM_TO_TYPE.SCORE:
       // 部门
-      return _.filter(contorls, items => items.type === API_ENUM_TO_TYPE.SCORE);
+      return _.filter(controls, items => items.type === API_ENUM_TO_TYPE.SCORE);
+    // 时间
+    case API_ENUM_TO_TYPE.TIME:
+      return _.filter(controls, items =>
+        _.includes([API_ENUM_TO_TYPE.TIME, API_ENUM_TO_TYPE.DATE_INPUT_16], items.type),
+      );
     default:
-      return contorls;
+      return controls;
   }
 }
 
@@ -917,6 +933,15 @@ export function getFilter({ control, formData = [], filterKey = 'filters' }) {
   }
 }
 
+function getValueFromFilterData(dynamicControl = {}) {
+  if (checkIsTextControl(dynamicControl.type)) {
+    return dynamicControl.filterValue.value
+      ? { values: [dynamicControl.filterValue.value] }
+      : dynamicControl.filterValue;
+  }
+  return dynamicControl.filterValue || {};
+}
+
 export function fillConditionValue({ condition, formData, relateControl, ignoreFilterControl = false }) {
   const { dataType, controlId } = condition;
   const dynamicSource = condition.dynamicSource[0];
@@ -949,25 +974,40 @@ export function fillConditionValue({ condition, formData, relateControl, ignoreF
   if (!dynamicSource || (!filterControl && !ignoreFilterControl)) {
     return;
   }
-  const { cid } = dynamicSource;
+  const { rcid, cid } = dynamicSource;
   if (!cid) {
     return;
   }
-  if (cid === 'current-rowid') {
+  if ((cid === 'current-rowid' || cid === 'rowid') && !_.includes(['fastFilter', 'navGroup'], rcid)) {
     if (!relateControl.recordId) {
       return;
     }
     condition.values = [relateControl.recordId];
     return condition;
   }
+  if (cid === 'currenttime') {
+    condition.value = moment(new Date()).format(getDatePickerConfigs(filterControl).formatMode);
+    return condition;
+  }
   let dynamicControl;
-  dynamicControl = _.find(formData, c => c && c.controlId === cid);
+  dynamicControl = _.find(
+    formData,
+    c => c && c.controlId === (_.includes(['fastFilter', 'navGroup'], rcid) ? rcid + '_' : '') + cid,
+  );
   if (!dynamicControl) {
     return;
   }
+  // 快速筛选配置的其他字段的值
+  if (dynamicControl.filterValue) {
+    const newCondition = {
+      ...condition,
+      ...getValueFromFilterData(dynamicControl),
+    };
+    return validate(newCondition) || newCondition.filterType === 7 ? newCondition : false;
+  }
   const { type } = dynamicControl;
   const value = getFormData({
-    cid,
+    cid: (_.includes(['fastFilter', 'navGroup'], rcid) ? rcid + '_' : '') + cid,
     data: formData,
   });
   if (!value) {
@@ -1115,3 +1155,82 @@ export const getTabTypeBySelectUser = (control = {}) => {
     ? 2
     : 1;
 };
+
+export function formatQuickFilterValueToControlValue(type, condition) {
+  if (
+    _.includes(
+      [
+        WIDGETS_TO_API_TYPE_ENUM.TEXT, // 文本
+        WIDGETS_TO_API_TYPE_ENUM.TELEPHONE, // 电话号码
+        WIDGETS_TO_API_TYPE_ENUM.MOBILE_PHONE, // 手机号码
+        WIDGETS_TO_API_TYPE_ENUM.EMAIL, // 邮件地址
+        WIDGETS_TO_API_TYPE_ENUM.CRED, // 证件
+        WIDGETS_TO_API_TYPE_ENUM.CONCATENATE, // 文本组合
+        WIDGETS_TO_API_TYPE_ENUM.AUTO_ID, // 自动编号
+        WIDGETS_TO_API_TYPE_ENUM.SEARCH, // API查询
+      ],
+      type,
+    )
+  ) {
+    return (_.get(condition, 'values') || [])[0];
+  }
+  if (
+    _.includes(
+      [
+        WIDGETS_TO_API_TYPE_ENUM.NUMBER, // 数值
+        WIDGETS_TO_API_TYPE_ENUM.MONEY, // 金额
+        WIDGETS_TO_API_TYPE_ENUM.FORMULA_NUMBER, // 公式
+        WIDGETS_TO_API_TYPE_ENUM.SWITCH, // 检查框
+      ],
+      type,
+    )
+  ) {
+    return _.get(condition, 'value');
+  }
+  if (
+    _.includes(
+      [
+        WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET, // 关联
+        WIDGETS_TO_API_TYPE_ENUM.CASCADER, // 级联
+      ],
+      type,
+    )
+  ) {
+    return JSON.stringify(
+      (_.get(condition, 'values') || []).map(row => ({
+        sid: row.rowid,
+      })),
+    );
+  }
+  if (
+    _.includes(
+      [
+        WIDGETS_TO_API_TYPE_ENUM.FLAT_MENU, // 单选
+        WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT, // 多选
+        WIDGETS_TO_API_TYPE_ENUM.DROP_DOWN, // 下拉
+        WIDGETS_TO_API_TYPE_ENUM.USER_PICKER, // 成员
+        WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT, // 部门
+        WIDGETS_TO_API_TYPE_ENUM.ORG_ROLE, // 组织角色
+        WIDGETS_TO_API_TYPE_ENUM.AREA_PROVINCE, // 地区 省
+        WIDGETS_TO_API_TYPE_ENUM.AREA_CITY, // 地区 省-市
+        WIDGETS_TO_API_TYPE_ENUM.AREA_COUNTY, // 地区 省-市-县
+      ],
+      type,
+    )
+  ) {
+    return JSON.stringify(_.get(condition, 'values') || []);
+  }
+  if (
+    _.includes(
+      [
+        WIDGETS_TO_API_TYPE_ENUM.DATE, // 日期  * 类型无法转换成控件值
+        WIDGETS_TO_API_TYPE_ENUM.DATE_TIME, // 日期时间 * 类型无法转换成控件值
+        WIDGETS_TO_API_TYPE_ENUM.TIME, //  时间 * 类型无法转换成控件值
+      ],
+      type,
+    )
+  ) {
+    return;
+  }
+  return;
+}

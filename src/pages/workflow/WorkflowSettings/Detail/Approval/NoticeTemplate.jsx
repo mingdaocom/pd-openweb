@@ -14,7 +14,7 @@ const Preview = styled.div`
   }
 `;
 
-export default ({ processId, selectNodeId, data, selectMsgKey, updateSource, onClose }) => {
+export default ({ companyId, processId, relationId, selectNodeId, data, selectMsgKey, updateSource, onClose }) => {
   const [selectMsg, setMsg] = useState(data[selectMsgKey]);
   const getNodeText = value => {
     const arr = value.match(/\$[^ \r\n]+?\$/g);
@@ -53,7 +53,9 @@ export default ({ processId, selectNodeId, data, selectMsgKey, updateSource, onC
     >
       <div>{_l('消息内容')}</div>
       <CustomTextarea
+        projectId={companyId}
         processId={processId}
+        relationId={relationId}
         selectNodeId={selectNodeId}
         type={2}
         height={0}

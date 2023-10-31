@@ -211,14 +211,14 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
         }
         // 1 卡片 2 列表 3 下拉
         if (item.advancedSetting && item.advancedSetting.showtype === '3') {
+
           //下拉 显示关联表名称
           if (item.isRelateMultipleSheet && records.length <= 0) {
             return '';
           }
-          if (!item.isRelateMultipleSheet && dataItem.sourceControlType === 11 && dataItem.enumDefault === 2) {
+          if (!item.isRelateMultipleSheet && [11, 26].includes(dataItem.sourceControlType) && dataItem.enumDefault === 2) {
             dataItem = { ...dataItem, enumDefault: 1 };
           }
-
           return (
             <span className="relaList">{item.isRelateMultipleSheet ? records[0].name : renderCellText(dataItem)}</span>
           );
@@ -226,11 +226,7 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
         //按文本形式 显示关联表标题字段（卡片，下拉）/数量（列表）
         if (item.isRelateMultipleSheet) {
           if (records.length <= 0) return '';
-          if (dataItem.enumDefault === 2) {
-            let valueParse = safeParse(dataItem.value, []);
-            return Array.isArray(valueParse) ? valueParse.map(l => l.name || _l('未命名')).join('、') : valueParse;
-          }
-          return renderCellText(dataItem);
+          return renderCellText({...dataItem, enumDefault: dataItem.type===29 ? 1 : dataItem.enumDefault});
         }
         //关联表内除标题字段外的其他字段
         let showControlsList = [];

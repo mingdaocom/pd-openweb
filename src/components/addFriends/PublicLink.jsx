@@ -4,7 +4,7 @@ import ShareUrl from 'worksheet/components/ShareUrl';
 import InviteController from 'src/api/invitation';
 import projectSettingController from 'src/api/projectSetting';
 import ClipboardButton from 'react-clipboard.js';
-import { FROM_TYPE, DETAIL_MODE } from './addFriends';
+import { FROM_TYPE, DETAIL_MODE } from './';
 import _ from 'lodash';
 
 const DISPLAY_OPTIONS = [

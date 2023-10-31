@@ -48,6 +48,14 @@ export const Abnormal = (props) => {
           <div className="Gray_9e Font16">{_l('无权限')}</div>
         </div>
       );
+    } else if (status === -2) {
+      return (
+        <div className="flex flexColumn valignWrapper Gray_c" style={style}>
+          <Icon icon="password" className="Font64 Gray_c mBottom10" />
+          <div className="Gray_9e Font20 mBottom2">{_l('无法形成图表')}</div>
+          <div className="Gray_9e Font16">{_l('数据量过大，请添加时间范围或添加筛选条件减少数据量')}</div>
+        </div>
+      );
     } else {
       return (
         <div className="flex flexColumn valignWrapper Gray_c" style={style}>

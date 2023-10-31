@@ -8,9 +8,11 @@ import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import _ from 'lodash';
 import worksheetAjax from 'src/api/worksheet';
+import { getFilledRequestParams } from '../../util';
 
 export default class ExportSheet extends Component {
   static propTypes = {
+    allCount: PropTypes.number,
     sheetHiddenColumns: PropTypes.array,
     allWorksheetIsSelected: PropTypes.boolean,
     worksheetId: PropTypes.string,
@@ -27,6 +29,7 @@ export default class ExportSheet extends Component {
     navGroupFilters: PropTypes.object,
     isCharge: PropTypes.bool,
     hideStatistics: PropTypes.bool,
+    sortControls: PropTypes.array,
   };
 
   constructor(props) {
@@ -192,7 +195,7 @@ export default class ExportSheet extends Component {
       this.sortControls(
         columns
           .filter(item => isCharge || this.checkControlVisible(item))
-          .filter(item => !(isRelateRecordTableControl(item) || item.type === 34 || item.type === 43)),
+          .filter(item => !(isRelateRecordTableControl(item) || [34, 43, 49, 50].includes(item.type))),
       ).forEach(column => {
         if (isCharge && !this.checkControlVisible(column)) {
           selected[column.controlId] = false;
@@ -297,6 +300,7 @@ export default class ExportSheet extends Component {
         quickFilter = [],
         navGroupFilters,
         filtersGroup = [],
+        sortControls,
       } = this.props;
       const { columnsSelected, isStatistics, exportShowColumns, exportExtIds, type } = this.state;
 
@@ -307,7 +311,7 @@ export default class ExportSheet extends Component {
         columnsSelected[key] && exportControlsId.push(key);
       });
 
-      const args = {
+      const args = getFilledRequestParams({
         token,
         accountId: md.global.Account.accountId,
         worksheetId,
@@ -322,6 +326,7 @@ export default class ExportSheet extends Component {
         searchType,
         rowIds: selectRowIds,
         isSort: exportShowColumns,
+        sortControls,
         fastFilters: (quickFilter || [])
           .concat(filtersGroup)
           .map(f =>
@@ -363,15 +368,11 @@ export default class ExportSheet extends Component {
             return { extIds, controlId };
           })
           .filter(item => item.extIds.length),
-      };
+      });
 
       if (allWorksheetIsSelected) {
         delete args['rowIds'];
         args.excludeRowIds = selectRowIds;
-      }
-
-      if (allCount > 5000) {
-        args.sortControls = [{ controlId: 'ctime', datatype: 16, isAsc: false }];
       }
 
       // 未选择字段
@@ -493,7 +494,7 @@ export default class ExportSheet extends Component {
   };
 
   render() {
-    const { onHide, allWorksheetIsSelected, selectRowIds, exportView, hideStatistics, isCharge } = this.props;
+    const { allCount, onHide, allWorksheetIsSelected, selectRowIds, exportView, hideStatistics, isCharge } = this.props;
     let columns = [].concat(this.props.columns);
     const { advancedSetting, showControls } = exportView;
     const {
@@ -520,7 +521,7 @@ export default class ExportSheet extends Component {
     }
 
     // 过滤掉不支持导出的字段、无权限字段
-    const notSupportableTtpe = [22, 34, 42, 43, 45, 47, 49, 50, 51, 10010];
+    const notSupportableTtpe = [22, 34, 42, 43, 45, 47, 49, 50, 51, 52, 10010];
     const exportColumns = columns.filter(
       item =>
         !isRelateRecordTableControl(item) &&
@@ -551,7 +552,7 @@ export default class ExportSheet extends Component {
             ? _l('将视图下数据导出为 Excel')
             : _l('将选中的%0条数据导出为 Excel', selectRowIds.length)
         }
-        width={470}
+        width={560}
         okText={_l('导出')}
         footerLeftElement={() =>
           isCharge ? (
@@ -567,6 +568,13 @@ export default class ExportSheet extends Component {
           <LoadDiv />
         ) : (
           <Fragment>
+            {allCount > 1000 && !selectRowIds.length && (
+              <div className="exportSheetMessage flexRow alignItemsCenter">
+                <Icon icon="info" className="Font16 mRight6 ThemeColor3" />
+                {_l('记录超过1000条，将按照创建时间排序（新的在前）')}
+              </div>
+            )}
+
             {/** 是否选择导出所有字段 */}
             {!!showTabs && (
               <div className="exportSheetTabs">

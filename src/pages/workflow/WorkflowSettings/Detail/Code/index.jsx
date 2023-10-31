@@ -318,7 +318,9 @@ export default class Code extends Component {
               <div className="Font13 bold mTop20">{_l('定义input对象')}</div>
               <KeyPairs
                 key={this.props.selectNodeId}
+                projectId={this.props.companyId}
                 processId={this.props.processId}
+                relationId={this.props.relationId}
                 selectNodeId={this.props.selectNodeId}
                 isIntegration={this.props.isIntegration}
                 source={data.inputDatas}

@@ -106,6 +106,7 @@ export default function RowHead(props) {
     showCheckbox,
     selectedRowIds,
     showNumber = true,
+    lineNumberBegin = 0,
     onOpen = () => {},
     onDelete = () => {},
     onCopy = () => {},
@@ -149,7 +150,7 @@ export default function RowHead(props) {
       </div>
     );
   }
-  if (!row.rowid || row.rowid === 'empty') {
+  if (!row.rowid || row.rowid.startsWith('empty')) {
     return <Con className={cx(className, 'placeholder')} style={style} />;
   }
   return (
@@ -163,7 +164,7 @@ export default function RowHead(props) {
       style={style}
     >
       <span className="rowIndex">
-        {showNumber && !showCheckbox && <span className={cx('num')}>{rowIndex + 1}</span>}
+        {showNumber && !showCheckbox && <span className={cx('num')}>{lineNumberBegin + rowIndex + 1}</span>}
 
         {showCheckbox && (
           <Checkbox
@@ -182,9 +183,9 @@ export default function RowHead(props) {
             points: ['tl', 'bl'],
           }}
           isSubList
+          defaultCustomButtons={[]}
           allowCopy
           shows={['copy']}
-          disableLoadCustomButtons
           allowDelete
           showTask={false}
           showHr={false}

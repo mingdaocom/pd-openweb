@@ -37,6 +37,11 @@ const PivotTableContent = styled.div`
       display: none;
     }
   }
+  &.hideDrag {
+    .drag {
+      display: none;
+    }
+  }
   &.contentScroll {
     .ant-table-header colgroup col:last-child {
       display: none;

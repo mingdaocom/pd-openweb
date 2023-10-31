@@ -20,7 +20,7 @@ import downloadAjax from 'src/api/download';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
 import { createLinksForMessage } from 'src/components/common/function';
-import unauthorizedPic from 'src/router/Application/assets/unauthorized.png';
+import unauthorizedPic from 'src/components/UnusualContent/unauthorized.png';
 import styled from 'styled-components';
 import moment from 'moment';
 import _ from 'lodash';
@@ -548,7 +548,8 @@ export default class AppAndWorksheetLog extends Component {
     if (glFeatureType === '2') {
       return (
         <div className="orgManagementWrap h100">
-          {buriedUpgradeVersionDialog(projectId, VersionProductType.glabalLog, 'content', {
+          {buriedUpgradeVersionDialog(projectId, VersionProductType.glabalLog, {
+            dialogType: 'content',
             explainText: _l('请升级至付费版解锁开启'),
           })}
         </div>
@@ -609,7 +610,7 @@ export default class AppAndWorksheetLog extends Component {
         </TabWrap>
         {logType === 3 && galFeatureType === '2' ? (
           <div className="flex">
-            {buriedUpgradeVersionDialog(projectId, VersionProductType.globalBehaviorLog, 'content')}
+            {buriedUpgradeVersionDialog(projectId, VersionProductType.globalBehaviorLog, { dialogType: 'content' })}
           </div>
         ) : (
           <FlexWrap className="flexColumn pLeft24 pRight24">

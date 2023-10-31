@@ -331,7 +331,6 @@ export default function TrashDialog(props) {
       className="workflowTrashDialog"
       width="1000"
       headerClass="pAll0"
-      style={{}}
       visible={true}
       title={null}
       footer={null}

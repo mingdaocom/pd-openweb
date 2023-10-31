@@ -6,6 +6,8 @@ import { getCalendarViewType } from 'src/pages/worksheet/views/CalendarView/util
 import { isTimeStyle, getTimeControls, getCalendartypeData } from 'src/pages/worksheet/views/CalendarView/util';
 import _ from 'lodash';
 import moment from 'moment';
+import { getFilledRequestParams } from 'worksheet/util';
+
 let getRows;
 let getRowsIds = [];
 export const fetch = searchArgs => {
@@ -16,28 +18,30 @@ export const fetch = searchArgs => {
       getRows.abort();
     }
     getRowsIds.push(viewId);
-    getRows = sheetAjax.getFilterRows({
-      appId,
-      viewId: viewId,
-      worksheetId: worksheetId,
-      status: 1,
-      pageIndex: 1,
-      sortControls: searchArgs.sortControls,
-      reportId: chartId || undefined,
-      pageSize: 10000000,
-      ..._.pick(searchArgs, [
-        'keyWords',
-        'searchType',
-        'filterControls',
-        'filtersGroup',
-        'isUnRead',
-        'kanbanKey',
-        'layer',
-        'beginTime', //用于日历视图的开始时间和结束时间
-        'endTime',
-      ]),
-      fastFilters: formatQuickFilter(quickFilter),
-    });
+    getRows = sheetAjax.getFilterRows(
+      getFilledRequestParams({
+        appId,
+        viewId: viewId,
+        worksheetId: worksheetId,
+        status: 1,
+        pageIndex: 1,
+        sortControls: searchArgs.sortControls,
+        reportId: chartId || undefined,
+        pageSize: 10000000,
+        ..._.pick(searchArgs, [
+          'keyWords',
+          'searchType',
+          'filterControls',
+          'filtersGroup',
+          'isUnRead',
+          'kanbanKey',
+          'layer',
+          'beginTime', //用于日历视图的开始时间和结束时间
+          'endTime',
+        ]),
+        fastFilters: formatQuickFilter(quickFilter),
+      }),
+    );
     getRows.then(res => {
       getRowsIds = getFilterRowsIds.filter(o => o !== viewId);
       dispatch({ type: 'CHANGE_CALENDARLIST', data: res.data, resultCode: res.resultCode });
@@ -413,10 +417,12 @@ export function getEventList({
         filterControls,
       };
     }
-    getFilterRows = sheetAjax.getFilterRows({
-      ...prams,
-      filterControls: [...(filters.filterControls || []), ...(prams.filterControls || [])],
-    });
+    getFilterRows = sheetAjax.getFilterRows(
+      getFilledRequestParams({
+        ...prams,
+        filterControls: [...(filters.filterControls || []), ...(prams.filterControls || [])],
+      }),
+    );
     let l = calenderEventList[`${typeEvent}Dt`] || [];
     getFilterRows.then(rowsData => {
       getFilterRowsIds = getFilterRowsIds.filter(o => o !== viewId);

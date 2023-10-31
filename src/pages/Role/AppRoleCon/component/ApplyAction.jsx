@@ -63,7 +63,9 @@ export default class ApplyAction extends PureComponent {
               value={keyWords}
               onChange={keyWords => {
                 this.setState({
-                  roles: this.props.roles.filter(o => o.name.indexOf(keyWords) >= 0),
+                  roles: this.props.roles.filter(
+                    o => o.name.toLocaleLowerCase().indexOf(keyWords.toLocaleLowerCase()) >= 0,
+                  ),
                 });
               }}
             />

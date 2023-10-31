@@ -9,6 +9,9 @@ import EditAgreementOrPrivacy from 'src/pages/Role/PortalCon/components/EditAgre
 import WorkflowDialog from 'src/pages/workflow/components/WorkflowDialog';
 import { LOGIN_WAY, REJISTER_WAY } from 'src/pages/Role/config.js';
 import _ from 'lodash';
+import locale from 'antd/es/date-picker/locale/zh_CN';
+import { DatePicker } from 'antd';
+import moment from 'moment';
 
 const Wrap = styled.div`
   position: relative;
@@ -94,6 +97,12 @@ const Wrap = styled.div`
     .editFlow {
       color: #2196f3;
     }
+  }
+  .rangePicker {
+    width: 420px;
+    margin-left: 44px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
   }
 `;
 export const SwitchStyle = styled.div`
@@ -337,84 +346,197 @@ export default function BaseSet(props) {
             );
           })}
         </div>
+        <h6 className="Font16 Gray Bold mBottom0 mTop24">{_l('登录设置')}</h6>
+        <div className="mTop12">
+          <SwitchStyle>
+            <Icon
+              icon={!!portalSetModel.termsAndAgreementEnable ? 'ic_toggle_on' : 'ic_toggle_off'}
+              className="Font32 Hand TxtBottom"
+              onClick={() => {
+                onChangePortalSet({
+                  portalSetModel: {
+                    ...portalSetModel,
+                    termsAndAgreementEnable: !portalSetModel.termsAndAgreementEnable,
+                  },
+                });
+              }}
+            />
+            <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">
+              {_l('登录时需同意用户协议和隐私条款')}
+            </div>
+          </SwitchStyle>
+          <div style={{ 'margin-left': '44px' }}>
+            {!!portalSetModel.termsAndAgreementEnable && (
+              <React.Fragment>
+                <p className="Gray_9e LineHeight18 mBottom8">
+                  {_l(
+                    '平台已预置了通用协议内容（无公司主体），因各门户的具体业务不同收集的用户信息不同，请您务必根据公司实际业务重新上传符合规定的协议内容',
+                  )}
+                </p>
+                <div className="bold mTop6 LineHeight24">
+                  {_l('设置')}
+                  <span
+                    className="ThemeColor3 Hand mRight10 mLeft10"
+                    onClick={() => {
+                      setCommonState({ type: 0, show: true });
+                    }}
+                  >
+                    {_l('用户协议')}
+                  </span>
+                  {_l('和')}
+                  <span
+                    className="ThemeColor3 Hand mLeft10"
+                    onClick={() => {
+                      setCommonState({ type: 1, show: true });
+                    }}
+                  >
+                    {_l('隐私政策')}
+                  </span>
+                </div>
+              </React.Fragment>
+            )}
+          </div>
+        </div>
         {/* 私有部署不提供是否需要关注公众号的配置 */}
         {!md.global.Config.IsLocal && (
-          <React.Fragment>
-            <h6 className="Font16 Gray Bold mBottom0 mTop24">{_l('登录设置')}</h6>
-            <div className="mTop12">
-              <SwitchStyle>
-                <Icon
-                  icon={!!portalSetModel.termsAndAgreementEnable ? 'ic_toggle_on' : 'ic_toggle_off'}
-                  className="Font32 Hand TxtBottom"
-                  onClick={() => {
-                    onChangePortalSet({
-                      portalSetModel: {
-                        ...portalSetModel,
-                        termsAndAgreementEnable: !portalSetModel.termsAndAgreementEnable,
-                      },
-                    });
-                  }}
-                />
-                <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">
-                  {_l('登录时需同意用户协议和隐私条款')}
-                </div>
-              </SwitchStyle>
-              <div style={{ 'margin-left': '44px' }}>
-                {!!portalSetModel.termsAndAgreementEnable && (
-                  <React.Fragment>
-                    <p className="Gray_9e LineHeight18 mBottom8">
-                      {_l(
-                        '平台已预置了通用协议内容（无公司主体），因各门户的具体业务不同收集的用户信息不同，请您务必根据公司实际业务重新上传符合规定的协议内容',
-                      )}
-                    </p>
-                    <div className="bold mTop6 LineHeight24">
-                      {_l('设置')}
-                      <span
-                        className="ThemeColor3 Hand mRight10 mLeft10"
-                        onClick={() => {
-                          setCommonState({ type: 0, show: true });
-                        }}
-                      >
-                        {_l('用户协议')}
-                      </span>
-                      {_l('和')}
-                      <span
-                        className="ThemeColor3 Hand mLeft10"
-                        onClick={() => {
-                          setCommonState({ type: 1, show: true });
-                        }}
-                      >
-                        {_l('隐私政策')}
-                      </span>
-                    </div>
-                  </React.Fragment>
-                )}
+          <div className="mTop5">
+            <SwitchStyle>
+              <Icon
+                icon={!!portalSetModel.subscribeWXOfficial ? 'ic_toggle_on' : 'ic_toggle_off'}
+                className="Font32 Hand"
+                onClick={() => {
+                  let data = {
+                    subscribeWXOfficial: !portalSetModel.subscribeWXOfficial,
+                  };
+                  onChangePortalSet({
+                    portalSetModel: {
+                      ...portalSetModel,
+                      ...data,
+                    },
+                  });
+                }}
+              />
+              <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">
+                {_l('通过微信扫码登录时，需先关注公众号')}
               </div>
-            </div>
-            <div className="mTop12">
-              <SwitchStyle>
-                <Icon
-                  icon={!!portalSetModel.subscribeWXOfficial ? 'ic_toggle_on' : 'ic_toggle_off'}
-                  className="Font32 Hand"
-                  onClick={() => {
-                    let data = {
-                      subscribeWXOfficial: !portalSetModel.subscribeWXOfficial,
-                    };
-                    onChangePortalSet({
-                      portalSetModel: {
-                        ...portalSetModel,
-                        ...data,
-                      },
-                    });
-                  }}
-                />
-                <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">
-                  {_l('通过微信扫码登录时，需先关注公众号')}
-                </div>
-              </SwitchStyle>
-            </div>
-          </React.Fragment>
+            </SwitchStyle>
+          </div>
         )}
+        <div className="mTop5">
+          <SwitchStyle>
+            <Icon
+              icon={!!_.get(portalSetModel, 'registerInfo.enable') ? 'ic_toggle_on' : 'ic_toggle_off'}
+              className="Font32 Hand"
+              onClick={() => {
+                let registerInfo = {
+                  ..._.get(portalSetModel, 'registerInfo'),
+                  enable: !_.get(portalSetModel, 'registerInfo.enable'),
+                };
+                onChangePortalSet({
+                  portalSetModel: {
+                    ...portalSetModel,
+                    registerInfo,
+                  },
+                });
+              }}
+            />
+            <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">
+              {_l('外部用户注册开始/停止时间')}
+            </div>
+          </SwitchStyle>
+          {_.get(portalSetModel, 'registerInfo.enable') && (
+            <div className="rangePicker flexRow alignItemsCenter">
+              <DatePicker
+                showTime={true}
+                className={'flex Hand'}
+                locale={locale}
+                bordered={false}
+                placeholder={_l('开始时间')}
+                value={
+                  !_.get(portalSetModel, 'registerInfo.startTime') ||
+                  _.get(portalSetModel, 'registerInfo.startTime').substr(0, 4) === '0001'
+                    ? null
+                    : moment(_.get(portalSetModel, 'registerInfo.startTime'))
+                }
+                onChange={date => {
+                  if (
+                    !!_.get(portalSetModel, 'registerInfo.endTime') &&
+                    moment(_.get(portalSetModel, 'registerInfo.endTime')).isBefore(date)
+                  ) {
+                    return alert(_l('结束时间不能早于开始时间'), 3);
+                  }
+                  let registerInfo = {
+                    ..._.get(portalSetModel, 'registerInfo'),
+                    startTime: date ? moment(date).format('YYYY-MM-DD HH:mm:ss') : '',
+                  };
+                  onChangePortalSet({
+                    portalSetModel: {
+                      ...portalSetModel,
+                      registerInfo,
+                    },
+                  });
+                }}
+              />
+              <span className="pLeft5 pRight5 Gray_d">—</span>
+              <DatePicker
+                showTime={true}
+                locale={locale}
+                className={'flex Hand'}
+                bordered={false}
+                placeholder={_l('结束时间')}
+                value={
+                  !_.get(portalSetModel, 'registerInfo.endTime') ||
+                  _.get(portalSetModel, 'registerInfo.endTime').substr(0, 4) === '0001'
+                    ? null
+                    : moment(_.get(portalSetModel, 'registerInfo.endTime'))
+                }
+                onChange={date => {
+                  if (
+                    !!_.get(portalSetModel, 'registerInfo.startTime') &&
+                    moment(date).isBefore(_.get(portalSetModel, 'registerInfo.startTime'))
+                  ) {
+                    return alert(_l('结束时间不能早于开始时间'), 3);
+                  }
+                  let registerInfo = {
+                    ..._.get(portalSetModel, 'registerInfo'),
+                    endTime: date ? moment(date).format('YYYY-MM-DD HH:mm:ss') : '',
+                  };
+                  onChangePortalSet({
+                    portalSetModel: {
+                      ...portalSetModel,
+                      registerInfo,
+                    },
+                  });
+                }}
+              />
+            </div>
+          )}
+        </div>
+        <div className="mTop5">
+          <SwitchStyle>
+            <Icon
+              icon={!!portalSetModel.twoAuthenticationEnabled ? 'ic_toggle_on' : 'ic_toggle_off'}
+              className="Font32 Hand"
+              onClick={() => {
+                let data = {
+                  twoAuthenticationEnabled: !portalSetModel.twoAuthenticationEnabled,
+                };
+                onChangePortalSet({
+                  portalSetModel: {
+                    ...portalSetModel,
+                    ...data,
+                  },
+                });
+              }}
+            />
+            <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">{_l('两步验证')}</div>
+          </SwitchStyle>
+          {portalSetModel.twoAuthenticationEnabled && (
+            <div style={{ 'margin-left': '44px' }} className="Gray_9e">
+              {_l('外部用户通过账号密码或微信扫码登录后，需要额外进行验证码验证，验证通过后才能成功登录')}
+            </div>
+          )}
+        </div>
         <h6 className="Font16 Gray Bold mBottom0 mTop24">{_l('功能设置')}</h6>
         <div className="mTop12">
           <SwitchStyle>
@@ -520,7 +642,7 @@ export default function BaseSet(props) {
             )}
           </div>
         </div>
-        <div className="mTop12">
+        <div className="mTop5">
           <SwitchStyle>
             <Icon
               icon={!!portalSetModel.approved ? 'ic_toggle_on' : 'ic_toggle_off'}
@@ -536,6 +658,28 @@ export default function BaseSet(props) {
             />
             <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">{_l('允许查看审批流转详情')}</div>
           </SwitchStyle>
+        </div>
+        <div className="mTop5">
+          <SwitchStyle>
+            <Icon
+              icon={!!portalSetModel.watermark && portalSetModel.watermark !== 0 ? 'ic_toggle_on' : 'ic_toggle_off'}
+              className="Font32 Hand"
+              onClick={() => {
+                onChangePortalSet({
+                  portalSetModel: {
+                    ...portalSetModel,
+                    watermark: portalSetModel.watermark === 1 ? 0 : 1,
+                  },
+                });
+              }}
+            />
+            <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">{_l('水印设置')}</div>
+          </SwitchStyle>
+          {portalSetModel.watermark === 1 && (
+            <div style={{ 'margin-left': '44px' }} className="Gray_9e">
+              {_l('启用水印配置后，将在外部门户内显示当前使用者的姓名+手机号后4位或邮箱前缀')}
+            </div>
+          )}
         </div>
         <h6 className="Font16 Gray Bold mBottom0 mTop24">{_l('通知设置')}</h6>
         <div className="mTop12">
@@ -557,7 +701,7 @@ export default function BaseSet(props) {
             </div>
           </SwitchStyle>
         </div>
-        <div className="mTop12">
+        <div className="mTop5">
           <SwitchStyle>
             <Icon
               icon={!!exAccountSmsNotice ? 'ic_toggle_on' : 'ic_toggle_off'}
@@ -576,7 +720,7 @@ export default function BaseSet(props) {
             </div>
           </SwitchStyle>
         </div>
-        <div className="mTop12">
+        <div className="mTop5">
           <SwitchStyle>
             <Icon
               icon={!!noticeScope.discussionNotice ? 'ic_toggle_on' : 'ic_toggle_off'}
@@ -600,7 +744,6 @@ export default function BaseSet(props) {
             </div>
           </SwitchStyle>
         </div>
-
         {noticeScope.discussionNotice && (
           <div className="exAccountSendCon flexRow">
             {epDiscussWorkFlow.workFlowName && (

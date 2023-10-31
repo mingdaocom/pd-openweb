@@ -24,12 +24,21 @@ export default class Widgets extends Component {
   componentDidMount() {
     if (this.file && this.file.upload) {
       this.width = this.file.upload.offsetWidth;
+      this.cacheFile = [];
     }
   }
 
+  handleClear(up) {
+    this.setState({ isUploading: false });
+    up.splice(0, up.files.length);
+    this.cacheFile = [];
+    up.disableBrowse(false);
+  }
+
   handleUploaded = (up, file, info) => {
-    const { worksheetId, controlId, advancedSetting, onChange } = this.props;
+    const { worksheetId, controlId, advancedSetting, formData, onChange } = this.props;
     const newVal = formatResponseData(file, JSON.stringify(info));
+    this.cacheFile.push(newVal);
 
     // api集成
     if (advancedSetting.ocrapitype === '1') {
@@ -44,10 +53,69 @@ export default class Widgets extends Component {
       return;
     }
 
-    ajax.ocr({ worksheetId, controlId, url: file.serverName + file.key, type: 1 }).then(result => {
-      if (result.code === 1) {
-        const ocrmap = JSON.parse(advancedSetting.ocrmap || '{}');
+    if (advancedSetting.ocrmaptype === '2') {
+      // 批量没有配置子表，不执行
+      if (!advancedSetting.ocrcid) return;
+      // 批量,附件信息都收集完了在请求
+      if (_.get(up, 'files.length') !== this.cacheFile.length) return;
+      // 子表数量达到上限
+      const subControl = formData.find(f => f.controlId === advancedSetting.ocrcid);
+      if (_.get(subControl, 'advancedSetting.enablelimit') === '1') {
+        const maxCount = _.get(subControl, 'advancedSetting.max');
+        const subNum = _.isNumber(subControl.value)
+          ? subControl.value
+          : _.get(subControl, 'value.rows.length') || _.get(subControl, 'value.num');
+        if ((subNum || 0) + this.cacheFile.length > parseInt(maxCount || 0)) {
+          alert(_l('子表数量达到上限'), 3);
+          this.handleClear(up);
+          return;
+        }
+      }
+    }
 
+    const data = this.cacheFile.map(i => i.serverName + i.key);
+
+    ajax.ocr({ worksheetId, controlId, data, type: 1 }).then(result => {
+      const ocrmap = JSON.parse(advancedSetting.ocrmap || '{}');
+      // 批量映射子表
+      if (advancedSetting.ocrmaptype === '2') {
+        const rows = _.get(result, 'data');
+        const errorCount = this.cacheFile.length - rows.length;
+        if (errorCount) {
+          alert(_l(`${errorCount}个文件识别错误`), 3);
+        }
+
+        const childRows = [];
+        rows.forEach(row => {
+          let newRow = {};
+          (row.data || []).map(i => {
+            const currentItem = ocrmap.find(o => o.cid === i.controlId);
+            // 附件
+            if (_.includes([1, 1001, 2001], parseInt(currentItem.type))) {
+              newRow[i.controlId] = JSON.stringify({
+                attachments: [this.cacheFile[row.index]],
+                knowledgeAtts: [],
+                attachmentData: [],
+              });
+            } else {
+              newRow[i.controlId] = i.value;
+            }
+          });
+          if (!_.isEmpty(newRow)) {
+            childRows.push(newRow);
+          }
+        });
+
+        const subValue = {
+          action: 'append',
+          rows: childRows,
+        };
+        onChange(subValue, advancedSetting.ocrcid);
+        this.handleClear(up);
+        return;
+      }
+
+      if (result.code === 1) {
         result.data.forEach(item => {
           const currentItem = ocrmap.find(o => o.cid === item.controlId);
           let newValue;
@@ -55,7 +123,7 @@ export default class Widgets extends Component {
           // 附件
           if (_.includes([1, 1001, 2001], parseInt(currentItem.type))) {
             newValue = JSON.stringify({
-              attachments: [newVal],
+              attachments: this.cacheFile,
               knowledgeAtts: [],
               attachmentData: [],
             });
@@ -75,8 +143,7 @@ export default class Widgets extends Component {
         alert(result.errorMsg, 2);
       }
 
-      this.setState({ isUploading: false });
-      up.disableBrowse(false);
+      this.handleClear(up);
     });
   };
 
@@ -248,7 +315,16 @@ export default class Widgets extends Component {
           this.file = file;
         }}
         options={{
-          multi_selection: false,
+          ...(advancedSetting.ocrmaptype === '2'
+            ? {
+                multi_selection: true,
+                max_file_count: 10,
+                error_callback: () => {
+                  alert(_l('批量识别仅支持10个附件'), 3);
+                  return;
+                },
+              }
+            : { multi_selection: false }),
           chunk_size: 0,
           filters: {
             mime_types: [

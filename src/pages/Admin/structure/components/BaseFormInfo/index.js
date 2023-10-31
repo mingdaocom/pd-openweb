@@ -22,20 +22,27 @@ export default class BaseFormInfo extends Component {
   }
   componentDidMount() {
     const { typeCursor, editCurrentUser = {}, actType } = this.props;
-    const { departmentInfos = [], jobInfos = [] } = editCurrentUser;
     if (typeCursor === 2 || actType === 'add') {
       this.getJobList();
       this.getWorksiteList();
     }
-    const {
-      jobNumber,
-      contactPhone,
-      workSiteId,
-      departmentIds,
-      jobIds = [],
-      jobList,
-      worksiteList,
-    } = this.props.baseInfo;
+    this.updateBaseInfo(this.props);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (!_.isEqual(nextProps.baseInfo, this.props.baseInfo)) {
+      this.setState({
+        jobList: nextProps.baseInfo.jobList,
+        worksiteList: nextProps.baseInfo.worksiteList,
+      });
+      this.updateBaseInfo(nextProps);
+    }
+  }
+
+  updateBaseInfo = props => {
+    const { typeCursor, editCurrentUser = {}, actType } = props;
+    const { departmentInfos = [], jobInfos = [] } = editCurrentUser;
+    const { jobNumber, contactPhone, workSiteId, departmentIds, jobIds = [], jobList, worksiteList } = props.baseInfo;
     const depIds =
       typeCursor === 2 || typeCursor === 3 ? departmentInfos.map(it => it.id || it.departmentId) : departmentIds;
     this.getDepartmentFullName(depIds, 'all');
@@ -50,16 +57,7 @@ export default class BaseFormInfo extends Component {
       departmentInfos,
       jobInfos,
     });
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(nextProps.baseInfo, this.props.baseInfo)) {
-      this.setState({
-        jobList: nextProps.baseInfo.jobList,
-        worksiteList: nextProps.baseInfo.worksiteList,
-      });
-    }
-  }
+  };
 
   // 添加部门
   dialogSelectDeptFn = e => {

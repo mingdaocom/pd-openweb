@@ -491,8 +491,17 @@ export default class RelateRecordDropdown extends React.Component {
   }
 
   renderPopup({ disabledManualWrite }) {
-    const { multiple, control, formData, insheet, disableNewRecord, prefixRecords, staticRecords, onVisibleChange } =
-      this.props;
+    const {
+      isQuickFilter,
+      multiple,
+      control,
+      formData,
+      insheet,
+      disableNewRecord,
+      prefixRecords,
+      staticRecords,
+      onVisibleChange,
+    } = this.props;
     const formDataArray = typeof formData === 'function' ? formData() : formData;
     const { keywords, selected, listvisible, newrecordVisible, renderToTop, cellToTop, activeIndex } = this.state;
     const xOffset = this.isMobile ? 0 : this.getXOffset();
@@ -520,6 +529,7 @@ export default class RelateRecordDropdown extends React.Component {
         {listvisible && !disabledManualWrite && (
           <RelateRecordList
             ref={this.list}
+            isQuickFilter={isQuickFilter}
             activeIndex={activeIndex}
             keyWords={keywords}
             searchControl={this.searchControl}

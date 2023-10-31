@@ -380,7 +380,20 @@ export default class Formula extends React.Component {
             />
           </SettingItem>
         )}
-        <PointerConfig data={data} onChange={onChange} />
+        <PointerConfig
+          data={data}
+          onChange={value => {
+            if (value.advancedSetting) {
+              onChange(value);
+            } else {
+              let newVal = value || {};
+              if (!Number(value.dot)) {
+                newVal.dotformat = '0';
+              }
+              onChange({ ...handleAdvancedSettingChange(data, newVal), ...value });
+            }
+          }}
+        />
         <NumberConfig data={data} onChange={onChange} />
         {numshow !== '1' && (
           <SettingItem>

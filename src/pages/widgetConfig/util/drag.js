@@ -13,7 +13,7 @@ const removeSrcItem = (widgets, srcPath) => {
   const [row, col] = srcPath;
   return update(widgets, {
     [row]: {
-      $apply: row => {
+      $apply: (row = []) => {
         row.splice(col, 1);
         return row.length === 1
           ? row.map(item => ({ ...item, size: getDefaultSizeByData(head(row)) }))
@@ -131,10 +131,10 @@ export const insertToCol = ({ widgets, srcPath, ...rest }) => {
 
 export const isFullLineDragItem = item => {
   const { type, data, enumType } = item;
-  if (includes([DRAG_ITEMS.DISPLAY_ITEM, DRAG_ITEMS.DISPLAY_ITEM_RELATE], type)) {
+  if (includes([DRAG_ITEMS.DISPLAY_ITEM, DRAG_ITEMS.DISPLAY_TAB], type)) {
     return isFullLineControl(data);
   }
-  if (type === DRAG_ITEMS.LIST_ITEM) {
+  if (includes([DRAG_ITEMS.LIST_ITEM, DRAG_ITEMS.LIST_TAB], type)) {
     return isFullLineControl({ type: enumWidgetType[enumType] });
   }
   return false;

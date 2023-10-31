@@ -5,7 +5,7 @@ import s from 'src/components/common/mstc/s/s';
 import t from 'src/components/common/mstc/t/t';
 import c from 'src/components/common/mstc/c/c';
 import u from 'src/components/common/mstc/u/u';
-import invite from 'src/components/invite';
+import addFriends from 'src/components/addFriends';
 import CreateGroup from 'src/components/group/create/creatGroup';
 
 export default function UserMenu() {
@@ -72,7 +72,7 @@ export default function UserMenu() {
       <ul className={cx({'BorderTopGrayC mTop5 pTop5': feedVisible || taskVisible || calendarVisible || knowledgeVisible})}>
         <li
           onClick={() => {
-            invite();
+            addFriends({ selectProject: true });
           }}
           className="inviteMember ThemeBGColor3"
         >

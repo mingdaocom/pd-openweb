@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv, Dropdown, Checkbox } from 'ming-ui';
+import { ScrollView, LoadDiv, Dropdown, Checkbox, Radio } from 'ming-ui';
 import cx from 'classnames';
 import { DateTime } from 'ming-ui/components/NewDateTimePicker';
 import { Tooltip } from 'antd';
@@ -15,12 +15,13 @@ import {
   FindMode,
   SpecificFieldsValue,
 } from '../components';
-import { ACTION_ID } from '../../enum';
+import { ACTION_ID, DATE_SHOW_TYPES } from '../../enum';
 import CodeEdit from 'src/pages/widgetConfig/widgetSetting/components/FunctionEditorDialog/Func/common/CodeEdit';
 import FunctionEditorDialog from 'src/pages/widgetConfig/widgetSetting/components/FunctionEditorDialog';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
+import { handleGlobalVariableName } from '../../utils';
 
 const DotBox = styled.div`
   input {
@@ -105,6 +106,8 @@ export default class Formula extends Component {
       selectNodeId,
       execute,
       unit,
+      limit,
+      type,
     } = data;
 
     // 日期/时间
@@ -164,6 +167,8 @@ export default class Formula extends Component {
         selectNodeId,
         execute,
         unit,
+        limit,
+        type,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -182,7 +187,9 @@ export default class Formula extends Component {
     return (
       <CustomTextarea
         className={cx('minH100', { errorBorder: !!data.formulaValue && data.isException && !isFocus })}
+        projectId={this.props.companyId}
         processId={this.props.processId}
+        relationId={this.props.relationId}
         selectNodeId={this.props.selectNodeId}
         operatorsSetMargin={true}
         type={6}
@@ -258,20 +265,7 @@ export default class Formula extends Component {
           </div>
         )}
 
-        <div className="mTop15 flexRow flowDetailNumber">
-          <div className="mRight12">{_l('结果小数点后保留')}</div>
-          <DotBox>
-            <SpecificFieldsValue
-              updateSource={({ fieldValue }) => this.updateSource({ number: fieldValue })}
-              type="number"
-              min={0}
-              max={9}
-              hasOtherField={false}
-              data={{ fieldValue: data.number }}
-            />
-          </DotBox>
-          <div className="mLeft12">{_l('位')}</div>
-        </div>
+        {this.renderNumberDot()}
 
         <div className="mTop20 flexRow">
           <Checkbox
@@ -328,7 +322,7 @@ export default class Formula extends Component {
                 flowNodeType={data.fieldNodeType}
                 appType={data.fieldAppType}
                 actionId={data.fieldActionId}
-                nodeName={data.fieldNodeName}
+                nodeName={handleGlobalVariableName(data.fieldNodeId, data.sourceType, data.fieldNodeName)}
                 controlId={data.fieldControlId}
                 controlName={data.fieldControlName}
               />
@@ -366,7 +360,9 @@ export default class Formula extends Component {
         <SelectOtherFields
           item={{ type: 15 }}
           fieldsVisible={this.state[key]}
+          projectId={this.props.companyId}
           processId={this.props.processId}
+          relationId={this.props.relationId}
           selectNodeId={this.props.selectNodeId}
           handleFieldClick={obj =>
             callback({
@@ -378,6 +374,7 @@ export default class Formula extends Component {
               fieldNodeName: obj.nodeName,
               fieldControlId: obj.fieldValueId,
               fieldControlName: obj.fieldValueName,
+              sourceType: obj.sourceType,
             })
           }
           openLayer={() => this.setState({ [key]: true })}
@@ -415,7 +412,10 @@ export default class Formula extends Component {
 
         <Dropdown
           className="flowDropdown mTop10"
-          data={[{ text: _l('日期+时间'), value: 1 }, { text: _l('日期'), value: 2 }]}
+          data={[
+            { text: _l('日期+时间'), value: 1 },
+            { text: _l('日期'), value: 2 },
+          ]}
           value={data.number}
           border
           onChange={number => this.updateSource({ number })}
@@ -489,7 +489,10 @@ export default class Formula extends Component {
         <div className="mTop10 Gray_9e">{_l('参与计算的日期未设置时间时，格式化方式为：')}</div>
         <Dropdown
           className="flowDropdown mTop10"
-          data={[{ text: _l('开始 00:00，结束24:00'), value: 1 }, { text: _l('开始 00:00，结束00:00'), value: 2 }]}
+          data={[
+            { text: _l('开始 00:00，结束24:00'), value: 1 },
+            { text: _l('开始 00:00，结束00:00'), value: 2 },
+          ]}
           value={data.number}
           border
           onChange={number => this.updateSource({ number })}
@@ -535,6 +538,16 @@ export default class Formula extends Component {
             this.updateSource({ selectNodeId, selectNodeObj });
           }}
         />
+
+        <div className="mTop20 bold">{_l('统计结果')}</div>
+        <div className="mTop15 flexRow">
+          <Checkbox
+            className="InlineFlex"
+            text={_l('按统计对象数量限制返回结果')}
+            checked={data.limit}
+            onClick={checked => this.updateSource({ limit: !checked })}
+          />
+        </div>
       </Fragment>
     );
   }
@@ -544,10 +557,18 @@ export default class Formula extends Component {
    */
   renderFunctionExecContent() {
     const { data, showFormulaDialog, fieldsData, functionError } = this.state;
+    const TYPES = [
+      { text: _l('文本'), value: 2 },
+      { text: _l('数值'), value: 6 },
+      { text: _l('日期'), value: 15 },
+      { text: _l('日期时间'), value: 16 },
+    ];
 
     return (
       <Fragment>
-        <div className="Font14 Gray_75 workflowDetailDesc">{_l('通过函数对 文本/数值 等流程节点对象的值进行处理')}</div>
+        <div className="Font14 Gray_75 workflowDetailDesc">
+          {_l('通过函数对 文本/数值/日期时间 等流程节点对象的值进行处理')}
+        </div>
         <div className="mTop20 bold">{_l('计算')}</div>
 
         <div
@@ -562,6 +583,40 @@ export default class Formula extends Component {
             onClick={this.editFormulaDialog}
           />
         </div>
+
+        <div className="mTop20 bold">{_l('运算结果类型')}</div>
+        <div className="mTop15 flexRow">
+          {TYPES.map((item, i) => (
+            <div style={{ marginRight: 64 }} key={i}>
+              <Radio
+                checked={data.type === item.value}
+                text={item.text}
+                onClick={() =>
+                  this.updateSource({ type: item.value, number: _.includes([15, 16], item.value) ? 0 : 2 })
+                }
+              />
+            </div>
+          ))}
+        </div>
+
+        {data.type === 6 && this.renderNumberDot()}
+        {_.includes([15, 16], data.type) && (
+          <Fragment>
+            <div className="mTop15 flexRow alignItemsCenter">
+              <div>{_l('显示格式')}</div>
+              <Dropdown
+                style={{ width: 260 }}
+                className="flowDropdown mLeft12"
+                data={DATE_SHOW_TYPES.map(item => {
+                  return { ...item, text: item.text + ` (${moment().format(item.format)}) ` };
+                })}
+                value={data.number}
+                border
+                onChange={number => this.updateSource({ number })}
+              />
+            </div>
+          </Fragment>
+        )}
 
         {showFormulaDialog && (
           <FunctionEditorDialog
@@ -582,6 +637,30 @@ export default class Formula extends Component {
   }
 
   /**
+   * 渲染小数位数
+   */
+  renderNumberDot() {
+    const { data } = this.state;
+
+    return (
+      <div className="mTop15 flexRow flowDetailNumber">
+        <div className="mRight12">{_l('结果小数点后保留')}</div>
+        <DotBox>
+          <SpecificFieldsValue
+            updateSource={({ fieldValue }) => this.updateSource({ number: fieldValue })}
+            type="number"
+            min={0}
+            max={9}
+            hasOtherField={false}
+            data={{ fieldValue: data.number }}
+          />
+        </DotBox>
+        <div className="mLeft12">{_l('位')}</div>
+      </div>
+    );
+  }
+
+  /**
    * 渲染单个标签
    */
   renderTag = tag => {
@@ -596,7 +675,7 @@ export default class Formula extends Component {
         flowNodeType={nodeObj.type}
         appType={nodeObj.appType}
         actionId={nodeObj.actionId}
-        nodeName={nodeObj.name}
+        nodeName={handleGlobalVariableName(ids[0], controlObj.sourceType, nodeObj.name)}
         controlId={ids[1]}
         controlName={controlObj.name}
       />

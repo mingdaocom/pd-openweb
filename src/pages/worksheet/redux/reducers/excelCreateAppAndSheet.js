@@ -1,5 +1,8 @@
 import _ from 'lodash';
-import { COLORS } from 'src/pages/AppHomepage/components/SelectIcon/config';
+import { getThemeColors } from 'src/util';
+
+const projectId = localStorage.getItem('currentProjectId') || _.get(md, 'global.Account.projects[0].projectId');
+const COLORS = getThemeColors(projectId);
 
 export const excelDetailData = (state = [], action) => {
   switch (action.type) {

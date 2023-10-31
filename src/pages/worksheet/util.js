@@ -3,18 +3,28 @@ import moment from 'moment';
 import filterXss from 'xss';
 import copy from 'copy-to-clipboard';
 import axios from 'axios';
-import { toFixed } from 'src/util';
+import { getRequest, isLightColor, toFixed } from 'src/util';
+import { generate } from '@ant-design/colors';
+import { UNIT_TYPE } from '../widgetConfig/config/setting';
+import tinycolor from '@ctrl/tinycolor';
 import appManagementAjax from 'src/api/appManagement';
+import webCache from 'src/api/webCache';
 import { FROM } from 'src/components/newCustomFields/tools/config';
 import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
 import { FORM_ERROR_TYPE_TEXT } from 'src/components/newCustomFields/tools/config';
-import { controlState } from 'src/components/newCustomFields/tools/utils';
-import { updateRulesData } from 'src/components/newCustomFields/tools/filterFn';
+import { controlState, getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
+import { checkRuleLocked, updateRulesData } from 'src/components/newCustomFields/tools/filterFn';
 import { RELATE_RECORD_SHOW_TYPE, RELATION_SEARCH_SHOW_TYPE } from 'worksheet/constants/enum';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import renderCellText from 'worksheet/components/CellControls/renderText';
-import { SYSTEM_CONTROLS, RECORD_INFO_FROM } from 'worksheet/constants/enum';
+import {
+  SYSTEM_CONTROLS,
+  RECORD_INFO_FROM,
+  RECORD_COLOR_SHOW_TYPE,
+  VIEW_CONFIG_RECORD_CLICK_ACTION,
+} from 'worksheet/constants/enum';
 import _, { head } from 'lodash';
+import { Base64 } from 'js-base64';
 
 export { calcDate, formatControlValue, getSelectedOptions } from './util-purejs';
 
@@ -228,62 +238,54 @@ export function filterRelatesheetMutipleControls(controls) {
 /**
  * 格式化日期公式控件
  */
-export function formatFormulaDate({ value, unit, hideUnitStr, dot = 0 }) {
-  let content = '';
+export function formatFormulaDate({ value, unit = '6', hideUnitStr, dot = 0 }) {
   const isNegative = value < 0; // 处理负数
   value = toFixed(Math.floor(value * Math.pow(10, dot)) / Math.pow(10, dot), dot);
   if (isNegative) {
     value = -1 * value;
   }
-  const units = [_l('分钟'), _l('小时'), _l('天'), _l('月'), _l('年'), _l('秒')];
-  let unitStr = units[parseInt(unit, 10) - 1] || '';
+  const unitType = _.find(UNIT_TYPE, type => type.value === unit);
+  if (!unitType) {
+    return value;
+  }
+  const unitStr = unitType.text;
+  const unitTimes = {
+    6: 1, // 秒
+    5: 12 * 30 * 24 * 60 * 60, // 年
+    4: 30 * 24 * 60 * 60, // 月
+    3: 24 * 60 * 60, // 天
+    2: 60 * 60, // 时
+    1: 60, // 分
+  };
+  let allSeconds = Number(value) * unitTimes[unit];
+  const years = Math.floor(allSeconds / unitTimes[5]);
+  allSeconds -= years * unitTimes[5];
+  const months = Math.floor(allSeconds / unitTimes[4]);
+  allSeconds -= months * unitTimes[4];
+  const days = Math.floor(allSeconds / unitTimes[3]);
+  allSeconds -= days * unitTimes[3];
+  const hours = Math.floor(allSeconds / unitTimes[2]);
+  allSeconds -= hours * unitTimes[2];
+  const minutes = Math.floor(allSeconds / unitTimes[1]);
+  allSeconds -= minutes * unitTimes[1];
+  let result = [
+    { value: years, unit: _l('年') },
+    { value: months, unit: _l('月') },
+    { value: days, unit: _l('天') },
+    { value: hours, unit: _l('时') },
+    { value: minutes, unit: _l('分') },
+    { value: allSeconds, unit: _l('秒') },
+  ]
+    .slice(0, 6 - Number(unit) || 6)
+    .filter(item => item.value !== 0 || item.unit === unitStr)
+    .map(item => item.value + item.unit)
+    .join('');
   if (hideUnitStr) {
-    unitStr = '';
+    result = result.slice(0, -1);
   }
-  const hourMinute = 60;
-  const dayMinute = 60 * 24;
-  const dayHour = 24;
-  switch (unit) {
-    case '1':
-      if (+value < hourMinute) {
-        content = value + unitStr;
-      } else if (+value < dayMinute) {
-        content =
-          Math.floor(value / hourMinute) +
-          units[1] +
-          (value % hourMinute >= 0 ? toFixed(value % hourMinute, dot) + unitStr : '');
-      } else {
-        content =
-          Math.floor(value / dayMinute) +
-          units[2] +
-          (Math.floor((value % dayMinute) / hourMinute) >= 0
-            ? Math.floor((value % dayMinute) / hourMinute) + units[1]
-            : '') +
-          (value % hourMinute >= 0 ? toFixed(value % hourMinute, dot) + unitStr : '');
-      }
-      break;
-    case '2':
-      if (+value < dayHour) {
-        content = value + unitStr;
-      } else {
-        content =
-          Math.floor(value / dayHour) +
-          units[2] +
-          (value % dayHour >= 0 ? toFixed(value % dayHour, dot) + unitStr : '');
-      }
-      break;
-    case '4':
-      if (+value < 12) {
-        content = value + unitStr;
-      } else {
-        content = Math.floor(value / 12) + units[4] + (value % 12 >= 0 ? toFixed(value % 12, dot) + unitStr : '');
-      }
-      break;
-    default:
-      content = _.isNumber(parseFloat(value)) && !_.isNaN(parseFloat(value)) ? value + unitStr : '';
-  }
-  return content && (isNegative ? '-' : '') + content;
+  return result && (isNegative ? '-' : '') + result;
 }
+
 /**
  * regexFilter 正则方式过滤 html标签
  * 优点：快
@@ -502,7 +504,7 @@ export function formatRecordToRelateRecord(controls, records = [], { addedIds = 
 export function getSubListError({ rows, rules }, controls = [], showControls = [], from = 3) {
   const result = {};
   try {
-    rows.forEach(async row => {
+    filterEmptyChildTableRows(rows).forEach(async row => {
       const rulesResult = checkRulesErrorOfRow({
         from,
         rules,
@@ -513,6 +515,10 @@ export function getSubListError({ rows, rules }, controls = [], showControls = [
       const controldata = rulesResult.formData.filter(
         c => _.find(showControls, id => id === c.controlId) && controlState(c).visible && controlState(c).editable,
       );
+      const isLock = checkRuleLocked(rules, controldata, row.rowid);
+      if (isLock) {
+        return;
+      }
       const formdata = new DataFormat({
         data: controldata.map(c => ({ ...c, isSubList: true })),
         from: FROM.NEWRECORD,
@@ -694,14 +700,18 @@ export function copySublistRow(controls, row) {
   return newRow;
 }
 
-export function getRecordTempValue(data = [], relateRecordMultipleData = {}) {
+export function getRecordTempValue(data = [], relateRecordMultipleData = {}, { updateControlIds } = {}) {
   const results = {};
   data
-    .filter(c => !checkCellIsEmpty(c.value))
+    .filter(
+      c =>
+        (updateControlIds ? _.includes(updateControlIds, c.controlId) : !checkCellIsEmpty(c.value)) &&
+        c.controlId.length === 24,
+    )
     .forEach(control => {
       if (control.type === WIDGETS_TO_API_TYPE_ENUM.SUB_LIST) {
-        if (control.value && control.value.rows && control.value.rows.length) {
-          results[control.controlId] = control.value.rows.map(r => {
+        if (control.value && control.value.rows && filterEmptyChildTableRows(control.value.rows).length) {
+          results[control.controlId] = filterEmptyChildTableRows(control.value.rows).map(r => {
             const newRow = _.pickBy(r, v => !checkCellIsEmpty(v));
             const relateRecordKeys = _.keys(_.pickBy(r, v => typeof v === 'string' && v.indexOf('sourcevalue') > -1));
             relateRecordKeys.forEach(key => {
@@ -728,7 +738,11 @@ export function getRecordTempValue(data = [], relateRecordMultipleData = {}) {
       } else if (control.type === WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET) {
         try {
           results[control.controlId] = JSON.stringify(
-            JSON.parse(control.value).map(r => _.pick(r, ['name', 'type', 'sid'])),
+            JSON.parse(control.value).map(r => ({
+              type: r.type,
+              sid: r.sid,
+              name: getTitleTextFromRelateControl(control, r.name ? r : r.row || safeParse(r.sourcevalue)),
+            })),
           );
         } catch (err) {}
       } else if (
@@ -747,24 +761,34 @@ export function getRecordTempValue(data = [], relateRecordMultipleData = {}) {
   return results;
 }
 
-export function parseRecordTempValue(value, originFormData) {
+export function parseRecordTempValue(data = {}, originFormData, defaultRelatedSheet = {}) {
   let formdata = [];
   let relateRecordData = {};
   try {
-    const data = JSON.parse(value);
-    formdata = originFormData.map(c =>
-      c.type === WIDGETS_TO_API_TYPE_ENUM.SUB_LIST && data[c.controlId]
-        ? {
+    formdata = originFormData.map(c => {
+      if (c.type === WIDGETS_TO_API_TYPE_ENUM.SUB_LIST && data[c.controlId]) {
+        return {
+          ...c,
+          value: {
+            isAdd: true,
+            controls: c.relationControls,
+            rows: data[c.controlId],
+            action: 'clearAndSet',
+          },
+        };
+      } else if (c.sourceControlId === defaultRelatedSheet.relateSheetControlId) {
+        try {
+          return {
             ...c,
-            value: {
-              isAdd: true,
-              controls: c.relationControls,
-              rows: data[c.controlId],
-              action: 'clearAndSet',
-            },
-          }
-        : { ...c, value: data[c.controlId] },
-    );
+            value: JSON.stringify([defaultRelatedSheet.value]),
+          };
+        } catch (err) {
+          return { ...c, value: data[c.controlId] };
+        }
+      } else {
+        return { ...c, value: data[c.controlId] };
+      }
+    });
     originFormData.forEach(c => {
       if (c.type === WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET && c.enumDefault === 2 && data[c.controlId]) {
         relateRecordData[c.controlId] = {
@@ -776,8 +800,14 @@ export function parseRecordTempValue(value, originFormData) {
   } catch (err) {}
   return { formdata, relateRecordData };
 }
+const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
+const debouncedKVSet = _.debounce(KVSet, 1000);
 
-export function saveToLocal(key, id, value, max = 5) {
+export function saveTempRecordValueToLocal(key, id, value, max = 5) {
+  if (isWxWork) {
+    debouncedKVSet(`${md.global.Account.accountId}${id}-${key}`, value);
+    return;
+  }
   let savedIds = [];
   if (localStorage.getItem(key)) {
     try {
@@ -802,7 +832,11 @@ export function saveToLocal(key, id, value, max = 5) {
   }
 }
 
-export function removeFromLocal(key, id) {
+export function removeTempRecordValueFromLocal(key, id) {
+  if (isWxWork) {
+    KVClear(`${md.global.Account.accountId}${id}-${key}`);
+    return;
+  }
   let savedIds = [];
   if (localStorage.getItem(key)) {
     try {
@@ -834,6 +868,7 @@ export function checkRulesErrorOfRow({ from, rules, controls, control, row }) {
   const formData = updateRulesData({
     from,
     rules,
+    recordId: row.rowid,
     data: controls.map(c => ({ ...c, value: row[c.controlId] })),
     updateControlIds: control ? [control.controlId] : [],
     checkAllUpdate: !control,
@@ -914,9 +949,9 @@ export function runCode(code) {
 }
 
 const execWorkerCode = `onmessage = function (e) {
-  const result = new Function(e.data)();
   try {
-    if (typeof result === 'object' && typeof result.then === 'function') {
+  const result = new Function(e.data)();
+  if (typeof result === 'object' && typeof result.then === 'function') {
       postMessage('promise begin');
       Promise.all([result]).then(function ([value]) {
         postMessage('promise value ' + value);
@@ -944,28 +979,95 @@ function genFunctionWorker() {
   return new Worker('data:application/javascript,' + encodeURIComponent(execWorkerCode));
 }
 
-export function asyncRun(code, cb, { timeout = 3000 } = {}) {
-  const functionWorker = genFunctionWorker();
-  const timer = setTimeout(() => {
-    functionWorker.terminate();
-    cb(timeout + 'ms time out');
-  }, timeout);
-  functionWorker.onmessage = msg => {
-    if (msg.data.type === 'over') {
-      cb(null, msg.data.value);
-      clearTimeout(timer);
-      functionWorker.terminate();
+class Runner {
+  constructor({ max = 10 } = {}) {
+    this.max = max;
+    this.runningCount = 0;
+    this.queue = [];
+    this.workers = [];
+    this.list = [];
+    this.isRunning = false;
+  }
+  getWorker() {
+    const idleWorker = this.workers.filter(w => w.idle)[0];
+    if (idleWorker) {
+      return idleWorker;
+    } else if (this.workers.length < this.max) {
+      const newWorker = {
+        worker: genFunctionWorker(),
+        idle: false,
+        id: Math.random(),
+      };
+      this.workers.push(newWorker);
+      return newWorker;
     }
-    if (msg.data.type === 'error') {
-      console.error(msg.err);
-      cb(msg.err);
-      clearTimeout(timer);
-      functionWorker.terminate();
-    } else {
-      // console.log(msg.data);
+  }
+  run() {
+    const workerObj = this.getWorker();
+    if (!workerObj) {
+      return;
     }
-  };
-  functionWorker.postMessage(code);
+    const item = this.list.shift();
+    if (!item) {
+      this.isRunning = false;
+      return;
+    }
+    const { code, cb, timeout } = item;
+    workerObj.idle = false;
+    this.isRunning = true;
+    this.runningCount++;
+    const afterRun = () => {
+      workerObj.idle = true;
+      this.runningCount--;
+      this.run();
+    };
+    let timer;
+    workerObj.worker.onmessage = msg => {
+      if (msg.data.type === 'begin') {
+        timer = setTimeout(() => {
+          workerObj.worker.terminate();
+          this.workers = this.workers.filter(w => w.id !== workerObj.id);
+          afterRun();
+          cb(timeout + 'ms time out');
+        }, timeout);
+      }
+      if (msg.data.type === 'over') {
+        afterRun();
+
+        cb(null, msg.data.value);
+        clearTimeout(timer);
+      }
+      if (msg.data.type === 'error') {
+        console.error(msg.err);
+        afterRun();
+        cb(msg.err);
+        clearTimeout(timer);
+      }
+    };
+    workerObj.worker.postMessage(code);
+  }
+  push({ code, cb, timeout }) {
+    this.list.push({ code, cb, timeout });
+    if (this.runningCount < this.max) {
+      this.run();
+    }
+  }
+}
+
+const runner = new Runner();
+
+/**
+ * 2023 9 25
+ * 函数运行方式改为走队列，最多只创建 10 个worker，解决了子表多记录时运行几百个函数导致的卡顿和超时问题。
+ * 问题：
+ * 现在瓶颈在表格更新端，函数运行挺快的但更新到表格时还是挨个单元格更新。
+ */
+
+export function asyncRun(code, cb, { timeout = 1000 } = {}) {
+  runner.push({ code, cb, timeout });
+  // 测试使用，下面的写法是同步运行函数。
+  // const result = eval('function run() { ' + code + ' } run()');
+  // cb(null, result);
 }
 
 /**
@@ -999,6 +1101,12 @@ export function parseAdvancedSetting(setting = {}) {
     batchcids: safeParseArray(setting.batchcids), // 子表从指定字段添加记录
     hidenumber: setting.hidenumber === '1', // 隐藏序号
     rowheight: Number(setting.rowheight || 0), // 行高
+    blankrow: Number(setting.blankrow || 1),
+    enablelimit: setting.enablelimit === '1', // 隐藏序号
+    min: Number(setting.min || 0), // 最小行数
+    max: Number(setting.max || 1000), // 最大行数
+    rownum: Number(setting.rownum || 15), // 最大高度行数/每页行数
+    showtype: setting.showtype || '1', // 显示方式 1滚动 2翻页
   };
 }
 
@@ -1152,7 +1260,8 @@ export function getRowGetType(from) {
     (from === RECORD_INFO_FROM.WORKSHEET_ROW_LAND && location.search && location.search.indexOf('share') > -1) ||
     _.get(window, 'shareState.isPublicView') ||
     _.get(window, 'shareState.isPublicWorkflowRecord') ||
-    _.get(window, 'shareState.isPublicRecord')
+    _.get(window, 'shareState.isPublicRecord') ||
+    _.get(window, 'shareState.isPublicPrint')
   ) {
     return 3;
   } else {
@@ -1211,11 +1320,18 @@ export function formatQuickFilter(items = []) {
   );
 }
 
-export function getRelateRecordCountFromValue(value) {
-  let count;
+export function getRelateRecordCountFromValue(value, propsCount) {
+  let count = 0;
   try {
-    const parsedValue = safeParse(value, 'array');
-    const savedCount = parsedValue[0].count || _.get(parsedValue, 'length');
+    let savedCount;
+    const parsedData = safeParse(value, 'array');
+    if (!_.isUndefined(_.get(parsedData, '0.count'))) {
+      savedCount = parsedData[0].count;
+    } else if (!_.isUndefined(propsCount)) {
+      savedCount = propsCount;
+    } else {
+      savedCount = parsedData[0].count || parsedData.length;
+    }
     if (!_.isUndefined(savedCount) && !_.isNaN(Number(savedCount))) {
       count = Number(savedCount);
     }
@@ -1285,3 +1401,164 @@ export const moveSheetCache = (appId, groupId) => {
   storage.lastWorksheetId = '';
   safeLocalStorageSetItem(`mdAppCache_${md.global.Account.accountId}_${appId}`, JSON.stringify(storage));
 };
+
+export function getRecordColor({ controlId, controls, colorItems, row }) {
+  const colorControl = _.find(controls, { controlId });
+  if (!colorControl || colorControl.enumDefault2 !== 1) {
+    return;
+  }
+  if (!row[colorControl.controlId]) {
+    return;
+  }
+  let activeKey = safeParse(row[colorControl.controlId])[0];
+  if (activeKey && typeof activeKey === 'string' && activeKey.startsWith('other')) {
+    activeKey = 'other';
+  }
+  const activeOption = colorControl.options.find(
+    c => c.key === activeKey && (colorItems === '' || _.includes(colorItems, c.key)),
+  );
+  const lightColor = activeOption && activeOption.color && generate(activeOption.color)[0];
+  return (
+    activeOption &&
+    activeOption.color && {
+      color: activeOption.color,
+      lightColor: isLightColor(activeOption.color) ? lightColor : tinycolor(lightColor).setAlpha(0.8).toRgbString(),
+    }
+  );
+}
+
+export function getRecordColorConfig(view = {}) {
+  const controlId = _.get(view, 'advancedSetting.colorid');
+  const colorItems = _.get(view, 'advancedSetting.coloritems')
+    ? safeParse(_.get(view, 'advancedSetting.coloritems'), 'array')
+    : '';
+  const colorType = _.get(view, 'advancedSetting.colortype');
+  return (
+    controlId && {
+      controlId,
+      colorItems,
+      showLine: _.includes([RECORD_COLOR_SHOW_TYPE.LINE, RECORD_COLOR_SHOW_TYPE.LINE_BG], colorType),
+      showBg: _.includes([RECORD_COLOR_SHOW_TYPE.BG, RECORD_COLOR_SHOW_TYPE.LINE_BG], colorType),
+    }
+  );
+}
+
+export function filterRowsByKeywords({ rows, keywords = '', controls }) {
+  if (!keywords) {
+    return rows;
+  }
+  return rows.filter(
+    row =>
+      controls
+        .filter(c => c.controlId.length === 24)
+        .map(c => renderCellText({ ...c, value: row[c.controlId] || '' }))
+        .join('')
+        .toLocaleLowerCase()
+        .indexOf(keywords.toLocaleLowerCase()) > -1,
+  );
+}
+
+/**
+ * 后端 key value 存储服务
+ * 存
+ */
+export function KVSet(key, value, { needEncode = true, expireTime } = {}) {
+  let newKey = key;
+  let newValue = value;
+  if (needEncode) {
+    newKey = Base64.encode(key);
+    newValue = Base64.encode(value);
+  }
+  return webCache.add({
+    key: newKey,
+    value: newValue,
+    expireTime: expireTime || moment(new Date(Date.now() + 3 * 24 * 60 * 60 * 1000)).format('YYYY-MM-DD HH:mm:ss'),
+  });
+}
+
+/**
+ * 后端 key value 存储服务
+ * 取
+ */
+
+export function KVGet(key, { needEncode = true } = {}) {
+  let newKey = key;
+  if (needEncode) {
+    newKey = Base64.encode(key);
+  }
+  return webCache.get({ key: newKey }).then(data => (data ? Base64.decode(data) : ''));
+}
+
+/**
+ * 后端 key value 存储服务
+ * 清空
+ */
+
+export function KVClear(key, { needEncode = true } = {}) {
+  let newKey = key;
+  if (needEncode) {
+    newKey = Base64.encode(key);
+  }
+  return webCache.clear({ key: newKey }, { silent: true });
+}
+
+export const getFilledRequestParams = params => {
+  const request = getRequest();
+  const requestParams = {};
+
+  if (_.isEmpty(request)) {
+    return params;
+  }
+
+  Object.keys(request).forEach(key => {
+    if (_.isArray(request[key])) {
+      requestParams[key.trim()] = request[key][request[key].length - 1];
+    } else if (request[key] !== null) {
+      requestParams[key.trim()] = request[key];
+    }
+  });
+
+  return { ...params, requestParams };
+};
+
+export const getButtonColor = mainColor => {
+  let borderColor = mainColor;
+  let fontColor = '#fff';
+  if (mainColor === 'transparent') {
+    fontColor = '#333';
+    borderColor = '#ccc';
+  }
+  return {
+    backgroundColor: mainColor || '#2196f3',
+    borderColor,
+    color: fontColor,
+  };
+};
+
+export const openLinkFromRecord = (linkControlId, record = {}) => {
+  if (linkControlId) {
+    const link = record[linkControlId];
+    if (link && /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i.test(link.replace(/\? /, ''))) {
+      window.open(link);
+    }
+  }
+};
+
+export const handleRecordClick = (view, row, openRecord = () => {}) => {
+  const clickType = _.get(view, 'advancedSetting.clicktype') || VIEW_CONFIG_RECORD_CLICK_ACTION.OPEN_RECORD;
+  if (clickType === VIEW_CONFIG_RECORD_CLICK_ACTION.OPEN_RECORD) {
+    openRecord();
+  } else if (clickType === VIEW_CONFIG_RECORD_CLICK_ACTION.OPEN_LINK) {
+    const linkControlId = _.get(view, 'advancedSetting.clickcid');
+    openLinkFromRecord(linkControlId, row);
+  }
+};
+
+export function filterEmptyChildTableRows(rows = []) {
+  try {
+    return rows.filter(row => !(row.rowid || '').startsWith('empty'));
+  } catch (err) {
+    console.error(err);
+    return [];
+  }
+}

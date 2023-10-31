@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import { LoadDiv } from 'ming-ui';
+import { LoadDiv, Dialog } from 'ming-ui';
 import domtoimage from 'dom-to-image';
 import { saveAs } from 'file-saver';
 import styled from 'styled-components';
-import ToolBar from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/components/ToolBar';
+// import ToolBar from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/components/ToolBar';
 import EditCon from './EditCon/index.jsx';
 import TaskNode from './TaskNode';
 import { formatTaskNodeData, formatDataWithLine } from './util';
@@ -56,7 +56,6 @@ class TaskCanvas extends Component {
 
   componentDidMount() {
     const { flowData = {}, flowId } = this.props;
-    // console.log(flowData);
     const { flowNodes, firstNodeId } = flowData;
     this.setState({
       flowNodes,
@@ -155,13 +154,36 @@ class TaskCanvas extends Component {
       nodeType,
       nodeConfig,
     }).then(res => {
-      const { errorMsg, isSucceeded, toAdd, toDeleteIds, toUpdate, srcIsDb } = res;
+      const { errorMsg, errorMsgList, isSucceeded, toAdd, toDeleteIds, toUpdate, srcIsDb } = res;
       this.onCompute({
-        toUpdate: !!toUpdate ? [...toUpdate, node] : [node],
+        toUpdate: !!toUpdate
+          ? !toUpdate.find(o => o.nodeId === node.nodeId)
+            ? [...toUpdate, node]
+            : toUpdate
+          : [node],
         toAdd: !!toAdd ? toAdd : [],
         toDeleteIds: !!toDeleteIds ? toDeleteIds : [],
         srcIsDb,
       });
+      if (!isSucceeded && errorMsgList) {
+        return Dialog.confirm({
+          title: _l('报错信息'),
+          className: 'connectorErrorDialog',
+          description: (
+            <div className="errorInfo" style={{ marginBottom: -30 }}>
+              {errorMsgList.map((error, index) => {
+                return (
+                  <div key={index} className="mTop5">
+                    {error}
+                  </div>
+                );
+              })}
+            </div>
+          ),
+          removeCancelBtn: true,
+          okText: _l('关闭'),
+        });
+      }
     });
   };
   genScreenshot = () => {

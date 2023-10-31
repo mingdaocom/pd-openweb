@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import dayjs from 'dayjs';
+import qs from 'query-string';
 import { formatControlValue } from 'src/pages/worksheet/util-purejs';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { functions } from './enum';
@@ -20,6 +21,11 @@ function replaceControlIdToValue(expression, formData, inString) {
     }
     return typeof value === 'string' ? value : `(${value})`;
   });
+  if (expression.indexOf('SYSTEM_URL_PARAMS') > -1) {
+    try {
+      expression = `var SYSTEM_URL_PARAMS=${JSON.stringify(qs.parse(location.search))};` + expression;
+    } catch (err) {}
+  }
   return expression;
 }
 

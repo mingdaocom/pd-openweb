@@ -185,14 +185,31 @@
     &:hover {
       background: rgba(0, 0, 0, 0.05);
     }
+
+    .ant-menu-title-content {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
     span.viewName {
       margin-left: 12px;
       color: #333;
     }
+    .newIcon {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 24px;
+      height: 16px;
+      margin-right: 12px;
+      border-radius: 2px 2px 2px 2px;
+      background: rgba(33, 150, 243, 0.12);
+    }
   }
 }
 .drawerWorksheetHidden {
-  z-index: 9;
   .ant-drawer-body {
     padding: 6px 8px;
   }
@@ -369,7 +386,7 @@
   .addViewIcon:hover,
   .allVieListwIcon:hover,
   .sheetHeader .icon-back-02:hover,
-  .sheetHeader .moreOperate>.icon:hover,
+  .sheetHeader .moreOperate > .icon:hover,
   .sheetHeader .searchInputComp.queryInput.default .icon-search:hover,
   .sheetHeader .openStatisticsBtn:hover,
   .sheetHeader .icon-discussion:hover,

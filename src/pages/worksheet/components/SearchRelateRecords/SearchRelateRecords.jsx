@@ -1,8 +1,7 @@
 import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { func, string } from 'prop-types';
 import styled from 'styled-components';
-import { Modal, Icon, Input } from 'ming-ui';
-import Skeleton from 'src/router/Application/Skeleton';
+import { Modal, Icon, Input, Skeleton } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
 import RecordCoverCardList from './RecordCoverCardList';
 import _, { debounce } from 'lodash';

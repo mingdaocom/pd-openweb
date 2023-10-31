@@ -277,8 +277,12 @@ export function columnWidthFactory({
 }
 
 export function getControlFieldPermissionsAfterRules(row, controls, rules) {
-  const formData = updateRulesData({ rules, data: controls.map(c => ({ ...c, value: row[c.controlId] })) });
-  const isLock = !/^temp/.test(row.rowid) && checkRuleLocked(rules, formData);
+  const formData = updateRulesData({
+    rules,
+    recordId: row.rowid,
+    data: controls.map(c => ({ ...c, value: row[c.controlId] })),
+  });
+  const isLock = !/^temp/.test(row.rowid) && checkRuleLocked(rules, formData, row.rowid);
   const fieldPermissions = {};
   formData.forEach(item => {
     if (isLock) {
@@ -294,7 +298,7 @@ export function getControlFieldPermissionsAfterRules(row, controls, rules) {
 export function getRulePermissions({ data = [], controls, rules, isSubList, columns } = {}) {
   const result = {};
   data.forEach(row => {
-    const controlFieldPermissions = getControlFieldPermissionsAfterRules(row, isSubList ? columns : controls, rules);
+    const controlFieldPermissions = getControlFieldPermissionsAfterRules(row, controls, rules);
     if (!_.isEmpty(controlFieldPermissions)) {
       Object.keys(controlFieldPermissions).forEach(key => {
         result[key] = controlFieldPermissions[key];

@@ -153,6 +153,9 @@ export const accountResultAction = res => {
     case 17:
       msg = _l('微信扫码登录方式关闭');
       break;
+    case 18:
+      msg = _l('当前门户不在设置的注册时间范围内，暂不支持注册');
+      break;
     case 20:
       msg = _l('手机号/邮箱或者验证码错误');
       break;

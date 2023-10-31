@@ -92,6 +92,8 @@ export default class extends Component {
   componentWillReceiveProps(nextProps) {
     const { displaySetup } = nextProps.reportData;
     const { displaySetup: oldDisplaySetup } = this.props.reportData;
+    const chartColor = _.get(nextProps, 'customPageConfig.chartColor');
+    const oldChartColor = _.get(this.props, 'customPageConfig.chartColor');
     // 显示设置
     if (
       displaySetup.showLegend !== oldDisplaySetup.showLegend ||
@@ -99,7 +101,9 @@ export default class extends Component {
       displaySetup.showNumber !== oldDisplaySetup.showNumber ||
       displaySetup.magnitudeUpdateFlag !== oldDisplaySetup.magnitudeUpdateFlag ||
       displaySetup.ydisplay.minValue !== oldDisplaySetup.ydisplay.minValue ||
-      displaySetup.ydisplay.maxValue !== oldDisplaySetup.ydisplay.maxValue
+      displaySetup.ydisplay.maxValue !== oldDisplaySetup.ydisplay.maxValue ||
+      !_.isEqual(chartColor, oldChartColor) ||
+      nextProps.themeColor !== this.props.themeColor
     ) {
       const config = this.getComponentConfig(nextProps);
       this.RadarChart.update(config);
@@ -154,12 +158,14 @@ export default class extends Component {
     }
   }
   getComponentConfig(props) {
-    const { map, displaySetup, yaxisList, style, split, xaxes } = props.reportData;
+    const { themeColor, projectId, customPageConfig, reportData } = props;
+    const { chartColor } = customPageConfig;
+    const { map, displaySetup, yaxisList, style, split, xaxes } = reportData;
     const { position } = getLegendType(displaySetup.legendType);
     const { ydisplay } = displaySetup;
     const data = formatChartData(map, yaxisList, split.controlId, xaxes.controlId, ydisplay.minValue, ydisplay.maxValue);
     const newYaxisList = formatYaxisList(data, yaxisList);
-    const colors = getChartColors(style);
+    const colors = getChartColors(chartColor || style, themeColor, projectId);
     const baseConfig = {
       data,
       appendPadding: [5, 0, 5, 0],

@@ -13,6 +13,8 @@ import _ from 'lodash';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum.js';
+import { getFilledRequestParams } from 'worksheet/util';
+
 const Con = styled.div(
   ({ width }) => `
   width: ${width}px;
@@ -152,6 +154,7 @@ function GroupFilter(props) {
     navGroupCounts,
     getNavGroupCount,
     sheetSwitchPermit = [],
+    navGroupFilters,
   } = props;
   const inputRef = useRef(null);
   const { appId, worksheetId, viewId } = base;
@@ -168,6 +171,11 @@ function GroupFilter(props) {
     setNavName('');
     setKeywords('');
   }, [navGroup, navGroup.controlId, navGroup.viewId, navGroup.isAsc]);
+  useEffect(() => {
+    if (_.isEmpty(navGroupFilters)) {
+      setRowIdForFilter('');
+    }
+  }, [navGroupFilters]);
   useEffect(() => {
     let soucre = controls.find(o => o.controlId === navGroup.controlId) || {};
     if (29 === soucre.type && getAdvanceSetting(view).navshow === '1' && isOpenGroup) {
@@ -376,20 +384,22 @@ function GroupFilter(props) {
     }
     if (soucre.type !== 35 && navfilters.length > 0 && ['3'].includes(navshow)) {
       /// 显示 符合筛选条件的处理
-      let filterControls = navfilters.map(handleCondition);
+      let filterControls = navfilters.map(o => handleCondition(o));
       param = { ...param, filterControls };
     }
     sheetAjax
-      .getFilterRows({
-        worksheetId,
-        viewId,
-        keywords,
-        pageIndex: 1,
-        pageSize: 10000,
-        isGetWorksheet: true,
-        kanbanKey: rowId,
-        ...param,
-      })
+      .getFilterRows(
+        getFilledRequestParams({
+          worksheetId,
+          viewId,
+          keywords,
+          pageIndex: 1,
+          pageSize: 10000,
+          isGetWorksheet: true,
+          kanbanKey: rowId,
+          ...param,
+        }),
+      )
       .then(result => {
         if (result.resultCode === 4) {
           //视图删除的情况下，显示成为选中视图的状态

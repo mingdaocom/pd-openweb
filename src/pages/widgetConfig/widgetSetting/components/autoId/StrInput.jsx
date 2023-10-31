@@ -1,7 +1,9 @@
 import React, { Fragment, useState } from 'react';
 import { Input } from 'antd';
-import Icon from 'src/components/Icon';
+import Components from '../../../components';
 import cx from 'classnames';
+
+const Icon = Components.Icon;
 
 export default function StrInput({ rule, deleteRule, updateRule }) {
   const { controlId } = rule;

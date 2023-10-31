@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, Fragment } from 'react';
-import { Icon } from 'src';
+import Components from '../../../components';
 import { get, has, head, pick } from 'lodash';
 import { Support, Dialog, Dropdown } from 'ming-ui';
 import styled from 'styled-components';
@@ -18,6 +18,8 @@ import {
   handleAdvancedSettingChange,
   getOptions,
 } from '../../../util/setting';
+
+const Icon = Components.Icon;
 
 const OPTION_TYPE = [
   {
@@ -220,7 +222,11 @@ export default function SelectOptions(props) {
                 className={`Font24 pointer icon-${colorful ? 'toggle_on' : 'toggle_off'}`}
                 onClick={e => {
                   e.stopPropagation();
-                  onChange({ enumDefault2: +!enumDefault2 });
+                  let newData = { enumDefault2: +!enumDefault2 };
+                  if (_.find(options, i => !i.color)) {
+                    newData.options = options.map(i => ({ ...i, color: i.color || '#2196f3' }));
+                  }
+                  onChange(newData);
                 }}
               ></i>
               <span>{_l('彩色')}</span>

@@ -13,6 +13,9 @@ import PublishFail from 'src/pages/integration/components/PublishFail';
 import { navigateTo } from 'src/router/navigateTo';
 import { Dialog } from 'ming-ui';
 import 'src/pages/integration/dataIntegration/connector/style.less';
+import PublishSetDialog from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/components/PublishSetDialog';
+import { DATABASE_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
+
 const Wrap = styled.div`
   height: 100%;
 `;
@@ -206,17 +209,33 @@ class Task extends Component {
     );
   };
   publishTask = () => {
-    const { currentProjectId: projectId } = this.state;
-    const { flowId = '', flowData, updating } = this.state;
+    const { updating, flowData = {} } = this.state;
     if (updating) {
       return;
     }
+    const destData = _.values(flowData.flowNodes).find(o => _.get(o, 'nodeType') === 'DEST_TABLE') || {};
+    const isDestMDType = _.get(destData, 'nodeConfig.config.dsType') === DATABASE_TYPE.APPLICATION_WORKSHEET;
+    if (isDestMDType && !_.get(destData, 'nodeConfig.config.createTable')) {
+      //目的地是表 且选择已有表
+      this.setState({
+        showPublishDialog: true,
+      });
+    } else {
+      this.publishTaskAction();
+    }
+  };
+
+  publishTaskAction = info => {
+    const { currentProjectId: projectId } = this.state;
+    const { flowId = '', flowData } = this.state;
     this.setState({
       updating: true,
+      showPublishDialog: false,
     });
     TaskFlow.publishTask({
       projectId,
       flowId: flowId,
+      ...info,
     }).then(
       res => {
         this.setState({
@@ -249,7 +268,7 @@ class Task extends Component {
                   title: _l('报错信息'),
                   className: 'connectorErrorDialog',
                   description: (
-                    <div className="errorInfo" style={{ marginBottom: -30, 'max-height': 500, overflow: 'auto' }}>
+                    <div className="errorInfo" style={{ marginBottom: -30, 'max-height': 400, overflow: 'auto' }}>
                       {errorMsgList.map((error, index) => {
                         return (
                           <div key={index} className="mTop5">
@@ -275,6 +294,7 @@ class Task extends Component {
       },
     );
   };
+
   renderCon = () => {
     const { tab, flowData, curId, jobId } = this.state;
     switch (tab) {
@@ -322,7 +342,18 @@ class Task extends Component {
     }
   };
   render() {
-    const { flowData = {}, loading, isNew, isUpdate, showPublishFail, updating, errorMsgList = [] } = this.state;
+    const {
+      flowData = {},
+      loading,
+      isNew,
+      isUpdate,
+      showPublishFail,
+      updating,
+      errorMsgList = [],
+      showPublishDialog,
+    } = this.state;
+    const destData = _.values(flowData.flowNodes).find(o => _.get(o, 'nodeType') === 'DEST_TABLE') || {};
+    const { writeMode, isCleanDestTableData, fieldForIdentifyDuplicate } = _.get(destData, 'nodeConfig.config') || {};
     if (loading) {
       return <LoadDiv />;
     }
@@ -372,6 +403,27 @@ class Task extends Component {
               this.setState({
                 showPublishFail: false,
               });
+            }}
+          />
+        )}
+        {showPublishDialog && (
+          <PublishSetDialog
+            controls={(
+              _.get(
+                _.values(flowData.flowNodes).find(o => _.get(o, 'nodeType') === 'DEST_TABLE') || {},
+                'nodeConfig.fields',
+              ) || []
+            ).filter(o => o.isCheck && [1, 2, 7, 5, 3, 4, 33].includes(o.mdType))} //文本1 2、证件7、邮箱5、电话3 4、自动编号33
+            onClose={() => {
+              this.setState({
+                showPublishDialog: false,
+              });
+            }}
+            fieldForIdentifyDuplicate={fieldForIdentifyDuplicate}
+            writeMode={writeMode}
+            isCleanDestTableData={!!isCleanDestTableData}
+            onOk={data => {
+              this.publishTaskAction(data);
             }}
           />
         )}

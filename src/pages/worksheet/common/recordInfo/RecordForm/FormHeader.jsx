@@ -111,7 +111,10 @@ export default function FormHeader(props) {
                       className="cursorDefault"
                       size={24}
                       bindBusinessCard={
-                        !_.includes(['user-workflow', 'user-publicform', 'user-api'], ownerAccount.accountId)
+                        !_.includes(
+                          ['user-workflow', 'user-publicform', 'user-api', 'user-undefined'],
+                          ownerAccount.accountId,
+                        )
                       }
                       user={{
                         accountId: ownerAccount.accountId,

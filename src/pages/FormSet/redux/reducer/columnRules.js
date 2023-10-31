@@ -75,26 +75,6 @@ export function filters(state = [], action) {
   }
 }
 
-// 当前是否编辑规则状态
-export function isEdit(state = false, action) {
-  switch (action.type) {
-    case 'COLUMNRULES_ISEDIT':
-      return action.data;
-    default:
-      return state;
-  }
-}
-
-// 当前正在编辑的ruleId
-export function editingId(state = '', action) {
-  switch (action.type) {
-    case 'COLUMNRULES_ISEDIT_ID':
-      return action.data;
-    default:
-      return state;
-  }
-}
-
 // input框提示
 export function ruleError(state = {}, action) {
   switch (action.type) {
@@ -108,9 +88,7 @@ export function ruleError(state = {}, action) {
 export default combineReducers({
   columnRulesListData,
   loading,
-  isEdit,
   filters,
-  editingId,
   dispalyRulesNum,
   selectRules,
   worksheetControls,

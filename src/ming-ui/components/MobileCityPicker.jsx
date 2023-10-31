@@ -96,7 +96,7 @@ export default class MobileCityPicker extends Component {
   }
 
   onNext(item) {
-    const { level, callback } = this.props;
+    const { level, callback, showConfirmBtn } = this.props;
     const { indexLevel, selectCitys } = this.state;
 
     if (selectCitys[indexLevel - 1]) {
@@ -104,13 +104,17 @@ export default class MobileCityPicker extends Component {
     }
 
     const newSelectCitys = [...selectCitys, item];
+    if (showConfirmBtn || (!showConfirmBtn && indexLevel === level)) {
+      callback(newSelectCitys, indexLevel);
 
-    callback(newSelectCitys);
-
-    if (particularlyCity.includes(item.id) && newSelectCitys.length === 2) {
-      callback([item]);
-    } else {
-      callback(_.uniqBy(newSelectCitys).length !== newSelectCitys.length ? _.uniqBy(newSelectCitys) : newSelectCitys);
+      if (particularlyCity.includes(item.id) && newSelectCitys.length === 2) {
+        callback([item], indexLevel);
+      } else {
+        callback(
+          _.uniqBy(newSelectCitys).length !== newSelectCitys.length ? _.uniqBy(newSelectCitys) : newSelectCitys,
+          indexLevel,
+        );
+      }
     }
 
     if (particularlyCity.includes(item.id)) {
@@ -125,6 +129,7 @@ export default class MobileCityPicker extends Component {
     }
 
     if (overseas.includes(item.id)) {
+      callback([item], indexLevel);
       this.setState({
         selectCitys: newSelectCitys,
         visible: false,
@@ -152,7 +157,15 @@ export default class MobileCityPicker extends Component {
   }
 
   render() {
-    const { disabled, children, placeholder, onClear, onClose = () => {} } = this.props;
+    const {
+      disabled,
+      children,
+      placeholder,
+      onClear,
+      onClose = () => {},
+      callback = () => {},
+      showConfirmBtn,
+    } = this.props;
     const { value, visible, loading, citys, indexLevel, selectCitys } = this.state;
     const tabs = [
       { title: _l('省份') },
@@ -162,7 +175,7 @@ export default class MobileCityPicker extends Component {
 
     return (
       <Fragment>
-        <span onClick={() => !disabled && this.setState({ visible: true })}>
+        <span className="Block" onClick={() => !disabled && this.setState({ visible: true })}>
           {children || <input readOnly value={value} placeholder={placeholder} />}
         </span>
 
@@ -176,13 +189,26 @@ export default class MobileCityPicker extends Component {
                 className="flex ThemeColor3 pLeft16 TxtLeft"
                 onClick={() => {
                   onClear();
-                  this.setState({ visible: false });
+                  this.setState({ visible: false, indexLevel: 1, selectCitys: [] }, this.loadProvince);
                 }}
               >
                 {_l('清除')}
               </div>
               <div>{_l('选择地区')}</div>
-              <div className="flex pLeft16"></div>
+              {showConfirmBtn ? (
+                <div
+                  className="flex ThemeColor3 pRight16 TxtRight"
+                  onClick={() => {
+                    callback(selectCitys, indexLevel);
+                    this.setState({ visible: false, selectCitys, indexLevel });
+                    this.props.onClose && this.props.onClose();
+                  }}
+                >
+                  {_l('确定')}
+                </div>
+              ) : (
+                <div className="flex pLeft16"></div>
+              )}
             </div>
           }
           onClose={() => {

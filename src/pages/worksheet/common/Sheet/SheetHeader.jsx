@@ -97,7 +97,7 @@ function SheetHeader(props) {
     clearSelect,
     loadDraftDataCount = () => {},
   } = props;
-  const { pageSize } = sheetFetchParams;
+  const { pageSize, sortControls } = sheetFetchParams;
   const updateFiltersWithView = args => updateFilters(args, view);
   const { worksheetId, name, desc, projectId, allowAdd, entityName, roleType, advancedSetting = {} } = worksheetInfo;
   const [sheetDescVisible, setSheetDescVisible] = useState();
@@ -135,6 +135,7 @@ function SheetHeader(props) {
       pageSize={pageSize}
       navGroupFilters={navGroupFilters}
       filtersGroup={filtersGroup}
+      sortControls={sortControls}
       worksheetInfo={worksheetInfo}
       permission={(permission || {})[viewId]}
       allWorksheetIsSelected={allWorksheetIsSelected}
@@ -449,6 +450,7 @@ function SheetHeader(props) {
             projectId={projectId}
             roleType={roleType}
             isCharge={isCharge}
+            themeColor={_.get(appPkg, 'iconColor')}
             isLock={_.get(appPkg, 'isLock')}
             permissionType={_.get(appPkg, 'permissionType')}
             onClose={() => setStatisticsVisible(false)}

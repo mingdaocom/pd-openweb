@@ -47,7 +47,7 @@ export default class Show extends React.Component {
     const { showControls = [], customdisplay = '0', sysids, syssort } = info;
     const isShowWorkflowSys = isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit);
     const filteredColumns = filterHidedControls(columns, view.controls, false).filter(
-      c => !!c.controlName && !_.includes([22, 10010, 43, 45, 49, 51], c.type),
+      c => !!c.controlName && !_.includes([22, 10010, 43, 45, 49, 51, 52], c.type),
     );
     const showControlsForSortControl = showControls.filter(id =>
       _.find(filteredColumns, column => column.controlId === id),

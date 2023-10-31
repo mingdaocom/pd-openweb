@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import components from '../components';
 import NumberUtil from 'src/util/number';
 import { Dropdown, Checkbox } from 'ming-ui';
-import { EditInfo, SettingItem } from '../../styled';
+import { EditInfo, SettingItem, NumberRange } from '../../styled';
 import WidgetVerify from '../components/WidgetVerify';
 import DynamicDefaultValue from '../components/DynamicDefaultValue';
 import NumberConfig from '../components/ControlSetting/NumberConfig';
@@ -33,20 +33,6 @@ const defaultItemColor = {
   color: '#2196f3',
   colors: [],
 };
-
-const NumberRange = styled.div`
-  margin-top: 8px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  span {
-    margin: 0 8px;
-    color: #9e9e9e;
-  }
-  input {
-    width: 100%;
-  }
-`;
 
 export default function Number(props) {
   const { data, onChange, fromPortal, fromExcel } = props;

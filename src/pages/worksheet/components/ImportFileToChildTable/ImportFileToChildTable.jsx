@@ -5,6 +5,7 @@ import _ from 'lodash';
 import ImportData from './ImportData';
 import PreviewData from './PreviewData';
 import { CHILD_TABLE_ALLOW_IMPORT_CONTROL_TYPES } from 'worksheet/constants/enum';
+import { func, number, string } from 'prop-types';
 
 const Con = styled.div`
   width: 100%;
@@ -14,13 +15,14 @@ const Con = styled.div`
 `;
 
 export default function ImportFileToChildTable(props) {
-  const { dataCount, projectId, worksheetId, controlId, onClose, onAddRows } = props;
+  const { maxCount = 1000, dataCount, projectId, worksheetId, controlId, onClose, onAddRows } = props;
   const controls = props.controls.filter(c => _.includes(CHILD_TABLE_ALLOW_IMPORT_CONTROL_TYPES, c.type));
   const [sheets, setSheets] = useState([]);
   const [cellsData, setCellsData] = useState([]);
   const [excelUrl, setExcelUrl] = useState();
   const [importDataActiveType, setImportDataActiveType] = useState(0);
   const [step, setStep] = useState('upload');
+  const dialogHeight = window.innerHeight - 32 > 600 ? 600 : window.innerHeight - 32;
   return (
     <Modal
       visible
@@ -29,11 +31,17 @@ export default function ImportFileToChildTable(props) {
       width={1000}
       closeSize={50}
       onCancel={onClose}
-      bodyStyle={{ padding: 0, position: 'relative', height: 600, flex: 'none' }}
+      bodyStyle={{
+        padding: 0,
+        position: 'relative',
+        height: dialogHeight,
+        flex: 'none',
+      }}
     >
       <Con>
         {step === 'upload' && (
           <ImportData
+            dialogHeight={dialogHeight}
             importDataActiveType={importDataActiveType}
             setImportDataActiveType={setImportDataActiveType}
             worksheetId={worksheetId}
@@ -59,6 +67,8 @@ export default function ImportFileToChildTable(props) {
         )}
         {step === 'preview' && (
           <PreviewData
+            dialogHeight={dialogHeight}
+            maxCount={maxCount}
             dataFrom={importDataActiveType === 0 ? 'excel' : 'paste'}
             dataCount={dataCount}
             projectId={projectId}
@@ -77,3 +87,13 @@ export default function ImportFileToChildTable(props) {
     </Modal>
   );
 }
+
+ImportFileToChildTable.propTypes = {
+  dataCount: number,
+  maxCount: number,
+  projectId: string,
+  worksheetId: string,
+  controlId: string,
+  onClose: func,
+  onAddRows: func,
+};

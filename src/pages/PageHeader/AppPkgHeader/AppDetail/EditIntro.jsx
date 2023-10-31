@@ -3,6 +3,8 @@ import { string, func, bool } from 'prop-types';
 import Editor from './EditorDiaLogContent';
 import { compareProps } from '../../util';
 import _ from 'lodash';
+import './index.less';
+
 export default class AppIntro extends Component {
   static propTypes = {
     isEditing: bool,

@@ -457,6 +457,9 @@ class Message extends React.Component {
               ...dataList,
               warnningData: [{ tipDom: '.txtLoginCode', warnningText: _l('验证码发送失败'), isError: true }],
             });
+            if (data.actionResult === ActionResult.accoutRegisterClosed && type === 'portalLogin') {
+              alert(_l('当前门户不在设置的注册时间范围内，暂不支持注册'), 3);
+            }
             if (data.actionResult == ActionResult.balanceIsInsufficient) {
               alert(_l('当前企业账户余额不足，无法发送短信/邮件'), 2);
             }
@@ -567,7 +570,16 @@ class Message extends React.Component {
   };
 
   render() {
-    const { type = 'register', dataList = {}, onChangeData, nextHtml, maxLength, keys = [] } = this.props;
+    const {
+      type = 'register',
+      dataList = {},
+      onChangeData,
+      nextHtml,
+      maxLength,
+      keys = [],
+      canChangeEmailOrTel,
+      onChangeEmailOrTel,
+    } = this.props;
     const { emailOrTel = '', verifyCode = '', password = '', fullName = '', warnningData = [], onlyRead } = dataList;
     let { isMobile, verifyCodeText, verifyCodeLoading, focusDiv, hasCheck, isUpperCase, isOpen } = this.state;
     let str = this.iti && isMobile ? this.getEmailOrTel(emailOrTel) : emailOrTel;
@@ -655,6 +667,18 @@ class Message extends React.Component {
                 }}
                 {...autoCompleteData}
               />
+              {canChangeEmailOrTel && (
+                <Icon
+                  type="swap_horiz"
+                  className="Gray_9e Hand ThemeHoverColor3 changeEmailOrTel Font20"
+                  onClick={() => {
+                    onChangeEmailOrTel();
+                    setTimeout(() => {
+                      this.itiFn();
+                    }, 0);
+                  }}
+                />
+              )}
               <div
                 className="title"
                 onClick={e => {
@@ -850,11 +874,11 @@ class Message extends React.Component {
               >
                 <Checkbox checked={hasCheck} className="InlineBlock" />
                 {_l('同意')}
-                <a target="_blank" className="terms Hand" href="/terms">
+                <a target="_blank" className="terms Hand" href="/terms" onClick={e => e.stopPropagation()}>
                   {_l('《使用条款》%14000')}
                 </a>
                 {_l('和')}
-                <a target="_blank" className="terms Hand" href="/privacy">
+                <a target="_blank" className="terms Hand" href="/privacy" onClick={e => e.stopPropagation()}>
                   {_l('《隐私条款》')}
                 </a>
               </span>

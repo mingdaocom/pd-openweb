@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useSetState } from 'react-use';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import cx from 'classnames';
@@ -8,7 +9,7 @@ import TPAuth from './tpAuth';
 import Info from './Info';
 import { LoadDiv, Icon } from 'ming-ui';
 import { getRequest } from 'src/util/sso';
-import { statusList, urlList, getSuffix, accountResultAction, setAutoLoginKey, getCurrentId } from './util';
+import { statusList, accountResultAction, setAutoLoginKey, getCurrentId } from './util';
 import externalPortalAjax from 'src/api/externalPortal';
 import preall from 'src/common/preall';
 import SvgIcon from 'src/components/SvgIcon';
@@ -113,7 +114,6 @@ function ContainerCon(props) {
   const [baseSetInfo, setBaseSetInfo] = useState({}); //门户配置
   const [authorizerInfo, setAuthorizerInfo] = useState({}); //微信公众号信息
   const [loading, setLoading] = useState(true);
-  const [state, setState] = useState(''); //微信跳转回到登录需要带的信息
   const [account, setAccount] = useState('');
   const [accountId, setAccountId] = useState('');
   const [paramForPcWx, setParamForPcWx] = useState(); //pc端二维码扫码后的返回值
@@ -122,9 +122,11 @@ function ContainerCon(props) {
   const [isErrUrl, setIsErrUrl] = useState(false); // 进到登录根据配置信息判断当前版本购买人数是否超过当前版本购买人数
   const [status, setStatus] = useState(0); //0登录  1注册成功 2您的账号已停用 3待审核 4 审核未通过! 12您访问的门户成员已满额 10000  你访问的链接错误! 20000  你访问的链接已停止访问 是否进入填写信息  status = 9
   const [isAutoLogin, setAutoLogin] = useState(false); //是否自动登录
-  const [currentAppId, setCurrentAppId] = useState('');
-  const [fixInfo, setFixInfo] = useState({});
-
+  const [{ currentAppId, fixInfo, state }, setState] = useSetState({
+    currentAppId: '',
+    fixInfo: {},
+    state: '', //微信跳转回到登录需要带的信息
+  });
   const isWeiXin = () => {
     var ua = window.navigator.userAgent.toLowerCase();
     if (ua.match(/MicroMessenger/i) == 'micromessenger') {
@@ -155,7 +157,7 @@ function ContainerCon(props) {
         });
     } else {
       getCurrentId(id => {
-        setCurrentAppId(id);
+        setState({ currentAppId: id });
       });
     }
   }, []);
@@ -209,7 +211,7 @@ function ContainerCon(props) {
     }
     const { wxState = '', status = '', mdAppId = '', accountId = '' } = request;
     request.status && setStatus(Number(request.status));
-    wxState && setState(wxState);
+    wxState && setState({ state: wxState });
     accountId && setAccountId(accountId);
     request.mdAppId && setAppId(request.mdAppId);
     if (!request.status || (request.mdAppId && request.status)) {
@@ -218,7 +220,7 @@ function ContainerCon(props) {
         cb: res => {
           if (isWeiXin() && !request.status) {
             //微信打开 并且不是wxauth 跳转来的
-            const { portalSetResult = {}, authorizerInfo = {}, isWXOfficialExist, isExist } = res;
+            const { portalSetResult = {}, isWXOfficialExist, isExist } = res;
             const { loginMode = {}, isEnable } = portalSetResult;
             const { weChat } = loginMode;
             if (isWXOfficialExist && weChat && isEnable && isExist) {
@@ -294,9 +296,11 @@ function ContainerCon(props) {
           !isExist && setStatus(10000);
           setLoading(false);
         }
-        setFixInfo({
-          fixAccount: res.fixAccount,
-          fixRemark: res.fixRemark,
+        setState({
+          fixInfo: {
+            fixAccount: res.fixAccount,
+            fixRemark: res.fixRemark,
+          },
         });
         setAuthorizerInfo(authorizerInfo);
         setBaseSetInfo(portalSetResult);
@@ -413,7 +417,7 @@ function ContainerCon(props) {
           {...baseSetInfo}
           appId={appId}
           state={state}
-          setState={state => setState(state)}
+          setState={state => setState({ state })}
           account={account}
           setAccount={setAccount}
           fixInfo={fixInfo}
@@ -427,7 +431,7 @@ function ContainerCon(props) {
           status={status}
           setStatus={setStatus}
           setAccountId={setAccountId}
-          setLogState={state => setState(state)}
+          setLogState={state => setState({ state })}
           {...baseSetInfo}
           fixInfo={fixInfo}
           appId={appId}

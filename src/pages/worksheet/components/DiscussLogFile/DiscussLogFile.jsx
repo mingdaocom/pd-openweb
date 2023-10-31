@@ -31,11 +31,15 @@ class DiscussLogFile extends Component {
     this.state = {
       loading: false,
       status: this.showTabs.length && this.showTabs[0].id, // 日志讨论  1 日志  2讨论
+      doNotLoadAtDidMount: props.isOpenNewAddedRecord,
     };
   }
 
   componentDidMount() {
     emitter.addListener('RELOAD_RECORD_INFO_LOG', this.reloadLog);
+    if (this.state.doNotLoadAtDidMount) {
+      this.setState({ doNotLoadAtDidMount: false });
+    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -67,7 +71,7 @@ class DiscussLogFile extends Component {
 
   render() {
     const { workflow, approval, forReacordDiscussion } = this.props;
-    const { status, loading } = this.state;
+    const { status, loading, doNotLoadAtDidMount } = this.state;
     return (
       <div className="discussLogFile flexRow">
         <div className="header">
@@ -106,7 +110,7 @@ class DiscussLogFile extends Component {
             {status === 0 && workflow}
             {(status === 1 || status === 4) && (
               <div className="talkBox">
-                <WorkSheetComment status={status} {...this.props} />
+                <WorkSheetComment status={status} {...this.props} doNotLoadAtDidMount={doNotLoadAtDidMount} />
               </div>
             )}
             {status === 2 &&

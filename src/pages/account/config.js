@@ -51,7 +51,8 @@ export default {
     firstLoginResetPassword: 18, // 首次登录需要重置密码
     passwordOverdue: 19, // 密码过期
     samePassword: 20, // 新旧密码一致
-    isLock: 21 ,// 代表频繁用户被锁定20分钟，提示看下登录里面的锁定提示，保持跟登录一致，锁定的分钟写死20分钟即可
-    balanceIsInsufficient: 22 // 22代表网络余额不足
+    isLock: 21,// 代表频繁用户被锁定20分钟，提示看下登录里面的锁定提示，保持跟登录一致，锁定的分钟写死20分钟即可
+    balanceIsInsufficient: 22, // 22代表网络余额不足
+    accoutRegisterClosed: 23, // 23关闭注册 非注册时间段
   },
 };

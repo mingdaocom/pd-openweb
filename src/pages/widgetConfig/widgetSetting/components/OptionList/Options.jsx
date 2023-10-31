@@ -1,10 +1,9 @@
 import React, { useState, Fragment } from 'react';
 import { SortableContainer, SortableElement, SortableHandle, arrayMove } from 'react-sortable-hoc';
-import { Checkbox, Radio } from 'ming-ui';
+import { Checkbox, Radio, ColorPicker } from 'ming-ui';
 import { v4 as uuidv4 } from 'uuid';
 import styled from 'styled-components';
 import cx from 'classnames';
-import Trigger from 'rc-trigger';
 import 'rc-trigger/assets/index.css';
 import { Tooltip } from 'antd';
 import update from 'immutability-helper';
@@ -12,7 +11,6 @@ import { useSetState } from 'react-use';
 import { every, includes, pull } from 'lodash';
 import { isLightColor, getUnUniqName } from 'src/util';
 import { getAdvanceSetting, parseOptionValue } from '../../../util/setting';
-import SelectColor from './SelectColor';
 import { OPTION_COLORS_LIST } from '../../../config';
 import BatchAdd from './BatchAdd';
 import AssignValue from './AssignValue';
@@ -169,23 +167,19 @@ const OptionItem = SortableElement(
         {!isDeleted && (
           <Fragment>
             {!isOther && <DragHandle />}
-            <div className="optionContent">
+            <div className="optionContent scfdv">
               {colorful && (
-                <Trigger
-                  action={['click']}
-                  popup={
-                    <SelectColor
-                      onClickAway={() => setVisible(false)}
-                      color={item.color || OPTION_COLORS_LIST[index % OPTION_COLORS_LIST.length]}
-                      onChange={color => updateOption(index, { color })}
-                    />
-                  }
-                  popupAlign={{ points: ['tl', 'bl'], offset: [-45, 10] }}
+                <ColorPicker
+                  sysColor
+                  isPopupBody
+                  value={item.color || OPTION_COLORS_LIST[index % OPTION_COLORS_LIST.length]}
+                  onChange={color => updateOption(index, { color })}
+                  popupAlign={{ points: ['tl', 'bl'], offset: [-260, 10] }}
                 >
                   <div className="colorWrap pointer" style={{ backgroundColor: color }}>
                     <div className={cx('tri', { isLight: isLightColor(color) })}></div>
                   </div>
-                </Trigger>
+                </ColorPicker>
               )}
               <div className="optionName">
                 <input
@@ -209,7 +203,8 @@ const OptionItem = SortableElement(
                           : focusIndex + 1;
                       setIndex(nextIndex);
                       setTimeout(() => {
-                        document.getElementById(_.get(options[nextIndex], 'key')).select();
+                        const optionEl = document.getElementById(_.get(options[nextIndex], 'key'));
+                        optionEl && optionEl.select();
                       }, 50);
                     }
                   }}

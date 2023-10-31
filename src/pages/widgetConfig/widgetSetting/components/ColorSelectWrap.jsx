@@ -1,8 +1,8 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Icon } from 'ming-ui';
+import { Icon, ColorPicker } from 'ming-ui';
 import { SCORE_COLORS_LIST } from '../../config/score';
 import cx from 'classnames';
-import { SelectColorWrap } from './SectionConfig/style';
+import { SelectColorWrap } from './SplitLineConfig/style';
 
 export default function ColorSelectWrap({ color: activeColor, handleChange }) {
   const [customColor, setCustomColor] = useState([]);
@@ -20,18 +20,12 @@ export default function ColorSelectWrap({ color: activeColor, handleChange }) {
         {customIcon && (
           <li className={cx({ addActive: addColor })}>
             <div className="colorItem">
-              {addColor ? (
-                <div className="colorItemAdd" style={{ backgroundColor: addColor }} />
-              ) : (
-                <Icon icon="task-add-member-circle" className="Font24 Gray_bd" />
-              )}
-              <input
-                type="color"
-                value="#333333"
-                onChange={event => {
-                  setAddColor(event.target.value);
+              <ColorPicker
+                value={addColor || '#333333FF'}
+                onChange={value => {
+                  setAddColor(value);
                 }}
-                onBlur={() => {
+                handleClose={() => {
                   if (addColor) {
                     let newCustomColor = [].concat([addColor]).concat(customColor);
                     newCustomColor = newCustomColor.slice(0, customMax);
@@ -40,7 +34,13 @@ export default function ColorSelectWrap({ color: activeColor, handleChange }) {
                     safeLocalStorageSetItem('customColor', JSON.stringify(newCustomColor));
                   }
                 }}
-              />
+              >
+                {addColor ? (
+                  <div className="colorItemAdd" style={{ backgroundColor: addColor }} />
+                ) : (
+                  <Icon icon="task-add-member-circle" className="Font24 Gray_bd" />
+                )}
+              </ColorPicker>
             </div>
           </li>
         )}
@@ -60,7 +60,7 @@ export default function ColorSelectWrap({ color: activeColor, handleChange }) {
   };
 
   return (
-    <SelectColorWrap>
+    <SelectColorWrap inputCoverStyle={false}>
       {getColorList()}
       <div className="Gray_9e mTop10">{_l('自定义')}</div>
       {getColorList(true)}

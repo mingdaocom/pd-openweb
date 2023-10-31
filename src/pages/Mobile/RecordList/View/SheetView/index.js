@@ -4,9 +4,8 @@ import { connect } from 'react-redux';
 import cx from 'classnames';
 import styled from 'styled-components';
 import * as actions from 'mobile/RecordList/redux/actions';
-import * as sheetviewActions from 'src/pages/worksheet/redux/actions/sheetview.js';
 import { refreshWorksheetControls } from 'worksheet/redux/actions';
-import { Modal, Drawer } from 'antd-mobile';
+import { Modal } from 'antd-mobile';
 import { Icon, Button } from 'ming-ui';
 import QuickFilterSearch from 'mobile/RecordList/QuickFilter/QuickFilterSearch';
 import SheetRows, { WithoutRows } from '../../SheetRows';
@@ -14,7 +13,6 @@ import { Flex, ActivityIndicator } from 'antd-mobile';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import worksheetAjax from 'src/api/worksheet';
-import { TextTypes } from 'src/pages/worksheet/common/Sheet/QuickFilter/Inputs';
 import RecordAction from 'mobile/Record/RecordAction';
 import processAjax from 'src/pages/workflow/api/process';
 import _ from 'lodash';
@@ -66,14 +64,6 @@ class SheetView extends Component {
   constructor(props) {
     super(props);
     this.state = {};
-  }
-  componentDidMount() {
-    this.loadCustomBtns(this.props);
-  }
-  componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(this.props.viewId, nextProps.viewId)) {
-      this.loadCustomBtns(nextProps);
-    }
   }
   componentWillUnmount() {
     this.props.changeBatchOptVisible(false);
@@ -135,7 +125,7 @@ class SheetView extends Component {
   }
   // 加载自定义按钮数据
   loadCustomBtns = (props = this.props) => {
-    const { appId, worksheetId, viewId } = props;
+    const { appId, worksheetId, viewId, batchOptCheckedData = [] } = props;
     if (window.shareState.shareId) return;
     this.setState({ customButtonLoading: true });
     worksheetAjax
@@ -143,6 +133,7 @@ class SheetView extends Component {
         appId,
         worksheetId,
         viewId,
+        rowId: batchOptCheckedData.length === 1 ? batchOptCheckedData[0] : undefined,
       })
       .then(data => {
         this.setState({
@@ -156,6 +147,7 @@ class SheetView extends Component {
       });
   };
   showCustomButtoms = () => {
+    this.loadCustomBtns();
     this.setState({
       showButtons: !this.state.showButtons,
     });
@@ -416,17 +408,12 @@ class SheetView extends Component {
         control: _.find(sheetControls, c => c.controlId === filter.controlId),
       }))
       .filter(c => c.control);
-    const excludeTextFilter = viewFilters.filter(item => !TextTypes.includes(item.dataType));
-    const textFilters = viewFilters.filter(item => TextTypes.includes(item.dataType));
-    const isFilter = quickFilter.filter(item => !TextTypes.includes(item.dataType)).length;
+    const isFilter = quickFilter.length;
     let checkedCount = batchOptCheckedData.length;
     const canDelete =
       isOpenPermit(permitList.delete, sheetSwitchPermit, view.viewId) && !_.isEmpty(batchOptCheckedData);
     const showCusTomBtn =
-      isOpenPermit(permitList.execute, sheetSwitchPermit, view.viewId) &&
-      !customButtonLoading &&
-      !_.isEmpty(customBtns) &&
-      !_.isEmpty(batchOptCheckedData);
+      isOpenPermit(permitList.execute, sheetSwitchPermit, view.viewId) && !_.isEmpty(batchOptCheckedData);
     return (
       <Fragment>
         {batchOptVisible && (
@@ -445,8 +432,7 @@ class SheetView extends Component {
           </div>
         )}
         <QuickFilterSearch
-          textFilters={textFilters}
-          excludeTextFilter={excludeTextFilter}
+          excludeTextFilter={viewFilters}
           isFilter={isFilter}
           filters={filters}
           detail={detail}
@@ -474,7 +460,7 @@ class SheetView extends Component {
                 className={cx('extraOpt flex', {
                   disabledExtra: !showCusTomBtn,
                 })}
-                onClick={!showCusTomBtn ? () => {} : this.showCustomButtoms}
+                onClick={this.showCustomButtoms}
               >
                 <Icon icon="custom_actions" className="mRight10 Font20 extraIcon" />
                 {_l('执行动作')}
@@ -483,6 +469,7 @@ class SheetView extends Component {
           </BatchOptBtn>
         )}
         <RecordAction
+          loading={customButtonLoading}
           recordActionVisible={showButtons}
           appId={appId}
           worksheetId={worksheetId}
@@ -529,8 +516,6 @@ export default connect(
     bindActionCreators(
       {
         ..._.pick(actions, [
-          'updateBase',
-          'loadWorksheet',
           'fetchSheetRows',
           'updateFilters',
           'changeBatchOptVisible',

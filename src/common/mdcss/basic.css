@@ -514,6 +514,9 @@ body .Hidden {
 .mRight8 {
   margin-right: 8px !important;
 }
+.mRight9 {
+  margin-right: 9px !important;
+}
 .mRight10 {
   margin-right: 10px !important;
 }
@@ -675,6 +678,9 @@ body .Hidden {
 }
 .mLeft25 {
   margin-left: 25px !important;
+}
+.mLeft26 {
+  margin-left: 26px !important;
 }
 .mLeft30 {
   margin-left: 30px !important;
@@ -1291,14 +1297,6 @@ body .Hidden {
   -moz-border-radius: 50px;
   -webkit-border-radius: 50px;
   border-radius: 50px;
-}
-.iconLoading {
-  background: url(./images/ajax-loader.gif) no-repeat center center;
-  vertical-align: middle;
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  margin-right: 5px;
 }
 
 /*自定义 checkbox样式*/
@@ -2617,6 +2615,7 @@ html:not(.appHomeMobile) .ant-message {
 
 .ant-select-dropdown.withIsEmpty .ant-select-item.isEmpty .ant-select-item-option-content > span {
   padding: 0 !important;
+  color: inherit !important;
 }
 
 .ant-select-dropdown.withIsEmpty .ant-select-item.isEmpty::after {

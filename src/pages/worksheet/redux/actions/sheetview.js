@@ -12,8 +12,12 @@ import {
   formatQuickFilter,
 } from 'worksheet/util';
 import { getNavGroupCount } from './index';
+import { getFilledRequestParams } from 'worksheet/util';
 
 const DEFAULT_PAGESIZE = 50;
+
+let fetchRowsAjax;
+let fetchRowsNumAjax;
 
 export const fetchRows = ({ isFirst, changeView, noLoading, noClearSelected, updateWorksheetControls } = {}) => {
   return (dispatch, getState) => {
@@ -62,7 +66,11 @@ export const fetchRows = ({ isFirst, changeView, noLoading, noClearSelected, upd
       },
     });
     dispatch(getWorksheetSheetViewSummary());
-    worksheetAjax.getFilterRows(args).then(res => {
+    if (changeView && fetchRowsAjax && _.isFunction(fetchRowsAjax.abort)) {
+      fetchRowsAjax.abort();
+    }
+    fetchRowsAjax = worksheetAjax.getFilterRows(getFilledRequestParams(args));
+    fetchRowsAjax.then(res => {
       if (updateWorksheetControls && _.get(res, 'template.controls')) {
         try {
           dispatch({
@@ -92,7 +100,11 @@ export const fetchRows = ({ isFirst, changeView, noLoading, noClearSelected, upd
       }
     });
     if (pageIndex === 1 && !chartId) {
-      worksheetAjax.getFilterRowsTotalNum(args).then(data => {
+      if (changeView && fetchRowsNumAjax && _.isFunction(fetchRowsNumAjax.abort)) {
+        fetchRowsNumAjax.abort();
+      }
+      fetchRowsNumAjax = worksheetAjax.getFilterRowsTotalNum(getFilledRequestParams(args));
+      fetchRowsNumAjax.then(data => {
         if (!data) {
           dispatch({
             type: 'WORKSHEET_SHEETVIEW_UPDATE_COUNT_ABNORMAL',
@@ -104,7 +116,6 @@ export const fetchRows = ({ isFirst, changeView, noLoading, noClearSelected, upd
               type: 'WORKSHEET_SHEETVIEW_UPDATE_COUNT',
               count,
             });
-            dispatch(updateNavGroup());
           }
         }
       });
@@ -123,11 +134,16 @@ export const updateNavGroup = () => {
   };
 };
 
-export const setRowsEmpty = loading => ({
-  type: 'WORKSHEET_SHEETVIEW_FETCH_ROWS',
-  rows: [],
-  count: 0,
-});
+export const setRowsEmpty = () => dispatch => {
+  dispatch({
+    type: 'WORKSHEET_SHEETVIEW_FETCH_ROWS',
+    rows: [],
+  });
+  dispatch({
+    type: 'WORKSHEET_SHEETVIEW_UPDATE_COUNT',
+    count: 0,
+  });
+};
 
 export const sortByControl = sortControl => ({
   type: 'WORKSHEET_SHEETVIEW_UPDATE_SORTS',
@@ -261,15 +277,19 @@ export function refresh({ resetPageIndex, changeFilters, noLoading, noClearSelec
     const {
       filters,
       quickFilter,
+      navGroupFilters,
       views,
       base: { chartId, viewId },
     } = getState().sheet;
     const view = _.find(views, { viewId });
     const needClickToSearch = !chartId && _.get(view, 'advancedSetting.clicksearch') === '1';
+    //设置了筛选列表，且不显示全部，需手动选择分组后展示数据
+    const navGroupToSearch =
+      !chartId && _.get(view, 'advancedSetting.showallitem') === '1' && _.get(view, 'navGroup').length > 0;
     if (filters.keyWords || resetPageIndex || changeFilters) {
       dispatch(changePageIndex(1));
     }
-    if (needClickToSearch && _.isEmpty(quickFilter)) {
+    if ((needClickToSearch && _.isEmpty(quickFilter)) || (navGroupToSearch && _.isEmpty(navGroupFilters))) {
       dispatch(setRowsEmpty());
     } else {
       dispatch(fetchRows({ noLoading, noClearSelected, updateWorksheetControls }));

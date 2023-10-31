@@ -85,6 +85,7 @@ function FilterRelateSearch(props) {
                   ];
               setFilters(newConditions);
             }}
+            showCustom={true}
             currentColumns={allControls
               .filter(i => !isRelateRecordTableControl(i))
               .concat({
@@ -401,7 +402,7 @@ export function RelateSearchWorksheet(props) {
                 setState({ relateType: 'filter', loading: true });
                 let resultFilters = [];
                 // 为关联表时，筛选条件有默认值
-                if (sourceControlId || selectedControl.sourceControl) {
+                if (sourceControlId || (selectedControl || {}).sourceControl) {
                   const selectControl = sourceControlId || open ? selectedControl.sourceControl : '';
 
                   if (

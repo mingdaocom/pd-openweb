@@ -17,8 +17,8 @@ export default function CommonFieldDropdown(props) {
 
   const filterControls = controls.filter(
     item =>
-      _.includes(item.controlName, fieldSearchKeyWords) &&
-      !_.includes([21, 26, 27, 48], item.type) &&
+      _.includes(item.controlName.toLocaleLowerCase(), fieldSearchKeyWords.toLocaleLowerCase()) &&
+      !_.includes([21, 26, 27, 48, 52], item.type) &&
       !_.includes(
         [
           extendSourceId,

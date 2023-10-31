@@ -81,10 +81,11 @@ const FilterTextWrap = styled.div`
 
 export default class FilterItemTexts extends React.Component {
   renderFilterItem({ item, index, key, spliceText }) {
+    let { fromCondition } = this.props;
     return (
       <div key={`${item.id}--${key || index}`} className="pRight10 mTop6 flexBox renderFilterItem">
         {index ? <span className="mRight10 Gray_75 Font13">{spliceText}</span> : null}
-        <span className="mRight10" style={{ flexShrink: 0 }}>
+        <span className="mRight10" style={{ flexShrink: 0, maxWidth: '100%' }}>
           {item.name}
         </span>
         {item.type ? <span className="Bold LineHeight19 mRight10 Gray Font13">{item.type.text}</span> : null}
@@ -96,7 +97,9 @@ export default class FilterItemTexts extends React.Component {
             return (
               <span className="dynamicsourceSpan">
                 {it.name}
-                {it.id !== 'current-rowid' && <i>{!it.rName ? _l('当前记录') : it.rName}</i>}
+                {_.includes(['fastFilter'], fromCondition)
+                  ? ''
+                  : it.id !== 'current-rowid' && <i>{!it.rName ? _l('当前记录') : it.rName}</i>}
               </span>
             );
           })

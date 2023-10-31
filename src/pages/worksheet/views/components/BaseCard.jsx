@@ -4,21 +4,21 @@ import CellControl from 'worksheet/components/CellControls';
 import renderCellText from 'worksheet/components/CellControls/renderText';
 import Switch from 'worksheet/components/CellControls/Switch';
 import RecordOperate from 'worksheet/components/RecordOperate';
-import { Checkbox } from 'ming-ui';
 import update from 'immutability-helper';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Icon } from 'src';
+import { Icon } from 'ming-ui';
 import { FlexCenter, Text } from 'worksheet/styled';
-import { checkCellIsEmpty } from 'src/pages/worksheet/util';
+import { checkCellIsEmpty, getRecordColor } from 'src/pages/worksheet/util';
 import { get, includes, findIndex, isEmpty, noop } from 'lodash';
-import { getAdvanceSetting } from 'src/util';
+import { getAdvanceSetting, browserIsMobile } from 'src/util';
 import CardCoverImage from './CardCoverImage';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { getCardDisplayPara, getMultiRelateViewConfig, isListRelate, isTextTitle } from '../util';
-import { browserIsMobile } from 'src/util';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
+import addRecord from 'worksheet/common/newRecord/addRecord';
+import { handleRowData } from 'src/util/transControlDefaultValue';
 
 const RecordItemWrap = styled.div`
   display: flex;
@@ -89,7 +89,7 @@ const RecordItemWrap = styled.div`
   }
   .emptyHolder {
     height: 6px;
-    background-color: #f0f0f0;
+    background-color: rgba(0, 0, 0, 0.05);
     border-radius: 12px;
     width: 20px;
   }
@@ -165,6 +165,14 @@ const ControlName = styled(Text)`
   text-overflow: ellipsis;
 `;
 
+const ColorTag = styled.div`
+  position: absolute;
+  width: 4px;
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+`;
+
 const BaseCard = props => {
   const {
     data = {},
@@ -181,6 +189,7 @@ const BaseCard = props => {
     onDelete = noop,
     onCopySuccess = noop,
     showNull = false,
+    onAdd = noop,
   } = props;
   let { rowId, coverImage, allowEdit, allowDelete, abstractValue } = data;
   const isShowWorkflowSys = isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit);
@@ -213,22 +222,22 @@ const BaseCard = props => {
 
   const multiRelateViewConfig = getMultiRelateViewConfig(currentView, stateData);
   const { coverposition = '0', abstract } = getAdvanceSetting(multiRelateViewConfig);
+  const showCover = !!currentView.coverCid;
 
   if (isEmpty(data)) return null;
 
   const isGalleryView = String(viewType) === '3';
-  const isVerticalHierarchy = String(viewType) === '2' && ['1', '2'].includes(_.get(para, 'advancedSetting.hierarchyViewType'));
+  const isVerticalHierarchy =
+    String(viewType) === '2' && ['1', '2'].includes(_.get(para, 'advancedSetting.hierarchyViewType'));
 
   abstractValue = abstract ? abstractValue : '';
 
   const otherFields = update(fields, { $splice: [[titleIndex, 1]] });
   const titleMasked =
-    ((isCharge || _.get(titleField, 'advancedSetting.isdecrypt') === '1') &&
-      _.get(titleField, 'advancedSetting.datamask') === '1' &&
-      !forceShowFullValue &&
-      titleField.type === 2 &&
-      titleField.enumDefault === 2) ||
-    _.includes([6, 8, 3, 5, 7], titleField.type);
+    (isCharge || _.get(titleField, 'advancedSetting.isdecrypt') === '1') &&
+    _.get(titleField, 'advancedSetting.datamask') === '1' &&
+    !forceShowFullValue &&
+    ((titleField.type === 2 && titleField.enumDefault === 2) || _.includes([6, 8, 3, 5, 7], titleField.type));
 
   const isShowControlName = () => {
     if (String(viewType) === '2' && String(childType) === '2') {
@@ -237,18 +246,6 @@ const BaseCard = props => {
       return get(viewConfig, 'showControlName');
     }
     return showControlName;
-  };
-
-  // 是否有更多操作
-  const isHaveRecordOperate = () => {
-    const { customButtons = [] } = currentView;
-    const recordPrintSwitch = isOpenPermit(permitList.recordPrintSwitch, sheetSwitchPermit, viewId); //记录打印
-    const recordShareSwitch = isOpenPermit(permitList.recordShareSwitch, sheetSwitchPermit, viewId); //记录分享
-    const recordCopySwitch = isOpenPermit(permitList.recordCopySwitch, sheetSwitchPermit, viewId); //记录复制
-    if (allowDelete) return true;
-    if (recordPrintSwitch || recordShareSwitch || recordCopySwitch) return true;
-    if (customButtons.length > 0) return true;
-    return false;
   };
 
   const isCanQuickEdit = () => {
@@ -315,7 +312,8 @@ const BaseCard = props => {
   };
 
   const renderAbstract = () => {
-    return abstract ? (
+    const isShowAbstract = abstract && !!(data.formData || []).filter(item => item.controlId === abstract).length;
+    return isShowAbstract ? (
       <div className={cx('abstractWrap', { galleryViewAbstract: isGalleryView || isVerticalHierarchy })}>
         {abstractValue || <div className="emptyHolder"></div>}
       </div>
@@ -343,14 +341,36 @@ const BaseCard = props => {
   };
   const isMobile = browserIsMobile();
   const hideOperate = isMobile || _.get(window, 'shareState.isPublicView');
+  const { recordColorConfig, rawRow } = data;
+  const recordColor =
+    recordColorConfig &&
+    getRecordColor({
+      controlId: recordColorConfig.controlId,
+      colorItems: recordColorConfig.colorItems,
+      controls: data.formData,
+      row: _.isObject(rawRow) ? rawRow : safeParse(rawRow),
+    });
   return (
     <RecordItemWrap
       ref={$ref}
+      style={{
+        backgroundColor: recordColor && recordColorConfig.showBg ? recordColor.lightColor : undefined,
+      }}
       className={className}
       coverDirection={includes(['0', '1'], coverposition) ? 'row' : 'column'}
       canDrag={canDrag}
     >
       {/* // 封面图片左、上放置 */}
+      {recordColor && recordColorConfig.showLine && (
+        <ColorTag
+          style={Object.assign(
+            { backgroundColor: recordColor.color },
+            showCover && coverposition === '1'
+              ? { left: 'auto', right: 0, borderRadius: '0 3px 3px 0' }
+              : { borderRadius: '3px 0 0 3px' },
+          )}
+        />
+      )}
       {includes(['1', '2'], coverposition) && <CardCoverImage {...props} viewId={viewId} />}
       <div className="fieldContentWrap">
         {renderTitleControl({ forceShowFullValue })}
@@ -386,43 +406,55 @@ const BaseCard = props => {
       {/* // 封面图片右放置 */}
       {includes(['0'], coverposition) && <CardCoverImage {...props} viewId={viewId} />}
       {!hideOperate && (
-        <div className="recordOperateWrap" onClick={e => e.stopPropagation()}>
-          {isHaveRecordOperate() ? (
-            <RecordOperate
-              shows={['share', 'print', 'copy', 'openinnew']}
-              popupAlign={getPopAlign()}
-              allowDelete={allowDelete}
-              allowCopy={allowCopy}
-              projectId={projectId}
-              formdata={fields}
-              appId={worksheetId === currentView.worksheetId ? appId : undefined}
-              worksheetId={worksheetId}
-              sheetSwitchPermit={sheetSwitchPermit}
-              defaultCustomButtons={currentView.customButtons}
-              viewId={viewId}
-              recordId={rowId}
-              onUpdate={onUpdate}
-              onDelete={onDelete}
-              onCopySuccess={onCopySuccess}
+        <div className="recordOperateWrap asd" onClick={e => e.stopPropagation()}>
+          <RecordOperate
+            shows={['share', 'print', 'copy', 'openinnew', 'recreate']}
+            popupAlign={getPopAlign()}
+            allowDelete={allowDelete}
+            allowCopy={allowCopy}
+            projectId={projectId}
+            formdata={fields}
+            appId={worksheetId === currentView.worksheetId ? appId : undefined}
+            worksheetId={worksheetId}
+            sheetSwitchPermit={sheetSwitchPermit}
+            viewId={viewId}
+            recordId={rowId}
+            onUpdate={onUpdate}
+            onDelete={onDelete}
+            onCopySuccess={onCopySuccess}
+            onRecreate={() => {
+              handleRowData({
+                rowId: rowId,
+                worksheetId: worksheetId,
+                columns: data.formData,
+              }).then(res => {
+                const { defaultData, defcontrols } = res;
+                addRecord({
+                  worksheetId,
+                  appId,
+                  viewId,
+                  defaultFormData: defaultData,
+                  defaultFormDataEditable: true,
+                  directAdd: false,
+                  writeControls: defcontrols,
+                  onAdd: record => {
+                    onAdd({ item: record });
+                  },
+                });
+              });
+            }}
+          >
+            <div
+              className="moreOperate"
+              onClick={() => {
+                if (isCanQuickEdit()) {
+                  editTitle();
+                }
+              }}
             >
-              <div
-                className="moreOperate"
-                onClick={() => {
-                  if (isCanQuickEdit()) {
-                    editTitle();
-                  }
-                }}
-              >
-                <Icon type="link" icon="task-point-more Font18" />
-              </div>
-            </RecordOperate>
-          ) : (
-            isCanQuickEdit() && (
-              <div className="moreOperate">
-                <Icon type="link" className="icon-edit" onClick={editTitle} />
-              </div>
-            )
-          )}
+              <Icon type="link" icon="task-point-more Font18" className="Gray_9e ThemeHoverColor3" />
+            </div>
+          </RecordOperate>
         </div>
       )}
     </RecordItemWrap>

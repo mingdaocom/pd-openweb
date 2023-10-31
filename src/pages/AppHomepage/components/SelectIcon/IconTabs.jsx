@@ -64,10 +64,7 @@ const scrollCurrentIcon = () => {
   if (!currentEle || !scrollCon) return;
 
   let _scrollTop = currentEle.offsetTop;
-  scrollCon.scrollTo({
-    top: _scrollTop,
-    behavior: 'instant',
-  });
+  scrollCon.scrollTop = _scrollTop;
 };
 
 function IconTabs(props) {
@@ -96,10 +93,7 @@ function IconTabs(props) {
     if (loading) return;
     if (!setting.firstLoad) {
       setting.tab === 0 &&
-        document.querySelector('.iconsScrollViewWrap .nano-content').scrollTo({
-          top: setting.changeScrollTop,
-          behavior: 'instant',
-        });
+        (document.querySelector('.iconsScrollViewWrap .nano-content').scrollTop = setting.changeScrollTop);
       return;
     }
     setSetting({
@@ -181,10 +175,7 @@ function IconTabs(props) {
       currentKey: item.key,
     });
     let scrollTop = document.getElementById(item.key).offsetTop;
-    document.querySelector('.iconsScrollViewWrap .nano-content').scrollTo({
-      top: scrollTop,
-      behavior: 'smooth',
-    });
+    document.querySelector('.iconsScrollViewWrap .nano-content').scrollTop = scrollTop;
   };
 
   const renderSystemIcon = () => {

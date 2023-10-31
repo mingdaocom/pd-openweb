@@ -8,11 +8,35 @@ import { browserIsMobile, getClassNameByExt } from 'src/util';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import { uniqMerge, mergeTableCell, mergeColumnsCell, mergeLinesCell, getColumnName, renderValue, getControlMinAndMax, getBarStyleColor } from './util';
 import PivotTableContent from './styled';
+import tinycolor from '@ctrl/tinycolor';
 import _ from 'lodash';
 
 const isMobile = browserIsMobile();
 const isPrintPivotTable = location.href.includes('printPivotTable');
 const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
+
+const replaceColor = (data, customPageConfig, themeColor) => {
+  const { columnBgColor, lineBgColor } = data;
+  const { pivoTableColor } = customPageConfig || {};
+  if (pivoTableColor) {
+    const isLight = tinycolor(pivoTableColor).isLight();
+    return {
+      ...data,
+      columnBgColor: pivoTableColor,
+      lineBgColor: pivoTableColor,
+      columnTextColor: isLight ? '#757575' : '#fff',
+      lineTextColor: isLight ? '#333' : '#fff',
+    }
+  }
+  if (columnBgColor === 'themeColor' || lineBgColor === 'themeColor') {
+    return {
+      ...data,
+      columnBgColor: columnBgColor === 'themeColor' ? themeColor : columnBgColor,
+      lineBgColor: lineBgColor === 'themeColor' ? themeColor : lineBgColor,
+    };
+  }
+  return data;
+}
 
 @errorBoundary
 export default class extends Component {
@@ -43,12 +67,13 @@ export default class extends Component {
       pivotTableLineFreeze,
       pivotTableLineFreezeIndex,
       mobilePivotTableLineFreeze,
-      mobilePivotTableLineFreezeIndex
+      mobilePivotTableLineFreezeIndex,
+      paginationVisible
     } = style || {};
     const freeze = isMobile ? mobilePivotTableLineFreeze : pivotTableLineFreeze;
     const freezeIndex = isMobile ? mobilePivotTableLineFreezeIndex : pivotTableLineFreezeIndex;
     const config = {
-      pageSize: this.state.pageSize,
+      pageSize: paginationVisible ? this.state.pageSize : 0,
       freeze,
       freezeIndex
     }
@@ -126,22 +151,29 @@ export default class extends Component {
     sessionStorage.setItem(key, JSON.stringify(config));
   }
   getColumnWidth = (index) => {
-    const { data, reportId, style } = this.props.reportData;
+    const { data, lines, reportId, style } = this.props.reportData;
     const config = this.getColumnWidthConfig();
     const width = config[index];
+    const { pivotTableUnilineShow, pivotTableColumnFreeze, pivotTableLineFreeze, pcWidthModel = 1, mobileWidthModel = 1 } = style || {};
+    const widthModel = isMobile ? mobileWidthModel : pcWidthModel;
 
+    if (widthModel === 3) {
+      return undefined;
+    }
     if (width) {
       return Number(width);
     } else {
-      const { pivotTableUnilineShow, pivotTableColumnFreeze, pivotTableLineFreeze } = style || {};
+      if (widthModel === 2) {
+        return index < lines.length ? 150 : 100;
+      }
       if (pivotTableColumnFreeze || pivotTableLineFreeze) {
         return 130;
       } else if (!_.isEmpty(config)) {
         const parent = this.getParentNode();
         const parentWidth = parent.clientWidth - 2;
-        const configKeys = Object.keys(config);
-        const occupyWidth = configKeys.map(key => config[key]).reduce((count, item) => item + count, 0);
-        const columnCount = (data.data.length + 1);
+        // const configKeys = Object.keys(config);
+        // const occupyWidth = configKeys.map(key => config[key]).reduce((count, item) => item + count, 0);
+        const columnCount = (data.data.length + lines.length);
         const width = parentWidth / columnCount;
         return width < 80 ? 80 : width;
       } else {
@@ -765,7 +797,7 @@ export default class extends Component {
           ),
           props
         }
-      } else if (data.value && data.value.includes('subTotal')) {
+      } else if (_.isString(data.value) && data.value.includes('subTotal')) {
         return {
           children: data.subTotalName,
           props
@@ -887,8 +919,9 @@ export default class extends Component {
   }
   render() {
     const { dragValue, pageSize } = this.state;
-    const { reportId, data, yaxisList, columns, lines, valueMap, style, pivotTable } = this.props.reportData;
-    const showLineTotal = pivotTable ? pivotTable.showLineTotal : this.props.reportData.showLineTotal;
+    const { themeColor, customPageConfig, reportData } = this.props;
+    const { reportId, data, yaxisList, columns, lines, valueMap, style, pivotTable } = reportData;
+    const showLineTotal = pivotTable ? pivotTable.showLineTotal : reportData.showLineTotal;
     const {
       pivotTableStyle = {},
       pivotTableColumnWidthConfig,
@@ -896,7 +929,9 @@ export default class extends Component {
       mobilePivotTableLineFreeze,
       pivotTableColumnFreeze,
       pivotTableLineFreeze,
-      paginationVisible
+      paginationVisible,
+      pcWidthModel = 1,
+      mobileWidthModel = 1
     } = style || {};
     const { result, linesData } = this;
     const controlName = this.getColumnsHeader(linesData);
@@ -905,19 +940,20 @@ export default class extends Component {
     const scrollConfig = this.getScrollConfig(dataSource);
     const columnFreeze = isMobile ? mobilePivotTableColumnFreeze : pivotTableColumnFreeze;
     const lineFreeze = isMobile ? mobilePivotTableLineFreeze : pivotTableLineFreeze;
+    const widthModel = isMobile ? mobileWidthModel : pcWidthModel;
 
     const tableColumns = [
       ...controlName,
       ...controlContent
     ];
 
-    const widthConfig = sessionStorage.getItem(`pivotTableColumnWidthConfig-${reportId}`) || pivotTableColumnWidthConfig;
+    const widthConfig = sessionStorage.getItem(`pivotTableColumnWidthConfig-${reportId}`) || pivotTableColumnWidthConfig || [2, 3].includes(widthModel);
 
     return (
       <PivotTableContent
         ref={this.$ref}
         isMobile={isMobile}
-        pivotTableStyle={pivotTableStyle}
+        pivotTableStyle={replaceColor(pivotTableStyle, customPageConfig, themeColor)}
         isFreeze={columnFreeze || lineFreeze}
         paginationVisible={paginationVisible && dataSource.length > pageSize}
         className={
@@ -928,6 +964,7 @@ export default class extends Component {
             contentScroll: scrollConfig.y,
             hideHeaderLastTr: columns.length && yaxisList.length === 1,
             hideBody: _.isEmpty(lines) && _.isEmpty(yaxisList),
+            hideDrag: widthModel === 3,
             noSelect: dragValue,
             safariScroll: scrollConfig.y
           })

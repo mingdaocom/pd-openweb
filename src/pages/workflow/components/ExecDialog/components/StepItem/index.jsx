@@ -391,7 +391,7 @@ export default class StepItem extends Component {
           }}
         >
           <Icon icon={maxEndTimeConsuming > 0 ? 'overdue_network' : 'task'} className="Font14 mRight2" />
-          {_l('耗时：%0', this.covertTime(maxTimeConsuming))}
+          {_l('耗时：%0', this.covertTime(maxTimeConsuming) || _l('1秒'))}
         </span>
       </span>
     );

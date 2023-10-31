@@ -1,5 +1,6 @@
 import moment from 'moment';
 import _ from 'lodash';
+import { filterEmptyChildTableRows } from 'worksheet/util';
 export const FORM_ERROR_TYPE = {
   REQUIRED: 'REQUIRED',
   MOBILE_PHONE: 'MOBILE_PHONE',
@@ -20,6 +21,7 @@ export const FORM_ERROR_TYPE = {
   RULE_ERROR: 'RULE_ERROR',
   RULE_REQUIRED: 'RULE_REQUIRED',
   OTHER_REQUIRED: 'OTHER_REQUIRED',
+  CHILD_TABLE_ROWS_LIMIT: 'CHILD_TABLE_ROWS_LIMIT',
 };
 
 export const FORM_ERROR_TYPE_TEXT = {
@@ -54,6 +56,21 @@ export const FORM_ERROR_TYPE_TEXT = {
   TW_PASSPORT: _l('不是有效的台湾通行证号码'),
   OTHER_REQUIRED: ({ value }) => {
     return _l('请填写%0', value || '其他');
+  },
+  CHILD_TABLE_ROWS_LIMIT: ({ value, advancedSetting }) => {
+    const { min, max, enablelimit } = advancedSetting;
+    if (String(enablelimit) === '1') {
+      const rowsLength = Number(
+        (_.get(value, 'rows') && filterEmptyChildTableRows(value.rows).length) || (!_.isObject(value) ? value : 0) || 0,
+      );
+      if (_.isNumber(rowsLength) && !_.isNaN(rowsLength)) {
+        if (_.isNumber(Number(min)) && !_.isNaN(Number(min)) && rowsLength < Number(min)) {
+          return `${_l('请至少输入%0条记录', min)}`;
+        } else if (_.isNumber(Number(max)) && !_.isNaN(Number(max)) && rowsLength > Number(max)) {
+          return `${_l('最多输入%0条记录', max)}`;
+        }
+      }
+    }
   },
   UNIQUE: ({ controlName: label }) => {
     return `${_l('%0不允许重复', label)}`;

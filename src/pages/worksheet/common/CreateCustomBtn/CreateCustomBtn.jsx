@@ -17,6 +17,8 @@ import { SYS } from 'src/pages/widgetConfig/config/widget';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import { formatControlsData } from 'src/pages/widgetConfig/util/data';
 import _ from 'lodash';
+import Trigger from 'rc-trigger';
+
 @errorBoundary
 class CreateCustomBtnCon extends React.Component {
   constructor(props) {
@@ -55,9 +57,8 @@ class CreateCustomBtnCon extends React.Component {
   }
 
   initState = props => {
-    const { btnDataInfo = {}, viewId } = props;
+    const { btnDataInfo = {}, viewId, isListOption, isEdit } = props;
     let {
-      displayViews = [],
       isAllView,
       name = '',
       showType = 1,
@@ -73,12 +74,22 @@ class CreateCustomBtnCon extends React.Component {
       enableConfirm,
       verifyPwd,
       advancedSetting = {},
+      isBatch,
     } = btnDataInfo;
-    //isAllView===1 所有记录
-    if (displayViews.length <= 0 && isAllView !== 1 && props.from !== 'formset' && viewId) {
-      //视图配置=>编辑按钮 displayViews为空时 默认为当前视图
-      displayViews = [viewId];
+    //    视图 创建按钮
+    if (!isEdit && viewId && props.from !== 'formset') {
+      let d = JSON.stringify([viewId]);
+      advancedSetting = isListOption ? { listviews: d } : { detailviews: d };
     }
+    advancedSetting = {
+      ...advancedSetting,
+      remarkname: advancedSetting.remarkname || _l('备注'),
+    };
+    let doubleConfirm = {
+      confirmMsg: btnDataInfo.confirmMsg || _l('你确认对记录执行此操作吗？'),
+      cancelName: btnDataInfo.cancelName || _l('取消'),
+      sureName: btnDataInfo.sureName || _l('确认'),
+    };
 
     this.setState(
       {
@@ -89,15 +100,8 @@ class CreateCustomBtnCon extends React.Component {
         filters,
         enableConfirm,
         verifyPwd,
-        advancedSetting: {
-          ...advancedSetting,
-          remarkname: advancedSetting.remarkname || _l('备注'),
-        },
-        doubleConfirm: {
-          confirmMsg: btnDataInfo.confirmMsg || _l('你确认对记录执行此操作吗？'),
-          cancelName: btnDataInfo.cancelName || _l('取消'),
-          sureName: btnDataInfo.sureName || _l('确认'),
-        },
+        advancedSetting,
+        doubleConfirm,
         writeObject,
         relationControl,
         writeType,
@@ -106,22 +110,15 @@ class CreateCustomBtnCon extends React.Component {
         widgetList: (props.worksheetControls || []).filter(item => !SYS.includes(item.controlId)), //排除系统字段
         isEdit: props.isEdit,
         btnId: props.btnId,
-        color: btnDataInfo.color || COLORS[0],
+        color: isEdit ? btnDataInfo.color || COLORS[1] : COLORS[0], //老数据未设置颜色还是走2196f3 新创建的，默认透明色
         icon: btnDataInfo.icon || ICONS[0],
         desc,
         isAllView: isAllView ? isAllView : !props.btnId && props.from === 'formset' ? 1 : 0,
-        displayViews,
         cloneInfo: {
-          advancedSetting: {
-            ...advancedSetting,
-            remarkname: advancedSetting.remarkname || _l('备注'),
-          },
-          doubleConfirm: {
-            confirmMsg: btnDataInfo.confirmMsg || _l('你确认对记录执行此操作吗？'),
-            cancelName: btnDataInfo.cancelName || _l('取消'),
-            sureName: btnDataInfo.sureName || _l('确认'),
-          },
+          advancedSetting,
+          doubleConfirm,
         },
+        isBatch,
       },
       () => {
         if (!props.btnId) {
@@ -134,10 +131,10 @@ class CreateCustomBtnCon extends React.Component {
     );
   };
 
-  getProcessByTriggerId = callback => {
+  getProcessByTriggerId = (callback, getProcess) => {
     const { worksheetId } = this.props;
     const { btnId, clickType, workflowType } = this.state;
-    if (btnId && worksheetId && (clickType === 1 || workflowType === 1)) {
+    if (btnId && worksheetId && (clickType === 1 || workflowType === 1 || getProcess)) {
       if (this.ajaxRequest) {
         this.ajaxRequest.abort();
       }
@@ -202,23 +199,30 @@ class CreateCustomBtnCon extends React.Component {
   };
 
   formatFilterData = () => {
-    const { filters, widgetList } = this.state;
+    const { filters } = this.state;
     const { columns } = this.props;
     this.setState({
       filterItemTexts: filterData(columns, filters),
     });
   };
   renderFlowText = () => {
-    const { workflowType } = this.state;
+    const { workflowType, isBatch, isEdit } = this.state;
+    const { isListOption } = this.props;
     if (workflowType === 2) {
       return '';
     }
-    if (this.state.isEdit && !!this.state.flowName) {
+    if (isEdit && !!this.state.flowName) {
       return (
-        <div className="filterTextCon">
+        <div className="filterTextCon alignItemsCenter">
           <div className="txtFilter">
-            {this.state.flowName}
-            {!this.state.flowEnabled && <span className="Font13 mLeft5 redCon">{_l('未启用')}</span>}
+            <div className="Bold">
+              {this.state.flowName}
+              {!this.state.flowEnabled && <span className="Font13 mLeft5 redCon">{_l('未启用')}</span>}
+            </div>
+            <div className="flexRow Font13 mTop6 Bold">
+              <span className="Gray_75">{_l('数据源')}:</span>
+              <span className="mLeft3">{isBatch ? _l('多条记录') : _l('单条记录')}</span>
+            </div>
           </div>
           <div
             className="editWorkflow Hand"
@@ -234,8 +238,36 @@ class CreateCustomBtnCon extends React.Component {
       );
     }
     return (
-      <div className="filterTextCon">
-        <div className="txtFilter Gray_75">{_l('添加按钮后自动创建流程')}</div>
+      <div
+        className={`filterTextCon createCon ${
+          !_.isUndefined(isListOption) && !isListOption && !isEdit ? 'pTop10 pBottom10' : 'pTop16 pBottom20'
+        }`}
+      >
+        <div className="txtFilter Gray Bold Font13">{_l('添加按钮后自动创建流程')}</div>
+        {!(!_.isUndefined(isListOption) && !isListOption && !isEdit) && ( //记录详情进入，且是创建，则不显示数据源类型，默认单条记录
+          <React.Fragment>
+            <div className="mTop14">{_l('数据源')}</div>
+            <RadioGroup
+              data={[
+                {
+                  value: 0,
+                  text: _l('单条记录'),
+                },
+                {
+                  value: 1,
+                  text: _l('多条记录'),
+                },
+              ]}
+              size="small"
+              onChange={value => {
+                this.setState({
+                  isBatch: value === 1,
+                });
+              }}
+              checkedValue={isBatch ? 1 : 0}
+            />
+          </React.Fragment>
+        )}
       </div>
     );
   };
@@ -256,6 +288,8 @@ class CreateCustomBtnCon extends React.Component {
       filters = [],
       enableConfirm,
       verifyPwd,
+      workflowId,
+      btnId,
     } = this.state;
     const dataControls = relationControl !== '' ? relationControls : widgetList;
     const isFillOutNull = writeObject !== 1 && !relationControl && writeType !== 1 && !addRelationControlId;
@@ -283,6 +317,10 @@ class CreateCustomBtnCon extends React.Component {
           className={cx('nameInput Font14', { errer: this.state.isErrer })}
         />
         {this.state.isErrer && <p className="errorMessage mTop6 Font12">{_l('按钮名称重名，请重新修改')}</p>}
+        <div className="flexRow">
+          <div className="flex"> {this.renderIcons()}</div>
+          <div className="mLeft12"> {this.renderColors()}</div>
+        </div>
         {this.renderDesc()}
         <div className="line"></div>
         <h5 className="Gray">{_l('动作')}</h5>
@@ -301,10 +339,19 @@ class CreateCustomBtnCon extends React.Component {
           onChange={value => {
             // 'clickType', //1：立即执行  3：填写 'workflowType', // 1:执行 2：不执行
             if (value === 1) {
-              this.setState({
-                workflowType: 1,
-                clickType: 1,
-              });
+              if (!workflowId && btnId) {
+                this.getProcessByTriggerId(() => {
+                  this.setState({
+                    workflowType: 1,
+                    clickType: 1,
+                  });
+                }, true);
+              } else {
+                this.setState({
+                  workflowType: 1,
+                  clickType: 1,
+                });
+              }
             } else {
               this.setState(
                 {
@@ -468,9 +515,17 @@ class CreateCustomBtnCon extends React.Component {
               text={_l('继续执行工作流')}
               checked={workflowType === 1}
               onClick={() => {
-                this.setState({
-                  workflowType: workflowType === 1 ? 2 : 1,
-                });
+                if (!workflowId && workflowType !== 1 && btnId) {
+                  this.getProcessByTriggerId(() => {
+                    this.setState({
+                      workflowType: workflowType === 1 ? 2 : 1,
+                    });
+                  }, true);
+                } else {
+                  this.setState({
+                    workflowType: workflowType === 1 ? 2 : 1,
+                  });
+                }
               }}
             />
             {this.renderFlowText()}
@@ -517,61 +572,100 @@ class CreateCustomBtnCon extends React.Component {
             }
           />
         )}
-        <div className="line"></div>
-        {this.renderColors()}
-        {this.renderIcons()}
       </div>
     );
   };
 
   renderColors = () => {
+    const { color = 'transparent' } = this.state;
     return (
       <div className="mTop32 customBtnColorBox">
-        <h5 className="Gray">{_l('按钮颜色')}</h5>
-        <ul className="mTop16">
-          {COLORS.map(item => {
-            return (
-              <li
-                className={cx('colorLi', { current: this.state.color === item })}
-                style={{ backgroundColor: item }}
-                onClick={() => {
-                  this.setState({
-                    color: item,
-                  });
-                }}
-              >
-                {this.state.color === item && <Icon icon="ok" className="check" />}
-              </li>
-            );
-          })}
-        </ul>
+        <h5 className="Gray Bold">{_l('颜色')}</h5>
+        <Trigger
+          action={['click']}
+          popupAlign={{
+            points: ['tr', 'br'],
+          }}
+          popup={
+            <ul className="buttonTrigger">
+              {COLORS.map(item => {
+                return (
+                  <li
+                    className={cx('buttonSetLi colorLi Hand', { current: color === item })}
+                    style={{ backgroundColor: item, borderColor: item === 'transparent' ? '#E0E0E0' : item }}
+                    onClick={() => {
+                      this.setState({
+                        color: item,
+                      });
+                    }}
+                  >
+                    {color === item && <Icon icon="ok" className={cx('check', { Gray: color === 'transparent' })} />}
+                  </li>
+                );
+              })}
+            </ul>
+          }
+        >
+          <div className="conBox flexRow alignItemsCenter Hand mTop10">
+            <div
+              className={cx('colorCon flex TxtCenter TxtMiddle Font18', { Gray: color === 'transparent' })}
+              style={{ backgroundColor: color }}
+            >
+              A
+            </div>
+            <div className="op">
+              <Icon type="expand_more" className="Gray_9d Font18 mLeft8 " />
+            </div>
+          </div>
+        </Trigger>
       </div>
     );
   };
 
   renderIcons = () => {
+    const { icon, color = 'transparent' } = this.state;
     return (
-      <div className="customBtnIconBox mTop25">
-        <h5 className="Gray">{_l('按钮图标')}</h5>
-        <ul className="mTop16">
-          {ICONS.map(item => {
-            return (
-              <li
-                className={cx('iconLi', { current: item === this.state.icon && !!item })}
-                onClick={() => {
-                  this.setState({
-                    icon: item,
-                  });
-                }}
-                style={{
-                  backgroundColor: item === this.state.icon && !!item ? this.state.color : '',
-                }}
-              >
-                {!item ? _l('无') : <Icon icon={item} className="" />}
-              </li>
-            );
-          })}
-        </ul>
+      <div className="mTop32 customBtnIconBox">
+        <h5 className="Gray Bold">{_l('图标')}</h5>
+        <Trigger
+          action={['click']}
+          popupAlign={{
+            points: ['tl', 'bl'],
+          }}
+          popup={
+            <ul className="buttonTrigger">
+              {ICONS.map(item => {
+                return (
+                  <li
+                    className={cx('buttonSetLi iconLi Hand', {
+                      current: item === icon && !!item,
+                      Font20: !item,
+                    })}
+                    onClick={() => {
+                      this.setState({
+                        icon: item,
+                      });
+                    }}
+                  >
+                    {!item ? _l('无') : <Icon icon={item} />}
+                  </li>
+                );
+              })}
+            </ul>
+          }
+        >
+          <div className="conBox flexRow alignItemsCenter Hand mTop10">
+            <div className="flex flexRow alignItemsCenter mLeft5">
+              <Icon
+                type={icon ? icon : 'block'}
+                className={cx('Font18', { Gray_d: !icon, Gray_9d: !!icon, Font20: !icon })}
+              />
+            </div>
+            <div className="op">
+              <Icon type="expand_more" className="Gray_9d Font18 mLeft8" />
+            </div>
+          </div>
+        </Trigger>
       </div>
     );
   };
@@ -647,7 +741,6 @@ class CreateCustomBtnCon extends React.Component {
               appId,
               ..._.pick(this.state, [
                 'isAllView',
-                'displayViews',
                 'color',
                 'icon',
                 'writeControls', //填写控件 type - 1：只读 2：填写 3：必填
@@ -661,6 +754,7 @@ class CreateCustomBtnCon extends React.Component {
                 'enableConfirm', //启用二次确认
                 'verifyPwd', //校验密码
                 'workflowType', // 1:执行 2：不执行
+                'isBatch', //是否多条数据源
               ]),
             };
             sheetAjax.saveWorksheetBtn({ ...params, writeControls: writeControlsFormat }).then(data => {
@@ -737,7 +831,7 @@ class CreateCustomBtnCon extends React.Component {
   };
 
   render() {
-    const { appId, worksheetId, rowId, projectId, columns, sheetSwitchPermit, isClickAway } = this.props;
+    const { appId, worksheetId, rowId, projectId, columns, sheetSwitchPermit, isListOption } = this.props;
     const {
       btnId,
       relationWorksheetInfo,
@@ -745,6 +839,7 @@ class CreateCustomBtnCon extends React.Component {
       showDoubleConfirmDialog,
       advancedSetting,
       cloneInfo,
+      isEdit,
     } = this.state;
     return (
       <React.Fragment>
@@ -801,6 +896,7 @@ class CreateCustomBtnCon extends React.Component {
         )}
         {this.state.showAppointDialog && (
           <AppointDialog
+            cannotRelate={isListOption && !isEdit} //从视图配置批量创建，不能选择关联
             relationWorksheetInfo={relationWorksheetInfo}
             btnId={btnId}
             projectId={projectId}

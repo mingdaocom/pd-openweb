@@ -11,13 +11,14 @@ import { formatValuesOfOriginConditions } from '../../common/WorkSheetFilter/uti
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import FilterConfig from '../../common/WorkSheetFilter/common/FilterConfig';
 import CardAppearance from './CardAppearance';
-import CustomBtn from './components/customBtn/CustomBtn';
+import ActionSet from './components/customBtn/ActionSet';
 import HierarchyViewSetting from './hierarchyViewSetting';
 import SortConditions from './components/SortConditions';
 import MobileSet from './components/mobileSet/MobileSet';
 import CalendarSet from './components/calendarSet/index';
 import GunterSet from './components/gunterSet/index';
 import FastFilter from './components/fastFilter';
+import RecordColor from './components/recordColor';
 import NavGroup from './components/navGroup';
 import Show from './components/Show';
 import Controls from './components/Controls';
@@ -35,6 +36,7 @@ import { SYS, ALL_SYS, SYS_CONTROLS_WORKFLOW } from 'src/pages/widgetConfig/conf
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import _ from 'lodash';
 import { viewTypeConfig, viewTypeGroup, setList } from './config';
+import UrlParams from './components/urlParams';
 const SwitchStyle = styled.div`
   .switchText {
     margin-right: 6px;
@@ -51,6 +53,29 @@ const SwitchStyle = styled.div`
   }
   .w30 {
     width: 30px;
+  }
+`;
+
+const RecordColorSign = styled.div`
+  display: inline-block;
+  float: right;
+  i {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 14px;
+    border: 2px solid #fff;
+    margin-left: -6px;
+    transform: translateY(2px);
+    &:nth-child(1) {
+      background: #f44336;
+    }
+    &:nth-child(2) {
+      background: #fad714;
+    }
+    &:nth-child(3) {
+      background: #00c345;
+    }
   }
 `;
 
@@ -293,17 +318,22 @@ class ViewConfigCon extends Component {
 
   renderViewBtns() {
     const { viewSetting } = this.state;
-    const { btnData, view, columns, currentSheetInfo } = this.props;
+    const {
+      //btnData,
+      view,
+      columns,
+      currentSheetInfo,
+    } = this.props;
     const { filters = [], controls = [], moreSort = [], fastFilters = [], groupFilters } = view;
     const { icon, text } = VIEW_TYPE_ICON.find(it => it.id === VIEW_DISPLAY_TYPE[view.viewType]) || {};
     const viewTypeText = VIEW_DISPLAY_TYPE[view.viewType];
     const columnsList = this.formatColumnsListForControlsWithoutHide(columns);
     const controlsList = this.formatColumnsListForControlsWithoutHide(controls);
     let daConfig = [
-      {
-        type: 'CustomAction',
-        data: btnData,
-      },
+      // {
+      //   type: 'ActionSet',
+      //   data: btnData,
+      // },
       {
         type: 'Filter',
         data: filters,
@@ -343,10 +373,17 @@ class ViewConfigCon extends Component {
       return (
         <span>
           <span className="titleTxt">{d.name}</span>
-          {(da.length > 0 || type === 'Sort') && (
+          {((da && da.length > 0) || type === 'Sort') && (
             <span className="Gray_9e InlineBlock mLeft5 numText">
               {type === 'Sort' && da.length < 1 ? 1 : da.length}
             </span>
+          )}
+          {type === 'RecordColor' && !!_.get(view, 'advancedSetting.colorid') && (
+            <RecordColorSign>
+              <i />
+              <i />
+              <i />
+            </RecordColorSign>
           )}
         </span>
       );
@@ -366,40 +403,41 @@ class ViewConfigCon extends Component {
     return (
       <div className="viewBtns pTop7">
         {viewTypeGroup.map((it, i) => {
-          // 只有表格有移动端设置
-          if (viewTypeText !== 'sheet' && it.name === 'mobile') {
-            return '';
-          }
           return (
             <div className="viewBtnsLi">
               {it.list.map((o, n) => {
                 let item = viewTypeConfig.find(d => d.type === o);
-                //只有表格和画廊、看板视图、日历视图、甘特图有快速筛选
-                const hasFastFilter = ['sheet', 'gallery', 'board', 'calendar', 'gunter'].includes(viewTypeText);
+                //只有表格和画廊、看板视图、日历视图、甘特图、详情视图(多条)有快速筛选
+                const hasFastFilter =
+                  ['sheet', 'gallery', 'board', 'calendar', 'gunter'].includes(viewTypeText) ||
+                  (viewTypeText === 'detail' && view.childType === 2);
                 const hasNavGroup = ['sheet', 'gallery'].includes(viewTypeText);
-                const hasCustomAction = ['sheet', 'gallery', 'board', 'calendar', 'gunter'].includes(viewTypeText);
+
                 if (
                   // 暂时不做颜色
                   item.type === 'Color' ||
                   (!hasFastFilter && ['FastFilter'].includes(item.type)) ||
                   (!hasNavGroup && ['NavGroup'].includes(item.type)) ||
-                  (!['sheet'].includes(viewTypeText) && o === 'Show') //只有表格有显示列
+                  (!['sheet'].includes(viewTypeText) && _.includes(['Show', 'MobileSet'], o)) || //只有表格有显示列,移动端设置
+                  (item.type === 'RecordColor' && viewTypeText === 'detail' && view.childType === 1)
                 ) {
                   return '';
                 }
                 return (
                   <React.Fragment>
-                    {(item.type === 'MobileSet' ||
+                    {(_.includes(['MobileSet', 'urlParams'], item.type) ||
                       (hasFastFilter && ['FastFilter'].includes(item.type)) ||
                       (hasNavGroup && ['NavGroup'].includes(item.type)) ||
-                      (!hasCustomAction && item.type === 'CustomAction') ||
+                      (!hasFastFilter && item.type === 'ActionSet') ||
                       item.type === 'Filter') && (
                       <React.Fragment>
                         {item.type === 'Filter' ? (
-                          <p className="titileP"> {_l('数据设置')}</p>
+                          <p className="titileP"> {_l('记录设置')}</p>
                         ) : (hasFastFilter && item.type === 'FastFilter') ||
-                          (!hasCustomAction && item.type === 'CustomAction') ? (
+                          (!hasFastFilter && item.type === 'ActionSet') ? (
                           <p className="titileP">{_l('用户操作')}</p>
+                        ) : item.type === 'MobileSet' || (viewTypeText !== 'sheet' && item.type === 'urlParams') ? (
+                          <p className="titileP">{_l('其他')}</p>
                         ) : (
                           ''
                         )}
@@ -414,8 +452,8 @@ class ViewConfigCon extends Component {
                       <Icon className="mRight15 Font18 icon" icon={item.icon || icon} />
                       <span className="fontText">
                         {it.name === 'base' && o === 'Setting'
-                          ? _l('%0设置', text)
-                          : ['CustomAction', 'Filter', 'FastFilter', 'Sort'].includes(item.type)
+                          ? _l('视图设置')
+                          : ['Filter', 'FastFilter', 'Sort', 'RecordColor'].includes(item.type)
                           ? getHtml(item.type)
                           : item.type === 'Controls'
                           ? hideLengthStr
@@ -498,7 +536,7 @@ class ViewConfigCon extends Component {
           />
         )}
         {/* 层级，看板，画廊 ，非多表关联层级视图 */}
-        {_.includes(['board', 'structure', 'gallery'], viewTypeText) && !isRelateMultiSheetHierarchyView && (
+        {_.includes(['board', 'structure', 'gallery', 'detail'], viewTypeText) && !isRelateMultiSheetHierarchyView && (
           <div className="cardAppearanceWrap">
             <CardAppearance
               {..._.pick(this.props, [
@@ -769,6 +807,7 @@ class ViewConfigCon extends Component {
           filterResigned={false}
           columns={columns}
           conditions={view.filters}
+          urlParams={JSON.parse((view.advancedSetting || {}).urlparams || '[]')}
           onConditionsChange={conditions => {
             this.setState(
               {
@@ -817,50 +856,37 @@ class ViewConfigCon extends Component {
   renderSetting = () => {
     const { viewSetting, customdisplay = '0', customShowControls, showControls } = this.state;
     const {
-      showCreateCustomBtnFn,
+      onShowCreateCustomBtn,
       worksheetId,
       appId,
       columns,
       view,
-      btnData,
       refreshFn,
       btnList,
       viewId,
       sheetSwitchPermit,
+      worksheetControls,
     } = this.props;
 
     const filteredColumns = filterHidedControls(columns, view.controls, false).filter(
       c => !!c.controlName && !_.includes([22, 10010, 43, 45, 49, 51], c.type),
     );
 
-    const customizeColumns = isShowWorkflowSys
-      ? filteredColumns
-      : filteredColumns.filter(c => !_.includes(WORKFLOW_SYSTEM_FIELDS_SORT, c.controlId));
-
     const isShowWorkflowSys = isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit);
-    const { hidebtn } = getAdvanceSetting(view); //隐藏不可用按钮 1：隐藏 0或者空：不隐藏
     switch (viewSetting) {
-      case 'CustomAction': // 自定义动作
+      case 'ActionSet': // 自定义动作
         return (
-          <CustomBtn
-            showCreateCustomBtnFn={showCreateCustomBtnFn}
+          <ActionSet
+            worksheetControls={worksheetControls}
+            isSheetView={VIEW_DISPLAY_TYPE[view.viewType] === 'sheet'}
+            onShowCreateCustomBtn={onShowCreateCustomBtn}
             worksheetId={worksheetId}
             appId={appId}
-            viewId={view.viewId}
-            btnData={btnData}
+            viewId={viewId}
             refreshFn={refreshFn}
             btnList={btnList}
-            hidebtn={hidebtn} //是否隐藏无用按钮
-            hidebtnFn={hidebtn => {
-              this.props.updateCurrentView(
-                Object.assign(view, {
-                  advancedSetting: updateViewAdvancedSetting(view, {
-                    hidebtn,
-                  }),
-                  editAttrs: ['advancedSetting'],
-                }),
-              );
-            }}
+            updateCurrentView={this.props.updateCurrentView}
+            view={view}
           />
         );
       case 'Filter': // 筛选
@@ -896,6 +922,8 @@ class ViewConfigCon extends Component {
         return <FastFilter {...this.props} />;
       case 'NavGroup': // 分组筛选
         return <NavGroup {...this.props} />;
+      case 'RecordColor': // 颜色
+        return <RecordColor {...this.props} />;
       case 'Show': // 显示列
         return (
           <Show
@@ -964,6 +992,8 @@ class ViewConfigCon extends Component {
             }}
           />
         );
+      case 'urlParams':
+        return <UrlParams {...this.props} />;
       default:
         return this.renderViewSetting(); // 基础设置
     }
@@ -979,8 +1009,8 @@ class ViewConfigCon extends Component {
         {this.renderViewBtns()}
         <ScrollView className="viewContent flex">
           <div className="viewContentCon">
-            {!['MobileSet', 'FastFilter', 'NavGroup'].includes(data.type) && (
-              <div className="viewSetTitle">{data.type === 'Setting' ? _l('%0设置', text) : data.name}</div>
+            {!['MobileSet', 'FastFilter', 'NavGroup', 'RecordColor', 'ActionSet'].includes(data.type) && (
+              <div className="viewSetTitle">{data.type === 'Setting' ? _l('视图设置') : data.name}</div>
             )}
             {this.renderSetting()}
           </div>

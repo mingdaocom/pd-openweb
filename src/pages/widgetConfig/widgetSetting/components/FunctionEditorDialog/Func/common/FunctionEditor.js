@@ -80,10 +80,12 @@ export default class Function {
       matchBrackets: true,
       autoCloseBrackets: true,
       mode: 'text/javascript',
+      keywords: {},
       ...options,
     };
     if (type === 'mdfunction') {
       args.keywords = _.assign(
+        ...args.keywords,
         ...Object.keys(functions).map(key => ({
           [key]: {
             type: 'fn',
@@ -91,6 +93,14 @@ export default class Function {
           },
         })),
       );
+    }
+    if (type === 'javascript') {
+      args.keywords = _.assign(...args.keywords, {
+        SYSTEM_URL_PARAMS: {
+          type: 'system',
+          style: 'system',
+        },
+      });
     }
     this.editor = CodeMirror(dom, args);
     this.type = type;

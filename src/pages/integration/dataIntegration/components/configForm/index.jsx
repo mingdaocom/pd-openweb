@@ -127,6 +127,7 @@ export default function ConfigForm(props) {
   const [errorInfo, setErrorInfo] = useState([]);
   const [whitelistIp, setWhitelistIp] = useState([]);
   const [testStatus, setTestStatus] = useState(TEST_STATUS.DEFAULT);
+  const [sshEnable, setSshEnable] = useState(false);
   const fieldRef = useRef(null);
 
   const getExtraParams = formData => {
@@ -144,6 +145,7 @@ export default function ConfigForm(props) {
   // 获取白名单
   useEffect(() => {
     dataSourceApi.whitelistIp().then(res => res && setWhitelistIp(res));
+    dataSourceApi.sshServerEnable().then(res => setSshEnable(!!res));
   }, []);
 
   // 获取应用列表
@@ -401,21 +403,21 @@ export default function ConfigForm(props) {
               setSaveDisabled(!(_.includes(['name', 'roleType'], changed[0]) && isEditSource));
             }}
           />
-          {/* 
-          暂时关闭ssh连接入口
-          <SSHConnect
-            projectId={props.currentProjectId}
-            data={connectorConfigData[roleType].formData}
-            onChange={obj => {
-              setConnectorConfigData({
-                [roleType]: Object.assign({}, connectorConfigData[roleType], {
-                  formData: { ...connectorConfigData[roleType].formData, ...obj },
-                }),
-              });
-            }}
-            setSubmitDisabled={setSaveDisabled}
-            disabled={isCreateConnector && connectorConfigData[roleType].createType === CREATE_TYPE.SELECT_EXIST}
-          /> */}
+          {sshEnable && (
+            <SSHConnect
+              projectId={props.currentProjectId}
+              data={connectorConfigData[roleType].formData}
+              onChange={obj => {
+                setConnectorConfigData({
+                  [roleType]: Object.assign({}, connectorConfigData[roleType], {
+                    formData: { ...connectorConfigData[roleType].formData, ...obj },
+                  }),
+                });
+              }}
+              setSubmitDisabled={setSaveDisabled}
+              disabled={isCreateConnector && connectorConfigData[roleType].createType === CREATE_TYPE.SELECT_EXIST}
+            />
+          )}
         </React.Fragment>
       )}
 

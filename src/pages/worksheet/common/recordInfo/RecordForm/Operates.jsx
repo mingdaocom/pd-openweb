@@ -55,12 +55,18 @@ export default class Operates extends Component {
       }, 500);
       this.loadBtns();
     });
-    emitter.addListener('WINDOW_RESIZE', this.setButtonShowNum);
+    if (typeof ResizeObserver !== 'undefined') {
+      this.resizeOb = new ResizeObserver(this.setButtonShowNum);
+      this.resizeOb.observe(this.customButtonsCon.current);
+    }
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.recordbase.recordId !== this.props.recordbase.recordId) {
-      this.loadBtns(nextProps.recordbase.recordId);
+    if (
+      nextProps.recordbase.recordId !== this.props.recordbase.recordId ||
+      nextProps.recordbase.viewId !== this.props.recordbase.viewId
+    ) {
+      this.loadBtns(nextProps.recordbase.recordId, nextProps.recordbase.viewId);
       this.setState({ btnDisable: {} });
     }
   }
@@ -72,15 +78,19 @@ export default class Operates extends Component {
   }
 
   componentWillUnmount() {
-    emitter.removeListener('WINDOW_RESIZE', this.setButtonShowNum);
+    if (this.resizeOb) {
+      this.resizeOb.unobserve(this.customButtonsCon.current);
+      this.resizeOb.disconnect();
+      delete this.resizeOb;
+    }
   }
 
   customButtonsCon = React.createRef();
 
   @autobind
-  async loadBtns(rowId) {
+  async loadBtns(rowId, viewId) {
     const { api } = this.context;
-    const buttons = await api.getWorksheetBtns(rowId ? { rowId } : {});
+    const buttons = await api.getWorksheetBtns(rowId ? { rowId, ...(viewId ? { viewId } : {}) } : {});
     this.setState(
       {
         customBtns: buttons,

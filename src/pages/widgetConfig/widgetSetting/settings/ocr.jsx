@@ -7,6 +7,7 @@ import { TEMPLATE_TYPE } from '../../config/ocr';
 import OcrMap from '../components/OcrMap';
 import { updateConfig } from '../../util/setting';
 import ApiSearchConfig from '../components/ApiSearchConfig';
+import { ALL_SYS } from '../../config/widget';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 
 const API_DISPLAY = [
@@ -20,15 +21,73 @@ const API_DISPLAY = [
   },
 ];
 
+const MAP_DISPLAY = [
+  {
+    text: _l('映射到当前记录'),
+    value: '0',
+  },
+  {
+    text: _l('映射到子表明细'),
+    value: '2',
+  },
+];
+
+function OcrMapType({ data, allControls = [], onChange }) {
+  const { ocrmaptype = '0', ocrcid = '' } = getAdvanceSetting(data);
+  const FILED_LIST = allControls.filter(i => i.type === 34).map(i => ({ text: i.controlName, value: i.controlId }));
+  return (
+    <Fragment>
+      <SettingItem className="withSplitLine">
+        <div className="settingItemTitle">{_l('将当前模版映射到')}</div>
+        <Components.Dropdown
+          value={ocrmaptype}
+          data={MAP_DISPLAY}
+          onChange={value => {
+            if (ocrmaptype === value) return;
+            onChange(handleAdvancedSettingChange(data, { ocrmaptype: value, ocrcid: '', ocrmap: '' }));
+          }}
+        />
+        <div className="mTop10 Gray_9e">
+          {ocrmaptype === '2'
+            ? _l('选择映射子表明细，可进行多个附件批量映射识别')
+            : _l('选择映射当前记录，仅能进行单次映射识别')}
+        </div>
+      </SettingItem>
+      {ocrmaptype === '2' && (
+        <SettingItem>
+          <div className="settingItemTitle">{_l('选择子表')}</div>
+          <Components.Dropdown
+            value={ocrcid}
+            data={FILED_LIST}
+            onChange={value => {
+              onChange(handleAdvancedSettingChange(data, { ocrcid: value }));
+            }}
+          />
+        </SettingItem>
+      )}
+    </Fragment>
+  );
+}
+
 export default function OcrDisplay(props) {
   const { data, allControls = [], onChange } = props;
   const { enumDefault, strDefault } = data;
   const [visible, setVisible] = useState(false);
   const ocrMap = getAdvanceSetting(data, 'ocrmap');
   const [disableAlbum] = (strDefault || '00').split('');
-  const { ocrapitype = '0', ocroriginal = '' } = getAdvanceSetting(data);
+  const { ocrapitype = '0', ocroriginal = '', ocrmaptype = '0', ocrcid = '' } = getAdvanceSetting(data);
 
   const FILED_LIST = allControls.filter(i => i.type === 14).map(i => ({ text: i.controlName, value: i.controlId }));
+  const batchDisabled = ocrmaptype === '2' && !ocrcid;
+  const FILED_RELATION_LIST =
+    ocrmaptype === '2' && ocrcid
+      ? (
+          _.get(
+            _.find(allControls, i => i.controlId === ocrcid),
+            'relationControls',
+          ) || []
+        ).filter(i => !_.includes(ALL_SYS, i.controlId))
+      : allControls;
 
   useEffect(() => {
     if (_.isUndefined(enumDefault)) {
@@ -45,7 +104,7 @@ export default function OcrDisplay(props) {
           checkedValue={ocrapitype}
           data={API_DISPLAY}
           onChange={value => {
-            let newData = handleAdvancedSettingChange(data, { ocrapitype: value });
+            let newData = handleAdvancedSettingChange(data, { ocrapitype: value, ocrmaptype: '0', ocrcid: '' });
             if (value === '1' && _.isUndefined(data.hint)) {
               newData = { ...newData, hint: _l('识别文字') };
             }
@@ -90,11 +149,21 @@ export default function OcrDisplay(props) {
               }}
             />
           </SettingItem>
+          <OcrMapType {...props} />
           {_.isNumber(enumDefault) && (
             <SettingItem>
               <div className="settingItemTitle">{_l('字段映射')}</div>
               {isEmpty(ocrMap) ? (
-                <Button style={{ borderStyle: isEmpty(ocrMap) ? 'dashed' : 'solid' }} onClick={() => setVisible(true)}>
+                <Button
+                  style={{
+                    borderStyle: isEmpty(ocrMap) ? 'dashed' : 'solid',
+                    color: batchDisabled ? 'rgba(51, 51, 51, 0.5)' : '#333',
+                  }}
+                  onClick={() => {
+                    if (batchDisabled) return;
+                    setVisible(true);
+                  }}
+                >
                   {_l('点击设置')}
                 </Button>
               ) : (
@@ -103,7 +172,7 @@ export default function OcrDisplay(props) {
                   <span>{_l('已设置')}</span>
                 </Button>
               )}
-              {visible && <OcrMap {...props} onClose={() => setVisible(false)} />}
+              {visible && <OcrMap {...props} allControls={FILED_RELATION_LIST} onClose={() => setVisible(false)} />}
             </SettingItem>
           )}
         </Fragment>

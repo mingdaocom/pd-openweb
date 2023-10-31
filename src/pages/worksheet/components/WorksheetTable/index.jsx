@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useMemo, useImperativeHandle, forwardRef, useEffect } from 'react';
+import React, { useCallback, useRef, useMemo, useImperativeHandle, forwardRef, useEffect, Fragment } from 'react';
 import styled from 'styled-components';
 import _ from 'lodash';
 import cx from 'classnames';
@@ -7,6 +7,7 @@ import autoSize from 'ming-ui/decorators/autoSize';
 import { useSetState } from 'react-use';
 import { useRefStore } from 'worksheet/hooks';
 import DragMask from 'worksheet/common/DragMask';
+import { generate } from '@ant-design/colors';
 import store from 'redux/configureStore';
 import worksheetApi from 'src/api/worksheet';
 import {
@@ -15,6 +16,8 @@ import {
   checkRulesErrorOfRowControl,
   getScrollBarWidth,
   checkCellIsEmpty,
+  getRecordColor,
+  filterEmptyChildTableRows,
 } from 'worksheet/util';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { ROW_HEIGHT, WORKSHEETTABLE_FROM_MODULE, SHEET_VIEW_HIDDEN_TYPES } from 'worksheet/constants/enum';
@@ -31,6 +34,12 @@ import './style.less';
 const StyledFixedTable = styled(FixedTable)`
   font-size: 13px;
   user-select: text !important;
+  .colorTag {
+    position: absolute;
+    width: 4px;
+    border-radius: 3px;
+    display: inline-block;
+  }
   .cell {
     background-color: #fff;
     border: 1px solid rgba(0, 0, 0, 0.09) !important;
@@ -115,11 +124,13 @@ function WorksheetTable(props, ref) {
   const {
     fromModule = WORKSHEETTABLE_FROM_MODULE.APP,
     enableRules = true,
+    recordColorConfig,
     // 相关 id
     appId,
     worksheetId,
     viewId,
     tableType,
+    className,
     noRenderEmpty,
     loading,
     isSubList,
@@ -135,6 +146,7 @@ function WorksheetTable(props, ref) {
     rowHeight,
     rowHeightEnum,
     showRowHead = true,
+    showSearchEmpty = true,
     defaultScrollLeft,
     sheetViewHighlightRows = {},
     cellErrors = {},
@@ -148,6 +160,7 @@ function WorksheetTable(props, ref) {
     isTrash,
     allowlink,
     addNewRow,
+    cellUniqueValidate,
   } = props;
   const { emptyIcon, emptyText, sheetIsFiltered, allowAdd, noRecordAllowAdd, showNewRecord } = props; // 空状态
   const { keyWords } = props; // 搜索
@@ -260,6 +273,7 @@ function WorksheetTable(props, ref) {
       `rowHeight-${_.findIndex(ROW_HEIGHT, h => h === rowHeight) || 0}`,
       {
         placeholder: !row.rowid,
+        emptyRow: row.rowid && _.isFunction(row.rowid.startsWith) && row.rowid.startsWith('empty'),
         oddRow: rowIndex % 2 === 1,
         readonly:
           lineEditable &&
@@ -300,6 +314,17 @@ function WorksheetTable(props, ref) {
           checkCellIsEmpty(value),
       },
     );
+    const recordColor =
+      recordColorConfig &&
+      getRecordColor({
+        controlId: recordColorConfig.controlId,
+        colorItems: recordColorConfig.colorItems,
+        controls,
+        row,
+      });
+    if (recordColor && recordColorConfig.showBg && recordColor.lightColor && control.type !== 'emptyForResize') {
+      style.backgroundColor = recordColor.lightColor;
+    }
     if (_.includes(['head', 'footer'], type)) {
       style.height = 34;
     }
@@ -314,7 +339,7 @@ function WorksheetTable(props, ref) {
         style.height = columnHeadHeight;
         className += ' wrapControlName';
       }
-      return renderRowHead({
+      const rowHead = renderRowHead({
         className,
         key,
         style,
@@ -323,6 +348,23 @@ function WorksheetTable(props, ref) {
         rowIndex: type === 'head' ? -1 : rowIndex,
         data,
       });
+      return recordColor && recordColorConfig.showLine ? (
+        <Fragment>
+          {rowHead}
+          <span
+            className="colorTag"
+            style={{
+              left: style.left + style.width - 10,
+              top: style.top + 6,
+              height: style.height - 12,
+              zIndex: 2,
+              backgroundColor: recordColor.color,
+            }}
+          />
+        </Fragment>
+      ) : (
+        rowHead
+      );
     }
     const error = cellErrors[`${row.rowid}-${control.controlId}`];
     if (type === 'head') {
@@ -419,6 +461,7 @@ function WorksheetTable(props, ref) {
           checkRulesErrorOfControl={(control, row) => {
             return checkRulesErrorOfRowControl({ from: 3, rules, controls, control, row });
           }}
+          cellUniqueValidate={cellUniqueValidate}
           // 更新数据
           updateCell={(args, options) => {
             updateCell(args, {
@@ -481,6 +524,9 @@ function WorksheetTable(props, ref) {
       return;
     }
     const focusElement = tableRef.current.dom.current.querySelector(`.cell-${newIndex}`);
+    if (focusElement.classList.contains('emptyRow') && cache.data[Math.floor(newIndex / cellColumnCount)]) {
+      onFocusCell(cache.data[Math.floor(newIndex / cellColumnCount)], newIndex);
+    }
     const focusRowHeadElement = tableRef.current.dom.current.querySelector(
       `.cell-${newIndex - (newIndex % cellColumnCount)}`,
     );
@@ -519,7 +565,7 @@ function WorksheetTable(props, ref) {
     const cell = cellRefs[editIndex];
     if (
       !e.isInputValue &&
-      (e.target.classList.contains('stopPropagation') ||
+      ((e.target && e.target.classList.contains('stopPropagation')) ||
         (e.key === 'Enter' &&
           e.target.tagName.toLowerCase() !== 'body' &&
           !e.target.classList.contains('body') &&
@@ -538,7 +584,10 @@ function WorksheetTable(props, ref) {
     updateSheetRow: newRow => {
       const rowIndex = _.findIndex(data, { rowid: newRow.rowid });
       if (!_.isUndefined(rowIndex)) {
-        updateCachedRow(newRow.rowid, { ...data[rowIndex], ..._.omit(newRow, ['allowedit', 'allowdelete']) });
+        updateCachedRow(newRow.rowid, {
+          ...data[rowIndex],
+          ..._.omit(newRow, data[rowIndex] ? ['allowedit', 'allowdelete'] : []),
+        });
         tableRef.current.updateRow(rowIndex);
       }
     },
@@ -588,6 +637,7 @@ function WorksheetTable(props, ref) {
     tableRef.current.forceUpdate();
   }, [showSummary, getColumnWidth, controls]);
   useEffect(() => {
+    setCache('data', data);
     let updatedRows = [];
     if (
       cache.prevColumns &&
@@ -597,7 +647,10 @@ function WorksheetTable(props, ref) {
       )
     ) {
       updatedRows = props.data;
-    } else if (props.data.length !== data.length && props.data.length > data.length) {
+    } else if (
+      filterEmptyChildTableRows(props.data).length !== filterEmptyChildTableRows(data).length &&
+      filterEmptyChildTableRows(props.data).length > filterEmptyChildTableRows(data).length
+    ) {
       updatedRows = props.data.filter(row => !_.find(data, r => r.rowid === row.rowid));
     } else {
       props.data.forEach(row => {
@@ -657,7 +710,7 @@ function WorksheetTable(props, ref) {
         noRenderEmpty={noRenderEmpty}
         loading={loading}
         ref={tableRef}
-        className={cx(`worksheetTableComp sheetViewTable id-${tableId}-id`, tableType, {
+        className={cx(`worksheetTableComp sheetViewTable id-${tableId}-id`, className, tableType, {
           scrollBarHoverShow,
           hideVerticalLine: !showVerticalLine,
           showAsZebra,
@@ -679,7 +732,7 @@ function WorksheetTable(props, ref) {
         renderFooterCell={showSummary && renderFooterCell ? args => renderCell({ ...args, type: 'footer' }) : undefined}
         // 空状态
         renderEmpty={({ style }) => {
-          if (keyWords) {
+          if (keyWords && showSearchEmpty) {
             return;
           }
           return (
@@ -694,7 +747,7 @@ function WorksheetTable(props, ref) {
           );
         }}
       />
-      {!data.length && keyWords && <NoSearch keyWords={keyWords} />}
+      {!data.length && showSearchEmpty && keyWords && <NoSearch keyWords={keyWords} />}
     </React.Fragment>
   );
 }

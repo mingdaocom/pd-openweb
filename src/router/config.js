@@ -122,7 +122,7 @@ export const ROUTE_CONFIG = {
     component: () => import('src/pages/Print'),
   },
   printPivotTable: {
-    path: '/printPivotTable/:reportId',
+    path: '/printPivotTable/:reportId/:themeColor?',
     component: () => import('src/pages/Statistics/PrintPivotTable'),
   },
   uploadTemplateSheet: {
@@ -325,6 +325,7 @@ const withoutChatPathList = [
   'integrationApi',
   'portaluser',
   'wechatPay',
+  'embed/view'
 ];
 export const withoutHeaderUrl = `/(.*)(${withoutHeaderPathList.join('|')})`;
 export const withoutChatUrl = `/(.*)(${withoutChatPathList.join('|')})`;

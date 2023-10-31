@@ -68,9 +68,10 @@ const HorizontalChartContent = styled.div`
 `;
 
 function ChartContent(props) {
-  const { widget, reportId, name, accessToken, filters = [], pageComponents } = props;
+  const { widget, reportId, name, accessToken, filters = [], pageComponents, projectId, themeColor, pageConfig } = props;
   const objectId = _.get(widget, 'config.objectId');
   const mobileCount = _.get(widget, 'config.mobileCount');
+  const columnWidthConfig = _.get(widget, 'config.columnWidthConfig');
   const [loading, setLoading] = useState(true);
   const [filterVisible, setFilterVisible] = useState(false);
   const [zoomVisible, setZoomVisible] = useState(false);
@@ -91,6 +92,9 @@ function ChartContent(props) {
 
   useEffect(() => {
     handleReportRequest();
+    if (columnWidthConfig) {
+      sessionStorage.setItem(`pivotTableColumnWidthConfig-${widget.value}`, columnWidthConfig);
+    }
   }, [reportId]);
 
   const handleReportRequest = param => {
@@ -219,6 +223,9 @@ function ChartContent(props) {
         data={data}
         loading={loading}
         mobileCount={mobileCount}
+        projectId={projectId}
+        themeColor={themeColor}
+        pageConfig={pageConfig}
         onOpenFilterModal={handleOpenFilterModal}
         onOpenZoomModal={handleOpenZoomModal}
       />
@@ -257,6 +264,9 @@ function ChartContent(props) {
           {zoomVisible && (
             <Chart
               isHorizontal={true}
+              projectId={projectId}
+              themeColor={themeColor}
+              pageConfig={pageConfig}
               pageComponents={pageComponents}
               data={zoomData}
               loading={loading}

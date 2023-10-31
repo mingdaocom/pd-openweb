@@ -48,18 +48,6 @@ export function loadColumnRules({ worksheetId }) {
 }
 
 /**
- * 当前是否编辑状态
- */
-export function updateEditState(data) {
-  return (dispatch, getState) => {
-    dispatch({
-      type: 'COLUMNRULES_ISEDIT',
-      data: data.ruleId || false,
-    });
-  };
-}
-
-/**
  * 新增规则
  */
 export function addColumnRules() {
@@ -73,18 +61,6 @@ export function addColumnRules() {
   };
 }
 
-/**
- * 更新编辑的规则id
- */
-export function updateEditingId(data = '') {
-  return (dispatch, getState) => {
-    dispatch({
-      type: 'COLUMNRULES_ISEDIT_ID',
-      data,
-    });
-  };
-}
-
 //更新当前正在编辑的规则
 export function selectColumnRules(data = {}) {
   return (dispatch, getState) => {
@@ -92,8 +68,6 @@ export function selectColumnRules(data = {}) {
       type: 'UPDATE_SELECT_COLUMNRULES_LIST',
       data: _.cloneDeep(data),
     });
-    dispatch(updateEditingId(data.ruleId));
-    dispatch(updateEditState(data));
   };
 }
 

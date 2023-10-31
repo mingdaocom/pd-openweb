@@ -13,7 +13,7 @@ const { RangePicker } = DatePicker;
 
 const newDropdownScopeData = _.cloneDeep(dropdownScopeData.filter(data => ![18, 19].includes(data.value)));
 
-newDropdownScopeData.splice(16, 0, ...pastAndFutureData);
+newDropdownScopeData.splice(18, 0, ...pastAndFutureData);
 
 export default class TimeModal extends Component {
   constructor(props) {

@@ -1,5 +1,5 @@
 import { formatColumnToText } from 'src/pages/widgetConfig/util/data.js';
-import { calcDate } from 'src/pages/worksheet/util';
+import { calcDate, filterEmptyChildTableRows } from 'src/pages/worksheet/util';
 import { Parser } from 'hot-formula-parser';
 import nzh from 'nzh';
 import { v4 as uuidv4 } from 'uuid';
@@ -7,6 +7,7 @@ import { FORM_ERROR_TYPE, FROM, TIME_UNIT, FORM_ERROR_TYPE_TEXT, SYSTEM_ENUM } f
 import { isRelateRecordTableControl, checkCellIsEmpty } from 'worksheet/util';
 import execValueFunction from 'src/pages/widgetConfig/widgetSetting/components/FunctionEditorDialog/Func/exec';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
+import { getDefaultCount } from 'src/pages/widgetConfig/widgetSetting/components/SearchWorksheet/SearchWorksheetDialog.jsx';
 import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting.js';
 import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
 import {
@@ -18,6 +19,7 @@ import {
   compareWithTime,
   getEmbedValue,
   unTextSearch,
+  controlState,
 } from './utils';
 import intlTelInput from '@mdfe/intl-tel-input';
 import utils from '@mdfe/intl-tel-input/build/js/utils';
@@ -26,7 +28,7 @@ import MapLoader from 'ming-ui/components/amap/MapLoader';
 import departmentAjax from 'src/api/department';
 import organizeAjax from 'src/api/organize';
 import worksheetAjax from 'src/api/worksheet';
-import { getCurrentProject } from 'src/util';
+import { browserIsMobile, getCurrentProject, toFixed } from 'src/util';
 import { checkRuleLocked } from './filterFn';
 import _ from 'lodash';
 
@@ -390,6 +392,9 @@ const parseNewFormula = (data, formulaStr, dot = 2, nullzero = '0', isPercent) =
     );
   });
   const parser = new Parser();
+  parser.setFunction('MOD', function (params) {
+    return params[0] % params[1];
+  });
   const result = parser.parse(expression);
   return columnIsUndefined
     ? { columnIsUndefined }
@@ -434,8 +439,35 @@ const parseValueIframe = (data, currentItem, masterData, embedData) => {
   );
 };
 
+function handleDotAndRound(currentItem, value) {
+  const isNegative = value < 0;
+  value = Math.abs(value);
+  const roundType = currentItem.advancedSetting.roundtype || '0';
+  // 取整方式 空或者0 向下取整 1 向上取整 2 代表四舍五入
+  let dot = Number(currentItem.dot);
+  if (!dot || _.isNaN(dot)) {
+    dot = 0;
+  }
+  if (roundType === '2') {
+    value = String((Math.round(value * Math.pow(10, dot)) / Math.pow(10, dot)) * (isNegative ? -1 : 1));
+  } else if (roundType === '1') {
+    value = String((Math.ceil(value * Math.pow(10, dot)) / Math.pow(10, dot)) * (isNegative ? -1 : 1));
+  } else {
+    value = String((Math.floor(value * Math.pow(10, dot)) / Math.pow(10, dot)) * (isNegative ? -1 : 1));
+  }
+  const ignoreZero = currentItem.advancedSetting.dotformat === '1';
+  if (!ignoreZero && dot !== 0) {
+    value = (value + (value.indexOf('.') > -1 ? '' : '.') + '0000000000000').replace(
+      new RegExp(`(\.\\d{${dot}})(0+)`),
+      '$1',
+    );
+  }
+  return value;
+}
+
 // 处理日期公式
 const parseDateFormula = (data, currentItem, recordCreateTime) => {
+  const roundType = currentItem.advancedSetting.roundtype || '0';
   const getTime = (str, pos) => {
     if (str === '$ctime$') {
       return recordCreateTime || new Date();
@@ -562,17 +594,7 @@ const parseDateFormula = (data, currentItem, recordCreateTime) => {
     } else {
       value = moment(endTime).diff(startTime, TIME_UNIT[currentItem.unit] || 'm', true);
     }
-
-    if (currentItem.dot) {
-      value = value.toString();
-      const strIndex = value.indexOf('.');
-
-      if (strIndex > -1) {
-        value = value.substring(0, strIndex + currentItem.dot + 1);
-      }
-    } else {
-      value = String(Math.floor(value));
-    }
+    value = handleDotAndRound(currentItem, value);
   } else if (currentItem.enumDefault === 2) {
     let dateColumnType = 0;
     let formulaResult;
@@ -628,10 +650,6 @@ const parseDateFormula = (data, currentItem, recordCreateTime) => {
     const unit = TIME_UNIT[currentItem.unit] || 'd';
     let today = moment();
     let time = moment(getTime(currentItem.sourceControlId, 'start'));
-    if (unit === 'd') {
-      today = today.startOf(unit);
-      time = time.startOf(unit);
-    }
     if (!today || !time) {
       return;
     }
@@ -639,10 +657,11 @@ const parseDateFormula = (data, currentItem, recordCreateTime) => {
       currentItem.advancedSetting.dateformulatype === '1' ||
       _.isUndefined(currentItem.advancedSetting.dateformulatype)
     ) {
-      value = String(moment(time).diff(today, unit));
+      value = String(moment(time).diff(today, unit, true));
     } else {
-      value = String(moment(today).diff(time, unit));
+      value = String(moment(today).diff(time, unit, true));
     }
+    value = handleDotAndRound(currentItem, value);
   }
 
   return value;
@@ -690,7 +709,8 @@ export const checkRequired = item => {
         _.isArray(safeParse(item.value)) &&
         !safeParse(item.value).length) ||
       (item.type === 29 && typeof item.value === 'string' && item.value.startsWith('deleteRowIds')) ||
-      (item.type === 34 && ((item.value.rows && !item.value.rows.length) || item.value === '0')) ||
+      (item.type === 34 &&
+        ((item.value.rows && !filterEmptyChildTableRows(item.value.rows).length) || item.value === '0')) ||
       (item.type === 36 && item.value === '0'))
   ) {
     errorType = FORM_ERROR_TYPE.REQUIRED;
@@ -853,6 +873,24 @@ export const onValidator = ({ item, data, masterData, ignoreRequired, verifyAllC
 
     if (isRelateRecordTableControl(item)) {
       errorType = '';
+    }
+
+    if (item.type === 34) {
+      const { min, max, enablelimit } = item.advancedSetting;
+      if (String(enablelimit) === '1') {
+        const rowsLength = Number(
+          (_.get(item, 'value.rows') && filterEmptyChildTableRows(item.value.rows).length) ||
+            (!_.isObject(item.value) ? item.value : 0) ||
+            0,
+        );
+        if (_.isNumber(rowsLength) && !_.isNaN(rowsLength)) {
+          if (_.isNumber(Number(min)) && !_.isNaN(Number(min)) && rowsLength < Number(min)) {
+            errorType = FORM_ERROR_TYPE.CHILD_TABLE_ROWS_LIMIT;
+          } else if (_.isNumber(Number(max)) && !_.isNaN(Number(max)) && rowsLength > Number(max)) {
+            errorType = FORM_ERROR_TYPE.CHILD_TABLE_ROWS_LIMIT;
+          }
+        }
+      }
     }
   }
 
@@ -1025,7 +1063,7 @@ export default class DataFormat {
       });
     }
 
-    if (!(isCreate || ignoreLock) && checkRuleLocked(rules, this.data)) {
+    if (!(isCreate || ignoreLock) && checkRuleLocked(rules, this.data, _.get(this.embedData, 'recordId'))) {
       disabled = true;
     }
 
@@ -1140,7 +1178,13 @@ export default class DataFormat {
             removeUniqueItem(controlId);
             _.remove(this.errorItems, obj => obj.controlId === item.controlId && !obj.errorMessage);
 
-            const { errorType, errorText } = onValidator({ item, data: this.data, masterData: this.masterData });
+            const { errorType, errorText } = onValidator({
+              item,
+              data: this.data,
+              masterData: this.masterData,
+              verifyAllControls: this.from === 21 && browserIsMobile() ? true : undefined,
+            });
+
             if (errorType) {
               this.errorItems.push({
                 controlId: item.controlId,
@@ -1752,8 +1796,8 @@ export default class DataFormat {
         params.getType = 3;
       }
       // 填写链接
-      if (window.isPublicWorksheet && window.recordShareLinkId) {
-        params.shareId = window.recordShareLinkId;
+      if (_.get(window, 'shareState.isPublicWorkflowRecord') && _.get(window, 'shareState.shareId')) {
+        params.shareId = _.get(window, 'shareState.shareId');
         params.getType = 13;
       }
       worksheetAjax
@@ -1872,8 +1916,9 @@ export default class DataFormat {
       // 固定值|字段值
       const isDynamicValue = item.dynamicSource && item.dynamicSource.length > 0;
       //筛选值字段
-      const fieldResult = (_.find(this.data, da => da.controlId === _.get(item.dynamicSource[0] || {}, 'cid')) || {})
-        .value;
+      const fieldResult =
+        _.includes(['rowid', 'currenttime'], _.get(item.dynamicSource[0] || {}, 'cid')) ||
+        (_.find(this.data, da => da.controlId === _.get(item.dynamicSource[0] || {}, 'cid')) || {}).value;
       //条件字段
       const conditionExit = _.find(controls.concat(SYSTEM_CONTROLS), con => con.controlId === item.controlId);
       return isDynamicValue
@@ -1891,7 +1936,7 @@ export default class DataFormat {
       this.loopList.push(`${effectControlId}-${controlId}`);
     }
 
-    const formatFilters = formatFiltersValue(filters, this.data);
+    const formatFilters = formatFiltersValue(filters, this.data, _.get(this.embedData, 'recordId'));
     let params = {
       filterControls: formatFilters,
       pageIndex: 1,
@@ -1912,19 +1957,21 @@ export default class DataFormat {
   getFilterConfigs = (control = {}, searchType) => {
     switch (searchType) {
       case 'init':
-        return this.searchConfig.filter(({ items = [], controlId, controlType, configs = [] }) => {
-          let isNull = true;
+        return this.searchConfig.filter(({ items = [], controlId }) => {
           const curValue = _.get(
             _.find(this.data, d => d.controlId === controlId),
             'value',
           );
-          if (controlType === 29) {
-            isNull = _.isEmpty(safeParse(curValue));
-          } else {
-            isNull = controlType === 34 ? !curValue : true;
-          }
+          const isNull = _.isEmpty(safeParse(curValue));
 
-          return _.every(items, item => (item.dynamicSource || []).length === 0) && isNull;
+          return (
+            _.every(
+              items,
+              item =>
+                _.includes(['rowid', 'currenttime'], _.get(item.dynamicSource[0] || {}, 'cid')) ||
+                (item.dynamicSource || []).length === 0,
+            ) && isNull
+          );
         });
       case 'onBlur':
         return this.searchConfig
@@ -1958,12 +2005,31 @@ export default class DataFormat {
         }
       };
       if (currentConfig) {
-        const { items = [], configs = [], templates = [], sourceId, controlType, controlId, id } = currentConfig;
+        const {
+          items = [],
+          configs = [],
+          templates = [],
+          moreType,
+          moreSort,
+          sourceId,
+          controlType,
+          controlId,
+          id,
+        } = currentConfig;
         const controls = _.get(templates[0] || {}, 'controls') || [];
         //当前配置查询的控件
         const currentControl = _.find(this.data, da => da.controlId === controlId);
+        if (!currentControl) {
+          return;
+        }
+        // 表单类型转换，矫正数量配置
+        let queryCount = getDefaultCount(currentControl, currentConfig.queryCount);
         // 满足查询时机
         const canSearch = this.getSearchStatus(items, controls);
+        // 能配查询多条的是否赋值的控件
+        const canSearchMore =
+          !_.includes([29, 34], currentControl.type) ||
+          (currentControl.type === 29 && currentControl.enumDefault === 1);
         //表删除、没有控件、不符合查询时机、当前配置控件已删除等不执行
         if (
           templates.length > 0 &&
@@ -1974,25 +2040,22 @@ export default class DataFormat {
         ) {
           //关联记录
           if (_.includes([29], controlType)) {
-            //关联单条取第一条记录
             this.getFilterRowsData(
               items,
               {
                 worksheetId: sourceId,
-                pageSize:
-                  currentControl.enumDefault === 1
-                    ? 1
-                    : _.get(currentControl.advancedSetting || {}, 'showtype') !== '2'
-                    ? 50
-                    : 200,
+                pageSize: currentControl.enumDefault === 1 ? 1 : queryCount,
                 id,
                 getAllControls: true,
+                sortControls: moreSort,
               },
               controlId,
               control.controlId,
             ).then(res => {
               this.setLoadingInfo(controlId, false);
               if (res.resultCode === 1) {
+                // 查询多条不赋值
+                if (canSearchMore && res.count > 1 && moreType === 1) return;
                 const newValue = (res.data || []).map(item => {
                   return {
                     isWorksheetQueryFill: _.get(currentControl.advancedSetting || {}, 'showtype') === '1',
@@ -2021,9 +2084,10 @@ export default class DataFormat {
                 items,
                 {
                   worksheetId: sourceId,
-                  pageSize: controlType === 34 ? 200 : 1,
+                  pageSize: controlType === 34 ? queryCount : 1,
                   id,
                   getAllControls: controlType === 34,
+                  sortControls: moreSort,
                 },
                 controlId,
                 control.controlId,
@@ -2031,6 +2095,8 @@ export default class DataFormat {
                 this.setLoadingInfo(controlId, false);
                 if (res.resultCode === 1) {
                   const filterData = res.data || [];
+                  // 查询多条不赋值
+                  if (canSearchMore && res.count > 1 && moreType === 1) return;
                   //子表
                   if (controlType === 34) {
                     const newValue = [];

@@ -45,7 +45,7 @@ export default class WorkSheetCommentList extends Component {
 
   render() {
     const {
-      worksheet: { worksheetId, rowId, appId, appName, appSectionId, viewId, title },
+      worksheet: { worksheetId, rowId, appId, appName, appSectionId, viewId, title, doNotLoadAtDidMount },
       change,
       discussions,
       addCallback,
@@ -60,7 +60,7 @@ export default class WorkSheetCommentList extends Component {
       forReacordDiscussion,
       entityType,
       atData,
-      placeholder: window.isPublicApp ? _l('预览模式下，不能参与讨论') : _l('讨论'),
+      placeholder: window.isPublicApp ? _l('预览模式下，不能参与讨论') : _l('暂无讨论'),
       activePlaceholder: _l('输入@成员，按Ctrl+Enter快速发布'),
       sourceId: id,
       sourceType: rowId ? Commenter.TYPES.WORKSHEETROW : Commenter.TYPES.WORKSHEET,
@@ -96,6 +96,7 @@ export default class WorkSheetCommentList extends Component {
         {/* <span className="Gray_9">{_l('只显示与我相关')}</span>*/}
         {/* </CheckBox>*/}
         <CommentList
+          doNotLoadAtDidMount={doNotLoadAtDidMount}
           status={status}
           sourceId={id}
           sourceType={rowId ? Commenter.TYPES.WORKSHEETROW : Commenter.TYPES.WORKSHEET}

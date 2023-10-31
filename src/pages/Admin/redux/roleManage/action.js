@@ -55,6 +55,11 @@ export const updateRolePageInfo = data => dispatch => {
   dispatch({ type: 'UPDATE_ROLE_PAGE_INFO', data });
 };
 export const updateCurrentRole = currentRole => dispatch => {
+  if (!currentRole.organizeId) {
+    updateUserPageIndex(1);
+    dispatch({ type: 'UPDATE_USER_LIST', userList: [] });
+    dispatch({ type: 'UPDATE_USER_COUNT', allUserCount: 0 });
+  }
   dispatch({ type: 'UPDATE_CURRENT_ROLE', currentRole });
 };
 export const updateSearchValue = searchValue => dispatch => {

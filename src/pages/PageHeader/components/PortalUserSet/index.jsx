@@ -515,6 +515,7 @@ export default class PortalUserSet extends Component {
                 })
                 .then(res => {
                   this.setState({ showUserInfoDialog: false, currentData: data });
+                  ids.includes('portal_name') && location.reload();
                 });
             }}
           />

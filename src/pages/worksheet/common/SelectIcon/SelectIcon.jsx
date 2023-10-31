@@ -80,7 +80,7 @@ export default class extends Component {
       <SelectIcon
         {...rest}
         className={className}
-        colorList={[]}
+        hideColor={true}
         name={originalName}
         iconColor={iconColor}
         icon={icon}

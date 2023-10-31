@@ -14,7 +14,7 @@ import { getPssId } from 'src/util/pssId';
  */
 export const chatSessionList = (param) => {
   return $.ajax({
-    url: config.HTTP_SERVER + '/chat_list',
+    url: _.get(window, 'config.HTTP_SERVER') + '/chat_list',
     data: $.extend(param, {
       pss_id: getPssId(),
     }),
@@ -63,7 +63,7 @@ export const getMessage = (conf) => {
   if (conf.type === Constant.SESSIONTYPE_GROUP) {
     param.groupid = conf.id;
     return $.ajax({
-      url: config.HTTP_SERVER + '/group_messages',
+      url: _.get(window, 'config.HTTP_SERVER') + '/group_messages',
       data: param,
       type: 'get',
       dataType: 'jsonp',
@@ -73,7 +73,7 @@ export const getMessage = (conf) => {
   } else if (conf.type === Constant.SESSIONTYPE_USER) {
     param.accountid = conf.id;
     return $.ajax({
-      url: config.HTTP_SERVER + '/messages',
+      url: _.get(window, 'config.HTTP_SERVER') + '/messages',
       data: param,
       type: 'get',
       dataType: 'jsonp',
@@ -101,7 +101,7 @@ export const getMessageById = (conf) => {
   param.msgid = conf.msgid || '';
   param.size = conf.size || 21;
   return $.ajax({
-    url: config.HTTP_SERVER + url,
+    url: _.get(window, 'config.HTTP_SERVER') + url,
     data: param,
     type: 'get',
     dataType: 'jsonp',
@@ -129,7 +129,7 @@ export const getImageContext = (conf) => {
   param.type = conf.type || 0; // 0：表示全部上下文图片消息；1：表示上文图片消息；2：表示下文图片消息
 
   return $.ajax({
-    url: config.HTTP_SERVER + url,
+    url: _.get(window, 'config.HTTP_SERVER') + url,
     data: param,
     type: 'get',
     dataType: 'jsonp',

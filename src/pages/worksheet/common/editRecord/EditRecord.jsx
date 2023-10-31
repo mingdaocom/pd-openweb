@@ -405,7 +405,7 @@ export default class EditRecord extends Component {
                 flag={formFlag}
                 data={formData
                   .filter(control => control.controlId === selectedControlId)
-                  .map(c => ({ ...c, size: 12 }))}
+                  .map(c => ({ ...c, size: 12, sectionId: undefined }))}
                 projectId={projectId}
                 appId={appId}
                 worksheetId={worksheetId}

@@ -48,7 +48,7 @@ const TopChartContent = styled.div`
     width: 50px;
   }
   .value {
-    width: 90px;
+    width: 110px;
     margin-left: 8px;
     text-align: right;
   }
@@ -239,10 +239,12 @@ export default class extends Component {
     );
   }
   renderTopChart() {
-    const { map, yaxisList, style } = this.props.reportData;
+    const { themeColor, projectId, customPageConfig, reportData } = this.props;
+    const { chartColor } = customPageConfig;
+    const { map, yaxisList, style } = reportData;
     const data = formatTopChartData(map);
     const maxValue = _.max(data.map(data => data[_.get(yaxisList[0], 'controlId')]));
-    const colors = getChartColors(style);
+    const colors = getChartColors(chartColor || style, themeColor, projectId);
     return (
       <TopChartContent className="h100 topChart noneValueProportion" progressBgColor={colors[0]}>
         <ScrollView>

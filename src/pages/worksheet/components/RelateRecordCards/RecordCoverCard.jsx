@@ -2,9 +2,10 @@ import React, { Fragment, useState } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import _ from 'lodash';
+import { validate } from 'uuid';
 import { CardButton } from '../Basics';
 import { previewQiniuUrl } from 'src/components/previewAttachments';
-import { browserIsMobile, isUUID } from 'src/util';
+import { browserIsMobile } from 'src/util';
 import { getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
 import CardCellControls from './CardCellControls';
 
@@ -95,7 +96,7 @@ export default function RecordCoverCard(props) {
     _.get(titleControl, 'advancedSetting.isdecrypt') === '1';
   const title =
     props.title ||
-    (data.rowid && isUUID(data.rowid)
+    (data.rowid && validate(data.rowid)
       ? getTitleTextFromRelateControl(parentControl, data, { noMask: forceShowFullValue })
       : _l('关联当前%0', sourceEntityName));
   return (

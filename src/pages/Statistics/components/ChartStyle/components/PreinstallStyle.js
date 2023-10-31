@@ -1,8 +1,11 @@
 import React, { Fragment } from 'react';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { Checkbox, Select } from 'antd';
+import { Checkbox, Select, Tooltip } from 'antd';
+import cx from 'classnames';
 import { defaultPivotTableStyle } from './TitleStyle';
+import store from 'redux/configureStore';
+import tinycolor from '@ctrl/tinycolor';
 
 const ColorBlock = styled.div`
   width: 14px;
@@ -19,7 +22,7 @@ const styles = [{
     columnTextColor: '#757575',
     columnBgColor: '#fafafa',
     lineTextColor: '#333',
-    lineBgColor: '#fff'
+    lineBgColor: '#fff',
   }
 }, {
   value: 2,
@@ -29,7 +32,7 @@ const styles = [{
     columnTextColor: '#fff',
     columnBgColor: '#2196F3',
     lineTextColor: '#fff',
-    lineBgColor: '#2196F3'
+    lineBgColor: '#2196F3',
   }
 }, {
   value: 3,
@@ -39,27 +42,54 @@ const styles = [{
     columnTextColor: '#fff',
     columnBgColor: '#3E4662',
     lineTextColor: '#fff',
-    lineBgColor: '#3E4662'
+    lineBgColor: '#3E4662',
   }
+}];
+
+const widthModels = [{
+  value: 1,
+  name: _l('自动')
+}, {
+  value: 2,
+  name: _l('固定')
+}, {
+  value: 3,
+  name: _l('百分比')
 }];
 
 const PreinstallStyle = props => {
   const { style, onChangeStyle } = props;
-  const { pivotTableStyle = defaultPivotTableStyle, paginationVisible, paginationSize = 20 } = style;
+  const { pivotTableStyle = defaultPivotTableStyle, paginationVisible, paginationSize = 20, pcWidthModel = 1, mobileWidthModel = 1 } = style;
+  const iconColor = _.get(store.getState().appPkg, 'iconColor');
 
-  const handleChangePivotTableStyle = (data) => {
+  const handleChangePivotTableStyle = (data, isRequest) => {
     onChangeStyle({
       pivotTableStyle: {
         ...pivotTableStyle,
         ...data,
       }
-    });
+    }, isRequest);
   }
 
   return (
     <div className="mBottom16">
       <div className="mBottom10">{_l('预设样式')}</div>
       <div className="chartTypeSelect flexRow valignWrapper">
+        <div
+          className="flex centerAlign pointer Gray_75"
+          onClick={() => {
+            const isLight = tinycolor(iconColor).isLight();
+            handleChangePivotTableStyle({
+              columnTextColor: isLight ? '#757575' : '#fff',
+              columnBgColor: 'themeColor',
+              lineTextColor: isLight ? '#333' : '#fff',
+              lineBgColor: 'themeColor',
+            });
+          }}
+        >
+          <ColorBlock style={{ backgroundColor: iconColor }}></ColorBlock>
+          {_l('主题')}
+        </div>
         {styles.map(item => (
           <div
             key={item.value}
@@ -69,6 +99,56 @@ const PreinstallStyle = props => {
             }}
           >
             <ColorBlock style={{ backgroundColor: item.color }}></ColorBlock>
+            {item.name}
+          </div>
+        ))}
+      </div>
+      <div className="mBottom10 mTop16 flexRow valignWrapper">
+        {_l('列宽模式')}
+        <Tooltip
+          title={(
+            <div className="pTop5 pBottom5">
+              <div className="mBottom2">{_l('自动')}</div>
+              <div>{_l('根据内容长度自动设置列宽')}</div>
+              <div className="mBottom2 mTop10">{_l('固定')}</div>
+              <div>{_l('列宽按固定宽度，当列数较多时横向滚动查看')}</div>
+              <div className="mBottom2 mTop10">{_l('百分比')}</div>
+              <div>{_l('列宽按百分比，在所有尺寸下始终完整显示所有列，适合列数较少的情况')}</div>
+            </div>
+          )}
+          overlayInnerStyle={{
+            width: 300
+          }}
+          placement="bottomRight"
+          arrowPointAtCenter
+          >
+          <Icon className="mLeft10 Gray_9e Font16 pointer" icon="knowledge-message" />
+        </Tooltip>
+      </div>
+      <div className="mBottom5">{_l('PC')}</div>
+      <div className="chartTypeSelect flexRow valignWrapper">
+        {widthModels.map(item => (
+          <div
+            key={item.value}
+            className={cx('flex centerAlign pointer Gray_75', { active: pcWidthModel === item.value })}
+            onClick={() => {
+              onChangeStyle({ pcWidthModel: item.value }, true);
+            }}
+          >
+            {item.name}
+          </div>
+        ))}
+      </div>
+      <div className="mBottom5 mTop10">{_l('移动')}</div>
+      <div className="chartTypeSelect flexRow valignWrapper">
+        {widthModels.map(item => (
+          <div
+            key={item.value}
+            className={cx('flex centerAlign pointer Gray_75', { active: mobileWidthModel === item.value })}
+            onClick={() => {
+              onChangeStyle({ mobileWidthModel: item.value });
+            }}
+          >
             {item.name}
           </div>
         ))}

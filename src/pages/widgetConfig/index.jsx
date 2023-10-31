@@ -12,20 +12,23 @@ import { useSheetInfo } from './hooks';
 import Header from './Header';
 import Content from './content';
 import { getCurrentRowSize, getPathById } from './util/widgets';
-import { formatControlsData, getMsgByCode } from './util/data';
+import { formatControlsData, getMsgByCode, scrollToVisibleRange } from './util/data';
 import {
   getUrlPara,
   genWidgetsByControls,
   genControlsByWidgets,
   returnMasterPage,
   formatSearchConfigs,
+  getBoundRowByTab,
 } from './util';
+import { resetDisplay } from './util/drag';
 import Components from './widgetSetting/components';
 import { verifyModifyDialog } from './widgetSetting/components/VerifyModifyDialog';
 import './index.less';
 import { WHOLE_SIZE } from './config/Drag';
 import ErrorState from 'src/components/errorPage/errorState';
 import { navigateTo } from 'src/router/navigateTo';
+import { isRelateRecordTableControl } from 'src/pages/worksheet/util.js';
 
 const WidgetConfig = styled.div`
   height: 100%;
@@ -85,6 +88,22 @@ export default function Container(props) {
     const { size } = data;
     if (isEmpty(path)) return widgets;
     const [row, col] = path;
+
+    // 在标签页内的关联记录切成列表或列表切成其他形态，关联记录切换成子表，布局更新
+    if (_.includes([29, 34, 51], data.type) && data.sectionId) {
+      const preData = widgets[row][col];
+      const unListToList = !isRelateRecordTableControl(preData) && isRelateRecordTableControl(data);
+      const recordToSub = preData.type === 29 && data.type === 34;
+      if (unListToList || recordToSub) {
+        const newData = { ...data, sectionId: '', size: 12 };
+        setActiveWidget(newData);
+        const targetIndex = getBoundRowByTab(widgets);
+        setTimeout(() => {
+          scrollToVisibleRange(newData, { activeWidget: newData });
+        }, 100);
+        return resetDisplay({ widgets, srcPath: path, srcItem: newData, targetIndex });
+      }
+    }
 
     // 如果将当前变成整行 且当前行有其他控件 则另起一行
     if (size === WHOLE_SIZE && widgets[row].length > 1) {
@@ -305,6 +324,7 @@ export default function Container(props) {
   const updateQueryConfigs = (value = {}, mode) => {
     if (mode === 'cover') {
       setQueryConfigs(value);
+      return;
     }
 
     const index = findIndex(queryConfigs, item => item.controlId === value.controlId);

@@ -1,8 +1,6 @@
 import React from 'react';
-import { Icon } from 'ming-ui';
-import Trigger from 'rc-trigger';
+import { Icon, ColorPicker } from 'ming-ui';
 import styled from 'styled-components';
-import ColorSelectWrap from './ColorSelectWrap';
 import { getColorCountByBg } from 'src/util';
 
 const SelectIcon = styled.div`
@@ -65,15 +63,14 @@ const NormalIconStyle = styled.div`
 
 export default function WidgetColor({ handleChange, color, text, type }) {
   return (
-    <Trigger
-      action={['click']}
-      popup={() => {
-        return <ColorSelectWrap color={color} handleChange={handleChange} />;
-      }}
-      zIndex={1100}
+    <ColorPicker
+      sysColor
+      isPopupBody
+      value={color}
+      onChange={handleChange}
       popupAlign={{
         points: ['tl', 'bl'],
-        offset: [-120, 0],
+        offset: [-260, 0],
       }}
     >
       {type === 'normal' ? (
@@ -90,6 +87,6 @@ export default function WidgetColor({ handleChange, color, text, type }) {
           </div>
         </SelectIcon>
       )}
-    </Trigger>
+    </ColorPicker>
   );
 }

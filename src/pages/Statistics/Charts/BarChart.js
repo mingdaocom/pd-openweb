@@ -121,6 +121,8 @@ export default class extends Component {
   componentWillReceiveProps(nextProps) {
     const { displaySetup, style } = nextProps.reportData;
     const { displaySetup: oldDisplaySetup, style: oldStyle } = this.props.reportData;
+    const chartColor = _.get(nextProps, 'customPageConfig.chartColor');
+    const oldChartColor = _.get(this.props, 'customPageConfig.chartColor');
     // 显示设置
     if (
       displaySetup.fontStyle !== oldDisplaySetup.fontStyle ||
@@ -141,7 +143,10 @@ export default class extends Component {
       displaySetup.ydisplay.lineStyle !== oldDisplaySetup.ydisplay.lineStyle ||
       !_.isEqual(displaySetup.auxiliaryLines, oldDisplaySetup.auxiliaryLines) ||
       !_.isEqual(displaySetup.colorRules, oldDisplaySetup.colorRules) ||
-      style.showLabelPercent !== oldStyle.showLabelPercent
+      style.showLabelPercent !== oldStyle.showLabelPercent ||
+      style.showXAxisSlider !== oldStyle.showXAxisSlider ||
+      !_.isEqual(chartColor, oldChartColor) ||
+      nextProps.themeColor !== this.props.themeColor
     ) {
       const { BarChartConfig } = this.getComponentConfig(nextProps);
       this.BarChart.update(BarChartConfig);
@@ -209,7 +214,9 @@ export default class extends Component {
     return colors[inedx % colors.length];
   }
   getComponentConfig(props) {
-    const { map, displaySetup, xaxes, yaxisList, split, style = {}, reportId, summary } = props.reportData;
+    const { themeColor, projectId, customPageConfig, reportData } = props;
+    const { chartColor } = customPageConfig;
+    const { map, displaySetup, xaxes, yaxisList, split, style = {}, reportId, summary } = reportData;
     const {
       isPile,
       isPerPile,
@@ -231,7 +238,7 @@ export default class extends Component {
     const countConfig = showPileTotal && isPile && (yaxisList.length > 1 || split.controlId) ? formatDataCount(data, isVertical, newYaxisList) : [];
     const maxValue = getMaxValue(data);
     const minValue = getMinValue(data);
-    const colors = getChartColors(style);
+    const colors = getChartColors(chartColor || style, themeColor, projectId);
     const isNewChart = _.isUndefined(reportId) && _.isEmpty(style);
     const isAlienationColor = getIsAlienationColor(props.reportData);
     const isOptionsColor = isNewChart ? isAlienationColor : (style ? (style.colorType === 0 && isAlienationColor) : false);
@@ -301,9 +308,10 @@ export default class extends Component {
         ? this.getyAxis(displaySetup, newYaxisList)
         : this.getxAxis(displaySetup, xaxes.particleSizeType),
       animation: true,
-      slider: data.length > 5000 ? {
+      slider: style.showXAxisSlider ? {
         start: 0,
         end: 0.5,
+        formatter: () => null
       } : undefined,
       color: isRuleColor ? getRuleColor : getColor(),
       legend: showLegend && (yaxisList.length > 1 || split.controlId)

@@ -6,6 +6,7 @@ import UserHead from 'src/pages/feed/components/userHead';
 import { USER_TYPE, USER_ORGANIZE, DEPARTMENT_ORGANIZE } from '../../../enum';
 import Tag from '../Tag';
 import _ from 'lodash';
+import { handleGlobalVariableName } from '../../../utils';
 
 export default class Member extends Component {
   /**
@@ -82,7 +83,7 @@ export default class Member extends Component {
           flowNodeType={item.flowNodeType}
           appType={item.appType}
           actionId={item.actionId}
-          nodeName={item.entityName}
+          nodeName={handleGlobalVariableName(item.entityId, item.sourceType, item.entityName)}
           controlId={item.roleId}
           controlName={item.roleName}
         />

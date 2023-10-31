@@ -4,6 +4,7 @@ import { dealData, getParaIds, getHierarchyViewIds, getItemByRowId } from './uti
 import _, { get, filter, flatten, isEmpty, isFunction } from 'lodash';
 import { getCurrentView } from '../util';
 import { getItem } from '../../views/util';
+import { getFilledRequestParams } from 'worksheet/util';
 
 const MULTI_RELATE_MAX_PAGE_SIZE = 500;
 
@@ -26,13 +27,15 @@ export function expandedMultiLevelHierarchyData(args) {
     const { searchType, ...rest } = sheet.filters || {};
     const { pageSize = 50 } = sheet.hierarchyView.hierarchyDataStatus;
     sheetAjax
-      .getFilterRows({
-        ...args,
-        ...rest,
-        ...getParaIds(sheet),
-        pageSize,
-        searchType: searchType || 1,
-      })
+      .getFilterRows(
+        getFilledRequestParams({
+          ...args,
+          ...rest,
+          ...getParaIds(sheet),
+          pageSize,
+          searchType: searchType || 1,
+        }),
+      )
       .then(({ data, count, resultCode }) => {
         if (resultCode === 1) {
           const treeData = dealData(data);
@@ -95,14 +98,16 @@ function getHierarchyDataRecursion({ worksheet, records, kanbanKey, index, para 
 
   const { worksheetId: relationWorksheetId, controlId } = viewControls[index - 1];
   sheetAjax
-    .getFilterRows({
-      ...rest,
-      ...filters,
-      relationWorksheetId,
-      controlId,
-      kanbanKey,
-      pageSize: MULTI_RELATE_MAX_PAGE_SIZE,
-    })
+    .getFilterRows(
+      getFilledRequestParams({
+        ...rest,
+        ...filters,
+        relationWorksheetId,
+        controlId,
+        kanbanKey,
+        pageSize: MULTI_RELATE_MAX_PAGE_SIZE,
+      }),
+    )
     .then(({ data }) => {
       if (data.length < 1) {
         const treeData = dealData(records);
@@ -131,12 +136,14 @@ export const expandMultiLevelHierarchyDataOfMultiRelate = level => {
     const { worksheetId } = worksheetInfo;
     const { viewControls, viewId } = getCurrentView(sheet);
     sheetAjax
-      .getFilterRows({
-        worksheetId,
-        viewId,
-        pageSize: 50,
-        ...filters,
-      })
+      .getFilterRows(
+        getFilledRequestParams({
+          worksheetId,
+          viewId,
+          pageSize: 50,
+          ...filters,
+        }),
+      )
       .then(({ data, count }) => {
         const kanbanKey = genKanbanKeyByData(data);
         dispatch({
@@ -204,7 +211,7 @@ export function addHierarchyChildrenRecord(data) {
 }
 export const getTopLevelHierarchyData = args => dispatch => {
   dispatch({ type: 'CHANGE_HIERARCHY_DATA_STATUS', data: { loading: true } });
-  sheetAjax.getFilterRows(args).then(({ data, resultCode, count }) => {
+  sheetAjax.getFilterRows(getFilledRequestParams(args)).then(({ data, resultCode, count }) => {
     if (resultCode === 1) {
       const treeData = dealData(data);
       dispatch({ type: 'INIT_HIERARCHY_VIEW_DATA', data: treeData });
@@ -444,7 +451,7 @@ export function getAssignChildren({ path = [], pathId = [], callback, ...args },
       ...filters,
       ...args,
     };
-    sheetAjax.getFilterRows(args).then(({ data, resultCode, count }) => {
+    sheetAjax.getFilterRows(getFilledRequestParams(args)).then(({ data, resultCode, count }) => {
       if (resultCode !== 1) {
         return;
       }
@@ -588,7 +595,7 @@ export function getHierarchyRecord(args, cb) {
       ...sheet.filters,
       ...args,
     };
-    sheetAjax.getFilterRows(args).then(({ data, resultCode, count }) => {
+    sheetAjax.getFilterRows(getFilledRequestParams(args)).then(({ data, resultCode, count }) => {
       if (isFunction(cb)) {
         cb(data);
       }

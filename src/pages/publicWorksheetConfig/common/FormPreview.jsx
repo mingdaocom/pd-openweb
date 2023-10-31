@@ -9,14 +9,13 @@ export default class FormPreview extends React.Component {
   static propTypes = {
     controls: PropTypes.arrayOf(PropTypes.shape({})),
     onChange: PropTypes.func,
-    hideControl: PropTypes.func,
-    changeControls: PropTypes.func,
+    onHideControl: PropTypes.func,
   };
 
   static defaultProps = {
     controls: [],
     onChange: () => {},
-    hideControl: () => {},
+    onHideControl: () => {},
   };
 
   constructor(props) {
@@ -24,15 +23,8 @@ export default class FormPreview extends React.Component {
     this.state = {};
   }
 
-  @autobind
-  handleHideControl(controlId, controls) {
-    const { hideControl, onChange } = this.props;
-    onChange(controls);
-    hideControl(controlId);
-  }
-
   render() {
-    const { advancedSetting, controls, onChange } = this.props;
+    const { advancedSetting, controls, onChange, onHideControl } = this.props;
     return (
       <div className="customWidgetForWorksheetWrap publicWorksheetForm">
         <PublicFormDisplay
@@ -49,7 +41,7 @@ export default class FormPreview extends React.Component {
           fromType="public"
           onChange={(newControls, hidedControlId) => {
             if (hidedControlId) {
-              this.handleHideControl(hidedControlId, newControls);
+              onHideControl(hidedControlId);
             } else {
               onChange(newControls);
             }

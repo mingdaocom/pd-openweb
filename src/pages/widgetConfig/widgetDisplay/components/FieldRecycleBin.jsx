@@ -7,8 +7,9 @@ import { isExceedMaxControlLimit } from '../../util/setting';
 import WidgetDeatail from 'src/pages/widgetConfig/widgetSetting';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
-import { handleAddWidgets } from 'src/pages/widgetConfig/util/data';
+import { handleAddWidgets, handleMoveWidgets } from 'src/pages/widgetConfig/util/data';
 import SearchInput from 'worksheet/components/SearchInput';
+import { SearchFn } from 'src/pages/widgetConfig/util';
 import cx from 'classnames';
 import './FieldRecycleBin.less';
 import _ from 'lodash';
@@ -54,9 +55,7 @@ export default class FieldRecycleBin extends Component {
     const { originList, keywords } = this.state;
     const newFilterList = originList.filter(
       item =>
-        (item.controlName || '').indexOf(keywords) > -1 ||
-        (item.controlId || '').indexOf(keywords) > -1 ||
-        (item.alias || '').indexOf(keywords) > -1,
+        SearchFn(keywords, item.controlName) || SearchFn(keywords, item.controlId) || SearchFn(keywords, item.alias),
     );
     this.setState({
       filterList: newFilterList,
@@ -129,7 +128,16 @@ export default class FieldRecycleBin extends Component {
       .then(res => {
         if (res.data) {
           if (status === 'recover') {
-            handleAddWidgets([{ ...item, attribute: 0 }], {}, this.props);
+            const parentControl = item.sectionId ? _.find(allControls, a => a.controlId === item.sectionId) : '';
+            const tempData = [{ ...item, attribute: 0, sectionId: parentControl ? item.sectionId : '' }];
+            if (parentControl) {
+              handleMoveWidgets(tempData, {
+                ...this.props,
+                activeWidget: parentControl,
+              });
+            } else {
+              handleAddWidgets(tempData, {}, this.props);
+            }
           }
 
           const newFilterList = filterList.filter(i => i.controlId !== item.controlId);

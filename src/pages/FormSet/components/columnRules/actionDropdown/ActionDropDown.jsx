@@ -4,7 +4,7 @@ import cx from 'classnames';
 import Trigger from 'rc-trigger';
 import { Icon, Checkbox, Tooltip } from 'ming-ui';
 import './ActionDropDown.less';
-import { getTextById, getNewDropDownData, getControlSpecialName, getNewIconByType } from '../config';
+import { getTextById, getNewDropDownData, getNewIconByType } from '../config';
 import _ from 'lodash';
 export default class DropDownItem extends Component {
   static propTypes = {
@@ -17,12 +17,14 @@ export default class DropDownItem extends Component {
   };
   constructor(props) {
     super(props);
+
+    const defaultData = getNewDropDownData(props.dropDownData, props.actionType) || [];
     this.state = {
       visible: false,
       extendId: [],
       keyword: '',
-      dropDownData: props.dropDownData || [],
-      originData: props.dropDownData || [],
+      dropDownData: defaultData,
+      originData: defaultData,
     };
   }
 
@@ -48,100 +50,90 @@ export default class DropDownItem extends Component {
 
   handleSearch = _.throttle(() => {
     let { keyword, originData } = this.state;
-    let extendId = [];
-    let dropDownDataFilter = [];
-    if (keyword) {
-      originData.map(item => {
-        let childFilter = [];
-        if (_.includes([29, 34], item.type)) {
-          childFilter =
-            item.relationControls && item.relationControls.length > 0
-              ? item.relationControls.filter(child => child.controlName.indexOf(_.trim(keyword)) > -1)
-              : [];
+    const extendId = [];
+
+    const filterFn = item =>
+      (item.controlName || '').search(new RegExp(keyword.trim().replace(/([,.+?:()*\[\]^$|{}\\-])/g, '\\$1'), 'i')) !==
+      -1;
+
+    function treeFilter() {
+      const filterData = originData.concat([]);
+      return filterData.filter(item => {
+        if (!_.isEmpty(item.relationControls)) {
+          const childFilter = item.relationControls
+            .map(re => ({ ...re, relationControls: (re.relationControls || []).filter(i => filterFn(i)) }))
+            .filter(i => {
+              if (!_.isEmpty(i.relationControls)) extendId.push(i.controlId);
+              return !_.isEmpty(i.relationControls);
+            });
+
+          item.relationControls = _.isEmpty(childFilter)
+            ? (item.relationControls || []).filter(i => filterFn(i))
+            : childFilter;
+
+          if (!_.isEmpty(item.relationControls)) {
+            extendId.push(item.controlId);
+          }
+          return !_.isEmpty(item.relationControls);
         }
-        if (childFilter.length > 0) {
-          extendId.push(item.controlId);
-        }
-        if (item.controlName.indexOf(_.trim(keyword)) > -1 || childFilter.length > 0) {
-          dropDownDataFilter.push({ ...item, relationControls: childFilter });
-        }
+        return filterFn(item);
       });
     }
+
     this.setState({
-      dropDownData: keyword ? dropDownDataFilter : originData,
-      extendId: keyword ? extendId : this.state.extendId,
+      dropDownData: keyword ? treeFilter() : originData,
+      extendId: keyword ? _.uniq(extendId) : [],
     });
   }, 100);
 
   updateExtendId(item) {
-    if (_.includes([29, 34], item.type) && item.relationControls && item.relationControls.length > 0) {
-      this.setState({
-        extendId: _.includes(this.state.extendId, item.controlId)
-          ? this.state.extendId.filter(it => it !== item.controlId)
-          : this.state.extendId.concat([item.controlId]),
-      });
-      return false;
-    }
-    this.updateValues(item.controlId);
+    this.setState({
+      extendId: _.includes(this.state.extendId, item.controlId)
+        ? this.state.extendId.filter(it => it !== item.controlId)
+        : this.state.extendId.concat([item.controlId]),
+    });
   }
-  updateValues(controlId, childControlId) {
+  updateValues(parentId, controlId) {
     const { values, onChange } = this.props;
-    const { originData = [] } = this.state;
-    let newValues = _.cloneDeep(values);
-    let allRe = null;
-    //更新主字段
-    const pIndex = _.findIndex(
-      newValues,
-      val => val.controlId === controlId && val.childControlIds && !val.childControlIds.length,
-    );
-    if (!childControlId) {
-      if (pIndex > -1) {
-        newValues.map(val => {});
-        newValues = newValues.filter(
-          val =>
-            val.controlId !== controlId ||
-            (val.controlId === controlId && val.childControlIds && val.childControlIds.length > 0),
-        );
-      } else {
-        newValues.push({
-          controlId,
-          childControlIds: [],
-        });
-      }
+    let newValues = values.concat([]);
+
+    // 更新主字段
+    if (!parentId) {
+      newValues = _.find(newValues, val => val.controlId === controlId && _.isEmpty(val.childControlIds))
+        ? newValues.filter(val => !(val.controlId === controlId && _.isEmpty(val.childControlIds)))
+        : newValues.concat([
+            {
+              controlId,
+              childControlIds: [],
+            },
+          ]);
     } else {
-      const curIndex = _.findIndex(
-        newValues,
-        val => val.controlId === controlId && val.childControlIds && val.childControlIds.length,
-      );
-      const currentItem = newValues[curIndex];
-      if (curIndex > -1) {
-        if (currentItem.childControlIds && _.includes(currentItem.childControlIds, childControlId)) {
-          currentItem.childControlIds = currentItem.childControlIds.filter(child => child !== childControlId);
-          if (!currentItem.childControlIds.length) {
-            currentItem.controlId = '';
-          }
-        } else {
-          currentItem.childControlIds.push(childControlId);
-          originData.map(or => {
-            if (or.controlId === controlId && or.showControls) {
-              allRe = or.showControls.length;
-            }
+      const currentValue = _.find(newValues, val => val.controlId === parentId && !_.isEmpty(val.childControlIds));
+      if (currentValue) {
+        const newChildControlIds = _.includes(currentValue.childControlIds || [], controlId)
+          ? (currentValue.childControlIds || []).filter(i => i !== controlId)
+          : (currentValue.childControlIds || []).concat([controlId]);
+
+        newValues = newValues.filter(i => !(i.controlId === parentId && !_.isEmpty(i.childControlIds)));
+        if (!_.isEmpty(newChildControlIds)) {
+          newValues.push({
+            controlId: parentId,
+            childControlIds: newChildControlIds,
           });
         }
       } else {
         newValues.push({
-          controlId,
-          childControlIds: [childControlId],
+          controlId: parentId,
+          childControlIds: [controlId],
         });
       }
     }
-    newValues = newValues.filter(val => val.controlId || val.childControlIds.length);
     onChange('controls', newValues);
   }
 
   getTextByValue() {
-    const { dropDownData } = this.props;
-    const currentArr = getTextById(dropDownData, this.props.values) || [];
+    const { values = [], actionType, dropDownData } = this.props;
+    const currentArr = getTextById(dropDownData, values, actionType) || [];
     return (
       <Fragment>
         {currentArr.map(item => {
@@ -154,7 +146,7 @@ export default class DropDownItem extends Component {
                 className="icon-close"
                 onClick={e => {
                   e.stopPropagation();
-                  this.updateValues(item.controlId, item.childControlId);
+                  this.updateValues(item.parentId, item.controlId);
                 }}
               />
             </span>
@@ -163,9 +155,88 @@ export default class DropDownItem extends Component {
       </Fragment>
     );
   }
+
+  renderChecked(item, parentControl = {}) {
+    const { values = [], actionType } = this.props;
+    const findChildItem = id => _.find(values, v => v.controlId === id && _.isEmpty(v.childControlIds));
+
+    const checked =
+      _.isEmpty(parentControl) || item.sectionId
+        ? findChildItem(item.controlId)
+        : _.includes(
+            _.get(
+              _.find(values, v => v.controlId === parentControl.controlId && !_.isEmpty(v.childControlIds)),
+              'childControlIds',
+            ) || [],
+            item.controlId,
+          );
+    // 关联多条列表必填不能配置
+    const disabled =
+      (item.type === 29 && _.get(item.advancedSetting || {}, 'showtype') === '2' && actionType === 5) ||
+      (item.type === 52 && _.includes([3, 4, 5], actionType));
+    return (
+      <Checkbox
+        checked={!!checked}
+        disabled={disabled}
+        onClick={(checked, value, e) => {
+          e.stopPropagation();
+          this.updateValues(item.sectionId ? '' : parentControl.controlId, item.controlId);
+        }}
+      />
+    );
+  }
+
+  renderItem(item = {}, parentControl = {}, deepIndex) {
+    const { extendId = [] } = this.state;
+    const showArrow = item.relationControls && item.relationControls.length > 0;
+    // 标签页内字段按普通字段来存，业务规则针对字段本身，不考虑父子，父子关系随时可变
+    const parentId = item.sectionId ? '' : parentControl.controlId;
+
+    return (
+      <div
+        className="ruleDropDownItem Hand"
+        style={{ paddingLeft: `${deepIndex * 26 + 16}px` }}
+        onClick={() => {
+          // 有子集，只展开操作
+          if (showArrow) {
+            this.updateExtendId(item);
+            return;
+          }
+          this.updateValues(parentId, item.controlId);
+        }}
+      >
+        {this.renderChecked(item, parentControl)}
+        <Icon icon={getNewIconByType(item)} className="Font14 Gray_9e mLeft14 mRight6" />
+        <span className="ellipsis controlNameBox">{item.controlName}</span>
+        {showArrow ? (
+          <i
+            className={cx(
+              'iconDown mLeft5',
+              _.includes(extendId, item.controlId) ? 'icon-arrow-up-border' : 'icon-arrow-down-border',
+            )}
+          />
+        ) : null}
+      </div>
+    );
+  }
+
+  renderContent(dropData, parentControl, deepIndex = 0) {
+    const { extendId } = this.state;
+    return dropData.map(item => {
+      return (
+        <Fragment>
+          {this.renderItem(item, parentControl, deepIndex)}
+          {item.relationControls && item.relationControls.length > 0 && _.includes(extendId, item.controlId)
+            ? this.renderContent(item.relationControls, item, deepIndex + 1)
+            : null}
+        </Fragment>
+      );
+    });
+  }
+
   render() {
-    const { values = [], actionError, actionType } = this.props;
-    const { extendId, keyword, visible, dropDownData } = this.state;
+    const { values = [], actionError } = this.props;
+    const { keyword, visible, dropDownData } = this.state;
     const menu = (
       <div className="ruleDropDownItemCon">
         <Fragment>
@@ -187,68 +258,7 @@ export default class DropDownItem extends Component {
           </div>
 
           {dropDownData.length > 0 ? (
-            dropDownData.map(item => {
-              // 关联多条列表必填不能配置
-              const disabled =
-                item.type === 29 && _.get(item.advancedSetting || {}, 'showtype') === '2' && actionType === 5;
-              return (
-                <Fragment>
-                  <div className="ruleDropDownItem Hand" onClick={() => this.updateExtendId(item)}>
-                    <Checkbox
-                      checked={
-                        _.findIndex(
-                          values,
-                          val => val.controlId === item.controlId && val.childControlIds && !val.childControlIds.length,
-                        ) > -1
-                      }
-                      disabled={disabled}
-                      onClick={(checked, value, e) => {
-                        e.stopPropagation();
-                        this.updateValues(item.controlId);
-                      }}
-                    />
-                    <Icon icon={getNewIconByType(item)} className="Font14 Gray_9e mLeft14 mRight6" />
-                    <span className="ellipsis controlNameBox">
-                      {item.controlName || getControlSpecialName(item.type)}
-                    </span>
-                    {item.relationControls && item.relationControls.length > 0 ? (
-                      <i
-                        className={cx(
-                          'iconDown mLeft5',
-                          _.includes(extendId, item.controlId) ? 'icon-arrow-up-border' : 'icon-arrow-down-border',
-                        )}
-                      />
-                    ) : null}
-                  </div>
-                  {item.relationControls && _.includes(extendId, item.controlId) ? (
-                    <Fragment>
-                      {item.relationControls.map(child => {
-                        return (
-                          <div
-                            className="childItem Hand"
-                            onClick={() => this.updateValues(item.controlId, child.controlId)}
-                          >
-                            <Checkbox
-                              checked={_.some(
-                                values,
-                                val =>
-                                  val.controlId === item.controlId &&
-                                  val.childControlIds &&
-                                  _.includes(val.childControlIds, child.controlId),
-                              )}
-                            />
-                            <Icon icon={getNewIconByType(child)} className="Font14 Gray_9e mLeft14 mRight6" />
-                            <span className="ellipsis controlNameBox">
-                              {child.controlName || getControlSpecialName(child.type)}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </Fragment>
-                  ) : null}
-                </Fragment>
-              );
-            })
+            this.renderContent(dropDownData)
           ) : (
             <div className="pTop20 pBottom20 LineHeight80 TxtCenter Gray_9e">{_l('暂无搜索结果')}</div>
           )}
@@ -270,7 +280,11 @@ export default class DropDownItem extends Component {
       >
         <div className={cx('fixedRuleDropdownSelected', { errorBorder: actionError })} ref={con => (this.box = con)}>
           <span className="dropDownLabel">
-            {values.length ? this.getTextByValue() : <span className="Gray_9e LineHeight34">{_l('选择字段')}</span>}
+            {!_.isEmpty(values) ? (
+              this.getTextByValue()
+            ) : (
+              <span className="Gray_9e LineHeight34">{_l('选择字段')}</span>
+            )}
           </span>
           <span className="iconArrow">
             <i className="icon-arrow-down-border Gray_9e" />

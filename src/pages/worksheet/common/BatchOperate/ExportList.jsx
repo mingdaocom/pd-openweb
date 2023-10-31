@@ -49,6 +49,7 @@ export default function ExportList(props) {
     worksheetInfo = {},
     rowsSummary,
     quickFilter,
+    sortControls,
     filtersGroup,
     navGroupFilters,
   } = props;
@@ -127,6 +128,7 @@ export default function ExportList(props) {
                       quickFilter,
                       filtersGroup,
                       navGroupFilters,
+                      sortControls,
                       isCharge: hasCharge,
                       // 不支持列统计结果
                       hideStatistics: true,

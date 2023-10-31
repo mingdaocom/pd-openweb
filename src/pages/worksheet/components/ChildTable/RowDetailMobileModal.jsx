@@ -20,7 +20,8 @@ export default function RowDetailModal(props) {
     allowDelete
   } = props;
   const formContent = useRef(null);
-  const type = mobileIsEdit ? (data.rowid.includes('temp') || data.rowid.includes('default')) ? 'new' : 'edit' : 'edit';
+  const rowId = data.rowid || '';
+  const type = mobileIsEdit ? (rowId.includes('temp') || rowId.includes('default')) ? 'new' : 'edit' : 'edit';
   const disabled = mobileIsEdit ? props.disabled : true;
   const content = (
     <div className="rowDetailCon flexColumn" style={{ height: '100%' }}>

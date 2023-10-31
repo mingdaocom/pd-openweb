@@ -1,4 +1,3 @@
-import '@mdfe/jquery-ui';
 import './css/addOldTask.css';
 import { htmlEncodeReg } from 'src/util';
 import doT from 'dot';

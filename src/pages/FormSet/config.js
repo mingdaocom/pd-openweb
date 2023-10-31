@@ -30,6 +30,7 @@ export const listConfigStr = {
   34: _l('日志'),//记录日志
   35: _l('讨论'), // recordDiscussSwitch 记录讨论
   36: _l('复制'), // recordCopySwitch记录复制
+  37: _l('重新创建'), // recordRecreateSwitch
   40: _l('系统字段'),
   41: _l('审批流转详情'),
 };
@@ -37,10 +38,10 @@ export const batch = [24, 26, 23, 27, 28, 29]; //批量操作下的操作
 export const statisticsConst = 500; //统计
 export const statistics = [50, 51]; //统计下的操作
 export const noRangeList = [25, 40, statisticsConst]; //没有范围选择
-export const hasRangeList = [...batch, 10, 11, 12, 13, 14, ...statistics, 20, 21, 22, 30, 31, 32, 33, 34, 35, 36, 41]; //有作用范围
-export const helfList = [10, 22, 23, 33, 32, 40]; //有帮助提示
+export const hasRangeList = [...batch, 10, 11, 12, 13, 14, ...statistics, 20, 21, 22, 30, 31, 32, 33, 34, 35, 36, 41, 37]; //有作用范围
+export const helfList = [10, 22, 23, 33, 32, 40, 37]; //有帮助提示
 export const listPermit = [
-  10, 11, 12, 13, 14, 500, 50, 51, 20, 21, 22, 25, 24, 26, 23, 27, 28, 29, 30, 36, 35, 32, 33, 34, 40, 41,
+  10, 11, 12, 13, 14, 500, 50, 51, 20, 21, 22, 25, 24, 26, 23, 27, 28, 29, 30, 36, 37, 35, 32, 33, 34, 40, 41,
 ];
 export const permitList = {
   createButtonSwitch: 10, // createButtonSwitch 显示创建按钮
@@ -67,6 +68,7 @@ export const permitList = {
   recordLogSwitch: 34, // recordLogSwitch 查看记录操作日志
   recordDiscussSwitch: 35, // recordDiscussSwitch 记录讨论
   recordCopySwitch: 36, // 记录复制
+  recordRecreateSwitch: 37, // 记录重新创建
   sysControlSwitch: 40, // 系统字段
   approveDetailsSwitch: 41, // 审批流转详情
 };

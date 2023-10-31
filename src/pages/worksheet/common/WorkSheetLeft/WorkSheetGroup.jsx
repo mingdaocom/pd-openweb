@@ -139,7 +139,7 @@ export default function WorkSheetGroup(props) {
         {sheetListVisible && (
           <div
             className={cx('groupItems overflowHidden', { hide: isDrag })}
-            style={{ height: childrenVisible ? (childrenItems.length ? childrenItems.length * 46 + 1 : 0) : 0 }}
+            style={{ height: childrenVisible ? (childrenItems.length ? childrenItems.length * 44 + 1 : 0) : 0 }}
           >
             {renderGroupItems()}
           </div>

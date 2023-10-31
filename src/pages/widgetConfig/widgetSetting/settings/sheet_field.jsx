@@ -236,7 +236,7 @@ export default function SheetField(props) {
                       }}
                     >
                       <i className={`Font16 icon-${getIconByType(item.type)}`}></i>
-                      {item.controlName}
+                      <span className="flex ellipsis">{item.controlName}</span>
                     </li>
                   ))}
                 </ul>

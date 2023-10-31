@@ -161,7 +161,7 @@ export default class Push extends Component {
       return true;
     }
 
-    if (pushType === PUSH_TYPE.NOTIFICATION && !title.trim()) {
+    if (pushType === PUSH_TYPE.NOTIFICATION && !(title || '').trim()) {
       alert(_l('标题不允许为空'), 2);
       return true;
     }
@@ -174,19 +174,8 @@ export default class Push extends Component {
    */
   onSave = () => {
     const { data, saveRequest } = this.state;
-    const {
-      name,
-      promptType,
-      pushType,
-      openMode,
-      selectNodeId,
-      viewId,
-      content,
-      appId,
-      duration,
-      title,
-      buttons,
-    } = data;
+    const { name, promptType, pushType, openMode, selectNodeId, viewId, content, appId, duration, title, buttons } =
+      data;
 
     let hasError = false;
 
@@ -501,7 +490,9 @@ export default class Push extends Component {
     return (
       <CustomTextarea
         className={cx({ minH100: key !== 'title' })}
+        projectId={this.props.companyId}
         processId={this.props.processId}
+        relationId={this.props.relationId}
         selectNodeId={this.props.selectNodeId}
         type={2}
         {...height}
@@ -518,7 +509,10 @@ export default class Push extends Component {
    */
   renderDurationContent() {
     const { data } = this.state;
-    const list = [{ text: _l('指定时间后'), value: 1 }, { text: _l('永不，需要手动关闭'), value: 2 }];
+    const list = [
+      { text: _l('指定时间后'), value: 1 },
+      { text: _l('永不，需要手动关闭'), value: 2 },
+    ];
 
     return (
       <Fragment>

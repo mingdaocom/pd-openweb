@@ -20,6 +20,7 @@ import { RELATION_SEARCH_DISPLAY } from '../../config/setting';
 import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
 import { RelateSearchWorksheet, relateSearchWorksheet } from '../components/relationSearch/relateSearchWorksheet';
 import WidgetRowHeight from '../components/WidgetRowHeight';
+import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify/InputValue.jsx';
 
 const FILL_TYPES = [
   {
@@ -149,7 +150,7 @@ export default function RelationSearch(props) {
     coverCid,
     sourceControlId,
   } = data;
-  let { showtype = String(enumDefault), allowlink, covertype = '0', openview = '' } = getAdvanceSetting(data);
+  let { showtype = String(enumDefault), allowlink, covertype = '0', openview = '', maxcount } = getAdvanceSetting(data);
   const resultFilters = getAdvanceSetting(data, 'resultfilters');
   const strDefault = data.strDefault || '000';
   const sorts = _.isArray(getAdvanceSetting(data, 'sorts')) ? getAdvanceSetting(data, 'sorts') : [];
@@ -275,7 +276,10 @@ export default function RelationSearch(props) {
     isDeleteWorksheet,
     onOk: ({ sheetId, resultFilters, relationControls, sourceControlId, sheetName }) => {
       onChange({
-        ...handleAdvancedSettingChange(data, { resultfilters: JSON.stringify(resultFilters) }),
+        ...handleAdvancedSettingChange(data, {
+          resultfilters: JSON.stringify(resultFilters),
+          sorts: sheetId !== dataSource ? '[{"controlId":"ctime","isAsc":true}]' : JSON.stringify(sorts),
+        }),
         dataSource: sheetId,
         controlName: sheetName,
         sourceControlId,
@@ -372,7 +376,10 @@ export default function RelationSearch(props) {
           data={RELATION_SEARCH_DISPLAY}
           onChange={value => {
             onChange({
-              ...handleAdvancedSettingChange(data, { showtype: value }),
+              ...handleAdvancedSettingChange(data, {
+                showtype: value,
+                maxcount: value === '3' && (parseInt(maxcount) || parseInt(maxcount) === 0) > 50 ? '50' : maxcount,
+              }),
               size: value === '2' ? WHOLE_SIZE : data.size,
             });
           }}
@@ -462,6 +469,28 @@ export default function RelationSearch(props) {
           {sortVisible && <Sort {...props} controls={relationControls} onClose={() => setVisible(false)} />}
         </SettingItem>
       )}
+      <SettingItem>
+        <div className="settingItemTitle">{_l('查询数量')}</div>
+        <div className="labelWrap flexCenter">
+          <InputValue
+            value={maxcount || undefined}
+            className="w100 Font13"
+            type={2}
+            placeholder={showtype === '3' ? 50 : _l('全部')}
+            onChange={value => {
+              onChange(handleAdvancedSettingChange(data, { maxcount: `${value}` }));
+            }}
+            onBlur={value => {
+              if (showtype === '3' && (parseInt(value) === 0 || parseInt(value) > 50)) {
+                value = 50;
+              } else if (showtype !== '3' && !parseInt(value)) {
+                value = '';
+              }
+              onChange(handleAdvancedSettingChange(data, { maxcount: `${value}` }));
+            }}
+          />
+        </div>
+      </SettingItem>
       <SettingItem>
         <div className="settingItemTitle">{_l('操作')}</div>
         <div className="labelWrap">

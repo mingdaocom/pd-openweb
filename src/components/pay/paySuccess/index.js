@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import preall from 'src/common/preall';
-import PayHeader from 'src/components/commonHeader/PayHeader';
+import PayHeader from '../payHeader';
 import DocumentTitle from 'react-document-title';
 import orderController from 'src/api/order';
 import { getRequest } from 'src/util';

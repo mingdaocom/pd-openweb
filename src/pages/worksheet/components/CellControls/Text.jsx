@@ -266,7 +266,9 @@ export default class Text extends React.Component {
       default:
         (() => {
           let value = e.key;
-          this.tempKey.push(e.key);
+          if (isKeyBoardInputChar(e.key)) {
+            this.tempKey.push(e.key);
+          }
           if (cell.type === 6 || cell.type === 8) {
             value = formatNumberFromInput(e.key, false);
           }
@@ -283,6 +285,14 @@ export default class Text extends React.Component {
               if (inputDom) {
                 inputDom.value = this.tempKey.join('');
                 this.handleChange(this.tempKey.join(''));
+                if (window.cellLastKey === 'Enter') {
+                  this.handleKeydown({
+                    keyCode: 13,
+                    stopPropagation: () => {},
+                    preventDefault: () => {},
+                  });
+                  window.cellLastKey = undefined;
+                }
               }
             }, 10);
             e.stopPropagation();
@@ -297,6 +307,7 @@ export default class Text extends React.Component {
   handleKeydown(e) {
     const { tableId, cell, updateEditingStatus } = this.props;
     if (e.keyCode === 27) {
+      this.tempKey = [];
       updateEditingStatus(false);
       this.setState({
         value: this.state.oldValue,
@@ -417,7 +428,6 @@ export default class Text extends React.Component {
                 className="Ming stopPropagation"
                 {...editProps}
                 value={String(_.isUndefined(editProps.value) ? '' : editProps.value).replace(/\r\n|\n/g, ' ')}
-                style={{}}
                 onChange={e => this.handleChange(e.target.value)}
               />
             )}

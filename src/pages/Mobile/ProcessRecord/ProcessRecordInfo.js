@@ -3,12 +3,11 @@ import { Icon } from 'ming-ui';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
-import { Flex, ActivityIndicator, Drawer, Button, WingBlank, Tabs, ActionSheet, Modal } from 'antd-mobile';
+import { Flex, ActivityIndicator, Button, WingBlank, ActionSheet, Modal } from 'antd-mobile';
 import worksheetAjax from 'src/api/worksheet';
 import instance from 'src/pages/workflow/api/instance';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
 import CustomFields from 'src/components/newCustomFields';
-import RelationList from 'mobile/RelationRow/RelationList';
 import RelationAction from 'mobile/RelationRow/RelationAction';
 import * as actions from 'mobile/RelationRow/redux/actions';
 import WorkflowStepItem from './WorkflowStepItem';
@@ -18,8 +17,7 @@ import {
   controlState,
   getTitleTextFromControls,
 } from 'src/components/newCustomFields/tools/utils';
-import { updateRulesData } from 'src/components/newCustomFields/tools/filterFn';
-import { isRelateRecordTableControl, getSubListError } from 'worksheet/util';
+import { getSubListError } from 'worksheet/util';
 import RecordAction from 'mobile/Record/RecordAction';
 import ChatCount from '../components/ChatCount';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
@@ -32,6 +30,7 @@ import {
   ACTION_TO_METHOD,
   MOBILE_OPERATION_LIST,
 } from 'src/pages/workflow/components/ExecDialog/config';
+import { commonControlsAddTab } from '../Record/utils';
 import './index.less';
 import _ from 'lodash';
 
@@ -64,7 +63,7 @@ class ProcessRecord extends Component {
       isHasten: false,
       switchPermit: [],
       btnDisable: {},
-      rules: []
+      rules: [],
     };
     this.cellObjs = {};
   }
@@ -385,7 +384,7 @@ class ProcessRecord extends Component {
     let { instance } = this.state;
     const { flowNode } = instance;
     const { ignoreRequired, encrypt } = flowNode;
-    if (hasError && id !== 'stash' && (!ignoreRequired || (ignoreRequired && id !== 'overrule'))) {
+    if (hasError && id !== 'stash' && (!ignoreRequired || (ignoreRequired && !['overrule', 'return'].includes(id)))) {
       alert(_l('请正确填写记录'), 3);
       return;
     }
@@ -507,7 +506,12 @@ class ProcessRecord extends Component {
      */
     if (_.includes(['before', 'after'], action)) {
       this.handleSave(() => {
-        this.request(ACTION_TO_METHOD[action], { before: action === 'before', opinion: content, forwardAccountId, signature });
+        this.request(ACTION_TO_METHOD[action], {
+          before: action === 'before',
+          opinion: content,
+          forwardAccountId,
+          signature,
+        });
       });
     }
 
@@ -574,15 +578,16 @@ class ProcessRecord extends Component {
     });
   };
   handleScroll = event => {
-    const { loadParams, updatePageIndex, isModal } = this.props;
+    const { loadParams, updatePageIndex, isModal, relationRow } = this.props;
     const { isEdit, currentTab } = this.state;
     const { clientHeight, scrollHeight, scrollTop, className } = event.target;
     const targetVlaue = scrollHeight - clientHeight - 30;
     const { loading, isMore, pageIndex } = loadParams;
+    const isLoadMore = _.includes([29, 51], currentTab.type) ? relationRow.count : currentTab.value;
     if (isEdit || !className.includes('processRecordScroll')) {
       return;
     }
-    if (targetVlaue <= scrollTop && currentTab.value && !loading && isMore) {
+    if (targetVlaue <= scrollTop && isLoadMore && !loading && isMore) {
       updatePageIndex(pageIndex + 1);
     }
     const tabsEl = document.querySelector('.tabsWrapper');
@@ -650,7 +655,7 @@ class ProcessRecord extends Component {
                   _l('提交中...')
                 ) : (
                   <Fragment>
-                    <span className="ellipsis">{id === 'urge' && isHasten ? _l('已催办') : (btnMap[item] || text)}</span>
+                    <span className="ellipsis">{id === 'urge' && isHasten ? _l('已催办') : btnMap[item] || text}</span>
                   </Fragment>
                 )}
               </div>
@@ -843,7 +848,20 @@ class ProcessRecord extends Component {
     );
   }
   renderCustomFields() {
-    const { viewId, isEdit, random, sheetRow, rowId, worksheetId, instance, otherActionVisible, switchPermit } = this.state;
+    const { relationRow } = this.props;
+    const {
+      viewId,
+      isEdit,
+      random,
+      sheetRow,
+      rowId,
+      worksheetId,
+      instance,
+      otherActionVisible,
+      switchPermit,
+      rules,
+      currentTab,
+    } = this.state;
     const { operationTypeList, flowNode, app } = instance;
     const { type } = flowNode;
     const { params } = this.props.match;
@@ -865,7 +883,7 @@ class ProcessRecord extends Component {
             recordCreateTime={sheetRow.createTime}
             recordId={rowId}
             worksheetId={worksheetId}
-            data={sheetRow.receiveControls}
+            data={commonControlsAddTab(sheetRow.receiveControls, { from: 6, rules, showDetailTab: false })}
             registerCell={({ item, cell }) => (this.cellObjs[item.controlId] = { item, cell })}
             sheetSwitchPermit={switchPermit}
             controlProps={{
@@ -894,8 +912,15 @@ class ProcessRecord extends Component {
             onRulesLoad={rules => {
               this.setState({ rules });
             }}
+            tabControlProp={{
+              activeRelationTab:
+                currentTab.type === 29 ? { ...currentTab, value: relationRow.count || currentTab.value } : undefined,
+              changeMobileTab: tab => this.setState({ currentTab: { id: tab.controlId, ...tab } }),
+            }}
           />
-          <WorkflowStepItem instance={instance} worksheetId={worksheetId} recordId={rowId} />
+          {(_.isEmpty(currentTab.id) || currentTab.id === 'detail') && (
+            <WorkflowStepItem instance={instance} worksheetId={worksheetId} recordId={rowId} />
+          )}
         </div>
         {otherActionVisible && (
           <OtherAction
@@ -914,60 +939,7 @@ class ProcessRecord extends Component {
       </Fragment>
     );
   }
-  renderTabContent = tab => {
-    const { rowId, worksheetId, instance } = this.state;
-    const { flowNode } = instance;
-    const { params } = this.props.match;
-    if (tab.id) {
-      const props = {
-        controlId: tab.id,
-        workId: params.workId,
-        instanceId: params.instanceId,
-        rowId,
-        worksheetId,
-      };
-      return (
-        <div className="flexColumn h100">
-          <RelationList {...props} />
-        </div>
-      );
-    } else {
-      return <div className="flexColumn h100">{this.renderCustomFields()}</div>;
-    }
-  };
-  renderTabs(tabs, isRenderContent = true) {
-    const { currentTab } = this.state;
-    const index = currentTab.id ? _.findIndex(tabs, { id: currentTab.id }) : 0;
-    return (
-      <Tabs
-        tabBarInactiveTextColor="#757575"
-        tabs={tabs}
-        page={index}
-        swipeable={false}
-        prerenderingSiblingsNumber={0}
-        destroyInactiveTab={true}
-        animated={false}
-        renderTab={tab =>
-          tab.value ? (
-            <Fragment>
-              <span className="tabName ellipsis mRight2">{tab.title}</span>
-              <span>{`(${tab.value})`}</span>
-            </Fragment>
-          ) : (
-            <span className="tabName ellipsis">{tab.title}</span>
-          )
-        }
-        onChange={tab => {
-          this.setState({
-            currentTab: tab,
-          });
-          this.props.reset();
-        }}
-      >
-        {isRenderContent && this.renderTabContent}
-      </Tabs>
-    );
-  }
+
   renderHeader() {
     const { isModal, onClose } = this.props;
     const { instance } = this.state;
@@ -1011,39 +983,15 @@ class ProcessRecord extends Component {
       switchPermit,
       originalData,
       customBtns,
-      rules
     } = this.state;
     const { relationRow, isModal } = this.props;
     const { operationTypeList, flowNode, backFlowNodes, app } = instance;
     const { name, type } = flowNode;
     const newOperationTypeList = operationTypeList[1].filter(item => item !== 12);
-    const action = ACTION_TYPES[type];
+
     const recordTitle = getTitleTextFromControls(tempFormData.length ? tempFormData : sheetRow.receiveControls || []);
-    const recordMuster = _.sortBy(
-      updateRulesData({ rules, data: sheetRow.receiveControls }).filter(control => isRelateRecordTableControl(control) && controlState(control, 6).visible),
-      'row',
-    ).filter(c => !c.hidden);
-    const tabs = [
-      {
-        title: _l('详情'),
-        index: 0,
-      },
-    ].concat(
-      recordMuster.map((item, index) => {
-        const isCurrentTab = currentTab.id === item.controlId;
-        const value = Number(item.value);
-        const newValue = isCurrentTab ? relationRow.count || value : value;
-        if (isCurrentTab) {
-          item.value = newValue;
-        }
-        return {
-          id: item.controlId,
-          title: item.controlName,
-          value: newValue,
-          index: index + 1,
-        };
-      }),
-    );
+    const isNomalFields = _.isEmpty(currentTab.id) || currentTab.id === 'detail' || _.includes([52], currentTab.type);
+
     return (
       <div className="workflowRecordWrapper">
         {isModal && this.renderHeader()}
@@ -1054,20 +1002,11 @@ class ProcessRecord extends Component {
               <span className="value">{recordTitle}</span>
             </div>
           </Fragment>
-          {recordMuster.length ? (
-            <div className={cx('processRecordViewTabs tabsWrapper flex')}>{this.renderTabs(tabs)}</div>
-          ) : (
-            <div className="flexColumn flex">{this.renderCustomFields()}</div>
-          )}
+          <div className="flexColumn flex">{this.renderCustomFields()}</div>
         </div>
-        {!_.isEmpty(recordMuster) && (
-          <div className={cx('fixedTabs processRecordViewTabs Fixed w100 hide', { top: isModal })}>
-            {this.renderTabs(tabs, false)}
-          </div>
-        )}
         {_.isEmpty(operationTypeList[0])
           ? viewId && this.renderRecordHandle()
-          : _.isEmpty(currentTab.id) && this.renderProcessHandle()}
+          : isNomalFields && this.renderProcessHandle()}
         {(isOpenPermit(permitList.recordDiscussSwitch, switchPermit, viewId) ||
           isOpenPermit(permitList.recordLogSwitch, switchPermit, viewId) ||
           !_.isEmpty(newOperationTypeList)) && (

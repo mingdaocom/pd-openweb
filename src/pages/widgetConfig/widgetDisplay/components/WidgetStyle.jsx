@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Icon, Dropdown } from 'ming-ui';
+import { Icon, Dropdown, Checkbox } from 'ming-ui';
 import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify/InputValue';
 import cx from 'classnames';
 import styled from 'styled-components';
@@ -10,6 +10,7 @@ import './FieldRecycleBin.less';
 import img from 'staticfiles/images/colour.png';
 import _ from 'lodash';
 import { AnimationWrap } from '../../styled';
+import StyleSetting from '../../widgetSetting/components/SplitLineConfig/StyleSetting';
 
 const FILL_TYPE = [
   { value: '0', text: _l('填满') },
@@ -78,7 +79,16 @@ const DropItemWrap = styled.div`
 
 function WidgetStyleSetting(props) {
   const { allControls = [], styleInfo: { info = {} } = {}, handleChange } = props;
-  const { coverid, covertype = '0', covercolor = '3', coverheight = '600', animation = '1', autosecond = '3' } = info;
+  const {
+    coverid,
+    covertype = '0',
+    covercolor = '3',
+    coverheight = '600',
+    animation = '1',
+    autosecond = '3',
+    showicon = '1',
+    sectionstyle = '0',
+  } = info;
 
   const [tempInfo, setTempInfo] = useState({
     coverHeight: coverheight,
@@ -113,7 +123,87 @@ function WidgetStyleSetting(props) {
           <span>{_l('表单样式')}</span>
         </div>
       </WidgetIntroWrap>
-      <SettingItem>
+      <QuickArrange {...props} />
+      <SettingItem className="settingItem withSplitLine">
+        <div className="settingItemTitle Font14">{_l('字段标题')}</div>
+        {WIDGET_TITLE.map(item => {
+          return (
+            <Fragment>
+              <div className="settingItemTitle Normal">{item.title}</div>
+              <AnimationWrap className="mBottom16">
+                {TITLE_TYPE.map(i => (
+                  <div
+                    className={cx('animaItem', { active: (info[item.displayKey] || '1') === i.value })}
+                    onClick={() => {
+                      handleChange({ [item.displayKey]: i.value, [item.alignKey]: '' });
+                    }}
+                  >
+                    {i.text}
+                  </div>
+                ))}
+                {ALIGN_TYPE.map(i => (
+                  <div
+                    className={cx('animaItem', { active: info[item.alignKey] === i.value })}
+                    onClick={() => {
+                      handleChange({ [item.alignKey]: i.value, [item.displayKey]: '2' });
+                    }}
+                  >
+                    {i.text}
+                  </div>
+                ))}
+              </AnimationWrap>
+              {info[item.displayKey] === '2' && (
+                <div className="flexCenter mBottom16">
+                  <div className="flex mRight10">
+                    <div className="settingItemTitle Normal">{_l('标题宽度')}</div>
+                    <div className="labelWrap flexCenter">
+                      <InputValue
+                        className="mRight12 Width110"
+                        type={2}
+                        value={(tempInfo[item.widthKey] || '').toString()}
+                        onChange={value => {
+                          setTempInfo({ ...tempInfo, [item.widthKey]: value });
+                        }}
+                        onBlur={value => {
+                          if (value > item.maxWidth) {
+                            value = item.maxWidth;
+                          }
+                          if (value < 40) {
+                            value = 40;
+                          }
+                          setTempInfo({ ...tempInfo, [item.widthKey]: value });
+                          handleChange({ [item.widthKey]: value });
+                        }}
+                      />
+                      <span>{_l('px')}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </Fragment>
+          );
+        })}
+      </SettingItem>
+
+      <SettingItem className="withSplitLine">
+        <div className="settingItemTitle Font14">{_l('分段样式')}</div>
+        <StyleSetting sectionstyle={sectionstyle} onChange={value => handleChange({ sectionstyle: value })} />
+      </SettingItem>
+
+      <SettingItem className="withSplitLine">
+        <div className="settingItemTitle Font14">{_l('标签页样式')}</div>
+        <div className="labelWrap">
+          <Checkbox
+            size="small"
+            checked={showicon === '1'}
+            onClick={checked => handleChange({ showicon: checked ? '0' : '1' })}
+          >
+            <span>{_l('显示图标')}</span>
+          </Checkbox>
+        </div>
+      </SettingItem>
+
+      <SettingItem className="withSplitLine">
         <div className="settingItemTitle Font14">{_l('封面')}</div>
         <div className="Gray_9e">{_l('将所选附件字段中的图片作为记录详情封面')}</div>
       </SettingItem>
@@ -203,67 +293,6 @@ function WidgetStyleSetting(props) {
             />
           </div>
         </div>
-      </SettingItem>
-      <QuickArrange {...props} />
-      <SettingItem className="settingItem withSplitLine">
-        <div className="settingItemTitle Font14">{_l('字段标题')}</div>
-        {WIDGET_TITLE.map(item => {
-          return (
-            <Fragment>
-              <div className="settingItemTitle mTop32 Normal">{item.title}</div>
-              <AnimationWrap className="mBottom16">
-                {TITLE_TYPE.map(i => (
-                  <div
-                    className={cx('animaItem', { active: (info[item.displayKey] || '1') === i.value })}
-                    onClick={() => {
-                      handleChange({ [item.displayKey]: i.value, [item.alignKey]: '' });
-                    }}
-                  >
-                    {i.text}
-                  </div>
-                ))}
-                {ALIGN_TYPE.map(i => (
-                  <div
-                    className={cx('animaItem', { active: info[item.alignKey] === i.value })}
-                    onClick={() => {
-                      handleChange({ [item.alignKey]: i.value, [item.displayKey]: '2' });
-                    }}
-                  >
-                    {i.text}
-                  </div>
-                ))}
-              </AnimationWrap>
-              {info[item.displayKey] === '2' && (
-                <div className="flexCenter mBottom16">
-                  <div className="flex mRight10">
-                    <div className="settingItemTitle Normal">{_l('标题宽度')}</div>
-                    <div className="labelWrap flexCenter">
-                      <InputValue
-                        className="mRight12 Width110"
-                        type={2}
-                        value={(tempInfo[item.widthKey] || '').toString()}
-                        onChange={value => {
-                          setTempInfo({ ...tempInfo, [item.widthKey]: value });
-                        }}
-                        onBlur={value => {
-                          if (value > item.maxWidth) {
-                            value = item.maxWidth;
-                          }
-                          if (value < 40) {
-                            value = 40;
-                          }
-                          setTempInfo({ ...tempInfo, [item.widthKey]: value });
-                          handleChange({ [item.widthKey]: value });
-                        }}
-                      />
-                      <span>{_l('px')}</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </Fragment>
-          );
-        })}
       </SettingItem>
     </WidgetStyleWrap>
   );

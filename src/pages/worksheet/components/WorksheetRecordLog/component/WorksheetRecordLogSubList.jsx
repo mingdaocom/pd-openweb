@@ -54,15 +54,6 @@ function WorksheetRecordLogSubList(props) {
   return (
     <div className="worksheetRecordLogSubList">
       {getSummary()}
-      {/* {listCount.add.length !== 0 && (
-        <p className="worksheetRecordLogSubListItem">{_l('新增了%0条', listCount.add.length)}</p>
-      )}
-      {listCount.update.length !== 0 && (
-        <p className="worksheetRecordLogSubListItem">{_l('更新了%0条', listCount.update.length)}</p>
-      )}
-      {listCount.remove.length !== 0 && (
-        <p className="worksheetRecordLogSubListItem">{_l('移除了%0条', listCount.remove.length)}</p>
-      )} */}
       <span className={cx('WorksheetRecordLogOpen', { hideEle: isMobile })} onClick={() => setDialog(true)}>
         {_l('查看详情')}
       </span>

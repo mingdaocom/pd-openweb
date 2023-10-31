@@ -3,8 +3,10 @@ import styled from 'styled-components';
 import { ScrollView } from 'ming-ui';
 import { isEmpty } from 'lodash';
 import RowItem from './rowItem';
+import DisplayTab from './displayTabs';
 import Components from './components';
 import { MAX_CONTROLS_COUNT } from '../config';
+import { getSectionWidgets } from '../util';
 
 const DisplayRowListWrap = styled.div`
   flex: 1;
@@ -20,7 +22,6 @@ const DisplayRowListWrap = styled.div`
     background: #f5f5f9;
   }
   .rowsWrap {
-    flex: 1;
     border-radius: 8px;
     box-shadow: rgba(0, 0, 0, 0.08) 0px 4px 16px 1px;
     padding: 8px;
@@ -28,11 +29,6 @@ const DisplayRowListWrap = styled.div`
     background: #ffffff;
     display: flex;
     flex-direction: column;
-    .sectionLine {
-      width: calc(100% + 16px);
-      margin: 20px 0 4px -8px;
-      border: 6px solid #f0f0f0;
-    }
   }
   .displayHeader {
     display: flex;
@@ -73,26 +69,27 @@ const DisplayRowListWrap = styled.div`
 
 export default function DisplayRow(props) {
   const { allControls, widgets, fromType, batchActive } = props;
+  const { commonWidgets = [], tabWidgets = [] } = getSectionWidgets(widgets);
 
   const rowsContent = (
-    <div className="rowsWrap">
-      {widgets.map((row, index) => {
-        const id = row.reduce((p, c) => p + c.controlId, '');
-        const displayItemType = 'common';
-        return (
-          !isEmpty(row) && (
-            <Fragment>
-              {/** 分段内的元素去分段里渲染 */}
-              {row.every(r => r.sectionId && displayItemType !== 'section') ? null : (
-                <RowItem key={id} row={row} index={index} displayItemType={displayItemType} {...props} />
-              )}
-            </Fragment>
-          )
-        );
-      })}
-      <Components.BottomDragPointer height={40} rowIndex={widgets.length} displayItemType={'common'} />
-    </div>
+    <Fragment>
+      <div className="rowsWrap">
+        {commonWidgets.map((row, index) => {
+          const id = row.reduce((p, c) => p + c.controlId, '');
+          return !isEmpty(row) && <RowItem key={id} row={row} index={index} {...props} commonWidgets={commonWidgets} />;
+        })}
+        <Components.BottomDragPointer rowIndex={commonWidgets.length} showEmpty={!commonWidgets.length} />
+      </div>
+      {isEmpty(tabWidgets) ? (
+        commonWidgets.length > 0 ? (
+          <Components.BottomDragPointer displayItemType="tab" rowIndex={widgets.length} />
+        ) : null
+      ) : (
+        <DisplayTab {...props} commonLength={commonWidgets.length} tabWidgets={tabWidgets} />
+      )}
+    </Fragment>
   );
+
   return (
     <DisplayRowListWrap>
       {fromType === 'public' ? (

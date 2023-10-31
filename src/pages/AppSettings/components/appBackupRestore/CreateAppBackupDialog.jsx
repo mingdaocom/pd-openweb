@@ -1,0 +1,171 @@
+import React, { useState, useEffect } from 'react';
+import { Dialog } from 'ming-ui';
+import appManagementAjax from 'src/api/appManagement';
+import styled from 'styled-components';
+import cx from 'classnames';
+import { LoadDiv, Support } from 'ming-ui';
+
+const CreatBackupCon = styled.div`
+  font-size: 13px;
+  line-height: 17px;
+  color: #757575;
+  .warning {
+    background: rgba(255, 159, 51, 0.15);
+    height: 32px;
+    line-height: 32px;
+    color: #e68619;
+    .icon {
+      color: #ff9f33;
+    }
+  }
+  .limitNum {
+    color: #ff1100;
+  }
+  .FontW {
+    font-weight: 600;
+  }
+`;
+
+const Footer = styled.div`
+  font-size: 14px;
+  line-height: 36px;
+  min-height: 36px;
+  span {
+    font-size: 14px;
+    line-height: 36px;
+    min-height: 36px;
+    display: inline-block;
+    box-sizing: border-box;
+    text-shadow: none;
+    border: none;
+    outline: none;
+    border-radius: 3px;
+    color: #fff;
+    vertical-align: middle;
+    cursor: pointer;
+    width: 92px;
+    text-align: center;
+  }
+  .cancelBtn {
+    color: #9e9e9e;
+  }
+  .cancelBtn:hover {
+    color: #1e88e5;
+  }
+  .disabledConfirmBtn {
+    color: #fff;
+    background: #bdbdbd;
+  }
+  .confirmBtn {
+    background: #2196f3;
+    cursor: pointer;
+  }
+  .confirmBtn:hover {
+    background-color: #1565c0;
+  }
+`;
+
+export default function CreateBackupModal(props) {
+  const { appId, projectId, appName, getList = () => {} } = props;
+  const [validLimit, setValidLimit] = useState(0);
+  const [currentValid, setCurrentValid] = useState(0);
+  const [countLoading, setCountLoading] = useState(true);
+  useEffect(() => {
+    if (!appId) return;
+    getBackupCount();
+  }, [appId]);
+
+  const getBackupCount = () => {
+    appManagementAjax.getValidBackupFileInfo({ appId, projectId }).then(res => {
+      setCountLoading(false);
+      setValidLimit(res.validLimit);
+      setCurrentValid(res.currentValid);
+    });
+  };
+  const onOk = () => {
+    if (currentValid >= validLimit) {
+      alert('创建备份失败', 2);
+      props.closeDialog();
+      props.openManageBackupDrawer();
+      return;
+    }
+    let params = {
+      projectId,
+      appId,
+      accountId: md.global.Account.accountId,
+      appName,
+    };
+    appManagementAjax.getApps({ appIds: [appId] }).then(({ token }) => {
+      params.token = token;
+      $.ajax({
+        type: 'POST',
+        url: `${md.global.Config.AppFileServer}AppFile/BackUp`,
+        data: JSON.stringify(params),
+        dataType: 'JSON',
+        contentType: 'application/json',
+      }).done(res => {
+        const { state } = res;
+        if (state === 1) {
+          getList(1);
+        } else if (state === 2) {
+          alert(_l('程序异常'), 3);
+        } else if (state == 3) {
+          alert(_l('token失效'), 3);
+        } else if (state == 4) {
+          alert(_l('网络版本过低，无法使用高版本功能'), 3);
+        }
+      });
+    });
+    props.closeDialog();
+  };
+  return (
+    <Dialog
+      title={_l('确认备份“%0”应用？', appName)}
+      visible={true}
+      width={580}
+      onCancel={() => props.closeDialog()}
+      className="createIndexDialog"
+      overlayClosable={false}
+      footer={
+        <Footer>
+          <span className="cancelBtn" onClick={props.closeDialog}>
+            {_l('取消')}
+          </span>
+          <span className="confirmBtn" onClick={onOk}>
+            {_l('确认')}
+          </span>
+        </Footer>
+      }
+    >
+      <CreatBackupCon>
+        {/* {validLimit && currentValid >= validLimit && (
+          <div className="warning">
+            <Icon icon="info" className="mRight8" />
+            {_l('该应用已备份文件达到上限%0个，请前往“管理备份文件”删除一些备份文件后再进行备份', validLimit)}
+          </div>
+        )} */}
+        <div>
+          <span>{_l('此操作仅备份')}</span>
+          <span>{_l('当前应用的结构和配置，该应用下的数据不会备份。每个备份文件仅保留')}</span>
+          <span className="Black FontW">{_l('%0天', md.global.SysSettings.appBackupRecycleDays)}</span>
+          <span>{_l('有效期，超过%0天的会自动删除，每个应用最多可备份', md.global.SysSettings.appBackupRecycleDays)}</span>
+          <span className="Black FontW">{_l('10个')}</span>
+          <span>{_l('文件。')}</span>
+          <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/backup" />
+        </div>
+
+        <div className="mTop24">
+          {_l('当前已备份:')}{' '}
+          {countLoading ? (
+            <LoadDiv />
+          ) : (
+            <span>
+              <span className={cx({ limitNum: currentValid >= validLimit })}>{currentValid}</span>
+              {`/${validLimit}`}
+            </span>
+          )}
+        </div>
+      </CreatBackupCon>
+    </Dialog>
+  );
+}

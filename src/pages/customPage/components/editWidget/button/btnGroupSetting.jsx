@@ -89,7 +89,7 @@ const SettingWrap = styled.div`
     font-weight: bold;
     color: #2196f3;
     &:hover {
-      background-color: rgba(255, 255, 255, 0.8);
+      background-color: rgba(255, 255, 255, 1);
       color: #1079cc;
     }
   }

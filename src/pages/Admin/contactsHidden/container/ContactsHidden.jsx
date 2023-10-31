@@ -169,7 +169,7 @@ class ContactsHidden extends React.Component {
     if (featureType === '2') {
       return (
         <div className="orgManagementWrap">
-          {buriedUpgradeVersionDialog(projectId, VersionProductType.contactsHide, 'content')}
+          {buriedUpgradeVersionDialog(projectId, VersionProductType.contactsHide, { dialogType: 'content' })}
         </div>
       );
     }

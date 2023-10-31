@@ -20,6 +20,7 @@ import 'src/components/mdDialog/dialog';
 import { expireDialogAsync } from 'src/components/common/function';
 import TaskDetail from '../taskDetail/taskDetail';
 import _ from 'lodash';
+import { DateTimeRange } from 'ming-ui/components/NewDateTimePicker';
 
 const taskStageSettings = {
   timer: null, // 计时器
@@ -1156,32 +1157,47 @@ class TaskStage extends Component {
         .end()
         .next()
         .hide();
-      const $stageDate = $li.find('.stageDate');
-      $stageDate.on('click', function () {
-        $('.warpDatePicker').hide();
-        const _this = $(this);
 
+      const $stageDate = $li.find('.stageDate');
+      const bindDate = () => {
         const { start: defaultStart, end: defaultEnd } = $stageDate.data();
-        $stageDate.reactTaskCalendarRangePickerClick({
-          props: {
-            selectedValue: [defaultStart, defaultEnd],
-            onClear() {
-              delete $stageDate.data().start;
-              delete $stageDate.data().end;
-              this.destroy();
-            },
-          },
-          publicMethods: {
-            submit(selectedValue) {
+
+        ReactDom.render(
+          <DateTimeRange
+            selectedValue={[defaultStart, defaultEnd]}
+            mode="task"
+            timePicker
+            separator={_l('至')}
+            timeMode="hour"
+            placeholder={_l('未指定起止时间')}
+            onOk={selectedValue => {
               let [start, end] = selectedValue;
+
+              if (start && end && start >= end) {
+                alert(_l('结束时间不能早于或等于开始时间'), 2);
+                return false;
+              }
+
               start = start ? start.format('YYYY-MM-DD HH:00') : '';
               end = end ? end.format('YYYY-MM-DD HH:00') : '';
               $stageDate.data('start', start);
               $stageDate.data('end', end);
-            },
-          },
-        });
-      });
+            }}
+            onClear={() => {
+              delete $stageDate.data().start;
+              delete $stageDate.data().end;
+
+              ReactDom.unmountComponentAtNode($stageDate[0]);
+              bindDate();
+            }}
+          >
+            <span class="icon-bellSchedule"></span>
+          </DateTimeRange>,
+          $stageDate[0],
+        );
+      };
+
+      bindDate();
 
       $('.addNewTask .teaStageName').autoTextarea({
         maxHeight: 273,

@@ -472,8 +472,8 @@ export default class EditorCon extends Component {
             });
           }
         }
-        if (['DEST_TABLE', 'FILTER', 'JOIN'].includes(nodeType)) {
-          //数据筛选节点、多表连接节点、数据目的地节点的预览功能 暂时不上数据预览
+        if (['DEST_TABLE', 'FILTER', 'JOIN', 'AGGREGATE'].includes(nodeType)) {
+          //数据筛选节点、多表连接节点、数据目的地、分类汇总节点的预览功能 暂时不上数据预览
           hidePreviwe = true;
         }
 

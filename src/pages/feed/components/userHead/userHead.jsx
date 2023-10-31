@@ -47,6 +47,12 @@ export default class UserHead extends React.Component {
     this.bindCard();
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (this.props.bindBusinessCard && !nextProps.bindBusinessCard) {
+      this.destory();
+    }
+  }
+
   componentDidUpdate(prevProps) {
     if (prevProps.user.accountId !== this.props.user.accountId || this.props.alwaysBindCard) {
       this.bindCard();
@@ -60,6 +66,11 @@ export default class UserHead extends React.Component {
     const $this = $(ReactDom.findDOMNode(this));
     $this.mdBusinessCard('destroy');
   }
+
+  destory = () => {
+    const $this = $(ReactDom.findDOMNode(this));
+    $this.mdBusinessCard('destroy');
+  };
 
   bindCard = () => {
     const $this = $(ReactDom.findDOMNode(this));

@@ -14,6 +14,7 @@ import { browserIsMobile, getToken } from 'src/util';
 import accountSettingAjax from 'src/api/accountSetting';
 import { Base64 } from 'js-base64';
 import { CardButton } from 'src/pages/worksheet/components/Basics.jsx';
+import _ from 'lodash';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
@@ -213,7 +214,11 @@ export default class Signature extends Component {
           })
           .then(({ data }) => {
             const { key = '' } = data || {};
-            if (md.global.Account.isPortal || window.isPublicWorksheet) {
+            if (
+              md.global.Account.isPortal ||
+              window.isPublicWorksheet ||
+              _.get(window, 'shareState.isPublicWorkflowRecord')
+            ) {
               this.props.onChange(JSON.stringify({ bucket: 4, key: key }));
             } else {
               accountSettingAjax.editSign({ bucket: 4, key: key }).then(res => {
@@ -284,7 +289,7 @@ export default class Signature extends Component {
       ],
       index: 0,
       callFrom: 'player',
-      hideFunctions: ['editFileName'],
+      hideFunctions: location.href.indexOf('/public/') > -1 ? ['editFileName', 'download'] : ['editFileName'],
     });
   };
 
@@ -294,11 +299,16 @@ export default class Signature extends Component {
 
     return (
       <Footer>
-        {uselast === '1' && !(md.global.Account.isPortal || window.isPublicWorksheet) && (
-          <div className="ThemeColor3 ThemeHoverColor2 pointer lastSignature" onClick={this.useLastSignature}>
-            {_l('使用上次签名')}
-          </div>
-        )}
+        {uselast === '1' &&
+          !(
+            md.global.Account.isPortal ||
+            window.isPublicWorksheet ||
+            _.get(window, 'shareState.isPublicWorkflowRecord')
+          ) && (
+            <div className="ThemeColor3 ThemeHoverColor2 pointer lastSignature" onClick={this.useLastSignature}>
+              {_l('使用上次签名')}
+            </div>
+          )}
         {isEdit && (
           <div className="clearSignature" onClick={this.clear}>
             {_l('清除')}

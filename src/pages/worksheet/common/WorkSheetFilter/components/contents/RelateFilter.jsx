@@ -5,6 +5,8 @@ import '@mdfe/selectize';
 import { Icon, Tooltip } from 'ming-ui';
 import RelateBox from './RelateBox';
 import _ from 'lodash';
+import { DEFAULT_COLUMNS } from '../../enum';
+import { DEFAULT_CONFIG } from 'src/pages/widgetConfig/config/widget';
 export default class RelateFilter extends Component {
   static propTypes = {
     disabled: PropTypes.bool,
@@ -82,6 +84,8 @@ export default class RelateFilter extends Component {
       control,
       type,
       sourceControlId,
+      from,
+      showCustom,
     } = this.props;
     return (
       <div className={cx('worksheetFilterRelateCondition', { disabled })}>
@@ -94,22 +98,37 @@ export default class RelateFilter extends Component {
           }}
         >
           {!dynamicSource.length || dynamicSource.length <= 0
-            ? _l('选择当前表单字段')
+            ? _.includes(['fastFilter'], from)
+              ? _l('选择已添加的快速筛选字段或筛选列表字段')
+              : _l('选择当前表单字段')
             : _.map(dynamicSource, (item, i) => {
+                if (showCustom && _.includes(['rowid', 'currenttime'], item.cid)) {
+                  return this.renderName(
+                    item,
+                    {
+                      controlName: _.get(
+                        _.find(DEFAULT_COLUMNS, d => d.controlId === item.cid),
+                        'controlName',
+                      ),
+                    },
+                    i,
+                  );
+                }
                 // 当前记录
-                if (item.rcid !== 'parent') {
+                if (!_.includes(['parent', 'fastFilter', 'navGroup'], item.rcid)) {
                   let nameList = _.find(currentColumns, v => item.cid === v.controlId);
                   return this.renderName(item, nameList, i);
                 } else {
                   //主记录
                   let nameList = _.find(this.props.globalSheetControls, v => item.cid === v.controlId);
-                  return this.renderName(item, nameList, i, true);
+                  return this.renderName(item, nameList, i, _.includes(['parent'], item.rcid));
                 }
               })}
           <Icon icon={'expand_more'} className="Gray_9e moreIntro Font16" />
         </div>
         {this.state.showUl && (
           <RelateBox
+            from={from}
             showUl={this.state.showUl}
             keywords={this.state.keywords}
             columns={currentColumns}
@@ -119,6 +138,7 @@ export default class RelateFilter extends Component {
             control={control}
             defaultValue={type}
             sourceControlId={sourceControlId}
+            showCustom={showCustom}
             setKeys={keywords => {
               this.setState({
                 keywords,

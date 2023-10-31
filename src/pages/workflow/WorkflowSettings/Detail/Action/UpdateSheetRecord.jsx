@@ -32,6 +32,7 @@ export default class UpdateSheetRecord extends Component {
           <UpdateFields
             type={data.appType === APP_TYPE.PROCESS ? 2 : 1}
             companyId={this.props.companyId}
+            relationId={this.props.relationId}
             processId={this.props.processId}
             selectNodeId={this.props.selectNodeId}
             nodeId={data.selectNodeId}

@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import ScrollView from 'ming-ui/components/ScrollView';
 import Icon from 'ming-ui/components/Icon';
 import Button from 'ming-ui/components/Button';
-import invite from 'src/components/invite';
+import addFriends from 'src/components/addFriends';
 import SiderBarTabList from '../components/SiderBarTabList';
 import SiderBarTabItem from '../components/SiderBarTabItem';
 import _ from 'lodash';
@@ -20,7 +20,7 @@ export default class SideBar extends React.Component {
   };
 
   getOpenState(list, projectId, type) {
-    return !!_.find(list, (item) => {
+    return !!_.find(list, item => {
       if (projectId) {
         return item.projectId === projectId && item.type === type;
       } else {
@@ -79,7 +79,7 @@ export default class SideBar extends React.Component {
             style={{ width: '100%' }}
             className="invite-btn"
             onClick={() => {
-              invite();
+              addFriends({ selectProject: true });
             }}
           >
             <Icon icon="plus" className="mRight5 TxtMiddle" />

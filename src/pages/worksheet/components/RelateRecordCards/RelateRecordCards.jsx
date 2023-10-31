@@ -24,7 +24,7 @@ import { completeControls } from 'worksheet/util';
 import { browserIsMobile, addBehaviorLog } from 'src/util';
 import _ from 'lodash';
 
-const MAX_COUNT = 50;
+const MAX_COUNT = 200;
 
 export const Button = styled.div`
   cursor: pointer;
@@ -431,7 +431,7 @@ export default class RelateRecordCards extends Component {
   handleAdd(newAdded) {
     const { multiple } = this.props;
     const { count, records, addedIds = [] } = this.state;
-    newAdded = newAdded.map(r => ({ ...r, isNewAdd: true }));
+    newAdded = newAdded.map(r => ({ ...r, isNewAdd: true })).slice(0, MAX_COUNT - count);
     const newRecords = multiple ? _.uniqBy(newAdded.concat(records), r => r.rowid) : newAdded;
     this.setState(
       {
@@ -496,7 +496,7 @@ export default class RelateRecordCards extends Component {
     const { enumDefault2 } = control;
 
     if (!$(evt.target).closest('.relateRecordBtn').length) return;
-    let count = _.isUndefined(this.count) ? records.length : this.count;
+    let count = _.isUndefined(this.state.count) ? records.length : this.state.count;
     if (count >= MAX_COUNT) {
       alert(_l('最多关联%0条', MAX_COUNT), 3);
       return;
@@ -523,10 +523,12 @@ export default class RelateRecordCards extends Component {
       formData,
       isCharge,
     } = control;
-    const { records } = this.state;
+    const { records, deletedIds } = this.state;
     const { disabledManualWrite, isCard } = this;
     const selectOptions = {
       control: control,
+      recordId,
+      ignoreRowIds: deletedIds,
       allowNewRecord: this.allowNewRecord,
       disabledManualWrite: disabledManualWrite,
       multiple: enumDefault === 2,

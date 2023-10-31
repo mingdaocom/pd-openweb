@@ -29,7 +29,6 @@ export default class Widgets extends Component {
       getType: 7,
       status: 1,
       searchType: 1,
-      linkId: window.isPublicWorksheet && window.recordShareLinkId ? window.recordShareLinkId : undefined,
       shareId: window.isPublicWorksheet && window.publicWorksheetShareId ? window.publicWorksheetShareId : undefined,
     }).then(result => {
       const row = _.find(result.data, { rowid: rowId });

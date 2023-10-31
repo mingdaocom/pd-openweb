@@ -80,12 +80,10 @@ export const DynamicValueInputWrap = styled(FlexCenter)`
       cursor: pointer;
     }
   }
-  .selectOtherFieldContainer {
-    div:nth-child(2) {
-      top: ${props => (props.triggerStyle ? '100% !important' : '0px')};
-      .rc-trigger-popup {
-        ${props => (props.triggerStyle ? 'top: 0px !important' : '')}
-      }
+  & > div:nth-child(3) {
+    ${props => (props.triggerStyle ? 'top: 100% !important' : '')}
+    .rc-trigger-popup {
+      ${props => (props.triggerStyle ? 'top: 0px !important' : '')}
     }
   }
 `;
@@ -350,17 +348,39 @@ export const SearchWorksheetWrap = styled.div`
       }
     }
   }
-  .addFilterCondition {
-    margin: 0px !important;
-  }
-  .addFilterCondition span {
+  .addFilterIcon span {
     color: #2196f3;
     display: inline-block;
     padding: 8px;
+    font-weight: bold;
     &:hover {
       color: #1780d3;
       background: #f5f5f5;
       border-radius: 3px;
+    }
+  }
+  .searchWorksheetFilter {
+    & > div > div > div:last-child {
+      margin: 0 !important;
+      .addFilterCondition {
+        i,
+        span {
+          color: #2196f3;
+        }
+        display: inline-block;
+        padding: 8px;
+        & > div > div {
+          margin-right: 0 !important;
+        }
+        &:hover {
+          i,
+          span {
+            color: #1780d3;
+          }
+          background: #f5f5f5;
+          border-radius: 3px;
+        }
+      }
     }
   }
   .conditionRelationBox {

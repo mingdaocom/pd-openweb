@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { NODE_TYPE, APP_TYPE, ACTION_ID, TRIGGER_ID, CONDITION_TYPE } from './enum';
+import { NODE_TYPE, APP_TYPE, ACTION_ID, TRIGGER_ID, CONDITION_TYPE, GLOBAL_VARIABLE } from './enum';
 
 /**
  * 遍历获取统计id
@@ -64,10 +64,14 @@ export const getIcons = (type, appType, actionId) => {
         icon = 'icon-custom_assignment';
       } else if (appType === APP_TYPE.PROCESS) {
         icon = 'icon-parameter';
+      } else if (appType === APP_TYPE.GLOBAL_VARIABLE) {
+        icon = 'icon-global_variable';
       } else if (appType === APP_TYPE.SHEET && actionId === ACTION_ID.EDIT) {
         icon = 'icon-workflow_update';
       } else if (appType === APP_TYPE.SHEET && actionId === ACTION_ID.ADD) {
         icon = 'icon-workflow_new';
+      } else if (appType === APP_TYPE.SHEET && actionId === ACTION_ID.DELETE) {
+        icon = 'icon-hr_delete';
       } else if (appType === APP_TYPE.SHEET && actionId === ACTION_ID.RELATION) {
         icon = 'icon-workflow_search';
       } else if (appType === APP_TYPE.EXTERNAL_USER && actionId === ACTION_ID.EDIT) {
@@ -142,6 +146,8 @@ export const getIcons = (type, appType, actionId) => {
     case NODE_TYPE.SYSTEM:
       if (appType === APP_TYPE.PROCESS) {
         icon = 'icon-parameter';
+      } else if (appType === APP_TYPE.GLOBAL_VARIABLE) {
+        icon = 'icon-global_variable';
       } else {
         icon = 'icon-application_custom';
       }
@@ -486,4 +492,15 @@ export const switchFilterConditions = conditions => {
       spliceType: 2,
     },
   ];
+};
+
+/**
+ * 处理全局变量名称
+ */
+export const handleGlobalVariableName = (nodeId, sourceType, name) => {
+  if (nodeId === GLOBAL_VARIABLE) {
+    return sourceType === 1 ? _l('全局变量(应用)') : _l('全局变量(组织)');
+  }
+
+  return name || '';
 };

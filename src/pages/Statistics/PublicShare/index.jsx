@@ -26,6 +26,14 @@ export default class PublicShareChart extends Component {
       id,
       sourceType: 31
     }).then(data => {
+      localStorage.setItem('currentProjectId', _.get(data, 'data.projectId'));
+      preall(
+        { type: 'function' },
+        {
+          allownotlogin: true,
+          requestParams: { projectId:  _.get(data, 'data.projectId') },
+        },
+      );
       window.share = _.get(data, 'data.shareAuthor');
       this.setState({ data, loading: false });
     });
@@ -40,6 +48,7 @@ export default class PublicShareChart extends Component {
           nodialog={true}
           settingVisible={false}
           report={{ id: data.sourceId }}
+          themeColor={data.appIconColor}
         />
       ) : (
         <div
@@ -66,6 +75,4 @@ export default class PublicShareChart extends Component {
   }
 }
 
-const Comp = preall(PublicShareChart, { allownotlogin: true });
-
-ReactDom.render(<Comp />, document.getElementById('app'));
+ReactDom.render(<PublicShareChart />, document.getElementById('app'));

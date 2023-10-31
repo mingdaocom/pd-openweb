@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Modal } from 'antd-mobile';
 
 export const ModalWrap = styled(Modal)`
-  height: 95%;
+  height: 95% !important;
   overflow: hidden;
   border-top-right-radius: 15px;
   border-top-left-radius: 15px;
@@ -12,7 +12,7 @@ export const ModalWrap = styled(Modal)`
     text-align: left;
   }
   &.full {
-    height: 100%;
+    height: 100% !important;
     border-top-right-radius: 0;
     border-top-left-radius: 0;
   }

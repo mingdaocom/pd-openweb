@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { CreateNode, NodeOperate } from '../components';
 import { ACTION_ID, APP_TYPE } from '../../enum';
+import { getIcons } from '../../utils';
 import _ from 'lodash';
 
 export default class Action extends Component {
@@ -17,7 +18,8 @@ export default class Action extends Component {
 
     if (
       (!item.appId && !item.selectNodeId && item.appType !== APP_TYPE.PROCESS) ||
-      (_.includes([APP_TYPE.PROCESS, APP_TYPE.EXTERNAL_USER], item.appType) && !item.fields.length)
+      (_.includes([APP_TYPE.PROCESS, APP_TYPE.EXTERNAL_USER, APP_TYPE.GLOBAL_VARIABLE], item.appType) &&
+        !item.fields.length)
     ) {
       return <div className="pLeft8 pRight8 blue">{_l('设置此节点')}</div>;
     }
@@ -209,44 +211,17 @@ export default class Action extends Component {
         </div>
       );
     }
-  }
 
-  /**
-   * 获取图标
-   */
-  getIcon() {
-    const { item } = this.props;
-
-    if (item.appType === APP_TYPE.SHEET && item.actionId === ACTION_ID.EDIT) {
-      return 'icon-workflow_update';
-    }
-
-    if (item.appType === APP_TYPE.SHEET && item.actionId === ACTION_ID.ADD) {
-      return 'icon-workflow_new';
-    }
-
-    if (item.appType === APP_TYPE.SHEET && item.actionId === ACTION_ID.DELETE) {
-      return 'icon-hr_delete';
-    }
-
-    if (item.appType === APP_TYPE.SHEET && item.actionId === ACTION_ID.RELATION) {
-      return 'icon-workflow_search';
-    }
-
-    if (item.appType === APP_TYPE.TASK) {
-      return 'icon-custom_assignment';
-    }
-
-    if (item.appType === APP_TYPE.PROCESS) {
-      return 'icon-parameter';
-    }
-
-    if (item.appType === APP_TYPE.EXTERNAL_USER && item.actionId === ACTION_ID.EDIT) {
-      return 'icon-update_information';
-    }
-
-    if (item.appType === APP_TYPE.EXTERNAL_USER && item.actionId === ACTION_ID.ADD) {
-      return 'icon-invited_users';
+    // 更新全局变量
+    if (item.appType === APP_TYPE.GLOBAL_VARIABLE) {
+      return (
+        <div className="pLeft8 pRight8 Gray_75">
+          {_l('更新了%0个变量', item.fields.length)}
+          {item.errorFields.length > 0 ? '，' : ''}
+          <span className="yellow">{item.errorFields.length || ''}</span>
+          {item.errorFields.length > 0 ? _l('个变量存在异常') : ''}
+        </div>
+      );
     }
   }
 
@@ -264,7 +239,7 @@ export default class Action extends Component {
               {
                 errorShadow:
                   (((item.appId || item.selectNodeId) && item.appType !== APP_TYPE.PROCESS) ||
-                    (_.includes([APP_TYPE.PROCESS, APP_TYPE.EXTERNAL_USER], item.appType) &&
+                    (_.includes([APP_TYPE.PROCESS, APP_TYPE.EXTERNAL_USER, APP_TYPE.GLOBAL_VARIABLE], item.appType) &&
                       (item.fields || []).length)) &&
                   item.isException,
               },
@@ -277,11 +252,11 @@ export default class Action extends Component {
                 className={cx(
                   'workflowAvatar',
                   (!item.appId && !item.selectNodeId && item.appType !== APP_TYPE.PROCESS) ||
-                    (_.includes([APP_TYPE.PROCESS, APP_TYPE.EXTERNAL_USER], item.appType) &&
+                    (_.includes([APP_TYPE.PROCESS, APP_TYPE.EXTERNAL_USER, APP_TYPE.GLOBAL_VARIABLE], item.appType) &&
                       !(item.fields || []).length)
                     ? 'BGGray'
                     : bgClassName,
-                  this.getIcon(),
+                  getIcons(item.typeId, item.appType, item.actionId),
                 )}
               />
             </div>

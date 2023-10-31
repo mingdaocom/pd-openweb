@@ -127,7 +127,9 @@ function OthersCon(props) {
 
   const renderCon = () => {
     if (FEATURE_STATUS === '2') {
-      return buriedUpgradeVersionDialog(currentProjectId, VersionProductType.userExtensionInformation, 'content');
+      return buriedUpgradeVersionDialog(currentProjectId, VersionProductType.userExtensionInformation, {
+        dialogType: 'content',
+      });
     }
 
     if (loading) return <LoadDiv />;

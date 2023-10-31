@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { Switch } from 'ming-ui';
 import PublishErrorDialog from '../../../components/PublishErrorDialog';
@@ -104,7 +104,7 @@ export default class PublishBtn extends Component {
   };
 
   render() {
-    const { disabled = false, item, showTime } = this.props;
+    const { disabled = false, item, showTime, showCreateTime } = this.props;
     const { publishData, dialogVisible } = this.state;
 
     return (
@@ -116,9 +116,15 @@ export default class PublishBtn extends Component {
           onClick={this.switchEnabled}
         />
         {!!showTime && (
-          <span
-            className={cx('mLeft10 Font12', item.publishStatus === 1 ? 'ThemeColor3' : 'Gray_9e')}
-          >{`${this.formatDate(item.lastModifiedDate)} ${publishStatus2Text[item.publishStatus]}`}</span>
+          <Fragment>
+            {showCreateTime ? (
+              <span className="mLeft10 Font12 Gray_9e">{this.formatDate(item.createdDate)}</span>
+            ) : (
+              <span
+                className={cx('mLeft10 Font12', item.publishStatus === 1 ? 'ThemeColor3' : 'Gray_9e')}
+              >{`${this.formatDate(item.lastModifiedDate)} ${publishStatus2Text[item.publishStatus]}`}</span>
+            )}
+          </Fragment>
         )}
         {dialogVisible && (
           <PublishErrorDialog

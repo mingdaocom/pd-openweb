@@ -5,6 +5,7 @@ import SvgIcon from 'src/components/SvgIcon';
 import styled from 'styled-components';
 import DocumentTitle from 'react-document-title';
 import homeApp from 'src/api/homeApp';
+import { APP_CONFIGS } from 'src/pages/AppSettings/config';
 
 const HeaderWrap = styled.div`
   height: 50px;
@@ -33,17 +34,20 @@ const HeaderWrap = styled.div`
 `;
 
 export default function AppPkgSimpleHeader(props) {
-  const appId = _.get(props, 'match.params.appId') || '';
+  const { appId, navTab } = _.get(props, 'match.params') || '';
   const [appDetail, setAppDetail] = useState({});
-  const isLog = props.path.includes('logs');
-  const isAnalytics = props.path.includes('analytics');
-  const text = isLog ? _l('日志') : isAnalytics ? _l('使用分析') : '';
+  const routerInfo = _.find(['logs', 'analytics', 'settings'], it => props.path.indexOf(it) > -1);
+  const titleInfo = {
+    logs: _l('日志'),
+    analytics: _l('使用分析'),
+    settings: _l('应用管理'),
+  };
+  const text = titleInfo[routerInfo] || '';
+  const currentSettingMenu = (_.find(APP_CONFIGS, v => v.type === navTab) || { text: _l('选项集') }).text;
 
   const getAppDetail = () => {
     homeApp.getApp({ appId }).then(appDetail => {
       setAppDetail(appDetail);
-
-      //   navigateTo(`/app/${appId}`);
     });
   };
 
@@ -53,7 +57,11 @@ export default function AppPkgSimpleHeader(props) {
 
   return (
     <HeaderWrap className="flexRow alignItemsCenter">
-      <DocumentTitle title={`${appDetail.name ? appDetail.name + ' - ' : ''}${text}`} />
+      <DocumentTitle
+        title={`${appDetail.name ? appDetail.name + ' - ' : ''}${text}${
+          routerInfo === 'settings' ? ' - ' + currentSettingMenu : ''
+        }`}
+      />
 
       <Tooltip popupPlacement="bottomLeft" text={<span>{_l('应用：%0', appDetail.name)}</span>}>
         <div

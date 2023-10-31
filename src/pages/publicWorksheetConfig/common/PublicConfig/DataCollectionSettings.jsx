@@ -197,9 +197,9 @@ export default function DataCollectionSettings(props) {
   } = data;
   const [daySelectPopupVisible, setDaySelectPopupVisible] = useState(false);
   const timePeriodList = [
-    { type: TIME_TYPE.MONTH, text: _l('月') },
+    { type: TIME_TYPE.MONTH, text: _l('月%02068') },
     { type: TIME_TYPE.DAY, text: _l('日') },
-    { type: TIME_TYPE.HOUR, text: _l('时') },
+    { type: TIME_TYPE.HOUR, text: _l('时%02069') },
   ];
   const locales = { 'zh-Hans': localeZhCn, 'zh-Hant': localeZhTw, en: localeEn, ja: localeJaJp };
   const locale = locales[md.global.Account.lang];

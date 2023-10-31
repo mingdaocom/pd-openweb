@@ -4,14 +4,13 @@ import { Tooltip, LoadDiv } from 'ming-ui';
 import Config from '../config';
 import './index.less';
 import groupController from 'src/api/group';
-import DialogLayer from 'src/components/mdDialog/dialog';
-import ReactDom from 'react-dom';
 import Empty from '../common/TableEmpty';
 import cx from 'classnames';
 import PaginationWrap from '../components/PaginationWrap';
 import DialogSelectMapGroupDepart from 'src/components/dialogSelectMapGroupDepart/dialogSelectMapGroupDepart';
 import CreateGroup from 'src/components/group/create/creatGroup';
 import moment from 'moment';
+import Confirm from 'ming-ui/components/Dialog/Confirm';
 
 const { Search } = Input;
 
@@ -22,6 +21,16 @@ const sortFieldTrans = {
   postCount: 2,
   groupMemberCount: 3,
   createTime: 0,
+};
+
+const CONFIRM_CONFIG = {
+  open: {
+    title: _l('开启群组'),
+    description: _l('确认开启所选择的群组?'),
+    success: _l('开启群组成功'),
+    fail: _l('开启群组失败'),
+    func: groupController.openGroup,
+  },
 };
 
 export default class GroupsList extends Component {
@@ -214,22 +223,13 @@ export default class GroupsList extends Component {
   }
 
   hanldeDeleteDept(record) {
-    const _this = this;
-    const options = {
-      container: {
-        content: _l('确认取消关联部门?'),
-        yesText: _l('确认'),
-        noText: _l('取消'),
-        header: _l('关联部门'),
-        yesFn: () => {
-          _this.updateDeptMappingGroup(record.groupId, false, record.mapDepartmentId);
-        },
+    Confirm({
+      title: _l('关联部门'),
+      description: _l('确认取消关联部门?'),
+      onOk: () => {
+        this.updateDeptMappingGroup(record.groupId, false, record.mapDepartmentId);
       },
-      dialogBoxID: 'deleteDialogId',
-      width: '480',
-      height: '150',
-    };
-    ReactDom.render(<DialogLayer {...options} />, document.createElement('div'));
+    });
   }
 
   handleSetDept(record) {
@@ -242,6 +242,14 @@ export default class GroupsList extends Component {
     });
   }
 
+  optionAlert = (title, type) => {
+    alert({
+      msg: title,
+      type: type,
+      key: 'updateGroupVerified',
+    });
+  };
+
   //更新关联部门
   updateDeptMappingGroup = (groupId, isVerified, departmentId) => {
     let reqData = {
@@ -249,109 +257,85 @@ export default class GroupsList extends Component {
       isVerified: isVerified,
       mapDepartmentId: departmentId,
     };
+
     if (!reqData.mapDepartmentId) {
       alert(_l('请选择关联部门'), 3);
       return;
     }
-    alert(_l('操作中，请稍候...'), 3);
+
+    this.optionAlert(_l('操作中，请稍候...'), 3);
+
     groupController.updateGroupVerified(reqData).then(data => {
       if (data) {
-        alert(_l('操作成功'), 1);
+        this.optionAlert(_l('操作成功'));
         this.getGroupsList();
       } else {
-        alert(_l('操作失败'), 3);
+        this.optionAlert(_l('操作失败'), 3);
       }
     });
   };
 
   handleOpen(id) {
-    const _this = this;
-    const options = {
-      container: {
-        content: _l('确认开启所选择的群组?'),
-        yesText: _l('确认'),
-        noText: _l('取消'),
-        header: _l('开启群组'),
-        yesFn: () => {
-          groupController
-            .openGroup({
-              groupIds: id ? [id] : _this.state.selectKeys,
-            })
-            .then(data => {
-              if (data) {
-                alert(_l('开启群组成功'));
-                _this.getGroupsList();
-              } else {
-                alert(_l('开启群组失败'), 2);
-              }
-            });
-        },
+    Confirm({
+      title: _l('开启群组'),
+      description: _l('确认开启所选择的群组?'),
+      onOk: () => {
+        groupController
+          .openGroup({
+            groupIds: id ? [id] : this.state.selectKeys,
+          })
+          .then(data => {
+            if (data) {
+              alert(_l('开启群组成功'));
+              this.getGroupsList();
+            } else {
+              alert(_l('开启群组失败'), 2);
+            }
+          });
       },
-      dialogBoxID: 'openDialogId',
-      width: '480',
-      height: '150',
-    };
-    ReactDom.render(<DialogLayer {...options} />, document.createElement('div'));
+    });
   }
 
   handleClose(id) {
-    const _this = this;
-    const options = {
-      container: {
-        content: _l('确认关闭所选择的群组?'),
-        yesText: _l('确认'),
-        noText: _l('取消'),
-        header: _l('关闭群组'),
-        yesFn: () => {
-          groupController
-            .closeGroup({
-              groupIds: id ? [id] : _this.state.selectKeys,
-            })
-            .then(data => {
-              if (data) {
-                alert(_l('关闭群组成功'));
-                _this.getGroupsList();
-              } else {
-                alert(_l('关闭群组失败'), 2);
-              }
-            });
-        },
+    Confirm({
+      title: _l('关闭群组'),
+      description: _l('确认关闭所选择的群组?'),
+      onOk: () => {
+        groupController
+          .closeGroup({
+            groupIds: id ? [id] : this.state.selectKeys,
+          })
+          .then(data => {
+            if (data) {
+              alert(_l('关闭群组成功'));
+              this.getGroupsList();
+            } else {
+              alert(_l('关闭群组失败'), 2);
+            }
+          });
       },
-      dialogBoxID: 'closeDialogId',
-      width: '480',
-      height: '150',
-    };
-    ReactDom.render(<DialogLayer {...options} />, document.createElement('div'));
+    });
   }
 
   handleDissolve(id) {
-    const _this = this;
-    const options = {
-      container: {
-        content: _l('确认解散所选择的群组？'),
-        yesText: _l('确认'),
-        noText: _l('取消'),
-        header: _l('解散群组'),
-        yesFn: () => {
-          groupController
-            .removeGroup({
-              groupIds: id ? [id] : _this.state.selectKeys,
-            })
-            .then(data => {
-              if (data) {
-                alert(_l('解散群组成功'));
-                _this.getGroupsList();
-              } else {
-                alert(_l('解散群组失败'), 2);
-              }
-            });
-        },
+    Confirm({
+      title: _l('解散群组'),
+      description: _l('确认解散所选择的群组？'),
+      onOk: () => {
+        groupController
+          .removeGroup({
+            groupIds: id ? [id] : this.state.selectKeys,
+          })
+          .then(data => {
+            if (data) {
+              alert(_l('解散群组成功'));
+              this.getGroupsList();
+            } else {
+              alert(_l('解散群组失败'), 2);
+            }
+          });
       },
-      dialogBoxID: 'dissolveDialogId',
-      width: '480',
-      height: '150',
-    };
-    ReactDom.render(<DialogLayer {...options} />, document.createElement('div'));
+    });
   }
 
   handleCreate() {

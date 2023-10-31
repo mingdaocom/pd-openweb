@@ -239,6 +239,16 @@ const getControlMinAndMax = map => {
   return result;
 }
 
+const replaceColor = (data, customPageConfig) => {
+  const { numberChartColor } = customPageConfig || {};
+  if (numberChartColor) {
+    return {
+      ...data,
+      fontColor: numberChartColor
+    }
+  }
+  return data;
+}
 
 export default class extends Component {
   constructor(props) {
@@ -288,13 +298,13 @@ export default class extends Component {
       }
     }
   }
-  renderContrast(value, contrastValue, name) {
+  renderContrast(value, contrastValue, name, isContrastValue) {
     const { filter, displaySetup = {}, style } = this.props.reportData;
     const { rangeType, rangeValue } = filter;
     const percentage = ((value - contrastValue) / contrastValue) * 100;
     const positiveNumber = percentage >= 0;
     const { numberChartStyle = {} } = style;
-    const { contrastValueShowType, contrastValueDot = 2 } = numberChartStyle;
+    const { contrastValueShowPercent = true, contrastValueShowNumber = false, contrastValueDot = 2 } = numberChartStyle;
     const contrastColor = _.isUndefined(numberChartStyle.contrastColor) ? style.contrastColor : numberChartStyle.contrastColor;
     const isEquality = value && contrastValue ? value === contrastValue : false;
     const { text: tipsText } = formatContrastTypes({ rangeType, rangeValue }).filter(item => item.value === displaySetup.contrastType)[0] || {};
@@ -305,17 +315,21 @@ export default class extends Component {
 
     return (
       <div className="w100 flexRow textWrap contrastWrap Font14">
-        <div className="mRight5 Gray_75">{name}</div>
+        <div className="mRight5 Gray_75">
+          {name}
+          {isContrastValue && ` (${tipsText})`}
+        </div>
         {
           contrastValue && percentage ? (
-            //<Tooltip title={tipsText} overlayInnerStyle={{ textAlign: 'center' }}>
+            <Tooltip title={contrastValue} overlayInnerStyle={{ textAlign: 'center' }}>
               <div className={`tip-top ${positiveNumber ? (contrastColor ? 'Red' : 'DepGreen') : (contrastColor ? 'DepGreen' : 'Red')}`}>
                 <div className="valignWrapper">
                   {isEquality ? null : <Icon className="mRight3" icon={`${positiveNumber ? 'worksheet_rise' : 'worksheet_fall'}`} />}
-                  <span className={cx('bold', { Gray_75: isEquality })}>{contrastValueShowType ? contrastValue : `${Math.abs(toFixed(percentage, contrastValueDot))}%`}</span>
+                  {contrastValueShowPercent && <span className={cx('bold mRight5', { Gray_75: isEquality })}>{`${Math.abs(toFixed(percentage, contrastValueDot))}%`}</span>}
+                  {contrastValueShowNumber && <span className={cx('bold', { Gray_75: isEquality })}>{contrastValueShowPercent ? `(${value - contrastValue})` : value - contrastValue}</span>}
                 </div>
               </div>
-            //</Tooltip>
+            </Tooltip>
           ) : (
             <span className="Gray range">- -</span>
           )
@@ -324,7 +338,7 @@ export default class extends Component {
     );
   }
   renderMapItem(data, controlMinAndMax, span) {
-    const { isViewOriginalData, reportData } = this.props;
+    const { isViewOriginalData, reportData, customPageConfig } = this.props;
     const { xaxes, yaxisList, style, filter, displaySetup, desc } = reportData;
     const { controlId, name, value, lastContrastValue, contrastValue, minorList = [], descVisible } = data;
     const newYaxisList = yaxisList.map(data => {
@@ -336,7 +350,7 @@ export default class extends Component {
     const hideVisible = xaxes.controlId && yaxisList.length === 1;
     const formatrValue = formatrChartValue(value, false, hideVisible ? yaxisList : newYaxisList, controlId);
     const { numberChartStyle = defaultNumberChartStyle } = style;
-    const { iconVisible, textAlign, icon, iconColor, shape, fontSize, fontColor, lastContrastText, contrastText } = numberChartStyle;
+    const { iconVisible, textAlign, icon, iconColor, shape, fontSize, fontColor, lastContrastText, contrastText } = replaceColor(numberChartStyle, customPageConfig);
     const titleFontSize = _.get(_.find(sizeTypes, { value: fontSize }), 'titleValue') || 15;
     const contrastTypes = formatContrastTypes(filter);
     const oneNumber = !xaxes.controlId && yaxisList.length === 1;
@@ -386,7 +400,7 @@ export default class extends Component {
             </Tooltip>
             <div className="w100 subTextWrap">
               {this.renderContrast(value, lastContrastValue, lastContrastText || _l('环比'))}
-              {!!contrastTypes.length && this.renderContrast(value, contrastValue, contrastText || _l('同比'))}
+              {!!contrastTypes.length && this.renderContrast(value, contrastValue, contrastText || _l('同比'), true)}
               {minorList.map(data => (
                 <div className="w100 flexRow textWrap minorWrap Font14">
                   <div className="mRight5 Gray_75">{data.name}</div>

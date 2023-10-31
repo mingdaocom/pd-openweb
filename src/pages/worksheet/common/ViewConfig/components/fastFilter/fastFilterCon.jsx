@@ -97,7 +97,7 @@ const SortHandle = SortableHandle(() => <Icon className="mRight10 Font16 mLeft7 
 
 const Item = SortableElement(({ name, type, controlId, onEdit, onDelete, isErr, showOtherField }) => {
   return (
-    <div className="customItemForFastFilter mBottom10" style={{}}>
+    <div className="customItemForFastFilter mBottom10">
       <SortHandle />
       <span
         className={cx('con overflow_ellipsis alignItemsCenter', { Red: isErr || showOtherField })}

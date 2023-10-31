@@ -174,7 +174,16 @@ class Widgets extends Component {
   }
 
   dropdownContent(checkIds) {
-    const { disabled, hint, options, dropdownClassName, advancedSetting = {}, selectProps, onChange } = this.props;
+    const {
+      isSheet,
+      disabled,
+      hint,
+      options,
+      dropdownClassName,
+      advancedSetting = {},
+      selectProps,
+      onChange,
+    } = this.props;
     let noDelOptions = options.filter(item => !item.isDeleted);
     const { keywords } = this.state;
 
@@ -254,7 +263,7 @@ class Widgets extends Component {
               </Select.Option>
             )}
         </Select>
-        <OtherInput {...this.props} isSelect={true} />
+        {!isSheet && <OtherInput {...this.props} isSelect={true} />}
       </Fragment>
     );
   }
@@ -301,7 +310,7 @@ class Widgets extends Component {
   };
 
   render() {
-    const { disabled, options, advancedSetting, value } = this.props;
+    const { isSheet, disabled, options, advancedSetting, value, controlName } = this.props;
     const { checkIds, otherValue } = getCheckAndOther(value);
     const { checktype, direction, allowadd } = advancedSetting || {};
     const isMobile = checktype === '1' && browserIsMobile();
@@ -322,6 +331,7 @@ class Widgets extends Component {
           callback={this.onSave}
           renderText={this.renderList}
           otherValue={otherValue}
+          controlName={controlName}
         >
           <div
             className={cx('customFormControlBox', { formBoxNoBorder: !isMobile }, { controlDisabled: disabled })}
@@ -337,7 +347,7 @@ class Widgets extends Component {
             </div>
           </div>
         </Comp>
-        {isMobile && JSON.parse(value || '[]').some(it => _.includes(it, 'other')) && !disabled && (
+        {isMobile && JSON.parse(value || '[]').some(it => _.includes(it, 'other')) && !disabled && !isSheet && (
           <OtherInput {...this.props} className="mTop5" isSelect={true} />
         )}
       </Fragment>

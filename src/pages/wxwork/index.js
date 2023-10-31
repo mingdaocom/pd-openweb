@@ -8,13 +8,18 @@ const { url } = getRequest();
 
 const checkLogin = () => {
   let isLoing = false;
-  loginAjax.checkLogin({}, {
-    ajaxOptions: { async: false }
-  }).then(res => {
-    isLoing = res;
-  });
+  loginAjax
+    .checkLogin(
+      {},
+      {
+        ajaxOptions: { async: false },
+      },
+    )
+    .then(res => {
+      isLoing = res;
+    });
   return isLoing;
-}
+};
 
 function start() {
   const appId = md.global.Config.WorkWXApp;
@@ -31,10 +36,5 @@ function start() {
   }
 }
 
-preall(
-  { type: 'function' },
-  {
-    allownotlogin: true,
-    preloadcb: start,
-  }
-);
+preall({ type: 'function' }, { allownotlogin: true });
+start();

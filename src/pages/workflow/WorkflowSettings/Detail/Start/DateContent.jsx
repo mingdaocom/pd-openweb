@@ -15,6 +15,7 @@ export default ({
   companyId,
   renderConditionBtn,
   triggerConditionHeader,
+  relationId,
 }) => {
   const renderTitle = item => {
     if (!item) {
@@ -160,6 +161,7 @@ export default ({
         {!!data.operateCondition.length && (
           <TriggerCondition
             processId={processId}
+            relationId={relationId}
             selectNodeId={selectNodeId}
             sourceAppId={data.appId}
             controls={data.controls}

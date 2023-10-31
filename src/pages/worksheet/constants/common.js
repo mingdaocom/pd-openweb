@@ -125,13 +125,13 @@ export const getCellValue = function (cellItem, type) {
     case 29:
       return cellItem.value
         ? JSON.stringify(
-          cellItem.value.map(relateRecordItem => {
-            return {
-              ...relateRecordItem,
-              sourcevalue: {},
-            };
-          }),
-        )
+            cellItem.value.map(relateRecordItem => {
+              return {
+                ...relateRecordItem,
+                sourcevalue: {},
+              };
+            }),
+          )
         : '';
     default:
       return cellItem.value ? (typeof cellItem.value === 'string' ? cellItem.value : cellItem.value.toString()) : '';
@@ -174,14 +174,14 @@ export const getControlValue = function (controlItem) {
         try {
           return JSON.parse(controlItem.value).filter(item => item).length > 0
             ? JSON.parse(controlItem.value).map(item => {
-              return item ? moment(item).format('x') : '';
-            })
+                return item ? moment(item).format('x') : '';
+              })
             : '';
         } catch (error) {
           return controlItem.value.split(',').filter(item => item).length > 0
             ? controlItem.value.split(',').map(item => {
-              return item || '';
-            })
+                return item || '';
+              })
             : '';
         }
       }
@@ -244,9 +244,14 @@ export const isGalleryOrBoard = type => {
   return [VIEW_DISPLAY_TYPE.gallery, VIEW_DISPLAY_TYPE.board].includes(String(type));
 };
 
-// 是否看板视图、画廊视图、层级视图
-export const isGalleryOrBoardOrStructure = type => {
-  return [VIEW_DISPLAY_TYPE.gallery, VIEW_DISPLAY_TYPE.board, VIEW_DISPLAY_TYPE.structure].includes(String(type));
+// 是否看板视图、画廊视图、层级视图、详情视图
+export const isGalleryOrBoardOrStructureOrDetail = type => {
+  return [
+    VIEW_DISPLAY_TYPE.gallery,
+    VIEW_DISPLAY_TYPE.board,
+    VIEW_DISPLAY_TYPE.structure,
+    VIEW_DISPLAY_TYPE.detail,
+  ].includes(String(type));
 };
 
 // 根据视图类型，设置封面位置和显示方式的默认值
@@ -269,12 +274,16 @@ export const getDefaultViewSet = data => {
   } else {
     //看板视图、表视图、层级视图封面设置项 默认右
     let { coverposition = '0' } = advancedSetting;
+    let childTypeObj = {};
     if (coverposition === '2') {
       coverposition = '0';
     }
     //表视图 新建默认不启用业务规则
     if (VIEW_DISPLAY_TYPE.sheet === String(viewType)) {
-      advancedSetting = { ...advancedSetting, enablerules: '1' }
+      advancedSetting = { ...advancedSetting, enablerules: '1' };
+    }
+    if (VIEW_DISPLAY_TYPE.detail === String(viewType)) {
+      childTypeObj = { childType: 2 };
     }
     return {
       ...data,
@@ -283,6 +292,7 @@ export const getDefaultViewSet = data => {
         ...advancedSetting,
         coverposition,
       },
+      ...childTypeObj,
     };
   }
 };

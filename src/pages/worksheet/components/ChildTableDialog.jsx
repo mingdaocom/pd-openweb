@@ -7,6 +7,7 @@ import styled from 'styled-components';
 import { ROW_HEIGHT } from 'worksheet/constants/enum';
 import ChildTable from 'worksheet/components/ChildTable';
 import functionWrap from 'ming-ui/components/FunctionWrap';
+import { onValidator } from 'src/components/newCustomFields/tools/DataFormat';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils';
 import { emitter, getSubListError } from 'worksheet/util';
 import { handleOpenInNew } from 'worksheet/common/recordInfo/crtl';
@@ -23,6 +24,9 @@ const Header = styled.div`
   padding: 0 24px;
   display: flex;
   align-items: center;
+  .inner {
+    max-width: calc(100% - 200px);
+  }
   .main {
     font-size: 17px;
     color: #333;
@@ -128,6 +132,11 @@ export default function ChildTableDialog(props) {
       control.showControls,
       3,
     );
+    const validatedResult = onValidator({ item: { ...control, value } });
+    if (validatedResult.errorType) {
+      alert(validatedResult.errorText, 3);
+      return;
+    }
     if (!_.isEmpty(errors)) {
       alert(_l('请正确填写表单'), 3);
       cache.current.comp.setState({
@@ -194,18 +203,24 @@ export default function ChildTableDialog(props) {
     >
       <Con>
         <Header>
-          <div className="main">{control.controlName}</div>
-          <div className="split"> - </div>
-          <div
-            className={cx('flexCenter', { Hand: allowOpenInNew })}
-            onClick={() => allowOpenInNew && handleOpenInNew({ appId, worksheetId, viewId, recordId })}
-          >
-            <div className="sec ellipsis">{title}</div>
-            {allowOpenInNew && (
-              <span className="openInNewTab ThemeHoverColor3" data-tip={_l('新窗口打开')}>
-                <i className="icon-launch" />
-              </span>
-            )}
+          <div className="inner flexRow">
+            <div className="main ellipsis" title={control.controlName}>
+              {control.controlName}
+            </div>
+            <div className="split"> - </div>
+            <div
+              className={cx('flexCenter', { Hand: allowOpenInNew })}
+              onClick={() => allowOpenInNew && handleOpenInNew({ appId, worksheetId, viewId, recordId })}
+            >
+              <div className="sec ellipsis" title={title}>
+                {title}
+              </div>
+              {allowOpenInNew && (
+                <span className="openInNewTab ThemeHoverColor3" data-tip={_l('新窗口打开')}>
+                  <i className="icon-launch" />
+                </span>
+              )}
+            </div>
           </div>
           {changed && (
             <Fragment>

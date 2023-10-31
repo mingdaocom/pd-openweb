@@ -87,6 +87,11 @@
       .w180 {
         width: 180px;
       }
+      .filterTimeRange {
+        width: 1px;
+        height: 36px;
+        visibility: hidden;
+      }
     }
     .manageListName {
       font-weight: bold;
@@ -116,6 +121,14 @@
         color: #757575;
         &:hover {
           background: #fff;
+        }
+        .Dropdown--input {
+          padding: 0;
+          .icon-arrow-down-border {
+            margin-top: 5px;
+            vertical-align: top;
+            display: inline-block;
+          }
         }
       }
       &.active {

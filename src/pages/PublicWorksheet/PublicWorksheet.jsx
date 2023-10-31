@@ -1,9 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { ScrollView } from 'ming-ui';
+import { ScrollView, Skeleton } from 'ming-ui';
 import DocumentTitle from 'react-document-title';
-import Skeleton from 'src/router/Application/Skeleton';
 import { Absolute } from 'worksheet/components/Basics';
 import BgContainer from 'src/pages/publicWorksheetConfig/components/BgContainer';
 import Qr from 'src/pages/publicWorksheetConfig/components/Qr';

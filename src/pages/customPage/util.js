@@ -6,6 +6,11 @@ import { get } from 'lodash';
 import domtoimage from 'dom-to-image';
 import { reportTypes } from 'statistics/Charts/common';
 import { v4 as uuidv4 } from 'uuid';
+import { generate } from '@ant-design/colors';
+import store from 'redux/configureStore';
+import * as utils from 'src/util';
+import { SYS_COLOR } from 'src/pages/Admin/settings/config';
+import tinycolor from '@ctrl/tinycolor';
 
 export const FlexCenter = styled.div`
   display: flex;
@@ -183,7 +188,7 @@ export const createFontLink = () => {
   });
 }
 
-export const exportImage = () => {
+export const exportImage = bgColor => {
   return new Promise((resolve, reject) => {
     const wrap = document.querySelector('.componentsWrap .react-grid-layout');
     const { left: wrapLeft, top: wrapTop } = wrap.getBoundingClientRect();
@@ -198,7 +203,7 @@ export const exportImage = () => {
     });
     domtoimage
       .toBlob(wrap, {
-        bgcolor: '#f5f5f5',
+        bgcolor: bgColor || '#f5f5f5',
         width: offsetWidth,
         height: offsetHeight,
       })
@@ -248,4 +253,37 @@ export const fillObjectId = components => {
     return c;
   });
 }
+
+export const replaceColor = (config, iconColor) => {
+  const lightColor = iconColor && generate(iconColor)[0];
+  const data = { ...config };
+  if (data.pageBgColor === 'iconColor') {
+    data.pageBgColor = iconColor;
+    data.darkenPageBgColor = tinycolor(iconColor).darken(6).toRgbString();
+  }
+  if (data.pageBgColor === 'lightColor') {
+    data.pageBgColor = lightColor;
+  }
+  if (data.pivoTableColor === 'iconColor') {
+    data.pivoTableColor = iconColor;
+  }
+  if (data.pivoTableColor === 'lightColor') {
+    data.pivoTableColor = lightColor;
+  }
+  if (data.numberChartColor === 'iconColor') {
+    data.numberChartColor = iconColor;
+  }
+  if (data.numberChartColor === 'lightColor') {
+    data.numberChartColor = lightColor;
+  }
+  return data;
+}
+
+export const isLightColor = color => {
+  if (_.find(SYS_COLOR, { color: color.toLocaleUpperCase() })) {
+    return false;
+  }
+  return utils.isLightColor(color);
+}
+
 

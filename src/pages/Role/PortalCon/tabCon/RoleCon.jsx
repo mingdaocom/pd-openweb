@@ -105,7 +105,13 @@ class Con extends React.Component {
         appId,
       })
       .then(res => {
-        alert(_l('复制成功'));
+        if (res.resultCode === 1) {
+          alert(_l('复制成功'));
+        } else if (res.resultCode === 2) {
+          alert(_l('角色名称重复，请重新命名'), 3);
+        } else {
+          alert(_l('复制失败'), 2);
+        }
       });
   };
   quickTag = data => {
@@ -137,7 +143,7 @@ class Con extends React.Component {
     }
   };
   render() {
-    const { getPortalRoleList, setPortalRoleList, portal, showRoleSet, appId, projectId } = this.props;
+    const { getPortalRoleList, setPortalRoleList, portal, showRoleSet, appId, projectId, editType } = this.props;
     const { loading } = portal;
     const { roleList = [], dataList = [], roleId, copyData } = this.state;
     if (loading) {
@@ -147,6 +153,7 @@ class Con extends React.Component {
       <React.Fragment>
         {!!copyData && (
           <CopyRoleDialog
+            editType={editType}
             appId={appId}
             copyData={copyData}
             setCopyData={data =>

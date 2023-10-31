@@ -103,7 +103,6 @@ var datasource = {
    * @param {Object} args 请求参数
    * @param {string} args.dataDestType 目的地类型
    * @param {boolean} args.isCreate 是否新建表
-   * @param {boolean} args.hasJoinPk 是否有多表连接主键
    * @param {array} args.sourceFields 源字段列表
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
@@ -208,6 +207,20 @@ var datasource = {
     base.ajaxOptions.url = base.server(options) + 'datasource/updateDatasource';
     base.ajaxOptions.type = 'POST';
     return $.api(controllerName, 'datasourceupdateDatasource', JSON.stringify(args), $.extend(base, options));
+  },
+
+  /**
+   * 获取是否启用ssh server
+   *
+   * @param {Object} args 请求参数
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  sshServerEnable: function (args, options) {
+    base.ajaxOptions.url = base.server(options) + 'datasource/sshServerEnable';
+    base.ajaxOptions.type = 'GET';
+    return $.api(controllerName, 'datasourcesshServerEnable', args, $.extend(base, options));
   },
 
   /**

@@ -83,16 +83,18 @@ export default class AddCondition extends Component {
             />
           }
           getPopupContainer={() => (renderInParent && !isAppendToBody ? this.box : document.body)}
-          popupAlign={{
-            points: ['tl', 'bl'],
-            offset: this.props.offset ? this.props.offset : [0, 12],
-            overflow: {
-              adjustX: true,
-              adjustY: true,
-            },
-          }}
+          popupAlign={
+            this.props.popupAlign || {
+              points: ['tl', 'bl'],
+              offset: this.props.offset ? this.props.offset : [0, 12],
+              overflow: {
+                adjustX: true,
+                adjustY: true,
+              },
+            }
+          }
         >
-          <span
+          <div
             ref={con => (this.box = con)}
             onClick={() => {
               if (disabled) {
@@ -114,7 +116,7 @@ export default class AddCondition extends Component {
                   {_l('添加筛选条件')}
                 </React.Fragment>
               ))}
-          </span>
+          </div>
         </Trigger>
       </div>
     );

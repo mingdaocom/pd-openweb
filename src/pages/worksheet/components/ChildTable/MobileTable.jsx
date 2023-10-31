@@ -14,7 +14,7 @@ const MobileTableContent = styled.div`
     background-color: #f7f7f7;
   }
   .tableIndex {
-    width: 20px !important;
+    width: 32px !important;
     .icon-task-new-delete {
       margin-left: -4px;
     }
@@ -70,7 +70,7 @@ export default function MobileTable(props) {
       {showRows.map((row, i) => (
         <div className="flexRow valignWrapper Font12" key={i}>
           <div className="mobileTableItem tableIndex">
-            {isEdit && !disabled && !/^temp/.test(row.rowid) && allowcancel ? (
+            {isEdit && !disabled && allowcancel ? (
               <i
                 className="icon icon-task-new-delete Font16 Gray_9e"
                 onClick={() => {

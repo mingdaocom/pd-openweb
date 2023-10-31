@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv, Dropdown } from 'ming-ui';
+import { ScrollView, LoadDiv, Dropdown, Checkbox } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
 import {
   DetailHeader,
@@ -8,6 +8,7 @@ import {
   FilterAndSort,
   SpecificFieldsValue,
   FindMode,
+  UpdateFields,
 } from '../components';
 import { ACTION_ID, APP_TYPE } from '../../enum';
 import cx from 'classnames';
@@ -49,12 +50,16 @@ export default class GetMoreRecord extends Component {
   /**
    * 获取节点详情
    */
-  getNodeDetail(props, actionId) {
+  getNodeDetail(props, extra = {}) {
     const { processId, selectNodeId, selectNodeType } = props;
+    const { data } = this.state;
 
-    flowNode.getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, actionId }).then(result => {
-      result.name = this.props.selectNodeName;
-      this.setState({ data: result, cacheKey: +new Date(), noAction: !result.actionId || !!actionId });
+    flowNode.getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, ...extra }).then(result => {
+      this.setState({
+        data: _.isEmpty(extra) ? result : { ...result, name: data.name },
+        cacheKey: +new Date(),
+        noAction: !result.actionId || !!extra.actionId,
+      });
     });
   }
 
@@ -71,9 +76,21 @@ export default class GetMoreRecord extends Component {
    */
   onSave = () => {
     const { data, saveRequest } = this.state;
-    const { name, actionId, appId, conditions, selectNodeId, fields, sorts, numberFieldValue, execute, filters } = data;
+    const {
+      name,
+      actionId,
+      appId,
+      conditions,
+      selectNodeId,
+      fields,
+      sorts,
+      numberFieldValue,
+      execute,
+      filters,
+      destroy,
+    } = data;
 
-    if (actionId === ACTION_ID.FROM_WORKSHEET && !appId) {
+    if (_.includes([ACTION_ID.FROM_WORKSHEET, ACTION_ID.BATCH_UPDATE, ACTION_ID.BATCH_DELETE], actionId) && !appId) {
       alert(_l('必须选择工作表'), 2);
       return;
     }
@@ -150,6 +167,7 @@ export default class GetMoreRecord extends Component {
         numberFieldValue,
         execute,
         filters,
+        destroy,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -249,6 +267,12 @@ export default class GetMoreRecord extends Component {
       [ACTION_ID.FROM_ARTIFICIAL]: _l('从人工节点获取操作明细'),
     };
     const { workflowBatchGetDataLimitCount, workflowSubProcessDataLimitCount } = md.global.SysSettings;
+    const isSelect =
+      (_.includes([ACTION_ID.FROM_WORKSHEET, ACTION_ID.BATCH_UPDATE, ACTION_ID.BATCH_DELETE], data.actionId) &&
+        data.appId) ||
+      (data.actionId === ACTION_ID.FROM_ADD && data.selectNodeId) ||
+      (data.actionId === ACTION_ID.FROM_RECORD && data.selectNodeId && !!(data.fields || []).length);
+
     return (
       <div className="workflowDetailBox">
         {data.actionId &&
@@ -260,18 +284,30 @@ export default class GetMoreRecord extends Component {
               ACTION_ID.FROM_PBC_INPUT_ARRAY,
               ACTION_ID.FROM_PBC_OUTPUT_ARRAY,
               ACTION_ID.FROM_JSON_PARSE_ARRAY,
+              ACTION_ID.BATCH_UPDATE,
+              ACTION_ID.BATCH_DELETE,
             ],
             data.actionId,
           ) && <div className="bold mBottom20">{actionTypes[data.actionId]}</div>}
 
         <div className="Font14 Gray_75 workflowDetailDesc">
-          {_l(
-            '您获取的多条数据可供本流程的数据处理节点或子流程节点使用。被数据处理节点（新增、更新、删除）使用，最多支持%0条。被子流程节点使用，最多支持%1条。',
-            workflowBatchGetDataLimitCount,
-            workflowSubProcessDataLimitCount,
-          )}
+          {!_.includes([ACTION_ID.BATCH_UPDATE, ACTION_ID.BATCH_DELETE], data.actionId) &&
+            _l(
+              '您获取的多条数据可供本流程的数据处理节点或子流程节点使用。被数据处理节点（新增、更新、删除）使用，最多支持%0条。被子流程节点使用，最多支持%1条。',
+              workflowBatchGetDataLimitCount,
+              workflowSubProcessDataLimitCount,
+            )}
+
           {data.actionId === ACTION_ID.FROM_RECORD &&
             _l('注：此方式最多获取1000条关联记录，如果需要获取更多数据，请使用“从工作表获取记录”的方式。')}
+
+          {data.actionId === ACTION_ID.BATCH_UPDATE &&
+            _l(
+              '在本节点内更新最大支持1000行。更新后数据可供流程中其他数据处理节点或子流程节点继续使用。被数据处理节点（新增、更新、删除）使用，最多支持100条。',
+            )}
+
+          {data.actionId === ACTION_ID.BATCH_DELETE &&
+            _l('在本节点内删除，最大支持1000行。此节点对象不能被流程中其他节点使用')}
         </div>
 
         {(!data.actionId ||
@@ -288,7 +324,8 @@ export default class GetMoreRecord extends Component {
           )) &&
           this.renderSelectArrayType()}
 
-        {data.actionId === ACTION_ID.FROM_WORKSHEET && this.renderWorksheet()}
+        {_.includes([ACTION_ID.FROM_WORKSHEET, ACTION_ID.BATCH_UPDATE, ACTION_ID.BATCH_DELETE], data.actionId) &&
+          this.renderWorksheet()}
         {data.actionId === ACTION_ID.FROM_RECORD && this.renderRecord()}
         {data.actionId === ACTION_ID.FROM_ADD && this.renderAdd()}
         {_.includes(
@@ -304,16 +341,19 @@ export default class GetMoreRecord extends Component {
         ) && this.renderArray()}
         {data.actionId === ACTION_ID.FROM_ARTIFICIAL && this.renderArtificial()}
 
-        {data.actionId && (
+        {data.actionId && isSelect && (
           <Fragment>
             <div className="mTop20 bold">{_l('限制数量')}</div>
             <div className="Font13 Gray_9e mTop5">{_l('最多获取条数')}</div>
             <div className="mTop10">
               <SpecificFieldsValue
+                projectId={this.props.companyId}
                 processId={this.props.processId}
+                relationId={this.props.relationId}
                 selectNodeId={this.props.selectNodeId}
                 updateSource={numberFieldValue => this.updateSource({ numberFieldValue })}
                 type="number"
+                max={1000000}
                 allowedEmpty
                 data={data.numberFieldValue}
               />
@@ -321,7 +361,12 @@ export default class GetMoreRecord extends Component {
           </Fragment>
         )}
 
+        {data.actionId === ACTION_ID.BATCH_UPDATE && isSelect && this.renderBatchUpdate()}
+
+        {data.actionId === ACTION_ID.BATCH_DELETE && isSelect && this.renderBatchDelete()}
+
         {_.includes([ACTION_ID.FROM_WORKSHEET, ACTION_ID.FROM_RECORD, ACTION_ID.FROM_ADD], data.actionId) &&
+          isSelect &&
           !isApproval && <FindMode execute={data.execute} onChange={execute => this.updateSource({ execute })} />}
 
         {isApproval && <div className="mTop20 bold">{_l('未获取到数据时：继续执行')}</div>}
@@ -359,7 +404,7 @@ export default class GetMoreRecord extends Component {
           border
           onChange={actionId => {
             this.updateSource({ actionId });
-            this.getNodeDetail(this.props, actionId);
+            this.getNodeDetail(this.props, { actionId });
           }}
         />
       </Fragment>
@@ -377,17 +422,36 @@ export default class GetMoreRecord extends Component {
         key={cacheKey}
         companyId={this.props.companyId}
         processId={this.props.processId}
+        relationId={this.props.relationId}
         selectNodeId={this.props.selectNodeId}
         openNewFilter={
           !data.conditions.length &&
-          _.includes([ACTION_ID.FROM_WORKSHEET, ACTION_ID.FROM_RECORD, ACTION_ID.FROM_ADD], data.actionId)
+          _.includes(
+            [
+              ACTION_ID.FROM_WORKSHEET,
+              ACTION_ID.FROM_RECORD,
+              ACTION_ID.FROM_ADD,
+              ACTION_ID.BATCH_UPDATE,
+              ACTION_ID.BATCH_DELETE,
+            ],
+            data.actionId,
+          )
         }
         disabledNewFilter={
-          !_.includes([ACTION_ID.FROM_WORKSHEET, ACTION_ID.FROM_RECORD, ACTION_ID.FROM_ADD], data.actionId)
+          !_.includes(
+            [
+              ACTION_ID.FROM_WORKSHEET,
+              ACTION_ID.FROM_RECORD,
+              ACTION_ID.FROM_ADD,
+              ACTION_ID.BATCH_UPDATE,
+              ACTION_ID.BATCH_DELETE,
+            ],
+            data.actionId,
+          )
         }
         data={data}
         updateSource={this.updateSource}
-        filterText={_l('设置筛选条件，获得满足条件的数据。如果未设置筛选条件，则获得所有来自对象的数据')}
+        filterText={_l('设置筛选条件，获得满足条件的数据。如果未设置筛选条件，则获得所有数据')}
         filterEncryptCondition={data.actionId === ACTION_ID.FROM_WORKSHEET}
       />
     );
@@ -648,6 +712,7 @@ export default class GetMoreRecord extends Component {
    * 切换工作表
    */
   switchWorksheet = (appId, name, otherApkId = '', otherApkName = '') => {
+    const { data } = this.state;
     const appList = _.cloneDeep(this.state.data.appList);
 
     if (otherApkId) {
@@ -655,10 +720,73 @@ export default class GetMoreRecord extends Component {
       appList.push({ id: appId, name, otherApkId, otherApkName });
     }
 
-    this.updateSource({ appId, appList, conditions: [], filters: [], fields: [], controls: [] }, () => {
-      this.getWorksheetFields(appId);
-    });
+    if (data.actionId === ACTION_ID.BATCH_UPDATE) {
+      this.getNodeDetail(this.props, { appId });
+    } else {
+      this.updateSource({ appId, appList, conditions: [], filters: [], fields: [], controls: [] }, () => {
+        this.getWorksheetFields(appId);
+      });
+    }
   };
+
+  /**
+   * 渲染批量更新
+   */
+  renderBatchUpdate() {
+    const { data } = this.state;
+
+    return (
+      <Fragment>
+        <div className="actionFieldsSplit mRight0 mTop30" />
+
+        <div className="mTop30 bold">{_l('获取后，更新记录')}</div>
+        <div className="mTop5 Gray_9e">{_l('最大更新1000行数据')}</div>
+
+        <UpdateFields
+          companyId={this.props.companyId}
+          relationId={this.props.relationId}
+          processId={this.props.processId}
+          selectNodeId={this.props.selectNodeId}
+          nodeId={data.selectNodeId}
+          controls={data.addControls}
+          fields={data.fields}
+          formulaMap={data.formulaMap}
+          updateSource={this.updateSource}
+          isBatch
+        />
+      </Fragment>
+    );
+  }
+
+  /**
+   * 渲染批量删除
+   */
+  renderBatchDelete() {
+    const { data } = this.state;
+
+    return (
+      <Fragment>
+        <div className="actionFieldsSplit mRight0 mTop30" />
+
+        <div className="mTop30 bold">{_l('获取后，删除记录')}</div>
+        <div className="mTop5 Gray_9e">{_l('最大删除1000行数据')}</div>
+
+        {data.actionId !== ACTION_ID.BATCH_DELETE && (
+          <Fragment>
+            <div className="mTop15 flexRow">
+              <Checkbox
+                className="InlineFlex"
+                text={_l('彻底删除记录，不放入回收站')}
+                checked={data.destroy}
+                onClick={checked => this.updateSource({ destroy: !checked })}
+              />
+            </div>
+            <div className="Gray_9e mTop5 mLeft26">{_l('彻底删除后数据不可恢复，请谨慎操作')}</div>
+          </Fragment>
+        )}
+      </Fragment>
+    );
+  }
 
   render() {
     const { data, showOtherWorksheet } = this.state;
@@ -682,7 +810,8 @@ export default class GetMoreRecord extends Component {
         <DetailFooter
           {...this.props}
           isCorrect={
-            (data.actionId === ACTION_ID.FROM_WORKSHEET && data.appId) ||
+            (_.includes([ACTION_ID.FROM_WORKSHEET, ACTION_ID.BATCH_UPDATE, ACTION_ID.BATCH_DELETE], data.actionId) &&
+              data.appId) ||
             (_.includes(
               [
                 ACTION_ID.FROM_RECORD,

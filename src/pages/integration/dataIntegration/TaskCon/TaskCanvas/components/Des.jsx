@@ -47,7 +47,15 @@ export default function Des(props) {
         }
         break;
       case 'AGGREGATE':
-        // txt = _l('分类 %0个字段，汇总 %1个字段', items.length, items.length);
+        let groupFields = _.get(nodeData, 'nodeConfig.config.groupFields') || [];
+        let aggregateFields = _.get(nodeData, 'nodeConfig.config.aggregateFields') || [];
+        if (groupFields.length > 0 && aggregateFields.length > 0) {
+          txt = _l('分类 %0个字段，汇总 %1个字段', groupFields.length, aggregateFields.length);
+        } else if (groupFields.length > 0) {
+          txt = _l('分类 %0个字段', groupFields.length);
+        } else if (aggregateFields.length > 0) {
+          txt = _l('汇总 %0个字段', aggregateFields.length);
+        }
         break;
     }
     if (!txt) {

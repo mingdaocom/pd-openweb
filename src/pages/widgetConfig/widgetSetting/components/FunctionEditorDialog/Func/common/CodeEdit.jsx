@@ -46,6 +46,9 @@ const Editor = styled.div`
     .cm-customFn {
       color: #4caf50;
     }
+    .cm-system {
+      color: #ffa100;
+    }
   }
 `;
 
@@ -79,8 +82,8 @@ function CodeEdit(props, ref) {
     insertFn: (value, position) => {
       editorRef.current.insertFn(value, position);
     },
-    getValue: () => editorRef.current.editor.getValue(),
-    setValue: v => editorRef.current.editor.setValue(v),
+    getValue: () => editorRef.current && editorRef.current.editor.getValue(),
+    setValue: v => editorRef.current && editorRef.current.editor.setValue(v),
   }));
   return (
     <Con readOnly={readOnly} onClick={onClick}>

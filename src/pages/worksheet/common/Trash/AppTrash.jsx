@@ -166,7 +166,9 @@ export default function AppTrash(props) {
             ),
             description: (
               <div className="Font14 Gray_75">
-                {_l('应用为极其重要的数据，彻底删除应用数据时需要验证身份。彻底删除该数据后，将无法恢复。')}
+                {_l('此操作将彻底物理删除应用下所有配置与数据，删除后无法恢复，')}
+                <br/>
+                {_l('请谨慎操作！')}
               </div>
             ),
             confirmType: 'danger',

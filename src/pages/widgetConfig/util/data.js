@@ -6,27 +6,14 @@ import sheetAjax from 'src/api/worksheet';
 import cx from 'classnames';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import update from 'immutability-helper';
-import _, {
-  includes,
-  get,
-  isEmpty,
-  omit,
-  findIndex,
-  filter,
-  find,
-  head,
-  last,
-  flatten,
-  isUndefined,
-  cloneDeep,
-} from 'lodash';
+import _, { includes, get, isEmpty, omit, findIndex, filter, find, head, last, flatten } from 'lodash';
 import { getAdvanceSetting, handleAdvancedSettingChange, isExceedMaxControlLimit } from './setting';
-import { insertControlInSameLine } from './drag';
-import { getControlByControlId, adjustControlSize, putControlByOrder } from '.';
+import { insertControlInSameLine, batchRemoveItems } from './drag';
+import { getControlByControlId, adjustControlSize, putControlByOrder, getBoundRowByTab, fixedBottomWidgets } from '.';
 import { getPathById, isHaveGap } from './widgets';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { ControlTag } from '../styled';
-import { Tooltip } from 'ming-ui';
+import { Tooltip, Dialog } from 'ming-ui';
 import { v4 as uuidv4 } from 'uuid';
 import { ALL_SYS } from '../config/widget';
 import { isRelateRecordTableControl } from 'worksheet/util';
@@ -165,7 +152,7 @@ export function dealUserId(data, dataType) {
  */
 export function handleCondition(condition, isRelate) {
   // 关联记录(动态值只能选择当前记录字段)特殊处理 rcid置空
-  if (isRelate && !isEmpty(condition.dynamicSource)) {
+  if (_.isBoolean(isRelate) && isRelate && !isEmpty(condition.dynamicSource)) {
     condition.dynamicSource.forEach(item => (item.rcid = ''));
   }
   if (_.includes([19, 23, 24, 26, 27, 29, 35, 48], condition.dataType) && condition.values) {
@@ -481,15 +468,6 @@ export const formatControlsData = (controls = [], fromSub = false) => {
       const nextIncrease = update(increase, { [index]: { $apply: item => ({ ...item, start: 1 }) } });
       return handleAdvancedSettingChange(data, { increase: JSON.stringify(nextIncrease) });
     }
-
-    /**
-     * 分组icon只保存fileName,接口补全对象返回
-     * */
-    if (type === 52) {
-      const { icon = '' } = getAdvanceSetting(data, 'icon') || {};
-      return handleAdvancedSettingChange(data, { icon });
-    }
-
     return data;
   });
 };
@@ -501,6 +479,7 @@ export const dealRequestControls = (controls, needChild) => {
 
   // 查询过滤无效数据(附件不支持)
   const filterControls = controls
+    .filter(i => !_.includes([10000003, 10000006], i.type))
     .filter(i => {
       const hasFind = _.find(controls, o => i.dataSource === o.controlId);
       return i.dataSource ? hasFind && hasFind.type !== 10000007 : true;
@@ -553,6 +532,15 @@ export const scrollToVisibleRange = (data, widgetProps) => {
   }
 };
 
+// 折叠时,如果新增控件在可视区外则滚动至可视区内
+// export const scrollTabToVisibleRange = (data, widgetProps) => {
+//   const { activeWidget } = widgetProps;
+//   const $contentWrap = document.getElementById('collapseHeaderContent');
+//   const $activeWidget = document.getElementById(`header-${(activeWidget || {}).controlId}`);
+//   if (!$contentWrap || !$activeWidget) return;
+//   const rect = $activeWidget.getBoundingClientRect();
+// };
+
 // 批量添加
 export const handleAddWidgets = (data, para = {}, widgetProps, callback) => {
   const { widgets, activeWidget, allControls, setWidgets, setActiveWidget, globalSheetInfo = {} } = widgetProps;
@@ -566,13 +554,6 @@ export const handleAddWidgets = (data, para = {}, widgetProps, callback) => {
 
   if (isExceedMaxControlLimit(allControls, data.length)) {
     alert(_l('当前表存在的控件已达到最大值，无法添加继续添加新控件!'), 3);
-    return;
-  }
-
-  // 如果当前控件列表为空 直接添加
-  if (isEmpty(widgets)) {
-    setWidgets(update(widgets, { $push: [data] }));
-    setActiveWidget(data[0]);
     return;
   }
 
@@ -613,23 +594,43 @@ export const handleAddWidgets = (data, para = {}, widgetProps, callback) => {
     let currentRowIndex = 0;
 
     // 没有激活控件或者激活的控件不存在 则直接添加在最后一行
+    // 普通控件，分界位置，非普通表单最后
     if (isEmpty(activeWidget) || allControls.findIndex(item => item.controlId === activeWidget.controlId) < 0) {
-      currentRowIndex = newWidgets.length - 1;
+      currentRowIndex = fixedBottomWidgets(item) ? newWidgets.length - 1 : getBoundRowByTab(widgets) - 1;
     } else {
-      currentRowIndex = head(
-        getPathById(newWidgets, index ? _.get(data[index - 1], 'controlId') : activeWidget.controlId),
-      );
+      // 批量数据添加时，以前一个已添加控件作为激活控件
+      let tempActiveWidget = index ? data[index - 1] : activeWidget;
+      currentRowIndex = head(getPathById(newWidgets, get(tempActiveWidget, 'controlId')));
 
-      // 如果当前控件是分段控件，则添加在当前控件内
-      if (activeWidget.type === 52) {
-        const childrenList = getChildWidgetsBySection(allControls, activeWidget.controlId);
-        currentRowIndex = currentRowIndex + childrenList.length;
+      // 如果激活控件是标签页控件
+      if (tempActiveWidget.type === 52) {
+        // 子表、多条列表，插入分界
+        if (isRelateRecordTableControl(item) || item.type === 34) {
+          currentRowIndex = getBoundRowByTab(widgets) - 1;
+        } else {
+          const childrenList = getChildWidgetsBySection(allControls, tempActiveWidget.controlId);
+          currentRowIndex = currentRowIndex + childrenList.length;
+        }
+      } else {
+        // 当前激活控件非特殊控件，但是添加控件是特殊控件，直接添加末尾
+        if (fixedBottomWidgets(item)) {
+          currentRowIndex = newWidgets.length - 1;
+        }
       }
+    }
+
+    // 兼容currentRowIndex为负、全是普通控件的情况,当前控件列表为空时，添加到第一个
+    // 不为空添加到最后一个
+    if (currentRowIndex < 0) {
+      currentRowIndex = newWidgets.length > 0 ? newWidgets.length - 1 : 0;
     }
 
     // 如果当前激活控件所在行没有空位则另起下一行，否则放到当前行后面
     if (isHaveGap(newWidgets[currentRowIndex], item)) {
-      newWidgets = update(newWidgets, { [currentRowIndex]: { $push: [item] } });
+      // 表单为空，直接添加
+      newWidgets = _.isEmpty(newWidgets)
+        ? update(newWidgets, { $push: [data] })
+        : update(newWidgets, { [currentRowIndex]: { $push: [item] } });
     } else {
       newWidgets = update(newWidgets, {
         $splice: [[currentRowIndex + 1, 0, [item]]],
@@ -697,7 +698,11 @@ export const dealCopyWidgetId = (data = {}) => {
   if (data.type === 34 && _.get(window.subListSheetConfig[data.controlId], 'mode') === 'new') {
     const relationControls = (newData.relationControls || []).map(item => {
       if (_.includes(ALL_SYS, item.controlId)) return item;
-      const newItem = { ...item, controlId: uuidv4() };
+      const newItem = {
+        ...item,
+        controlId: uuidv4(),
+        advancedSetting: { ...item.advancedSetting, dynamicsrc: '', defaulttype: '' },
+      };
       ids[item.controlId] = newItem.controlId;
       return newItem;
     });
@@ -735,8 +740,8 @@ export const batchCopyWidgets = (props, selectWidgets = []) => {
 
   selectWidgets.map(item => {
     copyWidgets.push(item);
-    if (item.type === 52) {
-      copyWidgets.push(...allControls.filter(i => i.sectionId === item.controlId));
+    if (item.type === 52 && get(item, 'relationControls.length')) {
+      copyWidgets.push(...item.relationControls);
     }
   });
 
@@ -755,13 +760,12 @@ export const batchCopyWidgets = (props, selectWidgets = []) => {
       }
       // 工作表查询配置复制
       const currentQuery = find(queryConfigs, queryItem => queryItem.controlId === data.controlId);
-      currentQuery && newQueries.push({ ...currentQuery, id: `${uuidv4()}_new`, controlId: dealItem.controlId });
+      currentQuery && newQueries.push({ ...currentQuery, id: `${uuidv4()}`, controlId: dealItem.controlId });
 
       if (data.type === 52) {
         // 缓存sectionId
         sectionIds[data.controlId] = dealItem.controlId;
-        const childControls = getChildWidgetsBySection(allControls, data.controlId);
-        childCount = childControls.length;
+        childCount = get(data, 'relationControls.length');
       }
 
       return dealItem;
@@ -789,4 +793,41 @@ export const batchResetWidgets = (props, selectWidgets = [], fieldPermission) =>
   });
 
   setWidgets(widgets);
+};
+
+// 删除标签页
+export const deleteSection = ({ widgets = [], data }, props) => {
+  const { setActiveWidget, setWidgets } = props;
+  Dialog.confirm({
+    title: _l('删除标签？'),
+    description: _l('标签页内字段将移动到外部，不会被删除'),
+    okText: _l('删除'),
+    buttonType: 'danger',
+    onOk: () => {
+      // 先删除原来控件
+      const deleteWidgets = [data, ...data.relationControls];
+      let batchDeleteWidgets = batchRemoveItems(widgets, deleteWidgets);
+      const addWidgets = (data.relationControls || []).map(i => ({ ...i, sectionId: '' }));
+      const activeWidget = last(addWidgets);
+      // 将内部字段移到外部，拼到普通字段后
+      if (addWidgets.length) {
+        const boundRow = getBoundRowByTab(batchDeleteWidgets);
+        batchDeleteWidgets.splice(
+          boundRow > -1 ? boundRow : batchCopyWidgets.length,
+          0,
+          ...putControlByOrder(addWidgets),
+        );
+      }
+      setWidgets(batchDeleteWidgets);
+      if (activeWidget) {
+        setActiveWidget(activeWidget);
+        setTimeout(() => {
+          scrollToVisibleRange(activeWidget, { ...props, activeWidget });
+        }, 50);
+      } else {
+        setActiveWidget({});
+      }
+      return;
+    },
+  });
 };

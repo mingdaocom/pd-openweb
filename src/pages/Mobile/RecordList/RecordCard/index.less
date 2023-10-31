@@ -17,6 +17,16 @@
       background-color: #fcfcfc;
     }
   }
+  &.converTop {
+    flex-direction: column;
+    .recordCardCover {
+      width: 100% !important;
+      height: 170px;
+    }
+    .recordCardContent {
+      width: 100% !important;
+    }
+  }
   &.batchOptStyle {
     border: 1px solid #2196f3;
   }
@@ -30,10 +40,14 @@
       background-position: center;
       background-repeat: no-repeat;
     }
+    &.circle {
+      border-radius: unset;
+    }
     &.circle,
     &.rectangle {
       display: flex;
       justify-content: center;
+      background-color: #fff;
       .img {
         height: 70px;
         margin-top: 10px;
@@ -56,6 +70,7 @@
         width: 100%;
         height: 100%;
         justify-content: center;
+        background-color: #fcfcfc;
       }
     }
     &.full {
@@ -66,7 +81,7 @@
     &.appshowtype1.fill {
       width: 100px;
     }
-    .withoutImg > img{
+    .withoutImg > img {
       width: 36px;
     }
   }
@@ -74,6 +89,18 @@
     padding: 10px 12px;
     width: 0;
     overflow: hidden;
+    position: relative;
+    .colorTag {
+      position: absolute;
+      width: 4px;
+      top: -1px;
+      bottom: -1px;
+      left: 0px;
+      &.colorTagRight {
+        left: unset;
+        right: 0;
+      }
+    }
 
     .cellAttachments {
       width: auto;

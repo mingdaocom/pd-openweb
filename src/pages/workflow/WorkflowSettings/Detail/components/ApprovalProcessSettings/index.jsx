@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
 import { Checkbox, Icon, Dropdown } from 'ming-ui';
 import UpdateFields from '../UpdateFields';
 import ProcessDetails from '../ProcessDetails';
@@ -6,9 +6,10 @@ import OperatorEmpty from '../OperatorEmpty';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { OPERATION_TYPE, USER_TYPE } from '../../../enum';
+import { OPERATION_TYPE, USER_TYPE, NODE_TYPE } from '../../../enum';
 import Member from '../Member';
 import quickSelectUser from 'ming-ui/functions/quickSelectUser';
+import { Tooltip } from 'antd';
 
 const TABS_ITEM = styled.div`
   display: inline-flex;
@@ -32,8 +33,9 @@ const TABS_ITEM = styled.div`
 `;
 
 export default props => {
-  const { companyId, processId, data, updateSource } = props;
+  const { companyId, processId, data, updateSource, cacheKey } = props;
   const [tabIndex, setTabIndex] = useState(1);
+  const [selected, setSelected] = useState(!!data.processConfig.requiredIds.length);
   const INITIATOR_TYPE = [
     { text: _l('自动进入下一个节点'), value: 4 },
     { text: _l('由流程拥有者代理'), value: 2 },
@@ -47,11 +49,6 @@ export default props => {
   const AutoPass = [
     { text: _l('发起人无需审批自动通过'), key: 'startEventPass' },
     { text: _l('已审批过的审批人自动通过'), key: 'userTaskPass' },
-    {
-      text: _l('验证必填字段'),
-      key: 'required',
-      tip: _l('勾选后，当有必填字段为空时不自动通过，仍需进行审批操作。'),
-    },
   ];
   const initiator = data.processConfig.initiatorMaps ? parseInt(Object.keys(data.processConfig.initiatorMaps)[0]) : 0;
   const selectCharge = (event, callback) => {
@@ -82,6 +79,19 @@ export default props => {
       },
     });
   };
+  const list = data.processConfig.revokeFlowNodes
+    .filter(item => item.typeId === NODE_TYPE.APPROVAL)
+    .map(item => {
+      return {
+        text: item.name,
+        value: item.id,
+        disabled: _.includes(data.processConfig.requiredIds, item.id),
+      };
+    });
+
+  useEffect(() => {
+    setSelected(!!data.processConfig.requiredIds.length);
+  }, [cacheKey]);
 
   return (
     <Fragment>
@@ -93,7 +103,7 @@ export default props => {
             '设置发起人为空时的处理方式。当设为自动进行下一节点时，如果退回到流程发起节点，也会自动由下一个节点进行处理',
           )}
         >
-          <Icon className="Font14 Gray_9e" icon="info" />
+          <Icon className="Font16 Gray_9e" icon="info" />
         </span>
       </div>
       <Dropdown
@@ -184,7 +194,7 @@ export default props => {
             </div>
           </div>
 
-          <div className="Font13 mTop20 bold">{_l('自动通过')}</div>
+          <div className="Font13 mTop20 bold">{_l('自动通过（默认设置）')}</div>
           {AutoPass.map((item, i) => (
             <div key={i} className="flexRow mTop15 alignItemsCenter">
               <Checkbox
@@ -196,19 +206,100 @@ export default props => {
                   })
                 }
               />
-              {item.tip && (
-                <span className="workflowDetailTipsWidth mLeft5" data-tip={item.tip}>
-                  <Icon icon="info" className="Gray_9e" />
-                </span>
-              )}
             </div>
           ))}
 
+          {(data.processConfig.startEventPass || data.processConfig.userTaskPass) && (
+            <div className="mTop15 mLeft25">
+              <div className="Gray_75">{_l('以下情况不自动通过')}</div>
+              <div className="flexRow mTop15 alignItemsCenter">
+                <Checkbox
+                  text={_l('必填字段为空时')}
+                  checked={data.processConfig.required}
+                  onClick={checked =>
+                    updateSource({
+                      processConfig: Object.assign({}, data.processConfig, { required: !checked }),
+                    })
+                  }
+                />
+                <span
+                  className="workflowDetailTipsWidth mLeft5"
+                  data-tip={_l('勾选后，当有必填字段为空时不自动通过，仍需进行审批操作。')}
+                >
+                  <Icon icon="info" className="Gray_9e Font16 TxtTop InlineBlock mTop3" />
+                </span>
+              </div>
+              <div className="flexRow mTop15 alignItemsCenter">
+                <Checkbox
+                  text={_l('设置为必须审批的节点')}
+                  checked={selected}
+                  onClick={checked => {
+                    setSelected(!checked);
+                    checked &&
+                      updateSource({
+                        processConfig: Object.assign({}, data.processConfig, { requiredIds: [] }),
+                      });
+                  }}
+                />
+              </div>
+              {selected && (
+                <Dropdown
+                  className="flowDropdown flowDropdownMoreSelect mTop10"
+                  menuStyle={{ width: '100%' }}
+                  data={list}
+                  value={data.processConfig.requiredIds.length || undefined}
+                  border
+                  openSearch
+                  renderTitle={() =>
+                    !!data.processConfig.requiredIds.length && (
+                      <ul className="tagWrap">
+                        {data.processConfig.requiredIds.map(id => {
+                          const item = _.find(data.processConfig.revokeFlowNodes, item => item.id === id);
+
+                          return (
+                            <li key={id} className={cx('tagItem flexRow', { error: !item })}>
+                              <Tooltip title={item ? null : `ID：${id}`}>
+                                <span className="tag">{item ? item.name : _l('节点已删除')}</span>
+                              </Tooltip>
+                              <span
+                                className="delTag"
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  const ids = [].concat(data.processConfig.requiredIds);
+                                  _.remove(ids, item => item === id);
+
+                                  updateSource({
+                                    processConfig: Object.assign({}, data.processConfig, { requiredIds: ids }),
+                                  });
+                                }}
+                              >
+                                <Icon icon="close" className="pointer" />
+                              </span>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    )
+                  }
+                  onChange={id => {
+                    updateSource({
+                      processConfig: Object.assign({}, data.processConfig, {
+                        requiredIds: data.processConfig.requiredIds.concat(id),
+                      }),
+                    });
+                    setSelected(true);
+                  }}
+                />
+              )}
+            </div>
+          )}
+
           <OperatorEmpty
-            isApproval
+            hideGoToSettings
             projectId={companyId}
             processId={!data.processConfig.agents.length ? processId : ''}
             title={_l('审批/填写人为空时（默认设置）')}
+            titleInfo={_l('设置节点负责人为空时的默认处理方式，在每个节点中也可单独设置。')}
             userTaskNullMap={data.processConfig.userTaskNullMaps}
             updateSource={userTaskNullMaps =>
               updateSource({
@@ -229,6 +320,7 @@ export default props => {
                 type={1}
                 companyId={props.companyId}
                 processId={props.processId}
+                relationId={props.relationId}
                 selectNodeId={props.selectNodeId}
                 nodeId={data.flowNodeMap[OPERATION_TYPE.BEFORE].selectNodeId}
                 controls={data.flowNodeMap[OPERATION_TYPE.BEFORE].controls.filter(o => o.type !== 29)}

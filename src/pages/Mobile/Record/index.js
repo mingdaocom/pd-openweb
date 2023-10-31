@@ -4,7 +4,6 @@ import RecordInfo from './RecordInfo';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { Modal } from 'antd-mobile';
-import TouchHandler from 'mobile/components/TouchHandler';
 import { Provider } from 'react-redux';
 import { configureStore } from 'src/redux/configureStore';
 
@@ -38,6 +37,7 @@ export const RecordInfoModal = forwardRef((props, ref) => {
     notModal = false,
     editable,
     hideOtherOperate,
+    allowEmptySubmit,
     updateSuccess,
   } = props;
   const { className, visible, onClose } = props;
@@ -58,6 +58,7 @@ export const RecordInfoModal = forwardRef((props, ref) => {
         from={from}
         editable={editable}
         hideOtherOperate={hideOtherOperate}
+        allowEmptySubmit={allowEmptySubmit}
         updateSuccess={updateSuccess}
       />
     </Provider>
@@ -75,11 +76,7 @@ export const RecordInfoModal = forwardRef((props, ref) => {
       onClose={onClose}
       visible={visible}
     >
-      {rowId && (
-        <TouchHandler onClose={onClose} touchClassName=".RecordInfoModal">
-          {Content}
-        </TouchHandler>
-      )}
+      {rowId && Content}
     </ModalWrap>
   );
 });

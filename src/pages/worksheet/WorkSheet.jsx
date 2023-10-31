@@ -90,7 +90,7 @@ const WorkSheetContainer = (props) => {
       );
     } else {
       const res = appGroups.map(data => {
-        const { appSectionId, workSheetInfo, childSections } = data;
+        const { appSectionId, workSheetInfo = [], childSections = [] } = data;
         const child = childSections.map(data => {
           const { parentId } = data;
           return data.workSheetInfo.map(data => {

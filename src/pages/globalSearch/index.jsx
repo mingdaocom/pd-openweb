@@ -708,7 +708,7 @@ export default class GlobalSearch extends Component {
                 !loading &&
                 (getFeatureStatus(proId, VersionProductType.globalSearch) !== '1' || proObj.licenseType === 2) && (
                   <div className="upgradeVersion ">
-                    {buriedUpgradeVersionDialog(proId, VersionProductType.globalSearch, 'content')}
+                    {buriedUpgradeVersionDialog(proId, VersionProductType.globalSearch, { dialogType: 'content' })}
                   </div>
                 )}
               <ScrollView onScrollEnd={this.handleScrollEnd}>

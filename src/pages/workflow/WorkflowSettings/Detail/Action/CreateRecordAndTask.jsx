@@ -207,6 +207,7 @@ export default class CreateRecordAndTask extends Component {
               )}
               <SingleControlValue
                 companyId={this.props.companyId}
+                relationId={this.props.relationId}
                 processId={this.props.processId}
                 selectNodeId={this.props.selectNodeId}
                 sourceNodeId={data.selectNodeId}

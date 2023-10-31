@@ -357,6 +357,7 @@ export default class Email extends Component {
                 <SingleControlValue
                   key={cacheKey + i}
                   companyId={this.props.companyId}
+                  relationId={this.props.relationId}
                   processId={this.props.processId}
                   selectNodeId={this.props.selectNodeId}
                   controls={data.controls}

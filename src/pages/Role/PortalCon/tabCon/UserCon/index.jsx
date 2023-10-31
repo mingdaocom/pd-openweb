@@ -209,7 +209,7 @@ class Con extends React.Component {
               onChange={keywords => {
                 this.setState({
                   keywords,
-                  navList: roleList.filter(o => o.name.indexOf(keywords) >= 0),
+                  navList: roleList.filter(o => o.name.toLocaleLowerCase().indexOf(keywords.toLocaleLowerCase()) >= 0),
                 });
               }}
             />

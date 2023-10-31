@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import _ from 'lodash';
 import Hammer from 'hammerjs';
 import { useRefStore } from 'worksheet/hooks';
-import Skeleton from 'src/router/Application/Skeleton';
+import Skeleton from '../Skeleton';
 import { getScrollBarWidth } from 'worksheet/util';
 import Grid from './Grid';
 import ScrollBar from './ScrollBar';

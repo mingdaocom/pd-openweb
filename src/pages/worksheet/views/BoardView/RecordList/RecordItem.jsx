@@ -15,6 +15,7 @@ import { CAN_AS_BOARD_OPTION, ITEM_TYPE } from '../config';
 import Components from '../../components';
 import { browserIsMobile, addBehaviorLog } from 'src/util';
 import { getTargetName } from '../util';
+import { handleRecordClick } from 'worksheet/util';
 
 const RELATION_SHEET_TYPE = 29;
 
@@ -52,7 +53,7 @@ function SortableRecordItem(props) {
     updateBoardViewRecord,
     sheetSwitchPermit,
     updateMultiSelectBoard,
-    sheetButtons = [],
+    onAdd,
   } = props;
   const { rowId, rawRow, fields, ...rest } = data;
   const $ref = useRef(null);
@@ -148,15 +149,17 @@ function SortableRecordItem(props) {
 
   const updateTitleControlData = control => {
     const { controlId, value } = control;
-    worksheetAjax.updateWorksheetRow({
-      rowId: data.rowId,
-      ..._.pick(props, ['worksheetId', 'viewId']),
-      newOldControl: [control],
-    }).then(({ data, resultCode }) => {
-      if (data && resultCode === 1) {
-        updateTitleData({ [controlId]: value });
-      }
-    });
+    worksheetAjax
+      .updateWorksheetRow({
+        rowId: data.rowId,
+        ..._.pick(props, ['worksheetId', 'viewId']),
+        newOldControl: [control],
+      })
+      .then(({ data, resultCode }) => {
+        if (data && resultCode === 1) {
+          updateTitleData({ [controlId]: value });
+        }
+      });
   };
   const getStyle = () => {
     const $dom = $ref.current;
@@ -174,12 +177,14 @@ function SortableRecordItem(props) {
     <div
       ref={drag}
       onClick={() => {
-        if (!recordInfoVisible) {
-          showRecordInfo({ recordInfoType: keyType, recordInfoRowId: rowId });
-          if (location.pathname.indexOf('public') === -1) {
-            addBehaviorLog('worksheetRecord', worksheetId, { rowId }); // 埋点
+        handleRecordClick(currentView, safeParse(rawRow), () => {
+          if (!recordInfoVisible) {
+            showRecordInfo({ recordInfoType: keyType, recordInfoRowId: rowId });
+            if (location.pathname.indexOf('public') === -1) {
+              addBehaviorLog('worksheetRecord', worksheetId, { rowId }); // 埋点
+            }
           }
-        }
+        });
       }}
       className={cx('boardDataRecordItemWrap', { isDragging, isDraggingTemp: type === 'temp' })}
     >
@@ -193,7 +198,6 @@ function SortableRecordItem(props) {
           ...currentView,
           projectId: worksheetInfo.projectId,
           appId,
-          customButtons: sheetButtons.filter(o => o.isAllView === 1 || o.displayViews.includes(viewId)), //筛选出当前视图的按钮
         }}
         allowCopy={worksheetInfo.allowAdd}
         editTitle={() => setState({ isEditTitle: true })}
@@ -214,6 +218,7 @@ function SortableRecordItem(props) {
         onDelete={() => delBoardViewRecord({ key: keyType, rowId })}
         sheetSwitchPermit={sheetSwitchPermit}
         updateTitleData={updateTitleControlData}
+        onAdd={item => onAdd({ ...item, key: keyType })}
       />
       {isEditTitle && (
         <Components.RecordPortal closeEdit={closeEdit}>

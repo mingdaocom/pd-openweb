@@ -1,38 +1,45 @@
 import React from 'react';
-import Components from '../components';
-import { getChildWidgetsBySection } from '../../util/data';
-import RowItem from '../rowItem';
+import styled from 'styled-components';
 import { isEmpty } from 'lodash';
-import sectionCom from 'src/pages/widgetConfig/widgetSetting/components/SectionConfig';
+import RowItem from '../rowItem';
+import { putControlByOrder } from '../../util';
+import BottomDragPointer from '../components/BottomDragPointer';
 
-const { SectionStyleItem } = sectionCom;
+const SectionWrap = styled.div`
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+`;
 
 export default function Section(props) {
-  const { data, allControls = [], path = [], activeWidget } = props;
+  const { data = {}, path = [] } = props;
   const [row] = path;
-  const childWidgets = getChildWidgetsBySection(allControls, data.controlId);
+  const relationControls = putControlByOrder(data.relationControls || []);
 
   return (
-    <SectionStyleItem data={data} from="display" activeWidget={activeWidget}>
-      {childWidgets.map((childRow = [], index = 0) => {
+    <SectionWrap id="widgetSection">
+      {data.desc && <div className="Gray_9e WordBreak pLeft12 pRight12">{data.desc}</div>}
+      {relationControls.map((childRow = [], index = 0) => {
         const id = childRow.reduce((p, c) => p + c.controlId, '');
         return (
           !isEmpty(childRow) && (
             <RowItem
               key={id}
+              sectionId={data.controlId}
               row={childRow}
               index={row + index + 1}
-              displayItemType="section"
               {..._.omit(props, ['data', 'path'])}
+              displayItemType="common"
+              splitWidgets={relationControls}
             />
           )
         );
       })}
-      <Components.BottomDragPointer
+      <BottomDragPointer
         sectionId={data.controlId}
-        rowIndex={row + childWidgets.length + 1}
-        showEmpty={isEmpty(childWidgets)}
+        rowIndex={row + relationControls.length + 1}
+        showEmpty={isEmpty(relationControls)}
       />
-    </SectionStyleItem>
+    </SectionWrap>
   );
 }

@@ -88,11 +88,12 @@ function ViewControl(props) {
   } = props;
   const { worksheetId, projectId } = worksheetInfo;
   const { count, pageCountAbnormal, rowsSummary } = sheetViewData;
-  const { pageIndex, pageSize } = sheetFetchParams;
+  const { pageIndex, pageSize, sortControls } = sheetFetchParams;
   const { allWorksheetIsSelected, sheetSelectedRows, sheetHiddenColumns } = sheetViewConfig;
   const [createCustomBtnVisible, setCreateCustomBtnVisible] = useState();
+  const [isListOption, setIsListOption] = useState(false);
   const [showFastFilter, setShowFastFilter] = useState();
-  const [createBtnIsEdit, setCreateBtnIsEdit] = useState();
+  const [customBtnIsEdit, setCustomBtnIsEdit] = useState();
   const [activeBtnId, setActiveBtnId] = useState();
   const [activeFastFilterId, setActiveFastFilterId] = useState();
   const [btnDataInfo, setActiveBtnIdInfo] = useState();
@@ -124,7 +125,7 @@ function ViewControl(props) {
         }}
         onAddView={(newViews, newView) => {
           updateViews(newViews);
-          if ([0, 3].includes(Number(newView.viewType))) {
+          if ([0, 3, 6].includes(Number(newView.viewType))) {
             setViewConfigVisible(true);
           }
           navigateTo(`/app/${appId}/${groupId}/${worksheetId}/${newView.viewId}`);
@@ -182,6 +183,7 @@ function ViewControl(props) {
             worksheetSummaryTypes: rowsSummary.types,
             quickFilter,
             navGroupFilters,
+            sortControls,
             isCharge: hasCharge,
             // 支持列统计结果
             hideStatistics: false,
@@ -296,6 +298,7 @@ function ViewControl(props) {
             '.addHierarchyRelate',
             '.hideControlsWrap',
             '.ant-cascader-menus',
+            '.ant-picker-dropdown',
             '.ant-tree-select-dropdown',
             '#chat',
             '.boxEditFastFilter',
@@ -328,10 +331,11 @@ function ViewControl(props) {
               addMultiRelateHierarchyControls(data.viewControls.slice(-1).map(item => item.worksheetId));
             }
           }}
-          showCreateCustomBtnFn={(value, isEdit, btnId) => {
+          onShowCreateCustomBtn={(value, isEdit, btnId, isListOption) => {
             setCreateCustomBtnVisible(value);
-            setCreateBtnIsEdit(isEdit);
+            setCustomBtnIsEdit(isEdit);
             setActiveBtnId(btnId);
+            setIsListOption(isListOption);
           }}
           setFastFilter={(value, controlId) => {
             setShowFastFilter(value);
@@ -339,11 +343,15 @@ function ViewControl(props) {
           }}
           viewId={viewId}
           btnList={sheetButtons}
-          btnData={buttons}
           refreshFn={(worksheetId, appId, viewId, rowId) => {
             loadCustomButtons({ worksheetId, appId, viewId, rowId });
           }}
           updateWorksheetControls={updateWorksheetControls}
+          hasCharge={
+            isCharge ||
+            canEditData(_.get(appPkg, 'permissionType')) ||
+            _.get(appPkg, 'permissionType') === APP_ROLE_TYPE.DEVELOPERS_ROLE //开发者|管理员|运营者
+          }
         />
       )}
       {createCustomBtnVisible && (
@@ -378,7 +386,7 @@ function ViewControl(props) {
           ]}
           onClickAway={() => setCreateCustomBtnVisible(false)}
           sheetSwitchPermit={sheetSwitchPermit}
-          isEdit={createBtnIsEdit}
+          isEdit={customBtnIsEdit}
           onClose={() => setCreateCustomBtnVisible(false)}
           columns={controls
             .filter(item => {
@@ -387,6 +395,7 @@ function ViewControl(props) {
             .map(control => redefineComplexControl(control))}
           btnId={activeBtnId}
           btnDataInfo={btnDataInfo}
+          isListOption={isListOption}
           btnList={sheetButtons}
           projectId={projectId}
           view={view}
@@ -415,6 +424,7 @@ function ViewControl(props) {
             '.rc-trigger-popup',
             '.selectize-dropdown',
             '.selectUserBox',
+            '.ant-picker-dropdown',
           ]}
           showFastFilter={showFastFilter}
           onClickAway={() => setShowFastFilter(false)}

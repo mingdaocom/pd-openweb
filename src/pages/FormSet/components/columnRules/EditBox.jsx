@@ -73,6 +73,7 @@ class EditBox extends React.Component {
           columns={filterControls}
           sheetSwitchPermit={sheetSwitchPermit}
           currentColumns={filterControls}
+          showCustom={true}
           conditions={selectRules.filters}
           filterError={ruleError.filterError || []}
           onConditionsChange={(conditions = []) => {
@@ -255,7 +256,6 @@ const mapStateToProps = state => ({
   projectId: state.formSet.worksheetInfo.projectId,
   appId: state.formSet.worksheetInfo.appId,
   ruleError: state.formSet.ruleError,
-  editingId: state.formSet.editingId,
   sheetSwitchPermit: state.formSet.worksheetInfo.switches,
 });
 const mapDispatchToProps = dispatch => bindActionCreators({ ...actions, ...columnRules }, dispatch);

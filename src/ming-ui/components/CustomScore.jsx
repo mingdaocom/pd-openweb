@@ -14,9 +14,9 @@ import _ from 'lodash';
 const CustomScoreIcon = styled.div`
   .scoreIcon {
     transition: 0.3s;
-    color: ${props => props.color || '#bdbdbd'};
+    color: ${props => props.color || 'rgba(0,0,0,0.16)'};
     &:hover {
-      color: ${props => props.color || '#bdbdbd'};
+      color: ${props => props.color || 'rgba(0,0,0,0.16)'};
     }
   }
 `;
@@ -104,7 +104,7 @@ class CustomScore extends Component {
 
   render() {
     const { score, lastScore } = this.state;
-    const { data = {}, hideTip, hideText = false, from } = this.props;
+    const { data = {}, hideTip, hideText = false, from, backgroundColor } = this.props;
     const isOldData = !(data.advancedSetting || {}).itemicon;
     const {
       max,
@@ -149,7 +149,7 @@ class CustomScore extends Component {
                     onMouseLeave: this.onMouseLeave,
                   })}
             >
-              <CustomScoreIcon color={score > 0 && index < score ? selectColor : '#bdbdbd'}>
+              <CustomScoreIcon color={score > 0 && index < score ? selectColor : backgroundColor || '#bdbdbd'}>
                 <Tooltip text={<span>{tipText}</span>} {...tipProps} disable={this.props.disabled || hideTip}>
                   <Icon className={cx('scoreIcon', from === 'recordInfo' ? 'Font24' : 'Font18')} icon={itemicon} />
                 </Tooltip>

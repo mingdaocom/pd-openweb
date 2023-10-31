@@ -26,16 +26,19 @@ export default class Abstract extends React.Component {
       };
     });
     abstractControls = [{ value: 'clear', text: '清除' }].concat(abstractControls);
+    const isExistAbstract = !!worksheetControls.filter(item => item.controlId === abstract).length;
+
     return (
       <React.Fragment>
         <div className="title Font13 bold">{_l('摘要')}</div>
         <div className="settingContent">
           <p className="mTop6 mBottom8 Gray_9e viewSetText">{_l('用于显示长文本，最多可显示3行')}</p>
           <Dropdown
-            className={cx('dropAbstract', { placeholder: !abstract })}
+            className={cx('dropAbstract', { placeholder: !abstract || !isExistAbstract })}
             data={abstractControls}
-            value={abstract}
+            value={isExistAbstract ? abstract : ''}
             border
+            maxHeight={260}
             style={{ width: '100%' }}
             onChange={value => {
               if (value === abstract) {

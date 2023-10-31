@@ -21,10 +21,10 @@ class AppGroupList extends Component {
     this.state = {};
   }
   componentDidMount() {
-    const currentProject = getCurrentProject(
-      localStorage.getItem('currentProjectId') ||
-        (md.global.Account.projects[0] || { projectId: 'external' }).projectId,
+    const projectObj = getCurrentProject(
+      localStorage.getItem('currentProjectId') || (md.global.Account.projects[0] || {}).projectId,
     );
+    const currentProject = !_.isEmpty(projectObj) ? projectObj : { projectId: 'external', companyName: _l('外部协作') };
     this.setState({ projectId: currentProject.projectId });
     this.props.dispatch(actions.getMyApp(currentProject.projectId));
   }

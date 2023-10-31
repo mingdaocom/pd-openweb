@@ -125,8 +125,9 @@ export default class SourceDest extends Component {
       });
   };
   //表信息
-  getWorksheetInfo = workSheetId => {
+  getWorksheetInfo = (workSheetId, cb) => {
     homeAppAjax.getAppItemDetail([workSheetId]).then(res => {
+      cb && cb(res[0]);
       this.setState({
         worksheetInfo: res[0],
       });
@@ -345,6 +346,35 @@ export default class SourceDest extends Component {
       value: !tbValue && !tableName ? undefined : tbValue || '',
       renderValue: tableName,
     };
+    if ('DEST_TABLE' === node.nodeType) {
+      tbParam.searchNull = () => {
+        return (
+          <div
+            className="ThemeColor3 Hand"
+            onClick={() => {
+              this.onChangeConfig(
+                {
+                  tableName: '',
+                  workSheetId: '',
+                  createTable: false, //是否新建工作表
+                  isOurCreateTable: false,
+                },
+                () => {
+                  this.setState({
+                    worksheetInfo: {},
+                  });
+                },
+              );
+            }}
+          >
+            <Icon icon="add1" className="Font12 mRight10 ThemeColor3" />
+            <span className="mLeft10">
+              {dsType === DATABASE_TYPE.APPLICATION_WORKSHEET ? _l('新建工作表') : _l('新建数据表')}
+            </span>
+          </div>
+        );
+      };
+    }
     return (
       <WrapL>
         <div className="title Bold">{_l('数据源')}</div>
@@ -533,11 +563,41 @@ export default class SourceDest extends Component {
                   );
                 }
               }}
+              renderTitle={() => {
+                return (
+                  <div className="flexRow alignItemsCenter">
+                    <div className="flex overflow_ellipsis WordBreak" style={{ maxWidth: 446 }}>
+                      {tbParam.renderValue}
+                    </div>
+                    {dsType === DATABASE_TYPE.APPLICATION_WORKSHEET &&
+                      !_.get(node, 'nodeConfig.config.createTable') && (
+                        <Icon
+                          icon="task-new-detail"
+                          className="mLeft10 Font12 ThemeColor3 ThemeHoverColor2 Hand"
+                          onClick={e => {
+                            e.stopPropagation();
+                            if (!_.get(worksheetInfo, 'sectionId')) {
+                              this.getWorksheetInfo(workSheetId, worksheetInfo => {
+                                window.open(
+                                  !_.get(worksheetInfo, 'sectionId')
+                                    ? `/app/${dbValue}`
+                                    : `/app/${dbValue}/${_.get(worksheetInfo, 'sectionId')}/${tbValue}`,
+                                );
+                              });
+                            } else {
+                              window.open(`/app/${dbValue}/${worksheetInfo.sectionId}/${tbValue}`);
+                            }
+                          }}
+                        />
+                      )}
+                  </div>
+                );
+              }}
               border
               menuClass={'dropWorksheetIntegration'}
               cancelAble
               isAppendToBody
-              // openSearch
+              openSearch
               data={sheetList}
             />
           </React.Fragment>

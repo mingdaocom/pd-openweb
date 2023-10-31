@@ -253,7 +253,7 @@ export default function Attachment({ from, data, onChange }) {
                       }
                     }}
                   >
-                    <span style={{ marginRight: '4px' }}>{_l('为照片添加水印（仅手机App支持）')}</span>
+                    <span style={{ marginRight: '4px' }}>{_l('为照片添加水印')}</span>
                     <Tooltip
                       placement="bottom"
                       title={_l('添加水印设置只对App有效，勾选后 不支持在App拍摄照片时修改水印')}

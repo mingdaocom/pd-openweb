@@ -130,3 +130,14 @@ export const PRINT_TYPE_STYLE = {
     fileIcon: 'fileIcon-excel',
   }, // excel打印
 };
+
+export const APPROVAL_POSITION_OPTION = [
+  {
+    value: 0,
+    text:  _l('在明细内显示'),
+  },
+  {
+    value: 1,
+    text: _l('在明细表下方显示')
+  }
+];

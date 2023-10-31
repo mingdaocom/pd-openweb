@@ -7,11 +7,18 @@ import { getIconByType } from 'src/pages/widgetConfig/util';
 import { VerticalMiddle } from 'worksheet/components/Basics';
 import renderConditionValue from './contents';
 import { getConditionOverrideValue, getFilterTypes } from '../util';
-import { FILTER_RELATION_TYPE, CONTROL_FILTER_WHITELIST, FILTER_CONDITION_TYPE, API_ENUM_TO_TYPE } from '../enum';
+import {
+  FILTER_RELATION_TYPE,
+  CONTROL_FILTER_WHITELIST,
+  FILTER_CONDITION_TYPE,
+  API_ENUM_TO_TYPE,
+  valueTypeOptions,
+} from '../enum';
 import { Select, Tooltip } from 'antd';
 import { conditionTypeListData } from 'src/pages/FormSet/components/columnRules/config';
 import { isCustomOptions } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import _ from 'lodash';
+import styled from 'styled-components';
 // 为空 不为空  在范围内 不在范围内
 const listType = [
   FILTER_CONDITION_TYPE.ISNULL,
@@ -32,6 +39,35 @@ const listControlType = [
   API_ENUM_TO_TYPE.AREA_INPUT_23,
   API_ENUM_TO_TYPE.LOCATION,
 ];
+
+const ParamsDropdown = styled(Dropdown)`
+  flex: 1;
+  max-width: calc(100% - 132px) !important;
+  margin-bottom: 5px;
+
+  .Dropdown--input {
+    min-height: 36px;
+    height: auto !important;
+  }
+
+  .titleDisplay {
+    line-height: 22px;
+    padding: 0 12px;
+    border-radius: 16px;
+    color: #174c76;
+    background: #d8eeff;
+    border: 1px solid #bbd6ea;
+    font-size: 12px;
+    white-space: normal;
+  }
+  &.isDelete {
+    color: #f44336;
+    background: rgba(244, 67, 54, 0.06);
+    .Dropdown--input {
+      border-color: #f44336 !important;
+    }
+  }
+`;
 export default class Condition extends Component {
   static propTypes = {
     isRules: PropTypes.bool,
@@ -50,12 +86,24 @@ export default class Condition extends Component {
     super(props);
     this.state = {
       isDynamicsource: this.isCanDynamicsource(props) && this.setIsDynamicsourceFn(), // 是否动态筛选值
+      valueType:
+        this.isCanDynamicsource(props) && this.setIsDynamicsourceFn()
+          ? 0
+          : !!((props.condition || {}).dynamicSource || []).length
+          ? 2
+          : 1,
     };
   }
 
   componentDidMount() {
     this.state = {
       isDynamicsource: this.isCanDynamicsource(this.props) && this.setIsDynamicsourceFn(), // 是否动态筛选值
+      valueType:
+        this.isCanDynamicsource(this.props) && this.setIsDynamicsourceFn()
+          ? 0
+          : !!((this.props.condition || {}).dynamicSource || []).length
+          ? 2
+          : 1,
     };
   }
 
@@ -70,7 +118,9 @@ export default class Condition extends Component {
       if (isDynamicsource === undefined) {
         // 关联查询、工作表查询等默认值为动态值
         isDynamicsource =
-          _.includes(['relateSheet'], from) && _.isUndefined(dynamicSource) && this.getIsDynamicValue() ? true : false;
+          _.includes(['relateSheet', 'fastFilter'], from) && _.isUndefined(dynamicSource) && this.getIsDynamicValue()
+            ? true
+            : false;
       }
     }
     return isDynamicsource;
@@ -81,7 +131,7 @@ export default class Condition extends Component {
     const { type = '', controlType = '' } = condition;
     // 附件 检查框 地区 地区 地区 为空 不为空  在范围内 不在范围内没有动态筛选
     return (
-      _.includes(['rule', 'relateSheet'], from) &&
+      _.includes(['rule', 'relateSheet', 'fastFilter'], from) &&
       !(!_.includes([27], condition.controlType) && _.includes(listType, type)) &&
       !_.includes(listControlType, controlType)
     );
@@ -99,7 +149,7 @@ export default class Condition extends Component {
   @autobind
   changeConditionType(type) {
     const { condition, onChange } = this.props;
-    const overrideValue = getConditionOverrideValue(type, condition);
+    const overrideValue = getConditionOverrideValue(type, condition, this.state.valueType);
     onChange(overrideValue);
 
     if (_.includes(listType, type) && !_.includes([27], condition.controlType)) {
@@ -107,30 +157,143 @@ export default class Condition extends Component {
     }
   }
 
-  render() {
+  @autobind
+  renderControl() {
     const {
-      isRules,
-      projectId,
-      appId,
-      canEdit,
-      index,
-      control,
+      conditionError,
       conditionGroupType,
-      relationType,
       condition,
+      canEdit,
       onChange,
-      onDelete,
-      onUpdateFilter,
-      from,
+      control,
       currentColumns,
       columns,
       relateSheetList,
+      projectId,
+      appId,
       sourceControlId = '',
+      from,
+      filterResigned = true,
+      globalSheetControls,
+      urlParams = [],
+      showCustom,
+    } = this.props;
+    const { dynamicSource = [] } = condition;
+    const showParamsTypes = [
+      ...CONTROL_FILTER_WHITELIST.TEXT.keys,
+      ...CONTROL_FILTER_WHITELIST.NUMBER.keys,
+      ...CONTROL_FILTER_WHITELIST.DATE.keys,
+      ...CONTROL_FILTER_WHITELIST.TIME.keys,
+    ].concat([28, 36]);
+    const showUrlParams =
+      (!!urlParams.length || !!dynamicSource.filter(item => item.rcid === 'url').length) &&
+      _.includes(showParamsTypes, condition.controlType);
+
+    return (
+      <div className="flexRow flex">
+        {showUrlParams && (
+          <Dropdown
+            border
+            className="Width120 mRight12"
+            data={valueTypeOptions}
+            value={this.state.valueType}
+            onChange={value => {
+              this.setState({ valueType: value });
+              if (value === 1) {
+                onChange({ dynamicSource: [] });
+              } else {
+                const dateRangeSetObj =
+                  conditionGroupType === CONTROL_FILTER_WHITELIST.DATE.value ? { dateRange: 0, dateRangeType: 0 } : {};
+                onChange({
+                  values: [],
+                  dynamicSource: [
+                    {
+                      cid: '',
+                      rcid: 'url',
+                      staticValue: '',
+                    },
+                  ],
+                  ...dateRangeSetObj,
+                });
+              }
+            }}
+          />
+        )}
+
+        {this.state.valueType === 1 || !showUrlParams ? (
+          <div className={cx('conditionValue', conditionError)}>
+            {renderConditionValue(conditionGroupType, {
+              ...condition,
+              dateRange: from === 'subTotal' ? 18 : condition.dateRange,
+              disabled: !canEdit,
+              onChange,
+              control,
+              relationColumns: columns,
+              currentColumns, // 当前表控件list
+              relateSheetList,
+              projectId,
+              appId,
+              sourceControlId,
+              from,
+              showCustom: showCustom,
+              filterResigned: filterResigned,
+              conditionType: condition.controlType,
+              isDynamicsource: this.state.isDynamicsource,
+              globalSheetControls,
+            })}
+          </div>
+        ) : (
+          <ParamsDropdown
+            border
+            className={cx({
+              isDelete: !!(dynamicSource[0] || {}).cid && !_.includes(urlParams, (dynamicSource[0] || {}).cid),
+            })}
+            data={urlParams.map(item => {
+              return { text: item, value: item };
+            })}
+            renderTitle={() => {
+              const params = (dynamicSource[0] || {}).cid;
+              const isDelete = !!params && !_.includes(urlParams, params);
+              return !isDelete ? (
+                !!params ? (
+                  <div className="titleDisplay">{params}</div>
+                ) : (
+                  <span className="Gray_bd">{_l('请选择')}</span>
+                )
+              ) : (
+                <span>{_l('该参数已删除')}</span>
+              );
+            }}
+            value={(dynamicSource[0] || {}).cid || ''}
+            onChange={value => {
+              onChange({
+                dynamicSource: [
+                  {
+                    cid: value,
+                    rcid: 'url',
+                    staticValue: '',
+                  },
+                ],
+              });
+            }}
+          />
+        )}
+      </div>
+    );
+  }
+
+  render() {
+    const {
+      isRules,
+      canEdit,
+      control,
+      conditionGroupType,
+      condition,
+      onChange,
+      onDelete,
+      from,
       filterDept,
       isSheetFieldError,
-      conditionItemForDynamicStyle,
-      filterResigned = true,
-      conditionError,
     } = this.props;
     let conditionFilterTypes = getFilterTypes(control, condition.type, from);
     if (isRules && control) {
@@ -167,7 +330,7 @@ export default class Condition extends Component {
           ),
       );
     }
-    const isDynamicStyle = _.includes(['relateSheet', 'rule'], from); // 动态值选择的特定样式
+    const isDynamicStyle = _.includes(['relateSheet', 'rule', 'fastFilter'], from); // 动态值选择的特定样式
     const isDynamicValue = this.getIsDynamicValue();
     return (
       <div
@@ -255,30 +418,7 @@ export default class Condition extends Component {
               }}
             />
           )}
-          {control ? (
-            <div className={cx('conditionValue', conditionError)}>
-              {renderConditionValue(conditionGroupType, {
-                ...condition,
-                dateRange: from === 'subTotal' ? 18 : condition.dateRange,
-                disabled: !canEdit,
-                onChange,
-                control,
-                relationColumns: columns,
-                currentColumns, // 当前表控件list
-                relateSheetList,
-                projectId,
-                appId,
-                sourceControlId,
-                from,
-                filterResigned: filterResigned,
-                conditionType: condition.controlType,
-                isDynamicsource: this.state.isDynamicsource,
-                globalSheetControls: this.props.globalSheetControls,
-              })}
-            </div>
-          ) : (
-            <Input className="deletedColumn" disabled />
-          )}
+          {control ? this.renderControl() : <Input className="deletedColumn" disabled />}
         </div>
       </div>
     );

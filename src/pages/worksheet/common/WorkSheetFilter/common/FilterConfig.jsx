@@ -38,6 +38,8 @@ export default function SingleFilter(props) {
     filterDept,
     filterResigned = true,
     filterError,
+    urlParams,
+    showCustom,
   } = props;
   let { columns } = props;
   const filterWhiteKeys = _.flatten(
@@ -101,12 +103,14 @@ export default function SingleFilter(props) {
         filterResigned={filterResigned}
         filterError={filterError}
         filterAddConditionControls={filterAddConditionControls}
+        showCustom={showCustom}
         conditionProps={{
           filterDept,
           sourceControlId,
           currentColumns,
           relateSheetList,
           globalSheetControls,
+          urlParams,
         }}
       />
     </Con>

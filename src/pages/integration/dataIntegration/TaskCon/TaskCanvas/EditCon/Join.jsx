@@ -7,7 +7,7 @@ import cx from 'classnames';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import _ from 'lodash';
-import { TYPE_DATA } from '../config';
+import { TYPE_DATA, OPERATION_TYPE_DATA } from '../config';
 
 const PopupWrap = styled.ul`
   background: #ffffff;
@@ -173,7 +173,7 @@ export default function Join(props) {
     onUpdate(dat);
   };
   const renderTitle = data => {
-    const { dataType, alias, name } = data || {};
+    const { dataType, alias, name, aggFuncType } = data || {};
     if (!name && !dataType) {
       return <span className="Red">{_l('该字段已删除')}</span>;
     }
@@ -181,6 +181,19 @@ export default function Join(props) {
       <div>
         {dataType && <span className="Gray_75 pRight5">[{dataType}]</span>}
         {alias}
+        {aggFuncType && (
+          <span className="Gray_9e">({OPERATION_TYPE_DATA.find(o => o.value === aggFuncType).text})</span>
+        )}
+      </div>
+    );
+  };
+  const renderItem = a => {
+    return (
+      <div className="">
+        {a.alias}
+        {a.aggFuncType && (
+          <span className="aggFuncType"> ({OPERATION_TYPE_DATA.find(o => o.value === a.aggFuncType).text})</span>
+        )}
       </div>
     );
   };
@@ -244,13 +257,19 @@ export default function Join(props) {
                 return renderTitle(data);
               }}
               className="mRight12 dropCondition"
+              menuClass="dropConditionTri"
               border
               openSearch
               cancelAble
               isAppendToBody
               data={leftFieldNames.map(a => {
-                return { ...a, text: a.alias, value: a.id };
+                return {
+                  ...a,
+                  text: a.alias,
+                  value: a.id,
+                };
               })}
+              renderItem={renderItem}
               onChange={id => {
                 let data = leftFieldNames.find(a => a.id === id) || {};
                 updateData('leftField', i, data);
@@ -260,6 +279,7 @@ export default function Join(props) {
             <Dropdown
               placeholder={_l('请选择')}
               className="mLeft12 dropCondition"
+              menuClass="dropConditionTri"
               value={rightField.id}
               onChange={id => {
                 let data = rightFieldNames.find(a => a.id === id) || {};
@@ -272,9 +292,12 @@ export default function Join(props) {
               renderTitle={data => {
                 return renderTitle(data);
               }}
-              data={rightFieldNames.map(a => {
-                return { ...a, text: a.alias, value: a.id };
-              })}
+              data={rightFieldNames
+                .filter(o => o.jdbcTypeId === leftField.jdbcTypeId && leftField.jdbcTypeId) //右边需要根据左边的jdbcTypeId
+                .map(a => {
+                  return { ...a, text: a.alias, value: a.id };
+                })}
+              renderItem={renderItem}
             />
             {conditions.length > 1 && i === 0 && (
               <div className="andOr flexRow alignItemsCenter">

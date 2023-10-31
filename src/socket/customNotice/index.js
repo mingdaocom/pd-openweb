@@ -42,11 +42,7 @@ export default function customNotice() {
           const appId = href.slice(href.indexOf('app/') + 4, href.indexOf('app/') + 40);
 
           if (href.indexOf('backup') > -1) {
-            if (currentAppId === appId) {
-              navigateTo(`${location.pathname}?backup`);
-            } else {
-              navigateTo(`/app/${appId}/?backup`);
-            }
+            location.href = `/app/${appId}/settings/backup`;
           } else {
             if (currentAppId === appId) {
               location.href = `/app/${appId}`;

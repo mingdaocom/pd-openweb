@@ -1,8 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { Button, Checkbox } from 'ming-ui';
+import { Button, Skeleton } from 'ming-ui';
 import styled from 'styled-components';
 import worksheetAjax from 'src/api/worksheet';
-import Skeleton from 'src/router/Application/Skeleton';
 import saveTemplateConfirm from 'src/pages/Print/components/saveTemplateConfirm';
 import FilterDetailName from 'worksheet/common/WorkSheetFilter/components/FilterDetailName';
 import Sider from './Sider';

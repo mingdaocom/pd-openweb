@@ -166,11 +166,13 @@ export const VIEW_DISPLAY_TYPE = enumType({
   3: 'gallery',
   2: 'structure',
   5: 'gunter',
+  6: 'detail',
 });
 
 export const VIEW_TYPE_ICON = [
   { icon: 'view', color: '#ffa515', text: _l('表格%05017'), id: 'sheet' },
   { icon: 'kanban', color: '#4CAF50', text: _l('看板%05016'), id: 'board' },
+  { icon: 'reader', color: '#2196f3', text: _l('详情'), id: 'detail', isNew: true },
   { icon: 'event', color: '#F64082', text: _l('日历%05015'), id: 'calendar' },
   { icon: 'gallery_view', color: '#3949ab', text: _l('画廊%05014'), id: 'gallery' },
   { icon: 'hierarchy', color: '#9C27AF', text: _l('层级%05013'), id: 'structure' },
@@ -266,6 +268,8 @@ export const SHEET_VIEW_HIDDEN_TYPES = [
   45, // EMBED 嵌入
   49, // SEARCH_BTN 查询按钮
   51, // RELATION_SEARCH 查询记录
+  51, // RELATION_SEARCH 查询记录
+  WIDGETS_TO_API_TYPE_ENUM.SECTION, // 标签页
 ];
 
 // 子表excel导入支持的字段
@@ -294,3 +298,18 @@ export const CHILD_TABLE_ALLOW_IMPORT_CONTROL_TYPES = [
   WIDGETS_TO_API_TYPE_ENUM.CRED,
   WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET,
 ];
+
+// 记录点击行为
+export const VIEW_CONFIG_RECORD_CLICK_ACTION = {
+  OPEN_RECORD: '0',
+  OPEN_LINK: '1',
+  NONE: '2',
+};
+
+// 记录点击行为
+export const RECORD_COLOR_SHOW_TYPE = {
+  LINE: '0',
+  LINE_BG: '1',
+  BG: '2',
+  // DARK_BG: '3',
+};

@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { Checkbox, Radio, Input, Space } from 'antd';
-import { Icon } from 'ming-ui';
+import { Icon, ColorPicker } from 'ming-ui';
 import cx from 'classnames';
 import { reportTypes } from 'statistics/Charts/common';
 import RuleColor from './Color/RuleColor';
@@ -111,18 +111,19 @@ export default class Label extends Component {
             <div className="flexRow valignWrapper" style={isApplyGaugeColor ? { filter: 'opacity(0.5)', pointerEvents: 'none' } : undefined}>
               <div>{_l('颜色')}</div>
               {_.isEmpty(colorRule) && (
-                <div className="colorWrap mLeft10">
-                  <div className="colorBlock" style={{ backgroundColor: fontColor }}>
-                    <input
-                      type="color"
-                      className="colorInput pointer"
-                      value={fontColor}
-                      onChange={(event) => {
-                        onChangeStyle({ fontColor: event.target.value });
-                      }}
-                    />
+                <ColorPicker
+                  isPopupBody
+                  className="mLeft10"
+                  value={fontColor}
+                  onChange={value => {
+                    onChangeStyle({ fontColor: value });
+                  }}
+                >
+                  <div className="colorWrap pointer">
+                    <div className="colorBlock" style={{ backgroundColor: fontColor }}>
+                    </div>
                   </div>
-                </div>
+                </ColorPicker>
               )}
               <div
                 className="entranceWrap ruleIcon flexRow valignWrapper pointer"

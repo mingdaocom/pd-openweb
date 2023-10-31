@@ -11,7 +11,7 @@ import { Hr, H1, H3, Absolute, CustomButton } from 'worksheet/components/Basics'
 import { coverurls } from '../enum';
 import _ from 'lodash';
 import { Tooltip } from 'antd';
-import { COLORS, COLORS_TEST } from 'src/pages/AppHomepage/components/SelectIcon/config';
+import { getThemeColors } from 'src/util';
 import AddColorDialog from 'src/pages/AppHomepage/components/SelectIcon/AddColorDialog';
 import cx from 'classnames';
 
@@ -87,6 +87,8 @@ class AppearanceConfig extends React.Component {
 
   constructor(props) {
     super(props);
+    const { projectId } = props.worksheetInfo;
+    const COLORS = getThemeColors(projectId);
     this.state = {
       isUploading: false,
       customColors: (_.find(
@@ -159,8 +161,9 @@ class AppearanceConfig extends React.Component {
 
   render() {
     const { open, worksheetInfo, onClose, updateWorksheetInfo, theme } = this.props;
-    const { coverUrl } = worksheetInfo;
+    const { coverUrl, projectId } = worksheetInfo;
     const { isUploading } = this.state;
+    const COLORS = getThemeColors(projectId);
     return (
       <Drawer
         open={open}
@@ -179,7 +182,7 @@ class AppearanceConfig extends React.Component {
             <H3>{_l('主题颜色')}</H3>
             <ThemeColorWrapper>
               {COLORS.map((item, index) => (
-                <Tooltip key={item} title={COLORS_TEST[index]} color="#000" placement="bottom">
+                <Tooltip key={item} color="#000" placement="bottom">
                   <li
                     className={cx({ isCurrentColor: item.toLocaleUpperCase() === theme.toLocaleUpperCase() })}
                     style={{ backgroundColor: item }}

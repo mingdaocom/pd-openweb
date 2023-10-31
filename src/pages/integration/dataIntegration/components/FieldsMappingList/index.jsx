@@ -8,6 +8,7 @@ import { getIconByType, canSetAsTitle } from 'src/pages/widgetConfig/util';
 import SelectType from './SelectType';
 import SetComment from './SetComment';
 import { isValidName, namePattern } from '../../constant';
+import { OPERATION_TYPE_DATA } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config';
 
 const Wrapper = styled.div`
   .headTr,
@@ -116,7 +117,7 @@ export default function FieldMappingList(props) {
     ).length === 0;
   const selectedFieldIds = fieldsMapping.map(item => _.get(item, 'destField.id')).filter(o => o);
   const selectNameRef = useRef([]);
-  const isExistJoinPk = !!(sourceData.sourceFields || []).filter(item => item.isJoinPk).length;
+  const isExistJoinPk = !!(sourceData.sourceFields || []).filter(item => item.isUniquePk).length;
 
   let leftColumns = [];
   let rightColumns = [];
@@ -152,7 +153,7 @@ export default function FieldMappingList(props) {
     const isDisabled =
       !sourceData.isDbType && !destData.isDbType
         ? isExistJoinPk
-          ? sourceField.isJoinPk
+          ? sourceField.isUniquePk
           : (sourceField.oid || '').split('_')[1] === 'rowid'
         : false;
 
@@ -289,14 +290,14 @@ export default function FieldMappingList(props) {
     const filterOptions = destData.isDbType
       ? (destData.destFields || []).filter(
           o =>
-            (isExistJoinPk ? !!o.isPk === !!sourceField.isJoinPk : !!o.isPk === !!sourceField.isPk) &&
+            (isExistJoinPk ? !!o.isPk === !!sourceField.isUniquePk : !!o.isPk === !!sourceField.isPk) &&
             _.includes(matchedTypeIds, o.jdbcTypeId),
         )
       : (destData.destFields || []).filter(
           o =>
             (!sourceData.isDbType
               ? isExistJoinPk
-                ? !!o.isPk === !!sourceField.isJoinPk
+                ? !!o.isPk === !!sourceField.isUniquePk
                 : !!o.isPk === !!sourceField.isPk
               : true) && _.includes(matchedMdTypeIds, o.mdType),
         );
@@ -423,6 +424,11 @@ export default function FieldMappingList(props) {
                 >
                   {sourceField.alias || sourceField.name}
                 </span>
+                {sourceField.aggFuncType && (
+                  <span className={`flexShrink0 ${sourceField.isDelete ? 'Red' : 'Gray_9e'}`}>
+                    ({OPERATION_TYPE_DATA.find(o => o.value === sourceField.aggFuncType).text})
+                  </span>
+                )}
                 {sourceField.isPk && (
                   <div data-tip={_l('主键')} className="tip-top">
                     <Icon icon="key1" className="Gray_bd mLeft5" />
@@ -455,7 +461,7 @@ export default function FieldMappingList(props) {
           flex: 3,
           render: data => {
             const sourceField = data.sourceField;
-            let dataType = sourceField.mdType && !sourceField.isJoinPk ? '' : sourceField.dataType; //表字段(有mdType) 不显示datatype
+            let dataType = sourceField.mdType && !sourceField.isUniquePk ? '' : sourceField.dataType; //表字段(有mdType) 不显示datatype
             return (
               <div title={dataType} className="overflow_ellipsis">
                 <span>{dataType}</span>
@@ -493,6 +499,11 @@ export default function FieldMappingList(props) {
                 >
                   {sourceField.alias || sourceField.name}
                 </span>
+                {sourceField.aggFuncType && (
+                  <span className={`flexShrink0 ${sourceField.isDelete ? 'Red' : 'Gray_9e'}`}>
+                    ({OPERATION_TYPE_DATA.find(o => o.value === sourceField.aggFuncType).text})
+                  </span>
+                )}
                 {sourceField.isPk && (
                   <div data-tip={_l('主键')} className="tip-top">
                     <Icon icon="key1" className="Gray_bd mLeft5" />
@@ -551,7 +562,7 @@ export default function FieldMappingList(props) {
               const destField = data.destField || {};
               const sourceField = data.sourceField || {};
               //存在多表连接主键，joinPk显示主键，原主键字段不显示主键标识
-              return (isExistJoinPk ? sourceField.isJoinPk : destField.isPk) ? (
+              return (isExistJoinPk ? sourceField.isUniquePk : destField.isPk) ? (
                 <div data-tip={_l('主键')} className="tip-top">
                   <Icon icon="key1" className="Font16 Gray_bd" />
                 </div>
@@ -644,7 +655,7 @@ export default function FieldMappingList(props) {
               const canSetTitle =
                 canSetAsTitle({ type: destField.mdType }) &&
                 //如果存在joinPk，joinPk字段不允许设为标题，否则rowid不允许设为标题
-                (isExistJoinPk ? !sourceField.isJoinPk : (sourceField.oid || '').split('_')[1] !== 'rowid');
+                (isExistJoinPk ? !sourceField.isUniquePk : (sourceField.oid || '').split('_')[1] !== 'rowid');
               return canSetTitle ? (
                 <div
                   className={cx('isOperateCommonIcon', { isActive: destField.isTitle })}

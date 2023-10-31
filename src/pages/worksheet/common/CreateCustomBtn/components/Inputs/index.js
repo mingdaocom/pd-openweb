@@ -51,7 +51,6 @@ export default function Input(props) {
                 return (
                   <MenuItem
                     key={o.key}
-                    style={{}}
                     onClick={() => {
                       if ([10].includes(data.type)) {
                         staticValue = staticValue.includes(o.key)

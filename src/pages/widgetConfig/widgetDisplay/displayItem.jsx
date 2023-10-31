@@ -3,13 +3,13 @@ import { useDrop, useDrag } from 'react-dnd-latest';
 import update from 'immutability-helper';
 import styled from 'styled-components';
 import cx from 'classnames';
-import { includes, head, some, pick, get, last, isEmpty, find, uniqBy } from 'lodash';
+import { includes, head, some, pick, get, last, isEmpty, find } from 'lodash';
 import { DRAG_ITEMS, WHOLE_SIZE, DRAG_MODE, DRAG_DISTANCE } from '../config/Drag';
-import { resetWidgets, getDefaultSizeByData } from '../util';
+import { resetWidgets, getDefaultSizeByData, relateOrSectionTab } from '../util';
 import { insertNewLine, insertToCol, insertToRowEnd, isFullLineDragItem } from '../util/drag';
 import { getPathById, isFullLineControl } from '../util/widgets';
 import { getVerifyInfo } from '../util/setting';
-import { batchCopyWidgets } from '../util/data';
+import { batchCopyWidgets, deleteSection } from '../util/data';
 import Components from './components';
 import WidgetDisplay from './widgetDisplay';
 
@@ -18,28 +18,27 @@ const DisplayItemWrap = styled.div`
   position: relative;
   box-sizing: border-box;
   list-style: none;
-  padding: 8px 12px;
+  ${props => (props.isTab ? '' : 'padding: 8px 12px;')}
   min-height: 48px;
   cursor: grab;
   transition: all 0.25s ease-in-out;
   transform: translate3d(0, 0, 0);
-  border: 2px solid transparent;
-  margin-top: ${props => (props.row ? '4px' : '')};
+  margin-top: ${props => (props.row && !props.isTab ? '4px' : '')};
   margin-left: ${props => (props.col ? '4px' : '')};
   &.isInvalid {
     background-color: rgba(253, 154, 39, 0.12);
   }
   &.isActive,
   &:hover {
-    border: 2px solid rgba(33, 150, 243, 0.15);
+    box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.15);
     background-color: #fff;
     border-radius: 5px;
-    .operationWrap {
+    & > div:nth-child(1) > .operationWrap {
       visibility: visible;
     }
   }
   &.isActive {
-    border: 2px solid rgba(33, 150, 243, 1);
+    box-shadow: 0 0 0 2px rgba(33, 150, 243, 1);
   }
   &.isDragging {
     opacity: 0.4;
@@ -52,10 +51,10 @@ const DisplayItemWrap = styled.div`
   }
   .drag-top,
   .drag-view_top {
-    top: -2px;
+    top: ${props => (props.isTab ? '-8px' : '-2px')};
   }
   .drag-bottom {
-    bottom: -2px;
+    bottom: ${props => (props.isTab ? '-8px' : '-2px')};
   }
   .horizonDragDir {
     position: absolute;
@@ -83,16 +82,14 @@ export default function DisplayItem(props) {
     data = {},
     allControls = [],
     fromType,
-    status = {},
     setWidgets,
     setActiveWidget,
     handleDataChange,
     globalSheetInfo = {},
     path,
     handleHide,
-    queryConfigs = [],
     updateQueryConfigs,
-    displayItemType,
+    displayItemType = 'common',
     batchActive = [],
     setBatchActive = () => {},
     setStyleInfo = () => {},
@@ -101,6 +98,7 @@ export default function DisplayItem(props) {
   const { worksheetId: globalSheetId } = globalSheetInfo;
   const size = data.size || WHOLE_SIZE;
   const [row, col] = path;
+  const isTab = displayItemType === 'tab';
 
   const $ref = useRef(null);
   const [location, setLocation] = useState('');
@@ -122,7 +120,7 @@ export default function DisplayItem(props) {
     const currentRow = head(item.path);
 
     // 拖拽到其他行如果已经有三个以上也不能拖
-    if (row !== currentRow && rowItem.length > 3) return false;
+    if (row !== currentRow && (rowItem || []).length > 3) return false;
 
     // 如果是独占一行控件不能拖
     if (some(rowItem, widget => isFullLineControl(widget))) return false;
@@ -131,7 +129,7 @@ export default function DisplayItem(props) {
 
   const [dragCollectProps, drag] = useDrag({
     item: {
-      type: displayItemType === 'relate' ? DRAG_ITEMS.DISPLAY_ITEM_RELATE : DRAG_ITEMS.DISPLAY_ITEM,
+      type: isTab ? DRAG_ITEMS.DISPLAY_TAB : DRAG_ITEMS.DISPLAY_ITEM,
       id: controlId,
       path,
       data,
@@ -165,9 +163,20 @@ export default function DisplayItem(props) {
       return { isDragging: monitor.isDragging() };
     },
   });
-  const [{ isOver, canDrop }, drop] = useDrop({
-    accept:
-      displayItemType === 'relate' ? [DRAG_ITEMS.DISPLAY_ITEM_RELATE] : [DRAG_ITEMS.DISPLAY_ITEM, DRAG_ITEMS.LIST_ITEM],
+  const [{ isOver }, drop] = useDrop({
+    accept: isTab ? [DRAG_ITEMS.DISPLAY_TAB, DRAG_ITEMS.LIST_TAB] : [DRAG_ITEMS.DISPLAY_ITEM, DRAG_ITEMS.LIST_ITEM],
+    canDrop(item) {
+      // 标签页内不允许子表、标签页、多条列表等拖拽
+      if (
+        data.sectionId &&
+        (_.includes(['SUB_LIST', 'SECTION', 'RELATION_SEARCH'], item.enumType) ||
+          relateOrSectionTab(item.data) ||
+          _.get(item, 'data.type') === 34)
+      ) {
+        return false;
+      }
+      return true;
+    },
     hover(item, monitor) {
       if (item.id === controlId || !$ref.current) return;
       const { left, width, height, top, bottom } = $ref.current.getBoundingClientRect() || {};
@@ -196,14 +205,12 @@ export default function DisplayItem(props) {
         }
       }
 
-      if (canDrop) {
+      if (isOver) {
         // 整行控件 或者同级无位置可放的 只能放在当前行的前后
         if (!isCanDragSameRow(item) || isFullLineDragItem(item)) {
           // 区分分段与分段内高亮线
           if (type === 52) {
-            // 分段禁止多层嵌套
-            if (item.widgetType === 52) return;
-            if (clientY - top < DRAG_DISTANCE.MAX_VERTICAL) nextLocation = 'view_top';
+            if (clientY - top < height / 2) nextLocation = 'view_top';
             if (location !== nextLocation) {
               setLocation(nextLocation);
             }
@@ -242,7 +249,7 @@ export default function DisplayItem(props) {
       };
     },
     collect(monitor) {
-      return { isOver: monitor.isOver({ shallow: true }), canDrop: monitor.isOver() && monitor.canDrop() };
+      return { isOver: monitor.isOver({ shallow: true }) && monitor.canDrop() };
     },
   });
 
@@ -250,7 +257,8 @@ export default function DisplayItem(props) {
 
   const width = `${(size * 100) / WHOLE_SIZE}%`;
 
-  const isActive = data.controlId === activeWidget.controlId || find(batchActive, i => i.controlId === data.controlId);
+  const isActive =
+    data.controlId === activeWidget.controlId || !!find(batchActive, i => i.controlId === data.controlId);
 
   const { isValid } = getVerifyInfo(data, { controls: allControls });
 
@@ -285,7 +293,8 @@ export default function DisplayItem(props) {
         if (row === widgets.length - 1 && col === widgets[row].length - 1) {
           nextActiveWidget = col > 0 ? get(widgets, [row, col - 1]) : last(widgets[row - 1]);
         } else {
-          nextActiveWidget = col >= widgets[row].length - 1 ? head(widgets[row + 1]) : get(widgets, [row, col + 1]);
+          nextActiveWidget =
+            col >= (widgets[row] || []).length - 1 ? head(widgets[row + 1]) : get(widgets, [row, col + 1]);
         }
         setActiveWidget(nextActiveWidget);
       }
@@ -339,6 +348,11 @@ export default function DisplayItem(props) {
         );
         return;
       }
+
+      if (type === 52) {
+        deleteSection({ widgets, data }, props);
+        return;
+      }
       setWidgets(deleteWidgetById({ widgets, controlId, path }));
       updateQueryConfigs({ controlId }, 'delete');
       return;
@@ -348,8 +362,6 @@ export default function DisplayItem(props) {
     }
   };
 
-  const hasChild = type === 52 && !isEmpty(allControls.filter(i => i.sectionId === controlId));
-
   return (
     <DisplayItemWrap
       ref={$ref}
@@ -357,6 +369,7 @@ export default function DisplayItem(props) {
       style={{ width }}
       row={row}
       col={col}
+      isTab={isTab}
       className={cx({
         isActive,
         isDragging,
@@ -368,11 +381,11 @@ export default function DisplayItem(props) {
         const { metaKey, ctrlKey } = e;
         const isMacOs = navigator.userAgent.toLocaleLowerCase().includes('mac os');
         if (isMacOs ? metaKey : ctrlKey) {
-          // 批量操作连选暂不支持选分段本身
+          // 批量操作连选暂不支持选标签页本身
           if (data.type === 52) return;
           let newBatchData = batchActive || [];
           if (!isEmpty(activeWidget)) {
-            if (activeWidget !== 52) newBatchData.push(activeWidget);
+            if (activeWidget.type !== 52) newBatchData.push(activeWidget);
             setActiveWidget({});
           }
           newBatchData = find(newBatchData, b => b.controlId === controlId)
@@ -399,7 +412,6 @@ export default function DisplayItem(props) {
           isActive={isActive}
           handleOperate={handleOperate}
           onChange={onChange}
-          hasChild={hasChild}
         />
       )}
       {['top', 'bottom', 'view_top'].includes(dirLocation) && (

@@ -218,13 +218,12 @@ export default class Widgets extends Component {
           </ClickAwayable>
         </PhoneWrap>
 
-        {(_.get(this.props, 'advancedSetting.datamask') === '1'
-          ? maskPermissions && value
-          : (_.includes([FROM.H5_ADD, FROM.H5_EDIT], from) || (browserIsMobile() && disabled)) && !!value) && (
-          <a href={`tel:${value}`} className="Absolute customFormControlTelBtn" style={{ right: 0, top: 10 }}>
-            <Icon icon="phone22" className="Font16 ThemeColor3" />
-          </a>
-        )}
+        {(_.get(this.props, 'advancedSetting.datamask') === '1' ? maskPermissions && value : !!value) &&
+          (_.includes([FROM.H5_ADD, FROM.H5_EDIT], from) || (browserIsMobile() && disabled)) && (
+            <a href={`tel:${value}`} className="Absolute customFormControlTelBtn" style={{ right: 0, top: 10 }}>
+              <Icon icon="phone22" className="Font16 ThemeColor3" />
+            </a>
+          )}
       </div>
     );
   }

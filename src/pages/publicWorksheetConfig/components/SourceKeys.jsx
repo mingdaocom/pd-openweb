@@ -17,7 +17,7 @@ const No = styled.span`
   margin-right: 10px;
   font-size: 14px;
   line-height: 36px;
-  width: 20px;
+  width: 24px;
   text-align: center;
   .delete {
     cursor: pointer;

@@ -53,7 +53,7 @@ export default function TPAuth(props) {
     const request = getRequest();
     const { state = '' } = request;
     externalPortalAjax.getTpLoginSubscribedScanUrl({
-      state, //??链接上带的state
+      state, //链接上带的state
     }).then(url => {
       setState({
         url,

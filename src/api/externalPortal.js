@@ -800,6 +800,38 @@ export default {
      return $.api('ExternalPortal', 'PwdLogin', args, options);
    },
   /**
+  * 外部门户两步验证登录
+  * @param {Object} args 请求参数
+  * @param {string} args.state 首次登录成功之后返回的临时状态码
+用于反向存储用户相关信息，具备有效期
+  * @param {string} args.account 账号
+  * @param {string} args.verifyCode 验证码
+  * @param {boolean} args.autoLogin 是否自动登录
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType 验证码类型（默认腾讯云）
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   twofactorLogin: function (args, options = {}) {
+     
+     return $.api('ExternalPortal', 'TwofactorLogin', args, options);
+   },
+  /**
+  * 外部门户两步验证获取用户信息
+  * @param {Object} args 请求参数
+  * @param {string} args.state 首次登录成功之后返回的临时状态码
+用于反向存储用户相关信息，具备有效期
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getTwofactorInfo: function (args, options = {}) {
+     
+     return $.api('ExternalPortal', 'GetTwofactorInfo', args, options);
+   },
+  /**
   * 外部门户单点登录
   * @param {Object} args 请求参数
   * @param {string} args.unionId 第三方Id

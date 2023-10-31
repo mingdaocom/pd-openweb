@@ -6,12 +6,14 @@ import { isEmpty } from 'lodash';
 import { Dropdown } from 'antd';
 import { useSetState } from 'react-use';
 import { Menu, MenuItem } from 'ming-ui';
-import Icon from 'src/components/Icon';
+import WidgetComponents from '../../components';
 import { SettingItem, InfoWrap, DropdownPlaceholder } from '../../styled';
 import { getControlByControlId, getIconByType } from '../../util';
 import { getAdvanceSetting, handleAdvancedSettingChange, isAutoNumberSelectableControl } from '../../util/setting';
 import Components from '../components';
 import AutoIdComponent from '../components/autoId';
+
+const Icon = WidgetComponents.Icon;
 
 const RuleInfo = styled.li`
   display: flex;

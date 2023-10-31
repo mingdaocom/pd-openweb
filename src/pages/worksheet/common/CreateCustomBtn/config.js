@@ -1,4 +1,4 @@
-export const COLORS = ['#2196F3', '#9C27B0', '#3F51B5', '#E91E63', '#FF9800', '#4CAF50', '#00BCD4'];
+export const COLORS = ['transparent', '#2196F3', '#9C27B0', '#3F51B5', '#E91E63', '#FF9800', '#4CAF50', '#00BCD4'];
 export const ICONS = [
   '',
   'clear_1',

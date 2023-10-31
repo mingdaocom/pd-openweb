@@ -1,7 +1,8 @@
 export const DRAG_ITEMS = {
   LIST_ITEM: 'LIST_ITEM',
+  LIST_TAB: 'LIST_TAB',
   DISPLAY_ITEM: 'DISPLAY_ITEM',
-  DISPLAY_ITEM_RELATE: 'DISPLAY_ITEM_RELATE',
+  DISPLAY_TAB: 'DISPLAY_TAB',
 };
 
 export const WHOLE_SIZE = 12;
@@ -17,5 +18,4 @@ export const DRAG_MODE = {
 
 export const DRAG_DISTANCE = {
   VERTICAL: 16,
-  MAX_VERTICAL: 36,
 };

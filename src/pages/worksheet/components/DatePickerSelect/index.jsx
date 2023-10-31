@@ -24,7 +24,7 @@ const DEFAULT_OPTIONS = [
   {
     label: _l('本周'),
     key: 'tswk',
-    value: [moment(TODAY).startOf('week').format(), moment(TODAY).format()]
+    value: [moment(TODAY).startOf('week').format(), moment(TODAY).endOf('day').format()]
   },
   {
     label: _l('上周'),
@@ -34,7 +34,7 @@ const DEFAULT_OPTIONS = [
   {
     label: _l('本月'),
     key: 'month',
-    value: [moment(TODAY).startOf('month').format(), moment(TODAY).format()]
+    value: [moment(TODAY).startOf('month').format(), moment(TODAY).endOf('day').format()]
   },
   {
     label: _l('上月'),

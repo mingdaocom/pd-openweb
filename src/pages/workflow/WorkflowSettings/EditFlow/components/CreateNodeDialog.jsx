@@ -62,22 +62,22 @@ export default class CreateNodeDialog extends Component {
                   type: 7,
                   appType: 1,
                   actionId: '406',
-                  name: _l('从工作表获取'),
-                  describe: _l('从工作表获取一条指定记录'),
-                },
-                {
-                  type: 7,
-                  appType: 1,
-                  actionId: '407',
-                  name: _l('从多条数据节点获取'),
-                  describe: _l('从多条数据节点获取一条指定记录'),
+                  name: _l('查询工作表'),
+                  describe: _l('根据查询条件从工作表中获取一条记录'),
                 },
                 {
                   type: 6,
                   appType: 1,
                   actionId: '20',
-                  name: _l('从关联字段获取'),
-                  describe: _l('从关联表、子表或级联选择字段获取一条指定记录'),
+                  name: _l('获取关联记录'),
+                  describe: _l('获取关联记录、子表、级联选择字段中的记录'),
+                },
+                {
+                  type: 7,
+                  appType: 1,
+                  actionId: '407',
+                  name: _l('从多条数据中获取'),
+                  describe: _l('从多条数据节点获取一条符合条件的记录'),
                 },
                 {
                   type: 7,
@@ -93,41 +93,65 @@ export default class CreateNodeDialog extends Component {
               name: _l('获取多条数据%03022'),
               iconColor: '#FFA340',
               iconName: 'icon-transport',
-              typeText: _l('获取方式'),
+              isGroupList: true,
               secondList: [
                 {
-                  type: 13,
-                  appType: 1,
-                  actionId: '400',
-                  name: _l('从工作表获取记录'),
-                  describe: _l('获取工作表记录'),
+                  typeText: _l('从工作表获取'),
+                  source: [
+                    {
+                      type: 13,
+                      appType: 1,
+                      actionId: '412',
+                      name: _l('查询并批量更新'),
+                      describe: _l('根据查询条件从工作表获取多条数据并批量更新，后续节点可使用新值'),
+                    },
+                    {
+                      type: 13,
+                      appType: 1,
+                      actionId: '413',
+                      name: _l('查询并批量删除'),
+                      describe: _l('根据查询条件从工作表找到多条数据并删除，后续节点不可使用'),
+                    },
+                    {
+                      type: 13,
+                      appType: 1,
+                      actionId: '400',
+                      name: _l('查询工作表'),
+                      describe: _l('获取后什么也不做，在以后节点使用'),
+                    },
+                  ],
                 },
                 {
-                  type: 13,
-                  appType: 1,
-                  actionId: '401',
-                  name: _l('从记录获取关联记录'),
-                  describe: _l('获取关联表、子表或级联选择字段内的数据'),
-                },
-                {
-                  type: 13,
-                  appType: 1,
-                  actionId: '402',
-                  name: _l('从新增节点获取记录'),
-                  describe: _l('从创建多条的新增节点获取记录'),
-                },
-                {
-                  type: 13,
-                  appType: 1,
-                  actionId: '405',
-                  name: _l('从人工节点获取操作明细'),
-                  describe: _l('获取操作明细，拿到：操作者、操作时间、操作内容、备注'),
-                },
-                {
-                  type: 13,
-                  appType: 1,
-                  name: _l('从对象数组获取数据'),
-                  describe: _l('获取发送API请求、调用已集成API、代码块、业务流程输入/输出节点的JSON数组对象'),
+                  typeText: _l('其他'),
+                  source: [
+                    {
+                      type: 13,
+                      appType: 1,
+                      actionId: '401',
+                      name: _l('获取关联记录'),
+                      describe: _l('获取关联记录、子表、级联选择字段中的记录'),
+                    },
+                    {
+                      type: 13,
+                      appType: 1,
+                      actionId: '402',
+                      name: _l('获取批量新增结果'),
+                      describe: _l('从创建多条的新增记录节点获取刚刚创建的记录'),
+                    },
+                    {
+                      type: 13,
+                      appType: 1,
+                      actionId: '405',
+                      name: _l('获取操作明细'),
+                      describe: _l('从审批、填写、抄送节点获取操作明细。包含：操作人、时间、操作内容、备注等'),
+                    },
+                    {
+                      type: 13,
+                      appType: 1,
+                      name: _l('获取数组对象'),
+                      describe: _l('获取发送API请求、调用已集成API、代码块、业务流程输入/输出节点的JSON数组对象'),
+                    },
+                  ],
                 },
               ],
             },
@@ -138,6 +162,15 @@ export default class CreateNodeDialog extends Component {
               actionId: '2',
               iconColor: '#FFA340',
               iconName: 'icon-parameter',
+            },
+            {
+              type: 6,
+              featureId: VersionProductType.globalVariable,
+              name: _l('更新全局变量'),
+              appType: 104,
+              actionId: '2',
+              iconColor: '#FFA340',
+              iconName: 'icon-global_variable',
             },
           ],
         },
@@ -266,7 +299,7 @@ export default class CreateNodeDialog extends Component {
                   type: 9,
                   name: _l('函数计算'),
                   actionId: '106',
-                  describe: _l('通过函数对 文本/数值 等流程节点对象的值进行处理'),
+                  describe: _l('通过函数对 文本/数值/日期时间 等流程节点对象的值进行处理'),
                 },
               ],
             },
@@ -632,16 +665,21 @@ export default class CreateNodeDialog extends Component {
       });
     }
 
-    // 埋点授权过滤： API集成工作流节点、代码块节点、获取打印文件节点、界面推送
+    // 埋点授权过滤： API集成工作流节点、代码块节点、获取打印文件节点、界面推送、全局变量
     [
       { featureId: VersionProductType.apiIntergrationNode, type: [NODE_TYPE.API_PACKAGE, NODE_TYPE.API] },
       { featureId: VersionProductType.codeBlockNode, type: [NODE_TYPE.CODE] },
       { featureId: VersionProductType.getPrintFileNode, type: [NODE_TYPE.FILE] },
       { featureId: VersionProductType.interfacePush, type: [NODE_TYPE.PUSH] },
+      { featureId: VersionProductType.globalVariable, type: [NODE_TYPE.ACTION], appType: APP_TYPE.GLOBAL_VARIABLE },
     ].forEach(obj => {
       if (!_.includes(['1', '2'], getFeatureStatus(props.flowInfo.companyId, obj.featureId))) {
         this.state.list.forEach(o => {
-          _.remove(o.items, item => _.includes(obj.type, item.type));
+          if (obj.appType) {
+            _.remove(o.items, item => _.includes(obj.type, item.type) && obj.appType === item.appType);
+          } else {
+            _.remove(o.items, item => _.includes(obj.type, item.type));
+          }
         });
       }
     });
@@ -730,23 +768,24 @@ export default class CreateNodeDialog extends Component {
             (selectItem.secondList || []).map((item, i) => (
               <Fragment key={i}>
                 <div className="bold pLeft10 Font14">{item.typeText}</div>
-                <div className="Gray_75 pLeft10 mTop5">{item.describe}</div>
-                <ul className="secondNodeList mBottom25 mTop10">
+                {item.describe && <div className="Gray_75 pLeft10 mTop5">{item.describe}</div>}
+                <ul className="secondNodeList mBottom25">
                   {(item.source || []).map((o, j) => {
                     return (
                       <li
                         key={j}
-                        className={cx('mTop0', { disabled: o.disabled })}
+                        className={cx({ disabled: o.disabled })}
                         onClick={() => {
                           if (o.disabled) {
                             alert(_l('仅组织管理员可以添加'), 3);
                             return;
                           }
 
-                          this.createNodeClick(Object.assign({}, o, { name: item.typeText }));
+                          this.createNodeClick(o.type === 13 ? o : Object.assign({}, o, { name: item.typeText }));
                         }}
                       >
                         <Radio className="Font15" text={o.name} disabled />
+                        {o.describe && <div className="Gray_75 mLeft30 mTop5">{o.describe}</div>}
                       </li>
                     );
                   })}
@@ -994,10 +1033,11 @@ export default class CreateNodeDialog extends Component {
     ) {
       this.setState({ selectItem: item, showBranchDialog: true });
     } else if (
-      _.includes([NODE_TYPE.CODE, NODE_TYPE.PUSH, NODE_TYPE.FILE, NODE_TYPE.API_PACKAGE, NODE_TYPE.API], item.type) &&
+      (_.includes([NODE_TYPE.CODE, NODE_TYPE.PUSH, NODE_TYPE.FILE, NODE_TYPE.API_PACKAGE, NODE_TYPE.API], item.type) ||
+        (item.type === NODE_TYPE.ACTION && item.appType === APP_TYPE.GLOBAL_VARIABLE)) &&
       featureType === '2'
     ) {
-      // 代码块、界面推送、Word打印模板、API连接与认证、调用已集成的API
+      // 代码块、界面推送、Word打印模板、API连接与认证、调用已集成的API、更新全局变量
       buriedUpgradeVersionDialog(flowInfo.companyId, featureId);
     } else if (item.type === NODE_TYPE.APPROVAL_PROCESS && !item.isNew) {
       this.setState({ showApprovalDialog: true });

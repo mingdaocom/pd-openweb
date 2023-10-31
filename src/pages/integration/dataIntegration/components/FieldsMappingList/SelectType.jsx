@@ -226,6 +226,7 @@ export default function SelectType(props) {
                       ...itemData,
                       destField: {
                         ...destField,
+                        scale: data.dot || 0,
                         controlSetting: {
                           ...destField.controlSetting,
                           ..._.pick(data, ['advancedSetting', 'enumDefault', 'type', 'dot']),

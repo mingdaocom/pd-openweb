@@ -43,7 +43,7 @@ const DISCUSS_LOG_ID = [];
 function renderContent(data, recordInfo, extendParam) {
   const { type, oldText, newText, oldValue, newValue, id, editType } = data;
   const { requestType } = extendParam;
-  let controls = recordInfo.controls || recordInfo.formdata;
+  let controls = recordInfo.controls && recordInfo.controls.length ? recordInfo.controls : recordInfo.formdata;
   let control = controls ? controls.find(l => id === l.controlId) : undefined;
   let onlyNew = false;
   if (CIRCLE_TAGS_CONTROL_TYPE.includes(type) || RECT_TAGS_CONTROL_TYPE.includes(type)) {
@@ -255,7 +255,7 @@ const WorksheetRocordLogItem = (prop, recordInfo, callback, extendParam) => {
     <React.Fragment>
       {remarkContent}
       {logData.map(item => {
-        if (item.newValue === '' && item.oldValue === '') {
+        if ((item.newValue === '' && item.oldValue === '') || ['thirdprimary'].includes(item.id)) {
           return null;
         }
         let widgetInfo = DEFAULT_CONFIG[_.findKey(WIDGETS_TO_API_TYPE_ENUM, l => l === item.type)] || {};
@@ -408,7 +408,7 @@ const renderTitleAvatar = data => {
     let btn = child[0].operatContent.extendParams.find(l => _.startsWith(l, 'btn:'));
     return (
       <span className="titleAvatarText mRight5">
-        <span className="Gray_9e">{_l('通过自定义动作')}</span>
+        <span className="Gray_9e">{_l('操作按钮')}</span>
         <span className="Gray"> {btn ? btn.replace('btn:', '') : ''}</span>
       </span>
     );
@@ -865,7 +865,7 @@ function WorksheetRocordLog(props, ref) {
                   _.filter(
                     controls || formdata,
                     it =>
-                      !_.includes([33, 47, 30, 22, 10010, 45, 43, 25, 51], it.type) &&
+                      !_.includes([33, 47, 30, 22, 10010, 45, 43, 25, 51, 52], it.type) &&
                       !_.includes(['caid', 'ctime', 'utime', 'daid', 'rowid', 'uaid'], it.controlId),
                   ),
                 )}
@@ -1004,6 +1004,10 @@ function WorksheetRocordLog(props, ref) {
                     showTooltips = true;
                   }
                 });
+                let updateControlCount = childData.operatContent.logData.filter(
+                  l => l.oldValue !== '' || l.newValue !== '',
+                ).length;
+
                 return (
                   <div
                     key={`worksheetRocordLogCardHrCon-${item.accountName}-${index}`}
@@ -1012,11 +1016,8 @@ function WorksheetRocordLog(props, ref) {
                     {childData.operatContent.createTime !== item.time && (
                       <div className="worksheetRocordLogCardHrTime">
                         <span>
-                          {_l(
-                            '更新了 %0个字段',
-                            childData.operatContent.logData.filter(l => l.oldValue !== '' || l.newValue !== '').length,
-                          )}
-                          {showTooltips && (
+                          {!!updateControlCount && _l('更新了 %0个字段', updateControlCount)}
+                          {!!updateControlCount && showTooltips && (
                             <Tooltip popupPlacement="right" text={<span>{_l('部分字段无权限不可见')}</span>}>
                               <Icon icon="info_outline" className="Font14 mLeft5" />
                             </Tooltip>

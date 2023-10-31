@@ -132,7 +132,7 @@ export default function Subtotal(props) {
 
   const filterControls = filterByTypeAndSheetFieldType(
     resortControlByColRow(filterOnlyShowField(availableControls) || []),
-    type => !includes([22, 25, 29, 30, 43, 45, 47, 49, 50, 51, 10010], type),
+    type => !includes([22, 25, 29, 30, 43, 45, 47, 49, 50, 51, 52, 10010], type),
   ).map(item => ({ value: item.controlId, text: item.controlName, icon: getIconByType(item.type) }));
 
   const handleChange = value => {

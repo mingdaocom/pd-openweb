@@ -107,7 +107,7 @@ export default class Widgets extends Component {
     const args = { fileIds };
     if (window.shareState && window.shareState.shareId) {
       args.shareId = window.shareState.shareId;
-      args.type = window.shareState.isRecordShare
+      args.type = window.shareState.isPublicRecord
         ? 3
         : _.get(window, 'shareState.isPublicForm') || _.get(window, 'shareState.isPublicForm')
         ? 11

@@ -6,7 +6,6 @@ import styled from 'styled-components';
 import { Input } from 'antd';
 import { handleAdvancedSettingChange } from '../../../util/setting';
 import { getAdvanceSetting } from '../../../util';
-import PreSuffix from '../PreSuffix';
 import _ from 'lodash';
 
 const SuffixWrap = styled(SettingItem)`
@@ -31,43 +30,21 @@ export default function InputSuffix({ data, onChange }) {
     );
   }, [unit, controlId]);
 
-  if (['3', '4', '5'].includes(unit)) {
-    return (
-      <SuffixWrap>
-        <div className="settingItemTitle">{_l('输出单位')}</div>
-        <Dropdown
-          border
-          className="unitDropdown"
-          value={unit}
-          data={UNIT_TYPE}
-          onChange={value => {
-            onChange(
-              handleAdvancedSettingChange(
-                { ...data, unit: value, dot: _.includes(['1', '6'], value) ? 0 : dot },
-                _.includes(['3', '5'], value) && setting.autocarry === '1' ? { autocarry: '' } : {},
-              ),
-            );
-          }}
-        />
-        <PreSuffix data={data} onChange={onChange} />
-      </SuffixWrap>
-    );
-  }
   return (
     <SettingItem>
-      <div className="settingItemTitle">{_l('输出单位')}</div>
+      <div className="settingItemTitle">{_l('输出格式')}</div>
       <Dropdown
         border
         value={unit}
         data={UNIT_TYPE}
-        onChange={value =>
+        onChange={value => {
           onChange(
             handleAdvancedSettingChange(
               { ...data, unit: value, dot: _.includes(['1', '6'], value) ? 0 : dot },
-              { suffix: '' },
+              _.includes(['5'], value) && setting.autocarry === '1' ? { autocarry: '' } : {},
             ),
-          )
-        }
+          );
+        }}
       />
     </SettingItem>
   );

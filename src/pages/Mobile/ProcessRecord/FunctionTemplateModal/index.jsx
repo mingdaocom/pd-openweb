@@ -87,7 +87,7 @@ class ModalWrap extends Component {
                 {_l('清除选择')}
               </div>
             )}
-            {opinions.filter(data => data.value.includes(searchValue)).map((data, index) => (
+            {opinions.filter(data => data.value.toLocaleLowerCase().includes(searchValue.toLocaleLowerCase())).map((data, index) => (
               <div
                 key={index}
                 className="opinionItem Gray"

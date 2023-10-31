@@ -57,8 +57,17 @@ export default class UpgradeService extends Component {
       })
       .then(data => {
         if (data) {
+          const { vertionType } = _.get(this.props, 'match.params') || {};
           if (data.versions && _.isArray(data.versions) && data.versions.length > 0) {
-            const versionId = data.versions[0].versionIdV2;
+            const versionId =
+              vertionType &&
+              _.includes(
+                data.versions.map(it => it.versionIdV2),
+                vertionType,
+              )
+                ? vertionType
+                : data.versions[0].versionIdV2;
+                
             this.setState(
               {
                 versionData: data,

@@ -162,6 +162,7 @@ export default class JSONParse extends Component {
    */
   getNodeDetail(props, sId) {
     const { processId, selectNodeId, selectNodeType, isIntegration } = props;
+    const { data } = this.state;
 
     flowNode
       .getNodeDetail(
@@ -172,7 +173,7 @@ export default class JSONParse extends Component {
         if (result.selectNodeId && !result.outputs.length && (!result.appId || sId)) {
           result.outputs = [getDefaultParameters()];
         }
-        this.setState({ data: result, foldIds: [], selectFiledId: '' });
+        this.setState({ data: !sId ? result : { ...result, name: data.name }, foldIds: [], selectFiledId: '' });
       });
   }
 
@@ -323,6 +324,7 @@ export default class JSONParse extends Component {
                 <div className="mLeft30">
                   <TriggerCondition
                     processId={this.props.processId}
+                    relationId={this.props.relationId}
                     selectNodeId={this.props.selectNodeId}
                     isIntegration={isIntegration}
                     controls={data.outputs.filter(
@@ -335,7 +337,9 @@ export default class JSONParse extends Component {
                 </div>
                 <div className="mTop20 bold">{_l('指定触发错误时返回的错误消息')}</div>
                 <CustomTextarea
+                  projectId={this.props.companyId}
                   processId={this.props.processId}
+                  relationId={this.props.relationId}
                   selectNodeId={this.props.selectNodeId}
                   isIntegration={isIntegration}
                   type={2}

@@ -2,8 +2,8 @@ import React from 'react';
 import cx from 'classnames';
 import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import Icon from 'ming-ui/components/Icon';
-import InviteDialog from 'src/components/invite';
-import AddFriends from 'src/components/addFriends/addFriends';
+import addFriends from 'src/components/addFriends';
+import AddFriends from 'src/components/addFriends';
 import CreateGroup from 'src/components/group/create/creatGroup';
 import Invite from 'src/components/common/inviteMember/inviteMember';
 import _ from 'lodash';
@@ -45,7 +45,7 @@ export default class SearchBar extends React.Component {
     const { type, projectId } = this.props;
     switch (type) {
       case 'contacts':
-        InviteDialog();
+        addFriends({ selectProject: true });
         break;
       case 'friends':
         AddFriends({ projectId, fromType: 0 });

@@ -19,6 +19,7 @@ import { RenderTypes, ChooseType, UserTabsId } from './constant';
 import NoData from './NoData';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
+import { LoadDiv } from 'ming-ui';
 
 const DefaultUserTabs = isNetwork => {
   return [
@@ -1498,7 +1499,7 @@ export default class GeneraSelect extends Component {
 
   renderContent() {
     if (this.state.loading) {
-      return <div dangerouslySetInnerHTML={{ __html: LoadDiv() }} />;
+      return <LoadDiv />;
     }
     if (!this.state.mainData) {
       return null;

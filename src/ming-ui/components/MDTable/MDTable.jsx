@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { autobind } from 'core-decorators';
 import { emitter } from 'worksheet/util';
 import DragMask from 'worksheet/common/DragMask';
-import Skeleton from 'src/router/Application/Skeleton';
+import Skeleton from '../Skeleton';
 import { VariableSizeGrid } from 'react-window';
 
 delete Hammer.defaults.cssProps.userSelect;

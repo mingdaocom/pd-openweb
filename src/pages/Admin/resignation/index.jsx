@@ -30,12 +30,14 @@ export default class extends React.Component {
   }
 
   handleChangeTab(item) {
-    this.setState({ activeTab: item.routeType });
+    this.setState({ activeTab: item.routeType, keywords: '' });
   }
 
-  handleInputChange(keywords) {
-    this.setState({ keywords });
-  }
+  handleInputChange = () => {
+    if (this.handOver) {
+      this.handOver.fetchList();
+    }
+  };
 
   setLevel(level) {
     this.setState({ level });
@@ -72,10 +74,38 @@ export default class extends React.Component {
               <span className="Font17 Bold">{_l('查看详情')}</span>
             </div>
           )}
-          {level==='index'&&<div className="searchGroupBox"><Search allowClear placeholder={_l('搜索')} onSearch={value => this.handleInputChange(value)} /></div>}
+          {level === 'index' && (
+            <div className="searchGroupBox">
+              <Search
+                allowClear
+                placeholder={_l('搜索')}
+                value={keywords}
+                onSearch={this.handleInputChange}
+                onChange={e => {
+                  let val = e.target.value;
+                  this.setState({ keywords: val });
+                }}
+                onPressEnter={e => {
+                  if (e.keyCode === 13) {
+                    this.handleInputChange();
+                  }
+                }}
+              />
+            </div>
+          )}
         </div>
         <div className="groupContent">
-          { level === 'index' && activeTab === 'resignlist' ? <ResignList {...props} /> : <HandOver {...props} setLevel={this.setLevel.bind(this)} level={level} />}
+          {level === 'index' && activeTab === 'resignlist' ? (
+            <ResignList ref={node => (this.handOver = node)} activeTab={activeTab} {...props} />
+          ) : (
+            <HandOver
+              ref={node => (this.handOver = node)}
+              level={level}
+              activeTab={activeTab}
+              {...props}
+              setLevel={this.setLevel.bind(this)}
+            />
+          )}
         </div>
       </div>
     );

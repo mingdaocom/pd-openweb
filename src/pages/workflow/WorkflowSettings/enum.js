@@ -67,6 +67,9 @@ export const ACTION_ID = {
   FROM_PBC_INPUT_ARRAY: '408',
   FROM_API_ARRAY: '409',
   FROM_PBC_OUTPUT_ARRAY: '410',
+  BATCH_ACTION: '411',
+  BATCH_UPDATE: '412',
+  BATCH_DELETE: '413',
   RECORD_LINK_FIND: '420',
   PBC: '500',
   PBC_INPUT: '501',
@@ -110,6 +113,7 @@ export const APP_TYPE = {
   VARIABLE: 101,
   PROCESS: 102,
   WORKSHEET_LOG: 103,
+  GLOBAL_VARIABLE: 104,
 };
 
 export const OPERATION_TYPE = {
@@ -126,8 +130,8 @@ export const OPERATION_TYPE = {
   REPLACE: 14,
   CONTINUE: 15,
   ADD: 16,
-  RETURN: 18,
-  URGE: 19,
+  RETURN: 17,
+  URGE: 18,
   BEFORE: 101,
   EMAIL: 102,
   GET_OPERATION: 103,
@@ -155,6 +159,7 @@ export const CONTROLS_NAME = {
   19: _l('地区'),
   20: _l('公式'),
   21: _l('自由连接'),
+  22: _l('分段'),
   23: _l('地区'),
   24: _l('地区'),
   25: _l('大写金额'),
@@ -183,7 +188,7 @@ export const CONTROLS_NAME = {
   49: _l('API查询'),
   50: _l('API查询'),
   51: _l('查询记录'),
-  52: _l('分段'),
+  52: _l('标签页'),
   10000001: _l('人员'),
   10000002: _l('人员'),
   10000003: _l('数组'),
@@ -503,6 +508,7 @@ export const FIELD_TYPE_LIST = [
   { text: _l('日期时间'), value: 16, en: 'date' },
   { text: _l('人员'), value: 26, en: 'member' },
   { text: _l('部门'), value: 27, en: 'department' },
+  { text: _l('组织角色'), value: 48, en: 'orgRole' },
   { text: _l('附件'), value: 14, en: 'attachment' },
   { text: _l('数组'), value: 10000003, en: 'array' },
   { text: _l('普通数组'), value: 10000007, en: 'array' },
@@ -526,3 +532,28 @@ export const FORMAT_TEXT = {
   5: 'YYYY',
   6: 'YYYY-MM-DD HH:mm',
 };
+
+export const DATE_SHOW_TYPES = [
+  {
+    value: 0,
+    text: _l('ISO'),
+    format: _l('YYYY-MM-DD'),
+  },
+  {
+    value: 1,
+    text: _l('中国'),
+    format: _l('YYYY年M月D日'),
+  },
+  {
+    value: 2,
+    text: _l('US'),
+    format: _l('M/D/YYYY'),
+  },
+  {
+    value: 3,
+    text: _l('EU'),
+    format: _l('D/M/YYYY'),
+  },
+];
+
+export const GLOBAL_VARIABLE = '6038a1cbf18158039fb40e69';

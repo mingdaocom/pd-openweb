@@ -7,7 +7,8 @@ import UpdateSheetRecord from './UpdateSheetRecord';
 import CreateRecordAndTask from './CreateRecordAndTask';
 import DeleteNodeObj from './DeleteNodeObj';
 import RelationFields from './RelationFields';
-import { checkConditionsIsNull } from '../../utils';
+import UpdateGlobalVariable from './UpdateGlobalVariable';
+import { checkConditionsIsNull, getIcons } from '../../utils';
 import _ from 'lodash';
 
 export default class Action extends Component {
@@ -42,14 +43,12 @@ export default class Action extends Component {
   /**
    * 获取动作详情
    */
-  getNodeDetail(props, autoObjType) {
+  getNodeDetail(props) {
     const { processId, selectNodeId, selectNodeType } = props;
 
-    flowNode
-      .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, autoObjType })
-      .then(result => {
-        this.setState({ data: result, cacheKey: +new Date() });
-      });
+    flowNode.getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType }).then(result => {
+      this.setState({ data: result, cacheKey: +new Date() });
+    });
   }
 
   /**
@@ -202,6 +201,13 @@ export default class Action extends Component {
       );
     }
 
+    /**
+     * 更新全局变量
+     */
+    if (data.appType === APP_TYPE.GLOBAL_VARIABLE) {
+      return <UpdateGlobalVariable {...this.props} data={data} updateSource={this.updateSource} />;
+    }
+
     // 修改工作表记录 || 更新外部用户信息
     if (data.actionId === ACTION_ID.EDIT) {
       return (
@@ -302,35 +308,8 @@ export default class Action extends Component {
     this.updateSource({ fields });
   };
 
-  /**
-   * 获取图标
-   */
-  getIcon = data => {
-    const { appType, actionId } = data;
-    const { TASK, PROCESS, EXTERNAL_USER } = APP_TYPE;
-    const { EDIT, ADD, RELATION, DELETE } = ACTION_ID;
-
-    if (appType === TASK) {
-      return 'icon-custom_assignment';
-    } else if (appType === PROCESS) {
-      return 'icon-parameter';
-    } else {
-      if (actionId === EDIT) {
-        return appType === EXTERNAL_USER ? 'icon-update_information' : 'icon-workflow_update';
-      }
-      if (actionId === ADD) {
-        return appType === EXTERNAL_USER ? 'icon-invited_users' : 'icon-workflow_new';
-      }
-      if (actionId === RELATION) {
-        return 'icon-workflow_search';
-      }
-      if (actionId === DELETE) {
-        return 'icon-hr_delete';
-      }
-    }
-  };
-
   render() {
+    const { selectNodeType } = this.props;
     const { data } = this.state;
     const bgClassName = data.appType === APP_TYPE.TASK ? 'BGGreen' : 'BGYellow';
 
@@ -343,7 +322,7 @@ export default class Action extends Component {
         <DetailHeader
           {...this.props}
           data={{ ...data }}
-          icon={this.getIcon(data)}
+          icon={getIcons(selectNodeType, data.appType, data.actionId)}
           bg={bgClassName}
           updateSource={this.updateSource}
         />

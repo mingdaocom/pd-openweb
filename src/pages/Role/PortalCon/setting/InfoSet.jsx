@@ -279,7 +279,7 @@ export default function InfoSet(props) {
     return (
       <React.Fragment>
         {/* 第一个是系统文本字段，名称是姓名，不支持修改也不支持删除，默认不收集，默认非必填 */}
-        <WrapSorh className="mBottom10 porTalSort mTop10 title flexRow" style={{}}>
+        <WrapSorh className="mBottom10 porTalSort mTop10 title flexRow">
           {/* <span className="sortBox InlineBlock mRight12 mLeft7"></span> */}
           <span className={cx('InlineBlock controlN disable title')}>{_l('类型')}</span>
           <span className={cx('controlName InlineBlock mLeft10 disable title')}>{_l('名称')}</span>
@@ -333,7 +333,7 @@ export default function InfoSet(props) {
           <div style={{ width: 46 }} />
         </WrapSorh>
         {/* 系统字段 用户 */}
-        <WrapSorh className="mBottom10 porTalSort firstWrapSorh flexRow" style={{}}>
+        <WrapSorh className="mBottom10 porTalSort firstWrapSorh flexRow">
           <span className="sortBox InlineBlock mRight18"></span>
           <span className={cx('InlineBlock controlN disable')}>
             {(DEFAULT_CONFIG[WIDGETS_TO_API_TYPE_ENUM_N[controls[0].type]] || {}).widgetName}

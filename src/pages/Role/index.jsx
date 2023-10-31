@@ -16,9 +16,10 @@ import Portal from 'src/pages/Role/PortalCon/index';
 import openImg from './img/open.gif';
 import externalPortalAjax from 'src/api/externalPortal';
 import AppRoleCon from 'src/pages/Role/AppRoleCon';
-import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { getFeatureStatus, buriedUpgradeVersionDialog, setFavicon } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
 import _ from 'lodash';
+
 const EDITTYLE_CONFIG = [_l('常规'), _l('外部门户')];
 const RoleWrapper = styled.div`
   height: 100%;
@@ -216,6 +217,7 @@ class AppRole extends Component {
     HomeAjax.getApp({
       appId,
     }).then(appDetail => {
+      setFavicon(appDetail.iconUrl, appDetail.iconColor);
       this.setState({ appDetail, loading: false });
       const {
         match: {
@@ -474,6 +476,7 @@ class AppRole extends Component {
               }}
               appDetail={appDetail}
               handleChangePage={this.handleChangePage}
+              editType={editType}
             />
           ) : (
             <Portal
@@ -489,6 +492,7 @@ class AppRole extends Component {
               appDetail={appDetail}
               projectId={projectId}
               appId={appId}
+              editType={editType}
               closePortal={() => {
                 externalPortalAjax.editExPortalEnable({ appId, isEnable: false }).then(res => {
                   if (res) {

@@ -310,7 +310,7 @@ export default class WriteFields extends Component {
                 {item.type === 29 && !!(item.subFormProperties || []).length && (
                   <div
                     data-tip={_l('设置子表操作和列权限')}
-                    className="mLeft5 Gray_9e ThemeHoverColor3 pointer"
+                    className="mLeft5 Gray_9e ThemeHoverColor3 pointer tip-bottom-right"
                     style={{ display: 'inline-flex' }}
                     onClick={() =>
                       this.setState({
@@ -345,7 +345,7 @@ export default class WriteFields extends Component {
               </div>
               {showCard && (
                 <div className="mLeft16 mRight16" style={{ width: 60 }}>
-                  {!_.includes([14, 21, 40, 41, 42, 43, 45, 47, 49, 51, 52], item.type) && (
+                  {!_.includes([14, 21, 22, 40, 41, 42, 43, 45, 47, 49, 51, 52], item.type) && (
                     <Checkbox
                       checked={item.showCard}
                       onClick={checked => this.onChangeCard(item.id, checked ? 0 : 1)}

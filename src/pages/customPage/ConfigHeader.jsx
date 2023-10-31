@@ -5,7 +5,8 @@ import appManagementAjax from 'src/api/appManagement';
 import { updateSheetListAppItem } from 'worksheet/redux/actions/sheetList';
 import { getAppSectionRef } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup';
 import store from 'redux/configureStore';
-import { Button, Dialog } from 'ming-ui';
+import ConfigSideWrap from 'src/pages/customPage/components/ConfigSideWrap';
+import { Button, Dialog, Icon } from 'ming-ui';
 import cx from 'classnames';
 import { FlexCenter } from './util';
 import _ from 'lodash';
@@ -109,6 +110,7 @@ export default (props) => {
   } = props;
   const [isEdit, setEdit] = useState(false);
   const [name, setName] = useState(pageName);
+  const [configVisible, setConfigVisible] = useState(false);
   const { current: originName } = useRef(pageName);
   const save = () => {
     onSave();
@@ -130,7 +132,6 @@ export default (props) => {
       });
     }
   };
-
   const handleClose = () => {
     if (!modified) {
       onBack();
@@ -189,10 +190,20 @@ export default (props) => {
         ))}
       </ul>
       <div className="flex"></div>
+      <div className="flexRow alignItemsCenter pointer mRight20" onClick={() => setConfigVisible(true)}>
+        <Icon className="Gray_9e Font20" icon="color_lens" />
+        <div className="mLeft5 Font13">{_l('页面配置')}</div>
+      </div>
       <Button type="link" className="close" onClick={handleClose}>
         {_l('关闭')}
       </Button>
       <Button onClick={save} loading={saveLoading}>{_l('保存')}</Button>
+      {configVisible && (
+        <ConfigSideWrap
+          {...props}
+          onClose={() => setConfigVisible(false)}
+        />
+      )}
     </ConfigHeader>
   );
 };

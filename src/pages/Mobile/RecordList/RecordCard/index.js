@@ -11,6 +11,7 @@ import emptyCover from 'src/pages/worksheet/assets/emptyCover.png';
 import { WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/util';
 import './index.less';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
+import { getRecordColorConfig, getRecordColor } from 'src/pages/worksheet/util';
 import { isDocument } from 'src/components/UploadFiles/utils';
 import _ from 'lodash';
 
@@ -31,7 +32,7 @@ export default class RecordCard extends Component {
     const { data, view } = props;
     this.state = {
       checked: data[view.advancedSetting.checkradioid] === '1',
-      coverError: false
+      coverError: false,
     };
   }
   get cover() {
@@ -72,10 +73,10 @@ export default class RecordCard extends Component {
         : null;
     if (url && !coverError) {
       const image = new Image();
-      image.onload = () => {}
+      image.onload = () => {};
       image.onerror = () => {
         this.setState({ coverError: true });
-      }
+      };
       image.src = url;
     }
     return url;
@@ -217,19 +218,41 @@ export default class RecordCard extends Component {
   }
   renderContent() {
     const { data, view, allowAdd, controls, sheetSwitchPermit } = this.props;
-    const { advancedSetting, coverCid, showControlName } = view;
+    const { viewType, advancedSetting, coverCid, showControlName } = view;
     const isShowWorkflowSys = isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit);
     let titleControl = _.find(controls, control => control.attribute === 1) || {};
     const titleText = getTitleTextFromControls(controls, data);
     const { checked } = this.state;
-    const appshowtype = advancedSetting.appshowtype || '0';
+    const appshowtype = viewType === 6 ? '1' : advancedSetting.appshowtype || '0';
     const displayControls = isShowWorkflowSys
       ? view.displayControls.filter(id => id !== titleControl.controlId)
       : view.displayControls
           .filter(id => id !== titleControl.controlId)
           .filter(v => !_.includes(WORKFLOW_SYSTEM_FIELDS_SORT, v));
+    const recordColorConfig = getRecordColorConfig(view);
+    const recordColor =
+      recordColorConfig &&
+      getRecordColor({
+        controlId: recordColorConfig.controlId,
+        colorItems: recordColorConfig.colorItems,
+        controls,
+        row: data,
+      });
+
     return (
-      <div className="recordCardContent flex">
+      <div
+        className="recordCardContent flex"
+        style={{
+          backgroundColor: recordColor && recordColorConfig.showBg ? recordColor.lightColor : undefined,
+          border: `1px solid ${recordColor && recordColorConfig.showBg ? recordColor.lightColor : '#fff'}`,
+        }}
+      >
+        {recordColor && recordColorConfig.showLine && (
+          <div
+            className={cx('colorTag', { colorTagRight: advancedSetting.coverposition === '1' })}
+            style={{ backgroundColor: recordColor.color }}
+          ></div>
+        )}
         <div className="flexRow valignWrapper mBottom5">
           {advancedSetting.checkradioid && (
             <Checkbox
@@ -270,10 +293,12 @@ export default class RecordCard extends Component {
     const { view, data, onClick, batchOptVisible } = this.props;
     const { advancedSetting, coverCid } = view;
     let batchOptChecked = batchOptVisible && data.check;
+
     return (
       <div
         className={cx('mobileWorksheetRecordCard', {
           coverRight: [undefined, '0'].includes(advancedSetting.coverposition),
+          converTop: ['2'].includes(advancedSetting.coverposition),
           batchOptStyle: batchOptChecked,
         })}
         onClick={batchOptVisible ? e => this.checkedCurrentRow(e, data) : onClick}

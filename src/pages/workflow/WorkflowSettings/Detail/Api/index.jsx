@@ -42,6 +42,7 @@ export default class Api extends Component {
    */
   getNodeDetail(props, appId) {
     const { processId, selectNodeId, selectNodeType } = props;
+    const { data } = this.state;
 
     flowNode.getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, appId }).then(result => {
       if (result.subProcessVariables.length) {
@@ -60,7 +61,7 @@ export default class Api extends Component {
           });
       }
 
-      this.setState({ data: result });
+      this.setState({ data: !appId ? result : { ...result, name: data.name } });
     });
   }
 

@@ -203,6 +203,7 @@ export default function Board(props) {
               updateTitleData={data => updateTitleData({ key: list.key, index, data })}
               {..._.pick(list, ['fieldPermission'])}
               sheetButtons={sheetButtons}
+              onAdd={addRecord}
               {...rest}
             />
           ))}

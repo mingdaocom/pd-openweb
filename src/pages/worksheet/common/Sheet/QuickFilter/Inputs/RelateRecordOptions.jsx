@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { arrayOf, bool, func, shape } from 'prop-types';
 import cx from 'classnames';
 import worksheetAjax from 'src/api/worksheet';
+import { getFilter } from 'worksheet/common/WorkSheetFilter/util';
 import { getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
 import { formatValuesOfCondition } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import Option from './StyledOption';
@@ -13,7 +14,7 @@ const Con = styled.div`
   min-height: 32px;
 `;
 export default function RelateRecordOptions(props) {
-  const { selected, prefixRecords = [], staticRecords = [], control, multiple, onChange } = props;
+  const { selected, formData = [], prefixRecords = [], staticRecords = [], control, multiple, onChange } = props;
   const [records, setRecords] = useState(staticRecords);
   const [loading, setLoading] = useState(true);
   async function load() {
@@ -21,12 +22,14 @@ export default function RelateRecordOptions(props) {
       return;
     }
     setLoading(true);
+    let filterControls;
+    if (control && control.advancedSetting.filters) {
+      filterControls = getFilter({ control, formData });
+    }
     const args = {
       worksheetId: control.dataSource,
       viewId: control.viewId,
-      filterControls: _.get(control, 'advancedSetting.filters')
-        ? JSON.parse(_.get(control, 'advancedSetting.filters')).map(formatValuesOfCondition)
-        : [],
+      filterControls: filterControls || [],
       searchType: 1,
       pageSize: 20,
       pageIndex: 1,
@@ -40,7 +43,7 @@ export default function RelateRecordOptions(props) {
   }
   useEffect(() => {
     load();
-  }, []);
+  }, [JSON.stringify(formData.map(c => c.value))]);
   return (
     <Con>
       {prefixRecords.concat(records).map((record, i) => {

@@ -32,7 +32,7 @@ export default class ProcessVariables extends Component {
             <Dropdown
               style={{ width: 120 }}
               menuStyle={{ width: '100%' }}
-              data={FIELD_TYPE_LIST.filter(o => _.includes([2, 6, 16, 26, 27], o.value))}
+              data={FIELD_TYPE_LIST.filter(o => _.includes([2, 6, 16, 26, 27, 48], o.value))}
               value={item.type}
               disabled={!validate(item.controlId)}
               border

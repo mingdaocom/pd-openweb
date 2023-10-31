@@ -2,13 +2,20 @@ import React from 'react';
 import { createStore, applyMiddleware, compose } from 'redux';
 import thunk from 'redux-thunk';
 import { Provider } from 'react-redux';
+import _ from 'lodash';
 import ChildTable from './ChildTable';
 import reducer from './redux/reducer';
 import './style.less';
+
 export default class extends React.Component {
   constructor(props) {
     super(props);
-    this.store = createStore(reducer, compose(applyMiddleware(thunk)));
+    const logger = () => next => action => {
+      const emptyCount = Number(_.get(props, 'control.advancedSetting.blankrow'));
+      action.emptyCount = _.isNumber(emptyCount) && !_.isNaN(emptyCount) ? emptyCount : 1;
+      return next(action);
+    };
+    this.store = createStore(reducer, compose(applyMiddleware(thunk, logger)));
     this.bindSubscribe();
   }
 

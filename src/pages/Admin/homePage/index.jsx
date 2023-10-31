@@ -10,7 +10,7 @@ import moment from 'moment';
 import { getCurrentProject } from 'src/util';
 import InstallDialog from './installDialog';
 import { Support, Tooltip, Icon } from 'ming-ui';
-import addFriends from 'src/components/addFriends/addFriends';
+import addFriends from 'src/components/addFriends';
 import { purchaseMethodFunc } from 'src/components/upgrade/choose/PurchaseMethodModal';
 import _ from 'lodash';
 

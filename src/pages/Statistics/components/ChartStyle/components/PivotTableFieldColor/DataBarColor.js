@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { Input, Select, Checkbox, Modal, ConfigProvider, Button } from 'antd';
 import { formatNumberFromInput } from 'src/util';
-import { Icon } from 'ming-ui';
+import { Icon, ColorPicker } from 'ming-ui';
 import cx from 'classnames';
 
 export default class DataBarColor extends Component {
@@ -57,7 +57,7 @@ export default class DataBarColor extends Component {
     const { min, max, positiveNumberColor, negativeNumberColor, axisColor, direction, onlyShowBar } = this.state; 
     return (
       <Fragment>
-        <div className="flexRow">
+        <div className="flexRow dataBarColorContent">
           <div className="flex mRight10">
             <div className="mBottom8">{_l('最小值')}</div>
             <Input
@@ -73,31 +73,31 @@ export default class DataBarColor extends Component {
               }}
             />
             <div className="mTop12 mBottom8">{_l('正值条形图')}</div>
-            <div className="palette valignWrapper" style={{ width: 56 }}>
-              <div className="colorBox" style={{ backgroundColor: positiveNumberColor }}></div>
-              <input
-                type="color"
-                className="colorInput pointer"
-                value={positiveNumberColor}
-                onChange={(event) => {
-                  this.setState({ positiveNumberColor: event.target.value });
-                }}
-              />
-              <Icon icon="expand_more" className="Gray_9e Font20" />
-            </div>
+            <ColorPicker
+              isPopupBody
+              value={positiveNumberColor}
+              onChange={value => {
+                this.setState({ positiveNumberColor: value });
+              }}
+            >
+              <div className="palette valignWrapper pointer" style={{ width: 56 }}>
+                <div className="colorBox" style={{ backgroundColor: positiveNumberColor }}></div>
+                <Icon icon="expand_more" className="Gray_9e Font20" />
+              </div>
+            </ColorPicker>
             <div className="mTop12 mBottom8">{_l('负值条形图')}</div>
-            <div className="palette valignWrapper" style={{ width: 56 }}>
-              <div className="colorBox" style={{ backgroundColor: negativeNumberColor }}></div>
-              <input
-                type="color"
-                className="colorInput pointer"
-                value={negativeNumberColor}
-                onChange={(event) => {
-                  this.setState({ negativeNumberColor: event.target.value });
-                }}
-              />
-              <Icon icon="expand_more" className="Gray_9e Font20" />
-            </div>
+            <ColorPicker
+              isPopupBody
+              value={negativeNumberColor}
+              onChange={value => {
+                this.setState({ negativeNumberColor: value });
+              }}
+            >
+              <div className="palette valignWrapper pointer" style={{ width: 56 }}>
+                <div className="colorBox" style={{ backgroundColor: negativeNumberColor }}></div>
+                <Icon icon="expand_more" className="Gray_9e Font20" />
+              </div>
+            </ColorPicker>
             <div className="mTop12">
               <Checkbox
                 checked={onlyShowBar}
@@ -137,18 +137,18 @@ export default class DataBarColor extends Component {
               <Select.Option className="selectOptionWrapper" value={2}>{_l('从右到左')}</Select.Option>
             </Select>
             <div className="mTop12 mBottom8">{_l('轴')}</div>
-            <div className="palette valignWrapper" style={{ width: 56 }}>
-              <div className="colorBox" style={{ backgroundColor: axisColor }}></div>
-              <input
-                type="color"
-                className="colorInput pointer"
-                value={axisColor}
-                onChange={(event) => {
-                  this.setState({ axisColor: event.target.value });
-                }}
-              />
-              <Icon icon="expand_more" className="Gray_9e Font20" />
-            </div>
+            <ColorPicker
+              isPopupBody
+              value={axisColor}
+              onChange={value => {
+                this.setState({ axisColor: value });
+              }}
+            >
+              <div className="palette valignWrapper pointer" style={{ width: 56 }}>
+                <div className="colorBox" style={{ backgroundColor: axisColor }}></div>
+                <Icon icon="expand_more" className="Gray_9e Font20" />
+              </div>
+            </ColorPicker>
           </div>
         </div>
       </Fragment>

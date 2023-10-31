@@ -49,7 +49,7 @@ const Dropdown = styled(RelateRecordDropdown)`
 `;
 
 export default function RelateRecord(props) {
-  const { from, values = [], advancedSetting, onChange = () => {} } = props;
+  const { from, values = [], filtersData, advancedSetting, onChange = () => {} } = props;
   const controlAdvancedSetting = _.get(props, 'control.advancedSetting') || {};
   const control = _.assign({}, props.control, {
     advancedSetting: {
@@ -122,6 +122,7 @@ export default function RelateRecord(props) {
       <RelateRecordOptions
         multiple={isMultiple}
         selected={values}
+        formData={filtersData}
         control={control}
         prefixRecords={prefixRecords}
         staticRecords={staticRecords}
@@ -143,6 +144,7 @@ export default function RelateRecord(props) {
         isQuickFilter
         control={control}
         {...control}
+        formData={filtersData}
         advancedSetting={{}}
         controls={relationControls}
         selected={values}

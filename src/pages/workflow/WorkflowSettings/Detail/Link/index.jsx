@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv, Radio, Icon, Checkbox } from 'ming-ui';
+import { ScrollView, LoadDiv, Radio, Icon, Checkbox, Dropdown } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
 import {
   DetailHeader,
@@ -9,6 +9,7 @@ import {
   WriteFields,
   Deadline,
   ButtonName,
+  SpecificFieldsValue,
 } from '../components';
 import _ from 'lodash';
 import moment from 'moment';
@@ -65,7 +66,18 @@ export default class Link extends Component {
    */
   onSave = () => {
     const { data, saveRequest } = this.state;
-    const { name, selectNodeId, linkType, linkName, formProperties, time, password, submitButtonName } = data;
+    const {
+      name,
+      selectNodeId,
+      linkType,
+      linkName,
+      formProperties,
+      time,
+      password,
+      submitButtonName,
+      submitType,
+      modifyTime,
+    } = data;
     const newPassword = password.trim();
 
     if (!selectNodeId) {
@@ -107,6 +119,8 @@ export default class Link extends Component {
         time,
         password: newPassword,
         submitButtonName: submitButtonName.trim() || _l('提交'),
+        submitType,
+        modifyTime,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -141,12 +155,19 @@ export default class Link extends Component {
         />
 
         <div className="mTop20 bold">{_l('获取方式')}</div>
-        <div className="mTop15">
-          <Radio text={_l('分享链接')} checked={data.linkType === 1} onClick={() => this.switchLinkType(1)} />
-        </div>
-        <div className="mTop10">
-          <Radio text={_l('填写链接')} checked={data.linkType === 2} onClick={() => this.switchLinkType(2)} />
-          <div className="mLeft30 Gray_9e Font12">{_l('填写完成后链接失效')}</div>
+        <div className="mTop15 flexRow">
+          {[
+            { text: _l('分享链接'), value: 1 },
+            { text: _l('填写链接'), value: 2 },
+          ].map(item => (
+            <div key={item.value} style={{ width: 160 }}>
+              <Radio
+                text={item.text}
+                checked={data.linkType === item.value}
+                onClick={() => this.switchLinkType(item.value)}
+              />
+            </div>
+          ))}
         </div>
 
         <div className="mTop20">
@@ -162,7 +183,9 @@ export default class Link extends Component {
         </div>
         <div className="mTop10">
           <CustomTextarea
+            projectId={this.props.companyId}
             processId={this.props.processId}
+            relationId={this.props.relationId}
             selectNodeId={this.props.selectNodeId}
             type={2}
             height={0}
@@ -216,9 +239,12 @@ export default class Link extends Component {
         </div>
 
         {data.time.enable && (
-          <Fragment>
-            <div className="mTop10 flexRow">
-              {[{ text: _l('指定时长'), value: 1 }, { text: _l('指定的日期时间'), value: 2 }].map(item => (
+          <div className="mTop10 mLeft26">
+            <div className="flexRow">
+              {[
+                { text: _l('指定时长'), value: 1 },
+                { text: _l('指定的日期时间'), value: 2 },
+              ].map(item => (
                 <div key={item.value} style={{ width: 160 }}>
                   <Radio
                     text={item.text}
@@ -237,12 +263,74 @@ export default class Link extends Component {
               ))}
             </div>
             <Deadline
+              projectId={this.props.companyId}
               processId={this.props.processId}
+              relationId={this.props.relationId}
               selectNodeId={this.props.selectNodeId}
               data={data.time}
               minDate={moment()}
               onChange={time => this.updateSource({ time })}
             />
+          </div>
+        )}
+
+        {data.linkType === 2 && (
+          <div className="mTop15">
+            <Checkbox
+              className="InlineFlex bold"
+              text={_l('提交后允许查看/修改')}
+              checked={data.submitType !== 0}
+              onClick={checked => this.updateSource({ submitType: checked ? 0 : 1, modifyTime: -1 })}
+            />
+          </div>
+        )}
+
+        {data.linkType === 2 && data.submitType !== 0 && (
+          <Fragment>
+            <div className="mTop10 mLeft26">
+              <div className="flexRow">
+                {[
+                  { text: _l('仅查看'), value: 1 },
+                  { text: _l('允许修改'), value: 2 },
+                ].map(item => (
+                  <div key={item.value} style={{ width: 160 }}>
+                    <Radio
+                      text={item.text}
+                      checked={data.submitType === item.value}
+                      onClick={() => this.updateSource({ submitType: item.value, modifyTime: -1 })}
+                    />
+                  </div>
+                ))}
+              </div>
+              {data.submitType === 2 && (
+                <div className="mTop10 flexRow alignItemsCenter">
+                  <Dropdown
+                    className="flex flowDropdown"
+                    data={[
+                      { text: _l('始终允许修改'), value: true },
+                      { text: _l('一段时间内可修改'), value: false },
+                    ]}
+                    value={data.modifyTime === -1}
+                    border
+                    onChange={modify => this.updateSource({ modifyTime: modify ? -1 : 24 })}
+                  />
+                  {data.modifyTime !== -1 && (
+                    <Fragment>
+                      <div className="mLeft15" style={{ width: 170 }}>
+                        <SpecificFieldsValue
+                          type="number"
+                          min={1}
+                          hasOtherField={false}
+                          data={{ fieldValue: data.modifyTime }}
+                          updateSource={({ fieldValue }) => this.updateSource({ modifyTime: fieldValue })}
+                        />
+                      </div>
+                      <div className="mLeft10">{_l('小时')}</div>
+                    </Fragment>
+                  )}
+                </div>
+              )}
+            </div>
           </Fragment>
         )}
 

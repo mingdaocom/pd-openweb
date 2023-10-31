@@ -99,7 +99,7 @@ export default function Time(props) {
                   dateRange: 18,
                   filterType: 31,
                   minValue: moment(date).format(valueFormat),
-                  maxValue: maxValue ? maxValue : moment(date).format(valueFormat),
+                  maxValue: maxValue,
                 });
                 setStartDateVisible(false);
               }}
@@ -169,7 +169,7 @@ export default function Time(props) {
                 onChange({
                   dateRange: 18,
                   filterType: 31,
-                  minValue: minValue ? minValue : moment(date).format(valueFormat),
+                  minValue: minValue,
                   maxValue: moment(date).format(valueFormat),
                 });
                 setEndDateVisible(false);

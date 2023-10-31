@@ -3,7 +3,7 @@ import { ScrollView, LoadDiv } from 'ming-ui';
 import './index.less';
 import cx from 'classnames';
 import { RENDER_RECORD_NECESSARY_ATTR, getRecordAttachments } from '../util';
-import { emitter } from 'worksheet/util';
+import { emitter, handleRecordClick } from 'worksheet/util';
 import worksheetAjax from 'src/api/worksheet';
 import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
 import { RecordInfoModal } from 'mobile/Record';
@@ -16,6 +16,7 @@ import _, { isEmpty } from 'lodash';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import GalleryItem from './GalleryItem';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { getRecordColorConfig } from 'worksheet/util';
 import { permitList } from 'src/pages/FormSet/config.js';
 import * as actions from 'worksheet/redux/actions/galleryview';
 import autoSize from 'ming-ui/decorators/autoSize';
@@ -76,8 +77,14 @@ export default class RecordGallery extends Component {
       chatVisible !== this.props.chatVisible ||
       groupFilterWidth !== this.props.groupFilterWidth
     ) {
-      !hasGroupFilter && this.getFetch(nextProps);
-      this.resizeBind(nextProps);
+      setTimeout(
+        () => {
+          !hasGroupFilter && this.getFetch(nextProps);
+          this.resizeBind(nextProps);
+        },
+        // 修改颜色字段时晚一点取, 不然返回的数据还是不包括新改的字段的值
+        _.get(preView, 'advancedSetting.colorid') !== _.get(currentView, 'advancedSetting.colorid') ? 200 : 0,
+      );
     }
     this.setState({ clicksearch });
   }
@@ -267,6 +274,7 @@ export default class RecordGallery extends Component {
               allowEdit: item.allowedit,
               allowDelete: item.allowdelete,
               rawRow: item,
+              recordColorConfig: getRecordColorConfig(currentView),
               fields: this.formData(item),
               formData,
               rowId: item.rowid,
@@ -282,15 +290,17 @@ export default class RecordGallery extends Component {
                 className={cx('galleryItem', { mobile: isMobile })}
                 style={isMobile ? { width: '100%', padding: '5px 0px' } : { width: this.getWith() }}
                 onClick={() => {
-                  const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
-                  if (isMingdao) {
-                    window.location.href = `/mobile/record/${appId}/${worksheetId}/${viewId}/${item.rowid}`;
-                    return;
-                  }
-                  this.setState({ recordId: item.rowid, recordInfoVisible: true });
-                  if (location.pathname.indexOf('public') === -1) {
-                    addBehaviorLog('worksheetRecord', worksheetId, { rowId: item.rowid }); // 埋点
-                  }
+                  handleRecordClick(currentView, item, () => {
+                    const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
+                    if (isMingdao) {
+                      window.location.href = `/mobile/record/${appId}/${worksheetId}/${viewId}/${item.rowid}`;
+                      return;
+                    }
+                    this.setState({ recordId: item.rowid, recordInfoVisible: true });
+                    if (location.pathname.indexOf('public') === -1) {
+                      addBehaviorLog('worksheetRecord', worksheetId, { rowId: item.rowid }); // 埋点
+                    }
+                  });
                 }}
               >
                 <GalleryItem
@@ -303,6 +313,9 @@ export default class RecordGallery extends Component {
                     this.props.deleteRow(id);
                   }}
                   onCopySuccess={data => {
+                    this.props.updateRow(data);
+                  }}
+                  onAdd={(data) => {
                     this.props.updateRow(data);
                   }}
                 />

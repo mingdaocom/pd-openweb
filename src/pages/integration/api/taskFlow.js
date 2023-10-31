@@ -59,6 +59,20 @@ var taskFlow = {
   },
 
   /**
+   * 升级所有任务流，所有节点field字段生成唯一id和oid
+   *
+   * @param {Object} args 请求参数
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  upgradeTaskFlow: function (args, options) {
+    base.ajaxOptions.url = base.server(options) + 'taskFlow/upgradeTaskFlow';
+    base.ajaxOptions.type = 'POST';
+    return $.api(controllerName, 'taskFlowupgradeTaskFlow', JSON.stringify(args), $.extend(base, options));
+  },
+
+  /**
    * 全量更新任务流
    *
    * @param {Object} args 请求参数
@@ -150,11 +164,28 @@ var taskFlow = {
   },
 
   /**
+   * 还原升级后的所有任务流，所有节点field字段生成唯一id和oid
+   *
+   * @param {Object} args 请求参数
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  recoverTaskFlow: function (args, options) {
+    base.ajaxOptions.url = base.server(options) + 'taskFlow/recoverTaskFlow';
+    base.ajaxOptions.type = 'POST';
+    return $.api(controllerName, 'taskFlowrecoverTaskFlow', JSON.stringify(args), $.extend(base, options));
+  },
+
+  /**
    * 发布同步任务
    *
    * @param {Object} args 请求参数
    * @param {string} args.projectId 组织id
    * @param {string} args.flowId 任务流id
+   * @param {object} args.fieldForIdentifyDuplicate 用于工作表识别重复的字段信息(object)
+   * @param {string} args.writeMode 工作表写入模式(See: 写入模式)
+   * @param {boolean} args.isCleanDestTableData 是否清空目标表数据
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}

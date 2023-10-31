@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect, useState, useImperativeHandle, useRef, forwardRef } from 'react';
 import styled from 'styled-components';
-import Skeleton from 'src/router/Application/Skeleton';
+import { Skeleton } from 'ming-ui';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { filterOnlyShowField } from 'src/pages/widgetConfig/util';

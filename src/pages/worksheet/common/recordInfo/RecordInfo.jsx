@@ -16,6 +16,10 @@ import {
   checkCellIsEmpty,
   getRowGetType,
   formatRecordToRelateRecord,
+  getRecordTempValue,
+  saveTempRecordValueToLocal,
+  removeTempRecordValueFromLocal,
+  KVGet,
 } from 'worksheet/util';
 import { checkRuleLocked, updateRulesData } from 'src/components/newCustomFields/tools/filterFn';
 import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
@@ -59,12 +63,15 @@ const LoadMask = styled.div`
   z-index: 2;
 `;
 
+const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
+
 export default class RecordInfo extends Component {
   static propTypes = {
     width: PropTypes.number,
     visible: PropTypes.bool,
     isCharge: PropTypes.bool,
     allowAdd: PropTypes.bool,
+    isOpenNewAddedRecord: PropTypes.bool,
     notDialog: PropTypes.bool,
     showPrevNext: PropTypes.bool,
     instanceId: PropTypes.string, // 仅工作流调用需要 流程实例id
@@ -89,6 +96,8 @@ export default class RecordInfo extends Component {
     currentSheetRows: PropTypes.arrayOf(PropTypes.shape({})),
     header: PropTypes.element, // 放到头部的组件
     workflow: PropTypes.element,
+    hideEditingBar: PropTypes.bool, // 隐藏编辑提示层
+    switchRecordSuccess: PropTypes.func, //
   };
   static defaultProps = {
     showPrevNext: false,
@@ -100,6 +109,7 @@ export default class RecordInfo extends Component {
     hideRows: () => {},
     from: RECORD_INFO_FROM.WORKSHEET,
     currentSheetRows: [],
+    hideEditingBar: false,
   };
   constructor(props) {
     super(props);
@@ -124,6 +134,7 @@ export default class RecordInfo extends Component {
       forceShowFullValue: null,
       widgetStyle: props.widgetStyle,
       relateRecordData: {},
+      restoreVisible: false,
       canSubmitDraft: false,
     };
     this.hadWaterMark = window.hadWaterMark;
@@ -139,8 +150,15 @@ export default class RecordInfo extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.recordId !== this.props.recordId && nextProps.recordId) {
-      this.setState({ loading: true, recordId: nextProps.recordId, abnormal: false });
+    if ((nextProps.recordId !== this.props.recordId || nextProps.flag !== this.props.flag) && nextProps.recordId) {
+      this.setState({
+        loading: true,
+        recordId: nextProps.recordId,
+        abnormal: false,
+        currentIndex: _.findIndex(this.props.currentSheetRows, item => {
+          return _.get(item, 'rowid') === nextProps.recordId;
+        }),
+      });
       this.loadRecord({ recordId: nextProps.recordId, props: nextProps });
     }
     if (nextProps.width !== this.props.width) {
@@ -157,10 +175,72 @@ export default class RecordInfo extends Component {
     return (
       _.get(window, 'shareState.isPublicRecord') ||
       _.get(window, 'shareState.isPublicView') ||
-      _.get(window, 'shareState.isPublicQuery')
+      _.get(window, 'shareState.isPublicQuery') ||
+      _.get(window, 'shareState.isPublicPrint')
     );
   }
 
+  loadTempValue({ updateTime } = {}) {
+    const { recordId, viewId } = this.props;
+    const { iseditting, tempFormData } = this.state;
+    if (!viewId) return;
+    let tempData;
+    const handleFillValue = () => {
+      if (tempData && !iseditting) {
+        const savedData = safeParse(tempData);
+        if (_.isEmpty(savedData)) return;
+        const { create_at, value } = savedData;
+        const tempRecordCreateTime = new Date(create_at);
+        const recordUpdateTime = new Date(updateTime);
+        if (tempRecordCreateTime > recordUpdateTime) {
+          const newTempData = tempFormData.map(c =>
+            typeof value[c.controlId] !== 'undefined' && !((c.type === 29 && c.enumDefault !== 1) || c.type === 34)
+              ? {
+                  ...c,
+                  value:
+                    c.type === 34
+                      ? {
+                          // action: 'clearAndSet',
+                          rows: value[c.controlId],
+                        }
+                      : value[c.controlId],
+                }
+              : c,
+          );
+          if (
+            _.isEmpty(
+              newTempData.filter(
+                c =>
+                  typeof value[c.controlId] !== 'undefined' &&
+                  !((c.type === 29 && c.enumDefault !== 1) || c.type === 34),
+              ),
+            )
+          ) {
+            return;
+          }
+          this.setState({
+            restoreVisible: tempRecordCreateTime,
+            tempFormData: newTempData,
+            formFlag: Math.random().toString(),
+          });
+          if (this.recordform.current) {
+            this.recordform.current.dataFormat.controlIds = tempFormData
+              .filter(c => value[c.controlId] && !_.includes([29, 34], c.type))
+              .map(c => c.controlId);
+          }
+        }
+      }
+    };
+    if (isWxWork) {
+      KVGet(`${md.global.Account.accountId}${viewId}-${recordId}-recordInfo`).then(data => {
+        tempData = data;
+        handleFillValue();
+      });
+    } else {
+      tempData = localStorage.getItem(`recordInfo_${viewId}-${recordId}`);
+      handleFillValue();
+    }
+  }
   getPortalConfigSet = async nextProps => {
     const { appId } = nextProps;
     if (!appId) {
@@ -191,6 +271,9 @@ export default class RecordInfo extends Component {
     }
     if (formWidth > width - 425) {
       formWidth = width - 425;
+    }
+    if (formWidth < 450) {
+      formWidth = 450;
     }
     return formWidth;
   }
@@ -229,7 +312,11 @@ export default class RecordInfo extends Component {
         controls,
       });
       let portalConfigSet = {};
-      if (!isPublicShare) {
+      if (
+        !isPublicShare &&
+        !_.get(window, 'shareState.isPublicForm') &&
+        !_.get(window, 'shareState.isPublicWorkflowRecord')
+      ) {
         try {
           portalConfigSet =
             (appId === _.get(window, ['appInfo', 'id']) && !_.get(window, ['appInfo', 'epEnableStatus'])) ||
@@ -272,7 +359,8 @@ export default class RecordInfo extends Component {
             !portalConfigSet.allowExAccountDiscuss &&
             (!portalConfigSet.approved || !isOpenPermit(permitList.approveDetailsSwitch, sheetSwitchPermit, viewId))) ||
           isPublicShare ||
-          _.get(window, 'shareState.isPublicForm')
+          _.get(window, 'shareState.isPublicForm') ||
+          _.get(window, 'shareState.isPublicWorkflowRecord')
             ? false
             : this.state.sideVisible, //外部门户是否开启讨论
         recordinfo: {
@@ -292,6 +380,7 @@ export default class RecordInfo extends Component {
         widgetStyle: data.advancedSetting || this.state.widgetStyle,
         childTableControlIds,
       });
+      this.loadTempValue({ updateTime: data.updateTime });
     } catch (err) {
       console.error(err);
       if (instanceId && workId && err.errorCode === 10) {
@@ -339,9 +428,10 @@ export default class RecordInfo extends Component {
 
   @autobind
   switchRecord(isNext) {
-    const { recordId, iseditting, tempFormData } = this.state;
-    const { worksheetId } = this.props;
-    if (iseditting) {
+    const { recordId, iseditting, tempFormData, restoreVisible } = this.state;
+    const { worksheetId, switchRecordSuccess } = this.props;
+
+    if (iseditting || restoreVisible) {
       alert(_l('请先保存或取消当前更改'), 3);
       return;
     }
@@ -366,11 +456,14 @@ export default class RecordInfo extends Component {
       recordId: newRecordId,
       currentIndex: newIndex,
     });
+    if (typeof switchRecordSuccess === 'function') {
+      switchRecordSuccess(currentSheetRows[newIndex]);
+    }
   }
 
   @autobind
   handleRecordInfoKeyDown(e) {
-    const { tableType, hideRecordInfo } = this.props;
+    const { tableType, showPrevNext } = this.props;
     if (
       tableType === 'classic' &&
       e.key === ' ' &&
@@ -393,22 +486,26 @@ export default class RecordInfo extends Component {
     const canPrev = currentSheetRows.length > 0 && this.state.currentIndex !== 0;
     const canNext = currentSheetRows.length > 0 && this.state.currentIndex !== currentSheetRows.length - 1;
     if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.keyCode === 188) {
-      if (canPrev) {
-        this.switchRecord(false);
-      } else {
-        alert(_l('没有更多了'), 3);
+      if (showPrevNext) {
+        if (canPrev) {
+          this.switchRecord(false);
+        } else {
+          alert(_l('没有更多了'), 3);
+        }
       }
     } else if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.keyCode === 190) {
-      if (canNext) {
-        this.switchRecord(true);
-      } else {
-        alert(_l('没有更多了'), 3);
+      if (showPrevNext) {
+        if (canNext) {
+          this.switchRecord(true);
+        } else {
+          alert(_l('没有更多了'), 3);
+        }
       }
     }
   }
 
   renderDialogs() {
-    const { hideRecordInfo } = this.props;
+    const { viewId, recordId, hideRecordInfo } = this.props;
     const { recordinfo, showCloseDialog } = this.state;
     return (
       <React.Fragment>
@@ -421,6 +518,7 @@ export default class RecordInfo extends Component {
               this.setState({ showCloseDialog: false });
             }}
             onOk={() => {
+              removeTempRecordValueFromLocal('recordInfo', viewId + '-' + this.state.recordId);
               hideRecordInfo();
             }}
           />
@@ -431,13 +529,20 @@ export default class RecordInfo extends Component {
 
   @autobind
   handleFormChange(data, ids = []) {
-    const { from, allowAdd } = this.props;
+    const { from, viewId, recordId, allowAdd } = this.props;
     const { recordinfo, updateControlIds, childTableControlIds } = this.state;
 
     if (childTableControlIds.every(v => _.includes(ids, v))) {
       this.setState({ canSubmitDraft: true });
     }
-
+    const tempRecordValue = getRecordTempValue(data, undefined, { updateControlIds: ids });
+    if (viewId) {
+      saveTempRecordValueToLocal(
+        'recordInfo',
+        viewId + '-' + this.state.recordId,
+        JSON.stringify({ create_at: Date.now(), value: tempRecordValue }),
+      );
+    }
     const allowEdit =
       from === RECORD_INFO_FROM.DRAFT
         ? allowAdd
@@ -447,6 +552,7 @@ export default class RecordInfo extends Component {
     const isDraftChildTableDefault =
       from === RECORD_INFO_FROM.DRAFT && data.filter(t => t.type === 34).some(it => _.get(it, 'value.isDefault'));
     this.setState({
+      restoreVisible: false,
       tempFormData: data.map(c => (c.type === 34 ? { ...c, value: undefined } : c)),
       iseditting: !isDraftChildTableDefault && allowEdit,
       updateControlIds: _.uniqBy(updateControlIds.concat(ids)),
@@ -559,6 +665,7 @@ export default class RecordInfo extends Component {
       hideRows,
       hideRecordInfo,
       updateWorksheetControls,
+      allowEmptySubmit,
     } = this.props;
     const { cellObjs } = this;
     const { recordId, recordinfo } = this.state;
@@ -660,6 +767,7 @@ export default class RecordInfo extends Component {
         })
         .then(res => {
           if (res.resultCode === 1) {
+            removeTempRecordValueFromLocal('recordInfo', viewId + '-' + this.state.recordId);
             alert(_l('记录添加成功'));
             this.props.loadDraftList();
             this.props.hideRecordInfo();
@@ -697,6 +805,7 @@ export default class RecordInfo extends Component {
         updateControlIds,
         updateSuccess,
         isDraft: from === RECORD_INFO_FROM.DRAFT,
+        allowEmptySubmit,
         triggerUniqueError: badData => {
           if (this.recordform.current && _.isFunction(this.recordform.current.uniqueErrorUpdate)) {
             this.recordform.current.uniqueErrorUpdate(badData);
@@ -738,6 +847,7 @@ export default class RecordInfo extends Component {
             recordinfo: { ...recordinfo, formData: newFormData },
             updateControlIds: [],
           });
+          removeTempRecordValueFromLocal('recordInfo', viewId + '-' + this.state.recordId);
           if (_.isFunction(this.refreshEvents.loadcustombtns)) {
             this.refreshEvents.loadcustombtns();
           }
@@ -809,7 +919,9 @@ export default class RecordInfo extends Component {
 
   @autobind
   handleCancelChange() {
+    const { viewId, recordId } = this.props;
     const { recordinfo, updateControlIds } = this.state;
+    removeTempRecordValueFromLocal('recordInfo', viewId + '-' + this.state.recordId);
     emitter.emit('SAVE_CANCEL_RECORD');
     // 清除子表错误状态
     Object.keys(this.cellObjs).forEach(key => {
@@ -858,9 +970,9 @@ export default class RecordInfo extends Component {
 
   @autobind
   refreshSubList() {
-    const { tempFormData, updateControlIds } = this.state;
+    const { tempFormData } = this.state;
     tempFormData
-      .filter(c => _.find(updateControlIds, id => c.controlId === id) && c.type === 34)
+      .filter(c => c.type === 34)
       .forEach(c => {
         if (_.isFunction(this.refreshEvents[c.controlId])) {
           this.refreshEvents[c.controlId](null, { noLoading: true });
@@ -877,8 +989,9 @@ export default class RecordInfo extends Component {
     const {
       allowEdit,
       allowAdd,
+      isOpenNewAddedRecord,
       header,
-      controls,
+      controls = [],
       workflow,
       appId,
       viewId,
@@ -896,8 +1009,9 @@ export default class RecordInfo extends Component {
       sheetSwitchPermit,
       showPrevNext,
       handleAddSheetRow,
-      updateWorksheetControls,
+      updateWorksheetControls = () => {},
       rowStatus,
+      hideEditingBar,
     } = this.props;
     let { isCharge } = this.props;
     if (_.isUndefined(isCharge) && appId) {
@@ -916,6 +1030,7 @@ export default class RecordInfo extends Component {
       showError,
       formFlag,
       iseditting,
+      restoreVisible,
       sideVisible,
       dragMaskVisible,
       allowExAccountDiscuss,
@@ -927,7 +1042,7 @@ export default class RecordInfo extends Component {
       canSubmitDraft,
       childTableControlIds = [],
     } = this.state;
-    const isLock = checkRuleLocked(recordinfo.rules, recordinfo.formData);
+    const isLock = checkRuleLocked(recordinfo.rules, recordinfo.formData, recordId);
     let { width } = this.props;
     if (width > 1600) {
       width = 1600;
@@ -982,8 +1097,9 @@ export default class RecordInfo extends Component {
           }}
         >
           {this.renderDialogs()}
-          {(from !== RECORD_INFO_FROM.WORKFLOW || viewId) && rowStatus !== 21 && (
+          {(from !== RECORD_INFO_FROM.WORKFLOW || viewId) && rowStatus !== 21 && !hideEditingBar && (
             <EditingBar
+              okDisabled={!iseditting}
               loading={submitLoading}
               style={{ width: sideVisible ? formWidth : '100%' }}
               visible={iseditting}
@@ -1000,88 +1116,119 @@ export default class RecordInfo extends Component {
               onCancel={this.handleCancelChange}
             />
           )}
+          {(from !== RECORD_INFO_FROM.WORKFLOW || viewId) && rowStatus !== 21 && (
+            <EditingBar
+              loading={submitLoading}
+              style={{ width: sideVisible ? formWidth : '100%' }}
+              visible={!!restoreVisible}
+              defaultTop={-50}
+              visibleTop={8}
+              title={_l('已恢复到上次中断内容（%0）', window.createTimeSpan(new Date(restoreVisible)))}
+              onUpdate={() => {
+                this.setState({
+                  restoreVisible: false,
+                  iseditting: true,
+                });
+              }}
+              onCancel={() => {
+                removeTempRecordValueFromLocal('recordInfo', viewId + '-' + this.state.recordId);
+                this.setState({
+                  restoreVisible: false,
+                  tempFormData: recordinfo.formData || [],
+                  formFlag: Math.random().toString(32),
+                });
+              }}
+            />
+          )}
           <div
             className={cx('recordInfoCon flexColumn', { abnormal, isWorkflow: from === RECORD_INFO_FROM.WORKFLOW })}
             data-record-id={recordId}
             ref={con => (this.con = con)}
             onClick={e => e.stopPropagation()}
           >
-            {!abnormal && (
-              <Header
-                isCharge={isCharge}
-                from={from}
-                allowExAccountDiscuss={allowExAccountDiscuss}
-                exAccountDiscussEnum={exAccountDiscussEnum}
-                approved={approved}
-                loading={loading}
-                viewId={viewId}
-                header={
-                  from === 21 && !_.isEmpty(childTableControlIds) && !canSubmitDraft ? (
-                    <div className="flex"></div>
-                  ) : (
-                    header
-                  )
-                }
-                isSmall={isSmall}
-                sideVisible={sideVisible}
-                sheetSwitchPermit={sheetSwitchPermit}
-                recordbase={recordbase}
-                recordinfo={recordinfo}
-                iseditting={iseditting}
-                showPrevNext={showPrevNext}
-                switchRecord={this.switchRecord}
-                currentSheetRows={currentSheetRows}
-                currentIndex={currentIndex}
-                addRefreshEvents={(key, fn) => {
-                  this.refreshEvents[key] = fn;
-                }}
-                onRefresh={this.handleRefresh}
-                onSubmit={this.onSubmit}
-                refreshRotating={refreshBtnNeedLoading}
-                hideRecordInfo={hideRecordInfo}
-                reloadRecord={this.handleRefresh}
-                onSideIconClick={() => {
-                  if (from !== RECORD_INFO_FROM.WORKFLOW) {
-                    safeLocalStorageSetItem('recordInfoSideVisible', sideVisible ? '' : 'true');
+            {!abnormal &&
+              !(
+                _.get(window, 'shareState.isPublicView') &&
+                _.get(view, 'viewType') === 6 &&
+                String(_.get(view, 'childType')) === '1'
+              ) && (
+                <Header
+                  isCharge={isCharge}
+                  from={from}
+                  isOpenNewAddedRecord={isOpenNewAddedRecord}
+                  allowExAccountDiscuss={allowExAccountDiscuss}
+                  exAccountDiscussEnum={exAccountDiscussEnum}
+                  approved={approved}
+                  loading={loading}
+                  view={view}
+                  viewId={viewId}
+                  header={
+                    from === 21 && !_.isEmpty(childTableControlIds) && !canSubmitDraft ? (
+                      <div className="flex"></div>
+                    ) : (
+                      header
+                    )
                   }
-                  this.setState({ sideVisible: !sideVisible });
-                }}
-                onCancel={this.handleCancel}
-                onUpdate={(changedValue, record) => {
-                  updateRows([recordId], _.omit(record, ['allowedit', 'allowdelete']), changedValue);
-                  const newFormData = recordinfo.formData.map(c =>
-                    _.assign({}, c, { value: changedValue[c.controlId] || c.value }),
-                  );
-                  Object.keys(changedValue).forEach(key => {
-                    if (_.isFunction(this.refreshEvents[key])) {
-                      this.refreshEvents[key]();
+                  isSmall={isSmall}
+                  sideVisible={sideVisible}
+                  sheetSwitchPermit={sheetSwitchPermit}
+                  recordbase={recordbase}
+                  recordinfo={recordinfo}
+                  iseditting={iseditting}
+                  showPrevNext={showPrevNext}
+                  switchRecord={this.switchRecord}
+                  currentSheetRows={currentSheetRows}
+                  currentIndex={currentIndex}
+                  addRefreshEvents={(key, fn) => {
+                    this.refreshEvents[key] = fn;
+                  }}
+                  onRefresh={this.handleRefresh}
+                  onSubmit={this.onSubmit}
+                  refreshRotating={refreshBtnNeedLoading}
+                  hideRecordInfo={hideRecordInfo}
+                  reloadRecord={this.handleRefresh}
+                  onSideIconClick={() => {
+                    if (from !== RECORD_INFO_FROM.WORKFLOW) {
+                      safeLocalStorageSetItem('recordInfoSideVisible', sideVisible ? '' : 'true');
                     }
-                  });
-                  this.setState({
-                    formFlag: Math.random().toString(),
-                    tempFormData: newFormData,
-                    recordinfo: { ...recordinfo, formData: newFormData },
-                  });
-                }}
-                onDelete={this.handleDelete}
-                handleAddSheetRow={(row, afterRowId) => {
-                  this.loadRecord({ recordId: row.rowid });
-                  this.setState({
-                    recordId: row.rowid,
-                    currentIndex: currentIndex + 1,
-                  });
-                  if (_.isFunction(handleAddSheetRow)) {
-                    handleAddSheetRow(row, afterRowId);
-                  }
-                }}
-              />
-            )}
+                    this.setState({ sideVisible: !sideVisible });
+                  }}
+                  onCancel={this.handleCancel}
+                  onUpdate={(changedValue, record) => {
+                    updateRows([recordId], _.omit(record, ['allowedit', 'allowdelete']), changedValue);
+                    const newFormData = recordinfo.formData.map(c =>
+                      _.assign({}, c, { value: changedValue[c.controlId] || c.value }),
+                    );
+                    Object.keys(changedValue).forEach(key => {
+                      if (_.isFunction(this.refreshEvents[key])) {
+                        this.refreshEvents[key]();
+                      }
+                    });
+                    this.setState({
+                      formFlag: Math.random().toString(),
+                      tempFormData: newFormData,
+                      recordinfo: { ...recordinfo, formData: newFormData },
+                    });
+                  }}
+                  onDelete={this.handleDelete}
+                  handleAddSheetRow={(row, afterRowId) => {
+                    this.loadRecord({ recordId: row.rowid });
+                    this.setState({
+                      recordId: row.rowid,
+                      currentIndex: currentIndex + 1,
+                    });
+                    if (_.isFunction(handleAddSheetRow)) {
+                      handleAddSheetRow(row, afterRowId);
+                    }
+                  }}
+                />
+              )}
             <div className="recordBody flex flexRow">
               {submitLoading && <LoadMask />}
               {dragMaskVisible && (
                 <DragMask
                   value={formWidth}
-                  min={400}
+                  min={450}
                   max={width - 423}
                   onChange={value => {
                     safeLocalStorageSetItem('RECORD_INFO_FORM_WIDTH', value);
@@ -1205,10 +1352,16 @@ export default class RecordInfo extends Component {
                   };
                   this.setState({ relateRecordData: newRelateRecordData });
                 }}
+                updateWorksheetControls={(needUpdateControls = []) => {
+                  updateWorksheetControls(
+                    controls.map(c => _.find(needUpdateControls, { controlId: c.controlId }) || c),
+                  );
+                }}
               />
               {sideVisible && <Drag left={formWidth} onMouseDown={() => this.setState({ dragMaskVisible: true })} />}
               {!abnormal && sideVisible && (
                 <RecordInfoRight
+                  isOpenNewAddedRecord={isOpenNewAddedRecord}
                   allowExAccountDiscuss={allowExAccountDiscuss}
                   exAccountDiscussEnum={exAccountDiscussEnum}
                   approved={approved}

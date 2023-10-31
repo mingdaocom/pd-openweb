@@ -4,7 +4,7 @@ import { TRIGGER_ID } from '../../enum';
 import { Radio } from 'ming-ui';
 import { TriggerCondition } from '../components';
 
-export default ({ data, updateSource, processId, selectNodeId, companyId, renderConditionBtn }) => {
+export default ({ data, updateSource, processId, selectNodeId, companyId, renderConditionBtn, relationId }) => {
   const TYPES = {
     20: {
       icon: 'icon-hr_structure',
@@ -68,6 +68,7 @@ export default ({ data, updateSource, processId, selectNodeId, companyId, render
         <div className="pTop15">
           <TriggerCondition
             processId={processId}
+            relationId={relationId}
             selectNodeId={selectNodeId}
             sourceAppId={data.appId}
             controls={data.controls}

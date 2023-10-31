@@ -18,6 +18,7 @@ import MobileLayout from './mobileLayout';
 import { formatControlsData } from 'src/pages/widgetConfig/util/data';
 import { formatValuesOfCondition } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { formatFilterValuesToServer } from 'worksheet/common/Sheet/QuickFilter';
+import { defaultConfig } from 'src/pages/customPage/components/ConfigSideWrap';
 import './index.less';
 import _ from 'lodash';
 
@@ -46,7 +47,7 @@ const CustomPageWrap = styled.div`
   }
 `;
 
-const mapStateToProps = ({ customPage, sheet }) => ({ ...customPage, ...sheet.base });
+const mapStateToProps = ({ customPage, sheet, appPkg }) => ({ ...customPage, ...sheet.base, appPkg });
 
 const mapDispatchToProps = dispatch => bindActionCreators({ ...actions, updateSheetListAppItem }, dispatch);
 
@@ -69,16 +70,20 @@ export default class CustomPage extends Component {
     updateLoading(true);
     customApi
       .getPage({ appId: pageId })
-      .then(({ components, apk, version }) => {
+      .then(({ components, apk, version, adjustScreen, config }) => {
         components = fillObjectId(components);
         updatePageInfo({
           components,
           pageId,
           version,
+          adjustScreen,
+          config: config || defaultConfig,
           apk: apk || {},
           visible: true,
         });
         this.$originComponents = components;
+        this.$originAdjustScreen = adjustScreen;
+        this.$originConfig = config;
       })
       .always(() => updateLoading(false));
   };
@@ -241,7 +246,15 @@ export default class CustomPage extends Component {
                         btnId,
                       };
                     } else {
-                      return btn;
+                      return {
+                        ...btn,
+                        config: {
+                          ...config,
+                          temporaryWriteControls: undefined,
+                          controls: undefined,
+                          isEmptyWriteControls: undefined,
+                        }
+                      };
                     }
                   }),
                 },
@@ -253,7 +266,32 @@ export default class CustomPage extends Component {
           resolve(newComponents);
         });
       } else {
-        resolve(components);
+        const newComponents = components.map(component => {
+          if (component.type === enumWidgetType.button) {
+            const { buttonList } = component.button;
+            return {
+              ...component,
+              button: {
+                ...component.button,
+                buttonList: buttonList.map(btn => {
+                  const { config } = btn;
+                  return {
+                    ...btn,
+                    config: {
+                      ...config,
+                      temporaryWriteControls: undefined,
+                      controls: undefined,
+                      isEmptyWriteControls: undefined,
+                    }
+                  };
+                }),
+              }
+            };
+          } else {
+            return component;
+          }
+        });
+        resolve(newComponents);
       }
     });
   };
@@ -424,7 +462,7 @@ export default class CustomPage extends Component {
 
   @autobind
   async handleSave() {
-    const { version, ids, components, updatePageInfo, updateSaveLoading } = this.props;
+    const { version, ids, adjustScreen, config, components, updatePageInfo, updateSaveLoading } = this.props;
     const pageId = ids.worksheetId;
 
     updateSaveLoading(true);
@@ -442,6 +480,8 @@ export default class CustomPage extends Component {
         appId: pageId,
         version: version,
         components: newComponents,
+        adjustScreen,
+        config
       })
       .then(({ appId: pageId, version, components }) => {
         if (_.isNumber(version)) {
@@ -449,6 +489,8 @@ export default class CustomPage extends Component {
           this.removeFilterId();
           this.removeFiltersGroup();
           this.$originComponents = components;
+          this.$originAdjustScreen = adjustScreen;
+          this.$originConfig = config;
           updatePageInfo({ components, pageId, version, modified: false });
           alert(_l('保存成功'), 1);
         } else {
@@ -463,7 +505,11 @@ export default class CustomPage extends Component {
 
   cancelModified = () => {
     const { updatePageInfo } = this.props;
-    updatePageInfo({ components: this.$originComponents });
+    updatePageInfo({
+      components: this.$originComponents,
+      adjustScreen: this.$originAdjustScreen,
+      config: this.$originConfig
+    });
     this.handleBack();
   };
 

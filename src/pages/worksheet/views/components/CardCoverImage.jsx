@@ -26,11 +26,12 @@ const CoverImageWrap = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
+    border-radius: 3px 3px 0 0;
+    background: #fff;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     background-clip: content-box;
-    border-radius: 3px 3px 0 0;
 
     &.emptyCoverWrap {
       img {
@@ -104,7 +105,7 @@ const CoverImageWrap = styled.div`
   }
   &.dir-left {
     border: none;
-    border-right: 1px solid rgba(0, 0, 0, 0.08);
+    border-right: 1px solid rgba(0, 0, 0, 0.04);
     &.display-circle,
     &.display-square {
       border: none;

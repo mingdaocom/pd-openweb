@@ -4,7 +4,7 @@ import { CONTROLS_NAME } from '../../../enum';
 import cx from 'classnames';
 import _ from 'lodash';
 
-export default ({ companyId, processId, selectNodeId, data, updateSource }) => {
+export default ({ companyId, processId, relationId, selectNodeId, data, updateSource }) => {
   return data.fields.map((item, i) => {
     const singleObj = _.find(data.subProcessVariables, obj => obj.controlId === item.fieldId) || {};
     const { controlName, sourceEntityName } = singleObj;
@@ -27,6 +27,7 @@ export default ({ companyId, processId, selectNodeId, data, updateSource }) => {
         <SingleControlValue
           companyId={companyId}
           processId={processId}
+          relationId={relationId}
           selectNodeId={selectNodeId}
           sourceNodeId={singleObj.dataSource ? parentNode.nodeId : data.selectNodeId}
           controls={_.cloneDeep(data.subProcessVariables).map(o => {

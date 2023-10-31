@@ -6,6 +6,7 @@ import { switchFilterConditions } from '../../../utils';
 
 export default ({
   companyId,
+  relationId,
   processId,
   selectNodeId,
   data,
@@ -25,6 +26,7 @@ export default ({
       {!!data.conditions.length || !!data.filters.length ? (
         <TriggerCondition
           projectId={companyId}
+          relationId={relationId}
           processId={processId}
           selectNodeId={selectNodeId}
           openNewFilter={openNewFilter}
@@ -35,16 +37,17 @@ export default ({
           filterEncryptCondition={filterEncryptCondition}
         />
       ) : (
-        <div className="mTop15">
+        <div className="addActionBtn mTop15">
           <span
-            className="workflowDetailStartBtn ThemeColor3 ThemeBorderColor3 ThemeHoverColor2 ThemeHoverBorderColor2"
+            className="ThemeBorderColor3"
             onClick={() =>
               updateSource(
                 openNewFilter ? { filters: [{ conditions: [[{}]], spliceType: 2 }] } : { conditions: [[{}]] },
               )
             }
           >
-            {_l('设置筛选条件')}
+            <i className="icon-add Font16" />
+            {_l('筛选条件')}
           </span>
         </div>
       )}

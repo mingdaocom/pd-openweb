@@ -172,6 +172,8 @@ export default class extends Component {
   componentWillReceiveProps(nextProps) {
     const { map, displaySetup, style } = nextProps.reportData;
     const { displaySetup: oldDisplaySetup, style: oldStyle } = this.props.reportData;
+    const chartColor = _.get(nextProps, 'customPageConfig.chartColor');
+    const oldChartColor = _.get(this.props, 'customPageConfig.chartColor');
     // 显示设置
     if (
       displaySetup.showLegend !== oldDisplaySetup.showLegend ||
@@ -180,7 +182,9 @@ export default class extends Component {
       displaySetup.magnitudeUpdateFlag !== oldDisplaySetup.magnitudeUpdateFlag ||
       !_.isEqual(displaySetup.colorRules, oldDisplaySetup.colorRules) ||
       style.funnelShape !== oldStyle.funnelShape ||
-      style.funnelCurvature !== oldStyle.funnelCurvature
+      style.funnelCurvature !== oldStyle.funnelCurvature ||
+      !_.isEqual(chartColor, oldChartColor) ||
+      nextProps.themeColor !== this.props.themeColor
     ) {
       const config = this.getComponentConfig(nextProps);
       this.FunnelChart.update(config);
@@ -242,11 +246,13 @@ export default class extends Component {
     }
   }
   getComponentConfig(props) {
-    const { map, contrastMap, displaySetup, yaxisList, xaxes, style } = props.reportData;
+    const { themeColor, projectId, customPageConfig, reportData } = props;
+    const { chartColor } = customPageConfig;
+    const { map, contrastMap, displaySetup, yaxisList, xaxes, style } = reportData;
     const data = formatChartData(map, displaySetup, xaxes, yaxisList);
     const { position } = getLegendType(displaySetup.legendType);
     const newYaxisList = formatYaxisList(data, yaxisList);
-    const colors = getChartColors(style);
+    const colors = getChartColors(chartColor || style, themeColor, projectId);
     const rule = _.get(displaySetup.colorRules[0], 'dataBarRule') || {};
     const isRuleColor = !_.isEmpty(rule);
     const controlMinAndMax = isRuleColor ? getControlMinAndMax(yaxisList, data) : {};

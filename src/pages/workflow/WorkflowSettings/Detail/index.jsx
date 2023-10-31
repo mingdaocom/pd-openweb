@@ -38,10 +38,16 @@ class Detail extends Component {
    * 渲染内容
    */
   renderContent() {
-    const { selectNodeType } = this.props;
+    const { selectNodeType, relationId, isIntegration } = this.props;
     const NodeComponent = nodeModules[selectNodeType];
 
-    return <NodeComponent {...Object.assign({}, { updateNodeData: this.updateNodeData }, this.props)} />;
+    return (
+      <NodeComponent
+        {...Object.assign({}, { updateNodeData: this.updateNodeData }, this.props, {
+          relationId: isIntegration ? '' : relationId,
+        })}
+      />
+    );
   }
 
   /**

@@ -201,6 +201,8 @@ export default function OcrMap({ data, onChange, onClose, ...rest }) {
   const [ocrMap, setMap] = useState(getAdvanceSetting(data, 'ocrmap') || []);
 
   const renderItem = ({ items, title, withSubList }) => {
+    // 批量：增值税不支持发票明细映射
+    if (enumDefault === 3 && getAdvanceSetting(data, 'ocrmaptype') === 2 && withSubList) return null;
     return (
       <Fragment>
         {title && <div className="title Gray_75">{title}</div>}

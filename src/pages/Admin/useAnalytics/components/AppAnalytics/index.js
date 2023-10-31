@@ -1,7 +1,7 @@
-import React, { Fragment, Component } from 'react';
+import React, { Component } from 'react';
 import Overview from '../Overview';
 import ByUser from '../ByUser';
-import unauthorizedPic from 'src/router/Application/assets/unauthorized.png';
+import unauthorizedPic from 'src/components/UnusualContent/unauthorized.png';
 import styled from 'styled-components';
 import cx from 'classnames';
 import './index.less';

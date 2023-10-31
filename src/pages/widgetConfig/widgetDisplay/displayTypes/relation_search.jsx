@@ -33,7 +33,7 @@ export default function RelationSearch({ data }) {
 
     if (showtype === '2') {
       return (
-        <EditModelWrap>
+        <EditModelWrap isTab={true}>
           {showControls.length > 0 ? (
             <div className="tableWrap" onMouseDown={e => e.stopPropagation()} onMouseMove={e => e.stopPropagation()}>
               <table style={{ width: `${width}px` }}>

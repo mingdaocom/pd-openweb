@@ -12,7 +12,6 @@ import PostMain from './postMain';
 import PostFooter from './postFooter';
 import { navigateTo } from 'src/router/navigateTo';
 import PostCommentList from '../comment/postCommentList';
-import PostTagInput from '../category/postTagInput';
 import PostOperator from './postOperator';
 
 /**
@@ -84,16 +83,6 @@ class PostBody extends React.Component {
       focusCommentBox: true,
       showLikedUsers: false,
     });
-  };
-
-  toggleTagBox = () => {
-    if (this.state.selectedOperation === postEnum.OPERATE_TYPE.tag) {
-      this.setState({
-        selectedOperation: undefined,
-      });
-      return;
-    }
-    this.setState({ selectedOperation: postEnum.OPERATE_TYPE.tag });
   };
 
   toggleJoinOperator = () => {
@@ -234,23 +223,6 @@ class PostBody extends React.Component {
             )}
           </span>
 
-          <span
-            className={cx(
-              'postActionIcon ThemeBorderColor5 Hand',
-              this.state.selectedOperation === postEnum.OPERATE_TYPE.tag ? 'ThemeColor3' : 'ThemeColor4',
-            )}
-            onClick={this.props.isSummary ? this.gotoPostDetail : this.toggleTagBox}
-            data-tip={_l('添加标签')}
-          >
-            <i
-              ref={tagButton => {
-                this.tagButton = tagButton;
-              }}
-              className={'icon-category-tags'}
-            />
-            <span>{postItem.tags ? postItem.tags.length || 0 : 0}</span>
-          </span>
-
           {!postItem.Secretary && postItem.user ? (
             <span className={cx('postActionIcon ThemeBorderColor5', postItem.liked ? 'ThemeColor3' : 'ThemeColor4')}>
               <span data-tip={postItem.liked ? _l('取消点赞') : _l('点赞')}>
@@ -293,8 +265,6 @@ class PostBody extends React.Component {
             showLikedUsers={this.state.showLikedUsers}
           />
         ) : undefined}
-
-        {this.state.selectedOperation === postEnum.OPERATE_TYPE.tag ? <PostTagInput postItem={postItem} /> : undefined}
       </div>
     );
   }

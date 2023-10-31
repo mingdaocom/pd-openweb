@@ -53,11 +53,12 @@ export default class Con extends React.Component {
           viewId,
           rowId: rowId || rowIdForQr,
           objectType: 2,
+          printId,
         })
         .then(({ shareLink }) => {
           let url = shareLink;
+
           if (
-            from === fromType.PRINT &&
             type === typeForCon.PREVIEW &&
             isDefault &&
             printId &&
@@ -92,8 +93,9 @@ export default class Con extends React.Component {
       viewIdForPermit: viewId,
       controls,
     };
+    let visibleControls = getVisibleControls(controls);
     const controlData = putControlByOrder(
-      replaceHalfWithSizeControls(getVisibleControls(controls).filter(o => ![...UNPRINTCONTROL, 52].includes(o.type))),
+      replaceHalfWithSizeControls(visibleControls.filter(l => !l.sectionId || visibleControls.find(o => o.controlId === l.sectionId)).filter(o => !UNPRINTCONTROL.includes(o.type))),
     );
     let isHideNull = !showData && !(from === fromType.FORMSET && type !== typeForCon.PREVIEW);
     const tableList = [];
@@ -104,7 +106,7 @@ export default class Con extends React.Component {
 
       let isRelationControls = item.length === 1 && isRelation(item[0]);
 
-      if (isRelationControls || item[0].type === 22) {
+      if (isRelationControls || [22, 52].includes(item[0].type)) {
         tableList.push([item]);
         preRelationControls = true;
       } else if (tableList.length === 0 || preRelationControls) {
@@ -151,17 +153,19 @@ export default class Con extends React.Component {
             return this.renderRelations(item[0]);
           }
           let hideNum = 0;
-          if (tableData[0][0].type === 22) {
+          if ([22, 52].includes(tableData[0][0].type)) {
+            let type = tableData[0][0].type;
             return tableData[0][0].checked ? (
               <p
                 style={{
                   lineHeight: 1.5,
                   verticalAlign: top,
                   width: '100%',
-                  borderBottom: '0.1px solid rgb(117, 117, 117)',
+                  borderBottom: type === 52 ? 'none' : '0.1px solid rgb(117, 117, 117)',
                   fontSize: 15,
                   fontWeight: 'bold',
                   margin: '24px 0 5px',
+                  textAlign: type === 52 ? 'center' : 'left',
                 }}
               >
                 {tableData[0][0].controlName || ''}
@@ -545,6 +549,8 @@ export default class Con extends React.Component {
                                 style={{
                                   ...expStyle,
                                   whiteSpace: 'pre-wrap',
+                                  verticalAlign: 'top',
+                                  paddingLeft: 5,
                                 }}
                               >
                                 {getPrintContent(data)}
@@ -573,10 +579,13 @@ export default class Con extends React.Component {
 
   renderWorks = (_works = undefined, _name) => {
     const { printData } = this.props;
-    const { workflow = [], processName } = printData;
+    const { workflow = [], processName, approvePosition } = printData;
     const works = _works || workflow;
     const visibleItemLength = works.filter(item => item.checked).length;
     const name = _works ? _name : processName;
+
+    const signatures = this.getApprovalSignatures(works.filter(l => l.checked));
+    const deep_signatures = _.chunk(signatures, 5);
 
     return (
       <div style={{ marginTop: 24 }}>
@@ -646,7 +655,7 @@ export default class Con extends React.Component {
                           backgroundColor: '#fafafa',
                         }}
                       >
-                        {_l('备注')}
+                        {approvePosition === 0 ? _l('备注/签名') : _l('备注')}
                       </th>
                     </tr>
                     {works.map((item, index) => {
@@ -666,6 +675,7 @@ export default class Con extends React.Component {
                                 rowSpan={item.workItems.length}
                               >
                                 {item.flowNode.name}
+                                {item.multipleLevelType !== 0 && item.sort && ` (${item.sort})`}
                               </td>
                             )}
                             <td
@@ -725,7 +735,7 @@ export default class Con extends React.Component {
                                     workItemLog.fields.map(({ name, toValue }) => (
                                       <span>{_l('%0: %1', name, toValue)}</span>
                                     ))}
-                                  {signature ? (
+                                  {signature && !approvePosition ? (
                                     <div
                                       style={STYLE_PRINT.worksTable_workPersons_infoSignature}
                                       className="infoSignature"
@@ -746,16 +756,68 @@ export default class Con extends React.Component {
                 </table>
               </div>
             </div>
+            {!!signatures.length && approvePosition > 0 && (
+              <React.Fragment>
+                <p style={{ marginTop: 20, marginBottom: 10, fontSize: 12 }}>{_l('签名')}</p>
+                <table
+                  className="approvalSignatureTable"
+                  style={{
+                    ...STYLE_PRINT.table,
+                    marginTop: 0,
+                    marginBottom: 30,
+                    width: 'auto',
+                  }}
+                  border="0"
+                  cellPadding="0"
+                  cellSpacing="0"
+                >
+                  {deep_signatures.map((tdList, index) => {
+                    return (
+                      <tr key={`approvalSignature-${name}-tr-${index}`}>
+                        {[0, 1, 2, 3, 4].map(tdItem => (
+                          <td
+                            width={160}
+                            style={{
+                              width: 160,
+                              height: 45,
+                              paddingRight: tdItem === 4 ? 0 : 32,
+                              paddingBottom: index + 1 === deep_signatures.length ? 0 : 10,
+                            }}
+                          >
+                            {tdList[tdItem] ? (
+                              <div style={STYLE_PRINT.worksTable_workPersons_infoSignature} className="infoSignature">
+                                <img src={`${tdList[tdItem].server}`} alt="" srcset="" onLoad={this.signLoadSet} />
+                              </div>
+                            ) : null}
+                          </td>
+                        ))}
+                      </tr>
+                    );
+                  })}
+                </table>
+              </React.Fragment>
+            )}
           </React.Fragment>
         )}
       </div>
     );
   };
 
+  getApprovalSignatures = workList => {
+    let signatures = [];
+    workList.forEach(item => {
+      const signature = _.flatMapDeep(item.workItems, l => {
+        return l.signature;
+      }).filter(l => l && l.server);
+      signatures = signatures.concat(signature);
+    });
+    return signatures;
+  };
+
   renderApproval = () => {
     const { printData, sheetSwitchPermit, params } = this.props;
     const { viewId } = params;
-    const { approval = [] } = printData;
+    const { approval = [], approvePosition } = printData;
     const visibleItem = approval.filter(item => item.child.some(l => l.checked));
 
     if (!isOpenPermit(permitList.approveDetailsSwitch, sheetSwitchPermit, viewId)) {
@@ -776,7 +838,12 @@ export default class Con extends React.Component {
                         checked: l.checked,
                       };
                     });
-                    return this.renderWorks(_workList, l.processInfo.processName);
+
+                    return (
+                      <React.Fragment>
+                        {this.renderWorks(_workList, l.processInfo.processName)}
+                      </React.Fragment>
+                    );
                   })}
                 </div>
               );
@@ -942,10 +1009,10 @@ export default class Con extends React.Component {
                 <table
                   style={{
                     ...STYLE_PRINT.table,
-                    marginTop: 50,
+                    marginTop: 40,
                     marginBottom: 30,
                     width: 'auto',
-                    marginLeft: 56,
+                    boxSizing: 'content-box',
                   }}
                   border="0"
                   cellPadding="0"
@@ -957,70 +1024,29 @@ export default class Con extends React.Component {
                   ).map((tdList, index) => {
                     return (
                       <tr key={`signature-tr-${index}`} style={{ verticalAlign: 'top' }}>
-                        <td
-                          width={168}
-                          style={{
-                            width: 168,
-                            height: 100,
-                          }}
-                        >
-                          {tdList[3] ? (
-                            <React.Fragment>
-                              <div style={{ fontWeight: 'bold' }}>{tdList[3].controlName}</div>
-                              <div style={{ textAlign: 'center' }} className="infoSignature">
-                                <img style={{ marginTop: 10 }} src={tdList[3].value} onLoad={this.signLoadSet} />
-                              </div>
-                            </React.Fragment>
-                          ) : null}
-                        </td>
-                        <td
-                          width={168}
-                          style={{
-                            width: 168,
-                            height: 100,
-                          }}
-                        >
-                          {tdList[2] ? (
-                            <React.Fragment>
-                              <div style={{ fontWeight: 'bold' }}>{tdList[2].controlName}</div>
-                              <div style={{ textAlign: 'center' }} className="infoSignature">
-                                <img style={{ marginTop: 10 }} src={tdList[2].value} onLoad={this.signLoadSet} />
-                              </div>
-                            </React.Fragment>
-                          ) : null}
-                        </td>
-                        <td
-                          width={168}
-                          style={{
-                            width: 168,
-                            height: 100,
-                          }}
-                        >
-                          {tdList[1] ? (
-                            <React.Fragment>
-                              <div style={{ fontWeight: 'bold' }}>{tdList[1].controlName}</div>
-                              <div style={{ textAlign: 'center' }} className="infoSignature">
-                                <img style={{ marginTop: 10 }} src={tdList[1].value} onLoad={this.signLoadSet} />
-                              </div>
-                            </React.Fragment>
-                          ) : null}
-                        </td>
-                        <td
-                          width={168}
-                          style={{
-                            width: 168,
-                            height: 100,
-                          }}
-                        >
-                          {tdList[0] ? (
-                            <React.Fragment>
-                              <div style={{ fontWeight: 'bold' }}>{tdList[0].controlName}</div>
-                              <div style={{ textAlign: 'center' }} className="infoSignature">
-                                <img style={{ marginTop: 10 }} src={tdList[0].value} onLoad={this.signLoadSet} />
-                              </div>
-                            </React.Fragment>
-                          ) : null}
-                        </td>
+                        {[0, 1, 2, 3].map(tdIndex => (
+                          <td
+                            width={168}
+                            style={{
+                              width: 168,
+                              height: 100,
+                              paddingRight: tdIndex === 3 ? 0 : 20,
+                            }}
+                          >
+                            {tdList[tdIndex] ? (
+                              <React.Fragment>
+                                <div style={{ fontWeight: 'bold' }}>{tdList[tdIndex].controlName}</div>
+                                <div className="infoSignature">
+                                  <img
+                                    style={{ marginTop: 20 }}
+                                    src={tdList[tdIndex].value}
+                                    onLoad={this.signLoadSet}
+                                  />
+                                </div>
+                              </React.Fragment>
+                            ) : null}
+                          </td>
+                        ))}
                       </tr>
                     );
                   })}

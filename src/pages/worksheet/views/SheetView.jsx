@@ -5,11 +5,18 @@ import { bindActionCreators } from 'redux';
 import { autobind } from 'core-decorators';
 import { v4 as uuidv4 } from 'uuid';
 import autoSize from 'ming-ui/decorators/autoSize';
-import { emitter, sortControlByIds, getLRUWorksheetConfig } from 'worksheet/util';
+import {
+  emitter,
+  sortControlByIds,
+  getLRUWorksheetConfig,
+  getRecordColorConfig,
+  openLinkFromRecord,
+  handleRecordClick,
+} from 'worksheet/util';
 import { getRowDetail } from 'worksheet/api';
 import { editRecord } from 'worksheet/common/editRecord';
-import { ROW_HEIGHT, SHEET_VIEW_HIDDEN_TYPES } from 'worksheet/constants/enum';
-import Skeleton from 'src/router/Application/Skeleton';
+import { ROW_HEIGHT, SHEET_VIEW_HIDDEN_TYPES, VIEW_CONFIG_RECORD_CLICK_ACTION } from 'worksheet/constants/enum';
+import { Skeleton } from 'ming-ui';
 import WorksheetTable from 'worksheet/components/WorksheetTable';
 import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
 import { ColumnHead, SummaryCell, RowHead } from 'worksheet/components/WorksheetTable/components/';
@@ -57,11 +64,16 @@ class TableView extends React.Component {
   }
 
   componentDidMount() {
-    const { view, fetchRows, setRowsEmpty } = this.props;
-    if (_.get(view, 'advancedSetting.clicksearch') !== '1' || this.readonly) {
+    const { view, fetchRows, setRowsEmpty, navGroupFilters } = this.props;
+    if (!!this.chartId) {
       fetchRows({ isFirst: true });
-    } else {
+    } else if (
+      _.get(view, 'advancedSetting.clicksearch') === '1' ||
+      (this.navGroupToSearch() && _.isEmpty(navGroupFilters))
+    ) {
       setRowsEmpty();
+    } else {
+      fetchRows({ isFirst: true });
     }
     document.body.addEventListener('click', this.outerClickEvent);
     emitter.addListener('RELOAD_RECORD_INFO', this.updateRecordEvent);
@@ -70,19 +82,17 @@ class TableView extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { view, fetchRows, setRowsEmpty, changePageIndex, refresh, sheetViewData } = nextProps;
+    const { view, fetchRows, setRowsEmpty, changePageIndex, refresh, sheetViewData, navGroupFilters } = nextProps;
     const changeView = this.props.worksheetId === nextProps.worksheetId && this.props.viewId !== nextProps.viewId;
     if (!_.isEqual(_.get(nextProps, ['navGroupFilters']), _.get(this.props, ['navGroupFilters']))) {
       changePageIndex(1);
     }
-    if (sheetViewData.loading) {
-      return;
-    }
+    const noNavGroup = this.navGroupToSearch(nextProps) && _.isEmpty(navGroupFilters);
     if (changeView) {
-      if (_.get(view, 'advancedSetting.clicksearch') !== '1') {
-        fetchRows({ changeView });
-      } else {
+      if (noNavGroup || _.get(view, 'advancedSetting.clicksearch') === '1') {
         setRowsEmpty();
+      } else {
+        fetchRows({ changeView });
       }
     } else if (
       _.some(
@@ -92,11 +102,18 @@ class TableView extends React.Component {
           'view.advancedSetting.clicksearch',
           'view.advancedSetting.enablerules',
           'navGroupFilters',
+          'view.navGroup',
+          'view.advancedSetting.showallitem',
+          'view.advancedSetting.shownullitem',
         ],
         key => !_.isEqual(_.get(nextProps, key), _.get(this.props, key)),
       )
     ) {
-      fetchRows();
+      if (noNavGroup) {
+        setRowsEmpty();
+      } else {
+        fetchRows();
+      }
     } else if (
       _.get(this.props, 'view.advancedSetting.refreshtime') !== _.get(nextProps, 'view.advancedSetting.refreshtime')
     ) {
@@ -109,6 +126,15 @@ class TableView extends React.Component {
       refresh();
     }
   }
+
+  navGroupToSearch = props => {
+    const { view, worksheetInfo } = props || this.props;
+    const navGroupData = (_.get(worksheetInfo, 'template.controls') || []).find(
+      o => o.controlId === _.get(view, 'navGroup[0].controlId'),
+    );
+    //设置了筛选列表，且未显示全部，需选择分组后显示
+    return !!navGroupData && _.get(view, 'advancedSetting.showallitem') === '1' && _.get(view, 'navGroup').length > 0;
+  };
 
   shouldComponentUpdate(nextProps, nextState) {
     return (
@@ -229,22 +255,24 @@ class TableView extends React.Component {
 
   @autobind
   handleCellClick(cell, row, rowIndex) {
-    const { setHighLight, worksheetId } = this.props;
     if (_.get(this, 'props.worksheetInfo.isRequestingRelationControls')) {
       return;
     }
-    if (location.pathname.indexOf('public') === -1) {
-      addBehaviorLog('worksheetRecord', worksheetId, { rowId: row.rowid }); // 埋点
-    }
-    setHighLight(this.tableId, rowIndex);
-    const newState = {
-      recordInfoVisible: true,
-      recordId: row.rowid,
-    };
-    if (cell.type === 29 && cell.enumDefault === 2) {
-      newState.activeRelateTableControlIdOfRecord = cell.controlId;
-    }
-    this.setState(newState);
+    const { setHighLight, worksheetId, view } = this.props;
+    handleRecordClick(view, row, () => {
+      if (location.pathname.indexOf('public') === -1) {
+        addBehaviorLog('worksheetRecord', worksheetId, { rowId: row.rowid }); // 埋点
+      }
+      setHighLight(this.tableId, rowIndex);
+      const newState = {
+        recordInfoVisible: true,
+        recordId: row.rowid,
+      };
+      if (cell && cell.type === 29 && cell.enumDefault === 2) {
+        newState.activeRelateTableControlIdOfRecord = cell.controlId;
+      }
+      this.setState(newState);
+    });
   }
 
   @autobind
@@ -432,7 +460,7 @@ class TableView extends React.Component {
     if (this.tableType !== 'classic' && showOperate && !showNumber && !this.hasBatch) {
       rowHeadWidth -= 18;
     }
-    return rowHeadWidth;
+    return rowHeadWidth + 8;
   }
 
   @autobind
@@ -466,6 +494,7 @@ class TableView extends React.Component {
       changePageIndex,
       filters,
       quickFilter,
+      navGroupFilters,
       refresh,
       clearSelect,
       updateRows,
@@ -520,6 +549,7 @@ class TableView extends React.Component {
             },
             selectedRows: sheetSelectedRows,
             worksheetInfo,
+            navGroupFilters,
           });
         }}
         updateDefaultScrollLeft={({ xOffset = 0 } = {}) => {
@@ -652,12 +682,7 @@ class TableView extends React.Component {
         setHighLight={setHighLight}
         refreshWorksheetControls={refreshWorksheetControls}
         onOpenRecord={() => {
-          if (data[rowIndex]) {
-            this.setState({
-              recordInfoVisible: true,
-              recordId: data[rowIndex].rowid,
-            });
-          }
+          this.handleCellClick(undefined, data[rowIndex], rowIndex);
         }}
       />
     );
@@ -722,6 +747,7 @@ class TableView extends React.Component {
       worksheetInfo,
       filters,
       quickFilter,
+      navGroupFilters,
       controls,
     } = this.props;
     // function
@@ -753,13 +779,16 @@ class TableView extends React.Component {
       disableMaskDataControls,
     } = this.state;
     const { lineNumberBegin, columns } = this;
-    const needClickToSearch = !readonly && _.get(view, 'advancedSetting.clicksearch') === '1';
+    const needClickToSearch = !this.chartId && _.get(view, 'advancedSetting.clicksearch') === '1';
     const showSummary = (_.get(view, 'advancedSetting.showsummary') || '1') === '1';
     const showVerticalLine = (_.get(view, 'advancedSetting.showvertical') || '1') === '1';
     const showAsZebra = (_.get(view, 'advancedSetting.alternatecolor') || '0') === '1'; // 斑马颜色
     const wrapControlName = (_.get(view, 'advancedSetting.titlewrap') || '0') === '1';
     const lineEditable = (_.get(view, 'advancedSetting.fastedit') || '1') === '1' && !isRequestingRelationControls;
     const enableRules = (_.get(view, 'advancedSetting.enablerules') || '1') === '1';
+    const navGroupData = (_.get(worksheetInfo, 'template.controls') || []).find(
+      o => o.controlId === _.get(view, 'navGroup[0].controlId'),
+    );
     const { rowHeadWidth } = this;
     return (
       <React.Fragment>
@@ -830,6 +859,7 @@ class TableView extends React.Component {
             tableType={this.tableType}
             readonly={readonly}
             ref={this.table}
+            recordColorConfig={getRecordColorConfig(view)}
             watchHeight={!browserIsMobile()}
             tableId={this.tableId}
             viewId={viewId}
@@ -881,10 +911,23 @@ class TableView extends React.Component {
             renderColumnHead={this.renderColumnHead}
             renderRowHead={this.renderRowHead}
             noRecordAllowAdd={false}
-            emptyIcon={needClickToSearch && _.isEmpty(quickFilter) ? <span /> : undefined}
+            emptyIcon={
+              (needClickToSearch && _.isEmpty(quickFilter)) ||
+              (this.navGroupToSearch() && _.isEmpty(navGroupFilters)) ? (
+                <span />
+              ) : undefined
+            }
+            showSearchEmpty={
+              !(
+                (needClickToSearch && _.isEmpty(quickFilter)) ||
+                (this.navGroupToSearch() && _.isEmpty(navGroupFilters))
+              )
+            }
             emptyText={
               needClickToSearch && _.isEmpty(quickFilter) ? (
                 <span className="Font14">{_l('执行查询后显示结果')}</span>
+              ) : this.navGroupToSearch() && _.isEmpty(navGroupFilters) ? (
+                <span className="Font14">{_l('请从左侧选择一个%0查看', (navGroupData || {}).controlName)}</span>
               ) : undefined
             }
             updateCell={({ cell, row }, options) => {

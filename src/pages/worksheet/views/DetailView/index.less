@@ -1,0 +1,78 @@
+.detailViewWrapper {
+  display: flex;
+  width: 100%;
+  height: 100%;
+
+  .leftList {
+    display: flex;
+    position: relative;
+
+    .empty {
+      position: absolute;
+      top: 50%;
+      width: 100%;
+      text-align: center;
+      color: #9e9e9e;
+    }
+    .detailItem {
+      .recordOperateWrap {
+        display: none;
+      }
+      .detailCardItem {
+        border: 1px solid transparent;
+        border-top-color: rgba(0, 0, 0, 0.06);
+        border-bottom-color: rgba(0, 0, 0, 0.06);
+      }
+      &:hover {
+        .detailCardItem {
+          border: 1px solid #d9d9d9;
+        }
+      }
+      &.isActive {
+        .detailCardItem {
+          border: 1px solid #d9d9d9;
+          box-shadow: inset 0px 0px 0px 1000px rgba(33, 150, 243, 0.1);
+        }
+        &.hasBgColor {
+          .detailCardItem {
+            border: 1px solid #d9d9d9;
+            box-shadow: inset 0px 0px 0px 1000px rgba(0, 0, 0, 0.05);
+          }
+        }
+      }
+    }
+    .detailNavDrag {
+      z-index: 10;
+    }
+  }
+  .rightRecord {
+    flex: 1;
+    position: relative;
+    overflow-x: auto;
+
+    .workSheetRecordInfo {
+      min-width: 870px;
+    }
+    .recordHeader {
+      padding-right: 24px;
+      .closeBtn {
+        display: none;
+      }
+    }
+    &.isSingle {
+      .recordHeader {
+        .refreshBtn {
+          display: none;
+        }
+      }
+      .recordInfoForm {
+        .recordInfoFormHeader {
+          display: none;
+        }
+        .recordInfoFormContent {
+          padding-top: 12px;
+        }
+      }
+    }
+  }
+}

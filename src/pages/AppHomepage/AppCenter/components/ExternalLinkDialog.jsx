@@ -5,7 +5,7 @@ import Dialog from 'ming-ui/components/Dialog';
 import { Input, Icon, Tooltip, TagTextarea, Checkbox } from 'ming-ui';
 import styled from 'styled-components';
 import { LINK_PARA_FIELDS, PUBLISH_CONFIG_OPTIONS } from '../constant';
-import { COLORS } from 'src/pages/AppHomepage/components/SelectIcon/config';
+import { getThemeColors } from 'src/util';
 import { generate } from '@ant-design/colors';
 import { USER_LIST, SYSTEM_LIST } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config';
 
@@ -162,6 +162,7 @@ export default function ExternalLinkDialog(props) {
     if (isEdit) {
       onAppChange({ projectId, appId: record.id, ...appInfo }, true);
     } else {
+      const COLORS = getThemeColors(projectId);
       const iconColor = COLORS[_.random(0, COLORS.length - 1)];
       const lightColor = generate(iconColor)[0];
       createAppFromEmpty({

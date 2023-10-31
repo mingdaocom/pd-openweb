@@ -206,8 +206,8 @@ export default class Start extends Component {
 
       if (
         appType === APP_TYPE.APPROVAL_START &&
-        ((processConfig.initiatorMaps[5] && !processConfig.initiatorMaps[5].length) ||
-          (processConfig.userTaskNullMaps[5] && !processConfig.userTaskNullMaps[5].length))
+        ((processConfig.initiatorMaps[5] && !(processConfig.initiatorMaps[5] || []).length) ||
+          (processConfig.userTaskNullMaps[5] && !(processConfig.userTaskNullMaps[5] || []).length))
       ) {
         alert(_l('必须指定代理人'), 2);
         return;
@@ -301,17 +301,13 @@ export default class Start extends Component {
     const isNatural = data.appId || _.includes([APP_TYPE.USER, APP_TYPE.DEPARTMENT], data.appType);
 
     return (
-      <div className="mTop25">
+      <div className="addActionBtn mTop25">
         <span
-          className={cx(
-            'workflowDetailStartBtn',
-            isNatural
-              ? 'ThemeColor3 ThemeBorderColor3 ThemeHoverColor2 ThemeHoverBorderColor2'
-              : 'Gray_bd borderColor_c',
-          )}
+          className={isNatural ? 'ThemeBorderColor3' : 'Gray_bd borderColor_c'}
           onClick={() => isNatural && this.updateSource({ operateCondition: [[{}]] })}
         >
-          {_l('设置筛选条件')}
+          <i className="icon-add Font16" />
+          {_l('筛选条件')}
         </span>
         <div className={cx('mTop10', isNatural ? 'Gray_9e' : 'Gray_bd')}>
           {_l('设置筛选条件，仅使满足条件的记录进入流程。')}

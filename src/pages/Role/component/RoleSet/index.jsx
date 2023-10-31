@@ -307,15 +307,19 @@ export default class RoleSet extends PureComponent {
         promiseAjax = Ajax.addRole(param);
       }
       promiseAjax.then(res => {
-        if (res) {
+        if (res.resultCode === 1) {
           this.setState({
             hasChange: false,
             saveLoading: false,
           });
-          editCallback(res, isConfirm);
+          editCallback(res.roleId, isConfirm);
           alert(_l('创建成功'));
+        } else if (res.resultCode === 2) {
+          alert(_l('角色名称重复，请重新命名'), 3);
+          this.setState({ saveLoading: false });
         } else {
           alert(_l('创建失败'), 2);
+          this.setState({ saveLoading: false });
         }
       });
     } else {
@@ -341,7 +345,7 @@ export default class RoleSet extends PureComponent {
         promiseAjax = Ajax.editAppRole(param);
       }
       return promiseAjax.then(res => {
-        if (res) {
+        if (res === 1) {
           this.setState({
             hasChange: false,
             saveLoading: false,
@@ -349,8 +353,12 @@ export default class RoleSet extends PureComponent {
           });
           editCallback(roleId, isConfirm);
           alert(_l('保存成功'));
+        } else if (res === 2) {
+          alert(_l('角色名称重复，请重新命名'), 3);
+          this.setState({ saveLoading: false });
         } else {
           alert(_l('编辑失败'), 2);
+          this.setState({ saveLoading: false });
         }
       });
     }

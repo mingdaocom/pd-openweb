@@ -8,6 +8,9 @@
   background-color: #fff;
   box-shadow: 0 16px 30px rgba(0, 0, 0, 0.3);
   z-index: 12;
+  .mTop14 {
+    margin-top: 14px;
+  }
 
   .bgCustomBtnCon {
     position: fixed;
@@ -113,20 +116,24 @@
 
     .filterTextCon {
       width: 100%;
-      background: #f5f5f5;
+      background: #f8f8f8;
       border: 1px solid #dddddd;
       border-radius: 3px;
-      padding: 8px 12px 10px;
+      padding: 16px;
       box-sizing: border-box;
       color: #333;
-      margin-top: 10px;
+      margin-top: 12px;
       display: flex;
+      &.createCon {
+        background: #fff;
+        display: block;
+      }
 
       .txtFilter {
         flex: 1;
-        font-size: 14px;
+        font-size: 13px;
         color: #333;
-        line-height: 20px;
+        line-height: 24px;
 
         p {
           line-height: 22px;
@@ -160,67 +167,6 @@
       .editWorkflow {
         width: auto;
         color: #2196f3;
-      }
-    }
-
-    .customBtnColorBox {
-      ul {
-        display: block;
-
-        .colorLi {
-          display: inline-block;
-          width: 28px;
-          height: 28px;
-          border-radius: 50%;
-          margin-right: 14px;
-          text-align: center;
-          line-height: 28px;
-          vertical-align: top;
-          transition: all 0.4s ease;
-
-          &:hover,
-          &.current {
-            transform: scale(1.22);
-          }
-
-          .check {
-            color: #fff;
-            vertical-align: middle;
-            font-size: 18px;
-          }
-        }
-      }
-    }
-
-    .customBtnIconBox {
-      ul {
-        .iconLi {
-          min-width: 28px;
-          height: 28px;
-          border-radius: 4px;
-          line-height: 27px;
-          text-align: center;
-          display: inline-block;
-          color: #9e9e9e;
-          margin-right: 8px;
-          margin-bottom: 8px;
-          font-size: 22px;
-          vertical-align: top;
-          cursor: pointer;
-
-          &:hover {
-            background: #f5f5f5;
-          }
-
-          &.current {
-            color: #fff;
-          }
-        }
-
-        .iconLi:nth-child(1) {
-          font-size: 17px;
-          font-weight: 700;
-        }
       }
     }
 
@@ -273,6 +219,23 @@
       color: #2196f3;
       margin-left: 16px;
       padding: 0 32px;
+    }
+  }
+  .conBox {
+    min-width: 140px;
+    height: 36px;
+    background: #ffffff;
+    border: 1px solid #dddddd;
+    opacity: 1;
+    border-radius: 3px;
+    padding: 4px;
+    .colorCon {
+      width: 102px;
+      height: 28px;
+      border: 1px solid #e0e0e0;
+      opacity: 1;
+      border-radius: 3px;
+      color: #fff;
     }
   }
 }
@@ -458,5 +421,72 @@
   background-color: #f44336 !important;
   .Tooltip-arrow {
     border-bottom-color: #f44336 !important;
+  }
+}
+.buttonTrigger {
+  min-width: 200px;
+  max-width: 400px;
+  background: #ffffff;
+  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.24);
+  opacity: 1;
+  border-radius: 3px;
+  padding: 16px;
+  .op {
+    width: 20px;
+  }
+  .buttonSetLi {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    margin-right: 12px;
+    text-align: center;
+    vertical-align: top;
+    transition: all 0.4s ease;
+    border-style: solid;
+    border-width: 1px;
+    &:last-child {
+      margin-right: 0;
+    }
+
+    .check {
+      color: #fff;
+      vertical-align: middle;
+      font-size: 18px;
+    }
+    &.colorLi {
+      &:hover,
+      &.current {
+        transform: scale(1.22);
+      }
+    }
+    &.iconLi {
+      min-width: 28px;
+      height: 28px;
+      border-radius: 4px;
+      line-height: 27px;
+      text-align: center;
+      display: inline-block;
+      color: #9e9e9e;
+      margin: 4px;
+      font-size: 22px;
+      vertical-align: top;
+      cursor: pointer;
+      border: none;
+
+      &:hover {
+        background: #f5f5f5;
+      }
+
+      &.current {
+        color: #fff;
+        background: #2196f3;
+      }
+    }
+
+    .iconLi:nth-child(1) {
+      font-size: 17px;
+      font-weight: 700;
+    }
   }
 }

@@ -110,12 +110,22 @@ export function getAllAppSectionDetail(appId, callBack) {
     }).then(result => {
       const { permissionType, isLock, sections = [] } = result;
       const isCharge = canEditApp(permissionType, isLock);
+      const filterSections = isCharge
+        ? sections
+        : sections
+            .map(item => {
+              return {
+                ...item,
+                workSheetInfo: item.workSheetInfo.filter(o => o.status === 1 && !o.navigateHide),
+              };
+            })
+            .filter(o => o.workSheetInfo && o.workSheetInfo.length > 0);
       dispatch(updateIsCharge(isCharge));
-      dispatch(updateAppGroup(sections));
+      dispatch(updateAppGroup(filterSections));
       dispatch(updateAppPkgData({ appRoleType: permissionType, isLock }))
       dispatch(
         updateALLSheetList(
-          sections.map(data => {
+          filterSections.map(data => {
             return {
               ...data,
               workSheetId: data.appSectionId,

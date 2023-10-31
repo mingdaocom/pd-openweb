@@ -1,4 +1,5 @@
 import React, { Fragment } from 'react';
+import cx from 'classnames';
 import Sidenav from './components/sidenav';
 import Header from './components/header';
 import Con from './components/content';
@@ -269,22 +270,24 @@ class PrintForm extends React.Component {
     if (controls.length === 0) return;
     let promiseList = controls.map(control => {
       const newFilter = getFilter({
-        control: { ...control, recordId: rowId },
+        control: { ...control, recordId: rowId || printData.rowIdForQr },
         formData: receiveControls,
         filterKey: 'resultfilters',
       });
 
-      return sheetAjax.getRowRelationRows({
-        worksheetId,
-        controlId: control.controlId,
-        getRules: true,
-        getWorksheet: true,
-        keywords: '',
-        pageIndex: 1,
-        pageSize: 1000,
-        rowId,
-        filterControls: newFilter,
-      });
+      return newFilter
+        ? sheetAjax.getRowRelationRows({
+            worksheetId,
+            controlId: control.controlId,
+            getRules: true,
+            getWorksheet: true,
+            keywords: '',
+            pageIndex: 1,
+            pageSize: 1000,
+            rowId,
+            filterControls: newFilter,
+          })
+        : [];
     });
     let _printData = _.cloneDeep(printData);
     Promise.all(promiseList).then(res => {
@@ -356,10 +359,12 @@ class PrintForm extends React.Component {
         });
         return;
       }
+
       const rules = resData[1];
       //通过规则计算
       let receiveControls = updateRulesData({
         rules: rules,
+        recordId: rowId,
         data: res.receiveControls,
       });
       receiveControls = getControlsForPrint(receiveControls, res.relations)
@@ -572,6 +577,7 @@ class PrintForm extends React.Component {
             'formName',
             'name',
             'font',
+            'approvePosition',
           ]),
           approvalIds: approvalIds,
           projectId,
@@ -681,7 +687,7 @@ class PrintForm extends React.Component {
                     />
                     {_l(fileTypeNum === 5 ? '下载Excel文件' : '下载Word文件')}
                   </p>
-                  {fileTypeNum !== 5 && (
+                  {/* {fileTypeNum !== 5 && ( */}
                     <div
                       className="toPdf"
                       onClick={() => {
@@ -691,10 +697,9 @@ class PrintForm extends React.Component {
                         });
                       }}
                     >
-                      {_l('直接用浏览器打印')}
+                      {_l('在线预览，直接用浏览器打印')}
                     </div>
-                  )}
-
+                   {/* )} */}
                 </Fragment>
               )}
               <p className="txt">{_l('文件复杂时可能会失败')}</p>{' '}
@@ -704,7 +709,7 @@ class PrintForm extends React.Component {
       );
     } else {
       return (
-        <div className="previewContainer">
+        <div className={cx('previewContainer')}>
           <div className="iframeLoad">
             <div className="pdfPng"></div>
             <p className="dec">
@@ -728,7 +733,8 @@ class PrintForm extends React.Component {
   };
 
   render() {
-    const { params, printData, isChange, showSaveDia, isLoading, error, showPdf, sheetSwitchPermit } = this.state;
+    const { params, printData, isChange, showSaveDia, isLoading, error, showPdf, sheetSwitchPermit } =
+      this.state;
     const { type, isDefault, worksheetId, viewId } = params;
     let { receiveControls = [], systemControl = [] } = printData;
     if (!worksheetId) {

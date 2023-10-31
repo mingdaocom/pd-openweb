@@ -200,7 +200,7 @@ export default class Start extends Component {
             <span className="Gray_75">{_l('按钮：')}</span>
             {item.triggerName}
           </div>
-          <div className="workflowContentInfo ellipsis Gray_75">{CUSTOM_ACTION_TEXT[item.clickType]}</div>
+          <div className="workflowContentInfo ellipsis Gray_75">{CUSTOM_ACTION_TEXT[item.clickType || 1]}</div>
         </Fragment>
       );
     }

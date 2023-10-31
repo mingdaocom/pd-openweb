@@ -65,7 +65,7 @@ export default class Date extends React.Component {
   }
 
   @autobind
-  handleChange(array) {
+  handleChange(array, panelIndex) {
     const { tableFromModule, cell, updateCell, updateEditingStatus } = this.props;
     let level = this.getAreaLevel(cell.type);
     if (_.includes(particularlyCity, array[0].id) && level > 1) {
@@ -73,6 +73,14 @@ export default class Date extends React.Component {
     }
     if (array[0].id === abroad) {
       level = 1;
+    }
+    const anylevel = _.get(cell, 'advancedSetting.anylevel');
+    // 必须选择最后一级
+    if (anylevel === '1' && array[0].id !== abroad) {
+      // 省市
+      if ((cell.type === 23 && panelIndex !== 2) || (cell.type === 24 && panelIndex !== 3)) {
+        return;
+      }
     }
     const name = array.map(a => a.name).join('/');
     const code = _.last(array).id;

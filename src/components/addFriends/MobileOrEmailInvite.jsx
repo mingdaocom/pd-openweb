@@ -4,7 +4,7 @@ import Tel from 'src/pages/Role/PortalCon/components/Tel';
 import InviteController from 'src/api/invitation';
 import Requests from 'src/api/addressBook';
 import EmailInput from 'src/pages/Role/PortalCon/components/Email';
-import { FROM_TYPE, DETAIL_MODE } from './addFriends';
+import { FROM_TYPE, DETAIL_MODE } from './';
 import default_img from 'staticfiles/images/default_user_avatar.jpg';
 import cx from 'classnames';
 import captcha from 'src/components/captcha';

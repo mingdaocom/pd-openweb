@@ -4,12 +4,11 @@ import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
-import { Button, ScrollView, Dialog, Switch } from 'ming-ui';
-import Skeleton from 'src/router/Application/Skeleton';
+import { Button, ScrollView, Dialog, Switch, Skeleton } from 'ming-ui';
 import * as actions from '../redux/actions';
 import { Hr, H2, Tip9e, TipBlock } from 'worksheet/components/Basics';
 import ShareUrl from 'worksheet/components/ShareUrl';
-import HidedControls from '../components/HidedControls';
+import ControlList from '../components/ControlList';
 import PublicConfig from './PublicConfig';
 import { VISIBLE_TYPE } from '../enum';
 import { getDisabledControls, renderLimitInfo, isDisplayPromptText } from '../utils';
@@ -63,6 +62,7 @@ class ConfigPanel extends React.Component {
     hidedControlIds: PropTypes.arrayOf(PropTypes.string),
     originalControls: PropTypes.arrayOf(PropTypes.shape({})),
     showControl: PropTypes.func,
+    onHideControl: PropTypes.func,
     updateWorksheetVisibleType: PropTypes.func,
     resetControls: PropTypes.func,
     onCloseConfig: PropTypes.func,
@@ -103,6 +103,7 @@ class ConfigPanel extends React.Component {
       shareUrl,
       hidedControlIds,
       showControl,
+      onHideControl,
       onCloseConfig,
       refreshShareUrl,
       enabled,
@@ -171,7 +172,7 @@ class ConfigPanel extends React.Component {
           <Hr style={{ margin: '20px -20px 0' }} />
           <div>
             <H2 className="mBottom10 Left" style={{ color: '#757575', fontSize: '14px' }}>
-              {_l('隐藏的字段')}
+              {_l('显示的字段')}
             </H2>
             <span className="Right mTop16" onClick={this.resetControls} data-tip={_l('重置公开表单字段')}>
               <i className="icon icon-refresh1 Gray_9e Font16 Hand"></i>
@@ -180,9 +181,9 @@ class ConfigPanel extends React.Component {
           <Tip9e className="tip mBottom10">
             {_l('人员、部门、组织角色、自由连接、扩展值的文本字段不能用于公开表单，原表单内的以上字段将被自动隐藏。')}
           </Tip9e>
-          {!hidedControls.length && !disabledControls.length && (
+          {/* {!hidedControls.length && !disabledControls.length && (
             <TipBlock> {_l('点击右侧表单中字段上的隐藏按钮，被隐藏的字段将放置在这里')} </TipBlock>
-          )}
+          )} */}
           <div className="flex" style={{ margin: '0 -20px', padding: '0 0 32px' }}>
             <ScrollView>
               {loading && (
@@ -197,7 +198,13 @@ class ConfigPanel extends React.Component {
               )}
               <div style={{ padding: '0 25px 0 20px' }}>
                 {/* { !!disabledControls.length && <HidedControls controls={disabledControls} disabled /> } */}
-                {!!hidedControls.length && <HidedControls controls={hidedControls} onAdd={showControl} />}
+                <ControlList
+                  controls={originalControls}
+                  hidedControls={hidedControls}
+                  disabledControls={disabledControls}
+                  onAdd={showControl}
+                  onHide={onHideControl}
+                />
               </div>
             </ScrollView>
           </div>

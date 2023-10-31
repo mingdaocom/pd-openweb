@@ -48,7 +48,7 @@ export default class ResignList extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.keywords !== this.props.keywords) {
+    if (nextProps.activeTab !== this.props.activeTab) {
       this.setState(
         {
           pageIndex: 1,

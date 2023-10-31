@@ -12,7 +12,8 @@ import { notification } from 'antd';
 export const socketInit = () => {
   if (window.IM === undefined) {
     window.IM = {};
-    const socket = io.connect(window.config.SERVER_NAME, {
+    const server = _.get(window, 'config.SERVER_NAME');
+    const socket = io.connect(server, {
       path: '/mds2',
       reconnectionAttempts: 100,
       timeout: 15000,
@@ -31,6 +32,10 @@ export default () => {
   });
   // socket 初始化
   socketInit();
+
+  // 未初始化不监听事件
+  if (window.IM === undefined) return;
+
   // 自定义按钮监听
   worksheetSocket();
   // 工作表导入行记录

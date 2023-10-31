@@ -42,6 +42,7 @@ function QuickFilter(props) {
     projectId,
     controls = [],
     filters = [],
+    navGroupFilters = [],
     refreshSheet = () => {},
     updateQuickFilter = () => {},
     resetQuickFilter = () => {},
@@ -130,6 +131,7 @@ function QuickFilter(props) {
         )}
         hideStartIndex={visibleFilters.length}
         filters={filters}
+        navGroupFilters={navGroupFilters}
         colNum={colNum}
         fullShow={isConfigMode || _fullShow}
         showExpand={showExpand}

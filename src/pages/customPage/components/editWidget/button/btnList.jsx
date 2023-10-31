@@ -140,9 +140,10 @@ export default function BtnList({
             return (
               <div key={i} className={cx('chunkListWrap', { center: !isFullWidth })}>
                 {list.map((item, index) => {
-                  const { color, name, icon, config } = item;
-                  const defaultIconUrl = btnType === 2 ? `${md.global.FileStoreConfig.pubHost}/customIcon/custom_actions.svg` : null;
-                  const iconUrl = _.get(config, 'iconUrl') || defaultIconUrl;
+                  const { color, name, config } = item;
+                  const defaultIcon = btnType === 2 ? `custom_actions` : null;
+                  const icon = _.get(config, 'icon') || defaultIcon;
+                  const iconUrl = icon ? `${md.global.FileStoreConfig.pubHost}/customIcon/${icon}.svg` : _.get(config, 'iconUrl');
                   const actualIndex = i * count + index;
                   return (
                     <BtnWrap
@@ -176,7 +177,7 @@ export default function BtnList({
                             </div>
                           </GraphWrap>
                         ) : (
-                          <Button fullWidth={isFullWidth} radius={style === 2} icon={iconUrl ? null : icon}>
+                          <Button fullWidth={isFullWidth} radius={style === 2} icon={iconUrl ? null : item.icon}>
                             {iconUrl && <SvgIcon url={iconUrl} fill={style === 3 ? color : '#fff'} size={20} />}
                             <span className="overflow_ellipsis">{name}</span>
                           </Button>

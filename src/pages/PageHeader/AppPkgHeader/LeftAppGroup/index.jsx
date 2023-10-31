@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect, useState, useRef } from 'react';
 import homeAppApi from 'api/homeApp';
-import { Icon, ScrollView, Menu, MenuItem } from 'ming-ui';
+import { Icon, ScrollView, Menu, MenuItem, Skeleton } from 'ming-ui';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import {
@@ -12,7 +12,6 @@ import {
   getAllAppSectionDetail,
 } from 'worksheet/redux/actions/sheetList';
 import DelAppGroup from '../AppGroup/DelAppGroup';
-import Skeleton from 'src/router/Application/Skeleton';
 import Drag from 'worksheet/common/WorkSheetLeft/Drag';
 import { DndProvider } from 'react-dnd-latest';
 import { HTML5Backend } from 'react-dnd-html5-backend-latest';
@@ -65,7 +64,7 @@ const AppSectionItem = props => {
     } else {
       return convertColor(iconColor);
     }
-  }
+  };
 
   const handleCreateAppItem = (type, args) => {
     const singleRef = getAppSectionRef(item.workSheetId);
@@ -74,7 +73,7 @@ const AppSectionItem = props => {
         appId: ids.appId,
         groupId: item.workSheetId,
         type,
-        ...args
+        ...args,
       }),
     );
     setCreateType('');
@@ -157,7 +156,14 @@ const AppSectionItem = props => {
 
   return (
     <div className="appGroupWrap">
-      <Drag appItem={item} appPkg={appPkg} isCharge={sheet.isCharge} onDragEnd={() => { window.dragNow = null; }}>
+      <Drag
+        appItem={item}
+        appPkg={appPkg}
+        isCharge={sheet.isCharge}
+        onDragEnd={() => {
+          window.dragNow = null;
+        }}
+      >
         {!hideAppSection && (
           <div
             className={cx('appGroup flexRow alignItemsCenter pointer', { hover: popupVisible })}
@@ -183,7 +189,7 @@ const AppSectionItem = props => {
               if (window.dragNow && now - window.dragNow > 50) {
                 setIsDrag(true);
                 setChildrenVisible(false);
-              };
+              }
             }}
             onMouseUp={() => {
               window.dragNow = null;

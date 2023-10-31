@@ -111,7 +111,12 @@ export default class ColumnListDropdown extends React.Component {
     let { list } = this.props;
     const { keywords } = this.state;
     if (showSearch && keywords) {
-      list = list.filter(column => new RegExp('.*' + _.trim(keywords) + '.*').exec(column.filterValue || column.text));
+      list = list.filter(
+        column =>
+          (column.filterValue || column.text || '').search(
+            new RegExp(keywords.trim().replace(/([,.+?:()*\[\]^$|{}\\-])/g, '\\$1'), 'i'),
+          ) !== -1,
+      );
     }
     return (
       <ColumnListWrap

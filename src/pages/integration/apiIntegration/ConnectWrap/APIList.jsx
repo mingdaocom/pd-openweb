@@ -309,7 +309,10 @@ function APIList(props) {
                   value={keywords}
                   className="search"
                   onChange={v => {
-                    setState({ keywords: v, listSearch: list.filter(o => o.name.indexOf(v) >= 0) });
+                    setState({
+                      keywords: v,
+                      listSearch: list.filter(o => o.name.toLocaleLowerCase().indexOf(v.toLocaleLowerCase()) >= 0),
+                    });
                   }}
                 />
               </div>

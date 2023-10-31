@@ -1,5 +1,5 @@
-import React, { useState, useReducer, useMemo, useEffect, useRef, useCallback } from 'react';
-import PropTypes, { func } from 'prop-types';
+import React, { useState, useReducer, useMemo, useEffect, useRef, useCallback, Fragment } from 'react';
+import PropTypes from 'prop-types';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { Motion, spring } from 'react-motion';
@@ -11,8 +11,7 @@ import { replaceByIndex, emitter } from 'worksheet/util';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { WORKSHEETTABLE_FROM_MODULE, RECORD_INFO_FROM, ROW_HEIGHT } from 'worksheet/constants/enum';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
-import Skeleton from 'src/router/Application/Skeleton';
-import { Input } from 'ming-ui';
+import { Input, Skeleton } from 'ming-ui';
 import addRecord from 'worksheet/common/newRecord/addRecord';
 import { SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
 import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
@@ -28,8 +27,9 @@ import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
 import { openRelateRelateRecordTable } from 'worksheet/components/RelateRecordTableDialog';
-import { addBehaviorLog } from 'src/util';
+import { addBehaviorLog, parseNumber } from 'src/util';
 import _ from 'lodash';
+import { handleRowData } from 'src/util/transControlDefaultValue';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
@@ -218,7 +218,7 @@ function getCellWidths(control, tableControls) {
       .map(scid =>
         _.find((tableControls || control.relationControls || []).concat(SYSTEM_CONTROL), c => c.controlId === scid),
       )
-      .filter(c => c && controlState(c).visible)
+      .filter(c => c)
       .forEach((c, i) => {
         result[c.controlId] = widths[i];
       });
@@ -243,6 +243,7 @@ export default function RelateRecordTable(props) {
     relateRecordData = {},
     control,
     addRefreshEvents = () => {},
+    updateWorksheetControls,
     setRelateNumOfControl = () => {},
     setLoading = () => {},
     onRelateRecordsChange = () => {},
@@ -251,6 +252,7 @@ export default function RelateRecordTable(props) {
   } = props;
   const { worksheetId, recordId, isCharge, allowEdit } = recordbase;
   const allowlink = (control.advancedSetting || {}).allowlink;
+  const searchMaxCount = parseNumber((control.advancedSetting || {}).maxcount);
   const rowHeight = Number((control.advancedSetting || {}).rowheight || 0);
   const [isHiddenOtherViewRecord, , onlyRelateByScanCode] = (control.strDefault || '').split('').map(b => !!+b);
   const disabledManualWrite = onlyRelateByScanCode && control.advancedSetting.dismanual === '1';
@@ -414,7 +416,9 @@ export default function RelateRecordTable(props) {
         res.count < +relateNum.current
       ) {
         newRecords.push({
-          [controls[0] ? controls[0].controlId : 'tip']: {
+          [_.get(controls, '0.controlId') && _.get(controls, '0.controlId') !== 'rowid'
+            ? _.get(controls, '0.controlId')
+            : 'tip']: {
             customCell: true,
             type: 'text',
             value: _l('%0条记录已隐藏', +relateNum.current - res.count),
@@ -559,8 +563,8 @@ export default function RelateRecordTable(props) {
     loadSheetSearchConfig();
   }, [recordId, control.controlId]);
   useEffect(() => {
+    setLoading(true);
     if (!isNewRecord && control.type !== 51) {
-      setLoading(true);
       loadRows({ showHideTip: true });
     }
   }, [recordId, control.controlId, pageIndex, sortControl, keywordsForSearch, refreshFlag]);
@@ -799,6 +803,9 @@ export default function RelateRecordTable(props) {
                   ],
                 })
                 .then(res => {
+                  if (_.isFunction(updateWorksheetControls)) {
+                    updateWorksheetControls([newControl]);
+                  }
                   setLayoutChanged(false);
                 });
             }}
@@ -808,6 +815,43 @@ export default function RelateRecordTable(props) {
               setFixedColumnCount(0);
               setSheetHiddenColumnIds([]);
               setSheetColumnWidths({});
+            }}
+            onRecreate={() => {
+              handleRowData({
+                rowId: row.rowid,
+                worksheetId: worksheetOfControl.worksheetId,
+                columns,
+              }).then(res => {
+                const { defaultData, defcontrols } = res;
+                addRecord({
+                  worksheetId: control.dataSource,
+                  masterRecord: {
+                    rowId: recordId,
+                    controlId: control.controlId,
+                    worksheetId,
+                  },
+                  defaultRelatedSheet: control.type !== 51 && {
+                    worksheetId,
+                    relateSheetControlId: control.controlId,
+                    value: defaultRelatedSheetValue,
+                  },
+                  directAdd: true,
+                  showFillNext: true,
+                  defaultFormData: defaultData,
+                  defaultFormDataEditable: true,
+                  writeControls: defcontrols,
+                  onAdd: record => {
+                    if (record) {
+                      setRelateNumOfControl(count + 1);
+                      tableActions.addRecords(record);
+                    }
+                  },
+                  openRecord: id => setActiveRecord({ id }),
+                });
+              });
+            }}
+            updateRows={newRow => {
+              tableActions.updateRecord(newRow);
             }}
           />
         )}
@@ -941,7 +985,7 @@ export default function RelateRecordTable(props) {
         className="tableOperate flexRow"
         padding="10px 0px"
         style={{
-          ...(recordId && { padding: '10px 24px' }),
+          ...(isSplit && { padding: '10px 24px' }),
         }}
       >
         {(addVisible || selectVisible) && (
@@ -1011,87 +1055,93 @@ export default function RelateRecordTable(props) {
           />
         )}
         <div className="flex"></div>
-        {!loading && !isNewRecord && (
-          <TableBtnCon className="flexRow" style={{ lineHeight: '36px' }}>
-            <Motion
-              defaultStyle={{ width: 0, opacity: 0, iconLeft: 0 }}
-              style={{
-                width: spring(searchVisible ? 180 : 0),
-                opacity: spring(searchVisible ? 1 : 0),
-                iconLeft: spring(searchVisible ? 27 : 0),
-              }}
-            >
-              {value => (
-                <div className={cx('searchIcon flexRow')} onClick={() => setSearchVisible(true)}>
-                  <i className="icon icon-search Gray_9e Font20 Hand" style={{ left: value.iconLeft }}></i>
-                  <ClickAwayable
-                    className="searchInput"
-                    style={{ width: value.width, backgroundColor: `rgba(234, 234, 234, ${value.opacity})` }}
-                    onClickAway={() => {
-                      if (!keywords && searchVisible) {
-                        setSearchVisible(false);
-                      }
-                    }}
-                  >
-                    <Input
-                      manualRef={searchRef}
-                      placeholder={_l('搜索') + '"' + control.controlName + '"'}
-                      value={keywords}
-                      onChange={setKeywords}
-                      onKeyDown={e => {
-                        if (e.keyCode === 13) {
-                          if (control.type !== 51) {
-                            setTableLoading(true);
-                          }
-                          setPageIndex(1);
-                          setSortControl({});
-                          setKeywordsForSearch(keywords);
+        <TableBtnCon className="flexRow" style={{ lineHeight: '36px' }}>
+          {!loading && !isNewRecord && (
+            <Fragment>
+              <Motion
+                defaultStyle={{ width: 0, opacity: 0, iconLeft: 0 }}
+                style={{
+                  width: spring(searchVisible ? 180 : 0),
+                  opacity: spring(searchVisible ? 1 : 0),
+                  iconLeft: spring(searchVisible ? 27 : 0),
+                }}
+              >
+                {value => (
+                  <div className={cx('searchIcon flexRow')} onClick={() => setSearchVisible(true)}>
+                    <i className="icon icon-search Gray_9e Font20 Hand" style={{ left: value.iconLeft }}></i>
+                    <ClickAwayable
+                      className="searchInput"
+                      style={{ width: value.width, backgroundColor: `rgba(234, 234, 234, ${value.opacity})` }}
+                      onClickAway={() => {
+                        if (!keywords && searchVisible) {
+                          setSearchVisible(false);
                         }
                       }}
-                    />
-                    {keywords && (
-                      <i
-                        className="icon icon-cancel Gray_9e Font16 clearKeywords"
-                        onClick={() => {
-                          setTableLoading(true);
-                          setSearchVisible(false);
-                          setKeywords('');
-                          setKeywordsForSearch('');
+                    >
+                      <Input
+                        manualRef={searchRef}
+                        placeholder={_l('搜索') + '"' + control.controlName + '"'}
+                        value={keywords}
+                        onChange={setKeywords}
+                        onKeyDown={e => {
+                          if (e.keyCode === 13) {
+                            if (control.type !== 51) {
+                              setTableLoading(true);
+                            }
+                            setPageIndex(1);
+                            setSortControl({});
+                            setKeywordsForSearch(keywords);
+                          }
                         }}
-                      ></i>
-                    )}
-                  </ClickAwayable>
-                </div>
+                      />
+                      {keywords && (
+                        <i
+                          className="icon icon-cancel Gray_9e Font16 clearKeywords"
+                          onClick={() => {
+                            setTableLoading(true);
+                            setSearchVisible(false);
+                            setKeywords('');
+                            setKeywordsForSearch('');
+                          }}
+                        ></i>
+                      )}
+                    </ClickAwayable>
+                  </div>
+                )}
+              </Motion>
+              {mode === 'recordForm' && from !== RECORD_INFO_FROM.DRAFT && (
+                <span
+                  data-tip={_l('放大')}
+                  style={{ height: 28 }}
+                  onClick={() =>
+                    openRelateRelateRecordTable({
+                      title: recordbase.recordTitle,
+                      appId: recordbase.appId,
+                      viewId: recordbase.viewId,
+                      worksheetId,
+                      recordId,
+                      control,
+                      allowEdit,
+                      formdata,
+                      reloadTable,
+                    })
+                  }
+                >
+                  <IconBtn className="Hand ThemeHoverColor3">
+                    <i className="icon icon-worksheet_enlarge" />
+                  </IconBtn>
+                </span>
               )}
-            </Motion>
-            {mode === 'recordForm' && from !== RECORD_INFO_FROM.DRAFT && (
-              <span
-                data-tip={_l('放大')}
-                style={{ height: 28 }}
-                onClick={() =>
-                  openRelateRelateRecordTable({
-                    title: recordbase.recordTitle,
-                    appId: recordbase.appId,
-                    viewId: recordbase.viewId,
-                    worksheetId,
-                    recordId,
-                    control,
-                    allowEdit,
-                    formdata,
-                    reloadTable,
-                  })
-                }
-              >
-                <IconBtn className="Hand ThemeHoverColor3">
-                  <i className="icon icon-worksheet_enlarge" />
-                </IconBtn>
-              </span>
-            )}
+            </Fragment>
+          )}
+          {(!isNewRecord || control.type === 51) && !(loading || tableLoading) && (
             <Pagination
               className="pagination"
               pageIndex={pageIndex}
               pageSize={pageSize}
-              allCount={count}
+              allCount={
+                control.type === 51 && !_.isUndefined(searchMaxCount) && count > searchMaxCount ? searchMaxCount : count
+              }
               allowChangePageSize={false}
               changePageIndex={value => {
                 setTableLoading(true);
@@ -1106,14 +1156,13 @@ export default function RelateRecordTable(props) {
                 setPageIndex(pageIndex + 1 > Math.ceil(count / pageSize) ? Math.ceil(count / pageSize) : pageIndex + 1);
               }}
             />
-          </TableBtnCon>
-        )}
+          )}
+        </TableBtnCon>
       </Con>
       <div
         className={cx('tableCon', { flex: isSplit })}
         style={{
-          ...(recordId && { padding: '0 24px' }),
-          ...(isSplit && { overflow: 'auto' }),
+          ...(isSplit && { overflow: 'auto', padding: '0 24px' }),
         }}
       >
         {loading && (
@@ -1153,7 +1202,9 @@ export default function RelateRecordTable(props) {
             }}
             projectId={worksheetOfControl.projectId}
             onDeleteSuccess={() => {
-              deleteRelateRow(recordId, true);
+              if (!control.disabled && allowEdit && controlPermission.editable) {
+                deleteRelateRow(recordId, true);
+              }
             }}
           />
         )}
@@ -1167,10 +1218,10 @@ RelateRecordTable.propTypes = {
   loading: PropTypes.bool,
   formdata: PropTypes.arrayOf(PropTypes.shape({})),
   recordbase: PropTypes.shape({}),
-  recordinfo: PropTypes.shape({}),
   control: PropTypes.shape({}),
   relateRecordData: PropTypes.shape({}),
   setLoading: PropTypes.func,
   onRelateRecordsChange: PropTypes.func,
   addRefreshEvents: PropTypes.func,
+  updateWorksheetControls: PropTypes.func,
 };

@@ -55,9 +55,10 @@ class RecordList extends Component {
   componentWillReceiveProps(nextProps) {
     const { params: newParams } = nextProps.match;
     const { params } = this.props.match;
+    const viewType = (_.find(nextProps.worksheetInfo.views, v => v.viewId === newParams.viewId) || {}).viewType;
     if (newParams.viewId !== params.viewId) {
       this.props.updateBase({ viewId: newParams.viewId });
-      this.props.resetSheetView();
+      _.includes([0, 6], viewType) && this.props.resetSheetView();
     }
     if (newParams.worksheetId !== params.worksheetId) {
       this.props.emptySheetRows();
@@ -81,9 +82,9 @@ class RecordList extends Component {
   handleChangeView = view => {
     const { match, now } = this.props;
     const { params } = match;
+    this.props.updateBase({ viewId: view.viewId });
     if (now) {
-      this.props.updateBase({ viewId: view.viewId });
-      this.props.resetSheetView();
+      _.includes([0, 6], view.viewType) && this.props.resetSheetView();
     } else {
       window.mobileNavigateTo(
         `/mobile/recordList/${params.appId}/${params.groupId}/${params.worksheetId}/${view.viewId}`,
@@ -188,13 +189,13 @@ class RecordList extends Component {
                   !isHideTabBar && appNaviStyle === 2 && location.href.includes('mobile/app')
                     ? {
                         bottom:
-                          _.includes([1, 3, 4], view.viewType) || (!_.isEmpty(view.navGroup) && view.navGroup.length)
+                          _.includes([1, 3, 4, 6], view.viewType) || (!_.isEmpty(view.navGroup) && view.navGroup.length)
                             ? '70px'
                             : '130px',
                       }
                     : {
                         bottom:
-                          [1, 3, 4].includes(view.viewType) ||
+                          [1, 3, 4, 6].includes(view.viewType) ||
                           (!_.isEmpty(view.navGroup) && view.navGroup.length && _.includes([0], view.viewType)) ||
                           !(canDelete || showCusTomBtn)
                             ? '20px'
@@ -250,7 +251,6 @@ class RecordList extends Component {
                     viewId: view.viewId,
                     addType: 2,
                     entityName: worksheetInfo.entityName,
-                    needCache: true,
                     openRecord: this.sheetViewOpenRecord,
                     onAdd: data => {
                       if (_.isEmpty(data)) {

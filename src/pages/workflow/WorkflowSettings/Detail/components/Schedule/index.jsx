@@ -135,7 +135,9 @@ export default ({
           <Fragment>
             <div className="flex mLeft10">
               <SpecificFieldsValue
+                projectId={companyId}
                 processId={processId}
+                relationId={relationId}
                 selectNodeId={selectNodeId}
                 type="number"
                 min={1}
@@ -290,7 +292,9 @@ export default ({
           </div>
 
           <Deadline
+            projectId={companyId}
             processId={processId}
+            relationId={relationId}
             selectNodeId={selectNodeId}
             data={data}
             text={_l('到达此节点后的')}

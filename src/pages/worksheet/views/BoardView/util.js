@@ -3,6 +3,7 @@ import { getAdvanceSetting } from 'src/util';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import { RENDER_RECORD_NECESSARY_ATTR, filterAndFormatterControls, getRecordAttachments } from '../util';
 import { CAN_AS_BOARD_OPTION } from './config';
+import { getRecordColorConfig } from 'worksheet/util';
 // 处理从后端获取的看板数据
 export const dealBoardViewData = props => {
   const { view, controls } = props;
@@ -58,6 +59,7 @@ export const dealBoardViewData = props => {
           return {
             fields: arr,
             rawRow: row,
+            recordColorConfig: getRecordColorConfig(view),
             rowId,
             allowEdit,
             allowDelete,

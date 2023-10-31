@@ -26,7 +26,6 @@ import Calendar from '../calendar/calendar';
 Toolbar.Comm = Comm;
 Toolbar.Calendar = Calendar;
 
-import '@mdfe/jquery-ui';
 import 'src/components/mdBusinessCard/mdBusinessCard';
 import _ from 'lodash';
 import copy from 'copy-to-clipboard';
@@ -458,8 +457,6 @@ Toolbar.Method = {
     // 往页面上添加右边模块元素
     $('#calendarTypeList').html(Toolbar.Comm.doT.template(toolbarTpl)(Toolbar.Comm.settings));
     $('#sortable').append(LoadDiv());
-    // 列表拖拽调整顺序
-    Toolbar.Method.updateSort();
     // 查找用户所有分类
     Toolbar.Comm.getUserAllCalCategories(function (categorys) {
       if (categorys) {
@@ -535,45 +532,6 @@ Toolbar.Method = {
       } else {
         Toolbar.Comm.errorMessage(source.msg);
       }
-    });
-  },
-
-  // 列表拖拽调整顺序
-  updateSort: function () {
-    // 列表拖拽调整顺序
-    $('#sortable').sortable({
-      revert: true,
-      update: function () {
-        var catId;
-        var catIDs = []; // 新排序数组
-        var oldCategoryList = [];
-        $('#sortable .allowDrop').each(function () {
-          catId = $(this).attr('catid');
-          catIDs.push(catId);
-          oldCategoryList = oldCategoryList.concat(
-            $.map(Toolbar.settings.oldCategoryList, function (category) {
-              if (catId == category.catID) {
-                return category;
-              }
-            }),
-          );
-        });
-        oldCategoryList.colorClass = Toolbar.Method.colorClass;
-
-        calendarAjax
-          .updateUserCalCategoriesIndex({
-            cateIDs: catIDs.join(','),
-          })
-          .then(function (source) {
-            if (source.code == 1) {
-              alert(_l('顺序修改成功'));
-              Toolbar.settings.oldCategoryList = oldCategoryList;
-            } else {
-              Toolbar.Comm.errorMessage(source.msg);
-            }
-          });
-      },
-      items: '.allowDrop',
     });
   },
 

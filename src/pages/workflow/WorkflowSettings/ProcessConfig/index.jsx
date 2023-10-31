@@ -392,6 +392,7 @@ class ProcessConfig extends Component {
           visible={showWorkflow}
           processId={flowInfo.id}
           relationId={flowInfo.relationId}
+          filterIds={data.processNames.map(o => o.id)}
           onSave={this.selectProcess}
           onClose={() => this.setState({ showWorkflow: false })}
         />
@@ -736,7 +737,9 @@ class ProcessConfig extends Component {
               <div className="flowDetailTrigger">
                 <CustomTextarea
                   className="minH100"
+                  projectId={flowInfo.companyId}
                   processId={flowInfo.id}
+                  relationId={flowInfo.relationId}
                   selectNodeId={data.pbcConfig.outType === 3 ? flowInfo.startNodeId : data.pcbOutId}
                   sourceAppId={data.pbcConfig.outType === 3 ? flowInfo.startAppId : ''}
                   type={2}
@@ -823,7 +826,11 @@ class ProcessConfig extends Component {
       _.remove(settings, item => item.value === 4);
     }
 
-    if (!isWebhook || !data.pbcConfig || (isWebhook && !getFeatureStatus(flowInfo.companyId, VersionProductType.encapsulatingBusinessProcess))) {
+    if (
+      !isWebhook ||
+      !data.pbcConfig ||
+      (isWebhook && !getFeatureStatus(flowInfo.companyId, VersionProductType.encapsulatingBusinessProcess))
+    ) {
       _.remove(settings, item => item.value === 5);
     }
 

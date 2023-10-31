@@ -69,7 +69,7 @@ const Tag = styled.div`
   position: relative;
   display: inline-block;
   line-height: 21px;
-  background-color: #f2f2f2;
+  background-color: rgba(0, 0, 0, 0.08);
   border-radius: 3px;
   padding: 0 10px;
   margin: 6px 0 0 6px;
@@ -79,7 +79,7 @@ const Tag = styled.div`
   }
   &.allowOpenRecord:hover {
     color: #2196f3;
-    background-color: #dfebfa;
+    background-color: rgba(33, 150, 243, 0.16);
     cursor: pointer;
   }
   .icon-close {

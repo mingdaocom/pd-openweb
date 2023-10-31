@@ -61,7 +61,7 @@ export default class HistoryDetail extends Component {
     });
   };
 
-  renderOperationInfo = item => {
+  renderOperationInfo = (item, isLast) => {
     const { cause, causeMsg, causeAccount } = this.state.data.instanceLog;
     const {
       flowNode,
@@ -159,7 +159,7 @@ export default class HistoryDetail extends Component {
                   </div>
                 )}
               </div>
-              {_.includes([4, 5], status) && !countersign && (
+              {_.includes([4, 5], status) && !countersign && isLast && (
                 <div className={NODE_STATUS[status].status}>
                   {cause === 7777 && flowNode.name ? _l('过期自动中止') : FLOW_FAIL_REASON[cause] || causeMsg}
                 </div>
@@ -189,6 +189,7 @@ export default class HistoryDetail extends Component {
           <Fragment>
             {!!updateWorks[OPERATION_TYPE.PASS] && <div className="info Gray_75">{_l('通过后更新了记录')}</div>}
             {!!updateWorks[OPERATION_TYPE.OVERRULE] && <div className="info Gray_75">{_l('否决后更新了记录')}</div>}
+            {!!updateWorks[OPERATION_TYPE.RETURN] && <div className="info Gray_75">{_l('退回后更新了记录')}</div>}
             {!!updateWorks[OPERATION_TYPE.ADD_OPERATION] && (
               <div className="info Gray_75">{_l('新增节点操作明细')}</div>
             )}
@@ -366,7 +367,7 @@ export default class HistoryDetail extends Component {
                         ? this.renderSubProcess(item)
                         : flowNode.type === 19
                         ? this.renderTemplateInfo(item)
-                        : this.renderOperationInfo(item)}
+                        : this.renderOperationInfo(item, index === works.length - 1)}
                     </div>
 
                     <div className="operationTime Gray_75">

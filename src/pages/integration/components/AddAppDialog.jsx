@@ -58,7 +58,12 @@ export default function AddAppDialog(props) {
   useEffect(() => {
     if (!!keywords && !props.isSuperAdmin) {
       setState({
-        list: allList.filter(o => (o.appName || _.get(o, 'createAccountInfo.fullName')).indexOf(keywords) >= 0),
+        list: allList.filter(
+          o =>
+            (o.appName || _.get(o, 'createAccountInfo.fullName'))
+              .toLocaleLowerCase()
+              .indexOf(keywords.toLocaleLowerCase()) >= 0,
+        ),
       });
     } else {
       getAppList();

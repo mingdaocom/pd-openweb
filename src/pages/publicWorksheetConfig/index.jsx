@@ -20,7 +20,7 @@ export default function PublicWorksheetConfig(props) {
     worksheetAjax.getWorksheetInfo({ worksheetId, getTemplate: true, getViews: true }).then(setworksheetInfo);
   }, []);
   const isloading = _.isEmpty(worksheetInfo);
-  const hasCharge = [2, 4].includes(roleType);//0：非成员 1：表负责人（弃用） 2：管理员 3：成员 4:开发者
+  const hasCharge = [2, 4].includes(roleType); //0：非成员 1：表负责人（弃用） 2：管理员 3：成员 4:开发者
   return (
     <div className="publicWorksheetConfig flexColumn">
       {hederVisible && (
@@ -45,7 +45,7 @@ export default function PublicWorksheetConfig(props) {
         </div>
       )}
       {!isloading && hasCharge && (
-        <div className="flex">
+        <div className="flex h100">
           <FillEnablePanel worksheetId={worksheetId} setHederVisible={setHederVisible} />
           <QueryEnablePanel worksheetId={worksheetId} worksheetInfo={worksheetInfo} />
         </div>

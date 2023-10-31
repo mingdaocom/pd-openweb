@@ -204,10 +204,17 @@ export const updateWorksheetVisibleType =
 
 export const hideControl = controlId => (dispatch, getState) => {
   const {
-    publicWorksheet: { hidedControlIds },
+    publicWorksheet: { hidedControlIds, controls },
   } = getState();
-  updateBaseConfig(dispatch, getState, { hidedControlIds: _.uniqBy(hidedControlIds.concat(controlId)) });
+  const newHidedControlIds = _.uniqBy(hidedControlIds.concat(controlId));
+  const newControls = controls.filter(item => !_.includes(newHidedControlIds, item.controlId));
+
+  updateBaseConfig(dispatch, getState, {
+    hidedControlIds: newHidedControlIds,
+    controls: newControls,
+  });
   dispatch({ type: 'WORKSHEET_HIDE_CONTROL', controlId });
+  dispatch({ type: 'PUBLICWORKSHEET_UPDATE_CONTROLS', controls: newControls });
 };
 
 export function showControl(control) {

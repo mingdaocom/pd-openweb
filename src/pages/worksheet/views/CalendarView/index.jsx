@@ -90,6 +90,7 @@ const WrapNum = styled.div`
 
 import { getTimeControls } from './util';
 import _ from 'lodash';
+import { handleRecordClick } from 'worksheet/util';
 
 let tabList = [
   { key: 'eventAll', txt: _l('全部') },
@@ -716,23 +717,25 @@ class RecordCalendar extends Component {
             showExternal={this.state.showExternal}
             recordInfoVisible={this.state.recordInfoVisible}
             showRecordInfo={(rowid, data, eventData) => {
-              this.setState({
-                recordId: rowid,
-                recordInfoVisible: true,
-                showPrevNext: !!data.start,
-                rows: data.start
-                  ? eventData
-                      .filter(
-                        o =>
-                          (!!o.start &&
-                            moment(o.start).isSameOrBefore(data.start, 'day') &&
-                            moment(o.end).isSameOrAfter(data.end, 'day')) ||
-                          moment(o.start).isSame(data.start, 'day'),
-                      )
-                      .map(o => {
-                        return { ...o.extendedProps };
-                      })
-                  : [],
+              handleRecordClick(currentView, data.extendedProps, () => {
+                this.setState({
+                  recordId: rowid,
+                  recordInfoVisible: true,
+                  showPrevNext: !!data.start,
+                  rows: data.start
+                    ? eventData
+                        .filter(
+                          o =>
+                            (!!o.start &&
+                              moment(o.start).isSameOrBefore(data.start, 'day') &&
+                              moment(o.end).isSameOrAfter(data.end, 'day')) ||
+                            moment(o.start).isSame(data.start, 'day'),
+                        )
+                        .map(o => {
+                          return { ...o.extendedProps };
+                        })
+                    : [],
+                });
               });
             }}
             tabList={tabList}
@@ -910,15 +913,17 @@ class RecordCalendar extends Component {
               eventClick={eventInfo => {
                 // 点击任务 获得任务id或其他相关内容
                 const { extendedProps } = eventInfo.event._def;
-                this.setState({
-                  recordId: extendedProps.rowid,
-                  recordInfoVisible: true,
-                  rows: this.getRows(eventInfo.event.start, eventInfo.event.start),
-                  showPrevNext: true,
+                handleRecordClick(currentView, extendedProps, () => {
+                  this.setState({
+                    recordId: extendedProps.rowid,
+                    recordInfoVisible: true,
+                    rows: this.getRows(eventInfo.event.start, eventInfo.event.start),
+                    showPrevNext: true,
+                  });
+                  if (location.pathname.indexOf('public') === -1) {
+                    addBehaviorLog('worksheetRecord', worksheetId, { rowId: extendedProps.rowid }); // 埋点
+                  }
                 });
-                if (location.pathname.indexOf('public') === -1) {
-                  addBehaviorLog('worksheetRecord', worksheetId, { rowId: extendedProps.rowid }); // 埋点
-                }
               }}
               eventDidMount={info => {
                 let startData = _.get(info, ['event', 'extendedProps', 'startData']) || {};
@@ -1031,7 +1036,7 @@ class RecordCalendar extends Component {
               }}
               dayMaxEventRows={showall === '0'}
               moreLinkContent={info => {
-                return `+${info.num}`;
+                return <div className="w100" title={_l('查看其他%0个', info.num)}>{`+${info.num}`}</div>;
               }}
               moreLinkClick={info => {
                 if (this.browserIsMobile()) {

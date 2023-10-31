@@ -13,8 +13,8 @@ import {
   isRelateRecordTableControl,
   getRecordTempValue,
   parseRecordTempValue,
-  saveToLocal,
-  removeFromLocal,
+  saveTempRecordValueToLocal,
+  removeTempRecordValueFromLocal,
   filterHidedSubList,
 } from 'worksheet/util';
 import RecordForm from 'worksheet/common/recordInfo/RecordForm';
@@ -26,6 +26,8 @@ import './NewRecord.less';
 import { BUTTON_ACTION_TYPE } from './NewRecord';
 import _ from 'lodash';
 import { canEditData } from 'worksheet/redux/actions/util';
+import { KVGet } from 'worksheet/util';
+import { commonControlsAddTab } from 'src/pages/Mobile/Record/utils';
 
 const Con = styled.div`
   height: 100%;
@@ -43,7 +45,7 @@ const EditingBarCon = styled.div`
   height: 86px;
 `;
 
-function foucsInput(formcon) {
+function focusInput(formcon) {
   if (!formcon) {
     return;
   }
@@ -54,6 +56,9 @@ function foucsInput(formcon) {
     $firstText.click();
   }
 }
+
+const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
+
 function NewRecordForm(props) {
   const {
     loading,
@@ -64,11 +69,12 @@ function NewRecordForm(props) {
     notDialog,
     appId,
     viewId,
+    groupId,
     worksheetId,
     title,
     entityName,
     showTitle,
-    needCache,
+    needCache = true,
     defaultRelatedSheet,
     defaultFormDataEditable,
     defaultFormData,
@@ -91,14 +97,13 @@ function NewRecordForm(props) {
     addNewRecord = () => {},
     hidePublicShare,
   } = props;
-  const tempNewRecord = needCache && viewId && localStorage.getItem('tempNewRecord_' + viewId);
   const cache = useRef({});
   const cellObjs = useRef({});
   const isSubmitting = useRef(false);
   const customwidget = useRef();
   const formcon = useRef();
   const [formLoading, setFormLoading] = useState(true);
-  const [restoreVisible, setRestoreVisible] = useState(!!tempNewRecord);
+  const [restoreVisible, setRestoreVisible] = useState();
   const [relateRecordData, setRelateRecordData] = useState({});
   const [worksheetInfo, setWorksheetInfo] = useState(_.cloneDeep(props.worksheetInfo || {}));
   const [originFormdata, setOriginFormdata] = useState([]);
@@ -108,28 +113,6 @@ function NewRecordForm(props) {
   const [random, setRandom] = useState();
   const [requesting, setRequesting] = useState();
   const isMobile = browserIsMobile();
-  useEffect(() => {
-    async function load() {
-      if (_.isEmpty(formdata)) {
-        setWorksheetInfo(props.worksheetInfo);
-        const newFormdata = await getFormDataForNewRecord({
-          isCustomButton,
-          worksheetInfo: props.worksheetInfo,
-          defaultRelatedSheet,
-          defaultFormData,
-          defaultFormDataEditable,
-          writeControls,
-        });
-        setFormdata(newFormdata);
-        setOriginFormdata(newFormdata);
-        setFormLoading(false);
-      }
-      setTimeout(() => foucsInput(formcon.current), 300);
-    }
-    if (!loading) {
-      load();
-    }
-  }, [loading]);
   function newRecord(options = {}) {
     if (!customwidget.current) return;
     if (options.rowStatus === 21) {
@@ -161,9 +144,7 @@ function NewRecordForm(props) {
         rowStatus: 21,
         setRequesting,
         onSubmitSuccess: ({ rowData, isOverLimit }) => {
-          if (viewId) {
-            removeFromLocal('tempNewRecord', viewId);
-          }
+          removeTempRecordValueFromLocal('tempNewRecord', worksheetId);
           setRestoreVisible(false);
           if (isOverLimit) {
             if (isMobile) {
@@ -322,7 +303,7 @@ function NewRecordForm(props) {
             }
             setErrorVisible(false);
             setRandom(Math.random().toString());
-            foucsInput(formcon.current);
+            focusInput(formcon.current);
           } else {
             onCancel();
             if (actionType === BUTTON_ACTION_TYPE.OPEN_RECORD) {
@@ -338,13 +319,13 @@ function NewRecordForm(props) {
                   worksheetId: worksheetId,
                   recordId: rowData.rowid,
                   viewId: openViewId,
+                  appSectionId: groupId,
+                  isOpenNewAddedRecord: true,
                 });
               }
             }
           }
-          if (viewId) {
-            removeFromLocal('tempNewRecord_' + viewId);
-          }
+          removeTempRecordValueFromLocal('tempNewRecord', worksheetId);
           if (_.isFunction(onAdd)) {
             onAdd(rowData, { continueAdd: actionType === BUTTON_ACTION_TYPE.CONTINUE_ADD || continueAdd });
           }
@@ -358,51 +339,116 @@ function NewRecordForm(props) {
       });
     }
   }
-  registerFunc({ newRecord });
+  registerFunc({ newRecord, setRestoreVisible });
   const RecordCon = notDialog ? React.Fragment : ScrollView;
   const recordTitle = title || _l('创建%0', entityName || worksheetInfo.entityName || '');
-  const onTempNewRecordUpdate = () => {
-    setRestoreVisible(false);
-    if (viewId) {
-      const parsedData = parseRecordTempValue(tempNewRecord, formdata);
-      setRandom(Math.random().toString());
-      setFormdata(parsedData.formdata);
-      setRelateRecordData(parsedData.relateRecordData);
-      removeFromLocal('tempNewRecord', viewId);
+  const fillTempRecordValue = (tempNewRecord, formData) => {
+    const savedData = safeParse(tempNewRecord);
+    if (_.isEmpty(savedData)) return;
+    const tempRecordCreateTime = savedData.create_at;
+    const value = savedData.value || savedData;
+    cache.current.tempRecordCreateTime = tempRecordCreateTime;
+    const parsedData = parseRecordTempValue(value, formData, defaultRelatedSheet);
+    if (cache.current.focusTimer) {
+      clearTimeout(cache.current.focusTimer);
     }
+    setFormdata(parsedData.formdata);
+    setRelateRecordData(parsedData.relateRecordData);
+    setRandom(Math.random().toString());
+    setRestoreVisible(true);
   };
   const onTempNewRecordCancel = () => {
     setRestoreVisible(false);
-    if (viewId) {
-      removeFromLocal('tempNewRecord', viewId);
-    }
+    removeTempRecordValueFromLocal('tempNewRecord', worksheetId);
   };
+  function handleRestoreTempRecord(newFormdata) {
+    if (needCache) {
+      if (isWxWork) {
+        KVGet(`${md.global.Account.accountId}${worksheetId}-tempNewRecord`).then(data => {
+          if (data) {
+            fillTempRecordValue(data, newFormdata);
+          }
+        });
+      } else {
+        const tempData = localStorage.getItem('tempNewRecord_' + worksheetId);
+        if (tempData) {
+          fillTempRecordValue(tempData, newFormdata);
+        }
+      }
+    }
+  }
+  useEffect(() => {
+    async function load() {
+      if (_.isEmpty(formdata)) {
+        setWorksheetInfo(props.worksheetInfo);
+        let newFormdata = await getFormDataForNewRecord({
+          isCustomButton,
+          worksheetInfo: props.worksheetInfo,
+          defaultRelatedSheet,
+          defaultFormData,
+          defaultFormDataEditable,
+          writeControls,
+        });
+        newFormdata = isMobile
+          ? commonControlsAddTab(newFormdata, { rules: props.rules, from: from || 2 })
+          : newFormdata;
+
+        setFormdata(newFormdata);
+        setOriginFormdata(newFormdata);
+        setFormLoading(false);
+        cache.current.focusTimer = setTimeout(() => focusInput(formcon.current), 300);
+        handleRestoreTempRecord(newFormdata);
+      }
+    }
+    if (!loading) {
+      load();
+    }
+  }, [loading]);
   return (
     <Con onClick={e => e.stopPropagation()}>
-      {tempNewRecord &&
-        (isMobile ? (
-          <MobileRecordRecoverConfirm
+      {isMobile ? (
+        <MobileRecordRecoverConfirm
+          visible={restoreVisible}
+          title={_l(
+            '已恢复到上次中断内容%0',
+            cache.current.tempRecordCreateTime
+              ? `（${window.createTimeSpan(new Date(cache.current.tempRecordCreateTime))}）`
+              : '',
+          )}
+          updateText={_l('确认')}
+          cancelText={_l('清空')}
+          onUpdate={() => setRestoreVisible(false)}
+          onCancel={() => {
+            removeTempRecordValueFromLocal('tempNewRecord', worksheetId);
+            setFormdata(originFormdata);
+            setRandom(Math.random());
+            setRestoreVisible(false);
+          }}
+        />
+      ) : (
+        <EditingBarCon>
+          <EditingBar
             visible={restoreVisible}
-            title={_l('有上次未提交的内容，是否恢复？')}
-            updateText={_l('恢复')}
-            cancelText={_l('丢弃')}
-            onUpdate={onTempNewRecordUpdate}
-            onCancel={onTempNewRecordCancel}
+            defaultTop={-140}
+            visibleTop={8}
+            title={_l(
+              '已恢复到上次中断内容%0',
+              cache.current.tempRecordCreateTime
+                ? `（${window.createTimeSpan(new Date(cache.current.tempRecordCreateTime))}）`
+                : '',
+            )}
+            updateText={_l('确认')}
+            cancelText={_l('清空')}
+            onUpdate={() => setRestoreVisible(false)}
+            onCancel={() => {
+              removeTempRecordValueFromLocal('tempNewRecord', worksheetId);
+              setFormdata(originFormdata);
+              setRandom(Math.random());
+              setRestoreVisible(false);
+            }}
           />
-        ) : (
-          <EditingBarCon>
-            <EditingBar
-              visible={restoreVisible}
-              defaultTop={-140}
-              visibleTop={8}
-              title={_l('有上次未提交的内容，是否恢复？')}
-              updateText={_l('恢复')}
-              cancelText={_l('丢弃')}
-              onUpdate={onTempNewRecordUpdate}
-              onCancel={onTempNewRecordCancel}
-            />
-          </EditingBarCon>
-        ))}
+        </EditingBarCon>
+      )}
       <RecordCon>
         {!window.isPublicApp && shareVisible && (
           <Share
@@ -482,7 +528,15 @@ function NewRecordForm(props) {
             relateRecordData={relateRecordData}
             worksheetId={worksheetId}
             showError={errorVisible}
-            onChange={(data, ids, { noSaveTemp } = {}) => {
+            onChange={(data, ids, { noSaveTemp, isAsyncChange } = {}) => {
+              // let needHideRestore = restoreVisible && !noSaveTemp && !isAsyncChange;
+              // try {
+              //   needHideRestore =
+              //     needHideRestore && !(ids.length === 1 && _.find(formdata, { controlId: ids[0] }).type === 34);
+              // } catch (err) {}
+              // if (needHideRestore) {
+              //   setRestoreVisible(false);
+              // }
               if (isSubmitting.current) {
                 return;
               }
@@ -516,8 +570,12 @@ function NewRecordForm(props) {
                 });
               }
               setFormdata([...data]);
-              if (needCache && viewId && !noSaveTemp && cache.current.formUserChanged) {
-                saveToLocal('tempNewRecord', viewId, JSON.stringify(getRecordTempValue(data, relateRecordData)));
+              if (needCache && !noSaveTemp && cache.current.formUserChanged) {
+                saveTempRecordValueToLocal(
+                  'tempNewRecord',
+                  worksheetId,
+                  JSON.stringify({ create_at: Date.now(), value: getRecordTempValue(data, relateRecordData) }),
+                );
               }
             }}
             onSave={onSave}
@@ -542,7 +600,11 @@ function NewRecordForm(props) {
               const newRelateRecordData = { ...relateRecordData, [control.controlId]: { ...control, value: records } };
               setRelateRecordData(newRelateRecordData);
               if (viewId) {
-                saveToLocal('tempNewRecord', viewId, JSON.stringify(getRecordTempValue(formdata, newRelateRecordData)));
+                saveTempRecordValueToLocal(
+                  'tempNewRecord',
+                  worksheetId,
+                  JSON.stringify({ create_at: Date.now(), value: getRecordTempValue(formdata, relateRecordData) }),
+                );
               }
             }}
             projectId={projectId || props.projectId}

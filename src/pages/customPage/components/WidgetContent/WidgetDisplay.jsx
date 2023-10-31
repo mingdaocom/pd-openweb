@@ -77,8 +77,10 @@ const WidgetDisplay = forwardRef((props, $cardRef) => {
           needRefresh={!editable}
           isCharge={isCharge}
           className={cx({ disableChart: editable && widget.reportType === reportTypes.NumberChart })}
-          permissionType={rest.permissionType}
+          customPageConfig={rest.config}
+          themeColor={rest.themeColor}
           isLock={rest.isLock}
+          permissionType={rest.permissionType}
           appId={ids.appId}
           report={{ id: value, name }}
           sourceType={1}

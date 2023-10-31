@@ -10,7 +10,7 @@
     padding: 3px 6px;
     position: relative;
   }
-  .icon {
+  .icon:not(.inherit) {
     font-size: 22px;
     color: #cacaca;
   }
@@ -47,6 +47,21 @@
   &.worksheetQueryInput {
     .inputCon {
       padding: 3px 10px 3px 6px;
+    }
+  }
+  &.mobileQueryInput {
+    &.searchInputComp {
+      background-color: #f5f5f5;
+      &.default {
+        background-color: #fff;
+      }
+    }
+    .inputCon {
+      padding-top: 4px;
+    }
+    .icon:not(.inherit) {
+      font-size: 18px;
+      margin-top: 1px;
     }
   }
 }

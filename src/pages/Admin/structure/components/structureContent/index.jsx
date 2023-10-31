@@ -9,7 +9,7 @@ import UserTable from '../userList/userTable';
 import RoleController from 'src/api/role';
 import cx from 'classnames';
 import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
-import addFriends from 'src/components/addFriends/addFriends';
+import addFriends from 'src/components/addFriends';
 import AddUser from '../AddUser';
 
 class StructureContent extends Component {

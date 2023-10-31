@@ -235,8 +235,8 @@ export default function MoreOperation(props) {
     appPkg.currentPcNaviStyle === 2 ? false : appItem.edit || false,
   );
   const [sheetMoveVisible, setSheetMoveVisible] = useState(false);
-  const [externalLinkVisible, setExternalLinkVisible] = useState(false);
   const [createType, setCreateType] = useState('');
+  const [externalLinkVisible, setExternalLinkVisible] = useState(false);
 
   const isEditApp = canEditApp(_.get(appPkg, ['permissionType']), _.get(appPkg, ['isLock']));
   const isWorksheet = appItem.type === 0;
@@ -261,16 +261,20 @@ export default function MoreOperation(props) {
   const renderMenu = () => {
     return (
       <Menu className="worksheetItemOperate">
-        {appItem.urlTemplate && isEditApp && (
+        {isEditApp && appItem.type === 1 && (appItem.urlTemplate ? true : isActive) && (
           <Fragment>
             <MenuItem
               icon={<Icon icon="settings" className="Font16" />}
               onClick={() => {
-                setExternalLinkVisible(true);
+                if (appItem.urlTemplate) {
+                  setExternalLinkVisible(true);
+                } else {
+                  window.editCustomPage && window.editCustomPage();
+                }
                 setPopupVisible(false);
               }}
             >
-              <span className="text">{_l('编辑外部链接')}</span>
+              <span className="text">{appItem.urlTemplate ? _l('编辑外部链接') : _l('编辑画布')}</span>
             </MenuItem>
             <hr className="splitter" />
           </Fragment>

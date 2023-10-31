@@ -14,7 +14,7 @@ import { useSetState } from 'react-use';
 import SideWrap from '../../SideWrap';
 import { Header, EditWidgetContent } from '../../../styled';
 import { DEFAULT_BUTTON_LIST } from './config';
-import { COLORS } from 'src/pages/AppHomepage/components/SelectIcon/config';
+import { getThemeColors } from 'src/util';
 import ButtonDisplay from './ButtonDisplay';
 import _ from 'lodash';
 
@@ -51,7 +51,7 @@ const DefaultItem = styled.div`
 `;
 
 export default function Btn(props) {
-  const { widget, onEdit, onClose } = props;
+  const { projectId, widget, onEdit, onClose } = props;
 
   const { button } = widget;
 
@@ -68,6 +68,7 @@ export default function Btn(props) {
   };
 
   const addBtn = () => {
+    const COLORS = getThemeColors(projectId);
     const lastButton = buttonList[buttonList.length - 1] || {};
     const colorIndex = COLORS.indexOf(lastButton.color);
     const defaultColor = '#2196f3';

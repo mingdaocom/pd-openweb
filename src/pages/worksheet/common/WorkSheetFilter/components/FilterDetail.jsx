@@ -89,6 +89,7 @@ export default function FilterDetail(props) {
     filterResigned = true,
     filterError = [],
     isRules,
+    showCustom,
   } = props;
   const formattedCondition = formatForSave(filter);
   const canSave = !!_.sum(formattedCondition.map(c => (c.isGroup ? _.get(c, 'groupFilters.length') : 1)));
@@ -200,6 +201,7 @@ export default function FilterDetail(props) {
               isSingleFilter={isSingleFilter}
               canEdit={isNew ? true : canEdit}
               appId={appId}
+              showCustom={showCustom}
               projectId={projectId}
               isGroup={filter.isGroup}
               filterError={filterError[groupIndex] || []}

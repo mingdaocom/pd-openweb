@@ -67,8 +67,10 @@ export default class extends Component {
     this.DualAxes && this.DualAxes.destroy();
   }
   componentWillReceiveProps(nextProps) {
-    const { map, displaySetup, rightY } = nextProps.reportData;
-    const { displaySetup: oldDisplaySetup, rightY: oldRightY } = this.props.reportData;
+    const { map, displaySetup, rightY, style } = nextProps.reportData;
+    const { displaySetup: oldDisplaySetup, rightY: oldRightY, style: oldStyle } = this.props.reportData;
+    const chartColor = _.get(nextProps, 'customPageConfig.chartColor');
+    const oldChartColor = _.get(this.props, 'customPageConfig.chartColor');
 
     if (_.isEmpty(rightY)) {
       return;
@@ -101,7 +103,10 @@ export default class extends Component {
       rightYDisplay.minValue !== oldRightYDisplay.minValue ||
       rightYDisplay.maxValue !== oldRightYDisplay.maxValue ||
       !_.isEqual(displaySetup.auxiliaryLines, oldDisplaySetup.auxiliaryLines) ||
-      !_.isEqual(displaySetup.colorRules, oldDisplaySetup.colorRules)
+      !_.isEqual(displaySetup.colorRules, oldDisplaySetup.colorRules) ||
+      style.showXAxisSlider !== oldStyle.showXAxisSlider ||
+      !_.isEqual(chartColor, oldChartColor) ||
+      nextProps.themeColor !== this.props.themeColor
     ) {
       const config = this.getComponentConfig(nextProps);
       this.DualAxes.update(config);
@@ -130,7 +135,9 @@ export default class extends Component {
     this.DualAxes.render();
   }
   getComponentConfig(props) {
-    const { map, contrastMap, displaySetup, yaxisList, rightY, yreportType, xaxes, split, sorts, style } = props.reportData;
+    const { themeColor, projectId, customPageConfig, reportData } = props;
+    const { chartColor } = customPageConfig;
+    const { map, contrastMap, displaySetup, yaxisList, rightY, yreportType, xaxes, split, sorts, style } = reportData;
     const splitId = split.controlId;
     const xaxesId = xaxes.controlId;
     const { xdisplay, ydisplay, showPileTotal, isPile, legendType, auxiliaryLines, colorRules } = displaySetup;
@@ -141,7 +148,7 @@ export default class extends Component {
     const isLeftSort = splitId || !_.isEmpty(leftSorts);
     const isRightSort = rightY.splitId || !_.isEmpty(rightSorts);
     const rightYDisplay = rightY.display.ydisplay;
-    const colors = getChartColors(style);
+    const colors = getChartColors(chartColor || style, themeColor, projectId);
     const rightYColors = _.clone(colors).reverse();
 
     let sortLineXAxis = [];
@@ -378,10 +385,11 @@ export default class extends Component {
           : null,
         line: ydisplay.lineStyle === 1 ? {} : null,
       },
-      slider: (data.length || lineData.length) > 5000 ? {
-        start: 0,
-        end: 0.5,
-      } : undefined,
+      // slider: style.showXAxisSlider ? {
+      //   start: 0,
+      //   end: 0.5,
+      //   formatter: () => null
+      // } : undefined,
       legend: displaySetup.showLegend
         ? {
             position,

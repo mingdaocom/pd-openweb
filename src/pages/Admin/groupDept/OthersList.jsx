@@ -6,10 +6,9 @@ import './index.less';
 import transferController from 'src/api/transfer';
 import Config from '../config';
 import DetailDialog from './DetailDialog';
-import DialogLayer from 'src/components/mdDialog/dialog';
-import ReactDom from 'react-dom';
 import Empty from '../common/TableEmpty';
 import PaginationWrap from '../components/PaginationWrap';
+import Confirm from 'ming-ui/components/Dialog/Confirm';
 
 const { Search } = Input;
 
@@ -145,43 +144,34 @@ export default class OthersList extends Component {
 
   //移除成员
   handleDelete = accountId => {
-    const _this = this;
-    const options = {
-      container: {
-        content: _l(
-          '您选择的成员可能有任务负责人/群组管理员，移除后相关负责人将替换为企业小秘书（企业小秘书作为暂时接管相关模块的负责人，后续成员可根据自己的需求随时进行替换）',
-        ),
-        yesText: _l('确认'),
-        noText: _l('取消'),
-        header: _l('您确定要将成员从各个模块移除吗?'),
-        yesFn: () => {
-          transferController
-            .exitAllRelation({
-              projectId: Config.projectId,
-              accountIds: accountId ? [accountId] : _this.state.selectKeys,
-            })
-            .then(function (data) {
-              if (data.length > 0) {
-                _this.setState(
-                  {
-                    pageIndex: 1,
-                    selectKeys: [],
-                  },
-                  () => {
-                    _this.getGroupsList();
-                  },
-                );
-              } else {
-                alert(_l('移除成员失败'), 2);
-              }
-            });
-        },
+    Confirm({
+      title: _l('您确定要将成员从各个模块移除吗?'),
+      description: _l(
+        '您选择的成员可能有任务负责人/群组管理员，移除后相关负责人将替换为企业小秘书（企业小秘书作为暂时接管相关模块的负责人，后续成员可根据自己的需求随时进行替换）',
+      ),
+      onOk: () => {
+        transferController
+          .exitAllRelation({
+            projectId: Config.projectId,
+            accountIds: accountId ? [accountId] : this.state.selectKeys,
+          })
+          .then(data => {
+            if (data.length > 0) {
+              this.setState(
+                {
+                  pageIndex: 1,
+                  selectKeys: [],
+                },
+                () => {
+                  this.getGroupsList();
+                },
+              );
+            } else {
+              alert(_l('移除成员失败'), 2);
+            }
+          });
       },
-      dialogBoxID: 'deleteOtherDialogId',
-      width: '480',
-      height: '150',
-    };
-    ReactDom.render(<DialogLayer {...options} />, document.createElement('div'));
+    });
   };
 
   handleView(text, type, accountId) {
@@ -218,21 +208,11 @@ export default class OthersList extends Component {
             typeName = _l('共享文件夹');
             url = '/apps/kc/';
         }
-        const options = {
-          container: {
-            content: '',
-            noText: null,
-            yesText: null,
-          },
-          dialogBoxID: 'dialogGroupList',
-          width: '480',
-        };
-        ReactDom.render(
-          <DialogLayer {...options}>
-            <DetailDialog data={data.list} typeName={typeName} url={url} urlDetail={urlDetail} />
-          </DialogLayer>,
-          document.createElement('div'),
-        );
+
+        Confirm({
+          description: <DetailDialog data={data.list} typeName={typeName} url={url} urlDetail={urlDetail} />,
+          showFooter: false,
+        });
       });
   }
 

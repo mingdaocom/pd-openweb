@@ -46,7 +46,7 @@ export default class HandOver extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.keywords !== this.props.keywords || nextProps.level !== this.props.level) {
+    if (nextProps.activeTab !== this.props.activeTab || nextProps.level !== this.props.level) {
       this.setState(
         {
           pageIndex: 1,

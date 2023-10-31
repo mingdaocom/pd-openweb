@@ -8,6 +8,8 @@ import { antNotification } from 'ming-ui';
 import _ from 'lodash';
 
 export const wsexcelSocketInit = () => {
+  if (!window.IM) return;
+
   IM.socket.on(
     'wsexcel',
     ({

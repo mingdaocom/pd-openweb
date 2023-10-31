@@ -68,7 +68,9 @@ class CommentList extends React.Component {
     }
 
     this.callRef();
-    this.fetch();
+    if (!this.props.doNotLoadAtDidMount) {
+      this.fetch();
+    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -183,7 +185,7 @@ class CommentList extends React.Component {
       if (nullCommentList) {
         return nullCommentList;
       }
-      return <div className="mTop15 Gray_bd Font13">{isFocus ? _l('没有与我有关的内容') : _l('讨论')}</div>;
+      return <div className="mTop15 Gray_bd Font13">{isFocus ? _l('没有与我有关的内容') : _l('暂无讨论')}</div>;
     }
 
     return (

@@ -3,11 +3,10 @@ import { Input, Table, Spin, ConfigProvider } from 'antd';
 import { LoadDiv } from 'ming-ui';
 import Empty from '../common/TableEmpty';
 import Config from '../config';
-import DialogLayer from 'src/components/mdDialog/dialog';
-import ReactDom from 'react-dom';
 import groupController from 'src/api/group';
 import PaginationWrap from '../components/PaginationWrap';
 import './index.less';
+import Confirm from 'ming-ui/components/Dialog/Confirm';
 
 const { Search } = Input;
 
@@ -114,61 +113,45 @@ export default class MemberList extends Component {
   }
 
   handleSet = id => {
-    const reqData = {
-      accountIds: id ? [id] : this.state.selectKeys,
-      groupId: this.props.groupId,
-    };
-    const _this = this;
-    const options = {
-      container: {
-        content: _l('确认将所选择人员设置为管理员?'),
-        yesText: _l('确认'),
-        noText: _l('取消'),
-        header: _l('设置管理员'),
-        yesFn: () => {
-          groupController.addAdmin(reqData).then(function (data) {
+    Confirm({
+      title: _l('设置管理员'),
+      description: _l('确认将所选择人员设置为管理员?'),
+      onOk: () => {
+        groupController
+          .addAdmin({
+            accountIds: id ? [id] : this.state.selectKeys,
+            groupId: this.props.groupId,
+          })
+          .then(data => {
             if (data) {
               alert(_l('设置成功'));
-              _this.getGroupsList();
+              this.getGroupsList();
             } else alert(_l('设置失败'), 2);
           });
-        },
       },
-      dialogBoxID: 'setDialogId',
-      width: '480',
-      height: '150',
-    };
-    ReactDom.render(<DialogLayer {...options} />, document.createElement('div'));
+    });
   };
 
   handleDelete(id, name) {
-    const reqData = {
-      accountId: id,
-      groupId: this.props.groupId,
-    };
-    const _this = this;
-    const options = {
-      container: {
-        content: _l('确认移除%0的管理员权限？', name),
-        yesText: _l('确认'),
-        noText: _l('取消'),
-        header: _l('移除管理员'),
-        yesFn: () => {
-          groupController.removeAdmin(reqData).then(function (data) {
+    Confirm({
+      title: _l('移除管理员'),
+      description: _l('确认移除%0的管理员权限？', name),
+      onOk: () => {
+        groupController
+          .removeAdmin({
+            accountId: id,
+            groupId: this.props.groupId,
+          })
+          .then(data => {
             if (data == 1) {
               alert(_l('移除%0的管理员权限成功', name));
-              _this.getGroupsList();
+              this.getGroupsList();
             } else if (data == 2) {
               alert(_l('当前群组还有其他成员但只有你一个管理员，移出请先设置一位管理员'), 3);
             } else alert(_l('移除%0的管理员权限失败', name), 2);
           });
-        },
       },
-      dialogBoxID: 'removeDialogId',
-      width: '480',
-      height: '150',
-    };
-    ReactDom.render(<DialogLayer {...options} />, document.createElement('div'));
+    });
   }
 
   onSelectChange = selectKeys => {

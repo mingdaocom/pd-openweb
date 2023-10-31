@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
 // 获取应用id、分组id、工作表id
 export const getIds = props => _.get(props, ['match', 'params']);
 
@@ -52,3 +53,28 @@ export const getAppStatusText = ({ isGoodsStatus, isNew, fixed }) => {
   return null;
 };
 
+// 获取应用配置列表
+export const getAppConfig = (menus, permissionType) => {
+  switch (permissionType) {
+    case APP_ROLE_TYPE.POSSESS_ROLE: // 拥有者
+      break;
+    case APP_ROLE_TYPE.ADMIN_ROLE: // 管理员
+      menus = _.filter(menus, it => !_.includes(['del'], it.type));
+      break;
+    case APP_ROLE_TYPE.RUNNER_ROLE: // 运营者
+      menus = _.filter(menus, it =>
+        _.includes(['modify', 'editIntro', 'appAnalytics', 'appLogs', 'modifyAppLockPassword'], it.type),
+      );
+      break;
+    case APP_ROLE_TYPE.DEVELOPERS_ROLE: // 开发者
+      menus = _.filter(menus, it => !_.includes(['copy', 'export', 'appAnalytics', 'appLogs', 'del'], it.type));
+      break;
+    case APP_ROLE_TYPE.RUNNER_DEVELOPERS_ROLE: // 运营者+开发者
+      menus = _.filter(menus, it => !_.includes(['copy', 'export', 'del'], it.type));
+      break;
+    default:
+      break;
+  }
+
+  return menus;
+};

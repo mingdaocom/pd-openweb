@@ -4,6 +4,7 @@ import { Collapse } from 'antd';
 import { func, arrayOf, shape, string } from 'prop-types';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { checkTypeSupportForFunction } from '../enum';
+import { SearchFn } from 'src/pages/widgetConfig/util';
 
 const Con = styled.div`
   padding: 10px 0;
@@ -82,7 +83,7 @@ export default function ControlList(props) {
           {controlGroups.map(group => (
             <Collapse.Panel key={group.id} header={<span className="fnTitle">{group.name}</span>}>
               {group.controls
-                .filter(c => new RegExp(keywords).test(c.controlName))
+                .filter(c => SearchFn(keywords, c.controlName))
                 .map((c, i) => (
                   <ControlItem
                     key={i}
@@ -107,24 +108,22 @@ export default function ControlList(props) {
   } else {
     return (
       <Con>
-        {(keywords ? visibleControls.filter(c => new RegExp(keywords).test(c.controlName)) : visibleControls).map(
-          (c, i) => (
-            <ControlItem
-              key={i}
-              onClick={() => {
-                insertTagToEditor({
-                  value: c.controlId,
-                  text: c.controlName,
-                });
-              }}
-            >
-              <Icon className={`icon icon-${getIconByType(c.type || 6)}`} />
-              <span className="ellipsis" title={c.controlName}>
-                {c.controlName}
-              </span>
-            </ControlItem>
-          ),
-        )}
+        {(keywords ? visibleControls.filter(c => SearchFn(keywords, c.controlName)) : visibleControls).map((c, i) => (
+          <ControlItem
+            key={i}
+            onClick={() => {
+              insertTagToEditor({
+                value: c.controlId,
+                text: c.controlName,
+              });
+            }}
+          >
+            <Icon className={`icon icon-${getIconByType(c.type || 6)}`} />
+            <span className="ellipsis" title={c.controlName}>
+              {c.controlName}
+            </span>
+          </ControlItem>
+        ))}
       </Con>
     );
   }

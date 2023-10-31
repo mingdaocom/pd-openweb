@@ -120,6 +120,7 @@ export default class MoreOverlay extends Component {
   }
   renderOverlay() {
     const {
+      themeColor,
       reportType,
       report,
       ownerId,
@@ -213,8 +214,9 @@ export default class MoreOverlay extends Component {
             onClick={() => {
               const { filters = [], filtersGroup = [] } = this.props.exportData;
               const printFilter = [filters, filtersGroup].filter(n => !_.isEmpty(n));
+              this.handleUpdateDropdownVisible(false);
               sessionStorage.setItem(`printFilter-${report.id}`, JSON.stringify(printFilter));
-              window.open(`/printPivotTable/${report.id}`);
+              window.open(`/printPivotTable/${report.id}/${encodeURIComponent(themeColor || '')}`);
             }}
           >
             <div className="flexRow valignWrapper">

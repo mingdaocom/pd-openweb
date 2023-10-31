@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import styled from 'styled-components';
 import { Dropdown, Modal } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
+import cx from 'classnames';
 import { Menu, MenuItem, Dialog, Support } from 'ming-ui';
 import { arrayMove, SortableContainer, SortableElement, SortableHandle } from 'react-sortable-hoc';
 import update from 'immutability-helper';
@@ -104,6 +105,10 @@ const ControlsWrap = styled.div`
   span {
     margin-left: 6px;
   }
+  &.disabled {
+    color: #bdbdbd !important;
+    cursor: not-allowed;
+  }
 `;
 const DragHandle = SortableHandle(() => <i className="icon-drag Gray_9e ThemeHoverColor3 pointer"></i>);
 
@@ -147,6 +152,7 @@ export default function ConfigureControl({ data, globalSheetInfo, controls, onCh
   const [{ selectCascadeDataSourceVisible }, setVisible] = useSetState({ selectCascadeDataSourceVisible: false });
   let dataSource = '';
   let controlName = '';
+  const disabledAdd = _.get(controls, 'length') >= 50;
 
   useEffect(() => {
     setWidgetIndex(-1);
@@ -176,13 +182,17 @@ export default function ConfigureControl({ data, globalSheetInfo, controls, onCh
                   controlId: uuidv4(),
                 };
                 // 子表表单不允许再添加子表、分割线、文本识别、嵌入、查询记录
-                if (_.includes([22, 34, 43, 45, 47, 49, 51], type)) return null;
+                if (_.includes([22, 34, 43, 45, 47, 49, 51, 52], type)) return null;
                 return (
                   <MenuItem
                     key={type}
                     className="widgetMenuItem"
                     icon={<i style={{ verticalAlign: 'text-top' }} className={`icon-${icon} icon pointer Font16`}></i>}
                     onClick={() => {
+                      if (disabledAdd) {
+                        alert(_l('最多添加50个字段'), 3);
+                        return;
+                      }
                       if (type === 35) {
                         setVisible({ selectCascadeDataSourceVisible: true });
                         return;
@@ -316,7 +326,7 @@ export default function ConfigureControl({ data, globalSheetInfo, controls, onCh
             onVisibleChange={value => setValue(value)}
             getPopupContainer={() => $ref.current}
           >
-            <ControlsWrap>
+            <ControlsWrap className={cx({ disabled: disabledAdd })}>
               <div className="addControl" ref={$ref}>
                 <i className="icon-plus Font16" />
                 <span>{_l('添加字段')}</span>

@@ -5,18 +5,18 @@ import worksheetAjax from 'src/api/worksheet';
 import { getRowDetail } from 'worksheet/api';
 import { Modal, Progress, WingBlank } from 'antd-mobile';
 import { message } from 'antd';
-import { Icon } from 'ming-ui';
+import { Icon, LoadDiv } from 'ming-ui';
 import MobileVertifyPassword from 'src/ming-ui/components/VertifyPasswordMoibile';
 import FillRecordControls from 'src/pages/worksheet/common/recordInfo/FillRecordControls/MobileFillRecordControls';
 import NewRecord from 'src/pages/worksheet/common/newRecord/MobileNewRecord';
 import { doubleConfirmFunc } from './DoubleConfirm';
-import CustomRecordCard from 'mobile/RecordList/RecordCard';
 import processAjax from 'src/pages/workflow/api/process';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { RecordInfoModal } from 'mobile/Record';
 import workflowPushSoket from '../socket/workflowPushSoket';
 import customBtnWorkflow from '../socket/customBtnWorkflow';
+import CustomButtons from './CustomButtons';
 import './index.less';
 import _ from 'lodash';
 
@@ -197,12 +197,16 @@ class RecordAction extends Component {
         pushUniqueId: _.get(window, 'md.global.Config.pushUniqueId'),
       })
       .then(data => {
-        this.props.loadRow();
-        this.props.loadCustomBtns();
-        setTimeout(() => {
-          this.setState({ btnDisable: {} });
-          this.props.updateBtnDisabled({});
-        }, 500);
+        if (data) {
+          this.props.loadRow();
+          this.props.loadCustomBtns();
+          setTimeout(() => {
+            this.setState({ btnDisable: {} });
+            this.props.updateBtnDisabled({});
+          }, 500);
+        } else {
+          alert(_l('操作失败'), 2);
+        }
       });
   };
   disableCustomButton = id => {
@@ -558,6 +562,7 @@ class RecordAction extends Component {
       appId,
       switchPermit,
       isBatchOperate,
+      loading,
     } = this.props;
     const { btnDisable } = this.state;
     return (
@@ -576,47 +581,47 @@ class RecordAction extends Component {
               <Icon icon="close" />
             </div>
           </div>
-          <div className="flexRow customBtnLists Font13">
-            {customBtns.map(item => (
-              <div
-                key={item.btnId}
-                className={cx('flex', 'customBtnItem', { disabled: btnDisable[item.btnId] || item.disabled })}
-                style={btnDisable[item.btnId] || item.disabled ? {} : { backgroundColor: item.color }}
-                onClick={() => {
-                  if (btnDisable[item.btnId] || item.disabled) {
-                    return;
-                  }
-                  this.handleTriggerCustomBtn(item);
-                }}
-              >
-                <Icon
-                  icon={item.icon || 'custom_actions'}
-                  className={cx('mRight7 Font15', { opcIcon: !item.icon && !item.disabled })}
-                />
-                <span>{item.name}</span>
-              </div>
-            ))}
-          </div>
-          {appId && !isBatchOperate ? (
-            <div className="extrBtnBox">
-              {isOpenPermit(permitList.recordShareSwitch, switchPermit, viewId) && (
-                <div className="flexRow extraBtnItem">
-                  <Icon icon="share" className="Font18 delIcon" style={{ color: '#757575' }} />
-                  <div className="flex delTxt Font15 Gray" onClick={this.props.onShare}>
-                    {_l('分享')}
-                  </div>
-                </div>
-              )}
-              {(sheetRow.allowDelete || (this.isSubList && this.editable)) && (
-                <div className="flexRow extraBtnItem">
-                  <Icon icon="delete_12" className="Font18 delIcon" />
-                  <div className="flex delTxt Font15" onClick={this.handleDeleteAlert}>
-                    {_l('删除')}
-                  </div>
-                </div>
-              )}
+          {loading ? (
+            <div className="flexRow justifyContentCenter alignItemsCenter mBottom30">
+              <LoadDiv />
             </div>
-          ) : null}
+          ) : _.isEmpty(customBtns) && !(appId && !isBatchOperate) ? (
+            <div className="Gray bold mBottom30 TxtLeft pLeft15">{_l('暂无按钮')}</div>
+          ) : (
+            <Fragment>
+              <div className="flexRow customBtnLists Font13">
+                <CustomButtons
+                  isBatch={isBatchOperate}
+                  classNames="flex customBtnItem"
+                  customBtns={customBtns}
+                  btnDisable={btnDisable}
+                  handleClick={btn => {
+                    this.handleTriggerCustomBtn(btn);
+                  }}
+                />
+              </div>
+              {appId && !isBatchOperate ? (
+                <div className="extrBtnBox">
+                  {isOpenPermit(permitList.recordShareSwitch, switchPermit, viewId) && (
+                    <div className="flexRow extraBtnItem">
+                      <Icon icon="share" className="Font18 delIcon" style={{ color: '#757575' }} />
+                      <div className="flex delTxt Font15 Gray" onClick={this.props.onShare}>
+                        {_l('分享')}
+                      </div>
+                    </div>
+                  )}
+                  {(sheetRow.allowDelete || (this.isSubList && this.editable)) && (
+                    <div className="flexRow extraBtnItem">
+                      <Icon icon="delete_12" className="Font18 delIcon" />
+                      <div className="flex delTxt Font15" onClick={this.handleDeleteAlert}>
+                        {_l('删除')}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : null}
+            </Fragment>
+          )}
         </React.Fragment>
       </Modal>
     );

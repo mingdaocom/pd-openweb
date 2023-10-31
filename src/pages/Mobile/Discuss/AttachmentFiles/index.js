@@ -3,10 +3,66 @@ import cx from 'classnames';
 import { Flex, Toast } from 'antd-mobile';
 import { Icon, Progress } from 'ming-ui';
 import './index.less';
-import { getRandomString, getClassNameByExt, getToken } from 'src/util';
+import { getRandomString, getClassNameByExt, getToken, formatFileSize } from 'src/util';
 import { checkFileAvailable } from 'src/components/UploadFiles/utils.js';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import { formatFileSize } from 'src/util';
+import moment from 'moment';
+import MapLoader from 'src/ming-ui/components/amap/MapLoader';
+import MapHandler from 'src/ming-ui/components/amap/MapHandler';
+
+/**
+ * 添加水印
+ * @param {file} 上传的图片文件
+ */
+async function addWaterMarker(file, textLayouts) {
+  let img = await blobToImg(file)
+  return new Promise((resolve, reject) => {
+    let canvas = document.createElement('canvas');
+    canvas.width = img.width;
+    canvas.height = img.height;
+    let ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+
+    const fontSize = Math.min(canvas.width, canvas.height) * 0.03;
+    const lineSpacing = 6;
+
+    // 绘制背景
+    const bgColoryOffset = (fontSize * textLayouts.length) + (lineSpacing * textLayouts.length);
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+    ctx.fillRect(0, (canvas.height - bgColoryOffset) - fontSize, canvas.width, bgColoryOffset + fontSize);
+
+    // 绘制文字
+    ctx.font = `${fontSize}px 'Fira Sans'`;
+    ctx.fillStyle = '#fff';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'bottom';
+    ctx.backgroundColor = '#ccc';
+
+    textLayouts.forEach((text, index) => {
+      const i = textLayouts.length - index;
+      const xOffset = 20;
+      const yOffset = canvas.height - (fontSize * i) - (lineSpacing * i);
+      ctx.fillText(text, xOffset, yOffset + 10);
+    });
+
+    canvas.toBlob(blob => resolve(blob));
+  })
+}
+
+/**
+* blob转img标签
+*/
+function blobToImg(blob) {
+  return new Promise((resolve, reject) => {
+    let reader = new FileReader();
+    reader.addEventListener('load', () => {
+      let img = new Image();
+      img.src = reader.result;
+      img.addEventListener('load', () => resolve(img));
+    });
+    reader.readAsDataURL(blob);
+  });
+}
 
 const formatResponseData = (file, response) => {
   const item = {};
@@ -29,17 +85,46 @@ const formatResponseData = (file, response) => {
   return item;
 };
 
+let currentLocation = null;
+
 export class UploadFileWrapper extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      files: props.files,
+      files: props.files
     };
     this.currentFile = null;
     this.id = `uploadFiles-${getRandomString()}`;
   }
   componentDidMount() {
     this.uploadFile();
+    const { advancedSetting = {} } = this.props;
+    const watermark = JSON.parse(advancedSetting.watermark || null) || [];
+    if (!currentLocation && watermark.length) {
+      currentLocation = {};
+      this._MapLoader = new MapLoader();
+      this._MapLoader.loadJs().then(() => {
+        this.initMapObject();
+      });
+    }
+  }
+  componentWillUnmount() {
+    if (this._maphHandler) {
+      this._maphHandler.destroyMap();
+      this._maphHandler = null;
+    }
+  }
+  initMapObject() {
+    this._maphHandler = new MapHandler(document.createElement('div'), { zoom: 15 });
+    this._maphHandler.getCurrentPos((status, result) => {
+      if (status === 'complete') {
+        const { formattedAddress, position } = result;
+        currentLocation = {
+          formattedAddress,
+          position
+        }
+      }
+    });
   }
   componentWillReceiveProps(nextProps) {
     if (nextProps.files.length !== this.props.files.length) {
@@ -62,50 +147,89 @@ export class UploadFileWrapper extends Component {
         }
 
         self.uploading = true;
-
-        if (advancedSetting) {
-          let isAvailable;
-          let tempCount = self.props.originCount || 0;
-          isAvailable = checkFileAvailable(advancedSetting, files, tempCount);
-          if (!isAvailable) {
-            self.onRemoveAll(uploader);
-            return;
+        const watermark = JSON.parse(advancedSetting.watermark || null) || [];
+        const start = () => {
+          if (advancedSetting) {
+            let isAvailable;
+            let tempCount = self.props.originCount || 0;
+            isAvailable = checkFileAvailable(advancedSetting, files, tempCount);
+            if (!isAvailable) {
+              self.onRemoveAll(uploader);
+              return;
+            }
           }
-        }
-        const tokenFiles = [];
-        files
-          .filter(item => item.name || item.type)
-          .forEach(item => {
-            const { files: fileList } = self.state;
-            const fileExt = `.${File.GetExt(item.name)}`;
-            const fileName = File.GetName(item.name);
-            const isPic = File.isPicture(fileExt);
-            const id = item.id;
-            const base = {
-              isPic,
-              fileExt,
-              fileName,
-              id,
-            };
-            const newFiles = fileList.concat({ id: item.id, progress: 0, base });
-            self.setState({
-              files: newFiles,
+          const tokenFiles = [];
+          files
+            .filter(item => item.name || item.type)
+            .forEach(item => {
+              const { files: fileList } = self.state;
+              const fileExt = `.${File.GetExt(item.name)}`;
+              const fileName = File.GetName(item.name);
+              const isPic = File.isPicture(fileExt);
+              const id = item.id;
+              const base = {
+                isPic,
+                fileExt,
+                fileName,
+                id,
+              };
+              const newFiles = fileList.concat({ id: item.id, progress: 0, base });
+              self.setState({
+                files: newFiles,
+              });
+              tokenFiles.push({ bucket: isPic ? 4 : 3, ext: fileExt });
+              self.props.onChange(newFiles);
             });
-            tokenFiles.push({ bucket: isPic ? 4 : 3, ext: fileExt });
-            self.props.onChange(newFiles);
+          getToken(tokenFiles, 0, {
+            projectId, appId, worksheetId
+          }).then(res => {
+            files.forEach((item, i) => {
+              item.token = res[i].uptoken;
+              item.key = res[i].key;
+              item.serverName = res[i].serverName;
+              item.fileName = res[i].fileName;
+              item.url = res[i].url;
+            });
+            uploader.start();
           });
-        getToken(tokenFiles, 0, {
-          projectId, appId, worksheetId
-        }).then(res => {
-          files.forEach((item, i) => {
-            item.token = res[i].uptoken;
-            item.key = res[i].key;
-            item.serverName = res[i].serverName;
-            item.fileName = res[i].fileName;
-            item.url = res[i].url;
+        };
+
+        if (watermark.length) {
+          // 添加水印
+          Promise.all(
+            files.filter(file => {
+              const ext = File.GetExt(file.name);
+              return File.isPicture(`.${ext}`);
+            }).map(file => {
+              return new Promise((resolve, reject) => {
+                const nativeFile = file.getNative();
+                const { formattedAddress, position } = currentLocation || {};
+                const textLayouts = [];
+                if (md.global.Account.fullname && watermark.includes('user')) {
+                  textLayouts.push(md.global.Account.fullname);
+                }
+                if (watermark.includes('time')) {
+                  textLayouts.push(moment().format('YYYY-MM-DD HH:mm:ss'));
+                }
+                if (formattedAddress && watermark.includes('address')) {
+                  textLayouts.push(formattedAddress);
+                }
+                if (position && watermark.includes('xy')) {
+                  textLayouts.push(`${_l('经度')}：${position.lng}  ${_l('纬度')}：${position.lat}`);
+                }
+                addWaterMarker(nativeFile, textLayouts).then(blob => {
+                  const newFile = new File([blob], file.name, { type: blob.type });
+                  file.getSource().setSource(newFile);
+                  resolve();
+                });
+              });
+            })
+          ).then(() => {
+            start();
           });
-          uploader.start();
-        });
+        } else {
+          start();
+        }
       },
       BeforeUpload(uploader, file) {
         self.currentFile = uploader;

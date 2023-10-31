@@ -36,7 +36,7 @@ const WidgetContent = styled.div`
 const fistLetterUpper = str => str.charAt(0).toUpperCase() + str.slice(1);
 
 function WidgetDisplay(props) {
-  const { ids, widget, apk, pageComponents, componentType } = props;
+  const { ids, widget, apk, pageComponents, pageConfig, themeColor, componentType } = props;
   const { type, value, name, button, param = [], config = {} } = widget;
   const renderContent = () => {
     if (componentType === 'embedUrl') return <PreviewContent value={value} param={param} config={config} />;
@@ -63,6 +63,9 @@ function WidgetDisplay(props) {
           reportId={value}
           name={name}
           pageComponents={pageComponents.filter(p => p.type === 1)}
+          pageConfig={pageConfig}
+          themeColor={apk.iconColor}
+          projectId={apk.projectId}
         />
       )
     };

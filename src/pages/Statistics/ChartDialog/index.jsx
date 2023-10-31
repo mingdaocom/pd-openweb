@@ -24,6 +24,7 @@ import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkS
 import { chartNav, getNewReport } from '../common';
 import { reportTypes } from '../Charts/common';
 import './index.less';
+import store from 'redux/configureStore';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actions from '../redux/actions.js';
@@ -324,10 +325,12 @@ export default class ChartDialog extends Component {
     );
   }
   renderChart() {
-    const { base } = this.props;
+    const { projectId, base, themeColor } = this.props;
     const { settingVisible, scopeVisible } = this.state;
     return (
       <Chart
+        projectId={projectId}
+        themeColor={themeColor || _.get(store.getState(), 'appPkg.iconColor')}
         sheetVisible={base.sheetVisible}
         settingVisible={settingVisible}
         scopeVisible={scopeVisible}

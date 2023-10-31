@@ -85,10 +85,6 @@
     overflow: auto;
     overflow-x: hidden;
 
-    .rowsWrap {
-      box-shadow: none !important;
-    }
-
     .customTitle {
       display: none;
     }
@@ -99,8 +95,12 @@
       width: 800px;
       margin: 200px auto 50px;
       border-radius: 3px;
-      background-color: #fff;
-      box-shadow: 0px 1px 4px #00000029;
+      padding: 0 2px;
+
+      .formContentHeader {
+        background: #fff;
+        padding: 0 20px;
+      }
 
       .icon-workflow_hide,
       .icon-visibility_off {
@@ -170,6 +170,18 @@
 
   .nano-content {
     position: relative !important;
+  }
+  .rowsWrap {
+    box-shadow: none !important;
+    border-radius: 0 0 3px 3px;
+  }
+  .tabItemWrap {
+    box-shadow: none !important;
+  }
+  .tabHeaderContent {
+    .switchStyleWrap {
+      display: none;
+    }
   }
 }
 

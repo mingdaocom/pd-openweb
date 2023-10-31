@@ -33,6 +33,7 @@ import OrgRole from './OrgRole';
 import Search from './Search';
 import RelationSearch from './RelationSearch';
 import Section from './Section';
+import SplitLine from './SplitLine';
 
 export default {
   RADIO: Radio,
@@ -70,4 +71,5 @@ export default {
   Search: Search,
   RelationSearch: RelationSearch,
   Section: Section,
+  SplitLine: SplitLine,
 };

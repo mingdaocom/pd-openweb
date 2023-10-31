@@ -437,6 +437,7 @@ export const OptionWrap = styled.div`
 `;
 
 export const EditModelWrap = styled.div`
+  ${props => (props.isTab ? 'padding: 8px 20px;' : '')}
   .desc {
     line-height: 13px;
     &.subList {
@@ -673,6 +674,18 @@ export const TitleContentWrap = styled.div`
     }
   }
 
+  .tabHeaderTileWrap {
+    width: 100%;
+    box-size: border-box;
+    background: #f8f8f8;
+    border-radius: 8px 8px 0 0;
+    & > div {
+      &:first-child {
+        border-radius: 5px 0 0 0;
+      }
+    }
+  }
+
   .desc {
     color: #9e9e9e;
     margin-top: 8px;
@@ -721,6 +734,20 @@ export const AnimationWrap = styled.div`
       color: #bdbdbd;
       cursor: not-allowed;
     }
+  }
+`;
+
+export const NumberRange = styled.div`
+  margin-top: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  span {
+    margin: 0 8px;
+    color: #9e9e9e;
+  }
+  input {
+    width: 100%;
   }
 `;
 

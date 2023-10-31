@@ -480,14 +480,6 @@ ShareFolder.prototype = {
   },
 };
 
-preall(
-  { type: 'function' },
-  {
-    allownotlogin: true,
-    preloadcb: () => {
-      window.hello = new ShareFolder();
-    },
-  },
-);
-
+preall({ type: 'function' }, { allownotlogin: true });
+window.hello = new ShareFolder();
 md.global.Config.disableKf5 = true;

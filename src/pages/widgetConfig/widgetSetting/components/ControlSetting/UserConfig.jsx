@@ -3,7 +3,7 @@ import React, { Fragment, useState } from 'react';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../util/setting';
 import { Checkbox } from 'ming-ui';
 import update from 'immutability-helper';
-import Icon from 'src/components/Icon';
+import Components from '../../../components';
 import DialogSelectGroups from 'src/components/dialogSelectDept';
 import { selectOrgRole } from 'src/components/DialogSelectOrgRole';
 import { Dropdown, Tooltip } from 'antd';
@@ -13,6 +13,8 @@ import { SelectOtherField, OtherField } from '../DynamicDefaultValue/components'
 import { DefaultOptionSetting } from '../DynamicDefaultValue/inputTypes/OptionInput';
 import { FieldInfo } from '../DynamicDefaultValue/styled';
 import { head, isEqual } from 'lodash';
+
+const Icon = Components.Icon;
 
 const USER_RANGE = [
   // { id: 'self', type: 1, value: 'user-self', text: _l('当前用户') },

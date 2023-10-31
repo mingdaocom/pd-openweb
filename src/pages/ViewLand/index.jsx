@@ -27,6 +27,7 @@ const Con = styled.div`
 export default function ViewLand(props) {
   const { appId, worksheetId, viewId } = _.get(props, 'match.params') || {};
   const [loading, setLoading] = useState(false);
+  const [showHeader, setShowHeader] = useState(true);
   const [worksheetInfo, setWorksheetInfo] = useState();
   useEffect(() => {
     if (browserIsMobile()) {
@@ -39,9 +40,12 @@ export default function ViewLand(props) {
     }
     window.hideColumnHeadFilter = true;
     worksheet.getWorksheetInfo({ worksheetId, getViews: true }).then(worksheetInfo => {
+      const view = _.find(worksheetInfo.views, v => v.viewId === viewId) || {};
+      const isSingleRecordDetailView = _.get(view, 'viewType') === 6 && String(_.get(view, 'childType')) === '1';
+      setShowHeader(!isSingleRecordDetailView);
       setWorksheetInfo({
         worksheetName: worksheetInfo.name,
-        viewName: (_.find(worksheetInfo.views, v => v.viewId === viewId) || {}).name || '',
+        viewName: view.name || '',
       });
     });
     return () => {
@@ -50,16 +54,14 @@ export default function ViewLand(props) {
   }, []);
 
   if (loading) {
-    return (
-      <LoadDiv />
-    );
+    return <LoadDiv />;
   }
 
   return (
     <Con>
       <SingleView
         showPageTitle
-        showHeader
+        showHeader={showHeader}
         headerLeft={
           !!worksheetInfo && (
             <div className="mLeft24 Font16 bold flexRow alignItemsCenter">

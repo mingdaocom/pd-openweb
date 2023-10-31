@@ -1,6 +1,14 @@
 import styled, { css } from 'styled-components';
 
 export const WrapL = styled.div`
+  .itemOpName {
+    max-width: 100px;
+    vertical-align: middle;
+    line-height: 14px;
+  }
+  .ming.Dropdown .Dropdown--input .value {
+    max-width: 100%;
+  }
   // 暂时不开放
   .Dropdown--input {
     .icon-arrow-down-border {
@@ -14,7 +22,6 @@ export const WrapL = styled.div`
   .dropdownTrigger.disabled {
     background-color: #fff;
   }
-  //
   .autosize {
     flex: 1;
   }
@@ -58,7 +65,6 @@ export const WrapL = styled.div`
       }
     }
   }
-  // .addSource,
   .addFilter {
     height: 58px;
     background: #ffffff;
@@ -70,18 +76,6 @@ export const WrapL = styled.div`
       border: 1px dashed #2196f3;
     }
   }
-  // .sourceCard {
-  //   padding: 12px 20px;
-  //   background: #ffffff;
-  //   border: 1px solid #e2e2e2;
-  //   border-radius: 4px;
-  //   img {
-  //     width: 32px;
-  //     height: 32px;
-  //     border: 2px solid #ffffff;
-  //     border-radius: 50%;
-  //   }
-  // }
   .dropWorksheet {
     margin-top: 14px;
     width: 100%;
@@ -118,6 +112,7 @@ export const WrapL = styled.div`
     }
   }
   .itemOp {
+    line-height: 1;
     background: #f5f5f5;
     border: 1px solid #dfdfdf;
     padding: 5px 12px;

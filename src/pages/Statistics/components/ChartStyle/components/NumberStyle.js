@@ -1,5 +1,5 @@
 import React, { useState, Fragment } from 'react';
-import { Icon } from 'ming-ui';
+import { Icon, ColorPicker } from 'ming-ui';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { Input, Collapse, Checkbox, Switch, Tooltip } from 'antd';
@@ -28,15 +28,9 @@ const Wrap = styled.div`
     padding: 4px;
     border: 1px solid #DDDDDD;
     background-color: #fff;
-
     .colorBlock {
       width: 100%;
       height: 100%;
-    }
-    .colorInput {
-      width: 100%;
-      height: 100%;
-      opacity: 0;
     }
   }
   .numberIconWrap {
@@ -237,6 +231,7 @@ const IconSetting = props => {
       <div className="flexRow valignWrapper mBottom12">
         <div style={{ width: 60 }}>{_l('图标')}</div>
         <Trigger
+          zIndex={1000}
           action={['click']}
           popupAlign={{ points: ['tc', 'bc'], offset: [0, 5], overflow: { adjustX: true, adjustY: true } }}
           popup={(
@@ -318,18 +313,18 @@ const StatisticsValue = props => {
       <div className="flexRow valignWrapper mBottom12">
         <div style={{ width: 50 }}>{_l('颜色')}</div>
         {!colorRule && (
-          <div className="colorWrap">
-            <div className="colorBlock" style={{ backgroundColor: numberChartStyle.fontColor }}>
-              <input
-                type="color"
-                className="colorInput pointer"
-                value={numberChartStyle.fontColor}
-                onChange={(event) => {
-                  onChangeNumberStyle({ fontColor: event.target.value });
-                }}
-              />
+          <ColorPicker
+            isPopupBody
+            value={numberChartStyle.fontColor}
+            onChange={value => {
+              onChangeNumberStyle({ fontColor: value });
+            }}
+          >
+            <div className="colorWrap pointer">
+              <div className="colorBlock" style={{ backgroundColor: numberChartStyle.fontColor }}>
+              </div>
             </div>
-          </div>
+          </ColorPicker>
         )}
         {controlId && (
           <Tooltip title={_l('颜色规则')}>
@@ -373,8 +368,9 @@ const StatisticsValue = props => {
   );
 }
 
-const ContrastValue= props => {
+export const ContrastValue = props => {
   const { numberChartStyle, onChangeNumberStyle } = props;
+  const { contrastValueShowPercent = true, contrastValueShowNumber = false } = numberChartStyle || {};
   const handleChangeContrastValueDot = value => {
     if (value) {
       value = parseInt(value);
@@ -391,22 +387,35 @@ const ContrastValue= props => {
     <Fragment>
       <div className="mBottom12">
         <div className="mBottom8">{_l('显示方式')}</div>
-        <div className="chartTypeSelect flexRow valignWrapper">
-          {
-            contrastValueShowTypes.map(item => (
-              <div
-                key={item.value}
-                className={cx('flex centerAlign pointer Gray_75', { active: (numberChartStyle.contrastValueShowType || 0) === item.value })}
-                onClick={() => {
-                  onChangeNumberStyle({
-                    contrastValueShowType: item.value
-                  });
-                }}
-              >
-                {item.name}
-              </div>
-            ))
-          }
+        <div className="flexRow mBottom8">
+          <Checkbox
+            checked={contrastValueShowPercent}
+            onChange={(e) => {
+              if (contrastValueShowPercent && !contrastValueShowNumber && !e.target.checked) {
+                return;
+              }
+              onChangeNumberStyle({
+                contrastValueShowPercent: e.target.checked
+              });
+            }}
+          >
+            {_l('百分比')}
+          </Checkbox>
+        </div>
+        <div className="flexRow mBottom8">
+          <Checkbox
+            checked={contrastValueShowNumber}
+            onChange={(e) => {
+              if (!contrastValueShowPercent && contrastValueShowNumber && !e.target.checked) {
+                return;
+              }
+              onChangeNumberStyle({
+                contrastValueShowNumber: e.target.checked
+              });
+            }}
+          >
+            {_l('数值')}
+          </Checkbox>
         </div>
       </div>
       <div className="mBottom12">
@@ -602,16 +611,6 @@ export default function numberStylePanelGenerator(props) {
         <StatisticsValue
           currentReport={currentReport}
           onChangeDisplayValue={onChangeDisplayValue}
-          numberChartStyle={numberChartStyle}
-          onChangeNumberStyle={onChangeNumberStyle}
-        />
-      </Collapse.Panel>
-      <Collapse.Panel
-        key="contrastValue"
-        header={_l('对比值')}
-        {...collapseProps}
-      >
-        <ContrastValue
           numberChartStyle={numberChartStyle}
           onChangeNumberStyle={onChangeNumberStyle}
         />

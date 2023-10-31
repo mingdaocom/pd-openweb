@@ -5,7 +5,7 @@ import 'src/components/selectGroup/selectAllGroup';
 import 'src/components/uploadAttachment/uploadAttachment';
 import { index as mdDialog } from 'src/components/mdDialog/dialog';
 import LinkView from 'src/components/linkView/linkView';
-import 'src/components/voteUpdater/voteUpdater';
+import VoteUpdater from 'src/components/voteUpdater/voteUpdater';
 import kcAjax from 'src/api/kc';
 import selectNode from 'src/components/kc/folderSelectDialog/folderSelectDialog';
 import applicationAjax from 'src/api/application';
@@ -398,7 +398,7 @@ var MyUpdater = {
           ) {
             $('#textarea_Updater').val(langVoteQuestion).addClass('Gray_a');
           }
-          $('#Vote_updater').voteUpdater('init');
+          VoteUpdater.init($('#Vote_updater'));
         } else {
           $('#hidden_UpdaterType').val('0');
           $('#hidden_FilePath').val('');
@@ -718,10 +718,10 @@ var MyUpdater = {
       var voteData;
       if (postType == '7') {
         var $voteUpdater = $('#Vote_updater');
-        voteData = $voteUpdater.voteUpdater('getData');
+        voteData = VoteUpdater.getData($voteUpdater);
         // 验证投票是否有选项
         if (voteData.invalid) {
-          $voteUpdater.voteUpdater('alertInvalidData');
+          VoteUpdater.alertInvalidData($voteUpdater);
           return;
         }
 

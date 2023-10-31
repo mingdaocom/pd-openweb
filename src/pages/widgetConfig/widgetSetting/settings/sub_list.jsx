@@ -28,8 +28,7 @@ import { DEFAULT_SETTING_OPTIONS } from '../../config/setting';
 import DynamicDefaultValue from '../components/DynamicDefaultValue';
 import WidgetVerify from '../components/WidgetVerify';
 import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
-import WidgetRowHeight from '../components/WidgetRowHeight';
-const { AddSubList, ConfigureControls, Sort } = subListComponents;
+const { AddSubList, ConfigureControls, Sort, SubListStyle } = subListComponents;
 
 const SettingModelWrap = styled.div`
   .transferToRelate {
@@ -160,9 +159,9 @@ export default function SubListSetting(props) {
     });
     return reControls.filter(item =>
       needShow
-        ? !_.includes([45, 47, 49, 51], item.type)
+        ? !_.includes([22, 43, 45, 47, 49, 51, 52, 10010], item.type)
         : !(
-            _.includes([34, 45, 47, 49, 51], item.type) ||
+            _.includes([22, 34, 43, 45, 47, 49, 51, 52, 10010], item.type) ||
             (item.type === 29 && String(item.enumDefault) === '2' && _.get(item, 'advancedSetting.showtype') === '2')
           ),
     );
@@ -231,7 +230,10 @@ export default function SubListSetting(props) {
         description: _l('将子表字段转为关联记录字段'),
         okText: _l('确定'),
         onOk: () => {
-          onChange({ ...handleAdvancedSettingChange(data, { searchrange: '1' }), type: 29 });
+          onChange({
+            ...handleAdvancedSettingChange(data, { searchrange: '1', dynamicsrc: '', defaulttype: '' }),
+            type: 29,
+          });
         },
       });
       return;
@@ -289,7 +291,6 @@ export default function SubListSetting(props) {
           ) : (
             <LoadDiv />
           )}
-          <WidgetRowHeight {...props} />
         </Fragment>
       );
     }
@@ -302,6 +303,7 @@ export default function SubListSetting(props) {
             min1msg={_l('至少显示一列')}
             showControls={showControls}
             columns={sortedControls}
+            maxSelectedNum={50}
             controlsSorts={getControlsSorts(data, sortedControls)}
             onChange={({ newShowControls, newControlSorts }) => {
               const nextShowControls = newControlSorts.filter(item => _.includes(newShowControls, item));
@@ -314,7 +316,6 @@ export default function SubListSetting(props) {
             }}
           />
         )}
-        <WidgetRowHeight {...props} />
       </Fragment>
     );
   };
@@ -403,7 +404,11 @@ export default function SubListSetting(props) {
           )}
         </SettingItem>
       )}
-      <DynamicDefaultValue {...props} appId={sheetInfo.appId} />
+      <DynamicDefaultValue
+        {...props}
+        data={{ ...data, relationControls: relationControls || [] }}
+        appId={sheetInfo.appId}
+      />
       <SettingItem>
         <div className="settingItemTitle">{_l('操作')}</div>
         {DEFAULT_SETTING_OPTIONS.map(item => {
@@ -489,6 +494,7 @@ export default function SubListSetting(props) {
           )}
         </SettingItem>
       )}
+      <SubListStyle {...props} />
       <SettingItem>
         <div className="settingItemTitle">{_l('设置')}</div>
         <div className="labelWrap">

@@ -23,13 +23,6 @@
       }
     }
 
-    .customRecordMuster {
-      li {
-        width: 100%;
-        padding: 0 !important;
-      }
-    }
-
     > .customFormLine:first-child {
       display: none;
     }
@@ -56,16 +49,14 @@
 
   &.wxContainer {
     .customFormLine {
-      display: none;
+      display: none !important;
     }
     .customFormControlBox {
       border-color: #e0e0e0 !important;
       &:not(.formBoxNoBorder):not(.relateRecord):not(.customFormControlSwitch):not(.customFormControlScore) {
         padding-right: 12px !important;
       }
-      &:not([type='tel']):not(.formBoxNoBorder):not(.relateRecord):not(.customFormControlSwitch):not(
-          .customFormControlScore
-        ) {
+      &:not([type='tel']):not(.formBoxNoBorder):not(.relateRecord):not(.customFormControlSwitch):not(.customFormControlScore) {
         padding-left: 12px !important;
       }
       &.controlDisabled {
@@ -85,12 +76,6 @@
       .worksheetRecordCard {
         box-shadow: none;
         border-color: #e0e0e0;
-      }
-    }
-    .customRecordMuster {
-      .customRecordList {
-        background: #fff !important;
-        border-color: #e0e0e0 !important;
       }
     }
     .customFormControlTel {
@@ -607,6 +592,11 @@
       .customFormButtoDel {
         display: none;
       }
+      &.mobileCustomFormButton {
+        &:focus {
+          background-color: #fff !important;
+        }
+      }
     }
 
     .customFormCheck {
@@ -991,39 +981,6 @@
         padding-left: 0 !important;
         &:not(.controlDisabled) {
           padding-left: 12px !important;
-        }
-      }
-    }
-  }
-
-  .customRecordMuster {
-    margin: 0 12px;
-    li {
-      margin-top: 12px;
-      box-sizing: border-box;
-      width: 50%;
-      float: left;
-
-      &:nth-child(odd) {
-        padding-right: 12px;
-      }
-
-      &:nth-child(even) {
-        padding-left: 12px;
-      }
-
-      .customRecordList {
-        padding: 0 16px;
-        box-sizing: border-box;
-        align-items: center;
-        background: #f5f5f5;
-        border: 1px solid #f5f5f5;
-        border-radius: 3px;
-        height: 50px;
-        cursor: pointer;
-
-        &:hover {
-          background: #f2f2f2;
         }
       }
     }

@@ -20,7 +20,7 @@ const Content = styled.div`
   }
 `;
 
-function Chart({ data, mobileCount, isHorizontal }) {
+function Chart({ data, mobileCount, isHorizontal, projectId, themeColor, pageConfig = {} }) {
   if (data.status <= 0) {
     return <Abnormal status={data.status} />;
   }
@@ -58,7 +58,20 @@ function Chart({ data, mobileCount, isHorizontal }) {
   }
   const isPublicShare = location.href.includes('public/page') || window.shareAuthor || window.share;
   const isViewOriginalData = filter.viewId && [VIEW_DISPLAY_TYPE.sheet].includes(filter.viewType.toString()) && !isPublicShare;
-  const ChartComponent = <Charts reportData={data} isThumbnail={true} isViewOriginalData={isViewOriginalData} onOpenChartDialog={viewOriginalSheet} mobileCount={mobileCount} isHorizontal={isHorizontal} />;
+
+  const ChartComponent = (
+    <Charts
+      reportData={data}
+      isThumbnail={true}
+      isViewOriginalData={isViewOriginalData}
+      onOpenChartDialog={viewOriginalSheet}
+      mobileCount={mobileCount}
+      isHorizontal={isHorizontal}
+      projectId={projectId}
+      themeColor={themeColor}
+      customPageConfig={pageConfig}
+    />
+  );
 
   switch (data.reportType) {
     case reportTypes.BarChart:
@@ -90,7 +103,20 @@ function Chart({ data, mobileCount, isHorizontal }) {
   }
 }
 
-function ChartWrapper({ data, loading, mobileCount, onOpenFilterModal, onOpenZoomModal, onLoadBeforeData, onLoadNextData, pageComponents = [], isHorizontal }) {
+function ChartWrapper({
+  data,
+  loading,
+  mobileCount,
+  pageComponents = [],
+  projectId,
+  themeColor,
+  pageConfig,
+  isHorizontal,
+  onOpenFilterModal,
+  onOpenZoomModal,
+  onLoadBeforeData,
+  onLoadNextData
+}) {
   const isVertical = window.orientation === 0;
   const isMobileChartPage = location.href.includes('mobileChart');
   const index = _.findIndex(pageComponents, { value: data.reportId });
@@ -127,7 +153,14 @@ function ChartWrapper({ data, loading, mobileCount, onOpenFilterModal, onOpenZoo
             <ActivityIndicator size="large" />
           </Flex>
         ) : (
-          <Chart data={data} mobileCount={mobileCount} isHorizontal={isHorizontal} />
+          <Chart
+            data={data}
+            mobileCount={mobileCount}
+            isHorizontal={isHorizontal}
+            projectId={projectId}
+            themeColor={themeColor}
+            pageConfig={pageConfig}
+          />
         )}
       </Content>
     </Fragment>

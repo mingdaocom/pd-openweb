@@ -62,18 +62,8 @@ const OperationWrap = styled.div`
 `;
 
 export default function WidgetOperation(props) {
-  const {
-    isActive,
-    fromType,
-    data = {},
-    parentRef,
-    handleOperate,
-    queryConfig,
-    globalSheetInfo = {},
-    hasChild,
-    ...rest
-  } = props;
-  const { type, controlId, attribute, showControls = [], dataSource, sourceControl } = data;
+  const { isActive, fromType, data = {}, parentRef, handleOperate, queryConfig, globalSheetInfo = {}, ...rest } = props;
+  const { type, controlId, attribute, dataSource, sourceControl } = data;
 
   const getActualControls = () => {
     if (!isEmpty(data.controls)) return data.controls;
@@ -119,17 +109,11 @@ export default function WidgetOperation(props) {
     /* 未保存控件不需要二次确认 */
     if (includes(NOT_NEED_DELETE_CONFIRM, type) || includes(controlId, '-')) {
       return (
-        <Tooltip
-          placement="bottom"
-          trigger={['hover']}
-          title={type === 52 ? _l('请先删除分段内的字段后删除') : _l('删除')}
-        >
+        <Tooltip placement="bottom" trigger={['hover']} title={_l('删除')}>
           <div
             className="delWidget operationIconWrap"
             onClick={e => {
               e.stopPropagation();
-
-              if (hasChild) return;
               handleOperate('delete', queryConfig);
             }}
           >

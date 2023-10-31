@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import User from './User';
 import cx from 'classnames';
 import NoData from './NoData';
-import { Icon, Checkbox, ScrollView } from 'ming-ui';
+import { Icon, Checkbox, ScrollView, LoadDiv } from 'ming-ui';
 import styled from 'styled-components';
 import departmentController from 'src/api/department';
 import _ from 'lodash';
@@ -267,7 +267,9 @@ export default class DepartmentTree extends Component {
                 return this.renderDepartment(item);
               })}
               {departmentLoading && (
-                <div className="justifyCenter flexRow valignWrapper" dangerouslySetInnerHTML={{ __html: LoadDiv() }} />
+                <div className="justifyCenter flexRow valignWrapper">
+                  <LoadDiv />
+                </div>
               )}
             </ScrollView>
           )}
@@ -280,7 +282,9 @@ export default class DepartmentTree extends Component {
     const { groupId, loading, groupList } = this.state;
     if (loading && !groupList.length) {
       return (
-        <div className="justifyCenter flexRow valignWrapper h100" dangerouslySetInnerHTML={{ __html: LoadDiv() }} />
+        <div className="justifyCenter flexRow valignWrapper h100">
+          <LoadDiv />
+        </div>
       );
     } else {
       const ids = this.props.selectedUsers.map(item => item.accountId);
@@ -328,7 +332,9 @@ export default class DepartmentTree extends Component {
                 />
               ))}
               {loading && (
-                <div className="justifyCenter flexRow valignWrapper" dangerouslySetInnerHTML={{ __html: LoadDiv() }} />
+                <div className="justifyCenter flexRow valignWrapper">
+                  <LoadDiv />
+                </div>
               )}
             </Fragment>
           ) : (

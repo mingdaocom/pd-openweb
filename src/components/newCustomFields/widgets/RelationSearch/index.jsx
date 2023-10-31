@@ -19,6 +19,7 @@ import { getTitleTextFromRelateControl } from 'src/components/newCustomFields/to
 import { browserIsMobile, addBehaviorLog } from 'src/util';
 import { openAddRecord } from 'mobile/Record/addRecord';
 import { RecordInfoModal } from 'mobile/Record';
+import { WithoutRows } from 'mobile/RecordList/SheetRows';
 
 const PAGE_SIZE = 50;
 
@@ -91,6 +92,12 @@ const MobileTestWrap = styled.div`
     line-height: 38px;
     margin-left: 6px;
   }
+`;
+
+const MobileCardsEmpty = styled.div`
+  height: calc(100vh - 150px);
+  background: #f5f5f5;
+  margin: -20px -24px 0;
 `;
 
 function getCoverUrl(coverId, record, controls) {
@@ -172,6 +179,11 @@ function Cards(props) {
             }}
           />
         ))}
+      {browserIsMobile() && advancedSetting.showtype === '2' && !loading && !isLoadingMore && !records.length && (
+        <MobileCardsEmpty>
+          <WithoutRows text={_l('暂无记录')} />
+        </MobileCardsEmpty>
+      )}
       {records.length > colNum * 3 && (
         <div>
           {showLoadMore && showAll && (

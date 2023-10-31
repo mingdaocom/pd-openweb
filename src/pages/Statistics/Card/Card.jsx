@@ -55,9 +55,9 @@ class Card extends Component {
   }
   initInterval = () => {
     clearInterval(this.timer);
-    const { report, needRefresh = true } = this.props;
-    const { refreshReportInterval } = md.global.SysSettings;
-    if (!needRefresh) return;
+    const { report, customPageConfig = {} } = this.props;
+    const { refresh } = customPageConfig;
+    if (!refresh) return;
     this.timer = setInterval(() => {
       this.getData(this.props);
       if (isCheckLogin) {
@@ -66,16 +66,15 @@ class Card extends Component {
           isCheckLogin = data;
         });
       }
-    }, refreshReportInterval * 1000);
-  };
-
+    }, refresh * 1000);
+  }
   abortRequest = () => {
     if (this.request && this.request.state() === 'pending' && this.request.abort) {
       this.request.abort();
     }
   }
   getData = (props, reload = false) => {
-    const { needTimingRefresh, report, filters, filtersGroup } = props || this.props;
+    const { needTimingRefresh, needRefresh = true, report, filters, filtersGroup } = props || this.props;
     const shareAuthor = window.shareAuthor;
     const headersConfig = {
       share: shareAuthor,
@@ -102,7 +101,7 @@ class Card extends Component {
       });
       this.props.onLoad(result);
     });
-    needTimingRefresh && this.initInterval();
+    needTimingRefresh && needRefresh && this.initInterval();
   }
   handleOperateClick = ({ settingVisible, sheetVisible = false, activeData }) => {
     this.setState({
@@ -146,7 +145,7 @@ class Card extends Component {
     }
   }
   renderChart() {
-    const { report, mobileCount, layoutType, sourceType } = this.props;
+    const { projectId, report, mobileCount, layoutType, sourceType, themeColor, customPageConfig } = this.props;
     const { id } = report;
     const { loading, reportData } = this.state;
     const { reportType } = reportData;
@@ -154,6 +153,7 @@ class Card extends Component {
     return (
       <ErrorBoundary>
         <Chart
+          projectId={projectId}
           loading={loading}
           isThumbnail={true}
           isViewOriginalData={!this.isPublicShare}
@@ -161,6 +161,8 @@ class Card extends Component {
           mobileCount={mobileCount}
           layoutType={layoutType}
           sourceType={sourceType}
+          customPageConfig={customPageConfig || {}}
+          themeColor={themeColor}
           reportData={{
             ...reportData,
             reportId: id
@@ -222,7 +224,7 @@ class Card extends Component {
   render() {
     const { dialogVisible, reportData, settingVisible, scopeVisible, sheetVisible, activeData } = this.state;
     const { showTitle = true } = reportData.displaySetup || {};
-    const { report, appId, ownerId, roleType, sourceType, needEnlarge, needRefresh = true, worksheetId, filters, filtersGroup, className, onRemove, isCharge, permissionType, isLock } = this.props;
+    const { report, appId, ownerId, roleType, sourceType, needEnlarge, needRefresh = true, worksheetId, filters, filtersGroup, className, onRemove, isCharge, permissionType, isLock, themeColor } = this.props;
     const permissions = sourceType ? false : ownerId || isCharge;
     const isSheetView = ![reportTypes.PivotTable, reportTypes.NumberChart].includes(reportData.reportType);
     return (
@@ -289,6 +291,7 @@ class Card extends Component {
             {needEnlarge && !this.isPublicShare && (sourceType ? reportData.status > 0 : true) && (
               <MoreOverlay
                 className="iconItem Gray_9e Font20"
+                themeColor={themeColor}
                 permissions={sourceType ? null : permissions}
                 permissionType={permissionType}
                 isLock={isLock}
@@ -387,4 +390,3 @@ function SingleCard(props, ref) {
 }
 
 export default forwardRef(SingleCard);
-

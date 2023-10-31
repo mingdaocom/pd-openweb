@@ -91,7 +91,7 @@ const fillColorType = [
   },
   {
     name: _l('黑色'),
-    value: '#333333',
+    value: '#454545',
   },
 ];
 

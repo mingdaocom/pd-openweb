@@ -1,6 +1,7 @@
 import React, { useState, Component, Fragment } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
+import { ColorPicker } from 'ming-ui';
 import { formatNumberFromInput } from 'src/util';
 import { Input, Radio, Space } from 'antd';
 
@@ -14,11 +15,6 @@ const ColorWrap = styled.div`
   .colorBlock {
     width: 100%;
     height: 100%;
-  }
-  .colorInput {
-    width: 100%;
-    height: 100%;
-    opacity: 0;
   }
 `;
 
@@ -72,20 +68,21 @@ export default class Quadrant extends Component {
       <Fragment>
         <div className="flexRow valignWrapper mBottom12">
           <QuadrantName data={data} {...this.props} />
-          <ColorWrap className="mLeft10">
-            <div className="colorBlock" style={{ backgroundColor: quadrant[data.bgColorKey] }}>
-              <input
-                type="color"
-                className="colorInput pointer"
-                value={quadrant[data.bgColorKey]}
-                onChange={(event) => {
-                  onChangeQuadrant({
-                    [data.bgColorKey]: event.target.value
-                  });
-                }}
-              />
-            </div>
-          </ColorWrap>
+          <ColorPicker
+            isPopupBody
+            className="mLeft10"
+            value={quadrant[data.bgColorKey]}
+            onChange={value => {
+              onChangeQuadrant({
+                [data.bgColorKey]: value
+              });
+            }}
+          >
+            <ColorWrap className="pointer">
+              <div className="colorBlock" style={{ backgroundColor: quadrant[data.bgColorKey] }}>
+              </div>
+            </ColorWrap>
+          </ColorPicker>
         </div>
       </Fragment>
     );
@@ -96,37 +93,37 @@ export default class Quadrant extends Component {
       <Fragment>
         <div className="flexRow valignWrapper mBottom16">
           <div className="mRight10" style={{ width: 60 }}>{_l('象限轴')}</div>
-          <ColorWrap>
-            <div className="colorBlock" style={{ backgroundColor: quadrant.axisColor }}>
-              <input
-                type="color"
-                className="colorInput pointer"
-                value={quadrant.axisColor}
-                onChange={(event) => {
-                  onChangeQuadrant({
-                    axisColor: event.target.value
-                  });
-                }}
-              />
-            </div>
-          </ColorWrap>
+          <ColorPicker
+            isPopupBody
+            value={quadrant.axisColor}
+            onChange={value => {
+              onChangeQuadrant({
+                axisColor: value
+              });
+            }}
+          >
+            <ColorWrap className="pointer">
+              <div className="colorBlock" style={{ backgroundColor: quadrant.axisColor }}>
+              </div>
+            </ColorWrap>
+          </ColorPicker>
         </div>
         <div className="flexRow valignWrapper mBottom16">
           <div className="mRight10" style={{ width: 60 }}>{_l('文本')}</div>
-          <ColorWrap>
-            <div className="colorBlock" style={{ backgroundColor: quadrant.textColor }}>
-              <input
-                type="color"
-                className="colorInput pointer"
-                value={quadrant.textColor}
-                onChange={(event) => {
-                  onChangeQuadrant({
-                    textColor: event.target.value
-                  });
-                }}
-              />
-            </div>
-          </ColorWrap>
+          <ColorPicker
+            isPopupBody
+            value={quadrant.textColor}
+            onChange={value => {
+              onChangeQuadrant({
+                textColor: value
+              });
+            }}
+          >
+            <ColorWrap className="pointer">
+              <div className="colorBlock" style={{ backgroundColor: quadrant.textColor }}>
+              </div>
+            </ColorWrap>
+          </ColorPicker>
         </div>
         <div className="mBottom16">
           <div className="mBottom12">{_l('位置')}</div>

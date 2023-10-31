@@ -1,16 +1,14 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import Skeleton from 'src/router/Application/Skeleton';
+import { Skeleton } from 'ming-ui';
 import MajorAxisLabel from '../MajorAxisLabel';
 import MinorAxisLabel from '../MinorAxisLabel';
 import Today from '../Today';
 import _ from 'lodash';
 
-@connect(
-  state => ({
-    ..._.pick(state.sheet, ['gunterView', 'base']),
-  }),
-)
+@connect(state => ({
+  ..._.pick(state.sheet, ['gunterView', 'base']),
+}))
 export default class GunterChartHeader extends Component {
   constructor(props) {
     super(props);
@@ -20,26 +18,14 @@ export default class GunterChartHeader extends Component {
     return (
       <Fragment>
         <div className="majorTimeAxis flexRow">
-          {
-            periodParentList.map((item, index) => (
-              <MajorAxisLabel
-                key={index}
-                item={item}
-                periodType={periodType}
-              />
-            ))
-          }
+          {periodParentList.map((item, index) => (
+            <MajorAxisLabel key={index} item={item} periodType={periodType} />
+          ))}
         </div>
         <div className="minorTimeAxis flexRow">
-          {
-            periodList.map((item, index) => (
-              <MinorAxisLabel
-                key={index}
-                item={item}
-                periodType={periodType}
-              />
-            ))
-          }
+          {periodList.map((item, index) => (
+            <MinorAxisLabel key={index} item={item} periodType={periodType} />
+          ))}
         </div>
       </Fragment>
     );
@@ -63,10 +49,7 @@ export default class GunterChartHeader extends Component {
     return (
       <div className="gunterChartHeader">
         <div className="headerWrapper">
-          <div
-            className="headerScroll"
-            style={{ width: loading ? '100%' : wrapperWidth }}
-          >
+          <div className="headerScroll" style={{ width: loading ? '100%' : wrapperWidth }}>
             {loading || _.isEmpty(chartScroll) ? this.renderLoading() : this.renderContent()}
           </div>
         </div>

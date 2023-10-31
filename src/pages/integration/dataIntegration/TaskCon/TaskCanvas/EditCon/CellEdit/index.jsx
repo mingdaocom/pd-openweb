@@ -8,11 +8,12 @@ import LoadDiv from 'ming-ui/components/LoadDiv';
 import {
   setFieldsMappingDefaultData,
   getFields,
+  hsMorePkControl,
 } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/util.js';
 import { getInitFieldsMapping } from 'src/pages/integration/dataIntegration/utils.js';
 import _ from 'lodash';
 import SlideLayerTem from './SlideLayerTem';
-import { mdJoinPkData } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config.js';
+import { mdUniquePkData } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config.js';
 
 const Wrap = styled.div`
   .AliasInput {
@@ -187,7 +188,7 @@ export default class CellEdit extends Component {
     this.setState({
       loading: true,
     });
-    const hsMorePkData = (_.get(preNode, 'nodeConfig.fields') || []).filter(o => o.isPk).length > 1;
+    const hsMorePkData = hsMorePkControl(preNode);
     const isDestMDType =
       _.get(list.find(o => o.nodeType === 'DEST_TABLE') || {}, 'nodeConfig.config.dsType') ===
       DATABASE_TYPE.APPLICATION_WORKSHEET;
@@ -207,7 +208,7 @@ export default class CellEdit extends Component {
     if (!_.get(node, 'nodeConfig.config.fieldsMapping') || _.get(node, 'nodeConfig.config.fieldsMapping').length <= 0) {
       let preFields = !hsMorePkData
         ? _.get(preNode, ['nodeConfig', 'fields'])
-        : [mdJoinPkData, ..._.get(preNode, ['nodeConfig', 'fields'])];
+        : [mdUniquePkData, ..._.get(preNode, ['nodeConfig', 'fields'])];
       preFields = preFields.filter(o => o.isCheck);
       let mapping = getInitFieldsMapping(
         preFields,
@@ -238,7 +239,7 @@ export default class CellEdit extends Component {
       });
     } else {
       let sourceFields = _.get(preNode, 'nodeConfig.fields') || [];
-      sourceFields = hsMorePkData ? [mdJoinPkData, ...sourceFields] : sourceFields;
+      sourceFields = hsMorePkData ? [mdUniquePkData, ...sourceFields] : sourceFields;
       let listSourceField = _.get(node, 'nodeConfig.config.fieldsMapping').map(o => o.sourceField);
       sourceFields = _.uniqBy([...listSourceField, ...sourceFields], 'id');
       const res = await dataSourceApi.fieldsDataTypeMatch({
@@ -270,6 +271,11 @@ export default class CellEdit extends Component {
     //目的地表
     const fieldsMapping = _.get(node, ['nodeConfig', 'config', 'fieldsMapping']) || [];
     if (nodeType === 'DEST_TABLE') {
+      if (fieldsMapping.filter(o => !!_.get(o, 'sourceField.isPk')).length <= 0) {
+        //未设置主键
+        disable = true;
+        txt = _l('未设置主键');
+      }
       if (fieldsMapping.filter(o => _.get(o, 'destField.isCheck')).length <= 0) {
         disable = true;
         txt = _l('未设置相关映射字段');
@@ -295,7 +301,7 @@ export default class CellEdit extends Component {
             txt = _l('目标工作表未设置标题字段');
           }
         } else if (destIsDb) {
-          //标题字段
+          // 主键字段
           if (fieldsMapping.filter(o => _.get(o, 'destField.isPk')).length <= 0) {
             disable = true;
             txt = _l('目标工作表未设置主键 ');
@@ -324,13 +330,14 @@ export default class CellEdit extends Component {
         }
         const preNode = list.filter(o => o.pathIds.length > 0 && o.pathIds[0].toDt.nodeId === node.nodeId)[0];
         let fields = (_.get(preNode, 'nodeConfig.fields') || []).filter(o => o.isCheck);
-        const hsMorePkData = (_.get(preNode, 'nodeConfig.fields') || []).filter(o => o.isPk).length > 1;
-        fields = hsMorePkData ? [mdJoinPkData, ...fields] : fields;
-        const ids = fields.map(it => it.id);
+        const hsMorePkData = hsMorePkControl(preNode);
+        fields = hsMorePkData ? [mdUniquePkData, ...fields] : fields;
         if (
           fieldsMapping.filter(
             o =>
-              !ids.includes(_.get(o, 'sourceField.id')) && //id
+              !fields.find(
+                it => !!it.isPk === !!_.get(o, 'sourceField.isPk') && it.id === _.get(o, 'sourceField.id'),
+              ) && //id
               !fields.find(
                 it => o.sourceField.oid && o.sourceField.oid.indexOf(it.oid) >= 0 && [26, 27, 29].includes(it.mdType),
               ),

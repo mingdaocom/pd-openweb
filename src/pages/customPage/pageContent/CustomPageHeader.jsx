@@ -1,4 +1,4 @@
-import React, { useState, useRef, Fragment } from 'react';
+import React, { useState, useRef, useEffect, Fragment } from 'react';
 import { string } from 'prop-types';
 import { Tooltip, Icon, LoadDiv, RichText } from 'ming-ui';
 import DeleteConfirm from 'ming-ui/components/DeleteReconfirm';
@@ -25,10 +25,10 @@ import { canEditData } from 'worksheet/redux/actions/util';
 import { EditExternalLink } from 'src/pages/worksheet/common/WorkSheetLeft/ExternalLink';
 import store from 'redux/configureStore';
 import { updateSheetListAppItem } from 'worksheet/redux/actions/sheetList';
+import { replaceColor, isLightColor } from 'src/pages/customPage/util';
 
 export default function CustomPageHeader(props) {
-  let {
-    isCharge,
+  const {
     currentSheet,
     updateEditPageVisible,
     updatePageInfo,
@@ -43,13 +43,14 @@ export default function CustomPageHeader(props) {
     ...rest
   } = props;
   //运营者|开发者 均可分享
-  isCharge = isCharge || canEditData(_.get(appPkg, ['permissionType']));
+  const isCharge = props.isCharge || canEditData(_.get(appPkg, ['permissionType']));
   const isSafari = () => {
     var ua = window.navigator.userAgent;
     return ua.indexOf('Safari') != -1 && ua.indexOf('Version') != -1;
   };
   const { groupId } = ids;
   const { appName } = apk;
+  const pageConfig = replaceColor(props.config || {}, appPkg.iconColor || apk.iconColor);
   const projectId = appPkg.projectId || apk.projectId;
   const appId = appPkg.id || apk.appId;
   const { icon, workSheetName, urlTemplate, configuration } = currentSheet;
@@ -64,12 +65,21 @@ export default function CustomPageHeader(props) {
   const [externalLinkIsEditing, setExternalLinkIsEditing] = useState(false);
   const [inFull, setInFull] = useState(false);
 
+  useEffect(() => {
+    window.editCustomPage = () => {
+      handleClick(urlTemplate ? 'editPage' : 'editCanvas');
+    };
+    return () => {
+      delete window.editCustomPage;
+    }
+  }, [pageId]);
+
   const saveImage = () => {
     const imageName = `${appName ? `${appName}_` : ''}${name}_${moment().format('_YYYYMMDDHHmmSS')}.png`;
     setExportLoading(true);
     window.customPageWindowResize();
     createFontLink()
-      .then(exportImage)
+      .then(exportImage.bind(this, pageConfig.pageBgColor))
       .then(blob => {
         setExportLoading(false);
         saveAs(blob, imageName);
@@ -190,7 +200,14 @@ export default function CustomPageHeader(props) {
 
   return (
     <Fragment>
-      <header className={cx({ embedPageHeader: isEmbed || isEmbedPage })}>
+      <header
+        className={cx({
+          embedPageHeader: isEmbed || isEmbedPage,
+          hide: !(urlTemplate ? configuration.hideHeaderBar === '0' : pageConfig.headerVisible),
+          darkTheme: pageConfig.pageBgColor && !isLightColor(pageConfig.pageBgColor)
+        })}
+        style={{ backgroundColor: appPkg.pcNaviStyle === 1 ? pageConfig.darkenPageBgColor || pageConfig.pageBgColor : pageConfig.pageBgColor }}
+      >
         <div className="nameWrap flex">
           {!isPublicShare &&
             !isEmbedPage &&
@@ -308,7 +325,7 @@ export default function CustomPageHeader(props) {
                 <Icon className="Font20 pointer" icon="task-later" />
               </div>
             </Tooltip>
-            {!isPublicShare && !isEmbedPage && apk.appId && !md.global.Account.isPortal && (
+            {!isPublicShare && !isEmbedPage && apk.appId && !md.global.Account.isPortal && pageConfig.shareVisible && (
               <Tooltip text={<span>{_l('分享')}</span>} popupPlacement="bottom">
                 <div
                   className="iconWrap valignWrapper mLeft20"
@@ -320,20 +337,22 @@ export default function CustomPageHeader(props) {
                 </div>
               </Tooltip>
             )}
-            {exportLoading ? (
-              <div className="iconWrap valignWrapper mLeft20">
-                <LoadDiv size="small" />
-              </div>
-            ) : (
-              <Tooltip text={<span>{_l('保存图片')}</span>} popupPlacement="bottom">
-                <div className="iconWrap valignWrapper mLeft20" onClick={saveImage}>
-                  <Icon className="Font20 pointer" icon="file_download" />
+            {pageConfig.downloadVisible && (
+              exportLoading ? (
+                <div className="iconWrap valignWrapper mLeft20">
+                  <LoadDiv size="small" />
                 </div>
-              </Tooltip>
+              ) : (
+                <Tooltip text={<span>{_l('保存图片')}</span>} popupPlacement="bottom">
+                  <div className="iconWrap valignWrapper mLeft20" onClick={saveImage}>
+                    <Icon className="Font20 pointer" icon="file_download" />
+                  </div>
+                </Tooltip>
+              )
             )}
           </Fragment>
         )}
-        {!isSafari() && !isPublicShare && (
+        {!isSafari() && !isPublicShare && pageConfig.fullScreenVisible && (
           <Tooltip text={<span>{_l('全屏展示')}</span>} popupPlacement="bottom">
             <div className="iconWrap valignWrapper mLeft20" onClick={() => toggle(true)}>
               <Icon icon="full_screen"  className="Font20 pointer" />

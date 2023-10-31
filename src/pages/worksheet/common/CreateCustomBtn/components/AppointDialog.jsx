@@ -236,9 +236,13 @@ class AppointDialog extends React.Component {
     dataControls.map(o => {
       let data = this.state.writeControls.find(it => it.controlId === o.controlId);
       if (!!data) {
+        if (!!o.sectionId) {
+          writeControls.push(dataControls.find(it => it.controlId === o.sectionId));
+        }
         writeControls.push(data);
       }
     });
+    writeControls = _.union(writeControls, 'controlId');
     if (this.state.writeType === 1 && writeControls.length > 0) {
       return (
         <Wrap className="appointFiltersList">
@@ -401,7 +405,7 @@ class AppointDialog extends React.Component {
               writeObject: this.state.writeObject,
               writeType: this.state.writeType,
               addRelationControlId: this.state.addRelationControlId,
-              writeControls: this.state.writeControls,
+              writeControls: this.state.writeControls.filter(o => ![52].includes(o.type)),
               workflowType: !btnId ? 2 : workflowType,
             };
             setValue(value);
@@ -421,6 +425,7 @@ class AppointDialog extends React.Component {
                 {
                   value: 2,
                   text: _l('关联记录（单条）%02062'),
+                  disabled: this.props.cannotRelate,
                 },
               ]}
               size="small"
@@ -484,6 +489,7 @@ class AppointDialog extends React.Component {
                 {
                   value: 2,
                   text: _l('新建关联记录%02064'),
+                  disabled: this.props.cannotRelate,
                 },
               ]}
               size="small"

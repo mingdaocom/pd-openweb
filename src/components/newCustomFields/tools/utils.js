@@ -1,11 +1,12 @@
+import { validate } from 'uuid';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { FROM, FORM_ERROR_TYPE, UN_TEXT_TYPE } from './config';
 import { isEnableScoreOption } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
-import { getStringBytes, accMul, browserIsMobile, formatStrZero, isUUID } from 'src/util';
+import { getStringBytes, accMul, browserIsMobile, formatStrZero } from 'src/util';
 import { getStrBytesLength } from 'src/pages/Role/PortalCon/tabCon/util-pure.js';
 import { getShowFormat, getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting';
-import { getRelateRecordCountFromValue } from 'worksheet/util';
+import { filterEmptyChildTableRows, getRelateRecordCountFromValue, isRelateRecordTableControl } from 'worksheet/util';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
 import _ from 'lodash';
 import moment from 'moment';
@@ -61,6 +62,9 @@ export const convertControl = type => {
 
     case 21:
       return 'RELATION'; // 关联
+
+    case 22:
+      return 'SplitLine'; // 分割线
 
     case 25:
     case 31:
@@ -280,7 +284,7 @@ export function formatControlToServer(
                     sid: item.sid,
                     sourcevalue: needSourceValue && item.sourcevalue,
                   }))
-                  .filter(item => !_.isEmpty(item.sid) && isUUID(item.sid)),
+                  .filter(item => !_.isEmpty(item.sid) && validate(item.sid)),
               )
             : '';
         } else {
@@ -319,7 +323,9 @@ export function formatControlToServer(
       }
       if (result.value.isAdd) {
         result.value = JSON.stringify(
-          control.value.rows.map(row => formatRowToServer(row, childTableControls || [], { isDraft })),
+          filterEmptyChildTableRows(control.value.rows).map(row =>
+            formatRowToServer(row, childTableControls || [], { isDraft }),
+          ),
         );
         if (result.value === '[]') {
           result.value = '';
@@ -364,12 +370,14 @@ export function formatControlToServer(
               .filter(_.identity),
           );
         }
-        result.value = JSON.stringify(resultvalue);
+        result.value = JSON.stringify(filterEmptyChildTableRows(resultvalue));
         if (_.isEmpty(resultvalue) && control && typeof control.value === 'string') {
           try {
             const rows = JSON.parse(control.value);
             result.value = JSON.stringify(
-              rows.map(row => Object.keys(row).map(key => ({ controlId: key, value: row[key] }))),
+              filterEmptyChildTableRows(rows).map(row =>
+                Object.keys(row).map(key => ({ controlId: key, value: row[key] })),
+              ),
             );
           } catch (err) {}
         }
@@ -413,7 +421,7 @@ export function getTitleTextFromControls(controls, data, titleSourceControlType,
  * @param  {} data 控件所在记录数据[可选]
  */
 export function getTitleTextFromRelateControl(control = {}, data, options = {}) {
-  if (data.name) {
+  if (data && data.name) {
     return data.name;
   }
   // relationControls返回的选项没有options，在这里赋进去
@@ -496,6 +504,17 @@ export const formatFiltersValue = (filters = [], data = [], recordId) => {
       if (cid === 'current-rowid' && item.dataType === 29) {
         item.values = [recordId];
         hasCurrent = !recordId;
+      }
+      if (cid === 'rowid') {
+        item.values = recordId ? [recordId] : [];
+        return;
+      }
+      if (cid === 'currenttime') {
+        item.dateRange = 18;
+        item.value = moment(new Date()).format(
+          getDatePickerConfigs(_.find(data, c => c.controlId === item.controlId)).formatMode,
+        );
+        return;
       }
       const currentControl = _.find(data, da => da.controlId === cid);
       //排除为空、不为空、在范围，不在范围类型
@@ -801,7 +820,7 @@ export const renderCount = item => {
     (_.includes([26, 27], type) && enumDefault === 1) ||
     (type === 29 && enumDefault === 2 && advancedSetting.showtype === '1')
   ) {
-    const recordsCount = getRelateRecordCountFromValue(value);
+    const recordsCount = getRelateRecordCountFromValue(value, item.count);
     count = _.isUndefined(recordsCount) ? item.count : recordsCount;
   }
 
@@ -820,12 +839,12 @@ export const renderCount = item => {
   if (type === 34) {
     try {
       if (typeof value === 'object') {
-        count = value.num || (value.rows || []).length;
+        count = value.num || filterEmptyChildTableRows(value.rows || []).length;
       } else if (!_.isNaN(parseInt(item.value, 10))) {
         count = parseInt(item.value, 10);
       }
-      if (count > 200) {
-        count = 200;
+      if (count > 1000) {
+        count = 1000;
       }
     } catch (err) {
       console.log(err);
@@ -926,3 +945,47 @@ export function loadSDK() {
     $.getScript('https://lf1-cdn-tos.bytegoofy.com/goofy/lark/op/h5-js-sdk-1.5.19.js');
   }
 }
+
+export const getControlsByTab = (controls = []) => {
+  // 基础控件
+  let commonData = [];
+  // 特殊控件
+  let tabData = [];
+
+  controls.forEach(item => {
+    if (item.type === 52) {
+      item.child = controls.filter(i => i.sectionId === item.controlId);
+      tabData.push(item);
+    } else if (isRelateRecordTableControl(item)) {
+      tabData.push(item);
+    } else if (
+      !item.sectionId &&
+      !_.includes(
+        [
+          'rowid',
+          'ownerid',
+          'caid',
+          'ctime',
+          'utime',
+          'uaid',
+          'wfname',
+          'wfcuaids',
+          'wfcaid',
+          'wfctime',
+          'wfrtime',
+          'wfftime',
+          'wfstatus',
+        ],
+        item.controlId,
+      )
+    ) {
+      commonData.push(item);
+    }
+  });
+
+  // 标签页始终排在前面
+  tabData.sort((a, b) => a.row - b.row);
+  tabData = tabData.filter(v => v.type === 52).concat(tabData.filter(v => v.type !== 52));
+
+  return { commonData, tabData };
+};

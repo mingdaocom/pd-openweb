@@ -27,6 +27,8 @@ const getAppSimpleInfo = workSheetId => {
 };
 
 export default () => {
+  if (!window.IM) return;
+
   md.global.Config.pushUniqueId = (+new Date()).toString();
 
   IM.socket.on('workflow_push', result => {

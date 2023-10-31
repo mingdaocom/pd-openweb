@@ -247,7 +247,9 @@ export default class OpenActionContent extends Component {
     return (
       <CustomTextarea
         className="minH100"
+        projectId={this.props.companyId}
         processId={this.props.processId}
+        relationId={this.props.relationId}
         selectNodeId={this.props.selectNodeId}
         type={2}
         content={data.content}

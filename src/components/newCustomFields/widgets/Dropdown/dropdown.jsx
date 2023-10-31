@@ -66,7 +66,11 @@ export default class Widgets extends Component {
       <span
         className={cx(
           'customRadioItem',
-          { White: enumDefault2 === 1 && !isLightColor(item.color), ellipsis: !browserIsMobile() },
+          {
+            White: enumDefault2 === 1 && !isLightColor(item.color),
+            ellipsis: !browserIsMobile(),
+            isEmpty: item.key === 'isEmpty',
+          },
           {
             'pLeft12 pRight12': enumDefault2 === 1,
             horizonArrangementItem: checktype === '2' && (direction === '0' || direction === '2') && browserIsMobile(),

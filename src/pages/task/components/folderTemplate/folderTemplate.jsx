@@ -4,9 +4,9 @@ import cx from 'classnames';
 import ajaxRequest from 'src/api/taskCenter';
 import DialogLayer from 'src/components/mdDialog/dialog';
 import CreateFolder from '../createFolder/createFolder';
-import { navigateTo } from 'src/router/navigateTo';
 import { errorMessage } from '../../utils/utils';
 import _ from 'lodash';
+import { LoadDiv } from 'ming-ui';
 
 export default class FolderTemplate extends Component {
   constructor(props) {
@@ -155,7 +155,7 @@ export default class FolderTemplate extends Component {
           )}
 
           <ul className="flex folderTemplateList">
-            {templates.length ? undefined : <div dangerouslySetInnerHTML={{ __html: LoadDiv() }} />}
+            {templates.length ? undefined : <LoadDiv />}
             {templates
               .filter(tpl => tpl.templateId || (!tpl.templateId && this.state.selectType === '0'))
               .map((tpl, i) => {
@@ -182,9 +182,7 @@ export default class FolderTemplate extends Component {
                       <div className="folderTemplateDesc">
                         <div>{tpl.title ? tpl.title : <span className="Font15">{tpl.templateName}</span>}</div>
                       </div>
-                    ) : (
-                      undefined
-                    )}
+                    ) : undefined}
 
                     {tpl.templateId ? (
                       <div className="folderTemplateOperator">
@@ -196,13 +194,9 @@ export default class FolderTemplate extends Component {
                           >
                             <i className="icon-task-new-delete" />
                           </span>
-                        ) : (
-                          undefined
-                        )}
+                        ) : undefined}
                       </div>
-                    ) : (
-                      undefined
-                    )}
+                    ) : undefined}
                   </li>
                 );
               })}
@@ -222,9 +216,7 @@ export default class FolderTemplate extends Component {
               this.setState({ showCreateFolder: false });
             }}
           />
-        ) : (
-          undefined
-        )}
+        ) : undefined}
       </DialogLayer>
     );
   }

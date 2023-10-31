@@ -8,7 +8,6 @@
     background-color: #fff;
     border-radius: 24px;
     padding: 7px 10px;
-    margin: 10px 15px 0;
     .icon-h5_search {
       color: #757575;
       font-size: 20px;
@@ -22,6 +21,13 @@
       border: 0;
       padding: 0 5px;
     }
+  }
+  .filterWrapper {
+    background-color: #fff;
+    padding: 10px;
+    border-radius: 50%;
+    width: 34px;
+    height: 34px;
   }
 
   .worksheetRecordCard {
@@ -69,3 +75,25 @@
   }
 }
 
+.quickFilterStepListWrapper {
+  -webkit-overflow-scrolling: touch;
+  position: inherit;
+  .am-drawer-sidebar {
+    z-index: 100;
+    border-radius: 14px 0 0 14px;
+    background-color: #fff;
+    overflow: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+  .am-drawer-overlay,
+  .am-drawer-content {
+    position: inherit;
+  }
+  &.am-drawer-open {
+    z-index: 100;
+    position: fixed;
+  }
+  &.bottom50 {
+    bottom: 50px;
+  }
+}

@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { string, func, bool } from 'prop-types';
+import { string, func, bool, array } from 'prop-types';
 import { Icon, Dialog, ScrollView, LoadDiv, Checkbox } from 'ming-ui';
 import './index.less';
 import process from '../../api/process';
@@ -10,6 +10,7 @@ export default class SelectWorkflow extends Component {
     visible: bool,
     processId: string,
     relationId: string,
+    filterIds: array,
     onSave: func,
     onClose: func,
   };
@@ -18,6 +19,7 @@ export default class SelectWorkflow extends Component {
     visible: false,
     processId: '',
     relationId: '',
+    filterIds: [],
     onSave: () => {},
     onClose: () => {},
   };
@@ -54,8 +56,16 @@ export default class SelectWorkflow extends Component {
    * 渲染列表
    */
   renderList() {
+    const { filterIds } = this.props;
     const { keywords } = this.state;
     let data = _.cloneDeep(this.state.data);
+
+    if (filterIds.length) {
+      data = data.map(item => {
+        item.processList = item.processList.filter(flow => !_.includes(filterIds, flow.id));
+        return item;
+      });
+    }
 
     if (keywords) {
       data = data.map(item => {

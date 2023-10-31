@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import { LoadDiv } from 'ming-ui';
 import DocumentTitle from 'react-document-title';
-import PayHeader from 'src/components/commonHeader/PayHeader';
+import PayHeader from '../payHeader';
 import payAjax from 'src/api/pay';
-import { getPssId } from 'src/util/pssId';
 import genQrDataurl, { QRErrorCorrectLevel } from 'src/pages/worksheet/common/PrintQrBarCode/genQrDataurl';
 import styled from 'styled-components';
 

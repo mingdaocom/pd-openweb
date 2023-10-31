@@ -87,6 +87,9 @@ export default class Gunter extends Component {
       this.props.updateViewConfig();
       this.props.updateRecordTimeBlockColor();
     }
+    if (view.advancedSetting.clicktype !== this.props.view.advancedSetting.clicktype) {
+      this.props.updateViewConfig();
+    }
     if (
       view.viewControl !== this.props.view.viewControl ||
       view.advancedSetting.milepost !== this.props.view.advancedSetting.milepost ||

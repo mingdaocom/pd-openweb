@@ -6,6 +6,7 @@ import RecordBlock from './RecordBlock';
 import RecordInfo from 'worksheet/views/GunterView/components/RecordInfo';
 import { addBehaviorLog } from 'src/util';
 import _ from 'lodash';
+import { handleRecordClick } from 'worksheet/util';
 
 @connect(
   state => ({
@@ -19,37 +20,40 @@ export default class RecordWrapper extends Component {
     super(props);
     this.state = {
       recordInfoVisible: false,
-    }
+    };
   }
   handleClick = () => {
     if (window.isDrag) {
       return;
     }
-    const { row, base, worksheetInfo } = this.props;
+    const { row, base, worksheetInfo, viewConfig } = this.props;
     const { appId, worksheetId } = worksheetInfo;
-    const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
-    if (isMingdao) {
-      window.location.href = `/mobile/record/${appId}/${worksheetId}/${base.viewId}/${row.rowid}`;
-    } else {
-      this.setState({
-        recordInfoVisible: true
-      });
-    }
-    if (location.pathname.indexOf('public') === -1) {
-      addBehaviorLog('worksheetRecord', worksheetId, { rowId: row.rowid }); // 埋点
-    }
+    handleRecordClick(
+      {
+        advancedSetting: { clicktype: viewConfig.clickType },
+      },
+      row,
+      () => {
+        const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
+        if (isMingdao) {
+          window.location.href = `/mobile/record/${appId}/${worksheetId}/${base.viewId}/${row.rowid}`;
+        } else {
+          this.setState({
+            recordInfoVisible: true,
+          });
+        }
+        if (location.pathname.indexOf('public') === -1) {
+          addBehaviorLog('worksheetRecord', worksheetId, { rowId: row.rowid }); // 埋点
+        }
+      },
+    );
   };
   render() {
     const { recordInfoVisible } = this.state;
     const { row, style } = this.props;
     return (
       <Fragment>
-        <RecordBlock
-          disable={!row.allowedit}
-          row={row}
-          style={style}
-          onClick={this.handleClick}
-        />
+        <RecordBlock disable={!row.allowedit} row={row} style={style} onClick={this.handleClick} />
         {recordInfoVisible && (
           <RecordInfo
             row={row}

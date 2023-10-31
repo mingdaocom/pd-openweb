@@ -11,6 +11,7 @@ import { bindActionCreators } from 'redux';
 import * as actions from 'statistics/redux/actions';
 import { isTimeControl } from 'statistics/common';
 import { reportTypes } from 'statistics/Charts/common';
+import { ContrastValue, defaultNumberChartStyle } from 'statistics/components/ChartStyle/components/NumberStyle';
 import _ from 'lodash';
 
 @connect(
@@ -95,14 +96,17 @@ export default class ChartAnalyse extends Component {
       </Collapse.Panel>
     );
   }
-  renderDataContrast(xAxisisTime) {
+  renderDataContrast() {
     const { currentReport, reportData } = this.props;
-    const { reportType, displaySetup, filter } = currentReport;
+    const { reportType, displaySetup, filter, style } = currentReport;
     const { rangeType } = filter || {};
     const isNumberChart = reportType === reportTypes.NumberChart;
     const mapKeys = Object.keys(reportData.map || []);
-    const contrastVisible = ((mapKeys.length < 2 && xAxisisTime) || [reportTypes.NumberChart, reportTypes.FunnelChart].includes(reportType));
+    // const xAxisisTime = isTimeControl(xaxes.controlType);
+    // const contrastVisible = ((mapKeys.length < 2 && xAxisisTime) || [reportTypes.NumberChart, reportTypes.FunnelChart].includes(reportType));
+    const contrastVisible = mapKeys.length < 2 || [reportTypes.NumberChart, reportTypes.FunnelChart].includes(reportType);
     const switchChecked = displaySetup.contrastType || displaySetup.contrast;
+    const { numberChartStyle = defaultNumberChartStyle } = style;
 
     if (!contrastVisible) {
       return null;
@@ -140,6 +144,19 @@ export default class ChartAnalyse extends Component {
           onUpdateDisplaySetup={this.handleChangeDisplaySetup}
           onChangeStyle={this.handleChangeStyle}
         />
+        {isNumberChart && (
+          <ContrastValue
+            numberChartStyle={numberChartStyle}
+            onChangeNumberStyle={(data) => {
+              this.handleChangeStyle({
+                numberChartStyle: {
+                  ...numberChartStyle,
+                  ...data
+                }
+              });
+            }}
+          />
+        )}
       </Collapse.Panel>
     );
   }
@@ -174,13 +191,11 @@ export default class ChartAnalyse extends Component {
   render() {
     const { currentReport } = this.props;
     const { reportType, xaxes } = currentReport;
-    const xAxisisTime = isTimeControl(xaxes.controlType);
     return (
       <div className="chartAdvanced">
         <Collapse className="chartCollapse" expandIcon={this.renderExpandIcon} ghost>
-          {((reportType === reportTypes.LineChart && xAxisisTime) ||
-            [reportTypes.NumberChart, reportTypes.FunnelChart].includes(reportType)) &&
-            this.renderDataContrast(xAxisisTime)}
+          {[reportTypes.LineChart, reportTypes.NumberChart, reportTypes.FunnelChart].includes(reportType) &&
+            this.renderDataContrast()}
           {reportType === reportTypes.LineChart && this.renderPeriodTarget()}
           {this.renderOriginalData()}
           {[reportTypes.BarChart, reportTypes.LineChart, reportTypes.DualAxes].includes(reportType) && this.renderAuxiliaryLine()}

@@ -1,69 +1,29 @@
-#app {
-  height: 100%;
-}
-
 body {
-  background-color: #f5f5f9;
+  background-color: #f5f5f9 !important;
 }
 
 .worksheetRowEdit {
-  height: 100vh;
-  overflow-y: auto;
-  background-color: #f5f5f9;
-  .fot {
-    font-size: 12px;
-    color: #bdbdbd;
-    margin-top: 24px;
-    text-align: center;
-
-    a {
-      color: #757575;
-      text-decoration: none;
-
-      &:hover {
-        color: #2196f3;
-      }
-    }
-  }
-  .worksheetRowEditBox {
-    position: relative;
-    width: 100%;
-    max-width: 880px;
-    background: #fff;
-    border-radius: 5px;
-    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.16);
-    padding: 32px;
-    margin: 32px auto;
-    overflow: hidden;
-    min-height: 500px;
-  }
-}
-
-.worksheetRowEditHeader {
-  width: 100%;
+  max-width: 1200px;
   background: #fff;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.24);
-  > .flexRow {
-    max-width: 880px;
-    margin: 0 auto;
-    align-items: center;
-    height: 54px;
-  }
-}
-
-.worksheetRowEditList {
-  overflow: hidden;
-  overflow-y: auto;
-  max-width: 880px;
+  border-radius: 3px;
   margin: 0 auto;
-}
 
-.recordShare {
-  .previewHeader {
-    .saveTo,
-    .shareNode,
-    .download {
-      display: none !important;
+  .worksheetRowEditSave {
+    height: 36px;
+    line-height: 36px;
+    padding: 0 36px;
+    background: #2196f3;
+    border-radius: 3px;
+    color: #fff;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    max-width: 400px;
+  }
+
+  .customHeader {
+    .closeBtn {
+      display: none;
     }
   }
 }

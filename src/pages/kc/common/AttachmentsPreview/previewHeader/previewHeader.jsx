@@ -307,7 +307,8 @@ class PreviewHeader extends React.Component {
             md.global.Account.accountId &&
             !md.global.Account.isPortal &&
             !window.share &&
-            !_.get(window, 'shareState.isPublicForm') && (
+            !_.get(window, 'shareState.isPublicForm') &&
+            !_.get(window, 'shareState.isPublicQuery') && (
               <Trigger
                 popupVisible={this.state.showSaveTo}
                 onPopupVisibleChange={visible => {
@@ -384,7 +385,11 @@ class PreviewHeader extends React.Component {
             ((attachment.originNode || attachment.sourceNode || {}).fileID ||
               (attachment.originNode || attachment.sourceNode || {}).fileId) &&
             !window.share &&
-            !(_.get(window, 'shareState.isPublicQuery') || _.get(window, 'shareState.isPublicForm')) && (
+            !(
+              _.get(window, 'shareState.isPublicQuery') ||
+              _.get(window, 'shareState.isPublicForm') ||
+              _.get(window, 'shareState.isPublicWorkflowRecord')
+            ) && (
               <div className="openNewPage">
                 <span className="normal" data-tip={_l('新页面打开')}>
                   <i
@@ -403,7 +408,9 @@ class PreviewHeader extends React.Component {
             showShare &&
             !md.global.Account.isPortal &&
             !window.share &&
-            !_.get(window, 'shareState.isPublicForm') && (
+            !_.get(window, 'shareState.isPublicForm') &&
+            !_.get(window, 'shareState.isPublicQuery') &&
+            !_.get(window, 'shareState.isPublicWorkflowRecord') && (
               <div className="shareNode">
                 <span className="normal" data-tip={_l('分享')}>
                   <i

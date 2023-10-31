@@ -4,10 +4,12 @@ import { Icon, Dialog } from 'ming-ui';
 import cx from 'classnames';
 import RecordOperate from 'worksheet/components/RecordOperate';
 import IconBtn from './IconBtn';
+import addRecord from 'worksheet/common/newRecord/addRecord';
+import { handleRowData } from 'src/util/transControlDefaultValue';
 export default function MoreMenu(props) {
   const {
-    recordbase,
     buttons,
+    recordbase,
     btnDisable,
     recordinfo,
     sheetSwitchPermit,
@@ -18,13 +20,13 @@ export default function MoreMenu(props) {
     handleAddSheetRow,
     hideRecordInfo,
   } = props;
-  const { from, isCharge, notDialog, appId, worksheetId, viewId, recordId, workId, instanceId } = recordbase;
-  const { allowDelete, formData, projectId, allowAdd } = recordinfo;
+  const { from, isCharge, appId, worksheetId, viewId, recordId, workId, instanceId } = recordbase;
+  const { allowDelete, formData, projectId, allowAdd, rowData } = recordinfo;
   return (
     <RecordOperate
       from={from}
       showDeleteHr={false}
-      shows={['share', 'share', 'print', 'task', 'copy', 'editform', cx({ openinnew: !notDialog })]}
+      shows={['share', 'share', 'print', 'task', 'copy', 'editform', 'recreate', 'openinnew']}
       isCharge={isCharge}
       allowDelete={allowDelete}
       allowCopy={allowAdd && recordinfo.allowEdit}
@@ -36,9 +38,8 @@ export default function MoreMenu(props) {
       workId={workId}
       instanceId={instanceId}
       formdata={formData}
-      disableLoadCustomButtons
-      defaultCustomButtons={buttons}
       btnDisable={btnDisable}
+      defaultCustomButtons={buttons}
       sheetSwitchPermit={sheetSwitchPermit}
       onDelete={onDelete}
       onButtonClick={onButtonClick}
@@ -46,6 +47,28 @@ export default function MoreMenu(props) {
       onUpdate={onUpdate}
       onCopySuccess={handleAddSheetRow}
       hideRecordInfo={hideRecordInfo}
+      onRecreate={() => {
+        handleRowData({
+          rowId: recordId,
+          worksheetId: worksheetId,
+          columns: formData,
+        }).then(res => {
+          const { defaultData, defcontrols } = res;
+          addRecord({
+            worksheetId,
+            appId,
+            viewId,
+            defaultFormData: defaultData,
+            defaultFormDataEditable: true,
+            directAdd: false,
+            writeControls: defcontrols,
+            onAdd: record => {
+              handleAddSheetRow({ ...record }, recordId);
+              alert(_l('创建成功'));
+            },
+          });
+        });
+      }}
     >
       <IconBtn className="moreBtn Hand Gray_9e Font22 mLeft10">
         <Icon icon="task-point-more" className="ThemeHoverColor3" />

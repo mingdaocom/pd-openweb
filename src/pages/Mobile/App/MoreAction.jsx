@@ -106,7 +106,7 @@ export default function MoreAction(props) {
               icon={viewHideNavi ? 'public-folder-hidden' : 'visibility'}
               className={'Gray_9e mRight24 Font20 TxtMiddle'}
             />
-            <span>{viewHideNavi ? _l('不显示应用隐藏项') : _l('显示应用隐藏项')}</span>
+            <span>{viewHideNavi ? _l('不显示隐藏的应用项') : _l('显示隐藏的应用项')}</span>
           </div>
         )}
       </div>

@@ -169,12 +169,6 @@ export default function CalendarSet(props) {
         timeControls={getTimeControls(worksheetControls)}
         begindateOrFirst
       />
-      <Color
-        {...props}
-        handleChange={handleChange}
-        title={_l('日程颜色')}
-        txt={_l('选择一个单选项字段，数据将按照此字段中的选项颜色来标记日程颜色，用于区分日程类型')}
-      />
       <div className="title Font13 bold mTop32">{_l('默认视图')}</div>
       <CalendarTypeChoose>
         <ul className="calendarTypeChoose">

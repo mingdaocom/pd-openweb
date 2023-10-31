@@ -4,10 +4,11 @@ import Chart from 'statistics/Card';
 const PrintPivotTable = (props) => {
   const { match = {} } = props;
   const { params } = match;
-  const { reportId } = params;
+  const { reportId, themeColor } = params;
   return (
     <Chart
       report={{ id: reportId }}
+      themeColor={decodeURIComponent(themeColor)}
       needEnlarge={false}
       needTimingRefresh={false}
       needRefresh={false}

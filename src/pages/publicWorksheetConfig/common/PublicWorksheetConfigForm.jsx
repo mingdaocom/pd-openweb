@@ -3,8 +3,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { ScrollView, RichText } from 'ming-ui';
-import Skeleton from 'src/router/Application/Skeleton';
+import { ScrollView, RichText, Skeleton } from 'ming-ui';
 import * as actions from '../redux/actions';
 import { Absolute, BlackBtn, Hr } from 'worksheet/components/Basics';
 import Logo from '../components/Logo';
@@ -16,16 +15,25 @@ import FormPreview from './FormPreview';
 import { themes } from '../enum';
 import { getDisabledControls, overridePos } from '../utils';
 import _ from 'lodash';
-import { COLORS } from 'src/pages/AppHomepage/components/SelectIcon/config';
 import { generate } from '@ant-design/colors';
+import { getRgbaByColor } from 'src/pages/widgetConfig/util';
 
 const TopBar = styled.div(
-  ({ color }) => `height: 10px; background: ${color}; opacity: .4; border-radius: 3px 3px 0 0;`,
+  ({ color }) => `
+  height: 10px;
+  background: #fff;
+  border-radius: 3px 3px 0 0;
+  .topBar{
+    width: 100%;
+    height: 100%;
+    background: ${getRgbaByColor(color, 0.4)};
+  }
+ `,
 );
 const SubmitCon = styled.div(
   ({ themeBgColor }) => `
   text-align: center;
-  margin: 15px 0 30px;
+  margin: 30px 0 30px;
   .text {
     width: 100%;
   }
@@ -45,6 +53,7 @@ const SubmitCon = styled.div(
   }
 `,
 );
+
 class PublicWorksheetConfigForm extends React.Component {
   static propTypes = {
     controls: PropTypes.arrayOf(PropTypes.shape({})),
@@ -53,7 +62,7 @@ class PublicWorksheetConfigForm extends React.Component {
     hidedControlIds: PropTypes.arrayOf(PropTypes.string),
     worksheetInfo: PropTypes.shape({}),
     worksheetSettings: PropTypes.shape({}),
-    hideControl: PropTypes.func,
+    onHideControl: PropTypes.func,
     changeControls: PropTypes.func,
     updateWorksheetInfo: PropTypes.func,
   };
@@ -81,7 +90,7 @@ class PublicWorksheetConfigForm extends React.Component {
   getThemeBgColor = () => {
     const { themeIndex, themeBgColor } = this.props.worksheetInfo;
     if (!themeBgColor) {
-      return !themes[themeIndex] ? COLORS[12] : (themes[themeIndex] || {}).main;
+      return !themes[themeIndex] ? '#2196f3' : (themes[themeIndex] || {}).main;
     } else {
       return themeBgColor;
     }
@@ -97,14 +106,15 @@ class PublicWorksheetConfigForm extends React.Component {
       loading,
       updateWorksheetInfo,
       hidedControlIds,
-      hideControl,
       changeControls,
+      onHideControl,
     } = this.props;
     const { coverUrl, logoUrl, submitBtnName, advancedSetting } = worksheetInfo;
     const { appearanceConfigVisible, isEditing } = this.state;
     const disabledControlIds = getDisabledControls(originalControls, worksheetSettings);
     const needHidedControlIds = hidedControlIds.concat(disabledControlIds);
     const theme = this.getThemeBgColor();
+
     return (
       <div
         className="publicWorksheetConfigForm flex"
@@ -135,7 +145,10 @@ class PublicWorksheetConfigForm extends React.Component {
               </BlackBtn>
             </Absolute>
             <div className="formContent flexColumn">
-              <TopBar color={theme} />
+              <TopBar color={theme}>
+                <div className="topBar" />
+              </TopBar>
+
               {loading && (
                 <Skeleton
                   direction="column"
@@ -145,7 +158,7 @@ class PublicWorksheetConfigForm extends React.Component {
                 />
               )}
               {!loading && (
-                <div style={{ padding: '0 20px' }}>
+                <div className="formContentHeader">
                   <div className="mLeft20">
                     <Logo url={logoUrl} onChange={url => updateWorksheetInfo({ logoUrl: url })} />
                   </div>
@@ -171,9 +184,10 @@ class PublicWorksheetConfigForm extends React.Component {
                       }}
                     />
                   </div>
+                  <Hr style={{ margin: '16px 0' }} />
                 </div>
               )}
-              <Hr style={{ margin: '16px 0' }} />
+
               <div className="formMain">
                 {loading && (
                   <Skeleton
@@ -189,15 +203,13 @@ class PublicWorksheetConfigForm extends React.Component {
                     controls={overridePos(originalControls, controls).filter(
                       c => !_.find(needHidedControlIds, hcid => c.controlId === hcid),
                     )}
-                    hideControl={hideControl}
-                    changeControls={changeControls}
+                    onHideControl={onHideControl}
                     onChange={newControls => {
                       changeControls(newControls);
                     }}
                   />
                 )}
               </div>
-              <Hr style={{ margin: '16px 0' }} />
               {loading && (
                 <Skeleton
                   className="mBottom30"

@@ -1,10 +1,8 @@
 import React, { Fragment } from 'react';
 import account from 'src/api/account';
-import { LoadDiv } from 'ming-ui';
+import { LoadDiv, Dialog } from 'ming-ui';
 import EnterpriseCard from './modules/EnterpriseCard';
 import cx from 'classnames';
-import DialogLayer from 'src/components/mdDialog/dialog';
-import ReactDom from 'react-dom';
 import InvitationList from './modules/InvitationList';
 import bindAccount from '../bindAccount/bindAccount';
 import './index.less';
@@ -25,6 +23,10 @@ export default class AccountChart extends React.Component {
       loading: false,
       isEnterprise: false,
       authCount: 0,
+      dialog: {
+        visible: false,
+        data: null,
+      },
     };
   }
 
@@ -84,33 +86,7 @@ export default class AccountChart extends React.Component {
       .getMyAuthList({})
       .then(data => {
         if (data.list) {
-          const options = {
-            container: {
-              content: '',
-              yesText: null,
-              noText: null,
-              header: null,
-            },
-            dialogBoxID: 'dialogBoxForAddEnterprise',
-            width: '480px',
-          };
-          ReactDom.render(
-            <DialogLayer {...options}>
-              <InvitationList
-                list={data.list}
-                updateAuthCount={() => {
-                  this.setState({
-                    authCount: this.state.authCount - 1,
-                  });
-                }}
-                existUserNotice={this.existUserNotice.bind(this)}
-                closeDialog={() => {
-                  $('#dialogBoxForAddEnterprise_container,#dialogBoxForAddEnterprise_mask').remove();
-                }}
-              />
-            </DialogLayer>,
-            document.createElement('div'),
-          );
+          this.setState({ dialog: { visible: true, data: data.list } });
         } else {
           alert(_l('操作失败'), 2);
         }
@@ -175,7 +151,7 @@ export default class AccountChart extends React.Component {
   }
 
   render() {
-    const { loading, isEnterprise, authCount } = this.state;
+    const { loading, isEnterprise, authCount, dialog } = this.state;
     if (loading) {
       return <LoadDiv className="mTop40" />;
     }
@@ -223,6 +199,18 @@ export default class AccountChart extends React.Component {
             </div>
           </div>
         )}
+        <Dialog
+          showFooter={false}
+          visible={dialog.visible}
+          onCancel={() => this.setState({ dialog: { visible: false, data: null } })}
+        >
+          <InvitationList
+            list={dialog.data}
+            updateAuthCount={() => this.setState({ authCount: this.state.authCount - 1 })}
+            existUserNotice={this.existUserNotice}
+            closeDialog={() => this.setState({ dialog: { visible: false, data: null } })}
+          />
+        </Dialog>
       </Fragment>
     );
   }

@@ -30,7 +30,8 @@ const RecordCon = styled.div`
   }
 
   .workSheetRecordInfo {
-    height: 100%;
+    flex: 1;
+    min-height: 0;
 
     .ant-pro-layout-watermark-wrapper {
       position: unset !important;

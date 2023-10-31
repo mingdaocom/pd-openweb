@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { FlexCenter } from 'worksheet/styled';
 import AddRecord from './AddRecord';
 import { dealHierarchyData, getRelateDefaultValue } from '../util';
+import { getRecordColorConfig } from 'worksheet/util';
 import { ITEM_TYPE } from '../config';
 import CountTip from './CountTip';
 import Components from '../../components';
@@ -56,8 +57,6 @@ export default function DraggableRecord(props) {
     worksheetInfo,
     appId,
     searchRecordId,
-    sheetButtons = [],
-    viewId,
     isCharge,
     onClick,
     isMix,
@@ -156,7 +155,7 @@ export default function DraggableRecord(props) {
     const { childType, viewControls } = view;
     if (isDisabledCreate(sheetSwitchPermit)) return;
     if (childType === 2) {
-      let _depth = (isMix && stateTree.length > 1) ? depth : depth + 1;
+      let _depth = isMix && stateTree.length > 1 ? depth : depth + 1;
       return allowAdd && _depth < viewControls.length;
     }
     return allowAdd;
@@ -180,17 +179,21 @@ export default function DraggableRecord(props) {
       })}
       onClick={onClick}
     >
-      <div ref={$dragDropRef} id={rowId} className={cx('dragDropRecordWrap', { highLight: rowId === searchRecordId })} style={STYLE}>
+      <div
+        ref={$dragDropRef}
+        id={rowId}
+        className={cx('dragDropRecordWrap', { highLight: rowId === searchRecordId })}
+        style={STYLE}
+      >
         <Components.EditableCard
           {...pick(props, ['viewParaOfRecord', 'sheetSwitchPermit', 'onUpdate', 'onDelete'])}
-          data={{ ...recordData, rowId }}
+          data={{ ...recordData, rowId, rawRow: treeData[rowId], recordColorConfig: getRecordColorConfig(view) }}
           stateData={data}
           ref={$ref}
           currentView={{
             ...view,
             projectId: worksheetInfo.projectId,
             appId,
-            customButtons: sheetButtons.filter(o => o.isAllView === 1 || o.displayViews.includes(viewId)), //筛选出当前视图的按钮
           }}
           isCharge={isCharge}
           editTitle={() => setEditTitle(true)}

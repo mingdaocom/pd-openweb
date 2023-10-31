@@ -118,7 +118,7 @@ const SortableItem = SortableElement(props => {
   const isNumber = isNumberControl(item.controlType, false);
   const axis = _.find(axisControls, { controlId: item.controlId });
   const control = _.find(allControls, { controlId: item.controlId }) || {};
-  const normType = _.find(normTypes, { value: item.normType });
+  const normType = _.find(normTypes, { value: item.normType }) || {};
   return (
     <SortableItemContent>
       <Icon className="sortableDrag Font20 pointer Gray_bd ThemeHoverColor3" icon="drag_indicator" />

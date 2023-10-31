@@ -80,6 +80,7 @@ export default props => {
             <SingleControlValue
               companyId={props.companyId}
               processId={props.processId}
+              relationId={props.relationId}
               selectNodeId={props.selectNodeId}
               sourceNodeId={detailSource.selectNodeId}
               controls={detailSource.controls}

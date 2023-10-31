@@ -55,7 +55,15 @@ const Entry = props => {
 
   useEffect(() => {
     const clientId = sessionStorage.getItem(shareId);
-    getShareInfoByShareId({ clientId }).then(data => {
+    getShareInfoByShareId({ clientId }).then(({ data }) => {
+      localStorage.setItem('currentProjectId', data.projectId);
+      preall(
+        { type: 'function' },
+        {
+          allownotlogin: true,
+          requestParams: { projectId: data.projectId },
+        },
+      );
       setLoading(false);
     });
   }, []);
@@ -148,6 +156,4 @@ const Entry = props => {
   }
 };
 
-const Comp = preall(Entry, { allownotlogin: true });
-
-ReactDom.render(<Comp />, document.getElementById('app'));
+ReactDom.render(<Entry />, document.getElementById('app'));

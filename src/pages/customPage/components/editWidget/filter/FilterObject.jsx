@@ -170,7 +170,7 @@ export default function FilterObject(props) {
           >
             <span className="Font13">{_l('全选')}</span>
           </Checkbox>
-          {filterObject.filter(n => (n.name || '').includes(search)).map(c => (
+          {filterObject.filter(n => (n.name || '').toLocaleLowerCase().includes(search.toLocaleLowerCase())).map(c => (
             <Checkbox
               key={c.objectId}
               checked={_.find(objectControls, { objectId: c.objectId }) ? true : false}

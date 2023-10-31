@@ -1,16 +1,17 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Checkbox, Dialog } from 'ming-ui';
-import Icon from 'src/components/Icon';
+import Components from '../../components';
 import { Tooltip, Dropdown } from 'antd';
 import styled from 'styled-components';
 import { SettingItem, DropdownOverlay } from '../../styled';
 import { updateConfig } from '../../util/setting';
 import { batchRemoveItems } from '../../util/drag';
 import { batchCopyWidgets, handleMoveWidgets, batchResetWidgets } from '../../util/data';
-import { putControlByOrder } from '../../util';
+import { putControlByOrder, relateOrSectionTab } from '../../util';
 import { isEmpty, find, uniqBy, flatten } from 'lodash';
-import { isRelateRecordTableControl } from 'worksheet/util';
+
+const Icon = Components.Icon;
 
 const WidgetBatchWrap = styled.div`
   position: absolute;
@@ -24,7 +25,7 @@ const WidgetBatchWrap = styled.div`
   overflow: auto;
   overflow-x: hidden;
   .batchItem {
-    flex: 1;
+    ${props => (props.hasSection ? 'padding: 0 16px;' : ' flex: 1;')}
     margin-right: 8px;
     margin-top: 14px;
     border-radius: 3px;
@@ -62,35 +63,37 @@ function WidgetBatch(props) {
   const isCanAddNotAll = !isCanAddAll && batchActive.some(i => _.get(i.fieldPermission || '111', '2') === '0');
 
   return (
-    <WidgetBatchWrap>
+    <WidgetBatchWrap hasSection={sectionData.length > 0}>
       <div className="Font17 Bold">{_l('批量设置%0', batchActive.length)}</div>
       <div className="flexCenter">
-        {/* <Dropdown
-          trigger={['click']}
-          overlay={
-            <DropdownOverlay>
-              <div className="dropdownContent Width250">
-                {sectionData.length > 0 ? (
-                  sectionData.map(item => {
-                    return (
-                      <div className="item " onClick={() => handleOperate('move', item.controlId)}>
-                        <div className="text overflow_ellipsis">{item.controlName}</div>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <div className="emptyText">{_l('暂无分段字段')}</div>
-                )}
-              </div>
-            </DropdownOverlay>
-          }
-          placement="bottom"
-        >
-          <div className="batchItem">
-            <Icon icon="view_agenda" />
-            {_l('移动到分段')}
-          </div>
-        </Dropdown> */}
+        {sectionData.length > 0 && (
+          <Dropdown
+            trigger={['click']}
+            overlay={
+              <DropdownOverlay>
+                <div className="dropdownContent Width250">
+                  {sectionData.length > 0 ? (
+                    sectionData.map(item => {
+                      return (
+                        <div className="item " onClick={() => handleOperate('move', item.controlId)}>
+                          <div className="text overflow_ellipsis">{item.controlName}</div>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div className="emptyText">{_l('暂无分段字段')}</div>
+                  )}
+                </div>
+              </DropdownOverlay>
+            }
+            placement="bottom"
+          >
+            <div className="batchItem">
+              <Icon icon="view_agenda" />
+              {_l('移动到标签页')}
+            </div>
+          </Dropdown>
+        )}
         <div className="batchItem" onClick={() => handleOperate('copy')}>
           <Icon icon="copy" />
           {_l('复制')}
@@ -163,11 +166,11 @@ export default function WidgetBatchOption(props) {
     });
 
     if (mode === 'move') {
-      const filterSelectWidgets = selectWidgets.filter(i => !isRelateRecordTableControl(i));
+      const filterSelectWidgets = selectWidgets.filter(i => !(relateOrSectionTab(i) || i.type === 34));
       // 按原有展示顺序添加，不按批量选中顺序
       const orderWidgets = flatten(putControlByOrder(filterSelectWidgets));
       // 先删除原有控件
-      const deleteMoveItems = batchRemoveItems(widgets, selectWidgets);
+      const deleteMoveItems = batchRemoveItems(widgets, filterSelectWidgets);
       // 再批量添加
       handleMoveWidgets(
         // 根据原有排序按顺序移动

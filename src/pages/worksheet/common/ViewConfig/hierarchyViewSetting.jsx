@@ -312,7 +312,7 @@ export default function HierarchyViewSetting(props) {
     } else {
       handleChange({
         viewControls: viewControls.slice(0, index),
-        layersName: layersName.slice(0, index),
+        layersName: (layersName || '').slice(0, index),
         editAttrs: ['viewControls', 'layersName'],
       });
     }

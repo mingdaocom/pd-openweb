@@ -3,7 +3,7 @@ import cx from 'classnames';
 import './index.less';
 import Constant from '../../../utils/constant';
 import dialog from 'src/components/addFriendConfirm/addFriendConfirm';
-import invite from 'src/components/invite';
+import addFriends from 'src/components/addFriends';
 
 export default class SystemMessage extends Component {
   constructor(props) {
@@ -16,10 +16,9 @@ export default class SystemMessage extends Component {
     });
   }
   invite() {
-    const { session } = this.props;
-    invite({
+    addFriends({
+      selectProject: true,
       friendVisible: false,
-      accountId: session.id,
     });
   }
   handleClick(event) {

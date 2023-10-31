@@ -350,3 +350,38 @@
     }
   }
 }
+
+.inviteDialog {
+  .mui-dialog-body {
+    padding-right: 0 !important;
+  }
+
+  .projectList {
+    overflow-y: auto;
+    max-height: 300px;
+  }
+
+  .splitLine {
+    width: 372px;
+    border-top: 1px solid #ccc;
+    margin: 24px 0;
+  }
+
+  .projectItem {
+    font-size: 15px;
+    line-height: 50px;
+    width: 370px;
+    height: 50px;
+    margin-bottom: 20px;
+    padding: 0 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    align-items: center;
+    &:hover {
+      border-color: #2196f3;
+      .icon-arrow-right-border {
+        color: #2196f3;
+      }
+    }
+  }
+}

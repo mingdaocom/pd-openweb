@@ -7,6 +7,7 @@ import { NODE_TYPE } from '../../../enum';
 export default ({
   companyId,
   processId,
+  relationId,
   selectNodeId,
   selectNodeType,
   title,
@@ -46,6 +47,13 @@ export default ({
           })
         }
       />
+
+      {!!flowNodeMap.accounts.length && (
+        <div className="Gray_9e mTop5" style={{ marginLeft: 26 }}>
+          {_l('设置为摘要的字段可以邮件中显示')}
+        </div>
+      )}
+
       {!!flowNodeMap.accounts.length && (
         <div className="mLeft25 mTop10">
           {showApprovalBtn && (
@@ -57,7 +65,9 @@ export default ({
                 onClick={checked => updateSource({ batch: !checked })}
               />
               <div className="Gray_9e mTop5" style={{ marginLeft: 26 }}>
-                {_l('邮件内附带通过、否决按钮，此种快速审批方式不校验必填的签名、意见和字段')}
+                {_l(
+                  '显示通过、否决、退回按钮（根据操作配置）。在邮件内快速审批时不能填写签名、意见和字段，退回时将直接退回到第一个允许退回的节点',
+                )}
               </div>
             </Fragment>
           )}
@@ -67,6 +77,7 @@ export default ({
             <SingleControlValue
               companyId={companyId}
               processId={processId}
+              relationId={relationId}
               selectNodeId={selectNodeId}
               controls={flowNodeMap.controls}
               formulaMap={flowNodeMap.formulaMap}

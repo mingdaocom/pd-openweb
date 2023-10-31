@@ -110,6 +110,7 @@ export default class Level extends React.Component {
             )}
             <CustomScore
               hideTip
+              backgroundColor="rgba(0,0,0,0.16)"
               score={value}
               data={cell}
               disabled={!editable || from === FROM.CARD}

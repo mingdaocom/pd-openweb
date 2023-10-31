@@ -7,7 +7,6 @@ import { useSetState } from 'react-use';
 import Trigger from 'rc-trigger';
 import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
 import { RedMenuItemWrap, MenuItemWrap, LogoWrap, ActWrap, BtnWrap } from '../style';
-import { COLORS } from 'src/pages/AppHomepage/components/SelectIcon/config.js';
 import Switch from 'src/pages/workflow/components/Switch';
 import Set from './Set';
 import Cite from './Cite';
@@ -610,7 +609,6 @@ function APISetting(props) {
                   popup={
                     <SelectIcon
                       className={''}
-                      colorList={COLORS}
                       hideInput
                       hideCustom
                       iconColor={data.iconColor}

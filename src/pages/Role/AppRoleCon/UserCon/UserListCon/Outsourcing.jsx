@@ -265,7 +265,11 @@ function Others(props) {
         }}
         showCheck={canEdit}
         list={
-          pageIndex <= 1 && loading ? [] : !keyWords ? userList : userList.filter(o => o.name.indexOf(keyWords) >= 0)
+          pageIndex <= 1 && loading
+            ? []
+            : !keyWords
+            ? userList
+            : userList.filter(o => o.name.toLocaleLowerCase().indexOf(keyWords.toLocaleLowerCase()) >= 0)
         }
         pageIndex={pageIndex}
         total={total}

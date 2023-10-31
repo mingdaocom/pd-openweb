@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSetState } from 'react-use';
 import styled from 'styled-components';
-import { Icon, RadioGroup, Input, Tooltip, Checkbox } from 'ming-ui';
+import { Icon, RadioGroup, Input, Tooltip, Checkbox, Dialog } from 'ming-ui';
 import { Select } from 'antd';
 import _ from 'lodash';
 import {
@@ -19,6 +19,7 @@ import dataSourceApi from '../../../../api/datasource';
 import worksheetApi from 'src/api/worksheet';
 import SheetGroupSelect from './SheetGroupSelect';
 import { getInitFieldsMapping, getInitWorkSheetFields, getDefaultData } from '../../../utils';
+import { getIconByType } from 'src/pages/widgetConfig/util';
 
 const OnlySyncWrapper = styled.div`
   padding: 16px 24px;
@@ -196,7 +197,19 @@ export default function OnlySyncStep(props) {
             }
           });
           const sourceFields = destFieldsMapping.map(item => item.sourceField);
-          const destFields = destFieldsMapping.map(item => item.destField).filter(item => item !== null);
+          const destNodeFields = destFieldsMapping.map(item => item.destField).filter(item => item !== null);
+          const identifyDuplicateField =
+            (_.get(destFields, [db, table, 'fields']) || []).filter(
+              item => item.id === _.get(sheetData, [db, table, 'fieldForIdentifyDuplicate']),
+            )[0] || {};
+          const extraSettingData =
+            isDestAppType && _.get(sheetData, [db, table, 'sheetCreateType']) === CREATE_TYPE.SELECT_EXIST
+              ? {
+                  writeMode: _.get(sheetData, [db, table, 'writeMode']),
+                  fieldForIdentifyDuplicate: !_.isEmpty(identifyDuplicateField) ? identifyDuplicateField : undefined,
+                  isCleanDestTableData: _.get(sheetData, [db, table, 'isCleanDestTableData']),
+                }
+              : {};
 
           const data = {
             projectId: props.currentProjectId,
@@ -225,7 +238,7 @@ export default function OnlySyncStep(props) {
               name: _l('目的地节点'),
               nodeType: 'DEST_TABLE',
               description: _l('这是一个目的地节点'),
-              fields: destFields,
+              fields: destNodeFields,
               config: {
                 dataDestId: dest.id,
                 dbName: _.get(sheetData, [db, table, 'dbName']),
@@ -239,13 +252,8 @@ export default function OnlySyncStep(props) {
                 appId: isDestAppType ? dest.id : undefined,
                 workSheetId: isDestAppType ? _.get(sheetData, [db, table, 'sheetNameValue']) : undefined,
                 fieldsMapping: destFieldsMapping,
-                writeMode:
-                  !isSourceAppType &&
-                  isDestAppType &&
-                  _.get(sheetData, [db, table, 'sheetCreateType']) === CREATE_TYPE.SELECT_EXIST
-                    ? _.get(sheetData, [db, table, 'writeMode'])
-                    : undefined,
                 appSectionId: _.get(sheetData, [db, table, 'appSectionId']),
+                ...extraSettingData,
               },
             },
             workflowConfig: isDestAppType
@@ -463,6 +471,7 @@ export default function OnlySyncStep(props) {
       initSheetData.appSectionId = null;
       if (!writeNode) {
         initSheetData.writeMode = 'SKIP';
+        initSheetData.isCleanDestTableData = false;
       }
       // 获取下拉列表选项
       if (isDestAppType) {
@@ -588,6 +597,81 @@ export default function OnlySyncStep(props) {
         }
       });
     }
+  };
+
+  const renderIdentifyDup = () => {
+    const destOptions = _.get(destFields, [currentTab.db, currentTab.table, 'fields']) || [];
+    const options = destOptions
+      .filter(item => _.includes([2, 3, 4, 5, 7, 33], item.mdType)) //可选类型--文本，电话，邮箱，证件，自动编号
+      .map(item => {
+        return {
+          label: (
+            <div className="flexRow alignItemsCenter">
+              <Icon icon={getIconByType(item.mdType, false)} className="Gray_9e Font18" />
+              <span title={item.name} className="mLeft8 overflow_ellipsis Gray">
+                {item.name}
+              </span>
+            </div>
+          ),
+          value: item.id,
+        };
+      });
+
+    return (
+      <React.Fragment>
+        <p className="mTop20 mBottom8 bold">{_l('重复数据')}</p>
+        <p className="mBottom12 Gray_9e">{_l('未选择目标字段时, 会根据数据源的主键字段判断重复')}</p>
+        <div className="flexRow alignItemsCenter">
+          <span className="nowrap">{_l('在同步时，依据目标字段')}</span>
+          <div className="Width120 mLeft12 mRight12">
+            <Select
+              className="selectItem"
+              allowClear={true}
+              options={options}
+              value={_.get(sheetData, [currentTab.db, currentTab.table, 'fieldForIdentifyDuplicate'])}
+              onChange={fieldForIdentifyDuplicate =>
+                onChangeStateData(sheetData, setSheetData, { fieldForIdentifyDuplicate })
+              }
+            />
+          </div>
+          <span className="nowrap">{_l('识别重复，并')}</span>
+          <div className="Width70 mLeft12 mRight12">
+            <Select
+              className="selectItem"
+              options={[
+                { label: _l('跳过'), value: 'SKIP' },
+                { label: _l('覆盖'), value: 'OVERWRITE' },
+              ]}
+              value={_.get(sheetData, [currentTab.db, currentTab.table, 'writeMode'])}
+              onChange={writeMode => onChangeStateData(sheetData, setSheetData, { writeMode })}
+            />
+          </div>
+          {_.get(sheetData, [currentTab.db, currentTab.table, 'writeMode']) === 'OVERWRITE' && (
+            <Tooltip text={_l('“覆盖”会导致数据同步变慢。')}>
+              <Icon icon="info_outline" className="Font16 Gray_bd pointer" />
+            </Tooltip>
+          )}
+        </div>
+        <div className="mTop20">
+          <Checkbox
+            size="small"
+            text={_l('在本次同步数据之前，彻底清空目标表数据')}
+            checked={_.get(sheetData, [currentTab.db, currentTab.table, 'isCleanDestTableData'])}
+            onClick={checked => {
+              !checked
+                ? Dialog.confirm({
+                    title: _l('清空目标表数据'),
+                    description: _l('在本次同步任务前，清空目的地表数据，清空后无法恢复。'),
+                    buttonType: 'danger',
+                    okText: _l('确认'),
+                    onOk: () => onChangeStateData(sheetData, setSheetData, { isCleanDestTableData: !checked }),
+                  })
+                : onChangeStateData(sheetData, setSheetData, { isCleanDestTableData: !checked });
+            }}
+          />
+        </div>
+      </React.Fragment>
+    );
   };
 
   return (
@@ -765,36 +849,10 @@ export default function OnlySyncStep(props) {
                               matchedTypes={_.get(matchedTypes, [currentTab.db, currentTab.table, 'matchedTypes'])}
                             />
 
-                            {!isSourceAppType &&
-                              isDestAppType &&
+                            {isDestAppType &&
                               _.get(sheetData, [currentTab.db, currentTab.table, 'sheetCreateType']) ===
-                                CREATE_TYPE.SELECT_EXIST && (
-                                <React.Fragment>
-                                  <p className="mTop20 mBottom8 bold">{_l('识别重复数据')}</p>
-                                  <div className="flexRow alignItemsCenter">
-                                    <span className="nowrap">{_l('根据主键识别重复，并')}</span>
-                                    <div className="Width70 mLeft12 mRight12">
-                                      <Select
-                                        className="selectItem"
-                                        options={[
-                                          { label: _l('跳过'), value: 'SKIP' },
-                                          { label: _l('覆盖'), value: 'OVERWRITE' },
-                                        ]}
-                                        value={_.get(sheetData, [currentTab.db, currentTab.table, 'writeMode'])}
-                                        onChange={writeMode =>
-                                          onChangeStateData(sheetData, setSheetData, { writeMode })
-                                        }
-                                      />
-                                    </div>
-                                    {_.get(sheetData, [currentTab.db, currentTab.table, 'writeMode']) ===
-                                      'OVERWRITE' && (
-                                      <Tooltip text={_l('根据主键判断已有数据的重复，"覆盖"会导致数据同步变慢。')}>
-                                        <Icon icon="info_outline" className="Font16 Gray_bd pointer" />
-                                      </Tooltip>
-                                    )}
-                                  </div>
-                                </React.Fragment>
-                              )}
+                                CREATE_TYPE.SELECT_EXIST &&
+                              renderIdentifyDup()}
 
                             {isDestAppType && (
                               <React.Fragment>

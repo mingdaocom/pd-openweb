@@ -115,11 +115,6 @@ export default class extends React.PureComponent {
     if (closeList.includes(sectionId)) {
       return '';
     }
-    const sections = fields.filter(o => o.sectionId === fieldId);
-    const isPartAddSection =
-      sections.length > sections.filter(o => !o.notAdd).length && sections.filter(o => !o.notAdd).length > 0;
-    const isPartShowSection =
-      sections.length > sections.filter(o => !o.notRead).length && sections.filter(o => !o.notRead).length > 0;
 
     return (
       <div className={cx('fieldItem flexRow alignItemsCenter', { isChild: sectionId })} key={fieldId}>
@@ -135,7 +130,7 @@ export default class extends React.PureComponent {
             <i
               className={cx(
                 'icon mRight6 Font14 isParent',
-                !closeList.includes(fieldId) ? 'icon-arrow-down' : 'icon-arrow-up',
+                !closeList.includes(fieldId) ? 'icon-arrow-down' : 'icon-arrow-right-tip',
               )}
             ></i>
           )}
@@ -152,7 +147,6 @@ export default class extends React.PureComponent {
               disabled={!showAdd}
               value={fieldId}
               onClick={this.changeFieldAddAuth}
-              {...(ids.includes(fieldId) ? { clearselected: isPartAddSection } : {})}
             />
           )}
         </div>
@@ -161,7 +155,6 @@ export default class extends React.PureComponent {
             checked={!notRead}
             value={fieldId}
             onClick={this.changeFieldReadAuth}
-            {...(ids.includes(fieldId) ? { clearselected: isPartShowSection } : {})}
           />
         </div>
         <div className={'filedSetting flex'}>

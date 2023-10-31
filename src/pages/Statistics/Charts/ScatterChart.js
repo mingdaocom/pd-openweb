@@ -98,6 +98,8 @@ export default class extends Component {
   componentWillReceiveProps(nextProps) {
     const { displaySetup, style } = nextProps.reportData;
     const { displaySetup: oldDisplaySetup, style: oldStyle } = this.props.reportData;
+    const chartColor = _.get(nextProps, 'customPageConfig.chartColor');
+    const oldChartColor = _.get(this.props, 'customPageConfig.chartColor');
     if (
       displaySetup.showLegend !== oldDisplaySetup.showLegend ||
       displaySetup.legendType !== oldDisplaySetup.legendType ||
@@ -107,7 +109,9 @@ export default class extends Component {
       !_.isEqual(displaySetup.xdisplay, oldDisplaySetup.xdisplay) ||
       !_.isEqual(displaySetup.ydisplay, oldDisplaySetup.ydisplay) ||
       !_.isEqual(displaySetup.colorRules, oldDisplaySetup.colorRules) ||
-      !_.isEqual(style.quadrant, oldStyle.quadrant)
+      !_.isEqual(style.quadrant, oldStyle.quadrant) ||
+      !_.isEqual(chartColor, oldChartColor) ||
+      nextProps.themeColor !== this.props.themeColor
     ) {
       const config = this.getComponentConfig(nextProps);
       this.ScatterChart.update(config);
@@ -166,12 +170,14 @@ export default class extends Component {
     }
   }
   getComponentConfig(props) {
-    const { map, displaySetup, xaxes, yaxisList, split, style = {}, valueMap = {} } = props.reportData;
+    const { themeColor, projectId, customPageConfig, reportData } = props;
+    const { chartColor } = customPageConfig;
+    const { map, displaySetup, xaxes, yaxisList, split, style = {}, valueMap = {} } = reportData;
     const { xdisplay, ydisplay, colorRules, showChartType } = displaySetup;
     const { quadrant = {} } = style;
     const data = formatChartData(map, split.controlId);
     const { position } = getLegendType(displaySetup.legendType);
-    const colors = getChartColors(style);
+    const colors = getChartColors(chartColor || style, themeColor, projectId);
     const rule = _.get(colorRules[0], 'dataBarRule') || {};
     const isRuleColor = _.isEmpty(split.controlId) && !_.isEmpty(rule);
     const controlMinAndMax = isRuleColor ? getControlMinAndMax(yaxisList, data) : {};
@@ -197,7 +203,7 @@ export default class extends Component {
       sizeField,
       colorField: split.controlId,
       size: [5, 20],
-      color: isRuleColor ? getRuleColor : colors,
+      color: isRuleColor ? getRuleColor : (split.controlId ? colors : colors[0]),
       legend: displaySetup.showLegend && split.controlId ? {
         position
       } : false,

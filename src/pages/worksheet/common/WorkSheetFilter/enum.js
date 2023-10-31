@@ -179,9 +179,11 @@ export const API_ENUM_TO_TYPE = {
   CASCADER: 35, // 级联选择
   SUBLIST: 34, // 子表
   EMBED: 45, // 嵌入
+  TIME: 46, // 时间
   BARCODE: 47, // 条码
   ORG_ROLE: 48, // 组织角色
   RELATESEARCH: 51, // 查询记录
+  SECTION: 52, //标签页
 };
 
 export function getFilterTypeLabel(typeKey, type, control, controlType) {
@@ -344,4 +346,22 @@ export const DATE_OPTIONS = [
     { text: _l('将来30天'), value: 33 },
   ],
   [{ text: _l('指定时间'), value: 18 }],
+];
+
+export const valueTypeOptions = [
+  { value: 1, text: _l('固定值') },
+  { value: 2, text: _l('参数值') },
+];
+
+export const DEFAULT_COLUMNS = [
+  {
+    controlId: 'rowid',
+    controlName: _l('记录ID'),
+    type: 2,
+  },
+  {
+    controlId: 'currenttime',
+    controlName: _l('此刻'),
+    type: 16,
+  },
 ];

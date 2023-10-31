@@ -49068,3 +49068,2004 @@ msgstr "未勾選主鍵字段"
 msgid "存在错误的配置"
 msgstr "存在錯誤的配置"
 
+#: Disabled references:1
+msgid "了解此功能"
+msgstr "了解此功能"
+
+#: Disabled references:1
+msgid "全局变量"
+msgstr "全域變數"
+
+#: Disabled references:1
+msgid "当前门户不在设置的注册时间范围内，暂不支持注册"
+msgstr "目前入口網站不在設定的註冊時間範圍內，暫不支援註冊"
+
+#: Disabled references:1
+msgid "当前使用人数超出额度"
+msgstr "當前使用人數超出額度"
+
+#: Disabled references:1
+msgid "当前门户暂不支持注册，仅允许已有账号登录"
+msgstr "目前入口網站暫不支援註冊，僅允許已有帳號登錄"
+
+#: Disabled references:1
+msgid "已开启登录保护，验证码登录"
+msgstr "已開啟登入保護，驗證碼登入"
+
+#: Disabled references:1
+msgid "在明细内显示"
+msgstr "在明細內顯示"
+
+#: Disabled references:1
+msgid "在明细表下方显示"
+msgstr "在明細表下方顯示"
+
+#: Disabled references:1
+msgid "在线预览，直接用浏览器打印"
+msgstr "線上預覽，直接用瀏覽器列印"
+
+#: Disabled references:1
+msgid "锁定"
+msgstr "鎖定"
+
+#: Disabled references:1
+msgid "备份与还原"
+msgstr "備份與還原"
+
+#: Disabled references:1
+msgid "周同比"
+msgstr "周同比"
+
+#: Disabled references:1
+msgid "月同比"
+msgstr "月同比"
+
+#: Disabled references:1
+msgid "年同比"
+msgstr "年同比"
+
+#: Disabled references:1
+msgid "季度同比"
+msgstr "季年年比"
+
+#: Disabled references:1
+msgid "页面配置"
+msgstr "頁面配置"
+
+#: Disabled references:1
+msgid "请至少输入%0条记录"
+msgstr "請至少輸入%0筆記錄"
+
+#: Disabled references:1
+msgid "最多输入%0条记录"
+msgstr "最多輸入%0筆記錄"
+
+#: Disabled references:1
+msgid "适合对明道云产品已经完成试用的中小企业客户"
+msgstr "適合對明道云產品已經完成試用的中小企業客戶"
+
+#: Disabled references:1
+msgid "从专业伙伴购买"
+msgstr "從專業夥伴購買"
+
+#: Disabled references:1
+msgid "适合需要行业解决方案和应用搭建支持的企业客户"
+msgstr "適合需要行業解決方案和應用搭建支持的企業客戶"
+
+#: Disabled references:1
+msgid "联系明道云顾问购买"
+msgstr "聯繫明道云顧問購買"
+
+#: Disabled references:1
+msgid "适合具备自主搭建应用能力的客户"
+msgstr "適合具備自主搭建應用能力的客戶"
+
+#: Disabled references:1
+msgid "选择购买方式"
+msgstr "選擇購買方式"
+
+#: Disabled references:1
+msgid "*任何购买渠道下，明道云产品授权的价格部分都是一致的"
+msgstr "*任何購買渠道下，明道云產品授權的價格部分都是一致的"
+
+#: Disabled references:1
+msgid "删除原有的集成映射关系"
+msgstr "刪除原有的整合映射關係"
+
+#: Disabled references:1
+msgid "变更集成方式后原有的集成映射关系建议删除，保留后会对新的映射关系产生影响"
+msgstr "變更整合方式後原有的整合映射關係建議刪除，保留後會對新的映射關係產生影響"
+
+#: Disabled references:1
+msgid "保留原有的集成映射关系"
+msgstr "保留原有的整合映射關係"
+
+#: Disabled references:1
+msgid "在企微/钉钉/飞书等平台是私有部署的用户（支持ID自定义）建议选择保留映射关系不需要删除后续修改 ID 即可"
+msgstr "在企微/釘釘/飛書等平台是私人部署的使用者（支援ID自訂）建議選擇保留映射關係不需要刪除後續修改 ID 即可"
+
+#: Disabled references:1
+msgid "组织下所有应用"
+msgstr "組織下所有應用"
+
+#: Disabled references:1
+msgid "指定应用"
+msgstr "指定應用"
+
+#: Disabled references:1
+msgid "色盲安全"
+msgstr "色盲安全"
+
+#: Disabled references:1
+msgid "布鲁姆"
+msgstr "布魯姆"
+
+#: Disabled references:1
+msgid "高对比度"
+msgstr "高對比度"
+
+#: Disabled references:1
+msgid "创新"
+msgstr "創新"
+
+#: Disabled references:1
+msgid "日出"
+msgstr "日出"
+
+#: Disabled references:1
+msgid "潮汐"
+msgstr "潮汐"
+
+#: Disabled references:1
+msgid "黄昏"
+msgstr "黃昏"
+
+#: Disabled references:1
+msgid "上传的图标可用于应用、应用项、工作表等地方"
+msgstr "上傳的圖示可用於應用程式、應用程式、工作表等地方"
+
+#: Disabled references:1
+msgid "自定义颜色"
+msgstr "自訂顏色"
+
+#: Disabled references:1
+msgid "自定义颜色可用于应用、自定义页面等地方"
+msgstr "自訂顏色可用於套用、自訂頁面等地方"
+
+#: Disabled references:1
+msgid "记录详情"
+msgstr "記錄詳情"
+
+#: Disabled references:1
+msgid "自定义在查看记录详情时或批量选择记录时可执行的操作"
+msgstr "自訂在查看記錄詳情時或批次選擇記錄時可執行的操作"
+
+#: Disabled references:1
+msgid "批量数据源"
+msgstr "大量資料來源"
+
+#: Disabled references:1
+msgid "表格视图可以单元格直接编辑；"
+msgstr "表格檢視可以儲存格直接編輯；"
+
+#: Disabled references:1
+msgid "看板、层级、甘特图在标题字段为文本类型时可以只填写标题字段快速创建记录；"
+msgstr "看板、層級、甘特圖在標題欄位為文字類型時可以只填寫標題欄位快速建立記錄；"
+
+#: Disabled references:1
+msgid "可以在看板、层级、画廊和详情视图的卡片上直接修改文本类标题和检查框"
+msgstr "可以在看板、層級、圖庫和詳情視圖的卡片上直接修改文字類標題和檢查框"
+
+#: Disabled references:1
+msgid "使用对应记录的字段值新建记录。"
+msgstr "使用對應記錄的欄位值新建記錄。"
+
+#: Disabled references:1
+msgid "以下字段类型在创建时有复制数量限制:"
+msgstr "以下欄位類型在建立時有複製數量限制:"
+
+#: Disabled references:1
+msgid "关联记录（卡片和下拉框）最多复制5条;"
+msgstr "關聯記錄（卡片和下拉方塊）最多複製5筆;"
+
+#: Disabled references:1
+msgid "关联记录（列表）不复制;"
+msgstr "關聯記錄（列表）不複製;"
+
+#: Disabled references:1
+msgid "子表记录最多复制200条;"
+msgstr "子表記錄最多複製200筆;"
+
+#: Disabled references:1
+msgid "子表中的关联记录最多复制5条。"
+msgstr "子表中的關聯記錄最多複製5筆。"
+
+#: Disabled references:1
+msgid "不显示隐藏的应用项"
+msgstr "不顯示隱藏的應用項"
+
+#: Disabled references:1
+msgid "显示隐藏的应用项"
+msgstr "顯示隱藏的應用項"
+
+#: Disabled references:1
+msgid "已恢复到上次中断内容（%0）"
+msgstr "已恢復到上次中斷內容（%0）"
+
+#: Disabled references:1
+msgid "已恢复到上次中断内容"
+msgstr "已恢復到上次中斷內容"
+
+#: Disabled references:1
+msgid "至今"
+msgstr "至今"
+
+#: Disabled references:1
+msgid "备注/签名"
+msgstr "備註/簽名"
+
+#: Disabled references:1
+msgid "审批签名位置"
+msgstr "審批簽名位置"
+
+#: Disabled references:1
+msgid "角色名称重复，请重新命名"
+msgstr "角色名稱重複，請重新命名"
+
+#: Disabled references:1
+msgid "大写锁定已打开"
+msgstr "大寫鎖定已打開"
+
+#: Disabled references:1
+msgid "显示的字段"
+msgstr "顯示的字段"
+
+#: Disabled references:1
+msgid "可调用API接口获取数据，并将数据填充到字段。"
+msgstr "可呼叫API介面取得數據，並將資料填入欄位。"
+
+#: Disabled references:1
+msgid "可用于快速查看其他表的数据。"
+msgstr "可用於快速查看其他表格的資料。"
+
+#: Disabled references:1
+msgid "标签页"
+msgstr "標籤頁"
+
+#: Disabled references:1
+msgid "可用于分组字段，组织相关的信息或功能。"
+msgstr "可用於分組字段，組織相關的資訊或功能。"
+
+#: Disabled references:1
+msgid "删除标签？"
+msgstr "刪除標籤？"
+
+#: Disabled references:1
+msgid "标签页内字段将移动到外部，不会被删除"
+msgstr "標籤頁內欄位將移至外部，不會被刪除"
+
+#: Disabled references:1
+msgid "状态 / 创建时间"
+msgstr "狀態 / 創建時間"
+
+#: Disabled references:1
+msgid "状态 / 更新时间"
+msgstr "狀態 / 更新時間"
+
+#: Disabled references:1
+msgid "全局变量(应用)"
+msgstr "全域變數(應用)"
+
+#: Disabled references:1
+msgid "全局变量(组织)"
+msgstr "全域變數(組織)"
+
+#: Disabled references:1
+msgid "子表数量达到上限"
+msgstr "子表數量達上限"
+
+#: Disabled references:1
+msgid "${errorCount}个文件识别错误"
+msgstr "${errorCount}個檔案辨識錯誤"
+
+#: Disabled references:1
+msgid "批量识别仅支持10个附件"
+msgstr "批量識別僅支援10個附件"
+
+#: Disabled references:1
+msgid "获取打印记录文件生成PDF文件"
+msgstr "獲取打印記錄文件生成PDF文件"
+
+#: Disabled references:1
+msgid "搜索变量名称"
+msgstr "搜尋變數名稱"
+
+#: Disabled references:1
+msgid "${activeItem === 'project' ? '组织' : '应用'}变量"
+msgstr "${activeItem === 'project' ? '組織' : '應用'}變數"
+
+#: Disabled references:1
+msgid "暂无全局变量"
+msgstr "暫無全域變數"
+
+#: Disabled references:1
+msgid "值为空"
+msgstr "值為空"
+
+#: Disabled references:1
+msgid "确定删除这个变量？"
+msgstr "確定刪除這個變數？"
+
+#: Disabled references:1
+msgid "删除变量后，无法恢复"
+msgstr "刪除變數後，無法恢復"
+
+#: Disabled references:1
+msgid "添加变量"
+msgstr "新增變數"
+
+#: Disabled references:1
+msgid "选择全局变量"
+msgstr "選擇全域變數"
+
+#: Disabled references:1
+msgid "变量名称不能为空"
+msgstr "變數名稱不能為空"
+
+#: Disabled references:1
+msgid "变量名称不符合规范, 请以字母开头，数字和下划线组合命名"
+msgstr "變數名稱不符合規範, 請以字母開頭，數字和底線組合命名"
+
+#: Disabled references:1
+msgid "变量值不能为空"
+msgstr "變數值不能為空"
+
+#: Disabled references:1
+msgid "名称已被占用"
+msgstr "姓名已被佔用"
+
+#: Disabled references:1
+msgid "没有授权应用"
+msgstr "沒有授權應用"
+
+#: Disabled references:1
+msgid "编辑${!!appId ? '应用' : '组织'}变量"
+msgstr "編輯${!!appId ? '應用' : '組織'}變量"
+
+#: Disabled references:1
+msgid "添加${!!appId ? '应用' : '组织'}变量"
+msgstr "加${!!appId ? '應用' : '組織'}變量"
+
+#: Disabled references:1
+msgid "变量名称"
+msgstr "變數名稱"
+
+#: Disabled references:1
+msgid "仅允许使用字母（不区分大小写）、数字和下划线组合，且必须以字母开头。支持以“变量分组.变量名称”规则创建，会将变量名称前的内容自动归组。变量名称创建后不允许修改。"
+msgstr "僅允許使用字母（不區分大小寫）、數字和底線組合，且必須以字母開頭。支援以「變數分組.變數名稱」規則創建，會將變數名稱前的內容自動歸組。變數名稱創建後不允許修改。"
+
+#: Disabled references:1
+msgid "变量类型"
+msgstr "變數類型"
+
+#: Disabled references:1
+msgid "变量值"
+msgstr "變數值"
+
+#: Disabled references:1
+msgid "是否允许在工作流中更新"
+msgstr "是否允許在工作流程中更新"
+
+#: Disabled references:1
+msgid "授权范围"
+msgstr "授權範圍"
+
+#: Disabled references:1
+msgid "上传的图标可用于应用、应用项、工作表的图标选择，使用SVG格式的单色图标"
+msgstr "上傳的圖示可用於應用程式、應用程式、工作表的圖示選擇，使用SVG格式的單色圖標"
+
+#: Disabled references:1
+msgid "隐藏后不验证必填"
+msgstr "隱藏後不驗證必填"
+
+#: Disabled references:1
+msgid "只读后不验证必填"
+msgstr "只讀後不驗證必填"
+
+#: Disabled references:1
+msgid "暂无按钮"
+msgstr "暫無按鈕"
+
+#: Disabled references:1
+msgid "注意：应用下所有配置与数据将被删除，删除后可在工作台首页回收站恢复。"
+msgstr "注意：套用下所有設定與資料將會刪除，刪除後可在工作台首頁回收站恢復。"
+
+#: Disabled references:1
+msgid "使用全局变量实现组织内数据的共享与传递"
+msgstr "使用全域變數實現組織內資料的共享與傳遞"
+
+#: Disabled references:1
+msgid "应用变量"
+msgstr "應用變數"
+
+#: Disabled references:1
+msgid "将应用配置导出为文件，之后可以将此文件导入其他组织以实现应用迁移，可选择同时导出部分示例数据"
+msgstr "將應用程式配置匯出為文件，之後可以將此文件匯入其他組織以實現應用程式遷移，可選擇同時匯出部分範例數據"
+
+#: Disabled references:1
+msgid "当前应用为解锁状态"
+msgstr "當前應用程式為解鎖狀態"
+
+#: Disabled references:1
+#, fuzzy
+msgid "应用锁定状态下所有用户（包括管理员）不能查看、修改应用的配置，用户验证密码后可解锁其在应用下的操作权限。锁定应用需验证身份"
+msgstr "應用鎖定狀態下所有用戶（包括管理員）不能查看、修改應用的配置，用戶驗證密碼後可解鎖其在應用下的操作權限。鎖定應用需驗證身份。"
+
+#: Disabled references:1
+msgid "外部用户注册开始/停止时间"
+msgstr "外部使用者註冊開始/停止時間"
+
+#: Disabled references:1
+msgid "外部用户通过账号密码或微信扫码登录后，需要额外进行验证码验证，验证通过后才能成功登录"
+msgstr "外部使用者透過帳號密碼或微信掃碼登入後，需要額外進行驗證碼驗證，驗證通過後才能成功登入"
+
+#: Disabled references:1
+msgid "启用水印配置后，将在外部门户内显示当前使用者的姓名+手机号后4位或邮箱前缀"
+msgstr "啟用浮水印配置後，將在外部入口網站內顯示目前使用者的姓名+手機號後4位或信箱前綴"
+
+#: Disabled references:1
+msgid "已开启外部用户注册开始/停止时间，但未选择开始/停止时间"
+msgstr "已開啟外部使用者註冊開始/停止時間，但未選擇開始/停止時間"
+
+#: Disabled references:1
+msgid "应用备份"
+msgstr "應用程式備份"
+
+#: Disabled references:1
+msgid "主题深色"
+msgstr "主題深色"
+
+#: Disabled references:1
+msgid "主题浅色"
+msgstr "主題淺色"
+
+#: Disabled references:1
+msgid "页面背景"
+msgstr "頁面背景"
+
+#: Disabled references:1
+msgid "适应主题"
+msgstr "適應主題"
+
+#: Disabled references:1
+msgid "图表样式"
+msgstr "圖表樣式"
+
+#: Disabled references:1
+msgid "数值颜色"
+msgstr "數值顏色"
+
+#: Disabled references:1
+msgid "透视表颜色"
+msgstr "透視表顏色"
+
+#: Disabled references:1
+msgid "通用"
+msgstr "通用"
+
+#: Disabled references:1
+msgid "页面布局"
+msgstr "頁面佈局"
+
+#: Disabled references:1
+msgid "适应屏幕高度"
+msgstr "適應螢幕高度"
+
+#: Disabled references:1
+msgid "标题区"
+msgstr "標題區"
+
+#: Disabled references:1
+msgid "移动到标签页"
+msgstr "移動到標籤頁"
+
+#: Disabled references:1
+msgid "分段样式"
+msgstr "分段樣式"
+
+#: Disabled references:1
+msgid "标签页样式"
+msgstr "標籤頁樣式"
+
+#: Disabled references:1
+msgid "显示图标"
+msgstr "顯示圖示"
+
+#: Disabled references:1
+msgid "折叠"
+msgstr "折疊"
+
+#: Disabled references:1
+msgid "为照片添加水印"
+msgstr "為照片添加浮水印"
+
+#: Disabled references:1
+msgid "添加水印设置对明道云App拍摄照片时生效；Web移动端拍摄、上传图片都会生成水印；生成水印后不支持修改水印"
+msgstr "新增浮水印設定對明道雲App拍照時生效；Web行動端拍攝、上傳圖片都會產生浮水印；產生浮水印後不支援修改浮水印"
+
+#: Disabled references:1
+msgid "映射到当前记录"
+msgstr "對應到當前記錄"
+
+#: Disabled references:1
+msgid "映射到子表明细"
+msgstr "映射到子表明細"
+
+#: Disabled references:1
+msgid "将当前模版映射到"
+msgstr "將目前模版映射到"
+
+#: Disabled references:1
+msgid "选择映射子表明细，可进行多个附件批量映射识别"
+msgstr "選擇映射子表示細，可進行多個附件批次映射識別"
+
+#: Disabled references:1
+msgid "选择映射当前记录，仅能进行单次映射识别"
+msgstr "選擇映射目前記錄，僅能進行單次映射識別"
+
+#: Disabled references:1
+msgid "选择子表"
+msgstr "選擇子表"
+
+#: Disabled references:1
+msgid "使用系统集成的识别服务。单次：0.1元/次，批量：0.1元/附件数量；从企业账务中心直接扣费"
+msgstr "使用系統整合的識別服務。單次：0.1元/次，大量：0.1元/附件數量；從企業帳務中心直接扣費"
+
+#: Disabled references:1
+msgid "查询数量"
+msgstr "查詢數量"
+
+#: Disabled references:1
+msgid "默认状态"
+msgstr "預設狀態"
+
+#: Disabled references:1
+msgid "多条记录"
+msgstr "多筆記錄"
+
+#: Disabled references:1
+msgid "单条记录"
+msgstr "單筆記錄"
+
+#: Disabled references:1
+msgid "退回后更新了记录"
+msgstr "退回後更新了記錄"
+
+#: Disabled references:1
+msgid "此操作将彻底删除所有数据，不可从回收站中恢复！"
+msgstr "此操作將徹底刪除所有數據，且不可從回收站中恢復！"
+
+#: Disabled references:1
+msgid "当前所选记录数量超过1000行，数据不会进入回收站而直接进行彻底删除。此操作只有应用管理员可以执行。"
+msgstr "目前所選記錄數量超過1000行，資料不會進入回收站而直接進行徹底刪除。此操作只有應用程式管理員可以執行。"
+
+#: Disabled references:1
+#, fuzzy
+msgid "注意:"
+msgstr "注意："
+
+#: Disabled references:1
+msgid "将直接物理删除，永远无法恢复"
+msgstr "將直接物理刪除，永遠無法恢復"
+
+#: Disabled references:1
+msgid "其他表与已删除记录的关联关系不会被清除，记录将显示为“已删除”"
+msgstr "其他表與已刪除記錄的關聯關係不會被清除，記錄將顯示為“已刪除”"
+
+#: Disabled references:1
+msgid "彻底删除不触发工作流"
+msgstr "徹底刪除不觸發工作流程"
+
+#: Disabled references:1
+msgid "我已了解注意事项，并确认彻底删除数据"
+msgstr "我已了解注意事項，並確認徹底刪除數據"
+
+#: Disabled references:1
+msgid "记录超过1000条，将按照创建时间排序（新的在前）"
+msgstr "記錄超過1000條，將按照創建時間排序（新的在前）"
+
+#: Disabled references:1
+msgid "此操作将彻底物理删除应用下所有配置与数据，删除后无法恢复，"
+msgstr "此操作將徹底物理刪除應用下所有配置與數據，刪除後無法恢復，"
+
+#: Disabled references:1
+msgid "请谨慎操作！"
+msgstr "請謹慎操作！"
+
+#: Disabled references:1
+msgid "链接参数"
+msgstr "連結參數"
+
+#: Disabled references:1
+msgid "一条"
+msgstr "一條"
+
+#: Disabled references:1
+msgid "（第一条记录）"
+msgstr "（第一筆記錄）"
+
+#: Disabled references:1
+msgid "视图设置"
+msgstr "視圖設定"
+
+#: Disabled references:1
+msgid "编辑画布"
+msgstr "編輯畫布"
+
+#: Disabled references:1
+msgid "最多输入%0条记录，超出的记录不写入"
+msgstr "最多輸入%0筆記錄，超出的記錄不寫入"
+
+#: Disabled references:1
+msgid "复制失败，最多输入%0条记录"
+msgstr "複製失敗，最多輸入%0筆記錄"
+
+#: Disabled references:1
+msgid "共 %0 行"
+msgstr "共 %0 行"
+
+#: Disabled references:1
+msgid "请开启浏览器针对此页面的剪贴板读取权限"
+msgstr "請開啟瀏覽器針對此頁面的剪貼板讀取權限"
+
+#: Disabled references:1
+msgid "查看其他%0个"
+msgstr "看其他%0個"
+
+#: Disabled references:1
+msgid "自定义主题颜色"
+msgstr "自訂主題顏色"
+
+#: Disabled references:1
+msgid "请填写图标配色名称"
+msgstr "請填寫圖標配色名稱"
+
+#: Disabled references:1
+msgid "请完善图表颜色"
+msgstr "請完善圖表顏色"
+
+#: Disabled references:1
+msgid "自定义图表配色"
+msgstr "自訂圖表配色"
+
+#: Disabled references:1
+msgid "预设颜色"
+msgstr "預設顏色"
+
+#: Disabled references:1
+msgid "请填写自定义图表配色名称"
+msgstr "請填寫自訂圖表配色名稱"
+
+#: Disabled references:1
+msgid "最多显示18个主题颜色"
+msgstr "最多顯示18個主題顏色"
+
+#: Disabled references:1
+msgid "最少选择1个主题颜色"
+msgstr "最少選擇1個主題顏色"
+
+#: Disabled references:1
+msgid "最多添加三个自定义图标配色"
+msgstr "最多新增三個自訂圖示配色"
+
+#: Disabled references:1
+msgid "对比度大于%0"
+msgstr "對比大於%0"
+
+#: Disabled references:1
+msgid "图表配色"
+msgstr "圖表配色"
+
+#: Disabled references:1
+msgid "创建颜色"
+msgstr "建立顏色"
+
+#: Disabled references:1
+msgid "自定义主题色最多添加18个"
+msgstr "自訂主題色最多添加18個"
+
+#: Disabled references:1
+msgid "颜色已存在"
+msgstr "顏色已存在"
+
+#: Disabled references:1
+msgid "是否确认将员工【%0】离职？"
+msgstr "是否確認將員工【%0】離職？"
+
+#: Disabled references:1
+msgid "若该员工有未交接工作，离职后会自动生成交接待办"
+msgstr "若該員工有未交接工作，離職後會自動產生交接待辦"
+
+#: Disabled references:1
+msgid "确认离职"
+msgstr "確認離職"
+
+#: Disabled references:1
+msgid "为确保首次集成90天后正常使用，需向企业微信购买接口许可，由组织自己支付接口许可的费用，明道云收到付费后在企微服务商后台代为缴费"
+msgstr "為確保首次整合90天後正常使用，需向企業微信購買介面許可，由組織自行支付介面許可的費用，明道雲收到付費後在企微服務商後台代為繳費"
+
+#: Disabled references:1
+msgid "申请下单后，尽快联系顾问协助完成订单付款"
+msgstr "申請下單後，盡快聯絡顧問協助完成訂單付款"
+
+#: Disabled references:1
+msgid "设置锁定密码"
+msgstr "設定鎖定密碼"
+
+#: Disabled references:1
+msgid "随机生成"
+msgstr "隨機生成"
+
+#: Disabled references:1
+msgid "不推荐设置私人的常用密码。请妥善保管密码，如果忘记密码只能关闭锁定后重新设置"
+msgstr "不建議設定私人的常用密碼。請妥善保管密碼，如果忘記密碼只能關閉鎖定後重新設定"
+
+#: Disabled references:1
+msgid "列宽模式"
+msgstr "列寬模式"
+
+#: Disabled references:1
+msgid "根据内容长度自动设置列宽"
+msgstr "根據內容長度自動設定列寬"
+
+#: Disabled references:1
+msgid "列宽按固定宽度，当列数较多时横向滚动查看"
+msgstr "列寬依固定寬度，當列數較多時橫向捲動查看"
+
+#: Disabled references:1
+msgid "列宽按百分比，在所有尺寸下始终完整显示所有列，适合列数较少的情况"
+msgstr "列寬以百分比，在所有尺寸下始終完整顯示所有列，適合列數較少的情況"
+
+#: Disabled references:1
+msgid "显示横轴滚动条"
+msgstr "顯示橫軸滾動條"
+
+#: Disabled references:1
+msgid "你可以把 IBM db2 数据库的数据通过系统实时同步到工作表或者其它数据目的地。"
+msgstr "你可以把 IBM db2 數據庫的數據通過系統實時同步到工作表或者其它數據目的地。"
+
+#: Disabled references:1
+msgid "支持IBM db2的版本：11.5x"
+msgstr "支持IBM db2的版本：11.5x"
+
+#: Disabled references:1
+msgid "将数据集成的系统 IP 添加到 DB2 服务器的访问白名单"
+msgstr "將數據集成的系統 IP 添加到 DB2 服務器的訪問白名單"
+
+#: Disabled references:1
+msgid "查询数据库版本"
+msgstr "查詢數據庫版本"
+
+#: Disabled references:1
+msgid "方法1"
+msgstr "方法1"
+
+#: Disabled references:1
+msgid "方法2"
+msgstr "方法2"
+
+#: Disabled references:1
+msgid "检查表的 CDC 状态"
+msgstr "檢查表的 CDC 狀態"
+
+#: Disabled references:1
+msgid "如果 CAPTURE 列的值为 \"Y\"，表示表已处于捕获模式。"
+msgstr "如果 CAPTURE 列的值為 \"Y\"，表示表已處於捕獲模式。"
+
+#: Disabled references:1
+msgid "启用表的CDC"
+msgstr "啟用表的CDC"
+
+#: Disabled references:1
+msgid "schema_name 是表所属的模式名称"
+msgstr "schema_name 是表所屬的模式名稱"
+
+#: Disabled references:1
+msgid "table_name 是要启用 CDC 的表的名称"
+msgstr "table_name 是要啟用 CDC 的表的名稱"
+
+#: Disabled references:1
+msgid "更多配置项参考"
+msgstr "更多配置項參考"
+
+#: Disabled references:1
+msgid "支持MariaDB的版本: 10.3及以上"
+msgstr "支持MariaDB的版本: 10.3及以上"
+
+#: Disabled references:1
+msgid "需要开启Binlog并设置为ROW模式"
+msgstr "需要開啟Binlog並設置為ROW模式"
+
+#: Disabled references:1
+msgid "将数据集成的系统 IP 添加到 MariaDB 服务器的访问白名单"
+msgstr "將數據集成的系統 IP 添加到 MariaDB 服務器的訪問白名單"
+
+#: Disabled references:1
+#, fuzzy
+msgid "检查 MariaDB 版本"
+msgstr "檢查MariaDB版本"
+
+#: Disabled references:1
+msgid "1. 登陆到MariaDB服务器编辑MariaDB服务器的配置文件"
+msgstr "1. 登陸到MariaDB服務器編輯MariaDB服務器的配置文件"
+
+#: Disabled references:1
+msgid "2. 检查配置文件"
+msgstr "2. 檢查配置文件"
+
+#: Disabled references:1
+msgid "3. 如果修改过配置文件，需要重启MariaDB服务器"
+msgstr "3. 如果修改過配置文件，需要重啟MariaDB服務器"
+
+#: Disabled references:1
+msgid "重启后再次检查binlog状态"
+msgstr "重啟後再次檢查binlog狀態"
+
+#: Disabled references:1
+msgid "1. 创建用户，也可以用已有用户"
+msgstr "1. 創建用戶，也可以用已有用戶"
+
+#: Disabled references:1
+msgid "如果已有账号可以直接进行赋权"
+msgstr "如果已有賬號可以直接進行賦權"
+
+#: Disabled references:1
+msgid "2. 赋权"
+msgstr "2. 賦權"
+
+#: Disabled references:1
+msgid "如果是已有用户，可以通过以下命令查询权限"
+msgstr "如果是已有用戶，可以通過以下命令查詢權限"
+
+#: Disabled references:1
+msgid "'用户名'@'主机'"
+msgstr "'用戶名'@'主機'"
+
+#: Disabled references:1
+msgid "如果权限不足，可以按照上方赋权重新增加对应权限"
+msgstr "如果權限不足，可以按照上方賦權重新增加對應權限"
+
+#: Disabled references:1
+msgid "需要包含的权限"
+msgstr "需要包含的權限"
+
+#: Disabled references:1
+msgid "扩展：撤销用户的权限"
+msgstr "擴展：撤銷用戶的權限"
+
+#: Disabled references:1
+msgid "'用户名'@'%'"
+msgstr "'用戶名'@'%'"
+
+#: Disabled references:1
+#, fuzzy
+msgid "将系统 IP 添加到 MariaDB 服务器的访问白名单"
+msgstr "將系統 IP 添加到 MariaDB 服務器的訪問白名單 "
+
+#: Disabled references:1
+msgid "1. 编辑MariaDB服务器的配置文件"
+msgstr "1. 編輯MariaDB服務器的配置文件"
+
+#: Disabled references:1
+msgid "2. 找到 [mysqld] 部分，添加下方语句"
+msgstr "2. 找到 [mysqld] 部分，添加下方語句"
+
+#: Disabled references:1
+msgid "也可以通过数据库服务器添加全局性的访问白名单"
+msgstr "也可以通過數據庫服務器添加全局性的訪問白名單"
+
+#: Disabled references:1
+msgid "测试连接创建数据源时，检查数据库服务器的连通性、账户密码等正确性、数据库是否可用、以及检查是否可以作为源或者目的地。只有数据源通过全部测试才能够正常使用数据源。"
+msgstr "測試連接創建數據源時，檢查數據庫服務器的連通性、賬戶密碼等正確性、數據庫是否可用、以及檢查是否可以作為源或者目的地。只有數據源通過全部測試才能夠正常使用數據源。"
+
+#: Disabled references:1
+msgid "以“Asia/Shanghai”时区举例，这里填入数据库服务器对应的时区信息"
+msgstr "以“Asia/Shanghai”時區舉例，這裡填入數據庫服務器對應的時區信息"
+
+#: Disabled references:1
+msgid "报错内容是"
+msgstr "報錯內容是"
+
+#: Disabled references:1
+msgid "1 没有开启权限，尝试重新赋予用户 REPLICATION SLAVE, REPLICATION CLIENT 权限"
+msgstr "1 沒有開啟權限，嘗試重新賦予用戶 REPLICATION SLAVE, REPLICATION CLIENT 權限"
+
+#: Disabled references:1
+msgid "2 说明：这两个权限在 MariaDB 复制环境中起着不同的作用，REPLICATION SLAVE 用于连接和同步数据，而 REPLICATION CLIENT 则用于复制监控和管理操作。通常，在配置从服务器时，需要授予用户同时具备这两个权限才能正常进行复制。"
+msgstr "2 說明：這兩個權限在 MariaDB 複製環境中起著不同的作用，REPLICATION SLAVE 用於連接和同步數據，而 REPLICATION CLIENT 則用於復制監控和管理操作。通常，在配置從服務器時，需要授予用戶同時具備這兩個權限才能正常進行複制。"
+
+#: Disabled references:1
+msgid "将系统 IP 添加到 MariaDB 服务器的允许访问白名单"
+msgstr "將系統 IP 添加到 MariaDB 服務器的允許訪問白名單"
+
+#: Disabled references:1
+msgid "给用户赋权"
+msgstr "給用戶賦權"
+
+#: Disabled references:1
+msgid "支持MySQL的版本: "
+msgstr "支援MySQL的版本:"
+
+#: Disabled references:1
+msgid "将数据集成的系统 IP 添加到 MySQL 服务器的访问白名单"
+msgstr "將數據集成的系統 IP 添加到 MySQL 服務器的訪問白名單"
+
+#: Disabled references:1
+msgid "1. 登陆到MySQL服务器编辑MySQL服务器的配置文件"
+msgstr "1. 登陸到MySQL服務器編輯MySQL服務器的配置文件"
+
+#: Disabled references:1
+msgid "3. 如果修改过配置文件，需要重启MySQL服务器"
+msgstr "3. 如果修改過配置文件，需要重啟MySQL服務器"
+
+#: Disabled references:1
+msgid "1. 编辑MySQL服务器的配置文件"
+msgstr "1. 編輯MySQL服務器的配置文件"
+
+#: Disabled references:1
+msgid "2 说明：这两个权限在 MySQL 复制环境中起着不同的作用，REPLICATION SLAVE 用于连接和同步数据，而 REPLICATION CLIENT 则用于复制监控和管理操作。通常，在配置从服务器时，需要授予用户同时具备这两个权限才能正常进行复制。"
+msgstr "2 說明：這兩個權限在 MySQL 複製環境中起著不同的作用，REPLICATION SLAVE 用於連接和同步數據，而 REPLICATION CLIENT 則用於復制監控和管理操作。通常，在配置從服務器時，需要授予用戶同時具備這兩個權限才能正常進行複制。"
+
+#: Disabled references:1
+msgid "将系统 IP 添加到 MySQL 服务器的允许访问白名单"
+msgstr "將系統 IP 添加到 MySQL 服務器的允許訪問白名單"
+
+#: Disabled references:1
+msgid "支持Oracle的版本： 9i、10g、11g、12c+"
+msgstr "支持Oracle的版本： 9i、10g、11g、12c+"
+
+#: Disabled references:1
+msgid "启用Oracle数据库的日志归档，并定义一个具有适当权限的Oracle用户"
+msgstr "啟用Oracle數據庫的日誌歸檔，並定義一個具有適當權限的Oracle用戶"
+
+#: Disabled references:1
+msgid "将数据集成的系统 IP 添加到 Oracle 服务器的访问白名单 "
+msgstr "將數據集成的系統 IP 添加到 Oracle 服務器的訪問白名單 "
+
+#: Disabled references:1
+msgid "非容器数据库（Non-CDB database）"
+msgstr "非容器數據庫（Non-CDB database）"
+
+#: Disabled references:1
+msgid "在 Oracle 12c 之前的版本中，数据库被组织为一个个独立的实例，每个实例可以包含一个或多个数据库。这些数据库被称为非容器数据库，每个数据库都有自己的系统表空间和用户表空间。简而言之，Oracle 12c 之后的版本都是容器数据库CDB。"
+msgstr "在 Oracle 12c 之前的版本中，數據庫被組織為一個個獨立的實例，每個實例可以包含一個或多個數據庫。這些數據庫被稱為非容器數據庫，每個數據庫都有自己的系統表空間和用戶表空間。簡而言之，Oracle 12c 之後的版本都是容器數據庫CDB。"
+
+#: Disabled references:1
+msgid "1. 启用日志归档"
+msgstr "1. 啟用日誌歸檔"
+
+#: Disabled references:1
+msgid "1.1 以DBA身份连接到数据库"
+msgstr "1.1 以DBA身份連接到數據庫"
+
+#: Disabled references:1
+msgid "1.2 检查是否启用了日志归档功能"
+msgstr "1.2 檢查是否啟用了日誌歸檔功能"
+
+#: Disabled references:1
+msgid "1.3 如果未启动，则按照如下启用日志归档"
+msgstr "1.3 如果未啟動，則按照如下啟用日誌歸檔"
+
+#: Disabled references:1
+msgid "注意"
+msgstr "注意"
+
+#: Disabled references:1
+msgid "启用日志归档需要重新启动数据库；"
+msgstr "啟用日誌歸檔需要重新啟動數據庫；"
+
+#: Disabled references:1
+msgid "要注意归档的日志会占用大量的磁盘空间，所以考虑定期清理过期的日志。"
+msgstr "要注意歸檔的日誌會佔用大量的磁盤空間，所以考慮定期清理過期的日誌。"
+
+#: Disabled references:1
+msgid "2. 启用补充日志"
+msgstr "2. 啟用補充日誌"
+
+#: Disabled references:1
+msgid "为了捕获数据库数据变化之前的状态，请务必在表和数据库级别启用补充日志。以下是在表/数据库层面上进行配置的说明："
+msgstr "為了捕獲數據庫數據變化之前的狀態，請務必在表和數據庫級別啟用補充日誌。以下是在表/數據庫層面上進行配置的說明："
+
+#: Disabled references:1
+msgid "2.1 启用特定表和库的补充日志记录"
+msgstr "2.1 啟用特定表和庫的補充日誌記錄"
+
+#: Disabled references:1
+msgid "##启用特定表的补充日志记录"
+msgstr "##啟用特定表的補充日誌記錄"
+
+#: Disabled references:1
+msgid "##启用数据库的补充日志记录"
+msgstr "##啟用數據庫的補充日誌記錄"
+
+#: Disabled references:1
+msgid "3. 创建一个具有权限的Oracle用户"
+msgstr "3. 創建一個具有權限的Oracle用戶"
+
+#: Disabled references:1
+msgid "在创建同步任务的时候使用这个用户去配置连接"
+msgstr "在創建同步任務的時候使用這個用戶去配置連接"
+
+#: Disabled references:1
+msgid "3.1 创建表空间"
+msgstr "3.1 創建表空間"
+
+#: Disabled references:1
+msgid "3.2 创建一个用户并授予权限"
+msgstr "3.2 創建一個用戶並授予權限"
+
+#: Disabled references:1
+msgid "容器数据库（CDB database）"
+msgstr "容器數據庫（CDB database）"
+
+#: Disabled references:1
+msgid "也可以这样启用日志归档"
+msgstr "也可以這樣啟用日誌歸檔"
+
+#: Disabled references:1
+msgid "## 为特定表启用补充日志记录:"
+msgstr "## 為特定表啟用補充日誌記錄:"
+
+#: Disabled references:1
+msgid "## 为数据库启用补充日志记录"
+msgstr "## 為數據庫啟用補充日誌記錄"
+
+#: Disabled references:1
+msgid "2. 创建一个具有权限的Oracle用户"
+msgstr "2. 創建一個具有權限的Oracle用戶"
+
+#: Disabled references:1
+msgid "在创建同步任务的时候使用这个用户去连接"
+msgstr "在創建同步任務的時候使用這個用戶去連接"
+
+#: Disabled references:1
+msgid "你可以把 PostgreSQL 数据库的数据通过系统实时同步到工作表或者其它数据目的地。"
+msgstr "你可以把 PostgreSQL 數據庫的數據通過系統實時同步到工作表或者其它數據目的地。"
+
+#: Disabled references:1
+msgid "支持PostgreSQL的版本：9.6, 10, 11, 12+"
+msgstr "支持PostgreSQL的版本：9.6, 10, 11, 12+"
+
+#: Disabled references:1
+msgid "检查 max_replication_slots 和  max_wal_senders 的默认值"
+msgstr "檢查 max_replication_slots 和 max_wal_senders 的預設值"
+
+#: Disabled references:1
+msgid "将数据集成的系统 IP 添加到 PostgreSQL 服务器的访问白名单"
+msgstr "將數據集成的系統 IP 添加到 PostgreSQL 服務器的訪問白名單"
+
+#: Disabled references:1
+msgid "检查现有用户权限"
+msgstr "檢查現有用戶權限"
+
+#: Disabled references:1
+msgid "是否有对要开启CDC的库以及表的权限"
+msgstr "是否有對要開啟CDC的庫以及表的權限"
+
+#: Disabled references:1
+msgid "##检查库的连接权限"
+msgstr "##檢查庫的連接權限"
+
+#: Disabled references:1
+msgid "##检查表的连接权限"
+msgstr "##檢查表的連接權限"
+
+#: Disabled references:1
+msgid "返回值 has_database_privilege 列会显示 true/false 代表有权限/无权限，其中 current_user 可以换成自定义用户名  'username' 去查询其他账户是否包含对应的权限"
+msgstr "返回值 has_database_privilege 列會顯示 true/false 代表有權限/無權限，其中 current_user 可以換成自定義用戶名  'username' 去查詢其他賬戶是否包含對應的權限"
+
+#: Disabled references:1
+msgid "执行以下授权语句之前，需要先切换到高权限用户"
+msgstr "執行以下授權語句之前，需要先切換到高權限用戶"
+
+#: Disabled references:1
+msgid "## 授权连接某个数据库"
+msgstr "## 授權連接某個數據庫"
+
+#: Disabled references:1
+msgid "## 授权连接某个SCHEMA"
+msgstr "## 授權連接某個SCHEMA"
+
+#: Disabled references:1
+msgid "## 授权访问某个表"
+msgstr "## 授權訪問某個表"
+
+#: Disabled references:1
+msgid "修改wal_level的配置项"
+msgstr "修改wal_level的配置項"
+
+#: Disabled references:1
+msgid "修改 postgresql.conf 文件后，需要重新启动 PostgreSQL 服务以使更改生效。"
+msgstr "修改 postgresql.conf 文件後，需要重新啟動 PostgreSQL 服務以使更改生效。"
+
+#: Disabled references:1
+msgid "在postgresql.conf文件中修改或添加 wal_level 配置项为：wal_level = logical "
+msgstr "在postgresql.conf文件中修改或添加 wal_level 配置項為：wal_level = logical "
+
+#: Disabled references:1
+msgid "阿里云PostgreSQL产品，"
+msgstr "阿里雲PostgreSQL產品，"
+
+#: Disabled references:1
+msgid "点击购买"
+msgstr "點擊購買"
+
+#: Disabled references:1
+msgid "腾讯云PostgreSQL产品，"
+msgstr "騰訊雲PostgreSQL產品，"
+
+#: Disabled references:1
+msgid "当前账号具有写数据的权限"
+msgstr "當前賬號具有寫數據的權限"
+
+#: Disabled references:1
+msgid "##检查写入权限"
+msgstr "##檢查寫入權限"
+
+#: Disabled references:1
+msgid "支持 SQL Server 的版本：2012, 2014, 2016, 2017, 2019+"
+msgstr "支持 SQL Server 的版本：2012, 2014, 2016, 2017, 2019+"
+
+#: Disabled references:1
+msgid "当前账号具备sysadmin 权限"
+msgstr "當前賬號具備sysadmin 權限"
+
+#: Disabled references:1
+msgid "SQL Server代理任务（CDC Agent）是启动状态"
+msgstr "SQL Server代理任務（CDC Agent）是啟動狀態"
+
+#: Disabled references:1
+msgid "将数据集成的系统 IP 添加到 SQL Server 服务器的访问白名单 "
+msgstr "將數據集成的系統 IP 添加到 SQL Server 服務器的訪問白名單 "
+
+#: Disabled references:1
+msgid "查询SQLServer数据库版本"
+msgstr "查詢SQLServer數據庫版本"
+
+#: Disabled references:1
+msgid "查询当前用户是否属于 sysadmin 权限"
+msgstr "查詢當前用戶是否屬於 sysadmin 權限"
+
+#: Disabled references:1
+msgid "必须为 sysadmin 固定服务器角色的成员才允许对数据库启用CDC(变更数据捕获)功能："
+msgstr "必須為 sysadmin 固定服務器角色的成員才允許對數據庫啟用CDC(變更數據捕獲)功能："
+
+#: Disabled references:1
+msgid "返回结果中 如果你的账号在 MemberName 列内即可"
+msgstr "返回結果中 如果你的賬號在 MemberName 列內即可"
+
+#: Disabled references:1
+msgid "查询数据库是否已经启用CDC(变更数据捕获)"
+msgstr "查詢數據庫是否已經啟用CDC(變更數據捕獲)"
+
+#: Disabled references:1
+msgid "返回0代表未启用；1代表已启用"
+msgstr "返回0代表未啟用；1代表已啟用"
+
+#: Disabled references:1
+msgid "启用数据库的CDC"
+msgstr "啟用數據庫的CDC"
+
+#: Disabled references:1
+msgid "your_db_name：数据库名称"
+msgstr "your_db_name：數據庫名稱"
+
+#: Disabled references:1
+msgid "查询表是否已经启用CDC(变更数据捕获)"
+msgstr "查詢表是否已經啟用CDC(變更數據捕獲)"
+
+#: Disabled references:1
+msgid "source_schema：表所在的schema名称"
+msgstr "source_schema：表所在的schema名稱"
+
+#: Disabled references:1
+msgid "source_name：表名"
+msgstr "source_name：表名"
+
+#: Disabled references:1
+msgid "role_name：访问控制角色名称，此处为null不设置访问控制"
+msgstr "role_name：訪問控制角色名稱，此處為null不設置訪問控制"
+
+#: Disabled references:1
+msgid "supports_net_changes：是否为捕获实例生成一个净更改函数，0：否；1：是"
+msgstr "supports_net_changes：是否為捕獲實例生成一個淨更改函數，0：否；1：是"
+
+#: Disabled references:1
+msgid "查看CDC Agent（代理） 是否正常启动："
+msgstr "查看CDC Agent（代理） 是否正常啟動："
+
+#: Disabled references:1
+msgid "1. 启动agent"
+msgstr "1. 啟動agent"
+
+#: Disabled references:1
+msgid "2. 停止agent"
+msgstr "2. 停止agent"
+
+#: Disabled references:1
+msgid "3. Windows 环境操作开启 CDC agent，点击下图位置代理开启："
+msgstr "3. Windows 環境操作開啟 CDC agent，點擊下圖位置代理開啟："
+
+#: Disabled references:1
+msgid "重新启动数据库"
+msgstr "重新啟動數據庫"
+
+#: Disabled references:1
+msgid "再次查询Agent 状态，确认状态变更为Running"
+msgstr "再次查詢Agent 狀態，確認狀態變更為Running"
+
+#: Disabled references:1
+msgid "参考微软官方文档关于"
+msgstr "參考微軟官方文檔關於"
+
+#: Disabled references:1
+msgid "启用和禁用“更改数据捕获”"
+msgstr "啟用和禁用“更改數據捕獲”"
+
+#: Disabled references:1
+msgid "腾讯云SQLServer"
+msgstr "騰訊雲SQLServer"
+
+#: Disabled references:1
+msgid "这里是关于腾讯云上开启CDC的补充，其余部分参考上方配置"
+msgstr "這裡是關於騰訊雲上開啟CDC的補充，其餘部分參考上方配置"
+
+#: Disabled references:1
+msgid "腾讯云SQLServer 产品"
+msgstr "騰訊雲SQLServer 產品"
+
+#: Disabled references:1
+msgid "1. 创建 超级权限账号 即为 System Admin"
+msgstr "1. 創建 超級權限賬號 即為 System Admin"
+
+#: Disabled references:1
+msgid "2. 腾讯云如何开启数据库的CDC"
+msgstr "2. 騰訊云如何開啟數據庫的CDC"
+
+#: Disabled references:1
+msgid "路径：实例列表-数据库管理-其他-「开启/关闭数据库变更数据库捕获」"
+msgstr "路徑：實例列表-數據庫管理-其他-「開啟/關閉數據庫變更數據庫捕獲」"
+
+#: Disabled references:1
+msgid "这里只能开启 数据库的CDC，创建表之后 还需要根据表的状态，在确定是否需要开启表的CDC"
+msgstr "這裡只能開啟 數據庫的CDC，創建表之後 還需要根據表的狀態，在確定是否需要開啟表的CDC"
+
+#: Disabled references:1
+msgid "阿里云SQLServer"
+msgstr "阿里雲SQLServer"
+
+#: Disabled references:1
+msgid "这里是关于阿里云上开启CDC的补充，其余部分参考上方配置"
+msgstr "這裡是關於阿里雲上開啟CDC的補充，其餘部分參考上方配置"
+
+#: Disabled references:1
+msgid "阿里云SQLServer产品"
+msgstr "阿里雲SQLServer產品"
+
+#: Disabled references:1
+msgid "1. 开启 System Admin 权限"
+msgstr "1. 開啟 System Admin 權限"
+
+#: Disabled references:1
+msgid "根据不同示例和服务资源的不同规格会有无法开启 System Admin权限的问题，具体参见："
+msgstr "根據不同示例和服務資源的不同規格會有無法開啟 System Admin權限的問題，具體參見："
+
+#: Disabled references:1
+msgid "添加SSH连接成功"
+msgstr "添加SSH連接成功"
+
+#: Disabled references:1
+msgid "删除SSH连接"
+msgstr "刪除SSH連接"
+
+#: Disabled references:1
+msgid "确认要删除该SSH连接吗？"
+msgstr "確認要刪除該SSH連接嗎？"
+
+#: Disabled references:1
+msgid "使用SSH进行连接"
+msgstr "使用SSH進行連接"
+
+#: Disabled references:1
+msgid "新建SSH连接"
+msgstr "新建SSH連接"
+
+#: Disabled references:1
+msgid "复制公钥"
+msgstr "複製公鑰"
+
+#: Disabled references:1
+msgid "新增SSH连接"
+msgstr "新增SSH連接"
+
+#: Disabled references:1
+msgid "测试并保存"
+msgstr "測試並保存"
+
+#: Disabled references:1
+msgid "SSH IP"
+msgstr "SSH IP"
+
+#: Disabled references:1
+msgid "SSH 端口"
+msgstr "SSH 端口"
+
+#: Disabled references:1
+msgid "SSH 账号"
+msgstr "SSH 賬號"
+
+#: Disabled references:1
+msgid "认证方式"
+msgstr "認證方式"
+
+#: Disabled references:1
+msgid "公钥"
+msgstr "公鑰"
+
+#: Disabled references:1
+msgid "SSH 密码"
+msgstr "SSH 密碼"
+
+#: Disabled references:1
+msgid "添加到SSH服务器的 authorized_keys 文件内"
+msgstr "添加到SSH服務器的 authorized_keys 文件內"
+
+#: Disabled references:1
+msgid "请选择SSH进行测试连接"
+msgstr "請選擇SSH進行測試連接"
+
+#: Disabled references:1
+msgid "限制添加行数"
+msgstr "限制添加行數"
+
+#: Disabled references:1
+msgid "未勾选时，最大支持输入1000行"
+msgstr "未勾選時，最大支援輸入1000行"
+
+#: Disabled references:1
+msgid "最多添加50个字段"
+msgstr "最多添加50個字段"
+
+#: Disabled references:1
+msgid "分页"
+msgstr "分頁"
+
+#: Disabled references:1
+msgid "表格样式"
+msgstr "表格樣式"
+
+#: Disabled references:1
+msgid "默认空行"
+msgstr "預設空白行"
+
+#: Disabled references:1
+msgid "开启后无论子表中是否存在记录，都会显示固定数量的行数。当子表没有记录时，将显示空白行。"
+msgstr "開啟後無論子表中是否有記錄，都會顯示固定數量的行數。當子表沒有記錄時，將顯示空白行。"
+
+#: Disabled references:1
+msgid "最大高度（%0）"
+msgstr "最大高度（%0）"
+
+#: Disabled references:1
+msgid "获取第一条"
+msgstr "取得第一條"
+
+#: Disabled references:1
+msgid "不获取"
+msgstr "不獲取"
+
+#: Disabled references:1
+msgid "查询到多条时"
+msgstr "查詢多條時"
+
+#: Disabled references:1
+msgid "赋值"
+msgstr "賦值"
+
+#: Disabled references:1
+msgid "将获取到的记录写入到当前字段"
+msgstr "將取得到的記錄寫入到目前字段"
+
+#: Disabled references:1
+msgid "查询到的每行记录添加为一行子表明细。请选择需要写入的字段。"
+msgstr "查詢到的每行記錄新增為一行子表示細。請選擇需要寫入的欄位。"
+
+#: Disabled references:1
+msgid "说明：当主要通道的流程排队数超出阈值时，此流程的超出部分和继续新增的执行会进入备用通道并优先于备用通道流程开始消费。"
+msgstr "說明：當主要通道的流程排隊數超出閾值時，此流程的超出部分和繼續新增的執行會進入備用通道並優先於備用通道流程開始消費。"
+
+#: Disabled references:1
+msgid "更新变量"
+msgstr "更新變數"
+
+#: Disabled references:1
+msgid "将变量"
+msgstr "將變數"
+
+#: Disabled references:1
+msgid "字段设置"
+msgstr "字段設定"
+
+#: Disabled references:1
+msgid "设置当前节点负责人为空时的处理方式。当使用默认设置时，按照流程发起节点中设置的统一的处理方式"
+msgstr "設定目前節點負責人為空時的處理方式。當使用預設設定時，按照流程發起節點中設定的統一的處理方式"
+
+#: Disabled references:1
+msgid "节点通过后，更新数据对象的字段值"
+msgstr "節點通過後，更新資料物件的欄位值"
+
+#: Disabled references:1
+msgid "节点否决后，更新数据对象的字段值"
+msgstr "節點否決後，更新資料物件的欄位值"
+
+#: Disabled references:1
+msgid "退回后更新"
+msgstr "退回後更新"
+
+#: Disabled references:1
+msgid "节点退回后，更新数据对象的字段值"
+msgstr "節點退回後，更新資料物件的欄位值"
+
+#: Disabled references:1
+msgid "设置审批时可以查看、编辑、必填的字段。设为摘要的字段可以在流程待办列表和邮件通知中直接显示，使审批人无需打开详情即可快速完成审批。"
+msgstr "設定審核時可以檢視、編輯、必填的欄位。設為摘要的欄位可在流程待辦清單和郵件通知中直接顯示，使審核者無需開啟詳情即可快速完成審核。"
+
+#: Disabled references:1
+msgid "生成文件"
+msgstr "生成文件"
+
+#: Disabled references:1
+msgid "系统默认会生成Word文件，生成的文件后续流程节点可直接使用"
+msgstr "系統默認會生成Word文件，生成的文件後續流程節點可直接使用"
+
+#: Disabled references:1
+msgid "生成PDF文件"
+msgstr "生成PDF文件"
+
+#: Disabled references:1
+msgid "未配置 PDF 转换服务"
+msgstr "未配置 PDF 轉換服務"
+
+#: Disabled references:1
+msgid "生成PDF文件是由WPS提供的第三方服务，收费标准为"
+msgstr "生成PDF文件是由WPS提供的第三方服務，收費標準為"
+
+#: Disabled references:1
+msgid "每个文件0.15元"
+msgstr "每個文件0.15元"
+
+#: Disabled references:1
+msgid "，转换失败的文件将不收取费用。"
+msgstr "，轉換失敗的文件將不收取費用。"
+
+#: Disabled references:1
+msgid "统计结果"
+msgstr "統計結果"
+
+#: Disabled references:1
+msgid "按统计对象数量限制返回结果"
+msgstr "按統計物件數量限制傳回結果"
+
+#: Disabled references:1
+msgid "通过函数对 文本/数值/日期时间 等流程节点对象的值进行处理"
+msgstr "透過函數對 文字/數值/日期時間 等流程節點物件的值進行處理"
+
+#: Disabled references:1
+msgid "运算结果类型"
+msgstr "運算結果類型"
+
+#: Disabled references:1
+msgid "在本节点内更新最大支持1000行。更新后数据可供流程中其他数据处理节点或子流程节点继续使用。被数据处理节点（新增、更新、删除）使用，最多支持100条。"
+msgstr "在本節點內更新最大支援1000行。更新後資料可供流程中其他資料處理節點或子流程節點繼續使用。被資料處理節點（新增、更新、刪除）使用，最多支援100條。"
+
+#: Disabled references:1
+msgid "在本节点内删除，最大支持1000行。此节点对象不能被流程中其他节点使用"
+msgstr "在本節點內刪除，最大支援1000行。此節點物件不能被流程中其他節點使用"
+
+#: Disabled references:1
+msgid "设置筛选条件，获得满足条件的数据。如果未设置筛选条件，则获得所有数据"
+msgstr "設定篩選條件，獲得滿足條件的資料。如果未設定篩選條件，則獲得所有數據"
+
+#: Disabled references:1
+msgid "获取后，更新记录"
+msgstr "取得後，更新記錄"
+
+#: Disabled references:1
+msgid "最大更新1000行数据"
+msgstr "最大更新1000行數據"
+
+#: Disabled references:1
+msgid "获取后，删除记录"
+msgstr "取得後，刪除記錄"
+
+#: Disabled references:1
+msgid "最大删除1000行数据"
+msgstr "最大刪除1000行數據"
+
+#: Disabled references:1
+msgid "默认值 (组织角色ID)"
+msgstr "預設值 (組織角色ID)"
+
+#: Disabled references:1
+msgid "设置填写时可以查看、编辑、必填的字段。设为摘要的字段可以在流程待办列表中直接显示。"
+msgstr "設定填寫時可以檢視、編輯、必填的欄位。設為摘要的欄位可以在流程待辦清單中直接顯示。"
+
+#: Disabled references:1
+msgid "更新了%0个变量"
+msgstr "更新了%0個變量"
+
+#: Disabled references:1
+msgid "个变量存在异常"
+msgstr "個變數存在異常"
+
+#: Disabled references:1
+msgid "批量更新记录"
+msgstr "批次更新記錄"
+
+#: Disabled references:1
+msgid "批量删除记录"
+msgstr "大量刪除記錄"
+
+#: Disabled references:1
+msgid "根据查询条件从工作表中获取一条记录"
+msgstr "根據查詢條件從工作表中取得一筆記錄"
+
+#: Disabled references:1
+msgid "获取关联记录"
+msgstr "取得關聯記錄"
+
+#: Disabled references:1
+msgid "获取关联记录、子表、级联选择字段中的记录"
+msgstr "取得關聯記錄、子表、級聯選擇欄位中的記錄"
+
+#: Disabled references:1
+msgid "从多条数据中获取"
+msgstr "從多條數據中獲取"
+
+#: Disabled references:1
+msgid "从多条数据节点获取一条符合条件的记录"
+msgstr "從多條資料節點取得符合條件的記錄"
+
+#: Disabled references:1
+msgid "获取并更新记录"
+msgstr "取得並更新記錄"
+
+#: Disabled references:1
+msgid "根据查询条件从工作表找到批量数据并更新"
+msgstr "根據查詢條件從工作表找到大量資料並更新"
+
+#: Disabled references:1
+msgid "获取并删除记录"
+msgstr "取得並刪除記錄"
+
+#: Disabled references:1
+msgid "根据查询条件从工作表找到批量数据并删除"
+msgstr "根據查詢條件從工作表找到大量資料並刪除"
+
+#: Disabled references:1
+msgid "获取后什么也不做，在以后节点使用"
+msgstr "獲取後什麼也不做，以後節點使用"
+
+#: Disabled references:1
+msgid "获取批量新增结果"
+msgstr "取得批量新增結果"
+
+#: Disabled references:1
+msgid "从创建多条的新增记录节点获取刚刚创建的记录"
+msgstr "從建立多個的新增記錄節點取得剛剛建立的記錄"
+
+#: Disabled references:1
+msgid "获取操作明细"
+msgstr "獲取操作明細"
+
+#: Disabled references:1
+msgid "从审批、填写、抄送节点获取操作明细。包含：操作人、时间、操作内容、备注等"
+msgstr "從審核、填寫、抄送節點取得操作明細。包含：操作人、時間、操作內容、備註等"
+
+#: Disabled references:1
+msgid "获取数组对象"
+msgstr "取得數組對象"
+
+#: Disabled references:1
+msgid "更新全局变量"
+msgstr "更新全域變數"
+
+#: Disabled references:1
+msgid "该参数已删除"
+msgstr "該參數已刪除"
+
+#: Disabled references:1
+msgid "上一条（⌘ + ⇧ + ,）"
+msgstr "上一條（⌘ + ⇧ + ,）"
+
+#: Disabled references:1
+msgid "上一条（Ctrl + Shift + ,）"
+msgstr "上一條（Ctrl + Shift + ,）"
+
+#: Disabled references:1
+msgid "下一条（⌘ + ⇧ + .）"
+msgstr "下一條（⌘ + ⇧ + .）"
+
+#: Disabled references:1
+msgid "下一条（Ctrl + Shift + .）"
+msgstr "下一則（Ctrl + Shift + .）"
+
+#: Disabled references:1
+msgid "无数据，或是移除记录暂不支持查看详情"
+msgstr "無數據，或移除記錄暫不支援查看詳情"
+
+#: Disabled references:1
+msgid "由于预览数据基于流式实时传输，显示的数据可能与实际入库的数据部分不一致，仅供参考"
+msgstr "由於預覽數據基於流式實時傳輸，顯示的數據可能與實際入庫的數據部分不一致，僅供參考"
+
+#: Disabled references:1
+msgid "自动通过（默认设置）"
+msgstr "自動通過（預設）"
+
+#: Disabled references:1
+msgid "以下情况不自动通过"
+msgstr "以下情況不自動通過"
+
+#: Disabled references:1
+msgid "必填字段为空时"
+msgstr "必填欄位為空時"
+
+#: Disabled references:1
+msgid "设置为必须审批的节点"
+msgstr "設定為必須審批的節點"
+
+#: Disabled references:1
+msgid "设置为摘要的字段可以邮件中显示"
+msgstr "設定為摘要的欄位可以在郵件中顯示"
+
+#: Disabled references:1
+msgid "显示通过、否决、退回按钮（根据操作配置）。在邮件内快速审批时不能填写签名、意见和字段，退回时将直接退回到第一个允许退回的节点"
+msgstr "顯示通過、否決、退回按鈕（根據操作配置）。在郵件內快速審批時不能填寫簽名、意見和字段，退回時將直接退回到第一個允許退回的節點"
+
+#: Disabled references:1
+msgid "使用发起节点中的默认设置"
+msgstr "使用發起節點中的預設設定"
+
+#: Disabled references:1
+msgid "使用流程默认设置"
+msgstr "使用流程預設設定"
+
+#: Disabled references:1
+msgid "1秒"
+msgstr "1秒"
+
+#: Disabled references:1
+msgid "点击记录时"
+msgstr "點選記錄時"
+
+#: Disabled references:1
+msgid "打开记录详情"
+msgstr "開啟記錄詳情"
+
+#: Disabled references:1
+msgid "链接字段"
+msgstr "連結字段"
+
+#: Disabled references:1
+msgid "选择记录中的文本字段"
+msgstr "選擇記錄中的文字字段"
+
+#: Disabled references:1
+msgid "系统操作"
+msgstr "系統操作"
+
+#: Disabled references:1
+msgid "参数重复"
+msgstr "參數重複"
+
+#: Disabled references:1
+msgid "参数名不能超过10个字符"
+msgstr "參數名不能超過10個字符"
+
+#: Disabled references:1
+msgid "指定参数名，可作为查询字符串附加在"
+msgstr "指定參數名，可作為查詢字串附加在"
+
+#: Disabled references:1
+msgid "视图链接"
+msgstr "視圖連結"
+
+#: Disabled references:1
+msgid "后。在加载页面时可动态获取参数值用于视图的筛选条件。"
+msgstr "後。在載入頁面時可動態取得參數值用於視圖的篩選條件。"
+
+#: Disabled references:1
+msgid "请输入参数名"
+msgstr "請輸入參數名"
+
+#: Disabled references:1
+msgid "选择单选项字段为记录标记颜色，以快速辨别记录之间的区别"
+msgstr "選擇單選項欄位為記錄標記顏色，以快速辨別記錄之間的差異"
+
+#: Disabled references:1
+msgid "选择已添加的快速筛选字段或筛选列表字段"
+msgstr "選擇已新增的快速篩選字段或篩選清單字段"
+
+#: Disabled references:1
+msgid "目标字段未设置类型 "
+msgstr "目標字段未設置類型 "
+
+#: Disabled references:1
+msgid "存在已失效或已删除的字段"
+msgstr "存在已失效或已刪除的字段"
+
+#: Disabled references:1
+msgid "未勾选主键字段"
+msgstr "未勾選主鍵字段"
+
+#: Disabled references:1
+msgid "存在错误的配置"
+msgstr "存在錯誤的配置"
+
+#: Disabled references:1
+msgid "工作表或自定义页面已删除"
+msgstr "工作表或自訂頁面已刪除"
+
+#: Disabled references:1
+msgid "指定月份"
+msgstr "指定月份"
+
+#: Disabled references:1
+msgid "指定范围"
+msgstr "指定範圍"
+
+#: Disabled references:1
+#, fuzzy
+msgid "指定日期"
+msgstr "未指定日期"
+
+#: Disabled references:1
+msgid "1月"
+msgstr "1月"
+
+#: Disabled references:1
+msgid "2月"
+msgstr "2月"
+
+#: Disabled references:1
+msgid "3月"
+msgstr "3月"
+
+#: Disabled references:1
+msgid "4月"
+msgstr "4月"
+
+#: Disabled references:1
+msgid "5月"
+msgstr "5月"
+
+#: Disabled references:1
+msgid "6月"
+msgstr "6月"
+
+#: Disabled references:1
+msgid "7月"
+msgstr "7月"
+
+#: Disabled references:1
+msgid "8月"
+msgstr "8月"
+
+#: Disabled references:1
+msgid "9月"
+msgstr "9月"
+
+#: Disabled references:1
+msgid "10月"
+msgstr "10月"
+
+#: Disabled references:1
+msgid "11月"
+msgstr "11月"
+
+#: Disabled references:1
+msgid "12月"
+msgstr "12月"
+
+#: Disabled references:1
+msgid "企微/钉钉/飞书等平台私有部署的用户（支持ID自定义）建议选择保留，映射关系不需要删除，后续修改 ID 即可"
+msgstr "企微/釘釘/飛書等平台私人部署的使用者（支援ID自訂）建議選擇保留，映射關係不需要刪除，後續修改 ID 即可"
+
+#: Disabled references:1
+msgid "请从左侧选择一个%0查看"
+msgstr "請從左側選擇一個%0查看"
+
+#: Disabled references:1
+msgid "在使用和查看变量时显示为掩码，应用管理员可以点击后解码查看"
+msgstr "在使用和查看變數時顯示為掩碼，應用程式管理員可以點擊後解碼查看"
+
+#: Disabled references:1
+msgid "使用图表颜色"
+msgstr "使用圖表顏色"
+
+#: Disabled references:1
+msgid "是%25028"
+msgstr "是%25028"
+
+#: Disabled references:1
+msgid "记录设置"
+msgstr "記錄設定"
+
+#: Disabled references:1
+msgid "请填写图表配色名称"
+msgstr "請填寫圖表配色名稱"
+
+#: Disabled references:1
+msgid "最多添加十个自定义图标配色"
+msgstr "最多新增十個自訂圖示配色"
+
+#: Disabled references:1
+msgid "查询并批量更新"
+msgstr "查詢並批量更新"
+
+#: Disabled references:1
+msgid "根据查询条件从工作表获取多条数据并批量更新，后续节点可使用新值"
+msgstr "根據查詢條件從工作表取得多個資料並批次更新，後續節點可使用新值"
+
+#: Disabled references:1
+msgid "查询并批量删除"
+msgstr "查詢並批量刪除"
+
+#: Disabled references:1
+msgid "根据查询条件从工作表找到多条数据并删除，后续节点不可使用"
+msgstr "根據查詢條件從工作表找到多個資料並刪除，後續節點無法使用"
+
+#: Disabled references:1
+msgid "当前选择的字段未启用颜色"
+msgstr "目前選擇的欄位未啟用顏色"
+
+#: Disabled references:1
+msgid "（3）在打印 Excel 模板时，多张图片排列可能导致撑高合并单元格引起错位，此时可以加 F 启用图片填充模式，此模式下图片不会撑高单元格，例如：#{附件$[auto*20_F]$} 或 #{附件$[auto*90_HF]$}"
+msgstr ""
+
+#: Disabled references:1
+msgid "万%06003"
+msgstr ""
+
+#: Disabled references:1
+msgid "亿%06004"
+msgstr ""
+
+#: Disabled references:1
+msgid "名称重复，请修改后提交"
+msgstr ""
+
+#: Disabled references:1
+msgid "请选择类型"
+msgstr ""
+
+#: Disabled references:1
+msgid "数据量过大，请添加时间范围或添加筛选条件减少数据量"
+msgstr ""
+
+#: Disabled references:1
+msgid "未配置"
+msgstr ""
+
+#: Disabled references:1
+msgid "全局颜色"
+msgstr ""
+
+#: Disabled references:1
+msgid "为所有图表设置统一颜色，全局颜色将覆盖图表本色的颜色配置。"
+msgstr ""
+
+#: Disabled references:1
+msgid "显示标题栏"
+msgstr ""
+
+#: Disabled references:1
+msgid "月%02068"
+msgstr ""
+
+#: Disabled references:1
+msgid "时%02069"
+msgstr ""
+
+#: Disabled references:1
+msgid "发送讨论"
+msgstr ""
+
+#: Disabled references:1
+msgid "正在查看历史执行详情（${dayStr} ${time}），本月新增、本月排队指截止到 ${dayStr} ${time} 的值"
+msgstr ""
+
+#: Disabled references:1
+msgid "自然数编号%04018"
+msgstr ""
+
+#: Disabled references:1
+msgid "指定位数编号%04019"
+msgstr ""
+
+#: Disabled references:1
+msgid "编号方式%04017"
+msgstr ""
+
+#: Disabled references:1
+msgid "重命名为"
+msgstr ""
+
+#: Disabled references:1
+msgid "分类 %0个字段"
+msgstr ""
+
+#: Disabled references:1
+msgid "汇总 %0个字段"
+msgstr ""
+
+#: Disabled references:1
+msgid "请选择目标字段的处理方式"
+msgstr ""
+
+#: Disabled references:1
+msgid "更新发布..."
+msgstr ""
+
+#: Disabled references:1
+msgid "此操作会重新同步全量数据"
+msgstr ""
+
+#: Disabled references:1
+msgid "未选择目标字段时, 会根据数据源的主键字段判断重复"
+msgstr ""
+
+#: Disabled references:1
+msgid "在同步时，依据目标字段"
+msgstr ""
+
+#: Disabled references:1
+msgid "识别重复，并"
+msgstr ""
+
+#: Disabled references:1
+msgid "“覆盖”会导致数据同步变慢"
+msgstr ""
+
+#: Disabled references:1
+msgid "其他配置"
+msgstr ""
+
+#: Disabled references:1
+msgid "在本次同步数据之前，彻底清空目标表数据"
+msgstr ""
+
+#: Disabled references:1
+msgid "未设置重复数据识别方式"
+msgstr ""
+
+#: Disabled references:1
+msgid "重复数据"
+msgstr ""
+
+#: Disabled references:1
+msgid "“覆盖”会导致数据同步变慢。"
+msgstr ""
+
+#: Disabled references:1
+msgid "清空目标表数据"
+msgstr ""
+
+#: Disabled references:1
+msgid "在本次同步任务前，清空目的地表数据，清空后无法恢复。"
+msgstr ""
+
+#: Disabled references:1
+msgid "未设置主键"
+msgstr ""
+

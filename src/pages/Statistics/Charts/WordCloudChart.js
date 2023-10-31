@@ -26,10 +26,14 @@ export default class extends Component {
   componentWillReceiveProps(nextProps) {
     const { displaySetup } = nextProps.reportData;
     const { displaySetup: oldDisplaySetup } = this.props.reportData;
+    const chartColor = _.get(nextProps, 'customPageConfig.chartColor');
+    const oldChartColor = _.get(this.props, 'customPageConfig.chartColor');
     if (
       displaySetup.showChartType !== oldDisplaySetup.showChartType ||
       displaySetup.ydisplay.minValue !== oldDisplaySetup.ydisplay.minValue ||
-      displaySetup.ydisplay.maxValue !== oldDisplaySetup.ydisplay.maxValue
+      displaySetup.ydisplay.maxValue !== oldDisplaySetup.ydisplay.maxValue ||
+      !_.isEqual(chartColor, oldChartColor) ||
+      nextProps.themeColor !== this.props.themeColor
     ) {
       const WordCloudChartConfig = this.getComponentConfig(nextProps);
       this.WordCloudChart.update(WordCloudChartConfig);
@@ -79,11 +83,13 @@ export default class extends Component {
     }
   }
   getComponentConfig(props) {
-    const { map, displaySetup, xaxes, yaxisList, style = {}, reportId } = props.reportData;
+    const { themeColor, projectId, customPageConfig, reportData } = props;
+    const { chartColor } = customPageConfig;
+    const { map, displaySetup, xaxes, yaxisList, style = {}, reportId } = reportData;
     const data = formatChartData(map, yaxisList);
     const newYaxisList = formatYaxisList(data, yaxisList);
     const { ydisplay } = displaySetup;
-    const colors = getChartColors(style);
+    const colors = getChartColors(chartColor || style, themeColor, projectId);
     const baseConfig = {
       data,
       // meta: {

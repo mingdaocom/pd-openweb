@@ -160,7 +160,7 @@ export default class ChooseWidget extends React.Component {
       controls,
       isAdd,
     );
-    const othersAdd = list.filter(o => !writeControlsIds.includes(o.controlId));
+    const othersAdd = list.filter(o => !writeControlsIds.includes(o.controlId) && ![52].includes(o.type));
     const othersDel = this.state.writeControls.filter(o => !list.map(it => it.controlId).includes(o.controlId));
     this.props.SwitchFn(
       isAdd
@@ -185,7 +185,9 @@ export default class ChooseWidget extends React.Component {
       return '';
     }
     const ids = writeControls.map(o => o.controlId);
-    let isChecked = ids.includes(item.controlId);
+    const { child = [] } = item;
+    const checkedChildNum = child.filter(o => ids.includes(o.controlId)).length;
+    let isChecked = ids.includes(item.controlId) || (checkedChildNum >= child.length && child.length > 0);
     return (
       <div className="widgetList overflow_ellipsis WordBreak Hand" key={`widgetList-${item.controlId}`}>
         <div className="flexRow alignItemsCenter">
@@ -199,11 +201,7 @@ export default class ChooseWidget extends React.Component {
               className="InlineBlock"
               // size="small"
               checked={isChecked}
-              clearselected={
-                isChecked &&
-                !!item.child &&
-                item.child.length > item.child.filter(o => ids.includes(o.controlId)).length
-              }
+              clearselected={checkedChildNum > 0 && child.length > checkedChildNum}
               text={null}
             />
             <span className="Gray_75 flex flexRow alignItemsCenter">
@@ -213,7 +211,7 @@ export default class ChooseWidget extends React.Component {
               </span>
             </span>
           </div>
-          {!!item.child && item.child.length > 0 && (
+          {child.length > 0 && (
             <Icon
               icon={closeList.includes(item.controlId) ? 'expand_less' : 'expand_more'}
               className={cx('Font18 Hand ThemeHoverColor3 Gray_9e widgetIcon')}
@@ -228,9 +226,9 @@ export default class ChooseWidget extends React.Component {
             />
           )}
         </div>
-        {!!item.child && item.child.length > 0 && !closeList.includes(item.controlId) && (
+        {child.length > 0 && !closeList.includes(item.controlId) && (
           <div className="childCon">
-            {item.child.map(o => {
+            {child.map(o => {
               return this.renderCon(o);
             })}
           </div>
@@ -275,7 +273,9 @@ export default class ChooseWidget extends React.Component {
                 } else {
                   this.setState({
                     keyWords: searchValue,
-                    data: initData.filter(it => it.controlName.indexOf(searchValue) >= 0),
+                    data: initData.filter(
+                      it => it.controlName.toLocaleLowerCase().indexOf(searchValue.toLocaleLowerCase()) >= 0,
+                    ),
                   });
                 }
               }}

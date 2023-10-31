@@ -15,6 +15,10 @@ export const PAGE_HEADER_ROUTE_CONFIG = {
     path: '/app/:appId/analytics/:projectId',
     component: () => import('src/pages/PageHeader/AppPkgSimpleHeader'),
   },
+  appSettings: {
+    path: '/app/:appId/settings/:navTab?',
+    component: () => import('src/pages/PageHeader/AppPkgSimpleHeader'),
+  },
   appPkg: {
     path: '/app/:appId/:groupId?/:worksheetId?/:viewId?',
     component: () => import('src/pages/PageHeader/AppPkgHeader'),

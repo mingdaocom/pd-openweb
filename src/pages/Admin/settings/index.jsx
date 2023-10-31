@@ -8,6 +8,7 @@ import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
 import cx from 'classnames';
 import styled from 'styled-components';
+import CustomColor from './components/CustomColor/index';
 
 const ConfigItemWrap = styled.div`
   padding: 0 24px;
@@ -25,22 +26,32 @@ const Item = styled.div`
 
 const CONFIGS = [
   {
-    key: 'encryptRules',
-    title: _l('加密规则'),
-    descrption: _l('配置工作表字段加密存储时可以选择的加密方式'),
-    clickFunc: 'setEncryptRules',
-  },
-  {
     key: 'customIcon',
     title: _l('自定义图标'),
-    descrption: _l('上传的图标可用于应用、应用项等地方'),
+    descrption: _l('上传的图标可用于应用、应用项、工作表等地方'),
     clickFunc: 'openCustomSvg',
+    icon: 'style',
+  },
+  {
+    key: 'customColor',
+    title: _l('自定义颜色'),
+    descrption: _l('自定义颜色可用于应用、自定义页面等地方'),
+    clickFunc: 'openCustomColor',
+    icon: 'color_lens',
   },
   {
     key: 'watermark',
     title: _l('水印设置'),
     descrption: _l('启用水印配置后，将在组织所有应用内显示当前使用者的姓名+手机号后4位或邮箱前缀'),
     showSwitch: true,
+    icon: 'watermark',
+  },
+  {
+    key: 'encryptRules',
+    title: _l('加密规则'),
+    descrption: _l('配置工作表字段加密存储时可以选择的加密方式'),
+    clickFunc: 'setEncryptRules',
+    icon: 'lock',
   },
 ];
 export default class GeneralSettings extends Component {
@@ -49,6 +60,7 @@ export default class GeneralSettings extends Component {
     this.state = {
       watermark: false,
       uploadSvg: false,
+      customColor: false,
     };
     Config.setPageTitle(_l('通用设置'));
   }
@@ -75,6 +87,10 @@ export default class GeneralSettings extends Component {
     }
   };
 
+  openCustomColor = () => {
+    this.setState({ customColor: true });
+  };
+
   setEnabledWatermark = () => {
     const { watermark } = this.state;
 
@@ -91,13 +107,20 @@ export default class GeneralSettings extends Component {
   };
 
   render() {
-    let { watermark, uploadSvg, showEncryptRules } = this.state;
+    let { watermark, uploadSvg, showEncryptRules, customColor } = this.state;
+
     if (uploadSvg) {
       return <CustomIcon onClose={() => this.setState({ uploadSvg: false })} projectId={Config.projectId} />;
     }
+
     if (showEncryptRules) {
       return <EncryptRules onClose={() => this.setState({ showEncryptRules: false })} projectId={Config.projectId} />;
     }
+
+    if (customColor) {
+      return <CustomColor onClose={() => this.setState({ customColor: false })} projectId={Config.projectId} />;
+    }
+
     return (
       <div className="orgManagementWrap">
         <div className="orgManagementHeader Font17">{_l('通用设置')}</div>
@@ -113,7 +136,10 @@ export default class GeneralSettings extends Component {
               >
                 <Item key={key}>
                   <div className="flex">
-                    <div className="bold mBottom5 Font14">{title}</div>
+                    <div className="bold mBottom5 Font14">
+                      <Icon icon={item.icon} className="Gray_9e Font18 mRight8"/>
+                      {title}
+                    </div>
                     <div className="Gray_9e">{descrption}</div>
                   </div>
                   <div>

@@ -5,10 +5,13 @@ import SelectOtherFields from '../SelectOtherFields';
 import Tag from '../Tag';
 import cx from 'classnames';
 import _ from 'lodash';
+import { handleGlobalVariableName } from '../../../utils';
 
 export default class CustomTextarea extends Component {
   static propTypes = {
+    projectId: PropTypes.string,
     processId: PropTypes.string,
+    relationId: PropTypes.string,
     selectNodeId: PropTypes.string,
     sourceAppId: PropTypes.string,
     isIntegration: PropTypes.bool,
@@ -52,7 +55,9 @@ export default class CustomTextarea extends Component {
 
   render() {
     const {
+      projectId,
       processId,
+      relationId,
       selectNodeId,
       sourceAppId,
       isIntegration,
@@ -91,7 +96,7 @@ export default class CustomTextarea extends Component {
                 flowNodeType={nodeObj.type}
                 appType={nodeObj.appType}
                 actionId={nodeObj.actionId}
-                nodeName={nodeObj.name || ''}
+                nodeName={handleGlobalVariableName(ids[0], controlObj.sourceType, nodeObj.name)}
                 controlId={ids[1]}
                 controlName={controlObj.name || ''}
               />
@@ -102,7 +107,9 @@ export default class CustomTextarea extends Component {
         <SelectOtherFields
           item={{ type }}
           fieldsVisible={fieldsVisible}
+          projectId={projectId}
           processId={processId}
+          relationId={relationId}
           selectNodeId={selectNodeId}
           sourceAppId={sourceAppId}
           isIntegration={isIntegration}
@@ -114,7 +121,11 @@ export default class CustomTextarea extends Component {
               actionId: obj.actionId,
               name: obj.nodeName,
             };
-            newFormulaMap[obj.fieldValueId] = { type: obj.fieldValueType, name: obj.fieldValueName };
+            newFormulaMap[obj.fieldValueId] = {
+              type: obj.fieldValueType,
+              name: obj.fieldValueName,
+              sourceType: obj.sourceType,
+            };
 
             updateSource({ formulaMap: newFormulaMap }, () => {
               this.tagtextarea.insertColumnTag(`${obj.nodeId}-${obj.fieldValueId}`);

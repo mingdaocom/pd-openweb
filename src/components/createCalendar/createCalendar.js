@@ -15,7 +15,6 @@ import 'src/components/mdDialog/dialog';
 import 'src/components/mdDatePicker/mdDatePicker';
 import '@mdfe/timepicker';
 import 'src/components/select/select';
-import 'src/components/textboxList/textboxList';
 import 'src/components/autoTextarea/autoTextarea';
 import '@mdfe/jquery-plupload';
 import createShare from 'src/components/createShare/createShare';

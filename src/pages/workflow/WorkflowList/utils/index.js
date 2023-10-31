@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import moment from 'moment';
-import { DATE_TYPE, EXEC_TIME_TYPE, TIME_TYPE_NAME } from '../../WorkflowSettings/enum';
+import { DATE_TYPE, EXEC_TIME_TYPE, TIME_TYPE_NAME, APP_TYPE, ACTION_ID } from '../../WorkflowSettings/enum';
 
 export const FLOW_TYPE = {
   APP: '1',
@@ -120,6 +120,11 @@ export const START_APP_TYPE = {
     iconColor: '#01ca83',
     text: _l('人员事件'),
   },
+  28: {
+    iconName: 'custom_actions',
+    iconColor: '#4C7D9E',
+    text: _l('自定义动作'),
+  },
 };
 
 export const TYPES = [
@@ -167,7 +172,7 @@ export const getActionTypeContent = (type, item, disable) => {
   // 时间触发
   if (type === FLOW_TYPE.TIME) {
     // 循环
-    if (item.startAppType === 5) {
+    if (item.startAppType === APP_TYPE.LOOP) {
       return (
         <div className="twoRowsContent">
           {_l('%0 开始', moment(item.executeTime).format('YYYY-MM-DD HH:mm'))}
@@ -232,7 +237,7 @@ export const getActionTypeContent = (type, item, disable) => {
 
   // 自定义动作触发
   if (type === FLOW_TYPE.CUSTOM_ACTION) {
-    return item.triggerName;
+    return item.startActionId === ACTION_ID.BATCH_ACTION ? _l('多条记录') : _l('单条记录');
   }
 
   // 子流程触发
@@ -263,3 +268,71 @@ export const getActionTypeContent = (type, item, disable) => {
 
   return (item.appNames || []).join('、');
 };
+
+export const DATE_SCOPE = [
+  {
+    text: _l('今天'),
+    value: 1,
+    format: () => {
+      return [moment().format('YYYY-MM-DD'), moment().add(1, 'days').format('YYYY-MM-DD')];
+    },
+  },
+  {
+    text: _l('昨天'),
+    value: 2,
+    format: () => {
+      return [moment().add(-1, 'days').format('YYYY-MM-DD'), moment().format('YYYY-MM-DD')];
+    },
+  },
+  {
+    text: _l('前天'),
+    value: 3,
+    format: () => {
+      return [moment().add(-2, 'days').format('YYYY-MM-DD'), moment().add(-1, 'days').format('YYYY-MM-DD')];
+    },
+  },
+  {
+    text: _l('本周'),
+    value: 4,
+    format: () => {
+      return [
+        moment().startOf('week').format('YYYY-MM-DD'),
+        moment().endOf('week').add(1, 'days').format('YYYY-MM-DD'),
+      ];
+    },
+  },
+  {
+    text: _l('上周'),
+    value: 5,
+    format: () => {
+      return [
+        moment().startOf('week').subtract('week', 1).format('YYYY-MM-DD'),
+        moment().endOf('week').subtract('week', 1).add(1, 'days').format('YYYY-MM-DD'),
+      ];
+    },
+  },
+  {
+    text: _l('本月'),
+    value: 6,
+    format: () => {
+      return [
+        moment().startOf('month').format('YYYY-MM-DD'),
+        moment().endOf('month').endOf('month').add(1, 'days').format('YYYY-MM-DD'),
+      ];
+    },
+  },
+  {
+    text: _l('上月'),
+    value: 7,
+    format: () => {
+      return [
+        moment().startOf('month').subtract('month', 1).format('YYYY-MM-DD'),
+        moment().endOf('month').subtract('month', 1).endOf('month').add(1, 'days').format('YYYY-MM-DD'),
+      ];
+    },
+  },
+  {
+    text: _l('自定义日期'),
+    value: 8,
+  },
+];

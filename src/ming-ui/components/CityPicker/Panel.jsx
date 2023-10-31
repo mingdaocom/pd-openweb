@@ -94,9 +94,12 @@ class Panel extends Component {
     });
 
     if (particularlyCity.includes(item.id) && newSelectCitys.length === 2) {
-      this.props.callback([item]);
+      this.props.callback([item], newSelectCitys.length);
     } else {
-      this.props.callback(_.uniqBy(newSelectCitys).length !== newSelectCitys.length ? _.uniqBy(newSelectCitys) : newSelectCitys);
+      this.props.callback(
+        _.uniqBy(newSelectCitys).length !== newSelectCitys.length ? _.uniqBy(newSelectCitys) : newSelectCitys,
+        newSelectCitys.length,
+      );
     }
 
     if (newSelectCitys.length === level) {
@@ -138,7 +141,7 @@ class Panel extends Component {
       () => {
         this.props.onHide();
         this.props.handleClose();
-      }
+      },
     );
   }
   onRenderCity() {
@@ -152,7 +155,7 @@ class Panel extends Component {
         citys: [targetCity],
       });
       this.props.handleOpen();
-      this.props.callback([targetCity]);
+      this.props.callback([targetCity], [targetCity].length);
     } else {
       selectCitys.splice(2, 2);
       this.setState({
@@ -167,7 +170,7 @@ class Panel extends Component {
           loading: false,
         });
         this.props.handleOpen();
-        this.props.callback(selectCitys);
+        this.props.callback(selectCitys, selectCitys.length);
       });
     }
   }
@@ -186,7 +189,7 @@ class Panel extends Component {
         loading: false,
       });
       this.props.handleOpen();
-      this.props.callback(selectCitys);
+      this.props.callback(selectCitys, selectCitys.length);
     });
   }
   getProvincesData() {
@@ -212,20 +215,36 @@ class Panel extends Component {
             省份
           </div>
           <div
-            className={cx('cityTabs-item ThemeBorderColor3', { activeTab: indexLevel === 2, disbaleTab: indexLevel === 1, hidden: level < 2 })}
+            className={cx('cityTabs-item ThemeBorderColor3', {
+              activeTab: indexLevel === 2,
+              disbaleTab: indexLevel === 1,
+              hidden: level < 2,
+            })}
             onClick={() => {
               if (indexLevel === 3) this.onRenderCity();
             }}
           >
             城市
           </div>
-          <div className={cx('cityTabs-item ThemeBorderColor3', { activeTab: indexLevel === 3, disbaleTab: indexLevel !== 3, hidden: level < 3 })}>区县</div>
+          <div
+            className={cx('cityTabs-item ThemeBorderColor3', {
+              activeTab: indexLevel === 3,
+              disbaleTab: indexLevel !== 3,
+              hidden: level < 3,
+            })}
+          >
+            区县
+          </div>
         </div>
         <div className="cityContent">
           {loading
             ? LoadDiv({ size: 'small' })
             : citys.map((item, index) => (
-                <div key={index} onClick={() => this.onNext(item)} className={cx('cityContent-item', { active: item.id === currentCity.id })}>
+                <div
+                  key={index}
+                  onClick={() => this.onNext(item)}
+                  className={cx('cityContent-item', { active: item.id === currentCity.id })}
+                >
                   {item.name}
                 </div>
               ))}

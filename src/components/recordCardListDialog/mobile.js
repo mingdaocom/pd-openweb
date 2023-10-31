@@ -1,7 +1,8 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
+import cx from 'classnames';
 import { Icon, ScrollView, LoadDiv } from 'ming-ui';
 import { Modal, WingBlank, Button } from 'antd-mobile';
 import sheetAjax from 'src/api/worksheet';
@@ -14,6 +15,7 @@ import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { FROM } from 'src/components/newCustomFields/tools/config';
 import { getIsScanQR } from 'src/components/newCustomFields/components/ScanQRCode';
 import RegExp from 'src/util/expression';
+import MobileFilter from './MobileFilter';
 import './mobile.less';
 import _ from 'lodash';
 
@@ -63,6 +65,8 @@ export default class RecordCardListDialog extends Component {
       loadouted: false,
       showNewRecord: false,
       keyWords: props.keyWords,
+      filtersVisible: false,
+      quickFilters: []
     };
     this.clickSearch = clickSearch;
     this.lazyLoadRecorcd = _.debounce(this.loadRecorcd, 500);
@@ -74,7 +78,10 @@ export default class RecordCardListDialog extends Component {
       return;
     }
     if (control) {
-      (window.isPublicWorksheet ? publicWorksheetAjax : sheetAjax)
+      (window.isPublicWorksheet && !_.get(window, 'shareState.isPublicWorkflowRecord')
+        ? publicWorksheetAjax
+        : sheetAjax
+      )
         .getWorksheetInfo({
           worksheetId: control.dataSource,
           getTemplate: true,
@@ -120,6 +127,7 @@ export default class RecordCardListDialog extends Component {
       viewId,
       relateSheetId,
       filterRowIds,
+      ignoreRowIds,
       parentWorksheetId,
       recordId,
       controlId,
@@ -130,10 +138,7 @@ export default class RecordCardListDialog extends Component {
       relationRowIds = [],
       isScan,
     } = this.props;
-    const { pageIndex, keyWords, list, sortControls, worksheetInfo } = this.state;
-    if (!keyWords && this.clickSearch) {
-      return;
-    }
+    const { pageIndex, keyWords, list, sortControls, worksheetInfo, isScanSearch } = this.state;
     let getFilterRowsPromise, args;
     let filterControls;
     if (control && control.advancedSetting.filters) {
@@ -159,6 +164,19 @@ export default class RecordCardListDialog extends Component {
 
     if (from !== FROM.PUBLIC_ADD && !window.isPublicWorksheet) {
       getFilterRowsPromise = sheetAjax.getFilterRows;
+      const quickFilters = this.state.quickFilters.map(f =>
+        _.pick(f, [
+          'controlId',
+          'dataType',
+          'spliceType',
+          'filterType',
+          'dateRange',
+          'value',
+          'values',
+          'minValue',
+          'maxValue',
+        ])
+      );
       args = {
         worksheetId: relateSheetId,
         appId,
@@ -167,13 +185,13 @@ export default class RecordCardListDialog extends Component {
         pageSize: 20,
         pageIndex,
         status: 1,
-        keyWords: scancontrol === '1' && scancontrolid ? '' : keyWords,
+        keyWords: isScanSearch && scancontrol === '1' && scancontrolid ? '' : keyWords,
         isGetWorksheet: true,
         getType: 7,
         sortControls,
         filterControls,
         fastFilters:
-          scancontrol === '1' && scancontrolid
+          isScanSearch && scancontrol === '1' && scancontrolid
             ? [
                 {
                   controlId: scancontrolid,
@@ -186,8 +204,8 @@ export default class RecordCardListDialog extends Component {
                   value: '',
                   values: [keyWords],
                 },
-              ]
-            : [],
+              ].concat(quickFilters)
+            : quickFilters,
       };
     } else {
       getFilterRowsPromise = publicWorksheetAjax.getRelationRows;
@@ -206,14 +224,16 @@ export default class RecordCardListDialog extends Component {
         filterControls,
         shareId: window.publicWorksheetShareId,
       };
-      if (window.recordShareLinkId) {
-        args.linkId = window.recordShareLinkId;
-      }
     }
     if (parentWorksheetId && controlId) {
       args.relationWorksheetId = parentWorksheetId;
       args.rowId = recordId;
       args.controlId = controlId;
+      if (ignoreRowIds) {
+        args.requestParams = {
+          _system_excluderowids: JSON.stringify(ignoreRowIds),
+        };
+      }
     }
     this.setState({ loading: true });
     this.abortSearch();
@@ -260,13 +280,14 @@ export default class RecordCardListDialog extends Component {
     );
   }
   @autobind
-  handleSearch(value) {
+  handleSearch(value, isScanSearch) {
     this.setState(
       {
         keyWords: value,
         pageIndex: 1,
         loading: true,
         list: [],
+        isScanSearch,
       },
       () => {
         if (!value && this.clickSearch) {
@@ -276,6 +297,18 @@ export default class RecordCardListDialog extends Component {
         }
         this.lazyLoadRecorcd();
       },
+    );
+  }
+  @autobind
+  handleFilter(filters) {
+    this.setState(
+      {
+        quickFilters: filters,
+        pageIndex: 1,
+        loading: true,
+        list: [],
+      },
+      this.loadRecorcd,
     );
   }
   @autobind
@@ -367,55 +400,78 @@ export default class RecordCardListDialog extends Component {
   renderSearchWrapper() {
     const isScanQR = getIsScanQR();
     const { relateSheetId, onOk, onClose, control, formData, parentWorksheetId } = this.props;
-    const { keyWords, worksheet, worksheetInfo } = this.state;
+    const { keyWords, worksheet, worksheetInfo, filtersVisible, quickFilters } = this.state;
     const filterControls = getFilter({ control, formData });
+    const { searchfilters = '[]' } = control.advancedSetting || {};
+    const searchFilters = safeParse(searchfilters, 'array');
+    const controls = _.get(worksheetInfo, 'template.controls');
     return (
-      <div className="searchWrapper">
-        <Icon icon="h5_search" />
-        <input
-          type="text"
-          placeholder={_l('搜索%0', worksheet.entityName || _.get(worksheetInfo, 'entityName') || _l('记录'))}
-          value={keyWords}
-          onChange={e => {
-            this.handleSearch(e.target.value);
-          }}
-        />
-        {keyWords ? (
-          <Icon
-            icon="workflow_cancel"
-            onClick={() => {
-              this.handleSearch('');
+      <div className="flexRow alignItemsCenter justifyContentCenter mTop10 pLeft10 pRight10">
+        <div className="searchWrapper flex">
+          <Icon icon="h5_search" />
+          <input
+            type="text"
+            placeholder={_l('搜索%0', worksheet.entityName || _.get(worksheetInfo, 'entityName') || _l('记录'))}
+            value={keyWords}
+            onChange={e => {
+              this.handleSearch(e.target.value);
             }}
           />
-        ) : (
-          isScanQR && (
-            <RelateScanQRCode
-              projectId={worksheet.projectId}
-              worksheetId={relateSheetId}
-              filterControls={filterControls}
-              parentWorksheetId={parentWorksheetId}
-              control={control}
-              onChange={data => {
-                onOk([data]);
-                onClose();
+          {keyWords ? (
+            <Icon
+              icon="workflow_cancel"
+              onClick={() => {
+                this.handleSearch('');
               }}
-              onOpenRecordCardListDialog={keyWords => {
-                const { scanlink, scancontrol } = _.get(control, 'advancedSetting') || {};
-                setTimeout(() => {
-                  if (
-                    (scanlink !== '1' && RegExp.isUrl(keyWords)) ||
-                    (scancontrol !== '1' && !RegExp.isUrl(keyWords))
-                  ) {
-                    this.setState({ pageIndex: 1, list: [] });
-                    return;
-                  }
-                  this.handleSearch(keyWords);
-                }, 200);
+            />
+          ) : (
+            isScanQR && (
+              <RelateScanQRCode
+                projectId={worksheet.projectId}
+                worksheetId={relateSheetId}
+                filterControls={filterControls}
+                parentWorksheetId={parentWorksheetId}
+                control={control}
+                onChange={data => {
+                  onOk([data]);
+                  onClose();
+                }}
+                onOpenRecordCardListDialog={keyWords => {
+                  const { scanlink, scancontrol } = _.get(control, 'advancedSetting') || {};
+                  setTimeout(() => {
+                    if (
+                      (scanlink !== '1' && RegExp.isUrl(keyWords)) ||
+                      (scancontrol !== '1' && !RegExp.isUrl(keyWords))
+                    ) {
+                      this.setState({ pageIndex: 1, list: [] });
+                      return;
+                    }
+                    this.handleSearch(keyWords, true);
+                  }, 200);
+                }}
+              >
+                <Icon className="Font20" icon="qr_code_19" />
+              </RelateScanQRCode>
+            )
+          )}
+        </div>
+        {searchFilters && !!searchFilters.length && (
+          <Fragment>
+            <div className="filterWrapper flexRow alignItemsCenter justifyContentCenter mLeft10" onClick={() => this.setState({ filtersVisible: true })}>
+              <Icon className={cx({ ThemeColor: quickFilters.length })} icon="worksheet_filter" />
+            </div>
+            <MobileFilter
+              filtersVisible={filtersVisible}
+              worksheetInfo={worksheetInfo}
+              searchFilters={searchFilters}
+              controls={controls}
+              quickFilters={quickFilters}
+              onChangeFiltersVisible={filtersVisible => {
+                this.setState({ filtersVisible })
               }}
-            >
-              <Icon className="Font20" icon="qr_code_19" />
-            </RelateScanQRCode>
-          )
+              onChangeQuickFilter={this.handleFilter}
+            />
+          </Fragment>
         )}
       </div>
     );

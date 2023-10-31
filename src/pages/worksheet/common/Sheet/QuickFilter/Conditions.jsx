@@ -8,6 +8,7 @@ import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import FilterInput, { validate, TextTypes, NumberTypes } from './Inputs';
 import { formatFilterValuesToServer } from './';
 import _ from 'lodash';
+import { formatQuickFilterValueToControlValue } from 'worksheet/common/WorkSheetFilter/util';
 
 const Con = styled.div`
   display: flex;
@@ -154,6 +155,7 @@ export default function Conditions(props) {
     setFullShow,
     controls = [],
     filters = [],
+    navGroupFilters = [],
     hideStartIndex,
     updateQuickFilter,
     resetQuickFilter,
@@ -189,11 +191,11 @@ export default function Conditions(props) {
     didMount.current = true;
     const valuesToUpdate = newValues || values;
     const quickFilter = items
-      .map((filter, i) => ({
-        ...filter,
-        filterType: filter.filterType || (filter.dataType === 29 ? 24 : 2),
-        spliceType: filter.spliceType || 1,
-        ...valuesToUpdate[i],
+      .map((item, i) => ({
+        ...item,
+        filterType: item.filterType || (item.dataType === 29 ? 24 : 2),
+        spliceType: item.spliceType || 1,
+        ...valuesToUpdate[`${_.get(item, 'control.controlId')}-${i}`],
       }))
       .filter(validate)
       .map(conditionAdapter);
@@ -215,7 +217,7 @@ export default function Conditions(props) {
         updateQuickFilter(formattedFilter, view);
       }
     } else {
-      updateQuickFilter([], view);
+      debounceUpdateQuickFilter.current([], view);
     }
   }
   useEffect(() => {
@@ -234,6 +236,32 @@ export default function Conditions(props) {
     }
   }, []);
   const visibleItems = items.slice(0, _.isNumber(hideStartIndex) ? hideStartIndex : undefined);
+  const filtersData = Object.keys(values)
+    .map(key => {
+      const keyIndex = key.split('-')[1];
+      return {
+        ...(_.get(items[keyIndex], 'control') || {}),
+        controlId: 'fastFilter_' + _.get(items[keyIndex], 'control.controlId'),
+        value: formatQuickFilterValueToControlValue(_.get(items[keyIndex], 'control.type'), values[key]),
+        filterValue: _.includes(
+          [
+            WIDGETS_TO_API_TYPE_ENUM.DATE, // 日期  * 类型无法转换成控件值
+            WIDGETS_TO_API_TYPE_ENUM.DATE_TIME, // 日期时间 * 类型无法转换成控件值
+            WIDGETS_TO_API_TYPE_ENUM.TIME, //  时间 * 类型无法转换成控件值
+          ],
+          _.get(items[keyIndex], 'control.type'),
+        ) && {
+          ..._.pick(values[key], ['value', 'values', 'dateRange']),
+          values: formatFilterValuesToServer(_.get(items[keyIndex], 'control.type'), _.get(values[key], 'values')),
+        },
+      };
+    })
+    .concat(
+      navGroupFilters.map(c => ({
+        controlId: 'navGroup_' + c.controlId,
+        filterValue: { values: c.values, ...(c.filterType === 7 ? { filterType: c.filterType } : {}) },
+      })),
+    );
   return (
     <Con className={className} isConfigMode={isConfigMode} style={items.length ? { marginTop: 8 } : {}}>
       {visibleItems.map((item, i) => (
@@ -266,10 +294,15 @@ export default function Conditions(props) {
               projectId={projectId}
               appId={appId}
               {...item}
-              {...values[i]}
+              {...values[`${item.control.controlId}-${i}`]}
+              filtersData={filtersData}
               onChange={(change = {}, { forceUpdate } = {}) => {
                 store.current.activeType = item.control.type;
-                const newValues = { ...values, [i]: { ...values[i], ...change } };
+                const key = `${item.control.controlId}-${i}`;
+                const newValues = {
+                  ...values,
+                  [key]: { ...values[key], ...change },
+                };
                 setValues(newValues);
                 if ((!showQueryBtn || forceUpdate) && !_.isEmpty(newValues)) {
                   update(newValues);

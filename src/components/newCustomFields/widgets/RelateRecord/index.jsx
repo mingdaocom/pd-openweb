@@ -36,9 +36,8 @@ export default class Widgets extends Component {
   cardsComp = React.createRef();
 
   get count() {
-    const { value } = this.props;
-    let { count } = this.props;
-    const recordsCount = getRelateRecordCountFromValue(value);
+    const { value, count } = this.props;
+    const recordsCount = getRelateRecordCountFromValue(value, count);
     return _.isUndefined(recordsCount) ? count : recordsCount;
   }
 
@@ -70,7 +69,11 @@ export default class Widgets extends Component {
   }
 
   parseValue(value) {
+    let { showtype = RELATE_RECORD_SHOW_TYPE.LIST } = this.props.advancedSetting;
     if (!value) return [];
+    if (showtype == RELATE_RECORD_SHOW_TYPE.DROPDOWN && value.indexOf('deleteRowIds') > -1) {
+      return;
+    }
     let data = [];
     try {
       data = JSON.parse(value);

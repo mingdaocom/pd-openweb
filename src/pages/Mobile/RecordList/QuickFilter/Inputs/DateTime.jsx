@@ -89,7 +89,7 @@ export default function DateTime(props) {
                   dateRange: 18,
                   filterType: 31,
                   minValue: d,
-                  maxValue: maxValue ? maxValue : d,
+                  maxValue: maxValue,
                 });
                 setStartDateVisible(false);
               }}
@@ -136,7 +136,7 @@ export default function DateTime(props) {
                 onChange({
                   dateRange: 18,
                   filterType: 31,
-                  minValue: minValue ? minValue : d,
+                  minValue: minValue,
                   maxValue: d,
                 });
                 setEndDateVisible(false);

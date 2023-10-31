@@ -29,6 +29,7 @@ export default function FilterDialog(props) {
     globalSheetInfo,
     globalSheetControls, //主标控件 用于 子表中的关联记录字段筛选选择范围，支持使用主表中的字段
     hideSupport,
+    showCustom = false,
   } = props;
 
   const { sourceControlId = '', type = '' } = data;
@@ -117,6 +118,7 @@ export default function FilterDialog(props) {
           conditions={filters}
           filterDept={type !== 29}
           currentColumns={allControls}
+          showCustom={showCustom}
           from={fromCondition}
           filterResigned={false}
           sourceControlId={sourceControlId}

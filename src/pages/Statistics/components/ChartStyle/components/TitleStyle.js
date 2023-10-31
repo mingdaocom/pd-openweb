@@ -1,8 +1,9 @@
 import React, { Fragment } from 'react';
-import { Icon } from 'ming-ui';
+import { Icon, ColorPicker } from 'ming-ui';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { Checkbox, Select, Tooltip } from 'antd';
+import store from 'redux/configureStore';
 
 const Wrap = styled.div`
   .chartTypeSelect {
@@ -20,15 +21,9 @@ const Wrap = styled.div`
     padding: 4px;
     border: 1px solid #DDDDDD;
     background-color: #fff;
-
     .colorBlock {
       width: 100%;
       height: 100%;
-    }
-    .colorInput {
-      width: 100%;
-      height: 100%;
-      opacity: 0;
     }
   }
 `;
@@ -66,6 +61,7 @@ const TitleStyle = props => {
   const textColor = type === 'line' ? pivotTableStyle.lineTextColor : pivotTableStyle.columnTextColor;
   const bgColor = type === 'line' ? pivotTableStyle.lineBgColor : pivotTableStyle.columnBgColor;
   const { lines = [] } = pivotTable;
+  const iconColor = _.get(store.getState().appPkg, 'iconColor');
 
   const handleChangePivotTableStyle = (data) => {
     onChangeStyle({
@@ -118,109 +114,107 @@ const TitleStyle = props => {
             <div className="flexRow valignWrapper">
               <div className="flex flexRow valignWrapper mRight10">
                 {_l('奇行')}
-                <div className="colorWrap mLeft5">
-                  <div className="colorBlock" style={{ backgroundColor: pivotTableStyle.oddBgColor }}>
-                    <input
-                      type="color"
-                      className="colorInput pointer"
-                      value={pivotTableStyle.oddBgColor}
-                      onChange={(event) => {
-                        handleChangePivotTableStyle({
-                          oddBgColor: event.target.value
-                        });
-                      }}
-                    />
+                <ColorPicker
+                  isPopupBody
+                  className="mLeft5"
+                  value={pivotTableStyle.oddBgColor}
+                  onChange={value => {
+                    handleChangePivotTableStyle({
+                      oddBgColor: value
+                    });
+                  }}
+                >
+                  <div className="colorWrap pointer">
+                    <div className="colorBlock" style={{ backgroundColor: pivotTableStyle.oddBgColor }}>
+                    </div>
                   </div>
-                </div>
+                </ColorPicker>
               </div>
               <div className="flex flexRow valignWrapper">
                 {_l('偶行')}
-                <div className="colorWrap mLeft5">
-                  <div className="colorBlock" style={{ backgroundColor: pivotTableStyle.evenBgColor }}>
-                    <input
-                      type="color"
-                      className="colorInput pointer"
-                      value={pivotTableStyle.evenBgColor}
-                      onChange={(event) => {
-                        handleChangePivotTableStyle({
-                          evenBgColor: event.target.value
-                        });
-                      }}
-                    />
+                <ColorPicker
+                  isPopupBody
+                  className="mLeft5"
+                  value={pivotTableStyle.evenBgColor}
+                  onChange={value => {
+                    handleChangePivotTableStyle({
+                      evenBgColor: value
+                    });
+                  }}
+                >
+                  <div className="colorWrap pointer">
+                    <div className="colorBlock" style={{ backgroundColor: pivotTableStyle.evenBgColor }}>
+                    </div>
                   </div>
-                </div>
+                </ColorPicker>
               </div>
             </div>
           </div>
           <div className="flexRow valignWrapper mBottom12">
             <div className="lable">{_l('文本颜色')}</div>
-            <div className="colorWrap">
-              <div className="colorBlock" style={{ backgroundColor: pivotTableStyle.textColor }}>
-                <input
-                  type="color"
-                  className="colorInput pointer"
-                  value={pivotTableStyle.textColor}
-                  onChange={(event) => {
-                    handleChangePivotTableStyle({
-                      textColor: event.target.value
-                    });
-                  }}
-                />
+            <ColorPicker
+              isPopupBody
+              value={pivotTableStyle.textColor}
+              onChange={value => {
+                handleChangePivotTableStyle({
+                  textColor: value
+                });
+              }}
+            >
+              <div className="colorWrap pointer">
+                <div className="colorBlock" style={{ backgroundColor: pivotTableStyle.textColor }}>
+                </div>
               </div>
-            </div>
+            </ColorPicker>
           </div>
         </Fragment>
       ) : (
         <Fragment>
           <div className="flexRow valignWrapper mBottom12">
             <div className="lable">{_l('文字')}</div>
-            <div>
-              <div className="colorWrap">
+            <ColorPicker
+              isPopupBody
+              value={textColor}
+              onChange={value => {
+                if (type === 'line') {
+                  handleChangePivotTableStyle({
+                    lineTextColor: value
+                  });
+                } else {
+                  handleChangePivotTableStyle({
+                    columnTextColor: value
+                  });
+                }
+              }}
+            >
+              <div className="colorWrap pointer">
                 <div className="colorBlock" style={{ backgroundColor: textColor }}>
-                  <input
-                    type="color"
-                    className="colorInput pointer"
-                    value={textColor}
-                    onChange={(event) => {
-                      if (type === 'line') {
-                        handleChangePivotTableStyle({
-                          lineTextColor: event.target.value
-                        });
-                      } else {
-                        handleChangePivotTableStyle({
-                          columnTextColor: event.target.value
-                        });
-                      }
-                    }}
-                  />
                 </div>
               </div>
-            </div>
+            </ColorPicker>
           </div>
           <div className="flexRow valignWrapper mBottom12">
             <div className="lable">{_l('背景色')}</div>
-            <div>
-              <div className="colorWrap">
-                <div className="colorBlock" style={{ backgroundColor: bgColor }}>
-                  <input
-                    type="color"
-                    className="colorInput pointer"
-                    value={bgColor}
-                    onChange={(event) => {
-                      if (type === 'line') {
-                        handleChangePivotTableStyle({
-                          lineBgColor: event.target.value
-                        });
-                      } else {
-                        handleChangePivotTableStyle({
-                          columnBgColor: event.target.value
-                        });
-                      }
-                    }}
-                  />
+            <ColorPicker
+              isPopupBody
+              value={bgColor === 'themeColor' ? iconColor : bgColor}
+              onChange={value => {
+                if (type === 'line') {
+                  handleChangePivotTableStyle({
+                    lineBgColor: value
+                  });
+                } else {
+                  handleChangePivotTableStyle({
+                    columnBgColor: value
+                  });
+                }
+              }}
+            >
+              <div className="colorWrap pointer">
+                <div className="colorBlock" style={{ backgroundColor: bgColor === 'themeColor' ? iconColor : bgColor }}>
                 </div>
               </div>
-            </div>
+            </ColorPicker>
           </div>
           {type === 'line' ? (
             <div className="mBottom12">

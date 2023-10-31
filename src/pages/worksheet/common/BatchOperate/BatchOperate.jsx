@@ -280,7 +280,7 @@ class BatchOperate extends React.Component {
     }
     (isEditSingle ? worksheetAjax.updateWorksheetRow : worksheetAjax.updateWorksheetRows)(updateArgs).then(data => {
       callback();
-      if (isEditSingle ? data.resultCode === 1 : data.successCount === selectedRows.length) {
+      if ((isEditSingle ? data.resultCode === 1 : data.successCount === selectedRows.length) && !args.noAlert) {
         alert(_l('修改成功'));
       }
       if (_.find(controls, item => _.includes([10, 11], item.type) && /color/.test(item.value))) {
@@ -577,10 +577,12 @@ class BatchOperate extends React.Component {
                           .deleteWorksheetRows(args)
                           .then(res => {
                             if (res.isSuccess) {
-                              if (hasAuthRowIds.length === selectedRows.length) {
-                                alert(_l('删除成功'));
-                              } else if (hasAuthRowIds.length < selectedRows.length) {
+                              if (allWorksheetIsSelected && res.successCount === 0) {
+                                alert(_l('无权限删除选择的记录'), 3);
+                              } else if (hasAuthRowIds.length < selectedRows.length || allWorksheetIsSelected) {
                                 alert(_l('删除成功，无编辑权限的记录无法删除'));
+                              } else if (hasAuthRowIds.length === selectedRows.length) {
+                                alert(_l('删除成功'));
                               }
                               if (allWorksheetIsSelected || selectedRows.length === pageSize) {
                                 reload();
@@ -621,25 +623,35 @@ class BatchOperate extends React.Component {
                         DeleteConfirm({
                           footer: isCharge ? undefined : null,
                           clickOmitText: false,
+                          style: { width: 560 },
+                          bodyStyle: { marginLeft: 36 },
                           title: (
-                            <div className="Bold">
+                            <div className="Bold flexRow alignItemsCenter">
                               <i className="icon-error error" style={{ fontSize: '28px', marginRight: '8px' }} />
                               {_l('彻底删除所有%0行记录', selectedLength)}
                             </div>
                           ),
                           description: (
-                            <div>
+                            <div style={{ marginLeft: 36 }}>
                               <span style={{ color: '#333', fontWeight: 'bold' }}>
-                                {_l('注意：此操作将彻底删除所有数据，不可从回收站中恢复！')}
+                                {_l('此操作将彻底删除所有数据，不可从回收站中恢复！')}
                               </span>
                               {_l(
-                                '当前所选记录数量超过%0行，数据不会进入回收站而直接进行彻底删除，且不会触发工作流。此操作只有应用管理员可以执行，请务必确认所有应用成员都不再需要这些数据后再执行此操作',
+                                '当前所选记录数量超过%0行，数据不会进入回收站而直接进行彻底删除。此操作只有应用管理员可以执行。',
                                 md.global.SysSettings.worktableBatchOperateDataLimitCount,
                               )}
+                              <div className="Bold Gray mTop18">{_l('注意:')}</div>
+                              <ul className="mTop10 9 mLeft4 Font14">
+                                <li style={{ listStyle: 'inside' }}>{_l('将直接物理删除，永远无法恢复')}</li>
+                                <li style={{ listStyle: 'inside' }}>
+                                  {_l('其他表与已删除记录的关联关系不会被清除，记录将显示为“已删除”')}
+                                </li>
+                                <li style={{ listStyle: 'inside' }}>{_l('彻底删除不触发工作流')}</li>
+                              </ul>
                               {!isCharge && <div className="Gray mTop20">{_l('你没有权限进行此操作！')}</div>}
                             </div>
                           ),
-                          data: isCharge ? [{ text: _l('我确认永久删除这些数据'), value: 1 }] : [],
+                          data: isCharge ? [{ text: _l('我已了解注意事项，并确认彻底删除数据'), value: 1 }] : [],
                           onOk: () => handleDelete(true),
                         });
                         return;

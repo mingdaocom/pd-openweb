@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { Input, Tooltip } from 'antd';
-import { Checkbox } from 'ming-ui';
+import { Checkbox, Dropdown } from 'ming-ui';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 import { SettingItem } from '../../styled';
 import _ from 'lodash';
@@ -42,9 +42,28 @@ const PointerConfigWrap = styled(SettingItem)`
   }
 `;
 
+const ROUND_TYPE = [
+  {
+    text: _l('向上舍入'),
+    value: '1',
+  },
+  {
+    text: _l('向下舍入'),
+    value: '0',
+  },
+  {
+    text: _l('四舍五入'),
+    value: '2',
+  },
+];
+
 export default function PointConfig({ data = {}, onChange }) {
   const { dot = 2 } = data;
-  const { numshow, dotformat = '0' } = getAdvanceSetting(data);
+  const {
+    numshow,
+    dotformat = '0',
+    roundtype = _.includes([6, 8, 31, 37], data.type) ? '2' : '0',
+  } = getAdvanceSetting(data);
   const maxDot = _.includes([6, 31, 37], data.type) && numshow === '1' ? 12 : 14;
 
   // 百分比配置小数点最大12
@@ -93,22 +112,29 @@ export default function PointConfig({ data = {}, onChange }) {
             </div>
           </div>
         </div>
-        {dot ? (
-          <Checkbox
-            size="small"
-            className="mLeft20"
-            checked={dotformat === '1'}
-            onClick={checked => onChange(handleAdvancedSettingChange(data, { dotformat: checked ? '0' : '1' }))}
-          >
-            <span style={{ marginRight: '4px' }}>{_l('省略末尾的0')}</span>
-            <Tooltip
-              title={_l('勾选后，不足小数位数时省略末尾的0。如设置4位小数时，默认显示完整精度2.800，勾选后显示为2.8')}
-            >
-              <i className="icon-help Gray_bd Font15"></i>
-            </Tooltip>
-          </Checkbox>
-        ) : null}
+        <Dropdown
+          className="mLeft12"
+          border
+          value={roundtype}
+          data={ROUND_TYPE}
+          onChange={value => onChange(handleAdvancedSettingChange(data, { roundtype: value }))}
+        />
       </div>
+      {dot ? (
+        <Checkbox
+          size="small"
+          className="mTop8"
+          checked={dotformat === '1'}
+          onClick={checked => onChange(handleAdvancedSettingChange(data, { dotformat: checked ? '0' : '1' }))}
+        >
+          <span style={{ marginRight: '4px' }}>{_l('省略末尾的0')}</span>
+          <Tooltip
+            title={_l('勾选后，不足小数位数时省略末尾的0。如设置4位小数时，默认显示完整精度2.800，勾选后显示为2.8')}
+          >
+            <i className="icon-help Gray_bd Font15"></i>
+          </Tooltip>
+        </Checkbox>
+      ) : null}
     </PointerConfigWrap>
   );
 }

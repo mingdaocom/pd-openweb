@@ -27,6 +27,7 @@ const Header = styled.div`
     font-size: 17px;
     color: #333;
     font-weight: bold;
+    max-width: calc(100% - 200px);
   }
   .split {
     font-size: 16px;
@@ -64,6 +65,7 @@ const Content = styled.div`
   }
   .tableCon {
     flex: 1;
+    padding: 0 24px;
   }
 `;
 
@@ -136,7 +138,7 @@ export default function RelateRecordTableDialog(props) {
     >
       <Con>
         <Header>
-          <div className="main">{control.controlName}</div>
+          <div className="main ellipsis">{control.controlName}</div>
           {!!title && <div className="split"> - </div>}
           <div
             className={cx('flexCenter', { Hand: allowOpenInNew })}

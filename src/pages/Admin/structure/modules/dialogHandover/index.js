@@ -29,9 +29,10 @@ class InvoiceSetting extends Component {
   init() {
     const { accountId, projectId, success, user } = this.props;
     Dialog.confirm({
-      title: '',
-      description: _l('是否确认将该员工【%0】移除？', user.fullname),
+      title: _l('是否确认将员工【%0】离职？', user.fullname),
+      description: _l('若该员工有未交接工作，离职后会自动生成交接待办'),
       buttonType: 'danger',
+      okText: _l('确认离职'),
       onOk: () => {
         userController
           .removeUser({

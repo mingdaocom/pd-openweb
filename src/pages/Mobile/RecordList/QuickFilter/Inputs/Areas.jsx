@@ -73,6 +73,7 @@ export default function Areas(props) {
         {((!isMultiple && _.isEmpty(values)) || isMultiple) && (
           <MobileCityPicker
             level={control.type === 19 ? 1 : control.type === 23 ? 2 : 3}
+            showConfirmBtn={true}
             callback={area => {
               if (_.last(area)) {
                 tempArea.current = {
@@ -99,6 +100,7 @@ export default function Areas(props) {
         {!isMultiple && !_.isEmpty(values) && (
           <MobileCityPicker
             level={control.type === 19 ? 1 : control.type === 23 ? 2 : 3}
+            showConfirmBtn={true}
             callback={area => {
               if (_.last(area)) {
                 tempArea.current = {

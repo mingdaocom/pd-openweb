@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { Icon, Tooltip } from 'ming-ui';
-import { colorGroup, reportTypes } from 'statistics/Charts/common';
+import { colorGroup, reportTypes, getPorjectChartColors } from 'statistics/Charts/common';
 import { getIsAlienationColor } from 'statistics/common';
 import styled from 'styled-components';
 import BaseColor from './BaseColor';
@@ -46,6 +46,7 @@ export default class ColorEntrance extends Component {
     return [reportTypes.FunnelChart, reportTypes.GaugeChart, reportTypes.ProgressChart].includes(reportType);
   }
   getColorName() {
+    const { projectId } = this.props.worksheetInfo;
     const { style = {}, reportType, split } = this.props.currentReport;
     const isBarChart = reportType === reportTypes.BarChart;
     const defaultColorName = `${colorGroup[0].name}${_l('配色')}`;
@@ -53,24 +54,34 @@ export default class ColorEntrance extends Component {
     if (_.isUndefined(style.colorType)) {
       return defaultColorName;
     } else {
-      const { colorType, colorGroupIndex } = style;
+      const { colorType, colorGroupIndex, colorGroupId } = style;
       if (colorType === 0) {
         return isAlienationColor ? _l('选项配色') : defaultColorName;
       } else if (colorType === 1) {
-        const data = colorGroup[colorGroupIndex] || colorGroup[0];
-        return `${data.name}${_l('配色')}`;
+        let name = null;
+        const chartColors = getPorjectChartColors(projectId);
+        if (colorGroupId === 'adaptThemeColor') {
+          name = _l('适应主题');
+        } else if (colorGroupId) {
+          name = (_.find(chartColors, { id: colorGroupId }) || chartColors[0]).name;
+        } else if (colorGroup[colorGroupIndex]) {
+          name = colorGroup[colorGroupIndex].name;
+        } else {
+          name = chartColors[0].name;
+        }
+        return `${name}${_l('配色')}`;
       } else {
         return _l('自定义配色');
       }
     }
   }
   renderBaseColorModal() {
-    const { columns, currentReport, onChangeCurrentReport } = this.props;
+    const { worksheetInfo, currentReport, onChangeCurrentReport } = this.props;
     const { baseColorModalVisible } = this.state;
     return (
       <BaseColor
         visible={baseColorModalVisible}
-        columns={columns}
+        projectId={worksheetInfo.projectId}
         currentReport={currentReport}
         onChange={(data) => {
           onChangeCurrentReport(data, true);

@@ -6,16 +6,11 @@ import RoleController from 'src/api/role';
 import 'src/components/select/select';
 import './common.less';
 import { expireDialogAsync } from 'src/components/common/function';
-import JqueryWrapper from 'ming-ui/utils/JQueryWrapper';
-import MultipleDropdown from 'ming-ui/components/MultipleDropdown';
 import _ from 'lodash';
-JqueryWrapper(MultipleDropdown, {
-  name: 'reactMultipleDropdown',
-});
 
 const { AUTHORITY_DICT } = Config;
 
-AdminCommon.init = function() {
+AdminCommon.init = function () {
   Config.getParams();
   Config.project = {};
 
@@ -36,7 +31,7 @@ AdminCommon.init = function() {
   }
 };
 
-AdminCommon.getProjectPermissionsByUser = function() {
+AdminCommon.getProjectPermissionsByUser = function () {
   return RoleController.getProjectPermissionsByUser({
     projectId: Config.projectId,
   }).then(data => {
@@ -85,7 +80,7 @@ AdminCommon.getProjectPermissionsByUser = function() {
   });
 };
 
-AdminCommon.initProjectSelect = function() {
+AdminCommon.initProjectSelect = function () {
   var currentCompanyName;
   var dataArr = [];
   var $adminProjects = $('#adminProjects');
@@ -94,7 +89,7 @@ AdminCommon.initProjectSelect = function() {
   }
   $adminProjects.data('bind', true);
   if (md.global.Account.projects) {
-    dataArr = $.map(md.global.Account.projects, function(item) {
+    dataArr = $.map(md.global.Account.projects, function (item) {
       if (item.projectId === Config.projectId) {
         currentCompanyName = item.companyName;
       }
@@ -111,17 +106,17 @@ AdminCommon.initProjectSelect = function() {
     wordLength: 100,
     maxWidth: 230,
     fontSize: 14,
-    onChange: function(value, text) {
+    onChange: function (value, text) {
       if (value === Config.projectId) {
         return;
       }
       expireDialogAsync(value).then(
-        function() {
+        function () {
           const params = Config.params.concat();
           params[2] = value;
           navigateTo('/' + params.join('/'));
         },
-        function() {
+        function () {
           $adminProjects.MDSelect('setValue', Config.projectId, currentCompanyName);
         },
       );

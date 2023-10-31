@@ -54,6 +54,7 @@ export default class RecordCardListDialog extends Component {
     coverCid: PropTypes.string, // 封面字段 id
     showControls: PropTypes.arrayOf(PropTypes.string), // 显示在卡片里的字段 id 数组
     filterRowIds: PropTypes.arrayOf(PropTypes.string), // 过滤的记录
+    ignoreRowIds: PropTypes.arrayOf(PropTypes.string), // 给卡片用的，传后后端过滤已关联时会忽略这些记录
     filterRelatesheetControlIds: PropTypes.arrayOf(PropTypes.string), // 过滤的关联表控件对应控件id
     defaultRelatedSheet: PropTypes.shape({}),
     singleConfirm: PropTypes.bool, // 单选需要确认
@@ -118,7 +119,7 @@ export default class RecordCardListDialog extends Component {
           });
           this.setState(
             {
-              allowAdd: data.allowAdd,
+              allowAdd: _.get(window, 'shareState.isPublicFormPreview') ? false : data.allowAdd,
               worksheetInfo: data,
             },
             this.loadRecord,
@@ -192,6 +193,7 @@ export default class RecordCardListDialog extends Component {
       viewId,
       relateSheetId,
       filterRowIds,
+      ignoreRowIds,
       parentWorksheetId,
       recordId,
       controlId,
@@ -259,15 +261,17 @@ export default class RecordCardListDialog extends Component {
       getFilterRowsPromise = sheetAjax.getFilterRows;
     } else {
       getFilterRowsPromise = publicWorksheetAjax.getRelationRows;
-      if (window.recordShareLinkId) {
-        args.linkId = window.recordShareLinkId;
-      }
       args.shareId = window.publicWorksheetShareId;
     }
     if (parentWorksheetId && controlId && _.get(parentWorksheetId, 'length') === 24) {
       args.relationWorksheetId = parentWorksheetId;
       args.rowId = recordId;
       args.controlId = controlId;
+      if (ignoreRowIds) {
+        args.requestParams = {
+          _system_excluderowids: JSON.stringify(ignoreRowIds),
+        };
+      }
     }
     this.searchAjax = getFilterRowsPromise(args);
     this.searchAjax.then(res => {

@@ -7,9 +7,18 @@ import displayTypes from './displayTypes';
 import { CommonDisplay, TitleContentWrap } from '../styled';
 import Components from './components';
 import { getVerifyInfo } from '../util/setting';
+import { TabHeaderItem } from './displayTabs/tabHeader';
 
 export default function WidgetDisplay(props) {
-  const { data = {}, activeWidget, allControls = [], actualControls, styleInfo: { info = {} } = {}, fromType } = props;
+  const {
+    data = {},
+    activeWidget,
+    allControls = [],
+    actualControls,
+    styleInfo: { info = {} } = {},
+    fromType,
+    commonWidgets = [],
+  } = props;
   const { type, sourceControlType, required, hint, unit, desc, strDefault, controlId } = data;
   const { prefix, suffix, hidetitle } = getAdvanceSetting(data);
   const { titlelayout_pc = '1', titlewidth_pc = '100', align_pc = '1' } = info;
@@ -55,12 +64,23 @@ export default function WidgetDisplay(props) {
     );
   };
 
+  // 分割线单独走展示
+  if (type === 22) {
+    return (
+      <TitleContentWrap>
+        <Component {...props} splitWidgets={commonWidgets} />
+      </TitleContentWrap>
+    );
+  }
+
+  // 标签页，关联多条列表单独展示(前期标签页单独展示)
   if (type === 52) {
     return (
       <TitleContentWrap>
-        <div className="flex overflow_ellipsis">
-          <Component {...props} />
+        <div className="tabHeaderTileWrap">
+          <TabHeaderItem {...props} />
         </div>
+        <Component {...props} />
       </TitleContentWrap>
     );
   }

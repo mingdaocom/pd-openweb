@@ -71,6 +71,7 @@ const Con = styled.div`
     .conditionItemContent {
       position: relative;
       .conditionValue {
+        flex: 1;
         input {
           font-size: 13px;
         }
@@ -174,6 +175,7 @@ export default function ConditionsGroup(props) {
     filterAddConditionControls = () => {},
     filterError = [],
     isRules,
+    showCustom,
   } = props;
   return (
     <Con className={cx({ isSingleFilter })}>
@@ -219,6 +221,7 @@ export default function ConditionsGroup(props) {
               projectId={projectId}
               appId={appId}
               key={condition.keyStr}
+              showCustom={showCustom}
               index={i}
               condition={condition}
               conditionGroupType={conditionGroupType}

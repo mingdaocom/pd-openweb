@@ -1,5 +1,5 @@
 import sheetAjax from 'src/api/worksheet';
-import { formatQuickFilter } from 'worksheet/util';
+import { formatQuickFilter, getFilledRequestParams } from 'worksheet/util';
 import { getCurrentView, getBoardItemKey } from '../util';
 import { getParaIds } from './util';
 import update from 'immutability-helper';
@@ -119,30 +119,32 @@ export function initBoardViewData(view) {
 
 // 拉取看板数据以填满页面
 function getBoardViewDataFillPage({ para, dispatch }) {
-  (para.type === 'single' ? worksheetAjax.getFilterRows : wrappedGetFilterRows)(para).then(({ data, resultCode }) => {
-    if (resultCode !== 1) {
-      dispatch({
-        type: 'WORKSHEET_UPDATE_ACTIVE_VIEW_STATUS',
-        resultCode,
-      });
+  (para.type === 'single' ? worksheetAjax.getFilterRows : wrappedGetFilterRows)(getFilledRequestParams(para)).then(
+    ({ data, resultCode }) => {
+      if (resultCode !== 1) {
+        dispatch({
+          type: 'WORKSHEET_UPDATE_ACTIVE_VIEW_STATUS',
+          resultCode,
+        });
+        dispatch({
+          type: 'CHANGE_BOARD_VIEW_LOADING',
+          loading: false,
+        });
+      }
+
+      dispatch(changeBoardViewData(data));
+      dispatch(initBoardViewRecordCount(dealBoardViewRecordCount(data)));
+
       dispatch({
         type: 'CHANGE_BOARD_VIEW_LOADING',
         loading: false,
       });
-    }
-
-    dispatch(changeBoardViewData(data));
-    dispatch(initBoardViewRecordCount(dealBoardViewRecordCount(data)));
-
-    dispatch({
-      type: 'CHANGE_BOARD_VIEW_LOADING',
-      loading: false,
-    });
-    dispatch({
-      type: 'CHANGE_BOARD_VIEW_STATE',
-      payload: { kanbanIndex: para.kanbanIndex, hasMoreData: !(data.length < 20) },
-    });
-  });
+      dispatch({
+        type: 'CHANGE_BOARD_VIEW_STATE',
+        payload: { kanbanIndex: para.kanbanIndex, hasMoreData: !(data.length < 20) },
+      });
+    },
+  );
 }
 
 export function getBoardViewPageData({ alwaysCallback = noop }) {
@@ -159,7 +161,7 @@ export function getBoardViewPageData({ alwaysCallback = noop }) {
       alwaysCallback();
       return;
     }
-    wrappedGetFilterRows({ ...para, kanbanIndex: kanbanIndex + 1 })
+    wrappedGetFilterRows(getFilledRequestParams({ ...para, kanbanIndex: kanbanIndex + 1 }))
       .then(({ data }) => {
         // 将已经存在的看板过滤掉
         const existedKeys = boardData.map(item => item.key);
@@ -191,7 +193,7 @@ export function getSingleBoardPageData({ pageIndex, kanbanKey, alwaysCallback, c
       alwaysCallback();
       return;
     }
-    wrappedGetFilterRows({ ...para, pageIndex, kanbanKey })
+    wrappedGetFilterRows(getFilledRequestParams({ ...para, pageIndex, kanbanKey }))
       .then(({ data }) => {
         dispatch({ type: 'CHANGE_BOARD_VIEW_LOADING', loading: false });
         const boardViewIndex = _.findIndex(boardData, item => item.key === kanbanKey);

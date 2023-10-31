@@ -16,7 +16,13 @@ import * as ajax from '../ajax';
 import _ from 'lodash';
 
 function addViewCount(attachment) {
-  if (!attachment || !md.global.Account || !md.global.Account.accountId || !_.get(attachment, 'sourceNode.fileID')) {
+  if (
+    !attachment ||
+    !md.global.Account ||
+    !md.global.Account.accountId ||
+    !_.get(attachment, 'sourceNode.fileID') ||
+    location.href.indexOf('printForm') > -1
+  ) {
     return;
   }
   if (attachment.previewAttachmentType === 'COMMON') {
@@ -65,7 +71,7 @@ function loadAttachment(attachment, options = {}) {
     if (window.shareState && window.shareState.shareId) {
       args.shareId = window.shareState.shareId;
       args.type =
-        window.shareState.isRecordShare || window.shareState.isPublicRecord || _.get(window, 'shareState.isPublicView')
+        window.shareState.isPublicRecord || _.get(window, 'shareState.isPublicView')
           ? 3
           : _.get(window, 'shareState.isPublicQuery') || _.get(window, 'shareState.isPublicForm')
           ? 11

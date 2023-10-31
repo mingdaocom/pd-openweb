@@ -1,10 +1,12 @@
-import { ajax, login, browserIsMobile, getRequest, checkLogin, isBefore, replenishRet } from 'src/util/sso';
+import { ajax, login, browserIsMobile, getRequest, checkLogin, isBefore, replenishRet, formatOtherParam, addOtherParam } from 'src/util/sso';
 import { setPssId } from 'src/util/pssId';
 import _ from 'lodash';
 
-const { t, i, ret, url, code, p, pc_slide = '' } = getRequest();
+const { t, i, ret, url, code, p, pc_slide = '', ...otherParam } = getRequest();
 const isPcSlide = pc_slide.includes('true');
 const isMobile = browserIsMobile();
+const otherParamString = formatOtherParam(otherParam);
+const newRet = addOtherParam(ret, otherParamString);
 
 function start() {
   if (t == '-1') {
@@ -42,8 +44,8 @@ function start() {
     }
   } else if (t == '1') {
     if (checkLogin()) {
-      if (ret) {
-        location.href = ret;
+      if (newRet) {
+        location.href = newRet;
       } else {
         location.href = isMobile ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`;
       }
@@ -57,7 +59,7 @@ function start() {
         async: true,
         succees: result => {
           const { corpId, state } = result.data;
-          const redirect_uri = encodeURIComponent(`${location.origin}/sso/workweixin?ret=${ret || ''}&i=${i || ''}`);
+          const redirect_uri = encodeURIComponent(`${location.origin}/sso/workweixin?ret=${newRet || ''}&i=${i || ''}`);
           location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${corpId}&redirect_uri=${redirect_uri}&state=${state}&response_type=code&scope=snsapi_base#wechat_redirect`;
         },
         error: login,
@@ -68,8 +70,8 @@ function start() {
 
     if (checkLogin()) {
       // expDate && checkLogin() && isBefore(expDate)
-      if (ret) {
-        location.href = `/${replenishRet(ret, pc_slide)}`;
+      if (newRet) {
+        location.href = `/${replenishRet(newRet, pc_slide)}`;
       } else {
         if (i) {
           location.href = isMobile || isPcSlide ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`;
@@ -103,7 +105,7 @@ function start() {
                 corpId: corpId,
                 onSuccess: function (result) {
                   const { code } = result;
-                  const dingdingLoginUrl = `/sso/dingding?state=${state}&ret=${encodeURIComponent(ret || '')}&i=${
+                  const dingdingLoginUrl = `/sso/dingding?state=${state}&ret=${encodeURIComponent(newRet || '')}&i=${
                     i || ''
                   }&code=${code}&pc_slide=${pc_slide}`;
                   if (dd.pc && !isPcSlide) {

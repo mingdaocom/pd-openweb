@@ -145,6 +145,7 @@ function WidgetContent(props) {
     addRecord = _.noop,
     updatePageInfo = _.noop,
     editingWidget = {},
+    config = {},
     setWidget = _.noop,
     isFullscreen = false,
     adjustScreen,
@@ -332,8 +333,10 @@ function WidgetContent(props) {
                   editingWidget={editingWidget}
                   ids={ids}
                   isCharge={isCharge}
-                  permissionType={appPkg.permissionType}
+                  config={config}
+                  themeColor={appPkg.iconColor || apk.iconColor}
                   isLock={appPkg.isLock}
+                  permissionType={appPkg.permissionType}
                   projectId={apk.projectId}
                   ref={el => {
                     displayRefs[index] = el;

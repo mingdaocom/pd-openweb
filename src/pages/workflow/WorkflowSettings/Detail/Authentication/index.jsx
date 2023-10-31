@@ -81,7 +81,10 @@ export default class Authentication extends Component {
             {
               method: 1,
               url: '',
-              params: [{ name: 'app_id', value: '' }, { name: 'app_secret', value: '' }],
+              params: [
+                { name: 'app_id', value: '' },
+                { name: 'app_secret', value: '' },
+              ],
               headers: [],
               contentType: 1,
               formControls: [],
@@ -213,6 +216,7 @@ export default class Authentication extends Component {
               <SingleControlValue
                 companyId={this.props.companyId}
                 processId={this.props.processId}
+                relationId={this.props.relationId}
                 selectNodeId={this.props.selectNodeId}
                 isIntegration={this.props.isIntegration}
                 sourceNodeId={data.selectNodeId}
@@ -277,7 +281,9 @@ export default class Authentication extends Component {
                 />
                 <div className="flex">
                   <CustomTextarea
+                    projectId={this.props.companyId}
                     processId={this.props.processId}
+                    relationId={this.props.relationId}
                     selectNodeId={this.props.selectNodeId}
                     isIntegration={this.props.isIntegration}
                     type={2}
@@ -347,7 +353,9 @@ export default class Authentication extends Component {
                     <div className="mTop15">
                       <KeyPairs
                         key={this.props.selectNodeId + tab}
+                        projectId={this.props.companyId}
                         processId={this.props.processId}
+                        relationId={this.props.relationId}
                         selectNodeId={this.props.selectNodeId}
                         isIntegration={this.props.isIntegration}
                         source={item[TABS[tab].sourceKey]}
@@ -368,7 +376,9 @@ export default class Authentication extends Component {
                     <div className="mTop15">
                       <CustomTextarea
                         className="minH100"
+                        projectId={this.props.companyId}
                         processId={this.props.processId}
+                        relationId={this.props.relationId}
                         selectNodeId={this.props.selectNodeId}
                         isIntegration={this.props.isIntegration}
                         type={2}
@@ -520,7 +530,9 @@ export default class Authentication extends Component {
           params: JSON.parse(this.formatParameters(JSON.stringify(params.filter(item => item.name)), testMap)),
           headers: JSON.parse(this.formatParameters(JSON.stringify(headers.filter(item => item.name)), testMap)),
           body: this.formatParameters(body, testMap),
-          formControls: formControls.filter(item => item.name),
+          formControls: JSON.parse(
+            this.formatParameters(JSON.stringify(formControls.filter(item => item.name)), testMap),
+          ),
           contentType,
         },
         { isIntegration: this.props.isIntegration },

@@ -71,12 +71,12 @@ export default function ConfigRelate(props) {
     worksheetAjax
       .getWorksheetControls({
         worksheetId: sourceId,
-        getControlType: 3,
+        getControlType: 1,
       })
       .then(({ data }) => {
-        const filterControls = (data.controls || [])
-          .filter(i => _.get(i, 'sourceControl.advancedSetting.hide') !== '1')
-          .filter(i => !_.find(allControls, a => a.controlId === i.controlId));
+        const filterControls = (data.controls || []).filter(
+          i => !_.find(allControls, a => a.controlId === i.controlId),
+        );
         setControls({ relateControls: filterControls });
         if (sheetId && relateType === 'new') {
           handleSetSource({ newControls: filterControls });
@@ -87,7 +87,7 @@ export default function ConfigRelate(props) {
 
   const handleSetSource = ({ newControls, open } = {}) => {
     const controls = (newControls || relateControls || [])
-      .filter(i => i.dataSource === sheetId && _.get(i, 'sourceControl.advancedSetting.hide') !== '1')
+      .filter(i => i.dataSource === sheetId)
       .filter(i => !_.find(allControls, a => a.controlId === i.controlId));
     setFields({ relateFields: controls, open: _.isUndefined(open) ? !_.isEmpty(controls) : open });
     setControls({ selectedControl: _.isUndefined(open) ? controls[0] : {} });

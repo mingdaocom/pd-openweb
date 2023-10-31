@@ -1,8 +1,8 @@
-import { ajax, login, browserIsMobile, getRequest, checkLogin } from 'src/util/sso';
+import { ajax, login, browserIsMobile, getRequest, checkLogin, formatOtherParam, addOtherParam } from 'src/util/sso';
 import { setPssId } from 'src/util/pssId';
 import _ from 'lodash';
 
-const { code, state, url, p } = getRequest();
+const { code, state, url, p, ...otherParam } = getRequest();
 const isMobile = browserIsMobile();
 
 if (code) {
@@ -35,9 +35,11 @@ if (code) {
     });
   }
 } else {
+  const otherParamString = formatOtherParam(otherParam);
+  const newUrl = addOtherParam(url, otherParamString);
   if (checkLogin()) {
-    if (url) {
-      location.href = url;
+    if (newUrl) {
+      location.href = newUrl;
     } else {
       location.href = isMobile ? `/mobile` : `/app`;
     }
@@ -51,11 +53,11 @@ if (code) {
       },
       async: true,
       succees: result => {
-        const { corpId, state } = result.data;
+        const { corpId, agentId, state } = result.data;
         const redirect_uri = encodeURIComponent(
-          `${location.origin}/auth/workwx?url=${url ? encodeURIComponent(url) : ''}`,
+          `${location.origin}/auth/workwx?url=${newUrl ? encodeURIComponent(newUrl) : ''}`,
         );
-        location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${corpId}&redirect_uri=${redirect_uri}&response_type=code&scope=snsapi_base&state=${state}#wechat_redirect`;
+        location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${corpId}&agentid=${agentId}&redirect_uri=${redirect_uri}&response_type=code&scope=snsapi_base&state=${state}#wechat_redirect`;
       },
       error: login,
     });

@@ -132,6 +132,7 @@ export default class RelateRecordList extends React.PureComponent {
   loadRecord() {
     const {
       from,
+      isQuickFilter,
       control,
       formData,
       viewId,
@@ -161,7 +162,7 @@ export default class RelateRecordList extends React.PureComponent {
       filterControls = getFilter({ control, formData });
     }
     // 存在不符合条件值的条件
-    if (filterControls === false) {
+    if (filterControls === false && !isQuickFilter) {
       this.setState({ error: 'notCorrectCondition', loading: false });
       return;
     }
@@ -179,7 +180,7 @@ export default class RelateRecordList extends React.PureComponent {
       keyWords,
       isGetWorksheet: true,
       getType: 7,
-      filterControls,
+      filterControls: filterControls || [],
     };
     if (fastSearchControlArgs) {
       delete args['keyWords'];
@@ -214,9 +215,6 @@ export default class RelateRecordList extends React.PureComponent {
     if (!window.isPublicWorksheet) {
       getFilterRowsPromise = sheetAjax.getFilterRows;
     } else {
-      if (window.recordShareLinkId) {
-        args.linkId = window.recordShareLinkId;
-      }
       args.shareId = window.publicWorksheetShareId;
       getFilterRowsPromise = publicWorksheetAjax.getRelationRows;
     }

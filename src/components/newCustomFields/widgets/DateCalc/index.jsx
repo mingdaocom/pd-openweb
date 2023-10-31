@@ -22,24 +22,13 @@ export default class Widgets extends Component {
 
     if (!value || (enumDefault === 3 && advancedSetting.hideneg === '1' && parseInt(value, 10) < 0)) {
       content = '';
-    } else if ((enumDefault === 1 || enumDefault === 3) && _.includes(['1', '2', '4'], unit)) {
-      if (advancedSetting.autocarry === '1' || enumDefault === 1) {
-        content = formatFormulaDate({ value, unit, dot });
-      } else {
-        content =
-          toFixed(value, dot) +
-          {
-            1: _l('分钟'),
-            2: _l('小时'),
-            4: _l('月'),
-          }[unit];
-      }
+    } else if (advancedSetting.autocarry === '1') {
+      content = formatFormulaDate({ value, unit, dot });
     } else if (enumDefault === 1 || enumDefault === 3) {
       const prefix = advancedSetting.prefix || '';
       const suffix = advancedSetting.suffix || '';
       const hideUnit = !!prefix || !!suffix;
-      let formatValue = formatFormulaDate({ value, unit, hideUnitStr: hideUnit, dot });
-
+      let formatValue = toFixed(value, dot);
       if (advancedSetting.dotformat === '1') {
         formatValue = formatStrZero(formatValue);
       }

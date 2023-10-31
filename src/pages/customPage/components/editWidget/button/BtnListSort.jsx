@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef, Fragment } from 'react';
 import { Modal, Tooltip } from 'antd';
-import { Button } from 'ming-ui';
-import { Icon } from 'src';
+import { Button, Icon } from 'ming-ui';
 import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
 import styled from 'styled-components';
 
@@ -70,7 +69,7 @@ export default function BtnListSort({ buttonList, onSortEnd }) {
   return (
     <Fragment>
       <SortableBtnIconWrap data-tip={_l('按钮排序')} className="mLeft10" onClick={() => setVisible(true)}>
-          <Icon className="Font24" type="link" icon="import_export" />
+        <Icon className="Font24 Gray_9e ThemeHoverColor3" type="link" icon="import_export" />
       </SortableBtnIconWrap>
       <Modal
         title={_l('自定义按钮排序')}
@@ -81,7 +80,8 @@ export default function BtnListSort({ buttonList, onSortEnd }) {
         wrapClassName="customPageBtnSortModalWrap"
         visible={visible}
         onCancel={() => setVisible(false)}
-        footer={null}>
+        footer={null}
+      >
         <ModalContentWrap>
           <SortableBtnList
             helperClass="customPageBtnSortHelper"

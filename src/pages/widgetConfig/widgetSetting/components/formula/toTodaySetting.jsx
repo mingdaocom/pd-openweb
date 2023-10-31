@@ -6,6 +6,8 @@ import { FORMULA_DATE_DISPLAY_TYPE } from '../../../config/setting';
 import { getAdvanceSetting, handleAdvancedSettingChange, parseDataSource } from '../../../util/setting';
 import DynamicSelectDateControl from '../DynamicSelectDateControl';
 import InputSuffix from './InputSuffix';
+import PreSuffix from '../PreSuffix';
+import PointConfig from '../PointerConfig';
 import _ from 'lodash';
 
 const COMPUTE_MODE = [
@@ -44,13 +46,19 @@ export default function ToTodaySetting({ data, onChange, ...rest }) {
       </SettingItem>
       <InputSuffix data={data} onChange={onChange} />
       <SettingItem>
-        {_.includes(['1', '2', '4'], unit) && (
+        <div className="settingItemTitle">{_l('设置')}</div>
+        {!_.includes(['5'], unit) && (
           <div className="labelWrap">
             <Checkbox
               size="small"
               checked={autocarry === '1'}
               onClick={checked => {
-                onChange(handleAdvancedSettingChange(data, { autocarry: checked ? '0' : '1' }));
+                onChange(
+                  handleAdvancedSettingChange(data, {
+                    autocarry: checked ? '0' : '1',
+                    ...(!checked ? { prefix: '', suffix: '' } : {}),
+                  }),
+                );
               }}
             >
               <span style={{ marginRight: '6px' }}>{_l('自动进位')}</span>
@@ -82,6 +90,26 @@ export default function ToTodaySetting({ data, onChange, ...rest }) {
           </Checkbox>
         </div>
       </SettingItem>
+      <PointConfig
+        data={data}
+        onChange={value => {
+          if (value.advancedSetting) {
+            onChange(value);
+          } else {
+            let newVal = value || {};
+            if (!Number(value.dot)) {
+              newVal.dotformat = '0';
+            }
+            onChange({ ...handleAdvancedSettingChange(data, newVal), ...value });
+          }
+        }}
+      />
+      {_.includes(['3', '4', '5'], unit) && autocarry !== '1' && (
+        <SettingItem>
+          <div className="settingItemTitle">{_l('单位')}</div>
+          <PreSuffix data={data} onChange={onChange} />
+        </SettingItem>
+      )}
     </Fragment>
   );
 }

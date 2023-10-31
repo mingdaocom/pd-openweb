@@ -8,8 +8,6 @@ import cx from 'classnames';
 import './style.less';
 import { payDialogFunc } from 'src/components/pay/payDialog';
 import { encrypt, addToken } from 'src/util';
-import contact from 'src/components/common/contact/contact';
-import { navigateTo } from 'src/router/navigateTo';
 
 const params = Config.params;
 const orderId = params[3];
@@ -200,7 +198,9 @@ export default class WaitingPay extends Component {
   }
 
   handleHelp() {
-    contact.popupLinkContent(_l('付款帮助'), 1);
+    window.open(
+      'https://d557778d685be9b5.share.mingdao.net/public/form/b9cfd9d0f4a84f6798cf0d3235fc4ead?source=package_payment',
+    );
   }
 
   handleCheckBox(e) {

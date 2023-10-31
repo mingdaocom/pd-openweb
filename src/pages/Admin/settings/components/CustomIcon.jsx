@@ -192,7 +192,7 @@ export default class CustomIcon extends Component {
         <div className="mTop16 mLeft24 mRight24">
           {!selected.length ? (
             <span className="Gray_9e">
-              {_l('上传的图标可用于应用、工作表的图标选择，使用SVG格式的单色图标')}（{_l('推荐下载地址')}
+              {_l('上传的图标可用于应用、应用项、工作表的图标选择，使用SVG格式的单色图标')}（{_l('推荐下载地址')}
               <a className="ThemeColor3 ThemeHoverColor2" href="https://www.iconfont.cn" target="_blank">
                 iconfont
               </a>

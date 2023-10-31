@@ -221,11 +221,7 @@ class DateTimeRange extends Component {
       </div>
     );
 
-    if (this.props.mode === 'task') {
-      return picker;
-    } else {
-      return content;
-    }
+    return content;
   }
 }
 

@@ -121,9 +121,10 @@ export default function ButtonDisplay({
           return (
             <div className={cx('chunkListWrap', { center: isMobile ? false : !isFullWidth })} key={index}>
               {list.map((item, i) => {
-                const { icon, color, name, config } = item;
-                const defaultIconUrl = btnType === 2 ? `${md.global.FileStoreConfig.pubHost}/customIcon/custom_actions.svg` : null;
-                const iconUrl = _.get(config, 'iconUrl') || defaultIconUrl;
+                const { color, name, config } = item;
+                const defaultIcon = btnType === 2 ? `custom_actions` : null;
+                const icon = _.get(config, 'icon') || defaultIcon;
+                const iconUrl = icon ? `${md.global.FileStoreConfig.pubHost}/customIcon/${icon}.svg` : _.get(config, 'iconUrl');
                 return (
                   <BtnWrap
                     key={i}
@@ -166,7 +167,7 @@ export default function ButtonDisplay({
                       <Button
                         fullWidth={isFullWidth || isMobile}
                         radius={style === 2}
-                        icon={iconUrl ? null : icon}
+                        icon={iconUrl ? null : item.icon}
                       >
                         {iconUrl && <SvgIcon url={iconUrl} fill={style === 3 ? color : '#fff'} size={20} />}
                         <span className="overflow_ellipsis">{name}</span>

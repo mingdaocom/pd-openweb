@@ -230,7 +230,11 @@ export default class UploadFiles extends Component {
     let { maxTotalSize } = this.state;
     const { nativeFile } = this;
     let { noTotal, dropPasteElement, from, projectId, advancedSetting } = this.props;
-    const isPublic = from === FROM.PUBLIC_ADD || from === FROM.WORKFLOW || window.isPublicWorksheet;
+    const isPublic =
+      from === FROM.PUBLIC_ADD ||
+      from === FROM.WORKFLOW ||
+      window.isPublicWorksheet ||
+      _.get(window, 'shareState.isPublicWorkflowRecord');
 
     const { licenseType } = _.find(md.global.Account.projects, item => item.projectId === projectId) || {};
 
@@ -359,7 +363,7 @@ export default class UploadFiles extends Component {
             tokenFiles.push({ bucket: isPic ? 4 : 3, ext: fileExt });
           });
 
-          const { projectId, appId, worksheetId } = _this.props;
+          const { appId, worksheetId } = _this.props;
           getToken(tokenFiles, 0, {
             projectId,
             appId,
@@ -854,7 +858,8 @@ export default class UploadFiles extends Component {
                 from !== FROM.DRAFT &&
                 !md.global.SysSettings.forbidSuites.includes('4') &&
                 !_.get(window, 'shareState.isPublicForm') &&
-                !_.get(window, 'shareState.isPublicFormPreview') && (
+                !_.get(window, 'shareState.isPublicFormPreview') &&
+                !_.get(window, 'shareState.isPublicWorkflowRecord') && (
                   <div className="flexRow valignWrapper" onClick={this.onOpenFolderSelectDialog.bind(this)}>
                     <i className="icon icon-folder Gray_9e Font18" />
                     <span>{_l('知识')}</span>

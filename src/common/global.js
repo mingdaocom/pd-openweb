@@ -485,7 +485,6 @@ window.createTimeSpan = dateStr => {
     let queueName = controllerName + '.' + actionName;
     let fireImmediately = options.fireImmediately;
     let pssId = getPssId();
-    let access_token = window.access_token;
     let headers = {
       ...(!ajaxOptions.url ? { 'X-Requested-With': 'XMLHttpRequest' } : {}),
       Authorization: pssId ? `md_pss_id ${pssId}` : '',
@@ -498,8 +497,11 @@ window.createTimeSpan = dateStr => {
       headers.Authorization = '';
     }
 
-    if (sessionStorage.getItem('clientId')) {
-      headers.clientId = sessionStorage.getItem('clientId');
+    // 公开的
+    const isPublicFrom = location.href.indexOf('/public/form/') > -1;
+    const clientId = window.clientId;
+    if (location.href.indexOf('/public/') > -1 && clientId && (!isPublicFrom || controllerName === 'PublicWorksheet')) {
+      headers.clientId = clientId;
     }
 
     if (window.publicAppAuthorization) {
@@ -513,15 +515,17 @@ window.createTimeSpan = dateStr => {
       }
     }
 
-    if (access_token) {
+    if (window.access_token) {
       // 工作流&统计服务
       headers.access_token = access_token;
       // 主站服务
       headers.Authorization = `access_token ${access_token}`;
     }
+
     if (ajaxOptions.url) {
       delete headers.AccountId;
     }
+
     if (options.headersConfig) {
       $.extend(headers, options.headersConfig);
     }
@@ -530,6 +534,7 @@ window.createTimeSpan = dateStr => {
       if (!fireImmediately) {
         requesting[queueName] = true;
       }
+
       ajax = $.ajax(
         $.extend(
           {
@@ -555,6 +560,7 @@ window.createTimeSpan = dateStr => {
           ajaxOptions,
         ),
       );
+
       let ajaxPromise = ajax
         .then(undefined, function (jqXHR, textStatus) {
           if (!jqXHR.responseText) {
@@ -611,6 +617,7 @@ window.createTimeSpan = dateStr => {
             console.error(err);
           }
         }, dfd.reject);
+
       if (fireImmediately) {
         ajaxPromise.abort = function () {
           ajax.abort.apply(ajax, arguments);
@@ -625,6 +632,7 @@ window.createTimeSpan = dateStr => {
           }
         });
       }
+
       return ajaxPromise;
     }
 
@@ -653,6 +661,7 @@ window.createTimeSpan = dateStr => {
         ajaxQueue.dequeue(queueName);
       }
     }
+
     return promise;
   }
 

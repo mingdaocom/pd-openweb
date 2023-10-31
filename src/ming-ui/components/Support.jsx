@@ -33,12 +33,15 @@ export default class Support extends Component {
     return (
       <span
         className={cx(
-          'TxtMiddle pointer',
+          'TxtMiddle pointer stopPropagation',
           type === 3 ? 'ThemeColor3 ThemeHoverColor2' : 'Gray_75 ThemeHoverColor3',
           className,
         )}
         style={Object.assign({}, { alignItems: 'center', display: 'inline-flex' }, style)}
-        onClick={() => window.open(href)}
+        onClick={e => {
+          e.preventDefault();
+          window.open(href);
+        }}
       >
         {type < 3 && (
           <Tooltip disable={type > 1} popupPlacement="bottom" text={<span>{title || _l('使用帮助')}</span>}>

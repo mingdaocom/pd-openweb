@@ -138,7 +138,9 @@ export default class TableRelation extends React.Component {
             ? Math.max(this.curStylesW(it.controlId), minPictureW)
             : this.curStylesW(it.controlId)
           : isPicture
-          ? minPictureW
+          ? controlsList.length === 1
+            ? 678
+            : minPictureW
           : w;
         //不显示分割线
         list.push({

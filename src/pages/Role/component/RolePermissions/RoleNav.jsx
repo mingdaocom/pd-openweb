@@ -39,7 +39,9 @@ export default class Con extends React.Component {
               onChange={keywords => {
                 this.props.onChange({
                   keywords,
-                  roleList: this.props.roleListClone.filter(o => o.name.indexOf(keywords) >= 0),
+                  roleList: this.props.roleListClone.filter(
+                    o => o.name.toLocaleLowerCase().indexOf(keywords.toLocaleLowerCase()) >= 0,
+                  ),
                 });
               }}
             />

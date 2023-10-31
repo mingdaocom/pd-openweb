@@ -26,9 +26,8 @@ import {
   NUMBER_SUCCESS_DATA,
 } from './config';
 import homeApp from 'src/api/homeApp';
-import { Icon, Dialog, Textarea, LoadDiv, ScrollView } from 'ming-ui';
+import { Icon, Dialog, Textarea, LoadDiv, ScrollView, Skeleton } from 'ming-ui';
 import { navigateTo } from 'src/router/navigateTo';
-import Skeleton from 'src/router/Application/Skeleton';
 import noDataImg from './img/lock.png';
 import AliasDialog from 'src/pages/FormSet/components/AliasDialog.jsx';
 import SvgIcon from 'src/components/SvgIcon';
@@ -39,6 +38,7 @@ import SecretKey from './SecretKey';
 import styled from 'styled-components';
 import { FIELD_TYPE_LIST } from 'src/pages/workflow/WorkflowSettings/enum';
 import _ from 'lodash';
+import { setFavicon } from 'src/util';
 
 const Wrap = styled.div`
   input {
@@ -126,6 +126,7 @@ class WorksheetApi extends Component {
       selectWorkflowId: '',
       pbcList: [],
       workflowInfo: {},
+      menuList: MENU_LIST,
     };
     this.canScroll = true;
   }
@@ -171,6 +172,8 @@ class WorksheetApi extends Component {
         getOptionsParams = [],
         pbcList = [],
       ] = res;
+      setFavicon(dataApp.iconUrl, dataApp.iconColor);
+
       for (const item of addOptionsParams.requestParams || []) {
         item.required = item.isRequired ? _l('是') : _l('否');
         item.type = item.dataType;
@@ -232,9 +235,6 @@ class WorksheetApi extends Component {
           return { ...o, alias: list.alias };
         });
       }
-      this.setState({ data, numberTypeList: list.template.controls || [], loading: false, alias: list.alias }, () => {
-        this.scrollToFixedPosition();
-      });
       MENU_LIST.forEach(item => {
         if (item.id === 'List') {
           item.data.forEach(obj => {
@@ -247,6 +247,9 @@ class WorksheetApi extends Component {
             }
           });
         }
+      });
+      this.setState({ data, numberTypeList: list.template.controls || [], loading: false, alias: list.alias, menuList: MENU_LIST }, () => {
+        this.scrollToFixedPosition();
       });
     });
   };
@@ -1255,7 +1258,7 @@ class WorksheetApi extends Component {
    * 渲染通用的左内容
    */
   renderLeftContent(i) {
-    const { data } = this.state;
+    const { data, menuList  } = this.state;
 
     return (
       <div className="worksheetApiContent1">
@@ -1268,7 +1271,7 @@ class WorksheetApi extends Component {
           <div className="mLeft30 w14">{_l('类型')}</div>
           <div className="mLeft30 w36">{_l('说明')}</div>
         </div>
-        {MENU_LIST[i].data.map(o => {
+        {menuList[i].data.map(o => {
           return (
             <div key={o.name} className="flexRow worksheetApiLine flexRowHeight">
               <div className="w32">{o.name}</div>

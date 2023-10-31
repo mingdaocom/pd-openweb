@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { NavLink, withRouter } from 'react-router-dom';
-import { Tooltip } from 'ming-ui';
+import { Tooltip, Icon } from 'ming-ui';
 import pathToRegexp from 'path-to-regexp';
 import { navigateTo } from 'src/router/navigateTo';
 import { getFeatureStatus } from 'src/util';
@@ -34,7 +34,7 @@ export default class AdminLeftMenu extends Component {
       });
   }
 
-  renderLinkItem = ({ icon, name, menuPath, routes, featureId, key, hasBeta = false }, index) => {
+  renderLinkItem = ({ icon, name, menuPath, routes, featureId, key, hasBeta = false, isNew }, index) => {
     const {
       location: { pathname },
       match: {
@@ -79,7 +79,13 @@ export default class AdminLeftMenu extends Component {
             <div className="subName">
               {name}
               {hasBeta && <i className="icon-beta1 betaIcon" />}
+              {featureType === '2' && <i className="icon-auto_awesome Font16 mLeft6" style={{ color: '#fdb432' }} />}
             </div>
+            {isNew && (
+              <div className="newIcon">
+                <Icon icon="new" className="ThemeColor Font20" />
+              </div>
+            )}
           </NavLink>
         </li>
       </Tooltip>

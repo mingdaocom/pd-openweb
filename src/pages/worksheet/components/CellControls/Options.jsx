@@ -374,6 +374,7 @@ export default class Options extends React.Component {
             <Checkbox
               {...{ ...cell, advancedSetting: { ...cell.advancedSetting, checktype: '1' } }}
               isSubList={this.isSubList}
+              isSheet
               isFocus
               dropdownClassName="scrollInTable"
               value={value}

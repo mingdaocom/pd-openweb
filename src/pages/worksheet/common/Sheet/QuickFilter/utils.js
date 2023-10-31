@@ -38,6 +38,6 @@ export function formatFilterValuesToServer(controlType, values = []) {
     case WIDGETS_TO_API_TYPE_ENUM.CASCADER: // 级联
       return values.map(v => v.rowid);
     default:
-      return values;
+      return values.filter(_.isString);
   }
 }

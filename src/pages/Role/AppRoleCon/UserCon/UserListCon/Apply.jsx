@@ -248,7 +248,9 @@ function Apply(props) {
                     keyWords,
                     userList: !keyWords
                       ? props.appRole.apply
-                      : props.appRole.apply.filter(o => o.accountInfo.fullName.indexOf(keyWords) >= 0),
+                      : props.appRole.apply.filter(
+                          o => o.accountInfo.fullName.toLocaleLowerCase().indexOf(keyWords.toLocaleLowerCase()) >= 0,
+                        ),
                   });
                 }}
               />

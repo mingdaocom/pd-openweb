@@ -94,7 +94,7 @@ export default class DataSource extends Component {
     const { axisControls } = this.props;
     const { searchValue } = this.state;
     if (searchValue) {
-      const result = axisControls.filter(item => item.controlName.includes(searchValue));
+      const result = axisControls.filter(item => (item.controlName || '').toLocaleLowerCase().includes(searchValue.toLocaleLowerCase()));
       this.setState({
         currentAxisControls: this.formatAxisControls(result),
       });

@@ -2,15 +2,14 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { Switch, Support, Button } from 'ming-ui';
-import Skeleton from 'src/router/Application/Skeleton';
+import { Switch, Support, Button, Skeleton } from 'ming-ui';
 import PublicWorksheetConfigForm from '../common/PublicWorksheetConfigForm';
 import ConfigPanel from '../common/ConfigPanel';
 import ShareUrl from 'worksheet/components/ShareUrl';
 import * as actions from '../redux/actions';
 import { VISIBLE_TYPE } from '../enum';
 import _ from 'lodash';
-import { renderLimitInfo, isDisplayPromptText } from '../utils';
+import { renderLimitInfo, isDisplayPromptText, getDisabledControls } from '../utils';
 
 function EnablePanel(props) {
   const {
@@ -23,6 +22,9 @@ function EnablePanel(props) {
     setHederVisible,
     refreshShareUrl,
     worksheetSettings,
+    originalControls,
+    hidedControlIds,
+    hideControl,
   } = props;
   const [formVisible, setFormVisible] = useState(/detail/.test(location.hash));
   const enabled = worksheetInfo.visibleType === VISIBLE_TYPE.PUBLIC;
@@ -40,6 +42,35 @@ function EnablePanel(props) {
       }
     });
   }
+
+  const onHideControl = controlId => {
+    const disabledControlIds = getDisabledControls(originalControls, worksheetSettings);
+    const needHidedControlIds = hidedControlIds.concat(disabledControlIds);
+    const curControl = originalControls.filter(item => item.controlId === controlId)[0] || {};
+    let sectionList = [];
+    if (curControl.type === 52) {
+      sectionList = originalControls.filter(
+        item => item.sectionId === controlId && !_.find(needHidedControlIds, h => h.controlId === item.controlId),
+      );
+      const updateControls = sectionList.concat(curControl);
+      hideControl(updateControls.map(item => item.controlId));
+    } else {
+      if (!!curControl.sectionId) {
+        const tabControl = originalControls.filter(item => item.controlId === curControl.sectionId)[0] || {};
+        const showTabSectionList = originalControls.filter(
+          item => item.sectionId === tabControl.controlId && !_.find(needHidedControlIds, id => id === item.controlId),
+        );
+        let needHideIds = [controlId];
+        if (showTabSectionList.length === 1 && showTabSectionList[0].controlId === controlId) {
+          //取消勾选标签页内最后一个字段，则取消勾选标签页
+          needHideIds = [controlId, tabControl.controlId];
+        }
+        hideControl(needHideIds);
+      } else {
+        hideControl(controlId);
+      }
+    }
+  };
 
   useEffect(() => {
     if (/detail/.test(location.hash)) {
@@ -68,8 +99,13 @@ function EnablePanel(props) {
   if (formVisible) {
     return (
       <div className="publicWorksheetConfigCon flexRow">
-        <ConfigPanel onCloseConfig={() => updateFormVisible(false)} enabled={enabled} onSwitchChange={onSwitchChange} />
-        <PublicWorksheetConfigForm />
+        <ConfigPanel
+          onCloseConfig={() => updateFormVisible(false)}
+          enabled={enabled}
+          onSwitchChange={onSwitchChange}
+          onHideControl={onHideControl}
+        />
+        <PublicWorksheetConfigForm onHideControl={onHideControl} />
       </div>
     );
   }
@@ -115,7 +151,13 @@ EnablePanel.propTypes = {
 };
 
 const mapStateToProps = state => ({
-  ..._.pick(state.publicWorksheet, ['shareUrl', 'worksheetInfo', 'worksheetSettings']),
+  ..._.pick(state.publicWorksheet, [
+    'shareUrl',
+    'worksheetInfo',
+    'worksheetSettings',
+    'originalControls',
+    'hidedControlIds',
+  ]),
 });
 const mapDispatchToProps = dispatch => bindActionCreators(actions, dispatch);
 

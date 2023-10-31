@@ -126,23 +126,21 @@ export default function renderText(cell, options = {}) {
           const showFormat = getShowFormat({ advancedSetting: { ...advancedSetting, showtype: cell.unit || '1' } });
           value = moment(cell.value, value.indexOf('-') > -1 ? undefined : showFormat).format(showFormat);
         } else {
-          if (_.includes(['1', '2', '4'], unit)) {
-            if (cell.advancedSetting.autocarry === '1' || cell.enumDefault === 1) {
-              value = formatFormulaDate({ value: cell.value, unit, dot: cell.dot });
-            } else {
-              value =
-                toFixed(value, cell.dot) +
+          if (cell.advancedSetting.autocarry === '1') {
+            value = (prefix || '') + formatFormulaDate({ value: cell.value, unit, dot: cell.dot });
+          } else {
+            value =
+              (prefix || '') +
+              toFixed(value, cell.dot) +
+              (suffix ||
                 {
                   1: _l('分钟'),
                   2: _l('小时'),
+                  3: _l('天'),
                   4: _l('月'),
-                }[unit];
-            }
-          } else {
-            value =
-              (suffix ? '' : prefix) +
-              formatFormulaDate({ value: cell.value, unit, hideUnitStr: true, dot: cell.dot }) +
-              suffix;
+                  5: _l('年'),
+                  6: _l('秒'),
+                }[unit]);
           }
         }
         break;

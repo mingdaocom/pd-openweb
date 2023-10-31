@@ -102,7 +102,9 @@ export default class Notice extends Component {
         <div className="Font13 bold">{_l('通知内容')}</div>
         <CustomTextarea
           className="minH100"
+          projectId={this.props.companyId}
           processId={this.props.processId}
+          relationId={this.props.relationId}
           selectNodeId={this.props.selectNodeId}
           type={2}
           content={data.sendContent}

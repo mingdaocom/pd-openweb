@@ -36,7 +36,14 @@ export default class List extends Component {
     const { type } = item;
 
     // 分享禁止点击
-    if (from === FROM.SHARE || from === FROM.WORKFLOW) {
+    if (
+      from === FROM.SHARE ||
+      from === FROM.WORKFLOW ||
+      _.get(window, 'shareState.isPublicForm') ||
+      _.get(window, 'shareState.isPublicWorkflowRecord') ||
+      _.get(window, 'shareState.isPublicQuery') ||
+      _.get(window, 'shareState.isPublicRecord')
+    ) {
       e.preventDefault();
       return;
     }

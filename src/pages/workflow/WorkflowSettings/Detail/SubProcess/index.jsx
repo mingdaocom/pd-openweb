@@ -3,7 +3,7 @@ import { ScrollView, LoadDiv, Checkbox, Dropdown, Radio, Dialog } from 'ming-ui'
 import flowNode from '../../../api/flowNode';
 import process from '../../../api/process';
 import { DetailHeader, DetailFooter, SelectNodeObject, UpdateFields } from '../components';
-import { NODE_TYPE } from '../../enum';
+import { ACTION_ID, NODE_TYPE } from '../../enum';
 import ProcessVariables from '../../ProcessConfig/components/ProcessVariables';
 import _ from 'lodash';
 
@@ -43,6 +43,7 @@ export default class SubProcess extends Component {
    */
   getNodeDetail(props, obj = {}) {
     const { processId, selectNodeId, selectNodeType } = props;
+    const { data } = this.state;
 
     flowNode
       .getNodeDetail({
@@ -53,7 +54,7 @@ export default class SubProcess extends Component {
         appId: obj.subProcessId,
       })
       .then(result => {
-        this.setState({ data: result, errorItems: {} });
+        this.setState({ data: _.isEmpty(obj) ? result : { ...result, name: data.name }, errorItems: {} });
       });
   }
 
@@ -136,7 +137,8 @@ export default class SubProcess extends Component {
         />
 
         {_.isObject(data.selectNodeObj) &&
-          _.includes([NODE_TYPE.GET_MORE_RECORD, NODE_TYPE.FIND_MORE_MESSAGE], data.selectNodeObj.nodeTypeId) && (
+          (_.includes([NODE_TYPE.GET_MORE_RECORD, NODE_TYPE.FIND_MORE_MESSAGE], data.selectNodeObj.nodeTypeId) ||
+            data.selectNodeObj.actionId === ACTION_ID.BATCH_ACTION) && (
             <Fragment>
               <div className="Font13 bold mTop20">{_l('多条数据执行方式')}</div>
               <div className="Font13 Gray_9e mTop10">{_l('您选择了多条数据对象，将根据数据的条数执行多条子流程')}</div>
@@ -226,6 +228,7 @@ export default class SubProcess extends Component {
               isSubProcessNode={true}
               companyId={this.props.companyId}
               processId={this.props.processId}
+              relationId={this.props.relationId}
               selectNodeId={this.props.selectNodeId}
               controls={data.subProcessVariables}
               fields={data.fields}

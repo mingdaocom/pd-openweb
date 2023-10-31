@@ -2,6 +2,7 @@ import sheetAjax from 'src/api/worksheet';
 import homeAppAjax from 'src/api/homeApp';
 import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
 import { getRequest } from 'src/util';
+import { getFilledRequestParams } from 'worksheet/util';
 import _ from 'lodash';
 
 export const updateBase = base => (dispatch, getState) => {
@@ -15,7 +16,7 @@ export const updateBase = base => (dispatch, getState) => {
   });
 };
 
-export const loadWorksheet = () => (dispatch, getState) => {
+export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
   const { base, appDetail } = getState().mobile;
   const { appSection } = appDetail;
   const { appNaviStyle } = appDetail.detail || {};
@@ -65,6 +66,7 @@ export const loadWorksheet = () => (dispatch, getState) => {
       });
       dispatch({ type: 'MOBILE_WORK_SHEET_UPDATE_LOADING', loading: false });
     });
+  if (noNeedGetApp) return;
   homeAppAjax
     .getApp({
       appId: base.appId,
@@ -94,8 +96,16 @@ export const loadWorksheet = () => (dispatch, getState) => {
 };
 
 export const fetchSheetRows = params => (dispatch, getState) => {
-  const { base, filters, sheetView, worksheetInfo = {}, quickFilter, sheetFiltersGroup, mobileNavGroupFilters, sheetRowLoading, } =
-    getState().mobile;
+  const {
+    base,
+    filters,
+    sheetView,
+    worksheetInfo = {},
+    quickFilter,
+    sheetFiltersGroup,
+    mobileNavGroupFilters,
+    sheetRowLoading,
+  } = getState().mobile;
   const { appId, worksheetId, viewId, maxCount } = base;
   const { views = [] } = worksheetInfo;
   const defaultViewId = _.get(views[0], 'viewId');
@@ -113,7 +123,7 @@ export const fetchSheetRows = params => (dispatch, getState) => {
     pageIndex = 1;
     pageSize = maxCount;
   }
-  promiseRequest = sheetAjax.getFilterRows({
+  const params = getFilledRequestParams({
     worksheetId,
     appId,
     searchType: 1,
@@ -142,6 +152,7 @@ export const fetchSheetRows = params => (dispatch, getState) => {
     navGroupFilters: mobileNavGroupFilters,
     ...extraParams,
   });
+  promiseRequest = sheetAjax.getFilterRows(params);
   promiseRequest.then(sheetRowsAndTem => {
     const currentSheetRows = sheetRowsAndTem && sheetRowsAndTem.data ? sheetRowsAndTem.data : [];
     const type = pageIndex === 1 ? 'MOBILE_CHANGE_SHEET_ROWS' : 'MOBILE_ADD_SHEET_ROWS';

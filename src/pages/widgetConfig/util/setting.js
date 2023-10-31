@@ -268,7 +268,7 @@ export const getSortControls = (data, controls) => {
   return sorts.map(id => find(controls, item => item.controlId === id));
 };
 
-export const getDatePickerConfigs = data => {
+export const getDatePickerConfigs = (data = {}) => {
   const showType = getAdvanceSetting(data, 'showtype');
 
   switch (showType) {

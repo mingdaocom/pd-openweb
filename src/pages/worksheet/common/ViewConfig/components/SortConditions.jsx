@@ -46,8 +46,9 @@ const Item = SortableElement(props => {
   const control = _.find(columns, i => i.controlId === condition.controlId);
   let controlType = control ? (control.type === 30 ? control.sourceControlType : control.type) : '';
   return (
-    <div className="flexRow alignItemsCenter mBottom10" style={{}}>
-      <SortHandle />
+    <div className="flexRow alignItemsCenter mBottom10">
+      {/**第一项不显示拖拽icon,产品要求！ */}
+      {canDelete && <SortHandle />}
       <div className="flexRow flex" style={{ position: 'relative' }} key={condition.controlId}>
         {[9, 10, 11].includes(controlType) && (
           <Tooltip
@@ -262,7 +263,7 @@ export default class SortConditions extends React.Component {
     const groupCondition = _.find(sortConditionControls, scc => scc.type === 27);
     const existControls = [optionCondition, userCondition, groupCondition].filter(_.identity);
     return filterOnlyShowField(columns)
-      .filter(o => ![42, 47, 49, 51].includes(o.type)) //排除签名字段 扫码 接口查询按钮 查询记录
+      .filter(o => ![42, 47, 49, 51, 52].includes(o.type)) //排除签名字段 扫码 接口查询按钮 查询记录
       .filter(
         c =>
           (!_.find(sortConditions, sc => sc.controlId === c.controlId) || c.controlId === controlId) &&
@@ -300,7 +301,7 @@ export default class SortConditions extends React.Component {
         columns={columns}
         useDragHandle
         onSortEnd={this.handleSortEnd}
-        helperClass={'sortConditionsViewControl'}
+        helperClass={cx('sortConditionsViewControl', this.props.helperClass)}
         handleChangeSortControl={this.handleChangeSortControl}
         handleChangeSortType={this.handleChangeSortType}
         handleDeleteCondition={this.handleDeleteCondition}

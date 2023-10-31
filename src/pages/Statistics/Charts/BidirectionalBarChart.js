@@ -53,6 +53,8 @@ export default class extends Component {
   componentWillReceiveProps(nextProps) {
     const { map, displaySetup, rightY, style } = nextProps.reportData;
     const { displaySetup: oldDisplaySetup, rightY: oldRightY, style: oldStyle } = this.props.reportData;
+    const chartColor = _.get(nextProps, 'customPageConfig.chartColor');
+    const oldChartColor = _.get(this.props, 'customPageConfig.chartColor');
 
     if (_.isEmpty(rightY)) {
       return;
@@ -73,7 +75,9 @@ export default class extends Component {
       !_.isEqual(displaySetup.ydisplay, oldDisplaySetup.ydisplay) ||
       !_.isEqual(displaySetup.auxiliaryLines, oldDisplaySetup.auxiliaryLines) ||
       !_.isEqual(rightYDisplay, oldRightYDisplay) ||
-      style.showLabelPercent !== oldStyle.showLabelPercent
+      style.showLabelPercent !== oldStyle.showLabelPercent ||
+      !_.isEqual(chartColor, oldChartColor) ||
+      nextProps.themeColor !== this.props.themeColor
     ) {
       const config = this.getComponentConfig(nextProps);
       this.BidirectionalBarChart.update(config);
@@ -90,7 +94,9 @@ export default class extends Component {
     this.BidirectionalBarChart.render();
   }
   getComponentConfig(props) {
-    const { map, contrastMap, displaySetup, yaxisList, summary, rightY, yreportType, xaxes, split, sorts, style } = props.reportData;
+    const { themeColor, projectId, customPageConfig, reportData } = props;
+    const { chartColor } = customPageConfig;
+    const { map, contrastMap, displaySetup, yaxisList, summary, rightY, yreportType, xaxes, split, sorts, style } = reportData;
     const { xdisplay, ydisplay, showPileTotal, isPile, legendType, auxiliaryLines, showLegend, showChartType } = displaySetup;
     const rightYDisplay = rightY.display.ydisplay;
     const splitId = split.controlId;
@@ -106,7 +112,7 @@ export default class extends Component {
     const mergeData = rightSorts.length ? mergeChartData(contrastData, data) : mergeChartData(data, contrastData);
     const control = yaxisList[0] || {};
     const contrastControl = rightY.yaxisList[0] || {};
-    const colors = getChartColors(style);
+    const colors = getChartColors(chartColor || style, themeColor, projectId);
 
     const lineConfig = {
       style: {
@@ -216,8 +222,9 @@ export default class extends Component {
           if (data['series-field-key'] === control.controlId) {
             const value = data[control.controlId] || 0;
             if (style.showLabelPercent && summary.showTotal && summary.sum) {
+              const item = _.find(mergeData, { originalId: data.originalId });
               return {
-                name: data.originalId,
+                name: item.name || item.originalId,
                 value: `${value} (${(value / summary.sum * 100).toFixed(2)}%)`
               }
             }
@@ -229,8 +236,9 @@ export default class extends Component {
           if (data['series-field-key'] === contrastControl.controlId) {
             const value = data[contrastControl.controlId] || 0;
             if (style.showLabelPercent && _.get(rightY, 'summary.showTotal') && _.get(rightY, 'summary.sum')) {
+              const item = _.find(mergeData, { originalId: data.originalId });
               return {
-                name: data.originalId,
+                name: item.name || item.originalId,
                 value: `${value} (${(value / _.get(rightY, 'summary.sum') * 100).toFixed(2)}%)`
               };
             }

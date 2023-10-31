@@ -1,24 +1,25 @@
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import { createPortal } from 'react-dom';
+import React, { Component, Fragment } from 'react';
 import { Modal } from 'antd-mobile';
 import { LoadDiv, Dialog } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
 import sheetAjax from 'src/api/worksheet';
 import cx from 'classnames';
-import { isRelateRecordTableControl } from 'worksheet/util';
 import './style.less';
 import widgets from './widgets';
-import RelateRecordMuster from './components/RelateRecordMuster';
 import WidgetsDesc from './components/WidgetsDesc';
 import WidgetsVerifyCode from './components/WidgetsVerifyCode';
-import { convertControl, controlState, halfSwitchSize, loadSDK } from './tools/utils';
+import { convertControl, controlState, halfSwitchSize, loadSDK, getControlsByTab } from './tools/utils';
 import { FORM_ERROR_TYPE, FROM } from './tools/config';
-import { updateRulesData, checkAllValueAvailable } from './tools/filterFn';
+import { updateRulesData, checkAllValueAvailable, replaceStr } from './tools/filterFn';
 import DataFormat, { checkRequired } from './tools/DataFormat';
 import { browserIsMobile } from 'src/util';
 import { formatSearchConfigs, supportDisplayRow } from 'src/pages/widgetConfig/util';
 import _ from 'lodash';
 import FormLabel from './components/FormLabel';
+import WidgetSection from './components/WidgetSection';
+import MobileWidgetSection from './components/MobileWidgetSection';
 
 export default class CustomFields extends Component {
   static propTypes = {
@@ -51,7 +52,6 @@ export default class CustomFields extends Component {
     rules: PropTypes.arrayOf(PropTypes.shape({})), // 业务规则
     searchConfig: PropTypes.arrayOf(PropTypes.shape({})), // 工作表查询配置
     getMasterFormData: PropTypes.func,
-    openRelateRecord: PropTypes.func,
     openRelateSheet: PropTypes.func,
     registerCell: PropTypes.func,
     checkCellUnique: PropTypes.func,
@@ -66,7 +66,6 @@ export default class CustomFields extends Component {
     getMasterFormData: () => {},
     onChange: () => {},
     onBlur: () => {},
-    openRelateRecord: () => {},
     openRelateSheet: () => {},
     registerCell: () => {},
     onFormDataReady: () => {},
@@ -85,6 +84,7 @@ export default class CustomFields extends Component {
       loadingItems: {},
       verifyCode: '', // 验证码
       childTableControlIds: [],
+      activeTabControlId: '',
     };
 
     this.controlRefs = {};
@@ -185,7 +185,7 @@ export default class CustomFields extends Component {
         }
       },
       onAsyncChange: ({ controlId, value }) => {
-        this.props.onChange(this.dataFormat.getDataSource(), [controlId]);
+        this.props.onChange(this.dataFormat.getDataSource(), [controlId], { isAsyncChange: true });
         this.changeStatus = true;
         this.setState(
           {
@@ -200,7 +200,6 @@ export default class CustomFields extends Component {
         );
       },
     });
-
     this.setState(
       {
         renderData: this.getFilterDataByRule(true),
@@ -219,11 +218,12 @@ export default class CustomFields extends Component {
    * 规则筛选数据
    */
   getFilterDataByRule(isInit) {
-    const { ignoreHideControl } = this.props;
+    const { ignoreHideControl, recordId, from } = this.props;
     const { rules = [] } = this.state;
 
-    return updateRulesData({
+    let tempRenderData = updateRulesData({
       rules,
+      recordId,
       data: this.dataFormat.getDataSource(),
       from: this.props.from,
       updateControlIds: this.dataFormat.getUpdateRuleControlIds(),
@@ -232,6 +232,17 @@ export default class CustomFields extends Component {
         this.dataFormat.setErrorControl(controlId, errorType, errorMessage, ruleId, isInit);
       },
     });
+
+    // 标签页显示，但标签页内没有显示字段，标签页隐藏
+    tempRenderData.forEach(item => {
+      if (item.type === 52 && controlState(item, from).visible && !item.hidden) {
+        const childWidgets = tempRenderData.filter(i => i.sectionId === item.controlId);
+        if (_.every(childWidgets, c => !(controlState(c, from).visible && !c.hidden))) {
+          item.fieldPermission = replaceStr(item.fieldPermission || '111', 0, '0');
+        }
+      }
+    });
+    return tempRenderData;
   }
 
   /**
@@ -258,7 +269,7 @@ export default class CustomFields extends Component {
   getSearchConfig = nextProps => {
     const { worksheetId, disabled } = nextProps || this.props;
 
-    sheetAjax.getQueryBySheetId({ worksheetId }).then(res => {
+    sheetAjax.getQueryBySheetId({ worksheetId }, { ajaxOptions: { async: false } }).then(res => {
       this.setState({ searchConfig: formatSearchConfigs(res) }, () =>
         this.initSource((nextProps || this.props).data, disabled),
       );
@@ -268,18 +279,25 @@ export default class CustomFields extends Component {
   /**
    * 渲染表单
    */
-  renderForm(sectionId) {
-    const { from, worksheetId, recordId, forceFull, controlProps, widgetStyle = {}, disabled } = this.props;
-    const { titlelayout_pc = '1', titlelayout_app = '1' } = widgetStyle;
+  renderForm(renderData = []) {
+    const {
+      from,
+      worksheetId,
+      recordId,
+      forceFull,
+      controlProps,
+      widgetStyle = {},
+      disabled,
+      tabControlProp: { setNavVisible } = {},
+    } = this.props;
+    const { titlelayout_pc = '1', titlelayout_app = '1', hidetitle } = widgetStyle;
     const { errorItems, uniqueErrorItems, loadingItems } = this.state;
     const isMobile = browserIsMobile();
     const formList = [];
     let prevRow = -1;
     let preIsSection;
-    const renderData = sectionId
-      ? this.state.renderData.filter(i => i.sectionId === sectionId)
-      : this.state.renderData.filter(i => !i.sectionId);
     let data = [].concat(renderData);
+    const richTextControlCount = data.filter(c => c.type === 41).length;
 
     data.sort((a, b) => {
       if (a.row === b.row) {
@@ -287,22 +305,9 @@ export default class CustomFields extends Component {
       }
       return a.row - b.row;
     });
-    const richTextControlCount = data.filter(c => c.type === 41).length;
+
     data
-      .filter(
-        item =>
-          !item.hidden &&
-          controlState(item, from).visible &&
-          (!isRelateRecordTableControl(item) || FROM.H5_ADD === from),
-      ) // 过滤不可见的 && (过滤关联多条列表 || h5新增)
-      .filter(item =>
-        recordId
-          ? !(
-              isRelateRecordTableControl(item) &&
-              (_.includes([FROM.SHARE, FROM.H5_EDIT, FROM.WORKFLOW, FROM.CUSTOM_BUTTON], from) || isMobile)
-            )
-          : true,
-      )
+      .filter(item => !item.hidden && controlState(item, from).visible)
       .forEach(item => {
         if ((item.row !== prevRow || isMobile || forceFull) && !preIsSection && prevRow > -1) {
           formList.push(<div className="customFormLine" key={`clearfix-${item.row}-${item.col}`} />);
@@ -314,24 +319,31 @@ export default class CustomFields extends Component {
         }
 
         const isFull = isMobile || forceFull || item.size === 12;
-        const displayRow = (isMobile ? titlelayout_app === '2' : titlelayout_pc === '2') && supportDisplayRow(item);
+        const displayRow =
+          (isMobile ? disabled && titlelayout_app === '2' : titlelayout_pc === '2') && supportDisplayRow(item);
 
         formList.push(
           <div
-            className={cx('customFormItem', { customFormItemRow: displayRow && ((isMobile && disabled) || !isMobile) })}
+            className={cx('customFormItem', { customFormItemRow: displayRow })}
             style={{
               width: isFull ? '100%' : `${(item.size / 12) * 100}%`,
-              display: item.type === 49 && this.props.disabled ? 'none' : 'flex',
+              display: item.type === 49 && disabled ? 'none' : 'flex',
             }}
+            id={`formItem-${item.controlId}`}
             key={`item-${item.row}-${item.col}`}
           >
-            {item.type === 22 && _.includes([FROM.H5_ADD, FROM.H5_EDIT], from) && (
-              <div className="relative" style={{ height: 10 }}>
-                <div className="Absolute" style={{ background: '#f5f5f5', height: 10, left: -1000, right: -1000 }} />
-              </div>
-            )}
+            {item.type === 22 &&
+              _.get(item, 'advancedSetting.hidetitle') !== '1' &&
+              _.includes([FROM.H5_ADD, FROM.H5_EDIT], from) && (
+                <div className="relative" style={{ height: 10 }}>
+                  <div
+                    className="Absolute"
+                    style={{ background: '#f5f5f5', height: 10, left: -1000, right: -1000, top: -7 }}
+                  />
+                </div>
+              )}
 
-            {!_.includes([45, 52], item.type) && (
+            {!_.includes([22, 45, 52], item.type) && (
               <FormLabel
                 from={from}
                 worksheetId={worksheetId}
@@ -349,20 +361,14 @@ export default class CustomFields extends Component {
 
             <div className="customFormItemControl">
               {this.getWidgets(
-                Object.assign(
-                  {},
-                  item,
-                  controlProps,
-                  { richTextControlCount, isDraft: from === FROM.DRAFT },
-                  item.type === 52 ? { children: this.renderForm(item.controlId) } : {},
-                ),
+                Object.assign({}, item, controlProps, {
+                  richTextControlCount,
+                  isDraft: from === FROM.DRAFT,
+                  ...(item.type === 22 ? { setNavVisible } : {}),
+                }),
               )}
               {this.renderVerifyCode(item)}
             </div>
-
-            {item.type === 22 && !_.includes([FROM.H5_ADD, FROM.H5_EDIT], from) && (
-              <div className="customFormLine" style={{ background: '#ccc', margin: 0 }} />
-            )}
           </div>,
         );
 
@@ -491,6 +497,7 @@ export default class CustomFields extends Component {
       widgetStyle = {},
       mobileApprovalRecordInfo = {},
     } = this.props;
+    const { errorItems, uniqueErrorItems, renderData } = this.state;
 
     // 他表字段
     if (convertControl(item.type) === 'SHEET_FIELD') {
@@ -503,6 +510,9 @@ export default class CustomFields extends Component {
       item.enumDefault = item.sourceControlType === 3 ? 2 : item.enumDefault;
       item.disabled = true;
       item.advancedSetting = (item.sourceControl || {}).advancedSetting || {};
+      if (item.type === 46) {
+        item.unit = _.includes(['6', '9'], (item.sourceControl || {}).unit) ? '6' : '1';
+      }
     }
 
     const { type, controlId } = item;
@@ -518,7 +528,8 @@ export default class CustomFields extends Component {
 
     // (禁用或只读) 且 内容不存在
     if (
-      ((item.disabled && item.type !== 52) || _.includes([25, 31, 32, 33, 37, 38], item.type) || !isEditable) &&
+      !_.includes([22, 52], item.type) &&
+      (item.disabled || _.includes([25, 31, 32, 33, 37, 38], item.type) || !isEditable) &&
       ((!item.value && item.value !== 0 && !_.includes([28, 47, 51], item.type)) ||
         (item.type === 29 &&
           (safeParse(item.value).length <= 0 ||
@@ -550,8 +561,10 @@ export default class CustomFields extends Component {
           projectId={projectId}
           from={from}
           worksheetId={worksheetId}
+          renderData={renderData}
           recordId={recordId}
           appId={appId}
+          totalErrors={errorItems.concat(uniqueErrorItems)}
           viewIdForPermit={viewId}
           initSource={initSource}
           onChange={(value, cid = controlId, searchByChange) => {
@@ -709,30 +722,53 @@ export default class CustomFields extends Component {
    */
   getSubmitData({ silent, ignoreAlert, verifyAllControls } = {}) {
     const { from, recordId, ignoreHideControl } = this.props;
-    const { errorItems, uniqueErrorItems, rules = [] } = this.state;
+    const { errorItems, uniqueErrorItems, rules = [], activeRelateRecordControlId } = this.state;
     const updateControlIds = this.dataFormat.getUpdateControlIds();
     const data = this.dataFormat.getDataSource();
     const list = updateRulesData({
       rules,
       data,
+      recordId,
       checkAllUpdate: true,
       ignoreHideControl,
     });
     // 保存时必走，防止无字段变更判断错误
     const errors =
       updateControlIds.length || !recordId || this.submitBegin || verifyAllControls
-        ? checkAllValueAvailable(rules, list, from)
+        ? checkAllValueAvailable(rules, list, recordId, from)
         : [];
     const ids = verifyAllControls
       ? list.map(it => it.controlId)
       : list
-          .filter(item => controlState(item, from).visible && controlState(item, from).editable)
+          .filter(item => {
+            // 标签页隐藏，内部字段报错校验过滤
+            if (item.sectionId) {
+              const parentControls = _.find(list, t => t.controlId === item.sectionId);
+              if (parentControls && !(controlState(parentControls, from).visible && !parentControls.hidden)) {
+                return false;
+              }
+            }
+            return controlState(item, from).visible && controlState(item, from).editable && item.type !== 52;
+          })
           .map(it => it.controlId);
-    const hasError = !!errorItems.concat(uniqueErrorItems).filter(it => _.includes(ids, it.controlId)).length;
+    const totalErrors = errorItems.concat(uniqueErrorItems).filter(it => _.includes(ids, it.controlId));
+    const hasError = !!totalErrors.length;
     const hasRuleError = errors.length;
 
     // 提交时所有错误showError更新为true
     this.updateErrorState(hasError);
+
+    // 标签页内报错，展开标签页
+    if (hasError) {
+      // 所有报错附属标签页
+      const tabErrorControls = data
+        .filter(d => _.find(totalErrors, t => t.controlId === d.controlId) && d.sectionId)
+        .map(t => _.find(data, d => d.controlId === t.sectionId))
+        .sort((a, b) => a.row - b.row);
+      if (!!tabErrorControls.length && !_.find(tabErrorControls, t => t.controlId === activeRelateRecordControlId)) {
+        this.setActiveTabControlId(_.get(tabErrorControls, '0.controlId'));
+      }
+    }
 
     let error;
 
@@ -770,9 +806,49 @@ export default class CustomFields extends Component {
     this.submitBegin = false;
   }
 
+  setActiveTabControlId(id) {
+    this.setState({ activeTabControlId: id });
+  }
+
+  renderTab(commonData, tabControls) {
+    const { tabControlProp: { isSplit, splitTabDom } = {} } = this.props;
+    const { activeTabControlId, renderData } = this.state;
+    const isMobile = browserIsMobile();
+    const sectionProps = {
+      ...this.props,
+      tabControls,
+      hasCommon: commonData.length > 0,
+      activeTabControlId: activeTabControlId || _.get(tabControls[0], 'controlId'),
+      setActiveTabControlId: value => this.setActiveTabControlId(value),
+      renderForm: value => this.renderForm(value),
+    };
+
+    if (isMobile) {
+      return (
+        <MobileWidgetSection
+          {...sectionProps}
+          onChange={(value, cid, control) => this.handleChange(value, cid, control)}
+        />
+      );
+    }
+
+    if (isSplit && splitTabDom) {
+      return createPortal(<WidgetSection {...sectionProps} />, splitTabDom);
+    }
+
+    return (
+      <div className="relateRecordBlockCon">
+        <WidgetSection {...sectionProps} />
+      </div>
+    );
+  }
+
   render() {
-    const { from, recordId, openRelateRecord, disabled } = this.props;
+    const isMobile = browserIsMobile();
+    const { from, disabled } = this.props;
     const { rulesLoading, renderData } = this.state;
+    let { commonData, tabData } = getControlsByTab(renderData);
+    tabData = tabData.filter(control => controlState(control, from).visible).filter(c => !c.hidden);
 
     if (rulesLoading) {
       return (
@@ -782,24 +858,21 @@ export default class CustomFields extends Component {
       );
     }
 
-    const isMobile = browserIsMobile();
-    const recordMuster = recordId
-      ? renderData.filter(item => isRelateRecordTableControl(item) && controlState(item, from).visible)
-      : [];
-
     return (
-      <div
-        className={cx('customFieldsContainer', {
-          mobileContainer: isMobile,
-          wxContainer: _.includes([FROM.H5_ADD, FROM.H5_EDIT], from) && !disabled,
-        })}
-        ref={this.con}
-      >
-        {this.renderForm()}
-        {!!recordMuster.length && _.includes([FROM.SHARE, FROM.WORKFLOW], from) && (
-          <RelateRecordMuster data={recordMuster} openRelateRecord={openRelateRecord} />
-        )}
-      </div>
+      <Fragment>
+        <div
+          className={cx('customFieldsContainer', {
+            mobileContainer: isMobile,
+            wxContainer: _.includes([FROM.H5_ADD, FROM.H5_EDIT], from) && !disabled,
+            pTop0: _.includes([FROM.H5_ADD, FROM.H5_EDIT], from),
+          })}
+          ref={this.con}
+        >
+          {this.renderForm(commonData)}
+        </div>
+
+        {!!tabData.length && this.renderTab(commonData, tabData)}
+      </Fragment>
     );
   }
 }

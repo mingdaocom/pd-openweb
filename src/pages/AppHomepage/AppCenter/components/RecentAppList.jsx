@@ -100,7 +100,7 @@ export default function RecentAppList(props) {
           <MdLink
             className="mBottom8 stopPropagation"
             to={getAppNavigateUrl(item.id, item.pcNaviStyle, item.selectAppItmeType)}
-            onClick={() => {
+            onClick={e => {
               addBehaviorLog('app', item.id); // 浏览应用埋点
 
               if (item.createType === 1) {

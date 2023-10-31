@@ -266,6 +266,7 @@ function DraftModal(props) {
             data={records}
             controls={controls}
             from={21}
+            rules={rules}
             renderColumnHead={renderColumnHead}
             sheetSwitchPermit={sheetSwitchPermit}
             renderRowHead={({ className, style, rowIndex }) => (

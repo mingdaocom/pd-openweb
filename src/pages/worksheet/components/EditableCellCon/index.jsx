@@ -85,7 +85,7 @@ function EditableCellCon(props) {
           </span>
         )}
         {/* {!editable && (
-          <ReadOnlyTip className="readOnlyTip" style={{}}>
+          <ReadOnlyTip className="readOnlyTip">
             {_l('当前字段不可编辑')}
           </ReadOnlyTip>
         )} */}

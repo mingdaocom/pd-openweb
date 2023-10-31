@@ -1,6 +1,6 @@
 import React, { Component, Fragment, useState } from 'react';
 import cx from 'classnames';
-import { Icon } from 'ming-ui';
+import { Icon, ColorPicker } from 'ming-ui';
 import { ConfigProvider, Button, Modal, Collapse, Switch, Radio, Input, Checkbox, Tooltip } from 'antd';
 import RuleColor from './Color/RuleColor';
 import { colorGroup } from 'statistics/Charts/common';
@@ -248,28 +248,29 @@ const SectionColorConfigModal = props => {
             />
             <div className="mLeft5 mRight24">%</div>
             <div>{_l('颜色为')}</div>
-            <div className="colorWrap mLeft10">
-              <div className="colorBlock" style={{ backgroundColor: data.color || colors[index] }}>
-                <input
-                  type="color"
-                  className="colorInput pointer"
-                  value={data.color || colors[index]}
-                  onChange={(event) => {
-                    changeSectionColorConfig({
-                      sectionColors: sectionColors.map((data, i) => {
-                        if (index === i) {
-                          return {
-                            ...data,
-                            color: event.target.value
-                          }
-                        }
-                        return data;
-                      })
-                    });
-                  }}
-                />
+            <ColorPicker
+              isPopupBody
+              className="mLeft10"
+              value={data.color || colors[index]}
+              onChange={value => {
+                changeSectionColorConfig({
+                  sectionColors: sectionColors.map((data, i) => {
+                    if (index === i) {
+                      return {
+                        ...data,
+                        color: value
+                      }
+                    }
+                    return data;
+                  })
+                });
+              }}
+            >
+              <div className="colorWrap pointer">
+                <div className="colorBlock" style={{ backgroundColor: data.color || colors[index] }}>
+                </div>
               </div>
-            </div>
+            </ColorPicker>
             {type === 2 && sectionColors.length > 1 && (
               <Tooltip title={_l('删除')}>
                 <Icon
@@ -334,18 +335,19 @@ const GaugeColor = props => {
         <div className="flexRow valignWrapper">
           <div>{_l('颜色')}</div>
           {_.isEmpty(colorRule) && (
-            <div className="colorWrap mLeft10">
-              <div className="colorBlock" style={{ backgroundColor: gaugeColor }}>
-                <input
-                  type="color"
-                  className="colorInput pointer"
-                  value={gaugeColor}
-                  onChange={(event) => {
-                    onChangeStyle({ gaugeColor: event.target.value });
-                  }}
-                />
+            <ColorPicker
+              isPopupBody
+              className="mLeft10"
+              value={gaugeColor}
+              onChange={value => {
+                onChangeStyle({ gaugeColor: value });
+              }}
+            >
+              <div className="colorWrap pointer">
+                <div className="colorBlock" style={{ backgroundColor: gaugeColor }}>
+                </div>
               </div>
-            </div>
+            </ColorPicker>
           )}
           <div
             className="entranceWrap ruleIcon flexRow valignWrapper pointer"

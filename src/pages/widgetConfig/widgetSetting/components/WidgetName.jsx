@@ -4,14 +4,14 @@ import { Checkbox } from 'ming-ui';
 import { SettingItem } from '../../styled';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 import _ from 'lodash';
-import { isRelateRecordTableControl } from 'worksheet/util';
+import { relateOrSectionTab } from '../../util';
 
 export default function WidgetName(props) {
   const { title = _l('字段名称'), data = {}, onChange, isRecycle } = props;
   const { type, controlName, controlId = '' } = data;
   const hidetitle = getAdvanceSetting(data, 'hidetitle');
   const $ref = useRef(null);
-  const showHiden = !(data.type === 52 || isRelateRecordTableControl(data));
+  const showHiden = !(relateOrSectionTab(data));
 
   useEffect(() => {
     if ($ref.current && !isRecycle) {

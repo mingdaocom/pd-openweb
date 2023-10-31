@@ -10,6 +10,9 @@ import quickCreateTask from './tpl/quickCreateTask.html';
 import { errorMessage, checkIsProject } from '../../utils/utils';
 import Store from 'redux/configureStore';
 import { addTask } from 'src/pages/task/redux/actions';
+import { DateTimeRange } from 'ming-ui/components/NewDateTimePicker';
+import React from 'react';
+import ReactDom from 'react-dom';
 
 class QuickCreateTask {
   init(settings) {
@@ -62,29 +65,46 @@ class QuickCreateTask {
       }
     });
 
-    const $createSingleDate = $('.createNewSingle  .createSingleDate');
-    $createSingleDate.on('click', () => {
+    const $createSingleDate = $('.createNewSingle .createSingleDate');
+    const bindDate = () => {
       const { start: defaultStart, end: defaultEnd } = $createSingleDate.data();
-      $createSingleDate.reactTaskCalendarRangePickerClick({
-        props: {
-          selectedValue: [defaultStart, defaultEnd],
-          onClear() {
-            delete $createSingleDate.data().start;
-            delete $createSingleDate.data().end;
-            this.destroy();
-          },
-        },
-        publicMethods: {
-          submit(selectedValue) {
+
+      ReactDom.render(
+        <DateTimeRange
+          selectedValue={[defaultStart, defaultEnd]}
+          mode="task"
+          timePicker
+          separator={_l('至')}
+          timeMode="hour"
+          placeholder={_l('未指定起止时间')}
+          onOk={selectedValue => {
             let [start, end] = selectedValue;
+
+            if (start && end && start >= end) {
+              alert(_l('结束时间不能早于或等于开始时间'), 2);
+              return false;
+            }
+
             start = start ? start.format('YYYY-MM-DD HH:00') : '';
             end = end ? end.format('YYYY-MM-DD HH:00') : '';
             $createSingleDate.data('start', start);
             $createSingleDate.data('end', end);
-          },
-        },
-      });
-    });
+          }}
+          onClear={() => {
+            delete $createSingleDate.data().start;
+            delete $createSingleDate.data().end;
+
+            ReactDom.unmountComponentAtNode($createSingleDate[0]);
+            bindDate();
+          }}
+        >
+          <span class="icon-bellSchedule"></span>
+        </DateTimeRange>,
+        $createSingleDate[0],
+      );
+    };
+
+    bindDate();
 
     // 文本框
     $('.createNewSingle  .txtSingleName').on('keyup', event => {

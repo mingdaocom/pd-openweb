@@ -8,7 +8,7 @@ import customApi from 'statistics/api/custom';
 import homeAppApi from 'src/api/homeApp';
 import DocumentTitle from 'react-document-title';
 import GridLayout from 'react-grid-layout';
-import { getDefaultLayout, getEnumType, reorderComponents } from 'src/pages/customPage/util';
+import { getDefaultLayout, getEnumType, reorderComponents, replaceColor } from 'src/pages/customPage/util';
 import { loadSDK } from 'src/components/newCustomFields/tools/utils';
 import WidgetDisplay from './WidgetDisplay';
 import AppPermissions from '../components/AppPermissions';
@@ -82,6 +82,7 @@ export default class CustomPage extends Component {
       loading: false,
       apk: {},
       pageComponents: [],
+      pageConfig: {},
       pageName: '',
       urlTemplate: '',
     };
@@ -154,6 +155,7 @@ export default class CustomPage extends Component {
             pageComponents: (pageComponents ? pageComponents : components).filter(item => item.mobile.visible),
             loading: false,
             pageName: result.name,
+            pageConfig: replaceColor(result.config, _.get(result.apk, 'iconColor'))
           });
         });
     }
@@ -194,7 +196,7 @@ export default class CustomPage extends Component {
     );
   }
   renderContent() {
-    const { apk, pageComponents } = this.state;
+    const { apk, pageComponents, pageConfig } = this.state;
     const { params } = this.props.match;
     const layout = getLayout(pageComponents);
     return (
@@ -219,6 +221,7 @@ export default class CustomPage extends Component {
               <div className={cx('widgetContent', componentType, { haveTitle: titleVisible })}>
                 <WidgetDisplay
                   pageComponents={pageComponents}
+                  pageConfig={pageConfig}
                   componentType={componentType}
                   widget={widget}
                   apk={apk}

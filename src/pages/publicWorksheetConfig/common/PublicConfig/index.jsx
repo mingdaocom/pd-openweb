@@ -766,7 +766,7 @@ class PublicConfig extends React.Component {
             title={_l('是否保存链接设置的更改？')}
             description={_l('当前有尚未保存的更改，你在离开页面前是否需要保存这些更改？')}
             cancelText={_l('否')}
-            okText={_l('是')}
+            okText={_l('是%25028')}
             handleClose={() => this.setState({ confirmDialog: { visible: false } })}
             onCancel={isOkBtn => {
               if (!isOkBtn) {

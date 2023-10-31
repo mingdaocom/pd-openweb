@@ -134,7 +134,7 @@ export const notifyInit = function () {
 
 export const stateInit = function () {
   const key = 'chat';
-  const reconnectDelayTime = window.config.SocketPolling ? 3000 : 0;
+  const reconnectDelayTime = _.get(window, 'config.SocketPolling') ? 3000 : 0;
   let disconnectTime = 0;
   let isOpen = true;
   let reconnectCount = 1;

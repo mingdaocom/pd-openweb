@@ -54,7 +54,9 @@ export default function InfoHeader(props) {
     onSideIconClick,
     handleAddSheetRow,
     viewId,
+    view,
     from,
+    isOpenNewAddedRecord,
     // allowExAccountDiscuss = false, //允许外部用户讨论
     // exAccountDiscussEnum = 0, //外部用户的讨论类型 0：所有讨论 1：不可见内部讨论
     // approved: false, //允许外部用户允许查看审批流转详情
@@ -72,7 +74,8 @@ export default function InfoHeader(props) {
     _.get(window, 'shareState.isPublicView') ||
     _.get(window, 'shareState.isPublicQuery') ||
     _.get(window, 'shareState.isPublicForm') ||
-    _.get(window, 'shareState.isPublicWorkflowRecord');
+    _.get(window, 'shareState.isPublicWorkflowRecord') ||
+    _.get(window, 'shareState.isPublicPrint');
   const isPublicRecordLand = isPublicShare && notDialog;
   const showSideBar =
     (!isPublicShare && !md.global.Account.isPortal && (workflowVisible || discussVisible || logVisible)) ||
@@ -102,7 +105,9 @@ export default function InfoHeader(props) {
   }
   useEffect(() => {
     rowId.current = recordId;
-    loadDiscussionsCount();
+    if (!isOpenNewAddedRecord) {
+      loadDiscussionsCount();
+    }
   }, [recordId, props.allowExAccountDiscuss]);
   useEffect(() => {
     emitter.addListener('RELOAD_RECORD_INFO_DISCUSS', loadDiscussionsCount);
@@ -135,7 +140,7 @@ export default function InfoHeader(props) {
   // 关闭
   const closeBtn = () => {
     const btn = (
-      <IconBtn className="Hand ThemeHoverColor3" onClick={onCancel}>
+      <IconBtn className="Hand ThemeHoverColor3 closeBtn" onClick={onCancel}>
         <i className="icon icon-close" />
       </IconBtn>
     );
@@ -195,7 +200,7 @@ export default function InfoHeader(props) {
             <div className="flex" />
           )}
           {showSideBar && sideBarBtn()}
-          {(!isPublicShare || _.get(window, 'shareState.isPublicView')) && closeBtn()}
+          {(!isPublicRecordLand || _.get(window, 'shareState.isPublicView')) && closeBtn()}
         </div>
       )}
     </div>

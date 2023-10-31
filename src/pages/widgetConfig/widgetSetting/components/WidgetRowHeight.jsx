@@ -1,9 +1,7 @@
 import React from 'react';
-import styled from 'styled-components';
 import cx from 'classnames';
-import { SettingItem } from '../../styled';
+import { SettingItem, AnimationWrap } from '../../styled';
 import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/util';
-import { AnimationWrap } from '../../styled';
 
 const HEIGHT_SETTING_LIST = [
   {
@@ -11,7 +9,7 @@ const HEIGHT_SETTING_LIST = [
     value: '0',
   },
   {
-    text: _l('中等'),
+    text: _l('中'),
     value: '1',
   },
   {

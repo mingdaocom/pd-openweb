@@ -118,13 +118,17 @@ export default class extends Component {
   componentWillReceiveProps(nextProps) {
     const { displaySetup, style } = nextProps.reportData;
     const { displaySetup: oldDisplaySetup, style: oldStyle } = this.props.reportData;
+    const chartColor = _.get(nextProps, 'customPageConfig.chartColor');
+    const oldChartColor = _.get(this.props, 'customPageConfig.chartColor');
     if (
       displaySetup.showDimension !== oldDisplaySetup.showDimension ||
       displaySetup.showNumber !== oldDisplaySetup.showNumber ||
       displaySetup.showPercent !== oldDisplaySetup.showPercent ||
       displaySetup.magnitudeUpdateFlag !== oldDisplaySetup.magnitudeUpdateFlag ||
       !_.isEqual(displaySetup.colorRules, oldDisplaySetup.colorRules) ||
-      !_.isEqual(style, oldStyle)
+      !_.isEqual(style, oldStyle) ||
+      !_.isEqual(chartColor, oldChartColor) ||
+      nextProps.themeColor !== this.props.themeColor
     ) {
       const GaugeChartConfig = this.getComponentConfig(nextProps);
       this.GaugeChart.update(GaugeChartConfig);
@@ -146,7 +150,8 @@ export default class extends Component {
     this.GaugeChart.render();
   }
   getComponentConfig(props) {
-    const { reportData, isThumbnail } = props;
+    const { themeColor, projectId, customPageConfig, reportData, isThumbnail } = props;
+    const { chartColor } = customPageConfig;
     const { map, yaxisList, displaySetup, style } = reportData;
     const { showChartType, showDimension, showNumber, showPercent, colorRules } = displaySetup;
     const { indicatorVisible, fontColor = 'rgba(0, 0, 0, 1)', gaugeColor, gaugeColorType = 1, sectionColorConfig = {}, isApplyGaugeColor } = style;
@@ -155,7 +160,7 @@ export default class extends Component {
     const numberControlName = _.get(yaxisList[0], 'rename') || _.get(yaxisList[0], 'controlName');
     const data = map[numberControlId];
     const { clientHeight } = this.chartEl;
-    const colors = getChartColors(style);
+    const colors = getChartColors(chartColor || style, themeColor, projectId);
     const fontColorRule = _.get(colorRules[0], 'dataBarRule') || {};
     const gaugeColorRule = _.get(colorRules[1], 'dataBarRule') || {};
     const maxValue = data.max || 1;

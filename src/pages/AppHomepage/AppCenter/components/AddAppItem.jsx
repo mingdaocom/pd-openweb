@@ -7,9 +7,8 @@ import Dialog from 'ming-ui/components/Dialog';
 import DialogImportExcelCreate from 'src/pages/worksheet/components/DialogImportExcelCreate';
 import ImportApp from 'src/pages/Admin/appManagement/modules/ImportApp.jsx';
 import { navigateTo } from 'src/router/navigateTo';
-import { COLORS } from 'src/pages/AppHomepage/components/SelectIcon/config';
 import { generate } from '@ant-design/colors';
-import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { getFeatureStatus, buriedUpgradeVersionDialog, getThemeColors } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
 import _ from 'lodash';
 import ExternalLinkDialog from './ExternalLinkDialog';
@@ -62,6 +61,7 @@ export default class AddAppItem extends Component {
         }
         break;
       case 'createFromEmpty':
+        const COLORS = getThemeColors(projectId);
         const iconColor = COLORS[_.random(0, COLORS.length - 1)];
         this.setState({ addTypeVisible: false });
         const lightColor = generate(iconColor)[0];

@@ -673,12 +673,15 @@ export default class AppManagement extends Component {
       appTrashVisible,
     } = this.state;
     const projectId = this.props.match.params.projectId;
-    const { version, licenseType } = _.find(md.global.Account.projects || [], o => o.projectId === projectId) || {};
+    const { version = {}, licenseType } =
+      _.find(md.global.Account.projects || [], o => o.projectId === projectId) || {};
     const statusList = [
       { text: _l('全部状态'), value: '' },
       { text: _l('开启'), value: 1 },
       { text: _l('关闭'), value: 0 },
     ];
+    const vertionType =
+      !_.isEmpty(version) && Number(version.versionIdV2) < 2 ? Number(version.versionIdV2) + 1 : undefined;
 
     return (
       <div className="orgManagementWrap appManagementList flex flexColumn">
@@ -754,11 +757,10 @@ export default class AppManagement extends Component {
               {maxCount - count < 0 ? 0 : maxCount - count}
             </span>
 
-            {/* {md.global.Account.projects.find(o => o.projectId === this.props.match.params.projectId).licenseType ===
-            1 ? (
+            {/*{licenseType === 1 ? (
               <Link
-                className={cx('ThemeColor3 ThemeHoverColor2 mLeft20 NoUnderline')}
-                to={`/admin/upgradeservice/${this.props.match.params.projectId}`}
+                className="ThemeColor3 ThemeHoverColor2 mLeft20 NoUnderline"
+                to={`/admin/upgradeservice/${this.props.match.params.projectId}${vertionType ? '/' + vertionType : ''}`}
               >
                 {_l('升级版本')}
               </Link>

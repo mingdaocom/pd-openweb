@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { func, string } from 'prop-types';
 import { Collapse } from 'antd';
 import { functionTypes, functionDetails } from '../enum';
+import { SearchFn } from 'src/pages/widgetConfig/util';
 import 'antd/lib/collapse/style/index.css';
 import _ from 'lodash';
 
@@ -65,8 +66,7 @@ export default function FnList(props) {
         functionNames,
         fnName =>
           functionDetails[fnName].type === type &&
-          (new RegExp(keywords.toUpperCase()).test(fnName) ||
-            new RegExp(keywords.toUpperCase()).test(functionDetails[fnName].name)),
+          (SearchFn(keywords, fnName) || SearchFn(keywords, functionDetails[fnName].name)),
       ),
     );
   }
@@ -76,9 +76,7 @@ export default function FnList(props) {
     functions: functionNames.filter(
       fnName =>
         functionDetails[fnName].type === type &&
-        (!keywords ||
-          new RegExp(keywords.toUpperCase()).test(fnName) ||
-          new RegExp(keywords.toUpperCase()).test(functionDetails[fnName].name)),
+        (!keywords || SearchFn(keywords, fnName) || SearchFn(keywords, functionDetails[fnName].name)),
     ),
   }));
   const commonly = {

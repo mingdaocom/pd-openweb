@@ -9,7 +9,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    removeSourceTag: function (args, options = {}) {
-     
+
      return $.api('Tag', 'RemoveSourceTag', args, options);
    },
   /**
@@ -22,7 +22,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    removeTasksTag: function (args, options = {}) {
-     
+
      return $.api('Tag', 'RemoveTasksTag', args, options);
    },
   /**
@@ -35,7 +35,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addPostTag: function (args, options = {}) {
-     
+
      return $.api('Tag', 'AddPostTag', args, options);
    },
   /**
@@ -48,7 +48,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addTaskTag: function (args, options = {}) {
-     
+
      return $.api('Tag', 'AddTaskTag', args, options);
    },
   /**
@@ -62,7 +62,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addTaskTag2: function (args, options = {}) {
-     
+
      return $.api('Tag', 'AddTaskTag2', args, options);
    },
   /**
@@ -74,7 +74,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getUserCommonTag: function (args, options = {}) {
-     
+
      return $.api('Tag', 'GetUserCommonTag', args, options);
    },
 };
