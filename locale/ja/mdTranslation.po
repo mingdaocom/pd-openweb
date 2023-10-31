@@ -49497,7 +49497,6 @@ msgid "当前应用为解锁状态"
 msgstr "現在のアプリケーションのロックが解除されている"
 
 #: Disabled references:1
-#, fuzzy
 msgid "应用锁定状态下所有用户（包括管理员）不能查看、修改应用的配置，用户验证密码后可解锁其在应用下的操作权限。锁定应用需验证身份"
 msgstr "アプリケーションがロックされている場合、すべてのユーザー（管理者を含む）は、アプリケーションの設定を表示または変更できません。 ユーザーは、パスワードを確認した後、アプリケーションへのアクセスを解除できます。アプリケーションをロックするためには、本人確認が必要です。"
 
@@ -49614,7 +49613,6 @@ msgid "选择映射当前记录，仅能进行单次映射识别"
 msgstr "現在のレコードのマッピングを選択すると、1つのマッピング識別のみが可能になります。"
 
 #: Disabled references:1
-#, fuzzy
 msgid "选择子表"
 msgstr "サブテーブルを選択してください"
 
@@ -49643,7 +49641,6 @@ msgid "退回后更新了记录"
 msgstr "帰国後の記録更新"
 
 #: Disabled references:1
-#, fuzzy
 msgid "此操作将彻底删除所有数据，不可从回收站中恢复！"
 msgstr "注意：この操作はすべてのデータを完全に削除し、ごみ箱から復元することはできません!"
 
@@ -49688,7 +49685,6 @@ msgid "链接参数"
 msgstr "リンクパラメータ"
 
 #: Disabled references:1
-#, fuzzy
 msgid "一条"
 msgstr "前の記事"
 
@@ -49893,7 +49889,6 @@ msgid "将数据集成的系统 IP 添加到 MariaDB 服务器的访问白名单
 msgstr "データ統合のシステムIPをMariaDBサーバーのアクセスホワイトリストに追加します。"
 
 #: Disabled references:1
-#, fuzzy
 msgid "检查 MariaDB 版本"
 msgstr "MariaDB のバージョンを確認する"
 
@@ -49950,7 +49945,6 @@ msgid "'用户名'@'%'"
 msgstr "'ユーザー名'@'%'"
 
 #: Disabled references:1
-#, fuzzy
 msgid "将系统 IP 添加到 MariaDB 服务器的访问白名单"
 msgstr "MariaDBサーバーのアクセスホワイトリストにシステムIPを追加する。"
 
@@ -49995,7 +49989,6 @@ msgid "给用户赋权"
 msgstr "ユーザーに力を与える"
 
 #: Disabled references:1
-#, fuzzy
 msgid "支持MySQL的版本: "
 msgstr "サポートされるMySQLのバージョン"
 
@@ -50132,7 +50125,6 @@ msgid "在创建同步任务的时候使用这个用户去连接"
 msgstr "同期タスクの作成時に、このユーザーを使用して接続します。"
 
 #: Disabled references:1
-#, fuzzy
 msgid "你可以把 PostgreSQL 数据库的数据通过系统实时同步到工作表或者其它数据目的地。"
 msgstr "PostgreSQLデータベースからワークシートなどのデータ保存先に、システムを通じてリアルタイムにデータを同期させることができます"
 
@@ -50934,141 +50926,141 @@ msgstr ""
 
 #: Disabled references:1
 msgid "（3）在打印 Excel 模板时，多张图片排列可能导致撑高合并单元格引起错位，此时可以加 F 启用图片填充模式，此模式下图片不会撑高单元格，例如：#{附件$[auto*20_F]$} 或 #{附件$[auto*90_HF]$}"
-msgstr ""
+msgstr "(3）Excelのテンプレートを印刷するときは、複数の画像が位置ずれによって引き起こされるマージされたセルをサポートするためにつながる可能性があり、あなたは、画像充填モードを有効にするには、Fを追加することができます画像は、このモードではセルをサポートしません、例えば：＃{附件$[auto*20_F]$}または＃{附件$[auto*90_HF]$}。"
 
 #: Disabled references:1
 msgid "万%06003"
-msgstr ""
+msgstr "万"
 
 #: Disabled references:1
 msgid "亿%06004"
-msgstr ""
+msgstr "亿"
 
 #: Disabled references:1
 msgid "名称重复，请修改后提交"
-msgstr ""
+msgstr "名前が重複しています。修正して送信してください。"
 
 #: Disabled references:1
 msgid "请选择类型"
-msgstr ""
+msgstr "タイプを選択してください"
 
 #: Disabled references:1
 msgid "数据量过大，请添加时间范围或添加筛选条件减少数据量"
-msgstr ""
+msgstr "データ量が多すぎます。時間範囲を追加するか、フィルター条件を追加してデータ量を減らしてください。"
 
 #: Disabled references:1
 msgid "未配置"
-msgstr ""
+msgstr "無設定"
 
 #: Disabled references:1
 msgid "全局颜色"
-msgstr ""
+msgstr "グローバルカラー"
 
 #: Disabled references:1
 msgid "为所有图表设置统一颜色，全局颜色将覆盖图表本色的颜色配置。"
-msgstr ""
+msgstr "すべてのチャートに統一された色を設定します。グローバル・カラーはチャートのネイティブ・カラー設定を上書きします。"
 
 #: Disabled references:1
 msgid "显示标题栏"
-msgstr ""
+msgstr "タイトルバーを表示する"
 
 #: Disabled references:1
 msgid "月%02068"
-msgstr ""
+msgstr "ヶ月"
 
 #: Disabled references:1
 msgid "时%02069"
-msgstr ""
+msgstr "時間"
 
 #: Disabled references:1
 msgid "发送讨论"
-msgstr ""
+msgstr "ディスカッションを送る"
 
 #: Disabled references:1
 msgid "正在查看历史执行详情（${dayStr} ${time}），本月新增、本月排队指截止到 ${dayStr} ${time} 的值"
-msgstr ""
+msgstr "過去の実行詳細（${dayStr} ${time}）を見ると、今月の追加、今月のキューは${dayStr} ${time}までの値を参照している。"
 
 #: Disabled references:1
 msgid "自然数编号%04018"
-msgstr ""
+msgstr "自然数"
 
 #: Disabled references:1
 msgid "指定位数编号%04019"
-msgstr ""
+msgstr "指定桁数"
 
 #: Disabled references:1
 msgid "编号方式%04017"
-msgstr ""
+msgstr "番号付け方法"
 
 #: Disabled references:1
 msgid "重命名为"
-msgstr ""
+msgstr "リネーム"
 
 #: Disabled references:1
 msgid "分类 %0个字段"
-msgstr ""
+msgstr "分類 %0 フィールド"
 
 #: Disabled references:1
 msgid "汇总 %0个字段"
-msgstr ""
+msgstr "サマリー %0 フィールド"
 
 #: Disabled references:1
 msgid "请选择目标字段的处理方式"
-msgstr ""
+msgstr "対象フィールドの処理方法を選択してください。"
 
 #: Disabled references:1
 msgid "更新发布..."
-msgstr ""
+msgstr "更新リリース..."
 
 #: Disabled references:1
 msgid "此操作会重新同步全量数据"
-msgstr ""
+msgstr "これにより、すべてのデータが再同期される。"
 
 #: Disabled references:1
 msgid "未选择目标字段时, 会根据数据源的主键字段判断重复"
-msgstr ""
+msgstr "ターゲット・フィールドが選択されていない場合、重複はデータ・ソースの主キー・フィールドに基づいて決定されます。"
 
 #: Disabled references:1
 msgid "在同步时，依据目标字段"
-msgstr ""
+msgstr "同期中、ターゲット・フィールドに基づき"
 
 #: Disabled references:1
 msgid "识别重复，并"
-msgstr ""
+msgstr "重複を特定し"
 
 #: Disabled references:1
 msgid "“覆盖”会导致数据同步变慢"
-msgstr ""
+msgstr "「上書き」がデータ同期を遅くする"
 
 #: Disabled references:1
 msgid "其他配置"
-msgstr ""
+msgstr "その他の構成"
 
 #: Disabled references:1
 msgid "在本次同步数据之前，彻底清空目标表数据"
-msgstr ""
+msgstr "この同期データの前に、ターゲット・テーブルのデータを完全に空にする。"
 
 #: Disabled references:1
 msgid "未设置重复数据识别方式"
-msgstr ""
+msgstr "重複データ識別方法が設定されていない"
 
 #: Disabled references:1
 msgid "重复数据"
-msgstr ""
+msgstr "重複データ"
 
 #: Disabled references:1
 msgid "“覆盖”会导致数据同步变慢。"
-msgstr ""
+msgstr "\"上書き \"はデータの同期を遅くする原因になる。"
 
 #: Disabled references:1
 msgid "清空目标表数据"
-msgstr ""
+msgstr "空のターゲット・テーブル・データ"
 
 #: Disabled references:1
 msgid "在本次同步任务前，清空目的地表数据，清空后无法恢复。"
-msgstr ""
+msgstr "同期タスクの前にデスティネーションサーフェスデータをクリアする。"
 
 #: Disabled references:1
 msgid "未设置主键"
-msgstr ""
+msgstr "主キーが設定されていない"
 

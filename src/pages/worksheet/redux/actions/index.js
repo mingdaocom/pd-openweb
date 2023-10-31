@@ -509,7 +509,7 @@ export function getNavGroupCount() {
   return (dispatch, getState) => {
     const sheet = getState().sheet;
     const { filters = {}, base = {}, quickFilter = {} } = sheet;
-    const { worksheetId, viewId } = base;
+    const { appId, worksheetId, viewId } = base;
     const { filterControls, filtersGroup, keyWords, searchType } = filters;
     if (getNavGroupRequest && getNavGroupRequest.state() === 'pending' && getNavGroupRequest.abort) {
       getNavGroupRequest.abort();
@@ -519,6 +519,7 @@ export function getNavGroupCount() {
     }
     getNavGroupRequest = worksheetAjax.getNavGroup(
       getFilledRequestParams({
+        appId,
         worksheetId,
         viewId,
         filterControls,

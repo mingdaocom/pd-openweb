@@ -49497,7 +49497,6 @@ msgid "当前应用为解锁状态"
 msgstr "當前應用程式為解鎖狀態"
 
 #: Disabled references:1
-#, fuzzy
 msgid "应用锁定状态下所有用户（包括管理员）不能查看、修改应用的配置，用户验证密码后可解锁其在应用下的操作权限。锁定应用需验证身份"
 msgstr "應用鎖定狀態下所有用戶（包括管理員）不能查看、修改應用的配置，用戶驗證密碼後可解鎖其在應用下的操作權限。鎖定應用需驗證身份。"
 
@@ -49650,7 +49649,6 @@ msgid "当前所选记录数量超过1000行，数据不会进入回收站而直
 msgstr "目前所選記錄數量超過1000行，資料不會進入回收站而直接進行徹底刪除。此操作只有應用程式管理員可以執行。"
 
 #: Disabled references:1
-#, fuzzy
 msgid "注意:"
 msgstr "注意："
 
@@ -49891,7 +49889,6 @@ msgid "将数据集成的系统 IP 添加到 MariaDB 服务器的访问白名单
 msgstr "將數據集成的系統 IP 添加到 MariaDB 服務器的訪問白名單"
 
 #: Disabled references:1
-#, fuzzy
 msgid "检查 MariaDB 版本"
 msgstr "檢查MariaDB版本"
 
@@ -49948,7 +49945,6 @@ msgid "'用户名'@'%'"
 msgstr "'用戶名'@'%'"
 
 #: Disabled references:1
-#, fuzzy
 msgid "将系统 IP 添加到 MariaDB 服务器的访问白名单"
 msgstr "將系統 IP 添加到 MariaDB 服務器的訪問白名單 "
 
@@ -50825,7 +50821,6 @@ msgid "指定范围"
 msgstr "指定範圍"
 
 #: Disabled references:1
-#, fuzzy
 msgid "指定日期"
 msgstr "未指定日期"
 
@@ -50931,141 +50926,141 @@ msgstr "目前選擇的欄位未啟用顏色"
 
 #: Disabled references:1
 msgid "（3）在打印 Excel 模板时，多张图片排列可能导致撑高合并单元格引起错位，此时可以加 F 启用图片填充模式，此模式下图片不会撑高单元格，例如：#{附件$[auto*20_F]$} 或 #{附件$[auto*90_HF]$}"
-msgstr ""
+msgstr "（3）在列印Excel 範本時，多張圖片排列可能導致撐高合併儲存格造成錯位，此時可以加F 啟用圖片填滿模式，此模式下圖片不會撐高儲存格，例如：#{附件$[auto*20_F]$}或#{附件$[auto*90_HF]$}"
 
 #: Disabled references:1
 msgid "万%06003"
-msgstr ""
+msgstr "萬"
 
 #: Disabled references:1
 msgid "亿%06004"
-msgstr ""
+msgstr "億"
 
 #: Disabled references:1
 msgid "名称重复，请修改后提交"
-msgstr ""
+msgstr "名稱重複，請修改後提交"
 
 #: Disabled references:1
 msgid "请选择类型"
-msgstr ""
+msgstr "請選擇類型"
 
 #: Disabled references:1
 msgid "数据量过大，请添加时间范围或添加筛选条件减少数据量"
-msgstr ""
+msgstr "資料量過大，請新增時間範圍或新增篩選條件減少資料量"
 
 #: Disabled references:1
 msgid "未配置"
-msgstr ""
+msgstr "尚未配置工作地點"
 
 #: Disabled references:1
 msgid "全局颜色"
-msgstr ""
+msgstr "全域色彩"
 
 #: Disabled references:1
 msgid "为所有图表设置统一颜色，全局颜色将覆盖图表本色的颜色配置。"
-msgstr ""
+msgstr "為所有圖表設定統一顏色，全域顏色將覆蓋圖表本色的顏色配置。"
 
 #: Disabled references:1
 msgid "显示标题栏"
-msgstr ""
+msgstr "顯示標題列"
 
 #: Disabled references:1
 msgid "月%02068"
-msgstr ""
+msgstr "月"
 
 #: Disabled references:1
 msgid "时%02069"
-msgstr ""
+msgstr "時"
 
 #: Disabled references:1
 msgid "发送讨论"
-msgstr ""
+msgstr "發送討論"
 
 #: Disabled references:1
 msgid "正在查看历史执行详情（${dayStr} ${time}），本月新增、本月排队指截止到 ${dayStr} ${time} 的值"
-msgstr ""
+msgstr "正在查看歷史執行詳情（${dayStr} ${time}），本月新增、本月排隊指截止到 ${dayStr} ${time} 的值"
 
 #: Disabled references:1
 msgid "自然数编号%04018"
-msgstr ""
+msgstr "自然數編號"
 
 #: Disabled references:1
 msgid "指定位数编号%04019"
-msgstr ""
+msgstr "指定位數編號"
 
 #: Disabled references:1
 msgid "编号方式%04017"
-msgstr ""
+msgstr "編號方式"
 
 #: Disabled references:1
 msgid "重命名为"
-msgstr ""
+msgstr "重新命名為"
 
 #: Disabled references:1
 msgid "分类 %0个字段"
-msgstr ""
+msgstr "分類 %0個字段"
 
 #: Disabled references:1
 msgid "汇总 %0个字段"
-msgstr ""
+msgstr "匯總 %0個字段"
 
 #: Disabled references:1
 msgid "请选择目标字段的处理方式"
-msgstr ""
+msgstr "請選擇目標欄位的處理方式"
 
 #: Disabled references:1
 msgid "更新发布..."
-msgstr ""
+msgstr "更新發布..."
 
 #: Disabled references:1
 msgid "此操作会重新同步全量数据"
-msgstr ""
+msgstr "此操作會重新同步全量數據"
 
 #: Disabled references:1
 msgid "未选择目标字段时, 会根据数据源的主键字段判断重复"
-msgstr ""
+msgstr "未選擇目標欄位時, 會根據資料來源的主鍵欄位判斷重複"
 
 #: Disabled references:1
 msgid "在同步时，依据目标字段"
-msgstr ""
+msgstr "在同步時，依據目標字段"
 
 #: Disabled references:1
 msgid "识别重复，并"
-msgstr ""
+msgstr "識別重複，並"
 
 #: Disabled references:1
 msgid "“覆盖”会导致数据同步变慢"
-msgstr ""
+msgstr "「覆蓋」會導致資料同步變慢"
 
 #: Disabled references:1
 msgid "其他配置"
-msgstr ""
+msgstr "其他配置"
 
 #: Disabled references:1
 msgid "在本次同步数据之前，彻底清空目标表数据"
-msgstr ""
+msgstr "在本次同步資料之前，請徹底清空目標表數據"
 
 #: Disabled references:1
 msgid "未设置重复数据识别方式"
-msgstr ""
+msgstr "未設定重複資料識別方式"
 
 #: Disabled references:1
 msgid "重复数据"
-msgstr ""
+msgstr "打開後，填寫者在提交數據前需要輸入驗證碼，用於防止惡意或重複數據提交。"
 
 #: Disabled references:1
 msgid "“覆盖”会导致数据同步变慢。"
-msgstr ""
+msgstr "“覆蓋”會導致資料同步變慢。"
 
 #: Disabled references:1
 msgid "清空目标表数据"
-msgstr ""
+msgstr "清空目標表數據"
 
 #: Disabled references:1
 msgid "在本次同步任务前，清空目的地表数据，清空后无法恢复。"
-msgstr ""
+msgstr "在本次同步任務前，清空目的地表數據，清空後無法恢復。"
 
 #: Disabled references:1
 msgid "未设置主键"
-msgstr ""
+msgstr "未設定主鍵"
 

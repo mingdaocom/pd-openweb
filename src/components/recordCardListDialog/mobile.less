@@ -77,7 +77,7 @@
 
 .quickFilterStepListWrapper {
   -webkit-overflow-scrolling: touch;
-  position: inherit;
+  position: inherit !important;
   .am-drawer-sidebar {
     z-index: 100;
     border-radius: 14px 0 0 14px;
@@ -85,8 +85,12 @@
     overflow: hidden;
     -webkit-overflow-scrolling: touch;
   }
-  .am-drawer-overlay,
-  .am-drawer-content {
+  &.open {
+    .am-drawer-overlay, .am-drawer-content {
+      position: absolute;
+    }
+  }
+  .am-drawer-overlay, .am-drawer-content {
     position: inherit;
   }
   &.am-drawer-open {
