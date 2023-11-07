@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import { arrayOf, func, shape, string } from 'prop-types';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
@@ -79,6 +79,7 @@ export default function RelateRecord(props) {
   if (advancedSetting.clicksearch) {
     control.advancedSetting.clicksearch = advancedSetting.clicksearch;
   }
+  const conRef = useRef();
   const [active, setActive] = useState();
   const isMultiple = String(allowitem) === '2';
   const prefixRecords =
@@ -136,7 +137,7 @@ export default function RelateRecord(props) {
   // searchtype 0 模糊[default] 1精确
   // clicksearch 1 搜索后限制 0[default]
   return (
-    <Con>
+    <Con ref={conRef}>
       <Dropdown
         zIndex="xxx"
         disableNewRecord
@@ -144,6 +145,14 @@ export default function RelateRecord(props) {
         isQuickFilter
         control={control}
         {...control}
+        selectedStyle={
+          conRef.current
+            ? {
+                width: conRef.current.clientWidth,
+              }
+            : {}
+        }
+        popupOffset={[0, -16]}
         formData={filtersData}
         advancedSetting={{}}
         controls={relationControls}

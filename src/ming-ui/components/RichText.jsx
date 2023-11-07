@@ -314,7 +314,7 @@ export default ({
   const editorDiv = useRef();
   let editorDom = useRef();
   const lang = () => {
-    const lang = getCookie('i18n_langtag') || getNavigatorLang();
+    const lang = getCookie('i18n_langtag') || md.global.Config.DefaultLang;
     if (lang === 'zh-Hant') {
       return 'zh';
     } else if (lang === 'ja') {

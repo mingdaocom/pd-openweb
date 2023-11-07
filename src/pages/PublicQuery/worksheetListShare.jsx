@@ -160,6 +160,7 @@ class WorksheetListShare extends React.Component {
           ) : (
             <RecordInfoWrapper
               sheetSwitchPermit={sheetSwitchPermit}
+              viewId={viewIdForPermit}
               allowAdd={false}
               from={2}
               visible

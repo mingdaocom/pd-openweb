@@ -48,7 +48,12 @@ const Entry = props => {
       const printClientId = _.get(result, 'data.clientId');
       window.share = shareAuthor;
       clientId && sessionStorage.setItem(shareId, clientId);
-      printClientId && (window.clientId = printClientId);
+
+      if (printClientId) {
+        window.clientId = printClientId;
+        !sessionStorage.getItem('clientId') && sessionStorage.setItem('clientId', printClientId);
+      }
+
       setShare(result);
       resolve(result);
     });

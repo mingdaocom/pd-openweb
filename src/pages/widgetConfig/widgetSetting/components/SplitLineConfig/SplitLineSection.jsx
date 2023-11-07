@@ -145,7 +145,7 @@ export default function SplitLineSection(props) {
 
       {enumDefault2 !== 0 && sectionstyle !== '2' && hidetitle !== '1' && expandWidgetIds.length > 0 && (
         <div className="headerArrow">
-          <Icon icon={isMobile ? 'arrow-down-border' : 'arrow-right-border'} />
+          <Icon icon={isMobile ? 'arrow-down-border' : 'arrow-up-border'} />
         </div>
       )}
     </SectionItemWrap>

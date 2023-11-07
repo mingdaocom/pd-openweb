@@ -210,6 +210,12 @@ export default class RelateRecordDropdown extends React.Component {
 
   @autobind
   openPopup() {
+    if (!this.cell.current) {
+      this.setState({
+        listvisible: true,
+      });
+      return;
+    }
     const cellToTop = this.cell.current.getBoundingClientRect().top;
     let isTop = window.innerHeight - this.cell.current.clientHeight - cellToTop < 360;
     this.setState({
@@ -515,7 +521,7 @@ export default class RelateRecordDropdown extends React.Component {
         className="scrollInTable"
         style={!this.isMobile ? {} : { position: 'relative', marginLeft: -20 }}
       >
-        {insheet && this.renderSelected(true)}
+        {(insheet || isQuickFilter) && this.renderSelected(true)}
         {disabledManualWrite && (
           <OnlyScanTip>
             {!insheet && !!selected.length && (
@@ -541,7 +547,7 @@ export default class RelateRecordDropdown extends React.Component {
             style={{
               ...(renderToTop
                 ? {
-                    bottom: this.cell.current.clientHeight + (insheet ? 0 : 3),
+                    bottom: (_.get(this, 'cell.current.clientHeight') || 0) + (insheet ? 0 : 3),
                   }
                 : {
                     top: '100%',
@@ -596,7 +602,7 @@ export default class RelateRecordDropdown extends React.Component {
     } = this.props;
     const { selected, keywords, listvisible } = this.state;
     let content;
-    if (_.isFunction(renderSelected)) {
+    if (_.isFunction(renderSelected) && !(isQuickFilter && listvisible)) {
       content = renderSelected(selected);
     } else if (multiple && !isQuickFilter) {
       content = this.renderMultipe();
@@ -646,6 +652,7 @@ export default class RelateRecordDropdown extends React.Component {
     const {
       from,
       insheet,
+      popupOffset,
       zIndex,
       isediting,
       control = {},
@@ -654,6 +661,7 @@ export default class RelateRecordDropdown extends React.Component {
       disabled,
       dataSource,
       enumDefault2,
+      isQuickFilter,
       popupContainer,
       onVisibleChange,
     } = this.props;
@@ -675,11 +683,11 @@ export default class RelateRecordDropdown extends React.Component {
             }
             onVisibleChange(visilbe);
           }}
-          popupClassName="relateRecordDropdownPopup filterTrigger"
+          popupClassName={cx('relateRecordDropdownPopup filterTrigger', { isQuickFilter })}
           getPopupContainer={popupContainer || (() => document.body)}
           popupAlign={{
             points: insheet || isTop ? ['tl', 'tl'] : ['tl', 'bl'],
-            offset: [0, 0],
+            offset: popupOffset || [0, 0],
             overflow: {
               adjustX: !this.isMobile,
             },
@@ -688,7 +696,11 @@ export default class RelateRecordDropdown extends React.Component {
           destroyPopupOnHide
           popup={popup}
         >
-          {!insheet || !isediting ? this.renderSelected() : <div style={selectedStyle} ref={this.cell} />}
+          {(!insheet || !isediting) && (!isQuickFilter || !listvisible) ? (
+            this.renderSelected()
+          ) : (
+            <div style={selectedStyle} ref={this.cell} />
+          )}
         </Trigger>
         {newrecordVisible && !disabledManualWrite && (
           <NewRecord

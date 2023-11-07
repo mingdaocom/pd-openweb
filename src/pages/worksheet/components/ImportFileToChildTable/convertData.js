@@ -13,8 +13,9 @@ function getSelectedOptionKeys(text = '', options, isMultiple) {
     text = text.split(',');
   }
   let result = [];
-  for (let i = 0; i < options.length; i++) {
-    const option = options[i];
+  const canImportOptions = options.filter(o => !o.isDeleted);
+  for (let i = 0; i < canImportOptions.length; i++) {
+    const option = canImportOptions[i];
     if (isMultiple ? _.includes(text, option.value) : option.value === text) {
       result.push(option.key);
     }

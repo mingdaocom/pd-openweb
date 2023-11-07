@@ -18,6 +18,7 @@ import {
 } from 'src/pages/worksheet/views/GunterView/util';
 import { formatQuickFilter, getFilledRequestParams } from 'worksheet/util';
 import { PERIOD_TYPE } from 'src/pages/worksheet/views/GunterView/config';
+import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { getRequest } from 'src/util';
 import _ from 'lodash';
 import moment from 'moment';
@@ -272,9 +273,9 @@ export const updateViewConfig = view => {
       endZeroFormat: endControl.type === 16 ? 'YYYY-MM-DD 00:00' : 'YYYY-MM-DD',
       startType: startControl.type,
       endType: endControl.type,
-      startDisable: (startControl.fieldPermission || '').split('')[1] === '0' || begindate.includes('time'),
-      endDisable: (endControl.fieldPermission || '').split('')[1] === '0' || enddate.includes('time'),
-      titleDisable: (titleControl.fieldPermission || '').split('')[1] === '0',
+      startDisable: startControl.disabled || !controlState(startControl, 3).editable,
+      endDisable: endControl.disabled || !controlState(endControl, 3).editable,
+      titleDisable: titleControl.disabled || !controlState(titleControl, 3).editable,
       clickType: clicktype || '0',
     };
     dispatch({ type: 'CHANGE_GUNTER_VIEW_CONFIG', data: newConfig });

@@ -190,6 +190,7 @@ export default class Overview extends Component {
         dayRange: selectedDate,
         dateDemension: selectedDate === 0 ? '1d' : currentDimension,
         depFlag,
+        isApp: this.props.appId ? true : false,
         ...extra,
       })
       .then(({ workflow = {}, record = {}, app = {}, attachment = {} }) => {

@@ -1027,7 +1027,7 @@ export default class SingleControlValue extends Component {
 
     // 时间
     if (item.type === 46) {
-      const lang = getCookie('i18n_langtag') || getNavigatorLang();
+      const lang = getCookie('i18n_langtag') || md.global.Config.DefaultLang;
       const timeFormat = item.unit === '1' ? 'HH:mm' : 'HH:mm:ss';
 
       return (

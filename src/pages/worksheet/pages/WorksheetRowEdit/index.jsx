@@ -56,7 +56,12 @@ class WorksheetRowEdit extends Component {
         if (data.resultCode === 1) {
           localStorage.setItem('currentProjectId', data.projectId);
           data.shareAuthor && (window.shareAuthor = data.shareAuthor);
-          data.clientId && (window.clientId = data.clientId);
+
+          if (data.clientId) {
+            window.clientId = data.clientId;
+            !sessionStorage.getItem('clientId') && sessionStorage.setItem('clientId', data.clientId);
+          }
+
           getGlobalMeta();
           this.setState({ loading: false, data, isError: false });
           resolve(data);

@@ -198,7 +198,7 @@ export default function WidgetAiRecommend({ worksheetName, ...rest }) {
 
   const handleSearch = () => {
     setStatus(1);
-    const lang = getCookie('i18n_langtag') || getNavigatorLang() || 'zh-Hans';
+    const lang = getCookie('i18n_langtag') || md.global.Config.DefaultLang;
     worksheetAjax
       .getAiFieldRecommendation({
         prompt: keywords,

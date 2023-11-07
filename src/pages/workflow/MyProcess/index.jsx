@@ -455,7 +455,7 @@ export default class MyProcess extends Component {
         </div>
         <div className="statesTab">
           <div
-            className={cx('item', { active: stateTab === TABS.WAITING_APPROVE })}
+            className={cx('item ellipsis', { active: stateTab === TABS.WAITING_APPROVE })}
             onClick={() => {
               this.setState({ approveCards: [] });
               this.handleChangeTab(TABS.WAITING_APPROVE);
@@ -465,7 +465,7 @@ export default class MyProcess extends Component {
             {waitingApproval > 0 ? <span className="processCount red">{waitingApproval}</span> : null}
           </div>
           <div
-            className={cx('item', { active: stateTab === TABS.WAITING_FILL })}
+            className={cx('item ellipsis', { active: stateTab === TABS.WAITING_FILL })}
             onClick={() => {
               this.handleChangeTab(TABS.WAITING_FILL);
             }}
@@ -474,7 +474,7 @@ export default class MyProcess extends Component {
             {waitingWrite > 0 ? <span className="processCount red">{waitingWrite}</span> : null}
           </div>
           <div
-            className={cx('item', { active: stateTab === TABS.WAITING_EXAMINE })}
+            className={cx('item ellipsis', { active: stateTab === TABS.WAITING_EXAMINE })}
             onClick={() => {
               this.handleChangeTab(TABS.WAITING_EXAMINE);
             }}
@@ -483,7 +483,7 @@ export default class MyProcess extends Component {
             {waitingExamine > 0 ? <span className="processCount red">{waitingExamine}</span> : null}
           </div>
           <div
-            className={cx('item', { active: stateTab === TABS.MY_SPONSOR })}
+            className={cx('item ellipsis', { active: stateTab === TABS.MY_SPONSOR })}
             onClick={() => {
               this.handleChangeTab(TABS.MY_SPONSOR);
             }}
@@ -493,7 +493,7 @@ export default class MyProcess extends Component {
           </div>
           <div className="cuttingLine" />
           <div
-            className={cx('item', { active: stateTab === TABS.COMPLETE })}
+            className={cx('item ellipsis', { active: stateTab === TABS.COMPLETE })}
             onClick={() => {
               this.handleChangeTab(TABS.COMPLETE);
             }}

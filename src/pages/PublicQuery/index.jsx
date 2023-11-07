@@ -51,7 +51,11 @@ class WorksheetSahre extends React.Component {
       const { appId = '', worksheetId = '', projectId } = res.worksheet || {};
       const { viewId = '', rowId = '', exported = false, shareAuthor, clientId } = res;
       shareAuthor && (window.shareAuthor = shareAuthor);
-      clientId && (window.clientId = clientId);
+
+      if (clientId) {
+        window.clientId = clientId;
+        !sessionStorage.getItem('clientId') && sessionStorage.setItem('clientId', clientId);
+      }
 
       preall({ type: 'function' }, { allownotlogin: true, requestParams: { projectId } });
 

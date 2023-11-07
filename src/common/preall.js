@@ -64,15 +64,12 @@ function clearLocalStorage() {
 }
 
 function getGlobalMeta({ allownotlogin, requestParams } = {}) {
-  const lang = getCookie('i18n_langtag') || getNavigatorLang();
   const urlparams = qs.parse(unescape(unescape(window.location.search.slice(1))));
   let args = requestParams || {};
   const urlObj = new URL(decodeURIComponent(location.href));
 
   // 处理location.href方法异步的问题
   window.isWaiting = false;
-  // 设置语言
-  $('body').attr('id', lang);
 
   if (/^#publicapp/.test(urlObj.hash)) {
     window.isPublicApp = true;
@@ -89,6 +86,11 @@ function getGlobalMeta({ allownotlogin, requestParams } = {}) {
   clearLocalStorage(); // 清除 AMap 和 体积大于200k的 localStorage
 
   global.getGlobalMeta(args, { ajaxOptions: { async: false } }).then(data => {
+    const lang = getCookie('i18n_langtag') || data['md.global'].Config.DefaultLang;
+
+    // 设置语言
+    $('body').attr('id', lang);
+
     if (allownotlogin || window.isPublicApp) {
       window.config = data.config || {};
       if (!window.md) {
@@ -142,7 +144,7 @@ function getGlobalMeta({ allownotlogin, requestParams } = {}) {
 
     // 检测语言是否一致
     if (md.global.Account.lang && md.global.Account.lang !== lang && !md.global.Account.isPortal) {
-      if (md.global.Config.defaultLang === lang) {
+      if (md.global.Config.DefaultLang === lang) {
         setCookie('i18n_langtag', md.global.Account.lang);
         window.location.reload();
       } else {
@@ -165,7 +167,7 @@ function getGlobalMeta({ allownotlogin, requestParams } = {}) {
   });
 }
 
-const wrapComponent = function (Comp, { allownotlogin, requestParams } = {}) {
+const wrapComponent = function(Comp, { allownotlogin, requestParams } = {}) {
   class Pre extends React.Component {
     constructor(props) {
       super(props);
@@ -195,7 +197,7 @@ const wrapComponent = function (Comp, { allownotlogin, requestParams } = {}) {
   return Pre;
 };
 
-export default function (Comp, { allownotlogin, requestParams } = {}) {
+export default function(Comp, { allownotlogin, requestParams } = {}) {
   if (_.isObject(Comp) && Comp.type === 'function') {
     getGlobalMeta({ allownotlogin, requestParams });
   } else {

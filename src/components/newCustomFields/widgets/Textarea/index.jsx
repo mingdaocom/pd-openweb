@@ -27,7 +27,10 @@ export default class Widgets extends Component {
   isOnComposition = false;
 
   componentWillReceiveProps(nextProps, nextState) {
-    if (this.text) {
+    if (
+      this.text &&
+      (!_.isEqual(nextProps.enumDefault, this.props.enumDefault) || !_.isEqual(nextProps.value, this.props.value))
+    ) {
       this.text.value =
         nextProps.enumDefault === 2 ? (nextProps.value || '').replace(/\r\n|\n/g, ' ') : nextProps.value || '';
     }

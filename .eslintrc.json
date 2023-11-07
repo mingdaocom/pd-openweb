@@ -33,7 +33,6 @@
     "stringToolMethod": false,
     "wx": false,
     "System": true,
-    "getNavigatorLang": true,
     "safeParse": true,
     "safeParseArray": true,
     "vm": true,

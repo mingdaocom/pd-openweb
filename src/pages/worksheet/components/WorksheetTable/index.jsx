@@ -638,6 +638,8 @@ function WorksheetTable(props, ref) {
   }, [showSummary, getColumnWidth, controls]);
   useEffect(() => {
     setCache('data', data);
+    const propsData = props.data.filter(r => !r.isSubListFooter);
+    const filteredData = data.filter(r => !r.isSubListFooter);
     let updatedRows = [];
     if (
       cache.prevColumns &&
@@ -648,10 +650,10 @@ function WorksheetTable(props, ref) {
     ) {
       updatedRows = props.data;
     } else if (
-      filterEmptyChildTableRows(props.data).length !== filterEmptyChildTableRows(data).length &&
-      filterEmptyChildTableRows(props.data).length > filterEmptyChildTableRows(data).length
+      filterEmptyChildTableRows(propsData).length !== filterEmptyChildTableRows(filteredData).length &&
+      filterEmptyChildTableRows(propsData).length > filterEmptyChildTableRows(filteredData).length
     ) {
-      updatedRows = props.data.filter(row => !_.find(data, r => r.rowid === row.rowid));
+      updatedRows = propsData.filter(row => !_.find(filteredData, r => r.rowid === row.rowid));
     } else {
       props.data.forEach(row => {
         const oldRow = _.find(data, r => r.rowid === row.rowid);

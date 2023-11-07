@@ -48,6 +48,24 @@ export const getDefaultCount = (data = {}, value = 0) => {
   return value;
 };
 
+// 关联记录、子表等他表字段需要处理controls
+const dealRelationControls = (controls = []) => {
+  return controls.map((control = {}) => {
+    if (control.type === 30) {
+      const currentItemRelate = _.find(controls, c => (control.dataSource || '').includes(c.controlId)) || {};
+      const currentItem = _.find(
+        currentItemRelate.relationControls || [],
+        r => r.controlId === control.sourceControlId,
+      );
+      return currentItem && _.includes([9, 10, 11], currentItem.type)
+        ? { ...control, dataSource: currentItem.dataSource }
+        : control;
+    } else {
+      return control;
+    }
+  });
+};
+
 export default class SearchWorksheetDialog extends Component {
   constructor(props) {
     super(props);
@@ -478,7 +496,7 @@ export default class SearchWorksheetDialog extends Component {
                       version={sheetId}
                       projectId={globalSheetInfo.projectId}
                       appId={globalSheetInfo.appId}
-                      columns={controls}
+                      columns={dealRelationControls(controls)}
                       conditions={filterItems}
                       sheetSwitchPermit={sheetSwitchPermit}
                       from="relateSheet"

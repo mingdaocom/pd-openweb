@@ -243,7 +243,7 @@ export const canSetAsTitle = data => {
   return !includes(NOT_AS_TITLE_CONTROL, type);
 };
 
-function genWidgetRowAndCol(widgets) {
+export function genWidgetRowAndCol(widgets) {
   return widgets.map((rowItem, row) => rowItem.map((colItem, col) => ({ ...colItem, row, col })));
 }
 

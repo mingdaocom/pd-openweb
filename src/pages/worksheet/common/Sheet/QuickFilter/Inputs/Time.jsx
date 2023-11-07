@@ -101,7 +101,7 @@ const Icon = styled.i`
 export default function Time(props) {
   const { control, dateRange, minValue, maxValue, onChange = () => {} } = props;
   const [active, setActive] = useState();
-  const lang = getCookie('i18n_langtag') || getNavigatorLang();
+  const lang = getCookie('i18n_langtag') || md.global.Config.DefaultLang;
   const unit = String(control.unit);
   const timeFormat = unit === '1' ? 'HH:mm' : 'HH:mm:ss';
   const isEmpty = dateRange === 18 ? !(minValue && maxValue) : !dateRange;

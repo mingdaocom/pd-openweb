@@ -50,6 +50,9 @@ export default class RecordItem extends React.PureComponent {
 
   constructor(props) {
     super(props);
+    this.state = {
+      coverError: false,
+    };
   }
 
   get cover() {
@@ -116,6 +119,7 @@ export default class RecordItem extends React.PureComponent {
       showCoverAndControls,
       onClick,
     } = this.props;
+    const { coverError } = this.state;
     const { cover } = this;
     const titleText = getTitleTextFromRelateControl(control, data);
     const size = showCoverAndControls && showControls.length ? SIZE.BIG : SIZE.NORMAL;
@@ -149,7 +153,11 @@ export default class RecordItem extends React.PureComponent {
         onClick={onClick}
         style={{ ...style, minHeight: height }}
       >
-        {showCoverAndControls && coverCid && <Cover size={coverSize}>{coverUrl && <img src={coverUrl} />}</Cover>}
+        {showCoverAndControls && coverCid && (
+          <Cover size={coverSize}>
+            {coverUrl && !coverError && <img src={coverUrl} onError={() => this.setState({ coverError: true })} />}
+          </Cover>
+        )}
         <div className="flex overflowHidden">
           <div
             className={cx('title', { Bold: titleIsBold })}

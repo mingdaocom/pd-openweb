@@ -141,7 +141,7 @@ function Func(props, ref) {
               checked={type === 'javascript'}
               onClick={checked => {
                 setType(checked ? 'mdfunction' : 'javascript');
-                const tempValue = codeEditor.current.getValue();
+                const tempValue = codeEditor.current ? codeEditor.current.getValue() : '';
                 setCodeEditorLoading(true);
                 setTimeout(() => {
                   setCodeEditorLoading(false);

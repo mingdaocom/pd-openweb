@@ -26,7 +26,7 @@ export default class Date extends Component {
   }
   render() {
     const { control = {}, type, value, minValue, maxValue, onChange } = this.props;
-    const lang = getCookie('i18n_langtag') || getNavigatorLang();
+    const lang = getCookie('i18n_langtag') || md.global.Config.DefaultLang;
     const unit = String(control.unit);
     const timeFormat = unit === '1' ? 'HH:mm' : 'HH:mm:ss';
     return (

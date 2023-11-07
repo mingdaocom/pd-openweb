@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { head } from 'lodash';
 import SplitLineSection from '../../widgetSetting/components/SplitLineConfig/SplitLineSection';
+import { genWidgetRowAndCol } from '../../util';
 
 export default function SplitLine(props) {
   const { data, styleInfo, path = [], widgets = [], activeWidget } = props;
@@ -18,7 +19,7 @@ export default function SplitLine(props) {
     <SplitLineSection
       row={row}
       data={data}
-      widgets={widgets}
+      widgets={genWidgetRowAndCol(widgets)}
       sectionstyle={sectionStyle}
       activeWidget={activeWidget}
     />

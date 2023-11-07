@@ -16,7 +16,7 @@ export default () => {
     { text: 'English', value: 'en', display: 'EN' },
     { text: '日本語', value: 'ja', display: 'JA' },
   ];
-  const currentValue = getCookie('i18n_langtag') || getNavigatorLang() || 'zh-Hans';
+  const currentValue = getCookie('i18n_langtag') || md.global.Config.DefaultLang;
 
   return (
     <Box className="flexRow alignItemsCenter justifyContentCenter">

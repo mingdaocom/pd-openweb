@@ -83,7 +83,7 @@ export default class Widgets extends Component {
     const allowweek = advancedSetting.allowweek || '1234567';
     const allowtime = advancedSetting.allowtime || '00:00-24:00';
     const timeinterval = advancedSetting.timeinterval || '1';
-    const lang = getCookie('i18n_langtag') || getNavigatorLang();
+    const lang = getCookie('i18n_langtag') || md.global.Config.DefaultLang;
     let showTime;
     let minDate;
     let maxDate;

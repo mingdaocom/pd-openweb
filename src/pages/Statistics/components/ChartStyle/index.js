@@ -1129,6 +1129,9 @@ export default class ChartStyle extends Component {
               {this.renderIndicator()}
             </Fragment>
           )}
+          {[reportTypes.ProgressChart].includes(reportType) && (
+            this.renderLayout()
+          )}
           {[reportTypes.TopChart].includes(reportType) &&
             this.renderTopChart()}
           {![reportTypes.NumberChart, reportTypes.CountryLayer, reportTypes.DualAxes, reportTypes.BidirectionalBarChart, reportTypes.WordCloudChart, reportTypes.GaugeChart, reportTypes.ProgressChart, reportTypes.ScatterChart].includes(reportType) &&

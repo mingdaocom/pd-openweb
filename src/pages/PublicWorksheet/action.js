@@ -423,6 +423,7 @@ export function getPublicWorksheet(params, cb = info => {}) {
     .then(async data => {
       if (data.clientId) {
         window.clientId = data.clientId;
+        !sessionStorage.getItem('clientId') && sessionStorage.setItem('clientId', data.clientId);
       }
 
       localStorage.setItem('currentProjectId', data.projectId);

@@ -14,7 +14,9 @@ export const setPssId = (id, verification = false) => {
       window.setCookie('md_pss_id', id);
     }
 
-    window.top !== window.self && safeLocalStorageSetItem('md_pss_id', id);
+    if (window.top !== window.self || md.global.Config.HttpOnly) {
+      safeLocalStorageSetItem('md_pss_id', id);
+    }
   }
 };
 
@@ -26,8 +28,6 @@ export const getPssId = () => {
   const storagePssId = window.localStorage.getItem('md_pss_id');
   const cookiePssId = window.getCookie('md_pss_id');
 
-  // 兼容旧的用户一直登录着未退出的特殊情况
-  window.top === window.self && window.localStorage.removeItem('md_pss_id');
   return cookiePssId || storagePssId;
 };
 

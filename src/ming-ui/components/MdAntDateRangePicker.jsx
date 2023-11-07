@@ -6,7 +6,7 @@ import zh_TW from 'antd/es/date-picker/locale/zh_TW';
 import en_US from 'antd/es/date-picker/locale/en_US';
 import ja_JP from 'antd/es/date-picker/locale/ja_JP';
 
-const lang = getCookie('i18n_langtag') || getNavigatorLang();
+const lang = getCookie('i18n_langtag') || md.global.Config.DefaultLang;
 
 const Comp = styled(DatePicker.RangePicker)`
   border: none !important;

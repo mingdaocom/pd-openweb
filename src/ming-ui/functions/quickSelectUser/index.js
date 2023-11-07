@@ -96,7 +96,8 @@ export function UserSelector(props) {
   }
   if (type === 'external' || keywords) {
     prefixUsers = [];
-  } else {
+  }
+  if (type !== 'external') {
     users = staticAccounts.concat(users);
   }
   function handleSelect(user) {

@@ -79,7 +79,7 @@ export default class AccountChart extends React.Component {
           return (
             <div
               className={cx('languagueItem', {
-                active: (getCookie('i18n_langtag') || getNavigatorLang()) === item.key,
+                active: (getCookie('i18n_langtag') || md.global.Config.DefaultLang) === item.key,
               })}
               onClick={() => {
                 if (!md.global.Account.isPortal) {

@@ -187,7 +187,7 @@ export const SectionItemWrap = styled.div`
     text-align: center;
     margin-left: 8px;
     border-radius: 5px;
-    ${props => (props.visible ? 'transform: rotate(90deg)' : '')};
+    ${props => (props.visible ? 'transform: rotate(180deg)' : '')};
     i {
       color: #000000;
     }

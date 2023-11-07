@@ -88,7 +88,11 @@ const parseStaticValue = (item, staticValue) => {
 
     if (value.accountId === 'user-self') {
       if (window.isPublicWorksheet) return '';
-      if ((item.advancedSetting || {}).usertype === '2' && !md.global.Account.isPortal) return '';
+      if (
+        ((item.advancedSetting || {}).usertype === '2' && !md.global.Account.isPortal) ||
+        ((item.advancedSetting || {}).usertype !== '2' && md.global.Account.isPortal)
+      )
+        return '';
       const obj = _.pick(_.get(md, ['global', 'Account']), ['accountId', 'fullname', 'avatarMiddle']);
       if (_.isEmpty(obj)) return '';
       return { ...obj, avatar: obj.avatarMiddle, name: obj.fullname };
@@ -644,7 +648,7 @@ const parseDateFormula = (data, currentItem, recordCreateTime) => {
       return parseFloat(formatColumnToText(matchedColumn, true, true), 10);
     });
 
-    formulaResult = hasUndefinedColumn ? {} : calcDate(moment(date, 'YYYY-MM-DD HH:mm:ss'), expression);
+    formulaResult = hasUndefinedColumn ? {} : calcDate(date ? moment(date, 'YYYY-MM-DD HH:mm:ss') : '', expression);
     value = formulaResult.error || hasUndefinedColumn ? '' : formulaResult.result.format('YYYY-MM-DD HH:mm:ss');
   } else if (currentItem.enumDefault === 3) {
     const unit = TIME_UNIT[currentItem.unit] || 'd';
