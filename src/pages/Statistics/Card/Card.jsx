@@ -15,6 +15,7 @@ import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
 import MoreOverlay from './MoreOverlay';
 import charts from '../Charts';
 import { browserIsMobile, getAppFeaturesPath } from 'src/util';
+import { fillUrl } from 'src/router/navigateTo';
 import './Card.less';
 import _ from 'lodash';
 
@@ -133,7 +134,7 @@ class Card extends Component {
         reportId: report.id
       }).then(result => {
         if (result.id) {
-          window.open(`/worksheet/${appId}/view/${filter.viewId}?chartId=${result.id}&${getAppFeaturesPath()}`);
+          window.open(fillUrl(`/worksheet/${appId}/view/${filter.viewId}?chartId=${result.id}&${getAppFeaturesPath()}`));
         }
       });
     } else {

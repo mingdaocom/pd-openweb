@@ -9,7 +9,6 @@ import styled from 'styled-components';
 import PrivateKeyDialog from './PrivateKeyDialog';
 import DetailedDialog from './DetailedDialog';
 import Projects from './Projects';
-import weixinCode from '../../images/weixin.png';
 import moment from 'moment';
 
 const Wrap = styled.div`
@@ -321,27 +320,6 @@ const PrivateKey = props => {
       >
         <Icon icon="enterprise_network" />
         <span>{_l('付费升级')}</span>
-      </div>
-      <div className="personalEntrypointInfo flexRow valignWrapper">
-        {_l('密钥是用于激活')}
-        <a className="pointer" href="https://www.mingdao.com/privateDeployment.htm" target="_blank">
-          {_l('私有部署版本')}
-        </a>
-        ，{_l('建议您添加私有版微信客服，获得各类支持与问题解答')}
-        <Trigger
-          action={['hover']}
-          popup={<img className="card z-depth-2" style={{ width: 300 }} src={weixinCode} />}
-          popupAlign={{
-            offset: [0, 7],
-            points: ['tc', 'bc'],
-            overflow: { adjustX: 1, adjustY: 2 },
-          }}
-        >
-          <div className="addWeiXin pointer">
-            <Icon icon="weixin" className="mRight2" />
-            {_l('添加微信')}
-          </div>
-        </Trigger>
       </div>
       <div className="btnWrapper flexRow valignWrapper">
         <Button type="primary" onClick={() => setPrivateKeyDialogVisible(true)}>

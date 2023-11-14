@@ -150,6 +150,7 @@ class ChildTable extends React.Component {
       tempSheetColumnWidths: {},
       previewRowIndex: null,
       recordVisible: false,
+      error: false,
       cellErrors: {},
       loading: !!props.recordId && !props.initSource,
       selectedRowIds: [],

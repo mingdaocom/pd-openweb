@@ -130,7 +130,7 @@ export const updateNavGroup = () => {
     const { viewId = '' } = base;
     const view = views.find(o => o.viewId === viewId) || {};
     const navGroup = view.navGroup && view.navGroup.length > 0 ? view.navGroup[0] : {};
-    navGroup.controlId && dispatch(getNavGroupCount());
+    navGroup.controlId && window.localStorage.getItem('navGroupIsOpen') !== 'false' && dispatch(getNavGroupCount());
   };
 };
 
@@ -265,10 +265,13 @@ export function updateControlOfRow({ cell = {}, cells = [], recordId }, options 
 }
 
 export function updateRows(rowIds, value) {
-  return {
-    type: 'WORKSHEET_SHEETVIEW_UPDATE_ROWS_BY_ROWIDS',
-    rowIds,
-    rowUpdatedValue: value,
+  return (dispatch, getState) => {
+    dispatch({
+      type: 'WORKSHEET_SHEETVIEW_UPDATE_ROWS_BY_ROWIDS',
+      rowIds,
+      rowUpdatedValue: value,
+    });
+    dispatch(updateNavGroup());
   };
 }
 

@@ -57,8 +57,8 @@ window.delCookie = function delCookie(name) {
   if (getCookie(name) == null) {
     return;
   }
-  let cval = document.cookie.match(new RegExp('(^| )' + name + '=([^;]*)(;|$)'))[2];
-  if (cval != null) {
+  let cval = (document.cookie.match(new RegExp('(^| )' + name + '=([^;]*)(;|$)')) || [])[2];
+  if (!!cval) {
     if (document.domain.indexOf('.mingdao.com') == -1) {
       document.cookie = name + '=' + cval + ';expires=' + exp.toGMTString() + ';path=/';
     } else {

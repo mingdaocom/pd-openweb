@@ -168,7 +168,7 @@ function ExplanDetail(props) {
           <div className="workfloeRowName flexRow alignItemsCenter">
             <IsAppAdmin
               className="workflowCheckWrap"
-              appId={record.app.id}
+              appId={record.app ? record.app.id : undefined}
               desc={record.app ? record.app.name : undefined}
               appName={record.process.name}
               defaultIcon={
@@ -267,11 +267,14 @@ function ExplanDetail(props) {
           {explanInfo && `${explanInfo.name}（${explanInfo.resourceId}）`}
         </span>
         <span className="flex"></span>
-        {explanInfo && moment(explanInfo.expirationDatetime).add(1, 'd').isBefore(new Date()) && (
-          <span className="" style={{ color: '#f51744' }}>
-            {_l('服务已过期')}
-          </span>
-        )}
+        {explanInfo &&
+          moment(explanInfo.expirationDatetime)
+            .add(1, 'd')
+            .isBefore(new Date()) && (
+            <span className="" style={{ color: '#f51744' }}>
+              {_l('服务已过期')}
+            </span>
+          )}
       </div>
       <div className="explanDetailContent flex">
         <div className="actionCon flexRow">

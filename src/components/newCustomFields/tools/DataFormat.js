@@ -8,7 +8,7 @@ import { isRelateRecordTableControl, checkCellIsEmpty } from 'worksheet/util';
 import execValueFunction from 'src/pages/widgetConfig/widgetSetting/components/FunctionEditorDialog/Func/exec';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import { getDefaultCount } from 'src/pages/widgetConfig/widgetSetting/components/SearchWorksheet/SearchWorksheetDialog.jsx';
-import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting.js';
+import { getDatePickerConfigs, getShowFormat } from 'src/pages/widgetConfig/util/setting.js';
 import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
 import {
   Validator,
@@ -20,6 +20,7 @@ import {
   getEmbedValue,
   unTextSearch,
   controlState,
+  getArrBySpliceType,
 } from './utils';
 import intlTelInput from '@mdfe/intl-tel-input';
 import utils from '@mdfe/intl-tel-input/build/js/utils';
@@ -88,11 +89,7 @@ const parseStaticValue = (item, staticValue) => {
 
     if (value.accountId === 'user-self') {
       if (window.isPublicWorksheet) return '';
-      if (
-        ((item.advancedSetting || {}).usertype === '2' && !md.global.Account.isPortal) ||
-        ((item.advancedSetting || {}).usertype !== '2' && md.global.Account.isPortal)
-      )
-        return '';
+      if ((item.advancedSetting || {}).usertype === '2' && !md.global.Account.isPortal) return '';
       const obj = _.pick(_.get(md, ['global', 'Account']), ['accountId', 'fullname', 'avatarMiddle']);
       if (_.isEmpty(obj)) return '';
       return { ...obj, avatar: obj.avatarMiddle, name: obj.fullname };
@@ -601,6 +598,7 @@ const parseDateFormula = (data, currentItem, recordCreateTime) => {
     value = handleDotAndRound(currentItem, value);
   } else if (currentItem.enumDefault === 2) {
     let dateColumnType = 0;
+    let formatMode = 'YYYY-MM-DD HH:mm:ss';
     let formulaResult;
     let date;
     let hasUndefinedColumn;
@@ -612,6 +610,9 @@ const parseDateFormula = (data, currentItem, recordCreateTime) => {
         return;
       } else {
         dateColumnType = column.type;
+        try {
+          formatMode = getShowFormat(column);
+        } catch (err) {}
         date = formatColumnToText(column, true, true);
       }
     } else if (currentItem.sourceControlId === '$ctime$') {
@@ -647,8 +648,7 @@ const parseDateFormula = (data, currentItem, recordCreateTime) => {
 
       return parseFloat(formatColumnToText(matchedColumn, true, true), 10);
     });
-
-    formulaResult = hasUndefinedColumn ? {} : calcDate(date ? moment(date, 'YYYY-MM-DD HH:mm:ss') : '', expression);
+    formulaResult = hasUndefinedColumn ? {} : calcDate(date ? moment(date, formatMode) : '', expression);
     value = formulaResult.error || hasUndefinedColumn ? '' : formulaResult.result.format('YYYY-MM-DD HH:mm:ss');
   } else if (currentItem.enumDefault === 3) {
     const unit = TIME_UNIT[currentItem.unit] || 'd';
@@ -1914,20 +1914,24 @@ export default class DataFormat {
 
   /**
    * 能否执行查询（条件字段、字段值存在&&当前变更字段有值）
+   * 查询条件支持且或，分组判断
    */
   getSearchStatus = (filters = [], controls = []) => {
-    return _.every(filters, item => {
-      // 固定值|字段值
-      const isDynamicValue = item.dynamicSource && item.dynamicSource.length > 0;
-      //筛选值字段
-      const fieldResult =
-        _.includes(['rowid', 'currenttime'], _.get(item.dynamicSource[0] || {}, 'cid')) ||
-        (_.find(this.data, da => da.controlId === _.get(item.dynamicSource[0] || {}, 'cid')) || {}).value;
-      //条件字段
-      const conditionExit = _.find(controls.concat(SYSTEM_CONTROLS), con => con.controlId === item.controlId);
-      return isDynamicValue
-        ? fieldResult && fieldResult !== '[]' && fieldResult !== '{}' && fieldResult !== 0
-        : conditionExit;
+    const splitFilters = getArrBySpliceType(filters);
+    return _.some(splitFilters, (items = []) => {
+      return _.every(items, item => {
+        // 固定值|字段值
+        const isDynamicValue = item.dynamicSource && item.dynamicSource.length > 0;
+        //筛选值字段
+        const fieldResult =
+          _.includes(['rowid', 'currenttime'], _.get(item.dynamicSource[0] || {}, 'cid')) ||
+          (_.find(this.data, da => da.controlId === _.get(item.dynamicSource[0] || {}, 'cid')) || {}).value;
+        //条件字段
+        const conditionExit = _.find(controls.concat(SYSTEM_CONTROLS), con => con.controlId === item.controlId);
+        return isDynamicValue
+          ? fieldResult && fieldResult !== '[]' && fieldResult !== '{}' && fieldResult !== 0
+          : conditionExit;
+      });
     });
   };
 

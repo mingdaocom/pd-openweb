@@ -269,11 +269,11 @@ export default class Text extends React.Component {
           if (isKeyBoardInputChar(e.key)) {
             this.tempKey.push(e.key);
           }
-          if (cell.type === 6 || cell.type === 8) {
-            value = formatNumberFromInput(e.key, false);
-          }
           if (!e.isInputValue && (!value || !isKeyBoardInputChar(e.key))) {
             return;
+          }
+          if (cell.type === 6 || cell.type === 8) {
+            value = formatNumberFromInput(e.key, false);
           }
           updateEditingStatus(true, () => {
             setTimeout(() => {

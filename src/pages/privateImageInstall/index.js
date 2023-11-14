@@ -315,7 +315,7 @@ class PrivateImageInstall extends Component {
       <div className="body completeInstall">
         <img src={weixinCode} className="weixinCode" />
         <div className="title">{_l('太棒了！ 您完成了安装')}</div>
-        <div className="info">{_l('建议您添加私有版微信客服，获得各类支持与问题解答')}</div>
+        <div className="info">{_l('建议您扫码注册并收藏工单系统，获得各类支持与问题解答')}</div>
         <Button
           className="btn"
           type="primary"

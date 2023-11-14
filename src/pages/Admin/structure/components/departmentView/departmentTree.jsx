@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Icon, LoadDiv } from 'ming-ui';
+import { Icon, LoadDiv, Tooltip } from 'ming-ui';
 import { Tree } from 'antd';
 import {
   initRoot,
@@ -341,8 +341,10 @@ class DepartmentTree extends React.Component {
             key={item.departmentId}
             title={
               <React.Fragment>
-                <span className="departmentName overflow_ellipsis WordBreak">
-                  {item.departmentName}
+                <span className="departmentName WordBreak">
+                  <Tooltip text={<span>{item.departmentName}</span>}>
+                    <span className="InlineBlock wMax100 ellipsis">{item.departmentName}</span>
+                  </Tooltip>
                   <span
                     className="departmentAction"
                     onClick={e => {

@@ -16,12 +16,11 @@ export default class Branch extends Component {
 
   componentDidMount() {
     const { processId, selectNodeId, selectNodeType } = this.props;
-    const { data } = this.state;
 
     flowNode.getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType }).then(result => {
       this.setState({
         name: result.name,
-        data: result.conditions.length ? result.conditions : data,
+        data: result.conditions.length ? result.conditions : this.state.data,
         controls: result.flowNodeAppDtos,
       });
     });

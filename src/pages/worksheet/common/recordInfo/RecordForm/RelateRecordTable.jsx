@@ -939,6 +939,9 @@ export default function RelateRecordTable(props) {
                   });
                 });
               } else if (changes.controlId) {
+                if (changes.value === 'deleteRowIds: all') {
+                  changes.value = '';
+                }
                 needUpdateCells.push(changes);
               }
               handleUpdateCell({ cells: needUpdateCells, updateRecordId: row.rowid }, options);

@@ -142,7 +142,7 @@ export default class AdminWorkflowList extends Component {
 
     this.postList.then(result => {
       this.setState({
-        list: pageIndex === 1 ? result.processes : list.concat(result.processes),
+        list: result.processes,
         count: result.count,
         loading: false,
       });

@@ -1,6 +1,7 @@
 import { ajax, login, browserIsMobile, getRequest, checkLogin, formatOtherParam, addOtherParam } from 'src/util/sso';
 import { setPssId } from 'src/util/pssId';
 import _ from 'lodash';
+import preall from 'src/common/preall';
 
 const { code, state, url, p, ...otherParam } = getRequest();
 const isMobile = browserIsMobile();
@@ -23,6 +24,7 @@ if (code) {
       succees: result => {
         const { accountResult, sessionId } = result.data;
         if (accountResult === 1) {
+          preall({ type: 'function' });
           setPssId(sessionId);
           if (url) {
             location.href = decodeURIComponent(url);

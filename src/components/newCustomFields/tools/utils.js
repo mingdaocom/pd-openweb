@@ -989,3 +989,16 @@ export const getControlsByTab = (controls = []) => {
 
   return { commonData, tabData };
 };
+
+export function getArrBySpliceType(filters = []) {
+  let num = 0;
+  return Object.values(
+    filters.reduce((res, item) => {
+      res[num] ? res[num].push(item) : (res[num] = [item]);
+      if (item.spliceType === 2) {
+        num++;
+      }
+      return res;
+    }, {}),
+  );
+}

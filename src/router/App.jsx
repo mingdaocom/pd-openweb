@@ -264,7 +264,7 @@ export default class App extends Component {
                   }}
                 >
                   <Icon icon="weixin" className="mRight2" />
-                  {_l('添加微信')}
+                  {_l('提交工单')}
                 </span>
               </Trigger>
               <span className="Gray_9e">{_l('咨询并延长技术支持或查看 ')}</span>

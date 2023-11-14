@@ -10,7 +10,7 @@ const DragPointer = styled.div`
   flex: 1;
   width: 100%;
   overflow: hidden;
-  min-height: 20px;
+  min-height: 80px;
   min-width: 20px;
   .line {
     margin-top: 0px;

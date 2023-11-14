@@ -403,6 +403,12 @@ export default class extends Component {
 
     this.setCount(newYaxisList);
 
+    if (isVertical) {
+      baseConfig.maxColumnWidth = 160;
+    } else {
+      baseConfig.maxBarWidth = 160;
+    }
+
     if (isPile) {
       // 堆叠
       baseConfig.isStack = true;

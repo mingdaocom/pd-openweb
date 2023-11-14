@@ -1,31 +1,13 @@
 import React, { Fragment, useState, useEffect, useRef } from 'react';
-import { Switch, LoadDiv, Dialog, Icon } from 'ming-ui';
+import { LoadDiv, Dialog } from 'ming-ui';
 import { Button, Divider } from 'antd';
-import Trigger from 'rc-trigger';
 import EmailDialog from './components/EmailDialog';
 import MessageSettings from './components/MessageSettings';
 import emailApi from 'src/api/email';
 import smsApi from 'src/api/sms';
-import styled from 'styled-components';
 import tencentyunIcon from '../images/tencentyunIcon.png';
 import aliyunIcon from '../images/aliyunIcon.png';
-import weixin from '../images/weixin.png';
 import _ from 'lodash';
-
-const PrivateDesc = styled.div`
-  align-items: center;
-  background: #F5F5F5;
-  padding: 6px 12px;
-  border-radius: 4px;
-  display: flex;
-  .addWeiXin {
-    font-size: 13px;
-    font-weight: bold;
-    color: #47B14B;
-    padding: 2px 10px;
-    border-radius: 24px;
-  }
-`;
 
 const Email = props => {
   const [emailDialogVisible, setEmailDialogVisible] = useState(false);
@@ -185,24 +167,6 @@ const Message = props => {
           {_l('帮助')}
         </a>
       </div>
-      <PrivateDesc className="Font13 mBottom15">
-        {_l('设置短信服务需要先购买腾讯云或阿里云的「短信服务」，如需自定义短信服务请')}
-        <Trigger
-          action={['hover']}
-          popup={<img className="card z-depth-2" style={{ width: 300 }} src={weixin} />}
-          popupAlign={{
-            offset: [0, 7],
-            points: ['tc', 'bc'],
-            overflow: { adjustX: 1, adjustY: 2 },
-          }}
-        >
-          <div className="addWeiXin pointer">
-            <Icon icon="weixin" className="mRight2" />
-            {_l('添加微信')}
-          </div>
-        </Trigger>
-        {_l('寻求技术支持')}
-      </PrivateDesc>
       {loading ? (
         <LoadDiv />
       ) : (

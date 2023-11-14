@@ -78,12 +78,12 @@ class ProgressChart extends Component {
     const rule = _.get(colorRules[0], 'dataBarRule') || {};
     const titleFormatter = () => {
       if (showValueType == 1) {
-        return formatrChartValue(data.value, false, yaxisList);
+        return formatrChartValue(data.value, false, yaxisList, null, false);
       }
       if (showValueType == 2) {
         return `${(percentValue * 100).toFixed(2)} %`;
       }
-      return `${formatrChartValue(data.value, false, yaxisList)}/${formatrChartValue(data.targetValue, false, yaxisList)}`;
+      return `${formatrChartValue(data.value, false, yaxisList, null, false)}/${formatrChartValue(data.targetValue, false, yaxisList)}`;
     }
     const getColor = () => {
       if (_.isEmpty(rule)) {

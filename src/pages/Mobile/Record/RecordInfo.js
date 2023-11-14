@@ -167,7 +167,7 @@ class Record extends Component {
       let formStyleImggeData = coverid
         ? JSON.parse(formStyleControl.value || '[]').filter(i => _.includes(['.png', '.jpg', '.jpeg'], i.ext))
         : [];
-      const childTableControlIds = updateRulesData({ rules: this.state.rules, data: receiveControls })
+      const childTableControlIds = updateRulesData({ rules: worksheetInfoResult.rules, data: receiveControls })
         .filter(item => item.type === 34 && !item.hidden && controlState(item, from).visible)
         .map(it => it.controlId);
 

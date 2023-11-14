@@ -51,6 +51,7 @@ class PrintForm extends React.Component {
       ajaxUrlStr: '',
       showPdf: false,
       saveLoading: false,
+      approval: [],
     };
   }
   componentWillMount = () => {
@@ -251,12 +252,12 @@ class PrintForm extends React.Component {
             });
           }
         });
-
         this.setState({
           printData: {
             ...this.state.printData,
             approval: _approval,
           },
+          approval: _approval,
         });
       });
     });
@@ -733,7 +734,7 @@ class PrintForm extends React.Component {
   };
 
   render() {
-    const { params, printData, isChange, showSaveDia, isLoading, error, showPdf, sheetSwitchPermit } =
+    const { params, printData, isChange, showSaveDia, isLoading, error, showPdf, sheetSwitchPermit, showHeader, approval } =
       this.state;
     const { type, isDefault, worksheetId, viewId } = params;
     let { receiveControls = [], systemControl = [] } = printData;
@@ -782,7 +783,10 @@ class PrintForm extends React.Component {
           });
         }
       },
-      printData: printData,
+      printData: {
+        ...printData,
+        approval: approval
+      },
       saveTem: this.saveTem,
       saveFn: this.saveFn,
       downFn: this.downFn,

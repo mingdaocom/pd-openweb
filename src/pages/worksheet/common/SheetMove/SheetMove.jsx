@@ -52,6 +52,7 @@ export default class SheetMove extends Component {
   handleChangeApp(appId) {
     this.setState({
       appValue: appId,
+      groupingValue: ''
     });
     homeApp
       .getApp({

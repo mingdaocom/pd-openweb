@@ -140,7 +140,7 @@ export function formatControlValue(cell) {
         }
         return cell.enumDefault === 1 ? parsedData.slice(0, 1) : parsedData;
       case 34: // SUBLIST 子表
-        return _.isObject(value) ? _.get(value, 'rows') : [...new Array(value++)];
+        return _.isObject(value) ? _.get(value, 'rows') : [...new Array(value ? Number(value) : 0)];
       case 30: // SHEETFIELD 他表字段
         return formatControlValue(
           _.assign({}, cell, {

@@ -99,6 +99,8 @@ class FillRecordControls extends React.Component {
             if (_.isUndefined(c.dataSource)) {
               return undefined;
             }
+            // 自定义动作异化：标签页不能配置，所以默认都显示
+            if (c.type === 52) return { ...c, controlPermissions: '111', fieldPermission: '111' };
             if (!writeControl) {
               return {
                 ...c,

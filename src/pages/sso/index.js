@@ -1,6 +1,17 @@
-import { ajax, login, browserIsMobile, getRequest, checkLogin, isBefore, replenishRet, formatOtherParam, addOtherParam } from 'src/util/sso';
+import {
+  ajax,
+  login,
+  browserIsMobile,
+  getRequest,
+  checkLogin,
+  isBefore,
+  replenishRet,
+  formatOtherParam,
+  addOtherParam,
+} from 'src/util/sso';
 import { setPssId } from 'src/util/pssId';
 import _ from 'lodash';
+import preall from 'src/common/preall';
 
 const { t, i, ret, url, code, p, pc_slide = '', ...otherParam } = getRequest();
 const isPcSlide = pc_slide.includes('true');
@@ -28,6 +39,7 @@ function start() {
         succees: result => {
           const { accountResult, sessionId } = result.data;
           if (accountResult === 1) {
+            preall({ type: 'function' });
             setPssId(sessionId);
             if (url) {
               location.href = decodeURIComponent(url);
@@ -100,14 +112,14 @@ function start() {
         succees: result => {
           const { corpId, state, clientWorkingPattern } = result.data;
           if (corpId) {
-            dd.ready(function () {
+            dd.ready(function() {
               dd.runtime.permission.requestAuthCode({
                 corpId: corpId,
-                onSuccess: function (result) {
+                onSuccess: function(result) {
                   const { code } = result;
-                  const dingdingLoginUrl = `/sso/dingding?state=${state}&ret=${encodeURIComponent(newRet || '')}&i=${
-                    i || ''
-                  }&code=${code}&pc_slide=${pc_slide}`;
+                  const dingdingLoginUrl = `/sso/dingding?state=${state}&ret=${encodeURIComponent(
+                    newRet || '',
+                  )}&i=${i || ''}&code=${code}&pc_slide=${pc_slide}`;
                   if (dd.pc && !isPcSlide) {
                     if (clientWorkingPattern === 1) {
                       document.body.innerText = '已在默认浏览器打开';
@@ -122,7 +134,7 @@ function start() {
                 onFail: onFail,
               });
             });
-            dd.error(function (error) {
+            dd.error(function(error) {
               onFail(error);
             });
           }

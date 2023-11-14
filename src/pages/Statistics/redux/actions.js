@@ -24,6 +24,7 @@ import {
   redefineComplexControl,
 } from 'worksheet/common/WorkSheetFilter/util';
 import { getAppFeaturesPath } from 'src/util';
+import { fillUrl } from 'src/router/navigateTo';
 import _ from 'lodash';
 
 export const changeBase = (data) => {
@@ -325,7 +326,7 @@ export const getReportSingleCacheId = (data) => {
     }).then(result => {
       if (!result.id) return;
       if (isPersonal) {
-        window.open(`/worksheet/${worksheetInfo.worksheetId}/view/${viewId}?chartId=${result.id}&${getAppFeaturesPath()}`);
+        window.open(fillUrl(`/worksheet/${worksheetInfo.worksheetId}/view/${viewId}?chartId=${result.id}&${getAppFeaturesPath()}`));
       } else {
         dispatch(changeBase({
           reportSingleCacheId: result.id,

@@ -26,6 +26,7 @@ const RecordCardCellRelateRecord = styled.div`
   font-size: 13px;
   background-color: #e8e8e8;
   padding: 0 10px;
+  border-radius: 3px;
   margin-right: 6px;
 `;
 export default class RelateRecord extends React.Component {

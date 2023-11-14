@@ -3,6 +3,7 @@ import loginController from 'src/api/login';
 import { setPssId } from 'src/util/pssId';
 import './style.css';
 import './account-common.less';
+import preall from 'src/common/preall';
 
 var TPAuth = {};
 
@@ -139,6 +140,7 @@ TPAuth.login = function() {
       } else {
         var actionResult = TPAuth.options.actionResult;
         if (data.accountResult === actionResult.accountSuccess) {
+            preall({ type: 'function' });
             setPssId(data.sessionId, TPAuth.options.tpParams.autoLogin);
           // 登录成功
           if (data.isLoginState) {

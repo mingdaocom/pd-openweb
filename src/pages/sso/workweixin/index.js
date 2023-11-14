@@ -1,6 +1,7 @@
 import { ajax, login, browserIsMobile, getRequest, checkLogin } from 'src/util/sso';
 import { setPssId } from 'src/util/pssId';
 import _ from 'lodash';
+import preall from 'src/common/preall';
 
 const { code, p, i, s, ret, source, url, state } = getRequest();
 const isMobile = browserIsMobile();
@@ -22,6 +23,7 @@ if (source === 'wxwork') {
       succees: result => {
         const { accountResult, sessionId } = result.data;
         if (accountResult === 1) {
+          preall({ type: 'function' });
           setPssId(sessionId);
           if (url) {
             location.href = decodeURIComponent(url);
@@ -53,6 +55,7 @@ if (source === 'wxwork') {
       succees: result => {
         const { accountResult, sessionId } = result.data;
         if (accountResult === 1) {
+          preall({ type: 'function' });
           setPssId(sessionId);
           if (ret) {
             location.href = ret;

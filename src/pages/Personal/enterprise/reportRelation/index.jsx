@@ -48,7 +48,7 @@ export default class ReportRelation extends Component {
     });
 
     $.when(this.fetchAdmin(), this.fetchAllow(), this.fetchSubordinates()).then(
-      (isAdmin, res, { parent = {}, mySelf = {}, subordinates = [], subTotalCount }) => {
+      (isAdmin, res, { parent = {}, mySelf = {}, subordinates = [], subTotalCount, isLimited }) => {
         if (!_.isEmpty(mySelf) && this.state.pageIndex === 1) {
           this.setState({
             companyName,
@@ -60,6 +60,7 @@ export default class ReportRelation extends Component {
             children: subordinates,
             loading: false,
             subTotalCount,
+            isLimited,
           });
         } else {
           alert(_l('获取失败'), 2);
@@ -131,7 +132,7 @@ export default class ReportRelation extends Component {
             type: 4,
             page: true,
             actions: {
-              getUsers: function (args) {
+              getUsers: function(args) {
                 args = $.extend({}, args, {
                   accountId,
                   projectId: projectId,
@@ -141,7 +142,7 @@ export default class ReportRelation extends Component {
             },
           },
         ],
-        callback: function (accounts) {
+        callback: function(accounts) {
           structureController
             .addStructure({
               accountIds: _.map(accounts, ({ accountId }) => accountId),
@@ -149,7 +150,7 @@ export default class ReportRelation extends Component {
               isTop: false,
               projectId: projectId,
             })
-            .then(function (res) {
+            .then(function(res) {
               if (res && res.success) {
                 _this.fetchRender(1);
               } else {
@@ -174,7 +175,7 @@ export default class ReportRelation extends Component {
             accountId,
             projectId,
           })
-          .then(function (res) {
+          .then(function(res) {
             if (res) {
               _this.setState({ pageIndex: 1 });
               _this.fetchRender(1);
@@ -191,7 +192,16 @@ export default class ReportRelation extends Component {
   }
 
   renderContent() {
-    const { isAdmin, parents, me, children, allowStructureSelfEdit, subTotalCount, loadMoreLoading } = this.state;
+    const {
+      isAdmin,
+      parents,
+      me,
+      children,
+      allowStructureSelfEdit,
+      subTotalCount,
+      loadMoreLoading,
+      isLimited,
+    } = this.state;
     return (
       <div className="layoutWrapper">
         <div>
@@ -214,7 +224,7 @@ export default class ReportRelation extends Component {
           </div>
           <div className="list children">
             {children.length ? this.renderList(children) : null}
-            {allowStructureSelfEdit && (
+            {allowStructureSelfEdit && !isLimited && (
               <div className="node Font16 LineHeight80 Gray_bd addSub Hand" onClick={() => this.handleAddSub()}>
                 <span className="Font24 mRight15 mLeft24 TxtMiddle icon-add-member2" />
                 <span className="TxtMiddle">{_l('添加我的下属')}</span>
