@@ -227,6 +227,7 @@ function Sheet(props) {
                     />
                   )}
                   <GroupFilter
+                    key={view.viewId}
                     width={groupFilterWidth}
                     isOpenGroup={isOpenGroup}
                     changeGroupStatus={isOpen => {

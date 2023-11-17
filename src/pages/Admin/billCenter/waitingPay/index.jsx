@@ -328,11 +328,11 @@ export default class WaitingPay extends Component {
               </div>
               <div className="color_b Font13 LineHeight26">
                 &nbsp;&nbsp;&nbsp;{_l('账号：')}
-                <span>70090122000294994</span>
+                <span>641967782</span>
               </div>
               <div className="color_b Font13 LineHeight26">
                 {_l('开户行：')}
-                <span>{_l('宁波银行上海长宁支行')}</span>
+                <span>{_l('民生银行上海大宁支行')}</span>
               </div>
               <div className="warpSendBankInfoEmail mTop16">
                 <Checkbox onChange={this.handleCheckBox.bind(this)} checked={needEmail}>

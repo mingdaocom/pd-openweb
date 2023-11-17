@@ -34,11 +34,20 @@ function Chart({ data, mobileCount, isHorizontal, projectId, themeColor, pageCon
   const isContrastEmpty = _.isEmpty(data.contrast);
   const Charts = charts[data.reportType];
   const WithoutDataComponent = <WithoutData />;
+  const { drillParticleSizeType } = data.country || {};
   const filter = data.filter || {};
+  const { filterRangeId, rangeType, rangeValue, dynamicFilter } = filter;
+  const { filters, filtersGroup } = pageConfig;
   const viewOriginalSheet = (params) => {
     reportApi.getReportSingleCacheId({
-      ...filter,
       ...params,
+      appId: data.appId,
+      filterRangeId,
+      rangeType,
+      rangeValue,
+      dynamicFilter,
+      filters: [filters, filtersGroup].filter(_ => _),
+      particleSizeType: drillParticleSizeType,
       isPersonal: true,
       reportId: data.reportId
     }).then(result => {

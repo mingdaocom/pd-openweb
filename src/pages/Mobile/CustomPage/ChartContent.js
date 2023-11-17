@@ -68,7 +68,7 @@ const HorizontalChartContent = styled.div`
 `;
 
 function ChartContent(props) {
-  const { widget, reportId, name, accessToken, filters = [], pageComponents, projectId, themeColor, pageConfig } = props;
+  const { widget, reportId, name, accessToken, filters = [], pageComponents, projectId, themeColor } = props;
   const objectId = _.get(widget, 'config.objectId');
   const mobileCount = _.get(widget, 'config.mobileCount');
   const columnWidthConfig = _.get(widget, 'config.columnWidthConfig');
@@ -84,6 +84,12 @@ function ChartContent(props) {
     access_token: accessToken,
   };
   const filtersGroup = formatFiltersGroup(objectId, props.filtersGroup);
+  const pageConfig = {
+    ...props.pageConfig,
+    filters: filters.length ? filters : undefined,
+    filtersGroup: filtersGroup.length ? filtersGroup : undefined
+  };
+
   const request = useRef(null);
 
   useDeepCompareEffect(() => {

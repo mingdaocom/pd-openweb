@@ -96,6 +96,7 @@ export default function BtnName(props) {
               onClearIcon={btnType === 1 ? () => {
                 setBtnSetting({
                   ...btnSetting,
+                  icon: '',
                   config: {
                     ...config,
                     icon: '',

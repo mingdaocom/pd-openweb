@@ -20,7 +20,7 @@ class SheetRows extends Component {
       rowHasChanged: (row1, row2) => row1 !== row2,
     });
     const temp =
-      _.get(props, 'view.childType') === 1 && !_.isEmpty(currentSheetRows)
+      _.get(props, 'view.viewType') === 6 && _.get(props, 'view.childType') === 1 && !_.isEmpty(currentSheetRows)
         ? [...currentSheetRows[0]]
         : currentSheetRows;
     this.state = {
@@ -29,10 +29,10 @@ class SheetRows extends Component {
     };
   }
   componentWillReceiveProps(nextProps) {
-    const childType = _.get(nextProps, 'view.childType');
+    const { childType, viewType } = _.get(nextProps, 'view');
     if (nextProps.currentSheetRows.length !== this.props.currentSheetRows.length) {
       const temp =
-        childType === 1 && !_.isEmpty(nextProps.currentSheetRows)
+        viewType === 6 && childType === 1 && !_.isEmpty(nextProps.currentSheetRows)
           ? [...nextProps.currentSheetRows[0]]
           : nextProps.currentSheetRows;
       this.setState({
@@ -41,7 +41,7 @@ class SheetRows extends Component {
     }
     if (nextProps.batchOptCheckedData.length !== this.props.batchOptCheckedData) {
       const rows = nextProps.currentSheetRows
-        .filter((it, index) => (childType === 1 ? index === 0 : true))
+        .filter((it, index) => (viewType === 6 && childType === 1 ? index === 0 : true))
         .map(item => {
           return {
             check: nextProps.batchOptCheckedData.includes(item.rowid),

@@ -10,7 +10,6 @@ import ExportDialog from '../modules/ExportDialog';
 import Stat from '../../stat';
 import 'src/components/uploadAttachment/uploadAttachment';
 import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
-import dialogSelectGroups from 'src/components/dialogSelectGroups';
 const { TextArea } = Input;
 
 const headerTitle = {
@@ -92,7 +91,7 @@ export default class OtherTools extends Component {
       showDownload: false,
       checkProjectLimitFileSizeUrl: '',
       bucketType: 1,
-      callback: function (attachments, totalSize) {
+      callback: function(attachments, totalSize) {
         _this.setState({
           attachments,
         });
@@ -140,25 +139,11 @@ export default class OtherTools extends Component {
         filterOthers: true,
         filterOtherProject: true,
         dataRange: 2,
-        callback: function (userArr) {
+        callback: function(userArr) {
           _this.setState({
             users: userArr,
           });
         },
-      },
-    });
-  }
-
-  //选择群组
-  selectGroups() {
-    const _this = this;
-    new dialogSelectGroups({
-      defaultGroups: _this.state.groups,
-      projectId: Config.projectId,
-      selectCallback: function (groupArr) {
-        _this.setState({
-          groups: groupArr,
-        });
       },
     });
   }
@@ -370,15 +355,6 @@ export default class OtherTools extends Component {
               >
                 {_l('所有部门负责人 %0 人', projectDepartmentChargeUserCount)}
               </Checkbox>
-              <div className="mLeft20 mTop10">
-                <button
-                  type="button"
-                  className="ming Button Button--link ThemeColor3 adminHoverColor"
-                  onClick={this.selectGroups.bind(this)}
-                >
-                  {_l('选择群组')}
-                </button>
-              </div>
 
               <div className={cx('FlexRow mLeft20', { hidden: !groups.length })}>
                 {groups.map(item => {

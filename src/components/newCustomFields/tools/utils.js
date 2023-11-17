@@ -990,7 +990,7 @@ export const getControlsByTab = (controls = []) => {
   return { commonData, tabData };
 };
 
-export function getArrBySpliceType(filters = []) {
+export const getArrBySpliceType = (filters = []) => {
   let num = 0;
   return Object.values(
     filters.reduce((res, item) => {
@@ -1001,4 +1001,4 @@ export function getArrBySpliceType(filters = []) {
       return res;
     }, {}),
   );
-}
+};

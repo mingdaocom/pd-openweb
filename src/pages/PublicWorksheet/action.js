@@ -326,6 +326,22 @@ export async function getFormData(data, status) {
     });
   }
 
+  //自动填充未提交缓存内容
+  if (cacheDraft) {
+    const cacheData = localStorage.getItem(`cacheDraft_${shareId}`) || '[]';
+    const cacheFormData = JSON.parse(cacheData) || [];
+    if (!!cacheFormData.length) {
+      let formData = controls.map(item => {
+        const cacheField = cacheFormData.filter(c => c.controlId === item.controlId)[0] || {};
+        return { ...item, value: cacheField.value };
+      });
+      if (weChatSetting.isCollectWxInfo) {
+        formData = fillWxInfo(formData, weChatSetting);
+      }
+      return formData;
+    }
+  }
+
   //自动填充填写者上次提交内容
   if (abilityExpand.autoFillField.isAutoFillField && (writeScope !== 1 || isWeChatEnv)) {
     let formData = controls;
@@ -385,22 +401,6 @@ export async function getFormData(data, status) {
         } else {
           return item;
         }
-      });
-      if (weChatSetting.isCollectWxInfo) {
-        formData = fillWxInfo(formData, weChatSetting);
-      }
-      return formData;
-    }
-  }
-
-  //自动填充未提交缓存内容
-  if (cacheDraft) {
-    const cacheData = localStorage.getItem(`cacheDraft_${shareId}`) || '[]';
-    const cacheFormData = JSON.parse(cacheData) || [];
-    if (!!cacheFormData.length) {
-      let formData = controls.map(item => {
-        const cacheField = cacheFormData.filter(c => c.controlId === item.controlId)[0] || {};
-        return { ...item, value: cacheField.value };
       });
       if (weChatSetting.isCollectWxInfo) {
         formData = fillWxInfo(formData, weChatSetting);

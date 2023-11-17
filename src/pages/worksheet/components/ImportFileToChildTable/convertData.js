@@ -42,6 +42,14 @@ const localHandleTypes = [
   WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT,
 ];
 
+function getDateStringValue(dateString, control) {
+  let showFormat = /^\d{4}年\d{1,2}月\d{1,2}日/.test(dateString) ? 'YYYY年M月D日' : getShowFormat(control);
+  if (new Date(moment(dateString, showFormat).valueOf()).toString() !== 'Invalid Date') {
+    return moment(dateString, showFormat).format();
+  }
+  return;
+}
+
 async function convert({ projectId, worksheetId, controlId, mapConfig = [], controls = [], data = [] }) {
   const rows = [];
   const serverHandleControls = [];
@@ -71,9 +79,7 @@ async function convert({ projectId, worksheetId, controlId, mapConfig = [], cont
                 break;
               case WIDGETS_TO_API_TYPE_ENUM.DATE:
               case WIDGETS_TO_API_TYPE_ENUM.DATE_TIME:
-                if (new Date(moment(item[key], getShowFormat(control)).valueOf()).toString() !== 'Invalid Date') {
-                  value = moment(item[key], getShowFormat(control)).format();
-                }
+                value = getDateStringValue(item[key], control) || value;
                 break;
               case WIDGETS_TO_API_TYPE_ENUM.TIME:
                 if (/^\w\w:\w\w(:\w\w)?$/.test(item[key])) {

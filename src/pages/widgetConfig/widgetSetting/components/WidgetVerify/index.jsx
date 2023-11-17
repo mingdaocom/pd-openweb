@@ -92,6 +92,11 @@ export default function WidgetVerify(props) {
   const settings = fromPortal ? TYPES_SETTING_PORTAL[type] || ['required'] : TYPES_SETTING[type] || ['required'];
   const { max = '', min = '', checkrange = '0', showtype, otherrequired = '0' } = getAdvanceSetting(data);
   const { title, placeholder = [] } = TYPE_TO_TEXT[type] || {};
+  const otherText =
+    _.get(
+      _.find(options, i => i.key === 'other' && !i.isDeleted),
+      'value',
+    ) || _l('其他');
   return (
     <VerifySettingItem>
       <div className="settingItemTitle">{_l('验证')}</div>
@@ -167,13 +172,7 @@ export default function WidgetVerify(props) {
             onClick={checked => onChange(handleAdvancedSettingChange(data, { otherrequired: checked ? '0' : '1' }))}
           >
             <span>
-              {_l(
-                '选择“%0”时，补充信息必填',
-                _.get(
-                  _.find(options, i => i.key === 'other' && !i.isDeleted),
-                  'value',
-                ) || '其他',
-              )}
+              {_l('选择“%0”时，补充信息必填', otherText)}
               <Tooltip placement={'bottom'} title={_l('勾选后，当用户选中“其他”时，必须在后面的文本框中填写内容。')}>
                 <i className="icon-help tipsIcon Gray_9e Font16 pointer"></i>
               </Tooltip>

@@ -295,13 +295,11 @@ export default class DingSyncCourse extends React.Component {
         <img src="/src/pages/Admin/ding/dingSyncCourse/img/2-1.png" alt={_l('选择“应用开发”下的“企业内部开发”')} />
         <h3 className="Font18 Gray mTop40">{_l('3. 点击创建应用，完善应用信息')}</h3>
         <p className="Font14 Gray_75 mTop24 LineHeight22">
-          {_l('a. 应用类型选择“H5微应用”')}
-          <br />
           {this.state.addApp
-            ? _l('c. 填入应用名称（建议与应用名称保持一致）、应用描述、应用图标')
-            : _l('c. 填入应用名称、应用描述、应用图标')}
+            ? _l('填入应用名称（建议与应用名称保持一致）、应用描述、应用图标')
+            : _l('填入应用名称、应用描述、应用图标')}
           <br />
-          &nbsp;&nbsp;&nbsp;&nbsp;{_l('应用Logo建议：')}
+          {_l('应用Logo建议：')}
           <span
             className="downloadLogo"
             onClick={() => {
@@ -318,13 +316,11 @@ export default class DingSyncCourse extends React.Component {
           >
             {_l('点击下载')}
           </a>
-          <br />
-          {_l('d. 开发方式选择“企业自助开发”')}
         </p>
         <img src="/src/pages/Admin/ding/dingSyncCourse/img/3.png" alt={_l('完善应用信息')} />
         <h3 className="Font18 Gray mTop40">{_l('4. 完善接口信息')}</h3>
         <p className="Font14 Gray_75 mTop24 LineHeight22">
-          {_l('定位到“开发管理”，将以下链接填入对应输入框内；开发模式选择“开发应用”')}
+          {_l('定位到“网页应用”的 H5应用配置信息，讲以下链接填入对应输入框内')}
         </p>
         <div className="inputList mTop20">
           <span className="inputTitle">{_l('应用首页地址：')}</span>
@@ -358,7 +354,7 @@ export default class DingSyncCourse extends React.Component {
           <Fragment>
             <p className="Font14 Gray_75 mTop24 LineHeight22">
               {_l(
-                '切换至“基础信息”，将AgentId、AppKey、AppSecret分别填入系统的“组织管理 - 集成 - 钉钉 - 对接信息录入”对应输入框内',
+                '切换至“基础信息”，将AppId、ClientId、ClientScret分别填入系统的“组织管理 - 集成 - 钉钉 - 对接信息录入”对应输入框内',
               )}
             </p>
             <img src="/src/pages/Admin/ding/dingSyncCourse/img/4-2.png" alt={_l('完善接口信息')} />

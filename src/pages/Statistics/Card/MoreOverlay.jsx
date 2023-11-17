@@ -46,11 +46,7 @@ export default class MoreOverlay extends Component {
         sorts,
         filters: [filters, filtersGroup, filterControls].filter(n => !_.isEmpty(n)),
       })
-      .then(result => {
-        if (!result) {
-          alert(_l('导出错误'), 2);
-        }
-      })
+      .then(result => {})
       .fail(error => {
         alert(error, 2);
       });

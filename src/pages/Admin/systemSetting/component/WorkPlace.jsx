@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Table, Spin, ConfigProvider } from 'antd';
-import { LoadDiv, Icon } from 'ming-ui';
+import { LoadDiv, Icon, Dialog } from 'ming-ui';
 import workSiteController from 'src/api/workSite';
 import CreateOrEditDialog from '../modules/CreateOrEditDialog';
 import MergeDialog from '../modules/MergeDialog';
@@ -134,19 +134,22 @@ export default class WorkPlace extends Component {
       projectId: Config.projectId,
     };
     if (reqData.workSiteIds.length > 0) {
-      if (confirm(_l(`确认删除所选择的工作地点？`))) {
-        workSiteController.deleteWorkSites(reqData).then(data => {
-          if (data) {
-            alert(_l('删除成功'));
-            this.setState(
-              {
-                selectedRowKeys: [],
-              },
-              () => this.getData(),
-            );
-          } else alert(_l('删除失败'), 2);
-        });
-      }
+      Dialog.confirm({
+        title: _l('确认删除所选择的工作地点？'),
+        onOk: () => {
+          workSiteController.deleteWorkSites(reqData).then(data => {
+            if (data) {
+              alert(_l('删除成功'));
+              this.setState(
+                {
+                  selectedRowKeys: [],
+                },
+                () => this.getData(),
+              );
+            } else alert(_l('删除失败'), 2);
+          });
+        },
+      });
     }
   }
 
@@ -251,14 +254,16 @@ export default class WorkPlace extends Component {
               projectId={Config.projectId}
               closeMergeDialog={this.closeMergeDialog.bind(this)}
             />
-            <EditMemberDialog
-              visible={memberVisible}
-              workSiteId={workSiteId}
-              userCount={userCount}
-              projectId={Config.projectId}
-              closeMenberDialog={this.closeMenberDialog.bind(this)}
-              getData={this.getData.bind(this)}
-            />
+            {memberVisible && (
+              <EditMemberDialog
+                visible={memberVisible}
+                workSiteId={workSiteId}
+                userCount={userCount}
+                projectId={Config.projectId}
+                closeMenberDialog={this.closeMenberDialog.bind(this)}
+                getData={this.getData.bind(this)}
+              />
+            )}
             <div className="clearfix pBottom35 pTop25 pLeft25 pRight25">
               <div className="Left">
                 {selectedRowKeys.length ? (

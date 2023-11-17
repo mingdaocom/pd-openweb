@@ -863,7 +863,7 @@ function WorksheetRocordLog(props, ref) {
               <AddCondition
                 columns={filterOnlyShowField(
                   _.filter(
-                    controls || formdata,
+                    controls && controls.length ? controls : formdata,
                     it =>
                       !_.includes([33, 47, 30, 22, 10010, 45, 43, 25, 51, 52], it.type) &&
                       !_.includes(['caid', 'ctime', 'utime', 'daid', 'rowid', 'uaid'], it.controlId),

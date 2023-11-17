@@ -359,21 +359,22 @@ function DraftModal(props) {
               )}）`}</div>
               <DraftButton
                 className="ming Button--medium Button mRight12"
-                onClick={() => {
+                onClick={_.throttle(() => {
                   if (recordInfoRef.current) {
                     recordInfoRef.current.saveDraftData({ draftType: 'draft' });
                   }
-                }}
+                }, 1000)}
               >
                 {_l('存草稿')}
               </DraftButton>
               <Button
                 className="mRight12"
-                onClick={() => {
+                onClick={_.throttle(() => {
+                  console.log(123);
                   if (recordInfoRef.current) {
                     recordInfoRef.current.saveDraftData({ draftType: 'submit' });
                   }
-                }}
+                }, 1000)}
               >
                 {advancedSetting.sub || _l('提交')}
               </Button>

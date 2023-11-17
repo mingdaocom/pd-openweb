@@ -157,28 +157,11 @@ export default class Ding extends React.Component {
     });
   };
 
-  inputRender = (strId, w) => {
+  inputRender = (strId, w, labelId) => {
     return (
       <React.Fragment>
         <div className="inputTitleBox">
-          <span className="inputTitle">{`${strId}：`}</span>
-          <Popover
-            title={null}
-            arrowPointAtCenter={true}
-            placement="bottomLeft"
-            overlayClassName="dingPopoverWrapper"
-            content={
-              <span className="card Relative overflowHidden">
-                <img
-                  width={w}
-                  src={`/src/pages/Admin/ding/img/${strId}.png`}
-                  alt={_l('点击“自建应用”进入新建应用页面')}
-                />
-              </span>
-            }
-          >
-            <Icon icon="sidebar_help" className="Font18 Gray_9e" />
-          </Popover>
+          <span className="inputTitle">{`${labelId}：`}</span>
         </div>
         <div className="Relative InlineBlock inputDiv clearfix">
           {this.state.canEditInfo ? (
@@ -315,14 +298,14 @@ export default class Ding extends React.Component {
           {!this.state.isCloseDing && this.state.show2 && (
             <React.Fragment>
               <p className="mTop16 Font14 Gray_75">
-                {_l('完成步骤 1 后，填入CorpId、AgentId、AppKey、AppSecret后可对接应用与同步通讯录')}
+                {_l('完成步骤 1 后，填入CorpId、AppId、ClientId、ClientScret后可对接应用与同步通讯录')}
               </p>
               <div className="mTop25 infoList">
                 <ul>
-                  <li>{this.inputRender('CorpId', 466)}</li>
-                  <li className="mTop16">{this.inputRender('AgentId', 446)}</li>
-                  <li className="mTop16">{this.inputRender('AppKey', 446)}</li>
-                  <li className="mTop16">{this.inputRender('AppSecret', 445)}</li>
+                  <li>{this.inputRender('CorpId', 466, 'CorpId')}</li>
+                  <li className="mTop16">{this.inputRender('AgentId', 446, 'AppId')}</li>
+                  <li className="mTop16">{this.inputRender('AppKey', 446, 'ClientId')}</li>
+                  <li className="mTop16">{this.inputRender('AppSecret', 445, 'ClientScret')}</li>
                 </ul>
               </div>
               <div className="TxtRight mTop30">

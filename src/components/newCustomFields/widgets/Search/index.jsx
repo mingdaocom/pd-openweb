@@ -154,6 +154,7 @@ export default class Widgets extends Component {
           this.props.onChange(
             {
               action: 'clearAndSet',
+              isDefault: true,
               rows: safeParse(itemData[item.cid] || '[]').map(i => {
                 return {
                   ...i,

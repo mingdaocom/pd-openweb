@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import styled from 'styled-components';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { Input, Icon, ScrollView, LoadDiv } from 'ming-ui';
+import { Icon, ScrollView, LoadDiv } from 'ming-ui';
 import cx from 'classnames';
 import sheetAjax from 'src/api/worksheet';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
@@ -399,6 +399,7 @@ function GroupFilter(props) {
           kanbanKey: rowId,
           ...param,
         }),
+        { fireImmediately: true },
       )
       .then(result => {
         if (result.resultCode === 4) {

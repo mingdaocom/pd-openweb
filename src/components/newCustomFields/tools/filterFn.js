@@ -343,6 +343,10 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
     if ((_.includes[(15, 16, 46)], control.type)) {
       formatMode = getFormatMode(control, currentControl, conditionGroupType);
       timeLevel = TIME_OPTIONS[TIME_MODE_OPTIONS[formatMode]];
+      // 今天、昨天、明天，对比单位天
+      if (_.includes([1, 2, 3], dateRange) && !dynamicSource.length) {
+        timeLevel = 'day';
+      }
     }
 
     // value精度处理(公式、汇总计算)
@@ -399,9 +403,10 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
               if (!value) {
                 return !!value;
               }
-              let { id = '0' } = safeParse(compareValues);
-              let { code } = safeParse(value);
-              return parseInt(id) === parseInt(code);
+
+              const { code } = safeParse(value || '{}');
+              const areaValues = compareValues.map(it => safeParse(it, '{}').id);
+              return _.includes(areaValues, code);
               // 部门
             } else if (dataType === API_ENUM_TO_TYPE.GROUP_PICKER) {
               if (_.isEmpty(value) && _.isEmpty(compareValues)) return true;
@@ -570,9 +575,9 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
               if (!value) {
                 return !!value;
               }
-              let { id = '0' } = safeParse(compareValues);
-              let { code } = safeParse(value);
-              return parseInt(id) !== parseInt(code);
+              const { code } = safeParse(value || '{}');
+              const areaValues = compareValues.map(it => safeParse(it, '{}').id);
+              return !_.includes(areaValues, code);
               // 部门
             } else if (dataType === API_ENUM_TO_TYPE.GROUP_PICKER) {
               if (_.isEmpty(value) && _.isEmpty(compareValues)) return false;
@@ -836,9 +841,9 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
               if (!value) {
                 return !!value;
               }
-              let { id = '0' } = safeParse(compareValues);
-              let { code } = safeParse(value);
-              return parseInt(id) === parseInt(code);
+              const { code } = safeParse(value || '{}');
+              const areaValues = compareValues.map(it => safeParse(it, '{}').id);
+              return _.includes(areaValues, code);
               // 部门
             }
           default:
@@ -881,9 +886,9 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
               if (!value) {
                 return !!value;
               }
-              let { id = '0' } = safeParse(compareValues);
-              let { code } = safeParse(value);
-              return parseInt(id) !== parseInt(code);
+              const { code } = safeParse(value || '{}');
+              const areaValues = compareValues.map(it => safeParse(it, '{}').id);
+              return !_.includes(areaValues, code);
               // 部门
             }
           default:

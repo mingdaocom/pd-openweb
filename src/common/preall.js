@@ -86,11 +86,6 @@ function getGlobalMeta({ allownotlogin, requestParams } = {}) {
   clearLocalStorage(); // 清除 AMap 和 体积大于200k的 localStorage
 
   global.getGlobalMeta(args, { ajaxOptions: { async: false } }).then(data => {
-    const lang = getCookie('i18n_langtag') || data['md.global'].Config.DefaultLang;
-
-    // 设置语言
-    $('body').attr('id', lang);
-
     if (allownotlogin || window.isPublicApp) {
       window.config = data.config || {};
       if (!window.md) {
@@ -133,6 +128,10 @@ function getGlobalMeta({ allownotlogin, requestParams } = {}) {
     window.md.global = data['md.global'];
     window.md.global.Config.ServiceTel = '400-665-6655';
     let SysSettings = _.get(window.md.global, ['SysSettings']);
+    const lang = getCookie('i18n_langtag') || data['md.global'].Config.DefaultLang;
+
+    // 设置语言
+    $('body').attr('id', lang);
     if (!SysSettings) {
       window.md.global.SysSettings = _.get(md.staticglobal, ['SysSettings']);
     }

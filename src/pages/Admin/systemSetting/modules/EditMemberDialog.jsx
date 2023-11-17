@@ -19,19 +19,24 @@ export default class EditMemberDialog extends Component {
     };
   }
 
+  componentDidMount() {
+    this.getUserList();
+  }
+
   componentWillReceiveProps(nextProps) {
     if (nextProps.workSiteId !== this.props.workSiteId) {
-      this.setState({ isLoading: true }, () => {
-        this.getUserList(nextProps.workSiteId);
-      });
+      this.getUserList();
     }
   }
 
-  getUserList(workSiteId) {
+  getUserList() {
+    const { workSiteId } = this.props;
     let { memberKeywords, pageIndex = 1, pageSize, userList = [] } = this.state;
+    this.setState({ isLoading: true });
+
     workSiteController
       .getWorkSiteUsers({
-        workSiteId: workSiteId || this.props.workSiteId,
+        workSiteId: workSiteId,
         projectId: this.props.projectId,
         keywords: memberKeywords,
         pageIndex,
@@ -66,25 +71,32 @@ export default class EditMemberDialog extends Component {
     return (
       <div className="content pBottom10 Font13">
         <ScrollView onScrollEnd={this.onScrollEnd}>
-          {userList.length ? (
-            userList.map(user => {
-              return (
-                <div className="contentUser" key={user.accountId}>
-                  <img className="mLeft10 headIcon" src={user.avatar} alt="" onError={() => '/images/default.gif'} />
-                  <div className="contentName overflow_ellipsis">
-                    <span className="mLeft5">{user.fullname}</span>
+          {userList.length
+            ? userList.map(user => {
+                return (
+                  <div className="contentUser" key={user.accountId}>
+                    <img className="mLeft10 headIcon" src={user.avatar} alt="" onError={() => '/images/default.gif'} />
+                    <div className="contentName overflow_ellipsis">
+                      <span className="mLeft5">{user.fullname}</span>
+                    </div>
+                    <div className="contentJob overflow_ellipsis">
+                      <span>{user.job}</span>
+                    </div>
+                    <div className="contentOperate" onClick={this.deleteUser.bind(this, user.accountId)}>
+                      <span className="ThemeHoverColor3 icon-delete2 deleteMember Gray_9 Hand Font18"></span>
+                    </div>
                   </div>
-                  <div className="contentJob overflow_ellipsis">
-                    <span>{user.job}</span>
-                  </div>
-                  <div className="contentOperate" onClick={this.deleteUser.bind(this, user.accountId)}>
-                    <span className="ThemeHoverColor3 icon-delete2 deleteMember Gray_9 Hand Font18"></span>
-                  </div>
-                </div>
-              );
-            })
-          ) : (
+                );
+              })
+            : ''}
+          {isLoading ? (
+            <div className="content pBottom10 Font13">
+              <LoadDiv className="top30" />
+            </div>
+          ) : _.isEmpty(userList) ? (
             <div className="Gray_6 mTop20 TxtCenter">{_l('该工作地点还没有成员')}</div>
+          ) : (
+            ''
           )}
         </ScrollView>
         {isSearch && (
@@ -144,16 +156,9 @@ export default class EditMemberDialog extends Component {
     });
   }
 
-  handleSearch(e) {
-    this.setState(
-      {
-        memberKeywords: $.trim(e.target.value),
-      },
-      () => {
-        this.getUserList();
-      },
-    );
-  }
+  handleSearch = _.throttle(e => {
+    this.setState({ memberKeywords: e.target.value }, this.getUserList);
+  }, 200);
 
   render() {
     const { userCount } = this.props;
@@ -172,7 +177,7 @@ export default class EditMemberDialog extends Component {
               type="text"
               className="ming Input w100 pLeft30"
               placeholder={_l('搜索')}
-              onKeyUp={e => this.handleSearch(e)}
+              onChange={this.handleSearch}
             />
             <span className="btnSearch icon-search Gray_9"></span>
           </div>

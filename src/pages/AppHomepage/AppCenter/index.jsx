@@ -20,9 +20,10 @@ const AppLibCon = styled.div`
 `;
 function AppCenter(props) {
   const projectId = _.get(props, 'match.params.projectId');
-  const [currentProject, setCurrentProject] = useState(
-    getCurrentProject(projectId || localStorage.getItem('currentProjectId')),
-  );
+  const projects = _.get(md, 'global.Account.projects');
+  const project = getCurrentProject(projectId || localStorage.getItem('currentProjectId'));
+  const [currentProject, setCurrentProject] = useState(!_.isEmpty(project) ? project : projects[0] || {});
+
   function changeProject(project) {
     navigateTo('/app/my', false, true);
     setCurrentProject(project);
