@@ -163,7 +163,9 @@ function CustomPageContent(props) {
     }
     if (urlTemplate) {
       updatePageInfo({
-        config: {},
+        config: {
+          fullScreenVisible: true,
+        },
       });
       updateLoading(false);
     }
@@ -258,7 +260,7 @@ function CustomPageContent(props) {
         </div>
       </CustomPageContentWrap>
       {visible && !urlTemplate && (
-        <CustomPage name={pageName} ids={ids} />
+        <CustomPage name={pageName} ids={ids} currentSheet={currentSheet} />
       )}
     </Fragment>
   );

@@ -33,12 +33,14 @@ const getValueByMaskSetting = ({ maskmid = '', masklen = '', value = '', maskVal
   if (maskMidArr.length) {
     maskMidArr.forEach(mid => {
       let isGet = false;
-      const formatMid = mid.replace(/(\(|\[|\{|\\|\^|\$|\||\)|\?|\*|\+|\.|\]|\}|\))/, `\\${mid}`);
+      const formatMid = mid.replace(/(\(|\[|\{|\\|\^|\$|\||\)|\?|\*|\+|\.|\]|\}|\))+/, a => {
+        return a ? `\\${a[0]}{${a.length}}` : '';
+      });
       const reg = new RegExp(formatMid, 'g');
       value.replace(reg, (a, b) => {
         if (maskValue[b] === '*' && !isGet) {
           isGet = true;
-          maskValue = maskValue.slice(0, b) + a + maskValue.slice(b + 1);
+          maskValue = maskValue.slice(0, b) + a + maskValue.slice(a.length + b);
         }
       });
     });

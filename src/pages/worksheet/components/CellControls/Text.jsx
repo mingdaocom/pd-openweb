@@ -283,8 +283,8 @@ export default class Text extends React.Component {
               }
               const inputDom = this.input.current;
               if (inputDom) {
-                inputDom.value = this.tempKey.join('');
-                this.handleChange(this.tempKey.join(''));
+                inputDom.value = e.isInputValue ? value : this.tempKey.join('');
+                this.handleChange(e.isInputValue ? value : this.tempKey.join(''));
                 if (window.cellLastKey === 'Enter') {
                   this.handleKeydown({
                     keyCode: 13,

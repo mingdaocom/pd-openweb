@@ -40,7 +40,9 @@ export default class Support extends Component {
         style={Object.assign({}, { alignItems: 'center', display: 'inline-flex' }, style)}
         onClick={e => {
           e.preventDefault();
-          window.open(href);
+          window.open(
+            md.global.Config.HelpUrl ? href.replace('https://help.mingdao.com', md.global.Config.HelpUrl) : href,
+          );
         }}
       >
         {type < 3 && (

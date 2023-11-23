@@ -108,7 +108,7 @@ export default class DataRestrictionDialog extends Component {
       >
         <div className="mTop20 mBottom20">
           <div className="flexRow valignWrapper mBottom5 Font14">
-            {_l('非子流程节点数据处理上限（最大2000）')}
+            {_l('非子流程节点数据处理上限（最大200）')}
             <Tooltip title={_l('工作流“获取多条数据”节点获取的数据，被后续数据处理节点(非子流程)使用时，可处理的数据量上限')} placement="bottom">
               <Icon className="Font16 Gray_bd pointer" icon="info_outline" />
             </Tooltip>
@@ -117,7 +117,7 @@ export default class DataRestrictionDialog extends Component {
             className="Width120 mRight10"
             value={workflowBatchGetDataLimitCount}
             onChange={value => {
-              this.setState({ workflowBatchGetDataLimitCount: formattingValue(value, 2000) });
+              this.setState({ workflowBatchGetDataLimitCount: formattingValue(value, 200) });
             }}
           />
           <span>{_l('条')}</span>

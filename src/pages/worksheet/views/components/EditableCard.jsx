@@ -57,6 +57,7 @@ const EditableCard = forwardRef((props, ref) => {
       }
     });
   };
+
   return (
     <EditableCardWrap ref={ref}>
       <BaseCard {...props} onChange={updateRow} />

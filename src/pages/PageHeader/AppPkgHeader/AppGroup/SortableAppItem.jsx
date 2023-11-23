@@ -106,8 +106,8 @@ export default class SortableAppItem extends Component {
   };
 
   getFirstAppItemId = () => {
-    const { permissionType, value } = this.props;
-    const isCharge = canEditApp(permissionType);
+    const { permissionType, value, appPkg } = this.props;
+    const isCharge = appPkg.viewHideNavi;
     const { workSheetInfo = [], childSections = [] } = value;
     const firstAppItem = (isCharge ? workSheetInfo : workSheetInfo.filter(item => item.status === 1 && !item.navigateHide))[0] || {};
     if (firstAppItem.type === 2) {

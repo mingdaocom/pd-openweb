@@ -55,6 +55,7 @@ export default class GalleryItem extends React.Component {
           }}
           isCharge={isCharge}
           allowCopy={worksheetInfo.allowAdd}
+          allowRecreate={worksheetInfo.allowAdd}
           sheetSwitchPermit={sheetSwitchPermit}
           editTitle={() => this.setState({ isEditTitle: true })}
           onUpdate={(updated, item) => {

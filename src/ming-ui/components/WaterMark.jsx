@@ -202,6 +202,7 @@ export default props => {
       <WaterMark
         content={
           md.global.Account.fullname +
+          '/' +
           ((_.get(md, 'global.Account.mobilePhone') || '').substr(-4, 4) ||
             (_.get(md, 'global.Account.email') || '').replace(/@.*/g, ''))
         }

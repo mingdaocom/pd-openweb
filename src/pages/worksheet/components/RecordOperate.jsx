@@ -109,6 +109,7 @@ export default function RecordOperate(props) {
     action = ['click'],
     isRelateRecordTable,
     allowAdd,
+    allowRecreate,
     popupAlign,
     shows = [],
     showHr = true,
@@ -149,7 +150,7 @@ export default function RecordOperate(props) {
     (isOpenPermit(permitList.recordCopySwitch, sheetSwitchPermit, viewId) || isSubList);
   const showRecreate =
     _.includes(shows, 'recreate') &&
-    allowCopy &&
+    allowRecreate &&
     (isOpenPermit(permitList.recordRecreateSwitch, sheetSwitchPermit, viewId) || isSubList);
   const showPrint = _.includes(shows, 'print');
   const showTask = _.includes(shows, 'task') && !md.global.Account.isPortal;
@@ -169,6 +170,7 @@ export default function RecordOperate(props) {
   }
   async function loadButtons() {
     try {
+      setCustomButtons([]);
       setCustomButtonLoading(true);
       const newButtons = await worksheetAjax.getWorksheetBtns({
         appId,

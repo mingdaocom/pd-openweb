@@ -147,6 +147,7 @@ function WorksheetTable(props, ref) {
     rowHeightEnum,
     showRowHead = true,
     showSearchEmpty = true,
+    disablePanVertical,
     defaultScrollLeft,
     sheetViewHighlightRows = {},
     cellErrors = {},
@@ -709,6 +710,7 @@ function WorksheetTable(props, ref) {
     <React.Fragment>
       {maskVisible && <DragMask value={maskLeft} min={maskMinLeft} max={maskMaxLeft} onChange={maskOnChange} />}
       <StyledFixedTable
+        disablePanVertical={disablePanVertical}
         noRenderEmpty={noRenderEmpty}
         loading={loading}
         ref={tableRef}

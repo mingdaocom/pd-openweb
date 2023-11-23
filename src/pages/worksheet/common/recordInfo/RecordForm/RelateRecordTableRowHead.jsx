@@ -104,6 +104,7 @@ export default function RowHead(props) {
               relateRecordControlId={relateRecordControlId}
               allowCopy
               allowAdd={allowAdd}
+              allowRecreate={allowAdd}
               isRelateRecordTable
               shows={cx('share', 'print', 'copy', 'recreate', {
                 openinnew: viewId && allowOpenRecord,

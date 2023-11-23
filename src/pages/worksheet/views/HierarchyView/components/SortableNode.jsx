@@ -121,8 +121,9 @@ export default class SortableRecordItem extends Component {
   handleRecordVisible = rowId => {
     const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
     if (isMingdao) {
-      const { appId, worksheetId, viewId } = this.props;
-      window.location.href = `/mobile/record/${appId}/${worksheetId}/${viewId}/${rowId}`;
+      const { appId, treeData } = this.props;
+      const curInfo = treeData[rowId];
+      window.location.href = `/mobile/record/${appId}/${curInfo.wsid}/${rowId}`;
       return;
     }
     this.setState({ recordInfoRowId: rowId, recordInfoVisible: true });

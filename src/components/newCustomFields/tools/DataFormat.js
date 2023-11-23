@@ -1970,7 +1970,7 @@ export default class DataFormat {
             _.find(this.data, d => d.controlId === controlId),
             'value',
           );
-          const isNull = _.isEmpty(safeParse(curValue));
+          const isNull = _.isEmpty(typeof curValue === 'string' ? safeParse(curValue) : curValue);
 
           return (
             _.every(
@@ -2064,6 +2064,7 @@ export default class DataFormat {
               if (res.resultCode === 1) {
                 // 查询多条不赋值
                 if (canSearchMore && res.count > 1 && moreType === 1) return;
+                const titleControl = _.find(_.get(currentControl, 'relationControls'), i => i.attribute === 1);
                 const newValue = (res.data || []).map(item => {
                   return {
                     isWorksheetQueryFill: _.get(currentControl.advancedSetting || {}, 'showtype') === '1',
@@ -2071,6 +2072,7 @@ export default class DataFormat {
                     row: item,
                     type: 8,
                     sid: item.rowid,
+                    name: titleControl ? item[titleControl.controlId] : undefined,
                   };
                 });
                 if (_.isEmpty(newValue)) {

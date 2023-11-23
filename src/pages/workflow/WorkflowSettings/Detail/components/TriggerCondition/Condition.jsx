@@ -170,7 +170,7 @@ export default class TriggerCondition extends Component {
     const unit = _.get(single || {}, 'unit');
 
     if (item.filedId) {
-      conditionData = getConditionList(item.filedTypeId, item.enumDefault).ids.map((id, index) => {
+      conditionData = (getConditionList(item.filedTypeId, item.enumDefault) || { ids: [] }).ids.map((id, index) => {
         if (item.conditionId === id || switchConditionId(item.conditionId) === id) {
           controlNumber = getConditionNumber(id);
         }

@@ -537,7 +537,7 @@ export default class RecordInfo extends Component {
     }
     const tempRecordValue = getRecordTempValue(data, undefined, { updateControlIds: ids });
     if (viewId) {
-      saveTempRecordValueToLocal(
+      this.tempSaving = saveTempRecordValueToLocal(
         'recordInfo',
         viewId + '-' + this.state.recordId,
         JSON.stringify({ create_at: Date.now(), value: tempRecordValue }),
@@ -570,7 +570,9 @@ export default class RecordInfo extends Component {
     setTimeout(
       () => {
         this.hasFocusingRelateRecordTags = false;
-        this.recordform.current.submitFormData({ ignoreAlert, silent });
+        if (this.recordform.current) {
+          this.recordform.current.submitFormData({ ignoreAlert, silent });
+        }
       },
       this.hasFocusingRelateRecordTags ? 1000 : 0,
     );
@@ -768,6 +770,9 @@ export default class RecordInfo extends Component {
         .then(res => {
           if (res.resultCode === 1) {
             removeTempRecordValueFromLocal('recordInfo', viewId + '-' + this.state.recordId);
+            if (_.isFunction(_.get(this, 'tempSaving.cancel'))) {
+              _.get(this, 'tempSaving.cancel')();
+            }
             alert(_l('记录添加成功'));
             this.props.loadDraftList();
             this.props.hideRecordInfo();
@@ -849,6 +854,9 @@ export default class RecordInfo extends Component {
           });
           removeTempRecordValueFromLocal('recordInfo', viewId + '-' + this.state.recordId);
           if (_.isFunction(this.refreshEvents.loadcustombtns)) {
+            if (_.isFunction(_.get(this, 'tempSaving.cancel'))) {
+              _.get(this, 'tempSaving.cancel')();
+            }
             this.refreshEvents.loadcustombtns();
           }
         } else {

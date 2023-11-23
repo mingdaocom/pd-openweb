@@ -515,7 +515,11 @@ export function getSubListError({ rows, rules }, controls = [], showControls = [
       const controldata = rulesResult.formData.filter(
         c => _.find(showControls, id => id === c.controlId) && controlState(c).visible && controlState(c).editable,
       );
-      const isLock = checkRuleLocked(rules, controldata, row.rowid);
+      const isLock = checkRuleLocked(
+        rules,
+        rulesResult.formData.filter(c => _.find(showControls, id => id === c.controlId) && controlState(c).visible),
+        row.rowid,
+      );
       if (isLock) {
         return;
       }
@@ -807,7 +811,7 @@ const debouncedKVSet = _.debounce(KVSet, 1000);
 export function saveTempRecordValueToLocal(key, id, value, max = 5) {
   if (isWxWork) {
     debouncedKVSet(`${md.global.Account.accountId}${id}-${key}`, value);
-    return;
+    return debouncedKVSet;
   }
   let savedIds = [];
   if (localStorage.getItem(key)) {

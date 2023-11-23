@@ -210,7 +210,9 @@ export default class UploadTemplateSheet extends React.Component {
   copy = () => {
     $('body').on('click', 'i.copy', function () {
       if ($(this).closest('.copySpan').length) {
-        copy($(this).closest('.copySpan').text());
+        copy($(this).closest('.copySpan').text(), {
+          format: 'text/plain',
+        });
         alert(_l('复制成功'));
       }
     });

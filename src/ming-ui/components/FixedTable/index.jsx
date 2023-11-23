@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useMemo, useImperativeHandle, forwardRef } from 'react';
-import { func, number } from 'prop-types';
+import { bool, func, number } from 'prop-types';
 import styled from 'styled-components';
 import _ from 'lodash';
 import Hammer from 'hammerjs';
@@ -70,6 +70,7 @@ function FixedTable(props, ref) {
     renderHeadCell,
     renderFooterCell,
     renderEmpty, // 渲染空状态
+    disablePanVertical,
   } = props;
   const bottomFixedCount = renderFooterCell ? 1 : 0;
   const topFixedCount = renderHeadCell ? 1 : 0;
@@ -345,7 +346,9 @@ function FixedTable(props, ref) {
     setHammer('topForHammer', _.get(conRef.current.querySelector('.scroll-y'), 'scrollTop') || 0);
     setHammer('lastPandeltaX', 0);
     setHammer('lastPandeltaY', 0);
-    tablehammer.current.get('pan').set({ direction: Hammer.DIRECTION_ALL });
+    tablehammer.current
+      .get('pan')
+      .set({ direction: disablePanVertical ? Hammer.DIRECTION_HORIZONTAL : Hammer.DIRECTION_ALL });
     tablehammer.current.on('panmove', handlePanMove);
     tablehammer.current.on('panend', handlePanEnd);
     // ---
@@ -412,6 +415,7 @@ FixedTable.propTypes = {
   rowHeight: number.isRequired,
   getColumnWidth: func.isRequired,
   renderCell: func.isRequired,
+  disablePanVertical: bool,
 };
 
 export default forwardRef(FixedTable);

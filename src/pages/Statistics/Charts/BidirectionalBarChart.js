@@ -229,7 +229,7 @@ export default class extends Component {
               }
             }
             return {
-              name: data.originalId,
+              name: control.rename || control.controlName,
               value
             };
           }
@@ -243,7 +243,7 @@ export default class extends Component {
               };
             }
             return {
-              name: data.originalId,
+              name: contrastControl.rename || contrastControl.controlName,
               value
             };
           }

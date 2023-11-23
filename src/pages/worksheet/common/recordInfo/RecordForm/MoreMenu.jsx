@@ -30,6 +30,7 @@ export default function MoreMenu(props) {
       isCharge={isCharge}
       allowDelete={allowDelete}
       allowCopy={allowAdd && recordinfo.allowEdit}
+      allowRecreate={allowAdd}
       projectId={projectId}
       appId={appId}
       viewId={viewId}

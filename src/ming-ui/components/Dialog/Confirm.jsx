@@ -54,9 +54,9 @@ export default function confirm(props) {
   }
   ReactDOM.render(
     <Dialog
+      bindEnterTriggerOk={false}
       {...dealProps}
       visible
-      bindEnterTriggerOk
       overlayClosable={props.overlayClosable || false}
       description={props.description}
       footer={props.footer || footer}

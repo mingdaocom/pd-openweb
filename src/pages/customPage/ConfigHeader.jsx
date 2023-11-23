@@ -100,6 +100,7 @@ export default (props) => {
     pageId,
     pageName,
     displayType,
+    currentSheet,
     saveLoading = false,
     cancelModified = _.noop,
     modified,
@@ -116,7 +117,7 @@ export default (props) => {
     onSave();
     const newName = name.trim();
     if (originName !== newName) {
-      appManagementAjax.editWorkSheetInfoForApp({ appId, appSectionId: groupId, workSheetId: pageId, workSheetName: newName }).then(res => {
+      appManagementAjax.editWorkSheetInfoForApp({ appId, appSectionId: currentSheet.parentGroupId || groupId, workSheetId: pageId, workSheetName: newName }).then(res => {
         if (res) {
           updatePageInfo({ pageName: newName });
           const { currentPcNaviStyle } = store.getState().appPkg;

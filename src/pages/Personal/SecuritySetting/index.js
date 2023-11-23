@@ -95,7 +95,7 @@ export default class SecuritySetting extends Component {
       const colseValidateDialog = ValidatePassword({
         header: _l('关闭两步验证'),
         callback: () =>
-          this.sureSettings('isTwoauthentication', false, () => {
+          this.sureSettings('isTwoauthentication', 0, () => {
             this.setState({ isTwoauthentication: false }, () => colseValidateDialog.closeDialog());
           }),
       });
@@ -109,7 +109,7 @@ export default class SecuritySetting extends Component {
     verifyPassword({
       password,
       success: () => {
-        _this.sureSettings('isTwoauthentication', true, () => {
+        _this.sureSettings('isTwoauthentication', 1, () => {
           _this.setState({ isTwoauthentication: true, visible: false });
         });
       },

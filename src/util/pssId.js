@@ -1,3 +1,5 @@
+import moment from 'moment';
+
 /**
  * 设置 md_pss_id
  * @param {string} id
@@ -5,7 +7,13 @@
 export const setPssId = (id, verification = false) => {
   if (id) {
     const userAgent = window.navigator.userAgent.toLowerCase();
-    if (
+
+    if (md.global.Config.IsLocal && md.global.Config.SessionCookieExpireMinutes) {
+      const expireDate = moment()
+        .add(md.global.Config.SessionCookieExpireMinutes, 'm')
+        .toDate();
+      window.setCookie('md_pss_id', id, expireDate);
+    } else if (
       verification ||
       userAgent.includes('dingtalk') ||
       userAgent.includes('miniprogram') ||

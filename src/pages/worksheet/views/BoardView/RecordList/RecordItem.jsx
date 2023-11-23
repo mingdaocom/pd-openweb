@@ -200,6 +200,7 @@ function SortableRecordItem(props) {
           appId,
         }}
         allowCopy={worksheetInfo.allowAdd}
+        allowRecreate={worksheetInfo.allowAdd}
         editTitle={() => setState({ isEditTitle: true })}
         onUpdate={(updated, item) => {
           updateBoardViewRecord(

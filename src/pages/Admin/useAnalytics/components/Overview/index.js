@@ -295,6 +295,7 @@ export default class Overview extends Component {
       dayRange: selectedDate,
       dateDemension: selectedDate === 0 ? '1d' : currentDimension,
       depFlag,
+      isApp: appId ? true : false,
       ...extra,
     });
     return Promise.all([promise1, promise2]);

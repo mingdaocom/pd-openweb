@@ -220,7 +220,7 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
             dataItem = { ...dataItem, enumDefault: 1 };
           }
           return (
-            <span className="relaList">{item.isRelateMultipleSheet ? records[0].name : renderCellText(dataItem)}</span>
+            <span className="relaList">{item.isRelateMultipleSheet ? (records[0] || {}).name : renderCellText(dataItem)}</span>
           );
         }
         //按文本形式 显示关联表标题字段（卡片，下拉）/数量（列表）

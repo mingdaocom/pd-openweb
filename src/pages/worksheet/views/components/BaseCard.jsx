@@ -182,6 +182,7 @@ const BaseCard = props => {
     currentView,
     viewParaOfRecord,
     allowCopy,
+    allowRecreate,
     isCharge,
     sheetSwitchPermit = [],
     editTitle,
@@ -191,7 +192,7 @@ const BaseCard = props => {
     showNull = false,
     onAdd = noop,
   } = props;
-  let { rowId, coverImage, allowEdit, allowDelete, abstractValue } = data;
+  let { rowId, coverImage, allowEdit, allowDelete, abstractValue, allowAdd } = data;
   const isShowWorkflowSys = isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit);
   const fields = data.fields
     ? !isShowWorkflowSys && _.isArray(data.fields)
@@ -412,6 +413,7 @@ const BaseCard = props => {
             popupAlign={getPopAlign()}
             allowDelete={allowDelete}
             allowCopy={allowCopy}
+            allowRecreate={allowAdd || allowRecreate}
             projectId={projectId}
             formdata={fields}
             appId={worksheetId === currentView.worksheetId ? appId : undefined}

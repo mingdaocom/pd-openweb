@@ -195,6 +195,7 @@ export default function RowHead(props) {
               shows={['share', 'print', 'copy', 'openinnew', 'recreate']}
               allowCopy={allowAdd && row.allowedit}
               allowDelete={row.allowdelete}
+              allowRecreate={allowAdd}
               sheetSwitchPermit={sheetSwitchPermit}
               popupAlign={{
                 offset: [0, 4],

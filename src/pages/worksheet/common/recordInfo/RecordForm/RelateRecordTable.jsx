@@ -715,6 +715,7 @@ export default function RelateRecordTable(props) {
     () => (
       <WorksheetTable
         scrollBarHoverShow
+        disablePanVertical
         // tableType="classic"
         ref={worksheetTableRef}
         loading={tableLoading}

@@ -130,7 +130,8 @@ var instanceVersion = {
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   getTodoListFilter: function(args, options) {
-    base.ajaxOptions.url = base.server(options) + '/v1/instance/getTodoListFilter';
+    // base.ajaxOptions.url = base.server(options) + '/v1/instance/getTodoListFilter';
+    base.ajaxOptions.url = md.global.Config.WorkFlowUrl + '/v1/instance/getTodoListFilter';
     base.ajaxOptions.type = 'POST';
     return $.api(controllerName, 'v1instancegetTodoListFilter', JSON.stringify(args), $.extend(base, options));
   },

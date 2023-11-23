@@ -145,6 +145,9 @@ function NewRecordForm(props) {
         setRequesting,
         onSubmitSuccess: ({ rowData, isOverLimit }) => {
           removeTempRecordValueFromLocal('tempNewRecord', worksheetId);
+          if (_.isFunction(_.get(cache, 'current.tempSaving.cancel'))) {
+            _.get(cache, 'current.tempSaving.cancel')();
+          }
           setRestoreVisible(false);
           if (isOverLimit) {
             if (isMobile) {
@@ -326,6 +329,9 @@ function NewRecordForm(props) {
             }
           }
           removeTempRecordValueFromLocal('tempNewRecord', worksheetId);
+          if (_.isFunction(_.get(cache, 'current.tempSaving.cancel'))) {
+            _.get(cache, 'current.tempSaving.cancel')();
+          }
           if (_.isFunction(onAdd)) {
             onAdd(rowData, { continueAdd: actionType === BUTTON_ACTION_TYPE.CONTINUE_ADD || continueAdd });
           }
@@ -571,7 +577,7 @@ function NewRecordForm(props) {
               }
               setFormdata([...data]);
               if (needCache && !noSaveTemp && cache.current.formUserChanged) {
-                saveTempRecordValueToLocal(
+                cache.current.tempSaving = saveTempRecordValueToLocal(
                   'tempNewRecord',
                   worksheetId,
                   JSON.stringify({ create_at: Date.now(), value: getRecordTempValue(data, relateRecordData) }),
@@ -600,7 +606,7 @@ function NewRecordForm(props) {
               const newRelateRecordData = { ...relateRecordData, [control.controlId]: { ...control, value: records } };
               setRelateRecordData(newRelateRecordData);
               if (viewId) {
-                saveTempRecordValueToLocal(
+                cache.current.tempSaving = saveTempRecordValueToLocal(
                   'tempNewRecord',
                   worksheetId,
                   JSON.stringify({ create_at: Date.now(), value: getRecordTempValue(formdata, relateRecordData) }),
