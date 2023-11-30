@@ -130,7 +130,7 @@ const OptionItem = props => {
           .map(({ color, value }) => (
             <li>
               {colorful && <div className="colorWrap" style={{ backgroundColor: color }}></div>}
-              <div className="name ellipsis">{value}</div>
+              <div className="name ellipsis flex">{value}</div>
             </li>
           ))}
         {options.length > 15 && <li className="more">{_l('更多 ...')}</li>}

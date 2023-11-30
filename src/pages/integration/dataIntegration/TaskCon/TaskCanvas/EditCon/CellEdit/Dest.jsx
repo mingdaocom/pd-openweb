@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, createRef } from 'react';
 import { useSetState } from 'react-use';
 import { Input } from 'ming-ui';
 import FieldMappingList from 'src/pages/integration/dataIntegration/components/FieldsMappingList';
@@ -8,6 +8,7 @@ import _ from 'lodash';
 import { hsMorePkControl } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/util.js';
 
 export default function DestEdit(props) {
+  const inputRef = createRef();
   const { onChangeInfo, list, state, flowData } = props;
   const { srcIsDb } = flowData;
   const { node = {}, matchedTypes = {}, fileList = [], sheetName } = state;
@@ -16,6 +17,11 @@ export default function DestEdit(props) {
     mapData: [],
     preFields: [],
   });
+  useEffect(() => {
+    if (inputRef && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
   useEffect(() => {
     let isEr = $('.isNoMatchOption').length > 0;
     onChangeInfo({
@@ -107,6 +113,7 @@ export default function DestEdit(props) {
                 },
               });
             }}
+            manualRef={inputRef}
           />
           <div className="mTop45"></div>
         </React.Fragment>

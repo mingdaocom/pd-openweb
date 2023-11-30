@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dropdown } from 'ming-ui';
+import { Dropdown, RadioGroup } from 'ming-ui';
 import filterXSS from 'xss';
 import '../components/message.less';
 import cx from 'classnames';
@@ -42,11 +42,36 @@ const WrapCon = styled.div`
     }
   }
 `;
+const Wrap = styled.div`
+  height: auto !important;
+  &:hover {
+    box-shadow: none !important;
+  }
+  .isInterestedCon {
+    background: #f0f9ff;
+    padding: 15px;
+    border-radius: 3px;
+  }
+  &.errorDiv {
+    .isInterestedCon {
+      background: #ffefef;
+    }
+  }
+`;
 
 const scaleList = ['20人以下', '21-99人', '100-499人', '500-999人', '1000-9999人', '10000人以上'];
 const depList = ['总经办', '技术/IT/研发', '产品/设计', '销售/市场/运营', '人事/财务/行政', '资源/仓储/采购', '其他'];
 const rankList = ['总裁/总经理/CEO', '副总裁/副总经理/VP', '总监/主管/经理', '员工/专员/执行', '其他'];
-
+const isInterestedList = [
+  {
+    text: <span className="Gray_9e">{_l('是')}</span>,
+    value: 1,
+  },
+  {
+    text: <span className="Gray_9e">{_l('否')}</span>,
+    value: 0,
+  },
+];
 export default class Create extends React.Component {
   constructor(props) {
     super(props);
@@ -58,6 +83,7 @@ export default class Create extends React.Component {
       companyList: [],
       show: false,
       tpCompanyId: -1,
+      isInterested: null,
     };
   }
 
@@ -96,7 +122,6 @@ export default class Create extends React.Component {
       const { registerData } = this.props;
       let { company = {}, TPParams, email = '', emailOrTel = '' } = registerData;
       email = emailOrTel && RegExp.isEmail(emailOrTel) ? emailOrTel : email;
-
       const {
         companyName,
         tpCompanyId,
@@ -108,7 +133,11 @@ export default class Create extends React.Component {
         industryId,
         industry = '',
       } = company;
-
+      const { isInterested } = this.state;
+      let param = {};
+      if (!md.global.Config.IsLocal) {
+        param = { isInterested };
+      }
       RegisterController.createCompany({
         companyName: filterXSS(companyName),
         tpCompanyId: tpCompanyId,
@@ -125,6 +154,7 @@ export default class Create extends React.Component {
         tpType: TPParams.tpType,
         regFrom: window.localStorage.getItem('RegFrom'),
         referrer: window.localStorage.getItem('Referrer'),
+        ...param,
       })
         .then(data => {
           window.localStorage.removeItem('RegFrom');
@@ -196,6 +226,7 @@ export default class Create extends React.Component {
       warnningText: '',
       tipDom: null,
     });
+    const { isInterested } = this.state;
     const { registerData } = this.props;
     const { company = {} } = registerData;
     const { companyName, jobType, departmentType, scaleId, industryId } = company;
@@ -232,6 +263,10 @@ export default class Create extends React.Component {
     // 您的职级
     if (!departmentType) {
       warnningData.push({ tipDom: this.department, warnningText: _l('请选择您的部门') });
+      isRight = false;
+    }
+    if (![0, 1].includes(isInterested) && !md.global.Config.IsLocal) {
+      warnningData.push({ tipDom: this.isInterested, warnningText: _l('请选择') });
       isRight = false;
     }
     this.setState({
@@ -326,7 +361,7 @@ export default class Create extends React.Component {
   renderCon = () => {
     const { registerData, onChangeData } = this.props;
     const { company = {} } = registerData;
-    const { warnningData, focusDiv, companyList, show, tpCompanyI, industryList = [] } = this.state;
+    const { warnningData, focusDiv, companyList, show, tpCompanyI, industryList = [], isInterested } = this.state;
     const { companyName, jobType, industryId, scaleId, departmentType } = company;
 
     return (
@@ -597,6 +632,39 @@ export default class Create extends React.Component {
               </div>
             )}
           </div>
+          {!md.global.Config.IsLocal && (
+            <Wrap
+              className={cx('mesDiv current', {
+                ...setWarnningData(warnningData, [this.isInterested], focusDiv, isInterested),
+              })}
+            >
+              <div className="isInterestedCon" ref={c => (this.isInterested = c)}>
+                <div
+                  className="Font13 Gray TxtLeft"
+                  dangerouslySetInnerHTML={{
+                    __html: _l(
+                      '您是否对明道云%0感兴趣？',
+                      `<a class='Bold pLeft5 pRight5 Hand' target="_blank" href="https://www.mingdao.com/partners" >${_l(
+                        '伙伴计划',
+                      )}</a>`,
+                    ),
+                  }}
+                ></div>
+                <RadioGroup
+                  size="middle"
+                  className="mTop10"
+                  checkedValue={isInterested}
+                  data={isInterestedList}
+                  onChange={isInterested => {
+                    this.setState({
+                      warnningData: _.filter(warnningData, it => it.tipDom !== this.isInterested),
+                      isInterested,
+                    });
+                  }}
+                />
+              </div>
+            </Wrap>
+          )}
         </div>
       </React.Fragment>
     );

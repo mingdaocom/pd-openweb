@@ -11,6 +11,7 @@ export default class HistoryChart extends PureComponent {
       showDate: 1, // 最近1小时
       accumulateAdd: 0,
       accumulateConsumer: 0,
+      loadingChart: true,
     };
     this.lineChart = null;
   }
@@ -25,7 +26,6 @@ export default class HistoryChart extends PureComponent {
 
   getChartData = () => {
     const { projectId } = this.props;
-    this.setState({ loadingChart: true });
     flowMonitor
       .getHistoryDifferenceByCompanyId({
         companyId: projectId,
@@ -33,14 +33,17 @@ export default class HistoryChart extends PureComponent {
         endDate: moment().format('YYYY-MM-DD HH:mm:ss'),
       })
       .then(res => {
-        this.setState({ historyChartData: res }, this.getHistoryAccumulateData);
-        this.dealChartData(res);
+        if (res && _.isArray(res)) {
+          this.setState({ historyChartData: res }, this.getHistoryAccumulateData);
+          this.dealChartData(res);
+        } else {
+          this.setState({ loadingChart: false });
+        }
       });
   };
 
   renderChart = () => {
     const _this = this;
-    this.setState({ loadingChart: true });
     let initChartData = [];
     let diffMinite = Math.floor(moment().subtract(5, 'm').format('mm') % 5);
     let currentDate = moment().minute(moment().add(5, 'm').format('mm') - diffMinite);

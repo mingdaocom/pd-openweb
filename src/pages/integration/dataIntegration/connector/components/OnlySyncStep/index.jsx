@@ -9,17 +9,16 @@ import {
   CREATE_TYPE,
   DATABASE_TYPE,
   namePattern,
-  isValidName,
   TRIGGER_WORKFLOW_CHECKBOX_OPTIONS,
 } from '../../../constant';
 import FieldMappingList from '../../../components/FieldsMappingList/index';
 import LeftTableList from './LeftTableList';
-import homeAppApi from 'src/api/homeApp';
 import dataSourceApi from '../../../../api/datasource';
 import worksheetApi from 'src/api/worksheet';
 import SheetGroupSelect from './SheetGroupSelect';
 import { getInitFieldsMapping, getInitWorkSheetFields, getDefaultData } from '../../../utils';
 import { getIconByType } from 'src/pages/widgetConfig/util';
+import SelectTables from '../../../components/SelectTables';
 
 const OnlySyncWrapper = styled.div`
   padding: 16px 24px;
@@ -389,34 +388,7 @@ export default function OnlySyncStep(props) {
           }
         });
     } else {
-      //获取指定数据库下数据表列表
-      dataSourceApi
-        .getTables({ projectId: props.currentProjectId, datasourceId: dest.id, dbName: db.value })
-        .then(res => {
-          if (res) {
-            const sheetOptionList = res.map(item => {
-              const isSameTable = source.id === dest.id && currentTab.db === db.value && currentTab.tableName === item;
-              const isValidTable = isValidName(item);
-              return {
-                label:
-                  isSameTable || !isValidTable ? (
-                    <div className="flexRow alignItemsCenter">
-                      <span className="Gray_9e">{item}</span>
-                      <Tooltip text={isSameTable ? _l('不可选与数据源相同的表') : _l('名称包含特殊字符，无法同步')}>
-                        <Icon icon="info1" className="Gray_bd mLeft24 pointer" />
-                      </Tooltip>
-                    </div>
-                  ) : (
-                    item
-                  ),
-                value: item,
-                disabled: isSameTable || !isValidTable,
-              };
-            });
-            onChangeStateData(sheetData, setSheetData, { dbName: db.value, sheetNameValue: null });
-            onChangeStateData(optionList, setOptionList, { sheetOptionList });
-          }
-        });
+      onChangeStateData(sheetData, setSheetData, { dbName: db.value, sheetNameValue: null });
     }
   };
 
@@ -427,37 +399,7 @@ export default function OnlySyncStep(props) {
       isDestAppType,
     );
     setFieldsMappingDefaultData({ initMapping, noFetchSet: true });
-
-    dataSourceApi
-      .getTables({
-        projectId: props.currentProjectId,
-        datasourceId: dest.id,
-        dbName: _.get(sheetData, [currentTab.db, currentTab.table, 'dbName']),
-        schema: schema.value,
-      })
-      .then(res => {
-        if (res) {
-          const sheetOptionList = res.map(item => {
-            const isValidTable = isValidName(item);
-            return {
-              label: !isValidTable ? (
-                <div className="flexRow alignItemsCenter">
-                  <span className="Gray_9e">{item}</span>
-                  <Tooltip text={_l('名称包含特殊字符，无法同步')}>
-                    <Icon icon="info1" className="Gray_bd mLeft24 pointer" />
-                  </Tooltip>
-                </div>
-              ) : (
-                item
-              ),
-              value: item,
-              disabled: !isValidTable,
-            };
-          });
-          onChangeStateData(sheetData, setSheetData, { schemaName: schema.value });
-          onChangeStateData(optionList, setOptionList, { sheetOptionList });
-        }
-      });
+    onChangeStateData(sheetData, setSheetData, { schemaName: schema.value });
   };
 
   const onChangeSheetCreateType = async sheetCreateType => {
@@ -473,38 +415,9 @@ export default function OnlySyncStep(props) {
         initSheetData.writeMode = 'SKIP';
         initSheetData.isCleanDestTableData = false;
       }
-      // 获取下拉列表选项
-      if (isDestAppType) {
-        await homeAppApi.getWorksheetsByAppId({ appId: dest.id }).then(res => {
-          if (res) {
-            const sheetOptionList = res
-              .filter(o => o.type === 0) //只能是工作表
-              .map(item => {
-                const isSameTable = source.id === dest.id && currentTab.table === item.workSheetId;
-                const isValidTable = isValidName(item.workSheetName);
-                return {
-                  label:
-                    isSameTable || !isValidTable ? (
-                      <div className="flexRow alignItemsCenter">
-                        <span className="Gray_9e">{item.workSheetName}</span>
-                        <Tooltip text={isSameTable ? _l('不可选与数据源相同的表') : _l('名称包含特殊字符，无法同步')}>
-                          <Icon icon="info1" className="Gray_bd mLeft24 pointer" />
-                        </Tooltip>
-                      </div>
-                    ) : (
-                      item.workSheetName
-                    ),
-                  value: item.workSheetId,
-                  disabled: isSameTable || !isValidTable,
-                  workSheetName: item.workSheetName,
-                };
-              });
-            if (sheetNameValue) {
-              initSheetData.sheetName = sheetOptionList.filter(item => item.value === sheetNameValue)[0].workSheetName;
-            }
-            onChangeStateData(optionList, setOptionList, { sheetOptionList });
-          }
-        });
+      const sheetOptionList = _.get(optionList, [currentTab.db, currentTab.table, 'sheetOptionList']) || [];
+      if (sheetNameValue) {
+        initSheetData.sheetName = sheetOptionList.filter(item => item.value === sheetNameValue)[0].workSheetName;
       }
     }
 
@@ -780,20 +693,29 @@ export default function OnlySyncStep(props) {
                       <div className="sheetNameWidth">
                         {_.get(sheetData, [currentTab.db, currentTab.table, 'sheetCreateType']) ===
                         CREATE_TYPE.SELECT_EXIST ? (
-                          <Select
+                          <SelectTables
                             className="selectItem mBottom20"
-                            showSearch={true}
-                            labelInValue={true}
-                            placeholder={_l('请选择')}
-                            notFoundContent={_l('暂无数据')}
                             value={_.get(sheetData, [currentTab.db, currentTab.table, 'sheetNameValue'])}
                             options={_.get(optionList, [currentTab.db, currentTab.table, 'sheetOptionList'])}
-                            filterOption={(inputValue, option) => {
-                              return (isDestAppType ? option.workSheetName : option.value)
-                                .toLowerCase()
-                                .includes(inputValue.toLowerCase());
-                            }}
-                            onChange={sheet => onChangeSheet(sheet)}
+                            onChangeOptions={sheetOptionList =>
+                              onChangeStateData(optionList, setOptionList, { sheetOptionList })
+                            }
+                            onChangeTable={onChangeSheet}
+                            projectId={props.currentProjectId}
+                            datasourceId={dest.id}
+                            dbName={_.get(sheetData, [currentTab.db, currentTab.table, 'dbName'])}
+                            schema={_.get(sheetData, [currentTab.db, currentTab.table, 'schemaName'])}
+                            isAppType={isDestAppType}
+                            isSameDbObj={
+                              !isDestAppType
+                                ? source.id === dest.id &&
+                                  currentTab.db === _.get(sheetData, [currentTab.db, currentTab.table, 'dbName']) &&
+                                  (!destHasSchema ||
+                                    currentTab.schema ===
+                                      _.get(sheetData, [currentTab.db, currentTab.table, 'schemaName']))
+                                : source.id === dest.id
+                            }
+                            sourceTables={[isDestAppType ? currentTab.table : currentTab.tableName]}
                           />
                         ) : (
                           <Input

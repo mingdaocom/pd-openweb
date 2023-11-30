@@ -39,10 +39,13 @@ var datasource = {
    * 获取指定数据库下的数据表名称列表
    *
    * @param {Object} args 请求参数
+   * @param {integer} args.pageNo 页码，从0开始
+   * @param {integer} args.pageSize 每页数量
    * @param {string} args.projectId 组织id
    * @param {string} args.datasourceId 数据源id
    * @param {string} args.dbName 数据库名称
    * @param {string} args.schema schema名称
+   * @param {string} args.tableName table名称:模糊搜索
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -207,6 +210,27 @@ var datasource = {
     base.ajaxOptions.url = base.server(options) + 'datasource/updateDatasource';
     base.ajaxOptions.type = 'POST';
     return $.api(controllerName, 'datasourceupdateDatasource', JSON.stringify(args), $.extend(base, options));
+  },
+
+  /**
+   * 分页获取指定数据库下的数据表名称列表
+   *
+   * @param {Object} args 请求参数
+   * @param {integer} args.pageNo 页码，从0开始
+   * @param {integer} args.pageSize 每页数量
+   * @param {string} args.projectId 组织id
+   * @param {string} args.datasourceId 数据源id
+   * @param {string} args.dbName 数据库名称
+   * @param {string} args.schema schema名称
+   * @param {string} args.tableName table名称:模糊搜索
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getTablePages: function (args, options) {
+    base.ajaxOptions.url = base.server(options) + 'datasource/getTablePages';
+    base.ajaxOptions.type = 'POST';
+    return $.api(controllerName, 'datasourcegetTablePages', JSON.stringify(args), $.extend(base, options));
   },
 
   /**

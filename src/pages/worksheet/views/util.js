@@ -167,7 +167,7 @@ export const getSearchData = sheet => {
     views = [],
     controls,
     hierarchyView: { hierarchyViewState = [], hierarchyViewData = {} },
-    gunterView: { grouping = [] },
+    gunterView: { grouping = [], withoutArrangementVisible },
   } = sheet;
   const view = find(views, item => item.viewId === base.viewId) || {};
   const titleControlId = (_.find(controls, { attribute: 1 }) || {}).controlId;
@@ -192,7 +192,7 @@ export const getSearchData = sheet => {
   } else if (Number(view.viewType) === 5) {
     data = _.flatten(
       grouping.map(item => {
-        return item.rows.filter(item => item.diff > 0);
+        return withoutArrangementVisible ? item.rows : item.rows.filter(item => item.diff > 0);
       }),
     );
   }

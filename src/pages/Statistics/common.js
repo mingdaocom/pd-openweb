@@ -190,6 +190,9 @@ export function initConfigDetail(id, data, currentReport) {
       rangeValue: 365,
       today: true
     };
+    if (result.summary) {
+      result.summary.all = false;
+    }
   }
 
   if (summary && _.isEmpty(summary.name)) {

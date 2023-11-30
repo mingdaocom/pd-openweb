@@ -474,7 +474,7 @@ export default function LoginContainer(props) {
             });
             break;
           case -4:
-            if (allowUserType === 9) {
+            if ([3, 9].includes(allowUserType)) {
               //邀请注册，输入验证码
               setState({
                 isRegister: true,

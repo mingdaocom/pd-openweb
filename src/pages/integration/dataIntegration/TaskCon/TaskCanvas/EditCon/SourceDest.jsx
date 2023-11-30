@@ -10,6 +10,27 @@ import appManagementAjax from 'src/api/appManagement.js';
 import _ from 'lodash';
 import { DATABASE_TYPE, isValidName } from 'src/pages/integration/dataIntegration/constant.js';
 import { schemaTypes } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config.js';
+import SelectTables from 'src/pages/integration/dataIntegration/components/SelectTables/index.jsx';
+import styled from 'styled-components';
+
+const Wrap = styled.div`
+  .mTop14 {
+    margin-top: 14px;
+  }
+  .ant-select-disabled.ant-select:not(.ant-select-customize-input) .ant-select-selector {
+    background: #fff;
+  }
+  .ant-select-arrow {
+    display: none;
+  }
+  .ant-select:not(.ant-select-customize-input) .ant-select-selector {
+    border-radius: 4px;
+  }
+  .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+    height: 36px;
+  }
+`;
+
 const initData = {
   dbList: [], //数据库列表
   schemaList: [], //schema列表
@@ -73,7 +94,7 @@ export default class SourceDest extends Component {
       this.getDatasourceList(node, projectId);
       if (isNext) {
         schemaTypes.includes(className) && schema && this.getSchemasList(projectId);
-        !!dbName && this.getSheetList(projectId);
+        !!dbName && dsType === DATABASE_TYPE.APPLICATION_WORKSHEET && this.getSheetList();
       }
     }
   };
@@ -202,10 +223,8 @@ export default class SourceDest extends Component {
     });
   };
   //获取数据源对应数据表列表
-  getSheetList = projectId => {
-    let { datasourceId, dataDestId, dbName, appId, workSheetId, dsType, schema } =
-      _.get(this.state.node, ['nodeConfig', 'config']) || {};
-    datasourceId = datasourceId || dataDestId;
+  getSheetList = () => {
+    let { appId, dsType } = _.get(this.state.node, ['nodeConfig', 'config']) || {};
     if (dsType === DATABASE_TYPE.APPLICATION_WORKSHEET) {
       if (!appId) {
         this.setState({
@@ -214,34 +233,6 @@ export default class SourceDest extends Component {
         return;
       }
       this.getSheetListByAppId(appId);
-    } else {
-      if (!dbName) {
-        this.setState({
-          ...initData,
-        });
-        return;
-      }
-      this.setState({
-        loading: true,
-      });
-      Datasource.getTables(
-        {
-          projectId,
-          datasourceId,
-          schema,
-          dbName,
-        },
-        { fireImmediately: true },
-      ).then(res => {
-        const data = res.map(a => {
-          return { text: a, value: a };
-        });
-        const list = this.filterSheet(data);
-        this.setState({
-          loading: false,
-          sheetList: list,
-        });
-      });
     }
   };
   onChangeConfig = (options, cb) => {
@@ -266,9 +257,8 @@ export default class SourceDest extends Component {
     onUpdate(nodeData);
     cb && cb();
   };
-  filterSheet = (sheetList = []) => {
+  getAllSource = () => {
     const { node = {}, list } = this.props;
-    const { dsType } = _.get(node, ['nodeConfig', 'config']) || {};
     const idsMD = list
       .filter(
         o =>
@@ -278,25 +268,54 @@ export default class SourceDest extends Component {
           node.nodeId !== o.nodeId,
       )
       .map(o => _.get(o, 'nodeConfig.config.workSheetId'));
-    const idsDB = list
+    const allDBs = list.filter(
+      o =>
+        ['DEST_TABLE', 'SOURCE_TABLE'].includes(o.nodeType) &&
+        _.get(o, 'nodeConfig.config.dsType') !== DATABASE_TYPE.APPLICATION_WORKSHEET &&
+        !!_.get(o, 'nodeConfig.config.tableName') &&
+        node.nodeId !== o.nodeId,
+    );
+    const idsDB = allDBs.map(o => {
+      return `${_.get(o, 'nodeConfig.config.dsType')}-${_.get(o, 'nodeConfig.config.dbName')}-${
+        _.get(o, 'nodeConfig.config.schema') || 'schema'
+      }-${_.get(o, 'nodeConfig.config.tableName')}`;
+    });
+    const dBs = list
+      .filter(
+        o =>
+          ['DEST_TABLE', 'SOURCE_TABLE'].includes(o.nodeType) &&
+          _.get(o, 'nodeConfig.config.dsType') !== DATABASE_TYPE.APPLICATION_WORKSHEET &&
+          o.nodeId !== node.nodeId,
+      )
+      .map(
+        o =>
+          `${_.get(o, 'nodeConfig.config.dsType')}-${_.get(o, 'nodeConfig.config.dbName')}-${
+            _.get(o, 'nodeConfig.config.schema') || 'schema'
+          }`,
+      );
+    const sourceTables = list
       .filter(
         o =>
           ['DEST_TABLE', 'SOURCE_TABLE'].includes(o.nodeType) &&
           _.get(o, 'nodeConfig.config.dsType') !== DATABASE_TYPE.APPLICATION_WORKSHEET &&
           !!_.get(o, 'nodeConfig.config.tableName') &&
-          node.nodeId !== o.nodeId,
+          o.nodeId !== node.nodeId,
       )
-      .map(o => {
-        return `${_.get(o, 'nodeConfig.config.datasourceId')}-${_.get(o, 'nodeConfig.config.dbName')}-${
-          _.get(o, 'nodeConfig.config.schema') || 'schema'
-        }-${_.get(o, 'nodeConfig.config.tableName')}`;
-      });
+      .map(o => _.get(o, 'nodeConfig.config.tableName'));
+
+    return { idsMD, idsDB, dBs, sourceTables };
+  };
+
+  filterSheet = (sheetList = [], withoutAdd) => {
+    const { node = {} } = this.props;
+    const { dsType } = _.get(node, ['nodeConfig', 'config']) || {};
+    const { idsMD, idsDB } = this.getAllSource();
     //排除当前画布已经配置过的源或者目的地表 =>表不重复
     const data = sheetList
       .filter(it =>
         dsType !== DATABASE_TYPE.APPLICATION_WORKSHEET
           ? !idsDB.includes(
-              `${_.get(node, 'nodeConfig.config.datasourceId')}-${_.get(node, 'nodeConfig.config.dbName')}-${
+              `${_.get(node, 'nodeConfig.config.dsType')}-${_.get(node, 'nodeConfig.config.dbName')}-${
                 _.get(node, 'nodeConfig.config.schema') || 'schema'
               }-${it.value}`,
             )
@@ -312,8 +331,9 @@ export default class SourceDest extends Component {
           }; //数据库表 不合法的表 不可选
         }
       });
-
-    return 'DEST_TABLE' === node.nodeType //目的地才有新建工作表
+    return withoutAdd
+      ? data
+      : 'DEST_TABLE' === node.nodeType //目的地才有新建工作表
       ? [
           {
             iconName: 'add1',
@@ -323,8 +343,74 @@ export default class SourceDest extends Component {
         ].concat(data)
       : data;
   };
+
+  onChangeTables = value => {
+    const { showEdit } = this.props;
+    const { node = {} } = this.state;
+    const { sheetList = [], appInfo = {} } = this.state;
+    const { dbName = '', appId, dsType } = _.get(node, ['nodeConfig', 'config']) || {};
+    const dbValue = dsType === DATABASE_TYPE.APPLICATION_WORKSHEET ? appId : dbName;
+    let dbParam = {
+      value: !dbValue ? undefined : dbValue,
+      renderValue: dbName || appInfo.name,
+    };
+
+    if (value === 'add') {
+      if (!dbParam.renderValue) {
+        return alert(_l('请选择相应的表或库'), 2);
+      }
+      this.onChangeConfig(
+        {
+          tableName: '',
+          workSheetId: '',
+          createTable: true,
+          isOurCreateTable: true,
+        },
+        () => {
+          setTimeout(() => {
+            showEdit();
+          }, 500);
+        },
+      );
+    } else if (!value) {
+      this.onChangeConfig(
+        {
+          tableName: '',
+          workSheetId: '',
+          createTable: false, //是否新建工作表
+          isOurCreateTable: false,
+        },
+        () => {
+          this.setState({
+            worksheetInfo: {},
+          });
+        },
+      );
+    } else {
+      this.onChangeConfig(
+        {
+          tableName:
+            dsType !== DATABASE_TYPE.APPLICATION_WORKSHEET
+              ? value
+              : (sheetList.find(it => it.value === value) || {}).text,
+          workSheetId: dsType === DATABASE_TYPE.APPLICATION_WORKSHEET ? value : '',
+          createTable: false, //是否新建工作表
+          isOurCreateTable: false,
+        },
+        () => {
+          this.setState({
+            worksheetInfo:
+              dsType === DATABASE_TYPE.APPLICATION_WORKSHEET ? sheetList.find(it => it.value === value) || {} : {},
+          });
+          setTimeout(() => {
+            !!value && showEdit();
+          }, 500);
+        },
+      );
+    }
+  };
   render() {
-    const { currentProjectId: projectId, showEdit } = this.props;
+    const { currentProjectId: projectId } = this.props;
     const { node = {} } = this.state;
     const { dbList = [], sheetList = [], schemaList = [], appInfo = {}, worksheetInfo = {}, loading } = this.state;
     const {
@@ -335,6 +421,8 @@ export default class SourceDest extends Component {
       schema,
       dsType,
       className,
+      datasourceId,
+      dataDestId,
     } = _.get(node, ['nodeConfig', 'config']) || {};
     const dbValue = dsType === DATABASE_TYPE.APPLICATION_WORKSHEET ? appId : dbName;
     let dbParam = {
@@ -375,6 +463,7 @@ export default class SourceDest extends Component {
         );
       };
     }
+
     return (
       <WrapL>
         <div className="title Bold">{_l('数据源')}</div>
@@ -484,122 +573,96 @@ export default class SourceDest extends Component {
             <div className="title mTop20">
               {dsType === DATABASE_TYPE.APPLICATION_WORKSHEET ? _l('工作表') : _l('数据表')}
             </div>
-            <Dropdown
-              {...tbParam}
-              placeholder={_l('请选择')}
-              className="mRight12 dropWorksheet"
-              onVisibleChange={visible => {
-                if (visible) {
-                  this.getSheetList(projectId);
-                }
-              }}
-              renderItem={item => {
-                return (
-                  <div className={cx('itemText', { disabled: item.disabled })}>
-                    {item.text}
-                    {item.disabled && (
-                      <Tooltip title={_l('名称包含特殊字符，无法同步')} placement="top" zIndex="100000">
-                        <Icon icon="info1" className="Gray_bd mLeft5 disabledIcon" />
-                      </Tooltip>
-                    )}
-                  </div>
-                );
-              }}
-              itemLoading={loading}
-              onChange={value => {
-                if (value === 'add') {
-                  if (!dbParam.renderValue) {
-                    return alert(_l('请选择相应的表或库'), 2);
+            {dsType !== DATABASE_TYPE.APPLICATION_WORKSHEET ? (
+              <Wrap>
+                <SelectTables
+                  key={node.nodeId}
+                  className={cx('selectItem boderRadAll_4 mTop14 w100', {
+                    disabled: schemaTypes.includes(className) ? !dbName || !schema : !dbName,
+                  })}
+                  value={!tableName ? undefined : tableName}
+                  options={this.filterSheet(sheetList, true)}
+                  onChangeOptions={sheetList => this.setState({ sheetList })}
+                  onChangeTable={data => this.onChangeTables(_.get(data, 'value'))}
+                  projectId={this.props.currentProjectId}
+                  datasourceId={datasourceId || dataDestId}
+                  dbName={dbName}
+                  schema={schema}
+                  isMultiple={false}
+                  disabled={schemaTypes.includes(className) ? !dbName || !schema : !dbName}
+                  suffixIcon={<Icon icon="arrow-down-border Font14" />}
+                  placeholder={_l('请选择')}
+                  allowCreate={'DEST_TABLE' === node.nodeType}
+                  createText={_l('新建数据表')}
+                  onAdd={() => {
+                    this.onChangeTables('add');
+                  }}
+                  isSameDbObj={this.getAllSource().dBs.includes(`${dsType}-${dbName}-${schema || 'schema'}`)}
+                  sourceTables={this.getAllSource().sourceTables}
+                />
+              </Wrap>
+            ) : (
+              <Dropdown
+                {...tbParam}
+                placeholder={_l('请选择')}
+                className="mRight12 dropWorksheet"
+                onVisibleChange={visible => {
+                  if (visible) {
+                    this.getSheetList();
                   }
-                  this.onChangeConfig(
-                    {
-                      tableName: '',
-                      workSheetId: '',
-                      createTable: true,
-                      isOurCreateTable: true,
-                    },
-                    () => {
-                      setTimeout(() => {
-                        showEdit();
-                      }, 500);
-                    },
-                  );
-                } else if (!value) {
-                  this.onChangeConfig(
-                    {
-                      tableName: '',
-                      workSheetId: '',
-                      createTable: false, //是否新建工作表
-                      isOurCreateTable: false,
-                    },
-                    () => {
-                      this.setState({
-                        worksheetInfo: {},
-                      });
-                    },
-                  );
-                } else {
-                  this.onChangeConfig(
-                    {
-                      tableName:
-                        dsType !== DATABASE_TYPE.APPLICATION_WORKSHEET
-                          ? value
-                          : (sheetList.find(it => it.value === value) || {}).text,
-                      workSheetId: dsType === DATABASE_TYPE.APPLICATION_WORKSHEET ? value : '',
-                      createTable: false, //是否新建工作表
-                      isOurCreateTable: false,
-                    },
-                    () => {
-                      this.setState({
-                        worksheetInfo:
-                          dsType === DATABASE_TYPE.APPLICATION_WORKSHEET
-                            ? sheetList.find(it => it.value === value) || {}
-                            : {},
-                      });
-                      setTimeout(() => {
-                        !!value && showEdit();
-                      }, 500);
-                    },
-                  );
-                }
-              }}
-              renderTitle={() => {
-                return (
-                  <div className="flexRow alignItemsCenter">
-                    <div className="flex overflow_ellipsis WordBreak" style={{ maxWidth: 446 }}>
-                      {tbParam.renderValue}
-                    </div>
-                    {dsType === DATABASE_TYPE.APPLICATION_WORKSHEET &&
-                      !_.get(node, 'nodeConfig.config.createTable') && (
-                        <Icon
-                          icon="task-new-detail"
-                          className="mLeft10 Font12 ThemeColor3 ThemeHoverColor2 Hand"
-                          onClick={e => {
-                            e.stopPropagation();
-                            if (!_.get(worksheetInfo, 'sectionId')) {
-                              this.getWorksheetInfo(workSheetId, worksheetInfo => {
-                                window.open(
-                                  !_.get(worksheetInfo, 'sectionId')
-                                    ? `/app/${dbValue}`
-                                    : `/app/${dbValue}/${_.get(worksheetInfo, 'sectionId')}/${tbValue}`,
-                                );
-                              });
-                            } else {
-                              window.open(`/app/${dbValue}/${worksheetInfo.sectionId}/${tbValue}`);
-                            }
-                          }}
-                        />
+                }}
+                renderItem={item => {
+                  return (
+                    <div className={cx('itemText', { disabled: item.disabled })}>
+                      {item.text}
+                      {item.disabled && (
+                        <Tooltip title={_l('名称包含特殊字符，无法同步')} placement="top" zIndex="100000">
+                          <Icon icon="info1" className="Gray_bd mLeft5 disabledIcon" />
+                        </Tooltip>
                       )}
-                  </div>
-                );
-              }}
-              border
-              menuClass={'dropWorksheetIntegration'}
-              cancelAble
-              isAppendToBody
-              openSearch
-              data={sheetList}
-            />
+                    </div>
+                  );
+                }}
+                itemLoading={loading}
+                onChange={this.onChangeTables}
+                renderTitle={() => {
+                  return (
+                    <div className="flexRow alignItemsCenter">
+                      <div className="flex overflow_ellipsis WordBreak" style={{ maxWidth: 446 }}>
+                        {tbParam.renderValue}
+                      </div>
+                      {dsType === DATABASE_TYPE.APPLICATION_WORKSHEET &&
+                        !_.get(node, 'nodeConfig.config.createTable') && (
+                          <Icon
+                            icon="task-new-detail"
+                            className="mLeft10 Font12 ThemeColor3 ThemeHoverColor2 Hand"
+                            onClick={e => {
+                              e.stopPropagation();
+                              if (!_.get(worksheetInfo, 'sectionId')) {
+                                this.getWorksheetInfo(workSheetId, worksheetInfo => {
+                                  window.open(
+                                    !_.get(worksheetInfo, 'sectionId')
+                                      ? `/app/${dbValue}`
+                                      : `/app/${dbValue}/${_.get(worksheetInfo, 'sectionId')}/${tbValue}`,
+                                  );
+                                });
+                              } else {
+                                window.open(`/app/${dbValue}/${worksheetInfo.sectionId}/${tbValue}`);
+                              }
+                            }}
+                          />
+                        )}
+                    </div>
+                  );
+                }}
+                border
+                menuClass={'dropWorksheetIntegration'}
+                cancelAble
+                isAppendToBody
+                openSearch
+                data={sheetList}
+              />
+            )}
           </React.Fragment>
         )}
       </WrapL>
