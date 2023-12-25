@@ -685,13 +685,8 @@ export function copySublistControlValue(control, value) {
     case WIDGETS_TO_API_TYPE_ENUM.ORG_ROLE: // 组织角色
     case WIDGETS_TO_API_TYPE_ENUM.TIME: // 时间
     case WIDGETS_TO_API_TYPE_ENUM.CONCATENATE: // 时间
-      return value;
     case WIDGETS_TO_API_TYPE_ENUM.SIGNATURE: // 签名
-      try {
-        return value.startsWith('http') ? JSON.stringify({ bucket: 4, key: new URL(value).pathname.slice(1) }) : value;
-      } catch (err) {
-        return;
-      }
+      return value;
     default:
       return;
   }

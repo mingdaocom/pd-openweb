@@ -459,7 +459,7 @@ function Attachment(props) {
                   openControlAttachmentInNewTab({
                     appId,
                     recordId,
-                    viewId,
+                    viewId: !isSubList ? viewId : undefined,
                     worksheetId,
                     controlId: cell.controlId,
                     fileId,
