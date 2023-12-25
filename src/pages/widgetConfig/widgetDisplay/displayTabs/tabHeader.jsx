@@ -23,6 +23,12 @@ const TabHeaderItemWrap = styled.div`
   .Width16 {
     width: 16px;
   }
+  .tabDeleteIcon {
+    width: 24px;
+    height: 30px;
+    line-height: 34px;
+    text-align: center;
+  }
 `;
 
 const DragItemWrap = styled.div`
@@ -112,7 +118,9 @@ export function TabHeaderItem(props) {
           }
           placement="bottom"
         >
-          <Icon icon="arrow-down" className="Gray_9 mAll5" />
+          <div className="tabDeleteIcon">
+            <Icon icon="arrow-down" className="Gray_9" />
+          </div>
         </Dropdown>
       )}
     </TabHeaderItemWrap>

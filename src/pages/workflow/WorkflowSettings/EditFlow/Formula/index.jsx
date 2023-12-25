@@ -73,7 +73,7 @@ export default class Formula extends Component {
             <span className="Gray_75">{_l('工作表')}</span>“{item.appName}”
           </div>
           <div className="workflowContentInfo ellipsis mTop4 pBottom5">
-            {fields[0].fieldId
+            {fields && fields[0].fieldId
               ? `${fields[0].fieldName}（${SUMMARY_LIST.find(o => o.value === fields[0].enumDefault).label}）`
               : _l('记录数量')}
           </div>

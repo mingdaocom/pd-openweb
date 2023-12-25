@@ -293,8 +293,14 @@ export default function DisplayItem(props) {
         if (row === widgets.length - 1 && col === widgets[row].length - 1) {
           nextActiveWidget = col > 0 ? get(widgets, [row, col - 1]) : last(widgets[row - 1]);
         } else {
+          // 下一个激活控件非同源标签页，清空激活控件，防止删除控件引起标签页切换
+          const nextWidget = head(widgets[row + 1]);
           nextActiveWidget =
-            col >= (widgets[row] || []).length - 1 ? head(widgets[row + 1]) : get(widgets, [row, col + 1]);
+            col >= (widgets[row] || []).length - 1
+              ? _.get(nextWidget, 'sectionId') === activeWidget.sectionId
+                ? nextWidget
+                : ''
+              : get(widgets, [row, col + 1]);
         }
         setActiveWidget(nextActiveWidget);
       }

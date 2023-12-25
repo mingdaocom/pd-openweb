@@ -34,7 +34,7 @@ export default function ViewLand(props) {
       setLoading(true);
       homeApp.getAppSimpleInfo({ workSheetId: worksheetId }).then(data => {
         const { appSectionId } = data;
-        location.href = `/mobile/recordList/${appId}/${appSectionId}/${worksheetId}/${viewId}`;
+        location.href = `/mobile/recordList/${appId}/${appSectionId}/${worksheetId}/${viewId}${location.search}`;
       });
       return;
     }

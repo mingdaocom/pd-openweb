@@ -96,7 +96,7 @@ export default class Create extends React.Component {
     }, 300);
     fixedDataAjax.loadIndustry({}).then(res => {
       this.setState({
-        industryList: res.industries || [],
+        industryList: (res.industries || []).filter(o => o.isEnable === 1),
       });
     });
   }

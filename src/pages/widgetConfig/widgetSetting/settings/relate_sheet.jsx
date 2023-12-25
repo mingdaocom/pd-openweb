@@ -365,11 +365,10 @@ export default function RelateSheet(props) {
           }}
         />
         {showtype === '3' && (
-          <div className="labelWrap">
+          <div className="labelWrap mTop12">
             <Checkbox
               className="displayCover"
               size="small"
-              style={{ marginTop: '12px' }}
               text={_l('在下拉列表中显示附加字段和封面')}
               checked={ddset === '1'}
               onClick={checked => {
@@ -384,7 +383,7 @@ export default function RelateSheet(props) {
                 className="hoverTip"
                 title={_l('在选择关联的记录时显示附加的字段值和封面，帮助您快速找到需要关联的记录')}
               >
-                <i className="icon pointer icon-help Gray_bd Font15" />
+                <i className="icon pointer icon-help Gray_9e Font16" />
               </Tooltip>
             </Checkbox>
           </div>

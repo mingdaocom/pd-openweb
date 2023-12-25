@@ -15,8 +15,6 @@ const Content = styled(Flex)`
   right: 20px;
   bottom: 20px;
   z-index: 99;
-  padding-bottom: calc(constant(safe-area-inset-bottom) - 20px);
-  padding-bottom: calc(env(safe-area-inset-bottom) - 20px);
   &.low {
     bottom: 20px;
   }

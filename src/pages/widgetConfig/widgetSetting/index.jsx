@@ -37,8 +37,16 @@ const SettingWrap = styled.div`
       align-items: center;
       .Checkbox-box {
         margin-right: 10px;
+        flex-shrink: 0;
         .icon-help {
           margin-left: 4px;
+        }
+      }
+      &.displayCover {
+        align-items: flex-start;
+        span:nth-child(2) {
+          margin-top: -2px;
+          white-space: break-spaces;
         }
       }
     }

@@ -426,6 +426,7 @@ class UserCard extends React.Component {
                 md.global.Account &&
                 ![md.global.Account.accountId, 'user-workflow'].includes(data.accountId) &&
                 !md.global.Account.isPortal &&
+                !isPortal &&
                 chatButton && (
                   <span className="Hand" data-tip={_l('发消息')} onClick={this.openChat}>
                     <span className="actionButton icon-chat-session ThemeColor3" />
