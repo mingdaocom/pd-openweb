@@ -10,7 +10,7 @@ import WorkflowDialog from 'src/pages/workflow/components/WorkflowDialog';
 import { LOGIN_WAY, REJISTER_WAY } from 'src/pages/Role/config.js';
 import _ from 'lodash';
 import locale from 'antd/es/date-picker/locale/zh_CN';
-import { DatePicker } from 'antd';
+import { DatePicker, Select } from 'antd';
 import moment from 'moment';
 
 const Wrap = styled.div`
@@ -104,6 +104,12 @@ const Wrap = styled.div`
     border: 1px solid #ddd;
     border-radius: 3px;
   }
+  .cardSelect {
+    font-size: 12px !important;
+    .ant-select-selection-item-remove:hover {
+      color: #2196f3 !important;
+    }
+  }
 `;
 export const SwitchStyle = styled.div`
   display: inline-block;
@@ -125,7 +131,7 @@ const DIS_SET = [_l('可见全部讨论'), _l('不可见内部讨论')];
 const ALLOW_TYPE = [_l('任何人'), _l('通过审核的用户'), _l('仅定向邀请的用户')]; //3,6,9
 let ajaxRequest = null;
 export default function BaseSet(props) {
-  let { portalSet = {}, onChangePortalSet, projectId, appId } = props;
+  let { portalSet = {}, onChangePortalSet, projectId, appId, portal = {} } = props;
   const [portalSetModel, setPortalSetModel] = useState({});
   const { noticeScope = {}, isFrontDomain } = portalSetModel; //isFrontDomain是否为前置域名
   const [epDiscussWorkFlow, setEpDiscussWorkFlow] = useState(portalSet.epDiscussWorkFlow || {});
@@ -141,15 +147,15 @@ export default function BaseSet(props) {
     show: false,
     showWorkflowDialog: false,
   });
-  useEffect(
-    () => {
-      let { portalSet = {} } = props;
-      let { portalSetModel = {}, epDiscussWorkFlow = {} } = portalSet;
-      setPortalSetModel(portalSetModel);
-      setEpDiscussWorkFlow(epDiscussWorkFlow);
-    },
-    [props],
-  );
+  const [businessCardOption, setBusinessCardOption] = useState([]);
+  const [externalControls, setExternalControls] = useState([]);
+  const [internalControls, setInternalControls] = useState([]);
+  useEffect(() => {
+    let { portalSet = {} } = props;
+    let { portalSetModel = {}, epDiscussWorkFlow = {} } = portalSet;
+    setPortalSetModel(portalSetModel);
+    setEpDiscussWorkFlow(epDiscussWorkFlow);
+  }, [props]);
 
   useEffect(() => {
     let { portalSetModel = {} } = portalSet;
@@ -158,6 +164,15 @@ export default function BaseSet(props) {
     setNotify(noticeScope.admin || false);
     setExAccountSmsNotice(noticeScope.exAccountSmsNotice || false);
     setcustomizeName(portalSetModel.customizeName);
+    let _controls = (portal.controls || [])
+      .filter(l => !l.controlId.includes('_') || ['portal_mobile', 'portal_email', 'portal_role'].includes(l.controlId))
+      .map(l => ({
+        label: l.controlName,
+        value: l.controlId,
+      }));
+    setBusinessCardOption(_controls);
+    setExternalControls((portalSetModel.externalControls || []).filter(l => _controls.find(m => m.value === l)));
+    setInternalControls((portalSetModel.internalControls || []).filter(l => _controls.find(m => m.value === l)));
   }, [_.get(props, ['portalSet', 'portalSetModel'])]);
 
   useEffect(() => {
@@ -229,6 +244,27 @@ export default function BaseSet(props) {
     if (num >= WAY.length) {
       cb();
     }
+  };
+
+  const renderSelectOptions = () => {
+    return (
+      <React.Fragment>
+        {businessCardOption
+          .filter(l => l.value.includes('_'))
+          .map(item => (
+            <Select.Option value={item.value} label={item.label}>
+              {item.label}
+            </Select.Option>
+          ))}
+        {businessCardOption
+          .filter(l => !l.value.includes('_'))
+          .map((item, i) => (
+            <Select.Option value={item.value} label={item.label} className={cx({ BorderTopGrayC: i === 0 })}>
+              {item.label}
+            </Select.Option>
+          ))}
+      </React.Fragment>
+    );
   };
   return (
     <Wrap>
@@ -768,6 +804,56 @@ export default function BaseSet(props) {
             </span>
           </div>
         )}
+        <h6 className="Font16 Gray Bold mBottom0 mTop24">{_l('名片配置')}</h6>
+        <p className="Font12 Gray_9e mTop4 LineHeight18">{_l('设置外部用户的名片层中可以被其他人查看到的信息')}</p>
+        <div className="mTop12 mBottom6">{_l('组织成员查看')}</div>
+        <Select
+          mode="multiple"
+          className="cardSelect"
+          allowClear
+          style={{ width: '100%' }}
+          placeholder={_l('请选择')}
+          value={internalControls}
+          optionLabelProp="label"
+          onChange={value => {
+            if (value.length > 6) {
+              alert('最多支持显示6个字段');
+              return;
+            }
+            onChangePortalSet({
+              portalSetModel: {
+                ...portalSetModel,
+                internalControls: value,
+              },
+            });
+          }}
+        >
+          {renderSelectOptions()}
+        </Select>
+        <div className="mTop12 mBottom6">{_l('外部用户查看')}</div>
+        <Select
+          mode="multiple"
+          className="cardSelect"
+          allowClear
+          style={{ width: '100%' }}
+          placeholder={_l('请选择')}
+          value={externalControls}
+          optionLabelProp="label"
+          onChange={value => {
+            if (value.length > 6) {
+              alert('最多支持显示6个字段');
+              return;
+            }
+            onChangePortalSet({
+              portalSetModel: {
+                ...portalSetModel,
+                externalControls: value,
+              },
+            });
+          }}
+        >
+          {renderSelectOptions()}
+        </Select>
       </div>
       {showWorkflowDialog && (
         <WorkflowDialog

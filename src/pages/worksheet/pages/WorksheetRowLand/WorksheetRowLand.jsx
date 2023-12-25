@@ -15,11 +15,12 @@ class WorksheetRowLand extends Component {
   constructor(props) {
     super(props);
     const { match } = this.props;
+    const { appId } = match.params;
     this.state = {
-      loading: !match.params.appId,
+      loading: !appId,
       worksheetId: match.params.worksheetId,
       rowId: match.params.rowId,
-      appId: match.params.appId,
+      appId: md.global.Account.isPortal ? md.global.Account.appId : appId,
       viewId: match.params.viewId,
       sheetSwitchPermit: [],
       loadingSwitchPermit: true,

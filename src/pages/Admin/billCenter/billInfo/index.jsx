@@ -2,7 +2,7 @@ import React, { Fragment, useState, useEffect } from 'react';
 import axios from 'axios';
 import { LoadDiv, Dropdown, ScrollView } from 'ming-ui';
 import orderAjax from 'src/api/order';
-import UserHead from 'src/pages/feed/components/userHead/userHead.jsx';
+import UserHead from 'src/components/userHead/userHead.jsx';
 import copy from 'copy-to-clipboard';
 import projectAjax from 'src/api/project';
 import applicationAjax from 'src/api/application';
@@ -47,10 +47,9 @@ export default function BillInfo({ match }) {
   const [displayRecordType, setType] = useState('paid');
   const { balance, list = [], allCount, invoiceType } = data;
   const { pageIndex, status, pageSize, startDate, endDate } = paras;
-  const isPaid =
-    _.get(_.find(md.global.Account.projects, project => project.projectId === projectId) || {}, 'licenseType') === 1;
+  const { companyName, licenseType } = getCurrentProject(projectId, true);
+  const isPaid = licenseType === 1;
   const isRechargeType = displayRecordType === 'recharge';
-  const { companyName } = getCurrentProject(projectId);
   const refreshData = () => {
     setLoading(true);
     orderAjax

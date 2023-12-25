@@ -82,7 +82,7 @@ export default function UrlParams(props) {
   }, [flag]);
 
   const onUpdateView = newParams => {
-    newParams = _.uniq(newParams.filter(item => item.trim() && item.trim().length <= 10));
+    newParams = _.uniq(newParams.filter(item => item.trim() && item.trim().length <= 20));
 
     updateCurrentView({
       ...view,
@@ -149,7 +149,7 @@ export default function UrlParams(props) {
                   className="flex"
                   placeholder={_l('请输入参数名')}
                   value={item}
-                  maxLength={10}
+                  maxLength={20}
                   onChange={value => {
                     const newParams = params.map((p, i) => {
                       return i === index ? value : p;

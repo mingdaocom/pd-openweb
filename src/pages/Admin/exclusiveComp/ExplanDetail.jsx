@@ -8,12 +8,11 @@ import Trigger from 'rc-trigger';
 import _ from 'lodash';
 import { Icon, Button } from 'ming-ui';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
-import UserHead from 'src/pages/feed/components/userHead/userHead';
+import UserHead from 'src/components/userHead/userHead';
 import Search from 'src/pages/workflow/components/Search';
 import PaginationWrap from '../components/PaginationWrap';
 import MoveWorkflowDialog from './component/MoveWorkflowDialog';
 import AddWorkflowDialog from './component/AddWorkflowDialog';
-import EXCLUSIVE_EXPLAN_IMG from './images/exclusive_explan.png';
 import resourceApi from 'src/pages/workflow/api/resource';
 import appManagement from 'src/api/appManagement';
 import projectAjax from 'src/api/project';
@@ -25,7 +24,7 @@ import { navigateTo } from 'src/router/navigateTo';
 
 const ActionOpWrap = styled.ul`
   background: #fff;
-  box-shadow: 0px 4px 16px 1px rgba(0,0,0,0.24);
+  box-shadow: 0px 4px 16px 1px rgba(0, 0, 0, 0.24);
   border-radius: 3px 3px 3px 3px;
   width: 160px;
   font-size: 13px;
@@ -39,9 +38,10 @@ const ActionOpWrap = styled.ul`
       background-color: #2196f3;
       color: #fff;
     }
+  }
 `;
 
-const PAGE_SIZE = 11;
+const PAGE_SIZE = 10;
 
 const renderEmpty = () => {
   return <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={_l('暂无数据')}></Empty>;
@@ -267,14 +267,11 @@ function ExplanDetail(props) {
           {explanInfo && `${explanInfo.name}（${explanInfo.resourceId}）`}
         </span>
         <span className="flex"></span>
-        {explanInfo &&
-          moment(explanInfo.expirationDatetime)
-            .add(1, 'd')
-            .isBefore(new Date()) && (
-            <span className="" style={{ color: '#f51744' }}>
-              {_l('服务已过期')}
-            </span>
-          )}
+        {explanInfo && moment(explanInfo.expirationDatetime).add(1, 'd').isBefore(new Date()) && (
+          <span className="" style={{ color: '#f51744' }}>
+            {_l('服务已过期')}
+          </span>
+        )}
       </div>
       <div className="explanDetailContent flex">
         <div className="actionCon flexRow">
@@ -399,7 +396,7 @@ function ExplanDetail(props) {
           }}
         />
       </div>
-      {explanInfo && (
+      {explanInfo && moveWorkflowDialog.visible && (
         <MoveWorkflowDialog
           visible={moveWorkflowDialog.visible}
           projectId={projectId}
@@ -419,7 +416,7 @@ function ExplanDetail(props) {
           }}
         />
       )}
-      {explanInfo && (
+      {explanInfo && addWorkflowDialog.visible && (
         <AddWorkflowDialog
           projectId={projectId}
           visible={addWorkflowDialog.visible}

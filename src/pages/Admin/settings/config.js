@@ -33,7 +33,7 @@ export const SYS_CHART_COLORS = [
     id: '1',
   },
   {
-    name: _l('布鲁姆'),
+    name: _l('文艺'),
     colors: ['#8250C4', '#5ECBC8', '#438FFB', '#FD977E', '#EB5757', '#5B2071', '#EC5A96', '#A43B76'],
     themeColors: ['#3A16AF', '#732ED1', '#9D26B0'],
     id: '2',

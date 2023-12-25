@@ -11,7 +11,7 @@ export default function WidgetName(props) {
   const { type, controlName, controlId = '' } = data;
   const hidetitle = getAdvanceSetting(data, 'hidetitle');
   const $ref = useRef(null);
-  const showHiden = !(relateOrSectionTab(data));
+  const showHiden = !relateOrSectionTab(data);
 
   useEffect(() => {
     if ($ref.current && !isRecycle) {

@@ -120,6 +120,18 @@ export default {
      return $.api('ProjectSetting', 'GetEnabledWatermark', args, options);
    },
   /**
+  * 获取 是否开启了用户密码输入可以设置免密验证
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getEnabledNoneVerification: function (args, options = {}) {
+     
+     return $.api('ProjectSetting', 'GetEnabledNoneVerification', args, options);
+   },
+  /**
   * 获取 是否只允许管理员创建应用
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
@@ -168,6 +180,7 @@ export default {
   * @param {boolean} args.isAllowStructureSelfEdit 是否 允许员工自行添加下属
   * @param {boolean} args.onlyManagerCreateApp 是否 只允许管理员创建应用
   * @param {boolean} args.enabledWatermark 是否 启用水印
+  * @param {boolean} args.enabledNoneVerification 是否 启用用户密码输入可以设置免密验证
   * @param {boolean} args.notice 设置允许Score通知
   * @param {string} args.subDomain 设置二级域名
   * @param {string} args.domain 删除绑定的域名
@@ -192,6 +205,7 @@ export default {
   * @param {boolean} args.isAllowStructureSelfEdit 是否 允许员工自行添加下属
   * @param {boolean} args.onlyManagerCreateApp 是否 只允许管理员创建应用
   * @param {boolean} args.enabledWatermark 是否 启用水印
+  * @param {boolean} args.enabledNoneVerification 是否 启用用户密码输入可以设置免密验证
   * @param {boolean} args.notice 设置允许Score通知
   * @param {string} args.subDomain 设置二级域名
   * @param {string} args.domain 删除绑定的域名
@@ -216,6 +230,7 @@ export default {
   * @param {boolean} args.isAllowStructureSelfEdit 是否 允许员工自行添加下属
   * @param {boolean} args.onlyManagerCreateApp 是否 只允许管理员创建应用
   * @param {boolean} args.enabledWatermark 是否 启用水印
+  * @param {boolean} args.enabledNoneVerification 是否 启用用户密码输入可以设置免密验证
   * @param {boolean} args.notice 设置允许Score通知
   * @param {string} args.subDomain 设置二级域名
   * @param {string} args.domain 删除绑定的域名
@@ -240,6 +255,7 @@ export default {
   * @param {boolean} args.isAllowStructureSelfEdit 是否 允许员工自行添加下属
   * @param {boolean} args.onlyManagerCreateApp 是否 只允许管理员创建应用
   * @param {boolean} args.enabledWatermark 是否 启用水印
+  * @param {boolean} args.enabledNoneVerification 是否 启用用户密码输入可以设置免密验证
   * @param {boolean} args.notice 设置允许Score通知
   * @param {string} args.subDomain 设置二级域名
   * @param {string} args.domain 删除绑定的域名
@@ -264,6 +280,7 @@ export default {
   * @param {boolean} args.isAllowStructureSelfEdit 是否 允许员工自行添加下属
   * @param {boolean} args.onlyManagerCreateApp 是否 只允许管理员创建应用
   * @param {boolean} args.enabledWatermark 是否 启用水印
+  * @param {boolean} args.enabledNoneVerification 是否 启用用户密码输入可以设置免密验证
   * @param {boolean} args.notice 设置允许Score通知
   * @param {string} args.subDomain 设置二级域名
   * @param {string} args.domain 删除绑定的域名
@@ -288,6 +305,7 @@ export default {
   * @param {boolean} args.isAllowStructureSelfEdit 是否 允许员工自行添加下属
   * @param {boolean} args.onlyManagerCreateApp 是否 只允许管理员创建应用
   * @param {boolean} args.enabledWatermark 是否 启用水印
+  * @param {boolean} args.enabledNoneVerification 是否 启用用户密码输入可以设置免密验证
   * @param {boolean} args.notice 设置允许Score通知
   * @param {string} args.subDomain 设置二级域名
   * @param {string} args.domain 删除绑定的域名
@@ -312,6 +330,7 @@ export default {
   * @param {boolean} args.isAllowStructureSelfEdit 是否 允许员工自行添加下属
   * @param {boolean} args.onlyManagerCreateApp 是否 只允许管理员创建应用
   * @param {boolean} args.enabledWatermark 是否 启用水印
+  * @param {boolean} args.enabledNoneVerification 是否 启用用户密码输入可以设置免密验证
   * @param {boolean} args.notice 设置允许Score通知
   * @param {string} args.subDomain 设置二级域名
   * @param {string} args.domain 删除绑定的域名
@@ -349,6 +368,7 @@ export default {
   * @param {boolean} args.isAllowStructureSelfEdit 是否 允许员工自行添加下属
   * @param {boolean} args.onlyManagerCreateApp 是否 只允许管理员创建应用
   * @param {boolean} args.enabledWatermark 是否 启用水印
+  * @param {boolean} args.enabledNoneVerification 是否 启用用户密码输入可以设置免密验证
   * @param {boolean} args.notice 设置允许Score通知
   * @param {string} args.subDomain 设置二级域名
   * @param {string} args.domain 删除绑定的域名
@@ -359,6 +379,31 @@ export default {
    setEnabledWatermark: function (args, options = {}) {
      
      return $.api('ProjectSetting', 'SetEnabledWatermark', args, options);
+   },
+  /**
+  * 设置 是否 启用用户密码输入可以设置免密验证
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {boolean} args.allowProjectCodeJoin 企业标识
+  * @param {string} args.logoName LOGO
+  * @param {string} args.imageName 二级域名页面背景图片
+  * @param {boolean} args.birthdayNoticeEnabled 生日提醒
+  * @param {boolean} args.isAudit 设置审批
+  * @param {boolean} args.forAll 设置允许全员可见组织结构
+  * @param {boolean} args.isAllowStructureSelfEdit 是否 允许员工自行添加下属
+  * @param {boolean} args.onlyManagerCreateApp 是否 只允许管理员创建应用
+  * @param {boolean} args.enabledWatermark 是否 启用水印
+  * @param {boolean} args.enabledNoneVerification 是否 启用用户密码输入可以设置免密验证
+  * @param {boolean} args.notice 设置允许Score通知
+  * @param {string} args.subDomain 设置二级域名
+  * @param {string} args.domain 删除绑定的域名
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   setEnabledNoneVerification: function (args, options = {}) {
+     
+     return $.api('ProjectSetting', 'SetEnabledNoneVerification', args, options);
    },
   /**
   * 设置 是否 自动订购工作流升级包
@@ -413,7 +458,7 @@ export default {
      return $.api('ProjectSetting', 'SetSso', args, options);
    },
   /**
-  * 设置 SsoUrl
+  * 设置 SSOUrl
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
   * @param {string} args.ssoWebUrl sso web url
@@ -439,6 +484,7 @@ export default {
   * @param {boolean} args.isAllowStructureSelfEdit 是否 允许员工自行添加下属
   * @param {boolean} args.onlyManagerCreateApp 是否 只允许管理员创建应用
   * @param {boolean} args.enabledWatermark 是否 启用水印
+  * @param {boolean} args.enabledNoneVerification 是否 启用用户密码输入可以设置免密验证
   * @param {boolean} args.notice 设置允许Score通知
   * @param {string} args.subDomain 设置二级域名
   * @param {string} args.domain 删除绑定的域名
@@ -463,6 +509,7 @@ export default {
   * @param {boolean} args.isAllowStructureSelfEdit 是否 允许员工自行添加下属
   * @param {boolean} args.onlyManagerCreateApp 是否 只允许管理员创建应用
   * @param {boolean} args.enabledWatermark 是否 启用水印
+  * @param {boolean} args.enabledNoneVerification 是否 启用用户密码输入可以设置免密验证
   * @param {boolean} args.notice 设置允许Score通知
   * @param {string} args.subDomain 设置二级域名
   * @param {string} args.domain 删除绑定的域名
@@ -475,7 +522,7 @@ export default {
      return $.api('ProjectSetting', 'RemoveProjectDomain', args, options);
    },
   /**
-  *   /// 新用户加入企业必填字段
+  * 新用户加入企业必填字段
 MD.Enum.ProjectSetting.UserFillCompanyEnabled
 MD.Enum.ProjectSetting.UserFillWorkSiteEnabled
 MD.Enum.ProjectSetting.UserFillJobNumberEnabled
@@ -493,7 +540,7 @@ MD.Enum.ProjectSetting.UserFillDepartmentEnabled
      return $.api('ProjectSetting', 'SetPrivacy', args, options);
    },
   /**
-  *   /// 新用户加入企业必填字段
+  * 新用户加入企业必填字段
 MD.Enum.ProjectSetting.UserFillCompanyEnabled
 MD.Enum.ProjectSetting.UserFillWorkSiteEnabled
 MD.Enum.ProjectSetting.UserFillJobNumberEnabled
@@ -577,8 +624,9 @@ MD.Enum.ProjectSetting.UserFillDepartmentEnabled
   * 编辑自定义颜色设置
   * @param {Object} args 请求参数
   * @param {string} args.projectId 组织id
-  * @param {} args.themeColor 主题色配置
-  * @param {} args.charColor 图标颜色配置
+  * @param {array} args.chart 颜色
+  * @param {array} args.theme 主题
+  * @param {} args.type o=系统预设 1=自定义
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

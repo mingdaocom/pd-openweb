@@ -21,6 +21,7 @@ import CustomPage from 'src/pages/customPage';
 import { getAppSectionData } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup';
 import { browserIsMobile } from 'src/util';
 import { findSheet } from 'worksheet/util';
+import { enumWidgetType } from 'src/pages/customPage/util';
 import DocumentTitle from 'react-document-title';
 import { pick } from 'lodash';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
@@ -177,19 +178,22 @@ function CustomPageContent(props) {
     }, {
       fireImmediately: true
     }).then(({ components, desc, apk, adjustScreen, name, config }) => {
+      const componentsData = isMobile ? components.filter(item => item.mobile.visible) : components;
       updatePageInfo({
-        components: isMobile ? components.filter(item => item.mobile.visible) : components,
+        components: componentsData,
         desc,
         adjustScreen,
         pageId,
         apk: apk || {},
         config: config || defaultConfig,
-        pageName: name
+        pageName: name,
+        filterComponents: componentsData.filter(item => item.value && item.type === enumWidgetType.filter)
       });
     }).always(() => updateLoading(false));
   }
 
   const resetPage = () => {
+    updatePageInfo({ loadFilterComponentCount: 0 });
     updateLoading(true);
     getPage();
   }
@@ -251,7 +255,7 @@ function CustomPageContent(props) {
   return (
     <Fragment>
       <CustomPageContentWrap className="CustomPageContentWrap flexColumn">
-        {(appName || pageName) && <DocumentTitle title={`${appName} - ${pageName}`} />}
+        {(appName || pageName) && <DocumentTitle title={`${pageName} - ${appName}`} />}
         {!loading && (
           <CustomPageHeader {...props} currentSheet={currentSheet} toggle={showFullscreen} resetPage={resetPage} />
         )}

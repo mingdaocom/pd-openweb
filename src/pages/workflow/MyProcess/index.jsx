@@ -199,8 +199,7 @@ export default class MyProcess extends Component {
       approveType: null,
       encryptType: null,
       rejectVisible: false,
-      passVisible: false,
-      showPassword: false
+      passVisible: false
     };
   }
   componentDidMount() {
@@ -209,12 +208,6 @@ export default class MyProcess extends Component {
       this.updateCountData(countData);
     });
     this.removeEscEvent = this.bindEscEvent();
-    verifyPassword({
-      checkNeedAuth: true,
-      fail: () => {
-        this.setState({ showPassword: true });
-      },
-    });
   }
   componentWillUnmount() {
     this.removeEscEvent();
@@ -362,16 +355,16 @@ export default class MyProcess extends Component {
     });
   };
   hanndleApprove = (approveType, batchType) => {
-    const { approveCards, showPassword } = this.state;
+    const { approveCards } = this.state;
     const rejectCards = approveCards.filter(c => _.get(c, 'flowNode.btnMap')[5]);
     const cards = approveType === 5 ? rejectCards : approveCards;
     const signatureCard = cards.filter(card => (_.get(card.flowNode, batchType) || []).includes(1));
     const encryptCard = cards.filter(card => _.get(card.flowNode, 'encrypt'));
-    if (signatureCard.length || (encryptCard.length && showPassword)) {
+    if (signatureCard.length || encryptCard.length) {
       if (signatureCard.length) {
         this.setState({ approveType: approveType });
       }
-      if (encryptCard.length && showPassword) {
+      if (encryptCard.length) {
         this.setState({ encryptType: approveType });
       }
     } else {
@@ -739,7 +732,7 @@ export default class MyProcess extends Component {
     }
   }
   renderSignatureDialog() {
-    const { approveType, encryptType, showPassword } = this.state;
+    const { approveType, encryptType } = this.state;
     const type = approveType || encryptType;
     const batchType = type === 4 ? 'auth.passTypeList' : 'auth.overruleTypeList';
     const approveCards = type === 4 ? this.state.approveCards : this.state.approveCards.filter(c => _.get(c, 'flowNode.btnMap')[5]);
@@ -770,12 +763,7 @@ export default class MyProcess extends Component {
             verifyPassword({
               password: this.password,
               closeImageValidation: true,
-              isNoneVerification: this.isNoneVerification,
-              checkNeedAuth: !showPassword,
               success: submitFun,
-              fail: () => {
-                this.setState({ showPassword: true });
-              }
             });
           } else {
             submitFun();
@@ -806,9 +794,9 @@ export default class MyProcess extends Component {
         {encryptType && (
           <div className="mTop20">
             <VerifyPassword
-              onChange={({ password, isNoneVerification }) => {
+              removeNoneVerification={true}
+              onChange={({ password }) => {
                 if (password !== undefined) this.password = password;
-                if (isNoneVerification !== undefined) this.isNoneVerification = isNoneVerification;
               }}
             />
           </div>

@@ -1,33 +1,12 @@
 import React from 'react';
-import cx from 'classnames';
-import 'src/components/mdBusinessCard/mdBusinessCard';
+import UserCard from 'src/components/UserCard';
 
 export default class UserLink extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       ...props,
-      binded: false,
     };
-  }
-
-  bindBusinessCard() {
-    if (this.state.binded || !this.card) return false;
-
-    this.setState({
-      binded: true,
-    });
-    $(this.card)
-      .mdBusinessCard({
-        accountId: this.state.accountId,
-      })
-      .trigger('mouseenter');
-  }
-
-  componentWillUnMount() {
-    if (this.card) {
-      $(this.card).mdBusinessCard('destroy');
-    }
   }
 
   render() {
@@ -40,14 +19,15 @@ export default class UserLink extends React.Component {
       };
     }
     return (
-      <a
-        onMouseOver={this.bindBusinessCard.bind(this)}
-        ref={elem => {
-          this.card = elem;
-        }}
-      >
-        {fullname}
-      </a>
+      <UserCard sourceId={accountId}>
+        <a
+          ref={elem => {
+            this.card = elem;
+          }}
+        >
+          {fullname}
+        </a>
+      </UserCard>
     );
   }
 }

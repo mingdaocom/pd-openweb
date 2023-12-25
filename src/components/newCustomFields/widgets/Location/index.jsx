@@ -6,6 +6,7 @@ import { Toast } from 'antd-mobile';
 import Amap from 'ming-ui/components/amap/Amap';
 import MDMap from 'ming-ui/components/amap/MDMap';
 import MapLoader from 'ming-ui/components/amap/MapLoader';
+import MapHandler from 'ming-ui/components/amap/MapHandler';
 import { wgs84togcj02 } from 'worksheet/util-purejs';
 import { FROM } from '../../tools/config';
 import { browserIsMobile } from 'src/util';
@@ -234,12 +235,9 @@ export default class Widgets extends Component {
   handleH5Location = () => {
     const { onChange } = this.props;
     Toast.loading(_l('正在获取取经纬度，请稍后'));
-    new MapLoader().loadJs().then(AMap => {
-      const mapObj = new AMap.Map('iCenter');
-      mapObj.plugin('AMap.Geolocation', () => {
-        const geolocation = new AMap.Geolocation();
-        geolocation.getCurrentPosition();
-        AMap.event.addListener(geolocation, 'complete', res => {
+    new MapLoader().loadJs().then(() => {
+      new MapHandler().getCurrentPos((status, res) => {
+        if (status === 'complete') {
           onChange(
             JSON.stringify({
               x: res.position.lng,
@@ -249,7 +247,7 @@ export default class Widgets extends Component {
             }),
           );
           Toast.hide();
-        });
+        }
       });
     });
   };

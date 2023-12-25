@@ -23,7 +23,7 @@
         {{! _l('（到期）') }}
     {{?}}
     {{? it.mostUsed && (group.type === 'normal') }}
-        <span class="groupInfo" data-groupId="{{=group.id}}"></span>
+        <span class="groupInfoWrap" data-groupId="{{=group.id}}"></span>
     {{?}}
     {{? group.type === 'radio' }}
         <span class="radioInfo tip-bottom-left" data-tip="{{=_l('通知全员并置顶本动态') }}">

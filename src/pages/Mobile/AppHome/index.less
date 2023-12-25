@@ -6,26 +6,28 @@
   }
 
   .processWrapper {
-    padding: 17px 20px;
-    .processItem,
-    .processNotice {
-      font-size: 15px;
-      justify-content: center;
-    }
+    padding: 17px 0;
     .processItem {
-      border-right: 1px solid #e0e0e0;
-    }
-    .icon {
-      color: #2196f3;
+      justify-content: center;
+      position: relative;
+      img {
+        width: 40px;
+      }
     }
     .count {
       color: #fff;
+      font-size: 12px;
       line-height: 18px;
       border-radius: 24px;
-      padding: 0px 5px;
+      padding: 0px 3px;
+      display: flex;
       justify-content: center;
       background-color: #f44336;
-      margin-left: 5px;
+      border: 1px solid #fff;
+      min-width: 20px;
+      position: absolute;
+      left: 50px;
+      top: -11px;
     }
     .waitingExamineSign {
       width: 8px;
@@ -330,4 +332,9 @@
   .errPageCon {
     padding: 0 88px;
   }
+}
+
+.selectProjectWrap .am-action-sheet-button-list {
+  overflow: auto;
+  max-height: 500px;
 }

@@ -83,7 +83,7 @@ export default function RowDetailModal(props) {
       verticalAlign={aglinBottom && 'bottom'}
       type="fixed"
       visible
-      width={isMobile ? window.innerWidth - 20 : 630}
+      width={isMobile ? window.innerWidth - 20 : window.innerWidth - 52 * 2 > 1600 ? 1600 : window.innerWidth - 52 * 2}
       bodyStyle={{ height: isMobile ? window.innerHeight - 20 * 2 : window.innerHeight - 32 * 2 }}
       onCancel={onClose}
       visible={visible}

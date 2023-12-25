@@ -52,6 +52,10 @@ export default class Text extends React.Component {
     if ((cell.value || '') === this.state.value) {
       return;
     }
+    if (cell.required && !this.state.value) {
+      alert(_l('保存失败，%0为必填字段', cell.controlName), 2);
+      return;
+    }
     updateCell({
       value: this.state.value,
     });

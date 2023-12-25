@@ -4,6 +4,7 @@ import { autobind } from 'core-decorators';
 import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import CustomFields from 'src/components/newCustomFields';
 import _ from 'lodash';
+import { isRelateRecordTableControl } from 'worksheet/util';
 
 export default class RowDetail extends React.Component {
   static propTypes = {
@@ -119,6 +120,7 @@ export default class RowDetail extends React.Component {
       sheetSwitchPermit,
       isMobile,
       isWorkflow,
+      from,
     } = this.props;
     const { flag } = this.state;
     const formdata = _.isEmpty(data)
@@ -133,7 +135,6 @@ export default class RowDetail extends React.Component {
                 : data[c.controlId],
             count: data[`rq${c.controlId}`],
           }));
-    console.log(formdata);
     return (
       <RecordInfoContext.Provider
         value={{
@@ -147,17 +148,23 @@ export default class RowDetail extends React.Component {
         <div ref={this.formcon}>
           <CustomFields
             ignoreLock={ignoreLock}
-            ignoreHideControl
             worksheetId={worksheetId}
             disabled={disabled}
             searchConfig={searchConfig}
             sheetSwitchPermit={sheetSwitchPermit}
             columnNumber={1}
             from={isMobile && isWorkflow ? 3 : 2}
+            isDraft={from === 21}
             isCreate={false}
             recordId={data.rowid && data.rowid.startsWith('temp') ? undefined : data.rowid}
             ref={this.customwidget}
-            data={formdata.map(c => ({ ...c, isSubList: true })).filter(c => c.type !== 34)}
+            data={formdata
+              .map(c => ({
+                ...c,
+                fieldPermission: isRelateRecordTableControl(c) ? '000' : c.fieldPermission,
+                isSubList: true,
+              }))
+              .filter(c => c.type !== 34)}
             getMasterFormData={getMasterFormData}
             flag={flag}
             projectId={projectId}

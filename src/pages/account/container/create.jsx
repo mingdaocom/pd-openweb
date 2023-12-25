@@ -676,7 +676,7 @@ export default class Create extends React.Component {
       <React.Fragment>
         {this.state.loading && <div className="loadingLine"></div>}
         <div className="titleHeader">
-          {location.href.indexOf('/enterpriseRegister.htm?type=create') < 0 && (
+          {!location.href.match(/enterpriseRegister(\.htm)?\?type=create/i) && (
             <span
               className="mTop40 Font15 InlineBlock Hand backspaceT"
               onClick={() => {

@@ -77,8 +77,8 @@ export const HomePageWrap = styled.div`
       justify-content: space-between;
       width: 100%;
       color: #757575;
-      .dilatation {
-        color: #2196f3;
+      span {
+        display: inline-block;
       }
     }
     .workflowTitle {

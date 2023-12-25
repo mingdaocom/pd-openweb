@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Avatar, Icon } from 'ming-ui';
-import UserHead from 'src/pages/feed/components/userHead/userHead';
+import UserHead from 'src/components/userHead/userHead';
 import store from 'redux/configureStore';
 import * as actions from 'src/pages/chat/redux/actions';
 import TextHeightLine from './TextHeightLine';

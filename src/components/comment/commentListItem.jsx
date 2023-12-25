@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import UserHead from 'src/pages/feed/components/userHead';
-import UserName from 'src/pages/feed/components/userName';
+import UserHead from 'src/components/userHead';
+import UserName from 'src/components/userName';
 import { SOURCE_TYPE } from './config';
 import { createLinksForMessage } from 'src/components/common/function';
 import 'src/components/mdDialog/dialog';
@@ -35,12 +35,10 @@ export default class CommentListItem extends React.Component {
     switchReplyComment: PropTypes.func,
     removeComment: PropTypes.func,
     updateComment: PropTypes.func,
-    bindBusinessCard: PropTypes.bool,
   };
 
   static defaultProps = {
     removeDiscussion() {}, // 删除讨论回调
-    bindBusinessCard: true, // 绑定名片层
   };
 
   constructor(props) {
@@ -121,13 +119,14 @@ export default class CommentListItem extends React.Component {
   }
 
   render() {
-    const { comment, bindBusinessCard, sourceType, children } = this.props;
-    const { createAccount = {}, replyAccount = {}, replyId, location } = comment;
+    const { comment, sourceType, children } = this.props;
+    const { createAccount = {}, replyAccount = {}, replyId, location, extendsId } = comment;
     const message = createLinksForMessage({
       sourceType,
       message: comment.message,
       rUserList: comment.accountsInMessage,
     });
+    const appId = extendsId.split('|')[0];
 
     return (
       <div
@@ -142,9 +141,8 @@ export default class CommentListItem extends React.Component {
             userHead: createAccount.avatar,
             accountId: createAccount.accountId,
           }}
-          bindBusinessCard={bindBusinessCard}
-          lazy={'false'}
           size={24}
+          appId={appId}
         />
         <div className="talkDiscussion">
           <div className="singleTop">
@@ -155,7 +153,6 @@ export default class CommentListItem extends React.Component {
                 accountId: createAccount.accountId,
                 isDelete: true,
               }}
-              bindBusinessCard={bindBusinessCard}
             />
             {replyId ? (
               <span>
@@ -167,7 +164,6 @@ export default class CommentListItem extends React.Component {
                     accountId: replyAccount.accountId,
                     isDelete: true,
                   }}
-                  bindBusinessCard={bindBusinessCard}
                 />
                 <ToolTip
                   text={this.state.replayMsg ? <span>{this.state.replayMsg}</span> : <LoadDiv />}

@@ -1,129 +1,91 @@
-import React, { Fragment } from 'react';
-import { string } from 'prop-types';
+import React, { Fragment, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ScrollView } from 'ming-ui';
-import { isEmpty, includes } from 'lodash';
+import { isEmpty } from 'lodash';
 import { DEFAULT_CONFIG } from '../config/widget';
-import Settings from './settings';
-import {
-  NO_CUSTOM_SETTING_CONTROL,
-  NO_DES_WIDGET,
-  NO_PERMISSION_WIDGET,
-  NO_VERIFY_WIDGET,
-  HAS_DYNAMIC_DEFAULT_VALUE_CONTROL,
-  HAS_EXPLAIN_CONTROL,
-  HAVE_CONFIG_CONTROL,
-  HAS_WARNING_CONTROL,
-  HAVE_MASK_WIDGET,
-} from '../config';
-import DynamicDefaultValue from './components/DynamicDefaultValue';
 import { enumWidgetType } from '../util';
-import { changeWidgetSize } from '../util/widgets';
-import { canAdjustWidth } from '../util/setting';
-import WidgetVerify from './components/WidgetVerify';
-import ControlSetting from './components/ControlSetting';
-import ControlMask from './components/ControlMask';
-import components from './components';
+import WidgetIntro from './components/WidgetIntro';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
-const {
-  WidgetIntro,
-  WidgetExplain,
-  WidgetOtherExplain,
-  WidgetDes,
-  WidgetPermission,
-  WidgetName,
-  WidgetWidth,
-  WidgetMobileInput,
-  WidgetWarning,
-} = components;
+import SettingContent from './content/SettingContent';
+import StyleContent from './content/StyleContent';
+import ExplainContent from './content/ExplainContent';
 
 const SettingWrap = styled.div`
   position: relative;
   width: 350px;
-  overflow-y: auto;
-  overflow-x: hidden;
+  height: 100%;
   flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
   background-color: #fff;
   .emptyStatus {
     margin-top: 240px;
     text-align: center;
   }
   .settingContentWrap {
-    width: 350px;
-    padding: 24px 20px;
+    width: 100%;
+    padding: 0px 20px 60px 20px;
+  }
+  .labelWrap {
+    display: flex;
+    margin-top: 8px;
+    .icon-help {
+      margin-left: 4px;
+    }
+    .ming.Checkbox {
+      display: inline-flex;
+      align-items: center;
+      .Checkbox-box {
+        margin-right: 10px;
+        .icon-help {
+          margin-left: 4px;
+        }
+      }
+    }
   }
 `;
 
 function WidgetSetting(props) {
-  const {
-    widgets = [],
-    activeWidget: data = {},
-    handleDataChange,
-    queryConfigs = [],
-    setActiveWidget,
-    setWidgets,
-    ...rest
-  } = props;
-  const { type, controlId, advancedSetting = {}, options = [], enumDefault } = data;
+  const { widgets = [], activeWidget: data = {}, handleDataChange, queryConfigs = [], ...rest } = props;
+  const { type, controlId } = data;
   const ENUM_TYPE = enumWidgetType[type];
   const info = DEFAULT_CONFIG[ENUM_TYPE] || {};
   const queryConfig = _.find(queryConfigs, item => item.controlId === controlId) || {};
-
   const onChange = (obj, callback) => {
     if (isEmpty(obj)) return;
     handleDataChange(controlId, { ...data, ...obj }, callback);
   };
 
-  const handleAdjustWidthClick = value => {
-    setWidgets(changeWidgetSize(widgets, { controlId, size: value }));
-    setActiveWidget({ ...data, size: value });
+  // 1: 设置，2: 样式， 3: 说明
+  const [mode, setMode] = useState(1);
+  const allProps = { ...rest, data, info, widgets, mode, queryConfig, onChange: onChange };
+
+  const getContent = () => {
+    if (mode === 2) {
+      return <StyleContent {...allProps} />;
+    } else if (mode === 3) {
+      return <ExplainContent {...allProps} />;
+    } else {
+      return <SettingContent {...allProps} />;
+    }
   };
 
-  const allProps = { ...rest, data, info, widgets, queryConfig, onChange: onChange };
-  const Components = Settings[ENUM_TYPE];
+  useEffect(() => {
+    if (controlId) {
+      setMode(1);
+    }
+  }, [controlId]);
 
   const renderSetting = () => {
     if (isEmpty(data)) return <div className="emptyStatus">{'没有选中的字段'}</div>;
     if ([17, 18].includes(type)) return <div className="emptyStatus">{_l('日期段控件已下架，不支持配置')}</div>;
     return (
-      <ScrollView>
-        <div className="settingContentWrap">
-          {/* 子表走单独逻辑 */}
-          {!includes([34], type) && (
-            <Fragment>
-              {!rest.withoutIntro && <WidgetIntro {...allProps} />}
-              {HAS_WARNING_CONTROL.includes(type) && <WidgetWarning {...allProps} />}
-              <WidgetName {...allProps} />
-            </Fragment>
-          )}
-          {/* rest.type 已指定类型的情况下不可更改 */}
-          {!NO_CUSTOM_SETTING_CONTROL.includes(type) && !rest.type && <Components {...allProps} />}
-          {/* 快速创建字段暂时隐藏更多内容 */}
-          {!rest.quickAddControl && (
-            <Fragment>
-              {HAS_DYNAMIC_DEFAULT_VALUE_CONTROL.includes(type) && <DynamicDefaultValue {...allProps} />}
-              {!NO_VERIFY_WIDGET.includes(type) && <WidgetVerify {...allProps} />}
-              {HAVE_CONFIG_CONTROL.includes(type) && <ControlSetting {...allProps} />}
-              {/**掩码设置 */}
-              {(HAVE_MASK_WIDGET.includes(type) ||
-                (type === 2 && enumDefault === 2) ||
-                (type === 6 && advancedSetting.showtype !== '2')) && <ControlMask {...allProps} />}
-              {!NO_PERMISSION_WIDGET.includes(type) && <WidgetPermission {...allProps} />}
-              {/* // 文本控件移动端输入 */}
-              {includes([2], type) && <WidgetMobileInput {...allProps} />}
-              {canAdjustWidth(widgets, data) && <WidgetWidth {...allProps} handleClick={handleAdjustWidthClick} />}
-              {(HAS_EXPLAIN_CONTROL.includes(type) ||
-                (type === 11 && advancedSetting.showtype !== '2') ||
-                (type === 10 && advancedSetting.checktype === '1') ||
-                (type === 29 && advancedSetting.showtype === '3')) && <WidgetExplain {...allProps} />}
-              {includes([9, 10, 11], type) && _.find(options, i => i.key === 'other' && !i.isDeleted) && (
-                <WidgetOtherExplain {...allProps} />
-              )}
-              {!NO_DES_WIDGET.includes(type) && <WidgetDes {...allProps} />}
-            </Fragment>
-          )}
-        </div>
-      </ScrollView>
+      <Fragment>
+        <WidgetIntro {...allProps} setMode={setMode} />
+        <ScrollView className="flex">
+          <div className="settingContentWrap">{getContent()}</div>
+        </ScrollView>
+      </Fragment>
     );
   };
 

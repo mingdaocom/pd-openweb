@@ -186,7 +186,7 @@ export default class Email extends Component {
         />
 
         <div className="mTop20 bold">{_l('收件人')}</div>
-        <Member accounts={data.accounts} updateSource={this.updateSource} />
+        <Member companyId={this.props.companyId} accounts={data.accounts} updateSource={this.updateSource} />
         <div
           className="flexRow mTop15 ThemeColor3 workflowDetailAddBtn"
           onClick={() => this.setState({ showSelectUserDialog: true })}
@@ -211,6 +211,7 @@ export default class Email extends Component {
           <Fragment>
             <div className="mTop20 bold">{_l('抄送人')}</div>
             <Member
+              companyId={this.props.companyId}
               accounts={data.ccAccounts}
               updateSource={({ accounts }) => this.updateSource({ ccAccounts: accounts })}
             />

@@ -85,7 +85,7 @@ class MobileCalendarView extends Component {
       //   right: 'today',
       // },
       buttonText: {
-        today: _l('今'),
+        today: <i className="icon icon-restore2 Font26 Gray_9e" />,
       },
       dateClick: info => {
         this.getMoreClickData(info.date);

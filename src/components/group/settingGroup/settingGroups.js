@@ -1,6 +1,5 @@
 import './settingGroups.css';
 import '@mdfe/jquery-plupload';
-import 'src/components/mdBusinessCard/mdBusinessCard';
 import '@mdfe/poshytip';
 import { htmlEncodeReg, encrypt } from 'src/util';
 import groupController from 'src/api/group';
@@ -23,12 +22,15 @@ import groupUserHtml from './tpl/groupUser.html';
 import groupSettingsHtml from './tpl/groupSettings.html';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
 import { expireDialogAsync, existAccountHint } from 'src/components/common/function';
-import DialogSelectMapGroupDepart from 'src/components/dialogSelectMapGroupDepart/dialogSelectMapGroupDepart';
+import DialogSelectGroups from 'src/components/dialogSelectDept';
 import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import 'src/components/uploadAttachment/uploadAttachment';
 import addFriends from 'src/components/addFriends';
 import 'src/components/select/select';
 import moment from 'moment';
+import UserHead from 'src/components/userHead';
+import React from 'react';
+import ReactDOM from 'react-dom';
 
 var tips = {
   MDGroup: _l('个人群组'),
@@ -461,10 +463,10 @@ $.extend(SettingGroup.prototype, {
         return false;
       }
       if (options.projectId) {
-        DialogSelectMapGroupDepart({
-          defaultSelectId: groupDeptMapData.depID,
+        new DialogSelectGroups({
           projectId: options.projectId,
-          callback: function (data) {
+          unique: true,
+          selectFn: data => {
             if (!data.departmentName) return;
             _this.updateGroupDepartment(data.departmentId, data.departmentName);
           },
@@ -473,37 +475,52 @@ $.extend(SettingGroup.prototype, {
     });
   },
 
+  renderUserCard: function () {
+    var _this = this;
+    var options = _this.options;
+    _this.$container.find('img[data-accountid]').each((i, ele) => {
+      var $this = $(ele);
+      if ($this.data('bind')) return;
+      var wrap = $this.parent()[0];
+      var accountId = $this.attr('data-accountid');
+      var avatar = $this.attr('src');
+
+      ReactDOM.render(
+        <UserHead
+          className="userHead"
+          user={{
+            userHead: avatar,
+            accountId: accountId,
+          }}
+          operation={
+            !options.isPost && accountId !== md.global.Account.accountId && options.isAdmin ? (
+              <div
+                className="removeUser TxtCenter Hand"
+                data-accountid={accountId}
+                onClick={() => {
+                  // 移除讨论组成员
+                  _this.removeUser(accountId, 'remove');
+                  $dialog.remove();
+                }}
+              >
+                {tips.remove}
+              </div>
+            ) : null
+          }
+          size={32}
+        />,
+        wrap,
+      );
+      $this.data('bind', true);
+    });
+  },
+
   bindCommEvent: function () {
     var _this = this;
     var options = _this.options;
-    var $opeartion;
+
     // bind bussinessCard
-    _this.$container.on('mouseover', 'img[data-accountid]', function () {
-      var $this = $(this);
-      if ($this.data('bind')) return;
-      var accountId = $this.data('accountid');
-      var opHtml =
-        !options.isPost && accountId !== md.global.Account.accountId && options.isAdmin
-          ? '<div class="removeUser TxtCenter Hand" data-accountid="' + accountId + '">' + tips.remove + '</div>'
-          : '';
-      $(this).mdBusinessCard({
-        reset: true,
-        secretType: 1,
-        accountId: accountId,
-        opHtml: opHtml,
-        readyFn: function (settings, $dialog) {
-          if (!options.isPost) {
-            $dialog.on('click', '.removeUser', function () {
-              // 移除讨论组成员
-              _this.removeUser(accountId, 'remove');
-              $dialog.remove();
-            });
-          }
-        },
-      });
-      $this.data('bind', true);
-      $this.trigger('mouseenter');
-    });
+    _this.renderUserCard();
 
     // exit, delete, close group buttons
     _this.$container.on('click', '.exitGroup,.deleteGroup,.closeGroup', function () {
@@ -804,7 +821,8 @@ $.extend(SettingGroup.prototype, {
 
     var tpl = doT.template(groupInfoHtml)(group);
     $box.html(tpl);
-
+    console.log(1);
+    _this.renderUserCard();
     if (this.options.resetOffset) {
       _this.dialog.dialogCenter();
       this.options.resetOffset = false;
@@ -882,7 +900,7 @@ $.extend(SettingGroup.prototype, {
     if (!isAppend) {
       this.bindUserSearchEvent();
     }
-
+    _this.renderUserCard();
     if (options.resetOffset) {
       _this.dialog.dialogCenter();
       options.resetOffset = false;
@@ -916,6 +934,7 @@ $.extend(SettingGroup.prototype, {
 
     var tpl = doT.template(groupSettingsHtml)(options.data);
     $box.html(tpl);
+    _this.renderUserCard();
 
     if (options.resetOffset) {
       _this.dialog.dialogCenter();

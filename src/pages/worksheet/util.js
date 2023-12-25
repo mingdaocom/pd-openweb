@@ -42,7 +42,7 @@ export function getWorkSheetData(data) {
   });
 }
 
-const SUMMARY_LIST = [
+export const SUMMARY_LIST = [
   { type: 'COMMON', value: 0, label: _l('不显示') },
   { type: 'COMMON', value: 1, label: _l('已填写') },
   { type: 'COMMON', value: 2, label: _l('未填写') },
@@ -251,7 +251,7 @@ export function formatFormulaDate({ value, unit = '6', hideUnitStr, dot = 0 }) {
   const unitStr = unitType.text;
   const unitTimes = {
     6: 1, // 秒
-    5: 12 * 30 * 24 * 60 * 60, // 年
+    5: 365 * 24 * 60 * 60, // 年
     4: 30 * 24 * 60 * 60, // 月
     3: 24 * 60 * 60, // 天
     2: 60 * 60, // 时
@@ -1565,5 +1565,15 @@ export function filterEmptyChildTableRows(rows = []) {
   } catch (err) {
     console.error(err);
     return [];
+  }
+}
+
+export function handleRecordError(resultCode, control) {
+  if (resultCode === 11) {
+    alert(_l('编辑失败，%0不允许重复', control ? control.controlName : ''), 2);
+  } else if (resultCode === 31) {
+    alert(_l('记录提交失败：有必填字段未填写'), 2);
+  } else {
+    alert(_l('编辑失败！'), 2);
   }
 }

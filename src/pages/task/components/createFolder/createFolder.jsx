@@ -5,16 +5,7 @@ import ajaxRequest from 'src/api/taskCenter';
 import { expireDialogAsync } from 'src/components/common/function';
 import 'src/components/selectGroup/selectAllGroup';
 import DialogBase from 'ming-ui/components/Dialog/DialogBase';
-import Slider from 'react-slick';
 import _ from 'lodash';
-
-const SamplePrevArrow = props => {
-  return <span className="slick-btn icon-arrow-left-border" onClick={props.onClick} />;
-};
-
-const SampleNextArrow = props => {
-  return <span className="slick-btn icon-arrow-right-border" onClick={props.onClick} />;
-};
 
 export default class CreateFolder extends Component {
   static defaultProps = {
@@ -246,26 +237,14 @@ export default class CreateFolder extends Component {
 
   render() {
     const sliderHeight = {
-      height: $(window).height() - 156,
+      height: $(window).height() - 180,
+      overflow: 'hidden',
     };
     const dialogOpts = {
       overlayClosable: false,
       visible: this.state.visible,
       width: 1000,
       onClose: this.props.onClose,
-    };
-
-    const sliderSettings = {
-      dots: true,
-      infinite: true,
-      autoplaySpeed: 2000,
-      slidesToShow: 1,
-      slidesToScroll: 1,
-      autoplay: true,
-      touchMove: false,
-      swipe: false,
-      prevArrow: <SamplePrevArrow />,
-      nextArrow: <SampleNextArrow />,
     };
 
     return (
@@ -280,15 +259,15 @@ export default class CreateFolder extends Component {
               </span>
             </div>
             <div className="createFolderSlider">
-              <Slider {...sliderSettings}>
-                {this.props.materials.map((material, i) => {
+              {this.props.materials
+                .filter((o, index) => index === 0)
+                .map((material, i) => {
                   return (
                     <div style={{ ...sliderHeight }} key={i}>
                       <img src={material} />
                     </div>
                   );
                 })}
-              </Slider>
             </div>
           </div>
           <div className="folderBox relative">
@@ -341,7 +320,9 @@ export default class CreateFolder extends Component {
                   </li>
                 </ul>
               </div>
-            ) : undefined}
+            ) : (
+              undefined
+            )}
 
             <div className="folderBoxPadding folderBoxDesc folderBoxMargin">{_l('公开范围：')}</div>
             <div className="folderBoxPadding">

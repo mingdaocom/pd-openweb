@@ -101,7 +101,7 @@ export default class EditInfo extends React.Component {
             this.updateValue('snsSina', e.target.value);
           }}
         />
-        <div className="mTop20 flexEnd mBottom24">
+        <div className="mTop20 flexEnd">
           <button
             type="button"
             className="ming Button Button--link Gray_9e mRight30"

@@ -9,7 +9,7 @@ import { permitList } from 'src/pages/FormSet/config.js';
 import UploadFilesTrigger from 'src/components/UploadFilesTrigger';
 import { deleteAttachmentOfControl } from 'worksheet/api';
 import { openControlAttachmentInNewTab, downloadAttachmentById } from 'worksheet/controllers/record';
-import { getClassNameByExt, formatFileSize } from 'src/util';
+import { getClassNameByExt, formatFileSize, addBehaviorLog } from 'src/util';
 import { bool, func, number, shape, string } from 'prop-types';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import _ from 'lodash';
@@ -219,7 +219,11 @@ function parseValue(valueStr, errCb) {
               ext: attachment.ext || attachment.fileExt,
               fileID: attachment.fileID || attachment.fileId,
               originalFilename: attachment.originalFileName || attachment.originalFilename,
-              previewUrl: attachment.previewUrl || attachment.viewUrl || `${attachment.serverName}${attachment.key}`,
+              previewUrl:
+                attachment.previewUrl ||
+                attachment.viewUrl ||
+                attachment.url ||
+                `${attachment.serverName}${attachment.key}`,
               refId: attachment.refID || attachment.refId,
               filesize: attachment.fileSize || attachment.filesize,
             }
@@ -236,7 +240,7 @@ function parseValue(valueStr, errCb) {
   return value;
 }
 
-function previewAttachment(
+function previewAttachment({
   attachments,
   index,
   sheetSwitchPermit = [],
@@ -244,7 +248,11 @@ function previewAttachment(
   disableDownload,
   handleOpenControlAttachmentInNewTab,
   worksheetId,
-) {
+  recordId,
+  fileId,
+  controlId,
+  from,
+}) {
   const recordAttachmentSwitch =
     !!_.get(window, 'shareState.shareId') || isOpenPermit(permitList.recordAttachmentSwitch, sheetSwitchPermit, viewId);
   let hideFunctions = ['editFileName'];
@@ -252,6 +260,7 @@ function previewAttachment(
     /* 是否不可下载 且 不可保存到知识和分享 */
     hideFunctions.push('download', 'share', 'saveToKnowlege');
   }
+  addBehaviorLog('previewFile', worksheetId, { fileId, rowId: recordId });
   previewAttachments(
     {
       index: index || 0,
@@ -273,6 +282,10 @@ function previewAttachment(
       hideFunctions: hideFunctions,
       disableNoPeimission: true,
       worksheetId,
+      fileId: attachments[index].fileID,
+      recordId,
+      controlId,
+      from,
     },
     {
       openControlAttachmentInNewTab: handleOpenControlAttachmentInNewTab,
@@ -357,7 +370,13 @@ function HoverPreviewPanel(props, cb = () => {}) {
               <i
                 className="icon icon-download downloadBtn ThemeHoverColor3"
                 onClick={() =>
-                  downloadAttachmentById({ fileId: attachment.fileID, refId: attachment.refId, worksheetId })
+                  downloadAttachmentById({
+                    fileId: attachment.fileID,
+                    refId: attachment.refId,
+                    worksheetId,
+                    rowId: recordId,
+                    controlId,
+                  })
                 }
               ></i>
             </Tooltip>
@@ -402,7 +421,7 @@ function Attachment(props) {
         <HoverPreviewPanel
           isPicture={isPicture}
           isSubList={isSubList}
-          editable={editable}
+          editable={editable && !(cell.required && attachments.length === 1)}
           sheetSwitchPermit={sheetSwitchPermit}
           attachment={attachment}
           smallThumbnailUrl={smallThumbnailUrl}
@@ -428,13 +447,13 @@ function Attachment(props) {
         className="AttachmentCon"
         style={{ maxWidth: cellWidth }}
         onClick={e => {
-          previewAttachment(
+          previewAttachment({
             attachments,
             index,
             sheetSwitchPermit,
             viewId,
-            cellInfo.disableDownload,
-            isTrash
+            disableDownload: cellInfo.disableDownload,
+            handleOpenControlAttachmentInNewTab: isTrash
               ? undefined
               : fileId => {
                   openControlAttachmentInNewTab({
@@ -448,7 +467,11 @@ function Attachment(props) {
                   });
                 },
             worksheetId,
-          );
+            recordId,
+            fileId: attachment.fileID,
+            controlId: cell.controlId,
+            from,
+          });
           e.stopPropagation();
         }}
       >

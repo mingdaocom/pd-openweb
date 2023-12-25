@@ -154,6 +154,7 @@ class TableView extends React.Component {
           'view.moreSort',
           'view.advancedSetting',
           'buttons',
+          'worksheetInfo.isRequestingRelationControls',
         ],
         key => !_.isEqual(_.get(nextProps, key), _.get(this.props, key)),
       )
@@ -260,9 +261,7 @@ class TableView extends React.Component {
     }
     const { setHighLight, worksheetId, view } = this.props;
     handleRecordClick(view, row, () => {
-      if (location.pathname.indexOf('public') === -1) {
-        addBehaviorLog('worksheetRecord', worksheetId, { rowId: row.rowid }); // 埋点
-      }
+      addBehaviorLog('worksheetRecord', worksheetId, { rowId: row.rowid }); // 埋点
       setHighLight(this.tableId, rowIndex);
       const newState = {
         recordInfoVisible: true,

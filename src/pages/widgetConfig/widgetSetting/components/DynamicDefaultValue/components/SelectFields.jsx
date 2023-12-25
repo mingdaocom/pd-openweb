@@ -173,7 +173,7 @@ export default class SelectFields extends Component {
                     <span>{name}</span>
                   </div>
                   <ul className="fieldList">
-                    {list.map(({ type, controlName, controlId, id }) => {
+                    {list.map(({ type, controlName, controlId, id, isEqualSource }) => {
                       const ids = {
                         type,
                         relateSheetControlId: recordId === 'current' ? '' : recordId,
@@ -203,6 +203,7 @@ export default class SelectFields extends Component {
                         <li className="overflow_ellipsis" onClick={() => onClick(ids)}>
                           <i className={`icon-${getIconByType(type)}`}></i>
                           <span className="overflow_ellipsis">{controlName}</span>
+                          {isEqualSource && <span className="Gray_9e">（{_l('相同选项集')}）</span>}
                         </li>
                       );
                     })}

@@ -173,7 +173,7 @@ export default class Message extends Component {
         )}
         <div className="mTop20 bold">{_l('发送给')}</div>
 
-        <Member accounts={data.accounts} updateSource={this.updateSource} />
+        <Member companyId={this.props.companyId} accounts={data.accounts} updateSource={this.updateSource} />
 
         <div
           className="flexRow mTop15 ThemeColor3 workflowDetailAddBtn"
@@ -264,7 +264,7 @@ export default class Message extends Component {
               renderTag={(tag, options) => {
                 const ids = tag.split(/([a-zA-Z0-9#]{24,32})-/).filter(item => item);
                 const nodeObj = data.formulaMap[ids[0]] || {};
-                const controlObj = data.formulaMap[ids[1]] || {};
+                const controlObj = data.formulaMap[ids.join('-')] || {};
 
                 if (!nodeObj.name || !controlObj.name) {
                   return <span style={{ color: '#ffa340' }}>({_l('缺少字段变量')})</span>;
@@ -717,7 +717,7 @@ export default class Message extends Component {
                 .split(/([a-zA-Z0-9#]{24,32})-/)
                 .filter(item => item);
               const nodeObj = data.formulaMap[ids[0]] || {};
-              const controlObj = data.formulaMap[ids[1]] || {};
+              const controlObj = data.formulaMap[ids.join('-')] || {};
 
               if (!nodeObj.name || !controlObj.name) {
                 return (
@@ -761,7 +761,7 @@ export default class Message extends Component {
               }) => {
                 const formulaMap = _.cloneDeep(data.formulaMap);
                 formulaMap[nodeId] = { type: nodeTypeId, appType, actionId, name: nodeName };
-                formulaMap[fieldValueId] = { type: fieldValueType, name: fieldValueName };
+                formulaMap[`${nodeId}-${fieldValueId}`] = { type: fieldValueType, name: fieldValueName };
 
                 this.mapData[this.currentMapId] = `$${nodeId}-${fieldValueId}$`;
                 this.setState({ fieldsVisible: false });

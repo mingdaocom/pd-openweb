@@ -4,8 +4,11 @@ import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import ExistSourceModal from 'src/pages/integration/dataIntegration/components/ExistSourceModal';
 import autoSize from 'ming-ui/decorators/autoSize';
+import { Icon } from 'ming-ui';
 import _ from 'lodash';
 import { DATABASE_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
+import { getNodeName } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/util.js';
+
 const Wrap = styled.div`
   .addSource {
     background: #ffffff;
@@ -62,8 +65,8 @@ const PopupWrap = styled.div(
 //新增源|目的地
 
 function AddSourceOrDest(props) {
-  const { onUpdate, node = {} } = props;
-  const { nodeType = '', name = '', description = '' } = node;
+  const { onUpdate, node = {}, onUpdateFlowDatasources, flowData } = props;
+  const { nodeType = '' } = node;
   const {
     dbName = '',
     dsType,
@@ -85,7 +88,6 @@ function AddSourceOrDest(props) {
           onClick={() => {
             onUpdate({
               ...node,
-              name: '应用工作表',
               nodeConfig: {
                 ...(node.nodeConfig || {}),
                 config: {
@@ -101,7 +103,6 @@ function AddSourceOrDest(props) {
                 },
               },
             });
-
             setState({
               visible: false,
             });
@@ -158,8 +159,20 @@ function AddSourceOrDest(props) {
               </svg>
             </div>
             <div className="flex mLeft8">
-              <div className="name Bold">{name}</div>
-              {/* 明道云工作表显示表名称  dsType === 'MING_DAO_YUN' ? tableName : ？？？？？？ */}
+              <div className="name Bold flexRow alignItemsCenter">
+                {getNodeName(flowData, node)}
+                {dsType !== DATABASE_TYPE.APPLICATION_WORKSHEET && (
+                  <Icon
+                    icon="task-new-detail"
+                    className="mLeft10 Font12 ThemeColor3 ThemeHoverColor2 Hand"
+                    onClick={e => {
+                      e.stopPropagation();
+                      const infoTxt = nodeType === 'SOURCE_TABLE' ? 'datasourceId' : 'dataDestId';
+                      window.open(`/integration/sourceDetail/${(_.get(node, 'nodeConfig.config') || {})[infoTxt]}`); //数据源落地页地址
+                    }}
+                  />
+                )}
+              </div>
               <div className="des Gray_9e">{tableName}</div>
             </div>
             {props.canEdit && <i className="icon icon-expand_more Font20 Hand Block" />}
@@ -177,7 +190,8 @@ function AddSourceOrDest(props) {
           }}
           setConnectorConfigData={data => {
             const infoTxt = nodeType === 'SOURCE_TABLE' ? 'source' : 'dest';
-            const { className, id, iconBgColor, type, name } = data[infoTxt];
+            const { className, id, iconBgColor, type, sourceName } = data[infoTxt];
+            onUpdateFlowDatasources({ ...data[infoTxt], name: sourceName });
             let param = {};
             if (nodeType !== 'SOURCE_TABLE') {
               param = {
@@ -207,7 +221,6 @@ function AddSourceOrDest(props) {
             }
             onUpdate({
               ...node,
-              name,
               nodeConfig: {
                 ...(node.nodeConfig || {}),
                 config,

@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { Icon, ScrollView, LoadDiv, Switch } from 'ming-ui';
 import { Modal, Button, WingBlank, List, Checkbox, Toast } from 'antd-mobile';
+import functionWrap from 'ming-ui/components/FunctionWrap';
 import userAjax from 'src/api/user';
 import departmentAjax from 'src/api/department';
 import externalPortalAjax from 'src/api/externalPortal';
@@ -235,16 +236,18 @@ export default class SelectUser extends Component {
   };
   handleSelectSubDepartment = (department, index) => {
     const { departmentId } = department;
-    const { projectId, selectDepartmentType } = this.props;
+    const { projectId, selectDepartmentType, allPath } = this.props;
     const { departmentPath, loading, selectedUsers, rootData = [], treeData = [] } = this.state;
+    const copyDepartmentPath =
+      index || index === 0 ? departmentPath.slice(0, index + 1) : departmentPath.concat(department);
     if (index || index === 0) {
       this.setState({
-        departmentPath: departmentPath.slice(0, index + 1),
+        departmentPath: copyDepartmentPath,
         loading: true,
       });
     } else {
       this.setState({
-        departmentPath: departmentPath.concat(department),
+        departmentPath: copyDepartmentPath,
         loading: true,
       });
     }
@@ -262,6 +265,13 @@ export default class SelectUser extends Component {
               (selectDepartmentType === 'all' &&
                 _.findIndex(selectedUsers, item => item.departmentId === departmentId) > -1) ||
               department.disabledSubDepartment,
+            departmentPath: allPath
+              ? copyDepartmentPath.map((it, i) => ({
+                  departmentId: it.departmentId,
+                  departmentName: it.departmentName,
+                  depth: i + 1,
+                }))
+              : [],
           })),
           loading: false,
           treeData: _.isEmpty(treeData)
@@ -821,3 +831,4 @@ export default class SelectUser extends Component {
     );
   }
 }
+export const selectUser = props => functionWrap(SelectUser, { ...props });

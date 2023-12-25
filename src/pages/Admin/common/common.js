@@ -1,5 +1,5 @@
 ﻿import { navigateTo } from 'router/navigateTo';
-import { upgradeVersionDialog } from 'src/util';
+import { upgradeVersionDialog, getCurrentProject } from 'src/util';
 var AdminCommon = {};
 import Config from '../config';
 import RoleController from 'src/api/role';
@@ -14,11 +14,7 @@ AdminCommon.init = function () {
   Config.getParams();
   Config.project = {};
 
-  md.global.Account.projects.forEach(item => {
-    if (item.projectId === Config.projectId) {
-      Config.project = item;
-    }
-  });
+  Config.project = getCurrentProject(Config.projectId, true);
   // 是否在这个网络
   if (Config.project.projectId) {
     return AdminCommon.getProjectPermissionsByUser().then((...authority) => {

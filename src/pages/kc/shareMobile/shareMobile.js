@@ -208,7 +208,7 @@ MobileSharePreview.prototype = {
         MSP.alert(_l('请先登录'));
         setTimeout(function () {
           window.location =
-            '/login.htm?ReturnUrl=' + encodeURIComponent(window.location.href.replace('checked=login', ''));
+            '/login?ReturnUrl=' + encodeURIComponent(window.location.href.replace('checked=login', ''));
         }, 1000);
       } else if (!MSP.file.canDownload) {
         MSP.alert(_l('您权限不足，无法保存。请联系文件夹管理员或文件上传者'));

@@ -5,9 +5,8 @@ import classNames from 'classnames';
 import transferController from 'src/api/transfer';
 
 import LoadDiv from 'ming-ui/components/LoadDiv';
-import UserHead from 'src/pages/feed/components/userHead';
-import MdBusinessCard from 'src/components/mdBusinessCard/reactMdBusinessCard';
-
+import UserHead from 'src/components/userHead';
+import UserCard from 'src/components/UserCard';
 import Empty from '../../common/TableEmpty';
 import PaginationWrap from '../../components/PaginationWrap';
 import './style.less';
@@ -20,7 +19,7 @@ export default class HandOver extends React.Component {
     keywords: PropTypes.string,
     projectId: PropTypes.string.isRequired,
     setLevel: PropTypes.func.isRequired,
-    level: PropTypes.string.isRequired
+    level: PropTypes.string.isRequired,
   };
 
   static defaultProps = {
@@ -51,7 +50,7 @@ export default class HandOver extends React.Component {
         {
           pageIndex: 1,
         },
-        this.fetchList.bind(this)
+        this.fetchList.bind(this),
       );
     }
   }
@@ -95,7 +94,7 @@ export default class HandOver extends React.Component {
         this.setState({
           isLoading: false,
         });
-      }
+      },
     );
   }
 
@@ -134,10 +133,10 @@ export default class HandOver extends React.Component {
                   {
                     pageIndex: Math.max(--pageIndex, 1),
                   },
-                  this.fetchList
+                  this.fetchList,
                 );
               }
-            }
+            },
           );
         } else {
           alert(_l('操作失败'), 2);
@@ -156,16 +155,19 @@ export default class HandOver extends React.Component {
   renderUser(user) {
     return (
       <React.Fragment>
-        <UserHead className="mLeft10 mRight10 InlineBlock TxtMiddle" user={{ ...user, userHead: user.avatar }} size={30} lazy={'false'} />
+        <UserHead
+          className="mLeft10 mRight10 InlineBlock TxtMiddle"
+          user={{ ...user, userHead: user.avatar }}
+          size={30}
+        />
 
         {user.accountId ? (
           <span className="flexColumn TxtLeft personBox">
-            <MdBusinessCard sourceId={user.accountId}>
+            <UserCard sourceId={user.accountId}>
               <a className="Bold overflow_ellipsis" href={`/user_${user.accountId}`} title={user.fullname}>
                 {user.fullname}
-                {/* {user.isRelationShip ? <span className="boderRadAll_3 TxtCenter otherRelationShip">协</span> : null} */}
               </a>
-            </MdBusinessCard>
+            </UserCard>
             <span className="overflow_ellipsis Gray_bd wMax100" title={user.department}>
               {user.department}
             </span>
@@ -192,17 +194,17 @@ export default class HandOver extends React.Component {
     if (!list || !(list && list.length)) {
       const detail = {
         icon: 'icon-sp_assignment_turned_in_white',
-        desc: _l('无数据')
-      }
-      return (
-        <Empty detail={detail}/>
-      );
+        desc: _l('无数据'),
+      };
+      return <Empty detail={detail} />;
     }
     return (
       <React.Fragment>
         {_.map(list, (item, index) => (
           <tr className={classNames({ deepBg: index % 2 === 0 })} key={item.originalChargeUser.accountId}>
-            <td className="pAll10 pLeft5 TxtMiddle tablePerson overflow_ellipsis">{this.renderUser(item.currentChargeUser)}</td>
+            <td className="pAll10 pLeft5 TxtMiddle tablePerson overflow_ellipsis">
+              {this.renderUser(item.currentChargeUser)}
+            </td>
             <td className="pLeft5 tableOrigin">
               <div className="flexRow originalCharger">{this.renderUser(item.originalChargeUser)}</div>
             </td>
@@ -232,7 +234,7 @@ export default class HandOver extends React.Component {
                 <span
                   className="ThemeColor3 Hand mLeft15 adminHoverColor"
                   onClick={() => {
-                    this.props.setLevel('detail')
+                    this.props.setLevel('detail');
                     this.setState({
                       selectAccount: item.originalChargeUser,
                     });
@@ -302,7 +304,9 @@ export default class HandOver extends React.Component {
   render() {
     const { selectAccount } = this.state;
     return (
-      <div className="pTop20 mLeft24 mRight24 resignList">{selectAccount && this.props.level === 'detail' ? this.renderDetail() : this.renderContent()}</div>
+      <div className="pTop20 mLeft24 mRight24 resignList">
+        {selectAccount && this.props.level === 'detail' ? this.renderDetail() : this.renderContent()}
+      </div>
     );
   }
 }

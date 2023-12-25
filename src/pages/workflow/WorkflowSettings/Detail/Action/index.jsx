@@ -123,7 +123,7 @@ export default class Action extends Component {
       data.controls.forEach(item => {
         if (item.required || _.includes(['portal_mobile', 'portal_role'], item.controlId)) {
           fields.forEach(o => {
-            if (item.controlId === o.fieldId && !o.fieldValue && !o.fieldValueId) {
+            if (item.controlId === o.fieldId && !o.nodeId && !o.fieldValue && !o.fieldValueId) {
               hasError++;
             }
           });
@@ -311,7 +311,11 @@ export default class Action extends Component {
   render() {
     const { selectNodeType } = this.props;
     const { data } = this.state;
-    const bgClassName = data.appType === APP_TYPE.TASK ? 'BGGreen' : 'BGYellow';
+    const bgClassName = _.includes([APP_TYPE.PROCESS, APP_TYPE.GLOBAL_VARIABLE], data.appType)
+      ? 'BGBlueAsh'
+      : data.appType === APP_TYPE.TASK
+      ? 'BGGreen'
+      : 'BGYellow';
 
     if (_.isEmpty(data)) {
       return <LoadDiv className="mTop15" />;

@@ -40,13 +40,12 @@ module.exports = {
   optimization: {
     minimizer: [
       new TerserJSPlugin({
+        minify: TerserJSPlugin.esbuildMinify,
         terserOptions: {
-          safari10: true,
-          format: {
-            comments: false,
-          },
+          target: 'chrome58',
+          legalComments: 'none',
         },
-        extractComments: false,
+        exclude: /\/node_modules/,
       }),
       new CssMinimizerPlugin(),
     ],
@@ -58,11 +57,27 @@ module.exports = {
           name: 'common',
           minChunks: 2,
           priority: -10,
+          reuseExistingChunk: true,
         },
-        nodemodules: {
-          name: 'nodemodules',
+        core: {
+          name: 'core',
           minChunks: isProduction ? 2 : 1,
-          test: /[\\/]node_modules[\\/](?!handsontable|hot-formula-parser)/,
+          test(module) {
+            return (
+              module.resource &&
+              !!module.resource.match(/src\/pages\/(worksheet|Statistics|customPage|workflow|Role|Portal|integration)/)
+            );
+          },
+        },
+        modules_a: {
+          name: 'modules_a',
+          minChunks: isProduction ? 2 : 1,
+          test: /[\\/]node_modules[\\/](?!hot-formula-parser|@mdfe|html5-qrcode|antd|@antv|mapbox-gl|lodash|@fullcalendar|react-dom|@sentry|codemirror|jspdf)/,
+        },
+        modules_b: {
+          name: 'modules_b',
+          minChunks: isProduction ? 2 : 1,
+          test: /[\\/]node_modules[\\/](hot-formula-parser|@mdfe|html5-qrcode|antd|@antv|mapbox-gl|lodash|@fullcalendar|react-dom|@sentry|codemirror|jspdf)/,
         },
         default: false,
       },
@@ -142,11 +157,12 @@ module.exports = {
     ).concat([
       {
         test: /\.jsx?$/,
-        exclude: [/node_modules|seajs/],
+        exclude: /(node_modules)/,
         use: ['thread-loader', 'cache-loader', 'babel-loader'],
       },
       {
         test: /\.html?$/,
+        exclude: /(node_modules)/,
         use: 'raw-loader',
       },
     ]),

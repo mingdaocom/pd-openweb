@@ -18,6 +18,7 @@ export default class Widgets extends Component {
 
   state = {
     originValue: '',
+    isEditing: false,
   };
 
   componentWillReceiveProps(nextProps, nextState) {
@@ -27,7 +28,7 @@ export default class Widgets extends Component {
   }
 
   onFocus = e => {
-    this.setState({ originValue: e.target.value.trim() });
+    this.setState({ originValue: e.target.value.trim(), isEditing: true });
   };
 
   onChange = event => {
@@ -37,13 +38,16 @@ export default class Widgets extends Component {
 
   render() {
     const { disabled, hint, value, onBlur, onChange, from } = this.props;
-    const { originValue } = this.state;
+    const { originValue, isEditing } = this.state;
 
     return (
       <Fragment>
         <input
           type="text"
-          className={cx('customFormControlBox', { controlDisabled: disabled })}
+          className={cx('customFormControlBox', {
+            controlDisabled: disabled,
+            customFormControlTelPhone: !isEditing && value,
+          })}
           ref={text => {
             this.text = text;
           }}
@@ -56,8 +60,8 @@ export default class Widgets extends Component {
             if (event.target.value.trim() !== value) {
               onChange(event.target.value.trim());
             }
-
             onBlur(originValue);
+            this.setState({ isEditing: false });
           }}
         />
 

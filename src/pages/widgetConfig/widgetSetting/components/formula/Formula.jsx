@@ -7,15 +7,13 @@ import { getRePosFromStr } from 'ming-ui/components/TagTextarea';
 import { includes } from 'lodash';
 import { TagTextarea, Dropdown, Checkbox } from 'ming-ui';
 import PointerConfig from '../PointerConfig';
-import NumberUnit from '../NumberUnit';
+import PreSuffix from '../PreSuffix';
 import ColumnListDropdown from '../ColumnListDropdown';
 import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
 import { getControlValue, getControlTextValue, getFormulaControls, genControlTag } from '../../../util/data';
 import { FORMULA } from './enum';
 import FnList from './FnList';
 import { SettingItem } from '../../../styled';
-import PreSuffix from '../PreSuffix';
-import NumberConfig from '../ControlSetting/NumberConfig';
 import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
 
 export default class Formula extends React.Component {
@@ -37,7 +35,7 @@ export default class Formula extends React.Component {
   componentWillReceiveProps(nextProps) {
     const { data } = nextProps;
     const { enumDefault, dataSource, controlId } = data;
-    const nextCalType = enumDefault;
+    const nextCalType = enumDefault || FORMULA.SUM.type;
     if (controlId !== this.props.data.controlId) {
       const newFormulaStr = this.getFormulaFromDataSource(nextCalType, dataSource);
       this.setState({
@@ -394,7 +392,6 @@ export default class Formula extends React.Component {
             }
           }}
         />
-        <NumberConfig data={data} onChange={onChange} />
         {numshow !== '1' && (
           <SettingItem>
             <div className="settingItemTitle">{_l('单位')}</div>

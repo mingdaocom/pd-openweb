@@ -313,6 +313,22 @@ var datasource = {
   },
 
   /**
+   * 查询指定的数据源列表
+   *
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 组织id
+   * @param {array} args.datasourceIds 数据源id列表
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getDatasources: function (args, options) {
+    base.ajaxOptions.url = base.server(options) + 'datasource/getDatasources';
+    base.ajaxOptions.type = 'POST';
+    return $.api(controllerName, 'datasourcegetDatasources', JSON.stringify(args), $.extend(base, options));
+  },
+
+  /**
    * 为工作表字段填充jdbc类型id
    *
    * @param {Object} args 请求参数

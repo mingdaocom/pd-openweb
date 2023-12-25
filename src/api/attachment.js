@@ -18,6 +18,8 @@ export default {
   * @param {integer} args.type 分享 = 3 ，公开查询=11,填写链接=14,
   * @param {string} args.shareId
   * @param {string} args.worksheetId 工作表id
+  * @param {string} args.rowId 工作表行id
+  * @param {string} args.controlId 控件id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

@@ -2,30 +2,34 @@ import moment from 'moment';
 export const list = [
   {
     type: 'connect',
-    txt: _l('连接与认证'),
+    txt: _l('API 库'),
     icon: 'connect',
+  }, {
+    type: 'connectList',
+    txt: _l('我的连接'),
+    icon: 'workflow_webhook',
   },
-  {
-    type: 'api',
-    txt: _l('API'),
-    icon: 'api',
-  },
+  // {
+  //   type: 'api',
+  //   txt: _l('API'),
+  //   icon: 'api',
+  // },
 ];
 export const dataIntegrationList = [
   {
     type: 'dataConnect',
-    txt: _l('创建连接器'),
+    txt: _l('连接器'),
     icon: 'add_circle_outline',
-  },
-  {
-    type: 'task',
-    txt: _l('同步任务'),
-    icon: 'synchronization',
   },
   {
     type: 'source',
     txt: _l('数据源'),
     icon: 'storage',
+  },
+  {
+    type: 'task',
+    txt: _l('同步任务'),
+    icon: 'synchronization',
   },
   // {
   //   type: 'browser',

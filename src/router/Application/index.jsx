@@ -6,6 +6,7 @@ import ajaxRequest from 'src/api/homeApp';
 import { LoadDiv } from 'ming-ui';
 import UnusualContent from 'src/components/UnusualContent';
 import FixedContent from 'src/components/FixedContent';
+import UpgradeContent from 'src/components/UpgradeContent';
 import { getIds } from '../../pages/PageHeader/util';
 import { connect } from 'react-redux';
 import { setAppStatus } from '../../pages/PageHeader/redux/action';
@@ -93,11 +94,15 @@ export default class Application extends Component {
     if (md.global.Account.isPortal) {
       appId = md.global.Account.appId;
     }
-    const { permissionType, fixed, pcDisplay } = appPkg;
+    const { permissionType, fixed, pcDisplay, appStatus } = appPkg;
     const isAuthorityApp = canEditApp(permissionType);
 
     if (status === 0) {
       return <LoadDiv />;
+    }
+
+    if (appStatus === 10) {
+      return <UpgradeContent appPkg={appPkg} />;
     }
 
     if ((pcDisplay || fixed) && !isAuthorityApp && !_.includes(pathname, 'role')) {

@@ -1,0 +1,187 @@
+import React, { createRef, useState, useEffect, useRef } from 'react';
+import { useSetState } from 'react-use';
+import styled from 'styled-components';
+import { Icon, Tooltip, Menu, MenuItem, Button } from 'ming-ui';
+import _ from 'lodash';
+import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/FilterConfig.jsx';
+import Trigger from 'rc-trigger';
+import sheetAjax from 'src/api/worksheet';
+import { filterUnavailableConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+
+import { formatCondition } from './util';
+const Wrap = styled.div`
+  height: 100%;
+  .commonConfigItem,
+  .FilterConfigCon,
+  .footer {
+    padding: 0 40px;
+    &.FilterConfigCon {
+      overflow: auto;
+      max-height: calc(100% - 60px);
+    }
+  }
+  .viewSetTitle {
+    padding: 25px 40px 0 !important;
+  }
+  .saveBtn,
+  .cancelBtn {
+    line-height: 32px;
+    min-height: 32px;
+    padding: 0 16px;
+    border-radius: 16px;
+    min-width: 0;
+  }
+  .cancelBtn {
+    font-size: 14px;
+    background: #f5f5f5;
+    &:hover {
+      background: #eaeaea;
+    }
+    font-weight: bold;
+    display: inline-block;
+    box-sizing: border-box;
+    text-shadow: none;
+    border: none;
+    outline: none;
+    vertical-align: middle;
+    cursor: pointer;
+    user-select: none;
+    font-weight: bold;
+  }
+`;
+
+export default function ViewFilter(props) {
+  const { view, projectId, appId, sheetSwitchPermit, updateCurrentView, columns = [] } = props;
+  const [{ existingFilters, shwoMoreMenu, appearFilters, version }, setState] = useSetState({
+    shwoMoreMenu: false,
+    existingFilters: [],
+    appearFilters: view.filters,
+    version: 0,
+  });
+
+  useEffect(() => {
+    const { worksheetId } = props;
+    sheetAjax
+      .getWorksheetFilters({ worksheetId })
+      .then(data => {
+        setState({
+          existingFilters: existingFilters.concat(data),
+        });
+      })
+      .fail(err => {
+        alert(_l('获取筛选列表失败'), 2);
+      });
+  }, [props.worksheetId]);
+
+  useEffect(() => {
+    const { view } = props;
+    setState({
+      appearFilters: view.filters || [],
+    });
+  }, [props.view]);
+  const updateView = () => {
+    const data = appearFilters.map(it => formatCondition(it, columns)).filter(_.identity);
+    let filters = filterUnavailableConditions(data);
+    updateCurrentView(
+      Object.assign(view, {
+        filters,
+        editAttrs: ['filters'],
+      }),
+      () => {
+        setState({
+          version: version + 1,
+        });
+        alert(_l('保存成功'));
+      },
+    );
+  };
+  return (
+    <Wrap className="flexColumn">
+      <div className="viewSetTitle">{_l('过滤')}</div>
+      <div className="flexRow commonConfigItem">
+        <div className="Gray_9e mTop8 flex">{_l('添加筛选条件，限制出现在此视图中的记录')}</div>
+        {existingFilters.length ? (
+          <Trigger
+            popupVisible={shwoMoreMenu}
+            onPopupVisibleChange={shwoMoreMenu => {
+              setState({ shwoMoreMenu });
+            }}
+            popupClassName="DropdownPanelTrigger"
+            action={['click']}
+            popupAlign={{
+              points: ['tl', 'bl'],
+              offset: [-140, 0],
+            }}
+            popup={
+              <Menu>
+                {existingFilters.map(({ filterId, name, items }, index) => (
+                  <MenuItem
+                    onClick={() => {
+                      setState({
+                        appearFilters: items,
+                        shwoMoreMenu: false,
+                        version: version + 1,
+                      });
+                    }}
+                    key={filterId}
+                  >
+                    <span className="text">{name || _l('未命名筛选器 %0', index + 1)}</span>
+                  </MenuItem>
+                ))}
+              </Menu>
+            }
+          >
+            <Tooltip disable={shwoMoreMenu} popupPlacement="bottom" text={<span>{_l('已保存的筛选器')}</span>}>
+              <div className="valignWrapper more pointer">
+                <span>{_l('更多')}</span>
+                <Icon icon="arrow-down" />
+              </div>
+            </Tooltip>
+          </Trigger>
+        ) : null}
+      </div>
+      <div className="flex overflowHidden">
+        <div className="FilterConfigCon">
+          <FilterConfig
+            version={version}
+            supportGroup
+            canEdit
+            feOnly
+            filterColumnClassName="sheetViewFilterColumnOption"
+            projectId={projectId}
+            appId={appId}
+            viewId={view.viewId}
+            sheetSwitchPermit={sheetSwitchPermit}
+            filterResigned={false}
+            columns={columns}
+            conditions={appearFilters}
+            urlParams={JSON.parse((view.advancedSetting || {}).urlparams || '[]')}
+            onConditionsChange={conditions => {
+              setState({
+                appearFilters: conditions,
+              });
+            }}
+          />
+        </div>
+        {(!_.isEqual(appearFilters, view.filters) || appearFilters.length > 0) && (
+          <div className="footer pTop12 pBottom12 ">
+            <Button type="primary" onClick={() => updateView()} className="saveBtn">
+              {_l('保存')}
+            </Button>
+            <div
+              className="cancelBtn Hand Gray_75 mLeft16"
+              onClick={() => {
+                setState({
+                  appearFilters: view.filters,
+                  version: version + 1,
+                });
+              }}
+            >
+              {_l('取消')}
+            </div>
+          </div>
+        )}
+      </div>
+    </Wrap>
+  );
+}

@@ -1,75 +1,84 @@
-import React, { useEffect, useState } from 'react';
-import { Tooltip } from 'antd';
-import { RadioGroup } from 'ming-ui';
+import React from 'react';
+import { Dropdown } from 'ming-ui';
 import { SettingItem } from '../../styled';
+import { SheetViewWrap } from '../../styled';
 
-const TYPE_OPTIONS = {
-  26: _l('成员'),
-  27: _l('部门'),
-  48: _l('组织角色'),
-};
+const TYPE_OPTIONS = [
+  {
+    text: (
+      <span>
+        {_l('成员')}
+        <span className="subText Gray_9e">（{_l('可查看记录')}）</span>
+      </span>
+    ),
+    value: 1,
+  },
+  {
+    text: (
+      <span>
+        {_l('拥有者')}
+        <span className="subText Gray_9e">（{_l('可编辑、删除记录')}）</span>
+      </span>
+    ),
+    value: 2,
+  },
+  {
+    text: (
+      <span>
+        {_l('无')}
+        <span className="subText Gray_9e">（{_l('仅存储数据')}）</span>
+      </span>
+    ),
+    value: 0,
+  },
+];
 
-const getPermissionOptions = type => {
-  const text = TYPE_OPTIONS[type];
-  return [
-    {
-      value: 1,
-      children: (
-        <span>
-          {_l('成员')}
-          <Tooltip placement="bottom" title={_l('加入的%0允许查看记录', text)}>
-            <i className="icon-help Gray_9e Font16 mLeft5"></i>
-          </Tooltip>
-        </span>
-      ),
-    },
-    {
-      value: 2,
-      children: (
-        <span>
-          {_l('拥有者')}
-          <Tooltip placement="bottom" title={_l('加入的%0允许编辑、删除记录', text)}>
-            <i className="icon-help Gray_9e Font16 mLeft5"></i>
-          </Tooltip>
-        </span>
-      ),
-    },
-    {
-      value: 0,
-      children: (
-        <span>
-          {_l('仅用于存储数据')}
-          <Tooltip placement="bottom" title={_l('加入的%0不授予任何权限', text)}>
-            <i className="icon-help Gray_9e Font16 mLeft5"></i>
-          </Tooltip>
-        </span>
-      ),
-    },
-  ];
-};
+const DISPLAY_OPTIONS = [
+  {
+    value: 0,
+    text: _l('仅当前部门人员'),
+  },
+  {
+    value: 1,
+    text: _l('包含所有下级部门人员'),
+  },
+];
 
 export default function WidgetUserPermission({ data, onChange }) {
-  const { userPermission, type } = data;
-  const [options, setOptions] = useState([]);
-
-  useEffect(() => {
-    setOptions(getPermissionOptions(type));
-  }, [type]);
+  const { userPermission, type, enumDefault2 = 0 } = data;
 
   return (
     <SettingItem>
       <div className="settingItemTitle">{_l('权限')}</div>
-      <RadioGroup
-        vertical
-        size="middle"
-        data={options}
-        checkedValue={userPermission}
+      <Dropdown
+        border
+        data={TYPE_OPTIONS}
+        renderTitle={({ value }) => {
+          return _.get(
+            _.find(TYPE_OPTIONS, t => t.value === value),
+            'text',
+          );
+        }}
+        value={userPermission}
         onChange={value =>
           onChange({
             userPermission: value,
+            enumDefault2: _.includes([1, 2], value) ? enumDefault2 : 0,
           })
         }
       />
+      {_.includes([1, 2], userPermission) && _.includes([27], type) && (
+        <SheetViewWrap>
+          <div className="viewCon">{_l('范围')}</div>
+          <Dropdown
+            border
+            className="flex"
+            value={enumDefault2}
+            data={DISPLAY_OPTIONS}
+            onChange={value => onChange({ enumDefault2: value })}
+          />
+        </SheetViewWrap>
+      )}
     </SettingItem>
   );
 }

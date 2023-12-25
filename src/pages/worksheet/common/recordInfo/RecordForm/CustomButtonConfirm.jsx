@@ -82,6 +82,15 @@ const MenuBox = styled(Menu)`
     white-space: break-spaces !important;
   }
 `;
+
+const User = styled.div`
+  height: 36px;
+  background: #f5f5f5;
+  border-radius: 3px;
+  border: 1px solid #ddd;
+  padding: 0 10px;
+`;
+
 export default function CustomButtonConfirm(props) {
   const {
     title,
@@ -97,6 +106,7 @@ export default function CustomButtonConfirm(props) {
     onClose,
     remarkoptions,
     remarktype,
+    projectId,
   } = props;
 
   const getInit = () => {
@@ -107,24 +117,27 @@ export default function CustomButtonConfirm(props) {
     }
     return remark;
   };
-  const [{ noVerify, needPassWord, checkIsPending, remark, showTemplateList }, setState] = useSetState({
-    noVerify: false,
-    needPassWord: false,
-    checkIsPending: false,
-    remark: getInit(),
-    showTemplateList: false,
-  });
+  const [{ noVerify, needPassWord, checkIsPending, remark, showTemplateList, removeNoneVerification }, setState] =
+    useSetState({
+      noVerify: false,
+      needPassWord: false,
+      checkIsPending: false,
+      remark: getInit(),
+      showTemplateList: false,
+      removeNoneVerification: false,
+    });
   const passwordRef = useRef();
   const remarkRef = useRef();
   useEffect(() => {
     setState({ checkIsPending: true });
     verifyPassword({
+      projectId,
       checkNeedAuth: true,
       success: () => {
         setState({ checkIsPending: false });
       },
-      fail: () => {
-        setState({ checkIsPending: false, needPassWord: true });
+      fail: result => {
+        setState({ checkIsPending: false, needPassWord: true, removeNoneVerification: result === 'showPassword' });
       },
     });
     if (_.get(remarkRef, 'current.textarea') && !remarkoptions) {
@@ -213,6 +226,36 @@ export default function CustomButtonConfirm(props) {
       }}
       onCancel={onClose}
     >
+      {verifyPwd && needPassWord && (
+        <div className="mBottom15">
+          <SectionName className="mTop0">{_l('账号')}</SectionName>
+          <User className="mTop10 flexRow alignItemsCenter">
+            {md.global.Account.mobilePhone
+              ? md.global.Account.mobilePhone.replace(/((\+86)?\d{3})\d*(\d{4})/, '$1****$3')
+              : md.global.Account.email.replace(/(.{3}).*(@.*)/, '$1***$2')}
+          </User>
+
+          <SectionName className={cx({ required: true })}>{_l('密码')}</SectionName>
+          <div style={{ height: '0px', overflow: 'hidden' }}>
+            // 用来避免浏览器将用户名塞到其它input里
+            <input type="text" />
+          </div>
+          <Password ref={passwordRef} autoComplete="new-password" placeholder={_l('输入当前用户的密码')} />
+          {!removeNoneVerification && (
+            <Tooltip popupPlacement="bottom" text={_l('此后1小时内在当前设备上应用和审批操作无需再次验证')}>
+              <div className="InlineBlock">
+                <Checkbox
+                  className="verifyCheckbox"
+                  checked={noVerify}
+                  text={_l('1小时内免验证')}
+                  onClick={() => setState({ noVerify: !noVerify })}
+                />
+              </div>
+            </Tooltip>
+          )}
+        </div>
+      )}
+
       {description && <div className="Font14 Gray_75">{description}</div>}
       {enableRemark && (
         <Fragment>
@@ -235,30 +278,6 @@ export default function CustomButtonConfirm(props) {
             )}
             {remarktype !== '1' && renderTemplateList()}
           </div>
-        </Fragment>
-      )}
-      {verifyPwd && needPassWord && (
-        <Fragment>
-          <SectionName className={cx({ required: true })}>{_l('登录密码验证')}</SectionName>
-          <div style={{ height: '0px', overflow: 'hidden' }}>
-            // 用来避免浏览器将用户名塞到其它input里
-            <input type="text" />
-          </div>
-          <Password
-            ref={passwordRef}
-            autoComplete="new-password"
-            placeholder={_l('输入当前用户（%0）的登录密码', md.global.Account.fullname)}
-          />
-          <Tooltip popupPlacement="bottom" text={_l('此后1小时内在当前设备上应用和审批操作无需再次验证')}>
-            <div className="InlineBlock">
-              <Checkbox
-                className="verifyCheckbox"
-                checked={noVerify}
-                text={_l('1小时内免验证')}
-                onClick={() => setState({ noVerify: !noVerify })}
-              />
-            </div>
-          </Tooltip>
         </Fragment>
       )}
     </Dialog>

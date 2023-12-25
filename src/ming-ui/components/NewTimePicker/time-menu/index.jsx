@@ -1,10 +1,8 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-
 import './style.less';
-
 import List from './list';
-import LibCalender from 'ming-ui/components/lib/calender';
+import LibCalender from '../../NewDateTimePicker/lib/calender';
 
 class TimeMenu extends Component {
   constructor(props) {

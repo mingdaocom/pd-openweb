@@ -5,15 +5,14 @@ import cx from 'classnames';
 import styled from 'styled-components';
 import * as actions from 'mobile/RecordList/redux/actions';
 import { refreshWorksheetControls } from 'worksheet/redux/actions';
-import { Modal } from 'antd-mobile';
 import { Icon, Button } from 'ming-ui';
 import QuickFilterSearch from 'mobile/RecordList/QuickFilter/QuickFilterSearch';
 import SheetRows, { WithoutRows } from '../../SheetRows';
-import { Flex, ActivityIndicator } from 'antd-mobile';
+import { Modal, Flex, ActivityIndicator } from 'antd-mobile';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import worksheetAjax from 'src/api/worksheet';
-import RecordAction from 'mobile/Record/RecordAction';
+import RecordAction from 'mobile/components/RecordInfo/RecordAction';
 import processAjax from 'src/pages/workflow/api/process';
 import _ from 'lodash';
 

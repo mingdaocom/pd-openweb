@@ -180,9 +180,7 @@ function SortableRecordItem(props) {
         handleRecordClick(currentView, safeParse(rawRow), () => {
           if (!recordInfoVisible) {
             showRecordInfo({ recordInfoType: keyType, recordInfoRowId: rowId });
-            if (location.pathname.indexOf('public') === -1) {
-              addBehaviorLog('worksheetRecord', worksheetId, { rowId }); // 埋点
-            }
+            addBehaviorLog('worksheetRecord', worksheetId, { rowId }); // 埋点
           }
         });
       }}
@@ -225,7 +223,11 @@ function SortableRecordItem(props) {
         <Components.RecordPortal closeEdit={closeEdit}>
           <Components.EditingRecordItem
             type="board"
-            currentView={currentView}
+            currentView={{
+              ...currentView,
+              projectId: worksheetInfo.projectId,
+              appId,
+            }}
             data={data}
             isCharge={isCharge}
             style={{ ...getStyle() }}

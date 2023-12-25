@@ -16,8 +16,9 @@ import _ from 'lodash';
 import HierarchyVerticalView from './HierarchyVerticalView';
 import HierarchyMixView from './HierarchyMixView';
 import DetailView from './DetailView';
+import CustomWidgetView from './CustomWidgetView';
 
-const { board, sheet, calendar, gallery, structure, gunter, detail } = VIEW_DISPLAY_TYPE;
+const { board, sheet, calendar, gallery, structure, gunter, detail, customize } = VIEW_DISPLAY_TYPE;
 
 const Con = styled.div`
   height: 100%;
@@ -38,6 +39,7 @@ const TYPE_TO_COMP = {
   [detail]: DetailView,
   structureVertical: HierarchyVerticalView,
   structureMix: HierarchyMixView,
+  [customize]: CustomWidgetView,
 };
 function View(props) {
   const { loading, error, view, showAsSheetView } = props;
@@ -76,6 +78,7 @@ function View(props) {
 
   const viewProps = _.pick(props, [
     'isCharge',
+    'appPkg',
     'appId',
     'groupId',
     'worksheetId',

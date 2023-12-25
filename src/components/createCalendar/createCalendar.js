@@ -2,7 +2,6 @@
 import React from 'react';
 import ReactDom from 'react-dom';
 import './css/createCalendar.less';
-import 'src/components/mdBusinessCard/mdBusinessCard';
 import quickSelectUser from 'ming-ui/functions/quickSelectUser';
 import ajaxRequest from 'src/api/calendar';
 import timezone from './timezone';
@@ -19,6 +18,7 @@ import 'src/components/autoTextarea/autoTextarea';
 import '@mdfe/jquery-plupload';
 import createShare from 'src/components/createShare/createShare';
 import moment from 'moment';
+import UserCard from 'src/components/UserCard';
 
 var CreateCalendar = function (opts) {
   var _this = this;
@@ -131,9 +131,6 @@ $.extend(CreateCalendar.prototype, {
 
     // 分类事件
     _this.initCategoryEvent();
-
-    // 绑定名片层
-    _this.showCalendarMessageFun();
 
     // 时间事件
     _this.initDateEvent();
@@ -280,7 +277,6 @@ $.extend(CreateCalendar.prototype, {
 
     $('#txtBeginDatebox span, #txtEndDatebox span').on('click', function (event) {
       $(this).siblings('input').click();
-      console.log(111);
     });
 
     // 开始日期
@@ -767,8 +763,10 @@ $.extend(CreateCalendar.prototype, {
 
     // hover移除成员
     $('#addCalendarMembers').on('click', '.imgMemberBox .removeMember', function (event) {
-      $('#imgMemberMessage_' + $(this).parent().attr('data-id')).remove();
-      $(this).parent().remove();
+      const parentEle = $(this).parents('.imgMemberBox');
+      let removeAccountId = parentEle.attr('data-id');
+      $('#imgMemberMessage_' + removeAccountId).remove();
+      parentEle.remove();
       event.stopPropagation();
     });
 
@@ -839,58 +837,6 @@ $.extend(CreateCalendar.prototype, {
         });
       },
     });
-  },
-
-  // 绑定名片层
-  showCalendarMessageFun: function () {
-    $('#' + this.settings.frameid).on(
-      {
-        mouseover: function (event) {
-          var $that = $(this);
-          var accountId = $that.attr('data-id');
-          var account = $that.attr('data-account');
-          var userName = $that.attr('data-name');
-          if (!$that.data('hasbusinesscard')) {
-            var avatar = $that.find('.createMember').attr('src');
-            var email = RegExp.isEmail(account) ? account : '';
-            var mobile = !email ? account : '';
-            var status = accountId ? 1 : 3;
-            $that.mdBusinessCard({
-              id: 'imgMemberMessage',
-              noRequestData: !accountId,
-              accountId: accountId || new Date().getTime(),
-              data: {
-                avatar: avatar,
-                userName: userName,
-                accountId: email || mobile,
-                status: status,
-                email: email || '',
-                mobilePhone: mobile || '',
-              },
-              readyFn: function (settings) {
-                accountId = settings.accountId;
-                email = settings.data.email;
-                mobile = settings.data.mobilePhone;
-                var $imgMemberBox;
-                if (typeof accountId === 'string') {
-                  // 判断是不是时间戳,时间戳则为老用户
-                  $imgMemberBox = $(".imgMemberBox[data-id='" + accountId + "']");
-                } else {
-                  $imgMemberBox = $(".imgMemberBox[data-account='" + (email || mobile) + "']");
-                }
-                var busyContainer =
-                  '<div class="hoverMemberContainer Hidden">' + '<div class="hoverMember">' + '</div>' + '</div>';
-                $('#imgMemberMessage_' + accountId).append(busyContainer);
-                CreateCalendar.methods.checkUserBusyState($imgMemberBox);
-                CreateCalendar.methods.getUserBusyHeight($imgMemberBox);
-              },
-            });
-            $that.data('hasbusinesscard', true).mouseenter();
-          }
-        },
-      },
-      '.imgMemberBox',
-    );
   },
 
   // 初始化附件事件
@@ -984,27 +930,9 @@ CreateCalendar.methods = {
       });
 
       if (!isExistes) {
-        memberList +=
-          '<span class="imgMemberBox" data-id="' +
-          (users[i].accountId || '') +
-          '" data-account="' +
-          (users[i].account || '') +
-          '" data-name="' +
-          (htmlEncodeReg(users[i].fullname) || '') +
-          '">';
-        memberList += '<span class="removeMember circle "><i class="icon-delete Icon"></i></span>';
-        memberList += '<span class="busyIcon pointer"></span>';
-        memberList +=
-          '<img class="createMember circle imgWidth" data-id="' +
-          (users[i].accountId || '') +
-          '"data-account="' +
-          (users[i].account || '') +
-          '" data-name="' +
-          (htmlEncodeReg(users[i].fullname) || '') +
-          '" src="' +
-          users[i].avatar +
-          '" />';
-        memberList += '</span>';
+        memberList += `<span class="imgMemberBox noInsert" data-id="${users[i].accountId || ''}" data-account="${
+          users[i].account || ''
+        }" data-name="${htmlEncodeReg(users[i].fullname) || ''}"></span>`;
       }
     }
     var $memberList = $(memberList);
@@ -1012,6 +940,30 @@ CreateCalendar.methods = {
       CreateCalendar.methods.checkUserBusyState($(elem));
     });
     $('.createAddMember').before($memberList);
+    $('.createAddMemberBox')
+      .find('.imgMemberBox.noInsert')
+      .each((i, ele) => {
+        const user = users[users.length - 1];
+        $(ele).removeClass('noInsert');
+        ReactDom.render(
+          <UserCard sourceId={user.accountId}>
+            <span>
+              <span className="removeMember circle ">
+                <i className="icon-delete Icon"></i>
+              </span>
+              <span className="busyIcon pointer"></span>
+              <img
+                className="createMember circle imgWidth"
+                src={user.avatar}
+                data-account={user.account}
+                data-id={user.accountId || ''}
+                data-name={htmlEncodeReg(user.fullname) || ''}
+              />
+            </span>
+          </UserCard>,
+          ele,
+        );
+      });
   },
   // 从文本中提取时间
   getDate: function (msg) {

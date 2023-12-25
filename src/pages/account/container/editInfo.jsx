@@ -159,7 +159,7 @@ export default class EditInfo extends React.Component {
       };
       let joinCompanyAction = null;
       let isApplyJoinOrInviteJoin = false;
-      if (location.href.indexOf('/enterpriseRegister.htm?type=editInfo') >= 0) {
+      if (location.href.match(/enterpriseRegister(\.htm)?\?type=editInfo/i)) {
         // 受邀加入网络
         joinCompanyAction = account.joinProjectByToken;
         params.jobId = company.jobId || '';
@@ -204,7 +204,7 @@ export default class EditInfo extends React.Component {
         this.setState({
           loading: false,
         });
-        if (location.href.indexOf('/enterpriseRegister.htm?type=editInfo') >= 0 || !!regcode) {
+        if (location.href.match(/enterpriseRegister(\.htm)?\?type=editInfo/i) || !!regcode) {
           this.validateEditCard(data);
         } else {
           let actionResult = Config.ActionResult;

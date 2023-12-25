@@ -225,7 +225,7 @@ export default ({ processId, nodeId, codeType = 1, onSave = () => {}, onClose = 
 
         const source = safeParse(event.data);
 
-        if (source.choices) {
+        if (source.choices && source.choices.length) {
           gptResponseContent += source.choices[0].delta.content || '';
           $('.chatGPTElement:last .markdown-body').html(getMarkdownContent(gptResponseContent));
           $('.chatGPTDialog .nano-content').scrollTop(10000000);
@@ -277,7 +277,7 @@ export default ({ processId, nodeId, codeType = 1, onSave = () => {}, onClose = 
       },
     });
 
-    md.renderer.rules.link_open = function (tokens, idx) {
+    md.renderer.rules.link_open = function(tokens, idx) {
       const title = tokens[idx].title ? ' title="' + escapeHtml(replaceEntities(tokens[idx].title)) + '"' : '';
       return '<a target="_blank" href="' + escapeHtml(tokens[idx].href) + '"' + title + '>';
     };

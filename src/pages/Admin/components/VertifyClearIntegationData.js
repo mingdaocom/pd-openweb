@@ -17,7 +17,6 @@ export default function VertifyClearIntegationData({ projectId, callback = () =>
       </div>
     ),
     allowNoVerify: false,
-    inputName: _l('请输入您的登录密码，以验证您的身份信息'),
     onOk: () => {
       workwxAjax.removeProjectAllIntergration({ projectId }).then(res => {
         if (res) {

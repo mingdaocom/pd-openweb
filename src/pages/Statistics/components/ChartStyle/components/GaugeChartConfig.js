@@ -3,9 +3,9 @@ import cx from 'classnames';
 import { Icon, ColorPicker } from 'ming-ui';
 import { ConfigProvider, Button, Modal, Collapse, Switch, Radio, Input, Checkbox, Tooltip } from 'antd';
 import RuleColor from './Color/RuleColor';
-import { colorGroup } from 'statistics/Charts/common';
+import { SYS_CHART_COLORS } from 'src/pages/Admin/settings/config';
 
-const colors = colorGroup[0].value;
+const colors = SYS_CHART_COLORS[0].colors;
 const bisectSectionColors = [{
   value: 100,
   color: colors[0]
@@ -30,7 +30,7 @@ const getSection = (value, isFloor) => {
   for(let i = 0; i < value; i++) {
     if (i) {
       const v = n * i;
-      result.push(isFloor ? Math.floor(v) : v);
+      result.push(isFloor ? Math.floor(v) : Number(v.toFixed(2)));
     }
   }
   return result.concat(100).reverse().map(n => {
@@ -87,6 +87,11 @@ const SectionColorConfigModal = props => {
                 }
                 if (sectionColors.filter(item => !item.value).length) {
                   alert(_l('当输入大于0的值'), 3);
+                  return;
+                }
+                const values = sectionColors.map(n => n.value);
+                if (_.uniq(values).length !== values.length) {
+                  alert(_l('不允许配置相同值'), 3);
                   return;
                 }
                 onChangeStyle({ sectionColorConfig: data });
@@ -251,7 +256,7 @@ const SectionColorConfigModal = props => {
             <ColorPicker
               isPopupBody
               className="mLeft10"
-              value={data.color || colors[index]}
+              value={data.color || colors[index % colors.length]}
               onChange={value => {
                 changeSectionColorConfig({
                   sectionColors: sectionColors.map((data, i) => {
@@ -267,7 +272,7 @@ const SectionColorConfigModal = props => {
               }}
             >
               <div className="colorWrap pointer">
-                <div className="colorBlock" style={{ backgroundColor: data.color || colors[index] }}>
+                <div className="colorBlock" style={{ backgroundColor: data.color || colors[index % colors.length] }}>
                 </div>
               </div>
             </ColorPicker>
@@ -312,7 +317,7 @@ const GaugeColor = props => {
   const { gaugeColor = '#64B5F6' } = currentReport.style;
   const { colorRules } = currentReport.displaySetup;
   const colorRule = _.get(colorRules[1], 'dataBarRule');
-  const { gaugeColorType = 1, sectionColorConfig } = currentReport.style;
+  const { gaugeColorType = 1, sectionColorConfig, applySectionScale } = currentReport.style;
   const [ruleColorModalVisible, setRuleColorModalVisible] = useState(false);
   const [sectionColorModalVisible, setSectionColorModalVisible] = useState(false);
   return (
@@ -322,7 +327,10 @@ const GaugeColor = props => {
         value={gaugeColorType}
         onChange={(event) => {
           const { value } = event.target;
-          onChangeStyle({ gaugeColorType: value });
+          onChangeStyle({
+            gaugeColorType: value,
+            applySectionScale: value === 1 ? false : applySectionScale
+          });
           if (value === 2 && _.isEmpty(sectionColorConfig)) {
             setSectionColorModalVisible(true);
           }
@@ -426,6 +434,9 @@ export function scalePanelGenerator(props) {
   const { currentReport, onChangeStyle, ...collapseProps } = props;
   const { style } = currentReport;
   const scaleType = _.isUndefined(style.scaleType) ? 1 : style.scaleType;
+  const isNumberScale = _.isUndefined(style.isNumberScale) ? scaleType === 1 : style.isNumberScale;
+  const isProgressScale = _.isUndefined(style.isProgressScale) ? scaleType === 2 : style.isProgressScale;
+  const applySectionScale = style.applySectionScale;
   return (
     <Collapse.Panel
       key="scale"
@@ -440,29 +451,47 @@ export function scalePanelGenerator(props) {
             event.stopPropagation();
           }}
           onChange={checked => {
-            onChangeStyle({ scaleType: checked ? 1 : null });
+            onChangeStyle({
+              scaleType: checked ? 1 : null,
+              isNumberScale: checked,
+              isProgressScale: checked,
+            });
           }}
         />
       }
     >
-      <div className="chartTypeSelect flexRow valignWrapper mBottom16">
-        <div
-          className={cx('flex centerAlign pointer Gray_75', { active: scaleType === 1 || _.isNull(style.scaleType) })}
-          onClick={() => {
-            onChangeStyle({ scaleType: 1 });
+      <div className="flexRow valignWrapper mBottom13">
+        <Checkbox
+          checked={isNumberScale}
+          onChange={() => {
+            onChangeStyle({ isNumberScale: event.target.checked });
           }}
         >
-          {_l('数值')}
-        </div>
-        <div
-          className={cx('flex centerAlign pointer Gray_75', { active: scaleType === 2 })}
-          onClick={() => {
-            onChangeStyle({ scaleType: 2 });
-          }}
-        >
-          {_l('百分比')}
-        </div>
+          {_l('显示数值')}
+        </Checkbox>
       </div>
+      <div className="flexRow valignWrapper mBottom13">
+        <Checkbox
+          checked={isProgressScale}
+          onChange={() => {
+            onChangeStyle({ isProgressScale: event.target.checked });
+          }}
+        >
+          {_l('显示百分比')}
+        </Checkbox>
+      </div>
+      {style.gaugeColorType === 2 && (
+        <div className="flexRow valignWrapper mBottom13">
+          <Checkbox
+            checked={applySectionScale}
+            onChange={() => {
+              onChangeStyle({ applySectionScale: event.target.checked });
+            }}
+          >
+            {_l('按照区间显示')}
+          </Checkbox>
+        </div>
+      )}
     </Collapse.Panel>
   );
 }

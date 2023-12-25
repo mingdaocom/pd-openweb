@@ -2,19 +2,28 @@ import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import DropOption from 'src/pages/Role/PortalCon/components/DropOption';
-import { Dialog, Tooltip } from 'ming-ui';
+import { Dialog, Tooltip, Icon } from 'ming-ui';
 import { navigateTo } from 'src/router/navigateTo';
-import { sysRoleType, adminType } from 'src/pages/Role/config.js';
+import { sysRoleType, ICON_ROLE_TYPE } from 'src/pages/Role/config.js';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
 
 export default class ItemCon extends React.Component {
   render() {
-    const { setRoleId, SetAppRolePagingModel, setSelectedIds, isOwner, appId, appDetail, canEditApp } =
-      this.props;
+    const {
+      setRoleId,
+      SetAppRolePagingModel,
+      setSelectedIds,
+      isOwner,
+      appId,
+      appDetail,
+      canEditApp,
+      selectDebugRole = [],
+    } = this.props;
     const { data, roleId } = this.props;
+
     let optList = [];
     //离开自己所在的角色
-    if (data.isMyRole && !(isOwner && data.roleType === APP_ROLE_TYPE.ADMIN_ROLE)) {
+    if (data.isMyRole && !(isOwner && data.roleType === APP_ROLE_TYPE.ADMIN_ROLE) && !selectDebugRole.length) {
       //拥有者不能离开管理员角色
       optList = [
         ...optList,
@@ -57,6 +66,7 @@ export default class ItemCon extends React.Component {
           Relative: roleId !== data.roleId,
         })}
         onClick={() => {
+          this.props.setQuickTag({ roleId: data.roleId, tab: 'user' });
           this.props.onChange({
             roleId: data.roleId,
           });
@@ -71,6 +81,7 @@ export default class ItemCon extends React.Component {
           title={data.name}
         >
           {roleId !== data.roleId && data.isMyRole && <span className="isMyRole mRight3 InlineBlock TxtMiddle" />}
+          {ICON_ROLE_TYPE[data.roleType] && <Icon icon={ICON_ROLE_TYPE[data.roleType]} className="Font16 mRight6" />}
           {data.name}
         </span>
 

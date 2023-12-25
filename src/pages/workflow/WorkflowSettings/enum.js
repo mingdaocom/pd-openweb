@@ -51,8 +51,9 @@ export const ACTION_ID = {
   JAVASCRIPT: '102',
   PYTHON: '103',
   DATE_DIFF_FORMULA: '104',
-  TOTAL_STATISTICS: '105',
+  OBJECT_TOTAL: '105',
   FUNCTION_CALCULATION: '106',
+  WORKSHEET_TOTAL: '107',
   SEND_EMAIL_SINGLE_DISPLAY: '201',
   SEND_EMAIL: '202',
   SEND_TEMPLATE_MESSAGE: '203',
@@ -71,6 +72,8 @@ export const ACTION_ID = {
   BATCH_UPDATE: '412',
   BATCH_DELETE: '413',
   RECORD_LINK_FIND: '420',
+  RECORD_UPDATE: '421',
+  RECORD_DELETE: '422',
   PBC: '500',
   PBC_INPUT: '501',
   PBC_OUT: '502',
@@ -293,11 +296,13 @@ export const USER_ORGANIZE = {
   11: _l('直属上司'),
   12: _l('主部门负责人'),
   13: _l('主部门上级负责人'),
+  14: _l('主部门中的职位'),
 };
 
 export const DEPARTMENT_ORGANIZE = {
   12: _l('部门负责人'),
   13: _l('上级部门负责人'),
+  14: _l('部门中的职位'),
 };
 
 export const EXEC_TIME_TYPE = {

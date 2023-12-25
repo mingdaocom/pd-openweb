@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import UserHead from 'src/pages/feed/components/userHead';
+import UserHead from 'src/components/userHead';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { handleChangeOwner, updateRecordOwner } from '../crtl';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
@@ -110,16 +110,11 @@ export default function FormHeader(props) {
                     <UserHead
                       className="cursorDefault"
                       size={24}
-                      bindBusinessCard={
-                        !_.includes(
-                          ['user-workflow', 'user-publicform', 'user-api', 'user-undefined'],
-                          ownerAccount.accountId,
-                        )
-                      }
                       user={{
                         accountId: ownerAccount.accountId,
                         userHead: ownerAccount.avatar,
                       }}
+                      appId={appId}
                       headClick={() => {}}
                     />
                   </span>

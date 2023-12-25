@@ -196,6 +196,7 @@ class MemberList extends Component {
     isOwner,
     memberId,
   }) => {
+    const { debugRoles } = this.props;
     const { detail } = this.props.memberList;
     const { params } = this.props.match;
     const isSysRole = sysRoleType.includes(roleType); // 系统角色
@@ -206,7 +207,7 @@ class MemberList extends Component {
         ? { name: _l('取消角色负责人'), icon: 'people_5', iconClass: 'Gray_9e Font18' }
         : { name: _l('设为角色负责人'), icon: 'people_5', iconClass: 'Gray_9e Font18' },
       { name: _l('移到其他角色'), icon: 'sync', iconClass: 'Gray_9e Font18' },
-      isSysRole && isAdmin && isMe
+      isSysRole && isAdmin && isMe && !(detail.canDebug && !_.isEmpty(debugRoles))
         ? { name: _l('退出'), icon: 'exit_to_app2', iconClass: 'Font20' }
         : { name: _l('移除'), icon: 'task-new-delete', iconClass: 'Font18' },
     ];
@@ -306,7 +307,7 @@ class MemberList extends Component {
           (!isSysRole && buttonIndex === 2) ||
           (((isSysRole && !(isOwner && isMe)) || isAllOrganization || (!isSysRole && !accountId)) && buttonIndex === 1)
         ) {
-          if (isSysRole && isAdmin && isMe) {
+          if (isSysRole && isAdmin && isMe && !(detail.canDebug && !_.isEmpty(debugRoles))) {
             // 退出
             modal = Modal.alert(_l('确认退出此角色吗 ?'), '', [
               {
@@ -608,10 +609,11 @@ class MemberList extends Component {
 }
 
 export default connect(state => {
-  const { memberList, isListLoading, isUpdateListLoading } = state.mobile;
+  const { memberList, isListLoading, isUpdateListLoading, debugRoles } = state.mobile;
   return {
     memberList,
     isListLoading,
     isUpdateListLoading,
+    debugRoles,
   };
 })(MemberList);

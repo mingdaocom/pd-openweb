@@ -163,7 +163,7 @@ export default class Cancellation extends Component {
               const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
               alert(actionMsg[res], type);
               if (res === 1) {
-                window.location.href = '/login.htm';
+                window.location.href = '/login';
               }
               if (isMingdao) {
                 mdAppResponse({
@@ -192,7 +192,7 @@ export default class Cancellation extends Component {
         alert(actionMsg[data], type);
         if (data === 1) {
           // 撤销申请跳转至登录页
-          window.location.href = '/login.htm';
+          window.location.href = '/login';
         }
       },
     });

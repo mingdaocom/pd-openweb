@@ -5,8 +5,7 @@ import { Icon } from 'ming-ui';
 import { Menu, Dropdown } from 'antd';
 import styled from 'styled-components';
 import * as actions from 'worksheet/redux/actions/gunterview';
-import Grouping from './components/Grouping';
-import { RecordWrapper } from './components/Record';
+import GroupWrap from './components/GroupWrap';
 import _ from 'lodash';
 
 const More = styled.div`
@@ -14,14 +13,6 @@ const More = styled.div`
   padding: 0 15px;
   .ant-dropdown-trigger:hover {
     color: #2196f3 !important;
-  }
-`;
-
-const GroupingChildWrapper = styled.div`
-  height: 29px;
-  border-bottom: 1px solid #ececec;
-  .groupingName {
-    margin-left: 22px !important;
   }
 `;
 
@@ -41,8 +32,7 @@ export const MenuOverlayWrapper = styled(Menu)`
 
 @connect(
   state => ({
-    ..._.pick(state.sheet.gunterView, ['loading', 'grouping', 'withoutArrangementVisible']),
-    ..._.pick(state.sheet, ['controls']),
+    ..._.pick(state.sheet.gunterView, ['loading', 'grouping', 'withoutArrangementVisible'])
   }),
   dispatch => bindActionCreators(actions, dispatch),
 )
@@ -76,20 +66,6 @@ export default class GunterDirectory extends Component {
       </More>
     );
   }
-  renderControlName() {
-    const { controls } = this.props;
-    const titleControl = _.find(controls, { attribute: 1 });
-    return (
-      <GroupingChildWrapper className="overflowHidden">
-        <RecordWrapper className="valignWrapper groupingControlHeader">
-          <div className="groupingName overflow_ellipsis">{titleControl.controlName}</div>
-          <div className="field">{_l('开始时间')}</div>
-          <div className="field">{_l('结束时间')}</div>
-          <div className="dayCountField overflow_ellipsis">{_l('时长')}</div>
-        </RecordWrapper>
-      </GroupingChildWrapper>
-    );
-  }
   render() {
     const { width, loading } = this.props;
     return (
@@ -97,10 +73,9 @@ export default class GunterDirectory extends Component {
         {!loading && (
           <div className="gunterDirectoryHeader flexColumn">
             {this.renderMore()}
-            {this.renderControlName()}
           </div>
         )}
-        <Grouping width={width} />
+        <GroupWrap width={width} />
       </div>
     );
   }

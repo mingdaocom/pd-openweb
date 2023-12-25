@@ -166,7 +166,7 @@ export default class Add extends React.Component {
     return (
       <React.Fragment>
         {this.state.loading && <div className="loadingLine"></div>}
-        {location.href.indexOf('/enterpriseRegister.htm?type=add') < 0 && (
+        {!location.href.match(/enterpriseRegister(\.htm)?\?type=add/i) && (
           <span
             className="mTop40 Font15 InlineBlock Hand backspaceT"
             onClick={() => {

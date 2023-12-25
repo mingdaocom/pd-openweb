@@ -34,6 +34,7 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
           : type
         : type,
   };
+
   switch (type) {
     case 36:
       const { showtype } = getAdvanceSetting(item);
@@ -211,22 +212,27 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
         }
         // 1 卡片 2 列表 3 下拉
         if (item.advancedSetting && item.advancedSetting.showtype === '3') {
-
           //下拉 显示关联表名称
           if (item.isRelateMultipleSheet && records.length <= 0) {
             return '';
           }
-          if (!item.isRelateMultipleSheet && [11, 26].includes(dataItem.sourceControlType) && dataItem.enumDefault === 2) {
+          if (
+            !item.isRelateMultipleSheet &&
+            [11, 26].includes(dataItem.sourceControlType) &&
+            dataItem.enumDefault === 2
+          ) {
             dataItem = { ...dataItem, enumDefault: 1 };
           }
           return (
-            <span className="relaList">{item.isRelateMultipleSheet ? (records[0] || {}).name : renderCellText(dataItem)}</span>
+            <span className="relaList">
+              {item.isRelateMultipleSheet ? (records[0] || {}).name : renderCellText(dataItem)}
+            </span>
           );
         }
         //按文本形式 显示关联表标题字段（卡片，下拉）/数量（列表）
         if (item.isRelateMultipleSheet) {
           if (records.length <= 0) return '';
-          return renderCellText({...dataItem, enumDefault: dataItem.type===29 ? 1 : dataItem.enumDefault});
+          return renderCellText({ ...dataItem, enumDefault: dataItem.type === 29 ? 1 : dataItem.enumDefault });
         }
         //关联表内除标题字段外的其他字段
         let showControlsList = [];
@@ -252,6 +258,10 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
                 let cover = coverCid ? JSON.parse(data[coverCid] || '[]') : [];
                 let coverData = cover.length > 0 ? cover[0] : '';
                 let list = (item.relationControls || []).find(o => o.attribute === 1) || [];
+                const type =
+                  list.type && ![29, 30, item.sourceControlType].includes(list.type)
+                    ? list.type
+                    : item.sourceControlType;
                 return (
                   <tr>
                     <td className="listTextDiv">
@@ -259,11 +269,11 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
                         ? renderCellText(item.controls.find(it => it.attribute === 1))
                         : renderCellText({
                             ...dataItem,
-                            type:
-                              list.type && ![29, 30, item.sourceControlType].includes(list.type)
-                                ? list.type
-                                : item.sourceControlType,
-                            value: da.name,
+                            type: type,
+                            value:
+                              type === 27 && da.name
+                                ? JSON.stringify(safeParse(da.name, 'array').filter(l => !l.isDelete))
+                                : da.name,
                           }) || _l('未命名')}
                       {showControlsList.map(it => {
                         if (it.type === 41 || it.type === 22) {
@@ -336,7 +346,7 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
         <img
           src={value}
           style={{ maxHeight: 45, maxWidth: 160 }}
-          onLoad={(e) => {
+          onLoad={e => {
             $(e.target).attr({
               width: e.target.width,
               height: e.target.height,
@@ -367,7 +377,11 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
     }
     case 41:
     case 10010:
-      return value || item.dataSource ? <RichText data={value || item.dataSource} className="richText" disabled={true} /> : '';
+      return (type === 41 ? value : value || item.dataSource) ? (
+        <RichText data={value || item.dataSource} className="richText" disabled={true} />
+      ) : (
+        ''
+      );
     case 30: {
       if (item.sourceControlType <= 0) {
         return '';
@@ -378,7 +392,7 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
     case 9: // OPTIONS 单选 平铺
     case 10: // MULTI_SELECT 多选
       if (!printOption || (type === 10 && _.get(item, ['advancedSetting', 'checktype']) === '1')) {
-        renderCellText(dataItem);
+        return renderCellText(dataItem);
       } else {
         let selectedKeys = [];
         try {
@@ -399,6 +413,17 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
           );
         });
       }
+    case 27: // 部门层级
+      const { advancedSetting = {} } = dataItem;
+      const _valueParse = safeParse(dataItem.value, 'array').filter(l => !l.isDelete);
+      let textList = _valueParse.map(item => {
+        const pathValue =
+          advancedSetting.allpath === '1'
+            ? (item.departmentPath || []).sort((a, b) => b.depth - a.depth).map(i => i.departmentName)
+            : [];
+        return pathValue.concat([item.departmentName]).join('/');
+      });
+      return textList.join('，');
     default:
       return renderCellText(dataItem);
   }

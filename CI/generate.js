@@ -4,6 +4,7 @@ const ejs = require('ejs');
 const moment = require('moment');
 const cheerio = require('cheerio');
 const minify = require('html-minifier').minify;
+const _ = require('lodash');
 const { htmlTemplatesPath, getEntryName, getEntryFromHtml } = require('./utils');
 const { apiServer, webpackPublicPath } = require('./publishConfig');
 
@@ -21,8 +22,14 @@ function mkdir(dirPath) {
   }
 }
 
-function getPublicPath() {
-  return isProduction ? webpackPublicPath : '/dist/pack/';
+function getPublicPath(type) {
+  if (!isProduction) return webpackPublicPath;
+
+  const path = _.isArray(webpackPublicPath)
+    ? webpackPublicPath[_.random(0, webpackPublicPath.length - 1)]
+    : webpackPublicPath;
+
+  return type === 'index' ? path : path.replace('/dist/pack/', `/dist/${type}/pack/`);
 }
 
 function destHtml(filename, html) {
@@ -47,10 +54,7 @@ function generate() {
     };
     if (entry) {
       const moduleName = getEntryName(entry.src, filename);
-      let publicPath = getPublicPath();
-      if (isProduction && entry.type !== 'index') {
-        publicPath = publicPath.replace('/dist/pack/', `/dist/${entry.type}/pack/`);
-      }
+
       if (!isProduction) {
         apiMap.workflow = '/workflow_api';
         apiMap.report = '/report_api';
@@ -60,7 +64,7 @@ function generate() {
       html = ejs.compile(html)({
         apiServer: JSON.stringify(apiMap),
         releaseDate: moment().format('YYYY/MM/DD HH:mm:SS'),
-        publicPath,
+        publicPath: getPublicPath(entry.type),
       });
       html = html.replace(
         '</head>',
@@ -86,8 +90,8 @@ function generate() {
       if (!isProduction) {
         // 开发模式
         $entryScript.replaceWith(
-          ['nodemodules', 'common', 'vendors', 'globals', moduleName]
-            .map(src => `<script src="${publicPath + src}.dev.js"></script>`)
+          ['modules_a', 'modules_b', 'core', 'common', 'vendors', 'globals', moduleName]
+            .map(src => `<script src="${getPublicPath(entry.type) + src}.dev.js"></script>`)
             .join(''),
         );
       } else {
@@ -99,19 +103,24 @@ function generate() {
             .toString(),
         );
         const baseEntry =
-          entry.type !== 'index' ? ['vendors', 'globals'] : ['nodemodules', 'common', 'vendors', 'globals'];
+          entry.type !== 'index'
+            ? ['vendors', 'globals']
+            : ['modules_a', 'modules_b', 'core', 'common', 'vendors', 'globals'];
+        const isWidgetContainer = moduleName.startsWith('widget-container');
         $entryScript.replaceWith(
-          [...baseEntry, moduleName]
+          [...(!isWidgetContainer ? baseEntry : []), moduleName]
             .filter(key => !!manifestData[key] && manifestData[key].js)
-            .map(key => `<script src="${publicPath + manifestData[key].js}"></script>`)
+            .map(key => `<script src="${getPublicPath(entry.type) + manifestData[key].js}"></script>`)
             .join(''),
         );
-        $('head').append(
-          ['css', ...baseEntry, moduleName]
-            .filter(key => !!manifestData[key] && manifestData[key].css)
-            .map(key => `<link rel="stylesheet" href="${publicPath + manifestData[key].css}" />`)
-            .join(''),
-        );
+        if (!isWidgetContainer) {
+          $('head').append(
+            ['css', ...baseEntry, moduleName]
+              .filter(key => !!manifestData[key] && manifestData[key].css)
+              .map(key => `<link rel="stylesheet" href="${getPublicPath(entry.type) + manifestData[key].css}" />`)
+              .join(''),
+          );
+        }
       }
       destHtml(filename, $.html());
     } else {

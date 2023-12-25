@@ -1,21 +1,6 @@
 import _ from 'lodash';
 import homeAppAjax from 'src/api/homeApp';
 
-export const getAppList = () => dispatch => {
-  dispatch({
-    type: 'MOBILE_FETCHHOMELIST_START',
-  });
-  Promise.all([homeAppAjax.getAllHomeApp().then()]).then(res => {
-    dispatch({
-      type: 'UPDATE_APPHOMELIST',
-      data: res,
-    });
-    dispatch({
-      type: 'MOBILE_FETCHHOMELIST_SUCCESS',
-    });
-  });
-};
-
 export const getMyApp = projectId => dispatch => {
   dispatch({
     type: 'MOBILE_FETCHHOMELIST_START',

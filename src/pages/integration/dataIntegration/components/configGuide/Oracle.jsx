@@ -9,8 +9,8 @@ export default function OracleGuide(props) {
       <h5>{_l('先决条件')}</h5>
       <ul>
         <li>{_l('支持Oracle的版本： 9i、10g、11g、12c+')}</li>
-        <li>{_l('启用Oracle数据库的日志归档，并定义一个具有适当权限的Oracle用户')}</li>
-        <li>{_l('将数据集成的系统 IP 添加到 Oracle 服务器的访问白名单 ')}</li>
+        <li>{_l('启用Oracle数据库的日志归档')}</li>
+        <li>{_l('确保数据库可以与数据集成通信')}</li>
       </ul>
 
       <h5>{_l('非容器数据库（Non-CDB database）')}</h5>
@@ -53,16 +53,16 @@ export default function OracleGuide(props) {
           '为了捕获数据库数据变化之前的状态，请务必在表和数据库级别启用补充日志。以下是在表/数据库层面上进行配置的说明：',
         )}
       </p>
-      <div className="subTitle indent">{_l('2.1 启用特定表和库的补充日志记录')}</div>
+      <div className="subTitle indent">{_l('2.1 启用表和库的补充日志记录')}</div>
       <div className="sqlText">
-        <div>{_l('##启用特定表的补充日志记录')}</div>
+        <div>{_l('##启用表的补充日志记录')}</div>
         <div>ALTER TABLE inventory.customers ADD SUPPLEMENTAL LOG DATA (ALL) COLUMNS;</div>
         <br />
         <div>{_l('##启用数据库的补充日志记录')}</div>
         <div>ALTER DATABASE ADD SUPPLEMENTAL LOG DATA;</div>
       </div>
 
-      <p className="subTitle">{_l('3. 创建一个具有权限的Oracle用户')}</p>
+      <p className="subTitle">{_l('3. 创建一个Oracle用户并配置权限')}</p>
       <p>{_l('在创建同步任务的时候使用这个用户去配置连接')}</p>
       <div className="subTitle indent">{_l('3.1 创建表空间')}</div>
       <div className="sqlText">
@@ -128,14 +128,14 @@ export default function OracleGuide(props) {
       </div>
       <div>{_l('也可以这样启用日志归档')}</div>
       <div className="sqlText">
-        <div>{_l('## 为特定表启用补充日志记录:')}</div>
+        <div>{_l('## 为表启用补充日志记录:')}</div>
         <div>ALTER TABLE inventory.customers ADD SUPPLEMENTAL LOG DATA (ALL) COLUMNS;</div>
         <br />
         <div>{_l('## 为数据库启用补充日志记录')}</div>
         <div>ALTER DATABASE ADD SUPPLEMENTAL LOG DATA;</div>
       </div>
 
-      <p className="subTitle">{_l('2. 创建一个具有权限的Oracle用户')}</p>
+      <p className="subTitle">{_l('2. 创建一个Oracle用户并配置权限')}</p>
       <div>{_l('在创建同步任务的时候使用这个用户去连接')}</div>
       <div className="sqlText">
         <div>sqlplus sys/password@//localhost:1521/ORCLCDB as sysdba</div>

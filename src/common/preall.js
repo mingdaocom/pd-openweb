@@ -1,7 +1,7 @@
 import React from 'react';
 import qs from 'query-string';
 import global from 'src/api/global';
-import redirect from './redirect';
+import { redirect } from 'src/router/navigateTo';
 import { LoadDiv } from 'ming-ui';
 import { getPssId, setPssId } from 'src/util/pssId';
 import _ from 'lodash';
@@ -159,7 +159,7 @@ function getGlobalMeta({ allownotlogin, requestParams } = {}) {
     moment.locale(getMomentLocale(lang));
     // 设置md_pss_id
     setPssId(getPssId());
-    
+
     if (redirect(location.pathname)) {
       return;
     }

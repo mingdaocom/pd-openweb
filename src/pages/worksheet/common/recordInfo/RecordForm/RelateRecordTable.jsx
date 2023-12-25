@@ -913,9 +913,7 @@ export default function RelateRecordTable(props) {
           );
         }}
         onCellClick={(cell, row) => {
-          if (location.pathname.indexOf('public') === -1) {
-            addBehaviorLog('worksheetRecord', control.dataSource, { rowId: row.rowid }); // 埋点
-          }
+          addBehaviorLog('worksheetRecord', control.dataSource, { rowId: row.rowid }); // 埋点
           setActiveRecord({
             id: row.rowid,
             activeRelateTableControlIdOfRecord: cell.type === 29 ? cell.controlId : undefined,

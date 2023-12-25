@@ -5,7 +5,6 @@ import InviteController from 'src/api/invitation';
 import Requests from 'src/api/addressBook';
 import EmailInput from 'src/pages/Role/PortalCon/components/Email';
 import { FROM_TYPE, DETAIL_MODE } from './';
-import default_img from 'staticfiles/images/default_user_avatar.jpg';
 import cx from 'classnames';
 import captcha from 'src/components/captcha';
 import _ from 'lodash';
@@ -227,7 +226,7 @@ export default class MobileOrEmailInvite extends Component {
             : [
                 {
                   accountId: 'default',
-                  avatarBig: default_img,
+                  avatarBig: `${md.global.FileStoreConfig.pictureHost.replace(/\/$/, '')}/UserAvatar/default.gif`,
                   fullname: this.getValue(),
                   subInfo: _l('该用户未注册，你可以邀请TA加入并成为好友'),
                 },

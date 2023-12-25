@@ -6,7 +6,6 @@ import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widget
 const PointerConfigWrap = styled.div`
   display: flex;
   position: relative;
-  margin: 10px 0;
   input {
     width: 70px;
   }

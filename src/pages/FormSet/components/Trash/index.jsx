@@ -6,7 +6,7 @@ import cx from 'classnames';
 import sheetAjax from 'src/api/worksheet';
 import Search from 'src/pages/workflow/components/Search';
 import './index.less';
-import UserHead from 'src/pages/feed/components/userHead/userHead';
+import UserHead from 'src/components/userHead/userHead';
 
 const WrapHeader = styled.div`
   height: 53px;
@@ -259,7 +259,6 @@ export default function TrashDialog(props) {
           <div className="flexRow alignItemsCenter">
             <UserHead
               size={28}
-              bindBusinessCard={!!_.get(data, 'updateAccount.accountId')}
               user={{
                 userHead: _.get(data, 'updateAccount.avatar'),
                 accountId: _.get(data, 'updateAccount.accountId'),

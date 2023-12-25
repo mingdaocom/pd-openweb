@@ -9,6 +9,8 @@ import {
   setFieldsMappingDefaultData,
   getFields,
   hsMorePkControl,
+  getUnionFeids,
+  setFeildAlias,
 } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/util.js';
 import { getInitFieldsMapping } from 'src/pages/integration/dataIntegration/utils.js';
 import _ from 'lodash';
@@ -110,6 +112,8 @@ export default class CellEdit extends Component {
       this.getFieldsDataTypeMatch(this.props);
     } else if (nodeType === 'SOURCE_TABLE') {
       this.getSourceFieldList();
+    } else if (nodeType === 'UNION') {
+      this.getUion();
     } else {
       this.setState({
         loading: false,
@@ -144,6 +148,26 @@ export default class CellEdit extends Component {
     }, 500);
   }
 
+  getUion = () => {
+    const { node } = this.state;
+    const { list } = this.props;
+    //每次都重新初始化，只呈现之前勾选
+    const fields = getUnionFeids(_.get(node, 'nodeConfig.fields') || [], list, node);
+    this.setState({
+      loading: false,
+      node: {
+        ...node,
+        nodeConfig: {
+          ..._.get(node, ['nodeConfig']),
+          config: { ..._.get(node, 'nodeConfig.config'), fields: fields },
+        },
+        fields: fields.map(o => {
+          return o.resultField;
+        }),
+      },
+    });
+  };
+
   getSourceFieldList = async nextProps => {
     const { node = {}, currentProjectId, list } = nextProps || this.props;
     this.setState({
@@ -161,7 +185,8 @@ export default class CellEdit extends Component {
         isDestAppType: isDestMDType,
       })) || [];
     let fieldsData = (_.get(node, 'nodeConfig.fields') || []).map(o => {
-      return { ...o, isErr: !data.find(it => it.id === o.id) };
+      let field = data.find(it => it.id === o.id);
+      return { ...o, ..._.omit(field || {}, ['alias', 'isCheck']), isErr: !field };
     });
     let otherData = data
       .filter(o => !fieldsData.find(a => a.id === o.id))
@@ -210,11 +235,7 @@ export default class CellEdit extends Component {
         ? _.get(preNode, ['nodeConfig', 'fields'])
         : [mdUniquePkData, ..._.get(preNode, ['nodeConfig', 'fields'])];
       preFields = preFields.filter(o => o.isCheck);
-      let mapping = getInitFieldsMapping(
-        preFields,
-        !srcIsDb,
-        _.get(node, 'nodeConfig.config.dsType') === DATABASE_TYPE.APPLICATION_WORKSHEET,
-      );
+      let mapping = getInitFieldsMapping(preFields, !srcIsDb, _.get(node, 'nodeConfig.config.dsType'));
       const mapDt = await setFieldsMappingDefaultData({
         initMapping: mapping.filter(o => !!o.sourceField),
         destFields: fileList,
@@ -253,6 +274,53 @@ export default class CellEdit extends Component {
         isSetDefaultMap: false,
       });
     }
+  };
+  resetAlias = () => {
+    const { node = {} } = this.state;
+    const { nodeType = '' } = node;
+    return (
+      <span
+        className="ThemeColor3 Hand mLeft10 Font13"
+        onClick={() => {
+          if (['JOIN'].includes(nodeType)) {
+            let fields = setFeildAlias([
+              ..._.get(node, 'nodeConfig.config.leftFields'),
+              ..._.get(node, 'nodeConfig.config.rightFields'),
+            ]);
+            let leftFields = _.get(node, 'nodeConfig.config.leftFields').map(it => fields.find(o => o.id === it.id));
+            let rightFields = _.get(node, 'nodeConfig.config.rightFields').map(it => fields.find(o => o.id === it.id));
+            this.setState({
+              node: {
+                ...node,
+                nodeConfig: {
+                  ..._.get(node, 'nodeConfig'),
+                  config: {
+                    ..._.get(node, 'nodeConfig.config'),
+                    leftFields,
+                    rightFields,
+                  },
+                  fields: [...leftFields, ...rightFields],
+                },
+              },
+            });
+          } else {
+            let fields = setFeildAlias(_.get(node, 'nodeConfig.fields') || []);
+            this.setState({
+              node: {
+                ...node,
+                nodeConfig: {
+                  ..._.get(node, 'nodeConfig'),
+                  config: { ..._.get(node, 'nodeConfig.config'), fields: fields },
+                  fields: fields,
+                },
+              },
+            });
+          }
+        }}
+      >
+        {_l('一键重命名')}
+      </span>
+    );
   };
   render() {
     const { onClose, onSave, list, flowData = {} } = this.props;
@@ -396,11 +464,46 @@ export default class CellEdit extends Component {
         txt = _l('存在错误的配置');
       }
     }
+    if (['UNION'].includes(nodeType)) {
+      const fields = _.get(node, 'nodeConfig.config.fields') || [];
+      // const { leftTableId, rightTableId } = _.get(node, ['nodeConfig', 'config']) || {};
+      // let leftNode = list.find(o => o.nodeId === leftTableId);
+      // let rightNode = list.find(o => o.nodeId === rightTableId);
+      // const leftFields = (_.get(leftNode, 'nodeConfig.fields') || []).filter(o => o.isCheck);
+      // const rightFields = (_.get(rightNode, 'nodeConfig.fields') || []).filter(o => o.isCheck);
+      // const ids = [...leftFields, ...rightFields].map(o => o.id);
+      // if (fields.filter(o => !ids.includes(o.id)).length > 0) {
+      //   disable = true;
+      //   txt = _l('请删除无效字段');
+      // }
+      fields.map(o => {
+        //同名只能勾选一个
+        if (
+          fields.filter(
+            it =>
+              _.get(it, 'resultField.alias') === _.get(o, 'resultField.alias') &&
+              _.get(o, 'resultField.isCheck') &&
+              _.get(it, 'resultField.isCheck') === _.get(o, 'resultField.isCheck'),
+          ).length > 1
+        ) {
+          disable = true;
+          txt = _l('同名只能勾选一个');
+        }
+      });
+      if (fields.filter(o => _.get(o, 'resultField.isCheck')).length <= 0) {
+        disable = true;
+        txt = _l('请选择字段');
+      }
+    }
     return (
       <Wrap className="">
         <div className={cx('conEdit flexColumn', { isMaxC: ['UNION', 'DEST_TABLE'].includes(nodeType) })}>
           <div className="headCon flexRow alignItemsCenter">
-            <span className="Font18 Bold flex">{_l('编辑字段')}</span>
+            <span className="Font18 Bold flex">
+              {_l('编辑字段')}
+              {['SOURCE_TABLE', 'JOIN'].includes(nodeType) && this.resetAlias()}
+            </span>
+
             {nodeType === 'SOURCE_TABLE' && (
               <Tooltip text={<span>{_l('刷新数据源字段')}</span>} action={['hover']} popupPlacement={'bottom'}>
                 <i
@@ -487,8 +590,20 @@ export default class CellEdit extends Component {
                         },
                       });
                     }
-                    if (nodeType === 'JOIN') {
+                    if (['JOIN'].includes(nodeType)) {
                       onSave(node);
+                    }
+                    if (['UNION'].includes(nodeType)) {
+                      let fields = (_.get(node, 'nodeConfig.config.fields') || [])
+                        .map(o => o.resultField)
+                        .filter(o => o.isCheck);
+                      onSave({
+                        ...node,
+                        nodeConfig: {
+                          ..._.get(node, ['nodeConfig']),
+                          fields,
+                        },
+                      });
                     }
                   }}
                 >

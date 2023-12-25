@@ -4,7 +4,7 @@ import '../WorksheetRecordLogValue.less';
 import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
 import cx from 'classnames';
 import _ from 'lodash';
-import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/ControlMask/util';
+import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
 
 function WorksheetRecordLogSelectTags(props) {
   const {
@@ -36,7 +36,7 @@ function WorksheetRecordLogSelectTags(props) {
   };
 
   useEffect(() => {
-    if(advancedSetting.masktype) {
+    if (advancedSetting.masktype) {
       setShowMaskData(true);
     }
     if (needPreview) {
@@ -52,6 +52,7 @@ function WorksheetRecordLogSelectTags(props) {
       };
       let oldList = safeParse(oldObj.rows, 'array');
       let newList = safeParse(newObj.rows, 'array');
+
       if (onlyNew) {
         Record.delList = newList;
         Record.addList = newList;
@@ -61,23 +62,32 @@ function WorksheetRecordLogSelectTags(props) {
         Record.addList = _.differenceBy(newList, oldList, 'recordId');
         Record.defList = _.intersectionBy(oldList, newList, 'recordId');
       }
+
       setRecordInfo(Record);
     }
   }, []);
 
   const renderText = item => {
+    let text = item;
+    if (needPreview && text.startsWith('[')) {
+      const arr = safeParse(text, 'array');
+      text = arr
+        .map(m => m.departmentName || m.fullname || m.organizeName)
+        .filter(m => m)
+        .join('、');
+    }
     if (control) {
       const { type, enumDefault } = control;
       if (type === 3) {
-        let _value = enumDefault === 1 ? item.replace(/\+86/, '') : item;
-        return (showMaskData && _.indexOf(maskList, item) < 0) ? dealMaskValue({...control, value: _value}) : _value;
+        let _value = enumDefault === 1 ? text.replace(/\+86/, '') : text;
+        return showMaskData && _.indexOf(maskList, text) < 0 ? dealMaskValue({ ...control, value: _value }) : _value;
       }
     }
-    return (showMaskData && _.indexOf(maskList, item) < 0) ? dealMaskValue({...control, value: item}) : item;
+    return showMaskData && _.indexOf(maskList, text) < 0 ? dealMaskValue({ ...control, value: text }) : text;
   };
 
   const renderList = (list, listType) => {
-    let prefix = isChangeValue ? listType==='old' ? '-' : '+' : '';
+    let prefix = isChangeValue ? (listType === 'old' ? '-' : '+') : '';
     return list.map((item, index) => {
       return item ? (
         <span
@@ -86,17 +96,17 @@ function WorksheetRecordLogSelectTags(props) {
             'WorksheetRocordLogSelectTag',
             { noneTextLineThrough: isChangeValue },
             { hoverHighline: needPreview && !isMobile },
-            { oldValue: listType==='old'},
-            { newValue: listType==='new'},
-            { defaultValue: listType==='default'},
+            { oldValue: listType === 'old' },
+            { newValue: listType === 'new' },
+            { defaultValue: listType === 'default' },
           )}
           style={type === 'circle' ? { borderRadius: '10px' } : {}}
           onClick={() => {
-            if(needPreview) {
+            if (needPreview) {
               clickHandle(listType, index);
             }
-            if(showMaskData && isdecrypt==='1') {
-              setMaskList(maskList.concat(item))
+            if (showMaskData && isdecrypt === '1') {
+              setMaskList(maskList.concat(item));
             }
           }}
         >

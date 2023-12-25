@@ -44,47 +44,63 @@ export default class CreateNodeDialog extends Component {
               iconName: 'icon-workflow_update',
             },
             {
-              type: 6,
-              name: _l('删除记录%03020'),
-              appType: 1,
-              actionId: '3',
-              iconColor: '#FFA340',
-              iconName: 'icon-hr_delete',
-            },
-            {
               type: 7,
               name: _l('获取单条数据%03021'),
               iconColor: '#FFA340',
               iconName: 'icon-search',
-              typeText: _l('获取方式'),
+              isGroupList: true,
               secondList: [
                 {
-                  type: 7,
-                  appType: 1,
-                  actionId: '406',
-                  name: _l('查询工作表'),
-                  describe: _l('根据查询条件从工作表中获取一条记录'),
+                  typeText: _l('从工作表获取'),
+                  source: [
+                    {
+                      type: 7,
+                      appType: 1,
+                      actionId: '421',
+                      name: _l('查询并更新记录'),
+                      describe: _l('根据查询条件从工作表中获取一条记录并同时更新记录值'),
+                    },
+                    {
+                      type: 7,
+                      appType: 1,
+                      actionId: '422',
+                      name: _l('查询并删除记录'),
+                      describe: _l('根据查询条件从工作表中查找一条记录后直接删除'),
+                    },
+                    {
+                      type: 7,
+                      appType: 1,
+                      actionId: '406',
+                      name: _l('查询工作表'),
+                      describe: _l('根据查询条件从工作表中获取一条记录'),
+                    },
+                  ],
                 },
                 {
-                  type: 6,
-                  appType: 1,
-                  actionId: '20',
-                  name: _l('获取关联记录'),
-                  describe: _l('获取关联记录、子表、级联选择字段中的记录'),
-                },
-                {
-                  type: 7,
-                  appType: 1,
-                  actionId: '407',
-                  name: _l('从多条数据中获取'),
-                  describe: _l('从多条数据节点获取一条符合条件的记录'),
-                },
-                {
-                  type: 7,
-                  appType: 1,
-                  actionId: '420',
-                  name: _l('从记录链接获取'),
-                  describe: _l('从存有记录链接的文本字段获取一条指定记录'),
+                  typeText: _l('其他'),
+                  source: [
+                    {
+                      type: 6,
+                      appType: 1,
+                      actionId: '20',
+                      name: _l('获取关联记录'),
+                      describe: _l('获取关联记录、子表、级联选择字段中的记录'),
+                    },
+                    {
+                      type: 7,
+                      appType: 1,
+                      actionId: '407',
+                      name: _l('从多条数据中获取'),
+                      describe: _l('从多条数据节点获取一条符合条件的记录'),
+                    },
+                    {
+                      type: 7,
+                      appType: 1,
+                      actionId: '420',
+                      name: _l('从记录链接获取'),
+                      describe: _l('从存有记录链接的文本字段获取一条指定记录'),
+                    },
+                  ],
                 },
               ],
             },
@@ -133,7 +149,6 @@ export default class CreateNodeDialog extends Component {
                     },
                     {
                       type: 13,
-                      appType: 1,
                       actionId: '402',
                       name: _l('获取批量新增结果'),
                       describe: _l('从创建多条的新增记录节点获取刚刚创建的记录'),
@@ -157,20 +172,69 @@ export default class CreateNodeDialog extends Component {
             },
             {
               type: 6,
-              name: _l('更新流程参数%03023'),
-              appType: 102,
-              actionId: '2',
+              name: _l('删除记录%03020'),
+              appType: 1,
+              actionId: '3',
               iconColor: '#FFA340',
-              iconName: 'icon-parameter',
+              iconName: 'icon-hr_delete',
             },
             {
-              type: 6,
-              featureId: VersionProductType.globalVariable,
-              name: _l('更新全局变量'),
-              appType: 104,
-              actionId: '2',
-              iconColor: '#FFA340',
-              iconName: 'icon-global_variable',
+              type: 9,
+              name: _l('运算%03035'),
+              iconColor: '#01CA83',
+              iconName: 'icon-workflow_function',
+              typeText: _l('运算对象'),
+              secondList: [
+                {
+                  type: 9,
+                  name: _l('数值运算'),
+                  actionId: '100',
+                  describe: _l('对 数值/金额 等数字类型字段进行数学运算'),
+                },
+                {
+                  type: 9,
+                  name: _l('为日期加减时间'),
+                  actionId: '101',
+                  describe: _l('对 日期/时间 添加/减去年、月、天、小时、分进行计算'),
+                },
+                {
+                  type: 9,
+                  name: _l('时长'),
+                  actionId: '104',
+                  describe: _l('计算两个日期/时间之间的时长，并精确到年、月、天、时、分、秒'),
+                },
+                {
+                  type: 9,
+                  name: _l('函数计算'),
+                  actionId: '106',
+                  describe: _l('通过函数对 文本/数值/日期时间 等流程节点对象的值进行处理'),
+                },
+              ],
+            },
+            { type: 1, name: _l('分支%03033'), iconColor: '#2196f3', iconName: 'icon-workflow_branch' },
+            {
+              type: 7,
+              name: _l('汇总'),
+              iconColor: '#01CA83',
+              iconName: 'icon-sigma',
+              typeText: _l('汇总方式'),
+              secondList: [
+                {
+                  type: 9,
+                  name: _l('从工作表汇总'),
+                  appType: 1,
+                  actionId: '107',
+                  describe: _l(
+                    '从工作表中筛选符合条件的数据并进行汇总计算，如：记录数量、求和、平均、最大、最小等。注意：当数据频繁变更时可能有一定延时',
+                  ),
+                },
+                {
+                  type: 9,
+                  name: _l('获取数据条数'),
+                  actionId: '105',
+                  describe: _l('汇总流程中的多条数据对象的条数'),
+                },
+              ],
             },
           ],
         },
@@ -242,7 +306,28 @@ export default class CreateNodeDialog extends Component {
           id: 'component',
           name: _l('构件%03032'),
           items: [
-            { type: 1, name: _l('分支%03033'), iconColor: '#4C7D9E', iconName: 'icon-workflow_branch' },
+            {
+              type: 16,
+              name: _l('子流程%03038'),
+              iconColor: '#4C7D9E',
+              iconName: 'icon-subprocess',
+            },
+            {
+              type: 20,
+              name: _l('调用封装业务流程%03039'),
+              appType: 17,
+              actionId: '500',
+              iconColor: '#4C7D9E',
+              iconName: 'icon-pbc',
+            },
+            {
+              type: 25,
+              featureId: VersionProductType.apiIntergrationNode,
+              name: _l('调用已集成 API%03040'),
+              appType: 42,
+              iconColor: '#4C7D9E',
+              iconName: 'icon-api',
+            },
             {
               type: 12,
               name: _l('延时%03034'),
@@ -265,45 +350,6 @@ export default class CreateNodeDialog extends Component {
               ],
             },
             {
-              type: 9,
-              name: _l('运算%03035'),
-              iconColor: '#4C7D9E',
-              iconName: 'icon-workflow_function',
-              typeText: _l('运算对象'),
-              secondList: [
-                {
-                  type: 9,
-                  name: _l('数值运算'),
-                  actionId: '100',
-                  describe: _l('对 数值/金额 等数字类型字段进行数学运算'),
-                },
-                {
-                  type: 9,
-                  name: _l('为日期加减时间'),
-                  actionId: '101',
-                  describe: _l('对 日期/时间 添加/减去年、月、天、小时、分进行计算'),
-                },
-                {
-                  type: 9,
-                  name: _l('时长'),
-                  actionId: '104',
-                  describe: _l('计算两个日期/时间之间的时长，并精确到年、月、天、时、分、秒'),
-                },
-                {
-                  type: 9,
-                  name: _l('统计数据条数'),
-                  actionId: '105',
-                  describe: _l('对获取到的多条数据对象进行数据条数的总计'),
-                },
-                {
-                  type: 9,
-                  name: _l('函数计算'),
-                  actionId: '106',
-                  describe: _l('通过函数对 文本/数值/日期时间 等流程节点对象的值进行处理'),
-                },
-              ],
-            },
-            {
               type: 15,
               name: _l('获取链接%03036'),
               appType: 13,
@@ -319,26 +365,21 @@ export default class CreateNodeDialog extends Component {
               iconName: 'icon-print',
             },
             {
-              type: 16,
-              name: _l('子流程%03038'),
+              type: 6,
+              name: _l('更新流程参数%03023'),
+              appType: 102,
+              actionId: '2',
               iconColor: '#4C7D9E',
-              iconName: 'icon-subprocess',
+              iconName: 'icon-parameter',
             },
             {
-              type: 20,
-              name: _l('调用封装业务流程%03039'),
-              appType: 17,
-              actionId: '500',
+              type: 6,
+              featureId: VersionProductType.globalVariable,
+              name: _l('更新全局变量'),
+              appType: 104,
+              actionId: '2',
               iconColor: '#4C7D9E',
-              iconName: 'icon-pbc',
-            },
-            {
-              type: 25,
-              featureId: VersionProductType.apiIntergrationNode,
-              name: _l('调用已集成 API%03040'),
-              appType: 42,
-              iconColor: '#4C7D9E',
-              iconName: 'icon-api',
+              iconName: 'icon-global_variable',
             },
           ],
         },
@@ -781,7 +822,9 @@ export default class CreateNodeDialog extends Component {
                             return;
                           }
 
-                          this.createNodeClick(o.type === 13 ? o : Object.assign({}, o, { name: item.typeText }));
+                          this.createNodeClick(
+                            _.includes([6, 7, 13], o.type) ? o : Object.assign({}, o, { name: item.typeText }),
+                          );
                         }}
                       >
                         <Radio className="Font15" text={o.name} disabled />
@@ -1092,9 +1135,15 @@ export default class CreateNodeDialog extends Component {
   };
 
   render() {
-    const { nodeId, selectAddNodeId, flowInfo, selectProcessId, isApproval, selectCopy } = this.props;
-    const { selectItem, selectSecond, showDialog, showBranchDialog, showApprovalDialog, showCodeSnippetDialog } =
-      this.state;
+    const { nodeId, selectAddNodeId, flowInfo, selectProcessId, isApproval, selectCopy, flowNodeMap } = this.props;
+    const {
+      selectItem,
+      selectSecond,
+      showDialog,
+      showBranchDialog,
+      showApprovalDialog,
+      showCodeSnippetDialog,
+    } = this.state;
 
     return (
       <ReactCSSTransitionGroup
@@ -1135,7 +1184,11 @@ export default class CreateNodeDialog extends Component {
                     href="https://help.mingdao.com/flow51"
                   />
                   <div className="flex" />
-                  {!((selectProcessId && flowInfo.id !== selectProcessId) || isApproval) && (
+                  {!(
+                    (selectProcessId && flowInfo.id !== selectProcessId) ||
+                    isApproval ||
+                    flowNodeMap[flowInfo.startNodeId].nextId === '99'
+                  ) && (
                     <div className="copyNodeBtn" onClick={() => selectCopy(flowInfo.id)}>
                       <i className="icon-copy Font18 mRight5" />
                       {_l('复制已有节点')}

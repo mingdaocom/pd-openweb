@@ -8,18 +8,29 @@ export default function MySQLGuide(props) {
       <p>{_l('你可以把 MySQL 数据库的数据通过系统实时同步到工作表或者其它数据目的地。')}</p>
       <h5>{_l('先决条件')}</h5>
       <ul>
-        <li>{_l('支持MySQL的版本: ')}5.6, 5.7, 8.0.x</li>
-        <li>{_l('需要开启Binlog并设置为ROW模式')}</li>
-        <li>{_l('授权MySQL账户对应的权限')}</li>
-        <li>{_l('将数据集成的系统 IP 添加到 MySQL 服务器的访问白名单')}</li>
+        <li className="pointer textUnderline" onClick={() => document.getElementById('versionId').scrollIntoView()}>
+          {_l('支持MySQL的版本: ')}5.6, 5.7, 8.0.x
+        </li>
+        <li className="pointer textUnderline" onClick={() => document.getElementById('binLogId').scrollIntoView()}>
+          {_l('需要开启Binlog并设置为ROW模式')}
+        </li>
+        <li className="pointer textUnderline" onClick={() => document.getElementById('authId').scrollIntoView()}>
+          {_l('授权MySQL账户对应的权限')}
+        </li>
+        <li
+          className="pointer textUnderline"
+          onClick={() => document.getElementById('communicationId').scrollIntoView()}
+        >
+          {_l('确保数据库可以与数据集成通信')}
+        </li>
       </ul>
 
-      <h5>{_l('检查 MySQL 版本')}</h5>
+      <h5 id="versionId">{_l('检查 MySQL 版本')}</h5>
       <div className="sqlText">
         <div>{`mysql> mysql -V;`}</div>
       </div>
 
-      <h5>{_l('检查Binlog是否开启')}</h5>
+      <h5 id="binLogId">{_l('检查Binlog是否开启')}</h5>
       <div className="sqlText">
         <div>{`mysql> select @@log_bin;`}</div>
       </div>
@@ -30,7 +41,7 @@ export default function MySQLGuide(props) {
       </p>
 
       <h5>{_l('开启Binlog')}</h5>
-      <div className="subTitle">{_l('1. 登陆到MySQL服务器编辑MySQL服务器的配置文件')}</div>
+      <div className="subTitle">{_l('1. 登陆到MySQL服务器编辑配置文件')}</div>
       <div className="sqlText">
         <div>sudo nano /etc/mysql/my.cnf</div>
       </div>
@@ -54,10 +65,10 @@ export default function MySQLGuide(props) {
       </div>
       <p>{_l('重启后再次检查binlog状态')}</p>
 
-      <h5>{_l('授权MySQL账户对应的权限')}</h5>
+      <h5 id="authId">{_l('授权MySQL账户对应的权限')}</h5>
       <div className="subTitle">{_l('1. 创建用户，也可以用已有用户')}</div>
       <div className="sqlText">
-        <div>{`mysql> CREATE USER 'mingdao'@'%' IDENTIFIED BY 'mingdaoyun';`}</div>
+        <div>{`mysql> CREATE USER '${_l('用户名')}'@'%' IDENTIFIED BY '${_l('密码')}';`}</div>
       </div>
       <p>{_l('如果已有账号可以直接进行赋权')}</p>
       <div className="subTitle">{_l('2. 赋权')}</div>
@@ -91,7 +102,7 @@ export default function MySQLGuide(props) {
         </a>
       </p>
 
-      <h5>{_l('将系统 IP 添加到 MySQL 服务器的访问白名单')}</h5>
+      <h5 id="communicationId">{_l('确保数据库可以与系统集成通信')}</h5>
       <div className="subTitle">{_l('1. 编辑MySQL服务器的配置文件')}</div>
       <div className="sqlText">
         <div>sudo nano /etc/mysql/mysql.conf.d/mysqld.cnf</div>
@@ -143,6 +154,14 @@ export default function MySQLGuide(props) {
           )}
         </div>
       </div>
+      <div>
+        {_l('创建连接过程出现SSL验证报错，可尝试在')}
+        <span className="bold mLeft5 mRight5">{_l('其他连接串参数')}</span>
+        {_l('增加如下配置')}
+      </div>
+      <div className="sqlText">
+        <div>useSSL=false</div>
+      </div>
     </div>
   ) : (
     <div className="guideContent">
@@ -150,7 +169,7 @@ export default function MySQLGuide(props) {
       <h5>{_l('先决条件')}</h5>
       <ul>
         <li>{_l('检查是否有对应数据库的全部权限')}</li>
-        <li>{_l('将系统 IP 添加到 MySQL 服务器的允许访问白名单')}</li>
+        <li>{_l('确保数据库可以与数据集成通信')}</li>
       </ul>
 
       <h5>{_l('给用户赋权')}</h5>

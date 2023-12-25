@@ -1,6 +1,4 @@
 import React, { Component } from 'react';
-import { Scatter } from '@antv/g2plot';
-import { uniq } from '@antv/util';
 import { Dropdown, Menu } from 'antd';
 import { formatYaxisList, formatrChartValue, formatControlInfo, formatrChartAxisValue, getLegendType, getChartColors, getStyleColor } from './common';
 import { formatSummaryName, isFormatNumber } from 'statistics/common';
@@ -90,7 +88,11 @@ export default class extends Component {
     this.ScatterChart = null;
   }
   componentDidMount() {
-    this.renderScatterChart(this.props);
+    Promise.all([import('@antv/g2plot'), import('@antv/util')]).then(data => {
+      this.g2plotComponent = data[0];
+      this.uniq = data[1].uniq;
+      this.renderScatterChart(this.props);
+    });
   }
   componentWillUnmount() {
     this.ScatterChart && this.ScatterChart.destroy();
@@ -124,6 +126,7 @@ export default class extends Component {
     const { reportData, isViewOriginalData } = props;
     const { displaySetup } = reportData;
     const config = this.getComponentConfig(props);
+    const { Scatter } = this.g2plotComponent;
     this.ScatterChart = new Scatter(this.chartEl, config);
     if (displaySetup.showRowList && isViewOriginalData) {
       this.ScatterChart.on('element:click', this.handleClick);
@@ -195,7 +198,7 @@ export default class extends Component {
     const yField = _.get(yaxisList[1], 'controlId');
     const sizeField = _.get(yaxisList[2], 'controlId');
     const base = {
-      appendPadding: [20, 20, 0, 0],
+      appendPadding: [20, 20, 5, 0],
       data,
       shapeField: 'originalId',
       xField,
@@ -213,7 +216,7 @@ export default class extends Component {
           return 'circle';
         } else {
           const shapes = ['circle', 'square', 'triangle', 'hexagon', 'diamond', 'bowtie'];
-          const idx = uniq(data.map((d) => d.originalId)).indexOf(originalId);
+          const idx = this.uniq(data.map((d) => d.originalId)).indexOf(originalId);
           return shapes[idx] || 'circle';
         }
       },
@@ -287,7 +290,10 @@ export default class extends Component {
         title: xdisplay.showTitle && xdisplay.title ? { text: xdisplay.title } : null,
         label: xdisplay.showDial ? {
           autoHide: true,
-          autoEllipsis: true
+          autoEllipsis: true,
+          formatter: (value) => {
+            return value ? formatrChartAxisValue(Number(value), false, yaxisList) : null;
+          }
         } : null,
         grid: {
           line: {

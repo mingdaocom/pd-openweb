@@ -16,7 +16,7 @@ const Wrap = styled.div`
   .header {
     height: 44px;
     padding: 0 24px;
-    box-shadow: 0px 1px 2px rgba(0,0,0,0.16);
+    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.16);
     justify-content: space-between;
     background-color: #fff;
     z-index: 1;
@@ -40,7 +40,7 @@ const Entry = props => {
           requestParams: { projectId: data.projectId },
         },
       );
-      setLoading(false)
+      setLoading(false);
     });
   }, []);
 
@@ -90,7 +90,7 @@ const Entry = props => {
       );
     }
     return <ShareState code={share.resultCode} />;
-  }
+  };
 
   if (share.resultCode === 1) {
     return (
@@ -99,7 +99,6 @@ const Entry = props => {
       </Provider>
     );
   }
-
 
   const { appName, customerPageName, appIcon, appIconColor } = share.data || {};
 
@@ -114,6 +113,6 @@ const Entry = props => {
       {renderContent()}
     </Wrap>
   );
-}
+};
 
 ReactDom.render(<Entry />, document.getElementById('app'));

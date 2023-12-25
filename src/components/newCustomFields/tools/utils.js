@@ -5,13 +5,16 @@ import { FROM, FORM_ERROR_TYPE, UN_TEXT_TYPE } from './config';
 import { isEnableScoreOption } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import { getStringBytes, accMul, browserIsMobile, formatStrZero } from 'src/util';
 import { getStrBytesLength } from 'src/pages/Role/PortalCon/tabCon/util-pure.js';
-import { getShowFormat, getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting';
+import { getShowFormat, getDatePickerConfigs, getTitleStyle } from 'src/pages/widgetConfig/util/setting';
 import { filterEmptyChildTableRows, getRelateRecordCountFromValue, isRelateRecordTableControl } from 'worksheet/util';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
+import { getSwitchItemNames, supportDisplayRow } from 'src/pages/widgetConfig/util';
 import _ from 'lodash';
 import moment from 'moment';
 import renderText from 'src/pages/worksheet/components/CellControls/renderText';
 import { WFSTATUS_OPTIONS } from 'src/pages/worksheet/components/WorksheetRecordLog/enum.js';
+import { TITLE_SIZE_OPTIONS } from 'src/pages/widgetConfig/config/setting';
+import { HAVE_VALUE_STYLE_WIDGET } from 'src/pages/widgetConfig/config/index.js';
 
 export const convertControl = type => {
   switch (type) {
@@ -114,22 +117,33 @@ export const convertControl = type => {
 
     case 43:
       return 'OCR'; // 文字识别
+
     case 45:
       return 'Embed'; // 嵌入
+
     case 46:
       return 'Time'; // 时间
+
     case 47:
       return 'BarCode'; // 嵌入
+
     case 48:
       return 'OrgRole'; // 组织角色
+
     case 49:
       return 'Search'; // api查询--按钮
+
     case 50:
       return 'Search'; // api查询--下拉框
+
     case 51:
       return 'RelationSearch'; // 查询记录
+
     case 52:
       return 'Section'; // 分段
+
+    default:
+      return 'CustomWidgets'; // 自定义组件
   }
 };
 
@@ -139,8 +153,7 @@ const Reg = {
   // 邮箱地址
   emailAddress: /^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)*\.[\w-]+$/i,
   // 身份证号码
-  idCardNumber:
-    /(^\d{8}(0\d|10|11|12)([0-2]\d|30|31)\d{3}$)|(^\d{6}(18|19|20)\d{2}(0\d|10|11|12)([0-2]\d|30|31)\d{3}(\d|X|x)$)/,
+  idCardNumber: /(^\d{8}(0\d|10|11|12)([0-2]\d|30|31)\d{3}$)|(^\d{6}(18|19|20)\d{2}(0\d|10|11|12)([0-2]\d|30|31)\d{3}(\d|X|x)$)/,
   // 护照
   passportNumber: /^[a-zA-Z0-9]{5,17}$/,
   // 港澳通行证
@@ -304,7 +317,10 @@ export function formatControlToServer(
       ) {
         let deletedIds = [];
         try {
-          deletedIds = control.value.replace('deleteRowIds: ', '').split(',').filter(_.identity);
+          deletedIds = control.value
+            .replace('deleteRowIds: ', '')
+            .split(',')
+            .filter(_.identity);
         } catch (err) {
           result.value = undefined;
         }
@@ -381,17 +397,6 @@ export function formatControlToServer(
             );
           } catch (err) {}
         }
-      }
-      break;
-    case 42: // 签名（草稿箱新增编辑传参同新建记录传参）
-      if (isDraft) {
-        let val = control.value && JSON.parse(JSON.stringify(control.value));
-        result.value = _.isObject(val)
-          ? result.value
-          : JSON.stringify({
-              bucket: 4,
-              key: val.match(/Sign\/[0-9a-z-]+\/[0-9a-z]+\/\d+\/[0-9a-zA-Z]+(.png)/g)[0],
-            });
       }
       break;
   }
@@ -597,6 +602,7 @@ export const getCurrentValue = (item, data, control) => {
   switch (control.type) {
     //当前控件文本
     case 2:
+    case 41:
       if (_.includes([6, 31, 37], item.type) && item.advancedSetting && item.advancedSetting.numshow === '1' && data) {
         data = accMul(parseFloat(data), 100);
       }
@@ -686,6 +692,31 @@ export const getCurrentValue = (item, data, control) => {
           const dot = item.dot || 0;
           const val = Number(data || 0).toFixed(dot);
           return _.get(item, 'advancedSetting.dotformat') === '1' ? formatStrZero(val) : val;
+        // 级联
+        case 35:
+          return safeParse(data || '[]', 'array')
+            .map(item => item.name)
+            .join();
+        // 检查框
+        case 36:
+          if (_.includes(['1', '2'], item.advancedSetting.showtype)) {
+            const itemnames = getSwitchItemNames(item, { needDefault: true });
+            return (
+              _.get(
+                _.find(itemnames, i => i.key === data),
+                'value',
+              ) || ''
+            );
+          }
+          return data === '1' ? 'true' : 'false';
+        // 定位
+        case 40:
+          const locationData = safeParse(data || '{}');
+          return _.isEmpty(locationData)
+            ? ''
+            : locationData.title || locationData.address
+            ? [locationData.title, locationData.address].filter(o => o).join(' ')
+            : `${_l('经度：%0', locationData.x)} ${_l('纬度：%0', locationData.y)}`;
         case 46:
           return data ? moment(data, 'HH:mm:ss').format(item.unit === '6' ? 'HH:mm:ss' : 'HH:mm') : '';
         default:
@@ -988,6 +1019,75 @@ export const getControlsByTab = (controls = []) => {
   tabData = tabData.filter(v => v.type === 52).concat(tabData.filter(v => v.type !== 52));
 
   return { commonData, tabData };
+};
+
+export const getValueStyle = data => {
+  const item = Object.assign({}, data);
+  let type = item.type;
+  let { valuecolor = '#333', valuesize = '0', valuestyle = '0000' } = item.advancedSetting || {};
+  if (item.type === 30) {
+    valuecolor = _.get(item, 'sourceControl.advancedSetting.valuecolor') || '#333';
+    valuesize = _.get(item, 'sourceControl.advancedSetting.valuesize') || '0';
+    valuestyle = _.get(item, 'sourceControl.advancedSetting.valuestyle') || '0000';
+    type = _.get(item, 'sourceControl.type');
+  }
+  return _.includes(HAVE_VALUE_STYLE_WIDGET, type)
+    ? {
+        type,
+        isTextArea: item.type === 2 && item.enumDefault === 1,
+        height: valuesize !== '0' ? (parseInt(valuesize) - 1) * 2 + 40 : 36,
+        size: TITLE_SIZE_OPTIONS[valuesize],
+        valueStyle: item.value ? `color: ${valuecolor};${getTitleStyle(valuestyle)}` : '',
+      }
+    : { type };
+};
+
+// 部门控件渲染数据处理，后期可能有组织角色
+export const dealRenderValue = (value, advancedSetting = {}) => {
+  const { showdelete, allpath } = advancedSetting;
+  const tempValue = _.isArray(value) ? value : safeParse(value || '[]');
+  let deleteCount = 0;
+  const result = [];
+
+  tempValue.map(item => {
+    if (item.isDelete) {
+      deleteCount += 1;
+    } else {
+      const pathValue = (allpath === '1'
+        ? (item.departmentPath || []).sort((a, b) => b.depth - a.depth).map(i => i.departmentName)
+        : []
+      ).concat([item.departmentName]);
+
+      result.push({
+        ...item,
+        departmentName: pathValue.join('  /  '),
+      });
+    }
+  });
+
+  if (showdelete === '1' && !!deleteCount) {
+    result.push({
+      departmentId: '',
+      departmentName: _l('已删除'),
+      isDelete: true,
+      deleteCount,
+    });
+  }
+  return result;
+};
+
+// 标题隐藏按横向排列
+export const getHideTitleStyle = (item = {}, data = []) => {
+  const rowWidgets = data.filter(i => i.row === item.row);
+
+  return rowWidgets.every(
+    row =>
+      _.get(row, 'advancedSetting.hidetitle') === '1' &&
+      supportDisplayRow(row) &&
+      (_.includes([10010], row.type) ? !row.controlName : true),
+  )
+    ? { displayRow: true, titlewidth_pc: '0' }
+    : {};
 };
 
 export const getArrBySpliceType = (filters = []) => {

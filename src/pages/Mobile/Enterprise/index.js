@@ -222,14 +222,14 @@ class Enterprise extends Component {
             <button
               type="button"
               className="joinNetwork ThemeBGColor3 ThemeHoverBGColor2 mRight20"
-              onClick={() => window.open('/enterpriseRegister.htm?type=add', '__blank')}
+              onClick={() => window.open('/enterpriseRegister?type=add', '__blank')}
             >
               {_l('加入组织')}
             </button>
             {/*<button
               type="button"
               className="createNetwork ThemeBGColor3 ThemeBorderColor3 ThemeColor3"
-              onClick={() => window.open('/enterpriseRegister.htm?type=create', '__blank')}
+              onClick={() => window.open('/enterpriseRegister?type=create', '__blank')}
             >
               {_l('创建组织')}
             </button>*/}

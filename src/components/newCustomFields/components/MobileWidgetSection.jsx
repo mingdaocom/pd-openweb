@@ -13,7 +13,7 @@ import _ from 'lodash';
 const TabCon = styled.div`
   height: 44px;
   &.fixedTabs {
-    z-index: 2;
+    z-index: 3;
     &.top {
       top: 49px;
     }
@@ -30,7 +30,7 @@ const TabCon = styled.div`
     font-weight: 500;
     width: auto !important;
     border-bottom: none !important;
-    padding: 0 16px !important;
+    padding: 0 12px !important;
     position: relative;
     .tabName {
       max-width: 100px;
@@ -40,7 +40,7 @@ const TabCon = styled.div`
       content: none !important;
     }
     &:first-child {
-      margin-left: 4px;
+      margin-left: 8px;
     }
   }
   .am-tabs-default-bar-tab-active .tabName {
@@ -76,7 +76,7 @@ const IconCon = styled.span`
 `;
 
 const handleTabControls = (props, { otherTabs = [], activeRelationTab = {} }) => {
-  const { tabControls = [], recordId, disabled, mobileApprovalRecordInfo, from } = props;
+  const { tabControls = [] } = props;
   let copyTabControls = _.clone(tabControls).filter(v => v);
   let index = copyTabControls.findIndex(({ controlId }) => controlId === activeRelationTab.controlId);
   if (index > -1) {
@@ -124,7 +124,6 @@ export default function MobileWidgetSection(props) {
     setActiveTabControlId = () => {},
     renderForm = () => {},
     onChange = () => {},
-    mobileApprovalRecordInfo,
     data = [],
   } = props;
   const { otherTabs = [], changeMobileTab = () => {}, activeRelationTab } = tabControlProp;
@@ -136,12 +135,13 @@ export default function MobileWidgetSection(props) {
 
   useEffect(() => {
     setActiveTabControlId(_.get(tabControls[0], 'controlId'));
+    changeMobileTab(_.get(tabControls[0], 'controlId'));
   }, [flag]);
 
   useEffect(() => {
     const temp = props.tabControls.map(v => {
       if (v.type === 29 && !_.isEmpty(tabControls)) {
-        return _.find(tabControls, t => t.controlId === v.controlId);
+        return _.find(tabControls, t => t.controlId === v.controlId) || v;
       }
       return v;
     });
@@ -158,9 +158,7 @@ export default function MobileWidgetSection(props) {
         animated={false}
         swipeable={false}
         page={index}
-        tabs={tabControls.filter(item =>
-          recordId && !disabled && !mobileApprovalRecordInfo ? !_.includes([29, 51], item.type) : true,
-        )}
+        tabs={tabControls}
         activeTab={activeTabControlId}
         renderTab={tab => {
           return (
@@ -170,7 +168,11 @@ export default function MobileWidgetSection(props) {
                 <TabIcon control={tab} widgetStyle={widgetStyle} activeTabControlId={activeTabControlId} />
                 {tab.controlName}
               </span>
-              {tab.type === 29 && tab.value && _.includes([FROM.H5_EDIT], from) ? <span>{`(${tab.value})`}</span> : ''}
+              {tab.type === 29 && tab.value && _.includes([FROM.H5_EDIT, FROM.RECORDINFO], from) && disabled ? (
+                <span>{`(${tab.value})`}</span>
+              ) : (
+                ''
+              )}
             </Fragment>
           );
         }}
@@ -208,9 +210,9 @@ export default function MobileWidgetSection(props) {
             </div>
           )}
           <div
-            className={cx('customFieldsContainer mobileContainer', {
-              wxContainer: _.includes([FROM.H5_ADD, FROM.H5_EDIT], from) && !disabled,
-              pTop0: _.includes([FROM.H5_ADD, FROM.H5_EDIT], from),
+            className={cx('customFieldsContainer mobileContainer pBottom20', {
+              wxContainer: _.includes([FROM.H5_ADD, FROM.H5_EDIT, FROM.RECORDINFO], from) && !disabled,
+              pTop0: _.includes([FROM.H5_ADD, FROM.H5_EDIT, FROM.RECORDINFO], from),
               mTop8: disabled,
             })}
           >
@@ -221,7 +223,7 @@ export default function MobileWidgetSection(props) {
     }
 
     // 列表多条、查询记录 呈现态
-    if ((recordId && disabled) || mobileApprovalRecordInfo) {
+    if (recordId && disabled) {
       return (
         <div className="flexColumn h100">
           <RelationList
@@ -232,19 +234,23 @@ export default function MobileWidgetSection(props) {
             controlId={activeControl.controlId}
             control={activeControl}
             getType={from}
+            data={data}
           />
         </div>
       );
     }
 
     // 列表多条 新增
-    if (activeControl.type === 29 && !recordId) {
+    if (activeControl.type === 29) {
+      const initC = _.find(props.tabControls, v => v.controlId === activeControl.controlId);
+      const c = { ...activeControl, disabled: initC.disabled, value: initC.value };
+
       return (
-        <div className="mTop20">
+        <div className="mTop10">
           <RelateRecord
-            {...activeControl}
-            viewId={viewId}
+            {...c}
             worksheetId={worksheetId}
+            appId={appId}
             from={from}
             flag={flag}
             recordId={recordId}
@@ -257,18 +263,26 @@ export default function MobileWidgetSection(props) {
     }
 
     // 查询记录列表 新增
-    if (activeControl.type === 51 && !recordId) {
+    if (activeControl.type === 51) {
       return (
-        <RelationSearch
-          {...activeControl}
-          viewId={viewId}
-          worksheetId={worksheetId}
-          from={from}
-          flag={flag}
-          recordId={recordId}
-          widgetStyle={widgetStyle}
-          formData={data}
-        />
+        <div
+          className={cx({
+            'pLeft10 pRight10 pTop5': !_.includes([FROM.H5_ADD], from),
+          })}
+          style={{ margin: '0 -10px' }}
+        >
+          <RelationSearch
+            {...activeControl}
+            viewId={viewId}
+            worksheetId={worksheetId}
+            appId={appId}
+            from={from}
+            flag={flag}
+            recordId={recordId}
+            widgetStyle={widgetStyle}
+            formData={data}
+          />
+        </div>
       );
     }
 
@@ -278,7 +292,9 @@ export default function MobileWidgetSection(props) {
   return (
     <Fragment>
       <TabCon className={cx(`tabsWrapper`, { addStyle: _.includes([FROM.H5_ADD], from) })}>{TabsContent}</TabCon>
-      <TabCon className={cx(`fixedTabs Fixed w100 hide top`, { addStyle: _.includes([FROM.H5_ADD], from) })}>
+      <TabCon
+        className={cx(`fixedTabs Fixed w100 hide top`, { addStyle: _.includes([FROM.H5_ADD], from), hide: !disabled })}
+      >
         {TabsContent}
       </TabCon>
       {renderContent()}

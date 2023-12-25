@@ -15,6 +15,7 @@ import { Dialog } from 'ming-ui';
 import 'src/pages/integration/dataIntegration/connector/style.less';
 import PublishSetDialog from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/components/PublishSetDialog';
 import { DATABASE_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
+import dataSourceApi from 'src/pages/integration/api/datasource.js';
 
 const Wrap = styled.div`
   height: 100%;
@@ -123,17 +124,50 @@ class Task extends Component {
         });
       }
       this.setProJectInfo(flowData.projectId);
-      this.setState({
-        flowData,
-        flowId: flowId,
-        loading: false,
-        taskId: flowData.taskId || '',
-        jobId: flowData.jobId || '',
-        currentProjectId: flowData.projectId,
-        isUpdate: res.taskStatus === 'ERROR' || res.status === 'EDITING', //PUBLISHED：已发布
+      this.getDatasourcesList(flowData, flowData.projectId, datasources => {
+        this.setState({
+          flowData: { ...flowData, datasources },
+          flowId: flowId,
+          loading: false,
+          taskId: flowData.taskId || '',
+          jobId: flowData.jobId || '',
+          currentProjectId: flowData.projectId,
+          isUpdate: res.taskStatus === 'ERROR' || res.status === 'EDITING', //PUBLISHED：已发布
+          isNew: ['UN_PUBLIC'].includes(res.taskStatus),
+          //    * 未发布
+          //   'UN_PUBLIC',
+          //   //  * 运行中
+          //   // 'RUNNING',
+          //   //  * 停止
+          //   // 'STOP',
+          //   //  * 异常
+          //   // 'ERROR',
+          //    * 创建中
+          //   // 'CREATING',
+        });
       });
     });
   };
+  //获取当前画布所有的数据源信息
+  getDatasourcesList = (flowData, projectId, cb) => {
+    const nodes =
+      _.values(flowData.flowNodes).filter(
+        o =>
+          ['DEST_TABLE', 'SOURCE_TABLE'].includes(_.get(o, 'nodeType')) &&
+          _.get(o, 'nodeConfig.config.dsType') !== DATABASE_TYPE.APPLICATION_WORKSHEET,
+      ) || {};
+    dataSourceApi
+      .getDatasources({
+        projectId,
+        datasourceIds: nodes.map(
+          o => _.get(o, 'nodeConfig.config.datasourceId') || _.get(o, 'nodeConfig.config.dataDestId'),
+        ),
+      })
+      .then(datasources => {
+        cb(datasources);
+      });
+  };
+
   //修改同步任务属性(name)
   updateSyncTask = taskName => {
     const { currentProjectId: projectId } = this.state;

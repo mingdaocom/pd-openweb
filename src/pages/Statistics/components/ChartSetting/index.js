@@ -451,7 +451,7 @@ export default class ChartSetting extends Component {
   }
   renderTargetValueAxis() {
     const { currentReport, axisControls, worksheetInfo, changeCurrentReport } = this.props;
-    const { yaxisList, config, formulas = [] } = currentReport;
+    const { yaxisList, config = {}, formulas = [] } = currentReport;
     const targetList = config.targetList || [];
     return (
       <div className="fieldWrapper targetValueAxis mBottom20">

@@ -36,7 +36,6 @@ function Location(props, ref) {
           }
           updateEditingStatus(true);
           e.stopPropagation();
-          e.preventDefault();
           break;
       }
     },
@@ -62,7 +61,7 @@ function Location(props, ref) {
           <MDMap
             isMobile={browserIsMobile()}
             distance={enumDefault2 ? parseInt(advancedSetting.distance, 10) : 0}
-            defaultAddress={locationData ? { lng: locationData.x, lat: locationData.y } : null}
+            defaultAddress={locationData || null}
             onAddressChange={({ lng, lat, address, name }) => {
               updateCell({
                 value: JSON.stringify({ x: lng, y: lat, address, title: name }),

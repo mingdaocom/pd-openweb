@@ -216,3 +216,9 @@ export const sysRoleList = [
     },
   },
 ];
+
+export const ICON_ROLE_TYPE = {
+  100: 'manage_accounts', // 管理员
+  2: 'account_box', // 运营者
+  1: 'construction', // 开发者
+};

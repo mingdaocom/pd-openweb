@@ -212,6 +212,9 @@ export function checkConditionAvailable(condition) {
     isDynamicsource = false,
   } = condition;
   if (dynamicSource.length > 0 && isDynamicsource) {
+    if (_.get(dynamicSource[0], 'rcid') === 'url' && !_.get(dynamicSource[0], 'cid')) {
+      return false;
+    }
     return true;
   }
   if (

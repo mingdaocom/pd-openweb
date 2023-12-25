@@ -213,8 +213,8 @@
   width: 32px;
   height: 32px;
   margin: 2px 0 0 2px;
-
   vertical-align: bottom;
+  line-height: normal;
 }
 
 .groupSettingContent .groupInfoList .groupTextBox {
@@ -380,6 +380,10 @@
   overflow-y: auto;
 
   height: 270px;
+}
+
+.groupSettingContent .groupUserList .userHead {
+  line-height: normal;
 }
 
 .groupSettingContent .groupUserList.auth .roleName:last-child {

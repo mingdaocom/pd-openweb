@@ -40,9 +40,9 @@ export default ({
         <div key={index} className="flexRow alignItemsCenter Height36 mTop10">
           <div
             className="Width190 mRight10 ellipsis bold"
-            title={`${formulaMap[nodeId].name}${controlId ? `.${formulaMap[controlId].name}` : ''}`}
+            title={`${formulaMap[nodeId].name}${controlId ? `.${formulaMap[`${nodeId}-${controlId}`].name}` : ''}`}
           >
-            {`${formulaMap[nodeId].name}${controlId ? `.${formulaMap[controlId].name}` : ''}`}
+            {`${formulaMap[nodeId].name}${controlId ? `.${formulaMap[`${nodeId}-${controlId}`].name}` : ''}`}
           </div>
           {!isFile ? (
             <Input
@@ -119,7 +119,7 @@ export default ({
         new RegExp(key.replace(/\$/g, '\\$'), 'g'),
         cacheTestMap[key]
           ? `#{<span style="background: #ffa340">${cacheTestMap[key]}</span>}`
-          : `#{${formulaMap[nodeId].name}-${formulaMap[controlId].name}}`,
+          : `#{${formulaMap[nodeId].name}-${formulaMap[`${nodeId}-${controlId}`].name}}`,
       );
     });
 

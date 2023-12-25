@@ -1,7 +1,7 @@
 import React, { createRef, useState, useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import styled from 'styled-components';
-import { Icon, Dropdown, Checkbox, Tooltip } from 'ming-ui';
+import { Icon, Dropdown, Checkbox, Tooltip, Input } from 'ming-ui';
 import cx from 'classnames';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { canNavGroup, getSetDefault, getSetHtmlData } from './util';
@@ -12,10 +12,34 @@ import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
 import { updateViewAdvancedSetting } from 'src/pages/worksheet/common/ViewConfig/util';
 import NavShow from './NavShow';
 import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
-
 import _ from 'lodash';
+import { MaxNavW, MinNavW, defaultNavOpenW } from 'src/pages/worksheet/common/ViewConfig/config.js';
+
 const Wrap = styled.div`
   .hasData {
+    .navWidth {
+      input[type='number'] {
+        &::-webkit-outer-spin-button,
+        &::-webkit-inner-spin-button {
+          margin: 0;
+          -webkit-appearance: none !important;
+        }
+      }
+      .unit {
+        right: 12px;
+        line-height: 34px;
+      }
+      .ming.Input {
+        font-size: 13px;
+        border: 1px solid #ddd;
+        &:hover {
+          border-color: #bbb;
+        }
+        &:focus {
+          border-color: #2196f3;
+        }
+      }
+    }
     .cancle {
       color: #9e9e9e;
       cursor: pointer;
@@ -213,9 +237,10 @@ export default function NavGroup(params) {
   let [showAddCondition, setShowAddCondition] = useState();
   const [relateSheetInfo, setRelateSheetInfo] = useState([]);
   const [relateControls, setRelateControls] = useState([]);
-  const [{ navshow, navfilters }, setState] = useSetState({
+  const [{ navshow, navfilters, navwidth }, setState] = useSetState({
     navshow: 0,
     navfilters: '[]',
+    navwidth: defaultNavOpenW,
   });
   useEffect(() => {
     const { advancedSetting = {} } = view;
@@ -223,6 +248,7 @@ export default function NavGroup(params) {
     setState({
       navshow: advancedSetting.navshow,
       navfilters: advancedSetting.navfilters || '[]',
+      navwidth: advancedSetting.navwidth || defaultNavOpenW,
     });
   }, [view]);
   useEffect(() => {
@@ -259,7 +285,9 @@ export default function NavGroup(params) {
   };
   const addNavGroups = data => {
     const d = getSetDefault(data);
-    let info = {};
+    let info = {
+      shownullitem: '1', //默认新增显示空
+    };
     if ([35].includes(data.type)) {
       info = {
         showallitem: '',
@@ -298,9 +326,6 @@ export default function NavGroup(params) {
         editAttrs: ['advancedSetting'],
       }),
     );
-  };
-  const updateViewSetUsenav = data => {
-    updateAdvancedSetting({ usenav: data });
   };
   const renderAdd = ({ width, comp }) => {
     return (
@@ -425,6 +450,13 @@ export default function NavGroup(params) {
     });
   };
 
+  const updateWidth = e => {
+    let value = e.target.value.trim();
+    localStorage.removeItem(`navGroupWidth_${view.viewId}`);
+    updateAdvancedSetting({ navwidth: value < MinNavW ? MinNavW : value > MaxNavW ? MaxNavW : value });
+    e.stopPropagation();
+  };
+
   return (
     <Wrap>
       {!!_.get(navGroup, ['controlId']) ? (
@@ -483,6 +515,29 @@ export default function NavGroup(params) {
               })}
               {filterData && !filterData.isErr && renderDrop(filterData)}
             </div>
+            <div className="title mTop30 Gray Bold">{_l('默认宽度')}</div>
+            <div className="Relative navWidth mTop8">
+              <Input
+                type="number"
+                className="flex placeholderColor w100 pRight30"
+                value={navwidth}
+                placeholder={_l('请输入')}
+                onChange={navwidth => {
+                  setState({
+                    navwidth,
+                  });
+                }}
+                onKeyDown={e => {
+                  if (e.keyCode === 13) {
+                    updateWidth(e);
+                  }
+                }}
+                onBlur={e => {
+                  updateWidth(e);
+                }}
+              />
+              <span className="Absolute unit Gray_9e">px</span>
+            </div>
           </React.Fragment>
           <h6 className="mTop30 Font13 Bold">{_l('设置')}</h6>
           <div className="mTop13">
@@ -491,7 +546,7 @@ export default function NavGroup(params) {
               text={_l('创建记录时，以选中列表作为默认值')}
               checked={usenav + '' === '1'}
               onClick={() => {
-                updateViewSetUsenav(usenav + '' === '1' ? '0' : '1');
+                updateAdvancedSetting({ usenav: usenav + '' === '1' ? '0' : '1' });
               }}
             />
             <Tooltip

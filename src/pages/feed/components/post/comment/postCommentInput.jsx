@@ -309,8 +309,6 @@ const PostCommentInput = createReactClass({
     return (
       <ClickAway onClickAway={this.componentClickAway}>
         <div className="postCommentBox">
-          {/* this.state.isEditing && <UserHead size={28} className="commentBoxUserHead" user={md.global.User} />*/}
-
           <div
             className={cx('replyFrame', { replyFrameFocus: this.state.isEditing })}
             ref={replyFrame => {

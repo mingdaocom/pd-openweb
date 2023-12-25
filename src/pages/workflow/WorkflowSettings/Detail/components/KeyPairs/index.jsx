@@ -89,7 +89,7 @@ export default ({
       .split(/([a-zA-Z0-9#]{24,32})-/)
       .filter(item => item);
     const nodeObj = formulaMap[ids[0]] || {};
-    const controlObj = formulaMap[ids[1]] || {};
+    const controlObj = formulaMap[ids.join('-')] || {};
 
     return (
       <div className="actionControlBox flex ThemeBorderColor3 clearBorderRadius ellipsis actionCustomBox">
@@ -130,7 +130,7 @@ export default ({
             actionId: obj.actionId,
             name: obj.nodeName,
           };
-          newFormulaMap[obj.fieldValueId] = {
+          newFormulaMap[`${obj.nodeId}-${obj.fieldValueId}`] = {
             type: obj.fieldValueType,
             name: obj.fieldValueName,
             sourceType: obj.sourceType,

@@ -228,6 +228,11 @@ class FillRecordControls extends React.Component {
         ..._.pick(this.props, ['appId', 'projectId', 'worksheetId', 'viewId', 'recordId']),
       },
       this.customwidget.current,
+      err => {
+        if (err) {
+          this.setState({ isSubmitting: false, submitLoading: false });
+        }
+      },
     );
   };
   render() {

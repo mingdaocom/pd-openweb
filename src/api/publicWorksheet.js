@@ -152,6 +152,7 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.shareId 对外分享标识
   * @param {string} args.password 密码
+  * @param {string} args.printId 打印模板id
   * @param {string} args.clientId 客户端标识
 记录输入密码之后，页面刷新不用重复输入密码操作
 滑动过期
@@ -257,6 +258,7 @@ export default {
   * @param {string} args.linkId 填写链接id
   * @param {string} args.reportId 统计图ID
   * @param {boolean} args.notGetTotal 不获取总记录数
+  * @param {object} args.requestParams 请求参数
   * @param {string} args.clientId 客户端标识
 记录输入密码之后，页面刷新不用重复输入密码操作
 滑动过期
@@ -303,6 +305,7 @@ export default {
   * @param {string} args.linkId 填写链接id
   * @param {string} args.reportId 统计图ID
   * @param {boolean} args.notGetTotal 不获取总记录数
+  * @param {object} args.requestParams 请求参数
   * @param {string} args.clientId 客户端标识
 记录输入密码之后，页面刷新不用重复输入密码操作
 滑动过期
@@ -349,6 +352,7 @@ export default {
   * @param {string} args.linkId 填写链接id
   * @param {string} args.reportId 统计图ID
   * @param {boolean} args.notGetTotal 不获取总记录数
+  * @param {object} args.requestParams 请求参数
   * @param {string} args.clientId 客户端标识
 记录输入密码之后，页面刷新不用重复输入密码操作
 滑动过期
@@ -493,6 +497,7 @@ export default {
   * @param {string} args.linkId 填写链接id
   * @param {string} args.reportId 统计图ID
   * @param {boolean} args.notGetTotal 不获取总记录数
+  * @param {object} args.requestParams 请求参数
   * @param {string} args.clientId 客户端标识
 记录输入密码之后，页面刷新不用重复输入密码操作
 滑动过期

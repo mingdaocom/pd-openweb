@@ -25,6 +25,9 @@ const WidgetContent = styled.div`
     justify-content: center;
     background-color: transparent;
   }
+  &.mobileButton {
+    padding: 8px 6px !important;
+  }
   img {
     max-width: 100%;
   }
@@ -36,8 +39,9 @@ const WidgetContent = styled.div`
 const fistLetterUpper = str => str.charAt(0).toUpperCase() + str.slice(1);
 
 function WidgetDisplay(props) {
-  const { ids, widget, apk, pageComponents, pageConfig, themeColor, componentType } = props;
+  const { ids, widget, apk, pageComponents, pageConfig, themeColor, componentType,  } = props;
   const { type, value, name, button, param = [], config = {} } = widget;
+
   const renderContent = () => {
     if (componentType === 'embedUrl') return <PreviewContent value={value} param={param} config={config} />;
     if (componentType === 'richText')

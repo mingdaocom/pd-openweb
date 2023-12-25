@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, Fragment } from 'react';
 import styled from 'styled-components';
 import { Tooltip } from 'ming-ui';
-import UserHead from 'src/pages/feed/components/userHead';
+import UserHead from 'src/components/userHead';
 import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import _ from 'lodash';
 
@@ -110,18 +110,18 @@ export const SearchUsers = styled.div`
 `;
 
 export function UserItem(props) {
-  const { className, notShowCurrentUserName, user = {}, type, onClick } = props;
+  const { className, notShowCurrentUserName, user = {}, type, onClick, appId } = props;
   const { accountId, phone, fullname, job, department } = user;
+
   return (
     <UserItemCon className={'flexRow userItem ' + className} onClick={onClick}>
       <UserHead
         className="userHead"
-        bindBusinessCard={accountId && (accountId.length === 36 || accountId.length === 26)}
         user={{
           userHead: user.avatarSmall || user.avatar,
           accountId: accountId,
         }}
-        lazy={'false'}
+        appId={appId}
         size={28}
       />
       <div className="flex flexColumn text">
@@ -158,6 +158,7 @@ export function UserList(props) {
     limitNum = 2,
     onSelect,
     onShowMore = () => {},
+    appId,
   } = props;
   const [isShowMore, setIsShowMore] = useState(false);
   return (
@@ -170,6 +171,7 @@ export function UserList(props) {
             user={user}
             type={type}
             key={i}
+            appId={appId}
             onClick={() => onSelect(user)}
           />
         ))}

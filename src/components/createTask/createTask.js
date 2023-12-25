@@ -5,7 +5,6 @@ import createShare from 'src/components/createShare/createShare';
 import Store from 'redux/configureStore';
 import { addTask } from 'src/pages/task/redux/actions';
 import { formatTaskTime } from 'src/pages/task/utils/utils';
-import 'src/components/mdBusinessCard/mdBusinessCard';
 import './css/createTask.css';
 import ajaxRequest from 'src/api/taskCenter';
 import calendarAjaxRequest from 'src/api/calendar';
@@ -21,6 +20,7 @@ import 'src/components/autoTextarea/autoTextarea';
 import '@mdfe/jquery-plupload';
 import moment from 'moment';
 import { DateTimeRange } from 'ming-ui/components/NewDateTimePicker';
+import UserCard from 'src/components/UserCard';
 
 var CreateTask = function (opts) {
   var _this = this;
@@ -153,23 +153,7 @@ $.extend(CreateTask.prototype, {
     var settings = _this.settings;
 
     // 用户头衔层
-    $('#' + settings.frameid).on('mouseover', '#taskUserBox,.imgMemberBox', function () {
-      var $this = $(this);
-      if ($this.data('bind')) {
-        return;
-      }
-      $this.mdBusinessCard({
-        accountId: $this.attr('data-id').replace(/@|\+/gi, ''),
-        noRequestData: $this.attr('data-id').indexOf('MD_SpecialAccounts') >= 0,
-        data: {
-          avatar: $this.find('.imgWidth').attr('src'),
-          status: 3,
-          accountId: $this.attr('data-id').replace(/@|\+/gi, ''),
-          userName: $this.attr('data-id').split('MD_SpecialAccounts')[0],
-        },
-      });
-      $this.data('bind', true).mouseenter();
-    });
+    _this.updateUserCard();
 
     // 所属网络事件初始化
     _this.networkInit();
@@ -269,6 +253,38 @@ $.extend(CreateTask.prototype, {
         $('.linkageFolder').addClass('Hidden');
       }
     });
+  },
+
+  //更新userHead
+  updateUserCard: function (user) {
+    var settings = this.settings;
+    $('#' + settings.frameid)
+      .find('#taskUserBox,.imgMemberBox')
+      .each((i, ele) => {
+        var $this = $(ele);
+        var accountId = $this.attr('data-id').replace(/@|\+/gi, '');
+        if ($this.data('bind')) {
+          return;
+        }
+        var type = $this.attr('id') === 'taskUserBox' ? 1 : 2;
+        var avatar = user && user.accountId === accountId ? user.avatar : $this.find('.imgWidth').attr('src');
+        var ext = {};
+        if (type === 2) ext['data-id'] = accountId;
+        ReactDom.render(
+          <UserCard sourceId={accountId} disabled={accountId==='user-undefined'}>
+            <span>
+              {type === 2 && (
+                <span className="removeTaskMember circle">
+                  <i className="icon-delete Icon"></i>
+                </span>
+              )}
+              <img src={avatar} className={`imgWidth ${type === 2 ? 'createTaskMember circle' : ''}`} {...ext} />
+            </span>
+          </UserCard>,
+          ele,
+        );
+        $this.data('bind', true);
+      });
   },
 
   // 所属网络事件初始化
@@ -446,6 +462,7 @@ $.extend(CreateTask.prototype, {
   // 更改任务负责人事件初始化
   updateChargeInit: function () {
     var settings = this.settings;
+    var _that = this;
     $('#taskUpdateCharge').on({
       click: function () {
         var _this = $(this);
@@ -468,7 +485,7 @@ $.extend(CreateTask.prototype, {
           $('.createTaskAddMemberBox .createTaskMember').each(function () {
             var $this = $(this);
             if ($this.attr('data-id') === uid) {
-              $this.parent().remove();
+              $this.parents('.imgMemberBox').remove();
             }
           });
 
@@ -482,6 +499,8 @@ $.extend(CreateTask.prototype, {
             // 原负责人改为成员
             $('.createTaskAddMember').before(member);
           }
+
+          _that.updateUserCard(users[0]);
         };
 
         quickSelectUser(_this[0], {
@@ -521,6 +540,7 @@ $.extend(CreateTask.prototype, {
     var memberArr = settings.MemberArray;
     var has;
     var i;
+    var _that = this;
     var newMemberCheckFun = function (index, item) {
       if (item.accountId === memberArr[i].accountId) {
         has = true;
@@ -564,7 +584,8 @@ $.extend(CreateTask.prototype, {
 
     // hover移除成员
     $('#taskMembersBox').on('click', '.imgMemberBox .removeTaskMember', function () {
-      $(this).parent().remove();
+      var accountId = $(this).parents('.imgMemberBox').attr('data-id');
+      $(this).parents('.imgMemberBox').remove();
     });
 
     // 添加任务成员
@@ -616,6 +637,7 @@ $.extend(CreateTask.prototype, {
           }
 
           $('.createTaskAddMember').before(memberList);
+          _that.updateUserCard(users[0]);
         };
 
         quickSelectUser(_this[0], {

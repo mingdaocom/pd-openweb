@@ -53,7 +53,7 @@ export default class Write extends Component {
             className={cx(
               'workflowItem',
               { workflowItemDisabled: disabled },
-              { errorShadow: item.selectNodeId && item.isException },
+              { errorShadow: (item.selectNodeId || item.webhookUrl) && item.isException },
               { active: selectNodeId === item.id },
             )}
             onMouseDown={() => !disabled && openDetail(processId, item.id, item.typeId)}

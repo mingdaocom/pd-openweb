@@ -167,16 +167,18 @@ export const VIEW_DISPLAY_TYPE = enumType({
   2: 'structure',
   5: 'gunter',
   6: 'detail',
+  21: 'customize',
 });
 
 export const VIEW_TYPE_ICON = [
   { icon: 'view', color: '#ffa515', text: _l('表格%05017'), id: 'sheet' },
   { icon: 'kanban', color: '#4CAF50', text: _l('看板%05016'), id: 'board' },
-  { icon: 'reader', color: '#2196f3', text: _l('详情'), id: 'detail', isNew: true },
+  { icon: 'reader', color: '#2196f3', text: _l('详情'), id: 'detail' },
   { icon: 'event', color: '#F64082', text: _l('日历%05015'), id: 'calendar' },
   { icon: 'gallery_view', color: '#3949ab', text: _l('画廊%05014'), id: 'gallery' },
   { icon: 'hierarchy', color: '#9C27AF', text: _l('层级%05013'), id: 'structure' },
   { icon: 'gantt', color: '#01BCD5', text: _l('甘特图%05012'), id: 'gunter' },
+  { icon: 'puzzle', color: '#757575', text: _l('插件'), id: 'customize' }
 ];
 
 export const WORKSHEET_VIEW_PAGE_SIZE = {

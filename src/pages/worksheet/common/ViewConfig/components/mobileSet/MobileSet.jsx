@@ -79,7 +79,7 @@ export default class MobileSet extends React.Component {
           {/* 显示字段 */}
           <DisplayControl
             {...this.props}
-            forMobile={true}
+            hideShowControlName
             maxCount3={appshowtype === '0'} // 移动端设置 一行三列时 最多只能设置3个
             text={_l('一行三列时，最多可设置3个显示字段。如果要显示更多字段请使用其他布局方式')}
             handleChange={checked => {

@@ -3,7 +3,7 @@ import { RELATION_TYPE_NAME } from './enum';
 import { accMul, formatStrZero, toFixed } from 'src/util';
 import { getSwitchItemNames } from 'src/pages/widgetConfig/util';
 import { getShowFormat } from 'src/pages/widgetConfig/util/setting.js';
-import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/ControlMask/util';
+import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
 import _ from 'lodash';
 import moment from 'moment';
 

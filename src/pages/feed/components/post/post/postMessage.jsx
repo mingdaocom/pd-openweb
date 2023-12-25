@@ -4,6 +4,7 @@ import { createLinksForMessage } from 'src/components/common/function';
 import PropTypes from 'prop-types';
 import qs from 'query-string';
 import CreateGroup from 'src/components/group/create/creatGroup';
+import UserCard from 'src/components/UserCard';
 
 /**
  * 动态内容
@@ -40,9 +41,29 @@ class PostMessage extends React.Component {
       return;
     }
     $(ReactDom.findDOMNode(this))
-      .find('[data-accountid], [data-groupid]')
-      .each(function() {
-        $(this).mdBusinessCard();
+      .find('[data-accountid]')
+      .each((i, ele) => {
+        const accountId = $(ele).attr('data-accountid');
+        $(ele).removeAttr('data-accountid');
+        ReactDom.render(
+          <UserCard sourceId={accountId}>
+            <span>{ele.innerHTML}</span>
+          </UserCard>,
+          ele,
+        );
+      });
+
+    $(ReactDom.findDOMNode(this))
+      .find('[data-groupid]')
+      .each((i, ele) => {
+        const groupid = $(ele).attr('data-groupid');
+        $(ele).removeAttr('data-groupid');
+        ReactDom.render(
+          <UserCard sourceId={groupid} type={2}>
+            <span>{ele.innerHTML}</span>
+          </UserCard>,
+          ele,
+        );
       })
       .end()
       .find('[data-action=createGroup]')
@@ -67,6 +88,7 @@ class PostMessage extends React.Component {
     if (!message) {
       return false;
     }
+
     message = createLinksForMessage({
       message,
       rUserList: postItem.rUserList,

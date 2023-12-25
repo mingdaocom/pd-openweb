@@ -3,7 +3,7 @@ import { Icon, Dialog } from 'ming-ui';
 import { Button, Table, Input } from 'antd';
 import styled from 'styled-components';
 import privatePlatformAdminApi from 'src/api/privatePlatformAdmin';
-import UserHead from 'src/pages/feed/components/userHead';
+import UserHead from 'src/components/userHead';
 import { useClientRect } from '../common';
 import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import _ from 'lodash';
@@ -38,7 +38,6 @@ const columns = [
           <UserHead
             key={data.accountId}
             size={32}
-            lazy="false"
             user={{
               accountId: data.accountId,
               userHead: data.avatar,

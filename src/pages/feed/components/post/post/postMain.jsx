@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import ReactDom from 'react-dom';
 import ReactDomServer from 'react-dom/server';
-import UserName from '../../userName';
+import UserName from 'src/components/userName';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import postAjax from 'src/api/post';
 import PostMessage from './postMessage';
@@ -166,11 +166,11 @@ class PostMain extends React.Component {
           <div className={cx('postContentBody', { isFullHeight: this.state.isFullHeight })}>
             {postItem.commentID ? (
               <span>
-                <UserName user={postItem.user} bindBusinessCard />
+                <UserName user={postItem.user} />
                 {postItem.replyMessage ? (
                   <span>
                     <span className=" Green"> {_l('回复')} </span>
-                    <UserName user={postItem.replyUser} bindBusinessCard />
+                    <UserName user={postItem.replyUser} />
                     <i
                       ref={(replyMessage) => {
                         this.replyMessage = replyMessage;

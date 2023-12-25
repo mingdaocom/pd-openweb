@@ -40,18 +40,12 @@ export const FORMULA_DATE_DISPLAY_TYPE = [
 ];
 
 export const UNIT_TYPE = [
-  { text: _l('年'), value: '5' },
-  { text: _l('月'), value: '4' },
-  { text: _l('天'), value: '3' },
-  { text: _l('时'), value: '2' },
-  { text: _l('分'), value: '1' },
-  { text: _l('秒'), value: '6' },
-];
-
-export const DEFAULT_SETTING_OPTIONS = [
-  { text: _l('可新增明细'), id: 'allowadd' },
-  { text: _l('可编辑已有明细'), id: 'allowedit' },
-  { text: _l('可删除已有明细'), id: 'allowcancel' },
+  { text: _l('年%04019'), value: '5' },
+  { text: _l('月%04020'), value: '4' },
+  { text: _l('天%04021'), value: '3' },
+  { text: _l('时%04022'), value: '2' },
+  { text: _l('分%04023'), value: '1' },
+  { text: _l('秒%04024'), value: '6' },
 ];
 
 export const RELATION_OPTIONS = [
@@ -158,3 +152,12 @@ export const RELATION_SEARCH_DISPLAY = [
   },
   { key: 'text', text: _l('文本'), value: '3' },
 ];
+
+// 标题字号映射关系
+export const TITLE_SIZE_OPTIONS = {
+  0: '13px',
+  1: '16px',
+  2: '18px',
+  3: '20px',
+  4: '24px',
+};

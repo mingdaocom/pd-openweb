@@ -121,3 +121,14 @@ export const editAppInfo = (viewHideNavi, callback) => (dispatch, getState) => {
     }
   });
 };
+
+export const getDebugRoleList = appId => (dispatch, getState) => {
+  if (!appId) return;
+  AppManagement.getDebugRoles({ appId }).then(({ roles = [] }) => {
+    const debugRoles = _.filter(roles, r => r.seleted);
+    dispatch({
+      type: 'DEBUG_ROLE_LIST',
+      data: debugRoles,
+    });
+  });
+};

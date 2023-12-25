@@ -35,8 +35,8 @@ export const ROLE_TYPE = {
 };
 
 export const DETAIL_TYPE = {
-  SETTING: 'SETTING',
-  USE_DETAIL: 'USE_DETAIL',
+  SETTING: 'setting',
+  USE_DETAIL: 'useDetail',
 };
 
 export const CREATE_TYPE = {
@@ -50,6 +50,7 @@ export const TASK_STATUS_TYPE = {
   RUNNING: 'RUNNING',
   STOP: 'STOP',
   ERROR: 'ERROR',
+  CREATING: 'CREATING',
 };
 
 export const SOURCE_FROM_TYPE_TAB_LIST = [

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import { Icon, ScrollView } from 'ming-ui';
 import { Modal, Button, WingBlank, Checkbox } from 'antd-mobile';
+import functionWrap from 'ming-ui/components/FunctionWrap';
 import organizeAjax from 'src/api/organize.js';
 import './index.less';
 import _ from 'lodash';
@@ -23,19 +24,21 @@ export default class SelectOrgRole extends Component {
   getData = () => {
     const { projectId } = this.props;
     let { keywords, pageIndex = 1, orgRoleList = [] } = this.state;
-    organizeAjax.getOrganizes({
-      projectId,
-      keywords,
-      pageIndex,
-      pageSize: 20,
-    }).then(res => {
-      this.setState({
-        orgRoleList: pageIndex === 1 ? res.list : orgRoleList.concat(res.list),
-        pageIndex: pageIndex + 1,
-        isMore: res.list.length >= 20 ? true : false,
-        isLoading: false,
+    organizeAjax
+      .getOrganizes({
+        projectId,
+        keywords,
+        pageIndex,
+        pageSize: 20,
+      })
+      .then(res => {
+        this.setState({
+          orgRoleList: pageIndex === 1 ? res.list : orgRoleList.concat(res.list),
+          pageIndex: pageIndex + 1,
+          isMore: res.list.length >= 20 ? true : false,
+          isLoading: false,
+        });
       });
-    });
   };
   handleSearch = () => {
     this.setState(
@@ -184,3 +187,4 @@ export default class SelectOrgRole extends Component {
     );
   }
 }
+export const selectOrgRole = props => functionWrap(SelectOrgRole, { ...props });

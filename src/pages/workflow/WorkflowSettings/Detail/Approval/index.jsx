@@ -279,7 +279,7 @@ export default class Approval extends Component {
     const { data } = this.state;
     const list = [
       { text: _l('自定义'), value: 0 },
-      { text: _l('按部门层级逐级审批'), value: 1 },
+      { text: _l('按部门层级逐级审批'), value: 3 },
     ];
 
     return (
@@ -288,16 +288,19 @@ export default class Approval extends Component {
 
         <div className="flexRow mTop10">
           {list.map((item, i) => (
-            <div className="flex" key={i}>
+            <div className={cx({ mLeft80: i > 0 })} key={i}>
               <Radio
                 text={item.text}
-                checked={data.multipleLevelType === item.value || (item.value === 1 && data.multipleLevelType === 2)}
+                checked={
+                  data.multipleLevelType === item.value ||
+                  (item.value === 3 && _.includes([1, 2, 3, 4], data.multipleLevelType))
+                }
                 onClick={() => {
                   this.updateSource({
                     multipleLevelType: item.value,
                     callBackMultipleLevel: -1,
                     accounts: [],
-                    multipleLevel: -1,
+                    multipleLevel: 1,
                     schedule: Object.assign({}, data.schedule, { enable: false }),
                     candidateUserMap: data.multipleLevelType === 0 && isApproval ? { 11: [] } : {},
                   });
@@ -327,7 +330,7 @@ export default class Approval extends Component {
 
     return (
       <div className="mTop15">
-        <Member accounts={accounts} updateSource={updateAccounts} />
+        <Member companyId={this.props.companyId} accounts={accounts} updateSource={updateAccounts} />
 
         <div
           className="flexRow mTop12 ThemeColor3 workflowDetailAddBtn"
@@ -357,28 +360,51 @@ export default class Approval extends Component {
   renderApprovalStartAndEnd() {
     const { isApproval } = this.props;
     const { data, showSelectUserDialog } = this.state;
-    const multipleLevelList = [
-      { text: _l('直到通讯录的最高级'), value: -1 },
-      { text: _l('上1级'), value: 2 },
-      { text: _l('上2级'), value: 3 },
-      { text: _l('上3级'), value: 4 },
-      { text: _l('上4级'), value: 5 },
-      { text: _l('上5级'), value: 6 },
-      { text: _l('上6级'), value: 7 },
-      { text: _l('上7级'), value: 8 },
-      { text: _l('上8级'), value: 9 },
-      { text: _l('上9级'), value: 10 },
-      { text: _l('上10级'), value: 11 },
-      { text: _l('上11级'), value: 12 },
-      { text: _l('上12级'), value: 13 },
-      { text: _l('上13级'), value: 14 },
-      { text: _l('上14级'), value: 15 },
-      { text: _l('上15级'), value: 16 },
-      { text: _l('上16级'), value: 17 },
-      { text: _l('上17级'), value: 18 },
-      { text: _l('上18级'), value: 19 },
-      { text: _l('上19级'), value: 20 },
-    ];
+    const multipleLevelList = {
+      down: [
+        { text: _l('最高层级'), value: 1 },
+        { text: _l('第2层级'), value: 2 },
+        { text: _l('第3层级'), value: 3 },
+        { text: _l('第4层级'), value: 4 },
+        { text: _l('第5层级'), value: 5 },
+        { text: _l('第6层级'), value: 6 },
+        { text: _l('第7层级'), value: 7 },
+        { text: _l('第8层级'), value: 8 },
+        { text: _l('第9层级'), value: 9 },
+        { text: _l('第10层级'), value: 10 },
+        { text: _l('第11层级'), value: 11 },
+        { text: _l('第12层级'), value: 12 },
+        { text: _l('第13层级'), value: 13 },
+        { text: _l('第14层级'), value: 14 },
+        { text: _l('第15层级'), value: 15 },
+        { text: _l('第16层级'), value: 16 },
+        { text: _l('第17层级'), value: 17 },
+        { text: _l('第18层级'), value: 18 },
+        { text: _l('第19层级'), value: 19 },
+        { text: _l('第20层级'), value: 20 },
+      ],
+      up: [
+        { text: _l('向上1级'), value: 2 },
+        { text: _l('向上2级'), value: 3 },
+        { text: _l('向上3级'), value: 4 },
+        { text: _l('向上4级'), value: 5 },
+        { text: _l('向上5级'), value: 6 },
+        { text: _l('向上6级'), value: 7 },
+        { text: _l('向上7级'), value: 8 },
+        { text: _l('向上8级'), value: 9 },
+        { text: _l('向上9级'), value: 10 },
+        { text: _l('向上10级'), value: 11 },
+        { text: _l('向上11级'), value: 12 },
+        { text: _l('向上12级'), value: 13 },
+        { text: _l('向上13级'), value: 14 },
+        { text: _l('向上14级'), value: 15 },
+        { text: _l('向上15级'), value: 16 },
+        { text: _l('向上16级'), value: 17 },
+        { text: _l('向上17级'), value: 18 },
+        { text: _l('向上18级'), value: 19 },
+        { text: _l('向上19级'), value: 20 },
+      ],
+    };
     const USER_TYPE = [
       { text: _l('发起人'), value: '11' },
       { text: _l('指定人员'), value: '12' },
@@ -450,12 +476,37 @@ export default class Approval extends Component {
 
         <div className="Font13 bold mTop20">{_l('审批终点')}</div>
         <div className="flexRow alignItemsCenter mTop10">
-          {_l('从起点向上的级数')}
+          <Dropdown
+            className="flowDropdown"
+            style={{ width: 240 }}
+            data={[
+              { text: _l('通讯录指定层级'), value: 'down' },
+              { text: _l('起点向上的级数'), value: 'up' },
+            ]}
+            value={_.includes([1, 2], data.multipleLevelType) ? 'up' : 'down'}
+            border
+            onChange={value => {
+              let multipleLevelType = data.multipleLevelType;
+
+              if (value === 'down') {
+                multipleLevelType = multipleLevelType === 1 ? 3 : 4;
+              } else {
+                multipleLevelType = multipleLevelType === 3 ? 1 : 2;
+              }
+
+              this.updateSource({ multipleLevelType, multipleLevel: _.includes([1, 2], multipleLevelType) ? 2 : 1 });
+            }}
+          />
           <Dropdown
             className="flowDropdown mLeft10 mRight10 flex"
-            data={multipleLevelList}
+            data={multipleLevelList[_.includes([1, 2], data.multipleLevelType) ? 'up' : 'down']}
             value={data.multipleLevel}
             border
+            renderTitle={
+              _.includes([1, 2], data.multipleLevelType) && data.multipleLevel === -1
+                ? () => <span>{_l('直到通讯录的最高级')}</span>
+                : null
+            }
             onChange={multipleLevel => {
               this.updateSource({ multipleLevel });
             }}
@@ -467,8 +518,18 @@ export default class Approval extends Component {
             <Checkbox
               className="InlineFlex"
               text={_l('仅主部门负责人需要审批')}
-              checked={data.multipleLevelType === 2}
-              onClick={checked => this.updateSource({ multipleLevelType: checked ? 1 : 2 })}
+              checked={_.includes([2, 4], data.multipleLevelType)}
+              onClick={checked => {
+                let multipleLevelType = data.multipleLevelType;
+
+                if (checked) {
+                  multipleLevelType = multipleLevelType === 2 ? 1 : 3;
+                } else {
+                  multipleLevelType = multipleLevelType === 1 ? 2 : 4;
+                }
+
+                this.updateSource({ multipleLevelType });
+              }}
             />
             <span
               className="workflowDetailTipsWidth mLeft5 Gray_9e"
@@ -951,7 +1012,7 @@ export default class Approval extends Component {
     };
     const SOURCE_HANDLE_LIST = [
       {
-        title: _l('节点开始前更新'),
+        title: _l('节点开始时更新'),
         desc: _l('流程进入此节点且审批开始前，更新数据对象的字段值（退回至此节点也会触发更新）'),
         key: OPERATION_TYPE.BEFORE,
       },
@@ -1082,7 +1143,7 @@ export default class Approval extends Component {
 
                   <div className="Font13 mTop25 bold">{_l('安全')}</div>
                   <Checkbox
-                    className="mTop15 flexRow"
+                    className="mTop15 flexRow alignItemsCenter"
                     text={
                       <span>
                         {_l('登录密码验证')}

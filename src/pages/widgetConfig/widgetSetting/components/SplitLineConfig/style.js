@@ -139,11 +139,11 @@ export const SectionItemWrap = styled.div`
   padding: 4px 0;
   display: flex;
   border-bottom: 1px solid #cccccc;
-  cursor: ${props => (props.hidetitle ? 'default' : 'pointer')};
   .titleBox {
     flex: 1;
     display: flex;
     justify-content: flex-start;
+    cursor: ${props => (props.hidetitle ? 'default' : 'pointer')};
     ${props => (props.hidetitle ? ' align-items: center' : ' padding: 10px 0')};
     .Width20 {
       width: 20px;
@@ -187,6 +187,7 @@ export const SectionItemWrap = styled.div`
     text-align: center;
     margin-left: 8px;
     border-radius: 5px;
+    cursor: ${props => (props.hidetitle ? 'default' : 'pointer')};
     ${props => (props.visible ? 'transform: rotate(180deg)' : '')};
     i {
       color: #000000;

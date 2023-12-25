@@ -62,6 +62,10 @@ const AuthorizationIntercept = () => {
     });
   }, []);
 
+  const url1 = `<a href="https://www.mingdao.com/register?ReturnUrl=${encodeURIComponent(`/personal?type=privatekey&ltv=${serverInfo.licenseTemplateVersion}&serverId=${serverInfo.serverId}#apply`)}" target="_blank">${_l('注册并申请')}</a>`;
+  const url2 = `<a href="https://www.mingdao.com/personal?type=privatekey&ltv=${serverInfo.licenseTemplateVersion}&serverId=${serverInfo.serverId}#apply" target="_blank">${_l('登录并申请')}</a>`;
+  const url3 = `<a href="https://docs.pd.mingdao.com/faq/deployment#%E5%AF%86%E9%92%A5%E4%B8%A2%E5%A4%B1%E6%9C%8D%E5%8A%A1%E5%99%A8id-%E4%B8%8D%E6%98%BE%E7%A4%BA" target="_blank">${_l('查看帮助')}</a>`;
+
   return (
     <Wrap className="privateCardWrap flexColumn">
       {infoLoading ? (
@@ -69,17 +73,22 @@ const AuthorizationIntercept = () => {
       ) : (
         <Fragment>
           <div className="Font24 bold mBottom18">{_l('请输入密钥')}</div>
-          <div className="Font13 Gray_75 mBottom2">{_l('密钥版本')}: {serverInfo.licenseTemplateVersion}</div>
-          <div className="Font13 Gray_75">
-            {_l('服务器ID')}: {serverInfo.serverId}
-            <Icon
+          <div className="Font13 mBottom5">{_l('密钥版本：%0', serverInfo.licenseTemplateVersion)}</div>
+          <div className="Font13 mBottom5">
+            {_l('服务器ID：%0', serverInfo.serverId)}
+            {serverInfo.serverId ? <Icon
               icon="copy"
               className="Gray_9e Font17 pointer"
               onClick={() => {
                 copy(serverInfo.serverId);
                 alert(_l('复制成功'));
               }}
-            />
+            /> : null}
+          </div>
+          <div className="Gray_75 Font12 mTop5"
+            dangerouslySetInnerHTML={{
+              __html: !serverInfo.serverId ? _l('服务器ID不显示？%0', url3) : _l('暂无密钥？请 %0 或 %1', url1, url2),
+            }}>
           </div>
           <Textarea
             className="mTop20"

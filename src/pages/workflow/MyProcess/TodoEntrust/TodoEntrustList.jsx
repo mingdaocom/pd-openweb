@@ -7,8 +7,8 @@ import styled from 'styled-components';
 import moment from 'moment';
 import delegationApi from '../../api/delegation';
 import TodoEntrustModal from './TodoEntrustModal';
-import UserHead from 'src/pages/feed/components/userHead';
-import UserName from 'src/pages/feed/components/userName';
+import UserHead from 'src/components/userHead';
+import UserName from 'src/components/userName';
 import DelegationConfigModal from 'mobile/Process/ProcessDelegation/DelegationConfigModal';
 import { browserIsMobile } from 'src/util';
 import { QiniuImg } from 'src/pages/feed/components/common/img';
@@ -193,8 +193,8 @@ function TodoEntrustList(props) {
                                 userHead: item.trustee.avatar,
                                 accountId: item.trustee.accountId,
                               }}
-                              lazy={'false'}
                               size={22}
+                              chatButton={false}
                             />
                             <UserName
                               className="Gray Font13 pLeft5 pRight10 pTop1"
@@ -202,6 +202,7 @@ function TodoEntrustList(props) {
                                 userName: item.trustee.fullName,
                                 accountId: item.trustee.accountId,
                               }}
+                              chatButton={false}
                             />
                           </div>
                         )}

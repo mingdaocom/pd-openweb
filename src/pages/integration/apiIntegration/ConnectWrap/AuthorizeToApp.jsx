@@ -379,6 +379,7 @@ function AuthorizeToApp(props) {
             updateSource={({ accounts }) => updateSource({ errorNotifiers: accounts })}
             leastOne
             inline
+            chatButton={false}
           />
           <div
             className="TxtCenter Relative Gray_75 ThemeHoverBorderColor3 ThemeHoverColor3 pointer addBtn mTop12 Block"
@@ -440,10 +441,10 @@ function AuthorizeToApp(props) {
       </WrapCon>
       {show && (
         <AddAppDialog
+          projectId={localStorage.getItem('currentProjectId')}
           onCancel={() => {
             setState({ show: false });
           }}
-          isSuperAdmin={props.isSuperAdmin}
           onOk={selectedList => {
             setState({ show: false });
             authorizeApp(selectedList, 1);

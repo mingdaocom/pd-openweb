@@ -4,7 +4,7 @@ import statisticController from 'src/api/statistic';
 import PaginationWrap from '../components/PaginationWrap';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import Icon from 'ming-ui/components/Icon';
-import UserName from 'src/pages/feed/components/userName/userName';
+import UserName from 'src/components/userName/userName';
 import _ from 'lodash';
 
 const PAGE_SIZES = {

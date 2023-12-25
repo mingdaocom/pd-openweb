@@ -4,7 +4,6 @@ import ScrollView from 'ming-ui/components/ScrollView';
 import { TYPES, LOADTYPES, NAMES } from '../constants';
 import { Divider } from 'antd';
 import inboxController from 'src/api/inbox';
-import 'src/components/mdBusinessCard/mdBusinessCard';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import Button from 'ming-ui/components/Button';
 import Message from './inboxMessage';
@@ -44,22 +43,6 @@ export default class InboxList extends React.Component {
         this.fetchInboxList();
       }
     );
-  }
-
-  componentDidMount() {
-    // `binduid`兼容老的系统消息
-    $('.inboxBox').on('mouseover', '[data-accountid],[data-groupid]', function () {
-      var $el = $(this);
-      if ($el.data('bind') || $el.hasClass('groupItem')) {
-        return;
-      }
-      if ($el.attr('binduid')) {
-        $el.attr('data-accountid', $el.attr('binduid'));
-      }
-      $el.mdBusinessCard();
-      $el.data('bind', true);
-      $el.mouseenter();
-    });
   }
 
   fetchInboxList() {

@@ -6,6 +6,7 @@ import { ScrollView, EditingBar } from 'ming-ui';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
 import { openRecordInfo } from 'worksheet/common/recordInfo';
+import RecordInfoContext from '../recordInfo/RecordInfoContext';
 import { getFormDataForNewRecord, submitNewRecord } from 'worksheet/controllers/record';
 import {
   getSubListError,
@@ -27,7 +28,7 @@ import { BUTTON_ACTION_TYPE } from './NewRecord';
 import _ from 'lodash';
 import { canEditData } from 'worksheet/redux/actions/util';
 import { KVGet } from 'worksheet/util';
-import { commonControlsAddTab } from 'src/pages/Mobile/Record/utils';
+import { commonControlsAddTab } from 'mobile/components/RecordInfo/utils';
 
 const Con = styled.div`
   height: 100%;
@@ -58,7 +59,6 @@ function focusInput(formcon) {
 }
 
 const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
-
 function NewRecordForm(props) {
   const {
     loading,
@@ -86,6 +86,7 @@ function NewRecordForm(props) {
     customButtonConfirm,
     customBtn,
     sheetSwitchPermit,
+    updateWorksheetControls,
     advancedSetting = {},
     setShareVisible = () => {},
     onSubmitBegin = () => {},
@@ -411,32 +412,15 @@ function NewRecordForm(props) {
     }
   }, [loading]);
   return (
-    <Con onClick={e => e.stopPropagation()}>
-      {isMobile ? (
-        <MobileRecordRecoverConfirm
-          visible={restoreVisible}
-          title={_l(
-            '已恢复到上次中断内容%0',
-            cache.current.tempRecordCreateTime
-              ? `（${window.createTimeSpan(new Date(cache.current.tempRecordCreateTime))}）`
-              : '',
-          )}
-          updateText={_l('确认')}
-          cancelText={_l('清空')}
-          onUpdate={() => setRestoreVisible(false)}
-          onCancel={() => {
-            removeTempRecordValueFromLocal('tempNewRecord', worksheetId);
-            setFormdata(originFormdata);
-            setRandom(Math.random());
-            setRestoreVisible(false);
-          }}
-        />
-      ) : (
-        <EditingBarCon>
-          <EditingBar
+    <RecordInfoContext.Provider
+      value={{
+        updateWorksheetControls,
+      }}
+    >
+      <Con onClick={e => e.stopPropagation()}>
+        {isMobile ? (
+          <MobileRecordRecoverConfirm
             visible={restoreVisible}
-            defaultTop={-140}
-            visibleTop={8}
             title={_l(
               '已恢复到上次中断内容%0',
               cache.current.tempRecordCreateTime
@@ -453,174 +437,200 @@ function NewRecordForm(props) {
               setRestoreVisible(false);
             }}
           />
-        </EditingBarCon>
-      )}
-      <RecordCon>
-        {!window.isPublicApp && shareVisible && (
-          <Share
-            title={_l('新建记录链接')}
-            from="newRecord"
-            canEditForm={isCharge} //仅 管理员|开发者 可设置公开表单
-            isPublic={visibleType === 2}
-            publicUrl={publicShareUrl}
-            hidePublicShare={hidePublicShare}
-            isCharge={isCharge || canEditData(appPkgData.appRoleType)} //运营者具体分享权限
-            params={{
-              appId,
-              viewId,
-              worksheetId,
-              title: recordTitle,
-            }}
-            onUpdate={data => {
-              setWorksheetInfo(Object.assign({}, worksheetInfo, data));
-            }}
-            getCopyContent={(type, url) =>
-              new Promise(async resolve => {
-                if (type === 'private') {
-                  resolve(`${url} ${recordTitle}`);
+        ) : (
+          <EditingBarCon>
+            <EditingBar
+              visible={restoreVisible}
+              defaultTop={-140}
+              visibleTop={8}
+              title={_l(
+                '已恢复到上次中断内容%0',
+                cache.current.tempRecordCreateTime
+                  ? `（${window.createTimeSpan(new Date(cache.current.tempRecordCreateTime))}）`
+                  : '',
+              )}
+              updateText={_l('确认')}
+              cancelText={_l('清空')}
+              onUpdate={() => setRestoreVisible(false)}
+              onCancel={() => {
+                removeTempRecordValueFromLocal('tempNewRecord', worksheetId);
+                setFormdata(originFormdata);
+                setRandom(Math.random());
+                setRestoreVisible(false);
+              }}
+            />
+          </EditingBarCon>
+        )}
+        <RecordCon>
+          {!window.isPublicApp && shareVisible && (
+            <Share
+              title={_l('新建记录链接')}
+              from="newRecord"
+              canEditForm={isCharge} //仅 管理员|开发者 可设置公开表单
+              isPublic={visibleType === 2}
+              publicUrl={publicShareUrl}
+              hidePublicShare={hidePublicShare}
+              isCharge={isCharge || canEditData(appPkgData.appRoleType)} //运营者具体分享权限
+              params={{
+                appId,
+                viewId,
+                worksheetId,
+                title: recordTitle,
+              }}
+              onUpdate={data => {
+                setWorksheetInfo(Object.assign({}, worksheetInfo, data));
+              }}
+              getCopyContent={(type, url) =>
+                new Promise(async resolve => {
+                  if (type === 'private') {
+                    resolve(`${url} ${recordTitle}`);
+                    return;
+                  }
+                  let name = '';
+                  try {
+                    const res = await publicWorksheetAjax.getPublicWorksheetInfo({ worksheetId }, { silent: true });
+                    name = res.name;
+                  } catch (err) {}
+                  resolve(`${url} ${name}`);
+                })
+              }
+              onClose={() => setShareVisible(false)}
+            />
+          )}
+          {showTitle && <div className="newRecordTitle ellipsis Font19 mBottom10 Bold">{recordTitle}</div>}
+          <div className="customFieldsCon" ref={formcon}>
+            <RecordForm
+              from={2}
+              type="new"
+              loading={formLoading || loading}
+              recordbase={{
+                appId,
+                worksheetId,
+                viewId,
+                from,
+                isCharge,
+                allowEdit: true,
+              }}
+              sheetSwitchPermit={sheetSwitchPermit}
+              widgetStyle={worksheetInfo.advancedSetting}
+              masterRecordRowId={masterRecordRowId || (masterRecord || {}).rowId}
+              registerCell={({ item, cell }) => (cellObjs.current[item.controlId] = { item, cell })}
+              mountRef={ref => (customwidget.current = ref.current)}
+              formFlag={random}
+              recordinfo={worksheetInfo}
+              formdata={formdata.filter(
+                it =>
+                  !_.includes(
+                    [
+                      'wfname',
+                      'wfstatus',
+                      'wfcuaids',
+                      'wfrtime',
+                      'wfftime',
+                      'wfdtime',
+                      'wfcaid',
+                      'wfctime',
+                      'wfcotime',
+                      'rowid',
+                      'uaid',
+                    ],
+                    it.controlId,
+                  ),
+              )}
+              relateRecordData={relateRecordData}
+              worksheetId={worksheetId}
+              showError={errorVisible}
+              onChange={(data, ids, { noSaveTemp, isAsyncChange } = {}) => {
+                // let needHideRestore = restoreVisible && !noSaveTemp && !isAsyncChange;
+                // try {
+                //   needHideRestore =
+                //     needHideRestore && !(ids.length === 1 && _.find(formdata, { controlId: ids[0] }).type === 34);
+                // } catch (err) {}
+                // if (needHideRestore) {
+                //   setRestoreVisible(false);
+                // }
+                if (isSubmitting.current) {
                   return;
                 }
-                let name = '';
-                try {
-                  const res = await publicWorksheetAjax.getPublicWorksheetInfo({ worksheetId }, { silent: true });
-                  name = res.name;
-                } catch (err) {}
-                resolve(`${url} ${name}`);
-              })
-            }
-            onClose={() => setShareVisible(false)}
-          />
-        )}
-        {showTitle && <div className="newRecordTitle ellipsis Font19 mBottom10 Bold">{recordTitle}</div>}
-        <div className="customFieldsCon" ref={formcon}>
-          <RecordForm
-            from={2}
-            type="new"
-            loading={formLoading || loading}
-            recordbase={{
-              appId,
-              worksheetId,
-              viewId,
-              from,
-              isCharge,
-              allowEdit: true,
-            }}
-            sheetSwitchPermit={sheetSwitchPermit}
-            widgetStyle={worksheetInfo.advancedSetting}
-            masterRecordRowId={masterRecordRowId || (masterRecord || {}).rowId}
-            registerCell={({ item, cell }) => (cellObjs.current[item.controlId] = { item, cell })}
-            mountRef={ref => (customwidget.current = ref.current)}
-            formFlag={random}
-            recordinfo={worksheetInfo}
-            formdata={formdata.filter(
-              it =>
-                !_.includes(
-                  [
-                    'wfname',
-                    'wfstatus',
-                    'wfcuaids',
-                    'wfrtime',
-                    'wfftime',
-                    'wfdtime',
-                    'wfcaid',
-                    'wfctime',
-                    'wfcotime',
-                    'rowid',
-                    'uaid',
-                  ],
-                  it.controlId,
-                ),
-            )}
-            relateRecordData={relateRecordData}
-            worksheetId={worksheetId}
-            showError={errorVisible}
-            onChange={(data, ids, { noSaveTemp, isAsyncChange } = {}) => {
-              // let needHideRestore = restoreVisible && !noSaveTemp && !isAsyncChange;
-              // try {
-              //   needHideRestore =
-              //     needHideRestore && !(ids.length === 1 && _.find(formdata, { controlId: ids[0] }).type === 34);
-              // } catch (err) {}
-              // if (needHideRestore) {
-              //   setRestoreVisible(false);
-              // }
-              if (isSubmitting.current) {
-                return;
-              }
-              if (!isMobile) {
-                const relateRecordListControls = data.filter(isRelateRecordTableControl);
-                relateRecordListControls.forEach(c => {
-                  if (String(c.value || '').startsWith('[')) {
-                    try {
-                      const records = safeParse(c.value, 'array');
+                if (!isMobile) {
+                  const relateRecordListControls = data.filter(isRelateRecordTableControl);
+                  relateRecordListControls.forEach(c => {
+                    if (String(c.value || '').startsWith('[')) {
+                      try {
+                        const records = safeParse(c.value, 'array');
+                        setRelateRecordData(oldValue => ({
+                          ...oldValue,
+                          [c.controlId]: {
+                            ...c,
+                            value: records.map(r => r.row || safeParse(r.sourcevalue)),
+                          },
+                        }));
+                        c.value = records.length;
+                      } catch (err) {
+                        c.value = '0';
+                      }
+                    } else if (c.value === 'deleteRowIds: all') {
                       setRelateRecordData(oldValue => ({
                         ...oldValue,
                         [c.controlId]: {
                           ...c,
-                          value: records.map(r => r.row || safeParse(r.sourcevalue)),
+                          value: [],
                         },
                       }));
-                      c.value = records.length;
-                    } catch (err) {
                       c.value = '0';
                     }
-                  } else if (c.value === 'deleteRowIds: all') {
-                    setRelateRecordData(oldValue => ({
-                      ...oldValue,
-                      [c.controlId]: {
-                        ...c,
-                        value: [],
-                      },
-                    }));
-                    c.value = '0';
-                  }
+                  });
+                }
+                setFormdata([...data]);
+                if (needCache && !noSaveTemp && cache.current.formUserChanged) {
+                  cache.current.tempSaving = saveTempRecordValueToLocal(
+                    'tempNewRecord',
+                    worksheetId,
+                    JSON.stringify({ create_at: Date.now(), value: getRecordTempValue(data, relateRecordData) }),
+                  );
+                }
+              }}
+              onSave={onSave}
+              onError={() => {
+                onSubmitEnd();
+              }}
+              onRelateRecordsChange={(control, records) => {
+                if (!customwidget.current) {
+                  return;
+                }
+                customwidget.current.dataFormat.updateDataSource({
+                  controlId: control.controlId,
+                  value: String((records || []).length),
+                  data: records,
                 });
-              }
-              setFormdata([...data]);
-              if (needCache && !noSaveTemp && cache.current.formUserChanged) {
-                cache.current.tempSaving = saveTempRecordValueToLocal(
-                  'tempNewRecord',
-                  worksheetId,
-                  JSON.stringify({ create_at: Date.now(), value: getRecordTempValue(data, relateRecordData) }),
+                customwidget.current.updateRenderData();
+                setFormdata(
+                  formdata.map(item =>
+                    item.controlId === control.controlId ? { ...item, value: String((records || []).length) } : item,
+                  ),
                 );
-              }
-            }}
-            onSave={onSave}
-            onError={() => {
-              onSubmitEnd();
-            }}
-            onRelateRecordsChange={(control, records) => {
-              if (!customwidget.current) {
-                return;
-              }
-              customwidget.current.dataFormat.updateDataSource({
-                controlId: control.controlId,
-                value: String((records || []).length),
-                data: records,
-              });
-              customwidget.current.updateRenderData();
-              setFormdata(
-                formdata.map(item =>
-                  item.controlId === control.controlId ? { ...item, value: String((records || []).length) } : item,
-                ),
-              );
-              const newRelateRecordData = { ...relateRecordData, [control.controlId]: { ...control, value: records } };
-              setRelateRecordData(newRelateRecordData);
-              if (viewId) {
-                cache.current.tempSaving = saveTempRecordValueToLocal(
-                  'tempNewRecord',
-                  worksheetId,
-                  JSON.stringify({ create_at: Date.now(), value: getRecordTempValue(formdata, relateRecordData) }),
-                );
-              }
-            }}
-            projectId={projectId || props.projectId}
-            onWidgetChange={() => {
-              cache.current.formUserChanged = true;
-            }}
-          />
-        </div>
-      </RecordCon>
-    </Con>
+                const newRelateRecordData = {
+                  ...relateRecordData,
+                  [control.controlId]: { ...control, value: records },
+                };
+                setRelateRecordData(newRelateRecordData);
+                if (viewId) {
+                  cache.current.tempSaving = saveTempRecordValueToLocal(
+                    'tempNewRecord',
+                    worksheetId,
+                    JSON.stringify({ create_at: Date.now(), value: getRecordTempValue(formdata, relateRecordData) }),
+                  );
+                }
+              }}
+              projectId={projectId || props.projectId}
+              onWidgetChange={() => {
+                cache.current.formUserChanged = true;
+              }}
+            />
+          </div>
+        </RecordCon>
+      </Con>
+    </RecordInfoContext.Provider>
   );
 }
 

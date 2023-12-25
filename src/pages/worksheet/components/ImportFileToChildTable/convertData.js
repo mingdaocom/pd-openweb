@@ -43,7 +43,10 @@ const localHandleTypes = [
 ];
 
 function getDateStringValue(dateString, control) {
-  let showFormat = /^\d{4}年\d{1,2}月\d{1,2}日/.test(dateString) ? 'YYYY年M月D日' : getShowFormat(control);
+  let showFormat;
+  if (/^\d{4}年\d{1,2}月\d{1,2}日/.test(dateString)) {
+    showFormat = 'YYYY年M月D日 HH:mm:ss';
+  }
   if (new Date(moment(dateString, showFormat).valueOf()).toString() !== 'Invalid Date') {
     return moment(dateString, showFormat).format();
   }

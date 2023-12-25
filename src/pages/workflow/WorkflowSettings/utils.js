@@ -87,7 +87,11 @@ export const getIcons = (type, appType, actionId) => {
       icon = 'icon-workflow_webhook';
       break;
     case NODE_TYPE.FORMULA:
-      icon = 'icon-workflow_function';
+      if (_.includes([ACTION_ID.OBJECT_TOTAL, ACTION_ID.WORKSHEET_TOTAL], actionId)) {
+        icon = 'icon-sigma';
+      } else {
+        icon = 'icon-workflow_function';
+      }
       break;
     case NODE_TYPE.MESSAGE:
       icon = 'icon-workflow_sms';
@@ -146,6 +150,8 @@ export const getIcons = (type, appType, actionId) => {
     case NODE_TYPE.SYSTEM:
       if (appType === APP_TYPE.PROCESS) {
         icon = 'icon-parameter';
+      } else if (appType === APP_TYPE.WORKSHEET_LOG) {
+        icon = 'icon-custom_actions';
       } else if (appType === APP_TYPE.GLOBAL_VARIABLE) {
         icon = 'icon-global_variable';
       } else {
@@ -244,10 +250,8 @@ export const replaceField = (text, fieldMap, connector = '>') => {
   const reg = /\$(\w+-\w+)\$/;
   if (!reg.test(text)) return text;
   const handledText = text.replace(reg, ($0, $1) => {
-    const value = $1
-      .split(/([a-zA-Z0-9#]{24,32})-/)
-      .filter(item => item)
-      .map(v => fieldMap[v].name);
+    const ids = $1.split(/([a-zA-Z0-9#]{24,32})-/).filter(item => item);
+    const value = ids.map((v, index) => fieldMap[index === 0 ? v : ids.join('-')].name);
     return ` (${value.join(connector)}) `;
   });
   return replaceField(handledText, fieldMap);

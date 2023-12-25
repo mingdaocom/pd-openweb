@@ -3,7 +3,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { Icon, Tooltip } from 'ming-ui';
 import DropOption from 'src/pages/Role/PortalCon/components/DropOption';
-import { sysRoleType } from 'src/pages/Role/config.js';
+import { sysRoleType, ICON_ROLE_TYPE } from 'src/pages/Role/config.js';
 import { SortableHandle } from 'react-sortable-hoc';
 
 const SortHandle = SortableHandle(() => <Icon className="Font12 mLeft3 Hand" icon="drag_indicator" />);
@@ -23,6 +23,7 @@ export default class Con extends React.Component {
         )}
         <span className="flex mLeft5 Font14 flexRow alignItemsCenter">
           <span className="InlineBlock overflow_ellipsis breakAll" title={item.name}>
+            {ICON_ROLE_TYPE[item.roleType] && <Icon icon={ICON_ROLE_TYPE[item.roleType]} className="Font16 mRight6 roleIcon" />}
             {item.name}
           </span>
           {item.hideAppForMembers && !isForPortal && (

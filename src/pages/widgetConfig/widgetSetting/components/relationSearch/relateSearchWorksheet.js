@@ -14,6 +14,7 @@ import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/Filt
 import { checkConditionCanSave } from 'src/pages/FormSet/components/columnRules/config';
 import { isRelateRecordTableControl } from 'src/pages/worksheet/util.js';
 import _ from 'lodash';
+import { BrowserRouter } from 'react-router-dom';
 
 const RELATE_SEARCH_TYPE = [
   { key: 'new', text: _l('新建查询') },
@@ -366,72 +367,74 @@ export function RelateSearchWorksheet(props) {
   };
 
   return (
-    <Dialog
-      width={640}
-      visible={visible}
-      title={<span className="Bold">{isFilter ? _l('查询条件') : _l('查询记录')}</span>}
-      footer={null}
-      className="SearchWorksheetDialog"
-      onCancel={handleClose}
-    >
-      <AddRelate>
-        {renderTypeContent()}
-        <div className="footerBtn">
-          <Button type="link" onClick={handleClose}>
-            {_l('取消')}
-          </Button>
-          <Button
-            type="primary"
-            className="Bold"
-            disabled={
-              isFilter
-                ? !checkConditionCanSave(resultFilters)
-                : !sheetId || (isDeleteWorksheet && sheetId === dataSource)
-            }
-            onClick={() => {
-              if (isFilter) {
-                onOk({
-                  sheetId,
-                  sourceControlId,
-                  resultFilters,
-                  relationControls,
-                  sheetName,
-                });
-                setVisible(false);
-              } else {
-                setState({ relateType: 'filter', loading: true });
-                let resultFilters = [];
-                // 为关联表时，筛选条件有默认值
-                if (sourceControlId || (selectedControl || {}).sourceControl) {
-                  const selectControl = sourceControlId || open ? selectedControl.sourceControl : '';
-
-                  if (
-                    selectControl &&
-                    selectControl.type === 29 &&
-                    _.get(selectControl, 'advancedSetting.hide') !== '1'
-                  ) {
-                    let groupFilters = [
-                      {
-                        controlId: selectControl.controlId,
-                        dataType: selectControl.type,
-                        dynamicSource: [{ rcid: selectControl.dataSource, cid: 'current-rowid', staticValue: '' }],
-                        filterType: 24,
-                        isDynamicsource: true,
-                        spliceType: 1,
-                      },
-                    ];
-                    resultFilters = [{ isGroup: true, spliceType: 2, groupFilters }];
-                  }
-                }
-                setInfo({ resultFilters });
+    <BrowserRouter>
+      <Dialog
+        width={640}
+        visible={visible}
+        title={<span className="Bold">{isFilter ? _l('查询条件') : _l('查询记录')}</span>}
+        footer={null}
+        className="SearchWorksheetDialog"
+        onCancel={handleClose}
+      >
+        <AddRelate>
+          {renderTypeContent()}
+          <div className="footerBtn">
+            <Button type="link" onClick={handleClose}>
+              {_l('取消')}
+            </Button>
+            <Button
+              type="primary"
+              className="Bold"
+              disabled={
+                isFilter
+                  ? !checkConditionCanSave(resultFilters)
+                  : !sheetId || (isDeleteWorksheet && sheetId === dataSource)
               }
-            }}
-          >
-            {isFilter ? _l('确定') : _l('下一步')}
-          </Button>
-        </div>
-      </AddRelate>
-    </Dialog>
+              onClick={() => {
+                if (isFilter) {
+                  onOk({
+                    sheetId,
+                    sourceControlId,
+                    resultFilters,
+                    relationControls,
+                    sheetName,
+                  });
+                  setVisible(false);
+                } else {
+                  setState({ relateType: 'filter', loading: true });
+                  let resultFilters = [];
+                  // 为关联表时，筛选条件有默认值
+                  if (sourceControlId || (selectedControl || {}).sourceControl) {
+                    const selectControl = sourceControlId || open ? selectedControl.sourceControl : '';
+
+                    if (
+                      selectControl &&
+                      selectControl.type === 29 &&
+                      _.get(selectControl, 'advancedSetting.hide') !== '1'
+                    ) {
+                      let groupFilters = [
+                        {
+                          controlId: selectControl.controlId,
+                          dataType: selectControl.type,
+                          dynamicSource: [{ rcid: selectControl.dataSource, cid: 'current-rowid', staticValue: '' }],
+                          filterType: 24,
+                          isDynamicsource: true,
+                          spliceType: 1,
+                        },
+                      ];
+                      resultFilters = [{ isGroup: true, spliceType: 2, groupFilters }];
+                    }
+                  }
+                  setInfo({ resultFilters });
+                }
+              }}
+            >
+              {isFilter ? _l('确定') : _l('下一步')}
+            </Button>
+          </div>
+        </AddRelate>
+      </Dialog>
+    </BrowserRouter>
   );
 }
 

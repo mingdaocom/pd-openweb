@@ -14,7 +14,9 @@
     {{~it.stages:stage}}
         <li class="singleStage" data-stageid="{{=stage.id}}" data-chargeid="{{=stage.owner.accountID}}" data-avatar="{{=stage.owner.avatar}}" data-edit="{{=it.isEdit}}">
             <div class="stageHeader boderRadAll_3">
-                <img class="stageChargeAvatar circle {{=!stage.chargeAccountID ? 'Hidden' : ''}}" src="{{=stage.owner.avatar}}">
+                <span class="stageChargeAvatar updateUserHeadSign circle {{=!stage.chargeAccountID ? 'Hidden' : ''}}" data-src="{{=stage.owner.avatar}}">
+                    <img class="circle {{=!stage.chargeAccountID ? 'Hidden' : ''}}" src="{{=stage.owner.avatar}}">
+                </span>
                 <span class="listStageName overflow_ellipsis">{{!stage.name}}</span>
                 <span class="listStageTaskCount">{{=stage.count > 0 ? ' (<span class="taskCount">'+ stage.count +'</span>)' : '' }}</span>
                 {{? it.isEdit }}

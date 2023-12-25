@@ -1,6 +1,5 @@
 import { ajax, login, browserIsMobile, getScript, getRequest, checkLogin } from 'src/util/sso';
 import { setPssId } from 'src/util/pssId';
-import _ from 'lodash';
 import preall from 'src/common/preall';
 
 const { url, p } = getRequest();

@@ -82,6 +82,7 @@ export default class RecordCard extends Component {
     return url;
   }
   previewAttachment(attachments, index) {
+    const { data, view } = this.props;
     previewAttachments({
       index: index || 0,
       attachments: attachments.map(attachment => {
@@ -99,6 +100,9 @@ export default class RecordCard extends Component {
       showThumbnail: true,
       hideFunctions: ['editFileName'],
       disableNoPeimission: true,
+      recordId: data.rowid,
+      controlId: view.coverCid,
+      worksheetId: view.worksheetId,
     });
   }
   handleCoverClick = e => {
@@ -163,9 +167,11 @@ export default class RecordCard extends Component {
     );
   }
   renderControl(id, nameVisible = false) {
-    const { data } = this.props;
+    const { data, view } = this.props;
     const { cardControls } = this;
     const visibleControl = _.find(cardControls, { controlId: id }) || {};
+    const cell = Object.assign({}, visibleControl, { value: data[visibleControl.controlId] });
+
     return (
       <div className="controlWrapper" key={id}>
         {(nameVisible || visibleControl.desc) && (
@@ -204,8 +210,10 @@ export default class RecordCard extends Component {
         <div className="controlContent">
           {data[visibleControl.controlId] ? (
             <CellControl
+              worksheetId={view.worksheetId}
+              row={data}
               rowHeight={34}
-              cell={Object.assign({}, visibleControl, { value: data[visibleControl.controlId] })}
+              cell={cell}
               from={4}
               className={'w100'}
             />

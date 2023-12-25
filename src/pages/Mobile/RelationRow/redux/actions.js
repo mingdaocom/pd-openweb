@@ -7,7 +7,7 @@ import _ from 'lodash';
 
 const getPermissionInfo = (activeRelateSheetControl, rowInfo, worksheet) => {
   const { allowAdd } = worksheet;
-  const { receiveControls, allowEdit } = rowInfo;
+  const { allowEdit } = rowInfo;
   const activeSheetIndex = 0;
   const controlPermission = controlState(activeRelateSheetControl, 3);
   const { enumDefault2, strDefault, controlPermissions = '111', advancedSetting } = activeRelateSheetControl;
@@ -68,6 +68,7 @@ export const loadRow = (control, getType) => (dispatch, getState) => {
     params.controlId = controlId;
     params.getType = getType || 1;
     params.checkView = true;
+    params.getTemplate = true;
     params.appId = appId;
     params.worksheetId = worksheetId;
     params.viewId = viewId;
@@ -75,7 +76,7 @@ export const loadRow = (control, getType) => (dispatch, getState) => {
   }
 
   if (_.isEmpty(rowInfo)) {
-    sheetAjax.getRowByID(params).then(result => {
+    sheetAjax.getRowDetail(params).then(result => {
       dispatch({ type: 'MOBILE_RELATION_ROW_INFO', data: result });
       dispatch(loadRowRelationRows(control, getType));
     });
@@ -95,7 +96,7 @@ export const loadRowRelationRows = (relationControl, getType) => async (dispatch
     worksheetId,
     getType
   };
-  const control = relationControl || _.find(rowInfo.receiveControls, { controlId });
+  const control = relationControl || _.find(rowInfo.templateControls, { controlId });
 
   dispatch({ type: 'MOBILE_RELATION_LOAD_PARAMS', data: { loading: true } });
 
@@ -116,7 +117,7 @@ export const loadRowRelationRows = (relationControl, getType) => async (dispatch
     relationControls = _.get(resWorksheetInfo, 'template.controls') || [];
     const filterControls = getFilter({
       control: { ...control, relationControls, recordId: rowId },
-      formData: rowInfo.receiveControls,
+      formData: control.formData || rowInfo.templateControls,
       filterKey: 'resultfilters',
     });
     params.filterControls = filterControls || [];

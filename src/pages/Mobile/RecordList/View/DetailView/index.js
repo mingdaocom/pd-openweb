@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import * as actions from 'mobile/RecordList/redux/actions';
 import SheetRows, { WithoutRows } from '../../SheetRows/';
 import QuickFilterSearch from 'mobile/RecordList/QuickFilter/QuickFilterSearch';
+import { RecordInfoModal } from 'mobile/Record';
 
 class DetailView extends Component {
   constructor(props) {
@@ -29,7 +30,18 @@ class DetailView extends Component {
     );
   };
   render() {
-    const { view, worksheetInfo, filters, quickFilter, appDetail, currentSheetRows = [] } = this.props;
+    const {
+      view,
+      worksheetInfo,
+      filters,
+      quickFilter,
+      appDetail,
+      currentSheetRows = [],
+      base = {},
+      sheetSwitchPermit,
+      hasDebugRoles,
+      appNaviStyle,
+    } = this.props;
     const { detail } = appDetail;
     const sheetControls = _.get(worksheetInfo, ['template', 'controls']);
     const needClickToSearch = _.get(view, 'advancedSetting.clicksearch') === '1';
@@ -57,6 +69,18 @@ class DetailView extends Component {
         )}
         {_.isEmpty(currentSheetRows) || (needClickToSearch && _.isEmpty(quickFilter)) ? (
           this.renderWithoutRows()
+        ) : view.childType === 1 ? (
+          <RecordInfoModal
+            notModal={true}
+            visible={true}
+            appId={base.appId}
+            worksheetId={base.worksheetId}
+            viewId={base.viewId || view.viewId}
+            rowId={currentSheetRows[0].rowid}
+            sheetSwitchPermit={sheetSwitchPermit}
+            view={view}
+            chartEntryStyle={appNaviStyle === 2 ? { bottom: 100 } : {}}
+          />
         ) : (
           <SheetRows view={view} navigateTo={window.mobileNavigateTo} />
         )}
@@ -67,7 +91,15 @@ class DetailView extends Component {
 
 export default connect(
   state => ({
-    ..._.pick(state.mobile, ['worksheetInfo', 'filters', 'appDetail', 'quickFilter', 'currentSheetRows']),
+    ..._.pick(state.mobile, [
+      'worksheetInfo',
+      'filters',
+      'appDetail',
+      'quickFilter',
+      'currentSheetRows',
+      'base',
+      'sheetSwitchPermit',
+    ]),
   }),
   dispatch =>
     bindActionCreators(

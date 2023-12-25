@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import SelectUser from 'mobile/components/SelectUser';
 import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { dealUserRange } from 'src/components/newCustomFields/tools/utils';
 import { Icon } from 'ming-ui';
 import _ from 'lodash';
 
@@ -109,9 +110,11 @@ export default function Users(props) {
           projectId={projectId}
           visible={true}
           type="user"
-          userType={getTabTypeBySelectUser(props)}
+          userType={getTabTypeBySelectUser(control)}
           appId={appId || ''}
-          selectRangeOptions={!!_.get(control, 'advancedSetting.userrange')}
+          selectRangeOptions={
+            !!_.get(control, 'advancedSetting.userrange') ? dealUserRange(control, props.controls) : false
+          }
           onlyOne={!isMultiple}
           advancedSetting={advancedSetting}
           onClose={() => setShowSelectUser(false)}

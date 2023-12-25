@@ -1,13 +1,12 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
-import { navigateTo } from 'src/router/navigateTo';
 import './index.less';
 import { Link } from 'react-router-dom';
 import { LoadDiv, Dropdown, Switch, Icon, ScrollView, DeleteReconfirm, Dialog, Checkbox, Tooltip } from 'ming-ui';
 import cx from 'classnames';
 import AppTrash from 'src/pages/worksheet/common/Trash/AppTrash';
 import Search from 'src/pages/workflow/components/Search';
-import UserHead from 'src/pages/feed/components/userHead/userHead';
+import UserHead from 'src/components/userHead/userHead';
 import ajaxRequest from 'src/api/appManagement';
 import homeAppAjax from 'src/api/homeApp';
 import projectSettingAjaxRequest from 'src/api/projectSetting';
@@ -21,13 +20,14 @@ import SelectApp from './modules/SelectApp';
 import AppLog from './modules/AppLog';
 import { Drawer } from 'antd';
 import EventEmitter from 'events';
-import { getFeatureStatus, buriedUpgradeVersionDialog, addBehaviorLog } from 'src/util';
+import { getFeatureStatus, buriedUpgradeVersionDialog, addBehaviorLog, getCurrentProject } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
 import PaginationWrap from '../components/PaginationWrap';
 import _ from 'lodash';
 import moment from 'moment';
 import { transferExternalLinkUrl } from 'src/pages/AppHomepage/AppCenter/utils';
 import { purchaseMethodFunc } from 'src/components/upgrade/choose/PurchaseMethodModal';
+import { checkIsAppAdmin } from 'src/components/checkIsAppAdmin';
 
 export const emitter = new EventEmitter();
 
@@ -80,12 +80,6 @@ export default class AppManagement extends Component {
       keyword: '',
 
       loading: false,
-      checkAdmin: {
-        id: '',
-        post: false,
-        visible: false,
-        title: '',
-      },
 
       moreVisible: false,
       rowVisible: null,
@@ -131,7 +125,7 @@ export default class AppManagement extends Component {
    * 标准版不能导入导出
    */
   checkExportOrImportAuth(projectId) {
-    const { licenseType } = _.find(md.global.Account.projects || [], o => o.projectId === projectId) || {};
+    const { licenseType } = getCurrentProject(projectId, true);
     this.setState({ isFree: licenseType === 0 });
   }
 
@@ -231,7 +225,10 @@ export default class AppManagement extends Component {
                 window.open(transferExternalLinkUrl(item.urlTemplate, projectId, item.appId));
                 addBehaviorLog('app', item.appId); // 埋点
               } else {
-                this.checkIsAppAdmin(item.appId, item.appName);
+                checkIsAppAdmin({
+                  appId: item.appId,
+                  appName: item.appName,
+                });
               }
             }}
           >
@@ -258,9 +255,7 @@ export default class AppManagement extends Component {
           <UserHead
             size={28}
             user={{ userHead: item.createAccountInfo.avatar, accountId: item.caid }}
-            showOpHtml
-            opHtml={this.renderChargeOpHtml()}
-            readyFn={evt => this.chargeReadyFn(evt, item.appId, item.caid)}
+            operation={this.renderChargeOpHtml(item)}
           />
           <div className="mLeft12 ellipsis flex mRight20">{item.createAccountInfo.fullName}</div>
         </div>
@@ -510,37 +505,35 @@ export default class AppManagement extends Component {
   /**
    * 负责人 opHtml
    */
-  renderChargeOpHtml() {
-    return `
-      <span class="Gray_9e ThemeHoverColor3 pointer w100 oaButton updateAppCharge">
-        ${_l('将应用转交他人')}
+  renderChargeOpHtml(item) {
+    const { appId, caid } = item;
+    return (
+      <span
+        className="Gray_9e ThemeHoverColor3 pointer w100 oaButton updateAppCharge"
+        onClick={() => this.chargeFn(appId, caid)}
+      >
+        {_l('将应用转交他人')}
       </span>
-    `;
+    );
   }
 
-  /**
-   * 负责人 op操作
-   */
-  chargeReadyFn = (evt, appId, accountId) => {
-    const that = this;
-    evt.on('click', '.updateAppCharge', function () {
-      dialogSelectUser({
-        sourceId: that.props.match.params.projectId,
-        fromType: 4,
-        fromAdmin: true,
-        SelectUserSettings: {
-          filterAll: true,
-          filterFriend: true,
-          filterOthers: true,
-          filterOtherProject: true,
-          filterAccountIds: [accountId],
-          projectId: that.props.match.params.projectId,
-          unique: true,
-          callback(users) {
-            that.updateAppOwner(appId, users[0]);
-          },
+  chargeFn = (appId, accountId) => {
+    dialogSelectUser({
+      sourceId: this.props.match.params.projectId,
+      fromType: 4,
+      fromAdmin: true,
+      SelectUserSettings: {
+        filterAll: true,
+        filterFriend: true,
+        filterOthers: true,
+        filterOtherProject: true,
+        filterAccountIds: [accountId],
+        projectId: this.props.match.params.projectId,
+        unique: true,
+        callback: users => {
+          this.updateAppOwner(appId, users[0]);
         },
-      });
+      },
     });
   };
 
@@ -565,54 +558,6 @@ export default class AppManagement extends Component {
       }
     });
   }
-
-  /**
-   * 检测是否是应用管理员
-   */
-  checkIsAppAdmin(appId, name) {
-    const opts = post => {
-      return {
-        id: appId,
-        post,
-        visible: true,
-        title: name,
-      };
-    };
-    this.setState({ checkAdmin: opts(true) }, () => {
-      ajaxRequest
-        .checkAppAdminForUser({
-          appId,
-        })
-        .then(result => {
-          if (result) {
-            addBehaviorLog('app', appId); // 浏览应用埋点
-            navigateTo(`/app/${appId}`);
-          } else if (this.state.checkAdmin.visible) {
-            this.setState({ checkAdmin: opts(false) });
-          }
-        });
-    });
-  }
-
-  /**
-   * 设为应用管理员
-   */
-  addRoleMemberForAppAdmin = () => {
-    const {
-      checkAdmin: { id },
-    } = this.state;
-
-    ajaxRequest
-      .addRoleMemberForAppAdmin({
-        appId: id,
-      })
-      .then(result => {
-        if (result) {
-          addBehaviorLog('app', id); // 浏览应用埋点
-          navigateTo(`/app/${id}`);
-        }
-      });
-  };
 
   /**
    * 更新状态
@@ -659,7 +604,6 @@ export default class AppManagement extends Component {
   render() {
     const {
       status,
-      checkAdmin,
       total,
       maxCount,
       count,
@@ -673,8 +617,7 @@ export default class AppManagement extends Component {
       appTrashVisible,
     } = this.state;
     const projectId = this.props.match.params.projectId;
-    const { version = {}, licenseType } =
-      _.find(md.global.Account.projects || [], o => o.projectId === projectId) || {};
+    const { version = {}, licenseType } = getCurrentProject(projectId, true);
     const statusList = [
       { text: _l('全部状态'), value: '' },
       { text: _l('开启'), value: 1 },
@@ -788,7 +731,7 @@ export default class AppManagement extends Component {
           />
           <div className="flex" />
           <Search
-            placeholder={_l('应用名称 / 拥有者')}
+            placeholder={_l('应用名称')}
             handleChange={_.debounce(keyword => this.updateState({ keyword }), 500)}
           />
         </div>
@@ -835,17 +778,6 @@ export default class AppManagement extends Component {
           pageIndex={pageIndex}
           pageSize={50}
           onChange={pageIndex => this.setState({ pageIndex }, this.getAppList)}
-        />
-
-        <Dialog
-          visible={checkAdmin.visible}
-          className={cx({ checkAdminDialog: checkAdmin.post })}
-          title={_l('管理应用“%0”', checkAdmin.title)}
-          description={_l('如果你不是应用的管理员，需要将自己加为管理员以获得权限')}
-          cancelText=""
-          okText={checkAdmin.post ? _l('验证权限...') : _l('加为此应用管理员')}
-          onOk={checkAdmin.post ? () => {} : this.addRoleMemberForAppAdmin}
-          onCancel={() => this.setState({ checkAdmin: Object.assign({}, this.state.checkAdmin, { visible: false }) })}
         />
 
         <Drawer

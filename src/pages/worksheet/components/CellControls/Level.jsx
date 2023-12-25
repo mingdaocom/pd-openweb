@@ -72,7 +72,11 @@ export default class Level extends React.Component {
   }
   @autobind
   handleChange(value) {
-    const { updateCell } = this.props;
+    const { cell, updateCell } = this.props;
+    if (cell.required && !value) {
+      alert(_l('%0为必填字段', cell.controlName), 3);
+      return;
+    }
     this.setState({ value });
     updateCell({
       value,

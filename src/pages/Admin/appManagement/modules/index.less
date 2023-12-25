@@ -16,6 +16,7 @@
   }
   .passwordInputBox {
     display: flex;
+    align-items: center;
     margin-top: 14px;
     line-height: 34px;
     box-sizing: border-box;
@@ -33,16 +34,27 @@
         border: 1px solid #2196f3;
       }
     }
-    .icon-edit,
-    .icon-content-copy {
+    // .icon-edit,
+    // .icon-content-copy {
+    //   &:hover {
+    //     color: #2196f3 !important;
+    //   }
+    // }
+    .copyIcon {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      text-align: center;
+      line-height: 20px;
+      border-radius: 50%;
       &:hover {
-        color: #2196f3 !important;
+        background: #eaeaea;
       }
     }
-    .error {
-      font-size: 12px;
-      color: #f44336;
-    }
+  }
+  .error {
+    font-size: 12px;
+    color: #f44336;
   }
 }
 

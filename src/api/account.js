@@ -282,6 +282,7 @@ export default {
   * 验证登录密码
 根据设备（勾选之后1小时内免验证）
   * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织ID
   * @param {boolean} args.isNoneVerification 是否1小时内该设备免验证
   * @param {string} args.password 密码
   * @param {string} args.ticket 验证码返票据

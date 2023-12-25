@@ -24,7 +24,7 @@ const Operation = ({
   onChangeDirection,
   changeCurrentReport,
   getReportData,
-  getTableData
+  getTableData,
 }) => {
   const { report } = base;
   const isChartPublicShare = location.href.includes('public/chart');
@@ -35,28 +35,28 @@ const Operation = ({
   return (
     <div className="flexRow valignWrapper">
       {sheetVisible && !settingVisible ? (
-          <Tooltip title={direction === 'vertical' ? _l('切换为竖版模式') : _l('切换为横版模式')} placement="bottom">
+        <Tooltip title={direction === 'vertical' ? _l('切换为竖版模式') : _l('切换为横版模式')} placement="bottom">
+          <Icon
+            icon="call_to_action_on"
+            className={cx('Font20 Gray_9e pointer mLeft16', direction)}
+            onClick={() => {
+              onChangeDirection();
+            }}
+          />
+        </Tooltip>
+      ) : (
+        isSheetView && (
+          <Tooltip title={_l('以表格显示')} placement="bottom">
             <Icon
-              icon="call_to_action_on"
-              className={cx('Font20 Gray_9e pointer mLeft16', direction)}
+              icon="worksheet"
+              className="Font20 Gray_9e pointer mLeft16"
               onClick={() => {
-                onChangeDirection();
+                onChangeSheetVisible();
               }}
             />
           </Tooltip>
-        ) : (
-          isSheetView && (
-            <Tooltip title={_l('以表格显示')} placement="bottom">
-              <Icon
-                icon="worksheet"
-                className="Font20 Gray_9e pointer mLeft16"
-                onClick={() => {
-                  onChangeSheetVisible();
-                }}
-              />
-            </Tooltip>
-          )
-        )}
+        )
+      )}
       {!settingVisible && (
         <Tooltip title={_l('刷新')} placement="bottom">
           <Icon
@@ -82,23 +82,25 @@ const Operation = ({
           />
         </Tooltip>
       )}
-      {settingVisible && [reportTypes.PivotTable].includes(reportData.reportType) && !_.isEmpty(pivotTableColumnWidthConfig) && (
-        <Tooltip title={_l('等分')} placement="bottom">
-          <Icon
-            icon="equal_division"
-            className="Font20 Gray_9e pointer mLeft16"
-            onClick={() => {
-              changeCurrentReport({
-                style: {
-                  ...style,
-                  pivotTableColumnWidthConfig: undefined
-                }
-              });
-              sessionStorage.removeItem(`pivotTableColumnWidthConfig-${report.id}`);
-            }}
-          />
-        </Tooltip>
-      )}
+      {settingVisible &&
+        [reportTypes.PivotTable].includes(reportData.reportType) &&
+        !_.isEmpty(pivotTableColumnWidthConfig) && (
+          <Tooltip title={_l('等分')} placement="bottom">
+            <Icon
+              icon="equal_division"
+              className="Font20 Gray_9e pointer mLeft16"
+              onClick={() => {
+                changeCurrentReport({
+                  style: {
+                    ...style,
+                    pivotTableColumnWidthConfig: undefined,
+                  },
+                });
+                sessionStorage.removeItem(`pivotTableColumnWidthConfig-${report.id}`);
+              }}
+            />
+          </Tooltip>
+        )}
       <Sort
         sourceType={sourceType}
         currentReport={currentReport}
@@ -115,12 +117,11 @@ const Operation = ({
       />
     </div>
   );
-}
-
+};
 
 export default connect(
   ({ statistics }) => ({
-    ..._.pick(statistics, ['currentReport', 'reportData', 'worksheetInfo', 'base'])
+    ..._.pick(statistics, ['currentReport', 'reportData', 'worksheetInfo', 'base']),
   }),
   dispatch => bindActionCreators(actions, dispatch),
 )(Operation);

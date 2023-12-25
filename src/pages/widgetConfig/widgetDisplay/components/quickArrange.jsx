@@ -88,7 +88,7 @@ export default function QuickArrange({ widgets, setWidgets }) {
   };
 
   return (
-    <SettingItem className="settingItem withSplitLine">
+    <SettingItem className="settingItem withSplitLine mTop15">
       <div className="settingItemTitle">
         <span className="Font14">{_l('快速排列')}</span>
         <div className="Absolute Right1 flexCenter">

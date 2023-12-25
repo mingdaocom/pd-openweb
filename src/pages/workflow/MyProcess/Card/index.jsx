@@ -1,5 +1,4 @@
 import React, { Fragment, Component } from 'react';
-import cx from 'classnames';
 import Icon from 'ming-ui/components/Icon';
 import { TABS } from '../index';
 import { Checkbox, Tooltip } from 'antd';
@@ -9,18 +8,13 @@ import './index.less';
 import SvgIcon from 'src/components/SvgIcon';
 import _ from 'lodash';
 import moment from 'moment';
+import UserHead from 'src/components/userHead';
 
 export default class Card extends Component {
   constructor(props) {
     super(props);
   }
-  componentDidMount() {
-    const { createAccount } = this.props.item;
-    $(this.avatar).mdBusinessCard({
-      chatByLink: true,
-      accountId: createAccount.accountId,
-    });
-  }
+
   renderHeader() {
     const { stateTab, item, showApproveChecked = true } = this.props;
     const { flowNode, workItem, flowNodeType, currentWorkFlowNodes, completeDate, instanceLog, status } = item;
@@ -72,7 +66,11 @@ export default class Card extends Component {
       RenderState = (
         <div className="state bold valignWrapper">
           <div className="Font13 Gray_75">
-            {currentWorkFlowNodes.length > 1 ? _l('%0个节点', currentWorkFlowNodes.length) : (currentWorkFlowNode ? currentWorkFlowNode.name : flowNode.name)}
+            {currentWorkFlowNodes.length > 1
+              ? _l('%0个节点', currentWorkFlowNodes.length)
+              : currentWorkFlowNode
+              ? currentWorkFlowNode.name
+              : flowNode.name}
           </div>
           <div className="info mLeft5 Gray_75 Font13">{_l('处理中…')}</div>
         </div>
@@ -94,8 +92,9 @@ export default class Card extends Component {
             </div>
             {instanceLog && instanceLog.cause && instanceStatus !== 5 && (
               <div className="Font13 mLeft10 Gray_75">
-                {`${instanceLog.cause === 40007 ? '' : _l('节点：')}${FLOW_FAIL_REASON[instanceLog.cause] ||
-                  instanceLog.causeMsg}`}
+                {`${instanceLog.cause === 40007 ? '' : _l('节点：')}${
+                  FLOW_FAIL_REASON[instanceLog.cause] || instanceLog.causeMsg
+                }`}
               </div>
             )}
           </Fragment>
@@ -127,17 +126,21 @@ export default class Card extends Component {
   }
   renderBody() {
     const { item, stateTab } = this.props;
-    const { createAccount } = item;
+    const { createAccount, app = {} } = item;
+
     return (
       <div className="cardBody flexColumn">
         <div className="flexRow conent">
           <div className="valignWrapper avatarWrapper mRight10">
-            <img
+            <UserHead
               className="accountAvatar"
-              ref={avatar => {
-                this.avatar = avatar;
+              user={{
+                userHead: createAccount.avatar,
+                accountId: createAccount.accountId,
               }}
-              src={createAccount.avatar}
+              size={22}
+              appId={app.id}
+              chatButton={false}
             />
             <span className="fullName Font13 pLeft5 pRight10">{createAccount.fullName}</span>
           </div>
@@ -189,8 +192,9 @@ export default class Card extends Component {
     return (
       <Tooltip
         title={
-          autoPass ? '' : 
-          maxEndTimeConsuming > 0
+          autoPass
+            ? ''
+            : maxEndTimeConsuming > 0
             ? _l('超时 %0 完成', covertTime(maxEndTimeConsuming))
             : _l('提前 %0 完成', covertTime(maxEndTimeConsuming))
         }

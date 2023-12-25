@@ -20,6 +20,7 @@ import { browserIsMobile, addBehaviorLog } from 'src/util';
 import { openAddRecord } from 'mobile/Record/addRecord';
 import { RecordInfoModal } from 'mobile/Record';
 import { WithoutRows } from 'mobile/RecordList/SheetRows';
+import { FROM } from 'src/components/newCustomFields/tools/config';
 
 const PAGE_SIZE = 50;
 
@@ -326,7 +327,8 @@ export default function RelationSearch(props) {
     isLoadingMore,
   } = state;
   const isMobile = browserIsMobile();
-  const { cardWidth, colNum } = getCardWidth({ width, enumDefault });
+
+  const { cardWidth, colNum } = getCardWidth({ width: browserIsMobile() ? undefined : width, enumDefault });
   const allowOpenRecord = _.get(advancedSetting, 'allowlink') === '1' && !_.get(window, 'shareState.shareId');
   const allowNewRecord =
     worksheetAllowAdd &&
@@ -432,9 +434,8 @@ export default function RelationSearch(props) {
     });
   });
   const handleOpenRecord = useCallback(needOpenRecordId => {
-    if (location.pathname.indexOf('public') === -1) {
-      addBehaviorLog('worksheetRecord', control.dataSource, { rowId: needOpenRecordId }); // 埋点
-    }
+
+    addBehaviorLog('worksheetRecord', control.dataSource, { rowId: needOpenRecordId }); // 埋点
     if (isMobile) {
       setRecordInfoVisible(true);
       setOpenRecordId(needOpenRecordId);

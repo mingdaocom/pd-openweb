@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
-import { MultipleDropdown, Dropdown, TagTextarea, CityPicker, Icon, QiniuUpload } from 'ming-ui';
+import { MultipleDropdown, Dropdown, TagTextarea, Icon, QiniuUpload, CityPicker, Input } from 'ming-ui';
 import { DateTime, DateTimeRange } from 'ming-ui/components/NewDateTimePicker';
 import DialogSelectDept from 'src/components/dialogSelectDept';
 import Tag from '../Tag';
@@ -21,6 +21,8 @@ export default class SingleControlValue extends Component {
     this.state = {
       moreFieldsIndex: '',
       isUploading: false,
+      search: undefined,
+      keywords: '',
     };
 
     // 缓存当前的附件的量
@@ -337,7 +339,11 @@ export default class SingleControlValue extends Component {
         name: obj.nodeName,
         isSourceApp: obj.isSourceApp.toString(),
       };
-      formulaMap[obj.fieldValueId] = { type: obj.fieldValueType, name: obj.fieldValueName, sourceType: obj.sourceType };
+      formulaMap[`${obj.nodeId}-${obj.fieldValueId}`] = {
+        type: obj.fieldValueType,
+        name: obj.fieldValueName,
+        sourceType: obj.sourceType,
+      };
 
       updateSource({ formulaMap }, () => {
         if (this.tagtextarea) {
@@ -386,9 +392,13 @@ export default class SingleControlValue extends Component {
     );
   };
 
+  onFetchData = _.debounce(keywords => {
+    this.setState({ keywords });
+  }, 500);
+
   render() {
     const { controls, item, i } = this.props;
-    const { isUploading } = this.state;
+    const { isUploading, search, keywords } = this.state;
     const formulaMap = _.cloneDeep(this.props.formulaMap);
     let list = [];
 
@@ -450,7 +460,7 @@ export default class SingleControlValue extends Component {
             renderTag={(tag, options) => {
               const ids = tag.split(/([a-zA-Z0-9#]{24,32})-/).filter(item => item);
               const nodeObj = formulaMap[ids[0]] || {};
-              const controlObj = formulaMap[ids[1]] || {};
+              const controlObj = formulaMap[ids.join('-')] || {};
 
               return (
                 <Tag
@@ -828,33 +838,40 @@ export default class SingleControlValue extends Component {
           ) : (
             <div className="actionControlBox flex ThemeBorderColor3 clearBorderRadius actionControlBoxClear">
               <CityPicker
+                search={keywords}
                 level={level}
-                callback={citys =>
+                callback={citys => {
+                  search && this.setState({ search: undefined, keywords: '' });
                   this.updateSingleControlValue(
                     {
                       fieldValue: JSON.stringify({
                         id: citys[citys.length - 1].id,
-                        value: citys.map(o => o.name).join('/'),
+                        value: citys[citys.length - 1].path,
                       }),
                     },
                     i,
-                  )
-                }
+                  );
+                }}
               >
-                {cityText ? (
-                  <span>{cityText}</span>
-                ) : (
-                  <span className="Gray_bd">
-                    {item.type === 19 ? _l('省') : item.type === 23 ? _l('省/市') : _l('省/市/县')}
-                  </span>
-                )}
+                <Input
+                  className="CityPicker-input-textCon w100"
+                  placeholder={item.type === 19 ? _l('省') : item.type === 23 ? _l('省/市') : _l('省/市/县')}
+                  value={search !== undefined ? search : cityText}
+                  onChange={value => {
+                    this.setState({ search: value });
+                    this.onFetchData(value);
+                  }}
+                />
               </CityPicker>
               {cityText && (
                 <Icon
                   icon="cancel1"
                   className="Font16 Gray_9e ThemeHoverColor3 Absolute"
                   style={{ top: 9, right: 10 }}
-                  onClick={() => this.updateSingleControlValue({ fieldValue: '' }, i)}
+                  onClick={() => {
+                    this.setState({ search: '', keywords: '' });
+                    this.updateSingleControlValue({ fieldValue: '' }, i);
+                  }}
                 />
               )}
             </div>

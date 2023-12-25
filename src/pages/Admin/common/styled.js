@@ -212,7 +212,7 @@ export const BillInfoWrap = styled.div`
         height: 24px;
         border-radius: 50%;
       }
-      span {
+      >span {
         margin-left: 6px;
       }
     }

@@ -73,6 +73,7 @@ export const UPLOAD_COUNT = [
     unit: _l('（年）'),
     link: 'app',
     click: 'storage',
+    numUnit: 'GB',
   },
   {
     key: 'useExecCount',
@@ -81,6 +82,7 @@ export const UPLOAD_COUNT = [
     unit: _l('（月）'),
     link: 'workflows',
     click: 'workflow',
+    numUnit: _l('次'),
   },
   {
     key: 'effectiveDataPipelineRowCount',
@@ -89,6 +91,7 @@ export const UPLOAD_COUNT = [
     unit: _l('（月）'),
     link: 'dataSync',
     click: 'dataSync',
+    numUnit: _l('行'),
   },
 ];
 
@@ -108,5 +111,5 @@ export const formatFileSize = size => {
 };
 
 export const formatValue = num => {
-  return (num + '').replace(/(\d)(?=(\d{3})+$)/g, '$1,');
+  return _.isNumber(num) ? (num + '').replace(/(\d)(?=(\d{3})+$)/g, '$1,') : '-';
 };

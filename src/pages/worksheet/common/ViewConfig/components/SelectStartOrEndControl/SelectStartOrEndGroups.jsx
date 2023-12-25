@@ -343,7 +343,6 @@ export default function SelectStartOrEndGroups(props) {
             });
           }}
           title={_l('添加日期字段')}
-          withoutIntro={true}
           enumType={'DATE'}
           worksheetId={worksheetId}
         />

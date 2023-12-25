@@ -10,8 +10,9 @@ import {
   saveLRUWorksheetConfig,
   clearLRUWorksheetConfig,
   formatQuickFilter,
+  handleRecordError,
 } from 'worksheet/util';
-import { getNavGroupCount } from './index';
+import { updateNavGroup } from './index';
 import { getFilledRequestParams } from 'worksheet/util';
 
 const DEFAULT_PAGESIZE = 50;
@@ -120,17 +121,6 @@ export const fetchRows = ({ isFirst, changeView, noLoading, noClearSelected, upd
         }
       });
     }
-  };
-};
-
-// 更新分组筛选
-export const updateNavGroup = () => {
-  return (dispatch, getState) => {
-    const { views, base } = getState().sheet;
-    const { viewId = '' } = base;
-    const view = views.find(o => o.viewId === viewId) || {};
-    const navGroup = view.navGroup && view.navGroup.length > 0 ? view.navGroup[0] : {};
-    navGroup.controlId && window.localStorage.getItem('navGroupIsOpen') !== 'false' && dispatch(getNavGroupCount());
   };
 };
 
@@ -253,9 +243,9 @@ export function updateControlOfRow({ cell = {}, cells = [], recordId }, options 
           if (_.isFunction(options.updateTable)) {
             options.updateTable();
           }
-          alert(_l('编辑失败，%0不允许重复', options.cell ? options.cell.controlName : ''), 3);
+          handleRecordError(res.resultCode, options.cell);
         } else {
-          alert(_l('编辑失败！'), 3);
+          handleRecordError(res.resultCode);
         }
       })
       .fail(err => {
@@ -645,7 +635,6 @@ export function addRecord(records, afterRowId) {
     if (!_.isArray(records)) {
       records = [records];
     }
-    dispatch(updateNavGroup());
     dispatch({
       type: 'WORKSHEET_SHEETVIEW_UPDATE_COUNT',
       count: count + records.length,

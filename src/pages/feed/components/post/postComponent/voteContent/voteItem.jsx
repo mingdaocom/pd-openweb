@@ -36,7 +36,7 @@ class VoteItem extends React.Component {
         </div>
         {option.file && option.file !== 'undefined' ? (
           <div onClick={() => previewQiniuUrl(option.file)}>
-            <img className="mTop10 mLeft30" width={130} height={90} src={option.thumbnailFile} />
+            <img className="mTop10 mLeft30" height={90} src={option.thumbnailFile} />
           </div>
         ) : undefined}
       </li>

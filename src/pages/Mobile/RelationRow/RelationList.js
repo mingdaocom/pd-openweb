@@ -16,8 +16,8 @@ class RelationList extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      previewRecordId: undefined
-    }
+      previewRecordId: undefined,
+    };
   }
   componentDidMount() {
     this.loadData(this.props);
@@ -32,7 +32,7 @@ class RelationList extends Component {
     this.props.reset();
   }
   loadData = props => {
-    const { controlId, control, instanceId, workId, worksheetId, rowId, getType } = props;
+    const { controlId, control, instanceId, workId, worksheetId, rowId, getType, data: formData } = props;
     let newParams = null;
     if (instanceId && workId) {
       newParams = {
@@ -53,7 +53,7 @@ class RelationList extends Component {
       };
     }
     props.updateBase(newParams);
-    props.loadRow(control, getType);
+    props.loadRow({ ...control, formData }, getType);
   };
   handleSelect = (record, selected) => {
     const { relationRow, actionParams, updateActionParams, permissionInfo } = this.props;
@@ -68,9 +68,7 @@ class RelationList extends Component {
       });
     } else {
       if (permissionInfo.allowLink) {
-        if (location.pathname.indexOf('public') === -1) {
-          addBehaviorLog('worksheetRecord', worksheet.worksheetId, { rowId: record.rowid }); // 埋点
-        }
+        addBehaviorLog('worksheetRecord', worksheet.worksheetId, { rowId: record.rowid }); // 埋点
         this.setState({
           previewRecordId: record.rowid,
         });
@@ -78,30 +76,31 @@ class RelationList extends Component {
     }
   };
   renderRow = item => {
-    const { relationRow, actionParams, permissionInfo } = this.props;
+    const { relationRow, actionParams, permissionInfo, worksheetId } = this.props;
     const { showControls, selectedRecordIds, coverCid } = actionParams;
     const { controls } = relationRow.template;
     const selected = !!_.find(selectedRecordIds, id => id === item.rowid);
 
     return (
-      <WingBlank size="md" key={item.rowid}>
+      <div className="mLeft10 mRight10" key={item.rowid}>
         <RecordCard
           from={3}
           selected={selected}
           controls={controls}
           coverCid={coverCid}
           showControls={showControls}
+          worksheetId={item.wsid}
           data={item}
           onClick={() => this.handleSelect(item, !selected)}
           disabledLink={!permissionInfo.allowLink}
         />
-      </WingBlank>
+      </div>
     );
   };
   render() {
     const { rowInfo, controlId, relationRow, relationRows, loadParams, actionParams, permissionInfo } = this.props;
     const { loading, pageIndex, isMore } = loadParams;
-    
+
     if (loading && pageIndex === 1) {
       return (
         <Flex justify="center" align="center" className="h100">
@@ -113,13 +112,13 @@ class RelationList extends Component {
     const { previewRecordId } = this.state;
     const { isEdit } = actionParams;
     const { worksheet } = relationRow;
-    const control = _.find(rowInfo.receiveControls, { controlId }) || {};
+    const control = _.find(rowInfo.templateControls, { controlId }) || {};
 
     return (
       <div className={cx('sheetRelationRow flex', { editRowWrapper: isEdit })}>
         {relationRows.length ? (
           <Fragment>
-            <WhiteSpace />
+            <WhiteSpace className="mTop1" />
             {relationRows.map(item => this.renderRow(item))}
             {isMore && <Flex justify="center">{loading ? <ActivityIndicator animating /> : null}</Flex>}
             <WhiteSpace />
@@ -134,7 +133,7 @@ class RelationList extends Component {
               editable={_.get(permissionInfo, 'controlPermission.editable')}
               onClose={() => {
                 this.setState({
-                  previewRecordId: undefined
+                  previewRecordId: undefined,
                 });
               }}
             />

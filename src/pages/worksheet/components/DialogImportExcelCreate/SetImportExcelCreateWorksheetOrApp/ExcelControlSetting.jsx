@@ -17,6 +17,9 @@ const ExcelControlSettingWrap = styled.div`
   border-radius: 3px 3px 3px 3px;
   width: 350px;
   padding: 20px;
+  max-height: 450px;
+  overflow-x: hidden;
+  overflow-y: auto;
   .name {
     display: flex;
     align-items: center;
@@ -74,7 +77,8 @@ export default class ExcelControlSetting extends Component {
 
   getControls = worksheetId => {
     this.setState({ loading: true });
-    worksheetAjax.getWorksheetInfo({ worksheetId, getTemplate: true, getViews: false })
+    worksheetAjax
+      .getWorksheetInfo({ worksheetId, getTemplate: true, getViews: false })
       .then(res => {
         const { template } = res;
         this.setState({

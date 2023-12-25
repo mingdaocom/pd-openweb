@@ -4,17 +4,14 @@ import classNames from 'classnames';
 
 import userController from 'src/api/user';
 
-import UserHead from 'src/pages/feed/components/userHead';
+import UserHead from 'src/components/userHead';
 import { LoadDiv, Checkbox, Dialog } from 'ming-ui';
 import { Input } from 'antd';
-import withClickAway from 'ming-ui/decorators/withClickAway';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-const ClickAwayable = createDecoratedComponent(withClickAway);
 
 import PaginationWrap from '../../components/PaginationWrap';
 import './style.less';
 import Empty from '../../common/TableEmpty';
-import { verifyPassword } from 'src/util';
+import { getCurrentProject, verifyPassword } from 'src/util';
 import { getPssId } from 'src/util/pssId';
 import { purchaseMethodFunc } from 'src/components/upgrade/choose/PurchaseMethodModal';
 import _ from 'lodash';
@@ -246,7 +243,6 @@ export default class ResignList extends React.Component {
                   className="mRight10 InlineBlock TxtMiddle"
                   user={{ ...user, userHead: user.avatar }}
                   size={40}
-                  lazy={'false'}
                 />
                 <div className="flexColumn userRight TxtLeft wMax100">
                   <a className="Bold overflow_ellipsis wMax100" href={'/user_' + user.accountId} title={user.fullname}>

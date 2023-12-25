@@ -109,7 +109,11 @@ export const PAGE_HEADER_ROUTE_CONFIG = {
   },
   integration: {
     path: '/integration',
-    component: () => import('src/pages/PageHeader/HubHeader'),
+    component: () => import('src/pages/PageHeader/HubAndPluginHeader'),
+  },
+  plugin: {
+    path: '/plugin',
+    component: () => import('src/pages/PageHeader/HubAndPluginHeader'),
   },
   app: {
     path: '/app/?',

@@ -34,7 +34,7 @@ const WorkSheetPortal = (props) => {
 
   const handleSaveName = (e, id) => {
     setEditId('');
-    const workSheetName = e.target.value.slice(0, 25) || _l('未命名分组');
+    const workSheetName = e.target.value.slice(0, 100) || _l('未命名分组');
     homeAppApi.updateAppSection({
       appId,
       appSectionId: id,

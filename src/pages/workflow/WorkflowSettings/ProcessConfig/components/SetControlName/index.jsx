@@ -4,6 +4,8 @@ import { FIELD_TYPE_LIST } from '../../../enum';
 import cx from 'classnames';
 import _ from 'lodash';
 
+const FIELD_TYPE = FIELD_TYPE_LIST.concat([{ text: _l('对象'), value: 10000006, en: 'object' }]);
+
 const Box = styled.div`
   margin-top: 10px;
   border: 1px solid #ddd;
@@ -131,7 +133,7 @@ export default ({ data = [], list = [], errorItems, setErrorItems, updateSource 
               {obj.controlName}
             </div>
             <div className="pLeft15 pRight15 w110 pTop10 pBottom10">
-              {_.find(FIELD_TYPE_LIST, o => o.value === obj.type).text}
+              {_.find(FIELD_TYPE, o => o.value === obj.type).text}
             </div>
             <div className="pLeft15 pRight15 w180">
               <input

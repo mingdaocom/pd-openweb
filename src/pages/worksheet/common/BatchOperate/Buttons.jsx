@@ -141,12 +141,13 @@ function Buttons(props) {
                 '.mui-datetimepicker',
                 '.mui-datetimerangepicker',
                 '.selectUserBox',
-                '.CityPicker',
                 '.worksheetFilterOperateList',
                 '.ant-select-dropdown',
                 '.ant-picker-dropdown',
                 '.rc-trigger-popup',
                 '#dialogSelectDept_container',
+                '.CityPicker',
+                '.CityPicker-wrapper'
               ]}
             >
               <CustomButtons

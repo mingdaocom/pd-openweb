@@ -99,7 +99,7 @@ export default class RelateFilter extends Component {
         >
           {!dynamicSource.length || dynamicSource.length <= 0
             ? _.includes(['fastFilter'], from)
-              ? _l('选择已添加的快速筛选字段或筛选列表字段')
+              ? _l('选择已添加的筛选项')
               : _l('选择当前表单字段')
             : _.map(dynamicSource, (item, i) => {
                 if (showCustom && _.includes(['rowid', 'currenttime'], item.cid)) {

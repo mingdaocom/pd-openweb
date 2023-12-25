@@ -175,12 +175,12 @@ function BoardView(props) {
     viewId,
     view.viewControl,
     view.advancedSetting.navshow,
-    view.advancedSetting.navfilters,
+    JSON.stringify(view.advancedSetting.navfilters),
     view.advancedSetting.freezenav,
     view.advancedSetting.navempty,
-    view.moreSort,
+    JSON.stringify(view.moreSort),
     view.advancedSetting.colorid,
-    navGroupFilters,
+    JSON.stringify(navGroupFilters),
   ]);
 
   const handleSelectField = obj => {
@@ -302,7 +302,9 @@ function BoardView(props) {
 
     return (
       <Fragment>
-        {!boardViewLoading && freezenav === '1' && <div className="boardFixedWrap">{renderBoard(true)}</div>}
+        {!boardViewLoading && freezenav === '1' && !browserIsMobile() && (
+          <div className="boardFixedWrap">{renderBoard(true)}</div>
+        )}
 
         <div
           className={cx('boardListWrap', { pLeft0: browserIsMobile() })}

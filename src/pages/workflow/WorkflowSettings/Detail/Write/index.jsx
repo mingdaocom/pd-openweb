@@ -259,7 +259,7 @@ export default class Write extends Component {
 
               <div className="Font13 mTop25 bold">{_l('指定人')}</div>
 
-              <Member accounts={data.accounts} updateSource={this.updateSource} />
+              <Member companyId={this.props.companyId} accounts={data.accounts} updateSource={this.updateSource} />
               <div
                 className="mTop12 flexRow ThemeColor3 workflowDetailAddBtn"
                 onClick={() => this.setState({ showSelectUserDialog: true })}
@@ -320,7 +320,7 @@ export default class Write extends Component {
 
                   <div className="Font13 mTop25 bold">{_l('安全')}</div>
                   <Checkbox
-                    className="mTop15 flexRow"
+                    className="mTop15 flexRow alignItemsCenter"
                     text={
                       <span>
                         {_l('登录密码验证')}
@@ -419,7 +419,7 @@ export default class Write extends Component {
                 <Fragment>
                   {data.selectNodeId ? (
                     <Fragment>
-                      <div className="Font13 bold mTop25">{_l('节点开始前更新')}</div>
+                      <div className="Font13 bold mTop25">{_l('节点开始时更新')}</div>
                       <div className="Font13 Gray_9e mTop10">
                         {_l('流程进入此节点且填写开始前，更新数据对象的字段值（退回至此节点也会触发更新）')}
                       </div>

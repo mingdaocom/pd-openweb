@@ -24,7 +24,7 @@ const RecordCardCellRelateRecord = styled.div`
   display: inline-block;
   line-height: 21px;
   font-size: 13px;
-  background-color: #e8e8e8;
+  background-color: rgba(0, 100, 240, 0.08);
   padding: 0 10px;
   border-radius: 3px;
   margin-right: 6px;
@@ -354,7 +354,7 @@ export default class RelateRecord extends React.Component {
             disabled={!editable}
             selected={records}
             cellFrom={from}
-            control={{ ...cell, formData: rowFormData }}
+            control={{ ...cell, formData: rowFormData, worksheetId, recordId }}
             formData={rowFormData}
             viewId={cell.viewId}
             worksheetId={worksheetId}

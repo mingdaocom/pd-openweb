@@ -115,6 +115,7 @@ export default function OnlySyncStep(props) {
         destFields,
         isSourceAppType,
         isDestAppType,
+        true,
       );
       onChangeStateData(fieldsMapping, setFieldsMapping, { fieldsMapping: defaultData });
       return;
@@ -134,6 +135,7 @@ export default function OnlySyncStep(props) {
           destFields,
           isSourceAppType,
           isDestAppType,
+          true,
         );
         onChangeStateData(fieldsMapping, setFieldsMapping, { fieldsMapping: defaultData });
         onChangeStateData(matchedTypes, setMatchedTypes, { matchedTypes: res.matchedTypes });
@@ -297,7 +299,7 @@ export default function OnlySyncStep(props) {
                         workSheetId: currentTab.table,
                       });
                       setFieldsMappingDefaultData({
-                        initMapping: getInitFieldsMapping(res, isSourceAppType, isDestAppType),
+                        initMapping: getInitFieldsMapping(res, isSourceAppType, dest.type),
                         sourceFields: res,
                         isCreate:
                           _.get(sheetData, [currentTab.db, currentTab.table, 'sheetCreateType']) !==
@@ -320,7 +322,7 @@ export default function OnlySyncStep(props) {
             if (res) {
               onChangeStateData(sourceFields, setSourceFields, { fields: res });
               setFieldsMappingDefaultData({
-                initMapping: getInitFieldsMapping(res, isSourceAppType, isDestAppType),
+                initMapping: getInitFieldsMapping(res, isSourceAppType, dest.type),
                 sourceFields: res,
                 isCreate:
                   _.get(sheetData, [currentTab.db, currentTab.table, 'sheetCreateType']) !== CREATE_TYPE.SELECT_EXIST,
@@ -370,7 +372,7 @@ export default function OnlySyncStep(props) {
     const initMapping = getInitFieldsMapping(
       _.get(sourceFields, [currentTab.db, currentTab.table, 'fields']) || [],
       isSourceAppType,
-      isDestAppType,
+      dest.type,
     );
     setFieldsMappingDefaultData({ initMapping, noFetchSet: true });
 
@@ -396,7 +398,7 @@ export default function OnlySyncStep(props) {
     const initMapping = getInitFieldsMapping(
       _.get(sourceFields, [currentTab.db, currentTab.table, 'fields']) || [],
       isSourceAppType,
-      isDestAppType,
+      dest.type,
     );
     setFieldsMappingDefaultData({ initMapping, noFetchSet: true });
     onChangeStateData(sheetData, setSheetData, { schemaName: schema.value });
@@ -425,7 +427,7 @@ export default function OnlySyncStep(props) {
     const initMapping = getInitFieldsMapping(
       _.get(sourceFields, [currentTab.db, currentTab.table, 'fields']) || [],
       isSourceAppType,
-      isDestAppType,
+      dest.type,
     );
     !_.isEmpty(initMapping) &&
       setFieldsMappingDefaultData({
@@ -444,7 +446,7 @@ export default function OnlySyncStep(props) {
     const initMapping = getInitFieldsMapping(
       _.get(sourceFields, [currentTab.db, currentTab.table, 'fields']) || [],
       isSourceAppType,
-      isDestAppType,
+      dest.type,
     );
     if (_.isEmpty(initMapping)) {
       onChangeStateData(sheetData, setSheetData, {

@@ -10,7 +10,6 @@ import {
   getChartColors,
   getAuxiliaryLineConfig
 } from './common';
-import { BidirectionalBar } from '@antv/g2plot';
 import { formatChartData as formatBarChartData, formatDataCount } from './BarChart';
 import { formatSummaryName, isFormatNumber } from 'statistics/common';
 import { Dropdown, Menu } from 'antd';
@@ -45,7 +44,10 @@ export default class extends Component {
     this.BidirectionalBarChart = null;
   }
   componentDidMount() {
-    this.renderBidirectionalBarChart(this.props);
+    import('@antv/g2plot').then(data => {
+      this.g2plotComponent = data;
+      this.renderBidirectionalBarChart(this.props);
+    });
   }
    componentWillUnmount() {
     this.BidirectionalBarChart && this.BidirectionalBarChart.destroy();
@@ -87,6 +89,7 @@ export default class extends Component {
     const { reportData, isViewOriginalData } = props;
     const { displaySetup } = reportData;
     const config = this.getComponentConfig(props);
+    const { BidirectionalBar } = this.g2plotComponent;
     this.BidirectionalBarChart = new BidirectionalBar(this.chartEl, config);
     if (displaySetup.showRowList && isViewOriginalData) {
       this.BidirectionalBarChart.on('element:click', this.handleClick);
@@ -145,7 +148,7 @@ export default class extends Component {
       label: displaySetup.showNumber ? {
         position: isVertical ? 'top' : 'right',
         layout: [
-          displaySetup.hideOverlapText ? { type: 'interval-hide-overlap' } : null,
+          displaySetup.hideOverlapText ? { type: 'hide-overlap' } : null,
           { type: 'adjust-color' }
         ],
         offset: 0,

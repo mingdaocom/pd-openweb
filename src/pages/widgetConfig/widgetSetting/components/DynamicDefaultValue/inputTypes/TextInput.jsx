@@ -84,7 +84,7 @@ export default class TextInput extends Component {
       const id = rcid ? `${cid}~${rcid}` : `${cid}`;
       this.$tagtextarea.insertColumnTag(id);
       const newValue =
-        cid === 'search-keyword' && !staticValue ? '$search-keyword$' : this.$tagtextarea.cmObj.getValue();
+        _.includes(['search-keyword'], cid) && !staticValue ? `$${cid}$` : this.$tagtextarea.cmObj.getValue();
       this.transferValue(newValue);
     }
   };

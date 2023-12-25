@@ -17,6 +17,8 @@ export default function (props) {
   const name = JSON.parse(staticValue || '{}').name || '';
   const [value, setValue] = useState(name);
   const [isDynamic, setDynamic] = useState(!!cid);
+  const [search, setSearch] = useState('');
+  const [keywords, setKeywords] = useState('');
   const $wrap = createRef(null);
 
   useEffect(() => {
@@ -30,14 +32,20 @@ export default function (props) {
   };
 
   const handleChange = area => {
-    const code = _.last(area).id;
-    const name = area.map(item => item.name).join('/');
-    setValue(name);
-    onDynamicValueChange([{ cid: '', rcid: '', staticValue: JSON.stringify({ code, name }) }]);
+    const last = _.last(area);
+    setValue(last.path);
+    setSearch('');
+    setKeywords('');
+    onDynamicValueChange([{ cid: '', rcid: '', staticValue: JSON.stringify({ code: last.id, name: last.path }) }]);
   };
   const onTriggerClick = () => {
     defaultType && $wrap.current.triggerClick();
   };
+
+  const onFetchData = _.debounce(value => {
+    setKeywords(value);
+  }, 500);
+
   return (
     <DynamicValueInputWrap hasHoverBg={!!value}>
       {defaultType ? (
@@ -62,8 +70,17 @@ export default function (props) {
               <span className="icon icon-closeelement-bg-circle Font15"></span>
             </div>
           )}
-          <CityPicker level={areaLevel} callback={handleChange}>
-            <input readOnly autoFocus value={value} />
+          <CityPicker key={`CityPicker-${data.controlId}`} search={keywords} level={areaLevel} callback={handleChange}>
+            <input
+              className="CityPicker-input-placeholder-Gray3"
+              autoFocus
+              placeholder={value}
+              value={search}
+              onChange={e => {
+                setSearch(e.target.value);
+                onFetchData(e.target.value);
+              }}
+            />
           </CityPicker>
         </div>
       )}

@@ -190,7 +190,7 @@ export default class EditDetail extends React.Component {
           }}
         />
         {errTxtInfo.includes('address') && this.renderErrTxt()}
-        <div className="mTop20 mBottom24 flexEnd ">
+        <div className="mTop20 flexEnd ">
           <button
             type="button"
             className="ming Button Button--link Gray_9e mRight30"

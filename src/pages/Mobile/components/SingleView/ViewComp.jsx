@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { useDeepCompareEffect } from 'react-use';
 import { loadWorksheet, unshiftSheetRow, updateFiltersGroup } from 'mobile/RecordList/redux/actions';
 import { addNewRecord, updateFilters } from 'src/pages/worksheet/redux/actions';
 import styled from 'styled-components';
@@ -32,7 +33,6 @@ function ViewComp(props) {
   const { loadWorksheet, updateFilters, updateFiltersGroup } = props;
   const { views = [], allowAdd, advancedSetting } = worksheetInfo;
   const { viewId, appId, worksheetId } = base;
-  
   const view = _.find(views, { viewId }) || (!viewId && views[0]) || {};
   const basePara = {};
 
@@ -42,13 +42,20 @@ function ViewComp(props) {
     }
   }, [appId, worksheetId]);
 
-  useEffect(() => {
-    if ([0, 6].includes(view.viewType)) {
-      updateFiltersGroup(filtersGroup);
-    } else {
-      updateFilters({ filtersGroup }, view);
+  useDeepCompareEffect(() => {
+    if (!workSheetLoading && viewId) {
+      if (_.get(view, 'navGroup.length')) {
+        updateFilters({ filtersGroup }, view);
+        updateFiltersGroup(filtersGroup);
+        return;
+      }
+      if ([0, 6].includes(view.viewType)) {
+        updateFiltersGroup(filtersGroup);
+      } else {
+        updateFilters({ filtersGroup }, view);
+      }
     }
-  }, [filtersGroup]);
+  }, [filtersGroup, workSheetLoading, viewId]);
 
   return (
     !workSheetLoading && (

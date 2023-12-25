@@ -100,7 +100,7 @@ export default function Departments(props) {
           onClose={() => setShowSelectDepartment(false)}
           onSave={onSave}
           appId={appId}
-          userType={getTabTypeBySelectUser(props)}
+          userType={getTabTypeBySelectUser(control)}
         />
       )}
     </div>

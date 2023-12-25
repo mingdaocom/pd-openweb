@@ -1,12 +1,13 @@
 import { formatrChartValue } from '../common';
 import { timeParticleSizeDropdownData, areaParticleSizeDropdownData, isTimeControl, isAreaControl } from 'statistics/common';
-import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/ControlMask/util';
+import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
 
 /**
  * 将连续的单元格合并
  */
-export const uniqMerge = (data, pageSize) => {
-  data = data.map((item, index) => item || _l('空'));
+export const uniqMerge = (data, config) => {
+  const { pageSize, defaultEmpty } = config;
+  data = data.map((item, index) => item || defaultEmpty);
   for(let i = data.length - 1; i >= 0; i--) {
     let current = data[i];
     let last = data[i - 1];
@@ -34,6 +35,7 @@ export const uniqMerge = (data, pageSize) => {
 export const mergeTableCell = (list, pageSize) => {
   list.map((item, index) => {
     const last = list[index - 1];
+    const defaultEmpty = item.xaxisEmptyType ? '--' : ' ';
     if (last) {
       let data = last.data.map((n, i) => {
         if (_.isObject(n)) {
@@ -41,16 +43,16 @@ export const mergeTableCell = (list, pageSize) => {
             return item.data[i];
           }
           let end = i + n.length;
-          return uniqMerge(item.data.slice(i, end), pageSize);
+          return uniqMerge(item.data.slice(i, end), { pageSize, defaultEmpty });
         } else if (_.isString(n)) {
-          return item.data[i] || _l('空');
+          return item.data[i] || defaultEmpty;
         } else {
           return false;
         }
       });
       item.data = _.flatten(data.filter(item => item));
     } else {
-      item.data = uniqMerge(item.data, pageSize);
+      item.data = uniqMerge(item.data, { pageSize, defaultEmpty });
     }
     return item;
   });
@@ -60,7 +62,7 @@ export const mergeTableCell = (list, pageSize) => {
 /**
  * 合并列
  */
-export const mergeColumnsCell = (data, yaxisList) => {
+export const mergeColumnsCell = (data, columns, yaxisList) => {
   data = _.cloneDeep(data);
   const length = _.get(_.find(data, { summary_col: false }), ['y', 'length']) || 0;
   const result = [];
@@ -68,6 +70,7 @@ export const mergeColumnsCell = (data, yaxisList) => {
   for(let i = 0; i < length; i++) {
     result.push({
       index: i,
+      xaxisEmptyType: columns[i].xaxisEmptyType,
       data: [],
     });
     data.filter(item => !item.summary_col).forEach(item => {
@@ -133,9 +136,11 @@ export const mergeLinesCell = (data, lines, valueMap, config) => {
     const isTime = isTimeControl(target.controlType);
     const isArea = isAreaControl(target.controlType);
     const name = target.rename || target.controlName;
+    const { xaxisEmptyType } = target;
     if (isTime) {
       return {
         key,
+        xaxisEmptyType,
         name: target.particleSizeType ? `${name}(${ _.find(timeParticleSizeDropdownData, { value: target.particleSizeType }).text })` : name,
         data: res,
       }
@@ -143,12 +148,14 @@ export const mergeLinesCell = (data, lines, valueMap, config) => {
     if (isArea) {
       return {
         key,
+        xaxisEmptyType,
         name: target.particleSizeType ? `${name}(${ _.find(areaParticleSizeDropdownData, { value: target.particleSizeType }).text })` : name,
         data: res,
       }
     }
     return {
       key,
+      xaxisEmptyType,
       name,
       data: res,
     }
@@ -171,17 +178,18 @@ export const mergeLinesCell = (data, lines, valueMap, config) => {
   result.forEach((item) => {
     const control = _.find(lines, { cid: item.key }) || {};
     const advancedSetting = control.advancedSetting || {};
+    const defaultEmpty = item.xaxisEmptyType ? '--' : ' ';
     item.data = item.data.map(n => {
       if (_.isNull(n)) return n;
       const valueKey = valueMap[item.key];
       if (_.isObject(n)) {
-        const defaultValue = n.value.includes('subTotal') ? n.value : _l('空');
+        const defaultValue = n.value.includes('subTotal') ? n.value : defaultEmpty;
         return {
           ...n,
           value: valueKey ? (valueKey[n.value] ? renderValue(valueKey[n.value], advancedSetting) : defaultValue) : renderValue(n.value, advancedSetting)
         }
       } else {
-        const defaultValue = n.includes('subTotal') ? n : _l('空');
+        const defaultValue = n.includes('subTotal') ? n : defaultEmpty;
         return valueKey ? (valueKey[n] ? renderValue(valueKey[n], advancedSetting) : defaultValue) : renderValue(n, advancedSetting);
       }
     });

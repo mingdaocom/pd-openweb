@@ -1,4 +1,4 @@
-@import "../../../common/mdcss/common.less";
+@import '../../../common/mdcss/common.less';
 @delColor: #f44336;
 
 .headerColorSwitch {
@@ -53,10 +53,30 @@
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.24);
   z-index: 15;
 
-  &.theme, &.black {
+  .roledebugSelectWrap, .roleSelectCon {
+    border: 1px solid transparent;
+  }
+
+  &.theme,
+  &.black {
     .LeftAppGroupWrap .workSheetLeft {
       .nameWrap .name {
         font-weight: bold;
+      }
+    }
+    .roledebugSelectWrap {
+      background: rgba(0, 0, 0, 0.3) !important;
+      color: rgba(255, 255, 255, 0.8) !important;
+      a {
+        color: rgba(255, 255, 255, 0.8) !important;
+      }
+      .roledebugSelectWrap-iconWrap:hover,
+      .text:hover,
+      .iconHover:hover {
+        color: rgba(255, 255, 255, 1) !important;
+      }
+      &:hover {
+        border: 1px solid rgba(255, 255, 255, 0.3) !important;
       }
     }
   }
@@ -64,7 +84,9 @@
     .emptyGroupIcon {
       color: rgba(0, 0, 0, 0.4) !important;
     }
-    .appConfigIcon>.icon, .appIntroWrap>.icon, .appNameHeaderBoxPortal .icon {
+    .appConfigIcon > .icon,
+    .appIntroWrap > .icon,
+    .appNameHeaderBoxPortal .icon {
       color: rgba(0, 0, 0, 0.4) !important;
       &:hover {
         color: rgba(0, 0, 0, 0.5) !important;
@@ -74,7 +96,7 @@
       border-top-color: rgba(0, 0, 0, 0.4) !important;
       &:hover {
         border-top-color: rgba(0, 0, 0, 0.5) !important;
-      } 
+      }
     }
     .appItemsWrap {
       li:hover {
@@ -111,7 +133,9 @@
         border-left-color: rgba(0, 0, 0, 0.4);
       }
     }
-    .backlogWrap, .appExtensionWrap .appExtensionItem, .commonUserHandleWrap .icon {
+    .backlogWrap,
+    .appExtensionWrap .appExtensionItem,
+    .commonUserHandleWrap .icon {
       color: rgba(0, 0, 0, 0.5) !important;
       &:hover {
         color: rgba(0, 0, 0, 0.6) !important;
@@ -130,15 +154,58 @@
       .appGroupWrap::after {
         background-color: rgba(0, 0, 0, 0.1);
       }
-      .moreIcon, .arrowIcon, .openIcon {
+      .moreIcon,
+      .arrowIcon,
+      .openIcon {
         color: rgba(0, 0, 0, 0.3) !important;
       }
       .appGroup {
         color: rgba(0, 0, 0, 0.5);
+        &.close {
+          color: rgba(0, 0, 0, 0.75) !important;
+        }
+      }
+    }
+    .roledebugSelectWrap {
+      background: rgba(0, 0, 0, 0.1) !important;
+      color: rgba(0, 0, 0, 0.5) !important;
+      a {
+        color: rgba(0, 0, 0, 0.5) !important;
+      }
+      .roledebugSelectWrap-iconWrap:hover,
+      .text:hover,
+      .iconHover:hover {
+        color: rgba(0, 0, 0, 0.6) !important;
+      }
+      .roledebugSelectWrap-iconWrap:hover::after {
+        background: rgba(0, 0, 0, 0.2);
+      }
+    }
+    .roleSelectCon {
+      background: rgba(0, 0, 0, 0.1);
+      color: rgba(0, 0, 0, 0.4);
+      span:hover,
+      i:hover {
+        color: rgba(0, 0, 0, 0.6);
       }
     }
   }
   &.black {
+    .roleSelectCon {
+      background: rgba(255, 255, 255, 0.15);
+      color: rgba(255, 255, 255, 0.7);
+      span:hover,
+      i:hover {
+        color: rgba(255, 255, 255, 1);
+      }
+      &:hover,
+      &.active {
+        border: 1px solid rgba(255, 255, 255, 0.3) !important;
+      }
+      &.active {
+        color: rgba(255, 255, 255, 1);
+      }
+    }
     .homepageIconWrap {
       background: rgba(255, 255, 255, 0.1) !important;
       .homepageIcon .item {
@@ -149,13 +216,13 @@
       li:hover {
         background: rgba(255, 255, 255, 0.1);
         .sortableItem {
-          color: #FFF;
+          color: #fff;
         }
       }
       li.active {
         background: rgba(255, 255, 255, 0.15);
         .sortableItem {
-          color: #FFF;
+          color: #fff;
         }
       }
       li .sortableItem {
@@ -165,8 +232,15 @@
     .backlogWrap {
       color: rgba(255, 255, 255, 0.85) !important;
     }
-    .appGroup .nameWrap {
-      color: rgba(255, 255, 255, 0.65) !important;
+    .appGroup {
+      .nameWrap {
+        color: rgba(255, 255, 255, 0.65) !important;
+      }
+      &.close {
+        .nameWrap {
+          color: rgba(255, 255, 255, 0.9) !important;
+        }
+      }
     }
     .rightArea:hover {
       background-color: rgba(255, 255, 255, 0.1);
@@ -175,11 +249,48 @@
       background-color: rgba(255, 255, 255, 0.1) !important;
     }
     .emptyAppItemWrap .emptyAppItem:hover,
-    .emptyAppItemWrap .emptyAppItem.active {
+    .emptyAppItemWrap .emptyAppItem.active,
+    .roledebugSelectWrap {
       background-color: rgba(255, 255, 255, 0.15) !important;
+      .roledebugSelectWrap-iconWrap:hover::after {
+        background: rgba(255, 255, 255, 0.1);
+      }
     }
   }
+
+  &.theme {
+    .roleSelectCon {
+      background: rgba(0, 0, 0, 0.3);
+      color: rgba(255, 255, 255, 0.8);
+      span:hover,
+      i:hover {
+        color: rgba(255, 255, 255, 1);
+      }
+      &:hover,
+      &.active {
+        border: 1px solid rgba(255, 255, 255, 0.3) !important;
+      }
+      &.active {
+        color: rgba(255, 255, 255, 1);
+      }
+    }
+    .roledebugSelectWrap {
+      .roledebugSelectWrap-iconWrap:hover::after {
+        background: rgba(255, 255, 255, 0.1);
+      }
+    }
+  }
+
   .LeftAppGroupWrap {
+    .appGroup {
+      color: rgba(255, 255, 255, 0.75);
+      &.close {
+        color: rgba(255, 255, 255, 0.9) !important;
+        .arrowIcon {
+          display: block !important;
+        }
+      }
+    }
     .moreIcon, .arrowIcon, .openIcon {
       color: rgba(255, 255, 255, 0.7) !important;
     }
@@ -220,6 +331,18 @@
     margin-left: 5px;
     background: #fd7558;
   }
+  .appUpgrade {
+    border-radius: 13px;
+    color: #fff;
+    line-height: 22px;
+    box-sizing: border-box;
+    white-space: nowrap;
+    font-weight: bold;
+    padding: 0 10px;
+    font-size: 12px;
+    margin-left: 5px;
+    background: #4caf50;
+  }
 
   .appInfoWrap {
     box-sizing: border-box;
@@ -257,7 +380,7 @@
       border-radius: 20px;
       min-width: 20px;
       height: 20px;
-      background-color: #F76D6D;
+      background-color: #f76d6d;
       width: auto;
       padding: 0 6px;
       display: flex;
@@ -356,8 +479,7 @@
     padding: 20px 24px;
     background-color: #fff;
     z-index: 10;
-    box-shadow: 0px 4px 16px 1px rgba(0, 0, 0, 0.24),
-      0 0 1px 0 rgba(0, 0, 0, 0.12);
+    box-shadow: 0px 4px 16px 1px rgba(0, 0, 0, 0.24), 0 0 1px 0 rgba(0, 0, 0, 0.12);
     transform: scale(0);
     transform-origin: left top;
     transition: transform 0.25s;
@@ -421,8 +543,8 @@
 
     .appExtensionItem {
       .headerColorSwitch;
-      padding: 5px 10px;
-      margin-right: 5px;
+      padding: 2px 7px;
+      margin-right: 10px;
       cursor: pointer;
       border-radius: 20px;
       &:hover {
@@ -439,7 +561,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background-color: #F76D6D;
+      background-color: #f76d6d;
     }
   }
 
@@ -453,7 +575,7 @@
     overflow-y: hidden;
     &::-webkit-scrollbar {
       display: none;
-  }
+    }
   }
 
   .emptyAppItemWrap {

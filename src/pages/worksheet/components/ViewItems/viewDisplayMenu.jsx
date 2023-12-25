@@ -12,7 +12,7 @@ export default class ViewDisplayMenu extends Component {
     const { onClick, ...rest } = this.props;
     return (
       <Menu className="viewTypeMenuWrap" {...rest}>
-        {VIEW_TYPE_ICON.map(({ icon, text, id, color, isNew }) => (
+        {VIEW_TYPE_ICON.filter(o => o.id !== 'customize').map(({ icon, text, id, color, isNew }) => (
           <Menu.Item key={id} className="viewTypeItem" onClick={() => onClick(id)}>
             <div className="valignWrapper">
               <Icon style={{ color, fontSize: '18px' }} icon={icon} />

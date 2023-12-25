@@ -15,7 +15,7 @@ import globalApi from 'src/api/global';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { v4 as uuidv4 } from 'uuid';
 import { setPssId } from 'src/util/pssId';
-import { getSignatureValue, formatAttachmentValue } from 'src/util/transControlDefaultValue';
+import { formatAttachmentValue } from 'src/util/transControlDefaultValue';
 import preall from 'src/common/preall';
 
 function getVisibleControls(data) {
@@ -283,9 +283,7 @@ async function fillRowRelationRows(control, rowId, worksheetId) {
             let itemValue = {};
             subControls.forEach(c => {
               itemValue[c.controlId] =
-                c.type === WIDGETS_TO_API_TYPE_ENUM.SIGNATURE
-                  ? getSignatureValue(item[c.controlId])
-                  : c.type === WIDGETS_TO_API_TYPE_ENUM.ATTACHMENT
+                c.type === WIDGETS_TO_API_TYPE_ENUM.ATTACHMENT
                   ? formatAttachmentValue(item[c.controlId])
                   : item[c.controlId];
             });
@@ -584,14 +582,7 @@ export function addWorksheetRow(
     .addRow({
       worksheetId,
       receiveControls: receiveControls.map(c => {
-        if (c.type === WIDGETS_TO_API_TYPE_ENUM.SIGNATURE) {
-          return {
-            ...formatControlToServer(c, { needFullUpdate: true }),
-            value: getSignatureValue(formatControlToServer(c, { needFullUpdate: true }).value),
-          };
-        } else {
-          return formatControlToServer(c, { needFullUpdate: true });
-        }
+        return formatControlToServer(c, { needFullUpdate: true });
       }),
       ...params,
     })

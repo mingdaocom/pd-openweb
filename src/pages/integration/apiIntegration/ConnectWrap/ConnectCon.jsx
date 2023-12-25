@@ -325,14 +325,14 @@ function ConnectCon(props) {
             });
           } else {
             setTimeout(() => {
-              location.href = '/integration';
+              location.href = '/integration/connectList';
             }, 500);
             alert(_l('你暂时没有权限查看该连接！'), 3);
           }
         },
         () => {
           setTimeout(() => {
-            location.href = '/integration';
+            location.href = '/integration/connectList';
           }, 500);
           alert(_l('你暂时没有权限查看该连接！'), 3);
         },
@@ -578,7 +578,7 @@ function ConnectCon(props) {
         if (res) {
           alert(_l('删除成功'));
           setTimeout(() => {
-            location.href = '/integration';
+            location.href = '/integration/connectList';
           }, 1000);
         } else {
           alert(_l('有API被引用，请删除引用后重试'), 3);
@@ -602,7 +602,7 @@ function ConnectCon(props) {
                 if (location.href.indexOf('integrationConnect') < 0) {
                   props.onClose(isChange);
                 } else {
-                  location.href = '/integration';
+                  location.href = '/integration/connectList';
                 }
               }}
             >

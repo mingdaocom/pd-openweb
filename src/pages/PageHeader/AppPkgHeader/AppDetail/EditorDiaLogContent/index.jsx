@@ -4,7 +4,7 @@ import cx from 'classnames';
 import { Divider, Button } from 'antd';
 import { Icon, RichText } from 'ming-ui';
 import SvgIcon from 'src/components/SvgIcon';
-import UserHead from 'src/pages/feed/components/userHead';
+import UserHead from 'src/components/userHead';
 import styled from 'styled-components';
 import './index.less';
 import { canEditData, canEditApp } from 'src/pages/worksheet/redux/actions/util.js';
@@ -202,7 +202,6 @@ export default class Editor extends Component {
                         className="manager"
                         projectId={projectId}
                         size={32}
-                        lazy="false"
                         user={{
                           ...data,
                           accountId: data.accountId,

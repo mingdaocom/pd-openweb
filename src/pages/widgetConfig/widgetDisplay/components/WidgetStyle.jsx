@@ -4,7 +4,7 @@ import { Icon, Dropdown, Checkbox } from 'ming-ui';
 import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify/InputValue';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { WidgetIntroWrap, SettingItem } from '../../styled';
+import { SettingItem } from '../../styled';
 import QuickArrange from './quickArrange';
 import './FieldRecycleBin.less';
 import img from 'staticfiles/images/colour.png';
@@ -52,13 +52,29 @@ const ALIGN_TYPE = [
   { value: '2', text: _l('右对齐') },
 ];
 
+const IntroWrap = styled.div`
+  .title {
+    display: flex;
+    align-items: center;
+    .icon {
+      font-size: 18px;
+      color: #757575;
+    }
+    > span {
+      margin-left: 8px;
+      font-size: 15px;
+      font-weight: 700;
+    }
+  }
+`;
+
 const WidgetStyleWrap = styled.div`
   position: absolute;
   background: #fff;
   top: 0;
   left: 0;
   width: 100%;
-  padding: 24px 20px;
+  padding: 17px 20px;
   bottom: 0;
   z-index: 9;
   overflow: auto;
@@ -117,12 +133,12 @@ function WidgetStyleSetting(props) {
 
   return (
     <WidgetStyleWrap>
-      <WidgetIntroWrap>
+      <IntroWrap>
         <div className="title relative">
           <i className="icon Font20 icon-style" />
           <span>{_l('表单样式')}</span>
         </div>
-      </WidgetIntroWrap>
+      </IntroWrap>
       <QuickArrange {...props} />
       <SettingItem className="settingItem withSplitLine">
         <div className="settingItemTitle Font14">{_l('字段标题')}</div>

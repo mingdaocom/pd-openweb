@@ -8,11 +8,12 @@ import { previewQiniuUrl } from 'src/components/previewAttachments';
 import { browserIsMobile } from 'src/util';
 import { getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
 import CardCellControls from './CardCellControls';
+import { FROM } from 'src/components/newCustomFields/tools/config';
 
 const Con = styled.div`
   display: inline-flex;
   flex-direction: row;
-  margin: 0 14px 14px 0;
+  margin: ${({ isMobile }) => (isMobile ? '0 0 10px 0' : '0 14px 14px 0')};
   position: relative;
   border-radius: 3px;
   background-color: #fff;
@@ -69,6 +70,7 @@ function click(func) {
 
 export default function RecordCoverCard(props) {
   const {
+    from,
     disabled,
     style = {},
     width,
@@ -167,7 +169,10 @@ export default function RecordCoverCard(props) {
           }}
           onClick={e => {
             e.stopPropagation();
-            previewQiniuUrl(cover.replace(/\?(.*)/, ''), { disableDownload: true });
+            previewQiniuUrl(cover.replace(/\|imageView2\/1\/w\/\d+\/h\/\d+/, ''), {
+              disableDownload: true,
+              ext: (cover.match(/\.(jpg|jpeg|png|gif|bmp)(\?|$)/i) || '')[1] || 'png',
+            });
           }}
         />
       )}

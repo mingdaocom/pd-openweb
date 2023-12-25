@@ -5,6 +5,7 @@ import PaginationWrap from '../../components/PaginationWrap';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import RoleItem from './roleItem';
 import RoleAuthCommon from '../common/common';
+import { getCurrentProject } from 'src/util';
 
 import './style.less';
 import _ from 'lodash';
@@ -89,7 +90,7 @@ class RoleList extends React.Component {
   renderList() {
     const { list } = this.state;
     const { projectId, isApply } = this.props;
-    const isHrVisible = md.global.Account.projects.find(o => o.projectId === projectId).isHrVisible;
+    const { isHrVisible } = getCurrentProject(projectId, true);
 
     return _.map(list, role => (
       <RoleItem

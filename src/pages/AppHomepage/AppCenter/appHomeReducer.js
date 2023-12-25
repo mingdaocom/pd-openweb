@@ -579,7 +579,15 @@ export class CreateActions {
     homeAppAjax
       .updateAppSort({ sortType, appIds, projectId, groupId })
       .then(res => {
-        if (!res.data) {
+        if (res.data) {
+          if (sortType === 6) {
+            const newGroups = this.state.groups.map(g => (g.id === groupId ? { ...g, appIds } : g));
+            this.dispatch({
+              type: 'UPDATE_GROUPS',
+              value: newGroups,
+            });
+          }
+        } else {
           return $.Deferred().reject();
         }
       })

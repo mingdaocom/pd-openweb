@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { CreateNode, NodeOperate } from '../components';
 import { ACTION_ID } from '../../enum';
+import { SUMMARY_LIST } from 'src/pages/worksheet/util';
 
 export default class Formula extends Component {
   constructor(props) {
@@ -22,16 +23,19 @@ export default class Formula extends Component {
       isException,
       selectNodeId,
       selectNodeName,
+      appId,
+      fields,
     } = item;
 
     if (
-      (actionId !== ACTION_ID.TOTAL_STATISTICS && !formulaValue) ||
-      (actionId === ACTION_ID.TOTAL_STATISTICS && !selectNodeId)
+      (!_.includes([ACTION_ID.OBJECT_TOTAL, ACTION_ID.WORKSHEET_TOTAL], actionId) && !formulaValue) ||
+      (actionId === ACTION_ID.OBJECT_TOTAL && !selectNodeId) ||
+      (actionId === ACTION_ID.WORKSHEET_TOTAL && !appId)
     ) {
       return <div className="pLeft8 pRight8 blue">{_l('设置此节点')}</div>;
     }
 
-    if (actionId === ACTION_ID.TOTAL_STATISTICS) {
+    if (actionId === ACTION_ID.OBJECT_TOTAL) {
       if (!selectNodeName) {
         return (
           <div className="pLeft8 pRight8 red">
@@ -41,15 +45,39 @@ export default class Formula extends Component {
         );
       }
 
-      return <div className="pLeft8 pRight8 ellipsis Gray_75">{_l('统计数据条数')}</div>;
+      return <div className="pLeft8 pRight8 ellipsis Gray_75">{_l('获取数据条数')}</div>;
     }
 
     if (isException) {
       return (
         <div className="pLeft8 pRight8 yellow">
           <i className="icon-workflow_error Font18 mRight5" />
-          {_l('运算值存在异常')}
+          {_l('节点存在异常')}
         </div>
+      );
+    }
+
+    if (actionId === ACTION_ID.WORKSHEET_TOTAL) {
+      if (item.appId && !item.appName) {
+        return (
+          <div className="pLeft8 pRight8 red">
+            <i className="icon-workflow_info Font18 mRight5" />
+            {_l('工作表已删除')}
+          </div>
+        );
+      }
+
+      return (
+        <Fragment>
+          <div className="workflowContentInfo ellipsis workflowContentBG">
+            <span className="Gray_75">{_l('工作表')}</span>“{item.appName}”
+          </div>
+          <div className="workflowContentInfo ellipsis mTop4 pBottom5">
+            {fields[0].fieldId
+              ? `${fields[0].fieldName}（${SUMMARY_LIST.find(o => o.value === fields[0].enumDefault).label}）`
+              : _l('记录数量')}
+          </div>
+        </Fragment>
       );
     }
 
@@ -64,7 +92,8 @@ export default class Formula extends Component {
                 obj
                   .replace(/\$/g, '')
                   .split(/([a-zA-Z0-9#]{24,32})-/)
-                  .filter(item => item)[1]
+                  .filter(item => item)
+                  .join('-')
               ] || {}
             ).name || '',
           );
@@ -107,12 +136,15 @@ export default class Formula extends Component {
             <div className="workflowAvatars flexRow">
               <i
                 className={cx(
-                  'workflowAvatar icon-workflow_function',
-                  item.formulaValue || item.selectNodeId ? 'BGBlueAsh' : 'BGGray',
+                  'workflowAvatar',
+                  _.includes([ACTION_ID.OBJECT_TOTAL, ACTION_ID.WORKSHEET_TOTAL], item.actionId)
+                    ? 'icon-sigma'
+                    : 'icon-workflow_function',
+                  item.formulaValue || item.selectNodeId || item.appId ? 'BGGreen' : 'BGGray',
                 )}
               />
             </div>
-            <NodeOperate nodeClassName="BGBlueAsh" {...this.props} />
+            <NodeOperate nodeClassName="BGGreen" {...this.props} />
             <div className="workflowContent Font13">
               {isSimple ? <span className="pLeft8 pRight8 Gray_9e">{_l('加载中...')}</span> : this.renderContent()}
             </div>

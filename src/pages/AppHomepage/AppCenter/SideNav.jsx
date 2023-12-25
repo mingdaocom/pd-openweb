@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
-import { Tooltip, ScrollView } from 'ming-ui';
+import { Tooltip, ScrollView, Icon } from 'ming-ui';
 import ThirdApp from './components/ThirdApp';
 import MyProcess from 'src/pages/workflow/MyProcess';
 import MyProcessEntry from 'src/pages/workflow/MyProcess/Entry';
@@ -37,7 +37,14 @@ const Con = styled.div`
         display: none;
       }
       .fullName {
-        display: inline-block;
+        display: flex;
+        align-items: center;
+      }
+      .betaIcon {
+        position: absolute;
+        right: 12px;
+        color: #4caf50;
+        font-size: 15px;
       }
     }
     .resourceEntry {
@@ -80,6 +87,7 @@ const ModuleEntries = styled.div``;
 const ModuleEntry = styled(BaseEntry)`
   margin: 8px 0;
   height: 48px;
+  position: relative;
   .entryIcon {
     font-size: 24px;
     color: #515151;
@@ -177,6 +185,12 @@ const moduleEntries = [
     icon: 'hub',
     name: _l('集成%01002'),
     fullName: _l('集成中心%01014'),
+  },
+  {
+    type: 'plugin',
+    icon: 'extension_black1',
+    name: _l('插件'),
+    fullName: _l('插件中心'),
   },
 ];
 
@@ -288,11 +302,10 @@ export default function SideNav(props) {
                               setMyProcessVisible(true);
                             } else if (entry.type === 'integration') {
                               const type = localStorage.getItem('integrationUrl');
-                              if (type) {
-                                navigateTo('/integration/' + type);
-                              } else {
-                                navigateTo('/integration');
-                              }
+                              navigateTo('/integration/' + (type || ''));
+                            } else if (entry.type === 'plugin') {
+                              const type = localStorage.getItem('pluginUrl');
+                              navigateTo('/plugin/' + (type || ''));
                             }
                           }
                         : _.noop
@@ -301,6 +314,7 @@ export default function SideNav(props) {
                     <i className={`entryIcon icon icon-${entry.icon}`} />
                     <span className="name">{entry.name}</span>
                     <span className="fullName ellipsis">{entry.fullName || entry.name}</span>
+                    {entry.type === 'plugin' && isExpanded && <Icon icon="beta1" className="betaIcon" />}
                   </ModuleEntry>
                 );
                 if (entry.type === 'myProcess') {
@@ -326,6 +340,7 @@ export default function SideNav(props) {
                     />
                   );
                 }
+
                 if (entry.type === 'cooperation') {
                   return (
                     <Trigger

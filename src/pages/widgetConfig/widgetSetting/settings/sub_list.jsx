@@ -1,8 +1,7 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Dialog, Menu, MenuItem, LoadDiv, Dropdown, Checkbox } from 'ming-ui';
+import { Dialog, Menu, MenuItem, LoadDiv } from 'ming-ui';
 import { useSetState } from 'react-use';
 import { Tooltip } from 'antd';
-import update from 'immutability-helper';
 import { v4 as uuidv4 } from 'uuid';
 import cx from 'classnames';
 import worksheetAjax from 'src/api/worksheet';
@@ -10,8 +9,7 @@ import appManagementAjax from 'src/api/appManagement';
 import styled from 'styled-components';
 import { getSortData } from 'src/pages/worksheet/util';
 import SortColumns from 'src/pages/worksheet/components/SortColumns/SortColumns';
-import SheetComponents from '../components/relateSheet';
-import { EditInfo, InfoWrap, SettingItem, WidgetIntroWrap } from '../../styled';
+import { EditInfo, SettingItem, WidgetIntroWrap } from '../../styled';
 import { getControlsSorts, getDefaultShowControls, handleAdvancedSettingChange } from '../../util/setting';
 import Components from '../components';
 import {
@@ -24,11 +22,10 @@ import {
 import subListComponents from '../components/sublist';
 import _, { isEmpty, find, filter, findIndex } from 'lodash';
 import { DEFAULT_INTRO_LINK } from '../../config';
-import { DEFAULT_SETTING_OPTIONS } from '../../config/setting';
 import DynamicDefaultValue from '../components/DynamicDefaultValue';
 import WidgetVerify from '../components/WidgetVerify';
 import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
-const { AddSubList, ConfigureControls, Sort, SubListStyle } = subListComponents;
+const { AddSubList, ConfigureControls, Sort } = subListComponents;
 
 const SettingModelWrap = styled.div`
   .transferToRelate {
@@ -48,44 +45,25 @@ const SettingModelWrap = styled.div`
 `;
 
 export default function SubListSetting(props) {
-  const { status, allControls, info, data, globalSheetInfo, onChange } = props;
-  const { widgetName, icon, intro, moreIntroLink } = info;
-  const { worksheetId: currentWorksheetId } = globalSheetInfo;
-  const { controlId, dataSource, relationControls = [], showControls = [], advancedSetting = {} } = data;
-  const { allowadd, allowsingle, allowexport = '1', hidenumber } = advancedSetting;
-  const batchcids = getAdvanceSetting(data, 'batchcids') || [];
+  const { status, allControls, data, onChange } = props;
+  const { controlId, dataSource, relationControls = [], showControls = [], needUpdate } = data;
   const [sheetInfo, setInfo] = useState({});
   const [subQueryConfigs, setSubQueryConfigs] = useState([]);
   const [subListMode, setMode] = useState('new');
   const [loading, setLoading] = useState(false);
-  const [visible, setVisible] = useState(batchcids.length > 0);
-  const [needUpdate, setUpdate] = useState(false);
 
-  const [{ setTitleVisible, switchVisible, sortVisible }, setConfig] = useSetState({
-    setTitleVisible: false,
-    switchVisible: false,
+  const [{ sortVisible }, setConfig] = useSetState({
     sortVisible: false,
   });
   const sorts = _.isArray(getAdvanceSetting(data, 'sorts')) ? getAdvanceSetting(data, 'sorts') : [];
-  const worksheetControls = relationControls
-    .filter(item => item.type === 29)
-    .map(({ controlId: value, controlName: text }) => ({ value, text }));
 
   useEffect(() => {
-    setVisible(batchcids.length > 0);
     if (dataSource && window.subListSheetConfig[controlId]) {
       const { sheetInfo, subQueryConfigs = [] } = window.subListSheetConfig[controlId] || {};
       setInfo(sheetInfo);
       setSubQueryConfigs(subQueryConfigs);
     }
   }, [controlId]);
-
-  useEffect(() => {
-    // 兼容老数据
-    if (_.isUndefined(allowsingle) && !batchcids.length) {
-      onChange(handleAdvancedSettingChange(data, { allowsingle: '1' }));
-    }
-  }, [allowsingle]);
 
   useEffect(() => {
     const { saveIndex } = status;
@@ -192,7 +170,6 @@ export default function SubListSetting(props) {
           sheetInfo: res,
         };
         setMode(res.type === 2 ? 'new' : 'relate');
-        setUpdate(false);
         let oriShowControls = isEmpty(showControls)
           ? defaultShowControls
           : _.isEmpty(showControls.filter(s => find(controls, c => c.controlId === s)))
@@ -202,9 +179,7 @@ export default function SubListSetting(props) {
           showControls:
             res.type === 2 ? oriShowControls.filter(i => !_.includes(['caid', 'utime', 'ctime'], i)) : oriShowControls,
         };
-        // if ([0, 1].includes(res.type)) {
         nextData = { ...nextData, relationControls: dealControlData(controls) };
-        // }
         // 子表工作表查询
         getQueryConfigs(res);
         onChange(nextData);
@@ -220,55 +195,6 @@ export default function SubListSetting(props) {
       onChange({ dataSource: uuidv4() });
     } else {
       onChange({ appId, dataSource: sheetId, controlName });
-    }
-  };
-
-  const switchType = type => {
-    if (type === 'relate') {
-      Dialog.confirm({
-        title: _l('将子表转为关联记录'),
-        description: _l('将子表字段转为关联记录字段'),
-        okText: _l('确定'),
-        onOk: () => {
-          onChange({
-            ...handleAdvancedSettingChange(data, { searchrange: '1', dynamicsrc: '', defaulttype: '' }),
-            type: 29,
-          });
-        },
-      });
-      return;
-    }
-    const isHaveCanSetAsTitle = _.some(relationControls, canSetAsTitle);
-    if (isHaveCanSetAsTitle) {
-      Dialog.confirm({
-        title: _l('将子表转为工作表'),
-        description: _l(
-          '将从空白创建的子表转为一个实体工作表。此工作表将成为当前表单的一个关联子表，并可以在应用配置、流程、权限中被使用',
-        ),
-        okText: _l('确定'),
-        onOk: () => {
-          appManagementAjax
-            .changeSheet({
-              sourceWorksheetId: currentWorksheetId,
-              worksheetId: dataSource,
-              name: data.controlName,
-            })
-            .then(res => {
-              if (res) {
-                setMode('relate');
-                setUpdate(true);
-                if (window.subListSheetConfig[controlId]) {
-                  window.subListSheetConfig[controlId].mode = 'relate';
-                }
-                alert(_l('转换成功'));
-              } else {
-                alert(_l('转换失败'));
-              }
-            });
-        },
-      });
-    } else {
-      setConfig({ setTitleVisible: true });
     }
   };
 
@@ -322,57 +248,6 @@ export default function SubListSetting(props) {
 
   return (
     <SettingModelWrap>
-      <WidgetIntroWrap>
-        {subListMode === 'new' ? (
-          <div className="title relative">
-            <i className={cx('icon Font20', `icon-${icon}`)} />
-            <span>{widgetName}</span>
-            <Tooltip placement={'bottom'} title={intro}>
-              <span
-                className="iconWrap pointer"
-                onClick={() => {
-                  window.open(moreIntroLink || DEFAULT_INTRO_LINK);
-                }}
-              >
-                <i className="icon-help Gray_9e Font16"></i>
-              </span>
-            </Tooltip>
-            {dataSource && dataSource.includes('-') ? null : (
-              <div className="transferToSheet" onClick={() => switchType('new')}>
-                {_l('转为工作表')}
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="title relative">
-            <i className={cx('icon Font20', `icon-${icon}`)} />
-            <span>{widgetName}</span>
-            <Tooltip placement={'bottom'} title={intro}>
-              <span
-                className="iconWrap pointer"
-                onClick={() => {
-                  window.open(moreIntroLink || DEFAULT_INTRO_LINK);
-                }}
-              >
-                <i className="icon-help Gray_9e Font16"></i>
-              </span>
-            </Tooltip>
-            <div className="transferToRelate">
-              <span data-tip={_l('变更类型')} onClick={() => setConfig({ switchVisible: true })}>
-                <i className="icon icon-swap_horiz pointer Font22" />
-              </span>
-              {switchVisible && (
-                <Menu className={cx('introSwitchMenu')} onClickAway={() => setConfig({ switchVisible: false })}>
-                  <MenuItem onClick={() => switchType('relate')} icon={<i className="icon-link-worksheet" />}>
-                    {_l('关联记录')}
-                  </MenuItem>
-                </Menu>
-              )}
-            </div>
-          </div>
-        )}
-      </WidgetIntroWrap>
-      <Components.WidgetName {...props} />
       {!dataSource && <AddSubList {...props} onOk={onOk} />}
       {subListMode !== 'new' && <Components.RelateSheetInfo name={sheetInfo.name} id={sheetInfo.worksheetId} />}
       <SettingItem>{getConfigContent()}</SettingItem>
@@ -409,133 +284,6 @@ export default function SubListSetting(props) {
         data={{ ...data, relationControls: relationControls || [] }}
         appId={sheetInfo.appId}
       />
-      <SettingItem>
-        <div className="settingItemTitle">{_l('操作')}</div>
-        {DEFAULT_SETTING_OPTIONS.map(item => {
-          return (
-            <Checkbox
-              className="mTop4 Block"
-              size="small"
-              text={item.text}
-              checked={advancedSetting[item.id] === '1'}
-              onClick={checked =>
-                onChange(
-                  handleAdvancedSettingChange(data, {
-                    [item.id]: checked ? '0' : '1',
-                  }),
-                )
-              }
-            />
-          );
-        })}
-      </SettingItem>
-      {allowadd === '1' && (
-        <SettingItem>
-          <div className="settingItemTitle Normal">{_l('新增方式')}</div>
-          <div className="labelWrap">
-            <Checkbox
-              size="small"
-              checked={allowsingle === '1'}
-              text={_l('单行添加')}
-              onClick={checked => {
-                if (checked && !batchcids.length) return;
-                onChange(
-                  handleAdvancedSettingChange(data, {
-                    allowsingle: checked ? '0' : '1',
-                  }),
-                );
-              }}
-            />
-          </div>
-          <div className="labelWrap">
-            <Checkbox
-              size="small"
-              checked={visible}
-              text={_l('批量选择添加')}
-              onClick={checked => {
-                if (checked && allowsingle !== '1') return;
-                setVisible(!checked);
-                if (checked) {
-                  onChange(
-                    handleAdvancedSettingChange(data, {
-                      batchcids: JSON.stringify([]),
-                    }),
-                  );
-                }
-              }}
-            >
-              <Tooltip
-                placement={'bottom'}
-                title={_l(
-                  '如：在添加订单明细时需要先选择关联的产品。此时您可以设置为从产品字段添加明细。设置后，您可以直接一次选择多个产品，并为每个产品都添加一行订单明细',
-                )}
-              >
-                <i className="icon-help Gray_bd Font16 pointer"></i>
-              </Tooltip>
-            </Checkbox>
-          </div>
-          {visible && (
-            <Dropdown
-              border
-              style={{ marginTop: '10px' }}
-              trigger={['click']}
-              placeholder={_l('选择子表中的关联记录字段')}
-              noneContent={_l('没有可选字段')}
-              value={batchcids[0] || undefined}
-              data={worksheetControls}
-              onChange={value => {
-                onChange(
-                  handleAdvancedSettingChange(data, {
-                    batchcids: JSON.stringify([value]),
-                  }),
-                );
-              }}
-            />
-          )}
-        </SettingItem>
-      )}
-      <SubListStyle {...props} />
-      <SettingItem>
-        <div className="settingItemTitle">{_l('设置')}</div>
-        <div className="labelWrap">
-          <Checkbox
-            size="small"
-            checked={hidenumber === '1'}
-            text={_l('隐藏序号')}
-            onClick={checked => {
-              onChange(
-                handleAdvancedSettingChange(data, {
-                  hidenumber: checked ? '0' : '1',
-                }),
-              );
-            }}
-          />
-        </div>
-        <div className="labelWrap">
-          <Checkbox
-            size="small"
-            checked={allowexport === '1'}
-            text={_l('允许导出')}
-            onClick={checked => {
-              onChange(
-                handleAdvancedSettingChange(data, {
-                  allowexport: checked ? '0' : '1',
-                }),
-              );
-            }}
-          />
-        </div>
-      </SettingItem>
-      {subListMode !== 'new' && dataSource !== currentWorksheetId && (
-        <SheetComponents.BothWayRelate
-          worksheetInfo={sheetInfo}
-          onOk={obj => {
-            onChange(update(data, { sourceControl: { $set: { ...obj, type: 29 } } }));
-          }}
-          {...props}
-        />
-      )}
-      {setTitleVisible && <Components.NoTitleControlDialog onClose={() => setConfig({ setTitleVisible: false })} />}
     </SettingModelWrap>
   );
 }

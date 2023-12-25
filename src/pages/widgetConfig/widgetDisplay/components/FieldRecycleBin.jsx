@@ -1,15 +1,15 @@
 import React, { Component, Fragment } from 'react';
 import { Icon, Dialog, LoadDiv, Tooltip } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
-import UserHead from 'src/pages/feed/components/userHead/userHead';
+import UserHead from 'src/components/userHead/userHead';
 import { getWidgetInfo } from '../../util';
 import { isExceedMaxControlLimit } from '../../util/setting';
-import WidgetDeatail from 'src/pages/widgetConfig/widgetSetting';
+import WidgetDetail from 'src/pages/widgetConfig/widgetSetting';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
 import { handleAddWidgets, handleMoveWidgets } from 'src/pages/widgetConfig/util/data';
 import SearchInput from 'worksheet/components/SearchInput';
-import { SearchFn } from 'src/pages/widgetConfig/util';
+import { SearchFn, getDefaultSizeByType } from 'src/pages/widgetConfig/util';
 import cx from 'classnames';
 import './FieldRecycleBin.less';
 import _ from 'lodash';
@@ -129,7 +129,14 @@ export default class FieldRecycleBin extends Component {
         if (res.data) {
           if (status === 'recover') {
             const parentControl = item.sectionId ? _.find(allControls, a => a.controlId === item.sectionId) : '';
-            const tempData = [{ ...item, attribute: 0, sectionId: parentControl ? item.sectionId : '' }];
+            const tempData = [
+              {
+                ...item,
+                attribute: 0,
+                sectionId: parentControl ? item.sectionId : '',
+                size: item.size || getDefaultSizeByType(item.type),
+              },
+            ];
             if (parentControl) {
               handleMoveWidgets(tempData, {
                 ...this.props,
@@ -172,8 +179,7 @@ export default class FieldRecycleBin extends Component {
         <div className="columnWidth Gray_75 flexRow">
           <UserHead
             size={21}
-            lazy={false}
-            bindBusinessCard={false}
+            disabled={true}
             user={{ userHead: _.get(item.deleteAccount, 'avatar'), accountId: _.get(item.deleteAccount, 'accountId') }}
           />
           <div className="mLeft8 ellipsis flex">{_.get(item.deleteAccount, 'fullname')}</div>
@@ -238,7 +244,7 @@ export default class FieldRecycleBin extends Component {
           <div className="tableContent">{filterList.map(item => this.renderListItem(item))}</div>
         </div>
         <div className="FieldRecycleBinDetail">
-          <WidgetDeatail {...this.props} activeWidget={activeWidget} isRecycle={true} />
+          <WidgetDetail {...this.props} activeWidget={activeWidget} isRecycle={true} />
         </div>
       </Fragment>
     );

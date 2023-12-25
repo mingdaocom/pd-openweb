@@ -79,9 +79,27 @@ export const WrapL = styled.div`
   .dropWorksheet {
     margin-top: 14px;
     width: 100%;
+    &.selectGroupDropWorksheet {
+      height: 36px;
+      width: 100% !important;
+      .ant-select {
+        margin-bottom: 0 !important;
+        width: 100% !important;
+      }
+      .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+        height: 36px !important;
+        border-radius: 4px !important;
+      }
+      .ant-select-single:not(.ant-select-customize-input) .ant-select-selector .ant-select-selection-search-input,
+      .ant-select-single .ant-select-selector .ant-select-selection-item,
+      .ant-select-single .ant-select-selector .ant-select-selection-placeholder {
+        height: 36px !important;
+        line-height: 36px !important;
+      }
+    }
   }
   .unionC {
-    flex-wrap: wrap-reverse;
+    flex-wrap: wrap;
     justify-content: space-between;
     li {
       flex-shrink: 0;

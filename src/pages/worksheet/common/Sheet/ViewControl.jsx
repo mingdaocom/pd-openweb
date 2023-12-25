@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
-import _, { last } from 'lodash';
+import _ from 'lodash';
 import cx from 'classnames';
 import { Tooltip } from 'ming-ui';
 import ViewConfig from 'worksheet/common/ViewConfig';
@@ -23,6 +23,7 @@ import {
   updateCustomButtons,
   updateWorksheetControls,
   updateSearchRecord,
+  updateCurrentViewState,
 } from 'worksheet/redux/actions';
 import { changePageSize, changePageIndex } from 'worksheet/redux/actions/sheetview';
 import { addMultiRelateHierarchyControls } from 'worksheet/redux/actions/hierarchy';
@@ -69,6 +70,8 @@ function ViewControl(props) {
     sheetButtons,
     viewConfigVisible,
     setViewConfigVisible,
+    viewConfigTab,
+    setViewConfigTab,
     searchData,
   } = props;
 
@@ -85,6 +88,7 @@ function ViewControl(props) {
     updateWorksheetControls,
     updateSearchRecord,
     appPkg,
+    updateCurrentViewState,
   } = props;
   const { worksheetId, projectId } = worksheetInfo;
   const { count, pageCountAbnormal, rowsSummary } = sheetViewData;
@@ -125,7 +129,7 @@ function ViewControl(props) {
         }}
         onAddView={(newViews, newView) => {
           updateViews(newViews);
-          if ([0, 3, 6].includes(Number(newView.viewType))) {
+          if ([0, 3, 6, 21].includes(Number(newView.viewType))) {
             setViewConfigVisible(true);
           }
           navigateTo(`/app/${appId}/${groupId}/${worksheetId}/${newView.viewId}`);
@@ -244,7 +248,7 @@ function ViewControl(props) {
         <i
           className={cx('icon icon-task-later refresh Gray_9e Font18 pointer ThemeHoverColor3 mTop2')}
           onClick={() => {
-            refreshSheet(view, { updateWorksheetControls: true });
+            refreshSheet(view, { updateWorksheetControls: true, isRefreshBtn: true });
           }}
         />
       </Tooltip>
@@ -324,13 +328,16 @@ function ViewControl(props) {
               )
             );
           })}
+          viewConfigTab={viewConfigTab}
+          setViewConfigTab={setViewConfigTab}
           onClose={() => setViewConfigVisible(false)}
-          updateCurrentView={data => {
-            saveView(viewId, _.pick(data, data.editAttrs || []));
+          updateCurrentView={(data, cb) => {
+            saveView(viewId, _.pick(data, data.editAttrs || []), cb);
             if ((_.get(data, 'viewControls') || []).length > (_.get(view, 'viewControls') || []).length) {
               addMultiRelateHierarchyControls(data.viewControls.slice(-1).map(item => item.worksheetId));
             }
           }}
+          updateCurrentViewState={updateCurrentViewState}
           onShowCreateCustomBtn={(value, isEdit, btnId, isListOption) => {
             setCreateCustomBtnVisible(value);
             setCustomBtnIsEdit(isEdit);
@@ -495,6 +502,7 @@ export default connect(
         addMultiRelateHierarchyControls,
         updateWorksheetControls,
         updateSearchRecord,
+        updateCurrentViewState,
       },
       dispatch,
     ),

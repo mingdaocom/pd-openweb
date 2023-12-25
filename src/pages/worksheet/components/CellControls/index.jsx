@@ -591,6 +591,7 @@ export default class CellControl extends React.Component {
       columnIndex,
       ref: this.cell,
       editable,
+      row,
       recordId: row && row.rowid,
       rowHeight,
       rowHeightEnum,

@@ -1,19 +1,16 @@
 import React, { Fragment } from 'react';
-import DialogLayer from 'src/components/mdDialog/dialog';
-import ReactDom from 'react-dom';
 import AvatorInfo from './modules/AvatorInfo';
 import EditDetail from './modules/EditDetail';
 import EditInfo from './modules/EditInfo';
 import AddOrEditItem from './modules/AddOrEditItem';
-import { Tooltip, LoadDiv } from 'ming-ui';
-import { Progress } from 'antd';
+import { Tooltip, LoadDiv, Dialog } from 'ming-ui';
 import account from 'src/api/account';
 import './index.less';
-import { formatFileSize } from 'src/util';
 import fixedDataAjax from 'src/api/fixedData.js';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
+
 const detailList = [
   { label: _l('生日'), key: 'birthdate', filter: 'transFromDate' },
   { label: _l('性别'), key: 'gender', filter: 'transFormGender' },
@@ -161,30 +158,22 @@ export default class PersonalInfo extends React.Component {
 
   //编辑详细资料
   handleEditDetail() {
-    const options = {
-      container: {
-        content: '',
-        yesText: null,
-        noText: null,
-        header: _l('编辑个人资料'),
-      },
-      dialogBoxID: 'editDetailDialogId',
-      width: '480px',
-    };
-    ReactDom.render(
-      <DialogLayer {...options}>
+    Dialog.confirm({
+      title: _l('编辑个人资料'),
+      dialogClasses: 'editDetailDialog',
+      noFooter: true,
+      children: (
         <EditDetail
           baseInfo={this.state.baseDetail}
           closeDialog={() => {
-            $('#editDetailDialogId_container,#editDetailDialogId_mask').remove();
+            $('.editDetailDialog.mui-dialog-container').parent().remove();
           }}
           updateValue={baseDetail => {
             this.setState({ baseDetail });
           }}
         />
-      </DialogLayer>,
-      document.createElement('div'),
-    );
+      ),
+    });
   }
 
   //联系信息
@@ -211,30 +200,22 @@ export default class PersonalInfo extends React.Component {
 
   //编辑联系信息
   handleEditInfo() {
-    const options = {
-      container: {
-        content: '',
-        yesText: null,
-        noText: null,
-        header: _l('编辑联系信息'),
-      },
-      dialogBoxID: 'editInfoDialogId',
-      width: '480px',
-    };
-    ReactDom.render(
-      <DialogLayer {...options}>
+    Dialog.confirm({
+      title: _l('编辑联系信息'),
+      dialogClasses: 'editInfoDialog',
+      noFooter: true,
+      children: (
         <EditInfo
           baseInfo={this.state.concatInfo}
           closeDialog={() => {
-            $('#editInfoDialogId_container,#editInfoDialogId_mask').remove();
+            $('.editInfoDialog.mui-dialog-container').parent().remove();
           }}
           updateValue={concatInfo => {
             this.setState({ concatInfo });
           }}
         />
-      </DialogLayer>,
-      document.createElement('div'),
-    );
+      ),
+    });
   }
 
   //教育经历
@@ -290,26 +271,16 @@ export default class PersonalInfo extends React.Component {
   //type: work(1) | education(2)
   //data: list([]) | listItem({})
   handleAddOrEditItem(type, data) {
-    const headerType = _.isArray(data) ? _l('添加') : _l('编辑');
-    const headerContent = type === 1 ? _l('工作履历') : _l('教育经历');
-    const _header = `${headerType}${headerContent} `;
-    const options = {
-      container: {
-        content: '',
-        yesText: null,
-        noText: null,
-        header: _header,
-      },
-      dialogBoxID: 'addOrEditItemDialogId',
-      width: '480px',
-    };
-    ReactDom.render(
-      <DialogLayer {...options}>
+    Dialog.confirm({
+      title: `${_.isArray(data) ? _l('添加') : _l('编辑')}${type === 1 ? _l('工作履历') : _l('教育经历')} `,
+      dialogClasses: 'addOrEditItemDialog',
+      noFooter: true,
+      children: (
         <AddOrEditItem
           item={data}
           type={type}
           closeDialog={() => {
-            $('#addOrEditItemDialogId_container,#addOrEditItemDialogId_mask').remove();
+            $('.addOrEditItemDialog.mui-dialog-container').parent().remove();
           }}
           updateValue={() => {
             const actionType = type === 1 ? 'getWorkList' : 'getEducation';
@@ -319,9 +290,8 @@ export default class PersonalInfo extends React.Component {
             });
           }}
         />
-      </DialogLayer>,
-      document.createElement('div'),
-    );
+      ),
+    });
   }
 
   handleDeleteItem(type, id) {
@@ -349,22 +319,15 @@ export default class PersonalInfo extends React.Component {
 
   //上传头像
   handleUploadImg() {
-    const options = {
-      container: {
-        content: '',
-        yesText: null,
-        noText: null,
-        header: _l('上传头像'),
-      },
-      dialogBoxID: 'uploadAvatorDialogId',
-      width: '460px',
-    };
-    ReactDom.render(
-      <DialogLayer {...options}>
+    Dialog.confirm({
+      title: _l('上传头像'),
+      dialogClasses: 'uploadAvatorDialog',
+      noFooter: true,
+      children: (
         <AvatorInfo
           avatar={this.state.accountInfo.avatarBig}
           closeDialog={() => {
-            $('#uploadAvatorDialogId_container,#uploadAvatorDialogId_mask').remove();
+            $('.uploadAvatorDialog.mui-dialog-container').parent().remove();
           }}
           updateAvator={() => {
             $.when(this.getUserInfo()).then(user => {
@@ -372,9 +335,8 @@ export default class PersonalInfo extends React.Component {
             });
           }}
         />
-      </DialogLayer>,
-      document.createElement('div'),
-    );
+      ),
+    });
   }
 
   //修改姓名

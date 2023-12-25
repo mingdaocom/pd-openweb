@@ -4,7 +4,7 @@ import { Textarea, Linkify, Icon } from 'ming-ui';
 import cx from 'classnames';
 import TextScanQRCode from '../../components/TextScanQRCode';
 import { getIsScanQR } from '../../components/ScanQRCode';
-import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/ControlMask/util';
+import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
 import { browserIsMobile } from 'src/util';
 
 export default class Widgets extends Component {

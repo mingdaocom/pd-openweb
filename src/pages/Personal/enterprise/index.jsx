@@ -4,7 +4,7 @@ import { LoadDiv, Dialog } from 'ming-ui';
 import EnterpriseCard from './modules/EnterpriseCard';
 import cx from 'classnames';
 import InvitationList from './modules/InvitationList';
-import bindAccount from '../bindAccount/bindAccount';
+import { validateFunc } from '../components/ValidateInfo';
 import './index.less';
 import ReportRelation from './reportRelation';
 import { getRequest } from 'src/util';
@@ -77,7 +77,7 @@ export default class AccountChart extends React.Component {
   }
 
   handleAdd() {
-    location.href = '/enterpriseRegister.htm?type=add';
+    location.href = '/enterpriseRegister?type=add';
   }
 
   //我的邀请
@@ -116,7 +116,7 @@ export default class AccountChart extends React.Component {
   //创建
   handleCreate() {
     if ((md.global.Account.superAdmin || (md.global.Config.IsPlatformLocal && md.global.SysSettings.enableCreateProject))) {
-      window.open('/enterpriseRegister.htm?type=create');
+      window.open('/enterpriseRegister?type=create');
     } else {
       alert('权限不足，无法创建组织', 3);
     }

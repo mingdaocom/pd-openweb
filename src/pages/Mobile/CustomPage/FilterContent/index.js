@@ -8,13 +8,15 @@ import worksheetApi from 'src/api/worksheet';
 import QuickFilter from 'mobile/RecordList/QuickFilter';
 import Search from './Search';
 import Filters from './Filters';
-import { validate, TextTypes } from 'worksheet/common/Sheet/QuickFilter/Inputs';
+import { validate } from 'worksheet/common/Sheet/QuickFilter/Inputs';
 import { connect } from 'react-redux';
 import * as actions from '../redux/actions';
 import { bindActionCreators } from 'redux';
 import { formatFilters } from 'src/pages/customPage/components/editWidget/filter/util';
+import { updatePageInfo, updateFiltersGroup } from 'src/pages/customPage/redux/action';
 import { formatFilterValues } from 'worksheet/common/Sheet/QuickFilter';
 import { conditionAdapter, formatQuickFilter } from 'mobile/RecordList/QuickFilter/Inputs';
+import store from 'redux/configureStore';
 import _ from 'lodash';
 
 const Wrap = styled.div`
@@ -50,17 +52,21 @@ const DrawerWrap = styled(Drawer)`
 const isPublicShare = location.href.includes('public/page');
 
 function FilterContent(props) {
-  const { ids = {}, apk = {}, widget, className } = props;
+  const { ids = {}, apk = {}, widget, className = '' } = props;
   const { value } = widget;
   const [loading, setLoading] = useState(true);
   const [filtersGroup, setFiltersGroup] = useState({});
   const [visible, setVisible] = useState(false);
-  const [textFiltersGroup, setTextFiltersGroup] = useState([]);
   const [otherFiltersGroup, setOtherFiltersGroup] = useState([]);
+  const isEdit = className.includes('disableFiltersGroup');
 
   const filters = formatFilters(filtersGroup.filters || []).filter(c => !c.className.includes('disable'));
-  const textFilters = filters.filter(item => TextTypes.includes(item.dataType));
-  const otherFilters = filters.filter(item => !TextTypes.includes(item.dataType));
+
+  useEffect(() => {
+    return () => {
+      props.updateLoadFilterComponentCount(0);
+    }
+  }, []);
 
   useEffect(() => {
     if (value && !isPublicShare) {
@@ -70,7 +76,7 @@ function FilterContent(props) {
       }).then(data => {
         setLoading(false);
         const filtersGroup = data[0];
-        setFiltersGroup({
+        const result = {
           ...filtersGroup,
           filters: filtersGroup.filters.map(f => {
             return {
@@ -78,7 +84,27 @@ function FilterContent(props) {
               values: formatFilterValues(f.dataType, f.values)
             }
           })
-        });
+        };
+        setFiltersGroup(widget.filter ? widget.filter : result);
+        const { filterComponents, loadFilterComponentCount } = store.getState().mobile;
+        props.updateFilterComponents(filterComponents.map(item => {
+          if (item.value === value) {
+            const { advancedSetting, filters } = filtersGroup;
+            return {
+              value,
+              advancedSetting,
+              filters: _.flatten(filters.map(item => item.objectControls)),
+            }
+          } else {
+            return item;
+          }
+        }));
+        if (isEdit) {
+          const { loadFilterComponentCount } = store.getState().customPage;
+          store.dispatch(updatePageInfo({ loadFilterComponentCount: loadFilterComponentCount + 1 }));
+        } else {
+          props.updateLoadFilterComponentCount(loadFilterComponentCount + 1);
+        }
       });
     } else {
       setLoading(false);
@@ -86,10 +112,15 @@ function FilterContent(props) {
   }, [value]);
 
   useEffect(() => {
-    const { updateFiltersGroup } = props;
-    const filters = textFiltersGroup.concat(otherFiltersGroup);
-    updateFiltersGroup(value, filters);
-  }, [textFiltersGroup, otherFiltersGroup]);
+    if (isEdit) {
+      store.dispatch(updateFiltersGroup({
+        value,
+        filters: otherFiltersGroup
+      }));
+    } else {
+      props.updateFiltersGroup(value, otherFiltersGroup);
+    }
+  }, [otherFiltersGroup]);
 
   useEffect(() => {
     const { updateFiltersGroup } = props;
@@ -99,10 +130,7 @@ function FilterContent(props) {
       spliceType: filter.spliceType || 1,
     })).filter(validate).map(conditionAdapter);
     const filtersGroup = formatQuickFilter(quickFilter);
-    const textFilters = filtersGroup.filter(item => TextTypes.includes(item.dataType));
-    const otherFilters = filtersGroup.filter(item => !TextTypes.includes(item.dataType));
-    setTextFiltersGroup(textFilters);
-    setOtherFiltersGroup(otherFilters);
+    setOtherFiltersGroup(filtersGroup);
   }, [filtersGroup]);
 
   if (loading) {
@@ -123,33 +151,19 @@ function FilterContent(props) {
 
   return (
     <Wrap className={cx('flexRow valignWrapper w100', className)} style={{ height: 40 }}>
-      {!!textFilters.length && (
-        <Search
-          textFilters={textFilters}
-          updateQuickFilter={(values) => {
-            setTextFiltersGroup(values);
-          }}
-        />
-      )}
-      {!!otherFilters.length && (
-        <FilterEntry
-          className={cx('flexRow valignWrapper', {
-            big: !textFilters.length,
-            mLeft10: textFilters.length,
-            highlight: otherFiltersGroup.length
-          })}
-          onClick={() => { setVisible(true) }}
-        >
-          <Icon className="Font20 Gray_9e" icon="filter" />
-          {!textFilters.length && (
-            <div className="flexRow valignWrapper w100">
-              <span className="Font15 flex mLeft5">{_l('筛选')}</span>
-              {!!otherFiltersGroup.length && <span className="mLeft5 mRight6">{_l('已筛%0项', otherFiltersGroup.length)}</span>}
-              <Icon className="Font18 Gray_9e" icon="arrow-right-border" />
-            </div>
-          )}
-        </FilterEntry>
-      )}
+      <FilterEntry
+        className={cx('flexRow valignWrapper big', {
+          highlight: otherFiltersGroup.length
+        })}
+        onClick={() => { setVisible(true) }}
+      >
+        <Icon className="Font20 Gray_9e" icon="filter" />
+        <div className="flexRow valignWrapper w100">
+          <span className="Font15 flex mLeft5">{_l('筛选')}</span>
+          {!!otherFiltersGroup.length && <span className="mLeft5 mRight6">{_l('已筛%0项', otherFiltersGroup.length)}</span>}
+          <Icon className="Font18 Gray_9e" icon="arrow-right-border" />
+        </div>
+      </FilterEntry>
       <DrawerWrap
         placement="right"
         visible={visible}
@@ -164,7 +178,7 @@ function FilterContent(props) {
           // worksheetId={ids.worksheetId}
           projectId={apk.projectId}
           enableBtn={filtersGroup.enableBtn}
-          filters={otherFilters}
+          filters={filters}
           updateQuickFilter={(values) => {
             setOtherFiltersGroup(values);
           }}
@@ -179,7 +193,7 @@ function FilterContent(props) {
 
 export default connect(
   state => ({
-    filtersGroup: state.mobile.filtersGroup
+    filtersGroup: state.mobile.filtersGroup,
   }),
-  dispatch => bindActionCreators(_.pick(actions, ['updateFiltersGroup']), dispatch),
+  dispatch => bindActionCreators(_.pick(actions, ['updateFiltersGroup', 'updateFilterComponents', 'updateLoadFilterComponentCount']), dispatch),
 )(FilterContent);

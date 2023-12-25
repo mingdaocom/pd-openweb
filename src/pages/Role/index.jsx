@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Icon, LoadDiv, Support, WaterMark, Tooltip, Dialog } from 'ming-ui';
+import { Icon, LoadDiv, Support, WaterMark, Tooltip, Dialog, Switch } from 'ming-ui';
 import SvgIcon from 'src/components/SvgIcon';
 import DocumentTitle from 'react-document-title';
 import cx from 'classnames';
@@ -19,6 +19,8 @@ import AppRoleCon from 'src/pages/Role/AppRoleCon';
 import { getFeatureStatus, buriedUpgradeVersionDialog, setFavicon } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
 import _ from 'lodash';
+import { sysRoleType } from './config';
+import AppManagementAjax from 'src/api/appManagement';
 
 const EDITTYLE_CONFIG = [_l('常规'), _l('外部门户')];
 const RoleWrapper = styled.div`
@@ -149,6 +151,31 @@ const WrapPop = styled.div`
     }
   }
 `;
+
+const RoleDebugSwitch = styled(Switch)`
+  width: 23px !important;
+  height: 14px !important;
+  border-radius: 7px !important;
+  &.ming.Switch.small .dot {
+    width: 10px;
+    height: 10px;
+  }
+  &.ming.Switch--off .dot {
+    left: 2px;
+  }
+  &.ming.Switch--on.small .dot {
+    left: 11px;
+  }
+`;
+
+const DividerVertical = styled.div`
+  width: 1px;
+  height: 25px;
+  opacity: 1;
+  border: none;
+  background: #eaeaea;
+`;
+
 class AppRole extends Component {
   state = {
     applyList: undefined,
@@ -167,11 +194,13 @@ class AppRole extends Component {
     showPortalRoleSetting: false,
     portalBaseSet: {},
     hasGetIsOpen: false,
+    roleDebug: false,
   };
 
   componentDidMount() {
     this.ids = getIds(this.props);
     this.fetchPortalInfo();
+    this.getSetting();
     $('html').addClass('roleBody');
   }
 
@@ -268,6 +297,18 @@ class AppRole extends Component {
       });
   };
 
+  getSetting = () => {
+    const {
+      match: {
+        params: { appId },
+      },
+    } = this.props;
+
+    AppManagementAjax.getAppRoleSetting({ appId }).then(data => {
+      this.setState({ roleDebug: data.isDebug });
+    });
+  };
+
   handleChangePage = callback => {
     if (this.child && this.child.state.hasChange) {
       let isNew = !this.child.props.roleId || this.child.props.roleId === 'new';
@@ -298,7 +339,15 @@ class AppRole extends Component {
   };
 
   render() {
-    const { appDetail = {}, loading, openLoading, editType, showPortalRoleSetting, isOpenPortal } = this.state;
+    const {
+      appDetail = {},
+      loading,
+      openLoading,
+      editType,
+      showPortalRoleSetting,
+      isOpenPortal,
+      roleDebug,
+    } = this.state;
     const { projectId = '' } = appDetail;
     const {
       match: {
@@ -459,6 +508,37 @@ class AppRole extends Component {
                   {openLoading ? _l('开启中...') : _l('启用外部门户')}
                 </WrapOpenPortalBtn>
               </Trigger>
+            )}
+            {sysRoleType.concat(200).includes(appDetail.permissionType) && editType !== 1 && (
+              <Fragment>
+                {editApp && !isOpenPortal && featureType && <DividerVertical className="mLeft24" />}
+                <Tooltip
+                  popupPlacement="bottomLeft"
+                  text={
+                    <span>
+                      {_l(
+                        '开启后，应用的管理员、运营者、开发者可以使用不同的角色身份访问应用。请注意，该操作不会改变开发者角色的数据权限，开发者始终无法看到业务数据。',
+                      )}
+                    </span>
+                  }
+                >
+                  <div className="mLeft24 valignWrapper">
+                    <RoleDebugSwitch
+                      checked={roleDebug}
+                      size="small"
+                      onClick={checked => {
+                        AppManagementAjax.updateAppDebugModel({
+                          appId,
+                          isDebug: !checked,
+                        }).then(res => {
+                          res && this.setState({ roleDebug: !checked });
+                        });
+                      }}
+                    />
+                    <span className="mLeft8">{_l('角色调试')}</span>
+                  </div>
+                </Tooltip>
+              </Fragment>
             )}
           </TopBar>
           {editType === 0 ? (

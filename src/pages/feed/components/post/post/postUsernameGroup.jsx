@@ -1,9 +1,8 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import ReactDom from 'react-dom';
 import _ from 'lodash';
-import UserName from '../../userName';
-import 'src/components/mdBusinessCard/mdBusinessCard';
+import UserName from 'src/components/userName';
+import UserCard from 'src/components/UserCard';
 
 /**
  * 动态发布者姓名和发布到的群组
@@ -15,19 +14,6 @@ class PostUsernameGroup extends React.Component {
     postItem: PropTypes.any.isRequired,
   };
 
-  componentDidMount() {
-    this.bindCard();
-  }
-
-  componentDidUpdate() {
-    this.bindCard();
-  }
-
-  bindCard = () => {
-    const $this = $(ReactDom.findDOMNode(this));
-    $this.find('[data-groupid]').mdBusinessCard();
-  };
-
   render() {
     const { postItem, ...props } = this.props;
 
@@ -37,36 +23,42 @@ class PostUsernameGroup extends React.Component {
       children.push(<UserName key="username" isSecretary user={postItem.user} />);
     } else {
       // user name
-      children.push(<UserName key="username" user={postItem.user} bindBusinessCard />);
+      children.push(<UserName key="username" user={postItem.user} />);
       children.push(<div key="arrowRight" className="arrowRight InlineBlock" />);
       const shareProjects = (postItem.scope && postItem.scope.shareProjects) || [];
       const shareGroups = (postItem.scope && postItem.scope.shareGroups) || [];
       if (shareProjects.length || shareGroups.length) {
-        _.forEach(shareProjects, (p) => {
+        _.forEach(shareProjects, p => {
           children.push(
             <span key={'project' + p.projectId} className="InlineBlock wMax100 breakAll ellipsis">
               <span className="breakAll">{p.companyDisplayName}</span> - {_l('所有同事')}
-            </span>
+            </span>,
           );
           children.push(', ');
         });
-        _.forEach(shareGroups, (g) => {
+        _.forEach(shareGroups, g => {
           if (g.status === 1 /* open*/) {
             children.push(
-              <a
-                key={'group' + g.groupId}
-                data-groupid={g.groupId}
-                className="InlineBlock wMax100 breakAll ellipsis"
-                href={'/group/groupValidate?gID=' + g.groupId}
-              >
-                {g.name}
-              </a>
+              <UserCard sourceId={g.groupId} type={2}>
+                <a
+                  key={'group' + g.groupId}
+                  className="InlineBlock wMax100 breakAll ellipsis"
+                  href={'/group/groupValidate?gID=' + g.groupId}
+                >
+                  {g.name}
+                </a>
+              </UserCard>,
             );
           } else {
             children.push(
-              <span key={'group' + g.groupId} data-groupid={g.groupId} className="InlineBlock wMax100 breakAll ellipsis">
-                {g.name}
-              </span>
+              <UserCard sourceId={g.groupId} type={2}>
+                <span
+                  key={'group' + g.groupId}
+                  className="InlineBlock wMax100 breakAll ellipsis"
+                >
+                  {g.name}
+                </span>
+              </UserCard>,
             );
           }
           children.push(', ');
@@ -78,7 +70,7 @@ class PostUsernameGroup extends React.Component {
         children.push(
           <span key="myself" className="InlineBlock wMax100 breakAll ellipsis">
             {_l('我自己')}
-          </span>
+          </span>,
         );
       }
     }

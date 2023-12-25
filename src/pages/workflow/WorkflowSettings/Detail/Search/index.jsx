@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv, Dropdown } from 'ming-ui';
+import { ScrollView, LoadDiv, Dropdown, Checkbox, Radio } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
 import {
   DetailHeader,
@@ -9,6 +9,7 @@ import {
   FilterAndSort,
   FindResult,
   CustomTextarea,
+  UpdateFields,
 } from '../components';
 import { CONTROLS_NAME, RELATION_TYPE, ACTION_ID } from '../../enum';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
@@ -62,7 +63,10 @@ export default class Search extends Component {
         selectNodeId: obj.selectNodeId,
       })
       .then(result => {
-        result.fields = _.filter(result.fields, o => !_.includes([31, 32, 33], o.type));
+        result.fields = _.filter(
+          result.fields,
+          o => !_.includes([31, 32].concat(result.actionId === ACTION_ID.RECORD_UPDATE ? [] : [33]), o.type),
+        );
 
         if (obj.appId && result.findFields.length) {
           result.findFields = [];
@@ -85,10 +89,27 @@ export default class Search extends Component {
    */
   onSave = () => {
     const { data, saveRequest } = this.state;
-    const { name, appId, findFields, executeType, fields, selectNodeId, conditions, sorts, random, link, filters } =
-      data;
+    const {
+      name,
+      appId,
+      findFields,
+      executeType,
+      fields,
+      selectNodeId,
+      conditions,
+      sorts,
+      random,
+      link,
+      filters,
+      destroy,
+      execute,
+      returnNew,
+    } = data;
 
-    if (data.actionId === ACTION_ID.WORKSHEET_FIND && !appId) {
+    if (
+      _.includes([ACTION_ID.WORKSHEET_FIND, ACTION_ID.RECORD_UPDATE, ACTION_ID.RECORD_DELETE], data.actionId) &&
+      !appId
+    ) {
       alert(_l('必须先选择一个工作表'), 2);
       return;
     }
@@ -148,6 +169,9 @@ export default class Search extends Component {
         random,
         link,
         filters,
+        destroy,
+        execute,
+        returnNew,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -162,18 +186,26 @@ export default class Search extends Component {
    */
   renderContent() {
     const { data } = this.state;
+    const MESSAGE = {
+      [ACTION_ID.RECORD_LINK_FIND]: _l(
+        '通过解析内部成员访问或对外公开分享的记录链接来获取对应的记录对象，供流程中的其他节点使用。场景例如：仓库管理员在PC端使用扫描枪来扫描商品的二维码，将指向的记录链接写入文本框，由工作流解析出关联的产品，实现自动化出入库。',
+      ),
+      [ACTION_ID.RECORD_UPDATE]: _l(
+        '从工作表中通过筛选条件和排序规则查找符合条件的唯一数据，并在获取的同时对记录进行更新',
+      ),
+      [ACTION_ID.RECORD_DELETE]: _l('从工作表中通过筛选条件和排序规则直接删除符合条件的唯一数据'),
+    };
 
     return (
       <Fragment>
         <div className="Gray_75 workflowDetailDesc pTop15 pBottom15">
-          {data.actionId === ACTION_ID.RECORD_LINK_FIND
-            ? _l(
-                '通过解析内部成员访问或对外公开分享的记录链接来获取对应的记录对象，供流程中的其他节点使用。场景例如：仓库管理员在PC端使用扫描枪来扫描商品的二维码，将指向的记录链接写入文本框，由工作流解析出关联的产品，实现自动化出入库。',
-              )
-            : _l('基于一种获取方式，通过筛选条件和排序规则获得符合条件的唯一数据，供流程中的其他节点使用。')}
+          {MESSAGE[data.actionId] ||
+            _l('基于一种获取方式，通过筛选条件和排序规则获得符合条件的唯一数据，供流程中的其他节点使用。')}
         </div>
 
-        {data.actionId === ACTION_ID.WORKSHEET_FIND && this.renderWorksheet()}
+        {_.includes([ACTION_ID.WORKSHEET_FIND, ACTION_ID.RECORD_UPDATE, ACTION_ID.RECORD_DELETE], data.actionId) &&
+          this.renderWorksheet()}
+
         {data.actionId === ACTION_ID.BATCH_FIND && (
           <Fragment>
             <div className="mTop20 bold">{_l('选择多条数据节点')}</div>
@@ -189,6 +221,7 @@ export default class Search extends Component {
             )}
           </Fragment>
         )}
+
         {data.actionId === ACTION_ID.RECORD_LINK_FIND && this.renderRecordLink()}
       </Fragment>
     );
@@ -211,6 +244,18 @@ export default class Search extends Component {
         disabled: !!_.find(data.findFields, o => o.fieldId === item.controlId),
       };
     });
+    const GET_TYPE = [
+      {
+        text: _l('使用记录更新前的数据'),
+        value: false,
+        desc: _l('执行到本节点时保存该记录更新前的数据，供流程中的其他节点使用'),
+      },
+      {
+        text: _l('使用记录的最新数据'),
+        value: null,
+        desc: _l('每次其他节点使用到本节点数据时，重新获取该记录的最新数据'),
+      },
+    ];
 
     return (
       <Fragment>
@@ -269,8 +314,65 @@ export default class Search extends Component {
           this.renderFieldAndRule()
         )}
 
+        {data.appId && data.actionId === ACTION_ID.RECORD_UPDATE && (
+          <Fragment>
+            <div className="mTop20 bold">{_l('更新字段')}</div>
+            <UpdateFields
+              type={1}
+              companyId={this.props.companyId}
+              relationId={this.props.relationId}
+              processId={this.props.processId}
+              selectNodeId={this.props.selectNodeId}
+              nodeId={data.selectNodeId}
+              controls={data.addControls}
+              fields={data.fields}
+              formulaMap={data.formulaMap}
+              updateSource={this.updateSource}
+            />
+            <div className="mTop20 bold">{_l('被之后节点使用时')}</div>
+            {GET_TYPE.map(item => (
+              <div className="mTop15" key={item.value}>
+                <Radio
+                  text={item.text}
+                  checked={data.returnNew === item.value}
+                  onClick={() => this.updateSource({ returnNew: item.value })}
+                />
+                <div className="mTop5 mLeft30 Gray_9e">{item.desc}</div>
+              </div>
+            ))}
+          </Fragment>
+        )}
+
+        {data.appId && data.actionId === ACTION_ID.RECORD_DELETE && (
+          <Fragment>
+            <div className="mTop20 flexRow">
+              <Checkbox
+                className="InlineFlex"
+                text={_l('获取记录数据')}
+                checked={data.returnNew === false}
+                onClick={checked => this.updateSource({ returnNew: !checked ? false : null })}
+              />
+            </div>
+            <div className="Gray_9e mTop5 mLeft26">{_l('删除前保留记录数据，供之后的流程节点使用')}</div>
+
+            <div className="mTop20 flexRow">
+              <Checkbox
+                className="InlineFlex"
+                text={_l('彻底删除记录，不放入回收站')}
+                checked={data.destroy}
+                onClick={checked => this.updateSource({ destroy: !checked })}
+              />
+            </div>
+            <div className="Gray_9e mTop5 mLeft26">{_l('彻底删除后数据不可恢复，请谨慎操作')}</div>
+          </Fragment>
+        )}
+
         {data.appId && !isApproval && (
-          <FindResult executeType={data.executeType} allowAdd={true} switchExecuteType={this.switchExecuteType} />
+          <FindResult
+            executeType={data.executeType}
+            allowAdd={data.actionId === ACTION_ID.WORKSHEET_FIND}
+            switchExecuteType={this.switchExecuteType}
+          />
         )}
 
         {data.appId && data.executeType === 1 && (
@@ -338,7 +440,12 @@ export default class Search extends Component {
 
     return (
       <Dropdown
-        className={cx('flowDropdown mTop10', { flowDropdownBorder: data.actionId === ACTION_ID.WORKSHEET_FIND })}
+        className={cx('flowDropdown mTop10', {
+          flowDropdownBorder: _.includes(
+            [ACTION_ID.WORKSHEET_FIND, ACTION_ID.RECORD_UPDATE, ACTION_ID.RECORD_DELETE],
+            data.actionId,
+          ),
+        })}
         data={[appList, this.props.relationType === RELATION_TYPE.NETWORK ? [] : otherWorksheet]}
         value={data.appId}
         renderTitle={
@@ -360,7 +467,7 @@ export default class Search extends Component {
           if (appId === 'other') {
             this.setState({ showOtherWorksheet: true });
           } else {
-            data.actionId === ACTION_ID.WORKSHEET_FIND
+            _.includes([ACTION_ID.WORKSHEET_FIND, ACTION_ID.RECORD_UPDATE, ACTION_ID.RECORD_DELETE], data.actionId)
               ? this.getNodeDetail(this.props, { appId })
               : this.updateSource({ appId });
           }
@@ -449,7 +556,7 @@ export default class Search extends Component {
       });
     }
 
-    this.updateSource({ executeType, fields });
+    this.updateSource(executeType === 1 ? { executeType, fields } : { executeType });
   };
 
   /**
@@ -470,12 +577,21 @@ export default class Search extends Component {
         openNewFilter={!data.conditions.length}
         data={data}
         updateSource={this.updateSource}
-        showRandom
-        filterText={_l(
-          '设置筛选条件，查找满足条件的数据。如果未添加筛选条件则表示只通过排序规则从所有记录中获得唯一数据',
+        showRandom={_.includes([ACTION_ID.WORKSHEET_FIND, ACTION_ID.BATCH_FIND], data.actionId)}
+        filterText={
+          _.includes([ACTION_ID.RECORD_UPDATE, ACTION_ID.RECORD_DELETE], data.actionId)
+            ? _l('设置筛选条件，查找满足条件的数据。')
+            : _l('设置筛选条件，查找满足条件的数据。如果未添加筛选条件则表示只通过排序规则从所有记录中获得唯一数据')
+        }
+        sortText={
+          _.includes([ACTION_ID.RECORD_UPDATE, ACTION_ID.RECORD_DELETE], data.actionId)
+            ? _l('当查找到多个数据时，将按照以下排序规则获得第一条数据。')
+            : _l('当查找到多个数据时，将按照以下排序规则获得第一条数据。如果未设置规则，返回最近更新的一条数据')
+        }
+        filterEncryptCondition={_.includes(
+          [ACTION_ID.WORKSHEET_FIND, ACTION_ID.RECORD_UPDATE, ACTION_ID.RECORD_DELETE],
+          data.actionId,
         )}
-        sortText={_l('当查找到多个数据时，将按照以下排序规则获得第一条数据。如果未设置规则，返回最近更新的一条数据')}
-        filterEncryptCondition={data.actionId === ACTION_ID.WORKSHEET_FIND}
       />
     );
   }
@@ -540,7 +656,7 @@ export default class Search extends Component {
         <DetailFooter
           {...this.props}
           isCorrect={
-            data.actionId === ACTION_ID.WORKSHEET_FIND
+            _.includes([ACTION_ID.WORKSHEET_FIND, ACTION_ID.RECORD_UPDATE, ACTION_ID.RECORD_DELETE], data.actionId)
               ? !!data.appId
               : data.actionId === ACTION_ID.BATCH_FIND
               ? !!data.selectNodeId
@@ -558,7 +674,9 @@ export default class Search extends Component {
             onOk={(selectedAppId, selectedWrorkesheetId, { workSheetName, appName }) => {
               const isCurrentApp = this.props.relationId === selectedAppId;
 
-              if (data.actionId === ACTION_ID.WORKSHEET_FIND) {
+              if (
+                _.includes([ACTION_ID.WORKSHEET_FIND, ACTION_ID.RECORD_UPDATE, ACTION_ID.RECORD_DELETE], data.actionId)
+              ) {
                 this.getNodeDetail(this.props, { appId: selectedWrorkesheetId });
               } else {
                 this.updateSource({

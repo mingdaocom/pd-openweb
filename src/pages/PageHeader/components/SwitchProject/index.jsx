@@ -85,7 +85,9 @@ function SwitchProject(props) {
   const createRef = useRef();
   const [currentProject, setCurrentProject] = useState({});
   useEffect(() => {
-    const project = getCurrentProject(projectId || localStorage.getItem('currentProjectId'));
+    const project = !_.isEmpty(getCurrentProject(projectId || localStorage.getItem('currentProjectId')))
+      ? getCurrentProject(projectId || localStorage.getItem('currentProjectId'))
+      : projects[0];
     if (!project || !project.projectId) {
       return;
     }
@@ -134,12 +136,9 @@ function SwitchProject(props) {
             }}
             popup={
               <Menu className="Relative">
-                <NewMenuItem onClick={() => window.open('/enterpriseRegister.htm?type=add')}>
+                <NewMenuItem onClick={() => window.open('/enterpriseRegister?type=add')}>
                   {_l('加入组织')}
                 </NewMenuItem>
-                {/*<NewMenuItem onClick={() => window.open('/enterpriseRegister.htm?type=create')}>
-                  {_l('创建组织')}
-                </NewMenuItem>*/}
               </Menu>
             }
             getPopupContainer={() => createRef.current}

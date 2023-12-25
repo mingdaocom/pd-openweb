@@ -200,7 +200,7 @@ class WorkSheet extends Component {
   }
   changeFull(e) {
     const isMacOs = navigator.userAgent.toLocaleLowerCase().includes('mac os');
-    if ((isMacOs ? e.metaKey : e.ctrlKey) && e.keyCode === 69) {
+    if ((isMacOs ? e.metaKey : e.shiftKey) && e.keyCode === 69) {
       const fullEl = document.querySelector('.icon.fullRotate');
       fullEl && fullEl.click();
     }

@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Icon, Dialog } from 'ming-ui';
-import AddOrEditSource from '../AddOrEditSource';
 import dataSourceApi from '../../../../api/datasource';
-import { DETAIL_TYPE } from '../../../constant';
+import { navigateTo } from 'src/router/navigateTo';
 
 const Wrapper = styled.div`
   .optionIcon {
@@ -47,9 +46,8 @@ const RedMenuItem = styled(MenuItem)`
 `;
 
 export default function OptionColumn(props) {
-  const { record, sourceList, setSourceList } = props;
+  const { sourceId, sourceList, setSourceList } = props;
   const [visible, setVisible] = useState(false);
-  const [useDetailVisible, setUseDetailVisible] = useState(false);
   const [dialogVisible, setDialogVisible] = useState(false);
 
   return (
@@ -67,12 +65,7 @@ export default function OptionColumn(props) {
         }}
         popup={
           <OptionMenu>
-            <MenuItem
-              onClick={() => {
-                setVisible(false);
-                setUseDetailVisible(true);
-              }}
-            >
+            <MenuItem onClick={() => navigateTo(`/integration/sourceDetail/${sourceId}/useDetail`)}>
               {_l('使用详情')}
             </MenuItem>
             <RedMenuItem
@@ -91,16 +84,6 @@ export default function OptionColumn(props) {
         </div>
       </Trigger>
 
-      {useDetailVisible && (
-        <AddOrEditSource
-          {...props}
-          isEdit={true}
-          sourceRecord={record}
-          editType={DETAIL_TYPE.USE_DETAIL}
-          onClose={() => setUseDetailVisible(false)}
-        />
-      )}
-
       {dialogVisible && (
         <Dialog
           title={_l('删除数据源')}
@@ -109,23 +92,17 @@ export default function OptionColumn(props) {
           description={
             <div>
               <span>{_l('删除后，相关的同步任务会立即终止')}</span>
-              <a
-                className="mLeft10"
-                onClick={() => {
-                  setDialogVisible(false);
-                  setUseDetailVisible(true);
-                }}
-              >
+              <a className="mLeft10" onClick={() => navigateTo(`/integration/sourceDetail/${sourceId}/useDetail`)}>
                 {_l('查看同步任务')}
               </a>
             </div>
           }
           okText={_l('删除')}
           onOk={() => {
-            dataSourceApi.deleteDatasource({ projectId: props.currentProjectId, datasourceId: record.id }).then(res => {
+            dataSourceApi.deleteDatasource({ projectId: props.currentProjectId, datasourceId: sourceId }).then(res => {
               if (res.isSucceeded) {
                 alert(_l('数据源删除成功'));
-                setSourceList(sourceList.filter(item => item.id !== record.id));
+                setSourceList(sourceList.filter(item => item.id !== sourceId));
               } else {
                 alert(res.errorMsg, 2);
               }

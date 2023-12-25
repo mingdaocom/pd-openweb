@@ -74,8 +74,7 @@ export default function NoProjectsStatus(props) {
       <JoinGroupCon>
         <div className="joinOrCreateProject">
           {_l('您还未拥有任何组织！')}
-          {/* <span onClick={() => window.open('/enterpriseRegister.htm?type=create', '__blank')}>{_l('创建 ')}</span> 或 */}
-          <span onClick={() => window.open('/enterpriseRegister.htm?type=add', '__blank')}>{_l('加入')}</span>
+          <span onClick={() => window.open('/enterpriseRegister?type=add', '__blank')}>{_l('加入')}</span>
           {_l('组织，开始创建您的应用')}
         </div>
       </JoinGroupCon>
@@ -92,14 +91,14 @@ export default function NoProjectsStatus(props) {
           <button
             type="button"
             className="joinNetwork ThemeBGColor3 ThemeHoverBGColor2"
-            onClick={() => window.open('/enterpriseRegister.htm?type=add', '__blank')}
+            onClick={() => window.open('/enterpriseRegister?type=add', '__blank')}
           >
             {_l('加入组织')}
           </button>
           {/* <button
             type="button"
             className="createNetwork ThemeBGColor3 ThemeBorderColor3 ThemeColor3"
-            onClick={() => window.open('/enterpriseRegister.htm?type=create', '__blank')}
+            onClick={() => window.open('/enterpriseRegister?type=create', '__blank')}
           >
             {_l('创建组织')}
           </button> */}

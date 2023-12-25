@@ -7,6 +7,7 @@ import previewAttachments from 'src/components/previewAttachments/previewAttachm
 import { FILL_COLOR } from 'src/pages/widgetConfig/widgetDisplay/components/WidgetStyle';
 import _ from 'lodash';
 import { browserIsMobile } from 'src/util/sso';
+import { addBehaviorLog } from 'src/util';
 
 const WidgetEmptyWrap = styled.div`
   width: 100%;
@@ -170,7 +171,7 @@ const CarouseWrap = styled.div`
 `;
 
 export default function FormCover(props) {
-  const { formData = [], widgetStyle = {}, flag } = props;
+  const { formData = [], widgetStyle = {}, flag, worksheetId, recordId } = props;
   const {
     coverid = '',
     covertype = '0',
@@ -195,6 +196,10 @@ export default function FormCover(props) {
   }, [flag]);
 
   const handleTriggerAction = () => {
+    addBehaviorLog('previewFile', worksheetId, {
+      fileId: _.get(imageData, `[${currentIndex}].fileID`),
+      rowId: recordId,
+    });
     // 打开图片
     previewAttachments({
       index: currentIndex,

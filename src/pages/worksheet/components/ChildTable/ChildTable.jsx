@@ -367,7 +367,7 @@ class ChildTable extends React.Component {
       c =>
         c &&
         !(
-          window.isPublicWorksheet &&
+          (window.isPublicWorksheet || _.get(window, 'shareState.isPublicWorkflowRecord')) &&
           _.includes([WIDGETS_TO_API_TYPE_ENUM.USER_PICKER, WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT], c.type)
         ),
     );
@@ -726,7 +726,6 @@ class ChildTable extends React.Component {
         control,
       },
     );
-    newRow.isEdited = true;
     function update() {
       this.rowsCache[row.rowid] = { ...(this.rowsCache[row.rowid] || {}), [cell.controlId]: cell.value };
       if (_.isFunction(options.updateSuccessCb)) {
@@ -1388,7 +1387,7 @@ class ChildTable extends React.Component {
         {recordVisible && (
           <RowDetailComponent
             isWorkflow
-            ignoreLock={(tableData[previewRowIndex] || {}).isEdited}
+            ignoreLock={/^(temp|default|empty)/.test((tableData[previewRowIndex] || {}).rowid)}
             visible
             aglinBottom={!!recordId}
             from={from}

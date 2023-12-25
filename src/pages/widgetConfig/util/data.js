@@ -17,6 +17,7 @@ import { Tooltip, Dialog } from 'ming-ui';
 import { v4 as uuidv4 } from 'uuid';
 import { ALL_SYS } from '../config/widget';
 import { isRelateRecordTableControl } from 'worksheet/util';
+import homeAppApi from 'src/api/homeApp';
 
 // 获取动态默认值
 export const getDynamicDefaultValue = data => {
@@ -366,6 +367,13 @@ export function navigateToApp(worksheetId) {
   });
 }
 
+export const navigateToView = (worksheetId, viewId) => {
+  homeAppApi.getAppSimpleInfo({ worksheetId }).then(data => {
+    const { appId, appSectionId } = data;
+    window.open(`/app/${appId}/${appSectionId}/${worksheetId}/${viewId}`);
+  });
+};
+
 export const dealControlPos = controls => {
   const sortableControls = controls.reduce((p, c) => {
     return update(p, { $push: [[c]] });
@@ -402,7 +410,8 @@ export const formatControlsData = (controls = [], fromSub = false) => {
       return dealUserId(data, 'organizeId');
     }
 
-    if (type === 29 || type === 51) {
+    // 关联记录、级联、查询记录
+    if (_.includes([29, 35, 51], type)) {
       // 处理关联表叠加筛选条件里的 成员 部门 地区 他表字段 这几个类型的字段 values 处理成 [id, id]
       // 子表里关联筛选，不清配置rcid
       if (!isEmpty(getAdvanceSetting(data, 'filters'))) {

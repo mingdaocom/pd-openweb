@@ -19,6 +19,7 @@ import {
   DYNAMIC_FROM_MODE,
   CUR_OCR_TYPES,
   CUR_OCR_URL_TYPES,
+  WATER_MASK_TYPES,
 } from '../config';
 import styled from 'styled-components';
 import cx from 'classnames';
@@ -59,7 +60,7 @@ export default class SelectOtherField extends Component {
     const { fieldId, relateSheetControlId, type } = para;
     const { data = {}, onDynamicValueChange, dynamicValue } = this.props;
     const { advancedSetting = {} } = data;
-    const isText = _.includes([1, 2, 45], data.type);
+    const isText = _.includes([1, 2, 41, 45], data.type);
     const isAsync = () => {
       // 部门选成员 | 成员选部门 需要异步获取数据 isAsync设为true
       if ((_.includes([27, 48], data.type) && type === 26) || (data.type === 26 && _.includes([27, 48], type)))
@@ -139,11 +140,9 @@ export default class SelectOtherField extends Component {
         onDynamicValueChange([{ rcid: '', cid: '', staticValue: data.value }]);
         this.setState({ isDynamic: false });
         break;
-      case OTHER_FIELD_TYPE.KEYWORD:
-        onDynamicValueChange([{ rcid: '', cid: `${data.id}`, staticValue: '' }]);
-        this.setState({ isDynamic: false });
-        break;
       case OTHER_FIELD_TYPE.OCR:
+      case OTHER_FIELD_TYPE.KEYWORD:
+      case OTHER_FIELD_TYPE.WATER_MASK:
         onDynamicValueChange([{ rcid: '', cid: `${data.id}`, staticValue: '' }]);
         this.setState({ isDynamic: false });
         break;
@@ -182,6 +181,10 @@ export default class SelectOtherField extends Component {
     // ocr其他字段控件
     if (_.includes([2, 14], data.type) && DYNAMIC_FROM_MODE.OCR_PARAMS === this.props.from) {
       types = (data.type === 2 ? CUR_OCR_URL_TYPES : CUR_OCR_TYPES).concat(types);
+    }
+    // 附件水印其他字段控件
+    if (DYNAMIC_FROM_MODE.WATER_MASK === this.props.from) {
+      types = types.concat(WATER_MASK_TYPES);
     }
     //子表里的字段默认值没有查询和函数配置
     if (this.props.hideSearchAndFun) {
@@ -267,6 +270,7 @@ export default class SelectOtherField extends Component {
         {fxVisible && (
           <FunctionEditorDialog
             supportJavaScript
+            control={data}
             value={getAdvanceSetting(data, 'defaultfunc')}
             title={data.controlName}
             controls={allControls.filter(c => c.controlId !== data.controlId)}

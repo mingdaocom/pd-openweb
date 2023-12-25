@@ -90,10 +90,11 @@ export default function FiltersPopup(props) {
                 '.mui-datetimepicker',
                 '.mui-datetimerangepicker',
                 '.selectUserBox',
-                '.CityPicker',
                 '.worksheetFilterOperateList',
                 '.ant-picker-dropdown',
                 '.rc-trigger-popup',
+                '.CityPicker',
+                '.CityPicker-wrapper',
               ].join(','),
             )[0];
             return $targetTarget;

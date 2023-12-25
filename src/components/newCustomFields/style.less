@@ -56,7 +56,9 @@
       &:not(.formBoxNoBorder):not(.relateRecord):not(.customFormControlSwitch):not(.customFormControlScore) {
         padding-right: 12px !important;
       }
-      &:not([type='tel']):not(.formBoxNoBorder):not(.relateRecord):not(.customFormControlSwitch):not(.customFormControlScore) {
+      &:not([type='tel']):not(.formBoxNoBorder):not(.relateRecord):not(.customFormControlSwitch):not(
+          .customFormControlScore
+        ) {
         padding-left: 12px !important;
       }
       &.controlDisabled {
@@ -149,54 +151,28 @@
   }
 
   .customFormItemLabel {
-    margin-bottom: 4px;
     display: flex;
     align-items: center;
     box-sizing: border-box;
     position: relative;
     font-weight: bold;
     width: 100%;
-    line-height: 20px;
-    min-height: 20px;
+    line-height: 24px;
+    min-height: 24px;
+    padding-top: 0px;
+    padding-bottom: 4px;
     transform: translate3d(0, 0, 0);
-    &:hover {
-      .RefreshBtn {
-        display: inline-block;
-      }
-    }
 
-    &.customFormItemLabelRow {
-      padding-top: 8px;
-      .requiredBtn {
-        top: 10px;
-      }
-    }
-
-    .requiredBtn {
+    .requiredBtnBox {
       position: absolute;
-      left: -8px;
-      top: 3px;
-      color: #f44336;
-    }
-
-    .RefreshBtn {
-      display: none;
-      padding-top: 4px;
-      i {
-        display: block;
-        &.isLoading {
-          animation: rotate 2s linear infinite;
-          color: #2196f3;
-        }
+      left: -13px;
+      .requiredBtn {
+        color: #f44336;
       }
     }
 
     .hideTitleLabel {
       display: none;
-    }
-
-    .descBoxInfo {
-      padding-top: 2px;
     }
 
     .customFormItemLoading {
@@ -217,6 +193,25 @@
     position: relative;
     flex: 1;
     min-width: 0;
+    &:hover {
+      .RefreshBtn {
+        display: inline-block;
+      }
+    }
+
+    .RefreshBtn {
+      position: absolute;
+      right: 0;
+      top: 12px;
+      display: none;
+      i {
+        display: block;
+        &.isLoading {
+          animation: rotate 2s linear infinite;
+          color: #2196f3;
+        }
+      }
+    }
 
     .maskIcon {
       position: absolute;
@@ -309,8 +304,7 @@
       width: 22px;
       height: 6px;
       background: #eaeaea;
-      margin-top: 19px;
-      margin-bottom: 15px;
+      margin: 15px 0;
       border-radius: 3px;
     }
 
@@ -371,6 +365,16 @@
       justify-content: space-between;
       cursor: not-allowed;
       color: #bdbdbd;
+    }
+
+    .customFormControlUser {
+      flex-wrap: wrap;
+      min-width: 0;
+      align-items: center;
+      height: auto !important;
+      background: #fff !important;
+      border-color: #fff !important;
+      padding: 0 !important;
     }
 
     .customFormControlBox {
@@ -648,7 +652,6 @@
       border-color: #fff !important;
       background: #fff !important;
       padding-left: 0 !important;
-      padding-right: 0 !important;
       line-height: 20px;
       &.spacing {
         letter-spacing: 2px;
@@ -899,6 +902,14 @@
           opacity: 1;
         }
       }
+      &.isDelete {
+        .departWrap {
+          background-color: #9e9e9e !important;
+        }
+        & > span {
+          color: #757575;
+        }
+      }
       .tagDel {
         cursor: pointer;
         color: #9e9e9e;
@@ -932,11 +943,6 @@
       background: #f7f7f7;
       border-radius: 4px;
       transition: none;
-      &.controlDisabled {
-        .ant-picker-input > input {
-          color: #333;
-        }
-      }
       &.ant-picker-focused {
         box-shadow: none;
       }

@@ -1,4 +1,5 @@
 ﻿import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
 import './taskNavigation.less';
 import ajaxRequest from 'src/api/taskCenter';
 import {
@@ -24,7 +25,6 @@ import {
   updateFolderArchivedState,
   updateTopFolderList,
 } from '../../redux/actions';
-import 'src/components/mdBusinessCard/mdBusinessCard';
 import config from '../../config/config';
 import { expireDialogAsync } from 'src/components/common/function';
 import CopyFolder from '../../components/copyFolder/copyFolder';
@@ -41,6 +41,7 @@ import {
 } from '../../utils/taskComm';
 import { navigateTo } from 'src/router/navigateTo';
 import _ from 'lodash';
+import UserHead from 'src/components/userHead';
 
 const taskNavigationSettings = {
   globalEvent: null,
@@ -81,6 +82,26 @@ class TaskNavigation extends Component {
         this.getTaskNavAll();
       }, 0);
     }
+  }
+
+  renderFolderAvatar() {
+    $('#taskNavigator .folderCharge').each((i, ele) => {
+      const $ele = $(ele);
+      if($ele.data('hasbusinesscard')) return;
+
+      $ele.data('hasbusinesscard', true)
+      ReactDOM.render(
+        <UserHead
+          className="circle"
+          user={{
+            userHead: $ele.data('src'),
+            accountId: $ele.data('id'),
+          }}
+          size={24}
+        />,
+        ele,
+      );
+    });
   }
 
   /**
@@ -256,25 +277,6 @@ class TaskNavigation extends Component {
     $taskNavigator.on('click', '.createNew', () => {
       that.setState({ showFolderTemplate: true });
     });
-
-    // hover出用户层
-    $taskNavigator.on(
-      {
-        mouseover() {
-          const $this = $(this);
-          const accountId = $this.data('id');
-
-          if (!$this.data('hasbusinesscard')) {
-            $this.mdBusinessCard({
-              accountId,
-              secretType: 1,
-            });
-            $this.data('hasbusinesscard', true).mouseenter();
-          }
-        },
-      },
-      '.folderCharge',
-    );
 
     // 网络名称点击隐藏和显示项目列表
     $taskNavigator.on('click', '.networkFolderList .allFolders', function () {
@@ -609,6 +611,7 @@ class TaskNavigation extends Component {
             if (that.props.taskConfig.folderId === folderId) {
               that.props.dispatch(updateFolderTopState(!istop));
             }
+            that.renderFolderAvatar();
           };
           const archivedCallback = () => {
             if (that.props.taskConfig.folderId === folderId) {
@@ -970,6 +973,7 @@ class TaskNavigation extends Component {
       .removeClass('ThemeBGColor8')
       .eq(0)
       .addClass('ThemeBGColor8');
+    this.renderFolderAvatar();
     if ($el.length) {
       $('.navContent').scrollTop($el.offset().top - 300);
     }
@@ -1130,6 +1134,7 @@ class TaskNavigation extends Component {
       data.folderFileList.folderId = folderId;
       // 数据
       const allFolders = doT.template(projectFolderTpl)(data.folderFileList);
+      this.renderFolderAvatar();
       $('.networkFolderList[data-projectid=' + projectId + ']')
         .find('.folderList')
         .prepend(allFolders);
@@ -1151,6 +1156,7 @@ class TaskNavigation extends Component {
         .removeClass('ThemeBGColor8')
         .eq(0)
         .addClass('ThemeBGColor8'); // 选中
+      this.renderFolderAvatar();
     }
   }
 
@@ -1165,6 +1171,7 @@ class TaskNavigation extends Component {
     // 数据
     const allFolders = doT.template(singleFolderTpl)(source.folderList);
     $el.html(allFolders);
+    this.renderFolderAvatar();
   }
 
   /**
@@ -1173,6 +1180,7 @@ class TaskNavigation extends Component {
   createFolderCallback = settings => {
     this.setState({ showFolderTemplate: false, showCopyFolder: false });
     createFolder(settings);
+    this.renderFolderAvatar();
   };
 
   /**

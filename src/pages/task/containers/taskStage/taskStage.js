@@ -21,6 +21,9 @@ import { expireDialogAsync } from 'src/components/common/function';
 import TaskDetail from '../taskDetail/taskDetail';
 import _ from 'lodash';
 import { DateTimeRange } from 'ming-ui/components/NewDateTimePicker';
+import UserHead from 'src/components/userHead';
+import { updateTaskCharge } from '../../redux/actions';
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 
 const taskStageSettings = {
   timer: null, // 计时器
@@ -52,6 +55,8 @@ class TaskStage extends Component {
     this.bindEvents();
     this.props.emitter.removeListener('CREATE_TASK_TO_STAGE', this.quickCreateTaskCallback);
     this.props.emitter.addListener('CREATE_TASK_TO_STAGE', this.quickCreateTaskCallback);
+    this.props.emitter.removeListener('UPDATE_TASK_CHARGE', this.renderChargeHeaderAvatar);
+    this.props.emitter.addListener('UPDATE_TASK_CHARGE', this.renderChargeHeaderAvatar.bind(this));
   }
 
   componentWillReceiveProps(nextProps) {
@@ -73,6 +78,7 @@ class TaskStage extends Component {
   componentWillUnmount() {
     this.mounted = false;
     this.props.emitter.removeListener('CREATE_TASK_TO_STAGE', this.quickCreateTaskCallback);
+    this.props.emitter.removeListener('UPDATE_TASK_CHARGE', this.renderChargeHeaderAvatar);
   }
 
   /**
@@ -122,26 +128,97 @@ class TaskStage extends Component {
       });
   }
 
+  renderStageChargeUser() {
+    $('#taskList .singleStage .stageChargeAvatar').each((i, ele) => {
+      let $ele = $(ele);
+      if ($ele.data('hasbusinesscard')) return;
+      const accountId = $ele.closest('.singleStage').data('chargeid');
+
+      $ele.data('hasbusinesscard', true);
+      ReactDom.render(
+        <UserHead
+          user={{
+            userHead: $(ele).data('src'),
+            accountId: accountId,
+          }}
+          size={26}
+        />,
+        ele,
+      );
+    });
+  }
+  renderChargeHeaderAvatar(params) {
+    const { taskConfig } = this.props;
+    $('#tasks .listStageContent .chargeHeaderAvatar').each((i, ele) => {
+      let $ele = $(ele);
+
+      if ($ele.data('hasbusinesscard')) return;
+      const folderId = taskConfig.folderId;
+      let projectId = taskConfig.projectId;
+      let taskId;
+      if (folderId) {
+        taskId = $ele.closest('li').data('taskid');
+      } else {
+        taskId = $ele.closest('tr').data('taskid');
+        projectId = $ele.closest('tr').data('projectid');
+      }
+      const accountId = params ? _.get(params.data, 'data.charge.accountID') : $ele.data('id');
+      const avatar = params ? _.get(params.data, 'data.charge.avatar') : $ele.data('src');
+      const auth = params ? _.get(params.data, 'data.auth') : $ele.data('auth');
+
+      if (params) $ele.data('auth', auth);
+      $ele.data('hasbusinesscard', true);
+      ReactDom.render(
+        <UserHead
+          user={{
+            userHead: avatar,
+            accountId: accountId,
+          }}
+          size={26}
+          operation={
+            auth === config.auth.Charger ? (
+              <span
+                className="updateChargeBtn ThemeColor3"
+                onClick={() => {
+                  dialogSelectUser({
+                    sourceId: folderId,
+                    showMoreInvite: false,
+                    fromType: 2,
+                    SelectUserSettings: {
+                      includeUndefinedAndMySelf: true,
+                      filterAccountIds: [accountId],
+                      projectId: checkIsProject(projectId) ? projectId : '',
+                      unique: true,
+                      callback: users => {
+                        const user = users[0];
+
+                        this.props.dispatch(
+                          updateTaskCharge(taskId, user, '', () => {
+                            $ele.data('id', user.accountId).data('src', user.avatar).data('hasbusinesscard', false);
+                            this.renderChargeHeaderAvatar();
+                          }),
+                        );
+                      },
+                    },
+                  });
+                }}
+              >
+                {_l('将任务托付给他人')}
+              </span>
+            ) : null
+          }
+        />,
+        ele,
+      );
+    });
+  }
+
   /**
    * 绑定事件
    */
   bindEvents() {
     const that = this;
     const $taskList = $('#taskList');
-
-    // 阶段负责人头像hover
-    $taskList.on('mouseover', '.singleStage .stageChargeAvatar', function (event) {
-      const $this = $(this);
-      const accountId = $this.closest('.singleStage').data('chargeid');
-
-      if (!$this.data('hasbusinesscard')) {
-        $this.mdBusinessCard({
-          id: 'updateTaskChargeCard_' + accountId,
-          accountId,
-        });
-        $this.data('hasbusinesscard', true).mouseenter();
-      }
-    });
 
     // 阶段负责人头像点击
     $taskList.on('click', '.singleStage .stageChargeAvatar', function (event) {
@@ -622,6 +699,10 @@ class TaskStage extends Component {
     const singleTaskTpl = stageList.replace('#include.nodeLiComm', nodeLiComm);
     $('#taskList').html(doT.template(singleTaskTpl)(data));
 
+    //名片层
+    this.renderStageChargeUser();
+    this.renderChargeHeaderAvatar();
+
     // 绑定评分控件
     this.customScore();
 
@@ -725,6 +806,7 @@ class TaskStage extends Component {
 
             // 绑定评分控件
             that.customScore();
+            that.renderChargeHeaderAvatar();
 
             if ($this.find('.singleTaskStage').length >= parseInt($this.parent().find('.taskCount').html(), 10)) {
               $this.attr('data-page', 0);
@@ -1470,11 +1552,10 @@ class TaskStage extends Component {
           if (source.data.accountID) {
             $li
               .find('.chargeHeaderAvatar')
-              .attr('src', source.data.avatar)
+              .data('src', source.data.avatar)
               .attr('data-id', source.data.accountID)
               .data('id', source.data.accountID)
               .data('hasbusinesscard', false);
-            $li.find('.chargeHeaderAvatar').mdBusinessCard('destroy');
           }
         } else {
           $(".singleStage[data-stageid='" + taskStageSettings.oldValue + "']")
@@ -1528,8 +1609,9 @@ class TaskStage extends Component {
           $li
             .find('.stageChargeAvatar')
             .toggleClass('Hidden', !ownerId)
-            .attr('src', avatar)
+            .data('src', avatar)
             .data('hasbusinesscard', false);
+          this.renderStageChargeUser();
         } else {
           errorMessage(source.error);
         }
@@ -1628,6 +1710,7 @@ class TaskStage extends Component {
     }
 
     this.canelCreateStageTask($li);
+    this.renderChargeHeaderAvatar();
 
     // 回车继续创建
     if ($listStageContent) {

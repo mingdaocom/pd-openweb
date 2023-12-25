@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { ScrollView } from 'ming-ui';
+import { ScrollView, Tooltip } from 'ming-ui';
 import Checkbox from 'ming-ui/components/Checkbox';
 import Node from './components/node';
 import SearchInput from './components/searchBox';
@@ -87,7 +87,22 @@ class Root extends Component {
       <Fragment>
         {auth && (
           <div className="rootBoardHeader flexRow">
-            <div className="Font17 flex Bold">{_l('汇报关系')}</div>
+            <div className="Font17 flex Bold">
+              {_l('汇报关系')}
+              <Tooltip
+                text={
+                  <span className="White">
+                    {_l(
+                      '在工作表和工作流的汇报关系检索时，若所有下级部门总数超过2000（含），系统将默认仅获取当前部门的“一级子部门”所有部门',
+                    )}
+                  </span>
+                }
+                action={['hover']}
+                popupPlacement="top"
+              >
+                <i className="icon-info_outline Gray_9e mLeft5" />
+              </Tooltip>
+            </div>
             {isProjectAdmin && (
               <Fragment>
                 <span

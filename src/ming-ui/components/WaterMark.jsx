@@ -193,10 +193,11 @@ export default props => {
   }, []);
 
   if (
-    md.global.Account.accountId &&
-    props.projectId !== 'external' &&
-    (getCurrentProject(props.projectId, true).enabledWatermark ||
-      (md.global.Account.watermark == 1 && md.global.Account.isPortal))
+    (md.global.Account.accountId &&
+      props.projectId !== 'external' &&
+      (getCurrentProject(props.projectId, true).enabledWatermark ||
+        (md.global.Account.watermark == 1 && md.global.Account.isPortal))) ||
+    props.showWaterMark
   ) {
     return (
       <WaterMark
@@ -212,7 +213,8 @@ export default props => {
         gapX={200}
         gapY={200}
         fontColor="rgba(0, 0, 0, .06)"
-        markStyle={{ zIndex: 100000000 }}
+        markStyle={{ zIndex: props.zIndex || 100000000 }}
+        {...props}
       >
         {props.children}
       </WaterMark>

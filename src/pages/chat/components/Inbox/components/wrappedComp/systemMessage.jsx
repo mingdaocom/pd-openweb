@@ -48,7 +48,7 @@ export default class SystemMessage extends PureComponent {
     const that = this;
 
     if (this.msg) {
-      $(this.msg).on('click', 'a', function (evt) {
+      $(this.msg).on('click', 'a', function(evt) {
         const $this = $(this);
         const href = ($(evt.target).attr('href') || '').toLocaleLowerCase();
 
@@ -61,7 +61,7 @@ export default class SystemMessage extends PureComponent {
           TaskCenterController[func]({
             taskID: taskId,
             accountID: opUser,
-          }).done(function (data) {
+          }).done(function(data) {
             if (data.status) {
               alert(_l('操作成功'));
             } else if (data.error) {
@@ -212,13 +212,13 @@ export default class SystemMessage extends PureComponent {
     };
 
     if (md.global.Account.isPortal) {
-      //外部门户
       content = content
         .replace(/<a data-accountid=[^>]*/gi, '<a') //不能点击用户
         .replace(/<a href=\"\/app\/[^>]*/gi, '<a'); //不能点击应用
     }
-    if (!browserIsMobile()) {
-      //pc端 直接进到外部门户审批列表
+
+    // 直接进到外部门户审批列表
+    if (content.indexOf('/admin/expansionservice') === -1) {
       content = content.replace(/\/portaluser.*?>/g, `/role/external/pending" >`);
     }
 

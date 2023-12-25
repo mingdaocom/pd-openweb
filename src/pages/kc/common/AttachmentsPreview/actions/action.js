@@ -4,7 +4,7 @@
 import attachmentAjax from 'src/api/attachment';
 import kcAjax from 'src/api/kc';
 import fileAjax from 'src/api/file';
-import { getToken } from 'src/util';
+import { getToken, addBehaviorLog } from 'src/util';
 import saveToKnowledge from 'src/components/saveToKnowledge/saveToKnowledge';
 import folderDg from 'src/components/kc/folderSelectDialog/folderSelectDialog';
 import { NODE_VISIBLE_TYPE, PICK_TYPE } from '../../../constant/enum';
@@ -65,8 +65,11 @@ function loadAttachment(attachment, options = {}) {
       });
     });
   } else if (previewAttachmentType === 'COMMON_ID') {
+    const { fileId, fileID } = attachment.sourceNode;
     const args = {
-      fileId: attachment.sourceNode.fileId || attachment.sourceNode.fileID,
+      fileId: fileId || fileID,
+      rowId: options.recordId,
+      controlId: options.controlId,
     };
     if (window.shareState && window.shareState.shareId) {
       args.shareId = window.shareState.shareId;
@@ -76,6 +79,9 @@ function loadAttachment(attachment, options = {}) {
           : _.get(window, 'shareState.isPublicQuery') || _.get(window, 'shareState.isPublicForm')
           ? 11
           : 14;
+    }
+    if (options.from === 21) {
+      args.type = 21;
     }
     args.worksheetId = options.worksheetId;
     attachmentPromise = attachmentAjax.getAttachmentDetail(args).then(data => {
@@ -326,7 +332,7 @@ function preLoadMoreAttachments(state, dispatch) {
   loadMoreAttachments(state, dispatch, true);
 }
 
-function changeIndexThunk(dispatch, getState, index, flag) {
+function changeIndexThunk(dispatch, getState, index, flag, extra = {}) {
   const state = getState();
   if (flag && flag === 'prev') {
     index = state.index - 1;
@@ -355,6 +361,11 @@ function changeIndexThunk(dispatch, getState, index, flag) {
   //     type: ACTION_TYPES.TOGGLE_FULLSCREEN,
   //   });
   // }
+
+  addBehaviorLog('previewFile', extra.worksheetId, {
+    fileId: _.get(state.attachments || [], `[${index}].sourceNode.fileID`),
+    rowId: extra.recordId,
+  });
   dispatch({
     type: 'FILE_PREVIEW_CHANGE_INDEX',
     index,
@@ -362,7 +373,7 @@ function changeIndexThunk(dispatch, getState, index, flag) {
   dispatch({
     type: 'FILE_PREVIEW_LOAD_FILE_START',
   });
-  loadAttachment(currentAttachment)
+  loadAttachment(currentAttachment, extra)
     .then(attachment => {
       dispatch({
         type: 'FILE_PREVIEW_LOAD_FILE_SUCESS',
@@ -380,18 +391,18 @@ function changeIndexThunk(dispatch, getState, index, flag) {
     });
 }
 
-export function changeIndex(index, flag) {
+export function changeIndex(index, flag, extra) {
   return (dispatch, getState) => {
-    changeIndexThunk(dispatch, getState, index, flag);
+    changeIndexThunk(dispatch, getState, index, flag, extra);
   };
 }
 
-export function next() {
-  return changeIndex(0, 'next');
+export function next(params = {}) {
+  return changeIndex(0, 'next', params);
 }
 
-export function prev() {
-  return changeIndex(0, 'prev');
+export function prev(params = {}) {
+  return changeIndex(0, 'prev', params);
 }
 
 export function disableInited() {

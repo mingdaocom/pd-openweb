@@ -67,8 +67,8 @@ export default function FilterListSort({ filters, onSortEnd }) {
   const [visible, setVisible] = useState(false);
   return (
     <Fragment>
-      <SortableBtnIconWrap className="mLeft10" onClick={() => setVisible(true)}>
-        <div className="valignWrapper Gray_75 pointer mLeft20">
+      <SortableBtnIconWrap onClick={() => setVisible(true)}>
+        <div className="valignWrapper Gray_75 pointer mLeft10">
           <Icon className="Font22 Gray_9e ThemeHoverColor3" icon="import_export" />
           <span className="Font13">{_l('排序')}</span>
         </div>

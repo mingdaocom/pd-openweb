@@ -73,6 +73,7 @@ const ActiveJsSwitchCon = styled.div`
 
 function Func(props, ref) {
   const {
+    control = {},
     supportJavaScript,
     value,
     value: { expression } = {},
@@ -169,6 +170,7 @@ function Func(props, ref) {
           <CodeEditCon>
             {!codeEditorLoading && (
               <CodeEdit
+                control={control}
                 type={type}
                 value={expression}
                 title={title}
@@ -192,6 +194,7 @@ function Func(props, ref) {
 export default forwardRef(Func);
 
 Func.propTypes = {
+  control: shape({}),
   supportJavaScript: bool,
   value: shape({}),
   control: shape({}),

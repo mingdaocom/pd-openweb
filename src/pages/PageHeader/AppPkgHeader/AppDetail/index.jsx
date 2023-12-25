@@ -36,6 +36,8 @@ import _ from 'lodash';
 import { isHaveCharge, canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util.js';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
 import { setFavicon } from 'src/util';
+import RoleSelect from './RoleSelect';
+import appManagementApi from 'src/api/appManagement';
 
 const mapStateToProps = ({ sheet, sheetList, appPkg: { appStatus } }) => ({ sheet, sheetList, appStatus });
 const mapDispatchToProps = dispatch => ({
@@ -84,6 +86,8 @@ export default class AppInfo extends Component {
       appAnalyticsVisible: false,
       modifyAppLockPasswordVisible: false,
       lockAppVisisble: false,
+      roleDebugVisible: false,
+      roleList: [],
     };
   }
 
@@ -165,7 +169,7 @@ export default class AppInfo extends Component {
   getData = () => {
     const { syncAppDetail } = this.props;
     const { appId, worksheetId } = this.ids;
-    if (!appId) return;
+    if (!appId || appId === 'id') return;
     api
       .getApp(
         {
@@ -203,6 +207,7 @@ export default class AppInfo extends Component {
           'viewHideNavi',
           'managers',
           'selectAppItmeType',
+          'canDebug',
         ]);
         syncAppDetail(appDetail);
         this.checkNavigationStyle(data.currentPcNaviStyle);
@@ -214,7 +219,19 @@ export default class AppInfo extends Component {
         window.appInfo = data;
         this.dataCache = _.pick(data, ['icon', 'iconColor', 'name']);
         setFavicon(data.iconUrl, data.iconColor);
+
+        if (appDetail.canDebug) {
+          this.getAppRoleList(data.id);
+        }
       });
+  };
+
+  getAppRoleList = appId => {
+    appManagementApi.getDebugRoles({ appId }).then(({ roles }) => {
+      this.setState({
+        roleList: roles,
+      });
+    });
   };
 
   switchVisible = (obj, cb) => {
@@ -454,6 +471,7 @@ export default class AppInfo extends Component {
       themeType,
       sourceType,
     } = data;
+    const isUpgrade = appStatus === 10;
     const isNormalApp = _.includes([1, 5], appStatus);
     const { s, tb, tr } = getAppFeaturesVisible();
     let list = getAppConfig(DROPDOWN_APP_CONFIG, permissionType) || [];
@@ -524,28 +542,34 @@ export default class AppInfo extends Component {
               </div>
             </div>
           )}
-          {!(pcDisplay && !isAuthorityApp) && fixed && <div className="appFixed">{_l('维护中')}</div>}
-          {((isNormalApp && (canEditApp(permissionType, isLock) || canEditData(permissionType)) && tb) ||
-            (isLock && canLock)) && (
-            <div
-              className="appConfigIcon pointer"
-              onClick={() => {
-                this.setState({ appConfigVisible: true });
-              }}
-            >
-              <Icon icon="expand_more" className="Font18" style={{ lineHeight: 'inherit' }} />
-              {appConfigVisible && (
-                <Menu
-                  style={{ top: '45px', width: '220px', padding: '6px 0' }}
-                  onClickAway={() => this.setState({ appConfigVisible: false })}
-                >
-                  {list.map(({ type, icon, text, action, ...rest }) => {
-                    return this.renderMenu({ type, icon, text, action, ...rest });
-                  })}
-                </Menu>
-              )}
+          {!(pcDisplay && !isAuthorityApp) && (fixed || isUpgrade) && (
+            <div className={cx({ appFixed: fixed, appUpgrade: isUpgrade })}>
+              {isUpgrade ? _l('升级中') : _l('维护中')}
             </div>
           )}
+
+          {((isNormalApp && (canEditApp(permissionType, isLock) || canEditData(permissionType)) && tb) ||
+            (isLock && canLock)) &&
+            !isUpgrade && (
+              <div
+                className="appConfigIcon pointer"
+                onClick={() => {
+                  this.setState({ appConfigVisible: true });
+                }}
+              >
+                <Icon icon="expand_more" className="Font18" style={{ lineHeight: 'inherit' }} />
+                {appConfigVisible && (
+                  <Menu
+                    style={{ top: '45px', width: '220px', padding: '6px 0' }}
+                    onClickAway={() => this.setState({ appConfigVisible: false })}
+                  >
+                    {list.map(({ type, icon, text, action, ...rest }) => {
+                      return this.renderMenu({ type, icon, text, action, ...rest });
+                    })}
+                  </Menu>
+                )}
+              </div>
+            )}
           {(isHaveCharge(permissionType, isLock) ? description : true) && isNormalApp && (
             <div
               className="appIntroWrap pointer"
@@ -593,7 +617,7 @@ export default class AppInfo extends Component {
         );
       };
       return (
-        <div className="appInfoWrap flexColumn pLeft10 pRight10">
+        <div className="appInfoWrap flexColumn pLeft10 pRight10 mBottom8">
           <div className="flexRow alignItemsCenter pTop10">
             <div className="flex">
               {!(window.isPublicApp || !s || md.global.Account.isPortal) && renderHomepageIconWrap()}
@@ -631,6 +655,8 @@ export default class AppInfo extends Component {
       data,
       isAutofucus,
       appAnalyticsVisible,
+      roleDebugVisible,
+      roleList,
     } = this.state;
     const {
       id: appId,
@@ -646,7 +672,9 @@ export default class AppInfo extends Component {
       pcDisplay,
       currentPcNaviStyle,
       themeType,
+      canDebug,
     } = data;
+    const isUpgrade = appStatus === 10;
     const isNormalApp = _.includes([1, 5], appStatus);
     const isAuthorityApp = canEditApp(permissionType, isLock);
     const hasCharge = canEditApp(permissionType) || canEditData(permissionType);
@@ -666,19 +694,25 @@ export default class AppInfo extends Component {
       >
         <DocumentTitle title={name} />
         {this.renderAppInfoWrap()}
-        {!(fixed && !hasCharge) && !(pcDisplay && !hasCharge) && (
+        {currentPcNaviStyle === 1 && (((pcDisplay || fixed) && !isAuthorityApp) || isUpgrade) && (
+          <div className="LeftAppGroupWrap w100 h100">
+            <Skeleton active={false} />
+          </div>
+        )}
+        {((!(fixed && !hasCharge) && !(pcDisplay && !hasCharge)) || canDebug) && (
           <AppGroupComponent
             appStatus={appStatus}
             projectId={projectId}
             appPkg={data}
+            roleSelectValue={roleList.filter(l => l.seleted)}
+            roleDebugVisible={roleDebugVisible}
             {...props}
             {..._.pick(data, ['permissionType', 'isLock'])}
+            showRoleDebug={() => {
+              this.setState({ roleDebugVisible: !roleDebugVisible });
+            }}
+            otherAllShow={!(fixed && !hasCharge) && !(pcDisplay && !hasCharge)}
           />
-        )}
-        {currentPcNaviStyle === 1 && (pcDisplay || fixed) && !isAuthorityApp && (
-          <div className="LeftAppGroupWrap w100 h100">
-            <Skeleton active={false} />
-          </div>
         )}
         {currentPcNaviStyle === 1 && (
           <Fragment>
@@ -810,6 +844,24 @@ export default class AppInfo extends Component {
             }}
           />
         )}
+        <Motion style={{ x: spring(roleDebugVisible ? 0 : 400) }}>
+          {({ x }) => (
+            <RoleSelect
+              {..._.pick(data, ['permissionType', 'id'])}
+              visible={roleDebugVisible}
+              data={roleList}
+              posX={x}
+              appId={appId}
+              handleClose={() => this.setState({ roleDebugVisible: false })}
+              onClickAway={e => {
+                if (!roleDebugVisible) return;
+                const parent = document.querySelector('.roleSelectCon');
+                if (parent && parent.contains(e)) return;
+                this.setState({ roleDebugVisible: false });
+              }}
+            />
+          )}
+        </Motion>
       </div>
     );
   }

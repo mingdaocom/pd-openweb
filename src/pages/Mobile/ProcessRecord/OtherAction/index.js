@@ -40,18 +40,19 @@ export default class extends Component {
       showPassword: false,
       selectedUser: [],
       entrustList: {},
-      customApproveContent: content ? true : false
+      customApproveContent: content ? true : false,
     };
   }
   componentDidMount() {
-    const { action, instance } = this.props;
+    const { action, instance, projectId } = this.props;
     const { encrypt } = (instance || {}).flowNode || {};
 
     if (_.includes(['pass', 'overrule', 'return'], action) && encrypt) {
       verifyPassword({
+        projectId,
         checkNeedAuth: true,
-        fail: () => {
-          this.setState({ showPassword: true });
+        fail: result => {
+          this.setState({ showPassword: true, removeNoneVerification: result === 'showPassword' });
         },
       });
     }
@@ -68,12 +69,14 @@ export default class extends Component {
     const overruleContent = _.includes(['overrule', 'return'], action) && _.includes(auth.overruleTypeList, 100);
     const passSignature = _.includes(['pass', 'after'], action) && _.includes(auth.passTypeList, 1);
     const overruleSignature = _.includes(['overrule', 'return'], action) && _.includes(auth.overruleTypeList, 1);
-    const forwardAccountId = (_.isArray(selectedUser) ? selectedUser : [selectedUser]).map(user => {
-      if (entrustList[user.accountId]) {
-        return entrustList[user.accountId].trustee.accountId;
-      }
-      return user.accountId;
-    }).join(',');
+    const forwardAccountId = (_.isArray(selectedUser) ? selectedUser : [selectedUser])
+      .map(user => {
+        if (entrustList[user.accountId]) {
+          return entrustList[user.accountId].trustee.accountId;
+        }
+        return user.accountId;
+      })
+      .join(',');
 
     if (_.includes(['transfer', 'transferApprove', 'after', 'before', 'addApprove'], action) && !forwardAccountId) {
       alert(_l('必须选择一个人员'), 2);
@@ -109,61 +112,62 @@ export default class extends Component {
         success: submitFun,
         fail: () => {
           this.setState({ showPassword: true });
-        }
+        },
       });
     } else {
       submitFun();
     }
-  }
-  checkEntrust = (users) => {
+  };
+  checkEntrust = users => {
     const { entrustList } = this.state;
     const { projectId } = this.props;
-    delegationApi.getListByPrincipals({
-      companyId: projectId,
-      principals: users.map(item => item.accountId),
-    }).then(data => {
-      this.setState({
-        entrustList: {
-          ...entrustList,
-          ...data,
-        }
+    delegationApi
+      .getListByPrincipals({
+        companyId: projectId,
+        principals: users.map(item => item.accountId),
+      })
+      .then(data => {
+        this.setState({
+          entrustList: {
+            ...entrustList,
+            ...data,
+          },
+        });
       });
-    });
-  }
-  handleOpenTemplate = (data) => {
+  };
+  handleOpenTemplate = data => {
     const { instance } = this.props;
     const { opinionTemplate } = instance || {};
     functionTemplateModal({
       ...data,
       onSelect: content => this.setState({ content, customApproveContent: content ? true : false }),
       onCustom: () => {
-        this.setState({
-          customApproveContent: true
-        }, () => {
-          this.textarea && this.textarea.focus();
-        });
-      }
+        this.setState(
+          {
+            customApproveContent: true,
+          },
+          () => {
+            this.textarea && this.textarea.focus();
+          },
+        );
+      },
     });
-  }
+  };
   handleOpenEntrust = (e, data) => {
     e.stopPropagation();
     if (_.isEmpty(data)) return;
     ActionSheet.showActionSheetWithOptions(
       {
         options: [
-          (
-            <div className="flexRow alignItemsCenter">
-              <div className="Gray_75 mRight10 Font13">{_l('将委托给')}</div>
-              <img className="mLeft10 boderRadAll_50 selectedUser" style={{ width: 30 }} src={data.trustee.avatar} />
-              <div className="mLeft10 Font15 ellipsis">{data.trustee.fullName}</div>
-            </div>
-          ),
-          (
-            <div className="flexRow alignItemsCenter">
-              <div className="Gray_75 mRight10 Font13">{_l('委托截止')}</div>
-              <div className="mLeft10 Font15">{data.endDate}</div>
-            </div>
-          )
+          <div className="flexRow alignItemsCenter">
+            <div className="Gray_75 mRight10 Font13">{_l('将委托给')}</div>
+            <img className="mLeft10 boderRadAll_50 selectedUser" style={{ width: 30 }} src={data.trustee.avatar} />
+            <div className="mLeft10 Font15 ellipsis">{data.trustee.fullName}</div>
+          </div>,
+          <div className="flexRow alignItemsCenter">
+            <div className="Gray_75 mRight10 Font13">{_l('委托截止')}</div>
+            <div className="mLeft10 Font15">{data.endDate}</div>
+          </div>,
         ],
         message: (
           <div className="flexRow header">
@@ -179,9 +183,9 @@ export default class extends Component {
           </div>
         ),
       },
-      buttonIndex => {}
+      buttonIndex => {},
     );
-  }
+  };
   renderBackFlowNodes() {
     const { backFlowNode, backFlowNodes } = this.state;
     return (
@@ -262,17 +266,22 @@ export default class extends Component {
         <div className="itemWrap flexRow valignWrapper">
           <div className="Gray Font13 bold">{currentAction.headerText}</div>
           {selectedUser.accountId ? (
-            <div className="flex flexRow valignWrapper flexEnd mRight10 mLeft30" onClick={e => this.handleOpenEntrust(e, entrustList[selectedUser.accountId])}>
+            <div
+              className="flex flexRow valignWrapper flexEnd mRight10 mLeft30"
+              onClick={e => this.handleOpenEntrust(e, entrustList[selectedUser.accountId])}
+            >
               <img className="boderRadAll_50 selectedUser" src={selectedUser.avatar} />
               <span className="mLeft10 Gray ellipsis">{selectedUser.fullname}</span>
-              {!!entrustList[selectedUser.accountId] && (
-                <Icon className="Font20 mLeft10" icon="lift" />
-              )}
+              {!!entrustList[selectedUser.accountId] && <Icon className="Font20 mLeft10" icon="lift" />}
             </div>
           ) : (
             <div className="flex"></div>
           )}
-          <Icon className="Gray_9e Font22" icon={selectedUser.accountId ? 'task-folder-charge' : 'task-add-member-circle'} onClick={() => this.setState({ selectUserVisible: true })} />
+          <Icon
+            className="Gray_9e Font22"
+            icon={selectedUser.accountId ? 'task-folder-charge' : 'task-add-member-circle'}
+            onClick={() => this.setState({ selectUserVisible: true })}
+          />
         </div>
       );
     }
@@ -280,19 +289,32 @@ export default class extends Component {
       return (
         <Fragment>
           <div className="itemWrap flexRow valignWrapper">
-            <div className="Gray Font13 bold flex">{selectedUser.length ? _l(`添加%0位审批人`, selectedUser.length) : currentAction.headerText}</div>
-            <Icon className="Gray_9e Font22" icon="task-add-member-circle" onClick={() => this.setState({ selectUserVisible: true })} />
+            <div className="Gray Font13 bold flex">
+              {selectedUser.length ? _l(`添加%0位审批人`, selectedUser.length) : currentAction.headerText}
+            </div>
+            <Icon
+              className="Gray_9e Font22"
+              icon="task-add-member-circle"
+              onClick={() => this.setState({ selectUserVisible: true })}
+            />
           </div>
           {selectedUser.map(data => (
             <div className="itemWrap flexRow valignWrapper">
-              <div className="flex flexRow valignWrapper mRight10" onClick={e => this.handleOpenEntrust(e, entrustList[data.accountId])}>
+              <div
+                className="flex flexRow valignWrapper mRight10"
+                onClick={e => this.handleOpenEntrust(e, entrustList[data.accountId])}
+              >
                 <img className="boderRadAll_50 selectedUser" src={data.avatar} />
                 <span className="mLeft10 Gray ellipsis">{data.fullname}</span>
-                {!!entrustList[data.accountId] && (
-                  <Icon className="Font20 mLeft10" icon="lift" />
-                )}
+                {!!entrustList[data.accountId] && <Icon className="Font20 mLeft10" icon="lift" />}
               </div>
-              <Icon className="Gray_9e Font20" icon="close" onClick={() => { this.setState({ selectedUser: selectedUser.filter(u => u.accountId !== data.accountId) }) }} />
+              <Icon
+                className="Gray_9e Font20"
+                icon="close"
+                onClick={() => {
+                  this.setState({ selectedUser: selectedUser.filter(u => u.accountId !== data.accountId) });
+                }}
+              />
             </div>
           ))}
         </Fragment>
@@ -325,7 +347,7 @@ export default class extends Component {
               selectUserVisible: false,
             });
           }}
-          onSave={(user) => {
+          onSave={user => {
             const selectedUser = action === 'addApprove' ? user : user[0];
             this.setState({ selectedUser });
             this.checkEntrust(user);
@@ -356,12 +378,13 @@ export default class extends Component {
   renderVerifyPassword() {
     const { action, instance } = this.props;
     const { encrypt } = (instance || {}).flowNode || {};
-    const { showPassword } = this.state;
+    const { showPassword, removeNoneVerification } = this.state;
     if (_.includes(['pass', 'overrule', 'return'], action) && encrypt && showPassword) {
       return (
         <Flex className="am-textarea-item">
           <div className="flex">
             <VerifyPassword
+              removeNoneVerification={removeNoneVerification}
               onChange={({ password, isNoneVerification }) => {
                 if (password !== undefined) this.password = password;
                 if (isNoneVerification !== undefined) this.isNoneVerification = isNoneVerification;
@@ -403,17 +426,24 @@ export default class extends Component {
             )}
             <div className="Font13 bold flex Gray">{_l('审批意见')}</div>
             {!_.isEmpty(opinions) && inputType === 1 && customApproveContent && (
-              <div
-                className="ThemeColor Font14"
-                onClick={() => this.handleOpenTemplate({ inputType, opinions })}
-              >
+              <div className="ThemeColor Font14" onClick={() => this.handleOpenTemplate({ inputType, opinions })}>
                 {_l('使用模板')}
               </div>
             )}
           </div>
-          {(_.includes(['pass', 'after', 'overrule', 'return'], action) && inputType === 2) || !customApproveContent && !_.isEmpty(opinions) ? (
-            <div className="selectTemplate flexRow valignWrapper" onClick={() => this.handleOpenTemplate({ inputType, opinions })}>
-              {content ? <div className="flex Font14 Gray">{content}</div> : <div className="flex Font14" style={{ color: '#b3b3b3' }}>{currentAction.placeholder}</div>}
+          {(_.includes(['pass', 'after', 'overrule', 'return'], action) && inputType === 2) ||
+          (!customApproveContent && !_.isEmpty(opinions)) ? (
+            <div
+              className="selectTemplate flexRow valignWrapper"
+              onClick={() => this.handleOpenTemplate({ inputType, opinions })}
+            >
+              {content ? (
+                <div className="flex Font14 Gray">{content}</div>
+              ) : (
+                <div className="flex Font14" style={{ color: '#b3b3b3' }}>
+                  {currentAction.placeholder}
+                </div>
+              )}
               <Icon icon="arrow-right-border" />
             </div>
           ) : (

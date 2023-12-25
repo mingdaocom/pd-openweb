@@ -66,7 +66,7 @@ export default class RecordCardListDialog extends Component {
       showNewRecord: false,
       keyWords: props.keyWords,
       filtersVisible: false,
-      quickFilters: []
+      quickFilters: [],
     };
     this.clickSearch = clickSearch;
     this.lazyLoadRecorcd = _.debounce(this.loadRecorcd, 500);
@@ -160,7 +160,7 @@ export default class RecordCardListDialog extends Component {
       return;
     }
 
-    const scanControl = _.find(worksheetInfo.template.controls || [], it => it.controlId === scancontrolid);
+    const scanControl = _.find(_.get(worksheetInfo, 'template.controls') || [], it => it.controlId === scancontrolid);
 
     if (from !== FROM.PUBLIC_ADD && !window.isPublicWorksheet) {
       getFilterRowsPromise = sheetAjax.getFilterRows;
@@ -175,7 +175,7 @@ export default class RecordCardListDialog extends Component {
           'values',
           'minValue',
           'maxValue',
-        ])
+        ]),
       );
       args = {
         worksheetId: relateSheetId,
@@ -402,7 +402,7 @@ export default class RecordCardListDialog extends Component {
     const { relateSheetId, onOk, onClose, control, formData, parentWorksheetId } = this.props;
     const { keyWords, worksheet, worksheetInfo, filtersVisible, quickFilters } = this.state;
     const filterControls = getFilter({ control, formData });
-    const { searchfilters = '[]' } = control.advancedSetting || {};
+    const { searchfilters = '[]' } = _.get(control, 'advancedSetting') || {};
     const searchFilters = safeParse(searchfilters, 'array');
     const controls = _.get(worksheetInfo, 'template.controls');
     return (
@@ -457,7 +457,10 @@ export default class RecordCardListDialog extends Component {
         </div>
         {searchFilters && !!searchFilters.length && (
           <Fragment>
-            <div className="filterWrapper flexRow alignItemsCenter justifyContentCenter mLeft10" onClick={() => this.setState({ filtersVisible: true })}>
+            <div
+              className="filterWrapper flexRow alignItemsCenter justifyContentCenter mLeft10"
+              onClick={() => this.setState({ filtersVisible: true })}
+            >
               <Icon className={cx({ ThemeColor: quickFilters.length })} icon="worksheet_filter" />
             </div>
             <MobileFilter
@@ -467,7 +470,7 @@ export default class RecordCardListDialog extends Component {
               controls={controls}
               quickFilters={quickFilters}
               onChangeFiltersVisible={filtersVisible => {
-                this.setState({ filtersVisible })
+                this.setState({ filtersVisible });
               }}
               onChangeQuickFilter={this.handleFilter}
             />
@@ -561,7 +564,7 @@ export default class RecordCardListDialog extends Component {
           }}
           visible={showNewRecord}
           showDraftsEntry={true}
-          sheetSwitchPermit={control.sheetSwitchPermit}
+          sheetSwitchPermit={control && control.sheetSwitchPermit}
           hideNewRecord={() => {
             this.setState({ showNewRecord: false });
           }}

@@ -30,9 +30,11 @@ export default function SplitLineSection(props) {
   const curControls = fromType === 'display' ? renderData : _.flatten(widgets);
   const expandWidgetIds = getExpandWidgetIds(curControls, data, from);
   const $ref = useRef();
+  let $originIds = useRef([]);
 
   useEffect(() => {
     handleExpand(enumDefault2 !== 2);
+    $originIds.current = expandWidgetIds;
   }, [controlId]);
 
   useEffect(() => {
@@ -50,6 +52,8 @@ export default function SplitLineSection(props) {
   }, [totalErrors]);
 
   useEffect(() => {
+    if (_.isEqual($originIds.current, expandWidgetIds)) return;
+    $originIds.current = expandWidgetIds;
     handleExpand(visible);
   }, [expandWidgetIds]);
 
@@ -61,19 +65,28 @@ export default function SplitLineSection(props) {
     const currentVisible = _.isUndefined(tempVisible) ? !visible : tempVisible;
     if (expandWidgetIds.length > 0) {
       setVisible(currentVisible);
+      const tempIds = currentVisible ? expandWidgetIds : expandWidgetIds.reverse();
 
       for (var i = 0; i < expandWidgetIds.length; i++) {
-        const listItem =
-          fromType === 'display'
-            ? ($($ref.current).parents().find(`.customFormItem#formItem-${expandWidgetIds[i]}`) || [])[0]
-            : document.getElementById(`widget-${expandWidgetIds[i]}`);
-        if (listItem) {
-          listItem.style.display = currentVisible ? (fromType === 'display' ? 'flex' : 'block') : 'none';
-
-          if (listItem.nextElementSibling && listItem.nextElementSibling.className === 'customFormLine') {
-            listItem.nextElementSibling.style.display = currentVisible ? 'flex' : 'none';
-          }
-        }
+        (function (i) {
+          const timer = setTimeout(() => {
+            const listItem =
+              fromType === 'display'
+                ? ($($ref.current).parents().find(`.customFormItem#formItem-${tempIds[i]}`) || [])[0]
+                : document.getElementById(`widget-${tempIds[i]}`);
+            if (listItem) {
+              if (currentVisible) {
+                $(listItem).slideDown(80, 'swing', () => (listItem.style.overflow = 'unset'));
+              } else {
+                $(listItem).slideUp(80, 'swing', () => (listItem.style.overflow = 'unset'));
+              }
+              clearTimeout(timer);
+              if (listItem.nextElementSibling && listItem.nextElementSibling.className === 'customFormLine') {
+                listItem.nextElementSibling.style.display = currentVisible ? 'flex' : 'none';
+              }
+            }
+          }, 100);
+        })(i);
       }
 
       if (_.isFunction(setNavVisible)) {

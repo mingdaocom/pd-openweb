@@ -12,13 +12,14 @@ import CalendarView from './CalendarView';
 import GunterView from './GunterView';
 import DetailView from './DetailView';
 import GroupFilter from '../GroupFilter';
+import CustomWidgetView from './CustomWidgetView';
 import State from '../State';
 import worksheetAjax from 'src/api/worksheet';
 import { VIEW_TYPE_ICON, VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
 import { emitter } from 'worksheet/util';
 import _ from 'lodash';
 
-const { board, sheet, calendar, gallery, structure, gunter, detail } = VIEW_DISPLAY_TYPE;
+const { board, sheet, calendar, gallery, structure, gunter, detail, customize } = VIEW_DISPLAY_TYPE;
 
 const TYPE_TO_COMP = {
   [sheet]: SheetView,
@@ -28,6 +29,7 @@ const TYPE_TO_COMP = {
   [calendar]: CalendarView,
   [gunter]: GunterView,
   [detail]: DetailView,
+  [customize]: CustomWidgetView,
 };
 
 class View extends Component {
@@ -81,7 +83,7 @@ class View extends Component {
     );
   }
   render() {
-    const { view, viewResultCode, base, isCharge } = this.props;
+    const { view, viewResultCode, base, isCharge, appNaviStyle, hasDebugRoles } = this.props;
     if (viewResultCode !== 1) {
       return <State resultCode={viewResultCode} type="view" />;
     }
@@ -95,6 +97,8 @@ class View extends Component {
       ...base,
       isCharge,
       view,
+      hasDebugRoles,
+      appNaviStyle,
     };
 
     let hasGroupFilter =

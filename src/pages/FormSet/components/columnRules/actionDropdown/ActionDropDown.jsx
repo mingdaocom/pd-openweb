@@ -57,8 +57,9 @@ export default class DropDownItem extends Component {
       -1;
 
     function treeFilter() {
-      const filterData = originData.concat([]);
-      return filterData.filter(item => {
+      const filterData = [];
+      originData.forEach(item => {
+        let newRelationData = [];
         if (!_.isEmpty(item.relationControls)) {
           const childFilter = item.relationControls
             .map(re => ({ ...re, relationControls: (re.relationControls || []).filter(i => filterFn(i)) }))
@@ -67,17 +68,19 @@ export default class DropDownItem extends Component {
               return !_.isEmpty(i.relationControls);
             });
 
-          item.relationControls = _.isEmpty(childFilter)
+          newRelationData = _.isEmpty(childFilter)
             ? (item.relationControls || []).filter(i => filterFn(i))
             : childFilter;
 
-          if (!_.isEmpty(item.relationControls)) {
+          if (!_.isEmpty(newRelationData)) {
             extendId.push(item.controlId);
           }
-          return !_.isEmpty(item.relationControls);
         }
-        return filterFn(item);
+        if (filterFn(item) || !_.isEmpty(newRelationData)) {
+          filterData.push(item.relationControls ? { ...item, relationControls: newRelationData } : item);
+        }
       });
+      return filterData;
     }
 
     this.setState({

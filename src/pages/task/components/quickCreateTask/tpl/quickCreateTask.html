@@ -3,6 +3,8 @@
     <input type="text" class="txtSingleName" maxlength="100" placeholder="{{=_l('输入名称后按回车创建') }}" />
     <span class="stageBox"></span>
     <span class="Right calendarBox createSingleDate"></span>
-    <img class="circle chargeImg" src="{{=md.global.Account.avatar }}" data-id="{{=md.global.Account.accountId }}" />
+    <span class="circle chargeImgWrapQuick" data-id="{{=md.global.Account.accountId }}" data-avatar="{{=md.global.Account.avatar }}">
+        <img class="circle" src="{{=md.global.Account.avatar }}" />
+    </span>
     <i class="icon-star-hollow taskStar"></i>
 </div>

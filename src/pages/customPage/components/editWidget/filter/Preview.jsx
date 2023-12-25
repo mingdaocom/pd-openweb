@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { Icon, LoadDiv } from 'ming-ui';
-import { Switch, Button, Divider } from 'antd';
+import { Switch, Button, Divider, Tooltip } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import { defaultFilterData } from './index';
 import FilterListSort from './FilterListSort';
@@ -87,6 +87,7 @@ const Wrap = styled.div`
 export default function Preview(props) {
   const { loading, activeId, setActiveId, filters, setFilters } = props;
   const { filter, setFilter } = props;
+  const { advancedSetting = {} } = filter;
   const { ids = {}, setting } = props;
   const { appId } = ids;
 
@@ -115,7 +116,7 @@ export default function Preview(props) {
     <Wrap className="flexColumn">
       <div className="flexRow valignWrapper header">
         <div className="flex valignWrapper">
-          <label className="flexRow valignWrapper">
+          <label className="flexRow valignWrapper mRight20">
             <Switch
               size="small"
               checked={filter.enableBtn}
@@ -128,6 +129,25 @@ export default function Preview(props) {
             />
             <div className="mLeft5 pointer">{_l('启用筛选按钮')}</div>
           </label>
+          <label className="flexRow valignWrapper mRight5">
+            <Switch
+              size="small"
+              checked={advancedSetting.clicksearch == '1'}
+              onChange={(checked) => {
+                setFilter({
+                  ...filter,
+                  advancedSetting: {
+                    ...advancedSetting,
+                    clicksearch: checked ? '1' : '0'
+                  }
+                });
+              }}
+            />
+            <div className="mLeft5 pointer">{_l('在执行筛选查询后显示数据')}</div>
+          </label>
+          <Tooltip title={_l('勾选后，进入页面初始不显示数据，查询后显示符合筛选条件的数据。')} placement="bottom">
+            <Icon className="Font17 pointer Gray_9e" icon="workflow_help" />
+          </Tooltip>
           <FilterListSort
             filters={filters}
             onSortEnd={(filters) => {

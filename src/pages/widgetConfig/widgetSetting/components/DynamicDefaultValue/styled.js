@@ -19,6 +19,17 @@ export const DynamicValueInputWrap = styled(FlexCenter)`
     line-height: 27px !important;
     margin-left: 3px !important;
   }
+  .richInputText {
+    width: calc(100% - 36px);
+    border-radius: 3px 0 0 3px !important;
+    border: 1px solid #dddddd;
+    &.editorNull {
+      padding: 0px !important;
+    }
+    .ck-content {
+      padding: 0 12px !important;
+    }
+  }
   .tagInputarea {
     .tagInputareaIuput {
       border-radius: 3px 0 0 3px;

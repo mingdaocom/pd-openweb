@@ -76,7 +76,7 @@ function formatSearchFilters(filters = [], controls = []) {
 }
 
 export default function Header(props) {
-  const { projectId, searchFilters, controls, quickFilters, onFilter, control = {} } = props;
+  const { projectId, appId, searchFilters, controls, quickFilters, onFilter, control = {} } = props;
   const [popupVisible, setPopupVisible] = useState(false);
   return (
     <Trigger
@@ -113,7 +113,7 @@ export default function Header(props) {
               showQueryBtn
               colNum={1}
               controls={controls}
-              appId={control.appId}
+              appId={control.appId || appId}
               projectId={projectId}
               filters={formatSearchFilters(searchFilters, controls)}
               queryText={_l('筛选')}

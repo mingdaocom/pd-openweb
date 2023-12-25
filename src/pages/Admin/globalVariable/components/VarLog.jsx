@@ -10,7 +10,7 @@ import quickSelectUser from 'ming-ui/functions/quickSelectUser';
 import DatePickSelect from 'worksheet/components/DatePickerSelect';
 import filterXSS from 'xss';
 import variableApi from 'src/api/variable';
-import UserHead from 'src/pages/feed/components/userHead';
+import UserHead from 'src/components/userHead';
 
 const LogDrawer = styled(Drawer)`
   color: #333;
@@ -297,7 +297,6 @@ export default function VarLog(props) {
                       userHead: item.operator.avatar,
                       accountId: item.operator.accountId,
                     }}
-                    lazy={'false'}
                     size={20}
                   />
                   <span className="Font12 mRight8">{item.operator.fullname}</span>

@@ -7,8 +7,6 @@ rewrite ^/src/library/(.*) /staticfiles/library/$1 break;
 rewrite ^/src/common/mdcss/(.*) /staticfiles/mdcss/$1 break;
 rewrite ^/src/common/mdjs/(.*) /staticfiles/mdjs/$1 break;
 rewrite ^/images/(.*) /staticfiles/images/$1 break;
-rewrite ^/m/css/(.*) /staticfiles/m/css/$1 break;
-rewrite ^/m/images/(.*) /staticfiles/m/images/$1 break;
 rewrite ^/src/components/(.*) /staticfiles/components/$1 break;
 rewrite ^/src/pages/(.*) /staticfiles/components/$1 break;
 rewrite ^/districtDataConfigFile/(.*) /staticfiles/districtDataConfigFile/$1 break;
@@ -27,6 +25,7 @@ rewrite (?i)^/recordfile /kcshare.html break;
 rewrite (?i)^/mobileChart /mobileChart.html break;
 rewrite (?i)^/mobileLog /mobileLog.html break;
 rewrite (?i)^/mobileGunter /mobileGunter.html break;
+rewrite (?i)^/nativeEmbedCustomWidget /nativeEmbedCustomWidget.html break;
 rewrite (?i)^/mobileFlowChart /mobileFlowChart.html break;
 rewrite (?i)^/mobile /mobile.html break;
 rewrite (?i)^/public/view /viewshare.html break;
@@ -67,9 +66,8 @@ rewrite (?i)^/privateImageInstall /privateImageInstall.html break;
 rewrite (?i)^/tpAuthPortal /account-login-tpAuthPortal.html break;
 rewrite (?i)^/tpAuthApp /account-login-tpAuthApp.html break;
 rewrite (?i)^/tpauth /account-login-tpauth.html break;
-rewrite (?i)^/workwx /account-login-workwxAuth.html break;
-rewrite (?i)^/wxwork /wxwork.html break;
 rewrite (?i)^/auth/workwx /auth-workwx.html break;
+rewrite (?i)^/auth/chatTools /auth-chat-tools.html break;
 rewrite (?i)^/auth/welink /auth-welink.html break;
 rewrite (?i)^/auth/feishu /auth-feishu.html break;
 rewrite (?i)^/sso/dingding  /sso-dingding.html break;
@@ -105,5 +103,15 @@ rewrite (?i)^/myprocess /index.html break;
 rewrite (?i)^/gunterExport /index.html break;
 rewrite (?i)^/embed/view /index.html break;
 rewrite (?i)^/integration /index.html break;
+rewrite (?i)^/plugin /index.html break;
 rewrite (?i)^/integrationConnect /index.html break;
 rewrite (?i)^/integrationApi /index.html break;
+
+
+# 命令行授权
+rewrite (?i)^/cliauth/success /cli-auth-success.html break;
+rewrite (?i)^/cliauth /cli-auth-confirm.html break;
+
+
+rewrite (?i)^/widgetview /widget-container.html break;
+

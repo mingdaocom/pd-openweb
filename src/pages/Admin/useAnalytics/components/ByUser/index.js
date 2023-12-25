@@ -5,7 +5,7 @@ import TableCom from '../TableCom';
 import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import appManagementAjax from 'src/api/appManagement';
 import departmentAjax from 'src/api/department';
-import UserHead from 'src/pages/feed/components/userHead';
+import UserHead from 'src/components/userHead';
 import styled from 'styled-components';
 import { selectDateList, formatter } from '../../util';
 import { formatFileSize } from 'src/util';
@@ -81,7 +81,6 @@ export default class ByUser extends Component {
                   userHead: user.avatar,
                   accountId: item.id,
                 }}
-                lazy={'false'}
                 size={32}
               />
               <span className="mLeft10">{user.fullname || ''}</span>

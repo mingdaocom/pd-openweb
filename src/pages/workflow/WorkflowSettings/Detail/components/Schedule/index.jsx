@@ -342,7 +342,11 @@ export default ({
                   <div className="flexRow">
                     <div className="pTop16">{_l('提醒人')}</div>
                     <div className="flex mLeft10">
-                      <Member accounts={item.accounts} updateSource={accounts => changeAction(item.id, accounts)} />
+                      <Member
+                        companyId={companyId}
+                        accounts={item.accounts}
+                        updateSource={accounts => changeAction(item.id, accounts)}
+                      />
                       <div
                         className="flexRow ThemeColor3 workflowDetailAddBtn mTop15"
                         onClick={() => showUserDialog(Object.assign({}, userDialogState, { [item.id]: true }))}

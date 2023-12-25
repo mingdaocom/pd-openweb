@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import * as actions from 'mobile/RecordList/redux/actions';
 import { bindActionCreators } from 'redux';
 import { Icon } from 'ming-ui';
-import FilterInput, { validate, conditionAdapter, formatQuickFilter, NumberTypes } from './Inputs';
+import FilterInput, { validate, conditionAdapter, turnControl, formatQuickFilter, NumberTypes } from './Inputs';
 import { formatFilterValuesToServer } from 'src/pages/worksheet/common/Sheet/QuickFilter/utils';
 import _ from 'lodash';
 
@@ -54,10 +54,16 @@ export function QuickFilter(props) {
   const items = useMemo(
     () =>
       filters
-        .map(filter => ({
-          ...filter,
-          control: _.find(controls, c => c.controlId === filter.controlId),
-        }))
+        .map(filter => {
+          const controlObj = _.find(controls, c => c.controlId === filter.controlId);
+          const newControl = controlObj && _.cloneDeep(turnControl(controlObj));
+          return {
+            ...filter,
+            control: newControl,
+            dataType: newControl ? newControl.type : filter.dataType,
+            filterType: newControl && newControl.encryId ? 2 : filter.filterType,
+          };
+        })
         .filter(c => c.control && !(window.shareState.shareId && _.includes([26, 27, 48], c.control.type))),
     [JSON.stringify(filters)],
   );
@@ -141,6 +147,7 @@ export function QuickFilter(props) {
       <div className="flex body">
         {items.map((item, i) => (
           <FilterInput
+            controls={controls}
             key={item.controlId}
             {...item}
             {...values[i]}

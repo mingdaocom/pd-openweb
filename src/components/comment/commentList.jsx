@@ -19,8 +19,6 @@ class CommentList extends React.Component {
     commentList: PropTypes.array, // 列表
     updateCommentList: PropTypes.func,
     removeComment: PropTypes.func,
-
-    bindBusinessCard: PropTypes.bool, // 是否绑定名片层
     children: PropTypes.element,
     manualRef: PropTypes.func,
 
@@ -31,7 +29,6 @@ class CommentList extends React.Component {
     pageIndex: 1,
     pageSize: 20,
     isFocus: false,
-    bindBusinessCard: true,
     commentList: [],
     updateCommentList() {},
     removeComment() {},
@@ -53,20 +50,6 @@ class CommentList extends React.Component {
   }
 
   componentDidMount() {
-    if (this.props.bindBusinessCard) {
-      $(this.list).on(
-        {
-          mouseover: function () {
-            if ($(this).data('accountid') === undefined || $(this).data('bind')) {
-              return;
-            }
-            $(this).mdBusinessCard({ secretType: 1 }).data('bind', true).mouseenter();
-          },
-        },
-        '.singleTalk .singeText a',
-      );
-    }
-
     this.callRef();
     if (!this.props.doNotLoadAtDidMount) {
       this.fetch();

@@ -70,6 +70,7 @@ export const VersionProductType = {
   glabalLog: 31, // 全局日志
   globalBehaviorLog: 32, // 全局行为日志
   globalVariable: 33, // 全局变量
+  waterMark: 34, // 附件水印
 };
 
 export const VersionProductHelpLink = {

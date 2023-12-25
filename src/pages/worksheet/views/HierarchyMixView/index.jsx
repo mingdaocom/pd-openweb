@@ -173,7 +173,7 @@ function HierarchyMix(props) {
           }
         });
     }
-  }, [viewId, viewControl, viewControls]);
+  }, [viewId, viewControl, viewControls.map(item => item.worksheetId).join(',')]);
 
   const genScreenshot = () => {
     const $wrap = document.querySelector('.hierarchyViewMinWrap');

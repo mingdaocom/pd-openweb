@@ -410,7 +410,7 @@ export default class Container extends React.Component {
                 {createAccountLoading && <div className="loadingLine"></div>}
                 {isLink && loginForAdd && (
                   <p className="termsText Gray_75">
-                    <a target="_blank" href="/findPassword.htm">
+                    <a target="_blank" href="/findPassword">
                       {_l('忘记密码？')}
                     </a>
                   </p>

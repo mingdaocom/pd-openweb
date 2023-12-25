@@ -34,7 +34,7 @@ class Root extends React.Component {
       showDialogSettingInviteRules: showDialogSettingInviteRules,
     });
     if (ischage) {
-      this.props.updateType(0)
+      this.props.updateType(0);
     }
   };
 
@@ -48,8 +48,22 @@ class Root extends React.Component {
             <div className="adminStructureContent flexRow">
               <div className="adminStructure">
                 <div className="structureNavigator">
-                  <div className="Bold Font17 mBottom20 pLeft24">
-                    {_l('成员与部门')}
+                  <div className="Bold Font17 mBottom20 pLeft24 pRight24 flexRow alignItemsCenter">
+                    <div className="flex">
+                      {_l('成员与部门')}
+                      <Tooltip
+                        text={
+                          <span>
+                            {_l(
+                              '在工作表和工作流的汇报关系检索时，若当前用户的所有下级用户总数超过2000（含），系统将默认仅获取当前用户的“直属下一级”所有用户。',
+                            )}
+                          </span>
+                        }
+                        action={['hover']}
+                      >
+                        <Icon className="Font16 Gray_bd Hand mLeft8" icon="info_outline" />
+                      </Tooltip>
+                    </div>
                     <Tooltip text={<span>{_l('人员加入规则设置')}</span>} action={['hover']}>
                       <Icon
                         className="Font16 Gray_bd Hand mLeft8"

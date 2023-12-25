@@ -7,8 +7,6 @@ import ClipboardButton from 'react-clipboard.js';
 import ValidPassword from './ValidPassword';
 import ExitDialog from './ExitDialog';
 import EditCardInfo from './EditCardInfo';
-import DialogLayer from 'src/components/mdDialog/dialog';
-import ReactDom from 'react-dom';
 import { navigateTo } from 'router/navigateTo';
 import { purchaseMethodFunc } from 'src/components/upgrade/choose/PurchaseMethodModal';
 
@@ -106,85 +104,60 @@ export default class EnterpriseCard extends Component {
 
   //编辑
   handleEdit(item) {
-    const options = {
-      container: {
-        content: '',
-        yesText: null,
-        noText: null,
-        header: null,
-      },
-      dialogBoxID: 'editInfoEnterprise',
-      width: '480px',
-    };
-    ReactDom.render(
-      <DialogLayer {...options}>
+    Dialog.confirm({
+      dialogClasses: 'editInfoEnterprise',
+      noFooter: true,
+      children: (
         <EditCardInfo
           userInfo={item}
           closeDialog={() => {
-            $('#editInfoEnterprise_container,#editInfoEnterprise_mask').remove();
+            $('.editInfoEnterprise.mui-dialog-container').parent().remove();
           }}
         />
-      </DialogLayer>,
-      document.createElement('div'),
-    );
+      ),
+    });
   }
 
   //退出
   handleExit(item) {
-    const options = {
-      container: {
-        content: '',
-        yesText: null,
-        noText: null,
-        header: _l('提示'),
-      },
-      dialogBoxID: 'dialogBoxValidate',
-      width: '400px',
-    };
-    ReactDom.render(
-      <DialogLayer {...options}>
+    Dialog.confirm({
+      title: _l('提示'),
+      dialogClasses: 'dialogBoxValidate',
+      noFooter: true,
+      children: (
         <ValidPassword
           projectId={item.projectId}
           companyName={item.companyName}
           closeDialog={() => {
-            $('#dialogBoxValidate_container,#dialogBoxValidate_mask').remove();
+            $('.dialogBoxValidate.mui-dialog-container').parent().remove();
           }}
-          transferAdminProject={this.transferAdminProject.bind(this)}
+          transferAdminProject={this.transferAdminProject}
         />
-      </DialogLayer>,
-      document.createElement('div'),
-    );
+      ),
+    });
   }
 
   // 指定同事
-  transferAdminProject(projectId, companyName, password, type) {
-    const options = {
-      container: {
-        content: '',
-        yesText: null,
-        noText: null,
-        header: _l('提示'),
-      },
-      dialogBoxID: 'dialogBoxTransferAdminProject',
-      width: '400px',
-    };
-    ReactDom.render(
-      <DialogLayer {...options}>
+  transferAdminProject = (projectId, companyName, password, type) => {
+    Dialog.confirm({
+      dialogClasses: 'dialogBoxTransferAdminProject',
+      title: _l('提示'),
+      noFooter: true,
+      children: (
         <ExitDialog
           needTransfer={type === 3}
           companyName={companyName}
           projectId={projectId}
           password={password}
           closeDialog={() => {
-            $('#dialogBoxTransferAdminProject_container,#dialogBoxTransferAdminProject_mask').remove();
+            $('.dialogBoxTransferAdminProject.mui-dialog-container').parent().remove();
           }}
-          transferAdminProject={this.transferAdminProject.bind(this)}
+          transferAdminProject={this.transferAdminProject}
           getData={() => this.props.getData()}
         />
-      </DialogLayer>,
-      document.createElement('div'),
-    );
-  }
+      ),
+    });
+  };
 
   //汇报关系
   handleRelation(item) {

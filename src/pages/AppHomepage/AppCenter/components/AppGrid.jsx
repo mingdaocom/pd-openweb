@@ -789,7 +789,9 @@ export default function AppGrid(props) {
                   !isAllActive &&
                   !!groups.length &&
                   !keywords
-                    ? apps.filter(app => _.includes(app.groupIds, currentGroupTab))
+                    ? ((projectGroups.filter(g => g.id === currentGroupTab)[0] || {}).appIds || []).map(
+                        item => apps.filter(app => app.id === item)[0] || {},
+                      )
                     : apps
                 }
               />

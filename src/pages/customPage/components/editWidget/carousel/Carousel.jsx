@@ -8,7 +8,7 @@ import homeAppAjax from 'src/api/homeApp';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import { previewQiniuUrl } from 'src/components/previewAttachments';
 import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
-import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/ControlMask/util';
+import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
 import { RecordInfoModal } from 'mobile/Record';
 import { browserIsMobile, addBehaviorLog } from 'src/util';
 import { getBarCodeValue } from 'src/components/newCustomFields/tools/utils';
@@ -274,7 +274,6 @@ export default function CarouselPreview(props) {
     // 打开记录
     if (action === 1 && !window.share) {
       const { appId } = await homeAppAjax.getAppSimpleInfo({ workSheetId: worksheetId });
-      
       addBehaviorLog('worksheetRecord', worksheetId, { rowId: rowid }); // 埋点
 
       if (isMingdao) {

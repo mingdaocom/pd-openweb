@@ -12,7 +12,7 @@ import ConfigHeader from './ConfigHeader';
 import WebLayout from './webLayout';
 import * as actions from './redux/action';
 import { updateSheetListAppItem } from 'src/pages/worksheet/redux/actions/sheetList';
-import { enumWidgetType, reorderComponents, fillObjectId } from './util';
+import { enumWidgetType, reorderComponents, fillObjectId, formatNavfilters } from './util';
 import { reportTypes } from 'statistics/Charts/common';
 import MobileLayout from './mobileLayout';
 import { formatControlsData } from 'src/pages/widgetConfig/util/data';
@@ -61,7 +61,12 @@ export default class CustomPage extends Component {
   };
 
   componentDidMount() {
+    this.props.updatePageInfo({ loadFilterComponentCount: 0 });
     this.getPageData();
+  }
+
+  componentWillUnmount() {
+    this.props.updatePageInfo({ loadFilterComponentCount: 0 });
   }
 
   getPageData = () => {
@@ -80,6 +85,7 @@ export default class CustomPage extends Component {
           config: config || defaultConfig,
           apk: apk || {},
           visible: true,
+          filterComponents: components.filter(item => item.value && item.type === enumWidgetType.filter)
         });
         this.$originComponents = components;
         this.$originAdjustScreen = adjustScreen;
@@ -266,32 +272,7 @@ export default class CustomPage extends Component {
           resolve(newComponents);
         });
       } else {
-        const newComponents = components.map(component => {
-          if (component.type === enumWidgetType.button) {
-            const { buttonList } = component.button;
-            return {
-              ...component,
-              button: {
-                ...component.button,
-                buttonList: buttonList.map(btn => {
-                  const { config } = btn;
-                  return {
-                    ...btn,
-                    config: {
-                      ...config,
-                      temporaryWriteControls: undefined,
-                      controls: undefined,
-                      isEmptyWriteControls: undefined,
-                    }
-                  };
-                }),
-              }
-            };
-          } else {
-            return component;
-          }
-        });
-        resolve(newComponents);
+        resolve(components);
       }
     });
   };
@@ -373,8 +354,14 @@ export default class CustomPage extends Component {
             appId: ids.appId,
             pageId: ids.worksheetId,
             filters: filters.map(item => {
+              const navfilters = formatNavfilters(item);
               return {
                 ...item,
+                advancedSetting: {
+                  ...item.advancedSetting,
+                  navfilters,
+                  showNavfilters: undefined
+                },
                 values: formatFilterValuesToServer(item.dataType, item.values),
                 control: undefined,
               };
@@ -437,28 +424,47 @@ export default class CustomPage extends Component {
     });
   };
 
-  // 清除 uuid
-  dealComponentUUId = components => {
-    return components.map(item => _.omit(item, 'uuid'));
-  };
-
-  // 找到透视表，保存管理员列宽的配置
-  savePivotTableColumnWidthConfig = components => {
+  // 清除 component 里面的临时数据 & 填充或处理后端需要的数据
+  dealComponentTemporaryData = components => {
     return components.map(item => {
-      if (item.type === enumWidgetType.analysis && item.reportType === reportTypes.PivotTable) {
-        const columnWidthConfig = sessionStorage.getItem(`pivotTableColumnWidthConfig-${item.value}`) || undefined;
+      // 清除 uuid
+      const component = _.omit(item, 'uuid');
+      // 清空按钮的临时配置
+      if (component.type === enumWidgetType.button) {
+        const { buttonList } = component.button;
         return {
-          ...item,
+          ...component,
+          button: {
+            ...component.button,
+            buttonList: buttonList.map(btn => {
+              const { config } = btn;
+              return {
+                ...btn,
+                config: {
+                  ...config,
+                  temporaryWriteControls: undefined,
+                  controls: undefined,
+                  isEmptyWriteControls: undefined,
+                }
+              };
+            }),
+          }
+        };
+      }
+      // 找到透视表，保存管理员列宽的配置
+      if (component.type === enumWidgetType.analysis && component.reportType === reportTypes.PivotTable) {
+        const columnWidthConfig = sessionStorage.getItem(`pivotTableColumnWidthConfig-${component.value}`) || undefined;
+        return {
+          ...component,
           config: {
-            ...item.config,
+            ...component.config,
             columnWidthConfig
           }
         }
-      } else {
-        return item;
       }
+      return component;
     });
-  }
+  };
 
   @autobind
   async handleSave() {
@@ -472,8 +478,7 @@ export default class CustomPage extends Component {
     newComponents = await this.fillBtnData(newComponents);
     newComponents = await this.fillFilterData(newComponents);
     newComponents = await this.fillFilterComponent(newComponents);
-    newComponents = this.savePivotTableColumnWidthConfig(newComponents);
-    newComponents = this.dealComponentUUId(newComponents);
+    newComponents = this.dealComponentTemporaryData(newComponents);
 
     customApi
       .savePage({
@@ -516,6 +521,7 @@ export default class CustomPage extends Component {
   switchType = type => {
     const { updateComponents, components } = this.props;
     this.setState({ displayType: type });
+    this.props.updatePageInfo({ loadFilterComponentCount: 0 });
     const orderComponent = reorderComponents(components);
     if (orderComponent) {
       updateComponents(orderComponent);

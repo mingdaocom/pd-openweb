@@ -71,8 +71,17 @@ const SectionName = styled.div`
     }
   }
 `;
+
+const User = styled.div`
+  height: 36px;
+  background: #f5f5f5;
+  border-radius: 3px;
+  border: 1px solid #ddd;
+  padding: 0 10px;
+`;
+
 export default function MobileVertifyPassword(props) {
-  const { okText, cancelText, onOk, onClose, className, visible, title, inputName } = props;
+  const { okText, cancelText, onOk, onClose, className, visible, title, removeNoneVerification } = props;
   const [password, setPassword] = useState('');
   const [isNoneVerification, setIsNoneVerification] = useState(false);
 
@@ -80,9 +89,16 @@ export default function MobileVertifyPassword(props) {
     <VertifyPasswordDialogWrap popup animationType="slide-up" className={className} onClose={onClose} visible={visible}>
       <div className="Gray Font17 mBottom12 bold">{title || _l('安全认证')}</div>
       <div className="passwordWrap mBottom25">
-        <SectionName className={cx({ required: true })}>{inputName || _l('登录密码验证')}</SectionName>
+        <SectionName>{_l('账号')}</SectionName>
+        <User className="mTop10 flexRow alignItemsCenter">
+          {md.global.Account.mobilePhone
+            ? md.global.Account.mobilePhone.replace(/((\+86)?\d{3})\d*(\d{4})/, '$1****$3')
+            : md.global.Account.email.replace(/(.{3}).*(@.*)/, '$1***$2')}
+        </User>
+
+        <SectionName className={cx('mTop20', { required: true })}>{_l('密码')}</SectionName>
         <Input.Password
-          placeholder={_l('输入当前用户（%0）的登录密码', md.global.Account.fullname)}
+          placeholder={_l('输入当前用户的密码')}
           iconRender={visible =>
             visible ? (
               <Icon icon="visibility" className="Gray_9e" />
@@ -94,11 +110,13 @@ export default function MobileVertifyPassword(props) {
           autocomplete="new-password"
           onChange={e => setPassword(e.target.value)}
         />
-        <Checkbox
-          className="mTop15 flexRow Gray"
-          text={_l('一小时内免验证')}
-          onClick={checked => setIsNoneVerification(checked)}
-        />
+        {!removeNoneVerification && (
+          <Checkbox
+            className="mTop15 flexRow Gray"
+            text={_l('一小时内免验证')}
+            onClick={checked => setIsNoneVerification(checked)}
+          />
+        )}
       </div>
       <div className="actionsWrap flexRow">
         <Button type="link" onClick={onClose} className="Gray_75 Font14 mRight10">

@@ -21,7 +21,6 @@ import {
 } from '../../redux/actions';
 import config from '../../config/config';
 import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
-import 'src/components/mdBusinessCard/mdBusinessCard';
 import 'src/components/createTask/createTask';
 import {
   checkTaskSubTask,
@@ -106,65 +105,6 @@ class TaskCenter extends Component {
         },
       },
       '#tasks .markTask',
-    );
-
-    // 成员头像hover
-    $container.on(
-      'mouseover.task',
-      '#tasks .listStageTaskContent .chargeImg, #tasks .listStageContent .chargeImg',
-      function (event) {
-        if ($(event.target).closest('.createNewTask').length) return;
-
-        const $this = $(this);
-        const folderId = that.props.taskConfig.folderId;
-        let projectId = that.props.taskConfig.projectId;
-
-        if (!$this.data('hasbusinesscard')) {
-          const accountId = $this.data('id');
-          let taskId;
-          if (folderId) {
-            taskId = $this.closest('li').data('taskid');
-          } else {
-            taskId = $this.closest('tr').data('taskid');
-            projectId = $this.closest('tr').data('projectid');
-          }
-          $this.mdBusinessCard({
-            id: 'updateTaskChargeCard_' + taskId,
-            accountId,
-            secretType: 1,
-            opHtml:
-              $this.data('auth') === config.auth.Charger
-                ? "<span class='updateChargeBtn ThemeColor3'>" + _l('将任务托付给他人') + '</span>'
-                : '',
-            readyFn(opts, dialog) {
-              dialog.find('.updateChargeBtn').on('click', function () {
-                dialogSelectUser({
-                  sourceId: folderId,
-                  showMoreInvite: false,
-                  fromType: 2,
-                  SelectUserSettings: {
-                    includeUndefinedAndMySelf: true,
-                    filterAccountIds: [accountId],
-                    projectId: checkIsProject(projectId) ? projectId : '',
-                    unique: true,
-                    callback(users) {
-                      const user = users[0];
-
-                      that.props.dispatch(
-                        updateTaskCharge(taskId, user, '', () =>
-                          afterUpdateTaskCharge(taskId, user.avatar, user.accountId),
-                        ),
-                      );
-                      $this.data('hasbusinesscard', false).off();
-                    },
-                  },
-                });
-              });
-            },
-          });
-          $this.data('hasbusinesscard', true).mouseenter();
-        }
-      },
     );
 
     // 星标

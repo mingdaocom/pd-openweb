@@ -73,7 +73,7 @@ export default class EditCardInfo extends Component {
           <div className="Gray_75">{_l('工作电话')}</div>
           <Input className="mTop6" placeholder={_l('工作电话')} value={contactPhone} onChange={(e) => this.setState({ contactPhone: e.target.value })} />
         </div>
-        <div className="mTop32 Right mBottom24">
+        <div className="mTop32 Right">
           <span className="Font14 Gray_9e mRight32 Hover_49 Hand" onClick={() => this.props.closeDialog()}>
             {_l('取消')}
           </span>

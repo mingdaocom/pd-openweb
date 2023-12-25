@@ -26,6 +26,7 @@ export const MODULE_LIST = [
   // { value: 5, label: _l('统计图表') },
   // { value: 6, label: _l('外部门户') },
   { value: 8, label: _l('工作表记录') },
+  { value: 9, label: _l('附件') },
 ];
 
 export const OPERATE_LIST = [
@@ -42,6 +43,7 @@ export const OPERATE_LIST = [
   { value: 10, label: _l('打印') },
   { value: 11, label: _l('自定义动作') },
   { value: 12, label: _l('附件下载') },
+  { value: 16, label: _l('升级') },
   // { value: 13, label: _l('附件预览') },
 ];
 

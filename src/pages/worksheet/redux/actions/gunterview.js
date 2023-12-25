@@ -16,7 +16,7 @@ import {
   formatWeekDay,
   sortGrouping,
 } from 'src/pages/worksheet/views/GunterView/util';
-import { formatQuickFilter, getFilledRequestParams } from 'worksheet/util';
+import { formatQuickFilter, getFilledRequestParams, handleRecordError } from 'worksheet/util';
 import { PERIOD_TYPE } from 'src/pages/worksheet/views/GunterView/config';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { getRequest } from 'src/util';
@@ -253,7 +253,9 @@ export const updataPeriodType = (value, time) => {
 export const updateViewConfig = view => {
   return (dispatch, getState) => {
     const { base, views, gunterView, controls } = getState().sheet;
-    const { advancedSetting, viewControl } = base.viewId ? _.find(views, { viewId: base.viewId }) : views[0];
+    const { advancedSetting, viewControl, displayControls } = base.viewId
+      ? _.find(views, { viewId: base.viewId })
+      : views[0];
     const { unweekday, begindate, enddate, colorid, calendartype, milepost, clicktype } = advancedSetting;
     const titleControl = _.find(controls, { attribute: 1 }) || {};
     const startControl = _.find(controls, { controlId: begindate }) || {};
@@ -267,6 +269,7 @@ export const updateViewConfig = view => {
       startId: begindate,
       endId: enddate,
       viewControl,
+      displayControls: displayControls.map(c => _.find(controls, { controlId: c })).filter(_ => _),
       colorId: colorid,
       startFormat: startControl.type === 16 ? 'YYYY-MM-DD HH:mm' : 'YYYY-MM-DD',
       endFormat: endControl.type === 16 ? 'YYYY-MM-DD HH:mm' : 'YYYY-MM-DD',
@@ -607,11 +610,7 @@ export const updateRecordTitle = (control, record) => {
       })
       .then(({ data, resultCode }) => {
         if (!data) {
-          if (resultCode === 11) {
-            alert(_l('编辑失败，%0不允许重复', control.controlName || ''), 3);
-          } else {
-            alert(_l('编辑失败'), 3);
-          }
+          handleRecordError(data.resultCode, control);
           dispatch(
             updateGroupingRow(
               {

@@ -14,6 +14,7 @@ import { navigateTo } from 'src/router/navigateTo';
 import projectSettingAjax from 'src/api/projectSetting';
 import './common/style.less';
 import _ from 'lodash';
+import { getCurrentProject } from 'src/util';
 
 export default class RoleAuth extends React.Component {
   state = {
@@ -155,18 +156,6 @@ export default class RoleAuth extends React.Component {
                   {_l('申请角色请求')}
                   {count ? <span className="applyRecordCount">{count}</span> : null}
                 </Button>
-
-                {/*md.global.Account.projects.find(o => o.projectId === params.projectId).isHrVisible && (
-                  <button
-                    type="button"
-                    className="ming Button Button--primary roleCreateBtn"
-                    onClick={e => {
-                      this.setState({ showCreateRole: true });
-                    }}
-                  >
-                    {_l('创建角色权限')}
-                  </button>
-                )*/}
 
                 {this.state.showCreateRole ? (
                   <CreateRole

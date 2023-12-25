@@ -17,6 +17,8 @@ const useCompare = value => {
   return ref.current;
 };
 
+const MAX_COUNT = 20;
+
 export default function RelateRecordOptions(props) {
   const {
     selected,
@@ -66,27 +68,30 @@ export default function RelateRecordOptions(props) {
   }, [useCompare(formData)]);
   return (
     <div>
-      {prefixRecords.concat(newRecords).map((record, i) => {
-        const title =
-          record.rowid === 'isEmpty' || navshow === '2'
-            ? record.name
-            : getTitleTextFromControls(control.relationControls, record);
-        return (
-          <Option
-            key={i}
-            className={cx('ellipsis', { checked: _.find(selected, { rowid: record.rowid }) })}
-            onClick={() => {
-              if (_.find(selected, { rowid: record.rowid })) {
-                onChange(selected.filter(r => r.rowid !== record.rowid));
-              } else {
-                onChange(multiple ? _.uniqBy(selected.concat(record)) : [record]);
-              }
-            }}
-          >
-            {title}
-          </Option>
-        );
-      })}
+      {prefixRecords
+        .concat(newRecords)
+        .slice(0, MAX_COUNT)
+        .map((record, i) => {
+          const title =
+            record.rowid === 'isEmpty' || navshow === '2'
+              ? record.name
+              : getTitleTextFromControls(control.relationControls, record);
+          return (
+            <Option
+              key={i}
+              className={cx('ellipsis', { checked: _.find(selected, { rowid: record.rowid }) })}
+              onClick={() => {
+                if (_.find(selected, { rowid: record.rowid })) {
+                  onChange(selected.filter(r => r.rowid !== record.rowid));
+                } else {
+                  onChange(multiple ? _.uniqBy(selected.concat(record)) : [record]);
+                }
+              }}
+            >
+              {title}
+            </Option>
+          );
+        })}
       {isMore && (
         <Option className="more" onClick={onSetMoreVisible}>
           {_l('更多...')}

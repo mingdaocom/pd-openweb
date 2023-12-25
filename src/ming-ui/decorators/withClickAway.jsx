@@ -1,7 +1,8 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import ReactDom from 'react-dom';
-import { compact, map, every, flatten } from 'lodash';
+import { emitter } from 'src/util';
+import { compact, map, every, flatten, isFunction } from 'lodash';
 
 function withClickAway(exceptionList, Component = exceptionList) {
   class ClickAwayableComponent extends React.Component {
@@ -16,11 +17,17 @@ function withClickAway(exceptionList, Component = exceptionList) {
     componentDidMount() {
       this.mounted = true;
       this.checkClickAway = this.checkClickAway.bind(this);
+      this.clickAway = this.clickAway.bind(this);
       this.bindClickAway();
     }
     componentWillUnmount() {
       this.mounted = false;
       this.unbindClickAway();
+    }
+    clickAway() {
+      if (isFunction(this.props.onClickAway)) {
+        this.props.onClickAway({});
+      }
     }
     checkClickAway(e = {}) {
       if (!this.mounted) {

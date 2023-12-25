@@ -5,6 +5,7 @@ import { Modal, Icon, Input, Skeleton } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
 import RecordCoverCardList from './RecordCoverCardList';
 import _, { debounce } from 'lodash';
+import emptyImg from './empty.png';
 
 const Title = styled.div`
   font-size: 16px;
@@ -273,13 +274,13 @@ export default function SearchRelateRecords(props) {
             <Empty>{_l('无权限')}</Empty>
           ) : (
             <Empty>
-              <img src={require('./empty.png')} alt="" />
+              <img src={emptyImg} alt="" />
               {_l('请输入关键词进行搜索')}
             </Empty>
           ))}
         {!loading && !!keyWords && !list.length && (
           <Empty>
-            <img src={require('./empty.png')} alt="" />
+            <img src={emptyImg} alt="" />
             <div className="Font16 Gray_9e">{_l('没有搜索结果')}</div>
             {allowAdd && (
               <NewRecordButton

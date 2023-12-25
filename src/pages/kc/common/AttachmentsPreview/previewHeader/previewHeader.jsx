@@ -100,7 +100,7 @@ class PreviewHeader extends React.Component {
         content: _l('请先登录'),
         yesText: _l('登录'),
         yesFn: () => {
-          window.location = '/login.htm?ReturnUrl=' + encodeURIComponent(window.location.href);
+          window.location = '/login?ReturnUrl=' + encodeURIComponent(window.location.href);
         },
       },
     });
@@ -120,7 +120,7 @@ class PreviewHeader extends React.Component {
   };
 
   render() {
-    const { attachment, fromType, hideFunctions, className, error, extra, previewService } = this.props;
+    const { attachment, fromType, hideFunctions, className, error, extra } = this.props;
     const { name, ext, previewType } = attachment;
     const deleted = error.status === LOADED_STATUS.DELETED;
     const {
@@ -138,7 +138,6 @@ class PreviewHeader extends React.Component {
           hideFunctions,
           fromType,
         });
-    const isWps = previewService === 'wps';
 
     return (
       <div className={cx('previewHeader flexRow', className)}>
@@ -199,77 +198,7 @@ class PreviewHeader extends React.Component {
             </div>
           )}
         </div>
-        <div className="flexRow flex justifyContentCenter">
-          {!md.global.Config.IsLocal && isWpsPreview(ext) ? (
-            <Fragment>
-              {!isWps ? (
-                <div
-                  className={cx('setWPSPreview', {})}
-                  onClick={() => {
-                    this.props.changePreviewService('wps');
-                  }}
-                >
-                  <span className="bold">{_l('预览失败？使用WPS预览')}</span>
-                  <span className="beta">Beta</span>
-                </div>
-              ) : (
-                <Trigger
-                  popupVisible={this.state.showSavePreviewService}
-                  onPopupVisibleChange={visible => {
-                    this.setState({
-                      showSavePreviewService: visible,
-                    });
-                  }}
-                  action={['click']}
-                  popupAlign={{
-                    points: ['tl', 'bl'],
-                    offset: [76, 0],
-                    overflow: { adjustX: true, adjustY: true },
-                  }}
-                  popup={
-                    <Menu style={{ width: 237 }}>
-                      {/* <MenuItem
-                        disabled={this.state.isPreferred}
-                        onClick={() => {
-                          this.setState({
-                            isPreferred: true,
-                            showSavePreviewService: false,
-                          });
-                        }}
-                      >
-                        {_l('设为首选项')}
-                      </MenuItem> */}
-                      <MenuItem
-                        onClick={() => {
-                          this.setState({
-                            isPreferred: false,
-                            showSavePreviewService: false,
-                          });
-                          this.props.changePreviewService('original');
-                        }}
-                      >
-                        {_l('还原')}
-                      </MenuItem>
-                    </Menu>
-                  }
-                >
-                  <div
-                    className="setWPSPreview useingWPS"
-                    onClick={() => {
-                      this.setState({ showSavePreviewService: true, wpsPreviewUrl: 'https://www.mingdao.com/' });
-                    }}
-                  >
-                    <span className="bold">{_l('正在使用WPS服务预览')}</span>
-                    <span className="beta bold">Beta</span>
-                    <i className="icon icon-arrow-down White mLeft5"></i>
-                  </div>
-                </Trigger>
-              )}
-            </Fragment>
-          ) : (
-            ''
-          )}
-        </div>
+        <div className="flexRow flex justifyContentCenter"></div>
         <div className="flexRow btns">
           {showKcVersionPanel && attachment.sourceNode.canEdit && (
             <div className="historyPanel">

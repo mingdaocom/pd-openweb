@@ -11,7 +11,9 @@ export default function NavigationConfig(props) {
   const { app, onChangeApp } = props;
   const [loading, setLoading] = useState(false);
   const [gridDisplayMode, setGridDisplayMode] = useState(app.gridDisplayMode || 0);
-  const [appNavDisplayType, setAppNavDisplayType] = useState(app.appNavDisplayType || 0);
+  const [appNaviDisplayType, setAppNaviDisplayType] = useState(app.appNaviDisplayType || 0);
+  const [pcNaviDisplayType, setPcNaviDisplayType] = useState(app.pcNaviDisplayType || 0);
+
 
   useEffect(() => {
     if (!visible) return;
@@ -21,8 +23,8 @@ export default function NavigationConfig(props) {
   const renderNavStyleConfig = type => {
     return (
       <Fragment>
-        <div className="content mBottom20">
-          <div className="title Font13 mBottom20 pAll0 bold">{_l('导航方式')}</div>
+        <div className="content mBottom24">
+          <div className="title Font13 mBottom12 pAll0 bold">{_l('导航方式')}</div>
           <AppNavStyle
             type={type}
             data={app}
@@ -39,14 +41,42 @@ export default function NavigationConfig(props) {
     return (
       <Fragment>
         {renderNavStyleConfig('pcNaviStyle')}
-        <div className="content mBottom20">
-          <div className="title Font13 mBottom20 pAll0 bold">{_l('默认选中')}</div>
+        {app.currentPcNaviStyle === 1 && (
+          <div className="content mBottom24">
+            <div className="title Font13 mBottom12 pAll0 bold">{_l('分组展开方式')}</div>
+            <RadioGroup
+              size="middle"
+              className="mBottom20 mobileNavRadio"
+              data={[
+                {
+                  text: _l('默认全展开'),
+                  value: 0,
+                },
+                {
+                  text: _l('默认全收起'),
+                  value: 1,
+                },
+                {
+                  text: _l('每次展开单个一级分组（其他自动收起）'),
+                  value: 2,
+                },
+              ]}
+              checkedValue={pcNaviDisplayType}
+              onChange={value => {
+                setPcNaviDisplayType(value);
+                onChangeApp({ pcNaviDisplayType: value });
+              }}
+            ></RadioGroup>
+          </div>
+        )}
+        <div className="content mBottom24">
+          <div className="title Font13 mBottom12 pAll0 bold">{_l('每次访问时')}</div>
           <RadioGroup
             size="middle"
             className="mBottom30 mobileNavRadio"
             data={[
               {
-                text: _l('第一个%0', app.pcNaviStyle === 2 ? _l('分组') : _l('应用项')),
+                text: _l('始终选中第一个%0', app.pcNaviStyle === 2 ? _l('分组') : _l('应用项')),
                 value: 1,
               },
               {
@@ -60,7 +90,7 @@ export default function NavigationConfig(props) {
             }}
           ></RadioGroup>
         </div>
-        <div className="flexRow alignItemsCenter mBottom20 title">
+        <div className="flexRow alignItemsCenter mBottom12 title">
           <div className="flex Font13 bold">{_l('导航管理')}</div>
           <Checkbox
             checked={app.viewHideNavi}
@@ -112,7 +142,7 @@ export default function NavigationConfig(props) {
             ></RadioGroup>
           </Fragment>
         )}
-        <div className={cx('bold mBottom14 Font13', { mTop30: app.appNaviStyle === 0 })}>{_l('分组展开方式')}</div>
+        <div className={cx('bold mBottom12 Font13', { mTop20: app.appNaviStyle === 0 })}>{_l('分组展开方式')}</div>
         <RadioGroup
           size="middle"
           className="mBottom20 mobileNavRadio"
@@ -126,14 +156,14 @@ export default function NavigationConfig(props) {
               value: 1,
             },
             {
-              text: _l('每次展开一个分组（其他自动收起）'),
+              text: _l('每次展开单个一级分组（其他自动收起）'),
               value: 2,
             },
           ]}
-          checkedValue={appNavDisplayType}
+          checkedValue={appNaviDisplayType}
           onChange={value => {
-            setAppNavDisplayType(value);
-            onChangeApp({ appNavDisplayType: value });
+            setAppNaviDisplayType(value);
+            onChangeApp({ appNaviDisplayType: value });
           }}
         ></RadioGroup>
       </div>

@@ -23,7 +23,8 @@ export default {
      return $.api('Project', 'GetProjectInfo', args, options);
    },
   /**
-  * 获取网络授权信息
+  * 获取组织与授权相关信息，只返回授权/登录账户是否管理员/是否开启水印
+登录之后才返回信息
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
   * @param {Object} options 配置参数

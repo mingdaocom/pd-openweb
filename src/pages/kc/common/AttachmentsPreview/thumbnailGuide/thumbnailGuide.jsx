@@ -7,6 +7,7 @@ import { PREVIEW_TYPE } from '../constant/enum';
 import * as Actions from '../actions/action';
 import ThumbnailItem from '../thumbnailItem';
 import _ from 'lodash';
+import { b64toBlob } from 'src/util';
 
 class ThumbnailGuide extends React.Component {
   static propTypes = {
@@ -82,9 +83,9 @@ class ThumbnailGuide extends React.Component {
     });
   };
 
-  imageExec = key => {
+  imageExec = (key, options = {}) => {
     if (this.props[key]) {
-      this.props[key]();
+      this.props[key](options);
     }
   };
 
@@ -94,6 +95,15 @@ class ThumbnailGuide extends React.Component {
     const currentAttachment = attachments[index];
     const { viewUrl = '' } = currentAttachment;
     const fititClass = 'Hand ' + (this.state.fitited ? 'icon-Narrow' : 'icon-enlarge');
+    let originalImageUrl;
+    if (/^data:/.test(viewUrl)) {
+      originalImageUrl = URL.createObjectURL(b64toBlob(viewUrl.slice(22), 'image/png'));
+    } else {
+      originalImageUrl =
+        viewUrl.indexOf('imageView2') > -1
+          ? viewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/0')
+          : viewUrl;
+    }
     return (
       <div className={cx('thumbnailGuide', this.props.className)} ref={guide => (this.thumbnailGuide = guide)}>
         <div className="statusBar fle" onClick={this.foldThumbnail}>
@@ -146,15 +156,18 @@ class ThumbnailGuide extends React.Component {
                     onClick={() => {
                       this.imageExec('rotate');
                     }}
-                    title={_l('旋转')}
+                    title={_l('向左旋转')}
+                  />
+                  <i
+                    className="icon-rotate Hand rotate-reverse"
+                    onClick={() => {
+                      this.imageExec('rotate', { reverse: true });
+                    }}
+                    title={_l('向右旋转')}
                   />
                   <a
                     className="originImage Hand noSelect"
-                    href={
-                      viewUrl.indexOf('imageView2') > -1
-                        ? viewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/0')
-                        : viewUrl
-                    }
+                    href={originalImageUrl}
                     rel="noopener noreferrer"
                     target="_blank"
                     title={_l('查看图片')}

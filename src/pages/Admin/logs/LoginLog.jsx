@@ -6,8 +6,8 @@ import actionLogAjax from 'src/api/actionLog';
 import downloadAjax from 'src/api/download';
 import SearchWrap from '../components/SearchWrap';
 import PageTableCon from '../components/PageTableCon';
-import UserHead from 'src/pages/feed/components/userHead';
-import UserName from 'src/pages/feed/components/userName';
+import UserHead from 'src/components/userHead';
+import UserName from 'src/components/userName';
 import { LOGIN_LOG_COLUMNS } from './enum';
 import Config from '../config';
 import moment from 'moment';
@@ -84,7 +84,6 @@ export default class LoginLog extends Component {
                       userHead: log.avatar,
                       accountId: log.accountId,
                     }}
-                    lazy={'false'}
                     size={24}
                   />
                   <UserName

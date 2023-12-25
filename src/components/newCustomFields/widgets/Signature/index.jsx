@@ -1,6 +1,6 @@
 import React, { createRef, Component, Fragment } from 'react';
 import styled from 'styled-components';
-import { Button, Dialog } from 'ming-ui';
+import { Button } from 'ming-ui';
 import { Modal } from 'antd-mobile';
 import Trigger from 'rc-trigger';
 import 'rc-trigger/assets/index.css';
@@ -113,14 +113,13 @@ export default class Signature extends Component {
 
   state = {
     isEdit: false,
-    signature: null,
     popupVisible: false,
     lastInfo: '',
   };
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.flag !== this.props.flag && !nextProps.value && this.state.signature) {
-      this.setState({ signature: null, isEdit: false, lastInfo: '' });
+    if (nextProps.flag !== this.props.flag && !nextProps.value) {
+      this.setState({ isEdit: false, lastInfo: '' });
     }
   }
 
@@ -188,14 +187,14 @@ export default class Signature extends Component {
     }
 
     if (this.state.lastInfo) {
-      this.setState({ popupVisible: false, signature: this.state.lastInfo.url });
-      this.props.onChange(JSON.stringify({ bucket: 4, key: this.state.lastInfo.key }));
+      this.setState({ popupVisible: false });
+      this.props.onChange(this.state.lastInfo.url);
       return;
     }
 
     const data = this.signaturePad.toDataURL('image/png');
     const { projectId, appId, worksheetId } = this.props;
-    this.setState({ popupVisible: false, signature: data });
+
     getToken([{ bucket: 4, ext: '.png' }], 10, {
       projectId,
       appId,
@@ -212,18 +211,19 @@ export default class Signature extends Component {
               Authorization: `UpToken ${res[0].uptoken}`,
             },
           })
-          .then(({ data }) => {
-            const { key = '' } = data || {};
+          .then(() => {
+            this.setState({ popupVisible: false });
+
             if (
               md.global.Account.isPortal ||
               window.isPublicWorksheet ||
               _.get(window, 'shareState.isPublicWorkflowRecord')
             ) {
-              this.props.onChange(JSON.stringify({ bucket: 4, key: key }));
+              this.props.onChange(res[0].url);
             } else {
-              accountSettingAjax.editSign({ bucket: 4, key: key }).then(res => {
-                if (res) {
-                  this.props.onChange(JSON.stringify({ bucket: 4, key: key }));
+              accountSettingAjax.editSign({ url: res[0].url }).then(result => {
+                if (result) {
+                  this.props.onChange(res[0].url);
                 }
               });
             }
@@ -245,7 +245,7 @@ export default class Signature extends Component {
 
   clear = () => {
     this.signaturePad.clear();
-    this.setState({ isEdit: false, signature: null, lastInfo: '' }, () => {
+    this.setState({ isEdit: false, lastInfo: '' }, () => {
       setTimeout(() => {
         this.initCanvas();
       }, 100);
@@ -255,7 +255,7 @@ export default class Signature extends Component {
   removeSignature = e => {
     e.stopPropagation();
     this.props.onChange('');
-    this.setState({ signature: null, isEdit: false, lastInfo: '' });
+    this.setState({ isEdit: false, lastInfo: '' });
   };
 
   getAlign = () => {
@@ -284,7 +284,7 @@ export default class Signature extends Component {
           ext: 'png',
           name: 'signature.png',
           previewAttachmentType: 'QINIU',
-          path: value.indexOf('bucket') > -1 ? md.global.FileStoreConfig.pictureHost + safeParse(value).key : value,
+          path: value,
         },
       ],
       index: 0,
@@ -401,26 +401,8 @@ export default class Signature extends Component {
     );
   };
 
-  getValue() {
-    const { value } = this.props;
-    if (value && value.startsWith('{')) {
-      try {
-        const parsed = JSON.parse(value);
-        if (parsed.bucket && parsed.key) {
-          return md.global.FileStoreConfig[parsed.bucket === 4 ? 'pictureHost' : 'pubHost'] + parsed.key;
-        }
-      } catch (err) {
-        console.error(err);
-        return '';
-      }
-    }
-    return /(\.jpeg|\.png|\.jpg)$/.test((value || '').replace(/\?.*/g, '')) ? value : '';
-  }
-
   render() {
-    const { disabled, onlySignature } = this.props;
-    const value = this.getValue();
-    const { signature } = this.state;
+    const { disabled, onlySignature, value } = this.props;
 
     // 只读
     if (disabled) {
@@ -434,16 +416,16 @@ export default class Signature extends Component {
     return (
       <SignatureBox
         ref={this.$ref}
-        autoHeight={!!signature || !!value}
-        className={cx('signature', { 'customFormControlBox ThemeHoverColor3': !signature && !value })}
+        autoHeight={!!value}
+        className={cx('signature', { 'customFormControlBox ThemeHoverColor3': !value })}
       >
-        {signature || value ? (
+        {value ? (
           <SignatureWrap
             onClick={e => {
               value && this.preview(e);
               e.nativeEvent.stopImmediatePropagation();
             }}
-            style={{ backgroundImage: `url(${signature || value})` }}
+            style={{ backgroundImage: `url(${value})` }}
           >
             <div className="remove" onClick={this.removeSignature}>
               <CardButton>

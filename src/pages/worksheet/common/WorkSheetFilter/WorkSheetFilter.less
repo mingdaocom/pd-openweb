@@ -810,13 +810,16 @@
 }
 
 .filterTagCon {
-  padding: 6px 8px 0 8px;
+  padding: 6px 8px;
   box-sizing: border-box;
   min-height: 36px;
   border: 1px solid #ccc;
   border-radius: 3px;
   font-size: 14px;
   background-color: #fff;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
 
   .placeholder {
     color: #bdbdbd;
@@ -824,7 +827,6 @@
 
   .fiterTagItem {
     display: inline-block;
-    margin: 0 6px 6px 0;
     background-color: #e5e5e5;
     border-radius: 12px;
 
@@ -868,6 +870,9 @@
   .CityPicker-wrapper,
   .CityPicker-input-container {
     display: block;
+    .CityPicker-input-tagSearchBox {
+      height: auto;
+    }
   }
   .optionCheckboxs {
     .optionCheckbox {

@@ -42,9 +42,7 @@ export default class RecordWrapper extends Component {
             recordInfoVisible: true,
           });
         }
-        if (location.pathname.indexOf('public') === -1) {
-          addBehaviorLog('worksheetRecord', worksheetId, { rowId: row.rowid }); // 埋点
-        }
+        addBehaviorLog('worksheetRecord', worksheetId, { rowId: row.rowid }); // 埋点
       },
     );
   };

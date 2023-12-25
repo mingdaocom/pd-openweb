@@ -89,7 +89,7 @@ export default class CustomTextarea extends Component {
           renderTag={(tag, options) => {
             const ids = tag.split(/([a-zA-Z0-9#]{24,32})-/).filter(item => item);
             const nodeObj = formulaMap[ids[0]] || {};
-            const controlObj = formulaMap[ids[1]] || {};
+            const controlObj = formulaMap[ids.join('-')] || {};
 
             return (
               <Tag
@@ -121,7 +121,7 @@ export default class CustomTextarea extends Component {
               actionId: obj.actionId,
               name: obj.nodeName,
             };
-            newFormulaMap[obj.fieldValueId] = {
+            newFormulaMap[`${obj.nodeId}-${obj.fieldValueId}`] = {
               type: obj.fieldValueType,
               name: obj.fieldValueName,
               sourceType: obj.sourceType,

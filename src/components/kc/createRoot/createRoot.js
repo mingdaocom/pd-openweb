@@ -1,5 +1,7 @@
 ﻿import '@mdfe/nanoscroller';
 import doT from 'dot';
+import React from 'react';
+import ReactDOM from 'react-dom';
 import '../layerMain.css';
 import './createRoot.css';
 import htmlTpl from './tpl/createRoot.html';
@@ -8,9 +10,9 @@ import { index as mdDialog } from 'src/components/mdDialog/dialog';
 import { expireDialogAsync, existAccountHint } from 'src/components/common/function';
 import quickSelectUser from 'ming-ui/functions/quickSelectUser';
 import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
-import 'src/components/mdBusinessCard/mdBusinessCard';
 import kcAjax from 'src/api/kc';
 import _ from 'lodash';
+import UserHead from 'src/components/userHead';
 
 var PERMISSION_TYPE = {
   NONE: -1,
@@ -680,32 +682,20 @@ $.extend(RootSettings.prototype, {
     }
 
     //成员名片层
-    $createFolderBox.find('.folderMemberBox  ul').on(
-      {
-        mouseover: function () {
-          var $this = $(this);
-          var aid = $this.data('account-id');
-          var account = _.find(root.members, m => m.accountId === aid);
-          if ($this.data('bindCard') || $this.data('accountId') == 'undefined') {
-            return;
-          }
-          $this.mdBusinessCard({
-            secretType: 1,
-            opHtml:
-              account && account.roleName
-                ? `<div class="Gray_9e w100 WhiteBG pLeft10 pRight10 ellipsis" title="${
-                    root.apkName
-                  }" style="border-top: 1px solid #ddd;border-radius: 0 0 4px 4px;">
-          ${_l('来自应用包：%0', root.apkName)}
-        </div>`
-                : '',
-          });
-          $this.data('bindCard', true);
-          $this.mouseenter();
-        },
-      },
-      '.memberItem .imgMemberBox, .memberItem .inviter .name',
-    );
+    $('.folderMemberBox ul')
+      .find('.imgMemberBox[data-account-id]')
+      .each((i, ele) => {
+        ReactDOM.render(
+          <UserHead
+            user={{
+              userHead: $(ele).find('img').attr('src'),
+              accountId: $(ele).attr('data-account-id'),
+            }}
+            size={28}
+          />,
+          ele,
+        );
+      });
 
     //hover 移除成员
     $createFolderBox
@@ -907,6 +897,21 @@ $.extend(RootSettings.prototype, {
         });
         var memberHtml = doT.template(addMemberTpl)({ members: newMembers, myPermis: root.permission, isEdit: false });
         $('.folderMembers .folderMemberBox ul').append(memberHtml);
+        $('.folderMemberBox ul')
+          .find('.imgMemberBox[data-account-id]:last')
+          .each((i, ele) => {
+            ReactDOM.render(
+              <UserHead
+                user={{
+                  userHead: $(ele).find('img').attr('src'),
+                  accountId: $(ele).attr('data-account-id'),
+                }}
+                size={28}
+              />,
+              ele,
+            );
+          });
+
         $('.folderMembers .folderMemberBox ul li.Hidden').slideDown(_this.nanoScroller);
         if (callbackInviteResult && $.isFunction(callbackInviteResult)) {
           callbackInviteResult({ status: 1 });
@@ -962,6 +967,21 @@ $.extend(RootSettings.prototype, {
                 isEdit: true,
               });
               $('.folderMembers .folderMemberBox ul').append(memberHtml);
+              $('.folderMemberBox ul')
+                .find('.imgMemberBox[data-account-id]:last')
+                .each((i, ele) => {
+                  ReactDOM.render(
+                    <UserHead
+                      user={{
+                        userHead: $(ele).find('img').attr('src'),
+                        accountId: $(ele).attr('data-account-id'),
+                      }}
+                      size={28}
+                    />,
+                    ele,
+                  );
+                });
+
               $('.folderMembers .folderMemberBox ul li.Hidden').slideDown(_this.nanoScroller);
 
               createRoot.settings.deferred.notify($.extend({}, root, { members: root.members }));

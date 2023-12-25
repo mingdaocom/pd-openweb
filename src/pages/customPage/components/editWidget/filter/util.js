@@ -58,17 +58,22 @@ export const formatFilters = filters => {
     const isDisable = (!firstObjectControl.controlId || !controlData);
     const control = {
       ...controlData,
-      controlId: data.filterId,
+      controlId: firstObjectControl.controlId || data.filterId,
       controlName: data.name,
       type: controlData ? controlData.type : defaultType
-    }
+    };
+    const { advancedSetting } = data;
+
     return {
       control,
       controlId: data.filterId,
       dataType: data.dataType,
       fid: data.filterId,
       type: data.dataType,
-      advancedSetting: data.advancedSetting,
+      advancedSetting: {
+        ...advancedSetting,
+        navfilters: advancedSetting.showNavfilters ? advancedSetting.showNavfilters : advancedSetting.navfilters,
+      },
       className: isDisable ? 'disable' : '',
       objectControls: data.objectControls,
       ..._.pick(data, ['value', 'minValue', 'maxValue', 'dateRange', 'filterType']),

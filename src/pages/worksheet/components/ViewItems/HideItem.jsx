@@ -5,6 +5,7 @@ import { VIEW_TYPE_ICON, VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import HiddenMenu from './HiddenMenu';
 import _ from 'lodash';
 import cx from 'classnames';
+import SvgIcon from 'src/components/SvgIcon';
 
 export default function HideItem(props) {
   const {
@@ -51,7 +52,7 @@ export default function HideItem(props) {
             <span className="text">{_l('重命名%05004')}</span>
           </MenuItem>
         )}
-        {isCharge && (
+        {isCharge && !['customize'].includes(VIEW_DISPLAY_TYPE[item.viewType]) && (
           <MenuItem
             icon={<Icon icon="content-copy" className="Font16" />}
             onClick={() => {
@@ -68,7 +69,7 @@ export default function HideItem(props) {
           <MenuItem
             icon={
               <Icon
-                icon={item.advancedSetting.showhide !== 'hide' ? 'visibility_off' : 'visibility'}
+                icon={_.get(item, 'advancedSetting.showhide') !== 'hide' ? 'visibility_off' : 'visibility'}
                 className="Font16"
               />
             }
@@ -77,12 +78,12 @@ export default function HideItem(props) {
             onMouseLeave={() => setChangeHiddenTypeVisible(false)}
           >
             <span className="text">
-              {item.advancedSetting.showhide !== 'hide' ? _l('从导航栏中隐藏%05001') : _l('取消隐藏%05002')}
+              {_.get(item, 'advancedSetting.showhide') !== 'hide' ? _l('从导航栏中隐藏%05001') : _l('取消隐藏%05002')}
             </span>
             <Icon icon="arrow-right-tip Font14" style={{ fontSize: '16px', right: '10px', left: 'initial' }} />
             {changeHiddenTypeVisible && (
               <HiddenMenu
-                showhide={item.advancedSetting.showhide || 'show'}
+                showhide={_.get(item, 'advancedSetting.showhide') || 'show'}
                 onClick={async showhiden => {
                   setVisible(false);
                   await toView();
@@ -138,7 +139,7 @@ export default function HideItem(props) {
   };
 
   const viewInfo = VIEW_TYPE_ICON.find(it => it.id === VIEW_DISPLAY_TYPE[item.viewType]) || {};
-
+  const isCustomize = ['customize'].includes(VIEW_DISPLAY_TYPE[item.viewType]);
   return (
     <li
       style={{ zIndex: 999999 }}
@@ -148,7 +149,15 @@ export default function HideItem(props) {
       onClick={clickHandle}
     >
       <Icon icon="drag_indicator" className="Font16" style={isCharge ? {} : { opacity: 0 }} />
-      <Icon style={{ color: viewInfo.color, fontSize: '20px' }} icon={viewInfo.icon} />
+      {isCustomize ? (
+        <SvgIcon
+          url={_.get(item, 'pluginInfo.iconUrl') || 'https://fp1.mingdaoyun.cn/customIcon/sys_12_4_puzzle.svg'}
+          fill={_.get(item, 'pluginInfo.iconColor') || '#445A65'}
+          size={18}
+        />
+      ) : (
+        <Icon style={{ color: viewInfo.color, fontSize: '20px' }} icon={viewInfo.icon} />
+      )}
       {edit ? (
         <input
           autoFocus
@@ -168,10 +177,10 @@ export default function HideItem(props) {
       )}
       {isCharge &&
         type === 'drawerWorksheetShowList' &&
-        item.advancedSetting.showhide &&
-        item.advancedSetting.showhide.search(/hpc|happ/g) > -1 && (
+        _.get(item, 'advancedSetting.showhide') &&
+        _.get(item, 'advancedSetting.showhide').search(/hpc|happ/g) > -1 && (
           <Icon
-            icon={item.advancedSetting.showhide.includes('hpc') ? 'desktop_off' : 'mobile_off'}
+            icon={_.get(item, 'advancedSetting.showhide').includes('hpc') ? 'desktop_off' : 'mobile_off'}
             style={{ color: '#EE6F08' }}
             className="Font17 hideicon"
           />

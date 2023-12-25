@@ -5,8 +5,8 @@ import { DatePicker } from 'antd';
 import zhCN from 'antd/es/date-picker/locale/zh_CN';
 import moment from 'moment';
 import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
-import UserHead from 'src/pages/feed/components/userHead';
-import UserName from 'src/pages/feed/components/userName';
+import UserHead from 'src/components/userHead';
+import UserName from 'src/components/userName';
 import delegationApi from 'src/pages/workflow/api/delegation';
 import _ from 'lodash';
 
@@ -183,7 +183,6 @@ export default function TodoEntrustModal(props) {
                     userHead: formData.trustee.avatar,
                     accountId: formData.trustee.accountId,
                   }}
-                  lazy={'false'}
                   size={26}
                 />
                 <UserName

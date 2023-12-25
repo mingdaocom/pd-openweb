@@ -49,7 +49,10 @@ export default class RecordCard extends Component {
     if (isMobile) {
       return;
     }
-    previewQiniuUrl(cover.previewUrl.replace(/\?(.*)/, ''), { disableDownload });
+    previewQiniuUrl(cover.previewUrl.replace(/\|imageView2\/1\/w\/\d+\/h\/\d+/, ''), {
+      disableDownload,
+      ext: (cover.previewUrl.match(/\.(jpg|jpeg|png|gif|bmp)(\?|$)/i) || '')[1] || 'png',
+    });
     e.stopPropagation();
   }
   get cover() {
@@ -91,6 +94,7 @@ export default class RecordCard extends Component {
       viewId,
       isCharge,
       disabledLink,
+      worksheetId,
     } = this.props;
     const { cover, cardControls } = this;
     const { forceShowFullValue } = this.state;
@@ -162,6 +166,8 @@ export default class RecordCard extends Component {
                     viewId={viewId}
                     projectId={projectId}
                     isCharge={isCharge}
+                    row={data}
+                    worksheetId={worksheetId}
                   />
                 ) : (
                   <div className="emptyTag"></div>

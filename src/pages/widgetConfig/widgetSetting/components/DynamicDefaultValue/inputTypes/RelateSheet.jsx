@@ -42,7 +42,11 @@ export default class RelateSheet extends Component {
     defaultType && this.$wrap.triggerClick();
   };
   render() {
-    const { data, onDynamicValueChange, titleControl, defaultType, dynamicValue = [] } = this.props;
+    const { data, onDynamicValueChange, defaultType, dynamicValue = [] } = this.props;
+    let titleControl = _.get(this.props, 'titleControl');
+    if (data.type === 35) {
+      titleControl = _.find(data.relationControls || [], re => re.attribute === 1);
+    }
     const { recordListVisible } = this.state;
     const multiple = data.enumDefault === 2;
     const filterRowIds = dynamicValue.reduce((total, item) => {

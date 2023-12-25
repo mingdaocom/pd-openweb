@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import {
   getLegendType,
   formatControlInfo,
@@ -131,8 +131,7 @@ export default class extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      originalCount: 0,
-      count: 0,
+      newYaxisList: [],
       dropdownVisible: false,
       offset: {},
       contrastType: false,
@@ -264,7 +263,7 @@ export default class extends Component {
         return value ? formatrChartAxisValue(Number(value), isPercentStackedArea, newYaxisList) : null;
       }
     };
-    this.setCount(newYaxisList);
+    this.setState({ newYaxisList });
     const baseConfig = {
       appendPadding: [15, 15, 5, 0],
       seriesField: 'groupName',
@@ -368,7 +367,7 @@ export default class extends Component {
       label: displaySetup.showNumber
         ? {
             layout: [
-              displaySetup.hideOverlapText ? { type: 'interval-hide-overlap' } : null,
+              displaySetup.hideOverlapText ? { type: 'hide-overlap' } : null,
               (ydisplay.maxValue && ydisplay.maxValue < maxValue) || (ydisplay.minValue && ydisplay.minValue > minValue) ? { type: 'limit-in-plot' } : null,
             ],
             content: ({ value, groupName, controlId }) => {
@@ -454,15 +453,6 @@ export default class extends Component {
       };
     }
   }
-  setCount(yaxisList) {
-    const { summary } = this.props.reportData;
-    const value = summary.sum;
-    const count = formatrChartValue(value, false, yaxisList);
-    this.setState({
-      originalCount: value.toLocaleString() == count ? 0 : value.toLocaleString(),
-      count
-    });
-  }
   renderOverlay() {
     return (
       <Menu className="chartMenu" style={{ width: 160 }}>
@@ -473,6 +463,54 @@ export default class extends Component {
         </Menu.Item>
       </Menu>
     );
+  }
+  renderCount() {
+    const { newYaxisList } = this.state;
+    const { summary, yaxisList } = this.props.reportData;
+    const get = value => {
+      const count = formatrChartValue(value, false, newYaxisList);
+      const originalCount = value.toLocaleString() == count ? 0 : value.toLocaleString();
+      return {
+        count,
+        originalCount
+      }
+    }
+    const renderItem = data => {
+      const { count, originalCount } = get(data.sum);
+      return (
+        <Fragment>
+          <span>{formatSummaryName(data)}: </span>
+          <span data-tip={originalCount ? originalCount : null} className="count Font22">{count || 0}</span>
+        </Fragment>
+      );
+    }
+
+    if ('all' in summary) {
+      const { all, controlList = [] } = summary;
+      return (
+        <div className="flexRow" style={{ flexWrap: 'wrap' }}>
+          {all && (
+            <div className="flexRow mRight10" style={{ alignItems: 'baseline' }}>
+              {renderItem(summary)}
+            </div>
+          )}
+          {controlList.map(data => (
+            <div className="flexRow mRight10" style={{ alignItems: 'baseline' }}>
+              {renderItem({
+                ...data,
+                name: data.name || _.get(_.find(yaxisList, { controlId: data.controlId }), 'controlName')
+              })}
+            </div>
+          ))}
+        </div>
+      );
+    } else {
+      return (
+        <div className="pBottom10">
+          {renderItem(summary)}
+        </div>
+      );
+    }
   }
   render() {
     const { count, originalCount, dropdownVisible, offset } = this.state;
@@ -490,13 +528,8 @@ export default class extends Component {
         >
           <div className="Absolute" style={{ left: offset.x, top: offset.y }}></div>
         </Dropdown>
-        {displaySetup.showTotal ? (
-          <div className="pBottom10">
-            <span>{formatSummaryName(summary)}: </span>
-            <span data-tip={originalCount ? originalCount : null} className="count">{count}</span>
-          </div>
-        ) : null}
-        <div className={displaySetup.showTotal ? 'showTotalHeight' : 'h100'} ref={el => (this.chartEl = el)}></div>
+        {displaySetup.showTotal && this.renderCount()}
+        <div className="h100" ref={el => (this.chartEl = el)}></div>
       </div>
     );
   }

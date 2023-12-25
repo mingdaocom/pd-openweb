@@ -47,8 +47,7 @@ const Item = SortableElement(props => {
   let controlType = control ? (control.type === 30 ? control.sourceControlType : control.type) : '';
   return (
     <div className="flexRow alignItemsCenter mBottom10">
-      {/**第一项不显示拖拽icon,产品要求！ */}
-      {canDelete && <SortHandle />}
+      <SortHandle />
       <div className="flexRow flex" style={{ position: 'relative' }} key={condition.controlId}>
         {[9, 10, 11].includes(controlType) && (
           <Tooltip

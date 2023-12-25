@@ -4,7 +4,7 @@ import { Icon } from 'ming-ui';
 import styled from 'styled-components';
 import { FlexCenter } from 'worksheet/styled';
 import { isLightColor } from 'src/util';
-import UserHead from 'src/pages/feed/components/userHead';
+import UserHead from 'src/components/userHead';
 import { CAN_AS_BOARD_OPTION } from '../config';
 import _ from 'lodash';
 
@@ -90,6 +90,7 @@ export default class BoardTitle extends Component {
       enumDefault2,
       noGroup,
       rowId,
+      appId,
     } = this.props;
 
     if (noGroup) return <div className="noGroupTitle">{name}</div>;
@@ -111,7 +112,7 @@ export default class BoardTitle extends Component {
       const { accountId, avatar: userHead, fullname } = JSON.parse(name) || {};
       return (
         <div className="avatarWrap">
-          <UserHead user={{ userHead, accountId }} size={24} lazy={false} />
+          <UserHead className="mRight5" user={{ userHead, accountId }} size={24} appId={appId} />
           <span className="Font14 Bold">{fullname}</span>
         </div>
       );

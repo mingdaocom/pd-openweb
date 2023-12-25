@@ -68,7 +68,7 @@ export default class File extends Component {
     }
 
     if (!appId) {
-      alert(_l('Word打印模板必选'), 2);
+      alert(_l('打印模板必选'), 2);
       return;
     }
 
@@ -118,7 +118,7 @@ export default class File extends Component {
       <Fragment>
         <div className="Gray_75 workflowDetailDesc pTop15 pBottom15">
           {_l(
-            '将记录转为PDF或Word文件，可以通过新增记录、更新记录或发送邮件节点将文件写入附件。注：文档大小不得超过100M，作为邮件附件发送时不得超过10M。',
+            '将记录转为PDF、Word或Excel文件，可以通过新增记录、更新记录或发送邮件节点将文件写入附件。注：文档大小不得超过100M，作为邮件附件发送时不得超过10M。',
           )}
         </div>
 
@@ -146,7 +146,7 @@ export default class File extends Component {
           }
           border
           openSearch
-          noData={_l('暂无Word打印模板')}
+          noData={_l('暂无打印模板')}
           onChange={appId => this.updateSource({ appId })}
         />
 
@@ -168,10 +168,10 @@ export default class File extends Component {
         />
 
         <div className="Font13 mTop20 bold">
-          {_l('生成文件')}
+          {_l('其他')}
           <span
             className="workflowDetailTipsWidth mLeft5 tip-top-right"
-            data-tip={_l('系统默认会生成Word文件，生成的文件后续流程节点可直接使用')}
+            data-tip={_l('系统默认会生成 Word/Excel 文件，生成的文件后续流程节点可直接使用')}
           >
             <Icon className="Font14 Gray_9e" icon="info" />
           </span>
@@ -179,7 +179,7 @@ export default class File extends Component {
         <div className="mTop10 flexRow">
           <Checkbox
             className="InlineFlex"
-            text={_l('生成PDF文件')}
+            text={_l('同时生成PDF文件')}
             checked={data.pdf}
             disabled={!data.wpsConfig}
             onClick={checked => this.updateSource({ pdf: !checked })}

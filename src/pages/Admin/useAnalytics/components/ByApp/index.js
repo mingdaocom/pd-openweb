@@ -5,10 +5,9 @@ import appManagementAjax from 'src/api/appManagement';
 import Search from 'src/pages/workflow/components/Search';
 import SvgIcon from 'src/components/SvgIcon';
 import TableCom from '../TableCom';
-import AppAnalytics from '../AppAnalytics';
 import { selectDateList, formatter } from '../../util';
-import { formatFileSize, addBehaviorLog } from 'src/util';
-import { navigateTo } from 'src/router/navigateTo';
+import { formatFileSize } from 'src/util';
+import { checkIsAppAdmin } from 'src/components/checkIsAppAdmin';
 import cx from 'classnames';
 import styled from 'styled-components';
 import _ from 'lodash';
@@ -126,12 +125,6 @@ export default class ByApp extends Component {
       useageLoading: false,
       useagePageIndex: 1,
       currentAppInfo: {},
-      checkAdmin: {
-        id: '',
-        post: false,
-        visible: false,
-        title: '',
-      },
     };
     this.columns = [
       {
@@ -147,7 +140,7 @@ export default class ByApp extends Component {
                 </div>
                 <div
                   className={cx('flex nameBox ellipsis Font14 Hand', { unable: !item.status })}
-                  onClick={() => this.checkIsAppAdmin(item.appId, item.name)}
+                  onClick={() => checkIsAppAdmin({ appId: item.appId, appName: item.name })}
                 >
                   {item.name}
                 </div>
@@ -210,8 +203,14 @@ export default class ByApp extends Component {
                 icon="poll"
                 className="chartIcon Font20"
                 onClick={() => {
-                  this.setState({ currentAppInfo: { ...item, iconUrl: item.icon, isAnalysis: true } }, () => {
-                    this.checkIsAppAdmin(item.appId, item.name, true);
+                  this.setState({ currentAppInfo: { ...item, iconUrl: item.icon } }, () => {
+                    checkIsAppAdmin({
+                      appId: item.appId,
+                      appName: item.name,
+                      callback: () => {
+                        window.open(`/app/${item.appId}/analytics/${props.projectId}`, '__blank');
+                      },
+                    });
                   });
                 }}
               />
@@ -233,7 +232,10 @@ export default class ByApp extends Component {
                 <div className="iconWrap" style={{ backgroundColor: app.iconColor }}>
                   <SvgIcon url={app.iconUrl} fill="#fff" size={16} />
                 </div>
-                <div className="flex nameBox ellipsis Font14" onClick={() => this.checkIsAppAdmin(item.id, app.name)}>
+                <div
+                  className="flex nameBox ellipsis Font14"
+                  onClick={() => checkIsAppAdmin({ appId: item.id, appName: app.name })}
+                >
                   {app.name}
                 </div>
               </div>
@@ -331,8 +333,14 @@ export default class ByApp extends Component {
                 icon="poll"
                 className="chartIcon Font20"
                 onClick={() => {
-                  this.setState({ currentAppInfo: { ...app, appId: item.id }, isAnalysis: true }, () => {
-                    this.checkIsAppAdmin(item.id, app.name, true);
+                  this.setState({ currentAppInfo: { ...app, appId: item.id } }, () => {
+                    checkIsAppAdmin({
+                      appId: item.id,
+                      appName: app.name,
+                      callback: () => {
+                        window.open(`/app/${item.id}/analytics/${props.projectId}`, '__blank');
+                      },
+                    });
                   });
                 }}
               />
@@ -452,61 +460,6 @@ export default class ByApp extends Component {
     }
   };
 
-  /**
-   * 检测是否是应用管理员
-   */
-  checkIsAppAdmin(appId, name, isAnalysis) {
-    const opts = post => {
-      return {
-        id: appId,
-        post,
-        visible: true,
-        title: name,
-      };
-    };
-    this.setState({ checkAdmin: opts(true) }, () => {
-      appManagementAjax
-        .checkAppAdminForUser({
-          appId,
-        })
-        .then(result => {
-          if (result) {
-            if (isAnalysis) {
-              this.setState({
-                checkAdmin: Object.assign({}, this.state.checkAdmin, { visible: false }),
-              });
-              window.open(`/app/${appId}/analytics/${this.props.projectId}`, '__blank');
-            } else {
-              addBehaviorLog('app', appId); // 埋点
-              navigateTo(`/app/${appId}`);
-            }
-          } else if (this.state.checkAdmin.visible) {
-            this.setState({ checkAdmin: opts(false) });
-          }
-        });
-    });
-  }
-  addRoleMemberForAppAdmin = () => {
-    const {
-      checkAdmin: { id },
-      isAnalysis,
-    } = this.state;
-    appManagementAjax
-      .addRoleMemberForAppAdmin({
-        appId: id,
-      })
-      .then(result => {
-        if (result) {
-          if (isAnalysis) {
-            this.setState({ isAnalysis: false });
-            window.open(`/app/${id}/analytics/${this.props.projectId}`, '__blank');
-          } else {
-            addBehaviorLog('app', id); // 埋点
-            navigateTo(`/app/${id}`);
-          }
-        }
-      });
-  };
   changeTab = item => {
     const { pageIndex, useagePageIndex } = this.state;
     this.setState(
@@ -525,8 +478,8 @@ export default class ByApp extends Component {
       },
     );
   };
+
   render() {
-    const { projectId } = this.props;
     let {
       currentTab,
       list = [],
@@ -536,8 +489,6 @@ export default class ByApp extends Component {
       useageLoading,
       useagePageIndex,
       selectedDate,
-      currentAppInfo = {},
-      checkAdmin,
       total,
     } = this.state;
     return (
@@ -609,17 +560,6 @@ export default class ByApp extends Component {
             />
           </div>
         )}
-
-        <Dialog
-          visible={checkAdmin.visible}
-          className={cx({ checkAdminDialog: checkAdmin.post })}
-          title={_l('管理应用“%0”', checkAdmin.title)}
-          description={_l('如果你不是应用的管理员，需要将自己加为管理员以获得权限')}
-          cancelText=""
-          okText={checkAdmin.post ? _l('验证权限...') : _l('加为此应用管理员')}
-          onOk={checkAdmin.post ? () => {} : this.addRoleMemberForAppAdmin}
-          onCancel={() => this.setState({ checkAdmin: Object.assign({}, this.state.checkAdmin, { visible: false }) })}
-        />
       </ByAppWrap>
     );
   }

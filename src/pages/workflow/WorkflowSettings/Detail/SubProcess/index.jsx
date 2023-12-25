@@ -54,7 +54,10 @@ export default class SubProcess extends Component {
         appId: obj.subProcessId,
       })
       .then(result => {
-        this.setState({ data: _.isEmpty(obj) ? result : { ...result, name: data.name }, errorItems: {} });
+        this.setState({
+          data: _.isEmpty(obj) ? result : { ...result, name: data.name, executeType: data.executeType },
+          errorItems: {},
+        });
       });
   }
 

@@ -95,6 +95,8 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
     });
 };
 
+const promiseRequests = {};
+
 export const fetchSheetRows = params => (dispatch, getState) => {
   const {
     base,
@@ -114,14 +116,17 @@ export const fetchSheetRows = params => (dispatch, getState) => {
   let { pageIndex } = sheetView;
   let extraParams = params ? { ...params } : {};
   let pageSize = 20;
-  let promiseRequest = null;
-  if (!worksheetId || sheetRowLoading) {
+  if (!worksheetId) {
     return;
   }
   dispatch({ type: 'MOBILE_FETCH_SHEETROW_START' });
   if (maxCount) {
     pageIndex = 1;
     pageSize = maxCount;
+  }
+  const promiseRequest = promiseRequests[worksheetId];
+  if (promiseRequest && promiseRequest.state() === 'pending' && promiseRequest.abort) {
+    promiseRequest.abort();
   }
   const params = getFilledRequestParams({
     worksheetId,
@@ -152,8 +157,8 @@ export const fetchSheetRows = params => (dispatch, getState) => {
     navGroupFilters: mobileNavGroupFilters,
     ...extraParams,
   });
-  promiseRequest = sheetAjax.getFilterRows(params);
-  promiseRequest.then(sheetRowsAndTem => {
+  promiseRequests[worksheetId] = sheetAjax.getFilterRows(params);
+  promiseRequests[worksheetId].then(sheetRowsAndTem => {
     const currentSheetRows = sheetRowsAndTem && sheetRowsAndTem.data ? sheetRowsAndTem.data : [];
     const type = pageIndex === 1 ? 'MOBILE_CHANGE_SHEET_ROWS' : 'MOBILE_ADD_SHEET_ROWS';
     const isMore = maxCount ? false : currentSheetRows.length === pageSize;
@@ -178,6 +183,7 @@ export const fetchSheetRows = params => (dispatch, getState) => {
       },
     });
     dispatch({ type: 'MOBILE_FETCH_SHEETROW_SUCCESS' });
+    promiseRequests[worksheetId] = undefined;
   });
 };
 export const changeMobileSheetRows = data => (dispatch, getState) => {

@@ -1,39 +1,27 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import './index.less';
-import config from '../../utils/config';
-import * as utils from '../../utils';
-import * as ajax from '../../utils/ajax';
-import * as socket from '../../utils/socket';
-import { addGroupMembers } from '../../utils/group';
-import Constant from '../../utils/constant';
 import GroupController from 'src/api/group';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import InviteOrAddUsers from './InviteOrAddUsers';
+import UserCard from 'src/components/UserCard';
 
 class Avatar extends Component {
   constructor(props) {
     super(props);
   }
-  componentDidMount() {
-    const { id } = this.props;
-    const { avatar } = this;
-    if (id) {
-      $(avatar).mdBusinessCard({
-        chatByLink: true,
-        accountId: id,
-      });
-    }
-  }
+
   render() {
     const { id, avatar } = this.props;
     return (
-      <img
-        ref={avatar => {
-          this.avatar = avatar;
-        }}
-        src={avatar}
-      />
+      <UserCard sourceId={id || ''} disabled={!id}>
+        <img
+          ref={avatar => {
+            this.avatar = avatar;
+          }}
+          src={avatar}
+        />
+      </UserCard>
     );
   }
 }

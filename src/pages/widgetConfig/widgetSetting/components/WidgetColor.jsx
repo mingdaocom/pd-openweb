@@ -46,10 +46,7 @@ const NormalIconStyle = styled.div`
   text-align: center;
   line-height: 34px;
   border: 1px solid #e0e0e0;
-  background: #fff;
-  &:hover {
-    background: #ededed;
-  }
+  background: #f5f5f5;
   span {
     display: inline-block;
     width: 24px;
@@ -61,12 +58,13 @@ const NormalIconStyle = styled.div`
   }
 `;
 
-export default function WidgetColor({ handleChange, color, text, type }) {
+export default function WidgetColor({ handleChange, color, text, type, fromWidget }) {
   return (
     <ColorPicker
       sysColor
       isPopupBody
       value={color}
+      fromWidget={fromWidget}
       onChange={handleChange}
       popupAlign={{
         points: ['tl', 'bl'],

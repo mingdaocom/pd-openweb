@@ -7,38 +7,21 @@ import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widget
 import InputValue from './InputValue';
 import DateVerify from './DateVerify';
 import TextVerify from './TextVerify';
-import AttachmentVerify from './AttachmentVerify';
 import SubListVerify from './SubListVerify';
 import _ from 'lodash';
 
 const CompConfig = {
   2: TextVerify,
-  14: AttachmentVerify,
   15: DateVerify,
   16: DateVerify,
   34: SubListVerify,
   46: DateVerify,
 };
 
-const SETTING_TO_TEXT = {
-  required: _l('必填'),
-  unique: _l('不允许重复'),
-};
-
-const TYPES_SETTING = {
-  2: ['required', 'unique'],
-  3: ['required', 'unique'],
-  4: ['required', 'unique'],
-  5: ['required', 'unique'],
-  7: ['required', 'unique'],
-};
-
-const TYPES_SETTING_PORTAL = {
-  2: ['required'],
-  3: ['required'],
-  4: ['required'],
-  5: ['required'],
-  7: ['required'],
+// 不允许重复的控件
+const canAsUniqueWidget = item => {
+  return _.includes([2, 3, 4, 5, 7], item.type);
+  // return _.includes([2, 3, 4, 5, 7, 26, 27, 48], item.type) || (item.type === 29 && item.enumDefault === 1);
 };
 
 const TYPE_TO_TEXT = {
@@ -86,11 +69,18 @@ const VerifySettingItem = styled(SettingItem)`
 `;
 
 export default function WidgetVerify(props) {
-  const { data = {}, onChange, fromPortal } = props;
-  const { type, options = [] } = data;
+  const { data = {}, onChange, fromPortal, globalSheetInfo = {}, from } = props;
+  const isSubList = from === 'subList';
+  const { type, options = [], required = false, unique = false } = data;
   const Comp = CompConfig[type] || null;
-  const settings = fromPortal ? TYPES_SETTING_PORTAL[type] || ['required'] : TYPES_SETTING[type] || ['required'];
-  const { max = '', min = '', checkrange = '0', showtype, otherrequired = '0' } = getAdvanceSetting(data);
+  const {
+    max = '',
+    min = '',
+    checkrange = '0',
+    showtype,
+    otherrequired = '0',
+    required: forceReCheck,
+  } = getAdvanceSetting(data);
   const { title, placeholder = [] } = TYPE_TO_TEXT[type] || {};
   const otherText =
     _.get(
@@ -99,19 +89,82 @@ export default function WidgetVerify(props) {
     ) || _l('其他');
   return (
     <VerifySettingItem>
-      <div className="settingItemTitle">{_l('验证')}</div>
+      <div className="settingItemTitle mBottom0">{_l('验证')}</div>
       <div className="widgetDisplaySettingWrap">
-        {settings.map(item => (
-          <div key={item} className="labelWrap">
+        {/**必填 */}
+        <div className="labelWrap">
+          <Checkbox
+            size="small"
+            checked={required}
+            onClick={checked =>
+              onChange({
+                ...handleAdvancedSettingChange(data, { required: checked ? '0' : forceReCheck }),
+                required: !checked,
+              })
+            }
+            text={type === 36 ? SWITCH_TYPE_TO_TEXT[showtype || '0'] : _l('必填')}
+          />
+        </div>
+        {/**写入时强制校验 */}
+        {required && from !== 'portal' && !_.includes([34], type) && (
+          <div className="labelWrap">
             <Checkbox
               size="small"
-              key={item}
-              checked={data[item] || false}
-              onClick={checked => onChange({ [item]: !checked })}
-              text={type === 36 ? SWITCH_TYPE_TO_TEXT[showtype || '0'] : SETTING_TO_TEXT[item]}
-            />
+              checked={forceReCheck === '1'}
+              onClick={checked => onChange(handleAdvancedSettingChange(data, { required: checked ? '0' : '1' }))}
+            >
+              <span>
+                {_l('写入时强制校验')}
+                <Tooltip
+                  placement={'bottom'}
+                  title={_l(
+                    '忽略业务规则的配置，在所有写入数据的场景中校验必填，包括工作流、批量导入、API写入、数据集成同步等',
+                  )}
+                >
+                  <i className="icon-help tipsIcon Gray_9e Font16 pointer"></i>
+                </Tooltip>
+              </span>
+            </Checkbox>
           </div>
-        ))}
+        )}
+        {/**不允许重复输入 */}
+        {!fromPortal && canAsUniqueWidget(data) && (
+          <div className="labelWrap">
+            <Checkbox size="small" checked={unique} onClick={checked => onChange({ unique: !checked })}>
+              <span>
+                {isSubList ? _l('本记录内不允许重复输入') : _l('不允许重复输入')}
+                {!isSubList && (
+                  <Tooltip
+                    placement={'bottom'}
+                    title={
+                      <span>
+                        {_l(
+                          '选中后，不允许用户填写和已有字段值重复的数据，但对工作流或API写入、批量导入等操作不做限制。',
+                        )}
+                        <br />
+                        {_l('若要确保数据绝对唯一，可创建该字段的唯一索引。')}
+                        <span
+                          className="pointer ThemeColor3"
+                          onClick={e => {
+                            e.stopPropagation();
+                            window.open(
+                              `${location.origin}/worksheet/formSet/edit/${globalSheetInfo.worksheetId}/indexSetting`,
+                            );
+                          }}
+                        >
+                          {_l('前往创建')}
+                        </span>
+                      </span>
+                    }
+                  >
+                    <i className="icon-help tipsIcon Gray_9e Font16 pointer"></i>
+                  </Tooltip>
+                )}
+              </span>
+            </Checkbox>
+          </div>
+        )}
+
         {(_.includes([2, 8, 10], type) || (type === 6 && !_.includes(['1', '2'], showtype))) && (
           <div className="labelWrap">
             <Checkbox

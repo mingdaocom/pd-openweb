@@ -69,7 +69,7 @@ const Tag = styled.div`
   position: relative;
   display: inline-block;
   line-height: 21px;
-  background-color: rgba(0, 0, 0, 0.08);
+  background-color: rgba(0, 100, 240, 0.08);
   border-radius: 3px;
   padding: 0 10px;
   margin: 6px 0 0 6px;
@@ -301,9 +301,7 @@ export default forwardRef(function RelateRecordTags(props, ref) {
                 }
                 e.stopPropagation();
                 if (allowOpenRecord) {
-                  if (location.pathname.indexOf('public') === -1) {
-                    addBehaviorLog('worksheetRecord', control.dataSource, { rowId: record.rowid }); // 埋点
-                  }
+                  addBehaviorLog('worksheetRecord', control.dataSource, { rowId: record.rowid }); // 埋点
                   handleOpenRecord({
                     viewId: _.get(control, 'advancedSetting.openview') || control.viewId,
                     worksheetId: control.dataSource,

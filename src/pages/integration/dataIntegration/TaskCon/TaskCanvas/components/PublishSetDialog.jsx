@@ -7,10 +7,8 @@ import { getIconByType } from 'src/pages/widgetConfig/util';
 import { Input } from 'antd';
 import cx from 'classnames';
 import { EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
-import Ajax from 'src/api/account.js';
 import 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/style.less';
-import { encrypt } from 'src/util';
-import captcha from 'src/components/captcha';
+import { verifyPassword } from 'src/util';
 
 const Wrap = styled.div`
   .ming.Dropdown,
@@ -41,59 +39,7 @@ export default function PublishSetDialog(props) {
         : {},
       loading: false,
     });
-  const checkAccountPw = () => {
-    if (loading) {
-      return;
-    }
-    if (!!value && !writeMode) {
-      return alert(_l('请选择目标字段的处理方式'), 2);
-    }
-    const doAction = () => {
-      // 进入下一步
-      onOk({
-        fieldForIdentifyDuplicate,
-        writeMode,
-        isCleanDestTableData,
-      });
-      onClose();
-    };
-    if (!isCleanDestTableData) {
-      doAction();
-    } else {
-      if (!password) {
-        return alert(_l('请输入密码'), 2);
-      }
-      const throttled = function (res) {
-        if (res.ret !== 0) {
-          return;
-        }
-        Ajax.checkAccount({
-          ticket: res.ticket,
-          randStr: res.randstr,
-          captchaType: md.staticglobal.getCaptchaType(),
-          password: encrypt(password),
-        })
-          .then(data => {
-            if (data === 1) {
-              doAction();
-            } else if (data === 6) {
-              return alert(_l('密码错误'), 2);
-            } else if (data === 8) {
-              return alert(_l('验证码错误'), 2);
-            } else {
-              return alert(_l('操作失败'), 2);
-            }
-          })
-          .fail();
-      };
 
-      if (md.staticglobal.getCaptchaType() === 1) {
-        new captcha(throttled);
-      } else {
-        new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), throttled).show();
-      }
-    }
-  };
   return (
     <Dialog
       visible
@@ -103,7 +49,24 @@ export default function PublishSetDialog(props) {
       showCancel={true}
       okText={loading ? _l('更新发布...') : _l('更新发布')}
       onOk={() => {
-        checkAccountPw();
+        isCleanDestTableData
+          ? verifyPassword({
+              password,
+              customActionName: 'checkAccount',
+              success: () => {
+                onOk({
+                  fieldForIdentifyDuplicate,
+                  writeMode,
+                  isCleanDestTableData,
+                });
+                onClose();
+              },
+            })
+          : onOk({
+              fieldForIdentifyDuplicate,
+              writeMode,
+              isCleanDestTableData,
+            });
       }}
       onCancel={() => {
         onClose();

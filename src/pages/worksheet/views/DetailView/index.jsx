@@ -103,6 +103,7 @@ function DetailView(props) {
     isOpenGroup ? window.localStorage.getItem(`detailGroupWidth_${viewId}`) || (coverCid ? 335 : 240) : 32,
   );
   const [flag, setFlag] = useState(+new Date());
+  const isLoading = (detailViewLoading && detailPageIndex === 1) || worksheetInfo.isRequestingRelationControls;
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
@@ -307,45 +308,47 @@ function DetailView(props) {
         className={cx('rightRecord', { isSingle: currentView.childType === 1 })}
         style={{ width: `calc(100% - ${groupFilterWidth}px)` }}
       >
-        {detailViewLoading && detailPageIndex === 1 ? (
-          <LoadDiv className="mTop10" />
-        ) : !detailViewRows.length ? (
-          currentView.childType === 1 ? (
-            <ViewEmpty filters={filters} viewFilter={currentView.filters || []} />
-          ) : null
-        ) : !currentRecord.rowid || !detailViewRows.filter(item => item.rowid === currentRecord.rowid).length ? null : (
-          <RecordInfoWrapper
-            notDialog
-            flag={flag}
-            controls={controls}
-            switchRecordSuccess={newRecord => setCurrentRecord(newRecord)}
-            sheetSwitchPermit={sheetSwitchPermit} // 表单权限
-            allowAdd={worksheetInfo.allowAdd}
-            projectId={worksheetInfo.projectId}
-            currentSheetRows={detailViewRows}
-            showPrevNext={currentView.childType === 2}
-            appId={appId}
-            viewId={viewId}
-            from={1}
-            view={currentView}
-            recordId={currentRecord.rowid}
-            worksheetId={worksheetId}
-            rules={worksheetInfo.rules}
-            isWorksheetQuery={worksheetInfo.isWorksheetQuery}
-            updateSuccess={(ids, updated, data) => updateRow(data)}
-            onDeleteSuccess={() => deleteRow(currentRecord.rowid)}
-            handleAddSheetRow={data => {
-              updateRow(data);
-              setCurrentRecord(data);
-            }}
-            hideRows={recordIds => {
-              setTimeout(() => {
-                recordIds.forEach(deleteRow);
-              }, 100);
-            }}
-            isCharge={isCharge}
-          />
+        {isLoading && <LoadDiv className="mTop10" />}
+
+        {!isLoading && !detailViewRows.length && currentView.childType === 1 && (
+          <ViewEmpty filters={filters} viewFilter={currentView.filters || []} />
         )}
+
+        {!isLoading &&
+          currentRecord.rowid &&
+          !!detailViewRows.filter(item => item.rowid === currentRecord.rowid).length && (
+            <RecordInfoWrapper
+              notDialog
+              flag={flag}
+              controls={controls}
+              switchRecordSuccess={newRecord => setCurrentRecord(newRecord)}
+              sheetSwitchPermit={sheetSwitchPermit} // 表单权限
+              allowAdd={worksheetInfo.allowAdd}
+              projectId={worksheetInfo.projectId}
+              currentSheetRows={detailViewRows}
+              showPrevNext={currentView.childType === 2}
+              appId={appId}
+              viewId={viewId}
+              from={1}
+              view={currentView}
+              recordId={currentRecord.rowid}
+              worksheetId={worksheetId}
+              rules={worksheetInfo.rules}
+              isWorksheetQuery={worksheetInfo.isWorksheetQuery}
+              updateSuccess={(ids, updated, data) => updateRow(data)}
+              onDeleteSuccess={() => deleteRow(currentRecord.rowid)}
+              handleAddSheetRow={data => {
+                updateRow(data);
+                setCurrentRecord(data);
+              }}
+              hideRows={recordIds => {
+                setTimeout(() => {
+                  recordIds.forEach(deleteRow);
+                }, 100);
+              }}
+              isCharge={isCharge}
+            />
+          )}
       </div>
     </div>
   );

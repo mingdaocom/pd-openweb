@@ -47,7 +47,7 @@ export default class extends Component {
   updateName(newName) {
     const { originalName } = this.state;
     const { workSheetId, isActive, appItem, groupId } = this.props;
-    const name = (newName || originalName).slice(0, 25);
+    const name = (newName || originalName).slice(0, 100);
     const { currentPcNaviStyle } = store.getState().appPkg;
     isActive && store.dispatch(updateAppItemInfo(workSheetId, appItem.type, name));
     if (currentPcNaviStyle === 1) {
@@ -85,7 +85,7 @@ export default class extends Component {
         iconColor={iconColor}
         icon={icon}
         onChange={({ name, icon: newIcon }) => {
-          const newName = name.slice(0, 25);
+          const newName = name.slice(0, 100);
           if ((newName && newName !== originalName) || originalIcon !== newIcon) {
             this.onChange(newName, newIcon);
           }

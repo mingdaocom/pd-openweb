@@ -1,8 +1,8 @@
 @font-face {
   font-family: "MD_Icon"; /* Project id 2032949 */
-  src: url('iconfont.woff2?t=1697557036919') format('woff2'),
-       url('iconfont.woff?t=1697557036919') format('woff'),
-       url('iconfont.ttf?t=1697557036919') format('truetype');
+  src: url('iconfont.woff2?t=1701683767497') format('woff2'),
+       url('iconfont.woff?t=1701683767497') format('woff'),
+       url('iconfont.ttf?t=1701683767497') format('truetype');
 }
 
 .MD_Icon {
@@ -11,6 +11,70 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-stamp:before {
+  content: "\ea6c";
+}
+
+.icon-adds:before {
+  content: "\ea77";
+}
+
+.icon-fill:before {
+  content: "\ea63";
+}
+
+.icon-Finish:before {
+  content: "\ea67";
+}
+
+.icon-sending:before {
+  content: "\ea69";
+}
+
+.icon-home_set:before {
+  content: "\eaae";
+}
+
+.icon-unfold_more:before {
+  content: "\eaa3";
+}
+
+.icon-unfold_less:before {
+  content: "\eaab";
+}
+
+.icon-translate1:before {
+  content: "\ea16";
+}
+
+.icon-extension_black1:before {
+  content: "\ea62";
+}
+
+.icon-react:before {
+  content: "\e674";
+}
+
+.icon-JS:before {
+  content: "\e673";
+}
+
+.icon-TS:before {
+  content: "\e672";
+}
+
+.icon-puzzle:before {
+  content: "\e671";
+}
+
+.icon-account_box:before {
+  content: "\e9c7";
+}
+
+.icon-unarchive:before {
+  content: "\e9a2";
 }
 
 .icon-T2:before {

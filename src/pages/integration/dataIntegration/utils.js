@@ -1,4 +1,4 @@
-import { enumWidgetType } from 'src/pages/widgetConfig/util';
+import { enumWidgetType, canSetAsTitle } from 'src/pages/widgetConfig/util';
 import { DEFAULT_DATA } from 'src/pages/widgetConfig/config/widget.js';
 import {
   namePattern,
@@ -7,13 +7,28 @@ import {
   DEPT_FIELDS,
   SYSTEM_FIELD_IDS,
   RELATED_RECORD_FIELDS,
+  DATABASE_TYPE,
 } from 'src/pages/integration/dataIntegration/constant.js';
 import _ from 'lodash';
 
-export const getInitFieldsMapping = (sourceFields, isSourceAppType, isDestAppType) => {
+export const getInitFieldsMapping = (sourceFields, isSourceAppType, destDsType) => {
+  const isDestAppType = destDsType === DATABASE_TYPE.APPLICATION_WORKSHEET;
   const needReplace = !isSourceAppType || !isDestAppType;
   const isExistJoinPk = !!(sourceFields || []).filter(item => item.isUniquePk).length;
   const mapping = sourceFields.map(item => {
+    const getInitNameOrAlias = () => {
+      if (destDsType === DATABASE_TYPE.MONGO_DB && item.isPk) {
+        return '_id';
+      } else {
+        if (isSourceAppType && isDestAppType && item.isUniquePk) {
+          return 'rowid';
+        } else {
+          return needReplace
+            ? item.alias.replace(namePattern, '') || item.name.replace(namePattern, '')
+            : item.alias || item.name;
+        }
+      }
+    };
     return {
       sourceField: item,
       destField: {
@@ -24,17 +39,8 @@ export const getInitFieldsMapping = (sourceFields, isSourceAppType, isDestAppTyp
         isNotNull: isExistJoinPk ? item.isUniquePk : item.isPk,
         isPk: item.isPk,
         isUniquePk: item.isUniquePk,
-        name:
-          isSourceAppType && isDestAppType && item.isUniquePk
-            ? 'rowid'
-            : needReplace
-            ? item.alias.replace(namePattern, '') || item.name.replace(namePattern, '')
-            : item.alias || item.name,
-        alias: item.isUniquePk
-          ? 'rowid'
-          : needReplace
-          ? item.alias.replace(namePattern, '') || item.name.replace(namePattern, '')
-          : item.alias || item.name,
+        name: getInitNameOrAlias(),
+        alias: getInitNameOrAlias(),
         dataType: null,
         jdbcTypeId: null,
         precision: null,
@@ -74,7 +80,7 @@ export const getInitWorkSheetFields = (
   withSys,
 ) => {
   let initWorkSheetFields = [];
-  const rowIDField = controls
+  const rowIDField = (controls || [])
     .filter(c => c.controlId === 'rowid')
     .map(rowId => {
       return {
@@ -184,11 +190,21 @@ export const getMatchedFieldsOptions = (types, sourceField, destFields, isSource
   return matchedFieldsOptions;
 };
 
-export const getDefaultData = (mapping, types, isSetDefaultFields, destFields, isSourceAppType, isDestAppType) => {
+export const getDefaultData = (
+  mapping,
+  types,
+  isSetDefaultFields,
+  destFields,
+  isSourceAppType,
+  isDestAppType,
+  notCanvas,
+) => {
   let hasSetFields = {};
+  let isSetTitle = false; //是否已经设置过标题默认值
+
   const newFieldsMapping = (mapping || []).map(item => {
     const isValidField = isValidName(item.sourceField.name) || isSourceAppType;
-    //设置默认选中字段--仅对于选择已有表情况
+    //设置默认选中字段(第一个名称相同的字段)--仅对于选择已有表情况
     if (isSetDefaultFields) {
       const matchedFields = getMatchedFieldsOptions(
         types,
@@ -223,13 +239,19 @@ export const getDefaultData = (mapping, types, isSetDefaultFields, destFields, i
       }
     }
     const itemOptions = types[item.sourceField.id] || [];
+    //不支持类型的主键isCheck设置为false
     if (itemOptions.length === 0) {
-      return item;
+      return {
+        sourceField: { ...item.sourceField, isCheck: false },
+        destField: { ...item.destField, isCheck: false },
+      };
     }
+    //过滤出和源字段类型一样的字段，没有则返回{}
     const initOption = itemOptions.filter(o =>
       isDestAppType ? o.mdType === item.sourceField.mdType : o.typeName.toLowerCase() === item.sourceField.dataType,
     )[0];
 
+    //工作表-默认controlSetting
     const ENUM_TYPE = enumWidgetType[itemOptions[0].mdType];
     const settingData =
       ENUM_TYPE === 'DATE_TIME'
@@ -238,6 +260,14 @@ export const getDefaultData = (mapping, types, isSetDefaultFields, destFields, i
             type: itemOptions[0].mdType,
             ..._.omit(DEFAULT_DATA[ENUM_TYPE], ['controlName']),
           };
+
+    //工作表-设置默认类型，是否可设置默认标题判断
+    const mdType = item.destField.isUniquePk ? 2 : (initOption || itemOptions[0]).mdType;
+    const canSetTitle = canSetAsTitle({ type: mdType }) && (item.sourceField.oid || '').split('_')[1] !== 'rowid';
+    const isTitle = isDestAppType ? notCanvas && canSetTitle && !isSetTitle : null;
+    if (!isSetTitle && canSetTitle) {
+      isSetTitle = true;
+    }
 
     return {
       sourceField: { ...item.sourceField, disabled: !isValidField },
@@ -248,8 +278,9 @@ export const getDefaultData = (mapping, types, isSetDefaultFields, destFields, i
         precision: (initOption || itemOptions[0]).maxLength,
         scale: (initOption || itemOptions[0]).defaultScale,
         //工作表
-        mdType: item.destField.isUniquePk ? 2 : (initOption || itemOptions[0]).mdType,
+        mdType,
         controlSetting: isDestAppType ? _.pick(settingData, ['advancedSetting', 'enumDefault', 'type', 'dot']) : null,
+        isTitle,
       },
     };
   });

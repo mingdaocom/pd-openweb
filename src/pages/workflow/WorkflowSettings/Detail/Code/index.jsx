@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv, Icon, Dialog } from 'ming-ui';
+import { ScrollView, LoadDiv, Icon, Dialog, Dropdown } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
 import { DetailHeader, DetailFooter, ParameterList, KeyPairs, TestParameter, ChatGPT } from '../components';
 import { ACTION_ID } from '../../enum';
@@ -97,7 +97,7 @@ export default class Code extends Component {
    */
   onSave = () => {
     const { data, saveRequest } = this.state;
-    const { name, actionId, inputDatas, code, testMap } = data;
+    const { name, actionId, inputDatas, code, testMap, version } = data;
 
     if (!code) {
       alert(_l('代码块必填'), 2);
@@ -119,6 +119,7 @@ export default class Code extends Component {
           inputDatas: inputDatas.filter(item => item.name),
           code: Base64.encode(code),
           testMap,
+          version,
         },
         { isIntegration: this.props.isIntegration },
       )
@@ -201,7 +202,7 @@ export default class Code extends Component {
   send = (testMap = {}) => {
     const { processId, selectNodeId, isIntegration } = this.props;
     const { data, sendRequest } = this.state;
-    const { actionId, code, inputDatas } = data;
+    const { actionId, code, inputDatas, version } = data;
 
     if (sendRequest) {
       return;
@@ -222,6 +223,7 @@ export default class Code extends Component {
                 value: testMap[item.name] || '',
               };
             }),
+          version,
         },
         { isIntegration },
       )
@@ -311,8 +313,28 @@ export default class Code extends Component {
         <div className="flex">
           <ScrollView>
             <div className="workflowDetailBox">
-              <div className="Font14 Gray_75 workflowDetailDesc">
-                {data.actionId === ACTION_ID.JAVASCRIPT ? _l('使用JavaScript语言') : _l('使用Python语言')}
+              <div className="Font14 Gray_75 workflowDetailDesc flexRow alignItemsCenter">
+                <div className="flex">
+                  {data.actionId === ACTION_ID.JAVASCRIPT ? _l('使用JavaScript语言') : _l('使用Python语言')}
+                </div>
+                {!!(data.versions || []).length && (
+                  <Fragment>
+                    <div>
+                      {data.actionId === ACTION_ID.JAVASCRIPT ? 'Node.js' : 'Python'} {_l('版本')}
+                    </div>
+                    <Dropdown
+                      className="Gray"
+                      menuStyle={{ width: '100%', minWidth: 90 }}
+                      data={data.versions.map(version => {
+                        return { text: 'v' + version, value: version };
+                      })}
+                      value={data.version}
+                      onChange={version => {
+                        this.updateSource({ version });
+                      }}
+                    />
+                  </Fragment>
+                )}
               </div>
 
               <div className="Font13 bold mTop20">{_l('定义input对象')}</div>

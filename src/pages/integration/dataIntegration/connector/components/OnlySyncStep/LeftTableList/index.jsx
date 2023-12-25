@@ -39,6 +39,10 @@ const LeftListWrapper = styled.div`
           width: 150px;
           white-space: nowrap;
         }
+        .repeatIcon {
+          color: #f44336;
+          margin-right: 8px;
+        }
         .deleteIcon {
           display: none;
           margin-right: 10px;
@@ -107,11 +111,12 @@ const Wrapper = styled.div`
 `;
 
 export default function LeftTableList(props) {
-  const { source, setNextOrSaveDisabled, currentTab, setCurrentTab, onDelete } = props;
+  const { source, setNextOrSaveDisabled, currentTab, setCurrentTab, onDelete, submitData = [], dest } = props;
   const [tableList, setTableList] = useState([]);
   const [visible, setVisible] = useState(false);
   const [dataObj, setDataObj] = useSetState({});
   const isSourceAppType = source.type === DATABASE_TYPE.APPLICATION_WORKSHEET;
+  const isDestAppType = dest.type === DATABASE_TYPE.APPLICATION_WORKSHEET;
 
   useEffect(() => {
     if (isSourceAppType && visible && !dataObj.tableOptionList) {
@@ -217,6 +222,27 @@ export default function LeftTableList(props) {
     setNextOrSaveDisabled(false);
   };
 
+  const getRepeatTableNameInfo = () => {
+    const repeatInfo = [];
+    const countObj = {};
+    submitData
+      .filter(item => !!_.get(item, ['destNode', 'config', 'createTable']) && !isDestAppType)
+      .forEach(item => {
+        const sourceNodeConfig = item.sourceNode.config;
+        const destTableName = item.destNode.config.tableName;
+        if (!countObj[destTableName]) {
+          countObj[destTableName] = 1;
+        } else {
+          repeatInfo.push({
+            db: sourceNodeConfig.dbName,
+            tableName: sourceNodeConfig.tableName,
+            workSheetId: sourceNodeConfig.workSheetId,
+          });
+        }
+      });
+    return repeatInfo;
+  };
+
   return (
     <LeftListWrapper>
       <div className="titleItem mTop16">
@@ -229,11 +255,15 @@ export default function LeftTableList(props) {
       </div>
       <ul>
         {tableList.map(item => {
+          const repeatInfoArr = getRepeatTableNameInfo();
           return (
             <div key={item.db}>
               <div className="Gray_9e mTop16 mBottom10 mLeft15">{item.db}</div>
               {item.tableList &&
                 item.tableList.map(table => {
+                  const isRepeatDestName = !!repeatInfoArr.filter(r =>
+                    isSourceAppType ? r.workSheetId === table.id : r.db === item.db && r.tableName === table.name,
+                  ).length;
                   return (
                     <li
                       key={table.id}
@@ -253,18 +283,25 @@ export default function LeftTableList(props) {
                     >
                       <div className="listItem">
                         <span title={table.name}>{table.name}</span>
-                        <Icon
-                          icon="delete1"
-                          className={cx('deleteIcon', {
-                            isActive: isSourceAppType
-                              ? table.id === currentTab.table
-                              : item.db === currentTab.db && table.name === currentTab.tableName,
-                          })}
-                          onClick={e => {
-                            e.stopPropagation();
-                            onDeleteDataObj(item.db, table);
-                          }}
-                        />
+                        <div className="flexRow">
+                          {isRepeatDestName && (
+                            <Tooltip text={_l('目的地表名重复')}>
+                              <Icon icon="info1" className="repeatIcon" />
+                            </Tooltip>
+                          )}
+                          <Icon
+                            icon="delete1"
+                            className={cx('deleteIcon', {
+                              isActive: isSourceAppType
+                                ? table.id === currentTab.table
+                                : item.db === currentTab.db && table.name === currentTab.tableName,
+                            })}
+                            onClick={e => {
+                              e.stopPropagation();
+                              onDeleteDataObj(item.db, table);
+                            }}
+                          />
+                        </div>
                       </div>
                     </li>
                   );

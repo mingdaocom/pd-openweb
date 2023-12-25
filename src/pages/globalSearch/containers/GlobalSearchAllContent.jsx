@@ -8,7 +8,7 @@ import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponen
 import smartSearchCtrl from 'src/api/smartSearch';
 import CommonAjax from 'src/api/addressBook';
 import homeAppAjax from 'src/api/homeApp';
-import { getFeatureStatus } from 'src/util';
+import { getFeatureStatus, getCurrentProject } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
 import UserList from '../components/UserList';
 import GlobalSearchEmpty from '../components/GlobalSearchEmpty';
@@ -62,9 +62,8 @@ export default class GlobalSearchAllContent extends Component {
 
   getFilterCount = () => {
     const { recordProjectId } = this.state;
-    const proObj = _.find(md.global.Account.projects || [], {
-      projectId: recordProjectId,
-    });
+    const proObj = getCurrentProject(recordProjectId, true);
+
     if (getFeatureStatus(recordProjectId, VersionProductType.globalSearch) !== '1' || proObj.licenseType === 2) {
       this.setState({ filterCount: 0 });
       return;
@@ -193,9 +192,7 @@ export default class GlobalSearchAllContent extends Component {
       }
     }
 
-    const proObj = _.find(md.global.Account.projects || [], {
-      projectId: param.projectId,
-    });
+    const proObj = getCurrentProject(param.projectId, true);
 
     if (
       type === 8 &&

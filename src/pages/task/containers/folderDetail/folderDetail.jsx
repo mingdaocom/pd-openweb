@@ -13,7 +13,7 @@ import editFolder from '../../components/editFolder/editFolder';
 import Commenter from 'src/components/comment/commenter';
 import CommentList from 'src/components/comment/commentList';
 import ScrollView from 'ming-ui/components/ScrollView';
-import UserHead from 'src/pages/feed/components/userHead';
+import UserHead from 'src/components/userHead';
 import RichText from 'ming-ui/components/RichText';
 import Editor from 'src/pages/PageHeader/AppPkgHeader/AppDetail/EditorDiaLogContent';
 import Dialog from 'ming-ui/components/Dialog/Dialog';
@@ -168,12 +168,11 @@ class FolderDetail extends Component {
    */
   renderFolderCharge() {
     const { data } = this.state;
-    const opHtml = `
-      <span class="folderDetailOpBtn updateFolderCharge ThemeColor3">
-        ${_l('项目托付给他人')}
+    const operation = (
+      <span className="folderDetailOpBtn updateFolderCharge ThemeColor3" onClick={this.updateFolderChargeEvents}>
+        {_l('项目托付给他人')}
       </span>
-    `;
-
+    );
     return (
       <li>
         <div className="folderDetailMemberLabel">{_l('负责人')}</div>
@@ -183,12 +182,9 @@ class FolderDetail extends Component {
               userHead: data.chargeUser.avatar,
               accountId: data.chargeUser.accountID,
             }}
-            lazy={'false'}
             size={28}
             secretType={1}
-            showOpHtml={data.chargeUser.accountID === md.global.Account.accountId}
-            opHtml={opHtml}
-            readyFn={this.bindUpdateFolderChargeEvents}
+            operation={data.chargeUser.accountID === md.global.Account.accountId ? operation : null}
           />
         </div>
       </li>
@@ -198,25 +194,21 @@ class FolderDetail extends Component {
   /**
    * 将项目托付给他人
    */
-  bindUpdateFolderChargeEvents = evt => {
-    const that = this;
+  updateFolderChargeEvents = () => {
     const { data } = this.state;
-
-    evt.find('.updateFolderCharge').on('click', function() {
-      dialogSelectUser({
-        sourceId: data.folderID,
-        title: _l('选择负责人'),
-        showMoreInvite: false,
-        fromType: 6,
-        SelectUserSettings: {
-          filterAccountIds: [md.global.Account.accountId],
-          projectId: checkIsProject(data.projectID) ? data.projectID : '',
-          unique: true,
-          callback(users) {
-            that.updateFolderCharge(users[0].accountId, users[0].avatar, users[0].fullname);
-          },
+    dialogSelectUser({
+      sourceId: data.folderID,
+      title: _l('选择负责人'),
+      showMoreInvite: false,
+      fromType: 6,
+      SelectUserSettings: {
+        filterAccountIds: [md.global.Account.accountId],
+        projectId: checkIsProject(data.projectID) ? data.projectID : '',
+        unique: true,
+        callback: users => {
+          this.updateFolderCharge(users[0].accountId, users[0].avatar, users[0].fullname);
         },
-      });
+      },
     });
   };
 
@@ -225,25 +217,50 @@ class FolderDetail extends Component {
    */
   renderFolderAdmin() {
     const { data } = this.state;
-    const getOpHtml = accountId => {
-      let opHtml = '';
-
+    const getOpHtml = item => {
+      const { accountID, avatar, fullName } = item;
       if (data.chargeUser.accountID === md.global.Account.accountId) {
-        opHtml = `
-          <span class="folderDetailOpBtn updateFolderChargeFix borderRight ThemeColor3">${_l('设为负责人')}</span>
-          <span class="folderDetailOpBtn updateFolderMember borderRight ThemeColor3">${_l('设为成员')}</span>
-          <span class="folderDetailOpBtn updateFolderLeave fixWidth ThemeColor3">${_l('移出')}</span>
-        `;
+        return (
+          <Fragment>
+            <span
+              className="folderDetailOpBtn updateFolderChargeFix borderRight ThemeColor3"
+              onClick={() => this.clickEvents('updateFolderChargeFix', accountID, avatar, fullName)}
+            >
+              {_l('设为负责人')}
+            </span>
+            <span
+              className="folderDetailOpBtn updateFolderMember borderRight ThemeColor3"
+              onClick={() => this.clickEvents('updateFolderMember', accountID, avatar, fullName)}
+            >
+              {_l('设为成员')}
+            </span>
+            <span
+              className="folderDetailOpBtn updateFolderLeave fixWidth ThemeColor3"
+              onClick={() => this.clickEvents('updateFolderLeave', accountID, avatar, fullName)}
+            >
+              {_l('移出')}
+            </span>
+          </Fragment>
+        );
       } else if (data.isAdmin) {
-        opHtml = `
-          <span class="folderDetailOpBtn updateFolderMember borderRight ThemeColor3">${_l('设为成员')}</span>
-          <span class="folderDetailOpBtn updateFolderLeave ThemeColor3">${
-            accountId === md.global.Account.accountId ? _l('退出') : _l('移出')
-          }</span>
-        `;
+        return (
+          <Fragment>
+            <span
+              className="folderDetailOpBtn updateFolderMember borderRight ThemeColor3"
+              onClick={() => this.clickEvents('updateFolderMember', accountID, avatar, fullName)}
+            >
+              {_l('设为成员')}
+            </span>
+            <span
+              className="folderDetailOpBtn updateFolderLeave ThemeColor3"
+              onClick={() => this.clickEvents('updateFolderLeave', accountID, avatar, fullName)}
+            >
+              {accountID === md.global.Account.accountId ? _l('退出') : _l('移出')}
+            </span>
+          </Fragment>
+        );
       }
-
-      return opHtml;
+      return null;
     };
 
     return (
@@ -257,12 +274,9 @@ class FolderDetail extends Component {
                   userHead: item.avatar,
                   accountId: item.accountID,
                 }}
-                lazy={'false'}
                 size={28}
                 secretType={1}
-                showOpHtml={data.isAdmin}
-                opHtml={getOpHtml(item.accountID)}
-                readyFn={evt => this.bindEvents(evt, item.accountID, item.avatar, item.fullName)}
+                operation={data.isAdmin ? getOpHtml(item) : null}
               />
             </div>
           );
@@ -284,35 +298,69 @@ class FolderDetail extends Component {
    */
   renderFolderMember() {
     const { data } = this.state;
-    const getOpHtml = (accountId, isApply) => {
-      let opHtml = '';
-
+    const getOpHtml = (item, isApply) => {
+      const { accountID, avatar, fullName } = item;
       if (isApply && data.isAdmin) {
-        opHtml = `
-          <span class="folderDetailOpBtn updateFolderApplyAdmin borderRight ThemeColor3">${_l('设为管理员')}</span>
-          <span class="folderDetailOpBtn updateFolderApplyMember borderRight ThemeColor3">${_l('设为成员')}</span>
-          <span class="folderDetailOpBtn updateFolderRefuse fixWidth ThemeColor3">${_l('拒绝')}</span>
-        `;
+        return (
+          <Fragment>
+            <span
+              className="folderDetailOpBtn updateFolderApplyAdmin borderRight ThemeColor3"
+              onClick={() => this.clickEvents('updateFolderApplyAdmin', accountID, avatar, fullName)}
+            >
+              {_l('设为管理员')}
+            </span>
+            <span
+              className="folderDetailOpBtn updateFolderApplyMember borderRight ThemeColor3"
+              onClick={() => this.clickEvents('updateFolderApplyMember', accountID, avatar, fullName)}
+            >
+              {_l('设为成员')}
+            </span>
+            <span
+              className="folderDetailOpBtn updateFolderRefuse fixWidth ThemeColor3"
+              onClick={() => this.clickEvents('updateFolderRefuse', accountID, avatar, fullName)}
+            >
+              {_l('拒绝')}
+            </span>
+          </Fragment>
+        );
       } else if (data.isAdmin) {
         // 负责人多一个设为负责人操作项
-        if (data.chargeUser.accountID === md.global.Account.accountId) {
-          opHtml = `<span class="folderDetailOpBtn updateFolderChargeFix borderRight ThemeColor3">${_l(
-            '设为负责人',
-          )}</span>`;
-        }
-        opHtml += `
-          <span class="folderDetailOpBtn updateFolderAdmin borderRight ThemeColor3">${_l('设为管理员')}</span>
-          <span class="folderDetailOpBtn updateFolderLeave ThemeColor3 ${
-            data.chargeUser.accountID === md.global.Account.accountId ? 'fixWidth' : ''
-          }">${_l('移出')}</span>
-        `;
-      } else if (accountId === md.global.Account.accountId) {
-        opHtml = `
-          <span class="folderDetailOpBtn updateFolderLeave ThemeColor3">${_l('退出')}</span>
-        `;
+        return (
+          <Fragment>
+            {data.chargeUser.accountID === md.global.Account.accountId && (
+              <span
+                className="folderDetailOpBtn updateFolderChargeFix borderRight ThemeColor3"
+                onClick={() => this.clickEvents('updateFolderChargeFix', accountID, avatar, fullName)}
+              >
+                {_l('设为负责人')}
+              </span>
+            )}
+            <span
+              className="folderDetailOpBtn updateFolderAdmin borderRight ThemeColor3"
+              onClick={() => this.clickEvents('updateFolderAdmin', accountID, avatar, fullName)}
+            >
+              {_l('设为管理员')}
+            </span>
+            <span
+              className={cx('folderDetailOpBtn updateFolderLeave ThemeColor3', {
+                fixWidth: data.chargeUser.accountID === md.global.Account.accountId,
+              })}
+              onClick={() => this.clickEvents('updateFolderLeave', accountID, avatar, fullName)}
+            >
+              {_l('移出')}
+            </span>
+          </Fragment>
+        );
+      } else if (accountID === md.global.Account.accountId) {
+        return (
+          <span
+            className="folderDetailOpBtn updateFolderLeave ThemeColor3"
+            onClick={() => this.clickEvents('updateFolderLeave', accountID, avatar, fullName)}
+          >
+            {_l('退出')}
+          </span>
+        );
       }
-
-      return opHtml;
     };
 
     return (
@@ -326,12 +374,9 @@ class FolderDetail extends Component {
                   userHead: item.avatar,
                   accountId: item.accountID,
                 }}
-                lazy={'false'}
                 size={28}
                 secretType={1}
-                showOpHtml={data.isAdmin || item.accountID === md.global.Account.accountId}
-                opHtml={getOpHtml(item.accountID, false)}
-                readyFn={evt => this.bindEvents(evt, item.accountID, item.avatar, item.fullName)}
+                operation={data.isAdmin || item.accountID === md.global.Account.accountId ? getOpHtml(item, false) : null}
               />
             </div>
           );
@@ -346,12 +391,9 @@ class FolderDetail extends Component {
                   userHead: item.avatar,
                   accountId: item.accountID,
                 }}
-                lazy={'false'}
                 size={28}
                 secretType={1}
-                showOpHtml={data.isAdmin}
-                opHtml={getOpHtml(item.accountID, true)}
-                readyFn={evt => this.bindEvents(evt, item.accountID, item.avatar, item.fullName)}
+                operation={data.isAdmin ? getOpHtml(item, true) : null}
               />
             </div>
           );
@@ -407,6 +449,41 @@ class FolderDetail extends Component {
     evt.find('.updateFolderRefuse').on('click', () => {
       this.refuseFolderMember(accountId);
     });
+  }
+
+  clickEvents(type, accountId, avatar, fullname) {
+    switch (type) {
+      // 设为负责人
+      case 'updateFolderChargeFix':
+        this.updateFolderCharge(accountId, avatar, fullname);
+        return;
+      // 设为成员
+      case 'updateFolderMember':
+        this.updateFolderMemberAuth(accountId, avatar, fullname, false);
+        return;
+      // 设为管理员
+      case 'updateFolderAdmin':
+        this.updateFolderMemberAuth(accountId, avatar, fullname, true);
+        return;
+      // 移出成员
+      case 'updateFolderLeave':
+        this.removeFolderMember(accountId);
+        return;
+      // 申请用户设为管理员
+      case 'updateFolderApplyAdmin':
+        this.updateFolderMemberStatusAndAuth(accountId, avatar, fullname, true);
+        return;
+      // 申请用户设为成员
+      case 'updateFolderApplyMember':
+        this.updateFolderMemberStatusAndAuth(accountId, avatar, fullname, false);
+        return;
+      // 申请用户拒绝
+      case 'updateFolderRefuse':
+        this.refuseFolderMember(accountId);
+        return;
+      default:
+        return;
+    }
   }
 
   /**

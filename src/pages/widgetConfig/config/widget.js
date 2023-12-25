@@ -11,14 +11,9 @@ const getDefaultOptions = () => {
   ];
 };
 
-const getDefaultCheckedOption = options => {
-  if (isEmpty(options)) return '';
-  return JSON.stringify([head(options).key]);
-};
-
 const genDefaultOptionsAndChecked = () => {
   const defaultOptions = getDefaultOptions();
-  return { options: defaultOptions, default: getDefaultCheckedOption(defaultOptions) };
+  return { options: defaultOptions };
 };
 
 // 控件和后端类型的对应关系
@@ -496,6 +491,10 @@ export const DEFAULT_DATA = {
     size: 6,
     enumDefault: 0,
     userPermission: 1,
+    enumDefault2: 0,
+    advancedSetting: {
+      showdelete: '1',
+    },
   },
   SCORE: {
     controlName: _l('等级'),

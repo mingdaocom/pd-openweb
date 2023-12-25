@@ -1,7 +1,7 @@
 import React, { useState, useCallback, Fragment } from 'react';
 import styled from 'styled-components';
 import Trigger from 'rc-trigger';
-import UserHead from 'src/pages/feed/components/userHead';
+import UserHead from 'src/components/userHead';
 import { Button, LoadDiv, ScrollView } from 'ming-ui';
 import chatAjax from 'src/api/chat';
 import addressBookAjax from 'src/api/addressBook';
@@ -170,7 +170,6 @@ export default function SendToChat(props) {
                     }}
                   >
                     <UserHead
-                      lazy="false"
                       className="mRight10"
                       user={{
                         userHead: account.logo,

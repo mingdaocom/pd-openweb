@@ -163,7 +163,6 @@ class EditFlow extends Component {
         {
           prveId: nodeId,
           nodeIds: selectCopyIds,
-          name: _l('-复制'),
         },
         () => {
           alert(_l('%0个节点复制成功', copyNodeSize));
@@ -247,6 +246,7 @@ class EditFlow extends Component {
         data,
         item: data[id],
         disabled,
+        startEventId,
         nodeId: this.state.nodeId,
         selectNodeId: this.state.selectNodeId,
         isCopy: this.state.isCopy,

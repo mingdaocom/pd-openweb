@@ -11,9 +11,9 @@ import EXCLUSIVE_BIG from './images/exclusive_big.png';
 import Status from './component/Status';
 import EditNameDialog from './component/EditNameDialog';
 import projectAjax from 'src/api/project';
-import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { getFeatureStatus, buriedUpgradeVersionDialog, getCurrentProject } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
-import UserName from 'src/pages/feed/components/userName/userName';
+import UserName from 'src/components/userName/userName';
 import { navigateTo } from 'src/router/navigateTo';
 import { COMPUTING_INSTANCE_STATUS } from './config';
 import './index.less';
@@ -66,8 +66,7 @@ const EmptyWrap = styled.div`
 
 function ExplanList(props) {
   const { projectId, history } = props;
-
-  const { isSuperAdmin } = md.global.Account.projects.find(l => l.projectId === projectId) || {};
+  const { isSuperAdmin } = getCurrentProject(projectId, true);
   const FEATURE_STATUS = getFeatureStatus(projectId, VersionProductType.exclusiveResource);
   const [operateMenuVisible, setOperateMenuVisible] = useState(-1);
   const [editNameParam, setEditNameParam] = useState({
@@ -78,7 +77,6 @@ function ExplanList(props) {
     list: [],
     outDateList: [],
   });
-  const [isInit, SetIsInit] = useState(true);
   const [config, setConfig] = useState({
     isInit: true,
     loading: true,

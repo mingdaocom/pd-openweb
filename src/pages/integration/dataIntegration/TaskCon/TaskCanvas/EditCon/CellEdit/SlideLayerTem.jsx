@@ -1,14 +1,14 @@
 import React, { useEffect } from 'react';
 import styled, { css } from 'styled-components';
-import { Input, Checkbox, Dropdown, Icon } from 'ming-ui';
+import { Input, Checkbox, Icon } from 'ming-ui';
 import cx from 'classnames';
 import { DATABASE_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
 import _ from 'lodash';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import Des from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/components/Des';
 import { ACTION_LIST, OPERATION_TYPE_DATA } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config.js';
-
 import DestEdit from './Dest';
+
 const WrapCon = styled.div`
   .setSheetName,
   .pkDrop {
@@ -70,6 +70,7 @@ const WrapCon = styled.div`
         border-right: 1px solid #eaeaea;
       }
       height: 48px;
+      min-width: 48px;
       line-height: 48px;
       padding: 0 12px;
     }
@@ -224,7 +225,7 @@ export default function SlideLayerTem(props) {
                       }),
                     });
                     onChangeInfo({
-                      duplicates: [], //duplicates.filter(o => o !== value),
+                      duplicates: [],
                     });
                   }}
                 />
@@ -235,14 +236,14 @@ export default function SlideLayerTem(props) {
       </div>
     );
   };
+
   const renderTemplateByUnion = () => {
     const { list } = props;
     const { node = {} } = props.state;
     const { leftTableId, rightTableId } = _.get(node, ['nodeConfig', 'config']) || {};
-    const data = list.filter(o => o.pathIds.length > 0 && o.pathIds[0].toDt.nodeId === node.nodeId);
-    let leftNode = data[0];
-    let rightNode = data[1];
-    const fields = _.get(node, ['nodeConfig', 'config', 'fields']) || [];
+    let leftNode = list.find(o => o.nodeId === leftTableId) || {};
+    let rightNode = list.find(o => o.nodeId === rightTableId) || {};
+    const fields = _.get(node, 'nodeConfig.config.fields') || [];
     const isAll = fields.filter(o => _.get(o, ['resultField', 'isCheck'])).length >= fields.length;
     const isNotAll =
       fields.filter(o => _.get(o, ['resultField', 'isCheck'])).length < fields.length &&
@@ -263,7 +264,7 @@ export default function SlideLayerTem(props) {
                       return {
                         ...it,
                         resultField: {
-                          ...(_.get(node, ['nodeConfig', 'config', 'fields', 'resultField']) || {}),
+                          ...it.resultField,
                           isCheck: !isAll,
                         },
                       };
@@ -297,11 +298,21 @@ export default function SlideLayerTem(props) {
                             return {
                               ...it,
                               resultField: {
-                                ...field,
+                                ...it.resultField,
                                 isCheck: !field.isCheck,
                               },
                             };
                           } else {
+                            //同名只能勾选一个
+                            if (_.get(it, 'resultField.alias') === _.get(field, 'alias') && !field.isCheck) {
+                              return {
+                                ...it,
+                                resultField: {
+                                  ...it.resultField,
+                                  isCheck: false,
+                                },
+                              };
+                            }
                             return it;
                           }
                         }),
@@ -310,104 +321,12 @@ export default function SlideLayerTem(props) {
                   }}
                 ></Checkbox>
               </div>
-              <div className={cx('itemBox Gray', { isNull: !leftField.id })}>{leftField.name}</div>
-              <div className={cx('itemBox secondD', { isNull: !rightField.id })}>
-                <Dropdown
-                  placeholder=""
-                  value={!rightField.id ? undefined : rightField.id}
-                  className=" "
-                  onChange={value => {
-                    if (!value) {
-                      const data =
-                        (_.get(rightNode, ['nodeConfig', 'fields']) || []).find(it => it.id === rightField.id) || {};
-                      onChangeNodeConfig({
-                        config: {
-                          ...(_.get(node, ['nodeConfig', 'config']) || {}),
-                          fields: fields
-                            .map((it, n) => {
-                              if (n === i) {
-                                return {
-                                  ...it,
-                                  rightField: {},
-                                  resultField: { ...field, ..._.pick(leftField, ['dataType', 'name']) },
-                                };
-                              } else {
-                                return it;
-                              }
-                            })
-                            .concat({
-                              leftField: {},
-                              rightField: data,
-                              resultField: { ...field, ..._.pick(data, ['dataType', 'name']) },
-                            }),
-                        },
-                      });
-                    } else {
-                      const data = (_.get(rightNode, ['nodeConfig', 'fields']) || []).find(it => it.id === value) || {};
-                      onChangeNodeConfig({
-                        config: {
-                          ...(_.get(node, ['nodeConfig', 'config']) || {}),
-                          fields: fields
-                            .map((it, n) => {
-                              if (it.id === value) {
-                                return {
-                                  ...it,
-                                  rightField: {},
-                                  resultField: { ...field, ..._.pick(leftField, ['dataType', 'name']) },
-                                };
-                              }
-                              if (n === i) {
-                                return {
-                                  ...it,
-                                  rightField: data,
-                                  resultField: { ...field, ..._.pick(data, ['dataType', 'name']) },
-                                };
-                              } else {
-                                return it;
-                              }
-                            })
-                            .filter(it => !!(it.resultField.id || it.rightField.id || it.leftField.id)),
-                        },
-                      });
-                    }
-                  }}
-                  border
-                  openSearch
-                  cancelAble
-                  isAppendToBody
-                  data={(_.get(rightNode, ['nodeConfig', 'fields']) || [])
-                    .filter(it => it.dataType === leftField.dataType)
-                    .map(it => {
-                      return { ...it, text: it.name, value: it.id };
-                    })}
-                />
+              <div className={cx('itemBox Gray', { isNull: !leftField.id })}>{leftField.alias}</div>
+              <div className={cx('itemBox secondD', { isNull: !rightField.id })}>{rightField.alias}</div>
+              <div className="itemBox ">{field.alias}</div>
+              <div className="itemBox itemBoxType overflow_ellipsis WordBreak" title={field.dataType}>
+                {field.dataType}
               </div>
-              <div className="itemBox ">
-                <Input
-                  className="w100"
-                  placeholder={_l('请输入')}
-                  value={field.alias}
-                  onChange={alias => {
-                    onChangeNodeConfig({
-                      config: {
-                        ...(_.get(node, ['nodeConfig', 'config']) || {}),
-                        fields: fields.map((it, n) => {
-                          if (n === i) {
-                            return {
-                              ...it,
-
-                              resultField: { ...field, alias: alias },
-                            };
-                          } else {
-                            return it;
-                          }
-                        }),
-                      },
-                    });
-                  }}
-                />
-              </div>
-              <div className="itemBox itemBoxType">{field.dataType}</div>
             </div>
           );
         })}
@@ -427,11 +346,12 @@ export default function SlideLayerTem(props) {
         return (
           <WrapCon className={cx('flexColumn')}>
             {renderTemplate(
-              _.get(node, ['nodeConfig', 'fields']),
+              _.get(node, 'nodeConfig.fields'),
               _.get(node, 'nodeConfig.config.dsType') === DATABASE_TYPE.APPLICATION_WORKSHEET,
               data => {
                 onChangeNodeConfig({
                   ...data,
+                  config: { ..._.get(node, 'nodeConfig.config'), ...data },
                 });
               },
             )}

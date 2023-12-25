@@ -13,6 +13,7 @@ import BuildAppNewRules from './BuildAppNewRules';
 import IntegrationSetPssword from '../components/IntegrationSetPssword';
 import SyncDialog from './components/SyncDialog';
 import InterfaceLicense from './components/InterfaceLicense';
+import ChartSetting from './components/ChartSetting';
 import ClearISaventergrationModal from '../components/ClearISaventergrationModal';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
@@ -903,6 +904,11 @@ export default class Workwx extends React.Component {
                     )}
                   </div>
                 )} */}
+              </Tabs.TabPane>
+            )}
+            {this.state.status === 1 && (location.href.indexOf('mingdao') > -1 || md.global.Config.IsLocal) && (
+              <Tabs.TabPane tab={_l('聊天工具栏配置')} key="chatSetting">
+                <ChartSetting projectId={Config.projectId} />
               </Tabs.TabPane>
             )}
             {!md.global.Config.IsLocal && intergrationType === 2 && this.state.status === 1 && (

@@ -100,7 +100,7 @@ export default class Signature extends Component {
           .then(({ data }) => {
             const { key = '' } = data || {};
 
-            accountSettingAjax.editSign({ bucket: 4, key: key });
+            accountSettingAjax.editSign({ url: res[0].url });
             callback({ bucket: 4, key });
             this.isComplete = true;
           });

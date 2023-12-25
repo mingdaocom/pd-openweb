@@ -179,12 +179,9 @@ function AppCenterHeader(props) {
                 }}
                 popup={
                   <Menu className="Relative">
-                    <NewMenuItem onClick={() => window.open('/enterpriseRegister.htm?type=add')}>
+                    <NewMenuItem onClick={() => window.open('/enterpriseRegister?type=add')}>
                       {_l('加入组织')}
                     </NewMenuItem>
-                    {/* <NewMenuItem onClick={() => window.open('/enterpriseRegister.htm?type=create')}>
-                          {_l('创建组织')}
-                        </NewMenuItem> */}
                   </Menu>
                 }
                 getPopupContainer={() => createRef.current}

@@ -3,7 +3,7 @@ import { downloadFile } from 'src/util';
 
 export const handleShare = (data, isDownload) => {
   if (!md.global.Account.accountId) {
-    window.open(`${md.global.Config.WebUrl}login.htm?ReturnUrl=${location.href}`);
+    window.open(`${md.global.Config.WebUrl}login?ReturnUrl=${location.href}`);
     return;
   }
 
@@ -63,7 +63,7 @@ export const handleShare = (data, isDownload) => {
 
 export const handleSaveKcCloud = (data, isDownload) => {
   if (!md.global.Account.accountId) {
-    window.open(`${md.global.Config.WebUrl}login.htm?ReturnUrl=${location.href}`);
+    window.open(`${md.global.Config.WebUrl}login?ReturnUrl=${location.href}`);
     return;
   }
 

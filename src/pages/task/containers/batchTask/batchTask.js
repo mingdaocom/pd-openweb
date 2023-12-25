@@ -189,55 +189,6 @@ BatchTask.initEvent = function () {
     });
   });
 
-  const chargeImgTimer = null;
-  // 成员头像hover
-  // hover出用户层
-  $batchTask.on(
-    {
-      mouseover(event) {
-        if ($(event.target).closest('.createNewTask').length) return;
-
-        const $this = $(this);
-        const accountId = $this.data('accountid');
-
-        if (!$this.data('hasbusinesscard')) {
-          $this.mdBusinessCard({
-            id: 'batchTaskChargeCard',
-            accountId,
-            opHtml:
-              '<span class="messageBtnPerson ThemeColor3">' +
-              _l('设为主负责人') +
-              '</span><span class="messageBtnRemove ThemeColor3">' +
-              _l('移出任务') +
-              '</span>',
-            readyFn() {
-              const $mdBusinessCard = $('#batchTaskChargeCard_' + accountId);
-
-              // 设为主负责人
-              $mdBusinessCard.find('.messageBtnPerson').on('click', () => {
-                BatchTask.loadBatchData(2);
-                BatchTask.updateCharge({
-                  accountId,
-                  avatar: $mdBusinessCard.find('img.avatar').attr('src'),
-                });
-              });
-
-              // 移出任务
-              $mdBusinessCard.find('.messageBtnRemove').on('click', () => {
-                // 加载任务数据
-                BatchTask.loadBatchData(2);
-                // 删除任务成员
-                BatchTask.deleteTasksMember(accountId);
-              });
-            },
-          });
-          $this.data('hasbusinesscard', true).mouseenter();
-        }
-      },
-    },
-    '.singleuser',
-  );
-
   // 任务星星
   $batchTask.on('click', '#batchFavorite', function () {
     const isStar = !$(this).hasClass('icon-task-star');

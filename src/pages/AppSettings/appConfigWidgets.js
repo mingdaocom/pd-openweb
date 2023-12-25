@@ -5,6 +5,7 @@ import LockAppCom from './components/LockApp';
 import ManageBackupFiles from './components/appBackupRestore/ManageBackupFiles';
 import ExportAppCom from './components/ExportAppCom';
 import AppGlobalVariable from './components/AppGlobalVariable';
+import ImportUpgrade from './components/ImportUpgrade';
 
 export default {
   options: AllOptionList,
@@ -14,4 +15,5 @@ export default {
   backup: ManageBackupFiles,
   export: ExportAppCom,
   variables: AppGlobalVariable,
+  upgrade: ImportUpgrade,
 };

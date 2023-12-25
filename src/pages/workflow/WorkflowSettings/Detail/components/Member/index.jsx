@@ -2,11 +2,12 @@ import React, { Component, Fragment } from 'react';
 import './index.less';
 import cx from 'classnames';
 import { Dropdown } from 'ming-ui';
-import UserHead from 'src/pages/feed/components/userHead';
+import UserHead from 'src/components/userHead';
 import { USER_TYPE, USER_ORGANIZE, DEPARTMENT_ORGANIZE } from '../../../enum';
 import Tag from '../Tag';
 import _ from 'lodash';
 import { handleGlobalVariableName } from '../../../utils';
+import { selectJob } from 'src/components/DialogSelectJob';
 
 export default class Member extends Component {
   /**
@@ -23,6 +24,7 @@ export default class Member extends Component {
    * render普通成员
    */
   renderUser(item) {
+    const { chatButton = true } = this.props;
     return (
       <div className="flexRow flowDetailMemberBox">
         <UserHead
@@ -30,8 +32,8 @@ export default class Member extends Component {
             userHead: item.avatar,
             accountId: item.roleId,
           }}
-          lazy={'false'}
           size={26}
+          chatButton={chatButton}
         />
         <div className="mLeft6 ellipsis bold">{item.roleName}</div>
       </div>
@@ -62,6 +64,7 @@ export default class Member extends Component {
         { text: USER_ORGANIZE[11], value: 11 },
         { text: item.controlType !== 27 ? USER_ORGANIZE[12] : DEPARTMENT_ORGANIZE[12], value: 12 },
         { text: item.controlType !== 27 ? USER_ORGANIZE[13] : DEPARTMENT_ORGANIZE[13], value: 13 },
+        { text: item.controlType !== 27 ? USER_ORGANIZE[14] : DEPARTMENT_ORGANIZE[14], value: 14 },
       ],
       [{ text: _l('移除'), value: 0 }],
     ];
@@ -94,16 +97,31 @@ export default class Member extends Component {
           !!item.entityName &&
           !!item.roleName &&
           !removeOrganization && (
-            <Dropdown
-              className={cx('flowDetailOrganize', { organizeTransform: item.roleTypeId })}
-              data={list}
-              value={item.roleTypeId}
-              isAppendToBody
-              menuStyle={{ width: 'auto !important' }}
-              border
-              renderTitle={() => this.renderOrganize(item.controlType, item.roleTypeId)}
-              onChange={roleTypeId => this.onChange(roleTypeId, index)}
-            />
+            <Fragment>
+              <Dropdown
+                className={cx('flowDetailOrganize', { organizeTransform: item.roleTypeId })}
+                data={list}
+                value={item.roleTypeId}
+                isAppendToBody
+                menuStyle={{ width: 'auto !important' }}
+                border
+                renderTitle={() => this.renderOrganize(item.controlType, item.roleTypeId)}
+                onChange={roleTypeId => this.onChange(roleTypeId, index)}
+              />
+              {item.roleTypeId === 14 && (
+                <div
+                  className={cx(
+                    'flowDetailMemberJob bold',
+                    { ThemeColor3: !item.extensionId },
+                    { delete: item.extensionId && !item.extensionName },
+                  )}
+                  onClick={() => this.selectJob(index)}
+                >
+                  {item.extensionId ? item.extensionName || _l('职位已删除') : _l('选择职位')}
+                  <i className="icon-arrow-down-border mLeft5 Gray" />
+                </div>
+              )}
+            </Fragment>
           )}
       </Fragment>
     );
@@ -122,7 +140,14 @@ export default class Member extends Component {
     }
 
     return (
-      <div className="flowDetailMemberOrganizeTitle">
+      <div
+        className={cx(
+          'flowDetailMemberOrganizeTitle',
+          { user: roleTypeId === 11 },
+          { department: _.includes([12, 13], roleTypeId) },
+          { job: roleTypeId === 14 },
+        )}
+      >
         {controlType !== 27 ? USER_ORGANIZE[roleTypeId] : DEPARTMENT_ORGANIZE[roleTypeId]}
         <i className="icon-arrow-down-border mLeft5" />
       </div>
@@ -135,9 +160,34 @@ export default class Member extends Component {
   onChange(roleTypeId, index) {
     const accounts = _.cloneDeep(this.props.accounts);
 
+    if (roleTypeId === 14) {
+      this.selectJob(index);
+    }
+
     accounts[index].roleTypeId = roleTypeId;
     this.props.updateSource({ accounts });
   }
+
+  /**
+   * 选择职位
+   */
+  selectJob = index => {
+    const { companyId } = this.props;
+
+    selectJob({
+      projectId: companyId,
+      overlayClosable: false,
+      unique: true,
+      onSave: jobs => {
+        const accounts = _.cloneDeep(this.props.accounts);
+
+        accounts[index].extensionId = jobs[0].jobId;
+        accounts[index].extensionName = jobs[0].jobName;
+
+        this.props.updateSource({ accounts });
+      },
+    });
+  };
 
   /**
    * 渲染文本
@@ -182,6 +232,7 @@ export default class Member extends Component {
       [
         { text: DEPARTMENT_ORGANIZE[12], value: 12 },
         { text: DEPARTMENT_ORGANIZE[13], value: 13 },
+        { text: DEPARTMENT_ORGANIZE[14], value: 14 },
       ],
       [{ text: _l('移除'), value: 0 }],
     ];
@@ -194,16 +245,31 @@ export default class Member extends Component {
       <Fragment>
         {this.renderTags(item)}
         {!!item.entityName && !removeOrganization && (
-          <Dropdown
-            className={cx('flowDetailOrganize', { organizeTransform: item.roleTypeId })}
-            data={list}
-            value={item.roleTypeId || ''}
-            isAppendToBody
-            menuStyle={{ width: 'auto !important' }}
-            border
-            renderTitle={() => this.renderOrganize(27, item.roleTypeId)}
-            onChange={roleTypeId => this.onChange(roleTypeId, index)}
-          />
+          <Fragment>
+            <Dropdown
+              className={cx('flowDetailOrganize', { organizeTransform: item.roleTypeId })}
+              data={list}
+              value={item.roleTypeId || ''}
+              isAppendToBody
+              menuStyle={{ width: 'auto !important' }}
+              border
+              renderTitle={() => this.renderOrganize(27, item.roleTypeId)}
+              onChange={roleTypeId => this.onChange(roleTypeId, index)}
+            />
+            {item.roleTypeId === 14 && (
+              <div
+                className={cx(
+                  'flowDetailMemberJob bold',
+                  { ThemeColor3: !item.extensionId },
+                  { delete: item.extensionId && !item.extensionName },
+                )}
+                onClick={() => this.selectJob(index)}
+              >
+                {item.extensionId ? item.extensionName || _l('职位已删除') : _l('选择职位')}
+                <i className="icon-arrow-down-border mLeft5 Gray" />
+              </div>
+            )}
+          </Fragment>
         )}
       </Fragment>
     );

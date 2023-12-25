@@ -392,6 +392,8 @@ const BaseCard = props => {
                     viewId={viewId}
                     row={{ rowid: rowId }}
                     isCharge={isCharge}
+                    appId={appId}
+                    projectId={projectId}
                   />
                 );
                 // 画廊视图或有内容控件则渲染

@@ -79,7 +79,7 @@ export default function ManageBackupFiles(props) {
         <div>
           <span className="Font17 bold">{_l('备份与还原')}</span>
           <div className="mTop8">
-            <span className="Gray_9e TxtMiddle"> {_l('每个应用最多创建10个备份文件，每个文件仅保留60天有效期')}</span>{' '}
+            <span className="Gray_9e TxtMiddle"> {_l('每个应用最多创建10个备份文件，每个文件仅保留60天有效期')}</span>
             <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/backup" />
           </div>
         </div>

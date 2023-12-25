@@ -1,6 +1,5 @@
 import './selectAllGroup.less';
 import '@mdfe/nanoscroller';
-import 'src/components/mdBusinessCard/mdBusinessCard';
 import { upgradeVersionDialog, htmlEncodeReg } from 'src/util';
 import groupController from 'src/api/group';
 import doT from 'dot';
@@ -9,6 +8,9 @@ import singleTplHtml from './singleTpl.html';
 import normalGroupHtml from './normalGroup.html';
 import createGroup from 'src/components/group/create/creatGroup';
 import _ from 'lodash';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import UserCard from 'src/components/UserCard';
 
 var tpl = doT.template(selectGroupTpl);
 function SelectGroup(el, setting) {
@@ -784,11 +786,19 @@ SelectGroup.prototype = {
     }
   },
   bindBusinessCard: function ($target) {
-    $target.find('.groupItem:not(.personal,.everybody) .groupInfo').mdBusinessCard({
-      type: 'group',
-      offset: {
-        y: -5,
-      },
+    $target.find('.groupItem:not(.personal,.everybody) .groupInfoWrap').each((i, ele) => {
+      var groupId = $(ele).data('groupid');
+      if($(ele).data('bindUserCard')) return;
+      $(ele).data('bindUserCard', true)
+      ReactDOM.render(
+        <UserCard
+          type={2}
+          sourceId={groupId}
+        >
+          <span className="groupInfo"></span>
+        </UserCard>,
+        ele,
+      );
     });
   },
 };

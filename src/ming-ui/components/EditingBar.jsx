@@ -59,6 +59,7 @@ const OkButton = styled(Button)`
 `;
 const CancelButton = styled(Button)`
   color: #fff;
+  font-weight: bold;
   &:hover {
     background-color: rgba(255, 255, 255, 0.16);
   }

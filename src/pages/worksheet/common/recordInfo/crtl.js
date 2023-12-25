@@ -9,6 +9,7 @@ import { getAppFeaturesPath } from 'src/util';
 import { replacePorTalUrl } from 'src/pages/PortalAccount/util';
 import createTask from 'src/components/createTask/createTask';
 import _ from 'lodash';
+import { handleRecordError } from 'worksheet/util';
 
 export function getWorksheetInfo(...args) {
   return worksheetAjax.getWorksheetInfo(...args);
@@ -139,8 +140,9 @@ export function updateRecord(
         if (res.resultCode === 11) {
           triggerUniqueError(res.badData);
         } else {
-          alert(_l('保存失败，请稍后重试'), 2);
+          handleRecordError(res.resultCode);
         }
+        callback(true);
       }
     })
     .fail(err => {
@@ -164,11 +166,7 @@ export function updateRecordControl({ appId, viewId, worksheetId, recordId, cell
       })
       .then(data => {
         if (!data.data) {
-          if (data.resultCode === 11) {
-            alert(_l('编辑失败，%0不允许重复', cell.controlName || ''), 3);
-          } else {
-            alert(_l('编辑失败'), 3);
-          }
+          handleRecordError(data.resultCode, cell);
           reject();
         } else {
           resolve(data.data);

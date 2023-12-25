@@ -7,7 +7,7 @@ import cx from 'classnames';
 import { Icon } from 'ming-ui';
 import { FROM } from '../../tools/config';
 import { browserIsMobile } from 'src/util';
-import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/ControlMask/util';
+import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
 import _ from 'lodash';
 import styled from 'styled-components';
 import withClickAway from 'ming-ui/decorators/withClickAway';
@@ -142,7 +142,11 @@ export default class Widgets extends Component {
 
   getShowValue = () => {
     const value = this.input ? $(this.input).val().replace(/ /g, '') : this.props.value || '';
-    return this.state.maskStatus ? dealMaskValue({ ...this.props, value }) : value;
+    if (value) {
+      return this.state.maskStatus ? dealMaskValue({ ...this.props, value }) : value;
+    } else {
+      return this.props.hint;
+    }
   };
 
   render() {

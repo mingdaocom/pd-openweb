@@ -1,16 +1,15 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import styled from 'styled-components';
 import components from '../components';
 import NumberUtil from 'src/util/number';
 import { Dropdown, Checkbox } from 'ming-ui';
-import { EditInfo, SettingItem, NumberRange } from '../../styled';
+import { SettingItem, NumberRange } from '../../styled';
 import WidgetVerify from '../components/WidgetVerify';
+import PreSuffix from '../components/PreSuffix';
 import DynamicDefaultValue from '../components/DynamicDefaultValue';
-import NumberConfig from '../components/ControlSetting/NumberConfig';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify/InputValue.jsx';
 import _ from 'lodash';
-const { PointerConfig, PreSuffix, WidgetColor, NumberDynamicColor, SliderScaleConfig } = components;
+const { PointerConfig, WidgetColor, NumberDynamicColor } = components;
 
 const NUMBER_TYPES = [
   {
@@ -37,11 +36,9 @@ const defaultItemColor = {
 export default function Number(props) {
   const { data, onChange, fromPortal, fromExcel } = props;
   const [visible, setVisible] = useState(false);
-  const [nameVisible, setNameVisible] = useState(false);
   const [numValue, setNumValue] = useState();
-  const { numshow, thousandth, showtype = '0', numinterval, min, max, showinput } = getAdvanceSetting(data);
+  const { numshow, thousandth, showtype = '0', numinterval, min, max } = getAdvanceSetting(data);
   const itemcolor = getAdvanceSetting(data, 'itemcolor') || {};
-  const itemnames = getAdvanceSetting(data, 'itemnames');
   const isNumber = showtype === '0';
   const FILTER_NUMBER_TYPES = fromPortal ? NUMBER_TYPES.filter(i => i.value !== '2') : NUMBER_TYPES;
 
@@ -107,7 +104,15 @@ export default function Number(props) {
       </SettingItem>
 
       {isNumber ? (
-        <PointerConfig {...props} />
+        <Fragment>
+          <PointerConfig {...props} />
+          {numshow !== '1' && (
+            <SettingItem>
+              <div className="settingItemTitle">{_l('单位')}</div>
+              <PreSuffix data={data} onChange={onChange} />
+            </SettingItem>
+          )}
+        </Fragment>
       ) : (
         <Fragment>
           <SettingItem>
@@ -184,15 +189,6 @@ export default function Number(props) {
           <DynamicDefaultValue {...props} />
           <WidgetVerify {...props} />
 
-          {isNumber && <NumberConfig {...props} />}
-
-          {numshow !== '1' && isNumber && (
-            <SettingItem>
-              <div className="settingItemTitle">{_l('单位')}</div>
-              <PreSuffix {...props} />
-            </SettingItem>
-          )}
-
           {!isNumber && (
             <Fragment>
               <SettingItem>
@@ -235,39 +231,6 @@ export default function Number(props) {
                   )}
                 </div>
               </SettingItem>
-              <SettingItem>
-                <div className="settingItemTitle">{_l('设置')}</div>
-                <div className="labelWrap mTop12">
-                  <Checkbox
-                    size="small"
-                    checked={showinput === '1'}
-                    onClick={checked => onChange(handleAdvancedSettingChange(data, { showinput: checked ? '0' : '1' }))}
-                    text={_l('显示输入框')}
-                  />
-                </div>
-                <div className="labelWrap mTop12">
-                  <Checkbox
-                    size="small"
-                    checked={itemnames}
-                    onClick={checked => {
-                      if (checked) {
-                        onChange(handleAdvancedSettingChange(data, { itemnames: '' }));
-                      } else {
-                        setNameVisible(true);
-                      }
-                    }}
-                    text={_l('显示刻度')}
-                  />
-                </div>
-                {itemnames && (
-                  <EditInfo style={{ margin: '12px 0' }} onClick={() => setNameVisible(true)}>
-                    <div className="text overflow_ellipsis Gray">{itemnames.map(i => i.value).join('、')}</div>
-                    <div className="edit">
-                      <i className="icon-edit"></i>
-                    </div>
-                  </EditInfo>
-                )}
-              </SettingItem>
             </Fragment>
           )}
         </Fragment>
@@ -280,20 +243,6 @@ export default function Number(props) {
           onClose={() => setVisible(false)}
           handleChange={colors => {
             onChange(handleAdvancedSettingChange(data, { itemcolor: JSON.stringify({ ...itemcolor, colors }) }));
-          }}
-        />
-      )}
-
-      {nameVisible && (
-        <SliderScaleConfig
-          itemnames={itemnames}
-          itemcolor={itemcolor}
-          step={NumberUtil.parseFloat(numinterval)}
-          min={NumberUtil.parseFloat(min)}
-          max={NumberUtil.parseFloat(max)}
-          onCancel={() => setNameVisible(false)}
-          onChange={value => {
-            onChange(handleAdvancedSettingChange(data, { itemnames: JSON.stringify(value) }));
           }}
         />
       )}

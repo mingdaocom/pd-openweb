@@ -1,8 +1,8 @@
 ﻿import React from 'react';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
-import UserHead from '../../userHead';
-import UserName from '../../userName';
+import UserHead from 'src/components/userHead';
+import UserName from 'src/components/userName';
 import PostMain from './postMain';
 import PostMessage from './postMessage';
 import PostFooter from './postFooter';
@@ -41,12 +41,11 @@ class PostIReply extends React.Component {
 
   render() {
     const postItem = this.props.postItem;
-    const commentCount = parseInt(postItem.commentCount, 10);
     const sourceType = postItem.forComment === 'True' ? _l('回复') : _l('动态');
 
     return (
       <div className={cx('postContainer', this.props.className)}>
-        <UserHead className="userHead left" user={postItem.user} size={48} />
+        <UserHead className="userHead left" user={{...postItem.user, userHead: postItem.user.userMiddleHead}} size={48} />
         <div className="userMain">
           <PostMain postItem={postItem} isSummary={this.props.isSummary} />
           <div className="postContent mTop10" style={{ minHeight: 0 }}>

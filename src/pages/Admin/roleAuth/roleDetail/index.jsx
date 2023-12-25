@@ -11,7 +11,7 @@ import PermissionsList from './permissionList';
 
 import EditRoleDialog from '../createEditRole';
 import { Input } from 'antd';
-
+import { getCurrentProject } from 'src/util';
 import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import './style.less';
 import _ from 'lodash';
@@ -113,9 +113,8 @@ class RoleDetail extends React.Component {
     const { projectId, roleId, isApply } = this.props;
     const { hasMember, userOpAuth, editOpAuth, deleteOpAuth, isSuperAdmin, addAuth, permissionTypes, tab, keywords } =
       this.state;
-    const isHrVisible = md.global.Account.projects.find(o => o.projectId === projectId).isHrVisible;
+    const { isHrVisible } = getCurrentProject(projectId, true);
 
-    const path = isApply ? '/admin/index/' + projectId : '/admin/sysroles/' + projectId;
     return (
       <div className="roleAuthDetailContainer">
         <div className="clearfix pTop20 pBottom20">

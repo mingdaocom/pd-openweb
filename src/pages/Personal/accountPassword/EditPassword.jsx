@@ -120,7 +120,7 @@ export default class EditPassword extends Component {
         />
         <div className="clearfix Block">
           <span className="Gray_9e Left">{_l('集成账户原有密码可不输入（用于密码初始化）')}</span>
-          <a class="NoUnderline Right ThemeColor3 Hover_49" target="_blank" href="/findPassword.htm">
+          <a class="NoUnderline Right ThemeColor3 Hover_49" target="_blank" href="/findPassword">
             {_l('忘记密码？')}
           </a>
         </div>

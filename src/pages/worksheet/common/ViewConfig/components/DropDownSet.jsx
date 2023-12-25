@@ -143,7 +143,6 @@ export default class DropDownSet extends React.Component {
             onChange={handleChange}
             addName={addName}
             title={_l('添加检查项字段')}
-            withoutIntro={true}
             enumType={'SWITCH'}
             worksheetId={worksheetId}
           />

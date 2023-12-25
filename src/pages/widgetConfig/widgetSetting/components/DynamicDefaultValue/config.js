@@ -1,7 +1,7 @@
 import _ from 'lodash';
 /* 可以作为文本拼接的控件 */
 export const CAN_AS_TEXT_DYNAMIC_FIELD = [
-  2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 15, 16, 19, 23, 24, 25, 26, 27, 28, 31, 32, 33, 46, 50,
+  2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 15, 16, 19, 23, 24, 25, 26, 27, 28, 31, 32, 33, 35, 36, 40, 46, 48, 50,
 ];
 
 /* 可以作为嵌入的控件 */
@@ -21,6 +21,11 @@ export const CAN_AS_DATE_TIME_DYNAMIC_FIELD = [15, 16];
 // 可以作为时间动态值的控件
 export const CAN_AS_TIME_DYNAMIC_FIELD = [15, 16, 46];
 
+/* 可以作为文本拼接的控件 */
+export const CAN_AS_RICH_TEXT_DYNAMIC_FIELD = [
+  2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 15, 16, 19, 23, 24, 25, 26, 27, 28, 31, 32, 33, 35, 36, 40, 41, 46, 47, 48, 50,
+];
+
 // 可以作为地区动态值的控件
 export const CAN_AS_AREA_DYNAMIC_FIELD = [19, 23, 24];
 
@@ -37,10 +42,10 @@ export const CAN_AS_SWITCH_DYNAMIC_FIELD = [36];
 export const CAN_AS_ORG_ROLE_DYNAMIC_FIELD = [48, 26];
 
 // 有其他动态值的控件
-export const CAN_AS_OTHER_DYNAMIC_FIELD = [15, 16, 26, 27, 46, 48];
+export const CAN_AS_OTHER_DYNAMIC_FIELD = [3, 5, 15, 16, 26, 27, 46, 48];
 
 // 有函数动态值的控件
-export const CAN_AS_FX_DYNAMIC_FIELD = [2, 3, 4, 5, 6, 8, 15, 16, 36];
+export const CAN_AS_FX_DYNAMIC_FIELD = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 15, 16, 28, 36, 41, 46];
 
 // 没有动态字段值的控件
 export const CAN_NOT_AS_FIELD_DYNAMIC_FIELD = [34];
@@ -84,7 +89,7 @@ export const SYSTEM_FIELD_TO_TEXT = {
 
 // 控件规则匹配规则 未保存的控件正则 匹配uuid 已保存的控件正则 形如 $5e047c2ab2bfdd0001e9b8f9$
 export const FIELD_REG_EXP =
-  /\$((\w{8}(-\w{4}){3}-\w{12})|(\w{24}|caid|ownerid|utime|ctime|userId|phone|email|projectId|appId|groupId|worksheetId|viewId|recordId|ua|timestamp|search-keyword|ocr-file|ocr-file-url|wfname|wfcuaids|wfcaid|wfctime|wfrtime|wfftime|wfstatus|rowid|uaid)?)(~((\w{8}(-\w{4}){3}-\w{12})|(\w{24}|caid|ownerid|utime|ctime|userId|phone|email|projectId|appId|groupId|worksheetId|viewId|recordId|ua|timestamp|search-keyword|ocr-file|ocr-file-url|wfname|wfcuaids|wfcaid|wfctime|wfrtime|wfftime|wfstatus|rowid|uaid)?))?\$/g;
+  /\$((\w{8}(-\w{4}){3}-\w{12})|(\w{24}|caid|ownerid|utime|ctime|userId|phone|email|projectId|appId|groupId|worksheetId|viewId|recordId|ua|timestamp|search-keyword|ocr-file|ocr-file-url|user-self|current-time|wfname|wfcuaids|wfcaid|wfctime|wfrtime|wfftime|wfstatus|rowid|uaid)?)(~((\w{8}(-\w{4}){3}-\w{12})|(\w{24}|caid|ownerid|utime|ctime|userId|phone|email|projectId|appId|groupId|worksheetId|viewId|recordId|ua|timestamp|search-keyword|ocr-file|ocr-file-url|user-self|current-time|wfname|wfcuaids|wfcaid|wfctime|wfrtime|wfftime|wfstatus|rowid|uaid)?))?\$/g;
 
 export const TIME_TYPES = [
   {
@@ -112,6 +117,13 @@ export const CUR_TIME_TYPES = [
     key: 'time',
     icon: 'icon-access_time',
   },
+];
+
+export const CUR_USER = [{ icon: 'icon-account_circle', key: 'user', id: 'user-self', text: _l('当前用户') }];
+
+export const WATER_MASK_TYPES = [
+  { id: 'user-self', text: _l('当前用户姓名'), key: 'waterMask', icon: 'icon-account_circle' },
+  { id: 'current-time', text: _l('当前日期'), key: 'waterMask', icon: 'icon-access_time' },
 ];
 
 export const CUR_SEARCH_TYPES = [
@@ -151,6 +163,7 @@ export const CONTROL_TYPE = {
   4: 'phone',
   5: 'email',
   6: 'number',
+  7: 'cred',
   8: 'number',
   9: 'option',
   10: 'option',
@@ -166,7 +179,9 @@ export const CONTROL_TYPE = {
   28: 'score',
   29: 'relateSheet',
   34: 'subList',
+  35: 'cascader',
   36: 'switch',
+  41: 'richtext',
   46: 'time',
   48: 'role',
 
@@ -200,12 +215,15 @@ export const OTHER_FIELD_TYPE = {
   ROLE: 'role',
   KEYWORD: 'keyword',
   OCR: 'ocr',
+  WATER_MASK: 'waterMask',
 };
 
 export const CURRENT_TYPES = {
+  3: CUR_USER,
+  5: CUR_USER,
   15: DATE_TYPES,
   16: TIME_TYPES,
-  26: [{ icon: 'icon-account_circle', key: 'user', id: 'user-self', text: _l('当前用户') }],
+  26: CUR_USER,
   27: [{ icon: 'icon-department', key: 'dept', id: 'user-departments', text: _l('当前用户所在部门') }],
   46: CUR_TIME_TYPES,
   48: [{ icon: 'icon-group', key: 'role', id: 'user-role', text: _l('当前用户的组织角色') }],
@@ -285,4 +303,5 @@ export const DYNAMIC_FROM_MODE = {
   CREATE_CUSTOM: 1, // 自定义
   SEARCH_PARAMS: 2, // 查询输入参数
   OCR_PARAMS: 3, // OCR集成参数
+  WATER_MASK: 4, // 附件水印
 };

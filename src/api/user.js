@@ -104,9 +104,11 @@ export default {
      return $.api('User', 'GetUserCard', args, options);
    },
   /**
-  * 获取用户账号基本信息
+  * 获取用户名片层账号基本信息
   * @param {Object} args 请求参数
   * @param {string} args.onProjectId 页面所在组织Id（可空）
+  * @param {string} args.appId 所在应用
+如果是外部门户用户，则会读取可见字段配置
   * @param {string} args.accountId 账号Id
   * @param {boolean} args.refresh 是否刷新读取
 为true则不走缓存

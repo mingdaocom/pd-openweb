@@ -2,13 +2,8 @@
 html,
 body {
   height: 100%;
-}
-
-.iphoneBody {
-  background-color: #fff !important;
-  #app {
-    height: 98% !important;
-  }
+  padding-bottom: calc(~'constant(safe-area-inset-bottom) - 20px');
+  padding-bottom: calc(~'env(safe-area-inset-bottom) - 20px');
 }
 
 input {
@@ -138,7 +133,8 @@ input::placeholder {
   overflow: hidden;
 }
 .am-modal-content {
-  padding-bottom: 0 !important;
+  padding-bottom: calc(~'constant(safe-area-inset-bottom) - 20px') !important;
+  padding-bottom: calc(~'env(safe-area-inset-bottom) - 20px') !important;
 }
 .am-modal-wrap-popup {
   overflow: hidden;

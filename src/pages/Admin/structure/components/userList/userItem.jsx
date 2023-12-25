@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import importUserController from 'src/api/importUser';
-import userController from 'src/api/user.js';
+import userController from 'src/api/user';
 import {
   loadUsers,
   loadInactiveUsers,
@@ -28,10 +28,10 @@ import moment from 'moment';
 import { Checkbox, Tooltip, Dialog, Input } from 'ming-ui';
 import './userItem.less';
 import { sendNoticeInvite } from 'src/components/common/function';
-import 'src/components/mdBusinessCard/mdBusinessCard';
 import { encrypt } from 'src/util';
 import RegExp from 'src/util/expression';
 import Trigger from 'rc-trigger';
+import UserHead from 'src/components/userHead';
 
 const refreshData = (departmentId, typeCursor, projectId, pageIndex, dispatch) => {
   if (departmentId) {
@@ -217,17 +217,6 @@ class UserItem extends Component {
       password: '',
       optListVisible: false,
     };
-  }
-
-  componentDidMount() {
-    const { accountId } = this.props;
-    $(this.avatar).one('mouseover', () => {
-      $(this.avatar)
-        .mdBusinessCard({
-          accountId,
-        })
-        .trigger('mouseenter');
-    });
   }
 
   renderContact(user) {
@@ -515,7 +504,14 @@ class UserItem extends Component {
             style={{ width: setWidth ? 200 : 'unset' }}
           >
             <div className="flexRow">
-              <img src={user.avatar} alt="" className="avatar" ref={avatar => (this.avatar = avatar)} />
+              <UserHead
+                className="avatar"
+                user={{
+                  userHead: user.avatar,
+                  accountId: user.accountId,
+                }}
+                size={32}
+              />
               <a className="overflow_ellipsis mLeft10 LineHeight32" title={user.fullname}>
                 {user.fullname}
               </a>

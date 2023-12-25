@@ -33,6 +33,12 @@ html body {
 }
 img {
   border: 0px;
+  -webkit-user-drag: none;
+  -moz-user-select: -moz-none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
+  user-select: none;
 }
 body ul,
 body ol {
@@ -885,6 +891,9 @@ body .Hidden {
 }
 .pBottom30 {
   padding-bottom: 30px !important;
+}
+.pBottom40 {
+  padding-bottom: 40px !important;
 }
 .pBottom50 {
   padding-bottom: 50px !important;
@@ -2496,6 +2505,19 @@ input[type='checkbox']:disabled:checked:after {
   height: 200px;
 }
 
+
+.fileIcon-code {
+  background: url('newfileIcons/code.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
+.fileIcon-md {
+  background: url('newfileIcons/md.png') no-repeat;
+  width: 175px;
+  height: 200px;
+}
+
 .fileIcon-worksheet {
   background: url('newfileIcons/ic_file_worksheet.png') no-repeat;
 }
@@ -2544,6 +2566,8 @@ input[type='checkbox']:disabled:checked:after {
 .fileIcon-rp,
 .fileIcon-skp,
 .fileIcon-xd,
+.fileIcon-code,
+.fileIcon-md,
 .fileIcon-worksheet {
   display: inline-block;
   -webkit-background-size: cover !important;
@@ -2587,6 +2611,10 @@ input[type='checkbox']:disabled:checked:after {
 }
 .justifyContentLeft {
   justify-content: left !important;
+}
+
+.justifyContentRight {
+  justify-content: right !important;
 }
 
 .rc-trigger-popup-mask {

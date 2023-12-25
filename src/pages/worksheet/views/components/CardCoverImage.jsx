@@ -2,7 +2,7 @@ import React from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
 import emptyCover from 'src/pages/worksheet/assets/emptyCover.png';
-import { getAdvanceSetting, getClassNameByExt, browserIsMobile } from 'src/util';
+import { getAdvanceSetting, getClassNameByExt, browserIsMobile, addBehaviorLog } from 'src/util';
 import { openControlAttachmentInNewTab } from 'worksheet/controllers/record';
 import { filter, includes, head, get } from 'lodash';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
@@ -181,6 +181,11 @@ export default function CardCoverImage(props) {
       /* 是否不可下载 且 不可保存到知识和分享 */
       hideFunctions.push('download', 'share', 'saveToKnowlege');
     }
+
+    addBehaviorLog('previewFile', worksheetId, {
+      fileId: _.get(allAttachments, `[${0}].fileID`),
+      rowId,
+    });
     previewAttachments(
       {
         index: 0,
@@ -191,6 +196,9 @@ export default function CardCoverImage(props) {
         ),
         showThumbnail: true,
         hideFunctions: hideFunctions,
+        recordId: rowId,
+        worksheetId,
+        controlId,
       },
       {
         openControlAttachmentInNewTab: recordAttachmentSwitch

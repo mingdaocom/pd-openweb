@@ -12,7 +12,7 @@ import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput'
 import _ from 'lodash';
 import { getCurrentProject } from 'src/util';
 import appManagementAjax from 'src/api/appManagement.js';
-import UserHead from 'src/pages/feed/components/userHead';
+import UserHead from 'src/components/userHead';
 import BatchDialog from 'src/pages/Role/AppRoleCon/component/BatchDialog';
 import moment from 'moment';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
@@ -79,9 +79,8 @@ function Apply(props) {
           <div className={cx('name flexRow alignItemsCenter')}>
             <UserHead
               key={user.accountId}
-              projectId={_.isEmpty(getCurrentProject(projectId)) ? '' : projectId}
+              projectId={projectId}
               size={32}
-              lazy="false"
               user={{
                 ...user,
                 accountId: user.accountId,

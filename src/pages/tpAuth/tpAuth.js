@@ -66,7 +66,7 @@ TPAuth.init = function() {
     TPAuth.options.tpParams.autoLogin = request.autoLogin || false;
     TPAuth.login();
   } else {
-    window.location.href = '/login.htm';
+    window.location.href = '/login';
   }
 };
 
@@ -81,8 +81,8 @@ TPAuth.unBind = function() {
     TPAuth.options.tpParams.unionId;
   var html = `<div class="tpLoginContentArea contianerBGStyle"><div class="title">
   ${_l('还未绑定帐号')}</div><div class="desc">请选择绑定已有帐户，或创建新帐号</div>
-  <div class="mBottom20"><a href="/login.htm${params}" class="btn btnEnabled btnBind">
-  ${_l('登录并绑定')}</a></div><div><a href="/register.htm${params}" class="btn btnEnabled btnReg">
+  <div class="mBottom20"><a href="/login${params}" class="btn btnEnabled btnBind">
+  ${_l('登录并绑定')}</a></div><div><a href="/register${params}" class="btn btnEnabled btnReg">
   ${_l('注册新帐号')}</a></div></div>
   `;
   $('.tpLoginContent').html(html);
@@ -127,7 +127,7 @@ TPAuth.login = function() {
   login.then(function(data) {
     if (!data) {
       // 没有对应的unionid记录
-      window.location.replace('/login.htm');
+      window.location.replace('/login');
     } else {
       if (!data.accountId) {
         // 没有绑定过账号

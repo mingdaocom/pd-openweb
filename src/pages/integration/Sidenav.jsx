@@ -16,11 +16,6 @@ const Wrap = styled.div`
   .pTop28 {
     padding-top: 28px;
   }
-  .betaIcon {
-    color: #4caf50;
-    font-size: 15px;
-    margin-left: 4px;
-  }
   li {
     width: 230px;
     height: 44px;
@@ -80,9 +75,8 @@ class Sidenav extends React.Component {
         </ul>
         {isSuperAdmin && (
           <React.Fragment>
-            <div className="Gray_75 pTop28 pLeft18 flexRow alignItemsCenter">
+            <div className="Gray_75 pTop28 pLeft18">
               <span>{_l('数据集成')}</span>
-              <Icon icon="beta1" className="betaIcon" />
             </div>
             <ul className="mTop12">
               {dataIntegrationList.map((o, index) => {

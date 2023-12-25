@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { func, oneOf } from 'prop-types';
+import { func, string, object, oneOf } from 'prop-types';
 import { Dialog, Textarea, Dropdown, Signature, Menu, MenuItem, Icon } from 'ming-ui';
 import { ACTION_TO_TEXT } from '../../config';
 import cx from 'classnames';
@@ -100,11 +100,15 @@ const SelectBox = styled(Select)`
 
 export default class Approve extends Component {
   static propTypes = {
+    projectId: string,
+    data: object,
     action: oneOf(['after', 'before', 'pass', 'overrule', 'transfer', 'transferApprove', 'addApprove', 'return']),
     onOk: func.isRequired,
     onCancel: func.isRequired,
   };
   static defaultProps = {
+    projectId: '',
+    data: {},
     action: 'before',
     onOk: () => {},
     onCancel: () => {},
@@ -144,6 +148,7 @@ export default class Approve extends Component {
       showTemplateList: false,
       entrustList: {},
       showPassword: false,
+      removeNoneVerification: false,
     };
   }
 
@@ -152,14 +157,15 @@ export default class Approve extends Component {
   isNoneVerification = false;
 
   componentDidMount() {
-    const { action } = this.props;
+    const { projectId, action } = this.props;
     const { encrypt } = (this.props.data || {}).flowNode || {};
 
     if (_.includes(['pass', 'overrule', 'return'], action) && encrypt) {
       verifyPassword({
+        projectId,
         checkNeedAuth: true,
-        fail: () => {
-          this.setState({ showPassword: true });
+        fail: result => {
+          this.setState({ showPassword: true, removeNoneVerification: result === 'showPassword' });
         },
       });
     }
@@ -179,7 +185,7 @@ export default class Approve extends Component {
   };
 
   onOk = (backNodeId = '') => {
-    const { action, workId, onOk, onCancel } = this.props;
+    const { projectId, action, onOk, onCancel } = this.props;
     const { content, selectedUsers, entrustList, showPassword } = this.state;
     const { auth, encrypt } = (this.props.data || {}).flowNode || {};
     const passContent = action === 'pass' && _.includes(auth.passTypeList, 100);
@@ -225,18 +231,18 @@ export default class Approve extends Component {
       return;
     }
 
-    // 实名认证
-    if (
-      (action === 'pass' && _.includes(auth.passTypeList, 2)) ||
-      (action === 'overrule' && _.includes(auth.overruleTypeList, 2))
-    ) {
-      codeAuth.getDefaultPicUrl({ workId }).then(res => {
-        if (res.code === '-1') {
-          this.getCode(2);
-          this.setState({ showCode: true });
-        } else {
-          onOk({ action, content, userId: id, backNodeId, signature: { key: res.picUrl } });
-        }
+    // 验证密码
+    if (_.includes(['pass', 'overrule', 'return'], action) && encrypt) {
+      verifyPassword({
+        projectId,
+        password: this.password,
+        closeImageValidation: true,
+        isNoneVerification: this.isNoneVerification,
+        checkNeedAuth: !showPassword,
+        success: submitFun,
+        fail: () => {
+          this.setState({ showPassword: true });
+        },
       });
     } else if (
       // 实名 + 实人认证
@@ -512,7 +518,7 @@ export default class Approve extends Component {
     const { action, onCancel } = this.props;
     const { callBackNodeType, opinionTemplate } = this.props.data;
     const { isCallBack, auth, encrypt } = (this.props.data || {}).flowNode || {};
-    const { content, backNodeId, showCode, link, resultCode, showPassword } = this.state;
+    const { content, backNodeId, showCode, link, resultCode, showPassword, removeNoneVerification } = this.state;
     const backFlowNodes = ((this.props.data || {}).backFlowNodes || []).map(item => {
       return {
         text: item.name,
@@ -610,17 +616,28 @@ export default class Approve extends Component {
         onOk={() => this.onOk(backNodeId)}
         onCancel={onCancel}
       >
+        {_.includes(['pass', 'overrule', 'return'], action) && encrypt && showPassword && (
+          <div className="mBottom15">
+            <VerifyPassword
+              removeNoneVerification={removeNoneVerification}
+              onChange={({ password, isNoneVerification }) => {
+                if (password !== undefined) this.password = password;
+                if (isNoneVerification !== undefined) this.isNoneVerification = isNoneVerification;
+              }}
+            />
+          </div>
+        )}
+
         {_.includes(['after', 'before', 'transfer', 'transferApprove', 'addApprove'], action) && this.renderMember()}
 
-        <div className="relative">
+        <div className="relative bold">
           {(passContent || overruleContent) && (
-            <div className="Absolute bold" style={{ margin: '1px 0px 0px -8px', color: '#f44336' }}>
+            <div className="Absolute" style={{ margin: '1px 0px 0px -8px', color: '#f44336' }}>
               *
             </div>
           )}
           {_l('审批意见')}
         </div>
-
         <div className="mTop10 relative">
           {opinionTemplate.inputType === 2 && _.includes(['pass', 'overrule', 'return', 'after'], action) ? (
             this.renderSelectTemplate()
@@ -647,7 +664,7 @@ export default class Approve extends Component {
           <Fragment>
             {_.includes([0, 3], callBackNodeType) ? (
               <Fragment>
-                <div className="mTop20">{_l('退回到')}</div>
+                <div className="mTop20 bold">{_l('退回到')}</div>
                 <Dropdown
                   className="mTop10 approveDialogCallBack"
                   data={backFlowNodes}
@@ -668,8 +685,8 @@ export default class Approve extends Component {
 
         {(passSignature || overruleSignature) && (
           <Fragment>
-            <div className="mTop20 mBottom10 relative">
-              <div className="Absolute bold" style={{ margin: '1px 0px 0px -8px', color: '#f44336' }}>
+            <div className="mTop20 mBottom10 relative bold">
+              <div className="Absolute" style={{ margin: '1px 0px 0px -8px', color: '#f44336' }}>
                 *
               </div>
               {_l('签名')}
@@ -680,17 +697,6 @@ export default class Approve extends Component {
               }}
             />
           </Fragment>
-        )}
-
-        {_.includes(['pass', 'overrule', 'return'], action) && encrypt && showPassword && (
-          <div className="mTop20">
-            <VerifyPassword
-              onChange={({ password, isNoneVerification }) => {
-                if (password !== undefined) this.password = password;
-                if (isNoneVerification !== undefined) this.isNoneVerification = isNoneVerification;
-              }}
-            />
-          </div>
         )}
       </Dialog>
     );

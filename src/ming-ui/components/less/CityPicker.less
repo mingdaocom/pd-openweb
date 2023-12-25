@@ -1,63 +1,71 @@
-.CityPicker {
-  border: 1px solid #ccc;
-  min-height: 50px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.1);
-  background-color: #fff;
-  width: 302px;
-  font-weight: 400;
-  border-radius: 3px;
+.CityPicker-input-container.editable {
+  .CityPicker-input-textCon,
+  .CityPicker-input {
+    color: #333;
+  }
 }
-.cityTabs {
-  display: flex;
-  height: 45px;
-  border-bottom: 1px solid #ccc;
-  box-sizing: border-box;
-  align-items: center;
-  justify-content: space-around;
 
-  &-item {
-    font-size: 14px;
-    height: 100%;
-    width: 80px;
-    cursor: pointer;
-    display: flex;
-    line-height: 44px;
-    justify-content: center;
+.CityPicker-input-container {
+  .CityPicker-input-textCon {
+    border: none;
+    background: initial;
+    padding: 0;
+  }
+
+  .CityPicker-input-tagSearchBox {
+    display: inline-flex;
+    align-items: center;
     box-sizing: border-box;
-    border-bottom-width: 2px;
-    border-bottom-style: solid;
-    &:not(.activeTab) {
-      border-bottom-width: 0;
-    }
-    &.activeTab {
-      cursor: initial;
-    }
-    &.disbaleTab {
-      color: #ccc;
-      cursor: initial;
-    }
-    &.hidden {
+    position: relative;
+    height: 30px;
+    min-width: 50px;
+    .CityPicker-input-box_label {
+      display: inline-block;
+      font-size: inherit;
+      line-height: normal;
       visibility: hidden;
+      font-family: inherit;
     }
+    .CityPicker-input-tagSearch {
+      box-sizing: border-box;
+      position: absolute;
+      display: inline;
+      font-size: inherit;
+      font-family: inherit;
+      line-height: normal;
+      border-radius: inherit;
+      height: 100%;
+      width: 100%;
+      outline: 0;
+      border: 0;
+      margin: 0;
+    }
+  }
+  .CityPicker-input-textCon::-webkit-input-placeholder {
+    color: #bdbdbd;
+    font-size: 13px;
+  }
+  .CityPicker-input-textCon::-moz-placeholder {
+    color: #bdbdbd;
+    font-size: 13px;
+  }
+  .CityPicker-input-textCon::-ms-input-placeholder {
+    color: #bdbdbd;
+    font-size: 13px;
+  }
+  .CityPicker-input-placeholder-Gray3::-webkit-input-placeholder {
+    color: #333 !important;
+  }
+  .CityPicker-input-placeholder-Gray3::-moz-placeholder {
+    color: #333 !important;
+  }
+  .CityPicker-input-placeholder-Gray3::-ms-input-placeholder {
+    color: #333 !important;
   }
 }
 
-.cityContent {
-  padding: 5px;
-  overflow: hidden;
-  &-item {
-    padding: 5px 12px;
-    float: left;
-    cursor: pointer;
-    color: #888;
-    &:hover,
-    &.active {
-      color: #000;
-      background-color: #f1f1f1;
-    }
-  }
+.worksheetCellPureString .CityPicker-input-textCon{
+  width: 100%;
+  padding: 0;
+  font-size: 13px;
 }
-
-// .CityPickerPanelTrigger {
-//   z-index: 2;
-// }

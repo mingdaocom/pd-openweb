@@ -60,7 +60,7 @@ class Card extends Component {
     const { refresh } = customPageConfig;
     if (!refresh) return;
     this.timer = setInterval(() => {
-      this.getData(this.props);
+      this.getData(this.props, false, true);
       if (isCheckLogin) {
         isCheckLogin = false;
         login.checkLogin({}).then(data => {
@@ -74,7 +74,7 @@ class Card extends Component {
       this.request.abort();
     }
   }
-  getData = (props, reload = false) => {
+  getData = (props, reload = false, refresh = false) => {
     const { needTimingRefresh, needRefresh = true, report, filters, filtersGroup } = props || this.props;
     const shareAuthor = window.shareAuthor;
     const headersConfig = {
@@ -83,7 +83,7 @@ class Card extends Component {
     const printFilter = location.href.includes('printPivotTable') && JSON.parse(sessionStorage.getItem(`printFilter-${report.id}`));
     this.setState({ loading: true });
     this.abortRequest();
-    this.request = reportApi.getData(
+    this.request = reportApi[refresh ? 'refreshData' : 'getData'](
       {
         reportId: report.id,
         version: '6.5',

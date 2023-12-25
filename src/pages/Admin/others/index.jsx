@@ -7,7 +7,13 @@ import { formListTop, formListBottom } from './form.config.js';
 import projectSettingController from 'src/api/projectSetting';
 import Config from '../config';
 import ViewKeyDialog from './ViewKey';
-import { getFeatureStatus, buriedUpgradeVersionDialog, encrypt, upgradeVersionDialog } from 'src/util';
+import {
+  getFeatureStatus,
+  buriedUpgradeVersionDialog,
+  encrypt,
+  upgradeVersionDialog,
+  getCurrentProject,
+} from 'src/util';
 import { VersionProductType } from 'src/util/enum';
 import _ from 'lodash';
 
@@ -755,10 +761,8 @@ export default class OtherTool extends Component {
       });
   };
   renderIndex() {
-    const licenseType = _.get(
-      _.find(md.global.Account.projects, item => item.projectId === Config.projectId) || {},
-      'licenseType',
-    );
+    const { licenseType } = getCurrentProject(Config.projectId, true);
+
     return (
       <Fragment>
         {DATA_INFO.map(item => {

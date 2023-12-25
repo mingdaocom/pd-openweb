@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import Trigger from 'rc-trigger';
 import cx from 'classnames';
-import UserHead from 'src/pages/feed/components/userHead';
+import UserHead from 'src/components/userHead';
 import quickSelectUser from 'ming-ui/functions/quickSelectUser';
 import { dealUserRange } from 'src/components/newCustomFields/tools/utils';
 import withClickAway from 'ming-ui/decorators/withClickAway';
@@ -55,23 +55,24 @@ export default class User extends React.Component {
   cell = React.createRef();
 
   renderCellUser(user, index) {
-    const { isediting, projectId } = this.props;
+    const { isediting, projectId, appId, cell } = this.props;
+    const { value } = this.state;
+
     return (
       <div className="cellUser" key={index}>
         <div className="flexRow">
           <UserHead
             className="cellUserHead"
             projectId={projectId}
-            bindBusinessCard={!_.includes(['user-workflow', 'user-publicform', 'user-api'], user.accountId)}
             user={{
               userHead: user.avatarSmall || user.avatar,
               accountId: user.accountId,
             }}
-            lazy={'false'}
             size={21}
+            appId={cell.dataSource ? undefined : appId}
           />
           <span className="userName flex ellipsis">{user.fullname || user.name}</span>
-          {isediting && (
+          {isediting && !(cell.required && value.length === 1) && (
             <i
               className="Font14 Gray_9e icon-close Hand mLeft4"
               onClick={e => {

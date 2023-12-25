@@ -2,20 +2,19 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import cx from 'classnames';
-import Trigger from 'rc-trigger';
-import CityPickerPanel from 'ming-ui/components/CityPicker/Panel';
 import { WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
 import EditableCellCon from '../EditableCellCon';
 import renderText from './renderText';
-import withClickAway from 'ming-ui/decorators/withClickAway';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import { browserIsMobile } from 'src/util';
 import _ from 'lodash';
+import { CityPicker, Input } from 'ming-ui';
+import styled from 'styled-components';
+import { isKeyBoardInputChar } from 'worksheet/util';
 
-const ClickAwayable = createDecoratedComponent(withClickAway);
-
-const abroad = '910000';
-const particularlyCity = ['110000', '120000', '310000', '500000', '810000', '820000'];
+const InputWrap = styled(Input)`
+  border: none !important;
+  height: 100% !important;
+`;
 
 export default class Date extends React.Component {
   static propTypes = {
@@ -37,6 +36,8 @@ export default class Date extends React.Component {
     this.state = {
       value,
       tempValue: value,
+      search: undefined,
+      keywords: '',
     };
   }
 
@@ -50,17 +51,44 @@ export default class Date extends React.Component {
     }
   }
 
+  con = React.createRef();
   editIcon = React.createRef();
 
   @autobind
   handleTableKeyDown(e) {
-    const { updateEditingStatus } = this.props;
+    const { isediting, updateEditingStatus } = this.props;
     switch (e.key) {
+      case 'Tab':
       case 'Escape':
-        updateEditingStatus(false);
+        this.handleExit();
+        break;
+      case 'Enter':
+        updateEditingStatus(true);
+        setTimeout(() => {
+          const input = document.querySelector('.CityPicker-input-textCon');
+          if (input) {
+            input.focus();
+          }
+        }, 100);
         break;
       default:
-        break;
+        (() => {
+          if (!e.isInputValue && (isediting || !e.key || !isKeyBoardInputChar(e.key))) {
+            return;
+          }
+          updateEditingStatus(true);
+          setTimeout(() => {
+            const input = document.querySelector('.worksheetCellPureString .CityPicker-input-textCon');
+            this.setState({ search: e.key }, () => {
+              if (input) {
+                input.focus();
+              }
+              this.onFetchData(e.key);
+            });
+          }, 100);
+          e.stopPropagation();
+          e.preventDefault();
+        })();
     }
   }
 
@@ -68,29 +96,25 @@ export default class Date extends React.Component {
   handleChange(array, panelIndex) {
     const { tableFromModule, cell, updateCell, updateEditingStatus } = this.props;
     let level = this.getAreaLevel(cell.type);
-    if (_.includes(particularlyCity, array[0].id) && level > 1) {
-      level = level - 1;
-    }
-    if (array[0].id === abroad) {
-      level = 1;
-    }
+    const last = _.last(array);
     const anylevel = _.get(cell, 'advancedSetting.anylevel');
+    const index = last.path.split('/').length;
+
+    this.state.search && this.setState({ search: '', keywords: '' });
+
     // 必须选择最后一级
-    if (anylevel === '1' && array[0].id !== abroad) {
-      // 省市
-      if ((cell.type === 23 && panelIndex !== 2) || (cell.type === 24 && panelIndex !== 3)) {
-        return;
-      }
+    if (anylevel === '1' && !last.last && level > index) {
+      return;
     }
-    const name = array.map(a => a.name).join('/');
-    const code = _.last(array).id;
-    const newValue = JSON.stringify({ code, name });
-    if (!array.length || array.length < level) {
+
+    const newValue = JSON.stringify({ code: last.id, name: last.path });
+    if (!last || (last.path.split('/').length < level && !last.last)) {
       this.setState({ tempValue: newValue });
       return;
     }
+
     updateCell({
-      value: tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST ? newValue : code,
+      value: tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST ? newValue : last.id,
     });
     this.setState({
       value: newValue,
@@ -103,6 +127,7 @@ export default class Date extends React.Component {
   handleExit() {
     const { tableFromModule, updateCell, updateEditingStatus } = this.props;
     const { value, tempValue } = this.state;
+
     if (value !== tempValue) {
       updateCell({
         value: tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST ? tempValue : safeParse(tempValue).code,
@@ -111,6 +136,10 @@ export default class Date extends React.Component {
         value: tempValue,
       });
     }
+    this.setState({
+      search: '',
+      keywords: '',
+    });
     updateEditingStatus(false);
   }
 
@@ -127,45 +156,76 @@ export default class Date extends React.Component {
     return 3;
   }
 
+  onFetchData = _.debounce(keywords => {
+    this.setState({ keywords });
+  }, 500);
+
   render() {
-    const { className, style, needLineLimit, cell, popupContainer, editable, isediting, updateEditingStatus, onClick } =
-      this.props;
-    const { value, tempValue } = this.state;
+    const {
+      className,
+      style,
+      needLineLimit,
+      cell,
+      editable,
+      isediting,
+      tableFromModule,
+      updateEditingStatus,
+      updateCell,
+      onClick,
+    } = this.props;
+    const { tempValue, value, search, keywords } = this.state;
     const isMobile = browserIsMobile();
     const level = this.getAreaLevel(cell.type);
-    const editcontent = isediting ? (
-      <ClickAwayable onClickAwayExceptions={[this.editIcon && this.editIcon.current]} onClickAway={this.handleExit}>
-        <CityPickerPanel
-          defaultValue={[]}
-          level={level}
-          callback={this.handleChange}
-          handleOpen={() => {}}
-          handleClose={() => updateEditingStatus(false)}
-          onHide={() => updateEditingStatus(false)}
-        />
-      </ClickAwayable>
-    ) : (
-      <span />
-    );
+    const anylevel = _.get(cell, 'advancedSetting.anylevel');
+
     return (
-      <Trigger
-        action={['click']}
-        popup={editcontent}
-        getPopupContainer={() => document.body}
-        popupClassName="filterTrigger cellControlAreaPopup cellNeedFocus"
+      <CityPicker
+        search={keywords}
         popupVisible={isediting}
-        destroyPopupOnHide={!(navigator.userAgent.match(/[Ss]afari/) && !navigator.userAgent.match(/[Cc]hrome/))} // 不是 Safari
+        hasContentContainer={false}
+        popupClassName="filterTrigger cellControlAreaPopup cellNeedFocus"
+        defaultValue={[]}
+        level={level}
+        manual={true}
+        mustLast={anylevel === '1'}
         popupAlign={{
           points: ['bl', 'tl'],
           offset: [-1, -2],
           overflow: {
             adjustY: true,
+            adjustX: true,
           },
         }}
+        callback={this.handleChange}
+        handleClose={(array = []) => {
+          const anylevel = _.get(cell, 'advancedSetting.anylevel');
+          const last = _.last(array);
+          const valueParse = safeParse(tempValue);
+
+          if (!last || (anylevel === '1' && (!last.last || last.path.split('/').length < level))) {
+            updateEditingStatus(false);
+            return;
+          }
+          if (last.id !== valueParse.code) {
+            this.setState(
+              {
+                tempValue: JSON.stringify({ code: last.id, name: last.path }),
+              },
+              () => {
+                this.handleExit();
+              },
+            );
+          } else {
+            this.handleExit();
+          }
+        }}
+        destroyPopupOnHide={!(navigator.userAgent.match(/[Ss]afari/) && !navigator.userAgent.match(/[Cc]hrome/))} // 不是 Safari
+        disabled={!isediting}
       >
         <EditableCellCon
+          conRef={this.con}
           onClick={onClick}
-          className={cx(className, { canedit: editable })}
+          className={cx(className, 'cellControlArea', { canedit: editable, focusInput: editable })}
           style={style}
           iconRef={this.editIcon}
           iconName="text_map"
@@ -173,13 +233,40 @@ export default class Date extends React.Component {
           isediting={isediting}
           onIconClick={() => updateEditingStatus(true)}
         >
-          {!!tempValue && (
-            <div className={cx('worksheetCellPureString', { linelimit: needLineLimit, ellipsis: isMobile })}>
-              {renderText({ ...cell, value: tempValue })}
-            </div>
-          )}
+          <div className={cx('worksheetCellPureString', { linelimit: needLineLimit, ellipsis: isMobile })}>
+            {isediting ? (
+              <InputWrap
+                className="CityPicker-input-textCon"
+                placeholder={!!tempValue ? renderText({ ...cell, value: tempValue }) : ''}
+                value={isediting ? search || '' : !!tempValue ? renderText({ ...cell, value: tempValue }) : ''}
+                onChange={value => {
+                  this.setState({ search: value });
+                  this.onFetchData(value);
+                }}
+                onClick={e => e.stopPropagation()}
+              />
+            ) : !!tempValue ? (
+              renderText({ ...cell, value: tempValue })
+            ) : null}
+            {isediting && !cell.required && (
+              <i
+                className="clearBtn icon icon-cancel"
+                onClick={e => {
+                  e.stopPropagation();
+                  updateCell({
+                    value: '',
+                  });
+                  this.setState({
+                    value: '',
+                    tempValue: '',
+                    search: '',
+                  });
+                }}
+              />
+            )}
+          </div>
         </EditableCellCon>
-      </Trigger>
+      </CityPicker>
     );
   }
 }

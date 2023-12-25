@@ -39,9 +39,10 @@ export default function FilterDrop(props) {
         '.mdDialog',
         '.mui-datetimepicker',
         '.mui-datetimerangepicker',
-        '.CityPicker',
         '.worksheetFilterOperateList',
         '.ant-picker-dropdown',
+        '.CityPicker',
+        '.CityPicker-wrapper',
       ]}
       onClick={() => setShow(true)}
       onClickAway={() => setShow(false)}

@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 
 import './style.less';
 
-import LibCalender from 'ming-ui/components/lib/calender';
+import LibCalender from '../lib/calender';
 import DateTable from './date-table';
 import MonthTable from './month-table';
 import YearTable from './year-table';

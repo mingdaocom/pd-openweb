@@ -19,6 +19,7 @@ import MapMessage from '../../components/Message/MapMessage';
 import Constant from '../../utils/constant';
 import * as actions from '../../redux/actions';
 import * as socket from '../../utils/socket';
+import UserCard from 'src/components/UserCard';
 
 class Message extends Component {
   constructor(props) {
@@ -34,16 +35,7 @@ class Message extends Component {
     }
     return false;
   }
-  componentDidMount() {
-    const { fromAccount } = this.props.message;
-    const { avatar } = this;
-    if (fromAccount) {
-      $(avatar).mdBusinessCard({
-        chatByLink: true,
-        accountId: fromAccount.id,
-      });
-    }
-  }
+
   handleSetMessageMoreVisible(visible) {
     this.setState({
       moreVisible: visible,
@@ -70,14 +62,14 @@ class Message extends Component {
     if (isAdmin) {
       param.adminid = md.global.Account.accountId;
     }
-    socket.Message.sendWithdrawMessgae(type, param).then((result) => {
+    socket.Message.sendWithdrawMessgae(type, param).then(result => {
       const { socket: newMessage } = result;
       this.props.dispatch(actions.updateWithdrawMessage(to, newMessage));
       this.props.dispatch(
         actions.updateSessionList({
           id: to,
           addMsg: newMessage.msg.con,
-        })
+        }),
       );
     });
   }
@@ -105,15 +97,17 @@ class Message extends Component {
     const { message, session } = this.props;
     const messageType = session.isGroup ? Constant.SESSIONTYPE_GROUP : Constant.SESSIONTYPE_USER;
     const { sendMsg } = message;
-    socket.Message.send(messageType, sendMsg).then((result) => {
+    socket.Message.send(messageType, sendMsg).then(result => {
       const { socket: message } = result;
       const { atParam } = sendMsg;
-      this.props.dispatch(actions.updateMessage({
-        to: session.id,
-        referMessage: sendMsg.referMessage,
-        video: sendMsg.video,
-        ...result,
-      }));
+      this.props.dispatch(
+        actions.updateMessage({
+          to: session.id,
+          referMessage: sendMsg.referMessage,
+          video: sendMsg.video,
+          ...result,
+        }),
+      );
       // 包含 at 消息
       if (atParam) {
         socket.Message.sendShake(Constant.SESSIONTYPE_GROUP, {
@@ -136,9 +130,11 @@ class Message extends Component {
       case Constant.MSGTYPE_CARD:
         // 知识文件是卡片类型的，要按照文件类型显示...
         if (message.card.md === 'kcfile') {
-          return <KcFileMessage onUpdateKcFile={this.handleUpdateKcFile.bind(this)} message={message} session={session} />;
+          return (
+            <KcFileMessage onUpdateKcFile={this.handleUpdateKcFile.bind(this)} message={message} session={session} />
+          );
         } else if (message.card.md === 'worksheet') {
-          return <WorksheetFileMessage message={message} session={session}/>;
+          return <WorksheetFileMessage message={message} session={session} />;
         } else {
           return <CardMessage session={session} message={message} />;
         }
@@ -163,18 +159,17 @@ class Message extends Component {
           <div className="Message-unreadLine">
             <span className="Message-unreadLineTxt">{_l('以下是新消息')}</span>
           </div>
-        ) : (
-          undefined
-        )}
+        ) : undefined}
         {timestamp && !isDuplicated ? (
           <div className="Message-timestamp">
             <div className="Message-timestamp-content">{timestamp}</div>
           </div>
-        ) : (
-          undefined
-        )}
+        ) : undefined}
         <div
-          className={cx('Message-container', { 'Message-container-continuous': isDuplicated, 'Message-toolbar-moreHover': moreVisible })}
+          className={cx('Message-container', {
+            'Message-container-continuous': isDuplicated,
+            'Message-toolbar-moreHover': moreVisible,
+          })}
           onMouseLeave={this.handleMouseLeave.bind(this)}
         >
           <MessageToolbar
@@ -187,31 +182,36 @@ class Message extends Component {
           />
           {!isDuplicated ? (
             <div className="Message-from" onClick={this.handleAddAtUser.bind(this, isMine || !session.isGroup)}>
-              <img
-                ref={(avatar) => {
-                  this.avatar = avatar;
-                }}
-                className="Message-from-avatar"
-                src={fromAccount.logo}
-              />
+              <UserCard sourceId={fromAccount.id} disabled={!fromAccount}>
+                <img
+                  ref={avatar => {
+                    this.avatar = avatar;
+                  }}
+                  className="Message-from-avatar"
+                  src={fromAccount.logo}
+                />
+              </UserCard>
             </div>
-          ) : (
-            undefined
-          )}
+          ) : undefined}
           <div className="Message-body">
             {!isDuplicated ? (
               <div className="Message-title">
-                <div onClick={this.handleAddAtUser.bind(this, isMine || !session.isGroup)} className={cx('Message-from-name', { ThemeColor3: isMine })}>
+                <div
+                  onClick={this.handleAddAtUser.bind(this, isMine || !session.isGroup)}
+                  className={cx('Message-from-name', { ThemeColor3: isMine })}
+                >
                   {isMine ? _l('我') : fromAccount.name}
                 </div>
               </div>
-            ) : (
-              undefined
-            )}
-            {message.refer ? <MessageRefer message={message.refer} onGotoMessage={this.props.onGotoMessage} /> : undefined}
+            ) : undefined}
+            {message.refer ? (
+              <MessageRefer message={message.refer} onGotoMessage={this.props.onGotoMessage} />
+            ) : undefined}
             <div className="Message-content">
               {this.renderMessageContent()}
-              {isMine && !message.id && !message.isPrepare ? <MessageRetry message={message} onRetry={this.handleRetry.bind(this)} /> : undefined}
+              {isMine && !message.id && !message.isPrepare ? (
+                <MessageRetry message={message} onRetry={this.handleRetry.bind(this)} />
+              ) : undefined}
             </div>
           </div>
         </div>
@@ -221,11 +221,15 @@ class Message extends Component {
   render() {
     const { message, session } = this.props;
     const { sysType, iswd } = message;
-    return <div id={`Message-${message.id}`}>{sysType || iswd ? <SystemMessage message={message} session={session} /> : this.renderUserMessage()}</div>;
+    return (
+      <div id={`Message-${message.id}`}>
+        {sysType || iswd ? <SystemMessage message={message} session={session} /> : this.renderUserMessage()}
+      </div>
+    );
   }
 }
 
-export default connect((state) => {
+export default connect(state => {
   const { currentSession, messages } = state.chat;
 
   return {

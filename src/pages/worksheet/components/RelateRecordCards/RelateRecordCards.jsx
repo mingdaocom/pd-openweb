@@ -206,7 +206,7 @@ export default class RelateRecordCards extends Component {
   }
 
   componentDidMount() {
-    const { count = 0, records = [] } = this.props;
+    const { count = 0, records = [], control = {} } = this.props;
     if (this.state.sheetTemplateLoading) {
       this.loadControls();
     }
@@ -217,8 +217,11 @@ export default class RelateRecordCards extends Component {
       }
     }
     if (
-      _.get(window, 'shareState.isPublicForm') &&
-      _.get(this, 'props.control.advancedSetting.originShowType') === '2'
+      (_.get(window, 'shareState.isPublicForm') &&
+        _.get(this, 'props.control.advancedSetting.originShowType') === '2') ||
+      (browserIsMobile() &&
+        _.get(control, 'advancedSetting.showtype') === '2' &&
+        _.includes([FROM.H5_EDIT, FROM.RECORDINFO], control.from))
     ) {
       this.loadMoreRecords(1);
     }
@@ -237,8 +240,11 @@ export default class RelateRecordCards extends Component {
     }
     if (nextProps.flag !== this.props.flag) {
       if (
-        _.get(window, 'shareState.isPublicForm') &&
-        _.get(this, 'props.control.advancedSetting.originShowType') === '2'
+        (_.get(window, 'shareState.isPublicForm') &&
+          _.get(this, 'props.control.advancedSetting.originShowType') === '2') ||
+        (browserIsMobile() &&
+          _.get(this, 'props.control.advancedSetting.showtype') === '2' &&
+          _.includes([FROM.H5_EDIT, FROM.RECORDINFO], nextProps.control.from))
       ) {
         this.loadMoreRecords(1);
       } else {
@@ -271,7 +277,7 @@ export default class RelateRecordCards extends Component {
     const advancedSetting = control.advancedSetting || {};
     return (
       parseInt(advancedSetting.showtype, 10) === 1 ||
-      (from === FROM.H5_ADD && parseInt(advancedSetting.showtype, 10) === 2)
+      (_.includes([FROM.H5_ADD, FROM.H5_EDIT, FROM.RECORDINFO], from) && parseInt(advancedSetting.showtype, 10) === 2)
     );
   }
 
@@ -295,6 +301,7 @@ export default class RelateRecordCards extends Component {
       records.length === 1 &&
       enumDefault === 1 &&
       from !== FROM.SHARE &&
+      enumDefault2 !== 10 &&
       enumDefault2 !== 11 &&
       (this.isCard ? !this.disabledManualWrite : true) &&
       !disabled
@@ -577,13 +584,22 @@ export default class RelateRecordCards extends Component {
     const { cardWidth, colNum } = getCardWidth({ width, isMobile, enumDefault });
     if (isCard) {
       return (
-        <div className="recordsCon mBottom6">
+        <div
+          className={cx('recordsCon mBottom6', {
+            'pLeft10 pRight10':
+              isMobile && _.includes([FROM.H5_EDIT, FROM.RECORDINFO], from) && advancedSetting.showtype === '2',
+          })}
+        >
           {!!records.length &&
-            (showAll || from === FROM.H5_ADD || records.length <= colNum * 3
+            (showAll ||
+            _.includes([FROM.H5_ADD, FROM.H5_EDIT], from) ||
+            (isMobile && from === FROM.RECORDINFO) ||
+            records.length <= colNum * 3
               ? records
               : records.slice(0, colNum * 3)
             ).map((record, i) => (
               <RecordCoverCard
+                from={from}
                 projectId={projectId}
                 viewId={viewId}
                 allowReplaceRecord={allowReplaceRecord}
@@ -601,9 +617,7 @@ export default class RelateRecordCards extends Component {
                   !allowOpenRecord || (control.isSubList && _.get(window, 'shareState.shareId')) || allowlink === '0'
                     ? () => {}
                     : () => {
-                        if (location.pathname.indexOf('public') === -1) {
-                          addBehaviorLog('worksheetRecord', dataSource, { rowId: record.rowid }); // 埋点
-                        }
+                        addBehaviorLog('worksheetRecord', dataSource, { rowId: record.rowid }); // 埋点
                         this.setState({ previewRecord: { recordId: record.rowid } });
                       }
                 }
@@ -611,32 +625,33 @@ export default class RelateRecordCards extends Component {
                 onReplaceRecord={() => this.handleReplaceRecord(record)}
               />
             ))}
-          {records.length > colNum * 3 && from !== FROM.H5_ADD && (
-            <div>
-              {recordId && showLoadMore && showAll && (
+          {records.length > colNum * 3 &&
+            (isMobile ? !_.includes([FROM.H5_ADD, FROM.H5_EDIT, FROM.RECORDINFO], from) : true) && (
+              <div>
+                {recordId && showLoadMore && showAll && (
+                  <LoadingButton
+                    onClick={() => {
+                      if (!isLoadingMore) {
+                        this.loadMoreRecords(pageIndex + 1);
+                      }
+                    }}
+                  >
+                    {isLoadingMore && (
+                      <span className="loading">
+                        <i className="icon icon-loading_button"></i>
+                      </span>
+                    )}
+                    {_l('加载更多')}
+                  </LoadingButton>
+                )}
                 <LoadingButton
-                  onClick={() => {
-                    if (!isLoadingMore) {
-                      this.loadMoreRecords(pageIndex + 1);
-                    }
-                  }}
+                  className="ThemeColor3 Hand mBottom10 InlineBlock"
+                  onClick={() => this.setState({ showAll: !showAll })}
                 >
-                  {isLoadingMore && (
-                    <span className="loading">
-                      <i className="icon icon-loading_button"></i>
-                    </span>
-                  )}
-                  {_l('加载更多')}
+                  {showAll ? _l('收起') : _l('展开更多')}
                 </LoadingButton>
-              )}
-              <LoadingButton
-                className="ThemeColor3 Hand mBottom10 InlineBlock"
-                onClick={() => this.setState({ showAll: !showAll })}
-              >
-                {showAll ? _l('收起') : _l('展开更多')}
-              </LoadingButton>
-            </div>
-          )}
+              </div>
+            )}
         </div>
       );
     }
@@ -691,6 +706,7 @@ export default class RelateRecordCards extends Component {
       sheetSwitchPermit,
       advancedSetting = {},
       isCharge,
+      hint,
       openRelateSheet,
     } = control;
     const { records, previewRecord, showNewRecord, sheetTemplateLoading } = this.state;
@@ -707,7 +723,13 @@ export default class RelateRecordCards extends Component {
 
     return (
       <Fragment>
-        <OperateCon className="flexRow valignWrapper mBottom10" isMobile={isMobile}>
+        <OperateCon
+          className={cx('flexRow valignWrapper mBottom10', {
+            'pLeft20 pRight20':
+              isMobile && _.includes([FROM.H5_EDIT, FROM.RECORDINFO], from) && advancedSetting.showtype === '2',
+          })}
+          isMobile={isMobile}
+        >
           <Con
             className={cx(
               'customFormControlBox flexRow relateRecordBtn',
@@ -732,7 +754,11 @@ export default class RelateRecordCards extends Component {
                     </Button>
                   ) : !records.length ? (
                     <span className="Gray_bd">
-                      {disabledManualWrite ? _l('扫码添加%0', sourceEntityName) : _l('选择%0', sourceEntityName)}
+                      {disabledManualWrite
+                        ? _l('扫码添加%0', sourceEntityName)
+                        : isMobile && hint
+                        ? hint
+                        : _l('选择%0', sourceEntityName)}
                     </span>
                   ) : null}
                 </Fragment>

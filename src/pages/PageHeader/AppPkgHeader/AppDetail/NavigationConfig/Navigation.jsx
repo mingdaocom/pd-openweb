@@ -548,7 +548,7 @@ const Container = props => {
 
     homeAppApi.addAppSection({
       appId: app.id,
-      name: name.slice(0, 25),
+      name: name.slice(0, 100),
       icon,
       parentId: target ? target.id : undefined,
       rootId: target ? target.id : undefined,
@@ -657,7 +657,7 @@ const Container = props => {
   return (
     <DndProvider key="navigation" context={window} backend={HTML5Backend}>
       <div>{navigationGroup.map((item, i) => renderGroup(item, i))}</div>
-      <div className="flexRow alignItemsCenter ThemeColor bold mBottom20">
+      <div className="flexRow alignItemsCenter ThemeColor bold mBottom12">
         <div className="pointer" onClick={() => handleAddGroup()}>
           <Icon icon="add" />
           <span>{_l('分组')}</span>

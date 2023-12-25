@@ -193,6 +193,7 @@ export default function Input(props) {
   const isMultiple = String(allowitem) === '2';
   const type = getType(props.control);
   const Condition = Comps[type];
+
   return Condition ? (
     <Condition {...props} isMultiple={isMultiple} value={_.isUndefined(props.value) ? '' : props.value} />
   ) : (

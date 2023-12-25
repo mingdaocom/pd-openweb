@@ -116,7 +116,7 @@ export default class AvatarEditor extends Component {
     }
 
     return (
-      <div className="mTop25 pBottom25">
+      <div className="mTop25">
         <div className="flexRow" style={{ minHeight: 200 }}>
           <Avatar
             label={_l('上传图片')}

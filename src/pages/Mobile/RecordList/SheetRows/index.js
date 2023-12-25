@@ -99,9 +99,7 @@ class SheetRows extends Component {
                 previewRecordId: item.rowid,
               });
             }
-            if (location.pathname.indexOf('public') === -1) {
-              addBehaviorLog('worksheetRecord', base.worksheetId, { rowId: item.rowid }); // 埋点
-            }
+            addBehaviorLog('worksheetRecord', base.worksheetId, { rowId: item.rowid }); // 埋点
           }}
         />
       </WingBlank>

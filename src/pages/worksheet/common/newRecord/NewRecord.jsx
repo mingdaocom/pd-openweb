@@ -7,6 +7,7 @@ import NewRecordContent from './NewRecordContent';
 import AdvancedSettingHandler from './AdvancedSettingHandler';
 
 import { browserIsMobile } from 'src/util';
+import { BrowserRouter } from 'react-router-dom';
 
 export const BUTTON_ACTION_TYPE = {
   CLOSE: 1,
@@ -169,15 +170,17 @@ function NewRecord(props) {
           {footer}
         </div>
       ) : (
-        <Modal
-          {...dialogProps}
-          allowScale
-          bodyStyle={{ paddingBottom: 0 }}
-          transitionName="none"
-          maskTransitionName="none"
-        >
-          {content}
-        </Modal>
+        <BrowserRouter>
+          <Modal
+            {...dialogProps}
+            allowScale
+            bodyStyle={{ paddingBottom: 0 }}
+            transitionName="none"
+            maskTransitionName="none"
+          >
+            {content}
+          </Modal>
+        </BrowserRouter>
       )}
     </Fragment>
   );

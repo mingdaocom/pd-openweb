@@ -36,12 +36,12 @@ function MoveWorkflowDialog(props) {
   const [list, setList] = useState([]);
 
   useEffect(() => {
-    if (!projectId) return;
+    if (!visible || !projectId) return;
 
     projectAjax.getComputingInstances({ projectId }).then(res => {
       setList(res.filter(l => l.resourceId !== sourceResourceId && l.status === 2));
     });
-  }, [projectId]);
+  }, [visible]);
 
   return (
     <MoveWorkflowDialogWrap

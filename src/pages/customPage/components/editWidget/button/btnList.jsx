@@ -68,7 +68,7 @@ const BtnWrap = styled.div`
   }
 
   button.ming {
-    padding: 0 24px;
+    padding: 0 14px;
     background-color: ${props => props.color};
     &:hover {
       background-color: ${props =>

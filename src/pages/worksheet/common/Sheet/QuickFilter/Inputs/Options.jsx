@@ -100,7 +100,7 @@ function pickOptions(options, navfilters) {
   }
 }
 export default function Options(props) {
-  const { isMultiple, values = [], control, advancedSetting = {}, onChange = () => {} } = props;
+  const { filterType, isMultiple, values = [], control, advancedSetting = {}, onChange = () => {} } = props;
   const { allowitem, direction, navshow, navfilters, shownullitem, nullitemname } = advancedSetting;
   let { options } = control;
   if (String(navshow) === '2') {

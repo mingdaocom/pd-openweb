@@ -424,19 +424,6 @@ export default {
      return $.api('Worksheet', 'GetLinkDetail', args, options);
    },
   /**
-  * 提交链接
-  * @param {Object} args 请求参数
-  * @param {string} args.id
-  * @param {array} args.newOldControl 要修改的cell
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   editRowByLink: function (args, options = {}) {
-     
-     return $.api('Worksheet', 'EditRowByLink', args, options);
-   },
-  /**
   * 获取工作表创建记录表单提交设置信息
   * @param {Object} args 请求参数
   * @param {string} args.workSheetId 工作表Id
@@ -737,6 +724,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   * @param {array} args.configs 映射字段
   * @param {integer} args.moreType 0 = 获取第一条时，按配置来，1= 不赋值
   * @param {array} args.moreSort 排序
+  * @param {integer} args.queryCount 查询条数
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -1228,6 +1216,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   * @param {Object} args 请求参数
   * @param {string} args.shareId 对外分享标识
   * @param {string} args.password 密码
+  * @param {string} args.printId 打印模板id
   * @param {string} args.clientId 客户端标识
 记录输入密码之后，页面刷新不用重复输入密码操作
 滑动过期
@@ -1712,6 +1701,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   * @param {string} args.linkId 填写链接id
   * @param {string} args.reportId 统计图ID
   * @param {boolean} args.notGetTotal 不获取总记录数
+  * @param {object} args.requestParams 请求参数
   * @param {string} args.clientId 客户端标识
 记录输入密码之后，页面刷新不用重复输入密码操作
 滑动过期
@@ -1760,6 +1750,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   * @param {string} args.linkId 填写链接id
   * @param {string} args.reportId 统计图ID
   * @param {boolean} args.notGetTotal 不获取总记录数
+  * @param {object} args.requestParams 请求参数
   * @param {string} args.clientId 客户端标识
 记录输入密码之后，页面刷新不用重复输入密码操作
 滑动过期
@@ -1806,6 +1797,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   * @param {string} args.linkId 填写链接id
   * @param {string} args.reportId 统计图ID
   * @param {boolean} args.notGetTotal 不获取总记录数
+  * @param {object} args.requestParams 请求参数
   * @param {string} args.clientId 客户端标识
 记录输入密码之后，页面刷新不用重复输入密码操作
 滑动过期
@@ -1834,6 +1826,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   * @param {array} args.fastFilters
   * @param {array} args.navGroupFilters 导航分组筛选
   * @param {array} args.filtersGroup 筛选组件
+  * @param {object} args.requestParams 请求参数
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -1891,6 +1884,8 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   * @param {string} args.lastMark 最后标记时间
   * @param {integer} args.objectType 对象类型
   * @param {integer} args.requestType 请求类型
+  * @param {integer} args.pageIndex 当前页
+  * @param {integer} args.pageSize 页大小
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -2040,6 +2035,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   * @param {array} args.fastFilters
   * @param {array} args.navGroupFilters 导航分组筛选
   * @param {array} args.filtersGroup 筛选组件
+  * @param {object} args.requestParams 请求参数
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -2164,6 +2160,12 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   * @param {boolean} args.showControlName 显示控件名称
   * @param {object} args.advancedSetting 视图高级配置
   * @param {array} args.editAttrs 编辑属性
+  * @param {string} args.pluginId 视图插件id
+  * @param {string} args.pluginName 视图插件名称
+  * @param {string} args.pluginIcon 视图插件图标
+  * @param {string} args.pluginIconColor 插件插件图标颜色
+  * @param {integer} args.pluginSource 插件来源
+  * @param {string} args.projectId 组织id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

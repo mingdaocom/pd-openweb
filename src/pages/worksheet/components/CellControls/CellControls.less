@@ -17,7 +17,7 @@
   padding: 0 9px;
   border-radius: 40px;
   color: #4d4d4d;
-  background-color: #e8e8e8;
+  background-color: rgba(0,100,240,0.08);
 }
 
 .cellOptions {
@@ -25,12 +25,12 @@
   .cellOption {
     display: inline-block;
     margin: 0 4px 4px 0;
-    padding: 0 12px;
+    padding: 0 8px;
     line-height: 21px;
     vertical-align: middle;
     border-radius: 40px;
     color: #4d4d4d;
-    background-color: rgba(0,0,0,0.08);
+    background-color: rgba(80, 120, 150, 0.08);
     .deleteIcon {
       color: rgba(0, 0, 0, 0.7);
       &:hover {
@@ -165,12 +165,20 @@
     margin-bottom: 4px;
     font-size: 13px;
     color: #333333;
-    background-color: rgba(0,0,0,0.08);
+    background-color: rgba(80, 120, 150, 0.08);
     padding-right: 8px;
     height: 21px;
     line-height: 21px;
     margin-right: 6px;
     border-radius: 13px;
+    &.isDelete {
+      .iconWrap {
+        background-color: #9e9e9e !important;
+      }
+      .departmentName {
+        color: #757575;
+      }
+    }
     .iconWrap {
       width: 21px;
       height: 21px;
@@ -200,7 +208,7 @@
     margin-bottom: 4px;
     font-size: 13px;
     color: #333333;
-    background-color: rgba(0,0,0,0.08);
+    background-color: rgba(80, 120, 150, 0.08);
     padding-right: 8px;
     height: 21px;
     line-height: 21px;
@@ -234,7 +242,7 @@
     margin-bottom: 4px;
     margin-right: 10px;
     padding: 0px 8px 0 6px;
-    background-color: #e8e8e8;
+    background-color: rgba(0,100,240,0.08);
     border-radius: 4px;
     line-height: 21px;
     box-sizing: border-box;
@@ -264,7 +272,7 @@
 
 .cellRelateRecordMultiple {
   display: inline-block;
-  background-color: rgba(0,0,0,0.08);
+  background-color: rgba(0, 100, 240, 0.08);
   border-radius: 3px;
   height: 21px;
   line-height: 21px;
@@ -284,7 +292,7 @@
       .icon {
         color: #2196f3;
       }
-      background-color: rgba(33,150,243,0.16);
+      background-color: rgba(33, 150, 243, 0.16);
     }
   }
 }
@@ -478,6 +486,24 @@
   }
 }
 
+.cellControlArea {
+  .clearBtn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: #9e9e9e;
+    cursor: pointer;
+    display: none;
+    &:hover {
+      color: #666;
+    }
+  }
+  &:hover {
+    .clearBtn {
+      display: inline-block;
+    }
+  }
+}
 .cellControlDepartmentPopup,
 .cellControlUserPopup {
   overflow: hidden;

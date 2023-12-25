@@ -19,7 +19,7 @@ export default class Widgets extends Component {
   };
 
   renderContent = () => {
-    const { disabled, value, advancedSetting = {}, hint = '' } = this.props;
+    const { disabled, value, advancedSetting = {}, hint = '', switchSize } = this.props;
     const itemnames = getSwitchItemNames(this.props);
 
     const isChecked = value === 1 || value === '1';
@@ -33,6 +33,7 @@ export default class Widgets extends Component {
             disabled={disabled}
             checked={isChecked}
             onClick={this.onChange}
+            size={switchSize || 'default'}
             className={cx({ mobileFormSwitchDisabled: disabled })}
           />
           {text && (
@@ -63,7 +64,13 @@ export default class Widgets extends Component {
     }
 
     return (
-      <Checkbox className="customFormCheck" disabled={disabled} checked={isChecked} onClick={this.onChange}>
+      <Checkbox
+        className="customFormCheck"
+        disabled={disabled}
+        checked={isChecked}
+        onClick={this.onChange}
+        size={switchSize || 'default'}
+      >
         {hint}
       </Checkbox>
     );

@@ -70,7 +70,7 @@ export default function DataSource(props) {
 
       {addSourceVisible && (
         <AddOrEditSource
-          {...props}
+          isCreateDialog={true}
           source={dataSource}
           onClose={() => setAddSourceVisible(false)}
           onRefresh={refreshComponents}

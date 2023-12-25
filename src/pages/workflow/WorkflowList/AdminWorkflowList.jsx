@@ -1,5 +1,4 @@
 import React, { Component, Fragment } from 'react';
-import AdminTitle from 'src/pages/Admin/common/AdminTitle';
 import { navigateTo } from 'src/router/navigateTo';
 import './index.less';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
@@ -10,7 +9,7 @@ import cx from 'classnames';
 import { Icon, ScrollView, LoadDiv, Dialog, Switch, Tooltip } from 'ming-ui';
 import MsgTemplate from './components/MsgTemplate';
 import Search from '../components/Search';
-import UserHead from 'src/pages/feed/components/userHead/userHead';
+import UserHead from 'src/components/userHead/userHead';
 import PublishBtn from './components/PublishBtn';
 import { START_APP_TYPE } from './utils/index';
 import appManagement from 'src/api/appManagement';
@@ -19,6 +18,7 @@ import { Select } from 'antd';
 import WorkflowMonitor from './components/WorkflowMonitor';
 import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
 import { purchaseMethodFunc } from 'src/components/upgrade/choose/PurchaseMethodModal';
+import { checkIsAppAdmin } from 'src/components/checkIsAppAdmin';
 import _ from 'lodash';
 import moment from 'moment';
 
@@ -59,13 +59,6 @@ export default class AdminWorkflowList extends Component {
 
       msgVisible: false,
       loading: false,
-      checkAdmin: {
-        appId: '',
-        post: false,
-        visible: false,
-        title: '',
-        workflowId: '',
-      },
       balance: 0,
       autoPurchaseWorkflowExtPack: false,
       autoOrderVisible: false,
@@ -265,7 +258,16 @@ export default class AdminWorkflowList extends Component {
         <div className="flex name mLeft10 mRight40">
           <div
             className={cx('flexColumn nameBox ThemeColor3 pointer', { unable: !item.enabled })}
-            onClick={() => this.checkIsAppAdmin(item.apkId, item.id, item.processName)}
+            onClick={() =>
+              checkIsAppAdmin({
+                appId: item.apkId,
+                title: _l('管理工作流“%0”', item.processName),
+                description: _l('如果你不是工作流所在应用的管理员，需要将自己加为管理员以获得权限'),
+                callback: () => {
+                  navigateTo(`/workflowedit/${item.id}`);
+                },
+              })
+            }
           >
             <div className="ellipsis Font14" title={item.processName}>
               {item.processName}
@@ -300,53 +302,6 @@ export default class AdminWorkflowList extends Component {
       </div>
     );
   }
-
-  /**
-   * 检测是否是应用管理员
-   */
-  checkIsAppAdmin(appId, id, name) {
-    const opts = post => {
-      return {
-        appId,
-        post,
-        visible: true,
-        title: name,
-        workflowId: id,
-      };
-    };
-    this.setState({ checkAdmin: opts(true) }, () => {
-      appManagement
-        .checkAppAdminForUser({
-          appId,
-        })
-        .then(result => {
-          if (result) {
-            navigateTo(`/workflowedit/${id}`);
-          } else {
-            this.setState({ checkAdmin: opts(false) });
-          }
-        });
-    });
-  }
-
-  /**
-   * 设为应用管理员
-   */
-  addRoleMemberForAppAdmin = () => {
-    const {
-      checkAdmin: { appId, workflowId },
-    } = this.state;
-
-    appManagement
-      .addRoleMemberForAppAdmin({
-        appId,
-      })
-      .then(result => {
-        if (result) {
-          navigateTo(`/workflowedit/${workflowId}`);
-        }
-      });
-  };
 
   /**
    * 更新状态
@@ -419,7 +374,6 @@ export default class AdminWorkflowList extends Component {
       msgVisible,
       count,
       useCount,
-      checkAdmin,
       appList,
       apkId,
       sortId,
@@ -465,7 +419,10 @@ export default class AdminWorkflowList extends Component {
             </div>
 
             {activeTab === 'workflowList' && (
-              <div className="pointer ThemeHoverColor3 Gray_9e Font13 Normal" onClick={() => this.setState({ msgVisible: true })}>
+              <div
+                className="pointer ThemeHoverColor3 Gray_9e Font13 Normal"
+                onClick={() => this.setState({ msgVisible: true })}
+              >
                 <Icon icon="workflow_sms" />
                 <span className="mLeft5">{_l('短信模版')}</span>
               </div>
@@ -638,17 +595,6 @@ export default class AdminWorkflowList extends Component {
             closeLayer={() => this.setState({ msgVisible: false })}
           />
         )}
-
-        <Dialog
-          visible={checkAdmin.visible}
-          className={cx({ checkAdminDialog: checkAdmin.post })}
-          title={_l('管理工作流“%0”', checkAdmin.title)}
-          description={_l('如果你不是工作流所在应用的管理员，需要将自己加为管理员以获得权限')}
-          cancelText=""
-          okText={checkAdmin.post ? _l('验证权限...') : _l('加为此应用管理员')}
-          onOk={checkAdmin.post ? () => {} : this.addRoleMemberForAppAdmin}
-          onCancel={() => this.setState({ checkAdmin: Object.assign({}, this.state.checkAdmin, { visible: false }) })}
-        />
 
         <Dialog
           visible={autoOrderVisible}

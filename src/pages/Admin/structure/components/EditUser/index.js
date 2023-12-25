@@ -11,6 +11,7 @@ import TextInput from '../TextInput';
 import { checkForm } from '../../constant';
 import fixedDataAjax from 'src/api/fixedData.js';
 import { purchaseMethodFunc } from 'src/components/upgrade/choose/PurchaseMethodModal';
+import { getCurrentProject } from 'src/util';
 import cx from 'classnames';
 import './index.less';
 

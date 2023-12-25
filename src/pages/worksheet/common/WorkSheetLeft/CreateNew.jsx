@@ -42,7 +42,7 @@ export default class CreateNew extends Component {
         width={type === 'customPage' ? 580 : undefined}
         okText={_l('创建')}
         onOk={() => {
-          const name = this.state.value.trim().slice(0, 25);
+          const name = this.state.value.trim().slice(0, 100);
           const { configuration = {}, urlTemplate } = customPageArgs;
           if (!name) {
             alert(_l('请填写名称'), 3);

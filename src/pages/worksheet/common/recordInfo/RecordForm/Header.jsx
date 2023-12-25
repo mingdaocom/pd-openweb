@@ -24,11 +24,6 @@ const SideBarIcon = styled(IconBtn)`
   }
 `;
 
-const PoweredBy = styled.div`
-  font-size: 12px;
-  color: #757575;
-`;
-
 export default function InfoHeader(props) {
   const {
     isCharge,

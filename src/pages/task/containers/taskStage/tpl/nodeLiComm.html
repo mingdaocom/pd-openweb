@@ -7,7 +7,9 @@
     <span class="listStageTaskName {{=task.status==1?'completeTask':''}}" title="{{!task.taskName}}">
         {{!task.taskName}}
     </span>
-    <img class="chargeHeaderAvatar circle chargeImg {{=task.charge.status!=1?'userdisable':''}} {{=task.status==1?'opacity6':''}}" data-auth="{{=task.auth}}" src="{{=task.charge.avatar}}" alt="" data-id="{{=task.charge.accountID}}" />
+    <span class="chargeHeaderAvatar updateUserHead circle chargeImg {{=task.charge.status!=1?'userdisable':''}} {{=task.status==1?'opacity6':''}}" data-auth="{{=task.auth}}" data-src="{{=task.charge.avatar}}" data-id="{{=task.charge.accountID}}">
+        <img class="circle {{=task.charge.status!=1?'userdisable':''}} {{=task.status==1?'opacity6':''}}" data-auth="{{=task.auth}}" src="{{=task.charge.avatar}}" alt="" data-id="{{=task.charge.accountID}}" />
+    </span>
     <i class="taskStar ThemeColor3 {{=task.star ? 'icon-task-star':'icon-star-hollow'}}"></i>
     <div class="listStageDate">
         {{?task.colorTags && task.colorTags.length}}

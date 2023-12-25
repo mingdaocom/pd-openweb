@@ -5,13 +5,13 @@ import TransferController from 'src/api/transfer';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import Checkbox from 'ming-ui/components/Checkbox';
 import Button from 'ming-ui/components/Button';
-import UserHead from 'src/pages/feed/components/userHead';
-import MdBusinessCard from 'src/components/mdBusinessCard/reactMdBusinessCard';
+import UserHead from 'src/components/userHead';
 import Empty from '../../common/TableEmpty';
 import { htmlEncodeReg } from 'src/util';
 import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import PaginationWrap from '../../components/PaginationWrap';
 import _ from 'lodash';
+import UserCard from 'src/components/UserCard';
 
 const TYPES = {
   OA: 'OA',
@@ -339,11 +339,10 @@ export default class Detail extends React.Component {
           className="mLeft10 mRight10 InlineBlock TxtMiddle"
           user={{ ...user, userHead: user.avatar }}
           size={30}
-          lazy={'false'}
         />
 
         <span className="flexColumn TxtLeft pLeft5">
-          <MdBusinessCard sourceId={user.accountId}>
+          <UserCard sourceId={user.accountId}>
             <a
               className="Bold overflow_ellipsis"
               href={`/user_${user.accountId}`}
@@ -353,7 +352,7 @@ export default class Detail extends React.Component {
               {user.fullname}
               {user.isRelationShip ? <span className="boderRadAll_3 TxtCenter otherRelationShip">协</span> : null}
             </a>
-          </MdBusinessCard>
+          </UserCard>
           <span className="overflow_ellipsis Gray_bd wMax100" title={user.department}>
             {user.department}
           </span>

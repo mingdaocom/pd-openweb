@@ -111,9 +111,20 @@ class DialogSelectDept extends React.Component {
     }
   }
 
+  getDepartmentPath(dept) {
+    const pathData = this.getParentId(this.state.list, dept.departmentId);
+    return pathData
+      .filter(item => item.departmentId !== dept.departmentId)
+      .map((item, index) => ({
+        departmentId: item.departmentId,
+        departmentName: item.departmentName,
+        depth: index + 1,
+      }));
+  }
+
   selectFn() {
     const { selectedDepartment } = this.state;
-    const { checkIncludeChilren } = this.props; //是否选择包含子集
+    const { checkIncludeChilren, allPath } = this.props; //是否选择包含子集
 
     const selectFn = this.props.selectFn;
     selectFn.call(
@@ -125,6 +136,7 @@ class DialogSelectDept extends React.Component {
           departmentName: dept.departmentName,
           haveSubDepartment: dept.haveSubDepartment,
           userCount: dept.userCount,
+          ...(allPath ? { departmentPath: this.getDepartmentPath(dept) } : {}),
         }),
       ),
       checkIncludeChilren
@@ -135,6 +147,7 @@ class DialogSelectDept extends React.Component {
               departmentName: dept.departmentName,
               haveSubDepartment: dept.haveSubDepartment,
               userCount: dept.userCount,
+              ...(allPath ? { departmentPath: this.getDepartmentPath(dept) } : {}),
             }),
           )
         : null,
@@ -457,7 +470,7 @@ class DialogSelectDept extends React.Component {
 
   renderContent() {
     const { activeIds } = this.state;
-    if (this.state.loading && this.state.rootPageIndex <= 0) {
+    if (this.state.loading && this.state.rootPageIndex <= 1) {
       return <LoadDiv />;
     } else if (this.state.list && this.state.list.length) {
       const { selectedDepartment, list, keywords, departmentMoreIds } = this.state;
@@ -710,6 +723,7 @@ export default function (opts) {
     unique: options.unique,
     projectId: options.projectId,
     returnCount: options.returnCount,
+    allPath: options.allPath,
     selectedDepartment: options.selectedDepartment,
     selectFn: options.selectFn,
     showCreateBtn: options.showCreateBtn,

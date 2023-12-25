@@ -48,6 +48,7 @@ export default class Con extends React.Component {
       setSelectedIds,
       appId,
       canEditApp,
+      selectDebugRole,
     } = this.props;
     const { roleInfos = [], apply = [], outsourcing = {}, total } = appRole;
     const { roleId, roleList = [], keywords } = this.props;
@@ -114,7 +115,7 @@ export default class Con extends React.Component {
             <ul>
               {sysList.length > 0 && <Wrap>{_l('系统')}</Wrap>}
               {sysList.map(o => {
-                return <ItemCon {...this.props} data={o} />;
+                return <ItemCon {...this.props} data={o} selectDebugRole={selectDebugRole} />;
               })}
               {sysList.length > 0 && <div style={{ paddingTop: 6 }}></div>}
               {otherList.length > 0 && (

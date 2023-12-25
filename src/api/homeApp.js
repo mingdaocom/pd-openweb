@@ -111,13 +111,14 @@ export default {
   * @param {string} args.navColor 导航栏颜色
   * @param {string} args.lightColor 淡色色值
   * @param {integer} args.gridDisplayMode 宫格显示模式
-  * @param {integer} args.appNavDisplayType 导航列表显示类型
+  * @param {integer} args.appNaviDisplayType 导航列表显示类型
   * @param {string} args.urlTemplate 外部链接url
   * @param {object} args.configuration 链接配置
   * @param {boolean} args.pcDisplay Pc端显示,
   * @param {boolean} args.webMobileDisplay web移动端显示
   * @param {boolean} args.appDisplay app端显示
   * @param {integer} args.selectAppItmeType 导航应用项默认是否选中
+  * @param {integer} args.pcNaviDisplayType 导航分组展开样式
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

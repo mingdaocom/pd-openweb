@@ -252,18 +252,26 @@ export const LegendTypeData = [
  * 自动添加数量级
  */
 export const abbreviateNumber = (value, dot) => {
-  if (value >= 1000000000) {
-    return `${toFixed(value / 1000000000, dot)}B`;
-  } else if (value >= 100000000) {
-    return `${toFixed(value / 100000000, dot)}${_l('亿')}`;
-  } else if (value >= 1000000) {
-    return `${toFixed(value / 1000000, dot)}M`;
-  } else if (value >= 10000) {
-    return `${toFixed(value / 10000, dot)}${_l('万')}`;
-  } else if (value >= 1000) {
-    return `${toFixed(value / 1000, dot)}K`;
+  if (md.global.Account.lang === 'en') {
+    if (value >= 1000000000) {
+      return `${toFixed(value / 1000000000, dot)}B`;
+    } else if (value >= 1000000) {
+      return `${toFixed(value / 1000000, dot)}M`;
+    } else if (value >= 1000) {
+      return `${toFixed(value / 1000, dot)}K`;
+    } else {
+      return dot === '' ? value : toFixed(value, dot);
+    }
   } else {
-    return dot === '' ? value : toFixed(value, dot);
+    if (value >= 100000000) {
+      return `${toFixed(value / 100000000, dot)}${_l('亿')}`;
+    } else if (value >= 10000) {
+      return `${toFixed(value / 10000, dot)}${_l('万')}`;
+    } else if (value >= 1000) {
+      return `${toFixed(value / 1000, dot)}K`;
+    } else {
+      return dot === '' ? value : toFixed(value, dot);
+    }
   }
 }
 
@@ -297,25 +305,25 @@ export const numberLevel = [{
   suffix: 'K',
   format: value => value / 1000
 }, {
-  value: 3,
-  text: _l('万%06003'),
-  suffix: _l('万%06003'),
-  format: value => value / 10000
-}, {
   value: 4,
   text: _l('百万'),
   suffix: 'M',
   format: value => value / 1000000
 }, {
-  value: 5,
-  text: _l('亿%06004'),
-  suffix: _l('亿%06004'),
-  format: value => value / 100000000
-}, {
   value: 6,
   text: _l('十亿'),
   suffix: 'B',
   format: value => value / 1000000000
+}, {
+  value: 3,
+  text: _l('万%06003'),
+  suffix: _l('万%06003'),
+  format: value => value / 10000
+}, {
+  value: 5,
+  text: _l('亿%06004'),
+  suffix: _l('亿%06004'),
+  format: value => value / 100000000
 }];
 
 /**
@@ -327,24 +335,34 @@ export const formatYaxisList = (map, yaxisList, id) => {
 
   newYaxisList.forEach((item, index) => {
     if ((id ? item.controlId == id : index === 0) && item.magnitude === 0) {
-      if (maxValue >= 1000000000) {
-        item.magnitude = 6;
-        item.suffix = _.find(numberLevel, { value: 6 }).suffix
-      } else if (maxValue >= 100000000) {
-        item.magnitude = 5;
-        item.suffix = _.find(numberLevel, { value: 5 }).suffix
-      } else if (maxValue >= 1000000) {
-        item.magnitude = 4;
-        item.suffix = _.find(numberLevel, { value: 4 }).suffix
-      } else if (maxValue >= 10000) {
-        item.magnitude = 3;
-        item.suffix = _.find(numberLevel, { value: 3 }).suffix
-      } else if (maxValue >= 1000) {
-        item.magnitude = 2;
-        item.suffix = _.find(numberLevel, { value: 2 }).suffix
+      if (md.global.Account.lang === 'en') {
+        if (maxValue >= 1000000000) {
+          item.magnitude = 6;
+          item.suffix = _.find(numberLevel, { value: 6 }).suffix;
+        } else if (maxValue >= 1000000) {
+          item.magnitude = 4;
+          item.suffix = _.find(numberLevel, { value: 4 }).suffix;
+        } else if (maxValue >= 1000) {
+          item.magnitude = 2;
+          item.suffix = _.find(numberLevel, { value: 2 }).suffix;
+        } else {
+          item.magnitude = 1;
+          item.suffix = _.find(numberLevel, { value: 1 }).suffix;
+        }
       } else {
-        item.magnitude = 1;
-        item.suffix = _.find(numberLevel, { value: 1 }).suffix;
+        if (maxValue >= 100000000) {
+          item.magnitude = 5;
+          item.suffix = _.find(numberLevel, { value: 5 }).suffix;
+        } else if (maxValue >= 10000) {
+          item.magnitude = 3;
+          item.suffix = _.find(numberLevel, { value: 3 }).suffix;
+        } else if (maxValue >= 1000) {
+          item.magnitude = 2;
+          item.suffix = _.find(numberLevel, { value: 2 }).suffix;
+        } else {
+          item.magnitude = 1;
+          item.suffix = _.find(numberLevel, { value: 1 }).suffix;
+        }
       }
     }
   });
@@ -424,7 +442,7 @@ export const formatrChartAxisValue = (value, isPerPile, yaxisList) => {
       return value;
     }
     const { magnitude, ydot, suffix, dot, fixType } = yaxisList[0];
-    const { format } = _.find(numberLevel, { value: magnitude });
+    const { format } = _.find(numberLevel, { value: magnitude || 0 });
     if ([7, 8].includes(magnitude)) {
       const result = toFixed(format(value), 0);
       return fixType ? `${suffix}${result}` : `${result}${suffix}`;
@@ -493,7 +511,7 @@ export const getScopeRuleColor = (value, controlMinAndMax = {}, scopeRules, empt
     if (type === 3 && value === rule.value) {
       result = color;
     }
-    if (type === 4 && emptyShowType === 1 ? _.isNull(value) : !value) {
+    if (type === 4 && (emptyShowType === 1 ? _.isNull(value) : !value)) {
       result = color;
     }
   });

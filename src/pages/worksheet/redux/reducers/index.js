@@ -9,6 +9,7 @@ import * as calendarview from './calendarview';
 import * as gunterView from './gunterview';
 import * as excelCreateAppAndSheet from './excelCreateAppAndSheet';
 import * as detailView from './detailView';
+import * as customWidgetView from './customWidgetView';
 
 function base(state = {}, action) {
   switch (action.type) {
@@ -85,4 +86,5 @@ export default combineReducers({
   gunterView: combineReducers(gunterView),
   excelCreateAppAndSheet: combineReducers(excelCreateAppAndSheet),
   detailView: combineReducers(detailView),
+  customWidgetView: combineReducers(customWidgetView),
 });

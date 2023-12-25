@@ -4,7 +4,7 @@ import cx from 'classnames';
 import { accMul, accDiv, toFixed, formatStrZero } from 'src/util';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
-import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/ControlMask/util';
+import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
 import styled from 'styled-components';
 
 const NumWrap = styled.span`
@@ -158,7 +158,7 @@ export default class Widgets extends Component {
         <input
           type="text"
           className="customFormControlBox Gray"
-          style={{ paddingRight: suffix ? 92 : 12, paddingTop: 2 }}
+          style={{ paddingRight: suffix ? 32 : 12, paddingTop: 2 }}
           ref={number => {
             this.number = number;
           }}

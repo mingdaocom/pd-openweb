@@ -1,12 +1,10 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import moment from 'moment';
-
 import './style.less';
-
 import DatePickerBase from 'ming-ui/components/NewDateTimePicker/date-picker-base';
 import Time from 'ming-ui/components/NewTimePicker';
-import LibCalender from 'ming-ui/components/lib/calender';
+import LibCalender from '../lib/calender';
 import Button from 'ming-ui/components/Button';
 
 class DateTimePicker extends Component {

@@ -9,6 +9,7 @@ import {
   RELATED_RECORD_FIELDS,
   DATABASE_TYPE,
 } from 'src/pages/integration/dataIntegration/constant.js';
+import { NODE_TYPE_LIST } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config.js';
 
 export const formatTaskNodeData = (dataList = [], firstId) => {
   // const firstId = "source1";
@@ -52,7 +53,6 @@ export const formatTaskNodeData = (dataList = [], firstId) => {
       if (!newY || (parentNode.prevIds || []).indexOf(currentId) > 0) {
         maxY = maxY + 1;
       }
-      // console.log(currentItem, parentNode);
       currentItem.x = parentNode.x - 1;
       currentItem.y = maxY;
       generateCoordinateParent(currentItem.prevIds || [], maxY);
@@ -274,7 +274,7 @@ export const getFields = async ({
   if (dsType === DATABASE_TYPE.APPLICATION_WORKSHEET) {
     const res = await worksheetApi.getWorksheetInfo({ worksheetId: workSheetId, getTemplate: true });
     const fieldsParams = getInitWorkSheetFields(
-      _.get(res, 'template.controls'),
+      _.get(res, 'template.controls') || [],
       !isGetDest,
       isSourceAppType,
       isDestAppType,
@@ -360,4 +360,92 @@ export const formatFieldsByType = list => {
 
 export const hsMorePkControl = preNode => {
   return (_.get(preNode, 'nodeConfig.fields') || []).filter(o => o.isPk).length > 1;
+};
+
+export const getUnionFeids = (defaultFields = [], list, node) => {
+  const { leftTableId, rightTableId } = _.get(node, ['nodeConfig', 'config']) || {};
+  let leftNode = list.find(o => o.nodeId === leftTableId);
+  let rightNode = list.find(o => o.nodeId === rightTableId);
+  const leftFields = (_.get(leftNode, 'nodeConfig.fields') || []).filter(o => o.isCheck);
+  const rightFields = (_.get(rightNode, 'nodeConfig.fields') || []).filter(o => o.isCheck);
+  let othersFields = rightFields;
+  const fields = leftFields.map(o => {
+    let rightField = rightFields.find(it => it.alias === o.alias && it.jdbcTypeId === o.jdbcTypeId);
+    if (!!rightField) {
+      othersFields = othersFields.filter(it => it.id !== rightField.id);
+    }
+    return { leftField: o, rightField: rightField, resultField: o };
+  });
+  return setAllUnionFieldsCheck([
+    ...fields,
+    ...othersFields.map(o => {
+      return { rightField: o, resultField: o };
+    }),
+  ]).map(o => {
+    return {
+      ...o,
+      resultField: {
+        ...o.resultField,
+        isCheck: !!(defaultFields.find(it => it.id === _.get(o, 'resultField.id')) || {}).isCheck,
+      },
+    };
+  });
+};
+
+export const setAllUnionFieldsCheck = (fieldList, setCheck) => {
+  const fields = setCheck
+    ? fieldList.map(it => {
+      return {
+        ...it,
+        resultField: {
+          ...it.resultField,
+          isCheck: true,
+        },
+      };
+    })
+    : fieldList;
+  return fields.map(o => {
+    let data = fields.filter(it => _.get(it, 'resultField.alias') === _.get(o, 'resultField.alias'));
+    //同名只能勾选一个
+    if (data.length > 1 && _.get(o, 'resultField.id') !== _.get(data[0], 'resultField.id')) {
+      return { ...o, resultField: { ...o.resultField, isCheck: false } };
+    } else {
+      return o;
+    }
+  });
+};
+
+export const setFeildAlias = fields => {
+  let newFeilds = [];
+  let result = _.groupBy(fields, 'alias');
+  _.forEach(result, (a, k) => {
+    if (a.length > 1) {
+      a.map((it, i) => {
+        newFeilds = newFeilds.concat({ ...it, alias: `${it.alias}${i > 0 ? i : ''}` });
+      });
+    } else {
+      newFeilds = newFeilds.concat(a);
+    }
+  });
+  return newFeilds;
+};
+
+export const getNodeName = (flowData, nodeData) => {
+  const defaultInfo = NODE_TYPE_LIST.find(it => it.nodeType === nodeData.nodeType);
+  const sourceName = (
+    (flowData.datasources || []).find(o =>
+      [
+        _.get(nodeData, 'nodeConfig.config.datasourceId'),
+        _.get(nodeData, 'nodeConfig.config.dataSourceId'),
+        _.get(nodeData, 'nodeConfig.config.dataDestId'),
+      ].includes(o.id),
+    ) || {}
+  ).name;
+  return (
+    (['DEST_TABLE', 'SOURCE_TABLE'].includes(nodeData.nodeType)
+      ? _.get(nodeData, 'nodeConfig.config.dsType') === DATABASE_TYPE.APPLICATION_WORKSHEET
+        ? _l('应用工作表')
+        : sourceName || nodeData.name
+      : nodeData.name) || defaultInfo.name
+  );
 };

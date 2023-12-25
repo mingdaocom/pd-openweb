@@ -1,6 +1,6 @@
 ﻿import React from 'react';
 import cx from 'classnames';
-import UserHead from '../../userHead';
+import UserHead from 'src/components/userHead';
 import roleController from 'src/api/role';
 import { removeComment } from '../../../redux/postActions';
 import PropTypes from 'prop-types';
@@ -96,12 +96,13 @@ class PostComment extends React.Component {
         commentItem.message = commentItem.message.replace(`#${cat.catName}#`, `[cid]${cat.catID}[/cid]`);
       });
     }
+
     return (
       <li
         className={cx(this.props.className, 'commentContainer ani400', { last: this.props.last }, this.state.leaving ? 'fadeOut aniFill' : 'fadeIn')}
         onMouseEnter={() => this.handleMouseEnter()}
       >
-        <UserHead className="userHead left" user={commentItem.user} size={28} lazy={'false'} />
+        <UserHead className="userHead left" user={{ ...commentItem.user, userHead: commentItem.user.userMiddleHead }} size={28} />
 
           <PostMain postItem={commentItem} inlineMessage minHeight={0} />
 

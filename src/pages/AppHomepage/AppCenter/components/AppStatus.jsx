@@ -24,6 +24,9 @@ const AppStatus = styled.div`
   &.fixed {
     background: #fd7558;
   }
+  &.isUpgrade {
+    background: #4caf50;
+  }
   &.mobilePadding {
     padding: 0 8px;
   }
@@ -38,12 +41,14 @@ export default class AppStatusComp extends Component {
   static defaultProps = {};
   state = {};
   render() {
-    const { isGoodsStatus, isNew, fixed, isRecent } = this.props;
+    const { isGoodsStatus, isNew, fixed, isRecent, isUpgrade } = this.props;
     const isMobile = browserIsMobile();
-    const text = getAppStatusText({ isGoodsStatus, isNew, fixed });
+    const text = getAppStatusText({ isGoodsStatus, isNew, fixed, isUpgrade });
     if (!text) return null;
     return (
-      <AppStatus className={cx({ isOverdue: !isGoodsStatus, fixed, mobilePadding: fixed && isMobile, isRecent })}>
+      <AppStatus
+        className={cx({ isOverdue: !isGoodsStatus, fixed, isUpgrade, mobilePadding: fixed && isMobile, isRecent })}
+      >
         {text}
       </AppStatus>
     );

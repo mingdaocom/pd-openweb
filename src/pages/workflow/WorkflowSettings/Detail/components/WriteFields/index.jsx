@@ -4,6 +4,7 @@ import flowNode from '../../../../api/flowNode';
 import _ from 'lodash';
 import styled from 'styled-components';
 import cx from 'classnames';
+import { NODE_TYPE } from '../../../enum';
 
 const READ_TYPE = [20, 22, 25, 30, 31, 32, 33, 34, 37, 38, 45, 47, 51];
 
@@ -86,12 +87,12 @@ export default class WriteFields extends Component {
    * 是否禁用
    */
   isDisabled(item, type) {
-    const { readonlyControlTypes } = this.props;
+    const { readonlyControlTypes, selectNodeType } = this.props;
 
     if (
       _.includes(READ_TYPE.concat(readonlyControlTypes), item.type) ||
       item.type > 10000 ||
-      (item.type === 29 && item.showType === '2') ||
+      (item.type === 29 && item.showType === '2' && (type === 'REQUIRED' || selectNodeType === NODE_TYPE.LINK)) ||
       (_.includes([43, 49], item.type) && type === 'REQUIRED')
     ) {
       return true;

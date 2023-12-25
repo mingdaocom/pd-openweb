@@ -263,7 +263,7 @@ export default class AddOrEditItem extends React.Component {
         >
           {type === 1 ? _l('还在这里工作') : _l('还在这里学习')}
         </Checkbox>
-        <div className="mTop20 flexEnd mBottom24">
+        <div className="mTop20 flexEnd">
           <button
             type="button"
             className="ming Button Button--link Gray_9e mRight30"

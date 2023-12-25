@@ -61,7 +61,7 @@ export default class CopyApp extends Component {
     return (
       <Dialog
         visible
-        title={<Title className="overflow_ellipsis">{_l('复制应用 ”%0“', title)}</Title>}
+        title={<Title className="overflow_ellipsis">{_l('复制应用 “%0”', title)}</Title>}
         okText={pending ? _l('复制中...') : _l('复制')}
         onOk={this.copyApp}
         {...rest}

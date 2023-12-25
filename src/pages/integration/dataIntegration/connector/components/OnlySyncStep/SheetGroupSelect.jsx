@@ -38,22 +38,23 @@ const PopupWrapper = styled.div`
 `;
 
 export default function SheetGroupSelect(props) {
-  const { appId, value, onChange } = props;
+  const { appId, value, onChange, hideTitle, suffixIcon } = props;
   const [groupPopupVisible, setGroupPopupVisible] = useState(false);
   const [searchKeyWords, setSearchKeyWords] = useState('');
   const [groups, setGroups] = useState([]);
   const groupRef = useRef();
 
   useEffect(() => {
-    homeApp.getApp({ appId, getSection: true }).then(result => {
-      setGroups(
-        result.sections.map(item => {
-          item.subVisible = true;
-          return item;
-        }),
-      );
-    });
-  }, []);
+    !!appId &&
+      homeApp.getApp({ appId, getSection: true }).then(result => {
+        setGroups(
+          result.sections.map(item => {
+            item.subVisible = true;
+            return item;
+          }),
+        );
+      });
+  }, [appId]);
 
   const getGroupOptions = () => {
     let options = [];
@@ -146,8 +147,8 @@ export default function SheetGroupSelect(props) {
         </PopupWrapper>
       }
     >
-      <div ref={groupRef} className="Width250 mRight10">
-        <p className="mBottom8 bold">{_l('分组')}</p>
+      <div ref={groupRef} className={cx('Width250 mRight10', props.className)}>
+        {!hideTitle && <p className="mBottom8 bold">{_l('分组')}</p>}
         <Select
           className="selectItem mBottom20"
           open={false}
@@ -156,7 +157,11 @@ export default function SheetGroupSelect(props) {
           onClick={() => setGroupPopupVisible(true)}
           value={value}
           options={getGroupOptions()}
-          onClear={() => onChange(null)}
+          onClear={() => {
+            onChange(null);
+            setGroupPopupVisible(false);
+          }}
+          suffixIcon={suffixIcon}
         />
       </div>
     </Trigger>

@@ -1,5 +1,6 @@
 import { htmlEncodeReg } from 'src/util';
 import AdminController from 'src/api/adminManage';
+import { getCurrentProject } from 'src/util';
 import _ from 'lodash';
 
 var Config = {
@@ -28,12 +29,12 @@ Config.templates = {
     '</div>',
 };
 
-Config.getParams = function() {
+Config.getParams = function () {
   const reqArray = location.pathname.split('/');
   const controlIndex = $.inArray('admin', reqArray);
   let arr = [];
 
-  reqArray.forEach(function(item, index) {
+  reqArray.forEach(function (item, index) {
     if (index >= controlIndex) {
       arr.push(item);
     }
@@ -43,21 +44,12 @@ Config.getParams = function() {
   Config.projectId = Config.params[2];
 };
 
-Config.getProjectInfo = function() {
-  if (!Config.project || (Config.project && Config.project.projectId !== Config.projectId)) {
-    Config.project = _.find(md.global.Account.projects, function(item) {
-      return item.projectId == Config.projectId;
-    });
-  }
-  return Config.project || {};
-};
-
-Config.setPageTitle = function(prefix) {
+Config.setPageTitle = function (prefix) {
   document.title = Config.getTitle(prefix);
 };
 
-Config.getTitle = function(prefix) {
-  const project = Config.getProjectInfo();
+Config.getTitle = function (prefix) {
+  const project = getCurrentProject(Config.projectId, true);
   const companyName = htmlEncodeReg((project && project.companyName) || '');
   return [_l('组织管理'), prefix, companyName].join(' - ');
 };
@@ -66,7 +58,7 @@ Config.EVENTS = {
   transitionEnd: 'transitionend',
 };
 
-Config.abortRequest = function(request) {
+Config.abortRequest = function (request) {
   if (request && typeof request.state === 'function' && request.state() === 'pending' && request.abort) {
     request.abort();
   }

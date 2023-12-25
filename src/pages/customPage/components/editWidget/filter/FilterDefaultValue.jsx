@@ -20,7 +20,10 @@ function FilterDefaultValue(props) {
         <Inputs
           projectId={projectId}
           appId={id}
-          advancedSetting={advancedSetting}
+          advancedSetting={{
+            ...advancedSetting,
+            navfilters: advancedSetting.showNavfilters ? advancedSetting.showNavfilters : advancedSetting.navfilters,
+          }}
           control={firstControlData}
           filterType={filterType}
           {...defsource}

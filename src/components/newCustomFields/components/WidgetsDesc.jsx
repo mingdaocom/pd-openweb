@@ -23,12 +23,17 @@ class WidgetsDesc extends React.Component {
     const { item, from } = this.props;
     const { isShow } = this.state;
     const isMobile = browserIsMobile();
+    const hintType = _.get(item, 'advancedSetting.hinttype') || '0';
+    const hintShowAsText =
+      hintType === '0'
+        ? _.includes([FROM.NEWRECORD, FROM.PUBLIC_ADD, FROM.H5_ADD, FROM.DRAFT], from) && !item.isSubList
+        : hintType === '2';
 
     if (!item.desc || item.type === 22 || item.type === 10010) {
       return null;
     }
 
-    if (_.includes([FROM.NEWRECORD, FROM.PUBLIC_ADD, FROM.H5_ADD, FROM.DRAFT], from) && !item.isSubList) {
+    if (hintShowAsText) {
       return (
         <Linkify properties={{ target: '_blank' }}>
           <p className="descBox pAll0 mAll0 mBottom0 mTop6 Font12 Gray_9e w100 WordBreak">

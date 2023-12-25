@@ -32,23 +32,26 @@ function getType(control) {
 }
 
 export function conditionAdapter(condition) {
-  if (
-    _.includes(
-      [
-        WIDGETS_TO_API_TYPE_ENUM.TELEPHONE, // 电话号码
-        WIDGETS_TO_API_TYPE_ENUM.MOBILE_PHONE,
-      ],
-      condition.control.type,
-    )
-  ) {
-    condition.filterType = 1;
-  }
-  if (condition.dataType === WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET && condition.filterType === 2) {
+  delete condition.control;
+  if (condition.dataType === 29 && condition.filterType === 2) {
     condition.filterType = 24;
   }
-  delete condition.control;
   return condition;
 }
+
+export function turnControl(control) {
+  if (control.type === WIDGETS_TO_API_TYPE_ENUM.SHEET_FIELD) {
+    control.type = control.sourceControlType;
+  }
+  if (control.type === WIDGETS_TO_API_TYPE_ENUM.SUBTOTAL && control) {
+    control.type = control.enumDefault2 || 6;
+  }
+  if (control.type === WIDGETS_TO_API_TYPE_ENUM.FORMULA_DATE) {
+    control.type = control.enumDefault === 2 ? 15 : 6;
+  }
+  return control;
+}
+
 
 export const formatQuickFilter = filter => {
   return filter.map(c => {

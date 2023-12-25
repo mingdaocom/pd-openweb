@@ -679,6 +679,7 @@ class RecordCalendar extends Component {
       return (
         <Wrap>
           <SelectField
+            sheetSwitchPermit={sheetSwitchPermit}
             isCharge={isCharge}
             context={
               <SelectFieldForStartOrEnd
@@ -920,9 +921,7 @@ class RecordCalendar extends Component {
                     rows: this.getRows(eventInfo.event.start, eventInfo.event.start),
                     showPrevNext: true,
                   });
-                  if (location.pathname.indexOf('public') === -1) {
-                    addBehaviorLog('worksheetRecord', worksheetId, { rowId: extendedProps.rowid }); // 埋点
-                  }
+                  addBehaviorLog('worksheetRecord', worksheetId, { rowId: extendedProps.rowid }); // 埋点
                 });
               }}
               eventDidMount={info => {

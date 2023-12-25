@@ -1,21 +1,27 @@
-import React from 'react'
-import 'src/components/mdBusinessCard/mdBusinessCard';
+import React from 'react';
+import UserHead from 'src/components/userHead';
+import styled from 'styled-components';
+
+const UserHeadWrap = styled(UserHead)`
+  display: inline-block !important;
+  font-size: 0;
+  line-height: 24px;
+`;
 
 export default class PeopleAvatar extends React.Component {
-
-  componentDidMount = () => {
-    const { user = [] } = this.props;
-    const { targetId = '' } = user;
-    $(this.avatar).one('mouseover', () => {
-      console.log(targetId)
-      $(this.avatar).mdBusinessCard({
-        accountId: targetId,
-      }).trigger('mouseenter');
-    });
-  }
-
   render() {
     const { user = [] } = this.props;
-    return <img src={user.peopleAvatar} alt="" className="avatar" ref={avatar => this.avatar = avatar} />
+
+    return (
+      <UserHeadWrap
+        className="avatar"
+        accountId={user.targetId}
+        user={{
+          userHead: user.peopleAvatar,
+          accountId: user.targetId,
+        }}
+        size={24}
+      />
+    );
   }
 }

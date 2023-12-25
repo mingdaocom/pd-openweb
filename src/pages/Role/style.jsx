@@ -78,12 +78,18 @@ export const WrapNav = styled.div`
       cursor: pointer;
       padding: 0 8px 0 18px;
       height: 36px;
+      .Icon {
+        color: #9e9e9e;
+      }
       &.cur {
         color: #2196f3;
         background: #f3faff !important;
         border-radius: 3px 3px 3px 3px;
         font-weight: bold !important;
         position: relative;
+        .Icon {
+          color: #2196f3;
+        }
         &::before {
           content: ' ';
           width: 3px;
@@ -135,6 +141,9 @@ export const WrapNav = styled.div`
         }
         &.cur {
           color: #2196f3 !important;
+          .roleIcon {
+            color: #2196f3;
+          }
           .icon-drag_indicator {
             color: #9e9e9e !important;
             &:hover {

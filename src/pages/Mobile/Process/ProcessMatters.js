@@ -1,5 +1,6 @@
 import React, { Fragment, Component } from 'react';
 import cx from 'classnames';
+import qs from 'query-string';
 import { Tabs, Flex, Checkbox, Modal } from 'antd-mobile';
 import { Icon, LoadDiv, ScrollView, Signature } from 'ming-ui';
 import Back from '../components/Back';
@@ -109,14 +110,17 @@ const tabs = [
 export default class ProcessMatters extends Component {
   constructor(props) {
     super(props);
+    const { search } = props.location;
+    const data = qs.parse(search);
+    const bottomTab = _.find(tabs, { id: data.tab });
     this.state = {
       pageIndex: 1,
       pageSize: 30,
       list: [],
       loading: false,
       isMore: true,
-      bottomTab: tabs[0],
-      topTab: tabs[0].tabs[0],
+      bottomTab: bottomTab ? bottomTab : tabs[0],
+      topTab: bottomTab ? bottomTab.tabs[0] : tabs[0].tabs[0],
       searchValue: '',
       countData: {},
       appCount: {},
@@ -124,8 +128,7 @@ export default class ProcessMatters extends Component {
       batchApproval: false,
       approveCards: [],
       approveType: null,
-      encryptType: null,
-      showPassword: false
+      encryptType: null
     };
   }
   componentDidMount() {
@@ -269,7 +272,7 @@ export default class ProcessMatters extends Component {
     }
   };
   hanndleApprove = (type, batchType) => {
-    const { approveCards, showPassword } = this.state;
+    const { approveCards } = this.state;
     const rejectCards = approveCards.filter(c => _.get(c, 'flowNode.btnMap')[5]);
     const cards = type === 5 ? rejectCards : approveCards;
     const signatureCard = cards.filter(card => (_.get(card.flowNode, batchType) || []).includes(1));
@@ -277,11 +280,11 @@ export default class ProcessMatters extends Component {
     if (_.isEmpty(cards)) {
       alert(_l('请先勾选需要处理的审批'), 2);
     }
-    if (signatureCard.length || (encryptCard.length && showPassword)) {
+    if (signatureCard.length || encryptCard.length) {
       if (signatureCard.length) {
         this.setState({ approveType: type });
       }
-      if (encryptCard.length && showPassword) {
+      if (encryptCard.length) {
         this.setState({ encryptType: type });
       }
     } else {
@@ -320,7 +323,7 @@ export default class ProcessMatters extends Component {
       });
   };
   renderSignatureDialog() {
-    const { approveType, encryptType, showPassword } = this.state;
+    const { approveType, encryptType } = this.state;
     const type = approveType || encryptType;
     const batchType = type === 4 ? 'auth.passTypeList' : 'auth.overruleTypeList';
     const approveCards = type === 4 ? this.state.approveCards : this.state.approveCards.filter(c => _.get(c, 'flowNode.btnMap')[5]);
@@ -353,9 +356,9 @@ export default class ProcessMatters extends Component {
             {encryptType && (
               <div className="mTop20 TxtLeft">
                 <VerifyPassword
-                  onChange={({ password, isNoneVerification }) => {
+                  removeNoneVerification={true}
+                  onChange={({ password }) => {
                     if (password !== undefined) this.password = password;
-                    if (isNoneVerification !== undefined) this.isNoneVerification = isNoneVerification;
                   }}
                 />
               </div>
@@ -387,20 +390,12 @@ export default class ProcessMatters extends Component {
                     this.handleBatchApprove(null, this.state.encryptType);
                     this.setState({ approveType: null, encryptType: null });
                   }
-                  if (this.isNoneVerification) {
-                    this.setState({ showPassword: false });
-                  }
                 };
                 if (encryptCard.length) {
                   verifyPassword({
                     password: this.password,
                     closeImageValidation: true,
-                    isNoneVerification: this.isNoneVerification,
-                    checkNeedAuth: !showPassword,
                     success: submitFun,
-                    fail: () => {
-                      this.setState({ showPassword: true });
-                    }
                   });
                 } else {
                   submitFun();
@@ -729,6 +724,7 @@ export default class ProcessMatters extends Component {
             <Tabs
               tabBarInactiveTextColor="#9e9e9e"
               tabs={tabs}
+              page={bottomTab ? _.findIndex(tabs, { id: bottomTab.id }) : -1}
               onTabClick={this.handleChangeCompleteTab}
               renderTab={tab => (
                 <div className="flexColumn valignWrapper">

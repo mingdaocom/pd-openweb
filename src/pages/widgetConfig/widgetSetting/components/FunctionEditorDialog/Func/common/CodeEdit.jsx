@@ -1,6 +1,7 @@
 import { arrayOf, func, shape, string, bool } from 'prop-types';
 import React, { useEffect, forwardRef, useImperativeHandle, useRef } from 'react';
 import styled from 'styled-components';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'pages/widgetConfig/config/widget';
 import FunctionEditor from './FunctionEditor';
 import _ from 'lodash';
 
@@ -16,12 +17,20 @@ const Title = styled.div`
   position: relative;
   font-size: 20px;
   font-weight: bold;
-  &::after {
-    content: '=';
-    color: #757575;
-    position: absolute;
-    top: -1px;
-    margin-left: 6px;
+  .name {
+    &::after {
+      content: '=';
+      color: #757575;
+      position: absolute;
+      top: -1px;
+      margin-left: 6px;
+    }
+  }
+  .description {
+    font-size: 13px;
+    color: #bdbdbd;
+    font-weight: normal;
+    margin-bottom: -10px;
   }
 `;
 
@@ -52,11 +61,33 @@ const Editor = styled.div`
   }
 `;
 
+function getControlDescription(type) {
+  let result;
+  switch (type) {
+    case WIDGETS_TO_API_TYPE_ENUM.SWITCH:
+      result = _l('为检查项字段赋值时请使用true/false，true为选中，false为不选中');
+      break;
+  }
+  return result;
+}
+
 function CodeEdit(props, ref) {
-  const { mode, type, value, title, placeholder, controls, renderTag, onClick = () => {}, onChange = () => {} } = props;
+  const {
+    control = {},
+    mode,
+    type,
+    value,
+    title,
+    placeholder,
+    controls,
+    renderTag,
+    onClick = () => {},
+    onChange = () => {},
+  } = props;
   const readOnly = mode === 'read';
   const editorDomRef = useRef();
   const editorRef = useRef();
+  const description = getControlDescription(control.type);
   useEffect(() => {
     if (editorDomRef.current) {
       const functionEditor = new FunctionEditor(editorDomRef.current, {
@@ -87,7 +118,12 @@ function CodeEdit(props, ref) {
   }));
   return (
     <Con readOnly={readOnly} onClick={onClick}>
-      {!readOnly && <Title ref={ref}>{title}</Title>}
+      {!readOnly && (
+        <Title ref={ref}>
+          <div className="name"> {title}</div>
+          {description && <div className="description">{description}</div>}
+        </Title>
+      )}
       {readOnly && !value && placeholder && <PlaceHolder>{placeholder}</PlaceHolder>}
       <Editor readOnly={readOnly} ref={editorDomRef} />
     </Con>
@@ -97,6 +133,7 @@ function CodeEdit(props, ref) {
 export default forwardRef(CodeEdit);
 
 CodeEdit.propTypes = {
+  control: shape({}),
   mode: bool,
   type: string,
   title: string,

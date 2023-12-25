@@ -22,7 +22,7 @@ export default function Text(props) {
       <SettingItem>
         <RadioGroup
           size="middle"
-          checkedValue={data.enumDefault}
+          checkedValue={data.enumDefault === 0 ? 2 : data.enumDefault}
           data={DISPLAY_OPTIONS}
           onChange={value => {
             if (value !== 2 && datamask === '1') {

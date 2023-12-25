@@ -20,7 +20,7 @@ const renderFileImage = (url, coverType, imgClassName = 'w100') => {
 
 // 渲染明道云附件
 const ImageCard = props => {
-  const { data, isMobile, isDeleteFile, coverType, allowEditName, allowDownload } = props;
+  const { data, isMobile, isDeleteFile, coverType, allowEditName, allowDownload, worksheetId, recordId } = props;
   const { onDeleteMDFile, onOpenControlAttachmentInNewTab, onMDPreview, onAttachmentName } = props;
   const { isKc, browse, fileClassName, fileSize, isMore, isDownload } = props;
   const fullShow = coverType === '1';

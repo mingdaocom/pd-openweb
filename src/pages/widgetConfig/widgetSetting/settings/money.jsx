@@ -15,11 +15,11 @@ export default function Money(props) {
 
   return (
     <Fragment>
+      <Components.PointerConfig {...props} />
       <SettingItem>
         <div className="settingItemTitle">{_l('单位')}</div>
         <Components.PreSuffix {...props} />
       </SettingItem>
-      <Components.PointerConfig {...props} />
     </Fragment>
   );
 }

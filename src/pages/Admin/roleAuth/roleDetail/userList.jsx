@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import LoadDiv from 'ming-ui/components/LoadDiv';
-import UserHead from 'src/pages/feed/components/userHead';
+import UserHead from 'src/components/userHead';
 
 import RoleController from 'src/api/role';
 import PaginationWrap from '../../components/PaginationWrap';
@@ -112,8 +112,8 @@ class RoleUserList extends React.Component {
           {_.map(users, user => {
             return (
               <tr key={user.accountId} className="tdHover">
-                <td className="avatarBox LineHeight48">
-                  <UserHead user={{ userHead: user.avatar, accountId: user.accountId }} lazy={'false'} size={32} />
+                <td className="userHeadBox">
+                  <UserHead user={{ userHead: user.avatar, accountId: user.accountId }} size={32} />
                 </td>
                 <td className="userName">{user.fullName}</td>
                 <td className="userProfession">{user.profession}</td>

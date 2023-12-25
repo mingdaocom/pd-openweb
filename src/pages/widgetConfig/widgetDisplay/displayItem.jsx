@@ -21,7 +21,7 @@ const DisplayItemWrap = styled.div`
   ${props => (props.isTab ? '' : 'padding: 8px 12px;')}
   min-height: 48px;
   cursor: grab;
-  transition: all 0.25s ease-in-out;
+  transition: box-shadow 0.25s ease-in-out;
   transform: translate3d(0, 0, 0);
   margin-top: ${props => (props.row && !props.isTab ? '4px' : '')};
   margin-left: ${props => (props.col ? '4px' : '')};

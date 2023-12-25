@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Icon, MobileCityPicker } from 'ming-ui';
+import { Icon, CityPicker } from 'ming-ui';
 import styled from 'styled-components';
 import _ from 'lodash';
 
@@ -43,11 +43,11 @@ const AreaItem = styled.span`
   }
   .userName {
     display: inline-block;
-    width: calc(100% - 41px);
+    width: calc(100% - 42px);
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
-    margin: 0 20px 0 8px;
+    margin: 0 18px 0 8px;
     vertical-align: middle;
   }
 `;
@@ -66,12 +66,12 @@ export default function Areas(props) {
       <AreaCon>
         {values.map(item => (
           <AreaItem isMultiple={isMultiple}>
-            <span className="userName">{item.name}</span>
+            <span className="userName 12">{item.name}</span>
             <Icon icon="close" onClick={() => deleteCurrentArea(item)} />
           </AreaItem>
         ))}
         {((!isMultiple && _.isEmpty(values)) || isMultiple) && (
-          <MobileCityPicker
+          <CityPicker
             level={control.type === 19 ? 1 : control.type === 23 ? 2 : 3}
             showConfirmBtn={true}
             callback={area => {
@@ -83,10 +83,10 @@ export default function Areas(props) {
               }
             }}
             onClear={() => {
-              tempArea.current = {};
+              tempArea.current = null;
               onChange({ values: [] });
             }}
-            onClose={() => {
+            handleClose={() => {
               if (tempArea.current) {
                 onChange({ values: isMultiple ? _.uniqBy([...values, tempArea.current], 'id') : [tempArea.current] });
               }
@@ -95,10 +95,10 @@ export default function Areas(props) {
             <span className="addBtn">
               <Icon icon="add" />
             </span>
-          </MobileCityPicker>
+          </CityPicker>
         )}
         {!isMultiple && !_.isEmpty(values) && (
-          <MobileCityPicker
+          <CityPicker
             level={control.type === 19 ? 1 : control.type === 23 ? 2 : 3}
             showConfirmBtn={true}
             callback={area => {
@@ -113,14 +113,14 @@ export default function Areas(props) {
               tempArea.current = {};
               onChange({ values: [] });
             }}
-            onClose={() => {
+            handleClose={() => {
               if (tempArea.current) {
                 onChange({ values: isMultiple ? _.uniqBy([...values, tempArea.current], 'id') : [tempArea.current] });
               }
             }}
           >
             <Icon icon="arrow-right-border" className="rightArrow" />
-          </MobileCityPicker>
+          </CityPicker>
         )}
       </AreaCon>
     </div>

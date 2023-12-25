@@ -12,7 +12,7 @@ import DropOption from 'src/pages/Role/PortalCon/components/DropOption';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import _ from 'lodash';
 import { getCurrentProject } from 'src/util';
-import UserHead from 'src/pages/feed/components/userHead';
+import UserHead from 'src/components/userHead';
 import { getIcon, getColor, getTxtColor, pageSize } from 'src/pages/Role/AppRoleCon/UserCon/config';
 import moment from 'moment';
 import { sysRoleType } from 'src/pages/Role/config.js';
@@ -247,9 +247,8 @@ function User(props) {
             {data.memberType === 5 ? (
               <UserHead
                 key={data.accountId}
-                projectId={_.isEmpty(getCurrentProject(projectId)) ? '' : projectId}
+                projectId={projectId}
                 size={32}
-                lazy="false"
                 user={{
                   ...data,
                   accountId: data.id,

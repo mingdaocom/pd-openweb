@@ -2,11 +2,12 @@ import React, { Component } from 'react';
 import { Dialog, VerifyPasswordConfirm } from 'ming-ui';
 import userController from 'src/api/user';
 import functionWrap from 'ming-ui/components/FunctionWrap';
-import UserHead from 'src/pages/feed/components/userHead';
+import UserHead from 'src/components/userHead';
 import { getPssId } from 'src/util/pssId';
 import moment from 'moment';
 import cx from 'classnames';
 import './index.less';
+import { getCurrentProject } from 'src/util';
 
 class UserBoardDialog extends Component {
   constructor(props) {
@@ -41,13 +42,10 @@ class UserBoardDialog extends Component {
     VerifyPasswordConfirm.confirm({
       title: <div className="Bold">{_l('请输入登录密码，以验证管理员身份')}</div>,
       description: '',
-      inputName: _l('登录密码'),
       allowNoVerify: false,
       onOk: () => {
         var url = `${md.global.Config.AjaxApiUrl}download/exportProjectUserList`;
-        let projectName = (md.global.Account.projects || []).filter(item => item.projectId === projectId).length
-          ? (md.global.Account.projects || []).filter(item => item.projectId === projectId)[0].companyName
-          : '';
+        let projectName = getCurrentProject(projectId, true).companyName || '';
         fetch(url, {
           method: 'POST',
           headers: {
@@ -144,7 +142,6 @@ class UserBoardDialog extends Component {
                                   userHead: avatar,
                                   accountId: accountId,
                                 }}
-                                lazy={'false'}
                                 size={36}
                               />
                             </td>

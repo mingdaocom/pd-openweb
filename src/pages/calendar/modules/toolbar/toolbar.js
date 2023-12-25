@@ -1,4 +1,6 @@
 var Toolbar = {};
+import React from 'react';
+import ReactDOM from 'react-dom';
 import { htmlEncodeReg } from 'src/util';
 import showCategoryListTpl from './tpl/showCategoryList.html';
 import ClassificationCalendarListAddTpl from './tpl/ClassificationCalendarListAdd.html';
@@ -10,6 +12,7 @@ import addOtherUserTpl from './tpl/addOtherUser.html';
 import ClassificationCalendarHtml from './tpl/ClassificationCalendar.html';
 import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import calendarAjax from 'src/api/calendar';
+import UserHead from 'src/components/userHead';
 
 Toolbar.settings = {
   oldCategoryList: [],
@@ -26,11 +29,11 @@ import Calendar from '../calendar/calendar';
 Toolbar.Comm = Comm;
 Toolbar.Calendar = Calendar;
 
-import 'src/components/mdBusinessCard/mdBusinessCard';
 import _ from 'lodash';
 import copy from 'copy-to-clipboard';
 import { formatRecur } from '../calendarDetail/common';
 import moment from 'moment';
+import UserCard from 'src/components/UserCard';
 
 // 绑定事件
 Toolbar.Event = function () {
@@ -427,27 +430,6 @@ Toolbar.Event = function () {
       $('.classificationCalendarList .colorBlockMain').hide();
     }
   });
-
-  // 绑定toolBar和未确认日程名片层
-  $('#calendarMenu,.calendarMain').on('mouseover', '.showBusinessCard', function () {
-    var $this = $(this);
-    if (!$this.data('hasbusinesscard')) {
-      var accountId = $this.parents('.addOtherUser').attr('data-id') || $this.attr('data-id');
-      $this.mdBusinessCard({
-        id: 'showBusinessCard',
-        accountId: accountId || new Date().getTime(),
-        noRequestData: !accountId,
-        data: {
-          avatar: $this.find('.userHead').attr('src'),
-          fullname: $(this).find('.TxtTop').html(),
-          accountId: md.global.Account.accountId,
-          status: 3,
-          companyName: '来自微信邀请',
-        },
-      });
-      $(this).data('hasbusinesscard', true).mouseenter();
-    }
-  });
 };
 
 // 绑定方法
@@ -660,6 +642,41 @@ Toolbar.Method = {
             .show()
             .find('#invitedCalendars')
             .html(Toolbar.Comm.doT.template(calendarInviteTpl)(Object.assign({}, data, { moment })));
+
+          $('#invitedCalendars')
+            .find('.showBusinessCard')
+            .each((i, ele) => {
+              var $this = $(ele);
+              if (!$this.data('hasbusinesscard')) {
+                var accountId = $this.parents('.addOtherUser').attr('data-id') || $this.attr('data-id');
+                var avatar = $this.attr('data-avatar');
+                var status = $this.attr('data-status');
+                var name = $this.attr('data-name');
+                var isCalendar = $this.attr('data-isCalendar');
+                ReactDOM.render(
+                  <UserCard sourceId={accountId}>
+                    <span>
+                      <img className="circle userHead" src={avatar} />
+                      {status && (
+                        <span
+                          class={`userStatus ${
+                            status === 0
+                              ? 'calendarCenterLabelNosubmit'
+                              : status === 1
+                              ? 'calendarCenterLabelSubmit'
+                              : 'calendarCenterLabelRefuse'
+                          }`}
+                        ></span>
+                      )}
+                      <span class="TxtTop calendarName"> {name}</span>
+                      {isCalendar && <span class="Gray_6 TxtTop calendarName"> {_l('(发起人)')}</span>}
+                    </span>
+                  </UserCard>,
+                  ele,
+                );
+                $this.data('hasbusinesscard', true);
+              }
+            });
         } else {
           $('#invitedMain')
             .show()
@@ -781,6 +798,22 @@ Toolbar.Method = {
     if (isPrepend) {
       $('#calendarType').scrollTop($('#calendarType')[0].scrollHeight);
     }
+
+    $('#calendarMenu .addOtherUserHeadImg.noInsert').each((i, ele) => {
+      const accountId = $(ele).parent().attr('data-id');
+      const avatar = $(ele).attr('data-src');
+      $(ele).removeClass('noInsert');
+      ReactDOM.render(
+        <UserHead
+          user={{
+            userHead: avatar,
+            accountId: accountId,
+          }}
+          size={24}
+        />,
+        ele,
+      );
+    });
 
     if ($.inArray(md.global.Account.accountId, Toolbar.Comm.settings.otherUsers) < 0) {
       $hideOneself.find('.cbComplete').removeClass('icon-calendar-nocheck').addClass('icon-calendar-check');

@@ -101,16 +101,16 @@ export default function installDialog({ projectId, type, onClose, ...rest }) {
           filterOtherProject: true, // 当对于 true,projectId不能为空，指定只加载某个网络的数据
           dataRange: 2, // reference to dataRangeTypes 和 projectId 配合使用
           allowSelectNull: false, // 是否允许选择列表为空
-          callback: function (data) {
+          callback: function(data) {
             projectAjax
               .pushInstallClientMsg({
                 projectId: projectId,
-                accountIds: _.map(data, function (user) {
+                accountIds: _.map(data, function(user) {
                   return user.accountId;
                 }),
                 clientType: type === 'app' ? 0 : 1,
               })
-              .done(function () {
+              .done(function() {
                 alert(_l('发送成功'), 1);
               });
           },
@@ -144,7 +144,7 @@ export default function installDialog({ projectId, type, onClose, ...rest }) {
             </div>
           </Fragment>
         ) : (
-          <img src={`${AjaxApiUrl}code/CreateQrCodeImage?url=${WebUrl}mobile.html`} />
+          <img src={`${AjaxApiUrl}code/CreateQrCodeImage?url=${WebUrl}download`} />
         )}
       </div>
       <div className="text">{text}</div>
@@ -154,7 +154,7 @@ export default function installDialog({ projectId, type, onClose, ...rest }) {
           className="copyBtn"
           style={{ width: '260px' }}
           onClick={() => {
-            copy(`${WebUrl}mobile.htm`);
+            copy(`${WebUrl}download`);
             alert(_l('已经复制到粘贴板，你可以使用Ctrl+V 贴到需要的地方去了哦'));
           }}
         >

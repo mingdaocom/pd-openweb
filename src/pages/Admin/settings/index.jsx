@@ -53,6 +53,13 @@ const CONFIGS = [
     clickFunc: 'setEncryptRules',
     icon: 'lock',
   },
+  {
+    key: 'PasswordFreeVerification',
+    title: _l('免密验证'),
+    descrption: _l('关闭后，全组织下的自定义按钮、审批配置了登录密码验证的地方必须每次验证密码后方可继续操作'),
+    showSwitch: true,
+    icon: 'how_to_reg',
+  },
 ];
 export default class GeneralSettings extends Component {
   constructor(props) {
@@ -61,12 +68,16 @@ export default class GeneralSettings extends Component {
       watermark: false,
       uploadSvg: false,
       customColor: false,
+      noneVerificationEnabled: false,
     };
     Config.setPageTitle(_l('通用设置'));
   }
   componentDidMount() {
     projectSettingController.getEnabledWatermark({ projectId: Config.projectId }).then(res => {
       this.setState({ watermark: res.enabledWatermark });
+    });
+    projectSettingController.getEnabledNoneVerification({ projectId: Config.projectId }).then(res => {
+      this.setState({ noneVerificationEnabled: res.noneVerificationEnabled });
     });
     if (location.pathname.includes('isShowEncryptRules')) {
       this.setEncryptRules();
@@ -105,9 +116,19 @@ export default class GeneralSettings extends Component {
         }
       });
   };
+  setEnabledNoneVerification = () => {
+    const { noneVerificationEnabled } = this.state;
+    projectSettingController
+      .setEnabledNoneVerification({ projectId: Config.projectId, enabledNoneVerification: !noneVerificationEnabled })
+      .then(res => {
+        if (res) {
+          this.setState({ noneVerificationEnabled: !noneVerificationEnabled });
+        }
+      });
+  };
 
   render() {
-    let { watermark, uploadSvg, showEncryptRules, customColor } = this.state;
+    let { watermark, uploadSvg, showEncryptRules, customColor, noneVerificationEnabled } = this.state;
 
     if (uploadSvg) {
       return <CustomIcon onClose={() => this.setState({ uploadSvg: false })} projectId={Config.projectId} />;
@@ -137,13 +158,24 @@ export default class GeneralSettings extends Component {
                 <Item key={key}>
                   <div className="flex">
                     <div className="bold mBottom5 Font14">
-                      <Icon icon={item.icon} className="Gray_9e Font18 mRight8"/>
+                      <Icon icon={item.icon} className="Gray_9e Font18 mRight8" />
                       {title}
                     </div>
                     <div className="Gray_9e">{descrption}</div>
                   </div>
                   <div>
-                    {showSwitch && <Switch checked={watermark} onClick={this.setEnabledWatermark} />}
+                    {showSwitch && (
+                      <Switch
+                        checked={key === 'watermark' ? watermark : noneVerificationEnabled}
+                        onClick={() => {
+                          if (key === 'watermark') {
+                            this.setEnabledWatermark();
+                          } else {
+                            this.setEnabledNoneVerification();
+                          }
+                        }}
+                      />
+                    )}
                     {clickFunc && (
                       <Icon
                         icon="sidebar-more"

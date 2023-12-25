@@ -6,7 +6,13 @@ import { DATABASE_TYPE } from 'src/pages/integration/dataIntegration/constant.js
 import { mdUniquePkData } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config.js';
 import _ from 'lodash';
 import { hsMorePkControl } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/util.js';
-
+import styled from 'styled-components';
+const Wrap = styled.div`
+  background: #f7f7f7;
+  border: 1px solid #eaeaea;
+  padding: 10px;
+  margin: 10px 0;
+`;
 export default function DestEdit(props) {
   const inputRef = createRef();
   const { onChangeInfo, list, state, flowData } = props;
@@ -89,8 +95,11 @@ export default function DestEdit(props) {
     });
     return fieldsMapping;
   };
+  const showTip = _.get(node, ['nodeConfig', 'config', 'dsType']) === DATABASE_TYPE.MONGO_DB && fileList.length <= 0;
   return (
     <React.Fragment>
+      {/* MongoDB为目的地的时候，请求返回数据为空 */}
+      {showTip && <Wrap className="Gray">{_l('MongoDB 无数据的时候，会显示映射关系失效。')}</Wrap>}
       {_.get(node, ['nodeConfig', 'config', 'createTable']) && (
         <React.Fragment>
           <div className="name Bold pBottom12">{_l('新建表名称')}</div>

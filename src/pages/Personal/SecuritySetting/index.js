@@ -4,8 +4,8 @@ import accountController from 'src/api/account';
 import actionLogAjax from 'src/api/actionLog';
 import accountSetting from 'src/api/accountSetting';
 import wxController from 'src/api/weixin';
-import ValidatePassword from '../bindAccount/validatePasswordDialog';
-import StepsVerifyDialog from '../bindAccount/stepsVerifyDialog/index';
+import { validateFunc } from '../components/ValidateInfo';
+import StepsVerifyDialog from '../components/stepsVerifyDialog/index';
 import { verifyPassword } from 'src/util';
 import { formatFormulaDate } from 'src/pages/worksheet/util.js';
 import common from '../common';
@@ -92,11 +92,11 @@ export default class SecuritySetting extends Component {
 
   openVerify = checked => {
     if (checked) {
-      const colseValidateDialog = ValidatePassword({
-        header: _l('关闭两步验证'),
+      validateFunc({
+        title: _l('关闭两步验证'),
         callback: () =>
           this.sureSettings('isTwoauthentication', 0, () => {
-            this.setState({ isTwoauthentication: false }, () => colseValidateDialog.closeDialog());
+            this.setState({ isTwoauthentication: false });
           }),
       });
       return;

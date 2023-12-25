@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import { arrayOf, func, number, string } from 'prop-types';
-import UserHead from 'src/pages/feed/components/userHead';
+import UserHead from 'src/components/userHead';
 import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import quickSelectUser from 'ming-ui/functions/quickSelectUser';
 import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
@@ -168,12 +168,12 @@ export default function Users(props) {
           <SingleUserItem>
             <UserHead
               className="userHead"
-              alwaysBindCard
               user={{
                 userHead: values[0].avatar,
                 accountId: values[0].accountId,
               }}
               size={24}
+              appId={appId}
             />
             {values[0].fullname}
           </SingleUserItem>
@@ -182,12 +182,12 @@ export default function Users(props) {
             <UserItem className="ellipsis">
               <UserHead
                 className="userHead"
-                alwaysBindCard
                 user={{
                   userHead: user.avatar,
                   accountId: user.accountId,
                 }}
                 size={24}
+                appId={appId}
               />
               {user.fullname}
               <i

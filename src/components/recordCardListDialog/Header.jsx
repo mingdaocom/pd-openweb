@@ -56,6 +56,7 @@ export default function Header(props) {
   const {
     entityName,
     projectId,
+    appId,
     control = {},
     controls,
     quickFilters,
@@ -92,6 +93,7 @@ export default function Header(props) {
           <FilterCon>
             <Filter
               projectId={projectId}
+              appId={appId}
               control={control}
               controls={controls}
               quickFilters={quickFilters}

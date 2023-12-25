@@ -47,7 +47,11 @@ export default class Switch extends React.Component {
 
   @autobind
   handleChange(checked) {
-    const { updateCell } = this.props;
+    const { cell, updateCell } = this.props;
+    if (cell.required && checked) {
+      alert(_l('%0为必填字段', cell.controlName), 3);
+      return;
+    }
     this.setState(
       {
         value: !checked,
@@ -63,13 +67,13 @@ export default class Switch extends React.Component {
   renderContent() {
     const { value } = this.state;
     const {
+      row = {},
       cell: { advancedSetting = {}, hint = '' },
-      editable,
     } = this.props;
     const checkedValue = value ? '1' : '0';
     const showtype = advancedSetting.showtype;
     const itemnames = getSwitchItemNames(this.props.cell);
-
+    const editable = this.props.editable && !(row.rowid || '').startsWith('empty');
     if (showtype === '1') {
       const text = value ? _.get(itemnames[0], 'value') : _.get(itemnames[1], 'value');
       return (

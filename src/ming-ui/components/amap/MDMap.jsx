@@ -6,6 +6,20 @@ import MapHandler from './MapHandler';
 import '../less/MDMap.less';
 import { Tooltip } from 'antd';
 import _ from 'lodash';
+import markImg from './img/mark_r.png';
+import styled from 'styled-components';
+
+const ToolbarIconWrap = styled.div`
+  width: 30px;
+  text-align: center;
+  right: 10px;
+  top: ${({ isMobile, icon }) => (icon === 'gpsFixed' ? (isMobile ? '140px' : '470px') : isMobile ? '180px' : '520px')};
+  z-index: 10;
+  padding: 6px;
+  border-radius: ${icon => (icon === 'gpsFixed' ? ' 50%' : 'unset')};
+  background: #fff;
+  box-shadow: 0 3px 6px 0px rgba(0, 0, 0, 0.16);
+`;
 
 export default class MDMap extends Component {
   static defaultProps = {
@@ -20,8 +34,10 @@ export default class MDMap extends Component {
 
     this.state = {
       defaultLocation: null,
+      currentLocation: null,
       defaultList: [],
       list: [],
+      zoom: 15,
     };
   }
 
@@ -47,8 +63,10 @@ export default class MDMap extends Component {
   conRef = React.createRef();
 
   initMapObject() {
+    const { defaultAddress } = this.props;
+
     this._maphHandler = new MapHandler(this._mapContainer, { zoom: 15 });
-    this._maphHandler.getCurrentPos(this.handleCurrPos); // 初始定位
+    this._maphHandler.getCurrentPos(this.handleCurrPos, !defaultAddress); // 初始定位
 
     // 点击地图
     this._maphHandler.onClick((lng, lat, address, name) => {
@@ -60,8 +78,8 @@ export default class MDMap extends Component {
     });
 
     // 移动地图
-    this._maphHandler.moveEnd((lng, lat) => {
-      this.setPosition(lng, lat, false);
+    this._maphHandler.moveEnd((lng, lat, address, name) => {
+      this.geoLocation(lng, lat, address, name);
     });
   }
 
@@ -70,7 +88,7 @@ export default class MDMap extends Component {
     const { defaultAddress } = this.props;
 
     if (status === 'complete') {
-      this.setState({ defaultLocation: result });
+      this.setState({ currentLocation: result, defaultLocation: result });
 
       if (defaultAddress) {
         this.setPosition(defaultAddress.x, defaultAddress.y);
@@ -78,38 +96,54 @@ export default class MDMap extends Component {
         this.setPosition(result.position.lng, result.position.lat);
       }
     } else if (status === 'error' && defaultAddress) {
-      const defaultLocation = {
-        addressComponent: { building: defaultAddress.title },
-        formattedAddress: defaultAddress.address,
-        position: {
-          lng: defaultAddress.x,
-          lat: defaultAddress.y,
-        },
-      };
-      this.setState({ defaultLocation });
+      const location = this.getCurrentLocation({ ...defaultAddress });
       this.setPosition(defaultAddress.x, defaultAddress.y);
+      this.setState({
+        currentLocation: location,
+        defaultLocation: location,
+      });
     }
   };
 
-  // 定位并添加mark
+  getCurrentLocation = ({ x, y, title, address }) => {
+    return {
+      addressComponent: { building: title },
+      formattedAddress: address,
+      position: {
+        lng: x,
+        lat: y,
+      },
+    };
+  };
+
+  // 定位
   geoLocation = (lng, lat, address, name) => {
     if (this._maphHandler) {
-      this.setPosition(lng, lat);
-      this.props.onAddressChange({ lng, lat, address, name });
+      this.setState(
+        {
+          currentLocation: !this.compareDistance(lng, lat)
+            ? undefined
+            : this.getCurrentLocation({ x: lng, y: lat, title: name, address }),
+          zoom: this._maphHandler.map.getZoom(),
+        },
+        () => this.setPosition(lng, lat, this.state.zoom),
+      );
     }
   };
 
   // 定位
   setPosition(lng, lat, resetZoom = true) {
     const { distance } = this.props;
-
+    const { zoom } = this.state;
+    if (!this.compareDistance(lng, lat)) {
+      this.setState({ currentLocation: undefined, defaultList: [] });
+      return;
+    }
     if (this._maphHandler) {
-      this._maphHandler.setPosition(lng, lat, resetZoom ? 18 : this._maphHandler.map.getZoom());
-      this._maphHandler.removeMarker('searchMarker');
-      this._maphHandler.addSearchMarker(lng, lat);
+      this._maphHandler.setPosition(lng, lat, resetZoom ? zoom : this._maphHandler.map.getZoom());
 
       // 周边搜索
-      new AMap.PlaceSearch().searchNearBy('', [lng, lat], distance || 200, (status, result) => {
+      new AMap.PlaceSearch().searchNearBy('', [lng, lat], distance || 100, (status, result) => {
         if (status === 'complete') {
           this.setState({
             defaultList: result.poiList.pois.filter(
@@ -177,6 +211,18 @@ export default class MDMap extends Component {
     this.setPosition(location.lng, location.lat);
   };
 
+  setZoom = type => {
+    const { currentLocation = {}, defaultLocation = {}, zoom } = this.state;
+    if (zoom > 18 || zoom < 3) {
+      this.setState({ zoom: zoom > 18 ? 18 : 3 });
+      return;
+    }
+    this.setState({ zoom: type === 'plus' ? zoom + 1 : zoom - 1 }, () => {
+      const { lng, lat } = _.get(currentLocation || defaultLocation, 'position') || {};
+      this._maphHandler.setPosition(lng, lat, this.state.zoom);
+    });
+  };
+
   renderOperatorIcon() {
     const { isMobile, onClose } = this.props;
     const { defaultLocation } = this.state;
@@ -193,25 +239,32 @@ export default class MDMap extends Component {
           style={{ right: 10, top: 10, zIndex: 10 }}
           onClick={onClose}
         />
-        <div
-          className="Gray_9e Absolute ThemeHoverColor3 pointer flexRow"
-          style={{
-            right: 10,
-            top: isMobile ? 210 : 440,
-            zIndex: 10,
-            padding: 6,
-            borderRadius: '50%',
-            background: '#fff',
-            boxShadow: `0 3px 6px 0px rgba(0,0,0,0.16)`,
-          }}
-          onClick={() =>
-            defaultLocation &&
-            defaultLocation.position &&
-            this.setPosition(defaultLocation.position.lng, defaultLocation.position.lat)
-          }
-        >
-          <Icon icon="gps_fixed" className="Font18" />
-        </div>
+
+        {defaultLocation && defaultLocation.position && (
+          <ToolbarIconWrap
+            isMobile={isMobile}
+            icon="gpsFixed"
+            className="Gray_9e Absolute ThemeHoverColor3 pointer flexRow gpsFixedIcon"
+            onClick={() => this.setPosition(defaultLocation.position.lng, defaultLocation.position.lat)}
+          >
+            <Icon icon="gps_fixed" className="Font18" />
+          </ToolbarIconWrap>
+        )}
+        {defaultLocation && defaultLocation.position && (
+          <ToolbarIconWrap
+            className="Gray_9e Absolute pointer flexColumn zoomWrap"
+            isMobile={isMobile}
+            icon="plusMinus"
+          >
+            <div className="ThemeHoverColor3" onClick={() => this.setZoom('plus')}>
+              <Icon icon="plus" className="Font14" />
+            </div>
+            <div className="w100 mTop2" style={{ height: 1, border: '1px solid #ddd' }}></div>
+            <div className="ThemeHoverColor3 pTop3" style={{ height: 19 }} onClick={() => this.setZoom('minus')}>
+              <Icon icon="minus" className="Font14" />
+            </div>
+          </ToolbarIconWrap>
+        )}
       </Fragment>
     );
   }
@@ -244,34 +297,33 @@ export default class MDMap extends Component {
   }
 
   renderSearchList() {
-    const { defaultLocation, list, defaultList } = this.state;
+    const { currentLocation, list, defaultList } = this.state;
     const keywords = ((document.getElementsByClassName('MDMapInput')[0] || {}).value || '').trim();
 
     return (
       <ScrollView className="flex mTop5">
-        {!keywords && defaultLocation && defaultLocation.formattedAddress && (
+        {currentLocation && (
           <div className="MDMapList">
             <div
               className="flexColumn flex ellipsis"
               onClick={() =>
-                this.geoLocation(
-                  defaultLocation.position.lng,
-                  defaultLocation.position.lat,
-                  defaultLocation.formattedAddress,
-                  (defaultLocation.addressComponent || {}).building,
-                )
+                this.props.onAddressChange({
+                  lng: currentLocation.position.lng,
+                  lat: currentLocation.position.lat,
+                  address: currentLocation.formattedAddress,
+                  name: (currentLocation.addressComponent || {}).building,
+                })
               }
             >
-              <div className="ellipsis bold Gray">{(defaultLocation.addressComponent || {}).building}</div>
-              <div className="ellipsis Gray_9e">{defaultLocation.formattedAddress}</div>
+              <div className="ellipsis bold Gray">
+                {_l('(当前位置)')}
+                {(currentLocation.addressComponent || {}).building}
+              </div>
+              <div className="ellipsis Gray_9e">
+                {currentLocation.formattedAddress ||
+                  _l('经度%0,纬度%1', currentLocation.position.lng, currentLocation.position.lat)}
+              </div>
             </div>
-            <Tooltip title={_l('当前位置')}>
-              <Icon
-                icon="gps_fixed"
-                className="Font18 Gray_9e ThemeHoverColor3 pointer"
-                onClick={() => this.handleClearAndSet(defaultLocation.position)}
-              />
-            </Tooltip>
           </div>
         )}
         {(keywords ? list : defaultList).map((item, index) => {
@@ -284,6 +336,12 @@ export default class MDMap extends Component {
                   onClick={() => {
                     this._maphHandler.getAddress(item.location.lng, item.location.lat, address => {
                       this.geoLocation(item.location.lng, item.location.lat, address || item.address, item.name);
+                      this.props.onAddressChange({
+                        lng: item.location.lng,
+                        lat: item.location.lat,
+                        address: address || item.address,
+                        name: item.name,
+                      });
                     });
                   }}
                 >
@@ -308,13 +366,17 @@ export default class MDMap extends Component {
 
   render() {
     const { isMobile } = this.props;
+    const { defaultLocation } = this.state;
 
     if (isMobile) {
       return (
         <Modal popup animationType="slide-up" className="MDMap" style={{ height: '90%' }} visible>
           <div className="flexColumn leftAlign h100 relative">
             {this.renderOperatorIcon()}
-            <div className="mBottom5" style={{ height: 250 }} ref={container => (this._mapContainer = container)} />
+            <div className="Relative">
+              <div className="mBottom5" style={{ height: 250 }} ref={container => (this._mapContainer = container)} />
+              {defaultLocation && <img src={markImg} className="markMapImg" />}
+            </div>
             {this.renderSearch()}
             {this.renderSearchList()}
           </div>
@@ -323,15 +385,18 @@ export default class MDMap extends Component {
     }
 
     return (
-      <Dialog.DialogBase className="MDMap" width="960" visible>
+      <Dialog.DialogBase className="MDMap" width="1080" visible overlayClosable={false}>
         {this.renderOperatorIcon()}
-        <div ref={this.conRef} className="flexRow" style={{ height: 560 }}>
+        <div ref={this.conRef} className="flexRow" style={{ height: 600 }}>
           <div className="MDMapSidebar flexColumn">
             {this.renderSearch()}
             {this.renderSearchList()}
           </div>
 
-          <div className="flex" ref={container => (this._mapContainer = container)} />
+          <div className="flex h100 Relative">
+            <div className="h100" ref={container => (this._mapContainer = container)} />
+            {defaultLocation && <img src={markImg} className="markMapImg" />}
+          </div>
         </div>
       </Dialog.DialogBase>
     );

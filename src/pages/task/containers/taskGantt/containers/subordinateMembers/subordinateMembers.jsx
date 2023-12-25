@@ -5,7 +5,7 @@ import cx from 'classnames';
 import config from '../../config/config';
 import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import { removeFollowMembers, updateUserStatus, addFollowMembers } from '../../redux/actions';
-import UserHead from 'src/pages/feed/components/userHead';
+import UserHead from 'src/components/userHead';
 import ajaxRequest from 'src/api/taskCenter';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
@@ -338,7 +338,6 @@ class SubordinateMembers extends Component {
                       userHead: item.account.avatar,
                       accountId: item.account.accountId,
                     }}
-                    lazy={'false'}
                     size={24}
                   />
                   <span className="overflow_ellipsis">

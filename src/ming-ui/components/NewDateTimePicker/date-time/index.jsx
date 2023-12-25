@@ -1,11 +1,8 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
-
 import './style.less';
-
 import DateTimePicker from 'ming-ui/components/NewDateTimePicker/date-time-picker';
-import LibCalender from 'ming-ui/components/lib/calender';
+import LibCalender from '../lib/calender';
 import PositionContainer from 'ming-ui/components/PositionContainer';
 import moment from 'moment';
 

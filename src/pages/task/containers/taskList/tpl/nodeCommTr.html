@@ -72,8 +72,8 @@
         {{?}}
         <span class="deteLine mLeft10 {{=completeTime ? '' : 'mp0'}}" data-start="{{=task.startTime}}" data-end="{{=task.deadline}}" data-actdate="{{=task.actualStartTime}}" data-comdate="{{=task.completeTime}}">{{=completeTime}}</span>
     </td>
-    <td class="chargeTd">
-        <img class="circle chargeImg {{=userClass}}" src="{{=userHead}}" data-auth="{{=userAuth}}" data-id="{{=accountId}}" />
+    <td class="chargeTd updateUserHead" data-src="{{=userHead}}" data-auth="{{=userAuth}}" data-id="{{=accountId}}">
+        <img class="circle chargeImg {{=userClass}}" src="{{=userHead}}"/>
     </td>
     <td class="markStar"><i class="taskStar mLeft2 ThemeColor3 {{= starClass }}"></i></td>
 </tr>

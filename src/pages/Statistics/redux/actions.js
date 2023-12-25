@@ -484,7 +484,7 @@ export const changeSheetId = (activeSheetId) => {
 export const changeControlCheckbox = (event, item) => {
   return (dispatch, getState) => {
     const { currentReport, base } = getState().statistics;
-    const { reportType, xaxes, yaxisList, rightY, split, pivotTable, config } = currentReport;
+    const { reportType, xaxes, yaxisList, rightY, split, pivotTable, config = {} } = currentReport;
     const targetList = _.get(config, 'targetList') || [];
     const rightYaxisList = _.get(rightY, ['yaxisList']) || [];
     const rightSplit = _.get(rightY, ['split']);
@@ -569,7 +569,7 @@ export const changeControlCheckbox = (event, item) => {
         }));
         return
       }
-      if ([reportTypes.PieChart, reportTypes.FunnelChart, reportTypes.WordCloudChart].includes(reportType)) {
+      if ([reportTypes.PieChart, reportTypes.FunnelChart, reportTypes.WordCloudChart, reportTypes.CountryLayer].includes(reportType)) {
         if (_.isEmpty(xaxes.controlId) && !isNumber) {
           dispatch(addXaxes(item));
           return;
@@ -778,7 +778,7 @@ export const addValueAxis = (key, control, isRequest = true) => {
     const { advancedSetting = {} } = control;
     const isPercent = advancedSetting.numshow === '1';
     const isNumber = isNumberControl(control.type, false);
-    const { config } = currentReport;
+    const { config = {} } = currentReport;
     const data = {
       config: {
         ...config,
@@ -808,7 +808,7 @@ export const addTargetValueAxis = (index, control) => {
     const { advancedSetting = {} } = control;
     const isPercent = advancedSetting.numshow === '1';
     const isNumber = isNumberControl(control.type, false);
-    const { config } = currentReport;
+    const { config = {} } = currentReport;
     const targetList = config.targetList || [];
     const data = {
       controlId: control.controlId,
@@ -832,7 +832,7 @@ export const addTargetValueAxis = (index, control) => {
 export const removeTargetValueAxis = (index, control) => {
   return (dispatch, getState) => {
     const { currentReport } = getState().statistics;
-    const { targetList } = currentReport.config;
+    const { targetList = [] } = currentReport.config || {};
     targetList[index] = null;
     dispatch(changeConfig({
       targetList
@@ -855,6 +855,7 @@ export const addYaxisList = (data, isRequest = true) => {
   return (dispatch, getState) => {
     const { currentReport } = getState().statistics;
     const { yaxisList, reportType, pivotTable } = currentReport;
+    const firstYAxis = reportType !== reportTypes.PivotTable && yaxisList[0];
     const { advancedSetting = {} } = data;
     const isPercent = advancedSetting.numshow === '1';
     const isNumber = isNumberControl(data.type, false);
@@ -862,9 +863,10 @@ export const addYaxisList = (data, isRequest = true) => {
       controlId: data.controlId,
       controlName: data.controlName,
       controlType: data.type,
-      magnitude: isPercent ? 7 : 0,
-      suffix: isPercent ? '%' : '',
-      ydot: isPercent ? 0 : 2,
+      magnitude: firstYAxis ? firstYAxis.magnitude : (isPercent ? 7 : 0),
+      suffix: firstYAxis ? firstYAxis.suffix : (isPercent ? '%' : ''),
+      ydot: firstYAxis ? firstYAxis.ydot : (isPercent ? 0 : 2),
+      fixType: firstYAxis ? firstYAxis.fixType : 0,
       normType: isNumber ? 1 : 5,
       emptyShowType: 0,
       dot: data.dot,
@@ -906,6 +908,7 @@ export const addIndexYaxisList = (data, index, isRequest = true) => {
   return (dispatch, getState) => {
     const { currentReport } = getState().statistics;
     const { yaxisList, displaySetup } = currentReport;
+    const firstYAxis = yaxisList[0];
     const { advancedSetting = {} } = data;
     const isPercent = advancedSetting.numshow === '1';
     const isNumber = isNumberControl(data.type, false);
@@ -913,9 +916,10 @@ export const addIndexYaxisList = (data, index, isRequest = true) => {
       controlId: data.controlId,
       controlName: data.controlName,
       controlType: data.type,
-      magnitude: isPercent ? 7 : 0,
-      suffix: isPercent ? '%' : '',
-      ydot: isPercent ? 0 : 2,
+      magnitude: firstYAxis ? firstYAxis.magnitude : (isPercent ? 7 : 0),
+      suffix: firstYAxis ? firstYAxis.suffix : (isPercent ? '%' : ''),
+      ydot: firstYAxis ? firstYAxis.ydot : (isPercent ? 0 : 2),
+      fixType: firstYAxis ? firstYAxis.fixType : 0,
       normType: isNumber ? 1 : 5,
       emptyShowType: 0,
       dot: data.dot,
@@ -965,7 +969,7 @@ export const changeYaxisList = (data, isRequest = true) => {
 export const removeYaxisList = (id) => {
   return (dispatch, getState) => {
     const { currentReport } = getState().statistics;
-    const { yaxisList, split, sorts, reportType, pivotTable, summary, config } = currentReport;
+    const { yaxisList, split, sorts, reportType, pivotTable, summary, config = {} } = currentReport;
     const newYaxisList = yaxisList.filter(item => item.controlId !== id);
     const data = {
       yaxisList: newYaxisList,
@@ -1003,6 +1007,13 @@ export const removeYaxisList = (id) => {
       data.config = {
         ...config,
         targetList: targetList.filter((_, i) => i !== index)
+      }
+    }
+    if ([reportTypes.BarChart, reportTypes.LineChart, reportTypes.DualAxes].includes(reportType)) {
+      const { controlList = [] } = summary;
+      data.summary = {
+        ...summary,
+        controlList: controlList.filter(item => item.controlId !== id)
       }
     }
     dispatch(changeYaxisList(data));
@@ -1097,17 +1108,25 @@ export const changeRightYaxisList = (data, isRequest = true) => {
 export const removeRightYaxisList = (id) => {
   return (dispatch, getState) => {
     const { currentReport } = getState().statistics;
-    const { sorts, rightY } = currentReport;
-    const { yaxisList, split } = rightY;
+    const { sorts, rightY, reportType } = currentReport;
+    const { yaxisList, split, summary } = rightY;
     const newYaxisList = yaxisList.filter(item => item.controlId !== id);
-    dispatch(changeRightYaxisList({
+    const data = {
       yaxisList: newYaxisList,
       split: {
         ...split,
         controlId: newYaxisList.length ? split.controlId : ''
       },
       sorts: sorts.filter(item => _.findKey(item) !== id)
-    }));
+    }
+    if ([reportTypes.BarChart, reportTypes.LineChart, reportTypes.DualAxes].includes(reportType)) {
+      const { controlList = [] } = summary;
+      data.summary = {
+        ...summary,
+        controlList: controlList.filter(item => item.controlId !== id)
+      }
+    }
+    dispatch(changeRightYaxisList(data));
   }
 }
 

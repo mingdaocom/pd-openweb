@@ -46,8 +46,9 @@ export const getItem = key => JSON.parse(localStorage.getItem(key));
 export const setItem = (key, value) => safeLocalStorageSetItem(key, JSON.stringify(value));
 
 // 应用的状态
-export const getAppStatusText = ({ isGoodsStatus, isNew, fixed }) => {
+export const getAppStatusText = ({ isGoodsStatus, isNew, fixed, isUpgrade }) => {
   if (!isGoodsStatus) return _l('过期');
+  if (isUpgrade) return _l('升级中');
   if (fixed) return _l('维护中%01018');
   if (isNew) return _l('新 !');
   return null;

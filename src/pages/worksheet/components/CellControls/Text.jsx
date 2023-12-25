@@ -39,7 +39,7 @@ const InputCon = styled.div`
 
 const MultipleLineTip = styled.div`
   position: absolute;
-  padding: 4px;
+  padding: 2px 4px;
   bottom: 2px;
   left: 2px;
   right: 2px;

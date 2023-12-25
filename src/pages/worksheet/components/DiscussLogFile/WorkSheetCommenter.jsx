@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import Commenter from 'src/components/comment/commenter';
-import UserHead from 'src/pages/feed/components/userHead';
+import UserHead from 'src/components/userHead';
 
 export default class WorkSheetCommenter extends Component {
   render() {

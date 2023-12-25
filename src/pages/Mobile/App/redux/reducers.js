@@ -34,3 +34,11 @@ export const isQuitSuccess = (state = true, action) => {
   }
 };
 
+export const debugRoles = (state = [], action) => {
+  switch (action.type) {
+    case 'DEBUG_ROLE_LIST':
+      return action.data;
+    default:
+      return state;
+  }
+};

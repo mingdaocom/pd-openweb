@@ -1,5 +1,5 @@
 export default class MapHandler {
-  constructor(container, mapOptions = {}) {
+  constructor(container = document.createElement('div'), mapOptions = {}) {
     this.searchMarker = null; // 搜索结果点标记
     this.rangeCircle = null; // 圆形范围
     // 创建地图实例
@@ -37,7 +37,7 @@ export default class MapHandler {
   // 监听地图点击
   onClick(callback) {
     const map = this.map;
-    this._bindListener(map, 'click', (e) => {
+    this._bindListener(map, 'click', e => {
       const lng = e.lnglat.getLng(); // 经度
       const lat = e.lnglat.getLat(); // 纬度
       this.getAddress(lng, lat, (address, name) => {
@@ -51,7 +51,9 @@ export default class MapHandler {
     const map = this.map;
     this._bindListener(map, 'moveend', () => {
       const { lng, lat } = map.getCenter();
-      callback(lng, lat);
+      this.getAddress(lng, lat, (address, name) => {
+        callback(lng, lat, address, name);
+      });
     });
   }
   // 根据输入关键字提示匹配信息
@@ -92,12 +94,39 @@ export default class MapHandler {
     }
   }
   // 获取当前位置
-  getCurrentPos(callback) {
+  getCurrentPos(callback, openCityPos = true) {
     const geolocation = new AMap.Geolocation({
-      timeout: 100000000, // 超过10秒后停止定位，默认：无穷大
+      timeout: 10000, // 超过10秒后停止定位，默认：无穷大
       zoomToAccuracy: true, // 定位成功后调整地图视野范围使定位位置及精度范围视野内可见，默认：false
     });
-    geolocation.getCurrentPosition(callback);
+    geolocation.getCurrentPosition((status, result) => {
+      if (status === 'error' && openCityPos) {
+        this.getCurrentCityPos(callback);
+      } else {
+        callback(status, result);
+      }
+    });
+  }
+  // 根据ip获取城市
+  getCurrentCityPos(callback) {
+    const citySearch = new AMap.CitySearch();
+
+    citySearch.getLocalCity(function(status, result) {
+      if (status === 'complete' && result.info === 'OK') {
+        const rectangle = result.rectangle.split(/[,;]/);
+
+        callback(status, {
+          addressComponent: { building: result.city },
+          formattedAddress: '',
+          position: {
+            lng: ((parseFloat(rectangle[0]) + parseFloat(rectangle[2])) / 2).toString(),
+            lat: ((parseFloat(rectangle[1]) + parseFloat(rectangle[3])) / 2).toString(),
+          },
+        });
+      } else {
+        callback(status);
+      }
+    });
   }
   // 根据经纬度,获得地址
   getAddress(lng, lat, callback) {

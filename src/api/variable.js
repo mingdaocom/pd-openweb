@@ -98,7 +98,6 @@ export default {
   * 获取日志
   * @param {Object} args 请求参数
   * @param {string} args.variableId 变量id
-  * @param {string} args.appId 应用id
   * @param {string} args.start 开始时间
   * @param {string} args.end 结束时间
   * @param {string} args.operator 操作人

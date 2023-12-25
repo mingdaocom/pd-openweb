@@ -6,14 +6,15 @@ import { OtherFieldList, SelectOtherField, DynamicInput } from '../components';
 export default function (props) {
   const { onDynamicValueChange, dynamicValue = [], data = {}, defaultType } = props;
   const { staticValue = '', cid = '' } = dynamicValue[0] || {};
+  const hasAccountId = !!_.get(safeParse(staticValue), 'accountId');
   const [value, setValue] = useState(staticValue);
-  const [isDynamic, setDynamic] = useState(!!cid);
+  const [isDynamic, setDynamic] = useState(hasAccountId || !!cid);
   const $wrap = createRef(null);
 
   useEffect(() => {
     setValue(staticValue);
-    setDynamic(!!cid);
-  }, [data.controlId, cid]);
+    setDynamic(hasAccountId || !!cid);
+  }, [data.controlId, cid, staticValue]);
 
   const setDynamicValue = newValue => {
     onDynamicValueChange(newValue || []);
@@ -31,14 +32,7 @@ export default function (props) {
       {defaultType ? (
         <DynamicInput {...props} onTriggerClick={onTriggerClick} />
       ) : isDynamic ? (
-        <OtherFieldList
-          onClick={() => {
-            if (!cid) {
-              setDynamic(false);
-            }
-          }}
-          {...props}
-        />
+        <OtherFieldList {...props} />
       ) : (
         <Input
           autoFocus

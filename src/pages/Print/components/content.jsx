@@ -998,7 +998,7 @@ export default class Con extends React.Component {
                 </table>
               )}
               {/* 标题 */}
-              <p style={STYLE_PRINT.createBy_h6}>{printData.titleChecked && attributeName}</p>
+              <p style={STYLE_PRINT.createBy_h6} className="generalTitle">{printData.titleChecked && attributeName}</p>
               {this.getNumSys() > 0 && this.renderSysTable()}
               {_.isEmpty(controls) ? undefined : this.renderControls()}
               {/* 工作流 */}

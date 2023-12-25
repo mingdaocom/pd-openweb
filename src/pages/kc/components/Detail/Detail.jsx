@@ -1,15 +1,13 @@
 ﻿import { getClassNameByExt } from 'src/util';
 import PropTypes from 'prop-types';
 import React from 'react';
-import ReactDom from 'react-dom';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import UserHead from 'src/pages/feed/components/userHead';
-import UserName from 'src/pages/feed/components/userName';
+import UserHead from 'src/components/userHead';
+import UserName from 'src/components/userName';
 import { Switch, Checkbox } from 'ming-ui';
 import AttachmentsPreview from '../../common/AttachmentsPreview';
-import 'src/components/mdBusinessCard/mdBusinessCard';
 import service from '../../api/service';
 import { NODE_TYPE, NODE_VISIBLE_TYPE, LOG_TYPE } from '../../constant/enum';
 import { shallowEqual, humanDateTime, humanFileSize } from '../../utils';
@@ -64,7 +62,6 @@ class Detail extends React.Component {
       },
       '#detailLog li'
     );
-    this.bindBusinessCard();
   }
 
   componentWillReceiveProps(nextProps) {
@@ -103,7 +100,6 @@ class Detail extends React.Component {
     if (prevProps.data.id !== this.props.data.id) {
       this.getShareUrl();
     }
-    this.bindBusinessCard();
   }
 
   componentWillUnmount() {
@@ -421,19 +417,6 @@ class Detail extends React.Component {
       previewFile: item,
     });
     this.props.updateDetailAttachmentsPreviewState(!!item);
-  };
-
-  bindBusinessCard = () => {
-    if (!this._isMounted) {
-      return;
-    }
-    $(ReactDom.findDOMNode(this))
-      .find('[data-accountid], [data-groupid]')
-      .each(function () {
-        $(this).mdBusinessCard({
-          secretType: 1,
-        });
-      });
   };
 
   render() {

@@ -15,7 +15,7 @@ import { refreshRecord } from 'worksheet/common/RefreshRecordDialog';
 import { printQrBarCode } from 'worksheet/common/PrintQrBarCode';
 import IconText from 'worksheet/components/IconText';
 import { CUSTOM_BUTTOM_CLICK_TYPE } from 'worksheet/constants/enum';
-import { checkCellIsEmpty } from 'worksheet/util';
+import { checkCellIsEmpty, handleRecordError } from 'worksheet/util';
 import PrintList from './PrintList';
 import ExportList from './ExportList';
 import SubButton from './SubButton';
@@ -282,7 +282,10 @@ class BatchOperate extends React.Component {
       callback();
       if ((isEditSingle ? data.resultCode === 1 : data.successCount === selectedRows.length) && !args.noAlert) {
         alert(_l('修改成功'));
+      } else {
+        handleRecordError(data.resultCode);
       }
+      if (data.resultCode !== 1) return;
       if (_.find(controls, item => _.includes([10, 11], item.type) && /color/.test(item.value))) {
         refreshWorksheetControls();
       }
@@ -428,6 +431,7 @@ class BatchOperate extends React.Component {
                   icon="hr_edit"
                   text={_l('编辑')}
                   onClick={() => {
+                    const _this = this;
                     if (window.isPublicApp) {
                       alert(_l('预览模式下，不能操作'), 3);
                       return;
@@ -445,7 +449,10 @@ class BatchOperate extends React.Component {
                         allWorksheetIsSelected,
                         updateRows,
                         getWorksheetSheetViewSummary,
-                        reloadWorksheet: reload,
+                        reloadWorksheet: () => {
+                          reload();
+                          _this.setState({ select1000: false });
+                        },
                         selectedRows,
                         worksheetInfo: worksheetInfo,
                       });

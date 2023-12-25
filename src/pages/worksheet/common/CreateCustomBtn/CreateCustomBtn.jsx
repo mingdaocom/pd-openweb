@@ -83,10 +83,11 @@ class CreateCustomBtnCon extends React.Component {
     }
     advancedSetting = {
       ...advancedSetting,
-      remarkname: advancedSetting.remarkname || _l('备注'),
+      remarkrequired: isEdit ? advancedSetting.remarkrequired : '1',
+      remarkname: advancedSetting.remarkname || _l('操作原因'),
     };
     let doubleConfirm = {
-      confirmMsg: btnDataInfo.confirmMsg || _l('你确认对记录执行此操作吗？'),
+      confirmMsg: btnDataInfo.confirmMsg || _l('你确认执行此操作吗？'),
       cancelName: btnDataInfo.cancelName || _l('取消'),
       sureName: btnDataInfo.sureName || _l('确认'),
     };
@@ -444,7 +445,7 @@ class CreateCustomBtnCon extends React.Component {
         <h5 className="Gray mTop32">{clickType === 1 ? _l('点击按钮时') : _l('提交时')}</h5>
         <Checkbox
           className="checkBox InlineBlock"
-          text={_l('需要二次确认')}
+          text={_l('需要二次确认 / 填写备注')}
           checked={enableConfirm || clickType === 2}
           onClick={() => {
             this.setState({

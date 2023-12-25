@@ -54,7 +54,11 @@ export const FORM_ERROR_TYPE_TEXT = {
   PASSPORT: _l('不是有效的护照号码'),
   HK_PASSPORT: _l('不是有效的港澳通行证号码'),
   TW_PASSPORT: _l('不是有效的台湾通行证号码'),
-  OTHER_REQUIRED: ({ value }) => {
+  OTHER_REQUIRED: ({ options = [] }) => {
+    const value = _.get(
+      _.find(options, i => i.key === 'other' && !i.isDeleted),
+      'value',
+    );
     return _l('请填写%0', value || '其他');
   },
   CHILD_TABLE_ROWS_LIMIT: ({ value, advancedSetting }) => {

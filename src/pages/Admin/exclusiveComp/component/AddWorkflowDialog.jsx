@@ -234,11 +234,11 @@ function AddWorkflowDialog(props) {
   });
 
   useEffect(() => {
-    getAppList();
-  }, [projectId]);
+    visible && getAppList();
+  }, [visible]);
 
   useEffect(() => {
-    getWorkflow();
+    visible && getWorkflow();
   }, [appId, filters.workflowType]);
 
   useEffect(() => {
@@ -469,8 +469,8 @@ function AddWorkflowDialog(props) {
         okText={value.length === 0 ? _l('添加') : _l('添加(%0)', value.length)}
         onOk={() => {
           let _value = value;
-          if(_value.length===0) {
-            alert(_l('未选择工作流'), 3)
+          if (_value.length === 0) {
+            alert(_l('未选择工作流'), 3);
             return;
           }
           addWorkflow(_value);

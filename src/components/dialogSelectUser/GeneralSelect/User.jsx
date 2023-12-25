@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { Checkbox } from 'ming-ui';
-import UserHead from 'src/pages/feed/components/userHead';
-import UserName from 'src/pages/feed/components/userName';
+import UserHead from 'src/components/userHead';
+import UserName from 'src/components/userName';
 import departmentAjax from 'src/api/department.js';
 import { Tooltip } from 'antd';
 import cx from 'classnames';
@@ -52,7 +52,6 @@ export default class User extends Component {
               userHead: user.avatar,
               accountId: user.accountId,
             }}
-            lazy={'false'}
             size={28}
           />
         </div>

@@ -20,7 +20,7 @@ import sheetAjax from 'src/api/worksheet';
 import axios from 'axios';
 import CellControl from 'worksheet/components/CellControls';
 import 'src/pages/worksheet/components/CellControls/CellControls.less';
-import { formatControls } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/util';
+import { formatControls, getNodeName } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/util.js';
 
 const Wrap = styled.div`
   height: 100%;
@@ -301,7 +301,8 @@ export default class EditorCon extends Component {
     }
   };
 
-  renderCard = nodeData => {
+  renderCard = (nodeData = {}) => {
+    const { flowData } = this.props;
     const defaultInfo = NODE_TYPE_LIST.find(it => it.nodeType === nodeData.nodeType) || {};
     const isAct = ACTION_LIST.map(o => o.type).includes(nodeData.nodeType);
     const {
@@ -345,7 +346,7 @@ export default class EditorCon extends Component {
           </span>
         )}
         <div className="flex flexColumn justifyContentCenter mLeft8 overflowHidden">
-          <div className="name Bold overflow_ellipsis WordBreak">{nodeData.name || defaultInfo.name}</div>
+          <div className="name Bold overflow_ellipsis WordBreak">{getNodeName(flowData, nodeData)}</div>
           {!isAct ? (
             <Des nodeData={nodeData} className="Font14 Gray" />
           ) : (
@@ -472,10 +473,12 @@ export default class EditorCon extends Component {
             });
           }
         }
-        if (['DEST_TABLE', 'FILTER', 'JOIN', 'AGGREGATE'].includes(nodeType)) {
-          //数据筛选节点、多表连接节点、数据目的地、分类汇总节点的预览功能 暂时不上数据预览
+        if (['DEST_TABLE', 'FILTER', 'JOIN', 'AGGREGATE', 'UNION'].includes(nodeType)) {
+          //数据筛选节点、多表连接节点、数据目的地、分类汇总、数据合并节点的预览功能 暂时不上数据预览
           hidePreviwe = true;
         }
+        // if(['UNION'].includes(nodeType)){
+        // }
 
         return (
           <WrapR className={cx('flexColumn')}>

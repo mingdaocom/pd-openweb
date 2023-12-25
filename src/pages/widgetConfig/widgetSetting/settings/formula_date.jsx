@@ -4,12 +4,11 @@ import { Tooltip } from 'antd';
 import formulaComponents from '../components/formula';
 import components from '../components';
 import { SettingItem, ControlTag } from '../../styled';
-import { getControlByControlId } from '../../util';
+import { getAdvanceSetting, getControlByControlId } from '../../util';
 import { getFormulaControls } from '../../util/data';
 import { parseDataSource, handleAdvancedSettingChange } from '../../util/setting';
-const { InputSuffix, SwitchType, ToTodaySetting, WeekdaySetting } = formulaComponents;
-const { DynamicSelectDateControl, SelectControl } = components;
-import { ShowFormat } from 'src/pages/widgetConfig/widgetSetting/components/ControlSetting/DateConfig';
+const { InputSuffix, SwitchType, ToTodaySetting } = formulaComponents;
+const { DynamicSelectDateControl, SelectControl, PreSuffix } = components;
 import _ from 'lodash';
 
 const CALC_TYPE = [
@@ -32,6 +31,7 @@ const FORMAT_TYPE = [
 export default function FormulaDate(props) {
   const { allControls, data, onChange, ...rest } = props;
   const { strDefault, enumDefault, unit } = data;
+  const { autocarry = '0' } = getAdvanceSetting(data);
   const sourceControlId = parseDataSource(data.sourceControlId);
   const dataSource = parseDataSource(data.dataSource);
   const [selectControlVisible, setVisible] = useState(false);
@@ -67,7 +67,12 @@ export default function FormulaDate(props) {
             />
           </SettingItem>
           <InputSuffix data={data} onChange={onChange} />
-          <WeekdaySetting data={data} onChange={onChange} />
+          {_.includes(['3', '4', '5'], unit) && autocarry !== '1' && (
+            <SettingItem>
+              <div className="settingItemTitle">{_l('单位')}</div>
+              <PreSuffix data={data} onChange={onChange} />
+            </SettingItem>
+          )}
         </Fragment>
       );
     }
@@ -152,12 +157,6 @@ export default function FormulaDate(props) {
               onChange={value => onChange({ unit: value })}
             />
           </SettingItem>
-          {_.includes(['1', '3'], unit) && (
-            <SettingItem>
-              <div className="settingItemTitle">{_l('设置')}</div>
-              <ShowFormat {...props} />
-            </SettingItem>
-          )}
         </Fragment>
       );
     }

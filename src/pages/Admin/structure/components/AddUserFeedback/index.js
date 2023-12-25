@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import FunctionWrap from 'ming-ui/components/FunctionWrap';
 import { Dialog, Button } from 'ming-ui';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
-import UserHead from 'src/pages/feed/components/userHead';
+import UserHead from 'src/components/userHead';
 import RefuseUserJoinDia from '../../modules/refuseUserJoinDia';
 import importUserController from 'src/api/importUser';
 import userController from 'src/api/user';
 import { feedbackTypes } from '../../constant';
 import { purchaseMethodFunc } from 'src/components/upgrade/choose/PurchaseMethodModal';
 import styled from 'styled-components';
+import { getCurrentProject } from 'src/util';
 
 const FeedbackDialog = styled(Dialog)`
   .footer {
@@ -40,10 +41,7 @@ const recovery = ({ accountId, fullname, projectId, callback = () => {} }) => {
             alert(_l('恢复成功'));
             callback();
           } else if (data == 4) {
-            const licenseType = _.get(
-              _.find(md.global.Account.projects, project => project.projectId === projectId) || {},
-              'licenseType',
-            );
+            const { licenseType } = getCurrentProject(projectId, true);
             let link = '';
             if (licenseType === 0) {
               link = (

@@ -11,7 +11,7 @@ import DialogSelectDept from 'src/components/dialogSelectDept';
 import { selectJob } from 'src/components/DialogSelectJob';
 import BatchDialog from 'src/pages/Role/AppRoleCon/component/BatchDialog';
 import { getCurrentProject } from 'src/util';
-import UserHead from 'src/pages/feed/components/userHead';
+import UserHead from 'src/components/userHead';
 import { getIcon, getColor, getTxtColor, userStatusList } from 'src/pages/Role/AppRoleCon/UserCon/config';
 import cx from 'classnames';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
@@ -479,12 +479,12 @@ export default class UserListCon extends React.Component {
                       <div className={cx('name flexRow alignItemsCenter')}>
                         {data.memberType === 5 ? (
                           <UserHead
-                            key={data.accountId}
-                            projectId={_.isEmpty(getCurrentProject(projectId)) ? '' : projectId}
+                            key={data.accountId || data.id}
+                            projectId={projectId}
                             size={40}
-                            lazy="false"
                             user={{
                               ...data,
+                              accountId: data.accountId || data.id,
                               userHead: data.avatar,
                             }}
                             className={'roleAvatar'}

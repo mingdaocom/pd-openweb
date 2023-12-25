@@ -448,9 +448,7 @@ export default class RecordInfo extends Component {
     this.setState({
       tempFormData: tempFormData.map(c => (isRelateRecordTableControl(c) ? { ...c, value: undefined } : c)),
     });
-    if (location.pathname.indexOf('public') === -1) {
-      addBehaviorLog('worksheetRecord', worksheetId, { rowId: newRecordId }); // 埋点
-    }
+    addBehaviorLog('worksheetRecord', worksheetId, { rowId: newRecordId }); // 埋点
     this.loadRecord({ recordId: newRecordId });
     this.setState({
       recordId: newRecordId,
@@ -1040,6 +1038,7 @@ export default class RecordInfo extends Component {
       iseditting,
       restoreVisible,
       sideVisible,
+      hideRight,
       dragMaskVisible,
       allowExAccountDiscuss,
       exAccountDiscussEnum,
@@ -1199,7 +1198,7 @@ export default class RecordInfo extends Component {
                     if (from !== RECORD_INFO_FROM.WORKFLOW) {
                       safeLocalStorageSetItem('recordInfoSideVisible', sideVisible ? '' : 'true');
                     }
-                    this.setState({ sideVisible: !sideVisible });
+                    this.setState({ sideVisible: !sideVisible, hideRight: sideVisible });
                   }}
                   onCancel={this.handleCancel}
                   onUpdate={(changedValue, record) => {
@@ -1367,23 +1366,25 @@ export default class RecordInfo extends Component {
                 }}
               />
               {sideVisible && <Drag left={formWidth} onMouseDown={() => this.setState({ dragMaskVisible: true })} />}
-              {!abnormal && sideVisible && (
+              {!abnormal && (sideVisible || typeof hideRight !== 'undefined') && (
                 <RecordInfoRight
+                  loading={loading}
                   isOpenNewAddedRecord={isOpenNewAddedRecord}
                   allowExAccountDiscuss={allowExAccountDiscuss}
                   exAccountDiscussEnum={exAccountDiscussEnum}
                   approved={approved}
-                  className="flex"
+                  className={cx('flex', { hide: hideRight })}
                   recordbase={recordbase}
                   workflow={workflow}
                   approval={
                     <SheetWorkflow
-                      projectId={this.props.projectId}
+                      projectId={this.props.projectId || recordinfo.projectId}
                       worksheetId={worksheetId}
                       recordId={recordId}
                       isCharge={recordinfo.roleType === 2}
                       refreshBtnNeedLoading={refreshBtnNeedLoading}
                       formWidth={formWidth}
+                      appId={appId}
                     />
                   }
                   sheetSwitchPermit={sheetSwitchPermit}

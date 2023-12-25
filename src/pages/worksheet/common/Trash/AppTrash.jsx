@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import moment from 'moment';
 import { VerifyPasswordConfirm } from 'ming-ui';
 import BaseTrash from './BaseTrash';
-import UserHead from 'src/pages/feed/components/userHead';
+import UserHead from 'src/components/userHead';
 import SvgIcon from 'src/components/SvgIcon';
 import homeAppAjax from 'src/api/homeApp';
 import _ from 'lodash';
@@ -59,6 +59,7 @@ export default function AppTrash(props) {
       });
   }
   useEffect(load, []);
+
   return (
     <div>
       <BaseTrash
@@ -107,13 +108,11 @@ export default function AppTrash(props) {
           [
             <UserHead
               className="cellUserHead"
-              // projectId={projectId}
-              bindBusinessCard
               user={{
                 userHead: app.deletePerson.avatar,
                 accountId: app.deletePerson.accountId,
               }}
-              lazy={'false'}
+              appId={app.appId}
               size={24}
             />,
             <span className="mLeft8 ellipsis">{app.deletePerson.fullname || app.deletePerson.fullName}</span>,
@@ -167,12 +166,11 @@ export default function AppTrash(props) {
             description: (
               <div className="Font14 Gray_75">
                 {_l('此操作将彻底物理删除应用下所有配置与数据，删除后无法恢复，')}
-                <br/>
+                <br />
                 {_l('请谨慎操作！')}
               </div>
             ),
             confirmType: 'danger',
-            passwordPlaceHolder: _l('请输入密码确认删除'),
             allowNoVerify: false,
             onOk: () => {
               homeAppAjax

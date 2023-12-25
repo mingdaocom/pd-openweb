@@ -7,8 +7,9 @@ import _ from 'lodash';
 import { getIconByType, canSetAsTitle } from 'src/pages/widgetConfig/util';
 import SelectType from './SelectType';
 import SetComment from './SetComment';
-import { isValidName, namePattern } from '../../constant';
+import { DATABASE_TYPE, isValidName, namePattern, SYSTEM_FIELD_IDS } from '../../constant';
 import { OPERATION_TYPE_DATA } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config';
+import { useState } from 'react';
 
 const Wrapper = styled.div`
   .headTr,
@@ -95,6 +96,27 @@ const Wrapper = styled.div`
     border-radius: 3px;
     /* border: 1px solid #ccc !important; */
   }
+  .systemFieldsHeader {
+    padding: 24px 24px 8px 24px;
+    border-bottom: 1px solid #e0e0e0;
+    .content {
+      width: fit-content;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      i {
+        color: #ccc;
+        font-size: 15px;
+        margin-left: 8px;
+      }
+      &:hover {
+        color: #2196f3;
+        i {
+          color: #2196f3;
+        }
+      }
+    }
+  }
 `;
 
 const SelectWrapper = styled.div`
@@ -118,6 +140,7 @@ export default function FieldMappingList(props) {
   const selectedFieldIds = fieldsMapping.map(item => _.get(item, 'destField.id')).filter(o => o);
   const selectNameRef = useRef([]);
   const isExistJoinPk = !!(sourceData.sourceFields || []).filter(item => item.isUniquePk).length;
+  const [systemFieldsExpand, setSystemFieldsExpand] = useState(false);
 
   let leftColumns = [];
   let rightColumns = [];
@@ -155,7 +178,7 @@ export default function FieldMappingList(props) {
         ? isExistJoinPk
           ? sourceField.isUniquePk
           : (sourceField.oid || '').split('_')[1] === 'rowid'
-        : false;
+        : destData.dsType === DATABASE_TYPE.MONGO_DB && sourceField.fid === 'rowid';
 
     return (
       <Input
@@ -223,6 +246,7 @@ export default function FieldMappingList(props) {
 
     return (
       <SelectType
+        isExistJoinPk={isExistJoinPk}
         options={options}
         itemData={data}
         updateFieldsMapping={updateFieldsMapping}
@@ -243,11 +267,11 @@ export default function FieldMappingList(props) {
             return {
               sourceField: {
                 ...sourceField,
-                isCheck: sourceField.isPk ? true : isValidField && !isNotSupport ? !checked : false,
+                isCheck: isValidField && !isNotSupport ? (sourceField.isPk ? true : !checked) : false,
               },
               destField: {
                 ...destField,
-                isCheck: destField && destField.isPk ? true : isValidField && !isNotSupport ? !checked : false,
+                isCheck: isValidField && !isNotSupport ? (destField && destField.isPk ? true : !checked) : false,
               },
             };
           });
@@ -302,33 +326,32 @@ export default function FieldMappingList(props) {
               : true) && _.includes(matchedMdTypeIds, o.mdType),
         );
 
-    const options = filterOptions.map(item => {
-      const isExist = _.includes(selectedFieldIds, item.id);
-
-      return {
-        ...item,
-        disabled: isExist,
-        label: (
-          <div className="flexRow alignItemsCenter">
-            {destData.isDbType ? (
-              <span className={isExist && item.id !== destField.id ? 'Gray_c' : 'Gray_bd'}>[{`${item.dataType}`}]</span>
-            ) : (
-              <Icon
-                icon={getIconByType(item.mdType, false)}
-                className={isExist && item.id !== destField.id ? 'Gray_c Font18' : 'Gray_9e Font18'}
-              />
-            )}
-            <span
-              title={item.name}
-              className={`mLeft8 overflow_ellipsis ${isExist && item.id !== destField.id ? 'Gray_c' : 'Gray'}`}
-            >
-              {item.name}
-            </span>
-          </div>
-        ),
-        value: item.id,
-      };
-    });
+    const options = filterOptions
+      .filter(
+        item =>
+          !_.includes(
+            selectedFieldIds.filter(id => id !== destField.id),
+            item.id,
+          ),
+      ) // 过滤掉已选择的字段
+      .map(item => {
+        return {
+          ...item,
+          label: (
+            <div className="flexRow alignItemsCenter">
+              {destData.isDbType ? (
+                <span className="Gray_bd">[{`${item.dataType}`}]</span>
+              ) : (
+                <Icon icon={getIconByType(item.mdType, false)} className="Gray_9e Font18" />
+              )}
+              <span title={item.name} className="mLeft8 overflow_ellipsis Gray">
+                {item.name}
+              </span>
+            </div>
+          ),
+          value: item.id,
+        };
+      });
 
     const isNoMatchOption =
       destField.id &&
@@ -522,8 +545,16 @@ export default function FieldMappingList(props) {
                   </div>
                 )}
                 {isNotSupport && (
-                  <div data-tip={_l('暂不支持同步')} className="tip-top">
-                    <Icon icon="info1" className="Gray_bd mLeft5" />
+                  <div
+                    data-tip={_l('暂不支持同步')}
+                    className="tip-top pointer"
+                    onClick={() =>
+                      window.open(
+                        'https://help.mingdao.com/integration2#%E4%B8%8D%E6%94%AF%E6%8C%81%E5%90%8C%E6%AD%A5%E7%9A%84%E5%AD%97%E6%AE%B5',
+                      )
+                    }
+                  >
+                    <Icon icon="help" className="Gray_bd mLeft5" />
                   </div>
                 )}
               </div>
@@ -747,6 +778,35 @@ export default function FieldMappingList(props) {
     return columns;
   };
 
+  const renderMappingList = (data = []) => {
+    return data.map((field, i) => {
+      const sourceField = field.sourceField || {};
+      return (
+        <div className="itemWrapper">
+          <div key={i} className="dataItem">
+            {getColumns().map((column, j) => {
+              return (
+                <div key={`${i}-${j}`} style={{ flex: column.flex }} className={`${column.dataIndex}`}>
+                  {column.render ? column.render(field, column) : field[column.dataIndex]}
+                </div>
+              );
+            })}
+          </div>
+          {sourceField.isDelete && (
+            <Icon
+              className="deleteIcon"
+              icon="delete1"
+              onClick={() => {
+                const newFieldsMapping = fieldsMapping.filter(item => item.sourceField.id !== sourceField.id);
+                setFieldsMapping(newFieldsMapping);
+              }}
+            />
+          )}
+        </div>
+      );
+    });
+  };
+
   return (
     <Wrapper>
       <div className="headTr">
@@ -758,33 +818,30 @@ export default function FieldMappingList(props) {
           );
         })}
       </div>
-      {fieldsMapping &&
-        fieldsMapping.map((field, i) => {
-          const sourceField = field.sourceField || {};
-          return (
-            <div className="itemWrapper">
-              <div key={i} className="dataItem">
-                {getColumns().map((column, j) => {
-                  return (
-                    <div key={`${i}-${j}`} style={{ flex: column.flex }} className={`${column.dataIndex}`}>
-                      {column.render ? column.render(field, column) : field[column.dataIndex]}
-                    </div>
-                  );
-                })}
-              </div>
-              {sourceField.isDelete && (
-                <Icon
-                  className="deleteIcon"
-                  icon="delete1"
-                  onClick={() => {
-                    const newFieldsMapping = fieldsMapping.filter(item => item.sourceField.id !== sourceField.id);
-                    setFieldsMapping(newFieldsMapping);
-                  }}
-                />
-              )}
-            </div>
-          );
-        })}
+
+      {renderMappingList(
+        (fieldsMapping || []).filter(field => {
+          const originId = (field.sourceField.fid || '').split('_')[0];
+          return !(!sourceData.isDbType && destData.isDbType) || !_.includes(SYSTEM_FIELD_IDS, originId);
+        }),
+      )}
+
+      {!sourceData.isDbType && destData.isDbType && (
+        <div className="systemFieldsHeader">
+          <div className="content" onClick={() => setSystemFieldsExpand(!systemFieldsExpand)}>
+            <span>{_l('系统字段')}</span>
+            <Icon icon={systemFieldsExpand ? 'arrow-down-border' : 'arrow-right-border'} />
+          </div>
+        </div>
+      )}
+
+      {systemFieldsExpand &&
+        renderMappingList(
+          (fieldsMapping || []).filter(field => {
+            const originId = (field.sourceField.fid || '').split('_')[0];
+            return _.includes(SYSTEM_FIELD_IDS, originId);
+          }),
+        )}
     </Wrapper>
   );
 }

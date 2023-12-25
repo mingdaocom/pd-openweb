@@ -9,6 +9,7 @@ import Empty from './common/TableEmpty';
 import { menuList, permissionObj } from './router.config.js';
 import Loadable from 'react-loadable';
 import { navigateTo } from 'router/navigateTo';
+import { getCurrentProject } from 'src/util';
 import './index.less';
 import _ from 'lodash';
 
@@ -145,8 +146,8 @@ export default class AdminEntryPoint extends PureComponent {
 
   render() {
     const { authority = [], isLoading, routeKeys } = this.state;
-    let { isSuperAdmin } = md.global.Account.projects.find(item => item.projectId === Config.projectId) || {};
-
+    let { isSuperAdmin } = getCurrentProject(Config.projectId, true);
+    
     if (isLoading) {
       return <LoadDiv className="mTop10" />;
     }

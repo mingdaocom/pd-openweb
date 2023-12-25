@@ -1,16 +1,20 @@
-﻿import React, { Component, Fragment } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import './css/taskTree.less';
 import doT from 'dot';
 import 'src/components/mdDialog/dialog';
 import ajaxRequest from 'src/api/taskCenter';
 import { listLoadingContent } from '../../utils/taskComm';
-import { formatTaskTime, errorMessage, formatStatus } from '../../utils/utils';
+import { formatTaskTime, errorMessage, formatStatus, checkIsProject } from '../../utils/utils';
 import config from '../../config/config';
 import treeMaster from './tpl/treeMaster.html';
 import quickCreateTask from '../../components/quickCreateTask/quickCreateTask';
 import TaskDetail from '../taskDetail/taskDetail';
 import _ from 'lodash';
+import UserHead from 'src/components/userHead';
+import ReactDOM from 'react-dom';
+import { updateTaskCharge } from '../../redux/actions';
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 
 const taskTreeSettings = {
   pageIndex: 1,
@@ -26,6 +30,7 @@ class TaskTree extends Component {
       openTaskDetail: false,
       taskId: '',
       isForceUpdate: false,
+      data: null,
     };
   }
 
@@ -35,6 +40,8 @@ class TaskTree extends Component {
     this.bindEvents();
     this.props.emitter.removeListener('CREATE_TASK_TO_TREE', this.quickCreateTaskCallback);
     this.props.emitter.addListener('CREATE_TASK_TO_TREE', this.quickCreateTaskCallback);
+    this.props.emitter.removeListener('UPDATE_TASK_CHARGE', this.updateChargeHeaderAvatar);
+    this.props.emitter.addListener('UPDATE_TASK_CHARGE', this.updateChargeHeaderAvatar.bind(this));
   }
 
   componentWillReceiveProps(nextProps) {
@@ -62,6 +69,7 @@ class TaskTree extends Component {
   componentWillUnmount() {
     this.mounted = false;
     this.props.emitter.removeListener('CREATE_TASK_TO_TREE', this.quickCreateTaskCallback);
+    this.props.emitter.removeListener('UPDATE_TASK_CHARGE', this.updateChargeHeaderAvatar);
   }
 
   /**
@@ -82,7 +90,7 @@ class TaskTree extends Component {
     const that = this;
 
     // 绑定创建新任务
-    $taskList.on('click', '.creatNewContent', (event) => {
+    $taskList.on('click', '.creatNewContent', event => {
       quickCreateTask.init({
         folderId: that.props.taskConfig.folderId === 1 ? '' : that.props.taskConfig.folderId,
         projectId: that.props.taskConfig.projectId,
@@ -97,13 +105,7 @@ class TaskTree extends Component {
       const $children = $li.children('ul');
       if ($children.length > 0) {
         const $singleTreeTask = $li.children('.singleTreeTask');
-        $singleTreeTask
-          .find('.nodeSwitch')
-          .removeClass('on')
-          .addClass('off')
-          .end()
-          .find('.joinLine')
-          .show();
+        $singleTreeTask.find('.nodeSwitch').removeClass('on').addClass('off').end().find('.joinLine').show();
         $children.slideDown();
       } else {
         if ($li.find('.treeLoadingSingleTask').length > 0) {
@@ -118,10 +120,7 @@ class TaskTree extends Component {
     $taskList.on('click', '.nodeSwitch.off', function (event) {
       const $li = $(this).closest('li');
       const $singleTreeTask = $li.children('.singleTreeTask');
-      $singleTreeTask
-        .find('.nodeSwitch')
-        .removeClass('off')
-        .addClass('on');
+      $singleTreeTask.find('.nodeSwitch').removeClass('off').addClass('on');
       $li.children('ul').slideUp(() => {
         $singleTreeTask.find('.joinLine').hide();
       });
@@ -133,14 +132,10 @@ class TaskTree extends Component {
       {
         mouseover() {
           $('.singleTreeTask .markTask').removeClass('markTaskHover');
-          $(this)
-            .find('.markTask')
-            .addClass('markTaskHover');
+          $(this).find('.markTask').addClass('markTaskHover');
         },
         mouseout() {
-          $(this)
-            .find('.markTask')
-            .removeClass('markTaskHover');
+          $(this).find('.markTask').removeClass('markTaskHover');
         },
         click(event) {
           const $singleTreeTask = $(this);
@@ -149,7 +144,11 @@ class TaskTree extends Component {
           let isMuil = false;
           let metaKeyType;
 
-          if ($singleTreeTask.hasClass('addNewTask') || $(event.target).hasClass('markTask') || $(event.target).hasClass('taskStar')) {
+          if (
+            $singleTreeTask.hasClass('addNewTask') ||
+            $(event.target).hasClass('markTask') ||
+            $(event.target).hasClass('taskStar')
+          ) {
             return;
           }
 
@@ -171,7 +170,7 @@ class TaskTree extends Component {
               taskId: '',
             });
 
-            import('../batchTask/batchTask').then((batchTask) => {
+            import('../batchTask/batchTask').then(batchTask => {
               batchTask.default.shiftCtrlKey($singleTreeTask, metaKeyType);
             });
 
@@ -190,7 +189,7 @@ class TaskTree extends Component {
           });
         },
       },
-      '.singleTreeTask'
+      '.singleTreeTask',
     );
 
     // 阶段展开收起
@@ -200,26 +199,24 @@ class TaskTree extends Component {
           const $List = $(this).next('.listStageTaskContent');
           if ($List.is(':animated')) return;
           $List.slideToggle();
-          $(this)
-            .find('.arrow-down')
-            .toggleClass('downArrow');
+          $(this).find('.arrow-down').toggleClass('downArrow');
           event.stopPropagation();
         },
         hover() {
-          $(this)
-            .find('.listFolderNameText')
-            .toggleClass('ThemeColor3');
-          $(this)
-            .find('.arrow-down')
-            .toggleClass('ThemeBorderColor3');
+          $(this).find('.listFolderNameText').toggleClass('ThemeColor3');
+          $(this).find('.arrow-down').toggleClass('ThemeBorderColor3');
         },
       },
-      '.taskListStageName'
+      '.taskListStageName',
     );
 
     $taskList.on('scroll', function () {
       // 非未关联的返回 或者没有更多了  0   1   -1
-      if ((that.props.taskConfig.listStatus != 1 && that.props.taskConfig.listStatus != -1) || !taskTreeSettings.isMore || taskTreeSettings.isLoading) {
+      if (
+        (that.props.taskConfig.listStatus != 1 && that.props.taskConfig.listStatus != -1) ||
+        !taskTreeSettings.isMore ||
+        taskTreeSettings.isLoading
+      ) {
         return;
       }
 
@@ -235,11 +232,101 @@ class TaskTree extends Component {
     });
   }
 
+  updateCharge(accountId, taskId, projectId, ele) {
+    const { taskConfig } = this.props;
+
+    dialogSelectUser({
+      sourceId: taskConfig.folderId,
+      showMoreInvite: false,
+      fromType: 2,
+      SelectUserSettings: {
+        includeUndefinedAndMySelf: true,
+        filterAccountIds: [accountId],
+        projectId: checkIsProject(projectId) ? projectId : '',
+        unique: true,
+        callback: users => {
+          const user = users[0];
+          this.props.dispatch(
+            updateTaskCharge(taskId, user, '', () => {
+              this.renderUserCard(ele, true, user);
+            }),
+          );
+        },
+      },
+    });
+  }
+
+  updateChargeHeaderAvatar(param) {
+    $('#taskList .listStageTaskContent .chargeImgWrap').each((index, ele) => {
+      const $ele = $(ele);
+      if ($ele.data('hasbusinesscard')) return;
+      const data = {
+        ...param.data.data.charge,
+        accountId: param.data.data.charge.accountID,
+      };
+      $(ele).attr({
+        'data-sourceid': data.accountId,
+        'data-src': data.avatar,
+        'data-auth': param.data.data.auth,
+      });
+      this.renderUserCard(ele, true, data);
+    });
+  }
+
+  renderUserCard(ele, update = false, data = {}) {
+    if (ele.innerHtml && !update) return;
+    const item = $(ele);
+    const accountId = update ? data.accountId : item.attr('data-sourceid');
+    const avatar = update ? data.avatar : item.attr('data-src');
+    const folderId = this.props.taskConfig.folderId;
+    let projectId = this.props.taskConfig.projectId;
+    let taskId;
+    if (folderId) {
+      taskId = item.closest('li').data('taskid');
+    } else {
+      taskId = item.closest('tr').data('taskid');
+      projectId = item.closest('tr').data('projectid');
+    }
+    item.data('hasbusinesscard', true);
+
+    ReactDOM.render(
+      <UserHead
+        className="circle"
+        user={{
+          userHead: avatar,
+          accountId: accountId,
+        }}
+        size={26}
+        operation={
+          item.attr('data-auth') == config.auth.Charger ? (
+            <span
+              className="updateChargeBtn ThemeColor3"
+              onClick={() => this.updateCharge(accountId, taskId, projectId, ele)}
+            >
+              {_l('将任务托付给他人')}
+            </span>
+          ) : null
+        }
+      />,
+      ele,
+    );
+  }
+
   /**
    * 获取任务更具项目ID
    */
   getTaskListByFolderId() {
-    const { projectId, folderId, viewType, filterUserId, listSort, listStatus, completeTime, filterSettings, searchKeyWords } = this.props.taskConfig;
+    const {
+      projectId,
+      folderId,
+      viewType,
+      filterUserId,
+      listSort,
+      listStatus,
+      completeTime,
+      filterSettings,
+      searchKeyWords,
+    } = this.props.taskConfig;
 
     if (taskTreeSettings.ajaxPost) {
       taskTreeSettings.ajaxPost.abort();
@@ -295,10 +382,11 @@ class TaskTree extends Component {
       });
     }
 
-    taskTreeSettings.ajaxPost.then((source) => {
+    taskTreeSettings.ajaxPost.then(source => {
       config.isGetData = false;
 
       if (source.status) {
+        this.setState({ data: _.flatMap(source.stages, () => source.stages.tasks) });
         taskTreeSettings.ajaxPost = false;
         if (viewType !== config.folderViewType.treeView) {
           return;
@@ -332,7 +420,7 @@ class TaskTree extends Component {
           } else {
             // 全部
             let taskSize = 0;
-            $.map(stages, (stage) => {
+            $.map(stages, stage => {
               taskSize += stage.tasks ? stage.tasks.length : 0;
             });
             if (config.pageSize > taskSize) {
@@ -342,7 +430,12 @@ class TaskTree extends Component {
         }
 
         // 只有在 项目中没有任务 且 阶段名称没有修改过
-        if (stages.length === 1 && $.trim(stages[0].name) === _l('进行中') && !stages[0].tasks && taskTreeSettings.pageIndex === 1) {
+        if (
+          stages.length === 1 &&
+          $.trim(stages[0].name) === _l('进行中') &&
+          !stages[0].tasks &&
+          taskTreeSettings.pageIndex === 1
+        ) {
           this.renderNoData();
         } else if (
           listStatus === 1 &&
@@ -361,6 +454,9 @@ class TaskTree extends Component {
 
           if (taskTreeSettings.pageIndex === 1) {
             $('#taskList').html(doT.template(treeMaster)(source));
+            $('#taskList .chargeImgWrap').each((index, ele) => {
+              this.renderUserCard(ele);
+            });
           } else if (listStatus === 1 || listStatus === 0 || stageId === 1) {
             // 只存在一个阶段的
             var allTasks = doT.template(treeMaster)(source);
@@ -376,11 +472,17 @@ class TaskTree extends Component {
             } else {
               $('#taskList .singleFolderTask:first').append(allTasks);
             }
+            $('#taskList .chargeImgWrap').each((index, ele) => {
+              this.renderUserCard(ele);
+            });
           } else {
             if (source.data.stages[0].tasks.length > 0) {
               // 未完成
               var allTasks = doT.template(treeMaster)(source);
               $('#taskList .singleFolderTask:first').append(allTasks);
+              $('#taskList .chargeImgWrap').each((index, ele) => {
+                this.renderUserCard(ele);
+              });
             }
 
             const alreadly = {
@@ -395,6 +497,9 @@ class TaskTree extends Component {
               // 已完成
               var allTasks = doT.template(treeMaster)(alreadly);
               $('#taskList .singleFolderTask:last').append(allTasks);
+              $('#taskList .chargeImgWrap').each((index, ele) => {
+                this.renderUserCard(ele);
+              });
             }
           }
         }
@@ -433,10 +538,10 @@ class TaskTree extends Component {
     const { customFilter } = this.props.taskConfig.filterSettings;
     const customFilters = {};
 
-    Object.keys(customFilter).forEach((item) => {
+    Object.keys(customFilter).forEach(item => {
       let keys = '';
       let arrs = [];
-      customFilter[item].forEach((key) => {
+      customFilter[item].forEach(key => {
         if (!keys) {
           keys = key;
         } else if (keys.length > key.length) {
@@ -468,7 +573,7 @@ class TaskTree extends Component {
         taskID: taskId,
         sort: listSort,
       })
-      .then((source) => {
+      .then(source => {
         if (source.status) {
           const tasks = source.data;
           if (tasks.length <= 0) {
@@ -482,7 +587,9 @@ class TaskTree extends Component {
                 .remove()
                 .end()
                 .find('.singleTreeTask')
-                .prepend('<span class="subJoinLine"></span><span class="InlineBlockTop subNoneNode"></span><span class="nodeCircleSmall circle "></span>');
+                .prepend(
+                  '<span class="subJoinLine"></span><span class="InlineBlockTop subNoneNode"></span><span class="nodeCircleSmall circle "></span>',
+                );
             }
             return;
           }
@@ -495,21 +602,19 @@ class TaskTree extends Component {
           }
 
           $parentTask.append('<div style="left:' + pLeft + 'px;" class="joinLine"></div>');
-          $parentTask
-            .find('.nodeSwitch')
-            .removeClass('on')
-            .addClass('off');
+          $parentTask.find('.nodeSwitch').removeClass('on').addClass('off');
 
           if (tasks.length > 0) {
             source.deep = deep;
             source.formatStatus = formatStatus;
             source.formatTaskTime = formatTaskTime;
-            $li
-              .append(doT.template(treeMaster)(source))
-              .hide()
-              .slideDown();
+            $li.append(doT.template(treeMaster)(source)).hide().slideDown();
             $li.find('.treeLoadingSingleTask').remove();
           }
+
+          $('#taskList .chargeImgWrap').each((index, ele) => {
+            this.renderUserCard(ele);
+          });
         } else {
           $li.find('.treeLoadingSingleTask').remove();
           errorMessage(source.error);
@@ -520,7 +625,7 @@ class TaskTree extends Component {
   /**
    * 快速创建任务回调
    */
-  quickCreateTaskCallback = (source) => {
+  quickCreateTaskCallback = source => {
     const data = source.data;
     const { folderId, projectId, filterUserId } = this.props.taskConfig;
     // 当前页面任务
@@ -573,7 +678,7 @@ class TaskTree extends Component {
               stageName +
               '" >' +
               stageName +
-              '</span> <span class="stageTaskCount">0</span></div><div class="listStageTaskContent"><ul class="singleFolderTask"></ul></div>'
+              '</span> <span class="stageTaskCount">0</span></div><div class="listStageTaskContent"><ul class="singleFolderTask"></ul></div>',
           );
           $('#taskList').append($stage);
           $li = $($stage[1]);
@@ -624,7 +729,6 @@ class TaskTree extends Component {
         }
         folders.data = [data];
       }
-
       const allTasks = doT.template(treeMaster)(folders);
       const $singleTreeTask = $li.children('.singleTreeTask');
 
@@ -641,7 +745,7 @@ class TaskTree extends Component {
               .before(
                 '<i class="icon-task-card" tip="' +
                   _l('子任务') +
-                  '"></i> <span class="subCounts"><span class="completeCount">0</span>/<span class="subCount">1</span></span> '
+                  '"></i> <span class="subCounts"><span class="completeCount">0</span>/<span class="subCount">1</span></span> ',
               );
           }
         } else {
@@ -671,7 +775,7 @@ class TaskTree extends Component {
               .before(
                 '<i class="icon-task-card" tip="' +
                   _l('子任务') +
-                  '"></i> <span class="subCounts"><span class="completeCount">0</span>/<span class="subCount">1</span></span> '
+                  '"></i> <span class="subCounts"><span class="completeCount">0</span>/<span class="subCount">1</span></span> ',
               );
           }
         } else {
@@ -681,6 +785,9 @@ class TaskTree extends Component {
           $sumCount.text(parseInt($sumCount.text() || 0, 10) + 1);
         }
       }
+      $('#taskList .chargeImgWrap').each((index, ele) => {
+        this.renderUserCard(ele);
+      });
       // 计算加一
       if (!filterUserId) {
         if (!parentTaskId) {
@@ -701,14 +808,14 @@ class TaskTree extends Component {
       <Fragment>
         <div id="taskList" />
         <TaskDetail
-            visible={openTaskDetail}
-            taskId={taskId}
-            isForceUpdate={isForceUpdate}
-            closeForceUpdate={() => this.setState({ isForceUpdate: false })}
-            openType={1}
-            closeCallback={() => this.setState({ taskId: '' })}
-            animationEndRemoveDetail={() => this.mounted && this.setState({ openTaskDetail: false })}
-          />
+          visible={openTaskDetail}
+          taskId={taskId}
+          isForceUpdate={isForceUpdate}
+          closeForceUpdate={() => this.setState({ isForceUpdate: false })}
+          openType={1}
+          closeCallback={() => this.setState({ taskId: '' })}
+          animationEndRemoveDetail={() => this.mounted && this.setState({ openTaskDetail: false })}
+        />
       </Fragment>
     );
   }

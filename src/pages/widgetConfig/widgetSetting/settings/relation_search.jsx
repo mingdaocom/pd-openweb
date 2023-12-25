@@ -1,19 +1,19 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { isEmpty } from 'lodash';
 import { useSetState } from 'react-use';
-import { Checkbox, Dropdown, RadioGroup } from 'ming-ui';
+import { Dropdown, RadioGroup } from 'ming-ui';
 import { Tooltip } from 'antd';
 import Trigger from 'rc-trigger';
 import SortColumns from 'src/pages/worksheet/components/SortColumns/SortColumns';
 import styled from 'styled-components';
 import cx from 'classnames';
-import { handleAdvancedSettingChange, getControlsSorts, updateConfig, getAdvanceSetting } from '../../util/setting';
+import { handleAdvancedSettingChange, getControlsSorts, getAdvanceSetting } from '../../util/setting';
 import Sort from 'src/pages/widgetConfig/widgetSetting/components/sublist/Sort';
 import { getSortData } from 'src/pages/worksheet/util';
 import { EditInfo, SettingItem } from '../../styled';
 import { WHOLE_SIZE } from '../../config/Drag';
 import worksheetAjax from 'src/api/worksheet';
-import { formatViewToDropdown, toEditWidgetPage, getFilterRelateControls } from '../../util';
+import { toEditWidgetPage, getFilterRelateControls } from '../../util';
 import { SYSTEM_CONTROL } from '../../config/widget';
 import { FilterItemTexts } from '../components/FilterData';
 import { RELATION_SEARCH_DISPLAY } from '../../config/setting';
@@ -98,64 +98,21 @@ const CoverWrap = styled.div`
   }
 `;
 
-const SheetViewWrap = styled.div`
-  display: flex;
-  border-radius: 3px;
-  border: 1px solid #dddddd;
-  margin-top: 8px;
-  .Dropdown--input {
-    border: none !important;
-  }
-  .ming.Dropdown.disabled {
-    background-color: #fff !important;
-  }
-  .viewCon {
-    padding: 0 16px;
-    background: #fafafa;
-    line-height: 34px;
-    text-align: center;
-    color: #757575;
-  }
-  .filterEditIcon {
-    width: 36px;
-    text-align: center;
-    cursor: pointer;
-    border-left: 1px solid #dddddd;
-    color: #989898;
-    &:hover {
-      background: #f5f5f5;
-      color: #2196f3;
-    }
-  }
-`;
-
 export default function RelationSearch(props) {
-  let {
-    data,
-    onChange,
-    allControls,
-    globalSheetControls,
-    globalSheetInfo,
-    deleteWidget,
-    status: { saveIndex } = {},
-  } = props;
+  let { data, onChange, allControls, globalSheetInfo, deleteWidget, status: { saveIndex } = {} } = props;
   const {
     controlId,
     enumDefault = 1,
-    enumDefault2 = 1,
     showControls,
     relationControls = [],
     dataSource,
-    viewId,
     coverCid,
     sourceControlId,
   } = data;
-  let { showtype = String(enumDefault), allowlink, covertype = '0', openview = '', maxcount } = getAdvanceSetting(data);
+  let { showtype = String(enumDefault), covertype = '0', maxcount } = getAdvanceSetting(data);
   const resultFilters = getAdvanceSetting(data, 'resultfilters');
-  const strDefault = data.strDefault || '000';
   const sorts = _.isArray(getAdvanceSetting(data, 'sorts')) ? getAdvanceSetting(data, 'sorts') : [];
 
-  const [isHiddenOtherViewRecord] = strDefault.split('');
   const [sortVisible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [{ worksheetInfo = {}, views = [], controls = [] }, setData] = useSetState({
@@ -182,13 +139,10 @@ export default function RelationSearch(props) {
       });
   }, [controlId, dataSource, saveIndex]);
 
-  const selectedViewIsDeleted = !loading && viewId && !_.find(views, sheet => sheet.viewId === viewId);
-  const selectedOpenViewIsDelete = !loading && openview && !_.find(views, sheet => sheet.viewId === openview);
   const isDeleteWorksheet = !loading && !_.isEmpty(worksheetInfo) && _.isEmpty(controls);
 
   const filterControls = getFilterRelateControls(relationControls);
   const titleControl = _.find(filterControls, item => item.attribute === 1);
-  const disableOpenViewDrop = !openview && viewId && !selectedViewIsDeleted;
   const isSheetDisplay = () => {
     return showtype === '2';
   };
@@ -196,6 +150,13 @@ export default function RelationSearch(props) {
   useEffect(() => {
     //  切换控件手动更新
     if (!loading && !isEmpty(controls) && worksheetInfo.worksheetId === dataSource) {
+      // 缓存一份接口数据使用
+      window.subListSheetConfig[controlId] = {
+        loading,
+        sheetInfo: worksheetInfo,
+        views,
+        controls,
+      };
       onChange({
         relationControls: controls,
         sourceEntityName: worksheetInfo.name,
@@ -379,6 +340,7 @@ export default function RelationSearch(props) {
               ...handleAdvancedSettingChange(data, {
                 showtype: value,
                 maxcount: value === '3' && (parseInt(maxcount) || parseInt(maxcount) === 0) > 50 ? '50' : maxcount,
+                ...(value === '2' ? { titlesize: '', titlestyle: '', titlecolor: '', hidetitle: '0' } : {}),
               }),
               size: value === '2' ? WHOLE_SIZE : data.size,
             });
@@ -489,87 +451,6 @@ export default function RelationSearch(props) {
               onChange(handleAdvancedSettingChange(data, { maxcount: `${value}` }));
             }}
           />
-        </div>
-      </SettingItem>
-      <SettingItem>
-        <div className="settingItemTitle">{_l('操作')}</div>
-        <div className="labelWrap">
-          <Checkbox
-            className="allowSelectRecords "
-            size="small"
-            text={_l('允许新增记录')}
-            checked={enumDefault2 !== 1}
-            onClick={checked => {
-              onChange({ enumDefault2: checked ? 1 : 0 });
-            }}
-          />
-        </div>
-        <div className="labelWrap">
-          <Checkbox
-            size="small"
-            text={_l('允许打开记录')}
-            checked={+allowlink}
-            onClick={checked =>
-              onChange(handleAdvancedSettingChange(data, { allowlink: +!checked, openview: checked ? '' : openview }))
-            }
-          />
-        </div>
-        {+allowlink ? (
-          <SheetViewWrap>
-            <div className="viewCon">{_l('视图')}</div>
-            <Dropdown
-              border
-              className="flex"
-              cancelAble={!disableOpenViewDrop}
-              loading={loading}
-              placeholder={
-                selectedOpenViewIsDelete || selectedViewIsDeleted ? (
-                  <span className="Red">{_l('已删除')}</span>
-                ) : viewId && !selectedViewIsDeleted ? (
-                  _l('按关联视图配置')
-                ) : (
-                  _l('未设置')
-                )
-              }
-              disabled={disableOpenViewDrop}
-              data={formatViewToDropdown(views)}
-              value={openview && !selectedOpenViewIsDelete ? openview : undefined}
-              onChange={value => {
-                onChange(handleAdvancedSettingChange(data, { openview: value }));
-              }}
-            />
-          </SheetViewWrap>
-        ) : null}
-      </SettingItem>
-      <SettingItem>
-        <div className="settingItemTitle">{_l('设置')}</div>
-        <div className="labelWrap">
-          <Checkbox
-            className="allowSelectRecords"
-            size="small"
-            checked={!!+isHiddenOtherViewRecord}
-            onClick={checked => {
-              onChange({
-                strDefault: updateConfig({
-                  config: strDefault,
-                  value: +!checked,
-                  index: 0,
-                }),
-              });
-            }}
-          >
-            <span style={{ marginRight: '6px' }}>{_l('按用户权限过滤')}</span>
-            <Tooltip
-              popupPlacement="bottom"
-              title={
-                <span>
-                  {_l('未勾选时，用户可查看所有查询结果。勾选后，按照用户对数据的权限查看，隐藏无权限的数据或字段')}
-                </span>
-              }
-            >
-              <i className="icon icon-help Gray_bd Font15 mLeft5 pointer" />
-            </Tooltip>
-          </Checkbox>
         </div>
       </SettingItem>
     </RelateSheetWrap>

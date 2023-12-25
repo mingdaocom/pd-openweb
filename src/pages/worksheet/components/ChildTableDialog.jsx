@@ -1,7 +1,8 @@
-import React, { Fragment, useState, useRef } from 'react';
+import React, { Fragment, useState, useRef, useEffect } from 'react';
 import _ from 'lodash';
 import cx from 'classnames';
 import { Button, Modal, Dialog } from 'ming-ui';
+import sheetAjax from 'src/api/worksheet';
 import worksheetAjax from 'src/api/worksheet';
 import styled from 'styled-components';
 import { ROW_HEIGHT } from 'worksheet/constants/enum';
@@ -11,6 +12,7 @@ import { onValidator } from 'src/components/newCustomFields/tools/DataFormat';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils';
 import { emitter, getSubListError } from 'worksheet/util';
 import { handleOpenInNew } from 'worksheet/common/recordInfo/crtl';
+import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
 
 const Con = styled.div`
   width: 100%;
@@ -103,7 +105,6 @@ export default function ChildTableDialog(props) {
     control,
     controls,
     recordId,
-    searchConfig,
     sheetSwitchPermit,
     masterData,
     projectId,
@@ -114,15 +115,21 @@ export default function ChildTableDialog(props) {
   const cache = useRef({});
   const rowHeight = ROW_HEIGHT[Number(_.get(control, 'advancedSetting.rowheight'))] || 34;
   const meedUpdateControls = _.isEmpty(controls) || hasNoRelationRelateControl(controls);
+  const [loading, setLoading] = useState(typeof props.searchConfig === 'undefined');
+  const [searchConfig, setSearchConfig] = useState(props.searchConfig);
   const [changed, setChanged] = useState(false);
   const [refreshFlag, setRefreshFlag] = useState(Math.random());
   const [value, setValue] = useState({});
+  const [isSaving, setIsSaving] = useState(false);
   const conHeight = window.innerHeight - 32 - 50;
   const maxHeight = conHeight - 31 - 36 - 10;
   const maxShowRowCount = Math.floor((maxHeight - 30) / rowHeight);
   const allowOpenInNew = !control.isDraft && !_.get(window, 'shareState.shareId');
   const width = window.innerWidth - 32 * 2 > 1600 ? 1600 : window.innerWidth - 32 * 2;
   function handleSave(close) {
+    if (cache.current.isSaving) {
+      return;
+    }
     const errors = getSubListError(
       {
         rows: value.rows,
@@ -150,6 +157,8 @@ export default function ChildTableDialog(props) {
         cellErrors: errors,
       });
     }
+    cache.current.isSaving = true;
+    setIsSaving(true);
     worksheetAjax
       .updateWorksheetRow({
         appId,
@@ -163,7 +172,9 @@ export default function ChildTableDialog(props) {
           alert(_l('保存失败'), 3);
         } else {
           alert(_l('保存成功'));
+          cache.current.isSaving = false;
           setChanged(false);
+          setIsSaving(false);
           if (close) {
             onClose();
           }
@@ -176,6 +187,14 @@ export default function ChildTableDialog(props) {
         }
       });
   }
+  useEffect(() => {
+    if (loading) {
+      sheetAjax.getQueryBySheetId({ worksheetId: control.dataSource }).then(queryRes => {
+        setSearchConfig(formatSearchConfigs(queryRes));
+        setLoading(false);
+      });
+    }
+  }, []);
   return (
     <Modal
       visible
@@ -225,7 +244,7 @@ export default function ChildTableDialog(props) {
           {changed && (
             <Fragment>
               <div className="flex"></div>
-              <Button className="mRight35" onClick={() => handleSave()}>
+              <Button loading={isSaving} className="mRight35" onClick={() => handleSave()}>
                 {_l('保存')}
               </Button>
             </Fragment>

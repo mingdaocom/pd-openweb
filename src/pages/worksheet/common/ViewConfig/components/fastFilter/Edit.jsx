@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { Dropdown, Icon, Checkbox } from 'ming-ui';
+import { useSetState } from 'react-use';
+import { Dropdown, Icon, Checkbox, Input } from 'ming-ui';
 import DropdownWrapper from 'worksheet/components/DropdownWrapper';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
 import {
   MULTI_SELECT_FILTER_TYPE,
   TEXT_FILTER_TYPE,
+  LIMIT,
   NUMBER_FILTER_TYPE,
   RELA_FILTER_TYPE,
   GROUP_FILTER_TYPE,
@@ -128,8 +130,7 @@ const Wrap = styled.div`
         line-height: 36px;
         height: 36px;
         opacity: 1;
-        background: #ffffff;
-        // border: 1px solid #dddddd;
+        background: #fff;
         border-radius: 4px;
         margin-top: 8px;
         box-sizing: border-box;
@@ -207,6 +208,23 @@ const Wrap = styled.div`
   .RelateRecordDropdown-selected {
     height: auto;
   }
+  input[type='number'] {
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      margin: 0;
+      -webkit-appearance: none !important;
+    }
+  }
+  .ming.Input{
+    font-size: 13px;
+    border: 1px solid #ddd;
+    &:hover {
+      border-color: #bbb;
+    }
+    &:focus {
+      border-color: #2196f3;
+    }
+  }
 `;
 
 function Edit(params) {
@@ -219,15 +237,16 @@ function Edit(params) {
     onClose,
     currentSheetInfo,
   } = params;
-  let [fastFilters, setData] = useState();
-  let [control, setControl] = useState();
-  let [dataControls, setDataControls] = useState({});
   let boxConT = useRef(null);
-  let [advancedSetting, setAdvancedSetting] = useState();
-  let [dataType, setDataType] = useState();
+  const [{ fastFilters, control, advancedSetting, dataType, dataControls }, setState] = useSetState({
+    fastFilters: [],
+    control: {},
+    advancedSetting: {},
+    dataType: null,
+    dataControls: {},
+  });
   useEffect(() => {
     const d = view.fastFilters || [];
-    setData(d);
     let controlsFilter = d.map(o => {
       const c = worksheetControls.find(item => item.controlId === o.controlId) || {};
       return {
@@ -239,7 +258,6 @@ function Edit(params) {
       };
     });
     let dd = worksheetControls.find(item => item.controlId === activeFastFilterId) || {};
-    setDataControls(dd);
     let controlNew = controlsFilter.find(o => o.controlId === activeFastFilterId);
     if (!controlNew) {
       controlNew = {
@@ -250,10 +268,8 @@ function Edit(params) {
         sourceControl: dd.sourceControl,
       };
     }
-    setControl(controlNew);
     let advancedSetting = controlNew.advancedSetting || {};
-    setAdvancedSetting(advancedSetting);
-    setDataType(controlNew.type);
+    setState({ fastFilters: d, dataControls: dd, control: controlNew, advancedSetting, dataType: controlNew.type });
   }, [activeFastFilterId, view.fastFilters]);
   if (!control) {
     return '';
@@ -432,6 +448,31 @@ function Edit(params) {
       />
     );
   };
+  const renderLimit = () => {
+    return (
+      <React.Fragment>
+        <div className="title">{_l('位数')}</div>
+        <Input
+          type="number"
+          className="w100 mTop8 placeholderColor"
+          value={_.get(advancedSetting, 'limit')}
+          placeholder={_l('请输入数值')}
+          onChange={limit => {
+            setState({
+              advancedSetting: {
+                ...advancedSetting,
+                limit,
+              },
+            });
+          }}
+          onBlur={e => {
+            let limit = e.target.value.trim();
+            updateViewSet({ limit });
+          }}
+        />
+      </React.Fragment>
+    );
+  };
   const updateView = fastFilters => {
     updateCurrentView(
       Object.assign(view, {
@@ -577,6 +618,9 @@ function Edit(params) {
           }
         })}
         {DATE_RANGE.keys.includes(dataType) && renderTimeType()}
+        {LIMIT.keys.includes(dataType) &&
+          [FILTER_CONDITION_TYPE.START, FILTER_CONDITION_TYPE.END].includes(control.filterType) &&
+          renderLimit()}
         {APP_ALLOWSCAN.keys.includes(dataType) && renderAppScan()}
         {/* <div className="mTop24 filterDefaultValue">
           <FilterDefaultValue

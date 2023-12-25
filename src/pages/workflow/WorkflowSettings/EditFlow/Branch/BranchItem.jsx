@@ -5,6 +5,7 @@ import { CreateNode, NodeOperate } from '../components';
 import { addFlowNode } from '../../../redux/actions';
 import { getFilterText } from '../../utils';
 import _ from 'lodash';
+import { NODE_TYPE } from '../../enum';
 
 export default class BranchItem extends Component {
   constructor(props) {
@@ -59,7 +60,6 @@ export default class BranchItem extends Component {
                 addFlowNode(processId, {
                   prveId,
                   nodeIds: [item.id],
-                  name: item.name ? _l('-复制') : _l('分支-复制'),
                   all,
                 }),
               )
@@ -80,9 +80,13 @@ export default class BranchItem extends Component {
                     <div key={j} className="workflowBranchItemTag">
                       <span
                         className="ellipsis maxWidth mRight5"
-                        style={{ color: obj.filedValue ? '#333' : '#f44336' }}
+                        style={{ color: obj.nodeName && obj.filedValue ? '#333' : '#f44336' }}
                       >
-                        {obj.filedValue || _l('字段已删除')}
+                        {obj.nodeName && obj.filedValue
+                          ? obj.nodeType === NODE_TYPE.FORMULA
+                            ? obj.nodeName
+                            : obj.filedValue
+                          : _l('字段已删除')}
                       </span>
                       <span className="ellipsis maxWidth">
                         <span className="mRight5 Gray_75">
@@ -202,8 +206,18 @@ export default class BranchItem extends Component {
   }
 
   render() {
-    const { processId, data, item, disabled, renderNode, clearBorderType, openDetail, isCopy, isApproval, isSimple } =
-      this.props;
+    const {
+      processId,
+      data,
+      item,
+      disabled,
+      renderNode,
+      clearBorderType,
+      openDetail,
+      isCopy,
+      isApproval,
+      isSimple,
+    } = this.props;
     const { isMove } = this.state;
     const resultTypeText = {
       1: _l('通过'),

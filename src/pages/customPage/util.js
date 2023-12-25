@@ -254,6 +254,16 @@ export const fillObjectId = components => {
   });
 }
 
+export const formatNavfilters = data => {
+  const { dataType, advancedSetting } = data;
+  const { navshow, navfilters, showNavfilters } = advancedSetting;
+  if (navshow === '2' && dataType === 29 && navfilters && !showNavfilters) {
+    const res = JSON.parse(navfilters);
+    return JSON.stringify(res.map(item => JSON.parse(item).id));
+  }
+  return navfilters;
+}
+
 export const replaceColor = (config, iconColor) => {
   const lightColor = iconColor && generate(iconColor)[0];
   const data = { ...config };

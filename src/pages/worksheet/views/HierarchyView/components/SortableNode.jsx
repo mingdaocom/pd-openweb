@@ -217,9 +217,7 @@ export default class SortableRecordItem extends Component {
             onClick={() => {
               handleRecordClick(view, treeData[rowId], () => {
                 this.handleRecordVisible(rowId);
-                if (location.pathname.indexOf('public') === -1) {
-                  addBehaviorLog('worksheetRecord', worksheetInfo.worksheetId, { rowId }); // 埋点
-                }
+                addBehaviorLog('worksheetRecord', worksheetInfo.worksheetId, { rowId }); // 埋点
               });
             }}
           />

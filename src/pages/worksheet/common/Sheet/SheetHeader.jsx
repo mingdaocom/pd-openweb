@@ -181,7 +181,7 @@ function SheetHeader(props) {
               <Tooltip
                 text={
                   <span>
-                    {_l('退出')} ({navigator.userAgent.toLocaleLowerCase().includes('mac os') ? '⌘ + E' : 'Ctrl + E'})
+                    {_l('退出')} ({navigator.userAgent.toLocaleLowerCase().includes('mac os') ? '⌘ + E' : 'Shift + E'})
                   </span>
                 }
                 popupPlacement="bottom"
@@ -200,7 +200,7 @@ function SheetHeader(props) {
                 text={
                   <span>
                     {inFull ? _l('退出') : _l('展开')} (
-                    {navigator.userAgent.toLocaleLowerCase().includes('mac os') ? '⌘ + E' : 'Ctrl + E'})
+                    {navigator.userAgent.toLocaleLowerCase().includes('mac os') ? '⌘ + E' : 'Shift + E'})
                   </span>
                 }
                 popupPlacement="bottom"

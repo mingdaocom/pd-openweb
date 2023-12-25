@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { LoadDiv, Dialog, Checkbox } from 'ming-ui';
 import { useSetState } from 'react-use';
@@ -9,6 +9,8 @@ import SvgIcon from 'src/components/SvgIcon';
 import { WrapFooter } from '../apiIntegration/style';
 import appManagementAjax from 'src/api/appManagement';
 import _ from 'lodash';
+import { getCurrentProject } from 'src/util';
+
 const WrapHeader = styled.div`
   .searchCon > div {
     width: 100%;
@@ -43,107 +45,108 @@ const Wrap = styled.div`
 `;
 
 let Ajax = null;
+
 export default function AddAppDialog(props) {
-  const cache = useRef({ pgIndex: 1, isAll: false });
-  const [{ selectedList, list, allList, pgIndex, isCheckAll, keywords, loading }, setState] = useSetState({
-    show: false,
-    keywords: '',
+  const { projectId } = props;
+  const { isProjectAppManager, isSuperAdmin } = getCurrentProject(projectId);
+  const isAdmin = isProjectAppManager || isSuperAdmin;
+  const h = ($(window).height() > 1000 ? 1000 : $(window).height()) - 250;
+  const [{ loading, list, pageIndex, keywords, isMore, selectedList, isCheckAll }, setState] = useSetState({
+    loading: true,
     list: [],
-    allList: [],
+    pageIndex: 1,
+    keywords: '',
+    isMore: false,
     selectedList: [],
-    loading: false,
-    pgIndex: 1,
     isCheckAll: false,
   });
-  useEffect(() => {
-    if (!!keywords && !props.isSuperAdmin) {
-      setState({
-        list: allList.filter(
-          o =>
-            (o.appName || _.get(o, 'createAccountInfo.fullName'))
-              .toLocaleLowerCase()
-              .indexOf(keywords.toLocaleLowerCase()) >= 0,
-        ),
-      });
-    } else {
-      getAppList();
-    }
-  }, [pgIndex, keywords]);
 
   // 翻页滚动
   const onScroll = () => {
-    if (
-      loading ||
-      cache.current.isAll ||
-      !props.isSuperAdmin //getManagerApps全量加载的 没有翻页
-    ) {
+    if (loading || !isMore || !isAdmin) {
       return;
     }
+
     setState({
-      pgIndex: cache.current.pgIndex + 1,
+      loading: true,
+      pageIndex: pageIndex + 1,
     });
   };
-  /**
-   * 获得应用列表
-   */
+
+  // 获得应用列表
   const getAppList = () => {
     if (Ajax) {
       Ajax.abort();
     }
+
     setState({ loading: true });
-    Ajax = props.isSuperAdmin
+
+    Ajax = isAdmin
       ? appManagementAjax.getAppsForProject({
-          projectId: localStorage.getItem('currentProjectId'),
+          projectId,
           status: '',
           order: 3,
-          pageIndex: pgIndex,
+          pageIndex: pageIndex,
           pageSize: 30,
           keyword: keywords,
         })
       : appManagementAjax.getManagerApps({
-          projectId: localStorage.getItem('currentProjectId'),
+          projectId,
         });
+
     Ajax.then(res => {
       Ajax = null;
-      if (props.isSuperAdmin) {
-        const { apps = [], count } = res;
+
+      if (isAdmin) {
+        const { apps = [] } = res;
         setState({
-          list: pgIndex === 1 ? apps : list.concat(...apps),
+          list: pageIndex === 1 ? apps : list.concat(...apps),
+          pageIndex,
           loading: false,
+          isMore: apps.length >= 30,
         });
-        cache.current.pgIndex = pgIndex;
-        cache.current.isAll = apps.length < 30;
       } else {
-        //getManagerApps全量加载的
         setState({
           list: res || [],
           loading: false,
-          allList: res || [],
+          isMore: false,
         });
-        cache.current.pgIndex = 1;
-        cache.current.isAll = true;
       }
     });
   };
+
+  // 获取source列表
+  const getSourceList = list => {
+    if (!!keywords && !isAdmin) {
+      return list.filter(
+        o =>
+          o.appName.toLocaleLowerCase().indexOf(keywords.toLocaleLowerCase()) >= 0 ||
+          _.get(o, 'createAccountInfo.fullName').toLocaleLowerCase().indexOf(keywords.toLocaleLowerCase()) >= 0,
+      );
+    }
+
+    return list;
+  };
+
+  useEffect(() => {
+    !isAdmin && getAppList();
+  }, []);
+
+  useEffect(() => {
+    isAdmin && getAppList();
+  }, [pageIndex, keywords]);
 
   const keys = [
     {
       key: 'checkCon',
       render: (item, selectedList, handleSelect, isCheckAll) => {
-        return (
-          <Checkbox
-            className="mLeft5"
-            size="small"
-            checked={selectedList.includes(item.id) || isCheckAll}
-            // onClick={() => handleSelect(item.id)}
-          />
-        );
+        return <Checkbox className="mLeft5" size="small" checked={selectedList.includes(item.id) || isCheckAll} />;
       },
     },
     {
       key: 'name',
       name: _l('应用名称'),
-      render: (item, selectedList, handleSelect) => {
+      render: item => {
         return (
           <div className="flexRow">
             <div
@@ -164,7 +167,7 @@ export default function AddAppDialog(props) {
     {
       key: 'owner',
       name: _l('拥有者'),
-      render: (item, selectedList, handleSelect) => {
+      render: item => {
         return (
           <div className="flexRow pLeft5 alignItemsCenter">
             <img src={_.get(item, 'createAccountInfo.avatar')} className="circle" width={28} srcset="" />
@@ -176,12 +179,13 @@ export default function AddAppDialog(props) {
       },
     },
   ];
-  let h = ($(window).height() > 1000 ? 1000 : $(window).height()) - 250;
+
+  const sourceList = getSourceList(list);
+
   return (
     <Dialog
-      className=""
       width="700"
-      visible={true}
+      visible
       title={<span className="Font17 Bold">{_l('选择授权应用')}</span>}
       footer={null}
       onCancel={props.onCancel}
@@ -194,20 +198,13 @@ export default function AddAppDialog(props) {
               value={keywords}
               className="search"
               onChange={v => {
-                setState({
-                  pgIndex: 1,
-                  keywords: v,
-                });
-                cache.current = {
-                  isAll: false,
-                  pgIndex: 1,
-                };
+                setState({ pageIndex: 1, keywords: v });
               }}
             />
           </div>
         </WrapHeader>
         <div className="table mTop10 flex">
-          {loading && pgIndex === 1 ? (
+          {loading && pageIndex === 1 ? (
             <div
               className=""
               style={{
@@ -219,21 +216,21 @@ export default function AddAppDialog(props) {
           ) : (
             <APITable
               keys={keys}
-              list={list.map(o => {
+              list={sourceList.map(o => {
                 return { ...o, id: o.appId };
               })}
-              count={list.length}
+              count={sourceList.length}
               selectedList={selectedList}
               onChange={selectedList => {
                 setState({
                   selectedList,
-                  isCheckAll: selectedList.length >= list.length,
+                  isCheckAll: selectedList.length >= sourceList.length,
                 });
               }}
               isCheckAll={isCheckAll}
               onCheck={checked => {
                 setState({
-                  selectedList: checked ? list.map(o => o.appId) : [],
+                  selectedList: checked ? sourceList.map(o => o.appId) : [],
                   isCheckAll: checked,
                 });
               }}
@@ -248,7 +245,7 @@ export default function AddAppDialog(props) {
           )}
         </div>
         <WrapFooter className="flexRow alignItemsCenter Gray_75 TxtLeft mTop24">
-          <span className="flex">{_l('已选择 %0 应用', isCheckAll ? list.length : selectedList.length)}</span>
+          <span className="flex">{_l('已选择 %0 应用', isCheckAll ? sourceList.length : selectedList.length)}</span>
           <span className="cancel Hand Font14" onClick={props.onCancel}>
             {_l('取消')}
           </span>
@@ -259,7 +256,7 @@ export default function AddAppDialog(props) {
                 return;
               }
               e.stopPropagation();
-              props.onOk(isCheckAll ? list.map(o => o.appId) : selectedList);
+              props.onOk(isCheckAll ? sourceList.map(o => o.appId) : selectedList);
             }}
           >
             {_l('确定')}

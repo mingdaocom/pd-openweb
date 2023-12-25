@@ -10,6 +10,7 @@ import appManagementAjax from 'src/api/appManagement.js';
 import _ from 'lodash';
 import { DATABASE_TYPE, isValidName } from 'src/pages/integration/dataIntegration/constant.js';
 import { schemaTypes } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config.js';
+import SheetGroupSelect from 'src/pages/integration/dataIntegration/connector/components/OnlySyncStep/SheetGroupSelect.jsx';
 import SelectTables from 'src/pages/integration/dataIntegration/components/SelectTables/index.jsx';
 import styled from 'styled-components';
 
@@ -37,6 +38,7 @@ const initData = {
   sheetList: [], //数据表列表
   appInfo: {},
   worksheetInfo: {},
+  childSections: [],
 };
 export default class SourceDest extends Component {
   constructor(props) {
@@ -49,6 +51,7 @@ export default class SourceDest extends Component {
       appInfo: {},
       worksheetInfo: {},
       loading: false,
+      childSections: [],
     };
   }
   componentDidMount() {
@@ -104,6 +107,7 @@ export default class SourceDest extends Component {
     this.setState({
       loading: true,
     });
+
     appManagementAjax
       .getAppForManager({
         projectId,
@@ -118,7 +122,9 @@ export default class SourceDest extends Component {
       });
   };
   //表
-  getSheetListByAppId = appId => {
+  getSheetListByAppId = () => {
+    const { node, childSections = [], appInfo = {} } = this.state;
+    let { appId, appSectionId } = _.get(node, ['nodeConfig', 'config']) || {};
     if (!appId) {
       this.setState({
         sheetList: [],
@@ -128,22 +134,37 @@ export default class SourceDest extends Component {
     this.setState({
       loading: true,
     });
-    homeAppAjax
-      .getWorksheetsByAppId({
-        appId,
-      })
-      .then(res => {
-        const data = res
-          .filter(o => o.type === 0) //只能是工作表
-          .map(a => {
-            return { ...a, text: a.workSheetName, value: a.workSheetId, icon: '' };
-          });
-        const list = this.filterSheet(data);
-        this.setState({
-          loading: false,
-          sheetList: list,
-        });
+    const { sections = [] } = appInfo;
+    let childSectionsWorkSheetInfo = [];
+
+    if (appSectionId) {
+      const data =
+        childSections.find(o => o.appSectionId === appSectionId) ||
+        sections.find(o => o.appSectionId === appSectionId) ||
+        {};
+      childSectionsWorkSheetInfo = data.workSheetInfo || [];
+      childSectionsWorkSheetInfo = childSectionsWorkSheetInfo.concat(
+        ...(data.childSections || []).map(it => it.workSheetInfo),
+      );
+    } else {
+      sections.forEach(o => {
+        childSectionsWorkSheetInfo = childSectionsWorkSheetInfo.concat(
+          ...(o.childSections || []).map(it => it.workSheetInfo),
+          ...o.workSheetInfo,
+        );
       });
+    }
+
+    const data = (childSectionsWorkSheetInfo || [])
+      .filter(o => o.type === 0) //只能是工作表
+      .map(a => {
+        return { ...a, text: a.workSheetName, value: a.workSheetId, icon: '' };
+      });
+    const list = this.filterSheet(data);
+    this.setState({
+      loading: false,
+      sheetList: list,
+    });
   };
   //表信息
   getWorksheetInfo = (workSheetId, cb) => {
@@ -160,12 +181,19 @@ export default class SourceDest extends Component {
       .getApp(
         {
           appId,
+          getSection: true,
         },
         { fireImmediately: true },
       )
       .then(res => {
+        const { sections } = res;
+        let childSections = [];
+        sections.map(o => {
+          childSections = childSections.concat(o.childSections);
+        });
         this.setState({
-          appInfo: { ...res, appName: res.name },
+          appInfo: { ..._.cloneDeep(res), appName: res.name },
+          childSections,
         });
       });
   };
@@ -348,7 +376,7 @@ export default class SourceDest extends Component {
     const { showEdit } = this.props;
     const { node = {} } = this.state;
     const { sheetList = [], appInfo = {} } = this.state;
-    const { dbName = '', appId, dsType } = _.get(node, ['nodeConfig', 'config']) || {};
+    const { dbName = '', appId, dsType, appSectionId } = _.get(node, ['nodeConfig', 'config']) || {};
     const dbValue = dsType === DATABASE_TYPE.APPLICATION_WORKSHEET ? appId : dbName;
     let dbParam = {
       value: !dbValue ? undefined : dbValue,
@@ -387,6 +415,19 @@ export default class SourceDest extends Component {
         },
       );
     } else {
+      let dataConfig = {};
+      if (dsType === DATABASE_TYPE.APPLICATION_WORKSHEET) {
+        if (!appSectionId) {
+          const { sections = [] } = appInfo;
+          const { childSections = [] } = this.state;
+          const section = childSections.find(o => o.workSheetInfo.map(a => a.workSheetId).includes(value));
+          dataConfig = {
+            appSectionId: section
+              ? section.appSectionId
+              : (sections.find(o => o.workSheetInfo.map(a => a.workSheetId).includes(value)) || {}).appSectionId,
+          };
+        }
+      }
       this.onChangeConfig(
         {
           tableName:
@@ -396,6 +437,7 @@ export default class SourceDest extends Component {
           workSheetId: dsType === DATABASE_TYPE.APPLICATION_WORKSHEET ? value : '',
           createTable: false, //是否新建工作表
           isOurCreateTable: false,
+          ...dataConfig,
         },
         () => {
           this.setState({
@@ -421,6 +463,7 @@ export default class SourceDest extends Component {
       schema,
       dsType,
       className,
+      appSectionId,
       datasourceId,
       dataDestId,
     } = _.get(node, ['nodeConfig', 'config']) || {};
@@ -513,17 +556,20 @@ export default class SourceDest extends Component {
                     workSheetId: '',
                     createTable: false, //是否新建工作表
                     isOurCreateTable: false,
+                    appSectionId: undefined,
                   },
                   () => {
-                    this.setState({
-                      sheetList: [],
-                      appInfo:
-                        dsType === DATABASE_TYPE.APPLICATION_WORKSHEET
-                          ? dbList.find(it => it.value === value) || {}
-                          : {},
-                      worksheetInfo: {},
-                      schemaList: [],
-                    });
+                    this.setState(
+                      {
+                        sheetList: [],
+                        appInfo: {},
+                        worksheetInfo: {},
+                        schemaList: [],
+                      },
+                      () => {
+                        !!value && dsType === DATABASE_TYPE.APPLICATION_WORKSHEET && this.getAppInfo(value);
+                      },
+                    );
                   },
                 );
               }}
@@ -567,6 +613,36 @@ export default class SourceDest extends Component {
                   cancelAble
                   isAppendToBody
                   data={schemaList}
+                />
+              </React.Fragment>
+            )}
+            {dsType === DATABASE_TYPE.APPLICATION_WORKSHEET && (
+              <React.Fragment>
+                <div className="title mTop20">{_l('分组')}</div>
+                <SheetGroupSelect
+                  hideTitle
+                  key={appId}
+                  className={'selectGroupDropWorksheet dropWorksheet w100'}
+                  suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+                  appId={appId}
+                  value={appSectionId}
+                  onChange={appSectionId => {
+                    this.onChangeConfig(
+                      {
+                        tableName: '',
+                        appSectionId,
+                        workSheetId: '',
+                        createTable: false, //是否新建工作表
+                        isOurCreateTable: false,
+                      },
+                      () => {
+                        this.setState({
+                          sheetList: [],
+                          worksheetInfo: {},
+                        });
+                      },
+                    );
+                  }}
                 />
               </React.Fragment>
             )}

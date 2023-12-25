@@ -126,7 +126,7 @@ async function main(callback = () => {}) {
   print.info('后端地址 -> ' + host);
   let data;
   try {
-    data = await getSwaggerFromApi(host.replace(/\/$/, '') + '/swagger/v6.0.0.0/swagger.json');
+    data = await getSwaggerFromApi(host.replace(/\/$/, '') + '/swagger/v8.0.0.0/swagger.json');
     print.success('获取数据成功，开始处理数据');
   } catch (err) {
     print.danger('获取数据失败！');

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { bindActionCreators } from 'redux';
@@ -15,10 +15,11 @@ import GroupFilter from './GroupFilter';
 import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import DragMask from 'worksheet/common/DragMask';
 import { Skeleton } from 'ming-ui';
-const { sheet, gallery, board, calendar, gunter, detail } = VIEW_DISPLAY_TYPE;
+const { sheet, gallery, board, calendar, gunter, detail, customize } = VIEW_DISPLAY_TYPE;
 import './style.less';
 import _ from 'lodash';
 import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
+import { MaxNavW, MinNavW, defaultNavOpenW, defaultNavCloseW } from 'src/pages/worksheet/common/ViewConfig/config.js';
 
 const Con = styled.div`
   flex: 1;
@@ -83,6 +84,7 @@ function Sheet(props) {
     updateGroupFilter,
     updateFilters,
     config = {},
+    appPkg = {},
     filtersGroup,
     chartId,
     showControlIds,
@@ -90,15 +92,16 @@ function Sheet(props) {
     quickFilter,
     navGroupFilters,
     openNewRecord,
+    updateQuickFilter,
   } = props;
+  const cache = useRef({});
   const [viewConfigVisible, setViewConfigVisible] = useState(false);
+  const [viewConfigTab, setViewConfigTab] = useState('');
   let [dragMaskVisible, setDragMaskVisible] = useState(false);
   let [isOpenGroup, setIsOpenGroup] = useState(
     !window.localStorage.getItem('navGroupIsOpen') ? true : window.localStorage.getItem('navGroupIsOpen') === 'true',
   );
-  let [groupFilterWidth, setGroupFilterWidth] = useState(
-    isOpenGroup ? window.localStorage.getItem('navGroupWidth') || 210 : 32,
-  );
+  let [groupFilterWidth, setGroupFilterWidth] = useState();
   let { viewId } = props;
   const { loadWorksheet } = props;
   const showViews = views.filter(view => {
@@ -112,11 +115,11 @@ function Sheet(props) {
   const hasGroupFilter =
     !_.isEmpty(view.navGroup) &&
     view.navGroup.length > 0 &&
-    _.includes([sheet, gallery], String(view.viewType)) &&
+    _.includes([sheet, gallery, customize], String(view.viewType)) &&
     navData;
   const showQuickFilter =
     !_.isEmpty(view.fastFilters) &&
-    _.includes([sheet, gallery, board, calendar, gunter, detail], String(view.viewType)) &&
+    _.includes([sheet, gallery, board, calendar, gunter, detail, customize], String(view.viewType)) &&
     !chartId;
   const needClickToSearch =
     showQuickFilter &&
@@ -132,6 +135,7 @@ function Sheet(props) {
     type,
     loading,
     error,
+    appPkg,
     appId,
     groupId,
     worksheetId,
@@ -143,6 +147,7 @@ function Sheet(props) {
     openNewRecord,
     viewConfigVisible,
     setViewConfigVisible,
+    setViewConfigTab,
     filtersGroup,
     groupFilterWidth: hasGroupFilter ? groupFilterWidth : 0,
     chartId,
@@ -175,13 +180,39 @@ function Sheet(props) {
   useEffect(() => {
     updateGroupFilter([], view);
   }, [view.viewId, worksheetId]);
-
+  useEffect(() => {
+    if (_.get(cache, 'current.prevFastFilters.length') > 0 && _.get(view, 'fastFilters.length') === 0) {
+      updateQuickFilter([], view);
+    }
+    cache.current.prevFastFilters = view.fastFilters;
+  }, [view.fastFilters]);
+  useEffect(() => {
+    if (isOpenGroup) {
+      setOpenNavW();
+    } else {
+      setGroupFilterWidth(defaultNavCloseW);
+    }
+  }, [_.get(view, 'advancedSetting.navwidth')]);
+  const setOpenNavW = () => {
+    let w = window.localStorage.getItem(`navGroupWidth_${view.viewId}`);
+    w = !w ? _.get(view, 'advancedSetting.navwidth') || defaultNavOpenW : w;
+    setGroupFilterWidth(w);
+  };
+  useEffect(() => {
+    window.openViewConfig = () => {
+      setViewConfigVisible(true);
+      setViewConfigTab('DebugConfig');
+    };
+    return () => {
+      delete window.openViewConfig;
+    };
+  }, []);
   return (
     <SheetContext.Provider value={{ config, isRequestingRelationControls: worksheetInfo.isRequestingRelationControls }}>
       <Con className="worksheetSheet">
         {type === 'common' && worksheetInfo.name && (
           <DocumentTitle
-            title={`${(window.appInfo && window.appInfo.name) || _l('应用')} - ${worksheetInfo.name || ''}`}
+            title={`${worksheetInfo.name || ''} - ${(window.appInfo && window.appInfo.name) || _l('应用')}`}
           />
         )}
         {loading ? (
@@ -199,7 +230,7 @@ function Sheet(props) {
             {type === 'common' && (
               <React.Fragment>
                 <SheetHeader {...basePara} />
-                <ViewControl {...basePara} view={_.cloneDeep(view)} />
+                <ViewControl {...basePara} viewConfigTab={viewConfigTab} view={_.cloneDeep(view)} />
               </React.Fragment>
             )}
             {type === 'single' && <SheetHeader {...basePara} onlyBatchOperate />}
@@ -217,12 +248,12 @@ function Sheet(props) {
                   {dragMaskVisible && (
                     <DragMask
                       value={groupFilterWidth}
-                      min={100}
-                      max={360}
+                      min={MinNavW}
+                      max={MaxNavW}
                       onChange={value => {
                         setDragMaskVisible(false);
                         setGroupFilterWidth(value);
-                        safeLocalStorageSetItem('navGroupWidth', value);
+                        safeLocalStorageSetItem(`navGroupWidth_${view.viewId}`, value);
                       }}
                     />
                   )}
@@ -234,9 +265,9 @@ function Sheet(props) {
                       setIsOpenGroup(isOpen);
                       safeLocalStorageSetItem('navGroupIsOpen', isOpen);
                       if (isOpen) {
-                        setGroupFilterWidth(window.localStorage.getItem('navGroupWidth') || 210);
+                        setOpenNavW();
                       } else {
-                        setGroupFilterWidth(32);
+                        setGroupFilterWidth(defaultNavCloseW);
                       }
                     }}
                   />
@@ -267,6 +298,7 @@ Sheet.propTypes = {
   activeViewStatus: PropTypes.number,
   isCharge: PropTypes.bool,
   worksheetInfo: PropTypes.shape({}),
+  appPkg: PropTypes.shape({}),
   sheetSwitchPermit: PropTypes.arrayOf(PropTypes.shape({})),
   views: PropTypes.arrayOf(PropTypes.shape({})),
   loadWorksheet: PropTypes.func,
@@ -275,6 +307,7 @@ Sheet.propTypes = {
 export default connect(
   state => ({
     appId: state.sheet.base.appId,
+    appPkg: state.appPkg,
     groupId: state.sheet.base.groupId,
     worksheetId: state.sheet.base.worksheetId,
     viewId: state.sheet.base.viewId,
@@ -290,7 +323,14 @@ export default connect(
   }),
   dispatch =>
     bindActionCreators(
-      _.pick(actions, ['updateBase', 'updateFilters', 'loadWorksheet', 'updateGroupFilter', 'openNewRecord']),
+      _.pick(actions, [
+        'updateBase',
+        'updateFilters',
+        'updateQuickFilter',
+        'loadWorksheet',
+        'updateGroupFilter',
+        'openNewRecord',
+      ]),
       dispatch,
     ),
 )(errorBoundary(Sheet));

@@ -30,6 +30,7 @@ export default class AccountChart extends React.Component {
       // 邮箱是否仅自己可见
       isPrivateEmail: false,
       loading: false,
+      disabledSetLanguage: false,
     };
   }
 
@@ -82,7 +83,9 @@ export default class AccountChart extends React.Component {
                 active: (getCookie('i18n_langtag') || md.global.Config.DefaultLang) === item.key,
               })}
               onClick={() => {
+                if (this.state.disabledSetLanguage) return;
                 if (!md.global.Account.isPortal) {
+                  this.setState({ disabledSetLanguage: true });
                   const settingValue = { 'zh-Hans': '0', en: '1', ja: '2', 'zh-Hant': '3' };
                   accountSetting
                     .editAccountSetting({ settingType: '6', settingValue: settingValue[item.key] })
@@ -91,6 +94,9 @@ export default class AccountChart extends React.Component {
                         setCookie('i18n_langtag', item.key);
                         window.location.reload();
                       }
+                    })
+                    .fail(err => {
+                      this.setState({ disabledSetLanguage: false });
                     });
                 } else {
                   setCookie('i18n_langtag', item.key);

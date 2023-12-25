@@ -12,6 +12,7 @@ import TrashBatchOperate from './TrashBatchOperate';
 import Header from './Header';
 import _ from 'lodash';
 import { SHEET_VIEW_HIDDEN_TYPES } from 'worksheet/constants/enum';
+import { BrowserRouter } from 'react-router-dom';
 
 const Con = styled.div`
   width: 100%;
@@ -199,275 +200,278 @@ export default function WorkSheetTrash(props) {
     loadRows({ appId, worksheetId, pageIndex, sortControls: [sortControl] });
   }, []);
   return (
-    <Modal
-      visible
-      closable={false}
-      width={document.body.clientWidth * 0.9}
-      type="fixed"
-      bodyStyle={{ paddingTop: 0, position: 'relative' }}
-      closeStyle={{ margin: '16px', width: '30px', height: '30px', lineHeight: '30px' }}
-    >
-      <Con>
-        <TrashBatchOperate
-          isCharge={isCharge}
-          isAll={isAll}
-          selectedLength={isAll ? count - selected.length : selected.length}
-          totalLength={records.length}
-          entityName={worksheetInfo.entityName}
-          onRestore={() => {
-            if (!isAll && hasAuthRowIds.length === 0) {
-              alert(_l('无权限恢复选择的记录'), 3);
-              setSelected([]);
-            } else {
-              const restore = () => {
-                const args = {
-                  appId,
-                  worksheetId,
-                  rowIds: hasAuthRowIds,
-                };
-                if (isAll) {
-                  delete args.rowIds;
-                  args.isAll = true;
-                  args.excludeRowIds = hasAuthRowIds;
-                }
-                args.restoreRelation = !!needRestoreRelation.current;
-                worksheetAjax.restoreWorksheetRows(args).then(res => {
-                  if (!res.isSuccess) {
-                    alert(_l('恢复失败'), 3);
-                    return;
-                  }
-                  setIsAll(false);
-                  if (res.successCount === selected.length || isAll) {
-                    alert(_l('恢复成功'));
-                    setSelected([]);
-                    reloadWorksheet();
-                    actions.deleteRecord(hasAuthRowIds);
-                  } else {
-                    alert(_l('恢复成功，部分数据已被彻底删除无法恢复'));
-                    setSelected([]);
-                    reloadWorksheet();
-                    return;
-                  }
-                  setTimeout(
-                    () => {
-                      loadRows({ pageIndex: 1 });
-                    },
-                    isAll ? 1000 : 0,
-                  );
-                });
-              };
-              if (controls.find(c => c.type === 29)) {
-                Dialog.confirm({
-                  title: _l('恢复记录'),
-                  description: (
-                    <Checkbox
-                      defaultChecked={!!needRestoreRelation.current}
-                      text={_l('恢复记录同时恢复关联关系')}
-                      onClick={checked => {
-                        needRestoreRelation.current = checked;
-                      }}
-                    />
-                  ),
-                  onOk: restore,
-                });
+    <BrowserRouter>
+      <Modal
+        visible
+        closable={false}
+        width={document.body.clientWidth * 0.9}
+        type="fixed"
+        bodyStyle={{ paddingTop: 0, position: 'relative' }}
+        closeStyle={{ margin: '16px', width: '30px', height: '30px', lineHeight: '30px' }}
+      >
+        <Con>
+          <TrashBatchOperate
+            isCharge={isCharge}
+            isAll={isAll}
+            selectedLength={isAll ? count - selected.length : selected.length}
+            totalLength={records.length}
+            entityName={worksheetInfo.entityName}
+            onRestore={() => {
+              if (!isAll && hasAuthRowIds.length === 0) {
+                alert(_l('无权限恢复选择的记录'), 3);
+                setSelected([]);
               } else {
-                restore();
-              }
-            }
-          }}
-          onCancel={() => {
-            setIsAll(false);
-            setSelected([]);
-            setSelectRows([]);
-          }}
-          onHardDelete={() => {
-            VerifyPasswordConfirm.confirm({
-              title: (
-                <div className="Bold" style={{ color: '#f44336', display: 'flex', alignItems: 'center' }}>
-                  <i className="icon-error error" style={{ fontSize: '28px', marginRight: '8px' }}></i>
-                  {_l('彻底删除%0', worksheetInfo.entityName)}
-                </div>
-              ),
-              description: (
-                <div className="Font14 Gray_75">
-                  {_l('记录删除后无法恢复，请确认您和工作表成员都不再需要这些记录再行删除。')}
-                </div>
-              ),
-              confirmType: 'danger',
-              passwordPlaceHolder: _l('请输入密码确认删除'),
-              allowNoVerify: false,
-              onOk: () => {
-                if (!isAll && hasAuthRowIds.length === 0) {
-                  alert(_l('无权限删除选择的记录'), 3);
-                  setSelected([]);
-                } else {
+                const restore = () => {
                   const args = {
-                    worksheetId,
                     appId,
+                    worksheetId,
                     rowIds: hasAuthRowIds,
                   };
                   if (isAll) {
                     delete args.rowIds;
                     args.isAll = true;
                     args.excludeRowIds = hasAuthRowIds;
+                    args.filterControls = filterControls;
                   }
-                  worksheetAjax.removeWorksheetRows(args).then(() => {
-                    if (selectRows.length === selected.length || isAll) {
-                      alert(_l('删除成功'));
-                    } else {
-                      alert(_l('删除成功，无编辑权限的记录无法删除'));
-                    }
-                    setIsAll(false);
-                    setSelected([]);
-                    reloadWorksheet();
-                    if (isAll) {
-                      setTimeout(() => {
-                        loadRows({ pageIndex: 1 });
-                      }, 1000);
+                  args.restoreRelation = !!needRestoreRelation.current;
+                  worksheetAjax.restoreWorksheetRows(args).then(res => {
+                    if (!res.isSuccess) {
+                      alert(_l('恢复失败'), 3);
                       return;
                     }
-                    actions.deleteRecord(hasAuthRowIds);
-                  });
-                }
-              },
-            });
-          }}
-        />
-        <Header
-          ref={headerRef}
-          entityName={worksheetInfo.entityName}
-          title={`${_l('回收站')}（${worksheetInfo.name}）`}
-          isCharge={isCharge}
-          projectId={projectId}
-          appId={appId}
-          viewId={viewId}
-          worksheetId={worksheetId}
-          controls={controlsForShow}
-          pageSize={pageSize}
-          pageIndex={pageIndex}
-          count={count}
-          onCancel={onCancel}
-          loadRows={loadRows}
-          onClear={() => actions.clear({ worksheetId, appId })}
-          onSearch={keywords => loadRows({ pageIndex: 1, searchText: keywords })}
-          onReload={() => loadRows({ pageIndex: 1, searchText: '' })}
-          changePageSize={newPageSize => loadRows({ pageSize: newPageSize, pageIndex: 1 })}
-          changePageIndex={newPageIndex => loadRows({ pageIndex: newPageIndex })}
-        />
-        <Body>
-          <WorksheetTable
-            isTrash
-            loading={loading}
-            viewId={viewId}
-            projectId={projectId}
-            noRenderEmpty={!searchText}
-            lineNumberBegin={lineNumberBegin}
-            columns={controlsForShow}
-            rowHeight={34}
-            selectedIds={selected}
-            data={records}
-            renderColumnHead={({ control, ...rest }) => (
-              <ColumnHead
-                {...rest}
-                control={
-                  disableMaskDataControls[control.controlId]
-                    ? {
-                        ...control,
-                        advancedSetting: Object.assign({}, control.advancedSetting, {
-                          datamask: '0',
-                        }),
-                      }
-                    : control
-                }
-                worksheetId={worksheetId}
-                type="trash"
-                selected={!!selected.length}
-                isAsc={control.controlId === (sortControl || {}).controlId ? (sortControl || {}).isAsc : undefined}
-                changeSort={newIsAsc => {
-                  const newSortControl = _.isUndefined(newIsAsc)
-                    ? {}
-                    : {
-                        controlId: control.controlId,
-                        isAsc: newIsAsc,
-                      };
-                  setSortControl(newSortControl);
-                  loadRows({
-                    sortControls: _.isUndefined(newIsAsc)
-                      ? []
-                      : [
-                          {
-                            datatype: control.type,
-                            ...newSortControl,
-                          },
-                        ],
-                  });
-                }}
-                onShowFullValue={() => {
-                  setDisableMaskDataControls({ ...disableMaskDataControls, [control.controlId]: true });
-                }}
-              />
-            )}
-            renderRowHead={({ className, style, rowIndex, row }) => (
-              <RowHead
-                isTrash
-                canSelectAll
-                className={className}
-                style={{ ...style, width: String(lineNumberBegin + rowIndex).length * 8 + 64 }}
-                lineNumberBegin={lineNumberBegin}
-                allWorksheetIsSelected={isAll}
-                selectedIds={selected}
-                onSelectAllWorksheet={() => {
-                  setIsAll(!isAll);
-                  setSelected([]);
-                  setSelectRows([]);
-                }}
-                onSelect={newSelected => {
-                  let newSelectRows = [];
-                  if (isAll) {
-                    newSelected.forEach(rowId => {
-                      newSelectRows = records.filter(r => _.find(newSelected, id => r.rowid !== id));
-                      newSelected = newSelectRows.map(r => r.rowid);
-                    });
                     setIsAll(false);
+                    if (res.successCount === selected.length || isAll) {
+                      alert(_l('恢复成功'));
+                      setSelected([]);
+                      reloadWorksheet();
+                      actions.deleteRecord(hasAuthRowIds);
+                    } else {
+                      alert(_l('恢复成功，部分数据已被彻底删除无法恢复'));
+                      setSelected([]);
+                      reloadWorksheet();
+                      return;
+                    }
+                    setTimeout(
+                      () => {
+                        loadRows({ pageIndex: 1 });
+                      },
+                      isAll ? 1000 : 0,
+                    );
+                  });
+                };
+                if (controls.find(c => c.type === 29)) {
+                  Dialog.confirm({
+                    title: _l('恢复记录'),
+                    description: (
+                      <Checkbox
+                        defaultChecked={!!needRestoreRelation.current}
+                        text={_l('恢复记录同时恢复关联关系')}
+                        onClick={checked => {
+                          needRestoreRelation.current = checked;
+                        }}
+                      />
+                    ),
+                    onOk: restore,
+                  });
+                } else {
+                  restore();
+                }
+              }
+            }}
+            onCancel={() => {
+              setIsAll(false);
+              setSelected([]);
+              setSelectRows([]);
+            }}
+            onHardDelete={() => {
+              VerifyPasswordConfirm.confirm({
+                title: (
+                  <div className="Bold" style={{ color: '#f44336', display: 'flex', alignItems: 'center' }}>
+                    <i className="icon-error error" style={{ fontSize: '28px', marginRight: '8px' }}></i>
+                    {_l('彻底删除%0', worksheetInfo.entityName)}
+                  </div>
+                ),
+                description: (
+                  <div className="Font14 Gray_75">
+                    {_l('记录删除后无法恢复，请确认您和工作表成员都不再需要这些记录再行删除。')}
+                  </div>
+                ),
+                confirmType: 'danger',
+                allowNoVerify: false,
+                onOk: () => {
+                  if (!isAll && hasAuthRowIds.length === 0) {
+                    alert(_l('无权限删除选择的记录'), 3);
+                    setSelected([]);
                   } else {
-                    newSelected.forEach(rowId => {
-                      const row = _.find(records, trashRow => trashRow.rowid === rowId);
-                      if (row && (row.allowedit || row.allowEdit)) {
-                        newSelectRows.push(row);
+                    const args = {
+                      worksheetId,
+                      appId,
+                      rowIds: hasAuthRowIds,
+                    };
+                    if (isAll) {
+                      delete args.rowIds;
+                      args.isAll = true;
+                      args.excludeRowIds = hasAuthRowIds;
+                    }
+                    worksheetAjax.removeWorksheetRows(args).then(() => {
+                      if (selectRows.length === selected.length || isAll) {
+                        alert(_l('删除成功'));
+                      } else {
+                        alert(_l('删除成功，无编辑权限的记录无法删除'));
                       }
+                      setIsAll(false);
+                      setSelected([]);
+                      reloadWorksheet();
+                      if (isAll) {
+                        setTimeout(() => {
+                          loadRows({ pageIndex: 1 });
+                        }, 1000);
+                        return;
+                      }
+                      actions.deleteRecord(hasAuthRowIds);
                     });
-                    setIsAll(false);
                   }
-                  setSelected(newSelected);
-                  setSelectRows(newSelectRows);
-                }}
-                onReverseSelect={() => {
-                  if (isAll) {
-                    setIsAll(false);
+                },
+              });
+            }}
+          />
+          <Header
+            ref={headerRef}
+            entityName={worksheetInfo.entityName}
+            title={`${_l('回收站')}（${worksheetInfo.name}）`}
+            isCharge={isCharge}
+            projectId={projectId}
+            appId={appId}
+            viewId={viewId}
+            worksheetId={worksheetId}
+            controls={controlsForShow}
+            pageSize={pageSize}
+            pageIndex={pageIndex}
+            count={count}
+            onCancel={onCancel}
+            loadRows={loadRows}
+            onClear={() => actions.clear({ worksheetId, appId })}
+            onSearch={keywords => loadRows({ pageIndex: 1, searchText: keywords })}
+            onReload={() => loadRows({ pageIndex: 1, searchText: '' })}
+            changePageSize={newPageSize => loadRows({ pageSize: newPageSize, pageIndex: 1 })}
+            changePageIndex={newPageIndex => loadRows({ pageIndex: newPageIndex })}
+          />
+          <Body>
+            <WorksheetTable
+              isTrash
+              appId={appId}
+              loading={loading}
+              viewId={viewId}
+              projectId={projectId}
+              noRenderEmpty={!searchText}
+              lineNumberBegin={lineNumberBegin}
+              columns={controlsForShow}
+              rowHeight={34}
+              selectedIds={selected}
+              data={records}
+              renderColumnHead={({ control, ...rest }) => (
+                <ColumnHead
+                  {...rest}
+                  control={
+                    disableMaskDataControls[control.controlId]
+                      ? {
+                          ...control,
+                          advancedSetting: Object.assign({}, control.advancedSetting, {
+                            datamask: '0',
+                          }),
+                        }
+                      : control
+                  }
+                  worksheetId={worksheetId}
+                  type="trash"
+                  selected={!!selected.length}
+                  isAsc={control.controlId === (sortControl || {}).controlId ? (sortControl || {}).isAsc : undefined}
+                  changeSort={newIsAsc => {
+                    const newSortControl = _.isUndefined(newIsAsc)
+                      ? {}
+                      : {
+                          controlId: control.controlId,
+                          isAsc: newIsAsc,
+                        };
+                    setSortControl(newSortControl);
+                    loadRows({
+                      sortControls: _.isUndefined(newIsAsc)
+                        ? []
+                        : [
+                            {
+                              datatype: control.type,
+                              ...newSortControl,
+                            },
+                          ],
+                    });
+                  }}
+                  onShowFullValue={() => {
+                    setDisableMaskDataControls({ ...disableMaskDataControls, [control.controlId]: true });
+                  }}
+                />
+              )}
+              renderRowHead={({ className, style, rowIndex, row }) => (
+                <RowHead
+                  isTrash
+                  canSelectAll
+                  className={className}
+                  style={{ ...style, width: String(lineNumberBegin + rowIndex).length * 8 + 64 }}
+                  lineNumberBegin={lineNumberBegin}
+                  allWorksheetIsSelected={isAll}
+                  selectedIds={selected}
+                  onSelectAllWorksheet={() => {
+                    setIsAll(!isAll);
                     setSelected([]);
                     setSelectRows([]);
-                  } else {
-                    const newSelectedRows = records
-                      .filter(r => !_.find(selected, selectedRowId => selectedRowId === r.rowid))
-                      .filter(_.identity);
-                    setSelectRows(newSelectedRows);
-                    setSelected(newSelectedRows.map(r => r.rowid));
-                  }
-                }}
-                rowIndex={rowIndex}
-                data={records}
-              />
-            )}
-            emptyIcon={
-              <SearchIcon>
-                <i className="icon icon-search" />
-              </SearchIcon>
-            }
-            emptyText={_l('没有搜索结果')}
-          />
-        </Body>
-      </Con>
-    </Modal>
+                  }}
+                  onSelect={newSelected => {
+                    let newSelectRows = [];
+                    if (isAll) {
+                      newSelected.forEach(rowId => {
+                        newSelectRows = records.filter(r => _.find(newSelected, id => r.rowid !== id));
+                        newSelected = newSelectRows.map(r => r.rowid);
+                      });
+                      setIsAll(false);
+                    } else {
+                      newSelected.forEach(rowId => {
+                        const row = _.find(records, trashRow => trashRow.rowid === rowId);
+                        if (row && (row.allowedit || row.allowEdit)) {
+                          newSelectRows.push(row);
+                        }
+                      });
+                      setIsAll(false);
+                    }
+                    setSelected(newSelected);
+                    setSelectRows(newSelectRows);
+                  }}
+                  onReverseSelect={() => {
+                    if (isAll) {
+                      setIsAll(false);
+                      setSelected([]);
+                      setSelectRows([]);
+                    } else {
+                      const newSelectedRows = records
+                        .filter(r => !_.find(selected, selectedRowId => selectedRowId === r.rowid))
+                        .filter(_.identity);
+                      setSelectRows(newSelectedRows);
+                      setSelected(newSelectedRows.map(r => r.rowid));
+                    }
+                  }}
+                  rowIndex={rowIndex}
+                  data={records}
+                />
+              )}
+              emptyIcon={
+                <SearchIcon>
+                  <i className="icon icon-search" />
+                </SearchIcon>
+              }
+              emptyText={_l('没有搜索结果')}
+            />
+          </Body>
+        </Con>
+      </Modal>
+    </BrowserRouter>
   );
 }
 

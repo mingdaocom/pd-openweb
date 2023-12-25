@@ -1,11 +1,11 @@
 ﻿import ReactDOM from 'react-dom';
-import redirect from 'src/common/redirect';
 import { getAppFeaturesPath } from 'src/util';
 import { getSuffix } from 'src/pages/PortalAccount/util';
+import _ from 'lodash';
 
 const urlStack = [];
 
-window.location.goto = function (url, isReplace = false) {
+window.location.goto = function(url, isReplace = false) {
   if (isReplace) {
     window.location.replace(url);
   } else {
@@ -65,6 +65,16 @@ export function fillUrl(url) {
     return url;
   }
   return url + (hash ? `#${hash}` : '');
+}
+
+export function redirect(url, navigate = toUrl => (location.href = toUrl)) {
+  if (url === '/app/my') {
+    const latestGroup = safeParse(localStorage.getItem(`latest_group_${md.global.Account.accountId}`));
+    if (!_.isEmpty(latestGroup)) {
+      navigate(`/app/my/group/${latestGroup.projectId}/${latestGroup.groupType}/${latestGroup.groupId}`);
+      return true;
+    }
+  }
 }
 
 /** 跳转到 url */

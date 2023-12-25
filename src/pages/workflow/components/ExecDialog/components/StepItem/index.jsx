@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { object, number, string, bool, array, func } from 'prop-types';
 import cx from 'classnames';
-import UserHead from 'src/pages/feed/components/userHead/userHead';
+import UserHead from 'src/components/userHead/userHead';
 import { Tooltip, Icon, Linkify } from 'ming-ui';
 import moment from 'moment';
 import { renderToString } from 'react-dom/server';
@@ -70,6 +70,7 @@ export default class StepItem extends Component {
     rowId: string,
     isLast: bool,
     status: number,
+    appId: string,
     currents: array,
     onChangeCurrentWork: func,
   };
@@ -82,6 +83,7 @@ export default class StepItem extends Component {
     isLast: false,
     status: 0,
     currents: [],
+    appId: '',
     onChangeCurrentWork: () => {},
   };
 
@@ -279,7 +281,7 @@ export default class StepItem extends Component {
 
     return (
       <Fragment>
-        {fields && fields.length && (
+        {fields && fields.length ? (
           <div className="mTop4">
             <span className="Font14 ThemeColor3">{_l('填写%0个字段', fields.length)}</span>
             {!!fields.length && !browserIsMobile() && (
@@ -301,6 +303,8 @@ export default class StepItem extends Component {
               </Tooltip>
             )}
           </div>
+        ) : (
+          ''
         )}
         {opinion && <div className="info Gray_9e">{opinion}</div>}
         {signature && <div className="infoSignature" style={{ backgroundImage: `url(${signature.server})` }} />}
@@ -467,7 +471,7 @@ export default class StepItem extends Component {
   }
 
   render() {
-    const { data, currentWork, currentType, isLast, status, currents, onChangeCurrentWork } = this.props;
+    const { data, currentWork, currentType, isLast, status, currents, onChangeCurrentWork, appId } = this.props;
     const { showMore } = this.state;
     const {
       workId,
@@ -543,8 +547,8 @@ export default class StepItem extends Component {
                   key={index}
                   className={cx('stepContent flexRow', { Border0: showMore && index === workItems.length - 1 })}
                 >
-                  <div className="avatarBox">
-                    <UserHead lazy="false" size={36} user={{ userHead: avatar, accountId }} />
+                  <div className="avatarBoxCon">
+                    <UserHead size={36} user={{ userHead: avatar, accountId }} appId={appId}/>
                   </div>
                   <div className="stepDetail flex flexColumn">{this.renderDetail(item)}</div>
                 </div>
@@ -566,7 +570,7 @@ export default class StepItem extends Component {
                     </div>
                     {debugEventDump[key].map(({ avatar, accountId, fullName }) => (
                       <div className="flexRow alignItemsCenter mTop8" key={accountId}>
-                        <UserHead lazy="false" size={24} user={{ userHead: avatar, accountId }} />
+                        <UserHead size={24} user={{ userHead: avatar, accountId }} />
                         <span className="flex ellipsis mLeft12">{fullName}</span>
                       </div>
                     ))}

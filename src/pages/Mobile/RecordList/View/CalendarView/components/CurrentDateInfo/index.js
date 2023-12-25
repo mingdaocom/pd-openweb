@@ -132,9 +132,7 @@ class CurrentDateInfo extends Component {
                       key={item.extendedProps.rowid}
                       onClick={() => {
                         this.navigateToDetail(item.extendedProps.rowid);
-                        if (location.pathname.indexOf('public') === -1) {
-                          addBehaviorLog('worksheetRecord', base.worksheetId, { rowId: item.extendedProps.rowid }); // 埋点
-                        }
+                        addBehaviorLog('worksheetRecord', base.worksheetId, { rowId: item.extendedProps.rowid }); // 埋点
                       }}
                     >
                       <div

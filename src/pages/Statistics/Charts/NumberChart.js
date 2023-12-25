@@ -3,7 +3,7 @@ import cx from 'classnames';
 import styled from 'styled-components';
 import Icon from 'ming-ui/components/Icon';
 import { Tooltip, Row, Col } from 'antd';
-import { formatContrastTypes, isFormatNumber } from '../common';
+import { formatContrastTypes, isFormatNumber, isTimeControl } from '../common';
 import { defaultNumberChartStyle, sizeTypes } from 'statistics/components/ChartStyle/components/NumberStyle';
 import { formatrChartValue, getStyleColor } from './common';
 import SvgIcon from 'src/components/SvgIcon';
@@ -173,7 +173,7 @@ const getMap = (map, contrast, contrastMap) => {
   return [];
 }
 
-const formatData = (map, contrast, contrastMap, displaySetup, yaxisList) => {
+const formatData = ({ map, contrast, contrastMap, displaySetup, yaxisList, isTime }) => {
   const result = [];
   const data = fillMap(map, contrast, contrastMap);
   const isHide = yaxisList.length === 1 && yaxisList[0].emptyShowType === 0;
@@ -188,12 +188,19 @@ const formatData = (map, contrast, contrastMap, displaySetup, yaxisList) => {
       const contrastList = _.get(contrast[index], 'value') || [];
       const contrastMapList = _.get(contrastMap[index], 'value') || [];
       item.value.forEach(n => {
+        const contrastData = {};
+        if (isTime) {
+          contrastData.lastContrastValue = _.get(contrastList[index], 'v') || (displaySetup.contrast ? 0 : null);
+          contrastData.contrastValue = _.get(contrastMapList[index], 'v') || (displaySetup.contrastType ? 0 : null);
+        } else {
+          contrastData.lastContrastValue = _.get(_.find(contrastList, { originalX: n.originalX }), 'v') || (displaySetup.contrast ? 0 : null);
+          contrastData.contrastValue = _.get(_.find(contrastMapList, { originalX: n.originalX }), 'v') || (displaySetup.contrastType ? 0 : null);
+        }
         result.push({
           originalId: n.originalX,
           name: n.x || _l('空'),
           value: n.v || 0,
-          lastContrastValue: _.get(_.find(contrastList, { originalX: n.originalX }), 'v') || (displaySetup.contrast ? 0 : null),
-          contrastValue: _.get(_.find(contrastMapList, { originalX: n.originalX }), 'v') || (displaySetup.contrastType ? 0 : null)
+          ...contrastData,
         });
       });
     }
@@ -355,7 +362,7 @@ export default class extends Component {
     const contrastTypes = formatContrastTypes(filter);
     const oneNumber = !xaxes.controlId && yaxisList.length === 1;
     const rule = _.get(displaySetup.colorRules[0], 'dataBarRule') || {};
-    const color = !_.isEmpty(rule) && xaxes.controlId ? getStyleColor({
+    const color = !_.isEmpty(rule) ? getStyleColor({
       value,
       controlMinAndMax,
       rule,
@@ -417,7 +424,8 @@ export default class extends Component {
     const { mobileCount = 1, layoutType, reportData, sourceType, isThumbnail } = this.props;
     const { name, xaxes, map, contrast = [], contrastMap = [], displaySetup = {}, summary, yaxisList, style } = reportData;
     const { numberChartStyle = {} } = style;
-    const list = xaxes.controlId ? formatData(map, contrast, contrastMap, displaySetup, yaxisList) : fillMap(map, contrast, contrastMap);
+    const isTime = isTimeControl(xaxes.controlType);
+    const list = xaxes.controlId ? formatData({ map, contrast, contrastMap, displaySetup, yaxisList, isTime }) : fillMap(map, contrast, contrastMap);
     const totalIsHide = yaxisList.length === 1 && yaxisList[0].emptyShowType === 0 && !summary.sum;
     const oneNumber = !xaxes.controlId && yaxisList.length === 1;
     const defaultColumnCount = oneNumber ? 1 : (numberChartStyle.columnCount || 4);

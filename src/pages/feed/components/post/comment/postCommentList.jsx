@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import _ from 'lodash';
 import LoadDiv from 'ming-ui/components/LoadDiv';
-import UserName from '../../userName';
+import UserName from 'src/components/userName';
 import postAjax from 'src/api/post';
 import { loadMoreComments } from '../../../redux/postActions';
 import { connect } from 'react-redux';

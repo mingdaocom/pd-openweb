@@ -42,6 +42,19 @@ const DEFAULT_COLORS = [
   '#dec2faff',
   '#ccd2f1ff',
 ];
+const DEFAULT_COLORS2 = [
+  '#333333ff',
+  '#757575ff',
+  '#2196f3ff',
+  '#08c9c9ff',
+  '#00c345ff',
+  '#fad714ff',
+  '#ff9300ff',
+  '#f52222ff',
+  '#eb2f96ff',
+  '#7500eaff',
+  '#2d46c4ff',
+];
 
 const TYPE_COMP = {
   HEX: HexAlphaColorPicker,
@@ -213,7 +226,7 @@ class ColorPicker extends Component {
   };
 
   render() {
-    const { children, className, sysColor, themeColor, popupAlign = {} } = this.props;
+    const { children, className, sysColor, themeColor, fromWidget, popupAlign = {} } = this.props;
     const { color, visible, type, defaultExpand, recentExpand, recentColors, themeExpand } = this.state;
     const themeColors = [themeColor, generate(themeColor)[0]];
 
@@ -266,7 +279,7 @@ class ColorPicker extends Component {
                         <span
                           className={cx('icon-expand_more Font20 Gray_9e expandIcon', { rotate90: !themeExpand })}
                         ></span>
-                        <span className='mLeft4'>{_l('主题')}</span>
+                        <span className="mLeft4">{_l('主题')}</span>
                       </div>
                       {this.renderSysColors(themeExpand, themeColors, true)}
                     </React.Fragment>
@@ -275,14 +288,14 @@ class ColorPicker extends Component {
                     <span
                       className={cx('icon-expand_more Font20 Gray_9e expandIcon', { rotate90: !defaultExpand })}
                     ></span>
-                    <span className='mLeft4'>{_l('常用')}</span>
+                    <span className="mLeft4">{_l('常用')}</span>
                   </div>
-                  {this.renderSysColors(defaultExpand, DEFAULT_COLORS)}
+                  {this.renderSysColors(defaultExpand, fromWidget ? DEFAULT_COLORS2 : DEFAULT_COLORS)}
                   <div className="title" onClick={() => this.setState({ recentExpand: !recentExpand })}>
                     <span
                       className={cx('icon-expand_more Font20 Gray_9e expandIcon', { rotate90: !recentExpand })}
                     ></span>
-                    <span className='mLeft4'>{_l('最近使用')}</span>
+                    <span className="mLeft4">{_l('最近使用')}</span>
                   </div>
                   {this.renderSysColors(recentExpand, recentColors)}
                 </div>

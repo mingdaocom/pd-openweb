@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no, viewport-fit=cover" />
+        <link rel="icon" type="image/png" href="/favicon.png" />
+        <meta name="renderer" content="webkit" />
+        <meta name="force-rendering" content="webkit" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+        <title>加载中</title>
+        <style>
+            html,
+            body {
+                margin: 0;
+            }
+            .flex {
+                display: flex;
+            }
+            .flex-1 {
+                flex: 1;
+            }
+            .flex-row {
+                flex-direction: row;
+            }
+            .flex-col {
+                flex-direction: column;
+            }
+            .items-center {
+                align-items: center;
+            }
+            .content-center {
+                justify-content: center;
+            }
+            #app {
+                height: 100vh;
+            }
+            .con {
+                height: 400px;
+                width: 460px;
+                border-radius: 4px;
+                border: 1px solid #e5e5e5;
+                background-color: #fff;
+                /* box-shadow: 0px 2px 6px 1px rgba(0, 0, 0, 0.14); */
+            }
+            .button {
+                display: inline-block;
+                padding: 0 10px;
+                background-color: #2196f3;
+                border-radius: 4px;
+                color: #fff;
+                height: 34px;
+                line-height: 34px;
+                font-size: 13px;
+                cursor: pointer;
+                user-select: none;
+            }
+            .button:hover {
+                background-color: #31a6f3;
+            }
+            .button.second {
+                background-color: #ddd;
+                color: #444;
+                margin-right: 10px;
+            }
+            .button.second:hover {
+                background-color: #ccc;
+            }
+            .footer {
+                padding: 10px 20px;
+                justify-content: end;
+            }
+        </style>
+    </head>
+
+    <body style="background-color: #f5f5f9">
+        <script>
+            var __api_server__ = <%- apiServer %>;
+            var accountId;
+            var config = JSON.parse(atob(new URL(location.href).searchParams.get('p')));
+            fetch((__api_server__.main + '/Global/GetGlobalMeta').replace(/\/\/Global/g, '/Global'), {
+                headers: {
+                    'content-type': 'application/json',
+                },
+                method: 'POST',
+                body: '{}',
+            })
+                .then(res => res.json())
+                .then(res => {
+                    try {
+                        accountId = res.data['md.global'].Account.accountId;
+                        const cookie = document.cookie.match(/md_pss_id=(\w+)/)[1];
+                        location.href = config.url + '?t=' + btoa(cookie);
+                    } catch (err) {
+                        console.log(err);
+                        location.href = '/login?ReturnUrl=' + encodeURIComponent(location.href);
+                    }
+                });
+        </script>
+    </body>
+</html>

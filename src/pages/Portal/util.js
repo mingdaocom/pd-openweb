@@ -2,7 +2,7 @@ import { getSuffix } from 'src/pages/PortalAccount/util';
 import api from 'src/api/homeApp';
 import { browserIsMobile } from 'src/util';
 
-export const compatibleWorksheetRoute = (worksheetId, rowId) => {
+export const compatibleWorksheetRoute = (worksheetId, rowId, viewId) => {
   //工作表老路由id补齐
   api.getAppSimpleInfo({ workSheetId: worksheetId }).then(({ appId, appSectionId, workSheetId }) => {
     if (appId) {
@@ -12,6 +12,12 @@ export const compatibleWorksheetRoute = (worksheetId, rowId) => {
           url = `/app/${appId}/${workSheetId}/row/${rowId}`;
         } else {
           url = `/${md.global.Account.addressSuffix}/${workSheetId}/row/${rowId}`;
+        }
+      } else if (viewId) {
+        if (getSuffix(location.href) !== md.global.Account.addressSuffix) {
+          url = `/app/${appId}/${appSectionId}/${workSheetId}/${viewId}${location.search}`;
+        } else {
+          url = `/${md.global.Account.addressSuffix}/${appSectionId}/${workSheetId}/${viewId}${location.search}`;
         }
       } else if (appSectionId) {
         if (getSuffix(location.href) !== md.global.Account.addressSuffix) {
@@ -36,6 +42,7 @@ export function formatPortalHref(props) {
       compatibleWorksheetRoute(
         _.get(props, 'computedMatch.params.worksheetId'),
         _.get(props, 'computedMatch.params.rowId'),
+        _.get(props, 'computedMatch.params.viewId'),
       );
     } else {
       location.href = `${window.subPath || ''}/logout?ReturnUrl=${encodeURIComponent(location.href)}`;

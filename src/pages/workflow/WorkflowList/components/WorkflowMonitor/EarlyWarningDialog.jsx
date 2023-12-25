@@ -4,7 +4,7 @@ import { Select } from 'antd';
 import flowMonitor from 'src/pages/workflow/api/processVersion.js';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
-import UserHead from 'src/pages/feed/components/userHead';
+import UserHead from 'src/components/userHead';
 import styled from 'styled-components';
 
 const NotifierCon = styled.div`
@@ -157,7 +157,6 @@ class EarlyWarningDialog extends Component {
                     userHead: it.avatar,
                     accountId: it.accountId,
                   }}
-                  lazy={'false'}
                   size={28}
                 />
                 <div className="userName flexRow pLeft5">

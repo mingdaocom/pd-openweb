@@ -84,6 +84,14 @@ export const MENU_LIST = [
         desc: _l('视图ID'),
       },
       {
+        name: 'listType',
+        required: _l('否'),
+        type: 'string',
+        desc: _l(
+          '返回数据类型，0：按指定视图的数据格式返回（若非表格视图则获取数据的数量会有所限制）1：按表格视图的数据格式返回（可以获取所有数据）。不传默认为0，推荐填入1',
+        ),
+      },
+      {
         name: 'pageSize',
         required: _l('是'),
         type: 'number',
@@ -486,6 +494,12 @@ const sameAppRoleParams = [
     required: _l('否'),
     type: 'list[string]',
     desc: _l('部门Id合集'),
+  },
+  {
+    name: 'departmentTreeIds',
+    required: _l('否'),
+    type: 'list[string]',
+    desc: _l('部门树Id合集'),
   },
   {
     name: 'jobIds',
@@ -1317,39 +1331,26 @@ export const MENU_LIST_APPENDIX = [
     id: 'AreaInfo',
     title: _l('地区信息'),
     data: [],
-    provinceData: {
-      data: {
-        provinces: [
-          {
-            id: 110000,
-            name: _l('北京市'),
-          },
-          {
-            id: 330000,
-            name: _l('浙江省'),
-          },
-          {
-            id: 910000,
-            name: _l('海外'),
-          },
-        ],
-      },
-      state: 1,
-    },
     cityData: {
       data: {
         citys: [
           {
             id: 130100,
             name: _l('石家庄市'),
+            path: _l('河北省/石家庄市'),
+            last: false,
           },
           {
             id: 130200,
             name: _l('唐山市'),
+            path: _l('河北省/唐山市'),
+            last: false,
           },
           {
             id: 130700,
             name: _l('张家口市'),
+            path: _l('河北省/张家口市'),
+            last: false,
           },
         ],
         values: {
@@ -1807,4 +1808,4 @@ export const NUMBER_SUCCESS_DATA = {
   data: _l('总数量'),
   success: true,
   error_code: 1,
-}
+};

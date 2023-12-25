@@ -143,7 +143,7 @@ export default function SelectTables(props) {
       notFoundContent={fetchState.loading ? <div></div> : _l('暂无数据')}
       className={className}
       mode={isMultiple && 'multiple'}
-      options={fetchState.tableName ? searchOptions : options}
+      options={fetchState.tableName && !isAppType ? searchOptions : options}
       disabled={disabled}
       value={value}
       onChange={onChangeTable}
@@ -160,7 +160,9 @@ export default function SelectTables(props) {
       }}
       filterOption={(inputValue, option) => {
         return (
-          (searchOptions.find(item => item.value === option.value) || {})[isAppType ? 'workSheetName' : 'value'] || ''
+          ((isAppType ? options : searchOptions).find(item => item.value === option.value) || {})[
+            isAppType ? 'workSheetName' : 'value'
+          ] || ''
         )
           .toLowerCase()
           .includes(inputValue.toLowerCase());

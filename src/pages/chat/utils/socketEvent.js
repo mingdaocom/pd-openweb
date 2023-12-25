@@ -188,7 +188,7 @@ export const stateInit = function () {
   let reconnectTime = null;
 
   IM.socket.on('error', (error) => {
-    if (error.code === 'parser error') {
+    if (error && error.code === 'parser error') {
       return;
     }
     if (isOpen) {

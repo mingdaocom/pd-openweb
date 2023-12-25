@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { WordCloud } from '@antv/g2plot';
 import { formatChartData } from './BarChart';
 import { Dropdown, Menu } from 'antd';
 import { formatYaxisList, formatrChartValue, formatControlInfo, getChartColors } from './common';
@@ -18,7 +17,10 @@ export default class extends Component {
     this.WordCloudChart = null;
   }
   componentDidMount() {
-    this.renderWordCloudChart(this.props);
+    import('@antv/g2plot').then(data => {
+      this.g2plotComponent = data;
+      this.renderWordCloudChart(this.props);
+    });
   }
   componentWillUnmount() {
     this.WordCloudChart && this.WordCloudChart.destroy();
@@ -43,6 +45,7 @@ export default class extends Component {
     const { reportData, isViewOriginalData } = props;
     const { displaySetup } = reportData;
     const WordCloudChartConfig = this.getComponentConfig(props);
+    const { WordCloud } = this.g2plotComponent;
     this.WordCloudChart = new WordCloud(this.chartEl, WordCloudChartConfig);
     if (displaySetup.showRowList && isViewOriginalData) {
       this.WordCloudChart.on('element:click', this.handleClick);

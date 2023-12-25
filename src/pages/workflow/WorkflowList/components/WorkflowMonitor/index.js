@@ -1,13 +1,11 @@
 import React, { Component } from 'react';
-import { Dialog } from 'ming-ui';
 import flowMonitor from 'src/pages/workflow/api/processVersion.js';
-import appManagement from 'src/api/appManagement';
 import { navigateTo } from 'src/router/navigateTo';
 import HistoryChart from './HistoryChart';
 import ExecutionDetails from './ExecutionDetails';
 import RealTimeData from './RealTimeData';
-import cx from 'classnames';
 import styled from 'styled-components';
+import { checkIsAppAdmin } from 'src/components/checkIsAppAdmin';
 import './index.less';
 import _ from 'lodash';
 
@@ -30,13 +28,6 @@ export default class WorkflowMonitor extends Component {
       pageIndex: 1,
       count: 0,
       loading: false,
-      checkAdmin: {
-        appId: '',
-        post: false,
-        visible: false,
-        title: '',
-        workflowId: '',
-      },
       showHistoryDetail: false,
       historyIds: [],
     };
@@ -155,61 +146,12 @@ export default class WorkflowMonitor extends Component {
     this.setState({ pageIndex }, this.getFlowList);
   };
 
-  checkIsAppAdmin = (appId, id, name) => {
-    const opts = post => {
-      return {
-        appId,
-        post,
-        visible: true,
-        title: name,
-        workflowId: id,
-      };
-    };
-    this.setState({ checkAdmin: opts(true) }, () => {
-      appManagement
-        .checkAppAdminForUser({
-          appId,
-        })
-        .then(result => {
-          if (result) {
-            navigateTo(`/workflowedit/${id}`);
-          } else {
-            this.setState({ checkAdmin: opts(false) });
-          }
-        });
-    });
-  };
-  addRoleMemberForAppAdmin = () => {
-    const {
-      checkAdmin: { appId, workflowId },
-    } = this.state;
-
-    appManagement
-      .addRoleMemberForAppAdmin({
-        appId,
-      })
-      .then(result => {
-        if (result) {
-          navigateTo(`/workflowedit/${workflowId}`);
-        }
-      });
-  };
-
   updateDetailList = detailList => {
     this.setState({ detailList });
   };
 
   render() {
-    let {
-      pageIndex,
-      count,
-      loading,
-      checkAdmin,
-      detailList = [],
-      showHistoryDetail,
-      dateStr,
-      historyDetailList,
-    } = this.state;
+    let { pageIndex, count, loading, detailList = [], showHistoryDetail, dateStr, historyDetailList } = this.state;
     const { projectId } = this.props.match.params;
 
     return (
@@ -235,21 +177,20 @@ export default class WorkflowMonitor extends Component {
           monitorContainer={this.monitorContainer}
           changeSorter={this.changeSorter}
           updateDetailList={this.updateDetailList}
-          checkIsAppAdmin={this.checkIsAppAdmin}
+          checkIsAppAdmin={(appId, id, name) =>
+            checkIsAppAdmin({
+              appId,
+              title: _l('管理工作流“%0”', name),
+              description: _l('如果你不是工作流所在应用的管理员，需要将自己加为管理员以获得权限'),
+              callback: () => {
+                navigateTo(`/workflowedit/${id}`);
+              },
+            })
+          }
           changeFlowName={this.changeFlowName}
           updateHistoryDetail={this.updateHistoryDetail}
           getFlowList={this.getFlowList}
           changePage={this.changePage}
-        />
-        <Dialog
-          visible={checkAdmin.visible}
-          className={cx({ checkAdminDialog: checkAdmin.post })}
-          title={_l('管理工作流“%0”', checkAdmin.title)}
-          description={_l('如果你不是工作流所在应用的管理员，需要将自己加为管理员以获得权限')}
-          cancelText=""
-          okText={checkAdmin.post ? _l('验证权限...') : _l('加为应用管理员')}
-          onOk={checkAdmin.post ? () => {} : this.addRoleMemberForAppAdmin}
-          onCancel={() => this.setState({ checkAdmin: Object.assign({}, this.state.checkAdmin, { visible: false }) })}
         />
       </MonitorWrap>
     );

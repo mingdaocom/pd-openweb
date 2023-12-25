@@ -107,10 +107,11 @@ class RecordList extends Component {
       appColor,
       history,
       appDetail,
+      debugRoles,
     } = this.props;
     const { viewId } = base;
     const { detail } = appDetail;
-    const { appNaviStyle } = detail;
+    const { appNaviStyle, canDebug } = detail;
 
     const { name, advancedSetting = {} } = worksheetInfo;
     let views = worksheetInfo.views.filter(
@@ -155,6 +156,19 @@ class RecordList extends Component {
         </div>
       );
     }
+    const hasDebugRoles = canDebug && !_.isEmpty(debugRoles);
+    const bottom20 = hasDebugRoles ? '60px' : '20px';
+    const bottom70 = hasDebugRoles ? '110px' : '70px';
+    const bottom78 = hasDebugRoles ? '118px' : '78px';
+    const bottom130 = hasDebugRoles ? '170px' : '130px';
+
+    const styles =
+      view.viewType === 6 && view.childType === 1
+        ? {
+            paddingBottom: 'calc(constant(safe-area-inset-bottom) - 20px)',
+            paddingBottom: 'calc(env(safe-area-inset-bottom) - 20px)',
+          }
+        : {};
 
     return (
       <Fragment>
@@ -180,7 +194,13 @@ class RecordList extends Component {
               ></Tabs>
             </div>
           )}
-          <View view={view} key={worksheetInfo.worksheetId} routerParams={params} appNaviStyle={appNaviStyle} />
+          <View
+            view={view}
+            key={worksheetInfo.worksheetId}
+            routerParams={params}
+            appNaviStyle={appNaviStyle}
+            hasDebugRoles={hasDebugRoles}
+          />
           {!batchOptVisible &&
             !(appNaviStyle === 2 && location.href.includes('mobile/app') && md.global.Account.isPortal) && (
               <Back
@@ -189,17 +209,24 @@ class RecordList extends Component {
                   !isHideTabBar && appNaviStyle === 2 && location.href.includes('mobile/app')
                     ? {
                         bottom:
-                          _.includes([1, 3, 4, 6], view.viewType) || (!_.isEmpty(view.navGroup) && view.navGroup.length)
-                            ? '70px'
-                            : '130px',
+                          view.childType === 1 && view.viewType === 6
+                            ? 140
+                            : _.includes([1, 3, 4, 6, 21], view.viewType) ||
+                              (!_.isEmpty(view.navGroup) && view.navGroup.length)
+                            ? bottom70
+                            : bottom130,
+                        ...styles,
                       }
                     : {
                         bottom:
-                          [1, 3, 4, 6].includes(view.viewType) ||
-                          (!_.isEmpty(view.navGroup) && view.navGroup.length && _.includes([0], view.viewType)) ||
-                          !(canDelete || showCusTomBtn)
-                            ? '20px'
-                            : '78px',
+                          view.childType === 1 && view.viewType === 6
+                            ? 100
+                            : [1, 3, 4, 6, 21].includes(view.viewType) ||
+                              (!_.isEmpty(view.navGroup) && view.navGroup.length && _.includes([0], view.viewType)) ||
+                              !(canDelete || showCusTomBtn)
+                            ? bottom20
+                            : bottom78,
+                        ...styles,
                       }
                 }
                 onClick={() => {
@@ -224,7 +251,7 @@ class RecordList extends Component {
             <div
               className="batchOperation"
               style={{
-                bottom: appNaviStyle === 2 && location.href.includes('mobile/app') ? '70px' : '20px',
+                bottom: appNaviStyle === 2 && location.href.includes('mobile/app') ? bottom70 : bottom20,
               }}
               onClick={() => this.props.changeBatchOptVisible(true)}
             >
@@ -234,8 +261,12 @@ class RecordList extends Component {
           {isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) &&
           worksheetInfo.allowAdd &&
           isHaveSelectControl &&
-          !batchOptVisible ? (
-            <div className="addRecordItemWrapper">
+          !batchOptVisible &&
+          ((view.viewType === 6 && view.childType !== 1) || view.viewType !== 6) ? (
+            <div
+              className="addRecordItemWrapper"
+              style={{ bottom: !isHideTabBar && appNaviStyle === 2 ? bottom70 : bottom20 }}
+            >
               <Button
                 style={{ backgroundColor: appColor }}
                 className={cx('addRecordBtn flex valignWrapper', {
@@ -338,6 +369,7 @@ export default connect(
       'batchOptVisible',
       'isCharge',
       'appDetail',
+      'debugRoles',
     ),
     calendarview: state.sheet.calendarview,
   }),

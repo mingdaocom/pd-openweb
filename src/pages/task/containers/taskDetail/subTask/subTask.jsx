@@ -10,7 +10,7 @@ import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponen
 import quickSelectUser from 'ming-ui/functions/quickSelectUser';
 import { addSubTask, editTaskStatus, updateTaskName, updateTaskCharge, taskFoldStatus } from '../../../redux/actions';
 import { expireDialogAsync } from 'src/components/common/function';
-import UserHead from 'src/pages/feed/components/userHead';
+import UserHead from 'src/components/userHead';
 import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import {
   afterUpdateTaskName,
@@ -52,11 +52,16 @@ class SingleItem extends Component {
    * opHtml
    */
   renderOpHtml() {
-    return `
-      <span class="Gray_9e ThemeHoverColor3 pointer w100 oaButton updateSubTaskCharge">
-        ${_l('更改负责人')}
+    const { charge, taskID, projectID } = this.props.item;
+
+    return (
+      <span
+        className="Gray_9e ThemeHoverColor3 pointer w100 oaButton updateSubTaskCharge"
+        onClick={() => this.props.clickOp(projectID, taskID, charge.accountID)}
+      >
+        {_l('更改负责人')}
       </span>
-    `;
+    );
   }
 
   render() {
@@ -72,7 +77,6 @@ class SingleItem extends Component {
       auth,
       locked,
       taskID,
-      projectID,
     } = item;
     const hasAuth = auth === config.auth.Charger || auth === config.auth.Member;
     let subTaskStatus = '';
@@ -136,11 +140,8 @@ class SingleItem extends Component {
                 userHead: charge.avatar,
                 accountId: charge.accountID,
               }}
-              lazy={'false'}
               size={26}
-              showOpHtml={hasAuth}
-              opHtml={this.renderOpHtml()}
-              readyFn={evt => this.props.readyFn(evt, projectID, taskID, charge.accountID)}
+              operation={hasAuth ? this.renderOpHtml() : null}
             />
           </span>
           <span
@@ -373,36 +374,30 @@ class Subtask extends Component {
     return data.auth === config.auth.Charger || data.auth === config.auth.Member;
   }
 
-  /**
-   * op操作
-   */
-  readyFn = (evt, projectId, taskId, accountId) => {
-    const that = this;
-    const callback = user => {
-      if (this.props.openType === OPEN_TYPE.slide) {
-        afterUpdateTaskCharge(taskId, user.avatar, user.accountId);
-      } else {
-        this.props.updateCallback({ type: 'UPDATE_CHARGE', user });
-      }
-    };
+  callback = (user, taskId) => {
+    if (this.props.openType === OPEN_TYPE.slide) {
+      afterUpdateTaskCharge(taskId, user.avatar, user.accountId);
+    } else {
+      this.props.updateCallback({ type: 'UPDATE_CHARGE', user });
+    }
+  };
 
-    evt.on('click', '.updateSubTaskCharge', function () {
-      dialogSelectUser({
-        sourceId: taskId,
-        title: _l('选择负责人'),
-        showMoreInvite: false,
-        fromType: 2,
-        SelectUserSettings: {
-          includeUndefinedAndMySelf: true,
-          filterAccountIds: [accountId],
-          projectId: checkIsProject(projectId) ? projectId : '',
-          unique: true,
-          callback(users) {
-            const user = users[0];
-            that.props.dispatch(updateTaskCharge(that.props.taskId, user, taskId, () => callback(user)));
-          },
+  clickOp = (projectId, taskId, accountId) => {
+    dialogSelectUser({
+      sourceId: taskId,
+      title: _l('选择负责人'),
+      showMoreInvite: false,
+      fromType: 2,
+      SelectUserSettings: {
+        includeUndefinedAndMySelf: true,
+        filterAccountIds: [accountId],
+        projectId: checkIsProject(projectId) ? projectId : '',
+        unique: true,
+        callback: users => {
+          const user = users[0];
+          this.props.dispatch(updateTaskCharge(this.props.taskId, user, taskId, () => this.callback(user, taskId)));
         },
-      });
+      },
     });
   };
 
@@ -458,8 +453,8 @@ class Subtask extends Component {
                     editTaskStatus={this.editTaskStatus}
                     updateTaskName={this.updateTaskName}
                     clickChargeAvatar={this.clickChargeAvatar}
-                    readyFn={this.readyFn}
                     switchTaskDetail={this.props.switchTaskDetail}
+                    clickOp={this.clickOp}
                   />
                 ))}
                 {addSubTask && this.renderAddTask()}

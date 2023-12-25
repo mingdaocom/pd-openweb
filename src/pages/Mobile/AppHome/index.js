@@ -10,6 +10,10 @@ import AppStatus from 'src/pages/AppHomepage/AppCenter/components/AppStatus';
 import { getTodoCount } from 'src/pages/workflow/MyProcess/Entry';
 import arrowRightImg from './img/arrowRight.png';
 import arrowLeftImg from './img/arrowLeft.png';
+import notifyPng from './img/notify.png';
+import upcomingPng from './img/upcoming.png';
+import sendPng from './img/send.png';
+import checkPng from './img/check.png';
 import './index.less';
 import SvgIcon from 'src/components/SvgIcon';
 import AppGroupSkeleton from './AppGroupSkeleton';
@@ -62,20 +66,14 @@ class AppHome extends React.Component {
     };
   }
   componentDidMount() {
-    const projectObj = getCurrentProject(
-      localStorage.getItem('currentProjectId') || (md.global.Account.projects[0] || {}).projectId,
-    );
-    const currentProject = !_.isEmpty(projectObj) ? projectObj : { projectId: 'external', companyName: _l('外部协作') };
-
     const maturityTime = moment(md.global.Account.createTime).add(7, 'day').format('YYYY-MM-DD');
     const isAdmin = md.global.Account.projects[0]
       ? md.global.Account.projects[0].createAccountId === md.global.Account.accountId
       : false;
     const isMaturity = moment().isBefore(maturityTime);
-    this.props.dispatch(actions.getAppList());
-    this.props.dispatch(actions.getMyApp(currentProject ? currentProject.projectId : null));
     $('html').addClass('appHomeMobile');
     this.getTodoCount();
+    this.getProject();
     if (isWxWork && isAdmin && isMaturity) {
       this.getWebCache();
     }
@@ -97,6 +95,13 @@ class AppHome extends React.Component {
         countData: nextProps.countData,
       });
     }
+  }
+  getProject = () => {
+    const projectObj = getCurrentProject(
+      localStorage.getItem('currentProjectId') || (md.global.Account.projects[0] || {}).projectId,
+    );
+    const currentProject = !_.isEmpty(projectObj) ? projectObj : { projectId: 'external', companyName: _l('外部协作') };
+    this.props.dispatch(actions.getMyApp(currentProject ? currentProject.projectId : null));
   }
   closePage = () => {
     window.close();
@@ -263,7 +268,7 @@ class AppHome extends React.Component {
       );
     }
     return (
-      <div className=" h100">
+      <div className="h100" style={{ overflow: 'auto' }}>
         <Flex align="center" wrap="wrap" className="appCon">
           {_.map(searchResult, (item, i) => {
             return this.renderItem(item);
@@ -271,38 +276,107 @@ class AppHome extends React.Component {
         </Flex>
       </div>
     );
-  };
+  }
+  renderPorject() {
+    const projectObj = getCurrentProject(
+      localStorage.getItem('currentProjectId') || (md.global.Account.projects[0] || {}).projectId,
+    );
+    const currentProject = !_.isEmpty(projectObj) ? projectObj : { projectId: 'external', companyName: _l('外部协作') };
+    const handleSelectProject = () => {
+      ActionSheet.showActionSheetWithOptions(
+        {
+          className: 'selectProjectWrap',
+          options: md.global.Account.projects.map(item => (
+            <Fragment key={item.projectId}>
+              <span className="flex Bold ellipsis">{item.companyName}</span>
+              {item.projectId === currentProject.projectId && (
+                <Icon className="ThemeColor Font20" icon="done" />
+              )}
+            </Fragment>
+          )),
+          message: (
+            <div className="flexRow header">
+              <span className="Font13">{_l('切换网络')}</span>
+              <div
+                className="closeIcon"
+                onClick={() => {
+                  ActionSheet.close();
+                }}
+              >
+                <Icon icon="close" />
+              </div>
+            </div>
+          ),
+        },
+        buttonIndex => {
+          if (buttonIndex === -1) return;
+          const project = md.global.Account.projects[buttonIndex];
+          safeLocalStorageSetItem('currentProjectId', project.projectId);
+          this.getProject();
+        },
+      );
+    }
+    return (
+      <div className="flexRow valignWrapper pLeft16 pRight16 pTop10 pBottom10" onClick={handleSelectProject}>
+        <div className="Font15 bold ellipsis">{currentProject.companyName}</div>
+        <div className="flexColumn valignWrapper mLeft10">
+          <Icon className="Gray_9e Font14" icon="expand_less" style={{ lineHeight: '10px' }} />
+          <Icon className="Gray_9e Font14" icon="expand_more" style={{ lineHeight: '10px' }} />
+        </div>
+      </div>
+    );
+  }
   renderProcess() {
     const { countData } = this.state;
-    const waitingDispose = countData.waitingDispose > 99 ? '99+' : countData.waitingDispose;
+    const waitingApproval = countData.waitingApproval > 99 ? '99+' : countData.waitingApproval;
     const waitingExamine = countData.waitingExamine > 99 ? '99+' : countData.waitingExamine;
+
     return (
       <Fragment>
-        <div className="processWrapper flexRow">
+        <div className="processWrapper flexRow mTop10">
           <div
-            className="processItem flex valignWrapper"
+            className="processItem flexColumn flex valignWrapper"
             onClick={() => {
               window.mobileNavigateTo('/mobile/processMatters');
             }}
           >
-            <Icon icon="knowledge_file" className="Font20 mRight5" />
-            <span className="bold">{_l('流程事项')}</span>
-            {waitingDispose ? <span className="count">{waitingDispose}</span> : null}
+            <img src={upcomingPng} />
+            <span className="bold Font13 mTop4">{_l('待办')}</span>
+            {waitingApproval ? <span className="count">{waitingApproval}</span> : null}
           </div>
           <div
-            className="processNotice flex valignWrapper"
+            className="processItem flexColumn flex valignWrapper"
             onClick={() => {
-              window.mobileNavigateTo('/mobile/processInform');
+              window.mobileNavigateTo('/mobile/processInform?tab=unread');
+            }}
+          >
+            <img src={notifyPng} />
+            <span className="bold Font13 mTop4">{_l('抄送')}</span>
+            {waitingExamine ? <span className="count">{waitingExamine}</span> : null}
+          </div>
+          <div
+            className="processItem flexColumn flex valignWrapper"
+            onClick={() => {
+              window.mobileNavigateTo('/mobile/processMatters?tab=mySponsor');
             }}
           >
             <div className="Relative">
-              <Icon icon="notifications_11" className="Font20 mRight5" />
-              {waitingExamine ? <span className="waitingExamineSign" /> : null}
+              <img src={sendPng} />
+              {/*countData.mySponsor ? <span className="waitingExamineSign" /> : null*/}
             </div>
-            <span className="bold">{_l('流程通知')}</span>
+            <span className="bold Font13 mTop4">{_l('我发起的')}</span>
+          </div>
+          <div
+            className="processItem flexColumn flex valignWrapper"
+            onClick={() => {
+              window.mobileNavigateTo('/mobile/processMatters?tab=processed');
+            }}
+          >
+            <img src={checkPng} />
+            <span className="bold Font13 mTop4">{_l('已完成')}</span>
           </div>
         </div>
-        {this.renderSearchApp()}
+        <div className="spaceBottom" />
       </Fragment>
     );
   }
@@ -310,6 +384,7 @@ class AppHome extends React.Component {
     const iconColor = data.iconColor || '#2196f3';
     const black = '#1b2025' === data.navColor;
     const light = [data.lightColor, '#ffffff', '#f5f6f7'].includes(data.navColor);
+    const isUpgrade = data.appStatus === 4;
 
     return (
       <div className="myAppItemWrap InlineBlock" key={`${data.id}-${getRandomString()}`}>
@@ -339,8 +414,13 @@ class AppHome extends React.Component {
             ) : (
               <Icon icon={data.icon} className="Font30" />
             )}
-            {data.id === 'add' || !data.fixed ? null : (
-              <AppStatus isGoodsStatus={data.isGoodsStatus} isNew={data.isNew} fixed={data.fixed} />
+            {data.id === 'add' || (!data.fixed && !isUpgrade) ? null : (
+              <AppStatus
+                isGoodsStatus={data.isGoodsStatus}
+                isNew={data.isNew}
+                fixed={data.fixed}
+                isUpgrade={isUpgrade}
+              />
             )}
           </div>
           <span className="breakAll LineHeight16 Font13 mTop10 contentText" style={{ WebkitBoxOrient: 'vertical' }}>
@@ -453,14 +533,14 @@ class AppHome extends React.Component {
             <button
               type="button"
               className="joinNetwork ThemeBGColor3 ThemeHoverBGColor2 mRight20"
-              onClick={() => window.open('/enterpriseRegister.htm?type=add', '__blank')}
+              onClick={() => window.open('/enterpriseRegister?type=add', '__blank')}
             >
               {_l('加入组织')}
             </button>
             {/*<button
               type="button"
               className="createNetwork ThemeBGColor3 ThemeBorderColor3 ThemeColor3"
-              onClick={() => window.open('/enterpriseRegister.htm?type=create', '__blank')}
+              onClick={() => window.open('/enterpriseRegister?type=create', '__blank')}
             >
               {_l('创建组织')}
             </button>*/}
@@ -522,7 +602,7 @@ class AppHome extends React.Component {
     }
   }
   renderContent() {
-    const { HomeData, isHomeLoading, myAppData = {} } = this.props;
+    const { isHomeLoading, myAppData = {} } = this.props;
     const {
       markedApps = [],
       markedGroup = [],
@@ -547,6 +627,7 @@ class AppHome extends React.Component {
     if (currentProject.projectId === 'external') {
       return (
         <div className="content">
+          {this.renderProcess()}
           {this.renderExternalList({
             data: externalApps,
             type: 'externalApps',
@@ -570,6 +651,7 @@ class AppHome extends React.Component {
     } else if (_.isEmpty(currentProject) && !_.isEmpty(externalApps)) {
       return (
         <div className="content">
+          {this.renderProcess()}
           {this.renderErr(true)}
           {!_.isEmpty(externalApps) && <div className="spaceBottom" />}
           {!_.isEmpty(externalApps) &&
@@ -579,6 +661,7 @@ class AppHome extends React.Component {
     } else {
       return (
         <div className="content">
+          {this.renderProcess()}
           {homeSetting.displayCommonApp &&
             !_.isEmpty(recentApps) &&
             this.renderList({
@@ -648,7 +731,8 @@ class AppHome extends React.Component {
     return (
       <WaterMark projectId={projectObj.projectId}>
         <div className="listConBox h100">
-          {this.renderProcess()}
+          {this.renderPorject()}
+          {this.renderSearchApp()}
           {!searchValue && this.renderContent()}
           {searchValue && this.renderSearchResult()}
           <TabBar action="appHome" />
@@ -660,9 +744,8 @@ class AppHome extends React.Component {
 }
 
 export default connect(state => {
-  const { getAppHomeList, isHomeLoading, myAppData } = state.mobile;
+  const { isHomeLoading, myAppData } = state.mobile;
   return {
-    HomeData: getAppHomeList,
     myAppData,
     isHomeLoading,
   };

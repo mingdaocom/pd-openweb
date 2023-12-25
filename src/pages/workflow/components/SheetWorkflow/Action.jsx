@@ -2,7 +2,7 @@ import React, { Fragment, useState } from 'react';
 import { Icon, Dialog } from 'ming-ui';
 import { Dropdown, Menu, Checkbox } from 'antd';
 import { ActionSheet, Modal, Button, WingBlank } from 'antd-mobile';
-import UserHead from 'src/pages/feed/components/userHead/userHead';
+import UserHead from 'src/components/userHead/userHead';
 import SelectUser from 'mobile/components/SelectUser';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
@@ -164,7 +164,6 @@ function UpdateUserDialog(props) {
               <Checkbox className="flexRow" checked={selectAccountIds.includes(data.workItemAccount.accountId)} />
               <div className="flexRow valignWrapper mLeft15">
                 <UserHead
-                  lazy="false"
                   size={28}
                   user={{ userHead: data.workItemAccount.avatar, accountId: data.workItemAccount.accountId }}
                 />
@@ -179,7 +178,7 @@ function UpdateUserDialog(props) {
           }`}</div>
           {newAccounts.map(data => (
             <div className="accountWrap flexRow valignWrapper" key={data.accountId}>
-              <UserHead lazy="false" size={28} user={{ userHead: data.avatar, accountId: data.accountId }} />
+              <UserHead size={28} user={{ userHead: data.avatar, accountId: data.accountId }} />
               <div className="mLeft10 flex">{data.fullname}</div>
               <Icon
                 icon="close"

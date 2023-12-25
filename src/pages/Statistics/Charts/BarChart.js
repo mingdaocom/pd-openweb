@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import {
   getLegendType,
   formatControlInfo,
@@ -101,8 +101,7 @@ export default class extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      originalCount: 0,
-      count: 0,
+      newYaxisList: [],
       dropdownVisible: false,
       offset: {},
       match: null
@@ -370,7 +369,7 @@ export default class extends Component {
         ? {
             position: isPile || isPerPile ? 'middle' : isVertical ? 'top' : 'right',
             layout: [
-              hideOverlapText ? { type: 'interval-hide-overlap' } : null,
+              hideOverlapText ? { type: 'hide-overlap' } : null,
               { type: 'adjust-color' },
               (ydisplay.maxValue && ydisplay.maxValue < maxValue) || (ydisplay.minValue && ydisplay.minValue > minValue) ? { type: 'limit-in-plot' } : null,
             ],
@@ -401,7 +400,7 @@ export default class extends Component {
       ],
     };
 
-    this.setCount(newYaxisList);
+    this.setState({ newYaxisList });
 
     if (isVertical) {
       baseConfig.maxColumnWidth = 160;
@@ -500,8 +499,56 @@ export default class extends Component {
       </Menu>
     );
   }
+  renderCount() {
+    const { newYaxisList } = this.state;
+    const { summary, yaxisList } = this.props.reportData;
+    const get = value => {
+      const count = formatrChartValue(value, false, newYaxisList);
+      const originalCount = value.toLocaleString() == count ? 0 : value.toLocaleString();
+      return {
+        count,
+        originalCount
+      }
+    }
+    const renderItem = data => {
+      const { count, originalCount } = get(data.sum);
+      return (
+        <Fragment>
+          <span>{formatSummaryName(data)}: </span>
+          <span data-tip={originalCount ? originalCount : null} className="count Font22">{count || 0}</span>
+        </Fragment>
+      );
+    }
+
+    if ('all' in summary) {
+      const { all, controlList = [] } = summary;
+      return (
+        <div className="flexRow" style={{ flexWrap: 'wrap' }}>
+          {all && (
+            <div className="flexRow mRight10" style={{ alignItems: 'baseline' }}>
+              {renderItem(summary)}
+            </div>
+          )}
+          {controlList.map(data => (
+            <div className="flexRow mRight10" style={{ alignItems: 'baseline' }}>
+              {renderItem({
+                ...data,
+                name: data.name || _.get(_.find(yaxisList, { controlId: data.controlId }), 'controlName')
+              })}
+            </div>
+          ))}
+        </div>
+      );
+    } else {
+      return (
+        <div className="pBottom10">
+          {renderItem(summary)}
+        </div>
+      );
+    }
+  }
   render() {
-    const { count, originalCount, dropdownVisible, offset } = this.state;
+    const { dropdownVisible, offset } = this.state;
     const { summary, displaySetup = {} } = this.props.reportData;
     return (
       <div className="flex flexColumn chartWrapper">
@@ -516,13 +563,8 @@ export default class extends Component {
         >
           <div className="Absolute" style={{ left: offset.x, top: offset.y }}></div>
         </Dropdown>
-        {displaySetup.showTotal ? (
-          <div className="pBottom10">
-            <span>{formatSummaryName(summary)}: </span>
-            <span data-tip={originalCount ? originalCount : null} className="count">{count}</span>
-          </div>
-        ) : null}
-        <div className={displaySetup.showTotal ? 'showTotalHeight' : 'h100'} ref={el => (this.chartEl = el)}></div>
+        {displaySetup.showTotal && this.renderCount()}
+        <div className="h100" ref={el => (this.chartEl = el)}></div>
       </div>
     );
   }

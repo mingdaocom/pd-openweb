@@ -187,7 +187,7 @@ class ContactsHidden extends React.Component {
                 <Prompt when={true} message={_l('你修改的设置尚未保存，确定要离开吗？')} />
               </div>
             )}
-            <div className="headerCon">
+            <div className="headerCon orgManagementHeader">
               <h5 className="Font17">
                 <Icon
                   className="Font20 mRight5 Gray Hand"

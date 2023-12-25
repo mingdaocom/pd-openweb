@@ -9,7 +9,31 @@ import DropDownItem from './DropDownItem';
 import _ from 'lodash';
 
 const allowConfigControlTypes = [
-  2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 14, 15, 16, 19, 23, 24, 26, 27, 28, 29, 33, 36, 41, 46, 48,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+  10,
+  11,
+  14,
+  15,
+  16,
+  19,
+  23,
+  24,
+  26,
+  27,
+  28,
+  29,
+  33,
+  36,
+  41,
+  46,
+  48,
 ];
 const recordObj = {
   text: '记录ID',
@@ -452,12 +476,33 @@ export default class ConfigControl extends Component {
   beginImport = controlMappingFilter => {
     (async () => {
       const { isCharge } = this.props;
-      const { tigger, repeatConfig, repeatRecord, worksheetControls, edited, controlMapping, relateSource } =
-        this.state;
+      const {
+        tigger,
+        repeatConfig,
+        repeatRecord,
+        worksheetControls,
+        edited,
+        controlMapping,
+        relateSource,
+      } = this.state;
       let columnContent;
       let fieldContent;
       let repeatModeContent;
       let repeatContent;
+      let requiredFiledNoSetArray = [];
+
+      worksheetControls
+        .filter(o => o.type !== 30 && o.advancedSetting && o.advancedSetting.required === '1')
+        .map(o => {
+          if (!controlMappingFilter.find(obj => obj.ControlId === o.controlId)) {
+            requiredFiledNoSetArray.push(o.controlName);
+          }
+        });
+
+      // 必填字段未设置
+      if (requiredFiledNoSetArray.length) {
+        throw _l('请设置“%0”字段的映射关系', requiredFiledNoSetArray.join('、'));
+      }
 
       // 判断是否有匹配字段未选择 或 已删除
       for (const relateMapping of controlMappingFilter) {
@@ -557,8 +602,15 @@ export default class ConfigControl extends Component {
 
   onImport = controlMapping => {
     const { filePath, fileId, fileKey, worksheetId, appId, selectRow, importSheetInfo, onSave, onCancel } = this.props;
-    const { workSheetProjectId, repeatRecord, tigger, repeatConfig, userControls, departmentControls, errorSkip } =
-      this.state;
+    const {
+      workSheetProjectId,
+      repeatRecord,
+      tigger,
+      repeatConfig,
+      userControls,
+      departmentControls,
+      errorSkip,
+    } = this.state;
 
     let cellConfigs = controlMapping.map(item => {
       if (_.find(userControls.concat(departmentControls), i => i.value === item.matchId)) {
@@ -694,8 +746,16 @@ export default class ConfigControl extends Component {
    */
   renderFooter() {
     const { onPrevious, isCharge } = this.props;
-    const { repeatRecord, tigger, repeatConfig, fieldsList, controlMapping, edited, errorSkip, showErrorSkip } =
-      this.state;
+    const {
+      repeatRecord,
+      tigger,
+      repeatConfig,
+      fieldsList,
+      controlMapping,
+      edited,
+      errorSkip,
+      showErrorSkip,
+    } = this.state;
     const controlMappingFilter = controlMapping.filter(item => item.ColumnNum) || [];
     const skipSize = errorSkip.filter(item => item.value).length;
     const list = [
@@ -903,17 +963,24 @@ export default class ConfigControl extends Component {
    * 渲染成员、部门、关联表字段
    */
   renderRelateWorksheet(controlItem, isHiddenConfig) {
-    const { controlMapping, relateSource, userControls, departmentControls } = this.state;
+    const { controlMapping, relateSource, userControls, departmentControls, showStar } = this.state;
     const selectItem = controlMapping.find(item => item.ControlId === controlItem.controlId);
     const worksheetId = selectItem.sourceConfig.worksheetId;
 
     // 成员、部门字段
     if (_.includes([26, 27], controlItem.type)) {
       const controls = controlItem.type === 26 ? userControls : departmentControls;
+
       return (
         <div className="flexRow relateBox">
           <Icon className="Font16 Gray_9e" icon={getIconByType(controlItem.type)} />
-          <div className="mLeft10 mRight10 flex ellipsis">{controlItem.controlName}</div>
+          <div className="mLeft10 mRight10 flex ellipsis flexRow alignItemsCenter">
+            {controlItem.controlName}
+            {(showStar === controlItem.controlId ||
+              (controlItem.advancedSetting && controlItem.advancedSetting.required === '1')) && (
+              <span className="mLeft3 star">*</span>
+            )}
+          </div>
 
           {/** 提示文字 */}
           <Tooltip
@@ -963,7 +1030,13 @@ export default class ConfigControl extends Component {
       return (
         <div className="flexRow relateBox">
           <Icon className="Font16 Gray_9e" icon={getIconByType(controlItem.type)} />
-          <div className="mLeft10 mRight10 flex ellipsis">{controlItem.controlName}</div>
+          <div className="mLeft10 mRight10 flex ellipsis flexRow alignItemsCenter">
+            {controlItem.controlName}
+            {(showStar === controlItem.controlId ||
+              (controlItem.advancedSetting && controlItem.advancedSetting.required === '1')) && (
+              <span className="mLeft3 star">*</span>
+            )}
+          </div>
 
           {/** 提示文字 */}
           <Tooltip
@@ -1151,9 +1224,14 @@ export default class ConfigControl extends Component {
                           {!isMapping ? (
                             <div className="controlItem flexRow">
                               <Icon className="Font16 Gray_9e" icon={getIconByType(controlItem.type)} />
-                              <span className="mLeft10 ellipsis flex Relative">
+                              <span className="mLeft10 ellipsis flex flexRow alignItemsCenter">
                                 {controlItem.controlName}
-                                {showStar === controlItem.controlId && <span className="mLeft3 star">*</span>}
+                                {(showStar === controlItem.controlId ||
+                                  (controlItem.type !== 30 &&
+                                    controlItem.advancedSetting &&
+                                    controlItem.advancedSetting.required === '1')) && (
+                                  <span className="mLeft3 star">*</span>
+                                )}
                               </span>
 
                               {/** 单选框 */}

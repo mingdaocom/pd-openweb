@@ -6,7 +6,7 @@ import cx from 'classnames';
 import processAjax from 'src/pages/workflow/api/processVersion';
 import Search from 'src/pages/workflow/components/Search';
 import './index.less';
-import UserHead from 'src/pages/feed/components/userHead/userHead';
+import UserHead from 'src/components/userHead/userHead';
 import { TYPES, START_APP_TYPE } from 'src/pages/workflow/WorkflowList/utils/index.js';
 
 const WrapHeader = styled.div`

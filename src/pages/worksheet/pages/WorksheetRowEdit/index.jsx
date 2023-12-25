@@ -10,6 +10,7 @@ import _ from 'lodash';
 import DocumentTitle from 'react-document-title';
 import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
 import { RecordInfoModal } from 'mobile/Record';
+import 'mobile/index.less';
 import { browserIsMobile } from 'src/util';
 
 const Header = ({ data, callback, onSubmit }) => {
@@ -80,9 +81,9 @@ class WorksheetRowEdit extends Component {
   getTitle() {
     const { data } = this.state;
     const titleControl = _.find(data.receiveControls, item => item.attribute === 1);
-    const title = titleControl ? renderCellText(titleControl) || _l('未命名') : _l('未命名');
+    const title = titleControl ? renderCellText(titleControl) || '' : '';
 
-    return `${data.appName}-${title}`;
+    return title ? `${data.appName}-${title}` : data.appName;
   }
 
   /**

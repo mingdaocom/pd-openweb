@@ -18,7 +18,7 @@ import { genUrl } from '../../util';
 import { connect } from 'react-redux';
 import { browserIsMobile, mdAppResponse, addBehaviorLog } from 'src/util';
 import { getRequest } from 'src/util';
-import customBtnWorkflow from 'mobile/Record/socket/customBtnWorkflow';
+import customBtnWorkflow from 'mobile/components/socket/customBtnWorkflow';
 import { navigateTo } from 'src/router/navigateTo';
 import _ from 'lodash';
 import moment from 'moment';

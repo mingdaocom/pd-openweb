@@ -8,14 +8,14 @@ const PreSuffixWrap = styled.div`
   display: flex;
   align-items: center;
   .selectDropdown {
-    border-radius: 0;
+    border-radius: 4px 0 0 4px;
     width: 120px;
     margin-top: 0;
   }
   input {
     height: 36px;
     border-left: 0;
-    border-radius: 0;
+    border-radius: 0 4px 4px 0;
   }
 `;
 
@@ -59,7 +59,6 @@ export default function PreSuffix({ data, value, onChange }) {
         }}
       ></Components.Dropdown>
       <Input
-        style={{ borderRadius: '0' }}
         value={value || setting[type]}
         onChange={e => {
           onChange(handleAdvancedSettingChange(data, { [type]: e.target.value }));

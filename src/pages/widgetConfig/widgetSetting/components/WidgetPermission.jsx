@@ -1,23 +1,19 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { Checkbox } from 'ming-ui';
 import { Tooltip } from 'antd';
 import Components from '../../components';
 import { NOT_NEED_SET_READONLY_CONTROL } from '../../config';
 import { updateConfig } from '../../util/setting';
-import { SettingItem } from '../../styled';
 import _ from 'lodash';
 
-const Icon = Components.Icon
+const Icon = Components.Icon;
 
 export default ({ from, data, info, onChange }) => {
   let { fieldPermission = '111', type } = data || {};
   fieldPermission = fieldPermission || '111';
   const [visible, editable, canAdd] = fieldPermission.split('');
   return (
-    <SettingItem className="withSplitLine">
-      <div className="settingItemTitle">
-        <span>{_l('字段属性')}</span>
-      </div>
+    <Fragment>
       {((type === 43 && editable === '0') || !_.includes(NOT_NEED_SET_READONLY_CONTROL, type)) && (
         <div className="labelWrap">
           <Checkbox
@@ -97,6 +93,6 @@ export default ({ from, data, info, onChange }) => {
           </Checkbox>
         </div>
       )}
-    </SettingItem>
+    </Fragment>
   );
 };

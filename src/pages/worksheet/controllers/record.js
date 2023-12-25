@@ -4,10 +4,10 @@ import attachmentAjax from 'src/api/attachment';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
 import { FORM_HIDDEN_CONTROL_IDS } from 'src/pages/widgetConfig/config/widget';
-import { updateOptionsOfControls, checkCellIsEmpty } from 'worksheet/util';
+import { updateOptionsOfControls, checkCellIsEmpty, handleRecordError } from 'worksheet/util';
 import _ from 'lodash';
 
-export async function downloadAttachmentById({ fileId, refId, worksheetId = undefined }) {
+export async function downloadAttachmentById({ fileId, refId, worksheetId = undefined, rowId, controlId }) {
   try {
     if (!fileId && !refId) {
       throw new Error();
@@ -23,6 +23,8 @@ export async function downloadAttachmentById({ fileId, refId, worksheetId = unde
       data = await attachmentAjax.getAttachmentDetail({
         fileId,
         worksheetId,
+        rowId,
+        controlId,
       });
     }
     window.open(data.downloadUrl);
@@ -50,7 +52,8 @@ export function getFormDataForNewRecord({
             if (
               control.type === 29 &&
               Number(control.advancedSetting.showtype) !== RELATE_RECORD_SHOW_TYPE.LIST &&
-              control.sourceControlId === defaultRelatedSheet.relateSheetControlId
+              control.sourceControlId === defaultRelatedSheet.relateSheetControlId &&
+              control.dataSource === defaultRelatedSheet.worksheetId
             ) {
               try {
                 control.advancedSetting = _.assign({}, control.advancedSetting, {
@@ -232,7 +235,7 @@ export function submitNewRecord(props) {
           customwidget.current.uniqueErrorUpdate(res.badData);
         }
       } else {
-        alert(_l('记录添加失败'), 3);
+        handleRecordError(res.resultCode);
       }
       onSubmitEnd();
       setRequesting(false);
@@ -256,8 +259,12 @@ export function copyRow({ worksheetId, viewId, rowIds, relateRecordControlId }, 
       copyRelationControlId: relateRecordControlId,
     })
     .then(res => {
-      if (res && res.resultCode === 1) {
-        alert(_l('复制成功'));
+      if (res && res.resultCode === 1 && res.data.length) {
+        if (res.data.length < rowIds.length) {
+          alert(_l('%0条复制失败（可能有必填项为空，设置不允许重复或数据超量）', rowIds.length - res.data.length), 3);
+        } else {
+          alert(_l('复制成功'));
+        }
         done(res.data);
       } else if (res && res.resultCode === 7) {
         alert(_l('复制失败，权限不足！'), 3);
@@ -266,7 +273,10 @@ export function copyRow({ worksheetId, viewId, rowIds, relateRecordControlId }, 
       } else if (res && res.resultCode === 11) {
         alert(_l('复制失败，当前表存在唯一字段'), 3);
       } else {
-        alert(_l('复制失败！'), 3);
+        alert(
+          res && res.resultCode === 1 ? _l('复制失败（可能有必填项为空，设置不允许重复或数据超量）') : _l('复制失败！'),
+          2,
+        );
       }
     })
     .fail(err => {

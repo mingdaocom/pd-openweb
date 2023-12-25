@@ -1,12 +1,10 @@
 import React, { createRef, useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-// import { Modal } from 'antd';
-import WidgetSetting from 'src/pages/widgetConfig/widgetSetting';
+import WidgetBase from 'src/pages/widgetConfig/widgetSetting/components/WidgetBase';
 import { DEFAULT_DATA } from 'src/pages/widgetConfig/config/widget';
-import { Icon, Dialog } from 'ming-ui';
+import { Dialog } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
 import { enumWidgetType } from 'src/pages/widgetConfig/util';
-import { formatControlsData } from 'src/pages/widgetConfig/util/data';
 import { v4 as uuidv4 } from 'uuid';
 import { SYS } from 'src/pages/widgetConfig/config/widget';
 import _ from 'lodash';
@@ -25,23 +23,14 @@ const Wrap = styled.div(
       padding: 0;
     }
   }
+  .settingItemTitle{
+    justify-content: space-between;
+  }
 `,
 );
 
 export default function AddControlDiaLog(params) {
-  const {
-    controls = [],
-    setVisible,
-    visible,
-    type,
-    addName,
-    onAdd,
-    enumType,
-    title,
-    worksheetId,
-    withoutIntro,
-    onChange,
-  } = params;
+  const { controls = [], setVisible, visible, type, addName, onAdd, enumType, title, worksheetId, onChange } = params;
   let initData = {
     ...DEFAULT_DATA[enumType],
     type: type || enumWidgetType[enumType],
@@ -50,14 +39,13 @@ export default function AddControlDiaLog(params) {
   const [data, setData] = useState(addName ? { ...initData, controlName: addName } : initData);
   const widgetProps = {
     activeWidget: data,
+    data,
     widgets: controls,
-    handleDataChange: (controlId, data, cb) => {
-      setData(data);
+    onChange: obj => {
+      setData({ ...data, ...obj });
     },
-
     allControls: controls, // genControlsByWidgets(widgets),
     // 全局表信息
-    withoutIntro, //不需要字段intro
     type, //传入的type
     quickAddControl: true,
   };
@@ -93,7 +81,7 @@ export default function AddControlDiaLog(params) {
       updateTrigger="fasle"
     >
       <Wrap height={!widgetProps.type ? 135 : 88}>
-        <WidgetSetting {...widgetProps} />
+        <WidgetBase {...widgetProps} />
       </Wrap>
     </Dialog>
   );

@@ -1,21 +1,36 @@
 import React, { useState } from 'react';
 import './index.less';
+import queryPermission from './images/queryPermission.png';
+import queryAgentState from './images/queryAgentState.png';
+import startAgent from './images/startAgent.png';
+import restartDb from './images/restartDb.png';
+import createAdminAccount from './images/createAdminAccount.png';
+import enableCDC from './images/enableCDC.png';
+import enableAuth from './images/enableAuth.png';
 
 export default function SqlServerGuide(props) {
   const { type } = props;
   const [currentPic, setCurrentPic] = useState('');
 
   return type === 'source' ? (
-    <React.Fragment>
+    <div className="guideWrapper">
       <div className="guideContent">
         <p>{_l('你可以把 SQL Server 数据库的数据通过系统实时同步到工作表或者其它数据目的地。')}</p>
         <h5>{_l('先决条件')}</h5>
         <ul>
-          <li>{_l('支持 SQL Server 的版本：2012, 2014, 2016, 2017, 2019+')}</li>
-          <li>{_l('当前账号具备sysadmin 权限')}</li>
+          <li>{_l('支持 SQL Server 的版本：2012, 2014, 2016, 2017, 2019')}</li>
+          <li>
+            {_l('当前账号具备Sysadmin 权限')}
+            <a
+              href="https://learn.microsoft.com/zh-cn/sql/relational-databases/track-changes/about-change-data-capture-sql-server?view=sql-server-ver16#permissions-required"
+              target="_blank"
+            >
+              <i className="icon-info_outline mLeft4 Hand" />
+            </a>
+          </li>
           <li>{_l('在 SQL Server 数据库上启用CDC')}</li>
           <li>{_l('SQL Server代理任务（CDC Agent）是启动状态')}</li>
-          <li>{_l('将数据集成的系统 IP 添加到 SQL Server 服务器的访问白名单 ')}</li>
+          <li>{_l('确保数据库可以与数据集成通信')}</li>
         </ul>
 
         <h5>{_l('查询SQLServer数据库版本')}</h5>
@@ -23,15 +38,15 @@ export default function SqlServerGuide(props) {
           <div>SELECT @@VERSION</div>
         </div>
 
-        <h5>{_l('查询当前用户是否属于 sysadmin 权限')}</h5>
-        <div>{_l('必须为 sysadmin 固定服务器角色的成员才允许对数据库启用CDC(变更数据捕获)功能：')}</div>
+        <h5>{_l('查询当前用户是否属于 Sysadmin 权限')}</h5>
+        <div>{_l('必须为 Sysadmin 固定服务器角色的成员才允许对数据库启用CDC(变更数据捕获)功能：')}</div>
         <div className="sqlText">
           <div>exec sp_helpsrvrolemember 'sysadmin'</div>
         </div>
         <p>{_l('返回结果中 如果你的账号在 MemberName 列内即可')}</p>
         <img
           id="queryPermission"
-          src={require('./images/queryPermission.png')}
+          src={queryPermission}
           className="mBottom10"
           onClick={() => setCurrentPic('queryPermission')}
         />
@@ -56,7 +71,7 @@ export default function SqlServerGuide(props) {
         <h5>{_l('查询表是否已经启用CDC(变更数据捕获)')}</h5>
         <div>{_l('返回0代表未启用；1代表已启用')}</div>
         <div className="sqlText">
-          <div>select name,is_tracked_by_cdc from sys.tableswhere name ='table_name';</div>
+          <div>select name,is_tracked_by_cdc from sys.tables where name ='table_name';</div>
         </div>
 
         <h5>{_l('启用表的CDC')}</h5>
@@ -87,15 +102,11 @@ export default function SqlServerGuide(props) {
           <div>EXEC master.dbo.xp_servicecontrol N'STOP', N'SQLSERVERAGENT'</div>
         </div>
         <p className="subTitle">{_l('3. Windows 环境操作开启 CDC agent，点击下图位置代理开启：')}</p>
-        <img id="startAgent" src={require('./images/startAgent.png')} onClick={() => setCurrentPic('startAgent')} />
+        <img id="startAgent" src={startAgent} onClick={() => setCurrentPic('startAgent')} />
         <p>{_l('重新启动数据库')}</p>
-        <img id="restartDb" src={require('./images/restartDb.png')} onClick={() => setCurrentPic('restartDb')} />
+        <img id="restartDb" src={restartDb} onClick={() => setCurrentPic('restartDb')} />
         <p>{_l('再次查询Agent 状态，确认状态变更为Running')}</p>
-        <img
-          id="queryAgentState"
-          src={require('./images/queryAgentState.png')}
-          onClick={() => setCurrentPic('queryAgentState')}
-        />
+        <img id="queryAgentState" src={queryAgentState} onClick={() => setCurrentPic('queryAgentState')} />
         <p>
           {_l('参考微软官方文档关于')}
           <a
@@ -116,20 +127,11 @@ export default function SqlServerGuide(props) {
           </a>
         </p>
         <p className="subTitle">{_l('1. 创建 超级权限账号 即为 System Admin')}</p>
-        <img
-          id="createAdminAccount"
-          src={require('./images/createAdminAccount.png')}
-          onClick={() => setCurrentPic('createAdminAccount')}
-        />
+        <img id="createAdminAccount" src={createAdminAccount} onClick={() => setCurrentPic('createAdminAccount')} />
         <p className="subTitle">{_l('2. 腾讯云如何开启数据库的CDC')}</p>
         <p>{_l('路径：实例列表-数据库管理-其他-「开启/关闭数据库变更数据库捕获」')}</p>
         <p>{_l('这里只能开启 数据库的CDC，创建表之后 还需要根据表的状态，在确定是否需要开启表的CDC')}</p>
-        <img
-          id="enableCDC"
-          src={require('./images/enableCDC.png')}
-          className="mBottom10"
-          onClick={() => setCurrentPic('enableCDC')}
-        />
+        <img id="enableCDC" src={enableCDC} className="mBottom10" onClick={() => setCurrentPic('enableCDC')} />
 
         <h5>{_l('阿里云SQLServer')}</h5>
         <p>{_l('这里是关于阿里云上开启CDC的补充，其余部分参考上方配置')}</p>
@@ -146,7 +148,7 @@ export default function SqlServerGuide(props) {
             https://help.aliyun.com/document_detail/170736.html
           </a>
         </p>
-        <img id="enableAuth" src={require('./images/enableAuth.png')} onClick={() => setCurrentPic('enableAuth')} />
+        <img id="enableAuth" src={enableAuth} onClick={() => setCurrentPic('enableAuth')} />
         <p>
           {_l('更多配置项参考')}
           <a
@@ -191,7 +193,7 @@ export default function SqlServerGuide(props) {
           </div>
         </div>
       )}
-    </React.Fragment>
+    </div>
   ) : (
     <div className="guideContent">
       <p>{_l('你可以将其它数据源的数据实时同步到 SQL Server')}</p>

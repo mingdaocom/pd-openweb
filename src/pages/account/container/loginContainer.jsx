@@ -73,9 +73,9 @@ export default class Container extends React.Component {
       if (accountResult === ActionResult.needTwofactorVerifyCode) {
         //开启了两步验证
         if (request.ReturnUrl) {
-          location.href = `/twofactor.htm?state=${state}&ReturnUrl=${encodeURIComponent(request.ReturnUrl)}`;
+          location.href = `/twofactor?state=${state}&ReturnUrl=${encodeURIComponent(request.ReturnUrl)}`;
         } else {
-          location.href = `/twofactor.htm?state=${state}`;
+          location.href = `/twofactor?state=${state}`;
         }
         return;
       }
@@ -105,7 +105,7 @@ export default class Container extends React.Component {
         $('.btnForLogin').click();
       });
       if (accountResult === 15) {
-        location.href = '/cancellation.htm';
+        location.href = '/cancellation';
       }
     };
     if (!(openLDAP && isNetwork)) {
@@ -195,7 +195,7 @@ export default class Container extends React.Component {
                 {loginDisabled && <div className="loadingLine"></div>}
                 <div className="mTop15 clearfix Font14">
                   <div className="Left">
-                    <a target="_blank" href="/findPassword.htm" className="findPassword">
+                    <a target="_blank" href="/findPassword" className="findPassword">
                       {_l('忘记密码？')}
                     </a>
                   </div>

@@ -2,6 +2,7 @@
 import { PAGE_SIZE, COMPANY_DEPARMENTID } from '../constant';
 import Config from '../../config';
 import departmentController from 'src/api/department';
+import { getCurrentProject } from 'src/util';
 import _ from 'lodash';
 
 // async actions and action creator
@@ -89,7 +90,7 @@ export const INIT_ROOT = 'INIT_ROOT';
  */
 export const initRoot = departmentId => {
   // 获取网络信息
-  const departmentName = Config.getProjectInfo().companyName;
+  const departmentName = getCurrentProject(Config.projectId, true).companyName;
   return {
     type: INIT_ROOT,
     response: [

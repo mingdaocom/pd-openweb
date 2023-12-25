@@ -21,6 +21,7 @@ const DateInfoWrap = styled.div`
     justify-content: space-between;
     padding-left: 12px;
     flex: 1;
+    min-width: 0;
     height: 36px;
   }
   .clearValue {
@@ -30,6 +31,7 @@ const DateInfoWrap = styled.div`
     cursor: pointer;
   }
   .dateInfo {
+    max-width: 100%;
     &.isSelectPlainTime {
       width: 100%;
     }
@@ -78,7 +80,7 @@ export default function DynamicSelectDateControl({ value, onChange, allControls,
     <Fragment>
       <DateInfoWrap>
         <div className="contentWrap">
-          <div className={cx('dateInfo', { isSelectPlainTime })}>
+          <div className={cx('dateInfo overflow_ellipsis', { isSelectPlainTime })}>
             <Fragment>
               {isSelectPlainTime ? (
                 <DatePicker
@@ -101,7 +103,7 @@ export default function DynamicSelectDateControl({ value, onChange, allControls,
                   <div className="selectedDate">{value && moment(value).format('YYYY-MM-DD HH:mm')}</div>
                 </DatePicker>
               ) : (
-                <ControlTag className={cx({ invalid: !controlName || invalidError })}>
+                <ControlTag className={cx('overflow_ellipsis', { invalid: !controlName || invalidError })}>
                   {controlName ? (invalidError ? _l('%0(无效类型)', controlName) : controlName) : _l('已删除')}
                 </ControlTag>
               )}

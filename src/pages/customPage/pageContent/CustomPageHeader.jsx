@@ -71,7 +71,7 @@ export default function CustomPageHeader(props) {
     };
     return () => {
       delete window.editCustomPage;
-    }
+    };
   }, [pageId]);
 
   const saveImage = () => {
@@ -101,24 +101,26 @@ export default function CustomPageHeader(props) {
     const data = {
       configuration: {
         ...configuration,
-        desc: value
-      }
-    }
-    appManagementApi.editWorkSheetInfoForApp({
-      appId,
-      appSectionId: groupId,
-      workSheetId: pageId,
-      type: 1,
-      ...data
-    }).then(result => {
-      if (currentPcNaviStyle === 1) {
-        const singleRef = getAppSectionRef(groupId);
-        singleRef.dispatch(updateSheetListAppItem(pageId, data));
-      } else {
-        rest.updateSheetListAppItem(pageId, data);
-      }
-    });
-  }
+        desc: value,
+      },
+    };
+    appManagementApi
+      .editWorkSheetInfoForApp({
+        appId,
+        appSectionId: groupId,
+        workSheetId: pageId,
+        type: 1,
+        ...data,
+      })
+      .then(result => {
+        if (currentPcNaviStyle === 1) {
+          const singleRef = getAppSectionRef(groupId);
+          singleRef.dispatch(updateSheetListAppItem(pageId, data));
+        } else {
+          rest.updateSheetListAppItem(pageId, data);
+        }
+      });
+  };
 
   const handleClick = (type, data) => {
     switch (type) {
@@ -204,9 +206,12 @@ export default function CustomPageHeader(props) {
         className={cx({
           embedPageHeader: isEmbed || isEmbedPage,
           hide: !(urlTemplate ? configuration.hideHeaderBar === '0' : pageConfig.headerVisible),
-          darkTheme: pageConfig.pageBgColor && !isLightColor(pageConfig.pageBgColor)
+          darkTheme: pageConfig.pageBgColor && !isLightColor(pageConfig.pageBgColor),
         })}
-        style={{ backgroundColor: appPkg.pcNaviStyle === 1 ? pageConfig.darkenPageBgColor || pageConfig.pageBgColor : pageConfig.pageBgColor }}
+        style={{
+          backgroundColor:
+            appPkg.pcNaviStyle === 1 ? pageConfig.darkenPageBgColor || pageConfig.pageBgColor : pageConfig.pageBgColor,
+        }}
       >
         <div className="nameWrap flex">
           {!isPublicShare &&
@@ -215,7 +220,7 @@ export default function CustomPageHeader(props) {
               <Tooltip
                 text={
                   <span>
-                    {_l('退出')} ({navigator.userAgent.toLocaleLowerCase().includes('mac os') ? '⌘ + E' : 'Ctrl + E'})
+                    {_l('退出')} ({navigator.userAgent.toLocaleLowerCase().includes('mac os') ? '⌘ + E' : 'Shift + E'})
                   </span>
                 }
                 popupPlacement="bottom"
@@ -235,7 +240,7 @@ export default function CustomPageHeader(props) {
                 text={
                   <span>
                     {inFull ? _l('退出') : _l('展开')} (
-                    {navigator.userAgent.toLocaleLowerCase().includes('mac os') ? '⌘ + E' : 'Ctrl + E'})
+                    {navigator.userAgent.toLocaleLowerCase().includes('mac os') ? '⌘ + E' : 'Shift + E'})
                   </span>
                 }
                 popupPlacement="bottom"
@@ -318,10 +323,7 @@ export default function CustomPageHeader(props) {
         {!urlTemplate && (
           <Fragment>
             <Tooltip text={<span>{_l('刷新')}</span>} popupPlacement="bottom">
-              <div
-                className="iconWrap valignWrapper mLeft20"
-                onClick={resetPage}
-              >
+              <div className="iconWrap valignWrapper mLeft20" onClick={resetPage}>
                 <Icon className="Font20 pointer" icon="task-later" />
               </div>
             </Tooltip>
@@ -337,8 +339,8 @@ export default function CustomPageHeader(props) {
                 </div>
               </Tooltip>
             )}
-            {pageConfig.downloadVisible && (
-              exportLoading ? (
+            {pageConfig.downloadVisible &&
+              (exportLoading ? (
                 <div className="iconWrap valignWrapper mLeft20">
                   <LoadDiv size="small" />
                 </div>
@@ -348,14 +350,13 @@ export default function CustomPageHeader(props) {
                     <Icon className="Font20 pointer" icon="file_download" />
                   </div>
                 </Tooltip>
-              )
-            )}
+              ))}
           </Fragment>
         )}
         {!isSafari() && !isPublicShare && pageConfig.fullScreenVisible && (
           <Tooltip text={<span>{_l('全屏展示')}</span>} popupPlacement="bottom">
             <div className="iconWrap valignWrapper mLeft20" onClick={() => toggle(true)}>
-              <Icon icon="full_screen"  className="Font20 pointer" />
+              <Icon icon="full_screen" className="Font20 pointer" />
             </div>
           </Tooltip>
         )}

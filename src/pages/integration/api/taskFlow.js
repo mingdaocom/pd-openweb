@@ -197,6 +197,25 @@ var taskFlow = {
   },
 
   /**
+   * 初始化一个空的任务流
+   *
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 组织id
+   * @param {string} args.owner 所属用户id
+   * @param {object} args.sourceNode 源表节点(object)
+   * @param {object} args.destNode 目的地节点(object)
+   * @param {object} args.workflowConfig 工作流配置(object)
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  initEmpty: function (args, options) {
+    base.ajaxOptions.url = base.server(options) + 'taskFlow/initEmpty';
+    base.ajaxOptions.type = 'POST';
+    return $.api(controllerName, 'taskFlowinitEmpty', JSON.stringify(args), $.extend(base, options));
+  },
+
+  /**
    * 分页获取任务流列表
    *
    * @param {Object} args 请求参数

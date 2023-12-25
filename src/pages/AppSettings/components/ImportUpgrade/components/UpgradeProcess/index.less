@@ -1,0 +1,135 @@
+.upgradeProcessWrap {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #fff;
+  z-index: 999;
+  overflow: auto;
+}
+.upgradeProcessHeader {
+  width: 100%;
+  height: 50px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 20px;
+  box-shadow: 0px 1px 2px 1px rgba(0, 0, 0, 0.16);
+  z-index: 1000;
+  .applicationIcon {
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 8px;
+  }
+  .w110 {
+    width: 110px;
+  }
+}
+.upgradeProcessContent {
+  width: 70%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  margin: 0px auto 0;
+  padding-top: 90px;
+  .pBottom68 {
+    padding-bottom: 68px;
+  }
+  .ant-steps-item-icon {
+    width: 30px;
+    height: 30px;
+    font-size: 15px;
+    line-height: 30px;
+    .ant-steps-icon {
+      top: -1.5px;
+    }
+  }
+  .ant-steps-item-wait .ant-steps-item-icon {
+    background: #eaeaea;
+    border-color: #eaeaea;
+  }
+  .ant-steps-item-finish .ant-steps-item-icon {
+    border-color: #e5f4fe;
+    background: #e5f4fe;
+  }
+  .ant-steps-item-finish .ant-steps-item-icon > .ant-steps-icon {
+    color: #2196f3;
+  }
+  .ant-steps-item-wait .ant-steps-item-icon > .ant-steps-icon {
+    color: #757575;
+  }
+  .ant-steps-item-title {
+    line-height: 30px;
+  }
+  .ant-steps-item-process > .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-title,
+  .ant-steps-item-finish > .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-title {
+    color: #333;
+    font-weight: 600;
+  }
+  .ant-steps-item-wait > .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-title {
+    color: #9e9e9e;
+    font-weight: 600;
+  }
+  .ant-steps-item-process > .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-title::after,
+  .ant-steps-item-finish > .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-title::after {
+    background-color: #e3e3e3;
+  }
+}
+
+.uploadWrap {
+  width: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  overflow-y: auto;
+  border: 1px dashed #eaeaea;
+  box-sizing: border-box;
+  margin-bottom: 20px;
+  .uploadImg {
+    width: 52px;
+    height: 59px;
+    margin-bottom: 15px;
+  }
+  .passwordInputBox {
+    width: 250px;
+    line-height: 34px;
+    border: 1px solid #2196f3;
+    border-radius: 3px;
+    padding: 0 12px;
+    box-sizing: border-box;
+  }
+  .errTip {
+    color: #f51744;
+  }
+}
+
+.importActionWrap {
+  width: 100%;
+  height: 68px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  background-color: #fff;
+  box-shadow: 0px -2px 6px 1px rgba(0, 0, 0, 0.08);
+  z-index: 1000;
+  .actionContent {
+    width: 70%;
+    height: 100%;
+    margin: 0 auto;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
+}

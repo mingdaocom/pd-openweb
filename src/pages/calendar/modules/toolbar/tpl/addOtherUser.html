@@ -1,7 +1,8 @@
 ﻿{{~it:user}}
     {{? user.accountID != md.global.Account.accountId}}
         <div class="addOtherUser boxSizing" data-id="{{!user.accountID}}" >
-            <img class="addOtherUserHeadImg circle showBusinessCard pointer" src="{{!user.avatar}}"><span class="ThemeColor9">{{!user.fullName}}</span>
+            <span class="addOtherUserHeadImg noInsert circle showBusinessCard pointer" data-src="{{!user.avatar}}"></span>
+            <span class="ThemeColor9">{{!user.fullName}}</span>
             <i class="addOtherUserDelImg icon-delete ThemeColor9 ThemeHoverColor10"></i>
         </div>
     {{?}}

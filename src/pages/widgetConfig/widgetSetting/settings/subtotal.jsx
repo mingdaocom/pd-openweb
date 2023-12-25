@@ -3,7 +3,13 @@ import { RadioGroup, Dropdown, Checkbox, Tooltip } from 'ming-ui';
 import styled from 'styled-components';
 import _, { get, includes, isEmpty } from 'lodash';
 import { SettingItem } from '../../styled';
-import { filterControlsFromAll, getControlByControlId, getIconByType, resortControlByColRow } from '../../util';
+import {
+  filterControlsFromAll,
+  getControlByControlId,
+  getIconByType,
+  resortControlByColRow,
+  isShowUnitConfig,
+} from '../../util';
 import {
   parseDataSource,
   filterByTypeAndSheetFieldType,
@@ -15,13 +21,10 @@ import { FilterItemTexts, FilterDialog } from '../components/FilterData';
 import CommonComponents from '../../components';
 import components from '../components';
 import { SYSTEM_CONTROL } from '../../config/widget';
-import NumberConfig from '../components/ControlSetting/NumberConfig';
 import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
 import cx from 'classnames';
 
 const { PointerConfig, PreSuffix } = components;
-
-const SubtotalSettingWrap = styled.div``;
 
 const DATE_FORMULA_UNIT = [_l('分钟'), _l('小时'), _l('天'), _l('月'), _l('年')];
 
@@ -181,19 +184,8 @@ export default function Subtotal(props) {
     onChange({ ...nextData, sourceControlId: value });
   };
 
-  // 是否显示单位及小数点配置
-  const isShowUnitConfig = () => {
-    // 如果是日期格式汇总 不显示
-    if ([2, 3].includes(enumDefault) && [15, 16, 46].includes(enumDefault2)) return false;
-    // 选择日期汇总字段
-    if (selectedControl.type === 37) {
-      if ([2, 3].includes(enumDefault) && [15, 16, 46].includes(selectedControl.enumDefault2)) return false;
-    }
-    return true;
-  };
-
   return (
-    <SubtotalSettingWrap>
+    <Fragment>
       <SettingItem>
         <div className="settingItemTitle">{_l('关联表')}</div>
         <Dropdown
@@ -364,7 +356,6 @@ export default function Subtotal(props) {
           {isShowUnitConfig() && (
             <Fragment>
               <PointerConfig {...props} />
-              <NumberConfig {...props} />
               {numshow !== '1' && (
                 <SettingItem>
                   <div className="settingItemTitle">{_l('单位')}</div>
@@ -387,6 +378,6 @@ export default function Subtotal(props) {
           )}
         </Fragment>
       )}
-    </SubtotalSettingWrap>
+    </Fragment>
   );
 }

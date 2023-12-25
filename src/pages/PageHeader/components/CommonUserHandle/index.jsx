@@ -76,6 +76,7 @@ export default class CommonUserHandle extends Component {
             </div>
           </Tooltip>
         )}
+        {_.includes(['native'], type) && <MyProcessEntry type={type} />}
         {!['appPkg'].includes(type) && (
           <BtnCon onClick={this.openGlobalSearch.bind(this)} data-tip={_l('超级搜索(F)')} className="tip-bottom-left">
             <Icon icon="search" />
@@ -86,18 +87,6 @@ export default class CommonUserHandle extends Component {
             <Icon icon="search" className="Font20" onClick={this.openGlobalSearch.bind(this)} />
           </div>
         )}
-        {_.includes(['native'], type) && (
-          <MyProcessEntry type={type} />
-        )}
-        {/* {type !== 'appPkg' && (
-          <BtnCon
-            className={`${type === 'native' ? 'mLeft10' : ''}`}
-            data-tip={_l('帮助')}
-            onClick={() => window.KF5SupportBoxAPI && window.KF5SupportBoxAPI.open()}
-          >
-            <Icon icon="workflow_help" />
-          </BtnCon>
-        )} */}
         <Tooltip
           text={<UserMenu handleUserVisibleChange={this.handleUserVisibleChange.bind(this)} />}
           mouseEnterDelay={0.2}
@@ -115,7 +104,7 @@ export default class CommonUserHandle extends Component {
             }}
           >
             <span className="tip-bottom-left mLeft16" data-tip={md.global.Account.fullname}>
-              <Avatar src={md.global.Account.avatar.replace(/w\/100\/h\/100/, 'w/90/h/90')} size={30} />
+              <Avatar src={md.global.Account.avatar} size={30} />
             </span>
           </div>
         </Tooltip>
@@ -167,6 +156,7 @@ export class LeftCommonUserHandle extends Component {
     const { globalSearchVisible, userVisible, roleEntryVisible } = this.state;
     const { isAuthorityApp, type, data, sheet, match } = this.props;
     const { projectId, id, permissionType, isLock, appStatus, fixed, pcDisplay } = data;
+    const isUpgrade = appStatus === 4;
     // 获取url参数
     const { tr } = getAppFeaturesVisible();
     if (window.isPublicApp || !tr) {
@@ -175,28 +165,32 @@ export class LeftCommonUserHandle extends Component {
 
     return (
       <div className="commonUserHandleWrap leftCommonUserHandleWrap w100">
-        <CreateAppItem
-          isCharge={sheet.isCharge}
-          appId={id}
-          groupId={match.params.groupId}
-          worksheetId={match.params.worksheetId}
-          projectId={projectId}
-        >
-          <div className="headerColorSwitch">
-            <Icon icon="add" className="Font20 pointer" />
-          </div>
-        </CreateAppItem>
-        {_.includes([1, 5], appStatus) && !md.global.Account.isPortal && (
+        {!isUpgrade && (
           <Fragment>
-            {!window.isPublicApp && canEditApp(permissionType, isLock) && (
-              <MdLink data-tip={_l('工作流')} className="tip-top" to={`/app/${id}/workflow`}>
-                <Icon icon="workflow" className="Font20 headerColorSwitch" />
-              </MdLink>
-            )}
-            {roleEntryVisible && (
-              <MdLink data-tip={_l('用户')} className="tip-top" to={`/app/${id}/role`}>
-                <Icon icon="group" className="Font20 headerColorSwitch" />
-              </MdLink>
+            <CreateAppItem
+              isCharge={sheet.isCharge}
+              appId={id}
+              groupId={match.params.groupId}
+              worksheetId={match.params.worksheetId}
+              projectId={projectId}
+            >
+              <div className="headerColorSwitch">
+                <Icon icon="add" className="Font20 pointer" />
+              </div>
+            </CreateAppItem>
+            {_.includes([1, 5], appStatus) && !md.global.Account.isPortal && (
+              <Fragment>
+                {!window.isPublicApp && canEditApp(permissionType, isLock) && (
+                  <MdLink data-tip={_l('工作流')} className="tip-top" to={`/app/${id}/workflow`}>
+                    <Icon icon="workflow" className="Font20 headerColorSwitch" />
+                  </MdLink>
+                )}
+                {roleEntryVisible && (
+                  <MdLink data-tip={_l('用户')} className="tip-top" to={`/app/${id}/role`}>
+                    <Icon icon="group" className="Font20 headerColorSwitch" />
+                  </MdLink>
+                )}
+              </Fragment>
             )}
           </Fragment>
         )}

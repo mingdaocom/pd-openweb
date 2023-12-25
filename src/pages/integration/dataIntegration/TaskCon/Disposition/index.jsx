@@ -301,6 +301,7 @@ function Disposition(props) {
               }}
               leastOne
               inline
+              chatButton={false}
             />
             <br />
             <span

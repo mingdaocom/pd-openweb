@@ -7,6 +7,7 @@ import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../util/se
 import { DEFAULT_TYPES } from './config';
 import { Tooltip } from 'ming-ui';
 import _ from 'lodash';
+import cx from 'classnames';
 
 const {
   TextInput,
@@ -23,6 +24,7 @@ const {
   SwitchInput,
   TimeInput,
   RoleInput,
+  RichInput,
   ArrayInput,
   ObjectInput,
   AttachmentInput,
@@ -33,6 +35,7 @@ const TYPE_TO_COMP = {
   number: NumberInput,
   phone: PhoneInput,
   email: EmailInput,
+  cred: EmailInput,
   department: DepartmentInput,
   date: DateInput,
   user: UserInput,
@@ -44,19 +47,19 @@ const TYPE_TO_COMP = {
   switch: SwitchInput,
   time: TimeInput,
   role: RoleInput,
+  cascader: RelateSheet,
+  richtext: RichInput,
   array: ArrayInput,
   array_object: ObjectInput,
   attachment: AttachmentInput,
 };
 
 export default function DynamicDefaultValue(props) {
-  const { data, allControls, onChange, queryConfig = {}, updateQueryConfigs } = props;
-  const { dataSource, enumDefault, advancedSetting = {} } = data;
+  const { data, allControls, onChange, queryConfig = {}, from, updateQueryConfigs, hideTitle } = props;
+  const { enumDefault, advancedSetting = {} } = data;
   const type = getControlType(data);
   const showtype = advancedSetting.showtype || String(enumDefault);
   if (!type) return null;
-  // 选项集才有默认值
-  if (type === 'option' && !dataSource) return null;
 
   const Comp = TYPE_TO_COMP[type];
 
@@ -94,17 +97,19 @@ export default function DynamicDefaultValue(props) {
   }, [defaultType]);
 
   return (
-    <SettingItem>
-      <div className="settingItemTitle">
-        {_l('默认值')}
-        {type === 'department' && (
-          <Tooltip text={<span>{_l('默认值为成员字段时，取成员所在的主部门')}</span>}>
-            <span className="Gray_9e pointer Font15">
-              <i className="icon-help"></i>
-            </span>
-          </Tooltip>
-        )}
-      </div>
+    <SettingItem className={cx({ mTop0: hideTitle })}>
+      {!hideTitle && (
+        <div className="settingItemTitle">
+          {_l('默认值')}
+          {type === 'department' && (
+            <Tooltip text={<span>{_l('默认值为成员字段时，取成员所在的主部门')}</span>}>
+              <span className="Gray_9e pointer Font15">
+                <i className="icon-help"></i>
+              </span>
+            </Tooltip>
+          )}
+        </div>
+      )}
       <Comp
         {...props}
         data={data}
@@ -114,6 +119,7 @@ export default function DynamicDefaultValue(props) {
         dynamicData={dynamicData}
         clearOldDefault={clearOldDefault}
         onDynamicValueChange={handleDynamicValueChange}
+        {...(from === 'subList' ? { fromCondition: 'relateSheet' } : {})}
       />
     </SettingItem>
   );

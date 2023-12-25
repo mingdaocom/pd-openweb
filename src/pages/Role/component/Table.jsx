@@ -237,8 +237,8 @@ export default function PorTalTable(props) {
   const customizeRenderEmpty = () => (
     <div className="emptyCon">
       <div className="TxtCenter">
-        <i class="iconBox mBottom12"></i>
-        <span class="Gray_9e Block mBottom20 TxtCenter Font17 Gray_9e">{props.nullTxt || _l('暂无数据')}</span>
+        <i className="iconBox mBottom12"></i>
+        <span className="Gray_9e Block mBottom20 TxtCenter Font17 Gray_9e">{props.nullTxt || _l('暂无数据')}</span>
       </div>
     </div>
   );

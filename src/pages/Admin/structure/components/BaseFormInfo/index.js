@@ -450,7 +450,7 @@ export default class BaseFormInfo extends Component {
                 this.setState({ workSiteId });
               }
 
-              let val = workSiteId.indexOf('add_') > -1 ? workSiteId.split('add_')[1] : workSiteId;
+              let val = !!workSiteId && workSiteId.indexOf('add_') > -1 ? workSiteId.split('add_')[1] : workSiteId;
               this.setState({ workSiteId: val });
             }}
           >

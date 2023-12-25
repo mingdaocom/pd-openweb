@@ -194,6 +194,7 @@ export default class Condition extends Component {
         {showUrlParams && (
           <Dropdown
             border
+            isAppendToBody
             className="Width120 mRight12"
             data={valueTypeOptions}
             value={this.state.valueType}
@@ -245,6 +246,7 @@ export default class Condition extends Component {
         ) : (
           <ParamsDropdown
             border
+            isAppendToBody
             className={cx({
               isDelete: !!(dynamicSource[0] || {}).cid && !_.includes(urlParams, (dynamicSource[0] || {}).cid),
             })}
@@ -358,7 +360,7 @@ export default class Condition extends Component {
                     disabled={!canEdit}
                     data={conditionFilterTypes}
                     isAppendToBody
-                    menuStyle={{ width: 'auto' }}
+                    menuStyle={{ width: 'auto', minWidth: '100px' }}
                     onChange={this.changeConditionType}
                   />
                 </span>

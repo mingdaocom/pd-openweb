@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 import { navigateTo } from 'router/navigateTo';
 import cx from 'classnames';
 import Search from '../components/Search';
-import UserHead from 'src/pages/feed/components/userHead/userHead';
+import UserHead from 'src/components/userHead/userHead';
 import { APP_TYPE } from '../WorkflowSettings/enum';
 import PublishBtn from './components/PublishBtn';
 import DeleteFlowBtn from './components/DeleteFlowBtn';

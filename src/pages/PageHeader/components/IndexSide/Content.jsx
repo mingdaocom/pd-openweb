@@ -1,6 +1,5 @@
 import React, { useState, useEffect, Fragment } from 'react';
 import { ScrollView, Skeleton } from 'ming-ui';
-import { useSetState } from 'react-use';
 import api from 'api/homeApp';
 import './index.less';
 import NativeModule from './NativeModule';
@@ -12,14 +11,14 @@ export default function SideContent(props) {
   const { posX, visible, onClose } = props;
   const [value, setValue] = useState('');
   const [loading, setLoading] = useState(false);
-  const [{ data, filteredData }, setData] = useSetState({ data: [], filteredData: [] });
+  const [data, setData] = useState([]);
 
   const getData = () => {
     setLoading(true);
     api
       .getAllHomeApp({ containsLinks: true })
-      .then(data => {
-        setData({ data, filteredData: data });
+      .then(res => {
+        setData(res);
       })
       .always(() => {
         setLoading(false);
@@ -32,7 +31,7 @@ export default function SideContent(props) {
     }
   }, [visible]);
 
-  const filterData = () => {
+  const getFilterData = () => {
     const temp = _.cloneDeep(_.pick(data, GROUP_TYPES.concat('markedApps')));
     _.keys(temp).forEach(key => {
       if (_.includes(['validProject', 'expireProject'], key)) {
@@ -57,12 +56,8 @@ export default function SideContent(props) {
         );
       }
     });
-    setData({ filteredData: temp });
+    return temp;
   };
-
-  useEffect(() => {
-    filterData();
-  }, [value]);
 
   const handleMarkApp = para => {
     api.markApp(para).then(res => {
@@ -72,7 +67,7 @@ export default function SideContent(props) {
     });
   };
   const renderAppGroups = () => {
-    const markedApps = _.get(filteredData, 'markedApps') || [];
+    const markedApps = _.get(getFilterData(), 'markedApps') || [];
     const propsAndMethods = {
       value,
       handleMarkApp: handleMarkApp,
@@ -85,7 +80,7 @@ export default function SideContent(props) {
         )}
         <NativeModule />
         {GROUP_TYPES.map((type, index) => {
-          const group = _.get(filteredData, type);
+          const group = _.get(getFilterData(), type);
           return _.includes(['validProject', 'expireProject'], type)
             ? group &&
                 group.map(({ projectId, projectApps, projectName }, index) =>

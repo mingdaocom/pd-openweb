@@ -16,7 +16,7 @@ import processAjax from 'src/pages/workflow/api/process';
 import _ from 'lodash';
 import FunctionWrap from 'ming-ui/components/FunctionWrap';
 import CustomButtonConfirm from './CustomButtonConfirm';
-import { getButtonColor } from 'worksheet/util';
+import { getButtonColor, handleRecordError } from 'worksheet/util';
 
 const MenuItemWrap = styled(MenuItem)`
   .btnName {
@@ -72,7 +72,7 @@ export default class CustomButtons extends React.Component {
 
   @autobind
   triggerCustomBtn(btn) {
-    const { worksheetId, recordId, handleUpdateWorksheetRow } = this.props;
+    const { worksheetId, recordId, handleUpdateWorksheetRow, projectId } = this.props;
     this.remark = undefined;
     if (window.isPublicApp) {
       alert(_l('预览模式下，不能操作'), 3);
@@ -121,12 +121,10 @@ export default class CustomButtons extends React.Component {
         trigger(btn);
       }
     }
-    function verifyConform() {
+    function verifyConform(removeNoneVerification) {
       VerifyPasswordConfirm.confirm({
         title: _l('安全认证'),
-        inputName: _l('登录密码验证'),
-        passwordPlaceHolder: _l('输入当前用户（%0）的登录密码', md.global.Account.fullname),
-        allowNoVerify: true,
+        allowNoVerify: !removeNoneVerification,
         onOk: run,
       });
     }
@@ -134,6 +132,7 @@ export default class CustomButtons extends React.Component {
       const needConfirm = btn.enableConfirm || btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.CONFIRM;
       function confirm({ onOk, onClose = () => {} } = {}) {
         confirmClick({
+          projectId,
           title: btn.confirmMsg,
           description: _.get(btn, 'advancedSetting.confirmcontent'),
           enableRemark: _.get(btn, 'advancedSetting.enableremark'),
@@ -171,9 +170,10 @@ export default class CustomButtons extends React.Component {
       function verifyAndRun() {
         if (btn.verifyPwd) {
           verifyPassword({
+            projectId,
             checkNeedAuth: true,
             success: run,
-            fail: () => verifyConform(),
+            fail: result => verifyConform(result === 'showPassword'),
           });
         } else {
           run();
@@ -244,7 +244,7 @@ export default class CustomButtons extends React.Component {
   }
 
   @autobind
-  fillRecordControls(newControls, targetOptions, customwidget) {
+  fillRecordControls(newControls, targetOptions, customwidget, cb = () => {}) {
     const {
       worksheetId,
       recordId,
@@ -301,7 +301,17 @@ export default class CustomButtons extends React.Component {
           alert(_l('操作成功'));
         }
         if (targetOptions.recordId === recordId) {
-          onUpdate(_.pick(res.data, newControls.map(c => c.controlId).concat('isviewdata')), res.data, newControls);
+          onUpdate(
+            _.pick(
+              res.data,
+              (_.find(newControls, { type: 34 })
+                ? Object.keys(res.data).filter(key => key.length === 24)
+                : newControls.map(c => c.controlId)
+              ).concat('isviewdata'),
+            ),
+            res.data,
+            newControls,
+          );
         }
         if (this.activeBtn.writeObject === 1 && !res.data.isviewdata) {
           hideRecordInfo();
@@ -313,7 +323,8 @@ export default class CustomButtons extends React.Component {
             customwidget.uniqueErrorUpdate(res.badData);
           }
         } else {
-          alert(_l('保存失败，请稍后重试'), 2);
+          handleRecordError(res.resultCode);
+          cb(true);
         }
       }
     });

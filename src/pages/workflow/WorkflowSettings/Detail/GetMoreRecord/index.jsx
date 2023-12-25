@@ -601,7 +601,7 @@ export default class GetMoreRecord extends Component {
             const { data } = this.state;
             const selectNodeObj = _.find(data.flowNodeList, item => item.nodeId === selectNodeId);
 
-            this.updateSource({ selectNodeId, selectNodeObj }, () => {
+            this.updateSource({ selectNodeId, selectNodeObj, appType: selectNodeObj.appType }, () => {
               this.getWorksheetFields(selectNodeObj.appId);
             });
           }}

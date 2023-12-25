@@ -10,8 +10,16 @@ import './style.less';
 import widgets from './widgets';
 import WidgetsDesc from './components/WidgetsDesc';
 import WidgetsVerifyCode from './components/WidgetsVerifyCode';
-import { convertControl, controlState, halfSwitchSize, loadSDK, getControlsByTab } from './tools/utils';
-import { FORM_ERROR_TYPE, FROM } from './tools/config';
+import {
+  convertControl,
+  controlState,
+  halfSwitchSize,
+  loadSDK,
+  getControlsByTab,
+  getValueStyle,
+  getHideTitleStyle,
+} from './tools/utils';
+import { FORM_ERROR_TYPE, FROM, UN_TEXT_TYPE } from './tools/config';
 import { updateRulesData, checkAllValueAvailable, replaceStr } from './tools/filterFn';
 import DataFormat, { checkRequired } from './tools/DataFormat';
 import { browserIsMobile } from 'src/util';
@@ -20,6 +28,55 @@ import _ from 'lodash';
 import FormLabel from './components/FormLabel';
 import WidgetSection from './components/WidgetSection';
 import MobileWidgetSection from './components/MobileWidgetSection';
+import styled from 'styled-components';
+import RefreshBtn from './components/RefreshBtn';
+
+const CustomFormItemControlWrap = styled.div`
+  &.customFormItemControl .customFormReadonly,
+  &.customFormItemControl .controlDisabled {
+    padding-right: ${props => (props.showRefreshBtn ? '20px' : '0px')} !important;
+  }
+  .customFormTextarea {
+    ${props => (props.size ? `font-size: ${props.size} !important;` : '')}
+  }
+  .customFormControlBox {
+    ${props => {
+      if (!props.isTextArea && props.height) {
+        const paddingValue = _.includes([15, 16, 19, 23, 24, 42, 46], props.type) ? 0 : 6;
+        return `height: min-content !important;min-height:${props.height}px !important;line-height:${
+          props.height - 14
+        }px !important;padding-top: ${paddingValue}px !important;padding-bottom: ${paddingValue}px !important;`;
+      }
+    }}
+    ${props => (props.size ? `font-size: ${props.size} !important;` : '')}
+    ${props => (_.includes([25, 31, 32, 33, 37, 38], props.type) ? props.valueStyle : '')}
+    & > span:first-child {
+      ${props =>
+        _.includes([2, 3, 4, 5, 6, 7, 8], props.type) || (props.isMobile && _.includes([15, 16, 46], props.type))
+          ? props.valueStyle
+          : ''}
+    }
+    &.customFormControlTelPhone {
+      ${props => props.valueStyle}
+      -webkit-text-fill-color: ${props => (props.valueStyle ? 'unset' : '#333')}
+    }
+    .ant-picker-input > input {
+      ${props => (props.size ? `font-size: ${props.size} !important;` : '')}
+    }
+    &:not(.ant-picker-focused) .ant-picker-input > input {
+      ${props => (_.includes([15, 16, 46], props.type) ? props.valueStyle : '')}
+    }
+  }
+
+  .CityPicker-input-container {
+    .CityPicker-input-textCon {
+      ${props => (props.size ? `font-size: ${props.size} !important;` : '')}
+    }
+    &:not(.editable) .CityPicker-input-textCon {
+      ${props => props.valueStyle}
+    }
+  }
+`;
 
 export default class CustomFields extends Component {
   static propTypes = {
@@ -59,6 +116,7 @@ export default class CustomFields extends Component {
     onWidgetChange: PropTypes.func,
     onRulesLoad: PropTypes.func,
     onSave: PropTypes.func,
+    customWidgets: PropTypes.object, // 自定义组件 { key: value } key: control type, value: widget
   };
 
   static defaultProps = {
@@ -69,6 +127,7 @@ export default class CustomFields extends Component {
     openRelateSheet: () => {},
     registerCell: () => {},
     onFormDataReady: () => {},
+    customWidgets: {},
   };
 
   constructor(props) {
@@ -290,13 +349,13 @@ export default class CustomFields extends Component {
       disabled,
       tabControlProp: { setNavVisible } = {},
     } = this.props;
-    const { titlelayout_pc = '1', titlelayout_app = '1', hidetitle } = widgetStyle;
+    const { titlelayout_pc = '1', titlelayout_app = '1' } = widgetStyle;
     const { errorItems, uniqueErrorItems, loadingItems } = this.state;
     const isMobile = browserIsMobile();
     const formList = [];
     let prevRow = -1;
     let preIsSection;
-    let data = [].concat(renderData);
+    let data = [].concat(renderData).filter(item => !item.hidden && controlState(item, from).visible);
     const richTextControlCount = data.filter(c => c.type === 41).length;
 
     data.sort((a, b) => {
@@ -306,75 +365,90 @@ export default class CustomFields extends Component {
       return a.row - b.row;
     });
 
-    data
-      .filter(item => !item.hidden && controlState(item, from).visible)
-      .forEach(item => {
-        if ((item.row !== prevRow || isMobile || forceFull) && !preIsSection && prevRow > -1) {
-          formList.push(<div className="customFormLine" key={`clearfix-${item.row}-${item.col}`} />);
-        }
+    data.forEach(item => {
+      if ((item.row !== prevRow || isMobile || forceFull) && !preIsSection && prevRow > -1) {
+        formList.push(<div className="customFormLine" key={`clearfix-${item.row}-${item.col}`} />);
+      }
 
-        // 兼容老数据没有size的情况
-        if (!item.size) {
-          item.size = halfSwitchSize(item, from);
-        }
+      // 兼容老数据没有size的情况
+      if (!item.size) {
+        item.size = halfSwitchSize(item, from);
+      }
 
-        const isFull = isMobile || forceFull || item.size === 12;
-        const displayRow =
-          (isMobile ? disabled && titlelayout_app === '2' : titlelayout_pc === '2') && supportDisplayRow(item);
+      const isFull = isMobile || forceFull || item.size === 12;
+      const hideTitleStyle = getHideTitleStyle(item, data) || {};
+      const displayRow =
+        (isMobile ? disabled && titlelayout_app === '2' : titlelayout_pc === '2') && supportDisplayRow(item);
 
-        formList.push(
-          <div
-            className={cx('customFormItem', { customFormItemRow: displayRow })}
-            style={{
-              width: isFull ? '100%' : `${(item.size / 12) * 100}%`,
-              display: item.type === 49 && disabled ? 'none' : 'flex',
-            }}
-            id={`formItem-${item.controlId}`}
-            key={`item-${item.row}-${item.col}`}
-          >
-            {item.type === 22 &&
-              _.get(item, 'advancedSetting.hidetitle') !== '1' &&
-              _.includes([FROM.H5_ADD, FROM.H5_EDIT], from) && (
-                <div className="relative" style={{ height: 10 }}>
-                  <div
-                    className="Absolute"
-                    style={{ background: '#f5f5f5', height: 10, left: -1000, right: -1000, top: -7 }}
-                  />
-                </div>
-              )}
+      const showRefreshBtn =
+        from !== FROM.DRAFT &&
+        !_.get(window, 'shareState.isPublicView') &&
+        !_.get(window, 'shareState.isPublicRecord') &&
+        recordId &&
+        md.global.Account.accountId &&
+        ((item.type === 30 && (item.strDefault || '').split('')[0] !== '1') || _.includes([31, 32, 37, 38], item.type));
 
-            {!_.includes([22, 45, 52], item.type) && (
-              <FormLabel
-                from={from}
-                worksheetId={worksheetId}
-                recordId={recordId}
-                item={item}
-                errorItems={errorItems}
-                uniqueErrorItems={uniqueErrorItems}
-                loadingItems={loadingItems}
-                widgetStyle={{ ...widgetStyle, displayRow }}
-                disabled={disabled}
-                updateErrorState={this.updateErrorState}
-                handleChange={this.handleChange}
-              />
+      formList.push(
+        <div
+          className={cx('customFormItem', { customFormItemRow: displayRow || hideTitleStyle.displayRow })}
+          style={{
+            width: isFull ? '100%' : `${(item.size / 12) * 100}%`,
+            display: item.type === 49 && disabled ? 'none' : 'flex',
+          }}
+          id={`formItem-${item.controlId}`}
+          key={`item-${item.row}-${item.col}`}
+        >
+          {item.type === 22 &&
+            _.get(item, 'advancedSetting.hidetitle') !== '1' &&
+            _.includes([FROM.H5_ADD, FROM.H5_EDIT], from) && (
+              <div className="relative" style={{ height: 10 }}>
+                <div
+                  className="Absolute"
+                  style={{ background: '#f5f5f5', height: 10, left: -1000, right: -1000, top: -7 }}
+                />
+              </div>
             )}
 
-            <div className="customFormItemControl">
-              {this.getWidgets(
-                Object.assign({}, item, controlProps, {
-                  richTextControlCount,
-                  isDraft: from === FROM.DRAFT,
-                  ...(item.type === 22 ? { setNavVisible } : {}),
-                }),
-              )}
-              {this.renderVerifyCode(item)}
-            </div>
-          </div>,
-        );
+          {!_.includes([22, 52], item.type) && (
+            <FormLabel
+              from={from}
+              worksheetId={worksheetId}
+              recordId={recordId}
+              item={item}
+              errorItems={errorItems}
+              uniqueErrorItems={uniqueErrorItems}
+              loadingItems={loadingItems}
+              widgetStyle={{ ...widgetStyle, displayRow, ...hideTitleStyle }}
+              disabled={disabled}
+              updateErrorState={this.updateErrorState}
+              handleChange={this.handleChange}
+            />
+          )}
 
-        prevRow = item.row;
-        preIsSection = item.type === 22 || item.type === 10010;
-      });
+          <CustomFormItemControlWrap
+            className="customFormItemControl"
+            showRefreshBtn={showRefreshBtn}
+            isMobile={isMobile}
+            {...getValueStyle(item)}
+          >
+            {this.getWidgets(
+              Object.assign({}, item, controlProps, {
+                richTextControlCount,
+                isDraft: from === FROM.DRAFT,
+                ...(item.type === 22 ? { setNavVisible } : {}),
+              }),
+            )}
+            {showRefreshBtn && (
+              <RefreshBtn worksheetId={worksheetId} recordId={recordId} item={item} onChange={this.handleChange} />
+            )}
+            {this.renderVerifyCode(item)}
+          </CustomFormItemControlWrap>
+        </div>,
+      );
+
+      prevRow = item.row;
+      preIsSection = item.type === 22 || item.type === 10010;
+    });
 
     return formList;
   }
@@ -496,8 +570,16 @@ export default class CustomFields extends Component {
       isCharge,
       widgetStyle = {},
       mobileApprovalRecordInfo = {},
+      customWidgets,
+      isDraft,
     } = this.props;
     const { errorItems, uniqueErrorItems, renderData } = this.state;
+    // 字段描述显示方式
+    const hintType = _.get(item, 'advancedSetting.hinttype') || '0';
+    const hintShowAsText =
+      hintType === '0'
+        ? from === FROM.DRAFT || (from !== FROM.RECORDINFO && !recordId && !item.isSubList && item.type !== 34)
+        : hintType === '2' && item.type !== 34;
 
     // 他表字段
     if (convertControl(item.type) === 'SHEET_FIELD') {
@@ -516,7 +598,8 @@ export default class CustomFields extends Component {
     }
 
     const { type, controlId } = item;
-    const Widgets = widgets[convertControl(type)];
+    const widgetName = convertControl(type);
+    const Widgets = widgetName === 'CustomWidgets' ? customWidgets[type] : widgets[widgetName];
 
     if (!Widgets) {
       return undefined;
@@ -564,11 +647,16 @@ export default class CustomFields extends Component {
           renderData={renderData}
           recordId={recordId}
           appId={appId}
+          isDraft={isDraft} // 子表单条记录详情from不对，新增参数以供使用
           totalErrors={errorItems.concat(uniqueErrorItems)}
           viewIdForPermit={viewId}
           initSource={initSource}
           onChange={(value, cid = controlId, searchByChange) => {
             this.handleChange(value, cid, item, searchByChange);
+            // 非文本change校验重复、文本失焦校验
+            // if (item.unique && value && _.includes(UN_TEXT_TYPE, type)) {
+            //   this.checkControlUnique(controlId, type, value);
+            // }
           }}
           onBlur={(originValue, newVal) => {
             // 由输入法和onCompositionStart结合引起的组件内部未更新value值的情况，主动抛出新值
@@ -595,9 +683,7 @@ export default class CustomFields extends Component {
             .concat(systemControlData || [])
             .concat(getMasterFormData() || [])}
         />
-        {(from === FROM.DRAFT || (from !== FROM.RECORDINFO && !recordId && !item.isSubList && item.type !== 34)) && (
-          <WidgetsDesc item={item} from={from} />
-        )}
+        {hintShowAsText && <WidgetsDesc item={item} from={from} />}
       </React.Fragment>
     );
   }
@@ -857,14 +943,14 @@ export default class CustomFields extends Component {
         </div>
       );
     }
-
     return (
       <Fragment>
         <div
           className={cx('customFieldsContainer', {
             mobileContainer: isMobile,
-            wxContainer: _.includes([FROM.H5_ADD, FROM.H5_EDIT], from) && !disabled,
-            pTop0: _.includes([FROM.H5_ADD, FROM.H5_EDIT], from),
+            wxContainer: isMobile && _.includes([FROM.H5_ADD, FROM.H5_EDIT, FROM.RECORDINFO], from) && !disabled,
+            pTop0: isMobile && _.includes([FROM.H5_ADD, FROM.H5_EDIT, FROM.RECORDINFO], from),
+            pBottom20: isMobile && !_.isEmpty(commonData),
           })}
           ref={this.con}
         >

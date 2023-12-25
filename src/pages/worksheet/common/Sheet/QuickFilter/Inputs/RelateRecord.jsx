@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { arrayOf, func, shape, string } from 'prop-types';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
@@ -81,6 +81,7 @@ export default function RelateRecord(props) {
   }
   const conRef = useRef();
   const [active, setActive] = useState();
+  const [width, setWidth] = useState();
   const isMultiple = String(allowitem) === '2';
   const prefixRecords =
     shownullitem === '1'
@@ -118,6 +119,11 @@ export default function RelateRecord(props) {
       );
     };
   }
+  useLayoutEffect(() => {
+    if (conRef.current) {
+      setWidth(conRef.current.clientWidth);
+    }
+  }, []);
   if (String(direction) === '1') {
     return (
       <RelateRecordOptions
@@ -145,13 +151,7 @@ export default function RelateRecord(props) {
         isQuickFilter
         control={control}
         {...control}
-        selectedStyle={
-          conRef.current
-            ? {
-                width: conRef.current.clientWidth,
-              }
-            : {}
-        }
+        selectedStyle={{ width }}
         popupOffset={[0, -16]}
         formData={filtersData}
         advancedSetting={{}}

@@ -8,12 +8,19 @@ export default function PostgreSQLGuide(props) {
       <p>{_l('你可以把 PostgreSQL 数据库的数据通过系统实时同步到工作表或者其它数据目的地。')}</p>
       <h5>{_l('先决条件')}</h5>
       <ul>
-        <li>{_l('支持PostgreSQL的版本：9.6, 10, 11, 12+')}</li>
-        <li>{_l('检查 max_replication_slots 和  max_wal_senders 的默认值')}</li>
-        <li>{_l('将数据集成的系统 IP 添加到 PostgreSQL 服务器的访问白名单')}</li>
+        <li className="pointer textUnderline" onClick={() => document.getElementById('versionId').scrollIntoView()}>
+          {_l('支持PostgreSQL的版本：9.6, 10, 11, 12+')}
+        </li>
+        <li
+          className="pointer textUnderline"
+          onClick={() => document.getElementById('checkDefaultId').scrollIntoView()}
+        >
+          {_l('检查 max_replication_slots 和  max_wal_senders 的默认值')}
+        </li>
+        <li>{_l('确保数据库可以与数据集成通信')}</li>
       </ul>
 
-      <h5>{_l('检查 PostgreSQL 版本')}</h5>
+      <h5 id="versionId">{_l('检查 PostgreSQL 版本')}</h5>
       <div className="sqlText">
         <div>SELECT version();</div>
       </div>
@@ -46,7 +53,7 @@ export default function PostgreSQLGuide(props) {
         <div>{'GRANT SELECT ON TABLE <table_name> TO <username>;'}</div>
       </div>
 
-      <h5>{_l('检查 max_replication_slots 和  max_wal_senders 的默认值')}</h5>
+      <h5 id="checkDefaultId">{_l('检查 max_replication_slots 和  max_wal_senders 的默认值')}</h5>
       <div>{_l('建议调整到500以上')}</div>
       <div className="sqlText">
         <div>{`SELECT name, setting FROM pg_settings WHERE name in ('max_replication_slots','max_wal_senders');`}</div>
@@ -109,7 +116,7 @@ export default function PostgreSQLGuide(props) {
       <h5>{_l('先决条件')}</h5>
       <ul>
         <li>{_l('当前账号具有写数据的权限')}</li>
-        <li>{_l('将数据集成的系统 IP 添加到 PostgreSQL 服务器的访问白名单')}</li>
+        <li>{_l('确保数据库可以与数据集成通信')}</li>
       </ul>
 
       <h5>{_l('查看现有用户权限')}</h5>

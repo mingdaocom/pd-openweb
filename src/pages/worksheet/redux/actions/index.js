@@ -17,12 +17,14 @@ import { initBoardViewData } from './boardView';
 import { getDefaultHierarchyData, updateHierarchySearchRecord } from './hierarchy';
 import { updateGunterSearchRecord } from './gunterview';
 import { refresh as detailViewRefresh } from './detailView';
+import { refresh as customWidgetViewRefresh } from './customWidgetView';
 import { refreshBtnData } from 'src/pages/FormSet/util';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
 import { getFilledRequestParams } from 'src/pages/worksheet/util';
 import _ from 'lodash';
+import { emitter } from 'src/util';
 
 export const updateBase = base => {
   return (dispatch, getState) => {
@@ -109,9 +111,9 @@ export function loadWorksheet(worksheetId) {
               !chartId
                 ? res
                 : {
-                  ...res,
-                  views: res.views.map(v => ({ ...v, viewType: 0 })),
-                },
+                    ...res,
+                    views: res.views.map(v => ({ ...v, viewType: 0 })),
+                  },
               {
                 isRequestingRelationControls: res.requestAgain,
               },
@@ -123,7 +125,7 @@ export function loadWorksheet(worksheetId) {
             value: formatSearchConfigs(_.get(queryRes, 'searchConfig') || []),
           });
         }
-        if (worksheetId && !_.get(window, 'shareState.isPublicView')) {
+        if (worksheetId) {
           dispatch({
             type: 'WORKSHEET_PERMISSION_INIT',
             value: res.switches,
@@ -241,12 +243,6 @@ export function saveView(viewId, newConfig, cb) {
       (editAttrs.includes('advancedSetting') &&
         (!!_.get(saveParams, ['advancedSetting', 'navfilters']) ||
           !!_.get(saveParams, ['advancedSetting', 'colorid'])));
-    if (!updateAfterSave) {
-      dispatch({
-        type: 'WORKSHEET_UPDATE_VIEW',
-        view: { ...view, ...newConfig },
-      });
-    }
     if (saveParams.filters) {
       saveParams.filters = saveParams.filters.map(formatValuesOfCondition);
     }
@@ -279,11 +275,11 @@ export function saveView(viewId, newConfig, cb) {
           dispatch(updateGroupFilter([], nextView));
           dispatch(getNavGroupCount());
         }
+        dispatch({
+          type: 'WORKSHEET_UPDATE_VIEW',
+          view: data,
+        });
         if (updateAfterSave) {
-          dispatch({
-            type: 'WORKSHEET_UPDATE_VIEW',
-            view: nextView,
-          });
           if (
             (_.includes(editAttrs, 'filters') && !_.isEqual(view.filters, nextView.filters)) ||
             _.get(view, 'advancedSetting.colorid') !== _.get(nextView, 'advancedSetting.colorid')
@@ -301,11 +297,23 @@ export function saveView(viewId, newConfig, cb) {
   };
 }
 
+// 更新分组筛选
+export const updateNavGroup = () => {
+  return (dispatch, getState) => {
+    const { views, base } = getState().sheet;
+    const { viewId = '' } = base;
+    const view = views.find(o => o.viewId === viewId) || {};
+    const navGroup = view.navGroup && view.navGroup.length > 0 ? view.navGroup[0] : {};
+    navGroup.controlId && window.localStorage.getItem('navGroupIsOpen') !== 'false' && dispatch(getNavGroupCount());
+  };
+};
+
 // 刷新视图
 export function refreshSheet(view, options) {
   return dispatch => {
     if (String(view.viewType) === VIEW_DISPLAY_TYPE.sheet) {
       dispatch(sheetViewRefresh(options));
+      dispatch(updateNavGroup());
     } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.board) {
       dispatch(initBoardViewData());
     } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.structure) {
@@ -314,19 +322,28 @@ export function refreshSheet(view, options) {
       dispatch(calendarViewRefresh());
     } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.gallery) {
       dispatch(galleryViewRefresh());
+      dispatch(updateNavGroup());
     } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.gunter) {
       dispatch(resetLoadGunterView());
     } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.detail) {
       dispatch(detailViewRefresh());
+    } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.customize && _.get(options, 'isRefreshBtn')) {
+      dispatch(customWidgetViewRefresh());
     }
   };
 }
 
 // 添加记录
 export function addNewRecord(data, view) {
+  emitter.emit('POST_MESSAGE_TO_CUSTOM_WIDGET', {
+    action: 'new-record',
+    value: data,
+  });
+
   return dispatch => {
     if (String(view.viewType) === VIEW_DISPLAY_TYPE.sheet) {
       dispatch(sheetViewAddRecord(data));
+      dispatch(updateNavGroup());
     } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.board) {
       dispatch(initBoardViewData());
     } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.structure) {
@@ -335,7 +352,7 @@ export function addNewRecord(data, view) {
       dispatch(calendarViewRefresh());
     } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.gallery) {
       dispatch(galleryViewRefresh());
-      dispatch(getNavGroupCount());
+      dispatch(updateNavGroup());
     } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.gunter) {
       dispatch(addGunterNewRecord(data));
     } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.detail) {
@@ -623,20 +640,32 @@ export function initMobileGunter({ appId, worksheetId, viewId, access_token }) {
 // 获取草稿箱数据
 export const loadDraftDataCount =
   ({ appId, worksheetId }) =>
-    (dispatch, getState) => {
-      if (_.get(window, 'shareState.isPublicView')) {
-        return;
-      }
-      worksheetAjax
-        .getFilterRowsTotalNum({
-          appId,
-          worksheetId,
-          getType: 21,
-        })
-        .then(res => {
-          dispatch({
-            type: 'UPDATE_DRAFT_DATA_COUNT',
-            data: Number(res) || 0,
-          });
+  (dispatch, getState) => {
+    if (_.get(window, 'shareState.isPublicView')) {
+      return;
+    }
+    worksheetAjax
+      .getFilterRowsTotalNum({
+        appId,
+        worksheetId,
+        getType: 21,
+      })
+      .then(res => {
+        dispatch({
+          type: 'UPDATE_DRAFT_DATA_COUNT',
+          data: Number(res) || 0,
         });
-    };
+      });
+  };
+
+export function updateCurrentViewState(updates) {
+  return (dispatch, getState) => {
+    const { base, views } = getState().sheet;
+    const { viewId } = base;
+    const view = _.find(views, v => v.viewId === viewId);
+    dispatch({
+      type: 'WORKSHEET_UPDATE_VIEW',
+      view: { ...view, ...updates },
+    });
+  };
+}

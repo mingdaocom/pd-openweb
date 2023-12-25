@@ -477,6 +477,7 @@ export default class Widgets extends Component {
       treePopupAlign,
       onPopupVisibleChange,
       control,
+      hint,
     } = this.props;
     const { showtype = '3', anylevel = '0' } = advancedSetting;
     const { visible, options, searchOptions, value, keywords, isError } = this.state;
@@ -529,7 +530,7 @@ export default class Widgets extends Component {
           ref={this.treeSelectComp}
           disabled={disabled}
           virtual={false}
-          placeholder={_l('请选择')}
+          placeholder={hint || _l('请选择')}
           showSearch
           allowClear={!!value}
           value={value}
@@ -599,7 +600,7 @@ export default class Widgets extends Component {
         popupAlign={popupAlign}
         popupPlacement={popupPlacement}
         disabled={disabled}
-        placeholder={value ? '' : _l('请选择')}
+        placeholder={value ? '' : hint || _l('请选择')}
         changeOnSelect={!+anylevel}
         value={value ? [value] : []}
         displayRender={() => <span>{value}</span>}

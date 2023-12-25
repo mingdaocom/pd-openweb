@@ -3,10 +3,11 @@ import ProcessRecordInfo from './ProcessRecordInfo';
 import { ModalWrap } from '../baseStyled';
 
 export default props => {
-  const { isModal, instanceId, workId, match } = props;
+  const { isModal, match } = props;
   const { className, visible, onClose } = props;
 
   if (isModal) {
+    const { instanceId, workId } = props;
     return (
       <ModalWrap
         popup
@@ -18,17 +19,23 @@ export default props => {
         {instanceId && (
           <ProcessRecordInfo
             isModal={true}
-            match={{params: { instanceId, workId }}}
+            instanceId={instanceId}
+            workId={workId}
             onClose={onClose}
           />
         )}
       </ModalWrap>
     );
   } else {
+    const { instanceId, workId } = match.params;
     return (
       <ProcessRecordInfo
-        match={match}
         isModal={false}
+        instanceId={instanceId}
+        workId={workId}
+        onClose={() => {
+          window.mobileNavigateTo('/mobile/processMatters');
+        }}
       />
     );
   }

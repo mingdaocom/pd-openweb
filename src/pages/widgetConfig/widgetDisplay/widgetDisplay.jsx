@@ -6,8 +6,9 @@ import { enumWidgetType, getAdvanceSetting, getIconByType, supportDisplayRow } f
 import displayTypes from './displayTypes';
 import { CommonDisplay, TitleContentWrap } from '../styled';
 import Components from './components';
-import { getVerifyInfo } from '../util/setting';
+import { getTitleStyle, getVerifyInfo } from '../util/setting';
 import { TabHeaderItem } from './displayTabs/tabHeader';
+import { TITLE_SIZE_OPTIONS } from '../config/setting';
 
 export default function WidgetDisplay(props) {
   const {
@@ -20,7 +21,16 @@ export default function WidgetDisplay(props) {
     commonWidgets = [],
   } = props;
   const { type, sourceControlType, required, hint, unit, desc, strDefault, controlId } = data;
-  const { prefix, suffix, hidetitle } = getAdvanceSetting(data);
+  const {
+    prefix,
+    suffix,
+    hidetitle,
+    titlesize = '0',
+    titlestyle = '0000',
+    titlecolor = '#757575',
+  } = getAdvanceSetting(data);
+  const titleSize = TITLE_SIZE_OPTIONS[titlesize];
+  const titleStyle = getTitleStyle(titlestyle);
   const { titlelayout_pc = '1', titlewidth_pc = '100', align_pc = '1' } = info;
 
   // 分割线字段
@@ -86,7 +96,14 @@ export default function WidgetDisplay(props) {
   }
 
   return (
-    <TitleContentWrap displayRow={displayRow} titleWidth={titlewidth_pc} textAlign={align_pc}>
+    <TitleContentWrap
+      displayRow={displayRow}
+      titleWidth={titlewidth_pc}
+      textAlign={align_pc}
+      titleStyle={titleStyle}
+      titleSize={titleSize}
+      titleColor={titlecolor}
+    >
       <div className={cx('nameAndStatus', { minHeight18: !isSpecialControl && hidetitle === '1' })}>
         {required && <div className={cx({ required })}>*</div>}
         <i className={cx(`typeIcon icon-${getIconByType(type)}`, { Visibility: !(showTitle && !isSplitLine) })}></i>

@@ -240,7 +240,7 @@ export default class UpdateFields extends Component {
             </Fragment>
           );
         })}
-        <div className="addActionBtn mTop25">
+        <div className="addActionBtn mTop20">
           <span className="ThemeBorderColor3" onClick={this.addFields}>
             <i className="icon-add Font16" />
             {type === 1 ? _l('添加字段') : _l('添加参数')}

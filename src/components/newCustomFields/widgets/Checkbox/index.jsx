@@ -42,7 +42,7 @@ class Widgets extends Component {
     return (
       <span
         className={cx(
-          'customRadioItem',
+          'customRadioItem WordBreak',
           { White: enumDefault2 === 1 && !isLightColor(item.color), ellipsis: !browserIsMobile() },
           {
             'pLeft12 pRight12': enumDefault2 === 1,

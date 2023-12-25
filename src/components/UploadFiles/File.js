@@ -98,7 +98,7 @@ export default class FileComponent extends Component {
       this.setState({
         menuVisible: false,
       });
-      window.open(`${md.global.Config.WebUrl}login.htm?ReturnUrl=${location.href}`);
+      window.open(`${md.global.Config.WebUrl}login?ReturnUrl=${location.href}`);
       return;
     }
 
@@ -166,7 +166,7 @@ export default class FileComponent extends Component {
       this.setState({
         menuVisible: false,
       });
-      window.open(`${md.global.Config.WebUrl}login.htm?ReturnUrl=${location.href}`);
+      window.open(`${md.global.Config.WebUrl}login?ReturnUrl=${location.href}`);
       return;
     }
 

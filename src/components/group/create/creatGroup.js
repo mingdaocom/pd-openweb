@@ -6,7 +6,7 @@ import mainHtml from './tpl/main.html';
 import groupHeadHtml from '../settingGroup/tpl/groupHead.html';
 import { expireDialogAsync } from 'src/components/common/function';
 import 'src/components/select/select';
-import DialogSelectMapGroupDepart from 'src/components/dialogSelectMapGroupDepart/dialogSelectMapGroupDepart';
+import DialogSelectGroups from 'src/components/dialogSelectDept';
 import 'src/components/uploadAttachment/uploadAttachment';
 import groupController from 'src/api/group';
 import userController from 'src/api/user';
@@ -150,12 +150,13 @@ CreateGroup.bindEvent = function () {
     }
   });
   $selectDep.on('click', function () {
-    DialogSelectMapGroupDepart({
+    new DialogSelectGroups({
       projectId: CreateGroup.options.settings.projectId,
-      callback: function (data) {
+      unique: true,
+      selectFn: (data) => {
         CreateGroup.options.selectedDeptSetting = data;
         $selectDep.html(_l('关联部门：【%0】', data.departmentName));
-      },
+      }
     });
   });
 

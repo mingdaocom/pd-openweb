@@ -20,7 +20,7 @@ const WidgetList = styled.div`
     padding-bottom: 40px;
   }
   .group {
-    margin-top: 16px;
+    margin-top: 20px;
     .title {
       font-weight: 700;
     }
@@ -78,19 +78,23 @@ export default function List(props) {
   const { globalSheetInfo = {}, activeWidget = {} } = props;
 
   const handleAdd = (data, para = {}) => {
+    let sectionId = '';
+    if (para.type === 'click') {
+      sectionId = activeWidget.type === 52 ? activeWidget.controlId : activeWidget.sectionId;
+    } else {
+      sectionId = para.sectionId || '';
+    }
+
+    // 子表、标签页、关联多条列表等不能嵌套
+    if (relateOrSectionTab(data) || data.type === 34) {
+      sectionId = '';
+    }
+
     let newData = {
       ...data,
-      sectionId:
-        activeWidget.type === 52 && !para.sectionId
-          ? activeWidget.controlId
-          : para.type === 'click'
-          ? activeWidget.sectionId
-          : para.sectionId || '',
+      sectionId: sectionId,
     };
-    // 子表、标签页、关联多条列表等不能嵌套
-    if (relateOrSectionTab(newData) || newData.type === 34) {
-      newData.sectionId = '';
-    }
+
     handleAddWidgets([newData], para, props);
   };
 

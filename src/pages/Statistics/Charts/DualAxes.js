@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import {
   formatControlInfo,
   formatrChartValue,
@@ -47,10 +47,8 @@ export default class extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      originalLeftCount: 0,
-      leftCount: 0,
-      originalRightCount: 0,
-      rightCount: 0,
+      newYaxisList: [],
+      newRightYaxisList: [],
       dropdownVisible: false,
       offset: {},
       match: null
@@ -191,7 +189,7 @@ export default class extends Component {
       }).sort((a, b) => a.sortIndex - b.sortIndex);
     }
 
-    this.setCount(newYaxisList, newRightYaxisList);
+    this.setState({ newYaxisList, newRightYaxisList });
 
     this.lineData = lineData;
 
@@ -228,7 +226,7 @@ export default class extends Component {
         ? {
             position: displaySetup.isPile ? 'middle' : 'top',
             layout: [
-              displaySetup.hideOverlapText ? { type: 'interval-hide-overlap' } : null,
+              displaySetup.hideOverlapText ? { type: 'hide-overlap' } : null,
               { type: 'adjust-color' },
               { type: 'limit-in-plot' },
             ],
@@ -257,7 +255,7 @@ export default class extends Component {
         : false,
       label: displaySetup.showNumber
         ? {
-            layout: [displaySetup.hideOverlapText ? { type: 'interval-hide-overlap' } : null],
+            layout: [displaySetup.hideOverlapText ? { type: 'hide-overlap' } : null],
             content: ({ rightValue, value, groupName }) => {
               const { id } = formatControlInfo(groupName);
               const contentValue = rightValue || value;
@@ -461,19 +459,6 @@ export default class extends Component {
       this.props.requestOriginalData(data);
     }
   }
-  setCount(yaxisList, rightYaxisList) {
-    const { summary, rightY } = this.props.reportData;
-    const leftValue = summary.sum;
-    const rightValue = rightY ? rightY.summary.sum : 0;
-    const leftCount = formatrChartValue(leftValue, false, yaxisList, null, false);
-    const rightCount = formatrChartValue(rightValue, false, rightYaxisList, null, false);
-    this.setState({
-      originalLeftCount: leftValue.toLocaleString() == leftCount ? 0 : leftValue.toLocaleString(),
-      leftCount,
-      originalRightCount: rightValue.toLocaleString() == rightCount ? 0 : rightValue.toLocaleString(),
-      rightCount,
-    });
-  }
   renderOverlay() {
     return (
       <Menu className="chartMenu" style={{ width: 160 }}>
@@ -485,10 +470,56 @@ export default class extends Component {
       </Menu>
     );
   }
+  renderCount(summary, yaxisList) {
+    const get = value => {
+      const count = formatrChartValue(value, false, yaxisList);
+      const originalCount = value.toLocaleString() == count ? 0 : value.toLocaleString();
+      return {
+        count,
+        originalCount
+      }
+    }
+    const renderItem = data => {
+      const { count, originalCount } = get(data.sum);
+      return (
+        <Fragment>
+          <span>{formatSummaryName(data)}: </span>
+          <span data-tip={originalCount ? originalCount : null} className="count Font22">{count || 0}</span>
+        </Fragment>
+      );
+    }
+
+    if ('all' in summary) {
+      const { all, controlList = [] } = summary;
+      return (
+        <div className="flexRow" style={{ flexWrap: 'wrap' }}>
+          {all && (
+            <div className="flexRow mRight10" style={{ alignItems: 'baseline' }}>
+              {renderItem(summary)}
+            </div>
+          )}
+          {controlList.map(data => (
+            <div className="flexRow mRight10" style={{ alignItems: 'baseline' }}>
+              {renderItem({
+                ...data,
+                name: data.name || _.get(_.find(yaxisList, { controlId: data.controlId }), 'controlName')
+              })}
+            </div>
+          ))}
+        </div>
+      );
+    } else {
+      return (
+        <div>
+          {renderItem(summary)}
+        </div>
+      );
+    }
+  }
   render() {
-    const { leftCount, originalLeftCount, rightCount, originalRightCount, dropdownVisible, offset } = this.state;
-    const { rightY, summary = {} } = this.props.reportData;
-    const dualAxesSwitchChecked = summary.showTotal || (rightY ? rightY.summary.showTotal : null);
+    const { dropdownVisible, offset, newYaxisList, newRightYaxisList } = this.state;
+    const { rightY, summary = {}, displaySetup } = this.props.reportData;
+    const dualAxesSwitchChecked = displaySetup.showTotal || (rightY ? rightY.summary.showTotal : null);
     return (
       <div className="flex flexColumn chartWrapper">
         <Dropdown
@@ -504,25 +535,19 @@ export default class extends Component {
         </Dropdown>
         {dualAxesSwitchChecked && (
           <div className="flexRow spaceBetween pBottom10">
-            {summary.showTotal ? (
-              <div>
-                <span>{formatSummaryName(summary)}: </span>
-                <span data-tip={originalLeftCount ? originalLeftCount : null} className="count">{leftCount}</span>
-              </div>
+            {displaySetup.showTotal ? (
+              this.renderCount(summary, newYaxisList)
             ) : (
               <div></div>
             )}
             {rightY && rightY.summary.showTotal ? (
-              <div>
-                <span>{formatSummaryName(rightY.summary)}: </span>
-                <span data-tip={originalRightCount ? originalRightCount : null} className="count">{rightCount}</span>
-              </div>
+              this.renderCount(rightY.summary, newRightYaxisList)
             ) : (
               <div></div>
             )}
           </div>
         )}
-        <div className={dualAxesSwitchChecked ? 'showTotalHeight' : 'h100'} ref={el => (this.chartEl = el)}></div>
+        <div className="h100" ref={el => (this.chartEl = el)}></div>
       </div>
     );
   }

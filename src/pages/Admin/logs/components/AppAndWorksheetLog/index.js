@@ -1,8 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import { Icon, Button, Tooltip } from 'ming-ui';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
-import UserHead from 'src/pages/feed/components/userHead';
-import UserName from 'src/pages/feed/components/userName';
+import UserHead from 'src/components/userHead';
+import UserName from 'src/components/userName';
 import SearchWrap from '../../../components/SearchWrap';
 import PageTableCon from '../../../components/PageTableCon';
 import IsAppAdmin from 'src/pages/Admin/components/IsAppAdmin';
@@ -152,6 +152,7 @@ export default class AppAndWorksheetLog extends Component {
               case 'accountId':
                 const isNormalUser = accountId && accountId.length === 36;
                 const extra = isNormalUser ? {} : { headClick: () => {} };
+
                 return (
                   <div className="flexRow">
                     <UserHead
@@ -160,8 +161,8 @@ export default class AppAndWorksheetLog extends Component {
                         userHead: avatar,
                         accountId: accountId,
                       }}
-                      lazy={'false'}
                       size={24}
+                      appId={appId}
                       {...extra}
                     />
                     {isNormalUser ? (
@@ -213,12 +214,18 @@ export default class AppAndWorksheetLog extends Component {
                       rUserList: extrasAccounts,
                     })
                   : '';
+                const txt = (isUser ? message : opeartContent).replace(/\<a.*?\>/, '').replace(/\<\/a\>/, '');
+
                 return opeartContent ? (
-                  opeartContent.indexOf('[aid]') > -1 ? (
-                    <span dangerouslySetInnerHTML={{ __html: message }}></span>
-                  ) : (
-                    <span dangerouslySetInnerHTML={{ __html: opeartContent }}></span>
-                  )
+                  <Tooltip text={<spam>{txt}</spam>} popupPlacement="bottom">
+                    <span>
+                      {isUser ? (
+                        <span dangerouslySetInnerHTML={{ __html: message }}></span>
+                      ) : (
+                        <span dangerouslySetInnerHTML={{ __html: opeartContent }}></span>
+                      )}
+                    </span>
+                  </Tooltip>
                 ) : (
                   '-'
                 );
@@ -302,9 +309,9 @@ export default class AppAndWorksheetLog extends Component {
     const galFeatureType = getFeatureStatus(projectId, VersionProductType.globalBehaviorLog);
     let operationTypesData = OPERATE_LIST.filter(it =>
       logType === 1
-        ? _.includes(['all', 1, 2, 3, 6, 7], it.value)
+        ? _.includes(['all', 1, 2, 3, 6, 7, 16], it.value)
         : logType === 2
-        ? !_.includes([4, 10], it.value)
+        ? !_.includes([4, 10, 16], it.value)
         : logType === 3
         ? _.includes(['all', 4, 10], it.value)
         : true,
@@ -383,9 +390,7 @@ export default class AppAndWorksheetLog extends Component {
         type: 'select',
         label: _l('操作对象'),
         placeholder: _l('全部'),
-        options: MODULE_LIST.filter(it =>
-          logType === 1 ? !_.includes([8], it.value) : logType === 3 ? !_.includes([3, 4], it.value) : true,
-        ),
+        options: MODULE_LIST.filter(it => !_.includes(logType === 1 ? [8, 9] : logType === 3 ? [3, 4] : [], it.value)),
         value: modules,
         mode: 'multiple',
         maxTagCount: 'responsive',

@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { LoadDiv, DatePicker, Icon, ScrollView, DeleteReconfirm, Dialog, Checkbox, Button, Dropdown } from 'ming-ui';
 import cx from 'classnames';
 import Search from 'src/pages/workflow/components/Search';
-import UserHead from 'src/pages/feed/components/userHead/userHead';
+import UserHead from 'src/components/userHead/userHead';
 import PaginationWrap from '../components/PaginationWrap';
 import ajaxRequest from 'src/api/externalPortal';
 import projectAjax from 'src/api/project';
@@ -183,6 +183,7 @@ export default class Portal extends Component {
    */
   renderListItem(item) {
     const { selectedColumnIds = [] } = this.state;
+
     return (
       <div className="flexRow manageList" key={item.accountId}>
         <div className="w40 mRight20">
@@ -193,7 +194,11 @@ export default class Portal extends Component {
           />
         </div>
         <div className="flex name mLeft10 mRight40 flexRow minWidth110">
-          <UserHead size={28} lazy={'false'} user={{ userHead: item.avatar, accountId: item.accountId }} />
+          <UserHead
+            size={28}
+            user={{ userHead: item.avatar, accountId: item.accountId }}
+            appId={item.appId}
+          />
           <div className="mLeft12 ellipsis flex mRight20">{item.name}</div>
         </div>
         <div className="w150 ellipsis">{item.mobilePhone}</div>
@@ -307,7 +312,7 @@ export default class Portal extends Component {
               {/* <span className="Gray_9e mRight5">{_l('%0天后到期', expireDays)}</span> */}
               <Link
                 className="ThemeColor3 ThemeHoverColor2  NoUnderline"
-                to={`/admin/expansionservicePotal/${this.props.match.params.projectId}/portalupgrade`}
+                to={`/admin/expansionservice/${this.props.match.params.projectId}/portalupgrade`}
               >
                 {_l('续费')}
               </Link>
@@ -318,7 +323,7 @@ export default class Portal extends Component {
           {/* {showOption && (
             <Link
               className={cx('ThemeColor3 ThemeHoverColor2  NoUnderline', { mLeft20: !allowUpgradeExternalPortal })}
-              to={`/admin/expansionservicePotal/${this.props.match.params.projectId}/portaluser`}
+              to={`/admin/expansionservice/${this.props.match.params.projectId}/portaluser`}
             >
               {_l('扩充')}
             </Link>

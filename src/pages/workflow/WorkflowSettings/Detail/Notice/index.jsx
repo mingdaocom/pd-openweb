@@ -116,7 +116,7 @@ export default class Notice extends Component {
         <div className="Font13 bold mTop20">{_l('通知人')}</div>
         <div className="Font13 Gray_9e mTop10">{_l('将通过系统消息发送')}</div>
 
-        <Member accounts={data.accounts} updateSource={this.updateSource} />
+        <Member companyId={this.props.companyId} accounts={data.accounts} updateSource={this.updateSource} />
         <div
           className="flexRow mTop15 ThemeColor3 workflowDetailAddBtn"
           onClick={() => this.setState({ showSelectUserDialog: true })}

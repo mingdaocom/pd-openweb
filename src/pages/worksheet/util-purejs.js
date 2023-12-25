@@ -150,7 +150,7 @@ export function formatControlValue(cell) {
         );
       case 46: // TIME 时间
         if (_.isEmpty(value)) {
-          value = '';
+          return '';
         }
         return dayjs(value, countChar(value, ':') === 2 ? 'HH:mm:ss' : 'HH:mm').format(
           cell.unit === '6' || cell.unit === '9' ? 'HH:mm:ss' : 'HH:mm',

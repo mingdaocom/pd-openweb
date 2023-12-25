@@ -6,18 +6,11 @@ import _ from 'lodash';
 import { Icon, LoadDiv, ScrollView } from 'ming-ui';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import OptionColumn from './OptionColumn';
-import AddOrEditSource from '../AddOrEditSource';
-import {
-  ROLE_TYPE,
-  DETAIL_TYPE,
-  ROLE_TYPE_TAB_LIST,
-  FROM_TYPE_TAB_LIST,
-  DATABASE_TYPE,
-  SORT_TYPE,
-} from '../../../constant';
+import { ROLE_TYPE, ROLE_TYPE_TAB_LIST, FROM_TYPE_TAB_LIST, DATABASE_TYPE, SORT_TYPE } from '../../../constant';
 import { formatDate } from '../../../../config';
 import dataSourceApi from '../../../../api/datasource';
 import ToolTip from 'ming-ui/components/Tooltip';
+import { navigateTo } from 'src/router/navigateTo';
 
 const FilterContent = styled.div`
   margin-top: 16px;
@@ -258,8 +251,6 @@ export default function SourceList(props) {
   const [sourceList, setSourceList] = useState([]);
   const [isFilterExpand, setIsFilterExpand] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
-  const [editModalVisible, setEditModalVisible] = useState(false);
-  const [sourceRecord, setSourceRecord] = useState({});
   const [dsTabList, setDsTabList] = useState([]);
   const FILTER_TYPES = [
     { title: _l('作为'), data: ROLE_TYPE_TAB_LIST, key: 'roleType', hasExpand: false },
@@ -352,10 +343,7 @@ export default function SourceList(props) {
         return (
           <div
             className="flexRow alignItemsCenter pLeft8 pointer"
-            onClick={() => {
-              setSourceRecord(item);
-              setEditModalVisible(true);
-            }}
+            onClick={() => navigateTo('/integration/sourceDetail/' + item.id)}
           >
             <ToolTip text={_.get(item, 'dsTypeInfo.name')}>
               <div className="titleIcon" style={{ background: _.get(item, 'dsTypeInfo.iconBgColor') }}>
@@ -496,7 +484,7 @@ export default function SourceList(props) {
       render: item => (
         <OptionColumn
           currentProjectId={props.currentProjectId}
-          record={item}
+          sourceId={item.id}
           sourceList={sourceList}
           setSourceList={setSourceList}
         />
@@ -603,17 +591,6 @@ export default function SourceList(props) {
       </ScrollView>
 
       {fetchState.pageNo > 0 && fetchState.loading && <LoadDiv className="mTop10" />}
-
-      {editModalVisible && (
-        <AddOrEditSource
-          {...props}
-          isEdit={true}
-          editType={DETAIL_TYPE.SETTING}
-          sourceRecord={sourceRecord}
-          onClose={() => setEditModalVisible(false)}
-          onRefresh={() => setFetchState({ loading: true, pageNo: 0 })}
-        />
-      )}
     </Fragment>
   );
 }

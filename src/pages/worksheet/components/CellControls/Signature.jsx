@@ -60,13 +60,9 @@ export default class Signature extends React.Component {
   @autobind
   handleChange(value) {
     const { updateCell, updateEditingStatus } = this.props;
-    const data = JSON.parse(value);
-    updateCell({
-      value,
-    });
-    this.setState({
-      value: md.global.FileStoreConfig[data.bucket === 4 ? 'pictureHost' : 'pubHost'] + data.key,
-    });
+
+    updateCell({ value });
+    this.setState({ value });
     updateEditingStatus(false);
   }
 
@@ -91,14 +87,8 @@ export default class Signature extends React.Component {
 
   renderCommon() {
     const { rowHeight = 34 } = this.props;
-    let { value } = this.state;
-    if (value[0] === '{') {
-      try {
-        value = `${md.global.FileStoreConfig.pictureHost + JSON.parse(value).key}`;
-      } catch (err) {
-        value = '';
-      }
-    }
+    const { value } = this.state;
+
     return (
       <div className="cellAttachment cellAttachmentSignature ellipsis Hand" style={{ height: rowHeight - 10 }}>
         <img
@@ -117,8 +107,20 @@ export default class Signature extends React.Component {
   }
 
   render() {
-    const { projectId, appId, worksheetId, from, cell, tableFromModule, className, style, popupContainer, editable, isediting, updateEditingStatus } =
-      this.props;
+    const {
+      projectId,
+      appId,
+      worksheetId,
+      from,
+      cell,
+      tableFromModule,
+      className,
+      style,
+      popupContainer,
+      editable,
+      isediting,
+      updateEditingStatus,
+    } = this.props;
     const { value } = this.state;
     if (from === FROM.CARD || (from === FROM.DRAFT && browserIsMobile())) {
       return value ? <div className="cellAttachments cellControl"> {this.renderCommon()} </div> : <span />;

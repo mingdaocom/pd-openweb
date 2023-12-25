@@ -248,7 +248,7 @@ class DialogImportExcelCreate extends Component {
     const sheetList = importSheets.map(item => {
       return {
         sheetNumber: item.sheetNumber,
-        sheetName: item.sheetName.slice(0, 25),
+        sheetName: item.sheetName.slice(0, 100),
         sheetId: item.sheetId,
         titleNumber: item.rowNum - 1,
         cells: this.getCells(item.rows, item.matchControl, item.selectCells),

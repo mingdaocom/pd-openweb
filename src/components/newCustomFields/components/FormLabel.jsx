@@ -1,16 +1,63 @@
 import React, { Fragment } from 'react';
-import { Tooltip } from 'ming-ui';
+import { Tooltip, Icon } from 'ming-ui';
 import cx from 'classnames';
 import { controlState, renderCount } from '../tools/utils';
 import { FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT, FROM } from '../tools/config';
 import { browserIsMobile } from 'src/util';
 import _ from 'lodash';
-import RefreshBtn from './RefreshBtn';
 import WidgetsDesc from './WidgetsDesc';
+import styled from 'styled-components';
+import { TITLE_SIZE_OPTIONS } from 'src/pages/widgetConfig/config/setting';
+import { getTitleStyle } from 'src/pages/widgetConfig/util/setting';
+
+const ControlLabel = styled.div`
+  ${({ displayRow, disabled, isMobile, titlewidth_app = '100', titlewidth_pc = '100' }) => {
+    if (displayRow) {
+      if (isMobile && disabled) {
+        return `width: ${titlewidth_app}px !important;`;
+      }
+      return !isMobile ? `width:${titlewidth_pc}px !important;` : '';
+    }
+  }}
+  ${({ hasContent, displayRow, titlewidth_pc }) => {
+    if (displayRow && hasContent) {
+      return titlewidth_pc === '0' ? 'width: auto !important;padding-right: 10px;' : 'padding-right: 10px;';
+    }
+  }}
+  ${({ displayRow }) => (displayRow ? 'padding-top: 6px !important;padding-bottom: 6px !important;' : '')}
+  line-height: ${({ valuesize }) => {
+    const valueHeight = valuesize !== '0' ? (parseInt(valuesize) - 1) * 2 + 40 : 36;
+    return `${valueHeight - 12}px !important`;
+  }}
+  margin-top: ${({ item }) => {
+    return item.type === 34 ? '20px' : '';
+  }};
+  ${({ item, isMobile }) =>
+    item.type === 34 ? (isMobile ? 'margin-bottom: 6px;' : 'maxWidth: calc(100% - 140px);') : ''}
+  .controlLabelName {
+    ${({ displayRow, isMobile, disabled, align_app = '1', align_pc = '1' }) => {
+      if (displayRow) {
+        if (isMobile && disabled) {
+          return align_app === '1' ? 'text-align: left;' : 'text-align: right;flex: 1;';
+        }
+        return !isMobile && align_pc === '1' ? 'text-align: left;' : 'text-align: right;flex: 1;';
+      }
+    }}
+    ${({ showTitle }) => (showTitle ? '' : 'display: none;')}
+    font-size: ${props => props.titleSize};
+    color: ${props => props.titleColor};
+    ${props => props.titleStyle || ''};
+  }
+  .requiredBtnBox .customFormItemLoading {
+    line-height: ${({ valuesize }) => {
+      const valueHeight = valuesize !== '0' ? (parseInt(valuesize) - 1) * 2 + 40 : 36;
+      return `${valueHeight - 12}px !important`;
+    }};
+  }
+`;
 
 export default ({
   from,
-  worksheetId,
   recordId,
   item,
   errorItems,
@@ -19,15 +66,31 @@ export default ({
   widgetStyle = {},
   disabled,
   updateErrorState = () => {},
-  handleChange = () => {},
 }) => {
-  const { titlewidth_pc = '100', align_pc = '1', titlewidth_app = '100', align_app = '1', displayRow } = widgetStyle;
+  const {
+    hinttype = '0',
+    valuesize = '0',
+    titlesize = item.type === 34 ? '1' : '0',
+    titlestyle = '0000',
+    titlecolor = item.type === 34 ? '#333' : '#757575',
+    allowlink,
+    hidetitle,
+  } = item.advancedSetting || {};
+
+  const titleSize = TITLE_SIZE_OPTIONS[titlesize];
+  const titleStyle = getTitleStyle(titlestyle);
+  const showTitle = _.includes([22, 10010], item.type) ? hidetitle !== '1' && item.controlName : hidetitle !== '1';
+  const hintShowAsIcon =
+    hinttype === '0'
+      ? (recordId && from !== FROM.DRAFT) || item.isSubList || from === FROM.RECORDINFO
+      : hinttype === '1';
+  const hintShowAsText = hinttype === '0' ? !recordId : hinttype === '2';
+  const showDesc = hintShowAsIcon && item.desc && !_.includes([22, 10010], item.type);
+  const showOtherIcon = item.type === 45 && allowlink === '1' && item.enumDefault === 1;
+
   const currentErrorItem = _.find(errorItems.concat(uniqueErrorItems), obj => obj.controlId === item.controlId) || {};
   const errorText = currentErrorItem.errorText || '';
   const isEditable = controlState(item, from).editable;
-  const showTitle = _.includes([22, 10010], item.type)
-    ? (item.advancedSetting || {}).hidetitle !== '1' && item.controlName
-    : (item.advancedSetting || {}).hidetitle !== '1';
   let errorMessage = '';
   const isMobile = browserIsMobile();
 
@@ -41,7 +104,7 @@ export default ({
 
   if (isMobile && !showTitle) {
     return (
-      <Fragment>
+      <div className={cx({ 'customFormItemLabel mTop20': item.type === 34 })}>
         {!item.showTitle && item.required && !item.disabled && isEditable && (
           <span
             style={{
@@ -88,7 +151,7 @@ export default ({
             <i className="customFormErrorArrow" />
           </div>
         )}
-      </Fragment>
+      </div>
     );
   }
 
@@ -103,69 +166,56 @@ export default ({
           <i className="customFormErrorArrow" />
         </div>
       )}
-      <div
-        className={cx(
-          'customFormItemLabel',
-          item.type === 22 || item.type === 34
-            ? `Gray Font15 ${item.type === 34 ? 'mTop20' : 'mTop10'}`
-            : 'Gray_75 Font13',
-          {
-            Font13: isMobile,
-            mTop8: displayRow && isMobile && disabled,
-            mTop12: displayRow && isMobile && disabled && !item.value,
-            customFormItemLabelRow: displayRow && !isMobile,
-            'LineHeight28 mBottom6': isMobile && item.type === 34,
-          },
-        )}
-        style={
-          !isMobile && item.type === 34
-            ? {
-                maxWidth: 'calc(100% - 140px)',
-              }
-            : {}
-        }
+      <ControlLabel
+        className="customFormItemLabel"
+        disabled={disabled}
+        item={item}
+        showTitle={showTitle}
+        {...widgetStyle}
+        isMobile={isMobile}
+        titleSize={titleSize}
+        titleStyle={titleStyle}
+        titleColor={titlecolor}
+        valuesize={valuesize}
+        hasContent={showDesc || showOtherIcon || showTitle}
       >
-        {item.required && !item.disabled && isEditable && <div className="requiredBtn">*</div>}
-
-        <div
-          className="flexRow"
-          style={
-            displayRow && (!isMobile || (isMobile && disabled))
-              ? { width: `${isMobile ? titlewidth_app : titlewidth_pc}px`, paddingRight: 10 }
-              : {}
-          }
-        >
-          <div
-            title={item.controlName}
-            className={cx({ hideTitleLabel: !showTitle })}
-            style={
-              displayRow && (!isMobile || (isMobile && disabled))
-                ? (isMobile ? align_app === '1' : align_pc === '1')
-                  ? { textAlign: 'left' }
-                  : { textAlign: 'right', flex: 1 }
-                : {}
-            }
-          >
-            {item.controlName}
-            {_.get(item, 'advancedSetting.showcount') !== '1' && renderCount(item)}
-          </div>
-          {((recordId && from !== FROM.DRAFT) || item.isSubList || from === FROM.RECORDINFO) && (
-            <WidgetsDesc item={item} from={from} />
-          )}
-
-          {from !== FROM.DRAFT &&
-            !_.get(window, 'shareState.isPublicView') &&
-            !_.get(window, 'shareState.isPublicRecord') && (
-              <RefreshBtn worksheetId={worksheetId} recordId={recordId} item={item} onChange={handleChange} />
-            )}
-
-          <div className={cx('mLeft6 pTop4', { Hidden: !loadingItems[item.controlId] })}>
+        {loadingItems[item.controlId] ? (
+          <div className="requiredBtnBox">
             <i className="icon-loading_button customFormItemLoading Gray_9e" />
           </div>
-        </div>
-      </div>
+        ) : (
+          item.required &&
+          !item.disabled &&
+          isEditable && (
+            <div className="requiredBtnBox">
+              <div className="requiredBtn">*</div>
+            </div>
+          )
+        )}
 
-      {item.type === 34 && !item.isSubList && !recordId && <WidgetsDesc item={item} from={from} />}
+        <div title={item.controlName} className="controlLabelName">
+          {item.controlName}
+          {_.get(item, 'advancedSetting.showcount') !== '1' && renderCount(item)}
+        </div>
+
+        {hintShowAsIcon && <WidgetsDesc item={item} from={from} />}
+
+        {item.type === 45 && allowlink === '1' && item.enumDefault === 1 && (
+          <Tooltip text={<span>{_l('新页面打开')}</span>}>
+            <Icon
+              className="Hand Font16 mLeft3 Gray_9e mTop3"
+              icon="launch"
+              onClick={() => {
+                if (/^https?:\/\/.+$/.test(item.value)) {
+                  window.open(item.value);
+                }
+              }}
+            />
+          </Tooltip>
+        )}
+      </ControlLabel>
+
+      {item.type === 34 && !item.isSubList && hintShowAsText && <WidgetsDesc item={item} from={from} />}
     </Fragment>
   );
 };

@@ -12,9 +12,11 @@ import { getDefaultLayout, getEnumType, reorderComponents, replaceColor } from '
 import { loadSDK } from 'src/components/newCustomFields/tools/utils';
 import WidgetDisplay from './WidgetDisplay';
 import AppPermissions from '../components/AppPermissions';
-import workflowPushSoket from 'mobile/Record/socket/workflowPushSoket';
+import workflowPushSoket from 'mobile/components/socket/workflowPushSoket';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import { getEmbedValue } from 'src/components/newCustomFields/tools/utils.js';
+import store from 'redux/configureStore';
+import { updateFilterComponents } from './redux/actions';
 import 'react-grid-layout/css/styles.css';
 import _ from 'lodash';
 
@@ -119,11 +121,13 @@ export default class CustomPage extends Component {
     if (appNaviStyle === 2 && currentNavWorksheetInfo) {
       const components = (currentNavWorksheetInfo || {}).components || [];
       const pageComponents = reorderComponents(components);
+      const newPageComponents = (pageComponents ? pageComponents : components).filter(item => item.mobile.visible);
       this.setState({
-        pageComponents: (pageComponents ? pageComponents : components).filter(item => item.mobile.visible),
+        pageComponents: newPageComponents,
         loading: false,
         pageName: currentNavWorksheetInfo.name,
       });
+      store.dispatch(updateFilterComponents(newPageComponents.filter(item => item.value && item.type === 6)));
     } else {
       this.setState({ loading: true });
       customApi
@@ -150,13 +154,15 @@ export default class CustomPage extends Component {
           }
           const components = result.components;
           const pageComponents = reorderComponents(components);
+          const newPageComponents = (pageComponents ? pageComponents : components).filter(item => item.mobile.visible);
           this.setState({
             apk: result.apk || {},
-            pageComponents: (pageComponents ? pageComponents : components).filter(item => item.mobile.visible),
+            pageComponents: newPageComponents,
             loading: false,
             pageName: result.name,
             pageConfig: replaceColor(result.config, _.get(result.apk, 'iconColor'))
           });
+          store.dispatch(updateFilterComponents(newPageComponents.filter(item => item.value && item.type === 6)));
         });
     }
     $(window).bind('orientationchange', () => {

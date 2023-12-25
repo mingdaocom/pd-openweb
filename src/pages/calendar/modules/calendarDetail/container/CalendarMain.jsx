@@ -10,7 +10,7 @@ export default class CalendarMain extends Component {
   }
 
   render() {
-    const { calendar, change, addCalendarMember, bindBusinessCard, changePrivacy } = this.props;
+    const { calendar, change, addCalendarMember, changePrivacy, callback } = this.props;
     const {
       id,
       canLook,
@@ -25,6 +25,9 @@ export default class CalendarMain extends Component {
       isPrivate,
       editable,
       voiceRemind,
+      recurTime,
+      isRecur,
+      isChildCalendar,
     } = calendar;
     const membersProps = {
       members,
@@ -32,7 +35,13 @@ export default class CalendarMain extends Component {
       createUser,
       editable,
       addCalendarMember,
-      bindBusinessCard,
+      callback,
+      argProps: {
+        calendarId: id,
+        recurTime,
+        isRecur,
+        isChildCalendar
+      },
     };
     const summaryProps = {
       description,

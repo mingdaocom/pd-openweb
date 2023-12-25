@@ -10,6 +10,7 @@ import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponen
 import departmentAjax from 'src/api/department';
 const ClickAwayable = createDecoratedComponent(withClickAway);
 import EditableCellCon from '../EditableCellCon';
+import { dealRenderValue } from 'src/components/newCustomFields/tools/utils';
 import _ from 'lodash';
 
 // enumDefault 单选 0 多选 1
@@ -84,6 +85,7 @@ export default class Text extends React.Component {
       isIncludeRoot: false,
       unique: cell.enumDefault === 0,
       showCreateBtn: false,
+      allPath: _.get(cell, 'advancedSetting.allpath') === '1',
       selectFn: cb,
       onClose: () => (this.isSelecting = false),
     });
@@ -133,9 +135,41 @@ export default class Text extends React.Component {
     const { value } = this.state;
     this.setState(
       {
-        value: value.filter(department => department.departmentId !== departmentId),
+        value: departmentId
+          ? value.filter(department => department.departmentId !== departmentId)
+          : value.filter(i => !i.isDelete),
       },
       this.handleChange,
+    );
+  }
+
+  renderDepartmentTag(department, allowDelete) {
+    const { style, isediting, cell = {} } = this.props;
+    return (
+      <span className={cx('cellDepartment', { isDelete: department.isDelete })} style={{ maxWidth: style.width - 20 }}>
+        <div className="flexRow">
+          <div className="iconWrap" style={{ backgroundColor: '#2196f3' }}>
+            <i className="Font14 icon-department"></i>
+          </div>
+          <div
+            className="departmentName mLeft4 flex ellipsis"
+            style={
+              _.get(cell, 'advancedSetting.allpath') === '1' && !department.isDelete
+                ? { direction: 'rtl', unicodeBidi: 'normal' }
+                : {}
+            }
+          >
+            {department.departmentName}
+            {department.deleteCount > 1 && <span className="Gray mLeft5">{department.deleteCount}</span>}
+          </div>
+          {isediting && allowDelete && (
+            <i
+              className="Font14 Gray_9e icon-close Hand mLeft4"
+              onClick={() => this.deleteDepartment(department.departmentId)}
+            ></i>
+          )}
+        </div>
+      </span>
     );
   }
 
@@ -153,7 +187,8 @@ export default class Text extends React.Component {
       updateEditingStatus,
       onClick,
     } = this.props;
-    const { value } = this.state;
+    const { allpath } = cell.advancedSetting || {};
+    const value = dealRenderValue(this.state.value, cell.advancedSetting);
     const single = cell.enumDefault === 0;
     const editcontent = (
       <ClickAwayable
@@ -169,24 +204,7 @@ export default class Text extends React.Component {
             minHeight: rowHeight,
           }}
         >
-          {value.map((department, index) => (
-            <span className="cellDepartment" style={{ maxWidth: style.width - 20 }}>
-              <div className="flexRow">
-                <div className="iconWrap" style={{ backgroundColor: '#2196f3' }}>
-                  <i className="Font14 icon-department"></i>
-                </div>
-                <div className="departmentName mLeft4 flex ellipsis">
-                  {department.departmentName ? department.departmentName : _l('该部门已删除')}
-                </div>
-                {isediting && (
-                  <i
-                    className="Font14 Gray_9e icon-close Hand mLeft4"
-                    onClick={() => this.deleteDepartment(department.departmentId)}
-                  ></i>
-                )}
-              </div>
-            </span>
-          ))}
+          {value.map(department => this.renderDepartmentTag(department, !(cell.required && value.length === 1)))}
           {!single && (
             <span className="addBtn" onClick={this.handleSelect}>
               <i className="icon icon-add Gray_75 Font14"></i>
@@ -232,6 +250,18 @@ export default class Text extends React.Component {
                             if (!projectId) {
                               return reject();
                             }
+
+                            if (department.isDelete) {
+                              resolve(
+                                _l('%0部门已被删除', department.deleteCount > 1 ? `${department.deleteCount}个` : ''),
+                              );
+                              return;
+                            }
+
+                            if (allpath === '1') {
+                              return resolve(department.departmentName);
+                            }
+
                             departmentAjax
                               .getDepartmentFullNameByIds({
                                 projectId,
@@ -244,16 +274,7 @@ export default class Text extends React.Component {
                       : null
                   }
                 >
-                  <span className="cellDepartment" style={{ maxWidth: style.width - 20 }}>
-                    <div className="flexRow">
-                      <div className="iconWrap" style={{ backgroundColor: '#2196f3' }}>
-                        <i className="Font14 icon-department"></i>
-                      </div>
-                      <div className="departmentName mLeft4 flex ellipsis">
-                        {department.departmentName ? department.departmentName : _l('该部门已删除')}
-                      </div>
-                    </div>
-                  </span>
+                  {this.renderDepartmentTag(department)}
                 </Tooltip>
               ))}
             </div>

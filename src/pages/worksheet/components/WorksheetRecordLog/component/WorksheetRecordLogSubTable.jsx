@@ -46,7 +46,7 @@ function WorksheetRecordLogSubTable(props) {
         requestType: extendParam.requestType,
         objectType: extendParam.objectType,
         pageIndex: param ? param.pageIndex : pageIndex,
-        pageSize: 50,
+        pageSize: 20,
         log: param ? param.log : log,
       })
       .then(res => {
@@ -122,6 +122,7 @@ function WorksheetRecordLogSubTable(props) {
                 value2: value,
               };
               let content = renderText(cell);
+
               if (content) {
                 return <MaskCell cell={cell} />;
               } else {
@@ -229,9 +230,10 @@ function WorksheetRecordLogSubTable(props) {
       let cell = {
         ...control,
         value: typeof item !== 'string' ? JSON.stringify([item]) : item,
-        value2: control.type === 42 ? item : [item],
+        value2: [42, 11, 10].includes(control.type) ? item : [item],
       };
       let content = renderText(cell);
+
       if (content) {
         return (
           <React.Fragment key={`worksheetRecordLogSubTableUpdataItem-${type}-${control.controlId}-${index}`}>

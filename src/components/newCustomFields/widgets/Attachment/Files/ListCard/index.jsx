@@ -9,7 +9,7 @@ import moment from 'moment';
 import './index.less';
 
 const ListCard = props => {
-  const { data, isMobile, isDeleteFile, allowDownload, allowSort, allowEditName } = props;
+  const { data, isMobile, isDeleteFile, allowDownload, allowSort, allowEditName, worksheetId, recordId } = props;
   const { onDeleteMDFile, onOpenControlAttachmentInNewTab, onMDPreview, onAttachmentName } = props;
   const { isKc, browse, fileClassName, fileSize, isMore, isDownload } = props;
   const previewUrl = data.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, `imageView2/2/w/200/h/140`);
@@ -75,7 +75,10 @@ const ListCard = props => {
       className={cx('attachmentListCard flexRow alignItemsCenter', { mobile: isMobile, hover: dropdownVisible || isEdit })}
     >
       {allowSort && <Icon className="fileDrag Gray_9e" icon="drag" />}
-      <div className="fileImageWrap pointer h100 flexRow alignItemsCenter justifyContentCenter" onClick={handlePreview}>
+      <div
+        className={cx('fileImageWrap pointer h100 flexRow alignItemsCenter justifyContentCenter', { mLeft0: !allowSort })}
+        onClick={handlePreview}
+      >
         {isPicture ? (
           <div className="fileImage" style={{ backgroundImage: `url(${previewUrl})` }}/>
         ) : (
@@ -101,7 +104,7 @@ const ListCard = props => {
               </Fragment>
             ) : (
               <Fragment>
-                {allowEditName && !isKc && !_.get(window,"shareState.isPublicForm") && (
+                {allowEditName && !isKc && (
                   <ResetNamePopup
                     originalFileName={data.originalFilename}
                     isEdit={isEdit}
@@ -178,7 +181,7 @@ const NotSaveListCard = props => {
     <div className={cx('attachmentListCard flexRow alignItemsCenter', { mobile: isMobile, hover: isEdit })}>
       {allowSort && <Icon className="fileDrag Gray_9e" icon="drag" />}
       <div
-        className="fileImageWrap pointer h100 flexRow alignItemsCenter justifyContentCenter"
+        className={cx('fileImageWrap pointer h100 flexRow alignItemsCenter justifyContentCenter', { mLeft0: !allowSort })}
         onClick={handlePreview}
       >
         {isPicture ? (

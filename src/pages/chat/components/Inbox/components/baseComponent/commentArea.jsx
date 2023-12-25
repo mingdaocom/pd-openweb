@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import UploadFile from 'src/components/UploadFiles';
 import Commenter from 'src/components/comment/commenter';
@@ -14,6 +15,7 @@ import postAjax from 'src/api/post';
 import confirm from 'ming-ui/components/Dialog/Confirm';
 import _ from 'lodash';
 import moment from 'moment';
+import UserCard from 'src/components/UserCard';
 
 const loadAllComment = function (postId) {
   var _this = this;
@@ -181,6 +183,24 @@ class CommentItem extends React.Component {
     };
   }
 
+  componentDidMount() {
+    const { replyId } = this.props;
+    $(`.inboxBox .commentItem-${replyId}`)
+      .find('[data-accountid],[data-groupid]')
+      .each((i, ele) => {
+        if ($(ele).attr('bindUserCard')) return;
+        $(ele).attr('bindUserCard', true);
+        let accountId = $(ele).attr('data-accountid');
+        let groupId = $(ele).attr('data-groupid');
+        ReactDOM.render(
+          <UserCard sourceId={accountId || groupId} type={groupId ? 2 : 1}>
+            <span>{ele.innerHTML}</span>
+          </UserCard>,
+          ele,
+        );
+      });
+  }
+
   renderMessage() {
     const { message, accountsInMessage, groupsInMessage, categories, sourceType } = this.props;
     return (
@@ -321,11 +341,11 @@ class CommentItem extends React.Component {
   }
 
   render() {
-    const { createAccount, addCallback } = this.props;
+    const { createAccount, addCallback, replyId } = this.props;
     const { showCommenter } = this.state;
 
     return (
-      <div className="commentItem pTop12">
+      <div className={`commentItem pTop12 commentItem-${replyId}`}>
         <div className="commentAvatar Left">
           <Avatar {...createAccount} />
         </div>

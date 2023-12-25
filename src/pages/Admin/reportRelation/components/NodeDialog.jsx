@@ -5,6 +5,7 @@ import { Dialog, Icon, LoadDiv } from 'ming-ui';
 import ConnectedNode from './node';
 import StructureController from 'src/api/structure';
 import Config from '../../config';
+import { getCurrentProject } from 'src/util';
 import SearchInput from './searchBox';
 import '../style/otherDialog.less';
 
@@ -105,7 +106,7 @@ function NodeDialogWrap(props) {
         setData([]);
         return;
       }
-       let projectInfo = Config.getProjectInfo();
+      let projectInfo = getCurrentProject(Config.projectId, true);
       let users = {
         '': {
           id: '',

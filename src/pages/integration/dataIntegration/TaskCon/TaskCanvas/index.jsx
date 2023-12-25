@@ -312,6 +312,13 @@ class TaskCanvas extends Component {
                   status: 'NORMAL',
                 });
               }}
+              onUpdateFlowDatasources={data => {
+                const { flowData } = this.props;
+                this.props.onUpdate({
+                  ...flowData,
+                  datasources: flowData.datasources.filter(o => o.id !== data.id).concat(data),
+                });
+              }}
             />
           </WrapEdit>
         )}

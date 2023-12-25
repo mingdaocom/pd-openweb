@@ -64,8 +64,9 @@ export default function FilterSetting(props) {
   const { dataType } = props;
   const [timeVisible, setTimeVisible] = useState(false);
 
-  const changeAdvancedSetting = data => {
+  const changeAdvancedSetting = (data, otherData = {}) => {
     setFilter({
+      ...otherData,
       advancedSetting: {
         ...advancedSetting,
         ...data,
@@ -107,9 +108,17 @@ export default function FilterSetting(props) {
                 active: item.value == (advancedSetting[data.key] || data.default),
               })}
               onClick={() => {
-                changeAdvancedSetting({
-                  [data.key]: item.value,
-                });
+                const result = {
+                  [data.key]: item.value
+                }
+                if (data.key === 'allowitem' && item.value === 1) {
+                  const { values = [] } = filter;
+                  changeAdvancedSetting(result, {
+                    values: values.length ? [values[0]] : values
+                  });
+                } else {
+                  changeAdvancedSetting(result);
+                }
               }}
             >
               {item.text}

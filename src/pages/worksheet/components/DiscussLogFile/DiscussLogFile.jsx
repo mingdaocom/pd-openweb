@@ -70,7 +70,7 @@ class DiscussLogFile extends Component {
   };
 
   render() {
-    const { workflow, approval, forReacordDiscussion } = this.props;
+    const { configLoading, workflow, approval, forReacordDiscussion } = this.props;
     const { status, loading, doNotLoadAtDidMount } = this.state;
     return (
       <div className="discussLogFile flexRow">
@@ -108,7 +108,7 @@ class DiscussLogFile extends Component {
           <div className="body flex">
             {status === -1 && approval}
             {status === 0 && workflow}
-            {(status === 1 || status === 4) && (
+            {(status === 1 || status === 4) && !configLoading && (
               <div className="talkBox">
                 <WorkSheetComment status={status} {...this.props} doNotLoadAtDidMount={doNotLoadAtDidMount} />
               </div>

@@ -177,7 +177,7 @@ export default class Text extends React.Component {
                 <div className="departmentName mLeft4 flex ellipsis">
                   {organize.organizeName ? organize.organizeName : _l('该组织角色已删除')}
                 </div>
-                {isediting && (
+                {isediting && !(cell.required && value.length === 1) && (
                   <i
                     className="Font14 Gray_9e icon-close Hand mLeft4"
                     onClick={() => this.deleteDepartment(organize.organizeId)}

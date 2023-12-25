@@ -516,21 +516,6 @@ export default class CalendarDetail extends Component {
       });
     };
 
-    const bindBusinessCard = ($member, member, isCreateUser) => {
-      const { id, recurTime, isChildCalendar, isRecur, editable } = this.state;
-      Common.bindCard(
-        $member,
-        member,
-        isCreateUser,
-        { id, recurTime, isChildCalendar, isRecur, editable },
-        {
-          removeMember,
-          removeWxMember,
-          reInvite,
-        },
-      );
-    };
-
     const changePrivacy = () => {
       const { isPrivate, id } = this.state;
       Common.updatePrivate(id, !isPrivate).then(() => {
@@ -549,9 +534,13 @@ export default class CalendarDetail extends Component {
       calendar: this.state,
       change: this.mapNewState.bind(this),
       addCalendarMember,
-      bindBusinessCard,
       changePrivacy,
       changeRemind,
+      callback: {
+        removeMember,
+        removeWxMember,
+        reInvite,
+      },
     };
 
     return <CalendarMain {...props} />;

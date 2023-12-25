@@ -181,23 +181,14 @@ export default function Card(props) {
     const arr = formulaValue.match(/\$[^ \r\n]+?\$/g);
     if (arr) {
       arr.forEach(obj => {
+        const data = obj
+          .replace(/\$/g, '')
+          .split(/([a-zA-Z0-9#]{24,32})-/)
+          .filter(item => item);
+        const { formulaMap = {} } = node;
         formulaValue = formulaValue.replace(
           obj,
-          `{${
-            node.formulaMap[
-              obj
-                .replace(/\$/g, '')
-                .split(/([a-zA-Z0-9#]{24,32})-/)
-                .filter(item => item)[0]
-            ].name
-          }.${
-            node.formulaMap[
-              obj
-                .replace(/\$/g, '')
-                .split(/([a-zA-Z0-9#]{24,32})-/)
-                .filter(item => item)[1]
-            ].name
-          }}`,
+          `{${(formulaMap[data[0]] || {}).name || ''}.${(formulaMap[data.join('-')] || {}).name || ''}}`,
         );
       });
     }

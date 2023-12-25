@@ -3,7 +3,7 @@ import { oneOf } from 'prop-types';
 import { Button, Dialog, Textarea, Skeleton } from 'ming-ui';
 import api from 'src/api/appManagement';
 import SvgIcon from 'src/components/SvgIcon';
-import UserHead from 'src/pages/feed/components/userHead';
+import UserHead from 'src/components/userHead';
 import unauthorizedPic from './unauthorized.png';
 import turnoffPic from './turnoff.png';
 import _ from 'lodash';
@@ -62,7 +62,6 @@ export default class UnusualContent extends Component {
                 className="manager"
                 projectId={projectId}
                 size={32}
-                lazy="false"
                 user={{
                   ...data,
                   accountId: data.accountId,
@@ -75,9 +74,19 @@ export default class UnusualContent extends Component {
       </div>
     );
   }
+  renderUpgrade = () => {
+    return (
+      <Fragment>
+        <div className="imgWrap mBottom14">
+          <i className="icon-unarchive Font56" style={{ color: '#4caf50' }} />
+        </div>
+        <div className="Font17 bold">{_l('应用正在升级中...')}</div>
+      </Fragment>
+    );
+  };
   render() {
     const { status, appPkg } = this.props;
-    const { src, text } = STATUS_TO_TEXT[status];
+    const { src, text } = STATUS_TO_TEXT[status] || {};
     const { applyJoinAppVisible, remark } = this.state;
     return (
       <div className="unusualContentWrap">
@@ -87,6 +96,8 @@ export default class UnusualContent extends Component {
         <div className="unusualContent">
           {status === 4 && _.get(appPkg, 'managers.length') ? (
             this.renderApply()
+          ) : status === 10 ? (
+            this.renderUpgrade()
           ) : (
             <Fragment>
               <div className="imgWrap">

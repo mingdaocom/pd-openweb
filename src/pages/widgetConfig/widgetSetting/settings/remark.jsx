@@ -7,6 +7,14 @@ import EditIntro from 'src/pages/PageHeader/AppPkgHeader/AppDetail/EditIntro';
 import styled from 'styled-components';
 import cx from 'classnames';
 const Wrap = styled.div`
+  .fieldEditorRemark {
+    &.editorNull {
+      padding: 10px 0px !important;
+    }
+    .ck-content {
+      padding: 0 12px !important;
+    }
+  }
   .fieldEditorRemark.hasData {
     .ck .ck-content {
       border: 1px solid #dddddd !important;

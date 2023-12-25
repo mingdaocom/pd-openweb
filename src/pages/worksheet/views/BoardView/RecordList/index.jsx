@@ -171,6 +171,7 @@ export default function Board(props) {
         showRecordInfo={showRecordInfo}
         keyType={list.key}
         selectControl={rest.selectControl}
+        appId={props.appId}
         {..._.pick(list, ['name', 'type', 'key', 'color', 'enumDefault', 'enumDefault2', 'noGroup', 'rowId'])}
       />
       <ScrollView className="boardDataItemScrollWrap" updateEvent={_.throttle(scrollLoad, 400)}>

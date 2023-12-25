@@ -621,9 +621,10 @@ export default class WorkSheetFilter extends Component {
               '.mui-datetimepicker',
               '.mui-datetimerangepicker',
               '.selectUserBox',
-              '.CityPicker',
               '.worksheetFilterOperateList',
               '.ant-picker-dropdown',
+              '.CityPicker',
+              '.CityPicker-wrapper'
             ].join(','),
           )[0];
           return $targetTarget;

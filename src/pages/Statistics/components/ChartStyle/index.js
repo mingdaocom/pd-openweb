@@ -12,14 +12,13 @@ import MeasureAxis from './components/MeasureAxis';
 import unitPanelGenerator from './components/Unit';
 import { gaugeColorPanelGenerator, scalePanelGenerator, indicatorPanelGenerator } from './components/GaugeChartConfig';
 import numberStylePanelGenerator, { numberSummaryPanelGenerator } from './components/NumberStyle';
+import pivotTableCountPanelGenerator from './components/PivotTableCount';
+import allCountPanelGenerator from './components/AllCount';
 import Color from './components/Color/index';
 import PivotTableFieldColor from './components/PivotTableFieldColor/index';
-import PreinstallStyle from './components/PreinstallStyle';
-import TitleStyle from './components/TitleStyle';
-import SubLineCount from './components/SubLineCount';
 import topChartPanelGenerator from './components/TopChartPanel';
 import { reportTypes, LegendTypeData } from 'statistics/Charts/common';
-import { isTimeControl, isNumberControl } from 'statistics/common';
+import { isTimeControl } from 'statistics/common';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actions from 'statistics/redux/actions';
@@ -206,447 +205,12 @@ export default class ChartStyle extends Component {
   renderNumberCount() {
     return numberSummaryPanelGenerator({ ...this.props, onChangeDisplayValue: this.handleChangeDisplayValue });
   }
-  handleChangeLineSummary = (data, isRequest = true) => {
-    const { pivotTable = {} } = this.props.currentReport;
-    this.props.changeCurrentReport(
-      {
-        pivotTable: {
-          ...pivotTable,
-          lineSummary: {
-            ...pivotTable.lineSummary,
-            ...data,
-          },
-        },
-      },
-      isRequest
-    );
-  }
-  handleChangeColumnSummary = (data, isRequest = true) => {
-    const { pivotTable = {} } = this.props.currentReport;
-    this.props.changeCurrentReport(
-      {
-        pivotTable: {
-          ...pivotTable,
-          columnSummary: {
-            ...pivotTable.columnSummary,
-            ...data,
-          },
-        },
-      },
-      isRequest
-    );
-  }
   renderNumberStyle() {
     return numberStylePanelGenerator({
       ...this.props,
       onChangeStyle: this.handleChangeStyle,
       onChangeDisplayValue: this.handleChangeDisplayValue
     });
-  }
-  renderPreinstallStyle() {
-    const { style } = this.props.currentReport;
-    return (
-      <Collapse.Panel
-        key="preinstallStyle"
-        header={_l('表')}
-      >
-        <PreinstallStyle
-          style={style}
-          onChangeStyle={this.handleChangeStyle}
-        />
-      </Collapse.Panel>
-    );
-  }
-  renderCell() {
-    const { style } = this.props.currentReport;
-    return (
-      <Collapse.Panel
-        key="cell"
-        header={_l('单元格')}
-      >
-        <TitleStyle
-          type="cell"
-          style={style}
-          onChangeStyle={this.handleChangeStyle}
-        />
-      </Collapse.Panel>
-    );
-  }
-  renderLineTitleStyle() {
-    const { style, pivotTable } = this.props.currentReport;
-    return (
-      <Collapse.Panel
-        key="lineTitleStyle"
-        header={_l('行标题')}
-      >
-        <TitleStyle
-          type="line"
-          style={style}
-          pivotTable={pivotTable}
-          onChangeStyle={this.handleChangeStyle}
-        />
-      </Collapse.Panel>
-    );
-  }
-  renderColumnTitleStyle() {
-    const { style } = this.props.currentReport;
-    return (
-      <Collapse.Panel
-        key="columnTitleStyle"
-        header={_l('列标题')}
-      >
-        <TitleStyle
-          type="column"
-          style={style}
-          onChangeStyle={this.handleChangeStyle}
-        />
-      </Collapse.Panel>
-    );
-  }
-  renderSubLineCount() {
-    const { currentReport, changeCurrentReport } = this.props;
-    const { lines } = currentReport.pivotTable;
-    const switchChecked = !!lines.slice(1, lines.length).filter(n => n.subTotal).length;
-    return (
-      <Collapse.Panel
-        key="subLineCount"
-        header={_l('行小计')}
-        className={cx({ collapsible: !switchChecked })}
-        extra={
-          <Switch
-            size="small"
-            checked={switchChecked}
-            onClick={(checked, event) => {
-              event.stopPropagation();
-            }}
-            onChange={checked => {
-              this.props.changeCurrentReport(
-                {
-                  pivotTable: {
-                    ...currentReport.pivotTable,
-                    lines: lines.map((n, index) => {
-                      if (index) {
-                        return {
-                          ...n,
-                          subTotal: checked
-                        }
-                      } else {
-                        return n;
-                      }
-                    })
-                  },
-                },
-                true,
-              );
-            }}
-          />
-        }
-      >
-        <SubLineCount
-          currentReport={currentReport}
-          onChangeCurrentReport={changeCurrentReport}
-        />
-      </Collapse.Panel>
-    );
-  }
-  renderPivotTableLineCount() {
-    const { reportType, displaySetup, yaxisList, pivotTable = {} } = this.props.currentReport;
-    const { showLineTotal, lineSummary = {} } = pivotTable;
-    const { controlList = [], rename } = lineSummary;
-    return (
-      <Collapse.Panel
-        key="lineCount"
-        header={_l('行总计')}
-        className={cx({ collapsible: !showLineTotal })}
-        extra={
-          <Switch
-            size="small"
-            checked={showLineTotal}
-            onClick={(checked, event) => {
-              event.stopPropagation();
-            }}
-            onChange={checked => {
-              this.props.changeCurrentReport(
-                {
-                  pivotTable: {
-                    ...pivotTable,
-                    showLineTotal: checked
-                  },
-                },
-                true,
-              );
-            }}
-          />
-        }
-      >
-        <Fragment>
-          <div className="mBottom16">
-            <div className="mBottom8">{_l('名称')}</div>
-            <Input
-              defaultValue={rename || _l('行汇总')}
-              className="chartInput w100"
-              onChange={event => {
-                this.handleChangeLineSummary(
-                  {
-                    rename: event.target.value.slice(0, 20),
-                  },
-                  false,
-                );
-              }}
-            />
-          </div>
-          <Location
-            summary={lineSummary}
-            locationType="line"
-            onChangeSummary={this.handleChangeLineSummary}
-          />
-          {yaxisList.filter(item => isNumberControl(item.controlType) ? true : item.normType !== 7).map(item => (
-            <Count
-              key={item.controlId}
-              yAxis={item}
-              isPivotTable={true}
-              extra={
-                <Checkbox
-                  className="mLeft0 mBottom15"
-                  checked={!!_.find(controlList, { controlId: item.controlId })}
-                  onChange={(event) => {
-                    const id = item.controlId;
-                    if (event.target.checked) {
-                      const data = {
-                        controlId: id,
-                        name: '',
-                        sum: 0,
-                        type: 1
-                      }
-                      this.props.changeCurrentReport(
-                        {
-                          pivotTable: {
-                            ...pivotTable,
-                            lineSummary: {
-                              ...lineSummary,
-                              controlList: controlList.concat(data)
-                            }
-                          },
-                        },
-                        true,
-                      );
-                    } else {
-                      this.props.changeCurrentReport(
-                        {
-                          pivotTable: {
-                            ...pivotTable,
-                            lineSummary: {
-                              ...lineSummary,
-                              controlList: controlList.filter(item => item.controlId !== id)
-                            }
-                          },
-                        },
-                        true,
-                      );
-                    }
-                  }}
-                >
-                  {item.controlName}
-                </Checkbox>
-              }
-              summary={_.find(controlList, { controlId: item.controlId }) || { type: 1 }}
-              onChangeSummary={(data, isRequest = true) => {
-                const id = item.controlId;
-                const newControlList = controlList.map(item => {
-                  if (id === item.controlId) {
-                    return {
-                      ...item,
-                      ...data
-                    }
-                  } else {
-                    return item;
-                  }
-                });
-                this.props.changeCurrentReport(
-                  {
-                    pivotTable: {
-                      ...pivotTable,
-                      lineSummary: {
-                        ...lineSummary,
-                        controlList: newControlList
-                      }
-                    },
-                  },
-                  isRequest,
-                );
-              }}
-            />
-          ))}
-        </Fragment>
-      </Collapse.Panel>
-    );
-  }
-  renderPivotTableColumnCount() {
-    const { reportType, displaySetup, yaxisList, pivotTable = {} } = this.props.currentReport;
-    const { showColumnTotal, columnSummary = {} } = pivotTable;
-    const { controlList = [], rename } = columnSummary;
-    const onChangeCountVisible = (id, checked, data) => {
-      if (checked) {
-        const control = {
-          controlId: id,
-          name: '',
-          sum: 0,
-          type: 1,
-          ...data
-        }
-        this.props.changeCurrentReport(
-          {
-            pivotTable: {
-              ...pivotTable,
-              columnSummary: {
-                ...columnSummary,
-                controlList: controlList.concat(control)
-              }
-            },
-          },
-          true,
-        );
-      } else {
-        this.props.changeCurrentReport(
-          {
-            pivotTable: {
-              ...pivotTable,
-              columnSummary: {
-                ...columnSummary,
-                controlList: controlList.filter(item => item.controlId !== id)
-              }
-            },
-          },
-          true,
-        );
-      }
-    }
-    const onChangeSummary = (id, data, isRequest = true) => {
-      const newControlList = controlList.map(item => {
-        if (id === item.controlId) {
-          return {
-            ...item,
-            ...data
-          }
-        } else {
-          return item;
-        }
-      }).filter(item => item.number || item.percent);
-      this.props.changeCurrentReport(
-        {
-          pivotTable: {
-            ...pivotTable,
-            columnSummary: {
-              ...columnSummary,
-              controlList: newControlList
-            }
-          },
-        },
-        isRequest,
-      );
-    }
-    const renderExtra = (item) => {
-      const control = _.find(controlList, { controlId: item.controlId });
-      return (
-        <Fragment>
-          <div className="mBottom5 bold">{item.controlName}</div>
-          <div className="flexRow valignWrapper mBottom15">
-            <Checkbox
-              className="flex"
-              checked={control ? control.number : false}
-              onChange={(event) => {
-                const { checked } = event.target;
-                const id = item.controlId;
-                if (control) {
-                  onChangeSummary(id, { number: checked });
-                } else {
-                  onChangeCountVisible(id, checked, checked ? { number: true, percent: false } : undefined);
-                }
-              }}
-            >
-              {_l('数值')}
-            </Checkbox>
-            <Checkbox
-              className="flex"
-              checked={control ? control.percent : false}
-              onChange={(event) => {
-                const { checked } = event.target;
-                const id = item.controlId;
-                if (control) {
-                  onChangeSummary(id, { percent: checked });
-                } else {
-                  onChangeCountVisible(id, checked, checked ? { number: false, percent: true } : undefined);
-                }
-              }}
-            >
-              {_l('百分比')}
-            </Checkbox>
-          </div>
-        </Fragment>
-      );
-    }
-    return (
-      <Collapse.Panel
-        key="columnCount"
-        header={_l('列总计')}
-        className={cx({ collapsible: !showColumnTotal })}
-        extra={
-          <Switch
-            size="small"
-            checked={showColumnTotal}
-            onClick={(checked, event) => {
-              event.stopPropagation();
-            }}
-            onChange={checked => {
-              this.props.changeCurrentReport(
-                {
-                  pivotTable: {
-                    ...pivotTable,
-                    showColumnTotal: checked
-                  },
-                },
-                true,
-              );
-            }}
-          />
-        }
-      >
-        <Fragment>
-          <div className="mBottom16">
-            <div className="mBottom8">{_l('名称')}</div>
-            <Input
-              defaultValue={rename || _l('列汇总')}
-              className="chartInput w100"
-              onChange={event => {
-                this.handleChangeColumnSummary(
-                  {
-                    rename: event.target.value.slice(0, 20),
-                  },
-                  false,
-                );
-              }}
-            />
-          </div>
-          <Location
-            summary={columnSummary}
-            locationType="column"
-            onChangeSummary={this.handleChangeColumnSummary}
-          />
-          {yaxisList.filter(item => isNumberControl(item.controlType) ? true : item.normType !== 7).map(item => (
-            <Count
-              key={item.controlId}
-              yAxis={item}
-              isPivotTable={true}
-              extra={renderExtra(item)}
-              summary={_.find(controlList, { controlId: item.controlId }) || { type: 1 }}
-              onChangeSummary={(data, isRequest) => {
-                onChangeSummary(item.controlId, data, isRequest);
-              }}
-            />
-          ))}
-        </Fragment>
-      </Collapse.Panel>
-    );
   }
   renderLegend() {
     const { displaySetup, yaxisList, split, reportType } = this.props.currentReport;
@@ -1076,6 +640,83 @@ export default class ChartStyle extends Component {
       </Collapse.Panel>
     );
   }
+  renderCountConfig() {
+    const { currentReport, changeCurrentReport } = this.props;
+    const { reportType } = currentReport;
+
+    if ([reportTypes.GaugeChart, reportTypes.ProgressChart].includes(reportType)) {
+      return null;
+    }
+
+    if (reportTypes.PivotTable === reportType) {
+      return pivotTableCountPanelGenerator({
+        ...this.props,
+        onChangeStyle: this.handleChangeStyle,
+      });
+    }
+
+    if (reportTypes.NumberChart === reportType) {
+      return this.renderNumberCount();
+    }
+
+    if ([reportTypes.BarChart, reportTypes.LineChart].includes(reportType)) {
+      const { summary, yaxisList } = currentReport;
+      return allCountPanelGenerator({
+        ...this.props,
+        key: 'allCount',
+        title: _l('总计'),
+        summary,
+        yaxisList,
+      });
+    }
+
+    if (reportTypes.DualAxes === reportType) {
+      const { summary, yaxisList, rightY } = currentReport;
+      return (
+        <Fragment>
+          {allCountPanelGenerator({
+            ...this.props,
+            key: 'allCount',
+            title: _l('总计'),
+            summary,
+            yaxisList,
+            changeCurrentReport: (data, isRequest) => {
+              const { displaySetup, summary } = data;
+              const result = {
+                summary,
+              }
+              if (displaySetup) {
+                result.displaySetup = displaySetup;
+              }
+              changeCurrentReport(result, isRequest);
+            }
+          })}
+          {allCountPanelGenerator({
+            ...this.props,
+            key: 'rightAllCount',
+            title: _l('辅助Y轴总计'),
+            summary: rightY.summary,
+            yaxisList: rightY.yaxisList,
+            changeCurrentReport: (data, isRequest) => {
+              const { displaySetup = {}, summary } = data;
+              const { showTotal } = displaySetup;
+              changeCurrentReport({
+                rightY: {
+                  ...rightY,
+                  summary: {
+                    ...summary,
+                    showTotal
+                  }
+                }
+              }, isRequest);
+            }
+          })}
+        </Fragment>
+      );
+    }
+
+    return this.renderCount();
+  }
   renderExpandIcon(panelProps) {
     return (
       <Icon
@@ -1091,23 +732,7 @@ export default class ChartStyle extends Component {
     return (
       <div className="chartStyle">
         <Collapse className="chartCollapse" expandIcon={this.renderExpandIcon} ghost>
-          {reportTypes.PivotTable === reportType ? (
-            <Fragment key="pivotTableCount">
-              {this.renderPreinstallStyle()}
-              {this.renderCell()}
-              {this.renderLineTitleStyle()}
-              {this.renderColumnTitleStyle()}
-              {this.renderSubLineCount()}
-              {this.renderPivotTableLineCount()}
-              {this.renderPivotTableColumnCount()}
-            </Fragment>
-          ) : (
-            reportTypes.NumberChart === reportType ? (
-              this.renderNumberCount()
-            ) : (
-              ![reportTypes.GaugeChart, reportTypes.ProgressChart].includes(reportType) && this.renderCount()
-            )
-          )}
+          {this.renderCountConfig()}
           {reportTypes.NumberChart === reportType && this.renderNumberStyle()}
           {sourceType && this.renderTitle()}
           {[reportTypes.WordCloudChart].includes(reportType) && this.renderWordCloudFontSize()}

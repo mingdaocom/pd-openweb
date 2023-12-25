@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { Dropdown, CityPicker, Icon, Checkbox } from 'ming-ui';
+import { Dropdown, Icon, Checkbox, CityPicker, Input } from 'ming-ui';
 import { DateTime } from 'ming-ui/components/NewDateTimePicker';
 import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import DialogSelectDept from 'src/components/dialogSelectDept';
@@ -14,6 +14,7 @@ import SelectOtherFields from '../SelectOtherFields';
 import { Tooltip, TimePicker } from 'antd';
 import { selectOrgRole } from 'src/components/DialogSelectOrgRole';
 import moment from 'moment';
+import _ from 'lodash';
 
 export default class TriggerCondition extends Component {
   static propTypes = {
@@ -59,7 +60,10 @@ export default class TriggerCondition extends Component {
       showControlsIndex: '',
       moreFieldsIndex: '',
       controlsData: this.getFieldData(props.controls),
+      search: undefined,
+      keywords: '',
     };
+    this.cityPickerSearchRef = React.createRef();
   }
 
   componentWillReceiveProps(nextProps, nextState) {
@@ -143,18 +147,6 @@ export default class TriggerCondition extends Component {
     let conditionData = [];
     let conditionIndex;
     let single;
-    const switchConditionId = id => {
-      switch (id) {
-        case '15':
-          return '37';
-        case '16':
-          return '38';
-        case '17':
-          return '41';
-        case '18':
-          return '39';
-      }
-    };
 
     if (isNodeHeader) {
       controls.forEach(obj => {
@@ -171,10 +163,6 @@ export default class TriggerCondition extends Component {
 
     if (item.filedId) {
       conditionData = (getConditionList(item.filedTypeId, item.enumDefault) || { ids: [] }).ids.map((id, index) => {
-        if (item.conditionId === id || switchConditionId(item.conditionId) === id) {
-          controlNumber = getConditionNumber(id);
-        }
-
         if (
           (_.includes([15, 16], item.filedTypeId) || (item.filedTypeId === 38 && item.enumDefault === 2)) &&
           ((item.conditionId === '15' && id === '37') ||
@@ -190,6 +178,8 @@ export default class TriggerCondition extends Component {
           value: id,
         };
       });
+
+      controlNumber = getConditionNumber(item.conditionId);
     }
 
     // 处理老的日期条件
@@ -244,7 +234,7 @@ export default class TriggerCondition extends Component {
             item.conditionValues[0] &&
             item.conditionValues[0].controlId && (
               <Checkbox
-                text={_l('为空时忽略')}
+                text={_l('条件异常时忽略')}
                 checked={item.ignoreEmpty === 1}
                 onClick={checked => this.switchFilterCondition(checked ? 0 : 1, i, j)}
               />
@@ -457,11 +447,16 @@ export default class TriggerCondition extends Component {
     updateSource(data);
   };
 
+  onFetchData = _.debounce(keywords => {
+    this.setState({ keywords });
+  }, 500);
+
   /**
    * 渲染单个条件的值
    */
   renderItemValue(item, controlNumber = 0, i, j, showType, unit) {
     const { isNodeHeader, projectId } = this.props;
+    const { search, keywords } = this.state;
 
     if (_.isEmpty(item)) {
       return <div className="flex triggerConditionNum triggerConditionDisabled" />;
@@ -766,10 +761,13 @@ export default class TriggerCondition extends Component {
               className={cx('flex triggerConditionNum triggerConditionList ThemeBorderColor3 clearBorderRadius', {
                 pTop2: conditionValues.length,
               })}
+              onClick={() => this.cityPickerSearchRef.current.focus()}
             >
               <CityPicker
+                search={keywords}
                 level={level}
                 callback={citys => {
+                  search && this.setState({ search: '', keywords: '' });
                   this.cacheCityPickerData = citys;
                   level === citys.length && this.updateConditionValue({ value: citys, i, j });
                 }}
@@ -778,32 +776,48 @@ export default class TriggerCondition extends Component {
                   this.updateConditionValue({ value: this.cacheCityPickerData, i, j })
                 }
               >
-                {!conditionValues.length ? (
-                  <div className="Gray_bd pLeft10 pRight10">
-                    {filedTypeId === 19 ? _l('省') : filedTypeId === 23 ? _l('省/市') : _l('省/市/县')}
+                <ul className="pLeft6 tagWrap">
+                  {conditionValues.map((list, index) => {
+                    return (
+                      <li key={index} className="tagItem flexRow">
+                        <span className="tag" title={list.value.value}>
+                          {list.value.value}
+                        </span>
+                        <span
+                          className="delTag"
+                          onClick={e => {
+                            e.stopPropagation();
+                            this.cacheCityPickerData = [];
+                            this.updateConditionValue({ value: list.value.key, i, j });
+                          }}
+                        >
+                          <Icon icon="close" className="pointer" />
+                        </span>
+                      </li>
+                    );
+                  })}
+                  <div className="CityPicker-input-tagSearchBox">
+                    <Input
+                      className="CityPicker-input-textCon CityPicker-input-tagSearch"
+                      placeholder={
+                        !conditionValues.length
+                          ? item.type === 19
+                            ? _l('省')
+                            : item.type === 23
+                            ? _l('省/市')
+                            : _l('省/市/县')
+                          : ''
+                      }
+                      value={search}
+                      manualRef={this.cityPickerSearchRef}
+                      onChange={value => {
+                        this.setState({ search: value });
+                        this.onFetchData(value);
+                      }}
+                    />
+                    <label className="CityPicker-input-box_label">{search}</label>
                   </div>
-                ) : (
-                  <ul className="pLeft6 tagWrap">
-                    {conditionValues.map((list, index) => {
-                      return (
-                        <li key={index} className="tagItem flexRow">
-                          <span className="tag" title={list.value.value}>
-                            {list.value.value}
-                          </span>
-                          <span
-                            className="delTag"
-                            onClick={e => {
-                              e.stopPropagation();
-                              this.updateConditionValue({ value: list.value.key, i, j });
-                            }}
-                          >
-                            <Icon icon="close" className="pointer" />
-                          </span>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
+                </ul>
               </CityPicker>
             </div>
           )}
@@ -1019,7 +1033,6 @@ export default class TriggerCondition extends Component {
   selectUser(evt, users, i, j, unique) {
     dialogSelectUser({
       title: _l('选择人员'),
-      showMoreInvite: false,
       SelectUserSettings: {
         filterResigned: false,
         filterAccountIds: unique ? [] : users.map(item => item.value.key),
@@ -1028,6 +1041,7 @@ export default class TriggerCondition extends Component {
         unique,
         includeSystemField: true,
         filterSystemAccountId: ['user-self', 'user-sub'],
+        prefixAccountIds: [md.global.Account.accountId],
         callback: users => {
           this.updateConditionValue({ value: users, i, j, isSingle: unique });
         },
@@ -1132,11 +1146,12 @@ export default class TriggerCondition extends Component {
       if (typeof value === 'string') {
         _.remove(data[i][j].conditionValues, obj => obj.value.key === value);
       } else {
-        const key = value[value.length - 1].id;
+        const last = _.last(value);
+        const key = last.id;
         const isExist = _.find(data[i][j].conditionValues, obj => obj.value.key === key);
 
         if (!isExist) {
-          data[i][j].conditionValues.push({ value: { key, value: value.map(item => item.name).join('/') } });
+          data[i][j].conditionValues.push({ value: { key, value: last.path } });
         }
       }
     }

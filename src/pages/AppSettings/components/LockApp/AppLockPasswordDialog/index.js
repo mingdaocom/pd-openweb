@@ -224,7 +224,7 @@ function LockApp(props) {
             ref={passwordInputRef}
             onChange={e => setPassword(e.target.value)}
             onBlur={e => {
-              if (!e || !e.target.value) return;
+              if (!e || !e.target.value || !canEdit) return;
               if (checkPassword(password)) return;
               clearTimeout(timeout);
               timeout = setTimeout(() => {

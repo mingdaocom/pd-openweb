@@ -43,6 +43,19 @@ var packageVersion = {
     return $.api(controllerName, 'v1packageauthorize', JSON.stringify(args), $.extend(base, options));
   },
   /**
+   * 申请授权应用
+   * @param {Object} args 请求参数
+   * @param {string} [args.access_token] 令牌
+   * @param {授权应用} {apkIds:应用ids(array),companyId:网络id(string),id:id(string),type:操作类型 1添加 2移除(integer),}*request
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   */
+  authorizeApkIds: function(args, options) {
+    base.ajaxOptions.url = base.server(options) + '/v1/package/authorizeApkIds';
+    base.ajaxOptions.type = 'POST';
+    return $.api(controllerName, 'v1packageauthorizeApkIds', JSON.stringify(args), $.extend(base, options));
+  },
+  /**
    * 复制
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
@@ -59,7 +72,7 @@ var packageVersion = {
    * 获取API管理数量
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {获取API管理} {apkId:操作的应用id 处理授权用(string),companyId:网络id 为空则查询 公开的(string),keyword:null(string),pageIndex:null(integer),pageSize:null(integer),relationId:API管理id(string),status:0已删除 1正常 2审核中 3已发布(array),types:类型(1 自定义 2 安装 3 公开)(array),}*request
+   * @param {获取API管理} {apkId:操作的应用id 处理授权用(string),authorization:是否开启授权申请(boolean),companyId:网络id 为空则查询 公开的(string),enabled:是否启用  默认全部 不传(boolean),isOwner:我的连接(boolean),keyword:null(string),pageIndex:null(integer),pageSize:null(integer),relationId:API管理id(string),sorter:排序字段 正序{'apiCount':'ascend'} 倒序{'apiCount':'descend'}(object),status:0已删除 1正常 2审核中 3已发布(array),types:类型(1 自定义 2 安装 3 公开)(array),}*request
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
@@ -72,7 +85,7 @@ var packageVersion = {
    * 删除API管理
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {获取API管理详情} {id:id(string),introduce:介绍(string),}*request
+   * @param {获取API管理详情} {authorization:是否开启授权申请(boolean),id:id(string),introduce:介绍(string),}*request
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
@@ -85,7 +98,7 @@ var packageVersion = {
    * 删除API
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {获取API管理详情} {id:id(string),introduce:介绍(string),}*request
+   * @param {获取API管理详情} {authorization:是否开启授权申请(boolean),id:id(string),introduce:介绍(string),}*request
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
@@ -111,7 +124,7 @@ var packageVersion = {
    * 获取API详情
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {获取API管理详情} {id:id(string),introduce:介绍(string),}*request
+   * @param {获取API管理详情} {authorization:是否开启授权申请(boolean),id:id(string),introduce:介绍(string),}*request
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
@@ -124,7 +137,7 @@ var packageVersion = {
    * 获取API列表
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {获取API管理} {apkId:操作的应用id 处理授权用(string),companyId:网络id 为空则查询 公开的(string),keyword:null(string),pageIndex:null(integer),pageSize:null(integer),relationId:API管理id(string),status:0已删除 1正常 2审核中 3已发布(array),types:类型(1 自定义 2 安装 3 公开)(array),}*request
+   * @param {获取API管理} {apkId:操作的应用id 处理授权用(string),authorization:是否开启授权申请(boolean),companyId:网络id 为空则查询 公开的(string),enabled:是否启用  默认全部 不传(boolean),isOwner:我的连接(boolean),keyword:null(string),pageIndex:null(integer),pageSize:null(integer),relationId:API管理id(string),sorter:排序字段 正序{'apiCount':'ascend'} 倒序{'apiCount':'descend'}(object),status:0已删除 1正常 2审核中 3已发布(array),types:类型(1 自定义 2 安装 3 公开)(array),}*request
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
@@ -137,7 +150,7 @@ var packageVersion = {
    * 获取API被引用列表
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {获取API管理详情} {id:id(string),introduce:介绍(string),}*request
+   * @param {获取API管理详情} {authorization:是否开启授权申请(boolean),id:id(string),introduce:介绍(string),}*request
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
@@ -147,10 +160,23 @@ var packageVersion = {
     return $.api(controllerName, 'v1packagegetApiRelationList', JSON.stringify(args), $.extend(base, options));
   },
   /**
+   * 获取授权申请列表
+   * @param {Object} args 请求参数
+   * @param {string} [args.access_token] 令牌
+   * @param {获取API管理} {apkId:操作的应用id 处理授权用(string),authorization:是否开启授权申请(boolean),companyId:网络id 为空则查询 公开的(string),enabled:是否启用  默认全部 不传(boolean),isOwner:我的连接(boolean),keyword:null(string),pageIndex:null(integer),pageSize:null(integer),relationId:API管理id(string),sorter:排序字段 正序{'apiCount':'ascend'} 倒序{'apiCount':'descend'}(object),status:0已删除 1正常 2审核中 3已发布(array),types:类型(1 自定义 2 安装 3 公开)(array),}*request
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   */
+  getAuthorizationList: function(args, options) {
+    base.ajaxOptions.url = base.server(options) + '/v1/package/getAuthorizationList';
+    base.ajaxOptions.type = 'POST';
+    return $.api(controllerName, 'v1packagegetAuthorizationList', JSON.stringify(args), $.extend(base, options));
+  },
+  /**
    * 获取API管理详情
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {获取API管理详情} {id:id(string),introduce:介绍(string),}*request
+   * @param {获取API管理详情} {authorization:是否开启授权申请(boolean),id:id(string),introduce:介绍(string),}*request
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
@@ -176,15 +202,15 @@ var packageVersion = {
    * 获取历史运行列表
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
+   * @param {String} [args.createBy] 触发者
    * @param {Date} [args.endDate] 结束时间
-   * @param {string} [args.instanceId] instanceId
    * @param {int} [args.pageIndex] 页数
    * @param {int} [args.pageSize] 每页数量
    * @param {String} [args.processId] *流程ID
    * @param {Date} [args.startDate] 开始时间
    * @param {int} [args.status] 状态
    * @param {String} [args.title] 名称
-   * @param {string} [args.workId] workId
+   * @param {int} [args.type] 类型
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
@@ -197,7 +223,7 @@ var packageVersion = {
    * 获取API管理列表
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {获取API管理} {apkId:操作的应用id 处理授权用(string),companyId:网络id 为空则查询 公开的(string),keyword:null(string),pageIndex:null(integer),pageSize:null(integer),relationId:API管理id(string),status:0已删除 1正常 2审核中 3已发布(array),types:类型(1 自定义 2 安装 3 公开)(array),}*request
+   * @param {获取API管理} {apkId:操作的应用id 处理授权用(string),authorization:是否开启授权申请(boolean),companyId:网络id 为空则查询 公开的(string),enabled:是否启用  默认全部 不传(boolean),isOwner:我的连接(boolean),keyword:null(string),pageIndex:null(integer),pageSize:null(integer),relationId:API管理id(string),sorter:排序字段 正序{'apiCount':'ascend'} 倒序{'apiCount':'descend'}(object),status:0已删除 1正常 2审核中 3已发布(array),types:类型(1 自定义 2 安装 3 公开)(array),}*request
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
@@ -236,7 +262,7 @@ var packageVersion = {
    * 修改管理
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {获取API管理详情} {id:id(string),introduce:介绍(string),}*request
+   * @param {获取API管理详情} {authorization:是否开启授权申请(boolean),id:id(string),introduce:介绍(string),}*request
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
@@ -246,10 +272,36 @@ var packageVersion = {
     return $.api(controllerName, 'v1packageupdate', JSON.stringify(args), $.extend(base, options));
   },
   /**
+   * 开启关闭授权
+   * @param {Object} args 请求参数
+   * @param {string} [args.access_token] 令牌
+   * @param {获取API管理详情} {authorization:是否开启授权申请(boolean),id:id(string),introduce:介绍(string),}*request
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   */
+  updateAuthorization: function(args, options) {
+    base.ajaxOptions.url = base.server(options) + '/v1/package/updateAuthorization';
+    base.ajaxOptions.type = 'POST';
+    return $.api(controllerName, 'v1packageupdateAuthorization', JSON.stringify(args), $.extend(base, options));
+  },
+  /**
+   * 更新申请授权应用操作的状态
+   * @param {Object} args 请求参数
+   * @param {string} [args.access_token] 令牌
+   * @param {修改API管理} {id:id(string),status:0已删除 1正常 2审核中 3已发布(integer),}*request
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   */
+  updateAuthorizeStatus: function(args, options) {
+    base.ajaxOptions.url = base.server(options) + '/v1/package/updateAuthorizeStatus';
+    base.ajaxOptions.type = 'POST';
+    return $.api(controllerName, 'v1packageupdateAuthorizeStatus', JSON.stringify(args), $.extend(base, options));
+  },
+  /**
    * 公开的排序
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {API管理排序} {id:id(string),index:排序(integer),price:api价格 传apiId(number),}*request
+   * @param {API管理排序} {id:id(string),index:排序(integer),}*request
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
@@ -262,7 +314,7 @@ var packageVersion = {
    * 公开的修改安装量
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {API管理排序} {id:id(string),index:排序(integer),price:api价格 传apiId(number),}*request
+   * @param {API管理排序} {id:id(string),index:排序(integer),}*request
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
@@ -301,7 +353,7 @@ var packageVersion = {
    * 验证没有安装的接口
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {获取API管理详情} {id:id(string),introduce:介绍(string),}*request
+   * @param {获取API管理详情} {authorization:是否开启授权申请(boolean),id:id(string),introduce:介绍(string),}*request
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */

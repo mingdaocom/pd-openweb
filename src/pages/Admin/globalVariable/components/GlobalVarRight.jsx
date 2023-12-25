@@ -36,7 +36,7 @@ export default function GlobalVarRight(props) {
           }}
         >
           <Icon icon="add" />
-          <span>{_l(`${activeItem === 'project' ? '组织' : '应用'}变量`)}</span>
+          <span>{activeItem === 'project' ? _l('组织变量') : _l('应用变量')}</span>
           {featureType === '2' && <Icon icon="auto_awesome" />}
         </div>
       </div>

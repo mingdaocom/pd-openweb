@@ -9,7 +9,7 @@ import PaginationWrap from '../../components/PaginationWrap';
 import Empty from 'src/pages/Admin/common/TableEmpty';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
-import UserHead from 'src/pages/feed/components/userHead';
+import UserHead from 'src/components/userHead';
 import Trigger from 'rc-trigger';
 import './index.less';
 import _ from 'lodash';
@@ -234,7 +234,6 @@ export default class EncryptRules extends Component {
                           userHead: item.createAccountAvatar,
                           accountId: item.createAccountId,
                         }}
-                        lazy={'false'}
                         size={24}
                       />
                       {item.createAccountName}

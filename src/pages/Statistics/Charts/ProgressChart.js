@@ -1,5 +1,4 @@
 import React, { Component, Fragment } from 'react';
-import { Progress, RingProgress, Liquid } from '@antv/g2plot';
 import { Row, Col } from 'antd';
 import { formatYaxisList, formatrChartValue, formatControlInfo, getChartColors, getStyleColor } from './common';
 import { formatSummaryName, isFormatNumber } from 'statistics/common';
@@ -32,7 +31,10 @@ class ProgressChart extends Component {
     this.ProgressChart = null;
   }
   componentDidMount() {
-    this.renderProgressChart(this.props);
+    import('@antv/g2plot').then(data => {
+      this.g2plotComponent = data;
+      this.renderProgressChart(this.props);
+    });
   }
   componentWillUnmount() {
     this.ProgressChart && this.ProgressChart.destroy();
@@ -100,6 +102,7 @@ class ProgressChart extends Component {
       }
     }
     const color = getColor();
+    const { Progress, RingProgress, Liquid } = this.g2plotComponent;
 
     if (showChartType === 2) {
       const baseConfig = {

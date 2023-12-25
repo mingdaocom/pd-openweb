@@ -33,7 +33,7 @@ export default {
   /**
   * 添加行为日志
   * @param {Object} args 请求参数
-  * @param {} args.type 1= 应用，2 = 工作表,3= 自定义页面，4 = 工作表记录,5 = 打印了记录，6 = 使用了word模板打印 ，7=使用模板打印了记录，8 = 打印了二维码，9 = 打印了条形码,10=批量使用word打印
+  * @param {} args.type 1= 应用，2 = 工作表,3= 自定义页面，4 = 工作表记录,5 = 打印了记录，6 = 使用了word模板打印 ，7=使用模板打印了记录，8 = 打印了二维码，9 = 打印了条形码,10=批量使用word打印, 11 = 附件预览
   * @param {string} args.entityId 实体id(根据访问类型不同， 传不同模块id)
 浏览应用，entityId =应用id，浏览自定义页面，entityId = 页面id。其他的浏览行为 =worksheetId
   * @param {} args.params 额外参数

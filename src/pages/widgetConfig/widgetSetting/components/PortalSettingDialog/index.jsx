@@ -11,7 +11,7 @@ import {
 } from './configs';
 import { enumWidgetType, getWidgetInfo } from 'src/pages/widgetConfig/util';
 import Settings from 'src/pages/widgetConfig/widgetSetting/settings';
-import TelConfig from 'src/pages/widgetConfig/widgetSetting/components/ControlSetting/TelConfig';
+import TelConfig from 'src/pages/widgetConfig/widgetSetting/components/WidgetHighSetting/ControlSetting/TelConfig';
 import WidgetVerify from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify';
 import WidgetExplain from 'src/pages/widgetConfig/widgetSetting/components/WidgetExplain';
 import 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/inputTypes/SubSheet/style.less';
@@ -43,11 +43,11 @@ export default class PortalSettingDialog extends Component {
   };
 
   render() {
-    const { onClose, onOk, globalSheetInfo } = this.props;
+    const { onClose, onOk, globalSheetInfo, from } = this.props;
     const { data = {} } = this.state;
     const { type } = data;
     const ENUM_TYPE = enumWidgetType[type];
-    const allProps = { data, onChange: this.onChange, globalSheetInfo };
+    const allProps = { data, onChange: this.onChange, globalSheetInfo, from };
     const SettingComponent = Settings[ENUM_TYPE];
     const { icon, widgetName } = getWidgetInfo(type);
     return (

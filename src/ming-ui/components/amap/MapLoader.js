@@ -17,9 +17,9 @@
 // <script src="//webapi.amap.com/maps?v=1.3&key=您申请的key值"></script>
 
 // 高德地图地址采用jsonp callback -->amapInitComponent
-// 含插件Autocomplete，Geocoder，Geolocation，ToolBar，Scale
+// 含插件Autocomplete，Geocoder，Geolocation，ToolBar，Scale，CitySearch
 const AMAP_URL =
-  'https://webapi.amap.com/maps?v=1.3&key=9aedaf173cec6f03d4b9ce7c8a9159c5&plugin=AMap.Autocomplete,AMap.PlaceSearch,AMap.Geocoder,AMap.Geolocation,AMap.ToolBar,AMap.Scale'; // eslint-disable-line
+  'https://webapi.amap.com/maps?v=1.3&key=9aedaf173cec6f03d4b9ce7c8a9159c5&plugin=AMap.Autocomplete,AMap.PlaceSearch,AMap.Geocoder,AMap.Geolocation,AMap.ToolBar,AMap.Scale,AMap.CitySearch'; // eslint-disable-line
 
 let map;
 

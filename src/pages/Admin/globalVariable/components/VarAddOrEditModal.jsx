@@ -396,13 +396,21 @@ export default function VarAddOrEditModal(props) {
     );
   };
 
+  const drawerTitle = isEdit
+    ? !!appId
+      ? _l('编辑应用变量')
+      : _l('编辑组织变量')
+    : !!appId
+    ? _l('添加应用变量')
+    : _l('添加组织变量');
+
   return (
     <VarDrawer
       visible={visible}
       width={600}
       placement="right"
       mask={false}
-      title={isEdit ? _l(`编辑${!!appId ? '应用' : '组织'}变量`) : _l(`添加${!!appId ? '应用' : '组织'}变量`)}
+      title={drawerTitle}
       closeIcon={<i className="icon-close Font18" />}
       onClose={onCloseAndClearData}
     >

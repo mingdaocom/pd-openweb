@@ -12,6 +12,8 @@ import {
   CUR_SEARCH_TYPES,
   CUR_OCR_TYPES,
   CUR_OCR_URL_TYPES,
+  WATER_MASK_TYPES,
+  DYNAMIC_FROM_MODE,
 } from '../config';
 import _ from 'lodash';
 import { SYS_CONTROLS } from 'src/pages/widgetConfig/config/widget';
@@ -27,6 +29,7 @@ export default function OtherField(props) {
     globalSheetInfo,
     globalSheetControls = [],
     needFilter = false,
+    from,
   } = props;
   const { worksheetId } = globalSheetInfo;
   const originControls = props.controls.concat(globalSheetControls);
@@ -42,6 +45,8 @@ export default function OtherField(props) {
     if (fieldId === 'search-keyword') return CUR_SEARCH_TYPES[0].text;
     if (fieldId === 'ocr-file') return CUR_OCR_TYPES[0].text;
     if (fieldId === 'ocr-file-url') return CUR_OCR_URL_TYPES[0].text;
+    if (fieldId === 'current-time') return WATER_MASK_TYPES[1].text;
+    if (from === DYNAMIC_FROM_MODE.WATER_MASK && fieldId === 'user-self') return WATER_MASK_TYPES[0].text;
     if (
       _.includes(
         [
@@ -109,7 +114,17 @@ export default function OtherField(props) {
     const isFieldNotInControls = (controls, cid) => {
       if (
         _.includes(
-          ['ctime', 'utime', 'ownerid', 'caid', 'search-keyword', 'ocr-file', 'ocr-file-url', ...SYS_CONTROLS],
+          [
+            'ctime',
+            'utime',
+            'ownerid',
+            'caid',
+            'search-keyword',
+            'ocr-file',
+            'ocr-file-url',
+            'current-time',
+            ...SYS_CONTROLS,
+          ],
           cid,
         )
       )

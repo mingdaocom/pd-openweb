@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Radio, Icon, RadioGroup, Input } from 'ming-ui';
-import cx from 'classnames';
+import { Radio } from 'ming-ui';
 import _ from 'lodash';
-import { Select } from 'antd';
 import { SYNC_TYPE } from '../../../constant';
 import OnlySyncStep from '../OnlySyncStep';
-import SyncWithDeal from '../SyncWithDeal';
+import { v4 as uuidv4 } from 'uuid';
+import taskFlowApi from 'src/pages/integration/api/taskFlow';
+import { navigateTo } from 'src/router/navigateTo';
 
 const SyncTaskWrapper = styled.div`
   display: flex;
@@ -106,28 +106,43 @@ const CardWrapper = styled.div`
   }
 `;
 
-const TempCardWrapper = styled.div`
-  display: flex;
-  justify-content: space-between;
-  width: 800px;
-  height: 200px;
-  background: #fff;
-  border: 2px solid #f2f2f2;
-  border-radius: 12px;
-  padding: 32px;
-  margin-top: 16px;
-
-  .Radio-text {
-    font-size: 17px;
-    font-weight: 500;
-  }
-`;
-
 export default function CreateSyncTask(props) {
-  const { setNextOrSaveDisabled } = props;
+  const { currentProjectId, source, dest } = props;
   const [syncType, setSyncType] = useState(SYNC_TYPE.NO_SELECT);
 
-  useEffect(() => {}, []);
+  const onInitTaskFlow = () => {
+    const data = {
+      projectId: currentProjectId,
+      owner: md.global.Account.accountId,
+      sourceNode: {
+        nodeId: uuidv4(),
+        name: _l('源表节点'),
+        nodeType: 'SOURCE_TABLE',
+        config: {
+          datasourceId: source.id,
+          dsType: source.type,
+          className: source.className,
+          iconBgColor: source.iconBgColor,
+        },
+      },
+      destNode: {
+        nodeId: uuidv4(),
+        name: _l('目的地节点'),
+        nodeType: 'DEST_TABLE',
+        config: {
+          dataDestId: dest.id,
+          dsType: dest.type,
+          className: dest.className,
+          iconBgColor: dest.iconBgColor,
+        },
+      },
+    };
+    taskFlowApi.initEmpty(data).then(res => {
+      if (res.id) {
+        navigateTo(`/integration/taskCon/${res.id}`);
+      }
+    });
+  };
 
   return (
     <SyncTaskWrapper>
@@ -143,27 +158,19 @@ export default function CreateSyncTask(props) {
             </div>
             <img src="/staticfiles/images/list.png" width={330} />
           </CardWrapper>
-          <TempCardWrapper
-          // onClick={() => {
-          //   setSyncType(SYNC_TYPE.SYNC_WITH_DEAL);
-          //   setNextOrSaveDisabled(false);
-          // }}
-          >
+          <CardWrapper onClick={() => onInitTaskFlow()}>
             <div>
-              <Radio
-                className="Gray_9e"
-                text={_l('同步时需要对数据进行处理')}
-                checked={syncType === SYNC_TYPE.SYNC_WITH_DEAL}
-              />
+              <Radio text={_l('同步时需要对数据进行处理')} checked={syncType === SYNC_TYPE.SYNC_WITH_DEAL} />
               <div className="Gray_9e mTop8 mLeft30">{_l('创建单个同步任务，并立即对其添加数据处理步骤')}</div>
-              <div className="Gray_9e mTop50 mLeft30">{_l('即将上线')}</div>
             </div>
             <img src="/staticfiles/images/step.png" width={330} />
-          </TempCardWrapper>
+          </CardWrapper>
         </div>
       )}
       {syncType === SYNC_TYPE.ONLY_SYNC && <OnlySyncStep {...props} onClose={() => setSyncType(SYNC_TYPE.NO_SELECT)} />}
-      {/* {syncType === SYNC_TYPE.SYNC_WITH_DEAL && <SyncWithDeal {...props} onClose={() => setSyncType(SYNC_TYPE.NO_SELECT)} />} */}
+      {/* {syncType === SYNC_TYPE.SYNC_WITH_DEAL && (
+        <SyncWithDeal {...props} onClose={() => setSyncType(SYNC_TYPE.NO_SELECT)} />
+      )} */}
     </SyncTaskWrapper>
   );
 }

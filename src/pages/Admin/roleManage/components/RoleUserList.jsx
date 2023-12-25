@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { Checkbox } from 'ming-ui';
 import EmptyStatus from './EmptyStatus';
-import UserHead from 'src/pages/feed/components/userHead';
+import UserHead from 'src/components/userHead';
 import cx from 'classnames';
 import _ from 'lodash';
 
@@ -69,7 +69,6 @@ class RoleUserList extends Component {
                   userHead: item.avatar,
                   accountId: item.accountId,
                 }}
-                lazy={'false'}
                 size={32}
               />
               <a

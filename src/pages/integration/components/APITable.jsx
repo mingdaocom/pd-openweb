@@ -123,8 +123,11 @@ function APITable(props) {
     onChange(selectedList.includes(id) ? selectedList.filter(o => o !== id) : selectedList.concat(id));
   };
   useEffect(() => {
-    window.addEventListener('scroll', HandleScroll, true);
-  }, []);
+    document.removeEventListener('scroll', HandleScroll, true);
+    document.addEventListener('scroll', HandleScroll, true);
+
+    return () => document.removeEventListener('scroll', HandleScroll, true);
+  }, [props]);
   const HandleScroll = e => {
     if (!WrapRef.current || !WrapBotttomRef.current) return;
     if (Math.abs($(WrapRef.current).offset().top - $(WrapBotttomRef.current).offset().top) <= 10) {

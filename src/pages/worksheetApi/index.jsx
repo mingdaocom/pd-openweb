@@ -889,16 +889,11 @@ class WorksheetApi extends Component {
 
                 {o.id === 'AreaInfo' && (
                   <Fragment>
-                    <div className="Font15 bold mTop20">{_l('获取一级省份信息')}</div>
-                    <div className="Font14 mTop15">{_l('接口地址：') + __api_server__.main}FixedData/LoadProvince</div>
-                    <div className="Font14">{_l('提交方式：')}POST</div>
-                    <div className="Font14">{_l('返回内容：')}JSON</div>
-
-                    <div className="Font15 bold mTop40">{_l('获取二三级 城市/区县信息')}</div>
+                    <div className="Font15 bold mTop20">{_l('获取地区信息')}</div>
                     <div className="Font14 mTop15">
-                      {_l('接口地址：') + __api_server__.main}FixedData/LoadCityCountyById
+                      {_l('接口地址：') + __api_server__.main}FixedData/getCitysByParentID
                     </div>
-                    <div className="Font14">{_l('提交参数：{"id": "省份or城市id"}')}</div>
+                    <div className="Font14">{_l('提交参数：{"parentId": "省份or城市id", "keywords": ""}')}</div>
                     <div className="Font14">{_l('提交方式：')}POST</div>
                     <div className="Font14">{_l('返回内容：')}JSON</div>
                   </Fragment>
@@ -917,16 +912,7 @@ class WorksheetApi extends Component {
                 })
               ) : o.id === 'AreaInfo' ? (
                 <div className="worksheetApiContent2">
-                  <div className="Font14 White mBottom6">{_l('获取一级省份信息')}</div>
-                  <JsonView
-                    src={o.provinceData}
-                    theme="brewer"
-                    displayDataTypes={false}
-                    displayObjectSize={false}
-                    name={null}
-                  />
-
-                  <div className="Font14 mTop40 White mBottom6">{_l('获取二三级 城市/区县信息')}</div>
+                  <div className="Font14 mTop20 White mBottom6">{_l('获取地区信息')}</div>
                   <JsonView
                     src={o.cityData}
                     theme="brewer"
@@ -1593,10 +1579,11 @@ class WorksheetApi extends Component {
       viewId: _l('视图ID,可为空'),
       pageSize: 50,
       pageIndex: 1,
+      listType: 0,
     };
 
     MENU_LIST[i].data.forEach(obj => {
-      if (!_.includes(['appKey', 'sign', 'worksheetId', 'viewId', 'pageSize', 'pageIndex'], obj.name)) {
+      if (!_.includes(['appKey', 'sign', 'worksheetId', 'viewId', 'pageSize', 'pageIndex', 'listType'], obj.name)) {
         otherOptions[obj.name] = obj.desc;
       }
     });

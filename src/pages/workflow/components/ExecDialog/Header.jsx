@@ -68,7 +68,9 @@ export default class Header extends Component {
         appId: app.id,
         workId,
       };
-      let printKey = Math.random().toString(36).substring(2);
+      let printKey = Math.random()
+        .toString(36)
+        .substring(2);
       webCacheAjax.add({
         key: `${printKey}`,
         value: JSON.stringify(printData),
@@ -82,7 +84,7 @@ export default class Header extends Component {
   };
 
   handleClick = id => {
-    const { onSubmit, data } = this.props;
+    const { projectId, onSubmit, data } = this.props;
     const { ignoreRequired, encrypt } = (data || {}).flowNode || {};
     /**
      * 填写
@@ -91,12 +93,13 @@ export default class Header extends Component {
       // 验证密码
       if (encrypt) {
         verifyPassword({
+          projectId,
           checkNeedAuth: true,
           success: () => {
             this.request('submit');
           },
-          fail: () => {
-            this.writeVerifyPassword();
+          fail: result => {
+            this.writeVerifyPassword(result === 'showPassword');
           },
         });
       } else {
@@ -240,11 +243,14 @@ export default class Header extends Component {
   /**
    * 填写验证码
    */
-  writeVerifyPassword() {
+  writeVerifyPassword(removeNoneVerification) {
+    const { projectId } = this.props;
+
     Dialog.confirm({
-      title: _l('提交记录'),
+      title: _l('安全认证'),
       description: (
         <VerifyPassword
+          removeNoneVerification={removeNoneVerification}
           autoFocus={true}
           onChange={({ password, isNoneVerification }) => {
             if (password !== undefined) this.password = password;
@@ -255,6 +261,7 @@ export default class Header extends Component {
       onOk: () => {
         return new Promise((resolve, reject) => {
           verifyPassword({
+            projectId,
             password: this.password,
             closeImageValidation: true,
             isNoneVerification: this.isNoneVerification,

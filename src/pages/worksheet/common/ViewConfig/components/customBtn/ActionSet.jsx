@@ -163,6 +163,7 @@ class ActionSet extends Component {
             className="Font14 Gray_9e"
           />
           <span className="Font15 Bold mLeft10">{_l('记录详情')}</span>
+          {detailBtns.length > 0 && <span className="num Bold Font15 Gray_75 mLeft8">{detailBtns.length}</span>}
         </div>
         {openList.includes('recordAction') && (
           <React.Fragment>
@@ -224,6 +225,7 @@ class ActionSet extends Component {
                 className="Font14 Gray_9e"
               />
               <span className="Font15 Bold mLeft10">{_l('批量操作')}</span>
+              {listBtns.length > 0 && <span className="num Bold Font15 Gray_75 mLeft8">{listBtns.length}</span>}
             </div>
             {openList.includes('bathAction') && (
               <React.Fragment>

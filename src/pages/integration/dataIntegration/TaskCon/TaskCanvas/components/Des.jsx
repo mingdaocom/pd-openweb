@@ -70,7 +70,7 @@ export default function Des(props) {
   if (isAct) {
     return renderDes(nodeData);
   }
-  let tableName = _.get(nodeData, ['nodeConfig', 'config', 'tableName']);
+  let tableName = _.get(nodeData, 'nodeConfig.config.tableName');
   return tableName ? ( //工作表名称
     <div className={`des overflow_ellipsis WordBreak ${props.className}`}>{tableName}</div>
   ) : (

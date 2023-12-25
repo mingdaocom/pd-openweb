@@ -64,7 +64,7 @@ export default class CommonInfo extends Component {
         const industryName = current_industry.name;
         //获取地址
         if (geographyId) {
-          fixeddataController.loadCityCountyById({ id: geographyId }).then(res => {
+          fixeddataController.getCitysByParentID({ parentId: geographyId }).then(res => {
             this.setState({
               geographyName: _.get(res.values, 'displayText'),
             });

@@ -124,18 +124,11 @@ const HierarchyViewConnectLineConfigWrap = styled(RadioGroup)`
 `;
 
 const DetailRecordTypeRadioGroup = styled(RadioGroup)`
-  margin-bottom: 24px;
   .ming.Radio:first-child {
     margin-right: 128px;
   }
-`;
-
-const DetailRadioWrapper = styled.div`
-  position: relative;
-  .singleDesc {
-    position: absolute;
-    right: 115px;
-    top: 2px;
+  .ming.Radio:last-child {
+    margin-right: 0;
   }
 `;
 
@@ -229,7 +222,7 @@ export default class CardAppearance extends Component {
       <ViewSettingWrap>
         {!isMultiHierarchyView && !isGallery && !isDetailView && (
           <Fragment>
-            <div className="title withSwitchConfig" style={{ marginTop: '0px', height: '24px' }}>
+            <div className="title withSwitchConfig" style={{ marginTop: '0px' }}>
               {isHierarchyView ? _l('关联本表字段') : _l('分组字段')}
             </div>
             <div className="settingContent">
@@ -401,7 +394,7 @@ export default class CardAppearance extends Component {
         )}
         {isHierarchyView && (
           <Fragment>
-            <div className="title withSwitchConfig" style={{ marginTop: '0px', height: '24px' }}>
+            <div className="title withSwitchConfig" style={{ marginTop: '0px' }}>
               {_l('显示样式')}
             </div>
             <div className="settingContent">
@@ -526,7 +519,7 @@ export default class CardAppearance extends Component {
         {isDetailView && (
           <Fragment>
             <div className="bold mBottom20">{_l('记录数量')}</div>
-            <DetailRadioWrapper>
+            <div className="flexRow alignItemsCenter">
               <DetailRecordTypeRadioGroup
                 size="middle"
                 checkedValue={detailRecordType}
@@ -555,13 +548,13 @@ export default class CardAppearance extends Component {
                 }}
               />
               <span className="Gray_9e singleDesc">{_l('（第一条记录）')}</span>
-            </DetailRadioWrapper>
+            </div>
           </Fragment>
         )}
 
         {(!isDetailView || childType === 2) && (
           <Fragment>
-            <div className="title mBottom24 bold">{_l('卡片外观')}</div>
+            <div className="title mBottom24 mTop24 bold">{_l('卡片外观')}</div>
             {/* abstract：摘要控件ID */}
             <Abstract
               {...this.props}

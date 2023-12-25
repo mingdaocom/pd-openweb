@@ -1,5 +1,18 @@
 export default {
   /**
+  * 更新链接失效时间
+  * @param {Object} args 请求参数
+  * @param {array} args.tokens 链接token
+  * @param {integer} args.hours 多少小时后失效
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   updateAuthDeadtime: function (args, options = {}) {
+     
+     return $.api('Invitation', 'UpdateAuthDeadtime', args, options);
+   },
+  /**
   * 根据邀请账号生成账户信息
   * @param {Object} args 请求参数
   * @param {Object} options 配置参数
@@ -81,18 +94,5 @@ export default {
    updateAuthToExpire: function (args, options = {}) {
      
      return $.api('Invitation', 'UpdateAuthToExpire', args, options);
-   },
-  /**
-  * 更新链接失效时间
-  * @param {Object} args 请求参数
-  * @param {array} args.tokens 链接token
-  * @param {integer} args.hours 多少小时后失效
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   updateAuthDeadtime: function (args, options = {}) {
-     
-     return $.api('Invitation', 'UpdateAuthDeadtime', args, options);
    },
 };

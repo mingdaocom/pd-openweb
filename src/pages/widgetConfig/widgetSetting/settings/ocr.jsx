@@ -1,11 +1,10 @@
 import React, { Fragment, useState, useEffect } from 'react';
-import { RadioGroup, Checkbox } from 'ming-ui';
+import { RadioGroup } from 'ming-ui';
 import Components from '../../components';
 import { isEmpty } from 'lodash';
 import { Button, SettingItem } from '../../styled';
 import { TEMPLATE_TYPE } from '../../config/ocr';
 import OcrMap from '../components/OcrMap';
-import { updateConfig } from '../../util/setting';
 import ApiSearchConfig from '../components/ApiSearchConfig';
 import { ALL_SYS } from '../../config/widget';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
@@ -71,10 +70,10 @@ function OcrMapType({ data, allControls = [], onChange }) {
 
 export default function OcrDisplay(props) {
   const { data, allControls = [], onChange } = props;
-  const { enumDefault, strDefault } = data;
+  const { enumDefault } = data;
   const [visible, setVisible] = useState(false);
   const ocrMap = getAdvanceSetting(data, 'ocrmap');
-  const [disableAlbum] = (strDefault || '00').split('');
+
   const { ocrapitype = '0', ocroriginal = '', ocrmaptype = '0', ocrcid = '' } = getAdvanceSetting(data);
 
   const FILED_LIST = allControls.filter(i => i.type === 14).map(i => ({ text: i.controlName, value: i.controlId }));
@@ -177,20 +176,6 @@ export default function OcrDisplay(props) {
           )}
         </Fragment>
       )}
-
-      <SettingItem>
-        <div className="settingItemTitle">{_l('移动端设置')}</div>
-        <div className="labelWrap">
-          <Checkbox
-            size="small"
-            checked={disableAlbum === '1'}
-            onClick={checked =>
-              onChange({ strDefault: updateConfig({ config: strDefault || '00', value: +!checked, index: 0 }) })
-            }
-            text={_l('禁用相册')}
-          />
-        </div>
-      </SettingItem>
     </Fragment>
   );
 }

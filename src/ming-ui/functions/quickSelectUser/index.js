@@ -9,6 +9,7 @@ import { LoadDiv } from 'ming-ui';
 import { Con, Content, UserList, Search, Tabs } from './Comps';
 
 import { getUsers, getAccounts } from './util';
+import { BrowserRouter } from 'react-router-dom';
 
 export function UserSelector(props) {
   const {
@@ -97,7 +98,7 @@ export function UserSelector(props) {
   if (type === 'external' || keywords) {
     prefixUsers = [];
   }
-  if (type !== 'external') {
+  if (!(type === 'external' && md.global.Account.isPortal)) {
     users = staticAccounts.concat(users);
   }
   function handleSelect(user) {
@@ -252,6 +253,7 @@ export function UserSelector(props) {
                 : users
             }
             onSelect={handleSelect}
+            appId={appId}
           />
         }
         {!isStatic && loading && <LoadDiv />}
@@ -372,19 +374,21 @@ export default function quickSelectUser(target, props = {}) {
     }
   }
   ReactDOM.render(
-    <UserSelector
-      {...props}
-      onClose={force => {
-        if (!force && props.isDynamic) {
-          setTimeout(setPosition, 100);
-          return;
-        }
-        if (_.isFunction(props.onClose)) {
-          props.onClose();
-        }
-        destory();
-      }}
-    />,
+    <BrowserRouter>
+      <UserSelector
+        {...props}
+        onClose={force => {
+          if (!force && props.isDynamic) {
+            setTimeout(setPosition, 100);
+            return;
+          }
+          if (_.isFunction(props.onClose)) {
+            props.onClose();
+          }
+          destory();
+        }}
+      />
+    </BrowserRouter>,
     $con,
   );
 }

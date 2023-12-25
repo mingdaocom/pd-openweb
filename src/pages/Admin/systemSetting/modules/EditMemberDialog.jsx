@@ -75,7 +75,14 @@ export default class EditMemberDialog extends Component {
             ? userList.map(user => {
                 return (
                   <div className="contentUser" key={user.accountId}>
-                    <img className="mLeft10 headIcon" src={user.avatar} alt="" onError={() => '/images/default.gif'} />
+                    <img
+                      className="mLeft10 headIcon"
+                      src={user.avatar}
+                      alt=""
+                      onError={() =>
+                        `${md.global.FileStoreConfig.pictureHost.replace(/\/$/, '')}/UserAvatar/default.gif`
+                      }
+                    />
                     <div className="contentName overflow_ellipsis">
                       <span className="mLeft5">{user.fullname}</span>
                     </div>

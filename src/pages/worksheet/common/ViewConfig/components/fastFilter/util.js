@@ -3,8 +3,10 @@ import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilte
 import { redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 // 文本筛选方式
 const TEXT_TYPE = [
-  { text: _l('精准搜索'), value: FILTER_CONDITION_TYPE.EQ },
-  { text: _l('模糊搜索'), value: FILTER_CONDITION_TYPE.LIKE },
+  { text: _l('等于'), value: FILTER_CONDITION_TYPE.EQ },
+  { text: _l('包含'), value: FILTER_CONDITION_TYPE.LIKE },
+  { text: _l('开头是'), value: FILTER_CONDITION_TYPE.START },
+  { text: _l('结尾是'), value: FILTER_CONDITION_TYPE.END },
 ];
 // 关联筛选方式
 const RELA_TYPE = [
@@ -79,6 +81,21 @@ export const DATE_TYPE = [
     { text: _l('将来30天'), value: 33 },
   ],
 ];
+// 引导文字
+export const LIMIT = {
+  key: 'limit',
+  keys: [
+    1,
+    2, // 文本框
+    3,
+    4, // 电话号码
+    5, // 邮件地址
+    7, // 证件
+    32, // 文本组合
+    33, // 自动编号
+  ],
+  txt: '引导文字',
+};
 //多选类型字段 且 允许选择数量为多选 =>支持设置筛选方式  多选 => 人员、部门、组织角色enumDefault：1; 关联字段enumDefault: 2 ;多选字段
 export const MULTI_SELECT_FILTER_TYPE = {
   key: 'filterType',
@@ -259,6 +276,7 @@ export const FAST_FILTERS_WHITELIST = [
   RELA_FILTER_TYPE,
   GROUP_FILTER_TYPE,
   MULTI_SELECT_FILTER_TYPE,
+  LIMIT
 ];
 // 支持快速筛选的字段
 export const FASTFILTER_CONDITION_TYPE = [
@@ -313,6 +331,7 @@ export const ADVANCEDSETTING_KEYS = [
   'searchtype',
   'searchcontrol',
   'clicksearch',
+  'limit'
 ];
 export const Filter_KEYS = [
   'filterType',

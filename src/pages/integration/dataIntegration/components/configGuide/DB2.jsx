@@ -10,7 +10,7 @@ export default function DB2Guide(props) {
       <ul>
         <li>{_l('支持IBM db2的版本：11.5x')}</li>
         <li>{_l('不支持 DB2 上的 布尔类型')}</li>
-        <li>{_l('将数据集成的系统 IP 添加到 DB2 服务器的访问白名单')}</li>
+        <li>{_l('确保数据库可以与数据集成通信')}</li>
       </ul>
 
       <h5>{_l('查询数据库版本')}</h5>

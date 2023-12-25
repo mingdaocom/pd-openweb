@@ -27,7 +27,7 @@ export default function WidgetRowHeight({ data, onChange }) {
 
   return (
     <SettingItem>
-      <div className="settingItemTitle Normal">{_l('行高')}</div>
+      <div className="settingItemTitle">{_l('行高')}</div>
       <AnimationWrap>
         {HEIGHT_SETTING_LIST.map(({ text, value }) => {
           return (

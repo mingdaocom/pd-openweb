@@ -238,6 +238,8 @@ export default function AddConnector(props) {
     //   return false;
     // }
 
+    //主键是否勾选
+    let isPkCheck = true;
     //是否有勾选
     let hasCheck = true;
     //字段信息是否填写完整
@@ -256,6 +258,10 @@ export default function AddConnector(props) {
 
     submitData.forEach(item => {
       const isCreateTable = _.get(item, ['destNode', 'config', 'createTable']);
+      if (item.destNode.fields.filter(item => item.isPk).length === 0 && !(isSourceAppType && isDestAppType)) {
+        isPkCheck = false;
+        return;
+      }
       if (item.destNode.fields.length === 0) {
         hasCheck = false;
         return;
@@ -314,6 +320,11 @@ export default function AddConnector(props) {
       .map(item => item.destNode.config.tableName);
     if (newTableNames.length > _.uniq(newTableNames).length) {
       hasRepeatNewTable = true;
+    }
+
+    if (!isPkCheck) {
+      alert(_l('有同步任务未选择主键字段'), 2);
+      return false;
     }
 
     if (!hasCheck) {
@@ -454,6 +465,7 @@ export default function AddConnector(props) {
           {...props}
           source={connectorConfigData.source}
           dest={connectorConfigData.dest}
+          submitData={submitData}
           setSubmitData={setSubmitData}
           setNextOrSaveDisabled={setNextOrSaveDisabled}
         />
@@ -499,8 +511,12 @@ export default function AddConnector(props) {
                     <Icon icon="info_outline" className="Gray_9e Font16" />
                     <span className="Gray_9e mLeft8">{_l('连续60天无数据同步，会自动停止')}</span>
                   </div>
-                  <Button type="primary" className="mTop36" onClick={onClose}>
-                    {_l('知道了')}
+                  <Button
+                    type="primary"
+                    className="mTop36"
+                    onClick={() => (window.location.href = '/integration/task')}
+                  >
+                    {_l('查看同步任务')}
                   </Button>
                 </React.Fragment>
               ) : (

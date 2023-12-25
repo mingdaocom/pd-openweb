@@ -227,7 +227,11 @@ export default class Action extends Component {
 
   render() {
     const { processId, item, disabled, selectNodeId, openDetail, isSimple } = this.props;
-    const bgClassName = item.appType === APP_TYPE.TASK ? 'BGGreen' : 'BGYellow';
+    const bgClassName = _.includes([APP_TYPE.PROCESS, APP_TYPE.GLOBAL_VARIABLE], item.appType)
+      ? 'BGBlueAsh'
+      : item.appType === APP_TYPE.TASK
+      ? 'BGGreen'
+      : 'BGYellow';
 
     return (
       <div className="flexColumn">

@@ -2,6 +2,7 @@
 const childCollectionName = 'subDepartments';
 import { htmlEncodeReg } from 'src/util';
 import departmentController from 'src/api/department';
+import { getCurrentProject } from 'src/util';
 import _ from 'lodash';
 
 export const defaultMatcher = (id, node) => {
@@ -38,19 +39,8 @@ export const getDepartmentById = (node, filter, matcher = defaultMatcher) => {
   return runner(null, node);
 };
 
-export const getProjectInfo = projectId => {
-  var result;
-  _.each(md.global.Account.projects, project => {
-    if (project.projectId === projectId) {
-      result = project;
-      return false;
-    }
-  });
-  return result;
-};
-
 export const getRenderInfo = (projectId, departmentId) => {
-  var project = getProjectInfo(projectId);
+  var project = getCurrentProject(projectId, true);
   var dfd = $.Deferred();
   if (departmentId) {
     //获取部门详细信息

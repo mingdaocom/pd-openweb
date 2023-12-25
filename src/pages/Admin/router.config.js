@@ -64,7 +64,7 @@ export const menuList = [
             component: () => import('./billCenter/waitingPay'),
           },
           {
-            path: '/admin/expansionservice/(.*)',
+            path: '/admin/expansionservice/(.*)/(user|storage|workflow|storage|dataSync|app)+',
             component: () => import('./billCenter/expansionService'),
           },
         ],
@@ -135,7 +135,7 @@ export const menuList = [
             component: () => import('./portal'),
           },
           {
-            path: '/admin/expansionservicePotal/(.*)',
+            path: '/admin/expansionservice/(.*)/(portaluser|portalupgrade)+',
             component: () => import('./billCenter/expansionService'),
           },
         ],
@@ -284,7 +284,6 @@ export const menuList = [
         icon: 'icon-global_variable',
         name: _l('全局变量'),
         key: 'variables',
-        isNew: true,
         featureId: VersionProductType.globalVariable,
         routes: [
           {

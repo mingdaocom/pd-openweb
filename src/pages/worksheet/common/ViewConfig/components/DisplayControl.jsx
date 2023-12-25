@@ -33,7 +33,7 @@ export default class DisplayControl extends React.Component {
       handleChangeSort,
       fromRelative,
       maxCount3,
-      forMobile,
+      hideShowControlName,
       isShowWorkflowSys,
     } = this.props;
     let data = !fromRelative ? view : this.props;
@@ -51,7 +51,7 @@ export default class DisplayControl extends React.Component {
         <div className="title Font13 bold">
           {_l('显示字段')}
           {/* 移动端只有appshowtype==='1'才能选择是否显示字段名称 */}
-          {(!forMobile || (forMobile && !['0', '2'].includes(appshowtype))) && (
+          {(!hideShowControlName || (hideShowControlName && !['0', '2'].includes(appshowtype))) && (
             <div className="configSwitch Right">
               <SwitchStyle>
                 <div className="switchText InlineBlock Normal Gray_9e">{_l('显示字段名称')}</div>

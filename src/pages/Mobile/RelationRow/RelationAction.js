@@ -115,7 +115,7 @@ class RelationAction extends Component {
     }
 
     // 关联查询  begin-->
-    const { type } = _.find(rowInfo.receiveControls, { controlId: base.controlId }) || {};
+    const { type } = _.find(rowInfo.templateControls, { controlId: base.controlId }) || {};
     if (type === 51) {
       this.pushRelationRows(list);
       return;
@@ -170,7 +170,7 @@ class RelationAction extends Component {
 
     let defaultRelatedSheetValue;
     try {
-      const formData = rowInfo.receiveControls.filter(_.identity);
+      const formData = rowInfo.templateControls.filter(_.identity);
       const titleControl = formData.filter(c => c && c.attribute === 1);
       defaultRelatedSheetValue = titleControl && {
         name: titleControl.value,
@@ -189,8 +189,8 @@ class RelationAction extends Component {
         {showRelevanceRecord && (
           <MobileRecordCardListDialog
             multiple
-            control={_.find(rowInfo.receiveControls, { controlId: controlId })}
-            formData={rowInfo.receiveControls}
+            control={_.find(rowInfo.templateControls, { controlId: controlId })}
+            formData={rowInfo.templateControls}
             visible={showRelevanceRecord}
             allowNewRecord={isCreate && !_.get(window, 'shareState.isPublicForm')}
             disabledManualWrite={disabledManualWrite}
@@ -250,8 +250,8 @@ class RelationAction extends Component {
   renderRelateScanQRCodeBtn() {
     const { base, rowInfo, relationRow } = this.props;
     const { worksheet } = relationRow;
-    const control = _.find(rowInfo.receiveControls, { controlId: base.controlId });
-    const formData = rowInfo.receiveControls;
+    const control = _.find(rowInfo.templateControls, { controlId: base.controlId });
+    const formData = rowInfo.templateControls;
     const filterControls = getFilter({ control, formData });
 
     return (
@@ -327,13 +327,13 @@ class RelationAction extends Component {
   }
   renderContent() {
     const { relationRows, permissionInfo, relationRow, rowInfo = {}, controlId, base } = this.props;
-    const { isCreate, isRelevance, allowRemoveRelation, onlyRelateByScanCode, activeRelateSheetControl } =
+    const { isCreate, isRelevance, allowRemoveRelation, onlyRelateByScanCode, activeRelateSheetControl, hasEdit } =
       permissionInfo;
     const disabledManualWrite =
       onlyRelateByScanCode && _.get(activeRelateSheetControl, 'advancedSetting.dismanual') === '1';
     const entityName = relationRow.worksheet.entityName || _l('关联');
 
-    const control = _.find(rowInfo.receiveControls || [], { controlId: controlId }) || {};
+    const control = _.find(rowInfo.templateControls || [], { controlId: controlId }) || {};
     const controlPermission = controlState(control, base.rowId ? 3 : 2);
     const allowNewRecord =
       control.type === 51
@@ -345,7 +345,7 @@ class RelationAction extends Component {
         : isRelevance || isCreate;
     return (
       <Fragment>
-        {control.type !== 51 && allowRemoveRelation && (
+        {control.type !== 51 && allowRemoveRelation && hasEdit && (
           <WingBlank size="sm" className="flex">
             <Button
               disabled={!relationRows.length}
@@ -404,7 +404,7 @@ class RelationAction extends Component {
     const { isEdit } = actionParams;
     const { isRelevance, hasEdit, allowRemoveRelation } = permissionInfo;
 
-    const control = _.find(rowInfo.receiveControls || [], { controlId: controlId }) || {};
+    const control = _.find(rowInfo.templateControls || [], { controlId: controlId }) || {};
     const controlPermission = controlState(control, base.rowId ? 3 : 2);
     const allowNewRecord =
       base.rowId &&
@@ -412,6 +412,8 @@ class RelationAction extends Component {
       control.enumDefault2 !== 1 &&
       control.enumDefault2 !== 11 &&
       !window.isPublicWorksheet;
+
+    if (!hasEdit) return null;
     if (control.type === 51 && !allowNewRecord) return null;
 
     if (!isRelevance && !hasEdit && !allowRemoveRelation) {

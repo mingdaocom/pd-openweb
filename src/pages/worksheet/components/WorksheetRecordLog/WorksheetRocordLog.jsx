@@ -28,17 +28,29 @@ import {
   CIRCLE_TAGS_CONTROL_TYPE,
   RECT_TAGS_CONTROL_TYPE,
   RETURN_OBJECT_CONTROL_TYPE,
+  SOURCE_INFO,
 } from './enum.js';
 import {
   WIDGETS_TO_API_TYPE_ENUM,
   DEFAULT_CONFIG,
   WORKFLOW_SYSTEM_CONTROL,
 } from 'src/pages/widgetConfig/config/widget';
+import copy from 'copy-to-clipboard';
 
 const reg = new RegExp('<[^<>]+>', 'g');
 const PAGE_SIZE = 20;
 
 const DISCUSS_LOG_ID = [];
+
+function getDepartmentName(control = {}, value) {
+  const { advancedSetting = {} } = control;
+
+  const pathValue =
+    advancedSetting.allpath === '1'
+      ? (value.departmentPath || []).sort((a, b) => b.depth - a.depth).map(i => i.departmentName)
+      : [];
+  return pathValue.concat([value.departmentName]).join('/');
+}
 
 function renderContent(data, recordInfo, extendParam) {
   const { type, oldText, newText, oldValue, newValue, id, editType } = data;
@@ -46,6 +58,7 @@ function renderContent(data, recordInfo, extendParam) {
   let controls = recordInfo.controls && recordInfo.controls.length ? recordInfo.controls : recordInfo.formdata;
   let control = controls ? controls.find(l => id === l.controlId) : undefined;
   let onlyNew = false;
+
   if (CIRCLE_TAGS_CONTROL_TYPE.includes(type) || RECT_TAGS_CONTROL_TYPE.includes(type)) {
     let oldList = [];
     let newList = [];
@@ -74,7 +87,7 @@ function renderContent(data, recordInfo, extendParam) {
     } else if (type === 38) {
       oldList = oldValue ? [oldValue] : [];
       newList = newValue ? [newValue] : [];
-    } else if (type === 16) {
+    } else if ([16, 19, 23, 24].includes(type)) {
       oldList = oldValue ? [renderText({ ...control, value: oldValue })] : [];
       newList = newValue ? [renderText({ ...control, value: newValue })] : [];
     } else if (type === 46 || type === 15) {
@@ -101,6 +114,7 @@ function renderContent(data, recordInfo, extendParam) {
     } else {
       oldList = oldText ? oldText.split(',').filter(l => l) : oldValue ? oldValue.split(',').filter(l => l) : [];
       newList = newText ? newText.split(',').filter(l => l) : newValue ? newValue.split(',').filter(l => l) : [];
+
       if (type === 6 || type === 8) {
         oldList = numberControlHandle(oldList, control, type);
         newList = numberControlHandle(newList, control, type);
@@ -125,19 +139,21 @@ function renderContent(data, recordInfo, extendParam) {
         editType === 2
           ? newList
               .filter(l => oldList.find(m => m[FILTER_FIELD_BY_ATTR[type][0]] === l[FILTER_FIELD_BY_ATTR[type][0]]))
-              .map(l => l[FILTER_FIELD_BY_ATTR[type][1]])
-          : _.differenceBy(oldList, newList, FILTER_FIELD_BY_ATTR[type][0]).map(l => l[FILTER_FIELD_BY_ATTR[type][1]]);
+              .map(l => (type === 27 ? getDepartmentName(control, l) : l[FILTER_FIELD_BY_ATTR[type][1]]))
+          : _.differenceBy(oldList, newList, FILTER_FIELD_BY_ATTR[type][0]).map(l => type === 27 ? getDepartmentName(control, l) : l[FILTER_FIELD_BY_ATTR[type][1]]);
       _newValue =
         editType === 2
           ? []
-          : _.differenceBy(newList, oldList, FILTER_FIELD_BY_ATTR[type][0]).map(l => l[FILTER_FIELD_BY_ATTR[type][1]]);
+          : _.differenceBy(newList, oldList, FILTER_FIELD_BY_ATTR[type][0]).map(l =>
+              type === 27 ? getDepartmentName(control, l) : l[FILTER_FIELD_BY_ATTR[type][1]],
+            );
       _defaultValue =
         editType === 2
           ? oldList
               .filter(l => !newList.find(m => m[FILTER_FIELD_BY_ATTR[type][0]] === l[FILTER_FIELD_BY_ATTR[type][0]]))
-              .map(l => l[FILTER_FIELD_BY_ATTR[type][1]])
-          : _.intersectionBy(oldList, newList, FILTER_FIELD_BY_ATTR[type][0]).map(
-              l => l[FILTER_FIELD_BY_ATTR[type][1]],
+              .map(l => (type === 27 ? getDepartmentName(control, l) : l[FILTER_FIELD_BY_ATTR[type][1]]))
+          : _.intersectionBy(oldList, newList, FILTER_FIELD_BY_ATTR[type][0]).map(l =>
+              type === 27 ? getDepartmentName(control, l) : l[FILTER_FIELD_BY_ATTR[type][1]],
             );
     } else if (editType === 2) {
       _oldValue = newList.filter(l => oldList.find(m => _.isEqual(m, l)));
@@ -148,6 +164,7 @@ function renderContent(data, recordInfo, extendParam) {
       _newValue = _.difference(newList, oldList);
       _defaultValue = newList.filter(l => oldList.find(m => _.isEqual(m, l)));
     }
+
     return (
       <WorksheetRecordLogSelectTags
         oldValue={_oldValue}
@@ -441,15 +458,25 @@ const renderTitleText = (data, extendParam) => {
       showTooltips = true;
     }
   });
+  const { requestType } = _.get(data, 'child[0].operatContent') || {};
   const { type, accountId } = data;
   let content = null;
 
   if (accountId === 'user-integration' && type === 4) {
-    content = <span className="createRecord mLeft2">{_l('创建了记录')}</span>;
+    content = (
+      <span className="createRecord mLeft2">
+        {_l('创建了记录')}
+        {requestType ? _l('(通过%0)', SOURCE_INFO[requestType]) : ''}
+      </span>
+    );
   } else {
     switch (type) {
       case 1:
-        content = <span className="createRecord mLeft2">{_l('创建了记录')}</span>;
+        content = (
+          <span className="createRecord mLeft2">
+            {_l('创建了记录')} {requestType ? _l('(通过%0)', SOURCE_INFO[requestType]) : ''}
+          </span>
+        );
         break;
       case 2:
         content = <span className="mLeft2">{_l('更新%0个字段', count)}</span>;
@@ -947,10 +974,18 @@ function WorksheetRocordLog(props, ref) {
           </div>
         )}
         {newEditionList.map((item, index) => {
+          const { child } = item;
+          let ua = '';
+          if (child[0].operatContent.extendParams.find(l => _.startsWith(l, 'user_agent:'))) {
+            ua = child[0].operatContent.extendParams
+              .find(l => _.startsWith(l, 'user_agent:'))
+              .replace('user_agent:', '');
+          }
+
           return (
             <div className="worksheetRocordLogCard" key={`worksheetRocordLogCard-${item.time}-${index}`}>
               <div className={cx('worksheetRocordLogCardTopBox', { mBottom0: item.type === 1 })}>
-                <div className="worksheetRocordLogCardTitle">
+                <div className="worksheetRocordLogCardTitle flex">
                   {isMobile || !showFilter ? (
                     <span className="selectTriggerChildAvatar">
                       <Avatar size={20} className="worksheetRocordLogCardTitleAvatar" src={item.avatar} />
@@ -983,7 +1018,20 @@ function WorksheetRocordLog(props, ref) {
                     <span className="Gray_9e">{renderTitleText(item, { controls: controls || formdata })}</span>
                   </span>
                 </div>
-                <div className="worksheetRocordLogCardName nowrap Gray_9e">
+                {ua ? (
+                  <Tooltip text={<span>{_l('复制创建时的UA信息')}</span>} popupPlacement="top">
+                    <span
+                      className="icon icon-copy Gray_9e Font18 Hand ThemeHoverColor3"
+                      onClick={() => {
+                        copy(ua);
+                        alert(_l('复制成功'));
+                      }}
+                    />
+                  </Tooltip>
+                ) : (
+                  ''
+                )}
+                <div className="worksheetRocordLogCardName nowrap Gray_9e mLeft12">
                   {createTimeSpan(moment(item.time).format('YYYY-MM-DD HH:mm:ss'))}
                 </div>
               </div>

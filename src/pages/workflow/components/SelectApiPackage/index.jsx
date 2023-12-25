@@ -5,28 +5,39 @@ import packageVersion from '../../api/packageVersion';
 import { navigateTo } from 'router/navigateTo';
 import _ from 'lodash';
 
-export default ({ appId, companyId, visible, onSave, onClose }) => {
+export default ({
+  appId,
+  companyId,
+  title = _l('选择 API 连接与认证'),
+  types = [1, 2, 3],
+  visible,
+  allowAdd = true,
+  onSave,
+  onClose,
+}) => {
   const [data, setData] = useState(null);
   const [pageIndex, setIndex] = useState(1);
   const [keywords, setKeywords] = useState('');
   const [hasMore, setMore] = useState(false);
   const getListFunc = (index = 1, keyword = '') => {
-    packageVersion.getList(
-      {
-        apkId: appId,
-        companyId,
-        keyword,
-        pageIndex: index,
-        pageSize: 20,
-        types: [1, 2, 3],
-      },
-      { isIntegration: true },
-    ).then(res => {
-      setData(index === 1 ? res : data.concat(res));
-      setIndex(index);
-      setKeywords(keyword);
-      setMore(res.length === 20);
-    });
+    packageVersion
+      .getList(
+        {
+          apkId: appId,
+          companyId,
+          keyword,
+          pageIndex: index,
+          pageSize: 20,
+          types,
+        },
+        { isIntegration: true },
+      )
+      .then(res => {
+        setKeywords(keyword);
+        setData(index === 1 ? res : data.concat(res));
+        setIndex(index);
+        setMore(res.length === 20);
+      });
   };
   const onChange = _.debounce(keyword => {
     getListFunc(1, keyword);
@@ -75,24 +86,14 @@ export default ({ appId, companyId, visible, onSave, onClose }) => {
     );
   };
 
-  useEffect(
-    () => {
-      visible && getListFunc();
-    },
-    [visible],
-  );
+  useEffect(() => {
+    visible && getListFunc();
+  }, [visible]);
 
   if (!visible) return null;
 
   return (
-    <Dialog
-      className="selectApiPackageDialog"
-      title={_l('选择 API 连接与认证')}
-      visible
-      width={720}
-      showFooter={false}
-      onCancel={onClose}
-    >
+    <Dialog className="selectApiPackageDialog" title={title} visible width={720} showFooter={false} onCancel={onClose}>
       <div className="flexColumn h100">
         {data !== null && (!!data.length || !!keywords) && (
           <div className="flexRow relative mBottom15 relative alignItemsCenter">
@@ -103,12 +104,14 @@ export default ({ appId, companyId, visible, onSave, onClose }) => {
               onChange={e => onChange(e.target.value.trim())}
             />
             <div className="flex" />
-            <span
-              className="Font15 pointer ThemeColor3 ThemeHoverColor2"
-              onClick={() => navigateTo('/integration/connect/connectList')}
-            >
-              + {_l('添加新连接')}
-            </span>
+            {allowAdd && (
+              <span
+                className="Font15 pointer ThemeColor3 ThemeHoverColor2"
+                onClick={() => navigateTo('/integration/connectList')}
+              >
+                + {_l('添加新连接')}
+              </span>
+            )}
             <i className="icon-search1 selectApiPackageSearch Gray_9e" />
           </div>
         )}
@@ -124,12 +127,14 @@ export default ({ appId, companyId, visible, onSave, onClose }) => {
               <div className="mTop25 Font14 Gray_9e">
                 {_l('暂无 API 连接可用，请先到集成中心创建新的 API 连接与认证')}
               </div>
-              <span
-                className="selectApiPackageBtn ThemeBGColor3 ThemeHoverBGColor2"
-                onClick={() => navigateTo('/integration/connect/connectList')}
-              >
-                {_l('去集成中心创建')}
-              </span>
+              {allowAdd && (
+                <span
+                  className="selectApiPackageBtn ThemeBGColor3 ThemeHoverBGColor2"
+                  onClick={() => navigateTo('/integration/connectList')}
+                >
+                  {_l('去集成中心创建')}
+                </span>
+              )}
             </div>
           ) : (
             renderList()

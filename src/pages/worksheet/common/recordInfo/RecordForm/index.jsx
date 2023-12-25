@@ -253,7 +253,7 @@ export default function RecordForm(props) {
     const visible =
       scrollContentElement.scrollTop + scrollConElement.clientHeight <
       formElement.clientHeight + formElement.offsetTop + 58 + 26 + 1;
-    nav.current.style.zIndex = visible ? 2 : -1;
+    nav.current.style.zIndex = visible ? 3 : -1;
   }
   function setStickyBarVisible({ isSplit } = {}) {
     const scrollContentElement = recordForm.current.querySelector(
@@ -317,7 +317,13 @@ export default function RecordForm(props) {
               }
             >
               {type === 'edit' && !isSubList && (
-                <FormCover flag={formFlag} formData={formdata} widgetStyle={widgetStyle} />
+                <FormCover
+                  flag={formFlag}
+                  formData={formdata}
+                  widgetStyle={widgetStyle}
+                  worksheetId={worksheetId}
+                  recordId={recordId}
+                />
               )}
               {type === 'edit' && (
                 <StickyBar

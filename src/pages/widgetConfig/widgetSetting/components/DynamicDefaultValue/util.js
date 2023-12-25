@@ -17,6 +17,7 @@ import {
   CAN_AS_ORG_ROLE_DYNAMIC_FIELD,
   CAN_AS_ARRAY_DYNAMIC_FIELD,
   CAN_AS_ARRAY_OBJECT_DYNAMIC_FIELD,
+  CAN_AS_RICH_TEXT_DYNAMIC_FIELD,
   FIELD_REG_EXP,
   CHECKBOX_TYPES,
   EMEBD_FIELDS,
@@ -67,7 +68,7 @@ export const getDateType = data => {
 export const showClear = (data = {}, dynamicValue) => {
   const { staticValue } = dynamicValue[0] || {};
   if (_.includes(CAN_SHOW_CLEAR_FIELD, data.type) && staticValue) return true;
-  if (data.type === 26) {
+  if (_.includes([3, 4, 5, 26], data.type)) {
     const transferValue = typeof staticValue === 'string' ? safeParse(staticValue || '{}') : staticValue;
     return _.includes(['user-self'], (transferValue || {}).accountId);
   }
@@ -170,6 +171,8 @@ export const FILTER = {
     _.includes(CAN_AS_SCORE_DYNAMIC_FIELD, item.type) || isEnableScoreOption(item) || isFormulaResultAsSubtotal(item),
   // 检查框
   36: item => _.includes(CAN_AS_SWITCH_DYNAMIC_FIELD, item.type),
+  // 富文本
+  41: item => _.includes(CAN_AS_RICH_TEXT_DYNAMIC_FIELD, item.type) || isSingleRelate(item),
   // 嵌入
   45: item => _.includes(CAN_AS_EMBED_DYNAMIC_FIELD, item.type) || isSingleRelate(item),
   // 时间
@@ -196,17 +199,18 @@ export const getControls = ({ data = {}, controls, isCurrent, needFilter = false
   if (_.includes([2], type) && isCurrent) {
     controls = controls.filter(con => con.type !== 33);
   }
-  if (_.includes([2, 3, 4, 5, 6, 8, 14, 15, 16, 19, 23, 24, 28, 36, 45, 46, 48, 10000007, 10000008], type))
+  if (_.includes([2, 3, 4, 5, 6, 8, 14, 15, 16, 19, 23, 24, 28, 36, 41, 45, 46, 48, 10000007, 10000008], type))
     return _.filter(controls, filterFn);
-  // 单选选项集
-  if (_.includes([9, 11], type)) {
-    return _.filter(
-      controls,
-      item => item.dataSource && item.dataSource === dataSource && _.includes([9, 11], item.type),
-    );
+
+  if (_.includes([7], type)) {
+    return _.filter(controls, item => item.enumDefault === enumDefault && item.type === 7);
   }
-  // 多选选项集
-  if (_.includes([10], type)) return _.filter(controls, item => item.dataSource && item.dataSource === dataSource);
+
+  if (_.includes([9, 10, 11], type)) {
+    const filterControls = _.filter(controls, item => _.includes([9, 10, 11], item.type));
+    // isEqualSource同源异化显示
+    return filterControls.map(i => (dataSource && i.dataSource === dataSource ? { ...i, isEqualSource: true } : i));
+  }
 
   if (_.includes([26], type)) {
     // 默认值不支持部门、组织角色，人员选择范围动态值支持
@@ -220,6 +224,9 @@ export const getControls = ({ data = {}, controls, isCurrent, needFilter = false
   if (_.includes([29], type)) {
     const newControls = filterControls(data, controls);
     return _.filter(newControls, item => item.dataSource === dataSource);
+  }
+  if (_.includes([35], type)) {
+    return _.filter(controls, item => item.dataSource === dataSource && item.type === 35);
   }
   return controls;
 };

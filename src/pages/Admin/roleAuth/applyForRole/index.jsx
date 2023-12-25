@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import RoleController from 'src/api/role';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import Dialog from 'ming-ui/components/Dialog';
-import UserHead from 'src/pages/feed/components/userHead';
+import UserHead from 'src/components/userHead';
 import PaginationWrap from '../../components/PaginationWrap';
 
 import './style.less';

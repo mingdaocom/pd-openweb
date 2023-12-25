@@ -18,14 +18,9 @@ body {
     height: 50px;
     background-color: #fff;
     border-bottom: 1px solid #e0e0e0;
-    .icon {
-      display: inline-block;
-      width: 36px;
-      height: 36px;
+    .logo img {
+      height: 30px;
       margin: 7px 16px;
-      background-size: cover !important;
-      overflow: hidden;
-      background: url(../image/mingdao-logo.png);
     }
     .btnLogin {
       float: right;
@@ -52,14 +47,17 @@ body {
       float: right;
       margin-right: 20px;
       .btnItem {
-        display: inline-block;
+        display: inline-flex;
+        height: 50px;
         cursor: pointer;
         margin-left: 20px;
-        line-height: 50px;
         font-size: 15px;
         color: #808080;
+        justify-content: center;
+        align-items: center;
         i {
           font-size: 20px;
+          margin-right: 6px;
         }
       }
     }
@@ -143,6 +141,7 @@ body {
     }
   }
   .footer {
+    padding: 10px;
     height: 118px;
     background-color: #fff;
     text-align: center;
@@ -163,8 +162,8 @@ body {
       }
     }
     &.pc {
-      width: 960px;
       height: 52px;
+      padding: 10px;
       .operate {
         display: none;
       }
@@ -179,11 +178,9 @@ body {
   }
   .shareFolderCon {
     .header {
-      .icon {
-        width: 64px;
-        height: 30px;
+      .logo img {
+        height: 26px;
         margin: 10px 16px;
-        background: url(../image/mingdao.png);
       }
     }
     .main {

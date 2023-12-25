@@ -77,7 +77,7 @@ class RegisterContainer extends React.Component {
       return;
     }
     $('html').addClass('registerContainerCon');
-    if (location.href.indexOf('/enterpriseRegister.htm?type=create') >= 0) {
+    if (location.href.match(/enterpriseRegister(\.htm)?\?type=create/i)) {
       document.title = _l('创建组织');
       this.setState(
         {
@@ -110,7 +110,7 @@ class RegisterContainer extends React.Component {
           });
         },
       );
-    } else if (location.href.indexOf('/enterpriseRegister.htm?type=add') >= 0) {
+    } else if (location.href.match(/enterpriseRegister(\.htm)?\?type=add/i)) {
       document.title = _l('加入组织');
       this.setState(
         {
@@ -121,7 +121,7 @@ class RegisterContainer extends React.Component {
           this.goRegisterFn();
         },
       );
-    } else if (location.href.indexOf('/enterpriseRegister.htm?type=editInfo') >= 0) {
+    } else if (location.href.match(/enterpriseRegister(\.htm)?\?type=editInfo/i)) {
       document.title = _l('加入组织');
       account
         .checkJoinProjectByTokenWithCard({
@@ -400,7 +400,7 @@ class RegisterContainer extends React.Component {
   // 登录成功跳转
   loginSuc = () => {
     const { registerData } = this.state;
-    const { emailOrTel, dialCode, password } = registerData
+    const { emailOrTel, dialCode, password } = registerData;
     let request = getRequest();
     let returnUrl = getDataByFilterXSS(request.ReturnUrl || '');
 
@@ -411,7 +411,11 @@ class RegisterContainer extends React.Component {
     }
     const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
     if (isMingdao) {
-      mdAppResponse({ sessionId: 'register', type: 'native', settings: { action: 'registerSuccess', account: dialCode + emailOrTel, password } });
+      mdAppResponse({
+        sessionId: 'register',
+        type: 'native',
+        settings: { action: 'registerSuccess', account: dialCode + emailOrTel, password },
+      });
     }
   };
 

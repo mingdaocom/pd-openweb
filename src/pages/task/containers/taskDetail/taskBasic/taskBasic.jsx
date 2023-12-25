@@ -15,10 +15,9 @@ import {
   afterUpdateTaskStage,
 } from '../../../utils/taskComm';
 import { checkIsProject } from '../../../utils/utils';
-import UserHead from 'src/pages/feed/components/userHead';
+import UserHead from 'src/components/userHead';
 import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import quickSelectUser from 'ming-ui/functions/quickSelectUser';
-import s from '@mdfe/selectize';
 import UploadFiles from 'src/components/UploadFiles';
 import UploadFilesTrigger from 'src/components/UploadFilesTrigger';
 import Dropdown from 'ming-ui/components/Dropdown';
@@ -318,42 +317,36 @@ class TaskBasic extends Component {
    * 负责人 opHtml
    */
   renderChargeOpHtml() {
-    return `
-      <span class="Gray_9e ThemeHoverColor3 pointer w100 oaButton updateTaskCharge">
-        ${_l('更改负责人')}
-      </span>
-    `;
-  }
-
-  /**
-   * 负责人 op操作
-   */
-  chargeReadyFn = evt => {
-    const that = this;
     const { taskId } = this.props;
     const { data } = this.props.taskDetails[taskId];
 
-    evt.on('click', '.updateTaskCharge', function() {
-      dialogSelectUser({
-        sourceId: taskId,
-        title: _l('选择负责人'),
-        showMoreInvite: false,
-        fromType: 2,
-        SelectUserSettings: {
-          includeUndefinedAndMySelf: true,
-          filterAccountIds: [data.charge.accountID],
-          projectId: checkIsProject(data.projectID) ? data.projectID : '',
-          unique: true,
-          callback(users) {
-            const user = users[0];
-            that.props.dispatch(
-              updateTaskCharge(taskId, user, '', () => that.afterUpdateTaskCharge(user.avatar, user.accountId)),
-            );
-          },
-        },
-      });
-    });
-  };
+    return (
+      <span
+        className="Gray_9e ThemeHoverColor3 pointer w100 oaButton updateTaskCharge"
+        onClick={() => {
+          dialogSelectUser({
+            sourceId: taskId,
+            title: _l('选择负责人'),
+            showMoreInvite: false,
+            fromType: 2,
+            SelectUserSettings: {
+              includeUndefinedAndMySelf: true,
+              filterAccountIds: [data.charge.accountID],
+              projectId: checkIsProject(data.projectID) ? data.projectID : '',
+              unique: true,
+              callback: users => {
+                const user = users[0];
+                this.afterUpdateTaskCharge(user.avatar, user.accountId);
+                this.props.dispatch(updateTaskCharge(taskId, user, ''));
+              },
+            },
+          });
+        }}
+      >
+        {_l('更改负责人')}
+      </span>
+    );
+  }
 
   /**
    * 回车失去焦点
@@ -413,10 +406,6 @@ class TaskBasic extends Component {
       return null;
     }
 
-    const inviterAccount = item.account.inviteAccountID
-      ? { accountId: item.account.inviteAccountID, fullName: item.account.inviteFullName }
-      : null;
-
     return (
       <span key={i} className="membersListItem">
         {item.status === 1 && <span className="maskApplyMemberBg" />}
@@ -426,13 +415,9 @@ class TaskBasic extends Component {
             userHead: item.account.avatar,
             accountId: item.account.accountID,
           }}
-          lazy={'false'}
           size={26}
           secretType={1}
-          inviterAccount={inviterAccount}
-          showOpHtml={hasAuth || item.account.accountID === md.global.Account.accountId}
-          opHtml={this.renderMemberOpHtml(item.account.accountID, hasAuth, item.status === 1)}
-          readyFn={evt => this.memberReadyFn(evt, item.account)}
+          operation={hasAuth || item.account.accountID === md.global.Account.accountId ? this.renderMemberOpHtml(item.account, hasAuth, item.status === 1) : null}
         />
       </span>
     );
@@ -441,42 +426,61 @@ class TaskBasic extends Component {
   /**
    * 成员 opHtml
    */
-  renderMemberOpHtml(accountId, hasAuth, isApply) {
+  renderMemberOpHtml(account, hasAuth, isApply) {
     // 无权限经过我自己
-    if (!hasAuth && md.global.Account.accountId === accountId) {
-      return `
-        <span class="Gray_9e ThemeHoverColor3 pointer w100 oaButton removeTaskMember">
-          ${_l('退出任务')}
+    if (!hasAuth && md.global.Account.accountId === account.accountId) {
+      return (
+        <span
+          className="Gray_9e ThemeHoverColor3 pointer w100 oaButton removeTaskMember"
+          onClick={() => this.clickMemberFn('removeTaskMember', account)}
+        >
+          {_l('退出任务')}
         </span>
-      `;
+      );
     }
 
     // 申请
     if (isApply) {
-      return `
-        <span class="Gray_9e ThemeHoverColor3 pointer oaButton addMemberAgree">
-          ${_l('同意')}
-        </span>
-        <span class="Gray_9e ThemeHoverColor3 pointer oaButton addMemberRefuse">
-          ${_l('拒绝')}
-        </span>
-      `;
+      return (
+        <Fragment>
+          <span
+            className="Gray_9e ThemeHoverColor3 pointer oaButton addMemberAgree"
+            onClick={() => this.clickMemberFn('addMemberAgree', account)}
+          >
+            {_l('同意')}
+          </span>
+          <span
+            className="Gray_9e ThemeHoverColor3 pointer oaButton addMemberRefuse"
+            onClick={() => this.clickMemberFn('addMemberRefuse', account)}
+          >
+            {_l('拒绝')}
+          </span>
+        </Fragment>
+      );
     }
 
-    return `
-      <span class="Gray_9e ThemeHoverColor3 pointer oaButton updateTaskCharge">
-        ${_l('设为负责人')}
-      </span>
-      <span class="Gray_9e ThemeHoverColor3 pointer oaButton removeTaskMember">
-        ${md.global.Account.accountId === accountId ? _l('退出任务') : _l('移出任务')}
-      </span>
-    `;
+    return (
+      <Fragment>
+        <span
+          className="Gray_9e ThemeHoverColor3 pointer oaButton updateTaskCharge"
+          onClick={() => this.clickMemberFn('updateTaskCharge', account)}
+        >
+          {_l('设为负责人')}
+        </span>
+        <span
+          className="Gray_9e ThemeHoverColor3 pointer oaButton removeTaskMember"
+          onClick={() => this.clickMemberFn('removeTaskMember', account)}
+        >
+          {md.global.Account.accountId === account.accountId ? _l('退出任务') : _l('移出任务')}
+        </span>
+      </Fragment>
+    );
   }
 
   /**
    * 成员 op操作
    */
-  memberReadyFn = (evt, account) => {
+  clickMemberFn = (clickOp, account) => {
     const { taskId, removeTaskMember } = this.props;
     const user = {
       accountId: account.accountID,
@@ -484,27 +488,28 @@ class TaskBasic extends Component {
       fullName: account.fullname,
     };
 
-    // 设为负责人
-    evt.on('click', '.updateTaskCharge', () => {
-      this.props.dispatch(
-        updateTaskCharge(taskId, user, '', () => this.afterUpdateTaskCharge(user.avatar, user.accountId)),
-      );
-    });
-
-    // 移出成员
-    evt.on('click', '.removeTaskMember', () => {
-      removeTaskMember(user.accountId);
-    });
-
-    // 同意
-    evt.on('click', '.addMemberAgree', () => {
-      this.props.dispatch(agreeApplyJoinTask(taskId, user.accountId));
-    });
-
-    // 拒绝
-    evt.on('click', '.addMemberRefuse', () => {
-      this.props.dispatch(refuseJoinTask(taskId, user.accountId));
-    });
+    switch (clickOp) {
+      // 设为负责人
+      case 'updateTaskCharge':
+        this.props.dispatch(
+          updateTaskCharge(taskId, user, '', () => this.afterUpdateTaskCharge(user.avatar, user.accountId)),
+        );
+        return;
+      // 移出成员
+      case 'removeTaskMember':
+        removeTaskMember(user.accountId);
+        return;
+      // 同意
+      case 'addMemberAgree':
+        this.props.dispatch(agreeApplyJoinTask(taskId, user.accountId));
+        return;
+      // 拒绝
+      case 'addMemberRefuse':
+        this.props.dispatch(refuseJoinTask(taskId, user.accountId));
+        return;
+      default:
+        return;
+    }
   };
 
   /**
@@ -549,7 +554,7 @@ class TaskBasic extends Component {
       ChooseInviteSettings: {
         callback(users, callbackInviteResult) {
           if (!callbackInviteResult) {
-            callbackInviteResult = function() {};
+            callbackInviteResult = function () {};
           }
           callback(users, callbackInviteResult);
         },
@@ -757,11 +762,8 @@ class TaskBasic extends Component {
                   userHead: data.charge.avatar,
                   accountId: data.charge.accountID,
                 }}
-                lazy={'false'}
                 size={32}
-                showOpHtml={hasAuth}
-                opHtml={this.renderChargeOpHtml()}
-                readyFn={this.chargeReadyFn}
+                operation={hasAuth ? this.renderChargeOpHtml() : null}
               />
             </span>
             <Textarea

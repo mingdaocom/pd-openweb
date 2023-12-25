@@ -97,14 +97,14 @@ export default class Widgets extends Component {
   }
 
   loadAttachments(props) {
-    const { value } = props || this.props;
+    const { value, worksheetId, recordId, controlId, isDraft } = props || this.props;
     let fileIds = [];
     try {
       fileIds = JSON.parse(value).map(f => f.fileId);
     } catch (err) {
       this.setState({ loading: false, value: '' });
     }
-    const args = { fileIds };
+    const args = { fileIds, worksheetId, rowId: recordId, controlId };
     if (window.shareState && window.shareState.shareId) {
       args.shareId = window.shareState.shareId;
       args.type = window.shareState.isPublicRecord
@@ -112,6 +112,9 @@ export default class Widgets extends Component {
         : _.get(window, 'shareState.isPublicForm') || _.get(window, 'shareState.isPublicForm')
         ? 11
         : 14;
+    }
+    if (isDraft) {
+      args.type = 21;
     }
     attachmentApi
       .getAttachmentToList(args)
@@ -126,6 +129,7 @@ export default class Widgets extends Component {
   id = uuidv4();
 
   filesChanged = (files, key) => {
+    const enumDefault = this.props.enumDefault || 3;
     const value = JSON.parse(this.state.value || '[]');
     const isArray = _.isArray(value);
 
@@ -138,7 +142,7 @@ export default class Widgets extends Component {
     newValue[key] = files;
 
     // 补充 index
-    if ([2, 3].includes(this.props.enumDefault)) {
+    if ([2, 3].includes(enumDefault)) {
       // 旧的在前
       newValue.attachmentData.forEach((data, index) => {
         data.index = index;
@@ -330,6 +334,54 @@ export default class Widgets extends Component {
       });
   };
 
+  renderMobileUploadTrigger = ({
+    className,
+    originCount,
+    attachments,
+    customHint,
+    customUploadType,
+    icon,
+    iconClass,
+    styles = {},
+  }) => {
+    const { from, appId, worksheetId, projectId, enumDefault2, advancedSetting, strDefault = '10', hint } = this.props;
+    const { isComplete, uploadStart } = this.state;
+    const addFileName = customHint ? customHint : hint || _l('添加附件');
+
+    return (
+      <div className={cx('triggerTraget mobile', className)} style={{ height: 34, ...styles }}>
+        <UploadFileWrapper
+          controlName={this.props.controlName}
+          customUploadType={customUploadType}
+          from={from}
+          projectId={projectId}
+          appId={appId}
+          worksheetId={worksheetId}
+          className="flexRow alignItemsCenter"
+          inputType={enumDefault2}
+          advancedSetting={advancedSetting}
+          originCount={originCount}
+          disabledGallery={strDefault.split('')[0] === '1'}
+          files={attachments || []}
+          onChange={(files, isComplete = false) => {
+            this.setState({
+              isComplete,
+              uploadStart: isComplete ? false : true,
+            });
+            this.filesChanged(files, 'attachments');
+          }}
+          ref={mobileFileBox => {
+            this.mobileFileBox = mobileFileBox;
+          }}
+        >
+          <Icon className={cx('Gray_9e TxtMiddle', { iconClass })} icon={icon ? icon : 'attachment'} />
+          <span className="Gray Font13 mLeft5 addFileName overflow_ellipsis flex">{addFileName}</span>
+          {isComplete === false && uploadStart && <span className="mLeft5 ThemeColor3 fileUpdateLoading"></span>}
+        </UploadFileWrapper>
+      </div>
+    );
+  };
+
   render() {
     const {
       from,
@@ -341,7 +393,6 @@ export default class Widgets extends Component {
       controlId,
       projectId,
       viewIdForPermit = '',
-      enumDefault,
       enumDefault2,
       advancedSetting,
       isSubList,
@@ -361,6 +412,7 @@ export default class Widgets extends Component {
       filesVisible,
       fileEditModalVisible,
     } = this.state;
+    const enumDefault = this.props.enumDefault || 3;
     const pcDisabled = disabled || isOnlyAllowMobile;
     const mobileDisabled = disabled;
     const addFileName = hint || _l('添加附件');
@@ -404,6 +456,10 @@ export default class Widgets extends Component {
       advancedSetting.alldownload !== '0' && recordAttachmentSwitch && !_.get(window, 'shareState.shareId');
 
     const filesProps = {
+      recordBaseInfo: {
+        worksheetId,
+        recordId,
+      },
       flag,
       showType,
       coverType,
@@ -411,7 +467,7 @@ export default class Widgets extends Component {
       viewMore: !!recordId,
       allowDownload: !!_.get(window, 'shareState.shareId') || recordAttachmentSwitch,
       allowSort: enumDefault === 3 && (isMobile ? false : !pcDisabled),
-      allowEditName: isMobile ? false : !pcDisabled,
+      allowEditName: isMobile ? false : !pcDisabled && !_.get(window, 'shareState.shareId'),
       attachments,
       knowledgeAtts,
       attachmentData,
@@ -424,39 +480,50 @@ export default class Widgets extends Component {
     };
 
     if (isMobile) {
+      const disabledGallery = strDefault.split('')[0] === '1'; // 禁用相册
+      const showFile = !disabledGallery;
+      const showCamera = _.includes([1, 3], enumDefault2);
+      const showCamcorder = _.includes([2, 3], enumDefault2);
+
+      const styles = {
+        maxWidth:
+          showCamera && showCamcorder && showFile
+            ? 'calc(100% - 172px)'
+            : (showCamera || showCamcorder) && showFile
+            ? 'calc(100% - 86px)'
+            : '100%',
+      };
+
       return (
         <div
           className={cx('customFormFileBox customFormAttachmentBox', { controlDisabled: mobileDisabled })}
           style={{ height: 'auto' }}
         >
           {!mobileDisabled && (
-            <div className="triggerTraget mobile" style={{ height: 34 }}>
-              <UploadFileWrapper
-                from={from}
-                projectId={projectId}
-                appId={appId}
-                worksheetId={worksheetId}
-                className="Block"
-                inputType={enumDefault2}
-                advancedSetting={advancedSetting}
-                originCount={originCount}
-                disabledGallery={strDefault.split('')[0] === '1'}
-                files={attachments || []}
-                onChange={(files, isComplete = false) => {
-                  this.setState({
-                    isComplete,
-                    uploadStart: isComplete ? false : true,
-                  });
-                  this.filesChanged(files, 'attachments');
-                }}
-                ref={mobileFileBox => {
-                  this.mobileFileBox = mobileFileBox;
-                }}
-              >
-                <Icon className="Gray_9e" icon="attachment" />
-                <span className="Gray Font13 mLeft5 addFileName overflow_ellipsis">{addFileName}</span>
-                {isComplete === false && uploadStart && <span className="mLeft5 ThemeColor3 fileUpdateLoading"></span>}
-              </UploadFileWrapper>
+            <div className="flexRow">
+              {showFile && this.renderMobileUploadTrigger({ originCount, strDefault, attachments, styles })}
+              {showCamera &&
+                this.renderMobileUploadTrigger({
+                  originCount,
+                  strDefault,
+                  attachments,
+                  customHint: _l('拍照'),
+                  customUploadType: 'camara',
+                  className: cx({ mLeft6: showFile }),
+                  icon: 'camera_alt',
+                  iconClass: 'Font16',
+                })}
+              {showCamcorder &&
+                this.renderMobileUploadTrigger({
+                  originCount,
+                  strDefault,
+                  attachments,
+                  customHint: _l('拍摄'),
+                  customUploadType: 'camcorder',
+                  className: cx({ mLeft6: showFile || showCamera }),
+                  icon: 'video2',
+                  iconClass: 'Font18',
+                })}
             </div>
           )}
           <Files

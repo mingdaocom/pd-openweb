@@ -102,9 +102,17 @@ export class UploadFileWrapper extends Component {
     const watermark = JSON.parse(advancedSetting.watermark || null) || [];
     if (!currentLocation && watermark.length) {
       currentLocation = {};
-      this._MapLoader = new MapLoader();
-      this._MapLoader.loadJs().then(() => {
-        this.initMapObject();
+      new MapLoader().loadJs().then(() => {
+        this._maphHandler = new MapHandler();
+        this._maphHandler.getCurrentPos((status, result) => {
+          if (status === 'complete') {
+            const { formattedAddress, position } = result;
+            currentLocation = {
+              formattedAddress,
+              position
+            }
+          }
+        });
       });
     }
   }
@@ -113,18 +121,6 @@ export class UploadFileWrapper extends Component {
       this._maphHandler.destroyMap();
       this._maphHandler = null;
     }
-  }
-  initMapObject() {
-    this._maphHandler = new MapHandler(document.createElement('div'), { zoom: 15 });
-    this._maphHandler.getCurrentPos((status, result) => {
-      if (status === 'complete') {
-        const { formattedAddress, position } = result;
-        currentLocation = {
-          formattedAddress,
-          position
-        }
-      }
-    });
   }
   componentWillReceiveProps(nextProps) {
     if (nextProps.files.length !== this.props.files.length) {
@@ -135,7 +131,7 @@ export class UploadFileWrapper extends Component {
   }
   uploadFile() {
     const self = this;
-    const { advancedSetting, projectId, appId, worksheetId } = self.props;
+    const { advancedSetting = {}, projectId, appId, worksheetId } = self.props;
 
     const method = {
       FilesAdded(uploader, files) {
@@ -290,47 +286,31 @@ export class UploadFileWrapper extends Component {
       },
       Init() {
         const ele = self.uploadContainer && self.uploadContainer.querySelector('input');
-        const { inputType, disabledGallery, advancedSetting = {} } = self.props;
+        const { inputType, advancedSetting = {}, customUploadType } = self.props;
         const { filetype } = advancedSetting;
         let type = filetype && JSON.parse(filetype).type;
-        const accept = {
-          1: 'image/*',
-          2: 'video/*',
-          3: 'image/*,video/*',
-          0: !isAndroid ? '' : 'image/*,video/*,audio/*,application/*',
-        };
-        const fileTypeObj = { 1: 'image/*', 2: !isAndroid ? '' : 'application/*', 3: 'audio/*', 4: 'video/*' };
+
+        // inputType: 0->不限制，1->拍照，2->拍视频
+        // disabledGallery: true->禁用相册
+        // type: '1'->图片, '2'->文档 ,‘3’-> 音频 ,‘4’->视频 ,  '0'->自定义
+
+        // 上传附件
+        const accept = { 0: '*', 1: 'image/*', 2: 'video/*' };
+        const fileTypeObj = { 1: 'image/*', 2: 'application/*', 3: 'audio/*', 4: 'video/*' };
         const ua = window.navigator.userAgent.toLowerCase();
-        const isAndroid = ua.includes('android');
         const isMiniprogram = ua.includes('miniprogram');
-        const isFeishu = ua.includes('feishu');
-        const equipment = type === 3 ? 'microphone' : type === 4 || inputType === 2 ? 'camcorder' : 'camera';
+
         if (ele) {
-          if (isAndroid) {
-            if (isMiniprogram) {
-              ele.removeAttribute('multiple');
-            }
-            if (isFeishu) return;
-            if (disabledGallery) {
-              ele.setAttribute('accept', accept[inputType]);
-              ele.setAttribute('capture', 'camera');
-            } else if (type) {
-              ele.setAttribute('accept', fileTypeObj[type]);
-            } else if (inputType) {
-              ele.setAttribute('accept', accept[inputType]);
-              ele.setAttribute('capture', equipment);
-            } else {
-              ele.setAttribute('accept', 'image/*');
-            }
-            return;
-          }
-          if (inputType || disabledGallery) {
-            ele.setAttribute('accept', accept[inputType]);
-            ele.setAttribute('capture', 'camera');
-          } else if (type) {
-            ele.setAttribute('accept', fileTypeObj[type]);
+          // if (isMiniprogram) {
+          //   ele.removeAttribute('multiple');
+          // }
+
+          // 拍照 or 拍摄
+          if (customUploadType) {
+            ele.setAttribute('accept', customUploadType === 'camara' ? 'image/*' : 'video/*');
+            ele.setAttribute('capture', customUploadType);
           } else {
-            ele.setAttribute('accept', accept[inputType]);
+            ele.setAttribute('accept', type ? fileTypeObj[type] : inputType ? accept[inputType] : '*');
           }
         }
       },
@@ -370,7 +350,6 @@ export default class AttachmentList extends Component {
   static defaultProps = {
     width: 120,
   };
-  style: null;
   constructor(props) {
     super(props);
     this.style = { width: props.width };
@@ -410,7 +389,7 @@ export default class AttachmentList extends Component {
   }
   renderImage(item, index) {
     const isKc = item.refId ? true : false;
-    const path = item.previewUrl || item.url;
+    const path = item.previewUrl || item.viewUrl || '';
     const url = isKc
       ? `${item.middlePath + item.middleName}`
       : path.indexOf('imageView2') > -1

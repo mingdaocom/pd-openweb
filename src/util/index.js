@@ -291,8 +291,8 @@ export const browserIsMobile = () => {
   const bIsMiniProgram = sUserAgent.match(/miniprogram/i) == 'miniprogram';
   const value = bIsIphoneOs || bIsMidp || bIsUc7 || bIsUc || bIsAndroid || bIsCE || bIsWM || bIsApp || bIsMiniProgram;
 
-  if (sUserAgent.includes('dingtalk')) {
-    // 钉钉设备针对侧边栏打开判断为 mobile 环境
+  if (sUserAgent.includes('dingtalk') || sUserAgent.includes('wxwork')) {
+    // 钉钉和微信设备针对侧边栏打开判断为 mobile 环境
     const { pc_slide = '' } = getRequest();
     return pc_slide.includes('true') ? true : value;
   } else {
@@ -340,6 +340,55 @@ export const getIconNameByExt = ext => {
     case 'docx':
     case 'dot':
       extType = 'word';
+      break;
+    case 'md':
+      extType = 'md';
+      break;
+    case 'js':
+    case 'ts':
+    case 'java':
+    case 'py':
+    case 'rb':
+    case 'cpp':
+    case 'c':
+    case 'html':
+    case 'css':
+    case 'php':
+    case 'swift':
+    case 'go':
+    case 'rust':
+    case 'lua':
+    case 'sql':
+    case 'pl':
+    case 'sh':
+    case 'json':
+    case 'xml':
+    case 'cs':
+    case 'vb':
+    case 'scala':
+    case 'perl':
+    case 'r':
+    case 'matlab':
+    case 'groovy':
+    case 'jsp':
+    case 'jsx':
+    case 'tsx':
+    case 'sass':
+    case 'less':
+    case 'scss':
+    case 'coffee':
+    case 'asm':
+    case 'bat':
+    case 'powershell':
+    case 'h':
+    case 'hpp':
+    case 'm':
+    case 'mm':
+    case 'd':
+    case 'kt':
+    case 'ini':
+    case 'yml':
+      extType = 'code';
       break;
     case 'ppt':
     case 'pptx':
@@ -716,7 +765,7 @@ export const upgradeVersionDialog = options => {
   const explainText = options.explainText;
   const versionType = options.versionType ? options.versionType : undefined;
   const isExternal = _.isEmpty(getCurrentProject(options.projectId)); // 是否为外协人员
-  const helpLink = VersionProductHelpLink[options.featureId]; // 帮助链接
+  const helpLink = VersionProductHelpLink[options.featureId] || options.helpLink; // 帮助链接
 
   if (options.dialogType === 'content') {
     return (
@@ -831,6 +880,9 @@ export function buriedUpgradeVersionDialog(projectId, featureId, extra) {
   }
 }
 
+/**
+ * 解决 JavaScript 原生 toFixed 方法精度问题
+ */
 export function toFixed(num, dot = 0) {
   if (_.isObject(num) || _.isNaN(Number(num))) {
     console.error(num, '不是数字');
@@ -866,10 +918,13 @@ export function toFixed(num, dot = 0) {
  * 验证登录密码
  */
 export function verifyPassword({
+  projectId = '',
   password = '',
   closeImageValidation = false, // 是否前3次关闭图像验证
   isNoneVerification = false, // 是否一小时内免验证
   checkNeedAuth = false, // 检测是否免验证
+  customActionName = '', // 自定义ajax api接口名称
+  ignoreAlert = false, // 忽略报错
   success = () => {},
   fail = () => {},
 }) {
@@ -883,10 +938,17 @@ export function verifyPassword({
       return;
     }
 
-    accountAjax[checkNeedAuth || closeImageValidation ? 'checkAccountIdentity' : 'checkAccount'](
+    accountAjax[
+      customActionName
+        ? customActionName
+        : checkNeedAuth || closeImageValidation
+        ? 'checkAccountIdentity'
+        : 'checkAccount'
+    ](
       checkNeedAuth
-        ? {}
+        ? { projectId }
         : {
+            projectId,
             isNoneVerification,
             ticket: res.ticket,
             randStr: res.randstr,
@@ -898,16 +960,17 @@ export function verifyPassword({
         success();
       } else if (statusCode === 10) {
         captchaFuc();
-      } else if (checkNeedAuth && statusCode === 6) {
-        fail('password');
+      } else if (checkNeedAuth && _.includes([6, 9], statusCode)) {
+        fail(statusCode === 6 ? 'showPasswordAndNoneVerification' : 'showPassword');
       } else {
-        alert(
-          {
-            6: _l('密码不正确'),
-            8: _l('验证码错误'),
-          }[statusCode] || _l('操作失败'),
-          2,
-        );
+        !ignoreAlert &&
+          alert(
+            {
+              6: _l('密码不正确'),
+              8: _l('验证码错误'),
+            }[statusCode] || _l('操作失败'),
+            2,
+          );
         fail();
       }
     });
@@ -957,6 +1020,8 @@ export const getUnUniqName = (data, name = '', key = 'name') => {
  * 添加行为日志
  */
 export const addBehaviorLog = (type, entityId, params = {}) => {
+  if (location.pathname.indexOf('public') > -1) return;
+
   const typeObj = {
     app: 1, // 应用
     worksheet: 2, // 工作表
@@ -968,6 +1033,7 @@ export const addBehaviorLog = (type, entityId, params = {}) => {
     printQRCode: 8, // 打印了二维码
     printBarCode: 9, // 打印了条形码
     batchPrintWord: 10, // 批量word打印
+    previewFile: 11, // 文件预览
   };
   actionLogAjax.addLog({
     type: typeObj[type],
@@ -1085,4 +1151,30 @@ export const setFavicon = (iconUrl, iconColor) => {
       data = btoa(data.replace(/fill=\".*?\"/g, '').replace(/\<svg/, `<svg fill="${iconColor}"`));
       $('[rel="icon"]').attr('href', `data:image/svg+xml;base64,${data}`);
     });
+};
+/**
+ * base64 字符串转 blob
+ * @param {*} b64Data
+ * @param {*} contentType
+ * @param {*} sliceSize
+ * @returns
+ */
+export const b64toBlob = (b64Data, contentType = '', sliceSize = 512) => {
+  const byteCharacters = atob(b64Data);
+  const byteArrays = [];
+
+  for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+    const slice = byteCharacters.slice(offset, offset + sliceSize);
+
+    const byteNumbers = new Array(slice.length);
+    for (let i = 0; i < slice.length; i++) {
+      byteNumbers[i] = slice.charCodeAt(i);
+    }
+
+    const byteArray = new Uint8Array(byteNumbers);
+    byteArrays.push(byteArray);
+  }
+
+  const blob = new Blob(byteArrays, { type: contentType });
+  return blob;
 };

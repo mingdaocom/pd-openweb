@@ -19,7 +19,8 @@ const Wrap = styled.div`
     background-color: #fff;
     z-index: 1;
   }
-  .header, .SingleViewHeader {
+  .header,
+  .SingleViewHeader {
     .svgWrap {
       width: 26px;
       height: 26px;
@@ -121,7 +122,10 @@ const Entry = props => {
     return (
       <div className="Font16 bold flexRow alignItemsCenter">
         {appIcon && (
-          <div className="svgWrap flexRow alignItemsCenter justifyContentCenter mRight10" style={{ backgroundColor: appIconColor }}>
+          <div
+            className="svgWrap flexRow alignItemsCenter justifyContentCenter mRight10"
+            style={{ backgroundColor: appIconColor }}
+          >
             <SvgIcon url={appIcon} fill="#fff" size={22} />
           </div>
         )}

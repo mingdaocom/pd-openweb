@@ -1,9 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-
 import './style.less';
-
-import LibCalender from 'ming-ui/components/lib/calender';
+import LibCalender from '../lib/calender';
 import Header from './header';
 import Calender from 'ming-ui/components/NewDateTimePicker/calender';
 

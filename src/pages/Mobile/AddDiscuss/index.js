@@ -150,6 +150,7 @@ class AddDiscuss extends Component {
       <div className="filesScroll">
         <AttachmentFiles
           width={130}
+          isRemove={true}
           attachments={files}
           onChange={files => {
             this.setState({

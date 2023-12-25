@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import { arrayOf, func, string, shape } from 'prop-types';
-import CityPicker from 'ming-ui/components/CityPicker';
+import { CityPicker, Input } from 'ming-ui';
 import { BaseSelectedItem } from './Styles';
 import _ from 'lodash';
 
@@ -33,11 +33,6 @@ const AreasCon = styled.div`
   padding: 0 0 0 10px;
 `;
 
-const AreasText = styled.div`
-  font-size: 13px;
-  color: #333;
-`;
-
 const Icon = styled.i`
   cursor: pointer;
   font-size: 13px;
@@ -45,31 +40,55 @@ const Icon = styled.i`
   margin-right: 8px;
 `;
 
-const Empty = styled.span`
-  color: #bdbdbd;
+const InputWrap = styled(Input)`
+  font-size: 13px;
+  color: #333 !important;
+  height: 32px !important;
+  &::-webkit-input-placeholder {
+    color: #bdbdbd;
+  }
 `;
 export default function Areas(props) {
   const { values = [], control, isMultiple, onChange = () => {} } = props;
   const [active, setActive] = useState();
+  const [search, setSearch] = useState(undefined);
+  const [keywords, setKeywords] = useState('');
   const tempArea = useRef();
+
+  const onFetchData = _.debounce(value => {
+    setKeywords(value);
+  }, 500);
+
+  const clearSearch = () => {
+    if (!search) return;
+    setSearch(isMultiple ? '' : undefined);
+    setKeywords('');
+  };
+
   return (
     <CityPicker
+      popupClassName="as"
+      search={keywords}
       destroyPopupOnHide
       defaultValue={undefined}
       level={control.type === 19 ? 1 : control.type === 23 ? 2 : 3}
       callback={area => {
-        if (_.last(area)) {
+        const last = _.last(area);
+
+        if (last) {
           tempArea.current = {
-            name: area.map(c => c.name).join('/'),
-            id: _.last(area).id,
+            name: last.path,
+            id: last.id,
           };
         }
+        clearSearch();
       }}
       handleClose={() => {
         setActive(false);
         if (tempArea.current) {
           onChange({ values: isMultiple ? _.uniqBy([...values, tempArea.current], 'id') : [tempArea.current] });
         }
+        clearSearch();
       }}
     >
       <Con isEmpty={!values.length} active={active}>
@@ -78,12 +97,6 @@ export default function Areas(props) {
             setActive(true);
           }}
         >
-          {!values.length && <Empty>{_l('请选择')}</Empty>}
-          {!isMultiple && !!values.length && (
-            <AreasText className="ellipsis" title={values[0].name}>
-              {values[0].name}
-            </AreasText>
-          )}
           {isMultiple &&
             values.map((v, i) => (
               <BaseSelectedItem key={i}>
@@ -97,6 +110,15 @@ export default function Areas(props) {
                 />
               </BaseSelectedItem>
             ))}
+          <InputWrap
+            className="CityPicker-input-textCon"
+            placeholder={isMultiple && values.length ? '' : _l('请选择')}
+            value={isMultiple ? search || '' : search !== undefined ? search : (values[0] || { name: '' }).name}
+            onChange={value => {
+              setSearch(value);
+              onFetchData(value);
+            }}
+          />
         </AreasCon>
         <Icon className="icon icon-arrow-down-border downIcon" />
         {!!values.length && (
@@ -106,6 +128,10 @@ export default function Areas(props) {
               e.stopPropagation();
               onChange({ values: [] });
               tempArea.current = undefined;
+              if (search) {
+                setSearch('');
+                setKeywords('');
+              }
             }}
           />
         )}

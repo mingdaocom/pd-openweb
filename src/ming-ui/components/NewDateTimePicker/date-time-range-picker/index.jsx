@@ -6,7 +6,7 @@ import './style.less';
 
 import DatePickerBase from '../date-picker-base/index';
 import Time from '../../NewTimePicker/index';
-import LibCalender from '../../lib/calender';
+import LibCalender from '../lib/calender';
 import Checkbox from '../../Checkbox';
 import Button from '../../Button';
 import Dropdown from '../../Dropdown';

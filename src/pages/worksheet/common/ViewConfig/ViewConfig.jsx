@@ -1,15 +1,12 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { fieldCanSort, getSortData, filterHidedControls } from 'src/pages/worksheet/util';
-import Trigger from 'rc-trigger';
-import { Icon, Tooltip, ScrollView, Menu, MenuItem, CheckBlock, Radio, Dropdown } from 'ming-ui';
+import { Icon, Tooltip, ScrollView, CheckBlock, Radio, Dropdown } from 'ming-ui';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum';
-import sheetAjax from 'src/api/worksheet';
 import { formatValuesOfOriginConditions } from '../../common/WorkSheetFilter/util';
 import { getIconByType } from 'src/pages/widgetConfig/util';
-import FilterConfig from '../../common/WorkSheetFilter/common/FilterConfig';
 import CardAppearance from './CardAppearance';
 import ActionSet from './components/customBtn/ActionSet';
 import HierarchyViewSetting from './hierarchyViewSetting';
@@ -31,12 +28,22 @@ import {
   CAN_NOT_AS_VIEW_SORT,
   NORMAL_SYSTEM_FIELDS_SORT,
   WORKFLOW_SYSTEM_FIELDS_SORT,
+  formatAdvancedSettingByNavfilters,
 } from 'src/pages/worksheet/common/ViewConfig/util';
-import { SYS, ALL_SYS, SYS_CONTROLS_WORKFLOW } from 'src/pages/widgetConfig/config/widget.js';
+import { ALL_SYS } from 'src/pages/widgetConfig/config/widget.js';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import _ from 'lodash';
-import { viewTypeConfig, viewTypeGroup, setList } from './config';
+import { viewTypeConfig, setList } from './config';
 import UrlParams from './components/urlParams';
+import DebugConfig from './components/DebugConfig';
+import PluginSettings from './components/PluginSettings';
+import SubmitConfig from './components/Submit';
+import ParameterSet from './components/ParameterSet';
+import SideNav from './components/SideNav';
+import pluginAjax from 'src/api/plugin.js';
+import SvgIcon from 'src/components/SvgIcon';
+import ViewFilter from './components/Filter';
+
 const SwitchStyle = styled.div`
   .switchText {
     margin-right: 6px;
@@ -53,29 +60,6 @@ const SwitchStyle = styled.div`
   }
   .w30 {
     width: 30px;
-  }
-`;
-
-const RecordColorSign = styled.div`
-  display: inline-block;
-  float: right;
-  i {
-    display: inline-block;
-    width: 14px;
-    height: 14px;
-    border-radius: 14px;
-    border: 2px solid #fff;
-    margin-left: -6px;
-    transform: translateY(2px);
-    &:nth-child(1) {
-      background: #f44336;
-    }
-    &:nth-child(2) {
-      background: #fad714;
-    }
-    &:nth-child(3) {
-      background: #00c345;
-    }
   }
 `;
 
@@ -104,20 +88,9 @@ class ViewConfigCon extends Component {
 
   componentDidMount() {
     const { worksheetId, appId, viewId, refreshFn } = this.props;
-    const { existingFilters } = this.state;
     if (viewId) {
       refreshFn(worksheetId, appId, viewId, '');
     }
-    sheetAjax
-      .getWorksheetFilters({ worksheetId })
-      .then(data => {
-        this.setState({
-          existingFilters: existingFilters.concat(data),
-        });
-      })
-      .fail(err => {
-        alert(_l('获取筛选列表失败'), 2);
-      });
   }
   componentWillReceiveProps(nextProps) {
     if (
@@ -130,7 +103,7 @@ class ViewConfigCon extends Component {
       this.setState(this.fill(nextProps, nextProps.view.viewId === this.props.view.viewId));
     }
   }
-  fill = ({ columns, view, sheetSwitchPermit, isInit = false }, isEqualViewId) => {
+  fill = ({ columns, view, sheetSwitchPermit, isInit = false, viewConfigTab, setViewConfigTab }, isEqualViewId) => {
     const sortCid = view.sortCid || 'ctime';
     const sortingColumns = formatSortingColumns(columns);
     const sortType = view.sortType || this.getDefaultSortValue(sortCid, sortingColumns);
@@ -158,8 +131,6 @@ class ViewConfigCon extends Component {
     // sysids：显示的系统字段 syssort：系统字段顺序
     const config = {
       name: view.name,
-      filters: view.filters || '',
-      appearFilters: view.filters ? formatValuesOfOriginConditions(view.filters) : '',
       controls,
       rowHeight: view.rowHeight || 0,
       showControls: view.showControls,
@@ -186,18 +157,22 @@ class ViewConfigCon extends Component {
     };
     let data = {
       sortingColumns,
-      existingFilters: [],
-      filters: [],
       filter: { items: [] },
-      shwoMoreMenu: false,
       ...config,
     };
-
+    const isDevCustomView = (_.get(view, 'pluginInfo') || {}).source === 0; //是否可以开发状态的自定义视图
     // ViewId更改，更改viewSetting 排序，无需更改viewSetting
     if (!isEqualViewId) {
+      if (!!viewConfigTab) {
+        setViewConfigTab('');
+      }
       return {
         ...data,
-        viewSetting: 'Setting',
+        viewSetting: !!viewConfigTab
+          ? viewConfigTab
+          : VIEW_DISPLAY_TYPE[view.viewType] === 'customize' && isDevCustomView
+          ? 'PluginSettings'
+          : 'Setting',
       };
     }
 
@@ -258,7 +233,6 @@ class ViewConfigCon extends Component {
     const { editAttrs } = objs || {};
     const {
       name,
-      appearFilters,
       controls,
       moreSort,
       sortCid,
@@ -276,7 +250,6 @@ class ViewConfigCon extends Component {
     const { worksheetId, view, appId } = this.props;
     const config = {
       name,
-      filters: appearFilters,
       sortCid,
       sortType,
       moreSort,
@@ -316,173 +289,6 @@ class ViewConfigCon extends Component {
     this.props.updateCurrentView(data);
   }
 
-  renderViewBtns() {
-    const { viewSetting } = this.state;
-    const {
-      //btnData,
-      view,
-      columns,
-      currentSheetInfo,
-    } = this.props;
-    const { filters = [], controls = [], moreSort = [], fastFilters = [], groupFilters } = view;
-    const { icon, text } = VIEW_TYPE_ICON.find(it => it.id === VIEW_DISPLAY_TYPE[view.viewType]) || {};
-    const viewTypeText = VIEW_DISPLAY_TYPE[view.viewType];
-    const columnsList = this.formatColumnsListForControlsWithoutHide(columns);
-    const controlsList = this.formatColumnsListForControlsWithoutHide(controls);
-    let daConfig = [
-      // {
-      //   type: 'ActionSet',
-      //   data: btnData,
-      // },
-      {
-        type: 'Filter',
-        data: filters,
-      },
-      {
-        type: 'FastFilter',
-        data: fastFilters,
-      },
-      {
-        type: 'Sort',
-        data: moreSort,
-      },
-    ];
-    const getHtml = type => {
-      let d = viewTypeConfig.find(o => o.type === type) || {};
-      let da = (daConfig.find(o => o.type === type) || {}).data;
-      if (type === 'FastFilter') {
-        da = (da || []).filter(o => {
-          if (!isOpenPermit(permitList.sysControlSwitch, currentSheetInfo.switches || [])) {
-            return !SYS_CONTROLS_WORKFLOW.includes(o.controlId);
-          } else {
-            return true;
-          }
-        });
-      }
-      if (type === 'Filter') {
-        let data = [];
-        da = (da || []).map(o => {
-          if (!!o.isGroup) {
-            data = [...data, ...o.groupFilters];
-          } else {
-            data = [...data, o];
-          }
-        });
-        da = data.filter(o => !!o);
-      }
-      return (
-        <span>
-          <span className="titleTxt">{d.name}</span>
-          {((da && da.length > 0) || type === 'Sort') && (
-            <span className="Gray_9e InlineBlock mLeft5 numText">
-              {type === 'Sort' && da.length < 1 ? 1 : da.length}
-            </span>
-          )}
-          {type === 'RecordColor' && !!_.get(view, 'advancedSetting.colorid') && (
-            <RecordColorSign>
-              <i />
-              <i />
-              <i />
-            </RecordColorSign>
-          )}
-        </span>
-      );
-    };
-    let hideLengthStr = (
-      <span>
-        <span className="titleTxt">{_l('字段')}</span>
-        {columnsList.length - controlsList.length > 0 && (
-          <span className="Gray_9e InlineBlock mLeft5 numText">{`${columnsList.length - controlsList.length}/${
-            columnsList.length
-          }`}</span>
-        )}
-      </span>
-    );
-    // 多表关联层级视图
-    const isRelateMultiSheetHierarchyView = viewTypeText === 'structure' && String(view.childType) === '2';
-    return (
-      <div className="viewBtns pTop7">
-        {viewTypeGroup.map((it, i) => {
-          return (
-            <div className="viewBtnsLi">
-              {it.list.map((o, n) => {
-                let item = viewTypeConfig.find(d => d.type === o);
-                //只有表格和画廊、看板视图、日历视图、甘特图、详情视图(多条)有快速筛选
-                const hasFastFilter =
-                  ['sheet', 'gallery', 'board', 'calendar', 'gunter'].includes(viewTypeText) ||
-                  (viewTypeText === 'detail' && view.childType === 2);
-                const hasNavGroup = ['sheet', 'gallery'].includes(viewTypeText);
-
-                if (
-                  // 暂时不做颜色
-                  item.type === 'Color' ||
-                  (!hasFastFilter && ['FastFilter'].includes(item.type)) ||
-                  (!hasNavGroup && ['NavGroup'].includes(item.type)) ||
-                  (!['sheet'].includes(viewTypeText) && _.includes(['Show', 'MobileSet'], o)) || //只有表格有显示列,移动端设置
-                  (item.type === 'RecordColor' && viewTypeText === 'detail' && view.childType === 1)
-                ) {
-                  return '';
-                }
-                return (
-                  <React.Fragment>
-                    {(_.includes(['MobileSet', 'urlParams'], item.type) ||
-                      (hasFastFilter && ['FastFilter'].includes(item.type)) ||
-                      (hasNavGroup && ['NavGroup'].includes(item.type)) ||
-                      (!hasFastFilter && item.type === 'ActionSet') ||
-                      item.type === 'Filter') && (
-                      <React.Fragment>
-                        {item.type === 'Filter' ? (
-                          <p className="titileP"> {_l('记录设置')}</p>
-                        ) : (hasFastFilter && item.type === 'FastFilter') ||
-                          (!hasFastFilter && item.type === 'ActionSet') ? (
-                          <p className="titileP">{_l('用户操作')}</p>
-                        ) : item.type === 'MobileSet' || (viewTypeText !== 'sheet' && item.type === 'urlParams') ? (
-                          <p className="titileP">{_l('其他')}</p>
-                        ) : (
-                          ''
-                        )}
-                      </React.Fragment>
-                    )}
-                    <div
-                      className={cx('viewBtn flexRow alignItemsCenter', { active: viewSetting === item.type })}
-                      onClick={() => {
-                        this.setState({ viewSetting: item.type });
-                      }}
-                    >
-                      <Icon className="mRight15 Font18 icon" icon={item.icon || icon} />
-                      <span className="fontText">
-                        {it.name === 'base' && o === 'Setting'
-                          ? _l('视图设置')
-                          : ['Filter', 'FastFilter', 'Sort', 'RecordColor'].includes(item.type)
-                          ? getHtml(item.type)
-                          : item.type === 'Controls'
-                          ? hideLengthStr
-                          : item.name}
-                      </span>
-                    </div>
-                  </React.Fragment>
-                );
-              })}
-              {/* 多表关联层级视图 =》筛选、排序、字段的设置仅作用于本表（第一层级）中的记录。 */}
-              {isRelateMultiSheetHierarchyView && it.name === 'action' && (
-                <div
-                  className="Font13 pTop16 pBottom16 pLeft12 pRight12 mTop8 descCon"
-                  style={{
-                    color: '#8E8E8E',
-                    backgroundColor: '#EDEDED',
-                    borderRadius: '3px',
-                  }}
-                >
-                  {_l('筛选、排序、字段的设置仅作用于本表（第一层级）中的记录。')}
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-    );
-  }
-
   onChangeSet = (key, value) => {
     this.setState(
       {
@@ -495,8 +301,12 @@ class ViewConfigCon extends Component {
   };
 
   renderViewSetting() {
-    const { rowHeight, refreshtime = '0', fastedit = '0', sheettype = '0', enablerules = '' } = this.state;
     const { columns, view, sheetSwitchPermit } = this.props;
+    const isDevCustomView = (_.get(view, 'pluginInfo') || {}).source === 0; //是否可以开发状态的自定义视图
+    if (VIEW_DISPLAY_TYPE[view.viewType] === 'customize' && !isDevCustomView) {
+      return <ParameterSet {...this.props} onChangeView={this.onChangeCustomView} />;
+    }
+    const { rowHeight, refreshtime = '0', fastedit = '0', sheettype = '0', enablerules = '' } = this.state;
     const viewTypeText = VIEW_DISPLAY_TYPE[view.viewType];
     const filteredColumns = filterHidedControls(columns, view.controls, false).filter(
       c => !!c.controlName && !_.includes([22, 10010, 43, 45, 49, 51], c.type),
@@ -738,91 +548,6 @@ class ViewConfigCon extends Component {
     );
   }
 
-  renderFilter = () => {
-    const { existingFilters } = this.state;
-    const { columns, view, projectId, appId, sheetSwitchPermit } = this.props;
-    return (
-      <Fragment>
-        <div className="flexRow commonConfigItem">
-          <div className="Gray_9e mTop8 flex">{_l('添加筛选条件，限制出现在此视图中的记录')}</div>
-          {existingFilters.length ? (
-            <Trigger
-              popupVisible={this.state.shwoMoreMenu}
-              onPopupVisibleChange={shwoMoreMenu => {
-                this.setState({ shwoMoreMenu });
-              }}
-              popupClassName="DropdownPanelTrigger"
-              action={['click']}
-              popupAlign={{
-                points: ['tl', 'bl'],
-                offset: [-140, 0],
-              }}
-              popup={
-                <Menu>
-                  {existingFilters.map(({ filterId, name, items }, index) => (
-                    <MenuItem
-                      onClick={() => {
-                        this.setState(
-                          {
-                            filters: items,
-                            appearFilters: items,
-                            shwoMoreMenu: false,
-                          },
-                          () => {
-                            this.handleSave({ editAttrs: ['filters'] });
-                          },
-                        );
-                      }}
-                      key={filterId}
-                    >
-                      <span className="text">{name || _l('未命名筛选器 %0', index + 1)}</span>
-                    </MenuItem>
-                  ))}
-                </Menu>
-              }
-            >
-              <Tooltip
-                disable={this.state.shwoMoreMenu}
-                popupPlacement="bottom"
-                text={<span>{_l('已保存的筛选器')}</span>}
-              >
-                <div className="valignWrapper more pointer">
-                  <span>{_l('更多')}</span>
-                  <Icon icon="arrow-down" />
-                </div>
-              </Tooltip>
-            </Trigger>
-          ) : null}
-        </div>
-        <FilterConfig
-          version={view.filters && JSON.stringify(view.filters)}
-          supportGroup
-          canEdit
-          feOnly
-          filterColumnClassName="sheetViewFilterColumnOption"
-          projectId={projectId}
-          appId={appId}
-          viewId={view.viewId}
-          sheetSwitchPermit={sheetSwitchPermit}
-          filterResigned={false}
-          columns={columns}
-          conditions={view.filters}
-          urlParams={JSON.parse((view.advancedSetting || {}).urlparams || '[]')}
-          onConditionsChange={conditions => {
-            this.setState(
-              {
-                appearFilters: conditions,
-              },
-              () => {
-                this.handleSave({ editAttrs: ['filters'] });
-              },
-            );
-          }}
-        />
-      </Fragment>
-    );
-  };
-
   renderSort = () => {
     const { moreSort } = this.state;
     const { columns } = this.props;
@@ -853,6 +578,40 @@ class ViewConfigCon extends Component {
     );
   };
 
+  editPlugin = data => {
+    const { updateCurrentViewState, view, appId } = this.props;
+    const { pluginInfo = {}, viewId } = view;
+    const { id, source = 0 } = pluginInfo;
+    pluginAjax
+      .edit({
+        id, //插件id
+        source,
+        viewId,
+        appId,
+        ...data,
+      })
+      .then(res => {
+        updateCurrentViewState({
+          pluginInfo: res,
+        });
+      });
+  };
+
+  onChangeCustomView = (data, isPlugin, others) => {
+    const { updateCurrentView, view, appId } = this.props;
+    if (isPlugin) {
+      this.editPlugin(data);
+    } else {
+      updateCurrentView({
+        ...view,
+        appId,
+        editAttrs: ['advancedSetting'],
+        ...others,
+        advancedSetting: formatAdvancedSettingByNavfilters(view, _.omit({ ...data }, 'navfilters')),
+      });
+    }
+  };
+
   renderSetting = () => {
     const { viewSetting, customdisplay = '0', customShowControls, showControls } = this.state;
     const {
@@ -873,6 +632,7 @@ class ViewConfigCon extends Component {
     );
 
     const isShowWorkflowSys = isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit);
+
     switch (viewSetting) {
       case 'ActionSet': // 自定义动作
         return (
@@ -890,7 +650,7 @@ class ViewConfigCon extends Component {
           />
         );
       case 'Filter': // 筛选
-        return this.renderFilter();
+        return <ViewFilter {...this.props} />;
       case 'Sort': // 排序
         return this.renderSort();
       case 'Controls': // 字段
@@ -901,7 +661,6 @@ class ViewConfigCon extends Component {
             columnChange={data => this.columnChange(data, true)}
           />
         );
-      case 'Color': // 颜色
       case 'MobileSet': // 移动端设置
         return (
           <MobileSet
@@ -994,27 +753,66 @@ class ViewConfigCon extends Component {
         );
       case 'urlParams':
         return <UrlParams {...this.props} />;
+      case 'PluginSettings':
+        return (
+          <PluginSettings
+            {...this.props}
+            onUpdateTab={value => {
+              this.setState({ viewSetting: value });
+            }}
+            onChangeView={this.onChangeCustomView}
+          />
+        );
+      case 'ParameterSet':
+        return <ParameterSet {...this.props} onChangeView={this.onChangeCustomView} />;
+      case 'Submit':
+        return <SubmitConfig {...this.props} onChangeView={this.onChangeCustomView} />;
       default:
+        const isDevCustomView = (_.get(view, 'pluginInfo') || {}).source === 0; //是否可以开发状态的自定义视图
+        if (VIEW_DISPLAY_TYPE[view.viewType] === 'customize' && isDevCustomView) {
+          return <DebugConfig {...this.props} onChangeView={this.onChangeCustomView} />;
+        }
         return this.renderViewSetting(); // 基础设置
     }
   };
 
   render() {
-    const { viewSetting, customdisplay } = this.state;
-    const { view } = this.props;
-    const { text } = VIEW_TYPE_ICON.find(it => it.id === VIEW_DISPLAY_TYPE[view.viewType]) || {};
+    const { viewSetting } = this.state;
     const data = viewTypeConfig.find((item, i) => item.type === viewSetting) || {};
+    const conRender = () => {
+      const { view } = this.props;
+      const isDevCustomView = (_.get(view, 'pluginInfo') || {}).source === 0; //是否可以开发状态的自定义视图
+      return (
+        <div className={cx('viewContentCon', { H100: ['Submit', 'Filter'].includes(data.type) })}>
+          {!['MobileSet', 'FastFilter', 'NavGroup', 'RecordColor', 'ActionSet', 'Submit', 'Filter'].includes(
+            data.type,
+          ) && (
+            <div className="viewSetTitle">
+              {data.type === 'Setting' ? _l('视图设置') : data.name}
+              {isDevCustomView && ['ParameterSet'].includes(viewSetting) && (
+                <div className="Gray_9e Font13 mTop4 Normal">{_l('插件发布后将作为使用者的视图配置')}</div>
+              )}
+            </div>
+          )}
+          {this.renderSetting()}
+        </div>
+      );
+    };
     return (
       <div className="viewSetBox">
-        {this.renderViewBtns()}
-        <ScrollView className="viewContent flex">
-          <div className="viewContentCon">
-            {!['MobileSet', 'FastFilter', 'NavGroup', 'RecordColor', 'ActionSet'].includes(data.type) && (
-              <div className="viewSetTitle">{data.type === 'Setting' ? _l('视图设置') : data.name}</div>
-            )}
-            {this.renderSetting()}
-          </div>
-        </ScrollView>
+        <SideNav
+          {...this.props}
+          viewSetting={viewSetting}
+          formatColumnsListForControlsWithoutHide={this.formatColumnsListForControlsWithoutHide}
+          onChangeType={viewSetting => {
+            this.setState({ viewSetting });
+          }}
+        />
+        {!['PluginSettings'].includes(viewSetting) ? (
+          <ScrollView className="viewContent flex">{conRender()}</ScrollView>
+        ) : (
+          <div className="viewContent flex contentCon flexColumn">{conRender()}</div>
+        )}
       </div>
     );
   }
@@ -1064,9 +862,18 @@ export default class ViewConfig extends React.Component {
     const { name } = this.state;
     const { view } = this.props;
     const { icon, color } = VIEW_TYPE_ICON.find(it => it.id === VIEW_DISPLAY_TYPE[view.viewType]) || {};
+    const isCustomize = ['customize'].includes(VIEW_DISPLAY_TYPE[view.viewType]);
     return (
       <div className="viewTitle">
-        <Icon className="mRight5 Font20" style={{ color }} icon={icon} />
+        {isCustomize ? (
+          <SvgIcon
+            url={_.get(view, 'pluginInfo.iconUrl') || 'https://fp1.mingdaoyun.cn/customIcon/sys_12_4_puzzle.svg'}
+            fill={_.get(view, 'pluginInfo.iconColor') || '#445A65'}
+            size={18}
+          />
+        ) : (
+          <Icon className="mRight5 Font20" style={{ color }} icon={icon} />
+        )}
         <input
           autoFocus={view.isNewView}
           value={name}

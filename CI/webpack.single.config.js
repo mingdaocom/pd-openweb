@@ -8,7 +8,7 @@ const InjectPlugin = require('webpack-inject-plugin').default;
 const webpackConfig = require('./webpack.config');
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
-module.exports = function (entryType) {
+module.exports = function(entryType) {
   return Object.assign({}, webpackConfig, {
     entry: {
       css: [
@@ -28,13 +28,12 @@ module.exports = function (entryType) {
     optimization: {
       minimizer: [
         new TerserJSPlugin({
+          minify: TerserJSPlugin.esbuildMinify,
           terserOptions: {
-            safari10: true,
-            compress: {
-              drop_console: true,
-            },
+            target: 'chrome58',
+            legalComments: 'none',
           },
-          extractComments: false,
+          exclude: /\/node_modules/,
         }),
       ],
     },
@@ -50,7 +49,7 @@ module.exports = function (entryType) {
         filename: '[contenthash].css',
         ignoreOrder: true,
       }),
-      new InjectPlugin(function () {
+      new InjectPlugin(function() {
         return '__webpack_public_path__ = window.__webpack_public_path__;';
       }),
       // new BundleAnalyzerPlugin(),

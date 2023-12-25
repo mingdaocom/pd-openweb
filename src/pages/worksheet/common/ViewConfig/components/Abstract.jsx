@@ -25,7 +25,6 @@ export default class Abstract extends React.Component {
         iconName: getIconByType((worksheetControls.find(item => item.controlId === it.value) || {}).type, false),
       };
     });
-    abstractControls = [{ value: 'clear', text: '清除' }].concat(abstractControls);
     const isExistAbstract = !!worksheetControls.filter(item => item.controlId === abstract).length;
 
     return (
@@ -38,13 +37,14 @@ export default class Abstract extends React.Component {
             data={abstractControls}
             value={isExistAbstract ? abstract : ''}
             border
+            cancelAble
             maxHeight={260}
             style={{ width: '100%' }}
             onChange={value => {
               if (value === abstract) {
                 return;
               }
-              if (value === 'clear') {
+              if (!value) {
                 handleChange('');
               } else {
                 handleChange(value);

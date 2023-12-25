@@ -94,9 +94,9 @@ const StyledFixedTable = styled(FixedTable)`
   }
   &:not(.classic) {
     .cell.hover:not(.isediting):not(.highlight):not(.highlightFromProps) {
-      background-color: #fafafa !important;
+      background-color: rgba(0, 0, 0, 0.04) !important;
       .editIcon {
-        background-color: #fafafa !important;
+        background-color: transparent !important;
       }
     }
   }
@@ -106,17 +106,11 @@ const StyledFixedTable = styled(FixedTable)`
         display: none !important;
       }
     }
-    .cell.canedit:not(.isediting):is(
-        .control-2,
-        .control-3,
-        .control-5,
-        .control-7,
-        .control-6,
-        .control-8
-      ) {
+    .cell.canedit:not(.isediting):is(.control-2, .control-3, .control-5, .control-7, .control-6, .control-8) {
       .editIcon {
         display: none !important;
       }
+    }
   }
 `;
 

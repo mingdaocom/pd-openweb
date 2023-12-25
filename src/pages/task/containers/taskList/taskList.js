@@ -1,4 +1,5 @@
 ﻿import React, { Component, Fragment } from 'react';
+import ReactDOM from 'react-dom';
 import './css/taskList.less';
 import _ from 'lodash';
 import { connect } from 'react-redux';
@@ -6,7 +7,7 @@ import ajaxRequest from 'src/api/taskCenter';
 import doT from 'dot';
 import config from '../../config/config';
 import { listLoadingContent } from '../../utils/taskComm';
-import { formatTaskTime, errorMessage, formatStatus, buildMyTaskIcon } from '../../utils/utils';
+import { formatTaskTime, errorMessage, formatStatus, buildMyTaskIcon, checkIsProject } from '../../utils/utils';
 import nodeCommTr from './tpl/nodeCommTr.html';
 import folderTask from './tpl/folderTask.html';
 import nodeTr from './tpl/nodeTr.html';
@@ -15,6 +16,9 @@ import taskClassify from './tpl/taskClassify.html';
 import singleNewTask from './tpl/singleNewTask.html';
 import { updateMyTaskDataSource, updateSearchTaskCount } from '../../redux/actions';
 import TaskDetail from '../taskDetail/taskDetail';
+import UserHead from 'src/components/userHead';
+import { updateTaskCharge } from '../../redux/actions';
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 
 const taskListSettings = {
   pageIndex: 1,
@@ -69,6 +73,8 @@ class TaskList extends Component {
     this.bindEvents();
     this.props.emitter.removeListener('CREATE_TASK_TO_LIST', this.quickCreateTaskCallback);
     this.props.emitter.addListener('CREATE_TASK_TO_LIST', this.quickCreateTaskCallback);
+    this.props.emitter.removeListener('UPDATE_TASK_CHARGE', this.renderChargeHeaderAvatar);
+    this.props.emitter.addListener('UPDATE_TASK_CHARGE', this.renderChargeHeaderAvatar.bind(this));
   }
 
   componentWillReceiveProps(nextProps) {
@@ -89,6 +95,7 @@ class TaskList extends Component {
     taskListSettings.taskListPost.abort();
     clearTimeout(taskListSettings.timer);
     this.props.emitter.removeListener('CREATE_TASK_TO_LIST', this.quickCreateTaskCallback);
+    this.props.emitter.removeListener('UPDATE_TASK_CHARGE', this.renderChargeHeaderAvatar);
   }
 
   init() {
@@ -121,12 +128,79 @@ class TaskList extends Component {
     }
   }
 
+  renderChargeHeaderAvatar(params) {
+    const { taskConfig } = this.props;
+    $('#tasks .listStageTaskContent tr .chargeTd').each((i, ele) => {
+      let $ele = $(ele);
+      if ($ele.data('hasbusinesscard')) return;
+      const folderId = taskConfig.folderId;
+      let projectId = taskConfig.projectId;
+      let taskId;
+
+      if (folderId) {
+        taskId = $ele.closest('li').data('taskid');
+      } else {
+        taskId = $ele.closest('tr').data('taskid');
+        projectId = $ele.closest('tr').data('projectid');
+      }
+
+      const accountId = params ? _.get(params.data, 'data.charge.accountID') : $ele.data('id');
+      const avatar = params ? _.get(params.data, 'data.charge.avatar') : $ele.data('src');
+      const auth = params ? _.get(params.data, 'data.auth') : $ele.data('auth');
+
+      if (params) $ele.data('auth', auth);
+      $ele.data('hasbusinesscard', true);
+      ReactDOM.render(
+        <UserHead
+          user={{
+            userHead: avatar,
+            accountId: accountId,
+          }}
+          size={26}
+          operation={
+            auth === config.auth.Charger ? (
+              <span
+                className="updateChargeBtn ThemeColor3"
+                onClick={() => {
+                  dialogSelectUser({
+                    sourceId: folderId,
+                    showMoreInvite: false,
+                    fromType: 2,
+                    SelectUserSettings: {
+                      includeUndefinedAndMySelf: true,
+                      filterAccountIds: [accountId],
+                      projectId: checkIsProject(projectId) ? projectId : '',
+                      unique: true,
+                      callback: users => {
+                        const user = users[0];
+
+                        this.props.dispatch(
+                          updateTaskCharge(taskId, user, '', () => {
+                            $ele.data('id', user.accountId).data('src', user.avatar).data('hasbusinesscard', false);
+                            this.renderChargeHeaderAvatar();
+                          }),
+                        );
+                      },
+                    },
+                  });
+                }}
+              >
+                {_l('将任务托付给他人')}
+              </span>
+            ) : null
+          }
+        />,
+        ele,
+      );
+    });
+  }
+
   bindEvents() {
     const $taskList = $('#taskList');
     const that = this;
 
     // 点击出详情
-    $taskList.on('click', '.listStageTaskContent tr', function(event) {
+    $taskList.on('click', '.listStageTaskContent tr', function (event) {
       const _this = $(this);
       let isMuil = false;
       let metaKeyType;
@@ -191,9 +265,7 @@ class TaskList extends Component {
         click(event) {
           const $area = $(this).closest('.persist-area').length ? $(this).parentsUntil('#taskList') : $(this);
           const $List = $(this).closest('.persist-area').length
-            ? $(this)
-                .parentsUntil('#taskList')
-                .find('.listStageTaskContent')
+            ? $(this).parentsUntil('#taskList').find('.listStageTaskContent')
             : $(this).next('.listStageTaskContent');
           if ($List.is(':animated')) return;
 
@@ -210,19 +282,15 @@ class TaskList extends Component {
         },
         hover(event) {
           const isAdd = event.type == 'mouseenter';
-          $(this)
-            .find('.listFolderNameTextList')
-            .toggleClass('ThemeColor3', isAdd);
-          $(this)
-            .find('.arrow-down')
-            .toggleClass('ThemeBorderColor3', isAdd);
+          $(this).find('.listFolderNameTextList').toggleClass('ThemeColor3', isAdd);
+          $(this).find('.arrow-down').toggleClass('ThemeBorderColor3', isAdd);
         },
       },
       '.taskListFolderName',
     );
 
     // 页面滚动加载更多
-    $taskList.on('scroll', function() {
+    $taskList.on('scroll', function () {
       const { folderId, taskFilter, listSort } = that.props.taskConfig;
       // 阶段视图不分页
       if (folderId || taskFilter === 9) {
@@ -257,40 +325,26 @@ class TaskList extends Component {
     });
 
     // 我的任务 菜单弹层
-    $taskList.on('click', '.myTaskTag', function(event) {
+    $taskList.on('click', '.myTaskTag', function (event) {
       // 防止出详情
       event.stopPropagation();
-      const projectId = $(this)
-        .closest('tr')
-        .data('projectid');
-      const taskId = $(this)
-        .closest('tr')
-        .data('taskid');
-      const type = $(this)
-        .closest('table')
-        .data('type');
-      const $list = $('.myTaskSettingList')
-        .data('taskid', taskId)
-        .data('projectid', projectId);
+      const projectId = $(this).closest('tr').data('projectid');
+      const taskId = $(this).closest('tr').data('taskid');
+      const type = $(this).closest('table').data('type');
+      const $list = $('.myTaskSettingList').data('taskid', taskId).data('projectid', projectId);
       const offset = $(this).offset();
       const winHeight = parseInt(window.innerHeight, 10);
 
       that.hideTaskSetting();
 
-      if (
-        !$(this)
-          .children()
-          .hasClass('Hidden')
-      ) {
+      if (!$(this).children().hasClass('Hidden')) {
         return false;
       }
 
       $list.removeClass('Hidden').data('type', type);
       $list.find('li').removeClass('ThemeColor3');
       $list.find('[data-type=' + type + ']').addClass('ThemeColor3');
-      $(this)
-        .children()
-        .removeClass('Hidden');
+      $(this).children().removeClass('Hidden');
       // 判断在下方是否放的下， 否则放在上面
       if (offset.top + $list.height() + $('#topBarContent').height() > winHeight) {
         $list.css({
@@ -305,7 +359,7 @@ class TaskList extends Component {
       }
     });
 
-    $('.myTaskSettingList li').on('click', function() {
+    $('.myTaskSettingList li').on('click', function () {
       const $this = $(this);
       const taskId = $this.closest('ul').data('taskid');
       const type = $this.data('type');
@@ -349,15 +403,8 @@ class TaskList extends Component {
     // 加载动画
     listLoadingContent(taskListSettings.pageIndex);
 
-    const {
-      lastMyProjectId,
-      taskFilter,
-      listSort,
-      listStatus,
-      filterUserId,
-      completeTime,
-      filterSettings,
-    } = this.props.taskConfig;
+    const { lastMyProjectId, taskFilter, listSort, listStatus, filterUserId, completeTime, filterSettings } =
+      this.props.taskConfig;
     const tagIDs = _.filter(filterSettings.tags, tagId => tagId !== 'null');
     let withoutTag = false;
     const keyWords = this.props.taskConfig.searchKeyWords;
@@ -449,7 +496,7 @@ class TaskList extends Component {
           const existsFolderIdArray = [];
 
           // 获取页面存在的folderId
-          $('#taskList .taskListFolderName').each(function() {
+          $('#taskList .taskListFolderName').each(function () {
             const folderId = $(this).data('folderid');
             if (existsFolderIdArray.indexOf(folderId) < 0) {
               existsFolderIdArray.push(folderId);
@@ -525,6 +572,7 @@ class TaskList extends Component {
     taskListSettings.isAnimated = true;
     // 移除加载层
     $('#taskFilterLoading, #taskFilterLoadingBottom').remove();
+    this.renderChargeHeaderAvatar();
   }
 
   /**
@@ -558,15 +606,8 @@ class TaskList extends Component {
       return false;
     }
 
-    const {
-      listStatus,
-      listSort,
-      filterUserId,
-      taskFilter,
-      completeTime,
-      lastMyProjectId,
-      filterSettings,
-    } = this.props.taskConfig;
+    const { listStatus, listSort, filterUserId, taskFilter, completeTime, lastMyProjectId, filterSettings } =
+      this.props.taskConfig;
     const tagIDs = _.filter(filterSettings.tags, tagId => tagId !== 'null');
 
     taskListSettings.taskListPost = ajaxRequest.getTaskList({
@@ -656,6 +697,7 @@ class TaskList extends Component {
     $('#taskFilterLoading, #taskFilterLoadingBottom, #trInlineLoading').remove();
     // 动画
     this.slideUpTd();
+    this.renderChargeHeaderAvatar();
   }
 
   /**
@@ -737,12 +779,12 @@ class TaskList extends Component {
    */
   fixTitle() {
     if ($('#taskList').find('.floatingHeader').length <= 0) {
-      $('.persist-area').each(function() {
+      $('.persist-area').each(function () {
         const clonedHeaderRow = $('.persist-header', this);
         clonedHeaderRow.before(clonedHeaderRow.clone()).addClass('floatingHeader');
       });
       $('#taskList').on('scroll', () => {
-        $('.persist-area').each(function() {
+        $('.persist-area').each(function () {
           const el = $(this);
           const offset = el.offset();
           const top = offset.top - 152;
@@ -784,7 +826,7 @@ class TaskList extends Component {
     config.FilterTaskID = [];
     // 重置pageIndex
     taskListSettings.pageIndex = 0;
-    $types.each(function(i, e) {
+    $types.each(function (i, e) {
       const $this = $(this);
       const $tasks = $this.siblings('.listStageTaskContent').find('tr');
       const isClosed = $this.find('.downArrow').length > 0;
@@ -794,7 +836,7 @@ class TaskList extends Component {
         $('.listStageTaskContent')
           .filter(':visible')
           .find('tr')
-          .each(function() {
+          .each(function () {
             const $task = $(this);
             const taskId = $task.data('taskid');
             if (config.FilterTaskID.indexOf(taskId) < 0) {
@@ -802,7 +844,7 @@ class TaskList extends Component {
             }
           });
       } else {
-        $tasks.each(function() {
+        $tasks.each(function () {
           const $task = $(this);
           const taskId = $task.data('taskid');
           config.FilterTaskID.push(taskId);
@@ -831,10 +873,7 @@ class TaskList extends Component {
    */
   hideTaskSetting() {
     const $list = $('.myTaskSettingList');
-    $('#taskList .myTaskTag')
-      .children()
-      .add($list)
-      .addClass('Hidden');
+    $('#taskList .myTaskTag').children().add($list).addClass('Hidden');
   }
 
   /**
@@ -844,7 +883,7 @@ class TaskList extends Component {
     const $animatedFarFast = $('#taskList tr.animatedFarFast td.animatedFarFast');
     const $trs = $('#taskList tr');
 
-    $animatedFarFast.each(function(i) {
+    $animatedFarFast.each(function (i) {
       $(this)
         .animate(
           {
@@ -855,7 +894,7 @@ class TaskList extends Component {
         .delay((i + 1) * 30);
     });
 
-    $trs.each(function(i) {
+    $trs.each(function (i) {
       $(this).animate(
         {
           opacity: 1,
@@ -896,9 +935,7 @@ class TaskList extends Component {
    * 修改我的任务分类调整数据
    */
   afterUpdateClassify(taskArray, type) {
-    $('#taskList .taskListFolderName')
-      .filter('[data-type=0]')
-      .removeClass('Hidden');
+    $('#taskList .taskListFolderName').filter('[data-type=0]').removeClass('Hidden');
     const $title = $('#taskList .taskListFolderName')
       .filter('[data-type=' + type + ']')
       .removeClass('Hidden');
@@ -1001,16 +1038,11 @@ class TaskList extends Component {
             _l('未关联项目') +
             '</span> <span class="folderTaskCount">1</span> </div>',
         );
-        $('#taskList')
-          .append($html)
-          .append(allTasks);
+        $('#taskList').append($html).append(allTasks);
       }
     } else {
       if (source.isExists) {
-        $('#taskList table:first tbody')
-          .prepend(allTasks)
-          .closest('.persist-area')
-          .removeClass('Hidden');
+        $('#taskList table:first tbody').prepend(allTasks).closest('.persist-area').removeClass('Hidden');
       } else {
         $('#taskList').html(allTasks);
       }
@@ -1021,6 +1053,7 @@ class TaskList extends Component {
       const $allCountTask = $('.myTask .allCountTask:first');
       $allCountTask.text(parseInt($allCountTask.text() || 0, 10) + 1);
     }
+    this.renderChargeHeaderAvatar();
   };
 
   /**
@@ -1031,7 +1064,7 @@ class TaskList extends Component {
     const $newTopic = $el.find('.newTopic');
     const $newTaskTip = $el.find('.newTaskTip');
     // 处理小红点
-    const removeTipFun = function() {
+    const removeTipFun = function () {
       if ($el.data('isnotice')) {
         const $leftNewTip = $('#taskNavigator .myTask .newTip');
         if ($leftNewTip.length) {
@@ -1052,7 +1085,7 @@ class TaskList extends Component {
           width: '0px',
         },
         150,
-        function() {
+        function () {
           $(this).remove();
         },
       );
@@ -1062,7 +1095,7 @@ class TaskList extends Component {
           'border-left-width': '0px',
         },
         150,
-        function() {
+        function () {
           $(this).removeClass('newTaskTipName');
         },
       );

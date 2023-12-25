@@ -8,7 +8,7 @@ import { RELATION_SEARCH_SHOW_TYPE } from 'worksheet/constants/enum';
 const Con = styled.div`
   .relationSearchTag {
     display: inline-block;
-    background-color: #e8e8e8;
+    background-color: rgba(0, 100, 240, 0.08);
     border-radius: 3px;
     height: 21px;
     line-height: 21px;

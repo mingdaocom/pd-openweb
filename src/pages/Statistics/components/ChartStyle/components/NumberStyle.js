@@ -326,18 +326,16 @@ const StatisticsValue = props => {
             </div>
           </ColorPicker>
         )}
-        {controlId && (
-          <Tooltip title={_l('颜色规则')}>
-            <EntranceWrapper
-              className="ruleIcon flexRow valignWrapper pointer"
-              onClick={() => {
-                setRuleColorModalVisible(true);
-              }}
-            >
-              <Icon className="Font16 Gray_9e" icon="formula" />
-            </EntranceWrapper>
-          </Tooltip>
-        )}
+        <Tooltip title={_l('颜色规则')}>
+          <EntranceWrapper
+            className="ruleIcon flexRow valignWrapper pointer"
+            onClick={() => {
+              setRuleColorModalVisible(true);
+            }}
+          >
+            <Icon className="Font16 Gray_9e" icon="formula" />
+          </EntranceWrapper>
+        </Tooltip>
         {colorRule && (
           <EntranceWrapper
             className="ruleIcon flexRow valignWrapper pointer"

@@ -424,7 +424,6 @@ footer a.join.leave{
 }
 .pcFooterTitle i{
   display: inline-block;
-  background: url("/images/calendar/bg1.png") no-repeat;
   width: 40px;
   height: 35px;
   background-size: 100px 130px;
@@ -453,7 +452,6 @@ footer a.join.leave{
 }
 .openHome{
   display: block;
-  background: url("/images/calendar/logo.png") no-repeat center top;
   background-size: 110px 40px;
   width: 100%;
   margin: 40px auto 0;

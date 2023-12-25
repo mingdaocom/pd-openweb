@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import cx from 'classnames';
-import CityPicker from 'ming-ui/components/CityPicker';
+import { CityPicker } from 'ming-ui';
 import DialogSelectGroups from 'src/components/dialogSelectDept';
 import { selectOrgRole } from 'src/components/DialogSelectOrgRole';
 import TagCon from './TagCon';
@@ -36,6 +36,8 @@ export default class Options extends Component {
     super(props);
     this.state = {
       selectedOptions: this.getDefaultSelectedOptions(props.fullValues, props.control),
+      keywords: '',
+      search: undefined,
     };
   }
   getDefaultSelectedOptions(values, control) {
@@ -82,6 +84,11 @@ export default class Options extends Component {
     }
     return 3;
   }
+
+  onFetchData = _.debounce(value => {
+    this.setState({ keywords: value });
+  }, 500);
+
   @autobind
   addItem(item, { clearSelected } = {}) {
     this.setState(
@@ -149,39 +156,52 @@ export default class Options extends Component {
   @autobind
   renderSelect(TagComp) {
     const { type, disabled, folded, control, projectId, onChange, from } = this.props;
-    const { selectedOptions } = this.state;
+    const { selectedOptions, search, keywords } = this.state;
     if (disabled) {
       return <TagCon disabled={disabled} data={selectedOptions} onRemove={this.removeItem} />;
     }
     if (_.includes([19, 23, 24], control.type)) {
       const areaLevel = this.getAreaLevel(control.type, type);
+
       return (
         <div className="worksheetFilterOptionsCondition" ref={con => (this.con = con)}>
           <CityPicker
+            search={keywords}
             destroyPopupOnHide
             defaultValue={undefined}
             level={areaLevel}
-            callback={area => {
-              const code = _.last(area).id;
+            callback={(area, level) => {
+              const last = _.last(area);
+              search && this.setState({ keywords: undefined, search: '' });
               const tempItem = _.find(selectedOptions, o => o.temp);
+
               if (!tempItem) {
                 this.addItem({
                   temp: true,
-                  id: code,
-                  name: area.map(a => a.name).join('/'),
+                  id: last.id,
+                  name: last.path,
                 });
               } else {
                 this.updateItem(tempItem.id, {
-                  id: code,
-                  name: area.map(a => a.name).join('/'),
+                  id: last.id,
+                  name: last.path,
                 });
               }
+
             }}
             handleClose={() => {
               setTimeout(this.clearTemp, 10);
+              search && this.setState({ keywords: undefined, search: '' });
             }}
           >
-            <TagCon data={selectedOptions} onRemove={this.removeItem} />
+            <TagCon
+              data={selectedOptions}
+              onRemove={this.removeItem}
+              needInput={true}
+              search={search}
+              keywords={keywords}
+              onChangeInput={value => this.setState(value)}
+            />
           </CityPicker>
         </div>
       );

@@ -4,7 +4,7 @@ import './members.less';
 import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import config from '../../config/config';
 import { addMembers } from '../../redux/actions';
-import UserHead from 'src/pages/feed/components/userHead';
+import UserHead from 'src/components/userHead';
 import ajaxRequest from 'src/api/taskCenter';
 import _ from 'lodash';
 
@@ -144,7 +144,6 @@ class Members extends Component {
                       userHead: item.account.avatar,
                       accountId: item.account.accountId,
                     }}
-                    lazy={'false'}
                     size={24}
                   />
                   <span className="overflow_ellipsis">{item.account.fullname}</span>(

@@ -18,7 +18,7 @@ var reportConfig = {
   /**
    * 获取字段自定义排序的的顺序
    * @param {Object} args 请求参数
-   * @param {CustomSortRequest} {appId:工作表id(string),controlId:控件id(string),customSort:自定义的顺序(array),filter:筛选(ref),sort:自定义排序的数组(object),}*customSortRequest
+   * @param {CustomSortRequest} {appId:工作表id(string),auth:自定义页面图表权限(integer),controlId:控件id(string),customSort:自定义的顺序(array),filter:筛选(ref),owner:拥有者(string),sort:自定义排序的数组(object),sourceType:来源(integer),}*customSortRequest
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
@@ -42,7 +42,7 @@ var reportConfig = {
   /**
    * 获取图表的数据
    * @param {Object} args 请求参数
-   * @param {保存图表} {appId:工作表ID(string),config:config(object),country:行政区图单独配置(ref),desc:图表说明(string),displaySetup:显示设置(ref),filter:筛选(ref),filters:叠加的筛选(array),formulas:计算字段控件(array),id:ID,新建id传空(string),isPublic:true:公共，false:个人(boolean),name:名称(string),particleSizeType:粒度 1:日 2:周 3:月(integer),pivotTable:透视图配置(ref),reportColor:图表颜色(string),reportType:类型   1:柱图 2:折线图  3:饼图  4:数值图 (integer),rightY:双轴图右Y轴(ref),sorts:自定义排序的数组(array),sourceType:来源 空 代表 来自报表创建，1：page页面创建(integer),split:拆分控件整合(ref),splitId:拆分控件ID(string),style:前端自己定义的样式,后端统计无关的字段(object),summary:汇总设置(ref),version:版本(string),xaxes:null(ref),xaxis:null(string),yaxisList:null(array),yreportType:null(integer),}*reportConfigRequest
+   * @param {保存图表} {appId:工作表ID(string),auth:自定义页面图表权限(integer),config:config(object),country:行政区图单独配置(ref),desc:图表说明(string),displaySetup:显示设置(ref),filter:筛选(ref),filters:叠加的筛选(array),formulas:计算字段控件(array),id:ID,新建id传空(string),isPublic:true:公共，false:个人(boolean),name:名称(string),particleSizeType:粒度 1:日 2:周 3:月(integer),pivotTable:透视图配置(ref),reportColor:图表颜色(string),reportType:类型   1:柱图 2:折线图  3:饼图  4:数值图 (integer),rightY:双轴图右Y轴(ref),sorts:自定义排序的数组(array),sourceType:来源 空 代表 来自报表创建，1：page页面创建(integer),split:拆分控件整合(ref),splitId:拆分控件ID(string),style:前端自己定义的样式,后端统计无关的字段(object),summary:汇总设置(ref),version:版本(string),xaxes:null(ref),xaxis:null(string),yaxisList:null(array),yreportType:null(integer),}*reportConfigRequest
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
@@ -68,7 +68,7 @@ var reportConfig = {
   /**
    * 获取图表的数据
    * @param {Object} args 请求参数
-   * @param {保存图表} {appId:工作表ID(string),config:config(object),country:行政区图单独配置(ref),desc:图表说明(string),displaySetup:显示设置(ref),filter:筛选(ref),filters:叠加的筛选(array),formulas:计算字段控件(array),id:ID,新建id传空(string),isPublic:true:公共，false:个人(boolean),name:名称(string),particleSizeType:粒度 1:日 2:周 3:月(integer),pivotTable:透视图配置(ref),reportColor:图表颜色(string),reportType:类型   1:柱图 2:折线图  3:饼图  4:数值图 (integer),rightY:双轴图右Y轴(ref),sorts:自定义排序的数组(array),sourceType:来源 空 代表 来自报表创建，1：page页面创建(integer),split:拆分控件整合(ref),splitId:拆分控件ID(string),style:前端自己定义的样式,后端统计无关的字段(object),summary:汇总设置(ref),version:版本(string),xaxes:null(ref),xaxis:null(string),yaxisList:null(array),yreportType:null(integer),}*reportConfigRequest
+   * @param {保存图表} {appId:工作表ID(string),auth:自定义页面图表权限(integer),config:config(object),country:行政区图单独配置(ref),desc:图表说明(string),displaySetup:显示设置(ref),filter:筛选(ref),filters:叠加的筛选(array),formulas:计算字段控件(array),id:ID,新建id传空(string),isPublic:true:公共，false:个人(boolean),name:名称(string),particleSizeType:粒度 1:日 2:周 3:月(integer),pivotTable:透视图配置(ref),reportColor:图表颜色(string),reportType:类型   1:柱图 2:折线图  3:饼图  4:数值图 (integer),rightY:双轴图右Y轴(ref),sorts:自定义排序的数组(array),sourceType:来源 空 代表 来自报表创建，1：page页面创建(integer),split:拆分控件整合(ref),splitId:拆分控件ID(string),style:前端自己定义的样式,后端统计无关的字段(object),summary:汇总设置(ref),version:版本(string),xaxes:null(ref),xaxis:null(string),yaxisList:null(array),yreportType:null(integer),}*reportConfigRequest
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
@@ -80,7 +80,7 @@ var reportConfig = {
   /**
    * 保存图表配置
    * @param {Object} args 请求参数
-   * @param {保存图表} {appId:工作表ID(string),config:config(object),country:行政区图单独配置(ref),desc:图表说明(string),displaySetup:显示设置(ref),filter:筛选(ref),filters:叠加的筛选(array),formulas:计算字段控件(array),id:ID,新建id传空(string),isPublic:true:公共，false:个人(boolean),name:名称(string),particleSizeType:粒度 1:日 2:周 3:月(integer),pivotTable:透视图配置(ref),reportColor:图表颜色(string),reportType:类型   1:柱图 2:折线图  3:饼图  4:数值图 (integer),rightY:双轴图右Y轴(ref),sorts:自定义排序的数组(array),sourceType:来源 空 代表 来自报表创建，1：page页面创建(integer),split:拆分控件整合(ref),splitId:拆分控件ID(string),style:前端自己定义的样式,后端统计无关的字段(object),summary:汇总设置(ref),version:版本(string),xaxes:null(ref),xaxis:null(string),yaxisList:null(array),yreportType:null(integer),}*reportConfigRequest
+   * @param {保存图表} {appId:工作表ID(string),auth:自定义页面图表权限(integer),config:config(object),country:行政区图单独配置(ref),desc:图表说明(string),displaySetup:显示设置(ref),filter:筛选(ref),filters:叠加的筛选(array),formulas:计算字段控件(array),id:ID,新建id传空(string),isPublic:true:公共，false:个人(boolean),name:名称(string),particleSizeType:粒度 1:日 2:周 3:月(integer),pivotTable:透视图配置(ref),reportColor:图表颜色(string),reportType:类型   1:柱图 2:折线图  3:饼图  4:数值图 (integer),rightY:双轴图右Y轴(ref),sorts:自定义排序的数组(array),sourceType:来源 空 代表 来自报表创建，1：page页面创建(integer),split:拆分控件整合(ref),splitId:拆分控件ID(string),style:前端自己定义的样式,后端统计无关的字段(object),summary:汇总设置(ref),version:版本(string),xaxes:null(ref),xaxis:null(string),yaxisList:null(array),yreportType:null(integer),}*reportConfigRequest
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */

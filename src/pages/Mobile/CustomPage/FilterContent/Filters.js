@@ -5,6 +5,7 @@ import * as actions from 'mobile/RecordList/redux/actions';
 import { bindActionCreators } from 'redux';
 import { Icon } from 'ming-ui';
 import FilterInput, { validate, conditionAdapter, formatQuickFilter, NumberTypes } from 'mobile/RecordList/QuickFilter/Inputs';
+import { formatFilterValuesToServer } from 'src/pages/worksheet/common/Sheet/QuickFilter/utils';
 import _ from 'lodash';
 
 const Con = styled.div`
@@ -78,7 +79,7 @@ function QuickFilter(props) {
     const quickFilter = filters
       .map((filter, i) => ({
         ...filter,
-        filterType: filter.filterType || 1,
+        filterType: filter.filterType || (filter.dataType === 29 ? 24 : 2),
         spliceType: filter.spliceType || 1,
         values: filter.values
       }))
@@ -88,7 +89,23 @@ function QuickFilter(props) {
     updateQuickFilter(formatQuickFilter(quickFilter));
     onCloseDrawer();
   };
-
+  const filtersData = Object.keys(values)
+    .map(key => ({
+      controlId: 'fastFilter_' + _.get(filters[key], 'control.controlId'),
+      filterValue: {
+        ...values[key],
+        values: formatFilterValuesToServer(_.get(filters[key], 'control.type'), _.get(values[key], 'values')),
+      },
+    })).concat(
+      filters
+        .filter(it => it.dataType === 2)
+        .map(v => ({
+          controlId: 'fastFilter_' + v.controlId,
+          filterValue: {
+            values: v.values,
+          },
+        })),
+    );
   return (
     <Con className="flexColumn h100 overflowHidden">
       <div className="header flexRow valignWrapper">
@@ -100,6 +117,7 @@ function QuickFilter(props) {
             key={item.controlId}
             {...item}
             {...values[i]}
+            filtersData={filtersData}
             projectId={props.projectId}
             appId={props.appId}
             // worksheetId={props.worksheetId}

@@ -1,14 +1,36 @@
 import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
-import { Menu, MenuItem, Dialog, Support } from 'ming-ui';
+import Trigger from 'rc-trigger';
+import { Dialog, Support, Icon } from 'ming-ui';
 import { DEFAULT_INTRO_LINK } from '../../config';
-import { WidgetIntroWrap } from '../../styled';
+import { WidgetIntroWrap, IntroMenu } from '../../styled';
 import { DEFAULT_CONFIG, DEFAULT_DATA, WIDGETS_TO_API_TYPE_ENUM } from '../../config/widget';
-import { enumWidgetType, getWidgetInfo } from '../../util';
+import { enumWidgetType, getWidgetInfo, canSetAsTitle } from '../../util';
 import { handleAdvancedSettingChange } from '../../util/setting';
 import { WHOLE_SIZE } from '../../config/Drag';
 import { Tooltip } from 'antd';
+import NoTitleControlDialog from './NoTitleControlDialog';
+import appManagementAjax from 'src/api/appManagement';
 import _ from 'lodash';
+import { isRelateRecordTableControl } from 'worksheet/util';
+
+const DISPLAY_OPTIONS = [
+  {
+    text: _l('设置'),
+    icon: 'settings',
+    value: 1,
+  },
+  {
+    text: _l('样式'),
+    icon: 'color_lens',
+    value: 2,
+  },
+  {
+    text: _l('说明'),
+    icon: 'sort',
+    value: 3,
+  },
+];
 
 const SWITCH_ENUM = {
   2: ['EMAIL', 'MOBILE_PHONE', 'AUTO_ID', 'CRED', 'SEARCH', 'RICH_TEXT'], // 文本
@@ -32,28 +54,92 @@ const SWITCH_ENUM = {
   37: item => [enumWidgetType[item.enumDefault2]], // 汇总
   38: item => (item.enumDefault === 2 ? ['DATE'] : ['NUMBER']), // 公式日期计算
   33: ['TEXT'], // 自动编号
+  34: item => {
+    const { mode } = window.subListSheetConfig[item.controlId] || {};
+    if (item.dataSource && item.dataSource.includes('-')) return [];
+    return mode === 'new' ? ['SHEET'] : ['RELATE_SHEET'];
+  },
   41: ['TEXT'], // 富文本
   50: ['TEXT'], // api查询
 };
 
 export default function WidgetIntro(props) {
-  const { data = {}, from, onChange } = props;
-  const { type, controlId, sourceControl = {}, enumDefault2, advancedSetting } = data;
+  const { data = {}, from, onChange, mode, setMode, globalSheetInfo = {}, isRecycle } = props;
+  const {
+    type,
+    controlId,
+    controlName,
+    dataSource = '',
+    sourceControl = {},
+    relationControls = [],
+    advancedSetting,
+  } = data;
   const { icon, widgetName, intro, moreIntroLink } = getWidgetInfo(type);
   const [visible, setVisible] = useState(false);
   const [switchList, setSwitchList] = useState([]);
+  const [titleVisible, setTitleVisible] = useState(false);
 
   useEffect(() => {
-    let newList = ((_.includes([30, 37, 38], type) ? SWITCH_ENUM[type](data) : SWITCH_ENUM[type]) || []).filter(i => i);
-    newList = newList.map(i => ({ ...DEFAULT_CONFIG[i], type: i }));
+    let newList = ((_.includes([30, 34, 37, 38], type) ? SWITCH_ENUM[type](data) : SWITCH_ENUM[type]) || []).filter(
+      i => i,
+    );
+    newList = newList.map(i => {
+      if (i === 'SHEET') {
+      }
+      return i === 'SHEET' ? { type: 'SHEET', widgetName: _l('转为工作表') } : { ...DEFAULT_CONFIG[i], type: i };
+    });
     setSwitchList(newList);
   }, [controlId, data]);
 
   const switchType = info => {
     setVisible(false);
+
+    //子表转工作表
+    if (info.type === 'SHEET') {
+      const isHaveCanSetAsTitle = _.some(relationControls, canSetAsTitle);
+      if (isHaveCanSetAsTitle) {
+        Dialog.confirm({
+          title: _l('将子表转为工作表'),
+          description: _l(
+            '将从空白创建的子表转为一个实体工作表。此工作表将成为当前表单的一个关联子表，并可以在应用配置、流程、权限中被使用',
+          ),
+          okText: _l('确定'),
+          onOk: () => {
+            appManagementAjax
+              .changeSheet({
+                sourceWorksheetId: globalSheetInfo.worksheetId,
+                worksheetId: dataSource,
+                name: controlName,
+              })
+              .then(res => {
+                if (res) {
+                  if (window.subListSheetConfig[controlId]) {
+                    window.subListSheetConfig[controlId].mode = 'relate';
+                  }
+                  onChange({ data, needUpdate: true });
+                  alert(_l('转换成功'));
+                } else {
+                  alert(_l('转换失败'));
+                }
+              });
+          },
+        });
+      } else {
+        setTitleVisible(true);
+      }
+      return;
+    }
+
     let newData = DEFAULT_DATA[info.type] || {};
 
     if (_.isEmpty(newData)) return;
+
+    if (_.get(advancedSetting, 'required') === '1' && data.required) {
+      newData = handleAdvancedSettingChange(data, { required: '1' });
+    }
+
+    // 清空默认值
+    newData = handleAdvancedSettingChange(data, { dynamicsrc: '', defsource: '', defaultfunc: '', defaulttype: '' });
 
     newData = _.omit(newData, ['controlName']);
     newData.type = WIDGETS_TO_API_TYPE_ENUM[info.type];
@@ -78,7 +164,11 @@ export default function WidgetIntro(props) {
     // 多选转单选 需要将默认选中设为一个
     if (type === 10) {
       const defaultChecked = JSON.parse(data.default || '[]');
-      onChange({ type: 9, default: JSON.stringify(defaultChecked.slice(0, 1)) });
+      onChange({
+        ...handleAdvancedSettingChange(newData, { showtype: '1' }),
+        type: 9,
+        default: JSON.stringify(defaultChecked.slice(0, 1)),
+      });
       return;
     }
     // 下拉转多选需要设置排列方式
@@ -152,6 +242,22 @@ export default function WidgetIntro(props) {
       return;
     }
 
+    // 子表
+    if (type === 34) {
+      Dialog.confirm({
+        title: _l('将子表转为关联记录'),
+        description: _l('将子表字段转为关联记录字段'),
+        okText: _l('确定'),
+        onOk: () => {
+          onChange({
+            ...handleAdvancedSettingChange(newData, { searchrange: '1', dynamicsrc: '', defaulttype: '' }),
+            type: 29,
+          });
+        },
+      });
+      return;
+    }
+
     // 富文本
     if (type === 41 && controlId) {
       Dialog.confirm({
@@ -175,9 +281,42 @@ export default function WidgetIntro(props) {
 
   return (
     <WidgetIntroWrap>
-      <div className="title relative">
-        <i className={cx('icon Font20', `icon-${icon}`)} />
-        <span>{widgetName}</span>
+      <div className="title">
+        <Trigger
+          popup={() => {
+            return (
+              <IntroMenu>
+                {switchList.map(i => {
+                  return (
+                    <div className="menuItem" onClick={() => switchType(i)}>
+                      <Icon icon={i.icon} />
+                      {i.widgetName}
+                    </div>
+                  );
+                })}
+              </IntroMenu>
+            );
+          }}
+          popupVisible={visible}
+          onPopupVisibleChange={visible => {
+            if (!isAllowSwitch()) return;
+            setVisible(visible);
+          }}
+          action={['click']}
+          popupAlign={{
+            points: ['tl', 'bl'],
+            offset: [0, 4],
+            overflow: { adjustX: true, adjustY: true },
+          }}
+          getPopupContainer={() => document.body}
+        >
+          <div className={cx('switchType', { disabled: !isAllowSwitch })}>
+            <Icon icon={icon} className="Gray_75 Font18" />
+            <span>{widgetName}</span>
+            {isAllowSwitch() && <Icon icon="task_custom_btn_unfold" className="mLeft6 Gray_75" />}
+          </div>
+        </Trigger>
+
         <Tooltip placement={'bottom'} title={intro}>
           <span style={{ marginLeft: '3px' }}>
             <Support
@@ -187,32 +326,29 @@ export default function WidgetIntro(props) {
             />
           </span>
         </Tooltip>
-        {isAllowSwitch() && (
-          <div className="introSwitch">
-            <span data-tip={_l('变更类型')} onClick={() => setVisible(true)}>
-              <i className="icon icon-swap_horiz pointer Font22" />
-            </span>
-            <Menu className={cx('introSwitchMenu', { Hidden: !visible })} onClickAway={() => setVisible(false)}>
-              {switchList.map(i => {
-                return (
-                  <MenuItem
-                    onClick={() => switchType(i)}
-                    icon={<i className={cx('icon TxtMiddle', `icon-${i.icon}`)} />}
-                  >
-                    {i.widgetName}
-                  </MenuItem>
-                );
-              })}
-            </Menu>
-          </div>
-        )}
       </div>
-      {/* {from !== 'subList' && (
-        <div className="introText">
-          {intro}
-          {moreIntroLink && <Support type={3} href={moreIntroLink} text={_l('帮助')} />}
-        </div>
-      )} */}
+
+      <div className="introOptions">
+        {DISPLAY_OPTIONS.map(item => {
+          // 分段、他表、标签页、多条列表没有样式设置
+          if ((_.includes([22, 30, 52], type) || isRelateRecordTableControl(data)) && item.value === 2) return null;
+          // 空白子表里面字段不支持说明
+          if (from === 'subList' && item.value === 3) return null;
+          // 回收站不显示样式、说明
+          if (isRecycle && _.includes([2, 3], item.value)) return null;
+          return (
+            <div
+              className={cx('optionIcon', { active: mode === item.value })}
+              data-tip={item.text}
+              onClick={() => setMode(item.value)}
+            >
+              <Icon icon={item.icon} className="Font18" />
+            </div>
+          );
+        })}
+      </div>
+
+      {titleVisible && <NoTitleControlDialog onClose={() => setTitleVisible(false)} />}
     </WidgetIntroWrap>
   );
 }

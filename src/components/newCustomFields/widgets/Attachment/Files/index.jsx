@@ -7,7 +7,7 @@ import { openControlAttachmentInNewTab } from 'worksheet/controllers/record';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import { formatFileSize, getClassNameByExt } from 'src/util';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile, addBehaviorLog } from 'src/util';
 import ImageCard from './ImageCard';
 import SmallCard from './SmallCard';
 import ListCard, { ListCardHeader } from './ListCard';
@@ -111,7 +111,7 @@ const Files = props => {
   const [viewMoreVisible, setViewMoreVisible] = useState(false);
   const [viewMore, setViewMore] = useState(props.viewMore);
   const [smallSize, setSmallSize] = useState(false);
-  const { recordBaseInfo = {} } = useContext(RecordInfoContext) || {};
+  const { recordBaseInfo = {} } = useContext(RecordInfoContext) || props;
   const ref = useRef(null);
 
   const { showType, allowSort } = props;
@@ -183,6 +183,7 @@ const Files = props => {
   const handleMDPreview = data => {
     const { allowDownload = false } = props;
     const hideFunctions = ['editFileName'].concat(allowDownload ? [] : ['download', 'share', 'saveToKnowlege']);
+    addBehaviorLog('previewFile', recordBaseInfo.worksheetId, { fileId: data.fileID, rowId: recordBaseInfo.recordId });
     previewAttachments(
       {
         attachments: attachmentData,
@@ -196,6 +197,8 @@ const Files = props => {
         showAttInfo: false,
         hideFunctions: hideFunctions,
         worksheetId: recordBaseInfo.worksheetId,
+        fileId: data.fileID,
+        recordId: recordBaseInfo.recordId,
       },
       {
         mdReplaceAttachment: newAttachment => {
@@ -284,6 +287,7 @@ const Files = props => {
     if (!recordBaseInfo) {
       return;
     }
+    addBehaviorLog('previewFile', recordBaseInfo.worksheetId, { fileId, rowId: recordBaseInfo.recordId });
     openControlAttachmentInNewTab(
       _.assign(_.pick(recordBaseInfo, ['appId', 'recordId', 'viewId', 'worksheetId']), {
         controlId,
@@ -309,6 +313,8 @@ const Files = props => {
         className={className}
         smallSize={smallSize}
         list={isLargeImageCard && viewMoreVisible && viewMore ? sortAllAttachments.filter(filterImageAttachments).filter((_, index) => index < showLineCount) : sortAllAttachments}
+        worksheetId={recordBaseInfo.worksheetId}
+        recordId={recordBaseInfo.recordId}
         onDeleteMDFile={handleDeleteMDFile}
         onDeleteKCFile={handleDeleteKCFile}
         onDeleteFile={handleDeleteFile}

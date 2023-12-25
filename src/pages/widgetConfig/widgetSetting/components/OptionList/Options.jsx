@@ -148,12 +148,9 @@ const OptionItem = SortableElement(
     addOption,
     item,
     focusIndex,
-    switchChecked,
-    mode,
     options,
     idx: index,
     colorful,
-    isMulti,
     updateOption,
     setIndex,
   }) => {
@@ -215,15 +212,6 @@ const OptionItem = SortableElement(
                   }}
                 />
               </div>
-              {mode !== 'list' && (
-                <div className="checkWrap" data-tip={_l('设为默认选中')}>
-                  {isMulti ? (
-                    <Checkbox checked={checked} size="small" onClick={() => switchChecked(key)} />
-                  ) : (
-                    <Radio checked={checked} size="small" onClick={() => switchChecked(key)} />
-                  )}
-                </div>
-              )}
               <div
                 className="deleteWrap pointer"
                 data-tip={_l('删除')}

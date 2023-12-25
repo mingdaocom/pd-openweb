@@ -58,8 +58,8 @@ export default class extends Component {
     }
   }
   get result() {
-    const { data, yaxisList } = this.props.reportData;
-    return mergeColumnsCell(data.data, yaxisList);
+    const { data, columns, yaxisList } = this.props.reportData;
+    return mergeColumnsCell(data.data, columns, yaxisList);
   }
   get linesData() {
     const { data, lines, valueMap, style } = this.props.reportData;
@@ -353,12 +353,13 @@ export default class extends Component {
     const getTitle = (id, data) => {
       if (_.isNull(data)) return;
       const control = _.find(columns, { cid: id }) || {};
+      const defaultEmpty = control.xaxisEmptyType ? '--' : ' ';
       const advancedSetting = control.advancedSetting || {};
       const valueKey = valueMap[id];
       if (_.isObject(data)) {
-        return valueKey ? renderValue(valueKey[data.value], advancedSetting) || _l('空') : renderValue(data.value, advancedSetting);
+        return valueKey ? renderValue(valueKey[data.value], advancedSetting) || defaultEmpty : renderValue(data.value, advancedSetting);
       } else {
-        return valueKey ? renderValue(valueKey[data], advancedSetting) || _l('空') : renderValue(data, advancedSetting);
+        return valueKey ? renderValue(valueKey[data], advancedSetting) || defaultEmpty : renderValue(data, advancedSetting);
       }
     }
 
@@ -706,7 +707,7 @@ export default class extends Component {
     );
   }
   renderFile(file, px, fileIconSize, handleFilePreview) {
-    const src = `${file.filepath}${file.filename}?imageView2/2/h/${px}`;
+    const src = file.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, `imageView2/2/h/${px}`);
     const isPicture = File.isPicture(file.ext);
     const fileClassName = getClassNameByExt(file.ext);
 

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import { Menu, MenuItem, Icon, MdLink } from 'ming-ui';
+import { Menu, MenuItem, Icon, MdLink, Tooltip } from 'ming-ui';
 import Trigger from 'rc-trigger';
 import 'rc-trigger/assets/index.css';
 import ViewDisplayMenu from './viewDisplayMenu';
@@ -31,11 +31,23 @@ export default class Item extends Component {
     clearTimeout(this.timer);
   }
 
+  isDelCustomize = () => {
+    const { item } = this.props;
+    const isCustomize = ['customize'].includes(VIEW_DISPLAY_TYPE[item.viewType]);
+    return isCustomize && !_.get(item, 'pluginInfo.id');
+  };
+
   canShare = () => {
+    if (this.isDelCustomize()) {
+      return false;
+    }
     return !md.global.Account.isPortal;
   };
   canExport = () => {
     const { item, sheetSwitchPermit } = this.props;
+    if (this.isDelCustomize()) {
+      return false;
+    }
     return isOpenPermit(permitList.viewExportSwitch, sheetSwitchPermit, item.viewId);
   };
   renderSettingMenu = () => {
@@ -66,174 +78,180 @@ export default class Item extends Component {
           });
 
     const featureType = window.isPublicApp ? '' : getFeatureStatus(projectId, VersionProductType.batchDownloadFiles);
-
     return (
       <Menu className="viewItemMoreOperate">
-        {!isLock && isCharge && (
-          <MenuItem
-            icon={<Icon icon="settings" className="Font18" />}
-            onClick={() => {
-              this.props.onOpenView(item);
-              this.setState({
-                visible: false,
-              });
-            }}
-          >
-            <span className="text">{_l('配置视图%05024')}</span>
-          </MenuItem>
-        )}
-        {!isLock && isCharge && (
-          <Trigger
-            popupVisible={changeViewDisplayTypeVisible}
-            onPopupVisibleChange={changeViewDisplayTypeVisible => {
-              this.setState({ changeViewDisplayTypeVisible });
-            }}
-            popupClassName="DropdownPanelTrigger"
-            action={['hover']}
-            popupPlacement="bottom"
-            popupAlign={{ points: ['tl', 'tr'], offset: [0, -6], overflow: { adjustX: true, adjustY: true } }}
-            popup={() => {
-              return (
-                <ViewDisplayMenu
-                  style={{
-                    borderRadius: '3px',
-                  }}
-                  onClick={(viewType = 'sheet') => {
-                    if (viewType !== VIEW_DISPLAY_TYPE[item.viewType]) {
-                      changeViewDisplayType(
-                        getDefaultViewSet({
-                          ...item,
-                          viewControl: 'gunter' === viewType ? '' : item.viewControl, //转换成甘特图，viewControl清空
-                          viewControls: [],
-                          viewType: VIEW_DISPLAY_TYPE[viewType],
-                          filters: item.filters, // formatValuesOfOriginConditions(item.filters),
-                          advancedSetting: _.omit(item.advancedSetting || {}, ['navfilters', 'navshow']), //更换视图类型，把分组清空
-                        }),
-                      );
-                      if (viewType === 'detail') {
-                        this.props.onOpenView(item);
-                      }
-                    }
-                    this.setState({ changeViewDisplayTypeVisible: false, visible: false });
-                  }}
-                />
-              );
-            }}
-          >
-            <MenuItem className="changeViewDisplayTypeMenuWrap" icon={<Icon icon="swap_horiz" className="Font18" />}>
-              <span className="text">{_l('更改视图类型%05023')}</span>
-              <Icon icon="arrow-right-tip Font15" style={{ fontSize: '16px', right: '10px', left: 'initial' }} />
-            </MenuItem>
-          </Trigger>
-        )}
-        {!isLock && isCharge && (
-          <MenuItem
-            icon={<Icon icon="content-copy" className="Font16" />}
-            onClick={() => {
-              this.props.onCopyView(item);
-              this.setState({
-                visible: false,
-              });
-            }}
-          >
-            <span className="text">{_l('复制%05022')}</span>
-          </MenuItem>
-        )}
-        {isCharge && <hr className="splitLine" />}
-        {/* 分享视图权限 目前只有表视图才能分享*/}
-        {this.canShare() && (
-          <MenuItem
-            icon={<Icon icon="share" className="Font18" />}
-            onClick={() => {
-              if (window.isPublicApp) {
-                alert(_l('预览模式下，不能操作'), 3);
-                return;
-              }
-              this.props.onShare(item);
-              this.setState({
-                visible: false,
-              });
-            }}
-          >
-            <span className="text">{_l('分享%05021')}</span>
-          </MenuItem>
-        )}
-        {/* 导出视图下记录权限 */}
-        {this.canExport() && (
-          <Trigger
-            popupVisible={this.state.exportVisible}
-            onPopupVisibleChange={visible => {
-              this.setState({ exportVisible: visible });
-            }}
-            popupClassName="exportTrigger"
-            action={['hover', 'click']}
-            popupPlacement="right"
-            builtinPlacements={{
-              right: { points: ['cl', 'cr'] },
-            }}
-            popup={
-              <Menu style={{ width: 200 }}>
-                {[
-                  {
-                    name: _l('导出记录') + '（Excel，CSV）',
-                    icon: 'new_excel',
-                    exportType: 1,
-                  },
-                  {
-                    name: _l('导出附件'),
-                    icon: 'attachment',
-                    exportType: 2,
-                  },
-                ].map(it => {
-                  if (it.exportType === 2 && _.isEmpty(attachmentControls)) return;
+        {!this.isDelCustomize() && (
+          <React.Fragment>
+            {!isLock && isCharge && (
+              <MenuItem
+                icon={<Icon icon="settings" className="Font18" />}
+                onClick={() => {
+                  this.props.onOpenView(item);
+                  this.setState({
+                    visible: false,
+                  });
+                }}
+              >
+                <span className="text">{_l('配置视图%05024')}</span>
+              </MenuItem>
+            )}
+            {!isLock && isCharge && !['customize'].includes(VIEW_DISPLAY_TYPE[item.viewType]) && (
+              <Trigger
+                popupVisible={changeViewDisplayTypeVisible}
+                onPopupVisibleChange={changeViewDisplayTypeVisible => {
+                  this.setState({ changeViewDisplayTypeVisible });
+                }}
+                popupClassName="DropdownPanelTrigger"
+                action={['hover']}
+                popupPlacement="bottom"
+                popupAlign={{ points: ['tl', 'tr'], offset: [0, -6], overflow: { adjustX: true, adjustY: true } }}
+                popup={() => {
                   return (
-                    <MenuItem
-                      icon={<Icon icon={it.icon} />}
-                      onClick={() => {
-                        if (window.isPublicApp) {
-                          alert(_l('预览模式下，不能操作'), 3);
-                          return;
-                        }
-                        if (it.exportType === 1) {
-                          this.props.onExport(item);
-                          this.setState({ visible: false, exportVisible: false });
-                        } else {
-                          this.setState({ exportVisible: false, visible: false });
-                          const allowDownload = isOpenPermit(
-                            permitList.recordAttachmentSwitch,
-                            sheetSwitchPermit,
-                            item.viewId,
-                          );
-                          if (it.exportType === 2 && !allowDownload) {
-                            return alert(_l('无附件下载权限，无法导出'), 2);
-                          }
-                          if (featureType === '2') {
-                            buriedUpgradeVersionDialog(projectId, VersionProductType.batchDownloadFiles);
-                            return;
-                          }
-                          this.props.onExportAttachment();
-                        }
+                    <ViewDisplayMenu
+                      style={{
+                        borderRadius: '3px',
                       }}
-                    >
-                      <span>{it.name}</span>
-                    </MenuItem>
+                      onClick={(viewType = 'sheet') => {
+                        if (viewType !== VIEW_DISPLAY_TYPE[item.viewType]) {
+                          changeViewDisplayType(
+                            getDefaultViewSet({
+                              ...item,
+                              viewControl: 'gunter' === viewType ? '' : item.viewControl, //转换成甘特图，viewControl清空
+                              viewControls: [],
+                              viewType: VIEW_DISPLAY_TYPE[viewType],
+                              filters: item.filters, // formatValuesOfOriginConditions(item.filters),
+                              advancedSetting: _.omit(item.advancedSetting || {}, ['navfilters', 'navshow']), //更换视图类型，把分组清空
+                            }),
+                          );
+                          if (viewType === 'detail') {
+                            this.props.onOpenView(item);
+                          }
+                        }
+                        this.setState({ changeViewDisplayTypeVisible: false, visible: false });
+                      }}
+                    />
                   );
-                })}
-              </Menu>
-            }
-            popupAlign={{ offset: [0, -20] }}
-          >
-            <MenuItem icon={<Icon icon="download" className="Font18" />}>
-              <span className="text">{_l('导出%05020')}</span>
-              <Icon icon="arrow-right-tip Font15" style={{ fontSize: '16px', right: '10px', left: 'initial' }} />
-            </MenuItem>
-          </Trigger>
+                }}
+              >
+                <MenuItem
+                  className="changeViewDisplayTypeMenuWrap"
+                  icon={<Icon icon="swap_horiz" className="Font18" />}
+                >
+                  <span className="text">{_l('更改视图类型%05023')}</span>
+                  <Icon icon="arrow-right-tip Font15" style={{ fontSize: '16px', right: '10px', left: 'initial' }} />
+                </MenuItem>
+              </Trigger>
+            )}
+            {!isLock && isCharge && !['customize'].includes(VIEW_DISPLAY_TYPE[item.viewType]) && (
+              <MenuItem
+                icon={<Icon icon="content-copy" className="Font16" />}
+                onClick={() => {
+                  this.props.onCopyView(item);
+                  this.setState({
+                    visible: false,
+                  });
+                }}
+              >
+                <span className="text">{_l('复制%05022')}</span>
+              </MenuItem>
+            )}
+            {isCharge && <hr className="splitLine" />}
+            {/* 分享视图权限 目前只有表视图才能分享*/}
+            {this.canShare() && (
+              <MenuItem
+                icon={<Icon icon="share" className="Font18" />}
+                onClick={() => {
+                  if (window.isPublicApp) {
+                    alert(_l('预览模式下，不能操作'), 3);
+                    return;
+                  }
+                  this.props.onShare(item);
+                  this.setState({
+                    visible: false,
+                  });
+                }}
+              >
+                <span className="text">{_l('分享%05021')}</span>
+              </MenuItem>
+            )}
+            {/* 导出视图下记录权限 */}
+            {this.canExport() && (
+              <Trigger
+                popupVisible={this.state.exportVisible}
+                onPopupVisibleChange={visible => {
+                  this.setState({ exportVisible: visible });
+                }}
+                popupClassName="exportTrigger"
+                action={['hover', 'click']}
+                popupPlacement="right"
+                builtinPlacements={{
+                  right: { points: ['cl', 'cr'] },
+                }}
+                popup={
+                  <Menu style={{ width: 200 }}>
+                    {[
+                      {
+                        name: _l('导出记录') + '（Excel，CSV）',
+                        icon: 'new_excel',
+                        exportType: 1,
+                      },
+                      {
+                        name: _l('导出附件'),
+                        icon: 'attachment',
+                        exportType: 2,
+                      },
+                    ].map(it => {
+                      if (it.exportType === 2 && _.isEmpty(attachmentControls)) return;
+                      return (
+                        <MenuItem
+                          icon={<Icon icon={it.icon} />}
+                          onClick={() => {
+                            if (window.isPublicApp) {
+                              alert(_l('预览模式下，不能操作'), 3);
+                              return;
+                            }
+                            if (it.exportType === 1) {
+                              this.props.onExport(item);
+                              this.setState({ visible: false, exportVisible: false });
+                            } else {
+                              this.setState({ exportVisible: false, visible: false });
+                              const allowDownload = isOpenPermit(
+                                permitList.recordAttachmentSwitch,
+                                sheetSwitchPermit,
+                                item.viewId,
+                              );
+                              if (it.exportType === 2 && !allowDownload) {
+                                return alert(_l('无附件下载权限，无法导出'), 2);
+                              }
+                              if (featureType === '2') {
+                                buriedUpgradeVersionDialog(projectId, VersionProductType.batchDownloadFiles);
+                                return;
+                              }
+                              this.props.onExportAttachment();
+                            }
+                          }}
+                        >
+                          <span>{it.name}</span>
+                        </MenuItem>
+                      );
+                    })}
+                  </Menu>
+                }
+                popupAlign={{ offset: [0, -20] }}
+              >
+                <MenuItem icon={<Icon icon="download" className="Font18" />}>
+                  <span className="text">{_l('导出%05020')}</span>
+                  <Icon icon="arrow-right-tip Font15" style={{ fontSize: '16px', right: '10px', left: 'initial' }} />
+                </MenuItem>
+              </Trigger>
+            )}
+          </React.Fragment>
         )}
         {!isLock && isCharge && (
           <MenuItem
             icon={
               <Icon
-                icon={item.advancedSetting.showhide !== 'hide' ? 'visibility_off' : 'visibility'}
+                icon={_.get(item, 'advancedSetting.showhide') !== 'hide' ? 'visibility_off' : 'visibility'}
                 className="Font18"
               />
             }
@@ -242,12 +260,12 @@ export default class Item extends Component {
             onMouseLeave={() => this.setState({ changeHiddenTypeVisible: false })}
           >
             <span className="text">
-              {item.advancedSetting.showhide !== 'hide' ? _l('从导航栏中隐藏%05019') : _l('取消隐藏')}
+              {_.get(item, 'advancedSetting.showhide') !== 'hide' ? _l('从导航栏中隐藏%05019') : _l('取消隐藏')}
             </span>
             <Icon icon="arrow-right-tip Font15" style={{ fontSize: '16px', right: '10px', left: 'initial' }} />
             {changeHiddenTypeVisible && (
               <HiddenMenu
-                showhide={item.advancedSetting.showhide || 'show'}
+                showhide={_.get(item, 'advancedSetting.showhide') || 'show'}
                 onClick={showhiden => {
                   updateAdvancedSetting({
                     ...item,
@@ -260,8 +278,8 @@ export default class Item extends Component {
                     let showList = list.filter(l => {
                       return (
                         l.viewId !== item.viewId &&
-                        l.advancedSetting.showhide &&
-                        l.advancedSetting.showhide.search(/hide|hpc/g) === -1
+                        _.get(l, 'advancedSetting.showhide') &&
+                        _.get(l, 'advancedSetting.showhide').search(/hide|hpc/g) === -1
                       );
                     });
 
@@ -308,13 +326,19 @@ export default class Item extends Component {
     const { item, currentViewId, isCharge, sheetSwitchPermit, currentView, getNavigateUrl } = this.props;
     const { isEdit } = this.state;
 
+    const customViewDebugUrl = window.localStorage.getItem(`customViewDebugUrl_${item.viewId}`);
+    const pluginIsPublished = _.get(item, 'pluginInfo.source') === 1;
+    const pluginIsDeleted = !_.get(item, 'pluginInfo.id');
+    const codeUrl = _.get(item, 'pluginInfo.codeUrl');
+    const showWidgetDebugIcon = item.viewType === 21 && !pluginIsPublished && !pluginIsDeleted;
+
     return (
       <div
         className={cx('valignWrapper workSheetViewItem pointer', `workSheetViewItemViewId-${item.viewId}`, {
           active: currentViewId === item.viewId,
         })}
         style={
-          item.advancedSetting.showhide && item.advancedSetting.showhide.search(/hide|hpc/g) !== -1
+          _.get(item, 'advancedSetting.showhide') && _.get(item, 'advancedSetting.showhide').search(/hide|hpc/g) !== -1
             ? { display: 'none' }
             : {}
         }
@@ -325,6 +349,19 @@ export default class Item extends Component {
           })}
           to={getNavigateUrl(item)}
         >
+          {showWidgetDebugIcon && (
+            <Tooltip
+              text={
+                customViewDebugUrl
+                  ? _l('开发调试中，本地脚本: %0', customViewDebugUrl)
+                  : codeUrl
+                  ? _l('视图插件调试中，使用的是提交历史中的版本。')
+                  : _l('视图插件调试中')
+              }
+            >
+              <i className="developIcon icon icon-setting"></i>
+            </Tooltip>
+          )}
           {isEdit ? (
             <input
               autoFocus

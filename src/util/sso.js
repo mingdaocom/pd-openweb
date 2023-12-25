@@ -57,8 +57,7 @@ export const ajax = {
 };
 
 export const login = () => {
-  // setTimeout(() => { location.href = '/login.htm'; }, 3000);
-  location.href = '/login.htm';
+  location.href = '/login';
 };
 
 export const getScript = (src, func) => {

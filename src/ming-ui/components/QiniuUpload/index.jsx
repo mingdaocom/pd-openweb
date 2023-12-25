@@ -12,6 +12,8 @@ export default class QiniuUpload extends React.Component {
     onInit: PropTypes.func,
     onAdd: PropTypes.func,
     onUploaded: PropTypes.func,
+    onUploadProgress: PropTypes.func,
+    onBeforeUpload: PropTypes.func,
     onError: PropTypes.func,
   };
 
@@ -21,6 +23,8 @@ export default class QiniuUpload extends React.Component {
       onInit = () => {},
       onAdd = () => {},
       onUploaded = () => {},
+      onUploadProgress = () => {},
+      onBeforeUpload = () => {},
       onError = () => {},
       bucket,
     } = this.props;
@@ -60,6 +64,10 @@ export default class QiniuUpload extends React.Component {
                   file.name.indexOf('.') > -1 ? file.name.split('.').slice(0, -1).join('.') : file.name,
                 );
                 up.settings.multipart_params['x:fileExt'] = fileExt;
+                onBeforeUpload(up, file);
+              },
+              UploadProgress: (uploader, file) => {
+                onUploadProgress(uploader, file);
               },
               FilesAdded: (up, files) => {
                 onAdd(up, files);

@@ -6,7 +6,7 @@ import update from 'immutability-helper';
 import { DropdownContent, SettingItem } from '../../../../styled';
 import { find, head, includes, isEmpty } from 'lodash';
 import { SelectOtherField, OtherField, DynamicInput } from '../components';
-import { getOptions } from '../../../../util/setting';
+import { getOptions, handleAdvancedSettingChange } from '../../../../util/setting';
 
 export const DefaultOptionSetting = styled(SettingItem)`
   margin-top: 12px !important;
@@ -91,8 +91,8 @@ export const DefaultOptionsMenu = styled(DropdownContent)`
 `;
 
 export default function DefaultOptions(props) {
-  const { data, dynamicValue, onDynamicValueChange, clearOldDefault, onChange, defaultType } = props;
-  const { type, default: defaultValue, enumDefault2 } = data;
+  const { data, dynamicValue, onDynamicValueChange, onChange, defaultType } = props;
+  const { type, default: defaultValue, enumDefault2, controlId, dataSource } = data;
   const [visible, setVisible] = useState(false);
   const checkedValue = dynamicValue.map(item => item.staticValue);
   const colorful = enumDefault2 === 1;
@@ -101,14 +101,21 @@ export default function DefaultOptions(props) {
   const $wrap = createRef(null);
 
   useEffect(() => {
-    if (defaultValue) {
-      const defaultOptions = JSON.parse(defaultValue);
+    // 非选项集且有default老配置的
+    if (defaultValue && !dataSource) {
+      const defaultOptions = safeParse(defaultValue);
       const arr = defaultOptions.map(v => ({ rcid: '', cid: '', staticValue: v })) || [];
-      onChange({ default: '' });
-      onDynamicValueChange(arr);
-      clearOldDefault();
+      onChange({
+        ...handleAdvancedSettingChange(data, {
+          defsource: JSON.stringify(arr),
+          defaulttype: '',
+          defaultfunc: '',
+          dynamicsrc: '',
+        }),
+        default: '',
+      });
     }
-  }, []);
+  }, [controlId]);
 
   const switchChecked = key => {
     if (isMulti) {

@@ -243,7 +243,12 @@ export default class SearchWorksheetDialog extends Component {
       if ((control.type === 29 && control.dataSource === this.state.sheetId) || _.includes([2, 32], control.type))
         filterControls = rowControl.concat(filterControls);
     }
-    return filterControls.map(({ controlId: value, controlName: text }) => ({ text, value }));
+    return filterControls.map(({ controlId: value, controlName: text, dataSource }) => {
+      if (_.includes([9, 10, 11], control.type) && dataSource && control.dataSource === dataSource) {
+        return { text, value, isEqualSource: true };
+      }
+      return { text, value };
+    });
   };
 
   // 过滤已经选中的映射字段
@@ -252,8 +257,7 @@ export default class SearchWorksheetDialog extends Component {
     controls = controls.filter(i => !_.includes([...SYS_CONTROLS, ...FORM_HIDDEN_CONTROL_IDS], i.controlId));
     controls = controls.filter(co => {
       return (
-        _.includes([2, 3, 4, 5, 6, 8, 15, 16, 19, 23, 24, 26, 27, 28, 36, 46, 48], co.type) ||
-        (_.includes([9, 10, 11], co.type) && co.dataSource) ||
+        _.includes([2, 3, 4, 5, 6, 8, 9, 10, 11, 15, 16, 19, 23, 24, 26, 27, 28, 36, 46, 48], co.type) ||
         (co.type === 29 && (co.advancedSetting || {}).showtype !== '2')
       );
     });
@@ -590,6 +594,16 @@ export default class SearchWorksheetDialog extends Component {
                         disabled={!sheetId}
                         value={isDelete ? undefined : _.get(configs[0] || {}, 'subCid')}
                         data={this.getDropData(controls, data)}
+                        renderItem={(selectData = {}) => {
+                          return (
+                            <span>
+                              {selectData.text}
+                              {selectData.isEqualSource && (
+                                <span className="Gray_9e subText">（{_l('相同选项集')}）</span>
+                              )}
+                            </span>
+                          );
+                        }}
                         onChange={controlId => this.setState({ configs: [{ cid: data.controlId, subCid: controlId }] })}
                       />
                       {_l('的值写入当前字段')}

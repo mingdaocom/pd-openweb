@@ -1,6 +1,7 @@
 import React, { Fragment, Component } from 'react';
 import ReactDOM from 'react-dom';
 import { Icon, Input, Button, Textarea, LoadDiv } from 'ming-ui';
+import DocumentTitle from 'react-document-title';
 import privateGuide from 'src/api/privateGuide';
 import logo from 'src/pages/emailValidate/logo.png';
 import weixinCode from './images/weixin.png';
@@ -187,21 +188,16 @@ class PrivateImageInstall extends Component {
       moreQueryParams += '&ltv=' + stepResult.licenseTemplateVersion;
     }
 
+    const url1 = `<a href="https://www.mingdao.com/register?ReturnUrl=${encodeURIComponent(`/personal?type=privatekey${moreQueryParams}&serverId=${stepResult.serverId}#apply`)}" target="_blank" class="applyPrivatekey">${_l('注册并申请密钥')}</a>`;
+    const url2 = `<a href="https://www.mingdao.com/personal?type=privatekey${moreQueryParams}&serverId=${stepResult.serverId}#apply" target="_blank" class="genNewKey">${_l('登录并申请密钥')}</a>`;
+
     return (
       <div className="body yourprivatekeyBody">
         <div className="title">{_l('请输入您的密钥')}</div>
         <div
           className="info"
           dangerouslySetInnerHTML={{
-            __html: _l(
-              '如果您未有明道云账号，请 %0 ； 如果您已有明道云账号，请 %1',
-              `<a href="https://www.mingdao.com/register?ReturnUrl=${encodeURIComponent(
-                `/personal?type=privatekey${moreQueryParams}&serverId=${stepResult.serverId}#apply`,
-              )}" target="_blank" class="applyPrivatekey">${_l('注册并申请密钥')}</a>`,
-              `<a href="https://www.mingdao.com/personal?type=privatekey${moreQueryParams}&serverId=${
-                stepResult.serverId
-              }#apply" target="_blank" class="genNewKey">${_l('登录并申请密钥')}</a>`,
-            ),
+            __html: _l('如果您未有明道云账号，请 %0 ； 如果您已有明道云账号，请 %1', url1, url2),
           }}
         ></div>
         <div className="server">
@@ -332,6 +328,7 @@ class PrivateImageInstall extends Component {
   render() {
     return (
       <Fragment>
+        <DocumentTitle title={_l('私有部署版')} />
         <div className="header">
           <div>
             <img src={logo} />

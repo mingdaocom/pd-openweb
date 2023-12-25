@@ -28,7 +28,7 @@ export default ({ companyId, processId, relationId, selectNodeId, data, selectMs
 
         value = value.replace(
           obj,
-          `{${(data.formulaMap[ids[0]] || {}).name || ''}-${(data.formulaMap[ids[1]] || {}).name || ''}}`,
+          `{${(data.formulaMap[ids[0]] || {}).name || ''}-${(data.formulaMap[ids.join('-')] || {}).name || ''}}`,
         );
       });
     }

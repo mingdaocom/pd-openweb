@@ -43,7 +43,7 @@ export default class WidgetsVerifyCode extends Component {
 
     this.setState({ isSubmit: true });
 
-    let cb = function (res) {
+    const cb = function(res) {
       if (res.ret !== 0) {
         _this.setState({ isSubmit: false });
         return;
@@ -60,6 +60,8 @@ export default class WidgetsVerifyCode extends Component {
         .then(data => {
           if (data === 1) {
             _this.handleSend();
+          } else if (data === 15) {
+            captchaFuc();
           } else {
             alert(
               {
@@ -73,17 +75,20 @@ export default class WidgetsVerifyCode extends Component {
           }
         });
     };
-
-    let onCancel = isOk => {
+    const onCancel = isOk => {
       if (isOk) return;
       this.setState({ isSubmit: false });
     };
+    const captchaFuc = () => {
+      if (md.staticglobal.getCaptchaType() === 1) {
+        new captcha(cb, onCancel);
+      } else {
+        new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), cb).show();
+      }
+    };
 
-    if (md.staticglobal.getCaptchaType() === 1) {
-      new captcha(cb, onCancel);
-    } else {
-      new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), cb).show();
-    }
+    // 前3次关闭图像验证
+    cb({ ret: 0 });
   };
 
   handleSend() {

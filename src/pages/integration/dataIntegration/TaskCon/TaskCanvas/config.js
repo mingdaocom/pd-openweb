@@ -137,6 +137,8 @@ export const UNION_TYPE_LIST = [
     tips: _l('合并时去掉两个表中重复的行记录，保留唯一记录。'),
     Er: 'UNION',
     img: 'unionImg',
+    tipImg: 'UNION',
+    h: 237
   },
   {
     type: 'UNION_ALL',
@@ -144,6 +146,8 @@ export const UNION_TYPE_LIST = [
     tips: _l('合并时保留两个表中所有的行记录'),
     Er: 'UNION ALL',
     img: 'unionAllImg',
+    tipImg: 'UNIONALL',
+    h: 237
   },
   {
     type: 'INTERSECT',
@@ -151,6 +155,8 @@ export const UNION_TYPE_LIST = [
     tips: _l('只有在两个表中都存在的记录，才会被保留，并去除重复记录'),
     Er: 'INTERSECT',
     img: 'intersectImg',
+    tipImg: 'INTERSECT',
+    h: 294
   },
   {
     type: 'INTERSECT_ALL',
@@ -158,6 +164,8 @@ export const UNION_TYPE_LIST = [
     tips: _l('只有在两个表中都存在的记录，才会被保留，不会去除重复记录'),
     Er: 'INTERSECT ALL',
     img: 'intersectAllImg',
+    tipImg: 'INTERSECTALL',
+    h: 280
   },
   {
     type: 'EXCEPT',
@@ -165,6 +173,8 @@ export const UNION_TYPE_LIST = [
     tips: _l('只有在左表中存在，但在右表中不存在的记录会被保留，并去除重复记录'),
     Er: 'EXCEPT',
     img: 'exceptImg',
+    tipImg: 'EXCEPT',
+    h: 272
   },
   {
     type: 'EXCEPT_ALL',
@@ -172,6 +182,8 @@ export const UNION_TYPE_LIST = [
     tips: _l('只有在左表中存在，但在右表中不存在的记录会被保留，不会去除重复记录'),
     Er: 'EXCEPT ALL',
     img: 'exceptAllImg',
+    tipImg: 'EXCEPTALL',
+    h: 270
   },
 ];
 
@@ -327,7 +339,11 @@ export const schemaTypes = [
     hasSchema: false,
     weight: 2147483629,
   },
-].filter(o => o.hasSchema).map(o => { return o.className });
+]
+  .filter(o => o.hasSchema)
+  .map(o => {
+    return o.className;
+  });
 
 export const mdUniquePkData = {
   id: 'unique_pk_mdy0000',
@@ -350,8 +366,8 @@ export const mdUniquePkData = {
   defaultValue: null,
   comment: null,
   controlSetting: null,
-}
+};
 //文本类
-export const text_jdbcTypeIds = [12, -1, -15, -16, -9, 1]
+export const text_jdbcTypeIds = [12, -1, -15, -16, -9, 1];
 //数值类
-export const num_jdbcTypeIds = [-7, -6, 5, 4, -5, 2, 3, 6, 7, 8, 91, 92, 93, 2013, 2014]
+export const num_jdbcTypeIds = [-7, -6, 5, 4, -5, 2, 3, 6, 7, 8, 91, 92, 93, 2013, 2014];

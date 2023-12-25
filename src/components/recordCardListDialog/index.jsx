@@ -495,6 +495,7 @@ export default class RecordCardListDialog extends Component {
             <Header
               entityName={worksheet.entityName}
               projectId={worksheet.projectId}
+              appId={worksheet.appId}
               control={control}
               searchConfig={searchConfig}
               controls={controls}
@@ -555,6 +556,7 @@ export default class RecordCardListDialog extends Component {
                           coverCid={coverCid}
                           isCharge={isCharge}
                           projectId={worksheet.projectId}
+                          worksheetId={relateSheetId}
                           showControls={cardControls.map(c => c.controlId)}
                           controls={controls}
                           data={record}

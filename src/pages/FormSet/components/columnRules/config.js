@@ -41,9 +41,9 @@ export const conditionTypeListData = [
 
 export const actionsListData = [
   { value: 1, label: _l('显示') },
-  { value: 2, label: _l('隐藏'), warnText: _l('隐藏后不验证必填') },
+  { value: 2, label: _l('隐藏'), warnText: _l('隐藏后不验证必填（强制校验除外）') },
   { value: 3, label: _l('可编辑') },
-  { value: 4, label: _l('只读'), warnText: _l('只读后不验证必填') },
+  { value: 4, label: _l('只读'), warnText: _l('只读后不验证必填（强制校验除外）') },
   { value: 5, label: _l('必填') },
   { value: 6, label: _l('提示错误') },
   {

@@ -7,10 +7,12 @@ import Filters from 'worksheet/common/Sheet/QuickFilter/Filters';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
-import * as actions from 'src/pages/customPage/redux/action.js';
+import { updateFiltersGroup, updatePageInfo } from 'src/pages/customPage/redux/action.js';
 import { formatFilterValues, formatFilterValuesToServer } from 'worksheet/common/Sheet/QuickFilter';
 import { validate } from 'worksheet/common/Sheet/QuickFilter/Inputs';
+import { conditionAdapter } from 'worksheet/common/Sheet/QuickFilter/Conditions';
 import { formatFilters } from './util';
+import store from 'redux/configureStore';
 
 const Wrap = styled.div`
   &.disableFiltersGroup {
@@ -36,12 +38,13 @@ const Wrap = styled.div`
 const isPublicShare = location.href.includes('public/page');
 
 function FiltersGroupPreview(props) {
-  const { appId, projectId, widget, className, updateFiltersGroup } = props;
+  const { appId, projectId, widget, className, updateFiltersGroup, updatePageInfo } = props;
   const { value } = widget;
   const [loading, setLoading] = useState(true);
   const [filtersGroup, setFiltersGroup] = useState({});
   const filter = filtersGroup;
   const { filters = [] } = filter;
+  const isDisable = className.includes('disableFiltersGroup');
 
   useEffect(() => {
     if (value && !isPublicShare) {
@@ -51,7 +54,7 @@ function FiltersGroupPreview(props) {
       }).then(data => {
         setLoading(false);
         const filtersGroup = data[0];
-        setFiltersGroup({
+        const result = {
           ...filtersGroup,
           filters: filtersGroup.filters.map(f => {
             const values = formatFilterValues(f.dataType, f.values)
@@ -61,6 +64,25 @@ function FiltersGroupPreview(props) {
               defaultValues: values
             }
           })
+        };
+        setFiltersGroup(widget.filter ? widget.filter : result);
+        const customPage = store.getState().customPage;
+        const { components, filterComponents, loadFilterComponentCount } = customPage;
+        updatePageInfo({
+          filterComponents: filterComponents.map(item => {
+            if (item.value === value) {
+              const editData = _.find(components, { value: value }) || {};
+              const { advancedSetting, filters } = editData.filter || filtersGroup;
+              return {
+                value,
+                advancedSetting,
+                filters: _.flatten(filters.map(item => item.objectControls)),
+              }
+            } else {
+              return item;
+            }
+          }),
+          loadFilterComponentCount: loadFilterComponentCount + 1
         });
       });
     } else {
@@ -95,6 +117,7 @@ function FiltersGroupPreview(props) {
         <LoadDiv />
       ) : (
         <Filters
+          mode={isDisable ? 'config' : ''}
           projectId={projectId}
           appId={appId}
           enableBtn={filter.enableBtn}
@@ -114,7 +137,7 @@ function FiltersGroupPreview(props) {
             });
             updateFiltersGroup({
               value,
-              filters: filters.map(c => ({ ...c, values: formatFilterValuesToServer(c.dataType, c.values) })).filter(validate)
+              filters: filters.map(c => ({ ...c, values: formatFilterValuesToServer(c.dataType, c.values) })).filter(validate).map(conditionAdapter)
             });
             setFiltersGroup({
               ...filtersGroup,
@@ -129,7 +152,10 @@ function FiltersGroupPreview(props) {
 
 export default errorBoundary(
   connect(
-    state => ({}),
-    dispatch => bindActionCreators(actions, dispatch),
+    state => ({
+      filterComponents: state.customPage.filterComponents,
+      loadFilterComponentCount: state.customPage.loadFilterComponentCount,
+    }),
+    dispatch => bindActionCreators({ updateFiltersGroup, updatePageInfo }, dispatch),
   )(FiltersGroupPreview),
 );

@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
-import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/ControlMask/util';
+import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
 import styled from 'styled-components';
 
 const EmailWrap = styled.div`
@@ -53,9 +53,10 @@ export default class Widgets extends Component {
       <Fragment>
         <div
           className={cx(
-            'customFormControlBox customFormTextareaBox',
+            'customFormControlBox',
             { Gray_bd: !value },
             { controlDisabled: disabled },
+            { Visibility: isEditing },
           )}
           onClick={() => {
             if (!disabled) {

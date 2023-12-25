@@ -2,7 +2,7 @@ import React, { Fragment } from 'react';
 import { ScrollView } from 'ming-ui';
 import moment from 'moment';
 import styled from 'styled-components';
-import EmptyStatus from './EmptyStatus';
+import EmptyStatus from '../../EmptyStatus';
 import cx from 'classnames';
 import _ from 'lodash';
 const ActionLogWrap = styled.div`
@@ -53,7 +53,15 @@ const OPERATION_DATA_LIST = {
 export default function ActionLogs(props) {
   const { actLogList = [], getList = () => {}, isMore, pageIndex } = props;
   if (_.isEmpty(actLogList)) {
-    return <EmptyStatus emptyTxt={_l('暂无日志信息')} />;
+    return (
+      <EmptyStatus
+        icon="sp_assignment_white"
+        radiusSize={100}
+        iconClassName="Font36"
+        emptyTxt={_l('暂无日志信息')}
+        emptyTxtClassName="Font15 mTop12"
+      />
+    );
   }
   const onScrollEnd = _.throttle(() => {
     if (isMore) {

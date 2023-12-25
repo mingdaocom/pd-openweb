@@ -12,6 +12,7 @@ import { hasCaptcha } from './util';
 import preall from 'src/common/preall';
 import { browserIsMobile } from 'src/util';
 import MatchApp from './matchApp';
+import captcha from 'src/components/captcha';
 
 class FindPassword extends React.Component {
   constructor(props) {
@@ -46,76 +47,106 @@ class FindPassword extends React.Component {
   submitAccountVerify = () => {
     const { loginData = {} } = this.state;
     const { emailOrTel, password, verifyCode, dialCode } = loginData;
-    let $this = this;
-    RegisterController.updatePassword({
-      account: encrypt(dialCode + emailOrTel),
-      password: encrypt(password),
-      verifyCode: verifyCode,
-    }).then(data => {
-      window.localStorage.removeItem('LoginCheckList'); // accountId 和 encryptPassword 清理掉
-      if (data) {
-        $this.setState({
+    const _this = this;
+    const cb = function (res) {
+      if (res.ret !== 0) {
+        _this.setState({
           loginDisabled: false,
         });
-        let actionResult = Config.ActionResult;
-        if (data.actionResult == actionResult.success) {
-          alert(_l('密码重置成功！'), '1', 3000, () => {
-            if (!browserIsMobile()) {
-              window.location.href = '/login.htm';
-            } else {
-              MatchApp.init();
-            }
+        return;
+      }
+      RegisterController.updatePassword({
+        account: encrypt(dialCode + emailOrTel),
+        password: encrypt(password),
+        verifyCode: verifyCode,
+        ticket: res.ticket,
+        randStr: res.randstr,
+        captchaType: md.staticglobal.getCaptchaType(),
+      }).then(data => {
+        window.localStorage.removeItem('LoginCheckList'); // accountId 和 encryptPassword 清理掉
+        if (data) {
+          _this.setState({
+            loginDisabled: false,
           });
-        } else {
-          if (data.accountResult === actionResult.userInfoNotFound) {
-            this.setState({
-              loginData: {
-                ...this.state.loginData,
-                warnningData: [
-                  {
-                    tipDom: '#txtMobilePhone',
-                    warnningText: _l('账号未注册'),
-                  },
-                ],
-              },
+          let actionResult = Config.ActionResult;
+          if (data.actionResult == actionResult.success) {
+            alert(_l('密码重置成功！'), '1', 3000, () => {
+              if (!browserIsMobile()) {
+                window.location.href = '/login';
+              } else {
+                MatchApp.init();
+              }
             });
-            return;
-          }
-          if (data.actionResult == actionResult.failInvalidVerifyCode) {
-            // this.setWarnningText(_l('验证码错误'), '.warnningDiv', true)
-            this.setState({
-              loginData: {
-                ...this.state.loginData,
-                warnningData: [{ tipDom: '.txtLoginCode', warnningText: _l('验证码错误'), isError: true }],
-              },
-            });
-          } else if (data.actionResult == actionResult.noEfficacyVerifyCode) {
-            let str = _l('验证码已经失效，请重新发送');
-            this.setState({
-              loginData: {
-                ...this.state.loginData,
-                warnningData: [{ tipDom: '.txtLoginCode', warnningText: str, isError: true }],
-              },
-            });
-            alert(str, 3);
-          } else if (data.actionResult == actionResult.userInfoNotFound) {
-            // this.setWarnningText(_l('账号不存在'), '#txtMobilePhone')
-            this.setState({
-              loginData: {
-                ...this.state.loginData,
-                warnningData: [{ tipDom: '#txtMobilePhone', warnningText: _l('账号不存在') }],
-              },
-            });
-          } else if (data.actionResult == actionResult.samePassword) {
-            alert('新密码不可与旧密码一样', 3);
           } else {
-            let msg = '';
-            msg = _l('操作失败');
-            alert(msg, 3);
+            if (data.accountResult === actionResult.userInfoNotFound) {
+              _this.setState({
+                loginData: {
+                  ..._this.state.loginData,
+                  warnningData: [
+                    {
+                      tipDom: '#txtMobilePhone',
+                      warnningText: _l('账号未注册'),
+                    },
+                  ],
+                },
+              });
+              return;
+            }
+            if (data.actionResult == actionResult.failInvalidVerifyCode) {
+              _this.setState({
+                loginData: {
+                  ..._this.state.loginData,
+                  warnningData: [{ tipDom: '.txtLoginCode', warnningText: _l('验证码错误'), isError: true }],
+                },
+              });
+            } else if (data.actionResult == actionResult.noEfficacyVerifyCode) {
+              let str = _l('验证码已经失效，请重新发送');
+              _this.setState({
+                loginData: {
+                  ..._this.state.loginData,
+                  warnningData: [{ tipDom: '.txtLoginCode', warnningText: str, isError: true }],
+                },
+              });
+              alert(str, 3);
+            } else if (data.actionResult == actionResult.userInfoNotFound) {
+              _this.setState({
+                loginData: {
+                  ..._this.state.loginData,
+                  warnningData: [{ tipDom: '#txtMobilePhone', warnningText: _l('账号不存在') }],
+                },
+              });
+            } else if (data.actionResult == actionResult.samePassword) {
+              return alert('新密码不可与旧密码一样', 3);
+            } else if (data.actionResult === actionResult.accountFrequentLoginError) {
+              //需要前端图形验证码
+              captchaFuc();
+            } else if (data.actionResult === actionResult.fieldRequired) {
+              //前端图形验证码校验失败
+              return alert('图形验证码校验失败', 3);
+            } else {
+              let msg = '';
+              msg = _l('操作失败');
+              alert(msg, 3);
+            }
           }
         }
+      });
+    };
+    const onCancel = isOk => {
+      if (isOk) return;
+      _this.setState({
+        loginDisabled: false,
+      });
+    };
+    const captchaFuc = () => {
+      if (md.staticglobal.getCaptchaType() === 1) {
+        new captcha(cb, onCancel);
+      } else {
+        new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), cb).show();
       }
-    });
+    };
+    // 前3次关闭图像验证
+    cb({ ret: 0 });
   };
 
   renderCon = () => {

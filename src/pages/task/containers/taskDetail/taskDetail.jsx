@@ -3,13 +3,17 @@ import { render } from 'react-dom';
 import { connect } from 'react-redux';
 import cx from 'classnames';
 import './taskDetail.less';
-import 'src/components/mdDialog/dialog';
 import ajaxRequest from 'src/api/taskCenter';
-import DialogBase from 'ming-ui/components/Dialog/DialogBase';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import { getTaskDetail, getTaskDiscussions, removeTaskMember, destroyTask, updateTaskParentId, updateTaskFolderId } from '../../redux/actions';
-import LoadDiv from 'ming-ui/components/LoadDiv';
+import {
+  getTaskDetail,
+  getTaskDiscussions,
+  removeTaskMember,
+  destroyTask,
+  updateTaskParentId,
+  updateTaskFolderId,
+} from '../../redux/actions';
 import ErrorState from 'src/components/errorPage/errorState';
 import config, { OPEN_TYPE, RELATION_TYPES } from '../../config/config';
 import { errorMessage } from '../../utils/utils';
@@ -27,6 +31,7 @@ import TaskBasic from './taskBasic/taskBasic';
 import TaskTime from './taskTime/taskTime';
 import TaskControl from './taskControl/taskControl';
 import { navigateTo } from 'src/router/navigateTo';
+import { LoadDiv, Dialog } from 'ming-ui';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 const TAB_TYPE = {
@@ -86,7 +91,7 @@ class TaskDetail extends Component {
         () => {
           this.init();
           this.animationEnd();
-        }
+        },
       );
 
       if ($.isFunction(nextProps.closeForceUpdate)) {
@@ -136,9 +141,7 @@ class TaskDetail extends Component {
   init() {
     if (this.props.openType === OPEN_TYPE.slide) {
       $('#tasks').addClass('slideDetail');
-      $('#batchTask')
-        .removeClass('slideLeft')
-        .html(''); // 清空批量操作并隐藏
+      $('#batchTask').removeClass('slideLeft').html(''); // 清空批量操作并隐藏
     }
 
     this.props.dispatch(getTaskDetail(this.state.taskId, this.props.openCallback, this.addPostSuccessCount));
@@ -188,7 +191,7 @@ class TaskDetail extends Component {
       .applyJoinTask({
         taskID: this.state.taskId,
       })
-      .then((source) => {
+      .then(source => {
         if (source.status) {
           alert(_l('申请成功，请等待任务负责人的授权'));
         } else {
@@ -200,7 +203,7 @@ class TaskDetail extends Component {
   /**
    * 切换任务详情
    */
-  switchTaskDetail = (taskId) => {
+  switchTaskDetail = taskId => {
     const { openType } = this.props;
 
     if (openType === OPEN_TYPE.detail) {
@@ -215,7 +218,7 @@ class TaskDetail extends Component {
         },
         () => {
           this.init();
-        }
+        },
       );
     }
   };
@@ -223,36 +226,42 @@ class TaskDetail extends Component {
   /**
    * 弹出关联控件层
    */
-  showRelationControl = (type) => {
+  showRelationControl = type => {
     const { taskId } = this.state;
     const { data } = this.props.taskDetails[taskId];
-    const ajaxPost = (keywords) => {
+    const ajaxPost = keywords => {
       if (type === RELATION_TYPES.task) {
         return ajaxRequest.getTaskList_RelationParent({ taskID: taskId, keyword: keywords });
       }
 
-      return ajaxRequest.getFolderListForUpdateFolderID({ projectId: data.projectID, keyWords: keywords, excludeTaskIDs: taskId });
+      return ajaxRequest.getFolderListForUpdateFolderID({
+        projectId: data.projectID,
+        keyWords: keywords,
+        excludeTaskIDs: taskId,
+      });
     };
-    const ajaxDataFormat = (data) => {
+    const ajaxDataFormat = data => {
       let sourceArray = [];
       if (type === RELATION_TYPES.task) {
-        sourceArray = (data || []).map((item) => {
+        sourceArray = (data || []).map(item => {
           return {
             sid: item.taskID,
             type: RELATION_TYPES.task,
             avatar: item.charge.avatar,
             fullname: item.charge.fullName,
             name: item.taskName,
+            accountId: item.charge.accountID,
           };
         });
       } else {
-        sourceArray = (data || []).map((item) => {
+        sourceArray = (data || []).map(item => {
           return {
             sid: item.folderID,
             type: RELATION_TYPES.folder,
             avatar: item.charge.avatar,
             fullname: item.charge.fullName,
             name: item.folderName,
+            accountId: item.charge.accountID,
           };
         });
       }
@@ -268,7 +277,7 @@ class TaskDetail extends Component {
         types={[type]}
         onSubmit={item => this.relationOnSubmit(item.sid, item.type)}
       />,
-      document.createElement('div')
+      document.createElement('div'),
     );
   };
 
@@ -289,7 +298,7 @@ class TaskDetail extends Component {
     };
 
     // 更新母任务回调
-    const updateParentCallback = (source) => {
+    const updateParentCallback = source => {
       if (openType === OPEN_TYPE.slide) {
         afterUpdateTaskParent(taskId, id, data.parentID, source);
       }
@@ -305,22 +314,20 @@ class TaskDetail extends Component {
     };
 
     if (taskControls.length && id) {
-      $.DialogLayer({
-        dialogBoxID: 'updateTaskStatusDialog',
-        showClose: false,
-        container: {
-          header: type === RELATION_TYPES.task ? _l('您确定重新关联母任务吗？') : _l('您确定重新关联项目吗？'),
-          content: `<div class="Font14 mBottom20">${
-            type === RELATION_TYPES.task
-              ? _l('重新关联母任务后，当前任务原有的自定义字段数据将被删除，新关联母任务的自定义字段会显示在当前任务详情内')
-              : _l('重新关联项目后，当前任务原有的自定义字段数据将被删除，新关联项目的自定义字段会显示在当前任务详情内')
-          }</div>`,
-          yesText: _l('确定'),
-          noText: _l('取消'),
-          yesFn: () => {
-            callback();
-          },
-        },
+      Dialog.confirm({
+        title: type === RELATION_TYPES.task ? _l('您确定重新关联母任务吗？') : _l('您确定重新关联项目吗？'),
+        children: (
+          <div class="Font14 mBottom20">
+            {type === RELATION_TYPES.task
+              ? _l(
+                  '重新关联母任务后，当前任务原有的自定义字段数据将被删除，新关联母任务的自定义字段会显示在当前任务详情内',
+                )
+              : _l(
+                  '重新关联项目后，当前任务原有的自定义字段数据将被删除，新关联项目的自定义字段会显示在当前任务详情内',
+                )}
+          </div>
+        ),
+        onOk: () => callback(),
       });
     } else {
       callback();
@@ -330,37 +337,34 @@ class TaskDetail extends Component {
   /**
    * 移除任务成员
    */
-  removeTaskMember = (accountId) => {
+  removeTaskMember = accountId => {
     const { taskId } = this.state;
     const { openType } = this.props;
     const isMe = accountId === md.global.Account.accountId;
 
-    $.DialogLayer({
-      dialogBoxID: 'deleteTaskMemberDialog',
-      showClose: false,
-      container: {
-        content: `<div class="Font16 mBottom20">${isMe ? _l('是否确认退出该任务？') : _l('是否移除该任务参与者？')}</div>`,
-        yesFn: () => {
-          ajaxRequest.deleteTaskMember({ taskID: taskId, accountID: accountId }).then(() => {
-            alert(isMe ? _l('退出成功') : _l('移除成功'));
+    Dialog.confirm({
+      className: 'deleteTaskMemberDialog',
+      children: <div class="Font16 mBottom20">{isMe ? _l('是否确认退出该任务？') : _l('是否移除该任务参与者？')}</div>,
+      onOk: () => {
+        ajaxRequest.deleteTaskMember({ taskID: taskId, accountID: accountId }).then(() => {
+          alert(isMe ? _l('退出成功') : _l('移除成功'));
 
-            if (isMe) {
-              this.closeDetail();
-              this.props.dispatch(destroyTask(taskId));
-              if (openType === OPEN_TYPE.slide) {
-                afterDeleteTask([taskId]);
-                // 不是查看他人时重新拉取计数
-                if (!this.props.taskConfig.filterUserId) {
-                  getLeftMenuCount('', 'all');
-                }
-              } else if (openType === OPEN_TYPE.detail) {
-                navigateTo('/apps/task/center');
+          if (isMe) {
+            this.closeDetail();
+            this.props.dispatch(destroyTask(taskId));
+            if (openType === OPEN_TYPE.slide) {
+              afterDeleteTask([taskId]);
+              // 不是查看他人时重新拉取计数
+              if (!this.props.taskConfig.filterUserId) {
+                getLeftMenuCount('', 'all');
               }
-            } else {
-              this.props.dispatch(removeTaskMember(taskId, accountId));
+            } else if (openType === OPEN_TYPE.detail) {
+              navigateTo('/apps/task/center');
             }
-          });
-        },
+          } else {
+            this.props.dispatch(removeTaskMember(taskId, accountId));
+          }
+        });
       },
     });
   };
@@ -431,7 +435,13 @@ class TaskDetail extends Component {
     }
 
     return (
-      <div className={cx('taskDetail', { detail: openType === OPEN_TYPE.detail }, { fullscreen: openType === OPEN_TYPE.dialog })}>
+      <div
+        className={cx(
+          'taskDetail',
+          { detail: openType === OPEN_TYPE.detail },
+          { fullscreen: openType === OPEN_TYPE.dialog },
+        )}
+      >
         {this.renderTaskContent()}
       </div>
     );
@@ -441,7 +451,17 @@ class TaskDetail extends Component {
    * 渲染任务详情
    */
   renderTaskContent() {
-    const { animationEnd, taskId, beforeTaskId, tabIndex, showHeadShadow, addSubTask, addChecklist, addTags, forceUpdateSource } = this.state;
+    const {
+      animationEnd,
+      taskId,
+      beforeTaskId,
+      tabIndex,
+      showHeadShadow,
+      addSubTask,
+      addChecklist,
+      addTags,
+      forceUpdateSource,
+    } = this.state;
     const { openType, taskDetails } = this.props;
     const result = taskDetails[taskId];
 
@@ -526,7 +546,10 @@ class TaskDetail extends Component {
             </div>
             <TaskControl taskId={taskId} />
             <ul className="talkNav boxSizing">
-              <li className={cx('ThemeBorderColor3 ThemeColor3', { active: tabIndex === TAB_TYPE.comment })} onClick={() => this.switchTabs(TAB_TYPE.comment)}>
+              <li
+                className={cx('ThemeBorderColor3 ThemeColor3', { active: tabIndex === TAB_TYPE.comment })}
+                onClick={() => this.switchTabs(TAB_TYPE.comment)}
+              >
                 {_l('评论')}
               </li>
               <li
@@ -535,7 +558,10 @@ class TaskDetail extends Component {
               >
                 {_l('文件')}
               </li>
-              <li className={cx('ThemeBorderColor3 ThemeColor3', { active: tabIndex === TAB_TYPE.log })} onClick={() => this.switchTabs(TAB_TYPE.log)}>
+              <li
+                className={cx('ThemeBorderColor3 ThemeColor3', { active: tabIndex === TAB_TYPE.log })}
+                onClick={() => this.switchTabs(TAB_TYPE.log)}
+              >
                 {_l('任务日志')}
               </li>
             </ul>
@@ -545,7 +571,7 @@ class TaskDetail extends Component {
                   taskId={taskId}
                   addPostSuccessCount={this.addPostSuccessCount}
                   scrollToComment={() => this.scrollToFixedPosition({ scrollTo: $('.taskDetail .talkNav') })}
-                  manualRef={(commentList) => {
+                  manualRef={commentList => {
                     this.commentList = commentList;
                   }}
                 />
@@ -553,7 +579,7 @@ class TaskDetail extends Component {
               {tabIndex === TAB_TYPE.log && (
                 <TaskLog
                   taskId={taskId}
-                  manualRef={(taskLog) => {
+                  manualRef={taskLog => {
                     this.taskLog = taskLog;
                   }}
                 />
@@ -563,7 +589,7 @@ class TaskDetail extends Component {
                   sourceType={FileList.TYPES.TASK}
                   sourceId={taskId}
                   appId={md.global.APPInfo.taskAppID}
-                  manualRef={(fileList) => {
+                  manualRef={fileList => {
                     this.fileList = fileList;
                   }}
                 />
@@ -571,7 +597,10 @@ class TaskDetail extends Component {
             </div>
           </ScrollView>
         </div>
-        <TaskComment taskId={taskId} scrollToComment={() => this.scrollToFixedPosition({ scrollTo: $('.taskDetail .talkNav') })} />
+        <TaskComment
+          taskId={taskId}
+          scrollToComment={() => this.scrollToFixedPosition({ scrollTo: $('.taskDetail .talkNav') })}
+        />
       </Fragment>
     );
   }
@@ -590,9 +619,9 @@ class TaskDetail extends Component {
 
     // 弹层打开
     return (
-      <DialogBase visible width={800} type="fixed" anim={false}>
-        {this.renderContentBox()}
-      </DialogBase>
+      <Dialog.DialogBase visible width={800} type="fixed" anim={false}>
+        1{this.renderContentBox()}
+      </Dialog.DialogBase>
     );
   }
 }

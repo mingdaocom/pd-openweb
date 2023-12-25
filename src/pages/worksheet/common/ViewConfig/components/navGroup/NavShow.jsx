@@ -240,10 +240,12 @@ export default function NavShow(props) {
             {...filterInfo.globalSheetInfo}
             controlId={data.controlId}
             active={false}
-            from={'NavShow'}
+            from={data.type === 26 && _.get(data, 'advancedSetting.usertype') === '2' ? '' : 'NavShow'}
             control={{
               ...data,
-              advancedSetting: _.includes([9, 10, 11] ? { ...data.advancedSetting, allowadd: '0' } : {}),
+              advancedSetting: _.includes([9, 10, 11])
+                ? { ...data.advancedSetting, allowadd: '0' }
+                : data.advancedSetting,
             }}
             advancedSetting={{ direction: '2', allowitem: '2' }}
             values={formatFilterValues(data.type, filters)}

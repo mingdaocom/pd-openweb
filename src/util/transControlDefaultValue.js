@@ -18,18 +18,7 @@ const SYSTEM_FIELD_IDS = [
   'wfstatus',
 ];
 
-export function getSignatureValue(value) {
-  if (value === 'undefined' || value === '' || value === '[]' || value === '["",""]' || value === null) {
-    return value;
-  }
-  try {
-    return value.startsWith('http') ? JSON.stringify({ bucket: 4, key: new URL(value).pathname.slice(1) }) : value;
-  } catch (err) {
-    return;
-  }
-}
-
-export function formatAttachmentValue(value, isRecreate = false) {
+export function formatAttachmentValue(value, isRecreate = false, isRelation = false) {
   const attachmentArr = JSON.parse(value || '[]');
   let attachmentValue = attachmentArr;
 
@@ -50,18 +39,21 @@ export function formatAttachmentValue(value, isRecreate = false) {
           ? md.global.FileStoreConfig.pictureHost
           : md.global.FileStoreConfig.documentHost;
         let searchParams = '';
+        let extAttr = {};
 
         if (IsLocal && isRecreate) {
           const filelink = new URL(host);
-          const viewUrl = item.viewUrl ? new URL(item.viewUrl) : '';
           filePath = filePath.replace(filelink.pathname.slice(1), '');
-          searchParams = viewUrl ? `e=${viewUrl.searchParams.get('e')}&token=${viewUrl.searchParams.get('token')}` : '';
+          searchParams = (item.viewUrl || item.previewUrl).match(/\?.*/)[0];
+          isRelation && (extAttr = { ext: item.ext, previewUrl: item.previewUrl });
         }
 
         return {
+          ...extAttr,
           fileID: item.fileId || item.fileID,
           fileSize: item.filesize,
-          url: fileUrl + (fileUrl.indexOf('?') > -1 ? '' : '?') + searchParams,
+          url: fileUrl  + searchParams,
+          viewUrl: fileUrl  + searchParams,
           serverName: IsLocal && isRecreate ? host : url.origin + '/',
           filePath,
           fileName,
@@ -106,10 +98,8 @@ export async function fillRowRelationRows(control, rowId, worksheetId, isRecreat
               return;
             }
             itemValue[c.controlId] =
-              c.type === WIDGETS_TO_API_TYPE_ENUM.SIGNATURE
-                ? getSignatureValue(item[c.controlId])
-                : c.type === WIDGETS_TO_API_TYPE_ENUM.ATTACHMENT
-                ? formatAttachmentValue(item[c.controlId], isRecreate)
+              c.type === WIDGETS_TO_API_TYPE_ENUM.ATTACHMENT
+                ? formatAttachmentValue(item[c.controlId], isRecreate, true)
                 : item[c.controlId];
           });
           return itemValue;
@@ -135,6 +125,7 @@ export async function handleRowData(props) {
   });
   if (data.resultCode === 1) {
     let defaultData = JSON.parse(data.rowData || '{}');
+
     let subTablePromise = [];
     let defcontrols = _.cloneDeep(columns);
     _.forIn(defaultData, (value, key) => {
@@ -144,13 +135,16 @@ export async function handleRowData(props) {
         defaultData[key] = null;
       } else if (control.type === 14) {
         defaultData[key] = formatAttachmentValue(value, true);
-      } else if (control.type === 42) {
-        defaultData[key] = getSignatureValue(value);
       } else if (control.type === 34) {
         subTablePromise.push(fillRowRelationRows(control, rowId, worksheetId, true));
       } else if (control.type === 29) {
         defaultData[key] =
           control.advancedSetting.showtype !== '2' ? JSON.stringify(JSON.parse(value || '[]').slice(0, 5)) : 0;
+      } else if (control.type === 37 && control.dataSource) {
+        const sourceId = control.dataSource.substring(1, control.dataSource.length - 1);
+        const sourceControl = columns.find(l => l.controlId === sourceId);
+        defaultData[key] =
+          sourceControl.type === 29 && sourceControl.advancedSetting.showtype === '2' ? undefined : value;
       } else {
         defaultData[key] = value;
       }
@@ -163,6 +157,7 @@ export async function handleRowData(props) {
       });
       (defaultData[item.controlId] = undefined), index > -1 && (defcontrols[index] = item);
     });
+
     return { defaultData, defcontrols };
   }
 }

@@ -11,6 +11,7 @@ import * as actions from '../../../redux/position/action';
 import jobAjax from 'src/api/job';
 import { getPssId } from 'src/util/pssId';
 import Config from '../../../config';
+import { getCurrentProject } from 'src/util';
 import cx from 'classnames';
 import './index.less';
 import _ from 'lodash';
@@ -33,9 +34,7 @@ class PositionInfo extends Component {
   // 导出职位列表
   exportJobList = () => {
     const { projectId } = this.props;
-    let projectName = (md.global.Account.projects || []).filter(item => item.projectId === projectId).length
-      ? (md.global.Account.projects || []).filter(item => item.projectId === projectId)[0].companyName
-      : '';
+    let projectName = getCurrentProject(projectId, true).companyName || '';
     fetch(`${md.global.Config.AjaxApiUrl}download/exportProjectJobList`, {
       method: 'POST',
       headers: {

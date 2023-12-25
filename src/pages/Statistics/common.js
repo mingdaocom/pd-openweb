@@ -1,6 +1,6 @@
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { reportTypes } from './Charts/common';
-import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/ControlMask/util';
+import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
 import _ from 'lodash';
 import moment from 'moment';
 
@@ -144,6 +144,8 @@ export function initConfigDetail(id, data, currentReport) {
     result.split = {};
   }
 
+  const isConfigAll = [reportTypes.BarChart, reportTypes.LineChart, reportTypes.DualAxes].includes(result.reportType);
+
   if (id) {
     if (xaxes.controlId) {
       const data = _.find(axisControls, { controlId: xaxes.controlId }) || {};
@@ -171,6 +173,29 @@ export function initConfigDetail(id, data, currentReport) {
         const { controlName } = rightY.yaxisList[0];
         rightY.display.ydisplay.title = controlName;
       }
+      if (!('all' in rightY.summary)) {
+        const data = {
+          ...rightY.summary,
+          type: 1,
+          name: '',
+        }
+        if (summary.controlId) {
+          rightY.summary = {
+            ...data,
+            all: false,
+            controlList: [{
+              controlId: rightY.summary.controlId,
+              ...data,
+            }]
+          }
+        } else {
+          rightY.summary = {
+            ...data,
+            all: true,
+            controlList: []
+          }
+        }
+      }
     }
     if (displaySetup) {
       if (_.isEmpty(displaySetup.xdisplay.title)) {
@@ -181,6 +206,33 @@ export function initConfigDetail(id, data, currentReport) {
         displaySetup.ydisplay.title = controlName;
       }
     }
+    if (isConfigAll && !('all' in summary)) {
+      const data = {
+        ...summary,
+        type: 1,
+        name: '',
+      }
+      if (summary.controlId) {
+        result.summary = {
+          ...data,
+          all: false,
+          controlList: [{
+            controlId: summary.controlId,
+            ...data,
+          }]
+        }
+      } else {
+        result.summary = {
+          ...data,
+          all: displaySetup.showTotal,
+          controlList: []
+        }
+      }
+    }
+    if (!isConfigAll) {
+      result.summary.all = undefined;
+      result.summary.controlList = undefined;
+    }
   } else {
     result.name = _l('未命名图表');
     result.filter = {
@@ -190,7 +242,7 @@ export function initConfigDetail(id, data, currentReport) {
       rangeValue: 365,
       today: true
     };
-    if (result.summary) {
+    if (isConfigAll && result.summary) {
       result.summary.all = false;
     }
   }
@@ -255,6 +307,9 @@ export function initConfigDetail(id, data, currentReport) {
       if (_.get(currentReport, ['split', 'controlId'])) {
         result.split = currentReport.split;
       }
+    }
+    if ([reportTypes.LineChart, reportTypes.BarChart, reportTypes.DualAxes].includes(reportType) && (_.get(currentReport, ['summary', 'controlList']) || []).length) {
+      result.summary.controlList = [];
     }
     if ([reportTypes.FunnelChart, reportTypes.PieChart].includes(reportType)) {
       result.yaxisList = currentReport.yaxisList.length ? [currentReport.yaxisList[0]] : [];
@@ -331,19 +386,18 @@ export const getNewReport = ({ currentReport, worksheetInfo, base }) => {
   const newCurrentReport = _.cloneDeep(currentReport);
   const { yaxisList, displaySetup, rightY, xaxes, pivotTable } = newCurrentReport;
 
-  // if (pivotTable) {
-  //   const { columnSummary = {}, lineSummary = {} } = pivotTable;
-  //   if (_.isEmpty(columnSummary.name)) {
-  //     columnSummary.name = _.find(normTypes, { value: columnSummary.type }).text;
-  //   }
-  //   if (_.isEmpty(lineSummary.name)) {
-  //     lineSummary.name = _.find(normTypes, { value: lineSummary.type }).text;
-  //   }
-  // }
-
   if (newCurrentReport.summary && _.isEmpty(newCurrentReport.summary.name)) {
     newCurrentReport.summary.name = _.find(normTypes, { value: newCurrentReport.summary.type }).text;
   }
+
+  // if (newCurrentReport.summary.controlList) {
+  //   newCurrentReport.summary.controlList.map(data => {
+  //     return {
+  //       ...data,
+  //       name: data.name || _.get(_.find(yaxisList, { controlId: data.controlId }), 'controlName')
+  //     }
+  //   });
+  // }
 
   if (rightY) {
     if (rightY.summary && _.isEmpty(rightY.summary.name)) {
@@ -1347,7 +1401,7 @@ export const mergeReportData = (currentReport, result, id) => {
  * 根据配置信息获取已经选择的控件id
  */
 export const getAlreadySelectControlId = (currentReport) => {
-  const { reportType, xaxes = {}, yaxisList = [], split = {}, config, pivotTable, rightY, formulas } = currentReport;
+  const { reportType, xaxes = {}, yaxisList = [], split = {}, config = {}, pivotTable, rightY, formulas } = currentReport;
   const rightYaxisList = rightY ? rightY.yaxisList.map(item => item.controlId) : [];
   const rightSplitId = rightY ? rightY.split.controlId : null;
   let alreadySelectControlId = yaxisList.map(item => item.controlId);
@@ -1358,7 +1412,7 @@ export const getAlreadySelectControlId = (currentReport) => {
       ...pivotTable.columns.map(item => item.controlId)
     );
   } else if ([reportTypes.ProgressChart, reportTypes.GaugeChart].includes(reportType)) {
-    const { max, min, targetList } = config;
+    const { max, min, targetList = [] } = config;
     alreadySelectControlId.push(
       _.get(max, 'controlId'),
       _.get(min, 'controlId'),
@@ -1436,6 +1490,14 @@ export const dropdownDayData = [
     text: _l('365天'),
     value: 365,
   },
+];
+
+/**
+ * 时间的数据格式
+ */
+export const timeFormats = [
+  { value: 1000001, getTime: () => moment().format('YYYY/MM/DD') },
+  { value: 0, getTime: () => moment().format('YYYY-MM-DD') },
 ];
 
 /**
@@ -1601,6 +1663,20 @@ export const emptyShowTypes = [
   {
     text: _l('显示为 --'),
     value: 2,
+  }
+];
+
+/**
+ * 维度空值显示类型
+ */
+export const xaxisEmptyShowTypes = [
+  {
+    text: _l('显示为 空'),
+    value: 0,
+  },
+  {
+    text: _l('显示为 --'),
+    value: 1,
   }
 ];
 

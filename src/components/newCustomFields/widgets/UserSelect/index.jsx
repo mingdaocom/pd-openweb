@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { FROM } from '../../tools/config';
-import UserHead from 'src/pages/feed/components/userHead';
+import UserHead from 'src/components/userHead';
 import quickSelectUser from 'ming-ui/functions/quickSelectUser';
 import cx from 'classnames';
 import SelectUser from 'mobile/components/SelectUser';
@@ -122,23 +122,12 @@ export default class Widgets extends Component {
   }
 
   render() {
-    const { projectId, disabled, enumDefault, from, formData = [], worksheetId, controlId, appId } = this.props;
+    const { projectId, disabled, enumDefault, from, formData = [], worksheetId, controlId, appId, dataSource } = this.props;
     const { showSelectUser } = this.state;
     const value = this.getUserValue();
     const isMobile = browserIsMobile();
     return (
-      <div
-        className="customFormControlBox"
-        style={{
-          flexWrap: 'wrap',
-          minWidth: 0,
-          alignItems: 'center',
-          height: 'auto',
-          background: '#fff',
-          borderColor: '#fff',
-          padding: 0,
-        }}
-      >
+      <div className="customFormControlBox customFormControlUser">
         {value.map((item, index) => {
           return (
             <div className={cx('customFormControlTags', { selected: isMobile && !disabled })} key={index}>
@@ -149,16 +138,15 @@ export default class Widgets extends Component {
               ) : (
                 <UserHead
                   projectId={_.isEmpty(getCurrentProject(projectId)) ? '' : projectId}
-                  bindBusinessCard={!isMobile}
                   className="userHead InlineBlock"
                   alwaysBindCard
                   key={index}
+                  appId={dataSource ? undefined : appId}
                   user={{
                     userHead: item.avatar,
                     accountId: item.accountId,
                   }}
                   size={26}
-                  lazy="false"
                 />
               )}
               <span className="ellipsis mLeft8" style={{ maxWidth: 200 }}>

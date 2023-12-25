@@ -20,6 +20,7 @@ import { compose } from 'redux';
 import { DEFAULT_CONFIG, DEFAULT_DATA, WIDGETS_TO_API_TYPE_ENUM, SYS_CONTROLS } from '../config/widget';
 import { getCurrentRowSize } from './widgets';
 import { browserIsMobile } from 'src/util';
+import { parseDataSource } from './setting';
 
 const FORMULA_FN_LIST = [
   'SUM',
@@ -43,7 +44,7 @@ export const enumObj = obj => {
   return obj;
 };
 
-export const enumWidgetType = enumObj(WIDGETS_TO_API_TYPE_ENUM);
+export const enumWidgetType = enumObj({ ...WIDGETS_TO_API_TYPE_ENUM });
 
 /**
  * 导入本目录下所有组件
@@ -485,3 +486,33 @@ export const getSectionWidgets = widgets => {
 export function SearchFn(keywords = '', value = '') {
   return value.search(new RegExp(keywords.trim().replace(/([,.+?:()*\[\]^$|{}\\-])/g, '\\$1'), 'i')) !== -1;
 }
+
+// 汇总是否显示单位及小数点配置
+export const isShowUnitConfig = (data = {}, selectedControl = {}) => {
+  const { enumDefault, enumDefault2 } = data;
+  // 如果是日期格式汇总 不显示
+  if ([2, 3].includes(enumDefault) && [15, 16, 46].includes(enumDefault2)) return false;
+  // 选择日期汇总字段
+  if (selectedControl.type === 37) {
+    if ([2, 3].includes(enumDefault) && [15, 16, 46].includes(selectedControl.enumDefault2)) return false;
+  }
+  return true;
+};
+
+export const supportSettingCollapse = props => {
+  const { data = {}, allControls = [] } = props;
+  const { dataSource, sourceControlId, type, advancedSetting = {} } = data;
+
+  switch (type) {
+    case 10:
+      return !(dataSource && advancedSetting.checktype === '0');
+    case 9:
+    case 11:
+      return !(dataSource && _.includes(['1', '2'], advancedSetting.showtype));
+    case 37:
+      const parsedDataSource = parseDataSource(dataSource);
+      const { relationControls = [] } = getControlByControlId(allControls, parsedDataSource);
+      const selectedControl = getControlByControlId(relationControls, sourceControlId);
+      return isShowUnitConfig(data, selectedControl);
+  }
+};

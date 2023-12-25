@@ -93,7 +93,7 @@
                     <span class="deteLine" data-start="{{=task.startTime}}" data-end="{{=task.deadline}}" data-actdate="{{=task.actualStartTime}}" data-comdate="{{=task.completeTime}}">{{=taskTime}}</span>
                 </span>
                 <span class="chargeTd TxtCenter">
-                    <img class="circle chargeImg {{=task.charge.status!=1?'userdisable':''}} {{=task.status==1?'opacity6':''}}" src="{{=task.charge.avatar}}" data-auth="{{=task.auth}}" data-id="{{=task.charge.accountID}}">
+                    <div class="chargeImgWrap updateUserHead {{=task.charge.status!=1?'userdisable':''}} {{=task.status==1?'opacity6':''}}" data-src="{{=task.charge.avatar}}" data-auth="{{=task.auth}}" data-class="circle {{=task.charge.status!=1?'userdisable':''}} {{=task.status==1?'opacity6':''}}" data-sourceid="{{=task.charge.accountID}}"></div>
                 </span>
                 <i class="taskStar {{=task.star ? 'icon-task-star':'icon-star-hollow' }}"></i>
             </div>

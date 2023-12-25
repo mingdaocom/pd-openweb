@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useUpdateEffect } from 'react-use';
 import { arrayOf, func, shape, string, number } from 'prop-types';
 import { Tooltip } from 'antd';
@@ -20,7 +20,7 @@ const Con = styled.div`
   display: flex;
   align-items: center;
   height: 32px;
-  line-height: 32px;
+  line-height: 30px;
   border: 1px solid ${({ active }) => (active ? '#2196f3' : '#ddd')} !important;
   border-radius: 4px 0 0 4px;
   &:hover {
@@ -39,6 +39,7 @@ const InputCon = styled.div`
     height: 30px !important;
     border: none !important;
     box-sizing: border-box !important;
+    line-height: inherit;
     &::placeholder {
       color: #bdbdbd;
     }
@@ -77,16 +78,33 @@ const AdvancePasteIcon = styled.span`
   }
 `;
 
+function getPlaceHolder(filterType, limit) {
+  if (filterType === FILTER_CONDITION_TYPE.START) {
+    return limit ? _l('输入开头%0位后搜索', limit) : _l('搜索开头');
+  } else if (filterType === FILTER_CONDITION_TYPE.END) {
+    return limit ? _l('输入结尾%0位后搜索', limit) : _l('搜索结尾');
+  } else {
+    return _l('搜索');
+  }
+}
+
 export default function Text(props) {
-  const { control = {}, values = [], filterType, onChange = () => {}, onEnterDown = () => {} } = props;
+  const { control = {}, values = [], filterType, advancedSetting, onChange = () => {}, onEnterDown = () => {} } = props;
+  const [tempValue, setTempValue] = useState();
   const [isFocusing, setIsFocusing] = useState(false);
   const [isMultiple, setIsMultiple] = useState(false);
   const [valueForMultiple, setValueForMultiple] = useState();
   const [pasteDialogVisible, setPasteDialogVisible] = useState();
+  const limit = advancedSetting.limit && Number(advancedSetting.limit);
+  const needCheckLength =
+    _.includes([FILTER_CONDITION_TYPE.START, FILTER_CONDITION_TYPE.END], filterType) &&
+    _.isNumber(limit) &&
+    !_.isNaN(limit);
   useUpdateEffect(() => {
     if (!values.length) {
       setIsMultiple(false);
       setValueForMultiple('');
+      setTempValue('');
     }
   }, [values]);
   return (
@@ -95,14 +113,23 @@ export default function Text(props) {
         <InputCon>
           {!isMultiple ? (
             <Input
-              placeholder={_l('搜索')}
-              value={values.join(' ')}
+              placeholder={getPlaceHolder(filterType, advancedSetting.limit)}
+              value={needCheckLength && tempValue ? tempValue : values.join(' ')}
               onKeyDown={e => e.keyCode === 13 && onEnterDown()}
               onFocus={() => setIsFocusing(true)}
               onBlur={() => setIsFocusing(false)}
               onChange={newValue => {
                 setIsMultiple(false);
-
+                if (needCheckLength) {
+                  setTempValue(newValue);
+                  if (newValue.length < limit && newValue.length > 0) {
+                    if (values.join('') !== '') {
+                      newValue = '';
+                    } else {
+                      return;
+                    }
+                  }
+                }
                 if (
                   _.includes(
                     [

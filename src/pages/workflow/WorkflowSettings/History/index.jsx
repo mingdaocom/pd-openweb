@@ -9,7 +9,7 @@ import './index.less';
 import api from '../../api/instance';
 import process from '../../api/process';
 import processVersion from '../../api/processVersion';
-import UserHead from 'src/pages/feed/components/userHead';
+import UserHead from 'src/components/userHead';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import { FLOW_STATUS } from './config';
@@ -210,7 +210,6 @@ class History extends Component {
                       userHead: item.publisher.avatar,
                       accountId: item.publisher.accountId,
                     }}
-                    lazy="false"
                     size={26}
                   />
                   <div className="mLeft12 flex ellipsis">{item.publisher.fullName}</div>

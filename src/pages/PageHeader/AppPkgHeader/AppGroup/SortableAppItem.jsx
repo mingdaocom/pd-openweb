@@ -100,7 +100,7 @@ export default class SortableAppItem extends Component {
 
   handleDbClick = appSectionId => {
     const { ensurePointerVisible, permissionType } = this.props;
-    if (canEditApp(permissionType)) return;
+    if (!canEditApp(permissionType)) return;
     clearTimeout(this.clickTimer);
     this.setState({ dbClickedAppGroupId: appSectionId }, ensurePointerVisible);
   };
@@ -155,6 +155,7 @@ export default class SortableAppItem extends Component {
       changeBoardViewData,
       appPkg,
       isLock,
+      isUpgrade,
     } = this.props;
     const { visible, dbClickedAppGroupId } = this.state;
     const { name, appSectionId } = value;
@@ -201,7 +202,7 @@ export default class SortableAppItem extends Component {
             </span>
           </MdLink>
         )}
-        {canEditApp(permissionType) && (
+        {canEditApp(permissionType) && !isUpgrade && (
           <Trigger
             action={['click']}
             popupVisible={visible}

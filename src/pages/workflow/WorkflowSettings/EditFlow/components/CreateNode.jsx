@@ -18,7 +18,19 @@ export default class CreateNode extends Component {
    * 渲染内容
    */
   renderContent() {
-    const { processId, item, disabled, nodeId, selectAddNodeId, isCopy, selectCopy, text, isApproval } = this.props;
+    const {
+      processId,
+      item,
+      disabled,
+      nodeId,
+      selectAddNodeId,
+      isCopy,
+      selectCopy,
+      text,
+      isApproval,
+      data,
+      startEventId,
+    } = this.props;
     const isAddState = nodeId === item.id;
 
     if (disabled) {
@@ -30,7 +42,7 @@ export default class CreateNode extends Component {
     }
 
     if (isAddState) {
-      return isApproval ? (
+      return isApproval || data[startEventId].nextId === '99' ? (
         <div className="workflowAddActionBox Gray_75 Font14" style={{ width: 261 }}>
           {_l('选择要执行的动作')}
         </div>

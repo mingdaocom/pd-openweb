@@ -39,6 +39,7 @@ const GroupFilter = props => {
     appColor,
     mobileNavGroupFilters,
     appNaviStyle,
+    filters
   } = props;
   const { appId, viewId } = base;
   const view = _.find(views, { viewId }) || (!viewId && views[0]) || {};
@@ -85,7 +86,7 @@ const GroupFilter = props => {
     setKeywords('');
     fetch();
     props.getNavGroupCount();
-  }, [navGroup.controlId, viewId]);
+  }, [navGroup.controlId, viewId, filters]);
   const fetch = () => {
     const { controlId } = navGroup;
     if (!controlId) {

@@ -122,6 +122,7 @@ class Con extends React.Component {
       showDeleRoleByMoveUser: false,
       loading: true,
       delId: '',
+      selectDebugRole: [],
     };
   }
   componentDidMount() {
@@ -134,6 +135,7 @@ class Con extends React.Component {
       },
       getUserList,
       appId,
+      appDetail = {},
     } = this.props;
     const { roleInfos = [] } = appRole;
     const { quickTag } = appRole;
@@ -148,6 +150,11 @@ class Con extends React.Component {
       //申请加入等地址，获取全部项计数
       getUserList({ appId }, true);
     }
+
+    if (appDetail.canDebug) {
+      this.getDebugRoles();
+    }
+
     this.setState({
       roleList: roleInfos,
       loading: false,
@@ -180,6 +187,16 @@ class Con extends React.Component {
       });
     }
   }
+
+  getDebugRoles = () => {
+    const { appId } = this.props;
+
+    AppAjax.getDebugRoles({ appId }).then(res => {
+      this.setState({
+        selectDebugRole: res.roles.filter(l => l.seleted),
+      });
+    });
+  };
 
   delDialog = data => {
     if (data.totalCount > 0) {
@@ -270,7 +287,7 @@ class Con extends React.Component {
   };
 
   render() {
-    const { roleList, showDeleRoleByMoveUser, delId } = this.state;
+    const { roleList, showDeleRoleByMoveUser, delId, selectDebugRole } = this.state;
     const { appRole = {} } = this.props;
     const { pageLoading } = appRole;
     if (pageLoading) {
@@ -281,6 +298,7 @@ class Con extends React.Component {
         <RoleNav
           {...this.props}
           {...this.state}
+          selectDebugRole={selectDebugRole}
           onChange={data => {
             this.setState({ ...data });
           }}

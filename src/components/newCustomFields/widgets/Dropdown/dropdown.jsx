@@ -136,7 +136,7 @@ export default class Widgets extends Component {
                         );
                       })
                   ) : (
-                    <span className="Gray_bd">{_l('请选择')}</span>
+                    <span className="Gray_bd">{hint || _l('请选择')}</span>
                   )}
                 </div>
                 {!disabled && <Icon icon="arrow-right-border" className="Font16 Gray_bd" style={{ marginRight: -5 }} />}

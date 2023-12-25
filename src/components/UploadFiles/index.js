@@ -230,11 +230,12 @@ export default class UploadFiles extends Component {
     let { maxTotalSize } = this.state;
     const { nativeFile } = this;
     let { noTotal, dropPasteElement, from, projectId, advancedSetting } = this.props;
+    const isPublicWorkflow = _.get(window, 'shareState.isPublicWorkflowRecord');
     const isPublic =
       from === FROM.PUBLIC_ADD ||
       from === FROM.WORKFLOW ||
       window.isPublicWorksheet ||
-      _.get(window, 'shareState.isPublicWorkflowRecord');
+      isPublicWorkflow;
 
     const { licenseType } = _.find(md.global.Account.projects, item => item.projectId === projectId) || {};
 
@@ -277,7 +278,7 @@ export default class UploadFiles extends Component {
 
 
           //判断应用上传量是否达到上限
-          if (projectId && !window.isPublicApp && !window.isPublicWorksheet) {
+          if (projectId && !window.isPublicApp && !window.isPublicWorksheet && !isPublicWorkflow) {
             const params = { projectId, fromType: 9 };
             checkAccountUploadLimit(filesSize, params).then(available => {
               if (!available) {
@@ -326,12 +327,12 @@ export default class UploadFiles extends Component {
           const currentFileLength = temporaryDataLength + filesLength;
 
           // 限制文件数量
-          if (temporaryDataLength > 20) {
-            alert(_l('附件数量超过限制，一次上传不得超过20个附件'), 3);
+          if (temporaryDataLength > 100) {
+            alert(_l('附件数量超过限制，一次上传不得超过100个附件'), 3);
             return false;
-          } else if (currentFileLength > 20) {
-            alert(_l('附件数量超过限制，一次上传不得超过20个附件'), 3);
-            const num = currentFileLength - 20;
+          } else if (currentFileLength > 100) {
+            alert(_l('附件数量超过限制，一次上传不得超过100个附件'), 3);
+            const num = currentFileLength - 100;
             files.splice(files.length - num, num).map(file => {
               uploader.removeFile({ id: file.id });
             });
@@ -499,8 +500,8 @@ export default class UploadFiles extends Component {
       if (!isAvailable) return;
 
       // 最多只能上传20个知识文件
-      if (newKcAttachmentData.length > 20) {
-        alert(_l('附件数量超过限制，一次上传不得超过20个附件'), 3);
+      if (newKcAttachmentData.length > 100) {
+        alert(_l('附件数量超过限制，一次上传不得超过100个附件'), 3);
         return false;
       }
 
@@ -543,9 +544,9 @@ export default class UploadFiles extends Component {
         const { linkName, linkContent } = link;
         const { temporaryData } = this.state;
         if (
-          temporaryData.filter(attachment => attachment.fileExt === '.url' && attachment.originLinkUrl).length >= 20
+          temporaryData.filter(attachment => attachment.fileExt === '.url' && attachment.originLinkUrl).length >= 100
         ) {
-          alert(_l('附件数量超过限制，一次上传不得超过20个附件'), 3);
+          alert(_l('附件数量超过限制，一次上传不得超过100个附件'), 3);
           return;
         }
         const newTemporaryData = temporaryData.concat({
@@ -879,7 +880,7 @@ export default class UploadFiles extends Component {
               <div className="UploadFiles-info">
                 {totalSize}
                 /{md.global.SysSettings.fileUploadLimitSize}M(
-                {canAddLink ? _l('至多本地,链接各20个') : _l('至多本地文件各20个')})
+                {canAddLink ? _l('至多本地,链接各100个') : _l('至多本地文件各100个')})
               </div>
             </div>
           </div>

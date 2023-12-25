@@ -281,6 +281,7 @@ export default class RelateRecordList extends React.PureComponent {
       multiple,
       selectedIds,
       showCoverAndControls,
+      staticRecords,
       prefixRecords = [],
       onItemClick,
       allowNewRecord,
@@ -301,6 +302,7 @@ export default class RelateRecordList extends React.PureComponent {
         className="RelateRecordList flexColumn"
         ref={this.con}
         style={_.assign({}, style, isMobile ? { width: window.innerWidth } : {})}
+        onClick={e => e.stopPropagation()}
       >
         <div
           className="flexColumn"
@@ -313,7 +315,7 @@ export default class RelateRecordList extends React.PureComponent {
             <ScrollView
               className="flex"
               onScrollEnd={() => {
-                if (!loading && !loadouted) {
+                if (!loading && !loadouted && _.isEmpty(staticRecords)) {
                   this.loadNext();
                 }
               }}

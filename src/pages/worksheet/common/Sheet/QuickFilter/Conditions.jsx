@@ -128,12 +128,26 @@ function turnControl(control) {
   return control;
 }
 
-function conditionAdapter(condition) {
+export function conditionAdapter(condition) {
   delete condition.control;
   if (condition.dataType === 29 && condition.filterType === 2) {
     condition.filterType = 24;
   }
   return condition;
+}
+
+function getDefaultValues(items) {
+  const values = {};
+  items.forEach((item, i) => {
+    const key = `${_.get(item, 'control.controlId') || _.get(item, 'controlId')}-${i}`;
+    if (!_.isEmpty(item.value) || !_.isEmpty(item.values)) {
+      values[key] = {
+        values: item.values,
+        value: item.value,
+      };
+    }
+  });
+  return values;
 }
 
 export default function Conditions(props) {
@@ -169,8 +183,8 @@ export default function Conditions(props) {
   const store = useRef({});
   const debounceUpdateQuickFilter = useRef(_.debounce(updateQuickFilter, 500));
   const items = useMemo(
-    () =>
-      filters
+    () => {
+      return filters
         .map(filter => {
           const controlObj = filter.control || _.find(controls, c => c.controlId === filter.controlId);
           const newControl = controlObj && _.cloneDeep(turnControl(controlObj));
@@ -181,7 +195,8 @@ export default function Conditions(props) {
             filterType: newControl && newControl.encryId ? 2 : filter.filterType,
           };
         })
-        .filter(c => c.control && !(window.shareState.shareId && _.includes([26, 27, 48], c.control.type))), // 分享状态快速筛选不应该显示 成员 部门 角色
+        .filter(c => c.control && !(window.shareState.shareId && _.includes([26, 27, 48], c.control.type)));
+    }, // 分享状态快速筛选不应该显示 成员 部门 角色
     [
       JSON.stringify(filters),
       JSON.stringify(controls.map(c => _.pick(c, ['controlName', 'options', 'relationControls']))),
@@ -222,16 +237,25 @@ export default function Conditions(props) {
   }
   useEffect(() => {
     didMount.current = false;
-    setValues({});
+    setValues(getDefaultValues(filters));
   }, [view.viewId]);
   useEffect(() => {
+    let newValues;
+    if (isConfigMode) {
+      newValues = { ...values };
+      filters.forEach((item, i) => {
+        const key = `${item.control.controlId}-${i}`;
+        newValues[key] = _.pick(item, 'dateRange', 'filterType', 'value', 'values', 'minValue', 'maxValue');
+      });
+      setValues(newValues);
+    }
     if (didMount.current && !showQueryBtn && !_.isEmpty(values)) {
-      update();
+      update(newValues);
     }
   }, [JSON.stringify(filters)]);
   useEffect(() => {
     didMount.current = true;
-    if (from === 'filterComp' && !isConfigMode) {
+    if (from === 'filterComp') {
       update();
     }
   }, []);

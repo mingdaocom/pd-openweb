@@ -14,7 +14,9 @@ import CustomPage from 'mobile/CustomPage';
 import './index.less';
 import SvgIcon from 'src/components/SvgIcon';
 import FixedPage from './FixedPage';
+import UpgradeContent from 'src/components/UpgradeContent';
 import PortalUserSet from 'src/pages/PageHeader/components/PortalUserSet/index.jsx';
+import DebugInfo from '../components/DebugInfo';
 import WorksheetUnNormal from 'mobile/RecordList/State';
 import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
@@ -46,6 +48,7 @@ class App extends Component {
   componentDidMount() {
     const { params } = this.props.match;
     this.props.dispatch(actions.getAppDetail(params.appId, this.detectionUrl));
+    this.props.dispatch(actions.getDebugRoleList(params.appId));
     $('html').addClass('appListMobile');
     const { viewHideNavi } = _.get(this.props, 'appDetail.detail') || {};
     this.setState({ viewHideNavi });
@@ -450,9 +453,12 @@ class App extends Component {
   };
 
   renderContent() {
-    const { appDetail, match } = this.props;
+    const { appDetail, match, debugRoles = [] } = this.props;
+
     let { appName, detail, appSection, status } = appDetail;
-    const { fixed, webMobileDisplay, fixAccount, fixRemark, permissionType, appNaviDisplayType } = detail;
+    const { fixed, webMobileDisplay, fixAccount, fixRemark, permissionType, appNaviDisplayType, appStatus, canDebug } =
+      detail;
+    const isUpgrade = appStatus === 4;
     const isAuthorityApp = permissionType >= APP_ROLE_TYPE.ADMIN_ROLE;
     appSection = isAuthorityApp
       ? appSection
@@ -481,6 +487,7 @@ class App extends Component {
               : appSection.map(item => item.appSectionId),
           };
     const isEmptyAppSection = appSection.length === 1 && !appSection[0].name;
+    const hasDebugRoles = canDebug && !_.isEmpty(debugRoles);
     if (!detail || detail.length <= 0) {
       return <AppPermissionsInfo appStatus={2} appId={params.appId} />;
     } else if (status === 4) {
@@ -497,10 +504,14 @@ class App extends Component {
             }
           >
             {this.renderAppHeader()}
-            {(fixed && !isAuthorityApp) || webMobileDisplay ? (
-              <FixedPage fixAccount={fixAccount} fixRemark={fixRemark} isNoPublish={webMobileDisplay} />
+            {isUpgrade || (fixed && !isAuthorityApp) || webMobileDisplay ? (
+              isUpgrade ? (
+                <UpgradeContent appPkg={detail} isMobile={true} />
+              ) : (
+                <FixedPage fixAccount={fixAccount} fixRemark={fixRemark} isNoPublish={webMobileDisplay} />
+              )
             ) : (
-              <div className="appSectionCon flex">
+              <div className={cx('appSectionCon flex', { pBottom40: hasDebugRoles })}>
                 {status === 5 ||
                 (appSection.length <= 1 && (appSection.length <= 0 || appSection[0].workSheetInfo.length <= 0)) ? (
                   // 应用无权限||成员身份 且 无任何数据
@@ -541,7 +552,9 @@ class App extends Component {
           {((!isHideTabBar && !window.isPublicApp && !md.global.Account.isPortal && !fixed) ||
             (fixed && isAuthorityApp)) && (
             <Back
-              style={{ bottom: detail.appNaviStyle === 2 ? '70px' : '20px' }}
+              style={{
+                bottom: detail.appNaviStyle === 2 ? `${hasDebugRoles ? 110 : 70}px` : `${hasDebugRoles ? 60 : 20}px`,
+              }}
               icon="home"
               onClick={() => {
                 this.navigateTo('/mobile/appHome');
@@ -568,6 +581,7 @@ class App extends Component {
               }}
             />
           )}
+          {<DebugInfo appId={detail.id} debugRoles={debugRoles} />}
         </Fragment>
       );
     }
@@ -619,8 +633,9 @@ class App extends Component {
   };
 
   renderBody() {
+    const { debugRoles = [] } = this.props;
     const { appSection = {}, detail } = this.props.appDetail;
-    const { fixed, permissionType, webMobileDisplay } = detail;
+    const { fixed, permissionType, webMobileDisplay, canDebug } = detail;
     const isAuthorityApp = permissionType >= APP_ROLE_TYPE.ADMIN_ROLE;
     const { batchOptVisible } = this.props;
 
@@ -638,7 +653,7 @@ class App extends Component {
     const data = _.find(sheetList, { workSheetId: selectedTab });
     const isHideNav = detail.permissionType < APP_ROLE_TYPE.ADMIN_ROLE && sheetList.length === 1 && !!data;
     return (
-      <div className="flexColumn h100">
+      <div className={cx('flexColumn h100', { 'bottomNavWrap pBottom40': canDebug && !_.isEmpty(debugRoles) })}>
         <div className={cx('flex overflowHidden flexColumn', { recordListWrapper: !isHideNav })}>
           {/* 外部门户显示头部导航 */}
           {selectedTab !== 'more' && md.global.Account.isPortal && this.renderAppHeader()}
@@ -679,6 +694,7 @@ class App extends Component {
             />
           </TabBar>
         )}
+        {<DebugInfo appId={detail.id} debugRoles={debugRoles} />}
       </div>
     );
   }
@@ -701,12 +717,13 @@ class App extends Component {
 }
 
 export default connect(state => {
-  const { appDetail, isAppLoading, isQuitSuccess, batchOptVisible } = state.mobile;
+  const { appDetail, isAppLoading, isQuitSuccess, batchOptVisible, debugRoles } = state.mobile;
   // status: null, // 0: 加载中 1:正常 2:关闭 3:删除 4:不是应用成员 5:是应用成员但未分配视图
   return {
     appDetail,
     isAppLoading,
     isQuitSuccess,
     batchOptVisible,
+    debugRoles,
   };
 })(App);

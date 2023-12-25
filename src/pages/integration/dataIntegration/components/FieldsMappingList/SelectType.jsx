@@ -4,7 +4,7 @@ import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Select } from 'antd';
 import { Input } from 'ming-ui';
-import { enumWidgetType } from 'src/pages/widgetConfig/util';
+import { enumWidgetType, canSetAsTitle } from 'src/pages/widgetConfig/util';
 import Settings from 'src/pages/widgetConfig/widgetSetting/settings';
 import { DEFAULT_DATA } from 'src/pages/widgetConfig/config/widget.js';
 import _ from 'lodash';
@@ -45,8 +45,9 @@ const Wrapper = styled.div`
 `;
 
 export default function SelectType(props) {
-  const { options, itemData, updateFieldsMapping, isDestDbType } = props;
+  const { options, itemData, updateFieldsMapping, isDestDbType, isExistJoinPk } = props;
   const [visible, setVisible] = useState(false);
+  const sourceField = itemData.sourceField || {};
   const destField = itemData.destField || {};
   const [settingComponent, setSettingComponent] = useSetState({ component: null, data: {} });
   const selectRef = useRef();
@@ -75,6 +76,11 @@ export default function SelectType(props) {
       component: Settings[ENUM_TYPE],
       data,
     });
+    const canSetTitle =
+      canSetAsTitle({ type: value }) &&
+      //如果存在joinPk，joinPk字段不允许设为标题，否则rowid不允许设为标题
+      (isExistJoinPk ? !sourceField.isUniquePk : (sourceField.oid || '').split('_')[1] !== 'rowid');
+
     updateFieldsMapping &&
       updateFieldsMapping({
         ...itemData,
@@ -85,6 +91,7 @@ export default function SelectType(props) {
           mdType: value,
           //对应类型的可选配置
           controlSetting: _.pick(data, ['advancedSetting', 'enumDefault', 'type', 'dot']),
+          isTitle: canSetTitle ? destField.isTitle : false,
         },
       });
   };

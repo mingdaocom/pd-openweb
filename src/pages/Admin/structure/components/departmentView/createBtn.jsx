@@ -7,6 +7,7 @@ import EventEmitter from 'events';
 import { Icon } from 'ming-ui';
 import { Dropdown, Menu } from 'antd';
 import { getPssId } from 'src/util/pssId';
+import { getCurrentProject } from 'src/util';
 import './index.less';
 
 export const emitter = new EventEmitter();
@@ -67,9 +68,7 @@ class CreateBtn extends Component {
   // 导出部门列表
   exportDepartmentList = () => {
     const { projectId } = this.props;
-    let projectName = (md.global.Account.projects || []).filter(item => item.projectId === projectId).length
-      ? (md.global.Account.projects || []).filter(item => item.projectId === projectId)[0].companyName
-      : '';
+    let projectName = getCurrentProject(projectId, true).companyName;
     fetch(`${md.global.Config.AjaxApiUrl}download/exportProjectDepartmentList`, {
       method: 'POST',
       headers: {

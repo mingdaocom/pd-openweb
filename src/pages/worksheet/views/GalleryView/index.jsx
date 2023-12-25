@@ -67,7 +67,7 @@ export default class RecordGallery extends Component {
       return;
     }
     const isNoAs =
-      !_.isEqual(currentView, preView) ||
+      !_.isEqual(_.omit(currentView, ['name', 'worksheetName']), _.omit(preView, ['name', 'worksheetName'])) ||
       clicksearch !== this.state.clicksearch ||
       !_.isEqual(navGroupFilters, this.props.navGroupFilters);
     if (
@@ -297,9 +297,7 @@ export default class RecordGallery extends Component {
                       return;
                     }
                     this.setState({ recordId: item.rowid, recordInfoVisible: true });
-                    if (location.pathname.indexOf('public') === -1) {
-                      addBehaviorLog('worksheetRecord', worksheetId, { rowId: item.rowid }); // 埋点
-                    }
+                    addBehaviorLog('worksheetRecord', worksheetId, { rowId: item.rowid }); // 埋点
                   });
                 }}
               >
@@ -315,7 +313,7 @@ export default class RecordGallery extends Component {
                   onCopySuccess={data => {
                     this.props.updateRow(data);
                   }}
-                  onAdd={(data) => {
+                  onAdd={data => {
                     this.props.updateRow(data);
                   }}
                 />

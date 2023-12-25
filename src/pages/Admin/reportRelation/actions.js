@@ -1,4 +1,5 @@
 ﻿import StructureController from 'src/api/structure';
+import { getCurrentProject } from 'src/util';
 
 const COMPANY_FAKE_ACCOUNTID = '';
 
@@ -36,7 +37,7 @@ const PAGE_SIZE = 20;
 
 // 公司节点
 export const initRoot = () => dispatch => {
-  const project = Config.getProjectInfo();
+  const project = getCurrentProject(Config.projectId, true);
   dispatch({
     type: ADD_STRUCTURES,
     payload: {

@@ -42,7 +42,7 @@ export default class InvitationList extends Component {
     account.checkJoinProjectByTokenWithCard({ projectId, token }).then(data => {
       switch (data.joinProjectResult) {
         case 1: //验证通过
-          location.href = '/enterpriseRegister.htm?type=editInfo&projectId=' + projectId + '&token=' + token;
+          location.href = '/enterpriseRegister?type=editInfo&projectId=' + projectId + '&token=' + token;
           break;
         case 3: //已存在
           this.props.existUserNotice(data.userCard.user.status);

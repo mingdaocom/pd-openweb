@@ -134,6 +134,7 @@ export default class Link extends Component {
    * 渲染内容
    */
   renderContent() {
+    const { selectNodeType } = this.props;
     const { data } = this.state;
 
     return (
@@ -341,9 +342,10 @@ export default class Link extends Component {
               processId={this.props.processId}
               nodeId={this.props.selectNodeId}
               selectNodeId={data.selectNodeId}
+              selectNodeType={selectNodeType}
               data={data.formProperties}
               hideTypes={data.linkType === 1 ? [2, 3] : []}
-              readonlyControlTypes={[21, 26, 27]}
+              readonlyControlTypes={[21, 26, 27, 48]}
               updateSource={this.updateSource}
             />
           </Fragment>

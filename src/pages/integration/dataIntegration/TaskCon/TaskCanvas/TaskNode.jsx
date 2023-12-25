@@ -15,6 +15,7 @@ const ClickAwayable = createDecoratedComponent(withClickAway);
 import TaskFlow from 'src/pages/integration/api/taskFlow.js';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
+import { getNodeName } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/util.js';
 
 const Wrap = styled.div`
   position: absolute;
@@ -231,7 +232,7 @@ class TaskNode extends Component {
   };
 
   renderPopup = () => {
-    const { onAddNodes, nodeData, currentProjectId } = this.props;
+    const { nodeData, currentProjectId } = this.props;
     const { pathIds = [], nodeId, y } = nodeData;
     if (pathIds.length <= 0) {
       return;
@@ -244,13 +245,8 @@ class TaskNode extends Component {
             return (
               <React.Fragment>
                 <li
-                  className={cx('flexRow alignItemsCenter Hand', {
-                    Alpha3: !['FILTER', 'JOIN', 'AGGREGATE'].includes(o.type),
-                  })}
+                  className={'flexRow alignItemsCenter Hand'}
                   onClick={() => {
-                    if (!['FILTER', 'JOIN', 'AGGREGATE'].includes(o.type)) {
-                      return;
-                    }
                     //公有云的旗舰版可用
                     if (featureType === '2') {
                       buriedUpgradeVersionDialog(currentProjectId, VersionProductType.datantergration);
@@ -347,7 +343,7 @@ class TaskNode extends Component {
   };
 
   render() {
-    const { scale, nodeData = {}, currentId, onChangeCurrentNode, onUpdate } = this.props;
+    const { scale, nodeData = {}, currentId, onChangeCurrentNode, onUpdate, flowData } = this.props;
     const { visible, popupVisible, showChangeName, showDel } = this.state;
     let yN = 0;
     let svgH = 0;
@@ -359,7 +355,6 @@ class TaskNode extends Component {
         Math.abs(nodeData.pathIds[0].fromDt.x - nodeData.pathIds[0].toDt.x) * tLine +
         (Math.abs(nodeData.pathIds[0].fromDt.x - nodeData.pathIds[0].toDt.x) - 1) * tW;
     }
-    const defaultInfo = NODE_TYPE_LIST.find(it => it.nodeType === nodeData.nodeType);
     const isAct = ACTION_LIST.map(o => o.type).includes(nodeData.nodeType);
     return (
       <Wrap
@@ -384,7 +379,7 @@ class TaskNode extends Component {
           <div className="flex flexColumn justifyContentCenter mLeft8 overflowHidden">
             {nodeData.isDel && <div className="name Font13 Bold overflow_ellipsis WordBreak Red">{_('源已删除')}</div>}
             {/* 错误提示 */}
-            <div className="name Font13 Bold overflow_ellipsis WordBreak">{nodeData.name || defaultInfo.name}</div>
+            <div className="name Font13 Bold overflow_ellipsis WordBreak">{getNodeName(flowData, nodeData)}</div>
             {isAct ? (
               <Des nodeData={nodeData} className="Font12 Gray_9e" showEdit />
             ) : (

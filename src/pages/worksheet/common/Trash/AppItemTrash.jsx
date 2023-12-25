@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import { string } from 'prop-types';
 import { Dialog } from 'ming-ui';
-import UserHead from 'src/pages/feed/components/userHead';
+import UserHead from 'src/components/userHead';
 import SvgIcon from 'src/components/SvgIcon';
 import appManagementAjax from 'src/api/appManagement';
 import moment from 'moment';
@@ -131,13 +131,11 @@ export default function AppItemTrash(props) {
     [
       <UserHead
         className="cellUserHead"
-        // projectId={projectId}
-        bindBusinessCard
         user={{
           userHead: appItem.deletePerson.avatar,
           accountId: appItem.deletePerson.accountId,
         }}
-        lazy={'false'}
+        appId={appId}
         size={24}
       />,
       <span className="mLeft8 ellipsis">{appItem.deletePerson.fullname || appItem.deletePerson.fullName}</span>,

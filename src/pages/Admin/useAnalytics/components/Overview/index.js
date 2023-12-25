@@ -164,8 +164,9 @@ export default class Overview extends Component {
       });
   };
   formatStastics = value => {
+    const isEnLang = md.global.Account.lang === 'en';
     let result =
-      value >= 10000 ? (
+      value >= 10000 && !isEnLang ? (
         <span>
           {parseFloat(value / 10000)}
           <span className="Gray_9e Font16">{_l(' 万')}</span>
@@ -175,6 +176,7 @@ export default class Overview extends Component {
       );
     return result === 'undefined' ? '-' : result;
   };
+
   getChartData = () => {
     const { projectId } = this.props;
     const { departmentInfo = {}, selectedDate, appId = '', currentDimension, depFlag } = this.state;
@@ -451,15 +453,6 @@ export default class Overview extends Component {
                 <div className="Gray_75 fontWeight600">{_l('工作流总数')}</div>
                 <div className="Font30 ">{this.formatStastics(workFlowCount)}</div>
               </div>
-              {/* <div className="summaryItem">
-                <div className="Gray_75 fontWeight600">
-                  {_l('用户数')}
-                  <Tooltip text={<span>{_l('统计仅包含组织内用户，不包含外部用户')}</span>}>
-                    <Icon icon="info" className="Font16 Gray_9e mLeft15 hover_f3" />
-                  </Tooltip>
-                </div>
-                <div className="Font30 ">{this.formatStastics(userCount)}</div>
-              </div> */}
             </div>
           ) : (
             <div className="flexRow">

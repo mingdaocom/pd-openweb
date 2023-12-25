@@ -19,7 +19,7 @@ const isOnlySelect = (dynamicValue, data) => {
 
 const getValue = (item, type) => {
   if (type === 'date' || type === 'time') return item.staticValue;
-  if (type === 'relateSheet') {
+  if (_.includes(['cascader', 'relateSheet'], type)) {
     return item.relateSheetName || JSON.parse(item.staticValue);
   }
   return typeof item.staticValue === 'string' ? JSON.parse(item.staticValue) : item.staticValue;
@@ -62,22 +62,21 @@ export default ({ dynamicValue = [], onClick, data, removeItem, removeRelateShee
               const type = getControlType(data);
               try {
                 const value = getValue(item, type);
+
+                if (_.includes(['user-self'], _.get(value, 'accountId'))) {
+                  return (
+                    <OtherField
+                      className="timeField"
+                      dynamicValue={dynamicValue}
+                      data={data}
+                      item={item}
+                      text={value.name}
+                      {...rest}
+                    />
+                  );
+                }
                 if (type === 'user') {
                   const { accountId, fullname, avatar, name } = value;
-
-                  if (_.includes(['user-self'], accountId)) {
-                    return (
-                      <OtherField
-                        className="timeField"
-                        dynamicValue={dynamicValue}
-                        data={data}
-                        item={item}
-                        text={value.name}
-                        {...rest}
-                      />
-                    );
-                  }
-
                   return (
                     <FieldInfo key={accountId}>
                       <img
@@ -174,7 +173,7 @@ export default ({ dynamicValue = [], onClick, data, removeItem, removeRelateShee
                     />
                   );
                 }
-                if (type === 'relateSheet') {
+                if (_.includes(['cascader', 'relateSheet'], type)) {
                   const parsedValue = parseValue(value);
                   const removeValue = item.staticValue;
                   if (_.isArray(parsedValue)) {
@@ -183,7 +182,7 @@ export default ({ dynamicValue = [], onClick, data, removeItem, removeRelateShee
                       if (_.isObject(item)) {
                         name = item.fullname || item.name;
                       } else {
-                        const record = JSON.parse(item);
+                        const record = safeParse(item);
                         const titleControlItem = record[titleControl.controlId];
                         name = renderCellText({ ...titleControl, value: titleControlItem });
                         // 处理关联表默认记录的标题字段是人员字段情况

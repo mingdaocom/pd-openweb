@@ -17,6 +17,7 @@ import cx from 'classnames';
 import './index.less';
 import _ from 'lodash';
 import moment from 'moment';
+import { getCurrentProject } from 'src/util';
 
 class RoleManage extends Component {
   constructor(props) {
@@ -40,9 +41,7 @@ class RoleManage extends Component {
   // 导出角色列表
   exportJobList = () => {
     const { projectId } = this.props;
-    let projectName = (md.global.Account.projects || []).filter(item => item.projectId === projectId).length
-      ? (md.global.Account.projects || []).filter(item => item.projectId === projectId)[0].companyName
-      : '';
+    let projectName = getCurrentProject(projectId, true).companyName || '';
     fetch(`${md.global.Config.AjaxApiUrl}download/exportProjectJobList`, {
       method: 'POST',
       headers: {

@@ -15,7 +15,7 @@ const DisplayRowListWrap = styled.div`
   .rowsWidgetContent {
     flex: 1;
     min-height: 100%;
-    padding: 15px 20px;
+    padding: 10px 20px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;

@@ -94,17 +94,15 @@ export const HAS_EXPLAIN_CONTROL = [2, 3, 4, 5, 6, 7, 8, 14, 35, 43, 49, 50];
  */
 export const NO_CUSTOM_SETTING_CONTROL = [5, 41, 42];
 
-export const HAS_DYNAMIC_DEFAULT_VALUE_CONTROL = [2, 3, 4, 5, 8, 9, 10, 11, 15, 16, 19, 23, 24, 26, 27, 28, 36, 46, 48];
+export const HAS_DYNAMIC_DEFAULT_VALUE_CONTROL = [
+  2, 3, 4, 5, 7, 8, 9, 10, 11, 15, 16, 19, 23, 24, 26, 27, 28, 35, 36, 41, 46, 48,
+];
 
 // 无描述控件
 export const NO_DES_WIDGET = [22, 10010];
 
 // 无验证
 export const NO_VERIFY_WIDGET = [6, 14, 21, 22, 25, 29, 30, 31, 32, 33, 34, 37, 38, 43, 45, 47, 49, 51, 52, 10010];
-/**
- * 无属性验证控件
- */
-export const NO_PERMISSION_WIDGET = [39];
 
 // 有提示文案的控件
 export const HAS_WARNING_CONTROL = [30, 31, 32, 37, 38];
@@ -121,7 +119,9 @@ export const NEED_SPECIAL_DISPLAY_CONTROLS = [
   10010,
 ];
 
-export const HAVE_CONFIG_CONTROL = [2, 3, 9, 10, 11, 15, 16, 23, 24, 26, 28, 32, 35, 40, 42, 46];
+export const HAVE_CONFIG_CONTROL = [
+  2, 3, 6, 9, 10, 11, 14, 15, 16, 23, 24, 26, 27, 28, 29, 31, 32, 34, 35, 38, 40, 42, 46, 51,
+];
 // 独占一行的控件
 export const FULL_LINE_CONTROL = [21, 22, 34, 41, 52, 10010];
 
@@ -136,3 +136,18 @@ export const HAVE_CONFIG_SUB_LIST = [2, 3, 10, 15, 16, 28, 32, 35, 46];
 
 // 有字段掩码的字段
 export const HAVE_MASK_WIDGET = [3, 5, 7, 8];
+
+// 有操作的控件
+export const HAVE_OPTION_WIDGET = [29, 34, 51];
+
+// 有表格样式的控件
+export const HAVE_TABLE_STYLE_WIDGET = [34];
+
+// 有高级设置的控件
+export const HAVE_HIGH_SETTING_WIDGET = [2, 3, 6, 14, 15, 16, 23, 24, 26, 27, 28, 29, 31, 32, 35, 38, 40, 42, 46, 51];
+
+// 有移动端设置的控件
+export const HAVE_MOBILE_WIDGET = [2, 29, 43];
+
+// 有字段值样式设置的控件
+export const HAVE_VALUE_STYLE_WIDGET = [2, 3, 4, 5, 6, 7, 8, 15, 16, 19, 23, 24, 25, 31, 32, 33, 37, 38, 46];

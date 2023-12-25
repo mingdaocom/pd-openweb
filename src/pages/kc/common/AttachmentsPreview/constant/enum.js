@@ -31,7 +31,7 @@ function createDict(map) {
 }
 
 const extType = {
-  PICTURE: ['jpg', 'gif', 'png', 'jpeg', 'bmp', 'webp', 'heic', 'tif', 'tiff'],
+  PICTURE: ['jpg', 'gif', 'png', 'jpeg', 'bmp', 'webp', 'heic', 'heif', 'tif', 'tiff'],
   VIDEO: ['mov', 'mp4', 'avi', 'mkv', '3gp', '3g2', 'm4v', 'rm', 'rmvb', 'webm'],
   IFRAME: ['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'pdf', 'txt', 'ai', 'psd'],
   MARKDOWN: ['md', 'markdown'],

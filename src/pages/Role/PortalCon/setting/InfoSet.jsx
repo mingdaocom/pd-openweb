@@ -451,6 +451,7 @@ export default function InfoSet(props) {
             worksheetId,
           }}
           data={currentControl}
+          from="portal"
         />
       )}
     </Wrap>

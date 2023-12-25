@@ -133,9 +133,9 @@ class LoginContainer extends React.Component {
     if (data.accountResult === ActionResult.needTwofactorVerifyCode) {
       //开启了两步验证
       if (request.ReturnUrl) {
-        location.href = `/twofactor.htm?state=${data.state}&ReturnUrl=${encodeURIComponent(request.ReturnUrl)}`;
+        location.href = `/twofactor?state=${data.state}&ReturnUrl=${encodeURIComponent(request.ReturnUrl)}`;
       } else {
-        location.href = `/twofactor.htm?state=${data.state}`;
+        location.href = `/twofactor?state=${data.state}`;
       }
       return;
     }
@@ -248,7 +248,7 @@ class LoginContainer extends React.Component {
               projectId: data.projectId,
               text: data.companyName,
               logo: data.logo,
-              linkInvite: data.projectId ? '/linkInvite.htm?projectId=' + data.projectId : '',
+              linkInvite: '/linkInvite?projectId=' + data.projectId,
               homeImage: data.homeImage,
               intergrationScanEnabled: data.intergrationScanEnabled,
               hideRegister: data.hideRegister,
@@ -265,18 +265,29 @@ class LoginContainer extends React.Component {
       });
   };
 
-  // 在集成环境移动端如果 ReturnUrl 包含 appId，去 sso 页面登录
+  // 在集成环境如果 ReturnUrl 包含 appId，去 sso 页面登录
   ssoLogin = (returnUrl = '') => {
-    const isMobile = browserIsMobile();
     const userAgent = window.navigator.userAgent.toLowerCase();
+    const getAppId = pathname => {
+      if (pathname.includes('mobile')) {
+        const match = pathname.match(/\/mobile\/([^\/]+)\/([^\/]+)/);
+        return match && match[2];
+      } else if (pathname.includes('embed/view')) {
+        const match = pathname.match(/\/embed\/view\/([^\/]+)/);
+        return match && match[1];
+      } else {
+        const match = pathname.match(/\/app\/([^\/]+)/);
+        return match && match[1];
+      }
+    };
     const isApp =
       userAgent.includes('dingtalk') ||
       userAgent.includes('wxwork') ||
       userAgent.includes('huawei-anyoffice') ||
       userAgent.includes('feishu');
-    if (isMobile && returnUrl.includes('mobile') && isApp) {
-      const { pathname } = new URL(returnUrl);
-      const [mobile, page, appId] = pathname.split('/').filter(_ => _);
+    if (isApp) {
+      const { pathname, search } = new URL(returnUrl);
+      const appId = getAppId(pathname);
       if (appId) {
         workWeiXinController
           .getIntergrationInfo({
@@ -284,10 +295,10 @@ class LoginContainer extends React.Component {
           })
           .then(data => {
             const { item1, item2 } = data;
-            const url = encodeURIComponent(pathname);
+            const url = encodeURIComponent(pathname + search);
             // 钉钉
             if (item1 === 1) {
-              const url = encodeURIComponent(pathname.replace(/^\//, ''));
+              const url = encodeURIComponent(pathname.replace(/^\//, '') + search);
               location.href = `/sso/sso?t=2&p=${item2}&ret=${url}`;
             }
             // 企业微信
@@ -433,11 +444,11 @@ class LoginContainer extends React.Component {
                 let request = getRequest();
                 let returnUrl = getDataByFilterXSS(request.ReturnUrl || '');
                 if (returnUrl.indexOf('type=privatekey') > -1) {
-                  location.href = '/register.htm?ReturnUrl=' + encodeURIComponent(returnUrl);
+                  location.href = '/register?ReturnUrl=' + encodeURIComponent(returnUrl);
                 } else if (isBindAccount) {
-                  location.href = `/register.htm?state=${request.state}&tpType=${request.tpType}&unionId=${request.unionId}`;
+                  location.href = `/register?state=${request.state}&tpType=${request.tpType}&unionId=${request.unionId}`;
                 } else {
-                  location.href = '/register.htm';
+                  location.href = '/register';
                 }
               }
             }}

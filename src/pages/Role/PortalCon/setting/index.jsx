@@ -230,10 +230,16 @@ class PortalSetting extends React.Component {
     }
     if (
       _.get(portalSetModel, 'registerInfo.enable') &&
-      (!_.get(portalSetModel, 'registerInfo.startTime') && !_.get(portalSetModel, 'registerInfo.endTime'))
+      !_.get(portalSetModel, 'registerInfo.startTime') &&
+      !_.get(portalSetModel, 'registerInfo.endTime')
     ) {
       return alert(_l('已开启外部用户注册开始/停止时间，但未选择开始/停止时间'), 3);
     }
+
+    if (controlTemplate.controls.filter(l => !l.controlName).length !== 0) {
+      return alert(_l('用户列表信息名称不能为空'), 3);
+    }
+
     if (!noClose) {
       this.setState({
         saveLoading: true,
@@ -264,6 +270,8 @@ class PortalSetting extends React.Component {
             'twoAuthenticationEnabled',
             'registerInfo',
             'watermark',
+            'internalControls',
+            'externalControls',
           ]),
           epDiscussWorkFlow,
           appId,

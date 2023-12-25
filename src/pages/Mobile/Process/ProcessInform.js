@@ -1,5 +1,6 @@
 import React, { Fragment, Component } from 'react';
 import cx from 'classnames';
+import qs from 'query-string';
 import { Tabs, Flex } from 'antd-mobile';
 import Icon from 'ming-ui/components/Icon';
 import LoadDiv from 'ming-ui/components/LoadDiv';
@@ -26,13 +27,15 @@ export const processInformTabs = [{
 export default class ProcessInform extends Component {
   constructor(props) {
     super(props);
+    const { search } = props.location;
+    const { tab } = qs.parse(search);
     this.state = {
       pageIndex: 1,
       pageSize: 30,
       list: [],
       loading: false,
       isMore: true,
-      currentTab: processInformTabs[0].id,
+      currentTab: _.find(processInformTabs, { id: tab }) ? tab : processInformTabs[0].id,
       searchValue: '',
       countData: {},
       previewRecord: {}
@@ -180,6 +183,7 @@ export default class ProcessInform extends Component {
             <Tabs
               tabBarInactiveTextColor="#9e9e9e"
               tabs={processInformTabs}
+              page={currentTab ? _.findIndex(processInformTabs, { id: currentTab }) : -1}
               onTabClick={this.handleChangeCompleteTab}
               renderTab={tab => (
                 <span>{tab.name} {tab.id === 'unread' && countData.waitingExamine ? `(${countData.waitingExamine})` : null}</span>

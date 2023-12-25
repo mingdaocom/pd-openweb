@@ -1,5 +1,5 @@
 ﻿import React, { Component } from 'react';
-import DialogLayer from 'src/components/mdDialog/dialog';
+import { Dialog } from 'ming-ui';
 import ajaxRequest from 'src/api/taskCenter';
 import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import './less/copyTask.less';
@@ -10,12 +10,13 @@ export default class CopyTask extends Component {
     this.state = {
       accountId: md.global.Account.accountId,
       avatar: md.global.Account.avatar,
+      visible: true,
     };
   }
 
   componentDidMount() {
     const that = this;
-    $('#copyTask_container').on('click', '.checkOperation:not(.noClick)', function () {
+    $('.copyTask').on('click', '.checkOperation:not(.noClick)', function () {
       $(this).toggleClass('checked');
       if ($(this).is($('#copyChargeUser'))) {
         $('#copyOperation .chargeUserBox').toggleClass('Hidden');
@@ -26,7 +27,7 @@ export default class CopyTask extends Component {
       }
     });
 
-    $('#copyTask_container').on('click', '#chargeUserBtn', function () {
+    $('.copyTask').on('click', '#chargeUserBtn', function () {
       dialogSelectUser({
         sourceId: that.props.taskId,
         title: '选择负责人',
@@ -74,20 +75,19 @@ export default class CopyTask extends Component {
   }
 
   render() {
-    const settings = {
-      dialogBoxID: 'copyTask',
-      width: 560,
-      container: {
-        header: _l('复制任务'),
-        yesText: _l('保存并复制'),
-        yesFn: () => {
-          this.submit();
-        },
-      },
-    };
-
     return (
-      <DialogLayer {...settings}>
+      <Dialog
+        visible={this.state.visible}
+        onCancel={() => this.setState({ visible: false })}
+        className="copyTask"
+        width={560}
+        title={_l('复制任务')}
+        okText={_l('保存并复制')}
+        onOk={() => {
+          this.submit();
+          this.setState({ visible: false });
+        }}
+      >
         <div className="copyDesc">{_l('通过复制任务，您可以将日常的任务计划快速复用')}</div>
         <div className="copyTitleBox">
           <div className="copyTitle">{_l('任务标题')}</div>
@@ -173,7 +173,7 @@ export default class CopyTask extends Component {
             </li>
           </ul>
         </div>
-      </DialogLayer>
+      </Dialog>
     );
   }
 }

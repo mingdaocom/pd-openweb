@@ -6,10 +6,11 @@ import { APP_CONFIGS } from './config';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
 import appConfigWidgets from './appConfigWidgets';
 import { getAppConfig } from './util';
-import { getFeatureStatus, buriedUpgradeVersionDialog, setFavicon } from 'src/util';
+import { getFeatureStatus, buriedUpgradeVersionDialog, setFavicon, getCurrentProject } from 'src/util';
 import cx from 'classnames';
 import './index.less';
 import { navigateTo } from 'src/router/navigateTo';
+import Beta from './components/ImportUpgrade/components/Beta';
 
 function UpgradeCom({ projectId, featureId }) {
   return <Fragment>{buriedUpgradeVersionDialog(projectId, featureId, { dialogType: 'content' })}</Fragment>;
@@ -61,7 +62,7 @@ class AppSettings extends Component {
           navigateTo(`/app/${id}`); // 普通角色、加锁应用、无应用管理中特性时跳至应用首页
           return;
         }
-        this.setState({ data, loading: false });
+        this.setState({ data, loading: false }, this.getConfigList);
       })
       .fail(err => {
         this.setState({ loading: false });
@@ -78,10 +79,9 @@ class AppSettings extends Component {
     });
   };
 
-  render() {
-    const { currentConfigType, data, loading, delAppConfirmVisible } = this.state;
-
-    const { id: appId, name, permissionType, isLock, isPassword, projectId, fixed, sourceType } = data;
+  getConfigList = () => {
+    const { data } = this.state;
+    const { permissionType, isLock, isPassword, projectId, sourceType } = data;
     const isNormalApp = sourceType === 1;
     const isOwner = permissionType === APP_ROLE_TYPE.POSSESS_ROLE; // 拥有者
     const canLock = _.includes(
@@ -102,12 +102,19 @@ class AppSettings extends Component {
         }
         return true;
       });
+    this.setState({ configList });
+  };
+
+  render() {
+    const { currentConfigType, data, loading, delAppConfirmVisible, configList = [] } = this.state;
+    const { id: appId, name, permissionType, projectId, fixed } = data;
     const featureId = (_.find(configList, it => it.type === currentConfigType) || {})['featureId'];
     const featureType = featureId && getFeatureStatus(projectId, featureId);
     const Component =
       featureType && featureType === '2' && currentConfigType !== 'variables'
         ? UpgradeCom
         : appConfigWidgets[currentConfigType] || appConfigWidgets['options'];
+    const upgradePermission = _.get(getCurrentProject(projectId), 'version.versionIdV2') >= 2; // 专业版及以上可导入
 
     const componentProps = {
       ...this.props,
@@ -150,12 +157,14 @@ class AppSettings extends Component {
                   }}
                 >
                   <Icon className="appConfigItemIcon Font18 mRight10" icon={icon} />
-                  <span>{text}</span>
-                  {item.featureId &&
+                  <span className="flex">{text}</span>
+                  {((item.featureId &&
                     getFeatureStatus(projectId, item.featureId) === '2' &&
-                    _.includes(['backup', 'recyclebin', 'variables'], type) && (
-                      <Icon icon="auto_awesome Font16 mLeft6" style={{ color: '#FDB432' }} />
-                    )}
+                    _.includes(['backup', 'recyclebin', 'variables'], type)) ||
+                    (type === 'upgrade' && !upgradePermission)) && (
+                    <Icon icon="auto_awesome Font16 mLeft6" style={{ color: '#FDB432' }} />
+                  )}
+                  {type === 'upgrade' && <Beta className="mRight15" />}
                 </div>
               </Fragment>
             );

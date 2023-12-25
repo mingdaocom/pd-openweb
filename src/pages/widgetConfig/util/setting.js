@@ -1,7 +1,7 @@
 import update from 'immutability-helper';
 import _, { isString, includes, get, isEmpty, isArray, head, find } from 'lodash';
 import { Parser } from 'hot-formula-parser';
-import { DISPLAY_TYPE, DATE_SHOW_TYPES } from '../config/setting';
+import { DISPLAY_TYPE, DATE_SHOW_TYPES, TITLE_STYLE_OPTIONS } from '../config/setting';
 import { v4 as uuidv4 } from 'uuid';
 import { isFullLineControl, getRowById } from './widgets';
 import { getControlByControlId } from '.';
@@ -367,4 +367,26 @@ export const getItemOptionWidth = (data, fromType) => {
     itemWidth = 100 / (num > options.length ? options.length : num);
   }
   return itemWidth;
+};
+
+// 标题样式
+export const getTitleStyle = (titleStyle = '0000') => {
+  const [isBold, isItalic, isUnderline, isLineThrough] = titleStyle.split('');
+  let styleText = '';
+  if (Number(isBold)) {
+    styleText = styleText + 'font-weight: bold;';
+  }
+  if (Number(isItalic)) {
+    styleText = styleText + 'font-style: italic;padding-right:3px;';
+  }
+  if (Number(isUnderline)) {
+    styleText = styleText + 'text-decoration: underline;';
+  }
+  if (Number(isLineThrough)) {
+    styleText = styleText + 'text-decoration: line-through;';
+  }
+  if (Number(isUnderline) && Number(isLineThrough)) {
+    styleText = styleText + 'text-decoration: underline line-through;';
+  }
+  return styleText;
 };

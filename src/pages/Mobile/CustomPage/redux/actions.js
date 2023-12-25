@@ -6,3 +6,17 @@ export const updateFiltersGroup = (id, filters = {}) => (dispatch, getState) => 
     filters,
   });
 };
+
+export const updateFilterComponents = value => (dispatch, getState) => {
+  dispatch({
+    type: 'MOBILE_UPDATE_FILTER_COMPONENTS',
+    value,
+  });
+}
+
+export const updateLoadFilterComponentCount = value => (dispatch, getState) => {
+  dispatch({
+    type: 'MOBILE_UPDATE_LOAD_FILTER_COMPONENT_COUNT',
+    value,
+  });
+}

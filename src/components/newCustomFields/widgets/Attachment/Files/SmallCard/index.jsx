@@ -8,7 +8,7 @@ import Trigger from 'rc-trigger';
 import './index.less';
 
 const SmallCard = props => {
-  const { data, isMobile, isDeleteFile, allowEditName } = props;
+  const { data, isMobile, isDeleteFile, allowEditName, worksheetId, recordId } = props;
   const { allowDownload, onDeleteMDFile, onOpenControlAttachmentInNewTab, onMDPreview, onAttachmentName } = props;
   const { isKc, browse, fileClassName, fileSize, isMore, isDownload } = props;
   const previewUrl = data.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, `imageView2/1/w/200/h/140`);
@@ -87,7 +87,7 @@ const SmallCard = props => {
 
   const handlePreview = () => {
     browse ? onMDPreview(data) : alert(_l('您权限不足，无法预览，请联系管理员或文件上传者'), 3);
-  }
+  };
 
   return (
     <div className={cx('attachmentSmallCard flexRow alignItemsCenter', { mobile: isMobile, hover: dropdownVisible || isEdit, mRight10: isDeleteFile && isMobile })}>

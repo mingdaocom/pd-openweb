@@ -10,7 +10,10 @@
     data-ishidden="{{=folder.isHidden}}"
     class="ThemeHoverBGColor7 commFolder {{= archivedClass }}">
   <div class="folderContent">
-    <img src="{{=folder.charge.avatar }}" class="folderCharge circle {{=folder.charge.status != 1 ? 'userdisable' : ''}}" data-id="{{=folder.charge.accountID }}" />
+    <span class="folderCharge circle {{=folder.charge.status != 1 ? 'userdisable' : ''}}" data-src="{{=folder.charge.avatar }}" data-id="{{=folder.charge.accountID }}">
+        <img src="{{=folder.charge.avatar }}" data-id="{{=folder.charge.accountID }}" />
+    </span>
+    <!-- <img src="{{=folder.charge.avatar }}" class="folderCharge circle {{=folder.charge.status != 1 ? 'userdisable' : ''}}" data-id="{{=folder.charge.accountID }}" /> -->
     <span class="folderName overflow_ellipsis ThemeColor10" title="{{!folder.folderName}}">{{!folder.folderName }}</span>
     {{? folder.visibility != 0 }}
     <span class="navFolderPublic" data-tip="{{=folder.visibility === 1 ? _l('公开给指定群组') : '公开项目' }}">

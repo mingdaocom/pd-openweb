@@ -140,9 +140,15 @@ function MobileDraftList(props) {
                   <CellControl
                     rowHeight={34}
                     cell={Object.assign({}, control, { value: data[control.controlId] })}
+                    row={data}
+                    worksheetId={worksheetId}
                     sheetSwitchPermit={sheetSwitchPermit}
                     from={21}
                     className={'w100'}
+                    appId={appId}
+                    worksheetId={worksheetId}
+                    row={{ rowid: data.rowid }}
+                    disableDownload={true}
                   />
                 ) : (
                   <div className="emptyTag"></div>

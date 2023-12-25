@@ -310,7 +310,6 @@ export default function Join(props) {
                   // disabled={i > 0}
                   data={TYPE_DATA}
                   onChange={spliceType => {
-                    console.log(spliceType);
                     onUpdate({
                       ...node,
                       nodeConfig: {

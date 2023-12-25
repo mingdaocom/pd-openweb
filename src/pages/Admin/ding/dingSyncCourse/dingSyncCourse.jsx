@@ -354,7 +354,7 @@ export default class DingSyncCourse extends React.Component {
           <Fragment>
             <p className="Font14 Gray_75 mTop24 LineHeight22">
               {_l(
-                '切换至“基础信息”，将AppId、ClientId、ClientScret分别填入系统的“组织管理 - 集成 - 钉钉 - 对接信息录入”对应输入框内',
+                '切换至“基础信息”，将AgentId、ClientId、ClientScret分别填入系统的“组织管理 - 集成 - 钉钉 - 对接信息录入”对应输入框内',
               )}
             </p>
             <img src="/src/pages/Admin/ding/dingSyncCourse/img/4-2.png" alt={_l('完善接口信息')} />

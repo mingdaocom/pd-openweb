@@ -11,7 +11,7 @@ import importUser from 'src/api/importUser';
 import captcha from 'src/components/captcha';
 import UploadFile from './UploadFile';
 import ImportResulFailtDetail from './ImportResulFailtDetail';
-import { verifyPassword } from 'src/util';
+import { verifyPassword, getCurrentProject } from 'src/util';
 import { getPssId } from 'src/util/pssId';
 import styled from 'styled-components';
 import _ from 'lodash';
@@ -118,9 +118,7 @@ class ImportAndExport extends Component {
     });
   };
   exportUsers = (projectId, departmentIds = []) => {
-    let projectName = (md.global.Account.projects || []).filter(item => item.projectId === projectId).length
-      ? (md.global.Account.projects || []).filter(item => item.projectId === projectId)[0].companyName
-      : '';
+    let projectName = getCurrentProject(projectId, true).companyName;
     fetch(`${md.global.Config.AjaxApiUrl}download/exportProjectUserList`, {
       method: 'POST',
       headers: {
