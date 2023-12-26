@@ -83,7 +83,7 @@ export default class HubContainer extends React.Component {
           <ErrorBoundary>
             {md.global.Config.IsLocal && !md.global.Config.EnableDataPipeline ? (
               <Switch>
-                <Route path="/integration/api" component={() => <APICon {...param} />} />
+                <Route path="/integration/connectList" component={() => <ConnectList {...param} />} />
                 <Route
                   path={`/integration/(dataConnect|taskCon|task|source)/`}
                   component={() => (
@@ -108,7 +108,6 @@ export default class HubContainer extends React.Component {
               </Switch>
             ) : (
               <Switch>
-                {/* <Route path="/integration/api" component={() => <APICon {...param} />} /> */}
                 <Route path="/integration/connectList" component={() => <ConnectList {...param} />} />
                 <Route path="/integration/dataConnect" component={() => <Connector {...param} />} />
                 <Route path="/integration/taskCon" component={() => <TaskCon {...param} />} />

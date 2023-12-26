@@ -773,12 +773,16 @@ export default function AppGrid(props) {
               {setting.isAllAndProject && type === 'project' && !isAllActive && !keywords && renderProjectGroups()}
               <AppList
                 {...props}
-                type={currentGroupTab === 'all' ? type : 'group'}
+                type={type === 'project' && currentGroupTab !== 'all' && !isAllActive ? 'group' : type}
                 projectId={projectId}
                 allowCreate={allowCreate}
-                groupId={currentGroupTab !== 'all' && !!groups.length && !isAllActive ? currentGroupTab : undefined}
+                groupId={
+                  type === 'project' && currentGroupTab !== 'all' && !isAllActive && !!groups.length
+                    ? currentGroupTab
+                    : undefined
+                }
                 groupType={
-                  currentGroupTab !== 'all' && !!groups.length && !isAllActive
+                  type === 'project' && currentGroupTab !== 'all' && !isAllActive && !!groups.length
                     ? (projectGroups.filter(g => g.id === currentGroupTab)[0] || {}).groupType
                     : undefined
                 }
