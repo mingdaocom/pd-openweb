@@ -9,7 +9,7 @@ import { Config } from './index';
 import * as Common from './common';
 import Comm from '../comm/comm';
 import { default as postMessageDialog } from './lib/postMessage';
-import { addToken } from 'src/util';
+import { addToken, getAppFeaturesPath } from 'src/util';
 
 import CalendarAction from './container/CalendarAction';
 import CalendarHeader from './container/CalendarHeader';
@@ -207,7 +207,9 @@ export default class CalendarDetail extends Component {
         state.recurType === RECURTYPE.DATE &&
         (state.untilDate === '0' || moment(state.end).isAfter(moment(state.untilDate), 'day'))
       ) {
-        diff.untilDate = moment(state.end).add(1, 'd').format('YYYY-MM-DD');
+        diff.untilDate = moment(state.end)
+          .add(1, 'd')
+          .format('YYYY-MM-DD');
       }
       if (state.recurType === RECURTYPE.COUNT && !state.recurCount) {
         diff.recurCount = 1;
@@ -310,7 +312,13 @@ export default class CalendarDetail extends Component {
     };
     const openDetailPage = () => {
       const { id, recurTime } = this.state;
-      window.open('/apps/calendar/detail_' + id + (recurTime ? '_' + moment(recurTime).format('YYYYMMDDHHmmss') : ''));
+      window.open(
+        '/apps/calendar/detail_' +
+          id +
+          (recurTime ? '_' + moment(recurTime).format('YYYYMMDDHHmmss') : '') +
+          '?' +
+          getAppFeaturesPath(),
+      );
     };
     const joinOutLook = () => {
       const { id, recurTime } = this.state;
@@ -421,7 +429,7 @@ export default class CalendarDetail extends Component {
         fromType: 5,
         SelectUserSettings: {
           filterAccountIds: members.map(user => user.accountID),
-          callback: function (users) {
+          callback: function(users) {
             Common.addMember(
               {
                 members,
@@ -437,7 +445,7 @@ export default class CalendarDetail extends Component {
           },
         },
         ChooseInviteSettings: {
-          callback: function (users, callback) {
+          callback: function(users, callback) {
             Common.addMember(
               {
                 members,
@@ -498,7 +506,7 @@ export default class CalendarDetail extends Component {
       const { members, id, recurTime, isChildCalendar, originRecur } = this.state;
       const argsProps = { id, recurTime, isChildCalendar, originRecur };
       Common.reInvite(accountId, argsProps).then(({ isAllCalendar }) => {
-        _.some(members, function (member) {
+        _.some(members, function(member) {
           if (member.accountID === accountId) {
             member.status = MEMBER_STATUS.UNCONFIRMED;
             member.remark = '';

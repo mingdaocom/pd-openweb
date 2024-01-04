@@ -5,6 +5,7 @@ import { Provider } from 'react-redux';
 import { addSuccess } from '../../../redux/postActions';
 import PostCard from '../post/postCard';
 import PostBody from '../post/postBody';
+import { getAppFeaturesPath } from 'src/util';
 
 import '../../app/feed.css';
 import '../../app/style.css';
@@ -43,19 +44,19 @@ class PostDetails extends React.Component {
     this.unsubscribeOnUpdate();
   }
 
-  listenToRemove = (postId) => {
+  listenToRemove = postId => {
     const { onRemove } = this.props;
     if (this.onRemoveListener) {
       store.emitter.removeListener('POST_REMOVE_SUCCESS', this.onRemoveListener);
       delete this.onRemoveListener;
     }
-    this.onRemoveListener = function (action) {
+    this.onRemoveListener = function(action) {
       if (action.postId === postId) {
         if (onRemove) {
           onRemove(postId);
         } else {
           setTimeout(() => {
-            window.location = '/feed';
+            window.location = `/feed?${getAppFeaturesPath()}`;
           }, 3000);
         }
       }

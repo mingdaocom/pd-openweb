@@ -79,7 +79,7 @@ export default class Member extends Component {
           ) : (
             <span className="memberName">{nickName}</span>
           )}
-          {isCreateUser ? <span>{_l('（发起人）')}</span> : null}
+          {isCreateUser ? <span>{_l('（组织者）')}</span> : null}
         </span>
       </UserCard>
     );

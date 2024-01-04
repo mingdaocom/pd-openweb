@@ -144,10 +144,10 @@ export default class CalendarRemind extends Component {
         <div className="calendarRemind calRow">
           <Icon icon={'task-point-more'} className="Font20 calIcon" />
           <div className="calLine">
-            <span className="formLabel">{_l('提醒:')}</span>
+            <span className="formLabel">{_l('提醒%19000')}:</span>
             {remindType === REMINDTYPE.NONE ? null : (
               <span>
-                {_l('提前')}
+                {_l('提前%19001')}
                 <input
                   type="text"
                   className="remindBox ThemeBorderColor3"

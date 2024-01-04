@@ -32,7 +32,7 @@ const ToolBarWrap = styled.div(
 );
 
 const SelectWrap = styled(Select)`
-  width: 70px;
+  width: 96px;
   .ant-select-selection-item {
     text-align: center;
     padding-right: 11px !important;

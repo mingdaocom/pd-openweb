@@ -69,7 +69,7 @@ const ToolBarWrap = styled(FlexCenter)`
 `;
 
 const SelectWrap = styled(Select)`
-  width: 80px;
+  width: 96px;
   .ant-select-selection-item {
     text-align: center;
   }

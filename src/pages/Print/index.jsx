@@ -296,12 +296,6 @@ class PrintForm extends React.Component {
       printData.receiveControls.forEach((item, index) => {
         let _index = controls.findIndex(l => l.controlId === item.controlId);
         if (_index > -1 && item.type === 51) {
-          _printData.receiveControls[index].relationControls = res[_index].template.controls.map(l => {
-            return {
-              ...l,
-              checked: true,
-            };
-          });
           _printData.receiveControls[index].value =
             res[_index].data.length === 0 ? '' : JSON.stringify(res[_index].data);
           _printData.receiveControls[index].relationsData = res[_index];
@@ -428,10 +422,7 @@ class PrintForm extends React.Component {
           let _receiveControls = receiveControls.map(item => {
             return {
               ...item,
-              relationControls:
-                item.type === 51
-                  ? (res.find(l => l.worksheetId === item.dataSource) || { template: {} }).template.controls || []
-                  : item.relationControls || [],
+              relationControls: item.relationControls || [],
             };
           });
           this.setState(

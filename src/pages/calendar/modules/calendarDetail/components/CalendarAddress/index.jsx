@@ -32,7 +32,7 @@ export default class CalendarAddress extends Component {
               className="addressBox"
               value={address}
               onChange={this.changeAddress.bind(this)}
-              placeholder={editable ? _l('添加地址') : _l('未填写地址')}
+              placeholder={editable ? _l('添加会议地点') : _l('未填写会议地点')}
             />
             {address && canLook ? (
               <a href={`http://api.map.baidu.com/geocoder?address=${address}&output=html&referer=`} target="_blank" className="pLeft15 pRight15">

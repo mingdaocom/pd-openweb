@@ -285,7 +285,7 @@ class LoginContainer extends React.Component {
       userAgent.includes('wxwork') ||
       userAgent.includes('huawei-anyoffice') ||
       userAgent.includes('feishu');
-    if (isApp) {
+    if (isApp && returnUrl) {
       const { pathname, search } = new URL(returnUrl);
       const appId = getAppId(pathname);
       if (appId) {

@@ -48,7 +48,8 @@ export function UserSelector(props) {
   const [list, setList] = useState([]);
   const [hadShowMore, setHadShowMore] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
-  const isStatic = !_.isEmpty(staticAccounts);
+  const isStatic =
+    !_.isEmpty(staticAccounts) && !(staticAccounts.length === 1 && _.get(staticAccounts, '0.accountId') === 'isEmpty');
   const baseArgs = {
     filterAccountIds: filterAccountIds.filter(_.identity),
     prefixAccountIds,

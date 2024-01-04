@@ -48242,3 +48242,119 @@ msgstr "若要確保資料絕對唯一，可建立該欄位的唯一索引。"
 msgid "同时生成PDF文件"
 msgstr "同時生成PDF文件"
 
+#: Disabled references:1
+msgid "使用 %0HAP%1 创建"
+msgstr "使用 %0HAP%1 創建"
+
+#: Disabled references:1
+msgid "powered by %0HAP%1 - 零代码构建企业应用"
+msgstr "powered by %0HAP%1 - 零程式碼建置企業應用"
+
+#: Disabled references:1
+msgid "基本信息%15001"
+msgstr "基本資訊"
+
+#: Disabled references:1
+msgid "组织角色%15002"
+msgstr "組織角色"
+
+#: Disabled references:1
+msgid "离职交接%15004"
+msgstr "離職交接"
+
+#: Disabled references:1
+msgid "使用分析%15003"
+msgstr "使用分析"
+
+#: Disabled references:1
+msgid "返回数据类型，0：按指定视图的数据格式返回（若非表格视图则获取数据的数量会有所限制）1：按表格视图的数据格式返回（可以获取所有数据）。不传默认为0，推荐填入1"
+msgstr "傳回資料類型，0：依指定檢視的資料格式傳回（若非表格檢視則取得資料的數量會有所限制）1：按表格檢視的資料格式傳回（可取得所有資料）。不傳預設為0，推薦填入1"
+
+#: Disabled references:1
+msgid "日程标题"
+msgstr "日程標題"
+
+#: Disabled references:1
+msgid "请输入日程标题…"
+msgstr "請輸入行程標題…"
+
+#: Disabled references:1
+msgid "提醒%19000"
+msgstr "提醒"
+
+#: Disabled references:1
+msgid "提前%19001"
+msgstr "提前"
+
+#: Disabled references:1
+msgid "出席者"
+msgstr "出席者"
+
+#: Disabled references:1
+msgid "会议地点"
+msgstr "會議地點"
+
+#: Disabled references:1
+msgid "添加会议地点…"
+msgstr "新增會議地點…"
+
+#: Disabled references:1
+msgid "完成步骤 1 后，填入CorpId、AgentId、ClientId、ClientScret后可对接应用与同步通讯录"
+msgstr "完成步驟 1 後，填入CorpId、AgentId、ClientId、ClientScret後可對接套用與同步通訊錄"
+
+#: Disabled references:1
+msgid "我是用户"
+msgstr "我是用戶"
+
+#: Disabled references:1
+msgid "我是用户，并对明道云 %0伙伴政策%1 感兴趣"
+msgstr "我是用戶，對明道雲 %0夥伴政策%1 感興趣"
+
+#: Disabled references:1
+msgid "用户类型"
+msgstr "使用者類型"
+
+#: Disabled references:1
+msgid "1、使用此配置功能之前需要先将企业微信的"
+msgstr "1.使用此配置功能前需要先將企業微信的"
+
+#: Disabled references:1
+msgid "外部联系人ID（external_userid）和客户群ID（chat_id）"
+msgstr "外部聯絡人ID（external_userid）和客戶群ID（chat_id）"
+
+#: Disabled references:1
+msgid "同步到平台内的工作表中"
+msgstr "同步到平台內的工作表中"
+
+#: Disabled references:1
+msgid "选中后，不允许用户填写和已有字段值重复的数据，但对工作流或API写入、批量导入等操作不做限制。"
+msgstr "選取後，不允許使用者填寫和已有欄位值重複的數據，但對工作流程或API寫入、批次匯入等操作不做限制。"
+
+#: Disabled references:1
+msgid "若要确保数据绝对唯一，可创建该字段的唯一索引。"
+msgstr "若要確保資料絕對唯一，可建立該欄位的唯一索引。"
+
+#: Disabled references:1
+msgid "同时生成PDF文件"
+msgstr "同時生成PDF文件"
+
+#: Disabled references:1
+msgid "（组织者）"
+msgstr "（組織者）"
+
+#: Disabled references:1
+msgid "添加会议地点"
+msgstr "新增會議地點"
+
+#: Disabled references:1
+msgid "未填写会议地点"
+msgstr "未填寫會議地點"
+
+#: Disabled references:1
+msgid "添加出席者"
+msgstr "新增出席者"
+
+#: Disabled references:1
+msgid "仅日程组织者可修改"
+msgstr "僅日程組織者可修改"
+

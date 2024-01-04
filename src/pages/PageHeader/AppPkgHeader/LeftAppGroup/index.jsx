@@ -53,6 +53,9 @@ const AppSectionItem = props => {
   const hideAppSection = appSectionDetail.length === 1 && _.isEmpty(item.workSheetName) && !item.edit;
   const childrenHideKey = `${item.workSheetId}-hide`;
   const getDefaultVisible = () => {
+    if (pcNaviDisplayType === 1 && hideAppSection) {
+      return true;
+    }
     if (pcNaviDisplayType === 2) {
       return isCurrentChildren;
     }

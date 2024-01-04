@@ -48,7 +48,7 @@ export const menuList = [
     subMenuList: [
       {
         icon: 'icon-company',
-        name: _l('基本信息'),
+        name: _l('基本信息%15001'),
         key: 'home',
         routes: [
           {
@@ -92,7 +92,7 @@ export const menuList = [
       },
       {
         icon: 'icon-user',
-        name: _l('组织角色'),
+        name: _l('组织角色%15002'),
         key: 'roles',
         routes: [
           {
@@ -154,7 +154,7 @@ export const menuList = [
       },
       {
         icon: 'icon-how_to_reg',
-        name: _l('离职交接'),
+        name: _l('离职交接%15004'),
         key: 'transfer',
         menuPath: '/admin/transfer/:projectId',
         routes: [
@@ -270,7 +270,7 @@ export const menuList = [
       },
       {
         icon: 'icon-poll',
-        name: _l('使用分析'),
+        name: _l('使用分析%15003'),
         featureId: 17,
         key: 'analytics',
         routes: [
@@ -295,7 +295,7 @@ export const menuList = [
       },
       {
         icon: 'icon-dns1',
-        name: _l('专属算力'),
+        name: _l('专属资源'),
         featureId: 30,
         key: 'computing',
         hasBeta: false,

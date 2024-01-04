@@ -943,7 +943,7 @@ CreateCalendar.methods = {
     $('.createAddMemberBox')
       .find('.imgMemberBox.noInsert')
       .each((i, ele) => {
-        const user = users[users.length - 1];
+        const user = users[i];
         $(ele).removeClass('noInsert');
         ReactDom.render(
           <UserCard sourceId={user.accountId}>
@@ -1449,7 +1449,7 @@ CreateCalendar.methods = {
 
     // 日程名称是否为空
     if (eventName === '') {
-      alert('请输入日程名称', 3);
+      alert('请输入日程标题', 3);
       $('#txtCalendarName').focus();
       $submitBtn.removeAttr('disabled');
       return false;

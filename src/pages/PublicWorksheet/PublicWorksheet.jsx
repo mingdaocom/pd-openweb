@@ -6,6 +6,7 @@ import DocumentTitle from 'react-document-title';
 import { Absolute } from 'worksheet/components/Basics';
 import BgContainer from 'src/pages/publicWorksheetConfig/components/BgContainer';
 import Qr from 'src/pages/publicWorksheetConfig/components/Qr';
+import CreateByMingDaoYun from 'src/components/CreateByMingDaoYun';
 import { FILL_STATUS } from './enum';
 import { getFormData, getPublicWorksheet, getPublicWorksheetInfo } from './action';
 import FillWorksheet from './FillWorksheet';

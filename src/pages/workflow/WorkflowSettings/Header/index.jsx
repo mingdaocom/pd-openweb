@@ -18,6 +18,7 @@ import systemFieldsPNG from './images/systemFields.png';
 import flowPNG from './images/flow.png';
 import _ from 'lodash';
 import moment from 'moment';
+import { getAppFeaturesPath } from 'src/util';
 
 const TABS_OPTS = [
   { tabIndex: 1, name: _l('流程') },
@@ -163,7 +164,7 @@ class Header extends Component {
       onBack = () => {
         location.href = `/app/${flowInfo.relationId}/workflow${
           location.hash ? '?' + location.hash.replace('#', '') : ''
-        }`;
+        }${(location.hash ? '&' : '?') + getAppFeaturesPath()}`;
       };
     }
 

@@ -4,6 +4,7 @@ import CustomFields from 'src/components/newCustomFields';
 import styled from 'styled-components';
 import captcha from 'src/components/captcha';
 import DocumentTitle from 'react-document-title';
+import CreateByMingDaoYun from 'src/components/CreateByMingDaoYun';
 
 const Con = styled.div`
   background: #f5f5f9;

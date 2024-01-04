@@ -34,7 +34,7 @@ export default class CalendarMembers extends Component {
             {editable ? (
               <span onClick={addCalendarMember} className="addCalendarMember ThemeHoverColor3">
                 <Icon icon={'task-add-member-circle'} className="Font26 mRight15 addBtn" />
-                {_l('添加参与者')}
+                {_l('添加出席者')}
               </span>
             ) : null}
           </div>

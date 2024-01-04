@@ -660,9 +660,9 @@ Toolbar.Method = {
                       {status && (
                         <span
                           class={`userStatus ${
-                            status === 0
+                            status === '0'
                               ? 'calendarCenterLabelNosubmit'
-                              : status === 1
+                              : status === '1'
                               ? 'calendarCenterLabelSubmit'
                               : 'calendarCenterLabelRefuse'
                           }`}

@@ -62,7 +62,7 @@ export const getMsgByCode = ({ code, data }) => {
 export function handleExtremeValue(data) {
   const { advancedSetting = {}, type } = data;
   const { checkrange = '0', min = '', max = '' } = advancedSetting;
-  const transferValue = value => value.replace(/,/g, '');
+  const transferValue = (value = '') => value.replace(/,/g, '');
   const formateMin = parseFloat(transferValue(min));
   const formateMax = parseFloat(transferValue(max));
   // 如果最大最小值都没配 则取消勾选

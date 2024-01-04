@@ -21,7 +21,7 @@ const routeList = [
 export default class extends React.Component {
   constructor() {
     super();
-    Config.setPageTitle(_l('离职交接'));
+    Config.setPageTitle(_l('离职交接%15004'));
     this.state = {
       level: 'index', // index | detail
       activeTab: 'transfer',

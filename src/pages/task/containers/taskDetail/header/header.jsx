@@ -3,7 +3,14 @@ import { render } from 'react-dom';
 import cx from 'classnames';
 import './header.less';
 import { connect } from 'react-redux';
-import { editTaskStatus, taskFoldStatus, updateTaskNotice, updateTaskLocked, destroyTask, addCheckList } from '../../../redux/actions';
+import {
+  editTaskStatus,
+  taskFoldStatus,
+  updateTaskNotice,
+  updateTaskLocked,
+  destroyTask,
+  addCheckList,
+} from '../../../redux/actions';
 import { checkIsProject, taskStatusDialog } from '../../../utils/utils';
 import 'src/components/mdDialog/dialog';
 import config, { OPEN_TYPE, RELATION_TYPES } from '../../../config/config';
@@ -27,6 +34,7 @@ import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import { navigateTo } from 'src/router/navigateTo';
 import _ from 'lodash';
+import { getAppFeaturesPath } from 'src/util';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
@@ -56,11 +64,11 @@ class Header extends Component {
       if (openType === OPEN_TYPE.slide) {
         afterUpdateTaskStatus(source, status, isAll);
 
-        source.tasks.forEach((item) => {
+        source.tasks.forEach(item => {
           afterUpdateTaskDateInfo(item.taskId, item.startTime, item.deadline, item.actualStartTime, item.completedTime);
         });
 
-        const ids = source.taskIDs.map((id) => {
+        const ids = source.taskIDs.map(id => {
           return {
             taskId: id,
           };
@@ -77,10 +85,12 @@ class Header extends Component {
           dialogBoxID: 'updateTaskStatusDialog',
           showClose: false,
           container: {
-            content: `<div class="Font16 mBottom20">${status ? _l('标记该任务为已完成') : _l('当前任务下有子任务')}</div>`,
+            content: `<div class="Font16 mBottom20">${
+              status ? _l('标记该任务为已完成') : _l('当前任务下有子任务')
+            }</div>`,
             yesText: _l('确定'),
             ckText: status ? _l('同时标记该任务下所有任务为已完成') : _l('同时标记该任务下所有任务为未完成'),
-            yesFn: (isAllSubTask) => {
+            yesFn: isAllSubTask => {
               if (isAllSubTask && data.auth !== config.auth.Charger) {
                 isAllSubTask = false;
                 alert(status ? _l('仅负责人可一键标记完成所有子任务') : _l('仅负责人可一键标记未完成所有子任务'));
@@ -113,7 +123,9 @@ class Header extends Component {
       const visibleHeight = $('.taskDetail .taskDetailContent').height();
       const subTaskHeight = data.subTask.length * 46;
 
-      $('.taskDetailScroll').nanoScroller({ scrollTop: fromWhereHeight + basicHeight + subTaskHeight + 200 - visibleHeight / 2 });
+      $('.taskDetailScroll').nanoScroller({
+        scrollTop: fromWhereHeight + basicHeight + subTaskHeight + 200 - visibleHeight / 2,
+      });
       this.props.addSubTask();
     };
 
@@ -123,7 +135,7 @@ class Header extends Component {
           taskFoldStatus(taskId, 'subTask'),
           setTimeout(() => {
             callback();
-          }, 100)
+          }, 100),
         );
       } else {
         callback();
@@ -190,7 +202,7 @@ class Header extends Component {
           projectId={checkIsProject(data.projectID) ? data.projectID : ''}
           chargeUser={data.charge.accountID}
         />,
-        document.createElement('div')
+        document.createElement('div'),
       );
     });
   };
@@ -225,7 +237,7 @@ class Header extends Component {
         shareMessage={_l('打开App扫一扫，在手机上快速显示查看任务详情')}
         linkText={_l('复制任务链接')}
       />,
-      document.createElement('div')
+      document.createElement('div'),
     );
   };
 
@@ -234,7 +246,7 @@ class Header extends Component {
    */
   openNewPage = () => {
     this.setState({ showOperator: false });
-    window.open('/apps/task/task_' + this.props.taskId);
+    window.open('/apps/task/task_' + this.props.taskId + '?' + getAppFeaturesPath());
   };
 
   /**
@@ -271,14 +283,19 @@ class Header extends Component {
         content,
         yesText: _l('删除'),
         ckText,
-        yesFn: (deleteAllSubTask) => {
+        yesFn: deleteAllSubTask => {
           deleteAllSubTask = ckText ? deleteAllSubTask : false;
 
-          if (!deleteAllSubTask && data.subTask.length && data.folderID && taskConfig.viewType === config.folderViewType.treeView) {
+          if (
+            !deleteAllSubTask &&
+            data.subTask.length &&
+            data.folderID &&
+            taskConfig.viewType === config.folderViewType.treeView
+          ) {
             taskTreeAfterDeleteTask(taskId, taskConfig.listSort);
           }
 
-          ajaxRequest.deleteTask({ taskID: taskId, isSubTask: deleteAllSubTask }).then((result) => {
+          ajaxRequest.deleteTask({ taskID: taskId, isSubTask: deleteAllSubTask }).then(result => {
             if (result.status) {
               alert(_l('删除成功'));
 
@@ -287,7 +304,7 @@ class Header extends Component {
 
               if (openType === OPEN_TYPE.detail) {
                 setTimeout(() => {
-                  navigateTo('/apps/task/center');
+                  navigateTo('/apps/task/center' + '?' + getAppFeaturesPath());
                 }, 300);
               } else {
                 this.props.closeDetail();
@@ -323,7 +340,11 @@ class Header extends Component {
     return (
       <div className={cx('taskDetailHeader boxSizing flexRow')}>
         <div
-          className={cx('taskDetailStatusBtn ThemeColor3 ThemeBorderColor3', { active: data.status }, { taskDetailStatusBtnNo: !isCharge && !isMember })}
+          className={cx(
+            'taskDetailStatusBtn ThemeColor3 ThemeBorderColor3',
+            { active: data.status },
+            { taskDetailStatusBtnNo: !isCharge && !isMember },
+          )}
           onClick={(isCharge || isMember) && this.editTaskStatus}
         >
           <i className="Font16 icon-ok mRight5" />
@@ -338,7 +359,11 @@ class Header extends Component {
         </div>
 
         {(isCharge || isMember) && (
-          <div className="taskDetailHeaderBtn ThemeColor3 mLeft15" data-tip={_l('点击添加子任务')} onClick={(isCharge || isMember) && this.addSubtask}>
+          <div
+            className="taskDetailHeaderBtn ThemeColor3 mLeft15"
+            data-tip={_l('点击添加子任务')}
+            onClick={(isCharge || isMember) && this.addSubtask}
+          >
             <i className="icon-task-card Font16" />
             {_l('子任务')}
           </div>
@@ -375,7 +400,11 @@ class Header extends Component {
         </div>
 
         {openType === OPEN_TYPE.dialog && (
-          <div className="taskDetailHeaderBtn ThemeColor3 mLeft15 tip-bottom-left" data-tip={_l('关闭')} onClick={closeDetail}>
+          <div
+            className="taskDetailHeaderBtn ThemeColor3 mLeft15 tip-bottom-left"
+            data-tip={_l('关闭')}
+            onClick={closeDetail}
+          >
             <i className="Font16 icon-delete" />
           </div>
         )}
@@ -391,7 +420,10 @@ class Header extends Component {
             onClickAwayExceptions={['.taskDetailHeaderMoreBtn']}
           >
             {(isCharge || isMember) && (
-              <MenuItem icon={<i className="icon-task-list" />} onClick={() => this.setState({ showOperator: false, showChecklistDialog: true })}>
+              <MenuItem
+                icon={<i className="icon-task-list" />}
+                onClick={() => this.setState({ showOperator: false, showChecklistDialog: true })}
+              >
                 {_l('添加清单')}
               </MenuItem>
             )}
@@ -445,12 +477,11 @@ class Header extends Component {
 
             {data.isTaskMember && <div className="detaiOperatorLine" />}
 
-            {data.isTaskMember &&
-              data.charge.accountID !== md.global.Account.accountId && (
-                <MenuItem icon={<i className="icon-task-new-exit" />} onClick={this.exitTask}>
-                  {_l('退出任务')}
-                </MenuItem>
-              )}
+            {data.isTaskMember && data.charge.accountID !== md.global.Account.accountId && (
+              <MenuItem icon={<i className="icon-task-new-exit" />} onClick={this.exitTask}>
+                {_l('退出任务')}
+              </MenuItem>
+            )}
             {isCharge && (
               <MenuItem icon={<i className="icon-task-new-delete" />} onClick={this.delTask}>
                 {_l('删除任务')}
@@ -460,11 +491,14 @@ class Header extends Component {
         )}
 
         {showChecklistDialog && (
-          <ClickAwayable className="createChecklist boderRadAll_3 boxShadow5" onClickAway={() => this.setState({ showChecklistDialog: false })}>
+          <ClickAwayable
+            className="createChecklist boderRadAll_3 boxShadow5"
+            onClickAway={() => this.setState({ showChecklistDialog: false })}
+          >
             <div className="createChecklistTitle Font15">{_l('添加检查清单')}</div>
             <input
               type="text"
-              ref={(checklistText) => {
+              ref={checklistText => {
                 this.checklistText = checklistText;
               }}
               className="createChecklistText ThemeBorderColor3"
@@ -472,7 +506,10 @@ class Header extends Component {
               defaultValue={_l('清单')}
               onKeyDown={evt => evt.keyCode === 13 && this.addChecklist()}
             />
-            <span className="createChecklistBtn ThemeBGColor3 boderRadAll_3 ThemeHoverBGColor2" onClick={this.addChecklist}>
+            <span
+              className="createChecklistBtn ThemeBGColor3 boderRadAll_3 ThemeHoverBGColor2"
+              onClick={this.addChecklist}
+            >
               {_l('添加')}
             </span>
           </ClickAwayable>

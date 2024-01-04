@@ -22,7 +22,7 @@ class UserName extends React.Component {
   };
 
   render() {
-    const { user, className, chatButton } = this.props;
+    const { user, className, chatButton, isSecretary = false } = this.props;
 
     const disabled =
       this.props.disabled ||
@@ -43,9 +43,9 @@ class UserName extends React.Component {
       <UserCard sourceId={user.accountId} disabled={disabled} chatButton={chatButton}>
         <a
           className={cx({ Gray_6: !user.accountId }, className)}
-          href={disabled ? 'javascript:void(0);' : '/user_' + user.accountId}
+          href={disabled || isSecretary ? 'javascript:void(0);' : '/user_' + user.accountId}
           target="_blank"
-          onClick={e => disabled && e.preventDefault()}
+          onClick={e => (disabled || isSecretary) && e.preventDefault()}
         >
           {user.userName}
         </a>

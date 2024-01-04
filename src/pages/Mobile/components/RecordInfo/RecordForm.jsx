@@ -47,16 +47,7 @@ export default class RecordForm extends Component {
       });
   }
   handleScroll = event => {
-    const {
-      isEditRecord,
-      recordBase,
-      currentTab,
-      relationRow,
-      loadParams,
-      updatePageIndex = () => {},
-      view = {},
-      recordInfo = {},
-    } = this.props;
+    const { isEditRecord, recordBase, currentTab, relationRow, loadParams, updatePageIndex = () => {} } = this.props;
     if (isEditRecord) {
       return;
     }
@@ -74,10 +65,6 @@ export default class RecordForm extends Component {
     const fixedSheetNameWrapEl = wrapEl.querySelector('.fixedSheetNameWrap');
     const mobileFormTopEl = wrapEl.querySelector('.mobileFormTop');
 
-    const isCoverid = _.get(recordInfo, 'advancedSetting.coverid') && !_.isEmpty(recordInfo.formStyleImggeData);
-    if (view.viewType == 6 && view.childType === 1 && isCoverid) {
-      wrapEl.classList.add('pTop10');
-    }
     if (fixedSheetNameWrapEl) {
       if (scrollTop >= mobileFormTopEl.clientHeight) {
         fixedSheetNameWrapEl && fixedSheetNameWrapEl.classList.add('fixedSheetNameWrapBG');
@@ -273,7 +260,7 @@ export default class RecordForm extends Component {
             formData.filter(item => {
               return isEditRecord ? true : item.type !== 43;
             }),
-            { rules: recordInfo.rules, from: from || 6, showDetailTab: !!approveInfo.length },
+            { rules: recordInfo.rules, from: from || 6, showDetailTab: workflow ? true : !!approveInfo.length },
           )}
           onChange={this.props.onChange}
           onSave={this.props.onSave}

@@ -153,7 +153,8 @@ const Reg = {
   // 邮箱地址
   emailAddress: /^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)*\.[\w-]+$/i,
   // 身份证号码
-  idCardNumber: /(^\d{8}(0\d|10|11|12)([0-2]\d|30|31)\d{3}$)|(^\d{6}(18|19|20)\d{2}(0\d|10|11|12)([0-2]\d|30|31)\d{3}(\d|X|x)$)/,
+  idCardNumber:
+    /(^\d{8}(0\d|10|11|12)([0-2]\d|30|31)\d{3}$)|(^\d{6}(18|19|20)\d{2}(0\d|10|11|12)([0-2]\d|30|31)\d{3}(\d|X|x)$)/,
   // 护照
   passportNumber: /^[a-zA-Z0-9]{5,17}$/,
   // 港澳通行证
@@ -317,10 +318,7 @@ export function formatControlToServer(
       ) {
         let deletedIds = [];
         try {
-          deletedIds = control.value
-            .replace('deleteRowIds: ', '')
-            .split(',')
-            .filter(_.identity);
+          deletedIds = control.value.replace('deleteRowIds: ', '').split(',').filter(_.identity);
         } catch (err) {
           result.value = undefined;
         }
@@ -1053,9 +1051,8 @@ export const dealRenderValue = (value, advancedSetting = {}) => {
     if (item.isDelete) {
       deleteCount += 1;
     } else {
-      const pathValue = (allpath === '1'
-        ? (item.departmentPath || []).sort((a, b) => b.depth - a.depth).map(i => i.departmentName)
-        : []
+      const pathValue = (
+        allpath === '1' ? (item.departmentPath || []).sort((a, b) => b.depth - a.depth).map(i => i.departmentName) : []
       ).concat([item.departmentName]);
 
       result.push({
@@ -1080,12 +1077,7 @@ export const dealRenderValue = (value, advancedSetting = {}) => {
 export const getHideTitleStyle = (item = {}, data = []) => {
   const rowWidgets = data.filter(i => i.row === item.row);
 
-  return rowWidgets.every(
-    row =>
-      _.get(row, 'advancedSetting.hidetitle') === '1' &&
-      supportDisplayRow(row) &&
-      (_.includes([10010], row.type) ? !row.controlName : true),
-  )
+  return rowWidgets.every(row => _.get(row, 'advancedSetting.hidetitle') === '1' && supportDisplayRow(row))
     ? { displayRow: true, titlewidth_pc: '0' }
     : {};
 };

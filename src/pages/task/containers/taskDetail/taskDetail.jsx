@@ -32,6 +32,7 @@ import TaskTime from './taskTime/taskTime';
 import TaskControl from './taskControl/taskControl';
 import { navigateTo } from 'src/router/navigateTo';
 import { LoadDiv, Dialog } from 'ming-ui';
+import {getAppFeaturesPath} from 'src/util';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 const TAB_TYPE = {
@@ -141,7 +142,9 @@ class TaskDetail extends Component {
   init() {
     if (this.props.openType === OPEN_TYPE.slide) {
       $('#tasks').addClass('slideDetail');
-      $('#batchTask').removeClass('slideLeft').html(''); // 清空批量操作并隐藏
+      $('#batchTask')
+        .removeClass('slideLeft')
+        .html(''); // 清空批量操作并隐藏
     }
 
     this.props.dispatch(getTaskDetail(this.state.taskId, this.props.openCallback, this.addPostSuccessCount));
@@ -359,7 +362,7 @@ class TaskDetail extends Component {
                 getLeftMenuCount('', 'all');
               }
             } else if (openType === OPEN_TYPE.detail) {
-              navigateTo('/apps/task/center');
+              navigateTo('/apps/task/center' + '?' + getAppFeaturesPath());
             }
           } else {
             this.props.dispatch(removeTaskMember(taskId, accountId));

@@ -411,6 +411,7 @@ const BaseCard = props => {
       {!hideOperate && (
         <div className="recordOperateWrap asd" onClick={e => e.stopPropagation()}>
           <RecordOperate
+            isCharge={isCharge}
             shows={['share', 'print', 'copy', 'openinnew', 'recreate']}
             popupAlign={getPopAlign()}
             allowDelete={allowDelete}

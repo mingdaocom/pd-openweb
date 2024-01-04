@@ -15,7 +15,7 @@ const TabCon = styled.div`
   &.fixedTabs {
     z-index: 3;
     &.top {
-      top: 49px;
+      top: 43px;
     }
   }
   &.addStyle {

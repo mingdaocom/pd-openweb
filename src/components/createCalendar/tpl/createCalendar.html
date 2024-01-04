@@ -1,9 +1,9 @@
 ﻿<div class="createCalendarBox createCalendarTitle">
-    <div class="createCalendarLabel">{{= _l('名称')}}</div>
+    <div class="createCalendarLabel">{{= _l('日程标题')}}</div>
     <input
         type="text"
         id="txtCalendarName"
-        placeholder="{{= _l('请输入日程名称…')}}"
+        placeholder="{{= _l('请输入日程标题…')}}"
         class="box-sizing boderRadAll_3 ThemeBorderColor3 Font14 infoInput"
     />
     <div
@@ -69,11 +69,11 @@
     </label>
 </div>
 <div class="createCalendarBox calendarRemind Font14">
-    <div class="createCalendarLabel">{{= _l('提醒')}}</div>
+    <div class="createCalendarLabel">{{= _l('提醒%19000')}}</div>
     <span
         class="remindTextLable"
         id="remindTextLableCreate"
-        >{{= _l('提前') }}</span
+        >{{= _l('提前%19001') }}</span
     >
     <input
         type="text"
@@ -107,19 +107,19 @@
     </div>
 </div>
 <div class="createCalendarBox inputBox Font14 Hidden" id="addCalendarMembers">
-    <div class="createCalendarLabel">{{= _l('添加成员')}}</div>
+    <div class="createCalendarLabel">{{= _l('出席者')}}</div>
     <div class="createAddMemberBox">
         <i class="icon-task-add-member-circle createAddMember ThemeColor3"></i>
     </div>
 </div>
 <div class="createCalendarBox inputBox Font14 Hidden" id="addressContent">
-    <div class="createCalendarLabel">{{= _l('地点')}}</div>
+    <div class="createCalendarLabel">{{= _l('会议地点')}}</div>
     <input
         type="text"
         id="txtAddress"
         class="txtAddress box-sizing boderRadAll_3 ThemeBorderColor3 infoInput"
         value=""
-        placeholder="{{= _l('添加日程地点…')}}"
+        placeholder="{{= _l('添加会议地点…')}}"
     />
 </div>
 <div class="createCalendarBox inputBox Font14 Hidden" id="createCalendarDesc">
@@ -137,12 +137,12 @@
     <span
         data-type="addMember"
         class="ThemeBorderColor3 ThemeColor3"
-        >{{= _l('添加成员')}}</span
+        >{{= _l('出席者')}}</span
     >
     <span
         data-type="address"
         class="ThemeBorderColor3 ThemeColor3"
-        >{{= _l('地点')}}</span
+        >{{= _l('会议地点')}}</span
     >
     <span
         data-type="desc"

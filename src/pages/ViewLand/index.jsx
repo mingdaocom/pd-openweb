@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import worksheet from 'src/api/worksheet';
-import homeApp from 'src/api/homeApp';
 import { LoadDiv } from 'ming-ui';
 import SingleView from 'worksheet/common/SingleView';
-import _ from 'lodash';
+import MobileSingleView from 'mobile/components/SingleView';
 import { browserIsMobile } from 'src/util';
+import cx from 'classnames';
+import _ from 'lodash';
 
 const Con = styled.div`
   height: 100%;
@@ -29,24 +30,21 @@ export default function ViewLand(props) {
   const [loading, setLoading] = useState(false);
   const [showHeader, setShowHeader] = useState(true);
   const [worksheetInfo, setWorksheetInfo] = useState();
+  const isMobile = browserIsMobile();
+  const Component = isMobile ? MobileSingleView : SingleView;
+
   useEffect(() => {
-    if (browserIsMobile()) {
-      setLoading(true);
-      homeApp.getAppSimpleInfo({ workSheetId: worksheetId }).then(data => {
-        const { appSectionId } = data;
-        location.href = `/mobile/recordList/${appId}/${appSectionId}/${worksheetId}/${viewId}${location.search}`;
-      });
-      return;
-    }
+    setLoading(true);
     window.hideColumnHeadFilter = true;
     worksheet.getWorksheetInfo({ worksheetId, getViews: true }).then(worksheetInfo => {
       const view = _.find(worksheetInfo.views, v => v.viewId === viewId) || {};
       const isSingleRecordDetailView = _.get(view, 'viewType') === 6 && String(_.get(view, 'childType')) === '1';
-      setShowHeader(!isSingleRecordDetailView);
+      setShowHeader(isMobile ? true : !isSingleRecordDetailView);
       setWorksheetInfo({
         worksheetName: worksheetInfo.name,
         viewName: view.name || '',
       });
+      setLoading(false);
     });
     return () => {
       window.hideColumnHeadFilter = false;
@@ -59,12 +57,12 @@ export default function ViewLand(props) {
 
   return (
     <Con>
-      <SingleView
+      <Component
         showPageTitle
         showHeader={showHeader}
         headerLeft={
           !!worksheetInfo && (
-            <div className="mLeft24 Font16 bold flexRow alignItemsCenter">
+            <div className={cx('Font16 bold flexRow alignItemsCenter', { mLeft24: !isMobile })}>
               {`${worksheetInfo.worksheetName}-${worksheetInfo.viewName}`}
             </div>
           )

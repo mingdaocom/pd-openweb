@@ -9,6 +9,8 @@ import _ from 'lodash';
 import cx from 'classnames';
 import moment from 'moment';
 const TABLIST = ['请求参数', '返回值'];
+import { METHODS_TYPE } from 'src/pages/workflow/WorkflowSettings/enum.js';
+
 const Wrap = styled.div`
   .tabCon {
     border-bottom: 1px solid #f5f5f5;
@@ -124,7 +126,7 @@ export default function LogDialog(props) {
             <p className="Gray_9e mTop24 WordBreak">
               {tab === 0 ? (
                 <React.Fragment>
-                  {data.method !== 1 ? `(POST)` : `(GET)`} {data.url}
+                  {`(${(METHODS_TYPE.find(o => o.value === data.method) || {}).text})`} {data.url}
                 </React.Fragment>
               ) : (
                 <React.Fragment>

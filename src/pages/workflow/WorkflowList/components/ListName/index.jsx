@@ -1,11 +1,12 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import cx from 'classnames';
+import { getAppFeaturesPath } from 'src/util';
 
 export default ({ item, type }) => {
   return (
     <Link
-      to={`/workflowedit/${item.id}#type=${type}`}
+      to={`/workflowedit/${item.id}?${getAppFeaturesPath()}#type=${type}`}
       target="_blank"
       className={cx('flexColumn nameBox ThemeColor3', { unable: !item.enabled })}
     >

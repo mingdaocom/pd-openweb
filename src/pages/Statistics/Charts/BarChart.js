@@ -284,7 +284,7 @@ export default class extends Component {
 
     const baseConfig = {
       data,
-      appendPadding: isVertical ? [20, 0, 5, 0] : [10, 50, 0, 0],
+      appendPadding: isVertical ? [25, 0, 5, 0] : [10, 50, 0, 0],
       seriesField: (isOptionsColor || isCustomColor) ? 'originalId' : 'groupName',
       meta: {
         originalId: {

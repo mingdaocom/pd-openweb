@@ -6,16 +6,8 @@ import { updateBase } from 'mobile/RecordList/redux/actions';
 import ViewComp from './ViewComp';
 
 function SingleView(props, ref) {
-  const {
-    appId,
-    viewId,
-    worksheetId,
-    maxCount,
-    showHeader,
-    headerLeft,
-    headerRight,
-    filtersGroup
-  } = props;
+  const { appId, viewId, worksheetId, maxCount, showHeader, headerLeft, headerRight, filtersGroup, showPageTitle } =
+    props;
 
   const store = useMemo(configureStore, []);
 
@@ -42,6 +34,7 @@ function SingleView(props, ref) {
         headerLeft={headerLeft}
         headerRight={headerRight}
         filtersGroup={filtersGroup}
+        showPageTitle={showPageTitle}
       />
     </Provider>
   );

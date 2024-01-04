@@ -9,6 +9,7 @@ import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import './SummaryCell.less';
 import _ from 'lodash';
+import { toFixed } from 'src/util';
 const ClickAwayable = createDecoratedComponent(withClickAway); //
 
 export default class extends React.Component {
@@ -108,7 +109,7 @@ export default class extends React.Component {
       if (!_.isUndefined(summaryValue)) {
         summaryDataValue = summaryValue;
         if (_.includes([3, 4, 5, 6], summaryType)) {
-          summaryDataValue = String(_.round(summaryValue, control.dot) * (isPercent ? 100 : 1).toFixed(control.dot));
+          summaryDataValue = toFixed(summaryValue * (isPercent ? 100 : 1), control.dot);
           const reg = summaryDataValue.indexOf('.') > -1 ? /(\d{1,3})(?=(?:\d{3})+\.)/g : /(\d{1,3})(?=(?:\d{3})+$)/g;
           summaryDataValue = summaryDataValue.replace(reg, '$1,');
         }

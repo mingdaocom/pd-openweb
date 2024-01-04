@@ -44,7 +44,7 @@ const UserContent = props => {
           <WidgetDes {...props} />
           {!relateOrSectionTab(data) && (
             <SectionItem>
-              <div className="label">{_l('显示方式')}</div>
+              <div className="label Width90">{_l('显示方式')}</div>
               <AnimationWrap className="flex">
                 {DISPLAY_TYPES.map(item => (
                   <div

@@ -138,7 +138,7 @@ export default class RecordItem extends React.PureComponent {
     let coverUrl;
     if (cover) {
       coverUrl = File.isPicture(cover.ext)
-        ? cover.previewUrl.replace(/\|imageView2\/1\/w\/\d+\/h\/\d+/, `|imageView2/1/w/${coverSize}/h/${coverSize}`)
+        ? cover.previewUrl.replace(/imageView2\/1\/w\/\d+\/h\/\d+/, `|imageView2/1/w/${coverSize}/h/${coverSize}`)
         : cover.previewUrl;
     }
     return (

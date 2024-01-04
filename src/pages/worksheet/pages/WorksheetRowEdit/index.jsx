@@ -155,7 +155,7 @@ class WorksheetRowEdit extends Component {
                     editable={data.linkState === 0}
                     hideOtherOperate={data.linkState === 0}
                     allowEmptySubmit
-                    updateSuccess={(recordIds, data) => this.setState({ data: { ...data, linkState: 1 } })}
+                    updateSuccess={() => this.setState({ data: { ...data, linkState: 1 } })}
                   />
                 ) : (
                   <RecordInfoWrapper

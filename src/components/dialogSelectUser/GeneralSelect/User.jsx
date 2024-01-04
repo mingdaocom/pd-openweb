@@ -59,14 +59,7 @@ export default class User extends Component {
           <div className="GSelect-User__fullname">{_l('我自己')}</div>
         ) : (
           <div className="GSelect-User__fullname">
-            <UserName
-              className="Gray"
-              isSecretary
-              user={{
-                userName: user.fullname,
-                accountId: user.accountId,
-              }}
-            />
+            <span className="Gray">{user.fullname}</span>
           </div>
         )}
 

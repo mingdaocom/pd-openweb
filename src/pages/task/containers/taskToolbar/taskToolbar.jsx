@@ -21,7 +21,7 @@ import ExportFolder from '../../components/exportFolder/exportFolder';
 import CopyFolder from '../../components/copyFolder/copyFolder';
 import ShareFolderOrTask from '../../components/shareFolderOrTask/shareFolderOrTask';
 import Filter from './filter';
-import { htmlEncodeReg } from 'src/util';
+import { htmlEncodeReg, getAppFeaturesPath } from 'src/util';
 import { expireDialogAsync } from 'src/components/common/function';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
@@ -347,7 +347,7 @@ class TaskToolbar extends Component {
     const { folderID } = this.props.folderSettings;
 
     this.setState({ showOperator: false });
-    window.open(`/apps/task/folder_${folderID}`);
+    window.open(`/apps/task/folder_${folderID}?${getAppFeaturesPath()}`);
   };
 
   /**

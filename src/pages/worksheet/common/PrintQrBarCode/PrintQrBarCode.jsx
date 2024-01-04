@@ -140,7 +140,7 @@ export default function PrintQrBarCode(props) {
     ].filter(_.identity),
   });
   let labelObject;
-  if (printType === PRINT_TYPE.QR) {
+  if (config.printType === PRINT_TYPE.QR || config.printType === PRINT_TYPE.A4) {
     labelObject = createQrLabeObjectFromConfig(
       config,
       getCodeContent({
@@ -171,7 +171,7 @@ export default function PrintQrBarCode(props) {
         isPreview: true,
       },
     );
-  } else if (printType === PRINT_TYPE.BAR) {
+  } else if (config.printType === PRINT_TYPE.BAR) {
     labelObject = createBarLabeObjectFromConfig(
       config,
       getCodeContent({

@@ -3,6 +3,7 @@ import user from 'src/api/user';
 import ScrollView from 'ming-ui/components/ScrollView';
 import UserProfile from './components/Profile';
 import addFriendConfirm from 'src/components/addFriendConfirm/addFriendConfirm';
+import { getAppFeaturesVisible } from 'src/util';
 
 export default class UserEntryPoint extends React.PureComponent {
   state = {
@@ -29,8 +30,7 @@ export default class UserEntryPoint extends React.PureComponent {
 
   getAccountId = () => {
     // 获取accountId/判断是否是自己
-    var url = window.location.href;
-    var accountId = url.split('_')[1] || md.global.Account.accountId;
+    var accountId = (location.pathname.match(/.*\/user_(.{36})/) || '')[1] || md.global.Account.accountId;
     var isMe = accountId === md.global.Account.accountId;
     this.setState({
       isLoading: true,
@@ -42,13 +42,16 @@ export default class UserEntryPoint extends React.PureComponent {
     this.request
       .then(userInfo => {
         if (!userInfo) {
+          const { rp } = getAppFeaturesVisible();
           this.setState({
             userInfo,
             isFriend: true,
           });
-          addFriendConfirm({
-            accountId: accountId,
-          });
+          if (rp) {
+            addFriendConfirm({
+              accountId: accountId,
+            });
+          }
           return;
         }
         var rUserList = [];
