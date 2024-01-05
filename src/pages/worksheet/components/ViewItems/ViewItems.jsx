@@ -366,6 +366,7 @@ export default class ViewItems extends Component {
       setWorksheetHidden: true,
       hasClickDrawe: false,
     });
+    this.handleAutoFocus();
   };
 
   render() {
@@ -385,9 +386,6 @@ export default class ViewItems extends Component {
           )
           .filter(l => l.name.includes(_.trim(searchWorksheetListValue))),
       );
-    if (setWorksheetHidden) {
-      this.handleAutoFocus();
-    }
 
     return (
       <div className="valignWrapper flex">

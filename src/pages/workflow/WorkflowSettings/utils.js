@@ -508,3 +508,21 @@ export const handleGlobalVariableName = (nodeId, sourceType, name) => {
 
   return name || '';
 };
+
+/**
+ * 清理flowNodeMap多余参数
+ */
+export const clearFlowNodeMapParameter = flowNodeMap => {
+  if (!_.isObject(flowNodeMap)) return flowNodeMap;
+
+  flowNodeMap = _.cloneDeep(flowNodeMap);
+
+  Object.keys(flowNodeMap).forEach(key => {
+    delete flowNodeMap[key].controls;
+    delete flowNodeMap[key].flowNodeList;
+    delete flowNodeMap[key].formulaMap;
+    delete flowNodeMap[key].selectNodeObj;
+  });
+
+  return flowNodeMap;
+};

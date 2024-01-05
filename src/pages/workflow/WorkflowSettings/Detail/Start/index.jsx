@@ -3,7 +3,7 @@ import { ScrollView, Dialog, LoadDiv } from 'ming-ui';
 import cx from 'classnames';
 import { APP_TYPE, DATE_TYPE, TRIGGER_ID } from '../../enum';
 import flowNode from '../../../api/flowNode';
-import { checkConditionsIsNull, getIcons, getStartNodeColor, checkJSON } from '../../utils';
+import { checkConditionsIsNull, getIcons, getStartNodeColor, checkJSON, clearFlowNodeMapParameter } from '../../utils';
 import { DetailHeader, DetailFooter } from '../components';
 import LoopContent from './LoopContent';
 import WebhookContent from './WebhookContent';
@@ -248,7 +248,7 @@ export default class Start extends Component {
           processConfig,
           hooksBody,
           fields,
-          flowNodeMap,
+          flowNodeMap: clearFlowNodeMapParameter(flowNodeMap),
         },
         { isIntegration: this.props.isIntegration },
       )

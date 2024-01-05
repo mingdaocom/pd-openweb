@@ -22,6 +22,7 @@ import OpinionTemplate from './OpinionTemplate';
 import NoticeTemplate from './NoticeTemplate';
 import CallbackSettings from './CallbackSettings';
 import { OPERATION_TYPE } from '../../enum';
+import { clearFlowNodeMapParameter } from '../../utils';
 
 const GraduallyMemberBox = styled.div`
   padding: 5px 10px;
@@ -246,7 +247,7 @@ export default class Approval extends Component {
         encrypt,
         operationUserRange,
         opinionTemplate,
-        flowNodeMap,
+        flowNodeMap: clearFlowNodeMapParameter(flowNodeMap),
         userTaskNullMap,
         candidateUserMap,
       })

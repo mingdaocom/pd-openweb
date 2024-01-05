@@ -19,6 +19,7 @@ import {
 import styled from 'styled-components';
 import cx from 'classnames';
 import { OPERATION_TYPE } from '../../enum';
+import { clearFlowNodeMapParameter } from '../../utils';
 
 const TABS_ITEM = styled.div`
   display: inline-flex;
@@ -173,7 +174,7 @@ export default class Write extends Component {
         operationTypeList,
         encrypt,
         operationUserRange,
-        flowNodeMap,
+        flowNodeMap: clearFlowNodeMapParameter(flowNodeMap),
         userTaskNullMap,
       })
       .then(result => {

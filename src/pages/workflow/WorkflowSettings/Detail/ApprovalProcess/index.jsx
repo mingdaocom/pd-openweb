@@ -13,6 +13,7 @@ import cx from 'classnames';
 import { Tooltip } from 'antd';
 import _ from 'lodash';
 import { OPERATION_TYPE } from '../../enum';
+import { clearFlowNodeMapParameter } from '../../utils';
 
 export default class ApprovalProcess extends Component {
   constructor(props) {
@@ -134,7 +135,7 @@ export default class ApprovalProcess extends Component {
         accounts,
         processConfig,
         fields,
-        flowNodeMap,
+        flowNodeMap: clearFlowNodeMapParameter(flowNodeMap),
       })
       .then(result => {
         this.props.updateNodeData(result);

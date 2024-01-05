@@ -199,6 +199,7 @@ export default function UserConfig(props) {
                                 needFilter={true}
                                 dynamicValue={userRange}
                                 controls={props.allControls || []}
+                                data={{ ...props.data, enumDefault: 1 }}
                                 item={{ cid: item.cid, rcid: item.rcid }}
                                 onDynamicValueChange={nextValue =>
                                   onChange(handleAdvancedSettingChange(data, { userrange: JSON.stringify(nextValue) }))
