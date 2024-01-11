@@ -3,6 +3,7 @@ import cx from 'classnames';
 import PropTypes, { string } from 'prop-types';
 import '@mdfe/selectize';
 import filterXSS from 'xss';
+import { debounce } from 'lodash';
 
 export default class Text extends Component {
   static propTypes = {
@@ -16,10 +17,11 @@ export default class Text extends Component {
   constructor(props) {
     super(props);
     this.state = {};
+    this.debouncedChange = debounce(this.props.onChange, 500);
   }
   componentDidMount() {
-    const { onChange } = this.props;
     const comp = this;
+    const { debouncedChange } = this;
     if (this.input) {
       this.selectize = $(this.input).selectize({
         dropdownClass: 'selectize-dropdown zIndex99 pAll10 dropdownTrigger',
@@ -30,6 +32,7 @@ export default class Text extends Component {
         persist: false,
         openOnFocus: false,
         maxOptions: 0,
+        maxItems: 500,
         create: input => {
           return {
             value: input,
@@ -47,8 +50,8 @@ export default class Text extends Component {
             this.$control_input[0].addEventListener('paste', e => {
               const pasteValue = (e.clipboardData || window.clipboardData).getData('text');
               if (pasteValue && /\n/.test(pasteValue)) {
-                const items = pasteValue.split('\n');
-                onChange({ values: comp.props.values.concat(items) });
+                const items = pasteValue.split('\n').slice(0, 500);
+                debouncedChange({ values: comp.props.values.concat(items) });
                 items.forEach(item => {
                   $selectize.createItem(item);
                 });
@@ -58,7 +61,7 @@ export default class Text extends Component {
           }
         },
         onChange: selectizevalue => {
-          onChange({ values: selectizevalue ? selectizevalue.split(',') : [] });
+          debouncedChange({ values: selectizevalue ? selectizevalue.split(',') : [] });
         },
       })[0].selectize;
     }

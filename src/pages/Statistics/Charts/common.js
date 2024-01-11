@@ -129,22 +129,24 @@ const getLineStyle = (value) => {
  */
 export const getAuxiliaryLineConfig = (auxiliaryLines = [], data, { yaxisList, colors }) => {
   return auxiliaryLines.map(item => {
-    const controlId = _.find(yaxisList, { controlId: item.controlId }) ? item.controlId : null;
+    const control = _.find(yaxisList, { controlId: item.controlId });
+    const controlId = control ? item.controlId : null;
+    const dot = control ? (control.ydot || control.dot) : 2;
     const getValue = () => {
       if (item.type === 'constantLine') {
         return item.value;
       }
       if (item.type === 'minLine' && controlId) {
-        return Number(toFixed(getControlMinValue(data, controlId), 2));
+        return Number(toFixed(getControlMinValue(data, controlId), dot));
       }
       if (item.type === 'maxLine' && controlId) {
-        return Number(toFixed(getControlMaxValue(data, controlId), 2));
+        return Number(toFixed(getControlMaxValue(data, controlId), dot));
       }
       if (item.type === 'averageLine' && controlId) {
-        return Number(toFixed(getControlAvgValue(data, controlId), 2));
+        return Number(toFixed(getControlAvgValue(data, controlId), dot));
       }
       if (item.type === 'medianLine' && controlId) {
-        return Number(toFixed(getControlMedianValue(data, controlId), 2));
+        return Number(toFixed(getControlMedianValue(data, controlId), dot));
       }
       if (item.type === 'percentLine' && controlId) {
         return getControlPercentValue(data, controlId, item.percent);

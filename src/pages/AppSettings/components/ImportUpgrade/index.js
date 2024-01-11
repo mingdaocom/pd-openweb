@@ -3,7 +3,8 @@ import styled from 'styled-components';
 import { Button, Support } from 'ming-ui';
 import EmptyStatus from '../EmptyStatus';
 import UpgradeProcess from './components/UpgradeProcess';
-import { getCurrentProject, upgradeVersionDialog } from 'src/util';
+import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { VersionProductType } from 'src/util/enum';
 import appManagementAjax from 'src/api/appManagement';
 import Beta from './components/Beta';
 import _ from 'lodash';
@@ -74,21 +75,10 @@ export default class AppImportUpgrade extends Component {
   };
   clickImportUpgrade = () => {
     const { projectId } = this.props;
-    const currentProject = getCurrentProject(projectId);
-    const hasPermission = _.get(currentProject, 'version.versionIdV2') >= 2; // 专业版及以上可导入
-    if (!hasPermission) {
-      upgradeVersionDialog({
-        projectId,
-        explainText: _l('请升级至专业版解锁开启'),
-        isFree: currentProject.licenseType === 0,
-        helpLink: 'https://help.mingdao.com/apply19',
-        onOk:
-          currentProject.licenseType === 0
-            ? undefined
-            : () => {
-                location.href = `/admin/upgradeservice/${projectId}/2`;
-              },
-      });
+    const featureType = getFeatureStatus(projectId, VersionProductType.appBackupRestore);
+
+    if (featureType === '2') {
+      buriedUpgradeVersionDialog(projectId, VersionProductType.appBackupRestore);
       return;
     }
     this.setState({ showUpgradeProcess: true });

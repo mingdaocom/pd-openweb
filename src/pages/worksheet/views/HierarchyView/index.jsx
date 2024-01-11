@@ -376,7 +376,7 @@ function Hierarchy(props) {
     const len = arr.map(item => {
       if (typeof item === 'string') return 0;
       if (_.every(item.children, item => typeof item === 'string')) return item.path.length;
-      if (item.visible !== 'undefined' && !item.visible) return item.path.length;
+      if (item.visible !== 'undefined' && !item.visible) return (item.path || []).length;
       return item.children.length ? getLayerCount(item.children) : item.path.length;
     });
     return len;

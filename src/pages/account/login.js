@@ -85,13 +85,9 @@ class LoginContainer extends React.Component {
       location.href = browserIsMobile() ? `/mobile` : `/app`;
       return;
     }
-    const {
-      accountId = '',
-      encryptPassword = '',
-      account = '',
-      projectId = '',
-      loginType = 0,
-    } = JSON.parse(window.localStorage.getItem('LoginCheckList') || '{}');
+    const { accountId = '', encryptPassword = '', account = '', projectId = '', loginType = 0 } = JSON.parse(
+      window.localStorage.getItem('LoginCheckList') || '{}',
+    );
     if (request.unionId || !accountId || !encryptPassword || (loginType === 1 && (!projectId || !account))) {
       if (location.href.indexOf('network') < 0) {
         //network =>getProjectBaseInfo 获取信息后 更新loading
@@ -438,7 +434,10 @@ class LoginContainer extends React.Component {
           <span
             className="btnUseOldAccount Hand"
             onClick={() => {
-              if (linkInvite) {
+              if (md.global.Config.IsPlatformLocal) {
+                //平台版=>/register
+                location.href = '/register';
+              } else if (linkInvite) {
                 location.href = linkInvite;
               } else {
                 let request = getRequest();

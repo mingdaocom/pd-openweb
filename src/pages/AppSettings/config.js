@@ -18,7 +18,7 @@ export const APP_CONFIGS = [
   },
   { type: 'lock', icon: 'lock', text: _l('锁定') },
   { type: 'export', icon: 'cloud_download', text: _l('导出'), featureId: 2 },
-  { type: 'upgrade', icon: 'unarchive', text: _l('导入升级') },
+  { type: 'upgrade', icon: 'unarchive', text: _l('导入升级'), featureId: 1 },
   {
     type: 'backup',
     icon: 'cloud_sync',

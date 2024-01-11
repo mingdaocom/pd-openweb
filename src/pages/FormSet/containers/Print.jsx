@@ -34,8 +34,7 @@ class CreatePrintDrawer extends React.Component {
     } = this.props;
 
     const currentProjectId = worksheetProjectId || (md.global.Account.projects[0] || {}).projectId;
-    const currentProject = getCurrentProject(currentProjectId);
-    const upgrade = !currentProject.version || !['2', '3'].includes(currentProject.version.versionIdV2);
+    const featureType = getFeatureStatus(currentProjectId, VersionProductType.wordPrintTemplate);
 
     return (
       <Drawer
@@ -78,23 +77,27 @@ class CreatePrintDrawer extends React.Component {
           </span>
           {_l('二维码打印')}
         </div>
-        <p className="printTempDrawerListTitle" style={{ marginTop: '35px' }}>
-          {_l('自定义')}
-        </p>
-        <div className="printTempDrawerListItem" onClick={addWordPrintTemp}>
-          <span className="iconbox">
-            <Icon icon="new_word" className="printTempDrawerListItemIcon" />
-          </span>
-          {_l('上传 Word 模板')}
-          {upgrade && <Icon icon="auto_awesome" className="Font16 mLeft5" />}
-        </div>
-        <div className="printTempDrawerListItem" onClick={addExcelPrintTemp}>
-          <span className="iconbox">
-            <Icon icon="new_excel" className="printTempDrawerListItemIcon" />
-          </span>
-          {_l('上传 Excel 模板')}
-          {upgrade && <Icon icon="auto_awesome" className="Font16 mLeft5" />}
-        </div>
+        {featureType && (
+          <React.Fragment>
+            <p className="printTempDrawerListTitle" style={{ marginTop: '35px' }}>
+              {_l('自定义')}
+            </p>
+            <div className="printTempDrawerListItem" onClick={addWordPrintTemp}>
+              <span className="iconbox">
+                <Icon icon="new_word" className="printTempDrawerListItemIcon" />
+              </span>
+              {_l('上传 Word 模板')}
+              {featureType === '2' && <Icon icon="auto_awesome" className="Font16 mLeft5" />}
+            </div>
+            <div className="printTempDrawerListItem" onClick={addExcelPrintTemp}>
+              <span className="iconbox">
+                <Icon icon="new_excel" className="printTempDrawerListItemIcon" />
+              </span>
+              {_l('上传 Excel 模板')}
+              {featureType === '2' && <Icon icon="auto_awesome" className="Font16 mLeft5" />}
+            </div>
+          </React.Fragment>
+        )}
       </Drawer>
     );
   }

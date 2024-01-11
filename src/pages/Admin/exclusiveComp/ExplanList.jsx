@@ -126,7 +126,7 @@ function ExplanList(props) {
 
   const goToPurchase = () => {
     if (!isSuperAdmin || !FEATURE_STATUS) {
-      alert(_l('请联系组织管理员购买或升级'), 2);
+      alert(_l('请联系组织超级管理员购买或升级'), 2);
       return;
     }
     if (FEATURE_STATUS === '2') {
@@ -303,7 +303,7 @@ function ExplanList(props) {
                               <li
                                 onClick={() => {
                                   if (!isSuperAdmin) {
-                                    alert(_l('请联系组织管理员续费'), 2);
+                                    alert(_l('请联系组织超级管理员续费'), 2);
                                     return;
                                   }
                                   navigateTo(`/admin/expansionserviceComputing/${projectId}/renewcomputing/${item.id}`);
@@ -382,15 +382,13 @@ function ExplanList(props) {
   return (
     <Fragment>
       <div className="exclusiveCompHeader valignWrapper">
-        <div className="Font17 bold flex">
-          {_l('专属算力')}
-        </div>
+        <div className="Font17 bold flex">{_l('专属算力')}</div>
         {!config.isInit && (
           <div className="refresh Hand Font20 mRight24 " onClick={getData}>
             <i className="icon-task-later Gray_9" />
           </div>
         )}
-        <Support className="mRight24" text={_l('帮助')}  type={2} href="https://help.mingdao.com/apply18" />
+        <Support className="mRight24" text={_l('帮助')} type={2} href="https://help.mingdao.com/apply18" />
         {!config.isInit && (
           <Button icon="add" radius className="exclusiveCompButton" onClick={goToPurchase}>
             {_l('购买专属算力')}

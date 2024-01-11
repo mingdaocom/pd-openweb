@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useEffect } from 'react';
 import { useSetState } from 'react-use';
 import { Checkbox, Dropdown } from 'ming-ui';
 import { Tooltip } from 'antd';
@@ -29,6 +29,15 @@ export default function RelateConfig(props) {
   });
 
   const selectedViewIsDeleted = !loading && viewId && !_.find(views, sheet => sheet.viewId === viewId);
+
+  useEffect(() => {
+    setState({
+      isRelateView: Boolean(viewId),
+      searchVisible: false,
+      resultFilterVisible: false,
+      resultVisible: (resultfilters && resultfilters.length > 0) || !!+isHiddenOtherViewRecord,
+    });
+  }, [controlId]);
 
   return (
     <Fragment>

@@ -575,7 +575,7 @@ export default class CustomButtons extends React.Component {
             }}
             customButtonConfirm={this.customButtonConfirm}
             defaultRelatedSheet={{
-              worksheetId,
+              worksheetId: this.masterRecord.worksheetId,
               relateSheetControlId: activeBtn.addRelationControl,
               value: {
                 sid: this.masterRecord.rowId,
