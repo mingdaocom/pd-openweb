@@ -161,7 +161,7 @@ function CurrentWorkItems(props) {
 }
 
 function WorkflowCard(props) {
-  const { data, formWidth, appId } = props;
+  const { data, formWidth, appId, projectId } = props;
   const { onAction, onRevoke, onUrge, onViewFlowStep, onViewExecDialog } = props;
   const { currents, createDate, completeDate, completed, createAccount, flowNode, workItem, process } = data;
   const currentWorkItems = data.currentWorkItems || [];
@@ -273,6 +273,7 @@ function WorkflowCard(props) {
                     {renderContent(data)}
                     <WorkflowAction
                       className={cx('mTop20', { mBottom5: index !== currents.length - 1 })}
+                      projectId={projectId}
                       isBranch={isBranch}
                       data={data}
                       {...{ onAction, onRevoke, onUrge, onViewExecDialog }}
@@ -286,6 +287,7 @@ function WorkflowCard(props) {
       {!isBranch && !completed && (
         <WorkflowAction
           className="mTop20"
+          projectId={projectId}
           isBranch={isBranch}
           data={data}
           {...{ onAction, onRevoke, onUrge, onViewExecDialog }}
@@ -608,6 +610,7 @@ export default function SheetWorkflow(props) {
               list.map(data => (
                 <WorkflowCard
                   key={data.id}
+                  projectId={projectId}
                   appId={appId}
                   formWidth={formWidth}
                   data={data}

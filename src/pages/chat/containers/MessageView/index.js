@@ -362,36 +362,36 @@ class MessageView extends Component {
       this.handleScrollEnd();
     }
   }
-  handleAddMembers() {
-    const { session } = this.props;
-    const { isForbidInvite, isAdmin } = session;
-    if (isAdmin || !isForbidInvite) {
-      addGroupMembers({
-        id: session.id,
-        type: Constant.SESSIONTYPE_GROUP,
-      });
-    } else {
-      alert(_l('当前仅允许群主及管理员邀请新成员'), 2);
-      return false;
+  handleAddMembers = event => {
+    if (event.target.classList.contains('addMember')) {
+      const { session } = this.props;
+      const { isForbidInvite, isAdmin } = session;
+      if (isAdmin || !isForbidInvite) {
+        addGroupMembers({
+          id: session.id,
+          type: Constant.SESSIONTYPE_GROUP,
+        });
+      } else {
+        alert(_l('当前仅允许群主及管理员邀请新成员'), 2);
+        return false;
+      }
     }
   }
   renderInviteMessage() {
     const { session } = this.props;
-    const text = session.isPost ? _l('群组') : _l('聊天');
+    const targetText = session.isPost ? _l('群组') : _l('聊天');
+    const inviteText = _l('邀请好友');
     return (
       <div className="ChatPanel-InviteMessage">
         <div className="InviteMessage-icon">
           <div className="InviteMessage-iconImg" />
         </div>
-        <div className="InviteMessage-title">{_l('%0创建成功', text)}</div>
-        <div className="InviteMessage-content">
-          {_l('快去')}
-          {
-            <span onClick={this.handleAddMembers.bind(this)} className="addMember ThemeColor3">
-              {_l('邀请好友')}
-            </span>
-          }
-          {_l('加入当前%0吧', text)}
+        <div className="InviteMessage-title">{_l('%0创建成功', targetText)}</div>
+        <div
+          className="InviteMessage-content"
+          onClick={this.handleAddMembers}
+          dangerouslySetInnerHTML={{ __html: _l('快去%0加入当前%1吧', `<span class="addMember ThemeColor3">${inviteText}</span>`, targetText) }}
+        >
         </div>
       </div>
     );

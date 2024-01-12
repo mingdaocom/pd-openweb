@@ -124,7 +124,7 @@ export const fetchSheetRows = params => (dispatch, getState) => {
     pageIndex = 1;
     pageSize = maxCount;
   }
-  const promiseRequest = promiseRequests[worksheetId];
+  const promiseRequest = promiseRequests[viewId || defaultViewId];
   if (promiseRequest && promiseRequest.state() === 'pending' && promiseRequest.abort) {
     promiseRequest.abort();
   }

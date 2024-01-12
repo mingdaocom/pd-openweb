@@ -593,15 +593,8 @@ export default class UpgradeProcess extends Component {
             </div>
             <div className="Font15">{appDetail.name}</div>
           </div>
-          <div className="Gray_9d Font14 w110 TxtRight">
-            <Tooltip text={<span>{_l('帮助')}</span>}>
-              <i
-                className="icon-help Font20 Hand"
-                onClick={() => {
-                  window.open('https://help.mingdao.com/apply19');
-                }}
-              />
-            </Tooltip>
+          <div className="Gray_9d Font14 w110 TxtRight helpIcon">
+            <Support title={_l('帮助')} type={1} href="https://help.mingdao.com/apply19" />
           </div>
         </div>
         <div className="upgradeProcessContent">

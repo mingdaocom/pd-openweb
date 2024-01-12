@@ -229,7 +229,7 @@ export default function SubListSetting(props) {
             min1msg={_l('至少显示一列')}
             showControls={showControls}
             columns={sortedControls}
-            maxSelectedNum={50}
+            maxSelectedNum={100}
             controlsSorts={getControlsSorts(data, sortedControls)}
             onChange={({ newShowControls, newControlSorts }) => {
               const nextShowControls = newControlSorts.filter(item => _.includes(newShowControls, item));

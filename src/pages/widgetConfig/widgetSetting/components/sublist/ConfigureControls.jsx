@@ -152,7 +152,7 @@ export default function ConfigureControl({ data, globalSheetInfo, controls, onCh
   const [{ selectCascadeDataSourceVisible }, setVisible] = useSetState({ selectCascadeDataSourceVisible: false });
   let dataSource = '';
   let controlName = '';
-  const disabledAdd = _.get(controls, 'length') >= 50;
+  const disabledAdd = _.get(controls, 'length') >= 100;
 
   useEffect(() => {
     setWidgetIndex(-1);

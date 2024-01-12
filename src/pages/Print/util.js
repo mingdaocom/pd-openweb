@@ -95,7 +95,7 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
           if (item.isRelateMultipleSheet && records.length <= 0) {
             return '';
           }
-          let controlId = (item.relationControls.find(l => l.attribute === 1) || item.relationControls[0]).controlId;
+          let controlId = (item.relationControls.find(l => l.attribute === 1) || item.relationControls[0] || {}).controlId;
 
           return <span className="relaList">{records.map(l => l[controlId] || _l('未命名')).join(', ')}</span>;
         }

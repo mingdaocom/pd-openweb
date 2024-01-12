@@ -18,8 +18,6 @@ const ExcelControlSettingWrap = styled.div`
   width: 350px;
   padding: 20px;
   max-height: 450px;
-  overflow-x: hidden;
-  overflow-y: auto;
   .name {
     display: flex;
     align-items: center;

@@ -193,7 +193,7 @@ export default function Number(props) {
             <Fragment>
               <SettingItem>
                 <div className="settingItemTitle">{_l('颜色')}</div>
-                <div className="labelWrap">
+                <div className="labelWrap flexRow">
                   <Dropdown
                     border
                     isAppendToBody

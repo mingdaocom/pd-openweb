@@ -195,7 +195,7 @@ export default class RecordFooter extends Component {
       recordBase,
       recordInfo
     } = this.props;
-    const { onEditRecord, onSubmitRecord } = this.props;
+    const { onEditRecord, onSubmitRecord, onSaveRecord } = this.props;
     const { loading, customBtns } = this.state;
     const allowEdit = recordInfo.allowEdit || editable;
     const allowDelete = recordInfo.allowDelete || (isSubList && editable);
@@ -205,12 +205,23 @@ export default class RecordFooter extends Component {
         {(allowEdit || getDataType === 21) && !recordBase.workId && (
           <WingBlank className="flex mLeft6 mRight6" size="sm">
             <Button
-              disabled={recordInfo.rulesLocked}
+              disabled={getDataType === 21 ? false : recordInfo.rulesLocked}
               className="Font13 edit letterSpacing"
               onClick={onEditRecord}
             >
               <Icon icon="edit" className="Font15 mRight6" />
               <span>{_l('编辑')}</span>
+            </Button>
+          </WingBlank>
+        )}
+        {recordBase.workId && recordBase.from === 6 && (
+          <WingBlank className="flex" size="sm">
+            <Button
+              className="Font13 bold"
+              type="primary"
+              onClick={onSaveRecord}
+            >
+              {_l('保存')}
             </Button>
           </WingBlank>
         )}

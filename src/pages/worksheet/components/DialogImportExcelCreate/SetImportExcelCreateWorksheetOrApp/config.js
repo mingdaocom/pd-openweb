@@ -10,7 +10,7 @@ export const HAS_RADIO_CONTROL = [2, 3, 4, 6, 7, 8, 9, 10, 11, 15, 16, 19, 23, 2
 export const NO_OTHER_CONFIG = [5, 14, 29, 33];
 
 // 关联记录特殊处理
-export const EXCEL_CONTROLS = [2, [3, 4], 5, 6, 7, 8, [11, 9], 10, 14, [15, 16], [24, 19, 23], 26, 27, 28, 33, 36, 46];
+export const EXCEL_CONTROLS = [2, [11, 9], 10, 6, 8, 5, [15, 16], 46, [3, 4], [24, 19, 23], 26, 27, 14, 36, 28, 33, 7];
 
 const backItem = [
   {

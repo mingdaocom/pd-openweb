@@ -385,6 +385,11 @@ export const formatControlsData = (controls = [], fromSub = false) => {
   return controls.map(data => {
     const { type } = data;
 
+    // 有一批老数据影响了默认值功能，清空掉
+    if (_.get(data, 'default') === '[]') {
+      data.default = '';
+    }
+
     // 子表控件递归处理其中的字段
     if (type === 34) {
       return { ...data, relationControls: formatControlsData(data.relationControls, true) };

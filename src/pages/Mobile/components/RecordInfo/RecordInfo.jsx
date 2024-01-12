@@ -25,7 +25,7 @@ import {
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
 import { updateRulesData, checkRuleLocked } from 'src/components/newCustomFields/tools/filterFn';
 import { loadRecord, updateRecord } from 'worksheet/common/recordInfo/crtl';
-import { formatControlToServer } from 'src/components/newCustomFields/tools/utils';
+import { formatControlToServer, controlState } from 'src/components/newCustomFields/tools/utils';
 import { MobileRecordRecoverConfirm } from 'worksheet/common/newRecord/MobileNewRecord';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
@@ -106,7 +106,13 @@ export default class RecordInfo extends Component {
         }));
 
       const childTableControlIds = updateRulesData({ rules: data.rules, data: data.formData })
-        .filter(v => v.type === 34 && !_.includes(['110', '010', '000', '011'], v.fieldPermission))
+        .filter(
+          v =>
+            v.type === 34 &&
+            !v.hidden &&
+            controlState(v, from).visible &&
+            !_.includes(['110', '010', '000', '011'], v.fieldPermission),
+        )
         .map(it => it.controlId);
 
       // 封面配置

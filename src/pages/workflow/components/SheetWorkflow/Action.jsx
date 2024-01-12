@@ -363,17 +363,19 @@ function MobileUpdateUserDialog(props) {
           </div>
         </MobileUpdateUserWrap>
       </Modal>
-      <SelectUser
-        projectId={projectId}
-        visible={selectUserVisible}
-        filterAccountIds={currentWorkItems.map(data => data.workItemAccount.accountId)}
-        type="user"
-        userType={1}
-        onClose={() => setSelectUserVisible(false)}
-        onSave={users => {
-          setNewAccounts(users);
-        }}
-      />
+      {selectUserVisible && (
+        <SelectUser
+          projectId={projectId}
+          visible={selectUserVisible}
+          filterAccountIds={currentWorkItems.map(data => data.workItemAccount.accountId)}
+          type="user"
+          userType={1}
+          onClose={() => setSelectUserVisible(false)}
+          onSave={users => {
+            setNewAccounts(users);
+          }}
+        />
+      )}
     </Fragment>
   );
 }

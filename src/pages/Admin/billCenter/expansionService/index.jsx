@@ -98,8 +98,8 @@ const DATASYNC_TYPE_LIST = [
   { title: _l('单月包'), money: 100, count: 10, month: _l('本月'), key: 2 },
 ];
 const EXCLUSIVE_TYPE_LIST = [
-  { title: _l('每月升级包'), desc: _l('剩余月份'), key: 1 },
-  { title: _l('单月包'), desc: _l('本月'), key: 0 },
+  { title: _l('组织到期时间'), key: 1 },
+  { title: _l('单月包（本月）'), key: 0 },
 ];
 
 const getFormatCount = count => {
@@ -674,8 +674,7 @@ export default class ExpansionService extends Component {
                   );
                 }}
               >
-                <div className="Font15 bold Gray mBottom12">{item.title}</div>
-                <div className="Gray_9e">{item.desc}</div>
+                <div className="Font15 bold Gray">{item.title}</div>
               </div>
             ))}
           </div>
