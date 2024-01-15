@@ -322,8 +322,8 @@ export class UploadFileWrapper extends Component {
       method,
       resize: _.get(advancedSetting, 'webcompress') !== '0' ? {
         quality: 60,
-        preserve_headers: false
-      } : {},
+        preserve_headers: true
+      } : undefined,
       autoUpload: false,
     });
   }
