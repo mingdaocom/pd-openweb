@@ -44,8 +44,15 @@ class RecordAction extends Component {
     this.editable = editable == 'true';
   }
   componentDidMount() {
+    if (this.props.isBatchOperate && !this.props.recordActionVisible) return;
     workflowPushSoket({ viewId: this.props.viewId });
     customBtnWorkflow();
+  }
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.recordActionVisible !== this.props.recordActionVisible && this.props.isBatchOperate) {
+      workflowPushSoket({ viewId: this.props.viewId });
+      customBtnWorkflow();
+    }
   }
   componentWillUnmount() {
     if (!window.IM) return;

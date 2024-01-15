@@ -327,11 +327,15 @@
 .actRoleDrop {
   width: 160px;
   height: 95px;
-  .ant-dropdown-menu-item {
-    padding: 8px 0 8px 16px;
+  box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
+  .ant-menu-item {
+    &:hover {
+      background-color: #f5f5f5;
+      color: rgba(0, 0, 0, 0.85);
+    }
   }
   .delRole {
-    color: #f51744;
+    color: #f51744 !important;
   }
 }
 

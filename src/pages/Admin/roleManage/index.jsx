@@ -185,11 +185,16 @@ class RoleManage extends Component {
                         </Tooltip>
                       )}
                       {item.organizeId !== showDeleteId && (
-                        <Dropdown
-                          overlayClassName="actRoleDrop"
-                          trigger={['click']}
-                          placement="bottomLeft"
-                          overlay={
+                        <Trigger
+                          popupClassName="actRoleDrop"
+                          action={['click']}
+                          popupAlign={{
+                            points: ['tl', 'bl'],
+                            // offset: [-40, 10],
+                            overflow: { adjustX: true, adjustY: true },
+                          }}
+                          getPopupContainer={() => document.body}
+                          popup={
                             <Menu>
                               <Menu.Item
                                 key="0"
@@ -216,11 +221,15 @@ class RoleManage extends Component {
                           }
                         >
                           <Icon icon="more_horiz" className="Font16 Gray_9e Right editIcon" />
-                        </Dropdown>
+                        </Trigger>
                       )}
                       {item.organizeId === showDeleteId && (
                         <Trigger
-                          popupAlign={{ points: ['tl', 'cr'], offset: [0, 0] }}
+                          popupAlign={{
+                            points: ['tl', 'cr'],
+                            offset: [0, 0],
+                            overflow: { adjustX: true, adjustY: true },
+                          }}
                           popupVisible={item.organizeId === showDeleteId}
                           popup={
                             <div className="delConfirmWrap">

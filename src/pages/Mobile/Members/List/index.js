@@ -375,12 +375,19 @@ class MemberList extends Component {
   };
 
   renderBase = () => {
-    const { detail } = this.props.memberList;
+    const { detail, list = [] } = this.props.memberList;
     const { selectJobVisible, selectOrgnizedRoleVisible } = this.state;
+    const { params } = this.props.match;
+    const data = list.filter(item => item.roleId === params.roleId)[0];
+    let { isAdmin } = getUserRole(detail.permissionType);
+    const canAddUser =
+      (data.canSetMembers || isAdmin) &&
+      !(detail.permissionType === APP_ROLE_TYPE.RUNNER_ROLE && ['all', 'apply', 'outsourcing'].includes(data.roleId));
+
     return (
       <Fragment>
         <Back
-          className="low"
+          className={cx({ bottom55: canAddUser })}
           onClick={() => {
             this.props.history.push(`/mobile/members/${detail.id}`);
           }}
@@ -564,7 +571,7 @@ class MemberList extends Component {
     isAdmin = isAdmin || isOwner;
 
     return (
-      <div className="memberListWrapper h100">
+      <div className="memberListWrapper h100 pBottom44">
         {this.renderBase()}
 
         <List className="ListSection">{this.renderItem(data)}</List>
@@ -572,14 +579,12 @@ class MemberList extends Component {
           !(
             detail.permissionType === APP_ROLE_TYPE.RUNNER_ROLE && ['all', 'apply', 'outsourcing'].includes(data.roleId)
           ) && (
-            <List.Item
-              className="mTop30"
-              onClick={() => {
-                this.showActionSheet(data.roleId, data.userIds, data.roleType, data);
-              }}
+            <div
+              className="TxtCenter addUser bold"
+              onClick={() => this.showActionSheet(data.roleId, data.userIds, data.roleType, data)}
             >
-              <div className="TxtCenter addUser bold">{_l('添加人员')}</div>
-            </List.Item>
+              {_l('添加人员')}
+            </div>
           )}
       </div>
     );
