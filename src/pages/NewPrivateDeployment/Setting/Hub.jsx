@@ -1,10 +1,11 @@
 import React, { Fragment, useState, useEffect, useRef } from 'react';
-import { LoadDiv, Dialog } from 'ming-ui';
+import { LoadDiv, Dialog, Checkbox } from 'ming-ui';
 import { Button, Divider } from 'antd';
 import EmailDialog from './components/EmailDialog';
 import MessageSettings from './components/MessageSettings';
 import emailApi from 'src/api/email';
 import smsApi from 'src/api/sms';
+import privateSysSetting from 'src/api/privateSysSetting';
 import tencentyunIcon from '../images/tencentyunIcon.png';
 import aliyunIcon from '../images/aliyunIcon.png';
 import _ from 'lodash';
@@ -200,13 +201,72 @@ const Message = props => {
   );
 };
 
+const PlatformIntegration = props => {
+  const platTypes = [
+    { type: 'WorkWeixin', text: _l('企业微信') },
+    { type: 'Dingding', text: _l('钉钉') },
+    { type: 'Welink', text: _l('Welink') },
+    { type: 'Feishu', text: _l('飞书') },
+    { type: 'Weixin', text: _l('微信') },
+  ];
+  const [usePlatformInfo, setUserPlatformInfo] = useState({
+    hideWorkWeixin: md.global.SysSettings.hideWorkWeixin,
+    hideDingding: md.global.SysSettings.hideDingding,
+    hideWelink: md.global.SysSettings.hideWelink,
+    hideFeishu: md.global.SysSettings.hideFeishu,
+    hideWeixin: md.global.SysSettings.hideWeixin,
+  });
+
+  const changeCheckedIntegration = (checked, type) => {
+    privateSysSetting
+      .editSysSettings({
+        settings: {
+          [`hide${type}`]: checked,
+        },
+      })
+      .then(res => {
+        if (res) {
+          setUserPlatformInfo({
+            ...usePlatformInfo,
+            [`hide${type}`]: checked,
+          });
+          md.global.SysSettings[`hide${type}`] = checked;
+          alert(_l('修改成功'));
+        } else {
+          alert(_l('修改失败'), 2);
+        }
+      });
+  };
+
+  return (
+    <div className="privateCardWrap flexColumn">
+      <div className="Font17 bold mBottom8">{_l('第三方平台')}</div>
+      <div className="mBottom15 Gray_9e">{_l('如果你的企业不使用下列第三方平台，你可以取消勾选')}</div>
+      <div className="flexRow">
+        {platTypes.map(item => {
+          const { type, text } = item;
+
+          return (
+            <Fragment key={type}>
+              <Checkbox
+                checked={!usePlatformInfo[`hide${type}`]}
+                onClick={checked => changeCheckedIntegration(checked, type)}
+              />
+              <span className="mRight30">{text}</span>
+            </Fragment>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
 export default props => {
   return (
     <Fragment>
       <Email {...props} />
       <Message {...props} />
+      <PlatformIntegration {...props} />
     </Fragment>
   );
 };
-
-

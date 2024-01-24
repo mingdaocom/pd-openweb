@@ -125,35 +125,7 @@ export default function BillInfo({ match }) {
     }
   };
   const getValue = value => (loading ? '-' : value);
-  const renderPay = ({ status, payAccountInfo = {}, orderId, recordType }) => {
-    const { accountId, avatar, fullname } = payAccountInfo;
-    if (status === 1) {
-      return (
-        <div
-          className="goToPay"
-          onClick={() =>
-            (location.href = _.includes([5, 6], recordType)
-              ? `/admin/appBillDetail/${projectId}/2/${orderId}`
-              : `/admin/waitingPay/${projectId}/${orderId}`)
-          }
-        >
-          {_l('立即支付')}
-        </div>
-      );
-    }
-    if (_.includes([3, 4, 5], status)) return null;
-    return accountId ? (
-      <Fragment>
-        <UserHead className="billOwner" size={24} user={{ accountId, userHead: avatar }} />
-        <span>{fullname}</span>
-      </Fragment>
-    ) : (
-      <Fragment>
-        <img src={img} alt={_l('系统')} />
-        <span>{_l('系统')}</span>
-      </Fragment>
-    );
-  };
+
   const renderRows = () => {
     const start = list.length ? pageSize * (pageIndex - 1) : 0;
     return _l('第 %0 - %1 条,共 %2 条', start + 1, start + list.length, allCount || 0);
@@ -235,9 +207,6 @@ export default function BillInfo({ match }) {
                         </Fragment>
                       )}
                     </div>
-                    {/* <div className="paidPerson overflow_ellipsis item">
-                      {renderPay({ status, payAccountInfo, orderId, recordType })}
-                    </div> */}
                     <Trigger
                       popupVisible={operateMenuVisible === index}
                       onPopupVisibleChange={visible => setVisible({ operateMenuVisible: visible ? index : -1 })}
@@ -307,11 +276,6 @@ export default function BillInfo({ match }) {
             <span>{_l('账户余额')}</span>
             <span className="moneySymbol Gray_75">(￥)</span>
             <span className="balance Font24">{getValue((balance || 0).toLocaleString())}</span>
-            {/* isPaid && (
-              <span className="recharge pointer adminHoverColor" onClick={() => handleClick('recharge')}>
-                {_l('充值')}
-              </span>
-            )*/}
           </div>
         </div>
         <div className="listHeader">
@@ -384,7 +348,7 @@ export default function BillInfo({ match }) {
               </div>
               <div className="invoiceStatus item">{_l('发票状态')}</div>
               <div className="createPerson item">{_l('创建人')}</div>
-              <div className="paidPerson item">{_l('付款人')}</div>
+              {/* <div className="paidPerson item">{_l('付款人')}</div> */}
               <div className="operation item">{_l('操作')}</div>
             </Fragment>
           )}

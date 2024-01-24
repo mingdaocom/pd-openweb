@@ -58,7 +58,7 @@ export const orderTypeText = {
   DataPipelinePackage: _l('每月数据同步算力包'),
   MonthlyDataPipelinePackage: _l('当月数据同步算力包'),
   APIIntegration: _l('API集成'),
-  ComputingInstance: _l('专属算力每月升级包'),
+  ComputingInstance: _l('专属算力组织到期时长包'),
   MonthlyComputingInstance: _l('专属算力单月包'),
   FileTransferPDF: _l('获取打印记录文件生成PDF文件'),
 };

@@ -297,18 +297,12 @@ export class UploadFileWrapper extends Component {
         // 上传附件
         const accept = { 0: '*', 1: 'image/*', 2: 'video/*' };
         const fileTypeObj = { 1: 'image/*', 2: 'application/*', 3: 'audio/*', 4: 'video/*' };
-        const ua = window.navigator.userAgent.toLowerCase();
-        const isMiniprogram = ua.includes('miniprogram');
 
         if (ele) {
-          // if (isMiniprogram) {
-          //   ele.removeAttribute('multiple');
-          // }
-
           // 拍照 or 拍摄
           if (customUploadType) {
             ele.setAttribute('accept', customUploadType === 'camara' ? 'image/*' : 'video/*');
-            ele.setAttribute('capture', customUploadType);
+            ele.setAttribute('capture', 'environment');
           } else {
             ele.setAttribute('accept', type ? fileTypeObj[type] : inputType ? accept[inputType] : '*');
           }

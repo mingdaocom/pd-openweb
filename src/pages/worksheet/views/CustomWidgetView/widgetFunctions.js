@@ -84,8 +84,8 @@ export const utils = {
     }
     return new Promise((resolve, reject) => {
       (isMobile ? openMobileRecordInfo : openRecordInfo)({
-        projectId: args.worksheetInfo.projectId,
-        allowAdd: args.worksheetInfo.allowAdd,
+        projectId: args.projectId,
+        allowAdd: args.worksheetInfo && args.worksheetInfo.allowAdd,
         ...args,
         ...(isMobile
           ? {
@@ -138,7 +138,7 @@ export const utils = {
         type: 'native',
         settings: {
           action: 'selectUsers',
-          projectId: rest.worksheetInfo.projectId,
+          projectId: rest.projectId,
           unique: unique,
         },
       }).then(res => {
@@ -157,7 +157,7 @@ export const utils = {
       if (isMobile) {
         selectUser({
           type: 'user',
-          projectId: rest.worksheetInfo.projectId,
+          projectId: rest.projectId,
           onlyOne: unique,
           onSave: resolve,
           ...rest,
@@ -165,7 +165,7 @@ export const utils = {
       } else {
         dialogSelectUser({
           SelectUserSettings: {
-            projectId: rest.worksheetInfo.projectId,
+            projectId: rest.projectId,
             callback: resolve,
             ...rest,
           },
@@ -181,7 +181,7 @@ export const utils = {
         type: 'native',
         settings: {
           action: 'selectDepartments',
-          projectId: rest.worksheetInfo.projectId,
+          projectId: rest.projectId,
           unique: unique,
         },
       }).then(res => {
@@ -199,14 +199,14 @@ export const utils = {
       if (isMobile) {
         selectUser({
           type: 'department',
-          projectId: rest.worksheetInfo.projectId,
+          projectId: rest.projectId,
           onlyOne: unique,
           onSave: resolve,
           ...rest,
         });
       } else {
         return new DialogSelectGroups({
-          projectId: rest.worksheetInfo.projectId,
+          projectId: rest.projectId,
           isIncludeRoot: rest.isIncludeRoot,
           unique: unique,
           showCreateBtn: rest.showCreateBtn,
@@ -226,7 +226,7 @@ export const utils = {
         type: 'native',
         settings: {
           action: 'selectOrgRole',
-          projectId: rest.worksheetInfo.projectId,
+          projectId: rest.projectId,
           unique: unique,
         },
       }).then(res => {
@@ -243,14 +243,14 @@ export const utils = {
     return new Promise((resolve, reject) => {
       if (isMobile) {
         mobileSelectOrgRole({
-          projectId: rest.worksheetInfo.projectId,
+          projectId: rest.projectId,
           onlyOne: unique,
           onSave: resolve,
           ...rest,
         });
       } else {
         return selectOrgRole({
-          projectId: rest.worksheetInfo.projectId,
+          projectId: rest.projectId,
           unique: unique,
           onSave: resolve,
           ...rest,
@@ -266,7 +266,7 @@ export const utils = {
         type: 'native',
         settings: {
           action: 'selectRecord',
-          projectId: rest.worksheetInfo.projectId,
+          projectId: rest.projectId,
           relateSheetId,
           multiple,
         },
@@ -280,7 +280,7 @@ export const utils = {
     }
     return new Promise((resolve, reject) => {
       (isMobile ? mobileSelectRecord : selectRecord)({
-        projectId: rest.worksheetInfo.projectId,
+        projectId: rest.projectId,
         canSelectAll: false,
         pageSize: rest.pageSize,
         multiple: multiple,

@@ -322,11 +322,14 @@ export default function BaseSet(props) {
             const { portalSet = {} } = props;
             const { portalSetModel = {} } = portalSet;
             const { loginMode = {} } = portalSetModel;
+
+            if (o.key === 'weChat' && md.global.SysSettings.hideWeixin) return;
+
             return (
               <Checkbox
                 className="mTop16 InlineBlock mRight60 setCheckbox"
                 text={o.txt}
-                checked={loginMode[o.key]}
+                checked={!loginMode[o.key]}
                 onClick={checked => {
                   changeMode(!loginMode[o.key], o.key, 'loginMode', LOGIN_WAY, () => {
                     alert(_l('至少选择一种登录方式'), 3);
@@ -355,9 +358,16 @@ export default function BaseSet(props) {
             </div>
           )}
           <p className="Font12 Gray_9e mTop4 LineHeight18">
-            {_l('只勾选微信登录后首次扫码后需要输入手机号与微信绑定，后续可单独微信扫码快速登录。')}
-            <br />
-            {md.global.Config.IsPlatformLocal ? _l('验证码每条0.05元，自动从企业账户余额扣费。为保证业务不受影响，请保持企业账户余额充足。') : ''}
+            {!_.get(props, ['portalSet', 'portalSetModel', 'loginMode', 'weChat']) &&
+              !md.global.SysSettings.hideWeixin && (
+                <span>
+                  {_l('只勾选微信登录后首次扫码后需要输入手机号与微信绑定，后续可单独微信扫码快速登录。')}
+                  <br />
+                </span>
+              )}
+            {md.global.Config.IsPlatformLocal
+              ? _l('验证码每条0.05元，自动从企业账户余额扣费。为保证业务不受影响，请保持企业账户余额充足。')
+              : ''}
           </p>
         </div>
         <h6 className="Font16 Gray Bold mBottom0 mTop24">{_l('允许访问的用户')}</h6>
@@ -433,8 +443,8 @@ export default function BaseSet(props) {
             )}
           </div>
         </div>
-        {/* 私有部署不提供是否需要关注公众号的配置 */}
-        {!md.global.Config.IsLocal && (
+        {/* 私有部署根据系统配置提供是否需要关注公众号的配置 */}
+        {!md.global.SysSettings.hideWeixin && (
           <div className="mTop5">
             <SwitchStyle>
               <Icon

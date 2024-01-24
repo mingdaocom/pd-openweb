@@ -345,7 +345,7 @@ const Base = (props) => {
           {renderInstallCaptainUrl()}
         </Fragment>
       )}
-      {IsPlatformLocal && (
+      {(IsPlatformLocal || !md.global.SysSettings.hideWorkWeixin) && (
         <Fragment>
           <Divider className="mTop20 mBottom20" />
           {renderWorkWXIntegrationUrl()}

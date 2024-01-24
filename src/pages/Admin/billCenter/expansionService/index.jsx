@@ -31,7 +31,7 @@ const PAGE_TITLE = {
   portaluser: _l('用户自助购买外部门户用户包'),
   portalupgrade: _l('用户自助购买外部门户用户包'),
   dataSync: _l('用户自助购买数据同步算力升级包'),
-  computing: _l('购买专属算力'),
+  computing: md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal ? _l('创建专属算力') : _l('购买专属算力'),
   renewcomputing: _l('续费专属算力'),
 };
 
@@ -43,7 +43,7 @@ const HeaderTitle = {
   portaluser: _l('购买外部用户人数'),
   portalupgrade: _l('购买外部用户人数'),
   dataSync: _l('购买数据同步算力升级包'),
-  computing: _l('购买专属算力'),
+  computing: md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal ? _l('创建专属算力') : _l('购买专属算力'),
   renewcomputing: _l('续费专属算力'),
 };
 
@@ -87,6 +87,7 @@ const ADD_ORDER_PRICE = {
   computing: orderController.addComputingInstanceOrder,
   computingMonthly: orderController.addMonthlyComputingInstanceOrder,
   renewcomputing: orderController.addComputingInstanceExtensionOrder,
+  computingPermanent: orderController.addPermanentComputingInstanceOrder,
 };
 
 const WORKFLOW_TYPE_LIST = [
@@ -97,10 +98,13 @@ const DATASYNC_TYPE_LIST = [
   { title: _l('每月额度升级包'), money: 50, count: 10, month: _l('剩余月份'), key: 1 },
   { title: _l('单月包'), money: 100, count: 10, month: _l('本月'), key: 2 },
 ];
-const EXCLUSIVE_TYPE_LIST = [
-  { title: _l('组织到期时间'), key: 1 },
-  { title: _l('单月包（本月）'), key: 0 },
-];
+const EXCLUSIVE_TYPE_LIST =
+  md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal
+    ? [{ title: _l('组织到期时间'), key: 1 }]
+    : [
+        { title: _l('组织到期时间'), key: 1 },
+        { title: _l('单月包（本月）'), key: 0 },
+      ];
 
 const getFormatCount = count => {
   let formatCount = count % 100 || 100;
@@ -311,12 +315,20 @@ export default class ExpansionService extends Component {
   //计算金钱
   computePrince() {
     const actionType = this.getCurrentType();
-    if (!GET_ORDER_PRICE[actionType]) return;
+    const expandType = this.expandType;
+
+    if (
+      !GET_ORDER_PRICE[actionType] ||
+      ([EXPAND_TYPE.COMPUTING, EXPAND_TYPE.RENEWCOMPUTING].includes(expandType) &&
+        md.global.Config.IsLocal &&
+        !md.global.Config.IsPlatformLocal)
+    )
+      return;
     if (this.ajax) {
       this.ajax.abort();
     }
     let param = {};
-    const expandType = this.expandType;
+
     if (expandType === EXPAND_TYPE.COMPUTING) {
       param.productId = this.state.exclusiveInfo.specs;
     } else if (expandType === EXPAND_TYPE.RENEWCOMPUTING) {
@@ -432,7 +444,11 @@ export default class ExpansionService extends Component {
     const expandType = this.expandType;
     this.setState({ isPay: true });
     const { addUserCount, needSalesAssistance, exclusiveInfo } = this.state;
-    const actionType = this.getCurrentType();
+    let actionType = this.getCurrentType();
+    const isNotPlatformLocal =
+      [EXPAND_TYPE.COMPUTING, EXPAND_TYPE.RENEWCOMPUTING].includes(expandType) &&
+      md.global.Config.IsLocal &&
+      !md.global.Config.IsPlatformLocal;
     let param = {};
     if (expandType === EXPAND_TYPE.COMPUTING) {
       param.productId = exclusiveInfo.specs;
@@ -442,6 +458,7 @@ export default class ExpansionService extends Component {
       param.num = undefined;
       param.productId = this.state.renewexclusiveInfo.productId;
     }
+    if (isNotPlatformLocal) actionType = 'computingPermanent';
     if (ADD_ORDER_PRICE[actionType]) {
       ADD_ORDER_PRICE[actionType]({
         projectId: Config.projectId,
@@ -450,9 +467,16 @@ export default class ExpansionService extends Component {
         ...param,
       }).then(function (data) {
         if (data) {
-          alert(_l('订单已创建成功，正在转到付款页...'), 1, 500, function () {
-            window.location.href = '/admin/waitingPay/' + Config.projectId + '/' + data.orderId;
-          });
+          alert(
+            isNotPlatformLocal ? _l('创建成功') : _l('订单已创建成功，正在转到付款页...'),
+            1,
+            500,
+            function () {
+              window.location.href = isNotPlatformLocal
+                ? `/admin/computing/${Config.projectId}`
+                : '/admin/waitingPay/' + Config.projectId + '/' + data.orderId;
+            },
+          );
         } else {
           _this.setState({ isPay: false });
           alert(_l('操作失败'), 2);
@@ -654,7 +678,9 @@ export default class ExpansionService extends Component {
         </div>
         <div className="mTop13 Gray_9e Font13">{_l('并发数是指同一个时间点可同时运行的实例数')}</div>
         <div className="mTop40 Font13">
-          <div className="Gray_75 mRight24 mBottom16">{_l('购买时长')}</div>
+          <div className="Gray_75 mRight24 mBottom16">
+            {md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal ? _l('有效时长') : _l('购买时长')}
+          </div>
           <div className="flexRow">
             {EXCLUSIVE_TYPE_LIST.map(item => (
               <div
@@ -680,11 +706,13 @@ export default class ExpansionService extends Component {
           </div>
         </div>
         <div className="addWorkFlowBox">
-          <div className="addUserLabl">{_l('购买数量')}</div>
+          <div className="addUserLabl">
+            {md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal ? _l('创建数量') : _l('购买数量')}
+          </div>
           {this.renderPlusInput(false, true)}
-          <div className="mLeft16">{_l('台')}</div>
+          <div className="mLeft16">{_l('个实例数')}</div>
         </div>
-        {exclusiveInfo.currentLicense.endDate && (
+        {exclusiveInfo.currentLicense.endDate && !(md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal) && (
           <div className="Font13 mBottom40">
             <span className="Gray_75 mRight24">{_l('到期时间')}</span>
             <span className="Gray">
@@ -694,7 +722,7 @@ export default class ExpansionService extends Component {
             </span>
             <span className="" style={{ color: '#b4b4b4' }}>{`（${_l('计费')}：${
               exclusiveInfo.type === 0
-                ? moment(monthEndDate).diff(new Date(), 'days')
+                ? moment(monthEndDate).diff(new Date(), 'days') + 1
                 : exclusiveInfo.currentLicense.expireDays
             }${_l('天')}）`}</span>
           </div>
@@ -722,8 +750,7 @@ export default class ExpansionService extends Component {
         </div>
         <div className="mTop40 Gray_75 mBottom16">{_l('购买时长')}</div>
         <div className="renewExclusiveCard">
-          <div className="Font15 bold">{_l('每月升级包')}</div>
-          <div className="Gray_9e mTop12">{_l('剩余月份')}</div>
+          <div className="Font15 bold">{_l('组织到期时间')}</div>
         </div>
         <div className="mTop40 mBottom40">
           <span className="Gray_75 mRight24">{_l('到期时间')}</span>
@@ -841,7 +868,7 @@ export default class ExpansionService extends Component {
                 </span>
                 <span>{`（${_l('计费')}：${
                   exclusiveInfo.type === 0
-                    ? moment(monthEndDate).diff(new Date(), 'days')
+                    ? moment(monthEndDate).diff(new Date(), 'days') + 1
                     : exclusiveInfo.currentLicense.expireDays
                 }${_l('天')}）`}</span>
               </div>
@@ -997,9 +1024,11 @@ export default class ExpansionService extends Component {
         <div style={{ flex: 1, overflow: 'scroll' }}>
           <div className="warpOneStep">
             <div className={cx('stepTitle', { color_bd: step !== 1 })}>
-              <div className="stepNum">
-                <span className="Bold Font12">1</span>
-              </div>
+              {!(expandType === 'computing' && md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal) && (
+                <div className="stepNum">
+                  <span className="Bold Font12">1</span>
+                </div>
+              )}
               <span>{HeaderSubTitle[expandType]}</span>
             </div>
             <div className={cx('Gray_9 Font13 Normal mTop10', { Hidden: step !== 1 })}>
@@ -1009,29 +1038,42 @@ export default class ExpansionService extends Component {
               {step === 1 ? (
                 <div className="infoEdit">
                   {this.renderOptionStyle()}
-                  <div>
-                    <div className="oneStepLeft">{_l('总计')}</div>
-                    <span className="Font20 color_b">￥</span>
-                    <span className="Font20 color_b Bold">{totalPrince}</span>
-                    {![EXPAND_TYPE.COMPUTING, EXPAND_TYPE.RENEWCOMPUTING].includes(expandType) &&
-                      (this.isPortalUser ? (
-                        <a target="blank" className="mLeft20" href="https://help.mingdao.com/prices8">
-                          {_l('计费方式')}
-                        </a>
-                      ) : (
-                        <a target="blank" className="mLeft20" href="/price">
-                          {_l('了解更多')}
-                        </a>
-                      ))}
-                  </div>
+                  {!(expandType === 'computing' && md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal) && (
+                    <div>
+                      <div className="oneStepLeft">{_l('总计')}</div>
+                      <span className="Font20 color_b">￥</span>
+                      <span className="Font20 color_b Bold">{totalPrince}</span>
+                      {![EXPAND_TYPE.COMPUTING, EXPAND_TYPE.RENEWCOMPUTING].includes(expandType) &&
+                        (this.isPortalUser ? (
+                          <a target="blank" className="mLeft20" href="https://help.mingdao.com/prices8">
+                            {_l('计费方式')}
+                          </a>
+                        ) : (
+                          <a target="blank" className="mLeft20" href="/price">
+                            {_l('了解更多')}
+                          </a>
+                        ))}
+                    </div>
+                  )}
                   {(showWorkflowExtPack || showDataSyncExtPack) && this.renderAutoOrder()}
                   <div className="pTop30">
                     <button
                       type="button"
                       className="ming Button Button--primary nextBtn"
-                      onClick={() => this.setStep(2)}
+                      onClick={() => {
+                        if (
+                          !(expandType === 'computing' && md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal)
+                        ) {
+                          this.setStep(2);
+                          return;
+                        }
+                        this.handlePay();
+                      }}
+                      disabled={isPay}
                     >
-                      {_l('下一步')}
+                      {expandType === 'computing' && md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal
+                        ? _l('确认')
+                        : _l('下一步')}
                     </button>
                   </div>
                 </div>
@@ -1061,42 +1103,48 @@ export default class ExpansionService extends Component {
               )}
             </div>
           </div>
-          <div className="stepDiviceLine"></div>
-          <div className="warpTowStep">
-            <div className={cx('stepTitle', { color_bd: step !== 2 })}>
-              <div className="stepNum">
-                <span className="Bold Font12">2</span>
-              </div>
-              <span>{_l('生成订单')}</span>
-            </div>
-            <div className={cx('stepContent pTop30', { Hidden: step !== 2 })}>
-              {[EXPAND_TYPE.WORKFLOW, EXPAND_TYPE.DATASYNC, EXPAND_TYPE.COMPUTING].includes(expandType) ? (
-                <div className="mBottom10">
-                  <span className="mRight8 Gray_9">{_l('已选择')}</span>
-                  <span className="color_b">{this.renderSelectText()}</span>
+          {!(expandType === 'computing' && md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal) && (
+            <Fragment>
+              <div className="stepDiviceLine"></div>
+              <div className="warpTowStep">
+                <div className={cx('stepTitle', { color_bd: step !== 2 })}>
+                  <div className="stepNum">
+                    <span className="Bold Font12">2</span>
+                  </div>
+                  <span>{_l('生成订单')}</span>
                 </div>
-              ) : null}
-              <div>
-                <span className="Font13 mRight8 Gray_9">{_l('总计：')}</span>
-                <span className="Font24 Bold color_b">￥{totalPrince}</span>
+                <div className={cx('stepContent pTop30', { Hidden: step !== 2 })}>
+                  {[EXPAND_TYPE.WORKFLOW, EXPAND_TYPE.DATASYNC, EXPAND_TYPE.COMPUTING].includes(expandType) ? (
+                    <div className="mBottom10">
+                      <span className="mRight8 Gray_9">{_l('已选择')}</span>
+                      <span className="color_b">{this.renderSelectText()}</span>
+                    </div>
+                  ) : null}
+                  <div>
+                    <span className="Font13 mRight8 Gray_9">{_l('总计：')}</span>
+                    <span className="Font24 Bold color_b">￥{totalPrince}</span>
+                  </div>
+                  <div className="pTop40">
+                    <button
+                      type="button"
+                      disabled={isPay}
+                      className="ming Button Button--primary nextBtn"
+                      onClick={() => this.handlePay()}
+                    >
+                      {_l('确认下单')}
+                    </button>
+                  </div>
+                  {!md.global.Config.IsLocal && (
+                    <div className="warpNeedHelp">
+                      <Checkbox onChange={this.handleCheckBox.bind(this)} checked={needSalesAssistance}>
+                        {_l('我希望得到销售代表的协助')}
+                      </Checkbox>
+                    </div>
+                  )}
+                </div>
               </div>
-              <div className="pTop40">
-                <button
-                  type="button"
-                  disabled={isPay}
-                  className="ming Button Button--primary nextBtn"
-                  onClick={() => this.handlePay()}
-                >
-                  {_l('确认下单')}
-                </button>
-              </div>
-              <div className="warpNeedHelp">
-                <Checkbox onChange={this.handleCheckBox.bind(this)} checked={needSalesAssistance}>
-                  {_l('我希望得到销售代表的协助')}
-                </Checkbox>
-              </div>
-            </div>
-          </div>
+            </Fragment>
+          )}
         </div>
       </div>
     );

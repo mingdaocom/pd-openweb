@@ -29,7 +29,7 @@ const Wrap = styled.div`
     }
   }
   .appreciationServer {
-    .dpWrap, .sseWrap {
+    .dpWrap, .diciWrap, .sseWrap {
       height: 100%;
       padding: 10px 20px;
       border-radius: 7px;
@@ -57,8 +57,9 @@ const Wrap = styled.div`
     min-width: 0;
   }
   .versionsInfo {
+    width: 360px;
     .label {
-      width: 90px;
+      width: 65px;
     }
   }
   .ant-table-thead th {
@@ -172,7 +173,7 @@ const AuthorizationInfo = props => {
             <div className="flexColumn valignWrapper flex">
               <div className="Font14 Gray_9e mBottom5 pBottom2">{_l('密钥到期时间')}</div>
               <div className="Font17 mBottom5 bold">{formatDate(platformLicenseInfo.expirationDate)}</div>
-              <div className="Font13 Gray_bd">{_l('%0到期', moment(platformLicenseInfo.expirationDate).format('YYYY年MM月DD日') )}</div>
+              <div className="Font13 Gray_bd">{_l('%0到期', moment(platformLicenseInfo.expirationDate).format('YYYY年MM月DD日'))}</div>
             </div>
             <div className="flexColumn valignWrapper flex">
               <div className="Font14 Gray_9e mBottom5 pBottom2">{_l('升级服务到期时间')}</div>
@@ -182,12 +183,12 @@ const AuthorizationInfo = props => {
             <div className="flexColumn valignWrapper flex">
               <div className="Font14 Gray_9e mBottom5 pBottom2">{_l('内部用户配额')}</div>
               <div className="Font17 mBottom5 bold">{_l('%0 人', (platformLicenseInfo.internalUserNum || 0).toLocaleString())}</div>
-              <div className="Font13 Gray_bd">{_l('已使用 %0 人', (platformLicenseInfo.internalUsedUserNum || 0).toLocaleString() )}</div>
+              <div className="Font13 Gray_bd">{_l('已使用 %0 人', (platformLicenseInfo.internalUsedUserNum || 0).toLocaleString())}</div>
             </div>
             <div className="flexColumn valignWrapper flex">
               <div className="Font14 Gray_9e mBottom5 pBottom2">{_l('外部用户配额')}</div>
               <div className="Font17 mBottom5 bold">{_l('%0 人', (platformLicenseInfo.externalUserNum || 0).toLocaleString())}</div>
-              <div className="Font13 Gray_bd">{_l('已使用 %0 人', (platformLicenseInfo.externalUsedUserNum || 0).toLocaleString() )}</div>
+              <div className="Font13 Gray_bd">{_l('已使用 %0 人', (platformLicenseInfo.externalUsedUserNum || 0).toLocaleString())}</div>
             </div>
             {!platformLicenseInfo.isPlatform && (
               <div className="flexColumn valignWrapper flex">
@@ -277,6 +278,23 @@ const AppreciationServer = props => {
       );
     }
   }
+  const renderDiCiState = () => {
+    if (platformLicenseInfo.dici) {
+      return null;
+    }
+
+    return (
+      <div
+        className="ThemeColor pointer"
+        onClick={(e) => {
+          e.stopPropagation();
+          setTrialServer(3);
+        }}
+      >
+        {_l('绑定密钥')}
+      </div>
+    );
+  }
   const renderSseState = () => {
     if (platformLicenseInfo.sse && platformLicenseInfo.sse.isTrial) {
       const current = moment().format('YYYY-MM-DD');
@@ -327,9 +345,9 @@ const AppreciationServer = props => {
             <div className="valignWrapper flex">
               <Icon className="Font30 ThemeColor" icon={serverInfo.icon} />
               <div className="Font17 Gray bold mLeft5">{serverInfo.title}</div>
-              {serverInfo.isTrial && <Trial className="Font12 mLeft10">{_l('试用中')}</Trial>}
+              {(serverInfo.isTrial && serverInfo.type !== 'dici') && <Trial className="Font12 mLeft10">{_l('试用中')}</Trial>}
             </div>
-            {serverInfo.isTrial && <div className="Font12 ThemeColor pointer mTop20" onClick={() => setTrialServer(serverInfo.extendFunType)}>{_l('更新试用密钥')}</div>}
+            {(serverInfo.isTrial || serverInfo.type === 'dici') && <div className="Font12 ThemeColor pointer mTop20" onClick={() => setTrialServer(serverInfo.extendFunType)}>{_l('更新密钥')}</div>}
           </div>
         )}
         onCancel={() => {
@@ -365,6 +383,15 @@ const AppreciationServer = props => {
             <div className="Gray">{serverInfo.dataPipelineRowNum.toLocaleString()}</div>
           </div>
         )}
+        {serverInfo.type === 'dici' && (
+          <div className="flexColumn flex mTop20">
+            <div className="Gray_9e mBottom2">{_l('服务实例数')}</div>
+            <div className="flexRow">
+              <div className="mRight5 Gray">{_l('剩余%0个', serverInfo.instanceNum - serverInfo.usedInstanceNum)}</div>
+              <div className="Gray_9e">{_l('共%0个', serverInfo.instanceNum)}</div>
+            </div>
+          </div>
+        )}
       </Dialog>
     );
   }
@@ -388,10 +415,28 @@ const AppreciationServer = props => {
             }}
           >
             <div className={cx('iconWrap valignWrapper justifyContentCenter', { active: platformLicenseInfo.dp })}>
-              <Icon className={cx('Font48', platformLicenseInfo.dp ? 'ThemeColor' : 'Gray_bd')} icon="a-Data_integration1" />
+              <Icon className={cx('Font40', platformLicenseInfo.dp ? 'ThemeColor' : 'Gray_bd')} icon="a-Data_integration1" />
             </div>
             <div className="Font14 mTop2">{_l('数据集成')}</div>
             {renderDpState()}
+          </div>
+          <div
+            className="diciWrap flex flexColumn alignItemsCenter pointer"
+            onClick={() => {
+              platformLicenseInfo.dici && setServerInfo({
+                ...platformLicenseInfo.dici,
+                title: _l('专属算力'),
+                icon: 'dns1',
+                type: 'dici',
+                extendFunType: 3
+              });
+            }}
+          >
+            <div className={cx('iconWrap valignWrapper justifyContentCenter', { active: platformLicenseInfo.dici })}>
+              <Icon className={cx('Font40', platformLicenseInfo.dici ? 'ThemeColor' : 'Gray_bd')} icon="dns1" />
+            </div>
+            <div className="Font14 mTop2">{_l('专属算力')}</div>
+            {renderDiCiState()}
           </div>
           <div
             className="sseWrap flex flexColumn alignItemsCenter pointer"
@@ -406,7 +451,7 @@ const AppreciationServer = props => {
             }}
           >
             <div className={cx('iconWrap valignWrapper justifyContentCenter', { active: platformLicenseInfo.sse })}>
-              <Icon className={cx('Font48', platformLicenseInfo.sse ? 'ThemeColor' : 'Gray_bd')} icon="search" />
+              <Icon className={cx('Font40', platformLicenseInfo.sse ? 'ThemeColor' : 'Gray_bd')} icon="search" />
             </div>
             <div className="Font14 mTop2">{_l('超级搜索')}</div>
             {renderSseState()}
@@ -432,6 +477,11 @@ const AppreciationServer = props => {
               platformLicenseInfo.dp = data;
               platformLicenseInfo.dp.dataPipelineJobNum = result.trialInfo.dptq;
               platformLicenseInfo.dp.dataPipelineRowNum = result.trialInfo.dpsd;
+            }
+            if (result.extendFunType === 3) {
+              platformLicenseInfo.dici = data;
+              platformLicenseInfo.dici.usedInstanceNum = 0;
+              platformLicenseInfo.dici.instanceNum = result.trialInfo.dici;
             }
             if (serverInfo) {
               setServerInfo({
@@ -459,7 +509,7 @@ const VersionsInfo = props => {
   }, []);
 
   return (
-    <div className="versionsInfo flexColumn card flex">
+    <div className="versionsInfo flexColumn card">
       <div className="Font15 bold mBottom20">{_l('版本信息')}</div>
       {
         loading ? (

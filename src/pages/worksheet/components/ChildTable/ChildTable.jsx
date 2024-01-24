@@ -919,7 +919,7 @@ class ChildTable extends React.Component {
     const maxCount = enablelimit ? max : MAX_COUNT;
     const maxShowRowCount = this.props.maxShowRowCount || rownum;
     const rowHeight = ROW_HEIGHT[rowheight] || 34;
-    const showAsPages = showtype === '2';
+    const showAsPages = showtype === '2' && !isMobile;
     const {
       loading,
       tempSheetColumnWidths,

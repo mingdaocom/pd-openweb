@@ -295,31 +295,37 @@ class EditPublishSetDialog extends React.Component {
               })}
             </ul>
           </div>
-          <h6 className="Font15 Bold borTopLine">{_l('发布到第三方')}</h6>
-          <div className="publishAppCourse">
-            {_l('发布到')}
-            <span
-              className="ThemeHoverColor2"
-              onClick={() => {
-                this.getWXProjectSettingInfo();
-              }}
-            >
-              {_l('企业微信工作台')}
-              <Icon icon="external_collaboration" className="mLeft10 Gray_9e" />
-            </span>
-          </div>
-          <div className="publishAppCourse">
-            {_l('发布到')}
-            <span
-              className="ThemeHoverColor2"
-              onClick={() => {
-                window.open(`/dingAppCourse/${projectId}/${appId}`);
-              }}
-            >
-              {_l('钉钉工作台')}
-              <Icon icon="external_collaboration" className="mLeft10 Gray_9e" />
-            </span>
-          </div>
+          {(!md.global.SysSettings.hideWorkWeixin || !md.global.SysSettings.hideDingding) && (
+            <h6 className="Font15 Bold borTopLine">{_l('发布到第三方')}</h6>
+          )}
+          {!md.global.SysSettings.hideWorkWeixin && (
+            <div className="publishAppCourse">
+              {_l('发布到')}
+              <span
+                className="ThemeHoverColor2"
+                onClick={() => {
+                  this.getWXProjectSettingInfo();
+                }}
+              >
+                {_l('企业微信工作台')}
+                <Icon icon="external_collaboration" className="mLeft10 Gray_9e" />
+              </span>
+            </div>
+          )}
+          {!md.global.SysSettings.hideDingding && (
+            <div className="publishAppCourse">
+              {_l('发布到')}
+              <span
+                className="ThemeHoverColor2"
+                onClick={() => {
+                  window.open(`/dingAppCourse/${projectId}/${appId}`);
+                }}
+              >
+                {_l('钉钉工作台')}
+                <Icon icon="external_collaboration" className="mLeft10 Gray_9e" />
+              </span>
+            </div>
+          )}
           <h6 className="Font15 Bold borTopLine">{_l('应用维护')}</h6>
           <p className="Gray_9 mTop12 mBottom20">
             {_l('应用开启维护状态后，只有管理员和开发者可以访问应用进行更新维护，其他成员无法使用应用')}

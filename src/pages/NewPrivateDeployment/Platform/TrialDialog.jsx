@@ -43,7 +43,7 @@ export default props => {
     <Dialog
       visible={visible}
       anim={false}
-      title={_l('试用密钥')}
+      title={_l('添加密钥')}
       width={560}
       onOk={handleAddPrivateKey}
       onCancel={onCancel}
@@ -61,7 +61,7 @@ export default props => {
         loading ? (
           <div className="flexRow verifyInfo Gray_75 mBottom10">
             <LoadDiv className="mAll0 mRight5" size="small" />
-            {_l('正在验证您的试用密钥')}
+            {_l('正在验证您的密钥')}
           </div>
         ) : (
           (_.isBoolean(verifyLicenseCode) && !verifyLicenseCode) && <div className="mBottom10 Red">{_l('密钥验证失败, 请重新填写')}</div>

@@ -3,7 +3,9 @@ import { Switch, Icon } from 'ming-ui';
 import { Button, Tooltip } from 'antd';
 import DataRestrictionDialog from './components/DataRestrictionDialog';
 import RecycleBinDialog from './components/RecycleBinDialog';
+import HideWorksheetControlDialog from './components/HideWorksheetControlDialog';
 import { updateSysSettings } from '../common';
+import { DEFAULT_CONFIG } from 'src/pages/widgetConfig/config/widget';
 
 const AppCreate = props => {
   const { SysSettings } = md.global;
@@ -140,6 +142,53 @@ const RecycleBin = props => {
   );
 }
 
+const HideWorksheetControl = props => {
+  const { SysSettings } = md.global;
+  const [hideWorksheetControlVisible, setHideWorksheetControlVisible] = useState(false);
+  const [hideWorksheetControl, setHideWorksheetControl] = useState(SysSettings.hideWorksheetControl ? SysSettings.hideWorksheetControl.split('|') : []);
+  return (
+    <div className="privateCardWrap flexColumn">
+      <div className="Font17 bold mBottom8">{_l('选择启用的工作表控件')}</div>
+      <div className="Gray_9e mBottom25">{_l('自定义可使用的工作表控件，用于规定哪些控件可以在工作表配置过程中使用')}</div>
+      {!!hideWorksheetControl.length && (
+        <div className="flexRow valignWrapper mBottom15">
+          <div style={{ width: 120 }} className="Gray_75">{_l('隐藏控件')}</div>
+          <div className="flexRow valignWrapper" style={{ flexWrap: 'wrap', lineHeight: '32px' }}>
+            {hideWorksheetControl.map((key, index) => {
+              const control = DEFAULT_CONFIG[key];
+              return (
+                <div className="flexRow valignWrapper" key={key}>
+                  <Icon className="Gray_9e Font16 mRight5" icon={control.icon} />
+                  {control.widgetName}
+                  {index !== hideWorksheetControl.length - 1 && <div className="mLeft10 mRight10" style={{ height: 15, width: 1, background: '#e7e7e7' }}/>}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+      <div className="mTop5">
+        <Button
+          ghost
+          type="primary"
+          onClick={() => { setHideWorksheetControlVisible(true) }}
+        >
+          {_l('设置')}
+        </Button>
+      </div>
+      {hideWorksheetControlVisible && (
+        <HideWorksheetControlDialog
+          visible={hideWorksheetControlVisible}
+          onCancel={() => {
+            setHideWorksheetControlVisible(false);
+          }}
+          onChange={setHideWorksheetControl}
+        />
+      )}
+    </div>
+  );
+}
+
 export default props => {
   const { IsPlatformLocal } = md.global.Config;
   return (
@@ -147,6 +196,7 @@ export default props => {
       {!IsPlatformLocal && <AppCreate {...props} />}
       <DataRestriction {...props} />
       <RecycleBin {...props} />
+      <HideWorksheetControl {...props} />
     </Fragment>
   );
 }

@@ -706,6 +706,12 @@ export default class CreateNodeDialog extends Component {
       });
     }
 
+    if (md.global.SysSettings.hideWeixin) {
+      this.state.list.forEach(o => {
+        _.remove(o.items, item => item.type === NODE_TYPE.TEMPLATE);
+      });
+    }
+
     // 埋点授权过滤： API集成工作流节点、代码块节点、获取打印文件节点、界面推送、全局变量
     [
       { featureId: VersionProductType.apiIntergrationNode, type: [NODE_TYPE.API_PACKAGE, NODE_TYPE.API] },

@@ -136,10 +136,6 @@ function ExplanList(props) {
       });
       return;
     }
-    if (config.effectiveCount >= 5) {
-      alert(_l('购买数量超出上限'), 3);
-      return;
-    }
     navigateTo(`/admin/expansionserviceComputing/${projectId}/computing`);
   };
 
@@ -154,6 +150,8 @@ function ExplanList(props) {
         if (res) {
           alert(_l('重新创建中...'));
           getData();
+        } else {
+          alert(_l('创建失败'));
         }
       });
   };
@@ -164,12 +162,14 @@ function ExplanList(props) {
         <img src={EXCLUSIVE_BIG} />
         <div className="Font32 bold mBottom24">{_l('配置专属算力')}</div>
         <div className="desc">
-          {_l(
-            '您的组织购买专属算力服务后，将重要的工作流添加到专属算力服务中运行，可免受本组织或平台其他组织的流程堵塞影响',
-          )}
+          {`${
+            md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal
+              ? _l('您的组织创建专属算力服务后，')
+              : _l('您的组织购买专属算力服务后，')
+          }${_l('将重要的工作流添加到专属算力服务中运行，可免受本组织或平台其他组织的流程堵塞影响')}`}
         </div>
         <Button radius className="exclusiveCompButton Font14" onClick={goToPurchase}>
-          {_l('购买专属算力')}
+          {md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal ? _l('创建专属算力') : _l('购买专属算力')}
         </Button>
       </EmptyWrap>
     );
@@ -299,7 +299,7 @@ function ExplanList(props) {
                             >
                               {_l('修改名称')}
                             </li>
-                            {item.canRenew && (
+                            {item.canRenew && !(md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal) && (
                               <li
                                 onClick={() => {
                                   if (!isSuperAdmin) {
@@ -391,7 +391,7 @@ function ExplanList(props) {
         <Support className="mRight24" text={_l('帮助')} type={2} href="https://help.mingdao.com/apply18" />
         {!config.isInit && (
           <Button icon="add" radius className="exclusiveCompButton" onClick={goToPurchase}>
-            {_l('购买专属算力')}
+            {md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal ? _l('创建专属算力') : _l('购买专属算力')}
           </Button>
         )}
       </div>

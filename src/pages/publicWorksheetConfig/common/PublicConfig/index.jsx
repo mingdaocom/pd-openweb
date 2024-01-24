@@ -592,37 +592,40 @@ class PublicConfig extends React.Component {
                 setState={stateObj => this.setState(stateObj)}
               />
 
-              <WeChatSettings
-                projectId={this.props.worksheetInfo.projectId}
-                data={{
-                  weChatSetting,
-                  originalControls,
-                  writeScope,
-                  extendSourceId,
-                  ipControlId,
-                  browserControlId,
-                  deviceControlId,
-                  systemControlId,
-                  titleFolded,
-                }}
-                weChatBind={this.state.weChatBind}
-                setState={stateObj => this.setState(stateObj)}
-                addWorksheetControl={addWorksheetControl}
-              />
+              {!md.global.SysSettings.hideWeixin && (
+                <WeChatSettings
+                  projectId={this.props.worksheetInfo.projectId}
+                  data={{
+                    weChatSetting,
+                    originalControls,
+                    writeScope,
+                    extendSourceId,
+                    ipControlId,
+                    browserControlId,
+                    deviceControlId,
+                    systemControlId,
+                    titleFolded,
+                  }}
+                  weChatBind={this.state.weChatBind}
+                  setState={stateObj => this.setState(stateObj)}
+                  addWorksheetControl={addWorksheetControl}
+                />
+              )}
 
-              <AbilityExpandSettings
-                data={{
-                  abilityExpand,
-                  originalControls,
-                  writeScope,
-                  weChatSetting,
-                  extendSourceId,
-                  controls,
-                  titleFolded,
-                }}
-                setState={stateObj => this.setState(stateObj)}
-              />
-
+              {!md.global.SysSettings.hideWeixin && (
+                <AbilityExpandSettings
+                  data={{
+                    abilityExpand,
+                    originalControls,
+                    writeScope,
+                    weChatSetting,
+                    extendSourceId,
+                    controls,
+                    titleFolded,
+                  }}
+                  setState={stateObj => this.setState(stateObj)}
+                />
+              )}
               <SectionTitle
                 className="mBottom16"
                 title={_l('表单填写成功回执')}

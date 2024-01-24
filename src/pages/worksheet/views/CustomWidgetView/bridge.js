@@ -1,5 +1,5 @@
 import { autobind } from 'core-decorators';
-import { last, isFunction } from 'lodash';
+import { get, last, isFunction } from 'lodash';
 import { api, utils } from './widgetFunctions';
 
 export default class WidgetBridge {
@@ -74,7 +74,14 @@ export default class WidgetBridge {
         if (!isFunction(utils[functionName])) {
           throw new Error('not a md api function');
         }
-        const result = await utils[functionName]({ ...args, worksheetInfo: this.cache.current.config.worksheetInfo });
+        const result = await utils[functionName]({
+          ...args,
+          projectId: get(this, 'cache.current.config.worksheetInfo.projectId'),
+          worksheetInfo:
+            args.worksheetId && args.worksheetId !== get(this, 'cache.current.config.worksheetInfo.worksheetId')
+              ? undefined
+              : get(this, 'cache.current.config.worksheetInfo'),
+        });
         e.ports[0].postMessage({
           result,
         });

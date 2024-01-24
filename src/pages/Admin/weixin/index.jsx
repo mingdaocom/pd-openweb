@@ -173,7 +173,7 @@ export default class WeiXin extends Component {
           '取消绑定后，本组织内与公众号所有相关信息将失效（包含但不限于外部用户、模板消息）请您谨慎操作。',
         ),
         onOk: () => {
-          projectAjax.cancelBindingWeiXin({ appId: data.appId }).then(result => {
+          projectAjax.cancelBindingWeiXin({ appId: data.appId, projectId: Config.projectId }).then(result => {
             if (result) {
               alert(_l('成功取消绑定'));
               this.setState({ isBind: false, weixinInfo: [] });
@@ -276,7 +276,7 @@ export default class WeiXin extends Component {
                 </Fragment>
               ))}
               <Form.Item>
-                <Button type="primary" className="submit" type="primary" htmlType="submit">
+                <Button type="primary" className="submit" htmlType="submit">
                   {_l('提交')}
                 </Button>
               </Form.Item>

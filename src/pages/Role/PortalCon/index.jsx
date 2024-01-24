@@ -208,7 +208,11 @@ class PortalCon extends React.Component {
                     : null
                 }
                 editTip={_l('自定义域名')}
-                copyTip={_l('可以将链接放在微信公众号的自定义菜单与自动回复内，方便微信用户关注公众号后随时打开此链接')}
+                copyTip={
+                  md.global.SysSettings.hideWeixin
+                    ? undefined
+                    : _l('可以将链接放在微信公众号的自定义菜单与自动回复内，方便微信用户关注公众号后随时打开此链接')
+                }
               />
               {canEditApp && (
                 <span

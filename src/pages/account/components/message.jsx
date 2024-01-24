@@ -786,7 +786,6 @@ class Message extends React.Component {
               <input
                 type={keys.includes('setPassword') && isOpen ? 'text' : 'password'}
                 className="passwordIcon"
-                placeholder={password}
                 ref={password => (this.password = password)}
                 onBlur={this.inputOnBlur}
                 onFocus={this.inputOnFocus}
@@ -813,7 +812,6 @@ class Message extends React.Component {
                     this.inputOnFocus(e);
                   }
                 }}
-                value={password}
                 autocomplete={
                   //keys.includes('password') ? 'account-password' :
                   'new-password'

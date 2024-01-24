@@ -13,6 +13,7 @@ import ReactDom from 'react-dom';
 import postAjax from 'src/api/post';
 import PostDetails from 'src/pages/feed/components/post/postDetails/postDetails';
 import moment from 'moment';
+import filterXss from 'xss';
 
 const vertical = {
   WebkitBoxOrient: 'vertical',
@@ -219,7 +220,7 @@ export default class CardMessage extends Component {
           <div
             style={vertical}
             className="Message-cardSummary Message-cardItem-task"
-            dangerouslySetInnerHTML={{ __html: htmlDecodeReg(cardDetails.summary) }}
+            dangerouslySetInnerHTML={{ __html: filterXss(htmlDecodeReg(cardDetails.summary)) }}
           />
         ) : undefined}
       </div>

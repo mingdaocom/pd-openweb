@@ -59,6 +59,16 @@ export default class AdminLeftMenu extends Component {
       !featureType
     )
       return;
+
+    if (
+      (md.global.SysSettings.hideWorkWeixin && key === 'workwxapp') ||
+      (md.global.SysSettings.hideDingding && key === 'ding') ||
+      (md.global.SysSettings.hideFeishu && key === 'feishu') ||
+      (md.global.SysSettings.hideWelink && key === 'welink') ||
+      (md.global.SysSettings.hideWeixin && key === 'weixin')
+    )
+      return;
+
     return (
       <Tooltip
         disable={this.state.isExtend}

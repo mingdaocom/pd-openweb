@@ -328,7 +328,7 @@ export default class Code extends Component {
                       data={data.versions.map(version => {
                         return { text: 'v' + version, value: version };
                       })}
-                      value={data.version}
+                      value={data.version || data.versions[0]}
                       onChange={version => {
                         this.updateSource({ version });
                       }}

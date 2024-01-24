@@ -99,7 +99,7 @@ export default class WaitingPay extends Component {
       if (it.id === 'balancePay' && _.includes([ReCharge, Ultimate, Enterprise], recordType)) {
         //充值、升级没有余额支付
         return false;
-      } else if (price === 0) {
+      } else if (price === 0 || ([25, 26].includes(recordType) && md.global.Config.IsLocal)) {
         // 免费试用支付订单只保留余额支付
         return !_.includes(['aliPay', 'wechartPay', 'bankPay'], it.id);
       }
@@ -334,11 +334,13 @@ export default class WaitingPay extends Component {
                 {_l('开户行：')}
                 <span>{_l('民生银行上海大宁支行')}</span>
               </div>
-              <div className="warpSendBankInfoEmail mTop16">
-                <Checkbox onChange={this.handleCheckBox.bind(this)} checked={needEmail}>
-                  {_l('同时邮件给我')}
-                </Checkbox>
-              </div>
+              {!md.global.Config.IsLocal && (
+                <div className="warpSendBankInfoEmail mTop16">
+                  <Checkbox onChange={this.handleCheckBox.bind(this)} checked={needEmail}>
+                    {_l('同时邮件给我')}
+                  </Checkbox>
+                </div>
+              )}
             </div>
             {/** 余额支付 */}
             <div className={cx('warpShowBankAcountInfo', { Hidden: payStyle !== 'balancePay' })}>
@@ -356,11 +358,13 @@ export default class WaitingPay extends Component {
                     onChange={this.handleInput.bind(this)}
                     autocomplete="new-password"
                   />
+                  {!md.global.Config.IsLocal && (
                   <div className="warpSendBankInfoEmail mTop16">
                     <Checkbox onChange={this.handleCheckBox.bind(this)} checked={needEmail}>
                       {_l('同时邮件给我')}
                     </Checkbox>
                   </div>
+                  )}
                 </Fragment>
               )}
             </div>
@@ -377,13 +381,15 @@ export default class WaitingPay extends Component {
           >
             {payStyle === 'bankPay' ? _l('保存付款信息') : _l('立即支付')}
           </button>
-          <div className="Gray_9 mTop24">
-            <div>{_l('我们将在收到款项后的15分钟内为您完成服务')}</div>
-            {_l('如有疑问，')}
-            <span className="ThemeColor3 Hand" onClick={this.handleHelp.bind(this)}>
-              {_l('请与我们联系')}
-            </span>
-          </div>
+          {!md.global.Config.IsLocal && (
+            <div className="Gray_9 mTop24">
+              <div>{_l('我们将在收到款项后的15分钟内为您完成服务')}</div>
+              {_l('如有疑问，')}
+              <span className="ThemeColor3 Hand" onClick={this.handleHelp.bind(this)}>
+                {_l('请与我们联系')}
+              </span>
+            </div>
+          )}
         </div>
       </div>
     );

@@ -76,6 +76,7 @@ const WidgetList = styled.div`
 
 export default function List(props) {
   const { globalSheetInfo = {}, activeWidget = {} } = props;
+  const { hideWorksheetControl = '' } = md.global.SysSettings;
 
   const handleAdd = (data, para = {}) => {
     let sectionId = '';
@@ -105,11 +106,15 @@ export default function List(props) {
         <div className="groupList">
           {_.keys(WIDGET_GROUP_TYPE).map(group => {
             const { widgets, title } = WIDGET_GROUP_TYPE[group];
+            const list = _.keys(widgets).filter(key => !hideWorksheetControl.includes(key)).filter(key => !(key === 'SEARCH_BTN' && md.global.SysSettings.hideIntegration));
+            if (!list.length) {
+              return undefined;
+            }
             return (
               <div key={group} className="group">
                 <div className="title">{title}</div>
                 <ul>
-                  {_.keys(widgets).filter(key => !(key === 'SEARCH_BTN' && md.global.SysSettings.hideIntegration)).map(key => {
+                  {list.map(key => {
                     const featureType = getFeatureStatus(globalSheetInfo.projectId, widgets[key]['featureId']);
                     if (_.includes(['SEARCH_BTN', 'SEARCH'], key) && !featureType) return;
 
