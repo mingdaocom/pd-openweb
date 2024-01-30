@@ -37,7 +37,7 @@
                     contentType: 'application/json',
                 }).done(res => {
                     if (res.data.code === 0) {
-                        location.href = '/portal/' + request.appId;
+                        location.href = '/portal/app/' + request.appId;
                     } else {
                         alert(res.data.message);
                     }
