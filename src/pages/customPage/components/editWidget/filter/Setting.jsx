@@ -89,8 +89,8 @@ function Setting(props) {
           const target = _.find(f.objectControls, { worksheetId: o.worksheetId });
           return {
             ...o,
-            controlId: target ? target.controlId : '',
-            control: target ? target.control : undefined
+            controlId: target && target.controlId ? target.controlId : '',
+            control: target && target.control ? target.control : undefined
           }
         })
       }

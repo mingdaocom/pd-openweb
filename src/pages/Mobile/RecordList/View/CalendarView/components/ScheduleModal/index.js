@@ -25,7 +25,7 @@ class ScheduleModal extends Component {
     super(props);
     this.state = {
       previewRecordId: undefined,
-      wsid: undefined
+      wsid: undefined,
     };
   }
   componentDidMount() {
@@ -65,15 +65,18 @@ class ScheduleModal extends Component {
           )}
           <div className="listContainer">
             {eventData.map(it => {
-              let timeStr;
+              let timeStr = '';
               if (moment(it.date).format('ll') === moment().format('ll')) {
                 timeStr = _l('今天');
               } else {
                 timeStr = moment(it.date).format('ll');
               }
+
               return (
-                <div className="" key={it.date}>
-                  <div className={cx('timeStr', {})}>{timeStr}</div>
+                <div key={it.date}>
+                  <div className="timeStr">
+                    {timeStr} <span>{moment(it.date).format('dddd')}</span>
+                  </div>
                   {this.renderEventData(it.res)}
                 </div>
               );
@@ -276,7 +279,7 @@ class ScheduleModal extends Component {
           onClose={() => {
             this.setState({
               previewRecordId: undefined,
-              wsid: undefined
+              wsid: undefined,
             });
           }}
         />

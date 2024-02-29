@@ -5,7 +5,7 @@ import { Checkbox } from 'ming-ui';
 import update from 'immutability-helper';
 import Components from '../../../../components';
 import DialogSelectGroups from 'src/components/dialogSelectDept';
-import { selectOrgRole } from 'src/components/DialogSelectOrgRole';
+import selectOrgRole from 'src/components/dialogSelectOrgRole';
 import { Dropdown, Tooltip } from 'antd';
 import cx from 'classnames';
 import { DropdownContent } from '../../../../styled';

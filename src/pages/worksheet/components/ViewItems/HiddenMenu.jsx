@@ -30,7 +30,7 @@ export default function HiddenMenu(props) {
           <Menu.Item
             key={'hiddenMenu' + index}
             className={`hiddenMenuItem ${showhide === HIDDEN_MENU[index].key[type] ? 'current' : ''}`}
-            onClick={() => onClick(HIDDEN_MENU[index].key[type])}
+            onClick={() => onClick(showhide === HIDDEN_MENU[index].key[type] ? '' : HIDDEN_MENU[index].key[type])}
           >
             {item[showhide !== 'hide' ? 'text' : 'textShow']}
             {showhide === HIDDEN_MENU[index].key[type] && <Icon icon="done" />}

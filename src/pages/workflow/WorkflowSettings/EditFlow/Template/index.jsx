@@ -29,7 +29,7 @@ export default class Template extends Component {
     return (
       <div className="pLeft8 pRight8 pTop5 pBottom5">
         <span className="Gray_75">{_l('发送给：')}</span>
-        <MembersName accounts={item.accounts} />
+        <MembersName {...this.props} accounts={item.accounts} />
       </div>
     );
   }

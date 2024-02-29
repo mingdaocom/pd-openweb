@@ -8,6 +8,7 @@ import homeAppAjax from 'src/api/homeApp';
 import DropdownWrapper from '../DropdownWrapper';
 import cx from 'classnames';
 import SelectOtherWorksheetDialog from './SelectOtherWorksheetDialog';
+import { getTranslateInfo } from 'src/util';
 import './SelectWorksheet.less';
 import _ from 'lodash';
 
@@ -136,7 +137,12 @@ export default class SelectWroksheet extends React.Component {
         this.setState(
           {
             loading: false,
-            worksheets: data,
+            worksheets: data.map(sheet => {
+              return {
+                ...sheet,
+                workSheetName: getTranslateInfo(appId, sheet.workSheetId).name || sheet.workSheetName
+              }
+            }),
           },
           () => {
             this.loadSelectedWorksheet(worksheetId, worksheetType);

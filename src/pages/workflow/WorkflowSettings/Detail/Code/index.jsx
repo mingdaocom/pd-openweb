@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv, Icon, Dialog, Dropdown } from 'ming-ui';
+import { ScrollView, LoadDiv, Icon, Dialog, Dropdown, Checkbox } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
 import { DetailHeader, DetailFooter, ParameterList, KeyPairs, TestParameter, ChatGPT } from '../components';
 import { ACTION_ID } from '../../enum';
@@ -97,7 +97,7 @@ export default class Code extends Component {
    */
   onSave = () => {
     const { data, saveRequest } = this.state;
-    const { name, actionId, inputDatas, code, testMap, version } = data;
+    const { name, actionId, inputDatas, code, testMap, version, maxRetries } = data;
 
     if (!code) {
       alert(_l('代码块必填'), 2);
@@ -120,6 +120,7 @@ export default class Code extends Component {
           code: Base64.encode(code),
           testMap,
           version,
+          maxRetries,
         },
         { isIntegration: this.props.isIntegration },
       )
@@ -285,7 +286,10 @@ export default class Code extends Component {
       this.updateSource({ inputDatas: newInputData, code });
     } else {
       this.updateSource({
-        inputDatas: _.uniqBy(data.inputDatas.concat(newInputData), o => o.name),
+        inputDatas: _.uniqBy(
+          data.inputDatas.concat(newInputData).filter(o => o.name),
+          o => o.name,
+        ),
         code: `${data.code}\n\n${code}`,
       });
     }
@@ -400,6 +404,14 @@ export default class Code extends Component {
               )}
 
               {this.renderParameterList()}
+
+              <div className="Font13 bold mTop20">{_l('自动重试')}</div>
+              <Checkbox
+                className="mTop10 flexRow"
+                text={_l('代码块整体运行失败时自动重试')}
+                checked={data.maxRetries > 0}
+                onClick={checked => this.updateSource({ maxRetries: !checked ? 1 : 0 })}
+              />
             </div>
           </ScrollView>
         </div>

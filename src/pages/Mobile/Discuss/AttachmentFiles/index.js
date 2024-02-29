@@ -3,7 +3,7 @@ import cx from 'classnames';
 import { Flex, Toast } from 'antd-mobile';
 import { Icon, Progress } from 'ming-ui';
 import './index.less';
-import { getRandomString, getClassNameByExt, getToken, formatFileSize } from 'src/util';
+import { generateRandomPassword, getClassNameByExt, getToken, formatFileSize } from 'src/util';
 import { checkFileAvailable } from 'src/components/UploadFiles/utils.js';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import moment from 'moment';
@@ -15,7 +15,7 @@ import MapHandler from 'src/ming-ui/components/amap/MapHandler';
  * @param {file} 上传的图片文件
  */
 async function addWaterMarker(file, textLayouts) {
-  let img = await blobToImg(file)
+  let img = await blobToImg(file);
   return new Promise((resolve, reject) => {
     let canvas = document.createElement('canvas');
     canvas.width = img.width;
@@ -27,9 +27,9 @@ async function addWaterMarker(file, textLayouts) {
     const lineSpacing = 6;
 
     // 绘制背景
-    const bgColoryOffset = (fontSize * textLayouts.length) + (lineSpacing * textLayouts.length);
+    const bgColoryOffset = fontSize * textLayouts.length + lineSpacing * textLayouts.length;
     ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-    ctx.fillRect(0, (canvas.height - bgColoryOffset) - fontSize, canvas.width, bgColoryOffset + fontSize);
+    ctx.fillRect(0, canvas.height - bgColoryOffset - fontSize, canvas.width, bgColoryOffset + fontSize);
 
     // 绘制文字
     ctx.font = `${fontSize}px 'Fira Sans'`;
@@ -41,17 +41,17 @@ async function addWaterMarker(file, textLayouts) {
     textLayouts.forEach((text, index) => {
       const i = textLayouts.length - index;
       const xOffset = 20;
-      const yOffset = canvas.height - (fontSize * i) - (lineSpacing * i);
+      const yOffset = canvas.height - fontSize * i - lineSpacing * i;
       ctx.fillText(text, xOffset, yOffset + 10);
     });
 
     canvas.toBlob(blob => resolve(blob));
-  })
+  });
 }
 
 /**
-* blob转img标签
-*/
+ * blob转img标签
+ */
 function blobToImg(blob) {
   return new Promise((resolve, reject) => {
     let reader = new FileReader();
@@ -91,10 +91,10 @@ export class UploadFileWrapper extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      files: props.files
+      files: props.files,
     };
     this.currentFile = null;
-    this.id = `uploadFiles-${getRandomString()}`;
+    this.id = `uploadFiles-${generateRandomPassword(10)}`;
   }
   componentDidMount() {
     this.uploadFile();
@@ -109,8 +109,8 @@ export class UploadFileWrapper extends Component {
             const { formattedAddress, position } = result;
             currentLocation = {
               formattedAddress,
-              position
-            }
+              position,
+            };
           }
         });
       });
@@ -135,8 +135,15 @@ export class UploadFileWrapper extends Component {
 
     const method = {
       FilesAdded(uploader, files) {
-        if (parseFloat(files.reduce((total, file) => total + (file.size || 0), 0) / 1024 / 1024) > md.global.SysSettings.fileUploadLimitSize) {
-          Toast.info('附件总大小超过 ' + formatFileSize(md.global.SysSettings.fileUploadLimitSize * 1024 * 1024) + '，请您分批次上传');
+        if (
+          parseFloat(files.reduce((total, file) => total + (file.size || 0), 0) / 1024 / 1024) >
+          md.global.SysSettings.fileUploadLimitSize
+        ) {
+          Toast.info(
+            '附件总大小超过 ' +
+              formatFileSize(md.global.SysSettings.fileUploadLimitSize * 1024 * 1024) +
+              '，请您分批次上传',
+          );
           uploader.stop();
           uploader.splice(uploader.files.length - files.length, uploader.files.length);
           return false;
@@ -177,7 +184,9 @@ export class UploadFileWrapper extends Component {
               self.props.onChange(newFiles);
             });
           getToken(tokenFiles, 0, {
-            projectId, appId, worksheetId
+            projectId,
+            appId,
+            worksheetId,
           }).then(res => {
             files.forEach((item, i) => {
               item.token = res[i].uptoken;
@@ -193,33 +202,35 @@ export class UploadFileWrapper extends Component {
         if (watermark.length) {
           // 添加水印
           Promise.all(
-            files.filter(file => {
-              const ext = File.GetExt(file.name);
-              return File.isPicture(`.${ext}`);
-            }).map(file => {
-              return new Promise((resolve, reject) => {
-                const nativeFile = file.getNative();
-                const { formattedAddress, position } = currentLocation || {};
-                const textLayouts = [];
-                if (md.global.Account.fullname && watermark.includes('user')) {
-                  textLayouts.push(md.global.Account.fullname);
-                }
-                if (watermark.includes('time')) {
-                  textLayouts.push(moment().format('YYYY-MM-DD HH:mm:ss'));
-                }
-                if (formattedAddress && watermark.includes('address')) {
-                  textLayouts.push(formattedAddress);
-                }
-                if (position && watermark.includes('xy')) {
-                  textLayouts.push(`${_l('经度')}：${position.lng}  ${_l('纬度')}：${position.lat}`);
-                }
-                addWaterMarker(nativeFile, textLayouts).then(blob => {
-                  const newFile = new File([blob], file.name, { type: blob.type });
-                  file.getSource().setSource(newFile);
-                  resolve();
+            files
+              .filter(file => {
+                const ext = File.GetExt(file.name);
+                return File.isPicture(`.${ext}`);
+              })
+              .map(file => {
+                return new Promise((resolve, reject) => {
+                  const nativeFile = file.getNative();
+                  const { formattedAddress, position } = currentLocation || {};
+                  const textLayouts = [];
+                  if (md.global.Account.fullname && watermark.includes('user')) {
+                    textLayouts.push(md.global.Account.fullname);
+                  }
+                  if (watermark.includes('time')) {
+                    textLayouts.push(moment().format('YYYY-MM-DD HH:mm:ss'));
+                  }
+                  if (formattedAddress && watermark.includes('address')) {
+                    textLayouts.push(formattedAddress);
+                  }
+                  if (position && watermark.includes('xy')) {
+                    textLayouts.push(`${_l('经度')}：${position.lng}  ${_l('纬度')}：${position.lat}`);
+                  }
+                  addWaterMarker(nativeFile, textLayouts).then(blob => {
+                    const newFile = new File([blob], file.name, { type: blob.type });
+                    file.getSource().setSource(newFile);
+                    resolve();
+                  });
                 });
-              });
-            })
+              }),
           ).then(() => {
             start();
           });
@@ -279,7 +290,12 @@ export class UploadFileWrapper extends Component {
       },
       Error(uploader, error) {
         if (error.code === window.plupload.FILE_SIZE_ERROR) {
-          Toast.info(_l('单个文件大小超过%0，无法支持上传', formatFileSize(md.global.SysSettings.fileUploadLimitSize * 1024 * 1024)));
+          Toast.info(
+            _l(
+              '单个文件大小超过%0，无法支持上传',
+              formatFileSize(md.global.SysSettings.fileUploadLimitSize * 1024 * 1024),
+            ),
+          );
         } else {
           Toast.info(_l('上传失败，请稍后再试。'));
         }
@@ -314,10 +330,13 @@ export class UploadFileWrapper extends Component {
       file_data_name: 'file',
       multi_selection: true,
       method,
-      resize: _.get(advancedSetting, 'webcompress') !== '0' ? {
-        quality: 60,
-        preserve_headers: true
-      } : undefined,
+      resize:
+        _.get(advancedSetting, 'webcompress') !== '0'
+          ? {
+              quality: 60,
+              preserve_headers: true,
+            }
+          : undefined,
       autoUpload: false,
     });
   }
@@ -329,9 +348,9 @@ export class UploadFileWrapper extends Component {
     });
   }
   render() {
-    const { children, className } = this.props;
+    const { children, className, style } = this.props;
     return (
-      <div className="Relative" ref={el => (this.uploadContainer = el)}>
+      <div className="Relative" style={style} ref={el => (this.uploadContainer = el)}>
         <span ref={el => (this.uploadFileEl = el)} id={this.id} className={className}>
           {children}
         </span>
@@ -383,7 +402,7 @@ export default class AttachmentList extends Component {
   }
   renderImage(item, index) {
     const isKc = item.refId ? true : false;
-    const path = item.previewUrl || item.viewUrl || '';
+    const path = item.previewUrl || item.viewUrl || item.url || '';
     const url = isKc
       ? `${item.middlePath + item.middleName}`
       : path.indexOf('imageView2') > -1

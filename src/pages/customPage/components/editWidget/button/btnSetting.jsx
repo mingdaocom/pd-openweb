@@ -16,6 +16,8 @@ import FilterData from './FilterData';
 import SelectProcess from './SelectProcess';
 import ClickConfirm from './ClickConfirm';
 import { DropdownContent } from 'src/pages/widgetConfig/styled';
+import { replaceControlsTranslateInfo } from 'src/pages/worksheet/util';
+import { getTranslateInfo } from 'src/util';
 import _ from 'lodash';
 
 const BtnSettingWrap = styled.div`
@@ -293,16 +295,17 @@ function BtnSetting(props) {
       });
       sheetRequest.then(res => {
         const { views = [], template } = res;
+        const controls = replaceControlsTranslateInfo(appId, template.controls);
         setDataSource({
-          views: views.map(({ viewId, name }) => ({ text: name, value: viewId })),
-          controls: template.controls
+          views: views.map(({ viewId, name, viewType }) => ({ text: getTranslateInfo(appId, viewId).name || name, value: viewId, type: viewType })),
+          controls
         });
         if (action === 1) {
           setBtnSetting({
             ...btnSetting,
             config: {
               ...config,
-              controls: template.controls
+              controls
             }
           });
         }
@@ -472,11 +475,28 @@ function BtnSetting(props) {
     }
     // 扫码
     if (action === 5) {
-      const { qrCodeIsOpen, barCodeIsOpen, recordLink, otherLink, text, isFilter } = _.isObject(config) ? config : {};
+      const { qrCodeIsOpen, barCodeIsOpen, recordLink, otherLink, text, placeholder, isFilter } = _.isObject(config) ? config : {};
       return (
         <Fragment>
           <div className="settingItem">
-            <div className="settingTitle">{_l('扫码方式')}</div>
+            <div className="settingTitle">{_l('引导文字')}</div>
+            <Input
+              className="w100"
+              value={placeholder}
+              onChange={value => {
+                setBtnSetting({
+                  ...btnSetting,
+                  config: {
+                    ...config,
+                    placeholder: value
+                  }
+                });
+              }}
+              placeholder={_l('请输入引导文字')}
+            />
+          </div>
+          <div className="settingItem">
+            <div className="settingTitle">{_l('移动端扫码方式')}</div>
             <div className="flexRow">
               <div className="flex">
                 <Checkbox
@@ -651,7 +671,12 @@ function BtnSetting(props) {
                 <Dropdown
                   disabled={!value}
                   value={viewId || undefined}
-                  data={views}
+                  data={views.map(item => {
+                    return {
+                      ...item,
+                      disabled: item.type !== 0
+                    }
+                  })}
                   onChange={value => setBtnSetting({ ...btnSetting, viewId: value })}
                   style={{ width: '100%', background: '#fff' }}
                   menuStyle={{ width: '100%' }}

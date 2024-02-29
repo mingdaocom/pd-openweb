@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Checkbox } from 'ming-ui';
 import { Tooltip } from 'antd';
 import { SettingItem, NumberRange } from '../../../styled';
-import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
+import { getAdvanceSetting, handleAdvancedSettingChange, canAsUniqueWidget } from 'src/pages/widgetConfig/util/setting';
 import InputValue from './InputValue';
 import DateVerify from './DateVerify';
 import TextVerify from './TextVerify';
@@ -16,12 +16,6 @@ const CompConfig = {
   16: DateVerify,
   34: SubListVerify,
   46: DateVerify,
-};
-
-// 不允许重复的控件
-const canAsUniqueWidget = item => {
-  return _.includes([2, 3, 4, 5, 7], item.type);
-  // return _.includes([2, 3, 4, 5, 7, 26, 27, 48], item.type) || (item.type === 29 && item.enumDefault === 1);
 };
 
 const TYPE_TO_TEXT = {
@@ -128,11 +122,11 @@ export default function WidgetVerify(props) {
           </div>
         )}
         {/**不允许重复输入 */}
-        {!fromPortal && canAsUniqueWidget(data) && (
+        {!fromPortal && !isSubList && canAsUniqueWidget(data) && (
           <div className="labelWrap">
             <Checkbox size="small" checked={unique} onClick={checked => onChange({ unique: !checked })}>
               <span>
-                {isSubList ? _l('本记录内不允许重复输入') : _l('不允许重复输入')}
+                {_l('不允许重复输入')}
                 {!isSubList && (
                   <Tooltip
                     placement={'bottom'}

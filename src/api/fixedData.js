@@ -7,7 +7,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    loadProvince: function (args, options = {}) {
-
+     
      return $.api('FixedData', 'LoadProvince', args, options);
    },
   /**
@@ -20,7 +20,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    loadCityCountyById: function (args, options = {}) {
-
+     
      return $.api('FixedData', 'LoadCityCountyById', args, options);
    },
   /**
@@ -30,6 +30,7 @@ export default {
   * @param {string} args.keywords 关键词
   * @param {integer} args.layer 层级 0：不限制
   * @param {string} args.textSplit 分割字符
+  * @param {boolean} args.isLast 是否最后一级
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -46,7 +47,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    loadIndustry: function (args, options = {}) {
-
+     
      return $.api('FixedData', 'LoadIndustry', args, options);
    },
   /**
@@ -57,12 +58,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    checkSensitive: function (args, options = {}) {
-     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' });
+     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
      return $.api('FixedData', 'CheckSensitive', args, options);
    },
-
-   getCitysByParentID: function (args, options = {}) {
-    options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'POST' });
-    return $.api('FixedData', 'GetCitysByParentID', args, options);
-  },
 };

@@ -8,6 +8,7 @@ import SvgIcon from 'src/components/SvgIcon';
 import Trigger from 'rc-trigger';
 import { normTypes } from 'statistics/common';
 import RuleColor from './Color/RuleColor';
+import { replaceColor } from 'statistics/Charts/NumberChart';
 
 const Wrap = styled.div`
   .chartTypeSelect {
@@ -32,12 +33,6 @@ const Wrap = styled.div`
       width: 100%;
       height: 100%;
     }
-  }
-  .numberIconWrap {
-    width: 88px;
-    height: 32px;
-    border-radius: 3px;
-    justify-content: center;
   }
   .square, .circle {
     width: 12px;
@@ -222,10 +217,11 @@ const CardLayout = props => {
 }
 
 const IconSetting = props => {
-  const { projectId, numberChartStyle, onChangeNumberStyle } = props;
+  const { projectId, themeColor, customPageConfig, numberChartStyle, onChangeNumberStyle } = props;
   const [visible, setVisible] = useState(false);
+  const { numberChartColor, numberChartColorIndex = 1 } = customPageConfig;
   const icon = numberChartStyle.icon || '3_1_coins';
-  const iconColor = numberChartStyle.iconColor || '#2196F3';
+  const { iconColor } = replaceColor({ iconColor: numberChartStyle.iconColor || '#2196F3' }, {}, themeColor);
   return (
     <Wrap className="mBottom16">
       <div className="flexRow valignWrapper mBottom12">
@@ -237,26 +233,45 @@ const IconSetting = props => {
           popup={(
             <SelectIcon
               hideInput={true}
+              hideColor={true}
               projectId={projectId}
               icon={icon}
               iconColor={iconColor}
               className="Relative"
               onModify={(data) => {
-                const { iconColor, icon } = data;
+                const { icon } = data;
                 if (icon) {
                   onChangeNumberStyle({ icon });
-                }
-                if (iconColor) {
-                  onChangeNumberStyle({ iconColor });
                 }
               }}
             />
           )}
         >
-          <div className="numberIconWrap flexRow valignWrapper pointer" style={{ backgroundColor: iconColor }}>
-            <SvgIcon url={`${md.global.FileStoreConfig.pubHost}/customIcon/${icon}.svg`} fill="#fff" size={22} />
-          </div>
+          <EntranceWrapper
+            className="ruleIcon flexRow valignWrapper pointer mLeft0 mRight10"
+            onClick={() => {
+            }}
+          >
+            <SvgIcon url={`${md.global.FileStoreConfig.pubHost}/customIcon/${icon}.svg`} fill="#9e9e9e" size={22} />
+          </EntranceWrapper>
         </Trigger>
+        <ColorPicker
+          isPopupBody={true}
+          sysColor={true}
+          themeColor={themeColor}
+          value={iconColor}
+          onChange={value => {
+            const data = { iconColor: value };
+            if (numberChartColor) {
+              data.numberChartColorIndex = numberChartColorIndex + 1;
+            }
+            onChangeNumberStyle(data);
+          }}
+        >
+          <div className="colorWrap pointer">
+            <div className="colorBlock" style={{ backgroundColor: iconColor }}></div>
+          </div>
+        </ColorPicker>
       </div>
       <div className="flexRow valignWrapper mBottom12">
         <div style={{ width: 60 }}>{_l('形状')}</div>
@@ -282,7 +297,8 @@ const IconSetting = props => {
 }
 
 const StatisticsValue = props => {
-  const { currentReport, onChangeDisplayValue, numberChartStyle, onChangeNumberStyle } = props;
+  const { currentReport, themeColor, customPageConfig, onChangeDisplayValue, numberChartStyle, onChangeNumberStyle } = props;
+  const { numberChartColor, numberChartColorIndex = 1 } = customPageConfig;
   const [ruleColorModalVisible, setRuleColorModalVisible] = useState(false);
   const { controlId } = currentReport.xaxes;
   const { colorRules } = currentReport.displaySetup;
@@ -290,6 +306,7 @@ const StatisticsValue = props => {
   const onCancel = () => {
     setRuleColorModalVisible(false);
   }
+  const { fontColor } = replaceColor({ fontColor: numberChartStyle.fontColor }, {}, themeColor);
   return (
     <Wrap className="mBottom16">
       <div className="mBottom12">{_l('文字')}</div>
@@ -314,14 +331,20 @@ const StatisticsValue = props => {
         <div style={{ width: 50 }}>{_l('颜色')}</div>
         {!colorRule && (
           <ColorPicker
-            isPopupBody
-            value={numberChartStyle.fontColor}
+            isPopupBody={true}
+            sysColor={true}
+            themeColor={themeColor}
+            value={fontColor}
             onChange={value => {
-              onChangeNumberStyle({ fontColor: value });
+              const data = { fontColor: value };
+              if (numberChartColor) {
+                data.numberChartColorIndex = numberChartColorIndex + 1;
+              }
+              onChangeNumberStyle(data);
             }}
           >
             <div className="colorWrap pointer">
-              <div className="colorBlock" style={{ backgroundColor: numberChartStyle.fontColor }}>
+              <div className="colorBlock" style={{ backgroundColor: fontColor }}>
               </div>
             </div>
           </ColorPicker>
@@ -548,7 +571,7 @@ export function numberSummaryPanelGenerator(props) {
 }
 
 export default function numberStylePanelGenerator(props) {
-  const { projectId, currentReport, onChangeStyle, onChangeDisplayValue, ...collapseProps } = props;
+  const { currentReport, onChangeStyle, ...collapseProps } = props;
   const { style, xaxes, yaxisList } = currentReport;
   const { numberChartStyle = defaultNumberChartStyle } = style;
   const onChangeNumberStyle = (data) => {
@@ -595,7 +618,7 @@ export default function numberStylePanelGenerator(props) {
           )}
         >
           <IconSetting
-            projectId={projectId}
+            {...props}
             numberChartStyle={numberChartStyle}
             onChangeNumberStyle={onChangeNumberStyle}
           />
@@ -607,8 +630,7 @@ export default function numberStylePanelGenerator(props) {
         {...collapseProps}
       >
         <StatisticsValue
-          currentReport={currentReport}
-          onChangeDisplayValue={onChangeDisplayValue}
+          {...props}
           numberChartStyle={numberChartStyle}
           onChangeNumberStyle={onChangeNumberStyle}
         />

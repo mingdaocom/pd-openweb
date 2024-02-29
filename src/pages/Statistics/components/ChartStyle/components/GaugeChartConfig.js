@@ -3,7 +3,9 @@ import cx from 'classnames';
 import { Icon, ColorPicker } from 'ming-ui';
 import { ConfigProvider, Button, Modal, Collapse, Switch, Radio, Input, Checkbox, Tooltip } from 'antd';
 import RuleColor from './Color/RuleColor';
+import { getChartColors } from 'statistics/Charts/common';
 import { SYS_CHART_COLORS } from 'src/pages/Admin/settings/config';
+import { replaceColor } from 'statistics/Charts/GaugeChart';
 
 const colors = SYS_CHART_COLORS[0].colors;
 const bisectSectionColors = [{
@@ -313,8 +315,13 @@ const SectionColorConfigModal = props => {
 }
 
 const GaugeColor = props => {
-  const { currentReport, onChangeStyle, onChangeDisplayValue } = props;
+  const { projectId, currentReport, onChangeStyle, onChangeDisplayValue } = props;
+  const { themeColor, customPageConfig = {} } = props;
+  const { chartColor, chartColorIndex = 1 } = customPageConfig;
+  const styleConfig = currentReport.style || {};
+  const colors = getChartColors(styleConfig, themeColor, projectId);
   const { gaugeColor = '#64B5F6' } = currentReport.style;
+  const color = chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0) ? colors[0] : replaceColor(gaugeColor, themeColor);
   const { colorRules } = currentReport.displaySetup;
   const colorRule = _.get(colorRules[1], 'dataBarRule');
   const { gaugeColorType = 1, sectionColorConfig, applySectionScale } = currentReport.style;
@@ -344,15 +351,21 @@ const GaugeColor = props => {
           <div>{_l('颜色')}</div>
           {_.isEmpty(colorRule) && (
             <ColorPicker
-              isPopupBody
+              isPopupBody={true}
+              sysColor={true}
+              themeColor={themeColor}
               className="mLeft10"
-              value={gaugeColor}
+              value={color}
               onChange={value => {
-                onChangeStyle({ gaugeColor: value });
+                const data = { gaugeColor: value };
+                if (chartColor) {
+                  data.chartColorIndex = chartColorIndex + 1;
+                }
+                onChangeStyle(data);
               }}
             >
               <div className="colorWrap pointer">
-                <div className="colorBlock" style={{ backgroundColor: gaugeColor }}>
+                <div className="colorBlock" style={{ backgroundColor: color }}>
                 </div>
               </div>
             </ColorPicker>

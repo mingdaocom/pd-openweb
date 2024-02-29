@@ -2,8 +2,8 @@ import kcCtrl from 'src/api/kc';
 import React from 'react';
 import 'src/pages/PageHeader/components/NetState/index.less';
 import { formatFileSize } from 'src/util';
-import { index as dialog } from 'src/components/mdDialog/dialog';
 import _ from 'lodash';
+import { Dialog } from 'ming-ui';
 
 export const QiniuUpload = {
   Tokens: {
@@ -240,28 +240,32 @@ export const findIndex = (res, id) => {
 };
 
 export const checkAccountUploadLimit = (size, params = {}) => {
-  return kcCtrl.getUsage(params).then(function(usage) {
+  return kcCtrl.getUsage(params).then(function (usage) {
     return usage.used + size < usage.total;
   });
 };
 
 export const openMdDialog = () => {
-  dialog({
-    container: {
-      content: `<div id="uploadStorageOverDialog">
-                    <div class="mTop20 mLeft30">
-                      <div class="uploadStorageOverLogo Left"></div>
-                      <div class="uploadStorageOverTxt Left">您已经没有足够的流量来上传该附件！</div>
-                      <div class="Clear"></div>
-                    </div>
-                    <div class="mTop20 mBottom20 TxtCenter">
-                      <a href="/personal?type=enterprise" class="uploadStorageOverBtn btnBootstrap btnBootstrap-primary btnBootstrap-small">升级至专业版</a>
-                    </div>
-                  </div>`,
-      width: 450,
-      yesText: false,
-      noText: false,
-    },
+  Dialog.confirm({
+    width: 450,
+    noFooter: true,
+    children: (
+      <div id="uploadStorageOverDialog">
+        <div className="mTop20 mLeft30">
+          <div className="uploadStorageOverLogo Left"></div>
+          <div className="uploadStorageOverTxt Left">{_l('您已经没有足够的流量来上传该附件！')}</div>
+          <div className="Clear"></div>
+        </div>
+        <div className="mTop20 mBottom20 TxtCenter">
+          <a
+            href="/personal?type=enterprise"
+            className="uploadStorageOverBtn btnBootstrap btnBootstrap-primary btnBootstrap-small"
+          >
+            {_l('升级至专业版')}
+          </a>
+        </div>
+      </div>
+    ),
   });
 };
 

@@ -1145,22 +1145,22 @@ export const MENU_LIST_APPENDIX = [
       {
         name: 33,
         type: 'DateGt',
-        desc: _l('>'),
+        desc: '>',
       },
       {
         name: 34,
         type: 'DateGte',
-        desc: _l('>='),
+        desc: '>=',
       },
       {
         name: 35,
         type: 'DateLt',
-        desc: _l('<'),
+        desc: '<',
       },
       {
         name: 36,
         type: 'DateLte',
-        desc: _l('<='),
+        desc: '<=',
       },
       {
         name: 41,

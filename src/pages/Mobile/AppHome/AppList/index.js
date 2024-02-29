@@ -4,7 +4,7 @@ import { Icon, LoadDiv } from 'ming-ui';
 import SvgIcon from 'src/components/SvgIcon';
 import AppStatus from 'src/pages/AppHomepage/AppCenter/components/AppStatus';
 import homeAppAjax from 'src/api/homeApp';
-import { getRandomString, getCurrentProject } from 'src/util';
+import { generateRandomPassword, getCurrentProject } from 'src/util';
 import Back from '../../components/Back';
 import DocumentTitle from 'react-document-title';
 import cx from 'classnames';
@@ -39,7 +39,7 @@ class AppList extends Component {
   };
   renderItem(data) {
     return (
-      <div className="myAppItemWrap InlineBlock" key={`${data.id}-${getRandomString()}`}>
+      <div className="myAppItemWrap InlineBlock" key={`${data.id}-${generateRandomPassword(10)}`}>
         <div
           className="myAppItem mTop24"
           onClick={e => {
@@ -67,7 +67,7 @@ class AppList extends Component {
   showActionSheet = () => {
     const BUTTONS = [
       { name: _l('从模板库添加'), icon: 'application_library', iconClass: 'Font18' },
-      { name: _l('自定义创建'), icon: 'add', iconClass: 'Font22' },
+      { name: _l('自定义创建'), icon: 'add1', iconClass: 'Font18' },
     ];
     ActionSheet.showActionSheetWithOptions(
       {
@@ -97,7 +97,7 @@ class AppList extends Component {
           window.mobileNavigateTo(`/mobile/appBox`);
         }
         if (buttonIndex === 1) {
-          const title = _l('创建自定义应用请前往%0。', isWxWork ? _l('企业微信PC桌面端') : _l('PC端'));
+          const title = isWxWork ? _l('创建自定义应用请前往企业微信PC桌面端') : _l('创建自定义应用请前往PC端');
           Modal.alert(title, null, [{ text: _l('我知道了'), onPress: () => {} }]);
         }
       },
@@ -106,7 +106,13 @@ class AppList extends Component {
   render() {
     let { currentGroupList, loading, groupInfo = {} } = this.state;
     currentGroupList = currentGroupList.filter(it => !it.webMobileDisplay);
+    const currentProject = getCurrentProject(
+      localStorage.getItem('currentProjectId') || (md.global.Account.projects[0] || {}).projectId,
+    );
+    const { projectId } = currentProject;
+
     if (loading) return <LoadDiv className="h100 flexColumn justifyCenter" />;
+
     return (
       <div className="appList">
         <DocumentTitle title={groupInfo.name} />
@@ -114,13 +120,14 @@ class AppList extends Component {
           {_.map(currentGroupList || [], (item, i) => {
             return this.renderItem(item);
           })}
-          {this.renderItem({
-            id: 'add',
-            iconColor: '#F5F5F5',
-            icon: 'plus',
-            name: _l('添加应用'),
-            onClick: this.showActionSheet,
-          })}
+          {!(_.find(md.global.Account.projects, item => item.projectId === projectId) || {}).cannotCreateApp &&
+            this.renderItem({
+              id: 'add',
+              iconColor: '#F5F5F5',
+              icon: 'plus',
+              name: _l('添加应用'),
+              onClick: this.showActionSheet,
+            })}
         </Flex>
         <Back
           onClick={() => {

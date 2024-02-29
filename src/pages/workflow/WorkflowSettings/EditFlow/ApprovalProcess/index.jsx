@@ -3,7 +3,6 @@ import cx from 'classnames';
 import { CreateNode } from '../components';
 import styled from 'styled-components';
 import { Icon, Dialog } from 'ming-ui';
-import { addFlowNode } from '../../../redux/actions';
 import _ from 'lodash';
 import { Tooltip } from 'antd';
 import Trigger from 'rc-trigger';
@@ -41,7 +40,10 @@ const ApprovalProcessBox = styled.div`
       align-items: center;
     }
   }
-  .addProcessNodeStart {
+  .processNodeStartLine {
+    position: relative;
+    width: 100%;
+    height: 32px;
     margin-top: -20px;
     &::before {
       content: '';
@@ -87,7 +89,6 @@ const Box = styled.div`
   position: relative;
   border: 1px solid #fff;
   transform: translateY(-20px);
-  cursor: pointer;
   &.workflowItemDisabled {
     opacity: 0.5 !important;
   }
@@ -116,6 +117,14 @@ const Box = styled.div`
       }
     }
   }
+  &:hover {
+    .icon-approval {
+      display: none;
+    }
+    .icon-external_collaboration {
+      display: block;
+    }
+  }
   .approvalIcon {
     width: 30px;
     height: 30px;
@@ -127,6 +136,10 @@ const Box = styled.div`
     border-radius: 50%;
     color: #fff;
     font-size: 20px;
+    cursor: pointer;
+    &:hover {
+      background-color: #122ec9;
+    }
   }
   .workflowOperate {
     color: #9e9e9e;
@@ -143,15 +156,15 @@ const Box = styled.div`
     color: #333;
     border: none;
   }
+  .icon-external_collaboration {
+    display: none;
+  }
 `;
 
 export default props => {
   const {
     item,
     disabled,
-    selectNodeId,
-    openDetail,
-    dispatch,
     renderNode,
     hideNodes,
     updateHideNodes,
@@ -166,18 +179,12 @@ export default props => {
   const [showOperate, setShowOperate] = useState(false);
   const [editName, setEditName] = useState(false);
   const { flowNodeMap = {}, startEventId, id } = item.processNode || {};
-  const isEmpty = (flowNodeMap[startEventId] || {}).nextId === '99';
   const isHide = _.includes(hideNodes, item.id);
   const list = [
     {
       text: _l('修改名称'),
       icon: 'edit',
-      events: () => {
-        setEditName(true);
-        setTimeout(() => {
-          nodeNameRef && nodeNameRef.current.focus();
-        }, 100);
-      },
+      events: () => nodeNameEdit(),
     },
     {
       text: _l('删除'),
@@ -206,21 +213,23 @@ export default props => {
             item.isException &&
             (_.isEmpty(flowNodeMap) || item.sourceAppId !== flowNodeMap[startEventId].appId),
         },
-        { active: selectNodeId === item.id },
         { foldNode: isHide },
       )}
       onMouseDown={() => {
         if (isHide) {
           changeShrink();
-        } else if (!disabled) {
-          openDetail(processId, item.id, item.typeId);
-          handleFoldBtnTipsPosition();
         }
-        setShowOperate(false);
       }}
     >
-      <span className="approvalIcon">
+      <span
+        className="approvalIcon"
+        onMouseDown={e => {
+          e.stopPropagation();
+          window.open(`/workflowedit/${id}`);
+        }}
+      >
         <Icon type="approval" />
+        <Icon type="external_collaboration" />
       </span>
       <div className="flex Font14 bold ellipsis TxtCenter">
         {editName ? (
@@ -234,7 +243,7 @@ export default props => {
             onBlur={updateName}
           />
         ) : (
-          item.name
+          <span onClick={nodeNameEdit}>{item.name}</span>
         )}
       </div>
       <span className="workflowOperate mLeft10">
@@ -274,18 +283,6 @@ export default props => {
       </span>
     </Box>
   );
-  const AddBtn = options => {
-    return (
-      <CreateNode
-        {...props}
-        {...options}
-        item={Object.assign({}, props.item, { id: startEventId })}
-        isApproval
-        processId={id}
-        addFlowNode={(processId, args) => dispatch(addFlowNode(processId, args))}
-      />
-    );
-  };
   const changeShrink = () => {
     const workflowHideNodes = hideNodes.slice();
 
@@ -306,6 +303,13 @@ export default props => {
     setTimeout(() => {
       showFoldBtn(true);
     }, 50);
+  };
+  // 节点名称编辑
+  const nodeNameEdit = () => {
+    setEditName(true);
+    setTimeout(() => {
+      nodeNameRef && nodeNameRef.current.focus();
+    }, 100);
   };
   // 修改节点名称
   const updateName = evt => {
@@ -328,8 +332,8 @@ export default props => {
                 <span
                   className="workflowBranchBtnSmall Gray_9e ThemeHoverColor3 mTop7"
                   data-tip={isHide ? _l('展开') : _l('收起')}
-                  onMouseDown={e => {
-                    e.stopPropagation();
+                  onMouseDown={() => {
+                    nodeNameRef && nodeNameRef.current && nodeNameRef.current.blur();
                     setShowOperate(false);
                     changeShrink();
                     handleFoldBtnTipsPosition();
@@ -350,21 +354,14 @@ export default props => {
 
           {!isHide && startEventId && (
             <Fragment>
-              {isEmpty ? (
-                AddBtn({ className: 'addProcessNode Gray_75 ThemeHoverColor3', text: _l('步骤'), removeCopyBtn: true })
-              ) : (
-                <Fragment>
-                  {AddBtn({ className: 'addProcessNodeStart' })}
-                  {!_.isEmpty(flowNodeMap) &&
-                    renderNode({
-                      processId: id,
-                      data: flowNodeMap,
-                      firstId: startEventId,
-                      excludeFirstId: true,
-                      isApproval: true,
-                    })}
-                </Fragment>
-              )}
+              <div className="processNodeStartLine" />
+              {!_.isEmpty(flowNodeMap) &&
+                renderNode({
+                  processId: id,
+                  data: flowNodeMap,
+                  firstId: startEventId,
+                  isApproval: true,
+                })}
             </Fragment>
           )}
 

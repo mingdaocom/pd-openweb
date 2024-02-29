@@ -80,7 +80,7 @@ const middlewareList = [
       ignoreCase: true,
     });
     if (req.url === '/') {
-      res.writeHead(301, { Location: '/app/my' });
+      res.writeHead(301, { Location: '/dashboard' });
       res.end();
     } else if (req.url && req.url.startsWith('/api/')) {
       // 代理接口请求到 api 服务器
@@ -213,7 +213,7 @@ async function serve({ done = () => {}, needOpen = true } = {}) {
         'api 服务器': apiServer,
       });
       if (needOpen) {
-        open(localUrl + '/app/my');
+        open(localUrl + '/dashboard');
       }
       done();
     } else {

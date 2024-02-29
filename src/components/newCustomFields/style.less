@@ -53,12 +53,14 @@
     }
     .customFormControlBox {
       border-color: #e0e0e0 !important;
-      &:not(.formBoxNoBorder):not(.relateRecord):not(.customFormControlSwitch):not(.customFormControlScore) {
+      &:not(.formBoxNoBorder):not(.relateRecord):not(.customFormControlSwitch):not(.customFormControlScore):not(
+          .customFormControlUser
+        ) {
         padding-right: 12px !important;
       }
       &:not([type='tel']):not(.formBoxNoBorder):not(.relateRecord):not(.customFormControlSwitch):not(
           .customFormControlScore
-        ) {
+        ):not(.customFormControlUser) {
         padding-left: 12px !important;
       }
       &.controlDisabled {

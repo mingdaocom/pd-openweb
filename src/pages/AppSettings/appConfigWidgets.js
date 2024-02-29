@@ -6,6 +6,7 @@ import ManageBackupFiles from './components/appBackupRestore/ManageBackupFiles';
 import ExportAppCom from './components/ExportAppCom';
 import AppGlobalVariable from './components/AppGlobalVariable';
 import ImportUpgrade from './components/ImportUpgrade';
+import MultiLingual from './components/MultiLingual';
 
 export default {
   options: AllOptionList,
@@ -16,4 +17,5 @@ export default {
   export: ExportAppCom,
   variables: AppGlobalVariable,
   upgrade: ImportUpgrade,
+  language: MultiLingual,
 };

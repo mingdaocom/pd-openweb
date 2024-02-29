@@ -1,11 +1,10 @@
 import React, { Component, Fragment } from 'react';
-import { Support, Button, VerifyPasswordConfirm, Tooltip, ScrollView, LoadDiv } from 'ming-ui';
-import ExportApp from 'src/pages/Admin/appManagement/modules/ExportApp';
+import { Support, Button, Tooltip, ScrollView, LoadDiv } from 'ming-ui';
+import ExportApp from 'src/pages/Admin/app/appManagement/modules/ExportApp';
 import UserHead from 'src/components/userHead';
 import UserName from 'src/components/userName';
 import EmptyStatus from '../EmptyStatus';
 import appManagementAjax from 'src/api/appManagement';
-import { verifyPassword } from 'src/util';
 import cx from 'classnames';
 import './index.less';
 
@@ -56,28 +55,6 @@ export default class ExportAppCom extends Component {
     });
   };
 
-  verifyPassword = (id, passwordType) => {
-    const { projectId } = this.props;
-
-    verifyPassword({
-      projectId,
-      checkNeedAuth: true,
-      customActionName: 'checkAccount',
-      ignoreAlert: true,
-      success: () => this.getPassword(id, passwordType),
-      fail: () => {
-        VerifyPasswordConfirm.confirm({
-          title: _l('验证身份后查看密码'),
-          showAccount: false,
-          description: '',
-          passwordLabel: <div className="mTop10 mBottom10">{_l('当前用户登录密码')}</div>,
-          passwordPlaceholder: _l('请输入密码确认授权'),
-          onOk: () => this.getPassword(id, passwordType),
-        });
-      },
-    });
-  };
-
   getPassword = (id, passwordType) => {
     const { appId } = this.props;
     const { records } = this.state;
@@ -113,7 +90,7 @@ export default class ExportAppCom extends Component {
         }),
       });
     } else {
-      this.verifyPassword(id, passwordType);
+      this.getPassword(id, passwordType);
     }
   };
 
@@ -158,7 +135,7 @@ export default class ExportAppCom extends Component {
   };
 
   render() {
-    const { appId } = this.props;
+    const { appId, projectId } = this.props;
     const { exportAppVisible, records = [], loading } = this.state;
 
     return (
@@ -224,6 +201,7 @@ export default class ExportAppCom extends Component {
                               accountId: operator.accountId,
                             }}
                             size={24}
+                            projectId={projectId}
                           />
                           <UserName
                             className="Gray Font13 pLeft5 pRight10 pTop3 flex ellipsis"

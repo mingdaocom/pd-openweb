@@ -1,10 +1,9 @@
 import React from 'react';
 import cx from 'classnames';
 import './index.less';
-import s from 'src/components/common/mstc/s/s';
-import t from 'src/components/common/mstc/t/t';
-import c from 'src/components/common/mstc/c/c';
-import u from 'src/components/common/mstc/u/u';
+import createFeed from 'src/pages/feed/components/createFeed';
+import createTask from 'src/components/createTask/createTask';
+import createCalendar from 'src/components/createCalendar/createCalendar';
 import addFriends from 'src/components/addFriends';
 import CreateGroup from 'src/components/group/create/creatGroup';
 
@@ -16,75 +15,41 @@ export default function UserMenu() {
   return (
     <div className="commonTopBarMenu Relative Normal">
       <ul>
-        {
-          feedVisible && (
-            <li
-              onClick={() => {
-                s();
-              }}
-              className="ThemeBGColor3"
-            >
-              <i className="icon icon-edit Font14" />
-              {_l('创建动态')}
-            </li>
-          )
-        }
-        {
-          taskVisible && (
-            <li
-              onClick={() => {
-                t();
-              }}
-              className="ThemeBGColor3"
-            >
-              <i className="icon icon-task-responsible" />
-              {_l('创建任务')}
-            </li>
-          )
-        }
-        {
-          calendarVisible && (
-            <li
-              onClick={() => {
-                c();
-              }}
-              className="ThemeBGColor3"
-            >
-              <i className="icon icon-bellSchedule" />
-              {_l('创建日程')}
-            </li>
-          )
-        }
-        {
-          knowledgeVisible && (
-            <li
-              onClick={() => {
-                u();
-              }}
-              className="ThemeBGColor3"
-            >
-              <i className="icon icon-knowledge-cloud" />
-              {_l('上传文件')}
-            </li>
-          )
-        }
+        {feedVisible && (
+          <li onClick={() => createFeed()} className="ThemeBGColor3">
+            <i className="icon icon-edit Font14" />
+            {_l('创建动态')}
+          </li>
+        )}
+        {taskVisible && (
+          <li onClick={() => createTask()} className="ThemeBGColor3">
+            <i className="icon icon-task-responsible" />
+            {_l('创建任务')}
+          </li>
+        )}
+        {calendarVisible && (
+          <li onClick={() => createCalendar()} className="ThemeBGColor3">
+            <i className="icon icon-bellSchedule" />
+            {_l('创建日程')}
+          </li>
+        )}
+        {knowledgeVisible && (
+          <li onClick={() => window.open('/apps/kcupload')} className="ThemeBGColor3">
+            <i className="icon icon-knowledge-cloud" />
+            {_l('上传文件')}
+          </li>
+        )}
       </ul>
-      <ul className={cx({'BorderTopGrayC mTop5 pTop5': feedVisible || taskVisible || calendarVisible || knowledgeVisible})}>
-        <li
-          onClick={() => {
-            addFriends({ selectProject: true });
-          }}
-          className="inviteMember ThemeBGColor3"
-        >
+      <ul
+        className={cx({
+          'BorderTopGrayC mTop5 pTop5': feedVisible || taskVisible || calendarVisible || knowledgeVisible,
+        })}
+      >
+        <li onClick={() => addFriends({ selectProject: true })} className="inviteMember ThemeBGColor3">
           <i className="icon icon-invite" />
           {_l('邀请')}
         </li>
-        <li
-          onClick={() => {
-            CreateGroup.createInit({});
-          }}
-          className="linkCreateGroup ThemeBGColor3"
-        >
+        <li onClick={() => CreateGroup.createInit({})} className="linkCreateGroup ThemeBGColor3">
           <i className="icon icon-group" />
           {_l('群组')}
         </li>

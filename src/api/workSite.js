@@ -6,8 +6,8 @@ export default {
   * @param {integer} args.pageIndex 分页码
   * @param {integer} args.pageSize 页大小
   * @param {string} args.keywords 关键词
-  * @param {} args.sortField 工作地点排序类型
-  * @param {} args.sortType 排序类型
+  * @param {} args.sortField
+  * @param {} args.sortType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

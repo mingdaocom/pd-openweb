@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { string, shape, array } from 'prop-types';
 import cx from 'classnames';
-import placeholderPic from 'src/common/mdcss/images/thirdAppPlaceholder.png';
+import placeholderPic from '../../assets/thirdAppPlaceholder.png';
 import { Icon } from 'ming-ui';
 
 const TYPE_TO_TITLE = {

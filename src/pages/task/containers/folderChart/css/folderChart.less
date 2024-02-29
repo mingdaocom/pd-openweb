@@ -274,11 +274,7 @@
     }
   }
 
-  .folderChartNavBox .daterangepicker .ranges,
-  #folderChartMaxView .daterangepicker .ranges {
-    float: right !important;
-    clear: both;
-  }
+
   .daterangepicker.opensleft .ranges {
     .taskFolerChartDatePicker {
       width: 68px;
@@ -288,49 +284,7 @@
       }
     }
   }
-  #folderChartMaxView .folderChartBox {
-    margin-top: 0;
-    .folderChartBoxModel {
-      margin-bottom: 0;
-    }
-    .flex {
-      padding: 0;
-      box-shadow: none;
-      height: 550px;
-    }
-    .folderChartBoxTitle {
-      font-size: 16px;
-      span {
-        vertical-align: top;
-        margin-top: 3px;
-      }
-    }
-    .folderChartTime {
-      position: static;
-      text-align: right;
-    }
-    .folderChartMaxHeight {
-      height: 460px;
-      margin-top: 20px;
-      overflow: hidden;
-      overflow-y: auto;
-    }
-    .folderChartModel {
-      height: 460px;
-    }
-    .folderChartUpdateHeight {
-      height: 490px;
-    }
-    .folderChartChargeBox {
-      position: relative;
-      text-align: right;
-      top: 0;
-      right: 0;
-      .folderChartChargeList {
-        text-align: left;
-      }
-    }
-  }
+
 
   .folderChartCustomNull {
     height: 280px;
@@ -351,4 +305,53 @@
       color: #9e9e9e;
     }
   }
+}
+.folderChartMaxView .mui-dialog-body .folderChartBox {
+  margin-top: 0;
+  .folderChartBoxModel {
+    margin-bottom: 0;
+  }
+  .flex {
+    padding: 0;
+    box-shadow: none;
+    height: 550px !important;
+  }
+  .folderChartBoxTitle {
+    font-size: 16px;
+    span {
+      vertical-align: top;
+      margin-top: 3px;
+    }
+  }
+  .folderChartTime {
+    position: static;
+    text-align: right;
+  }
+  .folderChartMaxHeight {
+    height: 460px;
+    margin-top: 20px;
+    overflow: hidden;
+    overflow-y: auto;
+  }
+  .folderChartModel {
+    height: 460px;
+  }
+  .folderChartUpdateHeight {
+    height: 490px;
+  }
+  .folderChartChargeBox {
+    position: relative;
+    text-align: right;
+    top: 0;
+    right: 0;
+    .folderChartChargeList {
+      text-align: left;
+    }
+  }
+}
+
+.folderChartNavBox .daterangepicker .ranges,
+.folderChartMaxView .daterangepicker .ranges {
+  float: right !important;
+  clear: both;
 }

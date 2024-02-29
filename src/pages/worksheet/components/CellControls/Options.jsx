@@ -197,6 +197,8 @@ export default class Options extends React.Component {
   componentWillReceiveProps(nextProps) {
     if (nextProps.cell.value !== this.props.cell.value && !nextProps.isediting) {
       this.setState({ value: nextProps.cell.value });
+    } else if (this.props.isediting && !nextProps.isediting && this.state.value !== nextProps.cell.value) {
+      this.setState({ value: nextProps.cell.value });
     }
   }
 

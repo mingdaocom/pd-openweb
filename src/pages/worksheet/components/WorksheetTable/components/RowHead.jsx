@@ -192,7 +192,7 @@ export default function RowHead(props) {
             <RecordOperate
               {...{ appId, viewId, worksheetId, recordId: row.rowid, projectId, isCharge }}
               formdata={controls.map(c => ({ ...c, value: row[c.controlId] }))}
-              shows={['share', 'print', 'copy', 'openinnew', 'recreate']}
+              shows={['share', 'print', 'copy', 'openinnew', 'recreate', 'fav']}
               allowCopy={allowAdd && row.allowedit}
               allowDelete={row.allowdelete}
               allowRecreate={allowAdd}
@@ -227,7 +227,7 @@ export default function RowHead(props) {
                 handleRowData({
                   rowId: row.rowid,
                   worksheetId: worksheetId,
-                  columns,
+                  columns: controls,
                 }).then(res => {
                   const { defaultData, defcontrols } = res;
                   addRecord({
@@ -278,7 +278,7 @@ export default function RowHead(props) {
       {!readonly && rowIndex === -1 && (
         <Fragment>
           {layoutChangeVisible && <ChangeSheetLayout onSave={saveSheetLayout} onCancel={resetSheetLayout} />}
-          <div className="topCheckbox" style={{ right: tableType === 'classic' ? 44 : 28, width: numberWidth }}>
+          <div className="topCheckbox" style={{ right: tableType === 'classic' ? 46 : 30, width: numberWidth }}>
             {hasBatch && (
               <div className="checkboxCon mTop3">
                 <Checkbox

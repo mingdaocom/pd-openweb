@@ -2,11 +2,10 @@
 import React, { Component } from 'react';
 import CalendarDetail from './root';
 import { getParamsFromUrl, getCalendarDetail } from './common';
-import MdDialog from 'src/components/mdDialog/dialog';
-import LoadDiv from 'ming-ui/components/LoadDiv';
 import ErrorState from 'src/components/errorPage/errorState';
 import DocumentTitle from 'react-document-title';
 import { htmlDecodeReg, getAppFeaturesPath } from 'src/util';
+import { Dialog, LoadDiv } from 'ming-ui'
 
 export let Config = {};
 
@@ -19,6 +18,7 @@ class Container extends Component {
       data: null,
     };
   }
+  dialogRef = React.createRef();
 
   componentWillMount() {
     this.fetchData(true);
@@ -32,28 +32,28 @@ class Container extends Component {
 
   componentDidMount() {
     const { exitCallback, saveCallback, deleteCallback } = Config;
-    const dialog = this.dialog;
+    const dialog = $('.calendarEdit')[0];
+
     if (dialog) {
       // dialogCenter func
-      Config.dialogCenter = dialog.dialogCenter.bind(dialog);
+      Config.dialogCenter = () => {};
 
-      Config.exitCallback = function() {
-        dialog.closeDialog();
+      Config.exitCallback = function () {
+        $('.calendarEdit').parent().remove();
         exitCallback();
       };
 
-      Config.deleteCallback = function() {
-        dialog.closeDialog();
+      Config.deleteCallback = function () {
+        $('.calendarEdit').parent().remove();
         deleteCallback();
       };
 
-      Config.saveCallback = function() {
-        // dialog.closeDialog();
+      Config.saveCallback = function () {
         if ($.isFunction(saveCallback)) saveCallback();
       };
 
-      Config.cancelCallback = Config.closeDialog = function() {
-        dialog.closeDialog();
+      Config.cancelCallback = Config.closeDialog = function () {
+        $('.calendarEdit').parent().remove();
       };
     }
   }
@@ -109,28 +109,24 @@ class Container extends Component {
     if (Config.isDetailPage) {
       return <DocumentTitle title={title}>{this.renderContent()}</DocumentTitle>;
     } else {
-      const dialogProps = {
-        dialogBoxID: 'calendarEdit',
-        className: 'calendarEdit',
-        width: 570,
-        container: {
-          header: '',
-          noText: '',
-          yesText: '',
-        },
-        overlayClosable: true,
-      };
       return (
-        <MdDialog
-          {...dialogProps}
-          callback={this.props.handleClose}
-          ref={el => {
-            this.dialog = el;
+        <Dialog
+          visible
+          dialogClasses='calendarEdit'
+          width={570}
+          showFooter={false}
+          closable={false}
+          overlayClosable={true}
+          handleClose={() => {
+            this.props.handleClose && this.props.handleClose();
+            $('.calendarEdit').parent().remove();
           }}
+          ref={this.dialogRef}
+          type="fixed"
         >
           {this.renderContent()}
-        </MdDialog>
-      );
+        </Dialog>
+      )
     }
   }
 }

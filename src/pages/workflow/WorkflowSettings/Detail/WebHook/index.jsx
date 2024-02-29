@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv, Radio, Dropdown, Checkbox, Tooltip, Icon } from 'ming-ui';
+import { ScrollView, LoadDiv, Radio, Dropdown, Checkbox, Tooltip, Icon, Dialog } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
 import {
   SelectNodeObject,
@@ -14,6 +14,21 @@ import {
 } from '../components';
 import { APP_TYPE, METHODS_TYPE } from '../../enum';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { checkJSON } from '../../utils';
+
+const GenerateJSONBox = styled.textarea`
+  padding: 12px;
+  border-radius: 4px;
+  height: 340px;
+  overflow: auto;
+  width: 100%;
+  border: 1px solid #ddd;
+  resize: none;
+  &:focus {
+    border-color: #2196f3;
+  }
+`;
 
 export default class WebHook extends Component {
   constructor(props) {
@@ -270,7 +285,12 @@ export default class WebHook extends Component {
                 {_l('请求时间 %0, 状态码 %1，耗时 %2 秒', data.requestDate, data.statusCode, data.requestTime / 1000)}
               </div>
             )}
-            <div className="mTop15 bold">{_l('响应 Body')}</div>
+            <div className="mTop15 flexRow">
+              <div className="bold flex">{_l('响应 Body')}</div>
+              <div className="ThemeColor3 ThemeHoverColor2 pointer" onClick={this.generateFromJSON}>
+                {_l('从 JSON 导入响应示例')}
+              </div>
+            </div>
             <ParameterList controls={data.controls.filter(item => item.enumDefault === 0)} />
             <div className="mTop15 bold">{_l('响应 Header')}</div>
             <ParameterList controls={data.controls.filter(item => item.enumDefault === 1)} hideControlType />
@@ -314,7 +334,7 @@ export default class WebHook extends Component {
 
     return (
       <Fragment>
-        <div className="Font13 bold mTop20">{_l('Body')}</div>
+        <div className="Font13 bold mTop20">Body</div>
         <div className="flexRow mTop15">
           {contentTypes.map((item, i) => {
             return (
@@ -465,7 +485,7 @@ export default class WebHook extends Component {
 
     return (
       <Fragment>
-        <div className="Font13 bold mTop20">{_l('Headers')}</div>
+        <div className="Font13 bold mTop20">Headers</div>
         <KeyPairs
           key={this.props.selectNodeId}
           projectId={this.props.companyId}
@@ -515,7 +535,7 @@ export default class WebHook extends Component {
   /**
    * 发送
    */
-  send = (testMap = {}) => {
+  send = (testMap = {}, json) => {
     const { processId, selectNodeId, isIntegration } = this.props;
     const { data, sendRequest } = this.state;
     const { headers, body, sendContent, method, formControls, contentType, settings } = data;
@@ -551,6 +571,7 @@ export default class WebHook extends Component {
           ),
           contentType,
           settings,
+          json,
         },
         { isIntegration },
       )
@@ -730,6 +751,33 @@ export default class WebHook extends Component {
     _.remove(errorMsgArray, (o, index) => index === i);
     this.setState({ errorMsgArray });
   }
+
+  /**
+   * 从JSON导入响应示例
+   */
+  generateFromJSON = () => {
+    const { data } = this.state;
+
+    Dialog.confirm({
+      width: 640,
+      title: _l('从 JSON 导入响应示例'),
+      description: <GenerateJSONBox id="generateJSON">{data.json}</GenerateJSONBox>,
+      onOk: () => {
+        return new Promise((resolve, reject) => {
+          const json = document.getElementById('generateJSON').value.trim();
+
+          if (!json.trim() || checkJSON(json)) {
+            this.updateSource({ json });
+            this.send({}, json);
+            resolve();
+          } else {
+            alert(_l('JSON格式有错误'), 2);
+            reject(true);
+          }
+        });
+      },
+    });
+  };
 
   render() {
     const { data } = this.state;

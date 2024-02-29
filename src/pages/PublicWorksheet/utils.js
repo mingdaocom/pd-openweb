@@ -1,4 +1,6 @@
 import qs from 'query-string';
+import { FILLLIMIT_TYPE } from 'src/pages/publicWorksheetConfig/enum';
+import moment from 'moment';
 const userAgent = navigator.userAgent;
 
 function getBrowserInfo() {
@@ -79,3 +81,39 @@ export function getInfo() {
     source: getSource(),
   };
 }
+
+export const canSubmitByLimitFrequency = (shareId, limitWriteFrequencySetting) => {
+  const publicSubmit = localStorage.getItem('publicWorksheetSubmit_' + shareId);
+  const publicWorksheetSubmit = !publicSubmit
+    ? []
+    : publicSubmit.indexOf('[') < 0
+    ? [publicSubmit]
+    : safeParse(publicSubmit);
+  let can = true;
+  const limitCount = _.get(limitWriteFrequencySetting, 'limitWriteCount');
+  if (publicWorksheetSubmit.length > 0 && !!_.get(limitWriteFrequencySetting, 'isEnable') && !!limitCount) {
+    let m = null;
+    switch (_.get(limitWriteFrequencySetting, 'limitRangType')) {
+      case FILLLIMIT_TYPE.SPECIFIEDTIMES:
+        m = null;
+        break;
+      case FILLLIMIT_TYPE.DAY:
+        m = 'day';
+        break;
+      case FILLLIMIT_TYPE.WEEK:
+        m = 'week';
+        break;
+      case FILLLIMIT_TYPE.MONTH:
+        m = 'month';
+        break;
+      case FILLLIMIT_TYPE.YEAR:
+        m = 'year';
+        break;
+    }
+    can =
+      limitCount > 0
+        ? publicWorksheetSubmit.filter(o => (!m ? true : moment(o).isSame(moment(), m))).length < limitCount
+        : true;
+  }
+  return can;
+};

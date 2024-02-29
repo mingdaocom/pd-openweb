@@ -1,5 +1,5 @@
 import React from 'react';
-import { LoadDiv, Tooltip, Checkbox } from 'ming-ui';
+import { LoadDiv, Tooltip, Checkbox, RadioGroup } from 'ming-ui';
 import accountSetting from 'src/api/accountSetting';
 import cx from 'classnames';
 import './index.less';
@@ -47,6 +47,7 @@ export default class AccountChart extends React.Component {
         isPrivateEmail: data.isPrivateEmail,
         isOpenMessageSound: data.isOpenMessageSound,
         isOpenMessageTwinkle: data.isOpenMessageTwinkle,
+        backHomepageWay: data.backHomepageWay,
         loading: false,
       });
     });
@@ -60,6 +61,7 @@ export default class AccountChart extends React.Component {
         settingValue: value,
       })
       .then(data => {
+        localStorage.removeItem('accountSettings');
         if (data) {
           alert(_l('设置成功'));
           if (_.isFunction(successCallback)) {
@@ -161,6 +163,35 @@ export default class AccountChart extends React.Component {
                 {_l('浏览器标签闪烁')}
               </Checkbox>
             </div>
+          </div>
+        </div>
+        <div className="systemSettingItem borderNoe">
+          <div className="systemSettingsLabel Gray_75">{_l('应用返回首页方式')}</div>
+          <div className="systemSettingsRight">
+            <RadioGroup
+              size="middle"
+              className="mBottom20"
+              vertical={true}
+              data={[
+                {
+                  text: _l('点击直接返回'),
+                  value: 1,
+                },
+                {
+                  text: _l('悬停时先侧滑打开应用列表'),
+                  value: 2,
+                }
+              ]}
+              checkedValue={this.state.backHomepageWay}
+              onChange={value => {
+                this.sureSettings('backHomepageWay', value, () => {
+                  window.backHomepageWay = value;
+                  this.setState({
+                    backHomepageWay: value
+                  });
+                });
+              }}
+            ></RadioGroup>
           </div>
         </div>
       </div>

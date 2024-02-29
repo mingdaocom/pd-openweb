@@ -4,6 +4,7 @@
   }
   .dialogContent {
     padding: 0 !important;
+    overflow-x: hidden;
   }
   .createCalendarBox {
     position: relative;
@@ -23,9 +24,7 @@
     height: 20px;
     line-height: 20px;
   }
-  .repeatDialogMain .createCalendarLabel {
-    width: 76px;
-  }
+
   #txtCalendarName {
     height: 38px;
     width: 100%;
@@ -230,10 +229,7 @@
   .calendarRemind .customSelect {
     margin-top: -5px;
   }
-  .calendarRemind .customSelect .txtBox,
-  .repeatDialogMain .customSelect .txtBox {
-    font-size: 14px;
-  }
+
   .calendarRemind .customSelect .title {
     padding-left: 0;
   }
@@ -379,17 +375,23 @@
     height: 7px;
     margin-top: 8px;
   }
-  .createAddMemberBox .busyIcon {
+  .createAddMemberBox .busyIconWrap {
     position: absolute;
     width: 15px;
     height: 15px;
-    background-color: #de2c00;
     top: 18px;
     left: 18px;
     border-radius: 50%;
     display: none;
   }
-  .createAddMemberBox .imgMemberBusy .busyIcon {
+  .createAddMemberBox .busyIcon {
+    width: 15px;
+    height: 15px;
+    background-color: #de2c00;
+    border-radius: 50%;
+    display: block;
+  }
+  .createAddMemberBox .imgMemberBusy .busyIconWrap {
     display: block;
   }
   .createAddMemberBox .busyIcon:before {
@@ -455,28 +457,7 @@
   #createCalendarAttachment_updater .uploadPicList {
     margin-left: 0;
   }
-  .repeatDialogMain li {
-    padding-left: 90px;
-    width: 100%;
-    height: 50px;
-    line-height: 50px;
-    position: relative;
-  }
-  .repeatDialogMain li .createCalendarLabel {
-    top: 15px;
-  }
-  .repeatDialogMain .customSelect {
-    height: 30px;
-    line-height: 30px;
-    vertical-align: top;
-    margin-top: 14px;
-  }
-  .repeatDialogMain .customSelect .borderRadius5 {
-    padding: 0;
-  }
-  .repeatDialogMain #csList {
-    margin-left: -15px !important;
-  }
+
   #repetitionFrequency,
   .txtOverCount,
   .txtOverDate {
@@ -525,9 +506,6 @@
   .txtOverDate {
     width: 80px;
   }
-  #repeatDialogMain {
-    margin-bottom: 0 !important;
-  }
   #updateRepeatBtn {
     cursor: pointer;
   }
@@ -554,70 +532,62 @@
   }
 }
 
-.businessCardSite {
-  .hoverMemberContainer {
-    z-index: 99999;
-    top: 0;
-    left: 240px;
-    position: absolute;
-    padding: 0 5px;
-  }
-  .hoverMember {
-    width: 249px;
-    min-height: 154px;
-    box-sizing: border-box;
-    color: #999;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
-    border-radius: 5px;
-    background-color: #fff;
-    box-shadow: 0 0 7px #bbb;
-    -moz-box-shadow: 0 0 7px #bbb;
-    -webkit-box-shadow: 0 0 7px #bbb;
-    padding: 10px 0px 10px 13px;
-    position: relative;
-    -moz-box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.15);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.15);
-    -webkit-box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.15);
-  }
-  .hoverMember .memberCalendars {
-    width: 233px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    position: absolute;
-    bottom: 33px;
-    top: 33px;
-  }
-  .hoverMember .arrow_down_shadow {
-    position: absolute;
-    left: 30px;
-  }
-  .hoverMember .memberCalendarTime {
-    width: 150px;
-    display: inline-block;
-  }
-  .hoverMember .memberCalendarName {
-    max-width: 67px;
-    vertical-align: top;
-    word-break: break-all;
-  }
-  .hoverMember .memberCalendarName a {
-    width: 100%;
-  }
-  .hoverMember .loobCalendars {
-    position: absolute;
-    bottom: 11px;
-    left: 12px;
-  }
-  .UploadFiles-attachmentProgress {
-    display: none;
-  }
-}
-
 .createCalendar_container .UploadFiles-attachmentProgress {
   display: none;
 }
 
 .allDay {
   padding: 30px 110px 0 110px;
+}
+
+.repeatDialogMain .createCalendarLabel {
+  width: 76px;
+}
+.calendarRemind .customSelect .txtBox,
+.repeatDialogMain .customSelect .txtBox {
+  font-size: 14px;
+}
+
+.repeatDialogMain li {
+  padding-left: 90px;
+  width: 100%;
+  height: 50px;
+  line-height: 50px;
+  position: relative;
+}
+.repeatDialogMain li .createCalendarLabel {
+  top: 15px;
+}
+.repeatDialogMain .customSelect {
+  height: 30px;
+  line-height: 30px;
+  vertical-align: top;
+  margin-top: 14px;
+}
+.repeatDialogMain .customSelect .borderRadius5 {
+  padding: 0;
+}
+.repeatDialogMain #csList {
+  margin-left: -15px !important;
+}
+.repeatDialogMain {
+  margin-bottom: 0 !important;
+}
+
+.createCalendar_container {
+  .mui-dialog-scroll-container > .mui-dialog-dialog > .mui-dialog-body {
+    padding: 0 !important;
+  }
+}
+
+.repeatDialogConfirm {
+  .mui-dialog-scroll-container > .mui-dialog-dialog {
+    min-height: 360px;
+  }
+}
+
+.memberBusyCalendarsWrap {
+  .memberCalendarItem {
+    margin-bottom: 5px;
+  }
 }

@@ -4,7 +4,7 @@ import { autobind } from 'core-decorators';
 import cx from 'classnames';
 import EditableCellCon from '../EditableCellCon';
 import renderText from './renderText';
-import { isKeyBoardInputChar } from 'worksheet/util';
+import { isKeyBoardInputChar, checkCellIsEmpty } from 'worksheet/util';
 import CascaderDropdown from 'src/components/newCustomFields/widgets/Cascader';
 import _ from 'lodash';
 
@@ -80,7 +80,11 @@ export default class Cascader extends React.Component {
         // onClear={value && this.handleClear}
         onIconClick={() => updateEditingStatus(true)}
       >
-        {!isediting && <div className="cellread linelimit">{value && renderText({ ...cell, value })}</div>}
+        {!isediting && (
+          <div className="cellread linelimit">
+            {checkCellIsEmpty(value) ? '' : renderText({ ...cell, value }) || _l('未命名')}
+          </div>
+        )}
         {isediting && (
           <div onClick={e => e.stopPropagation()}>
             <CascaderDropdown

@@ -1,0 +1,184 @@
+.contractWrap {
+  padding-top: 60px;
+  overflow: hidden;
+  .header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #fff;
+    z-index: 10;
+    box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.15);
+  }
+  .printContent {
+    width: 850px;
+    margin: 0 auto;
+    font: 1em 'Noto Sans SC', sans-serif;
+  }
+
+  .contractPrint {
+    padding: 50px 40px 0;
+    background: #fff;
+    font-family: 'Noto Sans SC', sans-serif;
+    .desTxt {
+      width: 450px;
+    }
+    .contactTable {
+      .label {
+        width: 130px;
+        padding-left: 10px;
+        font-weight: bold;
+        font-size: 14px;
+        border-bottom: 1px dashed #000;
+        border-right: 1px solid #000;
+        background-color: #f2f2f2;
+      }
+      .value {
+        padding-left: 10px;
+        width: 270px;
+        border-bottom: 1px dashed #000;
+        border-right: 1px solid #000;
+      }
+      tr {
+        border-bottom: 1px dashed #000;
+      }
+      tr td.value:last-child {
+        border-right: none !important;
+      }
+      tr:first-child {
+        .label,
+        .value {
+          border-top: 1px solid #000;
+        }
+      }
+      tr:last-child {
+        border-bottom: 1px solid #000;
+      }
+    }
+    .orderDetail {
+      td {
+        border-right: 1px solid #000;
+      }
+      tr {
+        td:last-child {
+          border-right: none !important;
+        }
+      }
+    }
+    .lastTable {
+      border: 1px dashed #000;
+    }
+    .borderTopDashed {
+      border-top: 1px dashed #000;
+    }
+    .borderBottomDashed {
+      border-bottom: 1px dashed #000;
+    }
+    .borderTopSolid {
+      border-top: 1px solid #000;
+    }
+    .borderBottomSolid {
+      border-bottom: 1px solid #000;
+    }
+    .borderRightSolid {
+      border-right: 1px solid #000;
+    }
+    .tableBGColor {
+      background-color: #f2f2f2;
+    }
+
+    .w50 {
+      width: 50px;
+    }
+    .w100px {
+      width: 100px;
+    }
+    .w130 {
+      width: 130px;
+    }
+    .w415 {
+      width: 415px;
+    }
+  }
+}
+@media print {
+  .label {
+    width: 130px;
+    padding-left: 10px;
+    font-weight: bold;
+    font-size: 14px;
+    border-bottom: 1px dashed #000;
+    border-right: 1px solid #000;
+    background-color: #f2f2f2;
+  }
+  .value {
+    padding-left: 10px;
+    width: 270px;
+    border-bottom: 1px dashed #000;
+    border-right: 1px solid #000;
+  }
+  .contactTable tr {
+    border-bottom: 1px dashed #000;
+  }
+  .contactTable tr td.value:last-child {
+    border-right: none !important;
+  }
+  .contactTable tr:first-child .label,
+  .contactTable tr:first-child .value {
+    border-top: 1px solid #000;
+  }
+  .contactTable tr:last-child {
+    border-bottom: 1px solid #000;
+  }
+  .orderDetail td {
+    border-right: 1px solid #000;
+  }
+  .orderDetail tr td:last-child {
+    border-right: none !important;
+  }
+  .lastTable {
+    border: 1px dashed #000;
+  }
+  .borderTopDashed {
+    border-top: 1px dashed #000;
+  }
+  .borderBottomDashed {
+    border-bottom: 1px dashed #000;
+  }
+  .borderTopSolid {
+    border-top: 1px solid #000;
+  }
+  .borderBottomSolid {
+    border-bottom: 1px solid #000;
+  }
+  .borderRightSolid {
+    border-right: 1px solid #000;
+  }
+  .w50 {
+    width: 50px;
+  }
+  .w100px {
+    width: 100px;
+  }
+  .w130 {
+    width: 130px;
+  }
+  .w415 {
+    width: 415px;
+  }
+}
+
+@media not print {
+  .body {
+    display: none;
+  }
+}
+@media print {
+  .body {
+    display: none;
+  }
+}

@@ -176,6 +176,8 @@ export function submitNewRecord(props) {
     customwidget,
     setRequesting,
     rowStatus,
+    setSublistUniqueError,
+    setRuleError,
   } = props;
   const receiveControls = formdata
     .filter(item => item.type !== 30 && item.type !== 31 && item.type !== 32 && item.type !== 51)
@@ -234,6 +236,11 @@ export function submitNewRecord(props) {
         if (customwidget.current && _.isFunction(customwidget.current.uniqueErrorUpdate)) {
           customwidget.current.uniqueErrorUpdate(res.badData);
         }
+      } else if (res.resultCode === 22) {
+        setSublistUniqueError(res.badData);
+        handleRecordError(res.resultCode);
+      } else if (res.resultCode === 32) {
+        setRuleError(res.badData);
       } else {
         handleRecordError(res.resultCode);
       }

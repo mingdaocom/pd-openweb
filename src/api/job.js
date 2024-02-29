@@ -6,8 +6,8 @@ export default {
   * @param {integer} args.pageIndex 页码
   * @param {integer} args.pageSize 页大小
   * @param {string} args.keywords 关键词
-  * @param {} args.sortField 排序字段
-  * @param {} args.sortType 排序方式
+  * @param {} args.sortField
+  * @param {} args.sortType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -44,20 +44,6 @@ export default {
      return $.api('Job', 'EditJobName', args, options);
    },
   /**
-  * 合并职位
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络Id
-  * @param {string} args.jobId 合并到的职位Id
-  * @param {array} args.toMergerIds 被合并的职位Id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   mergeJobs: function (args, options = {}) {
-     
-     return $.api('Job', 'MergeJobs', args, options);
-   },
-  /**
   * 删除职位
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络Id
@@ -73,11 +59,11 @@ export default {
   /**
   * 导入职位
   * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {string} args.fileName 文件名
   * @param {string} args.ticket 验证码返票据
   * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
+  * @param {} args.captchaType
+  * @param {string} args.projectId 网络id
+  * @param {string} args.fileName 文件名
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -101,22 +87,6 @@ export default {
    pagedJobAccounts: function (args, options = {}) {
      
      return $.api('Job', 'PagedJobAccounts', args, options);
-   },
-  /**
-  * 获取用户列表
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络Id
-  * @param {string} args.jobId 职位id
-  * @param {string} args.keywords 关键词
-  * @param {integer} args.pageIndex 页码
-  * @param {integer} args.pageSize 页大小
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getJobUsers: function (args, options = {}) {
-     
-     return $.api('Job', 'GetJobUsers', args, options);
    },
   /**
   * 添加用户

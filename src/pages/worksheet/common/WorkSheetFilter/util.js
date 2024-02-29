@@ -12,6 +12,7 @@ import {
   FILTER_RELATION_TYPE,
   getFilterTypeLabel,
   API_ENUM_TO_TYPE,
+  getControlSelectType,
 } from './enum';
 
 export function formatConditionForSave(condition, relationType, options = {}) {
@@ -235,7 +236,7 @@ export function checkConditionAvailable(condition) {
       return values && values.length;
     case CONTROL_FILTER_WHITELIST.NUMBER.value:
       if (type === FILTER_CONDITION_TYPE.BETWEEN || type === FILTER_CONDITION_TYPE.NBETWEEN) {
-        return !_.isUndefined(minValue) || !_.isUndefined(maxValue);
+        return minValue && maxValue;
       } else {
         return !_.isUndefined(value);
       }
@@ -350,6 +351,7 @@ export function getFilterTypes(control = {}, conditionType, from) {
         FILTER_CONDITION_TYPE.EQ,
         FILTER_CONDITION_TYPE.NE,
         FILTER_CONDITION_TYPE.LIKE,
+        FILTER_CONDITION_TYPE.TEXT_ALLCONTAIN,
         FILTER_CONDITION_TYPE.NCONTAIN,
         FILTER_CONDITION_TYPE.START,
         FILTER_CONDITION_TYPE.N_START,
@@ -396,6 +398,7 @@ export function getFilterTypes(control = {}, conditionType, from) {
       typeEnums = [
         FILTER_CONDITION_TYPE.ARREQ,
         FILTER_CONDITION_TYPE.ARRNE,
+        ...(control.enumDefault === 1 ? [] : [FILTER_CONDITION_TYPE.EQ_FOR_SINGLE]),
         FILTER_CONDITION_TYPE.EQ,
         FILTER_CONDITION_TYPE.NE,
         ...(control.enumDefault === 1 ? [FILTER_CONDITION_TYPE.ALLCONTAIN] : []),
@@ -409,6 +412,7 @@ export function getFilterTypes(control = {}, conditionType, from) {
       typeEnums = [
         FILTER_CONDITION_TYPE.ARREQ,
         FILTER_CONDITION_TYPE.ARRNE,
+        ...(type === 10 ? [] : [FILTER_CONDITION_TYPE.EQ_FOR_SINGLE]),
         FILTER_CONDITION_TYPE.EQ,
         FILTER_CONDITION_TYPE.NE,
         ...(type === 10 ? [FILTER_CONDITION_TYPE.ALLCONTAIN] : []),
@@ -441,6 +445,7 @@ export function getFilterTypes(control = {}, conditionType, from) {
         FILTER_CONDITION_TYPE.BETWEEN,
         FILTER_CONDITION_TYPE.NBETWEEN,
         ...(from === 'rule' ? [] : [FILTER_CONDITION_TYPE.LIKE, FILTER_CONDITION_TYPE.NCONTAIN]),
+        FILTER_CONDITION_TYPE.EQ_FOR_SINGLE,
         FILTER_CONDITION_TYPE.ISNULL,
         FILTER_CONDITION_TYPE.HASVALUE,
       ];
@@ -449,6 +454,7 @@ export function getFilterTypes(control = {}, conditionType, from) {
       typeEnums = [
         FILTER_CONDITION_TYPE.ARREQ,
         FILTER_CONDITION_TYPE.ARRNE,
+        ...(control.enumDefault === 1 ? [] : [FILTER_CONDITION_TYPE.EQ_FOR_SINGLE]),
         FILTER_CONDITION_TYPE.EQ,
         FILTER_CONDITION_TYPE.NE,
         ...(control.enumDefault === 1 ? [FILTER_CONDITION_TYPE.ALLCONTAIN] : []),
@@ -466,6 +472,7 @@ export function getFilterTypes(control = {}, conditionType, from) {
       typeEnums = [
         FILTER_CONDITION_TYPE.ARREQ,
         FILTER_CONDITION_TYPE.ARRNE,
+        ...(control.enumDefault === 1 ? [] : [FILTER_CONDITION_TYPE.EQ_FOR_SINGLE]),
         FILTER_CONDITION_TYPE.EQ,
         FILTER_CONDITION_TYPE.NE,
         FILTER_CONDITION_TYPE.BETWEEN,
@@ -480,6 +487,7 @@ export function getFilterTypes(control = {}, conditionType, from) {
       typeEnums = [
         FILTER_CONDITION_TYPE.RCEQ,
         FILTER_CONDITION_TYPE.RCNE,
+        FILTER_CONDITION_TYPE.EQ_FOR_SINGLE,
         FILTER_CONDITION_TYPE.BETWEEN,
         FILTER_CONDITION_TYPE.NBETWEEN,
         FILTER_CONDITION_TYPE.ISNULL,
@@ -495,6 +503,7 @@ export function getFilterTypes(control = {}, conditionType, from) {
           ? [
               FILTER_CONDITION_TYPE.ARREQ,
               FILTER_CONDITION_TYPE.ARRNE,
+              ...(control.enumDefault === 2 ? [] : [FILTER_CONDITION_TYPE.EQ_FOR_SINGLE]),
               FILTER_CONDITION_TYPE.LIKE,
               FILTER_CONDITION_TYPE.NCONTAIN,
               FILTER_CONDITION_TYPE.RCEQ,
@@ -506,6 +515,7 @@ export function getFilterTypes(control = {}, conditionType, from) {
           : [
               FILTER_CONDITION_TYPE.ARREQ,
               FILTER_CONDITION_TYPE.ARRNE,
+              ...(control.enumDefault === 2 ? [] : [FILTER_CONDITION_TYPE.EQ_FOR_SINGLE]),
               FILTER_CONDITION_TYPE.RCEQ,
               FILTER_CONDITION_TYPE.RCNE,
               ...(control.enumDefault === 2 ? [FILTER_CONDITION_TYPE.ALLCONTAIN] : []),
@@ -536,6 +546,11 @@ export function getFilterTypes(control = {}, conditionType, from) {
   if (from === 'subTotal') {
     typeEnums = typeEnums.filter(type => type !== FILTER_CONDITION_TYPE.ALLCONTAIN);
   }
+  if (from === 'rule') {
+    typeEnums = typeEnums.filter(
+      type => !_.includes([FILTER_CONDITION_TYPE.EQ_FOR_SINGLE, FILTER_CONDITION_TYPE.TEXT_ALLCONTAIN], type),
+    );
+  }
   if (control.encryId) {
     typeEnums = [
       FILTER_CONDITION_TYPE.EQ,
@@ -551,6 +566,7 @@ export function getFilterTypes(control = {}, conditionType, from) {
 }
 
 function getDefaultFilterType(control) {
+  const { isMultiple } = getControlSelectType(control);
   // 文本类
   if (_.includes([2, 3, 4, 5, 7, 32, 33], control.type)) {
     return FILTER_CONDITION_TYPE.EQ;
@@ -569,8 +585,14 @@ function getDefaultFilterType(control) {
     return FILTER_CONDITION_TYPE.DATEENUM;
   }
   // 29 关联、35 级联、9 10 11 选项、26 人员、27 部门、48 角色
-  if (_.includes([29, 35, 9, 10, 11, 26, 27, 48], control.type)) {
-    return FILTER_CONDITION_TYPE.ARREQ;
+  if (control.type === 29 && isMultiple) {
+    return FILTER_CONDITION_TYPE.RCEQ;
+  }
+  if (_.includes([29, 35, 9, 10, 11, 19, 23, 24, 26, 27, 48], control.type)) {
+    if (isMultiple) {
+      return FILTER_CONDITION_TYPE.EQ;
+    }
+    return FILTER_CONDITION_TYPE.EQ_FOR_SINGLE;
   }
 }
 
@@ -989,7 +1011,13 @@ export function fillConditionValue({ condition, formData, relateControl, ignoreF
     return condition;
   }
   if (cid === 'currenttime') {
-    condition.value = moment(new Date()).format(getDatePickerConfigs(filterControl).formatMode);
+    if (filterControl.type === 46) {
+      condition.value = moment(new Date()).format(
+        filterControl.unit === '6' || filterControl.unit === '9' ? 'HH:mm:ss' : 'HH:mm',
+      );
+    } else {
+      condition.value = moment(new Date()).format(getDatePickerConfigs(filterControl).formatMode);
+    }
     return condition;
   }
   let dynamicControl;

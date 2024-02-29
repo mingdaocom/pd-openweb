@@ -1,5 +1,6 @@
 import { arrayOf, bool, func, shape, string } from 'prop-types';
 import React, { useRef, useEffect, useState, useCallback } from 'react';
+import qs from 'query-string';
 import { formatQuickFilter } from 'worksheet/util';
 import styled from 'styled-components';
 import { get, pick } from 'lodash';
@@ -71,6 +72,7 @@ export default function WidgetContainer(props) {
       controls,
       worksheetInfo,
       filters: getFilters(filters, quickFilter, navGroupFilters),
+      query: qs.parse(location.search.slice(1)),
       currentAccount: pick(get(md, 'global.Account') || {}, ['fullname', 'avatar', 'lang', 'accountId']),
     },
   };

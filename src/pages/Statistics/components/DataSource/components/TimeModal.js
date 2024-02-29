@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { Select, DatePicker, Menu, Divider, Input, Dropdown, Button, Modal, Checkbox, Tooltip } from 'antd';
 import { Icon } from 'ming-ui';
-import { dropdownScopeData, dropdownDayData, pastAndFutureData, isPastAndFuture, rangeDots, timeTypes, unitTypes } from 'statistics/common';
+import { dropdownScopeData, dropdownDayData, pastAndFutureData, isPastAndFuture, rangeDots, timeTypes, unitTypes, getTodayTooltip } from 'statistics/common';
 import cx from 'classnames';
 import 'moment/locale/zh-cn';
 import locale from 'antd/es/date-picker/locale/zh_CN';
@@ -38,7 +38,7 @@ export default class TimeModal extends Component {
       filterRangeId,
       rangeType,
       rangeValue,
-      today: [18, 19].includes(rangeType) ? today : false,
+      today: [8, 15, 18, 19].includes(rangeType) ? today : false,
       dynamicFilter
     });
   }
@@ -132,10 +132,10 @@ export default class TimeModal extends Component {
             </Select>
           </div>
           {rangeType == 20 && this.renderRangePicker()}
-          {[18, 19].includes(rangeType) && (
+          {[8, 15, 18, 19].includes(rangeType) && (
             <div className="flexRow valignWrapper mLeft10">
               <Checkbox checked={today} onChange={e => { this.setState({ today: e.target.checked }) }}>{_l('至今天')}</Checkbox>
-              <Tooltip title={_l('未勾选时，表示统计从过去365天开始到昨天的数据；勾选时，表示统计从过去365天开始到今天的数据。')} placement="bottom">
+              <Tooltip title={getTodayTooltip({ rangeType, rangeValue })} placement="bottom">
                 <Icon className="Font18 Gray_9e" icon="info" />
               </Tooltip>
             </div>

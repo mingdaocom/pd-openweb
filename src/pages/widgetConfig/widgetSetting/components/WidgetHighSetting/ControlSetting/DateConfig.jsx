@@ -1,13 +1,13 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useState } from 'react';
 import { Checkbox } from 'ming-ui';
 import styled from 'styled-components';
-import { Dropdown, Tooltip } from 'antd';
-import { Dropdown as MingDropdown } from 'ming-ui';
+import { Dropdown, Tooltip, Input } from 'antd';
+import { Dropdown as MingDropdown, Support, Dialog } from 'ming-ui';
 import cx from 'classnames';
 import { useSetState } from 'react-use';
 import { DATE_SHOW_TYPES } from '../../../../config/setting';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
-import { DropdownContent, DropdownPlaceholder, SettingItem } from '../../../../styled';
+import { DropdownContent, DropdownPlaceholder, SettingItem, EditInfo } from '../../../../styled';
 import DateInput from '../../DynamicDefaultValue/inputTypes/DateInput.jsx';
 import moment from 'moment';
 
@@ -20,22 +20,167 @@ const IntervalWrap = styled(DropdownContent)`
   }
 `;
 
+const ConfigWrap = styled.div`
+  display: flex;
+  .formatList {
+    width: 250px;
+    padding-top: 16px;
+    border-right: 1px solid rgba(0, 0, 0, 0.08);
+    .title {
+      margin-bottom: 6px;
+    }
+    li {
+      line-height: 28px;
+      cursor: pointer;
+      transition: color 0.25s;
+      &:hover {
+        color: #2196f3;
+      }
+    }
+  }
+  .display {
+    flex: 1;
+    padding: 16px 0 0 24px;
+  }
+`;
+
+const CUSTOM_SHOW_FORMAT = [
+  'YYYY-MM-DD',
+  'YYYY/MM/DD',
+  'YYYYMMDD',
+  'YYMMDD',
+  'YYYY年MM月DD日',
+  'YYYY年M月D日',
+  'MM-DD-YYYY',
+  'MM/DD/YYYY',
+  'MMM D YYYY',
+  'MMMM D YYYY',
+  'MM/DD/YY',
+  'DD-MM-YYYY',
+  'DD/MM/YYYY',
+];
+
+const ERROR_OPTIONS = ['*不支持自定义时间格式！', '*无效的格式化规则'];
+
+function ShowFormatDialog(props) {
+  const { showformat, onClose, onOk } = props;
+  const [value, setValue] = useState(showformat);
+
+  const checkError = () => {
+    // 包含时间配置
+    if (value && /[H|h|m|s|S|Z]/.test(value)) {
+      return 1;
+    }
+    const tempValue = moment().format(value);
+    if (value && new Date(moment(tempValue, value).valueOf()).toString() === 'Invalid Date') {
+      return 2;
+    }
+    return 0;
+  };
+
+  return (
+    <Dialog
+      width={720}
+      className="textRegexpVerifyDialog"
+      visible={true}
+      okDisabled={!value || checkError()}
+      onOk={() => onOk(checkError() ? '' : value)}
+      onCancel={onClose}
+      title={<span className="bold">{_l('自定义格式')}</span>}
+    >
+      <ConfigWrap>
+        <div className="formatList">
+          <div className="title Gray_75">
+            {_l('选择下方日期格式或自定义输入')}
+            <Support href="https://help.mingdao.com/sheet16" type={3} text={_l('帮助')} />
+          </div>
+          <ul className="list">
+            {CUSTOM_SHOW_FORMAT.map(item => (
+              <li onClick={() => setValue(item)}>{moment('2020-01-02').format(item)}</li>
+            ))}
+          </ul>
+        </div>
+        <div className="display">
+          <SettingItem style={{ margin: '0' }}>
+            <div className="settingItemTitle">{_l('格式化规则')}</div>
+            <Input.TextArea value={value} onChange={e => setValue(e.target.value.trim())} />
+            <div className="LineHeight20 Red mTop5">{ERROR_OPTIONS[checkError() - 1] || ''}</div>
+          </SettingItem>
+          <SettingItem className="mTop10">
+            <div className="settingItemTitle">{_l('示例')}</div>
+            <Input disabled value={!value || checkError() ? '' : moment().format(value)} />
+          </SettingItem>
+        </div>
+      </ConfigWrap>
+    </Dialog>
+  );
+}
+
 export function ShowFormat(props) {
   const { data, onChange } = props;
   const { showformat = '0' } = getAdvanceSetting(data);
   const showFormatOptions = DATE_SHOW_TYPES.map(item => {
-    return { ...item, text: item.text + ` (${moment().format(item.format)}) ` };
+    return { ...item, text: `${moment().format(item.format)}` + (item.text ? `（${item.text}）` : '') };
   });
+  const isCustom = _.isNaN(Number(showformat));
+
+  const [visible, setVisible] = useState(false);
+
   return (
     <SettingItem>
       <div className="settingItemTitle">{_l('显示格式')}</div>
-      <MingDropdown
-        border
-        className="w100"
-        value={showformat}
-        data={showFormatOptions}
-        onChange={value => onChange(handleAdvancedSettingChange(data, { showformat: value }))}
-      />
+      {isCustom ? (
+        <EditInfo className="pointer" onClick={() => setVisible(true)}>
+          <div className="overflow_ellipsis Gray">{_l('自定义格式')}</div>
+          <div className="flexCenter">
+            <div
+              className="clearBtn mRight10"
+              onClick={e => {
+                e.stopPropagation();
+                onChange(handleAdvancedSettingChange(data, { showformat: '0' }));
+              }}
+            >
+              <i className="icon-closeelement-bg-circle"></i>
+            </div>
+            <div className="edit">
+              <i className="icon-edit"></i>
+            </div>
+          </div>
+        </EditInfo>
+      ) : (
+        <MingDropdown
+          border
+          className="w100"
+          value={showformat}
+          data={showFormatOptions.concat([
+            {
+              value: '5',
+              text: _l('自定义'),
+            },
+          ])}
+          onChange={value => {
+            // 自定义
+            if (value === '5') {
+              setVisible(true);
+            } else {
+              onChange(handleAdvancedSettingChange(data, { showformat: value }));
+            }
+          }}
+        />
+      )}
+
+      {visible && (
+        <ShowFormatDialog
+          showformat={isCustom ? showformat : ''}
+          onClose={() => setVisible(false)}
+          onOk={value => {
+            if (value) {
+              onChange(handleAdvancedSettingChange(data, { showformat: value }));
+            }
+            setVisible(false);
+          }}
+        />
+      )}
     </SettingItem>
   );
 }

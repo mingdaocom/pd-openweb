@@ -43,6 +43,7 @@ class History extends Component {
       filters: {},
       accumulation: {},
       requestPending: false,
+      batchIds: [],
     };
   }
 
@@ -99,7 +100,7 @@ class History extends Component {
    */
   handleFilter = para => {
     this.filterPara = para;
-    this.setState({ pageIndex: 1 }, () => {
+    this.setState({ pageIndex: 1, batchIds: [] }, () => {
       this.getData();
     });
   };
@@ -177,7 +178,7 @@ class History extends Component {
 
   renderHistory() {
     const { flowInfo } = this.props;
-    const { enabled } = flowInfo;
+    const { enabled, companyId } = flowInfo;
     const { historyIsLoading, historyIndex, historyList } = this.state;
 
     return (
@@ -206,6 +207,7 @@ class History extends Component {
                 </div>
                 <div className="flex flexRow">
                   <UserHead
+                    projectId={companyId}
                     user={{
                       userHead: item.publisher.avatar,
                       accountId: item.publisher.accountId,
@@ -273,8 +275,17 @@ class History extends Component {
 
   render() {
     const { flowInfo } = this.props;
-    const { data, selectActionId, hasMoreData, historyVisible, showFilter, filters, accumulation, requestPending } =
-      this.state;
+    const {
+      data,
+      selectActionId,
+      hasMoreData,
+      historyVisible,
+      showFilter,
+      filters,
+      accumulation,
+      requestPending,
+      batchIds,
+    } = this.state;
     const { lastPublishDate, parentId, enabled } = flowInfo;
     const isMoreHistory = !_.isEmpty(filters) && !showFilter;
 
@@ -377,6 +388,8 @@ class History extends Component {
         <div className="workflowHistoryContentWrap">
           {this.renderInstanceContent()}
           <HistoryHeader
+            processId={flowInfo.id}
+            isSerial={_.includes([2, 3], flowInfo.executeType)}
             filters={
               isMoreHistory
                 ? {
@@ -387,9 +400,10 @@ class History extends Component {
                 : {}
             }
             hideStatusAndDate={isMoreHistory}
+            batchIds={batchIds}
             onFilter={this.handleFilter}
             onRefresh={callback => {
-              this.setState({ pageIndex: 1 }, () => {
+              this.setState({ pageIndex: 1, batchIds: [] }, () => {
                 this.getData(callback);
               });
               this.getProcessAccumulation();
@@ -408,9 +422,11 @@ class History extends Component {
             getMore={this.getMore}
             hasMoreData={hasMoreData}
             requestPending={requestPending}
+            batchIds={batchIds}
             onClick={selectActionId => this.setState({ selectActionId })}
             onRecovery={this.onRecovery}
             onRefreshAccumulation={() => this.getProcessAccumulation()}
+            onUpdateBatchIds={batchIds => this.setState({ batchIds })}
           />
         </div>
 

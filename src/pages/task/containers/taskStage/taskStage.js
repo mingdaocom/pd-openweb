@@ -4,7 +4,6 @@ import './css/taskStage.less';
 import { connect } from 'react-redux';
 import doT from 'dot';
 import ajaxRequest from 'src/api/taskCenter';
-import Score from 'ming-ui/components/Score';
 import { listLoadingContent } from '../../utils/taskComm';
 import { formatTaskTime, errorMessage, formatStatus, checkIsProject, returnCustonValue } from '../../utils/utils';
 import config from '../../config/config';
@@ -16,14 +15,14 @@ import stageList from './tpl/stageList.html';
 import addList from './tpl/addList.html';
 import addNewStage from './tpl/addNewStage.html';
 import addNewStageTask from './tpl/addNewStageTask.html';
-import 'src/components/mdDialog/dialog';
-import { expireDialogAsync } from 'src/components/common/function';
+import { expireDialogAsync } from 'src/util';
 import TaskDetail from '../taskDetail/taskDetail';
 import _ from 'lodash';
 import { DateTimeRange } from 'ming-ui/components/NewDateTimePicker';
 import UserHead from 'src/components/userHead';
 import { updateTaskCharge } from '../../redux/actions';
 import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
+import { Dialog, Score } from 'ming-ui';
 
 const taskStageSettings = {
   timer: null, // 计时器
@@ -858,35 +857,32 @@ class TaskStage extends Component {
 
     const { folderId } = this.props.taskConfig;
 
-    $.DialogLayer({
-      dialogBoxID: 'delStage',
-      showClose: false,
-      container: {
-        content: '<div class="Font16 mBottom20">' + _l('确认删除此看板吗？') + '</div>',
-        yesText: _l('删除'),
-        yesFn() {
-          const stageId = $li.data('stageid');
+    Dialog.confirm({
+      title: _l('确认删除此看板吗？1'),
+      closable: false,
+      okText: _l('删除'),
+      onOk: () => {
+        const stageId = $li.data('stageid');
 
-          ajaxRequest
-            .deleteFolderStage({
-              folderID: folderId,
-              stageID: stageId,
-              newStageID: '',
-            })
-            .then(source => {
-              if (source.status) {
-                alert(_l('删除成功'));
+        ajaxRequest
+          .deleteFolderStage({
+            folderID: folderId,
+            stageID: stageId,
+            newStageID: '',
+          })
+          .then(source => {
+            if (source.status) {
+              alert(_l('删除成功'));
 
-                const $newLi = $li.prev().length > 0 ? $li.prev() : $li.next();
-                $newLi.find('.listStageContent ul').append($li.find('.listStageContent li'));
-                $li.fadeOut(function () {
-                  $(this).remove();
-                });
-              } else {
-                errorMessage(source.error);
-              }
-            });
-        },
+              const $newLi = $li.prev().length > 0 ? $li.prev() : $li.next();
+              $newLi.find('.listStageContent ul').append($li.find('.listStageContent li'));
+              $li.fadeOut(function () {
+                $(this).remove();
+              });
+            } else {
+              errorMessage(source.error);
+            }
+          });
       },
     });
   }

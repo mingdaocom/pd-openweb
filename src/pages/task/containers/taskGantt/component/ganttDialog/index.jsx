@@ -410,7 +410,7 @@ export default class GanttDialog extends Component {
             <div className="ganttContentWrap flex flexRow">
               {!data.length ? (
                 <div className="emptyGantt">
-                  <img src="/images/empty_gantt.png" alt="empty" />
+                  <img src="/staticfiles/images/empty_gantt.png" alt="empty" />
                   <div className="explain">{_l('该甘特图下暂无任务')}</div>
                 </div>
               ) : (

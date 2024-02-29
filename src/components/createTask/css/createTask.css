@@ -489,3 +489,16 @@
 #createTask .UploadFiles-attachmentProgress {
   display: none;
 }
+
+.createTaskConfirm .mui-dialog-scroll-container > .mui-dialog-dialog > .mui-dialog-body {
+  padding: 0 0 38px !important;
+}
+
+#folderStageBox .Dropdown--border {
+  height: 38px;
+  border-color: #bdbdbd;
+}
+
+#folderStageBox .Dropdown--border:hover {
+  border-color: #1e88e5;
+}

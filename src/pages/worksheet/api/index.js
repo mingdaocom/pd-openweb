@@ -2,6 +2,7 @@ import worksheetAjax from 'src/api/worksheet';
 import publicWorksheetApi from 'src/api/publicWorksheet';
 import { SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
 import { FORM_HIDDEN_CONTROL_IDS } from 'src/pages/widgetConfig/config/widget';
+import { replaceControlsTranslateInfo } from 'worksheet/util';
 import _ from 'lodash';
 
 export function getRowDetail(params, controls, options = {}) {
@@ -24,7 +25,7 @@ export function getRowDetail(params, controls, options = {}) {
       .then(data => {
         const rowData = safeParse(data.rowData);
         let controlPermissions = safeParse(rowData.controlpermissions);
-        data.formData = (controls || (data.templateControls || []).concat(SYSTEM_CONTROL) || []).map(c => ({
+        data.formData = (controls || replaceControlsTranslateInfo(data.appId, data.templateControls || []).concat(SYSTEM_CONTROL) || []).map(c => ({
           ...c,
           controlPermissions: controlPermissions[c.controlId] || c.controlPermissions,
           dataSource: c.dataSource || '',

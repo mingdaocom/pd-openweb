@@ -1,0 +1,702 @@
+[
+  {
+    "controller": "account",
+    "action": "getAccountAvatar"
+  },
+  {
+    "controller": "account",
+    "action": "getAccountPoint"
+  },
+  {
+    "controller": "account",
+    "action": "getAccountCostLogList"
+  },
+  {
+    "controller": "account",
+    "action": "getProjectEmailIsVerify"
+  },
+  {
+    "controller": "account",
+    "action": "clearMqSession"
+  },
+  {
+    "controller": "account",
+    "action": "editAccountInfo"
+  },
+  {
+    "controller": "account",
+    "action": "getAccountScore"
+  },
+  {
+    "controller": "account",
+    "action": "getWeekMedalCount"
+  },
+  {
+    "controller": "account",
+    "action": "addAccountMedalGrantLog"
+  },
+  {
+    "controller": "accountSetting",
+    "action": "editAccountSettingItems"
+  },
+  {
+    "controller": "account",
+    "action": "getDisplayMedalList"
+  },
+  {
+    "controller": "accountScale",
+    "action": "addAccountScale"
+  },
+  {
+    "controller": "account",
+    "action": "getMedalByType"
+  },
+  {
+    "controller": "account",
+    "action": "getSystemMedals"
+  },
+  {
+    "controller": "account",
+    "action": "editAccountMedalIsShow"
+  },
+  {
+    "controller": "adminManage",
+    "action": "appBillList"
+  },
+  {
+    "controller": "adminManage",
+    "action": "corporateIdentity"
+  },
+  {
+    "controller": "appManagement",
+    "action": "editViewRoles"
+  },
+  {
+    "controller": "appManagement",
+    "action": "getRolesByViewId"
+  },
+  {
+    "controller": "appManagement",
+    "action": "getAppForSheetIds"
+  },
+  {
+    "controller": "appManagement",
+    "action": "searchAppLibrary"
+  },
+  {
+    "controller": "attachment",
+    "action": "getAttachmentsByDocVersionIDs"
+  },
+  {
+    "controller": "application",
+    "action": "isProjectInstall"
+  },
+  {
+    "controller": "calendar",
+    "action": "getWidgetCalendars"
+  },
+  {
+    "controller": "calendar",
+    "action": "getMeCalendars"
+  },
+  {
+    "controller": "calendar",
+    "action": "getLastOneCalendar"
+  },
+  {
+    "controller": "calendar",
+    "action": "getDailyCalendars"
+  },
+  {
+    "controller": "calendar",
+    "action": "appendUserCalCategory"
+  },
+  {
+    "controller": "calendar",
+    "action": "updateUserCalCategoriesIndex"
+  },
+  {
+    "controller": "calendar",
+    "action": "removeMemberWithoutAccountID"
+  },
+  {
+    "controller": "chat",
+    "action": "sentFileTransfer"
+  },
+  {
+    "controller": "category",
+    "action": "getUserOftenCategory"
+  },
+  {
+    "controller": "chat",
+    "action": "getGroupCardList"
+  },
+  {
+    "controller": "chat",
+    "action": "getUserCardList"
+  },
+  {
+    "controller": "contact",
+    "action": "submitLinkContent"
+  },
+  {
+    "controller": "department",
+    "action": "checkDepartmentNameExists"
+  },
+  {
+    "controller": "department",
+    "action": "getProjectDepartments"
+  },
+  {
+    "controller": "department",
+    "action": "getDepartmentTrees"
+  },
+  {
+    "controller": "download",
+    "action": "exportCalendarByToken"
+  },
+  {
+    "controller": "download",
+    "action": "exportFailJobOrDepartmentErrorList"
+  },
+  {
+    "controller": "email",
+    "action": "getSmtpSecret"
+  },
+  {
+    "controller": "email",
+    "action": "editSmtpSecret"
+  },
+  {
+    "controller": "externalPortal",
+    "action": "getDiscussConfig"
+  },
+  {
+    "controller": "externalPortal",
+    "action": "getCustomAddressSuffixIsRepeated"
+  },
+  {
+    "controller": "externalPortal",
+    "action": "getUserDetail"
+  },
+  {
+    "controller": "externalPortal",
+    "action": "getSimple"
+  },
+  {
+    "controller": "externalPortal",
+    "action": "exportalSSO"
+  },
+  {
+    "controller": "favorite",
+    "action": "getFavoritesDetail"
+  },
+  {
+    "controller": "file",
+    "action": "downLinkFile"
+  },
+  {
+    "controller": "homeApp",
+    "action": "editProjectIndex"
+  },
+  {
+    "controller": "homeApp",
+    "action": "getNavigationInfo"
+  },
+  {
+    "controller": "job",
+    "action": "mergeJobs"
+  },
+  {
+    "controller": "job",
+    "action": "getJobUsers"
+  },
+  {
+    "controller": "kc",
+    "action": "getRootInfoByIds"
+  },
+  {
+    "controller": "kc",
+    "action": "addNodeDownloadCount"
+  },
+  {
+    "controller": "login",
+    "action": "workWeiXinLogin"
+  },
+  {
+    "controller": "login",
+    "action": "workWeiXinInstallAuthLogin"
+  },
+  {
+    "controller": "login",
+    "action": "workWeiXinWebAuthLogin"
+  },
+  {
+    "controller": "map",
+    "action": "getCategoryDetail"
+  },
+  {
+    "controller": "order",
+    "action": "getApkOrderPrice"
+  },
+  {
+    "controller": "order",
+    "action": "addApkOrder"
+  },
+  {
+    "controller": "order",
+    "action": "addOneDayOrder"
+  },
+  {
+    "controller": "order",
+    "action": "getOneDayOrderPrice"
+  },
+  {
+    "controller": "order",
+    "action": "getTransactionRecordByRecordId"
+  },
+  {
+    "controller": "pay",
+    "action": "weChatNotify"
+  },
+  {
+    "controller": "order",
+    "action": "updateTransactionRecordRemark"
+  },
+  {
+    "controller": "pay",
+    "action": "alipayNotify"
+  },
+  {
+    "controller": "pay",
+    "action": "alipayReturn"
+  },
+  {
+    "controller": "post",
+    "action": "checkPostPermission"
+  },
+  {
+    "controller": "post",
+    "action": "getUserLeftMark"
+  },
+  {
+    "controller": "privateGuide",
+    "action": "bindProject"
+  },
+  {
+    "controller": "privateGuide",
+    "action": "getServerLicenseList"
+  },
+  {
+    "controller": "private",
+    "action": "getAPIUrl"
+  },
+  {
+    "controller": "privateGuide",
+    "action": "getServerInfo"
+  },
+  {
+    "controller": "privateGuide",
+    "action": "bindLicenseCode"
+  },
+  {
+    "controller": "project",
+    "action": "getMyProjects"
+  },
+  {
+    "controller": "project",
+    "action": "checkProjectIsNotFree"
+  },
+  {
+    "controller": "privateGuide",
+    "action": "enableLicenseCode"
+  },
+  {
+    "controller": "project",
+    "action": "getProjectGuidSetting"
+  },
+  {
+    "controller": "privateGuide",
+    "action": "getGuideStepStatus"
+  },
+  {
+    "controller": "project",
+    "action": "addTpAuthorizerInfo"
+  },
+  {
+    "controller": "project",
+    "action": "getProjectDepartmentCount"
+  },
+  {
+    "controller": "project",
+    "action": "getProjectWorkSitesCount"
+  },
+  {
+    "controller": "projectEncrypt",
+    "action": "getAvailableEncryptRuleInfo"
+  },
+  {
+    "controller": "projectEncrypt",
+    "action": "getAllEncryptRule"
+  },
+  {
+    "controller": "projectSetting",
+    "action": "getProjectIdentity"
+  },
+  {
+    "controller": "projectSetting",
+    "action": "getProjectDomain"
+  },
+  {
+    "controller": "projectSetting",
+    "action": "getStructureSelfEdit"
+  },
+  {
+    "controller": "projectSetting",
+    "action": "setProjectIdentity"
+  },
+  {
+    "controller": "projectSetting",
+    "action": "removeProjectDomain"
+  },
+  {
+    "controller": "projectSetting",
+    "action": "setAudit"
+  },
+  {
+    "controller": "projectSetting",
+    "action": "setBirthdayNotice"
+  },
+  {
+    "controller": "role",
+    "action": "getUserPermissionByType"
+  },
+  {
+    "controller": "role",
+    "action": "isGrantedByPermissionIds"
+  },
+  {
+    "controller": "role",
+    "action": "isGranted"
+  },
+  {
+    "controller": "shareFolder",
+    "action": "getNodeDetailCheck"
+  },
+  {
+    "controller": "share",
+    "action": "shareCheckLogin"
+  },
+  {
+    "controller": "sms",
+    "action": "editProviders"
+  },
+  {
+    "controller": "sms",
+    "action": "getProviders"
+  },
+  {
+    "controller": "structure",
+    "action": "pagedTopAccountIdsWith3Level"
+  },
+  {
+    "controller": "structure",
+    "action": "pagedSubIdsWithByAccountId"
+  },
+  {
+    "controller": "structure",
+    "action": "getSubordinateByAccountId"
+  },
+  {
+    "controller": "tag",
+    "action": "addPostTag"
+  },
+  {
+    "controller": "tag",
+    "action": "removeSourceTag"
+  },
+  {
+    "controller": "tag",
+    "action": "getUserCommonTag"
+  },
+  {
+    "controller": "taskCenter",
+    "action": "getAssociatedFolderList"
+  },
+  {
+    "controller": "taskCenter",
+    "action": "getTeamworkCount"
+  },
+  {
+    "controller": "taskCenter",
+    "action": "getTeamworkMember"
+  },
+  {
+    "controller": "taskCenter",
+    "action": "getFolderDescribe"
+  },
+  {
+    "controller": "taskCenter",
+    "action": "getFoldersByIds"
+  },
+  {
+    "controller": "taskCenter",
+    "action": "validationUserIsCharge"
+  },
+  {
+    "controller": "taskCenter",
+    "action": "getFolderMemberNotice"
+  },
+  {
+    "controller": "taskCenter",
+    "action": "updateFolderMemberStar"
+  },
+  {
+    "controller": "taskCenter",
+    "action": "getFolderMemberType"
+  },
+  {
+    "controller": "taskCenter",
+    "action": "getFolderMembers"
+  },
+  {
+    "controller": "taskCenter",
+    "action": "getFolderAuth"
+  },
+  {
+    "controller": "taskCenter",
+    "action": "getRelatedUsers"
+  },
+  {
+    "controller": "taskCenter",
+    "action": "clearLeftMenuCache"
+  },
+  {
+    "controller": "taskCenter",
+    "action": "getTemplateAndStages"
+  },
+  {
+    "controller": "taskCenter",
+    "action": "getFolderTemplateStage"
+  },
+  {
+    "controller": "taskCenter",
+    "action": "getTemplateIdByFolderId"
+  },
+  {
+    "controller": "taskCenter",
+    "action": "updateFTAFolderDesc"
+  },
+  {
+    "controller": "taskCenter",
+    "action": "getAllSystemTemplates"
+  },
+  {
+    "controller": "taskCenter",
+    "action": "updateFTATaskInfo"
+  },
+  {
+    "controller": "taskCenter",
+    "action": "getTaskTabControlCount"
+  },
+  {
+    "controller": "taskCenter",
+    "action": "getTaskNumber"
+  },
+  {
+    "controller": "taskCenter",
+    "action": "getTaskWithMe"
+  },
+  {
+    "controller": "taskCenter",
+    "action": "batchUpdateTaskParentID"
+  },
+  {
+    "controller": "taskCenter",
+    "action": "batchUpdateTaskStageID"
+  },
+  {
+    "controller": "upgrade",
+    "action": "applyForSalesAssistance"
+  },
+  {
+    "controller": "user",
+    "action": "getUserFilterData"
+  },
+  {
+    "controller": "upgrade",
+    "action": "getProjectUpgradeInfo"
+  },
+  {
+    "controller": "user",
+    "action": "updateUserDepartment"
+  },
+  {
+    "controller": "user",
+    "action": "updateUsersDepartment"
+  },
+  {
+    "controller": "user",
+    "action": "validateUserHaveFriend"
+  },
+  {
+    "controller": "variable",
+    "action": "editValue"
+  },
+  {
+    "controller": "workWeiXin",
+    "action": "getInstallByNewAccountUrl"
+  },
+  {
+    "controller": "workWeiXin",
+    "action": "getInstallByExistAccountUrl"
+  },
+  {
+    "controller": "workWeiXin",
+    "action": "getProjectSuiteInfo"
+  },
+  {
+    "controller": "weixin",
+    "action": "setLoginWeixinNotify"
+  },
+  {
+    "controller": "workWeiXin",
+    "action": "getWorkWXAccountIdMap"
+  },
+  {
+    "controller": "workWeiXin",
+    "action": "getRecommendInstallUrls"
+  },
+  {
+    "controller": "workWeiXin",
+    "action": "editProjectSettingScanInfo"
+  },
+  {
+    "controller": "workWeiXin",
+    "action": "editAutoSync"
+  },
+  {
+    "controller": "workWeiXin",
+    "action": "saveMedia"
+  },
+  {
+    "controller": "workWeiXin",
+    "action": "getWorkWXDepartmentIdMap"
+  },
+  {
+    "controller": "workWeiXin",
+    "action": "getWorkWXAllMap"
+  },
+  {
+    "controller": "workWeiXin",
+    "action": "editWorkWXAppNoticeSetting"
+  },
+  {
+    "controller": "workWeiXin",
+    "action": "getDDJsapiConfig"
+  },
+  {
+    "controller": "workWeiXin",
+    "action": "syncMingToWorkWX"
+  },
+  {
+    "controller": "workWeiXin",
+    "action": "transferProjectIntergrationToWorkwxApp"
+  },
+  {
+    "controller": "workWeiXin",
+    "action": "getWorkWxLicenseOrderDetail"
+  },
+  {
+    "controller": "worksheet",
+    "action": "getWorksheetControlsQuantity"
+  },
+  {
+    "controller": "worksheet",
+    "action": "editShowData"
+  },
+  {
+    "controller": "worksheet",
+    "action": "editPrintFormName"
+  },
+  {
+    "controller": "worksheet",
+    "action": "getExcelLog"
+  },
+  {
+    "controller": "worksheet",
+    "action": "optionsToCollection"
+  },
+  {
+    "controller": "worksheet",
+    "action": "getsQuery"
+  },
+  {
+    "controller": "worksheet",
+    "action": "getViewFieldPermission"
+  },
+  {
+    "controller": "worksheet",
+    "action": "updateEntityAndBtnName"
+  },
+  {
+    "controller": "worksheet",
+    "action": "deleteQuery"
+  },
+  {
+    "controller": "worksheet",
+    "action": "updateWorksheetName"
+  },
+  {
+    "controller": "worksheet",
+    "action": "getExtendAttrOptionalControls"
+  },
+  {
+    "controller": "worksheet",
+    "action": "getRowCountByOwnerID"
+  },
+  {
+    "controller": "worksheet",
+    "action": "getWorksheetsInfo"
+  },
+  {
+    "controller": "worksheet",
+    "action": "getRowsDataByShareId"
+  },
+  {
+    "controller": "worksheet",
+    "action": "isCreatedWorksheet"
+  },
+  {
+    "controller": "worksheet",
+    "action": "getRelationRowsCount"
+  },
+  {
+    "controller": "worksheet",
+    "action": "getRowsDataByIds"
+  },
+  {
+    "controller": "worksheet",
+    "action": "updateWorksheetRowsOwner"
+  },
+  {
+    "controller": "worksheet",
+    "action": "updateWorksheetAllRowOwner"
+  },
+  {
+    "controller": "worksheet",
+    "action": "batchRead"
+  },
+  {
+    "controller": "worksheet",
+    "action": "getFiltersByControlId"
+  },
+  {
+    "controller": "worksheet",
+    "action": "sortViewBtns"
+  },
+  {
+    "controller": "worksheet",
+    "action": "getWorksheetViewById"
+  }
+]

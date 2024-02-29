@@ -8,18 +8,18 @@ import { browserIsMobile, getClassNameByExt } from 'src/util';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import { uniqMerge, mergeTableCell, mergeColumnsCell, mergeLinesCell, getColumnName, renderValue, getControlMinAndMax, getBarStyleColor } from './util';
 import PivotTableContent from './styled';
-import tinycolor from '@ctrl/tinycolor';
+import { isLightColor } from 'src/pages/customPage/util';
 import _ from 'lodash';
-
 const isMobile = browserIsMobile();
 const isPrintPivotTable = location.href.includes('printPivotTable');
 const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
+import { generate } from '@ant-design/colors';
 
-const replaceColor = (data, customPageConfig, themeColor) => {
+export const replaceColor = (data, customPageConfig, themeColor) => {
   const { columnBgColor, lineBgColor } = data;
-  const { pivoTableColor } = customPageConfig || {};
-  if (pivoTableColor) {
-    const isLight = tinycolor(pivoTableColor).isLight();
+  const { pivoTableColor, pivoTableColorIndex = 1 } = customPageConfig || {};
+  if (pivoTableColor && pivoTableColorIndex >= (data.pivoTableColorIndex || 0)) {
+    const isLight = isLightColor(pivoTableColor);
     return {
       ...data,
       columnBgColor: pivoTableColor,
@@ -28,12 +28,32 @@ const replaceColor = (data, customPageConfig, themeColor) => {
       lineTextColor: isLight ? '#333' : '#fff',
     }
   }
-  if (columnBgColor === 'themeColor' || lineBgColor === 'themeColor') {
-    return {
-      ...data,
-      columnBgColor: columnBgColor === 'themeColor' ? themeColor : columnBgColor,
-      lineBgColor: lineBgColor === 'themeColor' ? themeColor : lineBgColor,
-    };
+  data = _.clone(data);
+  const { columnTextColor, lineTextColor } = data;
+  const lightColor = themeColor && generate(themeColor)[0];
+  if (columnBgColor === 'themeColor' || columnBgColor === 'DARK_COLOR') {
+    data.columnBgColor = themeColor;
+  }
+  if (lineBgColor === 'themeColor' || lineBgColor === 'DARK_COLOR') {
+    data.lineBgColor = themeColor;
+  }
+  if (columnBgColor === 'LIGHT_COLOR') {
+    data.columnBgColor = lightColor;
+  }
+  if (lineBgColor === 'LIGHT_COLOR') {
+    data.lineBgColor = lightColor;
+  }
+  if (columnTextColor === 'DARK_COLOR') {
+    data.columnTextColor = themeColor;
+  }
+  if (lineTextColor === 'DARK_COLOR') {
+    data.lineTextColor = themeColor;
+  }
+  if (columnTextColor === 'LIGHT_COLOR') {
+    data.columnTextColor = lightColor;
+  }
+  if (lineTextColor === 'LIGHT_COLOR') {
+    data.lineTextColor = lightColor;
   }
   return data;
 }
@@ -219,6 +239,7 @@ export default class extends Component {
     const freeze = isMobile ? mobilePivotTableLineFreeze : pivotTableLineFreeze;
     const freezeIndex = isMobile ? mobilePivotTableLineFreezeIndex : pivotTableLineFreezeIndex;
     const fIndex = freezeIndex + 1;
+    const isHideHeaderLastTr = columns.length && !lines.length && yaxisList.length === 1;
 
     columns = _.cloneDeep(columns);
 
@@ -228,7 +249,14 @@ export default class extends Component {
 
     const get = (column) => {
       return {
-        title: getColumnName(column),
+        title: () => {
+          return (
+            <Fragment>
+              {getColumnName(column)}
+              {isHideHeaderLastTr && this.renderDrag(0)}
+            </Fragment>
+          );
+        },
         dataIndex: column.cid,
         children: column.children,
         colSpan: freeze && _.isNumber(freezeIndex) && fIndex <= linesData.length ? fIndex : (linesData.length || undefined)
@@ -291,7 +319,7 @@ export default class extends Component {
       if (next) {
         column.children = [get(next)];
       } else {
-        const defaultChildren = yaxisList.length ? [{ title: null, width: undefined }] : [];
+        const defaultChildren = yaxisList.length ? [{ title: null, width: isHideHeaderLastTr ? this.getColumnWidth(0) : undefined,  }] : [];
         column.children = linesChildren.length ? linesChildren : defaultChildren;
       }
     }
@@ -349,6 +377,7 @@ export default class extends Component {
     const { columnSummary = {}, showColumnTotal } = pivotTable || reportData;
     const dataList = [];
     const controlMinAndMax = getControlMinAndMax(yaxisList, result);
+    const isHideHeaderLastTr = columns.length && !lines.length && yaxisList.length === 1;
 
     const getTitle = (id, data) => {
       if (_.isNull(data)) return;
@@ -373,14 +402,14 @@ export default class extends Component {
             return (
               <Fragment>
                 {name}
-                {this.renderDrag(dragIndex)}
+                {this.renderDrag(isHideHeaderLastTr ? dragIndex + 1 : dragIndex)}
               </Fragment>
             );
           },
           dataIndex: `${item.controlId}-${index + i}`,
           colSpan: 1,
           className: cx('cell-content', displaySetup.showRowList && isViewOriginalData ? 'contentValue' : undefined),
-          width: this.getColumnWidth(dragIndex),
+          width: this.getColumnWidth(isHideHeaderLastTr ? dragIndex + 1 : dragIndex),
           onCell: (record) => {
             return {
               onClick: (event) => {

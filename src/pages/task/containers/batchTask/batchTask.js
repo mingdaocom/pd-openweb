@@ -1,8 +1,6 @@
-﻿import './css/batchTask.less';
+import './css/batchTask.less';
 import quickSelectUser from 'ming-ui/functions/quickSelectUser';
 import '@mdfe/selectize';
-import 'src/components/mdDialog/dialog';
-import mdAutocomplete from 'src/components/mdAutocomplete/mdAutocomplete';
 import doT from 'dot';
 import config from '../../config/config';
 import batchTaskTpl from './tpl/batchTask.html';
@@ -15,6 +13,149 @@ import tagController from 'src/api/tag';
 import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import _ from 'lodash';
 import moment from 'moment';
+import { Dialog, Checkbox } from 'ming-ui';
+import React, { useState } from 'react';
+import ReactDOM from 'react-dom';
+import styled from 'styled-components';
+import { LoadDiv as MingUiLoadDiv } from 'ming-ui';
+
+const SearchFolderCon = styled.ul`
+  width: 438px;
+  background: #fff;
+  max-height: 400px;
+  padding: 6px 0;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.1);
+  -webkit-box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.1);
+  background: #fff;
+  padding: 6px 0;
+  z-index: 9999;
+  position: absolute;
+  li {
+    cursor: pointer;
+    height: 40px;
+    line-height: 40px;
+    overflow: hidden;
+    padding-left: 15px;
+    padding-right: 10px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    position: relative;
+    img {
+      height: 26px;
+      margin-top: 7px;
+      vertical-align: top;
+      width: 26px;
+    }
+    .folderName {
+      display: inline-block;
+      line-height: 40px;
+      margin-left: 5px;
+      max-width: 250px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      vertical-align: top;
+      white-space: nowrap;
+    }
+    .folderDetail {
+      position: absolute;
+      right: 5px;
+      top: 0;
+      span {
+        color: #999;
+        font-size: 14px;
+        line-height: 40px;
+      }
+    }
+    .icon-folder-public {
+      font-size: 18px;
+      margin-right: 5px;
+      color: #999;
+      line-height: 40px;
+    }
+  }
+`;
+
+function SearchFolder(props) {
+  const { projectId } = Store.getState().task.taskConfig;
+  const [visible, setVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState([]);
+  const [flag, setFlag] = useState(false);
+
+  const handleSearch = (value = '') => {
+    setLoading(true);
+    setFlag(true);
+    ajaxRequest
+      .getFolderListForUpdateFolderID({
+        projectId: projectId,
+        pageIndex: 1,
+        pageSize: 20,
+        keywords: value.trim(),
+      })
+      .then(res => {
+        setLoading(false);
+        setData(res.data || []);
+      });
+  };
+
+  const onChange = _.debounce(handleSearch, 500);
+
+  return (
+    <React.Fragment>
+      <input
+        type="text"
+        id="batchTaskFolder"
+        class="boderRadAll_3"
+        onChange={e => {
+          onChange(e.target.value);
+        }}
+        onFocus={() => {
+          !flag && handleSearch('');
+        }}
+      />
+      <SearchFolderCon
+        style={{
+          display: visible ? 'block' : 'hidden',
+        }}
+        id="SearchFolderCon"
+      >
+        {loading ? (
+          <MingUiLoadDiv size="middle" />
+        ) : data.length === 0 ? (
+          <li className="emptyItem">{_l('没有搜索到相关结果')}</li>
+        ) : (
+          <React.Fragment>
+            {data.map(item => {
+              return (
+                <li
+                  data-folderid={item.folderID}
+                  onClick={() => {
+                    if (item.folderID) {
+                      $('#batchTask .batchFolderContent').addClass('show').siblings().removeClass('show');
+                      $('#batchTask .batchFolderText').text(item.folderName);
+                      // 加载权限 关联项目
+                      BatchTask.loadBatchData(2);
+                      BatchTask.taskAuth('updateFolder', _l('批量修改任务项目'), item.folderID);
+                    }
+                    setVisible(false);
+                  }}
+                >
+                  <img src={item.charge.avatar} class="chargeUser circle" data-id={item.charge.accountID} />
+                  <span className="folderName">{htmlEncodeReg(item.folderName)}</span>
+                  <div class="folderDetail">
+                    <span className={item.visibility === 0 ? 'icon-folder-private' : 'icon-folder-public'}></span>
+                    <span class="folderMemberCount">{item.taskNum}</span>
+                  </div>
+                </li>
+              );
+            })}
+          </React.Fragment>
+        )}
+      </SearchFolderCon>
+    </React.Fragment>
+  );
+}
 
 const BatchTask = {};
 
@@ -61,24 +202,31 @@ BatchTask.initEvent = function () {
   $batchTask.on('click', '#batchDelTask', () => {
     BatchTask.loadBatchData(1);
 
-    $.DialogLayer({
-      dialogBoxID: 'deleteTaskBox',
-      showClose: false,
-      container: {
-        header: _l('彻底删除任务'),
-        content: `<div class="Font14 mBottom20">${_l(
-          '注意：此操作将彻底删除任务数据，无法恢复。',
-        )}<span class="deleteFolderColor">${_l(
-          '请确认您和任务的其他参与者都不再需要任务中的数据再行删除',
-        )}</span></div>`,
-        yesText: _l('删除'),
-        yesFn() {
-          const minorContent =
-            '<div class="checkBox overDateBatch"> <span class="btnCk">' +
-            _l('同时删除任务下的子任务') +
-            '</span> </div>';
-          BatchTask.taskAuth('DelTask', _l('批量删除任务'), null, minorContent);
-        },
+    Dialog.confirm({
+      dialogClasses: 'deleteTaskBox',
+      title: _l('彻底删除任务'),
+      closable: false,
+      children: (
+        <div className="Font14 mBottom20">
+          {_l('注意：此操作将彻底删除任务数据，无法恢复。')}
+          <span className="deleteFolderColor">{_l('请确认您和任务的其他参与者都不再需要任务中的数据再行删除')}</span>
+        </div>
+      ),
+      okText: _l('删除'),
+      onOk: () => {
+        const minorContent = (
+          <div className="checkBox overDateBatch">
+            <span
+              className="btnCk"
+              onClick={e => {
+                $(e.target).toggleClass('selected');
+              }}
+            >
+              {_l('同时删除任务下的子任务')}
+            </span>
+          </div>
+        );
+        BatchTask.taskAuth('DelTask', _l('批量删除任务'), null, minorContent);
       },
     });
   });
@@ -88,6 +236,7 @@ BatchTask.initEvent = function () {
     $('.batchFolder .batchFolderContent').removeClass('show');
     $('#batchTask .autoBatchFolder').addClass('show');
     $('#batchTaskFolder').focus();
+    ReactDOM.render(<SearchFolder />, document.querySelector('.barchTaskMain .autoBatchFolder'));
   });
 
   // 现在开始
@@ -175,17 +324,6 @@ BatchTask.initEvent = function () {
         callback,
       },
       selectCb: callback,
-      ChooseInviteSettings: {
-        callback(users, callbackInviteResult) {
-          // 成员权限
-          BatchTask.loadBatchData();
-          // 修改
-          if (!callbackInviteResult) {
-            callbackInviteResult = function () {};
-          }
-          BatchTask.addMembers(users, callbackInviteResult);
-        },
-      },
     });
   });
 
@@ -253,7 +391,7 @@ BatchTask.loadBatchData = function (auth) {
           (auth === config.auth.Charger && itemAuth !== config.auth.Charger) ||
           (itemAuth !== config.auth.Member && itemAuth !== config.auth.Charger && auth === config.auth.Member)
         ) {
-          const avatar = $item.find('.chargeTd .chargeImg').attr('src') || md.global.Account.avatar;
+          const avatar = $item.find('.chargeTd img').attr('src') || md.global.Account.avatar;
           BatchTask.Settings.authTask.push({
             TaskID: $item.data('taskid'),
             status: $item.find('.markComplete .markTask').hasClass('markComplete'),
@@ -278,7 +416,7 @@ BatchTask.loadBatchData = function (auth) {
           TaskID: $itemParent.data('taskid'),
           status: $item.find('.treeMark .markTask').hasClass('completeHook'),
           TaskName: $item.find('.taskListNameBox .spanName').attr('title'),
-          avatar: $item.find('.chargeTd .chargeImg').attr('src'),
+          avatar: $item.find('.chargeTd img').attr('src'),
         });
       }
     });
@@ -325,74 +463,8 @@ BatchTask.bindDialog = function () {
       }),
     );
 
-  // 无法 委托 每次生成的时候绑定
-  mdAutocomplete({
-    element: 'batchTaskFolder',
-    appendTo: '.autoBatchFolder',
-    clearBtn: false,
-    focusIsSerach: true,
-    minLength: -1,
-    autoUlStyle: {
-      zIndex: 9999,
-      width: 438,
-      y: 10,
-      x: 3,
-    },
-    source: ajaxRequest,
-    op: 'getFolderListForUpdateFolderID',
-    data: {
-      projectId,
-      pageIndex: 1,
-      pageSize: 20,
-    },
-    beforeSearch(data) {
-      data.keywords = $.trim($('#batchTaskFolder').val());
-    },
-    select($this) {
-      const folderId = $this.data('folderid');
-
-      if (folderId) {
-        $('#batchTask .batchFolderContent').addClass('show').siblings().removeClass('show');
-        $('#batchTask .batchFolderText').text($this.text());
-        // 加载权限 关联项目
-        BatchTask.loadBatchData(2);
-        BatchTask.taskAuth('updateFolder', _l('批量修改任务项目'), folderId);
-      }
-    },
-    render(folders) {
-      const folderCount = folders ? folders.length : 0;
-      if (folderCount > 0) {
-        let sb = '';
-        // 加载数据
-        $.each(folders, (i, item) => {
-          sb +=
-            '<li data-folderid="' +
-            item.folderID +
-            '">' +
-            '<img src="' +
-            item.charge.avatar +
-            '" class="chargeUser circle" data-id="' +
-            item.charge.accountID +
-            '">' +
-            '<span class="folderName">' +
-            htmlEncodeReg(item.folderName) +
-            '</span>' +
-            '<div class="folderDetail">' +
-            '<span class="' +
-            (item.visibility === 0 ? 'icon-folder-private' : 'icon-folder-public') +
-            '"></span>' +
-            '<span class="folderMemberCount">' +
-            (item.taskNum || '') +
-            '</span>' +
-            '</div>' +
-            '</li>';
-        });
-        return sb;
-      }
-
-      return '<li class="emptyItem" data-folderid="">' + _l('没有搜索到相关结果') + '</li>';
-    },
-  });
+  const targetDom = document.querySelector('.barchTaskMain .autoBatchFolder');
+  targetDom && ReactDOM.render(<SearchFolder />, targetDom);
 
   // 批量标签绑定事件
   config.selectize = $('#txtCategory').selectize({
@@ -731,18 +803,21 @@ BatchTask.updateTaskStatus = function (status, isAuth) {
         });
     };
 
-    $.DialogLayer({
-      dialogBoxID: 'updateTaskStatusDialog',
-      showClose: false,
-      container: {
-        content: `<div class="Font16 mBottom20">${
-          status ? _l('将选中的任务标为已完成') : _l('将选中的任务标为未完成')
-        }</div>`,
-        yesText: _l('确定'),
-        ckText: status ? _l('同时将子任务标为已完成') : _l('同时将子任务标为未完成'),
-        yesFn(isAllSubTask) {
-          taskStatusFun(isAllSubTask);
-        },
+    Dialog.confirm({
+      closable: false,
+      dialogClasses: 'updateTaskStatusDialog',
+      title: status ? _l('将选中的任务标为已完成1') : _l('将选中的任务标为未完成1'),
+      okText: _l('确定'),
+      children: (
+        <Checkbox
+          className="Gray_9"
+          defaultChecked={false}
+          text={status ? _l('同时将子任务标为已完成') : _l('同时将子任务标为未完成')}
+        />
+      ),
+      onOk: () => {
+        const isAllSubTask = $('.updateTaskStatusDialog .Checkbox').is('.checked');
+        taskStatusFun(isAllSubTask);
       },
     });
   });
@@ -883,51 +958,51 @@ BatchTask.taskAuth = function (type, title, args, minorContent) {
   const taskCount = BatchTask.Settings.authTask.length;
 
   if (taskCount > 0) {
-    let html = '';
-    $.each(BatchTask.Settings.authTask, (i, item) => {
-      html =
-        html +
-        `<div class="authTask"><span class="markTask lockTask"></span>
-      <img class="circle batchAvatar" src="${item.avatar}" /><span class="batchName overflow_ellipsis">
-      ${item.TaskName}</span></div>
-      `;
+    Dialog.confirm({
+      title: title,
+      dialogClasses: 'afterUpdate',
+      okText: _l('跳过，继续修改'),
+      cancelText: _l('取消'),
+      footer: (
+        <div>
+          <div className="footer">
+            <a
+              className="noText ThemeHoverColor3"
+              onClick={() => {
+                $('.afterUpdate').parent().remove();
+              }}
+            >
+              {_l('取消')}
+            </a>
+            <a
+              className="yesText boderRadAll_3 ThemeBGColor3"
+              onClick={() => {
+                // 批量修改任务负责人
+                BatchTask[type](args, true);
+                $('.afterUpdate').parent().remove();
+              }}
+            >
+              {_l('跳过，继续修改')}
+            </a>
+          </div>
+          <div className="TxtLeft">{minorContent}</div>
+        </div>
+      ),
+      children: (
+        <React.Fragment>
+          <div className="tipTitle">{_l('有%0条任务被锁定且你不具有负责人权限，无法被修改', taskCount)}</div>
+          <div className="authTaskBox">
+            {BatchTask.Settings.authTask.map(item => (
+              <div className="authTask">
+                <span className="markTask lockTask"></span>
+                <img className="circle batchAvatar" src={item.avatar} />
+                <span className="batchName overflow_ellipsis">{item.TaskName}</span>
+              </div>
+            ))}
+          </div>
+        </React.Fragment>
+      ),
     });
-    const sb = `<div class="tipTitle">${_l('有%0条任务被锁定且你不具有负责人权限，无法被修改', taskCount)}</div>
-    <div class="authTaskBox">${html}</div>
-    `;
-
-    const dialogOpts = {
-      dialogBoxID: 'afterUpdate',
-      container: {
-        header: title,
-        content: sb,
-        yesText: _l('跳过，继续修改'),
-        noText: _l('取消'),
-        yesFn() {
-          // 批量修改任务负责人
-          BatchTask[type](args, true);
-        },
-      },
-      zIndex: 10000,
-      readyFn() {
-        // 弹出层总高度占 80%
-        const winH = $(window).height() * 0.8;
-        if ($('#afterUpdate').height() > winH) {
-          const otherHeight = 215;
-          $('#afterUpdate .authTaskBox').height(winH - otherHeight);
-        }
-      },
-    };
-    // 次要内容
-    if (minorContent) {
-      dialogOpts.container.minorContent = minorContent;
-      $(document).on('click', '.checkBox .btnCk', function () {
-        $(this).toggleClass('selected');
-      });
-    }
-
-    // 弹出层
-    $.DialogLayer(dialogOpts);
   } else {
     // 执行
     BatchTask[type](args);
@@ -952,7 +1027,7 @@ BatchTask.builAuthTask = function (data, args, type, title) {
       if (!folderId) {
         taskId = $item.data('taskid');
         if ($.inArray(taskId, noAuth) > -1) {
-          avatar = $item.find('.chargeTd .chargeImg').attr('src') || md.global.Account.avatar;
+          avatar = $item.find('.chargeTd img').attr('src') || md.global.Account.avatar;
           authObj.push({
             TaskID: $item.data('taskid'),
             TaskName: $item.find('.taskListName .spanName').attr('title'),
@@ -969,7 +1044,7 @@ BatchTask.builAuthTask = function (data, args, type, title) {
             authObj.push({
               TaskID: taskId,
               TaskName: $item.find('.taskListNameBox .spanName').attr('title'),
-              avatar: $item.find('.chargeTd .chargeImg').attr('src'),
+              avatar: $item.find('.chargeTd img').attr('src'),
             });
           } else {
             // 部分处理
@@ -1038,34 +1113,29 @@ BatchTask.getTaskIdByItem = function ($item) {
 BatchTask.showAuthTask = function (authObj, title, type) {
   const taskCount = authObj.length;
   if (taskCount) {
-    let html = '';
-    $.each(authObj, (i, item) => {
-      html =
-        html +
-        `<div class="authTask">${type !== 'UpdateActualStartTime' ? '<span class="markTask lockTask"></span>' : ''}
-      <img class="circle batchAvatar" src="${item.avatar}" /><span class="batchName overflow_ellipsis">
-      ${item.TaskName}</span></div>
-      `;
+    Dialog.confirm({
+      title: title,
+      dialogClasses: 'afterUpdateMsg',
+      children: (
+        <React.Fragment>
+          {type === 'UpdateActualStartTime' ? (
+            <div className="tipTitle">{_l('有%0条任务未设置计划开始时间，无法开始任务', taskCount)}</div>
+          ) : (
+            <div className="tipTitle">{_l('有%0条任务被锁定且你不具有负责人权限，无法被修改', taskCount)}</div>
+          )}
+          <div className="authTaskBox">
+            {authObj.map(item => (
+              <div className="authTask">
+                {type !== 'UpdateActualStartTime' && <span className="markTask lockTask"></span>}
+                <img className="circle batchAvatar" src={item.avatar} />
+                <span className="batchName overflow_ellipsis">{item.TaskName}</span>
+              </div>
+            ))}
+          </div>
+        </React.Fragment>
+      ),
+      okText: _l('我知道了'),
     });
-
-    const sb = `${
-      type === 'UpdateActualStartTime'
-        ? `<div class="tipTitle">${_l('有%0条任务未设置计划开始时间，无法开始任务', taskCount)}</div>`
-        : `<div class="tipTitle">${_l('有%0条任务被锁定且你不具有负责人权限，无法被修改', taskCount)}</div>`
-    }
-    <div class="authTaskBox">${html}</div>
-    `;
-
-    const dialogOpts = {
-      dialogBoxID: 'afterUpdateMsg',
-      container: {
-        header: title,
-        content: sb,
-        yesText: _l('我知道了'),
-      },
-    };
-
-    $.DialogLayer(dialogOpts);
   }
 };
 

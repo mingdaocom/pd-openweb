@@ -1,8 +1,8 @@
 @font-face {
   font-family: "MD_Icon"; /* Project id 2032949 */
-  src: url('iconfont.woff2?t=1701683767497') format('woff2'),
-       url('iconfont.woff?t=1701683767497') format('woff'),
-       url('iconfont.ttf?t=1701683767497') format('truetype');
+  src: url('iconfont.woff2?t=1706760574990') format('woff2'),
+       url('iconfont.woff?t=1706760574990') format('woff'),
+       url('iconfont.ttf?t=1706760574990') format('truetype');
 }
 
 .MD_Icon {
@@ -13,24 +13,68 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-stamp:before {
-  content: "\ea6c";
+.icon-person_three:before {
+  content: "\e67a";
 }
 
-.icon-adds:before {
-  content: "\ea77";
+.icon-location_map:before {
+  content: "\e679";
 }
 
-.icon-fill:before {
-  content: "\ea63";
+.icon-import_contacts:before {
+  content: "\eada";
+}
+
+.icon-contact_support:before {
+  content: "\eadb";
+}
+
+.icon-smart_button:before {
+  content: "\e677";
+}
+
+.icon-arrows_square:before {
+  content: "\e676";
+}
+
+.icon-earth:before {
+  content: "\e675";
 }
 
 .icon-Finish:before {
+  content: "\ea63";
+}
+
+.icon-adds:before {
   content: "\ea67";
 }
 
 .icon-sending:before {
   content: "\ea69";
+}
+
+.icon-fill:before {
+  content: "\ea6c";
+}
+
+.icon-stamp:before {
+  content: "\ea77";
+}
+
+.icon-adds_shallow:before {
+  content: "\eab1";
+}
+
+.icon-sending_shallow:before {
+  content: "\eab3";
+}
+
+.icon-stamp_shallow:before {
+  content: "\eacf";
+}
+
+.icon-fill_shallow:before {
+  content: "\ead7";
 }
 
 .icon-home_set:before {
@@ -45,7 +89,7 @@
   content: "\eaab";
 }
 
-.icon-translate1:before {
+.icon-translate_language:before {
   content: "\ea16";
 }
 

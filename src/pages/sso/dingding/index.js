@@ -13,7 +13,7 @@ if (checkLogin()) {
     if (i) {
       location.href = isMobile || isPcSlide ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`;
     } else {
-      location.href = isMobile || isPcSlide ? `/mobile/appHome` : `/app/my`;
+      location.href = isMobile || isPcSlide ? `/mobile/dashboard` : `/dashboard`;
     }
   }
 } else {
@@ -36,7 +36,7 @@ if (checkLogin()) {
           if (i) {
             location.href = isMobile || isPcSlide ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`;
           } else {
-            location.href = isMobile || isPcSlide ? `/mobile/appHome` : `/app/my`;
+            location.href = isMobile || isPcSlide ? `/mobile/dashboard` : `/dashboard`;
           }
         }
       } else {

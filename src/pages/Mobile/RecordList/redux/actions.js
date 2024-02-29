@@ -1,8 +1,8 @@
 import sheetAjax from 'src/api/worksheet';
 import homeAppAjax from 'src/api/homeApp';
 import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
-import { getRequest } from 'src/util';
-import { getFilledRequestParams } from 'worksheet/util';
+import { getRequest, getTranslateInfo } from 'src/util';
+import { getFilledRequestParams, replaceControlsTranslateInfo } from 'worksheet/util';
 import _ from 'lodash';
 
 export const updateBase = base => (dispatch, getState) => {
@@ -27,6 +27,7 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
     JSON.parse(localStorage.getItem(`currentNavWorksheetInfo-${currentNavWorksheetId}`));
   if (appNaviStyle === 2 && currentNavWorksheetInfo) {
     dispatch({ type: 'WORKSHEET_INIT', value: currentNavWorksheetInfo });
+    dispatch({ type: 'WORKSHEET_PERMISSION_INIT', value: currentNavWorksheetInfo.switches });
     dispatch({ type: 'MOBILE_WORK_SHEET_INFO', data: currentNavWorksheetInfo });
     dispatch({ type: 'MOBILE_WORK_SHEET_UPDATE_LOADING', loading: false });
   } else {
@@ -41,6 +42,9 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
       getSwitchPermit: true,
     })
     .then(workSheetInfo => {
+      if (_.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage')) {
+        workSheetInfo.allowAdd = false;
+      }
       if (appNaviStyle === 2) {
         let navSheetList = _.flatten(
           appSection.map(item => {
@@ -58,7 +62,25 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
           }
         });
       }
+      const sheetTranslateInfo = getTranslateInfo(base.appId, base.worksheetId);
+      const { advancedSetting = {} } = workSheetInfo;
+      workSheetInfo.name = sheetTranslateInfo.name || workSheetInfo.name;
+      workSheetInfo.entityName = sheetTranslateInfo.recordName || workSheetInfo.entityName;
+      workSheetInfo.advancedSetting = {
+        ...advancedSetting,
+        title: sheetTranslateInfo.formTitle || advancedSetting.title,
+        sub: sheetTranslateInfo.formSub || advancedSetting.sub,
+        continue: sheetTranslateInfo.formContinue || advancedSetting.continue,
+      };
+      workSheetInfo.views = workSheetInfo.views.map(item => {
+        return {
+          ...item,
+          name: getTranslateInfo(base.appId, item.viewId).name || item.name,
+        };
+      });
+      workSheetInfo.template.controls = replaceControlsTranslateInfo(base.appId, workSheetInfo.template.controls);
       dispatch({ type: 'WORKSHEET_INIT', value: workSheetInfo });
+      dispatch({ type: 'WORKSHEET_PERMISSION_INIT', value: workSheetInfo.switches });
       dispatch({ type: 'MOBILE_WORK_SHEET_INFO', data: workSheetInfo });
       dispatch({
         type: 'MOBILE_SHEET_PERMISSION_INIT',
@@ -108,9 +130,19 @@ export const fetchSheetRows = params => (dispatch, getState) => {
     mobileNavGroupFilters,
     sheetRowLoading,
   } = getState().mobile;
-  const { appId, worksheetId, viewId, maxCount } = base;
-  const { views = [] } = worksheetInfo;
+  const { appId, worksheetId, viewId, groupId, maxCount } = base;
+  let { views = [] } = worksheetInfo;
+  views = views.filter(
+    v => _.get(v, 'advancedSetting.showhide') !== 'hide' && _.get(v, 'advancedSetting.showhide') !== 'spc&happ',
+  );
   const defaultViewId = _.get(views[0], 'viewId');
+  const showCurrentView = _.some(views, v => v.viewId === viewId);
+  if (!showCurrentView && location.pathname.indexOf('recordList') > -1) {
+    updateBase({ viewId: defaultViewId });
+    safeLocalStorageSetItem(`mobileViewSheet-${worksheetId}`, defaultViewId);
+    window.mobileNavigateTo(`/mobile/recordList/${appId}/${groupId}/${worksheetId}/${defaultViewId}`, true);
+    return;
+  }
   const { keyWords } = filters;
   const { chartId } = getRequest();
   let { pageIndex } = sheetView;

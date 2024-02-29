@@ -34,7 +34,7 @@ class Btns extends Component {
   }
   handleOpenChatList() {
     const { visible } = this.props;
-    $.publish('chat-fold');
+
     this.props.dispatch(actions.setVisible(!visible));
     // 优化交互体验
     this.setState(
@@ -127,9 +127,8 @@ class Btns extends Component {
       return;
     }
     if (type === 'file-transfer') {
-      const { avatar, name } = Constant.FILE_TRANSFER;
+      const { name } = Constant.FILE_TRANSFER;
       const message = {
-        logo: avatar,
         uname: name,
         sysType: 1,
       };

@@ -86,13 +86,13 @@ export default class Chart extends Component {
     });
   }
   renderChart() {
-    const { projectId, themeColor, reportData, currentReport, base, direction, getReportSingleCacheId, requestOriginalData, changeCurrentReport } = this.props;
+    const { projectId, themeColor, customPageConfig, reportData, currentReport, base, direction, getReportSingleCacheId, requestOriginalData, changeCurrentReport } = this.props;
     const { settingVisible, report = {}, sourceType } = base;
     const reportId = report.id;
     const { reportType, valueMap } = reportData;
     const Chart = charts[reportType];
     const isPublicShareChart = location.href.includes('public/chart');
-    const isPublicSharePage = location.href.includes('public/page') || window.shareAuthor || window.share;
+    const isPublicSharePage = window.shareAuthor || _.get(window, 'shareState.shareId');
 
     const props = {
       projectId,
@@ -101,7 +101,7 @@ export default class Chart extends Component {
       requestOriginalData,
       direction,
       themeColor,
-      customPageConfig: {}
+      customPageConfig
     };
 
     if ([reportTypes.PivotTable].includes(reportType)) {
@@ -226,6 +226,7 @@ export default class Chart extends Component {
       onChangeSheetVisible,
       renderHeaderDisplaySetup,
     } = this.props;
+    const { createdBy = {}, lastModifiedBy = {} } = reportData;
     const viewId = _.get(currentReport, ['filter', 'viewId']);
     const view = _.find(worksheetInfo.views, { viewId });
     const { direction, scopeVisible } = this.props;
@@ -245,7 +246,13 @@ export default class Chart extends Component {
           {loading ? (
             <Loading />
           ) : reportData.status > 0 ? (
-            <Fragment>{this.renderChart()}</Fragment>
+            <Fragment>
+              {this.renderChart()}
+              <div className="flexRow mTop10 Gray_9e Font13">
+                <span className="mRight25">{_l('创建人')}: {createdBy.fullName}</span>
+                <span>{_l('最后修改人')}: {lastModifiedBy.fullName}</span>
+              </div>
+            </Fragment>
           ) : (
             <Abnormal isEdit={settingVisible ? !(viewId && _.isEmpty(view)) : false} status={reportData.status} />
           )}

@@ -17,6 +17,7 @@ export default class UpdateFields extends Component {
     controls: [],
     fields: [],
     showCurrent: false,
+    filterType: 0,
     formulaMap: {},
     updateSource: () => {},
   };
@@ -161,6 +162,7 @@ export default class UpdateFields extends Component {
       isSubProcessNode,
       showCurrent,
       isBatch,
+      filterType,
     } = this.props;
     const relationList = controls
       .filter(v => v.type === 29)
@@ -231,6 +233,7 @@ export default class UpdateFields extends Component {
                   formulaMap={formulaMap}
                   fields={fields}
                   updateSource={updateSource}
+                  filterType={filterType}
                   item={item}
                   i={i}
                 />

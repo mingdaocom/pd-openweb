@@ -419,7 +419,7 @@ export default function RelationSearch(props) {
                     const control = sortsRelationControls.find(({ controlId }) => item.controlId === controlId) || {};
                     const flag = item.isAsc === true ? 2 : 1;
                     const { text } = getSortData(control.type, control).find(item => item.value === flag);
-                    const value = control.controlId ? _l('%0: %1', control.controlName, text) : '';
+                    const value = control.controlId ? `${control.controlName}：${text}` : '';
                     return p ? `${p}；${value}` : value;
                   }, '')
                 : _l('创建时间-最旧的在前')}

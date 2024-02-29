@@ -2,6 +2,7 @@ import { find, get } from 'lodash';
 import { getAdvanceSetting } from 'src/util';
 import { isOpenPermit } from 'src/pages/FormSet/util';
 import { permitList } from 'src/pages/FormSet/config';
+import renderCellText from 'worksheet/components/CellControls/renderText';
 
 export const RENDER_RECORD_NECESSARY_ATTR = [
   'controlId',
@@ -168,6 +169,7 @@ export const getSearchData = sheet => {
     controls,
     hierarchyView: { hierarchyViewState = [], hierarchyViewData = {} },
     gunterView: { grouping = [], withoutArrangementVisible },
+    mapView: { mapViewData = [], mapViewState = {} },
   } = sheet;
   const view = find(views, item => item.viewId === base.viewId) || {};
   const titleControlId = (_.find(controls, { attribute: 1 }) || {}).controlId;
@@ -195,6 +197,22 @@ export const getSearchData = sheet => {
         return withoutArrangementVisible ? item.rows : item.rows.filter(item => item.diff > 0);
       }),
     );
+  } else if (Number(view.viewType) === 8) {
+    const { viewControl } = view;
+    const titleField = controls.find(l => l.controlId === titleControlId);
+    data = viewControl
+      ? mapViewData
+          .filter(l => l[viewControl] && l[titleControlId])
+          .map(l => {
+            return {
+              ...l,
+              [titleControlId]: renderCellText({
+                ...titleField,
+                value: titleControlId ? l[titleControlId] : undefined,
+              }),
+            };
+          })
+      : [];
   }
 
   return { queryKey: titleControlId, data };

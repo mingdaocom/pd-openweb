@@ -62,6 +62,7 @@ export default function DraggableRecord(props) {
     isMix,
     isNarrow,
     stateTree,
+    width,
   } = props;
   const { rowId, visible, path = [], pathId = [], children } = data;
   const recordData = dealHierarchyData(treeData[rowId], {
@@ -168,6 +169,12 @@ export default function DraggableRecord(props) {
     STYLE = {
       minWidth: 240,
       maxWidth: 240,
+    };
+  }
+  if (!!width) {
+    STYLE = {
+      minWidth: Number(width),
+      maxWidth: Number(width),
     };
   }
 

@@ -7,6 +7,7 @@ import SelectWorksheet from 'src/pages/worksheet/components/SelectWorksheet/Sele
 import { connect } from 'react-redux';
 import sheetApi from 'src/api/worksheet';
 import { enumWidgetType } from 'src/pages/customPage/util';
+import { getTranslateInfo } from 'src/util';
 import _ from 'lodash';
 
 const Wrap = styled.div`
@@ -60,7 +61,7 @@ function Setting(props) {
       }).then(res => {
         const { views = [], template } = res;
         setDataSource({
-          views: views.map(({ viewId, name, viewType }) => ({ text: name, value: viewId, viewType }))
+          views: views.map(({ viewId, name, viewType }) => ({ text: getTranslateInfo(appId, viewId).name || name, value: viewId, viewType }))
         });
       });
     }
@@ -117,7 +118,8 @@ function Setting(props) {
                 viewId: value,
                 config: {
                   ...config,
-                  _viewName: view.text
+                  _viewName: view.text,
+                  isPluginView: view.viewType === 21 ? true : undefined
                 }
               });
               setTimeout(() => setLoading(false));

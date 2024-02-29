@@ -155,6 +155,10 @@ class TaskCanvas extends Component {
       nodeConfig,
     }).then(res => {
       const { errorMsg, errorMsgList, isSucceeded, toAdd, toDeleteIds, toUpdate, srcIsDb } = res;
+      if (res.failed) {
+        alert(res.errorMsg, 2);
+        return;
+      }
       this.onCompute({
         toUpdate: !!toUpdate
           ? !toUpdate.find(o => o.nodeId === node.nodeId)

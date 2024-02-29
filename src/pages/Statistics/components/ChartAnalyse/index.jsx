@@ -143,6 +143,7 @@ export default class ChartAnalyse extends Component {
           currentReport={currentReport}
           onUpdateDisplaySetup={this.handleChangeDisplaySetup}
           onChangeStyle={this.handleChangeStyle}
+          onChangeCurrentReport={this.props.changeCurrentReport}
         />
         {isNumberChart && (
           <ContrastValue

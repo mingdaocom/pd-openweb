@@ -12,6 +12,12 @@ export const APP_CONFIGS = [
     text: _l('全局变量'),
   },
   {
+    type: 'language',
+    icon: 'language',
+    featureId: 35,
+    text: _l('多语言'),
+  },
+  {
     type: 'publish',
     icon: 'send',
     text: _l('发布'),

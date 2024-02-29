@@ -183,6 +183,7 @@ export default class extends Component {
       !_.isEqual(displaySetup.colorRules, oldDisplaySetup.colorRules) ||
       style.funnelShape !== oldStyle.funnelShape ||
       style.funnelCurvature !== oldStyle.funnelCurvature ||
+      style.tooltipValueType !== oldStyle.tooltipValueType ||
       !_.isEqual(chartColor, oldChartColor) ||
       nextProps.themeColor !== this.props.themeColor
     ) {
@@ -246,13 +247,15 @@ export default class extends Component {
     }
   }
   getComponentConfig(props) {
-    const { themeColor, projectId, customPageConfig, reportData } = props;
-    const { chartColor } = customPageConfig;
-    const { map, contrastMap, displaySetup, yaxisList, xaxes, style } = reportData;
+    const { themeColor, projectId, customPageConfig = {}, reportData } = props;
+    const { chartColor, chartColorIndex = 1 } = customPageConfig;
+    const { map, contrastMap, displaySetup, yaxisList, xaxes } = reportData;
+    const styleConfig = reportData.style || {};
+    const style = chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0) ? { ...styleConfig, ...chartColor } : styleConfig;
     const data = formatChartData(map, displaySetup, xaxes, yaxisList);
     const { position } = getLegendType(displaySetup.legendType);
     const newYaxisList = formatYaxisList(data, yaxisList);
-    const colors = getChartColors(chartColor || style, themeColor, projectId);
+    const colors = getChartColors(style, themeColor, projectId);
     const rule = _.get(displaySetup.colorRules[0], 'dataBarRule') || {};
     const isRuleColor = !_.isEmpty(rule);
     const controlMinAndMax = isRuleColor ? getControlMinAndMax(yaxisList, data) : {};
@@ -285,9 +288,10 @@ export default class extends Component {
           }
           const { name, value } = item;
           const { dot } = yaxisList[0] || {};
+          const labelValue = formatrChartValue(value, false, newYaxisList);
           return {
             name,
-            value: _.isNumber(value) ? value.toLocaleString('zh', { minimumFractionDigits: dot }) : '--',
+            value: _.isNumber(value) ? style.tooltipValueType ? labelValue : value.toLocaleString('zh', { minimumFractionDigits: dot }) : '--',
           };
         },
       },

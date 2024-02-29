@@ -3,7 +3,7 @@ import { Icon, ColorPicker } from 'ming-ui';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { Checkbox, Select, Tooltip } from 'antd';
-import store from 'redux/configureStore';
+import { replaceColor } from 'statistics/Charts/PivotTable';
 
 const Wrap = styled.div`
   .chartTypeSelect {
@@ -56,12 +56,12 @@ export const defaultPivotTableStyle = {
 };
 
 const TitleStyle = props => {
-  const { name, type, style, pivotTable = {}, onChangeStyle } = props;
-  const { pivotTableStyle = defaultPivotTableStyle } = style;
+  const { name, type, style, pivotTable = {}, onChangeStyle, themeColor, customPageConfig = {} } = props;
+  const pivotTableStyle = replaceColor(style.pivotTableStyle || defaultPivotTableStyle, {}, themeColor);
   const textColor = type === 'line' ? pivotTableStyle.lineTextColor : pivotTableStyle.columnTextColor;
   const bgColor = type === 'line' ? pivotTableStyle.lineBgColor : pivotTableStyle.columnBgColor;
   const { lines = [] } = pivotTable;
-  const iconColor = _.get(store.getState().appPkg, 'iconColor');
+  const { pivoTableColor, pivoTableColorIndex = 1 } = customPageConfig;
 
   const handleChangePivotTableStyle = (data) => {
     onChangeStyle({
@@ -173,18 +173,21 @@ const TitleStyle = props => {
           <div className="flexRow valignWrapper mBottom12">
             <div className="lable">{_l('文字')}</div>
             <ColorPicker
-              isPopupBody
+              isPopupBody={true}
+              sysColor={true}
+              themeColor={themeColor}
               value={textColor}
               onChange={value => {
+                const data = {};
                 if (type === 'line') {
-                  handleChangePivotTableStyle({
-                    lineTextColor: value
-                  });
+                  data.lineTextColor = value;
                 } else {
-                  handleChangePivotTableStyle({
-                    columnTextColor: value
-                  });
+                  data.columnTextColor = value;
                 }
+                if (pivoTableColor) {
+                  data.pivoTableColorIndex = pivoTableColorIndex + 1;
+                }
+                handleChangePivotTableStyle(data);
               }}
             >
               <div className="colorWrap pointer">
@@ -196,22 +199,25 @@ const TitleStyle = props => {
           <div className="flexRow valignWrapper mBottom12">
             <div className="lable">{_l('背景色')}</div>
             <ColorPicker
-              isPopupBody
-              value={bgColor === 'themeColor' ? iconColor : bgColor}
+              isPopupBody={true}
+              sysColor={true}
+              themeColor={themeColor}
+              value={bgColor}
               onChange={value => {
+                const data = {};
                 if (type === 'line') {
-                  handleChangePivotTableStyle({
-                    lineBgColor: value
-                  });
+                  data.lineBgColor = value;
                 } else {
-                  handleChangePivotTableStyle({
-                    columnBgColor: value
-                  });
+                  data.columnBgColor = value;
                 }
+                if (pivoTableColor) {
+                  data.pivoTableColorIndex = pivoTableColorIndex + 1;
+                }
+                handleChangePivotTableStyle(data);
               }}
             >
               <div className="colorWrap pointer">
-                <div className="colorBlock" style={{ backgroundColor: bgColor === 'themeColor' ? iconColor : bgColor }}>
+                <div className="colorBlock" style={{ backgroundColor: bgColor }}>
                 </div>
               </div>
             </ColorPicker>

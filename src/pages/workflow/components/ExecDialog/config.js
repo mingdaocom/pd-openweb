@@ -71,15 +71,15 @@ export const ACTION_TO_TEXT = {
   },
   pass: {
     headerText: _l('通过审批'),
-    placeholder: _l('填写审批意见'),
+    placeholder: _l('请输入'),
   },
   overrule: {
     headerText: _l('否决审批'),
-    placeholder: _l('填写否决意见'),
+    placeholder: _l('请输入'),
   },
   return: {
     headerText: _l('退回审批'),
-    placeholder: _l('填写退回意见'),
+    placeholder: _l('请输入'),
   },
 };
 

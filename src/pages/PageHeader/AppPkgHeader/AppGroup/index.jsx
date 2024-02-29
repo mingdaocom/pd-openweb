@@ -481,7 +481,7 @@ export default class extends Component {
                 navColor={appPkg.navColor}
                 iconColor={appPkg.iconColor}
                 showRoleDebug={showRoleDebug}
-                canDebug={appPkg.canDebug}
+                debugRole={appPkg.debugRole}
                 roleSelectValue={roleSelectValue}
                 otherAllShow={otherAllShow}
               />

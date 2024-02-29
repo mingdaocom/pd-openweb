@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { createUploader } from 'src/pages/kc/utils/qiniuUpload';
+import createUploader from 'src/library/plupload/createUploader';
 import _ from 'lodash';
 
 export default class QiniuUpload extends React.Component {
@@ -15,6 +15,7 @@ export default class QiniuUpload extends React.Component {
     onUploadProgress: PropTypes.func,
     onBeforeUpload: PropTypes.func,
     onError: PropTypes.func,
+    onUploadComplete: PropTypes.func,
   };
 
   componentDidMount() {
@@ -26,6 +27,7 @@ export default class QiniuUpload extends React.Component {
       onUploadProgress = () => {},
       onBeforeUpload = () => {},
       onError = () => {},
+      onUploadComplete = () => {},
       bucket,
     } = this.props;
 
@@ -37,6 +39,28 @@ export default class QiniuUpload extends React.Component {
             browse_button: this.upload,
             bucket,
             init: {
+              Init: onInit,
+              FilesAdded: (up, files) => {
+                onAdd(up, files);
+              },
+              BeforeUpload: (up, file) => {
+                const fileExt = `.${File.GetExt(file.name)}`;
+                up.settings.multipart_params = { token: file.token };
+                up.settings.multipart_params.key = file.key;
+                up.settings.multipart_params['x:serverName'] = file.serverName;
+                up.settings.multipart_params['x:filePath'] = file.key.replace(file.fileName, '');
+                up.settings.multipart_params['x:fileName'] = file.fileName.replace(/\.[^\.]*$/, '');
+                up.settings.multipart_params['x:originalFileName'] = encodeURIComponent(
+                  file.name.indexOf('.') > -1
+                    ? file.name
+                        .split('.')
+                        .slice(0, -1)
+                        .join('.')
+                    : file.name,
+                );
+                up.settings.multipart_params['x:fileExt'] = fileExt;
+                onBeforeUpload(up, file);
+              },
               FileUploaded: (up, file, info) => {
                 const response = info.response;
 
@@ -53,29 +77,15 @@ export default class QiniuUpload extends React.Component {
 
                 onUploaded(up, file, response);
               },
-              BeforeUpload: (up, file) => {
-                const fileExt = `.${File.GetExt(file.name)}`;
-                up.settings.multipart_params = { token: file.token };
-                up.settings.multipart_params.key = file.key;
-                up.settings.multipart_params['x:serverName'] = file.serverName;
-                up.settings.multipart_params['x:filePath'] = file.key.replace(file.fileName, '');
-                up.settings.multipart_params['x:fileName'] = file.fileName.replace(/\.[^\.]*$/, '');
-                up.settings.multipart_params['x:originalFileName'] = encodeURIComponent(
-                  file.name.indexOf('.') > -1 ? file.name.split('.').slice(0, -1).join('.') : file.name,
-                );
-                up.settings.multipart_params['x:fileExt'] = fileExt;
-                onBeforeUpload(up, file);
-              },
               UploadProgress: (uploader, file) => {
                 onUploadProgress(uploader, file);
               },
-              FilesAdded: (up, files) => {
-                onAdd(up, files);
+              UploadComplete: (up, files) => {
+                onUploadComplete(up, files);
               },
               Error: (...args) => {
                 onError(...args);
               },
-              Init: onInit,
             },
           },
           options,

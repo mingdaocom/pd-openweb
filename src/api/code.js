@@ -26,7 +26,7 @@ export default {
   * @param {Object} args 请求参数
   * @param {integer} args.codeType 1 是js  2是python
   * @param {array} args.messageList 消息列表
-  * @param {} args.lang 语言类型
+  * @param {} args.lang
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

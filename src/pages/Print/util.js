@@ -95,9 +95,10 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
           if (item.isRelateMultipleSheet && records.length <= 0) {
             return '';
           }
-          let controlId = (item.relationControls.find(l => l.attribute === 1) || item.relationControls[0] || {}).controlId;
 
-          return <span className="relaList">{records.map(l => l[controlId] || _l('未命名')).join(', ')}</span>;
+          let titleControl = item.relationControls.find(l => l.attribute === 1) || item.relationControls[0] || {};
+
+          return <span className="relaList">{records.map(l => renderCellText({...titleControl, value: l[titleControl.controlId]}) || l[titleControl.controlId] || _l('未命名')).join(', ')}</span>;
         }
         //关联表内除标题字段外的其他字段
         let showControlsList = [];
@@ -122,7 +123,8 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
                 let coverCid = coverCidData.length > 0 ? coverCidData[0].controlId || '' : '';
                 let cover = coverCid ? JSON.parse(data[coverCid] || '[]') : [];
                 let coverData = cover.length > 0 ? cover[0] : '';
-                let list = (item.relationControls || []).find(o => o.attribute === 1) || [];
+                let list = (item.relationControls || []).find(o => o.attribute === 1) || {};
+
                 return (
                   <tr>
                     <td className="listTextDiv">

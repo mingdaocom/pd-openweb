@@ -19,14 +19,14 @@
 }
 
 .editWidgetDialogWrap {
-  &.rc-dialog {
+  &.ant-modal {
     width: auto;
     box-sizing: border-box;
     height: 100%;
     padding: 32px 32px 0;
     margin: 0;
   }
-  .rc-dialog-body {
+  .ant-modal-body {
     padding: 0;
     height: 100%;
     .mdEditor {
@@ -39,11 +39,11 @@
       }
     }
   }
-  .rc-dialog-content {
+  .ant-modal-content {
     height: 100%;
     overflow: hidden;
   }
-  .rc-dialog-close {
+  .ant-modal-close {
     display: none;
   }
   .icon-close:hover {
@@ -97,3 +97,8 @@
     }
   }
 }
+
+.mui-dialog-dialog .confirmInput::placeholder {
+  color: #ddd;
+}
+

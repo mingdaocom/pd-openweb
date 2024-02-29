@@ -2,7 +2,7 @@ export default {
   /**
   * 获取二维码
   * @param {Object} args 请求参数
-  * @param {} args.signMode 模式 1：只扫码，2：扫脸
+  * @param {} args.signMode
   * @param {string} args.workId 流程 Id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层

@@ -1,15 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import * as actions from '../redux/actions/action';
-import { connect } from 'react-redux';
-import { Icon } from 'ming-ui';
-import { bindActionCreators } from 'redux';
+import { Icon, UpgradeIcon } from 'ming-ui';
 import CSSTransitionGroup from 'react-addons-css-transition-group';
 import { CreateCustomBtn } from 'worksheet/common';
 import styled from 'styled-components';
 import './print.less';
 import sheetAjax from 'src/api/worksheet';
 import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
-
 import { refreshBtnData } from 'src/pages/FormSet/util';
 import _ from 'lodash';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
@@ -58,9 +54,6 @@ const Con = styled.div`
     color: #757575;
     .trashIcon {
       color: #9e9e9e;
-    }
-    .freeIcon {
-      color: #f1b73f;
     }
     &:hover {
       color: #2196f3;
@@ -171,7 +164,7 @@ function CustomBtnFormSet(props) {
                 >
                   <Icon icon="knowledge-recycle" className="trashIcon Hand Font18" />
                   <div className="recycle InlineBlock Hand mLeft5">{_l('回收站')}</div>
-                  {isFree && <Icon icon="auto_awesome" className="freeIcon mLeft8" />}
+                  {isFree && <UpgradeIcon />}
                 </div>
               )}
               <span
@@ -273,6 +266,7 @@ function CustomBtnFormSet(props) {
       </Con>
       {showTrash && (
         <TrashDialog
+          projectId={worksheetInfo.projectId}
           appId={worksheetInfo.appId}
           worksheetId={worksheetId}
           views={worksheetInfo.views || []}
@@ -289,7 +283,4 @@ function CustomBtnFormSet(props) {
     </React.Fragment>
   );
 }
-const mapStateToProps = state => state.formSet;
-const mapDispatchToProps = dispatch => bindActionCreators(actions, dispatch);
-
-export default connect(mapStateToProps, mapDispatchToProps)(CustomBtnFormSet);
+export default CustomBtnFormSet;

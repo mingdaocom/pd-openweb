@@ -166,32 +166,32 @@ export const ROUTE_CONFIG = {
   },
   dingSyncCourse: {
     path: '/dingSyncCourse/:projectId?',
-    component: () => import('src/pages/Admin/ding/dingSyncCourse/dingSyncCourse'),
+    component: () => import('src/pages/Admin/integration/platformIntegration/ding/dingSyncCourse/dingSyncCourse'),
     title: _l('获取对接信息'),
   },
   wxappSyncCourse: {
     path: '/wxappSyncCourse/:projectId?',
-    component: () => import('src/pages/Admin/workwx/workwxSyncCourse/workwxSyncCourse'),
+    component: () => import('src/pages/Admin/integration/platformIntegration/workwx/workwxSyncCourse/workwxSyncCourse'),
     title: _l('获取对接信息'),
   },
   welinkSyncCourse: {
     path: '/welinkSyncCourse/:projectId?',
-    component: () => import('src/pages/Admin/welink/welinkSyncCourse/welinkSyncCourse'),
+    component: () => import('src/pages/Admin/integration/platformIntegration/welink/welinkSyncCourse/welinkSyncCourse'),
     title: _l('获取对接信息'),
   },
   feishuSyncCourse: {
     path: '/feishuSyncCourse/:projectId?',
-    component: () => import('src/pages/Admin/feishu/feishuSyncCourse/feishuSyncCourse'),
+    component: () => import('src/pages/Admin/integration/platformIntegration/feishu/feishuSyncCourse/feishuSyncCourse'),
     title: _l('获取对接信息'),
   },
   dingAppCourse: {
     path: '/dingAppCourse/:projectId?/:apkId?',
-    component: () => import('src/pages/Admin/ding/dingSyncCourse/dingSyncCourse'),
+    component: () => import('src/pages/Admin/integration/platformIntegration/ding/dingSyncCourse/dingSyncCourse'),
     title: _l('如何添加到钉钉工作台'),
   },
   weixinAppCourse: {
     path: '/weixinAppCourse/:projectId?/:apkId?',
-    component: () => import('src/pages/Admin/ding/dingSyncCourse/dingSyncCourse'),
+    component: () => import('src/pages/Admin/integration/platformIntegration/ding/dingSyncCourse/dingSyncCourse'),
     title: _l('如何添加到企业微信'),
   },
   print: {
@@ -218,10 +218,20 @@ export const ROUTE_CONFIG = {
     component: () => import('src/pages/worksheet/views/GunterView/components/GunterExport'),
     title: _l('正在导出，请稍候...'),
   },
+  home: {
+    path: '/dashboard',
+    component: () => import('src/pages/AppHomepage/AppCenter'),
+    title: _l('工作台'),
+  },
   my: {
     path: '/app/my/(group|all)?/:projectId?/:groupType?/:groupId?',
     component: () => import('src/pages/AppHomepage/AppCenter'),
     title: _l('我的应用'),
+  },
+  recordFav: {
+    path: '/favorite',
+    component: () => import('src/pages/AppHomepage/AppCenter'),
+    title: _l('收藏'),
   },
   lib: {
     path: '/app/lib/',
@@ -276,7 +286,7 @@ export const ROUTE_CONFIG = {
   },
   default: {
     path: '/app',
-    redirect: '/app/my',
+    redirect: '/dashboard',
   },
 };
 

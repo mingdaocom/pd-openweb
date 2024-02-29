@@ -8,7 +8,6 @@ import Checklist from './checklist';
 import './less/checklist.less';
 import ajaxRequest from 'src/api/taskCenter';
 import 'src/components/createTask/createTask';
-import 'src/components/mdDialog/dialog';
 import { htmlEncodeReg } from 'src/util';
 import {
   updateCheckListIndex,
@@ -22,6 +21,7 @@ import {
   createTaskRemoveItem,
   taskFoldStatus,
 } from '../../../redux/actions';
+import { Dialog } from 'ming-ui';
 
 @DragDropContext(MouseBackEnd)
 class ChecklistContainer extends Component {
@@ -194,17 +194,16 @@ class ChecklistContainer extends Component {
    * @param  {string} checkListId
    */
   removeCheckList(checkListId) {
-    $.DialogLayer({
-      dialogBoxID: 'removeItem',
-      showClose: false,
-      container: {
-        header: _l('删除清单？'),
-        content: _l('清单被删除后，将无法恢复。'),
-        yesFn: () => {
-          this.props.dispatch(removeCheckList(this.props.taskId, checkListId));
-        },
-      },
-    });
+    Dialog.confirm({
+      title:  _l('删除清单？'),
+      children: (
+        <div>{_l('清单被删除后，将无法恢复。')}</div>
+      ),
+      closable: false,
+      onOk: () => {
+        this.props.dispatch(removeCheckList(this.props.taskId, checkListId));
+      }
+    })
   }
 
   /**

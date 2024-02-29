@@ -21,8 +21,7 @@ import ExportFolder from '../../components/exportFolder/exportFolder';
 import CopyFolder from '../../components/copyFolder/copyFolder';
 import ShareFolderOrTask from '../../components/shareFolderOrTask/shareFolderOrTask';
 import Filter from './filter';
-import { htmlEncodeReg, getAppFeaturesPath } from 'src/util';
-import { expireDialogAsync } from 'src/components/common/function';
+import { htmlEncodeReg, expireDialogAsync, getAppFeaturesPath } from 'src/util';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import _ from 'lodash';
@@ -55,13 +54,17 @@ class TaskToolbar extends Component {
   componentWillReceiveProps(nextProps) {
     if (
       nextProps.taskConfig.folderId !== this.props.taskConfig.folderId ||
-      ((this.state.showFilter && (nextProps.taskConfig.taskFilter === 8 && this.props.taskConfig.taskFilter !== 8)) ||
-        (this.props.taskConfig.taskFilter === 8 && nextProps.taskConfig.taskFilter !== 8))
+      (this.state.showFilter && nextProps.taskConfig.taskFilter === 8 && this.props.taskConfig.taskFilter !== 8) ||
+        (this.props.taskConfig.taskFilter === 8 && nextProps.taskConfig.taskFilter !== 8)
     ) {
       this.taskFilterLeave();
     }
 
-    if (nextProps.taskConfig.folderId && nextProps.taskConfig.folderId !== 1 && nextProps.taskConfig.folderId !== this.props.taskConfig.folderId) {
+    if (
+      nextProps.taskConfig.folderId &&
+      nextProps.taskConfig.folderId !== 1 &&
+      nextProps.taskConfig.folderId !== this.props.taskConfig.folderId
+    ) {
       this.props.dispatch(getFolderSettings(nextProps.taskConfig.folderId));
     }
 
@@ -107,7 +110,17 @@ class TaskToolbar extends Component {
    */
   renderRightOperatorBtn() {
     const { showSetFolder, showCopyFolder, showExportFolder, showOperator, showFilter, showShareDialog } = this.state;
-    const { folderId, viewType, lastMyProjectId, listStatus, listSort, searchKeyWords, filterSettings, taskFilter, filterUserId } = this.props.taskConfig;
+    const {
+      folderId,
+      viewType,
+      lastMyProjectId,
+      listStatus,
+      listSort,
+      searchKeyWords,
+      filterSettings,
+      taskFilter,
+      filterUserId,
+    } = this.props.taskConfig;
     const { auth, isMember, projectID, folderName, chargeUser, isArchived } = this.props.folderSettings;
 
     const isCharge = auth === config.auth.FolderCharger;
@@ -151,7 +164,8 @@ class TaskToolbar extends Component {
           <i className="icon-plus" />
           {_l('新任务')}
         </div>
-        {!folderId || (folderId && (viewType === config.folderViewType.treeView || viewType === config.folderViewType.stageView)) ? (
+        {!folderId ||
+        (folderId && (viewType === config.folderViewType.treeView || viewType === config.folderViewType.stageView)) ? (
           <div className="Right">
             <span
               className={cx('taskFilterBtn pointerEventAll', { ThemeColor3: filterCount > 0 || showFilter })}
@@ -176,7 +190,9 @@ class TaskToolbar extends Component {
           <div className="Right mRight20" data-tip={_l('设置')}>
             <i
               className="icon-settings folderSettingsBtn"
-              onMouseDown={evt => this.checkMouseDownIsLeft(evt) && this.setState({ showOperator: !this.state.showOperator })}
+              onMouseDown={evt =>
+                this.checkMouseDownIsLeft(evt) && this.setState({ showOperator: !this.state.showOperator })
+              }
             />
           </div>
         ) : (
@@ -197,7 +213,10 @@ class TaskToolbar extends Component {
                   <i className="icon-hr_edit" />
                   {_l('重命名')}
                 </li>
-                <li className="ThemeBGColor3" onClick={() => this.setState({ showSetFolder: true, showOperator: false })}>
+                <li
+                  className="ThemeBGColor3"
+                  onClick={() => this.setState({ showSetFolder: true, showOperator: false })}
+                >
                   <i className="icon-settings" />
                   {_l('项目配置')}
                 </li>
@@ -231,13 +250,19 @@ class TaskToolbar extends Component {
             <li className="ThemeBGColor3" onClick={this.saveTemplate}>
               <i className="icon-task_set_administrator" />
               {_l('保存到我的模板')}
-              <span className="mLeft5 tip-bottom-left" data-tip={_l('项目及看板名称、自定义任务内容被保存为模板的信息')}>
+              <span
+                className="mLeft5 tip-bottom-left"
+                data-tip={_l('项目及看板名称、自定义任务内容被保存为模板的信息')}
+              >
                 <i className="icon-knowledge-message" />
               </span>
             </li>
 
             {isCharge || isAdmin ? (
-              <li className="ThemeBGColor3" onClick={() => this.setState({ showExportFolder: true, showOperator: false })}>
+              <li
+                className="ThemeBGColor3"
+                onClick={() => this.setState({ showExportFolder: true, showOperator: false })}
+              >
                 <i className="icon-task_custom_excel_01" />
                 {_l('导出任务列表到Excel')}
               </li>
@@ -296,7 +321,7 @@ class TaskToolbar extends Component {
             folderName={folderName}
             folderId={folderId}
             onClose={() => this.setState({ showCopyFolder: false })}
-            callback={(settings) => {
+            callback={settings => {
               this.setState({ showCopyFolder: false });
               !this.props.hideNavigation && createFolder(settings);
             }}
@@ -306,11 +331,13 @@ class TaskToolbar extends Component {
           <ShareFolderOrTask
             shareUrl={md.global.Config.WebUrl + 'apps/task/folder_' + folderId}
             shareMessage={_l('用App扫一扫，可在手机上快速显示查看项目详情')}
-            linkText={_l('复制项目链接')}
+            linkText={_l('复制项目链接1')}
             onClose={() => this.setState({ showShareDialog: false })}
           />
         )}
-        {showExportFolder && <ExportFolder folderId={folderId} onClose={() => this.setState({ showExportFolder: false })} />}
+        {showExportFolder && (
+          <ExportFolder folderId={folderId} onClose={() => this.setState({ showExportFolder: false })} />
+        )}
       </div>
     );
   }
@@ -318,7 +345,7 @@ class TaskToolbar extends Component {
   /**
    * show filter
    */
-  showFilter = (evt) => {
+  showFilter = evt => {
     const { showFilter } = this.state;
 
     if (this.checkMouseDownIsLeft(evt)) {
@@ -357,7 +384,7 @@ class TaskToolbar extends Component {
     const { folderId } = this.props.taskConfig;
     this.setState({ showOperator: false });
 
-    ajaxRequest.saveAsMyFolderTemplate({ folderId }).then((source) => {
+    ajaxRequest.saveAsMyFolderTemplate({ folderId }).then(source => {
       if (source.status) {
         alert(_l('保存成功'));
       } else {
@@ -411,9 +438,9 @@ class TaskToolbar extends Component {
       }
 
       if (searchKeyWords) {
-        typeName = _l('所有和“%0”有关的任务', searchKeyWords) + (` ${searchTaskCount || ''}`);
+        typeName = _l('所有和“%0”有关的任务', searchKeyWords) + ` ${searchTaskCount || ''}`;
       } else if (keyWords) {
-        typeName = _l('所有和标签“%0”有关的任务', keyWords) + (` ${searchTaskCount || ''}`);
+        typeName = _l('所有和标签“%0”有关的任务', keyWords) + ` ${searchTaskCount || ''}`;
       }
 
       return typeName;
@@ -440,7 +467,7 @@ class TaskToolbar extends Component {
     let isNotice = false;
     let companyName = _l('个人');
 
-    $.map(md.global.Account.projects, (item) => {
+    $.map(md.global.Account.projects, item => {
       if (item.projectId === projectId) {
         companyName = item.companyName;
       }
@@ -486,7 +513,11 @@ class TaskToolbar extends Component {
               />
             )}
             {auth ? (
-              <span className="mLeft5 folderNoticeBtn" data-tip={folderNotice ? _l('已关闭提醒') : _l('已开启提醒')} onClick={this.updateFolderNotice}>
+              <span
+                className="mLeft5 folderNoticeBtn"
+                data-tip={folderNotice ? _l('已关闭提醒') : _l('已开启提醒')}
+                onClick={this.updateFolderNotice}
+              >
                 <i className={folderNotice ? 'icon-chat-bell-nopush' : 'icon-inbox'} />
               </span>
             ) : (
@@ -521,7 +552,7 @@ class TaskToolbar extends Component {
             className={cx(
               'folderDetailMode ThemeBorderColor3 ThemeColor3',
               { active: viewType === config.folderViewType.folderDetail },
-              { hasNewTipRight: isNotice }
+              { hasNewTipRight: isNotice },
             )}
             title={_l('详情')}
             onClick={this.switchTabs.bind(this, config.folderViewType.folderDetail)}
@@ -574,14 +605,14 @@ class TaskToolbar extends Component {
   /**
    * 更新项目名称
    */
-  updateFolderName = (evt) => {
+  updateFolderName = evt => {
     this.setState({ folderName: evt.currentTarget.value });
   };
 
   /**
    * 文本框回车
    */
-  folderKeyDown = (evt) => {
+  folderKeyDown = evt => {
     if (evt.keyCode === 13) {
       this.saveFolderName();
     }
@@ -601,7 +632,7 @@ class TaskToolbar extends Component {
           $('.folderList li[data-id=' + folderId + '] .folderName')
             .text(folderName)
             .attr('title', htmlEncodeReg(folderName));
-        })
+        }),
       );
     } else {
       this.setState({
@@ -621,7 +652,7 @@ class TaskToolbar extends Component {
   /**
    * 切换tabs
    */
-  switchTabs = (viewType) => {
+  switchTabs = viewType => {
     const taskConfig = Object.assign({}, this.props.taskConfig, { viewType });
 
     if (viewType !== config.folderViewType.treeView && viewType !== config.folderViewType.stageView) {
@@ -643,7 +674,8 @@ class TaskToolbar extends Component {
     return (
       <div
         className={cx('taskToolbar', {
-          taskToolbarBottomClear: folderId && (viewType === config.folderViewType.taskGantt || viewType === config.folderViewType.attachment),
+          taskToolbarBottomClear:
+            folderId && (viewType === config.folderViewType.taskGantt || viewType === config.folderViewType.attachment),
         })}
       >
         {folderId && folderId !== 1 ? this.renderFolderToolbar() : this.renderTaskToolbar()}

@@ -333,7 +333,7 @@ export default class ImportDeptAndRole extends Component {
         fileName: this.state.fileUrl,
         ticket: rsp.ticket,
         randstr: rsp.randstr,
-        captchaType: md.staticglobal.getCaptchaType(),
+        captchaType: md.global.getCaptchaType(),
       };
       let promiseRequest =
         importType === 'position'
@@ -373,7 +373,7 @@ export default class ImportDeptAndRole extends Component {
           _this.setState({ importError: true, importFileLoading: false });
         });
     };
-    if (md.staticglobal.getCaptchaType() === 1) {
+    if (md.global.getCaptchaType() === 1) {
       new captcha(callback);
     } else {
       new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), callback).show();

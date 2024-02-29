@@ -17,6 +17,7 @@ import {
   saveTempRecordValueToLocal,
   removeTempRecordValueFromLocal,
   filterHidedSubList,
+  handleChildTableUniqueError,
 } from 'worksheet/util';
 import RecordForm from 'worksheet/common/recordInfo/RecordForm';
 import Share from 'src/pages/worksheet/components/Share';
@@ -29,6 +30,7 @@ import _ from 'lodash';
 import { canEditData } from 'worksheet/redux/actions/util';
 import { KVGet } from 'worksheet/util';
 import { commonControlsAddTab } from 'mobile/components/RecordInfo/utils';
+import { FORM_ERROR_TYPE_TEXT } from 'src/components/newCustomFields/tools/config';
 
 const Con = styled.div`
   height: 100%;
@@ -195,7 +197,7 @@ function NewRecordForm(props) {
     cache.current.newRecordOptions = options;
     customwidget.current.submitFormData();
   }
-  async function onSave(error, { data } = {}) {
+  async function onSave(error, { data, handleRuleError } = {}) {
     if (error) {
       onSubmitEnd();
       return;
@@ -290,17 +292,41 @@ function NewRecordForm(props) {
           ),
         customwidget,
         setRequesting,
+        setSublistUniqueError: badData => {
+          handleChildTableUniqueError({ badData, data, cellObjs: cellObjs.current });
+        },
+        setRuleError: badData => {
+          handleRuleError(badData, cellObjs.current);
+        },
         onSubmitSuccess: ({ rowData, newControls }) => {
           if (actionType === BUTTON_ACTION_TYPE.CONTINUE_ADD || continueAdd || notDialog) {
             alert('保存成功', 1, 1000);
             isSubmitting.current = false;
+            let dataForAutoFill = [...formdata];
+            let relateRecordDataForAutoFill = { ...relateRecordData };
+            if (advancedSetting.reservecontrols) {
+              const controlIds = safeParse(advancedSetting.reservecontrols, 'array');
+              dataForAutoFill = dataForAutoFill.map(c =>
+                _.includes(controlIds, c.controlId) ? c : _.find(originFormdata, { controlId: c.controlId }),
+              );
+              Object.keys(relateRecordDataForAutoFill).forEach(controlId => {
+                if (!_.includes(controlIds, controlId)) {
+                  delete relateRecordDataForAutoFill[controlId];
+                }
+              });
+            }
             if (!autoFill) {
               setFormdata(originFormdata);
               setRelateRecordData({});
+            } else {
+              if (advancedSetting.reservecontrols) {
+                setFormdata(dataForAutoFill);
+                setRelateRecordData(relateRecordDataForAutoFill);
+              }
             }
             if (newControls) {
               setFormdata(
-                (autoFill ? formdata : originFormdata).map(c =>
+                (autoFill ? dataForAutoFill : originFormdata).map(c =>
                   Object.assign(_.find(newControls, nc => nc.controlId === c.controlId) || c, { value: c.value }),
                 ),
               );

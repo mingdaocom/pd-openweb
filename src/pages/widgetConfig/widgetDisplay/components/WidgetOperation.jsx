@@ -1,4 +1,4 @@
-import React, { useRef, Fragment, useState } from 'react';
+import React, { useState } from 'react';
 import cx from 'classnames';
 import { Tooltip, Button } from 'antd';
 import styled from 'styled-components';
@@ -17,7 +17,7 @@ const DeleteBothWayRelateWrap = styled.div`
 
 const OperationWrap = styled.div`
   position: absolute;
-  right: 12px;
+  right: 0px;
   top: -6px;
   z-index: 2;
 
@@ -27,8 +27,19 @@ const OperationWrap = styled.div`
     z-index: 1;
     align-items: center;
     visibility: hidden;
-    &.isActive {
-      visibility: visible;
+    &.isBatchActive {
+      .batchControl {
+        visibility: visible;
+        background-color: #3c3c3c !important;
+        color: #fff !important;
+      }
+    }
+    &.batchMode {
+      .setAsTitle,
+      .copyControl,
+      .delWidget {
+        visibility: hidden;
+      }
     }
   }
   .operationIconWrap {
@@ -36,7 +47,7 @@ const OperationWrap = styled.div`
     padding: 0 5px;
     cursor: pointer;
     transition: color background-color 0.4s;
-    color: #bdbdbd;
+    color: #757575;
     padding: 0 4px;
     margin-right: 4px;
     background-color: #fff;
@@ -49,34 +60,22 @@ const OperationWrap = styled.div`
     }
     &:hover {
       color: #2196f3;
+      background-color: #edf7fe;
     }
     &.delWidget {
       &:hover {
         color: #f44336;
+        background-color: #ffebe9;
       }
     }
-  }
-  .resizeWidth {
-    border-right: 1px solid #e0e0e0;
   }
 `;
 
 export default function WidgetOperation(props) {
-  const { isActive, fromType, data = {}, parentRef, handleOperate, queryConfig, globalSheetInfo = {}, ...rest } = props;
+  const { isBatchActive, batchMode, fromType, data = {}, handleOperate, queryConfig, globalSheetInfo = {} } = props;
   const { type, controlId, attribute, dataSource, sourceControl } = data;
 
-  const getActualControls = () => {
-    if (!isEmpty(data.controls)) return data.controls;
-    if (!isEmpty(data.createdControls)) return data.createdControls;
-    return data.relationControls;
-  };
-
-  const controls = getActualControls();
-
-  const [{ resizeWidthVisible, deleteConfirmVisible }, setVisible] = useSetState({
-    resizeWidthVisible: false,
-    deleteConfirmVisible: false,
-  });
+  const [deleteConfirmVisible, setVisible] = useState(false);
 
   const isFree =
     _.get(
@@ -125,7 +124,7 @@ export default function WidgetOperation(props) {
     const handleDelete = e => {
       if (e && e.stopPropagation) e.stopPropagation();
       handleOperate('delete', queryConfig);
-      setVisible({ deleteConfirmVisible: false });
+      setVisible(false);
     };
 
     const deleteRelateControl = e => {
@@ -143,12 +142,12 @@ export default function WidgetOperation(props) {
       return (
         <DeleteConfirm
           visible={deleteConfirmVisible}
-          onVisibleChange={visible => setVisible({ deleteConfirmVisible: visible })}
+          onVisibleChange={visible => setVisible(visible)}
           // getPopupContainer={() => parentRef.current}
           hint={_l(
             '仅删除此控件将保留另一侧单向关联，同时删除将直接解除二者关联关系，删除后对应表单数据也会被删除且无法恢复',
           )}
-          onCancel={() => setVisible({ deleteConfirmVisible: false })}
+          onCancel={() => setVisible(false)}
           footer={
             <DeleteBothWayRelateWrap>
               <Button danger onClick={deleteRelateControl}>
@@ -176,10 +175,14 @@ export default function WidgetOperation(props) {
     return (
       <DeleteConfirm
         visible={deleteConfirmVisible}
-        onVisibleChange={visible => setVisible({ deleteConfirmVisible: visible })}
+        onVisibleChange={visible => setVisible(visible)}
         // getPopupContainer={() => parentRef.current}
-        hint={isFree ? _l('删除后可在字段回收站保留%0天（免费版删除后无法恢复）', md.global.SysSettings.worksheetRowRecycleDays) : _l('删除后可在字段回收站保留%0天', md.global.SysSettings.worksheetRowRecycleDays)}
-        onCancel={() => setVisible({ deleteConfirmVisible: false })}
+        hint={
+          isFree
+            ? _l('删除后可在字段回收站保留%0天（免费版删除后无法恢复）', md.global.SysSettings.worksheetRowRecycleDays)
+            : _l('删除后可在字段回收站保留%0天', md.global.SysSettings.worksheetRowRecycleDays)
+        }
+        onCancel={() => setVisible(false)}
         onOk={handleDelete}
       >
         <Tooltip placement="bottom" trigger={['hover']} title={_l('删除')}>
@@ -198,7 +201,7 @@ export default function WidgetOperation(props) {
 
   return (
     <OperationWrap>
-      <div className={cx('operationWrap', { isActive })}>
+      <div className={cx('operationWrap', { isBatchActive, batchMode })}>
         {attribute !== 1 && canSetAsTitle(data) && (
           <Tooltip placement="bottom" trigger={['hover']} title={_l('设为标题')}>
             <div
@@ -224,15 +227,20 @@ export default function WidgetOperation(props) {
           </div>
         </Tooltip>
         {renderDelete()}
+        {type !== 52 && (
+          <Tooltip placement="bottom" trigger={['hover']} title={_l('批量选择')}>
+            <div
+              className="batchControl operationIconWrap"
+              onClick={e => {
+                e.stopPropagation();
+                handleOperate('batch', { shiftKey: e.shiftKey });
+              }}
+            >
+              <i className="icon-ok" />
+            </div>
+          </Tooltip>
+        )}
       </div>
-      {resizeWidthVisible && (
-        <ResizeWidth
-          {...rest}
-          data={data}
-          setVisible={visible => setVisible({ resizeWidthVisible: visible })}
-          controls={controls}
-        />
-      )}
     </OperationWrap>
   );
 }

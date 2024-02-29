@@ -5,14 +5,13 @@ import cx from 'classnames';
 import Icon from './Icon';
 import Button from './Button';
 import Splitter from './Splitter';
-
+import Emotion from 'src/components/emotion/emotion';
 import 'src/components/autoTextarea/autoTextarea';
 import 'src/components/mentioninput/mentionsInput';
 import 'src/components/uploadAttachment/uploadAttachment';
-import 'src/components/emotion/emotion';
 import 'src/components/selectGroup/selectAllGroup';
 import './less/Commenter.less';
-import { getRandomString } from 'src/util';
+import { generateRandomPassword } from 'src/util';
 
 export default class Commenter extends React.Component {
   static propTypes = {
@@ -37,7 +36,7 @@ export default class Commenter extends React.Component {
   };
   constructor(props) {
     super(props);
-    this.textareaId = 'Commenter_' + getRandomString(16);
+    this.textareaId = 'Commenter_' + generateRandomPassword(16);
     this.state = {
       isExpanded: false,
       isEditing: true,
@@ -65,8 +64,8 @@ export default class Commenter extends React.Component {
             showCategory: false,
             isCommentAtAll: false,
           },
-          this.props.mentionsOptions
-        )
+          this.props.mentionsOptions,
+        ),
       );
     }
 
@@ -91,7 +90,8 @@ export default class Commenter extends React.Component {
     comp.uploadAttachmentObj.isUploadComplete = true;
 
     // 表情
-    $(ReactDom.findDOMNode(faceBtn)).emotion(
+    new Emotion(
+      ReactDom.findDOMNode(faceBtn),
       Object.assign(
         {
           input: this.textarea,
@@ -100,8 +100,8 @@ export default class Commenter extends React.Component {
           relatedTopSpace: 5,
           mdBear: false,
         },
-        this.props.emotionOptions
-      )
+        this.props.emotionOptions,
+      ),
     );
 
     // 发布到动态
@@ -124,7 +124,7 @@ export default class Commenter extends React.Component {
       : new Promise((resolve, reject) => {
           $textarea.mentionsInput('val', data => resolve(data));
         });
-    getMessagePromise.then((data) => {
+    getMessagePromise.then(data => {
       const message = $.trim(data);
       if (!message || message.length > 3000) {
         if (message) {
@@ -141,7 +141,7 @@ export default class Commenter extends React.Component {
     return (
       <div className={cx('ming Commenter', { 'Commenter--isEditing': this.state.isEditing })}>
         <textarea
-          ref={(textarea) => {
+          ref={textarea => {
             this.textarea = textarea;
           }}
           id={this.textareaId + '-textarea'}
@@ -153,7 +153,7 @@ export default class Commenter extends React.Component {
         <div className="Commenter-actions">
           <Icon id={this.textareaId + '-attachment'} className="Hand Commenter-iconBtn" icon="attachment" />
           <span
-            ref={(faceBtn) => {
+            ref={faceBtn => {
               this.faceBtn = faceBtn;
             }}
           >
@@ -182,7 +182,7 @@ export default class Commenter extends React.Component {
         </div>
         <input
           type="hidden"
-          ref={(uploadAttachmentInput) => {
+          ref={uploadAttachmentInput => {
             this.uploadAttachmentInput = uploadAttachmentInput;
           }}
         />

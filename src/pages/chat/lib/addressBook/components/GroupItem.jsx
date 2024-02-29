@@ -1,8 +1,6 @@
 import React from 'react';
 import cx from 'classnames';
 
-import { LazyloadImg } from 'src/pages/feed/components/common/img';
-
 export default function GroupItem(props) {
   const { avatar, name, isOpen, groupId, groupMemberCount, isSelected, itemClickHandler } = props;
   const className = cx('list-item Font13 Hand', {
@@ -17,7 +15,7 @@ export default function GroupItem(props) {
         itemClickHandler(groupId);
       }}
     >
-      <LazyloadImg src={avatar} placeholder={'/images/blank.gif'} className="list-item-avatar" style={style} />
+      <img src={avatar} placeholder={'/staticfiles/images/blank.gif'} className="list-item-avatar" style={style} />
       <span className="list-item-name" title={name}>
         {name}
       </span>

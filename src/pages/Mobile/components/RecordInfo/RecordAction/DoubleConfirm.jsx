@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal } from 'antd-mobile';
 import { Input } from 'antd';
-import { Button, Textarea, Icon, Checkbox } from 'ming-ui';
+import { Button, Textarea, Icon, Checkbox, VerifyPasswordInput } from 'ming-ui';
 
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import { verifyPassword } from 'src/util';
@@ -285,40 +285,21 @@ function DoubleConfirm(props) {
   return (
     <ConfirmDialogWrap popup animationType="slide-up" className={className} onClose={onClose} visible={visible}>
       <div className={cx('Gray Font17 mBottom12 bold', { mBottom24: !description && !enableRemark && !verifyPwd })}>
-        {enableConfirm ? title : _l('安全认证')}
+        {enableConfirm ? title : _l('安全验证')}
       </div>
 
       {verifyPwd && needPassWord && (
-        <div className="passwordWrap mBottom25">
-          <SectionName>{_l('账号')}</SectionName>
-          <User className="mTop10 flexRow alignItemsCenter">
-            {md.global.Account.mobilePhone
-              ? md.global.Account.mobilePhone.replace(/((\+86)?\d{3})\d*(\d{4})/, '$1****$3')
-              : md.global.Account.email.replace(/(.{3}).*(@.*)/, '$1***$2')}
-          </User>
-
-          <SectionName className={cx('mTop20', { required: true })}>{_l('密码')}</SectionName>
-          <Input.Password
-            placeholder={_l('请输入当前用户的密码')}
-            iconRender={visible =>
-              visible ? (
-                <Icon icon="visibility" className="Gray_9e" />
-              ) : (
-                <Icon icon="public-folder-hidden" className="Gray_9e" />
-              )
-            }
-            className="w100"
-            autocomplete="new-password"
-            onChange={e => setPassword(e.target.value)}
-          />
-          {!removeNoneVerification && (
-            <Checkbox
-              className="mTop15 flexRow Gray"
-              text={_l('一小时内免验证')}
-              onClick={checked => setIsNoneVerification(checked)}
-            />
-          )}
-        </div>
+        <VerifyPasswordInput
+          className="mBottom25"
+          showSubTitle={false}
+          autoFocus={false}
+          isRequired={false}
+          allowNoVerify={!removeNoneVerification}
+          onChange={({ password, isNoneVerification }) => {
+            setPassword(password);
+            setIsNoneVerification(isNoneVerification);
+          }}
+        />
       )}
 
       {description && <div className="Gray_9e Font14 mBottom12">{description}</div>}

@@ -9,7 +9,14 @@ import Filter from './components/Filter';
 import AreaScope from './components/AreaScope';
 import Accumulate from './components/Accumulate';
 import WithoutFidldItem from './components/WithoutFidldItem';
-import { chartType, getAxisText, isTimeControl, filterDisableParticleSizeTypes, funnelShapeList, funnelCurvatureList } from '../../common';
+import {
+  chartType,
+  getAxisText,
+  isTimeControl,
+  filterDisableParticleSizeTypes,
+  funnelShapeList,
+  funnelCurvatureList,
+} from '../../common';
 import { reportTypes } from '../../Charts/common';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -19,7 +26,7 @@ import _ from 'lodash';
 
 @connect(
   state => ({
-    ..._.pick(state.statistics, ['currentReport', 'reportData', 'axisControls', 'worksheetInfo', 'filterItem'])
+    ..._.pick(state.statistics, ['currentReport', 'reportData', 'axisControls', 'worksheetInfo', 'filterItem']),
   }),
   dispatch => bindActionCreators(actions, dispatch),
 )
@@ -35,31 +42,29 @@ export default class ChartSetting extends Component {
         filter: {
           ...currentReport.filter,
           filterControls: conditions,
-        }
+        },
       },
       true,
     );
-  }
+  };
   renderChartType() {
     const { reportType, displaySetup } = this.props.currentReport;
     const isFunnelChart = reportType == reportTypes.FunnelChart;
-    const handleClick = (item) => {
+    const handleClick = item => {
       if (displaySetup.showChartType !== item.value) {
         this.props.changeCurrentReport({
           displaySetup: {
             ...displaySetup,
             showChartType: item.value,
             isPerPile: [reportTypes.LineChart].includes(reportType) ? false : displaySetup.isPerPile,
-          }
+          },
         });
       }
-    }
+    };
     return (
       <div className={isFunnelChart ? 'mBottom15' : 'mBottom20'}>
         {isFunnelChart && <div className="mBottom15 Bold Font13">{_l('图形')}</div>}
-        <div
-          className={cx('mBottom10 Font13', isFunnelChart ? 'mBottom8' : 'mBottom10' ,{ Bold: !isFunnelChart })}
-        >
+        <div className={cx('mBottom10 Font13', isFunnelChart ? 'mBottom8' : 'mBottom10', { Bold: !isFunnelChart })}>
           {chartType[reportType].title}
         </div>
         {[reportTypes.GaugeChart, reportTypes.ProgressChart].includes(reportType) ? (
@@ -67,7 +72,9 @@ export default class ChartSetting extends Component {
             {chartType[reportType].items.map(item => (
               <div
                 key={item.value}
-                className={cx('flex styleItem centerAlign pointer Gray_75', { active: displaySetup.showChartType == item.value })}
+                className={cx('flex styleItem centerAlign pointer Gray_75', {
+                  active: displaySetup.showChartType == item.value,
+                })}
                 onClick={() => handleClick(item)}
               >
                 <div className="iconWrap">
@@ -79,17 +86,15 @@ export default class ChartSetting extends Component {
           </div>
         ) : (
           <div className="chartTypeSelect flexRow valignWrapper">
-            {
-              chartType[reportType].items.map(item => (
-                <div
-                  key={item.value}
-                  className={cx('flex centerAlign pointer Gray_75', { active: displaySetup.showChartType == item.value })}
-                  onClick={() => handleClick(item)}
-                >
-                  {item.name}
-                </div>
-              ))
-            }
+            {chartType[reportType].items.map(item => (
+              <div
+                key={item.value}
+                className={cx('flex centerAlign pointer Gray_75', { active: displaySetup.showChartType == item.value })}
+                onClick={() => handleClick(item)}
+              >
+                {item.name}
+              </div>
+            ))}
           </div>
         )}
       </div>
@@ -101,24 +106,24 @@ export default class ChartSetting extends Component {
       <div className="mBottom15">
         <div className="mBottom8 Font13">{_l('形状')}</div>
         <div className="chartTypeSelect flexRow valignWrapper">
-          {
-            funnelShapeList.map(item => (
-              <div
-                key={item.value}
-                className={cx('flex centerAlign pointer Gray_75', { active: (style.funnelShape || 'funnel') == item.value })}
-                onClick={() => {
-                  this.props.changeCurrentReport({
-                    style: {
-                      ...style,
-                      funnelShape: item.value,
-                    }
-                  });
-                }}
-              >
-                {item.name}
-              </div>
-            ))
-          }
+          {funnelShapeList.map(item => (
+            <div
+              key={item.value}
+              className={cx('flex centerAlign pointer Gray_75', {
+                active: (style.funnelShape || 'funnel') == item.value,
+              })}
+              onClick={() => {
+                this.props.changeCurrentReport({
+                  style: {
+                    ...style,
+                    funnelShape: item.value,
+                  },
+                });
+              }}
+            >
+              {item.name}
+            </div>
+          ))}
         </div>
       </div>
     );
@@ -129,24 +134,22 @@ export default class ChartSetting extends Component {
       <div className="mBottom15">
         <div className="mBottom8 Font13">{_l('曲率')}</div>
         <div className="chartTypeSelect flexRow valignWrapper">
-          {
-            funnelCurvatureList.map(item => (
-              <div
-                key={item.value}
-                className={cx('flex centerAlign pointer Gray_75', { active: (style.funnelCurvature || 2) == item.value })}
-                onClick={() => {
-                  this.props.changeCurrentReport({
-                    style: {
-                      ...style,
-                      funnelCurvature: item.value,
-                    }
-                  });
-                }}
-              >
-                {item.name}
-              </div>
-            ))
-          }
+          {funnelCurvatureList.map(item => (
+            <div
+              key={item.value}
+              className={cx('flex centerAlign pointer Gray_75', { active: (style.funnelCurvature || 2) == item.value })}
+              onClick={() => {
+                this.props.changeCurrentReport({
+                  style: {
+                    ...style,
+                    funnelCurvature: item.value,
+                  },
+                });
+              }}
+            >
+              {item.name}
+            </div>
+          ))}
         </div>
       </div>
     );
@@ -165,7 +168,9 @@ export default class ChartSetting extends Component {
   renderPivotTableAxis(x, y) {
     const { currentReport, axisControls, worksheetInfo, changeCurrentReport } = this.props;
     const { lines = [], columns = [] } = currentReport.pivotTable || {};
-    const disableParticleSizeTypes = [...lines, ...columns].filter(item => item.particleSizeType).map(item => `${item.controlId}-${item.particleSizeType}`);
+    const disableParticleSizeTypes = [...lines, ...columns]
+      .filter(item => item.particleSizeType)
+      .map(item => `${item.controlId}-${item.particleSizeType}`);
     return (
       <Fragment>
         <PivotTableAxis
@@ -176,13 +181,16 @@ export default class ChartSetting extends Component {
           list={lines}
           disableParticleSizeTypes={disableParticleSizeTypes}
           onUpdateList={(lines, id) => {
-            changeCurrentReport({
-              pivotTable: {
-                ...currentReport.pivotTable,
-                lines,
+            changeCurrentReport(
+              {
+                pivotTable: {
+                  ...currentReport.pivotTable,
+                  lines,
+                },
+                sorts: currentReport.sorts.filter(item => _.findKey(item) !== id),
               },
-              sorts: currentReport.sorts.filter(item => _.findKey(item) !== id)
-            }, true);
+              true,
+            );
           }}
           onAdd={this.props.addLines}
           onRemove={this.props.removeLines}
@@ -195,13 +203,16 @@ export default class ChartSetting extends Component {
           list={columns}
           disableParticleSizeTypes={disableParticleSizeTypes}
           onUpdateList={(columns, id) => {
-            changeCurrentReport({
-              pivotTable: {
-                ...currentReport.pivotTable,
-                columns,
+            changeCurrentReport(
+              {
+                pivotTable: {
+                  ...currentReport.pivotTable,
+                  columns,
+                },
+                sorts: currentReport.sorts.filter(item => _.findKey(item) !== id),
               },
-              sorts: currentReport.sorts.filter(item => _.findKey(item) !== id)
-            }, true);
+              true,
+            );
           }}
           onAdd={this.props.addColumns}
           onRemove={this.props.removeColumns}
@@ -214,10 +225,13 @@ export default class ChartSetting extends Component {
           allControls={worksheetInfo.columns}
           list={currentReport.yaxisList}
           onUpdateList={(yaxisList, id) => {
-            changeCurrentReport({
-              yaxisList,
-              sorts: currentReport.sorts.filter(item => _.findKey(item) !== id)
-            }, true);
+            changeCurrentReport(
+              {
+                yaxisList,
+                sorts: currentReport.sorts.filter(item => _.findKey(item) !== id),
+              },
+              true,
+            );
           }}
           onAdd={this.props.addYaxisList}
           onRemove={({ controlId }) => {
@@ -233,24 +247,24 @@ export default class ChartSetting extends Component {
     const isMultiaxis = [reportTypes.DualAxes, reportTypes.BidirectionalBarChart].includes(reportType);
     const isDualAxes = reportTypes.DualAxes === reportType;
     const xAxisVisible = reportType && ![reportTypes.GaugeChart, reportTypes.ProgressChart].includes(reportType);
-    const disableParticleSizeTypes = [xaxes, split, rightY ? rightY.split : {}].filter(item => item.particleSizeType).map(item => `${item.controlId}-${item.particleSizeType}`);
+    const disableParticleSizeTypes = [xaxes, split, rightY ? rightY.split : {}]
+      .filter(item => item.particleSizeType)
+      .map(item => `${item.controlId}-${item.particleSizeType}`);
 
     return (
       <Fragment>
-        {
-          xAxisVisible && (
-            <XAxis
-              name={x}
-              disableParticleSizeTypes={filterDisableParticleSizeTypes(xaxes.controlId, disableParticleSizeTypes)}
-              currentReport={currentReport}
-              onChangeCurrentReport={changeCurrentReport}
-              allControls={worksheetInfo.columns}
-              axisControls={axisControls}
-              addXaxes={this.props.addXaxes}
-              removeXaxes={this.props.removeXaxes}
-            />
-          )
-        }
+        {xAxisVisible && (
+          <XAxis
+            name={x}
+            disableParticleSizeTypes={filterDisableParticleSizeTypes(xaxes.controlId, disableParticleSizeTypes)}
+            currentReport={currentReport}
+            onChangeCurrentReport={changeCurrentReport}
+            allControls={worksheetInfo.columns}
+            axisControls={axisControls}
+            addXaxes={this.props.addXaxes}
+            removeXaxes={this.props.removeXaxes}
+          />
+        )}
         {reportTypes.ScatterChart === reportType ? (
           <Fragment>
             <YAxis
@@ -259,20 +273,20 @@ export default class ChartSetting extends Component {
               currentReport={currentReport}
               axisControls={axisControls.concat(formulas)}
               allControls={worksheetInfo.columns}
-              onChangeCurrentReport={(data) => {
+              onChangeCurrentReport={data => {
                 yaxisList[0] = data.yaxisList[0];
                 this.props.changeYaxisList({
                   ...data,
-                  yaxisList
+                  yaxisList,
                 });
               }}
               onRemoveAxis={() => {
                 yaxisList[0] = {};
                 this.props.changeYaxisList({
-                  yaxisList
+                  yaxisList,
                 });
               }}
-              onAddAxis={(data) => {
+              onAddAxis={data => {
                 this.props.addIndexYaxisList(data, 0);
               }}
             />
@@ -282,20 +296,20 @@ export default class ChartSetting extends Component {
               currentReport={currentReport}
               axisControls={axisControls.concat(formulas)}
               allControls={worksheetInfo.columns}
-              onChangeCurrentReport={(data) => {
+              onChangeCurrentReport={data => {
                 yaxisList[1] = data.yaxisList[0];
                 this.props.changeYaxisList({
                   ...data,
-                  yaxisList
+                  yaxisList,
                 });
               }}
               onRemoveAxis={() => {
                 yaxisList[1] = {};
                 this.props.changeYaxisList({
-                  yaxisList
+                  yaxisList,
                 });
               }}
-              onAddAxis={(data) => {
+              onAddAxis={data => {
                 this.props.addIndexYaxisList(data, 1);
               }}
             />
@@ -305,20 +319,20 @@ export default class ChartSetting extends Component {
               currentReport={currentReport}
               axisControls={axisControls.concat(formulas)}
               allControls={worksheetInfo.columns}
-              onChangeCurrentReport={(data) => {
+              onChangeCurrentReport={data => {
                 yaxisList[2] = data.yaxisList[0];
                 this.props.changeYaxisList({
                   ...data,
-                  yaxisList
+                  yaxisList,
                 });
               }}
               onRemoveAxis={() => {
                 yaxisList[2] = null;
                 this.props.changeYaxisList({
-                  yaxisList: yaxisList.filter(_ => _)
+                  yaxisList: yaxisList.filter(_ => _),
                 });
               }}
-              onAddAxis={(data) => {
+              onAddAxis={data => {
                 this.props.addIndexYaxisList(data, 2);
               }}
             />
@@ -336,60 +350,58 @@ export default class ChartSetting extends Component {
             onAddAxis={this.props.addYaxisList}
           />
         )}
-        {
-          isMultiaxis && (
-            <YAxis
-              name={isDualAxes ? _l('辅助Y轴(数值)') : _l('方向2(数值)')}
-              split={rightY.split}
-              yaxisList={rightY.yaxisList}
-              currentReport={currentReport}
-              axisControls={axisControls.concat(formulas)}
-              allControls={worksheetInfo.columns}
-              onChangeCurrentReport={this.props.changeRightYaxisList}
-              onRemoveAxis={this.props.removeRightYaxisList}
-              onAddAxis={this.props.addRightYaxisList}
-            />
-          )
-        }
-        {
-          [reportTypes.BarChart, reportTypes.LineChart, reportTypes.DualAxes, reportTypes.RadarChart, reportTypes.ScatterChart].includes(reportType) && (
-            <GroupingAxis
-              reportType={reportType}
-              split={currentReport.split}
-              xaxes={currentReport.xaxes}
-              yaxisList={currentReport.yaxisList}
-              disableParticleSizeTypes={disableParticleSizeTypes}
-              axisControls={axisControls}
-              allControls={worksheetInfo.columns}
-              onChangeCurrentReport={this.props.changeSplit}
-            />
-          )
-        }
-        {
-          isDualAxes && (
-            <GroupingAxis
-              name={_l('分组(%0)', isDualAxes ? _l('辅助Y轴') : _l('数值2'))}
-              split={currentReport.rightY.split}
-              xaxes={currentReport.xaxes}
-              yaxisList={currentReport.rightY.yaxisList}
-              disableParticleSizeTypes={disableParticleSizeTypes}
-              axisControls={axisControls}
-              allControls={worksheetInfo.columns}
-              onChangeCurrentReport={this.props.changeRightSplit}
-            />
-          )
-        }
-        {
-          (reportType === reportTypes.CountryLayer && currentReport.xaxes.controlId) && (
-            <AreaScope
-              xaxes={currentReport.xaxes}
-              country={currentReport.country}
-              style={currentReport.style || {}}
-              controls={axisControls}
-              onChangeCurrentReport={changeCurrentReport}
-            />
-          )
-        }
+        {isMultiaxis && (
+          <YAxis
+            name={isDualAxes ? _l('辅助Y轴(数值)') : _l('方向2(数值)')}
+            split={rightY.split}
+            yaxisList={rightY.yaxisList}
+            currentReport={currentReport}
+            axisControls={axisControls.concat(formulas)}
+            allControls={worksheetInfo.columns}
+            onChangeCurrentReport={this.props.changeRightYaxisList}
+            onRemoveAxis={this.props.removeRightYaxisList}
+            onAddAxis={this.props.addRightYaxisList}
+          />
+        )}
+        {[
+          reportTypes.BarChart,
+          reportTypes.LineChart,
+          reportTypes.DualAxes,
+          reportTypes.RadarChart,
+          reportTypes.ScatterChart,
+        ].includes(reportType) && (
+          <GroupingAxis
+            reportType={reportType}
+            split={currentReport.split}
+            xaxes={currentReport.xaxes}
+            yaxisList={currentReport.yaxisList}
+            disableParticleSizeTypes={disableParticleSizeTypes}
+            axisControls={axisControls}
+            allControls={worksheetInfo.columns}
+            onChangeCurrentReport={this.props.changeSplit}
+          />
+        )}
+        {isDualAxes && (
+          <GroupingAxis
+            name={isDualAxes ? _l('分组(辅助Y轴)') : _l('分组(数值2)')}
+            split={currentReport.rightY.split}
+            xaxes={currentReport.xaxes}
+            yaxisList={currentReport.rightY.yaxisList}
+            disableParticleSizeTypes={disableParticleSizeTypes}
+            axisControls={axisControls}
+            allControls={worksheetInfo.columns}
+            onChangeCurrentReport={this.props.changeRightSplit}
+          />
+        )}
+        {reportType === reportTypes.CountryLayer && currentReport.xaxes.controlId && (
+          <AreaScope
+            xaxes={currentReport.xaxes}
+            country={currentReport.country}
+            style={currentReport.style || {}}
+            controls={axisControls}
+            onChangeCurrentReport={changeCurrentReport}
+          />
+        )}
       </Fragment>
     );
   }
@@ -405,20 +417,23 @@ export default class ChartSetting extends Component {
           onChangeCurrentReport={changeCurrentReport}
           allControls={worksheetInfo.columns}
           axisControls={axisControls.concat(formulas)}
-          addValueAxis={(data) => {
+          addValueAxis={data => {
             this.props.addValueAxis('min', data);
           }}
           changeValueAxis={(data, isRequest) => {
-            this.props.changeConfig({
-              min: {
-                ...config.min,
-                ...data
-              }
-            }, isRequest);
+            this.props.changeConfig(
+              {
+                min: {
+                  ...config.min,
+                  ...data,
+                },
+              },
+              isRequest,
+            );
           }}
           removeValueAxis={() => {
             this.props.changeConfig({
-              min: null
+              min: null,
             });
           }}
         />
@@ -429,20 +444,23 @@ export default class ChartSetting extends Component {
           onChangeCurrentReport={changeCurrentReport}
           allControls={worksheetInfo.columns}
           axisControls={axisControls.concat(formulas)}
-          addValueAxis={(data) => {
+          addValueAxis={data => {
             this.props.addValueAxis('max', data);
           }}
           changeValueAxis={(data, isRequest) => {
-            this.props.changeConfig({
-              max: {
-                ...config.max,
-                ...data
-              }
-            }, isRequest);
+            this.props.changeConfig(
+              {
+                max: {
+                  ...config.max,
+                  ...data,
+                },
+              },
+              isRequest,
+            );
           }}
           removeValueAxis={() => {
             this.props.changeConfig({
-              max: null
+              max: null,
             });
           }}
         />
@@ -459,10 +477,7 @@ export default class ChartSetting extends Component {
         {!yaxisList.length && (
           <Fragment>
             <div className="mBottom12 Gray_75">{_l('请先配置数值')}</div>
-            <WithoutFidldItem
-              disable={true}
-              allowInput={true}
-            />
+            <WithoutFidldItem disable={true} allowInput={true} />
           </Fragment>
         )}
         {yaxisList.map((data, index) => (
@@ -474,7 +489,7 @@ export default class ChartSetting extends Component {
             onChangeCurrentReport={changeCurrentReport}
             allControls={worksheetInfo.columns}
             axisControls={axisControls.concat(formulas)}
-            addValueAxis={(data) => {
+            addValueAxis={data => {
               this.props.addTargetValueAxis(index, data);
             }}
             changeValueAxis={(data, isRequest) => {
@@ -482,7 +497,7 @@ export default class ChartSetting extends Component {
               targetList[index] = {
                 ...current,
                 ...data,
-              }
+              };
               this.props.changeConfig({ targetList }, isRequest);
             }}
             removeValueAxis={() => {
@@ -500,20 +515,10 @@ export default class ChartSetting extends Component {
     const isPivotTable = reportType === reportTypes.PivotTable;
     return (
       <div className="chartSetting">
-        {
-          isPivotTable ? (
-            this.renderPivotTableAxis(x, y)
-          ) : (
-            this.renderChartAxis(x, y)
-          )
-        }
-        {[reportTypes.GaugeChart].includes(reportType) && (
-          this.renderChartValueAxis()
-        )}
-        {[reportTypes.ProgressChart].includes(reportType) && (
-          this.renderTargetValueAxis()
-        )}
-        {(chartType[reportType] && displaySetup) && this.renderChartType()}
+        {isPivotTable ? this.renderPivotTableAxis(x, y) : this.renderChartAxis(x, y)}
+        {[reportTypes.GaugeChart].includes(reportType) && this.renderChartValueAxis()}
+        {[reportTypes.ProgressChart].includes(reportType) && this.renderTargetValueAxis()}
+        {chartType[reportType] && displaySetup && this.renderChartType()}
         {reportType === reportTypes.FunnelChart && this.renderShape()}
         {reportType === reportTypes.FunnelChart && this.renderCurvature()}
         {reportType === reportTypes.FunnelChart && this.renderAccumulate()}

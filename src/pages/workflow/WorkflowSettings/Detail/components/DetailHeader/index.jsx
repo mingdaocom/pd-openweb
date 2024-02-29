@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import cx from 'classnames';
 import { Support, Dialog } from 'ming-ui';
 import NodeNameInput from '../NodeNameInput';
@@ -19,7 +19,16 @@ const getNodeTypeForSupportHref = ({ actionId, appType }, selectNodeType) => {
   return String(selectNodeType);
 };
 
-export default function DetailHeader({ data, icon, bg, updateSource, closeDetail, selectNodeType, isIntegration }) {
+export default function DetailHeader({
+  data,
+  icon,
+  bg,
+  updateSource,
+  closeDetail,
+  selectNodeType,
+  isIntegration,
+  removeNodeName,
+}) {
   const { name } = data;
   const type = getNodeTypeForSupportHref(data, selectNodeType);
   const href = SUPPORT_HREF[type];
@@ -35,8 +44,14 @@ export default function DetailHeader({ data, icon, bg, updateSource, closeDetail
 
   return (
     <div className={cx('workflowDetailHeader flexRow', bg)}>
-      <i className={cx('Font24', icon)} />
-      <NodeNameInput name={name} updateSource={updateSource} />
+      {removeNodeName ? (
+        <div className="flex" />
+      ) : (
+        <Fragment>
+          <i className={cx('Font24', icon)} />
+          <NodeNameInput name={name} updateSource={updateSource} />
+        </Fragment>
+      )}
       {href && <Support href={href} type={1} className="workflowDetailHeaderSupport mLeft10" />}
       <i className="icon-delete Font18 mLeft10" onClick={closeDetail} />
     </div>

@@ -1,7 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import * as actions from '../redux/actions/action';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { Icon, ScrollView, Switch, Tooltip, LoadDiv, Dialog } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
 import './functionalSwitch.less';
@@ -52,8 +49,7 @@ const tipStr = {
 // "roleType": 0 //角色类型   0=所有人 100=管理员
 
 function FunctionalSwitch(props) {
-  const { formSet } = props;
-  const { worksheetId, worksheetInfo } = formSet;
+  const { worksheetId, worksheetInfo } = props;
   const { views = [], projectId, appId } = worksheetInfo;
   const [show, setShow] = useState(false);
   const [hideBatch, sethideBatch] = useState(false);
@@ -73,8 +69,7 @@ function FunctionalSwitch(props) {
   }, [info.worksheetId]);
 
   useEffect(() => {
-    const { formSet } = props;
-    const { worksheetInfo } = formSet;
+    const { worksheetInfo } = props;
     setCloseAutoID(!!worksheetInfo.closeAutoID);
   }, [props]);
 
@@ -518,10 +513,4 @@ function FunctionalSwitch(props) {
     </React.Fragment>
   );
 }
-const mapStateToProps = state => ({
-  formSet: state.formSet,
-  sheet: state.sheet,
-});
-const mapDispatchToProps = dispatch => bindActionCreators(actions, dispatch);
-
-export default connect(mapStateToProps, mapDispatchToProps)(FunctionalSwitch);
+export default FunctionalSwitch;

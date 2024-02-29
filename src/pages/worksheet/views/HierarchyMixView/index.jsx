@@ -466,7 +466,7 @@ function HierarchyMix(props) {
       !isDisabledCreate(sheetSwitchPermit) &&
       !_.isEmpty(hierarchyViewData) &&
       (viewControl || !_.isEmpty(viewControls)) &&
-      !_.get(window, 'shareState.isPublicView');
+      !(_.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage'));
 
     return (
       <RecordStructureWrap
@@ -564,6 +564,7 @@ function HierarchyMix(props) {
       {renderContent()}
       {createRecordVisible && (
         <NewRecord
+          showFillNext
           visible
           onAdd={record => {
             addHierarchyRecord({ data: record, ...addRecordPath });

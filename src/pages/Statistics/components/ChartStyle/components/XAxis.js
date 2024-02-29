@@ -38,7 +38,7 @@ export default class XAxis extends Component {
                 onChangeDisplayValue('fontStyle', displaySetup.fontStyle ? 0 : 1);
               }}
             >
-              {_l('自动倾斜%0文字', isBarChart ? _l('Y轴') : _l('X轴'))}
+              {isBarChart ? _l('自动倾斜Y轴文字') : _l('自动倾斜X轴文字')}
             </Checkbox>
             <Tooltip
               title={_l(

@@ -76,10 +76,11 @@ export default class BaseMessageComponent extends React.Component {
   }
 
   renderAvatar() {
-    const { fullname, accountId, avatar, inboxType } = this.props;
+    const { fullname, accountId, avatar, inboxType, appId } = this.props;
+
     return (
       <div className="Left">
-        <Avatar {...{ fullname, accountId, avatar, inboxType }} />
+        <Avatar {...{ fullname, accountId, avatar, inboxType, appId }} />
       </div>
     );
   }

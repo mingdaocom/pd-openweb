@@ -87,9 +87,9 @@ function ViewComp(props) {
   }, [filtersGroup, workSheetLoading, viewId]);
 
   const getAppInfo = () => {
-    if (!appId) return;
+    if (!appId || _.get(window, 'shareState.shareId')) return;
     homeAppAjax.getApp({ appId }).then(data => {
-      setAppColor(data.navColor);
+      setAppColor(data.iconColor);
     });
   };
 
@@ -157,7 +157,7 @@ function ViewComp(props) {
           allowAdd &&
           ((view.viewType === 6 && view.childType !== 1) || view.viewType !== 6) && (
             <AddBtn>
-              <Button className="valignWrapper flexRow" style={{ backgroundColor: appColor }} onClick={addRecord}>
+              <Button className="valignWrapper flexRow addRecord" style={{ backgroundColor: appColor }} onClick={addRecord}>
                 <Icon icon="add" className="Font22 mRight5" />
                 {worksheetInfo.entityName}
               </Button>

@@ -215,9 +215,9 @@ export default function DebugConfig(params) {
   };
   const saveConfig = () => {
     let value = {};
-    if (!!tagtextarea.current.props.defaultValue) {
+    if (!!_.get(tagtextarea, 'current.props.defaultValue')) {
       try {
-        value = JSON.parse(tagtextarea.current.props.defaultValue);
+        value = JSON.parse(_.get(tagtextarea, 'current.props.defaultValue'));
       } catch (error) {
         return alert(_l('请输入正确的格式'), 3);
       }

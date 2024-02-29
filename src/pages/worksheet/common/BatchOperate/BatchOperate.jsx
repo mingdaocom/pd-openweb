@@ -15,7 +15,7 @@ import { refreshRecord } from 'worksheet/common/RefreshRecordDialog';
 import { printQrBarCode } from 'worksheet/common/PrintQrBarCode';
 import IconText from 'worksheet/components/IconText';
 import { CUSTOM_BUTTOM_CLICK_TYPE } from 'worksheet/constants/enum';
-import { checkCellIsEmpty, handleRecordError } from 'worksheet/util';
+import { checkCellIsEmpty, handleRecordError, replaceBtnsTranslateInfo } from 'worksheet/util';
 import PrintList from './PrintList';
 import ExportList from './ExportList';
 import SubButton from './SubButton';
@@ -132,7 +132,7 @@ class BatchOperate extends React.Component {
         .then(data => {
           this.setState({
             customButtonLoading: false,
-            customButtons: data.filter(
+            customButtons: replaceBtnsTranslateInfo(appId, data).filter(
               btn =>
                 btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.IMMEDIATELY ||
                 btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.CONFIRM ||
@@ -282,7 +282,7 @@ class BatchOperate extends React.Component {
       callback();
       if ((isEditSingle ? data.resultCode === 1 : data.successCount === selectedRows.length) && !args.noAlert) {
         alert(_l('修改成功'));
-      } else {
+      } else if (isEditSingle && data.resultCode !== 1) {
         handleRecordError(data.resultCode);
       }
       if (data.resultCode !== 1) return;
@@ -596,6 +596,7 @@ class BatchOperate extends React.Component {
                               } else {
                                 clearSelect();
                                 hideRows(hasAuthRowIds);
+                                getWorksheetSheetViewSummary();
                               }
                             }
                           })

@@ -42,11 +42,6 @@ const Wrap = styled.div`
     color: #fff;
     line-height: 30px;
   }
-  .betaIcon {
-    color: #4caf50;
-    font-size: 15px;
-    margin-left: 4px;
-  }
 `;
 export default class HubAndPluginHeader extends Component {
   static propTypes = {
@@ -71,19 +66,10 @@ export default class HubAndPluginHeader extends Component {
       <Wrap className="nativeHeaderWrap flexRow">
         <div className="flex flexRow alignItemsCenter">
           <div className="nativeModuleLogo">
-            <HomeEntry data-tip={_l('主页')} onClick={() => navigateTo('/app/my')}>
+            <HomeEntry data-tip={_l('主页')} onClick={() => navigateTo('/dashboard')}>
               <i className="icon-home_page Font18"></i>
             </HomeEntry>
-            <div className="nativeTitle">
-              {isPlugin ? (
-                <React.Fragment>
-                  {_l('插件中心')}
-                  <i className="icon-beta1 betaIcon" />
-                </React.Fragment>
-              ) : (
-                _l('集成中心')
-              )}
-            </div>
+            <div className="nativeTitle">{isPlugin ? _l('插件中心') : _l('集成中心')}</div>
           </div>
           <SwitchProject />
           <Motion style={{ x: spring(indexSideVisible ? 0 : -352) }}>

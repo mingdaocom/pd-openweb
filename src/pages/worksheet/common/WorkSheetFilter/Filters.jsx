@@ -158,7 +158,7 @@ function Filters(props, ref) {
     if (state.editingFilter) {
       filterWorksheet(state.editingFilter);
     }
-  }, [state.editingFilter]);
+  }, [state.editingFilterVersion]);
   useImperativeHandle(ref, () => ({
     addFilterByControl: control => {
       cache.current.callFromColumn = true;
@@ -252,7 +252,9 @@ function Filters(props, ref) {
                   }}
                   onEditFilter={filter => {
                     editFilter(filter);
-                    setActiveFilter(filter);
+                    if (!activeFilter || activeFilter.id !== filter.id) {
+                      handleTriggerFilter(filter);
+                    }
                   }}
                   onCopy={filter => copyFilter({ appId, worksheetId, filter, isCharge })}
                   onDelete={filter => deleteFilter({ appId, filter })}

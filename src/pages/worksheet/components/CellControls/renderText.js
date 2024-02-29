@@ -6,10 +6,14 @@ import { getShowFormat } from 'src/pages/widgetConfig/util/setting.js';
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
 import _ from 'lodash';
 import moment from 'moment';
+import { validate } from 'uuid';
 
 export default function renderText(cell, options = {}) {
   try {
     if (!cell) {
+      return '';
+    }
+    if (cell.controlId === 'rowid' && !validate(cell.value)) {
       return '';
     }
     let { type, value = '', unit, advancedSetting = {} } = cell;

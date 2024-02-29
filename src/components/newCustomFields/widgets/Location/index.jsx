@@ -50,7 +50,7 @@ const LocationWrap = styled.div`
       margin-top: -5px;
     }
     .deleteIcon {
-      display: none;
+      display: ${({ isMobile }) => (isMobile ? 'block' : 'none')};
       top: -12px;
       right: -12px;
     }
@@ -314,6 +314,7 @@ export default class Widgets extends Component {
           </div>
         ) : (
           <LocationWrap
+            isMobile={isMobile}
             onClick={() => {
               if (!isMobile || disabled) {
                 window.open(`https://uri.amap.com/marker?position=${location.x},${location.y}`);

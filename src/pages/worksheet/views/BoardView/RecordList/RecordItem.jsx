@@ -22,7 +22,7 @@ const RELATION_SHEET_TYPE = 29;
 const canDrag = props => {
   const { data = {}, viewControl, selectControl = {}, fieldPermission = '111', controlPermissions = '111' } = props;
   const { allowEdit } = data;
-  if (window.share) return false;
+  if (_.get(window, 'shareState.shareId')) return false;
   if (viewControl === 'caid') return false;
   return (
     allowEdit &&
@@ -54,6 +54,8 @@ function SortableRecordItem(props) {
     sheetSwitchPermit,
     updateMultiSelectBoard,
     onAdd,
+    fieldShowCount,
+    width,
   } = props;
   const { rowId, rawRow, fields, ...rest } = data;
   const $ref = useRef(null);
@@ -185,11 +187,19 @@ function SortableRecordItem(props) {
         });
       }}
       className={cx('boardDataRecordItemWrap', { isDragging, isDraggingTemp: type === 'temp' })}
+      onMouseEnter={() => {
+        !isEditTitle && $($ref.current).find('.hoverShowAll').stop().slideDown('300');
+      }}
+      onMouseLeave={() => {
+        !isEditTitle && $($ref.current).find('.hoverShowAll').stop().slideUp('300');
+      }}
     >
       <Components.EditableCard
         ref={$ref}
         data={data}
         type="board"
+        hoverShowAll
+        fieldShowCount={fieldShowCount}
         canDrag={canDrag(props)}
         isCharge={isCharge}
         currentView={{
@@ -199,7 +209,10 @@ function SortableRecordItem(props) {
         }}
         allowCopy={worksheetInfo.allowAdd}
         allowRecreate={worksheetInfo.allowAdd}
-        editTitle={() => setState({ isEditTitle: true })}
+        editTitle={() => {
+          setState({ isEditTitle: true });
+          $($ref.current).find('.hoverShowAll').stop().slideUp('fast');
+        }}
         onUpdate={(updated, item) => {
           updateBoardViewRecord(
             updated[viewControl]
@@ -229,11 +242,14 @@ function SortableRecordItem(props) {
               appId,
             }}
             data={data}
+            hoverShowAll
+            fieldShowCount={fieldShowCount}
             isCharge={isCharge}
             style={{ ...getStyle() }}
             closeEdit={closeEdit}
             updateTitleData={updateTitleControlData}
             {...rest}
+            width={width}
           />
         </Components.RecordPortal>
       )}

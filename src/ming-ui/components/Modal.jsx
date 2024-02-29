@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { Modal } from 'antd';
 import { Button } from 'ming-ui';
 import ErrorWrapper from './ErrorWrapper';
-import './modalbindesc';
 import './less/Modal.less';
 import _ from 'lodash';
 

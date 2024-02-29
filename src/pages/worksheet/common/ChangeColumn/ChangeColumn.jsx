@@ -211,6 +211,7 @@ export default class ChangeColumn extends Component {
     controlsSorts: PropTypes.arrayOf(PropTypes.string),
     onChange: PropTypes.func,
     showTabs: PropTypes.bool,
+    showOperate: PropTypes.bool, // 显示全显示、全隐藏操作
   };
   static defaultProps = {
     layout: 1,
@@ -220,6 +221,7 @@ export default class ChangeColumn extends Component {
     columns: [],
     placeholder: _l('搜索字段'),
     showTabs: false,
+    showOperate: true,
   };
 
   constructor(props) {
@@ -369,6 +371,7 @@ export default class ChangeColumn extends Component {
       isShowColumns = false,
       sortAutoChange = false,
       showTabs,
+      showOperate,
     } = this.props;
     const { search, controlsSorts, focusControlId, retractTabControlIds } = this.state;
     const filteredColumns = sortControlByIds(columns, controlsSorts).filter(
@@ -485,7 +488,7 @@ export default class ChangeColumn extends Component {
             setRetractTabControlIds={this.setRetractTabControlIds}
           />
         </div>
-        {layout === 1 && advance && !search && quickOperate}
+        {layout === 1 && advance && !search && showOperate && quickOperate}
       </div>
     );
   }

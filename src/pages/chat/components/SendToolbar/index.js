@@ -15,6 +15,7 @@ import '../../lib/mentionInput/js/mentionInput';
 import { setCaretPosition, getToken } from 'src/util';
 import { errorCode } from 'src/components/UploadFiles';
 import RegExp from 'src/util/expression';
+import Emotion from 'src/components/emotion/emotion';
 
 const recurShowFileConfirm = (up, files, i, length, cb) => {
   if (i >= length) {
@@ -77,17 +78,17 @@ export default class SendToolbar extends Component {
     isGroup && this.initKeyAT();
   }
   initEmotion() {
-    const emotionEl = $(this.emotion);
     const { id } = this.props.session;
     const isFileTrsnsfer = id === 'file-transfer';
-    emotionEl.emotion({
+
+    new Emotion(this.emotion, {
       historySize: 30,
       autoHide: false,
       mdBear: true,
       showAru: true,
       offset: isFileTrsnsfer ? 313 : 263,
       relatedLeftSpace: isFileTrsnsfer ? -304 : -254,
-      historyKey: `${md.global.Account.accountId || ''}_mdEmotions`,
+      historyKey: `${md.global.Account.accountId || ''}_Emotions`,
       onMDBearSelect: (name, src, targetEmotionSrc) => {
         // 注意：ft 这个字段是作为七牛文件存储的类型判断的，所以要注意加上这个字段
         // 1.图片 2.附件 3.音频
@@ -182,7 +183,12 @@ export default class SendToolbar extends Component {
           uploader.settings.multipart_params['x:filePath'] = file.key ? file.key.replace(file.fileName, '') : '';
           uploader.settings.multipart_params['x:fileName'] = (file.fileName || '').replace(/\.[^\.]*$/, '');
           uploader.settings.multipart_params['x:originalFileName'] = encodeURIComponent(
-            file.name.indexOf('.') > -1 ? file.name.split('.').slice(0, -1).join('.') : file.name,
+            file.name.indexOf('.') > -1
+              ? file.name
+                  .split('.')
+                  .slice(0, -1)
+                  .join('.')
+              : file.name,
           );
           uploader.settings.multipart_params['x:fileExt'] = fileExt;
           const cb = window[`chatBeforeUpload${file.id}`];
@@ -328,7 +334,8 @@ export default class SendToolbar extends Component {
       message: '',
       [session.isGroup ? 'toGroupId' : 'toAccountId']: session.id,
     };
-    chatAjax.sendCardToChat(params)
+    chatAjax
+      .sendCardToChat(params)
       .then(reuslt => {
         alert(_l('发送成功'));
       })
@@ -411,7 +418,9 @@ export default class SendToolbar extends Component {
           >
             <i className="icon-chat-at" />
           </div>
-        ) : id === 'file-transfer' ? undefined : (
+        ) : id === 'file-transfer' ? (
+          undefined
+        ) : (
           <div onClick={this.props.onShake.bind(this)} className="icon-btn tip-top" data-tip={_l('抖动ta的屏幕')}>
             <i className="icon-chat-shake" />
           </div>

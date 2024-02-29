@@ -7,6 +7,7 @@ import { statusList } from './util';
 import SvgIcon from 'src/components/SvgIcon';
 import LoginContainer from './LoginContainer';
 import { FixedContent } from 'src/pages/PortalAccount/style';
+import ChangeLang from 'src/components/ChangeLang';
 
 const Wrap = styled.div`
   .Hide {
@@ -58,10 +59,8 @@ const Wrap = styled.div`
     background: #ffffff;
     height: auto;
     box-shadow: 0px 6px 16px rgba(0, 0, 0, 0.16);
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
+    position: relative;
+    margin: 100px auto;
     .messageConBox {
       margin: 0 auto;
     }
@@ -74,6 +73,7 @@ const Wrap = styled.div`
     min-width: 95%;
     height: auto;
     padding: 48px 24px;
+    margin: 0 auto;
     .messageConBox {
       margin: 0 auto;
     }
@@ -134,6 +134,11 @@ const Wrap = styled.div`
       left: 0;
     }
   }
+  .lang {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+  }
 `;
 
 export default function Container(props) {
@@ -184,10 +189,13 @@ export default function Container(props) {
       })}
       style={{
         maxHeight: pageMode === 3 && [14].includes(status) ? document.documentElement.clientHeight - 64 : 'auto',
-        overflow: pageMode === 3 && [14].includes(status) ? 'auto' : 'initial',
+        // overflow: pageMode === 3 && [14].includes(status) ? 'auto' : 'initial',
       }}
     >
       <div>
+        <div className={"lang"}>
+          <ChangeLang />
+        </div>
         {logoImageUrl ? (
           <img src={logoImageUrl} height={40} />
         ) : appColor && appLogoUrl ? (
@@ -240,7 +248,7 @@ export default function Container(props) {
           <div
             className="messageConBox"
             style={
-              pageMode === 6 && !browserIsMobile() ? { marginTop: document.documentElement.clientHeight / 5 - 32 } : {}
+              pageMode === 6 && !browserIsMobile() ? { marginTop: document.documentElement.clientHeight / 5 - 105 } : {}
             }
           >
             <LoginContainer {...props} />

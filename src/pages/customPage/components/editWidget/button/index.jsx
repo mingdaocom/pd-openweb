@@ -2,18 +2,16 @@ import React, { useCallback, useState } from 'react';
 import { string } from 'prop-types';
 import styled from 'styled-components';
 import update from 'immutability-helper';
-import Dialog from 'rc-dialog';
-import 'rc-dialog/assets/index.css';
 import { v4 as uuidv4 } from 'uuid';
 import { Icon } from 'ming-ui';
-import { ConfigProvider, Button, Tooltip } from 'antd';
+import { ConfigProvider, Button, Tooltip, Modal } from 'antd';
 import BtnGroupSetting from './btnGroupSetting';
 import BtnList from './btnList';
 import BtnSetting from './btnSetting';
 import { useSetState } from 'react-use';
 import SideWrap from '../../SideWrap';
 import { Header, EditWidgetContent } from '../../../styled';
-import { DEFAULT_BUTTON_LIST } from './config';
+import { GET_DEFAULT_BUTTON_LIST } from './config';
 import { getThemeColors } from 'src/util';
 import ButtonDisplay from './ButtonDisplay';
 import _ from 'lodash';
@@ -103,7 +101,7 @@ export default function Btn(props) {
     data.btnId = null;
     data.filterId = null;
     if (config.isFilter) {
-      data.config = { ...config, isFilter: undefined }
+      data.config = { ...config, isFilter: undefined };
     }
     setSetting(update(btnSetting, { buttonList: { $splice: [[activeIndex + 1, 0, data]] } }));
   };
@@ -128,7 +126,7 @@ export default function Btn(props) {
 
   return visible ? (
     <SideWrap headerText={_l('选择按钮样式')} onClose={onClose}>
-      {DEFAULT_BUTTON_LIST.map((item, i) => (
+      {GET_DEFAULT_BUTTON_LIST().map((item, i) => (
         <DefaultItem
           key={i}
           className="defaultItem"
@@ -145,12 +143,17 @@ export default function Btn(props) {
       ))}
     </SideWrap>
   ) : (
-    <Dialog
+    <Modal
       maskStyle={{ zIndex: 999 }}
       wrapClassName="customPageButtonWrap"
       className="editWidgetDialogWrap"
       visible
-      onClose={onClose}
+      transitionName=""
+      maskTransitionName=""
+      width="100%"
+      footer={null}
+      centered={true}
+      onCancel={onClose}
       closeIcon={<Icon icon="close Font24 ThemeHoverColor3" />}
     >
       <Header>
@@ -191,6 +194,6 @@ export default function Btn(props) {
           />
         </BtnWrap>
       </EditWidgetContent>
-    </Dialog>
+    </Modal>
   );
 }

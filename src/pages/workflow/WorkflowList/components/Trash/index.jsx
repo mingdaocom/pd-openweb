@@ -225,6 +225,7 @@ export default function TrashDialog(props) {
         return (
           <div className="flexRow alignItemsCenter">
             <UserHead
+              projectId={props.projectId}
               size={28}
               user={{ userHead: _.get(data, 'ownerAccount.avatar'), accountId: _.get(data, 'ownerAccount.accountId') }}
             />

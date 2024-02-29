@@ -617,7 +617,6 @@ export default class WorkSheetFilter extends Component {
               '.addFilterPopup',
               '.filterControlOptionsList',
               '.mui-dialog-container',
-              '.mdDialog',
               '.mui-datetimepicker',
               '.mui-datetimerangepicker',
               '.selectUserBox',

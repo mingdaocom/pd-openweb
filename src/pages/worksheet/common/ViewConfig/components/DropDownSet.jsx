@@ -22,6 +22,7 @@ const DropDownSetChoose = styled.div`
         height: 36px !important;
         .ant-select-selection-item {
           line-height: 36px !important;
+          font-size: 13px !important;
         }
       }
       &.isDelete {
@@ -56,7 +57,7 @@ export default class DropDownSet extends React.Component {
   }
   render() {
     const {
-      worksheetControls = [],
+      className,
       view,
       handleChange,
       txt,
@@ -76,8 +77,8 @@ export default class DropDownSet extends React.Component {
     let controlData = controlList.find(it => it.controlId === setDataId);
     let isDelete = setDataId && !controlData;
     return (
-      <React.Fragment>
-        <div className="title Font13 bold mTop32">{title}</div>
+      <div className={className}>
+        <div className="title Font13 bold">{title}</div>
         <div className="settingContent">
           <p className="mTop6 mBottom8 Gray_9e viewSetText">{txt}</p>
           <DropDownSetChoose>
@@ -106,12 +107,12 @@ export default class DropDownSet extends React.Component {
               {controlList.map((item, i) => {
                 const labelNode = (
                   <div className="">
-                    <i className={cx('icon Gray_9e mRight5 Font14', 'icon-' + getIconByType(item.type))}></i>
+                    <i className={cx('icon Gray_9e mRight5 Font13', 'icon-' + getIconByType(item.type))}></i>
                     {item.controlName}
                   </div>
                 );
                 return (
-                  <Select.Option value={item.controlId} key={i} label={labelNode}>
+                  <Select.Option value={item.controlId} key={i} label={labelNode} className="select_drop">
                     {labelNode}
                   </Select.Option>
                 );
@@ -147,7 +148,7 @@ export default class DropDownSet extends React.Component {
             worksheetId={worksheetId}
           />
         )}
-      </React.Fragment>
+      </div>
     );
   }
 }

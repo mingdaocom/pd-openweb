@@ -1,188 +1,11 @@
 export default {
   /**
-  * 任务添加附件
-adder: suncheng date: 2017年11月29日
-  * @param {Object} args 请求参数
-  * @param {string} args.taskId 任务Id
-  * @param {string} args.atts 本地附件
-  * @param {string} args.knowledgeAtts 知识附件
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   addTaskAttachments: function (args, options = {}) {
-     
-     return $.api('TaskCenter', 'AddTaskAttachments', args, options);
-   },
-  /**
-  * 搜索项目 OK
-  * @param {Object} args 请求参数
-  * @param {string} args.keywords 搜索内容
-  * @param {string} args.otherAccountID 搜索他人,他人accountID,协作
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   searchFolderList: function (args, options = {}) {
-     
-     return $.api('TaskCenter', 'SearchFolderList', args, options);
-   },
-  /**
-  * 获取项目计数
-  * @param {Object} args 请求参数
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getProjectsFolderNotice: function (args, options = {}) {
-     
-     return $.api('TaskCenter', 'GetProjectsFolderNotice', args, options);
-   },
-  /**
-  * 查询指定网络下文件夹和初层项目列表
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {string} args.accountID 他人accountID
-  * @param {string} args.fileIDs 文件列表,分隔
-  * @param {boolean} args.hasFiles 有文件夹
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getMainFolderList: function (args, options = {}) {
-     
-     return $.api('TaskCenter', 'GetMainFolderList', args, options);
-   },
-  /**
-  * 获取关联项目列表
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getAssociatedFolderList: function (args, options = {}) {
-     
-     return $.api('TaskCenter', 'GetAssociatedFolderList', args, options);
-   },
-  /**
-  * 获取指定文件下下的所有项目
-  * @param {Object} args 请求参数
-  * @param {string} args.fileID 文件夹ID
-  * @param {string} args.accountID 他人accountID
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getMainFolderListInFile: function (args, options = {}) {
-     
-     return $.api('TaskCenter', 'GetMainFolderListInFile', args, options);
-   },
-  /**
-  * 获取指定网络下的隐藏项目
-  * @param {Object} args 请求参数
-  * @param {string} args.accountID 他人accountID
-  * @param {string} args.projectId 网络ID
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getHiddenFolderList: function (args, options = {}) {
-     
-     return $.api('TaskCenter', 'GetHiddenFolderList', args, options);
-   },
-  /**
-  * 获取指定网络ID下已归档的项目
-  * @param {Object} args 请求参数
-  * @param {string} args.accountID 他人accountID
-  * @param {string} args.projectId 网络ID
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getArchiveFolderList: function (args, options = {}) {
-     
-     return $.api('TaskCenter', 'GetArchiveFolderList', args, options);
-   },
-  /**
-  * 获取置顶项目
-  * @param {Object} args 请求参数
-  * @param {string} args.accountID 用户id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getTopFolderList: function (args, options = {}) {
-     
-     return $.api('TaskCenter', 'GetTopFolderList', args, options);
-   },
-  /**
-  * 获取指定网络下的协作用户数量
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getTeamworkCount: function (args, options = {}) {
-     
-     return $.api('TaskCenter', 'GetTeamworkCount', args, options);
-   },
-  /**
-  * 获取指定网络下的所有协作用（按照协作次数倒叙）
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getTeamworkMember: function (args, options = {}) {
-     
-     return $.api('TaskCenter', 'GetTeamworkMember', args, options);
-   },
-  /**
-  * 获取项目下属
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {boolean} args.isFirst 是否直接下属
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getSubordinate: function (args, options = {}) {
-     
-     return $.api('TaskCenter', 'GetSubordinate', args, options);
-   },
-  /**
-  * 获取指定项目的普通看板视图（默认只有第一页获取，
-具体单个阶段请求GetFolderTaskListByStageID）
-  * @param {Object} args 请求参数
-  * @param {string} args.folderID 项目ID
-  * @param {array} args.tagIDs 标签IDs
-  * @param {} args.sort 排序规则
-  * @param {} args.status 任务状态
-  * @param {string} args.completeTime 任务完成时间
-  * @param {boolean} args.withoutTag 未关联标签的任务
-  * @param {integer} args.pageSize 页面尺寸
-  * @param {object} args.controlSelectedDic 控件筛选
-  * @param {array} args.chargeIds 负责人筛选
-  * @param {} args.filterType 任务查询类别
-  * @param {string} args.keywords 关键字
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getTaskListWithStageView: function (args, options = {}) {
-     
-     return $.api('TaskCenter', 'GetTaskListWithStageView', args, options);
-   },
-  /**
   * 获取指定项目阶段下的任务列表
   * @param {Object} args 请求参数
   * @param {string} args.folderID 项目ID
   * @param {string} args.stageID 阶段ID
-  * @param {} args.sort 排序规则
-  * @param {} args.status 任务状态
+  * @param {} args.sort
+  * @param {} args.status
   * @param {string} args.completeTime 任务完成时间
   * @param {boolean} args.withoutTag 未关联任务
   * @param {array} args.tagIDs 标签列表
@@ -190,7 +13,7 @@ adder: suncheng date: 2017年11月29日
   * @param {integer} args.pageSize 页面尺寸
   * @param {object} args.controlSelectedDic 控件筛选
   * @param {array} args.chargeIds 负责人筛选
-  * @param {} args.filterType 任务查询类别
+  * @param {} args.filterType
   * @param {string} args.keywords 关键字
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -241,11 +64,11 @@ adder: suncheng date: 2017年11月29日
   /**
   * 查询关联项目用项目列表
   * @param {Object} args 请求参数
-  * @param {string} args.excludeTaskIDs 需排除的taskid,英文逗号拼接
   * @param {string} args.projectId 网络ID
   * @param {string} args.keyWords 查找关键字
   * @param {integer} args.pageSize 页面尺寸
   * @param {integer} args.pageIndex 当前页码
+  * @param {string} args.excludeTaskIDs 需排除的taskid,英文逗号拼接
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -277,18 +100,6 @@ adder: suncheng date: 2017年11月29日
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
-   getFolderDescribe: function (args, options = {}) {
-     
-     return $.api('TaskCenter', 'GetFolderDescribe', args, options);
-   },
-  /**
-  * 获取项目描述和是否有编辑权限
-  * @param {Object} args 请求参数
-  * @param {string} args.folderID 项目id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
    getFolderDetail: function (args, options = {}) {
      
      return $.api('TaskCenter', 'GetFolderDetail', args, options);
@@ -308,36 +119,11 @@ adder: suncheng date: 2017年11月29日
      return $.api('TaskCenter', 'GetFolderLog', args, options);
    },
   /**
-  * 根据 Ids 获取项目 集合
-  * @param {Object} args 请求参数
-  * @param {array} args.folderIds 项目Ids
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getFoldersByIds: function (args, options = {}) {
-     
-     return $.api('TaskCenter', 'GetFoldersByIds', args, options);
-   },
-  /**
-  * 验证该用户是不是项目下的某任务的负责人 OK
-  * @param {Object} args 请求参数
-  * @param {string} args.folderID 项目id
-  * @param {string} args.accountID 指定用户accountID
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   validationUserIsCharge: function (args, options = {}) {
-     
-     return $.api('TaskCenter', 'ValidationUserIsCharge', args, options);
-   },
-  /**
   * 创建项目 OK
   * @param {Object} args 请求参数
   * @param {string} args.folderName 项目名称
   * @param {string} args.projectId 网络ID
-  * @param {} args.visibility 可见性类型
+  * @param {} args.visibility
   * @param {string} args.groupID 群组
   * @param {string} args.appID
   * @param {string} args.templateId 模板Id
@@ -367,7 +153,7 @@ adder: suncheng date: 2017年11月29日
   * 修改项目看板配置
   * @param {Object} args 请求参数
   * @param {string} args.folderID 项目ID
-  * @param {} args.stageConfig 看板编辑类型
+  * @param {} args.stageConfig
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -393,7 +179,7 @@ adder: suncheng date: 2017年11月29日
   * 修改项目下任务可见性权限
   * @param {Object} args 请求参数
   * @param {string} args.folderId 项目ID
-  * @param {} args.folderAuthVisible 项目可见性  0私密  1公开仅群组  2全公司
+  * @param {} args.folderAuthVisible
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -406,7 +192,7 @@ adder: suncheng date: 2017年11月29日
   * 项目修改可见性 OK
   * @param {Object} args 请求参数
   * @param {string} args.folderID 项目ID
-  * @param {} args.visibility 项目可见性  0私密  1公开仅群组  2全公司
+  * @param {} args.visibility
   * @param {string} args.groupID 群组
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -525,10 +311,10 @@ adder: suncheng date: 2017年11月24日
   /**
   * 修改项目看板
   * @param {Object} args 请求参数
-  * @param {string} args.stageID 看板id
   * @param {string} args.folderID 项目ID
   * @param {string} args.stageName 看板名
   * @param {integer} args.sort 排序
+  * @param {string} args.stageID 看板id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -549,18 +335,6 @@ adder: suncheng date: 2017年11月24日
    deleteFolderStage: function (args, options = {}) {
      
      return $.api('TaskCenter', 'DeleteFolderStage', args, options);
-   },
-  /**
-  * 获取项目成员列表
-  * @param {Object} args 请求参数
-  * @param {string} args.folderId 项目ID
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getFolderMembers: function (args, options = {}) {
-     
-     return $.api('TaskCenter', 'GetFolderMembers', args, options);
    },
   /**
   * 获取不在项目公开范围及非项目有效成员的人
@@ -586,43 +360,6 @@ adder: suncheng date: 2017年11月24日
    getFolderSettingsForCurrentUser: function (args, options = {}) {
      
      return $.api('TaskCenter', 'GetFolderSettingsForCurrentUser', args, options);
-   },
-  /**
-  * 获取项目权限
-  * @param {Object} args 请求参数
-  * @param {string} args.folderID 项目id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getFolderAuth: function (args, options = {}) {
-     
-     return $.api('TaskCenter', 'GetFolderAuth', args, options);
-   },
-  /**
-  * 获取当前用户在项目中的状态
-  * @param {Object} args 请求参数
-  * @param {string} args.folderID 项目id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getFolderMemberType: function (args, options = {}) {
-     
-     return $.api('TaskCenter', 'GetFolderMemberType', args, options);
-   },
-  /**
-  * 获取项目成员的消息提示状态
-adder: suncheng date: 2017年11月27日
-  * @param {Object} args 请求参数
-  * @param {string} args.folderId 项目ID
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getFolderMemberNotice: function (args, options = {}) {
-     
-     return $.api('TaskCenter', 'GetFolderMemberNotice', args, options);
    },
   /**
   * 申请加入项目成为项目成员
@@ -692,19 +429,6 @@ adder: suncheng date: 2017年11月27日
    removeFolderMember: function (args, options = {}) {
      
      return $.api('TaskCenter', 'RemoveFolderMember', args, options);
-   },
-  /**
-  * 项目加星 OK
-  * @param {Object} args 请求参数
-  * @param {string} args.folderID 项目ID
-  * @param {boolean} args.isStar 标星
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   updateFolderMemberStar: function (args, options = {}) {
-     
-     return $.api('TaskCenter', 'UpdateFolderMemberStar', args, options);
    },
   /**
   * 修改项目关于用户置顶 OK
@@ -812,23 +536,11 @@ adder: suncheng date: 2017年11月27日
      return $.api('TaskCenter', 'DeleteUserFolderFile', args, options);
    },
   /**
-  * 获取经常协作的用户
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getRelatedUsers: function (args, options = {}) {
-     
-     return $.api('TaskCenter', 'GetRelatedUsers', args, options);
-   },
-  /**
   * 获取标签
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
   * @param {string} args.folderId 项目id
-  * @param {} args.fromType 来源类型  （0：任务，1：项目,2：未关联项目）
+  * @param {} args.fromType
   * @param {boolean} args.other 项目id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -837,17 +549,6 @@ adder: suncheng date: 2017年11月27日
    getTags: function (args, options = {}) {
      
      return $.api('TaskCenter', 'GetTags', args, options);
-   },
-  /**
-  * 清除左侧菜单缓存
-  * @param {Object} args 请求参数
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   clearLeftMenuCache: function (args, options = {}) {
-     
-     return $.api('TaskCenter', 'ClearLeftMenuCache', args, options);
    },
   /**
   * 获取默认配置网络
@@ -1000,7 +701,7 @@ adder: suncheng date: 2017年11月27日
   * @param {string} args.deadline 截止时间
   * @param {boolean} args.timeLock 时间锁（null:2个时间都有效，true:仅开始时间有效，false:仅截止时间有效）
   * @param {string} args.chargeAccountId 负责人id,默认空
-  * @param {} args.updateType 确认类型
+  * @param {} args.updateType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -1166,18 +867,6 @@ adder: suncheng date: 2017年11月27日
      return $.api('TaskCenter', 'RemoveItem', args, options);
    },
   /**
-  * 获取自定义项目模板阶段配置
-  * @param {Object} args 请求参数
-  * @param {string} args.templateId 模板id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getFolderTemplateStage: function (args, options = {}) {
-     
-     return $.api('TaskCenter', 'GetFolderTemplateStage', args, options);
-   },
-  /**
   * 保存项目为我的模板
   * @param {Object} args 请求参数
   * @param {string} args.folderId 项目id
@@ -1200,18 +889,6 @@ adder: suncheng date: 2017年11月27日
    removeMyFolderTemplateOne: function (args, options = {}) {
      
      return $.api('TaskCenter', 'RemoveMyFolderTemplateOne', args, options);
-   },
-  /**
-  * 获取任务部分模板编辑页
-  * @param {Object} args 请求参数
-  * @param {string} args.templateId 模板id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getTemplateAndStages: function (args, options = {}) {
-     
-     return $.api('TaskCenter', 'GetTemplateAndStages', args, options);
    },
   /**
   * 获取所有模板分类
@@ -1238,17 +915,6 @@ adder: suncheng date: 2017年11月27日
      return $.api('TaskCenter', 'GetTemplatesByTemplateTypeId', args, options);
    },
   /**
-  * 获取所有模板分类
-  * @param {Object} args 请求参数
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getAllSystemTemplates: function (args, options = {}) {
-     
-     return $.api('TaskCenter', 'GetAllSystemTemplates', args, options);
-   },
-  /**
   * 获取项目下的任务自定义筛选列表
   * @param {Object} args 请求参数
   * @param {string} args.folderId 项目id
@@ -1259,18 +925,6 @@ adder: suncheng date: 2017年11月27日
    getTaskOptionsInFolder: function (args, options = {}) {
      
      return $.api('TaskCenter', 'GetTaskOptionsInFolder', args, options);
-   },
-  /**
-  * 根据项目id获取模板
-  * @param {Object} args 请求参数
-  * @param {string} args.folderId 项目id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getTemplateIdByFolderId: function (args, options = {}) {
-     
-     return $.api('TaskCenter', 'GetTemplateIdByFolderId', args, options);
    },
   /**
   * 编辑任务下单个控件值
@@ -1301,37 +955,6 @@ adder: suncheng date: 2017年11月27日
      return $.api('TaskCenter', 'UpdateFolderTemplateScope', args, options);
    },
   /**
-  * 修改模板下单个任务配置
-  * @param {Object} args 请求参数
-  * @param {string} args.templateId 模板id
-  * @param {string} args.taskid 任务id
-  * @param {string} args.pid 父id
-  * @param {string} args.tnam 任务名
-  * @param {string} args.tdesc 任务详情
-  * @param {integer} args.stgsrt 看板排序（相当于看板id外键）
-  * @param {string} args.cks 集合对象
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   updateFTATaskInfo: function (args, options = {}) {
-     
-     return $.api('TaskCenter', 'UpdateFTATaskInfo', args, options);
-   },
-  /**
-  * 修改模板下项目描述
-  * @param {Object} args 请求参数
-  * @param {string} args.templateId 模板id
-  * @param {string} args.fdesc 描述
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   updateFTAFolderDesc: function (args, options = {}) {
-     
-     return $.api('TaskCenter', 'UpdateFTAFolderDesc', args, options);
-   },
-  /**
   * 获取左侧菜单栏
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
@@ -1349,7 +972,7 @@ adder: suncheng date: 2017年11月27日
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
   * @param {string} args.folderId 项目id
-  * @param {} args.fromType 来源类型
+  * @param {} args.fromType
   * @param {boolean} args.isStar 是否标星
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -1358,18 +981,6 @@ adder: suncheng date: 2017年11月27日
    getTwoTypeTaskCount: function (args, options = {}) {
      
      return $.api('TaskCenter', 'GetTwoTypeTaskCount', args, options);
-   },
-  /**
-  * 获取我负责的 我托付的 我参与的有新讨论并未屏蔽提醒的任务数
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getTaskTabControlCount: function (args, options = {}) {
-     
-     return $.api('TaskCenter', 'GetTaskTabControlCount', args, options);
    },
   /**
   * 获取任务日志
@@ -1404,11 +1015,11 @@ adder: suncheng date: 2017年11月27日
   * 获取任务列表
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络ID
-  * @param {} args.structure 所需返回值结构
-  * @param {} args.sort 排序
-  * @param {} args.filterType 筛选类型
-  * @param {} args.status 任务状态
-  * @param {} args.classify 自定义分类
+  * @param {} args.structure
+  * @param {} args.sort
+  * @param {} args.filterType
+  * @param {} args.status
+  * @param {} args.classify
   * @param {string} args.filterTaskIDs 需要排除的taskid
   * @param {string} args.filterMeTaskClassifys 需要排除的自定义类别
   * @param {boolean} args.isFirst 是不是第一次获取，前端不好拆就没拆
@@ -1432,7 +1043,7 @@ adder: suncheng date: 2017年11月27日
   * 获取星标任务
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络ID
-  * @param {} args.status 所需返回值结构
+  * @param {} args.status
   * @param {string} args.completeTime 完成时间
   * @param {integer} args.pageIndex 请求页码
   * @param {integer} args.pageSize 每页数量
@@ -1448,7 +1059,7 @@ adder: suncheng date: 2017年11月27日
   * 获取指定任务的 子任务列表
   * @param {Object} args 请求参数
   * @param {string} args.taskID 任务id
-  * @param {} args.sort 排序规则
+  * @param {} args.sort
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -1462,8 +1073,8 @@ adder: suncheng date: 2017年11月27日
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
   * @param {array} args.tagIDs 标签ids
-  * @param {} args.sort 排序规则
-  * @param {} args.status 任务状态
+  * @param {} args.sort
+  * @param {} args.status
   * @param {string} args.completeTime 完成时间
   * @param {boolean} args.withoutTag 为关联标签
   * @param {string} args.other 被查看者id
@@ -1485,13 +1096,13 @@ adder: suncheng date: 2017年11月27日
   * @param {integer} args.size 每页数量
   * @param {string} args.folderID 项目id
   * @param {array} args.tagIDs 标签ids
-  * @param {} args.sort 排序规则
-  * @param {} args.status 任务状态
+  * @param {} args.sort
+  * @param {} args.status
   * @param {string} args.completeTime 完成时间
   * @param {boolean} args.withoutTag 为关联标签
   * @param {object} args.controlSelectedDic 控件筛选
   * @param {array} args.chargeIds 负责人筛选
-  * @param {} args.filterType 任务查询类别
+  * @param {} args.filterType
   * @param {string} args.keywords 关键字
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -1520,7 +1131,7 @@ adder: suncheng date: 2017年11月27日
   * 获取任务详情
   * @param {Object} args 请求参数
   * @param {string} args.taskID 任务ID
-  * @param {} args.sort 排序规则
+  * @param {} args.sort
   * @param {boolean} args.isDecode 是否结义
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -1568,17 +1179,6 @@ adder: suncheng date: 2017年11月27日
    getTaskWithMe: function (args, options = {}) {
      
      return $.api('TaskCenter', 'GetTaskWithMe', args, options);
-   },
-  /**
-  * 获取当前人员的任务数量
-  * @param {Object} args 请求参数
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getTaskNumber: function (args, options = {}) {
-     
-     return $.api('TaskCenter', 'GetTaskNumber', args, options);
    },
   /**
   * 添加任务（指定项目不存在时创建项目）
@@ -1753,23 +1353,10 @@ adder: suncheng date: 2017年11月27日
      return $.api('TaskCenter', 'UpdateTaskStageID', args, options);
    },
   /**
-  * 修改任务看板ID  （多个）
-  * @param {Object} args 请求参数
-  * @param {string} args.taskIDstr 任务ID 使用逗号隔开
-  * @param {string} args.stageID 看板ID
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   batchUpdateTaskStageID: function (args, options = {}) {
-     
-     return $.api('TaskCenter', 'BatchUpdateTaskStageID', args, options);
-   },
-  /**
   * 修改任务完成状态 （单个）
   * @param {Object} args 请求参数
   * @param {string} args.taskID 任务ID
-  * @param {} args.status 状态
+  * @param {} args.status
   * @param {boolean} args.isSubTask 是否应用子任务
   * @param {integer} args.code 修改规则
   * @param {Object} options 配置参数
@@ -1784,7 +1371,7 @@ adder: suncheng date: 2017年11月27日
   * 修改任务完成状态 （多个）
   * @param {Object} args 请求参数
   * @param {string} args.taskIDstr 任务ID   使用逗号隔开
-  * @param {} args.status 状态
+  * @param {} args.status
   * @param {boolean} args.isSubTask 是否应用子任务
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -1806,19 +1393,6 @@ adder: suncheng date: 2017年11月27日
    updateTaskParentID: function (args, options = {}) {
      
      return $.api('TaskCenter', 'UpdateTaskParentID', args, options);
-   },
-  /**
-  * 修改任务母任务ID（多个）
-  * @param {Object} args 请求参数
-  * @param {string} args.taskIDstr 任务ID   使用逗号隔开
-  * @param {string} args.parentID 母任务ID
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   batchUpdateTaskParentID: function (args, options = {}) {
-     
-     return $.api('TaskCenter', 'BatchUpdateTaskParentID', args, options);
    },
   /**
   * 修改任务母任务ID （单个）
@@ -1995,7 +1569,7 @@ adder: suncheng date: 2017年11月27日
   * 修改任务成员 的分类  单个和多个
   * @param {Object} args 请求参数
   * @param {string} args.taskIDstr 任务
-  * @param {} args.classify 分类
+  * @param {} args.classify
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -2016,5 +1590,146 @@ adder: suncheng date: 2017年11月27日
    addTaskTopicFromPost: function (args, options = {}) {
      
      return $.api('TaskCenter', 'AddTaskTopicFromPost', args, options);
+   },
+  /**
+  * 任务添加附件
+adder: suncheng date: 2017年11月29日
+  * @param {Object} args 请求参数
+  * @param {string} args.taskId 任务Id
+  * @param {string} args.atts 本地附件
+  * @param {string} args.knowledgeAtts 知识附件
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   addTaskAttachments: function (args, options = {}) {
+     
+     return $.api('TaskCenter', 'AddTaskAttachments', args, options);
+   },
+  /**
+  * 搜索项目 OK
+  * @param {Object} args 请求参数
+  * @param {string} args.keywords 搜索内容
+  * @param {string} args.otherAccountID 搜索他人,他人accountID,协作
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   searchFolderList: function (args, options = {}) {
+     
+     return $.api('TaskCenter', 'SearchFolderList', args, options);
+   },
+  /**
+  * 获取项目计数
+  * @param {Object} args 请求参数
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getProjectsFolderNotice: function (args, options = {}) {
+     
+     return $.api('TaskCenter', 'GetProjectsFolderNotice', args, options);
+   },
+  /**
+  * 查询指定网络下文件夹和初层项目列表
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.accountID 他人accountID
+  * @param {string} args.fileIDs 文件列表,分隔
+  * @param {boolean} args.hasFiles 有文件夹
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getMainFolderList: function (args, options = {}) {
+     
+     return $.api('TaskCenter', 'GetMainFolderList', args, options);
+   },
+  /**
+  * 获取指定文件下下的所有项目
+  * @param {Object} args 请求参数
+  * @param {string} args.fileID 文件夹ID
+  * @param {string} args.accountID 他人accountID
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getMainFolderListInFile: function (args, options = {}) {
+     
+     return $.api('TaskCenter', 'GetMainFolderListInFile', args, options);
+   },
+  /**
+  * 获取指定网络下的隐藏项目
+  * @param {Object} args 请求参数
+  * @param {string} args.accountID 他人accountID
+  * @param {string} args.projectId 网络ID
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getHiddenFolderList: function (args, options = {}) {
+     
+     return $.api('TaskCenter', 'GetHiddenFolderList', args, options);
+   },
+  /**
+  * 获取指定网络ID下已归档的项目
+  * @param {Object} args 请求参数
+  * @param {string} args.accountID 他人accountID
+  * @param {string} args.projectId 网络ID
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getArchiveFolderList: function (args, options = {}) {
+     
+     return $.api('TaskCenter', 'GetArchiveFolderList', args, options);
+   },
+  /**
+  * 获取置顶项目
+  * @param {Object} args 请求参数
+  * @param {string} args.accountID 用户id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getTopFolderList: function (args, options = {}) {
+     
+     return $.api('TaskCenter', 'GetTopFolderList', args, options);
+   },
+  /**
+  * 获取项目下属
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {boolean} args.isFirst 是否直接下属
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getSubordinate: function (args, options = {}) {
+     
+     return $.api('TaskCenter', 'GetSubordinate', args, options);
+   },
+  /**
+  * 获取指定项目的普通看板视图（默认只有第一页获取，
+具体单个阶段请求GetFolderTaskListByStageID）
+  * @param {Object} args 请求参数
+  * @param {string} args.folderID 项目ID
+  * @param {array} args.tagIDs 标签IDs
+  * @param {} args.sort
+  * @param {} args.status
+  * @param {string} args.completeTime 任务完成时间
+  * @param {boolean} args.withoutTag 未关联标签的任务
+  * @param {integer} args.pageSize 页面尺寸
+  * @param {object} args.controlSelectedDic 控件筛选
+  * @param {array} args.chargeIds 负责人筛选
+  * @param {} args.filterType
+  * @param {string} args.keywords 关键字
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getTaskListWithStageView: function (args, options = {}) {
+     
+     return $.api('TaskCenter', 'GetTaskListWithStageView', args, options);
    },
 };

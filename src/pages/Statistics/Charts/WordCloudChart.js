@@ -86,13 +86,15 @@ export default class extends Component {
     }
   }
   getComponentConfig(props) {
-    const { themeColor, projectId, customPageConfig, reportData } = props;
-    const { chartColor } = customPageConfig;
-    const { map, displaySetup, xaxes, yaxisList, style = {}, reportId } = reportData;
+    const { themeColor, projectId, customPageConfig = {}, reportData } = props;
+    const { chartColor, chartColorIndex = 1 } = customPageConfig;
+    const { map, displaySetup, xaxes, yaxisList, reportId } = reportData;
+    const styleConfig = reportData.style || {};
+    const style = chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0) ? { ...styleConfig, ...chartColor } : styleConfig;
     const data = formatChartData(map, yaxisList);
     const newYaxisList = formatYaxisList(data, yaxisList);
     const { ydisplay } = displaySetup;
-    const colors = getChartColors(chartColor || style, themeColor, projectId);
+    const colors = getChartColors(style, themeColor, projectId);
     const baseConfig = {
       data,
       // meta: {

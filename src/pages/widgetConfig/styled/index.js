@@ -654,6 +654,7 @@ export const TitleContentWrap = styled.div`
   border-radius: 3px;
   display: flex;
   flex-direction: ${props => (props.displayRow ? 'row' : 'column')};
+  ${props => (props.readOnly ? 'opacity: 0.6;' : '')}
   .nameAndStatus {
     display: flex;
     ${props => (props.displayRow ? 'line-height: 18px;' : 'align-items: center;')}
@@ -685,8 +686,11 @@ export const TitleContentWrap = styled.div`
       text-align: ${props => (props.textAlign === '1' ? 'left' : 'right')};
       font-size: ${props => props.titleSize};
       line-height: ${props => (parseInt(props.titleSize) > 18 ? props.titleSize : '18px')};
-      color: ${props => props.titleColor};
+      color: ${props => props.titleColor || '#757575'};
       ${props => props.titleStyle || ''};
+      &.hideTitle {
+        color: #9e9e9e !important;
+      }
     }
     .isSplitLine {
       font-size: 15px;
@@ -821,6 +825,22 @@ export const NumberRange = styled.div`
   }
   input {
     width: 100%;
+  }
+`;
+
+export const BothRelateInfo = styled.div`
+  border: 1px solid #e0e0e0;
+  border-radius: 3px;
+  padding: 10px 12px;
+  background-color: #fff;
+  .displayType {
+    margin-top: 8px;
+  }
+  span {
+    margin: 0 4px;
+  }
+  .sourceName {
+    color: #2196f3;
   }
 `;
 

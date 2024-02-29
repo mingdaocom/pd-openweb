@@ -49,7 +49,8 @@ export const getUserRole = (type, isLock) => {
   if (type === APP_ROLE_TYPE.RUNNER_ROLE) {
     data.isRunner = !isLock;
   }
-  if (type === APP_ROLE_TYPE.RUNNER_DEVELOPERS_ROLE) {//即是开发者又是运营者
+  if (type === APP_ROLE_TYPE.RUNNER_DEVELOPERS_ROLE) {
+    //即是开发者又是运营者
     data.isRunner = !isLock;
     data.isDeveloper = !isLock;
   }
@@ -61,7 +62,7 @@ export const canEditApp = (type, isLock) => {
   return !!isAdmin || !!isOwner || !!isDeveloper;
 };
 //可以管理应用下所有数据权限(管理员，拥有者，运营者)
-export const canEditData = (type) => {
+export const canEditData = type => {
   const { isAdmin, isOwner, isRunner } = getUserRole(type);
   return !!isAdmin || !!isOwner || !!isRunner;
 };
@@ -91,4 +92,24 @@ export function getItemByRowId(rowId = null, data = []) {
     };
     return treeFind(data);
   }
+}
+
+export function sortDataByCustomItems(data, view = {}, controls = []) {
+  let customItems = safeParse(_.get(view, 'advancedSetting.customitems'), 'array');
+  if (_.get(view, 'advancedSetting.navshow') === '2') {
+    customItems = safeParse(_.get(view, 'advancedSetting.navfilters'), 'array');
+  }
+  const viewControls = _.find(controls, c => c.controlId === view.viewControl);
+  if (!_.isEmpty(customItems) && viewControls) {
+    const sortIds = customItems.map(i => {
+      const itemVal = safeParse(i);
+      return _.includes([9, 10, 11, 28], viewControls.type) ? i : itemVal.id || itemVal.accountId;
+    });
+    const keyByOrder = new Map(sortIds.map((t, i) => [t, i]));
+    const sortOriginData = _.sortBy(data, 'sort');
+    // 未指定固定第一项
+    const sortData = _.sortBy(sortOriginData, o => (o.key === '-1' ? -999 : keyByOrder.get(o.key)));
+    return sortData.map((item, idx) => ({ ...item, sort: idx + 1 }));
+  }
+  return data;
 }

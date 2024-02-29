@@ -423,17 +423,17 @@ export default class Print extends Component {
           const getTypeName = type => {
             switch (type) {
               case 1:
-                return _l('任务') + _l('：');
+                return _l('任务') + '：';
               case 2:
-                return _l('项目') + _l('：');
+                return _l('项目') + '：';
               case 3:
-                return _l('日程') + _l('：');
+                return _l('日程') + '：';
               case 4:
-                return _l('文件') + _l('：');
+                return _l('文件') + '：';
               case 5:
-                return _l('申请单') + _l('：');
+                return _l('申请单') + '：';
               case 7:
-                return _l('重复日程') + _l('：');
+                return _l('重复日程') + '：';
             }
           };
           const relationshipItem = (relationValueItem, index) => {

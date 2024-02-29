@@ -9,7 +9,7 @@ const ClickAwayable = createDecoratedComponent(withClickAway);
 const clickAwayExceptions = [
   '.Discussion',
   '#folderSelectDialog_container',
-  '#addLinkFileDialog_container',
+  '.addLinkFileDialog',
   '#attachemntsPreviewContainer',
 ];
 

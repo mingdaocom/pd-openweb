@@ -1,6 +1,6 @@
 import React from 'react';
 import BaseMessageComponent from '../baseComponent/messageContent';
-import { createLinksForMessage } from 'src/components/common/function';
+import { createLinksForMessage } from 'src/util';
 import { formatInboxItem } from '../../util';
 import { MSGTYPES } from '../../constants';
 

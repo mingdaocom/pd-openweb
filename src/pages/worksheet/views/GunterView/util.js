@@ -532,7 +532,7 @@ export const fillRecordTimeBlockColor = (record, colorControl = {}) => {
   if (record[controlId] && colorControl.enumDefault2 === 1) {
     const value = JSON.parse(record[controlId]);
     const colorId = _.isArray(value) ? value[0] : null;
-    const { color } = _.find(options, { key: colorId }) || {};
+    const { color } = _.find(options, { key: colorId && colorId.startsWith('other') ? 'other' : colorId }) || {};
     record.color = color || defaultColor;
   } else {
     record.color = defaultColor;

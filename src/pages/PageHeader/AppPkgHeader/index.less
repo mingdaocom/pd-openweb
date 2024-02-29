@@ -104,9 +104,21 @@
       }
     }
     .homepageIconWrap {
-      background: rgba(0, 0, 0, 0.03) !important;
+      background: rgba(0, 0, 0, 0.04) !important;
+      .homepageIcon .icon {
+        color: rgba(0, 0, 0, 0.3);
+      }
       .homepageIcon .item {
         background: rgba(0, 0, 0, 0.3);
+      }
+      &:hover {
+        background: rgba(0, 0, 0, 0.08) !important;
+        .homepageIcon .icon {
+          color: rgba(0, 0, 0, 0.7);
+        }
+        .homepageIcon .item {
+          background: rgba(0, 0, 0, 0.7);
+        }
       }
     }
     .appIconAndName {
@@ -208,6 +220,9 @@
     }
     .homepageIconWrap {
       background: rgba(255, 255, 255, 0.1) !important;
+      .homepageIcon .icon {
+        color: rgba(255, 255, 255, 0.85);
+      }
       .homepageIcon .item {
         background: rgba(255, 255, 255, 0.85);
       }
@@ -365,6 +380,9 @@
       margin: 0 5px 0 10px;
       cursor: pointer;
       width: max-content;
+      &:hover {
+        background: rgba(0, 0, 0, 0.2);
+      }
     }
 
     .backlogWrap {
@@ -437,8 +455,13 @@
     }
   }
 
-  .homepageIcon:hover .item {
-    background-color: #fff;
+  .homepageIconWrap:hover .homepageIcon {
+    .icon {
+      color: #fff;
+    }
+    .item {
+      background-color: #fff;
+    }
   }
 
   .appName {

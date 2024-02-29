@@ -64,7 +64,6 @@ export default class PortalMg extends Component {
       '.PositionContainer-wrapper',
       '.groupSettingAvatarSelect',
       '.ui-timepicker-list',
-      '.businessCardSite',
       '.selectUserBox',
       '.warpDatePicker',
       '.dropdownTrigger',

@@ -9,9 +9,12 @@ import appManagement from 'src/api/appManagement';
 import './EditUserExtendInfo.less';
 
 const EditUserExtendInfoCon = styled.div`
+  padding: 0 40px;
+  overflow: auto;
+  height: 100%;
   .selectWorksheet,
   .selectControl {
-    width: 560px;
+    width: 100%;
     height: 36px;
   }
   .ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input) .ant-select-selector {
@@ -43,9 +46,6 @@ const EditUserExtendInfoCon = styled.div`
   .clearBtn:hover {
     border: 1px solid #ccc;
     background: #fff !important;
-  }
-  .buttons {
-    width: 560px;
   }
   .cancelBtn {
     float: right;

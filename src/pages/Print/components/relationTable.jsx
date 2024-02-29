@@ -10,10 +10,8 @@ let minW = 33;
 const ResizeableTitle = props => {
   const { onResize, width, index, ...restProps } = props;
   let borderLeftNone = index === 0 ? { borderLeft: 'none' } : {};
-  // if (!width) {
-  //   return <th {...restProps}/>;
-  // }
   let id = restProps.className.split('ant-table-cell ')[1];
+
   return (
     <Resizable
       width={width}
@@ -39,7 +37,7 @@ const ResizeableTitle = props => {
         $(`.${id}`).addClass('borderLine');
       }}
     >
-      <th
+      <td
         {...restProps}
         style={{
           width: `${width}px`,
@@ -356,44 +354,40 @@ export default class TableRelation extends React.Component {
         cellPadding="0"
         cellSpacing="0"
       >
-        <thead>
-          <tr>
-            {columns.map((item, index) => {
-              return ResizeableTitle({
-                ...item,
-                ...item.onHeaderCell(item),
-                children: [undefined, item.title],
-                className: `ant-table-cell ${item.className}`,
-                index: index,
-              });
-            })}
-          </tr>
-        </thead>
-        <tbody>
-          {dataSource.map((item, i) => {
-            return (
-              <tr>
-                {columns.map((column, index) => {
-                  let borderLeftNone = index === 0 ? { borderLeft: 'none' } : {};
-
-                  return (
-                    <td
-                      style={{
-                        width: column.width,
-                        ...STYLE_PRINT.relationPrintTable_Tr_Td,
-                        ...borderLeftNone,
-                        borderBottomColor: index + 1 === column.length ? '#000' : '#ddd',
-                      }}
-                      className="WordBreak"
-                    >
-                      {column.render(item[column.dataIndex], item, i)}
-                    </td>
-                  );
-                })}
-              </tr>
-            );
+        <tr>
+          {columns.map((item, index) => {
+            return ResizeableTitle({
+              ...item,
+              ...item.onHeaderCell(item),
+              children: [undefined, item.title],
+              className: `ant-table-cell ${item.className}`,
+              index: index,
+            });
           })}
-        </tbody>
+        </tr>
+        {dataSource.map((item, i) => {
+          return (
+            <tr>
+              {columns.map((column, index) => {
+                let borderLeftNone = index === 0 ? { borderLeft: 'none' } : {};
+
+                return (
+                  <td
+                    style={{
+                      width: column.width,
+                      ...STYLE_PRINT.relationPrintTable_Tr_Td,
+                      ...borderLeftNone,
+                      borderBottomColor: index + 1 === column.length ? '#000' : '#ddd',
+                    }}
+                    className="WordBreak"
+                  >
+                    {column.render(item[column.dataIndex], item, i)}
+                  </td>
+                );
+              })}
+            </tr>
+          );
+        })}
       </table>
     );
   }

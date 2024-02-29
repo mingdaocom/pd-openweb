@@ -169,7 +169,12 @@ export default class ApprovalProcess extends Component {
           <Fragment>
             <div className="Font13 mTop20 bold">{_l('发起人')}</div>
             {(data.accounts || []).length ? (
-              <Member companyId={this.props.companyId} accounts={data.accounts} updateSource={this.updateSource} />
+              <Member
+                companyId={this.props.companyId}
+                appId={this.props.relationType === 2 ? this.props.relationId : ''}
+                accounts={data.accounts}
+                updateSource={this.updateSource}
+              />
             ) : (
               <div
                 className="mTop12 flexRow ThemeColor3 workflowDetailAddBtn"
@@ -328,6 +333,7 @@ export default class ApprovalProcess extends Component {
           data={{ ...data }}
           icon="icon-approval"
           bg="BGDarkBlue"
+          removeNodeName
           updateSource={this.updateSource}
         />
         <div className="flex">

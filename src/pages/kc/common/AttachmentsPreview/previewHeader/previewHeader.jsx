@@ -4,10 +4,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
-import Menu from 'ming-ui/components/Menu';
-import MenuItem from 'ming-ui/components/MenuItem';
-import Icon from 'ming-ui/components/Icon';
-import Popup from 'ming-ui/components/Popup';
+import { Menu, MenuItem, Icon, Popup, Dialog } from 'ming-ui';
 import {
   renameFile,
   saveToKnowlwdge,
@@ -23,7 +20,6 @@ import EditableBlock from '../editableBlock';
 import _ from 'lodash';
 import 'rc-trigger/assets/index.css';
 import VersionList from '../versionList';
-import 'src/components/mdDialog/dialog';
 
 class PreviewHeader extends React.Component {
   static propTypes = {
@@ -94,16 +90,14 @@ class PreviewHeader extends React.Component {
   };
 
   handleLogin = () => {
-    const dialog = $.DialogLayer({
-      container: {
-        header: _l('保存到'),
-        content: _l('请先登录'),
-        yesText: _l('登录'),
-        yesFn: () => {
-          window.location = '/login?ReturnUrl=' + encodeURIComponent(window.location.href);
-        },
-      },
-    });
+    Dialog.confirm({
+      title: _l('保存到'),
+      children: <div>{_l('请先登录')}</div>,
+      okText: _l('登录'),
+      onOk: () => {
+        window.location = '/login?ReturnUrl=' + encodeURIComponent(window.location.href);
+      }
+    })
   };
 
   downloadAttachment = () => {
@@ -235,9 +229,7 @@ class PreviewHeader extends React.Component {
           {showSaveToKnowlege &&
             md.global.Account.accountId &&
             !md.global.Account.isPortal &&
-            !window.share &&
-            !_.get(window, 'shareState.isPublicForm') &&
-            !_.get(window, 'shareState.isPublicQuery') && (
+            !_.get(window, 'shareState.shareId') && (
               <Trigger
                 popupVisible={this.state.showSaveTo}
                 onPopupVisibleChange={visible => {
@@ -313,10 +305,13 @@ class PreviewHeader extends React.Component {
             showDownload &&
             ((attachment.originNode || attachment.sourceNode || {}).fileID ||
               (attachment.originNode || attachment.sourceNode || {}).fileId) &&
-            !window.share &&
+            !_.get(window, 'shareState.shareId') &&
             !(
               _.get(window, 'shareState.isPublicQuery') ||
               _.get(window, 'shareState.isPublicForm') ||
+              _.get(window, 'shareState.isPublicView') ||
+              _.get(window, 'shareState.isPublicPage') ||
+              _.get(window, 'shareState.isPublicRecord') ||
               _.get(window, 'shareState.isPublicWorkflowRecord')
             ) && (
               <div className="openNewPage">
@@ -336,7 +331,7 @@ class PreviewHeader extends React.Component {
           {canDownload &&
             showShare &&
             !md.global.Account.isPortal &&
-            !window.share &&
+            !_.get(window, 'shareState.shareId') &&
             !_.get(window, 'shareState.isPublicForm') &&
             !_.get(window, 'shareState.isPublicQuery') &&
             !_.get(window, 'shareState.isPublicWorkflowRecord') && (

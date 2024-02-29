@@ -118,7 +118,7 @@ export default function Date(props) {
           {dateRange === 18 && (
             <div className="customDate dateInputCon mTop10">
               <DatePicker
-                {...control}
+                {...{ ...control, advancedSetting: { ...control.advancedSetting, min: '', max: '' } }}
                 value={value && moment(value)}
                 dropdownClassName="scrollInTable"
                 onChange={date => {

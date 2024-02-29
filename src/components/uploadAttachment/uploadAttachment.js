@@ -8,9 +8,10 @@ import headerTpl from './tpl/header.htm';
 import saveToKcHtml from './tpl/addToKc.htm';
 import selectNode from 'src/components/kc/folderSelectDialog/folderSelectDialog';
 import '@mdfe/jquery-plupload';
-import { index as dialog } from 'src/components/mdDialog/dialog';
 import { formatFileSize, getClassNameByExt, htmlEncodeReg, getToken } from 'src/util';
 import _ from 'lodash';
+import { Dialog } from 'ming-ui';
+import React from 'react';
 var MAX_IMG_VIEW_SIZE = 20971520;
 
 export default (function ($) {
@@ -537,29 +538,26 @@ export default (function ($) {
                   up.stop();
                   up.splice(0, files.length);
 
-                  var html =
-                    '<div id="uploadStorageOverDialog">' +
-                    '<div class="mTop20 mLeft30">' +
-                    '<div class="uploadStorageOverLogo Left"></div>' +
-                    '<div class="uploadStorageOverTxt Left">' +
-                    _l('您已经没有足够的流量来上传该附件！') +
-                    '</div>' +
-                    '<div class="Clear"></div>' +
-                    '</div>' +
-                    '<div class="mTop20 mBottom20 TxtCenter">' +
-                    '<a href="/personal?type=enterprise" class="uploadStorageOverBtn btnBootstrap btnBootstrap-primary btnBootstrap-small">' +
-                    _l('升级至付费版') +
-                    '</a>' +
-                    '</div>' +
-                    '</div>';
-
-                  dialog({
-                    container: {
-                      content: html,
-                      width: 450,
-                      yesText: false,
-                      noText: false,
-                    },
+                  Dialog.confirm({
+                    width: 450,
+                    noFooter: true,
+                    children: (
+                      <div id="uploadStorageOverDialog">
+                        <div className="mTop20 mLeft30">
+                          <div className="uploadStorageOverLogo Left"></div>
+                          <div className="uploadStorageOverTxt Left">{_l('您已经没有足够的流量来上传该附件！')}</div>
+                          <div className="Clear"></div>
+                        </div>
+                        <div className="mTop20 mBottom20 TxtCenter">
+                          <a
+                            href="/personal?type=enterprise"
+                            className="uploadStorageOverBtn btnBootstrap btnBootstrap-primary btnBootstrap-small"
+                          >
+                            {_l('升级至付费版')}
+                          </a>
+                        </div>
+                      </div>
+                    ),
                   });
                 }
               });
@@ -688,7 +686,7 @@ export default (function ($) {
           if (!obj.isDelete) {
             var fullImgPath = '';
             if (obj.fileSize > MAX_IMG_VIEW_SIZE) {
-              fullImgPath = '/images/noimage.png';
+              fullImgPath = '/staticfiles/images/noimage.png';
             } else {
               fullImgPath = `${obj.url}&imageView2/1/w/119/h/83`;
             }

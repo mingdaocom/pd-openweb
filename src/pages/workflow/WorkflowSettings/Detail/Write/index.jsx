@@ -89,7 +89,9 @@ export default class Write extends Component {
             selectNodeObj: result.selectNodeObj,
             flowNodeMap: Object.assign({}, data.flowNodeMap, {
               [OPERATION_TYPE.BEFORE]: result.flowNodeMap[OPERATION_TYPE.BEFORE],
+              [OPERATION_TYPE.PASS]: result.flowNodeMap[OPERATION_TYPE.PASS],
             }),
+            formProperties: result.formProperties,
           });
         }
 
@@ -144,6 +146,7 @@ export default class Write extends Component {
       operationUserRange,
       flowNodeMap,
       userTaskNullMap,
+      addNotAllowView,
     } = data;
 
     if (!selectNodeId) {
@@ -176,6 +179,7 @@ export default class Write extends Component {
         operationUserRange,
         flowNodeMap: clearFlowNodeMapParameter(flowNodeMap),
         userTaskNullMap,
+        addNotAllowView,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -230,8 +234,19 @@ export default class Write extends Component {
   }
 
   render() {
-    const { selectNodeType } = this.props;
     const { data, showSelectUserDialog, tabIndex } = this.state;
+    const SOURCE_HANDLE_LIST = [
+      {
+        title: _l('节点开始时更新'),
+        desc: _l('流程进入此节点且填写开始前，更新数据对象的字段值（退回至此节点也会触发更新）'),
+        key: OPERATION_TYPE.BEFORE,
+      },
+      {
+        title: _l('填写后更新'),
+        desc: _l('节点通过后，更新数据对象的字段值'),
+        key: OPERATION_TYPE.PASS,
+      },
+    ];
 
     if (_.isEmpty(data)) {
       return <LoadDiv className="mTop15" />;
@@ -260,7 +275,12 @@ export default class Write extends Component {
 
               <div className="Font13 mTop25 bold">{_l('指定人')}</div>
 
-              <Member companyId={this.props.companyId} accounts={data.accounts} updateSource={this.updateSource} />
+              <Member
+                companyId={this.props.companyId}
+                appId={this.props.relationType === 2 ? this.props.relationId : ''}
+                accounts={data.accounts}
+                updateSource={this.updateSource}
+              />
               <div
                 className="mTop12 flexRow ThemeColor3 workflowDetailAddBtn"
                 onClick={() => this.setState({ showSelectUserDialog: true })}
@@ -309,6 +329,7 @@ export default class Write extends Component {
 
                   <OperatorEmpty
                     projectId={this.props.companyId}
+                    appId={this.props.relationType === 2 ? this.props.relationId : ''}
                     isApproval={this.props.isApproval}
                     title={_l('填写人为空时')}
                     titleInfo={_l(
@@ -402,6 +423,7 @@ export default class Write extends Component {
                           nodeId={this.props.selectNodeId}
                           selectNodeId={data.selectNodeId}
                           data={data.formProperties}
+                          addNotAllowView={data.addNotAllowView}
                           updateSource={this.updateSource}
                           showCard={true}
                         />
@@ -419,37 +441,39 @@ export default class Write extends Component {
               {tabIndex === 3 && (
                 <Fragment>
                   {data.selectNodeId ? (
-                    <Fragment>
-                      <div className="Font13 bold mTop25">{_l('节点开始时更新')}</div>
-                      <div className="Font13 Gray_9e mTop10">
-                        {_l('流程进入此节点且填写开始前，更新数据对象的字段值（退回至此节点也会触发更新）')}
-                      </div>
-                      <UpdateFields
-                        type={1}
-                        companyId={this.props.companyId}
-                        processId={this.props.processId}
-                        relationId={this.props.relationId}
-                        selectNodeId={this.props.selectNodeId}
-                        nodeId={data.flowNodeMap[OPERATION_TYPE.BEFORE].selectNodeId}
-                        controls={data.flowNodeMap[OPERATION_TYPE.BEFORE].controls.filter(o => o.type !== 29)}
-                        fields={data.flowNodeMap[OPERATION_TYPE.BEFORE].fields}
-                        formulaMap={data.flowNodeMap[OPERATION_TYPE.BEFORE].formulaMap}
-                        updateSource={(obj, callback = () => {}) =>
-                          this.updateSource(
-                            {
-                              flowNodeMap: Object.assign({}, data.flowNodeMap, {
-                                [OPERATION_TYPE.BEFORE]: Object.assign(
-                                  {},
-                                  data.flowNodeMap[OPERATION_TYPE.BEFORE],
-                                  obj,
-                                ),
-                              }),
-                            },
-                            callback,
-                          )
-                        }
-                      />
-                    </Fragment>
+                    SOURCE_HANDLE_LIST.map(item => {
+                      const sourceData = data.flowNodeMap[item.key] || {};
+
+                      return (
+                        <Fragment key={item.key}>
+                          <div className="Font13 bold mTop25">{item.title}</div>
+                          <div className="Font13 Gray_9e mTop10">{item.desc}</div>
+                          <UpdateFields
+                            type={1}
+                            companyId={this.props.companyId}
+                            processId={this.props.processId}
+                            relationId={this.props.relationId}
+                            selectNodeId={this.props.selectNodeId}
+                            nodeId={sourceData.selectNodeId}
+                            controls={sourceData.controls.filter(o => o.type !== 29)}
+                            fields={sourceData.fields}
+                            showCurrent={true}
+                            filterType={item.key === OPERATION_TYPE.BEFORE ? 7 : 0}
+                            formulaMap={sourceData.formulaMap}
+                            updateSource={(obj, callback = () => {}) =>
+                              this.updateSource(
+                                {
+                                  flowNodeMap: Object.assign({}, data.flowNodeMap, {
+                                    [item.key]: Object.assign({}, data.flowNodeMap[item.key], obj),
+                                  }),
+                                },
+                                callback,
+                              )
+                            }
+                          />
+                        </Fragment>
+                      );
+                    })
                   ) : (
                     <div className="Gray_9e Font13 flexRow flowDetailTips mTop25">
                       <i className="icon-task-setting_promet Font16" />

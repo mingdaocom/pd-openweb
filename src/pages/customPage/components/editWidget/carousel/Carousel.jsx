@@ -272,7 +272,7 @@ export default function CarouselPreview(props) {
     if (editable) return;
 
     // 打开记录
-    if (action === 1 && !window.share) {
+    if (action === 1 && !_.get(window, 'shareState.shareId')) {
       const { appId } = await homeAppAjax.getAppSimpleInfo({ workSheetId: worksheetId });
       addBehaviorLog('worksheetRecord', worksheetId, { rowId: rowid }); // 埋点
 

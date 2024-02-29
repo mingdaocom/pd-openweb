@@ -25,6 +25,7 @@ const BtnForSure = styled.div`
     display: inline-block;
     &.isUnAb {
       background-color: #8fcaf9;
+      cursor: not-allowed;
     }
   }
 `;

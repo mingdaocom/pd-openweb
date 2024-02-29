@@ -15,6 +15,7 @@ import { emitter, isKeyBoardInputChar } from 'worksheet/util';
 import { FROM } from './enum';
 import { browserIsMobile, accMul, formatStrZero, formatNumberFromInput } from 'src/util';
 import _ from 'lodash';
+import ChildTableContext from '../ChildTable/ChildTableContext';
 
 const InputCon = styled.div`
   box-sizing: border-box
@@ -66,7 +67,16 @@ Input.propTypes = {
   onChange: PropTypes.func,
 };
 
+function getPopupContainer(popupContainer, rows) {
+  if (_.get(rows, 'length') && _.get(rows, 'length') <= 5 && popupContainer().closest('.customFieldsContainer')) {
+    return () =>
+      _.get(rows, 'length') && _.get(rows, 'length') <= 5 && popupContainer().closest('.customFieldsContainer');
+  }
+  return popupContainer;
+}
+
 export default class Text extends React.Component {
+  static contextType = ChildTableContext;
   static propTypes = {
     className: PropTypes.string,
     style: PropTypes.shape({}),
@@ -346,6 +356,9 @@ export default class Text extends React.Component {
       return;
     }
     e.stopPropagation();
+    if (!this.state.forceShowFullValue) {
+      e.preventDefault();
+    }
     this.setState({ forceShowFullValue: true });
   }
   render() {
@@ -363,6 +376,7 @@ export default class Text extends React.Component {
       editable,
       onClick,
     } = this.props;
+    const { rows } = this.context || {};
     let { value, forceShowFullValue } = this.state;
     const isMobile = browserIsMobile();
     const disabledInput = cell.advancedSetting.dismanual === '1';
@@ -461,7 +475,7 @@ export default class Text extends React.Component {
       <Trigger
         action={['click']}
         popup={editcontent}
-        getPopupContainer={popupContainer}
+        getPopupContainer={this.isMultipleLine ? getPopupContainer(popupContainer, rows) : popupContainer}
         popupClassName="filterTrigger"
         popupVisible={isediting}
         destroyPopupOnHide={!(navigator.userAgent.match(/[Ss]afari/) && !navigator.userAgent.match(/[Cc]hrome/))} // 不是 Safari

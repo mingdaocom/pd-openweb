@@ -12,7 +12,7 @@ import { TimePicker } from 'antd';
 import { FORMAT_TEXT } from '../../../enum';
 import { formatResponseData } from 'src/components/UploadFiles/utils';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import { selectOrgRole } from 'src/components/DialogSelectOrgRole';
+import selectOrgRole from 'src/components/dialogSelectOrgRole';
 import moment from 'moment';
 
 export default class SingleControlValue extends Component {
@@ -158,6 +158,7 @@ export default class SingleControlValue extends Component {
         sourceAppId={this.props.sourceAppId}
         sourceNodeId={this.props.sourceNodeId}
         isIntegration={this.props.isIntegration}
+        filterType={this.props.filterType}
         dataSource={
           item.type === 29 ? (_.find(this.props.controls, obj => obj.controlId === item.fieldId) || {}).dataSource : ''
         }

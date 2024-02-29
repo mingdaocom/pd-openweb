@@ -9,6 +9,7 @@ import Member from '../Member';
 
 export default ({
   projectId,
+  appId,
   processId,
   hideGoToSettings,
   isApproval,
@@ -111,7 +112,7 @@ export default ({
       {userTaskNullType === 5 && (
         <div className="flexRow alignItemsCenter">
           <div className="mRight10 mTop12">{_l('代理人')}</div>
-          <Member leastOne accounts={userTaskNullMap[userTaskNullType]} />
+          <Member companyId={projectId} appId={appId} leastOne accounts={userTaskNullMap[userTaskNullType]} />
           <div
             className={cx('Gray_c ThemeHoverColor3 mTop12 pointer', {
               mLeft8: userTaskNullMap[userTaskNullType].length,

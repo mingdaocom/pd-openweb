@@ -45,8 +45,9 @@ const AddWrap = styled(FlexCenter)`
   background-color: rgba(3, 3, 3, 0.05);
   border-radius: 3px;
   cursor: pointer;
-  width: 280px;
+  width: ${props => `${props.width ? props.width : 280}px`};
   height: 36px;
+  min-height: 36px;
   margin: ${props => (props.noItem ? '0 auto' : ' 0 auto 8px auto')};
   border-radius: 3px;
   text-align: center;

@@ -49,20 +49,22 @@ export default class DragMast extends React.Component {
   componentDidMount() {
     const { min = 280, max = 800, direction } = this.props;
     if (this.mask) {
-      this.mask.addEventListener('mousemove', e => {
-        if (direction === 'horizontal') {
-          if (e.target === this.mask && e.offsetX > min && e.offsetX < max) {
-            this.value = e.offsetX;
-            this.drag.style.left = e.offsetX + 'px';
+      setTimeout(() => {
+        this.mask.addEventListener('mousemove', e => {
+          if (direction === 'horizontal') {
+            if (e.target === this.mask && e.offsetX > min && e.offsetX < max) {
+              this.value = e.offsetX;
+              this.drag.style.left = e.offsetX + 'px';
+            }
+          } else {
+            if (e.target === this.mask && e.offsetY > min && e.offsetY < max) {
+              this.value = e.offsetY;
+              this.drag.style.top = e.offsetY + 'px';
+            }
           }
-        } else {
-          if (e.target === this.mask && e.offsetY > min && e.offsetY < max) {
-            this.value = e.offsetY;
-            this.drag.style.top = e.offsetY + 'px';
-          }
-        }
-      });
-      document.body.addEventListener('mouseup', this.handleChange);
+        });
+        document.body.addEventListener('mouseup', this.handleChange);
+      }, 1);
     }
   }
 

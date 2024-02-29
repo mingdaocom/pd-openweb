@@ -1,6 +1,10 @@
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { reportTypes } from './Charts/common';
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
+import { isLightColor } from 'src/pages/customPage/util';
+import { defaultPivotTableStyle } from './components/ChartStyle/components/TitleStyle';
+import { defaultNumberChartStyle } from './components/ChartStyle/components/NumberStyle';
+import { getTranslateInfo } from 'src/util';
 import _ from 'lodash';
 import moment from 'moment';
 
@@ -102,7 +106,7 @@ export const chartNav = [
 /**
  * 处理 reportConfig.getReportConfigDetail 接口返回的数据
  */
-export function initConfigDetail(id, data, currentReport) {
+export function initConfigDetail(id, data, currentReport, customPageConfig) {
   const { account, createdDate, controls, ...result } = data;
   const { xaxes, displaySetup, summary, yaxisList, rightY, reportType, formulas } = result;
 
@@ -232,6 +236,39 @@ export function initConfigDetail(id, data, currentReport) {
     if (!isConfigAll) {
       result.summary.all = undefined;
       result.summary.controlList = undefined;
+    }
+    if (result.reportType === reportTypes.PivotTable) {
+      const { pivotTableStyle = defaultPivotTableStyle } = result.style || {};
+      const { pivoTableColor, pivoTableColorIndex = 1 } = customPageConfig;
+      if (pivoTableColor && pivoTableColorIndex >= (pivotTableStyle.pivoTableColorIndex || 0)) {
+        const isLight = isLightColor(pivoTableColor);
+        result.style.pivotTableStyle = {
+          ...pivotTableStyle,
+          columnBgColor: pivoTableColor,
+          lineBgColor: pivoTableColor,
+          columnTextColor: isLight ? '#757575' : '#fff',
+          lineTextColor: isLight ? '#333' : '#fff',
+        }
+      }
+    } else if (reportTypes.NumberChart == result.reportType) {
+      const { numberChartStyle = defaultNumberChartStyle } = result.style || {};
+      const { numberChartColor, numberChartColorIndex = 1 } = customPageConfig;
+      if (numberChartColor && numberChartColorIndex >= (numberChartStyle.numberChartColorIndex || 0)) {
+        result.style.numberChartStyle = {
+          ...numberChartStyle,
+          fontColor: numberChartColor,
+          // iconColor: numberChartColor,
+        }
+      }
+    } else {
+      const style = result.style || {};
+      const { chartColor, chartColorIndex = 1 } = customPageConfig;
+      if (chartColor && chartColorIndex >= (style.chartColorIndex || 0)) {
+        result.style = {
+          ...style,
+          ...chartColor
+        }
+      }
     }
   } else {
     result.name = _l('未命名图表');
@@ -366,6 +403,10 @@ export function initConfigDetail(id, data, currentReport) {
       result.displaySetup.colorRules = [];
       result.displaySetup.contrastType = 0;
       result.displaySetup.contrast = false;
+      result.displaySetup.showXAxisCount = 0;
+    }
+    if (result.country) {
+      result.country.particleSizeType = 1;
     }
   }
 
@@ -463,7 +504,9 @@ export function isXAxisControl(type) {
 /**
  * 获取字段排序图表数据
  */
-export function getSortData(type) {
+export function getSortData(control) {
+  const type = _.get(control, 'controlType');
+  const normType = _.get(control, 'normType');
   const descendingValue = 1;
   const ascendingValue = 2;
   if (
@@ -472,7 +515,8 @@ export function getSortData(type) {
     type === WIDGETS_TO_API_TYPE_ENUM.SUB_LIST ||
     type === WIDGETS_TO_API_TYPE_ENUM.FORMULA_NUMBER ||
     type === 10000000 ||
-    type === 10000001
+    type === 10000001 ||
+    [5, 6].includes(normType)
   ) {
     return [
       {
@@ -592,7 +636,10 @@ export const formatSorts = (sorts, ids, ySameList = []) => {
 /**
  * 判断是否自定义排序（只有文本和选项字段能自定义）
  */
-export const isCustomSort = (type) => {
+export const isCustomSort = control => {
+  const type = _.get(control, 'controlType');
+  const normType = _.get(control, 'normType');
+  if ([5, 6].includes(normType)) return false;
   if (
     type === WIDGETS_TO_API_TYPE_ENUM.TEXT ||
     type === WIDGETS_TO_API_TYPE_ENUM.CONCATENATE ||
@@ -615,37 +662,44 @@ export const defaultDropdownScopeData = 18;
 /**
  * 处理数值图数据对比的周期文案
  */
-export const formatContrastTypes = ({ rangeType, rangeValue }) => {
+export const formatContrastTypes = ({ rangeType, rangeValue, today }) => {
   let base = [];
   switch (rangeType) {
     case 1:
     case 2:
     case 3:
       base = [
-        { text: _l('周同比'), value: 3 },
-        { text: _l('月同比'), value: 4 },
-        { text: _l('年同比'), value: 2 }
+        { text: _l('上周同期'), value: 3 },
+        { text: _l('上月同期'), value: 4 },
+        { text: _l('去年同期'), value: 2 }
       ];
       break;
     case 4:
     case 5:
     case 6:
-      base.push({ text: _l('周同比'), value: 2 });
+      base.push({ text: _l('去年同期'), value: 2 });
       break;
     case 8:
+      if (today) {
+        base.push({ text: _l('上月同期'), value: 4 });
+      }
     case 9:
     case 10:
-      base.push({ text: _l('月同比'), value: 2 });
+      base.push({ text: _l('去年同期'), value: 2 });
       break;
     case 11:
     case 12:
     case 13:
-      base.push({ text: _l('季度同比'), value: 2 });
+      base.push({ text: _l('去年同期'), value: 2 });
       break;
     case 15:
     case 16:
     case 17:
-      base.push({ text: _l('年同比'), value: 2 });
+      base.push({ text: _l('去年同期'), value: 2 });
+      break;
+    case 20:
+      base.push({ text: _l('去年同期'), value: 2 });
+      base.push({ text: _l('固定'), value: 5 });
       break;
     default:
       break;
@@ -656,7 +710,7 @@ export const formatContrastTypes = ({ rangeType, rangeValue }) => {
 /**
  * 处理折线图数据对比的周期文案
  */
-export const formatLineChartContrastTypes = ({ rangeType, rangeValue }) => {
+export const formatLineChartContrastTypes = ({ rangeType, rangeValue, today }) => {
   const base = [{ text: _l('无'), value: 0 }];
   const last = { text: _l('与上一年相比'), value: 2 };
   switch (rangeType) {
@@ -686,7 +740,7 @@ export const formatLineChartContrastTypes = ({ rangeType, rangeValue }) => {
     case 9:
     case 10:
       // 月
-      base.push({ text: _l('与上个月相比'), value: 1 }, last);
+      base.push({ text: _l('与上个月相比'), value: today ? 4 : 1 }, last);
       break;
     case 11:
     case 12:
@@ -720,6 +774,24 @@ export const formatLineChartContrastTypes = ({ rangeType, rangeValue }) => {
   return base;
 };
 
+
+/**
+ * 获取至今天计算方式的文案
+ */
+export const getTodayTooltip = ({ rangeType, rangeValue }) => {
+  if (rangeType === 8) {
+    return _l('未勾选时，表示统计从本月1日开始到31日的数据，勾选时，表示统计从本月1日开始到今天的数据。');
+  }
+  if (rangeType === 15) {
+    return _l('未勾选时，表示统计从本年1月1日开始到12月31日的数据，勾选时，表示统计从本年1月1日开始到今天的数据。');
+  }
+  if (rangeType === 18) {
+    return _l('未勾选时，表示统计从过去%0天开始到昨天数据，勾选时，表示统计从过去%0天开始到今天的数据。', rangeValue);
+  }
+  if (rangeType === 19) {
+    return _l('未勾选时，表示统计从明天开始到将来%0天数据，勾选时，表示统计从今天开始到将来%0天的数据。', rangeValue);
+  }
+}
 
 /**
  * 统计范围
@@ -1230,7 +1302,7 @@ export const fillMapKey = result => {
  * 把 valueMap 的 key 填充到 map 和 contrastMap
  */
 export const fillValueMap = result => {
-  const { map, valueMap = {}, reportType, xaxes, split, rightY, status } = result;
+  const { map, valueMap = {}, reportType, xaxes, split, rightY, status } = fillTranslate(result);
   const splitId = split ? split.controlId : '';
 
   if (status <= 0) {
@@ -1331,6 +1403,33 @@ export const fillValueMap = result => {
 
   return fillDealMaskValueMap(result);
 };
+
+
+const fillTranslate = result => {
+  const appId = _.get(window.appInfo, 'id');
+  if (!appId) {
+    return result;
+  }
+  if (result.xaxes && result.xaxes.controlId) {
+    result.xaxes.controlName = getTranslateInfo(appId, result.xaxes.controlId).name || result.xaxes.controlName;
+  }
+  if (result.yaxisList && result.yaxisList.length) {
+    result.yaxisList.forEach(item => {
+      item.controlName = getTranslateInfo(appId, item.controlId).name || item.controlName;
+    });
+  }
+  if (result.lines && result.lines.length) {
+    result.lines.forEach(item => {
+      item.controlName = getTranslateInfo(appId, item.controlId).name || item.controlName;
+    });
+  }
+  if (result.columns && result.columns.length) {
+    result.columns.forEach(item => {
+      item.controlName = getTranslateInfo(appId, item.controlId).name || item.controlName;
+    });
+  }
+  return result;
+}
 
 /**
  * 配置掩码
@@ -1496,9 +1595,13 @@ export const dropdownDayData = [
  * 时间的数据格式
  */
 export const timeFormats = [
-  { value: 1000001, getTime: () => moment().format('YYYY/MM/DD') },
   { value: 0, getTime: () => moment().format('YYYY-MM-DD') },
+  { value: 4, getTime: () => moment().format('YYYY/MM/DD') },
+  { value: 1, getTime: () => `${moment().format('YYYY年M月D日')} (${_l('中国')})` },
+  { value: 2, getTime: () => `${moment().format('M/D/YYYY')} (US)` },
+  { value: 3, getTime: () => `${moment().format('D/M/YYYY')} (EU)` }
 ];
+
 
 /**
  * 时间粒度
@@ -1724,7 +1827,7 @@ export const checkedDropdownItem = (value, list) => {
 /**
  * 格式化统计范围时间文案
  */
-export const formatrChartTimeText = ({ rangeType, rangeValue, dynamicFilter }) => {
+export const formatrChartTimeText = ({ rangeType, rangeValue, dynamicFilter, today }) => {
   const typeName = _.find(dropdownScopeData, { value: rangeType }) || {};
   const text = isPastAndFuture(rangeType) ? typeName.text.replace(/(\...)/i, rangeValue) : typeName.text;
   if (rangeType === 20) {
@@ -1738,7 +1841,7 @@ export const formatrChartTimeText = ({ rangeType, rangeValue, dynamicFilter }) =
     const endUnitText = [5, 6].includes(endType) ? `${endCount}${ _.find(unitTypes, { value: endUnit }).name }` : '';
     return _l('%0至%1', start + startUnitText, end + endUnitText);
   } else {
-    return text;
+    return [8, 15, 18, 19].includes(rangeType) && today ? `${text}${_l('至今天')}` : text;
   }
 };
 

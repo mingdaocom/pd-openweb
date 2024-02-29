@@ -5,24 +5,10 @@ a {
     color: @themeLinkColor;
 }
 
-.ThemeBG {
-  .themeBg();
-}
-
-.themeSpecific();
-// THEME application icons
-
-.buildIconClass();
-
-.themeLoopClass(1, 12, ThemeColor, color, themeColor);
-.themeLoopClass(1, 12, ThemeBGColor, background-color, themeBgColor);
-.themeLoopClass(1, 12, ThemeHoverColor, color, themeHoverColor, ":hover");
-.themeLoopClass(1, 12, ThemeBorderColor, border-color, themeBorderColor);
-.themeLoopClass(1, 12, ThemeBorderTopColor, border-top-color, themeBorderColor);
-.themeLoopClass(1, 12, ThemeBorderRightColor, border-right-color, themeBorderColor);
-.themeLoopClass(1, 12, ThemeBorderBottomColor, border-bottom-color, themeBorderColor);
-.themeLoopClass(1, 12, ThemeBorderLeftColor, border-left-color, themeBorderColor);
-.themeLoopClass(1, 12, ThemeOutlineColor, outline-color, themeBorderColor);
+.themeLoopClass(1, 10, ThemeColor, color, themeColor);
+.themeLoopClass(1, 10, ThemeBGColor, background-color, themeBgColor);
+.themeLoopClass(1, 10, ThemeHoverColor, color, themeHoverColor, ":hover");
+.themeLoopClass(1, 10, ThemeBorderColor, border-color, themeBorderColor);
 
 .ThemeHoverBGColor1:hover {
   background-color: @themeBgColor1 !important;

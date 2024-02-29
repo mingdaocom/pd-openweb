@@ -1,7 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { Checkbox } from 'ming-ui';
 import UserHead from 'src/components/userHead';
-import UserName from 'src/components/userName';
 import departmentAjax from 'src/api/department.js';
 import { Tooltip } from 'antd';
 import cx from 'classnames';
@@ -53,6 +52,7 @@ export default class User extends Component {
               accountId: user.accountId,
             }}
             size={28}
+            projectId={projectId}
           />
         </div>
         {!shouldShowInfo ? (

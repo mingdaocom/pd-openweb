@@ -1,9 +1,7 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import BaseMessageComponent from '../baseComponent/messageContent';
-
-import { createLinksForMessage } from 'src/components/common/function';
-import { formatInboxItem, splitSourceId, buildSourceLink } from '../../util';
+import { createLinksForMessage } from 'src/util';
+import { formatInboxItem, buildSourceLink } from '../../util';
 import { SOURCE_TYPE } from '../../constants';
 
 function mergeFromSourceState(inboxItem) {
@@ -39,6 +37,7 @@ function mergeFromSourceState(inboxItem) {
         fromMessage: name,
         fromTitle: _l('来自%0', entityName),
         fromLink: buildSourceLink(sourceType, sourceId, extendsId),
+        appId: extendsId ? extendsId.split('|')[0] : undefined,
       };
     default:
       // 兼容discussion为空

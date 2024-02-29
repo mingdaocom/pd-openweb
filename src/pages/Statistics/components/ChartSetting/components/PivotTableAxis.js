@@ -118,7 +118,7 @@ const renderOverlay = ({
           </Menu.SubMenu>
         </Fragment>
       ) : (
-        (isNumber || axis.type === 10000001) && (
+        (isNumber || [10000000, 10000001].includes(axis.type)) && (
           <Menu.SubMenu
             popupClassName="chartMenu"
             title={(
@@ -226,8 +226,7 @@ const renderOverlay = ({
               </Fragment>
             )}
           </Menu.SubMenu>
-          {/*
-          <Menu.SubMenu popupClassName="chartMenu" title={_l('数据格式')} popupOffset={[0, -15]}>
+          <Menu.SubMenu popupClassName="chartMenu" title={_l('日期格式')} popupOffset={[0, -15]}>
             {timeFormats.map(item => (
               <Menu.Item
                 className="valignWrapper"
@@ -241,7 +240,6 @@ const renderOverlay = ({
               </Menu.Item>
             ))}
           </Menu.SubMenu>
-          */}
         </Fragment>
       )}
       {type && isArea && (

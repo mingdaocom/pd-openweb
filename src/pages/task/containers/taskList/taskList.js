@@ -253,9 +253,6 @@ class TaskList extends Component {
         );
       }
 
-      $.publish('CLOSE_PAGEHEAD_POSHYTIPS');
-      $.publish('REMOVE_QUICKSELECTUSER');
-
       return false;
     });
 

@@ -27,10 +27,14 @@ import { updateRulesData, checkRuleLocked } from 'src/components/newCustomFields
 import { loadRecord, updateRecord } from 'worksheet/common/recordInfo/crtl';
 import { formatControlToServer, controlState } from 'src/components/newCustomFields/tools/utils';
 import { MobileRecordRecoverConfirm } from 'worksheet/common/newRecord/MobileNewRecord';
+import { replaceControlsTranslateInfo } from 'worksheet/util';
+import { getTranslateInfo } from 'src/util';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import * as actions from 'mobile/RelationRow/redux/actions';
 import './RecordInfo.less';
+
+const imgAndVideoReg = /(swf|avi|flv|mpg|rm|mov|wav|asf|3gp|mkv|rmvb|mp4|gif|png|jpg|jpeg|webp|svg|psd|bmp|tif|tiff)/i;
 
 @connect(
   state => ({ ..._.pick(state.mobile, ['relationRow']) }),
@@ -65,6 +69,7 @@ export default class RecordInfo extends Component {
     return (
       _.get(window, 'shareState.isPublicRecord') ||
       _.get(window, 'shareState.isPublicView') ||
+      _.get(window, 'shareState.isPublicPage') ||
       _.get(window, 'shareState.isPublicQuery') ||
       _.get(window, 'shareState.isPublicPrint')
     );
@@ -79,6 +84,21 @@ export default class RecordInfo extends Component {
       !_.get(window, 'shareState.isPublicWorkflowRecord')
     ) {
       this.getPortalConfigSet();
+    }
+  }
+  componentDidUpdate(prevProps) {
+    const { relationRow } = this.props;
+    const { currentTab } = this.state;
+    if (
+      this.customwidget &&
+      this.customwidget.current &&
+      currentTab.type === 29 &&
+      !_.isEqual(relationRow, prevProps.relationRow)
+    ) {
+      this.customwidget.current.dataFormat.updateDataSource({
+        controlId: currentTab.controlId,
+        value: !_.isNaN(relationRow.count) ? relationRow.count : currentTab.value,
+      });
     }
   }
   loadRecord = async () => {
@@ -96,9 +116,12 @@ export default class RecordInfo extends Component {
         getRules: true,
         controls,
       });
+
       const switchPermit = await worksheetApi.getSwitchPermit({ appId, worksheetId });
+      data.worksheetName = getTranslateInfo(appId, worksheetId).name || data.worksheetName;
+
       // 设置隐藏字段的 hidden 属性
-      data.formData = data.formData
+      data.formData = replaceControlsTranslateInfo(appId, data.formData)
         .filter(c => c.controlId !== 'daid')
         .map(c => ({
           ...c,
@@ -123,11 +146,11 @@ export default class RecordInfo extends Component {
         switchPermit,
         isWorksheetQuery: isWorksheetQuery || _.isUndefined(isWorksheetQuery),
         formStyleImggeData: coverid
-          ? JSON.parse(formStyleControl.value || '[]').filter(i => _.includes(['.png', '.jpg', '.jpeg'], i.ext))
+          ? JSON.parse(formStyleControl.value || '[]').filter(i => imgAndVideoReg.test(i.ext))
           : [],
         rulesLocked: checkRuleLocked(data.rules, data.formData, recordId),
       };
-      if (window.share || window.shareAuthor) {
+      if (_.get(window, 'shareState.shareId') || window.shareAuthor) {
         recordInfo.allowEdit = false;
         recordInfo.allowDelete = false;
       }
@@ -146,14 +169,14 @@ export default class RecordInfo extends Component {
         tempFormData: data.formData,
         childTableControlIds: !_.isEmpty(childTableControlIds) ? childTableControlIds : undefined,
         loading: false,
-        refreshBtnNeedLoading: false
+        refreshBtnNeedLoading: false,
       });
     } catch (err) {
       console.error(err);
       this.setState({
         abnormal: true,
         loading: false,
-        refreshBtnNeedLoading: false
+        refreshBtnNeedLoading: false,
       });
     }
   };
@@ -177,7 +200,7 @@ export default class RecordInfo extends Component {
     this.setState({ formChanged: true });
     const { viewId, recordId } = recordBase;
     if (viewId) {
-      const tempRecordValue = getRecordTempValue(data);
+      const tempRecordValue = getRecordTempValue(data, undefined, { updateControlIds: ids });
       saveTempRecordValueToLocal(
         'recordInfo',
         viewId + '-' + recordId,
@@ -315,6 +338,8 @@ export default class RecordInfo extends Component {
     this.customwidget.current.submitFormData({ ignoreAlert, silent });
   };
   handleCancelSave = () => {
+    const { recordBase } = this.state;
+    removeTempRecordValueFromLocal('recordInfo', recordBase.viewId + '-' + recordBase.recordId);
     this.setState({
       formChanged: false,
       isEditRecord: false,
@@ -561,7 +586,7 @@ export default class RecordInfo extends Component {
   }
   renderFooter() {
     const { hideOtherOperate, footer } = this.props;
-    const { recordInfo, recordBase, currentTab, isEditRecord } = this.state;
+    const { recordInfo, recordBase, currentTab, isEditRecord, tempFormData } = this.state;
     if (footer && !recordBase.viewId) {
       return React.cloneElement(footer, {
         onSubmit: this.handleSubmit,
@@ -572,7 +597,7 @@ export default class RecordInfo extends Component {
       return null;
     }
     if (currentTab.type === 29 && !isEditRecord) {
-      return <RelationAction controlId={currentTab.id} getDataType={this.props.getDataType} />;
+      return <RelationAction controlId={currentTab.id} getDataType={this.props.getDataType} formData={tempFormData} />;
     }
     return this.renderRecordBtns();
   }
@@ -591,16 +616,11 @@ export default class RecordInfo extends Component {
       _.get(window, 'shareState.isPublicForm') ||
       _.get(window, 'shareState.isPublicWorkflowRecord');
 
-    const open = 
+    const open =
       (!isPublicShare && !md.global.Account.isPortal && (discussVisible || logVisible)) ||
       (md.global.Account.isPortal && allowExAccountDiscuss && discussVisible);
 
-    if (
-      (!getDataType || getDataType !== 21) &&
-      open &&
-      !isEditRecord &&
-      !isSubList
-    ) {
+    if ((!getDataType || getDataType !== 21) && open && !isEditRecord && !isSubList) {
       return (
         <div
           className="extraAction"
@@ -715,7 +735,7 @@ export default class RecordInfo extends Component {
                   : _l('已恢复到上次中断内容')
               }
               updateText={_l('确认')}
-              cancelText={_l('清空')}
+              cancelText={_l('取消')}
               onUpdate={() => {
                 removeTempRecordValueFromLocal('recordInfo', recordBase.viewId + '-' + recordBase.recordId);
                 this.setState({ restoreVisible: false });

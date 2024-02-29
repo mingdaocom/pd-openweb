@@ -91,6 +91,7 @@ export default class BoardTitle extends Component {
       noGroup,
       rowId,
       appId,
+      projectId,
     } = this.props;
 
     if (noGroup) return <div className="noGroupTitle">{name}</div>;
@@ -112,7 +113,7 @@ export default class BoardTitle extends Component {
       const { accountId, avatar: userHead, fullname } = JSON.parse(name) || {};
       return (
         <div className="avatarWrap">
-          <UserHead className="mRight5" user={{ userHead, accountId }} size={24} appId={appId} />
+          <UserHead className="mRight5" user={{ userHead, accountId }} size={24} appId={appId} projectId={projectId}/>
           <span className="Font14 Bold">{fullname}</span>
         </div>
       );

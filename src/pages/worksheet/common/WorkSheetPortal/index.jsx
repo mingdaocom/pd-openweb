@@ -12,6 +12,7 @@ import MoreOperation from '../WorkSheetLeft/MoreOperation';
 import Drag from '../WorkSheetLeft/Drag';
 import AppItem from './AppItem';
 import homeAppApi from 'src/api/homeApp';
+import { getTranslateInfo } from 'src/util';
 import './index.less';
 
 const WorkSheetPortal = (props) => {
@@ -100,7 +101,7 @@ const WorkSheetPortal = (props) => {
               />
             ) : (
               <Fragment>
-                <div className="Font16 bold">{item.workSheetName}</div>
+                <div className="Font16 bold">{getTranslateInfo(appId, item.workSheetId).name || item.workSheetName}</div>
                 {item.status === 2 && (
                   <Tooltip popupPlacement="bottom" text={<span>{_l('仅系统角色可见（包含管理员、运营者、开发者）')}</span>}>
                     <Icon className="Font16 mLeft10 pointer visibilityIcon" icon="visibility_off" style={{ color: '#ee6f09' }} />

@@ -3,7 +3,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import Immutable from 'immutable';
 import { Button, Dialog, Support } from 'ming-ui';
-import { createUploader } from 'src/pages/kc/utils/qiniuUpload';
+import createUploader from 'src/library/plupload/createUploader';
 import * as utils from 'src/pages/kc/utils';
 import { UPLOAD_STATUS, UPLOAD_ERROR } from 'src/pages/kc/constant/enum';
 import './index.less';

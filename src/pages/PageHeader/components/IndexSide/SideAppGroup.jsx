@@ -6,7 +6,7 @@ import { getItem, setItem } from '../../util';
 import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
 
 const TYPE_TO_TITLE = {
-  markedApps: _l('星标应用'),
+  markedApps: _l('应用收藏'),
   aloneApps: _l('个人'),
   expireProject: _l('过期应用'),
   externalApps: _l('外部协作'),
@@ -34,6 +34,8 @@ export default class SideAppGroup extends Component {
     if (nextState.isShow !== this.state.isShow) return true;
     if (items.length !== nextProps.items.length) return true;
     if (value !== nextProps.value) return true;
+    if (items.filter(app => !!app.isMarked).length !== nextProps.items.filter(app => !!app.isMarked).length)
+      return true;
     return false;
   }
 

@@ -57,7 +57,6 @@ export const getExpandWidgetIds = (controls = [], data = {}, from) => {
       if (
         _.get(item, 'type') === 52 ||
         (_.get(item, 'type') === 22 &&
-          _.get(item, 'advancedSetting.hidetitle') !== '1' &&
           (from ? controlState(item, from).visible && !item.hidden : true) &&
           sectionId === (item.sectionId || ''))
       ) {

@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import { string } from 'prop-types';
 import { Icon, Tooltip, MdLink } from 'ming-ui';
@@ -14,6 +15,8 @@ import _ from 'lodash';
 import GlobalSearch from '../GlobalSearch/index';
 import { withRouter } from 'react-router-dom';
 import appManagementApi from 'src/api/appManagement';
+import { VerticalMiddle } from 'worksheet/components/Basics';
+import cx from 'classnames';
 
 const BtnCon = styled.div`
   cursor: pointer;
@@ -30,6 +33,52 @@ const BtnCon = styled.div`
   }
   &:hover {
     background: #f5f5f5;
+    &.isDashboard {
+      background: #fff;
+    }
+  }
+`;
+
+const DashboardSearch = styled.div`
+  background: rgba(0, 0, 0, 0.03);
+  display: flex;
+  align-items: center;
+  height: 36px;
+  padding: 12px;
+  border-radius: 18px;
+  margin-right: 8px;
+  cursor: pointer;
+  .icon {
+    font-size: 20px;
+    color: rgb(0, 0, 0, 0.6);
+  }
+  span {
+    color: #9e9e9e;
+    margin: 0 2px 1px 4px;
+    &.symbol {
+      font-weight: 500;
+    }
+  }
+  &:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+`;
+
+const AdminEntry = styled(VerticalMiddle)`
+  cursor: pointer;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 28px;
+  margin: 0 5px;
+  .icon {
+    font-size: 20px;
+    color: rgb(0, 0, 0, 0.6);
+  }
+  &:hover {
+    background: #fff;
   }
 `;
 
@@ -37,6 +86,7 @@ const BtnCon = styled.div`
 export default class CommonUserHandle extends Component {
   static propTypes = {
     type: string,
+    currentProject: PropTypes.shape({}),
   };
   state = {
     globalSearchVisible: false,
@@ -59,7 +109,7 @@ export default class CommonUserHandle extends Component {
 
   render() {
     const { globalSearchVisible, userVisible } = this.state;
-    const { type } = this.props;
+    const { type, currentProject } = this.props;
 
     // 获取url参数
     const { tr } = getAppFeaturesVisible();
@@ -70,23 +120,72 @@ export default class CommonUserHandle extends Component {
     return (
       <div className="commonUserHandleWrap">
         {type === 'native' && (
-          <Tooltip text={<AddMenu />} action={['click']} mouseEnterDelay={0.2} themeColor="white" tooltipClass="pAll0">
-            <div className="addOperationIconWrap mLeft20 mRight15 pointer">
-              <Icon icon="addapplication Font30" />
-            </div>
-          </Tooltip>
+          <React.Fragment>
+            <Tooltip
+              text={<AddMenu />}
+              action={['click']}
+              mouseEnterDelay={0.2}
+              themeColor="white"
+              tooltipClass="pAll0"
+            >
+              <div className="addOperationIconWrap mLeft20 mRight15 pointer">
+                <Icon icon="addapplication Font30" />
+              </div>
+            </Tooltip>
+            <MyProcessEntry type={type} />
+          </React.Fragment>
         )}
-        {_.includes(['native'], type) && <MyProcessEntry type={type} />}
-        {!['appPkg'].includes(type) && (
-          <BtnCon onClick={this.openGlobalSearch.bind(this)} data-tip={_l('超级搜索(F)')} className="tip-bottom-left">
-            <Icon icon="search" />
-          </BtnCon>
-        )}
+
         {type === 'appPkg' && (
-          <div className="appPkgHeaderSearch tip-bottom-left" data-tip={_l('超级搜索(F)')}>
-            <Icon icon="search" className="Font20" onClick={this.openGlobalSearch.bind(this)} />
-          </div>
+          <React.Fragment>
+            <div className="appPkgHeaderSearch tip-bottom-left" data-tip={_l('超级搜索(F)')}>
+              <Icon icon="search" className="Font20" onClick={this.openGlobalSearch.bind(this)} />
+            </div>
+            <div
+              className="workflowHelpIconWrap pointer"
+              data-tip={_l('帮助')}
+              onClick={() => window.KF5SupportBoxAPI && window.KF5SupportBoxAPI.open()}
+            >
+              <Icon icon="workflow_help" className="helpIcon Font20" />
+            </div>
+          </React.Fragment>
         )}
+
+        {type !== 'appPkg' && (
+          <React.Fragment>
+            {type === 'dashboard' ? (
+              <DashboardSearch onClick={this.openGlobalSearch.bind(this)}>
+                <Icon icon="search" />
+                <span>{_l('超级搜索')}</span>
+                <span className="symbol">{_l('F')}</span>
+              </DashboardSearch>
+            ) : (
+              <BtnCon
+                onClick={this.openGlobalSearch.bind(this)}
+                data-tip={_l('超级搜索(F)')}
+                className="tip-bottom-left"
+              >
+                <Icon icon="search" />
+              </BtnCon>
+            )}
+            {type === 'dashboard' && currentProject && currentProject.isProjectAdmin && (
+              <MdLink to={`/admin/home/${currentProject.projectId}`}>
+                <AdminEntry data-tip={_l('组织管理')} className="tip-bottom-left">
+                  <i className="icon icon-business"></i>
+                </AdminEntry>
+              </MdLink>
+            )}
+
+            <BtnCon
+              className={cx(`${type === 'native' ? 'mLeft10' : ''}`, { isDashboard: type === 'dashboard' })}
+              data-tip={_l('帮助')}
+              onClick={() => window.KF5SupportBoxAPI && window.KF5SupportBoxAPI.open()}
+            >
+              <Icon icon="workflow_help" />
+            </BtnCon>
+          </React.Fragment>
+        )}
+
         <Tooltip
           text={<UserMenu handleUserVisibleChange={this.handleUserVisibleChange.bind(this)} />}
           mouseEnterDelay={0.2}

@@ -10,6 +10,7 @@ import MingDaoYunGuide from './MingDaoYun';
 import MongoDBGuide from './MongoDB';
 import MariaDBGuide from './MariaDB';
 import DB2Guide from './DB2';
+import KafkaGuide from './Kafka';
 
 const TabList = styled.div`
   box-sizing: border-box;
@@ -82,6 +83,8 @@ export default function ConfigGuide(props) {
         return <MingDaoYunGuide type={currentTab} />;
       case DATABASE_TYPE.DB2:
         return <DB2Guide type={currentTab} />;
+      case DATABASE_TYPE.KAFKA:
+        return <KafkaGuide type={currentTab} />;
       default:
         <div />;
     }

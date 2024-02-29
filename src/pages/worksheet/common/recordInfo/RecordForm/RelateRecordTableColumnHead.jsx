@@ -28,11 +28,12 @@ export default function ColumnHead(props) {
   const itemType = control.type === 30 ? control.sourceControlType : control.type;
   const canSort = !disabled && fieldCanSort(itemType);
   const maskData =
-    !_.get(window, 'shareState.isPublicView') &&
+    !(_.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage')) &&
     _.get(control, 'advancedSetting.datamask') === '1' &&
     _.get(control, 'advancedSetting.isdecrypt') === '1';
   return (
     <BaseColumnHead
+      disableSort={disabled}
       className={className}
       style={style}
       control={control}

@@ -12,7 +12,7 @@ function ViewContent(props) {
   const objectId = _.get(setting, 'config.objectId');
   const filtersGroup = formatFiltersGroup(objectId, props.filtersGroup);
 
-  if (!window.share && filterComponents.length && loadFilterComponentCount < filterComponents.length) {
+  if (!_.get(window, 'shareState.shareId') && filterComponents.length && loadFilterComponentCount < filterComponents.length) {
     return (
       <Flex justify="center" align="center" className="h100 w100">
         <ActivityIndicator size="large" />

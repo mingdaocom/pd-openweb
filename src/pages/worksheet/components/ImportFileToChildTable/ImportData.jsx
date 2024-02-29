@@ -84,6 +84,9 @@ const PasteHeader = styled.div`
   .infoIcon {
     margin-left: 5px;
   }
+  .right {
+    flex-shrink: 0;
+  }
 `;
 
 function parseText(text, splitCharType = 1) {
@@ -255,9 +258,9 @@ function PasteEdit(props) {
     <div>
       <PasteHeader>
         <div className="Font13 Gray_75">
-          {_l(`已隐藏不可导入字段。使用 ${ctrlChar} + V 从 Excel 中粘贴数据，${ctrlChar} + Z 撒销上次操作`)}
+          {_l('已隐藏不可导入字段。使用 %0 + V 从 Excel 中粘贴数据，%0 + Z 撒销上次操作', ctrlChar)}
         </div>
-        <div>
+        <div className="right">
           {_l('分隔符')}
           <Dropdown
             className="splitCharDorpDown"
@@ -398,16 +401,17 @@ export default function ImportData(props) {
             <UploadFile
               style={{ height: '100%' }}
               fileUploaded={async file => {
+                const fileUrl = file.serverName + file.key;
                 const res = await getWithToken(
                   `${md.global.Config.WorksheetDownUrl}/Import/PreviewSubtable`,
                   { worksheetId, tokenType: 7 },
                   {
                     worksheetId,
-                    filePath: file.url.replace(/\?.+/, ''),
+                    filePath: fileUrl.replace(/\?.+/, ''),
                   },
                 );
                 if (_.get(res, 'data.data.rows')) {
-                  onParseExcel(res.data.data, file.url);
+                  onParseExcel(res.data.data, fileUrl);
                 } else {
                   alert(_l('文件解析失败！'), 2);
                 }

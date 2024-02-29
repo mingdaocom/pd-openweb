@@ -9,7 +9,7 @@ import PostMain from '../post/postMain';
 import PostFooter from '../post/postFooter';
 import PostCommentInput from './postCommentInput';
 import UploadFiles from 'src/components/UploadFiles';
-import { index as dialog } from 'src/components/mdDialog/dialog';
+import { Dialog } from 'ming-ui';
 
 /**
  * 动态的单条回复
@@ -29,7 +29,8 @@ class PostComment extends React.Component {
     const { commentItem } = props;
 
     this.state = {
-      allowOperate: commentItem && (commentItem.allowOperate || commentItem.user.accountId === md.global.Account.accountId),
+      allowOperate:
+        commentItem && (commentItem.allowOperate || commentItem.user.accountId === md.global.Account.accountId),
       leaving: false,
       checkIsProjectAdmin: false,
       commentBox: {
@@ -43,7 +44,7 @@ class PostComment extends React.Component {
     if (this.state.allowOperate || this.state.checkIsProjectAdmin) return;
     const { projectIds } = this.props;
     if (!projectIds || !projectIds.length) return;
-    Promise.all(projectIds.map(projectId => roleController.isProjectAdmin({ projectId }))).then((results) => {
+    Promise.all(projectIds.map(projectId => roleController.isProjectAdmin({ projectId }))).then(results => {
       if (!results.some(result => !result)) {
         this.setState({ allowOperate: true });
       }
@@ -67,23 +68,19 @@ class PostComment extends React.Component {
 
   handleRemoveComment = () => {
     const { commentItem, dispatch } = this.props;
-    const comp = this;
-    dialog({
+    Dialog.confirm({
       width: 420,
-      container: {
-        header: _l('确认删除此条回复') + '?',
-        content: "<div class='mTop10'></div>",
-        yesFn() {
-          const deleteAttachment = $(`#isDeleteAttachmentOf${commentItem.commentID}`).prop('checked');
-          comp.clearCommentBox();
-          dispatch(removeComment(commentItem.postID, commentItem.commentID));
-        },
-        noFn: true,
+      title: _l('确认删除此条回复') + '?',
+      buttonType: 'primary',
+      onOk:() => {
+        const deleteAttachment = $(`#isDeleteAttachmentOf${commentItem.commentID}`).prop('checked');
+        this.clearCommentBox();
+        dispatch(removeComment(commentItem.postID, commentItem.commentID));
       },
     });
   };
 
-  componentWillLeave = (cb) => {
+  componentWillLeave = cb => {
     this.setState({ leaving: true });
     setTimeout(cb, 400);
   };
@@ -92,19 +89,24 @@ class PostComment extends React.Component {
     const { categories } = this.props;
     const commentItem = Object.assign({ categories }, this.props.commentItem);
     if (categories && categories.length && commentItem.message && commentItem.message.indexOf('#') !== -1) {
-      categories.forEach((cat) => {
+      categories.forEach(cat => {
         commentItem.message = commentItem.message.replace(`#${cat.catName}#`, `[cid]${cat.catID}[/cid]`);
       });
     }
 
     return (
       <li
-        className={cx(this.props.className, 'commentContainer ani400', { last: this.props.last }, this.state.leaving ? 'fadeOut aniFill' : 'fadeIn')}
+        className={cx(
+          this.props.className,
+          'commentContainer ani400',
+          { last: this.props.last },
+          this.state.leaving ? 'fadeOut aniFill' : 'fadeIn',
+        )}
         onMouseEnter={() => this.handleMouseEnter()}
       >
         <UserHead className="userHead left" user={{ ...commentItem.user, userHead: commentItem.user.userMiddleHead }} size={28} />
 
-          <PostMain postItem={commentItem} inlineMessage minHeight={0} />
+        <PostMain postItem={commentItem} inlineMessage minHeight={0} />
 
         {!!(commentItem.attachments && commentItem.attachments.length) && (
           <div className="commentAttachments mTop10">
@@ -112,23 +114,21 @@ class PostComment extends React.Component {
           </div>
         )}
 
-          <PostFooter
+        <PostFooter
           createTime={commentItem.createTime}
           source={commentItem.source}
           location={commentItem.location}
           detailUrl={'/feeddetail?itemID=' + commentItem.postID}
         >
-            {this.state.allowOperate ? (
-              <a className="mRight10 commentDeleteLink hide" onClick={this.handleRemoveComment}>
-                {_l('删除')}
-              </a>
-          ) : (
-            undefined
-          )}
-            <a className="" onClick={this.handleToggleCommentBox}>
-              {_l('回复')}
+          {this.state.allowOperate ? (
+            <a className="mRight10 commentDeleteLink hide" onClick={this.handleRemoveComment}>
+              {_l('删除')}
             </a>
-          </PostFooter>
+          ) : undefined}
+          <a className="" onClick={this.handleToggleCommentBox}>
+            {_l('回复')}
+          </a>
+        </PostFooter>
         {this.state.commentBox.show ? this.state.commentBox.el : undefined}
         {this.props.last ? undefined : <hr className="commentSpliter" />}
       </li>

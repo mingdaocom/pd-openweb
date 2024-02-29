@@ -1,6 +1,6 @@
 import React, { Fragment, Component } from 'react';
 import cx from 'classnames';
-import { getRequest, verifyPassword } from 'src/util';
+import { getRequest, verifyPassword, getCurrentProject } from 'src/util';
 import worksheetAjax from 'src/api/worksheet';
 import { getRowDetail } from 'worksheet/api';
 import { Modal, Progress, WingBlank } from 'antd-mobile';
@@ -172,8 +172,10 @@ class RecordAction extends Component {
             success: run,
             fail: result => {
               MobileVertifyPassword.confirm({
-                title: _l('安全认证'),
-                removeNoneVerification: result === 'showPassword',
+                showSubTitle: true,
+                autoFocus: true,
+                isRequired: true,
+                allowNoVerify: result !== 'showPassword',
                 onOk: run,
               });
             },
@@ -570,7 +572,8 @@ class RecordAction extends Component {
   renderRecordAction() {
     const {
       recordActionVisible,
-      sheetRow,
+      sheetRow = {},
+      worksheetInfo = {},
       hideRecordActionVisible,
       customBtns,
       viewId,
@@ -578,8 +581,13 @@ class RecordAction extends Component {
       switchPermit,
       isBatchOperate,
       loading,
+      isFavorite,
+      handleCollectRecord = () => {},
     } = this.props;
     const { btnDisable } = this.state;
+    const projectId = sheetRow.projectId || worksheetInfo.projectId;
+    const isExternal = _.isEmpty(getCurrentProject(projectId));
+
     return (
       <Modal
         popup
@@ -622,6 +630,17 @@ class RecordAction extends Component {
                       <Icon icon="share" className="Font18 delIcon" style={{ color: '#757575' }} />
                       <div className="flex delTxt Font15 Gray" onClick={this.props.onShare}>
                         {_l('分享')}
+                      </div>
+                    </div>
+                  )}
+                  {!window.shareState.shareId && !md.global.Account.isPortal && !isExternal && (
+                    <div className="flexRow extraBtnItem">
+                      <Icon
+                        icon="star_3"
+                        className={cx('Font18 delIcon', { Gray_9e: !isFavorite, activeStar: isFavorite })}
+                      />
+                      <div className="flex delTxt Font15 Gray" onClick={handleCollectRecord}>
+                        {isFavorite ? _l('取消收藏') : _l('收藏记录')}
                       </div>
                     </div>
                   )}

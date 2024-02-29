@@ -56,7 +56,7 @@ const Config = {
     'doc,docx,ppt,pot,pps,pptx,xls,xlsx,pdf,txt,mmap,vsd,md,ai,psd,tif,dwt,dwg,dws,dxf,wps,dps,dpt,pps,et,xmind,cdr,project,key,numbers,pages,rp,pub,cal,3ds,max,indd,mpp,eml',
   picExtends: 'gif,png,jpg,jpeg,bmp',
   compressedExtends: 'zip,rar,7z',
-  emotionHost: '/images/', // 表情文件的路径
+  emotionHost: '/staticfiles/images/', // 表情文件的路径
   reconnectAttempt: 5, // 重连次数
   maxSessionUnread: 20, // 会话默认显示的最大数目
   msgMaxSize: 20480, // 消息的最大长度

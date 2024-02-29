@@ -8,6 +8,8 @@ import { Dropdown, Icon, LoadDiv, Radio } from 'ming-ui';
 import { Select, Divider } from 'antd';
 import { connect } from 'react-redux';
 import sheetApi from 'src/api/worksheet';
+import { replaceControlsTranslateInfo } from 'src/pages/worksheet/util';
+import { getTranslateInfo } from 'src/util';
 import _ from 'lodash';
 
 const Wrap = styled.div`
@@ -149,9 +151,15 @@ function Setting(props) {
         .then(res => {
           const { resultCode, views = [], template } = res;
           if (resultCode === 1) {
+            const controls = replaceControlsTranslateInfo(appId, template.controls);
             setDataSource({
-              views: views,
-              controls: template.controls,
+              views: views.map(data => {
+                return {
+                  ...data,
+                  name: getTranslateInfo(appId, data.viewId).name || data.name
+                }
+              }),
+              controls
             });
           }
           setLoading(false);

@@ -99,12 +99,12 @@ class Publicquery extends React.Component {
           controls: controls,
           ticket: res.ticket,
           randStr: res.randstr,
-          captchaType: md.staticglobal.getCaptchaType(),
+          captchaType: md.global.getCaptchaType(),
         });
       }
     };
 
-    if (md.staticglobal.getCaptchaType() === 1) {
+    if (md.global.getCaptchaType() === 1) {
       new captcha(callback);
     } else {
       new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), callback).show();

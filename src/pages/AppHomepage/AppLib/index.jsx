@@ -13,9 +13,6 @@ class AppLib extends Component {
   constructor(props) {
     super(props);
     let str = 'https://alifile.mingdaocloud.com/open/js/applibrary.js' + '?' + moment().format('YYYYMMDD');
-    if (_.get(window, 'md.global.SysSettings.templateLibraryTypes') === '2') {
-      str = '/src/library/applibrary.js';
-    }
     this.state = {
       str,
       projectId: localStorage.getItem('currentProjectId'),
@@ -29,28 +26,37 @@ class AppLib extends Component {
     const { AppFileServer = '', IsLocal } = Config;
     const { accountId = '', projects = [], avatar } = Account;
     emitter.addListener('CHANGE_CURRENT_PROJECT', this.reload);
-    loadScript(this.state.str, err => {
-      if (!err && window.MDLibrary) {
-        window.MDLibrary({
-          upgradeVersionDialog: data => {
-            const licenseType = _.get(_.find(projects, item => item.projectId === data.projectId) || {}, 'licenseType');
-            return upgradeVersionDialog({ ...data, isFree: licenseType === 0 });
-          },
-          MDAppLibraryId: 'containerAppLib',
-          getUrl: (md && md.global && md.global.SysSettings && md.global.SysSettings.templateLibraryTypes === '2') ? __api_server__.main : 'https://pd.mingdao.com/api/',
-          installUrl: AppFileServer,
-          accountId,
-          projects,
-          // getUrl: 'http://wwwapi-next.dev.mingdao.net/', //"http://wwwapi.dev.mingdao.net/",
-          // installUrl: 'http://118.24.27.163:29288/',
-          isPrivate: IsLocal,
-          avatar: avatar,
-          contactUser: accountId => {
-            this.props.dispatch(actions.addUserSession(accountId));
-          },
-        });
-      }
-    });
+    const param = {
+      upgradeVersionDialog: data => {
+        const licenseType = _.get(_.find(projects, item => item.projectId === data.projectId) || {}, 'licenseType');
+        return upgradeVersionDialog({ ...data, isFree: licenseType === 0 });
+      },
+      MDAppLibraryId: 'containerAppLib',
+      getUrl: (md && md.global && md.global.SysSettings && md.global.SysSettings.templateLibraryTypes === '2') ? __api_server__.main : 'https://pd.mingdao.com/api/',
+      installUrl: AppFileServer,
+      accountId,
+      projects,
+      // getUrl: 'http://wwwapi-next.dev.mingdao.net/', //"http://wwwapi.dev.mingdao.net/",
+      // installUrl: 'http://118.24.27.163:29288/',
+      isPrivate: IsLocal,
+      avatar: avatar,
+      contactUser: accountId => {
+        this.props.dispatch(actions.addUserSession(accountId));
+      },
+    };
+    if (_.get(window, 'md.global.SysSettings.templateLibraryTypes') === '2') {
+      import('src/library/applibrary').then(() => {
+        if (window.MDLibrary) {
+          window.MDLibrary(param);
+        }
+      });
+    } else {
+      loadScript(this.state.str, err => {
+        if (!err && window.MDLibrary) {
+          window.MDLibrary(param);
+        }
+      });
+    }
   }
 
   componentWillUnmount() {

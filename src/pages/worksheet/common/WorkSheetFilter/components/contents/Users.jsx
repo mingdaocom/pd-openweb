@@ -172,6 +172,7 @@ export default class Users extends Component {
           }}
           size={24}
           appId={this.props.appId}
+          projectId={this.props.projectId}
         />
       );
     }

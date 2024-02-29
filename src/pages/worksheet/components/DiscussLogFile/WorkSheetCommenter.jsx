@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import Commenter from 'src/components/comment/commenter';
 import UserHead from 'src/components/userHead';
+import { getCurrentProject } from 'src/util';
+import _ from 'lodash';
 
 export default class WorkSheetCommenter extends Component {
   render() {
@@ -58,6 +60,7 @@ export default class WorkSheetCommenter extends Component {
             accountId: md.global.Account.accountId,
           }}
           size={32}
+          projectId={projectId}
         />
         <Commenter {...props} />
       </div>

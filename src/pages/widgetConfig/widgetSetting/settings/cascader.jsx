@@ -1,7 +1,6 @@
 import React, { useEffect, Fragment, useState } from 'react';
-import { Modal, Tooltip } from 'antd';
 import { useSetState } from 'react-use';
-import { RadioGroup, Checkbox } from 'ming-ui';
+import { RadioGroup } from 'ming-ui';
 import styled from 'styled-components';
 import worksheetAjax from 'src/api/worksheet';
 import { SettingItem } from '../../styled';
@@ -9,7 +8,7 @@ import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setti
 import components from '../components';
 import _ from 'lodash';
 
-const { SelectDataSource, RelateSheetInfo } = components;
+const { SelectDataSource, RelateDetailInfo } = components;
 
 export const MENU_STYLE = [
   {
@@ -142,7 +141,7 @@ export default function Cascader(props) {
           </div>
           <i className="icon-edit_17 Gray_9e pointer" onClick={() => setEdit({ editVisible: true, editType: 3 })}></i>
         </div>
-        <RelateSheetInfo name={sheetInfo.name} />
+        <RelateDetailInfo {...props} sheetInfo={sheetInfo} />
       </Fragment>
     );
   };

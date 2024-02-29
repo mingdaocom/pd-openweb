@@ -16,16 +16,14 @@ export const getInitFieldsMapping = (sourceFields, isSourceAppType, destDsType) 
   const needReplace = !isSourceAppType || !isDestAppType;
   const isExistJoinPk = !!(sourceFields || []).filter(item => item.isUniquePk).length;
   const mapping = sourceFields.map(item => {
-    const getInitNameOrAlias = () => {
+    const getInitName = () => {
       if (destDsType === DATABASE_TYPE.MONGO_DB && item.isPk) {
         return '_id';
       } else {
         if (isSourceAppType && isDestAppType && item.isUniquePk) {
           return 'rowid';
         } else {
-          return needReplace
-            ? item.alias.replace(namePattern, '') || item.name.replace(namePattern, '')
-            : item.alias || item.name;
+          return needReplace ? item.name.replace(namePattern, '') : item.name;
         }
       }
     };
@@ -39,8 +37,8 @@ export const getInitFieldsMapping = (sourceFields, isSourceAppType, destDsType) 
         isNotNull: isExistJoinPk ? item.isUniquePk : item.isPk,
         isPk: item.isPk,
         isUniquePk: item.isUniquePk,
-        name: getInitNameOrAlias(),
-        alias: getInitNameOrAlias(),
+        name: getInitName(),
+        alias: item.alias || getInitName(),
         dataType: null,
         jdbcTypeId: null,
         precision: null,
@@ -52,6 +50,7 @@ export const getInitFieldsMapping = (sourceFields, isSourceAppType, destDsType) 
         status: 'NORMAL',
         orderNo: null,
         isTitle: false, //仅用于工作表
+        comment: isSourceAppType ? _.get(item, 'controlSetting.remark') : item.comment,
       },
     };
   });
@@ -64,7 +63,7 @@ export const getDuplicateFieldsRenamedList = list => {
     const fieldName = _.get(item, 'destField.name');
     tempObj[fieldName] = !tempObj[fieldName] ? 1 : tempObj[fieldName] + 1;
     if (tempObj[fieldName] > 1) {
-      item.destField.name = item.destField.alias = fieldName + Math.floor(Math.random() * 10000);
+      item.destField.name = fieldName + Math.floor(Math.random() * 10000);
     }
   });
   return list;
@@ -99,7 +98,12 @@ export const getInitWorkSheetFields = (
         mdType: rowId.type,
         isTitle: false,
         orderNo: null,
-        controlSetting: { advancedSetting: rowId.advancedSetting, enumDefault: rowId.enumDefault, dot: rowId.dot },
+        controlSetting: {
+          advancedSetting: rowId.advancedSetting,
+          enumDefault: rowId.enumDefault,
+          dot: rowId.dot,
+          remark: rowId.remark,
+        },
       };
     });
 
@@ -133,6 +137,7 @@ export const getInitWorkSheetFields = (
           dot: control.dot,
           strDefault: control.strDefault,
           sourceControlType: control.sourceControlType,
+          remark: control.remark,
         },
       };
       if (!isDestAppType && _.includes([26, 27, 29], control.type)) {
@@ -286,4 +291,37 @@ export const getDefaultData = (
   });
 
   return newFieldsMapping;
+};
+
+export const isNotSupportField = (sourceField, matchedTypes) => {
+  const isOtherTable_onlyDisplay_orLink =
+    sourceField.mdType === 30 &&
+    (sourceField.controlSetting.strDefault === '10' || sourceField.controlSetting.sourceControlType === 21); //他表字段-仅显示,他表字段-自由连接类型
+  const isRelated_multiple = sourceField.mdType === 29 && sourceField.controlSetting.enumDefault === 2; //关联记录-多条
+  const isNotSupport =
+    !(matchedTypes[sourceField.id] || []).length || isOtherTable_onlyDisplay_orLink || isRelated_multiple;
+  return isNotSupport;
+};
+
+export const getExtraParams = (type, formData) => {
+  let extraParams = {};
+  switch (type) {
+    case DATABASE_TYPE.ORACLE:
+      extraParams = {
+        [JSON.parse(formData.serviceType)[0] === 'ServiceName' ? 'serviceName' : 'SID']: formData.serviceName,
+      };
+      break;
+    case DATABASE_TYPE.MONGO_DB:
+      extraParams = { isSrvProtocol: formData.isSrvProtocol };
+      break;
+    case DATABASE_TYPE.KAFKA:
+      extraParams = {
+        topic: formData.topic,
+        authType: JSON.parse(formData.authType)[0],
+        saslMechanism: !!formData.saslMechanism ? JSON.parse(formData.saslMechanism)[0] : undefined,
+      };
+    default:
+      break;
+  }
+  return extraParams;
 };

@@ -8,15 +8,17 @@ import { generate } from '@ant-design/colors';
 import { UNIT_TYPE } from '../widgetConfig/config/setting';
 import tinycolor from '@ctrl/tinycolor';
 import appManagementAjax from 'src/api/appManagement';
+import publicWorksheet from 'src/api/publicWorksheet';
 import webCache from 'src/api/webCache';
 import { FROM } from 'src/components/newCustomFields/tools/config';
 import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
 import { FORM_ERROR_TYPE_TEXT } from 'src/components/newCustomFields/tools/config';
-import { controlState, getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
+import { controlState, getTitleTextFromRelateControl, getValueStyle } from 'src/components/newCustomFields/tools/utils';
 import { checkRuleLocked, updateRulesData } from 'src/components/newCustomFields/tools/filterFn';
 import { RELATE_RECORD_SHOW_TYPE, RELATION_SEARCH_SHOW_TYPE } from 'worksheet/constants/enum';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import renderCellText from 'worksheet/components/CellControls/renderText';
+import { getTranslateInfo } from 'src/util';
 import {
   SYSTEM_CONTROLS,
   RECORD_INFO_FROM,
@@ -25,6 +27,7 @@ import {
 } from 'worksheet/constants/enum';
 import _, { head } from 'lodash';
 import { Base64 } from 'js-base64';
+import { HAVE_VALUE_STYLE_WIDGET } from '../widgetConfig/config';
 
 export { calcDate, formatControlValue, getSelectedOptions } from './util-purejs';
 
@@ -42,14 +45,24 @@ export function getWorkSheetData(data) {
   });
 }
 
+export const SUMMARY_TYPE = {
+  HIDDEN: 0,
+  COMPLETED: 1,
+  INCOMPLETE: 2,
+  SUM: 3,
+  AVERAGE: 4,
+  MAXIMUM: 5,
+  MINIMUM: 6,
+};
+
 export const SUMMARY_LIST = [
-  { type: 'COMMON', value: 0, label: _l('不显示') },
-  { type: 'COMMON', value: 1, label: _l('已填写') },
-  { type: 'COMMON', value: 2, label: _l('未填写') },
-  { type: 'NUMBER', value: 3, label: _l('求和') },
-  { type: 'NUMBER', value: 4, label: _l('平均值') },
-  { type: 'NUMBER', value: 5, label: _l('最大值') },
-  { type: 'NUMBER', value: 6, label: _l('最小值') },
+  { type: 'COMMON', value: SUMMARY_TYPE.HIDDEN, label: _l('不显示') },
+  { type: 'COMMON', value: SUMMARY_TYPE.COMPLETED, label: _l('已填写') },
+  { type: 'COMMON', value: SUMMARY_TYPE.INCOMPLETE, label: _l('未填写') },
+  { type: 'NUMBER', value: SUMMARY_TYPE.SUM, label: _l('求和') },
+  { type: 'NUMBER', value: SUMMARY_TYPE.AVERAGE, label: _l('平均值') },
+  { type: 'NUMBER', value: SUMMARY_TYPE.MAXIMUM, label: _l('最大值') },
+  { type: 'NUMBER', value: SUMMARY_TYPE.MINIMUM, label: _l('最小值') },
 ];
 /**
  * 获取统计方式名称
@@ -462,7 +475,11 @@ export function getControlValueSortType(control) {
  * @param  {} records
  */
 
-export function formatRecordToRelateRecord(controls, records = [], { addedIds = [], deletedIds = [], count = 0 } = {}) {
+export function formatRecordToRelateRecord(
+  controls,
+  records = [],
+  { addedIds = [], deletedIds = [], count = 0, isFromDefault } = {},
+) {
   if (!_.isArray(records)) {
     records = [];
   }
@@ -487,12 +504,29 @@ export function formatRecordToRelateRecord(controls, records = [], { addedIds = 
       type: 8,
       sourcevalue: JSON.stringify(record),
       row: record,
-      isNew: _.includes(addedIds, record.rowid),
+      isNew: _.includes(addedIds, record.rowid) || isFromDefault,
+      isFromDefault,
       deletedIds,
       count,
     };
   });
   return value;
+}
+
+function getControlCompareValue(c, value) {
+  if (c.type === 26) {
+    return safeParse(value, 'array')
+      .map(u => u.accountId)
+      .sort()
+      .join('');
+  } else if (c.type === 29) {
+    return safeParse(value, 'array')
+      .map(u => u.sid)
+      .sort()
+      .join('');
+  } else {
+    return value;
+  }
 }
 
 /**
@@ -540,17 +574,26 @@ export function getSubListError({ rows, rules }, controls = [], showControls = [
             : FORM_ERROR_TYPE_TEXT[errorItem.errorType](_.find(controldata, c => c.controlId === errorItem.controlId));
       });
     });
-    const uniqueControls = controls.filter(c => _.find(showControls, id => id === c.controlId) && c.unique);
+    const uniqueControls = controls.filter(
+      c => _.find(showControls, id => id === c.controlId) && (c.unique || c.uniqueInRecord),
+    );
     uniqueControls.forEach(c => {
-      const hadValueRows = rows.filter(row => typeof row[c.controlId] !== 'undefined' && row[c.controlId] !== '');
-      const uniqueValueRows = _.uniqBy(hadValueRows, c.controlId);
+      const hadValueRows = rows.filter(
+        row =>
+          typeof row[c.controlId] !== 'undefined' &&
+          !row[c.controlId].startsWith('deleteRowIds') &&
+          !checkCellIsEmpty(row[c.controlId]),
+      );
+      const uniqueValueRows = _.uniqBy(hadValueRows, row => getControlCompareValue(c, row[c.controlId]));
       if (hadValueRows.length !== uniqueValueRows.length) {
         const duplicateValueRows = hadValueRows.filter(vr => !_.find(uniqueValueRows, r => r.rowid === vr.rowid));
         duplicateValueRows.forEach(row => {
-          const sameValueRows = hadValueRows.filter(r => r[c.controlId] === row[c.controlId]);
+          const sameValueRows = hadValueRows.filter(
+            r => getControlCompareValue(c, r[c.controlId]) === getControlCompareValue(c, row[c.controlId]),
+          );
           if (sameValueRows.length > 1) {
             sameValueRows.forEach(r => {
-              result[r.rowid + '-' + c.controlId] = FORM_ERROR_TYPE_TEXT.UNIQUE(c);
+              result[r.rowid + '-' + c.controlId] = FORM_ERROR_TYPE_TEXT.UNIQUE(c, true);
             });
           }
         });
@@ -1103,10 +1146,11 @@ export function parseAdvancedSetting(setting = {}) {
     rowheight: Number(setting.rowheight || 0), // 行高
     blankrow: Number(setting.blankrow || 1),
     enablelimit: setting.enablelimit === '1', // 隐藏序号
-    min: Number(setting.min || 0), // 最小行数
-    max: Number(setting.max || 1000), // 最大行数
+    min: setting.enablelimit === '1' ? Number(setting.min || 0) : undefined, // 最小行数
+    max: setting.enablelimit === '1' ? Number(setting.max || 1000) : undefined, // 最大行数
     rownum: Number(setting.rownum || 15), // 最大高度行数/每页行数
     showtype: setting.showtype || '1', // 显示方式 1滚动 2翻页
+    uniqueControlIds: safeParse(setting.uniquecontrols, 'arrray'), // 显示方式 1滚动 2翻页
   };
 }
 
@@ -1259,6 +1303,7 @@ export function getRowGetType(from) {
     from === RECORD_INFO_FROM.CHAT ||
     (from === RECORD_INFO_FROM.WORKSHEET_ROW_LAND && location.search && location.search.indexOf('share') > -1) ||
     _.get(window, 'shareState.isPublicView') ||
+    _.get(window, 'shareState.isPublicPage') ||
     _.get(window, 'shareState.isPublicWorkflowRecord') ||
     _.get(window, 'shareState.isPublicRecord') ||
     _.get(window, 'shareState.isPublicPrint')
@@ -1345,7 +1390,9 @@ export function getRelateRecordCountFromValue(value, propsCount) {
 }
 
 export async function postWithToken(url, tokenArgs = {}, body = {}, axiosConfig = {}) {
-  const token = await appManagementAjax.getToken(tokenArgs);
+  const token = await (_.get(window, 'shareState.isPublicForm') ? publicWorksheet : appManagementAjax).getToken(
+    tokenArgs,
+  );
   if (!token) {
     return Promise.reject('获取token失败');
   }
@@ -1353,14 +1400,16 @@ export async function postWithToken(url, tokenArgs = {}, body = {}, axiosConfig 
     url,
     Object.assign({}, body, {
       token,
-      accountId: md.global.Account.accountId,
+      accountId: _.get(window, 'shareState.isPublicForm') ? 'user-publicform' : md.global.Account.accountId,
     }),
     axiosConfig,
   );
 }
 
 export async function getWithToken(url, tokenArgs = {}, body = {}, axiosConfig = {}) {
-  const token = await appManagementAjax.getToken(tokenArgs);
+  const token = await (_.get(window, 'shareState.isPublicForm') ? publicWorksheet : appManagementAjax).getToken(
+    tokenArgs,
+  );
   if (!token) {
     return Promise.reject('获取token失败');
   }
@@ -1369,7 +1418,7 @@ export async function getWithToken(url, tokenArgs = {}, body = {}, axiosConfig =
     params: {
       ...body,
       token,
-      accountId: md.global.Account.accountId,
+      accountId: _.get(window, 'shareState.isPublicForm') ? 'user-publicform' : md.global.Account.accountId,
     },
   });
 }
@@ -1568,7 +1617,96 @@ export function handleRecordError(resultCode, control) {
     alert(_l('编辑失败，%0不允许重复', control ? control.controlName : ''), 2);
   } else if (resultCode === 31) {
     alert(_l('记录提交失败：有必填字段未填写'), 2);
+  } else if (resultCode === 22) {
+    alert(_l('记录提交失败：子表字段存在重复数据'), 2);
   } else {
     alert(_l('编辑失败！'), 2);
   }
+}
+
+export function handleChildTableUniqueError({ badData = [], cellObjs = {}, data = {} } = {}) {
+  if (badData[0]) {
+    const [childTableControlId, controlId, value] = badData[0].split(':');
+    const childTableComp = (cellObjs || {})[childTableControlId];
+    const childTableControl = _.find(data, { controlId: childTableControlId });
+    if (childTableControl && childTableComp) {
+      const badRowIds = (_.get(childTableControl, 'value.rows') || [])
+        .filter(r => r[controlId].indexOf(value) > -1)
+        .map(r => r.rowid);
+      if (!badRowIds.length) return;
+      childTableComp.cell.setState({
+        error: true,
+        cellErrors: badRowIds
+          .map(rowId => ({
+            [`${rowId}-${controlId}`]: FORM_ERROR_TYPE_TEXT.UNIQUE(),
+          }))
+          .reduce((a, b) => ({ ...a, ...b })),
+      });
+    }
+  }
+}
+
+export const replaceControlsTranslateInfo = (appId, controls = []) => {
+  if (!window[`langData-${appId}`]) return controls;
+  return controls.map(c => {
+    const translateInfo = getTranslateInfo(appId, c.controlId);
+    const data = {
+      ...c,
+      controlName: translateInfo.name || c.controlName,
+      hint: translateInfo.hintText || c.hint,
+    };
+    // 填充备注字段内容
+    if (c.type === 10010) {
+      data.dataSource = translateInfo.remark || c.dataSource;
+    } else {
+      data.desc = translateInfo.description || c.desc;
+    }
+    return data;
+  });
+};
+
+export const replaceBtnsTranslateInfo = (appId, btns = []) => {
+  if (!window[`langData-${appId}`]) return btns;
+  return btns.map(btn => {
+    const translateInfo = getTranslateInfo(appId, btn.btnId);
+    return {
+      ...btn,
+      name: translateInfo.name || btn.name,
+      desc: translateInfo.description || btn.desc,
+    };
+  });
+};
+
+/**
+ * 取消选择页面中选中的文字
+ */
+export function clearSelection() {
+  if (window.getSelection) {
+    if (window.getSelection().empty) {
+      // Chrome
+      window.getSelection().empty();
+    } else if (window.getSelection().removeAllRanges) {
+      // Firefox
+      window.getSelection().removeAllRanges();
+    }
+  } else if (document.selection) {
+    // IE
+    document.selection.empty();
+  }
+}
+
+export function getControlStyles(controls) {
+  return controls
+    .filter(c => _.includes(HAVE_VALUE_STYLE_WIDGET, c.type === 30 ? c.sourceControlType : c.type))
+    .map(c => ({ controlId: c.controlId, valueStyle: getValueStyle({ ...c, value: ' ' }).valueStyle }))
+    .filter(c => c.valueStyle)
+    .map(
+      item => `
+    .control-val-${item.controlId} {
+      > span:not(.editIcon), > a, .worksheetCellPureString, .titleText, &.titleText {
+        ${item.valueStyle}
+      }
+    }
+  `,
+    );
 }

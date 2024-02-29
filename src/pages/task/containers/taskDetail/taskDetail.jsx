@@ -418,7 +418,6 @@ class TaskDetail extends Component {
             '.attachmentsPreview',
             '.selectUserBox',
             '#dialogBoxSelectUser_container',
-            '.businessCardSite',
             '.mui-dialog-container',
             '.mdAlertDialog',
             '.PositionContainer-wrapper',
@@ -623,7 +622,7 @@ class TaskDetail extends Component {
     // 弹层打开
     return (
       <Dialog.DialogBase visible width={800} type="fixed" anim={false}>
-        1{this.renderContentBox()}
+        {this.renderContentBox()}
       </Dialog.DialogBase>
     );
   }

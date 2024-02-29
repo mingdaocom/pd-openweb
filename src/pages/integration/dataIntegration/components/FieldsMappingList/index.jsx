@@ -10,6 +10,7 @@ import SetComment from './SetComment';
 import { DATABASE_TYPE, isValidName, namePattern, SYSTEM_FIELD_IDS } from '../../constant';
 import { OPERATION_TYPE_DATA } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config';
 import { useState } from 'react';
+import { isNotSupportField } from '../../utils';
 
 const Wrapper = styled.div`
   .headTr,
@@ -160,16 +161,6 @@ export default function FieldMappingList(props) {
     setFieldsMapping && setFieldsMapping(newFieldsMapping);
   };
 
-  const isNotSupportField = sourceField => {
-    const isOtherTable_onlyDisplay_orLink =
-      sourceField.mdType === 30 &&
-      (sourceField.controlSetting.strDefault === '10' || sourceField.controlSetting.sourceControlType === 21); //他表字段-仅显示,他表字段-自由连接类型
-    const isRelated_multiple = sourceField.mdType === 29 && sourceField.controlSetting.enumDefault === 2; //关联记录-多条
-    const isNotSupport =
-      !(matchedTypes[sourceField.id] || []).length || isOtherTable_onlyDisplay_orLink || isRelated_multiple;
-    return isNotSupport;
-  };
-
   const renderInputName = data => {
     const sourceField = data.sourceField || {};
     const destField = data.destField || {};
@@ -178,7 +169,7 @@ export default function FieldMappingList(props) {
         ? isExistJoinPk
           ? sourceField.isUniquePk
           : (sourceField.oid || '').split('_')[1] === 'rowid'
-        : destData.dsType === DATABASE_TYPE.MONGO_DB && sourceField.fid === 'rowid';
+        : destData.dsType === DATABASE_TYPE.MONGO_DB && sourceField.isPk;
 
     return (
       <Input
@@ -195,7 +186,6 @@ export default function FieldMappingList(props) {
               destField: {
                 ...destField,
                 name: newName,
-                alias: newName,
               },
             });
           } else {
@@ -205,7 +195,6 @@ export default function FieldMappingList(props) {
               destField: {
                 ...destField,
                 name: needReplace ? event.target.value.replace(namePattern, '') : event.target.value,
-                alias: needReplace ? event.target.value.replace(namePattern, '') : event.target.value,
               },
             });
           }
@@ -216,7 +205,6 @@ export default function FieldMappingList(props) {
             destField: {
               ...destField,
               name: value,
-              alias: value,
             },
           })
         }
@@ -263,7 +251,7 @@ export default function FieldMappingList(props) {
           const newFieldsMapping = fieldsMapping.map(item => {
             const { sourceField = {}, destField = {} } = item;
             const isValidField = isValidName(sourceField.name) || !sourceData.isDbType;
-            const isNotSupport = isNotSupportField(sourceField);
+            const isNotSupport = isNotSupportField(sourceField, matchedTypes);
             return {
               sourceField: {
                 ...sourceField,
@@ -284,7 +272,7 @@ export default function FieldMappingList(props) {
     const destField = data.destField || {};
     const sourceField = data.sourceField || {};
     if (!matchedTypes) return;
-    const isNotSupport = isNotSupportField(sourceField);
+    const isNotSupport = isNotSupportField(sourceField, matchedTypes);
 
     return (
       <Checkbox
@@ -309,7 +297,7 @@ export default function FieldMappingList(props) {
     if (!matchedTypes) return;
     const matchedTypeIds = _.uniq((matchedTypes[sourceField.id] || []).map(type => type.dataType));
     const matchedMdTypeIds = _.uniq((matchedTypes[sourceField.id] || []).map(type => type.mdType));
-    const isNotSupport = isNotSupportField(sourceField);
+    const isNotSupport = isNotSupportField(sourceField, matchedTypes);
 
     const filterOptions = destData.isDbType
       ? (destData.destFields || []).filter(
@@ -317,14 +305,7 @@ export default function FieldMappingList(props) {
             (isExistJoinPk ? !!o.isPk === !!sourceField.isUniquePk : !!o.isPk === !!sourceField.isPk) &&
             _.includes(matchedTypeIds, o.jdbcTypeId),
         )
-      : (destData.destFields || []).filter(
-          o =>
-            (!sourceData.isDbType
-              ? isExistJoinPk
-                ? !!o.isPk === !!sourceField.isUniquePk
-                : !!o.isPk === !!sourceField.isPk
-              : true) && _.includes(matchedMdTypeIds, o.mdType),
-        );
+      : (destData.destFields || []).filter(o => _.includes(matchedMdTypeIds, o.mdType));
 
     const options = filterOptions
       .filter(
@@ -390,7 +371,7 @@ export default function FieldMappingList(props) {
                     ...destField,
                     id: value,
                     name: option.name,
-                    alias: option.name,
+                    alias: option.alias,
                     dataType: option.dataType,
                     jdbcTypeId: option.jdbcTypeId,
                     precision: option.precision,
@@ -437,15 +418,12 @@ export default function FieldMappingList(props) {
           render: data => {
             const sourceField = data.sourceField;
             if (!matchedTypes) return;
-            const isNotSupport = isNotSupportField(sourceField);
+            const isNotSupport = isNotSupportField(sourceField, matchedTypes);
 
             return (
               <div className="flexRow">
-                <span
-                  title={sourceField.alias || sourceField.name}
-                  className={`overflow_ellipsis ${sourceField.isDelete ? 'Red' : ''}`}
-                >
-                  {sourceField.alias || sourceField.name}
+                <span title={sourceField.name} className={`overflow_ellipsis ${sourceField.isDelete ? 'Red' : ''}`}>
+                  {sourceField.name}
                 </span>
                 {sourceField.aggFuncType && (
                   <span className={`flexShrink0 ${sourceField.isDelete ? 'Red' : 'Gray_9e'}`}>
@@ -511,16 +489,16 @@ export default function FieldMappingList(props) {
           render: data => {
             const sourceField = data.sourceField;
             if (!matchedTypes) return;
-            const isNotSupport = isNotSupportField(sourceField);
+            const isNotSupport = isNotSupportField(sourceField, matchedTypes);
 
             return (
               <div className="flexRow alignItemsCenter">
                 <Icon icon={getIconByType(sourceField.mdType, false)} className={cx('Font18 Gray_9e')} />
                 <span
-                  title={sourceField.alias || sourceField.name}
+                  title={sourceField.name}
                   className={`mLeft8 overflow_ellipsis ${sourceField.isDelete ? 'Red' : ''}`}
                 >
-                  {sourceField.alias || sourceField.name}
+                  {sourceField.name}
                 </span>
                 {sourceField.aggFuncType && (
                   <span className={`flexShrink0 ${sourceField.isDelete ? 'Red' : 'Gray_9e'}`}>
@@ -754,7 +732,7 @@ export default function FieldMappingList(props) {
         renderTitle: renderCheckAll,
         render: data => renderCheckbox(data, 'isCheck'),
       },
-      ...leftColumns,
+      ...leftColumns.filter(item => sourceData.dsType !== DATABASE_TYPE.KAFKA || item.dataIndex !== 'isNotNull'),
       {
         dataIndex: 'arrowColumn',
         title: '',

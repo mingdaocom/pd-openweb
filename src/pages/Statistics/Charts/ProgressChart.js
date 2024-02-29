@@ -238,10 +238,12 @@ class ProgressChart extends Component {
 
 
 export default (props) => {
-  const { themeColor, projectId, customPageConfig, reportData } = props;
-  const { chartColor } = customPageConfig;
-  const { map, yaxisList, style } = reportData;
-  const color = getChartColors(chartColor || style, themeColor, projectId);
+  const { themeColor, projectId, customPageConfig = {}, reportData } = props;
+  const { chartColor, chartColorIndex = 1 } = customPageConfig;
+  const { map, yaxisList } = reportData;
+  const styleConfig = reportData.style || {};
+  const style = chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0) ? { ...styleConfig, ...chartColor } : styleConfig;
+  const color = getChartColors(style, themeColor, projectId);
   const controlMinAndMax = getControlMinAndMax(map);
   return (
     <div

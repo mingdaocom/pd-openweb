@@ -4,7 +4,8 @@ import moment from 'moment';
 import base64 from 'js-base64';
 import { assign, trim, isObject, isEmpty } from 'lodash';
 import { PICK_TYPE, ROOT_PERMISSION_TYPE, NODE_SORT_TYPE, NODE_SORT_BY } from '../constant/enum';
-import { index as dialog } from 'src/components/mdDialog/dialog';
+import Dialog from 'ming-ui/components/Dialog';
+import React from 'react';
 
 const base64encode = base64.Base64.encode;
 
@@ -233,30 +234,25 @@ export function confirm(
   className = '',
 ) {
   const dfd = $.Deferred();
-  const container = {
-    dialogBoxID: Math.random(),
-    header, // '删除',
-    content, // '确认删除选定文件？',
-    ckText,
-    minorContent,
-  };
+  const container = {};
   if (yesText === false) {
-    container.yesFn = false;
+    container.removeOkBtn = true;
   } else {
-    container.yesFn = checked => dfd.resolve(checked);
-    container.yesText = yesText;
+    container.onOk = checked => dfd.resolve(checked);
+    container.okText = yesText;
   }
   if (noText === false) {
-    container.noFn = false;
+    container.removeCancelBtn = true;
   } else {
-    container.noFn = () => dfd.reject();
-    container.noText = noText;
+    container.onCancel = () => dfd.reject();
+    container.cancelText = noText;
   }
 
-  dialog({
-    showClose,
-    className: className || null,
-    container,
+  Dialog.confirm({
+    dialogClasses: Math.random(),
+    title: header,
+    children: <div dangerouslySetInnerHTML={{ __html: content }}></div>,
+    ...container,
   });
   return dfd.promise();
 }
@@ -282,16 +278,14 @@ export function humanDateTime(time) {
  * URL安全的Base64编码
  **/
 export function getUrlBase64Encode(str) {
-  return base64encode(str)
-    .replace(/\//g, '_')
-    .replace(/\+/g, '-');
+  return base64encode(str).replace(/\//g, '_').replace(/\+/g, '-');
 }
 
 let isIe;
 export function isIE() {
   isIe =
     isIe ||
-    (function() {
+    (function () {
       let undef;
       let rv = -1; // Return value assumes failure.
       const ua = window.navigator.userAgent;

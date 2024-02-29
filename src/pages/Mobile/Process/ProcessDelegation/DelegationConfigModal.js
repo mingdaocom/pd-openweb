@@ -4,7 +4,6 @@ import { Icon } from 'ming-ui';
 import delegationApi from 'src/pages/workflow/api/delegation';
 import SelectUser from 'mobile/components/SelectUser';
 import MobileDatePicker from 'src/ming-ui/components/MobileDatePicker';
-import { QiniuImg } from 'src/pages/feed/components/common/img';
 import moment from 'moment';
 import styled from 'styled-components';
 import cx from 'classnames';
@@ -237,15 +236,20 @@ export default function DelegationConfigModal(props) {
               {!_.isEmpty(user) && (
                 <div className="userItemWrapper">
                   <div className="pointer circle">
-                    <QiniuImg
-                      style={{ backgroundColor: '#f5f5f5', borderRadius: '50%' }}
-                      size={22}
-                      qiniuSize={100}
-                      quality={90}
-                      lazy={true}
+                    <img
+                      style={{ backgroundColor: '#f5f5f5', borderRadius: '50%', width: '22px', height: '22px' }}
                       placeholder={`${md.global.FileStoreConfig.pictureHost.replace(/\/$/, '')}/UserAvatar/default.gif`}
                       className="circle"
-                      src={user.avatar || ''}
+                      src={
+                        user.avatar
+                          ? user.avatar.indexOf('?') > 0
+                            ? user.avatar.replace(
+                                /imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/,
+                                'imageView2/2/w/100/h/100/q/90',
+                              )
+                            : `${user.avatar}?imageView2/2/w/100/h/100/q/90`
+                          : ''
+                      }
                     />
                   </div>
                   <div className="Gray Font13 pRight10 pTop1 ellipsis fullName">{user.fullname}</div>

@@ -44,7 +44,7 @@ class ChatPanelHeader extends Component {
       },
       () => {
         $(this.input).focus();
-      }
+      },
     );
   }
   handleSearchHidden() {
@@ -135,7 +135,7 @@ class ChatPanelHeader extends Component {
     GroupController.updateGroupPushNotice({
       groupId: session.id,
       isPushNotice,
-    }).then((result) => {
+    }).then(result => {
       this.props.dispatch(actions.updateGroupPushNotice(session.id, isPushNotice));
       // isPushNotice ? alert(_l('已关闭消息免打扰')) : alert(_l('已开启消息免打扰'));
     });
@@ -143,7 +143,7 @@ class ChatPanelHeader extends Component {
   }
   handleAddSession() {
     const { session } = this.props;
-    createDiscussion(session.id, (result) => {});
+    createDiscussion(session.id, result => {});
   }
   handleOpenChatWindow() {
     const { session, isWindow } = this.props;
@@ -166,11 +166,13 @@ class ChatPanelHeader extends Component {
   handleStick() {
     const { session } = this.props;
     const { isTop, id, groupId } = session;
-    this.props.dispatch(actions.sendSetTop({
-      type: groupId ? Constant.SESSIONTYPE_GROUP : Constant.SESSIONTYPE_USER,
-      value: id,
-      isTop: !isTop,
-    }));
+    this.props.dispatch(
+      actions.sendSetTop({
+        type: groupId ? Constant.SESSIONTYPE_GROUP : Constant.SESSIONTYPE_USER,
+        value: id,
+        isTop: !isTop,
+      }),
+    );
     this.handleTriggerChange(false);
   }
   handleGoto() {
@@ -201,34 +203,35 @@ class ChatPanelHeader extends Component {
     // const isSet = false;
     return (
       <div className="ChatPanel-addToolbar-menu">
-        {
-          isSet ?
+        {isSet ? (
           <div className="menuItem ThemeBGColor3" onClick={this.handleStick.bind(this)}>
             <i className="icon-set_top" />
             <div className="menuItem-text">{isTop ? _l('取消置顶') : _l('置顶')}</div>
-          </div> : undefined
-        }
-        {
-          isGroup ?
+          </div>
+        ) : (
+          undefined
+        )}
+        {isGroup ? (
           <div className="menuItem ThemeBGColor3" onClick={this.handleUpdateGroupPushNotice.bind(this)}>
             {session.isGroup ? this.renderIcon() : undefined}
-            <div className="menuItem-text">
-              {session.isPushNotice ? _l('消息免打扰') : _l('允许提醒')}
-            </div>
-          </div> : undefined
-        }
+            <div className="menuItem-text">{session.isPushNotice ? _l('消息免打扰') : _l('允许提醒')}</div>
+          </div>
+        ) : (
+          undefined
+        )}
         {/* <div className="menuItem ThemeBGColor3" onClick={this.handleStick.bind(this)}>
           <i className="icon-text" />
           <div className="menuItem-text">{_l('字体大小')}</div>
           <i className="icon-arrow-right-tip" style={{marginLeft: 60, fontSize: 12}}/>
         </div> */}
-        {
-          isGroup ?
+        {isGroup ? (
           <div className="menuItem ThemeBGColor3" onClick={this.handleSettingGroup.bind(this)}>
             <i className="icon-group" />
-            <div className="menuItem-text">{_l('%0设置', session.isPost ? _l('群组') : _l('聊天'))}</div>
-          </div> : undefined
-        }
+            <div className="menuItem-text">{session.isPost ? _l('群组设置') : _l('聊天设置')}</div>
+          </div>
+        ) : (
+          undefined
+        )}
       </div>
     );
   }
@@ -285,7 +288,7 @@ class ChatPanelHeader extends Component {
             <div className={cx('search-wrapper', { 'hidden-wrapper': !searchVisible })}>
               <i onClick={this.handleSearch.bind(this)} className="icon-search ThemeColor3 iconHover" />
               <input
-                ref={(input) => {
+                ref={input => {
                   this.input = input;
                 }}
                 className={cx('search-input', { ThemeBorderColor3: focus })}
@@ -308,14 +311,23 @@ class ChatPanelHeader extends Component {
             </Tooltip>
           )}
           <Tooltip text={<span>{_l('查看文件')}</span>}>
-            <i onClick={this.props.onOpenFile.bind(this, !isOpenFile)} className={cx('icon-task-folder-solid ThemeColor3', { iconHover: !isOpenFile })} />
+            <i
+              onClick={this.props.onOpenFile.bind(this, !isOpenFile)}
+              className={cx('icon-task-folder-solid ThemeColor3', { iconHover: !isOpenFile })}
+            />
           </Tooltip>
           {session.isGroup ? (
             <Tooltip popupPlacement="top" text={<span>{infoVisible ? _l('隐藏会话详情') : _l('显示会话详情')}</span>}>
               {infoVisible ? (
-                <i onClick={this.props.onSetInfoVisible.bind(this, false)} className="icon-sidebar-start ThemeColor3 iconHover" />
+                <i
+                  onClick={this.props.onSetInfoVisible.bind(this, false)}
+                  className="icon-sidebar-start ThemeColor3 iconHover"
+                />
               ) : (
-                <i onClick={this.props.onSetInfoVisible.bind(this, true)} className="icon-drop_down_menu ThemeColor3 iconHover" />
+                <i
+                  onClick={this.props.onSetInfoVisible.bind(this, true)}
+                  className="icon-drop_down_menu ThemeColor3 iconHover"
+                />
               )}
             </Tooltip>
           ) : (
@@ -325,17 +337,24 @@ class ChatPanelHeader extends Component {
             undefined
           ) : (
             <Tooltip text={<span>{isWindow ? _l('恢复') : _l('新窗口聊天')}</span>}>
-              <i onClick={this.handleOpenChatWindow.bind(this)} className={`${isWindow ? 'icon-maximizing_b' : 'icon-maximizing_a'} ThemeColor3 iconHover`} />
+              <i
+                onClick={this.handleOpenChatWindow.bind(this)}
+                className={`${isWindow ? 'icon-maximizing_b' : 'icon-maximizing_a'} ThemeColor3 iconHover`}
+              />
             </Tooltip>
           )}
-          {isWindow ? undefined : <i onClick={this.handleClosePanel.bind(this)} className="icon-close ThemeColor3 iconHover" />}
+          {isWindow ? (
+            undefined
+          ) : (
+            <i onClick={this.handleClosePanel.bind(this)} className="icon-close ThemeColor3 iconHover" />
+          )}
         </div>
       </div>
     );
   }
 }
 
-export default connect((state) => {
+export default connect(state => {
   const { currentSession, visible, isWindow } = state.chat;
 
   return {

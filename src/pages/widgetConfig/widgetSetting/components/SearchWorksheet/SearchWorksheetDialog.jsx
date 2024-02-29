@@ -33,16 +33,21 @@ const RadioDisplay = [
 export const getDefaultCount = (data = {}, value = 0) => {
   value = parseInt(value);
   if (value) {
+    // 下拉框50，卡片200，列表500
     if (data.type === 29 && _.get(data, 'advancedSetting.showtype') === '3') {
       value = value > 50 ? 50 : value;
-    } else if (value > 200) {
-      value = 200;
+    } else if (data.type === 29 && _.get(data, 'advancedSetting.showtype') === '1') {
+      value = value > 200 ? 200 : value;
+    } else if (value > 500) {
+      value = 500;
     }
   } else {
     if (data.type === 29 && _.get(data, 'advancedSetting.showtype') === '3') {
       value = 50;
-    } else {
+    } else if (data.type === 29 && _.get(data, 'advancedSetting.showtype') === '1') {
       value = 200;
+    } else {
+      value = 500;
     }
   }
   return value;
@@ -352,18 +357,22 @@ export default class SearchWorksheetDialog extends Component {
     } = this.state;
     const { from, onClose, data = {}, globalSheetInfo = {}, allControls = [], queryControls = [] } = this.props;
     const totalControls = from === 'subList' ? queryControls : allControls;
-    //普通字段
-    const normalField = !_.includes([29, 34], data.type);
+    // 同源级联
+    const selfCascader = data.type === 35 && data.dataSource === sheetId;
     //关联单条、多条（卡片、下拉框）
     const relateField = this.relateField();
     //空白子表、关联类型子表
     const subField = _.includes([34], data.type);
+    //普通字段
+    const normalField = !(selfCascader || relateField || subField);
+    // 关联本表
+    const selfRelate = selfCascader || relateField;
 
     const checkFilters = _.isEmpty(items) || !checkConditionCanSave(items, true);
     const checkConfigs = _.isEmpty(configs) || !_.every(configs, con => !!con.cid);
     const okDisabled = normalField
       ? !sheetId || checkFilters || _.isEmpty(configs)
-      : relateField
+      : selfRelate
       ? checkFilters
       : !sheetId || checkFilters || checkConfigs;
 
@@ -478,7 +487,7 @@ export default class SearchWorksheetDialog extends Component {
                       {sheetName ? (
                         <span className={cx(isSheetDelete ? 'Red' : 'Gray')}>
                           {isSheetDelete ? _l('工作表已删除') : sheetName}
-                          {appName && <span>{_l('（%0）', appName)}</span>}
+                          {appName && <span>（{appName}）</span>}
                         </span>
                       ) : (
                         <span className="Gray_bd">{_l('选择工作表')}</span>
@@ -517,8 +526,8 @@ export default class SearchWorksheetDialog extends Component {
                 )}
               </SettingItem>
 
-              {/**普通、关联单条 */}
-              {(normalField || (data.type === 29 && data.enumDefault === 1)) && (
+              {/**普通、关联单条、级联 */}
+              {(normalField || (data.type === 29 && data.enumDefault === 1) || selfCascader) && (
                 <SettingItem className="mTop12">
                   <div className="settingItemTitle">{_l('查询到多条时')}</div>
                   <RadioGroup
@@ -559,7 +568,7 @@ export default class SearchWorksheetDialog extends Component {
                   <InputValue
                     className="w100"
                     type={2}
-                    placeholder={data.type === 29 && _.get(data, 'advancedSetting.showtype') === '3' ? '50' : '200'}
+                    placeholder={getDefaultCount(data)}
                     value={queryCount ? queryCount.toString() : undefined}
                     onChange={value => this.setState({ queryCount: value })}
                     onBlur={value => {
@@ -610,7 +619,7 @@ export default class SearchWorksheetDialog extends Component {
                     </div>
                   </Fragment>
                 )}
-                {relateField && <div>{_l('将获取到的记录写入到当前字段')}</div>}
+                {selfRelate && <div>{_l('将获取到的记录写入到当前字段')}</div>}
                 {subField && (
                   <div>
                     <div className="Gray_75 mBottom12">

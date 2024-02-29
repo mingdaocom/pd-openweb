@@ -1,16 +1,9 @@
 import React from 'react';
 import cx from 'classnames';
-
 import Icon from 'ming-ui/components/Icon';
-import LoadDiv from 'ming-ui/components/LoadDiv';
 import ScrollView from 'ming-ui/components/ScrollView';
-import Switch from 'ming-ui/components/Switch';
-
-import { LazyloadImg } from 'src/pages/feed/components/common/img';
-
 import API, { openGroup, closeGroup } from '../api';
 import { config } from '../config';
-
 import SettingGroup from 'src/components/group/settingGroup/settingGroups';
 
 export default class GroupDetail extends React.Component {
@@ -37,14 +30,14 @@ export default class GroupDetail extends React.Component {
       <React.Fragment>
         {isOpen === false ? (
           <div className="detail-header">
-            <LazyloadImg src={avatar} className="detail-header-avatar disabled" />
+            <img src={avatar} className="detail-header-avatar disabled" />
             <div className="detail-header-info Gray_bd">
               <div className="Font18 clearfix">{name}</div>
             </div>
           </div>
         ) : (
           <div className="detail-header">
-            <LazyloadImg src={avatar} className="detail-header-avatar" />
+            <img src={avatar} className="detail-header-avatar" />
             <div className="detail-header-info">
               <div className="Font18 clearfix">
                 {name}

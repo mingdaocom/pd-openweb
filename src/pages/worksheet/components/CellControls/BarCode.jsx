@@ -30,7 +30,7 @@ export default function OptionsSteps(props) {
           advancedSetting: { ...cell.advancedSetting, width: 200 },
           ..._.pick(props, ['recordId', 'appId', 'worksheetId', 'viewId']),
         }}
-        formData={!rowFormData ? null : rowFormData()}
+        formData={!rowFormData ? null : _.isFunction(rowFormData) ? rowFormData() : rowFormData}
       />
     </Con>
   );

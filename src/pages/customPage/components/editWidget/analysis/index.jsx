@@ -5,10 +5,12 @@ import sheetAjax from 'src/api/worksheet';
 import { useSetState } from 'react-use';
 import CreateAnalysis from './CreateAnalysis';
 import { v4 as uuidv4 } from 'uuid';
+import { replaceColor } from 'src/pages/customPage/util';
 
 export default function Analysis(props) {
-  const { widget, onEdit, onUpdate, onClose, ids, projectId, sheetList } = props;
+  const { widget, onEdit, onUpdate, onClose, ids, projectId, sheetList, apk, config } = props;
   const { appId } = ids;
+  const pageConfig = replaceColor(config || {}, apk.iconColor);
 
   const [visible, setVisible] = useState(Boolean(widget.value));
 
@@ -43,6 +45,8 @@ export default function Analysis(props) {
           worksheetId={worksheetId}
           viewId={viewId}
           report={report}
+          themeColor={apk.iconColor}
+          customPageConfig={pageConfig}
           updateDialogVisible={({ dialogVisible, isRequest = false, reportId, reportName, reportType, reportDesc, worksheetId }) => {
             const { config = {} } = widget;
             const newConfig = config.objectId ? config : { ...config, objectId: uuidv4() }

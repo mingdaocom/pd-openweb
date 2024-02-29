@@ -45,6 +45,10 @@ const VIEW_CODE_TYPE = {
     src: withoutPermission,
     text: _l('视图无权限'),
   },
+  13: {
+    src: abnormal,
+    text: _l('排序超过内存限制，请创建包含当前筛选条件与排序字段的索引后重试”'),
+  },
 };
 
 const SHEET_CODE_TYPE = {
@@ -64,7 +68,7 @@ const SHEET_CODE_TYPE = {
     src: withoutPermission,
     text: _l('应用项无权限'),
   },
-}
+};
 
 const UnNormal = props => {
   const { resultCode, errorText, type = 'view' } = props;

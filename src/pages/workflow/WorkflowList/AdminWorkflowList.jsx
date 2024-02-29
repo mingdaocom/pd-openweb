@@ -17,8 +17,9 @@ import projectSetting from 'src/api/projectSetting';
 import { Select } from 'antd';
 import WorkflowMonitor from './components/WorkflowMonitor';
 import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
-import { purchaseMethodFunc } from 'src/components/upgrade/choose/PurchaseMethodModal';
+import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
 import { checkIsAppAdmin } from 'src/components/checkIsAppAdmin';
+import Config from 'src/pages/Admin/config';
 import _ from 'lodash';
 import moment from 'moment';
 
@@ -69,6 +70,7 @@ export default class AdminWorkflowList extends Component {
         ? localStorage.getItem('workflowTab')
         : 'workflowList',
     });
+    Config.setPageTitle(_l('工作流'));
   }
 
   postList = null;
@@ -245,6 +247,7 @@ export default class AdminWorkflowList extends Component {
    * 渲染单个列表项
    */
   renderListItem(item) {
+    const { projectId } = this.props.match.params;
     const { list, loading } = this.state;
 
     return (
@@ -291,7 +294,11 @@ export default class AdminWorkflowList extends Component {
         </div>
         <div className="columnWidth Gray_9e">{moment(item.createdDate).format('YYYY-MM-DD')}</div>
         <div className="columnWidth Gray_75 flexRow">
-          <UserHead size={28} user={{ userHead: item.createdBy.avatar, accountId: item.createdBy.accountId }} />
+          <UserHead
+            projectId={projectId}
+            size={28}
+            user={{ userHead: item.createdBy.avatar, accountId: item.createdBy.accountId }}
+          />
           <div className="mLeft12 ellipsis flex mRight20">{item.createdBy.fullName}</div>
         </div>
         <Link to={`/workflowedit/${item.id}/2`} className="w20 mRight20 TxtCenter">

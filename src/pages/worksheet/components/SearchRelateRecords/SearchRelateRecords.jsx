@@ -168,9 +168,6 @@ export default function SearchRelateRecords(props) {
       if (from === 21) {
         args.getType = 21;
       }
-      if (_.get(window, 'shareState.shareId')) {
-        args.shareId = _.get(window, 'shareState.shareId');
-      }
       sheetAjax.getRowRelationRows(args).then(res => {
         setLoading(false);
         if (res.resultCode !== 1) {

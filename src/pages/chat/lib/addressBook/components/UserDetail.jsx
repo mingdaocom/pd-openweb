@@ -4,7 +4,6 @@ import Dropdown from 'ming-ui/components/Dropdown';
 import { Tooltip, Icon, LoadDiv, ScrollView, Dialog } from 'ming-ui';
 import Menu from 'ming-ui/components/Menu';
 import MenuItem from 'ming-ui/components/MenuItem';
-import { LazyloadImg } from 'src/pages/feed/components/common/img';
 import AddFriend from './AddFriend';
 import API, { removeFriend } from '../api';
 import { config } from '../config';
@@ -86,7 +85,7 @@ export default class UserDetail extends React.Component {
 
   addFriendConfirm() {
     const { accountId } = this.props;
-    new AddFriendConfirm({
+   AddFriendConfirm({
       accountId,
     });
   }
@@ -159,7 +158,7 @@ export default class UserDetail extends React.Component {
     return (
       <React.Fragment>
         <div className="detail-header">
-          <LazyloadImg src={avatar} className="detail-header-avatar" />
+          <img src={avatar} className="detail-header-avatar" />
           <div className="detail-header-info">
             <div className="Font18 clearfix">
               <div className="ellipsis Left" style={{ maxWidth: '200px' }}>
@@ -215,7 +214,7 @@ export default class UserDetail extends React.Component {
           {gender === 1 ? _l('男') : _l('女')}
         </div>
         <div className="detail-info-row half">
-          <span className="Gray_75">{_l('QQ')}：</span>
+          <span className="Gray_75">QQ：</span>
           {imqq || placeHolder}
         </div>
         <div className="detail-info-row half">
@@ -223,7 +222,7 @@ export default class UserDetail extends React.Component {
           {weiXin || placeHolder}
         </div>
         <div className="detail-info-row">
-          <span className="Gray_75">{'LinkeIn'}：</span>
+          <span className="Gray_75">LinkeIn：</span>
           {snsLinkedin || placeHolder}
         </div>
         <div className="detail-info-row">

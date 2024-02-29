@@ -8,8 +8,8 @@ import ActionFields from '../ActionFields';
 import SelectUsersFromApp from '../../../../components/SelectUsersFromApp';
 import { USER_TYPE, CONTROLS_NAME } from '../../../enum';
 import flowNode from '../../../../api/flowNode';
-import { selectJob } from 'src/components/DialogSelectJob';
-import { selectOrgRole } from 'src/components/DialogSelectOrgRole';
+import selectJob from 'src/components/dialogSelectJob';
+import selectOrgRole from 'src/components/dialogSelectOrgRole';
 
 export default class SelectUserDropDown extends Component {
   constructor(props) {
@@ -310,6 +310,7 @@ export default class SelectUserDropDown extends Component {
           roleId: '',
           roleName: '',
           avatar: '',
+          count: 1,
         };
       });
 

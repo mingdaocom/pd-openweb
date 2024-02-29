@@ -258,10 +258,20 @@ export class FlowChart extends Component {
                   .append('<div class="workflowExecLine" />');
               }
 
-              $branchEl.find('.workflowExecLine').eq(0).closest('.flexColumn').addClass('workflowExecBeforeLine');
+              $branchEl
+                .find('.workflowExecLine')
+                .eq(0)
+                .closest('.flexColumn')
+                .addClass('workflowExecBeforeLine');
             }
           });
       }
+    });
+
+    $('.workflowExecLine').each((item, el) => {
+      const $el = $(el);
+
+      $el.height($el.closest('.executed,.workflowBoxPending').innerHeight());
     });
   }
 
@@ -279,7 +289,7 @@ export class FlowChart extends Component {
         renderNode: this.renderNode,
       };
 
-      if (!data[id]) return null;
+      if (!data[id] || !_.includes([NODE_TYPE.BRANCH, NODE_TYPE.APPROVAL], data[id].typeId)) return null;
 
       const NodeComponent = nodeModules[data[id].typeId];
 

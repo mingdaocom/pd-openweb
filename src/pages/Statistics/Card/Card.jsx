@@ -40,7 +40,7 @@ class Card extends Component {
       sheetVisible: false,
       activeData: undefined
     }
-    this.isPublicShare = location.href.includes('public/page') || window.shareAuthor || window.share;
+    this.isPublicShare = window.shareAuthor || _.get(window, 'shareState.shareId');
   }
   componentDidMount() {
     this.getData(this.props);
@@ -75,7 +75,7 @@ class Card extends Component {
     }
   }
   getData = (props, reload = false, refresh = false) => {
-    const { needTimingRefresh, needRefresh = true, report, filters, filtersGroup } = props || this.props;
+    const { needTimingRefresh, needRefresh = true, report, filters, filtersGroup, pageId } = props || this.props;
     const shareAuthor = window.shareAuthor;
     const headersConfig = {
       share: shareAuthor,
@@ -86,6 +86,7 @@ class Card extends Component {
     this.request = reportApi[refresh ? 'refreshData' : 'getData'](
       {
         reportId: report.id,
+        pageId,
         version: '6.5',
         reload,
         filters: printFilter ? printFilter : [filters, filtersGroup].filter(_ => _)
@@ -117,7 +118,7 @@ class Card extends Component {
     const { report, filters, filtersGroup } = this.props;
     const { reportData } = this.state;
     const { appId, filter, style, country } = reportData;
-    const { filterRangeId, rangeType, rangeValue, dynamicFilter } = filter;
+    const { filterRangeId, rangeType, rangeValue, dynamicFilter, today = false, customRangeValue } = filter;
     const { drillParticleSizeType } = country || {};
     const viewDataType = style ? (style.viewDataType || 1) : 1;
     if (viewDataType === 2 && filter.viewId && [VIEW_DISPLAY_TYPE.sheet].includes(filter.viewType.toString())) {
@@ -128,6 +129,8 @@ class Card extends Component {
         rangeType,
         rangeValue,
         dynamicFilter,
+        today,
+        customRangeValue,
         particleSizeType: drillParticleSizeType,
         filters: [filters, filtersGroup].filter(_ => _),
         isPersonal: true,
@@ -146,7 +149,7 @@ class Card extends Component {
     }
   }
   renderChart() {
-    const { projectId, report, mobileCount, layoutType, sourceType, themeColor, customPageConfig } = this.props;
+    const { projectId, report, mobileCount, mobileFontSize, layoutType, sourceType, themeColor, customPageConfig = {} } = this.props;
     const { id } = report;
     const { loading, reportData } = this.state;
     const { reportType } = reportData;
@@ -160,9 +163,10 @@ class Card extends Component {
           isViewOriginalData={!this.isPublicShare}
           onOpenChartDialog={this.handleOpenChartDialog}
           mobileCount={mobileCount}
+          mobileFontSize={mobileFontSize}
           layoutType={layoutType}
           sourceType={sourceType}
-          customPageConfig={customPageConfig || {}}
+          customPageConfig={customPageConfig}
           themeColor={themeColor}
           reportData={{
             ...reportData,
@@ -225,9 +229,10 @@ class Card extends Component {
   render() {
     const { dialogVisible, reportData, settingVisible, scopeVisible, sheetVisible, activeData } = this.state;
     const { showTitle = true } = reportData.displaySetup || {};
-    const { report, appId, ownerId, roleType, sourceType, needEnlarge, needRefresh = true, worksheetId, filters, filtersGroup, className, onRemove, isCharge, permissionType, isLock, themeColor } = this.props;
-    const permissions = sourceType ? false : ownerId || isCharge;
+    const { report, appId, pageId, ownerId, roleType, sourceType, needEnlarge, needRefresh = true, worksheetId, filters, filtersGroup, className, onRemove, isCharge, permissionType, isLock, customPageConfig = {}, themeColor } = this.props;
+    const permissions = sourceType ? permissionType > 0 : ownerId || isCharge;
     const isSheetView = ![reportTypes.PivotTable, reportTypes.NumberChart].includes(reportData.reportType);
+
     return (
       <div
         className={cx(`statisticsCard statisticsCard-${report.id} statisticsCard-${reportData.reportType}`, className, {
@@ -236,7 +241,7 @@ class Card extends Component {
         })}
       >
         <div className="header">
-          {permissions && (
+          {(sourceType ? false : permissions) && (
             <span data-tip={_l('拖拽')} className="iconItem dragWrap Gray_9e">
               <Icon icon="drag" />
             </span>
@@ -253,21 +258,21 @@ class Card extends Component {
             )}
           </div>
           <div className="operateIconWrap valignWrapper Relative">
-            {needEnlarge && isSheetView && reportData.status > 0 && (
+            {needEnlarge && !this.isPublicShare && (sourceType ? reportData.status > 0 : true) && (
               <span
                 className="iconItem Gray_9e"
-                data-tip={_l('以表格显示')}
+                data-tip={_l('筛选')}
                 onClick={() => {
                   this.setState({
                     dialogVisible: true,
-                    sheetVisible: true,
+                    sheetVisible: false,
                     settingVisible: false,
-                    scopeVisible: false,
+                    scopeVisible: true,
                     activeData: undefined
                   });
                 }}
               >
-                <Icon icon="table" />
+                <Icon className="Font20" icon="filter" />
               </span>
             )}
             {needRefresh && reportData.status > 0 && (
@@ -293,15 +298,15 @@ class Card extends Component {
               <MoreOverlay
                 className="iconItem Gray_9e Font20"
                 themeColor={themeColor}
-                permissions={sourceType ? null : permissions}
+                permissions={permissions}
                 permissionType={permissionType}
                 isLock={isLock}
                 isCharge={isCharge}
                 reportStatus={reportData.reportType}
                 reportType={reportData.reportType}
                 filter={reportData.filter}
-                isMove={permissions}
-                onRemove={(permissions && sourceType !== 1) ? onRemove : null}
+                isMove={sourceType ? false : permissions && isCharge}
+                onRemove={sourceType ? false : (permissions && onRemove)}
                 exportData={{
                   filters,
                   filtersGroup
@@ -314,21 +319,21 @@ class Card extends Component {
                 ownerId={ownerId}
                 appId={appId}
                 worksheetId={sourceType ? worksheetId : null}
-                onOpenSetting={permissions ? () => {
+                onOpenSetting={(sourceType !== 2 && sourceType ? isCharge : permissions) ? () => {
                   this.handleOperateClick({
                     settingVisible: true,
                     activeData: undefined
                   });
                 } : null}
-                onOpenFilter={() => {
+                onSheetView={isSheetView ? () => {
                   this.setState({
                     dialogVisible: true,
-                    sheetVisible: false,
+                    sheetVisible: true,
                     settingVisible: false,
-                    scopeVisible: true,
+                    scopeVisible: false,
                     activeData: undefined
                   });
-                }}
+                } : null}
               />
             )}
           </div>
@@ -342,6 +347,9 @@ class Card extends Component {
               name: reportData.name,
               desc: reportData.desc
             }}
+            pageId={pageId}
+            customPageConfig={customPageConfig}
+            themeColor={themeColor}
             activeData={activeData}
             worksheetId={reportData.appId}
             settingVisible={settingVisible}

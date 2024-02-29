@@ -1,17 +1,5 @@
 export default {
   /**
-  * 获取企业标识
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getProjectIdentity: function (args, options = {}) {
-     
-     return $.api('ProjectSetting', 'GetProjectIdentity', args, options);
-   },
-  /**
   * 界面定制
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
@@ -60,18 +48,6 @@ export default {
      return $.api('ProjectSetting', 'GetSubDomain', args, options);
    },
   /**
-  * 多域名
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getProjectDomain: function (args, options = {}) {
-     
-     return $.api('ProjectSetting', 'GetProjectDomain', args, options);
-   },
-  /**
   * 新用户加入企业必填字段
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
@@ -94,18 +70,6 @@ export default {
    getStructureForAll: function (args, options = {}) {
      
      return $.api('ProjectSetting', 'GetStructureForAll', args, options);
-   },
-  /**
-  * 获取 是否允许员工自行添加下属
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getStructureSelfEdit: function (args, options = {}) {
-     
-     return $.api('ProjectSetting', 'GetStructureSelfEdit', args, options);
    },
   /**
   * 获取 是否开启了水印
@@ -168,31 +132,6 @@ export default {
      return $.api('ProjectSetting', 'GetAutoPurchaseDataPipelineExtPack', args, options);
    },
   /**
-  * 企业标识
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {boolean} args.allowProjectCodeJoin 企业标识
-  * @param {string} args.logoName LOGO
-  * @param {string} args.imageName 二级域名页面背景图片
-  * @param {boolean} args.birthdayNoticeEnabled 生日提醒
-  * @param {boolean} args.isAudit 设置审批
-  * @param {boolean} args.forAll 设置允许全员可见组织结构
-  * @param {boolean} args.isAllowStructureSelfEdit 是否 允许员工自行添加下属
-  * @param {boolean} args.onlyManagerCreateApp 是否 只允许管理员创建应用
-  * @param {boolean} args.enabledWatermark 是否 启用水印
-  * @param {boolean} args.enabledNoneVerification 是否 启用用户密码输入可以设置免密验证
-  * @param {boolean} args.notice 设置允许Score通知
-  * @param {string} args.subDomain 设置二级域名
-  * @param {string} args.domain 删除绑定的域名
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   setProjectIdentity: function (args, options = {}) {
-     
-     return $.api('ProjectSetting', 'SetProjectIdentity', args, options);
-   },
-  /**
   * LOGO
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
@@ -241,56 +180,6 @@ export default {
    setCustomeHomeImage: function (args, options = {}) {
      
      return $.api('ProjectSetting', 'SetCustomeHomeImage', args, options);
-   },
-  /**
-  * 生日提醒
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {boolean} args.allowProjectCodeJoin 企业标识
-  * @param {string} args.logoName LOGO
-  * @param {string} args.imageName 二级域名页面背景图片
-  * @param {boolean} args.birthdayNoticeEnabled 生日提醒
-  * @param {boolean} args.isAudit 设置审批
-  * @param {boolean} args.forAll 设置允许全员可见组织结构
-  * @param {boolean} args.isAllowStructureSelfEdit 是否 允许员工自行添加下属
-  * @param {boolean} args.onlyManagerCreateApp 是否 只允许管理员创建应用
-  * @param {boolean} args.enabledWatermark 是否 启用水印
-  * @param {boolean} args.enabledNoneVerification 是否 启用用户密码输入可以设置免密验证
-  * @param {boolean} args.notice 设置允许Score通知
-  * @param {string} args.subDomain 设置二级域名
-  * @param {string} args.domain 删除绑定的域名
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   setBirthdayNotice: function (args, options = {}) {
-     
-     return $.api('ProjectSetting', 'SetBirthdayNotice', args, options);
-   },
-  /**
-  * 设置审批
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {boolean} args.allowProjectCodeJoin 企业标识
-  * @param {string} args.logoName LOGO
-  * @param {string} args.imageName 二级域名页面背景图片
-  * @param {boolean} args.birthdayNoticeEnabled 生日提醒
-  * @param {boolean} args.isAudit 设置审批
-  * @param {boolean} args.forAll 设置允许全员可见组织结构
-  * @param {boolean} args.isAllowStructureSelfEdit 是否 允许员工自行添加下属
-  * @param {boolean} args.onlyManagerCreateApp 是否 只允许管理员创建应用
-  * @param {boolean} args.enabledWatermark 是否 启用水印
-  * @param {boolean} args.enabledNoneVerification 是否 启用用户密码输入可以设置免密验证
-  * @param {boolean} args.notice 设置允许Score通知
-  * @param {string} args.subDomain 设置二级域名
-  * @param {string} args.domain 删除绑定的域名
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   setAudit: function (args, options = {}) {
-     
-     return $.api('ProjectSetting', 'SetAudit', args, options);
    },
   /**
   * 设置允许全员可见组织结构
@@ -497,31 +386,6 @@ export default {
      return $.api('ProjectSetting', 'SetSubDomin', args, options);
    },
   /**
-  * 删除绑定的域名
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {boolean} args.allowProjectCodeJoin 企业标识
-  * @param {string} args.logoName LOGO
-  * @param {string} args.imageName 二级域名页面背景图片
-  * @param {boolean} args.birthdayNoticeEnabled 生日提醒
-  * @param {boolean} args.isAudit 设置审批
-  * @param {boolean} args.forAll 设置允许全员可见组织结构
-  * @param {boolean} args.isAllowStructureSelfEdit 是否 允许员工自行添加下属
-  * @param {boolean} args.onlyManagerCreateApp 是否 只允许管理员创建应用
-  * @param {boolean} args.enabledWatermark 是否 启用水印
-  * @param {boolean} args.enabledNoneVerification 是否 启用用户密码输入可以设置免密验证
-  * @param {boolean} args.notice 设置允许Score通知
-  * @param {string} args.subDomain 设置二级域名
-  * @param {string} args.domain 删除绑定的域名
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   removeProjectDomain: function (args, options = {}) {
-     
-     return $.api('ProjectSetting', 'RemoveProjectDomain', args, options);
-   },
-  /**
   * 新用户加入企业必填字段
 MD.Enum.ProjectSetting.UserFillCompanyEnabled
 MD.Enum.ProjectSetting.UserFillWorkSiteEnabled
@@ -529,7 +393,7 @@ MD.Enum.ProjectSetting.UserFillJobNumberEnabled
 MD.Enum.ProjectSetting.UserFillDepartmentEnabled
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
-  * @param {} args.setting 设置类型
+  * @param {} args.setting
   * @param {boolean} args.settingValue 是否开启
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -626,7 +490,7 @@ MD.Enum.ProjectSetting.UserFillDepartmentEnabled
   * @param {string} args.projectId 组织id
   * @param {array} args.chart 颜色
   * @param {array} args.theme 主题
-  * @param {} args.type o=系统预设 1=自定义
+  * @param {} args.type
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

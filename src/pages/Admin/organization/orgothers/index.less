@@ -1,0 +1,33 @@
+.adminToolsBox {
+  display: flex;
+  flex-direction: column;
+  .adminToolsContent {
+    flex: 1;
+    min-height: 0;
+    .ant-table-empty .ant-table-tbody > tr > td {
+      border-bottom: none;
+    }
+  }
+  .toolItem {
+    padding: 24px 0;
+    box-sizing: border-box;
+    border-bottom: 1px solid #eaeaea;
+    display: flex;
+    .toolItemLabel {
+      width: 182px;
+      font-size: 13px;
+      color: #333333;
+    }
+    .toolItemRight {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      .toolItemDescribe {
+        color: #9e9e9e;
+        font-size: 13px;
+        margin-top: 8px;
+      }
+    }
+  }
+}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useImperativeHandle, forwardRef, useRef } from 'react';
-import { Icon, ScrollView, LoadDiv, Avatar, Tooltip } from 'ming-ui';
+import { Icon, ScrollView, LoadDiv, Tooltip } from 'ming-ui';
 import { Divider } from 'antd';
 import { useSetState } from 'react-use';
 import Trigger from 'rc-trigger';
@@ -13,7 +13,6 @@ import WorksheetRecordLogSelectTags from './component/WorksheetRecordLogSelectTa
 import WorksheetRecordLogThumbnail from './component/WorksheetRecordLogThumbnail';
 import WorksheetRecordLogDiffText from './component/WorksheetRecordLogDiffText';
 import WorksheetRecordLogSubList from './component/WorksheetRecordLogSubList';
-import { createLinksForMessage } from 'src/components/common/function';
 import quickSelectUser from 'ming-ui/functions/quickSelectUser';
 import TriggerSelect from './component/TriggerSelect';
 import DatePickSelect from '../DatePickerSelect';
@@ -21,9 +20,9 @@ import sheetAjax from 'src/api/worksheet';
 import './WorksheetRocordLog.less';
 import { assembleListData, assembleNewLogListData, getShowWfstatusValue, numberControlHandle } from './util';
 import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile, createLinksForMessage } from 'src/util';
 import {
-  SYSTEM_USER,
+  GET_SYSTEM_USER,
   FILTER_FIELD_BY_ATTR,
   CIRCLE_TAGS_CONTROL_TYPE,
   RECT_TAGS_CONTROL_TYPE,
@@ -36,6 +35,7 @@ import {
   WORKFLOW_SYSTEM_CONTROL,
 } from 'src/pages/widgetConfig/config/widget';
 import copy from 'copy-to-clipboard';
+import UserHead from 'src/components/userHead';
 
 const reg = new RegExp('<[^<>]+>', 'g');
 const PAGE_SIZE = 20;
@@ -140,7 +140,9 @@ function renderContent(data, recordInfo, extendParam) {
           ? newList
               .filter(l => oldList.find(m => m[FILTER_FIELD_BY_ATTR[type][0]] === l[FILTER_FIELD_BY_ATTR[type][0]]))
               .map(l => (type === 27 ? getDepartmentName(control, l) : l[FILTER_FIELD_BY_ATTR[type][1]]))
-          : _.differenceBy(oldList, newList, FILTER_FIELD_BY_ATTR[type][0]).map(l => type === 27 ? getDepartmentName(control, l) : l[FILTER_FIELD_BY_ATTR[type][1]]);
+          : _.differenceBy(oldList, newList, FILTER_FIELD_BY_ATTR[type][0]).map(l =>
+              type === 27 ? getDepartmentName(control, l) : l[FILTER_FIELD_BY_ATTR[type][1]],
+            );
       _newValue =
         editType === 2
           ? []
@@ -276,7 +278,11 @@ const WorksheetRocordLogItem = (prop, recordInfo, callback, extendParam) => {
           return null;
         }
         let widgetInfo = DEFAULT_CONFIG[_.findKey(WIDGETS_TO_API_TYPE_ENUM, l => l === item.type)] || {};
-        const control = _.find(recordInfo.controls || recordInfo.formdata, it => item.id === it.controlId) || {};
+        const control =
+          _.find(
+            recordInfo.controls && recordInfo.controls.length ? recordInfo.controls : recordInfo.formdata,
+            it => item.id === it.controlId,
+          ) || {};
         let _controlPermissions = (control && control.controlPermissions) || '111';
         const visible = _controlPermissions[0] === '1';
         let extendText = '';
@@ -349,7 +355,7 @@ const WorksheetRocordLogItem = (prop, recordInfo, callback, extendParam) => {
                   childNode={
                     <span className="selectTriggerChild hasHover">
                       <Icon className="Font16 Gray_9e" icon={widgetInfo.icon} />
-                      <span>{item.name}</span>
+                      <span>{control.controlName || item.name}</span>
                     </span>
                   }
                 />
@@ -528,7 +534,7 @@ const renderTitleText = (data, extendParam) => {
 };
 
 function WorksheetRocordLog(props, ref) {
-  const { controls, worksheetId, formdata, showFilter = true, filterUniqueIds = undefined } = props;
+  const { controls, worksheetId, formdata, showFilter = true, filterUniqueIds = undefined, appId, projectId } = props;
   const selectUserRef = useRef();
   const [{ loading, showAddCondition, loadouted, sign, showDivider, lastMark }, setMark] = useSetState({
     loading: false,
@@ -988,7 +994,17 @@ function WorksheetRocordLog(props, ref) {
                 <div className="worksheetRocordLogCardTitle flex">
                   {isMobile || !showFilter ? (
                     <span className="selectTriggerChildAvatar">
-                      <Avatar size={20} className="worksheetRocordLogCardTitleAvatar" src={item.avatar} />
+                      <UserHead
+                        className="worksheetRocordLogCardTitleAvatar"
+                        size={20}
+                        user={{
+                          accountId: item.accountId,
+                          userHead: item.avatar,
+                        }}
+                        appId={appId}
+                        projectId={projectId}
+                        headClick={() => {}}
+                      />
                       {renderTitleName(item)}
                     </span>
                   ) : (
@@ -1000,14 +1016,24 @@ function WorksheetRocordLog(props, ref) {
                           avatar: item.avatar,
                           fullname: item.fullname,
                         };
-                        if (SYSTEM_USER.hasOwnProperty(item.accountId)) {
-                          userInfo = SYSTEM_USER[item.accountId];
+                        if (GET_SYSTEM_USER().hasOwnProperty(item.accountId)) {
+                          userInfo = GET_SYSTEM_USER()[item.accountId];
                         }
                         selectUserCallback([userInfo]);
                       }}
                       childNode={
                         <span className="selectTriggerChildAvatar">
-                          <Avatar size={20} className="worksheetRocordLogCardTitleAvatar" src={item.avatar} />
+                          <UserHead
+                            className="worksheetRocordLogCardTitleAvatar"
+                            size={20}
+                            user={{
+                              accountId: item.accountId,
+                              userHead: item.avatar,
+                            }}
+                            appId={appId}
+                            projectId={projectId}
+                            headClick={() => {}}
+                          />
                           {renderTitleName(item)}
                         </span>
                       }
@@ -1125,7 +1151,17 @@ function WorksheetRocordLog(props, ref) {
               <div className="worksheetRocordLogCard" key={`worksheetRocordLogCard-${item.time}-${index}`}>
                 <div className="worksheetRocordLogCardTopBox">
                   <div className="worksheetRocordLogCardTitle">
-                    <Avatar size={20} className="worksheetRocordLogCardTitleAvatar mRight8" src={item.avatar} />
+                    <UserHead
+                      className="worksheetRocordLogCardTitleAvatar"
+                      size={20}
+                      user={{
+                        accountId: item.accountId,
+                        userHead: item.avatar,
+                      }}
+                      appId={appId}
+                      projectId={projectId}
+                      headClick={() => {}}
+                    />
                     <span>
                       {item.accountName} <span className="Gray_9e">{_l('更新了 %0 个字段', item.child.length)}</span>
                     </span>

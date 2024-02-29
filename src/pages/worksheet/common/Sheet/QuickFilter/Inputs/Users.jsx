@@ -174,6 +174,7 @@ export default function Users(props) {
               }}
               size={24}
               appId={appId}
+              projectId={projectId}
             />
             {values[0].fullname}
           </SingleUserItem>
@@ -188,6 +189,7 @@ export default function Users(props) {
                 }}
                 size={24}
                 appId={appId}
+                projectId={projectId}
               />
               {user.fullname}
               <i

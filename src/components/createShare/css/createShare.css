@@ -1,9 +1,9 @@
-﻿#createShare_container .qrCode {
+﻿.createShareDialog .qrCode {
   margin: 20px auto 0;
   text-align: center;
 }
 
-#createShare_container .qrCode img {
+.createShareDialog .qrCode img {
   height: 150px;
 }
 
@@ -38,10 +38,10 @@
 .createSharePadding {
   padding-bottom: 40px;
 }
-#createShare {
+.createShareDialog {
   margin-bottom: 0;
 }
-#createShare .noHeader {
+.createShareDialog .noHeader {
   margin-right: 0;
 }
 .createShareTextRight {
@@ -50,18 +50,18 @@
 .createShareLink {
   margin-left: 35px;
 }
-#createShare .shareOperator {
+.createShareDialog .shareOperator {
   width: 100%;
   text-align: right;
   margin-top: 20px;
   padding-bottom: 20px;
 }
-#createShare .shareBtn {
+.createShareDialog .shareBtn {
   margin-right: 24px;
   font-size: 13px;
   cursor: pointer;
 }
-#createShare .shareBtn.cancelStyle {
+.createShareDialog .shareBtn.cancelStyle {
   color: #4caf50 !important;
 }
 .noShare {

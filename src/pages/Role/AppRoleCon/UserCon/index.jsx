@@ -150,9 +150,10 @@ class Con extends React.Component {
       //申请加入等地址，获取全部项计数
       getUserList({ appId }, true);
     }
-
-    if (appDetail.canDebug) {
-      this.getDebugRoles();
+    if ((appDetail.debugRole || {}).canDebug) {
+      this.setState({
+        selectDebugRole: appDetail.debugRole.selectedRoles,
+      });
     }
 
     this.setState({
@@ -187,16 +188,6 @@ class Con extends React.Component {
       });
     }
   }
-
-  getDebugRoles = () => {
-    const { appId } = this.props;
-
-    AppAjax.getDebugRoles({ appId }).then(res => {
-      this.setState({
-        selectDebugRole: res.roles.filter(l => l.seleted),
-      });
-    });
-  };
 
   delDialog = data => {
     if (data.totalCount > 0) {

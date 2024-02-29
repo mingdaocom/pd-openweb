@@ -28,8 +28,9 @@ export default class Formula extends Component {
     } = item;
 
     if (
-      (!_.includes([ACTION_ID.OBJECT_TOTAL, ACTION_ID.WORKSHEET_TOTAL], actionId) && !formulaValue) ||
-      (actionId === ACTION_ID.OBJECT_TOTAL && !selectNodeId) ||
+      (!_.includes([ACTION_ID.OBJECT_TOTAL, ACTION_ID.WORKSHEET_TOTAL, ACTION_ID.CUSTOM_ACTION_TOTAL], actionId) &&
+        !formulaValue) ||
+      (_.includes([ACTION_ID.OBJECT_TOTAL, ACTION_ID.CUSTOM_ACTION_TOTAL], actionId) && !selectNodeId) ||
       (actionId === ACTION_ID.WORKSHEET_TOTAL && !appId)
     ) {
       return <div className="pLeft8 pRight8 blue">{_l('设置此节点')}</div>;
@@ -73,6 +74,20 @@ export default class Formula extends Component {
             <span className="Gray_75">{_l('工作表')}</span>“{item.appName}”
           </div>
           <div className="workflowContentInfo ellipsis mTop4 pBottom5">
+            {_l('汇总方式：')}
+            {fields && fields[0].fieldId
+              ? `${fields[0].fieldName}（${SUMMARY_LIST.find(o => o.value === fields[0].enumDefault).label}）`
+              : _l('记录数量')}
+          </div>
+        </Fragment>
+      );
+    }
+
+    if (actionId === ACTION_ID.CUSTOM_ACTION_TOTAL) {
+      return (
+        <Fragment>
+          <div className="workflowContentInfo ellipsis">
+            {_l('汇总方式：')}
             {fields && fields[0].fieldId
               ? `${fields[0].fieldName}（${SUMMARY_LIST.find(o => o.value === fields[0].enumDefault).label}）`
               : _l('记录数量')}
@@ -137,7 +152,10 @@ export default class Formula extends Component {
               <i
                 className={cx(
                   'workflowAvatar',
-                  _.includes([ACTION_ID.OBJECT_TOTAL, ACTION_ID.WORKSHEET_TOTAL], item.actionId)
+                  _.includes(
+                    [ACTION_ID.OBJECT_TOTAL, ACTION_ID.WORKSHEET_TOTAL, ACTION_ID.CUSTOM_ACTION_TOTAL],
+                    item.actionId,
+                  )
                     ? 'icon-sigma'
                     : 'icon-workflow_function',
                   item.formulaValue || item.selectNodeId || item.appId ? 'BGGreen' : 'BGGray',

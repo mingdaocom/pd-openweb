@@ -1,0 +1,220 @@
+.contactsHiddenBox {
+  p,
+  h5,
+  h6 {
+    line-height: 1;
+    padding: 0;
+    margin: 0;
+  }
+
+  .headerCon {
+
+    h5 {
+      text-align: left;
+      font: DemiBold 17px/37px FZLanTingHeiS;
+      letter-spacing: 0;
+      color: #333333;
+      display: inline;
+    }
+
+    .forHelp {
+      float: right;
+    }
+  }
+
+  .userItem {
+    position: relative;
+    height: 40px;
+    line-height: 40px;
+    border-radius: 11px;
+    display: inline-block;
+    margin-right: 8px;
+    padding: 0 15px;
+
+    .delete {
+      display: none;
+      font-size: 24px;
+    }
+
+    &.active,
+    &:hover {
+      .delete {
+        display: block;
+        position: absolute;
+        right: -5px;
+        top: -5px;
+      }
+    }
+
+    .avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: inline-block;
+      vertical-align: middle;
+      background: #eaeaea;
+    }
+
+    .fullname {
+      color: #333333;
+      font-size: 13px;
+      margin-left: 10px;
+      display: inline-block;
+      vertical-align: middle;
+      text-decoration: none;
+    }
+
+    .depIcon {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: inline-block;
+      vertical-align: middle;
+      background: #eaeaea;
+      color: #2196f3;
+      font-size: 12px;
+      line-height: 24px;
+      text-align: center;
+      &.orgRoleIcon {
+        background-color: #ffad00;
+        color: #fff;
+      }
+    }
+  }
+
+  .addBtn {
+    color: #2196f3;
+    // margin-top: 24px;
+    display: inline-block;
+    position: relative;
+
+    &:hover {
+      color: #1585de;
+    }
+
+    .moreActionDia {
+      position: absolute;
+      top: 20px;
+      left: 0;
+      z-index: 1;
+      line-height: 30px;
+      text-align: left;
+      width: 180px;
+      background: rgba(255, 255, 255, 1) 0% 0% no-repeat padding-box;
+      box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.24);
+      border-radius: 3px;
+      padding: 10px 0;
+      box-sizing: border-box;
+
+      li {
+        padding: 0 24px;
+
+        &:hover {
+          background: #eaeaea;
+        }
+      }
+    }
+  }
+
+  .whitelist {
+    padding: 24px 0;
+    margin: 24px 15px 0;
+    border-top: 1px solid #eaeaea;
+  }
+
+  .con {
+    .conBox {
+      & > div {
+        padding: 32px 0 0;
+        .ruleItem {
+          border-bottom: 1px solid #eaeaea;
+          margin-bottom: 24px;
+          padding-bottom: 32px;
+        }
+        .rulesBox {
+          margin: 24px 0 0;
+          border: 1px solid #eaeaea;
+          padding: 24px 8px;
+          box-sizing: border-box;
+          position: relative;
+          display: flex;
+
+          .nameTop {
+            position: absolute;
+            top: -9px;
+            left: 24px;
+            background: #fff;
+            color: #9e9e9e;
+            padding: 0 5px;
+          }
+
+          .userBox {
+            flex: 1;
+          }
+
+          .editRule,
+          .deleteRule {
+            width: 50px;
+            text-align: right;
+            display: inline-flex;
+            cursor: pointer;
+            font-size: 13px;
+            color: #2196f3;
+
+            &:hover {
+              color: #1585de;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .editCon {
+    p {
+      margin-top: 32px;
+    }
+
+    .listCon {
+      margin: 16px 0 0;
+      border: 1px solid #eaeaea;
+      padding: 24px 8px;
+      box-sizing: border-box;
+      position: relative;
+    }
+
+    .userItem {
+      &.active,
+      &:hover {
+        background: #f8f8f8 0% 0% no-repeat padding-box;
+      }
+    }
+
+    .saveBtn {
+      width: 74px;
+      height: 28px;
+      line-height: 28px;
+      background: #2196f3;
+      border-radius: 14px;
+      margin-top: 32px;
+      color: #fff;
+      display: inline-block;
+      cursor: pointer;
+      margin-left: 24px;
+      text-align: center;
+
+      &.disable {
+        background: #bdbdbd;
+        cursor: pointer;
+
+        &:hover {
+          background: #bdbdbd !important;
+        }
+      }
+
+      &:hover {
+        background: #1585de;
+      }
+    }
+  }
+}

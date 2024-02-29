@@ -238,7 +238,7 @@ export default class DropDownItem extends Component {
   }
 
   render() {
-    const { values = [], actionError } = this.props;
+    const { values = [], actionError, activeTab = 0 } = this.props;
     const { keyword, visible, dropDownData } = this.state;
     const menu = (
       <div className="ruleDropDownItemCon">
@@ -286,7 +286,7 @@ export default class DropDownItem extends Component {
             {!_.isEmpty(values) ? (
               this.getTextByValue()
             ) : (
-              <span className="Gray_9e LineHeight34">{_l('选择字段')}</span>
+              <span className="Gray_9e LineHeight34">{activeTab === 1 ? _l('对指定字段提示') : _l('选择字段')}</span>
             )}
           </span>
           <span className="iconArrow">

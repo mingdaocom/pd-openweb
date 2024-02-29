@@ -21,7 +21,7 @@ export default function sysNotice(data) {
               },
             ]
           : [],
-        onClose: function () {
+        onClose: function() {
           $.ajax({
             dataType: 'jsonp',
             url: `${md.global.Config.MdNoticeServer}/notice/read`,
@@ -30,7 +30,7 @@ export default function sysNotice(data) {
               noticeId,
             },
             jsonp: 'jsoncallback',
-            success: function (data) {},
+            success: function(data) {},
           });
         },
       });
@@ -48,7 +48,7 @@ export default function sysNotice(data) {
             onClick: () => location.reload(),
           },
         ],
-        onClose: function () {
+        onClose: function() {
           $.ajax({
             dataType: 'jsonp',
             url: `${md.global.Config.MdNoticeServer}/notice/read`,
@@ -57,13 +57,11 @@ export default function sysNotice(data) {
               noticeId,
             },
             jsonp: 'jsoncallback',
-            success: function (data) {},
+            success: function(data) {},
           });
         },
       });
     } else {
-      md.global.updated = true;
-
       if (navigator.serviceWorker && navigator.serviceWorker.controller) {
         navigator.serviceWorker.controller.postMessage('update');
       }

@@ -15,9 +15,10 @@ import AppList from './AppList';
 import HomeSetting from './HomeSetting';
 import _ from 'lodash';
 import { navigateTo } from 'src/router/navigateTo';
-import RecentAppList from './RecentAppList';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+import { getRgbaByColor } from 'src/pages/widgetConfig/util';
+
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
 const Con = styled.div`
@@ -31,20 +32,17 @@ const ScrollCon = styled(ScrollView)`
 `;
 const AppsCon = styled.div`
   padding: 0px 40px 160px 80px;
+  &.isDashboard {
+    padding: 0 44px;
+    margin-top: 12px;
+    .noExternal {
+      margin: -30px 0 20px -16px;
+    }
+  }
 `;
 
 const GroupTiles = styled.div``;
 const GroupTile = styled.div``;
-const ShowAllTip = styled.div`
-  margin-left: 12px;
-  height: 24px;
-  line-height: 24px;
-  border-radius: 24px;
-  padding: 0 10px;
-  background: #f4f4f4;
-  color: #757575;
-  font-size: 12px;
-`;
 const GroupTitleCon = styled(VerticalMiddle)`
   height: 32px;
   width: fit-content;
@@ -87,6 +85,9 @@ const GroupTitleContent = styled(VerticalMiddle)`
       }
     }
   }
+  &.isDashboard {
+    margin-left: -40px;
+  }
 `;
 
 const GroupTabs = styled.div`
@@ -107,8 +108,8 @@ const GroupTab = styled.div`
   margin-bottom: 8px;
   &.active,
   &:hover {
-    color: #2196f3;
-    background-color: rgba(33, 150, 243, 0.08);
+    color: ${({ themeColor }) => themeColor};
+    background-color: ${({ activeColor }) => activeColor};
   }
 `;
 
@@ -133,6 +134,23 @@ const GroupTabClickPopup = styled.div`
 const SearchInputCon = styled.div`
   display: flex;
   padding: 24px 70px 16px 76px;
+  .dashboardTitle {
+    font-size: 17px;
+    font-weight: bold;
+    line-height: 48px;
+    display: flex;
+    align-items: center;
+    img {
+      width: 24px;
+      height: 24px;
+      margin-right: 4px;
+    }
+  }
+  &.isDashboard {
+    height: 48px;
+    padding: 0 10px 0px 20px;
+    align-items: flex-end;
+  }
 `;
 
 const NoExternalAppTip = styled.div`
@@ -146,7 +164,7 @@ const NoSearchResultTip = styled.div`
 const AddAppItemBtn = styled(AddAppItem)`
   width: auto !important;
   height: auto !important;
-  margin: 0 !important;
+  margin: 0 0 0 10px !important;
   padding: 0 !important;
   .newAppBtn {
     font-size: 13px;
@@ -158,9 +176,9 @@ const AddAppItemBtn = styled(AddAppItem)`
     height: 36px;
     padding: 0 18px 0 16px;
     cursor: pointer;
-    background: #2196f3;
+    background: ${({ themeColor }) => themeColor};
     &:hover {
-      background: #1565bf;
+      background: ${({ themeColor }) => getRgbaByColor(themeColor, '0.8')};
     }
   }
   &.addAppItemWrap .addAppItemMenu {
@@ -205,9 +223,9 @@ const GroupTabList = styled.div`
       &.isActive {
         .liContent {
           .itemText {
-            border-bottom: 2px solid #2196f3;
+            color: ${({ themeColor }) => themeColor};
+            border-color: ${({ themeColor }) => themeColor};
             font-weight: bold;
-            color: #333;
           }
         }
       }
@@ -267,14 +285,14 @@ const GroupTabList = styled.div`
       border-bottom: 2px solid transparent;
       color: #757575;
       &.isActive {
-        color: #2196f3;
-        border-bottom: 2px solid #2196f3;
+        color: ${({ themeColor }) => themeColor};
+        border-color: ${({ themeColor }) => themeColor};
       }
     }
     &:hover {
       span,
       i {
-        color: #2196f3 !important;
+        color: ${({ themeColor }) => `${themeColor} !important`};
       }
     }
   }
@@ -298,8 +316,8 @@ const MorePopupContainer = styled.div`
       }
     }
     &.isActive {
-      background: #f0f7ff;
-      color: #2196f3;
+      background: ${({ activeColor }) => activeColor};
+      color: ${({ themeColor }) => themeColor};
     }
 
     .listStarIcon {
@@ -323,16 +341,16 @@ function GroupTitle(props) {
     group,
     isFolded,
     count,
-    showAllTip,
     onClick = _.noop,
     actions,
     projectId,
     iconName,
     svgIcon,
+    isDashboard,
   } = props;
   return (
     <GroupTitleCon className={cx({ mBottom8: isFolded })}>
-      <GroupTitleContent className={cx({ disabled })} onClick={disabled ? _.noop : onClick}>
+      <GroupTitleContent className={cx({ disabled, isDashboard })} onClick={disabled ? _.noop : onClick}>
         {disabled ? (
           <span className="mRight18" />
         ) : (
@@ -353,7 +371,6 @@ function GroupTitle(props) {
         <div className="ellipsis">{title}</div>
         {_.isNumber(count) && count !== 0 && <span className="Gray_bd mLeft6 Bold Font15">{count}</span>}
       </GroupTitleContent>
-      {showAllTip && <ShowAllTip>{_l('所有组织')}</ShowAllTip>}
       {!!group && (
         <Tooltip title={_l('取消标星')} placement="bottom">
           <div
@@ -376,29 +393,8 @@ function GroupTitle(props) {
 }
 
 function MarkedGroupTile(props) {
-  const { projectId, markedGroup, actions, keywords } = props;
-  const [foldedMap, setFoldedMap] = useState(
-    safeParse(localStorage.getItem(`home_fold_${md.global.Account.accountId}`) || '{}'),
-  );
-  useEffect(() => {
-    safeLocalStorageSetItem(
-      `home_fold_${md.global.Account.accountId}`,
-      JSON.stringify(
-        _.pickBy(
-          {
-            ...safeParse(localStorage.getItem(`home_fold_${md.global.Account.accountId}`) || '{}'),
-            ...foldedMap,
-          },
-          (v, key) =>
-            key.length !== 24 ||
-            _.includes(
-              markedGroup.map(g => g.id),
-              key,
-            ),
-        ),
-      ),
-    );
-  }, [foldedMap]);
+  const { projectId, markedGroup, actions, keywords, foldedMap, toggleFolded, isDashboard } = props;
+
   return (
     <div>
       <GroupTiles>
@@ -413,7 +409,8 @@ function MarkedGroupTile(props) {
                 group={group}
                 isFolded={foldedMap[group.id]}
                 svgIcon={{ icon: group.icon, iconUrl: group.iconUrl }}
-                onClick={() => setFoldedMap(oldValue => ({ ...oldValue, [group.id]: !foldedMap[group.id] }))}
+                onClick={() => toggleFolded(group.id)}
+                isDashboard={isDashboard}
               />
               {!foldedMap[group.id] && (
                 <AppList
@@ -439,12 +436,11 @@ MarkedGroupTile.propTypes = {
 };
 
 function MarkedGroupTab(props) {
-  const { projectId, markedGroup, actions, keywords } = props;
+  const { projectId, markedGroup, actions, keywords, dashboardColor, foldedMap, toggleFolded, isDashboard } = props;
   const [activeGroupId, setActiveGroupId] = useState(
     localStorage.getItem(`home_active_star_group_${projectId}_${md.global.Account.accountId}`) ||
       _.get(markedGroup, '0.id'),
   );
-  const [isFolded, setIsFolded] = useState();
   const [popupVisible, setPopupVisible] = useState({});
   let safeActiveGroupId = activeGroupId;
   const activeGroup = _.find(markedGroup, { id: safeActiveGroupId }) || markedGroup[0];
@@ -456,11 +452,12 @@ function MarkedGroupTab(props) {
       <div>
         <GroupTitle
           title={_l('星标分组')}
-          isFolded={isFolded}
+          isFolded={foldedMap['starGroup']}
           iconName="folder_special_black_24dp"
-          onClick={() => setIsFolded(!isFolded)}
+          onClick={() => toggleFolded('starGroup')}
+          isDashboard={isDashboard}
         />
-        {!isFolded && (
+        {!foldedMap['starGroup'] && (
           <React.Fragment>
             <GroupTabs>
               {markedGroup.map((group, i) => (
@@ -494,6 +491,8 @@ function MarkedGroupTab(props) {
                     onClickAwayExceptions={['.groupTabClickPopup']}
                   >
                     <GroupTab
+                      themeColor={dashboardColor.themeColor}
+                      activeColor={dashboardColor.activeColor}
                       key={i}
                       className={cx('ellipsis', { active: safeActiveGroupId === group.id })}
                       onClick={() => {
@@ -550,7 +549,10 @@ export default function AppGrid(props) {
     activeGroupApps = [],
     recentApps = [],
     groups = [],
-    isAllActive,
+    isDashboard,
+    dashboardColor,
+    hideExternalTitle,
+    isAdmin,
     ...rest
   } = props;
   const { actions } = rest;
@@ -558,7 +560,9 @@ export default function AppGrid(props) {
   const isExternal = projectId === 'external';
   const showExternalAndAlone = setting.exDisplay || isExternal;
   const [foldedMap, setFoldedMap] = useState(
-    safeParse(localStorage.getItem(`home_fold_${md.global.Account.accountId}`) || '{}'),
+    safeParse(
+      localStorage.getItem(`${isDashboard ? 'dashboard' : 'home'}_fold_${md.global.Account.accountId}`) || '{}',
+    ),
   );
   const [currentGroupTab, setCurrentGroupTab] = useState(
     localStorage.getItem(`home_active_group_tab_${projectId}_${md.global.Account.accountId}`) || 'all',
@@ -577,6 +581,7 @@ export default function AppGrid(props) {
     ...g,
     apps: (g.appIds || []).map(aId => _.find([...myApps, ...markedApps], { id: aId })).filter(_.identity),
   }));
+  const notDisplayMyAppTitle = isDashboard && !showExternalAndAlone && !markedApps.length;
 
   function toggleFolded(key) {
     setFoldedMap(oldValue => ({ ...oldValue, [key]: !oldValue[key] }));
@@ -616,7 +621,8 @@ export default function AppGrid(props) {
   useLayoutEffect(() => {
     if (hasMore) {
       if (
-        $(groupListRef.current).find('li').eq(0).offset().top !== $(groupListRef.current).find('.isActive').offset().top
+        ($(groupListRef.current).find('li').eq(0).offset() || {}).top !==
+        ($(groupListRef.current).find('.isActive').offset() || {}).top
       ) {
         setActiveMoreGroup($(groupListRef.current).find('.isActive').text());
       }
@@ -649,7 +655,7 @@ export default function AppGrid(props) {
     const groupList = [{ id: 'all', name: _l('全部') }].concat(projectGroups);
     return (
       !!projectGroups.length && (
-        <GroupTabList>
+        <GroupTabList themeColor={dashboardColor.themeColor}>
           <ul ref={groupListRef}>
             {groupList.map((group, index) => {
               return (
@@ -672,7 +678,7 @@ export default function AppGrid(props) {
                       <div className="divideLine" />
                     ) : (
                       <Tooltip
-                        title={group.isMarked ? _l('取消标星') : _l('标星，显示在首页')}
+                        title={group.isMarked ? _l('取消标星') : _l('标星')}
                         placement="bottom"
                         mouseEnterDelay={0.2}
                       >
@@ -701,11 +707,12 @@ export default function AppGrid(props) {
                 overflow: { adjustX: true, adjustY: true },
               }}
               popup={
-                <MorePopupContainer>
+                <MorePopupContainer activeColor={dashboardColor.activeColor} themeColor={dashboardColor.themeColor}>
                   {moreGroups.map(group => {
+                    const isActive = group.id === currentGroupTab;
                     return (
                       <div
-                        className={cx('groupItem', { isActive: group.id === currentGroupTab })}
+                        className={cx('groupItem', { isActive })}
                         onClick={() => {
                           setCurrentGroupTab(group.id);
                           setActiveMoreGroup(group.name);
@@ -715,7 +722,7 @@ export default function AppGrid(props) {
                         <span className="overflow_ellipsis" title={group.name}>
                           {group.name}
                         </span>
-                        <Tooltip title={group.isMarked ? _l('取消标星') : _l('标星，显示在首页')} placement="bottom">
+                        <Tooltip title={group.isMarked ? _l('取消标星') : _l('标星')} placement="bottom">
                           <div
                             className={cx('listStarIcon', { isMarked: group.isMarked })}
                             onClick={e => {
@@ -756,33 +763,35 @@ export default function AppGrid(props) {
   }
 
   function renderGroup({ title, type, allowCreate, apps = [], iconName } = {}) {
+    const displayTitle = !(hideExternalTitle && type === 'external') && !(notDisplayMyAppTitle && type === 'project');
+
     return (
       (!!apps.length || (type === 'project' && !noProjects) || (type === 'external' && isExternal)) && (
         <React.Fragment>
-          <GroupTitle
-            disabled={(type === 'external' && isExternal && !apps.length) || isAllActive}
-            title={title}
-            count={apps.length}
-            showAllTip={type === 'star' && setting.markedAppDisplay === 1}
-            isFolded={foldedMap[type]}
-            iconName={iconName}
-            onClick={() => toggleFolded(type)}
-          />
-          {(!foldedMap[type] || isAllActive) && (
+          {displayTitle && (
+            <GroupTitle
+              disabled={type === 'external' && isExternal && !apps.length}
+              title={title}
+              count={apps.length}
+              isFolded={foldedMap[type]}
+              iconName={iconName}
+              onClick={() => toggleFolded(type)}
+              isDashboard={isDashboard}
+            />
+          )}
+          {!foldedMap[type] && (
             <React.Fragment>
-              {setting.isAllAndProject && type === 'project' && !isAllActive && !keywords && renderProjectGroups()}
+              {setting.isAllAndProject && type === 'project' && !keywords && renderProjectGroups()}
               <AppList
                 {...props}
-                type={type === 'project' && currentGroupTab !== 'all' && !isAllActive ? 'group' : type}
+                type={type === 'project' && currentGroupTab !== 'all' ? 'group' : type}
                 projectId={projectId}
                 allowCreate={allowCreate}
                 groupId={
-                  type === 'project' && currentGroupTab !== 'all' && !isAllActive && !!groups.length
-                    ? currentGroupTab
-                    : undefined
+                  type === 'project' && currentGroupTab !== 'all' && !!groups.length ? currentGroupTab : undefined
                 }
                 groupType={
-                  type === 'project' && currentGroupTab !== 'all' && !isAllActive && !!groups.length
+                  type === 'project' && currentGroupTab !== 'all' && !!groups.length
                     ? (projectGroups.filter(g => g.id === currentGroupTab)[0] || {}).groupType
                     : undefined
                 }
@@ -790,7 +799,6 @@ export default function AppGrid(props) {
                   type === 'project' &&
                   currentGroupTab !== 'all' &&
                   setting.isAllAndProject &&
-                  !isAllActive &&
                   !!groups.length &&
                   !keywords
                     ? ((projectGroups.filter(g => g.id === currentGroupTab)[0] || {}).appIds || []).map(
@@ -805,26 +813,7 @@ export default function AppGrid(props) {
             <NoSearchResultTip className="Font14 Gray_9e">{_l('无搜索结果')}</NoSearchResultTip>
           )}
           {type === 'external' && isExternal && !apps.length && (
-            <NoExternalAppTip className="Font14 Gray75">{_l('暂无外部协作者的应用')}</NoExternalAppTip>
-          )}
-        </React.Fragment>
-      )
-    );
-  }
-
-  function renderRecentApp({ title, type, apps = [] } = {}) {
-    return (
-      !!apps.length && (
-        <React.Fragment>
-          <GroupTitle
-            title={title}
-            count={null}
-            isFolded={foldedMap[type]}
-            iconName="access_time"
-            onClick={() => toggleFolded(type)}
-          />
-          {!foldedMap[type] && (
-            <RecentAppList {...props} projectId={projectId} apps={apps} onMarkApp={args => actions.markApp(args)} />
+            <NoExternalAppTip className="Font14 Gray75 noExternal">{_l('暂无外部协作者的应用')}</NoExternalAppTip>
           )}
         </React.Fragment>
       )
@@ -832,7 +821,10 @@ export default function AppGrid(props) {
   }
 
   useEffect(() => {
-    safeLocalStorageSetItem(`home_fold_${md.global.Account.accountId}`, JSON.stringify(foldedMap));
+    safeLocalStorageSetItem(
+      `${isDashboard ? 'dashboard' : 'home'}_fold_${md.global.Account.accountId}`,
+      JSON.stringify(foldedMap),
+    );
   }, [foldedMap]);
   useEffect(() => {
     safeLocalStorageSetItem(`home_show_type_${md.global.Account.accountId}`, showType);
@@ -844,7 +836,7 @@ export default function AppGrid(props) {
     );
   }, [currentGroupTab]);
 
-  if (activeGroup || isAllActive) {
+  if (activeGroup) {
     return (
       <Con>
         <SearchInputCon>
@@ -855,51 +847,93 @@ export default function AppGrid(props) {
         ) : (
           <ScrollCon>
             <AppsCon>
-              {isAllActive ? (
-                renderGroup({
-                  title: _l('全部应用'),
-                  type: 'project',
-                  allowCreate: allowCreate,
-                  apps: myApps,
-                })
-              ) : (
-                <React.Fragment>
-                  <GroupTitle
-                    disabled
-                    title={activeGroup.name}
-                    count={activeGroupApps.length}
-                    isFolded={foldedMap[activeGroup.id]}
-                    onClick={() => toggleFolded(activeGroup.id)}
-                  />
-                  {keywords && !activeGroupApps.length && (
-                    <div className="Font14 Gray_9e mTop24">{_l('无搜索结果')}</div>
-                  )}
-                  <AppList
-                    {...props}
-                    allowCreate={allowCreate && !!activeGroup.id}
-                    type="group"
-                    groupId={activeGroup.id}
-                    groupType={activeGroup.groupType}
-                    projectId={projectId}
-                    apps={activeGroupApps}
-                  />
-                </React.Fragment>
-              )}
+              <GroupTitle
+                disabled
+                title={activeGroup.name}
+                count={activeGroupApps.length}
+                isFolded={foldedMap[activeGroup.id]}
+                onClick={() => toggleFolded(activeGroup.id)}
+              />
+              {keywords && !activeGroupApps.length && <div className="Font14 Gray_9e mTop24">{_l('无搜索结果')}</div>}
+              <AppList
+                {...props}
+                allowCreate={allowCreate && !!activeGroup.id && (activeGroup.groupType !== 1 || isAdmin)}
+                type="group"
+                groupId={activeGroup.id}
+                groupType={activeGroup.groupType}
+                projectId={projectId}
+                apps={activeGroupApps}
+              />
             </AppsCon>
           </ScrollCon>
         )}
       </Con>
     );
   }
+
+  const renderAppsCon = () => {
+    return (
+      <AppsCon className={cx({ isDashboard })}>
+        {!isExternal && showType === 'tab' && !!markedGroup.length && (
+          <MarkedGroupTab
+            {...props}
+            allowCreate={allowCreate}
+            projectId={projectId}
+            markedGroup={markedGroup}
+            foldedMap={foldedMap}
+            toggleFolded={toggleFolded}
+          />
+        )}
+        {!isExternal && showType === 'tile' && !!markedGroup.length && (
+          <MarkedGroupTile
+            {...props}
+            allowCreate={allowCreate}
+            projectId={projectId}
+            markedGroup={markedGroup}
+            foldedMap={foldedMap}
+            toggleFolded={toggleFolded}
+          />
+        )}
+        {!isExternal &&
+          renderGroup({
+            title: _l('我的应用'),
+            type: 'project',
+            allowCreate: allowCreate,
+            apps: myApps,
+            iconName: 'grid_view',
+          })}
+        {(showExternalAndAlone || !projectId) &&
+          renderGroup({
+            title: _l('外部协作'),
+            type: 'external',
+            apps: externalApps,
+            iconName: 'external_collaboration',
+          })}
+        {(isExternal || !projectId) && renderGroup({ title: _l('个人应用'), type: 'personal', apps: aloneApps })}
+      </AppsCon>
+    );
+  };
+
   return (
     <Con>
       {!loading && !projectId && <NoProjectsStatus hasExternalApps />}
-      <SearchInputCon>
+      <SearchInputCon className={cx({ isDashboard })}>
+        {isDashboard && (
+          <React.Fragment>
+            <div className="dashboardTitle">
+              {_l('应用')}
+              {notDisplayMyAppTitle && !!myApps.length && (
+                <span className="Gray_bd mLeft6 Bold Font15">{myApps.length}</span>
+              )}
+            </div>
+            <div className="flex" />
+          </React.Fragment>
+        )}
         <SearchInput placeholder={_l('搜索应用')} value={keywords} onChange={v => actions.updateKeywords(v)} />
-        {!isExternal && projectId && (
+        {!isExternal && projectId && !isDashboard && (
           <HomeSetting setting={setting} onUpdate={value => actions.editHomeSetting({ projectId, ...value })} />
         )}
-        <div className="flex" />
+        {!isDashboard && <div className="flex" />}
         {((allowCreate &&
           !isExternal &&
           !_.get(
@@ -908,6 +942,7 @@ export default function AppGrid(props) {
           )) ||
           keywords) && (
           <AddAppItemBtn
+            themeColor={dashboardColor.themeColor}
             projectId={projectId}
             createAppFromEmpty={(...args) =>
               actions.createAppFromEmpty(...args, id => {
@@ -924,38 +959,10 @@ export default function AppGrid(props) {
       </SearchInputCon>
       {loading ? (
         <AppGroupSkeleton isIndexPage={true} />
+      ) : isDashboard ? (
+        renderAppsCon()
       ) : (
-        <ScrollCon>
-          <AppsCon>
-            {!isExternal &&
-              setting.displayCommonApp &&
-              renderRecentApp({ title: _l('最近使用'), type: 'recent', apps: recentApps })}
-            {!isExternal &&
-              renderGroup({ title: _l('星标应用'), type: 'star', apps: markedApps, iconName: 'star_outline' })}
-            {!isExternal && showType === 'tab' && !!markedGroup.length && (
-              <MarkedGroupTab {...props} allowCreate={allowCreate} projectId={projectId} markedGroup={markedGroup} />
-            )}
-            {!isExternal && showType === 'tile' && !!markedGroup.length && (
-              <MarkedGroupTile {...props} allowCreate={allowCreate} projectId={projectId} markedGroup={markedGroup} />
-            )}
-            {!isExternal &&
-              renderGroup({
-                title: _l('我的应用'),
-                type: 'project',
-                allowCreate: allowCreate,
-                apps: myApps,
-                iconName: 'grid_view',
-              })}
-            {(showExternalAndAlone || !projectId) &&
-              renderGroup({
-                title: _l('外部协作'),
-                type: 'external',
-                apps: externalApps,
-                iconName: 'external_collaboration',
-              })}
-            {(isExternal || !projectId) && renderGroup({ title: _l('个人应用'), type: 'personal', apps: aloneApps })}
-          </AppsCon>
-        </ScrollCon>
+        <ScrollCon>{renderAppsCon()}</ScrollCon>
       )}
     </Con>
   );

@@ -9,19 +9,27 @@ export default class Avatar extends Component {
     size: PropTypes.number,
     shape: PropTypes.string,
   };
+
   static defaultProps = {
-    src: `${md.global.FileStoreConfig.pictureHost.replace(/\/$/, '')}/UserAvatar/default.gif`,
     size: 36,
     shape: 'circle',
   };
+
   constructor(props) {
     super(props);
   }
+
   render() {
     const { src, shape, size, className } = this.props;
+
     return (
       <span style={{ width: size, height: size }} className={cx('avatarBox', className)}>
-        <img style={{ width: '100%', height: '100%' }} className={`${shape}`} src={src} alt="avatar" />
+        <img
+          style={{ width: '100%', height: '100%' }}
+          className={`${shape}`}
+          src={src || `${md.global.FileStoreConfig.pictureHost.replace(/\/$/, '')}/UserAvatar/default.gif`}
+          alt="avatar"
+        />
       </span>
     );
   }

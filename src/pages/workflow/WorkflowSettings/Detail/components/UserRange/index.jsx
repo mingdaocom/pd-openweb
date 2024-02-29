@@ -13,7 +13,12 @@ export default props => {
         {title}
         {accounts.length ? _l('以下指定成员') : _l('所有成员')}
       </div>
-      <Member companyId={props.companyId} accounts={accounts} updateSource={updateSource} />
+      <Member
+        companyId={props.companyId}
+        appId={props.relationType === 2 ? props.relationId : ''}
+        accounts={accounts}
+        updateSource={updateSource}
+      />
       <div className="mTop12 flexRow ThemeColor3 workflowDetailAddBtn" onClick={() => setVisible(true)}>
         <i className="Font28 icon-task-add-member-circle mRight10" />
         {btnText}

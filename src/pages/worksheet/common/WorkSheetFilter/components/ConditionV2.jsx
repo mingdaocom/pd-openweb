@@ -13,6 +13,7 @@ import {
   FILTER_CONDITION_TYPE,
   API_ENUM_TO_TYPE,
   valueTypeOptions,
+  getControlSelectType,
 } from '../enum';
 import { Select, Tooltip } from 'antd';
 import { conditionTypeListData } from 'src/pages/FormSet/components/columnRules/config';
@@ -356,7 +357,13 @@ export default class Condition extends Component {
                 <span className="relation">
                   <Dropdown
                     dropIcon="task_custom_btn_unfold"
-                    defaultValue={condition.type || conditionFilterTypes[0].value}
+                    defaultValue={
+                      getControlSelectType(control).isMultiple && condition.type === FILTER_CONDITION_TYPE.EQ_FOR_SINGLE
+                        ? control.type === 29
+                          ? FILTER_CONDITION_TYPE.RCEQ
+                          : FILTER_CONDITION_TYPE.EQ
+                        : condition.type || conditionFilterTypes[0].value
+                    }
                     disabled={!canEdit}
                     data={conditionFilterTypes}
                     isAppendToBody

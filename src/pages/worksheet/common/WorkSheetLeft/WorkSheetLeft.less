@@ -23,7 +23,7 @@
       }
     }
   }
-  .nano-content>div:first-child {
+  .nano-content > div:first-child {
     margin-top: 6px;
   }
   .workSheetItem {
@@ -78,7 +78,9 @@
         position: fixed;
       }
     }
-    .moreIcon, .arrowIcon, .openIcon {
+    .moreIcon,
+    .arrowIcon,
+    .openIcon {
       color: rgba(0, 0, 0, 0.3);
       &:hover {
         color: rgba(0, 0, 0, 0.5);
@@ -146,6 +148,11 @@
   }
   .Item-content {
     padding-left: 36px;
+    &:hover {
+      .icon {
+        color: #fff !important;
+      }
+    }
   }
   .moveSheetActive {
     color: #fff;

@@ -65,7 +65,7 @@
       width: 100%;
       position: fixed;
       top: 0;
-      z-index: 3;
+      z-index: 999;
     }
     .fixedSheetNameWrapBG {
       background-color: #fff;
@@ -77,6 +77,9 @@
   }
   .fixedTabs {
     &.top {
+      top: 49px;
+    }
+    &.top43 {
       top: 43px;
     }
   }
@@ -287,4 +290,7 @@
   .am-action-sheet-button-list-item::before {
     content: none !important;
   }
+}
+.activeStar {
+  color: #ffb100 !important;
 }

@@ -1,7 +1,7 @@
 import React, { Fragment, useState } from 'react';
 import { string } from 'prop-types';
 import { Icon } from 'ming-ui';
-import 'rc-dialog/assets/index.css';
+import { Modal } from 'antd';
 import styled from 'styled-components';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import { connect } from 'react-redux';
@@ -13,7 +13,6 @@ import ButtonComp from './button';
 import View from './view';
 import Filter from './filter';
 import Carousel from './carousel';
-import RcDialog from 'rc-dialog';
 import Editor from 'src/pages/PageHeader/AppPkgHeader/AppDetail/EditorDiaLogContent';
 import _ from 'lodash';
 
@@ -65,17 +64,19 @@ function EditWidget(props) {
     updateWidget({ widget, ...obj });
   };
   return _.includes(['richText'], type) ? (
-    <RcDialog
+    <Modal
       className="appIntroDialog editWidgetDialogWrap"
       wrapClassName="appIntroDialogWrapCenter"
       maskClosable={false}
       visible={show}
-      onClose={onClose}
-      animation="zoom"
+      onCancel={onClose}
+      width={800}
+      transitionName=""
+      maskTransitionName=""
+      footer={null}
+      centered={true}
       maskStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }}
       bodyStyle={{ minHeight: '680px', padding: 0 }}
-      maskAnimation="fade"
-      mousePosition={{ x: left, y: top }}
       closeIcon={<Icon icon="close" />}
     >
       <Editor
@@ -90,7 +91,7 @@ function EditWidget(props) {
         cacheKey="customPageEditWidget"
         title={widgets[type].name}
       />
-    </RcDialog>
+    </Modal>
   ) : (
     <Comp {...props} onEdit={handleEdit} onUpdate={handleUpdate} />
   );
@@ -100,5 +101,6 @@ export default errorBoundary(
   connect(({ appPkg, customPage }) => ({
     projectId: appPkg.projectId,
     components: customPage.components,
+    config: customPage.config,
   }))(EditWidget),
 );

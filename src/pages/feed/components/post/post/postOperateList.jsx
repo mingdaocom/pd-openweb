@@ -2,9 +2,8 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import createReactClass from 'create-react-class';
-import { createLinksForMessage } from 'src/components/common/function';
-import Menu from 'ming-ui/components/Menu';
-import MenuItem from 'ming-ui/components/MenuItem';
+import { createLinksForMessage } from 'src/util';
+import { Menu, MenuItem, Dialog } from 'ming-ui';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 const ClickAway = createDecoratedComponent(withClickAway);
@@ -24,10 +23,8 @@ import EditVoteEndTimeDialog from './EditVoteEndTimeDialog';
 import createTask from 'src/components/createTask/createTask';
 import './postOperateList.css';
 import createCalendar from 'src/components/createCalendar/createCalendar';
-import { index as dialog } from 'src/components/mdDialog/dialog';
 import addOldTask from 'src/components/createTask/addOldTask';
 import editShareScope from '../postComponent/editShareScope/editShareScope';
-import post from 'src/api/post';
 
 /**
  * 动态的操作列表
@@ -75,22 +72,17 @@ const PostOperateList = createReactClass({
           ? _l('确认要删除此动态吗？')
           : _l('移除后，该动态在动态墙中不可见，确认继续？');
     }
-    dialog({
+    Dialog.confirm({
       width: 420,
-      container: {
-        header,
-        content: "<div class='mTop10'></div>",
-        yesFn() {
-          if (isComment) {
-            const { postID, commentID } = postItem;
-            dispatch(removeComment(postID, commentID));
-          } else {
-            dispatch(remove(postItem.postID));
-          }
-        },
-        noFn: true,
-        yesText: _l('确定'),
-        noText: _l('取消'),
+      title: header,
+      okText: _l('确定'),
+      onOk: () => {
+        if (isComment) {
+          const { postID, commentID } = postItem;
+          dispatch(removeComment(postID, commentID));
+        } else {
+          dispatch(remove(postItem.postID));
+        }
       },
     });
   },
@@ -98,33 +90,37 @@ const PostOperateList = createReactClass({
   handleTop() {
     const { postItem, dispatch } = this.props;
     this.componentClickAway();
-    dialog({
-      container: {
-        header: _l('请选择置顶时长'),
-        content: `<div>
-            <div class='mTop20 ThemeColor3 Font14' id='feedTopTime'>
-              <label>
-                <input type='radio' name='feedTopTime' checked='checked' value='24' />
-                24${_l('小时')}
-              </label>
-              <label class='mLeft20 mRight20'>
-                <input type='radio' name='feedTopTime' value='48' />
-                48${_l('小时')}
-              </label>
-              <label><input type='radio' name='feedTopTime' value='72' /> 72${_l('小时')}</label>
-              <label class='mLeft20'><input type='radio' name='feedTopTime' value='' />${_l('不限时长')}</label>
-            </div>
-            <div class='Clear'></div>
-            </div>`,
-        yesFn() {
-          const hours = $('#feedTopTime').find('input[type=radio]:checked').val();
-          dispatch(addTop({ postId: postItem.postID, hours }));
-        },
-        noFn: true,
-        yesText: _l('确定'),
-        noText: _l('取消'),
-      },
+    Dialog.confirm({
       width: 450,
+      title: _l('请选择置顶时长'),
+      children: (
+        <div>
+          <div className="mTop20 ThemeColor3 Font14" id="feedTopTime">
+            <label>
+              <input type="radio" name="feedTopTime" defaultChecked value="24" />
+              24{_l('小时')}
+            </label>
+            <label className="mLeft20 mRight20">
+              <input type="radio" name="feedTopTime"  value="48" />
+              48{_l('小时')}
+            </label>
+            <label>
+              <input type="radio" name="feedTopTime"  value="72" /> 72
+              {_l('小时')}
+            </label>
+            <label className="mLeft20">
+              <input type="radio" name="feedTopTime" value="" />
+              {_l('不限时长')}
+            </label>
+          </div>
+          <div className="Clear"></div>
+        </div>
+      ),
+      okText: _l('确定'),
+      onOk: () => {
+        const hours = $('#feedTopTime').find('input[type=radio]:checked').val();
+        dispatch(addTop({ postId: postItem.postID, hours }));
+      },
     });
   },
 

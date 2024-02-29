@@ -1,16 +1,5 @@
 export default {
   /**
-  * 获取我加入的网络
-  * @param {Object} args 请求参数
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getMyProjects: function (args, options = {}) {
-     
-     return $.api('Project', 'GetMyProjects', args, options);
-   },
-  /**
   * 获取网络基本信息
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
@@ -78,19 +67,6 @@ export default {
      return $.api('Project', 'GetProjectSubDomainInfo', args, options);
    },
   /**
-  * 联想企业域名的邮箱
-  * @param {Object} args 请求参数
-  * @param {string} args.keywords 关键词
-  * @param {string} args.projectId 网络id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getProjectDomainEmail: function (args, options = {}) {
-     
-     return $.api('Project', 'GetProjectDomainEmail', args, options);
-   },
-  /**
   * 获取网络财务信息
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
@@ -115,7 +91,7 @@ export default {
   * @param {string} args.emailRecipientName Email收件人
   * @param {string} args.fax 传真
   * @param {string} args.taxNumber 税务登记号
-  * @param {} args.invoiceType 发票类型 1：普票 2：增票
+  * @param {} args.invoiceType
   * @param {string} args.taxBank 开户行
   * @param {string} args.taxBankNumber 账号
   * @param {string} args.taxRegAddress 注册地址
@@ -131,8 +107,9 @@ export default {
   /**
   * 获取网络授权辅助信息
   * @param {Object} args 请求参数
-  * @param {boolean} args.onlyNormal 是否只需要基本信息
   * @param {string} args.projectId 网络id
+  * @param {boolean} args.onlyNormal 是否只需要基本信息
+  * @param {boolean} args.onlyUsage 是否只需要用量信息
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -217,18 +194,6 @@ export default {
      return $.api('Project', 'GetInvitedUsersJoinProjectLog', args, options);
    },
   /**
-  * 检测网络是不是免费网络 true:非免费
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   checkProjectIsNotFree: function (args, options = {}) {
-     
-     return $.api('Project', 'CheckProjectIsNotFree', args, options);
-   },
-  /**
   * 获取网络集成类型
 0 代表尚未集成，1代表钉钉自建应用集成，2代表企业微信（第三方），3代表企业微信自建应用，4代表Welink自建应用集成
   * @param {Object} args 请求参数
@@ -266,23 +231,11 @@ export default {
      return $.api('Project', 'GetProjectUnauditedUserCount', args, options);
    },
   /**
-  * 获取企业账户首页引导状态
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getProjectGuidSetting: function (args, options = {}) {
-     
-     return $.api('Project', 'GetProjectGuidSetting', args, options);
-   },
-  /**
   * 给用户发送安装手机App或企业客户端通知
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络Id
   * @param {array} args.accountIds 账号Id 数组：[accountId1,accountId2]
-  * @param {} args.clientType 通知类型 0：客户端 1：移动端
+  * @param {} args.clientType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -290,30 +243,6 @@ export default {
    pushInstallClientMsg: function (args, options = {}) {
      
      return $.api('Project', 'PushInstallClientMsg', args, options);
-   },
-  /**
-  * 获取部门数量
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getProjectDepartmentCount: function (args, options = {}) {
-     
-     return $.api('Project', 'GetProjectDepartmentCount', args, options);
-   },
-  /**
-  * 获取工作地点数量
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getProjectWorkSitesCount: function (args, options = {}) {
-     
-     return $.api('Project', 'GetProjectWorkSitesCount', args, options);
    },
   /**
   * 绑定微信公众号

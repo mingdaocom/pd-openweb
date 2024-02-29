@@ -387,6 +387,9 @@ class PortalSetting extends React.Component {
                 }}
                 className={cx('saveBtn Hand', { disable: this.state.name === '' || this.state.saveLoading })}
                 onClick={() => {
+                  if(this.state.name === '' || this.state.saveLoading){
+                    return
+                  }
                   this.editPortal();
                 }}
               >

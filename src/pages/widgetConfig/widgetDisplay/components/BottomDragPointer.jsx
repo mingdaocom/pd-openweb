@@ -43,7 +43,7 @@ export default function BottomDragPointer({ rowIndex, displayItemType, showEmpty
       return true;
     },
     drop(item) {
-      return { mode: DRAG_MODE.INSERT_NEW_LINE, rowIndex, sectionId: sectionId || '' };
+      return { mode: DRAG_MODE.INSERT_NEW_LINE, rowIndex, sectionId: sectionId || '', activePath: [rowIndex - 1, 0] };
     },
     collect(monitor) {
       return { isOver: monitor.canDrop() && monitor.isOver({ shallow: true }) };

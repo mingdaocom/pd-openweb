@@ -46,22 +46,20 @@ export const updatePublishState = obj => (dispatch, getState) => {
 };
 
 // 获取工作流配置详情
-export const getProcessById =
-  (processId, count = 200) =>
-  (dispatch, getState) => {
-    flowNode.get({ processId, count }, { isIntegration: location.href.indexOf('integration') > -1 }).then(result => {
-      const isSimple = count && Object.keys(result.flowNodeMap).length > count;
+export const getProcessById = (processId, count = 200) => (dispatch, getState) => {
+  flowNode.get({ processId, count }, { isIntegration: location.href.indexOf('integration') > -1 }).then(result => {
+    const isSimple = count && Object.keys(result.flowNodeMap).length > count;
 
-      dispatch({
-        type: 'GET_PROCESS_INFO',
-        data: Object.assign({}, result, { isSimple }),
-      });
-
-      if (isSimple) {
-        getProcessById(processId, null)(dispatch);
-      }
+    dispatch({
+      type: 'GET_PROCESS_INFO',
+      data: Object.assign({}, result, { isSimple }),
     });
-  };
+
+    if (isSimple) {
+      getProcessById(processId, null)(dispatch);
+    }
+  });
+};
 
 // 清除工作流数据
 export const clearSource = () => (dispatch, getState) => {
@@ -87,44 +85,46 @@ const getApprovalProcessNodeId = (flowNodeMap, processId) => {
 };
 
 // 添加工作流节点
-export const addFlowNode =
-  (processId, args, callback = () => {}) =>
-  (dispatch, getState) => {
-    flowNode
-      .add({
-        processId,
-        ...args,
-      })
-      .then(result => {
-        const { workflowDetail } = _.cloneDeep(getState().workflow);
+export const addFlowNode = (processId, args, callback = () => {}) => (dispatch, getState) => {
+  flowNode
+    .add({
+      processId,
+      ...args,
+    })
+    .then(result => {
+      const { workflowDetail } = _.cloneDeep(getState().workflow);
 
-        if (workflowDetail.id !== processId) {
-          const nodeId = getApprovalProcessNodeId(workflowDetail.flowNodeMap, processId);
+      if (workflowDetail.id !== processId) {
+        const nodeId = getApprovalProcessNodeId(workflowDetail.flowNodeMap, processId);
 
-          if (nodeId) {
-            result.addFlowNodes.concat(result.updateFlowNodes).forEach(item => {
-              workflowDetail.flowNodeMap[nodeId].processNode.flowNodeMap[item.id] = item;
-            });
-          }
-        } else {
+        if (nodeId) {
           result.addFlowNodes.concat(result.updateFlowNodes).forEach(item => {
-            workflowDetail.flowNodeMap[item.id] = item;
+            if ((workflowDetail.flowNodeMap[nodeId].processNode.flowNodeMap[item.id] || {}).appType === 9) {
+              workflowDetail.flowNodeMap[nodeId].processNode.flowNodeMap[item.id].nextId = item.nextId;
+            } else {
+              workflowDetail.flowNodeMap[nodeId].processNode.flowNodeMap[item.id] = item;
+            }
           });
         }
-
-        dispatch({
-          type: 'ADD_FLOW_NODE',
-          data: workflowDetail,
+      } else {
+        result.addFlowNodes.concat(result.updateFlowNodes).forEach(item => {
+          workflowDetail.flowNodeMap[item.id] = item;
         });
+      }
 
-        dispatch({
-          type: 'UPDATE_PUBLISH_STATUS',
-          publishStatus: 1,
-        });
-
-        callback(result.addFlowNodes[0].id);
+      dispatch({
+        type: 'ADD_FLOW_NODE',
+        data: workflowDetail,
       });
-  };
+
+      dispatch({
+        type: 'UPDATE_PUBLISH_STATUS',
+        publishStatus: 1,
+      });
+
+      callback(result.addFlowNodes[0].id);
+    });
+};
 
 // 删除工作流节点
 export const deleteFlowNode = (processId, nodeId) => (dispatch, getState) => {
@@ -147,7 +147,11 @@ export const deleteFlowNode = (processId, nodeId) => (dispatch, getState) => {
 
           // 更新老数据
           result.updateFlowNodes.forEach(item => {
-            workflowDetail.flowNodeMap[nodeId].processNode.flowNodeMap[item.id] = item;
+            if ((workflowDetail.flowNodeMap[nodeId].processNode.flowNodeMap[item.id] || {}).appType === 9) {
+              workflowDetail.flowNodeMap[nodeId].processNode.flowNodeMap[item.id].nextId = item.nextId;
+            } else {
+              workflowDetail.flowNodeMap[nodeId].processNode.flowNodeMap[item.id] = item;
+            }
           });
         }
       } else {

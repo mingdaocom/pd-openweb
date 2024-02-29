@@ -218,7 +218,7 @@ class AppearanceConfig extends React.Component {
                   return;
                 },
               }}
-              bucket={2}
+              bucket={4}
               onUploaded={this.handleUploaded}
               onAdd={(up, files) => {
                 this.setState({ isUploading: true });

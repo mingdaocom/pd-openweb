@@ -72,7 +72,10 @@ export default class Search extends Component {
           result.findFields = [];
         }
 
-        this.setState({ data: _.isEmpty(obj) ? result : { ...result, name: data.name }, cacheKey: +new Date() });
+        this.setState({
+          data: _.isEmpty(obj) ? result : { ...result, name: data.name, filters: [] },
+          cacheKey: +new Date(),
+        });
       });
   }
 
@@ -231,7 +234,6 @@ export default class Search extends Component {
    * 渲染工作表
    */
   renderWorksheet() {
-    const { isApproval } = this.props;
     const { data, cacheKey } = this.state;
     const singleItem = (data.findFields || []).length ? data.findFields[0] : { fieldId: '' };
     const list = _.filter(
@@ -367,7 +369,7 @@ export default class Search extends Component {
           </Fragment>
         )}
 
-        {data.appId && !isApproval && (
+        {data.appId && (
           <FindResult
             executeType={data.executeType}
             allowAdd={data.actionId === ACTION_ID.WORKSHEET_FIND}
@@ -409,8 +411,6 @@ export default class Search extends Component {
             })}
           </Fragment>
         )}
-
-        {isApproval && <div className="mTop20 bold">{_l('未获取到数据时：继续执行')}</div>}
       </Fragment>
     );
   }

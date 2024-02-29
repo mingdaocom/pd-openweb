@@ -5,6 +5,7 @@ import { redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilt
 const TEXT_TYPE = [
   { text: _l('等于'), value: FILTER_CONDITION_TYPE.EQ },
   { text: _l('包含'), value: FILTER_CONDITION_TYPE.LIKE },
+  { text: _l('同时包含'), value: FILTER_CONDITION_TYPE.TEXT_ALLCONTAIN },
   { text: _l('开头是'), value: FILTER_CONDITION_TYPE.START },
   { text: _l('结尾是'), value: FILTER_CONDITION_TYPE.END },
 ];
@@ -276,7 +277,7 @@ export const FAST_FILTERS_WHITELIST = [
   RELA_FILTER_TYPE,
   GROUP_FILTER_TYPE,
   MULTI_SELECT_FILTER_TYPE,
-  LIMIT
+  LIMIT,
 ];
 // 支持快速筛选的字段
 export const FASTFILTER_CONDITION_TYPE = [
@@ -331,11 +332,9 @@ export const ADVANCEDSETTING_KEYS = [
   'searchtype',
   'searchcontrol',
   'clicksearch',
-  'limit'
+  'limit',
 ];
-export const Filter_KEYS = [
-  'filterType',
-];
+export const Filter_KEYS = ['filterType'];
 
 export const getControlFormatType = (control = {}) => {
   return redefineComplexControl(control).type;
@@ -361,8 +360,8 @@ export const getSetDefault = (control = {}) => {
             _.get(control, 'advancedSetting.showtype') === '5'
               ? DATE_TYPE_Y
               : _.get(control, 'advancedSetting.showtype') === '4'
-                ? DATE_TYPE_M
-                : defaultValue;
+              ? DATE_TYPE_M
+              : defaultValue;
         }
         fastFilterSet = {
           ...fastFilterSet,

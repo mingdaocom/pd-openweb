@@ -17,8 +17,10 @@ import HierarchyVerticalView from './HierarchyVerticalView';
 import HierarchyMixView from './HierarchyMixView';
 import DetailView from './DetailView';
 import CustomWidgetView from './CustomWidgetView';
+import MapView from './MapView';
+import ResourceView from './ResourceView';
 
-const { board, sheet, calendar, gallery, structure, gunter, detail, customize } = VIEW_DISPLAY_TYPE;
+const { board, sheet, calendar, gallery, structure, gunter, detail, customize, resource, map } = VIEW_DISPLAY_TYPE;
 
 const Con = styled.div`
   height: 100%;
@@ -40,9 +42,11 @@ const TYPE_TO_COMP = {
   structureVertical: HierarchyVerticalView,
   structureMix: HierarchyMixView,
   [customize]: CustomWidgetView,
+  [map]: MapView,
+  [resource]: ResourceView,
 };
 function View(props) {
-  const { loading, error, view, showAsSheetView } = props;
+  const { loading, error, view, views, showAsSheetView } = props;
   const { advancedSetting = {} } = view;
 
   let activeViewStatus = props.activeViewStatus;
@@ -94,7 +98,11 @@ function View(props) {
   ]);
 
   if (_.isEmpty(view) && !props.chartId && !_.get(window, 'shareState.isPublicView')) {
-    activeViewStatus = -10000;
+    if (views.length && viewProps.appId && viewProps.groupId && viewProps.worksheetId) {
+      navigateTo(`/app/${viewProps.appId}/${viewProps.groupId}/${viewProps.worksheetId}`, true);
+    } else {
+      activeViewStatus = -10000;
+    }
   }
 
   let viewType = String(showAsSheetView ? sheet : view.viewType);

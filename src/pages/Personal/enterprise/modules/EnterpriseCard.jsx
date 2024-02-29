@@ -8,7 +8,7 @@ import ValidPassword from './ValidPassword';
 import ExitDialog from './ExitDialog';
 import EditCardInfo from './EditCardInfo';
 import { navigateTo } from 'router/navigateTo';
-import { purchaseMethodFunc } from 'src/components/upgrade/choose/PurchaseMethodModal';
+import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
 
 import './index.less';
 
@@ -271,7 +271,7 @@ export default class EnterpriseCard extends Component {
             <div className="Font17 Bold mBottom12 Gray">{card.companyName}</div>
             <div className="cardItemInfo">
               <div className={cx('itemTag', isWaitOpen ? 'grayActive' : 'active')}>
-                {currentLicense.version ? _l('%0', currentLicense.version.name) : _l('免费版')}
+                {currentLicense.version ? currentLicense.version.name : _l('免费版')}
               </div>
               <div className="mLeft24 mRight24 itemDivice"></div>
               <div className="Gray_75 hover_blue">

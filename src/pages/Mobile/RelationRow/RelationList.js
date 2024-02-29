@@ -127,7 +127,7 @@ class RelationList extends Component {
               visible={!!previewRecordId}
               appId={worksheet.appId}
               worksheetId={worksheet.worksheetId}
-              viewId={control.viewId}
+              viewId={_.get(control, 'advancedSetting.openview') || control.viewId}
               rowId={previewRecordId}
               isSubList={_.get(permissionInfo, 'isSubList')}
               editable={_.get(permissionInfo, 'controlPermission.editable')}

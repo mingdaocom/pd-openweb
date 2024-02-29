@@ -181,6 +181,8 @@ function BoardView(props) {
     JSON.stringify(view.moreSort),
     view.advancedSetting.colorid,
     JSON.stringify(navGroupFilters),
+    view.advancedSetting.navsorts,
+    view.advancedSetting.customitems,
   ]);
 
   const handleSelectField = obj => {
@@ -260,8 +262,12 @@ function BoardView(props) {
     }
 
     const renderBoard = (fixFirst = false) => {
-      // 显示指定项 不做空数据的判断
-      if (every(viewData, item => isEmpty(item.rows)) && view.advancedSetting.navshow !== '2' && !fixFirst) {
+      // 显示指定项、显示全部 不做空数据的判断
+      if (
+        every(viewData, item => isEmpty(item.rows)) &&
+        !_.includes(['0', '2'], view.advancedSetting.navshow) &&
+        !fixFirst
+      ) {
         return <ViewEmpty filters={filters} viewFilter={view.filters || []} />;
       }
 
@@ -293,6 +299,7 @@ function BoardView(props) {
                 'updateBoardViewData',
                 'isCharge',
                 'sheetSwitchPermit',
+                'fieldShowCount',
               ])}
               {...rest}
             />
@@ -334,6 +341,7 @@ const ConnectedBoardView = connect(
       'sheetSwitchPermit',
       'sheetButtons',
       'navGroupFilters',
+      'fieldShowCount',
     ]),
   dispatch => bindActionCreators({ ...boardActions, ...baseAction }, dispatch),
 )(BoardView);

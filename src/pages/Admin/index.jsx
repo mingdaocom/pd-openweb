@@ -124,8 +124,8 @@ export default class AdminEntryPoint extends PureComponent {
     // 根据权限控制模块展示
     const routesWithAuthority = _.reduce(
       menuList,
-      (result, { title, subMenuList = [], key }) => {
-        let item = { title, subMenuList: subMenuList.filter(item => routeKeys.includes(item.key)), key };
+      (result, { title, subMenuList = [], key, icon }) => {
+        let item = { title, subMenuList: subMenuList.filter(item => routeKeys.includes(item.key)), key, icon };
         return result.concat([item]);
       },
       [],

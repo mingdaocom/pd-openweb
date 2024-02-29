@@ -88,6 +88,7 @@ export default class Widgets extends Component {
 
   getRecordsData() {
     const value = this.parseValue(this.props.value);
+    this.isFromDefault = !!_.find(value, { isFromDefault: true });
     let data = [];
     try {
       data = value.map(r => (r.sourcevalue ? JSON.parse(r.sourcevalue) : { rowid: r.sid, titleValue: r.name }));
@@ -101,10 +102,19 @@ export default class Widgets extends Component {
     if (type === 'array') {
       onChange(JSON.stringify(formatRecordToRelateRecord(relationControls, args)));
     } else {
-      const { count, records, deletedIds, addedIds } = args;
+      const { count, records, deletedIds, addedIds, searchByChange } = args;
       if (records.length) {
         onChange(
-          JSON.stringify(formatRecordToRelateRecord(relationControls, records, { addedIds, deletedIds, count })),
+          JSON.stringify(
+            formatRecordToRelateRecord(relationControls, records, {
+              addedIds,
+              deletedIds,
+              count,
+              isFromDefault: this.isFromDefault,
+            }),
+          ),
+          undefined,
+          searchByChange,
         );
       } else {
         onChange(`deleteRowIds: ${deletedIds.join(',')}`);

@@ -9,6 +9,7 @@ import UsageDetail from '../UsageDetail';
 import dataSourceApi from '../../../../api/datasource';
 import { getCurrentProject } from 'src/util';
 import { navigateTo } from 'src/router/navigateTo';
+import { getExtraParams } from '../../../utils';
 
 const AddOrEditSourceWrapper = styled.div`
   position: fixed;
@@ -158,12 +159,7 @@ export default function AddOrEditSource(props) {
       type: dataSource.type,
       fromType: dataSource.fromType,
       roleType: roleTypeArr.length > 1 ? 'ALL' : roleTypeArr[0],
-      extraParams:
-        dataSource.type === DATABASE_TYPE.ORACLE
-          ? { [JSON.parse(formData.serviceType)[0] === 'ServiceName' ? 'serviceName' : 'SID']: formData.serviceName }
-          : dataSource.type === DATABASE_TYPE.MONGO_DB
-          ? { isSrvProtocol: formData.isSrvProtocol }
-          : {},
+      extraParams: getExtraParams(dataSource.type, formData),
       enableSsh: formData.enableSsh,
       sshConfigId: formData.sshConfigId,
     };

@@ -7,7 +7,7 @@ import store from 'redux/configureStore';
 import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
 import reportConfig from '../../api/reportConfig';
 
-const formatApps = function (validProject, projectId, appId) {
+const formatApps = function(validProject, projectId, appId) {
   const appList = [];
   const project = validProject.filter(item => item.projectId === projectId)[0];
   if (project && project.projectApps && project.projectApps.length) {
@@ -78,12 +78,14 @@ export default class SheetMove extends Component {
         type: 1,
       })
       .then(res => {
-        res = res.filter(item => !item.urlTemplate).map(item => {
-          return {
-            text: item.workSheetName,
-            value: item.workSheetId,
-          };
-        });
+        res = res
+          .filter(item => !item.urlTemplate)
+          .map(item => {
+            return {
+              text: item.workSheetName,
+              value: item.workSheetId,
+            };
+          });
         this.setState({
           pages: res,
           pageValue: res.length ? pageId || res[0].value : '',
@@ -117,7 +119,7 @@ export default class SheetMove extends Component {
         className="PageMove"
         visible={true}
         anim={false}
-        title={_l('%0到自定义页面', pageId ? _l('移动') : _l('复制'))}
+        title={pageId ? _l('移动到自定义页面') : _l('复制到自定义页面')}
         width={560}
         onCancel={this.props.onCancel}
         footer={this.renderFooter()}

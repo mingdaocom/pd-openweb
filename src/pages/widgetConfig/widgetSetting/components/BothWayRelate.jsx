@@ -1,27 +1,11 @@
 import React, { useState, useEffect, Fragment } from 'react';
-import styled from 'styled-components';
 import { useSetState } from 'react-use';
 import { RELATE_COUNT_TEXT, DISPLAY_TYPE_TEXT } from '../../config/setting';
 import { toEditWidgetPage } from '../../util';
 import _ from 'lodash';
 import { Tooltip } from 'antd';
 import { Support, Icon } from 'ming-ui';
-
-const BothRelateInfo = styled.div`
-  border: 1px solid #e0e0e0;
-  border-radius: 3px;
-  padding: 10px 12px;
-  background-color: #fff;
-  .displayType {
-    margin-top: 8px;
-  }
-  span {
-    margin: 0 4px;
-  }
-  .sourceName {
-    color: #2196f3;
-  }
-`;
+import { BothRelateInfo } from '../../styled';
 
 export default function BothWayRelate(props) {
   const { data, globalSheetInfo = {} } = props;

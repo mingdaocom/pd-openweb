@@ -166,7 +166,9 @@ export default class PersonalInfo extends React.Component {
         <EditDetail
           baseInfo={this.state.baseDetail}
           closeDialog={() => {
-            $('.editDetailDialog.mui-dialog-container').parent().remove();
+            $('.editDetailDialog.mui-dialog-container')
+              .parent()
+              .remove();
           }}
           updateValue={baseDetail => {
             this.setState({ baseDetail });
@@ -208,7 +210,9 @@ export default class PersonalInfo extends React.Component {
         <EditInfo
           baseInfo={this.state.concatInfo}
           closeDialog={() => {
-            $('.editInfoDialog.mui-dialog-container').parent().remove();
+            $('.editInfoDialog.mui-dialog-container')
+              .parent()
+              .remove();
           }}
           updateValue={concatInfo => {
             this.setState({ concatInfo });
@@ -243,13 +247,13 @@ export default class PersonalInfo extends React.Component {
   }
 
   getEduOrWorkItem(type, item) {
+    const endTime = moment().format('YYYY-MM-DD') === item.endDate ? _l('至今') : item.endDate;
+
     return (
       <div className="eduOrWorkItemBox" key={item.autoId}>
         <div className="itemHeader">
           <div className="itemName overflow_ellipsis Bold Gray">{item.name}</div>
-          <div className="Gray_9e itemDate">
-            {_l('%0 至 %1', item.startDate, moment().format('YYYY-MM-DD') === item.endDate ? _l('至今') : item.endDate)}
-          </div>
+          <div className="Gray_9e itemDate">{_l('%0 至 %1', item.startDate, endTime)}</div>
           <div className="itemOption">
             <span className="ThemeColor3 Hover_49 mRight24" onClick={() => this.handleAddOrEditItem(type, item)}>
               <span className="mLeft6 icon-edit_17" />
@@ -280,7 +284,9 @@ export default class PersonalInfo extends React.Component {
           item={data}
           type={type}
           closeDialog={() => {
-            $('.addOrEditItemDialog.mui-dialog-container').parent().remove();
+            $('.addOrEditItemDialog.mui-dialog-container')
+              .parent()
+              .remove();
           }}
           updateValue={() => {
             const actionType = type === 1 ? 'getWorkList' : 'getEducation';
@@ -327,7 +333,9 @@ export default class PersonalInfo extends React.Component {
         <AvatorInfo
           avatar={this.state.accountInfo.avatarBig}
           closeDialog={() => {
-            $('.uploadAvatorDialog.mui-dialog-container').parent().remove();
+            $('.uploadAvatorDialog.mui-dialog-container')
+              .parent()
+              .remove();
           }}
           updateAvator={() => {
             $.when(this.getUserInfo()).then(user => {

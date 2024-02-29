@@ -19,7 +19,6 @@ const GenerateJSONBox = styled.textarea`
   width: 100%;
   border: 1px solid #ddd;
   resize: none;
-  margin-bottom: -22px;
   &:focus {
     border-color: #2196f3;
   }
@@ -367,7 +366,7 @@ export default ({ data, updateSource, isIntegration }) => {
           </span>
           <div className="ThemeHoverColor3 pointer Gray_75" onClick={generateJSON}>
             <i className="Font14 icon-knowledge-upload" />
-            {_l('从json示例生成')}
+            {_l('从JSON示例生成')}
           </div>
         </div>
 

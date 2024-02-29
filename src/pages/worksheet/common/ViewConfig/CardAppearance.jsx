@@ -19,7 +19,8 @@ import {
 } from 'src/pages/worksheet/common/ViewConfig/components/navGroup/util';
 import _ from 'lodash';
 import ChangeName from 'src/pages/integration/components/ChangeName.jsx';
-
+import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
+import NavSort from './components/NavSort';
 const DisplayControlOption = styled(FlexCenter)`
   .icon {
     font-size: 16px;
@@ -244,23 +245,29 @@ export default class CardAppearance extends Component {
                   if (viewControl === value) {
                     return;
                   }
-                  let data = null;
-                  if (!['0', '1'].includes(navshow)) {
-                    const viewControlData = worksheetControls.find(o => o.controlId === value) || {};
+                  let advanced = {
+                    navsorts: '',
+                    customitems: '',
+                  };
+                  const viewControlData = worksheetControls.find(o => o.controlId === value) || {};
+                  if (
+                    (!['0'].includes(navshow) && ![26].includes(viewControlData.type)) ||
+                    (!['1'].includes(navshow) && [26].includes(viewControlData.type))
+                  ) {
                     //显示指定项和全部 不重置显示项设置
-                    data = {
-                      advancedSetting: updateViewAdvancedSetting(view, {
-                        navshow: [26].includes(viewControlData.type) ? '1' : '0',
-                        navfilters: JSON.stringify([]),
-                      }),
+                    advanced = {
+                      ...advanced,
+                      navshow: [26].includes(viewControlData.type) ? '1' : '0',
+                      navfilters: JSON.stringify([]),
                     };
                   }
                   updateCurrentView({
                     ...view,
                     appId,
                     viewControl: value,
-                    ...data,
-                    editAttrs: ['viewControl', !!data ? 'advancedSetting' : ''],
+                    advancedSetting: advanced,
+                    editAdKeys: Object.keys(advanced),
+                    editAttrs: ['viewControl', 'advancedSetting'],
                   });
                 }}
                 border
@@ -285,11 +292,16 @@ export default class CardAppearance extends Component {
                   }}
                   value={navshow}
                   onChange={newValue => {
+                    let param = newValue;
+                    if (newValue.navshow === '2') {
+                      param = { ...param, navsorts: '', customitems: '' };
+                    }
                     updateCurrentView({
                       ...view,
                       appId,
-                      advancedSetting: updateViewAdvancedSetting(view, { ...newValue }),
+                      advancedSetting: param,
                       editAttrs: ['advancedSetting'],
+                      editAdKeys: Object.keys(param),
                     });
                   }}
                   advancedSetting={advancedSetting}
@@ -309,6 +321,28 @@ export default class CardAppearance extends Component {
                     viewControl,
                   }}
                 />
+                {/*  支持排序的字段：关联记录、人员、选项、等级*/}
+                {[29, 26, 9, 10, 11, 28].includes(
+                  (worksheetControls.find(o => o.controlId === viewControl) || {}).type,
+                ) &&
+                  !['2'].includes(navshow) && (
+                    <NavSort
+                      view={view}
+                      appId={_.get(currentSheetInfo, 'appId')}
+                      projectId={_.get(currentSheetInfo, 'projectId')}
+                      controls={worksheetControls}
+                      advancedSetting={advancedSetting}
+                      onChange={newValue => {
+                        updateCurrentView({
+                          ...view,
+                          appId,
+                          advancedSetting: newValue,
+                          editAttrs: ['advancedSetting'],
+                          editAdKeys: Object.keys(newValue),
+                        });
+                      }}
+                    />
+                  )}
               </Wrap>
             )}
             {isBoardView && (
@@ -318,15 +352,16 @@ export default class CardAppearance extends Component {
                     <SwitchStyle>
                       <Icon
                         icon={navempty === '1' ? 'ic_toggle_on' : 'ic_toggle_off'}
-                        className="Font30 Hand"
+                        className="Font28 Hand"
                         onClick={() => {
                           updateCurrentView({
                             ...view,
                             appId,
-                            advancedSetting: updateViewAdvancedSetting(view, {
+                            advancedSetting: {
                               navempty: navempty === '0' ? '1' : '0',
-                            }),
+                            },
                             editAttrs: ['advancedSetting'],
+                            editAdKeys: ['navempty'],
                           });
                         }}
                       />
@@ -358,17 +393,18 @@ export default class CardAppearance extends Component {
                     </Tooltip>
                   )}
                 </div>
-                <div className="mTop10" />
+                <div className="mTop4" />
                 <SwitchStyle>
                   <Icon
                     icon={freezenav === '1' ? 'ic_toggle_on' : 'ic_toggle_off'}
-                    className="Font30 Hand"
+                    className="Font28 Hand"
                     onClick={() => {
                       updateCurrentView({
                         ...view,
                         appId,
-                        advancedSetting: updateViewAdvancedSetting(view, { freezenav: freezenav === '0' ? '1' : '0' }),
+                        advancedSetting: { freezenav: freezenav === '0' ? '1' : '0' },
                         editAttrs: ['advancedSetting'],
+                        editAdKeys: ['freezenav'],
                       });
                     }}
                   />
@@ -414,6 +450,7 @@ export default class CardAppearance extends Component {
                           if (hierarchyViewType === '0' && [0, 1].includes(view.coverType)) {
                             hadnleCoverPosition.coverposition = '2';
                           }
+                          hadnleCoverPosition.hierarchyViewType = item.value;
                           this.setState(
                             {
                               hierarchyViewType: item.value,
@@ -423,11 +460,10 @@ export default class CardAppearance extends Component {
                                 ...view,
                                 appId,
                                 advancedSetting: {
-                                  ...getAdvanceSetting(view),
-                                  hierarchyViewType: item.value,
                                   ...hadnleCoverPosition,
                                 },
                                 editAttrs: ['advancedSetting'],
+                                editAdKeys: Object.keys(hadnleCoverPosition),
                               });
                             },
                           );
@@ -466,6 +502,7 @@ export default class CardAppearance extends Component {
                             hierarchyViewConnectLine: value,
                           },
                           editAttrs: ['advancedSetting'],
+                          editAdKeys: ['hierarchyViewConnectLine'],
                         });
                       },
                     );
@@ -563,29 +600,56 @@ export default class CardAppearance extends Component {
                 updateCurrentView({
                   ...view,
                   appId,
-                  advancedSetting: updateViewAdvancedSetting(view, { abstract: value }),
+                  advancedSetting: { abstract: value },
                   editAttrs: ['advancedSetting'],
+                  editAdKeys: ['abstract'],
                 });
               }}
             />
             {/* 显示字段 */}
             <DisplayControl
               {...this.props}
-              handleChange={checked => {
-                updateCurrentView({ ...view, appId, showControlName: checked, editAttrs: ['showControlName'] }, false);
+              handleChange={data => {
+                updateCurrentView({ ...view, appId, ...data }, false);
               }}
               handleChangeSort={({ newControlSorts, newShowControls }) => {
-                updateCurrentView(
-                  {
-                    ...view,
-                    appId,
-                    controlsSorts: newControlSorts,
-                    displayControls: newShowControls,
-                    editAttrs: ['controlsSorts', 'displayControls'],
-                  },
-                  false,
-                );
+                if (['board', 'gallery'].includes(VIEW_DISPLAY_TYPE[view.viewType])) {
+                  let showcount = _.get(view, 'advancedSetting.showcount');
+                  showcount = !!showcount
+                    ? newShowControls.length <= 0
+                      ? undefined
+                      : Number(showcount) > newShowControls.length
+                      ? newShowControls.length
+                      : showcount
+                    : undefined;
+                  updateCurrentView(
+                    {
+                      ...view,
+                      appId,
+                      controlsSorts: newControlSorts,
+                      displayControls: newShowControls,
+                      advancedSetting: {
+                        showcount,
+                      },
+                      editAttrs: ['advancedSetting', 'controlsSorts', 'displayControls'],
+                      editAdKeys: ['showcount'],
+                    },
+                    false,
+                  );
+                } else {
+                  updateCurrentView(
+                    {
+                      ...view,
+                      appId,
+                      controlsSorts: newControlSorts,
+                      displayControls: newShowControls,
+                      editAttrs: ['controlsSorts', 'displayControls'],
+                    },
+                    false,
+                  );
+                }
               }}
+              canShowCount={['board', 'gallery'].includes(VIEW_DISPLAY_TYPE[view.viewType])}
             />
             {/* 封面图片 */}
             <CoverSetting
@@ -606,8 +670,18 @@ export default class CardAppearance extends Component {
                   ...view,
                   appId,
                   coverType: coverTypeValue,
-                  advancedSetting: updateViewAdvancedSetting(view, { coverposition: value }),
+                  advancedSetting: { coverposition: value },
                   editAttrs: ['coverType', 'advancedSetting'],
+                  editAdKeys: ['coverposition'],
+                });
+              }}
+              handleChangeCoverWidth={value => {
+                updateCurrentView({
+                  ...view,
+                  appId,
+                  advancedSetting: { cardwidth: value },
+                  editAdKeys: ['cardwidth'],
+                  editAttrs: ['advancedSetting'],
                 });
               }}
               // 显示方式
@@ -619,7 +693,8 @@ export default class CardAppearance extends Component {
                 updateCurrentView({
                   ...view,
                   appId,
-                  advancedSetting: updateViewAdvancedSetting(view, { opencover: value }),
+                  advancedSetting: { opencover: value },
+                  editAdKeys: ['opencover'],
                   editAttrs: ['advancedSetting'],
                 });
               }}
@@ -630,8 +705,9 @@ export default class CardAppearance extends Component {
                   updateCurrentView({
                     ...view,
                     appId,
-                    advancedSetting: updateViewAdvancedSetting(view, { emptyname: value.trim() }),
+                    advancedSetting: { emptyname: value.trim() },
                     editAttrs: ['advancedSetting'],
+                    editAdKeys: ['emptyname'],
                   });
                   this.setState({ showChangeName: false });
                 }}

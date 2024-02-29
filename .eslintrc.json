@@ -80,7 +80,6 @@
           "$.Deferred",
           "ActiveXObject",
           "GetThumbHtml",
-          "MDSelect",
           "SelectGroup",
           "__api_server__"
         ]

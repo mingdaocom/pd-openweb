@@ -178,6 +178,7 @@ export default class MyAppItem extends Component {
       pcDisplay,
       webMobileDisplay,
       appDisplay,
+      isDashboard,
     } = this.props;
     const isShowSelectIcon = selectIconVisible || newAppItemId === id;
     const offsetLeft = _.get(this, '$myAppItem.current.offsetLeft');
@@ -229,14 +230,14 @@ export default class MyAppItem extends Component {
           </MdLink>
           <div
             className="star appItemIcon"
-            data-tip={isMarked ? _l('取消标星') : _l('标星')}
-            onClick={() => handleApp({ mode: 'mark', appId: id, projectId, isMark: !isMarked })}
+            data-tip={isMarked ? _l('取消收藏') : _l('收藏')}
+            onClick={() => handleApp({ mode: 'mark', appId: id, projectId, isMark: !isMarked, groupType: type })}
           >
             <Icon className="Font16" icon={isMarked ? 'task-star' : 'star-hollow'} />
           </div>
           {(canEditApp(permissionType, isLock) ||
             canEditData(permissionType) ||
-            !_.includes(['external', 'star', 'personal'], type)) && (
+            (!_.includes(['external', 'star', 'personal'], type) && !isDashboard)) && (
             <Trigger
               popupVisible={editAppVisible}
               popupClassName="myAppItemOperatorTriggerWrap"
@@ -254,6 +255,7 @@ export default class MyAppItem extends Component {
                   onUpdateAppBelongGroups={args => onUpdateAppBelongGroups({ ...args, appId: id })}
                   onClick={id => this.switchVisible({ editAppVisible: false }, () => this.handleMoreClick(id))}
                   onClickAway={() => this.switchVisible({ editAppVisible: false })}
+                  isDashboard={isDashboard}
                 />
               }
               popupAlign={{

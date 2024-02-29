@@ -121,7 +121,10 @@ export default class List extends Component {
 
         <a
           className="ThemeHoverColor3"
-          onClick={e => this.handleLinkClick(item, e)}
+          onClick={e => {
+            if (window.shareState.shareId) return;
+            this.handleLinkClick(item, e);
+          }}
           href={item.link}
           target="_blank"
           rel="noopener noreferrer"

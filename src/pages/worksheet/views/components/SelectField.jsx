@@ -10,7 +10,7 @@ import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/Calen
 const VIEW_TYPE_INFO = {
   1: {
     icon: 'kanban',
-    color: '#4caf50',
+    color: '#00BCD4',
     title: _l('看板视图'),
     detail: _l(
       '选择一个字段，数据将按照此字段中的字段值分组显示在看板中。支持字段：单选、多选、等级、人员、关联表记录（单条）',
@@ -18,7 +18,7 @@ const VIEW_TYPE_INFO = {
   },
   2: {
     icon: 'hierarchy',
-    color: '#9c27af',
+    color: '#FF3D3D',
     title: _l('层级'),
     detail: _l(
       '选择一组一对多关系的关联本表的“关联表”字段，数据将按照此字段的父级（单条）、子级（多条）关系来从左往右排列构成树状层级',
@@ -26,15 +26,29 @@ const VIEW_TYPE_INFO = {
   },
   4: {
     icon: 'event',
-    color: '#F64082',
+    color: '#00C345',
     title: _l('日历视图'),
     detail: _l('选择一个日期类型的字段，数据将按照此字段中的日期显示在日历上。'),
   },
   5: {
     icon: 'gantt',
-    color: '#01BCD5',
+    color: '#8A2AEB',
     title: _l('甘特图'),
     detail: _l('根据任务时间和任务之间建立的依赖关系全局显示任务安排。'),
+  },
+  7: {
+    icon: 'person_three',
+    color: '#2F4EEB',
+    title: _l('资源视图'),
+    detail: _l(
+      '选择一个字段作为资源，数据将按照该资源的占用时间显示在时间轴上。支持的字段：选项、人员、部门、组织角色、关联记录（单条、多条）',
+    ),
+  },
+  8: {
+    icon: 'location_map',
+    color: '#EB2F96',
+    title: _l('地图'),
+    detail: _l('选择一个定位字段，前200条数据将按照此字段中的位置显示在地图中。'),
   },
 };
 
@@ -95,8 +109,6 @@ const DisplayFieldWrap = styled.div`
     min-height: 50px;
   }
 `;
-const DisplayField = styled(FlexCenter)``;
-
 const VerifyButton = styled(Button)`
   margin-top: 12px;
 `;
@@ -104,7 +116,7 @@ const VerifyButton = styled(Button)`
 export default class SelectField extends Component {
   static propTypes = {
     fields: arrayOf(shape({ type: number })),
-    viewType: oneOf([1, 2, 4, 5]),
+    viewType: oneOf([1, 2, 4, 5, 8]),
     handleSelect: func,
     toCustomWidget: func,
   };
@@ -147,16 +159,25 @@ export default class SelectField extends Component {
     const $scrollWrap = document.querySelector('.selectFieldWrap');
     if ($scrollWrap) {
       $($scrollWrap).height(Math.min($content.offsetHeight, innerHeight - bottom - 116));
+      if (
+        $content.offsetHeight < innerHeight - bottom - 116 &&
+        !$('.mapViewWrap .selectFieldWrap .nano-pane').attr('style')
+      ) {
+        $('.mapViewWrap .selectFieldWrap .nano-pane').attr('style', 'display: none;');
+      }
     }
   };
   renderContent = () => {
     let { fields, viewType, handleSelect, toCustomWidget, sheetSwitchPermit, ...rest } = this.props;
     const { checkedValue } = this.state;
-    fields = setSysWorkflowTimeControlFormat(fields, sheetSwitchPermit, 'value');
-    if (viewType === 1) {
+    const EditButton = viewType === 8 ? VerifyButton : RevertButton;
+    if (![4, 5, 7].includes(viewType)) {
+      fields = setSysWorkflowTimeControlFormat(fields, sheetSwitchPermit, 'value');
+    }
+    if ([1, 8].includes(viewType)) {
       return fields.length > 0 ? (
         <DisplayFieldWrap>
-          <h5>{_l('选择分组字段')}</h5>
+          <h5>{viewType === 1 ? _l('选择分组字段') : _l('选择字段')}</h5>
           <ScrollView className="selectFieldWrap">
             <RadioGroup
               data={fields}
@@ -170,10 +191,10 @@ export default class SelectField extends Component {
       ) : (
         <DisplayFieldWrap>
           <h5 className="empty">{_l('当前工作表中没有符合的字段，请先去添加一个')}</h5>
-          <RevertButton onClick={toCustomWidget}>{_l('编辑表单')}</RevertButton>
+          <EditButton onClick={toCustomWidget}>{_l('编辑表单')}</EditButton>
         </DisplayFieldWrap>
       );
-    } else if ([4, 5].includes(viewType)) {
+    } else if ([4, 5, 7].includes(viewType)) {
       return <DisplayFieldWrap>{this.props.context}</DisplayFieldWrap>;
     }
     return <ConfigureHierarchyView fields={fields} handleSelect={handleSelect} {...rest} />;

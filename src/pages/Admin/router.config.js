@@ -9,28 +9,25 @@ export const permissionObj = {
     'expansionservice',
     'structure',
     'roles',
-    'approve',
     'reportrelation',
     'groups',
     'portal',
-    'contactsHidden',
-    'transfer',
     'resignlist',
     'sysinfo',
     'billinfo',
     'valueaddservice',
     'sysroles',
-    'rolelog',
-    'systools',
-    'settings',
-    'integration_others',
+    'integrationothers',
     'weixin',
+    'loginlog',
+    'security',
+    'orgothers',
+    'orglog',
+    'platformintegration',
     'thirdapp',
-    'appLog',
-    'loginLog',
   ],
   // 应用管理('应用‘，’工作流‘，‘使用分析’)
-  APK_ADMIN: ['app', 'workflows', 'analytics', 'computing', 'variables', 'appLog'],
+  APK_ADMIN: ['app', 'workflows', 'analytics', 'computing', 'variables', 'applog', 'settings'],
   // 钉钉
   HAS_DING: ['ding'],
   // 微信集成
@@ -42,13 +39,13 @@ export const permissionObj = {
 };
 
 export const menuList = [
-  // 首页
   {
     title: '',
+    key: 'home',
     subMenuList: [
       {
-        icon: 'icon-company',
-        name: _l('基本信息%15001'),
+        name: _l('首页'),
+        icon: 'icon-home1',
         key: 'home',
         routes: [
           {
@@ -57,174 +54,221 @@ export const menuList = [
           },
           {
             path: '/admin/upgradeservice/:projectId/:vertionType?',
-            component: () => import('./billCenter/upgradeService'),
+            component: () => import('./organization/billCenter/upgradeService'),
           },
           {
             path: '/admin/waitingpay/(.*)/(.*)',
-            component: () => import('./billCenter/waitingPay'),
+            component: () => import('./organization/billCenter/waitingPay'),
           },
           {
             path: '/admin/expansionservice/(.*)/(user|storage|workflow|storage|dataSync|app)+',
-            component: () => import('./billCenter/expansionService'),
+            component: () => import('./organization/billCenter/expansionService'),
           },
         ],
       },
     ],
   },
-  // 人员
   {
-    title: _l('人员'),
+    title: _l('用户'),
+    key: 'user',
+    icon: 'icon-group',
     subMenuList: [
       {
-        icon: 'icon-group',
         name: _l('成员与部门'),
         key: 'structure',
         routes: [
           {
-            path: '/admin/structure/(.*)/(create|uncursor|importusers|isShowSetting)?',
-            component: () => import('./structure'),
+            path: '/admin/structure/(.*)/(create|uncursor|importusers)?',
+            component: () => import('./user/membersDepartments'),
           },
           {
-            path: '/admin/approve/(.*)',
-            component: () => import('./structure'),
+            path: '/admin/expansionserviceResign/(.*)',
+            component: () => import('./organization/billCenter/expansionService'),
           },
         ],
       },
       {
-        icon: 'icon-user',
-        name: _l('组织角色%15002'),
+        name: _l('角色'),
         key: 'roles',
         routes: [
           {
             path: '/admin/roles/:projectId',
-            component: () => import('./roleManage'),
+            component: () => import('./user/roleManage'),
           },
         ],
       },
       {
-        icon: 'icon-account_tree',
         name: _l('汇报关系'),
         key: 'reportrelation',
         routes: [
           {
             path: '/admin/reportrelation/(.*)',
-            component: () => import('./reportRelation'),
+            component: () => import('./user/reportRelation'),
           },
         ],
       },
       {
-        icon: 'icon-textsms',
-        name: _l('群组与外协'),
+        name: _l('群组'),
         key: 'groups',
         routes: [
           {
             path: '/admin/groups/(.*)',
-            component: () => import('./groupDept'),
+            component: () => import('./user/groupDept/index.jsx'),
           },
         ],
       },
       {
-        icon: 'icon-external_users_01',
-        name: _l('外部门户'),
+        name: _l('外部用户'),
         key: 'portal',
         menuPath: '/admin/portal/:projectId',
         routes: [
           {
             path: '/admin/portal/:projectId',
             exact: true,
-            component: () => import('./portal'),
+            component: () => import('./user/portal'),
           },
           {
             path: '/admin/expansionservice/(.*)/(portaluser|portalupgrade)+',
-            component: () => import('./billCenter/expansionService'),
-          },
-        ],
-      },
-      {
-        icon: 'icon-person_off_a',
-        name: _l('通讯录隔离'),
-        featureId: 6,
-        key: 'contactsHidden',
-        routes: [
-          {
-            path: '/admin/contactsHidden/:projectId?',
-            component: () => import('./contactsHidden'),
-          },
-        ],
-      },
-      {
-        icon: 'icon-how_to_reg',
-        name: _l('离职交接%15004'),
-        key: 'transfer',
-        menuPath: '/admin/transfer/:projectId',
-        routes: [
-          {
-            path: '/admin/(transfer|resignlist)/:projectId',
-            component: () => import('./resignation'),
-          },
-          {
-            path: '/admin/expansionserviceResign/(.*)',
-            component: () => import('./billCenter/expansionService'),
+            component: () => import('./organization/billCenter/expansionService'),
           },
         ],
       },
     ],
   },
-  // 组织
   {
     title: _l('组织'),
+    key: 'organization',
+    icon: 'icon-business',
     subMenuList: [
       {
-        icon: 'icon-draft-box',
-        name: _l('组织信息'),
+        name: _l('基础信息'),
         key: 'sysinfo',
         routes: [
           {
             path: '/admin/sysinfo/(.*)',
-            component: () => import('./systemSetting'),
+            component: () => import('./organization/systemSetting'),
           },
         ],
       },
       {
-        icon: 'icon-account_balance_wallet',
         name: _l('账务'),
         key: 'billinfo',
         routes: [
           {
             path: '/admin/billinfo/(.*)',
-            component: () => import('./billCenter/billInfo'),
+            component: () => import('./organization/billCenter/billInfo'),
           },
           {
             path: '/admin/valueaddservice/(.*)',
-            component: () => import('./billCenter/valueAddService'),
+            component: () => import('./organization/billCenter/valueAddService'),
           },
         ],
       },
       {
-        icon: 'icon-admin_panel_settings',
         name: _l('管理员'),
         key: 'sysroles',
         menuPath: '/admin/sysroles/:projectId',
         routes: [
           {
-            path: '/admin/(sysroles|rolelog)/:projectId/:roleId?',
-            component: () => import('./roleAuth/index'),
+            path: '/admin/(sysroles)/:projectId/:roleId?',
+            component: () => import('./organization/roleAuth'),
           },
         ],
       },
       {
-        icon: 'icon-build',
-        name: _l('管理工具'),
-        key: 'systools',
+        name: _l('安全'),
+        key: 'security',
+        menuPath: '/admin/security/:projectId',
         routes: [
           {
-            path: '/admin/systools/(.*)',
-            component: () => import('./tools'),
+            path: '/admin/security/:projectId/:roleId?',
+            component: () => import('./organization/security'),
           },
         ],
       },
       {
-        icon: 'icon-table_rows',
+        name: _l('其他'),
+        key: 'orgothers',
+        routes: [
+          {
+            path: '/admin/orgothers/:projectId',
+            component: () => import('./organization/orgothers'),
+          },
+        ],
+      },
+    ],
+  },
+  {
+    title: _l('应用'),
+    key: 'apps',
+    icon: 'icon-now_widgets',
+    subMenuList: [
+      {
+        name: _l('使用分析%15003'),
+        featureId: 17,
+        key: 'analytics',
+        routes: [
+          {
+            path: '/admin/analytics/:projectId',
+            component: () => import('./app/useAnalytics/index.js'),
+          },
+        ],
+      },
+      {
+        name: _l('应用管理'),
+        key: 'app',
+        menuPath: '/admin/app/:projectId',
+        routes: [
+          {
+            path: '/admin/app/:projectId',
+            exact: true,
+            component: () => import('./app/appManagement'),
+          },
+        ],
+      },
+      {
+        name: _l('工作流'),
+        key: 'workflows',
+        routes: [
+          {
+            path: '/admin/workflows/:projectId',
+            component: () => import('src/pages/workflow/WorkflowList/AdminWorkflowList'),
+          },
+          {
+            path: '/admin/expansionserviceWorkflow/(.*)',
+            component: () => import('./organization/billCenter/expansionService'),
+          },
+        ],
+      },
+      {
+        name: _l('全局变量'),
+        key: 'variables',
+        featureId: VersionProductType.globalVariable,
+        routes: [
+          {
+            path: '/admin/variables/:projectId',
+            exact: true,
+            component: () => import('./app/globalVariable/index.jsx'),
+          },
+        ],
+      },
+      {
+        name: _l('专属资源'),
+        featureId: 30,
+        key: 'computing',
+        hasBeta: false,
+        routes: [
+          {
+            path: '/admin/computing/:projectId/:explanId?',
+            component: () => import('./app/exclusiveComp/index.jsx'),
+          },
+          {
+            path: '/admin/expansionserviceComputing/(.*)',
+            component: () => import('./organization/billCenter/expansionService'),
+          },
+        ],
+      },
+      {
         name: _l('通用设置'),
         key: 'settings',
         routes: [
@@ -236,200 +280,94 @@ export const menuList = [
       },
     ],
   },
-  // 应用
-  {
-    title: _l('应用'),
-    subMenuList: [
-      {
-        icon: 'icon-now_widgets',
-        name: _l('应用'),
-        key: 'app',
-        menuPath: '/admin/app/:projectId',
-        routes: [
-          {
-            path: '/admin/app/:projectId',
-            exact: true,
-            component: () => import('./appManagement'),
-          },
-        ],
-      },
-      {
-        icon: 'icon-workflow',
-        name: _l('工作流'),
-        key: 'workflows',
-        routes: [
-          {
-            path: '/admin/workflows/:projectId',
-            component: () => import('src/pages/workflow/WorkflowList/AdminWorkflowList'),
-          },
-          {
-            path: '/admin/expansionserviceWorkflow/(.*)',
-            component: () => import('./billCenter/expansionService'),
-          },
-        ],
-      },
-      {
-        icon: 'icon-poll',
-        name: _l('使用分析%15003'),
-        featureId: 17,
-        key: 'analytics',
-        routes: [
-          {
-            path: '/admin/analytics/:projectId',
-            component: () => import('./useAnalytics'),
-          },
-        ],
-      },
-      {
-        icon: 'icon-global_variable',
-        name: _l('全局变量'),
-        key: 'variables',
-        featureId: VersionProductType.globalVariable,
-        routes: [
-          {
-            path: '/admin/variables/:projectId',
-            exact: true,
-            component: () => import('./globalVariable'),
-          },
-        ],
-      },
-      {
-        icon: 'icon-dns1',
-        name: _l('专属资源'),
-        featureId: 30,
-        key: 'computing',
-        hasBeta: false,
-        routes: [
-          {
-            path: '/admin/computing/:projectId/:explanId?',
-            component: () => import('./exclusiveComp'),
-          },
-          {
-            path: '/admin/expansionserviceComputing/(.*)',
-            component: () => import('./billCenter/expansionService'),
-          },
-        ],
-      },
-    ],
-  },
-  // 日志
   {
     title: _l('日志'),
+    key: 'wysiwyg',
+    icon: 'icon-wysiwyg',
     subMenuList: [
       {
-        icon: 'icon-wysiwyg',
         name: _l('应用'),
         featureId: 31,
-        key: 'appLog',
-        menuPath: '/admin/appLog/:projectId',
+        key: 'applog',
+        menuPath: '/admin/applog/:projectId',
         routes: [
           {
-            path: '/admin/appLog/:projectId',
+            path: '/admin/applog/:projectId',
             exact: true,
             component: () => import('./logs/AppLog'),
           },
         ],
       },
       {
-        icon: 'icon-user_Review',
         name: _l('登录'),
-        key: 'loginLog',
-        menuPath: '/admin/loginLog/:projectId',
+        key: 'loginlog',
+        menuPath: '/admin/loginlog/:projectId',
         routes: [
           {
-            path: '/admin/loginLog/:projectId',
+            path: '/admin/loginlog/:projectId',
             exact: true,
             component: () => import('./logs/LoginLog'),
           },
         ],
       },
+      {
+        name: _l('组织管理'),
+        key: 'orglog',
+        menuPath: '/admin/orglog/:projectId',
+        routes: [
+          {
+            path: '/admin/orglog/:projectId',
+            exact: true,
+            component: () => import('./logs/orgLog'),
+          },
+        ],
+      },
     ],
   },
-  // 集成
   {
     title: _l('集成'),
+    key: 'integration',
+    icon: 'icon-device_hub',
     subMenuList: [
       {
-        icon: 'icon-wechat_work',
-        name: _l('企业微信'),
-        featureId: 19,
-        key: 'workwxapp',
+        name: _l('第三方平台集成'),
+        key: 'platformintegration',
+        menuPath: '/admin/platformintegration/:projectId(.*)',
         routes: [
           {
-            path: '/admin/workwxapp/:projectId',
-            component: () => import('./workwx/index'),
+            path: '/admin/platformintegration/:projectId',
+            component: () => import('./integration/platformIntegration'),
           },
         ],
       },
       {
-        icon: 'icon-dingtalk',
-        name: _l('钉钉'),
-        featureId: 10,
-        key: 'ding',
-        routes: [
-          {
-            path: '/admin/ding/:projectId',
-            component: () => import('./ding/index'),
-          },
-        ],
-      },
-      {
-        icon: 'icon-welink',
-        name: _l('Welink'),
-        featureId: 18,
-        key: 'welink',
-        menuPath: '/admin/welink/:projectId',
-        routes: [
-          {
-            path: '/admin/welink/:projectId',
-            component: () => import('./welink/index'),
-          },
-        ],
-      },
-      {
-        icon: 'icon-feishu',
-        name: _l('飞书'),
-        featureId: 12,
-        key: 'feishu',
-        menuPath: '/admin/feishu/:projectId',
-        routes: [
-          {
-            path: '/admin/feishu/:projectId',
-            component: () => import('./feishu/index'),
-          },
-        ],
-      },
-      {
-        icon: 'icon-wechat',
         name: _l('微信公众号'),
         key: 'weixin',
         menuPath: '/admin/weixin/:projectId(.*)',
         routes: [
           {
             path: '/admin/weixin/:projectId',
-            component: () => import('./weixin/index'),
+            component: () => import('./integration/weixin'),
           },
         ],
       },
       {
-        icon: 'icon-heart_4',
         name: _l('第三方应用'),
         key: 'thirdapp',
         routes: [
           {
             path: '/admin/thirdapp/:projectId',
-            component: () => import('./thirdpartyApp'),
+            component: () => import('./integration/thirdpartyApp'),
           },
         ],
       },
       {
-        icon: 'icon-integration_instructions',
         name: _l('其他'),
-        key: 'integration_others',
+        key: 'integrationothers',
         routes: [
           {
-            path: '/admin/integration_others/:projectId',
-            component: () => import('./others'),
+            path: '/admin/integrationothers/:projectId',
+            component: () => import('./integration/others'),
           },
         ],
       },

@@ -18,13 +18,14 @@ export default class DropdownWrapper extends Component {
     };
   }
   render() {
-    const { children, downElement, className } = this.props;
+    const { children, downElement, className, disabled } = this.props;
     const { visible } = this.state;
     return (
-      <div className={cx(`dropdownWrapper ${className || ''}`, { active: visible })}>
+      <div className={cx(`dropdownWrapper ${className || ''}`, { active: visible, disabled })}>
         <div
           className="targetEle"
           onClick={() => {
+            if (disabled) return;
             this.setState({
               visible: !visible,
             });

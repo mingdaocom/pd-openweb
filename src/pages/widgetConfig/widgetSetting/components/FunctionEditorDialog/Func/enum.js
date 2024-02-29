@@ -374,7 +374,7 @@ export const functions = {
   },
   // 转为数值
   NUMBER: function (value) {
-    return Number(value);
+    return Number(Number(value).toFixed(14));
   },
   // 求幂
   POWER: function (base, exponent) {

@@ -1,13 +1,13 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { List, Flex, Modal, TextareaItem, ActionSheet } from 'antd-mobile';
-import { Icon, Signature } from 'ming-ui';
+import { Icon, Signature, VerifyPasswordInput } from 'ming-ui';
 import { ACTION_TO_TEXT } from 'src/pages/workflow/components/ExecDialog/config';
 import { verifyPassword } from 'src/util';
-import VerifyPassword from 'src/pages/workflow/components/ExecDialog/components/VerifyPassword';
 import delegationApi from 'src/pages/workflow/api/delegation';
 import functionTemplateModal from '../FunctionTemplateModal';
 import SelectUser from 'mobile/components/SelectUser';
+import AttachmentFiles, { UploadFileWrapper } from 'mobile/Discuss/AttachmentFiles';
 import './index.less';
 import _ from 'lodash';
 
@@ -41,6 +41,7 @@ export default class extends Component {
       selectedUser: [],
       entrustList: {},
       customApproveContent: content ? true : false,
+      files: []
     };
   }
   componentDidMount() {
@@ -60,15 +61,16 @@ export default class extends Component {
   componentWillUnmount() {
     ActionSheet.close();
   }
-  handleAction = (backFlowNode = '') => {
+  handleAction = () => {
     const { action, instance } = this.props;
-    const { content, showPassword, selectedUser, entrustList } = this.state;
+    const { content, showPassword, selectedUser, entrustList, files, backFlowNode = '' } = this.state;
     const { auth, encrypt } = (instance || {}).flowNode || {};
 
     const passContent = action === 'pass' && _.includes(auth.passTypeList, 100);
     const overruleContent = _.includes(['overrule', 'return'], action) && _.includes(auth.overruleTypeList, 100);
     const passSignature = _.includes(['pass', 'after'], action) && _.includes(auth.passTypeList, 1);
     const overruleSignature = _.includes(['overrule', 'return'], action) && _.includes(auth.overruleTypeList, 1);
+    const attachments = files.length ? JSON.stringify(files) : '';
     const forwardAccountId = (_.isArray(selectedUser) ? selectedUser : [selectedUser])
       .map(user => {
         if (entrustList[user.accountId]) {
@@ -93,10 +95,10 @@ export default class extends Component {
     const submitFun = () => {
       if (this.signature) {
         this.signature.saveSignature(signature => {
-          this.props.onAction(action, content, forwardAccountId, backFlowNode, signature);
+          this.props.onAction({ action, content, forwardAccountId, backFlowNode, signature, files: attachments });
         });
       } else {
-        this.props.onAction(action, content, forwardAccountId, backFlowNode, undefined);
+        this.props.onAction({ action, content, forwardAccountId, backFlowNode, signature: undefined, files: attachments });
       }
       if (this.isNoneVerification) {
         this.setState({ showPassword: false });
@@ -104,6 +106,10 @@ export default class extends Component {
     };
 
     if (_.includes(['pass', 'overrule', 'return'], action) && encrypt) {
+      if (!this.password || !this.password.trim()) {
+        alert(_l('请输入密码'), 3);
+        return;
+      }
       verifyPassword({
         password: this.password,
         closeImageValidation: true,
@@ -375,16 +381,39 @@ export default class extends Component {
       </Fragment>
     );
   }
+  renderAttachment() {
+    const { files } = this.state;
+    if (files.length) {
+      return (
+        <div className="flexRow pLeft15 pRight15">
+          <AttachmentFiles
+            width="32%"
+            isRemove={true}
+            attachments={files}
+            onChange={files => {
+              this.setState({
+                files,
+              });
+            }}
+          />
+        </div>
+      );
+    } else {
+      return null;
+    }
+  }
   renderVerifyPassword() {
     const { action, instance } = this.props;
     const { encrypt } = (instance || {}).flowNode || {};
     const { showPassword, removeNoneVerification } = this.state;
     if (_.includes(['pass', 'overrule', 'return'], action) && encrypt && showPassword) {
       return (
-        <Flex className="am-textarea-item">
-          <div className="flex">
-            <VerifyPassword
-              removeNoneVerification={removeNoneVerification}
+        <Flex className="am-textarea-item pTop20 pBottom0">
+          <div className="flex verifyPasswordInputWrap">
+            <VerifyPasswordInput
+              showSubTitle={false}
+              isRequired={true}
+              allowNoVerify={!removeNoneVerification}
               onChange={({ password, isNoneVerification }) => {
                 if (password !== undefined) this.password = password;
                 if (isNoneVerification !== undefined) this.isNoneVerification = isNoneVerification;
@@ -396,8 +425,8 @@ export default class extends Component {
     }
   }
   renderContent() {
-    const { action, onHide, instance } = this.props;
-    const { content, backFlowNode, backFlowNodes, customApproveContent } = this.state;
+    const { action, instance } = this.props;
+    const { content, backFlowNode, customApproveContent, files } = this.state;
     const currentAction = ACTION_TO_TEXT[action] || {};
     const { opinionTemplate, flowNode } = instance || {};
     const { inputType } = opinionTemplate;
@@ -406,8 +435,12 @@ export default class extends Component {
     const overruleContent = _.includes(['overrule', 'return'], action) && _.includes(auth.overruleTypeList, 100);
     const passSignature = _.includes(['pass', 'after'], action) && _.includes(auth.passTypeList, 1);
     const overruleSignature = _.includes(['overrule', 'return'], action) && _.includes(auth.overruleTypeList, 1);
+    const hideContent =
+      (action === 'pass' && _.includes(auth.passTypeList, 101)) ||
+      (action === 'overrule' && _.includes(auth.overruleTypeList, 101));
     const isSignature = passSignature || overruleSignature;
     const isAndroid = navigator.userAgent.toLowerCase().includes('android');
+    const isAttachment = _.includes(['pass', 'overrule', 'return', 'after'], action);
     let opinions = [];
     if (_.includes(['after', 'pass'], action)) {
       opinions = opinionTemplate.opinions[4];
@@ -415,76 +448,103 @@ export default class extends Component {
     if (_.includes(['overrule', 'return'], action)) {
       opinions = opinionTemplate.opinions[5];
     }
+    const selectTemplateVisible = (_.includes(['pass', 'after', 'overrule', 'return'], action) && inputType === 2) || (!customApproveContent && !_.isEmpty(opinions));
     return (
       <Fragment>
-        <div className="flex flexColumn">
-          <div className="title flexRow valignWrapper relative">
-            {(passContent || overruleContent) && (
-              <div className="Absolute bold" style={{ margin: '1px 0px 0px -8px', color: '#f44336' }}>
-                *
-              </div>
-            )}
-            <div className="Font13 bold flex Gray">{_l('审批意见')}</div>
-            {!_.isEmpty(opinions) && inputType === 1 && customApproveContent && (
-              <div className="ThemeColor Font14" onClick={() => this.handleOpenTemplate({ inputType, opinions })}>
-                {_l('使用模板')}
-              </div>
-            )}
-          </div>
-          {(_.includes(['pass', 'after', 'overrule', 'return'], action) && inputType === 2) ||
-          (!customApproveContent && !_.isEmpty(opinions)) ? (
-            <div
-              className="selectTemplate flexRow valignWrapper"
-              onClick={() => this.handleOpenTemplate({ inputType, opinions })}
-            >
-              {content ? (
-                <div className="flex Font14 Gray">{content}</div>
-              ) : (
-                <div className="flex Font14" style={{ color: '#b3b3b3' }}>
-                  {currentAction.placeholder}
+        <div className="flex">
+          {this.renderVerifyPassword()}
+          {!hideContent && (
+            <Fragment>
+              <div className="flex flexColumn">
+                <div className="title flexRow valignWrapper relative">
+                  {(passContent || overruleContent) && (
+                    <div className="Absolute bold" style={{ margin: '1px 0px 0px -8px', color: '#f44336' }}>
+                      *
+                    </div>
+                  )}
+                  <div className="Font13 bold flex Gray">{_l('审批意见')}</div>
+                  {!_.isEmpty(opinions) && inputType === 1 && customApproveContent && (
+                    <div className="ThemeColor Font14" onClick={() => this.handleOpenTemplate({ inputType, opinions })}>
+                      {_l('使用模板')}
+                    </div>
+                  )}
                 </div>
-              )}
-              <Icon icon="arrow-right-border" />
-            </div>
-          ) : (
-            <TextareaItem
-              className="flex"
-              placeholder={currentAction.placeholder}
-              autoHeight={true}
-              value={content}
-              onChange={content => {
-                this.setState({
-                  content,
-                });
-              }}
-              onFocus={() => {
-                if (isAndroid && isSignature) {
-                  this.setState({ edit: true });
-                }
-              }}
-              onBlur={() => {
-                if (isAndroid && isSignature) {
-                  this.setState({ edit: false });
-                }
-              }}
-              ref={el => {
-                this.textarea = el;
-              }}
-            />
+                <div className="flexRow" style={{ margin: '10px 15px' }}>
+                  {selectTemplateVisible ? (
+                    <div
+                      className="selectTemplate flexRow valignWrapper flex"
+                      onClick={() => this.handleOpenTemplate({ inputType, opinions })}
+                    >
+                      {content ? (
+                        <div className="flex Font14 Gray">{content}</div>
+                      ) : (
+                        <div className="flex Font14" style={{ color: '#b3b3b3' }}>
+                          {currentAction.placeholder}
+                        </div>
+                      )}
+                      <Icon icon="arrow-right-border" />
+                    </div>
+                  ) : (
+                    <TextareaItem
+                      className="flex pAll0"
+                      placeholder={currentAction.placeholder}
+                      autoHeight={true}
+                      value={content}
+                      onChange={content => {
+                        this.setState({
+                          content,
+                        });
+                      }}
+                      onFocus={() => {
+                        if (isAndroid && isSignature) {
+                          this.setState({ edit: true });
+                        }
+                      }}
+                      onBlur={() => {
+                        if (isAndroid && isSignature) {
+                          this.setState({ edit: false });
+                        }
+                      }}
+                      ref={el => {
+                        this.textarea = el;
+                      }}
+                    />
+                  )}
+                  {isAttachment && (
+                    <UploadFileWrapper
+                      style={{ top: selectTemplateVisible ? 0 : 2 }}
+                      files={files}
+                      onChange={files => {
+                        this.setState({
+                          files,
+                        });
+                      }}
+                    >
+                      <div
+                        className="selectTemplate flexRow valignWrapper justifyContentCenter mLeft6"
+                        style={{ minHeight: selectTemplateVisible ? 35 : 40, width: selectTemplateVisible ? 35 : 40 }}
+                      >
+                        <Icon icon="attachment" />
+                      </div>
+                    </UploadFileWrapper>
+                  )}
+                </div>
+              </div>
+              {_.includes(['pass', 'overrule', 'return', 'after'], action) && this.renderAttachment()}
+            </Fragment>
           )}
+          {isSignature && this.renderSignature()}
+          {this.renderInfo()}
+          {this.renderSelectUser()}
         </div>
-        {isSignature && this.renderSignature()}
-        {this.renderVerifyPassword()}
-        {this.renderInfo()}
-        {this.renderSelectUser()}
         <div className="flexRow actionBtnWrapper">
-          <div className="flex actionBtn" onClick={onHide}>
+          <div className="flex actionBtn" onClick={this.props.onHide}>
             {_l('取消')}
           </div>
           <div
             className="flex actionBtn ok"
             onClick={() => {
-              this.handleAction(backFlowNode);
+              this.handleAction();
             }}
           >
             {_l('确定')}

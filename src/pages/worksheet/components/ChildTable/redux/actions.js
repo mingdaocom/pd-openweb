@@ -26,10 +26,11 @@ export const addRow = (row, insertRowId) => ({ type: 'ADD_ROW', row, rowid: row.
 export const deleteRow = rowid => ({ type: 'DELETE_ROW', rowid });
 export const deleteRows = rowIds => ({ type: 'DELETE_ROWS', rowIds });
 
-export const updateRow = ({ rowid, value }) => {
+export const updateRow = ({ rowid, value }, { asyncUpdate } = {}) => {
   return dispatch => {
     dispatch({
       type: 'UPDATE_ROW',
+      asyncUpdate,
       rowid,
       value: { ...value, empty: false },
     });
@@ -74,16 +75,6 @@ export const loadRows = ({
       pageSize: PAGE_SIZE,
       getType: from === 21 ? from : undefined,
     };
-    if (
-      _.get(window, 'shareState.isPublicRecord') ||
-      _.get(window, 'shareState.isPublicView') ||
-      _.get(window, 'shareState.isPublicWorkflowRecord') ||
-      _.get(window, 'shareState.isPublicPrint') ||
-      _.get(window, 'shareState.isPublicQuery') ||
-      _.get(window, 'shareState.isPublicForm')
-    ) {
-      args.shareId = _.get(window, 'shareState.shareId');
-    }
     batchLoadRows(args).then(batchRes => {
       const { res, rows } = batchRes;
       dispatch({ type: 'LOAD_ROWS', rows });

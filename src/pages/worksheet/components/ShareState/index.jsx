@@ -101,14 +101,14 @@ export const VerificationPass = props => {
                           const captchaResult = {
                             randStr: data.randstr,
                             ticket: data.ticket,
-                            captchaType: md.staticglobal.getCaptchaType()
+                            captchaType: md.global.getCaptchaType()
                           }
                           resolve(validatorPassPromise(value, captchaResult));
                         } else {
                           reject(_l('图形验证失败'));
                         }
                       }
-                      if (md.staticglobal.getCaptchaType() === 1) {
+                      if (md.global.getCaptchaType() === 1) {
                         new captcha(callback);
                       } else {
                         new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), callback).show();

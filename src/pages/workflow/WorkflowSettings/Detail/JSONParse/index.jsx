@@ -327,9 +327,7 @@ export default class JSONParse extends Component {
                     relationId={this.props.relationId}
                     selectNodeId={this.props.selectNodeId}
                     isIntegration={isIntegration}
-                    controls={data.outputs.filter(
-                      item => !item.dataSource && !_.includes([10000007, 10000008], item.type),
-                    )}
+                    controls={data.outputs.filter(item => !item.dataSource)}
                     data={data.conditions}
                     updateSource={data => this.updateSource({ conditions: data })}
                     projectId={this.props.companyId}

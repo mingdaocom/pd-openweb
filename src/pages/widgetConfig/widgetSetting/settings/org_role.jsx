@@ -21,7 +21,7 @@ export default function OrgRole(props) {
   return (
     <Fragment>
       <SettingItem>
-        <div className="settingItemTitle">{_l('数量')}</div>
+        <div className="settingItemTitle">{_l('选择方式')}</div>
         <RadioGroup
           size="middle"
           checkedValue={enumDefault}

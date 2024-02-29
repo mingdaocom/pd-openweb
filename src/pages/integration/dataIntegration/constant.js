@@ -57,7 +57,7 @@ export const SOURCE_FROM_TYPE_TAB_LIST = [
   { key: SOURCE_FROM_TYPE.COMMON, text: _l('常用') },
   { key: SOURCE_FROM_TYPE.LOCAL, text: _l('本地数据库') },
   { key: SOURCE_FROM_TYPE.CLOUD, text: _l('云端数据库') },
-  // { key: SOURCE_FROM_TYPE.MESSAGE_QUEUE, text: _l('消息队列') },
+  { key: SOURCE_FROM_TYPE.MESSAGE_QUEUE, text: _l('消息队列') },
 ];
 
 export const ROLE_TYPE_TAB_LIST = [
@@ -70,7 +70,7 @@ export const FROM_TYPE_TAB_LIST = [
   { key: SOURCE_FROM_TYPE.ALL, text: _l('全部') },
   { key: SOURCE_FROM_TYPE.LOCAL, text: _l('本地数据库') },
   { key: SOURCE_FROM_TYPE.CLOUD, text: _l('云端数据库') },
-  // { key: SOURCE_FROM_TYPE.MESSAGE_QUEUE, text: _l('消息队列') },
+  { key: SOURCE_FROM_TYPE.MESSAGE_QUEUE, text: _l('消息队列') },
 ];
 
 export const CREATE_TYPE_RADIO_LIST = [

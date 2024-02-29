@@ -192,7 +192,7 @@ export default (props) => {
       </ul>
       <div className="flex"></div>
       <div className="flexRow alignItemsCenter pointer mRight20" onClick={() => setConfigVisible(true)}>
-        <Icon className="Gray_9e Font20" icon="color_lens" />
+        <Icon className="Gray_9e Font20" icon="tune" />
         <div className="mLeft5 Font13">{_l('页面配置')}</div>
       </div>
       <Button type="link" className="close" onClick={handleClose}>

@@ -11,16 +11,17 @@ import Message from 'src/pages/account/components/message';
 import { encrypt } from 'src/util';
 import { navigateTo } from 'router/navigateTo';
 import moment from 'moment';
+import { browserIsMobile } from 'src/util';
 
 export const LOGIN_WAY = [
-  { key: 'weChat', txt: _l('微信登录') },
-  { key: 'phone', txt: _l('验证码登录') },
-  { key: 'password', txt: _l('密码登录') },
+  { key: 'weChat', txt: _l('微信') },
+  { key: 'phone', txt: _l('验证码') },
+  { key: 'password', txt: _l('密码') },
 ];
 const Wrap = styled.div`
   ul {
     & > li {
-      padding-right: 40px;
+      padding-right: 30px;
       &:last-child {
         padding-right: 0;
       }
@@ -28,6 +29,7 @@ const Wrap = styled.div`
         color: #757575;
         padding-bottom: 8px;
         border-bottom: 3px solid #fff;
+        word-break: break-all;
         &.isCur {
           color: #2196f3;
           border-bottom: 3px solid rgba(33, 150, 243);
@@ -149,7 +151,9 @@ export default function LoginContainer(props) {
         ? loginForType //已指定登录方式的情况下，直接走对应登录方式
         : paramForPcWx || request.mdAppId //扫码后 需要填写手机号 //微信扫码登录流程回跳只进手机号验证码流程
         ? 'phone'
-        : list.includes('weChat') && loginMode.weChat && isWXOfficialExist //点击进入微信登录 手机和微信同时设置时，默认微信优先
+        : browserIsMobile() && list.includes('weChat') && list.length > 1
+        ? list[1]
+        : list.includes('weChat') && isWXOfficialExist //点击进入微信登录 手机和微信同时设置时，默认微信优先
         ? 'weChat'
         : list[0],
     });
@@ -164,7 +168,7 @@ export default function LoginContainer(props) {
     verifyCodeType: '',
     ticket: '',
     randStr: '',
-    captchaType: md.staticglobal.getCaptchaType(),
+    captchaType: md.global.getCaptchaType(),
   });
   const [dataLogin, setData] = useState({
     dialCode: '',
@@ -315,18 +319,18 @@ export default function LoginContainer(props) {
       if (type === 'phone') {
         loginFn(
           Object.assign({}, res, {
-            captchaType: md.staticglobal.getCaptchaType(),
+            captchaType: md.global.getCaptchaType(),
           }),
         );
       } else {
         doPwdLogin(
           Object.assign({}, res, {
-            captchaType: md.staticglobal.getCaptchaType(),
+            captchaType: md.global.getCaptchaType(),
           }),
         );
       }
     };
-    if (md.staticglobal.getCaptchaType() === 1) {
+    if (md.global.getCaptchaType() === 1) {
       new captcha(callback);
     } else {
       new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), callback).show();
@@ -344,7 +348,7 @@ export default function LoginContainer(props) {
         ...paramLogin,
         account: encrypt(dialCode + emailOrTel),
         verifyCode,
-        captchaType: md.staticglobal.getCaptchaType(),
+        captchaType: md.global.getCaptchaType(),
         ticket,
         randStr: randstr,
         appId, //应用ID
@@ -367,7 +371,7 @@ export default function LoginContainer(props) {
       .twofactorLogin({
         account: encrypt(dialCode + emailOrTel),
         verifyCode,
-        captchaType: md.staticglobal.getCaptchaType(),
+        captchaType: md.global.getCaptchaType(),
         ticket,
         randStr: randstr,
         state, // 首次登陆返回的state
@@ -424,7 +428,7 @@ export default function LoginContainer(props) {
         appId,
         verifyCode, //verifyCode不为空则代表是注册，为空则代表进行密码登录；
         autoLogin: isAutoLogin,
-        captchaType: md.staticglobal.getCaptchaType(),
+        captchaType: md.global.getCaptchaType(),
         ticket,
         randStr: randstr,
       })
@@ -566,7 +570,7 @@ export default function LoginContainer(props) {
           {sending ? '...' : ''}
         </div>
         {termsAndAgreementEnable && (
-          <div className="mTop12 Gray_9e TxtTop LineHeight22 flexRow alignItemsCenter">
+          <div className="mTop12 Gray_9e TxtTop LineHeight22 flexRow">
             <Checkbox
               checked={hasCheck}
               onClick={() => {
@@ -577,7 +581,7 @@ export default function LoginContainer(props) {
               className="Hand"
               name=""
             />
-            <div className="flex alignItemsCenter flexRow">
+            <div className="flex alignItemsCenter">
               {_l('同意')}
               <span
                 className="ThemeColor3 Hand mRight5 mLeft5"
@@ -833,34 +837,36 @@ export default function LoginContainer(props) {
           )}
           {!(paramForPcWx || request.mdAppId || status === -6) &&
             LOGIN_WAY.filter(o => loginMode[o.key]).length > 1 && (
-              <ul className="flexRow">
-                {LOGIN_WAY.map((o, i) => {
-                  if (!loginMode[o.key]) {
-                    return '';
-                  }
-                  return (
-                    <li
-                      className={cx('Hand')}
-                      onClick={() => {
-                        setState({ type: o.key, sending: false, isRegister: false });
-                        setData({
-                          dialCode: '',
-                          warnningData: [],
-                          emailOrTel: '', // 邮箱或手机
-                          verifyCode: '', // 验证码
-                          password: '',
-                        });
-                        //第一个输入框，聚焦
-                        setTimeout(() => {
-                          $('.messageBox input:first').focus();
-                        }, 500);
-                      }}
-                    >
-                      <span className={cx('Bold Font15', { isCur: type === o.key })}>{o.txt}</span>
-                    </li>
-                  );
-                })}
-              </ul>
+              <React.Fragment>
+                <ul className="flexRow mTop32 alignItemsCenter justifyContentCenter">
+                  {LOGIN_WAY.map((o, i) => {
+                    if (!loginMode[o.key]) {
+                      return '';
+                    }
+                    return (
+                      <li
+                        className={cx('Hand')}
+                        onClick={() => {
+                          setState({ type: o.key, sending: false, isRegister: false });
+                          setData({
+                            dialCode: '',
+                            warnningData: [],
+                            emailOrTel: '', // 邮箱或手机
+                            verifyCode: '', // 验证码
+                            password: '',
+                          });
+                          //第一个输入框，聚焦
+                          setTimeout(() => {
+                            $('.messageBox input:first').focus();
+                          }, 500);
+                        }}
+                      >
+                        <span className={cx('Bold Font15', { isCur: type === o.key })}>{o.txt}</span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </React.Fragment>
             )}
         </React.Fragment>
       )}

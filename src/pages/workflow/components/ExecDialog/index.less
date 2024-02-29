@@ -262,7 +262,9 @@
   }
 
   .customFormControlBox {
-    cursor: default;
+    &:not(.customFormAttachmentBox) {
+      cursor: default;
+    }
     .addSignature {
       width: 180px;
       height: 40px;
@@ -272,6 +274,18 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
+    }
+  }
+
+  .ming.Textarea:disabled {
+    background-color: #f5f5f5;
+  }
+
+  .customFieldsContainer {
+    .triggerTraget {
+      height: 1px !important;
+      visibility: hidden;
+      border: none;
     }
   }
 }

@@ -189,7 +189,7 @@ function RoleSelect(props) {
           .filter(l => !search || l.name.toLowerCase().includes(search.toLowerCase()))
           .map((item, index) => (
             <React.Fragment>
-              {[0, 3].includes(index) && <p className='Font12 pLeft12 mBottom4 mTop10 Gray_9e'>{index===0 ? _l('系统') : _l('普通')}</p>}
+              {[0, 3].includes(index) && <p className='Font12 pLeft12 mBottom4 mTop10 Gray_9e'>{index===0 ? _l('系统') : _l('自定义')}</p>}
               <li
                 className={cx('item Hand valignWrapper', {
                   active: type === 0 && value.includes(item.roleId),

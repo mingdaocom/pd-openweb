@@ -61,9 +61,10 @@
     <!-- <input class="boderRadAll_3 boxSizing ThemeBorderColor3" id="txtLastDate" type="text" placeholder="{{=_l('未指定日期')}}" readonly="readonly" value="{{=it.Deadlines }}" /> -->
     <div class="boderRadAll_3 boxSizing ThemeBorderColor3" id="txtLastDate"></div>
 </div>
-<div class="boxSizing p82 pRight26 relative Font14 Hidden" id="createTaskStage">
+<div class="boxSizing p82 pRight26 relative Font14 Hidden" style="height: 38px;"  id="createTaskStage">
     <div class="createTaskLabel">{{=_l('看板')}}</div>
     <input type="hidden" id="folderStage" />
+    <span class="InlineBlock w100" id="folderStageBox"></span>
 </div>
 <div class="boxSizing p82 pRight26 relative Font14 {{=it.Description ? '' : 'Hidden'}}" id="createTaskDesc">
     <div class="createTaskLabel">{{=_l('描述和附件')}}</div>

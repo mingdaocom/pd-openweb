@@ -18,9 +18,10 @@ import {
   getControlsByTab,
   getValueStyle,
   getHideTitleStyle,
+  formatControlValue,
 } from './tools/utils';
 import { FORM_ERROR_TYPE, FROM, UN_TEXT_TYPE } from './tools/config';
-import { updateRulesData, checkAllValueAvailable, replaceStr } from './tools/filterFn';
+import { updateRulesData, checkAllValueAvailable, replaceStr, getRuleErrorInfo } from './tools/filterFn';
 import DataFormat, { checkRequired } from './tools/DataFormat';
 import { browserIsMobile } from 'src/util';
 import { formatSearchConfigs, supportDisplayRow } from 'src/pages/widgetConfig/util';
@@ -248,7 +249,7 @@ export default class CustomFields extends Component {
         this.changeStatus = true;
         this.setState(
           {
-            renderData: this.getFilterDataByRule(true),
+            renderData: this.getFilterDataByRule(),
             errorItems: this.dataFormat.getErrorControls(),
           },
           () => {
@@ -287,8 +288,8 @@ export default class CustomFields extends Component {
       from: this.props.from,
       updateControlIds: this.dataFormat.getUpdateRuleControlIds(),
       ignoreHideControl,
-      checkRuleValidator: (controlId, errorType, errorMessage, ruleId) => {
-        this.dataFormat.setErrorControl(controlId, errorType, errorMessage, ruleId, isInit);
+      checkRuleValidator: (controlId, errorType, errorMessage, rule) => {
+        this.dataFormat.setErrorControl(controlId, errorType, errorMessage, rule, isInit);
       },
     });
 
@@ -383,7 +384,11 @@ export default class CustomFields extends Component {
       const showRefreshBtn =
         from !== FROM.DRAFT &&
         !_.get(window, 'shareState.isPublicView') &&
+        !_.get(window, 'shareState.isPublicQuery') &&
+        !_.get(window, 'shareState.isPublicPage') &&
         !_.get(window, 'shareState.isPublicRecord') &&
+        !_.get(window, 'shareState.isPublicForm') &&
+        !_.get(window, 'shareState.isPublicWorkflowRecord') &&
         recordId &&
         md.global.Account.accountId &&
         ((item.type === 30 && (item.strDefault || '').split('')[0] !== '1') || _.includes([31, 32, 37, 38], item.type));
@@ -398,16 +403,14 @@ export default class CustomFields extends Component {
           id={`formItem-${item.controlId}`}
           key={`item-${item.row}-${item.col}`}
         >
-          {item.type === 22 &&
-            _.get(item, 'advancedSetting.hidetitle') !== '1' &&
-            _.includes([FROM.H5_ADD, FROM.H5_EDIT], from) && (
-              <div className="relative" style={{ height: 10 }}>
-                <div
-                  className="Absolute"
-                  style={{ background: '#f5f5f5', height: 10, left: -1000, right: -1000, top: -7 }}
-                />
-              </div>
-            )}
+          {item.type === 22 && _.includes([FROM.H5_ADD, FROM.H5_EDIT], from) && (
+            <div className="relative" style={{ height: 10 }}>
+              <div
+                className="Absolute"
+                style={{ background: '#f5f5f5', height: 10, left: -1000, right: -1000, top: -7 }}
+              />
+            </div>
+          )}
 
           {!_.includes([22, 52], item.type) && (
             <FormLabel
@@ -488,10 +491,14 @@ export default class CustomFields extends Component {
         errorItems: this.state.errorItems.map(item =>
           item.controlId === controlId ? Object.assign({}, item, { showError: false }) : item,
         ),
+        uniqueErrorItems: this.state.uniqueErrorItems.map(item =>
+          item.controlId === controlId ? Object.assign({}, item, { showError: false }) : item,
+        ),
       });
     } else {
       this.setState({
         errorItems: this.state.errorItems.map(item => Object.assign({}, item, { showError: isShow })),
+        uniqueErrorItems: this.state.uniqueErrorItems.map(item => Object.assign({}, item, { showError: isShow })),
       });
     }
   };
@@ -617,14 +624,14 @@ export default class CustomFields extends Component {
         (item.type === 29 &&
           (safeParse(item.value).length <= 0 ||
             (typeof item.value === 'string' && item.value.startsWith('deleteRowIds')))) ||
-        (_.includes([21, 26, 27, 48, 35], item.type) &&
+        (_.includes([21, 26, 27, 48, 35, 14, 10, 11], item.type) &&
           _.isArray(JSON.parse(item.value)) &&
           !JSON.parse(item.value).length))
     ) {
       return (
         <React.Fragment>
           <div className="customFormNull" />
-          {!recordId && <WidgetsDesc item={item} from={from} />}
+          {!recordId && hintShowAsText && <WidgetsDesc item={item} from={from} />}
         </React.Fragment>
       );
     }
@@ -654,9 +661,9 @@ export default class CustomFields extends Component {
           onChange={(value, cid = controlId, searchByChange) => {
             this.handleChange(value, cid, item, searchByChange);
             // 非文本change校验重复、文本失焦校验
-            // if (item.unique && value && _.includes(UN_TEXT_TYPE, type)) {
-            //   this.checkControlUnique(controlId, type, value);
-            // }
+            if (item.unique && value && _.includes(UN_TEXT_TYPE, type)) {
+              this.checkControlUnique(controlId, type, value);
+            }
           }}
           onBlur={(originValue, newVal) => {
             // 由输入法和onCompositionStart结合引起的组件内部未更新value值的情况，主动抛出新值
@@ -716,7 +723,7 @@ export default class CustomFields extends Component {
         worksheetId,
         controlId,
         controlType,
-        controlValue,
+        controlValue: formatControlValue(controlValue, controlType),
       })
       .then(res => {
         if (!res.isSuccess && res.data && res.data.rowId !== recordId) {
@@ -846,6 +853,15 @@ export default class CustomFields extends Component {
 
     // 标签页内报错，展开标签页
     if (hasError) {
+      // 定位到第一个报错
+      const firstErrorItem = _.head(
+        totalErrors.map(t => _.find(data, d => d.controlId === t.controlId)).sort((a, b) => a.row - b.row),
+      );
+      if (firstErrorItem) {
+        const ele = document.getElementById(`formItem-${firstErrorItem.controlId}`);
+        ele && ele.scrollIntoView({ block: 'center' });
+      }
+
       // 所有报错附属标签页
       const tabErrorControls = data
         .filter(d => _.find(totalErrors, t => t.controlId === d.controlId) && d.sectionId)
@@ -872,7 +888,7 @@ export default class CustomFields extends Component {
       this.errorDialog(errors);
     }
 
-    return { data: list, fullData: data, updateControlIds, hasError, hasRuleError, error };
+    return { data: list, fullData: data, updateControlIds, hasError, hasRuleError, error, ids };
   }
 
   /**
@@ -880,15 +896,55 @@ export default class CustomFields extends Component {
    */
   submitFormData(options) {
     this.submitBegin = true;
-    const { loadingItems } = this.state;
+    const { loadingItems, rules } = this.state;
     const { onSave } = this.props;
-    const { data, updateControlIds, error } = this.getSubmitData(options);
+    const { data, updateControlIds, error, ids } = this.getSubmitData(options);
 
     if (!error && _.some(Object.values(loadingItems), i => i)) {
       return;
     }
 
-    onSave(error, { data, updateControlIds });
+    onSave(error, {
+      data,
+      updateControlIds,
+      handleRuleError: (badData, cellObjs) => {
+        badData.forEach(itemBadData => {
+          const [rowId, ruleId, controlId] = (itemBadData || '').split(':').reverse();
+          const control = _.find(data, d => d.controlId === controlId);
+          if (control && control.type === 34) {
+            const ruleError = getRuleErrorInfo(
+              _.get(cellObjs || {}, `${control.controlId}.cell.worksheettable.current.table.rules`),
+              [[ruleId, rowId].join(':')],
+            );
+            ruleError.forEach(ruleErrorItem => {
+              if (_.get(ruleErrorItem, 'errorInfo.0.errorMessage')) {
+                if (_.get(cellObjs || {}, `${control.controlId}.cell`)) {
+                  _.get(cellObjs || {}, `${control.controlId}.cell`).setState({
+                    error: true,
+                    cellErrors: {
+                      [`${rowId}-${_.get(ruleErrorItem, 'errorInfo.0.controlId')}`]: _.get(
+                        ruleErrorItem,
+                        'errorInfo.0.errorMessage',
+                      ),
+                    },
+                  });
+                }
+              }
+            });
+          }
+        });
+        let totalRuleError = getRuleErrorInfo(rules, badData).reduce((total, its) => {
+          return total.concat(its.errorInfo);
+        }, []);
+        // 过滤掉子表报错、ids：不需校验的字段合集
+        totalRuleError = totalRuleError
+          .filter(i => _.find(data, d => d.controlId === i.controlId))
+          .filter(it => _.includes(ids, it.controlId));
+        this.setState({
+          errorItems: totalRuleError,
+        });
+      },
+    });
     this.submitBegin = false;
   }
 

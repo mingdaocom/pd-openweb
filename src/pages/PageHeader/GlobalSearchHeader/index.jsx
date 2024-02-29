@@ -87,7 +87,7 @@ export default class GlobalSearchHeader extends Component {
     return (
       <div className="globalSearchHeaderWrap">
         <div className="netManageLogo">
-          <HomeEntry data-tip={_l('主页')} onClick={() => navigateTo('/app/my')}>
+          <HomeEntry data-tip={_l('主页')} onClick={() => navigateTo('/dashboard')}>
             <i className="icon-home_page Font18"></i>
           </HomeEntry>
           {text && <div className="netManageTitle">{text}</div>}

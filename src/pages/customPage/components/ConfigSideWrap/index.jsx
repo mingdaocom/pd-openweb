@@ -11,6 +11,22 @@ import store from 'redux/configureStore';
 import { isLightColor } from 'src/pages/customPage/util';
 
 const SideWrapper = styled(SideWrap)`
+  &.sideAbsolute {
+    position: absolute;
+    header {
+      padding: 0 24px 0 24px;
+    }
+    .mask {
+      background-color: transparent !important;
+    }
+    .sideContentWrap {
+      position: absolute;
+    }
+    .sideContent {
+      margin-top: 20px;
+      padding-bottom: 30px;
+    }
+  }
   .sideContentWrap {
     width: 560px;
   }
@@ -30,6 +46,20 @@ const Wrap = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+  .colorWrap.active {
+    position: relative;
+    border-color: #fff;
+    &::after {
+      content: '';
+      position: absolute;
+      top: -3px;
+      left: -3px;
+      width: 32px;
+      height: 32px;
+      border: 1px solid #E0E0E0;
+      border-radius: 4px;
+    }
   }
   .defaultColor {
     position: relative;
@@ -65,6 +95,14 @@ const Wrap = styled.div`
     padding: 8px;
     border-radius: 4px;
     border: 1px solid #DDDDDD;
+    .colorBlock {
+      width: 24px;
+      height: 24px;
+      margin-right: 7px;
+    }
+    .colorName {
+      width: 200px;
+    }
   }
   .label {
     width: 60px;
@@ -74,11 +112,13 @@ const Wrap = styled.div`
   .typeSelect {
     font-size: 13px;
     border-radius: 3px;
+    width: max-content;
     padding: 3px;
     background-color: #eff0f0;
     >div {
       height: 25px;
       line-height: 25px;
+      padding: 0 15px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -86,7 +126,6 @@ const Wrap = styled.div`
     .active {
       color: #2196F3 !important;
       border-radius: 3px;
-      padding: 3px 0;
       font-weight: bold;
       background-color: #fff;
     }
@@ -144,7 +183,9 @@ const refreshs = [{
 export const defaultConfig = {
   pageBgColor: '#f5f6f7',
   chartColor: '',
+  chartColorIndex: 1,
   numberChartColor: '',
+  numberChartColorIndex: 1,
   pivoTableColor: '',
   refresh: 0,
   headerVisible: true,
@@ -155,10 +196,11 @@ export const defaultConfig = {
 };
 
 export default (props) => {
-  const { adjustScreen, apk } = props;
-  const { onClose, updatePageInfo, updateModified } = props;
+  const { adjustScreen, apk, className } = props;
+  const { onClose, updatePageInfo, updateModified = _.noop } = props;
   const [selectChartColorVisible, setSelectChartColorVisible] = useState(false);
-  const iconColor = _.get(store.getState().appPkg, 'iconColor');
+  const { appPkg } = store.getState();
+  const { iconColor, currentPcNaviStyle } = appPkg;
   const lightColor = generate(iconColor)[0];
   const config = props.config || defaultConfig;
 
@@ -197,9 +239,23 @@ export default (props) => {
       title: _l('黑色')
     }];
     const colors = themeColors.concat(baseColors);
-    const { customColors = [] } = config;
+    const { customColors = [], chartColorIndex = 1 } = config;
     const handleChangeColor = pageBgColor => {
-      handleChangeConfig({ pageBgColor });
+      if (_.find(themeColors, { value: pageBgColor }) && !config.chartColor) {
+        const chartColors = getPorjectChartColors(apk.projectId);
+        const adaptThemeColors = chartColors.filter(item => (item.themeColors || []).includes(iconColor));
+        handleChangeConfig({
+          pageBgColor,
+          chartColor: {
+            colorGroupId: 'adaptThemeColor',
+            colorGroupIndex: undefined,
+            colorType: 1
+          },
+          chartColorIndex: chartColorIndex + 1
+        });
+      } else {
+        handleChangeConfig({ pageBgColor });
+      }
     }
     return (
       <Fragment>
@@ -208,13 +264,20 @@ export default (props) => {
           {colors.map(data => (
             data.title ? (
               <Tooltip key={data.value || data.color} title={data.title} color="#000" placement="bottom">
-                <div className="colorWrap" style={{ backgroundColor: data.color }} onClick={() => handleChangeColor(data.value)}>
-                  {data.value === config.pageBgColor && <Icon className={cx('Font16', isLightColor(data.color) ? 'Gray' : 'White')} icon="done" />}
+                <div
+                  className={cx('colorWrap', { active: data.value === config.pageBgColor })}
+                  style={{ backgroundColor: data.color }}
+                  onClick={() => handleChangeColor(data.value)}
+                >
                 </div>
               </Tooltip>
             ) : (
-              <div key={data} className="colorWrap" style={{ backgroundColor: data }} onClick={() => handleChangeColor(data)}>
-                {data === config.pageBgColor && <Icon className={cx('Font16', isLightColor(data) ? 'Gray' : 'White')} icon="done" />}
+              <div
+                key={data}
+                className={cx('colorWrap', { active: data === config.pageBgColor })}
+                style={{ backgroundColor: data }}
+                onClick={() => handleChangeColor(data)}
+              >
               </div>
             )
           ))}
@@ -270,24 +333,47 @@ export default (props) => {
     }];
     const colors = [themeColors[0]].concat(baseColors);
     const handleChangeColor = numberChartColor => {
-      handleChangeConfig({ numberChartColor });
+      const { numberChartColorIndex = 1 } = config;
+      handleChangeConfig({
+        numberChartColor,
+        numberChartColorIndex: numberChartColorIndex + 1
+      });
     }
-    const getColorName = () => {
-      const { colorType, colorGroupId } = chartColor || {};
+    const getColorConfig = () => {
+      const { colorType, colorGroupId, customColors } = chartColor || {};
       const chartColors = getPorjectChartColors(apk.projectId);
+      const defaultConfig = { name: _l('未配置'), showColors: [] };
       if (!config.chartColor) {
-        return _l('未配置');
+        return defaultConfig;
       }
       if (colorType === 2) {
-        return _l('自定义颜色');
+        return {
+          name: _l('自定义颜色'),
+          showColors: customColors
+        };
       } else if (colorGroupId === 'adaptThemeColor') {
         const adaptThemeColors = chartColors.filter(item => (item.themeColors || []).includes(iconColor));
-        return adaptThemeColors.length ? _l('适应主题') : chartColors[0].name;
+        if (adaptThemeColors.length) {
+          return {
+            name: _l('适应主题'),
+            showColors: adaptThemeColors[0].colors
+          }
+        } else {
+          return {
+            name: chartColors[0].name,
+            showColors: chartColors[0].colors
+          };
+        }
       } else {
-        return (_.find(chartColors, { id: colorGroupId }) || chartColors[0]).name;
+        const data = _.find(chartColors, { id: colorGroupId }) || chartColors[0];
+        return {
+          name: data.name,
+          showColors: data.colors
+        }
       }
-      return _l('未配置');
+      return defaultConfig;
     }
+    const { name, showColors } = getColorConfig();
     return (
       <Fragment>
         <div className="Gray Font14 bold mBottom10">{_l('全局颜色')}</div>
@@ -295,9 +381,15 @@ export default (props) => {
         <div className="Gray_75 Font13 bold mTop20 mBottom10">{_l('图表配色')}</div>
         <div className="flexRow alignItemsCenter">
           <div className="selectChartColor flexRow alignItemsCenter pointer flex" onClick={() => setSelectChartColorVisible(true)}>
-            <div className="flex">{getColorName()}</div>
+            <div className="flexRow alignItemsCenter flex">
+              {showColors.map((color, index) => (
+                <div key={index} style={{ background: color }} className="colorBlock"/>
+              ))}
+              <div className="colorName ellipsis">{name}</div>
+            </div>
             <Icon icon="arrow-down-border" className="Gray_9e Font18" />
           </div>
+          {/*
           <div className="colorSpacingLine" />
           <Tooltip title={_l('使用图表颜色')} color="#000" placement="bottom">
             <div
@@ -311,22 +403,31 @@ export default (props) => {
             >
             </div>
           </Tooltip>
+          */}
         </div>
         <div className="Gray_75 Font13 bold mTop20 mBottom10">{_l('数值颜色')}</div>
         <div className="flexRow alignItemsCenter">
           {colors.map((data, index) => (
             data.title ? (
               <Tooltip key={index} title={data.title} color="#000" placement="bottom">
-                <div className="colorWrap" style={{ backgroundColor: data.color }} onClick={() => handleChangeColor(data.value)}>
-                  {data.value === config.numberChartColor && <Icon className={cx('Font16', isLightColor(data.color) ? 'Gray' : 'White')} icon="done" />}
+                <div
+                  className={cx('colorWrap', { active: data.value === config.numberChartColor })}
+                  style={{ backgroundColor: data.color }}
+                  onClick={() => handleChangeColor(data.value)}
+                >
                 </div>
               </Tooltip>
             ) : (
-              <div key={index} className="colorWrap" style={{ backgroundColor: data }} onClick={() => handleChangeColor(data)}>
-                {data === config.numberChartColor && <Icon className={cx('Font16', isLightColor(data) ? 'Gray' : 'White')} icon="done" />}
+              <div
+                key={index}
+                className={cx('colorWrap', { active: data.value === config.numberChartColor })}
+                style={{ backgroundColor: data }}
+                onClick={() => handleChangeColor(data)}
+              >
               </div>
             )
           ))}
+          {/*
           <div className="colorSpacingLine mLeft0" />
           <Tooltip title={_l('使用图表颜色')} color="#000" placement="bottom">
             <div
@@ -340,6 +441,7 @@ export default (props) => {
             >
             </div>
           </Tooltip>
+          */}
         </div>
         <BaseColor
           visible={selectChartColorVisible}
@@ -348,7 +450,11 @@ export default (props) => {
             style: chartColor
           }}
           onChange={(data) => {
-            handleChangeConfig({ chartColor: data.style });
+            const { chartColorIndex = 1 } = config;
+            handleChangeConfig({
+              chartColor: data.style,
+              chartColorIndex: chartColorIndex + 1
+            });
             setSelectChartColorVisible(false);
           }}
           onCancel={() => setSelectChartColorVisible(false)}
@@ -369,7 +475,11 @@ export default (props) => {
     }];
     const colors = themeColors.concat(baseColors);
     const handleChangeColor = pivoTableColor => {
-      handleChangeConfig({ pivoTableColor });
+      const { pivoTableColorIndex = 1 } = config;
+      handleChangeConfig({
+        pivoTableColor,
+        pivoTableColorIndex: pivoTableColorIndex + 1
+      });
     }
     return (
       <Fragment>
@@ -378,16 +488,24 @@ export default (props) => {
           {colors.map((data, index) => (
             data.title ? (
               <Tooltip key={index} title={data.title} color="#000" placement="bottom">
-                <div className="colorWrap" style={{ backgroundColor: data.color }} onClick={() => handleChangeColor(data.value)}>
-                  {data.value === config.pivoTableColor && <Icon className={cx('Font16', isLightColor(data.color) ? 'Gray' : 'White')} icon="done" />}
+                <div
+                  className={cx('colorWrap', { active: data.value === config.pivoTableColor })}
+                  style={{ backgroundColor: data.color }}
+                  onClick={() => handleChangeColor(data.value)}
+                >
                 </div>
               </Tooltip>
             ) : (
-              <div key={index} className="colorWrap" style={{ backgroundColor: data }} onClick={() => handleChangeColor(data)}>
-                {data === config.pivoTableColor && <Icon className={cx('Font16', isLightColor(data) ? 'Gray' : 'White')} icon="done" />}
+              <div
+                key={index}
+                className={cx('colorWrap', { active: data === config.pivoTableColor })}
+                style={{ backgroundColor: data }}
+                onClick={() => handleChangeColor(data)}
+              >
               </div>
             )
           ))}
+          {/*
           <div className="colorSpacingLine mLeft0" />
           <Tooltip title={_l('使用图表颜色')} color="#000" placement="bottom">
             <div
@@ -401,6 +519,7 @@ export default (props) => {
             >
             </div>
           </Tooltip>
+          */}
         </div>
       </Fragment>
     );
@@ -413,9 +532,9 @@ export default (props) => {
         <div className="flexRow alignItemsCenter">
           <div className="Gray_75 Font13 label">{_l('页面布局')}</div>
           <div className="flex">
-            <div class="typeSelect flexRow valignWrapper" style={{ width: 190 }}>
-              <div class={cx('flex centerAlign pointer Gray_75', { active: !adjustScreen })} onClick={() => updatePageInfo({ adjustScreen: false })}>{_l('滚动')}</div>
-              <div class={cx('flex centerAlign pointer Gray_75', { active: adjustScreen })} onClick={() => updatePageInfo({ adjustScreen: true })}>{_l('适应屏幕高度')}</div>
+            <div class="typeSelect flexRow valignWrapper">
+              <div class={cx('centerAlign pointer Gray_75', { active: !adjustScreen })} onClick={() => updatePageInfo({ adjustScreen: false })}>{_l('滚动')}</div>
+              <div class={cx('centerAlign pointer Gray_75', { active: adjustScreen })} onClick={() => updatePageInfo({ adjustScreen: true })}>{_l('适应屏幕高度')}</div>
             </div>
           </div>
         </div>
@@ -440,75 +559,76 @@ export default (props) => {
             </Select>
           </div>
         </div>
-        <div className="flexRow mTop15">
-          <div className="Gray_75 Font13 label">{_l('标题区')}</div>
-          <div className="flex">
-            <div className="mBottom15">
-              <label className="flexRow alignItemsCenter pointer">
-                <Switch
-                  className="mRight5"
-                  size="small"
-                  checked={config.headerVisible}
-                  onChange={checked => {
-                    handleChangeConfig({
-                      headerVisible: checked,
-                    });
-                  }}
-                />
-                {_l('显示标题栏')}
-              </label>
-            </div>
-            {config.headerVisible && (
-              <div className="flexRow alignItemsCenter">
-                <div className="mRight15">{_l('操作')}</div>
-                <Checkbox
-                  className="flexRow alignItemsCenter"
-                  checked={config.shareVisible}
-                  onChange={(event) => {
-                    handleChangeConfig({
-                      shareVisible: event.target.checked
-                    });
-                  }}
-                >
-                  {_l('分享')}
-                </Checkbox>
-                <Checkbox
-                  className="flexRow alignItemsCenter"
-                  checked={config.downloadVisible}
-                  onChange={(event) => {
-                    handleChangeConfig({
-                      downloadVisible: event.target.checked
-                    });
-                  }}
-                >
-                  {_l('下载')}
-                </Checkbox>
-                <Checkbox
-                  className="flexRow alignItemsCenter"
-                  checked={config.fullScreenVisible}
-                  onChange={(event) => {
-                    handleChangeConfig({
-                      fullScreenVisible: event.target.checked
-                    });
-                  }}
-                >
-                  {_l('全屏')}
-                </Checkbox>
+        {currentPcNaviStyle !== 2 && (
+          <div className="flexRow mTop15">
+            <div className="Gray_75 Font13 label">{_l('标题区')}</div>
+            <div className="flex">
+              <div className="mBottom15">
+                <label className="flexRow alignItemsCenter pointer">
+                  <Switch
+                    className="mRight5"
+                    size="small"
+                    checked={config.headerVisible}
+                    onChange={checked => {
+                      handleChangeConfig({
+                        headerVisible: checked,
+                      });
+                    }}
+                  />
+                  {_l('显示标题栏')}
+                </label>
               </div>
-            )}
+              {config.headerVisible && (
+                <div className="flexRow alignItemsCenter">
+                  <div className="mRight15">{_l('操作')}</div>
+                  <Checkbox
+                    className="flexRow alignItemsCenter"
+                    checked={config.shareVisible}
+                    onChange={(event) => {
+                      handleChangeConfig({
+                        shareVisible: event.target.checked
+                      });
+                    }}
+                  >
+                    {_l('分享')}
+                  </Checkbox>
+                  <Checkbox
+                    className="flexRow alignItemsCenter"
+                    checked={config.downloadVisible}
+                    onChange={(event) => {
+                      handleChangeConfig({
+                        downloadVisible: event.target.checked
+                      });
+                    }}
+                  >
+                    {_l('下载')}
+                  </Checkbox>
+                  <Checkbox
+                    className="flexRow alignItemsCenter"
+                    checked={config.fullScreenVisible}
+                    onChange={(event) => {
+                      handleChangeConfig({
+                        fullScreenVisible: event.target.checked
+                      });
+                    }}
+                  >
+                    {_l('全屏')}
+                  </Checkbox>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </Fragment>
     );
   };
 
   return (
     <SideWrapper
-      isMask={false}
-      className="white"
+      isMask={true}
+      className={cx('white', className)}
       headerText={(
         <Fragment>
-          <Icon className="ThemeColor Font20 mRight10" icon="color_lens" />
           <span className="Font17">{_l('页面配置')}</span>
         </Fragment>
       )}

@@ -140,7 +140,7 @@ class LoginContainer extends React.Component {
       if (request.ReturnUrl) {
         location.replace(getDataByFilterXSS(request.ReturnUrl));
       } else {
-        window.location.replace('/app/my');
+        window.location.replace('/dashboard');
       }
     } else {
       // 如果登录失败，需要把本地保存的 accountId 和 encryptPassword 清理掉

@@ -3,8 +3,7 @@ import PropTypes from 'prop-types';
 import UserHead from 'src/components/userHead';
 import UserName from 'src/components/userName';
 import { SOURCE_TYPE } from './config';
-import { createLinksForMessage } from 'src/components/common/function';
-import 'src/components/mdDialog/dialog';
+import { createLinksForMessage, getCurrentProject } from 'src/util';
 import UploadFiles from 'src/components/UploadFiles';
 import ToolTip from 'ming-ui/components/Tooltip';
 import LoadDiv from 'ming-ui/components/LoadDiv';
@@ -143,6 +142,7 @@ export default class CommentListItem extends React.Component {
           }}
           size={24}
           appId={appId}
+          projectId={comment.projectId}
         />
         <div className="talkDiscussion">
           <div className="singleTop">
@@ -153,6 +153,7 @@ export default class CommentListItem extends React.Component {
                 accountId: createAccount.accountId,
                 isDelete: true,
               }}
+              projectId={comment.projectId}
             />
             {replyId ? (
               <span>
@@ -164,6 +165,7 @@ export default class CommentListItem extends React.Component {
                     accountId: replyAccount.accountId,
                     isDelete: true,
                   }}
+                  projectId={comment.projectId}
                 />
                 <ToolTip
                   text={this.state.replayMsg ? <span>{this.state.replayMsg}</span> : <LoadDiv />}

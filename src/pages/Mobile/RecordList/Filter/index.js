@@ -82,7 +82,7 @@ export default class extends Component {
                 <Icon icon={item.icon} />
                 <span className="name">{item.controlName}</span>
                 {item.controlId === cid ? (
-                  <span className="sortType">{getSortData(item.type).filter(n => n.value === sortType)[0].text}</span>
+                  <span className="sortType">{getSortData(item).filter(n => n.value === sortType)[0].text}</span>
                 ) : null}
                 <Icon icon="arrow-right-border" />
               </Flex>
@@ -94,7 +94,7 @@ export default class extends Component {
   }
   renderSortType() {
     const { select, temporarySortType } = this.state;
-    const sort = getSortData(select.type);
+    const sort = getSortData(select);
     const { currentView } = this.props;
     const { sortCid, sortType } = currentView;
     const isCurrentSelect = temporarySortType ? true : select.controlId === (sortCid || defaultSortCid);

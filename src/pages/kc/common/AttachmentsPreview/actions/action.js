@@ -21,6 +21,7 @@ function addViewCount(attachment) {
     !md.global.Account ||
     !md.global.Account.accountId ||
     !_.get(attachment, 'sourceNode.fileID') ||
+    _.get(window, 'shareState.shareId') ||
     location.href.indexOf('printForm') > -1
   ) {
     return;
@@ -48,7 +49,7 @@ function loadAttachment(attachment, options = {}) {
     (previewAttachmentType === 'COMMON' && !!refId && md.global.Account.accountId) ||
     previewAttachmentType === 'KC_ID'
   ) {
-    attachmentPromise = ajax.getKcNodeDetail(refId).then(data => {
+    attachmentPromise = ajax.getKcNodeDetail(refId, options.worksheetId).then(data => {
       if (!data || data.visibleType === NODE_VISIBLE_TYPE.CLOSE) {
         promise.reject({
           text: '文件已删除或您没有权限查看此文件',
@@ -72,9 +73,8 @@ function loadAttachment(attachment, options = {}) {
       controlId: options.controlId,
     };
     if (window.shareState && window.shareState.shareId) {
-      args.shareId = window.shareState.shareId;
       args.type =
-        window.shareState.isPublicRecord || _.get(window, 'shareState.isPublicView')
+        _.get(window, 'shareState.isPublicRecord') || _.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage')
           ? 3
           : _.get(window, 'shareState.isPublicQuery') || _.get(window, 'shareState.isPublicForm')
           ? 11

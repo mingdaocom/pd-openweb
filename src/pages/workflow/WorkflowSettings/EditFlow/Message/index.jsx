@@ -31,7 +31,7 @@ export default class Message extends Component {
       <div className="pLeft8 pRight8">
         <div className="pTop5">
           <span className="Gray_75">{_l('发送给: ')}</span>
-          <MembersName accounts={item.accounts} />
+          <MembersName {...this.props} accounts={item.accounts} />
         </div>
         <div className="pBottom5 mTop4">
           {item.templateStatus === 0 && <span className="yellow">{_l('模板审核中...')}</span>}

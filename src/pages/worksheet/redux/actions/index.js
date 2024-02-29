@@ -12,6 +12,7 @@ import {
 } from './sheetview';
 import { refresh as galleryViewRefresh } from './galleryview';
 import { refresh as calendarViewRefresh } from './calendarview';
+import { refresh as resourceViewRefresh } from './resourceview';
 import { resetLoadGunterView, addNewRecord as addGunterNewRecord } from './gunterview';
 import { initBoardViewData } from './boardView';
 import { getDefaultHierarchyData, updateHierarchySearchRecord } from './hierarchy';
@@ -22,9 +23,10 @@ import { refreshBtnData } from 'src/pages/FormSet/util';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
-import { getFilledRequestParams } from 'src/pages/worksheet/util';
+import { getFilledRequestParams, replaceControlsTranslateInfo } from 'src/pages/worksheet/util';
 import _ from 'lodash';
-import { emitter } from 'src/util';
+import { emitter, getTranslateInfo } from 'src/util';
+import { initMapViewData, mapNavGroupFiltersUpdate } from './mapView';
 
 export const updateBase = base => {
   return (dispatch, getState) => {
@@ -59,10 +61,10 @@ export const updateWorksheetLoading = loading => ({ type: 'WORKSHEET_UPDATE_LOAD
 
 let worksheetRequest = null;
 
-export function loadWorksheet(worksheetId) {
+export function loadWorksheet(worksheetId, setRequest) {
   return (dispatch, getState) => {
     const { base = {} } = getState().sheet;
-    const { viewId, chartId } = base;
+    const { appId, viewId, chartId } = base;
 
     if (
       worksheetRequest &&
@@ -88,21 +90,34 @@ export function loadWorksheet(worksheetId) {
     };
 
     worksheetRequest = worksheetAjax.getWorksheetInfo(args);
-
+    if (_.isFunction(setRequest)) {
+      setRequest(worksheetRequest);
+    }
     worksheetRequest
       .then(async res => {
-        if (_.get(window, 'shareState.isPublicView')) {
+        const translateInfo = getTranslateInfo(appId, worksheetId);
+        res.entityName = translateInfo.recordName || res.entityName;
+        if (res.advancedSetting) {
+          res.advancedSetting.title = translateInfo.formTitle || res.advancedSetting.title;
+          res.advancedSetting.sub = translateInfo.formSub || res.advancedSetting.sub;
+          res.advancedSetting.continue = translateInfo.formContinue || res.advancedSetting.continue;
+        }
+        if (_.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage')) {
           res.allowAdd = false;
         }
         let queryRes;
         if (res.isWorksheetQuery) {
           queryRes = await worksheetAjax.getQueryBySheetId({ worksheetId }, { silent: true });
         }
-        if (res.resultCode !== 1) {
+
+        if (![1, 4].includes(res.resultCode)) {
           dispatch({
             type: 'WORKSHEET_INIT_FAIL',
           });
           return;
+        }
+        if (_.get(res, 'template.controls')) {
+          res.template.controls = replaceControlsTranslateInfo(appId, res.template.controls);
         }
         if (!res.isWorksheetQuery || queryRes) {
           dispatch({
@@ -134,7 +149,7 @@ export function loadWorksheet(worksheetId) {
         if (res.requestAgain) {
           worksheetRequest = worksheetAjax.getWorksheetInfo({ ...args, resultType: undefined });
           worksheetRequest.then(infoRes => {
-            const newControls = _.get(infoRes, 'template.controls');
+            const newControls = replaceControlsTranslateInfo(appId, _.get(infoRes, 'template.controls'));
             if (_.isEmpty(newControls)) {
               return;
             }
@@ -161,7 +176,7 @@ export const updateWorksheetInfo = info => ({
 
 export function loadCustomButtons({ appId, viewId, rowId, worksheetId }) {
   return dispatch => {
-    if (!worksheetId || _.get(window, 'shareState.isPublicView')) {
+    if (!worksheetId || _.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage')) {
       return;
     }
     worksheetAjax
@@ -232,7 +247,7 @@ export function saveView(viewId, newConfig, cb) {
     const { base, views, navGroupFilters } = sheet;
     const view = _.find(views, v => v.viewId === viewId);
     const saveParams = { ...newConfig };
-    const editAttrs = Object.keys(saveParams);
+    const editAttrs = Object.keys(saveParams).filter(o => 'editAdKeys' !== o);
     if (!view) {
       console.error('can not find view');
       return;
@@ -327,8 +342,12 @@ export function refreshSheet(view, options) {
       dispatch(resetLoadGunterView());
     } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.detail) {
       dispatch(detailViewRefresh());
+    } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.resource) {
+      dispatch(resourceViewRefresh());
     } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.customize && _.get(options, 'isRefreshBtn')) {
       dispatch(customWidgetViewRefresh());
+    } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.map) {
+      dispatch(initMapViewData(undefined, true));
     }
   };
 }
@@ -355,8 +374,12 @@ export function addNewRecord(data, view) {
       dispatch(updateNavGroup());
     } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.gunter) {
       dispatch(addGunterNewRecord(data));
+    } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.resource) {
+      dispatch(resourceViewRefresh());
     } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.detail) {
       dispatch(detailViewRefresh());
+    } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.map) {
+      dispatch(initMapViewData(undefined, true));
     }
   };
 }
@@ -518,9 +541,13 @@ export function updateGroupFilter(navGroupFilters = [], view) {
       type: 'WORKSHEET_UPDATE_GROUP_FILTER',
       navGroupFilters,
     });
+    if (String(view.viewType) === VIEW_DISPLAY_TYPE.map) {
+      dispatch(mapNavGroupFiltersUpdate(navGroupFilters, view));
+    }
   };
 }
 let getNavGroupRequest = null;
+let preWorksheetIds = [];
 // 获取分组筛选的count
 export function getNavGroupCount() {
   return (dispatch, getState) => {
@@ -528,12 +555,18 @@ export function getNavGroupCount() {
     const { filters = {}, base = {}, quickFilter = {} } = sheet;
     const { appId, worksheetId, viewId } = base;
     const { filterControls, filtersGroup, keyWords, searchType } = filters;
-    if (getNavGroupRequest && getNavGroupRequest.state() === 'pending' && getNavGroupRequest.abort) {
+    if (
+      getNavGroupRequest &&
+      getNavGroupRequest.state() === 'pending' &&
+      getNavGroupRequest.abort &&
+      preWorksheetIds.includes(worksheetId)
+    ) {
       getNavGroupRequest.abort();
     }
     if (!worksheetId && !viewId) {
       return;
     }
+    preWorksheetIds.push(worksheetId);
     getNavGroupRequest = worksheetAjax.getNavGroup(
       getFilledRequestParams({
         appId,
@@ -560,6 +593,7 @@ export function getNavGroupCount() {
     );
 
     getNavGroupRequest.then(data => {
+      preWorksheetIds = (preWorksheetIds || []).filter(o => o !== worksheetId);
       dispatch({
         type: 'WORKSHEET_NAVGROUP_COUNT',
         data,
@@ -607,6 +641,11 @@ export function updateSearchRecord(view = {}, record) {
       dispatch(updateHierarchySearchRecord(record));
     } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.gunter) {
       dispatch(updateGunterSearchRecord(record));
+    } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.map) {
+      dispatch({
+        type: 'CHANGE_MAP_VIEW_SEARCH_DATA',
+        data: record,
+      });
     }
   };
 }
@@ -641,7 +680,7 @@ export function initMobileGunter({ appId, worksheetId, viewId, access_token }) {
 export const loadDraftDataCount =
   ({ appId, worksheetId }) =>
   (dispatch, getState) => {
-    if (_.get(window, 'shareState.isPublicView')) {
+    if (_.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage')) {
       return;
     }
     worksheetAjax
@@ -666,6 +705,18 @@ export function updateCurrentViewState(updates) {
     dispatch({
       type: 'WORKSHEET_UPDATE_VIEW',
       view: { ...view, ...updates },
+    });
+  };
+}
+
+export function updateViewShowcount(showcount) {
+  return (dispatch, getState) => {
+    const { base } = getState().sheet;
+    const { viewId } = base;
+    safeLocalStorageSetItem('showcount_' + viewId, showcount);
+    dispatch({
+      type: 'VIEW_UPDATE_SHOW_COUNT',
+      showcount,
     });
   };
 }

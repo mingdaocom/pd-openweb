@@ -1,17 +1,22 @@
 ﻿import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { Divider, Button } from 'antd';
+import { Divider, Button, Tooltip } from 'antd';
 import { Icon, RichText } from 'ming-ui';
 import SvgIcon from 'src/components/SvgIcon';
 import UserHead from 'src/components/userHead';
 import styled from 'styled-components';
 import './index.less';
 import { canEditData, canEditApp } from 'src/pages/worksheet/redux/actions/util.js';
+import appManagementApi from 'src/api/appManagement';
 
 const Wrap = styled.div`
   .ck-editor__main {
     max-height: ${props => props.richTextHeight ? `${props.richTextHeight}px` : `100%`};
+  }
+  .flexShrink0 {
+    flex-shrink: 0;
+    min-width: 0;
   }
 `;
 
@@ -45,7 +50,8 @@ export default class Editor extends Component {
     super(props);
     this.state = {
       showCache: false,
-      bindCreateUpload: false
+      bindCreateUpload: false,
+      clearCacheLoading: false
     };
   }
 
@@ -76,6 +82,17 @@ export default class Editor extends Component {
 
   componentWillUnmount() {
     $('body').off('.editor');
+  }
+
+  handleClearCache = () => {
+    const { data } = this.props;
+    if (this.state.clearCacheLoading) return;
+    this.setState({ clearCacheLoading: true });
+    appManagementApi.refresh({
+      appId: data.id
+    }).then(data => {
+      this.setState({ clearCacheLoading: false });
+    });
   }
 
   /**
@@ -164,6 +181,7 @@ export default class Editor extends Component {
       minHeight,
       cacheKey,
       data = {},
+      renderLeftContent
     } = this.props;
 
     const isAppIntroDescription = cacheKey === 'appIntroDescription';
@@ -223,6 +241,17 @@ export default class Editor extends Component {
                   </Button>
                 </Divider>
               )}
+              {isEditAppDescription && (
+                <Tooltip title={_l('当应用权限异常时，可尝试清除缓存的权限数据')} placement="bottom">
+                  <div
+                    className={cx('flexRow alignItemsCenter Gray_9e pointer clearCache', { isLoading: this.state.clearCacheLoading })}
+                    onClick={this.handleClearCache}
+                  >
+                    <Icon className="Font18" icon="task-later" />
+                    {_l('清除缓存')}
+                  </div>
+                </Tooltip>
+              )}
             </header>
           ) : (
             <header className="appIntroHeader">
@@ -246,6 +275,7 @@ export default class Editor extends Component {
             <RichText
               // placeholder={_l('为应用填写使用说明，当用户第一次访问应用时会打开此说明')}
               data={summary || ''}
+              autoFocus={true}
               className={'mdEditorContent editorContent'}
               disabled={true}
               backGroundColor={'#fff'}
@@ -263,6 +293,7 @@ export default class Editor extends Component {
           <RichText
             // placeholder={_l('为应用填写使用说明，当用户第一次访问应用时会打开此说明')}
             data={summary || ''}
+            autoFocus={true}
             className={'editorContent mdEditorContent'}
             showTool={true}
             onActualSave={this.onChange}
@@ -281,7 +312,7 @@ export default class Editor extends Component {
             onClick={() => {
               this.clearStorage();
               changeEditState && changeEditState(false);
-              if (cacheKey === 'customPageEditWidget') {
+              if (cacheKey === 'customPageEditWidget' || cacheKey === 'appMultilingual') {
                 onCancel();
               }
             }}
@@ -292,18 +323,28 @@ export default class Editor extends Component {
             {_l('保存')}
           </div>
         </div>
-        {!toorIsBottom && (
-          <RichText
-            // placeholder={_l('为应用填写使用说明，当用户第一次访问应用时会打开此说明')}
-            data={summary || ''}
-            className={'editorContent mdEditorContent'}
-            showTool={true}
-            onActualSave={this.onChange}
-            changeSetting={changeSetting}
-            minHeight={minHeight || 320}
-            maxHeight={maxHeight}
-          />
-        )}
+        <div className="flexRow">
+          {renderLeftContent && (
+            <div className="leftContent flex">
+              {renderLeftContent()}
+            </div>
+          )}
+          {!toorIsBottom && (
+            <div className="flex flexShrink0">
+              <RichText
+                // placeholder={_l('为应用填写使用说明，当用户第一次访问应用时会打开此说明')}
+                data={summary || ''}
+                autoFocus={true}
+                className={'editorContent mdEditorContent'}
+                showTool={true}
+                onActualSave={this.onChange}
+                changeSetting={changeSetting}
+                minHeight={minHeight || 320}
+                maxHeight={maxHeight}
+              />
+            </div>
+          )}
+        </div>
       </Wrap>
     );
   }

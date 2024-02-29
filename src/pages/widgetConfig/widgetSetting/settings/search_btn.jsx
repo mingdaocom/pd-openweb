@@ -60,6 +60,7 @@ export default function SearchBtn(props) {
                 hint: _l('查询'),
                 enumDefault: value,
                 type: 49,
+                required: false,
               });
             } else {
               onChange({

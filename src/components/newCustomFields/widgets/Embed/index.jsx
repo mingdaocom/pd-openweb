@@ -91,9 +91,11 @@ export default class Widgets extends Component {
       dataSource,
       formData,
       appId,
+      viewId,
       recordId,
       projectId,
       isCharge,
+      viewIdForPermit,
     } = this.props;
     const { value, needUpdate, ChartComponents } = this.state;
     const { height, filters } = advancedSetting;
@@ -101,6 +103,7 @@ export default class Widgets extends Component {
 
     const getContent = () => {
       const isLegal = enumDefault === 1 ? /^https?:\/\/.+$/.test(value) : dataSource;
+      const isShareView = _.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage');
 
       if (!isLegal) {
         return (
@@ -136,18 +139,26 @@ export default class Widgets extends Component {
           <Fragment>
             {isMobile ? (
               <div className="embedContainer chartPadding flexColumn">
-                <ChartComponents.default reportId={reportid} filters={formatFilters} needUpdate={needUpdate} />
+                <ChartComponents.default
+                  reportId={reportid}
+                  pageId={isShareView ? viewId : recordId}
+                  filters={formatFilters}
+                  needUpdate={needUpdate}
+                  viewId={viewIdForPermit}
+                />
               </div>
             ) : (
               <ChartComponents.default
                 className="embedContainer chartPadding"
                 report={{ id: reportid }}
+                pageId={isShareView ? viewId : recordId}
                 projectId={projectId}
                 appId={appId}
-                sourceType={1}
+                sourceType={2}
                 filters={formatFilters}
                 needUpdate={needUpdate}
                 isCharge={isCharge}
+                viewId={viewIdForPermit}
               />
             )}
           </Fragment>

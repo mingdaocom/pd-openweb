@@ -1,7 +1,5 @@
 import React from 'react';
 import cx from 'classnames';
-
-import { LazyloadImg } from 'src/pages/feed/components/common/img';
 import _ from 'lodash';
 
 export default function ContactItem(props) {
@@ -29,7 +27,7 @@ export default function ContactItem(props) {
         });
       }}
     >
-      <LazyloadImg src={avatar} placeholder={'/images/blank.gif'} className="list-item-avatar" />
+      <img src={avatar} placeholder={'/staticfiles/images/blank.gif'} className="list-item-avatar" />
       <span className="list-item-name" title={fullname}>
         {fullname}
       </span>

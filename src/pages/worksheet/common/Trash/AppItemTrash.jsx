@@ -130,6 +130,7 @@ export default function AppItemTrash(props) {
     <span className="ellipsis">{appItem.type === 0 ? _l('工作表') : _l('自定义页面')}</span>,
     [
       <UserHead
+        projectId={projectId}
         className="cellUserHead"
         user={{
           userHead: appItem.deletePerson.avatar,

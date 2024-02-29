@@ -7,6 +7,7 @@ import { handleChangeOwner, updateRecordOwner } from '../crtl';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
+import { getTranslateInfo } from 'src/util';
 import _ from 'lodash';
 export default function FormHeader(props) {
   const {
@@ -33,7 +34,7 @@ export default function FormHeader(props) {
     formData,
     appId,
   } = recordinfo;
-  const isPublicShare = _.get(window, 'shareState.isPublicRecord') || _.get(window, 'shareState.isPublicView');
+  const isPublicShare = _.get(window, 'shareState.isPublicRecord') || _.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage');
   const { forceShowFullValue, maskPermissions, handleUnMask } = maskinfo;
   const ownerRef = useRef();
   const ownerControl = _.find(formData, c => c.controlId === 'ownerid');
@@ -61,10 +62,10 @@ export default function FormHeader(props) {
         <div className="worksheetNameCon" style={{ marginTop: 16 }}>
           {!(window.isPublicApp || md.global.Account.isPortal) ? (
             <a className="worksheetName Gray_9e InlineBlock" target="_blank" href={`/worksheet/${worksheetId}`}>
-              {worksheetName}
+              {getTranslateInfo(appId, worksheetId).name || worksheetName}
             </a>
           ) : (
-            <span className="worksheetName Gray_9e InlineBlock">{worksheetName}</span>
+            <span className="worksheetName Gray_9e InlineBlock">{getTranslateInfo(appId, worksheetId).name || worksheetName}</span>
           )}
           <div className="Right">
             {createTime && isOpenLogs && (
@@ -115,6 +116,7 @@ export default function FormHeader(props) {
                         userHead: ownerAccount.avatar,
                       }}
                       appId={appId}
+                      projectId={projectId}
                       headClick={() => {}}
                     />
                   </span>

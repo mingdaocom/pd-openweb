@@ -11,18 +11,21 @@ import { isOpenPermit } from 'src/pages/FormSet/util';
 import { permitList } from 'src/pages/FormSet/config';
 import SheetView from '../View/SheetView';
 import GalleryView from '../View/GalleryView';
+import MobileMapView from '../View/MapView';
 import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
 import { getAdvanceSetting } from 'src/util';
 import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
 import { handleCondition } from 'src/pages/widgetConfig/util/data';
+import { AddRecordBtn, BatchOperationBtn } from 'mobile/components/RecordActions';
 import cx from 'classnames';
 import './index.less';
 import _ from 'lodash';
 
-const { sheet, gallery } = VIEW_DISPLAY_TYPE;
+const { sheet, gallery, map } = VIEW_DISPLAY_TYPE;
 const TYPE_TO_COMP = {
   [sheet]: SheetView,
   [gallery]: GalleryView,
+  [map]: MobileMapView,
 };
 
 let ajaxFn = null;
@@ -39,7 +42,7 @@ const GroupFilter = props => {
     appColor,
     mobileNavGroupFilters,
     appNaviStyle,
-    filters
+    filters,
   } = props;
   const { appId, viewId } = base;
   const view = _.find(views, { viewId }) || (!viewId && views[0]) || {};
@@ -62,6 +65,8 @@ const GroupFilter = props => {
     ...base,
     isCharge,
     view,
+    controls,
+    sheetSwitchPermit,
   };
   const canDelete = isOpenPermit(permitList.delete, sheetSwitchPermit, view.viewId);
   const showCusTomBtn = isOpenPermit(permitList.execute, sheetSwitchPermit, view.viewId);
@@ -304,10 +309,18 @@ const GroupFilter = props => {
     ];
     if (!item.value) {
       props.changeMobileGroupFilters([]);
-      props.fetchSheetRows();
+      if (view.viewType === 8) {
+        props.updateGroupFilter([], view);
+      } else {
+        props.fetchSheetRows();
+      }
     } else {
       props.changeMobileGroupFilters(navGroupFilters);
-      props.fetchSheetRows({ navGroupFilters });
+      if (view.viewType === 8) {
+        props.updateGroupFilter(navGroupFilters, view);
+      } else {
+        props.fetchSheetRows({ navGroupFilters });
+      }
     }
   };
   const renderContent = data => {
@@ -358,7 +371,7 @@ const GroupFilter = props => {
                 style={{ backgroundColor: isOption && soucre.enumDefault2 === 1 && !!item.value ? item.color : '' }}
               ></div>
               <div className="flexRow listItem flex borderBottom">
-                <div className="radioGroupFilterTxt">{item.txt || _l('未命名')}</div>
+                <div className="radioGroupFilterTxt mRight16">{item.txt || _l('未命名')}</div>
                 {count > 0 && <div className="count">{count}</div>}
               </div>
             </div>
@@ -579,50 +592,45 @@ const GroupFilter = props => {
               {isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) &&
               worksheetInfo.allowAdd &&
               !batchOptVisible ? (
-                <div className="addRecordItemWrapper">
-                  <Button
-                    style={{ backgroundColor: appColor }}
-                    className={cx('addRecordBtn flex valignWrapper', {})}
-                    onClick={() => {
-                      let defaultFormData = getDefaultValueInCreate();
-                      let param = {
-                        defaultFormData,
-                        defaultFormDataEditable: true,
-                      };
-                      openAddRecord({
-                        ...param,
-                        className: 'full',
-                        worksheetInfo,
-                        appId,
-                        worksheetId: worksheetInfo.worksheetId,
-                        viewId: view.viewId,
-                        addType: 2,
-                        entityName: worksheetInfo.entityName,
-                        onAdd: data => {
-                          if (view.viewType) {
-                            props.addNewRecord(data, view);
-                          } else {
-                            props.unshiftSheetRow(data);
-                          }
-                        },
-                      });
-                    }}
-                  >
-                    <Icon icon="add" className="Font22 mRight5" />
-                    {worksheetInfo.entityName}
-                  </Button>
-                </div>
+                <AddRecordBtn
+                  entityName={worksheetInfo.entityName}
+                  backgroundColor={appColor}
+                  onClick={() => {
+                    let defaultFormData = getDefaultValueInCreate();
+                    let param = {
+                      defaultFormData,
+                      defaultFormDataEditable: true,
+                    };
+                    openAddRecord({
+                      ...param,
+                      className: 'full',
+                      worksheetInfo,
+                      appId,
+                      worksheetId: worksheetInfo.worksheetId,
+                      viewId: view.viewId,
+                      addType: 2,
+                      entityName: worksheetInfo.entityName,
+                      onAdd: data => {
+                        if (view.viewType) {
+                          props.addNewRecord(data, view);
+                        } else {
+                          props.unshiftSheetRow(data);
+                        }
+                      },
+                    });
+                  }}
+                />
               ) : null}
             </div>
-            {(canDelete || showCusTomBtn) && view.viewType === 0 && !batchOptVisible && (
-              <div
-                className="batchOperation"
-                style={{ bottom: appNaviStyle === 2 && view.viewType === 0 ? '70px' : '20px' }}
-                onClick={() => props.changeBatchOptVisible(true)}
-              >
-                <Icon icon={'task-complete'} className="Font24" />
-              </div>
-            )}
+            {!_.get(window, 'shareState.shareId') &&
+              (canDelete || showCusTomBtn) &&
+              view.viewType === 0 &&
+              !batchOptVisible && (
+                <BatchOperationBtn
+                  style={{ bottom: appNaviStyle === 2 && view.viewType === 0 ? '70px' : '20px' }}
+                  onClick={() => props.changeBatchOptVisible(true)}
+                />
+              )}
           </div>
         }
         open={drawerVisible}

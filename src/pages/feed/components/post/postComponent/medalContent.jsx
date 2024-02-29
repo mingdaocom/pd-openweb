@@ -1,5 +1,4 @@
-﻿import { LazyloadImg } from '../../common/img';
-import PropTypes from 'prop-types';
+﻿import PropTypes from 'prop-types';
 import React from 'react';
 
 /**
@@ -16,7 +15,7 @@ function MedalContent(props) {
         <tbody>
           <tr>
             <td>
-              <LazyloadImg src={medalPath} placeholder="/images/blank.gif" />
+              <img src={medalPath} placeholder="/staticfiles/images/blank.gif"/>
             </td>
             <td>
               <p className="ThemeColor3 mTop20" style={{ fontSize: '12px', lineHeight: '20px' }}>

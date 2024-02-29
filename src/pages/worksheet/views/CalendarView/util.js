@@ -87,7 +87,12 @@ const getStringColor = (calendarData, data, currentView, worksheetControls) => {
   const { colorid = '' } = getAdvanceSetting(currentView);
   let coloridData = data[colorid] ? JSON.parse(data[colorid])[0] : '';
   //未设置颜色时，背景色的默认颜色为：蓝色浅色，黑色文字
-  return coloridData ? (colorOptions.find(it => coloridData === it.key) || []).color || defaultColor : defaultColor;
+  return coloridData
+    ? (
+        colorOptions.find(it => (coloridData && coloridData.startsWith('other') ? 'other' : coloridData) === it.key) ||
+        []
+      ).color || defaultColor
+    : defaultColor;
 };
 
 // type === 16 ? 'YYYY-MM-DD HH:mm' : 'YYYY-MM-DD';

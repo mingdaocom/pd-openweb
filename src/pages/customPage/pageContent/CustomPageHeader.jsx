@@ -23,9 +23,12 @@ import { deleteSheet } from 'worksheet/redux/actions/sheetList';
 import moment from 'moment';
 import { canEditData } from 'worksheet/redux/actions/util';
 import { EditExternalLink } from 'src/pages/worksheet/common/WorkSheetLeft/ExternalLink';
+import ConfigSideWrap from 'src/pages/customPage/components/ConfigSideWrap';
 import store from 'redux/configureStore';
 import { updateSheetListAppItem } from 'worksheet/redux/actions/sheetList';
 import { replaceColor, isLightColor } from 'src/pages/customPage/util';
+import { getTranslateInfo } from 'src/util';
+import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
 
 export default function CustomPageHeader(props) {
   const {
@@ -59,11 +62,13 @@ export default function CustomPageHeader(props) {
   const desc = urlTemplate ? configuration.desc : props.desc;
   const { popupVisible, editNameVisible, editIntroVisible } = visible;
   const name = pageName !== workSheetName ? workSheetName || pageName : pageName || workSheetName;
+  const showName = getTranslateInfo(appId, pageId).name || name;
   const [shareDialogVisible, setShareDialogVisible] = useState(false);
   const [exportLoading, setExportLoading] = useState(false);
   const [descIsEditing, setDescIsEditing] = useState(false);
   const [externalLinkIsEditing, setExternalLinkIsEditing] = useState(false);
-  const [inFull, setInFull] = useState(false);
+  const [inFull, setInFull] = useState(window.inFull || false);
+  const [configVisible, setConfigVisible] = useState(false);
 
   useEffect(() => {
     window.editCustomPage = () => {
@@ -77,7 +82,7 @@ export default function CustomPageHeader(props) {
   const saveImage = () => {
     const imageName = `${appName ? `${appName}_` : ''}${name}_${moment().format('_YYYYMMDDHHmmSS')}.png`;
     setExportLoading(true);
-    window.customPageWindowResize();
+    window.customPageWindowResize && window.customPageWindowResize();
     createFontLink()
       .then(exportImage.bind(this, pageConfig.pageBgColor))
       .then(blob => {
@@ -205,7 +210,7 @@ export default function CustomPageHeader(props) {
       <header
         className={cx({
           embedPageHeader: isEmbed || isEmbedPage,
-          hide: !(urlTemplate ? configuration.hideHeaderBar === '0' : pageConfig.headerVisible),
+          hide: appPkg.currentPcNaviStyle === 2 ? false : !(urlTemplate ? configuration.hideHeaderBar === '0' : pageConfig.headerVisible),
           darkTheme: pageConfig.pageBgColor && !isLightColor(pageConfig.pageBgColor),
         })}
         style={{
@@ -250,13 +255,15 @@ export default function CustomPageHeader(props) {
                   onClick={() => {
                     if (inFull) {
                       window.disabledSideButton = true;
+                      window.inFull = false;
                       setInFull(false);
                       document.querySelector('#wrapper').classList.remove('fullWrapper');
-                      window.customPageWindowResize();
+                      window.customPageWindowResize && window.customPageWindowResize();
                     } else {
+                      window.inFull = true;
                       setInFull(true);
                       document.querySelector('#wrapper').classList.add('fullWrapper');
-                      window.customPageWindowResize();
+                      window.customPageWindowResize && window.customPageWindowResize();
                     }
                   }}
                 >
@@ -279,7 +286,7 @@ export default function CustomPageHeader(props) {
               )}
             </div>
           ) : (
-            <span className="pageName Font17">{name}</span>
+            <span className="pageName Font17">{showName}</span>
           )}
           {desc && !isPublicShare && (
             <Popover
@@ -289,18 +296,20 @@ export default function CustomPageHeader(props) {
               overlayClassName="sheetDescPopoverOverlay"
               content={
                 <div className="popoverContent">
-                  <RichText data={desc || ''} disabled={true} />
+                  <RichText data={getTranslateInfo(appId, pageId).description || desc || ''} disabled={true} />
                 </div>
               }
             >
-              <Icon
-                icon="knowledge-message Font18 Gray_9"
-                className="Hand customPageDesc"
-                onClick={() => {
-                  setDescIsEditing(false);
-                  handleVisibleChange(true, 'editIntroVisible');
-                }}
-              />
+              <div className="iconWrap valignWrapper mRight5">
+                <Icon
+                  icon="knowledge-message Font18"
+                  className="Hand customPageDesc"
+                  onClick={() => {
+                    setDescIsEditing(false);
+                    handleVisibleChange(true, 'editIntroVisible');
+                  }}
+                />
+              </div>
             </Popover>
           )}
           {isCharge && (
@@ -316,7 +325,9 @@ export default function CustomPageHeader(props) {
                 />
               }
             >
-              <Icon className="Font18 moreOperateIcon" icon="more_horiz" />
+              <div className="iconWrap valignWrapper">
+                <Icon className="Font18 moreOperateIcon" icon="more_horiz" />
+              </div>
             </Trigger>
           )}
         </div>
@@ -327,6 +338,18 @@ export default function CustomPageHeader(props) {
                 <Icon className="Font20 pointer" icon="task-later" />
               </div>
             </Tooltip>
+            {isCharge && !(appPkg.isLock || appPkg.permissionType === APP_ROLE_TYPE.RUNNER_ROLE) && (
+              <Tooltip text={<span>{_l('页面配置')}</span>} popupPlacement="bottom">
+                <div
+                  className="iconWrap valignWrapper mLeft20"
+                  onClick={() => {
+                    setConfigVisible(true)
+                  }}
+                >
+                  <Icon className="Font20 pointer" icon="tune" />
+                </div>
+              </Tooltip>
+            )}
             {!isPublicShare && !isEmbedPage && apk.appId && !md.global.Account.isPortal && pageConfig.shareVisible && (
               <Tooltip text={<span>{_l('分享')}</span>} popupPlacement="bottom">
                 <div
@@ -365,7 +388,7 @@ export default function CustomPageHeader(props) {
         title={_l('自定义页面说明')}
         isCharge={isCharge}
         visible={editIntroVisible}
-        desc={desc || ''}
+        desc={descIsEditing ? (desc || '') : (getTranslateInfo(appId, pageId).description || desc || '')}
         isEditing={descIsEditing}
         setDescIsEditing={setDescIsEditing}
         onClose={() => {
@@ -419,6 +442,21 @@ export default function CustomPageHeader(props) {
           appItem={currentSheet}
           updateSheetListAppItem={rest.updateSheetListAppItem}
           onCancel={() => setExternalLinkIsEditing(false)}
+        />
+      )}
+      {configVisible && (
+        <ConfigSideWrap
+          {...props}
+          className="sideAbsolute"
+          onClose={() => {
+            setConfigVisible(false);
+            const { id, adjustScreen, config } = props;
+            customApi.updatePage({
+              appId: id,
+              adjustScreen,
+              config
+            });
+          }}
         />
       )}
     </Fragment>

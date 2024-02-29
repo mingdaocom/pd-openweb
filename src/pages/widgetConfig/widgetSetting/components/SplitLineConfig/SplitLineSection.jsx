@@ -58,8 +58,7 @@ export default function SplitLineSection(props) {
   }, [expandWidgetIds]);
 
   const handleExpand = tempVisible => {
-    // 隐藏标题不能点
-    if (hidetitle === '1') return;
+    if (hidetitle === '1' && enumDefault2 == 0) return;
     // 不折叠不能点击
     if (enumDefault2 === 0) return;
     const currentVisible = _.isUndefined(tempVisible) ? !visible : tempVisible;
@@ -96,7 +95,8 @@ export default function SplitLineSection(props) {
   };
 
   const renderIcon = () => {
-    if (hidetitle === '1') return null;
+    // 隐藏标题+不折叠
+    if (hidetitle === '1' && enumDefault2 == 0) return null;
 
     if (sectionstyle === '1') {
       return <div className="rangeIcon"></div>;
@@ -125,8 +125,6 @@ export default function SplitLineSection(props) {
     return null;
   };
 
-  if (isMobile && hidetitle === '1') return null;
-
   return (
     <SectionItemWrap
       theme={theme}
@@ -134,8 +132,9 @@ export default function SplitLineSection(props) {
       visible={visible}
       ref={$ref}
       sectionstyle={sectionstyle}
+      enumDefault2={enumDefault2}
       hidetitle={hidetitle === '1'}
-      className={isMobile && hidetitle !== '1' ? 'mobileSectionItemWrap' : ''}
+      className={isMobile ? 'mobileSectionItemWrap' : ''}
       onClick={() => {
         //先激活在折叠
         if (fromType !== 'display' && _.get(activeWidget, 'controlId') !== controlId) return;
@@ -156,9 +155,11 @@ export default function SplitLineSection(props) {
         </div>
       </div>
 
-      {enumDefault2 !== 0 && sectionstyle !== '2' && hidetitle !== '1' && expandWidgetIds.length > 0 && (
+      {enumDefault2 !== 0 && sectionstyle !== '2' && expandWidgetIds.length > 0 && (
         <div className="headerArrow">
-          <Icon icon="arrow-down-border" />
+          <div className="iconBox">
+            <Icon icon="arrow-down-border" />
+          </div>
         </div>
       )}
     </SectionItemWrap>

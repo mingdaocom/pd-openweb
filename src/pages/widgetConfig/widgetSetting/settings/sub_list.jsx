@@ -1,30 +1,33 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Dialog, Menu, MenuItem, LoadDiv } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
 import { useSetState } from 'react-use';
 import { Tooltip } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
-import cx from 'classnames';
 import worksheetAjax from 'src/api/worksheet';
-import appManagementAjax from 'src/api/appManagement';
 import styled from 'styled-components';
 import { getSortData } from 'src/pages/worksheet/util';
 import SortColumns from 'src/pages/worksheet/components/SortColumns/SortColumns';
-import { EditInfo, SettingItem, WidgetIntroWrap } from '../../styled';
-import { getControlsSorts, getDefaultShowControls, handleAdvancedSettingChange } from '../../util/setting';
-import Components from '../components';
+import { EditInfo, SettingItem } from '../../styled';
 import {
-  canSetAsTitle,
+  getControlsSorts,
+  getDefaultShowControls,
+  handleAdvancedSettingChange,
+  canAsUniqueWidget,
+} from '../../util/setting';
+import {
   getAdvanceSetting,
   resortControlByColRow,
   dealControlData,
   formatSearchConfigs,
+  toEditWidgetPage,
 } from '../../util';
 import subListComponents from '../components/sublist';
 import _, { isEmpty, find, filter, findIndex } from 'lodash';
-import { DEFAULT_INTRO_LINK } from '../../config';
 import DynamicDefaultValue from '../components/DynamicDefaultValue';
 import WidgetVerify from '../components/WidgetVerify';
+import RelateDetailInfo from '../components/RelateDetailInfo';
 import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
+import { ALL_SYS } from '../../config/widget';
 const { AddSubList, ConfigureControls, Sort } = subListComponents;
 
 const SettingModelWrap = styled.div`
@@ -42,6 +45,13 @@ const SettingModelWrap = styled.div`
     padding: 0 12px;
     border-radius: 3px;
   }
+  .globalDetail {
+    width: 100%;
+    min-height: 36px;
+    background: #f5f5f5;
+    line-height: 1.5;
+    padding: 8px 12px;
+  }
 `;
 
 export default function SubListSetting(props) {
@@ -56,6 +66,21 @@ export default function SubListSetting(props) {
     sortVisible: false,
   });
   const sorts = _.isArray(getAdvanceSetting(data, 'sorts')) ? getAdvanceSetting(data, 'sorts') : [];
+  const uniqueControls = getAdvanceSetting(data, 'uniquecontrols') || [];
+
+  // 支持配置不允许重复
+  const supportControls = relationControls.filter(i => canAsUniqueWidget(i) && !_.includes(ALL_SYS, i.controlId));
+  // 支持配置不允许重复并且已被设为可见的字段
+  const supportUniqControls = supportControls.filter(i => _.includes(showControls, i.controlId));
+  // 全局不重复id合集
+  const globalUniqControlIds = subListMode === 'new' ? [] : supportControls.filter(i => i.unique).map(i => i.controlId);
+  // 本记录不重复controls
+  const recordUniqControls = supportUniqControls.filter(i => !_.includes(globalUniqControlIds, i.controlId));
+  // 本记录不重复id合集
+  const showUniqueControls = recordUniqControls
+    .filter(r => _.includes(uniqueControls, r.controlId))
+    .map(i => i.controlId)
+    .filter(_.identity);
 
   useEffect(() => {
     if (dataSource && window.subListSheetConfig[controlId]) {
@@ -75,8 +100,9 @@ export default function SubListSetting(props) {
       worksheetAjax
         .getWorksheetInfo({ worksheetId: dataSource, getTemplate: true, getControlType: 11 })
         .then(res => {
+          if (res.resultCode === 4) return;
           const controls = _.get(res, ['template', 'controls']);
-          const saveData = _.find(allControls, i => i.controlId === data.controlId);
+          const saveData = _.find(allControls, i => i.controlId === data.controlId) || {};
 
           // 关联表子表因为无法新增字段 所以不需要更新relationControls
           if (res.type !== 2) return;
@@ -137,9 +163,9 @@ export default function SubListSetting(props) {
     });
     return reControls.filter(item =>
       needShow
-        ? !_.includes([22, 43, 45, 47, 49, 51, 52, 10010], item.type)
+        ? !_.includes([43, 45, 47, 49, 51, 52, 10010], item.type)
         : !(
-            _.includes([22, 34, 43, 45, 47, 49, 51, 52, 10010], item.type) ||
+            _.includes([34, 43, 45, 47, 49, 51, 52, 10010], item.type) ||
             (item.type === 29 && String(item.enumDefault) === '2' && _.get(item, 'advancedSetting.showtype') === '2')
           ),
     );
@@ -160,6 +186,7 @@ export default function SubListSetting(props) {
     worksheetAjax
       .getWorksheetInfo({ worksheetId: dataSource, getTemplate: true, getControlType: 11 })
       .then(res => {
+        if (res.resultCode === 4) return;
         const controls = filterRelationControls(res);
         const defaultShowControls = getDefaultShowControls(controls);
         setInfo(res);
@@ -179,7 +206,8 @@ export default function SubListSetting(props) {
           showControls:
             res.type === 2 ? oriShowControls.filter(i => !_.includes(['caid', 'utime', 'ctime'], i)) : oriShowControls,
         };
-        nextData = { ...nextData, relationControls: dealControlData(controls) };
+        nextData = { ...nextData, relationControls: dealControlData(controls), needUpdate: false };
+
         // 子表工作表查询
         getQueryConfigs(res);
         onChange(nextData);
@@ -246,12 +274,83 @@ export default function SubListSetting(props) {
     );
   };
 
+  const renderUniqText = isGlobal => {
+    const textControls = isGlobal ? globalUniqControlIds : showUniqueControls;
+    const textArr = textControls
+      .map(i => {
+        return _.get(
+          _.find(relationControls, r => r.controlId === i),
+          'controlName',
+        );
+      })
+      .filter(_.identity)
+      .join('、');
+
+    if (isGlobal) {
+      if (!textControls.length) {
+        return <span className="Gray_9e">{_l('未设置')}</span>;
+      } else {
+        return <span>{textArr}</span>;
+      }
+    }
+
+    return (
+      <div className="Dropdown--input Dropdown--border Hand">
+        <span>{textArr}</span>
+        <div className="ming Icon icon icon-arrow-down-border mLeft8 Gray_9e" />
+      </div>
+    );
+  };
+
+  const renderUniqControls = () => {
+    return (
+      <SortColumns
+        noempty={false}
+        showControls={showUniqueControls}
+        columns={recordUniqControls}
+        children={renderUniqText()}
+        showOperate={false}
+        onChange={({ newShowControls }) => {
+          onChange(handleAdvancedSettingChange(data, { uniquecontrols: JSON.stringify(newShowControls) }));
+        }}
+      />
+    );
+  };
+
   return (
     <SettingModelWrap>
       {!dataSource && <AddSubList {...props} onOk={onOk} />}
-      {subListMode !== 'new' && <Components.RelateSheetInfo name={sheetInfo.name} id={sheetInfo.worksheetId} />}
+      {subListMode !== 'new' && <RelateDetailInfo {...props} sheetInfo={sheetInfo} />}
       <SettingItem>{getConfigContent()}</SettingItem>
       <WidgetVerify {...props} />
+
+      {/**子表不允许重复 */}
+      {subListMode !== 'new' && (
+        <SettingItem>
+          <div className="settingItemTitle Normal">
+            {_l('全局不允许重复输入')}
+            <Tooltip
+              placement={'bottom'}
+              title={_l(
+                '以下字段在关联表中设为不允许重复。除了在本记录中不能重复输入外，也不能与关联表中的所有数据重复。',
+              )}
+            >
+              <i className="icon-help tipsIcon Gray_9e Font16 pointer" />
+            </Tooltip>
+          </div>
+          <div className="globalDetail">{renderUniqText(true)}</div>
+        </SettingItem>
+      )}
+      <SettingItem>
+        <div className="settingItemTitle Normal">
+          {_l('本记录内不允许重复输入')}
+          <Tooltip placement={'bottom'} title={_l('以下字段不允许在当前主记录内重复输入')}>
+            <i className="icon-help tipsIcon Gray_9e Font16 pointer" />
+          </Tooltip>
+        </div>
+        {renderUniqControls()}
+      </SettingItem>
+
       {relationControls.length > 0 && (
         <SettingItem>
           <div className="settingItemTitle">{_l('排序')}</div>
@@ -265,7 +364,7 @@ export default function SubListSetting(props) {
                     const control = sortsRelationControls.find(({ controlId }) => item.controlId === controlId) || {};
                     const flag = item.isAsc === true ? 2 : 1;
                     const { text } = getSortData(control.type, control).find(item => item.value === flag);
-                    const value = control.controlId ? _l('%0: %1', control.controlName, text) : '';
+                    const value = control.controlId ? `${control.controlName}：${text}` : '';
                     return p ? `${p}；${value}` : value;
                   }, '')
                 : _l('创建时间-最旧的在前')}

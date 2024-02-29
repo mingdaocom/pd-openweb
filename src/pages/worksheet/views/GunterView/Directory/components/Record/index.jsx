@@ -56,8 +56,12 @@ export const RecordWrapper = styled.div`
     padding: 0 10px;
     position: relative;
   }
+  .cellControl {
+    display: flex;
+  }
   .otherField > div {
     line-height: normal;
+    display: flex;
   }
   .edit {
     transform: translateX(-5px);
@@ -300,7 +304,7 @@ export default class Record extends Component {
           offset: [0, 10],
           points: ['tl', 'bl'],
         }}
-        shows={['share', 'print', 'copy', 'openinnew']}
+        shows={['share', 'print', 'copy', 'openinnew', 'fav']}
         allowDelete={row.allowdelete}
         allowCopy={worksheetInfo.allowAdd}
         projectId={worksheetInfo.projectId}
@@ -376,8 +380,9 @@ export default class Record extends Component {
     );
   }
   renderControl(data, index) {
-    const { row, widthConfig, base } = this.props;
+    const { row, widthConfig, base, controls, worksheetInfo } = this.props;
     const cell = Object.assign({}, data, { value: row[data.controlId] });
+    const rowFormData = controls.map(c => ({ ...c, value: row[c.controlId] }));
     return (
       <div
         className="field otherField valignWrapper Relative overflowHidden"
@@ -392,7 +397,9 @@ export default class Record extends Component {
             className={'w100'}
             appId={base.appId}
             row={row}
+            rowFormData={() => rowFormData}
             worksheetId={base.worksheetId}
+            projectId={worksheetInfo.projectId}
           />
         </div>
       </div>
@@ -418,7 +425,7 @@ export default class Record extends Component {
           }
         }}
       >
-        {window.share ? <div style={{ width: 22 }} /> : this.renderMore()}
+        {_.get(window, 'shareState.shareId') ? <div style={{ width: 22 }} /> : this.renderMore()}
         {this.renderTitle()}
         {displayControls.map((data, index) => this.renderControl(data, index + 1))}
         {this.renderStartTime()}

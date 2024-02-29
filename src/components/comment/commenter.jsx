@@ -1,28 +1,22 @@
 ﻿import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-
 import { AT_ALL_TEXT } from './config';
-
 import Icon from 'ming-ui/components/Icon';
 import Button from 'ming-ui/components/Button';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-
 import UploadFiles from 'src/components/UploadFiles';
-
 import discussionAjax from 'src/api/discussion';
 import postAjax from 'src/api/post';
-
 import { SOURCE_TYPE } from './config';
-
 import 'src/components/autoTextarea/autoTextarea';
 import 'src/components/mentioninput/mentionsInput';
-import 'src/components/emotion/emotion';
 import 'src/components/selectGroup/selectAllGroup';
 import './css/commenter.less';
-import { getRandomString } from 'src/util';
+import { generateRandomPassword } from 'src/util';
 import _ from 'lodash';
+import Emotion from 'src/components/emotion/emotion';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
@@ -86,7 +80,7 @@ class Commenter extends React.Component {
 
   constructor(props) {
     super(props);
-    this.textareaId = 'Commenter_' + getRandomString(16);
+    this.textareaId = 'Commenter_' + generateRandomPassword(16);
     this.state = {
       isEditing: false,
       isReshare: false,
@@ -113,7 +107,7 @@ class Commenter extends React.Component {
       .height(textareaMinHeight);
     // 缓存未发送成功的讨论
     if (this.props.storageId) {
-      $textarea.on('keyup', function () {
+      $textarea.on('keyup', function() {
         const text = $.trim($(this).val());
         if (!text) {
           window.localStorage.removeItem('commenter-' + comp.props.storageId);
@@ -144,14 +138,14 @@ class Commenter extends React.Component {
     }
 
     // 表情
-    $(faceBtn).emotion(
-      Object.assign({
-        input: this.textarea,
-        placement: 'left bottom',
-        relatedLeftSpace: -38 + (this.props.relatedLeftSpace || 0),
-        relatedTopSpace: 5,
-      }),
-    );
+    new Emotion(faceBtn, {
+      input: this.textarea,
+      placement: 'left bottom',
+      relatedLeftSpace: -38 + (this.props.relatedLeftSpace || 0),
+      relatedTopSpace: 5,
+      offset: this.props.offset,
+      popupContainer: this.props.popupContainer
+    });
 
     // 发布到动态
     if (!this.props.disableShareToPost) {
@@ -205,7 +199,7 @@ class Commenter extends React.Component {
           })
           .height(height);
       } else {
-        setTimeout(function () {
+        setTimeout(function() {
           $textarea.height(height);
         }, 0);
       }
@@ -296,7 +290,7 @@ class Commenter extends React.Component {
             knowledgeAttach: JSON.stringify(kcAttachmentData),
           })
           .then(
-            function (result) {
+            function(result) {
               if (result.success === 'True') {
                 dfd.resolve(result);
               } else {
@@ -304,7 +298,7 @@ class Commenter extends React.Component {
               }
               return dfd.promise();
             },
-            function (xhr) {
+            function(xhr) {
               var text;
               try {
                 var resObject = JSON.parse(xhr.responseText);
@@ -319,7 +313,7 @@ class Commenter extends React.Component {
           .done(resData => {
             this.props.onSubmit(resData.comment);
           })
-          .fail(function (text) {
+          .fail(function(text) {
             alert(text || _l('操作失败'), 2);
           });
       } else {
@@ -347,11 +341,15 @@ class Commenter extends React.Component {
                 } else {
                   alert(_l('操作失败，请稍后重试'), 2);
                 }
-                return $.Deferred().reject().promise();
+                return $.Deferred()
+                  .reject()
+                  .promise();
               }
             },
             () => {
-              return $.Deferred().reject().promise();
+              return $.Deferred()
+                .reject()
+                .promise();
             },
           )
           .done(resData => {

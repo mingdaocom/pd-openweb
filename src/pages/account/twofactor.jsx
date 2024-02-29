@@ -139,7 +139,7 @@ class TwofactorContainer extends React.Component {
       }
       this.sendTwofactorVerifyCode(
         Object.assign({}, res, {
-          captchaType: md.staticglobal.getCaptchaType(),
+          captchaType: md.global.getCaptchaType(),
         }),
         () => {
           this.sendFn();
@@ -147,7 +147,7 @@ class TwofactorContainer extends React.Component {
       );
     };
     if (needTicket) {
-      if (md.staticglobal.getCaptchaType() === 1) {
+      if (md.global.getCaptchaType() === 1) {
         new captcha(callback);
       } else {
         new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), callback).show();

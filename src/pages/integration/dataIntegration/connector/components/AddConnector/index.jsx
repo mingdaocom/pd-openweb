@@ -13,6 +13,7 @@ import syncTaskApi from '../../../../api/syncTask';
 import { upgradeVersionDialog } from 'src/util';
 import _ from 'lodash';
 import '../../style.less';
+import { getExtraParams } from '../../../utils';
 
 const ConnectorAddWrapper = styled.div`
   position: fixed;
@@ -183,14 +184,7 @@ export default function AddConnector(props) {
         type: currentData.type,
         fromType: currentData.fromType,
         roleType: currentStep === 0 ? ROLE_TYPE.SOURCE : ROLE_TYPE.DEST,
-        extraParams:
-          currentData.type === DATABASE_TYPE.ORACLE
-            ? {
-                [JSON.parse(formData.serviceType)[0] === 'ServiceName' ? 'serviceName' : 'SID']: formData.serviceName,
-              }
-            : currentData.type === DATABASE_TYPE.MONGO_DB
-            ? { isSrvProtocol: formData.isSrvProtocol }
-            : {},
+        extraParams: getExtraParams(currentData.type, formData),
       };
 
       dataSourceApi.addDatasource(addParams).then(res => {

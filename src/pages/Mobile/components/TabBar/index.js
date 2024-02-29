@@ -17,11 +17,11 @@ export default class TabBar extends Component {
         <div
           className={cx('itemTab', { action: action === 'appHome' })}
           onClick={() => {
-            history.push('/mobile/appHome');
+            history.push('/mobile/dashboard');
           }}
         >
-          <Icon icon="workbench" />
-          <span>{_l('首页')}</span>
+          <Icon icon="home" />
+          <span>{_l('工作台')}</span>
         </div>
         {!md.global.SysSettings.hideTemplateLibrary && (
           <div

@@ -39,6 +39,7 @@ export default class Operates extends Component {
     hideRecordInfo: PropTypes.func,
     onUpdate: PropTypes.func,
     onDelete: PropTypes.func,
+    hideFav: PropTypes.bool,
   };
 
   state = {
@@ -64,7 +65,7 @@ export default class Operates extends Component {
   componentWillReceiveProps(nextProps) {
     if (
       nextProps.recordbase.recordId !== this.props.recordbase.recordId ||
-      nextProps.recordbase.viewId !== this.props.recordbase.viewId
+      (nextProps.recordbase.viewId && nextProps.recordbase.viewId !== this.props.recordbase.viewId)
     ) {
       this.loadBtns(nextProps.recordbase.recordId, nextProps.recordbase.viewId);
       this.setState({ btnDisable: {} });
@@ -146,6 +147,7 @@ export default class Operates extends Component {
       onUpdate,
       onDelete,
       handleAddSheetRow,
+      hideFav,
     } = this.props;
     const { customBtns, buttonShowNum, btnDisable } = this.state;
     const { viewId, worksheetId, recordId, appId } = recordbase;
@@ -174,6 +176,7 @@ export default class Operates extends Component {
           </div>
         </div>
         <MoreMenu
+          hideFav={hideFav}
           recordbase={recordbase}
           recordinfo={recordinfo}
           sheetSwitchPermit={sheetSwitchPermit}

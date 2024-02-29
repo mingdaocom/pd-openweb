@@ -71,7 +71,7 @@ export default (props) => {
     );
   } else {
     const { url, onKCPreview, onPreview } = props;
-    const previewImageUrl = isKc ? data.viewUrl : (url.indexOf('imageView2') > -1 ? url.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/0') : url + '&imageView2/0');
+    const previewImageUrl = isKc ? data.viewUrl : (url.indexOf('imageView2') > -1 ? url.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/0') : url + `${url.includes('?') ? '&' : '?'}imageView2/0`);
     return (
       <LargeImageCard
         {...otherProps}

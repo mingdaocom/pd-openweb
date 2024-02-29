@@ -7,7 +7,7 @@ import cx from 'classnames';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import update from 'immutability-helper';
 import _, { includes, get, isEmpty, omit, findIndex, filter, find, head, last, flatten } from 'lodash';
-import { getAdvanceSetting, handleAdvancedSettingChange, isExceedMaxControlLimit } from './setting';
+import { canAsUniqueWidget, getAdvanceSetting, handleAdvancedSettingChange, isExceedMaxControlLimit } from './setting';
 import { insertControlInSameLine, batchRemoveItems } from './drag';
 import { getControlByControlId, adjustControlSize, putControlByOrder, getBoundRowByTab, fixedBottomWidgets } from '.';
 import { getPathById, isHaveGap } from './widgets';
@@ -30,7 +30,7 @@ export const getDynamicDefaultValue = data => {
   }
 };
 
-export const getMsgByCode = ({ code, data }) => {
+export const getMsgByCode = ({ code, data, controls }) => {
   if (code === 1) {
     alert(_l('保存成功'));
     return '';
@@ -52,6 +52,10 @@ export const getMsgByCode = ({ code, data }) => {
     case 10:
       errorText = _l('数据异常，请勿多窗口编辑或者多人同时编辑，请刷新浏览器重试！');
       break;
+    case 16:
+      const currentItem = _.find(controls, c => c.alias === data);
+      errorText = _l('%0别名重复', _.get(currentItem, 'controlName'));
+      break;
     default:
       break;
   }
@@ -62,7 +66,7 @@ export const getMsgByCode = ({ code, data }) => {
 export function handleExtremeValue(data) {
   const { advancedSetting = {}, type } = data;
   const { checkrange = '0', min = '', max = '' } = advancedSetting;
-  const transferValue = (value = '') => value.replace(/,/g, '');
+  const transferValue = value => (value ? value.toString() : '').replace(/,/g, '');
   const formateMin = parseFloat(transferValue(min));
   const formateMax = parseFloat(transferValue(max));
   // 如果最大最小值都没配 则取消勾选
@@ -374,6 +378,21 @@ export const navigateToView = (worksheetId, viewId) => {
   });
 };
 
+export const navigateToAppItem = worksheetId => {
+  homeAppApi.getAppSimpleInfo({ worksheetId }).then(data => {
+    const { appId, appSectionId } = data;
+    const storage = JSON.parse(localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${appId}`)) || {};
+    const cacheViewId = (
+      (storage.worksheets || []).filter(w => w.groupId === appSectionId && w.worksheetId === worksheetId)[0] || {}
+    ).viewId;
+    if (cacheViewId) {
+      navigateTo(`/app/${appId}/${appSectionId}/${worksheetId}/${cacheViewId}`);
+    } else {
+      navigateTo(`/app/${appId}/${appSectionId}/${worksheetId}`);
+    }
+  });
+};
+
 export const dealControlPos = controls => {
   const sortableControls = controls.reduce((p, c) => {
     return update(p, { $push: [[c]] });
@@ -392,7 +411,30 @@ export const formatControlsData = (controls = [], fromSub = false) => {
 
     // 子表控件递归处理其中的字段
     if (type === 34) {
-      return { ...data, relationControls: formatControlsData(data.relationControls, true) };
+      let uniqueControls = getAdvanceSetting(data, 'uniquecontrols') || [];
+      // 检查一遍本记录不重复字段是否都符合要求，不符合清空
+      if (!fromSub && uniqueControls.length > 0) {
+        const globalUniqueControls = (data.relationControls || []).filter(i => i.unique).map(i => i.controlId);
+        uniqueControls = uniqueControls.filter(u => {
+          const curItem = _.find(data.relationControls || [], c => c.controlId === u);
+          return (
+            !!curItem &&
+            canAsUniqueWidget(curItem) &&
+            !_.includes(globalUniqueControls, u) &&
+            _.includes(data.showControls || [], u)
+          );
+        });
+      }
+      return {
+        ...data,
+        advancedSetting: { ...data.advancedSetting, uniquecontrols: JSON.stringify(uniqueControls) },
+        relationControls: formatControlsData(data.relationControls, true),
+      };
+    }
+
+    // 子表里面字段校验全局不允许重复
+    if (fromSub && !canAsUniqueWidget(data) && _.get(data, 'unique')) {
+      data.unique = false;
     }
 
     // 数字控件处理极值
@@ -545,15 +587,6 @@ export const scrollToVisibleRange = (data, widgetProps) => {
     }
   }
 };
-
-// 折叠时,如果新增控件在可视区外则滚动至可视区内
-// export const scrollTabToVisibleRange = (data, widgetProps) => {
-//   const { activeWidget } = widgetProps;
-//   const $contentWrap = document.getElementById('collapseHeaderContent');
-//   const $activeWidget = document.getElementById(`header-${(activeWidget || {}).controlId}`);
-//   if (!$contentWrap || !$activeWidget) return;
-//   const rect = $activeWidget.getBoundingClientRect();
-// };
 
 // 批量添加
 export const handleAddWidgets = (data, para = {}, widgetProps, callback) => {
@@ -709,7 +742,11 @@ export const dealCopyWidgetId = (data = {}) => {
   };
 
   let ids = {};
-  if (data.type === 34 && _.get(window.subListSheetConfig[data.controlId], 'mode') === 'new') {
+  if (
+    data.type === 34 &&
+    (_.get(data, 'advancedSetting.detailworksheettype') === '2' ||
+      _.get(window.subListSheetConfig[data.controlId], 'mode') === 'new')
+  ) {
     const relationControls = (newData.relationControls || []).map(item => {
       if (_.includes(ALL_SYS, item.controlId)) return item;
       const newItem = {
@@ -774,7 +811,10 @@ export const batchCopyWidgets = (props, selectWidgets = []) => {
       }
       // 工作表查询配置复制
       const currentQuery = find(queryConfigs, queryItem => queryItem.controlId === data.controlId);
-      currentQuery && newQueries.push({ ...currentQuery, id: `${uuidv4()}`, controlId: dealItem.controlId });
+      if (currentQuery) {
+        dealItem = handleAdvancedSettingChange(dealItem, { dynamicsrc: '', defaulttype: '' });
+      }
+      // currentQuery && newQueries.push({ ...currentQuery, id: `${uuidv4()}`, controlId: dealItem.controlId });
 
       if (data.type === 52) {
         // 缓存sectionId
@@ -794,7 +834,7 @@ export const batchCopyWidgets = (props, selectWidgets = []) => {
 
   setActiveWidget(newActiveWidget);
   setWidgets(newWidgets);
-  updateQueryConfigs(queryConfigs.concat(newQueries), 'cover');
+  // updateQueryConfigs(queryConfigs.concat(newQueries), 'cover');
   return;
 };
 
@@ -844,4 +884,34 @@ export const deleteSection = ({ widgets = [], data }, props) => {
       return;
     },
   });
+};
+
+// shift连选处理
+export const batchShiftWidgets = props => {
+  const { batchActive = [], data, widgets = [], setBatchActive } = props;
+  const startWidget = last(batchActive);
+  if (startWidget && data) {
+    const [startRow, startCol] = getPathById(widgets, startWidget.controlId);
+    const [endRow, endCol] = getPathById(widgets, data.controlId);
+    const newBatchWidgets = [];
+    for (var i = 0; i < widgets.length; i++) {
+      const row = widgets[i];
+      for (var j = 0; j < row.length; j++) {
+        if (
+          (i === Math.min(startRow, endRow) && j >= (startRow > endRow ? endCol : startCol)) ||
+          (i === Math.max(startRow, endRow) && j <= (startRow > endRow ? startCol : endCol))
+        ) {
+          newBatchWidgets.push(widgets[i][j]);
+        } else if (i > Math.min(startRow, endRow) && i < Math.max(startRow, endRow)) {
+          newBatchWidgets.push(...row);
+        }
+      }
+    }
+
+    const filterBatchWidgets = _.uniq(newBatchWidgets.filter(i => i.type !== 52).filter(_.identity));
+
+    if (filterBatchWidgets.length > 0) {
+      setBatchActive(filterBatchWidgets);
+    }
+  }
 };

@@ -140,6 +140,8 @@ export default function Text(props) {
                   )
                 ) {
                   onChange({ values: [newValue.replace(/ /g, '')] });
+                } else if (filterType === FILTER_CONDITION_TYPE.TEXT_ALLCONTAIN) {
+                  onChange({ values: newValue.split(' ') });
                 } else {
                   onChange({ values: [newValue] });
                 }

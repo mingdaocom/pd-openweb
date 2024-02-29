@@ -173,6 +173,8 @@ export default class extends Component {
       displaySetup.ydisplay.lineStyle !== oldDisplaySetup.ydisplay.lineStyle ||
       !_.isEqual(displaySetup.auxiliaryLines, oldDisplaySetup.auxiliaryLines) ||
       style.showXAxisSlider !== oldStyle.showXAxisSlider ||
+      style.tooltipValueType !== oldStyle.tooltipValueType ||
+      !_.isEqual(style.chartShowLabelIds, oldStyle.chartShowLabelIds) ||
       !_.isEqual(chartColor, oldChartColor) ||
       nextProps.themeColor !== this.props.themeColor
     ) {
@@ -242,12 +244,15 @@ export default class extends Component {
     }
   }
   getComponentConfig(props) {
-    const { themeColor, projectId, customPageConfig, reportData } = props;
-    const { chartColor } = customPageConfig;
-    const { map, contrastMap, displaySetup, xaxes, yaxisList, style = {}, split } = reportData;
+    const { themeColor, projectId, customPageConfig = {}, reportData } = props;
+    const { chartColor, chartColorIndex = 1 } = customPageConfig;
+    const { map, contrastMap, displaySetup, xaxes, yaxisList, split } = reportData;
     const { isPile, isPerPile, isAccumulate, xdisplay, ydisplay, legendType, auxiliaryLines } = displaySetup;
+    const styleConfig = reportData.style || {};
+    const style = chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0) ? { ...styleConfig, ...chartColor } : styleConfig;
     const { position } = getLegendType(legendType);
     const { length } = _.isEmpty(map) ? contrastMap[0].value : map[0].value;
+    const { chartShowLabelIds = ['all'] } = style;
     const isPercentStackedArea = displaySetup.showChartType == 2 && isPerPile;
     const LineValue = isPercentStackedArea ? 0 : (displaySetup.lifecycleValue / length) * (displaySetup.isAccumulate ? length : 1);
     const sortData = formatChartData(map, yaxisList, displaySetup, split.controlId);
@@ -256,7 +261,7 @@ export default class extends Component {
     const minValue = getMinValue(sortData, contrastMap.length ? formatChartData(contrastMap, yaxisList, displaySetup, split.controlId) : null);
     const { Line, Area } = this.g2plotComponent;
     const ChartComponent = displaySetup.showChartType === 2 ? Area : Line;
-    const colors = getChartColors(chartColor || style, themeColor, projectId);
+    const colors = getChartColors(style, themeColor, projectId);
     const auxiliaryLineConfig = getAuxiliaryLineConfig(auxiliaryLines, sortData, { yaxisList: isPile || isPerPile || isAccumulate ? [] : yaxisList, colors });
     const yAxisLabel = {
       formatter: (value, obj) => {
@@ -344,16 +349,17 @@ export default class extends Component {
         showCrosshairs: true,
         formatter: ({ value, groupName }) => {
           const { name, id } = formatControlInfo(groupName);
+          const labelValue = formatrChartValue(value, isPerPile, newYaxisList, value ? undefined : id);
           if (isPercentStackedArea) {
             return {
               name,
-              value: `${toFixed(value * 100, Number.isInteger(value) ? 0 : 2)}%`
+              value: style.tooltipValueType ? labelValue : `${toFixed(value * 100, Number.isInteger(value) ? 0 : 2)}%`
             }
           } else {
             const { dot } = _.find(yaxisList, { controlId: id }) || {};
             return {
               name,
-              value: _.isNumber(value) ? value.toLocaleString('zh', { minimumFractionDigits: dot }) : '--'
+              value: _.isNumber(value) ? style.tooltipValueType ? labelValue : value.toLocaleString('zh', { minimumFractionDigits: dot }) : '--'
             }
           }
         }
@@ -371,8 +377,17 @@ export default class extends Component {
               (ydisplay.maxValue && ydisplay.maxValue < maxValue) || (ydisplay.minValue && ydisplay.minValue > minValue) ? { type: 'limit-in-plot' } : null,
             ],
             content: ({ value, groupName, controlId }) => {
-              const id = split.controlId ? newYaxisList[0].controlId : controlId;
-              return formatrChartValue(value, isPercentStackedArea, newYaxisList, value ? undefined : id);
+              const render = () => {
+                const id = split.controlId ? newYaxisList[0].controlId : controlId;
+                return formatrChartValue(value, isPercentStackedArea, newYaxisList, value ? undefined : id);
+              }
+              if (chartShowLabelIds.length && chartShowLabelIds.includes('all')) {
+                return render();
+              }
+              if (chartShowLabelIds.length && !chartShowLabelIds.includes(controlId)) {
+                return;
+              }
+              return render();
             },
           }
         : false,

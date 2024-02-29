@@ -1,15 +1,21 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useState } from 'react';
 import styled from 'styled-components';
-import { Dropdown, Tooltip } from 'ming-ui';
+import { Dropdown, Tooltip, Icon } from 'ming-ui';
 import { getIconByType } from 'src/pages/widgetConfig/util';
-import { updateViewAdvancedSetting } from 'src/pages/worksheet/common/ViewConfig/util';
 import { arrayOf, func, shape, string } from 'prop-types';
 import Checkbox from 'src/components/newCustomFields/widgets/Checkbox';
 import AddCondition from 'src/pages/worksheet/common/WorkSheetFilter/components/AddCondition';
 import { RECORD_COLOR_SHOW_TYPE } from 'worksheet/constants/enum';
 import _ from 'lodash';
-import emptyPng from './img/empty.png';
+import { SwitchStyle } from 'src/pages/worksheet/common/ViewConfig/components/style.jsx';
 
+const Wrap = styled.div`
+  .line {
+    width: 100%;
+    height: 1px;
+    background: #dddddd;
+  }
+`;
 const Con = styled.div`
   .noData {
     .cover {
@@ -55,16 +61,14 @@ const Con = styled.div`
 
 const AddButton = styled.div`
   position: relative;
-  background: #2196f3;
+  width: 100%;
+  height: 44px;
+  line-height: 44px;
+  background: #f8f8f8;
   border-radius: 3px;
-  color: #fff;
-  display: inline-flex;
-  width: 138px;
-  height: 40px;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  font-weight: bold;
+  &:hover {
+    background: #f5f5f5;
+  }
 `;
 
 const SelectedControlCon = styled.div`
@@ -107,7 +111,7 @@ const SelectedControlCon = styled.div`
 `;
 
 function typesInclude(types = [], control = {}) {
-  return _.includes(types, control.type) || _.includes(types, control.sourceControlType);
+  return _.includes(types, control.type) || (control.type === 30 && _.includes(types, control.sourceControlType));
 }
 
 function SelectControl({ value, controls = [], onChange, onClear }) {
@@ -227,30 +231,21 @@ SelectColorShowType.propTypes = {
   onChange: func,
 };
 
-export default function FastFilter(params) {
-  const { worksheetControls = [], setFastFilter, view = {}, updateCurrentView, currentSheetInfo } = params;
+function RecordColor(params) {
+  const { worksheetControls = [], view = {}, onChange } = params;
   const { advancedSetting = {} } = view;
   const { colorid, coloritems, colortype } = advancedSetting;
-  const tabName = _l('颜色');
-  const tabDescription = _l('选择单选项字段为记录标记颜色，以快速辨别记录之间的区别');
   const updateAdvancedSetting = data => {
-    updateCurrentView(
-      Object.assign(view, {
-        advancedSetting: updateViewAdvancedSetting(view, {
-          ...data,
-        }),
-        editAttrs: ['advancedSetting'],
-      }),
-    );
+    onChange(data);
   };
-  const selectedControl = _.find(worksheetControls, { controlId: colorid });
+  const filteredControls = worksheetControls.filter(c => typesInclude([9, 11], c));
+  const selectedControl = _.find(filteredControls, { controlId: colorid });
   return (
     <Con>
+      <div className="Gray_9e mTop20">{_l('使用单选项为记录标记颜色')}</div>
       {selectedControl ? (
         <div className="hasData">
-          <div className="viewSetTitle">{tabName}</div>
-          <div className="Gray_9e mTop8 mBottom4">{tabDescription}</div>
-          <div className="Font14 Bold mTop24 mBottom10 valignWrapper">
+          <div className="Font3 Bold mTop16 mBottom8 valignWrapper">
             {_l('字段')}
             {selectedControl && selectedControl.enumDefault2 !== 1 && (
               <Tooltip className="mLeft6" text={_l('当前选择的字段未启用颜色')}>
@@ -276,7 +271,7 @@ export default function FastFilter(params) {
               });
             }}
           />
-          <div className="Font14 Bold mTop24 mBottom10">{_l('显示项')}</div>
+          <div className="Font3 Bold mTop24 mBottom8">{_l('显示项')}</div>
           <Dropdown
             border
             className="w100"
@@ -310,9 +305,9 @@ export default function FastFilter(params) {
               }}
             />
           )}
-          {String(view.viewType) !== '5' && (
+          {!['5', '7'].includes(String(view.viewType)) && (
             <Fragment>
-              <div className="Font14 Bold mTop24 mBottom10">{_l('显示方式')}</div>
+              <div className="Font3 Bold mTop24 mBottom8">{_l('显示方式')}</div>
               <SelectColorShowType
                 value={colortype}
                 onChange={newValue => {
@@ -325,43 +320,131 @@ export default function FastFilter(params) {
           )}
         </div>
       ) : (
-        <div className="noData">
-          <div className="cover">
-            <img src={emptyPng} alt="" srcset="" />
-          </div>
-          <h6 className="">{tabName}</h6>
-          <p className="text">{tabDescription}</p>
-          <div className="mTop32 TxtCenter">
-            <AddCondition
-              columns={worksheetControls.filter(c => typesInclude([9, 11], c) && c.controlId.length === 24)}
-              onAdd={newSelectedControl => {
-                updateAdvancedSetting({
-                  colorid: newSelectedControl.controlId,
-                  coloritems: '',
-                  colortype: '0',
-                });
-              }}
-              style={{
-                width: '440px',
-              }}
-              popupAlign={{
-                points: ['tc', 'bc'],
-                overflow: {
-                  adjustX: true,
-                  adjustY: true,
-                },
-              }}
-              classNamePopup="addControlDrop"
-              comp={() => (
-                <AddButton>
-                  <i className="icon icon-add Font16 mRight5"></i>
-                  {_l('选择字段')}
-                </AddButton>
-              )}
-            />
-          </div>
-        </div>
+        <AddCondition
+          columns={worksheetControls.filter(c => typesInclude([9, 11], c) && c.controlId.length === 24)}
+          onAdd={newSelectedControl => {
+            updateAdvancedSetting({
+              colorid: newSelectedControl.controlId,
+              coloritems: '',
+              colortype: '0',
+            });
+          }}
+          style={{
+            width: '440px',
+          }}
+          popupAlign={{
+            points: ['tc', 'bc'],
+            overflow: {
+              adjustX: true,
+              adjustY: true,
+            },
+          }}
+          classNamePopup="addControlDrop"
+          comp={() => (
+            <AddButton className="mTop4 Bold Font13 ThemeColor3 TxtCenter">
+              <i className="icon icon-add Font16 mRight5"></i>
+              {_l('选择字段')}
+            </AddButton>
+          )}
+        />
       )}
     </Con>
+  );
+}
+
+export default function (props) {
+  const { updateCurrentView, view, appId } = props;
+  const [openList, setState] = useState(['record', 'control']);
+  const tabName = _l('颜色');
+  const renderHead = key => {
+    return (
+      <div
+        className="headerCon Hand mTop24"
+        onClick={() => {
+          setState(openList.includes(key) ? openList.filter(o => o !== key) : openList.concat(key));
+        }}
+      >
+        <Icon icon={openList.includes(key) ? 'arrow-down' : 'arrow-right-tip'} className="Font14 Gray_9e" />
+        <span className="Font15 Bold mLeft10">{key === 'control' ? _l('字段') : _l('记录')}</span>
+      </div>
+    );
+  };
+  const onChangeControlByKey = key => {
+    updateCurrentView({
+      ...view,
+      appId,
+      advancedSetting: {
+        [key]: _.get(view, `advancedSetting.${key}`) === '1' ? '' : '1',
+      },
+      editAdKeys: [key],
+      editAttrs: ['advancedSetting'],
+    });
+  };
+  return (
+    <Wrap>
+      <div className="viewSetTitle">{tabName}</div>
+      {renderHead('record')}
+      {openList.includes('record') && (
+        <RecordColor
+          {...props}
+          onChange={data => {
+            updateCurrentView({
+              ...view,
+              appId,
+              advancedSetting: data,
+              editAdKeys: Object.keys(data),
+              editAttrs: ['advancedSetting'],
+            });
+          }}
+        />
+      )}
+      {/* 支持的视图：表格、看板、画廊、层级、详情、地图视图 */}
+      {['0', '1', '3', '2', '6', '8'].includes(String(view.viewType)) && (
+        <React.Fragment>
+          <div className="line mTop24"></div>
+          {renderHead('control')}
+          {openList.includes('control') && (
+            <div className="mTop10">
+              <div className="Gray_9e mTop20">{_l('显示字段配置中的样式')}</div>
+              <SwitchStyle>
+                <Icon
+                  icon={_.get(view, 'advancedSetting.controlstyle') === '1' ? 'ic_toggle_on' : 'ic_toggle_off'}
+                  className="Font28 Hand"
+                  onClick={() => {
+                    onChangeControlByKey('controlstyle');
+                  }}
+                />
+                <div
+                  className="switchText InlineBlock Normal mLeft12 mTop8 Hand"
+                  onClick={() => {
+                    onChangeControlByKey('controlstyle');
+                  }}
+                >
+                  {_l('在PC端显示')}
+                </div>
+              </SwitchStyle>
+              <br />
+              <SwitchStyle>
+                <Icon
+                  icon={_.get(view, 'advancedSetting.controlstyleapp') === '1' ? 'ic_toggle_on' : 'ic_toggle_off'}
+                  className="Font28 Hand"
+                  onClick={() => {
+                    onChangeControlByKey('controlstyleapp');
+                  }}
+                />
+                <div
+                  className="switchText InlineBlock Normal mLeft12 mTop8 Hand"
+                  onClick={() => {
+                    onChangeControlByKey('controlstyleapp');
+                  }}
+                >
+                  {_l('在移动端显示')}
+                </div>
+              </SwitchStyle>
+            </div>
+          )}
+        </React.Fragment>
+      )}
+    </Wrap>
   );
 }

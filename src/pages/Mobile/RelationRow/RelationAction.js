@@ -167,10 +167,10 @@ class RelationAction extends Component {
     const { isCreate, isSubList, activeRelateSheetControl, onlyRelateByScanCode } = permissionInfo;
     const disabledManualWrite =
       onlyRelateByScanCode && _.get(activeRelateSheetControl, 'advancedSetting.dismanual') === '1';
+    const formData = this.props.formData || rowInfo.templateControls.filter(_.identity);
 
     let defaultRelatedSheetValue;
     try {
-      const formData = rowInfo.templateControls.filter(_.identity);
       const titleControl = formData.filter(c => c && c.attribute === 1);
       defaultRelatedSheetValue = titleControl && {
         name: titleControl.value,
@@ -190,7 +190,7 @@ class RelationAction extends Component {
           <MobileRecordCardListDialog
             multiple
             control={_.find(rowInfo.templateControls, { controlId: controlId })}
-            formData={rowInfo.templateControls}
+            formData={formData}
             visible={showRelevanceRecord}
             allowNewRecord={isCreate && !_.get(window, 'shareState.isPublicForm')}
             disabledManualWrite={disabledManualWrite}
@@ -250,8 +250,8 @@ class RelationAction extends Component {
   renderRelateScanQRCodeBtn() {
     const { base, rowInfo, relationRow } = this.props;
     const { worksheet } = relationRow;
-    const control = _.find(rowInfo.templateControls, { controlId: base.controlId });
-    const formData = rowInfo.templateControls;
+    const formData = this.props.formData || rowInfo.templateControls;
+    const control = _.find(formData, { controlId: base.controlId });
     const filterControls = getFilter({ control, formData });
 
     return (
@@ -265,7 +265,7 @@ class RelationAction extends Component {
         }}
         onOpenRecordCardListDialog={keyWords => {
           const { scanlink, scancontrol } = _.get(control, 'advancedSetting') || {};
-          if ((scanlink !== '1' && RegExp.isUrl(keyWords)) || (scancontrol !== '1' && !RegExp.isUrl(keyWords))) {
+          if ((scanlink !== '1' && RegExp.isURL(keyWords)) || (scancontrol !== '1' && !RegExp.isURL(keyWords))) {
             return;
           }
           this.setState({ showRelevanceRecord: true, recordkeyWords: keyWords });

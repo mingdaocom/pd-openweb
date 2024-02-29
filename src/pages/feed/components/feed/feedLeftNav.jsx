@@ -6,7 +6,6 @@ import shallowEqual from 'shallowequal';
 import Immutable from 'immutable';
 import MDLeftNav from '../common/mdLeftNav';
 import MDLeftNavSearch from '../common/mdLeftNav/mdLeftNavSearch';
-import { QiniuImg } from '../common/img';
 import List from 'ming-ui/components/List';
 import Item from 'ming-ui/components/Item';
 import Icon from 'ming-ui/components/Icon';
@@ -252,7 +251,7 @@ class FeedLeftNav extends React.Component {
                   })}
                   onClick={() => navigateTo(`/feed?groupId=${g.groupId}&projectId=${projectId}`)}
                 >
-                  <QiniuImg className="avatar" src={g.avatar} lazy size={48} quality={100} placeholder={g.avatar} />
+                  <img className="avatar" src={g.avatar.includes('?')>0 ? g.avatar.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/48/h/48/q/100') : `${g.avatar}?imageView2/1/w/48/h/48/q/100`} placeholder={g.avatar}/>
                   <span className="ThemeColor10" title={g.name}>
                     {g.name}
                   </span>

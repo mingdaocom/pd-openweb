@@ -108,6 +108,13 @@ export default function CityPicker(props) {
   const [loadingId, setLoadingId] = useState(false);
 
   useEffect(() => {
+    if (!defaultValue && !isMobile && data.length > 0) {
+      setSelect([]);
+      setData(data[0]);
+    }
+  }, [defaultValue]);
+
+  useEffect(() => {
     if (visible && !search && (!data.length || !_.isArray(data[0]))) {
       getCitys();
       return;

@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { number, string, arrayOf, shape } from 'prop-types';
 import cx from 'classnames';
-import { Icon, Button, Menu, MenuItem, Dialog } from 'ming-ui';
+import { Icon, Button, Menu, MenuItem, Dialog, VerifyPasswordInput } from 'ming-ui';
 import { FLOW_NODE_TYPE_STATUS } from 'src/pages/workflow/MyProcess/config';
 import { ACTION_LIST, OPERATION_LIST, ACTION_TO_METHOD } from './config';
 import SvgIcon from 'src/components/SvgIcon';
@@ -14,7 +14,6 @@ import { permitList } from 'src/pages/FormSet/config.js';
 import _ from 'lodash';
 import moment from 'moment';
 import { verifyPassword } from 'src/util';
-import VerifyPassword from './components/VerifyPassword';
 
 export default class Header extends Component {
   static propTypes = {
@@ -68,9 +67,7 @@ export default class Header extends Component {
         appId: app.id,
         workId,
       };
-      let printKey = Math.random()
-        .toString(36)
-        .substring(2);
+      let printKey = Math.random().toString(36).substring(2);
       webCacheAjax.add({
         key: `${printKey}`,
         value: JSON.stringify(printData),
@@ -84,24 +81,15 @@ export default class Header extends Component {
   };
 
   handleClick = id => {
-    const { projectId, onSubmit, data } = this.props;
-    const { ignoreRequired, encrypt } = (data || {}).flowNode || {};
+    const { onSubmit, data } = this.props;
+    const { ignoreRequired, encrypt, auth } = (data || {}).flowNode || {};
     /**
      * 填写
      */
     if (id === 'submit') {
       // 验证密码
       if (encrypt) {
-        verifyPassword({
-          projectId,
-          checkNeedAuth: true,
-          success: () => {
-            this.request('submit');
-          },
-          fail: result => {
-            this.writeVerifyPassword(result === 'showPassword');
-          },
-        });
+        this.safeAuthentication(() => this.request('submit'));
       } else {
         this.request('submit');
       }
@@ -140,21 +128,41 @@ export default class Header extends Component {
       return;
     }
 
+    // 打开操作层
+    const openOperatorDialog = () => {
+      // 通过、否决、退回 不配置 意见、签名、安全直接提交
+      if (_.includes(['pass', 'overrule', 'return'], id)) {
+        const typeList = auth[id === 'pass' ? 'passTypeList' : 'overruleTypeList'];
+
+        if (typeList.length === 1 && typeList[0] === 101) {
+          if (!encrypt) {
+            this.handleAction({ action: id });
+          } else {
+            this.safeAuthentication(() => this.handleAction({ action: id }));
+          }
+        } else {
+          this.setState({ action: id, otherActionVisible: true });
+        }
+      } else {
+        this.setState({ action: id, otherActionVisible: true });
+      }
+    };
+
     if (ignoreRequired || _.includes(['transferApprove', 'transfer'], id)) {
-      this.setState({ action: id, otherActionVisible: true });
+      openOperatorDialog();
     } else {
       onSubmit({
         noSave: true,
         callback: err => {
           if (!err) {
-            this.setState({ action: id, otherActionVisible: true });
+            openOperatorDialog();
           }
         },
       });
     }
   };
 
-  handleAction = ({ action, content, userId, backNodeId, signature }) => {
+  handleAction = ({ action, content = '', userId, backNodeId, signature, files }) => {
     const { ignoreRequired } = (this.props.data || {}).flowNode || {};
 
     content = content.trim();
@@ -164,7 +172,7 @@ export default class Header extends Component {
     if (_.includes(['before', 'after'], action)) {
       this.request(
         ACTION_TO_METHOD[action],
-        { before: action === 'before', opinion: content, forwardAccountId: userId, signature },
+        { before: action === 'before', opinion: content, forwardAccountId: userId, signature, files },
         action === 'before',
       );
     }
@@ -180,9 +188,13 @@ export default class Header extends Component {
      * 通过、否决、退回
      */
     if (_.includes(['pass', 'overrule', 'return'], action)) {
+      if (action === 'return' && !backNodeId) {
+        backNodeId = _.get(this.props.data, 'backFlowNodes[0].id') || '';
+      }
+
       this.request(
         ACTION_TO_METHOD[action],
-        { opinion: content, backNodeId, signature },
+        { opinion: content, backNodeId, signature, files },
         _.includes(['overrule', 'return'], action) && ignoreRequired,
       );
     }
@@ -241,17 +253,35 @@ export default class Header extends Component {
   };
 
   /**
-   * 填写验证码
+   * 安全认证
    */
-  writeVerifyPassword(removeNoneVerification) {
+  safeAuthentication(success = () => {}) {
+    const { projectId } = this.props;
+
+    verifyPassword({
+      projectId,
+      checkNeedAuth: true,
+      success,
+      fail: result => {
+        this.verifyPasswordDialog(result === 'showPassword', success);
+      },
+    });
+  }
+
+  /**
+   * 验证码弹层
+   */
+  verifyPasswordDialog(removeNoneVerification, callback = () => {}) {
     const { projectId } = this.props;
 
     Dialog.confirm({
       title: _l('安全认证'),
       description: (
-        <VerifyPassword
-          removeNoneVerification={removeNoneVerification}
+        <VerifyPasswordInput
+          showSubTitle={false}
+          isRequired={true}
           autoFocus={true}
+          allowNoVerify={!removeNoneVerification}
           onChange={({ password, isNoneVerification }) => {
             if (password !== undefined) this.password = password;
             if (isNoneVerification !== undefined) this.isNoneVerification = isNoneVerification;
@@ -260,13 +290,17 @@ export default class Header extends Component {
       ),
       onOk: () => {
         return new Promise((resolve, reject) => {
+          if (!this.password || !this.password.trim()) {
+            alert(_l('请输入密码'), 3);
+            return;
+          }
           verifyPassword({
             projectId,
             password: this.password,
             closeImageValidation: true,
             isNoneVerification: this.isNoneVerification,
             success: () => {
-              this.request('submit');
+              callback();
               resolve();
             },
             fail: () => {

@@ -4,7 +4,7 @@ import ajaxRequest from 'src/api/taskCenter';
 import 'src/components/mdDatePicker/mdDatePicker';
 import quickSelectUser from 'ming-ui/functions/quickSelectUser';
 import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
-import { expireDialogAsync } from 'src/components/common/function';
+import { expireDialogAsync } from 'src/util';
 import quickCreateTask from './tpl/quickCreateTask.html';
 import { errorMessage, checkIsProject } from '../../utils/utils';
 import Store from 'redux/configureStore';
@@ -254,10 +254,6 @@ class QuickCreateTask {
         }
 
         if ($('.md_dialog:visible').length > 0) {
-          return;
-        }
-        // 头像层
-        if ($target.closest('.businessCardSite').length > 0) {
           return;
         }
         // 日历层

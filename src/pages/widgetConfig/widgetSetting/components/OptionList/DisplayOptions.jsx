@@ -57,7 +57,7 @@ export default function DisplayOptions({ data, onChange }) {
                 onChange(handleAdvancedSettingChange(data, { width: value }));
               }}
             />
-            <span>{_l('px')}</span>
+            <span>px</span>
           </div>
         </SettingItem>
       )}

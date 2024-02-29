@@ -72,7 +72,7 @@ export default class SessionItem extends Component {
   renderAvatar(item) {
     const { logo, isPost } = item;
     if (logo) {
-      return <img src={logo} className={cx({ radius: isPost !== false })} />;
+      return <img src={logo} className={cx({ radius: isPost !== false })} draggable={false} />;
     } else {
       if (item.iconType === 'calendar') {
         return <div className={cx('circle', `chat_${item.iconType}`)} data-date={new Date().getDate()} />;

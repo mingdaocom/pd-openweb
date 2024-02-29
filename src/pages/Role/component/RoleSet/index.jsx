@@ -4,9 +4,25 @@ import externalPortalAjax from 'src/api/externalPortal';
 import Ajax from 'src/api/appManagement';
 import SettingForm from './SettingForm';
 import { PERMISSION_WAYS } from 'src/pages/Role/config.js';
+import { getTranslateInfo } from 'src/util';
 import styled from 'styled-components';
 import _ from 'lodash';
 import { sysRoleType, sysRoleList } from 'src/pages/Role/config.js';
+
+const fillTranslateInfo = (appId, roleDetail) => {
+  (roleDetail.sheets || []).forEach(sheet => {
+    sheet.sheetName = getTranslateInfo(appId, sheet.sheetId).name || sheet.sheetName;
+    (sheet.views || []).forEach(view => {
+      view.viewName = getTranslateInfo(appId, view.viewId).name || view.viewName;
+    });
+    (sheet.fields || []).forEach(field => {
+      field.fieldName = getTranslateInfo(appId, field.fieldId).name || field.fieldName;
+    });
+  });
+  (roleDetail.pages || []).forEach(page => {
+    page.name = getTranslateInfo(appId, page.pageId).name || page.name;
+  });
+};
 
 const Wrap = styled.div`
   flex: 1;
@@ -251,6 +267,7 @@ export default class RoleSet extends PureComponent {
     promise
       .then(
         roleDetail => {
+          fillTranslateInfo(appId, roleDetail);
           this.setState({
             roleDetail,
             roleDetailCache: roleDetail,

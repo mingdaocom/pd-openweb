@@ -23,7 +23,7 @@ export default function FilterData(props) {
   };
 
   useEffect(() => {
-    if (filterId) {
+    if (filterId && !filterConditions.length) {
       worksheetApi
         .getWorksheetFilterById({
           filterId,

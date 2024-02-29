@@ -53,7 +53,7 @@ export default class RecommendsList extends React.Component {
   }
 
   add(accountId) {
-    new addFriendConfirm({
+    addFriendConfirm({
       accountId,
     });
   }

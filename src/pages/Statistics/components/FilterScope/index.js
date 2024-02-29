@@ -15,6 +15,7 @@ import { permitList } from 'src/pages/FormSet/config.js';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actions from 'statistics/redux/actions';
+import { formatNumberFromInput } from 'src/util';
 import _ from 'lodash';
 import moment from 'moment';
 

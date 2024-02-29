@@ -1,9 +1,11 @@
 import _ from 'lodash';
 import config from '../config/config';
 import moment from 'moment';
+import Dialog from 'ming-ui/components/Dialog';
+import React from 'react';
 
 // 请求错误处理
-export const errorMessage = (error) => {
+export const errorMessage = error => {
   if (error) {
     alert(error.msg || error.ex, 2);
   } else {
@@ -13,7 +15,7 @@ export const errorMessage = (error) => {
 };
 
 // 获取storage
-export const getTaskStorage = (key) => {
+export const getTaskStorage = key => {
   const storage = window.localStorage.getItem(md.global.Account.accountId + key);
   if (storage) {
     try {
@@ -31,7 +33,7 @@ export const setTaskStorage = (key, data) => {
 };
 
 // 获取任务状态
-export const getTaskState = (taskFilter) => {
+export const getTaskState = taskFilter => {
   const storage = getTaskStorage('TaskCenterState');
   let taskFilterKey = 'MyTask';
   if (taskFilter === 8) {
@@ -78,9 +80,9 @@ export const setStateToStorage = (taskFilter, config) => {
 };
 
 // 验证当前用户是否在该网络
-export const checkIsProject = (projectId) => {
+export const checkIsProject = projectId => {
   let isExist = false;
-  $.map(md.global.Account.projects, (project) => {
+  $.map(md.global.Account.projects, project => {
     if (projectId === project.projectId) {
       isExist = true;
     }
@@ -244,7 +246,11 @@ export const formatTaskTime = (status, startTime, endTime, actualStartTime, comp
   }
 
   // 延期未开始
-  if (startTime && ((!actualStartTime && moment(currentTime) > moment(startTime)) || (actualStartTime && moment(actualStartTime) > moment(currentTime)))) {
+  if (
+    startTime &&
+    ((!actualStartTime && moment(currentTime) > moment(startTime)) ||
+      (actualStartTime && moment(actualStartTime) > moment(currentTime)))
+  ) {
     // 逾期未完成 优先级高
     if (endTime && moment(currentTime) > moment(endTime)) {
       diff = Math.ceil((moment(currentTime) - moment(endTime)) / 60 / 60 / 1000);
@@ -355,24 +361,23 @@ export const taskStatusDialog = (status, callback) => {
   if (status) {
     callback();
   } else {
-    $.DialogLayer({
-      container: {
-        header: _l('将任务设为未完成'),
-        content:
-          '<div style="color: #999;">' +
-          _l('您在修改一个已被标记为完成的任务，若将其设为未完成，则当前的“任务完成时间”数据将被删除。是否确认修改？') +
-          '</div>',
-        yesText: _l('设为未完成'),
-        yesFn() {
-          callback();
-        },
+    Dialog.confirm({
+      title: _l('将任务设为未完成'),
+      children: (
+        <div style={{ color: '#999' }}>
+          {_l('您在修改一个已被标记为完成的任务，若将其设为未完成，则当前的“任务完成时间”数据将被删除。是否确认修改？')}
+        </div>
+      ),
+      okText: _l('设为未完成'),
+      onOk: () => {
+        callback();
       },
     });
   }
 };
 
 // 返回自定义字段内容
-export const returnCustonValue = (item) => {
+export const returnCustonValue = item => {
   // 单选框
   if (item.type === 9) {
     if (item.value && item.value !== '0') {
@@ -389,7 +394,7 @@ export const returnCustonValue = (item) => {
       }
     }
 
-    item.value = _.map(item.options, (option) => {
+    item.value = _.map(item.options, option => {
       return key.indexOf(option.key) >= 0 ? option.value : '';
     });
     _.remove(item.value, option => option === '');

@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { CreateNode, NodeOperate } from '../components';
+import { CreateNode, NodeOperate, MembersName } from '../components';
 import { ACTION_ID, APP_TYPE } from '../../enum';
 import { getIcons } from '../../utils';
 import _ from 'lodash';
@@ -17,8 +17,13 @@ export default class Action extends Component {
     const { item } = this.props;
 
     if (
-      (!item.appId && !item.selectNodeId && item.appType !== APP_TYPE.PROCESS) ||
-      (_.includes([APP_TYPE.PROCESS, APP_TYPE.EXTERNAL_USER, APP_TYPE.GLOBAL_VARIABLE], item.appType) &&
+      (!item.appId &&
+        !item.selectNodeId &&
+        !_.includes([APP_TYPE.PROCESS, APP_TYPE.CALENDAR, APP_TYPE.SNAPSHOT], item.appType)) ||
+      (_.includes(
+        [APP_TYPE.PROCESS, APP_TYPE.EXTERNAL_USER, APP_TYPE.GLOBAL_VARIABLE, APP_TYPE.CALENDAR, APP_TYPE.SNAPSHOT],
+        item.appType,
+      ) &&
         !item.fields.length)
     ) {
       return <div className="pLeft8 pRight8 blue">{_l('设置此节点')}</div>;
@@ -223,14 +228,75 @@ export default class Action extends Component {
         </div>
       );
     }
+
+    // 创建日程
+    if (item.appType === APP_TYPE.CALENDAR) {
+      if (item.actionId === ACTION_ID.ADD) {
+        const hasFile = item.fields.find(o => o.fieldId === 'create_file').fieldValue === '1';
+        const createAccount = item.fields.find(o => o.fieldId === 'create_account_id');
+        const members = item.fields.find(o => o.fieldId === 'members');
+
+        return (
+          <Fragment>
+            <div className={cx('pLeft8 pRight8', { pTop5: hasFile })}>
+              <span className="Gray_75">{_l('成员')}：</span>
+              {this.getMemberName(createAccount)}
+              {_l('（发起人）')}
+              {members.fieldValue || members.fieldValueId ? '、' : ''}
+              {this.getMemberName(members)}
+            </div>
+            {hasFile && <div className="pLeft8 pRight8 Gray_75 mTop4 pBottom5">{_l('同时生成ICS文件')}</div>}
+          </Fragment>
+        );
+      }
+
+      return <div className="pLeft8 pRight8 Gray_75">{_l('仅生成ICS文件')}</div>;
+    }
+
+    // 获取屏幕快照
+    if (item.appType === APP_TYPE.SNAPSHOT) {
+      let { fieldValue } = _.find(item.fields, o => o.fieldId === 'url');
+      const arr = fieldValue.match(/\$[^ \r\n]+?\$/g);
+
+      if (arr) {
+        arr.forEach(obj => {
+          fieldValue = fieldValue.replace(
+            obj,
+            (
+              item.formulaMap[
+                obj
+                  .replace(/\$/g, '')
+                  .split(/([a-zA-Z0-9#]{24,32})-/)
+                  .filter(item => item)
+                  .join('-')
+              ] || {}
+            ).name || '',
+          );
+        });
+      }
+
+      return <div className="pLeft8 pRight8 Gray_75 ellipsis">{_l('获取：%0', fieldValue)}</div>;
+    }
+  }
+
+  getMemberName(item) {
+    if (item.fieldValue) {
+      return JSON.parse(item.fieldValue)
+        .map(o => o.fullName)
+        .join('、');
+    }
+
+    return item.fieldValueId ? `${item.nodeName}-${item.fieldValueName}` : '';
   }
 
   render() {
     const { processId, item, disabled, selectNodeId, openDetail, isSimple } = this.props;
-    const bgClassName = _.includes([APP_TYPE.PROCESS, APP_TYPE.GLOBAL_VARIABLE], item.appType)
+    const bgClassName = _.includes([APP_TYPE.PROCESS, APP_TYPE.GLOBAL_VARIABLE, APP_TYPE.SNAPSHOT], item.appType)
       ? 'BGBlueAsh'
       : item.appType === APP_TYPE.TASK
       ? 'BGGreen'
+      : item.appType === APP_TYPE.CALENDAR
+      ? 'BGRed'
       : 'BGYellow';
 
     return (
@@ -242,8 +308,18 @@ export default class Action extends Component {
               { workflowItemDisabled: disabled },
               {
                 errorShadow:
-                  (((item.appId || item.selectNodeId) && item.appType !== APP_TYPE.PROCESS) ||
-                    (_.includes([APP_TYPE.PROCESS, APP_TYPE.EXTERNAL_USER, APP_TYPE.GLOBAL_VARIABLE], item.appType) &&
+                  (((item.appId || item.selectNodeId) &&
+                    !_.includes([APP_TYPE.PROCESS, APP_TYPE.CALENDAR, APP_TYPE.SNAPSHOT], item.appType)) ||
+                    (_.includes(
+                      [
+                        APP_TYPE.PROCESS,
+                        APP_TYPE.EXTERNAL_USER,
+                        APP_TYPE.GLOBAL_VARIABLE,
+                        APP_TYPE.CALENDAR,
+                        APP_TYPE.SNAPSHOT,
+                      ],
+                      item.appType,
+                    ) &&
                       (item.fields || []).length)) &&
                   item.isException,
               },
@@ -255,8 +331,19 @@ export default class Action extends Component {
               <i
                 className={cx(
                   'workflowAvatar',
-                  (!item.appId && !item.selectNodeId && item.appType !== APP_TYPE.PROCESS) ||
-                    (_.includes([APP_TYPE.PROCESS, APP_TYPE.EXTERNAL_USER, APP_TYPE.GLOBAL_VARIABLE], item.appType) &&
+                  (!item.appId &&
+                    !item.selectNodeId &&
+                    !_.includes([APP_TYPE.PROCESS, APP_TYPE.CALENDAR, APP_TYPE.SNAPSHOT], item.appType)) ||
+                    (_.includes(
+                      [
+                        APP_TYPE.PROCESS,
+                        APP_TYPE.EXTERNAL_USER,
+                        APP_TYPE.GLOBAL_VARIABLE,
+                        APP_TYPE.CALENDAR,
+                        APP_TYPE.SNAPSHOT,
+                      ],
+                      item.appType,
+                    ) &&
                       !(item.fields || []).length)
                     ? 'BGGray'
                     : bgClassName,

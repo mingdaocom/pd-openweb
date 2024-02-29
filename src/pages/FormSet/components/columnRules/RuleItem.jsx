@@ -3,9 +3,16 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { Icon, Tooltip } from 'ming-ui';
 import Trigger from 'rc-trigger';
-import * as actions from '../../redux/actions/action';
-import * as columnRules from '../../redux/actions/columnRules';
-import { getNameWidth, getTextById, getActionLabelByType, filterData, isRelateMoreList } from './config';
+import * as actions from './redux/actions/columnRules';
+import * as columnRules from './redux/actions/columnRules';
+import {
+  getNameWidth,
+  getTextById,
+  getActionLabelByType,
+  filterData,
+  isRelateMoreList,
+  hasRuleChanged,
+} from './config';
 import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -89,6 +96,33 @@ class RuleItems extends React.Component {
     }
   }
 
+  renderActionItem = (actionItem, disabled, fromCheck) => {
+    const { worksheetControls } = this.props;
+    let leftText = _.includes([7], actionItem.type) ? '' : getActionLabelByType(actionItem.type);
+    if (fromCheck) {
+      leftText = _l('对字段');
+    }
+
+    let text = '';
+    if (_.includes([7], actionItem.type)) {
+      text = getActionLabelByType(actionItem.type);
+    } else if (actionItem.type === 6 && !fromCheck) {
+      text = actionItem.message;
+    } else {
+      const currentArr = getTextById(worksheetControls, actionItem.controls, actionItem.type) || [];
+      text = currentArr.map(cur => cur.name).join(', ');
+    }
+
+    if (fromCheck && leftText && !text) return null;
+
+    return (
+      <span className="ruleItemTextRow mTop10">
+        <span className={cx('leftLabel', { Gray_bd: disabled })}>{leftText}</span>
+        <span className={cx('rightLabel', { Gray_bd: disabled })}>{text}</span>
+      </span>
+    );
+  };
+
   render() {
     const {
       selectColumnRules,
@@ -98,13 +132,17 @@ class RuleItems extends React.Component {
       worksheetControls,
       selectRules = {},
       ruleData = {},
+      columnRulesListData,
     } = this.props;
     const { showDeleteBox, name } = this.state;
-    const { filters = [], ruleItems = [], ruleId, disabled } = ruleData;
+    const { filters = [], ruleItems = [], ruleId, disabled, type } = ruleData;
     return (
       <div
         className={cx('ruleItemCon', { active: selectRules.ruleId === ruleId, disabled: disabled })}
-        onClick={e => selectColumnRules(ruleData)}
+        onClick={e => {
+          if (hasRuleChanged(columnRulesListData, selectRules)) return;
+          selectColumnRules(ruleData);
+        }}
       >
         <div className="ruleNameInputBox" onClick={e => e.stopPropagation()}>
           <input
@@ -118,7 +156,7 @@ class RuleItems extends React.Component {
             }}
             onChange={e => this.setState({ name: e.target.value })}
             onBlur={e => {
-              updateRuleAttr('name', name || ruleData.name, ruleData);
+              updateRuleAttr('name', name || ruleData.name, ruleId);
             }}
           />
         </div>
@@ -130,22 +168,11 @@ class RuleItems extends React.Component {
           </span>
         </span>
         {ruleItems.map(actionItem => {
-          let text = '';
-          if (_.includes([7, 8], actionItem.type)) {
-            text = getActionLabelByType(actionItem.type);
-          } else if (actionItem.type === 6) {
-            text = actionItem.message;
-          } else {
-            const currentArr = getTextById(worksheetControls, actionItem.controls, actionItem.type) || [];
-            text = currentArr.map(cur => cur.name).join(', ');
-          }
           return (
-            <span className="ruleItemTextRow mTop10">
-              <span className={cx('leftLabel', { Gray_bd: disabled })}>
-                {_.includes([7, 8], actionItem.type) ? '' : getActionLabelByType(actionItem.type)}
-              </span>
-              <span className={cx('rightLabel', { Gray_bd: disabled })}>{text}</span>
-            </span>
+            <Fragment>
+              {type === 1 && actionItem.type === 6 ? this.renderActionItem(actionItem, disabled, true) : null}
+              {this.renderActionItem(actionItem, disabled)}
+            </Fragment>
           );
         })}
 
@@ -155,7 +182,7 @@ class RuleItems extends React.Component {
               className="Font24 Hand"
               icon={ruleData.disabled ? 'toggle_off' : 'toggle_on'}
               style={{ color: ruleData.disabled ? '#bdbdbd' : '#43bd36' }}
-              onClick={() => updateRuleAttr('disabled', !ruleData.disabled, ruleData)}
+              onClick={() => updateRuleAttr('disabled', !ruleData.disabled, ruleId)}
             />
           </Tooltip>
           <Tooltip popupPlacement="bottom" text={<span>{_l('复制')}</span>}>
@@ -202,6 +229,7 @@ class RuleItems extends React.Component {
 const mapStateToProps = state => ({
   worksheetControls: state.formSet.worksheetRuleControls,
   selectRules: state.formSet.selectRules,
+  columnRulesListData: state.formSet.columnRulesListData,
 });
 const mapDispatchToProps = dispatch => bindActionCreators({ ...actions, ...columnRules }, dispatch);
 

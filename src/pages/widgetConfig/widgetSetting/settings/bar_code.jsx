@@ -144,7 +144,7 @@ export default function BarCode({ data, onChange, allControls }) {
               onChange(handleAdvancedSettingChange(data, { width: value }));
             }}
           />
-          <span>{_l('px')}</span>
+          <span>px</span>
         </div>
       </SettingItem>
     </Fragment>

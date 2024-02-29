@@ -12,6 +12,7 @@ import { getAdvanceSetting } from 'src/util';
 import { getCalendarViewType, getTimeControls, getCalendartypeData } from 'src/pages/worksheet/views/CalendarView/util';
 import { isTimeStyle } from 'src/pages/worksheet/views/CalendarView/util';
 import _ from 'lodash';
+import { TimeDropdownChoose } from 'src/pages/worksheet/common/ViewConfig/style.jsx';
 
 const CalendarTypeChoose = styled.div`
   ul > li {
@@ -80,21 +81,7 @@ const ShowChoose = styled.div`
     }
   }
 `;
-const TimeDropdownChoose = styled.div`
-  margin-top: 6px;
-  .timeDropdown {
-    width: 100%;
-    .ant-select-selector {
-      border-radius: 3px;
-      line-height: 36px;
-      height: 36px !important;
-      span {
-        line-height: 36px;
-        height: 36px;
-      }
-    }
-  }
-`;
+
 export default function CalendarSet(props) {
   const { appId, view, updateCurrentView, worksheetControls } = props;
   const { advancedSetting = {}, worksheetId, viewId } = view;
@@ -217,7 +204,7 @@ export default function CalendarSet(props) {
             // .filter(o => unweekday.indexOf(o.value) < 0)
             .map((item, i) => {
               return (
-                <Select.Option value={item.value + ''} key={i} label={item.text}>
+                <Select.Option value={item.value + ''} key={i} label={item.text} className='select_drop'>
                   {item.text}
                 </Select.Option>
               );

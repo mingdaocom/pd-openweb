@@ -7,8 +7,9 @@ import moment from 'moment';
 import { renderToString } from 'react-dom/server';
 import _ from 'lodash';
 import './index.less';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile, getIconNameByExt } from 'src/util';
 import WorksheetRecordLogDialog from 'src/pages/worksheet/components/WorksheetRecordLog/WorksheetRecordLogDialog';
+import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 
 const UNNECESSARY_OPERATION_CODE = 22;
 const OVERRULE = 5;
@@ -71,6 +72,7 @@ export default class StepItem extends Component {
     isLast: bool,
     status: number,
     appId: string,
+    projectId: string,
     currents: array,
     onChangeCurrentWork: func,
   };
@@ -84,6 +86,7 @@ export default class StepItem extends Component {
     status: 0,
     currents: [],
     appId: '',
+    projectId: '',
     onChangeCurrentWork: () => {},
   };
 
@@ -276,7 +279,7 @@ export default class StepItem extends Component {
    * 渲染审批、填写的附加信息
    */
   renderAdditionalContent(item) {
-    const { operationTime, opinion, workItemLog, signature, logIds, updateTime } = item;
+    const { operationTime, opinion, workItemLog, signature, logIds, updateTime, files } = item;
     const { action, fields } = workItemLog;
 
     return (
@@ -308,6 +311,7 @@ export default class StepItem extends Component {
         )}
         {opinion && <div className="info Gray_9e">{opinion}</div>}
         {signature && <div className="infoSignature" style={{ backgroundImage: `url(${signature.server})` }} />}
+        {files && this.renderFiles(files)}
         {action !== UNNECESSARY_OPERATION_CODE && (
           <div className="timeAction flexRow Gray_9e">
             {operationTime && formatTime(operationTime)}
@@ -316,6 +320,58 @@ export default class StepItem extends Component {
         )}
       </Fragment>
     );
+  }
+
+  /**
+   * 渲染附件
+   */
+  renderFiles(files) {
+    return (
+      <Fragment>
+        <div className="mTop4">
+          {files
+            .filter(o => File.isPicture(o.ext))
+            .map((o, index) => {
+              return (
+                <div className="fileItemImg InlineBlock pointer" key={index} onClick={() => this.previewAttachments(o)}>
+                  <img src={o.previewUrl} />
+                </div>
+              );
+            })}
+        </div>
+        <div className="mTop4">
+          {files
+            .filter(o => !File.isPicture(o.ext))
+            .map((o, index) => {
+              return (
+                <div
+                  className="fileItemDoc ThemeHoverColor3 pointer"
+                  key={index}
+                  onClick={() => this.previewAttachments(o)}
+                >
+                  <span
+                    className={`fileIcon fileIcon-${getIconNameByExt(o.ext.replace('.', ''))}`}
+                    style={{ width: 20, height: 22 }}
+                  />
+                  <div className="flex ellipsis mLeft5">{o.originalFilename}</div>
+                  <div>{o.ext}</div>
+                </div>
+              );
+            })}
+        </div>
+      </Fragment>
+    );
+  }
+
+  /**
+   * 预览附件
+   */
+  previewAttachments(file) {
+    previewAttachments({
+      attachments: [Object.assign({}, file, { path: file.privateDownloadUrl })],
+      callFrom: 'player',
+      hideFunctions: ['share', 'saveToKnowlege'],
+    });
   }
 
   /**
@@ -471,7 +527,7 @@ export default class StepItem extends Component {
   }
 
   render() {
-    const { data, currentWork, currentType, isLast, status, currents, onChangeCurrentWork, appId } = this.props;
+    const { data, currentWork, currentType, isLast, status, currents, onChangeCurrentWork, appId, projectId } = this.props;
     const { showMore } = this.state;
     const {
       workId,
@@ -548,7 +604,7 @@ export default class StepItem extends Component {
                   className={cx('stepContent flexRow', { Border0: showMore && index === workItems.length - 1 })}
                 >
                   <div className="avatarBoxCon">
-                    <UserHead size={36} user={{ userHead: avatar, accountId }} appId={appId}/>
+                    <UserHead size={36} user={{ userHead: avatar, accountId }} appId={appId} projectId={projectId}/>
                   </div>
                   <div className="stepDetail flex flexColumn">{this.renderDetail(item)}</div>
                 </div>
@@ -570,7 +626,7 @@ export default class StepItem extends Component {
                     </div>
                     {debugEventDump[key].map(({ avatar, accountId, fullName }) => (
                       <div className="flexRow alignItemsCenter mTop8" key={accountId}>
-                        <UserHead size={24} user={{ userHead: avatar, accountId }} />
+                        <UserHead size={24} user={{ userHead: avatar, accountId }} projectId={projectId}/>
                         <span className="flex ellipsis mLeft12">{fullName}</span>
                       </div>
                     ))}

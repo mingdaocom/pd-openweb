@@ -3,7 +3,7 @@ import { Icon, LoadDiv, Dialog } from 'ming-ui';
 import structureController from 'src/api/structure';
 import projectSettingController from 'src/api/projectSetting';
 import roleController from 'src/api/role';
-import Relation from 'src/pages/Admin/reportRelation';
+import Relation from 'src/pages/Admin/user/reportRelation';
 import cx from 'classnames';
 import './index.less';
 import { navigateTo } from 'router/navigateTo';

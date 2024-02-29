@@ -329,7 +329,7 @@ export default function BaseSet(props) {
               <Checkbox
                 className="mTop16 InlineBlock mRight60 setCheckbox"
                 text={o.txt}
-                checked={!loginMode[o.key]}
+                checked={loginMode[o.key]}
                 onClick={checked => {
                   changeMode(!loginMode[o.key], o.key, 'loginMode', LOGIN_WAY, () => {
                     alert(_l('至少选择一种登录方式'), 3);

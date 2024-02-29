@@ -3,12 +3,8 @@ rewrite ^/favicon.png /staticfiles/favicon.png break;
 rewrite ^/(favicon.*) /staticfiles/$1 break;
 rewrite ^/robots.txt /staticfiles/robots.txt break;
 rewrite ^/staticfiles/(.*) /staticfiles/$1 break;
-rewrite ^/src/library/(.*) /staticfiles/library/$1 break;
 rewrite ^/src/common/mdcss/(.*) /staticfiles/mdcss/$1 break;
 rewrite ^/src/common/mdjs/(.*) /staticfiles/mdjs/$1 break;
-rewrite ^/images/(.*) /staticfiles/images/$1 break;
-rewrite ^/src/components/(.*) /staticfiles/components/$1 break;
-rewrite ^/src/pages/(.*) /staticfiles/components/$1 break;
 rewrite ^/districtDataConfigFile/(.*) /staticfiles/districtDataConfigFile/$1 break;
 
 # 纯静态页面
@@ -106,12 +102,11 @@ rewrite (?i)^/integration /index.html break;
 rewrite (?i)^/plugin /index.html break;
 rewrite (?i)^/integrationConnect /index.html break;
 rewrite (?i)^/integrationApi /index.html break;
-
+rewrite (?i)^/favorite /index.html break;
+rewrite (?i)^/dashboard /index.html break;
 
 # 命令行授权
 rewrite (?i)^/cliauth/success /cli-auth-success.html break;
 rewrite (?i)^/cliauth /cli-auth-confirm.html break;
 
-
 rewrite (?i)^/widgetview /widget-container.html break;
-

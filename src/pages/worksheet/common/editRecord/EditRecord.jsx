@@ -12,6 +12,7 @@ import { CONTROL_EDITABLE_WHITELIST } from 'worksheet/constants/enum';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
 import { SYS } from 'src/pages/widgetConfig/config/widget.js';
+import { replaceControlsTranslateInfo } from 'worksheet/util';
 import './EditRecord.less';
 import _ from 'lodash';
 import { BrowserRouter } from 'react-router-dom';
@@ -56,8 +57,8 @@ export default class EditRecord extends Component {
       getTemplate: true,
     };
     sheetAjax.getWorksheetInfo(args).then(data => {
-      const formData = data.template.controls;
-      const controlsForSelect = data.template.controls.filter(
+      const formData = replaceControlsTranslateInfo(data.appId, data.template.controls);
+      const controlsForSelect = formData.filter(
         control =>
           ((control.type < 10000 &&
             _.includes(CONTROL_EDITABLE_WHITELIST, control.type) &&

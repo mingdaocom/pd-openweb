@@ -45,12 +45,14 @@ export default class Link extends Component {
   /**
    * 获取节点详情
    */
-  getNodeDetail(props) {
+  getNodeDetail(props, sId) {
     const { processId, selectNodeId, selectNodeType } = props;
 
-    flowNode.getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType }).then(result => {
-      this.setState({ data: result });
-    });
+    flowNode
+      .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, selectNodeId: sId })
+      .then(result => {
+        this.setState({ data: result });
+      });
   }
 
   /**
@@ -77,6 +79,7 @@ export default class Link extends Component {
       submitButtonName,
       submitType,
       modifyTime,
+      addNotAllowView,
     } = data;
     const newPassword = password.trim();
 
@@ -121,6 +124,7 @@ export default class Link extends Component {
         submitButtonName: submitButtonName.trim() || _l('提交'),
         submitType,
         modifyTime,
+        addNotAllowView,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -152,7 +156,7 @@ export default class Link extends Component {
           appList={data.appList}
           selectNodeId={data.selectNodeId}
           selectNodeObj={data.selectNodeObj}
-          onChange={this.onChange}
+          onChange={selectNodeId => this.getNodeDetail(this.props, selectNodeId)}
         />
 
         <div className="mTop20 bold">{_l('获取方式')}</div>
@@ -344,6 +348,7 @@ export default class Link extends Component {
               selectNodeId={data.selectNodeId}
               selectNodeType={selectNodeType}
               data={data.formProperties}
+              addNotAllowView={data.addNotAllowView}
               hideTypes={data.linkType === 1 ? [2, 3] : []}
               readonlyControlTypes={[21, 26, 27, 48]}
               updateSource={this.updateSource}
@@ -365,16 +370,6 @@ export default class Link extends Component {
       </Fragment>
     );
   }
-
-  /**
-   * 下拉框更改
-   */
-  onChange = selectNodeId => {
-    const { data } = this.state;
-    const selectNodeObj = _.find(data.appList, item => item.nodeId === selectNodeId);
-
-    this.updateSource({ selectNodeId, selectNodeObj });
-  };
 
   /**
    * 切换链接方式

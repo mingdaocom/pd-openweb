@@ -281,7 +281,7 @@ export default class RecordCardListDialog extends Component {
           'rowid',
         );
         const needSort =
-          (keyWords && pageIndex === 1, _.get(control, 'advancedSetting.searchcontrol') && searchControl);
+          keyWords && pageIndex === 1 && _.get(control, 'advancedSetting.searchcontrol') && searchControl;
         if (needSort && _.get(control, 'advancedSetting.searchtype') !== '1') {
           filteredList = filteredList.sort((a, b) => (b[searchControl.controlId] === keyWords ? 1 : -1));
         }
@@ -583,7 +583,11 @@ export default class RecordCardListDialog extends Component {
                             </p>
                           ) : (
                             <p className="emptyTip">
-                              {keyWords ? _l('无匹配的结果') : _l('暂无%0', worksheet.entityName || _l('记录'))}
+                              {keyWords
+                                ? _l('无匹配的结果')
+                                : worksheet.entityName
+                                ? _l('暂无%0', worksheet.entityName)
+                                : _l('暂无记录')}
                             </p>
                           )}
                         </div>

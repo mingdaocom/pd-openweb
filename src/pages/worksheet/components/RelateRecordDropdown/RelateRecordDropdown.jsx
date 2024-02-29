@@ -663,7 +663,14 @@ export default class RelateRecordDropdown extends React.Component {
     const popup = this.renderPopup({ disabledManualWrite });
     const popupVisible = insheet ? isediting : listvisible;
     return (
-      <div className={cx('RelateRecordDropdown', className)}>
+      <div
+        className={cx('RelateRecordDropdown', className)}
+        onClick={e => {
+          if (isediting) {
+            e.stopPropagation();
+          }
+        }}
+      >
         <Trigger
           action={insheet ? [] : ['click']}
           popupVisible={popupVisible}

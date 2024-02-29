@@ -23,15 +23,6 @@ export function clearZombie() {
   // tooltip
   $('.md_tooltip').remove();
 
-  // mdDialog
-  [...document.querySelectorAll('.mdDialog')].forEach(dialog => {
-    const dialogId = dialog.getAttribute('id').replace('_container', '');
-    $(document).off('keyup.' + dialogId);
-    ReactDOM.unmountComponentAtNode(dialog);
-    $(`#${dialogId}_mask`).remove();
-    $(`#${dialogId}_container`).remove();
-  });
-
   // 处理切换页面时残留 businessCard
   $('.businessCardSite').remove();
 }

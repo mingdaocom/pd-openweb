@@ -1,9 +1,10 @@
 import './css/editFolder.less';
 import doT from 'dot';
 import editFolderTpl from './tpl/editFolder.html';
-import 'src/components/mdDialog/dialog';
 import 'src/components/selectGroup/selectAllGroup';
 import ajaxRequest from 'src/api/taskCenter';
+import { Dialog, Button } from 'ming-ui';
+import React from 'react';
 
 const EditFolder = function (opts) {
   const defaults = {
@@ -25,26 +26,32 @@ $.extend(EditFolder.prototype, {
     const settings = this.settings;
     // 数据
     const editFolderHtml = doT.template(editFolderTpl)(settings);
-
-    // 弹出层参数
-    const dialogOpts = {
-      dialogBoxID: 'editFolder',
-      container: {
-        header: settings.projectName === _l('个人') ? _l('编辑项目') : _l('在组织 “%0” 下编辑项目', settings.projectName),
-        yesText: _l('保存'),
-        content: editFolderHtml,
-        yesFn() {
-          return _this.edit();
-        },
-      },
-      width: 570,
-      isSameClose: false,
-      readyFn() {
-        _this.initEvent();
-      },
-    };
     // 创建弹出层
-    settings.dialog = $.DialogLayer(dialogOpts);
+    Dialog.confirm({
+      dialogClasses: 'editFolder',
+      title: settings.projectName === _l('个人') ? _l('编辑项目') : _l('在组织 “%0” 下编辑项目', settings.projectName),
+      okText: _l('保存'),
+      children: <div dangerouslySetInnerHTML={{ __html: editFolderHtml }}></div>,
+      footer: (
+        <div className="Dialog-footer-btns">
+          <Button type="link" onClick={() => $('.editFolder').parent().remove()}>
+            {_l('取消')}
+          </Button>
+          <Button
+            type="primary"
+            onClick={() => {
+              let sign = _this.edit();
+              if (sign === false) return;
+              $('.editFolder').parent().remove();
+            }}
+          >
+            {_l('保存')}
+          </Button>
+        </div>
+      ),
+      width: 570,
+    });
+    _this.initEvent();
   },
 
   // 事件初始件
@@ -75,16 +82,12 @@ $.extend(EditFolder.prototype, {
 
     // 公开项目
     if (settings.visibility !== 0) {
-      $('#publicFolder')
-        .find(':radio')
-        .prop('checked', true);
+      $('#publicFolder').find(':radio').prop('checked', true);
     }
 
     // radio切换
-    $('#editFolder .folderAuth').on('click', function () {
-      $(this)
-        .find(':radio')
-        .prop('checked', true);
+    $('.editFolder .folderAuth').on('click', function () {
+      $(this).find(':radio').prop('checked', true);
     });
   },
 
@@ -98,7 +101,10 @@ $.extend(EditFolder.prototype, {
     if ($('#privateFolder :radio').prop('checked')) {
       // 私密项目
       visibility = 0;
-    } else if (!scope || (scope.shareGroupIds.length === 0 && scope.shareProjectIds.indexOf(settings.projectId) === -1)) {
+    } else if (
+      !scope ||
+      (scope.shareGroupIds.length === 0 && scope.shareProjectIds.indexOf(settings.projectId) === -1)
+    ) {
       // 公开项目未选群组
       alert(_l('请选择公开的范围'), 3);
       return false;
@@ -142,8 +148,6 @@ $.extend(EditFolder.prototype, {
         });
     }
 
-    settings.dialog.disable(_l('数据修改中...'));
-
     // 编辑项目
     ajaxRequest
       .updateFolderVisibility({
@@ -152,7 +156,7 @@ $.extend(EditFolder.prototype, {
         visibility: folderObj.visibility,
         groupID: folderObj.groupIds,
       })
-      .then((source) => {
+      .then(source => {
         if (source.status) {
           if ($.isFunction(settings.callback)) {
             settings.callback(folderObj);
@@ -166,4 +170,4 @@ $.extend(EditFolder.prototype, {
 
 export default function (opts) {
   return new EditFolder(opts);
-};
+}

@@ -350,6 +350,7 @@ export default function SubmitConfig(params) {
                           userHead: _.get(o.author, 'avatar'),
                           accountId: _.get(o.author, 'accountId'),
                         }}
+                        projectId={projectId}
                       />
                       <AcitonCon
                         {...o}

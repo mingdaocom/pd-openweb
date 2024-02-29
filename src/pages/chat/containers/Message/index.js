@@ -189,6 +189,7 @@ class Message extends Component {
                   }}
                   className="Message-from-avatar"
                   src={fromAccount.logo}
+                  draggable={false}
                 />
               </UserCard>
             </div>

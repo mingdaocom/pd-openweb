@@ -2,7 +2,19 @@ import React, { Component, Fragment } from 'react';
 import './index.less';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import processVersion from '../api/processVersion';
-import { Icon, Dropdown, ScrollView, LoadDiv, Support, Button, Tooltip, Menu, MenuItem, WaterMark } from 'ming-ui';
+import {
+  Icon,
+  Dropdown,
+  ScrollView,
+  LoadDiv,
+  Support,
+  Button,
+  Tooltip,
+  Menu,
+  MenuItem,
+  WaterMark,
+  UpgradeIcon,
+} from 'ming-ui';
 import qs from 'query-string';
 import { Link } from 'react-router-dom';
 import { navigateTo } from 'router/navigateTo';
@@ -24,7 +36,7 @@ import processAjax from 'src/pages/workflow/api/process';
 import appManagementAjax from 'src/api/appManagement';
 import _ from 'lodash';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
-import { getFeatureStatus, buriedUpgradeVersionDialog, setFavicon } from 'src/util';
+import { getFeatureStatus, buriedUpgradeVersionDialog, setFavicon, getTranslateInfo } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
 import TrashDialog from 'src/pages/workflow/WorkflowList/components/Trash';
 import { Base64 } from 'js-base64';
@@ -59,9 +71,6 @@ const HeaderWrap = styled.div`
     color: #757575;
     .trashIcon {
       color: #9e9e9e;
-    }
-    .freeIcon {
-      color: #f1b73f;
     }
     &:hover {
       color: #2196f3;
@@ -250,6 +259,10 @@ class AppWorkflowList extends Component {
     this.ajaxRequest.then(result => {
       this.ajaxRequest = null;
 
+      result.forEach(list => {
+        list.groupName = getTranslateInfo(this.props.match.params.appId, list.groupId).name || list.groupName;
+      });
+
       // webhook触发
       if (type === FLOW_TYPE.OTHER) {
         result.forEach(list => {
@@ -341,7 +354,7 @@ class AppWorkflowList extends Component {
           >
             <Icon icon="knowledge-recycle" className="trashIcon Hand Font18" />
             <div className="recycle InlineBlock Hand mLeft5">{_l('回收站')}</div>
-            {isFree && <Icon icon="auto_awesome" className="freeIcon mLeft8" />}
+            {isFree && <UpgradeIcon />}
           </div>
         )}
         <CreateBtn>
@@ -579,7 +592,7 @@ class AppWorkflowList extends Component {
    * 渲染列表项
    */
   renderListItem(item) {
-    const { type, selectFlowId } = this.state;
+    const { type, selectFlowId, appDetail } = this.state;
     const ICON = {
       timer: 'icon-hr_surplus',
       User: 'icon-hr_structure',
@@ -626,6 +639,7 @@ class AppWorkflowList extends Component {
             <div className="w270 pRight20">{this.column3Content(data)}</div>
             <div className="w120 Gray_75 flexRow">
               <UserHead
+                projectId={appDetail.projectId}
                 size={28}
                 user={{ userHead: data.ownerAccount.avatar, accountId: data.ownerAccount.accountId }}
               />
@@ -1040,6 +1054,7 @@ class AppWorkflowList extends Component {
 
         {showTrash && (
           <TrashDialog
+            projectId={appDetail.projectId}
             appId={appId}
             onCancel={() => {
               this.setState({

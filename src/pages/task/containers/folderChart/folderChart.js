@@ -8,7 +8,6 @@ import doT from 'dot';
 import filterXss from 'xss';
 import { listLoadingContent } from '../../utils/taskComm';
 import config from '../../config/config';
-import 'src/components/mdDialog/dialog';
 import folderChart from './tpl/folderChart.html';
 import folderChartMaxView from './tpl/folderChartMaxView.html';
 import chargeList from './tpl/chargeList.html';
@@ -16,6 +15,7 @@ import customDom from './tpl/customDom.html';
 import DateFilter from 'src/components/DateFilter';
 import _ from 'lodash';
 import moment from 'moment';
+import Dialog from 'ming-ui/components/Dialog';
 
 const folderChartSettings = {
   type: 1,
@@ -152,9 +152,9 @@ class FolderChart extends Component {
     // 日期切换
     $('body').on('click.folderChart', '.folderChartTime li:not(.activeClass):not([data-type=custom])', function () {
       const date = $(this).data('type');
-      const isDialog = $(this).closest('#folderChartMaxView').length;
+      const isDialog = $(this).closest('.folderChartMaxView').length;
       const $el = isDialog
-        ? $('#folderChartMaxView .folderChartTime li[data-type=custom]')
+        ? $('.folderChartMaxView .folderChartTime li[data-type=custom]')
         : $('.folderChartNavBox .folderChartTime li[data-type=custom]');
 
       $(this).addClass('activeClass ThemeBorderColor3 ThemeBGColor3').siblings('li').removeClass();
@@ -174,7 +174,7 @@ class FolderChart extends Component {
     // sort 排序修改
     $('body').on('click.folderChart', '.folderChartChargeSort', function () {
       $(this).toggleClass('icon-descending-order icon-ascending-order');
-      const isDialog = $(this).closest('#folderChartMaxView').length;
+      const isDialog = $(this).closest('.folderChartMaxView').length;
       // 刷新图表
       that.updateSortRefreshChart(isDialog);
     });
@@ -231,7 +231,7 @@ class FolderChart extends Component {
       const $folderChartChargeList = $(this).closest('.folderChartChargeList');
       let isAuto = false;
       const chargeAccountIDs = [];
-      const isDialog = $(this).closest('#folderChartMaxView').length;
+      const isDialog = $(this).closest('.folderChartMaxView').length;
       if (!$folderChartChargeList.find('.folderChartSelect.ThemeBGColor3').length) {
         alert(_l('请选择负责人!'), 3);
         return false;
@@ -250,7 +250,7 @@ class FolderChart extends Component {
       // 处理title文本
       const txt = isAuto ? _l('所有负责人') : _l('已选择%0人', chargeAccountIDs.length);
       if (isDialog) {
-        $('#folderChartMaxView .folderChartChargeTxt').html(txt);
+        $('.folderChartMaxView .folderChartChargeTxt').html(txt);
       } else {
         $('.folderChartNavBox .folderChartChargeTxt').html(txt);
       }
@@ -390,8 +390,8 @@ class FolderChart extends Component {
       .then(source => {
         if (source.data) {
           const list = doT.template(chargeList)(source.data);
-          if ($('#folderChartMaxView').length) {
-            $('#folderChartMaxView .folderChartChargeBox').append(list);
+          if ($('.folderChartMaxView').length) {
+            $('.folderChartMaxView .folderChartChargeBox').append(list);
           } else {
             $('.folderChartNavBox .folderChartChargeBox').append(list);
           }
@@ -455,47 +455,39 @@ class FolderChart extends Component {
    */
   folderChartMaxView(data) {
     const content = doT.template(folderChartMaxView)(data);
-    // 弹出层参数
-    const dialogOpts = {
-      dialogBoxID: 'folderChartMaxView',
-      container: {
-        header: '',
-        yesText: null,
-        noText: null,
-        content,
-      },
-      callback: () => {
-        unmountComponentAtNode(document.querySelector('#maxViewUpdateTime'));
-      },
+    // 弹出层
+    Dialog.confirm({
+      dialogClasses: 'folderChartMaxView',
+      noFooter: true,
       width: 860,
-      readyFn: () => {
-        // 自定义字段
-        if (folderChartSettings.type === 4) {
-          const type = $('.folderChartModel[data-id=' + folderChartSettings.chartView + ']').data('type');
-          const source = _.find(
-            folderChartSettings.data,
-            ({ controlId }) => controlId === folderChartSettings.chartView,
-          );
+      children: <div dangerouslySetInnerHTML={{ __html: content }}></div>,
+      handleClose: () => {
+        unmountComponentAtNode(document.querySelector('#maxViewUpdateTime'));
+        $('.folderChartMaxView').parent().remove();
+      }
+    })
+    if (folderChartSettings.type === 4) {
+      const type = $('.folderChartModel[data-id=' + folderChartSettings.chartView + ']').data('type');
+      const source = _.find(
+        folderChartSettings.data,
+        ({ controlId }) => controlId === folderChartSettings.chartView,
+      );
 
-          if (type === 9 || type === 10 || type === 11) {
-            $('#maxViewUpdateTime').addClass('Hidden');
-            // 渲染饼图
-            this.folderChartsPie('folderChartsMax', source);
-          } else {
-            $('#maxViewUpdateTime').removeClass('Hidden');
-            // 渲染柱状图
-            this.folderChartsBar('folderChartsMax', source);
-          }
-        } else {
-          const date = Math.floor((folderChartSettings.endDate - folderChartSettings.startDate) / 24 / 3600 / 1000);
-          this.renderMaxCustomTime();
-          // 渲染图表
-          this['folderCharts' + folderChartSettings.chartView]('folderChartsMax');
-        }
-      },
-    };
-
-    $.DialogLayer(dialogOpts);
+      if (type === 9 || type === 10 || type === 11) {
+        $('#maxViewUpdateTime').addClass('Hidden');
+        // 渲染饼图
+        this.folderChartsPie('folderChartsMax', source);
+      } else {
+        $('#maxViewUpdateTime').removeClass('Hidden');
+        // 渲染柱状图
+        this.folderChartsBar('folderChartsMax', source);
+      }
+    } else {
+      const date = Math.floor((folderChartSettings.endDate - folderChartSettings.startDate) / 24 / 3600 / 1000);
+      this.renderMaxCustomTime();
+      // 渲染图表
+      this['folderCharts' + folderChartSettings.chartView]('folderChartsMax');
+    }
   }
 
   folderCharts1(id = 'folderCharts1', source = folderChartSettings.data) {
@@ -1152,7 +1144,7 @@ class FolderChart extends Component {
    * 数据呈现个数处理
    */
   dataDisposeFun(source, sourceLength = 5) {
-    if (source.length <= sourceLength || $('#folderChartMaxView').length) {
+    if (source.length <= sourceLength || $('.folderChartMaxView').length) {
       return source;
     }
     return source.slice(source.length - sourceLength);
@@ -1174,7 +1166,7 @@ class FolderChart extends Component {
         return a[columnName] > b[columnName] ? -1 : 1;
       });
     };
-    if ($('#folderChartMaxView').length) {
+    if ($('.folderChartMaxView').length) {
       if (folderChartSettings.maxSort === 'desc') {
         return dataDescFun();
       } else if (folderChartSettings.maxSort === 'asc') {
@@ -1193,16 +1185,16 @@ class FolderChart extends Component {
    * 处理负责人选中未选中
    */
   updateChargeSelect() {
-    const isDialog = $('#folderChartMaxView').length;
+    const isDialog = $('.folderChartMaxView').length;
     let ids;
     if (isDialog) {
-      $('#folderChartMaxView .folderChartSelect').toggleClass(
+      $('.folderChartMaxView .folderChartSelect').toggleClass(
         'ThemeBorderColor3 ThemeBGColor3',
         folderChartSettings.isAutoMax,
       );
       if (!folderChartSettings.isAutoMax) {
         for (ids of folderChartSettings.chargeAccountIDsMax) {
-          $('#folderChartMaxView .folderChartSelect[data-id=' + ids + ']').addClass('ThemeBorderColor3 ThemeBGColor3');
+          $('.folderChartMaxView .folderChartSelect[data-id=' + ids + ']').addClass('ThemeBorderColor3 ThemeBGColor3');
         }
       }
     } else {

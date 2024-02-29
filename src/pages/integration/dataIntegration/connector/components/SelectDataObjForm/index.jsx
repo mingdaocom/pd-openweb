@@ -5,6 +5,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import datasourceApi from '../../../../api/datasource';
 import SelectTables from '../../../components/SelectTables';
+import { DATABASE_TYPE } from '../../../constant';
 
 const Wrapper = styled.div`
   .selectItem {
@@ -90,7 +91,13 @@ export default function SelectDataObjForm(props) {
   };
 
   const onChangeTable = data => {
-    if (data.length > selectedTables.length) {
+    const supportTypes = [DATABASE_TYPE.MYSQL, DATABASE_TYPE.ALIYUN_MYSQL, DATABASE_TYPE.TENCENT_MYSQL];
+    const sqlServerTypes = [DATABASE_TYPE.SQL_SERVER, DATABASE_TYPE.ALIYUN_SQLSERVER, DATABASE_TYPE.TENCENT_SQLSERVER];
+
+    if (_.includes(supportTypes, source.type) || data.length <= selectedTables.length) {
+      setSelectedTables(data);
+      setDataObj({ tables: data });
+    } else {
       const addTable = _.differenceBy(data, selectedTables, 'value')[0];
       const params = {
         projectId: props.currentProjectId,
@@ -102,19 +109,20 @@ export default function SelectDataObjForm(props) {
       datasourceApi.getTableFields(params).then(res => {
         if (res) {
           const arr = res.filter(item => item.isPk);
-          if (arr.length === 1) {
-            setSelectedTables([...selectedTables, addTable]);
-            setDataObj({ tables: [...selectedTables, addTable] });
-          } else if (arr.length > 1) {
-            alert(_l('该表有多个主键，暂时不支持同步'), 2);
-          } else {
-            alert(_l('该表没有主键，无法同步'), 2);
+          switch (true) {
+            case arr.length === 1 || (_.includes(sqlServerTypes, source.type) && arr.length > 1):
+              setSelectedTables([...selectedTables, addTable]);
+              setDataObj({ tables: [...selectedTables, addTable] });
+              break;
+            case arr.length > 1:
+              alert(_l('该表有多个主键，暂时不支持同步'), 2);
+              break;
+            default:
+              alert(_l('该表没有主键，无法同步'), 2);
+              break;
           }
         }
       });
-    } else {
-      setSelectedTables(data);
-      setDataObj({ tables: data });
     }
   };
 
@@ -133,7 +141,7 @@ export default function SelectDataObjForm(props) {
       />
       {hasSchema && (
         <React.Fragment>
-          <p className="mTop24 mBottom8">{_l('Schema')}</p>
+          <p className="mTop24 mBottom8">schema</p>
           <Select
             className={cx('selectItem', { disabled: !dataObj.db })}
             disabled={!dataObj.db}

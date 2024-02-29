@@ -1,11 +1,9 @@
 import React, { useState, useEffect, createRef } from 'react';
 import { RichText, Icon } from 'ming-ui';
 import { DynamicValueInputWrap } from '../styled';
-import { EditInfo } from 'src/pages/widgetConfig/styled';
-import RcDialog from 'rc-dialog';
-import 'rc-dialog/assets/index.css';
 import EditIntro from 'src/pages/PageHeader/AppPkgHeader/AppDetail/EditIntro';
 import { OtherFieldList, SelectOtherField, DynamicInput } from '../components';
+import { Modal } from 'antd';
 
 export default function (props) {
   const { onDynamicValueChange, dynamicValue = [], data = {}, defaultType } = props;
@@ -55,18 +53,18 @@ export default function (props) {
       )}
       <SelectOtherField {...props} onDynamicValueChange={setDynamicValue} ref={$wrap} />
 
-      <RcDialog
+      <Modal
         className="appIntroDialog"
         wrapClassName="appIntroDialogWrapCenter"
+        footer={null}
         visible={visible}
-        onClose={() => {
+        onCancel={() => {
           setVisible(false);
         }}
-        animation="zoom"
-        style={{ width: '800px' }}
+        centered={true}
+        width={800}
         maskStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }}
         bodyStyle={{ minHeight: '480px', padding: 0 }}
-        maskAnimation="fade"
         closeIcon={<Icon icon="close" />}
       >
         <EditIntro
@@ -83,7 +81,7 @@ export default function (props) {
           }}
           title={_l('内容')}
         />
-      </RcDialog>
+      </Modal>
     </DynamicValueInputWrap>
   );
 }

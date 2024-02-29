@@ -61,7 +61,7 @@ class FindPassword extends React.Component {
         verifyCode: verifyCode,
         ticket: res.ticket,
         randStr: res.randstr,
-        captchaType: md.staticglobal.getCaptchaType(),
+        captchaType: md.global.getCaptchaType(),
       }).then(data => {
         window.localStorage.removeItem('LoginCheckList'); // accountId 和 encryptPassword 清理掉
         if (data) {
@@ -139,7 +139,7 @@ class FindPassword extends React.Component {
       });
     };
     const captchaFuc = () => {
-      if (md.staticglobal.getCaptchaType() === 1) {
+      if (md.global.getCaptchaType() === 1) {
         new captcha(cb, onCancel);
       } else {
         new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), cb).show();

@@ -107,7 +107,7 @@ function Header(props, ref) {
                 title: <span style={{ color: '#f44336' }}>{_l('是否清空回收站')}</span>,
                 buttonType: 'danger',
                 anim: false,
-                description: _l('记录删除后无法恢复，请确认您和工作表成员都不再需要这些记录再行删除。'),
+                description: _l('清空后，记录无法恢复，请谨慎操作！'),
                 onOk: onClear,
               });
             }}

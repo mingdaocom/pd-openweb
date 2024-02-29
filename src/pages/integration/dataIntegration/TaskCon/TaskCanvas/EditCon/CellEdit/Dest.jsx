@@ -1,6 +1,6 @@
 import React, { useEffect, createRef } from 'react';
 import { useSetState } from 'react-use';
-import { Input } from 'ming-ui';
+import { Input, Checkbox, Tooltip } from 'ming-ui';
 import FieldMappingList from 'src/pages/integration/dataIntegration/components/FieldsMappingList';
 import { DATABASE_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
 import { mdUniquePkData } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config.js';
@@ -39,7 +39,7 @@ export default function DestEdit(props) {
   }, [props]);
 
   const formatData = () => {
-    const hsMorePkData = hsMorePkControl(preNode);
+    const hsMorePkData = hsMorePkControl(preNode, list);
     let fields = (_.get(preNode, 'nodeConfig.fields') || []).filter(o => o.isCheck);
     fields = hsMorePkData ? [mdUniquePkData, ...fields] : fields;
     let mapData = getMapData();
@@ -52,7 +52,7 @@ export default function DestEdit(props) {
     const { list } = props;
     const { node = {}, isSetDefaultMap } = props.state;
     const preNode = list.filter(o => o.pathIds.length > 0 && o.pathIds[0].toDt.nodeId === node.nodeId)[0];
-    const hsMorePkData = hsMorePkControl(preNode);
+    const hsMorePkData = hsMorePkControl(preNode, list);
     let fieldsMapping = _.get(node, ['nodeConfig', 'config', 'fieldsMapping']) || [];
     if (hsMorePkData && !fieldsMapping.find(o => !!o.sourceField.isUniquePk)) {
       //上一节点存在多主键，且映射不存在生成 mdUniquePkData 则补充映射
@@ -140,7 +140,9 @@ export default function DestEdit(props) {
           dsType: _.get(node, ['nodeConfig', 'config', 'dsType']),
           isOurCreateTable: _.get(node, ['nodeConfig', 'config', 'isOurCreateTable']),
         }}
-        fieldsMapping={mapData}
+        fieldsMapping={mapData.map(o => {
+          return { ...o, sourceField: { ...o.sourceField, name: o.sourceField.alias } };
+        })}
         setFieldsMapping={mapping => {
           const data = mapping
             .map(o => {

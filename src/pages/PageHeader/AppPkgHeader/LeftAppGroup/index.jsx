@@ -24,6 +24,7 @@ import SinglelLeftGroup from './SinglelLeftGroup';
 import { formatLeftSectionDetail } from 'worksheet/redux/actions/sheetList';
 import { getIds } from '../../util';
 import { findSheet } from 'worksheet/util';
+import { getTranslateInfo } from 'src/util';
 import _ from 'lodash';
 import tinycolor from '@ctrl/tinycolor';
 import styled from 'styled-components';
@@ -247,7 +248,7 @@ const AppSectionItem = props => {
                   }}
                 />
               ) : (
-                item.workSheetName || _l('未命名分组')
+                getTranslateInfo(ids.appId, item.workSheetId).name || item.workSheetName || _l('未命名分组')
               )}
             </div>
             {!edit && (
@@ -453,7 +454,7 @@ const LeftAppGroup = props => {
           </Fragment>
         )}
       </div>
-      {appPkg.canDebug && (
+      {(appPkg.debugRole || {}).canDebug && (
         <div className="mBottom2 pLeft12 pRight12 w100">
           <RoleSelectWrap
             className={cx('pLeft16 pRight12 valignWrapper roleSelectCon Hand', { active: roleDebugVisible })}

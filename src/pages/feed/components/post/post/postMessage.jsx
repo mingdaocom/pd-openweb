@@ -1,6 +1,6 @@
 ﻿import React from 'react';
 import ReactDom from 'react-dom';
-import { createLinksForMessage } from 'src/components/common/function';
+import { createLinksForMessage } from 'src/util';
 import PropTypes from 'prop-types';
 import qs from 'query-string';
 import CreateGroup from 'src/components/group/create/creatGroup';

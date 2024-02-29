@@ -10,22 +10,14 @@ import PropTypes from 'prop-types';
 import qs from 'query-string';
 import { navigateTo } from 'src/router/navigateTo';
 import MDLeftNav from 'src/pages/feed/components/common/mdLeftNav';
-import List from 'ming-ui/components/List';
-import Item from 'ming-ui/components/Item';
-import Menu from 'ming-ui/components/Menu';
-import MenuItem from 'ming-ui/components/MenuItem';
-import Input from 'ming-ui/components/Input';
-import Icon from 'ming-ui/components/Icon';
-import Splitter from 'ming-ui/components/Splitter';
-import ScrollView from 'ming-ui/components/ScrollView';
-import { index as dialog } from 'src/components/mdDialog/dialog';
+import { List, Item, Menu, MenuItem, Input, Icon, Splitter, ScrollView, Dialog } from 'ming-ui';
 import service from '../../api/service';
 import * as kcActions from '../../redux/actions/kcAction';
 import { ROOT_FILTER_TYPE, ROOT_PERMISSION_TYPE, PICK_TYPE } from '../../constant/enum';
 import { getRootByPath, shallowEqual, humanFileSize } from '../../utils';
 import { getRootLog } from './rootLog';
 import { addNewRoot, editRoot, removeRoot } from './rootHandler';
-
+import { Tooltip } from 'ming-ui';
 import './KcLeft.less';
 
 class KcLeft extends Component {
@@ -374,32 +366,38 @@ class KcLeft extends Component {
   /* 流量详情*/
   @autobind
   usageDialog(usage) {
-    let usageContent = '';
     const percent = (usage.used / usage.total) * 100;
 
-    usageContent +=
-      '<div class="usageList Relative">' +
-      _l('本月上传流量已用') +
-      '<span data-tip="' +
-      _l('在各模块上传文件时，会计入每月上传量。免费用户上传流量为300M/月，付费版用户10G/月，多个组织可叠加。') +
-      '"><i class="icon-help ThemeColor4" ></i></span><span class="usageSize">' +
-      humanFileSize(usage.used) +
-      ' (' +
-      (percent > 100 ? 100 : percent).toFixed(2) +
-      '%)/' +
-      humanFileSize(usage.total) +
-      '</span></div>';
-
-    dialog({
-      dialogBoxID: 'usageDialog',
-      className: 'kcDialogBox',
+    Dialog.confirm({
       width: 410,
-      container: {
-        header: _l('使用详情'),
-        content: usageContent,
-        noText: '',
-        yesText: '',
-      },
+      className: 'kcDialogBox',
+      title: _l('使用详情'),
+      children: (
+        <div class="usageList">
+          <span>
+            {_l('本月上传流量已用')}
+            <Tooltip
+              text={
+                <span>
+                  {_l(
+                    '在各模块上传文件时，会计入每月上传量。免费用户上传流量为300M/月，付费版用户10G/月，多个组织可叠加。',
+                  )}
+                </span>
+              }
+              action={['hover']}
+              popupPlacement={'bottom'}
+            >
+              <i class="icon-help ThemeColor4"></i>
+            </Tooltip>
+          </span>
+          <span class="usageSize">
+            {`${humanFileSize(usage.used)} (${(percent > 100 ? 100 : percent).toFixed(2)}%)/${humanFileSize(
+              usage.total,
+            )}`}
+          </span>
+        </div>
+      ),
+      noFooter: true,
     });
   }
 

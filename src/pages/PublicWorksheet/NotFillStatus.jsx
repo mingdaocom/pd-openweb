@@ -8,6 +8,7 @@ import { RichText } from 'ming-ui';
 import moment from 'moment';
 import _ from 'lodash';
 import FilledRecord from './FilledRecord';
+import { canSubmitByLimitFrequency } from './utils';
 
 const Con = styled.div`
   height: 100%;
@@ -47,7 +48,7 @@ const Receipt = styled.div`
   }
 `;
 
-function getTip(worksheetId, status, fillTimes) {
+function getTip(worksheetId, status) {
   if (!worksheetId) {
     return _l('你访问的表单不存在');
   }
@@ -62,7 +63,7 @@ function getTip(worksheetId, status, fillTimes) {
     case FILL_STATUS.NO_PROJECT_USER:
       return _l('此表单仅限本组织用户填写');
     case FILL_STATUS.COMPLETED:
-      return fillTimes === FILL_TIMES.DAILY ? _l('提交成功！明天还可以继续提交') : _l('提交成功');
+      return _l('提交成功');
     default:
       return '';
   }
@@ -84,8 +85,16 @@ Icon.propTypes = { status: PropTypes.string };
 
 export default function NotFillStatus(props) {
   const { status, publicWorksheetInfo, onRefill, formData, rules } = props;
-  const { worksheetId, name, fillTimes, receipt, linkSwitchTime = {}, abilityExpand = {} } = publicWorksheetInfo;
-
+  const {
+    worksheetId,
+    name,
+    limitWriteFrequencySetting,
+    receipt,
+    linkSwitchTime = {},
+    abilityExpand = {},
+    shareId,
+  } = publicWorksheetInfo;
+  const canSubmitByLimit = canSubmitByLimitFrequency(shareId, limitWriteFrequencySetting);
   return (
     <Con className="notFillStatus">
       <div style={{ width: '100%' }}>
@@ -95,14 +104,14 @@ export default function NotFillStatus(props) {
           <i className="icon icon-closeelement-bg-circle" style={{ fontSize: 80, color: '#f44133' }}></i>
         )}
         {worksheetId && <Tip1 className="mTop10">{name || _l('未命名表单')}</Tip1>}
-        <Tip2 className="mTop8">{getTip(worksheetId, status, fillTimes)}</Tip2>
+        <Tip2 className="mTop8">{getTip(worksheetId, status)}</Tip2>
         {status === FILL_STATUS.NOT_OPEN && (
           <Tip2 className="mTop8">
             {_l('表单将于') + moment(linkSwitchTime.startTime).format('YYYY年MM月DD日 HH:mm') + _l('开放填写')}
           </Tip2>
         )}
         {status === FILL_STATUS.COMPLETED &&
-          (fillTimes === FILL_TIMES.UNLIMITED || !!_.get(abilityExpand, 'allowViewChange.isAllowViewChange')) && (
+          (canSubmitByLimit || !!_.get(abilityExpand, 'allowViewChange.isAllowViewChange')) && (
             <Tip2
               style={{ color: '#2196F3', margin: '24px 0 32px', fontWeight: 600 }}
               className="flexRow justifyContentCenter alignItemsCenter"
@@ -114,7 +123,7 @@ export default function NotFillStatus(props) {
                 rules={rules}
                 status={status}
               />
-              {fillTimes === FILL_TIMES.UNLIMITED && (
+              {canSubmitByLimit && (
                 <span className="Hand" onClick={onRefill}>
                   {_l('再填写一份')}
                 </span>

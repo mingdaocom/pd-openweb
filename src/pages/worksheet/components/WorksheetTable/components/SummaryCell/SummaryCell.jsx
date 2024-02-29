@@ -1,15 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import cx from 'classnames';
 import Trigger from 'rc-trigger';
 import { autobind } from 'core-decorators';
-import { emitter, getSummaryNameByType, getSummaryInfo, controlIsNumber } from 'worksheet/util';
+import { emitter, getSummaryInfo } from 'worksheet/util';
 import { Menu, MenuItem } from 'ming-ui';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import './SummaryCell.less';
 import _ from 'lodash';
-import { toFixed } from 'src/util';
+import SummaryContent from './SummaryContent';
 const ClickAwayable = createDecoratedComponent(withClickAway); //
 
 export default class extends React.Component {
@@ -82,7 +81,8 @@ export default class extends React.Component {
   }
 
   render() {
-    const { style, control, summaryType, summaryValue, rowHeadOnlyNum } = this.props;
+    const { style, control, summaryType, summaryValue, rowHeadOnlyNum, rows, selectedIds, allWorksheetIsSelected } =
+      this.props;
     const { menuVisible } = this.state;
     if (!control) {
       return <div style={style} />;
@@ -102,23 +102,6 @@ export default class extends React.Component {
     if (type === 31 || (control.type === 37 && control.enumDefault2 === 6)) {
       type = 6;
     }
-    let summaryName, summaryDataValue;
-    const isPercent = _.get(control, 'advancedSetting.numshow') === '1';
-    if (summaryType) {
-      summaryName = getSummaryNameByType(summaryType);
-      if (!_.isUndefined(summaryValue)) {
-        summaryDataValue = summaryValue;
-        if (_.includes([3, 4, 5, 6], summaryType)) {
-          summaryDataValue = toFixed(summaryValue * (isPercent ? 100 : 1), control.dot);
-          const reg = summaryDataValue.indexOf('.') > -1 ? /(\d{1,3})(?=(?:\d{3})+\.)/g : /(\d{1,3})(?=(?:\d{3})+$)/g;
-          summaryDataValue = summaryDataValue.replace(reg, '$1,');
-        }
-        if (isPercent) {
-          summaryDataValue = summaryDataValue + '%';
-        }
-      }
-    }
-    const isNumber = controlIsNumber(control);
     return (
       <ClickAwayable
         className="sheetSummaryInfo ellipsis"
@@ -145,20 +128,15 @@ export default class extends React.Component {
             }
           }}
         >
-          <div
-            className={cx('flexRow', {
-              hide: type === 25,
-              empty: !summaryType,
-            })}
-          >
-            <span className="summaryName">{summaryName + _l('：')}</span>
-            {isNumber && <div className="flex"></div>}
-            <div className="summaryValue" title={summaryDataValue}>
-              {typeof summaryDataValue === 'undefined' || summaryType === 0 ? '-' : summaryDataValue}
-            </div>
-            {!isNumber && <div className="flex"></div>}
-            <i className="iconArrow icon icon-arrow-down-border"></i>
-          </div>
+          <SummaryContent
+            control={control}
+            type={type}
+            summaryType={summaryType}
+            summaryValue={summaryValue}
+            rows={rows}
+            selectedIds={selectedIds}
+            allWorksheetIsSelected={allWorksheetIsSelected}
+          />
         </Trigger>
       </ClickAwayable>
     );

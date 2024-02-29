@@ -112,9 +112,12 @@
 
     .displayRulesCon {
       display: flex;
+      flex-direction: column;
       flex: 1;
+      min-height: 0;
       overflow: hidden;
       background-color: #ffffff;
+      position: relative;
 
       .editRuleBox {
         .ruleNameInput {
@@ -127,12 +130,18 @@
           &:focus {
             border: 1px solid #2196f3;
           }
+          &::placeholder {
+            color: #9e9e9e;
+          }
         }
         .errorBorder {
           border: 1px solid #f44336;
         }
         .conditionContainer {
           margin: 32px 0;
+          .ming.Radio:first-child {
+            width: 30%;
+          }
           .addCondition {
             display: inline-block;
             margin-top: 14px;
@@ -425,140 +434,134 @@
         }
       }
 
-      .columnRulesCon {
-        flex: 1;
-        background: #ffffff;
-        overflow: hidden;
-        position: relative;
-
-        .columnRulesDrawerContainer {
-          z-index: 9;
-          position: absolute;
-          box-shadow: 0px 18px 30px 0px rgba(0, 0, 0, 0.16);
-
-          .ruleFooter {
-            .closeBtn {
-              color: #9e9e9e !important;
-              background: #f5f5f5 !important;
-              &:hover {
-                background: #eaeaea !important;
+      .columnRuleTitle {
+        padding: 32px 40px 10px 40px;
+        .columnRuleTabs {
+          margin-top: 16px;
+          border-bottom: 1px solid #dddddd;
+          display: flex;
+          .tabItems {
+            padding: 0 20px;
+            &:first-child {
+              padding-left: 0;
+            }
+            cursor: pointer;
+            &:hover {
+              .tabItem {
+                color: #2196f3;
               }
             }
           }
+          .tabItem {
+            padding-bottom: 7px;
+            border-bottom: 3px solid transparent;
+            color: #757575;
+            font-size: 14px;
+            font-weight: 600;
+            &.active {
+              color: #2196f3;
+              border-bottom-color: #2196f3 !important;
+            }
+          }
+        }
+        .columnRuleDesc {
+          margin-top: 12px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          .addRules {
+            padding: 0 15px;
+            height: 32px;
+            line-height: 32px;
+            display: inline-block;
+            background: #2196f3;
+            border-radius: 16px;
+            letter-spacing: 0;
+            color: #ffffff;
+            text-align: center;
+            font-weight: bold;
+            cursor: pointer;
+            &:hover {
+              background: #1e88e5;
+            }
+          }
+        }
+      }
 
-          .ant-drawer-mask {
-            background-color: transparent !important;
+      .emptyColumnRules {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 220px;
+        .emptyIcon {
+          width: 130px;
+          height: 130px;
+          line-height: 130px;
+          border-radius: 50%;
+          display: inline-block;
+          background: #f5f5f5;
+          text-align: center;
+          i {
+            font-size: 80px;
+            vertical-align: middle;
           }
-          .ant-drawer-content-wrapper {
-            top: 2px;
-          }
-          .ant-drawer-footer {
-            border-top: none;
-            padding: 24px !important;
-          }
-          .ant-drawer-header {
-            border-bottom: none;
-            .ant-drawer-header-title {
-              flex-direction: row-reverse;
+        }
+      }
+
+      .columnRulesDrawerContainer {
+        z-index: 9;
+        position: absolute;
+        box-shadow: 0px 18px 30px 0px rgba(0, 0, 0, 0.16);
+
+        .ruleFooter {
+          .closeBtn {
+            color: #9e9e9e !important;
+            background: #f5f5f5 !important;
+            &:hover {
+              background: #eaeaea !important;
             }
-            .ant-drawer-close {
-              margin-right: 0 !important;
-            }
-            .ant-drawer-title {
-              font-size: 17px;
-              font-weight: bold;
-            }
           }
-          .ant-drawer-body {
-            padding: 0 !important;
-            flex: 1;
+          .saveBtn {
+            background: #2196f3;
+            &:hover {
+              background: #1e88e5;
+            }
           }
         }
 
-        .conBox {
-          width: 100%;
-          height: 100%;
-          display: flex;
-          flex-direction: column;
-          box-sizing: border-box;
-
-          .emptyColumnRules {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 220px;
-            .emptyIcon {
-              width: 130px;
-              height: 130px;
-              line-height: 130px;
-              border-radius: 50%;
-              display: inline-block;
-              background: #f5f5f5;
-              text-align: center;
-              i {
-                font-size: 80px;
-                vertical-align: middle;
-              }
-            }
+        .ant-drawer-mask {
+          background-color: transparent !important;
+        }
+        .ant-drawer-content-wrapper {
+          top: 2px;
+        }
+        .ant-drawer-footer {
+          border-top: none;
+          padding: 24px !important;
+        }
+        .ant-drawer-header {
+          .ant-drawer-header-title {
+            flex-direction: row-reverse;
           }
-
-          .topBoxText {
-            display: flex;
-            padding: 32px 40px 16px 40px;
-
-            .textCon {
-              flex: 1;
-
-              h2 {
-                margin: 0;
-                padding: 0;
-                text-align: left;
-                font-size: 17px;
-                color: #333333;
-                font-weight: bold;
-              }
-
-              p {
-                margin: 0;
-                padding: 0;
-                margin-top: 8px;
-
-                > span {
-                  color: #9e9e9e;
-                }
-
-                a {
-                  color: #2196f3;
-                }
-              }
-            }
-
-            .saveRules {
-              padding: 0 16px;
-              height: 38px;
-              line-height: 38px;
-              display: inline-block;
-              background: #2196f3 0% 0% no-repeat padding-box;
-              border-radius: 32px;
-              font-size: 13px;
-              letter-spacing: 0;
-              color: #ffffff;
-              text-align: center;
-              font-weight: bold;
-              cursor: pointer;
-              &:hover {
-                background: #1e88e5;
-              }
-            }
+          .ant-drawer-close {
+            margin-right: 0 !important;
           }
-
-          .rulesCon {
-            flex: 1;
-            min-height: 0;
-            .nano-content {
-              padding: 0 40px 16px 20px;
-            }
+          .ant-drawer-title {
+            font-size: 17px;
+            font-weight: bold;
           }
+        }
+        .ant-drawer-body {
+          padding: 0 !important;
+          flex: 1;
+        }
+      }
+
+      .rulesCon {
+        flex: 1;
+        min-height: 0;
+        .nano-content {
+          padding: 0 40px 16px 20px;
         }
       }
     }
@@ -808,13 +811,6 @@
     border-color: #2196f3 !important;
   }
 }
-
-.formSetWorksheet {
-  .selectUserBox {
-    width: 250px;
-  }
-}
-
 .addConditionTrigger {
   display: flex;
   flex-direction: column;
@@ -839,5 +835,22 @@
   }
   &.rc-trigger-popup-hidden {
     display: none !important;
+  }
+}
+.reserveControlsDropdownMenuSet {
+  .ming.MenuItem .Item-content:not(.disabled):hover {
+    background-color: #fff !important;
+  }
+  .ming.Item .Item-content {
+    padding: 0;
+    .itemText {
+      padding: 0 16px;
+      .Icon {
+        left: 0;
+      }
+    }
+  }
+  .ming.MenuItem .Item-content.disabled {
+    padding: 0 16px;
   }
 }

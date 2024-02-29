@@ -1,6 +1,6 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { Checkbox, Dialog, Radio, WaterMark } from 'ming-ui';
+import { Checkbox, Dialog, Radio, WaterMark, UpgradeIcon } from 'ming-ui';
 import { Tooltip, Input } from 'antd';
 import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
 import AttachmentConfig from '../../AttachmentConfig';
@@ -21,14 +21,22 @@ const WaterMarkSettingWrap = styled.div`
     .markStyleItem {
       width: 120px;
       margin-right: 56px;
+      margin-bottom: 14px;
       .itemExample {
         width: 120px;
         height: 160px;
         background: #ffffff;
         border: 1px solid #ededed;
         border-radius: 3px;
-        margin-top: 6px;
+        margin-bottom: 6px;
       }
+      .ming.Radio {
+        margin-left: 34px;
+      }
+    }
+    .ant-pro-layout-watermark {
+      background: ${props => props.bgColor};
+      border-radius: 3px;
     }
   }
   .colorBox {
@@ -77,8 +85,8 @@ const MASK_SIZE_OPTIONS = [
 ];
 
 const MASK_COLOR_OPTIONS = [
-  { value: '#bdbdbd', background: '#fff', color: '#757575' },
-  { value: '#484848', background: '#333', color: '#d9d9d9' },
+  { value: '#bdbdbd', background: '#fff', color: '#757575', tips: _l('适合浅色') },
+  { value: '#484848', background: '#333', color: '#d9d9d9', tips: _l('适合深色') },
 ];
 
 const getMarkStyle = value => {
@@ -88,6 +96,7 @@ const getMarkStyle = value => {
       gapX: 20,
       gapY: 160,
       fontSize: 24,
+      fontColor: '#bdbdbd',
     };
   } else if (value === '3') {
     return {
@@ -99,6 +108,7 @@ const getMarkStyle = value => {
       fontSize: 10,
       width: 60,
       height: 60,
+      fontColor: '#bdbdbd',
     };
   } else {
     return {
@@ -106,6 +116,7 @@ const getMarkStyle = value => {
       gapX: 60,
       gapY: 230,
       fontSize: 24,
+      fontColor: '#bdbdbd',
     };
   }
 };
@@ -126,7 +137,10 @@ function WaterMarkDialog(props) {
     valuestyle,
     valuecolor,
   });
-
+  const bgColor = _.get(
+    _.find(MASK_COLOR_OPTIONS, m => m.value === info.valuecolor),
+    'background',
+  );
   return (
     <Dialog
       width={560}
@@ -149,7 +163,7 @@ function WaterMarkDialog(props) {
         onClose();
       }}
     >
-      <WaterMarkSettingWrap>
+      <WaterMarkSettingWrap bgColor={bgColor}>
         <SettingItem className="mTop10">
           <div className="settingItemTitle">
             {_l('文字')}
@@ -190,25 +204,22 @@ function WaterMarkDialog(props) {
           <div className="markStyleContent">
             {MARK_STYLE_OPTIONS.map(item => {
               return (
-                <div className="markStyleItem">
-                  <Radio
-                    {...item}
-                    size="small"
-                    checked={item.value === info.watermarkstyle}
-                    onClick={value => {
-                      setInfo({ watermarkstyle: value, valuesize: value === '3' ? '0' : '3' });
-                    }}
-                  >
-                    <div className="itemExample">
-                      <WaterMark
-                        content={_l('水印示例')}
-                        zIndex={10}
-                        showWaterMark={true}
-                        fontColor={info.valuecolor}
-                        {...getMarkStyle(item.value)}
-                      />
-                    </div>
-                  </Radio>
+                <div
+                  className="markStyleItem"
+                  onClick={() => {
+                    setInfo({ watermarkstyle: item.value, valuesize: item.value === '3' ? '0' : '3' });
+                  }}
+                >
+                  <div className="itemExample">
+                    <WaterMark
+                      content={_l('水印示例')}
+                      zIndex={10}
+                      showWaterMark={true}
+                      fontColor={info.valuecolor}
+                      {...getMarkStyle(item.value)}
+                    />
+                  </div>
+                  <Radio {...item} size="small" checked={item.value === info.watermarkstyle} />
                 </div>
               );
             })}
@@ -250,13 +261,15 @@ function WaterMarkDialog(props) {
           <div className="label">{_l('颜色')}</div>
           {MASK_COLOR_OPTIONS.map(item => {
             return (
-              <div
-                className={cx('colorBox', { active: info.valuecolor === item.value })}
-                style={{ background: item.background }}
-                onClick={() => setInfo({ valuecolor: item.value })}
-              >
-                <i className="icon-letter_a Font15" style={{ color: item.color }}></i>
-              </div>
+              <Tooltip placement="bottom" title={item.tips}>
+                <div
+                  className={cx('colorBox', { active: info.valuecolor === item.value })}
+                  style={{ background: item.background }}
+                  onClick={() => setInfo({ valuecolor: item.value })}
+                >
+                  <i className="icon-letter_a Font15" style={{ color: item.color }}></i>
+                </div>
+              </Tooltip>
             );
           })}
         </SectionItem>
@@ -383,9 +396,7 @@ export default function AttachmentVerify(props) {
             >
               <i className="icon-help Gray_9e Font16 Hand"></i>
             </Tooltip>
-            {featureType === '2' && (
-              <span className="icon-auto_awesome mLeft4 Font16" style={{ color: '#FBB400' }}></span>
-            )}
+            {featureType === '2' && <UpgradeIcon />}
           </Checkbox>
           {showwatermark === '1' && (
             <Tooltip placement="bottom" title={_l('水印设置')}>

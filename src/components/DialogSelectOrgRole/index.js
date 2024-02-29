@@ -239,7 +239,4 @@ class DialogSelectOrgRole extends Component {
   }
 }
 
-export default DialogSelectOrgRole;
-
-export const selectOrgRole = props =>
-  FunctionWrap(DialogSelectOrgRole, { ...props, visibleName: 'orgRoleDialogVisible' });
+export default props => FunctionWrap(DialogSelectOrgRole, { ...props, visibleName: 'orgRoleDialogVisible' });

@@ -302,26 +302,14 @@
 .kcDialogBox .usageList {
   width: 100%;
   line-height: 26px;
-  height: 26px;
   color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
 }
-.kcDialogBox .usageList:last-child {
-  padding-bottom: 30px;
-}
-.kcDialogBox .usageList:nth-child(1) {
-  padding-bottom: 20px;
-}
-.kcDialogBox .usageSize {
-  position: absolute;
-  top: 0;
-  right: 0;
-}
-.kcDialogBox .usageList .usageSize:nth-child(2) {
-  top: 4px;
-}
-.kcDialogBox .usageList [data-tip]:after {
-  width: 260px;
-  white-space: normal;
+.kcDialogBox .mui-dialog-body {
+  overflow: hidden !important;
 }
 .kcDialogBox .usageList .icon-help {
   margin-left: 10px;

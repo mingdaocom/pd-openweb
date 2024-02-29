@@ -5,14 +5,6 @@ export const BillInfoWrap = styled.div`
   display: flex;
   flex-direction: column;
   .billInfoHeader {
-    height: 56px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #eaeaea;
-    background-color: #fff;
-    padding: 0 24px;
-    box-sizing: border-box;
     .title {
       color: '#333333';
       font-size: 17px;
@@ -22,14 +14,6 @@ export const BillInfoWrap = styled.div`
       color: #2196f3;
       margin: 0 8px;
     }
-  }
-  .billInfoBox {
-    flex: 1;
-    padding: 30px 24px 0;
-    background-color: #fff;
-    display: flex;
-    flex-direction: column;
-    box-sizing: border-box;
   }
   .accountInfo {
     display: flex;
@@ -212,7 +196,7 @@ export const BillInfoWrap = styled.div`
         height: 24px;
         border-radius: 50%;
       }
-      >span {
+      > span {
         margin-left: 6px;
       }
     }

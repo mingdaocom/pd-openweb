@@ -8,7 +8,7 @@ import _ from 'lodash';
 import moment from 'moment';
 import RecordDetail from './RecordDetail';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
-import { FILL_TIMES } from 'src/pages/publicWorksheetConfig/enum';
+import { canSubmitByLimitFrequency } from './utils';
 import { getRgbaByColor } from 'src/pages/widgetConfig/util';
 import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
 
@@ -68,7 +68,14 @@ const MyWriteButton = styled.div(
 
 export default function FilledRecord(props) {
   const { isFillPage, publicWorksheetInfo, formData } = props;
-  const { appId, abilityExpand = {}, writeScope, fillTimes, themeBgColor } = publicWorksheetInfo;
+  const {
+    appId,
+    abilityExpand = {},
+    writeScope,
+    shareId,
+    limitWriteFrequencySetting,
+    themeBgColor,
+  } = publicWorksheetInfo;
   const isMobile = browserIsMobile();
   const [filledRecord, setFilledRecord] = useState({ list: [], count: 0 });
   const [listDialogVisible, setListDialogVisible] = useState(false);
@@ -229,7 +236,7 @@ export default function FilledRecord(props) {
       </React.Fragment>
     );
   };
-
+  const canSubmitByLimit = canSubmitByLimitFrequency(shareId, limitWriteFrequencySetting);
   return _.get(abilityExpand, 'allowViewChange.isAllowViewChange') ? (
     <React.Fragment>
       {isFillPage && !!filledRecord.count && (
@@ -258,7 +265,7 @@ export default function FilledRecord(props) {
           >
             {_l('查看填写记录')}
           </span>
-          {fillTimes === FILL_TIMES.UNLIMITED && <DividerLine />}
+          {canSubmitByLimit && <DividerLine />}
         </React.Fragment>
       )}
       {isMobile ? (

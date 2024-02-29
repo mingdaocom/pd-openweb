@@ -27,6 +27,7 @@ import { pick } from 'lodash';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import { getEmbedValue } from 'src/components/newCustomFields/tools/utils.js';
 import { defaultConfig } from 'src/pages/customPage/components/ConfigSideWrap';
+import { getTranslateInfo } from 'src/util';
 
 const CustomPageContentWrap = styled.div`
   flex: 1;
@@ -60,16 +61,8 @@ const CustomPageContentWrap = styled.div`
     .hideSide {
       vertical-align: top;
     }
-    .moreOperateIcon {
-      color: #9e9e9e;
-      cursor: pointer;
-
-      &:hover {
-        color: #2196f3;
-      }
-    }
     .iconWrap {
-      color: #9e9e9e;
+      color: #757575a1;
       &:hover {
         color: #2196f3;
       }
@@ -113,7 +106,7 @@ const CustomPageContentWrap = styled.div`
     left: 10px;
   }
   .darkTheme {
-    .pageName, .moreOperateIcon, .iconWrap .icon, .componentTitle, .createSource a {
+    .pageName, .moreOperateIcon, .iconWrap .icon, .componentTitle, .createSource a, .customPageDesc {
       color: rgba(255, 255, 255, 1) !important;
     }
     .createSource {
@@ -138,7 +131,7 @@ function CustomPageContent(props) {
     ids = {},
   } = props;
   const pageId = id;
-  const appName = props.appName || apk.appName || '';
+  const appName = getTranslateInfo(appPkg.id, appPkg.id).name || props.appName || apk.appName || '';
   const ref = useRef(document.body);
   const [show, toggle] = useToggle(false);
 
@@ -153,15 +146,11 @@ function CustomPageContent(props) {
   const isFullscreen = useFullscreen(ref, show, { onClose: closeFullscreen });
   const isMobile = browserIsMobile();
   const sheetList = appPkg.currentPcNaviStyle === 1 ? getAppSectionData(groupId) : props.sheetList;
-  const currentSheet = findSheet(id, sheetList) || {};
-  const pageName = props.pageName || currentSheet.workSheetName || '';
+  const currentSheet = findSheet(id, sheetList) || props.currentSheet || {};
+  const pageName = getTranslateInfo(appPkg.id, pageId).name || props.pageName || currentSheet.workSheetName || '';
   const { urlTemplate, configuration } = currentSheet;
 
   useEffect(() => {
-    if (currentSheet.type !== 0 && !urlTemplate) {
-      updateLoading(true);
-      getPage();
-    }
     if (urlTemplate) {
       updatePageInfo({
         config: {
@@ -169,15 +158,18 @@ function CustomPageContent(props) {
         },
       });
       updateLoading(false);
+    } else {
+      updateLoading(true);
+      pageId && getPage();
     }
-  }, [pageId]);
+  }, []);
 
   const getPage = () => {
     customApi.getPage({
       appId: pageId
     }, {
       fireImmediately: true
-    }).then(({ components, desc, apk, adjustScreen, name, config }) => {
+    }).then(({ components, desc, apk, adjustScreen, name, config, version }) => {
       const componentsData = isMobile ? components.filter(item => item.mobile.visible) : components;
       updatePageInfo({
         components: componentsData,
@@ -187,7 +179,8 @@ function CustomPageContent(props) {
         apk: apk || {},
         config: config || defaultConfig,
         pageName: name,
-        filterComponents: componentsData.filter(item => item.value && item.type === enumWidgetType.filter)
+        filterComponents: componentsData.filter(item => item.value && item.type === enumWidgetType.filter),
+        version,
       });
     }).always(() => updateLoading(false));
   }
@@ -272,7 +265,7 @@ function CustomPageContent(props) {
 
 export default connect(
   ({ appPkg, customPage, sheet: { isCharge, base }, sheetList: { data, appSectionDetail } }) => ({
-    ...pick(customPage, ['loading', 'visible', 'desc', 'adjustScreen', 'apk', 'pageName', 'flag', 'config']),
+    ...pick(customPage, ['loading', 'visible', 'desc', 'adjustScreen', 'apk', 'pageName', 'flag', 'config', 'version']),
     isCharge,
     appName: appPkg.name,
     sheetList: data,

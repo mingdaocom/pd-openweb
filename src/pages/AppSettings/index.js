@@ -1,12 +1,12 @@
 import React, { Component, Fragment } from 'react';
-import { Icon, LoadDiv } from 'ming-ui';
+import { Icon, LoadDiv, UpgradeIcon } from 'ming-ui';
 import VerifyDel from 'src/pages/AppHomepage/components/VerifyDel';
 import homeAppApi from 'api/homeApp';
 import { APP_CONFIGS } from './config';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
 import appConfigWidgets from './appConfigWidgets';
 import { getAppConfig } from './util';
-import { getFeatureStatus, buriedUpgradeVersionDialog, setFavicon } from 'src/util';
+import { getFeatureStatus, buriedUpgradeVersionDialog, setFavicon, getTranslateInfo } from 'src/util';
 import cx from 'classnames';
 import './index.less';
 import { navigateTo } from 'src/router/navigateTo';
@@ -41,6 +41,9 @@ class AppSettings extends Component {
         manageBackupFilesVisible: true,
       });
     }
+    if (_.get(this.props, 'match.params.navTab') !== _.get(nextProps, 'match.params.navTab')) {
+      this.setState({ currentConfigType: _.get(nextProps, 'match.params.navTab') });
+    }
   }
 
   getData = () => {
@@ -50,10 +53,10 @@ class AppSettings extends Component {
         appId: md.global.Account.isPortal ? md.global.Account.appId : appId,
         getSection: true,
         getManager: window.isPublicApp ? false : true,
+        getLang: true,
       })
       .then(data => {
         setFavicon(data.iconUrl, data.iconColor);
-
         const { permissionType, id, isLock, isPassword, projectId } = data;
         const list = getAppConfig(APP_CONFIGS, permissionType).filter(
           it => !it.featureId || getFeatureStatus(projectId, it.featureId),
@@ -62,6 +65,7 @@ class AppSettings extends Component {
           navigateTo(`/app/${id}`); // 普通角色、加锁应用、无应用管理中特性时跳至应用首页
           return;
         }
+        data.name = getTranslateInfo(id, id).name || data.name;
         this.setState({ data, loading: false }, this.getConfigList);
       })
       .fail(err => {
@@ -75,7 +79,7 @@ class AppSettings extends Component {
     const { data: { projectId } = { projectId: '' } } = this.state;
     this.setState({ delAppConfirmVisible: false });
     homeAppApi.deleteApp({ appId, projectId, isHomePage: true }).then(res => {
-      navigateTo('/app/my');
+      navigateTo('/dashboard');
     });
   };
 
@@ -159,16 +163,14 @@ class AppSettings extends Component {
                   <span className="flex">{text}</span>
                   {item.featureId &&
                     getFeatureStatus(projectId, item.featureId) === '2' &&
-                    _.includes(['backup', 'recyclebin', 'variables', 'upgrade'], type) && (
-                      <Icon icon="auto_awesome Font16 mLeft6" style={{ color: '#FDB432' }} />
-                    )}
-                  {type === 'upgrade' && <Beta className="mRight15" />}
+                    _.includes(['backup', 'recyclebin', 'variables', 'language', 'upgrade'], type) && <UpgradeIcon />}
+                  {['language', 'upgrade'].includes(type) && <Beta className="mRight15" />}
                 </div>
               </Fragment>
             );
           })}
         </div>
-        <div className="manageAppRight flex flexColumn">
+        <div className={cx('manageAppRight flex flexColumn', currentConfigType)}>
           {loading ? <LoadDiv /> : <Component {...componentProps} />}
         </div>
         {delAppConfirmVisible && (

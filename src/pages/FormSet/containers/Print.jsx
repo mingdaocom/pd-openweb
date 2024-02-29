@@ -1,9 +1,6 @@
 import React from 'react';
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
-import { Icon, LoadDiv, Support } from 'ming-ui';
+import { Icon, LoadDiv, Support, UpgradeIcon } from 'ming-ui';
 import { Drawer } from 'antd';
-import * as actions from '../redux/actions/print';
 import cx from 'classnames';
 import './print.less';
 import EditPrint from '../components/EditPrint';
@@ -12,11 +9,13 @@ import CSSTransitionGroup from 'react-addons-css-transition-group';
 import PrintTemDialog from '../components/PrintTemDialog';
 import RangeDrop from 'src/pages/FormSet/components/RangeDrop';
 import { PRINT_TYPE, PRINT_TYPE_STYLE } from 'src/pages/Print/config';
-import { getCurrentProject, getItem, getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
 import { getPrintCardInfoOfTemplate } from 'src/pages/worksheet/common/PrintQrBarCode/enum';
 import { printQrBarCode } from 'worksheet/common/PrintQrBarCode';
 import _ from 'lodash';
+import sheetAjax from 'src/api/worksheet';
+
 class CreatePrintDrawer extends React.Component {
   constructor(props) {
     super(props);
@@ -87,14 +86,14 @@ class CreatePrintDrawer extends React.Component {
                 <Icon icon="new_word" className="printTempDrawerListItemIcon" />
               </span>
               {_l('上传 Word 模板')}
-              {featureType === '2' && <Icon icon="auto_awesome" className="Font16 mLeft5" />}
+              {featureType === '2' && <UpgradeIcon />}
             </div>
             <div className="printTempDrawerListItem" onClick={addExcelPrintTemp}>
               <span className="iconbox">
                 <Icon icon="new_excel" className="printTempDrawerListItemIcon" />
               </span>
               {_l('上传 Excel 模板')}
-              {featureType === '2' && <Icon icon="auto_awesome" className="Font16 mLeft5" />}
+              {featureType === '2' && <UpgradeIcon />}
             </div>
           </React.Fragment>
         )}
@@ -119,11 +118,13 @@ class Print extends React.Component {
       showCreatePrintTemp: false,
       fileType: undefined, // 自定义模版 word/excel
       fileTypeNum: null,
+      printData: [],
+      loading: false,
     };
   }
   componentDidMount() {
-    const { loadPrint, formSet } = this.props;
-    loadPrint({ worksheetId: formSet.worksheetId }); // 获取当前模板
+    const { worksheetId } = this.props;
+    this.loadPrint({ worksheetId: worksheetId }); // 获取当前模板
   }
 
   componentWillUpdate(nextProps, nextState) {
@@ -135,10 +136,24 @@ class Print extends React.Component {
     }
   }
 
+  loadPrint = ({ worksheetId }) => {
+    this.setState({ loading: true });
+    sheetAjax
+      .getPrintList({
+        worksheetId,
+      })
+      .then(data => {
+        this.setState({
+          loading: false,
+          printData: data,
+        });
+      });
+  };
+
   addDrawerPrintTemp = fileType => {
-    const { formSet } = this.props;
-    if (getFeatureStatus(formSet.worksheetInfo.projectId, VersionProductType.wordPrintTemplate) === '2') {
-      buriedUpgradeVersionDialog(formSet.worksheetInfo.projectId, VersionProductType.wordPrintTemplate);
+    const { worksheetInfo } = this.props;
+    if (getFeatureStatus(worksheetInfo.projectId, VersionProductType.wordPrintTemplate) === '2') {
+      buriedUpgradeVersionDialog(worksheetInfo.projectId, VersionProductType.wordPrintTemplate);
     } else {
       this.setState({
         ...this.state,
@@ -151,10 +166,68 @@ class Print extends React.Component {
     }
   };
 
+  editPrintName = ({ id, name }) => {
+    const { worksheetId } = this.props;
+    sheetAjax
+      .editPrintName({
+        id,
+        name,
+      })
+      .then(res => {
+        if (!res) {
+          alert(_l('修改失败'), 2);
+          this.loadPrint({ worksheetId });
+        }
+      });
+  };
+
+  updatePrint = (id, data) => {
+    const { printData } = this.state;
+    let dataP = printData.filter(item => item.id === id);
+    let da = [];
+    printData.map(o => {
+      if (o.id !== id) {
+        da.push(o);
+      } else {
+        da.push({
+          ...dataP[0],
+          ...data,
+        });
+      }
+    });
+    this.setState({
+      printData: da,
+    });
+  };
+
+  deletePrint = id => {
+    sheetAjax
+      .deletePrint({
+        id,
+      })
+      .then(res => {
+        this.loadPrint({ worksheetId: this.props.worksheetId });
+      });
+  };
+
+  editPrintRange = ({ id, range, viewsIds }) => {
+    sheetAjax
+      .editPrintRange({
+        range,
+        id,
+        viewsIds,
+      })
+      .then(res => {
+        if (!res) {
+          alert(_l('修改失败'), 2);
+          this.loadPrint({ worksheetId: this.props.worksheetId });
+        }
+      });
+  };
+
   renderPrintItem = data => {
     const { showDropOption, isRename, templateId, showMoreOption, isChangeDrop } = this.state;
-    const { editPrintName, updatePrint, deletePrint, formSet, editPrintRange, loadPrint } = this.props;
-    const { worksheetInfo = [] } = formSet;
+    const { worksheetInfo = {} } = this.props;
     const { views = [] } = worksheetInfo;
 
     return data.map(it => {
@@ -182,7 +255,7 @@ class Print extends React.Component {
                 }}
                 value={it.name}
                 onChange={e => {
-                  updatePrint(it.id, { name: e.target.value });
+                  this.updatePrint(it.id, { name: e.target.value });
                 }}
                 onBlur={() => {
                   if (!_.trim(it.name)) {
@@ -190,7 +263,7 @@ class Print extends React.Component {
                     $(this.input).focus();
                     return;
                   }
-                  editPrintName({ id: it.id, name: it.name });
+                  this.editPrintName({ id: it.id, name: it.name });
                   this.setState({
                     templateId: '',
                     isRename: false,
@@ -224,7 +297,7 @@ class Print extends React.Component {
                   });
                 }}
                 deleteFn={data => {
-                  deletePrint(it.id);
+                  this.deletePrint(it.id);
                   this.setState({
                     ...this.state,
                     ...data,
@@ -281,7 +354,7 @@ class Print extends React.Component {
                   onClickAway={() => {
                     this.setState({ showDropOption: false });
                     if (isChangeDrop) {
-                      editPrintRange({
+                      this.editPrintRange({
                         id: it.id,
                         range: it.range,
                         viewsIds: it.views.map(o => o.viewId),
@@ -292,7 +365,7 @@ class Print extends React.Component {
                     this.setState({ showDropOption: false });
                   }}
                   setData={data => {
-                    updatePrint(data.printData.id, { ...data.printData });
+                    this.updatePrint(data.printData.id, { ...data.printData });
                     this.setState({ isChangeDrop: true });
                   }}
                 />
@@ -305,9 +378,9 @@ class Print extends React.Component {
                       mode: 'preview',
                       id: it.id,
                       printType: it.printType,
-                      projectId: formSet.worksheetInfo.projectId,
-                      worksheetId: formSet.worksheetInfo.worksheetId,
-                      controls: _.get(formSet, 'worksheetInfo.template.controls'),
+                      projectId: worksheetInfo.projectId,
+                      worksheetId: worksheetInfo.worksheetId,
+                      controls: _.get(worksheetInfo, 'template.controls'),
                     });
                   } else {
                     this.setState({
@@ -332,11 +405,11 @@ class Print extends React.Component {
                       mode: 'editTemplate',
                       id: it.id,
                       printType: it.printType,
-                      projectId: formSet.worksheetInfo.projectId,
-                      worksheetId: formSet.worksheetInfo.worksheetId,
-                      controls: _.get(formSet, 'worksheetInfo.template.controls'),
+                      projectId: worksheetInfo.projectId,
+                      worksheetId: worksheetInfo.worksheetId,
+                      controls: _.get(worksheetInfo, 'template.controls'),
                       onClose: () => {
-                        loadPrint({ worksheetId: formSet.worksheetInfo.worksheetId });
+                        this.loadPrint({ worksheetId: worksheetInfo.worksheetId });
                       },
                     });
                   } else if (isCustom) {
@@ -368,9 +441,17 @@ class Print extends React.Component {
   };
 
   renderCon = () => {
-    const { loadPrint, formSet } = this.props;
-    const { printData = [], worksheetId, worksheetInfo } = formSet;
-    const { showEditPrint, list, isRename, templateId, showMoreOption, showCreatePrintTemp, fileType } = this.state;
+    const { worksheetId, worksheetInfo = {} } = this.props;
+    const {
+      showEditPrint,
+      list,
+      isRename,
+      templateId,
+      showMoreOption,
+      showCreatePrintTemp,
+      fileType,
+      printData = [],
+    } = this.state;
     let defaulteTemData = printData.filter(it =>
       [PRINT_TYPE.SYS_PRINT, PRINT_TYPE.WORD_PRINT, PRINT_TYPE.EXCEL_PRINT].includes(it.type),
     ); //记录打印
@@ -424,7 +505,7 @@ class Print extends React.Component {
             {showEditPrint && (
               <EditPrint
                 onClickAwayExceptions={[]}
-                downLoadUrl={formSet.worksheetInfo.downLoadUrl}
+                downLoadUrl={worksheetInfo.downLoadUrl}
                 onClickAway={() => this.setState({ showEditPrint: false, type: '' })}
                 onClose={() => {
                   this.setState({ showEditPrint: false, type: '' });
@@ -435,7 +516,7 @@ class Print extends React.Component {
                 fileType={fileType}
                 refreshFn={() => {
                   this.setState({ showEditPrint: false, type: '' });
-                  loadPrint({ worksheetId: worksheetId }); // 获取当前模板
+                  this.loadPrint({ worksheetId: worksheetId }); // 获取当前模板
                 }}
               />
             )}
@@ -463,11 +544,11 @@ class Print extends React.Component {
                 isCharge: true,
                 mode: 'newTemplate',
                 printType: type === PRINT_TYPE.QR_CODE_PRINT ? 1 : 3,
-                projectId: formSet.worksheetInfo.projectId,
-                worksheetId: formSet.worksheetInfo.worksheetId,
-                controls: _.get(formSet, 'worksheetInfo.template.controls'),
+                projectId: worksheetInfo.projectId,
+                worksheetId: worksheetInfo.worksheetId,
+                controls: _.get(worksheetInfo, 'template.controls'),
                 onClose: () => {
-                  loadPrint({ worksheetId: formSet.worksheetInfo.worksheetId });
+                  this.loadPrint({ worksheetId: worksheetInfo.worksheetId });
                 },
               });
             }}
@@ -478,30 +559,30 @@ class Print extends React.Component {
   };
 
   render() {
-    const { formSet, loadPrint } = this.props;
-    const { worksheetInfo = [] } = formSet;
+    const { loading } = this.state;
+    const { worksheetInfo = {}, worksheetId } = this.props;
     const { views = [] } = worksheetInfo;
     let viewId = '';
     return (
       <React.Fragment>
-        {formSet.loading ? <LoadDiv /> : this.renderCon()}
+        {loading ? <LoadDiv /> : this.renderCon()}
         {this.state.showPrintTemDialog && (
           <PrintTemDialog
             printId={this.state.templateId}
             name={this.state.name}
             type={this.state.type} // 预览编辑新建
             isDefault={this.state.isDefault}
-            worksheetId={formSet.worksheetId}
-            projectId={formSet.worksheetInfo.projectId}
+            worksheetId={worksheetId}
+            projectId={worksheetInfo.projectId}
             rowId={''}
             viewId={viewId}
-            appId={formSet.worksheetInfo.appId}
+            appId={worksheetInfo.appId}
             getType={1}
             workId={''}
             from="formSet" // 表单设置
             fileTypeNum={this.state.fileTypeNum}
             onBack={value => {
-              loadPrint({ worksheetId: formSet.worksheetId }); // 获取当前模板
+              this.loadPrint({ worksheetId: worksheetId }); // 获取当前模板
               this.setState({
                 showPrintTemDialog: false,
                 type: '',
@@ -516,9 +597,4 @@ class Print extends React.Component {
   }
 }
 
-const mapStateToProps = state => ({
-  formSet: state.formSet,
-});
-const mapDispatchToProps = dispatch => bindActionCreators(actions, dispatch);
-
-export default connect(mapStateToProps, mapDispatchToProps)(Print);
+export default Print;

@@ -3,11 +3,12 @@
 import './style.less';
 import { formatFileSize, getClassNameByExt, getUrlByBucketName } from 'src/util';
 import mainTpl from './tpl/main.html';
-import { index as DialogLayer } from 'src/components/mdDialog/dialog';
 import doT from 'dot';
 import kcAjax from 'src/api/kc';
+import { Dialog, Button } from 'ming-ui';
+import React from 'react';
 
-var UploadNewVersion = function(item, file, callback) {
+var UploadNewVersion = function (item, file, callback) {
   var NV = this;
   NV.item = item;
   NV.file = file;
@@ -16,11 +17,11 @@ var UploadNewVersion = function(item, file, callback) {
 };
 
 UploadNewVersion.prototype = {
-  init: function() {
+  init: function () {
     var NV = this;
     NV.dialog();
   },
-  dialog: function() {
+  dialog: function () {
     var NV = this;
     var fullname = NV.file.name;
     if (fullname.lastIndexOf('.') > -1) {
@@ -30,43 +31,49 @@ UploadNewVersion.prototype = {
       NV.name = fullname;
     }
     var html = doT.template(mainTpl)();
-    NV.dialogBoxID =
-      'uploadNewVersion_' +
-      Math.random()
-        .toString(16)
-        .slice(2);
-    NV.dialog = new DialogLayer({
-      dialogBoxID: NV.dialogBoxID,
-      className: 'uploadNewVersion darkHeader',
+    NV.dialogBoxID = 'uploadNewVersion_' + Math.random().toString(16).slice(2);
+
+    Dialog.confirm({
+      dialogClasses: `${NV.dialogBoxID} uploadNewVersion darkHeader`,
       width: 540,
-      container: {
-        header: _l('上传新版本'),
-        content: html,
-        yesFn: function() {
-          return NV.addAsNewVersion();
-        },
-        noFn: function() {},
-      },
-      readyFn: () => {
-        NV.$dialog = $('#' + NV.dialogBoxID);
-        NV.$fileIcon = NV.$dialog.find('.fileIcon');
-        NV.$fileSize = NV.$dialog.find('.fileSize');
-        NV.$thumbnail = NV.$dialog.find('.thumbnail');
-        NV.$process = NV.$dialog.find('.process');
-        NV.$processContent = NV.$dialog.find('.processContent');
-        NV.$processPercent = NV.$dialog.find('.processPercent');
-        NV.$newVersionFileName = NV.$dialog.find('#newVersionFileName');
-        NV.$newVersionFileDetail = NV.$dialog.find('#newVersionFileDetail');
-        NV.$newVersionFileName.val(NV.name);
-      },
+      title: _l('上传新版本'),
+      children: <div dangerouslySetInnerHTML={{ __html: html }}></div>,
+      footer: (
+        <div className="Dialog-footer-btns">
+        <Button type="link" onClick={() => $(`.${NV.dialogBoxID}`).parent().remove()}>
+          {_l('取消')}
+        </Button>
+        <Button
+          type="primary"
+          onClick={() => {
+            let sign = NV.addAsNewVersion();
+            if (sign === false) return;
+            $(`.${NV.dialogBoxID}`).parent().remove();
+          }}
+        >
+          {_l('确认')}
+        </Button>
+      </div>
+      ),
     });
+
+    NV.$dialog = $('.' + NV.dialogBoxID);
+    NV.$fileIcon = NV.$dialog.find('.fileIcon');
+    NV.$fileSize = NV.$dialog.find('.fileSize');
+    NV.$thumbnail = NV.$dialog.find('.thumbnail');
+    NV.$process = NV.$dialog.find('.process');
+    NV.$processContent = NV.$dialog.find('.processContent');
+    NV.$processPercent = NV.$dialog.find('.processPercent');
+    NV.$newVersionFileName = NV.$dialog.find('#newVersionFileName');
+    NV.$newVersionFileDetail = NV.$dialog.find('#newVersionFileDetail');
+    NV.$newVersionFileName.val(NV.name);
   },
-  uploaded: function(qiniuInfo) {
+  uploaded: function (qiniuInfo) {
     let server = getUrlByBucketName(qiniuInfo.bucket);
     this.filePath = server + qiniuInfo.key;
     this.hideProcess();
   },
-  addAsNewVersion: function() {
+  addAsNewVersion: function () {
     var NV = this;
     var versionDes = NV.$newVersionFileDetail.val().trim();
     var versionName = NV.$newVersionFileName.val().trim();
@@ -90,19 +97,19 @@ UploadNewVersion.prototype = {
         filePath: NV.filePath,
         size: NV.file.size || 0,
       })
-      .then(function(data) {
+      .then(function (data) {
         alert(_l('已上传为新版本'));
         if (NV.callback) {
           NV.callback(data);
         }
       });
   },
-  setProcess: function(percent) {
+  setProcess: function (percent) {
     var NV = this;
     NV.$processContent.css({ width: percent + '%' });
     NV.$processPercent.text(Math.ceil(percent) + '%');
   },
-  hideProcess: function() {
+  hideProcess: function () {
     var NV = this;
     NV.$process.hide();
     if (File.isPicture('.' + NV.ext) && FileReader) {
@@ -111,19 +118,19 @@ UploadNewVersion.prototype = {
       NV.loadDocIcon();
     }
   },
-  loadDocIcon: function() {
+  loadDocIcon: function () {
     var NV = this;
     var fileIconClass = getClassNameByExt('.' + NV.ext);
     NV.$fileIcon.addClass(fileIconClass).show();
     NV.$fileSize.text(formatFileSize(NV.file.size).replace(/ /g, ''));
   },
-  loadPicture: function() {
+  loadPicture: function () {
     var NV = this;
     var reader = new FileReader();
     var img = document.createElement('img');
     img.addEventListener(
       'error',
-      function() {
+      function () {
         NV.$thumbnail.hide();
         NV.loadDocIcon();
       },
@@ -131,7 +138,7 @@ UploadNewVersion.prototype = {
     );
     reader.addEventListener(
       'load',
-      function() {
+      function () {
         img.src = reader.result;
       },
       false,
@@ -141,7 +148,7 @@ UploadNewVersion.prototype = {
     }
     NV.$thumbnail.append(img).show();
   },
-  validate: function(str) {
+  validate: function (str) {
     var illegalChars = /[\/\\\:\*\?\"\<\>\|]/g;
     var valid = illegalChars.test(str);
     if (valid) {
@@ -152,8 +159,8 @@ UploadNewVersion.prototype = {
   },
 };
 
-export default function(item, file, callback) {
+export default function (item, file, callback) {
   var uploadNewVersion = new UploadNewVersion(item, file, callback);
   return uploadNewVersion;
-};
+}
 // });

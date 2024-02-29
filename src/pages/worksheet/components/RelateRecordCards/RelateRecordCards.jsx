@@ -5,6 +5,7 @@ import { autobind } from 'core-decorators';
 import styled from 'styled-components';
 import sheetAjax from 'src/api/worksheet';
 import autoSize from 'ming-ui/decorators/autoSize';
+import ChildTableContext from 'worksheet/components/ChildTable/ChildTableContext';
 import { selectRecord } from 'src/components/recordCardListDialog';
 import { mobileSelectRecord } from 'src/components/recordCardListDialog/mobile';
 import RelateScanQRCode from 'src/components/newCustomFields/components/RelateScanQRCode';
@@ -13,7 +14,7 @@ import { searchRecordInDialog } from 'src/pages/worksheet/components/SearchRelat
 import { RecordInfoModal as MobileRecordInfoModal } from 'mobile/Record';
 import NewRecord from 'src/pages/worksheet/common/newRecord/NewRecord';
 import MobileNewRecord from 'src/pages/worksheet/common/newRecord/MobileNewRecord';
-import { getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
+import { getTitleTextFromRelateControl, controlState } from 'src/components/newCustomFields/tools/utils';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import RecordCoverCard from './RecordCoverCard';
 import RecordTag from './RecordTag';
@@ -117,14 +118,14 @@ const SearchRecordsButton = styled(Icon)`
   }
 `;
 
-export function getCardWidth({ width, isMobile, enumDefault }) {
+export function getCardWidth({ width, isMobile, enumDefault, records }) {
   let cardWidth;
   let colNum = 1;
   if (width) {
     const containerWidth = width - 2;
     if (isMobile) {
       cardWidth = '100%';
-    } else if (enumDefault === 1) {
+    } else if (enumDefault === 1 || (records && records.length === 1)) {
       cardWidth = containerWidth - 14;
     } else if (containerWidth >= 1200) {
       cardWidth = Math.floor(containerWidth / 3) - 14;
@@ -144,6 +145,7 @@ export function getCardWidth({ width, isMobile, enumDefault }) {
 
 @autoSize
 export default class RelateRecordCards extends Component {
+  static contextType = ChildTableContext;
   static propTypes = {
     editable: PropTypes.bool,
     multiple: PropTypes.bool,
@@ -285,12 +287,15 @@ export default class RelateRecordCards extends Component {
     const { control = {} } = this.props;
     const { from, disabled, enumDefault, enumDefault2 } = control;
     const { records = [] } = this.state;
+    const controlPermission = controlState(control, from);
+
     return (
       (!records.length || enumDefault === 2) &&
       from !== FROM.SHARE &&
       enumDefault2 !== 11 &&
       (this.isCard ? !this.disabledManualWrite : true) &&
-      !disabled
+      !disabled &&
+      controlPermission.editable
     );
   }
   get allowReplaceRecord() {
@@ -358,7 +363,6 @@ export default class RelateRecordCards extends Component {
         controlId,
         pageIndex,
         pageSize: 50,
-        shareId: _.get(window, 'shareState.shareId') || undefined,
       })
       .then(res => {
         this.setState(state => {
@@ -373,7 +377,7 @@ export default class RelateRecordCards extends Component {
       });
   }
 
-  handleChange() {
+  handleChange(searchByChange) {
     const { recordId, onChange } = this.props;
     const { count, records, isLoadingMore, showLoadMore, pageIndex, deletedIds = [], addedIds = [] } = this.state;
     onChange({
@@ -381,6 +385,7 @@ export default class RelateRecordCards extends Component {
       addedIds,
       records,
       count: count,
+      searchByChange,
     });
     if (recordId && !isLoadingMore && showLoadMore && records.length < 20) {
       this.loadMoreRecords(pageIndex + 1);
@@ -429,7 +434,8 @@ export default class RelateRecordCards extends Component {
           count: count + newRecords.length,
           addedIds: addedIds.concat(newRecords.map(r => r.rowid)),
         },
-        this.handleChange,
+        // 查询更新，被动更新
+        () => this.handleChange(false),
       );
     });
   }
@@ -517,6 +523,7 @@ export default class RelateRecordCards extends Component {
 
   handleSelectRecord(onOk = () => {}, options = {}) {
     const { control, showCoverAndControls } = this.props;
+    const { rows } = this.context || {};
     const {
       appId,
       viewId,
@@ -540,7 +547,14 @@ export default class RelateRecordCards extends Component {
       disabledManualWrite: disabledManualWrite,
       multiple: enumDefault === 2,
       coverCid: coverCid,
-      filterRowIds: records.map(r => r.rowid).concat(control.dataSource === worksheetId ? recordId : []),
+      filterRowIds: records
+        .map(r => r.rowid)
+        .concat(control.dataSource === worksheetId ? recordId : [])
+        .concat(
+          control.isSubList && (control.unique || control.uniqueInRecord)
+            ? (rows || []).map(r => _.get(safeParse(r[control.controlId], 'array'), '0.sid')).filter(_.identity)
+            : [],
+        ),
       showControls: showControls,
       appId: appId,
       viewId: viewId,
@@ -579,9 +593,11 @@ export default class RelateRecordCards extends Component {
     const { allowReplaceRecord, isCard } = this;
     const { records, showAll, showLoadMore, isLoadingMore, pageIndex } = this.state;
     const allowlink = (advancedSetting || {}).allowlink;
-    const allowRemove = control.advancedSetting.allowcancel !== '0' || enumDefault === 1;
+    const controlPermission = controlState(control, from);
+    const allowRemove =
+      (control.advancedSetting.allowcancel !== '0' || enumDefault === 1) && controlPermission.editable;
     const isMobile = browserIsMobile();
-    const { cardWidth, colNum } = getCardWidth({ width, isMobile, enumDefault });
+    const { cardWidth, colNum } = getCardWidth({ width, isMobile, enumDefault, records });
     if (isCard) {
       return (
         <div
@@ -797,6 +813,7 @@ export default class RelateRecordCards extends Component {
                         control.refreshRecord();
                       }
                     }}
+                    projectId={projectId}
                     recordId={previewRecord && previewRecord.recordId}
                     worksheetId={dataSource}
                     currentSheetRows={records}

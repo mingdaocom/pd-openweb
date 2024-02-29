@@ -1,34 +1,10 @@
 import React, { Component, Fragment } from 'react';
+import cx from 'classnames';
 import { Icon } from 'ming-ui';
 import { Collapse, Select, Input } from 'antd';
 import { reportTypes, numberLevel } from 'statistics/Charts/common';
-import styled from 'styled-components';
 import { formatNumberFromInput } from 'src/util';
 import _ from 'lodash';
-
-const FixTypeWrapper = styled.div`
-  position: relative;
-  .ant-select {
-    position: absolute;
-    z-index: 1;
-    border-right: 1px solid #d9d9d9;
-  }
-  .ant-select-selector {
-    width: 80px !important;
-    border: none !important;
-    background-color: transparent !important;
-    height: 28px !important;
-    &:hover {
-      border-color: #d9d9d9;
-    }
-  }
-  .ant-select-arrow {
-    right: 4px;
-  }
-  .ant-input {
-    padding-left: 90px;
-  }
-`;
 
 class Unit extends Component {
   constructor(props) {
@@ -168,7 +144,7 @@ class Unit extends Component {
         </div>
         <div className="mBottom15">
           <div className="mBottom8">{_l('单位')}</div>
-          <FixTypeWrapper className="valignWrapper">
+          <div className="addonBeforeWrapper valignWrapper">
             <Select
               className="chartSelect"
               disabled={[0].includes(magnitude)}
@@ -183,13 +159,14 @@ class Unit extends Component {
             </Select>
             <Input
               className="chartInput flex"
+              style={{ paddingLeft: 90 }}
               value={suffix}
               disabled={[0].includes(magnitude)}
               onChange={event => {
                 this.handleChangeSuffix(event.target.value.slice(0, 10), data);
               }}
             />
-          </FixTypeWrapper>
+          </div>
         </div>
       </Fragment>
     );
@@ -197,12 +174,13 @@ class Unit extends Component {
 }
 
 export default function unitPanelGenerator(props) {
-  const { currentReport, changeCurrentReport, ...collapseProps } = props;
-  const { reportType, yaxisList, rightY } = currentReport;
+  const { currentReport, changeCurrentReport, onChangeStyle, ...collapseProps } = props;
+  const { reportType, yaxisList, rightY, style } = currentReport;
   const isDualAxes = reportType === reportTypes.DualAxes;
   const rightYaxisList = rightY ? rightY.yaxisList : [];
   const firstYaxis = yaxisList[0];
   const firstRightYaxis = rightYaxisList[0];
+  const { tooltipValueType = 0 } = style;
   return (
     <Fragment>
       {[reportTypes.PivotTable, reportTypes.NumberChart, reportTypes.TopChart].includes(reportType) ? (
@@ -270,6 +248,34 @@ export default function unitPanelGenerator(props) {
                 }}
               />
             </Fragment>
+          )}
+          {[
+            reportTypes.BarChart,
+            reportTypes.LineChart,
+            reportTypes.DualAxes,
+            reportTypes.BidirectionalBarChart,
+            reportTypes.PieChart,
+            reportTypes.RadarChart,
+            reportTypes.FunnelChart,
+            reportTypes.ScatterChart
+          ].includes(reportType) && (
+            <div className="mBottom15 mTop5">
+              <div className="mBottom8">{_l('卡片内容')}</div>
+              <div className="chartTypeSelect flexRow valignWrapper">
+                <div
+                  className={cx('flex centerAlign pointer Gray_75', { active: tooltipValueType === 0 })}
+                  onClick={() => onChangeStyle({ tooltipValueType: 0 })}
+                >
+                  {_l('原值')}
+                </div>
+                <div
+                  className={cx('flex centerAlign pointer Gray_75', { active: tooltipValueType === 1 })}
+                  onClick={() => onChangeStyle({ tooltipValueType: 1 })}
+                >
+                  {_l('显示单位')}
+                </div>
+              </div>
+            </div>
           )}
         </Collapse.Panel>
       )}

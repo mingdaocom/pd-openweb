@@ -1,17 +1,17 @@
 import React, { Component, Fragment } from 'react';
 import { func, string, object, oneOf } from 'prop-types';
-import { Dialog, Textarea, Dropdown, Signature, Menu, MenuItem, Icon } from 'ming-ui';
+import { Dialog, Textarea, Dropdown, Signature, VerifyPasswordInput } from 'ming-ui';
 import { ACTION_TO_TEXT } from '../../config';
 import cx from 'classnames';
 import _ from 'lodash';
 import { verifyPassword } from 'src/util';
-import VerifyPassword from '../VerifyPassword';
 import quickSelectUser from 'ming-ui/functions/quickSelectUser';
 import styled from 'styled-components';
 import codeAuth from 'src/api/codeAuth';
-import { Select, Tooltip } from 'antd';
+import { Tooltip } from 'antd';
 import './index.less';
 import delegationAJAX from '../../../../api/delegation';
+import Attachment from 'src/components/newCustomFields/widgets/Attachment';
 
 const Member = styled.span`
   align-items: center;
@@ -55,50 +55,47 @@ const Member = styled.span`
   }
 `;
 
-const MenuBox = styled(Menu)`
-  right: 0 !important;
-  width: auto !important;
-  margin-top: -1px;
-  max-height: 250px;
+const TemplateList = styled.div`
   overflow-x: hidden;
   overflow-y: auto;
-  .ming.Item {
-    min-height: 36px !important;
-    height: auto !important;
-  }
-  .Item-content {
-    overflow: inherit !important;
-    word-break: break-all !important;
-    white-space: inherit !important;
-    line-height: 20px !important;
-    min-height: 36px;
-    padding-top: 8px !important;
-    padding-bottom: 8px !important;
-    white-space: break-spaces !important;
-  }
-`;
-
-const SelectBox = styled(Select)`
-  width: 100%;
-  &.ant-select-focused {
-    .ant-select-selector {
-      border-color: #1e88e5 !important;
-      box-shadow: none !important;
+  max-height: 180px;
+  span {
+    max-width: 100%;
+    height: 28px;
+    display: inline-block;
+    line-height: 28px;
+    padding: 0 12px;
+    margin-right: 8px;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    cursor: pointer;
+    background: #f5f5f5;
+    border-radius: 3px;
+    color: #757575;
+    &:hover,
+    &.active {
+      color: #2196f3;
+      background-color: #e8f5ff;
     }
   }
-  .ant-select-selector {
-    height: 36px !important;
-    border-color: #ccc !important;
-    border-radius: 4px !important;
-    padding: 3px 10px !important;
-    transition: none !important;
-  }
-  input {
-    height: 34px !important;
+`;
+
+const AttachmentBtn = styled.span`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  margin-left: 10px;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  &:hover {
+    background-color: #f5f5f5;
   }
 `;
 
-export default class Approve extends Component {
+export default class OtherAction extends Component {
   static propTypes = {
     projectId: string,
     data: object,
@@ -116,12 +113,10 @@ export default class Approve extends Component {
 
   constructor(props) {
     super(props);
-
-    const { isCallBack } = (props.data || {}).flowNode || {};
     let backNodeId = '';
     let content = '';
 
-    if (props.action === 'return' && isCallBack) {
+    if (props.action === 'return') {
       backNodeId = _.get(props.data, 'backFlowNodes[0].id') || '';
     }
 
@@ -145,10 +140,10 @@ export default class Approve extends Component {
       link: '',
       code: '',
       resultCode: '',
-      showTemplateList: false,
       entrustList: {},
       showPassword: false,
       removeNoneVerification: false,
+      files: '',
     };
   }
 
@@ -184,15 +179,15 @@ export default class Approve extends Component {
     );
   };
 
-  onOk = (backNodeId = '') => {
+  onOk = () => {
     const { projectId, action, onOk, onCancel } = this.props;
-    const { content, selectedUsers, entrustList, showPassword } = this.state;
+    const { content, backNodeId, selectedUsers, entrustList, showPassword, files } = this.state;
     const { auth, encrypt } = (this.props.data || {}).flowNode || {};
     const passContent = action === 'pass' && _.includes(auth.passTypeList, 100);
     const passSignature = _.includes(['pass', 'after'], action) && _.includes(auth.passTypeList, 1);
     const overruleContent = _.includes(['overrule', 'return'], action) && _.includes(auth.overruleTypeList, 100);
     const overruleSignature = _.includes(['overrule', 'return'], action) && _.includes(auth.overruleTypeList, 1);
-
+    const attachments = files ? JSON.stringify(JSON.parse(files).attachments) : '';
     const submitFun = () => {
       const userId = selectedUsers
         .map(user => {
@@ -209,11 +204,11 @@ export default class Approve extends Component {
 
       if (this.signature) {
         this.signature.saveSignature(signature => {
-          onOk({ action, content, userId, backNodeId, signature });
+          onOk({ action, content, userId, backNodeId, signature, files: attachments });
           onCancel();
         });
       } else {
-        onOk({ action, content, userId, backNodeId, signature: undefined });
+        onOk({ action, content, userId, backNodeId, signature: undefined, files: attachments });
         onCancel();
       }
     };
@@ -231,8 +226,17 @@ export default class Approve extends Component {
       return;
     }
 
+    if ($('.approveDialog .fileUpdateLoading').length) {
+      alert(_l('附件正在上传，请稍后'), 3);
+      return;
+    }
+
     // 验证密码
     if (_.includes(['pass', 'overrule', 'return'], action) && encrypt) {
+      if (showPassword && (!this.password || !this.password.trim())) {
+        alert(_l('请输入密码'), 3);
+        return;
+      }
       verifyPassword({
         projectId,
         password: this.password,
@@ -458,59 +462,30 @@ export default class Approve extends Component {
    */
   renderTemplateList() {
     const { action, data } = this.props;
-    const { showTemplateList } = this.state;
+    const { content } = this.state;
     const { opinionTemplate } = data;
     let list =
       (_.includes(['pass', 'after'], action) ? opinionTemplate.opinions[4] : opinionTemplate.opinions[5]) || [];
 
-    if (!showTemplateList || !list.length) {
+    if (!list.length) {
       return null;
     }
 
     return (
-      <MenuBox
-        className="mTop1"
-        onClickAwayExceptions={['.approveDialog .Textarea']}
-        onClickAway={() => this.setState({ showTemplateList: false })}
-      >
-        {list.map((item, index) => (
-          <MenuItem key={index} onClick={() => this.setState({ content: item.value, showTemplateList: false })}>
-            {item.value}
-          </MenuItem>
-        ))}
-      </MenuBox>
-    );
-  }
-
-  /**
-   * 渲染审批意见只能选择模板
-   */
-  renderSelectTemplate() {
-    const { action, data } = this.props;
-    const { content } = this.state;
-    const { opinionTemplate } = data;
-    const options = (
-      (_.includes(['pass', 'after'], action) ? opinionTemplate.opinions[4] : opinionTemplate.opinions[5]) || []
-    ).map(item => {
-      return {
-        value: item.value,
-        label: item.value,
-      };
-    });
-
-    return (
-      <SelectBox
-        showSearch
-        allowClear
-        defaultValue={content || undefined}
-        suffixIcon={<Icon icon="arrow-down-border Font14" />}
-        notFoundContent={<span className="Gray_9e">{_l('无匹配结果')}</span>}
-        dropdownClassName="workflowTemplateListSelect"
-        placeholder={_l('请选择')}
-        onChange={value => this.setState({ content: value || '' })}
-        filterOption={(input, option) => option.label.toLowerCase().includes(input.toLowerCase())}
-        options={options}
-      />
+      <Fragment>
+        <div className="Gray_75 mTop15 mBottom6">{_l('选择预设')}</div>
+        <TemplateList>
+          {list.map((item, index) => (
+            <span
+              className={cx('ellipsis', { active: content.trim() === item.value.trim() })}
+              key={index}
+              onClick={() => this.setState({ content: item.value })}
+            >
+              {item.value}
+            </span>
+          ))}
+        </TemplateList>
+      </Fragment>
     );
   }
 
@@ -518,7 +493,7 @@ export default class Approve extends Component {
     const { action, onCancel } = this.props;
     const { callBackNodeType, opinionTemplate } = this.props.data;
     const { isCallBack, auth, encrypt } = (this.props.data || {}).flowNode || {};
-    const { content, backNodeId, showCode, link, resultCode, showPassword, removeNoneVerification } = this.state;
+    const { content, backNodeId, showCode, link, resultCode, showPassword, removeNoneVerification, files } = this.state;
     const backFlowNodes = ((this.props.data || {}).backFlowNodes || []).map(item => {
       return {
         text: item.name,
@@ -529,6 +504,11 @@ export default class Approve extends Component {
     const passSignature = _.includes(['pass', 'after'], action) && _.includes(auth.passTypeList, 1);
     const overruleContent = _.includes(['overrule', 'return'], action) && _.includes(auth.overruleTypeList, 100);
     const overruleSignature = _.includes(['overrule', 'return'], action) && _.includes(auth.overruleTypeList, 1);
+    const hideContent =
+      (action === 'pass' && _.includes(auth.passTypeList, 101)) ||
+      (action === 'overrule' && _.includes(auth.overruleTypeList, 101));
+    const onlySelectTemplate =
+      opinionTemplate.inputType === 2 && _.includes(['pass', 'overrule', 'return', 'after'], action);
 
     if (showCode) {
       return (
@@ -610,16 +590,18 @@ export default class Approve extends Component {
         className={cx('approveDialog', { approveDialogBtn: action === 'overrule' })}
         visible
         overlayClosable={false}
-        width={560}
+        width={640}
         title={this.renderHeader()}
         handleClose={onCancel}
-        onOk={() => this.onOk(backNodeId)}
+        onOk={this.onOk}
         onCancel={onCancel}
       >
         {_.includes(['pass', 'overrule', 'return'], action) && encrypt && showPassword && (
           <div className="mBottom15">
-            <VerifyPassword
-              removeNoneVerification={removeNoneVerification}
+            <VerifyPasswordInput
+              showSubTitle={false}
+              isRequired={true}
+              allowNoVerify={!removeNoneVerification}
               onChange={({ password, isNoneVerification }) => {
                 if (password !== undefined) this.password = password;
                 if (isNoneVerification !== undefined) this.isNoneVerification = isNoneVerification;
@@ -630,35 +612,61 @@ export default class Approve extends Component {
 
         {_.includes(['after', 'before', 'transfer', 'transferApprove', 'addApprove'], action) && this.renderMember()}
 
-        <div className="relative bold">
-          {(passContent || overruleContent) && (
-            <div className="Absolute" style={{ margin: '1px 0px 0px -8px', color: '#f44336' }}>
-              *
+        {!hideContent && (
+          <Fragment>
+            <div className="relative bold">
+              {(passContent || overruleContent) && (
+                <div className="Absolute" style={{ margin: '1px 0px 0px -8px', color: '#f44336' }}>
+                  *
+                </div>
+              )}
+              {_l('审批意见')}
             </div>
-          )}
-          {_l('审批意见')}
-        </div>
-        <div className="mTop10 relative">
-          {opinionTemplate.inputType === 2 && _.includes(['pass', 'overrule', 'return', 'after'], action) ? (
-            this.renderSelectTemplate()
-          ) : (
-            <Textarea
-              className="Font13 TxtTop"
-              minHeight={0}
-              style={{ paddingTop: 7, paddingBottom: 7 }}
-              maxHeight={240}
-              value={content}
-              onChange={content => this.setState({ content })}
-              onFocus={() => this.setState({ showTemplateList: true })}
-              onBlue={() => this.setState({ showTemplateList: false })}
-              placeholder={(ACTION_TO_TEXT[action] || {}).placeholder}
-            />
-          )}
+            <div className="mTop10 relative">
+              <div className="flexRow">
+                <Textarea
+                  className="Font13 TxtTop flex"
+                  disabled={onlySelectTemplate}
+                  minHeight={0}
+                  style={{ paddingTop: 7, paddingBottom: 7 }}
+                  maxHeight={240}
+                  value={content}
+                  onChange={content => this.setState({ content })}
+                  placeholder={
+                    onlySelectTemplate ? _l('选择预设的审批意见') : (ACTION_TO_TEXT[action] || {}).placeholder
+                  }
+                />
+                {_.includes(['pass', 'overrule', 'return', 'after'], action) && (
+                  <AttachmentBtn
+                    className="tip-top"
+                    data-tip={_l('添加附件')}
+                    onClick={() => {
+                      $('.approveDialog .customFieldsContainer .triggerTraget').click();
+                    }}
+                  >
+                    <i className="Font16 Gray_75 icon-attachment" />
+                  </AttachmentBtn>
+                )}
+              </div>
 
-          {opinionTemplate.inputType === 1 &&
-            _.includes(['pass', 'overrule', 'return', 'after'], action) &&
-            this.renderTemplateList()}
-        </div>
+              {_.includes(['pass', 'overrule', 'return', 'after'], action) && this.renderTemplateList()}
+            </div>
+
+            {_.includes(['pass', 'overrule', 'return', 'after'], action) && (
+              <div className="mTop10">
+                <div className="customFieldsContainer InlineBlock mLeft0 pointer">
+                  <Attachment
+                    value={files}
+                    hint={_l('附件')}
+                    canAddKnowledge={false}
+                    advancedSetting={{}}
+                    onChange={files => this.setState({ files })}
+                  />
+                </div>
+              </div>
+            )}
+          </Fragment>
+        )}
 
         {isCallBack && action === 'return' && !!backFlowNodes.length && (
           <Fragment>

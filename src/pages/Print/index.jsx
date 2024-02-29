@@ -5,6 +5,8 @@ import Header from './components/header';
 import Con from './components/content';
 import { Icon, Dialog, LoadDiv } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
+import homeAppApi from 'src/api/homeApp';
+import appManagementApi from 'src/api/appManagement';
 import instance from 'src/pages/workflow/api/instanceVersion';
 import './index.less';
 import SaveDia from './components/saveDia';
@@ -18,8 +20,10 @@ import { getControlsForPrint, sysToPrintData, isRelation } from './util';
 import appManagementAjax from 'src/api/appManagement';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import _ from 'lodash';
-import { addBehaviorLog } from 'src/util';
+import { addBehaviorLog, getTranslateInfo } from 'src/util';
+import { replaceControlsTranslateInfo } from 'worksheet/util';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { canEditApp } from 'src/pages/worksheet/redux/actions/util.js';
 
 class PrintForm extends React.Component {
   constructor(props) {
@@ -53,10 +57,13 @@ class PrintForm extends React.Component {
       saveLoading: false,
       approval: [],
       useWps: false,
+      isUserAdmin: false
     };
   }
   componentWillMount = () => {
-    this.getParamFn();
+    this.getApp(() => {
+      this.getParamFn();
+    });
   };
   componentDidMount() {
     $('html').addClass('printPage');
@@ -70,6 +77,31 @@ class PrintForm extends React.Component {
       webCacheAjax.clear({
         key: `${key}`,
       });
+    }
+  }
+  getApp = (cb) => {
+    const { params } = this.state;
+    const { type, from, appId, printType } = params;
+    if (from === fromType.PRINT && type === typeForCon.NEW && appId && printType !== 'flow') {
+      homeAppApi.getApp({ appId: appId, getLang: true }, { silent: true }).then(data => {
+        this.setState({
+          isUserAdmin: canEditApp(data.permissionType, data.isLock), //开发者|管理员
+        });
+        if (data.langInfo && data.langInfo.appLangId) {
+          appManagementApi.getAppLangDetail({
+            projectId: data.projectId,
+            appId,
+            appLangId: data.langInfo.appLangId
+          }).then(lang => {
+            window[`langData-${appId}`] = lang;
+            cb && cb();
+          });
+        } else {
+          cb && cb();
+        }
+      });
+    } else {
+      cb && cb();
     }
   }
   getParamFn = () => {
@@ -111,8 +143,10 @@ class PrintForm extends React.Component {
       .getWorksheetInfo({
         worksheetId: worksheetId,
         getSwitchPermit: true,
+        getTemplate: true,
       })
       .then(res => {
+        res.name = getTranslateInfo(res.appId, worksheetId).name || res.name;
         this.setInfo(res);
       });
   };
@@ -130,6 +164,7 @@ class PrintForm extends React.Component {
       {
         downLoadUrl: res.downLoadUrl,
         sheetSwitchPermit: res.switches,
+        info: res,
       },
       () => {
         if (isDefault) {
@@ -297,8 +332,14 @@ class PrintForm extends React.Component {
         let _index = controls.findIndex(l => l.controlId === item.controlId);
         if (_index > -1 && item.type === 51) {
           _printData.receiveControls[index].value =
-            res[_index].data.length === 0 ? '' : JSON.stringify(res[_index].data);
+            (res[_index].data || []).length === 0 ? '' : JSON.stringify(res[_index].data);
           _printData.receiveControls[index].relationsData = res[_index];
+          if (
+            (!_printData.receiveControls[index].relationControls ||
+              _printData.receiveControls[index].relationControls.length === 0) &&
+            res[_index].template
+          )
+            _printData.receiveControls[index].relationControls = res[_index].template.controls;
         }
       });
       this.setState({
@@ -308,7 +349,7 @@ class PrintForm extends React.Component {
   };
 
   getData = () => {
-    const { params } = this.state;
+    const { params, info } = this.state;
     const {
       printId,
       projectId,
@@ -355,6 +396,10 @@ class PrintForm extends React.Component {
         });
         return;
       }
+      res.formName = getTranslateInfo(appId, worksheetId).name || res.formName;
+      if (res.receiveControls && res.receiveControls.length) {
+        res.receiveControls = replaceControlsTranslateInfo(appId, res.receiveControls);
+      }
 
       const rules = resData[1];
       //通过规则计算
@@ -370,6 +415,14 @@ class PrintForm extends React.Component {
             ? true
             : controlState(o).visible,
         ); //系统打印需要根据用户权限显示
+      receiveControls = receiveControls.map(l => {
+        let _control = (_.get(info.template, 'controls') || []).find(m => m.controlId === l.controlId);
+
+        return _control ? {
+          ...l,
+          advancedSetting: _control.advancedSetting,
+        } : l;
+      });
       let dat = (res.receiveControls || []).filter(o => ![43, 49].includes(o.type)); //去除 文本识别 43 接口查询按钮
       let attribute = dat.find(it => it.attribute === 1);
       let attributeName = !attribute ? _l('未命名') : renderCellText(attribute) || _l('未命名');
@@ -796,6 +849,7 @@ class PrintForm extends React.Component {
       downFn: this.downFn,
       showPdf,
       sheetSwitchPermit: sheetSwitchPermit,
+      isUserAdmin: this.state.isUserAdmin
     };
 
     return (

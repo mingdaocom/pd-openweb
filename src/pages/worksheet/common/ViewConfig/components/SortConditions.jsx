@@ -252,24 +252,17 @@ export default class SortConditions extends React.Component {
     const sortConditionControls = sortConditions
       .map(c => _.find(columns, column => column.controlId === c.controlId))
       .filter(_.identity);
-    const optionCondition = _.find(
-      sortConditionControls,
-      scc =>
-        ([9, 10, 11].includes(scc.type) && !scc.strDefault) || //选项字段只有当strDefault值不为空（等于index）的时候才允许多个排序
-        ([9, 10, 11].includes(scc.sourceControlType) && scc.type === 30), //他表字段，是不能多个字段排序的，他表字段只能按照原来的方式排序
-    );
-    const userCondition = _.find(sortConditionControls, scc => scc.type === 26);
-    const groupCondition = _.find(sortConditionControls, scc => scc.type === 27);
-    const existControls = [optionCondition, userCondition, groupCondition].filter(_.identity);
+    // 人员，部门，关联，组织角色，附件，级联选择此类支持多选的数组格式，都只能选择一个排序
+    const list = [26, 27, 29, 48, 35, 14, 9, 10, 11];
+    // const optionTypes = [9, 10, 11];
+    const isExist = !!sortConditionControls.find(o => list.includes(o.type) || list.includes(o.sourceControlType));
     return filterOnlyShowField(columns)
       .filter(o => ![42, 47, 49, 51, 52].includes(o.type)) //排除签名字段 扫码 接口查询按钮 查询记录
       .filter(
         c =>
           (!_.find(sortConditions, sc => sc.controlId === c.controlId) || c.controlId === controlId) &&
-          (!(
-            existControls.length && _.find([9, 11, 10, 26, 27], type => [c.type, c.sourceControlType].includes(type))
-          ) ||
-            (control && _.find([9, 11, 10, 26, 27], type => [control.type, control.sourceControlType].includes(type)))),
+          (!(isExist && _.find(list, type => [c.type, c.sourceControlType].includes(type))) ||
+            (control && _.find(list, type => [control.type, control.sourceControlType].includes(type)))),
       )
       .map(c => ({
         text: c.controlName,

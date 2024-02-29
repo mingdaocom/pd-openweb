@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
 import { Tooltip } from 'antd';
 import SvgIcon from 'src/components/SvgIcon';
-import DialogIntegrationApi from 'src/components/DialogIntegrationApi';
+import selectIntegrationApi from 'src/components/dialogSelectIntegrationApi';
 import worksheetAjax from 'src/api/worksheet';
 import { SettingItem } from '../../../styled';
 import { getRgbaByColor } from 'src/pages/widgetConfig/util';
@@ -130,7 +130,6 @@ export default function ApiSearchConfig(props) {
   const { data = {}, globalSheetInfo = {}, onChange, status: { saveIndex } = {} } = props;
   const requestmap = getAdvanceSetting(data, 'requestmap') || [];
   const responsemap = getAdvanceSetting(data, 'responsemap') || [];
-  const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [apiInfo, setApiInfo] = useState({});
   const [requestControls, setRequestControls] = useState([]);
@@ -201,6 +200,28 @@ export default function ApiSearchConfig(props) {
     }
   };
 
+  // 选择已集成的api
+  const integrationApi = () => {
+    selectIntegrationApi({
+      projectId: globalSheetInfo.projectId,
+      appId: globalSheetInfo.appId,
+      onOk: id => {
+        if (id && id !== data.dataSource) {
+          onChange({
+            ...handleAdvancedSettingChange(data, {
+              requestmap: '',
+              responsemap: '',
+              itemsource: '',
+              itemtitle: '',
+              itemdesc: '',
+            }),
+            dataSource: id,
+          });
+        }
+      },
+    });
+  };
+
   return (
     <Fragment>
       <SettingItem>
@@ -208,7 +229,7 @@ export default function ApiSearchConfig(props) {
         {loading ? (
           <LoadDiv className="mTop20 flexCenter" size="small" />
         ) : (
-          <BasicInfo data={data} apiInfo={apiInfo} onClick={() => setVisible(true)} globalSheetInfo={globalSheetInfo} />
+          <BasicInfo data={data} apiInfo={apiInfo} onClick={integrationApi} globalSheetInfo={globalSheetInfo} />
         )}
       </SettingItem>
 
@@ -223,29 +244,6 @@ export default function ApiSearchConfig(props) {
 
       {/** 返回数据映射 */}
       <SearchMapping responseControls={responseControls} originResponseControls={originResponseControls} {...props} />
-
-      {/**集成API弹层 */}
-      {visible && (
-        <DialogIntegrationApi
-          projectId={globalSheetInfo.projectId}
-          appId={globalSheetInfo.appId}
-          onClose={() => setVisible(false)}
-          onOk={id => {
-            if (id && id !== data.dataSource) {
-              onChange({
-                ...handleAdvancedSettingChange(data, {
-                  requestmap: '',
-                  responsemap: '',
-                  itemsource: '',
-                  itemtitle: '',
-                  itemdesc: '',
-                }),
-                dataSource: id,
-              });
-            }
-          }}
-        />
-      )}
     </Fragment>
   );
 }

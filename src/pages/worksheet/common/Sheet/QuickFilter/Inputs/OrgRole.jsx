@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { arrayOf, func, string } from 'prop-types';
-import { selectOrgRole } from 'src/components/DialogSelectOrgRole';
+import selectOrgRole from 'src/components/dialogSelectOrgRole';
 import { BaseSelectedItem } from './Styles';
 import _ from 'lodash';
 

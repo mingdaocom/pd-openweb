@@ -17,12 +17,7 @@ export default function MySQLGuide(props) {
         <li className="pointer textUnderline" onClick={() => document.getElementById('authId').scrollIntoView()}>
           {_l('授权MySQL账户对应的权限')}
         </li>
-        <li
-          className="pointer textUnderline"
-          onClick={() => document.getElementById('communicationId').scrollIntoView()}
-        >
-          {_l('确保数据库可以与数据集成通信')}
-        </li>
+        <li>{_l('确保数据库可以与数据集成通信')}</li>
       </ul>
 
       <h5 id="versionId">{_l('检查 MySQL 版本')}</h5>
@@ -67,8 +62,15 @@ export default function MySQLGuide(props) {
 
       <h5 id="authId">{_l('授权MySQL账户对应的权限')}</h5>
       <div className="subTitle">{_l('1. 创建用户，也可以用已有用户')}</div>
+      <p>{_l('MySQL5.x 用户')}</p>
       <div className="sqlText">
         <div>{`mysql> CREATE USER '${_l('用户名')}'@'%' IDENTIFIED BY '${_l('密码')}';`}</div>
+      </div>
+      <p>{_l('MySQL8.x 用户')}</p>
+      <div className="sqlText">
+        <div>{`mysql> CREATE USER '${_l('用户名')}'@'%' IDENTIFIED WITH mysql_native_password BY '${_l(
+          '密码',
+        )}';`}</div>
       </div>
       <p>{_l('如果已有账号可以直接进行赋权')}</p>
       <div className="subTitle">{_l('2. 赋权')}</div>
@@ -102,7 +104,7 @@ export default function MySQLGuide(props) {
         </a>
       </p>
 
-      <h5 id="communicationId">{_l('确保数据库可以与系统集成通信')}</h5>
+      {/* <h5 id="communicationId">{_l('确保数据库可以与系统集成通信')}</h5>
       <div className="subTitle">{_l('1. 编辑MySQL服务器的配置文件')}</div>
       <div className="sqlText">
         <div>sudo nano /etc/mysql/mysql.conf.d/mysqld.cnf</div>
@@ -111,7 +113,7 @@ export default function MySQLGuide(props) {
       <div className="sqlText">
         <div>{_l('bind-address = 0.0.0.0 [这里是系统白名单，在左侧配置信息底部显示]')}</div>
       </div>
-      <p>{_l('也可以通过数据库服务器添加全局性的访问白名单')}</p>
+      <p>{_l('也可以通过数据库服务器添加全局性的访问白名单')}</p> */}
 
       <h5>{_l('测试连接')}</h5>
       <p>

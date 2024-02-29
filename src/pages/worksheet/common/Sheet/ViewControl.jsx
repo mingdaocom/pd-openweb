@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 import _ from 'lodash';
 import cx from 'classnames';
-import { Tooltip } from 'ming-ui';
+import { Tooltip, Slider } from 'ming-ui';
 import ViewConfig from 'worksheet/common/ViewConfig';
 import CreateCustomBtn from 'worksheet/common/CreateCustomBtn';
 import { exportSheet } from 'worksheet/common/ExportSheet';
@@ -24,6 +24,7 @@ import {
   updateWorksheetControls,
   updateSearchRecord,
   updateCurrentViewState,
+  updateViewShowcount,
 } from 'worksheet/redux/actions';
 import { changePageSize, changePageIndex } from 'worksheet/redux/actions/sheetview';
 import { addMultiRelateHierarchyControls } from 'worksheet/redux/actions/hierarchy';
@@ -35,7 +36,7 @@ import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { filterHidedControls } from 'worksheet/util';
 import { canEditData } from 'worksheet/redux/actions/util';
-import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
+import { APP_ROLE_TYPE, VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
 
 const Con = styled.div`
   display: flex;
@@ -44,7 +45,6 @@ const Con = styled.div`
   flex-shrink: 0;
   height: 37px;
   padding: 0 20px 0 20px;
-  overflow: hidden;
   border-bottom: 1px solid #e0e0e0;
 `;
 
@@ -73,9 +73,6 @@ function ViewControl(props) {
     viewConfigTab,
     setViewConfigTab,
     searchData,
-  } = props;
-
-  const {
     changePageIndex,
     changePageSize,
     refreshSheet,
@@ -89,6 +86,7 @@ function ViewControl(props) {
     updateSearchRecord,
     appPkg,
     updateCurrentViewState,
+    updateViewShowcount,
   } = props;
   const { worksheetId, projectId } = worksheetInfo;
   const { count, pageCountAbnormal, rowsSummary } = sheetViewData;
@@ -103,9 +101,19 @@ function ViewControl(props) {
   const [btnDataInfo, setActiveBtnIdInfo] = useState();
   const isShowWorkflowSys = isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit);
   useEffect(() => {
+    if (['gallery', 'board'].includes(VIEW_DISPLAY_TYPE[props.view.viewType])) {
+      const showcount = _.get(props.view, 'advancedSetting.showcount');
+      const storageCount = localStorage.getItem('showcount_' + viewId);
+      if (!storageCount) {
+        updateViewShowcount(showcount);
+      } else if (storageCount !== props.fieldShowCount) {
+        updateViewShowcount(storageCount);
+      }
+    }
+  }, [props.view]);
+  useEffect(() => {
     setActiveBtnIdInfo(_.find(sheetButtons, item => item.btnId === activeBtnId));
   }, [activeBtnId, sheetButtons]);
-
   return (
     <Con>
       <ViewItems
@@ -228,7 +236,8 @@ function ViewControl(props) {
         }}
       />
       {/**本表层级视图、甘特图 */}
-      {((Number(view.viewType) === 2 && _.includes([0, 1], Number(view.childType))) || Number(view.viewType) === 5) && (
+      {((Number(view.viewType) === 2 && _.includes([0, 1], Number(view.childType))) ||
+        _.includes([5, 8], Number(view.viewType))) && (
         <SearchRecord
           queryKey={searchData.queryKey}
           data={searchData.data}
@@ -252,6 +261,32 @@ function ViewControl(props) {
           }}
         />
       </Tooltip>
+      {['gallery', 'board'].includes(VIEW_DISPLAY_TYPE[view.viewType]) &&
+        !!_.get(view, 'advancedSetting.showcount') && (
+          <Slider
+            key={`${viewId}_${view.displayControls.length}_${props.fieldShowCount}`}
+            style={{ width: 120, paddingRight: 0 }}
+            numStyle={{ textAlign: 'right' }}
+            showNumber
+            className={'mLeft12'}
+            readonly={false}
+            disabled={false}
+            value={
+              props.fieldShowCount > view.displayControls.length ? view.displayControls.length : props.fieldShowCount
+            }
+            showInput={false}
+            showTip={true}
+            tipDirection={undefined}
+            min={0}
+            max={view.displayControls.length}
+            step={1}
+            itemnames={''}
+            itemcolor={{ type: 1, color: '#9e9e9e' }}
+            onChange={value => {
+              updateViewShowcount(value);
+            }}
+          />
+        )}
       {Number(view && view.viewType) === 0 && (
         <Pagination
           abnormalMode={pageCountAbnormal}
@@ -278,6 +313,7 @@ function ViewControl(props) {
           worksheetId={worksheetId}
           worksheetControls={controls}
           sheetSwitchPermit={sheetSwitchPermit}
+          updateViewShowcount={updateViewShowcount}
           onClickAwayExceptions={[
             '.ant-select-dropdown',
             '.ChooseWidgetDialogWrap',
@@ -332,7 +368,7 @@ function ViewControl(props) {
           setViewConfigTab={setViewConfigTab}
           onClose={() => setViewConfigVisible(false)}
           updateCurrentView={(data, cb) => {
-            saveView(viewId, _.pick(data, data.editAttrs || []), cb);
+            saveView(viewId, _.pick(data, [...(data.editAttrs || []), 'editAdKeys']), cb);
             if ((_.get(data, 'viewControls') || []).length > (_.get(view, 'viewControls') || []).length) {
               addMultiRelateHierarchyControls(data.viewControls.slice(-1).map(item => item.worksheetId));
             }
@@ -487,6 +523,7 @@ export default connect(
     sheetButtons: state.sheet.sheetButtons,
     searchData: getSearchData(state.sheet),
     appPkg: state.appPkg,
+    fieldShowCount: state.sheet.fieldShowCount,
   }),
   dispatch =>
     bindActionCreators(
@@ -503,6 +540,7 @@ export default connect(
         updateWorksheetControls,
         updateSearchRecord,
         updateCurrentViewState,
+        updateViewShowcount,
       },
       dispatch,
     ),

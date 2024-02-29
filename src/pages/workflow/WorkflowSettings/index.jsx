@@ -52,7 +52,7 @@ class WorkflowSettings extends Component {
    */
   back = () => {
     if (history.length === 1) {
-      location.href = '/app/my';
+      location.href = '/dashboard';
     } else {
       history.back();
     }

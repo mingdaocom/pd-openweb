@@ -111,7 +111,7 @@ class PrivacyOrAgreen extends React.Component {
               paddingTop: document.body.clientHeight / 3,
             }}
           >
-            {_l('暂未设置%0', location.pathname.indexOf('privacy') < 0 ? _l('用户协议') : _l('隐私政策'))}
+            {location.pathname.indexOf('privacy') < 0 ? _l('暂未设置用户协议') : _l('暂未设置隐私政策')}
           </div>
         </Wrap>
       );

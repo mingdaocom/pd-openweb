@@ -75,8 +75,23 @@
   color: #ffc85f !important;
 }
 
-.groupSettingAvatarSelect.tip-white {
-  min-width: 400px;
+.groupSettingAvatarSelect {
+  position: absolute;
+  width: 400px;
+  text-align: left;
+  background: #fff;
+  border-radius: 4px;
+  z-index: 1;
+  left: 50%;
+  top: 120px;
+  transform: translateX(-200px);
+  display: none;
+}
+
+.groupSettingAvatarSelect .icon-close {
+  position: absolute;
+  right: 5px;
+  top: 5px;
 }
 
 .groupSettingAvatarSelect .settingPictureLayerTitle {
@@ -584,11 +599,30 @@
 }
 
 /* override */
-#convertToPost .customSelect {
+.convertToPost .customSelect {
   vertical-align: middle;
 }
 
 .groupQRCodeImg{
-  margin: 7px;
-  height: 120px;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  border: 1px solid #ddd;
+  padding: 5px;
+  border-radius: 3px;
+  background: #fff;
+  height: 100px;
+}
+
+.dialogBoxSettingGroup > .mui-dialog-scroll-container > .mui-dialog-dialog > .mui-dialog-header,
+.dialogBoxSettingGroup > .mui-dialog-scroll-container > .mui-dialog-dialog > .mui-dialog-body {
+  padding: 0 !important;
+}
+
+.dialogBoxSettingGroup > .mui-dialog-scroll-container > .mui-dialog-dialog > .mui-dialog-close-btn .Icon:hover {
+  color: hsla(0,0%,100%,.8)!important;
+}
+
+.convertToPost > .mui-dialog-scroll-container > .mui-dialog-dialog > .mui-dialog-body {
+  overflow: visible !important;
 }

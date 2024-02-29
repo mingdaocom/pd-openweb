@@ -229,16 +229,26 @@ export default function BtnCard(props) {
                 data={it}
                 views={views}
                 onChange={data => {
-                  editBtn({ ...data, editAttrs: ['advancedSetting', 'isAllView'] }, () => {
-                    let list = btnList.map(os => {
-                      if (os.btnId === it.btnId) {
-                        return data;
-                      } else {
-                        return os;
-                      }
-                    });
-                    onChange({ btnList: list });
-                  });
+                  let dataN = {
+                    ...data,
+                    displayViews: [], //清除老数据
+                  };
+                  editBtn(
+                    {
+                      ...dataN,
+                      editAttrs: ['advancedSetting', 'isAllView', 'displayViews'],
+                    },
+                    () => {
+                      let list = btnList.map(os => {
+                        if (os.btnId === it.btnId) {
+                          return dataN;
+                        } else {
+                          return os;
+                        }
+                      });
+                      onChange({ btnList: list });
+                    },
+                  );
                 }}
               />
             }

@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { Icon, Dialog } from 'ming-ui';
 import { Progress } from 'antd';
-import { createUploader } from 'src/pages/kc/utils/qiniuUpload';
+import createUploader from 'src/library/plupload/createUploader';
 import { formatFileSize } from 'src/util';
 import styled from 'styled-components';
 

@@ -93,7 +93,7 @@ export default class IntegrationSetPssword extends Component {
     let { password } = this.state;
     const { passwordRegex } = md.global.SysSettings;
 
-    if (RegExp.isPasswordRule(password, passwordRegex)) {
+    if (RegExp.isPasswordValid(password, passwordRegex)) {
       this.setState({ passwordError: false });
       this.changeInitialPassword(password);
     } else {

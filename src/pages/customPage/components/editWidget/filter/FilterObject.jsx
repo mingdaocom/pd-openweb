@@ -94,7 +94,7 @@ const getFilterObject = (components, reports) => {
       data.name = c.name;
       data.worksheetId = c.worksheetId;
     }
-    if ([enumWidgetType.view, 'view'].includes(c.type)) {
+    if ([enumWidgetType.view, 'view'].includes(c.type) && !_.get(c, 'config.isPluginView')) {
       data.type = 2;
       data.name = c.config.name;
       data.worksheetId = c.value;
@@ -160,7 +160,11 @@ export default function FilterObject(props) {
               if (checked) {
                 const newObjects = filterObject.map(c => {
                   const { name, ...data } = c;
-                  return { ...data, controlId: '' };
+                  return {
+                    ...data,
+                    controlId: _.get(objectControls[0], 'controlId'),
+                    control: _.get(objectControls[0], 'control')
+                  };
                 });
                 changeObjects(newObjects);
               } else  {

@@ -78,6 +78,10 @@ export const getIcons = (type, appType, actionId) => {
         icon = 'icon-update_information';
       } else if (appType === APP_TYPE.EXTERNAL_USER && actionId === ACTION_ID.ADD) {
         icon = 'icon-invited_users';
+      } else if (appType === APP_TYPE.CALENDAR) {
+        icon = 'icon-sidebar_calendar';
+      } else if (appType === APP_TYPE.SNAPSHOT) {
+        icon = 'icon-camera_alt';
       }
       break;
     case NODE_TYPE.SEARCH:
@@ -87,7 +91,7 @@ export const getIcons = (type, appType, actionId) => {
       icon = 'icon-workflow_webhook';
       break;
     case NODE_TYPE.FORMULA:
-      if (_.includes([ACTION_ID.OBJECT_TOTAL, ACTION_ID.WORKSHEET_TOTAL], actionId)) {
+      if (_.includes([ACTION_ID.OBJECT_TOTAL, ACTION_ID.WORKSHEET_TOTAL, ACTION_ID.CUSTOM_ACTION_TOTAL], actionId)) {
         icon = 'icon-sigma';
       } else {
         icon = 'icon-workflow_function';
@@ -352,6 +356,10 @@ export const getConditionList = (type, enumDefault) => {
         list = { ids: ['9', '10', '41', '39', '42', '40', '37', '38', '8', '7'], defaultConditionId: '9' };
       }
       break;
+    case 10000007:
+    case 10000008:
+      list = { ids: ['8', '7'], defaultConditionId: '7' };
+      break;
   }
 
   return list;
@@ -510,6 +518,45 @@ export const handleGlobalVariableName = (nodeId, sourceType, name) => {
 };
 
 /**
+ * 检测筛选条件是否允许值为空
+ */
+export const checkConditionAllowEmpty = (type, conditionId) => {
+  let list;
+
+  switch (type) {
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+    case 7:
+    case 32:
+    case 33:
+    case 41:
+    case 50:
+      list = ['1', '2', '3', '4', '5', '44', '6', '45'];
+      break;
+    case 6:
+    case 8:
+    case 15:
+    case 16:
+    case 31:
+    case 46:
+      list = ['9', '10'];
+      break;
+    case 9:
+    case 11:
+      list = ['9', '10', '1', '2'];
+      break;
+    case 10:
+      list = ['9', '10', '3', '4', '43'];
+      break;
+  }
+
+  return _.includes(list, conditionId);
+};
+
+/*
  * 清理flowNodeMap多余参数
  */
 export const clearFlowNodeMapParameter = flowNodeMap => {

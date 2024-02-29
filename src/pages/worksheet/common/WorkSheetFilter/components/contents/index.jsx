@@ -35,6 +35,7 @@ export default function (key, props) {
     key === CONTROL_FILTER_WHITELIST.CASCADER.value &&
     (props.type === FILTER_CONDITION_TYPE.RCEQ ||
       props.type === FILTER_CONDITION_TYPE.RCNE ||
+      props.type === FILTER_CONDITION_TYPE.EQ_FOR_SINGLE ||
       props.type === FILTER_CONDITION_TYPE.BETWEEN ||
       props.type === FILTER_CONDITION_TYPE.NBETWEEN)
   ) {
@@ -43,6 +44,7 @@ export default function (key, props) {
   if (
     key === CONTROL_FILTER_WHITELIST.RELATE_RECORD.value &&
     (props.type === FILTER_CONDITION_TYPE.RCEQ ||
+      props.type === FILTER_CONDITION_TYPE.EQ_FOR_SINGLE ||
       props.type === FILTER_CONDITION_TYPE.RCNE ||
       props.type === FILTER_CONDITION_TYPE.ARREQ ||
       props.type === FILTER_CONDITION_TYPE.ARRNE ||

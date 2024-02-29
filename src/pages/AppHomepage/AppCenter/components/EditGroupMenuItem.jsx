@@ -59,6 +59,7 @@ function EditPanel(props) {
     projectGroups = [],
     selectedGroupIds = [],
     onUpdateAppBelongGroups,
+    isDashboard,
   } = props;
   const [selectedIds, setSelectedIds] = useState(selectedGroupIds);
   const [keywords, setKeywords] = useState();
@@ -93,7 +94,7 @@ function EditPanel(props) {
       <EditPanelCon>
         <Empty>
           <i className="icon icon-folder_off Font26 Gray_9e"></i>
-          <div className="Font13 Gray_9e mTop12">{_l('无分组，可从左侧列表创建')}</div>
+          <div className="Font13 Gray_9e mTop12">{isDashboard ? _l('无分组') : _l('无分组，可从左侧列表创建')}</div>
         </Empty>
       </EditPanelCon>
     );

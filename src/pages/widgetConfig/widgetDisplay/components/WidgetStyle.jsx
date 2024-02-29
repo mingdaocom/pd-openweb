@@ -104,6 +104,7 @@ function WidgetStyleSetting(props) {
     autosecond = '3',
     showicon = '1',
     sectionstyle = '0',
+    showthumbnail = '1',
   } = info;
 
   const [tempInfo, setTempInfo] = useState({
@@ -191,7 +192,7 @@ function WidgetStyleSetting(props) {
                           handleChange({ [item.widthKey]: value });
                         }}
                       />
-                      <span>{_l('px')}</span>
+                      <span>px</span>
                     </div>
                   </div>
                 </div>
@@ -221,7 +222,7 @@ function WidgetStyleSetting(props) {
 
       <SettingItem className="withSplitLine">
         <div className="settingItemTitle Font14">{_l('封面')}</div>
-        <div className="Gray_9e">{_l('将所选附件字段中的图片作为记录详情封面')}</div>
+        <div className="Gray_9e">{_l('将所选附件字段中的图片、视频作为记录详情封面')}</div>
       </SettingItem>
       <SettingItem>
         <div className="settingItemTitle Normal">{_l('附件字段')}</div>
@@ -279,7 +280,7 @@ function WidgetStyleSetting(props) {
               handleChange({ coverheight: value });
             }}
           />
-          <span>{_l('px')}</span>
+          <span>px</span>
         </div>
       </SettingItem>
       <SettingItem>
@@ -309,6 +310,14 @@ function WidgetStyleSetting(props) {
             />
           </div>
         </div>
+      </SettingItem>
+      <SettingItem>
+        <Checkbox
+          size="small"
+          checked={showthumbnail === '1'}
+          text={_l('显示缩略图')}
+          onClick={checked => handleChange({ showthumbnail: checked ? '0' : '1' })}
+        />
       </SettingItem>
     </WidgetStyleWrap>
   );

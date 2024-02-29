@@ -1,22 +1,27 @@
 import React from 'react';
 import cx from 'classnames';
-import { Icon, Dropdown } from 'ming-ui';
-import RecordCard from 'src/components/recordCard';
+import styled from 'styled-components';
+import { Dropdown, RadioGroup } from 'ming-ui';
 import Abstract from '../Abstract';
 import CoverSetting from '../CoverSettingCon';
 import DisplayControl from '../DisplayControl';
 import { getAdvanceSetting } from 'src/util';
-import { updateViewAdvancedSetting } from 'src/pages/worksheet/common/ViewConfig/util';
 import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import _ from 'lodash';
+import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
 
+const Wrap = styled.div`
+  .rowClumns {
+    label {
+      flex: 1;
+    }
+  }
+`;
 export default class MobileSet extends React.Component {
   constructor(props) {
     super(props);
     const { view = {} } = props;
     const {
-      abstract, // 摘要控件
-      coverposition, // 封面位置
       appshowtype = '0', // 卡片类型
       checkradioid,
     } = getAdvanceSetting(view);
@@ -43,20 +48,9 @@ export default class MobileSet extends React.Component {
     );
   };
   renderSet = () => {
-    const { worksheetControls = [], view, appId } = this.props;
+    const { view, appId } = this.props;
     const { advancedSetting = {} } = view;
-    const { checkradioid } = this.state;
     const { appshowtype = '0' } = getAdvanceSetting(view);
-    let switchList = worksheetControls.filter(it => it.type === 36);
-    const switchData =
-      switchList.length > 0
-        ? _.map(switchList, it => {
-            return {
-              text: it.controlName,
-              value: it.controlId,
-            };
-          })
-        : [];
     return (
       <React.Fragment>
         <div className="viewSetTitle">{_l('卡片显示内容')}</div>
@@ -69,7 +63,8 @@ export default class MobileSet extends React.Component {
                 {
                   ...view,
                   appId,
-                  advancedSetting: updateViewAdvancedSetting(view, { abstract: value }),
+                  advancedSetting: { abstract: value },
+                  editAdKeys: ['abstract'],
                   editAttrs: ['advancedSetting'],
                 },
                 false,
@@ -82,8 +77,8 @@ export default class MobileSet extends React.Component {
             hideShowControlName
             maxCount3={appshowtype === '0'} // 移动端设置 一行三列时 最多只能设置3个
             text={_l('一行三列时，最多可设置3个显示字段。如果要显示更多字段请使用其他布局方式')}
-            handleChange={checked => {
-              this.updateView({ ...view, appId, showControlName: checked, editAttrs: ['showControlName'] }, false);
+            handleChange={data => {
+              this.updateView({ ...view, appId, ...data }, false);
             }}
             handleChangeSort={({ newControlSorts, newShowControls }) => {
               this.updateView(
@@ -116,8 +111,9 @@ export default class MobileSet extends React.Component {
                   ...view,
                   appId,
                   coverType: coverTypeValue,
-                  advancedSetting: updateViewAdvancedSetting(view, { coverposition: value }),
+                  advancedSetting: { coverposition: value },
                   editAttrs: ['advancedSetting', 'coverType'],
+                  editAdKeys: ['coverposition'],
                 },
                 false,
               );
@@ -131,8 +127,9 @@ export default class MobileSet extends React.Component {
               this.updateView({
                 ...view,
                 appId,
-                advancedSetting: updateViewAdvancedSetting(view, { opencover: value }),
+                advancedSetting: { opencover: value },
                 editAttrs: ['advancedSetting'],
+                editAdKeys: ['opencover'],
               });
             }}
           />
@@ -142,30 +139,50 @@ export default class MobileSet extends React.Component {
               borderBottom: '1px solid #EAEAEA',
             }}
           ></div>
-          {/* 显示检查框 */}
-          <div className="title Font13 mTop24 bold">{_l('显示检查框')}</div>
-          <div className="settingContent">
-            <p className="mTop6 mBottom8 Gray_9e viewSetText">
-              {_l('选择一个检查框字段在标题前显示，可快速在卡片标记状态')}
-            </p>
-            <Dropdown
-              data={switchData.concat({ value: '', text: _l('不显示') })}
-              value={checkradioid || ''}
-              border
-              style={{ width: '100%' }}
-              onChange={value => {
-                this.updateView(
-                  {
-                    ...view,
-                    appId,
-                    advancedSetting: updateViewAdvancedSetting(view, { checkradioid: value }),
-                    editAttrs: ['advancedSetting'],
-                  },
-                  false,
-                );
-              }}
-            />
-          </div>
+          {this.renderCheckRadio()}
+        </div>
+      </React.Fragment>
+    );
+  };
+
+  renderCheckRadio = () => {
+    const { worksheetControls = [], view, appId } = this.props;
+    let switchList = worksheetControls.filter(it => it.type === 36);
+    const { checkradioid } = this.state;
+    const switchData =
+      switchList.length > 0
+        ? _.map(switchList, it => {
+            return {
+              text: it.controlName,
+              value: it.controlId,
+            };
+          })
+        : [];
+    return (
+      <React.Fragment>
+        <div className="title Font13 mTop24 bold">{_l('显示检查框')}</div>
+        <div className="settingContent">
+          <p className="mTop6 mBottom8 Gray_9e viewSetText">
+            {_l('选择一个检查框字段在标题前显示，可快速在卡片标记状态')}
+          </p>
+          <Dropdown
+            data={switchData.concat({ value: '', text: _l('不显示') })}
+            value={checkradioid || ''}
+            border
+            style={{ width: '100%' }}
+            onChange={value => {
+              this.updateView(
+                {
+                  ...view,
+                  appId,
+                  advancedSetting: { checkradioid: value },
+                  editAdKeys: ['checkradioid'],
+                  editAttrs: ['advancedSetting'],
+                },
+                false,
+              );
+            }}
+          />
         </div>
       </React.Fragment>
     );
@@ -182,12 +199,56 @@ export default class MobileSet extends React.Component {
           {
             ...view,
             appId,
-            advancedSetting: updateViewAdvancedSetting(view, { appshowtype: type }),
+            advancedSetting: { appshowtype: type },
             editAttrs: ['advancedSetting'],
+            editAdKeys: ['appshowtype'],
           },
           false,
         );
       },
+    );
+  };
+
+  renderGallerySet = () => {
+    const { view, appId } = this.props;
+    return (
+      <Wrap>
+        <div className="viewSetTitle">{_l('移动端显示')}</div>
+        <div className="title Font13 mTop24 bold">{_l('每行数量')}</div>
+        <div className="settingContent">
+          <p className="mTop6 mBottom8 Gray_9e viewSetText">
+            {_l('为手机竖屏(屏幕宽度小于480pt)设置每行显示的记录数量')}
+          </p>
+          <RadioGroup
+            size="middle"
+            className="mBottom20 rowClumns"
+            checkedValue={_.get(view, 'advancedSetting.rowcolumns') === '2' ? '2' : '1'}
+            data={[
+              {
+                text: _l('一个'),
+                value: '1',
+              },
+              {
+                text: _l('两个'),
+                value: '2',
+              },
+            ]}
+            onChange={value => {
+              this.updateView(
+                {
+                  ...view,
+                  appId,
+                  advancedSetting: { rowcolumns: value },
+                  editAdKeys: ['rowcolumns'],
+                  editAttrs: ['advancedSetting'],
+                },
+                false,
+              );
+            }}
+          />
+        </div>
+        {this.renderCheckRadio()}
+      </Wrap>
     );
   };
 
@@ -220,13 +281,17 @@ export default class MobileSet extends React.Component {
             })}
           </ul>
         </div>
-        {/* 设置显示内容 */}
         {this.renderSet()}
       </React.Fragment>
     );
   };
   // 移动端显示
   render() {
+    const { view } = this.props;
+    const isGallery = VIEW_DISPLAY_TYPE[view.viewType] === 'gallery';
+    if (isGallery) {
+      return this.renderGallerySet();
+    }
     return this.renderCon();
   }
 }

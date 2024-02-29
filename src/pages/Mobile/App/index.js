@@ -23,7 +23,7 @@ import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/D
 import { getEmbedValue } from 'src/components/newCustomFields/tools/utils.js';
 import MoreAction from './MoreAction';
 import _ from 'lodash';
-import { addBehaviorLog } from 'src/util';
+import { addBehaviorLog, getTranslateInfo } from 'src/util';
 const Item = List.Item;
 let modal = null;
 
@@ -48,7 +48,6 @@ class App extends Component {
   componentDidMount() {
     const { params } = this.props.match;
     this.props.dispatch(actions.getAppDetail(params.appId, this.detectionUrl));
-    this.props.dispatch(actions.getDebugRoleList(params.appId));
     $('html').addClass('appListMobile');
     const { viewHideNavi } = _.get(this.props, 'appDetail.detail') || {};
     this.setState({ viewHideNavi });
@@ -197,7 +196,7 @@ class App extends Component {
                 this.handleOpenSheet(data, item);
               }}
             >
-              <span className="Font15 Gray LineHeight40">{item.workSheetName}</span>
+              <span className="Font15 Gray LineHeight40">{getTranslateInfo(detail.id, item.workSheetId).name || item.workSheetName}</span>
             </Item>
           );
         }
@@ -283,7 +282,7 @@ class App extends Component {
                         fill={detail.iconColor}
                         size={detail.gridDisplayMode === 1 && screenWidth <= 600 ? 26 : 30}
                       />
-                      <div className="name">{v.workSheetName}</div>
+                      <div className="name">{getTranslateInfo(detail.id, v.workSheetId).name || v.workSheetName}</div>
                     </div>
                   </div>
                 ))}
@@ -295,12 +294,13 @@ class App extends Component {
 
   renderHeader(data, level) {
     const { appDetail } = this.props;
-    const { appNaviStyle } = appDetail.detail;
+    const { id, appNaviStyle } = appDetail.detail;
     const { expandGroupKeys = [] } = this.state;
+    const name = getTranslateInfo(id, data.appSectionId).name || data.name;
     if (level == 'level1') {
       return (
         <div className="accordionHeaderWrap appSectionHeader">
-          <div className="Bold flex ellipsis">{data.name}</div>
+          <div className="Bold flex ellipsis">{name}</div>
           {_.includes(expandGroupKeys, data.appSectionId) ? (
             <Icon icon="minus" className="appSectionIcon" />
           ) : (
@@ -310,13 +310,13 @@ class App extends Component {
       );
     }
     if (appNaviStyle === 1) {
-      return <div className={cx('Gray_75 Font14 pLeft15 ellipsis mTop8', { mBottom12: data.name })}>{data.name}</div>;
+      return <div className={cx('Gray_75 Font14 pLeft15 ellipsis mTop8', { mBottom12: name })}>{name}</div>;
     }
     return (
       <div className="accordionHeaderWrap">
         <div className="flexRow mLeft5">
           <SvgIcon url={data.iconUrl} fill={data.iconColor} size={22} className="mRight12" />
-          <div className="flex ellipsis Font15 Bold">{data.name}</div>
+          <div className="flex ellipsis Font15 Bold">{name}</div>
         </div>
         <Icon icon="expand_more" className="Gray_75" />
       </div>
@@ -351,7 +351,7 @@ class App extends Component {
             }}
           >
             <Icon className="Font17" icon="knowledge_file" />
-            <div className="mLeft5 Font14">{_l('流程事项')}</div>
+            <div className="mLeft5 Font14">{_l('流程待办')}</div>
             {!!processCount && (
               <div className="flexRow valignWrapper processCount">{processCount > 99 ? '99+' : processCount}</div>
             )}
@@ -456,7 +456,7 @@ class App extends Component {
     const { appDetail, match, debugRoles = [] } = this.props;
 
     let { appName, detail, appSection, status } = appDetail;
-    const { fixed, webMobileDisplay, fixAccount, fixRemark, permissionType, appNaviDisplayType, appStatus, canDebug } =
+    const { fixed, webMobileDisplay, fixAccount, fixRemark, permissionType, appNaviDisplayType, appStatus, debugRole = {} } =
       detail;
     const isUpgrade = appStatus === 4;
     const isAuthorityApp = permissionType >= APP_ROLE_TYPE.ADMIN_ROLE;
@@ -487,7 +487,7 @@ class App extends Component {
               : appSection.map(item => item.appSectionId),
           };
     const isEmptyAppSection = appSection.length === 1 && !appSection[0].name;
-    const hasDebugRoles = canDebug && !_.isEmpty(debugRoles);
+    const hasDebugRoles = (debugRole.canDebug) && !_.isEmpty(debugRoles);
     if (!detail || detail.length <= 0) {
       return <AppPermissionsInfo appStatus={2} appId={params.appId} />;
     } else if (status === 4) {
@@ -557,7 +557,7 @@ class App extends Component {
               }}
               icon="home"
               onClick={() => {
-                this.navigateTo('/mobile/appHome');
+                this.navigateTo('/mobile/dashboard');
               }}
             />
           )}
@@ -593,7 +593,7 @@ class App extends Component {
     }
     const { type } = data;
     const { detail = {}, appSection } = this.props.appDetail;
-    const { appNaviStyle } = detail;
+    const { id, appNaviStyle } = detail;
     if (type === 0) {
       return <RecordList now={Date.now()} />;
     }
@@ -601,7 +601,7 @@ class App extends Component {
       return (
         <div className="flex">
           <CustomPage
-            pageTitle={data.workSheetName}
+            pageTitle={getTranslateInfo(id, data.workSheetId).name || data.workSheetName}
             now={Date.now()}
             appNaviStyle={appNaviStyle}
             appSection={appSection}
@@ -635,7 +635,7 @@ class App extends Component {
   renderBody() {
     const { debugRoles = [] } = this.props;
     const { appSection = {}, detail } = this.props.appDetail;
-    const { fixed, permissionType, webMobileDisplay, canDebug } = detail;
+    const { fixed, permissionType, webMobileDisplay, debugRole = {} } = detail;
     const isAuthorityApp = permissionType >= APP_ROLE_TYPE.ADMIN_ROLE;
     const { batchOptVisible } = this.props;
 
@@ -653,7 +653,7 @@ class App extends Component {
     const data = _.find(sheetList, { workSheetId: selectedTab });
     const isHideNav = detail.permissionType < APP_ROLE_TYPE.ADMIN_ROLE && sheetList.length === 1 && !!data;
     return (
-      <div className={cx('flexColumn h100', { 'bottomNavWrap pBottom40': canDebug && !_.isEmpty(debugRoles) })}>
+      <div className={cx('flexColumn h100', { 'bottomNavWrap pBottom40': debugRole.canDebug && !_.isEmpty(debugRoles) })}>
         <div className={cx('flex overflowHidden flexColumn', { recordListWrapper: !isHideNav })}>
           {/* 外部门户显示头部导航 */}
           {selectedTab !== 'more' && md.global.Account.isPortal && this.renderAppHeader()}
@@ -669,7 +669,7 @@ class App extends Component {
           >
             {sheetList.map((item, index) => (
               <TabBar.Item
-                title={item.workSheetName}
+                title={getTranslateInfo(detail.id, item.workSheetId).name || item.workSheetName}
                 key={item.workSheetId}
                 icon={<SvgIcon url={item.iconUrl} fill="#757575" size={20} />}
                 selectedIcon={<SvgIcon url={item.iconUrl} fill={detail.iconColor} size={20} />}

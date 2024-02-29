@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import appManagementAjax from 'src/api/appManagement';
-import { Dialog } from 'ming-ui';
+import { Dialog, VerifyPasswordConfirm } from 'ming-ui';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import { Input } from 'antd';
 import { verifyPassword } from 'src/util';
@@ -19,7 +19,6 @@ export default class MoreOption extends Component {
       showConfirm: false,
       showEditDialog: false,
       remark,
-      password: '',
       type: '',
     };
   }
@@ -99,43 +98,19 @@ export default class MoreOption extends Component {
     );
   };
 
-  renderCancelAndDeleteDialog() {
-    const { setFn } = this.props;
-    const { showConfirm, type, password } = this.state;
+  renderCancelAndDeleteDialog = () => {
+    const { type } = this.state;
 
-    if (!showConfirm) return null;
-
-    return (
-      <Dialog
-        visible={true}
-        overlayClosable={false}
-        title={
-          type === 'cancel' ? <div>{_l('关闭授权')}</div> : <div style={{ color: '#f44336' }}>{_l('删除授权密钥')}</div>
-        }
-        width={500}
-        onOk={() => {
-          verifyPassword({ password, success: this.editAuthorizeStatus });
-        }}
-        onCancel={() => {
-          this.setState({ showConfirm: false });
-          setFn(false);
-        }}
-      >
-        <div className="Gray_75">
-          {type === 'cancel'
-            ? _l('应用授权密钥是极为重要的凭证，关闭时需要验证身份')
-            : _l('应用授权密钥是极为重要的凭证，删除时需要验证身份')}
-        </div>
-        <div className="mTop20">{_l('当前用户密码')}</div>
-        <Input.Password
-          className="boderRadAll_3 mTop10"
-          autocomplete="new-password"
-          placeholder={_l('请输入密码确认授权')}
-          onChange={e => this.setState({ password: e.target.value })}
-        />
-      </Dialog>
-    );
-  }
+    VerifyPasswordConfirm.confirm({
+      title:
+        type === 'cancel' ? <div>{_l('关闭授权')}</div> : <div style={{ color: '#f44336' }}>{_l('删除授权密钥')}</div>,
+      description:
+        type === 'cancel'
+          ? _l('应用授权密钥是极为重要的凭证，关闭时需要验证身份')
+          : _l('应用授权密钥是极为重要的凭证，删除时需要验证身份'),
+      onOk: this.editAuthorizeStatus,
+    });
+  };
 
   render() {
     const { data, appId, getAuthorizes, setFn } = this.props;
@@ -146,10 +121,15 @@ export default class MoreOption extends Component {
         <ul className="moreOptionTrigger">
           <li onClick={() => this.setState({ showEditDialog: true })}>{_l('编辑')}</li>
           {data.status !== 2 && (
-            <li onClick={() => this.setState({ showConfirm: true, type: 'cancel' })}>{_l('关闭授权')}</li>
+            <li onClick={() => this.setState({ type: 'cancel' }, this.renderCancelAndDeleteDialog)}>
+              {_l('关闭授权')}
+            </li>
           )}
           <li onClick={() => this.setState({ showDescDialog: true })}>{_l('修改备注')}</li>
-          <li onClick={() => this.setState({ showConfirm: true, type: 'delete' })} style={{ color: '#f44336' }}>
+          <li
+            onClick={() => this.setState({ type: 'delete' }, this.renderCancelAndDeleteDialog)}
+            style={{ color: '#f44336' }}
+          >
             {_l('删除')}
           </li>
         </ul>
@@ -166,7 +146,6 @@ export default class MoreOption extends Component {
           />
         )}
         {this.renderDesc()}
-        {this.renderCancelAndDeleteDialog()}
       </React.Fragment>
     );
   }

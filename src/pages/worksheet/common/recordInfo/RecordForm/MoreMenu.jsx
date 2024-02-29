@@ -19,14 +19,16 @@ export default function MoreMenu(props) {
     onUpdate,
     handleAddSheetRow,
     hideRecordInfo,
+    hideFav,
   } = props;
   const { from, isCharge, appId, worksheetId, viewId, recordId, workId, instanceId } = recordbase;
   const { allowDelete, formData, projectId, allowAdd, rowData } = recordinfo;
   return (
     <RecordOperate
       from={from}
+      hideFav={hideFav}
       showDeleteHr={false}
-      shows={['share', 'share', 'print', 'task', 'copy', 'editform', 'recreate', 'openinnew']}
+      shows={['share', 'share', 'print', 'task', 'copy', 'editform', 'recreate', 'openinnew', 'fav']}
       isCharge={isCharge}
       allowDelete={allowDelete}
       allowCopy={allowAdd && recordinfo.allowEdit}

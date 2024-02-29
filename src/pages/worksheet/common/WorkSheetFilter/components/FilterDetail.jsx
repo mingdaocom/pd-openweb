@@ -2,7 +2,7 @@ import React, { useRef, useState, Fragment } from 'react';
 import { shape, func, arrayOf, bool, string } from 'prop-types';
 import styled from 'styled-components';
 import { FlexCenter, VerticalMiddle } from 'worksheet/components/Basics';
-import { VCenterIconText, Tooltip, Dialog } from 'ming-ui';
+import { VCenterIconText, Tooltip, Dialog, UpgradeIcon } from 'ming-ui';
 import cx from 'classnames';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
@@ -279,9 +279,7 @@ export default function FilterDetail(props) {
               textLeft={4}
               iconSize={18}
               text={_l('条件组')}
-              afterElement={
-                featureType === '2' && <icon className="icon-auto_awesome Font16 mLeft6" style={{ color: '#fcb400' }} />
-              }
+              afterElement={featureType === '2' && <UpgradeIcon />}
               textSize={13}
               onClick={() => {
                 if (featureType === '2') {

@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { formatYaxisList, formatrChartValue, formatControlInfo, getChartColors, getStyleColor } from './common';
 import { formatSummaryName, isFormatNumber } from 'statistics/common';
+import { SYS_CHART_COLORS } from 'src/pages/Admin/settings/config';
+import { generate } from '@ant-design/colors';
 
 const initRegisterShape = (G2) => {
   const { Util, registerShape } = G2;
@@ -96,6 +98,17 @@ const initRegisterShape = (G2) => {
 
 let isInitRegisterShape = false;
 
+export const replaceColor = (gaugeColor, themeColor) => {
+  if (gaugeColor === 'DARK_COLOR') {
+    return themeColor;
+  }
+  if (gaugeColor === 'LIGHT_COLOR') {
+    const lightColor = generate(themeColor)[0];
+    return lightColor;
+  }
+  return gaugeColor;
+}
+
 function findNthValueInRange(minValue, maxValue, n) {
   const interval = (maxValue - minValue) / 99;
   const nthValue = minValue + (n - 1) * interval;
@@ -161,11 +174,13 @@ export default class extends Component {
     this.GaugeChart.render();
   }
   getComponentConfig(props) {
-    const { themeColor, projectId, customPageConfig, reportData, isThumbnail } = props;
-    const { chartColor } = customPageConfig;
-    const { map, yaxisList, displaySetup, style } = reportData;
+    const { themeColor, projectId, customPageConfig = {}, reportData, isThumbnail } = props;
+    const { chartColor, chartColorIndex = 1 } = customPageConfig;
+    const { map, yaxisList, displaySetup } = reportData;
     const { showChartType, showDimension, showNumber, showPercent, colorRules } = displaySetup;
-    const { indicatorVisible, fontColor = 'rgba(0, 0, 0, 1)', gaugeColor, gaugeColorType = 1, sectionColorConfig = {}, isApplyGaugeColor, applySectionScale } = style;
+    const styleConfig = reportData.style || {};
+    const style = chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0) ? { ...styleConfig, ...chartColor } : styleConfig;
+    const { indicatorVisible, fontColor = 'rgba(0, 0, 0, 1)', gaugeColorType = 1, sectionColorConfig = {}, isApplyGaugeColor, applySectionScale } = style;
     const scaleType = _.isUndefined(style.scaleType) ? 1 : style.scaleType;
     const isNumberScale = _.isUndefined(style.isNumberScale) ? scaleType === 1 : style.isNumberScale;
     const isProgressScale = _.isUndefined(style.isProgressScale) ? scaleType === 2 : style.isProgressScale;
@@ -173,7 +188,8 @@ export default class extends Component {
     const numberControlName = _.get(yaxisList[0], 'rename') || _.get(yaxisList[0], 'controlName');
     const data = map[numberControlId];
     const { clientHeight } = this.chartEl;
-    const colors = getChartColors(chartColor || style, themeColor, projectId);
+    const colors = getChartColors(style, themeColor, projectId);
+    const gaugeColor = chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0) ? colors[0] : replaceColor(style.gaugeColor, themeColor) || colors[0];
     const fontColorRule = _.get(colorRules[0], 'dataBarRule') || {};
     const gaugeColorRule = _.get(colorRules[1], 'dataBarRule') || {};
     const maxValue = data.max || 1;
@@ -226,7 +242,7 @@ export default class extends Component {
     }
     const getGaugeColor = () => {
       if (_.isEmpty(gaugeColorRule)) {
-        return gaugeColor || colors[0];
+        return gaugeColor;
       } else {
         const controlId = yaxisList[0].controlId;
         const color = getStyleColor({
@@ -241,10 +257,11 @@ export default class extends Component {
           rule: gaugeColorRule,
           controlId
         });
-        return color || gaugeColor || colors[0];
+        return color || gaugeColor;
       }
     }
     const getSectionColors = () => {
+      const colors = SYS_CHART_COLORS[0].colors;
       const { sectionColors = [] } = sectionColorConfig;
       return sectionColors.map((data, index) => data.color || colors[index % colors.length]).reverse();
     }

@@ -9,7 +9,7 @@ import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import quickSelectUser from 'ming-ui/functions/quickSelectUser';
 import { addSubTask, editTaskStatus, updateTaskName, updateTaskCharge, taskFoldStatus } from '../../../redux/actions';
-import { expireDialogAsync } from 'src/components/common/function';
+import { expireDialogAsync } from 'src/util';
 import UserHead from 'src/components/userHead';
 import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import {

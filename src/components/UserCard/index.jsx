@@ -13,6 +13,7 @@ import * as actions from 'src/pages/chat/redux/actions';
 import { LoadDiv } from 'ming-ui';
 import './css/userCard.less';
 import { v4 as uuidv4 } from 'uuid';
+import { getCurrentProjectId } from 'src/pages/globalSearch/utils';
 
 const USER_STATUS = {
   DEFAULT: 0, // 辅助
@@ -101,7 +102,6 @@ const BusinessCardWrap = styled.div`
       line-height: 19px;
       text-align: center;
       background: #f0f0f0;
-      margin-left: 8px;
       border-radius: 4px;
       color: #757575;
     }
@@ -177,30 +177,31 @@ class UserCard extends React.Component {
     this.state = {
       isLoading: false,
       isSourceValid: true,
-      visible: false,
+      visible: props.visible || false,
       data: {},
       appId: props.appId,
       isMobile: browserIsMobile(),
       wrapKey: uuidv4(),
+      preSourceId: props.sourceId,
     };
   }
 
   componentDidMount() {
-    if (this.props.visible) {
+    if (this.state.visible) {
       this.fetchData();
-      this.setState({
-        visible: true,
-      });
     }
   }
 
   componentWillUpdate(nextProps, nextState) {
-    const { data } = this.state;
+    const { data, preSourceId } = this.state;
 
     if (
-      nextState.visible &&
-      (_.isEmpty(data) || (data.accountId || data.groupId || '') !== nextProps.sourceId) &&
-      !this.state.isLoading
+      (!this.state.visible && nextState.visible && _.isEmpty(data)) ||
+      (nextProps.sourceId &&
+        preSourceId &&
+        nextProps.sourceId !== preSourceId &&
+        !this.state.visible &&
+        nextState.visible)
     ) {
       this.fetchData();
     }
@@ -233,6 +234,7 @@ class UserCard extends React.Component {
     this.setState({
       isLoading: true,
       isSourceValid: true,
+      preSourceId: sourceId,
     });
 
     this.promise =
@@ -332,6 +334,7 @@ class UserCard extends React.Component {
     const url = this.getUserLink();
     const isSecret = !sourceId && !accountId && !groupId;
     const noInfo = md.global.Account.accountId.includes('#') && !isPortal;
+    const currentProjectId = getCurrentProjectId();
 
     if (!isSourceValid) {
       if (![1, 2].includes(type)) return null;
@@ -354,7 +357,17 @@ class UserCard extends React.Component {
           </BusinessCardWrap>
         );
       }
+
       const infos = [
+        {
+          key: _l('组织'),
+          value:
+            projectId && !data.currentProjectName && !isPortal
+              ? data.companyName
+              : currentProjectId === projectId
+              ? ''
+              : data.currentProjectName,
+        },
         {
           key: _l('职位'),
           value: `${data.currentDepartmentName || ''}${data.currentDepartmentName && data.profession ? ' | ' : ''}${
@@ -393,7 +406,9 @@ class UserCard extends React.Component {
             <div className="cardContentDesc userCard">
               {type === 1 && !noInfo && (
                 <Fragment>
-                  {projectId && !data.currentProjectName && <div className="cardContentTag">{_l('外协')}</div>}
+                  {projectId && !data.currentProjectName && !isPortal && (
+                    <div className="cardContentTag">{_l('外协')}</div>
+                  )}
                   {this.renderInfo(infos)}
                   {this.renderInfo(portalValues)}
                   {type === 1 && !infos.length && !portalValues.length && (

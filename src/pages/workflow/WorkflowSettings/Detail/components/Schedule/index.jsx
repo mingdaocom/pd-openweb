@@ -1,6 +1,6 @@
 import React, { Fragment, useState, useEffect } from 'react';
-import { Dropdown, Dialog, Icon, Radio } from 'ming-ui';
-import { TIME_TYPE, TIME_TYPE_NAME, EXEC_TIME_TYPE, NODE_TYPE } from '../../../enum';
+import { Dropdown, Dialog, Icon, Radio, Checkbox } from 'ming-ui';
+import { TIME_TYPE, TIME_TYPE_NAME, EXEC_TIME_TYPE, NODE_TYPE, DATE_TYPE } from '../../../enum';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import cx from 'classnames';
@@ -41,6 +41,13 @@ const EndBox = styled.div`
   border: 1px solid #eaeaea;
 `;
 
+const RepeatBox = styled.div`
+  height: 36px;
+  .actionControlBox {
+    min-width: 60px !important;
+  }
+`;
+
 export default ({
   schedule,
   companyId,
@@ -64,6 +71,11 @@ export default ({
     { text: TIME_TYPE_NAME[TIME_TYPE.HOUR], value: TIME_TYPE.HOUR },
     { text: TIME_TYPE_NAME[TIME_TYPE.DAY], value: TIME_TYPE.DAY },
   ];
+  const FREQUENCY_TYPE = [
+    { text: _l('分钟'), value: DATE_TYPE.MINUTE },
+    { text: _l('小时'), value: DATE_TYPE.HOUR },
+    { text: _l('天'), value: DATE_TYPE.DAY },
+  ];
   const getDefaultAction = () => {
     return {
       accounts: [
@@ -75,18 +87,21 @@ export default ({
           entityId: `${selectNodeId}#custom`,
           entityName: selectNodeName,
           flowNodeType: selectNodeType,
-          roleId: selectNodeType === NODE_TYPE.WRITE ? 'editid' : 'approveid',
-          roleName: selectNodeType === NODE_TYPE.WRITE ? _l('设置的填写人') : _l('设置的审批人'),
+          roleId: selectNodeType === NODE_TYPE.WRITE ? 'editid' : 'approveidNull',
+          roleName: selectNodeType === NODE_TYPE.WRITE ? _l('所有填写人') : _l('未审的审批人'),
           roleTypeId: 0,
           type: 6,
         },
       ],
       executeTime: { fieldValue: '2' },
-      executeTimeType: 1,
+      executeTimeType: EXEC_TIME_TYPE.BEFORE,
       id: uuidv4(),
       message: _l('请您尽快处理！'),
       type: 1,
       unit: 2,
+      repeat: {
+        repeatType: 0,
+      },
     };
   };
   const EXECUTE_TIME_TYPE_LIST = [
@@ -118,20 +133,21 @@ export default ({
       <div className="mTop10 flexRow alignItemsCenter">
         <div>{_l('在截止时刻')}</div>
         <Dropdown
-          className={cx('mLeft10', { flex: item.executeTimeType === 0 && !autoPass })}
-          style={{ width: item.executeTimeType === 0 && !autoPass ? 'auto' : 110 }}
+          className={cx('mLeft10', { flex: item.executeTimeType === EXEC_TIME_TYPE.CURRENT && !autoPass })}
+          style={{ width: item.executeTimeType === EXEC_TIME_TYPE.CURRENT && !autoPass ? 'auto' : 110 }}
           data={EXECUTE_TIME_TYPE_LIST.filter(o => o.value !== EXEC_TIME_TYPE.BEFORE || !autoPass)}
           value={item.executeTimeType}
           border
           onChange={executeTimeType => {
             changeAction(item.id, {
               executeTimeType,
-              executeTime: { fieldValue: executeTimeType === 0 ? '' : '2' },
-              unit: executeTimeType === 0 ? undefined : 2,
+              executeTime: { fieldValue: executeTimeType === EXEC_TIME_TYPE.CURRENT ? '' : '2' },
+              unit: executeTimeType === EXEC_TIME_TYPE.CURRENT ? undefined : 2,
+              repeat: { repeatType: 0 },
             });
           }}
         />
-        {item.executeTimeType !== 0 && (
+        {item.executeTimeType !== EXEC_TIME_TYPE.CURRENT && (
           <Fragment>
             <div className="flex mLeft10">
               <SpecificFieldsValue
@@ -152,7 +168,9 @@ export default ({
               data={UNIT_List}
               value={item.unit}
               border
-              onChange={unit => changeAction(item.id, { unit })}
+              onChange={unit => {
+                changeAction(item.id, { unit, repeat: Object.assign({}, item.repeat, resetRepeatParameter(unit)) });
+              }}
             />
           </Fragment>
         )}
@@ -191,6 +209,12 @@ export default ({
             <span className="mLeft3 mRight2">{_l('提醒')}</span>
             <span className="Gray_9e">
               <MembersName accounts={item.accounts} />
+              {_.get(item, 'repeat.repeatType') === 6 &&
+                _l(
+                  '；每%0%1重复提醒',
+                  item.repeat.interval,
+                  FREQUENCY_TYPE.find(o => o.value === item.repeat.frequency).text,
+                )}
             </span>
           </Fragment>
         ) : (
@@ -206,6 +230,13 @@ export default ({
         )}
       </div>
     );
+  };
+  const resetRepeatParameter = unit => {
+    return {
+      frequency:
+        unit === TIME_TYPE.MINUTE ? DATE_TYPE.MINUTE : unit === TIME_TYPE.HOUR ? DATE_TYPE.HOUR : DATE_TYPE.DAY,
+      interval: unit === TIME_TYPE.MINUTE ? 30 : 1,
+    };
   };
 
   useEffect(() => {
@@ -322,6 +353,64 @@ export default ({
                   </div>
                   {renderDeadlineContent(item)}
 
+                  {item.executeTimeType === EXEC_TIME_TYPE.BEFORE && (
+                    <RepeatBox className="mTop10 flexRow alignItemsCenter">
+                      <Checkbox
+                        className="InlineBlock"
+                        text={_l('重复提醒')}
+                        checked={_.get(item, 'repeat.repeatType') === 6}
+                        onClick={checked => {
+                          const repeat = {
+                            repeatType: checked ? 0 : 6,
+                            ...resetRepeatParameter(item.unit),
+                          };
+
+                          changeAction(item.id, { repeat });
+                        }}
+                      />
+                      {_.get(item, 'repeat.repeatType') === 6 && (
+                        <Fragment>
+                          <div className="mLeft25 mRight10">{_l('每')}</div>
+                          <div className="flexRow" style={{ width: 80 }}>
+                            <SpecificFieldsValue
+                              hasOtherField={false}
+                              type="number"
+                              min={1}
+                              data={{ fieldValue: item.repeat.interval }}
+                              updateSource={({ fieldValue }) =>
+                                changeAction(item.id, {
+                                  repeat: Object.assign({}, item.repeat, { interval: fieldValue }),
+                                })
+                              }
+                            />
+                          </div>
+                          <Dropdown
+                            className="mLeft10"
+                            style={{ width: 80 }}
+                            data={FREQUENCY_TYPE.filter(
+                              o =>
+                                (item.unit === TIME_TYPE.MINUTE && o.value === DATE_TYPE.MINUTE) ||
+                                (item.unit === TIME_TYPE.HOUR &&
+                                  _.includes([DATE_TYPE.MINUTE, DATE_TYPE.HOUR], o.value)) ||
+                                item.unit === TIME_TYPE.DAY,
+                            )}
+                            value={item.repeat.frequency}
+                            border
+                            onChange={frequency =>
+                              changeAction(item.id, {
+                                repeat: Object.assign({}, item.repeat, {
+                                  interval: _.includes([1, 7], frequency) ? 1 : 30,
+                                  frequency,
+                                }),
+                              })
+                            }
+                          />
+                          <div className="mLeft25">{_l('最多重复10次')}</div>
+                        </Fragment>
+                      )}
+                    </RepeatBox>
+                  )}
+
                   <div className="mTop10 flexRow alignItemsCenter">
                     <div>{_l('提醒内容')}</div>
                     <input
@@ -344,6 +433,7 @@ export default ({
                     <div className="flex mLeft10">
                       <Member
                         companyId={companyId}
+                        appId={relationType === 2 ? relationId : ''}
                         accounts={item.accounts}
                         updateSource={accounts => changeAction(item.id, accounts)}
                       />
@@ -405,7 +495,7 @@ export default ({
                               .concat([
                                 {
                                   executeTime: {},
-                                  executeTimeType: 0,
+                                  executeTimeType: EXEC_TIME_TYPE.CURRENT,
                                   id: uuidv4(),
                                   type: item.value,
                                 },

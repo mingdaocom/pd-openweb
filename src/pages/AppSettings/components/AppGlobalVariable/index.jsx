@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Support, Icon, Button } from 'ming-ui';
+import { Support, Icon, Button, UpgradeIcon } from 'ming-ui';
 import cx from 'classnames';
 import './index.less';
-import GlobalVarTable from 'src/pages/Admin/globalVariable/components/GlobalVarTable';
-import VarAddOrEditModal from 'src/pages/Admin/globalVariable/components/VarAddOrEditModal';
-import { REFRESH_TYPE } from 'src/pages/Admin/globalVariable/constant';
+import GlobalVarTable from 'src/pages/Admin/app/globalVariable/components/GlobalVarTable';
+import VarAddOrEditModal from 'src/pages/Admin/app/globalVariable/components/VarAddOrEditModal';
+import { REFRESH_TYPE } from 'src/pages/Admin/app/globalVariable/constant';
 import Search from 'src/pages/workflow/components/Search';
 import variableApi from 'src/api/variable';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
@@ -86,7 +86,7 @@ export default function AppGlobalVariable(props) {
             >
               <Icon icon="plus" />
               <span>{_l('应用变量')}</span>
-              {featureType === '2' && <Icon icon="auto_awesome" />}
+              {featureType === '2' && <UpgradeIcon />}
             </Button>
           )}
         </div>

@@ -20,7 +20,7 @@ export default {
   * @param {integer} args.pageIndex pageIndex
   * @param {integer} args.pageSize pageSize
   * @param {string} args.keywords 关键词
-  * @param {} args.sortUserType 用户排序
+  * @param {} args.sortUserType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -36,9 +36,9 @@ export default {
   * @param {integer} args.pageIndex pageIndex
   * @param {integer} args.pageSize pageSize
   * @param {string} args.keywords 关键词
-  * @param {} args.userStatus 用户状态
-  * @param {} args.sortField 用户排序
-  * @param {} args.sortType 排序类型
+  * @param {} args.userStatus
+  * @param {} args.sortField
+  * @param {} args.sortType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -48,13 +48,30 @@ export default {
      return $.api('User', 'GetUserList', args, options);
    },
   /**
-  * 获取待审批的用户
+  * 获取 已删除的用户列表
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络Id
+  * @param {integer} args.pageIndex pageIndex
+  * @param {integer} args.pageSize pageSize
+  * @param {string} args.keywords 关键词
+  * @param {integer} args.sort 排序字段（默认 0=离职时间 倒序）
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   pagedRemovedUsers: function (args, options = {}) {
+     
+     return $.api('User', 'PagedRemovedUsers', args, options);
+   },
+  /**
+  * 获取 待审批 或 已拒绝 的用户
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络Id
   * @param {integer} args.pageIndex 页码
   * @param {integer} args.pageSize 页大小
-  * @param {} args.sortField 用户排序
-  * @param {} args.sortType 排序类型
+  * @param {} args.userStatus
+  * @param {} args.sortField
+  * @param {} args.sortType
   * @param {string} args.keywords 关键司
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -63,18 +80,6 @@ export default {
    getApprovalUser: function (args, options = {}) {
      
      return $.api('User', 'GetApprovalUser', args, options);
-   },
-  /**
-  * 用户筛选
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络Id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getUserFilterData: function (args, options = {}) {
-     
-     return $.api('User', 'GetUserFilterData', args, options);
    },
   /**
   * 根据AccountId获取用户
@@ -175,7 +180,7 @@ export default {
   * @param {integer} args.pageSize 页大小
   * @param {string} args.keywords 关键司
   * @param {string} args.projectId 网络Id
-  * @param {} args.dataRange 查询范围，是所有协作者还是好友还是同事还是其他协作者
+  * @param {} args.dataRange
   * @param {string} args.firstLetter 过滤的首字母
   * @param {array} args.filterAccountIds 过滤的需要排除的帐号
   * @param {array} args.prefixAccountIds 需要插在前面的帐号，排在未指定和我自己后面
@@ -186,6 +191,7 @@ export default {
   * @param {array} args.appointedAccountIds 指定的账户列表
   * @param {array} args.appointedDepartmentIds 指定的部门列表
   * @param {array} args.appointedOrganizeIds 指定的组织角色列表
+  * @param {boolean} args.takeTotalCount 是否获取 总数
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -218,7 +224,7 @@ export default {
   * @param {integer} args.pageSize 页大小
   * @param {string} args.keywords 关键司
   * @param {string} args.projectId 网络Id
-  * @param {} args.dataRange 查询范围，是所有协作者还是好友还是同事还是其他协作者
+  * @param {} args.dataRange
   * @param {string} args.firstLetter 过滤的首字母
   * @param {array} args.filterAccountIds 过滤的需要排除的帐号
   * @param {array} args.prefixAccountIds 需要插在前面的帐号，排在未指定和我自己后面
@@ -229,6 +235,7 @@ export default {
   * @param {array} args.appointedAccountIds 指定的账户列表
   * @param {array} args.appointedDepartmentIds 指定的部门列表
   * @param {array} args.appointedOrganizeIds 指定的组织角色列表
+  * @param {boolean} args.takeTotalCount 是否获取 总数
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -245,7 +252,7 @@ export default {
   * @param {integer} args.pageSize 页大小
   * @param {string} args.keywords 关键司
   * @param {string} args.projectId 网络Id
-  * @param {} args.dataRange 查询范围，是所有协作者还是好友还是同事还是其他协作者
+  * @param {} args.dataRange
   * @param {string} args.firstLetter 过滤的首字母
   * @param {array} args.filterAccountIds 过滤的需要排除的帐号
   * @param {array} args.prefixAccountIds 需要插在前面的帐号，排在未指定和我自己后面
@@ -256,6 +263,7 @@ export default {
   * @param {array} args.appointedAccountIds 指定的账户列表
   * @param {array} args.appointedDepartmentIds 指定的部门列表
   * @param {array} args.appointedOrganizeIds 指定的组织角色列表
+  * @param {boolean} args.takeTotalCount 是否获取 总数
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -323,34 +331,6 @@ export default {
      return $.api('User', 'UpdateUserCard', args, options);
    },
   /**
-  * 更新用户部门信息
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络Id
-  * @param {array} args.accountIds 用户Ids
-  * @param {string} args.departmentId 部门Id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   updateUserDepartment: function (args, options = {}) {
-     
-     return $.api('User', 'UpdateUserDepartment', args, options);
-   },
-  /**
-  * 更新用户部门信息
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络Id
-  * @param {array} args.accountIds 用户Ids
-  * @param {array} args.departmentIds 新部门Ids（第一个为主部门）
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   updateUsersDepartment: function (args, options = {}) {
-     
-     return $.api('User', 'UpdateUsersDepartment', args, options);
-   },
-  /**
   * 移除用户
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络Id
@@ -362,6 +342,19 @@ export default {
    removeUser: function (args, options = {}) {
      
      return $.api('User', 'RemoveUser', args, options);
+   },
+  /**
+  * 移除用户
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络Id
+  * @param {array} args.accountIds 账户Id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   removeUsers: function (args, options = {}) {
+     
+     return $.api('User', 'RemoveUsers', args, options);
    },
   /**
   * 恢复用户
@@ -397,6 +390,19 @@ export default {
      return $.api('User', 'AgreeUserJoin', args, options);
    },
   /**
+  * 审批同意用户加入公司
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络Id
+  * @param {array} args.accountIds 账户Id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   agreeUsersJoin: function (args, options = {}) {
+     
+     return $.api('User', 'AgreeUsersJoin', args, options);
+   },
+  /**
   * 审批拒绝用户加入公司
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络Id
@@ -411,10 +417,24 @@ export default {
      return $.api('User', 'RefuseUserJoin', args, options);
    },
   /**
+  * 批量 审批拒绝用户加入公司
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络Id
+  * @param {array} args.accountIds 账户Id
+  * @param {string} args.refuseMessage 拒绝消息
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   refuseUsersJoin: function (args, options = {}) {
+     
+     return $.api('User', 'RefuseUsersJoin', args, options);
+   },
+  /**
   * 提醒填写工作电话
   * @param {Object} args 请求参数
   * @param {array} args.accountIds 账户Ids
-  * @param {} args.type 提醒方式
+  * @param {} args.type
   * @param {string} args.projectId 网络Id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层

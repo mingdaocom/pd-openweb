@@ -6,8 +6,10 @@ import worksheetAjax from 'src/api/worksheet';
 import homeAppAjax from 'src/api/homeApp';
 
 const UserInfoCon = styled.div`
+  padding: 0 40px;
+  overflow: auto;
+  height: 100%;
   .worksheetInfoBox {
-    width: 640px;
     height: 71px;
     border: 1px solid #ddd;
     border-radius: 4px;
@@ -25,9 +27,6 @@ const UserInfoCon = styled.div`
     line-height: 31px;
     margin-left: auto;
     cusor: pointer;
-  }
-  .desc {
-    width: 640px;
   }
   .checkbox-userinfo {
     width: fit-content;
@@ -73,24 +72,32 @@ export default function UserExtendInfo(props) {
 
   return (
     <UserInfoCon>
-      <h3 className="mTop35 Font14 Bold">{_l('用户扩展信息表')}</h3>
+      <h3 className="mTop35 Font17 Bold">{_l('用户扩展信息表')}</h3>
+      <div className="userExtendInfo-desc Gray_9e mTop13">
+        {_l(
+          '通过工作表管理应用成员额外的扩展信息字段，在角色权限、筛选器中可以使用用户的扩展信息字段来作为动态筛选条件',
+        )}
+        <Support className="help" type={3} href="https://help.mingdao.com/user4" text={_l('帮助')} />
+      </div>
       <div className="worksheetInfoBox mTop16">
         <SvgIcon url={data.iconUrl} fill="#757575" className="mRight8" size={24} />
         {data.worksheetName || ''}
         <Icon icon="task-new-detail" className="mLeft8 Gray_75 pointer ThemeHoverColor3" onClick={openWorksheet} />
-        <span className="editBtn pointer ThemeHoverColor3" onClick={() => onChangeStep(2)}>
+        <span className="editBtn pointer ThemeHoverColor3 ThemeHoverBorderColor3" onClick={() => onChangeStep(2)}>
           {_l('编辑')}
         </span>
       </div>
-      <div className="mTop30 Font14 Bold">{_l('选择用户扩展信息字段作为用户权限标签')}</div>
+      <div className="mTop30 Font14 Bold">{_l('作为权限标签的扩展信息字段')}</div>
       <div className="desc Gray_75 mBottom25 mTop16">
         {_l(
-          '选择用户扩展信息表中作为用户权限标签字段（仅支持关联记录字段），可启用的字段上限为3个，每个标签字段的有效值上限为1000个，超过时默认取前1000个，当其他工作表记录也关联了此标签字段时，可以在角色权限、或筛选器中过滤出当前用户对应标签的记录',
+          '仅支持关联记录类型字段（包括本表记录），最多可设置3个字段。当其他工作表的记录也关联了相同信息时，可以在角色中设置为用户拥有记录权限',
         )}
-        <Support className="help" type={3} href="https://help.mingdao.com/user4" text={_l('帮助')} />
       </div>
       <div>
-        {data.optionalControls
+        {[
+          data.optionalControls.find(o => o.id === 'currentworkshet'),
+          ...data.optionalControls.filter(o => o.id !== 'currentworkshet'),
+        ]
           .filter((l, index) => index < 1000)
           .map(item => {
             return (
@@ -99,7 +106,9 @@ export default function UserExtendInfo(props) {
                 checked={checked.indexOf(item.id) > -1}
                 onClick={changeCheckedValue}
                 value={item.id}
-                text={item.name}
+                text={
+                  item.id === 'currentworkshet' ? <span>{`${data.worksheetName} (${_l('本表')})`}</span> : item.name
+                }
                 disabled={checked.indexOf(item.id) < 0 && checked.length === 3}
               />
             );

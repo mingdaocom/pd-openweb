@@ -78,8 +78,9 @@ export default function CardDisplay(props) {
         displayControls={showControls}
         columns={availableControls}
         // min1msg={_l('至少显示一列')}
-        handleChange={checked => {
-          handleDisplayChange({ showControlName: checked });
+        handleChange={data => {
+          const { showControlName } = data;
+          handleDisplayChange({ showControlName });
         }}
         handleChangeSort={({ newControlSorts, newShowControls }) => {
           //层级视图 关联表 支持显隐 以及排序
@@ -123,6 +124,14 @@ export default function CardDisplay(props) {
             advancedSetting: {
               ...advancedSetting,
               opencover: value,
+            },
+          });
+        }}
+        handleChangeCoverWidth={value => {
+          handleDisplayChange({
+            advancedSetting: {
+              ...advancedSetting,
+              cardwidth: value,
             },
           });
         }}

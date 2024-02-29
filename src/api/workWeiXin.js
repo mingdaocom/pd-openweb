@@ -1,18 +1,5 @@
 export default {
   /**
-  * 明道云通讯录同步到企业微信
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {boolean} args.check 是否只检测
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   syncMingToWorkWX: function (args, options = {}) {
-     
-     return $.api('WorkWeiXin', 'SyncMingToWorkWX', args, options);
-   },
-  /**
   * 企业微信通讯录同步到明道云
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
@@ -24,68 +11,6 @@ export default {
    syncWorkWXToMing: function (args, options = {}) {
      
      return $.api('WorkWeiXin', 'SyncWorkWXToMing', args, options);
-   },
-  /**
-  * 修改自动同步设置
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {boolean} args.autoSync 自动同步（true:开启 false:关系）
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   editAutoSync: function (args, options = {}) {
-     
-     return $.api('WorkWeiXin', 'EditAutoSync', args, options);
-   },
-  /**
-  * 获取通过已存在的企业微信账号安装应用的跳转地址
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {string} args.suiteId 套件Id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getInstallByExistAccountUrl: function (args, options = {}) {
-     
-     return $.api('WorkWeiXin', 'GetInstallByExistAccountUrl', args, options);
-   },
-  /**
-  * 获取安装推荐应用的url
-  * @param {Object} args 请求参数
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getRecommendInstallUrls: function (args, options = {}) {
-     
-     return $.api('WorkWeiXin', 'GetRecommendInstallUrls', args, options);
-   },
-  /**
-  * 获取通过创建新的企业微信账号安装应用的跳转地址
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {string} args.suiteId 套件Id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getInstallByNewAccountUrl: function (args, options = {}) {
-     
-     return $.api('WorkWeiXin', 'GetInstallByNewAccountUrl', args, options);
-   },
-  /**
-  * 获取套件信息
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getProjectSuiteInfo: function (args, options = {}) {
-     
-     return $.api('WorkWeiXin', 'GetProjectSuiteInfo', args, options);
    },
   /**
   * 获取日志列表
@@ -102,26 +27,10 @@ export default {
      return $.api('WorkWeiXin', 'GetLogs', args, options);
    },
   /**
-  * 保存上传到企业微信的临时素材到七牛
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {} args.suiteType 套件类型
-  * @param {string} args.mediaId mediaId
-  * @param {} args.bucketType 存储的Bucket
-  * @param {string} args.ext 扩展名
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   saveMedia: function (args, options = {}) {
-     
-     return $.api('WorkWeiXin', 'SaveMedia', args, options);
-   },
-  /**
   * 获取js-sdk的签名信息
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
-  * @param {} args.suiteType 套件类型（1：通讯录 2：任务 3：审批 4：考勤 5：明道云小程序 6：明道云 8：自建应用包括代开发）
+  * @param {} args.suiteType
   * @param {string} args.url 调用JS接口页面的完整URL，不包含#及其后面部分
   * @param {integer} args.ticketType 签名类型
 1表示企业 wx.config；2表示应用 agentConfig
@@ -132,59 +41,6 @@ export default {
    getSignatureInfo: function (args, options = {}) {
      
      return $.api('WorkWeiXin', 'GetSignatureInfo', args, options);
-   },
-  /**
-  * 编辑应用消息通知
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {string} args.appId 应用id
-  * @param {string} args.agentId AgentId
-  * @param {string} args.secret Secret
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   editWorkWXAppNoticeSetting: function (args, options = {}) {
-     
-     return $.api('WorkWeiXin', 'EditWorkWXAppNoticeSetting', args, options);
-   },
-  /**
-  * 获取全部明道云与企业微信用户、部门关系
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getWorkWXAllMap: function (args, options = {}) {
-     
-     return $.api('WorkWeiXin', 'GetWorkWXAllMap', args, options);
-   },
-  /**
-  * 获取明道云与企业微信用户关系【key:明道用户 accountid，value:企业微信用户id】
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {array} args.accountIds 明道云账号id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getWorkWXAccountIdMap: function (args, options = {}) {
-     
-     return $.api('WorkWeiXin', 'GetWorkWXAccountIdMap', args, options);
-   },
-  /**
-  * 获取明道云与企业微信部门关系【key:明道部门id，value:企业微信部门id】
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {array} args.departmentIds 明道云部门id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getWorkWXDepartmentIdMap: function (args, options = {}) {
-     
-     return $.api('WorkWeiXin', 'GetWorkWXDepartmentIdMap', args, options);
    },
   /**
   * 获取网络的钉钉设置
@@ -225,20 +81,6 @@ export default {
    editDDProjectSetting: function (args, options = {}) {
      
      return $.api('WorkWeiXin', 'EditDDProjectSetting', args, options);
-   },
-  /**
-  * 修改钉钉扫码登录信息
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {string} args.scan_appKey 钉钉扫码应用id
-  * @param {string} args.scan_appSecret 钉钉扫码应用secret
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   editProjectSettingScanInfo: function (args, options = {}) {
-     
-     return $.api('WorkWeiXin', 'EditProjectSettingScanInfo', args, options);
    },
   /**
   * 编辑网络的钉钉集成状态
@@ -322,19 +164,6 @@ export default {
    editDDAppNoticeSetting: function (args, options = {}) {
      
      return $.api('WorkWeiXin', 'EditDDAppNoticeSetting', args, options);
-   },
-  /**
-  * 获取钉钉自建应用 JSAPI 配置信息
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {string} args.url 地址
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getDDJsapiConfig: function (args, options = {}) {
-     
-     return $.api('WorkWeiXin', 'GetDDJsapiConfig', args, options);
    },
   /**
   * 获取钉钉 js-sdk的签名信息
@@ -522,23 +351,6 @@ export default {
    unbindWorkWxUserRelation: function (args, options = {}) {
      
      return $.api('WorkWeiXin', 'UnbindWorkWxUserRelation', args, options);
-   },
-  /**
-  * 转换网络企业微信集成状态
-企业微信自建应用
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {string} args.tagetProjectId 需要转换的网络Id
-  * @param {string} args.agentId 应用的AgentId
-  * @param {string} args.secret 应用的Secret
-  * @param {string} args.corpId 公司 ID
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   transferProjectIntergrationToWorkwxApp: function (args, options = {}) {
-     
-     return $.api('WorkWeiXin', 'TransferProjectIntergrationToWorkwxApp', args, options);
    },
   /**
   * 企业微信第三方/自建 应用SSO地址信息 公用同一个接口，后端根据集成类型判断
@@ -858,18 +670,5 @@ export default {
    getWorkWxLicenseOrderList: function (args, options = {}) {
      
      return $.api('WorkWeiXin', 'GetWorkWxLicenseOrderList', args, options);
-   },
-  /**
-  * 订单详情
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId
-  * @param {string} args.orderId 订单id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getWorkWxLicenseOrderDetail: function (args, options = {}) {
-     
-     return $.api('WorkWeiXin', 'GetWorkWxLicenseOrderDetail', args, options);
    },
 };

@@ -2,10 +2,10 @@ export default {
   /**
   * 根据账号查找用户
   * @param {Object} args 请求参数
-  * @param {string} args.account 邮箱或手机号
   * @param {string} args.ticket 验证码返票据
   * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
+  * @param {} args.captchaType
+  * @param {string} args.account 邮箱或手机号
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -46,10 +46,11 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.keywords 关键词
   * @param {string} args.projectId 网络Id
-  * @param {} args.range 范围
+  * @param {} args.range
   * @param {integer} args.pageIndex 页码
   * @param {integer} args.pageSize 每页多少个
   * @param {boolean} args.isFilterOther 通讯录使用，全部联系人中是否过滤其它协作关系，true：过滤其它协作关系 即好友+同事，false：不过滤， 好友+同事+其它协作
+  * @param {boolean} args.takeTotalCount 是否 获取 总数
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -64,10 +65,11 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.keywords 关键词
   * @param {string} args.projectId 网络Id
-  * @param {} args.range 范围
+  * @param {} args.range
   * @param {integer} args.pageIndex 页码
   * @param {integer} args.pageSize 每页多少个
   * @param {boolean} args.isFilterOther 通讯录使用，全部联系人中是否过滤其它协作关系，true：过滤其它协作关系 即好友+同事，false：不过滤， 好友+同事+其它协作
+  * @param {boolean} args.takeTotalCount 是否 获取 总数
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -91,8 +93,7 @@ export default {
      return $.api('AddressBook', 'GetAllChatAddressbookByKeywords', args, options);
    },
   /**
-  * 关键词搜索通讯录
-任务 协作用户快速搜索
+  * 关键词搜索通讯录（任务 协作用户快速搜索）
   * @param {Object} args 请求参数
   * @param {string} args.keywords 关键词
   * @param {string} args.projectId 要搜索组织的网络Id
@@ -101,7 +102,7 @@ export default {
   * @param {integer} args.pageIndex 页码
   * @param {integer} args.pageSize 页大小
   * @param {array} args.filterAccountIds 过来哪些账号Id， 数组：[accountId1,accountId2]
-  * @param {} args.dataRange 范围 0：所有联系人 1：好友 2：网络同事
+  * @param {} args.dataRange
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

@@ -6,7 +6,7 @@ import { Button, RichText } from 'ming-ui';
 import captcha from 'src/components/captcha';
 import CustomFields from 'src/components/newCustomFields';
 import { addWorksheetRow } from './action';
-import { getSubListError, filterHidedSubList } from 'worksheet/util';
+import { getSubListError, filterHidedSubList, handleChildTableUniqueError } from 'worksheet/util';
 import { checkMobileVerify, controlState } from 'src/components/newCustomFields/tools/utils';
 import './index.less';
 import _ from 'lodash';
@@ -89,7 +89,7 @@ export default class FillWorksheet extends React.Component {
   }
 
   @autobind
-  onSave(error, { data, updateControlIds }) {
+  onSave(error, { data, updateControlIds, handleRuleError }) {
     if (this.issubmitting) {
       return;
     }
@@ -124,7 +124,7 @@ export default class FillWorksheet extends React.Component {
                   _.get(this.cellObjs || {}, `${control.controlId}.cell.rules`) ||
                   _.get(this.cellObjs || {}, `${control.controlId}.cell.worksheettable.current.table.rules`),
               },
-              _.get(this.cellObjs || {}, `${control.controlId}.cell.controls`) || control.relationControls,
+              _.get(this.cellObjs || {}, `${control.controlId}.cell.state.controls`) || control.relationControls,
               control.showControls,
               2,
             ),
@@ -169,7 +169,7 @@ export default class FillWorksheet extends React.Component {
         ? {
             ticket: res.ticket,
             randStr: res.randstr,
-            captchaType: md.staticglobal.getCaptchaType(),
+            captchaType: md.global.getCaptchaType(),
           }
         : {};
       if (smsVerification && checkMobileVerify(data, smsVerificationFiled)) {
@@ -185,6 +185,12 @@ export default class FillWorksheet extends React.Component {
             if (this.customwidget.current && _.isFunction(this.customwidget.current.uniqueErrorUpdate)) {
               this.customwidget.current.uniqueErrorUpdate(badData);
             }
+          },
+          setSublistUniqueError: badData => {
+            handleChildTableUniqueError({ badData, data, cellObjs: this.cellObjs });
+          },
+          setRuleError: badData => {
+            handleRuleError(badData, this.cellObjs);
           },
           params,
         },
@@ -203,10 +209,22 @@ export default class FillWorksheet extends React.Component {
             });
             return;
           }
+          const publicSubmit = localStorage.getItem('publicWorksheetSubmit_' + shareId);
+          const publicWorksheetSubmit = !publicSubmit
+            ? []
+            : publicSubmit.indexOf('[') < 0
+            ? [publicSubmit]
+            : safeParse(publicSubmit);
           // 添加成功
-          safeLocalStorageSetItem('publicWorksheetLastSubmit_' + publicWorksheetInfo.shareId, new Date().toISOString());
+          safeLocalStorageSetItem(
+            'publicWorksheetSubmit_' + publicWorksheetInfo.shareId,
+            JSON.stringify([...publicWorksheetSubmit, new Date().toISOString()]),
+          );
           if (cacheFieldData.isEnable) {
-            safeLocalStorageSetItem('cacheFieldData_' + publicWorksheetInfo.shareId, JSON.stringify(data || []));
+            safeLocalStorageSetItem(
+              'cacheFieldData_' + publicWorksheetInfo.shareId,
+              JSON.stringify((data || []).map(item => ({ controlId: item.controlId, value: item.value }))),
+            );
           }
           localStorage.removeItem('cacheDraft_' + publicWorksheetInfo.shareId); //提交成功，清除未提交缓存
           window.onbeforeunload = null;
@@ -225,7 +243,7 @@ export default class FillWorksheet extends React.Component {
       return false;
     } else {
       if (needCaptcha) {
-        if (md.staticglobal.getCaptchaType() === 1) {
+        if (md.global.getCaptchaType() === 1) {
           captcha(submit, () => submit({}));
         } else {
           new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), submit).show();
@@ -361,7 +379,10 @@ export default class FillWorksheet extends React.Component {
               registerCell={({ item, cell }) => (this.cellObjs[item.controlId] = { item, cell })}
               onChange={(data, id) => {
                 cacheDraft &&
-                  safeLocalStorageSetItem('cacheDraft_' + publicWorksheetInfo.shareId, JSON.stringify(data || []));
+                  safeLocalStorageSetItem(
+                    'cacheDraft_' + publicWorksheetInfo.shareId,
+                    JSON.stringify((data || []).map(item => ({ controlId: item.controlId, value: item.value }))),
+                  );
                 this.setState({
                   formData: data,
                 });

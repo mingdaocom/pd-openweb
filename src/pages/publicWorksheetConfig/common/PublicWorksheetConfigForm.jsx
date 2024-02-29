@@ -175,6 +175,7 @@ class PublicWorksheetConfigForm extends React.Component {
                   </div>
                   <div className="worksheetDescription WordBreak">
                     <RichText
+                      bucket={2}
                       data={worksheetInfo.desc || ''}
                       minHeight={46}
                       className={`descText-${Math.round(Math.random() * 10)}`}

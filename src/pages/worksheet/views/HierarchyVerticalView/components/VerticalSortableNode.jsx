@@ -1,7 +1,7 @@
 import React, { Fragment, Component, createRef } from 'react';
 import { string, number, func } from 'prop-types';
 import cx from 'classnames';
-import { isEmpty, isEqual, pick } from 'lodash';
+import _ from 'lodash';
 import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
 import { RecordInfoModal } from 'mobile/Record';
 import SVG from 'svg.js';
@@ -105,7 +105,12 @@ export default class VerticalSortableRecordItem extends Component {
         _.find(currentControls, item => item.controlId === controlId),
         'viewId',
       );
-      return { worksheetId, viewId: configViewId };
+      const viewControlInfo = viewControls.find(o => o.worksheetId === worksheetId) || {};
+      return {
+        worksheetId,
+        viewId: configViewId,
+        cardwidth: _.get(viewControlInfo, 'advancedSetting.cardwidth'),
+      };
     }
     return { worksheetId, viewId };
   };
@@ -167,6 +172,7 @@ export default class VerticalSortableRecordItem extends Component {
         >
           <DraggableRecord
             {...this.props}
+            width={recordInfoPara.cardwidth || _.get(view, 'advancedSetting.cardwidth')}
             viewParaOfRecord={recordInfoPara}
             onDelete={() => deleteHierarchyRecord({ rows: [{ rowid: rowId, allowDelete: true }], path, pathId })}
             onUpdate={(value, relateSheet) =>

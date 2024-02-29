@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import styled, { css } from 'styled-components';
-import { Input, Checkbox, Icon } from 'ming-ui';
+import { Input, Checkbox, Icon, Tooltip } from 'ming-ui';
 import cx from 'classnames';
 import { DATABASE_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
 import _ from 'lodash';
@@ -8,6 +8,7 @@ import { getIconByType } from 'src/pages/widgetConfig/util';
 import Des from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/components/Des';
 import { ACTION_LIST, OPERATION_TYPE_DATA } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config.js';
 import DestEdit from './Dest';
+import { Select } from 'antd';
 
 const WrapCon = styled.div`
   .setSheetName,
@@ -117,7 +118,7 @@ export default function SlideLayerTem(props) {
       node: nodeData,
     });
   };
-  const renderTemplate = (fields = [], isAppWorksheet, cb) => {
+  const renderTemplate = (fields = [], isAppWorksheet, cb, hideIsNull) => {
     const isAll = fields.filter(o => o.isCheck).length >= fields.length;
     const isNotAll = fields.filter(o => o.isCheck).length < fields.length && fields.filter(o => o.isCheck).length > 0;
     const { onChangeInfo, state } = props;
@@ -143,7 +144,7 @@ export default function SlideLayerTem(props) {
           {!isAppWorksheet && (
             <React.Fragment>
               <div className="itemBox Gray_75">{_l('类型')}</div>
-              <div className="itemBox itemBoxCanEmpty Gray_75">{_l('不允许NULL')}</div>
+              {!hideIsNull && <div className="itemBox itemBoxCanEmpty Gray_75">{_l('不允许NULL')}</div>}
             </React.Fragment>
           )}
           <div className="itemBox Gray_75">{_l('重命名')}</div>
@@ -206,7 +207,7 @@ export default function SlideLayerTem(props) {
               {!isAppWorksheet && (
                 <React.Fragment>
                   <div className="itemBox">{item.dataType}</div>
-                  <div className="itemBox itemBoxCanEmpty">{item.isNotNull && _l('是')}</div>
+                  {!hideIsNull && <div className="itemBox itemBoxCanEmpty">{item.isNotNull && _l('是')}</div>}
                 </React.Fragment>
               )}
               <div className="itemBox">
@@ -214,6 +215,7 @@ export default function SlideLayerTem(props) {
                   className={cx('w100 AliasInput', { isErr: !!(duplicates || []).find(o => o === item.alias) })}
                   placeholder={_l('请输入')}
                   value={item.alias}
+                  disabled={!!item.isFakePk && !item.isUniquePk}
                   onChange={value => {
                     cb({
                       fields: fields.map(o => {
@@ -337,14 +339,60 @@ export default function SlideLayerTem(props) {
   //筛选|分类汇总 => 没有字段配置
   const renderCon = () => {
     const { state, flowData } = props;
-    const { node = {} } = state;
+    const { node = {}, fieldsBysource = [] } = state;
     const { nodeType = '' } = node;
     const { flowNodes } = flowData;
     switch (nodeType) {
       case 'SOURCE_TABLE':
-        // case 'AGGREGATE':
+        const isKafka = _.get(node, 'nodeConfig.config.dsType') === 'KAFKA';
+        const isMD = _.get(node, 'nodeConfig.config.dsType') === DATABASE_TYPE.APPLICATION_WORKSHEET;
+        const canSetPk = fieldsBysource.filter(o => o.isPk).length <= 0 || isKafka || isMD;
+        const pkField = _.get(node, 'nodeConfig.fields').find(o => o.isPk) || {};
         return (
           <WrapCon className={cx('flexColumn')}>
+            {canSetPk && (
+              <React.Fragment>
+                <p className="mBottom16 bold">{_l('设置主键')}</p>
+                <div className="flexRow alignItemsCenter mBottom20">
+                  <span className="nowrap">{_l('在同步时，指定数据源字段')}</span>
+                  <div className="Width120 mLeft12 mRight12">
+                    <Select
+                      className="selectItem"
+                      options={(_.get(node, 'nodeConfig.fields') || [])
+                        .filter(o => (o.isCanBePk && (o.isNotNull || isKafka)) || isMD)
+                        .map(item => {
+                          return {
+                            label: (
+                              <div className="flexRow alignItemsCenter">
+                                <Icon icon={getIconByType(item.mdType, false)} className="Gray_9e Font18" />
+                                <span title={item.name} className="mLeft8 overflow_ellipsis Gray">
+                                  {item.name}
+                                </span>
+                              </div>
+                            ),
+                            value: item.id,
+                          };
+                        })}
+                      value={pkField.id}
+                      onChange={id => {
+                        onChangeNodeConfig({
+                          ...(_.get(node, 'nodeConfig.config') || {}),
+                          fields: _.get(node, 'nodeConfig.fields').map(o => ({
+                            ...o,
+                            isPk: o.id === id,
+                            isFakePk: o.id === id,
+                          })),
+                        });
+                      }}
+                    />
+                  </div>
+                  <span className="nowrap">{_l('为主键')}</span>
+                  <Tooltip text={_l('仅用于数据同步，不会改变数据库字段属性，建议使用索引列。')}>
+                    <Icon icon="info_outline" className="Font16 Gray_bd pointer mLeft12" />
+                  </Tooltip>
+                </div>
+              </React.Fragment>
+            )}
             {renderTemplate(
               _.get(node, 'nodeConfig.fields'),
               _.get(node, 'nodeConfig.config.dsType') === DATABASE_TYPE.APPLICATION_WORKSHEET,
@@ -354,6 +402,7 @@ export default function SlideLayerTem(props) {
                   config: { ..._.get(node, 'nodeConfig.config'), ...data },
                 });
               },
+              isKafka,
             )}
           </WrapCon>
         );

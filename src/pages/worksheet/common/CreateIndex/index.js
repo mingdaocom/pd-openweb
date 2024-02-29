@@ -1,6 +1,4 @@
 import React, { Component, Fragment } from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import worksheetAjax from 'src/api/worksheet';
 import { Icon, Checkbox } from 'ming-ui';
 import { Input, Tooltip, Select } from 'antd';
@@ -96,7 +94,7 @@ const QA_TEXT = [
 ];
 const MAX_COUNT = md.global.Config.IsLocal ? 10 : 5;
 
-class CreateIndex extends Component {
+export default class CreateIndex extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -463,15 +461,3 @@ class CreateIndex extends Component {
     );
   }
 }
-
-export default connect(
-  state => {
-    const { worksheetId, worksheetInfo = {} } = state.formSet;
-    const { appId } = worksheetInfo;
-    return {
-      worksheetId,
-      appId,
-    };
-  },
-  dispatch => bindActionCreators({}, dispatch),
-)(CreateIndex);

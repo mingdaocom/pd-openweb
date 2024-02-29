@@ -289,7 +289,7 @@ export default class RelateRecord extends React.Component {
                   openChildTable({
                     openFrom: 'cell',
                     allowEdit: editable && from !== 4,
-                    title: getTitleTextFromControls(rowFormData()),
+                    title: getTitleTextFromControls(_.isFunction(rowFormData) ? rowFormData() : rowFormData),
                     entityName: cell.sourceEntityName,
                     appId,
                     worksheetId,
@@ -301,7 +301,7 @@ export default class RelateRecord extends React.Component {
                     sheetSwitchPermit,
                     masterData: {
                       worksheetId,
-                      formData: rowFormData()
+                      formData: (_.isFunction(rowFormData) ? rowFormData() : rowFormData)
                         .map(c => _.pick(c, ['controlId', 'type', 'value', 'options']))
                         .filter(c => !!c.value),
                     },
@@ -309,14 +309,14 @@ export default class RelateRecord extends React.Component {
                   });
                 } else {
                   openRelateRelateRecordTable({
-                    title: getTitleTextFromControls(rowFormData()),
+                    title: getTitleTextFromControls(_.isFunction(rowFormData) ? rowFormData() : rowFormData),
                     appId,
                     viewId,
                     worksheetId,
                     recordId,
                     control: { ...cell, isDraft: from === 21 },
                     allowEdit: editable,
-                    formdata: rowFormData(),
+                    formdata: _.isFunction(rowFormData) ? rowFormData() : rowFormData,
                     onUpdateCount: () => {
                       emitter.emit('RELOAD_RECORD_INFO', {
                         worksheetId,

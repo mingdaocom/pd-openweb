@@ -40,17 +40,14 @@ export default function SideNav(props) {
     currentSheetInfo,
     formatColumnsListForControlsWithoutHide,
     onChangeType,
+    btnList = [],
   } = props;
-  const { filters = [], controls = [], moreSort = [], fastFilters = [], groupFilters } = view;
+  const { filters = [], controls = [], moreSort = [], fastFilters = [] } = view;
   const { icon, text } = VIEW_TYPE_ICON.find(it => it.id === VIEW_DISPLAY_TYPE[view.viewType]) || {};
   const viewTypeText = VIEW_DISPLAY_TYPE[view.viewType];
   const columnsList = formatColumnsListForControlsWithoutHide(columns);
   const controlsList = formatColumnsListForControlsWithoutHide(controls);
   let daConfig = [
-    // {
-    //   type: 'ActionSet',
-    //   data: btnData,
-    // },
     {
       type: 'Filter',
       data: filters,
@@ -65,6 +62,17 @@ export default function SideNav(props) {
     },
   ];
   const getHtml = type => {
+    let btnCount = 0;
+    if (type === 'ActionSet') {
+      const listBtns = btnList.filter(
+        o => safeParse(_.get(o, 'advancedSetting.listviews'), 'array').includes(props.viewId) || o.isAllView === 1,
+      );
+      const detailBtns = btnList.filter(
+        o => safeParse(_.get(o, 'advancedSetting.detailviews'), 'array').includes(props.viewId) || o.isAllView === 1,
+      );
+      const isSheetView = viewTypeText === 'sheet';
+      btnCount = (isSheetView ? listBtns.length : 0) + detailBtns.length;
+    }
     let d = viewTypeConfig.find(o => o.type === type) || {};
     let da = (daConfig.find(o => o.type === type) || {}).data;
     if (type === 'FastFilter') {
@@ -95,6 +103,7 @@ export default function SideNav(props) {
         {((da && da.length > 0) || type === 'Sort') && (
           <span className="Gray_9e InlineBlock mLeft5 numText">{type === 'Sort' && da.length < 1 ? 1 : da.length}</span>
         )}
+        {btnCount > 0 && type === 'ActionSet' && <span className="Gray_9e InlineBlock mLeft5 numText">{btnCount}</span>}
         {type === 'RecordColor' && !!_.get(view, 'advancedSetting.colorid') && (
           <RecordColorSign>
             <i />
@@ -127,10 +136,7 @@ export default function SideNav(props) {
         if (viewTypeText === 'customize' && isDevCustomView && it.name === 'base') {
           actionList = viewTypeCustomList;
         }
-        //插件视图暂不支持其他设置（移动端显示|链接参数）
-        if (viewTypeText === 'customize' && it.name === 'other') {
-          return '';
-        }
+
         return (
           <div className="viewBtnsLi">
             {actionList.map((o, n) => {
@@ -139,7 +145,7 @@ export default function SideNav(props) {
               let hasFastFilter =
                 ['sheet', 'gallery', 'board', 'calendar', 'gunter'].includes(viewTypeText) ||
                 (viewTypeText === 'detail' && view.childType === 2);
-              let hasNavGroup = ['sheet', 'gallery'].includes(viewTypeText);
+              let hasNavGroup = ['sheet', 'gallery', 'map'].includes(viewTypeText);
               if (viewTypeText === 'customize') {
                 //插件视图的快速筛选和筛选列表根据视图配置展示
                 const { pluginInfo = {} } = view;
@@ -150,7 +156,8 @@ export default function SideNav(props) {
               if (
                 (!hasFastFilter && ['FastFilter'].includes(item.type)) ||
                 (!hasNavGroup && ['NavGroup'].includes(item.type)) ||
-                (!['sheet'].includes(viewTypeText) && _.includes(['Show', 'MobileSet'], o)) || //只有表格有显示列,移动端设置
+                (!['sheet', 'gallery'].includes(viewTypeText) && _.includes(['MobileSet'], o)) || //移动端设置=>表 画廊
+                (!['sheet'].includes(viewTypeText) && _.includes(['Show'], o)) || //显示列=> 表 //
                 (item.type === 'RecordColor' && viewTypeText === 'detail' && view.childType === 1)
               ) {
                 return '';
@@ -171,7 +178,8 @@ export default function SideNav(props) {
                           ((hasNavGroup && item.type === 'NavGroup') ||
                             (!hasNavGroup && item.type === 'ActionSet'))) ? (
                         <p className="titileP">{_l('用户操作')}</p>
-                      ) : item.type === 'MobileSet' || (viewTypeText !== 'sheet' && item.type === 'urlParams') ? (
+                      ) : item.type === 'MobileSet' ||
+                        (!['sheet', 'gallery'].includes(viewTypeText) && item.type === 'urlParams') ? (
                         <p className="titileP">{_l('其他')}</p>
                       ) : (
                         ''
@@ -186,7 +194,7 @@ export default function SideNav(props) {
                   >
                     <Icon className="mRight15 Font18 icon" icon={item.icon || icon} />
                     <div className="fontText flexRow alignItemsCenter">
-                      {['Filter', 'FastFilter', 'Sort', 'RecordColor'].includes(item.type)
+                      {['Filter', 'FastFilter', 'Sort', 'RecordColor', 'ActionSet'].includes(item.type)
                         ? getHtml(item.type)
                         : item.type === 'Controls'
                         ? hideLengthStr
@@ -197,7 +205,7 @@ export default function SideNav(props) {
               );
             })}
             {/* 多表关联层级视图 =》筛选、排序、字段的设置仅作用于本表（第一层级）中的记录。 */}
-            {isRelateMultiSheetHierarchyView && it.name === 'action' && (
+            {isRelateMultiSheetHierarchyView && it.name === 'other' && (
               <div
                 className="Font13 pTop16 pBottom16 pLeft12 pRight12 mTop8 descCon"
                 style={{

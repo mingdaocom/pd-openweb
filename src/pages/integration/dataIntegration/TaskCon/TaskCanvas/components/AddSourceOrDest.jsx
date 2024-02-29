@@ -190,7 +190,7 @@ function AddSourceOrDest(props) {
           }}
           setConnectorConfigData={data => {
             const infoTxt = nodeType === 'SOURCE_TABLE' ? 'source' : 'dest';
-            const { className, id, iconBgColor, type, sourceName } = data[infoTxt];
+            const { className, id, iconBgColor, type, sourceName, formData } = data[infoTxt];
             onUpdateFlowDatasources({ ...data[infoTxt], name: sourceName });
             let param = {};
             if (nodeType !== 'SOURCE_TABLE') {
@@ -201,18 +201,23 @@ function AddSourceOrDest(props) {
               param = {
                 datasourceId: id,
               };
+              if (className === 'kafka') {
+                param.dbName = _.get(formData, 'extraParams.topic');
+                param.tableName = _.get(formData, 'extraParams.topic');
+              }
             }
             let config = {
               ...(_.get(node, 'nodeConfig.config') || {}),
-              ...param,
-              dsType: type,
               dbName: '',
               tableName: '',
+              dsType: type,
               schema: '',
               className,
               iconBgColor,
               workSheetId: '',
               appId: '',
+              sourceName,
+              ...param,
             };
             if ('SOURCE_TABLE' === nodeType) {
               config = { ...config, fields: [] };

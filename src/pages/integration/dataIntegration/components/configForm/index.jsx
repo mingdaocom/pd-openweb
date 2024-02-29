@@ -13,6 +13,7 @@ import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import SSHConnect from './SSHConnect';
 import TestConnectButton from './testConnectButton';
+import { getExtraParams } from '../../utils';
 
 const Wrapper = styled.div`
   .selectItem {
@@ -130,18 +131,6 @@ export default function ConfigForm(props) {
   const [sshEnable, setSshEnable] = useState(false);
   const fieldRef = useRef(null);
 
-  const getExtraParams = formData => {
-    const extraParams =
-      connectorConfigData[roleType].type === DATABASE_TYPE.ORACLE
-        ? {
-            [JSON.parse(formData.serviceType)[0] === 'ServiceName' ? 'serviceName' : 'SID']: formData.serviceName,
-          }
-        : connectorConfigData[roleType].type === DATABASE_TYPE.MONGO_DB
-        ? { isSrvProtocol: formData.isSrvProtocol }
-        : {};
-    return extraParams;
-  };
-
   // 获取白名单
   useEffect(() => {
     dataSourceApi.whitelistIp().then(res => res && setWhitelistIp(res));
@@ -195,7 +184,7 @@ export default function ConfigForm(props) {
       connectOptions: formData.connectOptions,
       cdcParams: formData.cdcParams,
       type: connectorConfigData[roleType].type,
-      extraParams: getExtraParams(formData),
+      extraParams: getExtraParams(connectorConfigData[roleType].type, formData),
       enableSsh: connectorConfigData[roleType].formData.enableSsh,
       sshConfigId: connectorConfigData[roleType].formData.sshConfigId,
     };
@@ -219,7 +208,7 @@ export default function ConfigForm(props) {
               ...connectorConfigData[roleType].formData,
               ...formData,
               id: connectorConfigData[roleType].formData.id,
-              extraParams: getExtraParams(formData),
+              extraParams: getExtraParams(connectorConfigData[roleType].type, formData),
             },
           }),
         });
@@ -396,7 +385,7 @@ export default function ConfigForm(props) {
                     ...connectorConfigData[roleType].formData,
                     ...formData,
                     id: (connectorConfigData[roleType].formData || {}).id,
-                    extraParams: getExtraParams(formData),
+                    extraParams: getExtraParams(connectorConfigData[roleType].type, formData),
                   },
                 }),
               });

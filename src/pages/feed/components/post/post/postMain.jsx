@@ -1,34 +1,12 @@
 ﻿import cx from 'classnames';
 import PropTypes from 'prop-types';
 import React from 'react';
-import ReactDom from 'react-dom';
-import ReactDomServer from 'react-dom/server';
 import UserName from 'src/components/userName';
-import LoadDiv from 'ming-ui/components/LoadDiv';
 import postAjax from 'src/api/post';
 import PostMessage from './postMessage';
 import PostComponent from '../postComponent';
 import FastCreateTaskSchedule from './fastCreateTaskSchedule';
-import '@mdfe/poshytip';
-
-// 减少 store 复杂性，回复消息存在这里
-const replyMessages = {};
-function getCachedReplyMessage(replyID) {
-  return replyMessages[replyID];
-}
-
-function getReplyMessagePromise(postID, replyID) {
-  if (replyMessages[replyID]) {
-    return Promise.resolve(replyMessages[replyID]);
-  }
-  return postAjax.getReplyMessage({ postID, commentID: replyID }).then((data) => {
-    if (data.Message) {
-      replyMessages[replyID] = data.Message;
-      return data.Message;
-    }
-    return _l('内容已删除');
-  });
-}
+import { Tooltip } from 'antd';
 
 /**
  * 动态主体内容，包括动态内容和用户头像、姓名和发布到的群组
@@ -51,6 +29,7 @@ class PostMain extends React.Component {
     left: 0,
     top: 0,
     selectText: '',
+    message: '',
   };
 
   showMore = () => {
@@ -59,49 +38,26 @@ class PostMain extends React.Component {
 
   hideMore = () => {
     this.setState({ isFullHeight: false });
-    $(".feedAppScroll.nano").nanoScroller();
-    $(".feedAppScroll.nano").nanoScroller({
-      scrollTop: $(".feedAppScroll.nano .nano-content").scrollTop() - ($(this.postContent).height() - 330),
+    $('.feedAppScroll.nano').nanoScroller();
+    $('.feedAppScroll.nano').nanoScroller({
+      scrollTop: $('.feedAppScroll.nano .nano-content').scrollTop() - ($(this.postContent).height() - 330),
     });
   };
 
-  showReplyMessage = () => {
-    const el = ReactDom.findDOMNode(this.replyMessage);
+  getReplyMessage() {
     const replyID = this.props.postItem.replyID;
     const postID = this.props.postItem.postID;
-    $(el)
-      .poshytip({
-        showOn: 'none',
-        className: 'tip-white',
-        alignTo: 'target',
-        alignX: 'center',
-        alignY: 'top',
-        offsetX: 0,
-        offsetY: 10,
-        showTimeout: 1,
-        showAniDuration: 0,
-        zIndex: 1050,
-        content(updateCallback) {
-          const cached = getCachedReplyMessage(replyID);
-          if (cached) {
-            return `<div class="pAll10 breakAll">${cached}</div>`;
-          }
-          setTimeout(() => {
-            getReplyMessagePromise(postID, replyID)
-              .then(message => `<div class="pAll10 breakAll">${message}</div>`)
-              .then(updateCallback);
-          }, 0);
-          return `<div class="pAll10">${ReactDomServer.renderToString(React.createElement(LoadDiv))}</div>`;
-        },
-      })
-      .poshytip('show');
-  };
 
-  hideReplyMessage = () => {
-    $('.replyMessage').poshytip('destroy');
-  };
+    postAjax.getReplyMessage({ postID, commentID: replyID }).then(data => {
+      if (data.Message) {
+        this.setState({ message: data.Message });
+      } else {
+        this.setState({ message: _l('内容已删除') });
+      }
+    });
+  }
 
-  toggleCreateTaskSchedule = (event) => {
+  toggleCreateTaskSchedule = event => {
     const e = event || window.event;
     if (e.button !== 0) return; // 只左键松开时触发
     const even = e.srcElement || e.target;
@@ -159,7 +115,9 @@ class PostMain extends React.Component {
         className={cx('postContent ', this.props.className)}
         style={{ minHeight: this.props.minHeight }}
         onMouseUp={this.toggleCreateTaskSchedule}
-        ref={(postContent) => { this.postContent = postContent; }}
+        ref={postContent => {
+          this.postContent = postContent;
+        }}
       >
         {fastCreateHtml}
         <div className="postContentBodyContainer" style={{ paddingBottom: 5 }}>
@@ -170,15 +128,13 @@ class PostMain extends React.Component {
                 {postItem.replyMessage ? (
                   <span>
                     <span className=" Green"> {_l('回复')} </span>
-                    <UserName user={postItem.replyUser} />
-                    <i
-                      ref={(replyMessage) => {
-                        this.replyMessage = replyMessage;
-                      }}
-                      onMouseEnter={this.showReplyMessage}
-                      onMouseLeave={this.hideReplyMessage}
-                      className="mLeft5 ThemeColor4 icon-replyto replyMessage"
-                    />
+                    <UserName user={postItem.replyUser} className="mRight5" />
+                    <Tooltip
+                      title={this.state.message || _l('加载中...')}
+                      onMouseEnter={() => !this.state.message && this.getReplyMessage()}
+                    >
+                      <i className="ThemeColor4 icon-replyto replyMessage" />
+                    </Tooltip>
                   </span>
                 ) : (
                   undefined

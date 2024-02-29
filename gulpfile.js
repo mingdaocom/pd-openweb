@@ -70,13 +70,8 @@ async function copy(done) {
   pipeAll(
     [
       gulp.src(['src/common/mdcss/iconfont/**/*']).pipe(gulp.dest('./build/files/staticfiles/iconfont')),
-      gulp.src(['src/library/**/*']).pipe(gulp.dest('./build/files/staticfiles/library')),
       gulp.src(['src/common/mdcss/**/*']).pipe(gulp.dest('./build/files/staticfiles/mdcss')),
       gulp.src(['src/common/mdjs/**/*']).pipe(gulp.dest('./build/files/staticfiles/mdjs')),
-      gulp.src(['src/pages/Admin/**/*.png']).pipe(gulp.dest('./build/files/staticfiles/components/Admin')),
-      gulp.src(['src/components/pay/**/*']).pipe(gulp.dest('./build/files/staticfiles/components/pay')),
-      gulp.src(['src/components/upgrade/**/*']).pipe(gulp.dest('./build/files/staticfiles/components/upgrade')),
-      gulp.src(['src/components/images/**/*']).pipe(gulp.dest('./build/files/staticfiles/components/images')),
       gulp.src(['staticfiles/**/*']).pipe(gulp.dest('./build/files/staticfiles')),
       gulp.src(['staticfiles/html/**/*']).pipe(gulp.dest('./build/files')),
       gulp.src(['locale/**/*.js']).pipe(gulp.dest('./build/files/staticfiles/lang/')),

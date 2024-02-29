@@ -64,7 +64,7 @@ export default class Widgets extends Component {
             }}
           >
             <Icon icon="plus" className="mRight5 Gray_9e Font16" />
-            <span>{_l('%0', text)}</span>
+            <span>{text}</span>
           </button>
         )}
 

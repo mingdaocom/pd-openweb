@@ -82,7 +82,7 @@ export default props => {
           }}
           className={cx('btnOk', { btnDel: !!color })}
         >
-          {_l('使用')}
+          {_l('保存')}
         </Button>
       </div>
     </WrapCon>

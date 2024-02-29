@@ -1,0 +1,306 @@
+.addEditUserInfoWrap {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  z-index: 100;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-flow: column nowrap;
+  width: 580px;
+  background: #fff;
+  .cover {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 580px;
+    z-index: -1;
+  }
+  .mask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: transparent;
+  }
+  .remindSaveWrap {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 1;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .remindSaveContent {
+      width: 480px;
+      position: relative;
+      background-color: #fff;
+      border-radius: 3px;
+      box-shadow: 0 4px 20px rgb(0, 0, 0, 0.2), 0 2px 6px rgb(0, 0, 0, 0 15);
+      .title {
+        padding: 20px 24px 16px;
+      }
+      .closeBtn {
+        position: absolute;
+        border: 0;
+        right: 5px;
+        top: 2px;
+      }
+      .footer {
+        text-align: right;
+        padding: 30px 24px 20px;
+      }
+    }
+  }
+}
+
+.headerInfo {
+  display: flex;
+  padding: 9px 14px 0px 24px;
+  line-height: 36px;
+  padding-top: 5px;
+  .close {
+    display: inline-block;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    text-align: center;
+    &:hover {
+      background: #f5f5f5;
+    }
+  }
+}
+
+.formInfoWrap {
+  padding: 10px 24px 0;
+  overflow: auto;
+  .formGroup {
+    width: 100%;
+    position: relative;
+    margin-bottom: 20px;
+    input:focus::-webkit-contacts-auto-fill-button {
+      opacity: 0;
+    }
+  }
+  .formLabel {
+    margin-bottom: 6px;
+  }
+  .formControl {
+    width: 100%;
+    height: 34px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    box-sizing: border-box;
+    display: inline-block;
+    padding: 6px 12px;
+    &:hover {
+      border-color: #bbb;
+    }
+    &:focus {
+      border-color: #2196f3;
+    }
+    &.error {
+      border-color: #f00 !important;
+    }
+    &.disabled {
+      background-color: #f5f5f5;
+      border: 1px solid #f5f5f5;
+    }
+  }
+  .status {
+    width: 66px;
+    height: 28px;
+    line-height: 28px;
+    border-radius: 14px;
+    padding: 0 12px;
+    color: #fff;
+    text-align: center;
+    &.check {
+      background-color: #2196f3;
+    }
+    &.refuse {
+      background-color: #f00;
+    }
+  }
+  .selectUser {
+    color: #9e9e9e;
+    position: absolute;
+    right: 10px;
+    top: 35px;
+    cursor: pointer;
+  }
+  .userLabel {
+    background-color: #eee;
+    border-radius: 20px;
+    display: inline-block;
+    line-height: 32px;
+    padding: 0 7px;
+    img {
+      border-radius: 50%;
+      height: 28px;
+      margin-right: 5px;
+      vertical-align: middle;
+      width: 28px;
+    }
+  }
+  .iti--allow-dropdown {
+    width: 100%;
+  }
+  .ming.Radio {
+    margin-right: 66px;
+  }
+  .itemSpan {
+    display: inline-block;
+    padding: 0 16px;
+    line-height: 32px;
+    border-radius: 18px;
+    background: #ffffff 0% 0% no-repeat padding-box;
+    border: 1px solid #dddddd;
+    &:hover {
+      background: #f5f5f5;
+    }
+    .isTopIcon {
+      background: #2196f3;
+      color: #fff;
+      font-size: 12px;
+      line-height: 13px;
+      width: 13px;
+      height: 13px;
+      display: inline-block;
+      margin-left: 4px;
+      border-radius: 2px;
+    }
+    .moreOption {
+      display: inline-block;
+    }
+    &.disabledDepartment {
+      background: #f5f5f5;
+    }
+  }
+  .ant-select-focused {
+    border-color: none;
+  }
+  .ant-select:not(.ant-select-customize-input) .ant-select-selector {
+    border: 1px solid #ccc;
+  }
+  .ant-select:not(.ant-select-disabled):hover .ant-select-selector {
+    border-color: #bbb;
+  }
+  .formInfoWrap .ant-select:not(.ant-select-customize-input) .ant-select-selector {
+    border: 1px solid #f5f5f5;
+  }
+}
+.addUserDressbook {
+  .Tooltip-arrow {
+    left: initial;
+    right: 10px !important;
+  }
+}
+
+.btnGroups {
+  margin: 25px 24px 20px;
+  font-size: 14px;
+  span,
+  a {
+    display: inline-block;
+    height: 36px;
+    line-height: 34px;
+    padding: 0 24px;
+    border-radius: 3px;
+    vertical-align: middle;
+  }
+  .cancelBtn {
+    border: 1px solid #eaeaea;
+    width: unset;
+  }
+  .cancelBtn:hover {
+    cursor: pointer;
+    background-color: #eaeaea;
+  }
+  .addContinueBtn {
+    border: 1px solid #2196f3;
+    color: #2196f3;
+  }
+  .addContinueBtn:hover {
+    border: 1px solid #1565c0;
+    color: #1565c0;
+  }
+  .addBtn {
+    border: 1px solid #2196f3;
+    background-color: #2196f3;
+    color: #fff;
+  }
+  .addBtn:hover {
+    border: 1px solid #1565c0;
+    background-color: #1565c0;
+    color: #fff;
+  }
+  .addContinueBtn,
+  .addBtn {
+    &[disabled] {
+      cursor: not-allowed;
+    }
+  }
+  .disabledBtn {
+    background-color: #9e9e9e;
+    border-color: #9e9e9e;
+    cursor: not-allowed;
+    &:hover {
+      background-color: #9e9e9e;
+      border-color: #9e9e9e;
+    }
+  }
+  .resign {
+    border: 1px solid #eaeaea;
+    height: 36px;
+    line-height: 34px;
+    padding: 0 24px;
+    border-radius: 3px;
+    vertical-align: middle;
+    &:hover {
+      border: 1px solid #f44439;
+      color: #f44439;
+    }
+  }
+  .normalBtn {
+    border: 1px solid #eaeaea;
+    &:hover {
+      border: 1px solid #2196f3;
+      color: #2196f3;
+    }
+  }
+}
+
+.moreActionTrigger {
+  ul {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: #ffffff 0% 0% no-repeat padding-box;
+    box-shadow: 0px 8px 16px #0000003d;
+    border-radius: 3px;
+    width: 180px;
+    display: block;
+    padding: 5px 0;
+    z-index: 1;
+    li {
+      width: 100%;
+      line-height: 30px;
+      padding: 0 10px;
+      box-sizing: border-box;
+      &:hover {
+        background: #dddddd;
+        cursor: pointer;
+      }
+    }
+  }
+}
+
+.dropJobList.ant-select-dropdown {
+  z-index: 999;
+}

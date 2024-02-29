@@ -15,9 +15,9 @@
 
     // type
     &--primary {
-      background: @themeColor3;
+      background: var(--app-primary-color);
       &:hover {
-        background: @themeColor2;
+        background: var(--app-primary-hover-color);
       }
     }
     &--secondary {
@@ -46,13 +46,13 @@
       }
     }
     &--ghost {
-      color: @themeColor3;
+      color: var(--app-primary-color);
       background: transparent;
-      border: 1px solid @themeColor3;
+      border: 1px solid var(--app-primary-color);
       line-height: 26px !important;
       &:hover {
         color: white;
-        background: @themeColor3;
+        background: var(--app-primary-color);
       }
     }
     &--ghostgray {
@@ -79,7 +79,7 @@
       color: @gray;
       background: transparent;
       &:hover {
-        color: @themeColor3;
+        color: var(--app-primary-color);
       }
     }
 

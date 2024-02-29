@@ -45,18 +45,18 @@ export const formatAdvancedSettingByNavfilters = (view, newValue = {}) => {
         navshow === '3'
           ? JSON.stringify(safeParse(_.get(advancedSetting, 'navfilters')).map(handleCondition))
           : JSON.stringify(
-              safeParse(_.get(advancedSetting, 'navfilters')).map(info => {
-                let id = info;
-                let data = null;
-                try {
-                  data = JSON.parse(info);
-                  id = data.id || data;
-                } catch (error) {
-                  id = info;
-                }
-                return id + '';
-              }),
-            ),
+            safeParse(_.get(advancedSetting, 'navfilters')).map(info => {
+              let id = info;
+              let data = null;
+              try {
+                data = JSON.parse(info);
+                id = data.id || data;
+              } catch (error) {
+                id = info;
+              }
+              return id + '';
+            }),
+          ),
     });
   }
 };
@@ -106,7 +106,6 @@ export const ViewSettingWrap = styled.div`
     }
   }
   .subTitle {
-    margin-top: 12px;
     color: #515151;
     &.withDisplayControl {
       display: flex;
@@ -137,3 +136,14 @@ export const WORKFLOW_SYSTEM_FIELDS_SORT = [
   'wfctime',
   'wfcotime',
 ];
+
+export const getCanDisplayControls = (worksheetControls) => {
+  return worksheetControls.filter(
+    c => c.attribute !== 1 && !!c.controlName && !_.includes([22, 10010, 43, 45, 47, 49, 51, 52], c.type),
+  );
+}
+
+export const isSameType = (list, control) => {
+  return list.includes(control.type) ||
+    (list.includes(control.sourceControlType) && control.type === 30)
+};

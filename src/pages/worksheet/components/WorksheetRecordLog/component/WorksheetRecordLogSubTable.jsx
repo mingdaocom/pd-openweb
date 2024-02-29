@@ -36,6 +36,7 @@ function WorksheetRecordLogSubTable(props) {
   const [log, setLog] = useState(null);
 
   const getData = param => {
+    let _pageIndex = param ? param.pageIndex : pageIndex;
     sheetAjax
       .getDetailTableLog({
         worksheetId: recordInfo.worksheetId,
@@ -45,13 +46,13 @@ function WorksheetRecordLogSubTable(props) {
         lastMark: extendParam.createTime,
         requestType: extendParam.requestType,
         objectType: extendParam.objectType,
-        pageIndex: param ? param.pageIndex : pageIndex,
+        pageIndex: _pageIndex,
         pageSize: 20,
         log: param ? param.log : log,
       })
       .then(res => {
         setLoading(false);
-        setPageIndex(pageIndex + 1);
+        setPageIndex(_pageIndex + 1);
         const { oldRows, newRows } = res;
         let oldList = safeParse(oldRows, 'array');
         let newList = safeParse(newRows, 'array');
@@ -69,8 +70,12 @@ function WorksheetRecordLogSubTable(props) {
         let remove = _.differenceBy(oldList, newList, 'rowid').map(l => {
           return { ...l, type: 'remove' };
         });
-        setData(data.concat(_.sortBy(defaultList.concat(add, remove), ['ctime'])));
-        if (oldList.length < 50 && newList.length < 50) setLoadEnd(true);
+        let _data = data.concat(_.sortBy(defaultList.concat(add, remove), ['ctime']));
+        setData(_data);
+        if (res.flag) setLoadEnd(true);
+        if (!res.flag && _data.length < 10) {
+          getData({ pageIndex: _pageIndex + 1, log: param ? param.log : log });
+        }
       });
   };
 
@@ -121,6 +126,7 @@ function WorksheetRecordLogSubTable(props) {
                 value: value,
                 value2: value,
               };
+
               let content = renderText(cell);
 
               if (content) {
@@ -189,9 +195,12 @@ function WorksheetRecordLogSubTable(props) {
         );
       }
       if (type === 29 && _.startsWith(value, '{')) {
-        let _rows = safeParse(safeParse(value).rows, 'array');
+        const info = safeParse(value);
+        let _rows = safeParse(info.rows, 'array');
+
         return _rows.map(item => {
-          let _value = item.name;
+          let _value = item.name || _l('未命名');
+
           return (
             <span
               className={`rectTag ${
@@ -202,7 +211,9 @@ function WorksheetRecordLogSubTable(props) {
                   : 'defaultBackground'
               }`}
             >
-              {_value}
+              {cell.dataSource === info.worksheetId
+                ? renderText({ ...cell.sourceControl, value: item.name }) || _value
+                : _value}
             </span>
           );
         });
@@ -210,6 +221,16 @@ function WorksheetRecordLogSubTable(props) {
       if (type === 36) {
         _value = String(_value) === '1' ? '☑' : '☐';
       }
+      if (type === 35) {
+        const titleControl = cell.relationControls.find(l => l.controlId === cell.sourceTitleControlId);
+        _value = titleControl
+          ? renderText({
+              ...titleControl,
+              value: [11].includes(titleControl.type) ? JSON.stringify([value]) : value,
+            }) || value
+          : value;
+      }
+
       return typeof _value === 'string' ? (
         <span
           className={`rectTag ${

@@ -12,14 +12,11 @@ import {
   addCheckList,
 } from '../../../redux/actions';
 import { checkIsProject, taskStatusDialog } from '../../../utils/utils';
-import 'src/components/mdDialog/dialog';
 import config, { OPEN_TYPE, RELATION_TYPES } from '../../../config/config';
-import { expireDialogAsync } from 'src/components/common/function';
-import Menu from 'ming-ui/components/Menu';
-import MenuItem from 'ming-ui/components/MenuItem';
+import { expireDialogAsync } from 'src/util';
+import { Menu, MenuItem, Dialog, Checkbox } from 'ming-ui';
 import ShareFolderOrTask from '../../../components/shareFolderOrTask/shareFolderOrTask';
 import CopyTask from '../copyTask/copyTask';
-import PrintTask from '../printTask/printTask';
 import {
   taskTreeAfterDeleteTask,
   afterDeleteTask,
@@ -46,6 +43,9 @@ class Header extends Component {
       showChecklistDialog: false,
     };
   }
+
+  checkboxRef = React.createRef();
+  taskStatusCheckboxRef = React.createRef();
 
   componentDidUpdate() {
     if (this.state.showChecklistDialog) {
@@ -81,22 +81,25 @@ class Header extends Component {
 
     taskStatusDialog(status, () => {
       if (data.subTask.length) {
-        $.DialogLayer({
-          dialogBoxID: 'updateTaskStatusDialog',
-          showClose: false,
-          container: {
-            content: `<div class="Font16 mBottom20">${
-              status ? _l('标记该任务为已完成') : _l('当前任务下有子任务')
-            }</div>`,
-            yesText: _l('确定'),
-            ckText: status ? _l('同时标记该任务下所有任务为已完成') : _l('同时标记该任务下所有任务为未完成'),
-            yesFn: isAllSubTask => {
-              if (isAllSubTask && data.auth !== config.auth.Charger) {
-                isAllSubTask = false;
-                alert(status ? _l('仅负责人可一键标记完成所有子任务') : _l('仅负责人可一键标记未完成所有子任务'));
-              }
-              this.props.dispatch(editTaskStatus(taskId, status, isAllSubTask, '', callback));
-            },
+        Dialog.confirm({
+          title: status ? _l('标记该任务为已完成') : _l('当前任务下有子任务'),
+          okText: _l('确定'),
+          closable: false,
+          children: (
+            <Checkbox
+              className="Gray_9"
+              defaultChecked={false}
+              ref={this.taskStatusCheckboxRef}
+              text={status ? _l('同时标记该任务下所有任务为已完成') : _l('同时标记该任务下所有任务为未完成')}
+            />
+          ),
+          onOk: () => {
+            let isAllSubTask = this.taskStatusCheckboxRef.current.state.checked;
+            if (isAllSubTask && data.auth !== config.auth.Charger) {
+              isAllSubTask = false;
+              alert(status ? _l('仅负责人可一键标记完成所有子任务') : _l('仅负责人可一键标记未完成所有子任务'));
+            }
+            this.props.dispatch(editTaskStatus(taskId, status, isAllSubTask, '', callback));
           },
         });
       } else {
@@ -213,16 +216,8 @@ class Header extends Component {
   printTask = () => {
     const { taskId } = this.props;
     window.open(`/print/task/${taskId}`);
-    // const taskControls = this.props.taskControls[taskId] || [];
-    // const customArray = _.map(taskControls, (item) => {
-    //   return {
-    //     key: item.controlId,
-    //     name: item.controlName || _l('分割线'),
-    //   };
-    // });
 
     this.setState({ showOperator: false });
-    // render(<PrintTask taskId={taskId} customArray={customArray} />, document.createElement('div'));
   };
 
   /**
@@ -265,67 +260,69 @@ class Header extends Component {
 
     const { taskId, taskConfig, openType } = this.props;
     const { data } = this.props.taskDetails[taskId];
-    const content = `
-      <div class="Font14 mBottom20">
-        ${_l('注意：此操作将彻底删除任务数据，无法恢复。')}
-        <span class="deleteFolderColor">
-          ${_l('请确认您和任务的其他参与者都不再需要任务中的数据再行删除')}
-        </span>
-      </div>
-    `;
-    const ckText = data.subTask.length ? _l('同时删除该任务下的所有子任务') : '';
 
-    $.DialogLayer({
-      dialogBoxID: 'deleteTaskBox',
-      showClose: false,
-      container: {
-        header: _l('彻底删除任务'),
-        content,
-        yesText: _l('删除'),
-        ckText,
-        yesFn: deleteAllSubTask => {
-          deleteAllSubTask = ckText ? deleteAllSubTask : false;
+    Dialog.confirm({
+      title: _l('彻底删除任务'),
+      okText: _l('删除'),
+      closable: false,
+      children: (
+        <div>
+          <div className="Font14 mBottom20">
+            {_l('注意：此操作将彻底删除任务数据，无法恢复。')}
+            <span className="deleteFolderColor">{_l('请确认您和任务的其他参与者都不再需要任务中的数据再行删除')}</span>
+          </div>
+          {!!data.subTask.length && (
+            <Checkbox
+              className="Gray_9"
+              defaultChecked={false}
+              ref={this.checkboxRef}
+              text={_l('同时删除该任务下的所有子任务')}
+            />
+          )}
+        </div>
+      ),
+      onOk: () => {
+        const deleteAllSubTask = !!data.subTask.length ? this.checkboxRef.current.state.checked : false;
 
-          if (
-            !deleteAllSubTask &&
-            data.subTask.length &&
-            data.folderID &&
-            taskConfig.viewType === config.folderViewType.treeView
-          ) {
-            taskTreeAfterDeleteTask(taskId, taskConfig.listSort);
-          }
+        if (
+          !deleteAllSubTask &&
+          data.subTask.length &&
+          data.folderID &&
+          taskConfig.viewType === config.folderViewType.treeView
+        ) {
+          taskTreeAfterDeleteTask(taskId, taskConfig.listSort);
+        }
 
-          ajaxRequest.deleteTask({ taskID: taskId, isSubTask: deleteAllSubTask }).then(result => {
-            if (result.status) {
-              alert(_l('删除成功'));
+        ajaxRequest.deleteTask({ taskID: taskId, isSubTask: deleteAllSubTask }).then(result => {
+          if (result.status) {
+            alert(_l('删除成功'));
 
-              const parentId = this.props.taskDetails[taskId].data.parentID;
-              this.props.dispatch(destroyTask(taskId));
+            const parentId = this.props.taskDetails[taskId].data.parentID;
+            this.props.dispatch(destroyTask(taskId));
 
-              if (openType === OPEN_TYPE.detail) {
-                setTimeout(() => {
-                  navigateTo('/apps/task/center' + '?' + getAppFeaturesPath());
-                }, 300);
-              } else {
-                this.props.closeDetail();
-                if (openType === OPEN_TYPE.slide) {
-                  _.remove(result.data, id => id === taskId);
-                  result.data.unshift(taskId);
-                  afterDeleteTask(result.data, parentId);
-
-                  // 不是查看他人时重新拉取计数
-                  if (!this.props.taskConfig.filterUserId) {
-                    getLeftMenuCount('', 'all');
-                  }
-                } else {
-                  this.props.updateCallback({ type: 'DELETE_TASK', taskId });
-                }
-              }
+            if (openType === OPEN_TYPE.detail) {
+              setTimeout(() => {
+                navigateTo('/apps/task/center' + '?' + getAppFeaturesPath());
+              }, 300);
             } else {
-              errorMessage(result.error);
+              this.props.closeDetail();
+              if (openType === OPEN_TYPE.slide) {
+                _.remove(result.data, id => id === taskId);
+                result.data.unshift(taskId);
+                afterDeleteTask(result.data, parentId);
+
+                // 不是查看他人时重新拉取计数
+                if (!this.props.taskConfig.filterUserId) {
+                  getLeftMenuCount('', 'all');
+                }
+              } else {
+                this.props.updateCallback({ type: 'DELETE_TASK', taskId });
+              }
             }
-          });
-        },
+          } else {
+            errorMessage(result.error);
+          }
+        });
       },
     });
   };

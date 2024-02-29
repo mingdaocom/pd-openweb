@@ -184,12 +184,12 @@ export default ({ dynamicValue = [], onClick, data, removeItem, removeRelateShee
                       } else {
                         const record = safeParse(item);
                         const titleControlItem = record[titleControl.controlId];
-                        name = renderCellText({ ...titleControl, value: titleControlItem });
+                        name = renderCellText({ ...titleControl, value: titleControlItem }) || _l('未命名');
                         // 处理关联表默认记录的标题字段是人员字段情况
-                        if (/\[\{['"]accountId["']:\s*['"].*['"].*\}\]/.test(titleControlItem)) {
-                          const firstUser = _.head(JSON.parse(titleControlItem));
-                          name = firstUser.fullname || firstUser.name;
-                        }
+                        // if (/\[\{['"]accountId["']:\s*['"].*['"].*\}\]/.test(titleControlItem)) {
+                        //   const firstUser = _.head(JSON.parse(titleControlItem));
+                        //   name = firstUser.fullname || firstUser.name;
+                        // }
                       }
 
                       return (

@@ -1,11 +1,14 @@
 import React, { Fragment } from 'react';
 import { Flex, Button, Modal, ActivityIndicator } from 'antd-mobile';
 import styled from 'styled-components';
-import homeAppAjax from 'src/api/homeApp';
+import homeAppApi from 'src/api/homeApp';
+import appManagementApi from 'src/api/appManagement';
 import noAppImg from './img/noApp.png';
 import noAppListImg from './img/noList.png';
 import noRoleImg from './img/lock.png';
 import AppManagement from 'src/api/appManagement';
+import FixedPage from 'src/pages/Mobile/App/FixedPage';
+import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
 
 const STATUS_TO_TEXT = {
   1: { src: noAppListImg, text: _l('请前往Web端创建工作表，开始构建你的应用') },
@@ -53,12 +56,13 @@ export class AppPermissionsInfo extends React.Component {
   render() {
     const { appStatus } = this.props;
     const { isAppActioning } = this.state;
+    const info = STATUS_TO_TEXT[appStatus] || STATUS_TO_TEXT[2];
     return (
       <Flex align="center" justify="between" className="WhiteBG TxtCenter overflowHidden h100">
         <Flex.Item>
-          <img src={STATUS_TO_TEXT[appStatus].src} alt={_l('错误')} className="InlineBlock" width="110" />
+          <img src={info.src} className="InlineBlock" width="110" />
           <br />
-          <p className="mTop25 mBottom25 TxtCenter Gray Font17 hintInfo">{STATUS_TO_TEXT[appStatus].text}</p>
+          <p className="mTop25 mBottom25 TxtCenter Gray Font17 hintInfo">{info.text}</p>
           {appStatus === 4 && (
             <div>
               <ApplyButton
@@ -85,44 +89,82 @@ const appPermissions = (Component) => {
       super(props);
       this.state = {
         loading: true,
-        appStatus: 1
+        appStatus: 1,
+        fixedData: {}
       }
     }
     componentDidMount() {
       const { params, path } = this.props.match;
-      if (['undefined', 'null'].includes(params.appId)) {
+      const { appId } = params;
+      if (['undefined', 'null'].includes(appId)) {
         this.setState({ loading: false });
         return
       }
       if (path.includes('recordList')) {
-        homeAppAjax.getPageInfo({
-          appId: params.appId,
+        homeAppApi.getPageInfo({
+          appId,
           id: params.worksheetId,
           sectionId: params.groupId
         }).then(data => {
           const { wsType } = data;
           if (wsType === 1) {
-            window.mobileNavigateTo(`/mobile/customPage/${params.appId}/${params.groupId}/${params.worksheetId}`);
+            window.mobileNavigateTo(`/mobile/customPage/${appId}/${params.groupId}/${params.worksheetId}`);
           }
         });
       }
-      homeAppAjax.checkApp({
-        appId: params.appId,
+      homeAppApi.checkApp({
+        appId
       }, {
         silent: true
       }).then(status => {
-        this.setState({ appStatus: status, loading: false });
+        this.getApp(appId);
+        this.setState({ appStatus: status });
+      }).fail(error => {
+        this.setState({ appStatus: error.errorCode, loading: false });
+      });
+    }
+    getApp = appId => {
+      homeAppApi.getApp({
+        appId,
+        getLang: true
+      }).then(data => {
+        const { langInfo, fixAccount, fixRemark, fixed, webMobileDisplay, permissionType } = data;
+        const isAuthorityApp = permissionType >= APP_ROLE_TYPE.ADMIN_ROLE;
+        this.setState({
+          fixedData: {
+            fixAccount,
+            fixRemark,
+            fixed: fixed && !isAuthorityApp,
+            webMobileDisplay
+          }
+        });
+        if (langInfo && langInfo.appLangId && langInfo.version !== window[`langVersion-${appId}`]) {
+          appManagementApi.getAppLangDetail({
+            appId,
+            appLangId: langInfo.appLangId
+          }).then(lang => {
+            window[`langData-${appId}`] = lang;
+            window[`langVersion-${appId}`] = langInfo.version;
+            this.setState({ loading: false });
+          });
+        } else {
+          this.setState({ loading: false });
+        }
       });
     }
     render() {
       const { params } = this.props.match;
-      const { loading, appStatus } = this.state;
+      const { loading, appStatus, fixedData } = this.state;
       if (loading) {
         return (
           <Flex justify="center" align="center" className="h100">
             <ActivityIndicator size="large" />
           </Flex>
         )
+      }
+      if (fixedData.fixed || fixedData.webMobileDisplay) {
+        const { fixAccount, fixRemark, webMobileDisplay } = fixedData;
+        return <FixedPage fixAccount={fixAccount} fixRemark={fixRemark} isNoPublish={webMobileDisplay} />
       }
       if (appStatus !== 1) {
         return <AppPermissionsInfo appId={params.appId} appStatus={appStatus} />

@@ -6,7 +6,7 @@ import { Dialog } from 'ming-ui';
 import { Modal } from 'antd-mobile';
 import projectApi from 'src/api/project';
 import { navigateTo } from 'src/router/navigateTo';
-import { purchaseMethodFunc } from 'src/components/upgrade/choose/PurchaseMethodModal';
+import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
 import {
   INDIVIDUAL_NET_TEXT,
   PAID_VERSION_TO_TEXT,

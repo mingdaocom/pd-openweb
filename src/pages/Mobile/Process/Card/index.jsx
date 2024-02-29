@@ -45,11 +45,11 @@ export default class Card extends Component {
       });
     });
   }
-  handleAction = (action, content, forwardAccountId, backNodeId, signature) => {
+  handleAction = ({ action, content, forwardAccountId, backNodeId, signature, files }) => {
     this.setState({ submitLoading: true, otherActionVisible: false });
     if (_.includes(['pass', 'overrule'], action)) {
       const { item, onApproveDone } = this.props;
-      const data = { opinion: content, backNodeId, signature };
+      const data = { opinion: content, backNodeId, signature, files };
       instance[ACTION_TO_METHOD[action]]({
         id: item.id,
         workId: item.workId,

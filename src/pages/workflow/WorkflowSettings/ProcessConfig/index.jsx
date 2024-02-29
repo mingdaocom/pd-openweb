@@ -210,9 +210,14 @@ class ProcessConfig extends Component {
         desc: _l('数据各自同步执行，适合运行实例间互不影响的流程。执行速度快，适合大多数流程使用'),
       },
       {
-        text: _l('串行'),
+        text: _l('顺序执行'),
         value: 2,
-        desc: _l('数据按顺序逐条执行，适合运行实例间互相影响的流程。数据量大时执行速度缓慢，有时效性要求时请慎用！'),
+        desc: _l('数据按顺序逐条执行，但不会等待流程中包含的子流程和PBP执行完毕，速度较慢'),
+      },
+      {
+        text: _l('严格串行'),
+        value: 3,
+        desc: _l('数据按顺序逐条执行，上一条流程完全执行完成后才会执行下一流程，速度最慢'),
       },
     ];
     const timeMode = [
@@ -233,7 +238,7 @@ class ProcessConfig extends Component {
           <span className="bold">{_l('流程拥有者')}</span>
         </div>
         <div className="flexRow alignItemsCenter">
-          <Member leastOne accounts={data.agents} />
+          <Member companyId={flowInfo.companyId} leastOne accounts={data.agents} />
           <div
             className={cx('ThemeColor3 AddUserBtn mTop12', { mLeft12: data.agents.length })}
             onClick={this.selectProcessCharge}
@@ -247,6 +252,7 @@ class ProcessConfig extends Component {
           <span className="Gray_9e">{_l('（当流程错误时，同时通知以下人）')}</span>
         </div>
         <Member
+          companyId={flowInfo.companyId}
           inline
           removeOrganization
           accounts={data.errorNotifiers}

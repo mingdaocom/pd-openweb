@@ -211,6 +211,7 @@ export default function Slider(props) {
     tipDirection,
     triggerWhenMove = false,
     onChange = _.noop,
+    liveUpdate = true,
   } = props;
   let { min = 0, max = 100, step = 5 } = props;
   if (showAsPercent) {
@@ -253,6 +254,7 @@ export default function Slider(props) {
   }
   function updateValue(v, update, updateInput) {
     v = formatByMinMax(v, min, max);
+
     setValue(v);
     if (update) {
       onChange(showAsPercent ? v / 100 : v);
@@ -294,6 +296,19 @@ export default function Slider(props) {
     window.removeEventListener(mouseMoveEventName, handleMouseMove);
     window.removeEventListener(mouseUpEventName, handleMouseUp);
   }, []);
+  const inputChange = (e, update) => {
+    const changedValue = formatNumberFromInput(e.target.value, false);
+    setValueForInput(changedValue);
+    if (changedValue.trim() === '') {
+      setValue(undefined);
+      update && onChange(undefined);
+    } else {
+      const newValue = Number(changedValue);
+      if (_.isNumber(newValue) && !_.isNaN(newValue)) {
+        updateValue(newValue, update);
+      }
+    }
+  };
   useEffect(() => {
     cache.current.conWidth = barRef.current.clientWidth;
     cache.current.barLeft = barRef.current.getBoundingClientRect().left;
@@ -416,20 +431,12 @@ export default function Slider(props) {
             onBlur={e => {
               setNumberIsFocusing(false);
               setValueForInput(value);
-            }}
-            onChange={e => {
-              const changedValue = formatNumberFromInput(e.target.value, false);
-              setValueForInput(changedValue);
-              if (changedValue.trim() === '') {
-                setValue(undefined);
-                onChange(undefined);
-              } else {
-                const newValue = Number(changedValue);
-                if (_.isNumber(newValue) && !_.isNaN(newValue)) {
-                  updateValue(newValue, true);
-                }
+              // 失去焦点更新
+              if (!liveUpdate) {
+                inputChange(e, true);
               }
             }}
+            onChange={e => inputChange(e, liveUpdate)}
           />
           {!!showAsPercent && numberIsFocusing && !_.isUndefined(valueForInput) && <span className="percent">%</span>}
         </InputCon>
@@ -480,4 +487,5 @@ Slider.propTypes = {
     }),
   ),
   onChange: func,
+  liveUpdate: bool,
 };

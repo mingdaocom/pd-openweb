@@ -21,6 +21,7 @@ export default function Department(props) {
   return (
     <Fragment>
       <SettingItem>
+        <div className="settingItemTitle">{_l('选择方式')}</div>
         <RadioGroup
           size="middle"
           checkedValue={enumDefault}

@@ -2,7 +2,7 @@ export default {
   /**
   * 编辑保存模板及其所属控件
   * @param {Object} args 请求参数
-  * @param {} args.sourceType 源类型
+  * @param {} args.sourceType
   * @param {array} args.controls 控件集合
   * @param {string} args.templateId 模板id
   * @param {string} args.sourceId 源id
@@ -51,7 +51,7 @@ export default {
   /**
   * 编辑保存模板及其所属控件
   * @param {Object} args 请求参数
-  * @param {} args.sourceType 源类型
+  * @param {} args.sourceType
   * @param {string} args.controls 控件集合
   * @param {string} args.templateId 模板id
   * @param {string} args.sourceId 源id
@@ -110,7 +110,7 @@ export default {
   /**
   * 按照type获取relation的列表
   * @param {Object} args 请求参数
-  * @param {} args.type 表单控件关联类型
+  * @param {} args.type
   * @param {string} args.keywords 关键词
   * @param {integer} args.pageIndex 页码
   * @param {integer} args.pageSize 页大小
@@ -128,7 +128,7 @@ export default {
   /**
   * 鉴定权限
   * @param {Object} args 请求参数
-  * @param {} args.sourceType 模板关联类型
+  * @param {} args.sourceType
   * @param {string} args.sourceId 源id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层

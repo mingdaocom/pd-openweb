@@ -9,7 +9,10 @@ const getPermissionInfo = (activeRelateSheetControl, rowInfo, worksheet) => {
   const { allowAdd } = worksheet;
   const { allowEdit } = rowInfo;
   const activeSheetIndex = 0;
-  const controlPermission = controlState(activeRelateSheetControl, 3);
+  const controlPermission = {
+    visible: controlState(activeRelateSheetControl, 3).visible,
+    editable: controlState(activeRelateSheetControl, 3).editable && allowEdit,
+  };
   const { enumDefault2, strDefault, controlPermissions = '111', advancedSetting } = activeRelateSheetControl;
   const [, , onlyRelateByScanCode] = strDefault.split('').map(b => !!+b);
   const isSubList = activeRelateSheetControl.type === 34;
@@ -123,11 +126,6 @@ export const loadRowRelationRows = (relationControl, getType) => async (dispatch
     params.filterControls = filterControls || [];
   }
   // <- end 关联查询组件逻辑
-
-  const shareId = (location.href.match(/\/public\/(record|view|workflow)\/(\w{24})/) || [])[2];
-  if (shareId) {
-    params.shareId = shareId;
-  }
 
   sheetAjax
     .getRowRelationRows({

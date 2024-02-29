@@ -1,9 +1,8 @@
-import _ from 'lodash';
 const NumberUtil = {};
 
 // 是数值
 NumberUtil.isNumber = value => {
-  return _.isNumber(value) && !_.isNaN(value);
+  return typeof value === 'number' && !isNaN(value);
 };
 
 // 是数值字符串
@@ -11,15 +10,17 @@ NumberUtil.isNumberStr = value => {
   return value !== '' && NumberUtil.isNumber(+value);
 };
 
-// parseFloat
+// 尝试将值解析为浮点数
 NumberUtil.parseFloat = (value, defaultValue) => {
-  let result;
-  if (value !== '' && typeof value !== 'undefined') {
-    result = parseFloat(value);
+  const result = parseFloat(value);
+
+  // 检查解析结果是否为 NaN，或者值为空字符串或未定义
+  if (isNaN(result) || value === '' || typeof value === 'undefined') {
+    return defaultValue;
   }
-  if (_.isNaN(value)) {
-    result = undefined;
-  }
-  return !_.isUndefined(result) ? result : defaultValue;
+
+  // 返回解析结果
+  return result;
 };
+
 export default NumberUtil;

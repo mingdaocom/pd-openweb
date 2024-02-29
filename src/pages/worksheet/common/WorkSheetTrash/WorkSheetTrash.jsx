@@ -291,13 +291,11 @@ export default function WorkSheetTrash(props) {
                     {_l('彻底删除%0', worksheetInfo.entityName)}
                   </div>
                 ),
-                description: (
-                  <div className="Font14 Gray_75">
-                    {_l('记录删除后无法恢复，请确认您和工作表成员都不再需要这些记录再行删除。')}
-                  </div>
-                ),
+                description: <div className="Font14 Gray_75">{_l('删除后无法恢复(物理删除)，请谨慎操作！')}</div>,
                 confirmType: 'danger',
                 allowNoVerify: false,
+                isRequired: false,
+                closeImageValidation: false,
                 onOk: () => {
                   if (!isAll && hasAuthRowIds.length === 0) {
                     alert(_l('无权限删除选择的记录'), 3);

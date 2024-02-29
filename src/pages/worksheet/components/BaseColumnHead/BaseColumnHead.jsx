@@ -140,6 +140,7 @@ export default class BaseColumnHead extends React.Component {
   render() {
     const {
       disabled,
+      disableSort,
       canDrag = true,
       className,
       style,
@@ -152,7 +153,7 @@ export default class BaseColumnHead extends React.Component {
     const { listVisible } = this.state;
     const control = redefineComplexControl(this.props.control);
     const controlType = control.sourceControlType || control.type;
-    const canSort = !disabled && fieldCanSort(controlType);
+    const canSort = !disableSort && !disabled && fieldCanSort(controlType);
     const maskData = _.get(control, 'advancedSetting.datamask') === '1';
     let sustractWidth = 0;
     if (showRequired) {

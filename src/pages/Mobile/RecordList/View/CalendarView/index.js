@@ -112,7 +112,7 @@ class MobileCalendarView extends Component {
     };
     // 视图配置错误
     if (isHaveSelectControl || isIllegalFormat(calendarInfo)) {
-      return <ViewErrorPage icon="event" viewName={_l('日历视图')} color="#f64082" />;
+      return <ViewErrorPage icon="event" viewName={view.name + _l('视图')} color="#f64082" />;
     }
     return (
       <div className="mobileBoxCalendar">

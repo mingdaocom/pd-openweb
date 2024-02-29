@@ -23,12 +23,13 @@ export default class RecordForm extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      approveCount: 0
-    }
-    this.isLoadApprove = props.getDataType !== 21 &&
+      approveCount: 0,
+    };
+    this.isLoadApprove =
+      props.getDataType !== 21 &&
       !props.isPublicShare &&
       !_.get(window, 'shareState.isPublicForm') &&
-      !_.get(window, 'shareState.isPublicWorkflowRecord')
+      !_.get(window, 'shareState.isPublicWorkflowRecord');
   }
   componentDidMount() {
     if (this.isLoadApprove) {
@@ -47,12 +48,20 @@ export default class RecordForm extends Component {
       });
   }
   handleScroll = event => {
-    const { isEditRecord, recordBase, currentTab, relationRow, loadParams, updatePageIndex = () => {} } = this.props;
-    if (isEditRecord) {
+    const {
+      isEditRecord,
+      recordBase,
+      currentTab,
+      relationRow,
+      loadParams,
+      updatePageIndex = () => {},
+      view = {},
+    } = this.props;
+    if (isEditRecord || !this.formWrap) {
       return;
     }
 
-    const { scrollTop, scrollHeight, clientHeight } = event.target;
+    const { scrollTop, scrollHeight, clientHeight } = this.formWrap;
     const targetVlaue = scrollHeight - clientHeight - 30;
     const { loading, isMore, pageIndex } = loadParams;
     const isLoadMore = _.includes([29, 51], currentTab.type) ? relationRow.count : currentTab.value;
@@ -77,11 +86,15 @@ export default class RecordForm extends Component {
     } else {
       fixedTabsEl && fixedTabsEl.classList.add('hide');
     }
+    if (view.viewType === 6 && view.childType === 1) {
+      fixedTabsEl && fixedTabsEl.classList.add('top43');
+    }
   };
   renderApprove = () => {
     const { isEditRecord, externalPortalConfig, recordInfo, recordBase, workflow } = this.props;
     const { approveCount } = this.state;
-    const allowApprove = this.isLoadApprove &&
+    const allowApprove =
+      this.isLoadApprove &&
       isOpenPermit(permitList.approveDetailsSwitch, recordInfo.switchPermit, recordBase.viewId) &&
       (md.global.Account.isPortal ? externalPortalConfig.approved : true);
     if (workflow) {
@@ -102,13 +115,13 @@ export default class RecordForm extends Component {
                 recordId={recordBase.recordId}
               />
             </div>
-          )
-        }
+          ),
+        },
       ];
     } else {
       return [];
     }
-  }
+  };
   renderHeader({ formCoverVisible } = {}) {
     const {
       getDataType,
@@ -134,10 +147,7 @@ export default class RecordForm extends Component {
     }
 
     const refreshRecordIcon = (
-      <div
-        className={cx('refreshWrap', { isLoading: refreshBtnNeedLoading })}
-        onClick={controlProps.refreshRecord}
-      >
+      <div className={cx('refreshWrap', { isLoading: refreshBtnNeedLoading })} onClick={controlProps.refreshRecord}>
         <Icon className="Font18" icon="task-later" />
       </div>
     );
@@ -146,13 +156,17 @@ export default class RecordForm extends Component {
         className="sheetName flex bold"
         onClick={() => {
           if (location.pathname.indexOf('public') > -1) return;
-          window.mobileNavigateTo(`/mobile/recordList/${recordBase.appId}/${recordBase.groupId}/${recordBase.worksheetId}`);
+          window.mobileNavigateTo(
+            `/mobile/recordList/${recordBase.appId}/${recordBase.groupId}/${recordBase.worksheetId}`,
+          );
         }}
       >
         <span className="ellipsis">{_l('工作表：%0', recordInfo.worksheetName)}</span>
       </div>
     );
-    const closeIcon = onClose && <Icon icon="closeelement-bg-circle" className="Gray_9e Font22 mLeft5" onClick={onClose} />;
+    const closeIcon = onClose && (
+      <Icon icon="closeelement-bg-circle" className="Gray_9e Font22 mLeft5" onClick={onClose} />
+    );
 
     if (formCoverVisible && isCoverid) {
       // 渲染封面
@@ -205,7 +219,6 @@ export default class RecordForm extends Component {
         {closeIcon}
       </div>
     );
-
   }
   renderCustomFields() {
     const {
@@ -223,12 +236,12 @@ export default class RecordForm extends Component {
       getChildTableControlIds,
       workflow,
       currentTab,
-      relationRow,
     } = this.props;
     const { from } = recordBase;
     const approveInfo = this.renderApprove();
     const isDing = window.navigator.userAgent.toLowerCase().includes('dingtalk');
-    
+    const NOT_LOGIN_HIDDEN_TYPES = [26, 27, 21, 48];
+
     return (
       <div
         className={cx('flex customFieldsWrapper', {
@@ -258,7 +271,10 @@ export default class RecordForm extends Component {
           recordCreateTime={recordInfo.createTime}
           data={commonControlsAddTab(
             formData.filter(item => {
-              return isEditRecord ? true : item.type !== 43;
+              return (
+                (isEditRecord ? true : item.type !== 43) &&
+                !(_.get(window, 'shareState.isPublicForm') && _.includes(NOT_LOGIN_HIDDEN_TYPES, item.type))
+              );
             }),
             { rules: recordInfo.rules, from: from || 6, showDetailTab: workflow ? true : !!approveInfo.length },
           )}
@@ -268,15 +284,12 @@ export default class RecordForm extends Component {
           widgetStyle={recordInfo.advancedSetting}
           verifyAllControls={getDataType === 21}
           tabControlProp={{
-            activeRelationTab:
-              currentTab.type === 29
-                ? {
-                    ...currentTab,
-                    value: relationRow.count || currentTab.value,
-                  }
-                : undefined,
             otherTabs: approveInfo,
             changeMobileTab,
+          }}
+          mobileApprovalRecordInfo={{
+            instanceId: recordBase.instanceId,
+            workId: recordBase.workId
           }}
         />
       </div>
@@ -290,12 +303,19 @@ export default class RecordForm extends Component {
       <Fragment>
         {this.renderHeader()}
         <div
+          ref={ele => (this.formWrap = ele)}
           className="flexColumn flex recordScroll"
           style={{ overflowX: 'hidden', overflowY: 'auto' }}
           onScroll={this.handleScroll}
         >
           <DocumentTitle
-            title={isEditRecord ? `${_l('编辑')}${entityName}` : recordTitle  ? `${recordTitle}` : `${entityName}${_l('详情')}`}
+            title={
+              isEditRecord
+                ? `${_l('编辑')}${entityName}`
+                : recordTitle
+                ? `${recordTitle}`
+                : `${entityName}${_l('详情')}`
+            }
           />
           {this.renderHeader({ formCoverVisible: true })}
           {!isEditRecord && (
@@ -310,4 +330,3 @@ export default class RecordForm extends Component {
     );
   }
 }
-

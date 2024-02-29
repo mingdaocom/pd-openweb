@@ -324,6 +324,7 @@ class RecordCalendar extends Component {
     const { base = {} } = this.props;
     const { worksheetId } = base;
     addRecord({
+      showFillNext: true,
       worksheetId: worksheetId,
       defaultFormData,
       defaultFormDataEditable: true,

@@ -1,8 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Input } from 'antd';
-import { Icon, Dialog } from 'ming-ui';
+import { Icon, Dialog, VerifyPasswordInput } from 'ming-ui';
 import pluginApi from 'src/api/plugin';
 import { verifyPassword } from 'src/util';
 
@@ -46,7 +45,7 @@ export default function OperateColumn(props) {
   const [visible, setVisible] = useState(false);
   const [confirmVisible, setConfirmVisible] = useState(false);
   const [needVerifyPwd, setNeedVerifyPwd] = useState(false);
-  const pwdRef = useRef();
+  const [password, setPassword] = useState('');
 
   const onRemove = () => {
     pluginApi.remove({ id: pluginId, source }).then(res => {
@@ -61,7 +60,7 @@ export default function OperateColumn(props) {
   const onDelete = () => {
     needVerifyPwd
       ? verifyPassword({
-          password: pwdRef.current.input.value,
+          password,
           success: () => onRemove(),
         })
       : onRemove();
@@ -115,22 +114,7 @@ export default function OperateColumn(props) {
         onOk={onDelete}
         onCancel={() => setConfirmVisible(false)}
       >
-        {needVerifyPwd && (
-          <React.Fragment>
-            <p className="mBottom10 Gray">{_l('请输入登录密码')}</p>
-            <div style={{ height: '0px', overflow: 'hidden' }}>
-              // 用来避免浏览器将用户名塞到其它input里
-              <input type="text" />
-            </div>
-            <Input.Password
-              ref={pwdRef}
-              autoFocus={true}
-              autocomplete="new-password"
-              className="passwordInput"
-              placeholder={_l('请输入密码确认授权')}
-            />
-          </React.Fragment>
-        )}
+        {needVerifyPwd && <VerifyPasswordInput onChange={({ password }) => setPassword(password)} />}
       </ConfirmDialog>
     </React.Fragment>
   );

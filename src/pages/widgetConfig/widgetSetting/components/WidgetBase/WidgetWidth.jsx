@@ -5,27 +5,27 @@ import { adjustWidthList } from '../../../util/setting';
 
 const WIDTH_SETTING_LIST = [
   {
-    text: _l('1/4'),
+    text: '1/4',
     value: 3,
   },
   {
-    text: _l('1/3'),
+    text: '1/3',
     value: 4,
   },
   {
-    text: _l('1/2'),
+    text: '1/2',
     value: 6,
   },
   {
-    text: _l('2/3'),
+    text: '2/3',
     value: 8,
   },
   {
-    text: _l('3/4'),
+    text: '3/4',
     value: 9,
   },
   {
-    text: _l('1'),
+    text: '1',
     value: 12,
   },
 ];

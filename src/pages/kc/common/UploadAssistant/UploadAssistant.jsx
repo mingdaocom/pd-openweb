@@ -10,7 +10,7 @@ import mdNotification from 'ming-ui/functions/notify';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withHoverState from 'ming-ui/decorators/withHoverState';
 import folderDg from 'src/components/kc/folderSelectDialog/folderSelectDialog';
-import { createUploader } from '../../utils/qiniuUpload';
+import createUploader from 'src/library/plupload/createUploader';
 import { humanFileSize } from '../../utils';
 import { UPLOAD_STATUS, UPLOAD_ERROR, PICK_TYPE, MAX_FILE_COUNT } from '../../constant/enum';
 import service from '../../api/service';

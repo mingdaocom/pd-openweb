@@ -32,7 +32,7 @@ export default {
   * @param {string} args.fileUrl 文件url ，不带token
   * @param {string} args.fileName 文件名称
   * @param {array} args.cellConfigs 导入映射配置
-  * @param {} args.query 工作表查询保存对象
+  * @param {} args.query
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

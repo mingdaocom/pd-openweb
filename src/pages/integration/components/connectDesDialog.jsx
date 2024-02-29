@@ -1,11 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import cx from 'classnames';
-import DialogLayer from 'src/components/mdDialog/dialog';
-import { Icon, Button } from 'ming-ui';
+import { Icon, Dialog } from 'ming-ui';
 import { useSetState } from 'react-use';
 import withClickAway from 'ming-ui/decorators/withClickAway';
-import ReactDom from 'react-dom';
 import AvatorInfo from 'src/pages/Personal/personalInfo/modules/AvatorInfo.jsx';
 import 'src/pages/Personal/personalInfo/modules/index.less';
 import _ from 'lodash';
@@ -89,31 +86,25 @@ function ConnectDesDia(props) {
       // 安装的连接 不可修改连接LOGO
       return;
     }
-    const options = {
-      container: {
-        content: '',
-        yesText: null,
-        noText: null,
-        header: _l('上传logo'),
-      },
-      dialogBoxID: 'uploadAvatorDialogId',
-      width: '460px',
-    };
-    ReactDom.render(
-      <DialogLayer {...options}>
+
+    Dialog.confirm({
+      width: 460,
+      title: _l('上传logo'),
+      showFooter: false,
+      dialogClasses: 'uploadAvatorDialogId_container',
+      children: (
         <AvatorInfo
           editAvatar={res => {
             setState({ iconName: res.url });
           }}
           avatar={(iconName || ' ').split('imageView2')[0]}
           closeDialog={() => {
-            $('#uploadAvatorDialogId_container,#uploadAvatorDialogId_mask').remove();
+            $('.uploadAvatorDialogId_container').parent().remove();
           }}
           defaultType
         />
-      </DialogLayer>,
-      document.createElement('div'),
-    );
+      ),
+    });
   };
 
   return (

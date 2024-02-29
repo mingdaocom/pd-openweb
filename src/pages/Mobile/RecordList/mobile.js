@@ -127,14 +127,20 @@ class RecordList extends Component {
           })}
         >
           <View view={view} key={worksheetInfo.worksheetId} routerParams={params} />
-          {(canDelete || showCusTomBtn) && view.viewType === 0 && !batchOptVisible && _.isEmpty(view.navGroup) && (
-            <div
-              className={cx('batchOperation', { bottom70: appNaviStyle === 2 && location.href.includes('mobile/app') })}
-              onClick={() => this.props.changeBatchOptVisible(true)}
-            >
-              <Icon icon={'task-complete'} className="Font24" />
-            </div>
-          )}
+          {!_.get(window, 'shareState.shareId') &&
+            (canDelete || showCusTomBtn) &&
+            view.viewType === 0 &&
+            !batchOptVisible &&
+            _.isEmpty(view.navGroup) && (
+              <div
+                className={cx('batchOperation', {
+                  bottom70: appNaviStyle === 2 && location.href.includes('mobile/app'),
+                })}
+                onClick={() => this.props.changeBatchOptVisible(true)}
+              >
+                <Icon icon={'task-complete'} className="Font24" />
+              </div>
+            )}
         </div>
       </Fragment>
     );

@@ -38,7 +38,7 @@ const Footer = styled.div`
     border-radius: 24px !important;
     border-width: 0 48px 0 8px !important;
     border-color: transparent !important;
-    line-height: 1.15;
+    line-height: 1.15 !important;
   }
   .clearBtn {
     width: 48px;
@@ -130,6 +130,7 @@ const ListContent = styled.div`
   }
   .markdown-body {
     padding: 0 !important;
+    font-size: 14px;
     h1 {
       font-size: 16px !important;
       padding-bottom: 0 !important;

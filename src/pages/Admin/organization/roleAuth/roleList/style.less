@@ -1,0 +1,95 @@
+.roleAuthTable {
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  .roleListTitle {
+    border-bottom: 1px solid #ddd;
+  }
+  .roleList {
+    flex: 1;
+    min-height: 0;
+    overflow-x: hidden;
+  }
+  .roleItem {
+    border-bottom: 1px solid #eaeaea;
+  }
+  .roleItem:not(.disabled) {
+    cursor: pointer;
+    &:hover {
+      td {
+        background: #f5f5f5;
+      }
+    }
+    &:not(:hover) {
+      .roleName {
+        color: #333 !important;
+      }
+    }
+    .roleOperation span {
+      cursor: pointer;
+    }
+  }
+  .roleAuth {
+    word-break: keep-all;
+  }
+  .roleName {
+    width: 140px;
+    max-width: 140px;
+    padding-right: 10px;
+    box-sizing: border-box;
+  }
+  .roleCount {
+    width: 84px;
+  }
+  .roleOperation {
+    width: 220px;
+    span {
+      margin-right: 14px;
+    }
+  }
+  table {
+    @th-height: 48px;
+    @td-height: 25px;
+    &.verticalTop td {
+      vertical-align: top !important;
+    }
+    table-layout: fixed;
+    border-collapse: collapse;
+    th,
+    td {
+      padding: 0;
+      word-wrap: break-word;
+    }
+    td {
+      vertical-align: middle;
+    }
+    th {
+      text-align: left;
+      font-weight: normal;
+      height: @th-height;
+      color: #9e9e9e;
+    }
+    td {
+      line-height: @td-height;
+      padding: 12px 0;
+    }
+    .listEmpty {
+      text-align: center;
+      border: none;
+      padding-top: 118px;
+      padding-bottom: 100px;
+      .mainIcon {
+        font-size: 50px;
+        line-height: 106px;
+        color: #999;
+        border-radius: 50%;
+        display: inline-block;
+        width: 106px;
+        height: 106px;
+        background: #f5f5f5;
+      }
+    }
+  }
+}

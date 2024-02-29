@@ -144,6 +144,7 @@ export default class extends Component {
       !_.isEqual(displaySetup.colorRules, oldDisplaySetup.colorRules) ||
       style.showLabelPercent !== oldStyle.showLabelPercent ||
       style.showXAxisSlider !== oldStyle.showXAxisSlider ||
+      style.tooltipValueType !== oldStyle.tooltipValueType ||
       !_.isEqual(chartColor, oldChartColor) ||
       nextProps.themeColor !== this.props.themeColor
     ) {
@@ -213,9 +214,11 @@ export default class extends Component {
     return colors[inedx % colors.length];
   }
   getComponentConfig(props) {
-    const { themeColor, projectId, customPageConfig, reportData } = props;
-    const { chartColor } = customPageConfig;
-    const { map, displaySetup, xaxes, yaxisList, split, style = {}, reportId, summary } = reportData;
+    const { themeColor, projectId, customPageConfig = {}, reportData } = props;
+    const { chartColor, chartColorIndex = 1 } = customPageConfig;
+    const { map, displaySetup, xaxes, yaxisList, split, reportId, summary } = reportData;
+    const styleConfig = reportData.style || {};
+    const style = chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0) ? { ...styleConfig, ...chartColor } : styleConfig;
     const {
       isPile,
       isPerPile,
@@ -237,7 +240,7 @@ export default class extends Component {
     const countConfig = showPileTotal && isPile && (yaxisList.length > 1 || split.controlId) ? formatDataCount(data, isVertical, newYaxisList) : [];
     const maxValue = getMaxValue(data);
     const minValue = getMinValue(data);
-    const colors = getChartColors(chartColor || style, themeColor, projectId);
+    const colors = getChartColors(style, themeColor, projectId);
     const isNewChart = _.isUndefined(reportId) && _.isEmpty(style);
     const isAlienationColor = getIsAlienationColor(props.reportData);
     const isOptionsColor = isNewChart ? isAlienationColor : (style ? (style.colorType === 0 && isAlienationColor) : false);
@@ -351,16 +354,17 @@ export default class extends Component {
           }
           const { value, groupName } = item;
           const { name, id } = formatControlInfo(groupName);
+          const labelValue = `${formatrChartValue(value, isPerPile, newYaxisList, value ? undefined : id)} ${getLabelPercent(value)}`;
           if (isPerPile) {
             return {
               name,
-              value: `${toFixed(value * 100, Number.isInteger(value) ? 0 : 2)}%`
+              value: style.tooltipValueType ? labelValue : `${toFixed(value * 100, Number.isInteger(value) ? 0 : 2)}%`
             }
           } else {
             const { dot } = _.find(yaxisList, { controlId: id }) || {};
             return {
               name,
-              value: _.isNumber(value) ? `${value.toLocaleString('zh', { minimumFractionDigits: dot })} ${getLabelPercent(value)}` : '--'
+              value: _.isNumber(value) ? style.tooltipValueType ? labelValue : `${value.toLocaleString('zh', { minimumFractionDigits: dot })} ${getLabelPercent(value)}` : '--'
             }
           }
         }

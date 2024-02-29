@@ -2,7 +2,7 @@ import React, { Fragment, Component } from 'react';
 import cx from 'classnames';
 import qs from 'query-string';
 import { Tabs, Flex, Checkbox, Modal } from 'antd-mobile';
-import { Icon, LoadDiv, ScrollView, Signature } from 'ming-ui';
+import { Icon, LoadDiv, ScrollView, Signature, VerifyPasswordInput } from 'ming-ui';
 import Back from '../components/Back';
 import styled from 'styled-components';
 import ProcessRecordInfo from 'mobile/ProcessRecord';
@@ -12,7 +12,6 @@ import Card from './Card';
 import ProcessDelegation from './ProcessDelegation';
 import { getRequest } from 'src/util';
 import { verifyPassword } from 'src/util';
-import VerifyPassword from 'src/pages/workflow/components/ExecDialog/components/VerifyPassword';
 import './index.less';
 import 'src/pages/worksheet/common/newRecord/NewRecord.less';
 import 'mobile/ProcessRecord/OtherAction/index.less';
@@ -120,7 +119,7 @@ export default class ProcessMatters extends Component {
       loading: false,
       isMore: true,
       bottomTab: bottomTab ? bottomTab : tabs[0],
-      topTab: bottomTab ? bottomTab.tabs[0] : tabs[0].tabs[0],
+      topTab: _.find(tabs[0].tabs, { id: data.tab }) || tabs[0].tabs[0],
       searchValue: '',
       countData: {},
       appCount: {},
@@ -355,8 +354,10 @@ export default class ProcessMatters extends Component {
             )}
             {encryptType && (
               <div className="mTop20 TxtLeft">
-                <VerifyPassword
-                  removeNoneVerification={true}
+                <VerifyPasswordInput
+                  showSubTitle={false}
+                  isRequired={true}
+                  allowNoVerify={false}
                   onChange={({ password }) => {
                     if (password !== undefined) this.password = password;
                   }}
@@ -392,6 +393,10 @@ export default class ProcessMatters extends Component {
                   }
                 };
                 if (encryptCard.length) {
+                  if (!this.password || !this.password.trim()) {
+                    alert(_l('请输入密码'), 3);
+                    return;
+                  }
                   verifyPassword({
                     password: this.password,
                     closeImageValidation: true,

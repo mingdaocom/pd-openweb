@@ -442,7 +442,7 @@ export default function TaskList({ projectId, onRefreshComponents }) {
             <Switch
               loading={switchLoading[item.id]}
               checkedChildren={_l('开启')}
-              unCheckedChildren={_l('关闭')}
+              unCheckedChildren={_l('关闭%11001')}
               checked={item.taskStatus === TASK_STATUS_TYPE.RUNNING}
               onChange={checked => switchTaskStatus(checked, item)}
               disabled={!!item.errorInfo}

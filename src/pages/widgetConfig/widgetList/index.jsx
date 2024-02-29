@@ -16,7 +16,7 @@ const WidgetList = styled.div`
   overflow: auto;
   background-color: #ffffff;
   .groupList {
-    padding: 0 20px;
+    padding: 0 16px;
     padding-bottom: 40px;
   }
   .group {
@@ -37,7 +37,8 @@ const WidgetList = styled.div`
     min-height: 36px;
     box-sizing: border-box;
     margin-bottom: 12px;
-    padding-left: 12px;
+    padding-left: 10px;
+    padding-right: 4px;
     list-style: none;
     position: relative;
     background-color: #fff;
@@ -60,7 +61,6 @@ const WidgetList = styled.div`
       span {
         line-height: 12px;
         flex-grow: 0;
-        padding-right: 12px;
         word-break: break-word;
       }
       i {

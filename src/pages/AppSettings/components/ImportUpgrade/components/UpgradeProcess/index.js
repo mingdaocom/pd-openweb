@@ -11,8 +11,8 @@ import { UPGARADE_TYPE_LIST, UPGRADE_ERRORMSG, UPGRADE_DETAIL_TYPE_LIST } from '
 import { getCheckedInfo, getViewIcon } from '../../../../util';
 import { formatFileSize } from 'src/util';
 import appManagementAjax from 'src/api/appManagement';
-import importDisabledImg from 'src/pages/Admin/appManagement/img/import_disabled.png';
-import importActiveImg from 'src/pages/Admin/appManagement/img/import_active.png';
+import importDisabledImg from 'src/pages/Admin/app/appManagement/img/import_disabled.png';
+import importActiveImg from 'src/pages/Admin/app/appManagement/img/import_active.png';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import cx from 'classnames';
 import './index.less';

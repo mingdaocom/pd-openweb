@@ -17,8 +17,18 @@
     box-sizing: initial;
     .flexCenterHeight;
     .homepageIcon {
-      &:hover .item {
-        background-color: #2196f3;
+      padding: 8px;
+      background-color: rgba(0, 0, 0, 0.04);
+      border-radius: 8px;
+      box-sizing: content-box;
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.08);
+        .icon {
+          color: #2196f3 !important;
+        }
+        .item {
+          background-color: #2196f3;
+        }
       }
       .item {
         transition: background-color 0.25s;
@@ -26,7 +36,7 @@
       }
     }
     .nativeCoordinationIcon {
-      margin: 0 10px 0 20px;
+      margin: 0 8px 0 16px;
     }
     .nativeTitle {
       font-size: 16px;

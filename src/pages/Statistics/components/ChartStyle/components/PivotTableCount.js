@@ -8,7 +8,7 @@ import { Collapse, Checkbox, Input, Switch } from 'antd';
 import { isNumberControl } from 'statistics/common';
 
 export default function pivotTableCountPanelGenerator(props) {
-  const { currentReport, onChangeStyle, changeCurrentReport, ...collapseProps } = props;
+  const { currentReport, onChangeStyle, changeCurrentReport, themeColor, customPageConfig, ...collapseProps } = props;
   const { style, pivotTable = {} } = currentReport;
 
   const handleChangeLineSummary = (data, isRequest = true) => {
@@ -50,6 +50,7 @@ export default function pivotTableCountPanelGenerator(props) {
       >
         <PreinstallStyle
           style={style}
+          customPageConfig={customPageConfig}
           onChangeStyle={onChangeStyle}
         />
       </Collapse.Panel>
@@ -66,6 +67,8 @@ export default function pivotTableCountPanelGenerator(props) {
         <TitleStyle
           type="cell"
           style={style}
+          themeColor={themeColor}
+          customPageConfig={customPageConfig}
           onChangeStyle={onChangeStyle}
         />
       </Collapse.Panel>
@@ -83,6 +86,8 @@ export default function pivotTableCountPanelGenerator(props) {
           type="line"
           style={style}
           pivotTable={pivotTable}
+          themeColor={themeColor}
+          customPageConfig={customPageConfig}
           onChangeStyle={onChangeStyle}
         />
       </Collapse.Panel>
@@ -99,6 +104,8 @@ export default function pivotTableCountPanelGenerator(props) {
         <TitleStyle
           type="column"
           style={style}
+          themeColor={themeColor}
+          customPageConfig={customPageConfig}
           onChangeStyle={onChangeStyle}
         />
       </Collapse.Panel>

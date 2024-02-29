@@ -8,7 +8,7 @@ import Menu from 'ming-ui/components/Menu';
 import MenuItem from 'ming-ui/components/MenuItem';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withHoverState from 'ming-ui/decorators/withHoverState';
-import { expireDialogAsync } from 'src/components/common/function';
+import { expireDialogAsync } from 'src/util';
 import Trigger from 'rc-trigger';
 import { NODE_STATUS, PICK_TYPE } from '../constant/enum';
 import _ from 'lodash';

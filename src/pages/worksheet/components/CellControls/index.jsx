@@ -107,6 +107,12 @@ export default class CellControl extends React.Component {
     registerRef(this);
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (this.state.error && !nextProps.error) {
+      this.setState({ error: null });
+    }
+  }
+
   componentWillUnmount() {
     const { registerRef } = this.props;
     registerRef(undefined);
@@ -119,7 +125,8 @@ export default class CellControl extends React.Component {
   cell = React.createRef();
 
   get error() {
-    return this.errorCleared ? this.state.error : this.state.error || this.props.error;
+    return this.state.error || this.props.error;
+    // return this.errorCleared ? this.state.error : this.state.error || this.props.error;
   }
 
   checkCellFullVisible() {
@@ -172,19 +179,20 @@ export default class CellControl extends React.Component {
 
   validate(cell, row) {
     const { tableFromModule, cellUniqueValidate, clearCellError, rowFormData } = this.props;
-    let { errorType } = onValidator({ item: cell, data: rowFormData() });
-    if (!errorType && cell.unique && tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST) {
+    let { errorType } = onValidator({ item: cell, data: _.isFunction(rowFormData) ? rowFormData() : rowFormData });
+    if (!errorType && (cell.unique || cell.uniqueInRecord) && tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST) {
       errorType = cellUniqueValidate(cell.controlId, cell.value, row.rowid) ? '' : 'UNIQUE';
     }
-    this.errorCleared = !errorType;
+    // this.errorCleared = !errorType;
     return errorType;
   }
 
   getErrorText(errorType, cell) {
+    const { isSubList } = this.props;
     if (typeof FORM_ERROR_TYPE_TEXT[errorType] === 'string') {
       return FORM_ERROR_TYPE_TEXT[errorType];
     } else if (typeof FORM_ERROR_TYPE_TEXT[errorType] === 'function') {
-      return FORM_ERROR_TYPE_TEXT[errorType](cell);
+      return FORM_ERROR_TYPE_TEXT[errorType](cell, { isSubList });
     } else {
       return _l('格式不正确');
     }
@@ -211,7 +219,7 @@ export default class CellControl extends React.Component {
     } else {
       errorText = errorType && this.getErrorText(errorType, { ...cell, value });
     }
-    if (_.includes([15, 16, 46], cell.type) && !errorText) {
+    if (!errorText) {
       clearCellError(`${(row || {}).rowid}-${cell.controlId}`);
       $('.mdTableErrorTip').remove();
     }
@@ -313,10 +321,7 @@ export default class CellControl extends React.Component {
         }
         break;
       case ' ':
-        if (
-          (_.get(e, 'target.tagName') || '').toLowerCase() === 'body' ||
-          (_.get(e, 'target.classList') && e.target.classList.contains('body'))
-        ) {
+        if (!isediting) {
           onClick();
         }
         break;
@@ -363,6 +368,7 @@ export default class CellControl extends React.Component {
       {
         silent: true,
         cell: Object.assign({}, cell, newCell),
+        row,
         ...options,
       },
     );
@@ -378,11 +384,13 @@ export default class CellControl extends React.Component {
     }
     const {
       tableType,
+      tableFromModule,
       cell,
       row,
       cache,
       clearCellError,
       enterEditing = () => {},
+      cellUniqueValidate,
       scrollTo,
       onCellFocus = () => {},
     } = this.props;
@@ -420,6 +428,11 @@ export default class CellControl extends React.Component {
         window.timer = Math.random();
       }
     };
+    if (!isediting && cell.unique) {
+      if (cell.unique && !cell.uniqueInRecord && tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST) {
+        cellUniqueValidate(cell.controlId, cell.value, row.rowid, true);
+      }
+    }
     if (isediting && !cellFullVisible.fullvisible) {
       let newPos = {};
       if (_.isNumber(cellFullVisible.newLeft)) {
@@ -561,8 +574,7 @@ export default class CellControl extends React.Component {
       }
     }
     const controlPermission = controlState(cell);
-    this.editable =
-      canedit && row && row.allowedit && controlPermission.editable && !cell.isSubtotal && allowlink !== '0';
+    this.editable = canedit && row && row.allowedit && controlPermission.editable && !cell.isSubtotal;
     if (this.editable) {
       className += ' editable';
     }
@@ -657,6 +669,7 @@ export default class CellControl extends React.Component {
       return <Department {...props} />;
     }
     if (cell.type === 26) {
+      props.disabled = this.props.disabled;
       return <User {...props} />;
     }
     if (cell.type === 21) {

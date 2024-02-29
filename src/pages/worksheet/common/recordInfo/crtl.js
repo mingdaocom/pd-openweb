@@ -9,7 +9,10 @@ import { getAppFeaturesPath } from 'src/util';
 import { replacePorTalUrl } from 'src/pages/PortalAccount/util';
 import createTask from 'src/components/createTask/createTask';
 import _ from 'lodash';
-import { handleRecordError } from 'worksheet/util';
+import { handleRecordError, postWithToken, replaceBtnsTranslateInfo } from 'worksheet/util';
+import { getRuleErrorInfo } from 'src/components/newCustomFields/tools/filterFn';
+import appManagement from 'src/api/appManagement';
+import { exportSheet } from 'worksheet/components/ChildTable/redux/actions';
 
 export function getWorksheetInfo(...args) {
   return worksheetAjax.getWorksheetInfo(...args);
@@ -85,6 +88,8 @@ export function updateRecord(
     triggerUniqueError,
     updateSuccess,
     allowEmptySubmit,
+    setSublistUniqueError = () => {},
+    setRuleError = () => {},
   },
   callback = () => {},
 ) {
@@ -139,6 +144,11 @@ export function updateRecord(
       } else {
         if (res.resultCode === 11) {
           triggerUniqueError(res.badData);
+        } else if (res.resultCode === 22) {
+          setSublistUniqueError(res.badData);
+          handleRecordError(res.resultCode);
+        } else if (res.resultCode === 32) {
+          setRuleError(res.badData);
         } else {
           handleRecordError(res.resultCode);
         }
@@ -151,7 +161,7 @@ export function updateRecord(
     });
 }
 
-export function updateRecordControl({ appId, viewId, worksheetId, recordId, cell, cells = [] }) {
+export function updateRecordControl({ appId, viewId, worksheetId, recordId, cell, rules, cells = [] }) {
   return new Promise((resolve, reject) => {
     if (_.isEmpty(cells) && cell) {
       cells = [cell];
@@ -166,6 +176,14 @@ export function updateRecordControl({ appId, viewId, worksheetId, recordId, cell
       })
       .then(data => {
         if (!data.data) {
+          if (data.resultCode === 32) {
+            const errorResult = getRuleErrorInfo(rules, data.badData);
+            if (_.get(errorResult, '0.errorInfo.0')) {
+              alert('编辑失败，' + _.get(errorResult, '0.errorInfo.0.errorMessage'), 2);
+            }
+            reject();
+            return;
+          }
           handleRecordError(data.resultCode, cell);
           reject();
         } else {
@@ -175,12 +193,12 @@ export function updateRecordControl({ appId, viewId, worksheetId, recordId, cell
   });
 }
 
-export function deleteRecord({ worksheetId, recordId, viewId, appId, deleteType }) {
+export function deleteRecord({ worksheetId, recordIds, recordId, viewId, appId, deleteType }) {
   return new Promise((resolve, reject) => {
     worksheetAjax
       .deleteWorksheetRows({
         worksheetId,
-        rowIds: [recordId],
+        rowIds: recordIds || [recordId],
         viewId,
         appId,
         deleteType: deleteType === 21 ? deleteType : undefined,
@@ -211,7 +229,7 @@ export class RecordApi {
       worksheetAjax
         .getWorksheetBtns(_.assign({}, this.baseArgs, options))
         .then(data => {
-          resolve(data);
+          resolve(replaceBtnsTranslateInfo(this.baseArgs.appId, data));
         })
         .fail(err => {
           reject(err);
@@ -427,4 +445,35 @@ export function handleCustomWidget(worksheetId) {
       },
     });
   });
+}
+
+export async function exportRelateRecordRecords({
+  appId,
+  worksheetId,
+  viewId,
+  projectId,
+  exportControlsId,
+  downLoadUrl,
+  rowIds,
+  rowId,
+  controlId,
+  fileName,
+  onDownload,
+} = {}) {
+  const token = await appManagement.getToken({ worksheetId, viewId, tokenType: 8 });
+  const args = {
+    token,
+    accountId: md.global.Account.accountId,
+    worksheetId,
+    appId,
+    viewId,
+    projectId,
+    exportControlsId,
+    rowIds,
+  };
+  if (typeof rowIds !== 'undefined') {
+    postWithToken(`${downLoadUrl}/ExportExcel/Export`, { worksheetId, tokenType: 8 }, args);
+  } else {
+    exportSheet({ worksheetId, rowId, controlId, fileName, onDownload })();
+  }
 }

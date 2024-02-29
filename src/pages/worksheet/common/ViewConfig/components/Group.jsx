@@ -27,6 +27,7 @@ export default function Group(props) {
             editAttrs: ['viewControl', 'advancedSetting'],
           });
         }}
+        className="mTop32"
         setDataId={viewControl}
         controlList={setSysWorkflowTimeControlFormat(
           worksheetControls.filter(
@@ -57,8 +58,9 @@ export default function Group(props) {
             updateCurrentView({
               ...view,
               appId,
-              advancedSetting: updateViewAdvancedSetting(view, { ...newValue }),
+              advancedSetting: newValue,
               editAttrs: ['advancedSetting'],
+              editAdKeys: Object.keys(newValue),
             });
           }}
           advancedSetting={view.advancedSetting}

@@ -16,14 +16,14 @@ export const PERIODS = [
     defaultMinDayWidth: 30,
   },
   {
-    name: _l('周'),
+    name: _l('周%05034'),
     value: PERIOD_TYPE.week,
     periodCount: 20,
     minDayWidth: 22,
     defaultMinDayWidth: 22,
   },
   {
-    name: _l('月'),
+    name: _l('月%05035'),
     value: PERIOD_TYPE.month,
     periodCount: 20,
     minDayWidth: 8,

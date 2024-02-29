@@ -20,11 +20,11 @@ const DISPLAY_TYPES = [
     value: '0',
   },
   {
-    text: _l('图标'),
+    text: _l('图标%04025'),
     value: '1',
   },
   {
-    text: _l('文字'),
+    text: _l('文字%04026'),
     value: '2',
   },
 ];

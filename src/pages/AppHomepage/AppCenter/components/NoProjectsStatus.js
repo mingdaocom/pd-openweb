@@ -4,45 +4,14 @@ import { FlexCenter } from 'worksheet/components/Basics';
 import bgPng from '../assets/empty.png';
 
 const FullCon = styled(FlexCenter)`
-  flex: 1;
-  .noNetworkBox {
-    margin: 70px auto;
-    align-items: center;
-    justify-content: center;
-    &.noNetworkBoxBorder {
-      border-bottom: 1px solid #eaeaea;
-      padding-top: 90px;
-      padding-bottom: 90px;
-    }
-    .noNetworkBoxBG {
-      img {
-        width: 256px;
-        height: 131px;
-      }
-    }
-    .joinNetwork,
-    .createNetwork {
-      margin: 0 16px;
-      padding: 0 32px;
-      height: 44px;
-      line-height: 44px;
-      box-sizing: border-box;
-      border-radius: 4px;
-      border: none;
-      cursor: pointer;
-      color: #fff;
-      font-size: 14px;
-    }
-    .createNetwork {
-      border-width: 1px;
-      border-style: solid;
-      &:not(:hover) {
-        background: #fff !important;
-      }
-      &:hover {
-        color: #fff !important;
-      }
-    }
+  height: 128px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  img {
+    width: 200px;
+    height: 100px;
+    margin-right: 24px;
   }
 `;
 
@@ -82,27 +51,15 @@ export default function NoProjectsStatus(props) {
   }
   return (
     <FullCon>
-      <div className="noNetworkBox flexColumn">
-        <div className="noNetworkBoxBG">
-          <img src={bgPng} alt="" />
-        </div>
-        <div className="Font20 bold mTop40">{_l('申请加入一个组织，开始创建应用')}</div>
-        <div className="flexRow mTop50">
-          <button
-            type="button"
-            className="joinNetwork ThemeBGColor3 ThemeHoverBGColor2"
-            onClick={() => window.open('/enterpriseRegister?type=add', '__blank')}
-          >
-            {_l('加入组织')}
-          </button>
-          {/* <button
-            type="button"
-            className="createNetwork ThemeBGColor3 ThemeBorderColor3 ThemeColor3"
-            onClick={() => window.open('/enterpriseRegister?type=create', '__blank')}
-          >
-            {_l('创建组织')}
-          </button> */}
-        </div>
+      <img src={bgPng} alt="" />
+      <div className="Font14 bold">
+        <span
+          className="ThemeColor pointer mLeft5 mRight5"
+          onClick={() => window.open('/enterpriseRegister?type=add', '__blank')}
+        >
+          {_l('申请加入')}
+        </span>
+        <span>{_l('组织，创建自己的应用')}</span>
       </div>
     </FullCon>
   );

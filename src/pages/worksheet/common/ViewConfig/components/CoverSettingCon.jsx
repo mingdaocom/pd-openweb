@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dropdown, Icon } from 'ming-ui';
+import { Dropdown, Icon, Input } from 'ming-ui';
 import { filterAndFormatterControls } from 'src/pages/worksheet/views/util';
 import { COVER_DISPLAY_MODE, COVER_DISPLAY_POSITION } from '../util';
 import styled from 'styled-components';
@@ -8,6 +8,8 @@ import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
 import { isIframeControl } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import cx from 'classnames';
 import _ from 'lodash';
+import { SwitchStyle } from '../style';
+
 const SettingCon = styled.div`
   .ming.Dropdown.isDelete .Dropdown--input .value,
   .dropdownTrigger .Dropdown--input .value {
@@ -17,6 +19,30 @@ const SettingCon = styled.div`
   .dropdownTrigger .Dropdown--border {
     border-color: red;
   }
+  .navWidth {
+    width: 48%;
+    input[type='number'] {
+      &::-webkit-outer-spin-button,
+      &::-webkit-inner-spin-button {
+        margin: 0;
+        -webkit-appearance: none !important;
+      }
+    }
+    .unit {
+      right: 12px;
+      line-height: 34px;
+    }
+    .ming.Input {
+      font-size: 13px;
+      border: 1px solid #ddd;
+      &:hover {
+        border-color: #2196f3;
+      }
+      &:focus {
+        border-color: #2196f3;
+      }
+    }
+  }
 `;
 const CoverSettingCon = styled.div`
   margin-top: 20px;
@@ -24,23 +50,7 @@ const CoverSettingCon = styled.div`
   & > div {
     flex: 1;
     .ming.Dropdown {
-      margin-top: 10px;
-    }
-  }
-`;
-const SwitchStyle = styled.div`
-  display: inline-block;
-  .switchText {
-    margin-right: 6px;
-    line-height: 24px;
-  }
-  .icon {
-    vertical-align: middle;
-    &-ic_toggle_on {
-      color: #00c345;
-    }
-    &-ic_toggle_off {
-      color: #bdbdbd;
+      margin-top: 8px;
     }
   }
 `;
@@ -52,7 +62,29 @@ const COVER_IMAGE_PREVIEW = {
 };
 // 封面图片
 export default class CoverSetting extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      cardwidth: _.get(!this.props.fromRelative ? this.props.view : this.props, 'advancedSetting.cardwidth'),
+    };
+  }
+
+  onChangeWidth = e => {
+    const { handleChangeCoverWidth } = this.props;
+    let value = e.target.value.trim();
+    if (value < 240) {
+      value = 240;
+    }
+    if (value > 360) {
+      value = 360;
+    }
+    handleChangeCoverWidth(value);
+    this.setState({
+      cardwidth: value,
+    });
+  };
   render() {
+    const { cardwidth = 280 } = this.state;
     const {
       coverColumns = [],
       currentSheetInfo,
@@ -63,6 +95,7 @@ export default class CoverSetting extends React.Component {
       handleChangeIsCover,
       handleChangeType,
       handleChangeOpencover,
+      handleChangeCoverWidth,
       fromRelative,
     } = this.props;
     if (coverColumns.length <= 0) {
@@ -117,24 +150,9 @@ export default class CoverSetting extends React.Component {
       : COVER_DISPLAY_MODE.filter(item => item.value < 2);
     return (
       <div className="mTop32">
-        <div className="title Font13 bold">
-          {_l('封面')}
-          <div className="configSwitch Right">
-            <SwitchStyle>
-              <div className="switchText InlineBlock Normal Gray_9e">{_l('允许点击查看')}</div>
-              {/* //空(默认没key)或者"1"：允许 "2"：不允许 */}
-              <Icon
-                icon={!!COVER_IMAGE_PREVIEW[opencover] ? 'ic_toggle_on' : 'ic_toggle_off'}
-                className="Font24 Hand"
-                onClick={() => {
-                  handleChangeOpencover(!!COVER_IMAGE_PREVIEW[opencover] ? '2' : '1');
-                }}
-              />
-            </SwitchStyle>
-          </div>
-        </div>
+        <div className="title Font13 bold">{_l('封面')}</div>
         <SettingCon>
-          <div className="settingContent mTop10">
+          <div className="settingContent mTop8">
             <Dropdown
               data={coverControls.concat({ value: 'notDisplay', text: _l('不显示') })}
               value={coverValue}
@@ -156,6 +174,19 @@ export default class CoverSetting extends React.Component {
               }}
               placeholder={isDelete ? _l('控件已删除，请重新配置') : _l('不显示')}
             />
+            <div className="configSwitch mTop10">
+              <SwitchStyle className="flexRow alignItemsCenter">
+                {/* //空(默认没key)或者"1"：允许 "2"：不允许 */}
+                <Icon
+                  icon={!!COVER_IMAGE_PREVIEW[opencover] ? 'ic_toggle_on' : 'ic_toggle_off'}
+                  className="Font28 Hand"
+                  onClick={() => {
+                    handleChangeOpencover(!!COVER_IMAGE_PREVIEW[opencover] ? '2' : '1');
+                  }}
+                />
+                <div className="switchText InlineBlock Normal mLeft10">{_l('允许点击查看')}</div>
+              </SwitchStyle>
+            </div>
             {/* 封面图片 */}
             <CoverSettingCon>
               <div className="" style={{ width: '48%', marginRight: '4%' }}>
@@ -198,6 +229,36 @@ export default class CoverSetting extends React.Component {
               </div>
             </CoverSettingCon>
           </div>
+          {!!handleChangeCoverWidth && (
+            <div className="mTop24">
+              <div className="title Font13 bold">
+                {VIEW_DISPLAY_TYPE.gallery === String(viewType) ? _l('卡片最小宽度') : _l('卡片宽度')}
+              </div>
+              <div className="Relative navWidth mTop8">
+                <Input
+                  type="number"
+                  manualRef={ref => (this.input = { current: ref })}
+                  className="flex placeholderColor w100 pRight30"
+                  value={cardwidth}
+                  placeholder={_l('请输入')}
+                  onChange={value => {
+                    this.setState({
+                      cardwidth: value,
+                    });
+                  }}
+                  onKeyDown={e => {
+                    if (e.keyCode === 13) {
+                      this.onChangeWidth(e);
+                    }
+                  }}
+                  onBlur={e => {
+                    this.onChangeWidth(e);
+                  }}
+                />
+                <span className="Absolute unit Gray_9e">px</span>
+              </div>
+            </div>
+          )}
         </SettingCon>
       </div>
     );

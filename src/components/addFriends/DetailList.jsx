@@ -4,7 +4,7 @@ import _ from 'lodash';
 import ProjectController from 'src/api/project';
 import InvitationController from 'src/api/invitation';
 import ClipboardButton from 'react-clipboard.js';
-import { existAccountHint } from 'src/components/common/function';
+import { existAccountHint } from 'src/util';
 import moment from 'moment';
 
 const Tips = {

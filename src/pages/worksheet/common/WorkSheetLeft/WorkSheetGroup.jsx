@@ -6,12 +6,14 @@ import SvgIcon from 'src/components/SvgIcon';
 import WorkSheetItem, { convertColor } from './WorkSheetItem';
 import MoreOperation from './MoreOperation';
 import Drag from './Drag';
+import { getTranslateInfo } from 'src/util';
 
 export default function WorkSheetGroup(props) {
   const { appItem, ...otherProps } = props;
   const { sheetListVisible, isCharge, activeSheetId, appPkg } = otherProps;
-  const { workSheetId, workSheetName, icon, iconUrl, status, layerIndex, items = [] } = appItem;
-  const { iconColor, viewHideNavi, currentPcNaviStyle, themeType } = appPkg;
+  const { workSheetId, icon, iconUrl, status, layerIndex, items = [] } = appItem;
+  const { id, iconColor, viewHideNavi, currentPcNaviStyle, themeType } = appPkg;
+  const workSheetName = getTranslateInfo(id, workSheetId).name || appItem.workSheetName;
   const childrenOpenKey = `${workSheetId}-open`;
   const isOperation = appPkg.permissionType === 2;
   const childrenItems = (isCharge || isOperation) && viewHideNavi ? items : items.filter(item => item.status === 1 && !item.navigateHide);

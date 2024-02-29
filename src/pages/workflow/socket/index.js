@@ -5,6 +5,7 @@ import addRecord from 'worksheet/common/newRecord/addRecord';
 import { openRecordInfo } from 'worksheet/common/recordInfo';
 import _ from 'lodash';
 import mdNotification from 'ming-ui/functions/notify';
+import { emitter } from 'worksheet/util';
 
 const getWorksheetInfo = worksheetId => {
   return new Promise((resolve, reject) => {
@@ -61,12 +62,21 @@ export default () => {
             if (openMode === 2) {
               window.open(`${window.subPath || ''}/app/${appId}/${worksheetId}/${viewId || 'undefined'}/row/${rowId}`);
             } else {
-              openRecordInfo({
-                appId: appId,
-                worksheetId: worksheetId,
-                recordId: rowId,
-                viewId,
-              });
+              // 已经打开记录的直接刷新
+              if ($(`.recordInfoCon[data-record-id="${rowId}"]`).length) {
+                emitter.emit('RELOAD_RECORD_INFO', {
+                  worksheetId,
+                  recordId: rowId,
+                  closeWhenNotViewData: true,
+                });
+              } else {
+                openRecordInfo({
+                  appId: appId,
+                  worksheetId: worksheetId,
+                  recordId: rowId,
+                  viewId,
+                });
+              }
             }
           }
         });

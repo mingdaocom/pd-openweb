@@ -4,14 +4,15 @@ import { isEmptyValue } from 'src/components/newCustomFields/tools/filterFn.js';
 import moment from 'moment';
 
 const getAttachmentData = (control = {}) => {
-  let attachmentData;
+  let fileData;
   if (control.value && _.isArray(JSON.parse(control.value))) {
-    attachmentData = JSON.parse(control.value);
+    fileData = JSON.parse(control.value);
   } else {
     const data = JSON.parse(control.value || '{}');
-    attachmentData = (data.attachments || []).concat(data.knowledgeAtts || []);
+    const { attachments = [], attachmentData = [], knowledgeAtts = [] } = data;
+    fileData = [...attachments, ...attachmentData, ...knowledgeAtts];
   }
-  return attachmentData;
+  return fileData;
 };
 
 const getValue = (control = {}, type) => {
@@ -43,8 +44,10 @@ const getValue = (control = {}, type) => {
       return noDelControls.map(i => i.value).join('、');
     case 14:
       const attachmentData = getAttachmentData(control);
-      const fileId = _.get(attachmentData[0], 'fileID');
-      return /\w{8}(-\w{4}){3}-\w{12}/.test(fileId) ? [fileId] : [JSON.stringify(attachmentData[0])];
+      return attachmentData.map(att => {
+        const fileId = _.get(att, 'fileID');
+        return /\w{8}(-\w{4}){3}-\w{12}/.test(fileId) ? fileId : JSON.stringify(att);
+      });
     case 15:
     case 16:
       const { formatMode } = getDatePickerConfigs(control);

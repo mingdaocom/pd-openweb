@@ -34,7 +34,7 @@ export const ROUTE_CONFIG = addSubPathOfRoutes(
     // 使用分析
     analytics: {
       path: '/app/:appId/analytics/:projectId',
-      component: () => import('src/pages/Admin/useAnalytics/components/AppAnalytics'),
+      component: () => import('src/pages/Admin/app/useAnalytics/components/AppAnalytics'),
       sensitive: true,
     },
 

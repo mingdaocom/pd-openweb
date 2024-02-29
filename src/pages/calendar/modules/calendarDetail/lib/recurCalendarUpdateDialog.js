@@ -1,7 +1,8 @@
-﻿import 'src/components/mdDialog/dialog';
-import './css/recurUpdate.less';
+﻿import './css/recurUpdate.less';
 import tpl from './template/repeatCalendarOperator.html';
 import doT from 'dot';
+import Dialog from 'ming-ui/components/Dialog';
+import React from 'react';
 
 export default function recurCalendarUpdate(
   { operatorTitle, recurTitle, recurCalendarUpdateFun },
@@ -16,56 +17,51 @@ export default function recurCalendarUpdate(
   }
   if (originRecur && !isChildCalendar && !directAll) {
     // 重复日程 非子日程 的 单个日程
-    var dialog = $.DialogLayer({
-      dialogBoxID: 'repeatCalendarOperator',
+    Dialog.confirm({
+      dialogClasses: 'repeatCalendarOperator',
       width: 410,
-      container: {
-        header: recurTitle,
-        content: doT.template(tpl)({ isRecurChange, isEdit }),
-        noText: '',
-        yesText: '',
-      },
-      readyFn: function () {
-        $('#btnOperatorAlone:not(.disabled)').click(function (event) {
-          // param: isAllCalendar
-          dialog.closeDialog();
-          recurCalendarUpdateFun(false);
-          event.stopPropagation();
-        });
-
-        $('#btnOperatorAll').click(function (event) {
-          // param: isAllCalendar
-          dialog.closeDialog();
-          recurCalendarUpdateFun(true);
-          event.stopPropagation();
-        });
-      },
-      callback: function () {
+      title: recurTitle,
+      children: <div dangerouslySetInnerHTML={{ __html: doT.template(tpl)({ isRecurChange, isEdit }) }}></div>,
+      noFooter: true,
+      handleClose: () => {
         if ($.isFunction(callback)) {
           // 拖拽时取消
           callback();
         }
-      },
+        $('.repeatCalendarOperator').parent().remove();
+      }
+    })
+    $('#btnOperatorAlone:not(.disabled)').click(function (event) {
+      // param: isAllCalendar
+      $('.repeatCalendarOperator').parent().remove();
+      recurCalendarUpdateFun(false);
+      event.stopPropagation();
+    });
+
+    $('#btnOperatorAll').click(function (event) {
+      // param: isAllCalendar
+      $('.repeatCalendarOperator').parent().remove();
+      recurCalendarUpdateFun(true);
+      event.stopPropagation();
     });
   } else if (directRun) {
     // fullCalendar 拖拽
     recurCalendarUpdateFun(!isChildCalendar);
   } else {
-    var dialog = $.DialogLayer({
-      dialogBoxID: 'repeatCalendarOperator',
-      width: 350,
-      container: {
-        content: '<div></div>',
-        header: operatorTitle,
-        yesFn: function () {
-          recurCalendarUpdateFun(!isChildCalendar);
-        },
+    Dialog.confirm({
+      dialogClasses: 'repeatCalendarOperator',
+      width: 420,
+      title: operatorTitle,
+      children: <div></div>,
+      onOk: () => {
+        recurCalendarUpdateFun(!isChildCalendar);
       },
-      callback: function () {
+      handleClose: () => {
         if ($.isFunction(callback)) {
           callback();
         }
-      },
-    });
+        $('.repeatCalendarOperator').parent().remove();
+      }
+    })
   }
 }

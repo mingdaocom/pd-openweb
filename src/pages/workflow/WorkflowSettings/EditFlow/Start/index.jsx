@@ -1,7 +1,15 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { CreateNode, NodeOperate } from '../components';
-import { TRIGGER_ID, APP_TYPE, EXEC_TIME_TYPE, DATE_TYPE, TIME_TYPE_NAME, CUSTOM_ACTION_TEXT } from '../../enum';
+import { CreateNode, NodeOperate, MembersName } from '../components';
+import {
+  TRIGGER_ID,
+  APP_TYPE,
+  EXEC_TIME_TYPE,
+  DATE_TYPE,
+  TIME_TYPE_NAME,
+  CUSTOM_ACTION_TEXT,
+  NODE_TYPE,
+} from '../../enum';
 import { getIcons, getStartNodeColor } from '../../utils';
 import _ from 'lodash';
 import moment from 'moment';
@@ -15,10 +23,10 @@ export default class Start extends Component {
    * 渲染内容
    */
   renderContent() {
-    const { item, child } = this.props;
+    const { item, child, isNestedProcess } = this.props;
 
     // 子流程
-    if (child) {
+    if (child && !isNestedProcess) {
       const types = {
         7: _l('发送 API 请求'),
         12: _l('代码块'),
@@ -36,7 +44,7 @@ export default class Start extends Component {
             {item.appType === APP_TYPE.SHEET ? _l('工作表“%0”', item.appName) : types[item.appType]}
           </div>
           <div className="pLeft8 pRight8 mTop9 Gray_75 pBottom5">
-            {item.assignFieldNames.length ? (
+            {(item.assignFieldNames || []).length ? (
               <Fragment>
                 {item.assignFieldNames.map(o => `“${o}”`).join('、')}
                 <span className="mLeft5">{_l('触发')}</span>
@@ -255,6 +263,15 @@ export default class Start extends Component {
 
     // 审批流程
     if (item.appType === APP_TYPE.APPROVAL_START) {
+      if (isNestedProcess) {
+        return (
+          <div className="pLeft8 pRight8 pBottom5 pTop5">
+            <span className="Gray_75">{_l('发起人：')}</span>
+            {(item.accounts || []).length ? <MembersName {...this.props} accounts={item.accounts} /> : '[]'}
+          </div>
+        );
+      }
+
       return (
         <Fragment>
           <div className="workflowContentInfo ellipsis workflowContentBG">
@@ -278,7 +295,7 @@ export default class Start extends Component {
   };
 
   render() {
-    const { processId, item, selectNodeId, openDetail, isCopy, child, isSimple } = this.props;
+    const { processId, item, selectNodeId, openDetail, isCopy, child, isSimple, isNestedProcess } = this.props;
 
     return (
       <div className="flexColumn">
@@ -292,21 +309,27 @@ export default class Start extends Component {
                   (item.appId && !item.appName && item.appType !== APP_TYPE.PBC) ||
                   (_.includes([APP_TYPE.DATE, APP_TYPE.PBC], item.appType) && item.isException),
               },
-              { active: selectNodeId === item.id },
+              { active: _.includes([item.id, item.triggerNodeId], selectNodeId) },
             )}
-            onMouseDown={() => openDetail(processId, item.id, item.typeId)}
+            onMouseDown={() => {
+              if (isNestedProcess) {
+                openDetail(item.triggerId, item.triggerNodeId, NODE_TYPE.APPROVAL_PROCESS);
+              } else {
+                openDetail(processId, item.id, item.typeId);
+              }
+            }}
           >
             <div className="workflowAvatars flexRow">
               <i
                 className={cx(
                   'workflowAvatar',
-                  child ? 'BGBlueAsh' : getStartNodeColor(item.appType, item.triggerId),
-                  child ? 'icon-subprocess' : getIcons(item.typeId, item.appType, item.triggerId),
+                  child && !isNestedProcess ? 'BGBlueAsh' : getStartNodeColor(item.appType, item.triggerId),
+                  child && !isNestedProcess ? 'icon-subprocess' : getIcons(item.typeId, item.appType, item.triggerId),
                 )}
               />
             </div>
             <NodeOperate
-              nodeClassName={child ? 'BGBlueAsh' : getStartNodeColor(item.appType, item.triggerId)}
+              nodeClassName={child && !isNestedProcess ? 'BGBlueAsh' : getStartNodeColor(item.appType, item.triggerId)}
               {...this.props}
             />
             <div className="workflowContent">

@@ -11,7 +11,7 @@ import { getCurrentProject } from 'src/util';
 import InstallDialog from './installDialog';
 import { Support, Tooltip, Icon } from 'ming-ui';
 import addFriends from 'src/components/addFriends';
-import { purchaseMethodFunc } from 'src/components/upgrade/choose/PurchaseMethodModal';
+import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
 
@@ -52,6 +52,9 @@ export default function HomePage({ match, location: routerLocation }) {
   // 获取基本信息
   const getBaseData = () => {
     projectAjax.getProjectLicenseSupportInfo({ projectId, onlyNormal: true, onlyUsage: false }).then(res => {
+      if (!res.currentLicense.version) {
+        res.currentLicense.version = { name: _l('免费版') };
+      }
       setData(res);
     });
   };
@@ -127,7 +130,7 @@ export default function HomePage({ match, location: routerLocation }) {
       location.assign(`/admin/upgradeservice/${projectId}`);
     }
     if (type === 'renew') {
-      purchaseMethodFunc({ projectId });
+      purchaseMethodFunc({ projectId, isTrial });
     }
     if (type === 'toast') {
       alert(_l('单应用版暂不支持线上续费，请联系顾问进行续费'), 3);
@@ -289,7 +292,7 @@ export default function HomePage({ match, location: routerLocation }) {
               <div className="licenseInfoWrap">
                 <div className="licenseInfo">
                   <div className="licenseFlag" />
-                  <div className="licenseType Font15">{getValue(version.name || '免费版')}</div>
+                  <div className="licenseType Font15">{getValue(version.name)}</div>
                   {isTrial && <span>{_l('-试用')}</span>}
                   {isFree ? null : (
                     <Fragment>

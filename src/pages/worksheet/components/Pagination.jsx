@@ -86,6 +86,7 @@ const pageSizeNums = [
 
 export default class Pagination extends React.Component {
   static propTypes = {
+    disabled: PropTypes.bool,
     abnormalMode: PropTypes.bool,
     className: PropTypes.string,
     allowChangePageSize: PropTypes.bool,
@@ -221,7 +222,7 @@ export default class Pagination extends React.Component {
   }
 
   render() {
-    const { abnormalMode, className = '', pageIndex, maxCount, allCount, onPrev, onNext } = this.props;
+    const { disabled, abnormalMode, className = '', pageIndex, maxCount, allCount, onPrev, onNext } = this.props;
     const { popupVisible } = this.state;
     if (maxCount) {
       return (
@@ -241,7 +242,7 @@ export default class Pagination extends React.Component {
       <Con className={className} ref={this.conRef}>
         <Trigger
           action={['click']}
-          popupVisible={popupVisible}
+          popupVisible={!disabled && popupVisible}
           onPopupVisibleChange={value => this.setState({ popupVisible: value })}
           destroyPopupOnHide
           popupAlign={{

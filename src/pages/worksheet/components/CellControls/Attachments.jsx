@@ -447,6 +447,9 @@ function Attachment(props) {
         className="AttachmentCon"
         style={{ maxWidth: cellWidth }}
         onClick={e => {
+          if (_.get(window.shareState, 'shareId')) {
+            return;
+          }
           previewAttachment({
             attachments,
             index,
@@ -548,10 +551,11 @@ function cellAttachments(props, sourceRef) {
       !e.target.closest(
         [
           '#folderSelectDialog_container',
-          '#addLinkFileDialog_container',
+          '.addLinkFileDialog',
           '.attachmentsPreview',
           '.UploadFilesTriggerPanel',
           '.triggerTraget',
+          '.folderSelectDialog',
         ].join(','),
       )
     ) {

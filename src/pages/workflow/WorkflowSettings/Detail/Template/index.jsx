@@ -1,7 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { ScrollView, LoadDiv, Dropdown, Radio } from 'ming-ui';
 import _ from 'lodash';
-import { NODE_TYPE } from '../../enum';
 import flowNode from '../../../api/flowNode';
 import {
   DetailHeader,
@@ -163,7 +162,13 @@ export default class Template extends Component {
             <i className="Font16 icon-info" />
           </span>
         </div>
-        <Member accounts={data.accounts} removeOrganization={true} updateSource={this.updateSource} />
+        <Member
+          companyId={this.props.companyId}
+          accounts={data.accounts}
+          appId={this.props.relationType === 2 ? this.props.relationId : ''}
+          removeOrganization={true}
+          updateSource={this.updateSource}
+        />
         <div
           className="flexRow mTop15 ThemeColor3 workflowDetailAddBtn"
           onClick={() => this.setState({ showSelectUserDialog: true })}

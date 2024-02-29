@@ -36,7 +36,6 @@ export default function FilterDrop(props) {
         '.dropdownTrigger',
         '.filterControlOptionsList',
         '.mui-dialog-container',
-        '.mdDialog',
         '.mui-datetimepicker',
         '.mui-datetimerangepicker',
         '.worksheetFilterOperateList',

@@ -4,12 +4,14 @@ import { autobind } from 'core-decorators';
 import { LoadDiv, ScrollView } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
+import ChildTableContext from '../ChildTable/ChildTableContext';
 import { TextAbsoluteCenter } from 'worksheet/components/StyledComps';
 import { getFilter } from 'worksheet/common/WorkSheetFilter/util';
 import ReacordItem from './RecordItem';
 import _, { times } from 'lodash';
 
 export default class RelateRecordList extends React.PureComponent {
+  static contextType = ChildTableContext;
   static propTypes = {
     from: PropTypes.number,
     viewId: PropTypes.string,
@@ -146,6 +148,7 @@ export default class RelateRecordList extends React.PureComponent {
       staticRecords,
       fastSearchControlArgs,
     } = this.props;
+    const _this = this;
     if (!_.isEmpty(staticRecords)) {
       return;
     }
@@ -221,7 +224,15 @@ export default class RelateRecordList extends React.PureComponent {
     this.searchAjax = getFilterRowsPromise(args);
     this.searchAjax.then(res => {
       if (res.resultCode === 1) {
-        let newRecords = records.concat(res.data.filter(row => row.rowid !== recordId));
+        let ignoreRowIds = [];
+        if (control.unique || control.uniqueInRecord) {
+          ignoreRowIds = (_.get(_this, 'context.rows') || [])
+            .map(r => _.get(safeParse(r[control.controlId], 'array'), '0.sid'))
+            .filter(_.identity);
+        }
+        let newRecords = records.concat(
+          res.data.filter(row => row.rowid !== recordId && !_.includes(ignoreRowIds, row.rowid)),
+        );
         const needSort =
           keyWords && pageIndex === 1 && _.get(control, 'advancedSetting.searchcontrol') && searchControl;
         if (needSort && _.get(control, 'advancedSetting.searchtype') !== '1') {
@@ -365,18 +376,21 @@ export default class RelateRecordList extends React.PureComponent {
           </div>
         </div>
         <div style={{ borderTop: '1px solid #ddd' }} />
-        {allowNewRecord && allowAdd && !window.isPublicWorksheet && (!error || error === 'notCorrectCondition') && (
-          <div
-            className={'RelateRecordList-create ' + (activeId === 'newRecord' ? 'active' : '')}
-            onClick={e => {
-              e.stopPropagation();
-              this.setState({ activeId: undefined });
-              onNewRecord(e);
-            }}
-          >
-            <i className="icon icon-plus"></i> {worksheet.entityName || (control && control.sourceEntityName)}
-          </div>
-        )}
+        {allowNewRecord &&
+          allowAdd &&
+          !(_.get(window, 'shareState.isPublicFormPreview') || _.get(window, 'shareState.isPublicForm')) &&
+          (!error || error === 'notCorrectCondition') && (
+            <div
+              className={'RelateRecordList-create ' + (activeId === 'newRecord' ? 'active' : '')}
+              onClick={e => {
+                e.stopPropagation();
+                this.setState({ activeId: undefined });
+                onNewRecord(e);
+              }}
+            >
+              <i className="icon icon-plus"></i> {worksheet.entityName || (control && control.sourceEntityName)}
+            </div>
+          )}
       </div>
     );
   }

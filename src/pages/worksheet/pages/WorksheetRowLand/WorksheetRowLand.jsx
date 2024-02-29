@@ -74,11 +74,11 @@ class WorksheetRowLand extends Component {
   render() {
     const { loading, worksheetId, rowId, appId, viewId, loadingSwitchPermit } = this.state;
     const { appPkg } = this.props;
-    const { fixed, permissionType, pcDisplay } = appPkg;
+    const { fixed, permissionType, pcDisplay, projectId } = appPkg;
     const isAuthorityApp = canEditApp(permissionType);
     return (
       <div className="worksheetRowLand">
-        {loading || loadingSwitchPermit ? (
+        {loading || loadingSwitchPermit || _.isEmpty(appPkg) ? (
           <div className="workSheetRecordInfo">
             <LoadDiv className="mTop32" />
           </div>
@@ -92,6 +92,7 @@ class WorksheetRowLand extends Component {
             from={2}
             appId={appId}
             worksheetId={worksheetId}
+            projectId={projectId}
             viewId={viewId}
             recordId={rowId}
             hideRecordInfo={() => navigateTo(worksheetId ? `/worksheet/${worksheetId}` : `/app/${appId}`)}

@@ -1,9 +1,8 @@
 ﻿import React, { Component, Fragment } from 'react';
-import DialogLayer from 'src/components/mdDialog/dialog';
 import './less/setFolder.less';
 import ajaxRequest from 'src/api/taskCenter';
-import RadioGroup from 'ming-ui/components/RadioGroup';
 import { Tooltip } from 'antd';
+import { Dialog, RadioGroup, Button } from 'ming-ui';
 
 export default class SetFolder extends Component {
   constructor(props) {
@@ -35,20 +34,34 @@ export default class SetFolder extends Component {
   templateScopeDialog(templateScope) {
     // 模板作用域， false： 全部使用 true：顶层任务使用 ，逻辑默认值设定为true ，数据库历史原因，可以避免刷数据
     if (templateScope) {
-      $.DialogLayer({
-        dialogBoxID: 'setFolderComfirm',
-        showClose: false,
+      Dialog.confirm({
         width: 490,
-        container: {
-          header: _l('您确定切换到只在项目下1级任务显示自定义任务内容？'),
-          content: `<span class="Font13">${_l('切换后1级以下任务中的自定义任务内容所有数据将被删除，无法恢复')}</span>`,
-          yesFn: () => {
-            this.updateFolderTemplateScope(templateScope);
-          },
-          noFn: () => {
-            this.setState({ templateScope: !templateScope });
-          },
-        },
+        closable: false,
+        dialogClasses: 'setFolderComfirm',
+        title: _l('您确定切换到只在项目下1级任务显示自定义任务内容？'),
+        children: <span class="Font13">{_l('切换后1级以下任务中的自定义任务内容所有数据将被删除，无法恢复')}</span>,
+        footer: (
+          <div>
+            <Button
+              type="link"
+              onClick={() => {
+                this.setState({ templateScope: !templateScope });
+                $('.setFolderComfirm').parent().remove();
+              }}
+            >
+              {_l('取消')}
+            </Button>
+            <Button
+              type={'primary'}
+              onClick={() => {
+                this.updateFolderTemplateScope(templateScope);
+                $('.setFolderComfirm').parent().remove();
+              }}
+            >
+              {_l('确认')}
+            </Button>
+          </div>
+        ),
       });
     } else {
       this.updateFolderTemplateScope(templateScope);
@@ -102,22 +115,38 @@ export default class SetFolder extends Component {
    */
   folderAuthVisibleDialog(auth, originalAuth) {
     if (auth < originalAuth) {
-      $.DialogLayer({
-        dialogBoxID: 'setFolderComfirm',
-        showClose: false,
+      Dialog.confirm({
+        dialogClasses: 'setFolderComfirm',
         width: 490,
-        container: {
-          header: _l('注意：'),
-          content: `<span class="Font13">${_l(
-            '这将导致成员能看到此项目下其当前不可见的任务，请确认其中的信息可以对成员公开。',
-          )}</span>`,
-          yesFn: () => {
-            this.updateFolderAuthVisible(auth);
-          },
-          noFn: () => {
-            this.setState({ folderAuthVisible: originalAuth });
-          },
-        },
+        closable: false,
+        title: _l('注意：'),
+        children: (
+          <span class="Font13">
+            {_l('这将导致成员能看到此项目下其当前不可见的任务，请确认其中的信息可以对成员公开。')}
+          </span>
+        ),
+        footer: (
+          <div>
+            <Button
+              type="link"
+              onClick={() => {
+                this.setState({ folderAuthVisible: originalAuth });
+                $('.setFolderComfirm').parent().remove();
+              }}
+            >
+              {_l('取消')}
+            </Button>
+            <Button
+              type={'primary'}
+              onClick={() => {
+                this.updateFolderAuthVisible(auth);
+                $('.setFolderComfirm').parent().remove();
+              }}
+            >
+              {_l('确认')}
+            </Button>
+          </div>
+        ),
       });
     } else {
       this.updateFolderAuthVisible(auth, originalAuth);
@@ -219,7 +248,13 @@ export default class SetFolder extends Component {
     };
 
     return (
-      <DialogLayer {...settings}>
+      <Dialog
+        visible
+        dialogClasses="setFolder"
+        title={_l('项目配置')}
+        showFooter={false}
+        handleClose={() => $('.setFolder').parent().remove()}
+      >
         {this.state.data ? (
           <div>
             <div className="Font13 mBottom20">
@@ -262,7 +297,7 @@ export default class SetFolder extends Component {
         ) : (
           ''
         )}
-      </DialogLayer>
+      </Dialog>
     );
   }
 }

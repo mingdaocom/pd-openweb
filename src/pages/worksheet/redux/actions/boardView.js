@@ -1,7 +1,7 @@
 import sheetAjax from 'src/api/worksheet';
 import { formatQuickFilter, getFilledRequestParams } from 'worksheet/util';
 import { getCurrentView, getBoardItemKey } from '../util';
-import { getParaIds } from './util';
+import { getParaIds, sortDataByCustomItems } from './util';
 import update from 'immutability-helper';
 import { includes, noop, isEmpty } from 'lodash';
 import { uniqBy } from 'lodash/array';
@@ -113,12 +113,12 @@ export function initBoardViewData(view) {
       loading: true,
     });
     dispatch({ type: 'CHANGE_BOARD_VIEW_STATE', payload: { kanbanIndex: 1, hasMoreData: true } });
-    getBoardViewDataFillPage({ para, dispatch });
+    getBoardViewDataFillPage({ para, dispatch, view: view || getCurrentView(sheet), controls: sheet.controls });
   };
 }
 
 // 拉取看板数据以填满页面
-function getBoardViewDataFillPage({ para, dispatch }) {
+function getBoardViewDataFillPage({ para, dispatch, view, controls }) {
   (para.type === 'single' ? worksheetAjax.getFilterRows : wrappedGetFilterRows)(getFilledRequestParams(para)).then(
     ({ data, resultCode }) => {
       if (resultCode !== 1) {
@@ -131,8 +131,8 @@ function getBoardViewDataFillPage({ para, dispatch }) {
           loading: false,
         });
       }
-
-      dispatch(changeBoardViewData(data));
+      const formatData = sortDataByCustomItems(data, view, controls);
+      dispatch(changeBoardViewData(formatData));
       dispatch(initBoardViewRecordCount(dealBoardViewRecordCount(data)));
 
       dispatch({

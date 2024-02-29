@@ -81,7 +81,7 @@ export default function MoreAction(props) {
         {!window.isPublicApp && (
           <div onClick={() => dealMarked(!detail.isMarked ? true : false)}>
             <Icon icon="star_3" className={cx('Gray_9e mRight24 Font20 TxtMiddle', { active: detail.isMarked })} />
-            <span>{detail.isMarked ? _l('取消标星') : _l('标星')}</span>
+            <span>{detail.isMarked ? _l('取消收藏') : _l('收藏应用')}</span>
           </div>
         )}
         {roleEntryVisible && (

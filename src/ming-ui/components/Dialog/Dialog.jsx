@@ -258,14 +258,18 @@ class Dialog extends Component {
             <DialogHeader title={props.title} />
             {desc}
           </div>
-          <div
-            className={cx('mui-dialog-body', {
-              [props.bodyClass]: props.bodyClass,
-            })}
-            onScroll={this.props.onScroll}
-          >
-            {this.props.children}
-          </div>
+
+          {this.props.children && (
+            <div
+              className={cx('mui-dialog-body', {
+                [props.bodyClass]: props.bodyClass,
+              })}
+              onScroll={this.props.onScroll}
+            >
+              {this.props.children}
+            </div>
+          )}
+
           {props.showFooter && (
             <DialogFooter
               footer={props.footer}

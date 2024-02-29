@@ -11,12 +11,12 @@ import cx from 'classnames';
 import DropOption from 'src/pages/Role/PortalCon/components/DropOption';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import _ from 'lodash';
-import { getCurrentProject } from 'src/util';
+import departmentController from 'src/api/department';
 import UserHead from 'src/components/userHead';
 import { getIcon, getColor, getTxtColor, pageSize } from 'src/pages/Role/AppRoleCon/UserCon/config';
 import moment from 'moment';
 import { sysRoleType } from 'src/pages/Role/config.js';
-import { userStatusList, initData } from 'src/pages/Role/AppRoleCon/UserCon/config.js';
+import { userStatusList } from 'src/pages/Role/AppRoleCon/UserCon/config.js';
 import AppManagement from 'src/api/appManagement.js';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
 
@@ -177,6 +177,7 @@ function User(props) {
       selectedAll,
       popupVisible,
       countTxt,
+      fullDepartmentInfo,
     },
     setState,
   ] = useSetState({
@@ -192,6 +193,7 @@ function User(props) {
     selectedAll: false,
     popupVisible: false,
     countTxt: getNumTxt(_.get(props, ['appRole', 'user']) || {}),
+    fullDepartmentInfo: [],
   });
   useEffect(() => {
     setState({
@@ -225,6 +227,31 @@ function User(props) {
     }
     getUserList({ appId }, true);
   }, [props.roleId]);
+  //获取部门全路径
+  const getDepartmentFullName = (departmentData = []) => {
+    const departmentIds = departmentData.filter(it => !fullDepartmentInfo[it]);
+    if (_.isEmpty(departmentIds)) {
+      return;
+    }
+    departmentController
+      .getDepartmentFullNameByIds({
+        projectId,
+        departmentIds,
+      })
+      .then(res => {
+        res.forEach(it => {
+          fullDepartmentInfo[it.id] = it.name;
+        });
+        setState({ fullDepartmentInfo });
+      });
+  };
+  useEffect(() => {
+    getDepartmentFullName(
+      _.get(props, 'appRole.userList')
+        .filter(o => [1, 2].includes(o.memberType))
+        .map(o => o.id),
+    );
+  }, [_.get(props, 'appRole.userList')]);
   const roleData = props.roleList.find(o => o.roleId === roleId) || {};
 
   const columns = [
@@ -267,9 +294,12 @@ function User(props) {
               </div>
             )}
             <div className={'memberInfo flex pLeft8 flexRow alignItemsCenter'}>
-              <span className={'memberName overflow_ellipsis Block TxtLeft breakAll'} title={data.name}>
-                {data.name}
-              </span>
+              <Tooltip
+                text={<span>{fullDepartmentInfo[data.id] ? fullDepartmentInfo[data.id] : data.name}</span>}
+                popupPlacement="top"
+              >
+                <span className={'memberName overflow_ellipsis Block TxtLeft breakAll'}>{data.name}</span>
+              </Tooltip>
               {isHead && (
                 <Tooltip text={<span>{_l('角色负责人')} </span>} popupPlacement="top">
                   <i className="icon-people_5 Font14 mLeft7" style={{ color: '#FBBB44' }} />

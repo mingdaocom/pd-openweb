@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { getSortData, isCustomSort, formatSorts, isTimeControl, timeParticleSizeDropdownData } from 'statistics/common';
+import { getSortData, formatSorts, isTimeControl, timeParticleSizeDropdownData } from 'statistics/common';
 import { reportTypes } from 'statistics/Charts/common';
 import _ from 'lodash';
 
@@ -238,7 +238,7 @@ export default class ChartSort extends Component {
   renderItem(item, fn) {
     const { currentReport } = this.props;
     const { sorts } = currentReport;
-    const sortData = getSortData(item.controlType);
+    const sortData = getSortData(item);
     const sortsItem = _.find(sorts, item.controlId);
     const value = sortsItem ? sortsItem[item.controlId] : 0;
     return (

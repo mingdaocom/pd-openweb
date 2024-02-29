@@ -4,6 +4,7 @@ import Trigger from 'rc-trigger';
 import { Menu, MenuItem, Icon, Dialog } from 'ming-ui';
 import styled from 'styled-components';
 import worksheetAjax from 'src/api/worksheet';
+import favoriteApi from 'src/api/favorite';
 import { copyRow } from 'worksheet/controllers/record';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
 import {
@@ -15,9 +16,11 @@ import {
 } from 'worksheet/common/recordInfo/crtl';
 import CustomButtons from 'worksheet/common/recordInfo/RecordForm/CustomButtons';
 import PrintList from 'worksheet/common/recordInfo/RecordForm/PrintList';
+import { replaceBtnsTranslateInfo } from 'worksheet/util';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import _ from 'lodash';
+import { getCurrentProject } from 'src/util';
 
 // TODO 完善菜单关闭交互
 
@@ -130,6 +133,7 @@ export default function RecordOperate(props) {
     allowDelete,
     allowCopy,
     formdata,
+    disableCustomButtons,
     defaultCustomButtons,
     sheetSwitchPermit = [],
     reloadRecord = () => {},
@@ -142,6 +146,7 @@ export default function RecordOperate(props) {
     onPopupVisibleChange = () => {},
     hideRecordInfo = () => {},
     onRecreate = () => {},
+    hideFav,
   } = props;
   const showShare = _.includes(shows, 'share') && !md.global.Account.isPortal;
   const showCopy =
@@ -161,7 +166,11 @@ export default function RecordOperate(props) {
   const [customButtons, setCustomButtons] = useState([]);
   const [customButtonLoading, setCustomButtonLoading] = useState();
   const [popupVisible, setPopupVisible] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
   const DeleteItemWrap = isRelateRecordTable ? MenuItemWrap : RedMenuItemWrap;
+  const isExternal = _.isEmpty(getCurrentProject(projectId));
+  const canFav =
+    !hideFav && !window.shareState.shareId && !md.global.Account.isPortal && !isExternal && _.includes(shows, 'fav');
   function changePopupVisible(value) {
     if (customButtonActive.current) {
       return;
@@ -179,16 +188,56 @@ export default function RecordOperate(props) {
         rowId: recordId,
       });
       setCustomButtonLoading(false);
-      setCustomButtons(newButtons.filter(b => !b.disabled));
+      setCustomButtons(replaceBtnsTranslateInfo(appId, newButtons).filter(b => !b.disabled));
     } catch (err) {
       alert(_l('加载自定义按钮失败'), 3);
     }
   }
+  const checkFavoriteByRowId = () => {
+    favoriteApi.checkFavoriteByRowId({ rowId: recordId, worksheetId, viewId }).then(res => {
+      setIsFavorite(res);
+    });
+  };
   useEffect(() => {
-    if (popupVisible && !defaultCustomButtons) {
+    if (popupVisible && !defaultCustomButtons && !disableCustomButtons) {
       loadButtons();
     }
+    if (popupVisible && canFav) {
+      checkFavoriteByRowId();
+    }
   }, [popupVisible]);
+  const handleCollectRecord = () => {
+    if (isFavorite) {
+      // 取消收藏
+      favoriteApi
+        .removeFavorite({
+          projectId,
+          rowId: recordId,
+          worksheetId,
+          viewId,
+        })
+        .then(res => {
+          if (res) {
+            alert(_l('已取消收藏'));
+            setIsFavorite(false);
+          }
+        });
+    } else {
+      // 添加收藏
+      favoriteApi
+        .addFavorite({
+          worksheetId,
+          rowId: recordId,
+          viewId,
+        })
+        .then(res => {
+          if (res) {
+            alert(_l('收藏成功'));
+            setIsFavorite(true);
+          }
+        });
+    }
+  };
   return (
     <Trigger
       action={action}
@@ -277,16 +326,36 @@ export default function RecordOperate(props) {
             </Loading>
           )}
           {!!(defaultCustomButtons || customButtons).length && (
-            <CustomButtons
-              type="menu"
-              {...{ projectId, appId, viewId, worksheetId, recordId, isCharge }}
-              buttons={defaultCustomButtons || customButtons}
-              loadBtns={loadButtons}
-              triggerCallback={() => changePopupVisible(false)}
-              onUpdate={onUpdate}
-              reloadRecord={reloadRecord}
-              setCustomButtonActive={v => (customButtonActive.current = v)}
-            />
+            <React.Fragment>
+              <CustomButtons
+                type="menu"
+                {...{ projectId, appId, viewId, worksheetId, recordId, isCharge }}
+                buttons={defaultCustomButtons || customButtons}
+                loadBtns={loadButtons}
+                triggerCallback={() => changePopupVisible(false)}
+                onUpdate={onUpdate}
+                reloadRecord={reloadRecord}
+                setCustomButtonActive={v => (customButtonActive.current = v)}
+              />
+              <Hr />
+            </React.Fragment>
+          )}
+          {canFav && (
+            <MenuItemWrap
+              className="printItem"
+              icon={
+                <Icon
+                  className="Font17 mLeft5"
+                  icon={!isFavorite ? 'star_outline' : 'star'}
+                  style={{ color: isFavorite ? '#ffc402' : '#9e9e9e' }}
+                />
+              }
+              onClick={() => {
+                handleCollectRecord();
+              }}
+            >
+              {isFavorite ? _l('取消收藏') : _l('收藏记录')}
+            </MenuItemWrap>
           )}
           {showShare && (
             <MenuItemWrap
@@ -406,7 +475,7 @@ export default function RecordOperate(props) {
               {_l('新页面打开%02001')}
             </MenuItemWrap>
           )}
-          {allowDelete && (!isRelateRecordTable || allowAdd) && from !== RECORD_INFO_FROM.WORKFLOW && (
+          {allowDelete && from !== RECORD_INFO_FROM.WORKFLOW && (
             <DeleteItemWrap
               className="deleteItem"
               icon={<Icon icon="task-new-delete" className="Font17 mLeft5" />}

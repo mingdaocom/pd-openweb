@@ -3,6 +3,7 @@ import { string, arrayOf, shape, func } from 'prop-types';
 import RecordCardListDialog from 'src/components/recordCardListDialog';
 import { OtherFieldList, SelectOtherField, DynamicInput } from '../components';
 import { DynamicValueInputWrap } from '../styled';
+import { getCurrentValue } from 'src/components/newCustomFields/tools/utils';
 import _ from 'lodash';
 
 export default class RelateSheet extends Component {
@@ -77,12 +78,11 @@ export default class RelateSheet extends Component {
             onClose={() => this.setState({ recordListVisible: false })}
             onOk={records => {
               const newValue = records.map(item => {
-                const name = item[titleControl.controlId] || '未命名';
                 return {
                   cid: '',
                   rcid: '',
                   staticValue: JSON.stringify([item.rowid]),
-                  relateSheetName: name,
+                  relateSheetName: getCurrentValue(titleControl, item[titleControl.controlId], { type: 2 }) || '未命名',
                 };
               });
               if (multiple) {

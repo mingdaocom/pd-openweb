@@ -2,8 +2,9 @@ import React, { Component } from 'react';
 import { Icon, Button } from 'ming-ui';
 import Result from 'src/components/dialogSelectUser/GeneralSelect/Result';
 import InviteController from 'src/api/invitation';
-import { existAccountHint } from 'src/components/common/function';
+import { existAccountHint } from 'src/util';
 import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
+import DialogSettingInviteRules from 'src/pages/Admin/user/membersDepartments/structure/components/dialogSettingInviteRules';
 
 export default class AddressBookInvite extends Component {
   constructor(props) {
@@ -11,6 +12,7 @@ export default class AddressBookInvite extends Component {
     this.state = {
       selectUsers: [],
       loading: false,
+      showDialogSettingInviteRules: false,
     };
   }
 
@@ -60,7 +62,7 @@ export default class AddressBookInvite extends Component {
 
   render() {
     const { projectId } = this.props;
-    const { selectUsers, loading } = this.state;
+    const { selectUsers, loading, showDialogSettingInviteRules } = this.state;
     return (
       <div className="addFriendsContent">
         <div className="Gray_75 mBottom12">{_l('从联系人中选择用户，邀请加入到当前组织')}</div>
@@ -85,7 +87,7 @@ export default class AddressBookInvite extends Component {
 
         <div className="footContainer">
           <div className="addBox Gray_9e">
-            <span onClick={() => window.open(`${location.origin}/admin/structure/${projectId}/isShowSetting`)}>
+            <span onClick={() => this.setState({ showDialogSettingInviteRules: true })}>
               <Icon icon="settings1" />
               {_l('邀请设置')}
             </span>
@@ -100,6 +102,14 @@ export default class AddressBookInvite extends Component {
             {_l('发送邀请')}
           </Button>
         </div>
+
+        {showDialogSettingInviteRules && (
+          <DialogSettingInviteRules
+            showDialogSettingInviteRules={showDialogSettingInviteRules}
+            setValue={({ showDialogSettingInviteRules }) => this.setState({ showDialogSettingInviteRules })}
+            projectId={projectId}
+          />
+        )}
       </div>
     );
   }

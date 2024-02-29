@@ -39,10 +39,12 @@ import DebugConfig from './components/DebugConfig';
 import PluginSettings from './components/PluginSettings';
 import SubmitConfig from './components/Submit';
 import ParameterSet from './components/ParameterSet';
+import ResourceSet from './components/ResourceSet';
 import SideNav from './components/SideNav';
 import pluginAjax from 'src/api/plugin.js';
 import SvgIcon from 'src/components/SvgIcon';
 import ViewFilter from './components/Filter';
+import MapSetting from './components/MapSetting';
 
 const SwitchStyle = styled.div`
   .switchText {
@@ -60,6 +62,11 @@ const SwitchStyle = styled.div`
   }
   .w30 {
     width: 30px;
+    flex-shrink: 0;
+  }
+  .w28 {
+    width: 28px;
+    flex-shrink: 0;
   }
 `;
 
@@ -83,14 +90,11 @@ const formatSortingColumns = columns => {
 class ViewConfigCon extends Component {
   constructor(props) {
     super(props);
-    this.state = this.fill({ ...props, isInit: true });
+    this.state = this.fill({ ...props });
   }
 
   componentDidMount() {
-    const { worksheetId, appId, viewId, refreshFn } = this.props;
-    if (viewId) {
-      refreshFn(worksheetId, appId, viewId, '');
-    }
+    this.fetchBtnByAll();
   }
   componentWillReceiveProps(nextProps) {
     if (
@@ -103,7 +107,11 @@ class ViewConfigCon extends Component {
       this.setState(this.fill(nextProps, nextProps.view.viewId === this.props.view.viewId));
     }
   }
-  fill = ({ columns, view, sheetSwitchPermit, isInit = false, viewConfigTab, setViewConfigTab }, isEqualViewId) => {
+  fetchBtnByAll = () => {
+    const { worksheetId, appId, rowId } = this.props;
+    this.props.refreshFn(worksheetId, appId, '', rowId);
+  };
+  fill = ({ columns, view, sheetSwitchPermit, viewConfigTab, setViewConfigTab }, isEqualViewId) => {
     const sortCid = view.sortCid || 'ctime';
     const sortingColumns = formatSortingColumns(columns);
     const sortType = view.sortType || this.getDefaultSortValue(sortCid, sortingColumns);
@@ -178,6 +186,7 @@ class ViewConfigCon extends Component {
 
     return data;
   };
+
   getDefaultSortValue(sortCid, columns) {
     const newSortingColumns = columns || this.state.sortingColumns;
     const select = newSortingColumns.filter(item => item.value === sortCid)[0] || {};
@@ -308,47 +317,239 @@ class ViewConfigCon extends Component {
     }
     const { rowHeight, refreshtime = '0', fastedit = '0', sheettype = '0', enablerules = '' } = this.state;
     const viewTypeText = VIEW_DISPLAY_TYPE[view.viewType];
-    const filteredColumns = filterHidedControls(columns, view.controls, false).filter(
-      c => !!c.controlName && !_.includes([22, 10010, 43, 45, 49, 51], c.type),
-    );
+    const filteredColumns = filterHidedControls(columns, view.controls, false)
+      .filter(c => !!c.controlName && !_.includes([22, 10010, 43, 45, 49, 51], c.type))
+      .sort((a, b) => {
+        if (a.row === b.row) {
+          return a.col - b.col;
+        } else {
+          return a.row - b.row;
+        }
+      });
     // 画廊视图封面需要嵌入字段，其他配置过滤
     const coverColumns = filterHidedControls(columns, view.controls, false).filter(c => !!c.controlName);
     /* 多表关联层级视图 */
     const isRelateMultiSheetHierarchyView = viewTypeText === 'structure' && String(view.childType) === '2';
-    const isCalendar = viewTypeText === 'calendar';
+    const param = {
+      ...this.props,
+      updateCurrentView: view => {
+        this.props.updateCurrentView(
+          Object.assign(view, {
+            filters: formatValuesOfOriginConditions(view.filters),
+          }),
+        );
+      },
+    };
+    const renderCom = () => {
+      switch (viewTypeText) {
+        case 'board':
+        case 'structure':
+        case 'gallery':
+        case 'detail':
+          if (!isRelateMultiSheetHierarchyView) {
+            return (
+              <div className="cardAppearanceWrap">
+                <CardAppearance
+                  {..._.pick(this.props, [
+                    'appId',
+                    'view',
+                    'columns',
+                    'worksheetControls',
+                    'updateCurrentView',
+                    'currentSheetInfo',
+                    'searchRows',
+                    'updateViewShowcount',
+                  ])}
+                  worksheetControls={filteredColumns}
+                  coverColumns={coverColumns}
+                  updateCurrentView={param.updateCurrentView}
+                />
+              </div>
+            );
+          } else {
+            return (
+              <HierarchyViewSetting {...this.props} filteredColumns={filteredColumns} coverColumns={coverColumns} />
+            );
+          }
+        case 'calendar':
+          return <CalendarSet {...param} />;
+        case 'gunter':
+          return <GunterSet {...param} />;
+        case 'resource':
+          return <ResourceSet {...param} />;
+        case 'sheet':
+          return (
+            <div className="dataSetting">
+              <div className="commonConfigItem Font13 bold">{_l('行高')}</div>
+              <div className="commonConfigItem mTop12 mBottom32">
+                <CheckBlock
+                  data={[
+                    { text: _l('紧凑'), value: 0 }, // 34
+                    { text: _l('中等'), value: 1 }, // 50
+                    { text: _l('高'), value: 2 }, // 70
+                    { text: _l('超高'), value: 3 }, // 100
+                  ]}
+                  value={rowHeight}
+                  onChange={value => {
+                    this.setState(
+                      {
+                        rowHeight: value,
+                      },
+                      () => {
+                        this.handleSave({ editAttrs: ['rowHeight'] });
+                      },
+                    );
+                  }}
+                />
+              </div>
+              <div className="commonConfigItem Font13 bold">{_l('显示设置')}</div>
+              {setList.map(o => {
+                let show = this.state[o.key] === '1';
+                return (
+                  <div className="">
+                    <SwitchStyle>
+                      <Icon
+                        icon={show ? 'ic_toggle_on' : 'ic_toggle_off'}
+                        className="Font28 Hand"
+                        onClick={() => {
+                          this.onChangeSet(o.key, show ? '0' : '1');
+                        }}
+                      />
+                      <div className="switchText InlineBlock Normal mLeft12 mTop8">{o.txt}</div>
+                      {o.tips && (
+                        <Tooltip text={<span>{o.tips}</span>} popupPlacement="top">
+                          <i className="icon-help Font16 Gray_9e mLeft3 TxtMiddle" />
+                        </Tooltip>
+                      )}
+                    </SwitchStyle>
+                  </div>
+                );
+              })}
+              <div className="commonConfigItem Font13 bold mTop32">{_l('表格交互方式')}</div>
+              <div className="mTop12">
+                <Radio
+                  className=""
+                  text={_l('经典模式')}
+                  checked={sheettype === '0'}
+                  onClick={value => {
+                    this.onChangeSet('sheettype', '0');
+                  }}
+                />
+                <div className="txt Gray_75 mTop8" style={{ marginLeft: '28px' }}>
+                  {_l('点整行打开记录')}
+                </div>
+              </div>
+              <div className="mTop20">
+                <Radio
+                  className=""
+                  text={_l('电子表格模式')}
+                  checked={sheettype === '1'}
+                  onClick={value => {
+                    this.onChangeSet('sheettype', '1');
+                  }}
+                />
+                <div className="txt Gray_75 mTop8" style={{ marginLeft: '28px' }}>
+                  {_l('点单元格选中字段，按空格键打开记录')}
+                </div>
+              </div>
+              <div className="commonConfigItem Font13 bold mTop32">{_l('更多设置')}</div>
+              <SwitchStyle className="mTop12">
+                <div className="flexRow alignItemsCenter">
+                  <Icon
+                    icon={fastedit === '1' ? 'ic_toggle_on' : 'ic_toggle_off'}
+                    className="Font28 Hand"
+                    onClick={() => {
+                      this.onChangeSet('fastedit', fastedit === '1' ? '0' : '1');
+                    }}
+                  />
 
-    return (
-      <div className="viewConfigWrap">
-        {/* 日历视图基本配置 */}
-        {isCalendar && (
-          <CalendarSet
-            {...this.props}
-            updateCurrentView={view => {
-              this.props.updateCurrentView(
-                Object.assign(view, {
-                  filters: formatValuesOfOriginConditions(view.filters),
-                }),
-              );
-            }}
-          />
-        )}
-        {/* gunter视图基本配置 */}
-        {viewTypeText === 'gunter' && (
-          <GunterSet
-            {...this.props}
-            updateCurrentView={view => {
-              this.props.updateCurrentView(
-                Object.assign(view, {
-                  filters: formatValuesOfOriginConditions(view.filters),
-                }),
-              );
-            }}
-          />
-        )}
-        {/* 层级，看板，画廊 ，非多表关联层级视图 */}
-        {_.includes(['board', 'structure', 'gallery', 'detail'], viewTypeText) && !isRelateMultiSheetHierarchyView && (
-          <div className="cardAppearanceWrap">
-            <CardAppearance
+                  <div className="switchText InlineBlock Normal mLeft12">{_l('允许行内编辑')}</div>
+                </div>
+                <div className="flexRow">
+                  <div className="w28" />
+                  <div className="switchText InlineBlock Normal mLeft12 Gray_75 mTop4">
+                    {_l('无需打开记录详情，在表格行内直接编辑字段')}
+                  </div>
+                </div>
+              </SwitchStyle>
+              <SwitchStyle className="mTop12">
+                <div className="flexRow alignItemsCenter">
+                  <Icon
+                    icon={enablerules === '1' || !enablerules ? 'ic_toggle_on' : 'ic_toggle_off'}
+                    className="Font28 Hand"
+                    onClick={() => {
+                      this.onChangeSet('enablerules', enablerules === '1' || !enablerules ? '0' : '1');
+                    }}
+                  />
+                  <div className="switchText InlineBlock Normal mLeft12">{_l('启用业务规则')}</div>
+                </div>
+                <div className="flexRow">
+                  <div className="w28"></div>
+                  <div className="switchText InlineBlock Normal mLeft12 Gray_75 mTop4">
+                    {_l('在表格中生效业务规则，但会影响表格性能')}
+                  </div>
+                </div>
+              </SwitchStyle>
+              <div className="commonConfigItem Font13 bold mTop32">{_l('自动刷新')}</div>
+              <div className="Gray_9e mTop8 flex">{_l('每隔一段时间后自动刷新当前视图')}</div>
+              <div className="commonConfigItem mTop12 mBottom32">
+                <Dropdown
+                  className="w100"
+                  border
+                  value={refreshtime}
+                  data={[
+                    {
+                      text: _l('关闭'),
+                      value: '0',
+                    },
+                    // {
+                    //   text: _l('10秒'),
+                    //   value: '10',
+                    // },
+                    {
+                      text: _l('30秒'),
+                      value: '30',
+                    },
+                    {
+                      text: _l('1分钟'),
+                      value: '60',
+                    },
+                    {
+                      text: _l('2分钟'),
+                      value: '120',
+                    },
+                    {
+                      text: _l('3分钟'),
+                      value: '180',
+                    },
+                    {
+                      text: _l('4分钟'),
+                      value: '240',
+                    },
+                    {
+                      text: _l('5分钟'),
+                      value: '300',
+                    },
+                  ]}
+                  onChange={value => {
+                    this.setState(
+                      {
+                        refreshtime: value,
+                      },
+                      () => {
+                        this.handleSave({
+                          editAttrs: ['advancedSetting'],
+                        });
+                      },
+                    );
+                  }}
+                />
+              </div>
+            </div>
+          );
+        case 'map':
+          return (
+            <MapSetting
               {..._.pick(this.props, [
                 'appId',
                 'view',
@@ -357,6 +558,7 @@ class ViewConfigCon extends Component {
                 'updateCurrentView',
                 'currentSheetInfo',
                 'searchRows',
+                'updateViewShowcount',
               ])}
               worksheetControls={filteredColumns}
               coverColumns={coverColumns}
@@ -368,184 +570,10 @@ class ViewConfigCon extends Component {
                 );
               }}
             />
-          </div>
-        )}
-        {/* 多表关联层级视图 */}
-        {isRelateMultiSheetHierarchyView && (
-          <HierarchyViewSetting {...this.props} filteredColumns={filteredColumns} coverColumns={coverColumns} />
-        )}
-        {/* 表格的基本设置 */}
-        {viewTypeText === 'sheet' && (
-          <div className="dataSetting">
-            <div className="commonConfigItem Font13 bold">{_l('行高')}</div>
-            <div className="commonConfigItem mTop12 mBottom32">
-              <CheckBlock
-                data={[
-                  { text: _l('紧凑'), value: 0 }, // 34
-                  { text: _l('中等'), value: 1 }, // 50
-                  { text: _l('高'), value: 2 }, // 70
-                  { text: _l('超高'), value: 3 }, // 100
-                ]}
-                value={rowHeight}
-                onChange={value => {
-                  this.setState(
-                    {
-                      rowHeight: value,
-                    },
-                    () => {
-                      this.handleSave({ editAttrs: ['rowHeight'] });
-                    },
-                  );
-                }}
-              />
-            </div>
-            <div className="commonConfigItem Font13 bold">{_l('显示设置')}</div>
-            {setList.map(o => {
-              let show = this.state[o.key] === '1';
-              return (
-                <div className="">
-                  <SwitchStyle>
-                    <Icon
-                      icon={show ? 'ic_toggle_on' : 'ic_toggle_off'}
-                      className="Font30 Hand"
-                      onClick={() => {
-                        this.onChangeSet(o.key, show ? '0' : '1');
-                      }}
-                    />
-                    <div className="switchText InlineBlock Normal mLeft12 mTop8">{o.txt}</div>
-                    {o.tips && (
-                      <Tooltip text={<span>{o.tips}</span>} popupPlacement="top">
-                        <i className="icon-help Font16 Gray_9e mLeft3 TxtMiddle" />
-                      </Tooltip>
-                    )}
-                  </SwitchStyle>
-                </div>
-              );
-            })}
-            <div className="commonConfigItem Font13 bold mTop32">{_l('表格交互方式')}</div>
-            <div className="mTop12">
-              <Radio
-                className=""
-                text={_l('经典模式')}
-                checked={sheettype === '0'}
-                onClick={value => {
-                  this.onChangeSet('sheettype', '0');
-                }}
-              />
-              <div className="txt Gray_75 mTop8" style={{ marginLeft: '28px' }}>
-                {_l('点整行打开记录')}
-              </div>
-            </div>
-            <div className="mTop20">
-              <Radio
-                className=""
-                text={_l('电子表格模式')}
-                checked={sheettype === '1'}
-                onClick={value => {
-                  this.onChangeSet('sheettype', '1');
-                }}
-              />
-              <div className="txt Gray_75 mTop8" style={{ marginLeft: '28px' }}>
-                {_l('点单元格选中字段，按空格键打开记录')}
-              </div>
-            </div>
-            <div className="commonConfigItem Font13 bold mTop32">{_l('更多设置')}</div>
-            <SwitchStyle className="mTop12">
-              <div className="flexRow alignItemsCenter">
-                <Icon
-                  icon={fastedit === '1' ? 'ic_toggle_on' : 'ic_toggle_off'}
-                  className="Font30 Hand"
-                  onClick={() => {
-                    this.onChangeSet('fastedit', fastedit === '1' ? '0' : '1');
-                  }}
-                />
-
-                <div className="switchText InlineBlock Normal mLeft12">{_l('允许行内编辑')}</div>
-              </div>
-              <div className="flexRow">
-                <div className="w30" />
-                <div className="switchText InlineBlock Normal mLeft12 Gray_75 mTop4">
-                  {_l('无需打开记录详情，在表格行内直接编辑字段')}
-                </div>
-              </div>
-            </SwitchStyle>
-            <SwitchStyle className="mTop12">
-              <div className="flexRow alignItemsCenter">
-                <Icon
-                  icon={enablerules === '1' || !enablerules ? 'ic_toggle_on' : 'ic_toggle_off'}
-                  className="Font30 Hand"
-                  onClick={() => {
-                    this.onChangeSet('enablerules', enablerules === '1' || !enablerules ? '0' : '1');
-                  }}
-                />
-                <div className="switchText InlineBlock Normal mLeft12">{_l('启用业务规则')}</div>
-              </div>
-              <div className="flexRow">
-                <div className="w30"></div>
-                <div className="switchText InlineBlock Normal mLeft12 Gray_75 mTop4">
-                  {_l('在表格中生效业务规则，但会影响表格性能')}
-                </div>
-              </div>
-            </SwitchStyle>
-            <div className="commonConfigItem Font13 bold mTop32">{_l('自动刷新')}</div>
-            <div className="Gray_9e mTop8 flex">{_l('每隔一段时间后自动刷新当前视图')}</div>
-            <div className="commonConfigItem mTop12 mBottom32">
-              <Dropdown
-                className="w100"
-                border
-                value={refreshtime}
-                data={[
-                  {
-                    text: _l('关闭'),
-                    value: '0',
-                  },
-                  // {
-                  //   text: _l('10秒'),
-                  //   value: '10',
-                  // },
-                  {
-                    text: _l('30秒'),
-                    value: '30',
-                  },
-                  {
-                    text: _l('1分钟'),
-                    value: '60',
-                  },
-                  {
-                    text: _l('2分钟'),
-                    value: '120',
-                  },
-                  {
-                    text: _l('3分钟'),
-                    value: '180',
-                  },
-                  {
-                    text: _l('4分钟'),
-                    value: '240',
-                  },
-                  {
-                    text: _l('5分钟'),
-                    value: '300',
-                  },
-                ]}
-                onChange={value => {
-                  this.setState(
-                    {
-                      refreshtime: value,
-                    },
-                    () => {
-                      this.handleSave({
-                        editAttrs: ['advancedSetting'],
-                      });
-                    },
-                  );
-                }}
-              />
-            </div>
-          </div>
-        )}
-      </div>
-    );
+          );
+      }
+    };
+    return <div className="viewConfigWrap">{renderCom()}</div>;
   }
 
   renderSort = () => {
@@ -627,9 +655,14 @@ class ViewConfigCon extends Component {
       worksheetControls,
     } = this.props;
 
-    const filteredColumns = filterHidedControls(columns, view.controls, false).filter(
-      c => !!c.controlName && !_.includes([22, 10010, 43, 45, 49, 51], c.type),
-    );
+    const filteredColumns = filterHidedControls(columns, view.controls, false)
+      .filter(c => !!c.controlName && !_.includes([22, 10010, 43, 45, 49, 51], c.type))
+      .sort((a, b) => {
+        if (a.row === b.row) {
+          return a.col - b.col;
+        }
+        return a.row - b.row;
+      });
 
     const isShowWorkflowSys = isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit);
 
@@ -709,6 +742,7 @@ class ViewConfigCon extends Component {
                       (customShowControls || []).length !== 0
                         ? customShowControls
                         : filteredColumns
+
                             .filter(l => l.controlId.length > 20)
                             .slice(0, 50)
                             .map(c => c.controlId),

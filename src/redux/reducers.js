@@ -10,11 +10,11 @@ import workflow from 'pages/workflow/redux/reducers';
 import appPkg from 'pages/PageHeader/redux/reducers';
 import mobile from 'pages/Mobile/redux/reducers';
 import publicWorksheet from 'pages/publicWorksheetConfig/redux/reducers';
-import formSet from 'pages/FormSet/redux/reducer/reducers';
+import formSet from 'src/pages/FormSet/components/columnRules/redux/reducer/columnRules';
 import customPage from 'src/pages/customPage/redux/reducers';
 import statistics from 'statistics/redux/reducers';
 import portal from 'src/pages/Role/PortalCon/redux/reduces';
-import appRole from 'src/pages/Role/AppRoleCon/redux/reduces'
+import appRole from 'src/pages/Role/AppRoleCon/redux/reduces';
 import orgManagePage from 'src/pages/Admin/redux';
 
 export function makeRootReducer() {

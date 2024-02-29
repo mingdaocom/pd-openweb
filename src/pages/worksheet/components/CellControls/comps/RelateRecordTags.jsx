@@ -1,4 +1,4 @@
-import React, { useRef, useState, Fragment, useEffect, forwardRef, useImperativeHandle } from 'react';
+import React, { useRef, useState, Fragment, useEffect, forwardRef, useImperativeHandle, useContext } from 'react';
 import styled from 'styled-components';
 import { useClickAway } from 'react-use';
 import { Tooltip } from 'antd';
@@ -9,6 +9,7 @@ import { searchRecordInDialog } from 'src/pages/worksheet/components/SearchRelat
 import addRecord from 'worksheet/common/newRecord/addRecord';
 import { openRecordInfo } from 'worksheet/common/recordInfo';
 import { selectRecord } from 'src/components/recordCardListDialog';
+import ChildTableContext from 'worksheet/components/ChildTable/ChildTableContext';
 import { addBehaviorLog } from 'src/util';
 
 function getCellHeight(texts = [], width) {
@@ -156,6 +157,7 @@ export default forwardRef(function RelateRecordTags(props, ref) {
     onCloseDialog = () => {},
     onOpenDialog = () => {},
   } = props;
+  const { rows } = useContext(ChildTableContext) || {};
   const [changed, setChanged] = useState(false);
   const [count, setCount] = useState(props.count || 0);
   const [records, setRecords] = useState(props.records || []);
@@ -237,6 +239,10 @@ export default forwardRef(function RelateRecordTags(props, ref) {
       return;
     }
     openDialogCallback();
+    const needIgnoreRowIds =
+      control.unique || control.uniqueInRecord
+        ? (rows || []).map(r => _.get(safeParse(r[control.controlId], 'array'), '0.sid')).filter(_.identity)
+        : [];
     selectRecord({
       // canSelectAll: true,
       multiple,
@@ -247,10 +253,10 @@ export default forwardRef(function RelateRecordTags(props, ref) {
       controlId: control.controlId,
       recordId,
       relateSheetId: control.dataSource,
-      filterRowIds: records.map(r => r.rowid),
+      filterRowIds: records.map(r => r.rowid).concat(needIgnoreRowIds),
       selectedCount: count,
       maxCount: 50,
-      formData: rowFormData(),
+      formData: _.isFunction(rowFormData) ? rowFormData() : rowFormData,
       defaultRelatedSheet: getDefaultRelateSheetValue({ worksheetId, control, recordId, rowFormData }),
       onOk: async selectedRecords => {
         setChanged(true);

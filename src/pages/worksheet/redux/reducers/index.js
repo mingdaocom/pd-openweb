@@ -10,6 +10,8 @@ import * as gunterView from './gunterview';
 import * as excelCreateAppAndSheet from './excelCreateAppAndSheet';
 import * as detailView from './detailView';
 import * as customWidgetView from './customWidgetView';
+import mapView from './mapView';
+import * as resourceView from './resourceview';
 
 function base(state = {}, action) {
   switch (action.type) {
@@ -72,11 +74,21 @@ function activeViewStatus(state = 1, action) {
   }
 }
 
+function fieldShowCount(state = 0, action) {
+  switch (action.type) {
+    case 'VIEW_UPDATE_SHOW_COUNT':
+      return action.showcount || state;
+    default:
+      return state;
+  }
+}
+
 export default combineReducers({
   base,
   isCharge,
   appPkgData,
   activeViewStatus,
+  fieldShowCount,
   ...worksheet,
   boardView,
   hierarchyView: combineReducers(hierarchyView),
@@ -87,4 +99,6 @@ export default combineReducers({
   excelCreateAppAndSheet: combineReducers(excelCreateAppAndSheet),
   detailView: combineReducers(detailView),
   customWidgetView: combineReducers(customWidgetView),
+  mapView,
+  resourceview: combineReducers(resourceView),
 });

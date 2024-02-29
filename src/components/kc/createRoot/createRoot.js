@@ -6,13 +6,13 @@ import '../layerMain.css';
 import './createRoot.css';
 import htmlTpl from './tpl/createRoot.html';
 import addMemberTpl from './tpl/addMember.html';
-import { index as mdDialog } from 'src/components/mdDialog/dialog';
-import { expireDialogAsync, existAccountHint } from 'src/components/common/function';
+import { expireDialogAsync, existAccountHint } from 'src/util';
 import quickSelectUser from 'ming-ui/functions/quickSelectUser';
 import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import kcAjax from 'src/api/kc';
 import _ from 'lodash';
 import UserHead from 'src/components/userHead';
+import Dialog from 'ming-ui/components/Dialog';
 
 var PERMISSION_TYPE = {
   NONE: -1,
@@ -110,134 +110,137 @@ $.extend(RootSettings.prototype, {
           }
         }
       }
-      _this.settings.dialog = mdDialog({
-        dialogBoxID: 'createFolderBox',
-        className: 'kcDialogBox',
+      Dialog.confirm({
+        dialogClasses: 'createFolderBox kcDialogBox',
         width: 520,
-        container: {
-          header: isEdit ? _l('编辑文件夹') : _l('创建文件夹'),
-          content: doT.template(htmlTpl)($.extend({}, root, defaultProject ? { project: defaultProject } : null)),
-          yesText: isEdit ? '' : _l('创建'),
-          noText: isEdit ? '' : _l('取消'),
-          yesFn: function () {
-            var $createFolderBox = $('#createFolderBox'),
-              $txtFolderName = $createFolderBox.find('.txtFolderName'),
-              name = $txtFolderName.val().trim();
-            if (!isEdit) {
-              if (!_this.verifyName(name, root.name)) {
-                return false;
-              }
-
-              var members = [],
-                inviteMembers = [];
-              $createFolderBox
-                .find('.folderMemberBox .memberItem')
-                .toArray()
-                .forEach(function (el) {
-                  var $el = $(el);
-                  var accountId = $el.data('accountId');
-                  if (accountId) {
-                    members.push({
-                      accountId: accountId,
-                      permission: $el.find('.permission').data('permission') || PERMISSION_TYPE.NORMAL,
-                      status: MEMBER_STATUS.NORMAL,
-                      inviterAccountId: md.global.Account.accountId,
-                    });
-                  } else {
-                    inviteMembers.push({
-                      account: $el.data('account'),
-                      fullname: $.trim($el.find('.memberName .added').html()),
-                      permission: $el.find('.permission').data('permission') || PERMISSION_TYPE.NORMAL,
-                    });
-                  }
-                });
-
-              var star = $createFolderBox.find('.addFolderStar').hasClass('icon-task-star'),
-                projectId = $createFolderBox.find('.dropBox .seleted').data('projectId');
-              kcAjax
-                .addRoot({
-                  name: name,
-                  projectId: projectId,
-                  members: members,
-                  star: star,
-                  invitedMembers: inviteMembers,
-                  appId: _this.settings.appId,
-                })
-                .then(function (res) {
-                  if (res) {
-                    if (projectId) {
-                      safeLocalStorageSetItem('createRoot.projectId', projectId);
-                    }
-                    rootSettingsDf.resolve(res);
-                  } else {
-                    rootSettingsDf.reject();
-                  }
-                })
-                .fail(rootSettingsDf.reject);
-            }
-          },
-        },
-        readyFn: function () {
-          var $createFolderBox = $('#createFolderBox'),
-            $folderMemberBox = $createFolderBox.find('.folderMembers .folderMemberBox'),
-            $updatePermission = $('#updatePermission'),
-            myPermis = root.permission;
-          $createFolderBox.find('.folderName .txtFolderName').val(root.name);
-          _this.nanoScroller();
-          _this.bindInitEvent(root);
-
-          //创建root时 不允许托付文件夹
+        title: isEdit ? _l('编辑文件夹') : _l('创建文件夹'),
+        children: (
+          <div
+            dangerouslySetInnerHTML={{
+              __html: doT.template(htmlTpl)($.extend({}, root, defaultProject ? { project: defaultProject } : null)),
+            }}
+          ></div>
+        ),
+        okText: _l('创建'),
+        cancelText: _l('取消'),
+        noFooter: isEdit,
+        onOk: () => {
+          var $createFolderBox = $('.createFolderBox'),
+            $txtFolderName = $createFolderBox.find('.txtFolderName'),
+            name = $txtFolderName.val().trim();
           if (!isEdit) {
-            $folderMemberBox.find('.memberItem .rootTrust').remove();
-          }
-          if (_this.settings.projectId) {
+            if (!_this.verifyName(name, root.name)) {
+              return false;
+            }
+
+            var members = [],
+              inviteMembers = [];
             $createFolderBox
-              .find('.attribute .dropBox')
-              .css('border', 0)
-              .end()
-              .find('.attribute .dropBox span.icon')
-              .remove()
-              .end()
-              .find('.attribute .dropBox .seleted')
-              .css({
-                'border-right': 0,
-                width: '316px',
+              .find('.folderMemberBox .memberItem')
+              .toArray()
+              .forEach(function (el) {
+                var $el = $(el);
+                var accountId = $el.data('accountId');
+                if (accountId) {
+                  members.push({
+                    accountId: accountId,
+                    permission: $el.find('.permission').data('permission') || PERMISSION_TYPE.NORMAL,
+                    status: MEMBER_STATUS.NORMAL,
+                    inviterAccountId: md.global.Account.accountId,
+                  });
+                } else {
+                  inviteMembers.push({
+                    account: $el.data('account'),
+                    fullname: $.trim($el.find('.memberName .added').html()),
+                    permission: $el.find('.permission').data('permission') || PERMISSION_TYPE.NORMAL,
+                  });
+                }
               });
+
+            var star = $createFolderBox.find('.addFolderStar').hasClass('icon-task-star'),
+              projectId = $createFolderBox.find('.dropBox .seleted').data('projectId');
+            kcAjax
+              .addRoot({
+                name: name,
+                projectId: projectId,
+                members: members,
+                star: star,
+                invitedMembers: inviteMembers,
+                appId: _this.settings.appId,
+              })
+              .then(function (res) {
+                if (res) {
+                  if (projectId) {
+                    safeLocalStorageSetItem('createRoot.projectId', projectId);
+                  }
+                  rootSettingsDf.resolve(res);
+                } else {
+                  rootSettingsDf.reject();
+                }
+              })
+              .fail(rootSettingsDf.reject);
           }
-          if (isEdit) {
-            $folderMemberBox.css('margin-bottom', '46px').find('.permissionDesc').css('margin-top', '14px');
-            $createFolderBox
-              .find('.attribute .dropBox')
-              .css('border', 0)
-              .end()
-              .find('.attribute .dropBox span.icon')
-              .remove()
-              .end()
-              .find('.attribute .dropBox .seleted')
-              .css({
-                'border-right': 0,
-                width: '316px',
-              });
-          }
-          $folderMemberBox.find('.permissionDesc').show();
-          $createFolderBox
-            .find('.txtFolderName')
-            .on('keydown', function (evt) {
-              if (evt.which === 13) {
-                $createFolderBox.find('.footer .yesText').click();
-              }
-            })
-            .select()
-            .focus();
-          if (myPermis === PERMISSION_TYPE.READONLY) {
-            $folderMemberBox.find('.addUser').hide();
-          }
-          $('body').on('click', function () {
-            $updatePermission.fadeOut();
-            $('#checkInviter').fadeOut();
-            $('#folderAttributeList').fadeOut();
-          });
         },
+      });
+
+      var $createFolderBox = $('.createFolderBox'),
+        $folderMemberBox = $createFolderBox.find('.folderMembers .folderMemberBox'),
+        $updatePermission = $('#updatePermission'),
+        myPermis = root.permission;
+      $createFolderBox.find('.folderName .txtFolderName').val(root.name);
+      _this.nanoScroller();
+      _this.bindInitEvent(root);
+
+      //创建root时 不允许托付文件夹
+      if (!isEdit) {
+        $folderMemberBox.find('.memberItem .rootTrust').remove();
+      }
+      if (_this.settings.projectId) {
+        $createFolderBox
+          .find('.attribute .dropBox')
+          .css('border', 0)
+          .end()
+          .find('.attribute .dropBox span.icon')
+          .remove()
+          .end()
+          .find('.attribute .dropBox .seleted')
+          .css({
+            'border-right': 0,
+            width: '316px',
+          });
+      }
+      if (isEdit) {
+        $folderMemberBox.css('margin-bottom', '46px').find('.permissionDesc').css('margin-top', '14px');
+        $createFolderBox
+          .find('.attribute .dropBox')
+          .css('border', 0)
+          .end()
+          .find('.attribute .dropBox span.icon')
+          .remove()
+          .end()
+          .find('.attribute .dropBox .seleted')
+          .css({
+            'border-right': 0,
+            width: '316px',
+          });
+      }
+      $folderMemberBox.find('.permissionDesc').show();
+      $createFolderBox
+        .find('.txtFolderName')
+        .on('keydown', function (evt) {
+          if (evt.which === 13) {
+            $createFolderBox.find('.footer .yesText').click();
+          }
+        })
+        .select()
+        .focus();
+      if (myPermis === PERMISSION_TYPE.READONLY) {
+        $folderMemberBox.find('.addUser').hide();
+      }
+      $('body').on('click', function () {
+        $updatePermission.fadeOut();
+        $('#checkInviter').fadeOut();
+        $('#folderAttributeList').fadeOut();
       });
     });
   },
@@ -245,7 +248,7 @@ $.extend(RootSettings.prototype, {
     var _this = this,
       isEdit = _this.settings.isEdit,
       rootId = _this.settings.id;
-    var $createFolderBox = $('#createFolderBox'),
+    var $createFolderBox = $('.createFolderBox'),
       $folderMemberBox = $createFolderBox.find('.folderMembers .folderMemberBox'),
       $updatePermission = $('#updatePermission'),
       $checkInviter = $('#checkInviter'),
@@ -280,11 +283,6 @@ $.extend(RootSettings.prototype, {
               }),
             callback: function (users) {
               _this.addRootMemers(users, root);
-            },
-          },
-          ChooseInviteSettings: {
-            callback: function (users, callbackInviteResult) {
-              _this.addRootMemers(users, root, true, callbackInviteResult);
             },
           },
         });
@@ -436,7 +434,7 @@ $.extend(RootSettings.prototype, {
                         permission: changePermision,
                       }),
                     );
-                    _this.settings.dialog.closeDialog();
+                    $('.createFolderBox').parent().remove();
                   }
                 })
                 .fail(function () {
@@ -491,39 +489,36 @@ $.extend(RootSettings.prototype, {
             alert('操作失败，请稍后重试!', 3);
           });
       } else {
-        mdDialog({
+        Dialog.confirm({
           zIndex: 1009,
-          container: {
-            header: _l('操作提示'),
-            content: '<div class="Font14">拒绝后将移除该用户</div>',
-            yesFn: function () {
-              kcAjax
-                .removeRootMember({ id: rootId, memberId: memberId })
-                .then(function (data) {
-                  if (data && data.result) {
-                    $checkMemberLi.slideUp(function () {
-                      $(this).remove();
-                      _this.nanoScroller();
-                    });
-                    var newMembers = root.members.filter(function (m) {
-                      return m.accountId !== memberId.toLowerCase();
-                    });
-                    _this.settings.deferred.notify(
-                      $.extend({}, root, {
-                        members: newMembers,
-                      }),
-                    );
-                  } else {
-                    return $.Deferred().reject(data.message);
-                  }
-                })
-                .fail(function (err) {
-                  alert(err || _l('操作失败, 请稍后重试'), 3);
+          title: _l('操作提示'),
+          children: <div class="Font14">{_l('拒绝后将移除该用户')}</div>,
+          onOk: () => {
+            kcAjax
+            .removeRootMember({ id: rootId, memberId: memberId })
+            .then(function (data) {
+              if (data && data.result) {
+                $checkMemberLi.slideUp(function () {
+                  $(this).remove();
+                  _this.nanoScroller();
                 });
-            },
-            noFn: function () {},
+                var newMembers = root.members.filter(function (m) {
+                  return m.accountId !== memberId.toLowerCase();
+                });
+                _this.settings.deferred.notify(
+                  $.extend({}, root, {
+                    members: newMembers,
+                  }),
+                );
+              } else {
+                return $.Deferred().reject(data.message);
+              }
+            })
+            .fail(function (err) {
+              alert(err || _l('操作失败, 请稍后重试'), 3);
+            });
           },
-        });
+        })
       }
     });
 
@@ -655,22 +650,19 @@ $.extend(RootSettings.prototype, {
             });
 
             if (membersLi.length) {
-              mdDialog({
-                container: {
-                  header: '归属变更',
-                  content: '<div class="Font14">您变更了文件夹的归属,要清空成员列表吗?</div>',
-                  yesText: '清空成员',
-                  yesFn: function () {
-                    membersLi.slideUp(function () {
-                      $(this).remove();
-                      _this.nanoScroller();
-                    });
-                  },
-                  noText: '保留',
-                  noFn: function () {},
+              Dialog.confirm({
+                title: _l('归属变更'),
+                children: <div class="Font14">{_l('您变更了文件夹的归属,要清空成员列表吗?')}</div>,
+                okText: _l('清空成员'),
+                onOk: () => {
+                  membersLi.slideUp(function () {
+                    $(this).remove();
+                    _this.nanoScroller();
+                  });
                 },
+                cancelText: _l('保留'),
                 zIndex: 1003,
-              });
+              })
             }
           })
           .fail(function () {
@@ -722,46 +714,43 @@ $.extend(RootSettings.prototype, {
           conFirmStr = isExit ? '是否确定退出该共享文件夹?' : _l('是否确定移除该成员');
 
         if (isEdit) {
-          mdDialog({
-            container: {
-              header: _l('操作提示'),
-              content: '<div class="Font14">' + conFirmStr + '</div>',
-              yesFn: function () {
-                kcAjax
-                  .removeRootMember({ id: rootId, memberID: removeMemberId })
-                  .then(function (data) {
-                    if (data && data.result) {
-                      // 成员自己退出root
-                      var newMembers = root.members.filter(function (m) {
-                        return m.accountId !== removeMemberId.toLowerCase();
-                      });
-                      if (isExit) {
-                        _this.settings.deferred.resolve(null);
-                        _this.settings.dialog.closeDialog();
-                      } else {
-                        $this.closest('.memberItem').slideUp(function () {
-                          _this.nanoScroller();
-                          $(this).remove();
-                        });
-
-                        _this.settings.deferred.notify(
-                          $.extend({}, root, {
-                            members: newMembers,
-                          }),
-                        );
-                      }
-                    } else {
-                      return $.Deferred().reject(data.message);
-                    }
-                  })
-                  .fail(function (err) {
-                    alert(err || _l('操作失败, 请稍后重试'), 3);
-                  });
-              },
-              noFn: function () {},
-            },
+          Dialog.confirm({
+            title: _l('操作提示'),
             zIndex: 1003,
-          });
+            children: <div class="Font14">{conFirmStr}</div>,
+            onOk: () => {
+              kcAjax
+              .removeRootMember({ id: rootId, memberID: removeMemberId })
+              .then(function (data) {
+                if (data && data.result) {
+                  // 成员自己退出root
+                  var newMembers = root.members.filter(function (m) {
+                    return m.accountId !== removeMemberId.toLowerCase();
+                  });
+                  if (isExit) {
+                    _this.settings.deferred.resolve(null);
+                    $('.createFolderBox').parent().remove();
+                  } else {
+                    $this.closest('.memberItem').slideUp(function () {
+                      _this.nanoScroller();
+                      $(this).remove();
+                    });
+
+                    _this.settings.deferred.notify(
+                      $.extend({}, root, {
+                        members: newMembers,
+                      }),
+                    );
+                  }
+                } else {
+                  return $.Deferred().reject(data.message);
+                }
+              })
+              .fail(function (err) {
+                alert(err || _l('操作失败, 请稍后重试'), 3);
+              });
+            },
+          })
         } else {
           $this.closest('.memberItem').slideUp(function () {
             _this.nanoScroller();
@@ -1013,7 +1002,7 @@ $.extend(RootSettings.prototype, {
     }
   },
   verifyName: function (name, originalName) {
-    var $txtFolderName = $('#createFolderBox .folderName .txtFolderName');
+    var $txtFolderName = $('.createFolderBox .folderName .txtFolderName');
     //名称为null时
     if (!name) {
       var num = 0;

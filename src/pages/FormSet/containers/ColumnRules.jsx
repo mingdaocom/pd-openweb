@@ -1,14 +1,14 @@
 import React from 'react';
 import ColumnRulesCon from '../components/columnRules/ColumnRulesCon';
-import * as columnRules from '../redux/actions/columnRules';
+import * as columnRules from '../components/columnRules/redux/actions/columnRules';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { LoadDiv } from 'ming-ui';
 
 class ColumnRules extends React.Component {
   componentDidMount() {
-    const { loadColumnRules, formSet } = this.props;
-    loadColumnRules({ worksheetId: formSet.worksheetId });
+    const { loadColumnRules } = this.props;
+    loadColumnRules(this.props);
   }
 
   render() {
@@ -19,7 +19,7 @@ class ColumnRules extends React.Component {
           <LoadDiv />
         ) : (
           <div className="displayRulesCon">
-            <ColumnRulesCon />
+            <ColumnRulesCon {...this.props} />
           </div>
         )}
       </React.Fragment>
@@ -28,7 +28,6 @@ class ColumnRules extends React.Component {
 }
 const mapStateToProps = state => ({
   formSet: state.formSet,
-  dispalyRulesNum: state.formSet.dispalyRulesNum,
 });
 const mapDispatchToProps = dispatch => bindActionCreators(columnRules, dispatch);
 

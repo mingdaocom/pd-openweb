@@ -259,6 +259,10 @@ function Edit(params) {
     });
     let dd = worksheetControls.find(item => item.controlId === activeFastFilterId) || {};
     let controlNew = controlsFilter.find(o => o.controlId === activeFastFilterId);
+    if ([10].includes(controlNew.type) && controlNew.filterType === 0) {
+      //单选转成多选的字段 是、是其中一个=包含其中一个
+      controlNew.filterType = 2;
+    }
     if (!controlNew) {
       controlNew = {
         ...getSetDefault(dd),
@@ -539,6 +543,14 @@ function Edit(params) {
             return renderDrop(o);
           }
         })}
+        {TEXT_FILTER_TYPE.keys.includes(dataType) &&
+          FILTER_CONDITION_TYPE.TEXT_ALLCONTAIN === control[TEXT_FILTER_TYPE.key] && (
+            <div className="mTop10 Gray_75">
+              {_l('- 使用同时包含时，搜索内容中的空格将用于分词')}
+              <br />
+              {_l('- 在大数据量时使用包含、同时包含条件可能非常缓慢，建议使用等于，并创建索引来优化性能。')}
+            </div>
+          )}
         {[NAV_SHOW_TYPE].map(o => {
           if (o.keys.includes(dataType)) {
             const { advancedSetting = {}, controlId } = control; //快速筛选

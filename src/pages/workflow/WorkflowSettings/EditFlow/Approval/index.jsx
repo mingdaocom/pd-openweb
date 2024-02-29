@@ -31,6 +31,15 @@ export default class Approval extends Component {
       return (
         <Fragment>
           <div className="pLeft8 pRight8">{_l('按部门层级逐级审批')}</div>
+          {item.multipleLevelAccounts && !!item.multipleLevelAccounts.length && (
+            <div className="pLeft8 pRight8 mTop4">
+              <MembersName
+                {...this.props}
+                accounts={item.accounts}
+                multipleLevelAccounts={item.multipleLevelAccounts}
+              />
+            </div>
+          )}
         </Fragment>
       );
     }
@@ -53,7 +62,7 @@ export default class Approval extends Component {
         )}
         <div className={cx('pLeft8 pRight8 pBottom5', { pTop5: !hasApprovalMethod })}>
           <span className="Gray_75">{_l('审批人：')}</span>
-          {item.accounts.length ? <MembersName accounts={item.accounts} /> : '[]'}
+          {item.accounts.length ? <MembersName {...this.props} accounts={item.accounts} /> : '[]'}
         </div>
       </Fragment>
     );

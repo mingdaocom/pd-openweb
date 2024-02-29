@@ -272,6 +272,7 @@ function DraftModal(props) {
               rules={rules}
               renderColumnHead={renderColumnHead}
               sheetSwitchPermit={sheetSwitchPermit}
+              projectId={projectId}
               renderRowHead={({ className, style, rowIndex }) => (
                 <RowHead
                   isDraft

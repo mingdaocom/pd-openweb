@@ -10,6 +10,16 @@ import { FROM } from '../../tools/config';
 import nzh from 'nzh';
 import { browserIsMobile } from 'src/util';
 import _ from 'lodash';
+import { checkCellIsEmpty } from 'worksheet/util';
+
+const getItem = value => {
+  return checkCellIsEmpty(value)
+    ? { name: undefined, sid: '' }
+    : {
+        name: (safeParse(value)[0] || {}).name || _l('未命名'),
+        sid: (safeParse(value)[0] || {}).sid || '',
+      };
+};
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -35,16 +45,16 @@ export default class Widgets extends Component {
 
   constructor(props) {
     super(props);
-
+    const items = getItem(props.value);
     this.state = {
       sourceData: [],
       visible: false,
       options: null,
       searchOptions: null,
-      value: props.value && props.value !== '[]' ? (safeParse(props.value)[0] || {}).name : undefined,
+      value: items.name,
       keywords: '',
       operatePath: [],
-      selectedId: props.value && props.value !== '[]' ? (safeParse(props.value)[0] || {}).sid : '',
+      selectedId: items.sid,
       selectItem: {},
       layersName: null,
       isError: false,
@@ -75,8 +85,7 @@ export default class Widgets extends Component {
 
   componentWillReceiveProps(nextProps) {
     const { selectedId } = this.state;
-    const item =
-      nextProps.value && nextProps.value !== '[]' ? safeParse(nextProps.value)[0] || { sid: '' } : { sid: '' };
+    const item = getItem(nextProps.value);
 
     if (item.sid !== selectedId) {
       this.setState({ value: item.name, selectedId: item.sid });
@@ -142,7 +151,8 @@ export default class Widgets extends Component {
           return {
             value: item.rowid,
             label: control
-              ? renderCellText(Object.assign({}, control, { value: item[control.controlId] }), { noMask: true })
+              ? renderCellText(Object.assign({}, control, { value: item[control.controlId] }), { noMask: true }) ||
+                _l('未命名')
               : _l('未命名'),
             path: item.childrenids || item.path,
             isLeaf: !item.childrenids,
@@ -196,7 +206,7 @@ export default class Widgets extends Component {
     }
 
     return control
-      ? renderCellText(Object.assign({}, control, { value: item[control.controlId] }), { noMask: true })
+      ? renderCellText(Object.assign({}, control, { value: item[control.controlId] }), { noMask: true }) || _l('未命名')
       : _l('未命名');
   }
 

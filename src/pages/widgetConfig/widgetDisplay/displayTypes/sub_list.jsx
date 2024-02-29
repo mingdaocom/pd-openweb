@@ -42,7 +42,7 @@ export default function SubList({ data }) {
                         _.find(relationControls, item => item.controlId === controlId) || {};
                       return (
                         <th key={controlId} className="overflow_ellipsis" style={{ width: `${widths[index]}px` }}>
-                          {required && <span>{_l('*')}</span>}
+                          {required && <span>*</span>}
                           {controlName || SYSTEM_FIELD_TO_TEXT[controlId]}
                         </th>
                       );

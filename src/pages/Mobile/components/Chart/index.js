@@ -20,7 +20,7 @@ const Content = styled.div`
   }
 `;
 
-function Chart({ data, mobileCount, isHorizontal, projectId, themeColor, pageConfig = {} }) {
+function Chart({ data, mobileCount, mobileFontSize, isHorizontal, projectId, themeColor, pageConfig = {} }) {
   if (data.status <= 0) {
     return <Abnormal status={data.status} />;
   }
@@ -36,7 +36,7 @@ function Chart({ data, mobileCount, isHorizontal, projectId, themeColor, pageCon
   const WithoutDataComponent = <WithoutData />;
   const { drillParticleSizeType } = data.country || {};
   const filter = data.filter || {};
-  const { filterRangeId, rangeType, rangeValue, dynamicFilter } = filter;
+  const { filterRangeId, rangeType, rangeValue, dynamicFilter, today = false, customRangeValue } = filter;
   const { filters, filtersGroup } = pageConfig;
   const viewOriginalSheet = (params) => {
     reportApi.getReportSingleCacheId({
@@ -46,6 +46,8 @@ function Chart({ data, mobileCount, isHorizontal, projectId, themeColor, pageCon
       rangeType,
       rangeValue,
       dynamicFilter,
+      today,
+      customRangeValue,
       filters: [filters, filtersGroup].filter(_ => _),
       particleSizeType: drillParticleSizeType,
       isPersonal: true,
@@ -65,7 +67,7 @@ function Chart({ data, mobileCount, isHorizontal, projectId, themeColor, pageCon
       }
     });
   }
-  const isPublicShare = location.href.includes('public/page') || window.shareAuthor || window.share;
+  const isPublicShare = window.shareAuthor || _.get(window, 'shareState.shareId');
   const isViewOriginalData = filter.viewId && [VIEW_DISPLAY_TYPE.sheet].includes(filter.viewType.toString()) && !isPublicShare;
 
   const ChartComponent = (
@@ -75,6 +77,7 @@ function Chart({ data, mobileCount, isHorizontal, projectId, themeColor, pageCon
       isViewOriginalData={isViewOriginalData}
       onOpenChartDialog={viewOriginalSheet}
       mobileCount={mobileCount}
+      mobileFontSize={mobileFontSize}
       isHorizontal={isHorizontal}
       projectId={projectId}
       themeColor={themeColor}
@@ -116,6 +119,7 @@ function ChartWrapper({
   data,
   loading,
   mobileCount,
+  mobileFontSize,
   pageComponents = [],
   projectId,
   themeColor,
@@ -133,7 +137,7 @@ function ChartWrapper({
   const nextAllow = index < pageComponents.length - 1;
   return (
     <Fragment>
-      <div className="mBottom10 flexRow valignWrapper">
+      <div className={cx('mBottom10 flexRow valignWrapper', { mRight20: isHorizontal })}>
         <div className="Font17 Gray ellipsis name flex">{data.name}</div>
         {isHorizontal && (
           <Fragment>
@@ -165,6 +169,7 @@ function ChartWrapper({
           <Chart
             data={data}
             mobileCount={mobileCount}
+            mobileFontSize={mobileFontSize}
             isHorizontal={isHorizontal}
             projectId={projectId}
             themeColor={themeColor}

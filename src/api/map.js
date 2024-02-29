@@ -16,8 +16,8 @@ export default {
   * @param {string} args.keyword 关键字
   * @param {string} args.categoryId 分类id
   * @param {string} args.industryId 行业id
-  * @param {} args.mapUser 发布者  1= 个人， 2= 组织，3= 明道官方
-  * @param {} args.scoreEnum 排序 1= 安装最多，2= 评分最高，3= 最新
+  * @param {} args.mapUser
+  * @param {} args.scoreEnum
   * @param {integer} args.pageIndex
   * @param {integer} args.size
   * @param {Object} options 配置参数
@@ -33,7 +33,7 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.keyword 关键字
   * @param {string} args.region 地区码
-  * @param {} args.mapUser 发布者  1= 个人， 2= 组织，3= 明道官方
+  * @param {} args.mapUser
   * @param {integer} args.pageIndex
   * @param {integer} args.size
   * @param {Object} options 配置参数
@@ -77,18 +77,6 @@ export default {
    getIndustry: function (args, options = {}) {
      
      return $.api('Map', 'GetIndustry', args, options);
-   },
-  /**
-  * 获取分类下应用信息
-  * @param {Object} args 请求参数
-  * @param {string} args.id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getCategoryDetail: function (args, options = {}) {
-     
-     return $.api('Map', 'GetCategoryDetail', args, options);
    },
   /**
   * 获取应用库FileUrl Token

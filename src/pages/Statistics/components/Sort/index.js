@@ -210,7 +210,7 @@ export default class Sort extends Component {
     }
   }
   getCustomSort = (controlId, value) => {
-    const { sourceType, currentReport, reportData } = this.props;
+    const { reportId, pageId, sourceType, currentReport, reportData } = this.props;
 
     this.setState({
       customSortLoading: true,
@@ -220,6 +220,8 @@ export default class Sort extends Component {
 
     reportConfig
       .customSort({
+        reportId,
+        pageId,
         appId: currentReport.appId,
         controlId,
         auth: reportData.auth,
@@ -384,7 +386,7 @@ export default class Sort extends Component {
   renderItem(item, fn) {
     const { currentReport } = this.props;
     const { sorts } = currentReport;
-    const sortData = isCustomSort(item.controlType) ? [...getSortData(item.controlType), customSort] : getSortData(item.controlType);
+    const sortData = isCustomSort(item) ? [...getSortData(item), customSort] : getSortData(item);
     const sortsItem = _.find(sorts, item.controlId);
     const value = sortsItem ? sortsItem[item.controlId] : 0;
     return (
@@ -493,7 +495,8 @@ export default class Sort extends Component {
           reportTypes.PivotTable,
           reportTypes.NumberChart,
           reportTypes.BidirectionalBarChart,
-          reportTypes.TopChart
+          reportTypes.TopChart,
+          reportTypes.CountryLayer
         ].includes(reportType) && (
           <Dropdown
             visible={visible}

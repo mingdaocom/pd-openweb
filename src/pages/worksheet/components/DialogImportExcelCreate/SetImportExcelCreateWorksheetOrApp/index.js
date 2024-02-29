@@ -6,7 +6,6 @@ import WorksheetItem from './WorksheetItem';
 import { DEFAULT_CONFIG } from 'src/pages/widgetConfig/config/widget.js';
 import { FILEDS_TYPE_INFO } from '../util';
 import { canSetAsTitle } from 'src/pages/widgetConfig/util';
-import cx from 'classnames';
 import './index.less';
 import ExcelControlSetting from './ExcelControlSetting';
 import { connect } from 'react-redux';
@@ -57,7 +56,7 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
         <div className="selectCellsItem">
           <Checkbox
             checked={selectCells.length}
-            className={cx({ checkBoxHalf: selectCells.length && selectCells.length !== cells.length })}
+            clearselected={selectCells.length && selectCells.length !== cells.length}
             onClick={checked => {
               if (selectCells.length !== cells.length) {
                 this.props.updateCurrentSheetInfo({

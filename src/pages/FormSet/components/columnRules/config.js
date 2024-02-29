@@ -10,6 +10,7 @@ import {
   API_ENUM_TO_TYPE,
   DATE_OPTIONS,
   DEFAULT_COLUMNS,
+  getControlSelectType,
 } from 'src/pages/worksheet/common/WorkSheetFilter/enum.js';
 import { getIconByType, getSwitchItemNames } from 'src/pages/widgetConfig/util';
 import { WIDGETS_TO_API_TYPE_ENUM, SYS_CONTROLS } from 'pages/widgetConfig/config/widget';
@@ -17,14 +18,17 @@ import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting';
 import _ from 'lodash';
 import moment from 'moment';
 import { isRelateRecordTableControl } from 'worksheet/util';
+import { getUnUniqName } from 'src/util';
+import { v4 as uuidv4 } from 'uuid';
 
 //初始规则数据
 export const originRuleItem = {
-  ruleId: '', //规则id
+  ruleId: uuidv4(), //规则id
   name: '', //名称
   disabled: false, //规则是否停用
   filters: [], //条件列表
   ruleItems: [], //动作列表
+  type: 0, // 规则类型
 };
 
 //初始动作数据
@@ -48,17 +52,16 @@ export const actionsListData = [
   { value: 6, label: _l('提示错误') },
   {
     value: 7,
-    label: _l('锁定记录'),
-    warnText: _l('锁定状态在记录保存后生效。锁定的记录不允许用户直接编辑，但可以通过自定义动作和工作流进行填写'),
+    label: _l('只读所有字段'),
+    warnText: _l('只读所有字段在记录保存后生效，生效后不允许用户直接编辑，但可以通过自定义动作和工作流进行填写'),
   },
-  { value: 8, label: _l('解锁记录') },
 ];
 
 //获取规则名字段长度
 export const getNameWidth = name => {
   let nameNode = $('<span>' + name + '</span>').css({ display: 'none' });
   $('body').append(nameNode);
-  let width = nameNode.width() + 4;
+  let width = nameNode.width() + 6;
   nameNode.remove();
   return width;
 };
@@ -520,7 +523,16 @@ export const filterData = (columns = [], filterItem = [], isSetting, relationCon
       dataList.push({
         id: item.controlId,
         name: isSetting || control.controlName ? control.controlName : control.data.controlName,
-        type: _.find(getFilterTypes(control), { value: item.filterType }),
+        type: _.find(
+          getFilterTypes({ ...control, type: control.type === 30 ? control.sourceControlType : control.type }),
+          {
+            value:
+              getControlSelectType({ ...control, type: control.type === 30 ? control.sourceControlType : control.type })
+                .isMultiple && item.filterType === FILTER_CONDITION_TYPE.EQ_FOR_SINGLE
+                ? FILTER_CONDITION_TYPE.EQ
+                : item.filterType,
+          },
+        ),
         spliceType: item.spliceType,
         value,
       });
@@ -554,4 +566,34 @@ export function isRelateMoreList(control, condition) {
     control.advancedSetting.showtype === '2' &&
     _.includes([24, 25], condition.filterType || condition.type)
   );
+}
+
+// 业务规则默认名称
+export function getDefaultRuleName(data = [], activeTab) {
+  const displayNum = data.filter(i => i.type === activeTab).length + 1;
+  return getUnUniqName(data, activeTab === 0 ? _l('交互规则%0', displayNum) : _l('验证规则%0', displayNum));
+}
+
+// 校验动作错误
+export function getActionError(value = {}) {
+  const { controls = [], type, message } = value;
+  if (_.includes([7], type)) {
+    return false;
+  } else if (type === 6) {
+    // 错误提示，验证时错误信息
+    return !message;
+  } else {
+    return !controls.length;
+  }
+}
+
+// 对比是否有变更
+export function hasRuleChanged(data = [], selectRule = {}) {
+  const originData = _.find(data, i => i.ruleId === selectRule.ruleId);
+  const { ruleId = '' } = selectRule;
+  if (ruleId && (ruleId.indexOf('-') >= 0 || !_.isEqual(originData, selectRule))) {
+    alert(_l('请先保存编辑结果'), 3);
+    return true;
+  }
+  return false;
 }

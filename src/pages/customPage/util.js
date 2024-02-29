@@ -11,6 +11,7 @@ import store from 'redux/configureStore';
 import * as utils from 'src/util';
 import { SYS_COLOR } from 'src/pages/Admin/settings/config';
 import tinycolor from '@ctrl/tinycolor';
+import { handleCondition } from 'src/pages/widgetConfig/util/data';
 
 export const FlexCenter = styled.div`
   display: flex;
@@ -190,7 +191,7 @@ export const createFontLink = () => {
 
 export const exportImage = bgColor => {
   return new Promise((resolve, reject) => {
-    const wrap = document.querySelector('.componentsWrap .react-grid-layout');
+    const wrap = document.querySelector('.componentsWrap .react-grid-layout') || document.querySelector('.customPageContent');
     const { left: wrapLeft, top: wrapTop } = wrap.getBoundingClientRect();
     const embedUrls = wrap.querySelectorAll('.widgetContent.embedUrl');
     const countryLayers = [...wrap.querySelectorAll(`.statisticsCard-${reportTypes.CountryLayer}`)].map(
@@ -260,6 +261,10 @@ export const formatNavfilters = data => {
   if (navshow === '2' && dataType === 29 && navfilters && !showNavfilters) {
     const res = JSON.parse(navfilters);
     return JSON.stringify(res.map(item => JSON.parse(item).id));
+  }
+  if (navshow === '3' && dataType === 29 && navfilters && !showNavfilters) {
+    const res = JSON.parse(navfilters);
+    return JSON.stringify(res.map(handleCondition));
   }
   return navfilters;
 }

@@ -58,6 +58,7 @@ export default ({
   onUpdateAppBelongGroups,
   isLock,
   createType,
+  isDashboard,
   ...propsRest
 }) => {
   let list = [...(ROLE_OPERATION[role] || DEFAULT_ROLE_OPERATION)];
@@ -76,6 +77,10 @@ export default ({
 
   if (isLock || createType === 1) {
     list = _.filter(list, it => _.includes(['setGroup', 'edit'], it.type));
+  }
+
+  if (isDashboard) {
+    list = _.filter(list, o => o.type !== 'setGroup');
   }
 
   return (

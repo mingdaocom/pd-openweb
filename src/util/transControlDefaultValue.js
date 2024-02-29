@@ -41,7 +41,7 @@ export function formatAttachmentValue(value, isRecreate = false, isRelation = fa
         let searchParams = '';
         let extAttr = {};
 
-        if (IsLocal && isRecreate) {
+        if (IsLocal && isRecreate && (item.viewUrl || item.previewUrl)) {
           const filelink = new URL(host);
           filePath = filePath.replace(filelink.pathname.slice(1), '');
           searchParams = (item.viewUrl || item.previewUrl).match(/\?.*/)[0];
@@ -52,8 +52,8 @@ export function formatAttachmentValue(value, isRecreate = false, isRelation = fa
           ...extAttr,
           fileID: item.fileId || item.fileID,
           fileSize: item.filesize,
-          url: fileUrl  + searchParams,
-          viewUrl: fileUrl  + searchParams,
+          url: fileUrl + searchParams,
+          viewUrl: fileUrl + searchParams,
           serverName: IsLocal && isRecreate ? host : url.origin + '/',
           filePath,
           fileName,

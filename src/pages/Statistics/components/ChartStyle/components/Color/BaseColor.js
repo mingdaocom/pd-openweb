@@ -159,7 +159,7 @@ export default class BaseColor extends Component {
     const { type, customColors, controlColors } = this.state;
     const isOptionColor = !_.isEmpty(controlColors);
     const themeColor = _.get(store.getState(), 'appPkg.iconColor');
-    const adaptThemeColors = this.chartColors.filter(item => (item.themeColors || []).includes(themeColor.toLocaleUpperCase()));
+    const adaptThemeColors = this.chartColors.filter(item => (item.themeColors || []).map(n => n.toLocaleUpperCase()).includes(themeColor.toLocaleUpperCase()));
     const adaptThemeId = adaptThemeColors.map(item => item.id);
     return (
       <Modal
@@ -194,7 +194,6 @@ export default class BaseColor extends Component {
                   this.renderColorGroup({ ...item, id: 'adaptThemeColor', name: _l('适应主题') }, index, true)
                 ))
               }
-              {!!adaptThemeColors.length && <div className="w100 mTop10 mBottom10" style={{ height: 1, background: '#ddd' }} />}
               {
                 this.chartColors.filter(item => !adaptThemeId.includes(item.id)).map((item, index) => (
                   this.renderColorGroup(item, index)

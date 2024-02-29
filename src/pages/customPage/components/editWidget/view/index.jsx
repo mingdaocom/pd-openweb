@@ -1,9 +1,7 @@
 import React, { useCallback, useState } from 'react';
-import Dialog from 'rc-dialog';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { ConfigProvider, Button, Tooltip } from 'antd';
-import 'rc-dialog/assets/index.css';
+import { ConfigProvider, Button, Tooltip, Modal } from 'antd';
 import { Header, EditWidgetContent } from '../../../styled';
 import Preview from './Preview';
 import Setting from './Setting';
@@ -41,12 +39,17 @@ export default function View(props) {
   };
 
   return (
-    <Dialog
+    <Modal
       maskStyle={{ zIndex: 999 }}
       wrapClassName="customPageViewWrap"
       className="editWidgetDialogWrap"
       visible
-      onClose={onClose}
+      transitionName=""
+      maskTransitionName=""
+      width="100%"
+      footer={null}
+      centered={true}
+      onCancel={onClose}
     >
       <Header>
         <div className="typeName">{_l('视图')}</div>
@@ -77,6 +80,6 @@ export default function View(props) {
           />
         </Wrap>
       </EditWidgetContent>
-    </Dialog>
+    </Modal>
   );
 }

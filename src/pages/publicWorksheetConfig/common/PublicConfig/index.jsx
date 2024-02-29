@@ -78,7 +78,7 @@ class PublicConfig extends React.Component {
         receipt: false,
       },
       ..._.pick(settings, [
-        'fillTimes',
+        'limitWriteFrequencySetting',
         'ipControlId',
         'browserControlId',
         'deviceControlId',
@@ -141,7 +141,7 @@ class PublicConfig extends React.Component {
     const settings = this.cacheSettings;
     this.setState({
       ..._.pick(settings, [
-        'fillTimes',
+        'limitWriteFrequencySetting',
         'receipt',
         'needCaptcha',
         'smsVerificationFiled',
@@ -164,7 +164,7 @@ class PublicConfig extends React.Component {
   @autobind
   isSettingChanged() {
     const settingData = [
-      'fillTimes',
+      'limitWriteFrequencySetting',
       'receipt',
       'needCaptcha',
       'smsVerificationFiled',
@@ -208,6 +208,7 @@ class PublicConfig extends React.Component {
       timeRange,
       limitWriteCount,
       limitPasswordWrite,
+      limitWriteFrequencySetting,
       cacheFieldData,
       weChatSetting,
       abilityExpand,
@@ -336,7 +337,7 @@ class PublicConfig extends React.Component {
   @autobind
   saveSetting(cb = () => {}) {
     const {
-      fillTimes,
+      limitWriteFrequencySetting,
       ipControlId,
       browserControlId,
       deviceControlId,
@@ -367,7 +368,7 @@ class PublicConfig extends React.Component {
       ? Object.assign({}, weChatSetting, { fieldMaps: _.pick(weChatSetting.fieldMaps, [WECHAT_FIELD_KEY.OPEN_ID]) })
       : weChatSetting;
     const newSettings = {
-      fillTimes,
+      limitWriteFrequencySetting,
       ipControlId,
       browserControlId,
       deviceControlId,
@@ -566,7 +567,7 @@ class PublicConfig extends React.Component {
                   'limitWriteTime',
                   'limitWriteCount',
                   'limitPasswordWrite',
-                  'fillTimes',
+                  'limitWriteFrequencySetting',
                   'timeRange',
                   'titleFolded',
                 ])}

@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState, useMemo } from 'react';
+import React, { Fragment, useEffect } from 'react';
 import { Tabs } from 'antd-mobile';
 import { Icon } from 'ming-ui';
 import SvgIcon from 'src/components/SvgIcon';
@@ -7,14 +7,18 @@ import RelationSearch from 'src/components/newCustomFields/widgets/RelationSearc
 import RelationList from 'mobile/RelationRow/RelationList';
 import styled from 'styled-components';
 import { FROM } from '../tools/config';
+import { browserIsMobile } from 'src/util';
 import cx from 'classnames';
 import _ from 'lodash';
 
 const TabCon = styled.div`
   height: 44px;
   &.fixedTabs {
-    z-index: 3;
+    z-index: 999;
     &.top {
+      top: 49px;
+    }
+    &.top43 {
       top: 43px;
     }
   }
@@ -35,6 +39,7 @@ const TabCon = styled.div`
     .tabName {
       max-width: 100px;
       position: relative;
+      color: #757575;
     }
     &:after {
       content: none !important;
@@ -44,6 +49,7 @@ const TabCon = styled.div`
     }
   }
   .am-tabs-default-bar-tab-active .tabName {
+    color: #108ee9;
     &:before {
       content: '';
       height: 3px;
@@ -74,16 +80,6 @@ const IconCon = styled.span`
   display: inline-block;
   margin-right: 6px;
 `;
-
-const handleTabControls = (props, { otherTabs = [], activeRelationTab = {} }) => {
-  const { tabControls = [] } = props;
-  let copyTabControls = _.clone(tabControls).filter(v => v);
-  let index = copyTabControls.findIndex(({ controlId }) => controlId === activeRelationTab.controlId);
-  if (index > -1) {
-    copyTabControls[index] = activeRelationTab;
-  }
-  return copyTabControls.concat(otherTabs);
-};
 
 function TabIcon({ control = {}, widgetStyle = {}, activeTabControlId }) {
   let iconUrl = control.iconUrl;
@@ -125,40 +121,28 @@ export default function MobileWidgetSection(props) {
     renderForm = () => {},
     onChange = () => {},
     data = [],
+    tabControls,
   } = props;
-  const { otherTabs = [], changeMobileTab = () => {}, activeRelationTab } = tabControlProp;
-  const [tabControls, setTabControls] = useState(handleTabControls(props, otherTabs));
-
-  const activeControl =
-    _.find(tabControls, i => i.controlId === activeTabControlId) || _.get(tabControls[0], 'controlId') || {};
-  const index = activeTabControlId ? _.findIndex(tabControls, { controlId: activeTabControlId }) : 0;
+  const { otherTabs = [], changeMobileTab = () => {} } = tabControlProp;
 
   useEffect(() => {
     setActiveTabControlId(_.get(tabControls[0], 'controlId'));
     changeMobileTab(_.get(tabControls[0], 'controlId'));
   }, [flag]);
 
-  useEffect(() => {
-    const temp = props.tabControls.map(v => {
-      if (v.type === 29 && !_.isEmpty(tabControls)) {
-        return _.find(tabControls, t => t.controlId === v.controlId) || v;
-      }
-      return v;
-    });
-    setTabControls(handleTabControls({ ...props, tabControls: temp }, { otherTabs, activeRelationTab }));
-  }, [props.tabControls, activeRelationTab]);
+  const TabsContent = () => {
+    const tabs = tabControls.concat(otherTabs).filter(v => v);
 
-  const TabsContent = useMemo(() => {
     return (
       <Tabs
         tabBarPosition="bottom"
-        tabBarInactiveTextColor="#757575"
+        tabBarInactiveTextColor="#7575758d"
         prerenderingSiblingsNumber={0}
         destroyInactiveTab={true}
         animated={false}
         swipeable={false}
-        page={index}
-        tabs={tabControls}
+        page={activeTabControlId ? _.findIndex(tabs, { controlId: activeTabControlId }) : 0}
+        tabs={tabs}
         activeTab={activeTabControlId}
         renderTab={tab => {
           return (
@@ -168,11 +152,7 @@ export default function MobileWidgetSection(props) {
                 <TabIcon control={tab} widgetStyle={widgetStyle} activeTabControlId={activeTabControlId} />
                 {tab.controlName}
               </span>
-              {tab.type === 29 && tab.value && _.includes([FROM.H5_EDIT, FROM.RECORDINFO], from) && disabled ? (
-                <span>{`(${tab.value})`}</span>
-              ) : (
-                ''
-              )}
+              {tab.type === 29 && disabled && tab.value ? <span>{`(${tab.value})`}</span> : ''}
             </Fragment>
           );
         }}
@@ -182,16 +162,16 @@ export default function MobileWidgetSection(props) {
         }}
       ></Tabs>
     );
-  }, [tabControls, activeTabControlId]);
+  };
 
   const renderContent = () => {
+    const activeControl =
+      _.find(tabControls.concat(otherTabs), i => i.controlId === activeTabControlId) ||
+      _.get(tabControls[0], 'controlId') ||
+      {};
+
     // 自定义tab
-    if (
-      _.includes(
-        otherTabs.map(it => it.controlId),
-        activeTabControlId,
-      )
-    ) {
+    if (otherTabs.filter(it => it.controlId === activeTabControlId).length) {
       return activeControl.tabContentNode;
     }
 
@@ -203,7 +183,7 @@ export default function MobileWidgetSection(props) {
           {desc && (
             <div
               className={cx('mTop16 mBottom16 Font13 Gray_9e', {
-                'pLeft20 pRight20': _.includes([FROM.H5_EDIT], from),
+                'pLeft20 pRight20': browserIsMobile() && !_.includes([FROM.H5_ADD], from),
               })}
             >
               {desc}
@@ -266,9 +246,7 @@ export default function MobileWidgetSection(props) {
     if (activeControl.type === 51) {
       return (
         <div
-          className={cx({
-            'pLeft10 pRight10 pTop5': !_.includes([FROM.H5_ADD], from),
-          })}
+          className={cx({ 'pLeft10 pRight10 pTop5': !_.includes([FROM.H5_ADD], from) })}
           style={{ margin: '0 -10px' }}
         >
           <RelationSearch
@@ -291,11 +269,11 @@ export default function MobileWidgetSection(props) {
 
   return (
     <Fragment>
-      <TabCon className={cx(`tabsWrapper`, { addStyle: _.includes([FROM.H5_ADD], from) })}>{TabsContent}</TabCon>
+      <TabCon className={cx(`tabsWrapper`, { addStyle: _.includes([FROM.H5_ADD], from) })}>{TabsContent()}</TabCon>
       <TabCon
         className={cx(`fixedTabs Fixed w100 hide top`, { addStyle: _.includes([FROM.H5_ADD], from), hide: !disabled })}
       >
-        {TabsContent}
+        {TabsContent()}
       </TabCon>
       {renderContent()}
     </Fragment>

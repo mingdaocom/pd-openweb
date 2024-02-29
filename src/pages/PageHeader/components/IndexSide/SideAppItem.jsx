@@ -1,7 +1,5 @@
 import React, { memo } from 'react';
-import { string } from 'prop-types';
-import { navigateTo } from 'src/router/navigateTo';
-import { Icon, MdLink } from 'ming-ui';
+import { Icon, MdLink, Tooltip } from 'ming-ui';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { getAppStatusText } from 'src/pages/PageHeader/util';
@@ -87,14 +85,18 @@ function SideAppItem({
             </div>
           )}
         </div>
+
         <div
           className="markAppWrap"
           onClick={e => {
             e.stopPropagation();
+            e.preventDefault();
             handleMarkApp({ projectId, appId: id, isMark: !isMarked }, e);
           }}
         >
-          <Icon icon={isMarked ? 'task-star' : 'star-hollow'} />
+          <Tooltip popupPlacement={'bottom'} text={isMarked ? _l('取消收藏') : _l('收藏')}>
+            <Icon icon={isMarked ? 'task-star' : 'star-hollow'} />
+          </Tooltip>
         </div>
       </li>
     </MdLink>

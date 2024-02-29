@@ -5,6 +5,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { VerticalMiddle } from 'worksheet/components/Basics';
 import { getIconByType } from 'src/pages/widgetConfig/util';
+import '../WorkSheetFilter.less';
 
 export default function SelectControls(props) {
   const {

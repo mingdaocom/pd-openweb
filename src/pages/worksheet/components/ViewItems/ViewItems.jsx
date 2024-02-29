@@ -386,6 +386,10 @@ export default class ViewItems extends Component {
           )
           .filter(l => l.name.includes(_.trim(searchWorksheetListValue))),
       );
+    const currentViewHideValue = _.get(
+      viewList.find(l => l.viewId === currentViewId) || {},
+      'advancedSetting.showhide',
+    );
 
     return (
       <div className="valignWrapper flex">
@@ -393,7 +397,10 @@ export default class ViewItems extends Component {
           <Tooltip popupPlacement="bottom" text={<span>{_l('全部视图%05005')}</span>}>
             <Icon
               icon="menu-02"
-              className={cx('Font14 mLeft10 pointer Gray_75 allVieListwIcon hoverGray', { menuVisible: setWorksheetHidden })}
+              className={cx('Font14 mLeft10 pointer Gray_75 allVieListwIcon hoverGray', {
+                menuVisible: setWorksheetHidden,
+                currentIsHide: currentViewHideValue && currentViewHideValue.search(/hpc|hide/g) > -1,
+              })}
               onClick={e => this.changeWorksheetHidden(e)}
             />
           </Tooltip>
@@ -457,21 +464,30 @@ export default class ViewItems extends Component {
                     .map((item, index) => (
                       <SortHiddenListItem
                         disabled={!isCharge}
+                        isCharge={isCharge}
+                        isLock={this.props.isLock}
                         lockAxis={'y'}
                         currentViewId={currentViewId}
+                        projectId={_.get(this.props, 'worksheetInfo.projectId')}
                         item={item}
+                        appId={this.props.appId}
                         key={`drawerWorksheetShowList-${item.viewId}`}
                         index={index}
                         style={{ zIndex: 999999 }}
                         type="drawerWorksheetShowList"
+                        viewList={viewList}
+                        controls={this.props.worksheetControls}
+                        sheetSwitchPermit={sheetSwitchPermit}
                         toView={() => navigateTo(getNavigateUrl(item))}
-                        isCharge={isCharge}
                         onCopyView={this.handleCopyView}
                         updateAdvancedSetting={this.updateAdvancedSetting}
                         onRemoveView={this.handleRemoveView}
                         updateViewName={this.updateViewName}
                         handleSortEnd={this.handleSortEnd}
-                        viewList={viewList}
+                        onOpenView={this.handleOpenView}
+                        onShare={this.props.onShare}
+                        onExport={this.props.onExport}
+                        onExportAttachment={this.props.onExportAttachment}
                       />
                     ))}
                 </SortHiddenListContainer>
@@ -503,21 +519,30 @@ export default class ViewItems extends Component {
                       .map((item, index) => (
                         <SortHiddenListItem
                           disabled={!isCharge}
+                          isCharge={isCharge}
+                          isLock={this.props.isLock}
                           lockAxis={'y'}
                           currentViewId={currentViewId}
+                          projectId={_.get(this.props, 'worksheetInfo.projectId')}
                           item={item}
+                          appId={this.props.appId}
                           key={`drawerWorksheetHiddenList-${item.viewId}`}
                           index={index}
                           style={{ zIndex: 999999 }}
                           type="drawerWorksheetHiddenList"
+                          viewList={viewList}
+                          controls={this.props.worksheetControls}
+                          sheetSwitchPermit={sheetSwitchPermit}
                           toView={() => navigateTo(getNavigateUrl(item))}
-                          isCharge={isCharge}
                           onCopyView={this.handleCopyView}
                           updateAdvancedSetting={this.updateAdvancedSetting}
                           onRemoveView={this.handleRemoveView}
                           updateViewName={this.updateViewName}
                           handleSortEnd={this.handleSortEnd}
-                          viewList={viewList}
+                          onOpenView={this.handleOpenView}
+                          onShare={this.props.onShare}
+                          onExport={this.props.onExport}
+                          onExportAttachment={this.props.onExportAttachment}
                         />
                       ))}
                   </SortHiddenListContainer>

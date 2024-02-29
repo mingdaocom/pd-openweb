@@ -57,32 +57,37 @@ export default function WidgetConfig(props) {
   } = getAdvanceSetting(data);
 
   // 文本、文本组合
-  if (type === 2 || type === 32) {
+  if (_.includes([2, 30, 32, 33], type)) {
     return (
       <Fragment>
-        <div className="labelWrap">
-          <Checkbox
-            size="small"
-            checked={analysislink === '1'}
-            onClick={checked => onChange(handleAdvancedSettingChange(data, { analysislink: checked ? '0' : '1' }))}
-          >
-            <span>{_l('解析链接')}</span>
-          </Checkbox>
-        </div>
-        {type === 2 && (
+        {_.includes([2, 32], type) && (
           <div className="labelWrap">
             <Checkbox
               size="small"
-              checked={sorttype === 'zh'}
-              onClick={checked => onChange(handleAdvancedSettingChange(data, { sorttype: checked ? 'en' : 'zh' }))}
+              checked={analysislink === '1'}
+              onClick={checked => onChange(handleAdvancedSettingChange(data, { analysislink: checked ? '0' : '1' }))}
             >
-              <span>{_l('支持拼音排序')}</span>
-              <Tooltip placement={'bottom'} title={_l('勾选后，中文可按拼音A-Z进行排序。如无需要时建议不勾选')}>
-                <i className="icon-help Gray_bd Font15"></i>
-              </Tooltip>
+              <span>{_l('解析链接')}</span>
             </Checkbox>
           </div>
         )}
+        <div className="labelWrap">
+          <Checkbox
+            size="small"
+            checked={sorttype === 'zh'}
+            onClick={checked => onChange(handleAdvancedSettingChange(data, { sorttype: checked ? 'en' : 'zh' }))}
+          >
+            <span>{_l('支持拼音排序')}</span>
+            <Tooltip
+              placement={'bottom'}
+              title={_l(
+                '勾选后，中文可按拼音A-Z进行排序。注意，勾选了支持拼音排序时排序索引不生效。如无需要，建议不勾选。',
+              )}
+            >
+              <i className="icon icon-help Gray_9e Font16"></i>
+            </Tooltip>
+          </Checkbox>
+        </div>
       </Fragment>
     );
   }
@@ -128,7 +133,7 @@ export default function WidgetConfig(props) {
           <span>{text}</span>
           {tip && (
             <Tooltip placement="topLeft" title={tip} arrowPointAtCenter>
-              <i className="icon-help Gray_bd Font15"></i>
+              <i className="icon-help Gray_9e Font16"></i>
             </Tooltip>
           )}
         </Checkbox>
@@ -191,7 +196,7 @@ export default function WidgetConfig(props) {
               </span>
             }
           >
-            <i className="icon icon-help Gray_bd Font15 mLeft5 pointer" />
+            <i className="icon icon-help Gray_9e Font16 mLeft5 pointer" />
           </Tooltip>
         </Checkbox>
       </div>

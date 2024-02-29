@@ -11,6 +11,7 @@ import { putControlByOrder } from '../../util';
 import { deleteSection } from '../../util/data';
 import { DropdownOverlay } from '../../styled';
 import cx from 'classnames';
+import WidgetStatus from '../components/WidgetStatus';
 
 const TabHeaderItemWrap = styled.div`
   max-width: 100%;
@@ -91,6 +92,7 @@ export function TabHeaderItem(props) {
     <TabHeaderItemWrap>
       {renderIcon()}
       <span className="Font15 Bold ellipsis">{data.controlName}</span>
+      <WidgetStatus data={data} style={{ lineHeight: '16px' }} />
 
       {isCollapse && (
         <Dropdown

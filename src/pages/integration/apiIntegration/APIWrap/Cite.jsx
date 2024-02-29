@@ -49,6 +49,7 @@ const Wrap = styled.div`
     color: #4caf50;
   }
 `;
+let Ajax = null;
 export default function Cite(props) {
   const [{ data, loading }, setState] = useSetState({
     data: [],
@@ -56,13 +57,17 @@ export default function Cite(props) {
   });
   //获取引用信息
   const getCiteInfo = () => {
-    packageVersionAjax.getApiRelationList(
+    if (Ajax) {
+      Ajax.abort();
+    }
+    Ajax = packageVersionAjax.getApiRelationList(
       {
         id: props.processId,
         isPublic: true,
       },
-      { isIntegration: true },
-    ).then(data => {
+      { fireImmediately: true, isIntegration: true },
+    );
+    Ajax.then(data => {
       setState({
         data,
         loading: false,

@@ -514,14 +514,6 @@ class FolderDetail extends Component {
         callback,
       },
       selectCb: callback,
-      ChooseInviteSettings: {
-        callback: (users, callbackInviteResult) => {
-          if (!callbackInviteResult) {
-            callbackInviteResult = () => {};
-          }
-          this.addFolderMembers(users, isAdmin, callbackInviteResult);
-        },
-      },
     });
   }
 
@@ -529,52 +521,50 @@ class FolderDetail extends Component {
    * 更改项目负责人
    */
   updateFolderCharge(accountId, avatar, fullname) {
-    $.DialogLayer({
-      dialogBoxID: 'updateFolderCharge',
-      showClose: false,
-      container: {
-        header: `<div style="color: #f44336;">${_l('将项目负责人移交给“%0”', fullname)}</div>`,
-        content: '<div class="Font14" style="color: #9e9e9e;">如果您移交后，将无法把自己重新设为该项目的负责人</div>',
-        yesText: _l('确定'),
-        yesFn: () => {
-          ajaxRequest
-            .updateFolderCharge({
-              folderID: this.props.taskConfig.folderId,
-              chargeAccountID: accountId,
-            })
-            .then(source => {
-              if (source.status) {
-                const data = _.cloneDeep(this.state.data);
-                const oldCharge = _.cloneDeep(data.chargeUser);
+    Dialog.confirm({
+      dialogClasses: 'updateFolderCharge',
+      closable: false,
+      title: <div style={{color: '#f44336'}}>{_l('将项目负责人移交给“%0”', fullname)}</div>,
+      children: <div className="Font14" style={{color: '#9e9e9e'}}>{_l('如果您移交后，将无法把自己重新设为该项目的负责人')}</div>,
+      okText: _l('确定'),
+      onOk: () => {
+        ajaxRequest
+          .updateFolderCharge({
+            folderID: this.props.taskConfig.folderId,
+            chargeAccountID: accountId,
+          })
+          .then(source => {
+            if (source.status) {
+              const data = _.cloneDeep(this.state.data);
+              const oldCharge = _.cloneDeep(data.chargeUser);
 
-                data.chargeUser.accountID = accountId;
-                data.chargeUser.avatar = avatar;
-                data.chargeUser.fullName = fullname;
+              data.chargeUser.accountID = accountId;
+              data.chargeUser.avatar = avatar;
+              data.chargeUser.fullName = fullname;
 
-                data.admins.push(oldCharge);
+              data.admins.push(oldCharge);
 
-                _.remove(data.ordinaryMembers, item => item.accountID === accountId);
-                _.remove(data.applyMembers, item => item.accountID === accountId);
+              _.remove(data.ordinaryMembers, item => item.accountID === accountId);
+              _.remove(data.applyMembers, item => item.accountID === accountId);
 
-                this.setState({ data });
+              this.setState({ data });
 
-                // 左边列表更新
-                const $navLi = $('.folderList .commFolder').filter('[data-id=' + this.props.taskConfig.folderId + ']');
-                $navLi
-                  .data('charge', accountId)
-                  .data('auth', 8)
-                  .find('.folderCharge')
-                  .attr('src', avatar)
-                  .data('id', accountId)
-                  .data('hasbusinesscard', false)
-                  .off();
-              } else {
-                errorMessage(source.error);
-              }
-            });
-        },
+              // 左边列表更新
+              const $navLi = $('.folderList .commFolder').filter('[data-id=' + this.props.taskConfig.folderId + ']');
+              $navLi
+                .data('charge', accountId)
+                .data('auth', 8)
+                .find('.folderCharge')
+                .attr('src', avatar)
+                .data('id', accountId)
+                .data('hasbusinesscard', false)
+                .off();
+            } else {
+              errorMessage(source.error);
+            }
+          });
       },
-    });
+    })
   }
 
   /**

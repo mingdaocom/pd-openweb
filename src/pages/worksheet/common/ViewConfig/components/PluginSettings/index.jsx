@@ -238,7 +238,7 @@ function PluginSettings(params) {
           );
         }}
       >
-        <Icon icon={switchSettings.showFastFilter === '1' ? 'ic_toggle_on' : 'ic_toggle_off'} className="Font30" />
+        <Icon icon={switchSettings.showFastFilter === '1' ? 'ic_toggle_on' : 'ic_toggle_off'} className="Font28" />
         <div className="switchText switchTextP mLeft12 InlineBlock Gray Hand">{_l('快速筛选')}</div>
       </SwitchStyle>
       <SwitchStyle
@@ -255,7 +255,7 @@ function PluginSettings(params) {
           );
         }}
       >
-        <Icon icon={switchSettings.showNav === '1' ? 'ic_toggle_on' : 'ic_toggle_off'} className="Font30" />
+        <Icon icon={switchSettings.showNav === '1' ? 'ic_toggle_on' : 'ic_toggle_off'} className="Font28" />
         <div className="switchText switchTextP mLeft12 InlineBlock Gray Hand">{_l('筛选列表')}</div>
       </SwitchStyle>
       <div className="title Bold mTop32">{_l('参数设置')}</div>
@@ -360,7 +360,7 @@ function PluginSettings(params) {
           >
             <span className="Gray_9e Bold Hand flexRow alignItemsCenter ThemeHoverColor3">
               <Icon icon={'add'} className="Font20" />
-              <span className="mLeft4">{_l('参数')}</span>
+              <span className="mLeft4">{_l('参数%05037')}</span>
             </span>
           </Trigger>
           <span className="mLeft8 Gray_d">｜</span>

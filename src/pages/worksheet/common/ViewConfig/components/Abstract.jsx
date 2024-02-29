@@ -37,7 +37,7 @@ export default class Abstract extends React.Component {
             data={abstractControls}
             value={isExistAbstract ? abstract : ''}
             border
-            cancelAble
+            cancelAble={!!(isExistAbstract ? abstract : '')}
             maxHeight={260}
             style={{ width: '100%' }}
             onChange={value => {

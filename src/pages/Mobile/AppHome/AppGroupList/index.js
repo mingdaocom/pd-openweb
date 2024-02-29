@@ -87,7 +87,7 @@ class AppGroupList extends Component {
         <Back
           icon="home"
           onClick={() => {
-            window.mobileNavigateTo('/mobile/appHome');
+            window.mobileNavigateTo('/mobile/dashboard');
           }}
         />
       </div>

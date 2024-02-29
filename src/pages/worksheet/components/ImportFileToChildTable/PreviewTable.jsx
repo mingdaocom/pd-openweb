@@ -8,6 +8,7 @@ import Trigger from 'rc-trigger';
 import _ from 'lodash';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import SelectControls from 'worksheet/common/WorkSheetFilter/components/SelectControls';
+import { getIndex } from '../WorksheetTable/components/Cell';
 
 const StyledFixedTable = styled(FixedTable)`
   border-radius: 4px;
@@ -150,12 +151,14 @@ function PreviewTable(props) {
     onUpdateMapConfig = () => {},
   } = props;
   let columnCount = mode === 'paste' ? controls.length : Object.keys(mapConfig).length;
+  if (props.columnCount && props.columnCount > columnCount) {
+    columnCount = props.columnCount;
+  }
   if (showNumber) {
     columnCount = columnCount + 1;
   }
   const tableRef = useRef();
   useEffect(() => {
-    console.log();
     const tableDom = _.get(tableRef, 'current.dom.current');
     if (!tableDom) {
       return;
@@ -172,6 +175,7 @@ function PreviewTable(props) {
   const fullTableCount = Math.ceil(height / 34);
   return (
     <StyledFixedTable
+      showHead
       ref={tableRef}
       loading={loading}
       disableYScroll={disableYScroll}
@@ -182,84 +186,90 @@ function PreviewTable(props) {
       rowCount={rowCount > fullTableCount ? rowCount : fullTableCount}
       columnCount={columnCount}
       leftFixedCount={showNumber ? 1 : 0}
-      renderHeadCell={({ style, key, columnIndex }) => {
-        if (showNumber && columnIndex === 0) {
-          return typeof rowStartIndex === 'undefined' ? (
-            <div key={key} style={style} className="cell controlHead " />
-          ) : (
-            <div key={key} style={style} className="cell TxtCenter ">
-              {rowStartIndex !== 0 && rowStartIndex}
-            </div>
+      Cell={({ style, key, data = {}, ...rest }) => {
+        const { columnIndex, rowIndex } = getIndex({
+          columnIndex: rest.columnIndex,
+          rowIndex: rest.rowIndex,
+          ...(data.grid || {}),
+        });
+        const index = rowIndex * columnCount + columnIndex;
+        if ((_.get(data, 'grid.id') || '').startsWith('top')) {
+          if (showNumber && columnIndex === 0) {
+            return typeof rowStartIndex === 'undefined' ? (
+              <div key={key} style={style} className="cell controlHead " />
+            ) : (
+              <div key={key} style={style} className="cell TxtCenter ">
+                {rowStartIndex !== 0 && rowStartIndex}
+              </div>
+            );
+          }
+          if (mode === 'paste') {
+            return renderNormalHead({
+              controls,
+              style,
+              key,
+              columnIndex,
+            });
+          }
+          const controlId = mapConfig[columnIndex - 1];
+          const control = controlId && _.find(controls, { controlId });
+          return (
+            <Trigger
+              action={['click']}
+              popup={
+                <SelectControlsWrap
+                  className="lightTheme"
+                  controls={controls}
+                  filterColumnClassName={'menuList'}
+                  selected={controlId}
+                  footer={
+                    <NoImportItem
+                      onClick={() => {
+                        onUpdateMapConfig(columnIndex - 1, undefined);
+                      }}
+                    >
+                      <i className="icon icon-file_upload_off Font15 Gray_bd"></i>
+                      {_l('不导入此列')}
+                    </NoImportItem>
+                  }
+                  onAdd={newControl => {
+                    onUpdateMapConfig(columnIndex - 1, newControl.controlId);
+                  }}
+                />
+              }
+              getPopupContainer={() => document.body}
+              popupAlign={{
+                points: ['tr', 'br'],
+                overflow: {
+                  adjustX: true,
+                  adjustY: true,
+                },
+              }}
+            >
+              <div key={key} style={style} className="cell controlHead Hand">
+                <i
+                  className={`controlIcon icon-${control ? getIconByType(control.type) : 'file_upload_off Gray_bd'}`}
+                ></i>
+                <div className="flex controlName">
+                  {control ? (
+                    <div className="ellipsis">{control.controlName}</div>
+                  ) : (
+                    <div className="ellipsis Gray_c6">{_l('不导入此列')}</div>
+                  )}
+                </div>
+                <i className="dropdownIcon icon icon-arrow-down"></i>
+              </div>
+            </Trigger>
           );
         }
-        if (showNumber) {
-          columnIndex = columnIndex - 1;
-        }
-        if (mode === 'paste') {
-          return renderNormalHead({
-            controls,
-            style,
-            key,
-            columnIndex,
-          });
-        }
-        const controlId = mapConfig[columnIndex];
-        const control = controlId && _.find(controls, { controlId });
-        return (
-          <Trigger
-            action={['click']}
-            popup={
-              <SelectControlsWrap
-                className="lightTheme"
-                controls={controls}
-                filterColumnClassName={'menuList'}
-                selected={controlId}
-                footer={
-                  <NoImportItem
-                    onClick={() => {
-                      onUpdateMapConfig(columnIndex, undefined);
-                    }}
-                  >
-                    <i className="icon icon-file_upload_off Font15 Gray_bd"></i>
-                    {_l('不导入此列')}
-                  </NoImportItem>
-                }
-                onAdd={newControl => {
-                  onUpdateMapConfig(columnIndex, newControl.controlId);
-                }}
-              />
-            }
-            getPopupContainer={() => document.body}
-            popupAlign={{
-              points: ['tr', 'br'],
-              overflow: {
-                adjustX: true,
-                adjustY: true,
-              },
-            }}
-          >
-            <div key={key} style={style} className="cell controlHead Hand">
-              <i
-                className={`controlIcon icon-${control ? getIconByType(control.type) : 'file_upload_off Gray_bd'}`}
-              ></i>
-              <div className="flex controlName">
-                {control ? (
-                  <div className="ellipsis">{control.controlName}</div>
-                ) : (
-                  <div className="ellipsis Gray_c6">{_l('不导入此列')}</div>
-                )}
-              </div>
-              <i className="dropdownIcon icon icon-arrow-down"></i>
-            </div>
-          </Trigger>
-        );
-      }}
-      renderCell={({ style, key, rowIndex, columnIndex }) => {
-        const index = rowIndex * columnCount + columnIndex;
         return (
           <div
             key={key}
-            style={Object.assign(style, index === activeIndex ? { boxShadow: 'inset 0px 0px 0px 1px #2196f3' } : {})}
+            style={Object.assign(
+              {},
+              style,
+              index === activeIndex ? { boxShadow: 'inset 0px 0px 0px 1px #2196f3' } : {},
+            )}
             className={cx('cell', {
               active: index === activeIndex,
               oddRow: rowIndex % 2 === 1,

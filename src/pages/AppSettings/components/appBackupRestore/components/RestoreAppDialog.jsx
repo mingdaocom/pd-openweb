@@ -1,11 +1,11 @@
 import React, { useState, Fragment } from 'react';
-import { Dialog } from 'ming-ui';
+import { Dialog, VerifyPasswordConfirm } from 'ming-ui';
 import { Checkbox, Switch } from 'antd';
 import AppFixStatus from '../../EditpublishSet/AppFixStatus';
 import { syncAppDetail } from 'src/pages/PageHeader/redux/action';
 import { connect } from 'react-redux';
+import appManagementAjax from 'src/api/appManagement';
 import cx from 'classnames';
-import PasswordValidate from './PasswordValidate';
 import moment from 'moment';
 
 function RestoreAppDialog(props) {
@@ -42,7 +42,27 @@ function RestoreAppDialog(props) {
       onChangeData({ fixed: false });
     }
     changeRestoreAppVisible();
-    setShowInputPassword(true);
+    VerifyPasswordConfirm.confirm({
+      onOk: () => {
+        let params = {
+          projectId,
+          appId,
+          id: actCurrentFileInfo.id,
+          autoEndMaintain: isEndFixed,
+          backupCurrentVersion: isBackupCurrentVersion,
+          isRestoreNew: false,
+        };
+
+        appManagementAjax.restore(params).then(res => {
+          if (res) {
+            props.getBackupCount();
+            getList(1);
+            setIsEndFixed(false);
+            setIsBackupCurrentVersion(false);
+          }
+        });
+      },
+    });
   };
 
   return (
@@ -107,20 +127,6 @@ function RestoreAppDialog(props) {
           {currentValid >= validLimit && <span>{_l('（已有10个备份文件，不能进行备份）')}</span>}
         </div>
       </Dialog>
-      <PasswordValidate
-        projectId={projectId}
-        appId={appId}
-        actCurrentFileInfo={actCurrentFileInfo}
-        isEndFixed={isEndFixed}
-        isBackupCurrentVersion={isBackupCurrentVersion}
-        token={token}
-        getList={getList}
-        setShowInputPassword={setShowInputPassword}
-        showInputPassword={showInputPassword}
-        setIsEndFixed={setIsEndFixed}
-        setIsBackupCurrentVersion={setIsBackupCurrentVersion}
-        getBackupCount={props.getBackupCount}
-      />
 
       {editAppFixStatusVisible && (
         <AppFixStatus

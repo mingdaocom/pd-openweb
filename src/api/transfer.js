@@ -18,7 +18,7 @@ export default {
   * 按类型获取交接记录
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络Id
-  * @param {} args.transferRecordType 交接记录类型
+  * @param {} args.transferRecordType
   * @param {integer} args.pageIndex 页码
   * @param {integer} args.pageSize 页大小
   * @param {string} args.originAccountId 账户Id
@@ -63,7 +63,7 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络Id
   * @param {string} args.sourceId 交接记录Id
-  * @param {} args.transferRecordType 交接记录类型
+  * @param {} args.transferRecordType
   * @param {string} args.oldAccountId 原账户Id
   * @param {string} args.toAccountId 目标账户Id
   * @param {Object} options 配置参数
@@ -79,7 +79,7 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络Id
   * @param {array} args.sourceIds 交接记录Ids
-  * @param {} args.transferRecordType 交接记录类型
+  * @param {} args.transferRecordType
   * @param {string} args.oldAccountId 原账户Id
   * @param {string} args.toAccountId 目标账户Id
   * @param {Object} options 配置参数
@@ -94,7 +94,7 @@ export default {
   * 按照类型进行交接
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络Id
-  * @param {} args.transferRecordType 交接记录类型
+  * @param {} args.transferRecordType
   * @param {string} args.oldAccountId 原账户Id
   * @param {string} args.toAccountId 目标账户Id
   * @param {Object} options 配置参数
@@ -153,8 +153,8 @@ export default {
   * 按类型获取交接记录
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络Id
-  * @param {} args.oaTransferType 离职交接类型（ 0:全部，1：表单，2：流程 ，3：角色）
-  * @param {} args.completedType OA类型完成状态（ -1：全部，0：未完成，1：完成）
+  * @param {} args.oaTransferType
+  * @param {} args.completedType
   * @param {integer} args.pageIndex 页码
   * @param {integer} args.pageSize 页大小
   * @param {string} args.originAccountId OriginAccountId

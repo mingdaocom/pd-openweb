@@ -107,6 +107,7 @@ export default function AppTrash(props) {
           app.wsCount,
           [
             <UserHead
+              projectId={projectId}
               className="cellUserHead"
               user={{
                 userHead: app.deletePerson.avatar,
@@ -163,15 +164,11 @@ export default function AppTrash(props) {
                 {_l('将彻底删除应用 “%0”，请认证你的身份', app.appName)}
               </div>
             ),
-            description: (
-              <div className="Font14 Gray_75">
-                {_l('此操作将彻底物理删除应用下所有配置与数据，删除后无法恢复，')}
-                <br />
-                {_l('请谨慎操作！')}
-              </div>
-            ),
+            description: <div className="Font14 Gray_75">{_l('删除后无法恢复(物理删除)，请谨慎操作！')}</div>,
             confirmType: 'danger',
             allowNoVerify: false,
+            isRequired: false,
+            closeImageValidation: false,
             onOk: () => {
               homeAppAjax
                 .appRecycleBinDelete({

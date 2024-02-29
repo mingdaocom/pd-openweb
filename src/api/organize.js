@@ -86,6 +86,21 @@ export default {
      return $.api('Organize', 'PagedOrganizeAccounts', args, options);
    },
   /**
+  * 组织角色用户设置分管部门
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络Id
+  * @param {string} args.orgRoleId 角色Id
+  * @param {string} args.accountId 用户id
+  * @param {array} args.departmentIds 部门集合
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   setOrgRoleChargeDepartment: function (args, options = {}) {
+     
+     return $.api('Organize', 'SetOrgRoleChargeDepartment', args, options);
+   },
+  /**
   * 添加用户
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络Id

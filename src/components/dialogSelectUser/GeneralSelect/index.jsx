@@ -1020,7 +1020,7 @@ export default class GeneraSelect extends Component {
         if (item[ID] === id) {
           item.users = list;
           const _arr = selectedData.concat(
-            list.map(user => {
+            (list || []).map(user => {
               return {
                 type: ChooseType.USER,
                 data: user,
@@ -1074,7 +1074,7 @@ export default class GeneraSelect extends Component {
       let list = group.users;
       if (checked) {
         this.setState({
-          selectedData: selectedData.filter(i => _.find(list, l => l.accountId === i.accountId)),
+          selectedData: selectedData.filter(i => !_.find(list, l => l.accountId === _.get(i, 'data.accountId'))),
         });
       } else {
         selectAll(list);
@@ -1484,7 +1484,7 @@ export default class GeneraSelect extends Component {
             ref={searchInput => {
               this._searchInput = searchInput;
             }}
-            placeholder={_l('搜索用户%0', this.checkIsProject() ? _l(' / 部门 / 群组') : '')}
+            placeholder={this.checkIsProject() ? _l('搜索用户 / 部门 / 群组') : _l('搜索用户')}
           />
           {keywords && (
             <div className="GSelect-head-searchArea--deleteIcon">

@@ -264,7 +264,7 @@ class Message extends React.Component {
   };
 
   isPasswordRule = str => {
-    return RegExp.isPasswordRule(str, this.state.passwordRegex);
+    return RegExp.isPasswordValid(str, this.state.passwordRegex);
   };
 
   // 验证input内容 手机 验证码 密码
@@ -375,6 +375,8 @@ class Message extends React.Component {
   handleSendVerifyCode = codeType => {
     const { onChangeData } = this.props;
     if (this.isValid(true)) {
+      const settingValue = { 'zh-Hans': '0', en: '1', ja: '2', 'zh-Hant': '3' };
+      const lang = settingValue[getCookie('i18n_langtag') || md.global.Config.DefaultLang];
       const { dataList = {}, type, sendVerifyCode, appId } = this.props;
       const { emailOrTel = '', dialCode } = dataList;
       const { firstSendVerifyCode } = this.state;
@@ -394,7 +396,7 @@ class Message extends React.Component {
           verifyCodeType: codeType,
           ticket: res.ticket,
           randStr: res.randstr,
-          captchaType: md.staticglobal.getCaptchaType(),
+          captchaType: md.global.getCaptchaType(),
         };
         let thenFn = data => {
           const { ActionResult } = Config;
@@ -485,7 +487,7 @@ class Message extends React.Component {
           }
         };
         if (type === 'portalLogin') {
-          sendVerifyCode({ ...param, appId }).then(data => {
+          sendVerifyCode({ ...param, appId, lang: Number(lang) }).then(data => {
             thenFn({ ...data, ...param });
           });
         } else if (type !== 'findPassword') {
@@ -500,7 +502,7 @@ class Message extends React.Component {
         }
       };
 
-      if (md.staticglobal.getCaptchaType() === 1) {
+      if (md.global.getCaptchaType() === 1) {
         new captcha(callback);
       } else {
         new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), callback).show();

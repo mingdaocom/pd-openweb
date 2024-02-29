@@ -13,6 +13,7 @@ const ClickAwayable = createDecoratedComponent(withClickAway);
 import EditableCellCon from '../EditableCellCon';
 import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import _ from 'lodash';
+import CellErrorTip from './comps/CellErrorTip';
 
 // enumDefault 单选 0 多选 1
 export default class User extends React.Component {
@@ -22,6 +23,7 @@ export default class User extends React.Component {
     style: PropTypes.shape({}),
     rowHeight: PropTypes.number,
     editable: PropTypes.bool,
+    disabled: PropTypes.bool, // 地图视图不使用Trigger
     isediting: PropTypes.bool,
     updateCell: PropTypes.func,
     popupContainer: PropTypes.any,
@@ -55,7 +57,7 @@ export default class User extends React.Component {
   cell = React.createRef();
 
   renderCellUser(user, index) {
-    const { isediting, projectId, appId, cell } = this.props;
+    const { isediting, projectId, appId, cell, disabled } = this.props;
     const { value } = this.state;
 
     return (
@@ -70,6 +72,7 @@ export default class User extends React.Component {
             }}
             size={21}
             appId={cell.dataSource ? undefined : appId}
+            disabled={disabled}
           />
           <span className="userName flex ellipsis">{user.fullname || user.name}</span>
           {isediting && !(cell.required && value.length === 1) && (
@@ -86,6 +89,18 @@ export default class User extends React.Component {
     );
   }
   @autobind
+  handleExitEditing({ exit = true } = {}) {
+    const { updateEditingStatus, cell } = this.props;
+    const { isError } = this.state;
+    if (isError) {
+      this.setState({ value: safeParse(cell.value, 'array') });
+    }
+    this.setState({ isError: false });
+    if (exit) {
+      updateEditingStatus(false);
+    }
+  }
+  @autobind
   handleTableKeyDown(e) {
     const { editable, updateEditingStatus } = this.props;
     if (!editable) {
@@ -93,7 +108,7 @@ export default class User extends React.Component {
     }
     switch (e.key) {
       case 'Escape':
-        updateEditingStatus(false);
+        this.handleExitEditing();
         break;
       case 'Backspace':
         this.deleteLastUser(false);
@@ -117,7 +132,7 @@ export default class User extends React.Component {
   }
   @autobind
   handleChange(forceUpdate) {
-    const { isSubList, cell, updateCell } = this.props;
+    const { isSubList, cell, updateCell, updateEditingStatus } = this.props;
     const { value } = this.state;
     if (isSubList && !forceUpdate) {
       return;
@@ -128,14 +143,14 @@ export default class User extends React.Component {
       });
       return;
     }
+    this.handleExitEditing({ exit: cell.enumDefault === 0 });
     updateCell({
       value: JSON.stringify(value),
     });
   }
-
   @autobind
   pickUser(event) {
-    const { isSubList, worksheetId, cell, projectId, updateEditingStatus, appId, rowFormData } = this.props;
+    const { isSubList, worksheetId, cell, projectId, updateEditingStatus, appId, rowFormData, onValidate } = this.props;
     const { value } = this.state;
     const target = (this.cell && this.cell.current) || (event || {}).target;
     const tabType = getTabTypeBySelectUser(cell);
@@ -155,6 +170,13 @@ export default class User extends React.Component {
     const callback = (data, forceUpdate) => {
       if (cell.enumDefault === 0) {
         // 单选
+        if (!onValidate(JSON.stringify(data))) {
+          this.setState({
+            value: data,
+            isError: true,
+          });
+          return;
+        }
         this.setState(
           {
             value: data,
@@ -162,7 +184,6 @@ export default class User extends React.Component {
           },
           () => {
             this.handleChange(true);
-            updateEditingStatus(false);
           },
         );
       } else {
@@ -180,7 +201,7 @@ export default class User extends React.Component {
       }
       this.isPicking = false;
     };
-    const selectRangeOptions = dealUserRange(cell, rowFormData());
+    const selectRangeOptions = dealUserRange(cell, _.isFunction(rowFormData) ? rowFormData() : rowFormData);
     const hasUserRange = Object.values(selectRangeOptions).some(i => !_.isEmpty(i));
     quickSelectUser(target, {
       selectRangeOptions,
@@ -254,21 +275,35 @@ export default class User extends React.Component {
   }
 
   render() {
-    const { className, singleLine, style, rowHeight, popupContainer, cell, editable, isediting, updateEditingStatus } =
-      this.props;
+    const {
+      className,
+      error,
+      rowIndex,
+      singleLine,
+      style,
+      rowHeight,
+      popupContainer,
+      cell,
+      editable,
+      isediting,
+      updateEditingStatus,
+      disabled,
+    } = this.props;
     const { value } = this.state;
     const single = cell.enumDefault === 0;
     const editcontent = (
       <ClickAwayable
-        onClickAwayExceptions={['.selectUserBox', '#dialogBoxSelectUser']}
-        onClickAway={() => updateEditingStatus(false)}
+        onClickAwayExceptions={['.cellUsers', '.selectUserBox', '#dialogBoxSelectUser']}
+        onClickAway={() => this.handleExitEditing()}
       >
         <div
-          className="cellUsers cellControl cellControlUserPopup cellControlEdittingStatus"
+          className={cx('cellUsers cellControl cellControlUserPopup cellControlEdittingStatus', {
+            cellControlErrorStatus: error,
+          })}
           ref={isediting && !single ? this.cell : () => {}}
           style={{
             width: style.width,
-            minHeight: rowHeight,
+            ...(single ? { minHeight: 'auto', height: style.height - 1 } : { minHeight: rowHeight }),
           }}
         >
           {value.map((user, index) => this.renderCellUser(user, index))}
@@ -278,15 +313,29 @@ export default class User extends React.Component {
             </span>
           )}
         </div>
+        {error && single && <CellErrorTip pos={rowIndex === 0 ? 'bottom' : 'top'} error={error} />}
       </ClickAwayable>
     );
+
+    if (disabled) {
+      return (
+        <div>
+          {!!value && (
+            <div className={cx('cellUsers cellControl', { singleLine })}>
+              {value.map((user, index) => this.renderCellUser(user, index))}
+            </div>
+          )}
+        </div>
+      );
+    }
+
     return (
       <Trigger
         action={['click']}
         popup={editcontent}
         getPopupContainer={popupContainer}
         popupClassName="filterTrigger"
-        popupVisible={isediting && !single}
+        popupVisible={isediting}
         popupAlign={{
           points: ['tl', 'tl'],
           overflow: {
@@ -299,8 +348,8 @@ export default class User extends React.Component {
           conRef={single ? this.cell : () => {}}
           hideOutline={!single}
           clickAwayWrap={single}
-          onClickAwayExceptions={['.selectUserBox', '#dialogBoxSelectUser']}
-          onClickAway={() => isediting && updateEditingStatus(false)}
+          onClickAwayExceptions={['.cellUsers', '.selectUserBox', '#dialogBoxSelectUser']}
+          onClickAway={() => isediting && this.handleExitEditing()}
           onClick={this.props.onClick}
           className={cx(className, { canedit: editable })}
           style={style}

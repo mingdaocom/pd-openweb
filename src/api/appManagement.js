@@ -1,93 +1,15 @@
 export default {
   /**
-  * 应用汇总概览
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 组织id
-  * @param {string} args.keyWord 关键字搜索
-  * @param {integer} args.pageIndex 当前页
-  * @param {integer} args.pageSize 页大小
-  * @param {string} args.sortFiled 排序字段
-  * @param {boolean} args.sorted 排序方式 true--asc false--desc
-  * @param {string} args.appId 应用id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   appUsageOverviewStatistics: function (args, options = {}) {
-     
-     return $.api('AppManagement', 'AppUsageOverviewStatistics', args, options);
-   },
-  /**
-  * 不同维度使用情况统计(按应用，按成员)
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 组织id
-  * @param {integer} args.dayRange 天数范围 0 = 最近7天，1 = 最近一个月，2=最近一个季度，3=最近半年，4=最近一年
-  * @param {integer} args.pageIndex 当前页
-  * @param {integer} args.pageSize 页大小
-  * @param {integer} args.dimension 维度 1-应用 2-用户
-  * @param {string} args.sortFiled 排序字段（返回结果的列名，例如:appAccess）
-  * @param {boolean} args.sorted 排序方式
-  * @param {string} args.keyword 关键词查询
-  * @param {string} args.appId 应用id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   usageStatisticsForDimension: function (args, options = {}) {
-     
-     return $.api('AppManagement', 'UsageStatisticsForDimension', args, options);
-   },
-  /**
-  * 获取应用日志
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 组织id
-  * @param {} args.queryType 应用日志查询类型,默认不传查询所有
-  * @param {array} args.operators 操作人id数组
-  * @param {array} args.appIds 应用id数组
-  * @param {array} args.worksheetIds 工作表id数组
-  * @param {array} args.modules 所属日志模块
-  * @param {array} args.operationTypes 操作类型
-  * @param {integer} args.pageIndex 当前页
-  * @param {integer} args.pageSize 页大小
-  * @param {array} args.columnNames 列名称
-  * @param {string} args.menuName 菜单名称
-  * @param {string} args.startDateTime 开始时间
-  * @param {string} args.endDateTime 结束时间
-  * @param {boolean} args.confirmExport 是否确认导出(超量的情况下传)
-  * @param {boolean} args.isSingle 是否是单个应用
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getGlobalLogs: function (args, options = {}) {
-     
-     return $.api('AppManagement', 'GetGlobalLogs', args, options);
-   },
-  /**
-  * 获取应用下工作表信息
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 组织id
-  * @param {array} args.appIds 应用ids
-  * @param {boolean} args.isFilterCustomPage 是否过滤自定义页面
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getWorksheetsUnderTheApp: function (args, options = {}) {
-     
-     return $.api('AppManagement', 'GetWorksheetsUnderTheApp', args, options);
-   },
-  /**
   * 开启密码锁
   * @param {Object} args 请求参数
-  * @param {string} args.appId
-  * @param {string} args.password
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType
   * @param {string} args.clientId 客户端标识
 记录输入密码之后，页面刷新不用重复输入密码操作
 滑动过期
-  * @param {string} args.ticket 验证码返票据
-  * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
+  * @param {string} args.appId
+  * @param {string} args.password
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -99,14 +21,14 @@ export default {
   /**
   * map解锁
   * @param {Object} args 请求参数
-  * @param {string} args.appId
-  * @param {string} args.password
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType
   * @param {string} args.clientId 客户端标识
 记录输入密码之后，页面刷新不用重复输入密码操作
 滑动过期
-  * @param {string} args.ticket 验证码返票据
-  * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
+  * @param {string} args.appId
+  * @param {string} args.password
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -118,15 +40,15 @@ export default {
   /**
   * 修改锁定密码
   * @param {Object} args 请求参数
-  * @param {string} args.newPassword
-  * @param {string} args.appId
-  * @param {string} args.password
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType
   * @param {string} args.clientId 客户端标识
 记录输入密码之后，页面刷新不用重复输入密码操作
 滑动过期
-  * @param {string} args.ticket 验证码返票据
-  * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
+  * @param {string} args.appId
+  * @param {string} args.password
+  * @param {string} args.newPassword
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -138,16 +60,17 @@ export default {
   /**
   * 重新锁定
   * @param {Object} args 请求参数
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType
+  * @param {string} args.clientId 客户端标识
+记录输入密码之后，页面刷新不用重复输入密码操作
+滑动过期
   * @param {string} args.appId 应用id
   * @param {boolean} args.getSection 是否获取分组信息
   * @param {boolean} args.getManager 是否获取管理员列表信息
   * @param {boolean} args.getProject 获取组织信息
-  * @param {string} args.clientId 客户端标识
-记录输入密码之后，页面刷新不用重复输入密码操作
-滑动过期
-  * @param {string} args.ticket 验证码返票据
-  * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
+  * @param {boolean} args.getLang 是否获取应用语种信息
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -159,16 +82,17 @@ export default {
   /**
   * 关闭应用锁
   * @param {Object} args 请求参数
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType
+  * @param {string} args.clientId 客户端标识
+记录输入密码之后，页面刷新不用重复输入密码操作
+滑动过期
   * @param {string} args.appId 应用id
   * @param {boolean} args.getSection 是否获取分组信息
   * @param {boolean} args.getManager 是否获取管理员列表信息
   * @param {boolean} args.getProject 获取组织信息
-  * @param {string} args.clientId 客户端标识
-记录输入密码之后，页面刷新不用重复输入密码操作
-滑动过期
-  * @param {string} args.ticket 验证码返票据
-  * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
+  * @param {boolean} args.getLang 是否获取应用语种信息
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -229,7 +153,7 @@ export default {
   /**
   * 获取应用升级记录
   * @param {Object} args 请求参数
-  * @param {string} args.appId 应用id
+  * @param {string} args.appId
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -237,6 +161,109 @@ export default {
    getUpgradeLogs: function (args, options = {}) {
      
      return $.api('AppManagement', 'GetUpgradeLogs', args, options);
+   },
+  /**
+  * 获取mdy密码
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {string} args.url 文件url不带token
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getMdyInfo: function (args, options = {}) {
+     
+     return $.api('AppManagement', 'GetMdyInfo', args, options);
+   },
+  /**
+  * 获取应用语种列表
+  * @param {Object} args 请求参数
+  * @param {string} args.appId
+  * @param {string} args.projectId
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getAppLangs: function (args, options = {}) {
+     
+     return $.api('AppManagement', 'GetAppLangs', args, options);
+   },
+  /**
+  * 创建应用语言
+  * @param {Object} args 请求参数
+  * @param {string} args.appId
+  * @param {array} args.langTypes
+  * @param {string} args.projectId
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   createAppLang: function (args, options = {}) {
+     
+     return $.api('AppManagement', 'CreateAppLang', args, options);
+   },
+  /**
+  * 删除应用语言
+  * @param {Object} args 请求参数
+  * @param {string} args.appId
+  * @param {string} args.id
+  * @param {string} args.projectId
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   deleteAppLang: function (args, options = {}) {
+     
+     return $.api('AppManagement', 'DeleteAppLang', args, options);
+   },
+  /**
+  * 获取应用语言详情
+  * @param {Object} args 请求参数
+  * @param {string} args.appId
+  * @param {string} args.appLangId
+  * @param {string} args.projectId
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getAppLangDetail: function (args, options = {}) {
+     
+     return $.api('AppManagement', 'GetAppLangDetail', args, options);
+   },
+  /**
+  * 编辑应用语言详情
+  * @param {Object} args 请求参数
+  * @param {string} args.appId
+  * @param {string} args.langId
+  * @param {string} args.id
+  * @param {string} args.parentId
+  * @param {string} args.correlationId
+  * @param {} args.type
+  * @param {object} args.data
+  * @param {string} args.projectId
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editAppLang: function (args, options = {}) {
+     
+     return $.api('AppManagement', 'EditAppLang', args, options);
+   },
+  /**
+  * 机器翻译
+  * @param {Object} args 请求参数
+  * @param {string} args.appId
+  * @param {string} args.comparisonLangId
+  * @param {string} args.targetLangId
+  * @param {} args.fillType
+  * @param {string} args.projectId
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   machineTranslation: function (args, options = {}) {
+     
+     return $.api('AppManagement', 'MachineTranslation', args, options);
    },
   /**
   * 添加角色
@@ -251,14 +278,14 @@ export default {
   * @param {array} args.userIds 角色成员id集合
   * @param {array} args.pages 自定义页面
   * @param {array} args.extendAttrs 用户扩展权限字段
-  * @param {} args.generalAdd 是否启用 通用新增
-  * @param {} args.gneralShare 是否启用 通用分享
-  * @param {} args.generalImport 是否启用 通用导入
-  * @param {} args.generalExport 是否启用 通用导出
-  * @param {} args.generalDiscussion 是否启用 通用讨论
-  * @param {} args.generalSystemPrinting 是否启用 通用系统打印
-  * @param {} args.generalAttachmentDownload 是否启用 通用附件下载
-  * @param {} args.generalLogging 是否启用 通用日志
+  * @param {} args.generalAdd
+  * @param {} args.gneralShare
+  * @param {} args.generalImport
+  * @param {} args.generalExport
+  * @param {} args.generalDiscussion
+  * @param {} args.generalSystemPrinting
+  * @param {} args.generalAttachmentDownload
+  * @param {} args.generalLogging
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -293,14 +320,14 @@ export default {
   * @param {array} args.projectOrganizeIds 网络角色
   * @param {array} args.jobIds 职位ids
   * @param {string} args.projectId 网络id
-  * @param {} args.enableGeneralAdd 是否启用 通用新增
-  * @param {} args.enableGneralShare 是否启用 通用分享
-  * @param {} args.enableGeneralImport 是否启用 通用导入
-  * @param {} args.enableGeneralExport 是否启用 通用导出
-  * @param {} args.enableGeneralDiscussion 是否启用 通用讨论
-  * @param {} args.enableGeneralSystemPrinting 是否启用 通用系统打印
-  * @param {} args.enableGeneralAttachmentDownload 是否启用 通用附件下载
-  * @param {} args.enableGeneralLogging 是否启用 通用日志
+  * @param {} args.enableGeneralAdd
+  * @param {} args.enableGneralShare
+  * @param {} args.enableGeneralImport
+  * @param {} args.enableGeneralExport
+  * @param {} args.enableGeneralDiscussion
+  * @param {} args.enableGeneralSystemPrinting
+  * @param {} args.enableGeneralAttachmentDownload
+  * @param {} args.enableGeneralLogging
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -392,7 +419,7 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用id
   * @param {string} args.roleId 角色id
-  * @param {} args.appRoleModel 角色配置实体
+  * @param {} args.appRoleModel
   * @param {string} args.projectId 网络id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -424,26 +451,10 @@ export default {
      return $.api('AppManagement', 'RemoveUserToRole', args, options);
    },
   /**
-  * 编辑视图分发权限
-  * @param {Object} args 请求参数
-  * @param {string} args.appId 应用id
-  * @param {string} args.viewId 视图id
-  * @param {string} args.worksheetId 工作表id
-  * @param {array} args.changeRoles 角色
-  * @param {array} args.removeRoleIds 删除的角色id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   editViewRoles: function (args, options = {}) {
-     
-     return $.api('AppManagement', 'EditViewRoles', args, options);
-   },
-  /**
   * 设置 开启/关闭 普通成员 是否可见角色列表
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用id
-  * @param {} args.status 1=可见 2=关闭
+  * @param {} args.status
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -551,6 +562,7 @@ export default {
   * 获取 应用角色设置
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用id
+  * @param {boolean} args.notOnSettingPage 不是在 配置页面（ 当为 ture 时，代表是在 前台/非管理 页面，此时 需要验证 角色负责人）
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -650,7 +662,7 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用Id
   * @param {array} args.dstRoleIds 目标角色Ids
-  * @param {} args.selectMember 选中的角色成员
+  * @param {} args.selectMember
   * @param {boolean} args.selectAll 是否全选
   * @param {boolean} args.isOutsourcing 是否全选外协
   * @param {Object} options 配置参数
@@ -665,7 +677,7 @@ export default {
   * 批量成员退出应用
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用Id
-  * @param {} args.selectMember 选中的角色成员
+  * @param {} args.selectMember
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -703,8 +715,9 @@ export default {
   * 获取网络下用户为应用管理员的应用信息
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
-  * @param {} args.type 应用分组下实体类型（0=工作表，1=自定义页面）
+  * @param {} args.type
   * @param {boolean} args.containsLinks 是否包含链接类型
+  * @param {boolean} args.getLock 是否获取锁定应用（默认不获取）
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -727,29 +740,28 @@ export default {
      return $.api('AppManagement', 'GetManagerApps', args, options);
    },
   /**
-  * 获取视图已分发角色
+  * 刷新权限缓存
   * @param {Object} args 请求参数
-  * @param {string} args.worksheetId 工作表id
-  * @param {string} args.viewId 视图id
+  * @param {string} args.appId
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
-   getRolesByViewId: function (args, options = {}) {
+   refresh: function (args, options = {}) {
      
-     return $.api('AppManagement', 'GetRolesByViewId', args, options);
+     return $.api('AppManagement', 'Refresh', args, options);
    },
   /**
   * 获取网络下应用
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
   * @param {integer} args.status 应用状态  0=关闭 1=启用  可空
-  * @param {} args.order 排序 0=默认 ，1=表数量降序，2=表数量升序，3=创建时间降序，4=创建时间升序
+  * @param {} args.order
   * @param {integer} args.pageIndex 页数（从1开始）
   * @param {integer} args.pageSize 每页显示数
   * @param {string} args.keyword 搜索关键字（支持名称和拥有者名称）
   * @param {integer} args.sourceType 来源 默认0=全部，2=过滤分发平台
-  * @param {} args.filterType 过滤类型（1 = 过滤加锁的,0 or 不传 = 默认）
+  * @param {} args.filterType
   * @param {boolean} args.containsLinks 是否包含链接类型
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -764,12 +776,12 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
   * @param {integer} args.status 应用状态  0=关闭 1=启用  可空
-  * @param {} args.order 排序 0=默认 ，1=表数量降序，2=表数量升序，3=创建时间降序，4=创建时间升序
+  * @param {} args.order
   * @param {integer} args.pageIndex 页数（从1开始）
   * @param {integer} args.pageSize 每页显示数
   * @param {string} args.keyword 搜索关键字（支持名称和拥有者名称）
   * @param {integer} args.sourceType 来源 默认0=全部，2=过滤分发平台
-  * @param {} args.filterType 过滤类型（1 = 过滤加锁的,0 or 不传 = 默认）
+  * @param {} args.filterType
   * @param {boolean} args.containsLinks 是否包含链接类型
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -792,21 +804,9 @@ export default {
      return $.api('AppManagement', 'GetApps', args, options);
    },
   /**
-  * 根据工作表id批量获取所属应用
-  * @param {Object} args 请求参数
-  * @param {array} args.sheetIds SheetId
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getAppForSheetIds: function (args, options = {}) {
-     
-     return $.api('AppManagement', 'GetAppForSheetIds', args, options);
-   },
-  /**
   * 获取导出相关功能模块token
   * @param {Object} args 请求参数
-  * @param {} args.tokenType 功能模块 token枚举，3 = 导出excel，4 = 导入excel生成表，5= word打印,6 =导入创建应用，7=子表导入
+  * @param {} args.tokenType
   * @param {string} args.worksheetId
   * @param {string} args.viewId
   * @param {string} args.projectId 网络id ，TokenType = 4或6时，这个必穿
@@ -1237,18 +1237,6 @@ export default {
      return $.api('AppManagement', 'InstallApp', args, options);
    },
   /**
-  * 根据关键字搜索已上架的应用库模板
-  * @param {Object} args 请求参数
-  * @param {string} args.keyword 关键词
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   searchAppLibrary: function (args, options = {}) {
-     
-     return $.api('AppManagement', 'SearchAppLibrary', args, options);
-   },
-  /**
   * 获取单个应用库模板详情
   * @param {Object} args 请求参数
   * @param {string} args.libraryId 应用库id
@@ -1291,24 +1279,6 @@ export default {
    getLogs: function (args, options = {}) {
      
      return $.api('AppManagement', 'GetLogs', args, options);
-   },
-  /**
-  * 获取导出记录
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId
-  * @param {string} args.keyword 搜索关键字
-  * @param {integer} args.handleType 操作类型 1=创建 2=开启 3=关闭 4=删除 5=导出 6=导入
-  * @param {string} args.start 开始时间
-  * @param {string} args.end 结束时间
-  * @param {integer} args.pageIndex
-  * @param {integer} args.pageSize
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getExports: function (args, options = {}) {
-     
-     return $.api('AppManagement', 'GetExports', args, options);
    },
   /**
   * 获取导出记录
@@ -1383,12 +1353,12 @@ export default {
   /**
   * 获取分享基础信息
   * @param {Object} args 请求参数
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType
   * @param {string} args.id 分享id
   * @param {string} args.password 密码
   * @param {string} args.clientId 客户端id
-  * @param {string} args.ticket 验证码返票据
-  * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -1491,5 +1461,83 @@ export default {
    allUsageOverviewStatistics: function (args, options = {}) {
      
      return $.api('AppManagement', 'AllUsageOverviewStatistics', args, options);
+   },
+  /**
+  * 应用汇总概览
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {string} args.keyWord 关键字搜索
+  * @param {integer} args.pageIndex 当前页
+  * @param {integer} args.pageSize 页大小
+  * @param {string} args.sortFiled 排序字段
+  * @param {boolean} args.sorted 排序方式 true--asc false--desc
+  * @param {string} args.appId 应用id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   appUsageOverviewStatistics: function (args, options = {}) {
+     
+     return $.api('AppManagement', 'AppUsageOverviewStatistics', args, options);
+   },
+  /**
+  * 不同维度使用情况统计(按应用，按成员)
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {integer} args.dayRange 天数范围 0 = 最近7天，1 = 最近一个月，2=最近一个季度，3=最近半年，4=最近一年
+  * @param {integer} args.pageIndex 当前页
+  * @param {integer} args.pageSize 页大小
+  * @param {integer} args.dimension 维度 1-应用 2-用户
+  * @param {string} args.sortFiled 排序字段（返回结果的列名，例如:appAccess）
+  * @param {boolean} args.sorted 排序方式
+  * @param {string} args.keyword 关键词查询
+  * @param {string} args.appId 应用id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   usageStatisticsForDimension: function (args, options = {}) {
+     
+     return $.api('AppManagement', 'UsageStatisticsForDimension', args, options);
+   },
+  /**
+  * 获取应用日志
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {} args.queryType
+  * @param {array} args.operators 操作人id数组
+  * @param {array} args.appIds 应用id数组
+  * @param {array} args.worksheetIds 工作表id数组
+  * @param {array} args.modules 所属日志模块
+  * @param {array} args.operationTypes 操作类型
+  * @param {integer} args.pageIndex 当前页
+  * @param {integer} args.pageSize 页大小
+  * @param {array} args.columnNames 列名称
+  * @param {string} args.menuName 菜单名称
+  * @param {string} args.startDateTime 开始时间
+  * @param {string} args.endDateTime 结束时间
+  * @param {boolean} args.confirmExport 是否确认导出(超量的情况下传)
+  * @param {boolean} args.isSingle 是否是单个应用
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getGlobalLogs: function (args, options = {}) {
+     
+     return $.api('AppManagement', 'GetGlobalLogs', args, options);
+   },
+  /**
+  * 获取应用下工作表信息
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {array} args.appIds 应用ids
+  * @param {boolean} args.isFilterCustomPage 是否过滤自定义页面
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getWorksheetsUnderTheApp: function (args, options = {}) {
+     
+     return $.api('AppManagement', 'GetWorksheetsUnderTheApp', args, options);
    },
 };

@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { selectOrgRole as selectOrgRolePc } from 'src/components/DialogSelectOrgRole';
+import selectOrgRolePc from 'src/components/dialogSelectOrgRole';
 import SelectOrgRole from 'mobile/components/SelectOrgRole';
 import cx from 'classnames';
 import { browserIsMobile } from 'src/util';

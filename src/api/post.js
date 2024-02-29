@@ -3,17 +3,17 @@ export default {
   * 发布动态
   * @param {Object} args 请求参数
   * @param {string} args.postMsg 内容
-  * @param {} args.postType 类型（0:普通动态, 1:链接, 2:图片, 3:文档,4:问答,5:系统,7:投票,9:图文混传附件）
-  * @param {} args.scope 分享范围，值是对象方式（shareProjectIds:分享到哪些网络,shareGroupIds:分享到哪些群,radioProjectId:置顶到哪个网络 如：{shareProjectIds:[projectId1,projectId2],shareGroupIds:groupId1,groupIds,radioProjectId:projectId}）
+  * @param {} args.postType
+  * @param {} args.scope
   * @param {string} args.appId 来源应用 Id
   * @param {string} args.remark 附加信息
-  * @param {} args.showType 呈现类型（目前表示是否在动态墙中呈现 0：动态 1：只在知识门户）
+  * @param {} args.showType
   * @param {string} args.attachments 上传的附件
   * @param {string} args.knowledgeAttach 引用的知识中心附件
   * @param {boolean} args.addToKc 是否把上传的附件添加到知识中心
   * @param {string} args.addToKcParentId 添加到知识中心的父节点id
   * @param {string} args.addToKcRootId 添加到知识中心的根节点id
-  * @param {} args.location 投票类型动态匿名投票是否所有人可见结果（目前没用，所有人都可见）
+  * @param {} args.location
   * @param {string} args.linkUrl 链接类型动态的链接地址
   * @param {string} args.linkTitle 链接类型动态的标题
   * @param {string} args.linkDesc 链接类型动态的描述
@@ -43,7 +43,7 @@ export default {
   * @param {string} args.attachments 普通附件
   * @param {string} args.knowledgeAttach 知识附件
   * @param {boolean} args.isReshared 是否转发
-  * @param {} args.scope 可见范围
+  * @param {} args.scope
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -81,7 +81,7 @@ export default {
   * 修改动态分享范围
   * @param {Object} args 请求参数
   * @param {string} args.postId 动态Id
-  * @param {} args.scope 改分享范围，值是对象方式（shareProjectIds:分享到哪些网络,shareGroupIds:分享到哪些群,radioProjectId:置顶到哪个网络 如：{shareProjectIds:[projectId1,projectId2],shareGroupIds:groupId1,groupIds,radioProjectId:projectId}）
+  * @param {} args.scope
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -94,8 +94,8 @@ export default {
   * 修改动态
   * @param {Object} args 请求参数
   * @param {string} args.postId 动态id
-  * @param {} args.postType 类型
-  * @param {} args.scope 发布范围，值是对象方式（shareProjectIds:分享到哪些网络,shareGroupIds:分享到哪些群,radioProjectId:置顶到哪个网络 如：{shareProjectIds:[projectId1,projectId2],shareGroupIds:groupId1,groupIds,radioProjectId:projectId}）
+  * @param {} args.postType
+  * @param {} args.scope
   * @param {string} args.postMsg 新的动态内容
   * @param {string} args.oldPostMsg 原始动态内容
   * @param {string} args.attachments 上传的附件
@@ -126,7 +126,7 @@ export default {
   /**
   * 获取动态列表
   * @param {Object} args 请求参数
-  * @param {} args.pPara 动态列表参数
+  * @param {} args.pPara
   * @param {string} args.firstPostDateTime 创建时间大于此时间
   * @param {string} args.lastPostDateTime 创建时间小于此时间
   * @param {string} args.accountId 要查看的帐号id
@@ -186,18 +186,6 @@ export default {
      return $.api('Post', 'GetIRepliedList', args, options);
    },
   /**
-  * 判断是否有查看动态的权限
-  * @param {Object} args 请求参数
-  * @param {string} args.postId 动态id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   checkPostPermission: function (args, options = {}) {
-     
-     return $.api('Post', 'CheckPostPermission', args, options);
-   },
-  /**
   * 获取链接预览消息
   * @param {Object} args 请求参数
   * @param {string} args.url 解析的Url
@@ -235,17 +223,6 @@ export default {
    getReplyMessage: function (args, options = {}) {
      
      return $.api('Post', 'GetReplyMessage', args, options);
-   },
-  /**
-  * 获取用户剩余积分
-  * @param {Object} args 请求参数
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getUserLeftMark: function (args, options = {}) {
-     
-     return $.api('Post', 'GetUserLeftMark', args, options);
    },
   /**
   * 获取置顶动态

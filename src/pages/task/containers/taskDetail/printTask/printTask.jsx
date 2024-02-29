@@ -1,8 +1,8 @@
 ﻿import React, { Component } from 'react';
-import DialogLayer from 'src/components/mdDialog/dialog';
 import './less/printTask.less';
 import cx from 'classnames';
 import ajaxRequest from 'src/api/taskCenter';
+import { Dialog } from 'ming-ui';
 
 export default class PrintTask extends Component {
   constructor(props) {
@@ -55,7 +55,7 @@ export default class PrintTask extends Component {
       printWindow = window.open();
     }
 
-    ajaxRequest.saveData({ str: source }).then((data) => {
+    ajaxRequest.saveData({ str: source }).then(data => {
       if (printWindow) {
         printWindow.location.href = '/apps/task/print/' + data;
       } else {
@@ -65,36 +65,38 @@ export default class PrintTask extends Component {
   }
 
   render() {
-    const settings = {
-      dialogBoxID: 'printTask',
-      oneScreen: true,
-      container: {
-        header: _l('选择您需要打印的部分'),
-        yesText: _l('预览'),
-        yesFn: () => {
-          this.submit();
-        },
-      },
-    };
-
     return (
-      <DialogLayer {...settings}>
+      <Dialog
+        visible
+        dialogClasses="printTaskDialog"
+        title={_l('选择您需要打印的部分')}
+        okText={_l('预览')}
+        onOk={() => this.submit()}
+        onCancel={() => $('.printTaskDialog').parent().remove()}
+      >
         <div className="printMessage Font16">{_l('任务')}</div>
         <ul className="printOperation printTaskBaseMsg">
           {this.state.taskArry.map((item, i) => {
             if (item.key) {
               return (
                 <li key={i}>
-                  <div className={cx({ checked: !item.noSelect }, item.disabled ? 'checkOperationDisabled' : 'checkOperation')} name={item.key}>
+                  <div
+                    className={cx(
+                      { checked: !item.noSelect },
+                      item.disabled ? 'checkOperationDisabled' : 'checkOperation',
+                    )}
+                    name={item.key}
+                  >
                     <i className="operationCheckbox icon-ok ThemeBGColor3 ThemeBorderColor3" />
                     {item.name}
                     {item.key === 'qrCode' ? (
-                      <span className="mLeft5 operationTips tip-top" data-tip={_l('可将二维码贴于办公场地或设备旁，协作者可直接扫码查看任务')}>
+                      <span
+                        className="mLeft5 operationTips tip-top"
+                        data-tip={_l('可将二维码贴于办公场地或设备旁，协作者可直接扫码查看任务')}
+                      >
                         <i className="icon-knowledge-message" />
                       </span>
-                    ) : (
-                      undefined
-                    )}
+                    ) : undefined}
                   </div>
                 </li>
               );
@@ -102,7 +104,9 @@ export default class PrintTask extends Component {
             return <li key={i} />;
           })}
         </ul>
-        {this.state.customArray.length ? <div className="printMessage Font16 mTop15">{_l('任务自定义字段内容')}</div> : undefined}
+        {this.state.customArray.length ? (
+          <div className="printMessage Font16 mTop15">{_l('任务自定义字段内容')}</div>
+        ) : undefined}
         <ul className="printOperation printTaskCustomMsg">
           {this.state.customArray.map((item, i) => {
             return (
@@ -115,7 +119,7 @@ export default class PrintTask extends Component {
             );
           })}
         </ul>
-      </DialogLayer>
+      </Dialog>
     );
   }
 }

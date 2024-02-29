@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSetState } from 'react-use';
 import styled from 'styled-components';
-import { Icon, RadioGroup, Input, Tooltip, Checkbox, Dialog } from 'ming-ui';
+import { Icon, RadioGroup, Input, Tooltip, Checkbox, Dialog, LoadDiv } from 'ming-ui';
 import { Select } from 'antd';
 import _ from 'lodash';
 import {
@@ -16,7 +16,13 @@ import LeftTableList from './LeftTableList';
 import dataSourceApi from '../../../../api/datasource';
 import worksheetApi from 'src/api/worksheet';
 import SheetGroupSelect from './SheetGroupSelect';
-import { getInitFieldsMapping, getInitWorkSheetFields, getDefaultData } from '../../../utils';
+import {
+  getInitFieldsMapping,
+  getInitWorkSheetFields,
+  getDefaultData,
+  getDuplicateFieldsRenamedList,
+  isNotSupportField,
+} from '../../../utils';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import SelectTables from '../../../components/SelectTables';
 
@@ -43,6 +49,28 @@ const OnlySyncWrapper = styled.div`
   }
   .sheetNameWidth {
     width: 643px;
+  }
+  .multiplePkTips {
+    padding: 10px 16px;
+    background: #f7f7f7;
+    border-radius: 3px;
+    border: 1px solid #eaeaea;
+    margin-bottom: 20px;
+    width: fit-content;
+  }
+  .loadSheetWrap {
+    display: flex;
+    align-items: center;
+    width: fit-content;
+    margin-top: 20px;
+    cursor: pointer;
+    color: #2196f3;
+    &:hover {
+      color: #1565c0;
+      i {
+        color: #1565c0;
+      }
+    }
   }
 `;
 
@@ -78,6 +106,7 @@ export default function OnlySyncStep(props) {
   const [destFields, setDestFields] = useSetState({});
   const [fieldsMapping, setFieldsMapping] = useSetState({});
   const [matchedTypes, setMatchedTypes] = useSetState({});
+  const [loading, setLoading] = useState(true);
 
   const isSourceAppType = source.type === DATABASE_TYPE.APPLICATION_WORKSHEET;
   const isDestAppType = dest.type === DATABASE_TYPE.APPLICATION_WORKSHEET;
@@ -142,7 +171,6 @@ export default function OnlySyncStep(props) {
       });
   };
 
-  //初始获取源数据库或源工作表
   useEffect(() => {
     if (!isDestAppType) {
       dataSourceApi.getDatabases({ projectId: props.currentProjectId, datasourceId: dest.id }).then(res => {
@@ -153,6 +181,9 @@ export default function OnlySyncStep(props) {
           setOptionList({ dbOptionList });
         }
       });
+    }
+    if (isSourceAppType) {
+      setLoading(false);
     }
   }, []);
 
@@ -167,13 +198,24 @@ export default function OnlySyncStep(props) {
           !_.isEmpty(fieldsMapping[db][table].fieldsMapping) &&
           ((!isDestAppType && _.get(sheetData, [db, table, 'dbName'])) || isDestAppType)
         ) {
-          const destFieldsMapping = fieldsMapping[db][table].fieldsMapping.map(item => {
+          const destFieldsMapping = fieldsMapping[db][table].fieldsMapping.map(mapping => {
+            const item = {
+              sourceField: { ...mapping.sourceField, alias: mapping.sourceField.name },
+              destField: { ...mapping.destField, alias: mapping.destField.name },
+            }; //将alias赋值成name提交
             if (isCreate) {
               return isSourceAppType && isDestAppType
                 ? {
-                    sourceField: _.pick(item.sourceField, ['id', 'isTitle', 'jdbcTypeId', 'isCheck', 'oid']),
+                    sourceField: _.pick(item.sourceField, [
+                      'id',
+                      'isTitle',
+                      'jdbcTypeId',
+                      'isCheck',
+                      'oid',
+                      'controlSetting',
+                    ]),
                     destField: item.destField.isCheck
-                      ? _.pick(item.destField, ['name', 'isTitle', 'jdbcTypeId', 'isCheck', 'oid'])
+                      ? _.pick(item.destField, ['name', 'isTitle', 'jdbcTypeId', 'isCheck', 'oid', 'comment'])
                       : null,
                   }
                 : {
@@ -223,7 +265,7 @@ export default function OnlySyncStep(props) {
               fields: sourceFields,
               config: {
                 datasourceId: source.id,
-                dbName: db,
+                dbName: source.type === DATABASE_TYPE.KAFKA ? fieldsMapping[db][table].tableName : db,
                 tableName: fieldsMapping[db][table].tableName,
                 schema: fieldsMapping[db][table].schema,
                 dsType: source.type,
@@ -310,29 +352,40 @@ export default function OnlySyncStep(props) {
             }
           });
         } else {
-          const params = {
-            projectId: props.currentProjectId,
-            datasourceId: source.id,
-            dbName: currentTab.db,
-            schema: currentTab.schema,
-            tableName: currentTab.tableName,
-          };
-
-          dataSourceApi.getTableFields(params).then(res => {
-            if (res) {
-              onChangeStateData(sourceFields, setSourceFields, { fields: res });
-              setFieldsMappingDefaultData({
-                initMapping: getInitFieldsMapping(res, isSourceAppType, dest.type),
-                sourceFields: res,
-                isCreate:
-                  _.get(sheetData, [currentTab.db, currentTab.table, 'sheetCreateType']) !== CREATE_TYPE.SELECT_EXIST,
-              });
-            }
-          });
+          loadTableFields();
         }
       }
     }
   }, [currentTab]);
+
+  const loadTableFields = () => {
+    setLoading(true);
+    const params = {
+      projectId: props.currentProjectId,
+      datasourceId: source.id,
+      dbName: source.type === DATABASE_TYPE.KAFKA ? currentTab.tableName : currentTab.db,
+      schema: currentTab.schema,
+      tableName: currentTab.tableName,
+      destType: dest.type,
+    };
+
+    dataSourceApi
+      .getTableFields(params)
+      .then(res => {
+        if (res) {
+          setLoading(false);
+          const fields = _.isArray(res) ? res : [];
+          onChangeStateData(sourceFields, setSourceFields, { fields });
+          setFieldsMappingDefaultData({
+            initMapping: getInitFieldsMapping(fields, isSourceAppType, dest.type),
+            sourceFields: fields,
+            isCreate:
+              _.get(sheetData, [currentTab.db, currentTab.table, 'sheetCreateType']) !== CREATE_TYPE.SELECT_EXIST,
+          });
+        }
+      })
+      .fail(() => setLoading(false));
+  };
 
   const onSetDefaultSheetData = () => {
     const currentDb = _.get(sheetData, [currentTab.db, currentTab.table, 'dbName']);
@@ -589,6 +642,107 @@ export default function OnlySyncStep(props) {
     );
   };
 
+  const renderPkSet = () => {
+    const sourcePkCount = (_.get(sourceFields, [currentTab.db, currentTab.table, 'fields']) || []).filter(
+      item => item.isPk,
+    ).length;
+    //只有（数据源是库且无主键+表到库）可以设置主键
+    if (!((!isSourceAppType && sourcePkCount === 0) || (isSourceAppType && !isDestAppType))) {
+      return null;
+    }
+    const sourceOptions = _.get(sourceFields, [currentTab.db, currentTab.table, 'fields']) || [];
+    const options = sourceOptions
+      .filter(
+        item =>
+          !isNotSupportField(item, _.get(matchedTypes, [currentTab.db, currentTab.table, 'matchedTypes']) || {}) &&
+          (isSourceAppType || ((!!item.isNotNull || source.type === DATABASE_TYPE.KAFKA) && !!item.isCanBePk)),
+      )
+      .map(item => {
+        return {
+          label: (
+            <div className="flexRow alignItemsCenter">
+              <Icon icon={getIconByType(item.mdType, false)} className="Gray_9e Font18" />
+              <span title={item.name} className="mLeft8 overflow_ellipsis Gray">
+                {item.name}
+              </span>
+            </div>
+          ),
+          value: item.id,
+        };
+      });
+    const currentMapping = _.get(fieldsMapping, [currentTab.db, currentTab.table, 'fieldsMapping']) || [];
+    const currentPkField = (currentMapping.filter(mapping => mapping.sourceField.isPk)[0] || {}).sourceField || {};
+    const currentSheetCreateType = _.get(sheetData, [currentTab.db, currentTab.table, 'sheetCreateType']);
+
+    const onChangePk = id => {
+      const newFieldsMapping = currentMapping.map(item => {
+        const sourceField = item.sourceField || {};
+        const destField = item.destField || {};
+        const isPk = sourceField.id === id;
+
+        return {
+          sourceField: {
+            ...item.sourceField,
+            isPk,
+            isCheck: isPk,
+            isFakePk: isPk,
+          },
+          destField: {
+            ...item.destField,
+            isPk,
+            isCheck: isPk,
+            isFakePk: isPk,
+            id: null,
+            name: dest.type === DATABASE_TYPE.MONGO_DB && isPk ? '_id' : sourceField.name.replace(namePattern, ''),
+            isNotNull: isPk,
+          },
+        };
+      });
+      setFieldsMappingDefaultData({
+        initMapping: getDuplicateFieldsRenamedList(newFieldsMapping),
+        sourceFields: newFieldsMapping.map(item => item.sourceField),
+        isCreate: currentSheetCreateType !== CREATE_TYPE.SELECT_EXIST,
+        noFetchSet: false,
+        isSetDefaultFields:
+          currentSheetCreateType === CREATE_TYPE.SELECT_EXIST &&
+          !!_.get(destFields, [currentTab.db, currentTab.table, 'fields']),
+        destFields: _.get(destFields, [currentTab.db, currentTab.table, 'fields']),
+      });
+    };
+
+    return (
+      <React.Fragment>
+        <p className="mBottom16 bold">{_l('设置主键')}</p>
+        <div className="flexRow alignItemsCenter mBottom20">
+          <span className="nowrap">{_l('在同步时，指定数据源字段')}</span>
+          <div className="Width120 mLeft12 mRight12">
+            <Select
+              className="selectItem"
+              options={options}
+              value={currentPkField.id}
+              notFoundContent={_l('暂无数据')}
+              onChange={onChangePk}
+            />
+          </div>
+          <span className="nowrap">{_l('为主键')}</span>
+          <Tooltip
+            text={
+              !isSourceAppType
+                ? _l('只可以选非空字段。仅用于数据同步，不会改变数据库字段属性，建议使用索引列。')
+                : _l('仅用于数据同步，不会改变数据库字段属性，建议使用索引列。')
+            }
+          >
+            <Icon icon="info_outline" className="Font16 Gray_bd pointer mLeft12" />
+          </Tooltip>
+        </div>
+      </React.Fragment>
+    );
+  };
+
+  const hasMultiplePks = !!(_.get(sourceFields, [currentTab.db, currentTab.table, 'fields']) || []).filter(
+    item => item.fid === 'composite_primary_key',
+  ).length;
+
   return (
     <OnlySyncWrapper>
       <div className="tabNav" onClick={onClose}>
@@ -648,7 +802,7 @@ export default function OnlySyncStep(props) {
                   </div>
                   {destHasSchema && (
                     <div className="itemInput">
-                      <p className="mBottom8 bold">{_l('Schema')}</p>
+                      <p className="mBottom8 bold">schema</p>
                       <Select
                         className="selectItem mBottom20"
                         showSearch={true}
@@ -735,79 +889,101 @@ export default function OnlySyncStep(props) {
                     </div>
                   </div>
 
-                  {(_.get(sheetData, [currentTab.db, currentTab.table, 'sheetCreateType']) !==
-                    CREATE_TYPE.SELECT_EXIST ||
-                    !!_.get(sheetData, [currentTab.db, currentTab.table, 'sheetNameValue'])) &&
-                    _.get(fieldsMapping, [currentTab.db, currentTab.table, 'fieldsMapping']) && (
-                      <div className="pBottom20 h100 flexColumn">
-                        <p className="bold">{_l('设置同步字段')}</p>
-                        {_.isEmpty(fieldsMapping[currentTab.db][currentTab.table].fieldsMapping) ? (
-                          <NoDataContent>
-                            <div className="TxtCenter">
-                              <div className="noContentIcon">
-                                <Icon icon="ic-line" className="Font64" />
-                              </div>
-                              <p className="Gray_75 Font15 mTop24 mBottom0">{_l('数据源暂无可映射字段')}</p>
+                  <div className="pBottom20 h100 flexColumn">
+                    {loading && <LoadDiv className="mTop10" />}
+
+                    {!loading &&
+                      (_.get(sheetData, [currentTab.db, currentTab.table, 'sheetCreateType']) !==
+                        CREATE_TYPE.SELECT_EXIST ||
+                        !!_.get(sheetData, [currentTab.db, currentTab.table, 'sheetNameValue'])) &&
+                      _.get(fieldsMapping, [currentTab.db, currentTab.table, 'fieldsMapping']) && (
+                        <React.Fragment>
+                          {!isSourceAppType && isDestAppType && hasMultiplePks && (
+                            <div className="multiplePkTips">
+                              {_l(
+                                '数据源为多主键表，会新增一个名为composite_primary_key的主键，作为同步到工作表的唯一标识，其值由多个主键值拼接而成。',
+                              )}
                             </div>
-                          </NoDataContent>
-                        ) : (
-                          <React.Fragment>
-                            <FieldMappingList
-                              isCreate={
-                                _.get(sheetData, [currentTab.db, currentTab.table, 'sheetCreateType']) !==
-                                CREATE_TYPE.SELECT_EXIST
-                              }
-                              sourceData={{
-                                sourceFields: _.get(sourceFields, [currentTab.db, currentTab.table, 'fields']),
-                                isDbType: !isSourceAppType,
-                              }}
-                              destData={{
-                                destFields: _.get(destFields, [currentTab.db, currentTab.table, 'fields']),
-                                isDbType: !isDestAppType,
-                                dsType: dest.type,
-                              }}
-                              fieldsMapping={_.get(fieldsMapping, [currentTab.db, currentTab.table, 'fieldsMapping'])}
-                              setFieldsMapping={mapping =>
-                                onChangeStateData(fieldsMapping, setFieldsMapping, { fieldsMapping: mapping })
-                              }
-                              matchedTypes={_.get(matchedTypes, [currentTab.db, currentTab.table, 'matchedTypes'])}
-                            />
-
-                            {isDestAppType &&
-                              _.get(sheetData, [currentTab.db, currentTab.table, 'sheetCreateType']) ===
-                                CREATE_TYPE.SELECT_EXIST &&
-                              renderIdentifyDup()}
-
-                            {isDestAppType && (
-                              <React.Fragment>
-                                <p className="mTop20 mBottom8 bold">{_l('触发工作流')}</p>
-                                <p className="mBottom12 Gray_9e">
-                                  {_l('同步数据时，是否触发工作表绑定的自动化工作流')}
-                                </p>
-                                <div className="flexRow">
-                                  {TRIGGER_WORKFLOW_CHECKBOX_OPTIONS.map(item => {
-                                    const isChecked = _.get(sheetData, [currentTab.db, currentTab.table, item.key]);
-                                    return (
-                                      <Checkbox
-                                        key={item.key}
-                                        size="small"
-                                        className="pRight30"
-                                        checked={isChecked}
-                                        onClick={() =>
-                                          onChangeStateData(sheetData, setSheetData, { [item.key]: !isChecked })
-                                        }
-                                      >
-                                        {item.text}
-                                      </Checkbox>
-                                    );
-                                  })}
+                          )}
+                          {renderPkSet()}
+                          <p className="bold">{_l('设置同步字段')}</p>
+                          {_.isEmpty(_.get(fieldsMapping, [currentTab.db, currentTab.table, 'fieldsMapping'])) &&
+                          source.type !== DATABASE_TYPE.KAFKA ? (
+                            <NoDataContent>
+                              <div className="TxtCenter">
+                                <div className="noContentIcon">
+                                  <Icon icon="ic-line" className="Font64" />
                                 </div>
-                              </React.Fragment>
-                            )}
-                          </React.Fragment>
-                        )}
-                      </div>
-                    )}
+                                <p className="Gray_75 Font15 mTop24 mBottom0">{_l('数据源暂无可映射字段')}</p>
+                              </div>
+                            </NoDataContent>
+                          ) : (
+                            <React.Fragment>
+                              <FieldMappingList
+                                isCreate={
+                                  _.get(sheetData, [currentTab.db, currentTab.table, 'sheetCreateType']) !==
+                                  CREATE_TYPE.SELECT_EXIST
+                                }
+                                sourceData={{
+                                  sourceFields: _.get(sourceFields, [currentTab.db, currentTab.table, 'fields']),
+                                  isDbType: !isSourceAppType,
+                                  dsType: source.type,
+                                }}
+                                destData={{
+                                  destFields: _.get(destFields, [currentTab.db, currentTab.table, 'fields']),
+                                  isDbType: !isDestAppType,
+                                  dsType: dest.type,
+                                }}
+                                fieldsMapping={_.get(fieldsMapping, [currentTab.db, currentTab.table, 'fieldsMapping'])}
+                                setFieldsMapping={mapping =>
+                                  onChangeStateData(fieldsMapping, setFieldsMapping, { fieldsMapping: mapping })
+                                }
+                                matchedTypes={_.get(matchedTypes, [currentTab.db, currentTab.table, 'matchedTypes'])}
+                              />
+
+                              {source.type === DATABASE_TYPE.KAFKA && (
+                                <div className="loadSheetWrap" onClick={() => loadTableFields()}>
+                                  <Icon icon="refresh1" className="Font16 mRight8" />
+                                  <div>{_l('加载表结构')}</div>
+                                </div>
+                              )}
+
+                              {isDestAppType &&
+                                _.get(sheetData, [currentTab.db, currentTab.table, 'sheetCreateType']) ===
+                                  CREATE_TYPE.SELECT_EXIST &&
+                                renderIdentifyDup()}
+
+                              {isDestAppType && (
+                                <React.Fragment>
+                                  <p className="mTop20 mBottom8 bold">{_l('触发工作流')}</p>
+                                  <p className="mBottom12 Gray_9e">
+                                    {_l('同步数据时，是否触发工作表绑定的自动化工作流')}
+                                  </p>
+                                  <div className="flexRow">
+                                    {TRIGGER_WORKFLOW_CHECKBOX_OPTIONS.map(item => {
+                                      const isChecked = _.get(sheetData, [currentTab.db, currentTab.table, item.key]);
+                                      return (
+                                        <Checkbox
+                                          key={item.key}
+                                          size="small"
+                                          className="pRight30"
+                                          checked={isChecked}
+                                          onClick={() =>
+                                            onChangeStateData(sheetData, setSheetData, { [item.key]: !isChecked })
+                                          }
+                                        >
+                                          {item.text}
+                                        </Checkbox>
+                                      );
+                                    })}
+                                  </div>
+                                </React.Fragment>
+                              )}
+                            </React.Fragment>
+                          )}
+                        </React.Fragment>
+                      )}
+                  </div>
                 </div>
               )}
             </div>

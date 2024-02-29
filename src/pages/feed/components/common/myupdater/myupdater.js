@@ -3,13 +3,14 @@ import 'src/components/autoTextarea/autoTextarea';
 import 'src/components/mentioninput/mentionsInput';
 import 'src/components/selectGroup/selectAllGroup';
 import 'src/components/uploadAttachment/uploadAttachment';
-import { index as mdDialog } from 'src/components/mdDialog/dialog';
 import LinkView from 'src/components/linkView/linkView';
 import VoteUpdater from 'src/components/voteUpdater/voteUpdater';
 import kcAjax from 'src/api/kc';
 import selectNode from 'src/components/kc/folderSelectDialog/folderSelectDialog';
 import applicationAjax from 'src/api/application';
 import postAjax from 'src/api/post';
+import { Dialog } from 'ming-ui';
+import React from 'react';
 
 var langUploadFiles = _l('上传附件') + '...';
 var langShareLink = _l('分享网站') + '...';
@@ -865,30 +866,16 @@ var MyUpdater = {
     });
   },
   PostToReward: function (postObj, callback) {
-    var html = `
-    <div class='pTop20 pBottom20'>
-      <div class='ThemeColor3 Font16 TxtCenter'>${_l('是否将此动态作为问答？')}</div>
-    </div>
-    `;
-
-    mdDialog({
-      dialogBoxID: 'dialogAnswerRewardMark',
-      container: {
-        header: _l('提出问题'),
-        content: html,
-        width: 450,
-        yesText: _l('是的'),
-        noText: _l('不用了'),
-        yesFn: function () {
-          var isEnableReward = false,
-            rewardMark = 0;
-          $('#hidden_UpdaterType').val('4');
-          MyUpdater.PostUpdater(false, postObj, callback, 'isReward', isEnableReward, rewardMark);
-        },
-        noFn: function () {
-          MyUpdater.PostUpdater(false, postObj, callback, 'isPost');
-        },
-      },
+    Dialog.confirm({
+      title: _l('提出问题'),
+      width: 450,
+      okText: _l('是的'),
+      cancelText: _l('不用了'),
+      children: (
+        <div className="pTop20 pBottom20">
+          <div className="ThemeColor3 Font16 TxtCenter">{_l('是否将此动态作为问答？')}</div>
+        </div>
+      ),
     });
   },
 };

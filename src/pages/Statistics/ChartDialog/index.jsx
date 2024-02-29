@@ -86,7 +86,7 @@ export default class ChartDialog extends Component {
     }
   }
   getReportConfigDetail(reportType) {
-    const { report = {}, permissions, ownerId, sourceType, filters, filtersGroup } = this.props;
+    const { report = {}, permissions, pageId, ownerId, sourceType, filters, filtersGroup, customPageConfig = {} } = this.props;
     const { reportId, worksheetId, viewId, settingVisible, sheetVisible } = this.state;
     this.props.changeBase({
       permissions,
@@ -95,6 +95,7 @@ export default class ChartDialog extends Component {
       isPublic: !ownerId,
       sheetId: worksheetId,
       viewId,
+      pageId,
       settingVisible,
       sheetVisible,
       filters,
@@ -103,7 +104,8 @@ export default class ChartDialog extends Component {
     this.props.getReportConfigDetail({
       reportId,
       appId: worksheetId,
-      reportType
+      reportType,
+      customPageConfig
     });
   }
   handleCancel = () => {
@@ -200,10 +202,10 @@ export default class ChartDialog extends Component {
     this.getReportConfigDetail(type);
   }
   renderHeader() {
-    const { report, permissions, isCharge, isLock, permissionType, sourceType, currentReport, reportData, worksheetInfo, base, onRemove, ownerId } = this.props;
+    const { report, permissions, isCharge, isLock, permissionType, sourceType = 0, currentReport, reportData, worksheetInfo, base, onRemove, ownerId } = this.props;
     const { saveLoading, settingVisible } = this.state;
     const isPublicShareChart = location.href.includes('public/chart');
-    const isPublicSharePage = location.href.includes('public/page') || window.shareAuthor || window.share;
+    const isPublicSharePage = window.shareAuthor || _.get(window, 'shareState.shareId');
     return (
       <div className="header valignWrapper">
         <Header {...this.props} />
@@ -215,7 +217,7 @@ export default class ChartDialog extends Component {
               </Button>
             </ConfigProvider>
           )}
-          {!settingVisible && report.id && permissions && sourceType !== 1 && (
+          {!settingVisible && report.id && (sourceType !== 2 && sourceType ? isCharge : permissions) && (
             <Tooltip title={_l('设置')} placement="bottom">
               <Icon
                 icon="settings"
@@ -245,11 +247,11 @@ export default class ChartDialog extends Component {
               className="Gray_9e pointer mLeft16 Font24"
               reportType={currentReport.reportType}
               reportStatus={reportData.reportType}
-              permissions={sourceType ? null : permissions}
+              permissions={permissions}
               isCharge={isCharge}
               isLock={isLock}
               permissionType={permissionType}
-              isMove={sourceType ? false : true}
+              isMove={sourceType ? false : permissions && isCharge}
               report={report}
               filter={currentReport.filter}
               exportData={{
@@ -262,7 +264,7 @@ export default class ChartDialog extends Component {
               sheetVisible={base.sheetVisible}
               appId={worksheetInfo.appId}
               worksheetId={sourceType ? worksheetInfo.worksheetId : null}
-              onRemove={permissions && report.id && sourceType !== 1 ? onRemove : null}
+              onRemove={sourceType ? false : (permissions && report.id && onRemove)}
               ownerId={ownerId}
             />
           )}
@@ -325,11 +327,12 @@ export default class ChartDialog extends Component {
     );
   }
   renderChart() {
-    const { projectId, base, themeColor } = this.props;
+    const { projectId, base, themeColor, customPageConfig = {} } = this.props;
     const { settingVisible, scopeVisible } = this.state;
     return (
       <Chart
         projectId={projectId}
+        customPageConfig={customPageConfig}
         themeColor={themeColor || _.get(store.getState(), 'appPkg.iconColor')}
         sheetVisible={base.sheetVisible}
         settingVisible={settingVisible}
@@ -342,7 +345,7 @@ export default class ChartDialog extends Component {
     );
   }
   renderSetting() {
-    const { projectId, reportData, currentReport, sourceType } = this.props;
+    const { projectId, reportData, currentReport, sourceType, themeColor, customPageConfig = {} } = this.props;
     const { chartIsUnfold } = this.state;
 
     if (!chartIsUnfold) {
@@ -384,7 +387,12 @@ export default class ChartDialog extends Component {
                 <ChartSetting projectId={projectId} />
               </Tabs.TabPane>
               <Tabs.TabPane tab={_l('样式')} key="style" disabled={reportData.status <= 0}>
-                <ChartStyle projectId={projectId} sourceType={sourceType} />
+                <ChartStyle
+                  projectId={projectId}
+                  sourceType={sourceType}
+                  themeColor={themeColor || _.get(store.getState(), 'appPkg.iconColor')}
+                  customPageConfig={customPageConfig}
+                />
               </Tabs.TabPane>
               {![reportTypes.GaugeChart, reportTypes.ProgressChart].includes(currentReport.reportType) && (
                 <Tabs.TabPane tab={_l('分析')} key="analyse" disabled={reportData.status <= 0}>

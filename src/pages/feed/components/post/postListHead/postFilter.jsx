@@ -3,7 +3,6 @@ import React from 'react';
 import ReactDom from 'react-dom';
 import cx from 'classnames';
 import _ from 'lodash';
-import moment from 'moment';
 import { setCaretPosition } from 'src/util';
 import { Tabs, Tab } from '../../common/tabs/tabs';
 import postEnum from '../../../constants/postEnum';
@@ -11,7 +10,7 @@ import DateFilter from 'src/components/DateFilter';
 import { changeFontSize, changeListType, filter, changeSearchKeywords } from '../../../redux/postActions';
 import { connect } from 'react-redux';
 import './postFilter.css';
-import 'src/components/select/select';
+import { Dropdown } from 'ming-ui';
 
 /**
  * 首页动态列表的头部筛选器
@@ -46,33 +45,6 @@ class HomePostFilter extends React.Component {
       const searchInput = ReactDom.findDOMNode(this.searchInput);
       setCaretPosition(searchInput, searchInput.value.length);
     }
-
-    const postTypes = [
-      { name: _l('全部动态'), id: -1 },
-      { name: _l('链接动态'), id: 1 },
-      { name: _l('图片动态'), id: 2 },
-      { name: _l('文档动态'), id: 3 },
-      { name: _l('投票动态'), id: 7 },
-      { name: _l('问答动态'), id: 4 },
-    ];
-
-    if (!this._isMounted) {
-      return;
-    }
-    const comp = this;
-    const $postTypeSelect = $(ReactDom.findDOMNode(this.postTypeSelect));
-    $('.postTypeSelectPlaceholder').hide();
-    $postTypeSelect.MDSelect({
-      zIndex: 1,
-      lineHeight: 32,
-      width: 180,
-      dataArr: postTypes,
-      defualtSelectedValue: this.props.options.postType,
-      onChange(value, text, activeThis) {
-        comp.postType = parseInt(value, 10);
-        comp.searchPost();
-      },
-    });
   }
 
   componentDidUpdate() {
@@ -144,18 +116,28 @@ class HomePostFilter extends React.Component {
   render() {
     const allowDecreaseFontSize = (md.cheat && md.cheat.unlimitFontSize) || this.props.fontSize > 12;
     const allowIncreaseFontSize = (md.cheat && md.cheat.unlimitFontSize) || this.props.fontSize < 14;
+    const postTypes = [
+      { text: _l('全部动态'), value: -1 },
+      { text: _l('链接动态'), value: 1 },
+      { text: _l('图片动态'), value: 2 },
+      { text: _l('文档动态'), value: 3 },
+      { text: _l('投票动态'), value: 7 },
+      { text: _l('问答动态'), value: 4 },
+    ];
 
     const typeSelect = (
       <div className={cx('mRight5 InlineBlock', { hide: this.props.options.listType === postEnum.LIST_TYPE.ireply })}>
-        <input
-          type="hidden"
-          ref={postTypeSelect => {
-            this.postTypeSelect = postTypeSelect;
+        <Dropdown
+          className="Font12"
+          menuStyle={{ minWidth: 180 }}
+          data={postTypes}
+          value={this.props.options.postType}
+          isAppendToBody
+          onChange={value => {
+            this.postType = parseInt(value, 10);
+            this.searchPost();
           }}
         />
-        <span className="postTypeSelectPlaceholder" style={{ fontSize: 12, padding: '0 10px' }}>
-          {_l('全部动态')}
-        </span>
       </div>
     );
 
@@ -237,7 +219,7 @@ class HomePostFilter extends React.Component {
                   : _l('通过时间筛选')
               }
             >
-              <i className={'icon-calander Font16 ' + (this.props.options.startDate ? 'ThemeColor3' : 'Gray_9')}/>
+              <i className={'icon-calander Font16 ' + (this.props.options.startDate ? 'ThemeColor3' : 'Gray_9')} />
             </div>
           </DateFilter>
         </div>

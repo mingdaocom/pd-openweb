@@ -3,12 +3,8 @@ rewrite ^/favicon.png /staticfiles/favicon.png break;
 rewrite ^/(favicon.*) /staticfiles/$1 break;
 rewrite ^/robots.txt /staticfiles/robots.txt break;
 rewrite ^/staticfiles/(.*) /staticfiles/$1 break;
-rewrite ^/src/library/(.*) /staticfiles/library/$1 break;
 rewrite ^/src/common/mdcss/(.*) /staticfiles/mdcss/$1 break;
 rewrite ^/src/common/mdjs/(.*) /staticfiles/mdjs/$1 break;
-rewrite ^/images/(.*) /staticfiles/images/$1 break;
-rewrite ^/src/components/(.*) /staticfiles/components/$1 break;
-rewrite ^/src/pages/(.*) /staticfiles/components/$1 break;
 rewrite ^/districtDataConfigFile/(.*) /staticfiles/districtDataConfigFile/$1 break;
 
 # 纯静态页面

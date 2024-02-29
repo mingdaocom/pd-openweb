@@ -1,14 +1,13 @@
 import './folderSelectStyle.css';
 import '../layerMain.css';
-import { getClassNameByExt } from 'src/util';
-import { expireDialogAsync } from 'src/components/common/function';
+import { getClassNameByExt, expireDialogAsync, htmlEncodeReg } from 'src/util';
 import doT from 'dot';
 import rootTpl from './tpl/rootTpl.html';
 import nodeTpl from './tpl/nodeTpl.html';
 import ajax from 'src/api/kc';
-import { htmlEncodeReg } from 'src/util';
-import { index as dialog } from 'src/components/mdDialog/dialog';
 import _ from 'lodash';
+import Dialog from 'ming-ui/components/Dialog';
+import React from 'react';
 
 var PICK_TYPE = {
     MYFILE: 1,
@@ -97,132 +96,158 @@ $.extend(FolderSelect.prototype, {
     var deferred = settings.deferred;
 
     settings.dialog = null;
-    settings.dialog = dialog({
-      dialogBoxID: 'folderSelectDialog',
-      className: 'folderSelectDialog',
+    Dialog.confirm({
+      dialogClasses: 'folderSelectDialog',
       width: 500,
       zIndex: settings.zIndex,
-      container: {
-        header: settings.dialogTitle,
-        content:
-          '<div class="folderContent">' +
-          '  <div class="folderUrl flexRow">' +
-          '    <div class="positionUrl flexRow flex" style="min-width: 0;">' +
-          '       <span class="levelName ThemeColor3 startTag">' +
-          _l('全部文件') +
-          '</span>' +
-          '    </div>' +
-          '    <div class="operation">' +
-          '       <span class="folderSearch">' +
-          '          <input class="searchFolder animated" placeholder="' +
-          _l('请输入文件名称并回车') +
-          '"/>' +
-          '          <i class="icon-search"></i>' +
-          '       </span>' +
-          '       <span class="createFolder icon-createFolder"></span>' +
-          '    </div>' +
-          '  </div>' +
-          '  <div class="folderNode">' +
-          LoadDiv() +
-          '  </div>' +
-          '  <div class="selectedHint">' +
-          '     <div class="selectedItem Hidden">已选中<span class="selectedNum"></span>个文件</div>' +
-          '     <div class="radioItem Hidden ellipsis"></div>' +
-          '  </div>' +
-          '  <div class="nodeVisibleType">' +
-          '  </div>' +
-          '</div>',
-        yesText: settings.btnName,
-        yesFn: function () {
-          var $nodeItem = $folderContent.find('.folderNode .nodeItem');
-          var selectedNode = [];
-          var isRoot = null;
-          var resultType = null;
-          var resultNode = null;
-          var getNodeAjax = false;
-          settings.rootFolder = $('.shareRoot, .myRoot').data() ? $('.shareRoot, .myRoot').data().root : '';
-          //有选择当前目录下的文件夹
-          $nodeItem.each(function () {
-            var $this = $(this);
-            if ($this.hasClass('ThemeBGColor5')) {
-              if ($this.data('rootType')) {
-                isRoot = $this.data('rootType');
-                selectedNode.push({
-                  id: $this.data('rootId'),
-                  name: $this.data('name'),
-                  projectId: $this.data('projectId') || $this.closest('.project').data('projectId'),
-                });
-              } else {
-                selectedNode.push($this.data('node'));
-              }
+      title: settings.dialogTitle,
+      children: (
+        <div className="folderContent">
+          <div className="folderUrl flexRow">
+            <div className="positionUrl flexRow flex" style={{ minWidth: 0 }}>
+              <span className="levelName ThemeColor3 startTag">{_l('全部文件')}</span>
+            </div>
+            <div className="operation">
+              <span className="folderSearch">
+                <input className="searchFolder animated" placeholder={_l('请输入文件名称并回车')} />
+                <i className="icon-search"></i>
+              </span>
+              <span className="createFolder icon-createFolder"></span>
+            </div>
+          </div>
+          <div className="folderNode">{LoadDiv()}</div>
+          <div className="selectedHint">
+            <div className="selectedItem Hidden">
+              已选中<span className="selectedNum"></span>个文件
+            </div>
+            <div className="radioItem Hidden ellipsis"></div>
+          </div>
+          <div className="nodeVisibleType"></div>
+        </div>
+      ),
+      okText: settings.btnName,
+      onOk: async () => {
+        var $nodeItem = $folderContent.find('.folderNode .nodeItem');
+        var selectedNode = [];
+        var isRoot = null;
+        var resultType = null;
+        var resultNode = null;
+        var getNodeAjax = false;
+        settings.rootFolder = $('.shareRoot, .myRoot').data() ? $('.shareRoot, .myRoot').data().root : '';
+        //有选择当前目录下的文件夹
+        $nodeItem.each(function () {
+          var $this = $(this);
+          if ($this.hasClass('ThemeBGColor5')) {
+            if ($this.data('rootType')) {
+              isRoot = $this.data('rootType');
+              selectedNode.push({
+                id: $this.data('rootId'),
+                name: $this.data('name'),
+                projectId: $this.data('projectId') || $this.closest('.project').data('projectId'),
+              });
+            } else {
+              selectedNode.push($this.data('node'));
             }
-          });
+          }
+        });
 
-          if (selectedNode && selectedNode.length) {
-            if (settings.isFolderNode == SELECT_TYPE.FOLDER) {
-              //是否是根目录文件
-              if (isRoot) {
-                if (isRoot == PICK_TYPE.MYFILE) {
-                  resultType = PICK_TYPE.MYFILE;
-                  resultNode = { id: null, name: '我的文件' };
-                } else {
-                  resultType = PICK_TYPE.ROOT;
-                  resultNode = selectedNode[0];
-                  expireDialogAsync(resultNode.projectId).fail(function () {
-                    var msg = '网络已过期';
-                    throw msg;
-                  });
-                }
-                settings.rootFolder = {
-                  id: selectedNode[0].id,
-                  projectId: selectedNode[0].projectId,
-                };
+        if (selectedNode && selectedNode.length) {
+          if (settings.isFolderNode == SELECT_TYPE.FOLDER) {
+            //是否是根目录文件
+            if (isRoot) {
+              if (isRoot == PICK_TYPE.MYFILE) {
+                resultType = PICK_TYPE.MYFILE;
+                resultNode = { id: null, name: '我的文件' };
               } else {
-                resultType = PICK_TYPE.CHILDNODE;
+                resultType = PICK_TYPE.ROOT;
                 resultNode = selectedNode[0];
-              }
-              folderSelect.settings.currentFolder = {
-                node: {
-                  id: resultNode.id,
-                  parendId: resultNode.parendId,
-                  projectId: resultNode.projectId,
-                  name: resultNode.name,
-                  position: resultNode.position,
-                },
-              };
-            } else if (settings.isFolderNode == SELECT_TYPE.FILE) {
-              if (isRoot) {
-                isRoot == PICK_TYPE.MYFILE
-                  ? folderSelect.getNodeList(PICK_TYPE.MYFILE, { id: null, name: _l('我的文件') })
-                  : folderSelect.getNodeList(PICK_TYPE.ROOT, selectedNode[0]);
-                return false;
-              } else {
-                resultNode = selectedNode.filter(function (node) {
-                  return node && node.type == NODE_TYPE.FILE;
+                expireDialogAsync(resultNode.projectId).fail(function () {
+                  var msg = '网络已过期';
+                  throw msg;
                 });
-                //var nodeArr = [];
-                ////选择的文件数组
-                //for (var i = 0; i < selectedNode.length; i++) {
-                //    if (selectedNode[i].type == 2) {
-                //        nodeArr.push(selectedNode[i]);
-                //    }
-                //}
+              }
+              settings.rootFolder = {
+                id: selectedNode[0].id,
+                projectId: selectedNode[0].projectId,
+              };
+            } else {
+              resultType = PICK_TYPE.CHILDNODE;
+              resultNode = selectedNode[0];
+            }
+            folderSelect.settings.currentFolder = {
+              node: {
+                id: resultNode.id,
+                parendId: resultNode.parendId,
+                projectId: resultNode.projectId,
+                name: resultNode.name,
+                position: resultNode.position,
+              },
+            };
+          } else if (settings.isFolderNode == SELECT_TYPE.FILE) {
+            if (isRoot) {
+              isRoot == PICK_TYPE.MYFILE
+                ? folderSelect.getNodeList(PICK_TYPE.MYFILE, { id: null, name: _l('我的文件') })
+                : folderSelect.getNodeList(PICK_TYPE.ROOT, selectedNode[0]);
+              return true;
+            } else {
+              resultNode = selectedNode.filter(function (node) {
+                return node && node.type == NODE_TYPE.FILE;
+              });
 
-                if (resultNode && resultNode.length > 0) {
-                  resultType = PICK_TYPE.CHILDNODE;
-                } else {
-                  if (selectedNode[0].type == 1) {
-                    folderSelect.getNodeList(PICK_TYPE.CHILDNODE, selectedNode[0]);
-                    return false;
-                  }
+              if (resultNode && resultNode.length > 0) {
+                resultType = PICK_TYPE.CHILDNODE;
+              } else {
+                if (selectedNode[0].type == 1) {
+                  folderSelect.getNodeList(PICK_TYPE.CHILDNODE, selectedNode[0]);
+                  return true;
                 }
               }
             }
+          }
 
-            if (resultType && !getNodeAjax) {
-              var resObj = { type: parseInt(resultType), node: resultNode };
+          if (resultType && !getNodeAjax) {
+            var resObj = { type: parseInt(resultType), node: resultNode };
+            if (resultType === PICK_TYPE.CHILDNODE && settings.reRootName) {
+              var currentRoot = $folderContent.find('.folderUrl .shareRoot, .folderUrl .myRoot').data('root');
+              resObj = $.extend(resObj, {
+                rootName: currentRoot.name,
+              });
+            }
+            folderSelect.savePos(resObj);
+            folderSelect.savePos(resObj, true);
+            deferred.resolve(resObj);
+            return false;
+          } else {
+            var num = 0;
+            var setTime = setInterval(function () {
+              $folderContent.find('.folderNode').toggleClass('noItemBox');
+              if (num++ > 3) {
+                $folderContent.find('.folderNode').removeClass('noItemBox');
+                clearInterval(setTime);
+              }
+            }, 300);
+            return true;
+          }
+        } else {
+          //无选择项时 是否要返回当前路径
+          var $lastNode = $folderContent.find('.folderUrl .levelName:last');
+          var appointRootId = settings.appointRoot ? settings.appointRoot.id : '';
+          var lastNodeId = $lastNode.data('root') ? $lastNode.data('root').id : '';
+
+          if (
+            settings.isFolderNode == SELECT_TYPE.FOLDER &&
+            ((!$lastNode.hasClass('startTag') && !settings.appointRoot) || (settings.appointRoot && appointRootId))
+          ) {
+            if ($lastNode.hasClass('childNode')) {
+              var currentRoot = $folderContent.find('.folderUrl .shareRoot, .folderUrl .myRoot').data('root');
+              resultType = PICK_TYPE.CHILDNODE;
+              getNodeAjax = true;
+              var nodeData = await ajax.getNodeDetail({ path: $lastNode.data('path') });
+              if (!nodeData) {
+                return $.Deferred().reject();
+              }
+              var resObj = { type: parseInt(resultType), node: nodeData };
               if (resultType === PICK_TYPE.CHILDNODE && settings.reRootName) {
-                var currentRoot = $folderContent.find('.folderUrl .shareRoot, .folderUrl .myRoot').data('root');
                 resObj = $.extend(resObj, {
                   rootName: currentRoot.name,
                 });
@@ -230,255 +255,209 @@ $.extend(FolderSelect.prototype, {
               folderSelect.savePos(resObj);
               folderSelect.savePos(resObj, true);
               deferred.resolve(resObj);
-              return true;
+              return false;
             } else {
-              var num = 0;
-              var setTime = setInterval(function () {
-                $folderContent.find('.folderNode').toggleClass('noItemBox');
-                if (num++ > 3) {
-                  $folderContent.find('.folderNode').removeClass('noItemBox');
-                  clearInterval(setTime);
-                }
-              }, 300);
+              resultType = settings.rootType;
+              resultNode = $lastNode.hasClass('myRoot') ? { id: null, name: _l('我的文件') } : $lastNode.data('root');
+              folderSelect.savePos(resObj);
+              folderSelect.savePos(resObj, true);
+              deferred.resolve({ type: parseInt(resultType), node: resultNode });
               return false;
             }
           } else {
-            //无选择项时 是否要返回当前路径
-            var $lastNode = $folderContent.find('.folderUrl .levelName:last');
-            var appointRootId = settings.appointRoot ? settings.appointRoot.id : '';
-            var lastNodeId = $lastNode.data('root') ? $lastNode.data('root').id : '';
-
-            if (
-              settings.isFolderNode == SELECT_TYPE.FOLDER &&
-              ((!$lastNode.hasClass('startTag') && !settings.appointRoot) || (settings.appointRoot && appointRootId))
-            ) {
-              if ($lastNode.hasClass('childNode')) {
-                var currentRoot = $folderContent.find('.folderUrl .shareRoot, .folderUrl .myRoot').data('root');
-                resultType = PICK_TYPE.CHILDNODE;
-                getNodeAjax = true;
-                ajax
-                  .getNodeDetail({ path: $lastNode.data('path') })
-                  .then(function (nodeData) {
-                    if (!nodeData) {
-                      return $.Deferred().reject();
-                    }
-                    var resObj = { type: parseInt(resultType), node: nodeData };
-                    if (resultType === PICK_TYPE.CHILDNODE && settings.reRootName) {
-                      resObj = $.extend(resObj, {
-                        rootName: currentRoot.name,
-                      });
-                    }
-                    folderSelect.savePos(resObj);
-                    folderSelect.savePos(resObj, true);
-                    deferred.resolve(resObj);
-                    //return true;
-                  })
-                  .fail(function () {
-                    deferred.reject();
-                  });
-              } else {
-                resultType = settings.rootType;
-                resultNode = $lastNode.hasClass('myRoot') ? { id: null, name: _l('我的文件') } : $lastNode.data('root');
-                folderSelect.savePos(resObj);
-                folderSelect.savePos(resObj, true);
-                deferred.resolve({ type: parseInt(resultType), node: resultNode });
-                return true;
+            var num = 0;
+            var setTime = setInterval(function () {
+              $folderContent.find('.folderNode').toggleClass('noItemBox');
+              if (num++ > 3) {
+                $folderContent.find('.folderNode').removeClass('noItemBox');
+                clearInterval(setTime);
               }
-            } else {
-              var num = 0;
-              var setTime = setInterval(function () {
-                $folderContent.find('.folderNode').toggleClass('noItemBox');
-                if (num++ > 3) {
-                  $folderContent.find('.folderNode').removeClass('noItemBox');
-                  clearInterval(setTime);
-                }
-              }, 300);
-              return false;
-            }
+            }, 300);
+            return true;
           }
-        },
-        noFn: function () {
-          deferred.reject();
-          return true;
-        },
-      },
-      callback: function () {
-        $(window).unbind('click.folderSelectDialog_sharePermision');
-      },
-      readyFn: function () {
-        $folderContent = $('body').find('#folderSelectDialog .folderContent');
-        if (settings.appointRoot && settings.appointRoot.id) {
-          settings.rootType = PICK_TYPE.ROOT;
-          folderSelect.getNodeList(
-            PICK_TYPE.ROOT,
-            {
-              id: settings.appointRoot.id,
-              name: settings.appointRoot.name,
-              projectId: (settings.appointRoot.project && settings.appointRoot.project.projectId) || '',
-            },
-            false,
-            false,
-          );
-        } else if (settings.isFolderNode === SELECT_TYPE.FILE && 1) {
-          var lastPos = localStorage.getItem('last_select_pos_' + md.global.Account.accountId);
-          if (lastPos) {
-            lastPos = JSON.parse(lastPos);
-            settings.rootType = lastPos.rootFolder.id ? PICK_TYPE.ROOT : PICK_TYPE.MYFILE;
-            settings.currentRoot = lastPos.currentRoot;
-            folderSelect.getRootList(function () {
-              folderSelect.getNodeList(lastPos.node.position ? null : settings.rootType, lastPos.node, false, false, {
-                forceRenderNet: true,
-                rootFolder: lastPos.rootFolder,
-              });
-            });
-          } else {
-            folderSelect.getRootList();
-          }
-        } else if (settings.isFolderNode === SELECT_TYPE.FOLDER) {
-          var lastPos = localStorage.getItem('last_select_folder_pos_' + md.global.Account.accountId);
-          var defaultData = lastPos ? JSON.parse(lastPos) : settings.appointFolder;
-          if (defaultData && !_.includes(settings.selectedItems, defaultData.node.id)) {
-            settings.rootType = defaultData.rootFolder.id ? PICK_TYPE.ROOT : PICK_TYPE.MYFILE;
-            folderSelect.getRootList(function () {
-              folderSelect.getNodeList(
-                defaultData.node.position ? null : settings.rootType,
-                defaultData.node,
-                false,
-                false,
-                {
-                  forceRenderNet: true,
-                  rootFolder: defaultData.rootFolder,
-                },
-              );
-            });
-          } else {
-            folderSelect.getRootList();
-          }
-        } else {
-          folderSelect.getRootList();
         }
+      },
+      onCancel: () => {
+        deferred.reject();
+        return true;
+      },
+      handleClose: () => {
+        $(window).unbind('click.folderSelectDialog_sharePermision');
+        $('.folderSelectDialog').parent().remove();
+      },
+    });
 
-        var $nodeVisibleType = $folderContent.find('.nodeVisibleType');
-        //搜索节点事件
-        var $folderSearch = $folderContent.find('.folderUrl .operation .folderSearch'),
-          $searchFolder = $folderSearch.find('.searchFolder'),
-          $positionUrl = $folderContent.find('.folderUrl .positionUrl');
+    $folderContent = $('body').find('.folderSelectDialog .folderContent');
+    if (settings.appointRoot && settings.appointRoot.id) {
+      settings.rootType = PICK_TYPE.ROOT;
+      folderSelect.getNodeList(
+        PICK_TYPE.ROOT,
+        {
+          id: settings.appointRoot.id,
+          name: settings.appointRoot.name,
+          projectId: (settings.appointRoot.project && settings.appointRoot.project.projectId) || '',
+        },
+        false,
+        false,
+      );
+    } else if (settings.isFolderNode === SELECT_TYPE.FILE && 1) {
+      var lastPos = localStorage.getItem('last_select_pos_' + md.global.Account.accountId);
+      if (lastPos) {
+        lastPos = JSON.parse(lastPos);
+        settings.rootType = lastPos.rootFolder.id ? PICK_TYPE.ROOT : PICK_TYPE.MYFILE;
+        settings.currentRoot = lastPos.currentRoot;
+        folderSelect.getRootList(function () {
+          folderSelect.getNodeList(lastPos.node.position ? null : settings.rootType, lastPos.node, false, false, {
+            forceRenderNet: true,
+            rootFolder: lastPos.rootFolder,
+          });
+        });
+      } else {
+        folderSelect.getRootList();
+      }
+    } else if (settings.isFolderNode === SELECT_TYPE.FOLDER) {
+      var lastPos = localStorage.getItem('last_select_folder_pos_' + md.global.Account.accountId);
+      var defaultData = lastPos ? JSON.parse(lastPos) : settings.appointFolder;
+      if (defaultData && !_.includes(settings.selectedItems, defaultData.node.id)) {
+        settings.rootType = defaultData.rootFolder.id ? PICK_TYPE.ROOT : PICK_TYPE.MYFILE;
+        folderSelect.getRootList(function () {
+          folderSelect.getNodeList(
+            defaultData.node.position ? null : settings.rootType,
+            defaultData.node,
+            false,
+            false,
+            {
+              forceRenderNet: true,
+              rootFolder: defaultData.rootFolder,
+            },
+          );
+        });
+      } else {
+        folderSelect.getRootList();
+      }
+    } else {
+      folderSelect.getRootList();
+    }
 
-        $folderSearch.find('.icon-search').on({
+    var $nodeVisibleType = $folderContent.find('.nodeVisibleType');
+    //搜索节点事件
+    var $folderSearch = $folderContent.find('.folderUrl .operation .folderSearch'),
+      $searchFolder = $folderSearch.find('.searchFolder'),
+      $positionUrl = $folderContent.find('.folderUrl .positionUrl');
+
+    $folderSearch.find('.icon-search').on({
+      click: function (evt) {
+        evt.stopPropagation();
+        var searchName = $.trim($searchFolder.val());
+        if (!searchName && $searchFolder.width() > 160) {
+          $searchFolder.blur();
+          return;
+        }
+        if (searchName && searchName.length && searchName != '请输入文件名称并回车') {
+          settings.keywords = searchName;
+          settings.skip = 0;
+          folderSelect.getNodeList(null, null, true);
+          return;
+        }
+        $searchFolder.val('').css({ width: 180, 'padding-right': '16px' });
+        var prevWidth = 0;
+        $folderContent
+          .find('.folderUrl .positionUrl span.flex')
+          .prevAll()
+          .each(function (i, v) {
+            prevWidth += $(v).width();
+          });
+        $positionUrl.css({ 'margin-left': '-' + eval(prevWidth) + 'px' });
+        setTimeout(function () {
+          $searchFolder.focus();
+        }, 300);
+      },
+    });
+    $searchFolder.on({
+      blur: function () {
+        var searchName = $.trim($(this).val());
+        if (!searchName || searchName == '请输入文件名称并回车') {
+          folderSelect.removeSearch();
+        }
+      },
+      keydown: function (evt) {
+        if (evt.keyCode == 13) {
+          var searchName = $.trim($(this).val());
+          if (searchName && searchName.length) {
+            settings.keywords = searchName;
+            settings.skip = 0;
+            folderSelect.getNodeList(null, null, true);
+          }
+        }
+      },
+    });
+    $folderSearch.on('click', function (evt) {
+      evt.stopPropagation();
+    });
+    $nodeVisibleType
+      .on(
+        {
           click: function (evt) {
             evt.stopPropagation();
-            var searchName = $.trim($searchFolder.val());
-            if (!searchName && $searchFolder.width() > 160) {
-              $searchFolder.blur();
-              return;
-            }
-            if (searchName && searchName.length && searchName != '请输入文件名称并回车') {
-              settings.keywords = searchName;
-              settings.skip = 0;
-              folderSelect.getNodeList(null, null, true);
-              return;
-            }
-            $searchFolder.val('').css({ width: 180, 'padding-right': '16px' });
-            var prevWidth = 0;
-            $folderContent
-              .find('.folderUrl .positionUrl span.flex')
-              .prevAll()
-              .each(function (i, v) {
-                prevWidth += $(v).width();
-              });
-            $positionUrl.css({ 'margin-left': '-' + eval(prevWidth) + 'px' });
-            setTimeout(function () {
-              $searchFolder.focus();
-            }, 300);
-          },
-        });
-        $searchFolder.on({
-          blur: function () {
-            var searchName = $.trim($(this).val());
-            if (!searchName || searchName == '请输入文件名称并回车') {
-              folderSelect.removeSearch();
-            }
-          },
-          keydown: function (evt) {
-            if (evt.keyCode == 13) {
-              var searchName = $.trim($(this).val());
-              if (searchName && searchName.length) {
-                settings.keywords = searchName;
-                settings.skip = 0;
-                folderSelect.getNodeList(null, null, true);
-              }
-            }
-          },
-        });
-        $folderSearch.on('click', function (evt) {
-          evt.stopPropagation();
-        });
-        $nodeVisibleType
-          .on(
-            {
-              click: function (evt) {
-                evt.stopPropagation();
-                var $this = $(this);
-                var nodeData = $this.parents('.sharePermision').prev().data('node');
-                var visibleId = parseInt($this.attr('visible'));
+            var $this = $(this);
+            var nodeData = $this.parents('.sharePermision').prev().data('node');
+            var visibleId = parseInt($this.attr('visible'));
 
-                if (!nodeData.canChangeSharable) {
-                  alert(_l('您无权限修改该文件的分享权限'), 3);
-                  return false;
+            if (!nodeData.canChangeSharable) {
+              alert(_l('您无权限修改该文件的分享权限'), 3);
+              return false;
+            }
+            if ($this.hasClass('ThemeColor3')) {
+              return false;
+            }
+            ajax
+              .updateNode({ id: nodeData.id, visibleType: visibleId })
+              .then(function (result) {
+                if (!result) {
+                  return $.Deferred().reject();
                 }
-                if ($this.hasClass('ThemeColor3')) {
-                  return false;
-                }
-                ajax
-                  .updateNode({ id: nodeData.id, visibleType: visibleId })
-                  .then(function (result) {
-                    if (!result) {
-                      return $.Deferred().reject();
-                    }
-                    alert(_l('修改成功'));
-                    nodeData.visibleType = visibleId;
-                    var $selectedNode = $folderContent
-                      .find('.nodeItem')
-                      .filter('.ThemeBGColor5[nodeType="' + NODE_TYPE.FILE + '"]');
-                    $selectedNode
-                      .find('.statusIcon i')
-                      .removeClass()
-                      .addClass(
-                        'Font20 ' +
-                          (visibleId === 1
-                            ? 'icon-task-new-locked'
-                            : visibleId === 4
-                            ? 'icon-global'
-                            : 'icon-group-members'),
-                      );
-                    $nodeVisibleType.html(folderSelect.renderNodeVisibleType(nodeData, $this)).fadeIn();
-                  })
-                  .fail(function () {
-                    alert(_l('操作失败, 请稍后重试'), 3);
-                  });
-              },
-            },
-            '.sharePermision .shareItem',
-          )
-          .end()
-          .on(
-            {
-              click: function (evt) {
-                var $sharePermision = $(this).parent().find('.sharePermision');
-                if ($sharePermision.is(':visible')) {
-                  $sharePermision.hide();
-                } else {
-                  $sharePermision.show();
-                }
-                evt.stopPropagation();
-              },
-            },
-            '.updateTypeBtn',
-          );
-        $(window).bind('click.folderSelectDialog_sharePermision', function () {
-          $nodeVisibleType.find('.sharePermision').hide();
-        });
-      },
+                alert(_l('修改成功'));
+                nodeData.visibleType = visibleId;
+                var $selectedNode = $folderContent
+                  .find('.nodeItem')
+                  .filter('.ThemeBGColor5[nodeType="' + NODE_TYPE.FILE + '"]');
+                $selectedNode
+                  .find('.statusIcon i')
+                  .removeClass()
+                  .addClass(
+                    'Font20 ' +
+                      (visibleId === 1
+                        ? 'icon-task-new-locked'
+                        : visibleId === 4
+                        ? 'icon-global'
+                        : 'icon-group-members'),
+                  );
+                $nodeVisibleType.html(folderSelect.renderNodeVisibleType(nodeData, $this)).fadeIn();
+              })
+              .fail(function () {
+                alert(_l('操作失败, 请稍后重试'), 3);
+              });
+          },
+        },
+        '.sharePermision .shareItem',
+      )
+      .end()
+      .on(
+        {
+          click: function (evt) {
+            var $sharePermision = $(this).parent().find('.sharePermision');
+            if ($sharePermision.is(':visible')) {
+              $sharePermision.hide();
+            } else {
+              $sharePermision.show();
+            }
+            evt.stopPropagation();
+          },
+        },
+        '.updateTypeBtn',
+      );
+    $(window).bind('click.folderSelectDialog_sharePermision', function () {
+      $nodeVisibleType.find('.sharePermision').hide();
     });
   },
   //获取全部根目录
@@ -557,13 +536,11 @@ $.extend(FolderSelect.prototype, {
 
         folderSelect.bindNodeEvent(true);
         folderSelect.bindNodeUrlEvent();
-        folderSelect.settings.dialog.dialogCenter();
         callback && callback();
       })
       .fail(function () {
         $folderContent.find('.folderNode').html($rootHtml);
         folderSelect.bindNodeEvent(true);
-        folderSelect.settings.dialog.dialogCenter();
       });
   },
   // 要选择的文件节点列表
@@ -885,8 +862,6 @@ $.extend(FolderSelect.prototype, {
         //绑定列表操作事件
         folderSelect.bindNodeEvent(false);
 
-        folderSelect.settings.dialog.dialogCenter();
-
         // 添加 title (tips)
         let html = '';
         $folderPath.children().each(function (i, el) {
@@ -1048,7 +1023,7 @@ $.extend(FolderSelect.prototype, {
               if (rootData && rootData.type == NODE_TYPE.FILE && settings.isFolderNode == SELECT_TYPE.FILE) {
                 settings.deferred.resolve({ type: parseInt(PICK_TYPE.CHILDNODE), node: [rootData] });
                 folderSelect.savePos();
-                settings.dialog.closeDialog();
+                $('.folderSelectDialog').parent().remove();
               } else {
                 folderSelect.getNodeList(null, rootData);
               }
@@ -1128,7 +1103,7 @@ $.extend(FolderSelect.prototype, {
       .off()
       .on('scroll', function () {
         var listCount;
-        var $nodeList = $('#folderSelectDialog .folderContent .folderNode');
+        var $nodeList = $('.folderSelectDialog .folderContent .folderNode');
         if (isRoot) {
           listCount = $nodeList.find('.sharedItem').length;
         } else {
@@ -1180,7 +1155,7 @@ $.extend(FolderSelect.prototype, {
   //绑定文件路径事件
   bindNodeUrlEvent: function () {
     var folderSelect = this;
-    var $folderPath = $('#folderSelectDialog .folderContent .folderUrl');
+    var $folderPath = $('.folderSelectDialog .folderContent .folderUrl');
     $folderPath
       .find('.startTag')
       .off()

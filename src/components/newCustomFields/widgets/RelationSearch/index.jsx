@@ -379,9 +379,6 @@ export default function RelationSearch(props) {
       getWorksheet: pageIndex === 1,
       getRules: pageIndex === 1,
     };
-    if (window.shareState.shareId) {
-      args.shareId = window.shareState.shareId;
-    }
     sheetAjax.getRowRelationRows(args).then(res => {
       setWorksheetAllowAdd(_.get(res, 'worksheet.allowAdd'));
       setState(oldState => {

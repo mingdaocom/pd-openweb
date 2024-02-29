@@ -1,22 +1,12 @@
 import React, { Fragment, useEffect, useRef } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Input } from 'antd';
-import { MenuItem, Textarea, Dialog, Menu, Checkbox, Icon, Tooltip } from 'ming-ui';
+import { MenuItem, Textarea, Dialog, Menu, Icon, VerifyPasswordInput } from 'ming-ui';
 import { verifyPassword } from 'src/util';
 import _ from 'lodash';
 import { Select } from 'antd';
 import { useSetState } from 'react-use';
-const Password = styled(Input.Password)`
-  box-shadow: none !important;
-  line-height: 28px !important;
-  border-radius: 3px !important;
-  border: 1px solid #ccc !important;
-  margin-bottom: 10px;
-  &.ant-input-affix-wrapper-focused {
-    border-color: #2196f3;
-  }
-`;
+
 const SectionName = styled.div`
   font-size: 13px;
   color: #333;
@@ -117,16 +107,17 @@ export default function CustomButtonConfirm(props) {
     }
     return remark;
   };
-  const [{ noVerify, needPassWord, checkIsPending, remark, showTemplateList, removeNoneVerification }, setState] =
-    useSetState({
-      noVerify: false,
-      needPassWord: false,
-      checkIsPending: false,
-      remark: getInit(),
-      showTemplateList: false,
-      removeNoneVerification: false,
-    });
-  const passwordRef = useRef();
+  const [
+    { noVerify, needPassWord, checkIsPending, remark, showTemplateList, removeNoneVerification, password },
+    setState,
+  ] = useSetState({
+    noVerify: false,
+    needPassWord: false,
+    checkIsPending: false,
+    remark: getInit(),
+    showTemplateList: false,
+    removeNoneVerification: false,
+  });
   const remarkRef = useRef();
   useEffect(() => {
     setState({ checkIsPending: true });
@@ -211,7 +202,7 @@ export default function CustomButtonConfirm(props) {
         }
         if (verifyPwd && needPassWord) {
           verifyPassword({
-            password: passwordRef.current.input.value,
+            password,
             isNoneVerification: noVerify,
             closeImageValidation: true,
             success: () => {
@@ -227,33 +218,11 @@ export default function CustomButtonConfirm(props) {
       onCancel={onClose}
     >
       {verifyPwd && needPassWord && (
-        <div className="mBottom15">
-          <SectionName className="mTop0">{_l('账号')}</SectionName>
-          <User className="mTop10 flexRow alignItemsCenter">
-            {md.global.Account.mobilePhone
-              ? md.global.Account.mobilePhone.replace(/((\+86)?\d{3})\d*(\d{4})/, '$1****$3')
-              : md.global.Account.email.replace(/(.{3}).*(@.*)/, '$1***$2')}
-          </User>
-
-          <SectionName className={cx({ required: true })}>{_l('密码')}</SectionName>
-          <div style={{ height: '0px', overflow: 'hidden' }}>
-            // 用来避免浏览器将用户名塞到其它input里
-            <input type="text" />
-          </div>
-          <Password ref={passwordRef} autoComplete="new-password" placeholder={_l('输入当前用户的密码')} />
-          {!removeNoneVerification && (
-            <Tooltip popupPlacement="bottom" text={_l('此后1小时内在当前设备上应用和审批操作无需再次验证')}>
-              <div className="InlineBlock">
-                <Checkbox
-                  className="verifyCheckbox"
-                  checked={noVerify}
-                  text={_l('1小时内免验证')}
-                  onClick={() => setState({ noVerify: !noVerify })}
-                />
-              </div>
-            </Tooltip>
-          )}
-        </div>
+        <VerifyPasswordInput
+          isRequired={true}
+          allowNoVerify={!removeNoneVerification}
+          onChange={({ password }) => setState({ password })}
+        />
       )}
 
       {description && <div className="Font14 Gray_75">{description}</div>}

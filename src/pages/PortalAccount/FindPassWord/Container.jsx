@@ -86,11 +86,11 @@ export default function LoginContainer(props) {
       }
       doFindPwd(
         Object.assign({}, res, {
-          captchaType: md.staticglobal.getCaptchaType(),
+          captchaType: md.global.getCaptchaType(),
         }),
       );
     };
-    if (md.staticglobal.getCaptchaType() === 1) {
+    if (md.global.getCaptchaType() === 1) {
       new captcha(callback);
     } else {
       new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), callback).show();
@@ -189,7 +189,7 @@ export default function LoginContainer(props) {
       password: encrypt(password),
       appId,
       verifyCode,
-      captchaType: md.staticglobal.getCaptchaType(),
+      captchaType: md.global.getCaptchaType(),
       ticket,
       randStr: randstr,
     }).then(res => {

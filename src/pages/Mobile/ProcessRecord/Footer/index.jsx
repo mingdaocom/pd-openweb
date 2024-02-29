@@ -1,8 +1,7 @@
 import React, { Fragment, Component } from 'react';
 import cx from 'classnames';
-import { Icon } from 'ming-ui';
+import { Icon, VerifyPasswordInput } from 'ming-ui';
 import { Button, ActionSheet } from 'antd-mobile';
-import VerifyPassword from 'src/pages/workflow/components/ExecDialog/components/VerifyPassword';
 import OtherAction from '../OtherAction';
 import {
   ACTION_TYPES,
@@ -31,9 +30,11 @@ export default class Footer extends Component {
         message: (
           <div className="TxtLeft sheetProcessRowRecord">
             <div className="Font17 Bold Gray mBottom10">{_l('提交记录')}</div>
-            <VerifyPassword
+            <VerifyPasswordInput
               autoFocus={true}
-              removeNoneVerification={removeNoneVerification}
+              showSubTitle={false}
+              isRequired={true}
+              allowNoVerify={!removeNoneVerification}
               onChange={({ password, isNoneVerification }) => {
                 if (password !== undefined) this.password = password;
                 if (isNoneVerification !== undefined) this.isNoneVerification = isNoneVerification;
@@ -52,6 +53,10 @@ export default class Footer extends Component {
                 className="Font13 flex bold"
                 type="primary"
                 onClick={() => {
+                  if (!this.password || !this.password.trim()) {
+                    alert(_l('请输入密码'), 3);
+                    return;
+                  }
                   verifyPassword({
                     password: this.password,
                     closeImageValidation: true,
@@ -72,9 +77,20 @@ export default class Footer extends Component {
       buttonIndex => {},
     );
   };
+  safeAuthentication = (success = () => {}) => {
+    const { instance } = this.props;
+    verifyPassword({
+      projectId: instance.companyId,
+      checkNeedAuth: true,
+      success,
+      fail: result => {
+        this.writeVerifyPassword(result === 'showPassword');
+      },
+    });
+  }
   handleClick = id => {
     const { onSubmit, instance } = this.props;
-    const { ignoreRequired, encrypt } = (instance || {}).flowNode || {};
+    const { ignoreRequired, encrypt, auth } = (instance || {}).flowNode || {};
 
     /**
      * 填写
@@ -82,16 +98,7 @@ export default class Footer extends Component {
     if (id === 'submit') {
       // 验证密码
       if (encrypt) {
-        verifyPassword({
-          projectId: instance.companyId,
-          checkNeedAuth: true,
-          success: () => {
-            this.request('submit');
-          },
-          fail: result => {
-            this.writeVerifyPassword(result === 'showPassword');
-          },
-        });
+        this.safeAuthentication(() => this.request('submit'));
       } else {
         this.request('submit');
       }
@@ -130,14 +137,31 @@ export default class Footer extends Component {
       return;
     }
 
+    const openOperatorDialog = () => {
+      if (_.includes(['pass', 'overrule', 'return'], id)) {
+        const typeList = auth[id === 'pass' ? 'passTypeList' : 'overruleTypeList'];
+        if (typeList.length === 1 && typeList[0] === 101) {
+          if (!encrypt) {
+            this.handleAction({ action: id });
+          } else {
+            this.safeAuthentication(() => this.handleAction({ action: id }));
+          }
+        } else {
+          this.setState({ action: id, otherActionVisible: true });
+        }
+      } else {
+        this.setState({ action: id, otherActionVisible: true });
+      }
+    }
+
     if (ignoreRequired || _.includes(['transferApprove', 'transfer'], id)) {
-      this.setState({ action: id, otherActionVisible: true });
+      openOperatorDialog();
     } else {
       onSubmit({
         noSave: true,
         callback: err => {
           if (!err) {
-            this.setState({ action: id, otherActionVisible: true });
+            openOperatorDialog();
           }
         },
       });
@@ -185,7 +209,7 @@ export default class Footer extends Component {
       onSubmit({ callback: saveFunction, ignoreError: isStash, ignoreAlert: isStash, silent: isStash });
     }
   };
-  handleAction = (action, content, forwardAccountId, backNodeId, signature) => {
+  handleAction = ({ action, content = '', forwardAccountId, backNodeId, signature, files }) => {
     const { instance } = this.props;
     const { ignoreRequired } = (instance || {}).flowNode || {};
 
@@ -197,7 +221,7 @@ export default class Footer extends Component {
     if (_.includes(['before', 'after'], action)) {
       this.request(
         ACTION_TO_METHOD[action],
-        { before: action === 'before', opinion: content, forwardAccountId, signature },
+        { before: action === 'before', opinion: content, forwardAccountId, signature, files },
         action === 'before',
       );
     }
@@ -215,7 +239,7 @@ export default class Footer extends Component {
     if (_.includes(['pass', 'overrule', 'return'], action)) {
       this.request(
         ACTION_TO_METHOD[action],
-        { opinion: content, backNodeId, signature },
+        { opinion: content, backNodeId, signature, files },
         _.includes(['overrule', 'return'], action) && ignoreRequired,
       );
     }

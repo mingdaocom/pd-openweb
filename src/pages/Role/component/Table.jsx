@@ -8,9 +8,9 @@ const Wrap = styled.div`
   .opacity0 {
     opacity: 0 !important;
   }
-  // .cur {
-  //   color: #2196f3;
-  // }
+  .Checkbox-box {
+    margin-right: 0 !important;
+  }
   &:hover {
   }
   overflow-x: auto;

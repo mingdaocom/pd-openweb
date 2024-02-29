@@ -7,6 +7,7 @@ import { permitList } from 'src/pages/FormSet/config.js';
 export default function RecordInfoRight(props) {
   const {
     loading,
+    workflowStatus,
     className,
     recordbase,
     workflow,
@@ -70,6 +71,7 @@ export default function RecordInfoRight(props) {
     <div className={`recordInfoInfo ${className || ''}`}>
       <DiscussLogFile
         configLoading={loading}
+        workflowStatus={workflowStatus}
         isOpenNewAddedRecord={isOpenNewAddedRecord}
         workflow={workflow}
         approval={approval}

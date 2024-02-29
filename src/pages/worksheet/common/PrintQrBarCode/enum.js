@@ -181,10 +181,10 @@ export const CODE_FAULT_TOLERANCE = {
   Q: 3, // 25%
   H: 2, // 30%
   texts: {
-    L: _l('7%'),
-    M: _l('15%'),
-    Q: _l('25%'),
-    H: _l('35%'),
+    L: '7%',
+    M: '15%',
+    Q: '25%',
+    H: '35%',
   },
 };
 export const CODE_FAULT_TOLERANCE_LIST = getList(CODE_FAULT_TOLERANCE);

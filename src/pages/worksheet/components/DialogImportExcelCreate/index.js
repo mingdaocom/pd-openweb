@@ -72,7 +72,7 @@ class DialogImportExcelCreate extends Component {
   };
   getPreviewData = (params = {}) => {
     const { projectId, appId } = this.props;
-    const { filePath, fileType, fileName } = params;
+    const { filePath, fileType, fileName, token } = params;
     $.ajax(md.global.Config.WorksheetDownUrl + '/Import/Preview', {
       data: {
         accountId: md.global.Account.accountId,
@@ -80,6 +80,7 @@ class DialogImportExcelCreate extends Component {
         appId,
         csvName: _.includes(fileType, 'csv') ? fileName : undefined,
         filePath,
+        token,
       },
       beforeSend: xhr => {
         xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
@@ -158,7 +159,7 @@ class DialogImportExcelCreate extends Component {
         this.props.updateSelectedImportSheetIds(selectedSheetIds);
         this.props.updateCurrentSheetInfo({
           ...sheetInfo,
-          selectCells: ((sheetInfo.rows.length && sheetInfo.rows[0].cells) || []).map(it => it.columnNumber),
+          selectCells: (_.get(sheetInfo, 'rows[0].cells') || []).map(it => it.columnNumber),
         });
         this.setState({ id, versionLimitSheetCount, currentSheetCount, freeRowCount, socketId: res.message });
       },

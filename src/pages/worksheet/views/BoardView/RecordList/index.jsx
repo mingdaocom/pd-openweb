@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import NewRecord from 'worksheet/common/newRecord/NewRecord';
 import cx from 'classnames';
-import { LoadDiv, ScrollView } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
 import RecordItem from './RecordItem';
 import { AddRecord } from '../components';
 import BoardTitle from './BoardTitle';
@@ -11,6 +11,14 @@ import { isDisabledCreate } from '../../util';
 import { useSetState } from 'react-use';
 import { useDrop } from 'react-dnd-latest';
 import { browserIsMobile } from 'src/util';
+import styled from 'styled-components';
+
+const Wrap = styled.div`
+  width: ${props => `${(props.width ? props.width : 280) + 12 * 2}px`};
+  .boardDataRecordItemWrap {
+    width: ${props => `${props.width ? props.width : 280}px`};
+  }
+`;
 
 export default function Board(props) {
   const {
@@ -27,6 +35,8 @@ export default function Board(props) {
     addRecord,
     updateTitleData,
     sheetButtons,
+    fieldShowCount,
+    index,
     ...rest
   } = props;
   const [{ pageIndex, loading, createRecordVisible, addRecordDefaultValue, isMore }, setState] = useSetState({
@@ -37,6 +47,7 @@ export default function Board(props) {
     isMore: true,
   });
   const $contentRef = useRef(null);
+  const $scrollerRef = useRef(null);
 
   const pendingFlag = useRef(false);
 
@@ -67,40 +78,11 @@ export default function Board(props) {
 
   const { keyType: dragItemKey, rowId } = dragItem || {};
 
-  const computeHeight = () => {
-    if (!$contentRef) return;
-    const { current } = $contentRef;
-    if (current) {
-      const $parent = current.offsetParent;
-      const $scrollWrap = $($parent).parent();
-      const wrapHeight = $('.boardDataRecordListWrap').height();
-      if (current.offsetHeight > wrapHeight) {
-        $scrollWrap.height('100%');
-      } else {
-        $scrollWrap.height(current.offsetHeight);
-      }
-    }
-  };
-  // 绑定事件
-  const bindEvent = () => {
-    document.addEventListener('readystatechange', computeHeight);
-    return () => {
-      document.removeEventListener('readystatechange', computeHeight);
-    };
-  };
-
-  useEffect(() => {
-    const removeBind = bindEvent();
-    computeHeight();
-    return () => removeBind();
-  }, []);
-
-  useEffect(() => {
-    computeHeight();
-  });
-
   const scrollLoad = (e, o) => {
-    if (!loading && o.maximum - o.position <= 100 && isMore && list.rows.length < list.totalNum) {
+    if (!$scrollerRef || !$contentRef) return;
+    const threshold =
+      $scrollerRef.current.scrollHeight - $contentRef.current.clientHeight - $scrollerRef.current.scrollTop;
+    if (!loading && threshold <= 100 && isMore && list.rows.length < list.totalNum) {
       setState(state => {
         const { pageIndex } = state;
         const nextPageIndex = pageIndex + 1;
@@ -164,20 +146,29 @@ export default function Board(props) {
       item => item.rowId === rowId,
     );
   const isMobile = browserIsMobile();
+  let param = {};
+  if (!!_.get(view, 'advancedSetting.cardwidth')) {
+    param = {
+      width: Number(_.get(view, 'advancedSetting.cardwidth')),
+    };
+  }
+
   return (
-    <div ref={drop} className={cx('boardDataRecordListWrap')}>
+    <Wrap ref={drop} className={cx('boardDataRecordListWrap')} {...param}>
       <BoardTitle
         count={boardViewRecordCount[list.key] || 0}
         showRecordInfo={showRecordInfo}
         keyType={list.key}
         selectControl={rest.selectControl}
         appId={props.appId}
+        projectId={worksheetInfo.projectId}
         {..._.pick(list, ['name', 'type', 'key', 'color', 'enumDefault', 'enumDefault2', 'noGroup', 'rowId'])}
       />
-      <ScrollView className="boardDataItemScrollWrap" updateEvent={_.throttle(scrollLoad, 400)}>
+      <div className="boardDataItemScrollWrap" ref={$scrollerRef} onScroll={_.throttle(scrollLoad, 400)}>
         <div className="boardDataContentWrap" ref={$contentRef}>
           {isOver && list.key !== dragItemKey && (
             <RecordItem
+              fieldShowCount={fieldShowCount}
               type="temp"
               keyType={list.key}
               list={list}
@@ -187,10 +178,12 @@ export default function Board(props) {
               worksheetInfo={worksheetInfo}
               viewControl={viewControl}
               sheetButtons={sheetButtons}
+              {...param}
             />
           )}
           {list.data.map((item, index) => (
             <RecordItem
+              fieldShowCount={fieldShowCount}
               key={index}
               keyType={list.key}
               list={list}
@@ -200,23 +193,24 @@ export default function Board(props) {
               worksheetInfo={worksheetInfo}
               viewControl={viewControl}
               sheetSwitchPermit={sheetSwitchPermit}
-              computeHeight={computeHeight}
               updateTitleData={data => updateTitleData({ key: list.key, index, data })}
               {..._.pick(list, ['fieldPermission'])}
               sheetButtons={sheetButtons}
               onAdd={addRecord}
               {...rest}
+              {...param}
             />
           ))}
           {loading && <LoadDiv />}
         </div>
-      </ScrollView>
+      </div>
       {!isMobile && isShowAddRecord() && (
-        <AddRecord className="addBoardRecord" noItem={!list.data.length} onAddRecord={handleAddRecord} />
+        <AddRecord className="addBoardRecord" noItem={!list.data.length} onAddRecord={handleAddRecord} {...param} />
       )}
       {createRecordVisible && (
         <NewRecord
           visible
+          showFillNext
           onAdd={record => {
             addRecord({ item: record, key: list.key });
           }}
@@ -228,6 +222,6 @@ export default function Board(props) {
           {..._.pick(props, ['projectId', 'worksheetId', 'appId', 'viewId', 'worksheetInfo'])}
         />
       )}
-    </div>
+    </Wrap>
   );
 }

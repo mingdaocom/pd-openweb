@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import sheetAjax from 'src/api/worksheet';
 import './content.less';
 import { getPrintContent, sortByShowControls, getVisibleControls, isRelation } from '../util';
@@ -58,12 +58,7 @@ export default class Con extends React.Component {
         .then(({ shareLink }) => {
           let url = shareLink;
 
-          if (
-            type === typeForCon.PREVIEW &&
-            isDefault &&
-            printId &&
-            printType === 'worksheet'
-          ) {
+          if (type === typeForCon.PREVIEW && isDefault && printId && printType === 'worksheet') {
             url = url.replace('public/record', 'public/print');
             url = `${url}&&${printId}&&${projectId}`;
           }
@@ -95,7 +90,11 @@ export default class Con extends React.Component {
     };
     let visibleControls = getVisibleControls(controls);
     const controlData = putControlByOrder(
-      replaceHalfWithSizeControls(visibleControls.filter(l => !l.sectionId || visibleControls.find(o => o.controlId === l.sectionId)).filter(o => !UNPRINTCONTROL.includes(o.type))),
+      replaceHalfWithSizeControls(
+        visibleControls
+          .filter(l => !l.sectionId || visibleControls.find(o => o.controlId === l.sectionId))
+          .filter(o => !UNPRINTCONTROL.includes(o.type)),
+      ),
     );
     let isHideNull = !showData && !(from === fromType.FORMSET && type !== typeForCon.PREVIEW);
     const tableList = [];
@@ -155,6 +154,8 @@ export default class Con extends React.Component {
           let hideNum = 0;
           if ([22, 52].includes(tableData[0][0].type)) {
             let type = tableData[0][0].type;
+            let hideTitle = _.get(tableData[0][0], 'advancedSetting.hidetitle') === '1';
+
             return tableData[0][0].checked ? (
               <p
                 style={{
@@ -168,7 +169,7 @@ export default class Con extends React.Component {
                   textAlign: type === 52 ? 'center' : 'left',
                 }}
               >
-                {tableData[0][0].controlName || ''}
+                {hideTitle ? '' : tableData[0][0].controlName || ''}
               </p>
             ) : null;
           }
@@ -197,6 +198,7 @@ export default class Con extends React.Component {
                 const item = tableData[key];
                 //一行一个控件的显示
                 if (item.length === 1) {
+                  const hideTitle = _.get(item[0], 'advancedSetting.hidetitle') === '1';
                   if (isHideNull) {
                     if ([41, 10010, 14, 42].includes(item[0].type) && !item[0].value && !item[0].dataSource) {
                       //富文本、备注、附件、签名，是否空值隐藏0
@@ -230,22 +232,62 @@ export default class Con extends React.Component {
                     borderBottom: '0.1px solid #ddd',
                     borderTop: itemIndex === hideNum ? '0.1px solid #ddd' : 'none',
                   };
+                  {
+                    /* 备注字段 */
+                  }
+                  if (item[0].type === 10010 && (item[0].value || item[0].dataSource)) {
+                    return (
+                      <Fragment>
+                        {!hideTitle && (
+                          <tr style={STYLE_PRINT.controlDiv}>
+                            <td
+                              style={{
+                                ...STYLE_PRINT.controlDiv_span,
+                                ...STYLE_PRINT.controlDiv_span_title,
+                                borderBottom: 'none',
+                              }}
+                              width={'100%'}
+                              colSpan={12}
+                            >
+                              {item[0].controlName}
+                            </td>
+                          </tr>
+                        )}
+                        <tr style={STYLE_PRINT.controlDiv}>
+                          <td
+                            style={{
+                              ...STYLE_PRINT.controlDiv_span,
+                              ...STYLE_PRINT.controlDiv_span_value,
+                              ...expStyle,
+                            }}
+                            width={'100%'}
+                            colSpan={12}
+                          >
+                            {getPrintContent({
+                              ...item[0],
+                              showUnit: true,
+                              showData: isHideNull,
+                              printOption,
+                              ...dataInfo,
+                            })}
+                          </td>
+                        </tr>
+                      </Fragment>
+                    );
+                  }
 
-                  return item[0].type !== 10010 || (item[0].type === 10010 && (item[0].value || item[0].dataSource)) ? (
+                  return item[0].type !== 10010 ? (
                     <tr style={STYLE_PRINT.controlDiv}>
-                      {/* 备注字段无标题 */}
-                      {item[0].type !== 10010 && (
-                        <td
-                          width="78"
-                          style={{
-                            ...STYLE_PRINT.controlDiv_span,
-                            ...STYLE_PRINT.controlDiv_span_title,
-                            ...expStyle,
-                          }}
-                        >
-                          {item[0].controlName}
-                        </td>
-                      )}
+                      <td
+                        width="78"
+                        style={{
+                          ...STYLE_PRINT.controlDiv_span,
+                          ...STYLE_PRINT.controlDiv_span_title,
+                          ...expStyle,
+                        }}
+                      >
+                        {hideTitle ? '' : item[0].controlName}
+                      </td>
                       {/* 分割线不计算value 走特殊显示方式 */}
                       <td
                         style={{
@@ -253,8 +295,8 @@ export default class Con extends React.Component {
                           ...STYLE_PRINT.controlDiv_span_value,
                           ...expStyle,
                         }}
-                        width={item[0].type !== 10010 ? '650' : '100%'}
-                        colSpan={item[0].type !== 10010 ? 11 : 12}
+                        width={650}
+                        colSpan={11}
                       >
                         {getPrintContent({
                           ...item[0],
@@ -276,7 +318,6 @@ export default class Con extends React.Component {
                   );
 
                   let allCountSize = _.sum(data.map(item => item.size));
-                  // let allCountSize = 12;
 
                   if (data.length > 0) {
                     return (
@@ -284,6 +325,7 @@ export default class Con extends React.Component {
                         <tr style={STYLE_PRINT.controlDiv}>
                           {data.map((it, i) => {
                             let span = 12 * (it.size / allCountSize);
+                            const hideTitle = _.get(it, 'advancedSetting.hidetitle') === '1';
                             return (
                               <React.Fragment>
                                 <td
@@ -297,7 +339,7 @@ export default class Con extends React.Component {
                                     borderTop: itemIndex === hideNum ? '0.1px solid #ddd' : 'none',
                                   }}
                                 >
-                                  {it.controlName || _l('未命名')}
+                                  {hideTitle ? '' : it.controlName || _l('未命名')}
                                 </td>
                                 <td
                                   style={{
@@ -405,6 +447,7 @@ export default class Con extends React.Component {
     };
 
     let sign = !relationStyleNum.type || relationStyleNum.type === 1;
+    const hideTitle = _.get(tableList, 'advancedSetting.hidetitle') === '1';
 
     return (
       <React.Fragment>
@@ -412,7 +455,7 @@ export default class Con extends React.Component {
           style={_.assign(STYLE_PRINT.relationsTitle, STYLE_PRINT.Font15, sign ? STYLE_PRINT.pRelations : {})}
           className="relationsTitle"
         >
-          {tableList.controlName || _l('未命名')}
+          {hideTitle ? '' : tableList.controlName || _l('未命名')}
           {type !== typeForCon.PREVIEW && (
             <ul
               className="noPrint"
@@ -577,6 +620,50 @@ export default class Con extends React.Component {
     });
   };
 
+  renderApprovalFiles = (files = []) => {
+    const images = files.filter(l => File.isPicture(l.ext));
+    const others = files.filter(l => !File.isPicture(l.ext));
+
+    return (
+      <React.Fragment>
+        <div
+          style={{
+            textAlign: 'center',
+            marginTop: 5,
+          }}
+        >
+          {images.map(l => (
+            <img
+              onLoad={e => {
+                let width = e.target.width;
+                let height = e.target.height;
+                if (width > height) {
+                  $(e.target).attr({
+                    width: width,
+                  });
+                } else {
+                  $(e.target).attr({
+                    height: height,
+                  });
+                }
+              }}
+              style={{
+                maxWidth: 140,
+                maxHeight: 158,
+              }}
+              src={
+                l.previewUrl.indexOf('imageView2') > -1
+                  ? l.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/2/w/600/q/90')
+                  : `${l.previewUrl}&imageView2/2/w/600/q/90`
+              }
+            />
+          ))}
+        </div>
+        <div style={{ marginTop: 4, marginBottom: 0 }}>{others.map(l => l.originalFilename + l.ext).join(', ')}</div>
+      </React.Fragment>
+    );
+  };
+
   renderWorks = (_works = undefined, _name) => {
     const { printData } = this.props;
     const { workflow = [], processName, approvePosition } = printData;
@@ -605,7 +692,7 @@ export default class Con extends React.Component {
                 >
                   <tbody>
                     <tr>
-                      <th
+                      <td
                         style={{
                           ...STYLE_PRINT.worksTable_workPersons_th,
                           width: '20%',
@@ -616,8 +703,8 @@ export default class Con extends React.Component {
                         }}
                       >
                         {_l('流程节点')}
-                      </th>
-                      <th
+                      </td>
+                      <td
                         style={{
                           ...STYLE_PRINT.worksTable_workPersons_th,
                           width: '20%',
@@ -626,8 +713,8 @@ export default class Con extends React.Component {
                         }}
                       >
                         {_l('操作人')}
-                      </th>
-                      <th
+                      </td>
+                      <td
                         style={{
                           ...STYLE_PRINT.worksTable_workPersons_th,
                           width: '12%',
@@ -636,8 +723,8 @@ export default class Con extends React.Component {
                         }}
                       >
                         {_l('操作')}
-                      </th>
-                      <th
+                      </td>
+                      <td
                         style={{
                           ...STYLE_PRINT.worksTable_workPersons_th,
                           width: '22%',
@@ -646,8 +733,8 @@ export default class Con extends React.Component {
                         }}
                       >
                         {_l('操作时间')}
-                      </th>
-                      <th
+                      </td>
+                      <td
                         style={{
                           ...STYLE_PRINT.worksTable_workPersons_th,
                           width: '26%',
@@ -656,7 +743,7 @@ export default class Con extends React.Component {
                         }}
                       >
                         {approvePosition === 0 ? _l('备注/签名') : _l('备注')}
-                      </th>
+                      </td>
                     </tr>
                     {works.map((item, index) => {
                       return item.workItems.map((workItem, workItemIndex) => {
@@ -733,7 +820,9 @@ export default class Con extends React.Component {
                                   {workItemLog &&
                                     workItemLog.fields &&
                                     workItemLog.fields.map(({ name, toValue }) => (
-                                      <span>{_l('%0: %1', name, toValue)}</span>
+                                      <span>
+                                        {name}：{toValue}
+                                      </span>
                                     ))}
                                   {signature && !approvePosition ? (
                                     <div
@@ -745,6 +834,8 @@ export default class Con extends React.Component {
                                       )}
                                     </div>
                                   ) : null}
+                                  {/* 附件 */}
+                                  {workItem.files && this.renderApprovalFiles(workItem.files)}
                                 </React.Fragment>
                               )}
                             </td>
@@ -839,11 +930,7 @@ export default class Con extends React.Component {
                       };
                     });
 
-                    return (
-                      <React.Fragment>
-                        {this.renderWorks(_workList, l.processInfo.processName)}
-                      </React.Fragment>
-                    );
+                    return <React.Fragment>{this.renderWorks(_workList, l.processInfo.processName)}</React.Fragment>;
                   })}
                 </div>
               );
@@ -998,7 +1085,9 @@ export default class Con extends React.Component {
                 </table>
               )}
               {/* 标题 */}
-              <p style={STYLE_PRINT.createBy_h6} className="generalTitle">{printData.titleChecked && attributeName}</p>
+              <p style={STYLE_PRINT.createBy_h6} className="generalTitle">
+                {printData.titleChecked && attributeName}
+              </p>
               {this.getNumSys() > 0 && this.renderSysTable()}
               {_.isEmpty(controls) ? undefined : this.renderControls()}
               {/* 工作流 */}
@@ -1035,7 +1124,11 @@ export default class Con extends React.Component {
                           >
                             {tdList[tdIndex] ? (
                               <React.Fragment>
-                                <div style={{ fontWeight: 'bold' }}>{tdList[tdIndex].controlName}</div>
+                                <div style={{ fontWeight: 'bold', height: 20 }}>
+                                  {_.get(tdList[tdIndex], 'advancedSetting.hidetitle') === '1'
+                                    ? ''
+                                    : tdList[tdIndex].controlName}
+                                </div>
                                 <div className="infoSignature">
                                   <img
                                     style={{ marginTop: 20 }}

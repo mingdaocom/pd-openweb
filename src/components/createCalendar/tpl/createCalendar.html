@@ -82,6 +82,7 @@
         value="15"
     />
     <input type="hidden" id="remindSelectCreate" />
+    <span class="InlineBlock" id="remindSelectCreateBox" style="margin-top: -5px;margin-left: -12px;"></span>
     <div class="telRemindLabel InlineBlock mLeft25 Gray_9e">
         <label class="Hand">
             <span class="chekboxIcon"></span> {{= _l('电话提醒')}}
@@ -179,6 +180,7 @@
         <li class="box-sizing">
             <div class="createCalendarLabel">{{= _l('重复类型')}}</div>
             <input type="hidden" id="tab_repeatType" value="1" />
+            <span class="InlineBlock" id="tab_repeatTypeBox" style="margin-top: -5px;margin-left: -12px;"></span>
         </li>
         <li class="box-sizing">
             <div class="createCalendarLabel">{{= _l('重复频率')}}</div>
@@ -245,7 +247,8 @@
         </li>
         <li class="box-sizing">
             <div class="createCalendarLabel">{{= _l('结束日期')}}</div>
-            <input type="hidden" id="tab_repeatTime" />
+            <input type="hidden" id="tab_repeatTime" value="0" />
+            <span class="InlineBlock" id="tab_repeatTimeBox" style="margin-top: -5px;margin-left: -12px;"></span>
             <span id="overCount" class="Font14">
                 {{=_l('发生')}}
                 <input

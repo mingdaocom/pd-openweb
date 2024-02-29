@@ -52,6 +52,8 @@ export default function Container(props) {
   const [activeWidget, setActiveWidget] = useState({});
   // 批量选中
   const [batchActive, setBatchActive] = useState([]);
+  // 批量拖拽
+  const [batchDrag, setBatchDrag] = useState(false);
   // 查询工作表配置
   const [queryConfigs, setQueryConfigs] = useState([]);
   // 外部门户开启状态
@@ -233,8 +235,8 @@ export default function Container(props) {
   }, []);
 
   const saveControls = ({ actualWidgets } = {}) => {
-    const controls = genControlsByWidgets(actualWidgets || widgets);
-    if (!controls.some(item => item.attribute === 1)) {
+    const saveControls = genControlsByWidgets(actualWidgets || widgets);
+    if (!saveControls.some(item => item.attribute === 1)) {
       setStatus({ noTitleControl: true });
       return;
     }
@@ -246,10 +248,10 @@ export default function Container(props) {
       .saveWorksheetControls({
         version,
         sourceId,
-        controls: formatControlsData(controls),
+        controls: formatControlsData(saveControls),
       })
       .then(({ data, code }) => {
-        let error = getMsgByCode({ code, data });
+        let error = getMsgByCode({ code, data, controls: saveControls });
         if (error) return;
         const { controls, version } = data;
 
@@ -315,8 +317,8 @@ export default function Container(props) {
     return currentControls.some(item => {
       const prevItem = find(prevControls, ({ controlId }) => item.controlId === controlId);
       return !isEqual(
-        _.omit(prevItem, ['half', 'relationControls', 'sourceEntityName', 'deleteAccount']),
-        _.omit(item, ['half', 'relationControls', 'sourceEntityName', 'deleteAccount']),
+        _.omit(prevItem, ['half', 'relationControls', 'sourceEntityName', 'deleteAccount', 'needUpdate']),
+        _.omit(item, ['half', 'relationControls', 'sourceEntityName', 'deleteAccount', 'needUpdate']),
       );
     });
   };
@@ -339,8 +341,6 @@ export default function Container(props) {
 
   const handleActiveSet = newWidgets => {
     setActiveWidget(newWidgets);
-    // 单独激活时取消批量激活
-    setBatchActive([]);
     if (!_.isEmpty(newWidgets)) {
       setStyleInfo({ activeStatus: false });
     }
@@ -380,6 +380,8 @@ export default function Container(props) {
     relateToNewPage,
     batchActive,
     setBatchActive,
+    batchDrag,
+    setBatchDrag,
     // 全局表信息
     globalSheetInfo: pick(globalInfo, ['appId', 'projectId', 'worksheetId', 'name', 'groupId', 'roleType']),
   };

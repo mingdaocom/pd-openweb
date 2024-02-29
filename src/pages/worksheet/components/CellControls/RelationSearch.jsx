@@ -54,7 +54,7 @@ export default function RelationSearch(props) {
               worksheetId,
               recordId,
               control: cell,
-              formdata: rowFormData(),
+              formdata: _.isFunction(rowFormData) ? rowFormData() : rowFormData,
               allowEdit: editable,
             });
           } else {
@@ -71,7 +71,7 @@ export default function RelationSearch(props) {
                   showtype: String(RELATION_SEARCH_SHOW_TYPE.CARD),
                 },
               },
-              forData: rowFormData(),
+              forData: _.isFunction(rowFormData) ? rowFormData() : rowFormData,
             });
           }
         }}

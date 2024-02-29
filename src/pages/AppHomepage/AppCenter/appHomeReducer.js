@@ -15,6 +15,10 @@ export const initialState = {
   markedApps: [],
   markedGroup: [],
   recentApps: [],
+  //工作台状态
+  dashboardLoading: true,
+  platformSettingLoading: true,
+  recentAppItems: [],
 };
 
 function updateAppOfState(state, appId, update = data => data) {
@@ -26,11 +30,13 @@ function updateAppOfState(state, appId, update = data => data) {
   return state;
 }
 function deleteAppOfState(state, appId) {
-  ['apps', 'markedApps', 'externalApps', 'aloneApps', 'activeGroupApps', 'recentApps'].forEach(key => {
-    if (state[key]) {
-      state[key] = state[key].filter(app => app.id !== appId);
-    }
-  });
+  ['apps', 'markedApps', 'externalApps', 'aloneApps', 'activeGroupApps', 'recentApps', 'recentAppItems'].forEach(
+    key => {
+      if (state[key]) {
+        state[key] = state[key].filter(app => app.id !== appId);
+      }
+    },
+  );
   ['groups', 'markedGroup'].forEach(key => {
     if (state[key]) {
       state[key].forEach(group => {
@@ -58,28 +64,14 @@ export function reducer(state, action = {}) {
   let newState = { ...state };
   let newApp;
   switch (action.type) {
-    case 'NO_APPS':
-      return {
-        ...state,
-        keywords: '',
-        origin: {},
-        apps: [],
-        externalApps: [],
-        aloneApps: [],
-        markedApps: [],
-        markedGroup: [],
-        activeGroup: undefined,
-        activeGroupApps: [],
-        groups: [],
-        noApps: true,
-        recentApps: [],
-      };
     case 'UPDATE_SETTING':
       return { ...state, origin: { ...state.origin, homeSetting: action.value } };
     case 'UPDATE_GROUPS_LOADING':
       return { ...state, groupsLoading: action.value, appsLoading: action.value === false ? false : state.appsLoading };
     case 'UPDATE_APPS_LOADING':
       return { ...state, appsLoading: action.value };
+    case 'UPDATE_DASHBOARD_LOADING':
+      return { ...state, dashboardLoading: action.value };
     case 'UPDATE_KEYWORDS':
       return { ...state, keywords: action.value };
     case 'UPDATE_GROUP_APPS':
@@ -94,6 +86,34 @@ export function reducer(state, action = {}) {
             }))
           : action.apps,
       };
+    case 'UPDATE_MARK_APPS':
+      const addedMarkedApps = action.addedData.map(item => ({
+        ...(_.find(state.apps, { id: item.appId }) || {}),
+        isMarked: item.isMark,
+        ..._.pick(item, ['type', 'itemId', 'itemName', 'itemUrl']),
+      }));
+      const markedApps = state.markedApps
+        .filter(
+          item =>
+            !_.find(action.delData, del =>
+              !!del.type ? del.itemId === item.itemId : del.appId === item.id && del.itemId === item.itemId,
+            ),
+        )
+        .concat(addedMarkedApps);
+
+      const markedAppIds = markedApps.filter(item => !item.type).map(item => item.id);
+      const markedItemIds = markedApps.filter(item => !!item.type).map(item => item.itemId);
+
+      return {
+        ...state,
+        markedApps,
+        apps: state.apps.map(app => ({ ...app, isMarked: _.includes(markedAppIds, app.id) })),
+        recentApps: state.recentApps.map(app => ({ ...app, isMarked: _.includes(markedAppIds, app.id) })),
+        recentAppItems: state.recentAppItems.map(item => ({
+          ...item,
+          isMarked: _.includes(markedItemIds, item.itemId),
+        })),
+      };
     case 'UPDATE_APP':
       return updateAppOfState({ ...state }, action.appId, app => ({
         ...app,
@@ -102,16 +122,45 @@ export function reducer(state, action = {}) {
     case 'DELETE_APP':
       return deleteAppOfState({ ...state }, action.appId);
     case 'MARK_APP':
-      return updateAppOfState(
-        {
-          ...state,
-          markedApps: action.isMark
-            ? _.uniqBy(state.markedApps.concat(_.find(state.apps, { id: action.appId })).filter(_.identity), 'id')
-            : state.markedApps.filter(app => app.id !== action.appId),
-        },
-        action.appId,
-        app => ({ ...app, isMarked: action.isMark }),
-      );
+      const getSourceApps = () => {
+        switch (action.groupType) {
+          case 'external':
+            return state.externalApps;
+          case 'personal':
+            return state.aloneApps;
+          default:
+            return state.apps;
+        }
+      };
+      const markedData = action.isMark
+        ? state.markedApps.concat({
+            ..._.find(getSourceApps(), { id: action.appId }),
+            ...action.itemData,
+            isMarked: true,
+          })
+        : state.markedApps.filter(app =>
+            !action.itemData.type ? !!app.type || app.id !== action.appId : app.itemId !== action.itemData.itemId,
+          );
+      const appIds = markedData.filter(item => !item.type).map(item => item.id);
+      const itemIds = markedData.filter(item => !!item.type).map(item => item.itemId);
+
+      const getUpdatedMarkedApps = originApps => {
+        return originApps.map(app => ({ ...app, isMarked: _.includes(appIds, app.id) }));
+      };
+
+      return {
+        ...state,
+        markedApps: markedData,
+        apps: getUpdatedMarkedApps(state.apps),
+        recentApps: getUpdatedMarkedApps(state.recentApps),
+        recentAppItems: state.recentAppItems.map(item => ({
+          ...item,
+          isMarked: _.includes(itemIds, item.itemId),
+        })),
+        activeGroupApps: getUpdatedMarkedApps(state.activeGroupApps || []),
+        externalApps: getUpdatedMarkedApps(state.externalApps || []),
+        aloneApps: getUpdatedMarkedApps(state.aloneApps || []),
+      };
     case 'COPY_APP':
       newApp = _.find(state.apps, { id: action.appId });
       if (!newApp) {
@@ -133,8 +182,6 @@ export function reducer(state, action = {}) {
           : {}),
         apps: state.apps.concat(action.app),
       });
-    case 'UPDATE_GROUPS':
-      return { ...state, groups: action.value };
     case 'UPDATE_GROUP_OF_APP':
       newState = updateAppOfState(newState, action.appId, app => ({
         ...app,
@@ -205,6 +252,95 @@ export function reducer(state, action = {}) {
   }
 }
 
+function handleDashboardOrAppResponse(dispatch, data, isDashboard) {
+  if (
+    _.every(
+      [
+        'markedApps',
+        'externalApps',
+        'aloneApps',
+        'markedGroupIds',
+        'apps',
+        'personalGroups',
+        'projectGroups',
+        'recentAppIds',
+        'recentAppItems',
+        'markedAppItems',
+      ].map(key => _.isEmpty((data || {})[key])),
+    )
+  ) {
+    dispatch({
+      type: 'UPDATE_DASHBOARD_LOADING',
+      value: false,
+    });
+    dispatch({
+      type: 'UPDATE_VALUES',
+      values: {
+        origin: data,
+        keywords: '',
+        apps: [],
+        externalApps: [],
+        aloneApps: [],
+        markedApps: [],
+        markedGroup: [],
+        activeGroup: undefined,
+        activeGroupApps: [],
+        groups: [],
+        noApps: true,
+        recentApps: [],
+        recentAppItems: [],
+        markedAppItems: [],
+      },
+    });
+    if (!isDashboard) {
+      dispatch({
+        type: 'UPDATE_APPS_LOADING',
+        value: false,
+      });
+      dispatch({
+        type: 'UPDATE_GROUPS_LOADING',
+        value: false,
+      });
+    }
+    return;
+  }
+  let groups = [...(data.projectGroups || []), ...(data.personalGroups || [])];
+  const markedGroup = (data.markedGroupIds || []).map(id => _.find(groups, { id })).filter(_.identity);
+  groups = groups.map(g => ({ ...g, isMarked: !!_.find(markedGroup, { id: g.id }) }));
+  const recentApps = (data.recentAppIds || [])
+    .map(item => {
+      return (data.apps || []).filter(app => app.id === item)[0];
+    })
+    .filter(item => !!item);
+  dispatch({
+    type: 'UPDATE_VALUES',
+    values: {
+      origin: data,
+      apps: data.apps || [],
+      externalApps: data.externalApps || [],
+      aloneApps: data.aloneApps || [],
+      markedGroup,
+      groups,
+      noApps: false,
+      recentApps,
+      ...(isDashboard
+        ? {
+            markedApps: data.markedAppItems || [],
+            recentAppItems: data.recentAppItems || [],
+          }
+        : {
+            markedApps: data.markedApps || [],
+            activeGroup: undefined,
+            activeGroupApps: [],
+          }),
+    },
+  });
+  dispatch({
+    type: 'UPDATE_DASHBOARD_LOADING',
+    value: false,
+  });
+}
+
 export class CreateActions {
   constructor(props) {
     this.dispatch = props.dispatch;
@@ -215,6 +351,20 @@ export class CreateActions {
     this.dispatch({
       type: 'UPDATE_KEYWORDS',
       value: keywords,
+    });
+  }
+  loadDashboardInfo({ projectId }) {
+    this.dispatch({
+      type: 'UPDATE_DASHBOARD_LOADING',
+      value: true,
+    });
+    if (window.dashboardAjax) {
+      window.dashboardAjax.abort();
+    }
+    window.dashboardAjax = homeAppAjax.myPlatform({ projectId, containsLinks: true });
+    window.dashboardAjax.then(data => {
+      delete window.dashboardAjax;
+      handleDashboardOrAppResponse(this.dispatch, data, true);
     });
   }
   loadAppAndGroups({ projectId, activeGroupType, activeGroupId, noGroupsLoading }) {
@@ -231,6 +381,10 @@ export class CreateActions {
       type: 'UPDATE_APPS_LOADING',
       value: true,
     });
+    this.dispatch({
+      type: 'UPDATE_DASHBOARD_LOADING',
+      value: true,
+    });
     if (projectId === 'external') {
       projectId = undefined;
     }
@@ -240,61 +394,7 @@ export class CreateActions {
     window.homeGetMyAppAjax = homeAppAjax.getMyApp({ projectId, containsLinks: true });
     window.homeGetMyAppAjax.then(data => {
       delete window.homeGetMyAppAjax;
-      if (
-        _.every(
-          [
-            'markedApps',
-            'externalApps',
-            'aloneApps',
-            'markedGroupIds',
-            'apps',
-            'personalGroups',
-            'projectGroups',
-            'recentAppIds',
-          ].map(key => _.isEmpty((data || {})[key])),
-        )
-      ) {
-        this.dispatch({
-          type: 'NO_APPS',
-        });
-        this.dispatch({
-          type: 'UPDATE_GROUPS_LOADING',
-          value: false,
-        });
-        this.dispatch({
-          type: 'UPDATE_APPS_LOADING',
-          value: false,
-        });
-        return;
-      }
-      let groups = [...(data.projectGroups || []), ...(data.personalGroups || [])];
-      const markedGroup = (data.markedGroupIds || []).map(id => _.find(groups, { id })).filter(_.identity);
-      groups = groups.map(g => ({ ...g, isMarked: !!_.find(markedGroup, { id: g.id }) }));
-      const recentApps = (data.recentAppIds || [])
-        .map(item => {
-          return (data.apps || []).filter(app => app.id === item)[0];
-        })
-        .filter(item => !!item);
-      this.dispatch({
-        type: 'UPDATE_GROUPS',
-        value: groups,
-      });
-      this.dispatch({
-        type: 'UPDATE_VALUES',
-        values: {
-          origin: data,
-          apps: data.apps || [],
-          externalApps: data.externalApps || [],
-          aloneApps: data.aloneApps || [],
-          markedApps: (data.markedApps || []).map(app => ({ ...app, isMarked: true })),
-          markedGroup,
-          activeGroup: undefined,
-          activeGroupApps: [],
-          noApps: false,
-          recentApps,
-          groups,
-        },
-      });
+      handleDashboardOrAppResponse(this.dispatch, data);
       this.dispatch({
         type: 'UPDATE_GROUPS_LOADING',
         value: false,
@@ -509,15 +609,29 @@ export class CreateActions {
   }
   markApp(para) {
     homeAppAjax
-      .markApp({
-        ...para,
-        isHomePage: true,
-      })
+      .markApp(_.omit(para, ['itemName', 'itemUrl', 'groupType']))
       .then(() => {
         this.dispatch({
           type: 'MARK_APP',
           appId: para.appId,
           isMark: para.isMark,
+          groupType: para.groupType,
+          itemData: { ..._.pick(para, ['type', 'itemId', 'itemName', 'itemUrl']) },
+        });
+        alert(para.isMark ? _l('收藏成功') : _l('已取消收藏'));
+      })
+      .fail(() => {
+        alert(para.isMark ? _l('收藏失败！') : _l('取消收藏失败！'), 2);
+      });
+  }
+  markApps(para) {
+    homeAppAjax
+      .markApps({ projectId: para.projectId, items: para.items.map(item => _.omit(item, 'itemName', 'itemUrl')) })
+      .then(() => {
+        this.dispatch({
+          type: 'UPDATE_MARK_APPS',
+          addedData: para.items.filter(item => item.isMark),
+          delData: para.items.filter(item => !item.isMark),
         });
         alert(_l('设置成功'));
       })
@@ -604,11 +718,22 @@ export class CreateActions {
     displayCommonApp,
     isAllAndProject,
     displayMark,
+    rowCollect,
+    todoDisplay,
   }) {
     const oldValue = _.get(this.state, 'origin.homeSetting');
     this.dispatch({
       type: 'UPDATE_SETTING',
-      value: { displayType, exDisplay, markedAppDisplay, displayCommonApp, isAllAndProject, displayMark },
+      value: {
+        displayType,
+        exDisplay,
+        markedAppDisplay,
+        displayCommonApp,
+        isAllAndProject,
+        displayMark,
+        rowCollect,
+        todoDisplay,
+      },
     });
     homeAppAjax
       .editHomeSetting({
@@ -619,11 +744,13 @@ export class CreateActions {
         displayCommonApp,
         isAllAndProject,
         displayMark,
+        rowCollect,
+        todoDisplay,
       })
       .then(data => {
         if (data) {
           if (editingKey === 'markedAppDisplay') {
-            this.loadAppAndGroups({ projectId, noGroupsLoading: true });
+            this.loadDashboardInfo({ projectId });
           }
         } else {
           return $.Deferred().reject();

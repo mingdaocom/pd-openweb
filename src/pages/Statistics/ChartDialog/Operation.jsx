@@ -26,9 +26,8 @@ const Operation = ({
   getReportData,
   getTableData,
 }) => {
-  const { report } = base;
-  const isChartPublicShare = location.href.includes('public/chart');
-  const isPagePublicShare = location.href.includes('public/page') || window.shareAuthor;
+  const { report = {}, pageId } = base;
+  const isPublicShare = _.get(window, 'shareState.isPublicChart') || _.get(window, 'shareState.isPublicPage') || _.get(window, 'shareState.isPublicView') || window.shareAuthor;
   const isSheetView = ![reportTypes.PivotTable, reportTypes.NumberChart].includes(reportData.reportType);
   const { style } = currentReport;
   const { pivotTableColumnWidthConfig } = style || {};
@@ -71,7 +70,7 @@ const Operation = ({
           />
         </Tooltip>
       )}
-      {!settingVisible && !isChartPublicShare && !isPagePublicShare && (
+      {!settingVisible && !isPublicShare && (
         <Tooltip title={_l('统计范围')} placement="bottom">
           <Icon
             icon="filter"
@@ -102,6 +101,8 @@ const Operation = ({
           </Tooltip>
         )}
       <Sort
+        reportId={report.id}
+        pageId={pageId}
         sourceType={sourceType}
         currentReport={currentReport}
         reportType={reportData.reportType}

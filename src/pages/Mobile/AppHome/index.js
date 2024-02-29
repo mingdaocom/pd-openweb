@@ -1,50 +1,30 @@
 import React, { Fragment } from 'react';
+import { bindActionCreators } from 'redux';
 import { Flex, ActionSheet, Modal } from 'antd-mobile';
-import { Icon, Button, WaterMark } from 'ming-ui';
+import { Icon, WaterMark } from 'ming-ui';
 import cx from 'classnames';
 import { connect } from 'react-redux';
 import * as actions from './redux/actions';
 import webCache from 'src/api/webCache';
 import TabBar from '../components/TabBar';
-import AppStatus from 'src/pages/AppHomepage/AppCenter/components/AppStatus';
-import { getTodoCount } from 'src/pages/workflow/MyProcess/Entry';
+import SelectProject from '../components/SelectProject';
+import BulletinBoard from 'src/pages/AppHomepage/Dashboard/BulletinBoard';
+import Process from './components/Process';
+import ApplicationItem from './components/ApplicationItem';
+import ApplicationList from './components/ApplicationBox';
+import EmptyStatus from './components/EmptyStatus';
+import { RecordInfoModal } from 'mobile/Record';
 import arrowRightImg from './img/arrowRight.png';
 import arrowLeftImg from './img/arrowLeft.png';
-import notifyPng from './img/notify.png';
-import upcomingPng from './img/upcoming.png';
-import sendPng from './img/send.png';
-import checkPng from './img/check.png';
 import './index.less';
 import SvgIcon from 'src/components/SvgIcon';
-import AppGroupSkeleton from './AppGroupSkeleton';
-import { getRandomString, getCurrentProject, addBehaviorLog } from 'src/util';
-import { transferExternalLinkUrl } from 'src/pages/AppHomepage/AppCenter/utils';
+import AppGroupSkeleton from './components/AppGroupSkeleton';
+import { getCurrentProject, addBehaviorLog } from 'src/util';
 import TextScanQRCode from 'src/components/newCustomFields/components/TextScanQRCode';
 import { loadSDK } from 'src/components/newCustomFields/tools/utils';
 import RegExp from 'src/util/expression';
-import styled from 'styled-components';
 import _ from 'lodash';
 import moment from 'moment';
-
-const GroupIcon = styled(SvgIcon)`
-  font-size: 0px;
-  margin-right: 10px;
-`;
-
-const GroupTitle = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-function loadLinkStyle(url) {
-  const head = document.getElementsByTagName('head')[0];
-  const link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.type = 'text/css';
-  link.href = url;
-  link.media = 'all';
-  head.appendChild(link);
-}
 
 const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
 
@@ -61,8 +41,8 @@ class AppHome extends React.Component {
 
     this.state = {
       width: document.documentElement.clientWidth,
-      countData: {},
       guideStep: 0,
+      recentType: 'app',
     };
   }
   componentDidMount() {
@@ -72,7 +52,6 @@ class AppHome extends React.Component {
       : false;
     const isMaturity = moment().isBefore(maturityTime);
     $('html').addClass('appHomeMobile');
-    this.getTodoCount();
     this.getProject();
     if (isWxWork && isAdmin && isMaturity) {
       this.getWebCache();
@@ -88,21 +67,21 @@ class AppHome extends React.Component {
       window.removeEventListener('popstate', this.closePage);
     }, 0);
   }
-  componentWillReceiveProps(nextProps) {
-    if (_.isEmpty(nextProps.countData)) return;
-    if (nextProps.countData.myProcessCount !== this.props.countData.myProcessCount) {
-      this.setState({
-        countData: nextProps.countData,
-      });
-    }
-  }
+
   getProject = () => {
     const projectObj = getCurrentProject(
       localStorage.getItem('currentProjectId') || (md.global.Account.projects[0] || {}).projectId,
     );
     const currentProject = !_.isEmpty(projectObj) ? projectObj : { projectId: 'external', companyName: _l('外部协作') };
-    this.props.dispatch(actions.getMyApp(currentProject ? currentProject.projectId : null));
-  }
+    const projectId = currentProject ? currentProject.projectId : null;
+    if (projectId === 'external') {
+      this.props.getMyApp();
+      return;
+    }
+    this.props.myPlatform(projectId);
+    this.props.getHomePlatformSetting(projectId);
+    this.props.getAllFavorites(projectId);
+  };
   closePage = () => {
     window.close();
   };
@@ -130,23 +109,13 @@ class AppHome extends React.Component {
       )
       .then(result => {});
   };
-  getTodoCount = () => {
-    const { action } = this.props;
-    getTodoCount().then(countData => {
-      const { updateCountData } = this.props;
-      this.setState({
-        countData,
-      });
-      updateCountData && updateCountData(countData);
-    });
-  };
+
   showActionSheet = () => {
     const { hideTemplateLibrary } = md.global.SysSettings;
     const BUTTONS = [
       hideTemplateLibrary ? null : { name: _l('从模板库添加'), icon: 'application_library', iconClass: 'Font18' },
-      { name: _l('自定义创建'), icon: 'add', iconClass: 'Font22' },
+      { name: _l('自定义创建'), icon: 'add1', iconClass: 'Font18' },
     ].filter(item => item);
-
     ActionSheet.showActionSheetWithOptions(
       {
         options: BUTTONS.map(item => (
@@ -178,7 +147,7 @@ class AppHome extends React.Component {
           window.mobileNavigateTo(`/mobile/appBox`);
         }
         if (buttonIndex === 1) {
-          const title = _l('创建自定义应用请前往%0。', isWxWork ? _l('企业微信PC桌面端') : _l('PC端'));
+          const title = isWxWork ? _l('创建自定义应用请前往企业微信PC桌面端') : _l('创建自定义应用请前往PC端');
           Modal.alert(title, null, [{ text: _l('我知道了'), onPress: () => {} }]);
         }
       },
@@ -193,8 +162,8 @@ class AppHome extends React.Component {
   };
   renderSearchApp = () => {
     let { searchValue } = this.state;
-    const { myAppData = {} } = this.props;
-    const { apps = [], externalApps = [], aloneApps = [] } = myAppData;
+    const { myPlatformData = {} } = this.props;
+    const { apps = [], externalApps = [], aloneApps = [] } = myPlatformData;
 
     return (
       <div className="flexRow">
@@ -237,7 +206,7 @@ class AppHome extends React.Component {
           <TextScanQRCode
             projectId={localStorage.getItem('currentProjectId') || (md.global.Account.projects[0] || {}).projectId}
             onChange={value => {
-              if (RegExp.isUrl(value)) {
+              if (RegExp.isURL(value)) {
                 if (/iphone/gi.test(window.navigator.userAgent)) {
                   location.href = value;
                 } else {
@@ -261,7 +230,7 @@ class AppHome extends React.Component {
     const { searchResult = [] } = this.state;
     if (_.isEmpty(searchResult)) {
       return (
-        <div className="flexColumn emptyWrap">
+        <div className="flexColumn emptyWrap flex alignItemsCenter justifyContentCenter Gray_9e">
           <Icon icon="h5_search" className="Font50" />
           <div className="Gray_bd Font17 Bold">{_l('没有搜索结果')}</div>
         </div>
@@ -271,299 +240,13 @@ class AppHome extends React.Component {
       <div className="h100" style={{ overflow: 'auto' }}>
         <Flex align="center" wrap="wrap" className="appCon">
           {_.map(searchResult, (item, i) => {
-            return this.renderItem(item);
-          })}
-        </Flex>
-      </div>
-    );
-  }
-  renderPorject() {
-    const projectObj = getCurrentProject(
-      localStorage.getItem('currentProjectId') || (md.global.Account.projects[0] || {}).projectId,
-    );
-    const currentProject = !_.isEmpty(projectObj) ? projectObj : { projectId: 'external', companyName: _l('外部协作') };
-    const handleSelectProject = () => {
-      ActionSheet.showActionSheetWithOptions(
-        {
-          className: 'selectProjectWrap',
-          options: md.global.Account.projects.map(item => (
-            <Fragment key={item.projectId}>
-              <span className="flex Bold ellipsis">{item.companyName}</span>
-              {item.projectId === currentProject.projectId && (
-                <Icon className="ThemeColor Font20" icon="done" />
-              )}
-            </Fragment>
-          )),
-          message: (
-            <div className="flexRow header">
-              <span className="Font13">{_l('切换网络')}</span>
-              <div
-                className="closeIcon"
-                onClick={() => {
-                  ActionSheet.close();
-                }}
-              >
-                <Icon icon="close" />
-              </div>
-            </div>
-          ),
-        },
-        buttonIndex => {
-          if (buttonIndex === -1) return;
-          const project = md.global.Account.projects[buttonIndex];
-          safeLocalStorageSetItem('currentProjectId', project.projectId);
-          this.getProject();
-        },
-      );
-    }
-    return (
-      <div className="flexRow valignWrapper pLeft16 pRight16 pTop10 pBottom10" onClick={handleSelectProject}>
-        <div className="Font15 bold ellipsis">{currentProject.companyName}</div>
-        <div className="flexColumn valignWrapper mLeft10">
-          <Icon className="Gray_9e Font14" icon="expand_less" style={{ lineHeight: '10px' }} />
-          <Icon className="Gray_9e Font14" icon="expand_more" style={{ lineHeight: '10px' }} />
-        </div>
-      </div>
-    );
-  }
-  renderProcess() {
-    const { countData } = this.state;
-    const waitingApproval = countData.waitingApproval > 99 ? '99+' : countData.waitingApproval;
-    const waitingExamine = countData.waitingExamine > 99 ? '99+' : countData.waitingExamine;
-
-    return (
-      <Fragment>
-        <div className="processWrapper flexRow mTop10">
-          <div
-            className="processItem flexColumn flex valignWrapper"
-            onClick={() => {
-              window.mobileNavigateTo('/mobile/processMatters');
-            }}
-          >
-            <img src={upcomingPng} />
-            <span className="bold Font13 mTop4">{_l('待办')}</span>
-            {waitingApproval ? <span className="count">{waitingApproval}</span> : null}
-          </div>
-          <div
-            className="processItem flexColumn flex valignWrapper"
-            onClick={() => {
-              window.mobileNavigateTo('/mobile/processInform?tab=unread');
-            }}
-          >
-            <img src={notifyPng} />
-            <span className="bold Font13 mTop4">{_l('抄送')}</span>
-            {waitingExamine ? <span className="count">{waitingExamine}</span> : null}
-          </div>
-          <div
-            className="processItem flexColumn flex valignWrapper"
-            onClick={() => {
-              window.mobileNavigateTo('/mobile/processMatters?tab=mySponsor');
-            }}
-          >
-            <div className="Relative">
-              <img src={sendPng} />
-              {/*countData.mySponsor ? <span className="waitingExamineSign" /> : null*/}
-            </div>
-            <span className="bold Font13 mTop4">{_l('我发起的')}</span>
-          </div>
-          <div
-            className="processItem flexColumn flex valignWrapper"
-            onClick={() => {
-              window.mobileNavigateTo('/mobile/processMatters?tab=processed');
-            }}
-          >
-            <img src={checkPng} />
-            <span className="bold Font13 mTop4">{_l('已完成')}</span>
-          </div>
-        </div>
-        <div className="spaceBottom" />
-      </Fragment>
-    );
-  }
-  renderItem(data) {
-    const iconColor = data.iconColor || '#2196f3';
-    const black = '#1b2025' === data.navColor;
-    const light = [data.lightColor, '#ffffff', '#f5f6f7'].includes(data.navColor);
-    const isUpgrade = data.appStatus === 4;
-
-    return (
-      <div className="myAppItemWrap InlineBlock" key={`${data.id}-${getRandomString()}`}>
-        <div
-          className="myAppItem mTop24"
-          onClick={e => {
-            if (data.id !== 'add') {
-              addBehaviorLog('app', data.id); // 埋点
-            }
-            if (data.createType === 1) {
-              e.stopPropagation();
-              e.preventDefault();
-              window.open(transferExternalLinkUrl(data.urlTemplate, data.projectId, data.id));
-              return;
-            }
-            localStorage.removeItem('currentNavWorksheetId');
-            safeLocalStorageSetItem('currentGroupInfo', JSON.stringify({}));
-            data.onClick ? data.onClick() : window.mobileNavigateTo(`/mobile/app/${data.id}`);
-          }}
-        >
-          <div
-            className="myAppItemDetail TxtCenter Relative"
-            style={{ backgroundColor: data.navColor || data.iconColor }}
-          >
-            {data.iconUrl ? (
-              <SvgIcon url={data.iconUrl} fill={black || light ? iconColor : '#fff'} size={32} addClassName="mTop12" />
-            ) : (
-              <Icon icon={data.icon} className="Font30" />
-            )}
-            {data.id === 'add' || (!data.fixed && !isUpgrade) ? null : (
-              <AppStatus
-                isGoodsStatus={data.isGoodsStatus}
-                isNew={data.isNew}
-                fixed={data.fixed}
-                isUpgrade={isUpgrade}
-              />
-            )}
-          </div>
-          <span className="breakAll LineHeight16 Font13 mTop10 contentText" style={{ WebkitBoxOrient: 'vertical' }}>
-            {data.name}
-          </span>
-        </div>
-      </div>
-    );
-  }
-  forTitle({ data, type, name, icon }) {
-    if (type) {
-      return (
-        <span>
-          {icon &&
-            (type === 'groupApps' || type === 'markedGroup' ? (
-              <SvgIcon url={icon} size={18} fill="#9e9e9e" className="InlineBlock mRight10" />
-            ) : (
-              <Icon icon={icon} className="Gray_9e TxtMiddle mRight10 Font20" />
-            ))}
-          <span className={cx('Gray Font17 Bold', { TxtMiddle: type !== 'groupApps' })}>{name}</span>
-        </span>
-      );
-    }
-    return (
-      <GroupTitle>
-        {data.iconUrl ? (
-          <GroupIcon url={data.iconUrl} fill="#9e9e9e" size={20} />
-        ) : (
-          <Icon icon={data.icon} className="mRight10 TxtMiddle Gray_9e Font20" />
-        )}
-        <span className="Gray Font17 Bold TxtTop">{data.name}</span>
-      </GroupTitle>
-    );
-  }
-  renderList({ data, type, name, icon }) {
-    const { myAppData = {} } = this.props;
-    const { homeSetting } = myAppData;
-    const currentProject = getCurrentProject(localStorage.getItem('currentProjectId')) || {};
-    if (data.length <= 0 && type !== 'apps') {
-      return;
-    } else {
-      let list = type === 'markedGroup' ? data.apps : data;
-      list = list.filter(o => o && !o.webMobileDisplay); //排除webMobileDisplay h5未发布
-      const distance = ((this.state.width - 12) / 4 - 56) / 2;
-      return (
-        <div className="groupDetail" key={`${type}-${getRandomString()}`}>
-          <div className="pTop16 flexRow" style={{ paddingLeft: `${distance}px`, paddingRight: `${distance}px` }}>
-            {this.forTitle({ data, type, name, icon })}
-            {type !== 'recentApps' && (
-              <span className="mLeft10 Gray_9e Font17 TxtMiddle">{!_.isEmpty(list) && list.length}</span>
-            )}
-            {type === 'markedApps' && homeSetting.markedAppDisplay ? (
-              <span className="allOrg mLeft12 Gray_9e Font13 TxtMiddle InlineBlock Bold">{_l('所有组织')}</span>
-            ) : (
-              ''
-            )}
-          </div>
-          <Flex align="center" wrap="wrap" className="appCon">
-            {_.map(list, (item, i) => {
-              return this.renderItem(item);
-            })}
-            {(type === 'apps' || type === 'markedGroup') &&
-              !currentProject.cannotCreateApp &&
-              this.renderItem({
-                id: 'add',
-                iconColor: '#F5F5F5',
-                icon: 'plus',
-                name: _l('添加应用'),
-                onClick: this.showActionSheet,
-              })}
-          </Flex>
-        </div>
-      );
-    }
-  }
-  renderExternalList = ({ data, type, name, icon }) => {
-    const distance = ((this.state.width - 12) / 4 - 56) / 2;
-    return (
-      <div className="groupDetail" key={`${type}-${getRandomString()}`}>
-        <div className="pTop26 flexRow" style={{ paddingLeft: `${distance}px`, paddingRight: `${distance}px` }}>
-          {this.forTitle({ data, type, name, icon })}
-          <span className="mLeft10 Gray_9e Font17 TxtMiddle">{!_.isEmpty(data) && data.length}</span>
-        </div>
-        {type === 'externalApps' && _.isEmpty(data) && (
-          <div className="Gray_bd Font15 pLeft47 mBottom32 Bold mTop16">{_l('暂无与外部协作者的应用')}</div>
-        )}
-        <Flex align="center" wrap="wrap" className="appCon">
-          {_.map(data, (item, i) => {
-            return this.renderItem(item);
+            return <ApplicationItem data={item} />;
           })}
         </Flex>
       </div>
     );
   };
-  renderErr(noProject) {
-    const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
-    const isWeLink = window.navigator.userAgent.toLowerCase().includes('huawei-anyoffice');
-    const isDing = window.navigator.userAgent.toLowerCase().includes('dingtalk');
-    const isApp = isWxWork || isWeLink || isDing;
-    const currentProject = getCurrentProject(localStorage.getItem('currentProjectId')) || {};
-    const cannotCreateApp = isApp ? currentProject.cannotCreateApp : true;
 
-    const projects = _.get(md, ['global', 'Account', 'projects']);
-    if (_.isEmpty(projects)) {
-      return (
-        <div className={cx('noNetworkBox flexColumn', { h100: !noProject })}>
-          <div className="noNetworkBoxBG" />
-          <div className="Font17 bold mTop40">{_l('申请加入一个组织，开始创建应用')}</div>
-          <div className="flexRow mTop28">
-            <button
-              type="button"
-              className="joinNetwork ThemeBGColor3 ThemeHoverBGColor2 mRight20"
-              onClick={() => window.open('/enterpriseRegister?type=add', '__blank')}
-            >
-              {_l('加入组织')}
-            </button>
-            {/*<button
-              type="button"
-              className="createNetwork ThemeBGColor3 ThemeBorderColor3 ThemeColor3"
-              onClick={() => window.open('/enterpriseRegister?type=create', '__blank')}
-            >
-              {_l('创建组织')}
-            </button>*/}
-          </div>
-        </div>
-      );
-    }
-
-    return (
-      <div className="flexColumn flex valignWrapper justifyContentCenter">
-        <p className="Gray_75 mTop25 TxtCenter Gray Font17 errPageCon">
-          {cannotCreateApp
-            ? _l('暂无任何应用，请选择从应用库添加应用开始使用')
-            : _l('您暂无权限添加应用，请联系管理员进行添加使用')}
-        </p>
-        {cannotCreateApp && (
-          <Button className="addApp bold Font17" onClick={this.showActionSheet}>
-            {_l('添加应用')}
-          </Button>
-        )}
-      </div>
-    );
-  }
   renderGuide() {
     const { guideStep } = this.state;
     if (guideStep == 1) {
@@ -571,7 +254,9 @@ class AppHome extends React.Component {
         <div className="guideWrapper">
           <div className="guide guide1" />
           <img className="guideImg Absolute" src={arrowLeftImg} />
-          <div className="text Absolute Font18 White bold">{_l('感谢你尝试安装！我们精心挑选了两个初始应用，供您体验。')}</div>
+          <div className="text Absolute Font18 White bold">
+            {_l('感谢你尝试安装！我们精心挑选了两个初始应用，供您体验。')}
+          </div>
           <div
             className="ok Absolute Font18 White bold"
             onClick={() => {
@@ -601,137 +286,238 @@ class AppHome extends React.Component {
       );
     }
   }
-  renderContent() {
-    const { isHomeLoading, myAppData = {} } = this.props;
-    const {
-      markedApps = [],
-      markedGroup = [],
-      apps = [],
-      externalApps = [],
-      personalGroups = [],
-      projectGroups = [],
-      aloneApps = [],
-      homeSetting = {},
-      recentAppIds = [],
-    } = myAppData;
-    const recentApps = recentAppIds.slice(0, 8).map(item => _.filter(apps, it => item === it.id)[0]);
+
+  // 应用收藏/最近使用/记录收藏 title
+  renderTitle = ({ type = 'collectAppList', wrapTitle, icon, showMore, moreText, iconClass }) => {
+    const projectObj = getCurrentProject(
+      localStorage.getItem('currentProjectId') || (md.global.Account.projects[0] || {}).projectId,
+    );
+
+    return (
+      <div className="groupHeader mBottom16">
+        <div className="title flex ellipsis">{wrapTitle}</div>
+        {showMore && (
+          <div
+            className="expand Hand flexRow alignItemsCenter"
+            onClick={() => {
+              if (type === 'recentList') {
+                this.setState({ recentType: this.state.recentType === 'app' ? 'appItem' : 'app' });
+              } else if (type === 'collectAppList') {
+                window.mobileNavigateTo(`/mobile/appfav/${projectObj.projectId}`);
+              } else {
+                window.mobileNavigateTo(`/mobile/recordfav/${projectObj.projectId}`);
+              }
+            }}
+          >
+            <span className="Gray_75 mRight2 Font15 bold500 TxtMiddle">{moreText}</span>
+            <Icon icon={icon} className={`Gray_9e Font18 bold500 ${iconClass}`} />
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // 应用收藏
+  renderCollectAppList = () => {
+    const { myPlatformData } = this.props;
+    const { markedAppItems = [] } = myPlatformData;
+
+    if (_.isEmpty(markedAppItems)) return;
+
+    return (
+      <Fragment>
+        {this.renderTitle({
+          type: 'collectAppList',
+          wrapTitle: _l('应用收藏'),
+          icon: 'navigate_next',
+          moreText: _l('更多'),
+          showMore: markedAppItems.length > 6,
+        })}
+        <div className="groupCon">
+          {markedAppItems.slice(0, 6).map((item, index) => {
+            return (
+              <ApplicationItem
+                className="collectAppList"
+                direction="horizontal"
+                index={index}
+                radius={40}
+                iconSize={26}
+                data={item}
+              />
+            );
+          })}
+        </div>
+        <div className="spaceBottom"></div>
+      </Fragment>
+    );
+  };
+
+  // 最近使用
+  renderRecent = () => {
+    const { myPlatformData } = this.props;
+    const { recentType } = this.state;
+    const { recentAppIds = [], recentAppItems, apps } = myPlatformData;
+    const recentApps = recentAppIds
+      .slice(0, 6)
+      .map(item => _.filter(apps, it => item === it.id)[0])
+      .filter(_.identity);
+
+    if (_.isEmpty(recentAppIds) && _.isEmpty(recentAppItems)) return;
+    const list = recentType === 'app' ? recentApps : recentAppItems;
+
+    return (
+      <Fragment>
+        {this.renderTitle({
+          type: 'recentList',
+          wrapTitle: _l('最近使用'),
+          icon: 'unfold_more',
+          moreText: recentType === 'app' ? _l('应用') : _l('应用项'),
+          showMore: true,
+          iconClass: 'recentIcon',
+        })}
+        <div className="groupCon" style={{ height: 210 }}>
+          {_.isEmpty(list) ? (
+            <EmptyStatus emptyType="recent" emptyTxt={_l('没有最近使用')} />
+          ) : (
+            list.slice(0, 6).map((item, index) => {
+              return (
+                <ApplicationItem
+                  className="recentList"
+                  direction="horizontal"
+                  index={index}
+                  radius={40}
+                  iconSize={26}
+                  data={item}
+                />
+              );
+            })
+          )}
+        </div>
+        <div className="spaceBottom"></div>
+      </Fragment>
+    );
+  };
+
+  // 记录收藏
+  renderCollectRecords = () => {
+    const { collectRecord = {} } = this.state;
+    const { collectRecords = [] } = this.props;
+    if (_.isEmpty(collectRecords)) return;
+
+    const projectObj = getCurrentProject(
+      localStorage.getItem('currentProjectId') || (md.global.Account.projects[0] || {}).projectId,
+    );
+
+    return (
+      <Fragment>
+        {this.renderTitle({
+          type: 'recordCollectList',
+          wrapTitle: _l('记录收藏'),
+          icon: 'navigate_next',
+          moreText: _l('更多'),
+          showMore: collectRecords.length > 5,
+        })}
+        <div className="pLeft16 pRight10 pBottom4">
+          {collectRecords.slice(0, 5).map(item => {
+            const { favoriteId, title, appIcon, appColor, appIconUrl, worksheetId, rowId } = item;
+            return (
+              <div
+                key={favoriteId}
+                className="flexRow mBottom14 alignItemsCenter"
+                onClick={() => {
+                  addBehaviorLog('worksheetRecord', worksheetId, { rowId });
+                  this.setState({ collectRecord: item });
+                }}
+              >
+                <div className="recordIconWrap mRight10" style={{ backgroundColor: appColor }}>
+                  {appIconUrl ? (
+                    <SvgIcon url={appIconUrl} fill="#fff" size={14} addClassName="mTop5" />
+                  ) : (
+                    <Icon icon={appIcon} className="Font18" />
+                  )}
+                </div>
+                <div className="flex Font15 ellipsis">{title}</div>
+              </div>
+            );
+          })}
+        </div>
+        <div className="spaceBottom"></div>
+
+        {!!collectRecord.rowId && (
+          <RecordInfoModal
+            className="full"
+            visible={!!collectRecord.rowId}
+            appId={collectRecord.appId}
+            worksheetId={collectRecord.worksheetId}
+            viewId={collectRecord.viewId}
+            rowId={collectRecord.rowId}
+            onClose={() => this.setState({ collectRecord: {} })}
+            refreshCollectRecordList={() => this.props.getAllFavorites(projectObj.projectId)}
+          />
+        )}
+      </Fragment>
+    );
+  };
+
+  renderContent = () => {
+    const { isHomeLoading, platformSetting = {}, myPlatformData = {} } = this.props;
+    const { homeSetting = {} } = myPlatformData;
+    const { displayCommonApp, displayMark, rowCollect, todoDisplay } = homeSetting;
+    const { boardSwitch } = platformSetting;
     const projectObj = getCurrentProject(
       localStorage.getItem('currentProjectId') || (md.global.Account.projects[0] || {}).projectId,
     );
     const currentProject = !_.isEmpty(projectObj) ? projectObj : { projectId: 'external', companyName: _l('外部协作') };
-    const distance = ((this.state.width - 12) / 4 - 56) / 2;
+    const isExternal = currentProject.projectId === 'external';
 
     if (isHomeLoading) {
       return <AppGroupSkeleton />;
     }
-    if (currentProject.projectId === 'external') {
-      return (
-        <div className="content">
-          {this.renderProcess()}
-          {this.renderExternalList({
-            data: externalApps,
-            type: 'externalApps',
-            name: _l('外部协作'),
-            icon: 'h5_external',
-          })}
-          {!_.isEmpty(aloneApps) && <div className="spaceBottom" />}
-          {!_.isEmpty(aloneApps) &&
-            this.renderExternalList({ data: aloneApps, type: 'aloneApps', name: _l('个人'), icon: 'people_5' })}
-        </div>
-      );
-    }
-    if (
-      _.isEmpty(markedApps) &&
-      _.isEmpty(markedGroup) &&
-      _.isEmpty(apps) &&
-      _.isEmpty(externalApps) &&
-      _.isEmpty(aloneApps)
-    ) {
-      return this.renderErr();
-    } else if (_.isEmpty(currentProject) && !_.isEmpty(externalApps)) {
-      return (
-        <div className="content">
-          {this.renderProcess()}
-          {this.renderErr(true)}
-          {!_.isEmpty(externalApps) && <div className="spaceBottom" />}
-          {!_.isEmpty(externalApps) &&
-            this.renderList({ data: externalApps, type: 'externalApps', name: _l('外部协作'), icon: 'h5_external' })}
-        </div>
-      );
-    } else {
-      return (
-        <div className="content">
-          {this.renderProcess()}
-          {homeSetting.displayCommonApp &&
-            !_.isEmpty(recentApps) &&
-            this.renderList({
-              data: recentApps,
-              type: 'recentApps',
-              name: _l('最近使用'),
-              icon: 'access_time_filled',
-            })}
-          {homeSetting.displayCommonApp && !_.isEmpty(recentApps) && <div className="spaceBottom" />}
-          {!_.isEmpty(markedApps) &&
-            this.renderList({ data: markedApps, type: 'markedApps', name: _l('星标应用'), icon: 'star' })}
-          {!_.isEmpty(markedApps) && <div className="spaceBottom" />}
-          {!_.isEmpty(markedGroup) &&
-            markedGroup.map(item => {
-              if (!item || !item.apps || _.isEmpty(item.apps)) return;
-              return (
-                <Fragment>
-                  {this.renderList({ data: item, type: 'markedGroup', name: item.name, icon: item.iconUrl })}
-                  <div className="spaceBottom" />
-                </Fragment>
-              );
-            })}
-          {homeSetting.isAllAndProject &&
-            !_.isEmpty(projectGroups) &&
-            projectGroups.map(it => {
-              const { appIds = [] } = it;
-              const groupData = _.filter(apps, v => _.includes(appIds, v.id));
-              return (
-                <Fragment>
-                  {this.renderList({ data: groupData, type: 'groupApps', name: it.name, icon: it.iconUrl })}
-                  {!_.isEmpty(groupData) && <div className="spaceBottom" />}
-                </Fragment>
-              );
-            })}
-          {(!_.isEmpty(markedGroup) || !_.isEmpty(personalGroups) || !_.isEmpty(projectGroups)) && (
-            <div
-              className="appGroupEntry flexRow"
-              style={{ paddingLeft: `${distance}px` }}
-              onClick={() => {
-                window.mobileNavigateTo('/mobile/appGroupList');
-              }}
-            >
-              <span>
-                <Icon icon="table_rows" className="mRight10 TxtMiddle Gray_9e Font20" />
-                <span className="Gray Font17 Bold TxtMiddle">{_l('应用分组')}</span>
-              </span>
-              <Icon icon="arrow-right-border" className="Gray_9e" />
-            </div>
-          )}
-          {(!_.isEmpty(markedGroup) || !_.isEmpty(personalGroups) || !_.isEmpty(projectGroups)) && (
-            <div className="spaceBottom" />
-          )}
-          {currentProject && this.renderList({ data: apps, type: 'apps', name: _l('全部应用'), icon: 'workbench' })}
-          {!_.isEmpty(externalApps) && homeSetting.exDisplay ? <div className="spaceBottom" /> : ''}
-          {!_.isEmpty(externalApps) && homeSetting.exDisplay
-            ? this.renderList({ data: externalApps, type: 'externalApps', name: _l('外部协作'), icon: 'h5_external' })
-            : ''}
-        </div>
-      );
-    }
-  }
+
+    return (
+      <div className="content flexColumn">
+        {!boardSwitch && <div className="spaceBottom"></div>}
+        {/* 宣传栏 */}
+        {boardSwitch && !isExternal ? (
+          <Fragment>
+            <BulletinBoard loading={false} platformSetting={platformSetting} height={200} />
+            <div className="spaceBottom"></div>
+          </Fragment>
+        ) : (
+          ''
+        )}
+
+        {/* 流程待办 */}
+        <Process todoDisplay={todoDisplay} projectId={currentProject.projectId} />
+        <div className="spaceBottom"></div>
+
+        {/* 应用收藏 */}
+        {displayMark && !isExternal ? this.renderCollectAppList() : ''}
+
+        {/* 最近使用 */}
+        {displayCommonApp && !isExternal ? this.renderRecent() : ''}
+
+        {/* 记录收藏 */}
+        {rowCollect && !isExternal ? this.renderCollectRecords() : ''}
+
+        {/* 应用 */}
+        <ApplicationList myAppData={myPlatformData} projectId={currentProject.projectId} />
+      </div>
+    );
+  };
+
   render() {
     const { guideStep, searchValue } = this.state;
+
     const projectObj = getCurrentProject(
-      localStorage.getItem('currentProjectId') || (md.global.Account.projects[0] || {}).projectId,
+      localStorage.getItem('currentProjectId') ||
+        (md.global.Account.projects[0] || { projectId: 'external', companyName: _l('外部协作') }).projectId,
     );
+
     return (
       <WaterMark projectId={projectObj.projectId}>
         <div className="listConBox h100">
-          {this.renderPorject()}
+          <SelectProject changeProject={this.getProject} />
           {this.renderSearchApp()}
           {!searchValue && this.renderContent()}
           {searchValue && this.renderSearchResult()}
@@ -743,10 +529,21 @@ class AppHome extends React.Component {
   }
 }
 
-export default connect(state => {
-  const { isHomeLoading, myAppData } = state.mobile;
-  return {
-    myAppData,
-    isHomeLoading,
-  };
-})(AppHome);
+export default connect(
+  state => {
+    const { isHomeLoading, collectRecords, platformSetting, myPlatformData } = state.mobile;
+    return {
+      isHomeLoading,
+      collectRecords,
+      platformSetting,
+      myPlatformData,
+    };
+  },
+  dispatch =>
+    bindActionCreators(
+      {
+        ..._.pick(actions, ['markedGroup', 'getAllFavorites', 'getHomePlatformSetting', 'myPlatform', 'getMyApp']),
+      },
+      dispatch,
+    ),
+)(AppHome);

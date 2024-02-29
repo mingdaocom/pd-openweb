@@ -13,7 +13,7 @@ export default class AddFriend extends React.Component {
           type="primary"
           size="medium"
           onClick={() => {
-            new AddFriendConfirm({
+            AddFriendConfirm({
               accountId: this.props.accountId,
             });
           }}

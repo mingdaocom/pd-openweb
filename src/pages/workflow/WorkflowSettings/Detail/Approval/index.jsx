@@ -46,6 +46,9 @@ const CustomMessageBox = styled.div`
   border-radius: 4px;
   align-items: center;
   padding: 0 12px;
+  .icon-delete2:hover {
+    color: #f44336 !important;
+  }
 `;
 
 const TABS_ITEM = styled.div`
@@ -126,6 +129,7 @@ export default class Approval extends Component {
               [OPERATION_TYPE.BEFORE]: result.flowNodeMap[OPERATION_TYPE.BEFORE],
               [OPERATION_TYPE.RETURN]: result.flowNodeMap[OPERATION_TYPE.RETURN],
             }),
+            formProperties: result.formProperties,
           });
         }
 
@@ -193,6 +197,7 @@ export default class Approval extends Component {
       flowNodeMap,
       userTaskNullMap,
       candidateUserMap,
+      addNotAllowView,
     } = data;
 
     if (!selectNodeId) {
@@ -250,6 +255,7 @@ export default class Approval extends Component {
         flowNodeMap: clearFlowNodeMapParameter(flowNodeMap),
         userTaskNullMap,
         candidateUserMap,
+        addNotAllowView,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -331,7 +337,12 @@ export default class Approval extends Component {
 
     return (
       <div className="mTop15">
-        <Member companyId={this.props.companyId} accounts={accounts} updateSource={updateAccounts} />
+        <Member
+          companyId={this.props.companyId}
+          appId={this.props.relationType === 2 ? this.props.relationId : ''}
+          accounts={accounts}
+          updateSource={updateAccounts}
+        />
 
         <div
           className="flexRow mTop12 ThemeColor3 workflowDetailAddBtn"
@@ -438,6 +449,8 @@ export default class Approval extends Component {
                 <span className="Gray_9e">{userType === '12' ? _l('选择人员字段') : _l('选择部门字段')}</span>
               ) : (
                 <Member
+                  companyId={this.props.companyId}
+                  appId={this.props.relationType === 2 ? this.props.relationId : ''}
                   leastOne
                   accounts={
                     data.candidateUserMap && data.candidateUserMap[userType]
@@ -811,6 +824,7 @@ export default class Approval extends Component {
 
         <OperatorEmpty
           projectId={this.props.companyId}
+          appId={this.props.relationType === 2 ? this.props.relationId : ''}
           isApproval={this.props.isApproval}
           title={_l('审批人为空时')}
           titleInfo={_l('设置当前节点负责人为空时的处理方式。当使用默认设置时，按照流程发起节点中设置的统一的处理方式')}
@@ -850,16 +864,26 @@ export default class Approval extends Component {
   };
 
   /**
+   * 是否包含审批意见
+   */
+  checkHasOpinion(key) {
+    // 100：必填  101：不填
+    return _.includes([100, 101], key);
+  }
+
+  /**
    * 意见必填修改
    */
-  opinionRequiredChange(checked, key) {
+  opinionRequiredChange(checked, key, value) {
     const { data } = this.state;
     const currentAuth = [].concat(data.auth[key]);
 
+    _.remove(currentAuth, item => this.checkHasOpinion(item));
+
     if (checked) {
-      currentAuth.push(100);
+      value && currentAuth.push(value);
     } else {
-      _.remove(currentAuth, item => item === 100);
+      !value && currentAuth.push(101);
     }
 
     this.updateSource({ auth: Object.assign({}, data.auth, { [key]: currentAuth }) });
@@ -870,8 +894,9 @@ export default class Approval extends Component {
    */
   authRequiredChange(checked, key) {
     const { data } = this.state;
-    const currentAuth = [].concat(data.auth[key]).filter(item => item === 100);
-    const value = data.auth.passTypeList.concat(data.auth.overruleTypeList).filter(item => item !== 100)[0] || 1;
+    const currentAuth = [].concat(data.auth[key]).filter(item => this.checkHasOpinion(item));
+    const value =
+      data.auth.passTypeList.concat(data.auth.overruleTypeList).filter(item => !this.checkHasOpinion(item))[0] || 1;
 
     if (checked) {
       currentAuth.push(value);
@@ -885,14 +910,14 @@ export default class Approval extends Component {
    */
   authRankChange = value => {
     const { data } = this.state;
-    const passTypeList = data.auth.passTypeList.filter(item => item === 100);
-    const overruleTypeList = data.auth.overruleTypeList.filter(item => item === 100);
+    const passTypeList = data.auth.passTypeList.filter(item => this.checkHasOpinion(item));
+    const overruleTypeList = data.auth.overruleTypeList.filter(item => this.checkHasOpinion(item));
 
-    if (data.auth.passTypeList.filter(item => item !== 100).length) {
+    if (data.auth.passTypeList.filter(item => !this.checkHasOpinion(item)).length) {
       passTypeList.push(value);
     }
 
-    if (data.auth.overruleTypeList.filter(item => item !== 100).length) {
+    if (data.auth.overruleTypeList.filter(item => !this.checkHasOpinion(item)).length) {
       overruleTypeList.push(value);
     }
 
@@ -1069,40 +1094,78 @@ export default class Approval extends Component {
 
                   <div className="Font13 bold mTop25">{_l('节点结果通知发起人')}</div>
                   {this.renderMessage()}
-
                   <div className="Font13 bold mTop25">{_l('审批意见')}</div>
+                  <div className="flexRow mTop15">
+                    <div className="flex flexRow">
+                      <Checkbox
+                        className="InlineFlex"
+                        text={_l('通过时填写')}
+                        checked={!_.includes(data.auth.passTypeList, 101)}
+                        onClick={checked => this.opinionRequiredChange(!checked, 'passTypeList')}
+                      />
+                      <Checkbox
+                        className="InlineFlex mLeft25"
+                        text={_l('必填')}
+                        checked={_.includes(data.auth.passTypeList, 100)}
+                        onClick={checked => this.opinionRequiredChange(!checked, 'passTypeList', 100)}
+                      />
+                    </div>
+                    <div className="flex flexRow">
+                      <Checkbox
+                        className="InlineFlex"
+                        text={_l('否决/退回时填写')}
+                        checked={!_.includes(data.auth.overruleTypeList, 101)}
+                        onClick={checked => this.opinionRequiredChange(!checked, 'overruleTypeList')}
+                      />
+                      <Checkbox
+                        className="InlineFlex mLeft25"
+                        text={_l('必填')}
+                        checked={_.includes(data.auth.overruleTypeList, 100)}
+                        onClick={checked => this.opinionRequiredChange(!checked, 'overruleTypeList', 100)}
+                      />
+                    </div>
+                  </div>
                   <CustomMessageBox className="mTop15 flexRow">
                     <div className="flex mRight20 ellipsis Font12">
-                      {data.opinionTemplate.inputType === 1 ? _l('用户自由输入；') : _l('仅支持选择指定模板；')}
-                      {(data.opinionTemplate.opinions[OPERATION_TYPE.PASS] || []).length &&
-                      (data.opinionTemplate.opinions[OPERATION_TYPE.OVERRULE] || []).length
-                        ? _l('已设置通过、否决/退回时的意见模板')
-                        : (data.opinionTemplate.opinions[OPERATION_TYPE.PASS] || []).length
-                        ? _l('已设置通过时的意见模板')
-                        : (data.opinionTemplate.opinions[OPERATION_TYPE.OVERRULE] || []).length
-                        ? _l('已设置否决/退回时的意见模板')
-                        : _l('未设置意见模版')}
+                      {_l('意见模板：')}
+
+                      {!(data.opinionTemplate.opinions[OPERATION_TYPE.PASS] || []).length &&
+                      !(data.opinionTemplate.opinions[OPERATION_TYPE.OVERRULE] || []).length ? (
+                        <span
+                          className="ThemeColor3 pointer ThemeHoverColor2"
+                          onClick={() => this.setState({ showApprovalTemplate: true })}
+                        >
+                          {_l('未设置')}
+                        </span>
+                      ) : (
+                        _l('已设置')
+                      )}
+
+                      {data.opinionTemplate.inputType === 1 ? _l('（用户自由输入）') : _l('（只能选择模板）')}
                     </div>
-                    <Icon
-                      type="edit"
-                      className="Gray_9e ThemeHoverColor3 Font14 pointer"
-                      onClick={() => this.setState({ showApprovalTemplate: true })}
-                    />
+                    {(!!(data.opinionTemplate.opinions[OPERATION_TYPE.PASS] || []).length ||
+                      !!(data.opinionTemplate.opinions[OPERATION_TYPE.OVERRULE] || []).length) && (
+                      <Fragment>
+                        <span data-tip={_l('删除模板')}>
+                          <Icon
+                            type="delete2"
+                            className="Gray_9e Font14 pointer"
+                            onClick={() =>
+                              this.updateSource({
+                                opinionTemplate: { inputType: data.opinionTemplate.inputType, opinions: {} },
+                              })
+                            }
+                          />
+                        </span>
+
+                        <Icon
+                          type="edit"
+                          className="Gray_9e ThemeHoverColor3 Font14 pointer mLeft20"
+                          onClick={() => this.setState({ showApprovalTemplate: true })}
+                        />
+                      </Fragment>
+                    )}
                   </CustomMessageBox>
-                  <div className="flexRow mTop15">
-                    <Checkbox
-                      className="InlineFlex flex"
-                      text={_l('通过时必填')}
-                      checked={_.includes(data.auth.passTypeList, 100)}
-                      onClick={checked => this.opinionRequiredChange(!checked, 'passTypeList')}
-                    />
-                    <Checkbox
-                      className="InlineFlex flex"
-                      text={_l('否决/退回时必填')}
-                      checked={_.includes(data.auth.overruleTypeList, 100)}
-                      onClick={checked => this.opinionRequiredChange(!checked, 'overruleTypeList')}
-                    />
-                  </div>
 
                   <div className="Font13 bold mTop25">
                     {data.authTypeList.length === 1 ? authTypeListText[data.authTypeList[0].value] : _l('认证')}
@@ -1111,20 +1174,20 @@ export default class Approval extends Component {
                     <Checkbox
                       className="InlineFlex flex"
                       text={_l('通过时必须认证')}
-                      checked={!!data.auth.passTypeList.filter(i => i !== 100).length}
+                      checked={!!data.auth.passTypeList.filter(i => !this.checkHasOpinion(i)).length}
                       onClick={checked => this.authRequiredChange(!checked, 'passTypeList')}
                     />
                     <Checkbox
                       className="InlineFlex flex"
                       text={_l('否决/退回时必须认证')}
-                      checked={!!data.auth.overruleTypeList.filter(i => i !== 100).length}
+                      checked={!!data.auth.overruleTypeList.filter(i => !this.checkHasOpinion(i)).length}
                       onClick={checked => this.authRequiredChange(!checked, 'overruleTypeList')}
                     />
                   </div>
 
                   {data.authTypeList.length === 1 ||
-                  data.auth.passTypeList.filter(i => i !== 100).length +
-                    data.auth.overruleTypeList.filter(i => i !== 100).length ===
+                  data.auth.passTypeList.filter(i => !this.checkHasOpinion(i)).length +
+                    data.auth.overruleTypeList.filter(i => !this.checkHasOpinion(i)).length ===
                     0 ? null : (
                     <Fragment>
                       <div className="Font13 bold mTop25">{_l('认证等级')}</div>
@@ -1134,7 +1197,9 @@ export default class Approval extends Component {
                           return { value, text: authTypeListText[value], disabled };
                         })}
                         value={
-                          data.auth.passTypeList.concat(data.auth.overruleTypeList).filter(item => item !== 100)[0]
+                          data.auth.passTypeList
+                            .concat(data.auth.overruleTypeList)
+                            .filter(item => !this.checkHasOpinion(item))[0]
                         }
                         border
                         onChange={this.authRankChange}
@@ -1216,6 +1281,7 @@ export default class Approval extends Component {
                         nodeId={this.props.selectNodeId}
                         selectNodeId={data.selectNodeId}
                         data={data.formProperties}
+                        addNotAllowView={data.addNotAllowView}
                         updateSource={this.updateSource}
                         showCard={true}
                       />
@@ -1248,7 +1314,8 @@ export default class Approval extends Component {
                             nodeId={sourceData.selectNodeId}
                             controls={sourceData.controls.filter(o => o.type !== 29)}
                             fields={sourceData.fields}
-                            showCurrent={item.key !== OPERATION_TYPE.BEFORE}
+                            showCurrent={true}
+                            filterType={item.key === OPERATION_TYPE.BEFORE ? 7 : 0}
                             formulaMap={sourceData.formulaMap}
                             updateSource={(obj, callback = () => {}) =>
                               this.updateSource(

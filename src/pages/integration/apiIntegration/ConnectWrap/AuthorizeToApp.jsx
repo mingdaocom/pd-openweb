@@ -4,7 +4,7 @@ import { LoadDiv, Checkbox, Dropdown } from 'ming-ui';
 import { TableWrap } from 'src/pages/integration/apiIntegration/style';
 import { useSetState } from 'react-use';
 import SvgIcon from 'src/components/SvgIcon';
-import AddAppDialog from '../../components/AddAppDialog';
+import selectApp from 'src/components/dialogSelectApp';
 import { Table, ConfigProvider } from 'antd';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion.js';
 import processAjax from 'src/pages/workflow/api/process.js';
@@ -174,16 +174,15 @@ const WrapCon = styled.div`
 `;
 //授权到应用
 function AuthorizeToApp(props) {
-  const [{ keywords, show, optionLoading, showSelectUserDialog, loading, info }, setState] = useSetState({
+  const [{ keywords, optionLoading, loading, info }, setState] = useSetState({
     keywords: '',
-    show: false,
     optionLoading: false,
-    showSelectUserDialog: false,
     loading: true,
     info: {
       errorInterval: 120,
     },
   });
+  const projectId = localStorage.getItem('currentProjectId');
   const getProcessConfigInfo = () => {
     setState({ loading: true });
     processAjax
@@ -285,7 +284,7 @@ function AuthorizeToApp(props) {
           <span
             className="addButtn Bold Hand mTop40 Font15"
             onClick={() => {
-              setState({ show: true });
+              onAddApp();
             }}
           >
             {_l('添加应用')}
@@ -315,7 +314,7 @@ function AuthorizeToApp(props) {
     packageVersionAjax
       .authorize(
         {
-          companyId: localStorage.getItem('currentProjectId'),
+          companyId: projectId,
           apkIds: apkIds,
           id: props.processId,
           type, //: 1, //1添加 2移除
@@ -332,6 +331,19 @@ function AuthorizeToApp(props) {
   const updateSource = data => {
     saveProcessConfigInfo({ ...info, ...data });
   };
+
+  const onAddApp = () => {
+    selectApp({
+      projectId: projectId,
+      title: _l('选择授权应用'),
+      onOk: selectedList => {
+        authorizeApp(
+          selectedList.map(o => o.appId),
+          1,
+        );
+      },
+    });
+  };
   /**
    * 添加普通成员
    */
@@ -343,7 +355,7 @@ function AuthorizeToApp(props) {
       showMoreInvite: false,
       SelectUserSettings: {
         filterAccountIds: info.errorNotifiers.map(item => item.roleId),
-        projectId: localStorage.getItem('currentProjectId'),
+        projectId: projectId,
         dataRange: 2,
         unique: false,
         callback: users => {
@@ -380,6 +392,7 @@ function AuthorizeToApp(props) {
             leastOne
             inline
             chatButton={false}
+            companyId={projectId}
           />
           <div
             className="TxtCenter Relative Gray_75 ThemeHoverBorderColor3 ThemeHoverColor3 pointer addBtn mTop12 Block"
@@ -415,7 +428,12 @@ function AuthorizeToApp(props) {
           <div className="flexRow mTop30">
             <p className="TxtLeft Font15 Bold flex">{_l('将 API 授权给')}</p>
             {props.list.length > 0 && (
-              <span className="addApp Bold Hand" onClick={() => setState({ show: true })}>
+              <span
+                className="addApp Bold Hand"
+                onClick={() => {
+                  onAddApp();
+                }}
+              >
                 + {_l('添加应用')}
               </span>
             )}
@@ -439,18 +457,6 @@ function AuthorizeToApp(props) {
           </TableWrap>
         )}
       </WrapCon>
-      {show && (
-        <AddAppDialog
-          projectId={localStorage.getItem('currentProjectId')}
-          onCancel={() => {
-            setState({ show: false });
-          }}
-          onOk={selectedList => {
-            setState({ show: false });
-            authorizeApp(selectedList, 1);
-          }}
-        />
-      )}
     </Wrap>
   );
 }

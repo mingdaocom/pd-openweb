@@ -1,12 +1,12 @@
 ﻿import React, { Component } from 'react';
-import DialogLayer from 'src/components/mdDialog/dialog';
 import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import './less/copyFolder.less';
 import ajaxRequest from 'src/api/taskCenter';
-import { expireDialogAsync } from 'src/components/common/function';
+import { expireDialogAsync } from 'src/util';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import { errorMessage } from '../../utils/utils';
+import { Dialog } from 'ming-ui';
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
 export default class CopyFolder extends Component {
@@ -23,8 +23,7 @@ export default class CopyFolder extends Component {
   }
 
   componentDidMount() {
-    const that = this;
-    $('#copyFolder_container').on('click', '.checkOperation:not(.noClick)', function () {
+    $('.copyFolder').on('click', '.checkOperation:not(.noClick)', function () {
       let className = 'checkOperation ';
       $(this).toggleClass('checked');
 
@@ -54,45 +53,51 @@ export default class CopyFolder extends Component {
         }
       }
     });
+  }
 
-    $('#copyFolder_container').on('click', '#chargeUserBtn', function () {
-      dialogSelectUser({
-        sourceId: that.props.taskId,
-        title: '选择负责人',
-        showMoreInvite: false,
-        fromType: 2,
-        SelectUserSettings: {
-          filterAccountIds: [that.state.accountId],
-          projectId: that.props.projectId,
-          unique: true,
-          callback: users => {
-            that.setState({
-              accountId: users[0].accountId,
-              avatar: users[0].avatar,
-            });
-          },
+  chargeTaskUserBtn() {
+    const { taskId, projectId } = this.props;
+    const { accountId } = this.state;
+
+    dialogSelectUser({
+      sourceId: taskId,
+      title: _l('选择负责人'),
+      showMoreInvite: false,
+      fromType: 2,
+      SelectUserSettings: {
+        filterAccountIds: [accountId],
+        projectId: projectId,
+        unique: true,
+        callback: users => {
+          this.setState({
+            taskAccountId: users[0].accountId,
+            taskAvatar: users[0].avatar,
+          });
         },
-      });
+      },
     });
+  }
 
-    $('#copyFolder_container').on('click', '#chargeTaskUserBtn', function () {
-      dialogSelectUser({
-        sourceId: that.props.taskId,
-        title: '选择负责人',
-        showMoreInvite: false,
-        fromType: 2,
-        SelectUserSettings: {
-          filterAccountIds: [that.state.accountId],
-          projectId: that.props.projectId,
-          unique: true,
-          callback: users => {
-            that.setState({
-              taskAccountId: users[0].accountId,
-              taskAvatar: users[0].avatar,
-            });
-          },
+  chargeUserBtn() {
+    const { taskId, projectId } = this.props;
+    const { accountId } = this.state;
+
+    dialogSelectUser({
+      sourceId: taskId,
+      title: _l('选择负责人'),
+      showMoreInvite: false,
+      fromType: 2,
+      SelectUserSettings: {
+        filterAccountIds: [accountId],
+        projectId: projectId,
+        unique: true,
+        callback: users => {
+          this.setState({
+            accountId: users[0].accountId,
+            avatar: users[0].avatar,
+          });
         },
-      });
+      },
     });
   }
 
@@ -166,21 +171,16 @@ export default class CopyFolder extends Component {
   }
 
   render() {
-    const settings = {
-      dialogBoxID: 'copyFolder',
-      width: 560,
-      container: {
-        header: _l('复制项目'),
-        yesText: _l('确定'),
-        yesFn: () => {
-          this.submit();
-        },
-        noFn: this.props.onClose,
-      },
-    };
-
     return (
-      <DialogLayer {...settings}>
+      <Dialog
+        visible
+        className="copyFolder"
+        width={560}
+        title={_l('复制项目')}
+        okText={_l('确定')}
+        onOk={() => this.submit()}
+        onCancel={this.props.onClose}
+      >
         <div className="copyDesc">{_l('通过复制项目，快速复制复杂的项目看板到新项目中')}</div>
         {this.props.isAdmin ? (
           <div className="copyTitleBox">
@@ -247,7 +247,11 @@ export default class CopyFolder extends Component {
               </div>
               <div className="chargeUserBox">
                 <img src={this.state.avatar} className="circle chargeAvatar" />
-                <i className="icon-task-folder-charge pointer" id="chargeUserBtn" />
+                <i
+                  className="icon-task-folder-charge pointer"
+                  id="chargeUserBtn"
+                  onClick={() => this.chargeUserBtn()}
+                />
               </div>
             </li>
             <li>
@@ -304,7 +308,11 @@ export default class CopyFolder extends Component {
               </div>
               <div className="chargeUserBox">
                 <img src={this.state.taskAvatar} className="circle chargeAvatar" />
-                <i className="icon-task-folder-charge pointer" id="chargeTaskUserBtn" />
+                <i
+                  className="icon-task-folder-charge pointer"
+                  id="chargeTaskUserBtn"
+                  onClick={() => this.chargeTaskUserBtn()}
+                />
               </div>
             </li>
             <li>
@@ -315,7 +323,7 @@ export default class CopyFolder extends Component {
             </li>
           </ul>
         </div>
-      </DialogLayer>
+      </Dialog>
     );
   }
 }

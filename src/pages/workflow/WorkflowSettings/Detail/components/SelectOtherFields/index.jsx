@@ -6,7 +6,7 @@ import ActionFields from '../ActionFields';
 import { CONTROLS_NAME, APP_TYPE, NODE_TYPE, GLOBAL_VARIABLE } from '../../../enum';
 import { MenuItem } from 'ming-ui';
 import _ from 'lodash';
-import SelectGlobalVar from 'src/pages/Admin/globalVariable/components/SelectGlobalVarDialog';
+import SelectGlobalVar from 'src/pages/Admin/app/globalVariable/components/SelectGlobalVarDialog';
 import cx from 'classnames';
 
 export default class SelectOtherFields extends Component {
@@ -33,6 +33,7 @@ export default class SelectOtherFields extends Component {
       enumDefault: PropTypes.number,
     }),
     disabledInterface: PropTypes.bool,
+    filterType: PropTypes.number,
   };
 
   static defaultProps = {
@@ -43,6 +44,7 @@ export default class SelectOtherFields extends Component {
     showClear: false,
     showCurrent: false,
     disabledInterface: false,
+    filterType: 0,
   };
 
   constructor(props) {
@@ -74,6 +76,7 @@ export default class SelectOtherFields extends Component {
       isIntegration,
       showCurrent,
       disabledInterface,
+      filterType,
     } = this.props;
 
     // 禁止获取其他动态值
@@ -93,6 +96,7 @@ export default class SelectOtherFields extends Component {
         conditionId,
         dataSource,
         current: showCurrent,
+        filterType,
       },
       { isIntegration },
     ).then(result => {
@@ -131,7 +135,7 @@ export default class SelectOtherFields extends Component {
     const { projectId, relationId, item, handleFieldClick, closeLayer, isIntegration } = this.props;
     let filterTypes = [];
 
-    if (!_.includes([1, 2, 3, 4, 5, 6, 7, 8, 41], item.type) || isIntegration) return null;
+    if (!_.includes([1, 2, 3, 4, 5, 6, 7, 8, 33, 41], item.type) || isIntegration) return null;
 
     if (_.includes([6, 8], item.type)) {
       filterTypes = [6];

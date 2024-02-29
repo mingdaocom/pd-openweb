@@ -1,8 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import ReactDom from 'react-dom';
 import preall from 'src/common/preall';
-import { Input } from 'antd';
-import { LoadDiv, Button, Checkbox, RichText } from 'ming-ui';
+import { LoadDiv, Button, Checkbox, RichText, VerifyPasswordInput } from 'ming-ui';
 import { browserIsMobile, mdAppResponse, verifyPassword } from 'src/util';
 import cx from 'classnames';
 import './cancellation.less';
@@ -65,9 +64,7 @@ export default class Cancellation extends Component {
               step: 3,
               createTime: res.createTime,
               createStateTime,
-              overdueDiff: moment(createStateTime)
-                .add(5, 'm')
-                .diff(moment(), 's'),
+              overdueDiff: moment(createStateTime).add(5, 'm').diff(moment(), 's'),
               loading: false,
             },
             () => {
@@ -82,11 +79,8 @@ export default class Cancellation extends Component {
   };
   confirmPassword = () => {
     const { password = '' } = this.state;
-    if (!password.trim()) {
-      alert(_l('请输入登录密码'), 3);
-      return;
-    }
     const _this = this;
+
     verifyPassword({
       password: password.trim(),
       success: () => {
@@ -99,18 +93,7 @@ export default class Cancellation extends Component {
     return (
       <Fragment>
         <div className="Font13 Bold  mBottom16 w300 TxtLeft">{_l('请输入登录密码确认注销操作')}</div>
-        <Input.Password
-          className={cx('password w300', { passwordError: this.state.passwordError })}
-          value={this.state.password}
-          placeholder={''}
-          autoComplete="new-password"
-          onChange={e => {
-            let value = e.target.value;
-            this.setState({
-              password: value,
-            });
-          }}
-        />
+        <VerifyPasswordInput onChange={({ password }) => this.setState({ password })} />
         <Button
           className="primary nextStep "
           onClick={() => {

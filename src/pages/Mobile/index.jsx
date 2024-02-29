@@ -72,7 +72,7 @@ class App extends Component {
         <Route
           path="*"
           render={({ location }) => {
-            const home = '/mobile/appHome';
+            const home = '/mobile/dashboard';
             const page = '/mobile/recordList/';
             const record = '/mobile/record/';
             const setHash = url => navigateTo(url + decodeURIComponent(location.hash), true);

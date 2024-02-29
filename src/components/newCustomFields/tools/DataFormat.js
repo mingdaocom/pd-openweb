@@ -9,7 +9,7 @@ import execValueFunction from 'src/pages/widgetConfig/widgetSetting/components/F
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import { getDefaultCount } from 'src/pages/widgetConfig/widgetSetting/components/SearchWorksheet/SearchWorksheetDialog.jsx';
 import { getDatePickerConfigs, getShowFormat } from 'src/pages/widgetConfig/util/setting.js';
-import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
+import { RELATE_RECORD_SHOW_TYPE, SYSTEM_CONTROLS } from 'worksheet/constants/enum';
 import {
   Validator,
   getRangeErrorType,
@@ -29,10 +29,11 @@ import MapLoader from 'ming-ui/components/amap/MapLoader';
 import MapHandler from 'ming-ui/components/amap/MapHandler';
 import departmentAjax from 'src/api/department';
 import organizeAjax from 'src/api/organize';
-import worksheetAjax from 'src/api/worksheet';
 import { browserIsMobile, getCurrentProject, toFixed } from 'src/util';
 import { checkRuleLocked } from './filterFn';
 import _ from 'lodash';
+import { createRequestPool } from 'worksheet/api/standard';
+import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 
 export const initIntlTelInput = () => {
   if (window.initIntlTelInput) {
@@ -112,7 +113,10 @@ const parseStaticValue = (item, staticValue) => {
     const titleControl = _.find(_.get(item, 'relationControls'), i => i.attribute === 1);
     staticValue = safeParse(staticValue)[0];
     const name =
-      safeParse(staticValue).name || (titleControl ? safeParse(staticValue)[titleControl.controlId] : undefined);
+      safeParse(staticValue).name ||
+      (titleControl
+        ? renderCellText({ ...titleControl, value: safeParse(staticValue)[titleControl.controlId] }) || _l('未命名')
+        : undefined);
     return JSON.stringify([
       {
         sourcevalue: staticValue,
@@ -322,6 +326,12 @@ export const getDynamicValue = (data, currentItem, masterData, embedData) => {
     // 筛选出不重复的用户
     if (currentItem.type === 26) {
       source = _.uniqBy(source, user => user.accountId);
+    } else if (
+      currentItem.type === 29 &&
+      currentItem.enumDefault === 2 &&
+      _.get(currentItem, 'advancedSetting.showtype') === String(RELATE_RECORD_SHOW_TYPE.CARD)
+    ) {
+      source = source.map(r => ({ ...r, isNew: true, isFromDefault: true }));
     } else {
       source = _.uniqBy(source);
     }
@@ -481,7 +491,7 @@ const parseValueIframe = (data, currentItem, masterData, embedData) => {
 export function handleDotAndRound(currentItem, value, ignoreAddZero = true) {
   const isNegative = value < 0;
   value = Math.abs(value);
-  const roundType = currentItem.advancedSetting.roundtype || _.includes([6, 8, 31, 37], currentItem.type) ? '2' : '0';
+  const roundType = currentItem.advancedSetting.roundtype || (_.includes([6, 8, 31, 37], currentItem.type) ? '2' : '0');
   // 取整方式 空或者0 向下取整 1 向上取整 2 代表四舍五入
   let dot = Number(currentItem.dot);
   if (!dot || _.isNaN(dot)) {
@@ -492,10 +502,7 @@ export function handleDotAndRound(currentItem, value, ignoreAddZero = true) {
   } else if (roundType === '1') {
     value = String((Math.ceil(value * Math.pow(10, dot)) / Math.pow(10, dot)) * (isNegative ? -1 : 1));
   } else {
-    value = String(
-      (Math.floor(toFixed(toFixed(value, dot + 1) * Math.pow(10, dot), dot)) / Math.pow(10, dot)) *
-        (isNegative ? -1 : 1),
-    );
+    value = String(toFixed(Math.floor(value * Math.pow(10, dot)) / Math.pow(10, dot), dot) * (isNegative ? -1 : 1));
   }
   const ignoreZero = currentItem.advancedSetting.dotformat === '1';
   if (!ignoreZero && dot !== 0 && ignoreAddZero) {
@@ -809,7 +816,7 @@ export const onValidator = ({ item, data, masterData, ignoreRequired, verifyAllC
           !value ||
           (iti.isValidNumber() && _.get(iti.getSelectedCountryData(), 'dialCode') === '86'
             ? specialTelVerify(_.startsWith(value, '+86') ? value : '+86' + value)
-            : iti.isValidNumber())
+            : iti.isValidNumber() || specialTelVerify(value))
             ? ''
             : FORM_ERROR_TYPE.MOBILE_PHONE;
       }
@@ -844,7 +851,7 @@ export const onValidator = ({ item, data, masterData, ignoreRequired, verifyAllC
         if (item.advancedSetting && item.advancedSetting.regex) {
           let reg;
           try {
-            reg = new RegExp(safeParse(item.advancedSetting.regex).regex);
+            reg = new RegExp(safeParse(item.advancedSetting.regex).regex, 'gm');
           } catch (error) {
             console.log(error);
           }
@@ -996,6 +1003,8 @@ export const onValidator = ({ item, data, masterData, ignoreRequired, verifyAllC
 export default class DataFormat {
   constructor({
     projectId = '',
+    requestPool,
+    abortController,
     data = [],
     rules = [],
     isCreate = false,
@@ -1013,6 +1022,7 @@ export default class DataFormat {
     updateLoadingItems = () => {},
     activeTrigger = () => {},
   }) {
+    this.abortController = abortController;
     this.projectId = projectId;
     this.masterRecordRowId = masterRecordRowId;
     this.data = _.cloneDeep(data);
@@ -1029,6 +1039,8 @@ export default class DataFormat {
     this.updateLoadingItems = updateLoadingItems;
     this.activeTrigger = activeTrigger;
     this.loopList = [];
+
+    this.requestPool = requestPool || createRequestPool({ abortController });
 
     const departmentIds = [];
     const locationIds = [];
@@ -1628,10 +1640,13 @@ export default class DataFormat {
   /**
    * 设置异常控件
    */
-  setErrorControl(controlId, errorType, errorMessage, ruleId, isInit) {
+  setErrorControl(controlId, errorType, errorMessage, ruleItem = {}, isInit) {
     const saveIndex = _.findIndex(
       this.errorItems,
-      e => e.controlId === controlId && e.errorType === errorType && (ruleId ? e.ruleId === ruleId : true),
+      e =>
+        e.controlId === controlId &&
+        e.errorType === errorType &&
+        (ruleItem.ruleId ? e.ruleId === ruleItem.ruleId : true),
     );
 
     if (saveIndex > -1) {
@@ -1653,9 +1668,9 @@ export default class DataFormat {
         this.errorItems.push({
           controlId,
           errorType,
-          showError: true,
+          showError: ruleItem.hintType !== 1,
           errorMessage,
-          ruleId,
+          ruleId: ruleItem.ruleId,
         });
       }
     }
@@ -1841,7 +1856,7 @@ export default class DataFormat {
       );
     });
 
-    if (hasRelate && !isGet && sid) {
+    if (hasRelate && !isGet && sid && !sid.includes('temp')) {
       this.setLoadingInfo(controlId, true);
 
       let params = {
@@ -1859,8 +1874,9 @@ export default class DataFormat {
         params.shareId = _.get(window, 'shareState.shareId');
         params.getType = 13;
       }
-      worksheetAjax
-        .getRowDetail(params)
+
+      this.requestPool
+        .getRowDetail(params, this.abortController)
         .then(result => {
           this.setLoadingInfo(controlId, false);
 
@@ -1882,7 +1898,7 @@ export default class DataFormat {
             value: formatValue,
           });
         })
-        .always(() => {
+        .finally(() => {
           this.setLoadingInfo(controlId, false);
         });
     }
@@ -1994,12 +2010,16 @@ export default class DataFormat {
    * 查询记录
    */
   getFilterRowsData = (filters = [], para, controlId, effectControlId) => {
-    this.setLoadingInfo(controlId, true);
-    if (!_.includes(this.loopList, effectControlId)) {
-      this.loopList.push(`${effectControlId}-${controlId}`);
-    }
-
     const formatFilters = formatFiltersValue(filters, this.data, _.get(this.embedData, 'recordId'));
+    // 增加查询条件对比，由于一些异步更新，未完成时已被记录id,导致更新完被循环拦截(纯id拦截不准确)
+    const tempFilterValue = formatFilters.map(i => _.pick(i, ['controlId', 'value', 'values', 'maxValue', 'minValue']));
+    const existFilters = this.loopList.filter(i => i.loopId === `${effectControlId}-${controlId}`);
+    if (_.some(existFilters, e => _.isEqual(tempFilterValue, e.loopFilter))) {
+      return Promise.reject();
+    }
+    this.setLoadingInfo(controlId, true);
+    this.loopList.push({ loopId: `${effectControlId}-${controlId}`, loopFilter: tempFilterValue });
+
     let params = {
       filterControls: formatFilters,
       pageIndex: 1,
@@ -2011,7 +2031,7 @@ export default class DataFormat {
     if (window.isPublicWorksheet) {
       params.formId = window.publicWorksheetShareId;
     }
-    return worksheetAjax.getFilterRowsByQueryDefault(params);
+    return this.requestPool.getFilterRowsByQueryDefault(params, this.abortController);
   };
 
   /**
@@ -2025,7 +2045,7 @@ export default class DataFormat {
             _.find(this.data, d => d.controlId === controlId),
             'value',
           );
-          const isNull = _.isEmpty(typeof curValue === 'string' ? safeParse(curValue) : curValue);
+          const isNull = checkCellIsEmpty(curValue);
 
           return (
             _.every(
@@ -2101,8 +2121,8 @@ export default class DataFormat {
           currentControl &&
           !_.includes(this.loopList, `${control.controlId}-${controlId}`)
         ) {
-          //关联记录
-          if (_.includes([29], controlType)) {
+          //关联记录、或同源级联直接查询赋值
+          if (_.includes([29], controlType) || (controlType === 35 && currentControl.dataSource === sourceId)) {
             this.getFilterRowsData(
               items,
               {
@@ -2121,16 +2141,18 @@ export default class DataFormat {
                 if (canSearchMore && res.count > 1 && moreType === 1) return;
                 const titleControl = _.find(_.get(currentControl, 'relationControls'), i => i.attribute === 1);
                 const newValue = (res.data || []).map(item => {
+                  const nameValue = titleControl ? item[titleControl.controlId] : undefined;
                   return {
+                    isNew: true,
                     isWorksheetQueryFill: _.get(currentControl.advancedSetting || {}, 'showtype') === '1',
                     sourcevalue: JSON.stringify(item),
                     row: item,
                     type: 8,
                     sid: item.rowid,
-                    name: titleControl ? item[titleControl.controlId] : undefined,
+                    name: getCurrentValue(titleControl, nameValue, { type: 2 }),
                   };
                 });
-                if (_.isEmpty(newValue)) {
+                if (_.isEmpty(newValue) && _.includes([29], controlType)) {
                   updateData('deleteRowIds: all');
                 } else {
                   updateData(JSON.stringify(newValue));

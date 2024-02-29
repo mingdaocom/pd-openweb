@@ -93,7 +93,7 @@ export default class Logo extends React.Component {
                 mime_types: [{ title: 'image', extensions: 'jpg,jpeg,png' }],
               },
             }}
-            bucket={2}
+            bucket={4}
             onUploaded={this.handleUploaded}
             onAdd={(up, files) => {
               this.setState({ isUploading: true });

@@ -86,7 +86,6 @@ export default function FiltersPopup(props) {
                 '.addFilterPopup',
                 '.filterControlOptionsList',
                 '.mui-dialog-container',
-                '.mdDialog',
                 '.mui-datetimepicker',
                 '.mui-datetimerangepicker',
                 '.selectUserBox',

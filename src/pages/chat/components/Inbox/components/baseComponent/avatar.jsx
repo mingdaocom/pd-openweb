@@ -46,6 +46,7 @@ const formatUser = function (props) {
     fullname,
     avatar,
     applicationType,
+    appId,
   };
 };
 
@@ -61,7 +62,7 @@ export default class Avatar extends React.Component {
 
 
   render() {
-    const { accountId, fullname, avatar, applicationType } = this.state;
+    const { accountId, fullname, avatar, applicationType, appId } = this.state;
 
     if (applicationType) {
       return (
@@ -79,7 +80,7 @@ export default class Avatar extends React.Component {
         };
       }
       return (
-        <UserCard sourceId={accountId}>
+        <UserCard sourceId={accountId} appId={appId}>
           <a
             {...param}
             target="_blank"

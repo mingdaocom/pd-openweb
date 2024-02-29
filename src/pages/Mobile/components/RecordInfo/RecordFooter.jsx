@@ -1,13 +1,17 @@
 import React, { Component, Fragment } from 'react';
 import { Icon } from 'ming-ui';
 import cx from 'classnames';
-import { WingBlank, Button, ActionSheet, Toast } from 'antd-mobile';
+import { WingBlank, Button, ActionSheet, Toast, Modal } from 'antd-mobile';
 import RecordAction from './RecordAction';
 import CustomButtons from './RecordAction/CustomButtons';
 import copy from 'copy-to-clipboard';
 import worksheetApi from 'src/api/worksheet';
+import favoriteApi from 'src/api/favorite';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
+import { replaceBtnsTranslateInfo } from 'worksheet/util';
+import { getCurrentProject } from 'src/util';
+import _ from 'lodash';
 
 const getRecordUrl = ({ appId, worksheetId, recordId, viewId }) => {
   const shareUrl = `${location.origin}/mobile/record/${appId}/${worksheetId}/${viewId}/${recordId}`;
@@ -80,8 +84,9 @@ export default class RecordFooter extends Component {
       recordActionVisible: false,
       loading: true,
       customBtns: [],
-      btnDisable: {}
-    }
+      btnDisable: {},
+      isFavorite: false,
+    };
   }
   recordRef = React.createRef();
   componentDidMount() {
@@ -99,30 +104,51 @@ export default class RecordFooter extends Component {
       }, 500);
       this.loadCustomBtns();
     });
+    this.setState({ isFavorite: this.props.recordInfo.isFavorite });
   }
   loadCustomBtns = () => {
     if (location.pathname.indexOf('public') > -1) return;
 
     const { recordBase } = this.props;
     const { appId, worksheetId, viewId, recordId } = recordBase;
-    worksheetApi.getWorksheetBtns({
-      appId,
-      worksheetId,
-      viewId,
-      rowId: recordId
-    }).then(data => {
-      this.setState({
-        customBtns: data,
-        loading: false
+    worksheetApi
+      .getWorksheetBtns({
+        appId,
+        worksheetId,
+        viewId,
+        rowId: recordId,
+      })
+      .then(data => {
+        this.setState({
+          customBtns: replaceBtnsTranslateInfo(appId, data),
+          loading: false,
+        });
       });
-    });
-  }
+  };
+
   handleMoreOperation = ({ allowDelete, allowShare }) => {
-    const { isSubList, recordBase } = this.props;
+    const { isSubList, recordBase, recordInfo = {} } = this.props;
+    const { isFavorite } = this.state;
+    const isExternal = _.isEmpty(getCurrentProject(recordInfo.projectId));
+
     const BUTTONS = [
-      allowShare ? { name: _l('分享'), icon: 'share', iconClass: 'Font22 Gray_9e', fn: this.handleShare } : null,
+      allowShare ? { name: _l('分享'), icon: 'share', iconClass: 'Font20 Gray_9e', fn: this.handleShare } : null,
+      !window.shareState.shareId && !md.global.Account.isPortal && !isExternal
+        ? {
+            name: isFavorite ? _l('取消收藏') : _l('收藏记录'),
+            icon: 'star_3',
+            iconClass: `Font20 Gray_9e ${isFavorite ? 'activeStar' : ''}`,
+            fn: this.handleCollectRecord,
+          }
+        : null,
       allowDelete
-        ? { name: _l('删除'), icon: 'delete2', iconClass: 'Font22 Red', class: 'Red', fn: () => onDeleteRecord({ isSubList, recordBase }) }
+        ? {
+            name: _l('删除'),
+            icon: 'delete2',
+            iconClass: 'Font22 Red',
+            class: 'Red',
+            fn: () => onDeleteRecord({ isSubList, recordBase }),
+          }
         : null,
     ].filter(_ => _);
     ActionSheet.showActionSheetWithOptions({
@@ -183,6 +209,45 @@ export default class RecordFooter extends Component {
       ),
     });
   }
+  
+  handleCollectRecord = () => {
+    const { recordBase, recordInfo, refreshCollectRecordList = () => {} } = this.props;
+    const { worksheetId, recordId, viewId } = recordBase;
+    const { isFavorite } = this.state;
+
+    if (isFavorite) {
+      // 取消收藏
+      favoriteApi
+        .removeFavorite({
+          projectId: recordInfo.projectId,
+          rowId: recordId,
+          worksheetId,
+          viewId,
+        })
+        .then(res => {
+          if (res) {
+            alert(_l('已取消收藏'));
+            refreshCollectRecordList();
+            this.setState({ isFavorite: false });
+          }
+        });
+    } else {
+      // 添加收藏
+      favoriteApi
+        .addFavorite({
+          worksheetId,
+          rowId: recordId,
+          viewId,
+        })
+        .then(res => {
+          if (res) {
+            alert(_l('收藏成功'));
+            refreshCollectRecordList();
+            this.setState({ isFavorite: true });
+          }
+        });
+    }
+  };
   renderContent() {
     const {
       editable,
@@ -193,7 +258,7 @@ export default class RecordFooter extends Component {
       hideOtherOperate,
       isMobileOperate,
       recordBase,
-      recordInfo
+      recordInfo,
     } = this.props;
     const { onEditRecord, onSubmitRecord, onSaveRecord } = this.props;
     const { loading, customBtns } = this.state;
@@ -299,7 +364,7 @@ export default class RecordFooter extends Component {
   }
   renderRecordAction() {
     const { recordInfo, recordBase, loadRecord } = this.props;
-    const { recordActionVisible, customBtns } = this.state;
+    const { recordActionVisible, customBtns, isFavorite } = this.state;
     return (
       <RecordAction
         appId={recordBase.appId}
@@ -310,6 +375,7 @@ export default class RecordFooter extends Component {
         customBtns={customBtns}
         switchPermit={recordInfo.switchPermit}
         loadRow={loadRecord}
+        isFavorite={isFavorite}
         loadCustomBtns={this.loadCustomBtns}
         recordActionVisible={recordActionVisible}
         onShare={this.handleShare}
@@ -320,6 +386,7 @@ export default class RecordFooter extends Component {
         updateBtnDisabled={(val) => {
           this.setState({ btnDisable: val });
         }}
+        handleCollectRecord={this.handleCollectRecord}
       />
     );
   }

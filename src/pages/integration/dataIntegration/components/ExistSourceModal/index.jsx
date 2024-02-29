@@ -40,6 +40,7 @@ const LeftListWrapper = styled.div`
   border-right: 1px solid #e0e0e0;
 
   ul {
+    margin-bottom: 40px !important;
     li {
       display: inline-flex;
       align-items: center;
@@ -182,12 +183,11 @@ export default function ExistSourceModal(props) {
             text: _l('云端'),
             list: filterRes.filter(item => item.fromType === SOURCE_FROM_TYPE.CLOUD),
           },
-          //第一版暂不支持消息队列
-          // {
-          //   key: SOURCE_FROM_TYPE.MESSAGE_QUEUE,
-          //   text: _l('消息队列'),
-          //   list: filterRes.filter(item => item.fromType === SOURCE_FROM_TYPE.MESSAGE_QUEUE),
-          // },
+          {
+            key: SOURCE_FROM_TYPE.MESSAGE_QUEUE,
+            text: _l('消息队列'),
+            list: filterRes.filter(item => item.fromType === SOURCE_FROM_TYPE.MESSAGE_QUEUE),
+          },
         ];
         let isExist = false;
 

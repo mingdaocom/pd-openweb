@@ -239,12 +239,14 @@ export default class extends Component {
     );
   }
   renderTopChart() {
-    const { themeColor, projectId, customPageConfig, reportData } = this.props;
-    const { chartColor } = customPageConfig;
-    const { map, yaxisList, style } = reportData;
+    const { themeColor, projectId, customPageConfig = {}, reportData } = this.props;
+    const { chartColor, chartColorIndex = 1 } = customPageConfig;
+    const { map, yaxisList } = reportData;
+    const styleConfig = reportData.style || {};
+    const style = chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0) ? { ...styleConfig, ...chartColor } : styleConfig;
     const data = formatTopChartData(map);
     const maxValue = _.max(data.map(data => data[_.get(yaxisList[0], 'controlId')]));
-    const colors = getChartColors(chartColor || style, themeColor, projectId);
+    const colors = getChartColors(style, themeColor, projectId);
     return (
       <TopChartContent className="h100 topChart noneValueProportion" progressBgColor={colors[0]}>
         <ScrollView>

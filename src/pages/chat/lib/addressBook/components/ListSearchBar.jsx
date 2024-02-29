@@ -5,8 +5,9 @@ import Icon from 'ming-ui/components/Icon';
 import addFriends from 'src/components/addFriends';
 import AddFriends from 'src/components/addFriends';
 import CreateGroup from 'src/components/group/create/creatGroup';
-import Invite from 'src/components/common/inviteMember/inviteMember';
 import _ from 'lodash';
+import InviteController from 'src/api/invitation';
+import { existAccountHint } from 'src/util';
 
 export default class SearchBar extends React.Component {
   constructor(props) {
@@ -55,8 +56,14 @@ export default class SearchBar extends React.Component {
           SelectUserSettings: {
             filterAccountIds: [md.global.Account.accountId],
             filterProjectId: projectId,
-            callback: function (users) {
-              Invite.inviteByAccountIds(projectId, users);
+            callback: function(users) {
+              InviteController.inviteUser({
+                sourceId: projectId,
+                accountIds: users.map(o => o.accountId),
+                fromType: 4,
+              }).then(function(result) {
+                existAccountHint(result);
+              });
             },
           },
         });

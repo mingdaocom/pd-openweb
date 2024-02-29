@@ -1,7 +1,6 @@
 import React from 'react';
 import cx from 'classnames';
-import { Dialog } from 'ming-ui';
-import { Input } from 'antd';
+import { Dialog, VerifyPasswordConfirm } from 'ming-ui';
 import '../InitBindAccountDialog/index.less';
 
 const verifyList = [
@@ -12,19 +11,12 @@ const verifyList = [
 export default class StepsVerifyDialog extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      password: '',
-    };
-  }
-
-  componentDidUpdate() {
-    $('input.ant-input').attr('autocomplete', 'new-password');
+    this.state = {};
   }
 
   render() {
     const { mobilePhone, email, isVerify, visible } = this.props;
-    const { password } = this.state;
-    const canVerify = mobilePhone && email && isVerify && password;
+    const canVerify = mobilePhone && email && isVerify;
     return (
       <Dialog
         title={_l('开启两步验证？')}
@@ -32,7 +24,6 @@ export default class StepsVerifyDialog extends React.Component {
         onCancel={this.props.onCancel}
         showCancel={false}
         okText={_l('开启')}
-        onOk={() => this.props.onOk(password)}
         footer={null}
       >
         <div className="initPassowrdDialog">
@@ -52,27 +43,21 @@ export default class StepsVerifyDialog extends React.Component {
                 <div className={cx({ Red: isError })}>
                   {isError
                     ? _l('%0不可用，请先绑定或验证', item.errorMsg)
-                    : _l('%0・%1', item.label, this.props[item.key])}
+                    : `${item.label}・${this.props[item.key]}`}
                 </div>
               </div>
             );
           })}
-          <div className="mTop24 mBottom24 line"></div>
-          <div>{_l('登录密码')}</div>
-          <div className="inputWrap">
-            <Input.Password
-              className="inputBox"
-              value={password}
-              autocomplete="new-password"
-              onChange={e => this.setState({ password: e.target.value })}
-            />
-          </div>
-          <div className="clearfix mTop40">
+          <div className="clearfix">
             <button
               type="button"
               disabled={!canVerify}
               className={cx('submitBtn ming Button Right Button--primary', { disable: !canVerify })}
-              onClick={() => this.props.onOk(password)}
+              onClick={() => {
+                VerifyPasswordConfirm.confirm({
+                  onOk: this.props.onOk,
+                });
+              }}
             >
               {_l('开启')}
             </button>

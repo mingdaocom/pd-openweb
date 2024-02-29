@@ -152,7 +152,7 @@ function Hierarchy(props) {
           }
         });
     }
-  }, [viewId, viewControl, viewControls.map(item => item.worksheetId).join(',')]);
+  }, [viewId, viewControl, JSON.stringify(view.moreSort), viewControls.map(item => item.worksheetId).join(',')]);
 
   const genScreenshot = () => {
     const $wrap = document.querySelector('.hierarchyViewWrap');
@@ -537,7 +537,7 @@ function Hierarchy(props) {
             !isDisabledCreate(sheetSwitchPermit) &&
             !_.isEmpty(hierarchyViewData) &&
             (viewControl || !_.isEmpty(viewControls)) &&
-            !_.get(window, 'shareState.isPublicView')
+            !(_.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage'))
           }
           onClick={() =>
             handleAddRecord({
@@ -571,6 +571,7 @@ function Hierarchy(props) {
       {renderContent()}
       {createRecordVisible && (
         <NewRecord
+          showFillNext
           visible
           onAdd={record => {
             addHierarchyRecord({ data: record, ...addRecordPath });

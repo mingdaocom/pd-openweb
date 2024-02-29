@@ -18,7 +18,8 @@ const ItemLayer = styled.div`
   .itemLayer {
     width: 160px;
     line-height: 40px;
-    padding-left: 12px;
+    padding-left: 10px;
+    padding-right: 4px;
     background: #fff;
     border-radius: 3px;
     border: 1px solid #2196f3;

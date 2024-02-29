@@ -3,10 +3,8 @@ import './header.less';
 import { Icon, LoadDiv } from 'ming-ui';
 import { fromType, typeForCon } from '../config';
 import cx from 'classnames';
-import Api from 'api/homeApp';
 import _ from 'lodash';
 import html2canvas from 'html2canvas';
-import { canEditApp } from 'src/pages/worksheet/redux/actions/util.js';
 import { addBehaviorLog } from 'src/util';
 
 class Header extends React.Component {
@@ -14,21 +12,11 @@ class Header extends React.Component {
     super(props);
     this.state = {
       isEdit: false,
-      isUserAdmin: false,
       exportLoading: false,
     };
   }
 
   componentWillMount() {
-    const { params } = this.props;
-    const { type, from, appId, printType } = params;
-    if (from === fromType.PRINT && type === typeForCon.NEW && appId && printType !== 'flow') {
-      Api.getApp({ appId: appId }, { silent: true }).then(data => {
-        this.setState({
-          isUserAdmin: canEditApp(data.permissionType, data.isLock), //开发者|管理员
-        });
-      });
-    }
   }
 
   richTextImgHandle = () => {
@@ -244,7 +232,7 @@ class Header extends React.Component {
                     </div>
                   ))}
 
-                {from === fromType.PRINT && type === typeForCon.NEW && this.state.isUserAdmin && (
+                {from === fromType.PRINT && type === typeForCon.NEW && this.props.isUserAdmin && (
                   <span
                     className="btn Gray Hand mLeft20"
                     onClick={() => {

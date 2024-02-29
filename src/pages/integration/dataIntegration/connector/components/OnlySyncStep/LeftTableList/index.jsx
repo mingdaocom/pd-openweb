@@ -119,6 +119,16 @@ export default function LeftTableList(props) {
   const isDestAppType = dest.type === DATABASE_TYPE.APPLICATION_WORKSHEET;
 
   useEffect(() => {
+    if (source.type === DATABASE_TYPE.KAFKA) {
+      const db = (_.get(source, 'formData.hosts') || [])[0];
+      const topic = _.get(source, 'formData.extraParams.topic');
+      setTableList([{ db, tableList: [{ id: topic, name: topic }] }]);
+      setCurrentTab({ db, table: topic, tableName: topic });
+      setNextOrSaveDisabled(false);
+    }
+  }, []);
+
+  useEffect(() => {
     if (isSourceAppType && visible && !dataObj.tableOptionList) {
       homeAppApi.getWorksheetsByAppId({ appId: source.id }).then(res => {
         if (res) {
@@ -289,18 +299,20 @@ export default function LeftTableList(props) {
                               <Icon icon="info1" className="repeatIcon" />
                             </Tooltip>
                           )}
-                          <Icon
-                            icon="delete1"
-                            className={cx('deleteIcon', {
-                              isActive: isSourceAppType
-                                ? table.id === currentTab.table
-                                : item.db === currentTab.db && table.name === currentTab.tableName,
-                            })}
-                            onClick={e => {
-                              e.stopPropagation();
-                              onDeleteDataObj(item.db, table);
-                            }}
-                          />
+                          {source.type !== DATABASE_TYPE.KAFKA && (
+                            <Icon
+                              icon="delete1"
+                              className={cx('deleteIcon', {
+                                isActive: isSourceAppType
+                                  ? table.id === currentTab.table
+                                  : item.db === currentTab.db && table.name === currentTab.tableName,
+                              })}
+                              onClick={e => {
+                                e.stopPropagation();
+                                onDeleteDataObj(item.db, table);
+                              }}
+                            />
+                          )}
                         </div>
                       </div>
                     </li>
@@ -311,10 +323,12 @@ export default function LeftTableList(props) {
         })}
       </ul>
 
-      <AddDataObjButton onClick={() => setVisible(true)}>
-        <Icon icon="add" />
-        <span>{_l('数据对象')}</span>
-      </AddDataObjButton>
+      {source.type !== DATABASE_TYPE.KAFKA && (
+        <AddDataObjButton onClick={() => setVisible(true)}>
+          <Icon icon="add" />
+          <span>{_l('数据对象')}</span>
+        </AddDataObjButton>
+      )}
 
       {visible && (
         <Modal

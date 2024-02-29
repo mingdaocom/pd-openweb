@@ -156,6 +156,7 @@ export default class ProjectContacts extends React.Component {
       this.setState({
         isLoading: false,
         pageIndex: 1,
+        usersLoading: false
         // hasMore,
       });
     });

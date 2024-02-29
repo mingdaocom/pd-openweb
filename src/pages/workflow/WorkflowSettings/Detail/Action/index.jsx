@@ -8,6 +8,7 @@ import CreateRecordAndTask from './CreateRecordAndTask';
 import DeleteNodeObj from './DeleteNodeObj';
 import RelationFields from './RelationFields';
 import UpdateGlobalVariable from './UpdateGlobalVariable';
+import CreateCalendarOrSnapshot from './CreateCalendarOrSnapshot'
 import { checkConditionsIsNull, getIcons } from '../../utils';
 import _ from 'lodash';
 
@@ -47,6 +48,14 @@ export default class Action extends Component {
     const { processId, selectNodeId, selectNodeType } = props;
 
     flowNode.getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType }).then(result => {
+      if (result.appType === APP_TYPE.CALENDAR) {
+        result.fields = this.handleCalendarDefault(result.fields);
+      }
+
+      if (result.appType === APP_TYPE.SNAPSHOT) {
+        result.fields = this.handleSnapshotDefault(result.fields);
+      }
+
       this.setState({ data: result, cacheKey: +new Date() });
     });
   }
@@ -105,10 +114,14 @@ export default class Action extends Component {
     } = data;
     let hasError = false;
 
-    if (actionId === ACTION_ID.ADD && !appId) {
+    if (actionId === ACTION_ID.ADD && !appId && appType !== APP_TYPE.CALENDAR) {
       alert(_l('必须先选择一个工作表'), 2);
       return;
-    } else if (actionId !== ACTION_ID.ADD && !selectNodeId && appType !== APP_TYPE.PROCESS) {
+    } else if (
+      actionId !== ACTION_ID.ADD &&
+      !selectNodeId &&
+      !_.includes([APP_TYPE.PROCESS, APP_TYPE.CALENDAR, APP_TYPE.SNAPSHOT], data.appType)
+    ) {
       alert(_l('必须先选择一个对象'), 2);
       return;
     }
@@ -119,9 +132,9 @@ export default class Action extends Component {
     }
 
     // 新增验证必填项
-    if (actionId === ACTION_ID.ADD) {
+    if (_.includes([ACTION_ID.ADD, ACTION_ID.CREATE_FILE], actionId)) {
       data.controls.forEach(item => {
-        if (item.required || _.includes(['portal_mobile', 'portal_role'], item.controlId)) {
+        if (item.required || _.includes(['portal_role'], item.controlId)) {
           fields.forEach(o => {
             if (item.controlId === o.fieldId && !o.nodeId && !o.fieldValue && !o.fieldValueId) {
               hasError++;
@@ -163,7 +176,12 @@ export default class Action extends Component {
         selectNodeId,
         appId,
         appType,
-        fields,
+        fields:
+          appType === APP_TYPE.CALENDAR
+            ? this.handleCalendarDefault(fields)
+            : appType === APP_TYPE.SNAPSHOT
+            ? this.handleSnapshotDefault(fields)
+            : fields,
         sourceAppId,
         sourceAppType,
         operateCondition: conditions,
@@ -182,10 +200,59 @@ export default class Action extends Component {
   };
 
   /**
+   * 处理日程默认值
+   */
+  handleCalendarDefault(fields) {
+    return fields.map(item => {
+      if (
+        _.includes(['is_all_day', 'is_private', 'create_file'], item.fieldId) &&
+        !item.fieldValue &&
+        !item.fieldValueId
+      ) {
+        item.fieldValue = '0';
+      }
+
+      if (item.fieldId === 'remind_time' && !item.fieldValue && !item.fieldValueId) {
+        item.fieldValue = '15';
+      }
+
+      return item;
+    });
+  }
+
+  /**
+   * 处理快照默认值
+   */
+  handleSnapshotDefault(fields) {
+    return fields.map(item => {
+      if (!item.fieldValue && !item.fieldValueId) {
+        if (item.fieldId === 'width') {
+          item.fieldValue = '1366';
+        }
+
+        if (item.fieldId === 'height') {
+          item.fieldValue = '768';
+        }
+
+        if (item.fieldId === 'is_all_page') {
+          item.fieldValue = '1';
+        }
+      }
+
+      return item;
+    });
+  }
+
+  /**
    * 渲染内容
    */
   renderContent() {
     const { data, cacheKey } = this.state;
+
+    // 创建日程 || 创建快照
+    if (_.includes([APP_TYPE.CALENDAR, APP_TYPE.SNAPSHOT], data.appType)) {
+      return <CreateCalendarOrSnapshot key={cacheKey} {...this.props} data={data} updateSource={this.updateSource} />;
+    }
 
     // 新增工作表记录 || 创建任务 || 邀请外部用户
     if (data.actionId === ACTION_ID.ADD) {
@@ -311,10 +378,12 @@ export default class Action extends Component {
   render() {
     const { selectNodeType } = this.props;
     const { data } = this.state;
-    const bgClassName = _.includes([APP_TYPE.PROCESS, APP_TYPE.GLOBAL_VARIABLE], data.appType)
+    const bgClassName = _.includes([APP_TYPE.PROCESS, APP_TYPE.GLOBAL_VARIABLE, APP_TYPE.SNAPSHOT], data.appType)
       ? 'BGBlueAsh'
       : data.appType === APP_TYPE.TASK
       ? 'BGGreen'
+      : data.appType === APP_TYPE.CALENDAR
+      ? 'BGRed'
       : 'BGYellow';
 
     if (_.isEmpty(data)) {
@@ -338,13 +407,13 @@ export default class Action extends Component {
               {((!data.selectNodeId &&
                 !data.appId &&
                 data.actionId !== ACTION_ID.DELETE &&
-                data.appType !== APP_TYPE.PROCESS) ||
+                !_.includes([APP_TYPE.PROCESS, APP_TYPE.CALENDAR, APP_TYPE.SNAPSHOT], data.appType)) ||
                 (data.actionId === ACTION_ID.EDIT &&
                   data.selectNodeId &&
                   !data.selectNodeObj.nodeName &&
                   !data.selectNodeObj.appName) ||
                 (data.actionId === ACTION_ID.ADD &&
-                  data.appType !== APP_TYPE.EXTERNAL_USER &&
+                  !_.includes([APP_TYPE.EXTERNAL_USER, APP_TYPE.CALENDAR], data.appType) &&
                   ((data.appId && !_.find(data.appList, item => item.id === data.appId)) || !data.appId))) && (
                 <div className="Gray_9e Font13 flexRow flowDetailTips">
                   <i className="icon-task-setting_promet Font16" />
@@ -380,7 +449,7 @@ export default class Action extends Component {
               data.actionId === ACTION_ID.DELETE ||
               data.actionId === ACTION_ID.RELATION) &&
               data.selectNodeId) ||
-            data.appType === APP_TYPE.PROCESS
+            _.includes([APP_TYPE.PROCESS, APP_TYPE.CALENDAR, APP_TYPE.SNAPSHOT], data.appType)
           }
           onSave={this.onSave}
         />

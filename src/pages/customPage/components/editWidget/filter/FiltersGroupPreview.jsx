@@ -35,8 +35,6 @@ const Wrap = styled.div`
   }
 `;
 
-const isPublicShare = location.href.includes('public/page');
-
 function FiltersGroupPreview(props) {
   const { appId, projectId, widget, className, updateFiltersGroup, updatePageInfo } = props;
   const { value } = widget;
@@ -47,7 +45,7 @@ function FiltersGroupPreview(props) {
   const isDisable = className.includes('disableFiltersGroup');
 
   useEffect(() => {
-    if (value && !isPublicShare) {
+    if (value) {
       worksheetApi.getFiltersGroupByIds({
         appId,
         filtersGroupIds: [value],
@@ -84,8 +82,15 @@ function FiltersGroupPreview(props) {
           }),
           loadFilterComponentCount: loadFilterComponentCount + 1
         });
+      }).fail(error => {
+        const customPage = store.getState().customPage;
+        const { loadFilterComponentCount } = customPage;
+        updatePageInfo({ loadFilterComponentCount: loadFilterComponentCount + 1 });
       });
     } else {
+      const customPage = store.getState().customPage;
+      const { loadFilterComponentCount } = customPage;
+      updatePageInfo({ loadFilterComponentCount: loadFilterComponentCount + 1 });
       setLoading(false);
     }
     return () => {
@@ -102,14 +107,6 @@ function FiltersGroupPreview(props) {
       setFiltersGroup(widget.filter);
     }
   }, [widget.filter]);
-
-  if (isPublicShare) {
-    return (
-      <Wrap className={cx('TxtCenter', className)}>
-        <div className="Font15 Gray_9e">{_l('暂不支持显示筛选组件')}</div>
-      </Wrap>
-    );
-  }
 
   return (
     <Wrap className={className}>

@@ -10,7 +10,7 @@ const DynamicColorWrap = styled.div`
   align-items: center;
   margin-bottom: 12px;
   input {
-    width: 150px;
+    width: 140px;
     height: 36px;
     border-radius: 3px;
     padding: 0 12px;

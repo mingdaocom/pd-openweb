@@ -6,6 +6,8 @@ import styled from 'styled-components';
 import DocumentTitle from 'react-document-title';
 import homeApp from 'src/api/homeApp';
 import { APP_CONFIGS } from 'src/pages/AppSettings/config';
+import appManagementApi from 'src/api/appManagement';
+import { getTranslateInfo } from 'src/util';
 
 const HeaderWrap = styled.div`
   height: 50px;
@@ -46,8 +48,21 @@ export default function AppPkgSimpleHeader(props) {
   const currentSettingMenu = (_.find(APP_CONFIGS, v => v.type === navTab) || { text: _l('选项集') }).text;
 
   const getAppDetail = () => {
-    homeApp.getApp({ appId }).then(appDetail => {
-      setAppDetail(appDetail);
+    homeApp.getApp({ appId, getLang: true }).then(appDetail => {
+      const { langInfo } = appDetail;
+      if (langInfo && langInfo.appLangId && langInfo.version !== window[`langVersion-${appId}`]) {
+        appManagementApi.getAppLangDetail({
+          projectId: appDetail.projectId,
+          appId,
+          appLangId: langInfo.appLangId
+        }).then(lang => {
+          window[`langData-${appId}`] = lang;
+          window[`langVersion-${appId}`] = langInfo.version;
+          setAppDetail(appDetail);
+        });
+      } else {
+        setAppDetail(appDetail);
+      }
     });
   };
 
@@ -55,15 +70,17 @@ export default function AppPkgSimpleHeader(props) {
     getAppDetail();
   }, []);
 
+  const name = getTranslateInfo(appId, appId).name || appDetail.name;
+
   return (
     <HeaderWrap className="flexRow alignItemsCenter">
       <DocumentTitle
-        title={`${appDetail.name ? appDetail.name + ' - ' : ''}${text}${
+        title={`${name ? name + ' - ' : ''}${text}${
           routerInfo === 'settings' ? ' - ' + currentSettingMenu : ''
         }`}
       />
 
-      <Tooltip popupPlacement="bottomLeft" text={<span>{_l('应用：%0', appDetail.name)}</span>}>
+      <Tooltip popupPlacement="bottomLeft" text={<span>{_l('应用：%0', name)}</span>}>
         <div
           className="flexRow pointer Gray_bd alignItemsCenter"
           onClick={() => {

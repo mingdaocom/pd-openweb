@@ -355,15 +355,8 @@ function Edit(params) {
         let values = _.get(info, [o]) || [];
         return (
           <div className="">
-            {dropDownVisible && (
-              <div
-                className="cover"
-                onClick={() => {
-                  setState({ dropDownVisible: false });
-                }}
-              ></div>
-            )}
             <Dropdown
+              selectClose={false}
               placeholder={_l('请选择')}
               className={cx('w100 mTop8 paramControlDropdown', {
                 hs: values.length > 0,
@@ -386,7 +379,7 @@ function Edit(params) {
                 );
               }}
               popupVisible={dropDownVisible}
-              onVisibleChange={visible => setState({ dropDownVisible: dropDownVisible ? true : visible })}
+              onVisibleChange={visible => setState({ dropDownVisible: visible })}
               value={values.length <= 0 ? undefined : values}
               onChange={value => {
                 let data = [];

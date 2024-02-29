@@ -94,7 +94,7 @@ Calendar.Method = {
       eventClick: function (events, jsEvent, view) {
         // 点击 日程时 事件
         if (events.isTask) {
-          $('#calendarEdit,.showActiveTitleMessage').remove();
+          $('.calendarEdit,.showActiveTitleMessage').remove();
           $('#calendar').trigger('openTask', events.eventID);
         } else {
           Calendar.settings.recurTime = events.recurTime;

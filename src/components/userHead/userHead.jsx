@@ -89,6 +89,7 @@ export default class UserHead extends React.Component {
         'user-integration',
         '2',
         '4',
+        'isEmpty',
       ].includes(user.accountId);
 
     return (

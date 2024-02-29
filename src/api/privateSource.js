@@ -2,7 +2,7 @@ export default {
   /**
   * 获取资源列表
   * @param {Object} args 请求参数
-  * @param {} args.status 状态（0:全部 1:显示 2:不显示）
+  * @param {} args.status
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -17,7 +17,7 @@ export default {
   * @param {string} args.name 名称
   * @param {string} args.color 图标颜色
   * @param {string} args.icon 图标
-  * @param {} args.linkParams 链接参数
+  * @param {} args.linkParams
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -33,7 +33,7 @@ export default {
   * @param {string} args.name 名称
   * @param {string} args.color 图标颜色
   * @param {string} args.icon 图标
-  * @param {} args.linkParams 链接参数
+  * @param {} args.linkParams
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -46,7 +46,7 @@ export default {
   * 修改资源状态
   * @param {Object} args 请求参数
   * @param {string} args.id 资源id
-  * @param {} args.status 状态（1:显示 2:不显示）
+  * @param {} args.status
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

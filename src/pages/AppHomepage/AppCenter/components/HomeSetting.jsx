@@ -105,19 +105,19 @@ export default function HomeSetting(props) {
 
   return (
     <React.Fragment>
-      <BaseBtnCon data-tip={_l('自定义首页')} onClick={() => setCustomDrawerVisible(!customDrawerVisible)}>
+      <BaseBtnCon data-tip={_l('自定义')} onClick={() => setCustomDrawerVisible(!customDrawerVisible)}>
         <i className="icon-tune Font20 Gray_75"></i>
       </BaseBtnCon>
       <CustomDrawer
         maskStyle={{ backgroundColor: 'transparent' }}
         width={360}
-        title={_l('自定义首页')}
+        title={_l('自定义')}
         placement="right"
         visible={customDrawerVisible}
         closeIcon={<i className="icon-close Font20" />}
         onClose={() => setCustomDrawerVisible(false)}
       >
-        <ConfigItem>
+        {/* <ConfigItem>
           <div className="switchItem">
             <span className="bold">{_l('显示最近使用')}</span>
             <Switch
@@ -137,7 +137,7 @@ export default function HomeSetting(props) {
             </div>
           ))}
         </ConfigItem>
-        <Hr />
+        <Hr /> */}
 
         <ConfigItem>
           <div className="bold mBottom6">{_l('星标分组')}</div>

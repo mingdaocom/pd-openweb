@@ -2,6 +2,14 @@ import update from 'immutability-helper';
 import { isArray, isEmpty } from 'lodash';
 import { dealPath, dealChildren, initState } from './util';
 
+// 按已有顺序排序
+const sortChildIds = (treeData, rowId, childrenids) => {
+  const sortIds = Object.values(treeData).filter(i => i.pid === rowId);
+  const idByOrder = new Map(sortIds.map((t, i) => [t, i]));
+  // 未指定固定第一项
+  return _.sortBy(dealChildren(childrenids), o => idByOrder.get(o));
+};
+
 // 更新记录
 const updateHierarchyRecord = ({ state, path, updater }) => {
   if (!path.length) return state;
@@ -36,7 +44,6 @@ const genTree = (
     const node = treeData[rowId] || {};
     const currentPath = path.concat([i]);
     const currentPathId = pathId.concat([rowId]);
-    const sortChildIds = Object.values(treeData).filter(i => i.pid === rowId);
     children.push({
       rowId,
       path: currentPath,
@@ -44,7 +51,7 @@ const genTree = (
       display: true,
       visible: level > 0,
       children: genTree({
-        data: _.isEmpty(sortChildIds) ? dealChildren(node.childrenids) : sortChildIds,
+        data: sortChildIds(treeData, rowId, node.childrenids),
         treeData,
         path: currentPath,
         pathId: currentPathId,

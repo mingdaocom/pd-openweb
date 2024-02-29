@@ -33,20 +33,30 @@
     }
   }
   .boardDataRecordListWrap {
-    display: inline-block;
+    display: flex;
+    flex-direction: column;
     vertical-align: top;
-    width: 304px;
-    margin: 0 0 100px 0;
     flex-shrink: 0;
+    max-height: 100%;
     &:last-child {
       margin-right: 0;
     }
   }
   .boardDataItemScrollWrap {
     overflow: hidden;
+    overflow-y: auto;
+    scrollbar-color: transparent transparent;
+    &::-webkit-scrollbar-thumb {
+      background-color: transparent;
+    }
+    &:hover {
+      scrollbar-color: #bababacc transparent;
+      &::-webkit-scrollbar-thumb {
+        background-color: #bababacc;
+      }
+    }
     .boardDataContentWrap {
-      overflow: hidden;
-      overflow-y: auto;
+      max-height: 100%;
       padding: 0 12px;
     }
   }

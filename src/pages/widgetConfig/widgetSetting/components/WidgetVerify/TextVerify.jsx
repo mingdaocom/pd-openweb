@@ -1,5 +1,5 @@
 import React, { useState, Fragment, useEffect } from 'react';
-import { Dialog, Checkbox } from 'ming-ui';
+import { Dialog, Checkbox, Support } from 'ming-ui';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { useSetState } from 'react-use';
@@ -155,14 +155,13 @@ export default function InputFormatConfig({ data, onChange }) {
         onCancel={() => {
           setVisible(false);
         }}
-        title={<span className="bold">{_l('限定输入格式')}</span>}>
+        title={<span className="bold">{_l('限定输入格式')}</span>}
+      >
         <ConfigWrap>
           <div className="formatList">
             <div className="title Gray_75">
               {_l('选择下方常用表达式或自定义输入')}
-              <a href="https://help.mingdao.com/sheet31" target="__blank" className="mLeft4">
-                {_l('帮助')}
-              </a>
+              <Support href="https://help.mingdao.com/sheet31" type={3} text={_l('帮助')} />
             </div>
             <ul className="list">
               {FORMAT_CONFIG.map(item => (

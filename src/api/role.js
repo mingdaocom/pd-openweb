@@ -1,46 +1,5 @@
 export default {
   /**
-  * 用户是否具有这些模块的权限
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {string} args.accountId 账号id
-  * @param {array} args.permissionIds 权限id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   isGrantedByPermissionIds: function (args, options = {}) {
-     
-     return $.api('Role', 'IsGrantedByPermissionIds', args, options);
-   },
-  /**
-  * 用户具有该功能模块的权限明细，哪些菜单有，哪些没有
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {string} args.accountId 账号id
-  * @param {integer} args.typeId 模块id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getUserPermissionByType: function (args, options = {}) {
-     
-     return $.api('Role', 'GetUserPermissionByType', args, options);
-   },
-  /**
-  * 是否有此权限
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {integer} args.permissionId 权限id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   isGranted: function (args, options = {}) {
-     
-     return $.api('Role', 'IsGranted', args, options);
-   },
-  /**
   * 判断是否具有网络管理员权限
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id

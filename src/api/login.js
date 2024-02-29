@@ -2,16 +2,16 @@ export default {
   /**
   * 使用明道云账号登录
   * @param {Object} args 请求参数
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType
   * @param {string} args.account 账号
   * @param {string} args.password 密码
   * @param {boolean} args.isCookie 是否记住用户名密码
   * @param {string} args.unionId 第三方账号id标识
   * @param {string} args.state 第三方账号随机码
-  * @param {} args.tpType 第三方账号类型
+  * @param {} args.tpType
   * @param {string} args.regFrom 登录广告来源
-  * @param {string} args.ticket 验证码返票据
-  * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -25,7 +25,7 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.accountId 账号
   * @param {string} args.encryptPassword 加密密码
-  * @param {} args.loginType 登录类型(默认0: AccountId + EncryptPassword、1（LDAP）: AccountId + EncryptPassword + Account + ProjectId)
+  * @param {} args.loginType
   * @param {string} args.account 账号
   * @param {string} args.projectId 网络Id
   * @param {string} args.regFrom 登录广告来源
@@ -79,12 +79,12 @@ export default {
   /**
   * 发送验证码
   * @param {Object} args 请求参数
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType
   * @param {string} args.state 状态位
   * @param {integer} args.type 发送类型
 1为手机号；2为邮箱
-  * @param {string} args.ticket 验证码返票据
-  * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -96,14 +96,14 @@ export default {
   /**
   * LDAP账号登录
   * @param {Object} args 请求参数
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType
   * @param {string} args.userName LDAP 用户名
   * @param {string} args.password LDAP 密码
   * @param {string} args.projectId 网络id
   * @param {boolean} args.isCookie 是否记住用户名密码
   * @param {string} args.regFrom 登录广告来源
-  * @param {string} args.ticket 验证码返票据
-  * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -150,19 +150,6 @@ export default {
    workWeiXinLogin: function (args, options = {}) {
      
      return $.api('Login', 'WorkWeiXinLogin', args, options);
-   },
-  /**
-  * 【三方应用】企业微信网页授权登录
-  * @param {Object} args 请求参数
-  * @param {string} args.authCode 授权码
-  * @param {} args.suiteType 套件类型
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   workWeiXinWebAuthLogin: function (args, options = {}) {
-     
-     return $.api('Login', 'WorkWeiXinWebAuthLogin', args, options);
    },
   /**
   * 【三方应用】企业微信安装应用登录

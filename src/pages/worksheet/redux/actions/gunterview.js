@@ -260,6 +260,11 @@ export const updateViewConfig = view => {
     const titleControl = _.find(controls, { attribute: 1 }) || {};
     const startControl = _.find(controls, { controlId: begindate }) || {};
     const endControl = _.find(controls, { controlId: enddate }) || {};
+    if (_.get(window, 'shareState.shareId')) {
+      startControl.disabled = true;
+      endControl.disabled = true;
+      titleControl.disabled = true;
+    }
     const newConfig = {
       ...gunterView.viewConfig,
       periodType: calendartype ? Number(calendartype) : PERIOD_TYPE.day,

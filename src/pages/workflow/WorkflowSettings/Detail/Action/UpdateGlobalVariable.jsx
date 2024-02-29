@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import { APP_TYPE, NODE_TYPE, GLOBAL_VARIABLE } from '../../enum';
 import { Tag, SingleControlValue } from '../components';
-import SelectGlobalVar from 'src/pages/Admin/globalVariable/components/SelectGlobalVarDialog';
+import SelectGlobalVar from 'src/pages/Admin/app/globalVariable/components/SelectGlobalVarDialog';
 import { Dropdown } from 'ming-ui';
 import _ from 'lodash';
 import { handleGlobalVariableName } from '../../utils';

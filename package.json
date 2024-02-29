@@ -1,6 +1,6 @@
 {
   "name": "mingdao-web",
-  "version": "10.0.0",
+  "version": "10.1.0",
   "scripts": {
     "start": "cross-env API_SERVER=http://127.0.0.1:8880 node --max-old-space-size=8192 ./node_modules/gulp/bin/gulp.js dev:main",
     "release": "cross-env NODE_ENV=production node --max-old-space-size=8192 ./node_modules/gulp/bin/gulp.js release",
@@ -8,6 +8,7 @@
     "publish": "cross-env NODE_ENV=production API_SERVER=/wwwapi/ WEBPACK_PUBLIC_PATH=/dist/pack/ node --max-old-space-size=8192 ./node_modules/gulp/bin/gulp.js publish",
     "trans": "node ./node_modules/gulp/bin/gulp.js buildDPPot",
     "buildPoToJs": "node ./node_modules/gulp/bin/gulp.js buildPoToJs"
+    "clearPoLangKey": "node ./node_modules/gulp/bin/gulp.js clearPoLangKey",
   },
   "dependencies": {
     "@ant-design/colors": "^6.0.0",
@@ -22,10 +23,8 @@
     "@mdfe/ckeditor5-custom-build": "1.2.1",
     "@mdfe/ckeditor5-react": "1.1.0",
     "@mdfe/intl-tel-input": "18.1.9",
-    "@mdfe/jquery-lazyload": "^1.9.5",
     "@mdfe/jquery-plupload": "^2.0.0",
     "@mdfe/nanoscroller": "0.8.6",
-    "@mdfe/poshytip": "^1.2.0",
     "@mdfe/qrcode-base": "^1.0.3",
     "@mdfe/react-dnd-mouse-backend": "^2.0.0",
     "@mdfe/react-linkify": "^1.0.0-alpha",
@@ -35,7 +34,7 @@
     "@sentry/tracing": "6.19.7",
     "antd": "4.19.0",
     "antd-mobile": "2.2.13",
-    "axios": "^0.19.0",
+    "axios": "1.6.2",
     "classnames": "^2.2.1",
     "codemirror": "^5.40.2",
     "copy-to-clipboard": "^3.3.1",
@@ -74,11 +73,9 @@
     "prismjs": "^1.23.0",
     "prop-types": "^15.6.1",
     "query-string": "^7.0.1",
-    "rc-dialog": "^7.5.13",
     "rc-trigger": "^2.6.2",
     "react": "16",
     "react-addons-css-transition-group": "^15.6.2",
-    "react-addons-pure-render-mixin": "^15.6.2",
     "react-addons-transition-group": "^15.6.2",
     "react-avatar-edit": "^0.8.3",
     "react-clipboard.js": "^1.0.1",
@@ -182,15 +179,11 @@
     "*.less",
     "*.css",
     "autoTextarea.js",
-    "emotion.js",
     "mdDatePicker.js",
     "mentionsInput.js",
-    "select.js",
     "selectAllGroup.js",
     "uploadAttachment.js",
     "mentionInput.js",
-    "modalbindesc.js",
-    "dialog.js",
     "svgIcon.js"
   ]
 }

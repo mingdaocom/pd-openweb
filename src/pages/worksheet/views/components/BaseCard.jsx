@@ -9,7 +9,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import { FlexCenter, Text } from 'worksheet/styled';
-import { checkCellIsEmpty, getRecordColor } from 'src/pages/worksheet/util';
+import { checkCellIsEmpty, getRecordColor, getControlStyles } from 'src/pages/worksheet/util';
 import { get, includes, findIndex, isEmpty, noop } from 'lodash';
 import { getAdvanceSetting, browserIsMobile } from 'src/util';
 import CardCoverImage from './CardCoverImage';
@@ -19,6 +19,7 @@ import { getCardDisplayPara, getMultiRelateViewConfig, isListRelate, isTextTitle
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import addRecord from 'worksheet/common/newRecord/addRecord';
 import { handleRowData } from 'src/util/transControlDefaultValue';
+import { getCanDisplayControls } from 'src/pages/worksheet/common/ViewConfig/util.js';
 
 const RecordItemWrap = styled.div`
   display: flex;
@@ -28,6 +29,10 @@ const RecordItemWrap = styled.div`
   width: 100%;
   position: relative;
   min-height: 42px;
+  ${({ controlStyles }) => controlStyles || ''}
+  .hoverShowAll {
+    display: none;
+  }
   .fieldContentWrap {
     flex: 1;
     padding: 10px 0;
@@ -191,7 +196,11 @@ const BaseCard = props => {
     onCopySuccess = noop,
     showNull = false,
     onAdd = noop,
+    hoverShowAll,
+    fieldShowCount,
+    isQuickEditing,
   } = props;
+  const isMobile = browserIsMobile();
   let { rowId, coverImage, allowEdit, allowDelete, abstractValue, allowAdd } = data;
   const isShowWorkflowSys = isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit);
   const fields = data.fields
@@ -231,6 +240,8 @@ const BaseCard = props => {
   const isVerticalHierarchy =
     String(viewType) === '2' && ['1', '2'].includes(_.get(para, 'advancedSetting.hierarchyViewType'));
 
+  const showControlStyle =
+    _.get(para, 'advancedSetting.controlstyle') === '1' || _.get(para, 'advancedSetting.controlstyleapp') === '1';
   abstractValue = abstract ? abstractValue : '';
 
   const otherFields = update(fields, { $splice: [[titleIndex, 1]] });
@@ -259,7 +270,7 @@ const BaseCard = props => {
     if (props.renderTitle) return props.renderTitle({ content, titleField });
     return (
       <div
-        className={cx('titleText', {
+        className={cx('titleText', `control-val-${titleField.controlId}`, {
           haveOtherField: !isEmpty(otherFields),
           overflow_ellipsis: titleField.type === 2,
           isGalleryView,
@@ -282,12 +293,24 @@ const BaseCard = props => {
       </div>
     );
   };
+
+  const isEmptyCell = item => {
+    return (
+      checkCellIsEmpty(item.value) ||
+      (item.type === 29 && _.get(item, 'advancedSetting.showtype') === '2' && item.value <= 0)
+    );
+  };
+
   const renderContent = ({ item, content }) => {
     let currentContent = content;
 
     if (item.type === 36) {
       const canEdit =
-        isOpenPermit(permitList.quickSwitch, sheetSwitchPermit, viewId) && allowEdit && controlState(item).editable;
+        _.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage')
+          ? false
+          : isOpenPermit(permitList.quickSwitch, sheetSwitchPermit, para.viewId) &&
+            allowEdit &&
+            controlState(item).editable;
       currentContent = (
         <div onClick={e => e.stopPropagation()}>
           <Switch cell={item} from={4} editable={canEdit} updateCell={({ value }) => props.onChange(item, value)} />
@@ -295,7 +318,7 @@ const BaseCard = props => {
       );
     }
 
-    const displayContent = !checkCellIsEmpty(item.value) ? (
+    const displayContent = !isEmptyCell(item) ? (
       <div className="contentWrap">{currentContent}</div>
     ) : (
       <div className="emptyHolder"> </div>
@@ -314,6 +337,7 @@ const BaseCard = props => {
 
   const renderAbstract = () => {
     const isShowAbstract = abstract && !!(data.formData || []).filter(item => item.controlId === abstract).length;
+    if (isEmptyCell({ value: abstractValue }) && !isGalleryView && !showNull) return null;
     return isShowAbstract ? (
       <div className={cx('abstractWrap', { galleryViewAbstract: isGalleryView || isVerticalHierarchy })}>
         {abstractValue || <div className="emptyHolder"></div>}
@@ -340,8 +364,7 @@ const BaseCard = props => {
       offset: [16, -8],
     };
   };
-  const isMobile = browserIsMobile();
-  const hideOperate = isMobile || _.get(window, 'shareState.isPublicView');
+  const hideOperate = isMobile || _.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage');
   const { recordColorConfig, rawRow } = data;
   const recordColor =
     recordColorConfig &&
@@ -351,6 +374,48 @@ const BaseCard = props => {
       controls: data.formData,
       row: _.isObject(rawRow) ? rawRow : safeParse(rawRow),
     });
+  let fieldList = otherFields;
+  if (!isGalleryView && !showNull) {
+    //不显示空的内容
+    fieldList = otherFields.filter(item => !isEmptyCell(item));
+  }
+  const showFields = getCanDisplayControls(
+    fieldShowCount && fieldShowCount !== 'undefined' && (!hoverShowAll || isQuickEditing)
+      ? fieldList.slice(0, fieldShowCount)
+      : fieldList,
+  );
+  const canHoverShowAll =
+    fieldShowCount &&
+    fieldShowCount !== 'undefined' &&
+    hoverShowAll &&
+    !(_.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage'));
+  const renderCell = (item, i) => {
+    if (isEmptyCell(item) && !isGalleryView && !showNull) return null;
+    const cell = _.find(data.formData, c => c.controlId === item.controlId) || item;
+
+    const content = (
+      <CellControl
+        className={'control-val-' + item.controlId}
+        from={4}
+        cell={cell}
+        rowFormData={() => data.formData || []}
+        sheetSwitchPermit={sheetSwitchPermit}
+        worksheetId={worksheetId}
+        viewId={viewId}
+        row={{ rowid: rowId }}
+        isCharge={isCharge}
+        appId={appId}
+        projectId={projectId}
+        disabled={cell.type === 26 && String(viewType) === '8'}
+      />
+    );
+    // 画廊视图或有内容控件则渲染
+    return (
+      <div key={item.controlId} className={cx('fieldItem')} style={item.type === 6 ? { width: '100%' } : {}}>
+        {renderContent({ content, item })}
+      </div>
+    );
+  };
   return (
     <RecordItemWrap
       ref={$ref}
@@ -360,6 +425,7 @@ const BaseCard = props => {
       className={className}
       coverDirection={includes(['0', '1'], coverposition) ? 'row' : 'column'}
       canDrag={canDrag}
+      controlStyles={showControlStyle && getControlStyles(showFields.concat(titleField))}
     >
       {/* // 封面图片左、上放置 */}
       {recordColor && recordColorConfig.showLine && (
@@ -376,43 +442,30 @@ const BaseCard = props => {
       <div className="fieldContentWrap">
         {renderTitleControl({ forceShowFullValue })}
         {renderAbstract()}
-        {!_.isEmpty(otherFields) && (
+        {!_.isEmpty(showFields) && (
           <RecordFieldsWrap hasCover={!!coverImage}>
-            {otherFields
-              // .filter(o => controlState(o).visible)//排除无查看权限的字段
-              .map(item => {
-                if (checkCellIsEmpty(item.value) && !isGalleryView && !showNull) return null;
-                const content = (
-                  <CellControl
-                    from={4}
-                    cell={_.find(data.formData, c => c.controlId === item.controlId) || item}
-                    rowFormData={() => data.formData || []}
-                    sheetSwitchPermit={sheetSwitchPermit}
-                    worksheetId={worksheetId}
-                    viewId={viewId}
-                    row={{ rowid: rowId }}
-                    isCharge={isCharge}
-                    appId={appId}
-                    projectId={projectId}
-                  />
-                );
-                // 画廊视图或有内容控件则渲染
-                return (
-                  <div key={item.controlId} className={'fieldItem'} style={item.type === 6 ? { width: '100%' } : {}}>
-                    {renderContent({ content, item })}
-                  </div>
-                );
-              })}
+            {(canHoverShowAll ? showFields.slice(0, fieldShowCount) : showFields).map(item => {
+              return renderCell(item);
+            })}
+            {canHoverShowAll && showFields.length > fieldShowCount ? (
+              <div className="hoverShowAll w100">
+                {showFields.slice(fieldShowCount, showFields.length).map(item => {
+                  return renderCell(item);
+                })}
+              </div>
+            ) : (
+              ''
+            )}
           </RecordFieldsWrap>
         )}
       </div>
       {/* // 封面图片右放置 */}
       {includes(['0'], coverposition) && <CardCoverImage {...props} viewId={viewId} />}
       {!hideOperate && (
-        <div className="recordOperateWrap asd" onClick={e => e.stopPropagation()}>
+        <div className="recordOperateWrap" onClick={e => e.stopPropagation()}>
           <RecordOperate
             isCharge={isCharge}
-            shows={['share', 'print', 'copy', 'openinnew', 'recreate']}
+            shows={['share', 'print', 'copy', 'openinnew', 'recreate', 'fav']}
             popupAlign={getPopAlign()}
             allowDelete={allowDelete}
             allowCopy={allowCopy}

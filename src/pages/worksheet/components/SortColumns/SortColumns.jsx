@@ -24,6 +24,7 @@ export default class SortColumns extends React.Component {
     children: PropTypes.element,
     onChange: PropTypes.func.isRequired,
     showTabs: PropTypes.bool,
+    disabled: PropTypes.bool, // 能否点击弹出操作项
   };
 
   static defaultProps = {
@@ -31,6 +32,7 @@ export default class SortColumns extends React.Component {
     noempty: true,
     dragable: true,
     advance: true,
+    disabled: false,
     ghostControlIds: [],
     showControls: [],
     controlsSorts: [],
@@ -58,6 +60,8 @@ export default class SortColumns extends React.Component {
       isShowColumns = false,
       sortAutoChange = false,
       showTabs = false,
+      disabled = false,
+      showOperate = true,
     } = this.props;
     const columns = this.props.columns.filter(c => !_.find(ghostControlIds, gcid => gcid === c.controlId));
     const displayControls = showControls.filter(dcid => _.find(columns, fc => fc.controlId === dcid));
@@ -65,33 +69,37 @@ export default class SortColumns extends React.Component {
       return (
         <DropdownWrapper
           className="sortColumnWrap"
+          disabled={disabled}
           downElement={
-            <ChangeColumn
-              placeholder={placeholder}
-              noShowCount={noShowCount}
-              noempty={noempty}
-              dragable={dragable}
-              advance={advance}
-              min1msg={min1msg}
-              maxSelectedNum={maxSelectedNum}
-              selected={showControls}
-              columns={columns}
-              controlsSorts={controlsSorts}
-              onChange={({ selected, newControlSorts }) => {
-                onChange({
-                  newShowControls: _.uniqBy(ghostControlIds.concat(selected)),
-                  newControlSorts: _.uniqBy(ghostControlIds.concat(newControlSorts)),
-                });
-              }}
-              isShowColumns={isShowColumns}
-              sortAutoChange={sortAutoChange}
-              showTabs={showTabs}
-            />
+            this.props.downElement || (
+              <ChangeColumn
+                placeholder={placeholder}
+                noShowCount={noShowCount}
+                noempty={noempty}
+                dragable={dragable}
+                advance={advance}
+                min1msg={min1msg}
+                maxSelectedNum={maxSelectedNum}
+                selected={showControls}
+                columns={columns}
+                controlsSorts={controlsSorts}
+                onChange={({ selected, newControlSorts }) => {
+                  onChange({
+                    newShowControls: _.uniqBy(ghostControlIds.concat(selected)),
+                    newControlSorts: _.uniqBy(ghostControlIds.concat(newControlSorts)),
+                  });
+                }}
+                isShowColumns={isShowColumns}
+                sortAutoChange={sortAutoChange}
+                showTabs={showTabs}
+                showOperate={showOperate}
+              />
+            )
           }
         >
           {children || (
             <div className="Dropdown--input Dropdown--border Hand">
-              {displayControls.length < 1 && empty ? empty : <span>{_l('显示 %0 列', displayControls.length)}</span>}
+              {displayControls.length < 1 && empty ? empty : <span>{_l('显示 %0 个', displayControls.length)}</span>}
               <div className="ming Icon icon icon-arrow-down-border mLeft8 Gray_9e" />
             </div>
           )}

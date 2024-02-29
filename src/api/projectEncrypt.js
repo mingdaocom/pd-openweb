@@ -47,18 +47,6 @@ export default {
      return $.api('ProjectEncrypt', 'PagedEncryptRules', args, options);
    },
   /**
-  * 获取当前网络的所有加密规则
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 组织Id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getAllEncryptRule: function (args, options = {}) {
-     
-     return $.api('ProjectEncrypt', 'GetAllEncryptRule', args, options);
-   },
-  /**
   * 获取加密规则
   * @param {Object} args 请求参数
   * @param {string} args.projectId 组织Id
@@ -72,22 +60,10 @@ export default {
      return $.api('ProjectEncrypt', 'GetEncryptRule', args, options);
    },
   /**
-  * 获取所有可用的加密规则信息
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getAvailableEncryptRuleInfo: function (args, options = {}) {
-     
-     return $.api('ProjectEncrypt', 'GetAvailableEncryptRuleInfo', args, options);
-   },
-  /**
   * 添加加密规则
   * @param {Object} args 请求参数
   * @param {string} args.projectId 组织Id
-  * @param {} args.addEncryptRule 添加加密规则DTO
+  * @param {} args.addEncryptRule
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -101,7 +77,7 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.projectId 组织Id
   * @param {string} args.encryptRuleId 加密规则Id
-  * @param {} args.editeEncryptRule 可编辑的加密规则内容
+  * @param {} args.editeEncryptRule
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

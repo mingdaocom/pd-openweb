@@ -13,7 +13,7 @@ export const viewTypeConfig = [
   { type: 'PluginSettings', name: _l('插件设置'), icon: 'configure' },
   { type: 'DebugConfig', name: _l('开发调试'), icon: 'worksheet_API' },
   { type: 'ParameterSet', name: _l('参数映射'), icon: 'view_eye' },
-  { type: 'Submit', name: _l('提交'), icon: 'airplane' },
+  { type: 'Submit', name: _l('提交%05036'), icon: 'airplane' },
 ];
 export const viewTypeCustomList = ['PluginSettings','DebugConfig', 'ParameterSet', 'Submit'];
 export const viewTypeGroup = [

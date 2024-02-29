@@ -49,8 +49,6 @@ const DrawerWrap = styled(Drawer)`
   }
 `;
 
-const isPublicShare = location.href.includes('public/page');
-
 function FilterContent(props) {
   const { ids = {}, apk = {}, widget, className = '' } = props;
   const { value } = widget;
@@ -69,7 +67,7 @@ function FilterContent(props) {
   }, []);
 
   useEffect(() => {
-    if (value && !isPublicShare) {
+    if (value) {
       worksheetApi.getFiltersGroupByIds({
         appId: ids.appId,
         filtersGroupIds: [value],
@@ -107,6 +105,8 @@ function FilterContent(props) {
         }
       });
     } else {
+      const { loadFilterComponentCount } = store.getState().customPage;
+      store.dispatch(updatePageInfo({ loadFilterComponentCount: loadFilterComponentCount + 1 }));
       setLoading(false);
     }
   }, [value]);
@@ -141,14 +141,6 @@ function FilterContent(props) {
     );
   }
 
-  if (isPublicShare) {
-    return (
-      <Wrap className={cx('flexRow valignWrapper WhiteBG h100', className)}>
-        <div className="Font15 Gray_9e w100 TxtCenter">{_l('暂不支持显示筛选组件')}</div>
-      </Wrap>
-    );
-  }
-
   return (
     <Wrap className={cx('flexRow valignWrapper w100', className)} style={{ height: 40 }}>
       <FilterEntry
@@ -178,7 +170,7 @@ function FilterContent(props) {
           // worksheetId={ids.worksheetId}
           projectId={apk.projectId}
           enableBtn={filtersGroup.enableBtn}
-          filters={filters}
+          filters={filters.filter(c => c.control && !(window.shareState.shareId && _.includes([26, 27, 48], c.control.type)))}
           updateQuickFilter={(values) => {
             setOtherFiltersGroup(values);
           }}

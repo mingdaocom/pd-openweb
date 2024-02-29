@@ -670,7 +670,7 @@ export default class UploadTemplateSheet extends React.Component {
             <p className="Gray_75">
               <span>
                 {_l(
-                  '3. 平铺类的选项字段如需打印未选中的选项，可在字段代码或ID/别名后加“_Alloptions”，例如：#{单选_Alloptions}。',
+                  '3. 平铺类的选项字段如需打印未选中的选项，可在字段代码或ID/别名后加“_Alloptions”，例如：#{单选_Alloptions}。默认为横向平铺，如果要纵向平铺选项，可以添加[V]标记，如#{单选_Alloptions[V]}',
                 )}
               </span>
             </p>

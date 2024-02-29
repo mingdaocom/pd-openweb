@@ -7,8 +7,8 @@ export default {
   * @param {integer} args.pageSize 页大小
   * @param {string} args.startDate 开始时间
   * @param {string} args.endDate 结束时间
-  * @param {} args.sortField 排序字段
-  * @param {} args.sortType 排序类型
+  * @param {} args.sortField
+  * @param {} args.sortType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -25,9 +25,9 @@ export default {
   * @param {integer} args.pageSize 页大小
   * @param {string} args.startDate 开始时间
   * @param {string} args.endDate 结束时间
-  * @param {} args.postReportType 统计类型
-  * @param {} args.sortField 排序字段
-  * @param {} args.sortType 排序类型
+  * @param {} args.postReportType
+  * @param {} args.sortField
+  * @param {} args.sortType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -44,8 +44,8 @@ export default {
   * @param {integer} args.pageSize 页大小
   * @param {string} args.startDate 开始时间
   * @param {string} args.endDate 结束时间
-  * @param {} args.sortField 排序字段
-  * @param {} args.sortType 排序类型
+  * @param {} args.sortField
+  * @param {} args.sortType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

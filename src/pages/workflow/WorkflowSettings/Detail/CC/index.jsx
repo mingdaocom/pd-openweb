@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import flowNode from '../../../api/flowNode';
-import { ScrollView, LoadDiv, Dropdown } from 'ming-ui';
+import { ScrollView, LoadDiv, Dropdown, Checkbox } from 'ming-ui';
 import cx from 'classnames';
 import {
   SelectUserDropDown,
@@ -76,7 +76,7 @@ export default class CC extends Component {
    */
   onSave = () => {
     const { data, saveRequest } = this.state;
-    const { accounts, selectNodeId, name, sendContent, formProperties, viewId } = data;
+    const { accounts, selectNodeId, name, sendContent, formProperties, viewId, addNotAllowView, showTitle } = data;
 
     if (!selectNodeId) {
       alert(_l('必须指定数据对象'), 2);
@@ -85,11 +85,6 @@ export default class CC extends Component {
 
     if (!formProperties.length && !viewId) {
       alert(_l('必须指定视图'), 2);
-      return;
-    }
-
-    if (!sendContent.trim()) {
-      alert(_l('通知内容不允许为空'), 2);
       return;
     }
 
@@ -113,6 +108,8 @@ export default class CC extends Component {
         accounts,
         formProperties,
         viewId,
+        addNotAllowView,
+        showTitle: sendContent.trim() ? showTitle : true,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -136,11 +133,7 @@ export default class CC extends Component {
 
     return (
       <Fragment>
-        <div className="Font14 Gray_75 workflowDetailDesc">
-          {_l('发送附带记录的站内消息，此类消息会进入流程待办中的“待查看”项，需要用户手动确认已读')}
-        </div>
-
-        <div className="Font13 bold mTop20">{_l('数据对象')}</div>
+        <div className="Font13 bold">{_l('数据对象')}</div>
         <SelectNodeObject
           disabled={this.props.isApproval}
           smallBorder={true}
@@ -177,6 +170,7 @@ export default class CC extends Component {
               nodeId={this.props.selectNodeId}
               selectNodeId={data.selectNodeId}
               data={data.formProperties}
+              addNotAllowView={data.addNotAllowView}
               updateSource={this.updateSource}
               hideTypes={[2, 3]}
             />
@@ -210,7 +204,36 @@ export default class CC extends Component {
           </Fragment>
         )}
 
+        <div className="Font13 bold mTop20">{_l('抄送人')}</div>
+        <Member
+          companyId={this.props.companyId}
+          appId={this.props.relationType === 2 ? this.props.relationId : ''}
+          accounts={data.accounts}
+          updateSource={this.updateSource}
+        />
+        <div
+          className="flexRow mTop15 ThemeColor3 workflowDetailAddBtn"
+          onClick={() => this.setState({ showSelectUserDialog: true })}
+        >
+          <i className="Font28 icon-task-add-member-circle mRight10" />
+          {_l('添加抄送人')}
+          <SelectUserDropDown
+            appId={this.props.relationType === 2 ? this.props.relationId : ''}
+            visible={showSelectUserDialog}
+            companyId={this.props.companyId}
+            processId={this.props.processId}
+            nodeId={this.props.selectNodeId}
+            unique={false}
+            accounts={data.accounts}
+            updateSource={this.updateSource}
+            onClose={() => this.setState({ showSelectUserDialog: false })}
+          />
+        </div>
+
         <div className="Font13 bold mTop20">{_l('通知内容')}</div>
+        <div className="Font13 Gray_9e mTop5">
+          {_l('可不设，默认显示记录标题。设置后，显示设置的通知内容和记录标题（可选）')}
+        </div>
         <CustomTextarea
           className="minH100"
           projectId={this.props.companyId}
@@ -223,27 +246,13 @@ export default class CC extends Component {
           onChange={(err, value, obj) => this.updateSource({ sendContent: value })}
           updateSource={this.updateSource}
         />
-
-        <div className="Font13 bold mTop20">{_l('通知人')}</div>
-        <div className="Font13 Gray_9e mTop10">{_l('将通过系统消息发送')}</div>
-
-        <Member accounts={data.accounts} updateSource={this.updateSource} />
-        <div
-          className="flexRow mTop15 ThemeColor3 workflowDetailAddBtn"
-          onClick={() => this.setState({ showSelectUserDialog: true })}
-        >
-          <i className="Font28 icon-task-add-member-circle mRight10" />
-          {_l('添加通知人')}
-          <SelectUserDropDown
-            appId={this.props.relationType === 2 ? this.props.relationId : ''}
-            visible={showSelectUserDialog}
-            companyId={this.props.companyId}
-            processId={this.props.processId}
-            nodeId={this.props.selectNodeId}
-            unique={false}
-            accounts={data.accounts}
-            updateSource={this.updateSource}
-            onClose={() => this.setState({ showSelectUserDialog: false })}
+        <div className="mTop10">
+          <Checkbox
+            className="InlineFlex"
+            disabled={!data.sendContent}
+            text={_l('显示记录标题')}
+            checked={data.showTitle || !data.sendContent}
+            onClick={checked => this.updateSource({ showTitle: !checked })}
           />
         </div>
       </Fragment>
@@ -293,11 +302,7 @@ export default class CC extends Component {
             <div className="workflowDetailBox">{this.renderContent()}</div>
           </ScrollView>
         </div>
-        <DetailFooter
-          {...this.props}
-          isCorrect={!!(data.sendContent || '').trim() && !!data.accounts.length && data.selectNodeId}
-          onSave={this.onSave}
-        />
+        <DetailFooter {...this.props} isCorrect={!!data.accounts.length && data.selectNodeId} onSave={this.onSave} />
       </Fragment>
     );
   }

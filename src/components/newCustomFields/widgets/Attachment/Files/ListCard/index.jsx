@@ -20,9 +20,11 @@ const ListCard = props => {
 
   useEffect(() => {
     if (isPicture) {
-      loadImage(previewUrl).then().catch(error => {
-        setIsPicture(false);
-      });
+      loadImage(previewUrl)
+        .then()
+        .catch(error => {
+          setIsPicture(false);
+        });
     }
   }, []);
 
@@ -32,7 +34,7 @@ const ListCard = props => {
         <MenuItem
           key="newPage"
           icon={<Icon icon="launch" className="Font17 pRight5" />}
-          onClick={(e) => {
+          onClick={e => {
             e.stopPropagation();
             onOpenControlAttachmentInNewTab(data.fileID);
             setDropdownVisible(false);
@@ -44,7 +46,7 @@ const ListCard = props => {
       <MenuItem
         key="share"
         icon={<Icon icon="share" className="Font17 pRight5" />}
-        onClick={(e) => {
+        onClick={e => {
           e.stopPropagation();
           handleShare(data, isDownload);
           setDropdownVisible(false);
@@ -55,7 +57,7 @@ const ListCard = props => {
       <MenuItem
         key="saveKcCloud"
         icon={<Icon icon="knowledge-cloud" className="Font17 pRight5" />}
-        onClick={(e) => {
+        onClick={e => {
           e.stopPropagation();
           handleSaveKcCloud(data, isDownload);
           setDropdownVisible(false);
@@ -68,26 +70,32 @@ const ListCard = props => {
 
   const handlePreview = () => {
     browse ? onMDPreview(data) : alert(_l('您权限不足，无法预览，请联系管理员或文件上传者'), 3);
-  }
+  };
 
   return (
     <div
-      className={cx('attachmentListCard flexRow alignItemsCenter', { mobile: isMobile, hover: dropdownVisible || isEdit })}
+      className={cx('attachmentListCard flexRow alignItemsCenter', {
+        mobile: isMobile,
+        hover: dropdownVisible || isEdit,
+      })}
     >
       {allowSort && <Icon className="fileDrag Gray_9e" icon="drag" />}
       <div
-        className={cx('fileImageWrap pointer h100 flexRow alignItemsCenter justifyContentCenter', { mLeft0: !allowSort })}
+        className={cx('fileImageWrap pointer h100 flexRow alignItemsCenter justifyContentCenter', {
+          mLeft0: !allowSort,
+        })}
         onClick={handlePreview}
       >
         {isPicture ? (
-          <div className="fileImage" style={{ backgroundImage: `url(${previewUrl})` }}/>
+          <div className="fileImage" style={{ backgroundImage: `url(${previewUrl})` }} />
         ) : (
           <div className={cx(fileClassName, 'fileIcon')} />
         )}
       </div>
       <div className="fileName flex flexRow alignItemsCenter pointer" onClick={handlePreview}>
         <span className="textEllipsis">
-          {data.originalFilename}{data.ext}
+          {data.originalFilename}
+          {data.ext}
         </span>
         {isKc && <Icon className="Font17 Gray_9e mLeft8" icon="knowledge1" />}
       </div>
@@ -99,8 +107,12 @@ const ListCard = props => {
           <div className="flexRow alignItemsCenter">
             {deleteConfirmVisible ? (
               <Fragment>
-                <div className="cancelBtn mRight6" onClick={() => setDeleteConfirmVisible(false)}>{_l('取消')}</div>
-                <div className="deleteBtn mRight10" onClick={() => onDeleteMDFile(data)}>{_l('删除')}</div>
+                <div className="cancelBtn mRight6" onClick={() => setDeleteConfirmVisible(false)}>
+                  {_l('取消')}
+                </div>
+                <div className="deleteBtn mRight10" onClick={() => onDeleteMDFile(data)}>
+                  {_l('删除')}
+                </div>
               </Fragment>
             ) : (
               <Fragment>
@@ -109,7 +121,7 @@ const ListCard = props => {
                     originalFileName={data.originalFilename}
                     isEdit={isEdit}
                     setIsEdit={setIsEdit}
-                    onSave={(name) => {
+                    onSave={name => {
                       onAttachmentName(data.fileID, name);
                     }}
                   >
@@ -122,17 +134,19 @@ const ListCard = props => {
                 )}
                 {allowDownload && (
                   <Tooltip title={_l('下载')} placement="bottom">
-                    <div className="btnWrap pointer" onClick={() => { handleDownload(data, isDownload) }}>
+                    <div
+                      className="btnWrap pointer"
+                      onClick={() => {
+                        handleDownload(data, isDownload);
+                      }}
+                    >
                       <Icon className="Gray_9e Font17" icon="download" />
                     </div>
                   </Tooltip>
                 )}
                 {isDeleteFile && (
                   <Tooltip title={_l('删除')} placement="bottom">
-                    <div
-                      className="btnWrap pointer delete"
-                      onClick={() => setDeleteConfirmVisible(true)}
-                    >
+                    <div className="btnWrap pointer delete" onClick={() => setDeleteConfirmVisible(true)}>
                       <Icon className="Gray_9e Font17" icon="task-new-delete" />
                     </div>
                   </Tooltip>
@@ -163,36 +177,39 @@ const ListCard = props => {
       )}
     </div>
   );
-}
+};
 
 const NotSaveListCard = props => {
   const { data, isMobile, allowSort } = props;
   const { onDeleteKCFile, onDeleteFile, onResetNameFile, onKCPreview, onPreview } = props;
   const { isKc, fileClassName, isPicture, fileSize, url } = props;
-  const previewImageUrl = isKc ? data.viewUrl : (url.indexOf('imageView2') > -1 ? url.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/200/h/140') : url + '&imageView2/1/w/200/h/140');
+  const previewImageUrl = isKc
+    ? data.viewUrl
+    : url.indexOf('imageView2') > -1
+    ? url.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/200/h/140')
+    : url + `${url.includes('?') ? '&' : '?'}imageView2/1/w/200/h/140`;
   const [isEdit, setIsEdit] = useState(false);
 
   const handlePreview = () => {
     if (isEdit) return;
     isKc ? onKCPreview(data) : onPreview(data);
-  }
+  };
 
   return (
     <div className={cx('attachmentListCard flexRow alignItemsCenter', { mobile: isMobile, hover: isEdit })}>
       {allowSort && <Icon className="fileDrag Gray_9e" icon="drag" />}
       <div
-        className={cx('fileImageWrap pointer h100 flexRow alignItemsCenter justifyContentCenter', { mLeft0: !allowSort })}
+        className={cx('fileImageWrap pointer h100 flexRow alignItemsCenter justifyContentCenter', {
+          mLeft0: !allowSort,
+        })}
         onClick={handlePreview}
       >
-        {isPicture ? (
-          <img className="h100" src={previewImageUrl} />
-        ) : (
-          <div className={cx(fileClassName, 'fileIcon')} />
-        )}
+        {isPicture ? <img className="h100" src={previewImageUrl} /> : <div className={cx(fileClassName, 'fileIcon')} />}
       </div>
       <div className="fileName flex flexRow alignItemsCenter pointer" onClick={handlePreview}>
         <span className="textEllipsis">
-          {data.originalFileName}{data.fileExt}
+          {data.originalFileName}
+          {data.fileExt}
         </span>
         {isKc && <Icon className="Font17 Gray_9e mLeft8" icon="knowledge1" />}
       </div>
@@ -206,7 +223,7 @@ const NotSaveListCard = props => {
               originalFileName={data.originalFileName}
               isEdit={isEdit}
               setIsEdit={setIsEdit}
-              onSave={(name) => {
+              onSave={name => {
                 onResetNameFile(data.fileID, name);
               }}
             >
@@ -222,7 +239,8 @@ const NotSaveListCard = props => {
               className="btnWrap pointer delete"
               onClick={() => {
                 isKc ? onDeleteKCFile(data) : onDeleteFile(data);
-              }}>
+              }}
+            >
               <Icon className="Gray_9e Font17" icon="task-new-delete" />
             </div>
           </Tooltip>
@@ -230,7 +248,7 @@ const NotSaveListCard = props => {
       )}
     </div>
   );
-}
+};
 
 export const ListCardHeader = props => {
   return (
@@ -243,9 +261,9 @@ export const ListCardHeader = props => {
       <div className="fileCreateUserName">{_l('上传者')}</div>
     </div>
   );
-}
+};
 
-export default (props) => {
+export default props => {
   const { data, ...otherProps } = props;
   const { isMdFile } = props;
 
@@ -268,16 +286,13 @@ export default (props) => {
         </div>
         <div className="fileName flex flexRow alignItemsCenter">
           <span className="textEllipsis">
-            {base.fileName}{base.fileExt || data.ext}
+            {base.fileName}
+            {base.fileExt || data.ext}
           </span>
         </div>
       </div>
     );
   }
 
-  return (
-    isMdFile ? <ListCard data={data} {...otherProps} /> : <NotSaveListCard data={data} {...otherProps} />
-  );
+  return isMdFile ? <ListCard data={data} {...otherProps} /> : <NotSaveListCard data={data} {...otherProps} />;
 };
-
-

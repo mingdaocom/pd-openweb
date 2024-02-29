@@ -5,7 +5,8 @@ import cx from 'classnames';
 
 class Sidenav extends React.Component {
   render() {
-    let { type, worksheetId = '', displayNum = 0 } = this.props;
+    const { match = { params: {} } } = this.props;
+    const { worksheetId, type = '' } = match.params;
     return (
       <ScrollView className="sidenavBox">
         <div className="title">{_l('基础设置')}</div>

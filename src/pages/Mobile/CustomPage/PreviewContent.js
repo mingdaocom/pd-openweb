@@ -135,7 +135,7 @@ function KcShareNodePreviewContent(props) {
               window.open(isUrl ? node.originLinkUrl : value);
             }}
           >
-            {_l('打开%0', isUrl ? _l('链接') : _l('文件'))}
+            {isUrl ? _l('打开链接') : _l('打开文件')}
           </Button>
         </div>
       ) : (
@@ -162,14 +162,7 @@ function PreviewContentWrap(props) {
     // 文件
     return <KcShareNodePreviewContent value={value} />;
   } else {
-    return (
-      <PreviewWraper
-        reload={reload}
-        newTab={newTab}
-        value={value}
-        param={param}
-      />
-    );
+    return <PreviewWraper reload={reload} newTab={newTab} value={value} param={param} />;
   }
 }
 

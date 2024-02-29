@@ -444,31 +444,6 @@ export default class CalendarDetail extends Component {
             ).then(addMemberCallback);
           },
         },
-        ChooseInviteSettings: {
-          callback: function(users, callback) {
-            Common.addMember(
-              {
-                members,
-                users,
-              },
-              {
-                recurTime,
-                originRecur,
-                id,
-                isChildCalendar,
-              },
-            ).then(args => {
-              addMemberCallback(args);
-              const {
-                source: { code },
-              } = args;
-              // 外部用户回调
-              callback({
-                status: code,
-              });
-            });
-          },
-        },
       });
     };
 

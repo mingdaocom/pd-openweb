@@ -562,7 +562,10 @@ export default class ChartStyle extends Component {
     );
   }
   renderUnit() {
-    return unitPanelGenerator(this.props);
+    return unitPanelGenerator({
+      ...this.props,
+      onChangeStyle: this.handleChangeStyle,
+    });
   }
   renderTitle() {
     const { currentReport, changeCurrentReport } = this.props;
@@ -620,8 +623,7 @@ export default class ChartStyle extends Component {
     return (
       <Collapse.Panel header={_l('图形颜色')} key="color">
         <Color
-          worksheetInfo={worksheetInfo}
-          currentReport={currentReport}
+          {...this.props}
           onChangeCurrentReport={changeCurrentReport}
           onChangeDisplayValue={this.handleChangeDisplayValue}
         />
@@ -762,7 +764,7 @@ export default class ChartStyle extends Component {
           {![reportTypes.NumberChart, reportTypes.CountryLayer, reportTypes.DualAxes, reportTypes.BidirectionalBarChart, reportTypes.WordCloudChart, reportTypes.GaugeChart, reportTypes.ProgressChart, reportTypes.ScatterChart].includes(reportType) &&
             this.renderDataFilter()}
           {![reportTypes.WordCloudChart].includes(reportType) && this.renderUnit()}
-          {![reportTypes.NumberChart, reportTypes.CountryLayer, reportTypes.PivotTable, reportTypes.GaugeChart].includes(reportType) &&
+          {![reportTypes.NumberChart, reportTypes.PivotTable, reportTypes.GaugeChart].includes(reportType) &&
             this.renderColor()}
           {reportTypes.PivotTable === reportType && this.renderPivotTableFieldColor()}
         </Collapse>

@@ -49,6 +49,22 @@ export const FILL_TIMES = {
   UNLIMITED: 3,
 };
 
+export const FILLLIMIT_TYPE = {
+  SPECIFIEDTIMES: 1,
+  DAY: 2,
+  WEEK: 3,
+  MONTH: 4,
+  YEAR: 5,
+};
+
+export const FFILLLIMIT_OPTIONS = [
+  { text: _l('指定次数'), value: FILLLIMIT_TYPE.SPECIFIEDTIMES },
+  { text: _l('每天'), value: FILLLIMIT_TYPE.DAY },
+  { text: _l('每周'), value: FILLLIMIT_TYPE.WEEK },
+  { text: _l('每月'), value: FILLLIMIT_TYPE.MONTH },
+  { text: _l('每年'), value: FILLLIMIT_TYPE.YEAR },
+];
+
 export const PUBLISH_CONFIG_TABS = [
   { text: _l('链接设置'), value: 1 },
   { text: _l('来源参数'), value: 2 },

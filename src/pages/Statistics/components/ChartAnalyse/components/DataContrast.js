@@ -1,13 +1,22 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
-import { Select, Checkbox } from 'antd';
+import { Select, Checkbox, DatePicker } from 'antd';
 import { formatContrastTypes, formatLineChartContrastTypes } from 'statistics/common';
 import { reportTypes } from 'statistics/Charts/common';
+import 'moment/locale/zh-cn';
+import locale from 'antd/es/date-picker/locale/zh_CN';
+import moment from 'moment';
+
+const { RangePicker } = DatePicker;
 
 export default class DataContrast extends Component {
   constructor(props) {
     super(props);
+    const { displaySetup, filter } = this.props.currentReport;
+    this.state = {
+      customRangeVisible: displaySetup.contrastType === 5 && filter.customRangeValue,
+    }
   }
   handleChangeLifecycle = checked => {
     const { displaySetup } = this.props.currentReport;
@@ -28,9 +37,11 @@ export default class DataContrast extends Component {
     );
   }
   renderNumberChartContrast() {
+    const { customRangeVisible } = this.state;
     const { currentReport } = this.props;
     const { displaySetup, filter } = currentReport;
     const contrastTypes = formatContrastTypes(filter);
+    const { customRangeValue } = filter;
     return (
       <div className="mBottom16">
         <div className="flexRow mBottom8">
@@ -66,9 +77,27 @@ export default class DataContrast extends Component {
         {!!displaySetup.contrastType && !!contrastTypes.length && (
           <Select
             className="chartSelect w100"
-            value={displaySetup.contrastType}
+            value={customRangeVisible ? 5 : displaySetup.contrastType}
             suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
-            onChange={this.handleChangeDropdown}
+            onChange={(value) => {
+              if (value ===  5) {
+                this.setState({ customRangeVisible: true });
+                const value = `${moment().add(-7, 'days').format('YYYY/MM/DD')}-${moment().format('YYYY/MM/DD')}`;
+                this.props.onChangeCurrentReport({
+                  displaySetup: {
+                    ...displaySetup,
+                    contrastType: 5,
+                  },
+                  filter: {
+                    ...filter,
+                    customRangeValue: value
+                  }
+                }, true);
+              } else {
+                this.setState({ customRangeVisible: false });
+                this.handleChangeDropdown(value);
+              }
+            }}
           >
             {contrastTypes.map(item => (
               <Select.Option
@@ -80,6 +109,30 @@ export default class DataContrast extends Component {
               </Select.Option>
             ))}
           </Select>
+        )}
+        {customRangeVisible && (
+          <RangePicker
+            className="chartInput w100 mTop10"
+            allowClear={false}
+            suffixIcon={null}
+            locale={locale}
+            format="YYYY/MM/DD"
+            value={customRangeValue ? customRangeValue.split('-').map(item => moment(item)) : [moment().add(-7, 'days'), moment()]}
+            onChange={date => {
+              const [start, end] = date;
+              const value = `${start.format('YYYY/MM/DD')}-${end.format('YYYY/MM/DD')}`;
+              this.props.onChangeCurrentReport({
+                displaySetup: {
+                  ...displaySetup,
+                  contrastType: 5,
+                },
+                filter: {
+                  ...filter,
+                  customRangeValue: value
+                }
+              }, true);
+            }}
+          />
         )}
       </div>
     );

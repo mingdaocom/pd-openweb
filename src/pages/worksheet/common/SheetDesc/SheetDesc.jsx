@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
+import { Modal } from 'antd';
 import sheetApi from 'src/api/worksheet';
-import RcDialog from 'rc-dialog';
 import EditAppIntro from 'src/pages/PageHeader/AppPkgHeader/AppDetail/EditIntro';
 
 export default class SheetDesc extends Component {
@@ -43,14 +43,16 @@ export default class SheetDesc extends Component {
     const { worksheetId, title, visible, onClose, isEditing, setDescIsEditing, isCharge } = this.props;
     const { desc } = this.state;
     return (
-      <RcDialog
+      <Modal
         zIndex={1000}
         className="appIntroDialog"
         wrapClassName="appIntroDialogWrapCenter"
         visible={visible}
-        onClose={onClose}
+        onCancel={onClose}
         animation="zoom"
-        style={{ width: '800px' }}
+        width={800}
+        footer={null}
+        centered={true}
         maskStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }}
         bodyStyle={{ minHeight: '480px', padding: 0 }}
         maskAnimation="fade"
@@ -65,6 +67,7 @@ export default class SheetDesc extends Component {
           // isEditing={!desc}
           isEditing={isEditing}
           changeSetting={() => {}}
+          changeEditState={setDescIsEditing}
           onSave={value => {
             setDescIsEditing(false);
             if (value === null) {
@@ -79,7 +82,7 @@ export default class SheetDesc extends Component {
             onClose();
           }}
         />
-      </RcDialog>
+      </Modal>
     );
   }
 }

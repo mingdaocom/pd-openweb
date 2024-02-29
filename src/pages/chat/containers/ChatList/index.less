@@ -68,3 +68,50 @@
     }
   }
 }
+.chatFeedDialog {
+  .mui-dialog-body {
+    padding: 15px 20px 0 15px !important;
+    border-top: 1px solid #ddd;
+    .z-depth-1, nav, .card-panel, .card {
+      box-shadow: none !important;
+    }
+  }
+}
+
+@iconTypes: "system", "post", "calendar", "task", "knowledge", "uploadhelper",
+  "hr", "approval", "check", "dossier", "score", "worksheet", "workflow";
+@calendarDateColor: #e85c72;
+
+// definition
+.buildIconClass(@iterator: 1) when (@iterator <= length(@iconTypes)) {
+  @prefix: escape("chat_");
+  @urlExt: escape(".png");
+  @type: escape(extract(@iconTypes, @iterator));
+  .@{prefix}@{type} {
+    @urlPath: "./icons/@{prefix}@{type}";
+    @url: "@{urlPath}@{urlExt}";
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    background-image: url("./icons/@{prefix}@{type}@{urlExt}");
+
+    &[data-date]:before when (extract(@iconTypes, @iterator) = "calendar") {
+      font-size: 20px;
+      position: absolute;
+      display: inline-block;
+      width: 100%;
+      content: attr(data-date);
+      transform: scale(0.5);
+      text-align: center;
+      color: @calendarDateColor;
+    }
+  }
+  .buildIconClass(@iterator + 1);
+}
+
+.buildIconClass();
+

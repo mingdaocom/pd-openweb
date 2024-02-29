@@ -34,10 +34,21 @@ class Chat extends Component {
       );
     });
     // 获取新消息通知配置
-    accountSettingApi.getAccountSettings({}).then(data => {
-      window.isOpenMessageSound = data.isOpenMessageSound;
-      window.isOpenMessageTwinkle = data.isOpenMessageTwinkle;
-    });
+    const accountSettings = localStorage.getItem('accountSettings');
+    if (accountSettings) {
+      const settings = JSON.parse(accountSettings);
+      Object.assign(window, settings);
+    } else {
+      accountSettingApi.getAccountSettings({}).then(data => {
+        const settings = {
+          isOpenMessageSound: data.isOpenMessageSound,
+          isOpenMessageTwinkle: data.isOpenMessageTwinkle,
+          backHomepageWay: data.backHomepageWay || 2,
+        }
+        Object.assign(window, settings);
+        localStorage.setItem('accountSettings', JSON.stringify(settings));
+      });
+    }
   }
   shouldComponentUpdate(nextProps, nextState) {
     if (nextProps.visible !== this.props.visible) {

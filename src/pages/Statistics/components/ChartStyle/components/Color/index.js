@@ -54,7 +54,9 @@ export default class ColorEntrance extends Component {
     if (_.isUndefined(style.colorType)) {
       return defaultColorName;
     } else {
-      const { colorType, colorGroupIndex, colorGroupId } = style;
+      const { chartColor, chartColorIndex = 1 } = this.props.customPageConfig;
+      const newStyle = chartColorIndex >= (style.chartColorIndex || 0) ? { ...style, ...chartColor } : style;
+      const { colorType, colorGroupIndex, colorGroupId } = newStyle;
       if (colorType === 0) {
         return isAlienationColor ? _l('选项配色') : defaultColorName;
       } else if (colorType === 1) {
@@ -76,14 +78,24 @@ export default class ColorEntrance extends Component {
     }
   }
   renderBaseColorModal() {
-    const { worksheetInfo, currentReport, onChangeCurrentReport } = this.props;
+    const { worksheetInfo, currentReport, onChangeCurrentReport, themeColor, customPageConfig } = this.props;
+    const { style } = currentReport;
+    const { chartColor, chartColorIndex = 1 } = customPageConfig;
     const { baseColorModalVisible } = this.state;
+    // const newStyle = chartColorIndex >= (style.chartColorIndex || 0) ? { ...style, ...chartColor } : style;
     return (
       <BaseColor
         visible={baseColorModalVisible}
         projectId={worksheetInfo.projectId}
         currentReport={currentReport}
+        // currentReport={{
+        //   ...currentReport,
+        //   style: newStyle,
+        // }}
         onChange={(data) => {
+          if (chartColor) {
+            data.style.chartColorIndex = chartColorIndex + 1;
+          }
           onChangeCurrentReport(data, true);
           this.setState({
             baseColorModalVisible: false

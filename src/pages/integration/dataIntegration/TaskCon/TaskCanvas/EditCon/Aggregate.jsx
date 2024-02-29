@@ -21,7 +21,11 @@ export default function Aggregate(props) {
   useEffect(() => {
     const { list = [], node = {} } = props;
     const preNode = list.filter(o => o.pathIds.length > 0 && o.pathIds[0].toDt.nodeId === node.nodeId)[0];
-    const preFields = _.get(preNode, ['nodeConfig', 'fields']).filter(o => o.isCheck);
+    const preFields = _.get(preNode, ['nodeConfig', 'fields'])
+      .filter(o => o.isCheck)
+      .map(o => {
+        return { ...o, name: o.alias || o.name };
+      });
     const { groupFields = [], aggregateFields = [] } = _.get(props.node, ['nodeConfig', 'config']) || {};
     // 汇总统计字段列表，数据结构大部分和fields一样，只新增了一个aggFuncType属性
     setState({

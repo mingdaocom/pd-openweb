@@ -19,11 +19,14 @@ export default class GalleryItem extends React.Component {
     const { data, onUpdateFn, base, views } = this.props;
     const { viewId } = base;
     const view = views.find(o => o.viewId === viewId) || {};
+    const newControl = control.controlId
+      ? control
+      : { ...(fields.find(o => o.controlId === Object.keys(control)[0]) || {}), value: Object.values(control)[0] };
     worksheetAjax
       .updateWorksheetRow({
         rowId: data.rowId,
         ..._.pick(view, ['worksheetId', 'viewId']),
-        newOldControl: [control],
+        newOldControl: [newControl],
       })
       .then(({ data, resultCode }) => {
         if (data && resultCode === 1) {
@@ -37,8 +40,12 @@ export default class GalleryItem extends React.Component {
     const { top, left, width } = $dom.getBoundingClientRect();
     return { top, left, width };
   };
+  onCloseEdit = () => {
+    this.setState({ isEditTitle: false });
+    $('.galleryScrollWrap .nano-content').css({ overflowY: 'auto' });
+  };
   render() {
-    const { sheetSwitchPermit, data, worksheetInfo, base, views, isCharge } = this.props;
+    const { sheetSwitchPermit, data, worksheetInfo, base, views, isCharge, fieldShowCount } = this.props;
     const { viewId, appId } = base;
     const view = views.find(o => o.viewId === viewId) || {};
     const { isEditTitle } = this.state;
@@ -53,11 +60,15 @@ export default class GalleryItem extends React.Component {
             projectId: projectId,
             appId,
           }}
+          fieldShowCount={fieldShowCount}
           isCharge={isCharge}
           allowCopy={worksheetInfo.allowAdd}
           allowRecreate={worksheetInfo.allowAdd}
           sheetSwitchPermit={sheetSwitchPermit}
-          editTitle={() => this.setState({ isEditTitle: true })}
+          editTitle={() => {
+            this.setState({ isEditTitle: true });
+            $('.galleryScrollWrap .nano-content').css({ overflowY: 'hidden' });
+          }}
           onUpdate={(updated, item) => {
             this.props.onUpdateFn(updated, item);
           }}
@@ -79,16 +90,17 @@ export default class GalleryItem extends React.Component {
           }}
         />
         {isEditTitle && (
-          <RecordPortal closeEdit={() => this.setState({ isEditTitle: false })}>
+          <RecordPortal closeEdit={this.onCloseEdit}>
             <EditingRecordItem
               type="board"
               currentView={view}
               data={data}
+              fieldShowCount={fieldShowCount}
               style={{
                 ...this.getStyle(),
               }}
               isCharge={isCharge}
-              closeEdit={() => this.setState({ isEditTitle: false })}
+              closeEdit={this.onCloseEdit}
               updateTitleData={this.updateTitleData}
             />
           </RecordPortal>

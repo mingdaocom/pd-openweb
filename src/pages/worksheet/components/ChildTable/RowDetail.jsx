@@ -135,6 +135,7 @@ export default class RowDetail extends React.Component {
                 : data[c.controlId],
             count: data[`rq${c.controlId}`],
           }));
+    const recordId = data.rowid && data.rowid.startsWith('temp') ? undefined : data.rowid;
     return (
       <RecordInfoContext.Provider
         value={{
@@ -153,18 +154,19 @@ export default class RowDetail extends React.Component {
             searchConfig={searchConfig}
             sheetSwitchPermit={sheetSwitchPermit}
             columnNumber={1}
-            from={isMobile && isWorkflow ? 3 : 2}
+            from={isMobile && isWorkflow ? 3 : recordId ? 3 : 2}
             isDraft={from === 21}
             isCreate={false}
-            recordId={data.rowid && data.rowid.startsWith('temp') ? undefined : data.rowid}
+            recordId={recordId}
             ref={this.customwidget}
             data={formdata
               .map(c => ({
                 ...c,
                 fieldPermission: isRelateRecordTableControl(c) ? '000' : c.fieldPermission,
+                controlPermissions: isRelateRecordTableControl(c) ? '000' : c.controlPermissions,
                 isSubList: true,
               }))
-              .filter(c => c.type !== 34)}
+              .filter(c => !_.includes([34].concat(_.get(window, 'shareState.isPublicForm') ? [48] : []), c.type))}
             getMasterFormData={getMasterFormData}
             flag={flag}
             projectId={projectId}

@@ -186,7 +186,7 @@ export default function RelateConfig(props) {
                   {...props}
                   title={_l('设置筛选条件')}
                   showCustom
-                  filters={resultfilters}
+                  filterKey="resultfilters"
                   supportGroup
                   relationControls={controls}
                   globalSheetControls={globalSheetControls}

@@ -52,6 +52,7 @@ export function handleLifeEffect(
   {
     showColumnWidthChangeMask,
     tableType,
+    isRelateRecordList,
     isSubList,
     cache = {},
     onCellEnter = () => {},
@@ -194,7 +195,10 @@ export function handleLifeEffect(
   }
   function handleKeyDown(e) {
     // console.log({ ..._.pick(e, ['key', 'keyCode']), tagName: e.target.tagName });
-    if (tableType !== 'classic' || (!isSubList && !!document.querySelector('.workSheetRecordInfo'))) {
+    if (
+      tableType !== 'classic' ||
+      (!(isSubList || isRelateRecordList) && !!document.querySelector('.workSheetRecordInfo'))
+    ) {
       return;
     }
     removeReadOnlyTip();
@@ -224,7 +228,7 @@ export function handleLifeEffect(
   function handleOuterClick(e) {
     removeReadOnlyTip();
     if (
-      e.target.closest('.cellNeedFocus,.mdDialog,.mui-dialog-container,.UploadFilesTriggerWrap,.rc-trigger-popup') ||
+      e.target.closest('.cellNeedFocus,.mui-dialog-container,.UploadFilesTriggerWrap,.rc-trigger-popup') ||
       (!isSubList && e.target.closest('.recordInfoCon'))
     ) {
       return;

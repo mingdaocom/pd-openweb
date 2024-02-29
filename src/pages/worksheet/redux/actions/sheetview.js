@@ -14,6 +14,7 @@ import {
 } from 'worksheet/util';
 import { updateNavGroup } from './index';
 import { getFilledRequestParams } from 'worksheet/util';
+import { getRuleErrorInfo } from 'src/components/newCustomFields/tools/filterFn';
 
 const DEFAULT_PAGESIZE = 50;
 
@@ -162,7 +163,7 @@ export function updateViewPermission() {
   };
 }
 
-export function updateControlOfRow({ cell = {}, cells = [], recordId }, options = {}) {
+export function updateControlOfRow({ cell = {}, cells = [], recordId, rules }, options = {}) {
   return (dispatch, getState) => {
     if (!_.isEmpty(cell) && _.isEmpty(cells)) {
       cells = [cell];
@@ -210,16 +211,9 @@ export function updateControlOfRow({ cell = {}, cells = [], recordId }, options 
           if (_.isFunction(options.callback)) {
             options.callback(res.data);
           }
-          // dispatch(updateRows([recordId], _.omit(res.data, ['allowedit', 'allowdelete'])));
+          dispatch(updateRows([recordId], _.omit(res.data, ['allowedit', 'allowdelete'])));
           if (_.isFunction(options.updateSuccessCb)) {
             options.updateSuccessCb(res.data);
-          } else {
-            dispatch({
-              type: 'WORKSHEET_SHEETVIEW_UPDATE_ROW_CACHE',
-              recordId,
-              controlId,
-              value: res.data[controlId],
-            });
           }
           dispatch(getWorksheetSheetViewSummary());
           // 处理新增自定义选项
@@ -240,10 +234,16 @@ export function updateControlOfRow({ cell = {}, cells = [], recordId }, options 
             });
           }
         } else if (res.resultCode === 11) {
-          if (_.isFunction(options.updateTable)) {
-            options.updateTable();
+          if (options.row) {
+            dispatch(updateRows([recordId], { [controlId]: value }));
+            dispatch(updateRows([recordId], _.omit(options.row, ['allowedit', 'allowdelete'])));
           }
           handleRecordError(res.resultCode, options.cell);
+        } else if (res.resultCode === 32) {
+          const errorResult = getRuleErrorInfo(rules, res.badData);
+          if (_.get(errorResult, '0.errorInfo.0')) {
+            alert('编辑失败，' + _.get(errorResult, '0.errorInfo.0.errorMessage'), 2);
+          }
         } else {
           handleRecordError(res.resultCode);
         }
@@ -565,31 +565,33 @@ export function getWorksheetSheetViewSummary() {
       return;
     }
     worksheetAjax
-      .getFilterRowsReport({
-        appId,
-        viewId,
-        worksheetId,
-        reportId: chartId || undefined,
-        columnRpts,
-        filterControls: [],
-        keyWords: '',
-        searchType: 1,
-        ...filters,
-        fastFilters: quickFilter.map(f =>
-          _.pick(f, [
-            'controlId',
-            'dataType',
-            'spliceType',
-            'filterType',
-            'dateRange',
-            'value',
-            'values',
-            'minValue',
-            'maxValue',
-          ]),
-        ),
-        navGroupFilters,
-      })
+      .getFilterRowsReport(
+        getFilledRequestParams({
+          appId,
+          viewId,
+          worksheetId,
+          reportId: chartId || undefined,
+          columnRpts,
+          filterControls: [],
+          keyWords: '',
+          searchType: 1,
+          ...filters,
+          fastFilters: quickFilter.map(f =>
+            _.pick(f, [
+              'controlId',
+              'dataType',
+              'spliceType',
+              'filterType',
+              'dateRange',
+              'value',
+              'values',
+              'minValue',
+              'maxValue',
+            ]),
+          ),
+          navGroupFilters,
+        }),
+      )
       .then(data => {
         if (data && data.length) {
           dispatch({
@@ -639,6 +641,7 @@ export function addRecord(records, afterRowId) {
       type: 'WORKSHEET_SHEETVIEW_UPDATE_COUNT',
       count: count + records.length,
     });
+    dispatch(getWorksheetSheetViewSummary());
     if (afterRowId) {
       const afterRowIndex = _.findIndex(rows, row => row.rowid === afterRowId);
       const newRows = _.isUndefined(afterRowId)

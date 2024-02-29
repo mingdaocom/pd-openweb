@@ -185,10 +185,16 @@ export const Validator = {
 };
 
 function formatRowToServer(row, controls = [], { isDraft } = {}) {
+  controls = controls.filter(c => c.type !== 34);
   return Object.keys(row)
     .map(key => {
       const c = _.find(controls, c => c.controlId === key);
-      if (!c || key === 'rowid') {
+      if (key === 'rowid') {
+        return {
+          controlId: 'tempRowId',
+          value: row.rowid,
+        };
+      } else if (!c) {
         return undefined;
       } else {
         return _.pick(
@@ -225,7 +231,7 @@ export function formatControlToServer(
   if (_.isUndefined(control.value)) {
     return result;
   }
-  let parsedValue, childTableControls;
+  let parsedValue, childTableControls, isFromDefault;
   const isRelateRecordDropdown =
     control.type === 29 &&
     String(_.get(control, 'advancedSetting.showtype')) === String(RELATE_RECORD_SHOW_TYPE.DROPDOWN);
@@ -288,8 +294,16 @@ export function formatControlToServer(
       break;
     case 29:
       parsedValue = safeParse(control.value);
+      isFromDefault = !!_.find(parsedValue, { isFromDefault: true });
       if (_.isArray(parsedValue)) {
-        if (isDraft || isNewRecord || needFullUpdate || isRelateRecordDropdown || isSingleRelateRecord) {
+        if (
+          isDraft ||
+          isNewRecord ||
+          needFullUpdate ||
+          isRelateRecordDropdown ||
+          isSingleRelateRecord ||
+          isFromDefault
+        ) {
           result.value = _.isArray(parsedValue)
             ? JSON.stringify(
                 parsedValue
@@ -335,6 +349,9 @@ export function formatControlToServer(
       if (_.isEmpty(childTableControls)) {
         console.log('childTableControls is empty');
       }
+      childTableControls = childTableControls.filter(
+        c => !_.includes(_.get(window, 'shareState.isPublicForm') ? [48] : [], c.type),
+      );
       if (result.value.isAdd) {
         result.value = JSON.stringify(
           filterEmptyChildTableRows(control.value.rows).map(row =>
@@ -367,7 +384,7 @@ export function formatControlToServer(
                 if (isNew) {
                   return {
                     editType: 0,
-                    newOldControl: formatRowToServer(row, childTableControls),
+                    newOldControl: formatRowToServer({ ...row, rowid }, childTableControls),
                   };
                 } else {
                   if (row && row.updatedControlIds) {
@@ -377,7 +394,7 @@ export function formatControlToServer(
                   return {
                     rowid,
                     editType: 0,
-                    newOldControl: formatRowToServer(row, childTableControls),
+                    newOldControl: formatRowToServer({ ...row, rowid }, childTableControls),
                   };
                 }
               })
@@ -514,9 +531,10 @@ export const formatFiltersValue = (filters = [], data = [], recordId) => {
       }
       if (cid === 'currenttime') {
         item.dateRange = 18;
-        item.value = moment(new Date()).format(
-          getDatePickerConfigs(_.find(data, c => c.controlId === item.controlId)).formatMode,
-        );
+        let formatMode = getDatePickerConfigs({
+          advancedSetting: { showtype: item.dataType === 46 ? '9' : item.dataType === 15 ? '6' : '3' },
+        }).formatMode;
+        item.value = moment(new Date()).format(formatMode);
         return;
       }
       const currentControl = _.find(data, da => da.controlId === cid);
@@ -741,7 +759,7 @@ export const getCurrentValue = (item, data, control) => {
 
 // 特殊手机号验证是否合法
 export const specialTelVerify = value => {
-  return /\+861[3-9]\d{9}$/.test(value || '');
+  return /\+61\d{9}$|\+861[3-9]\d{9}$/.test(value || '');
 };
 
 export const compareWithTime = (start, end, type) => {
@@ -792,10 +810,7 @@ export const getBarCodeValue = ({ data, control, codeInfo }) => {
   const selectControl = _.find(data, i => i.controlId === dataSource);
   if (!(selectControl || {}).value) return '';
   if (enumDefault === 1) {
-    const repVal = String(selectControl.value).replace(
-      /[(\u4e00-\u9fa5)(\u3002|\uff1f|\uff01|\uff0c|\u3001|\uff1b|\uff1a|\u201c|\u201d|\u2018|\u2019|\uff08|\uff09|\u300a|\u300b|\u3010|\u3011|\u007e)]+/g,
-      '',
-    );
+    const repVal = String(selectControl.value).replace(/[^a-zA-Z0-9@#$%&-=_;:,<>?!\/\^\*\(\)\+\[\]\{\}\|\.\s]/g, '');
     return getStringBytes(repVal) <= 128 ? repVal : getStrBytesLength(repVal, 128);
   }
   return String(selectControl.value).substr(0, 300);
@@ -819,7 +834,7 @@ export const getCheckAndOther = value => {
   let checkIds = [];
   let otherValue = '';
 
-  JSON.parse(value || '[]').forEach(item => {
+  safeParse(value, 'array').forEach(item => {
     if ((item || '').toString().indexOf('other:') > -1) {
       otherValue = _.replace(item, 'other:', '');
       checkIds.push('other');
@@ -1035,7 +1050,7 @@ export const getValueStyle = data => {
         isTextArea: item.type === 2 && item.enumDefault === 1,
         height: valuesize !== '0' ? (parseInt(valuesize) - 1) * 2 + 40 : 36,
         size: TITLE_SIZE_OPTIONS[valuesize],
-        valueStyle: item.value ? `color: ${valuecolor};${getTitleStyle(valuestyle)}` : '',
+        valueStyle: item.value ? `color: ${valuecolor} !important;${getTitleStyle(valuestyle)}` : '',
       }
     : { type };
 };
@@ -1093,4 +1108,14 @@ export const getArrBySpliceType = (filters = []) => {
       return res;
     }, {}),
   );
+};
+
+// 不允许重复传参格式处理
+export const formatControlValue = (value, type) => {
+  if (_.includes([26, 29], type)) {
+    return safeParse(value.startsWith('deleteRowIds') ? '[]' : value || '[]')
+      .map(ac => ac[FILTER_TYPE[type]])
+      .join('');
+  }
+  return value;
 };

@@ -99,7 +99,12 @@ export default class RecordCardListDialog extends Component {
               allowAdd: data.allowAdd,
               worksheetInfo: data,
             },
-            !this.clickSearch || keyWords ? this.loadRecorcd : () => {},
+
+            () => {
+              if (!this.clickSearch || keyWords) {
+                this.handleSearch(keyWords, control.advancedSetting.scancontrolid === 'rowid' ? true : false);
+              }
+            },
           );
         });
     } else {
@@ -155,7 +160,7 @@ export default class RecordCardListDialog extends Component {
 
     const { scanlink, scancontrol, scancontrolid } = _.get(control, 'advancedSetting') || {};
 
-    if (isScan && ((scanlink !== '1' && RegExp.isUrl(keyWords)) || (scancontrol !== '1' && !RegExp.isUrl(keyWords)))) {
+    if (isScan && ((scanlink !== '1' && RegExp.isURL(keyWords)) || (scancontrol !== '1' && !RegExp.isURL(keyWords)))) {
       this.setState({ loading: false });
       return;
     }
@@ -177,6 +182,7 @@ export default class RecordCardListDialog extends Component {
           'maxValue',
         ]),
       );
+
       args = {
         worksheetId: relateSheetId,
         appId,
@@ -222,7 +228,6 @@ export default class RecordCardListDialog extends Component {
         getType: 7,
         sortControls,
         filterControls,
-        shareId: window.publicWorksheetShareId,
       };
     }
     if (parentWorksheetId && controlId) {
@@ -235,6 +240,7 @@ export default class RecordCardListDialog extends Component {
         };
       }
     }
+
     this.setState({ loading: true });
     this.abortSearch();
     this.searchAjax = getFilterRowsPromise(args);
@@ -291,7 +297,7 @@ export default class RecordCardListDialog extends Component {
       },
       () => {
         if (!value && this.clickSearch) {
-          this.abortSearch();
+          // this.abortSearch();
           this.setState({ loading: false });
           return;
         }
@@ -405,13 +411,15 @@ export default class RecordCardListDialog extends Component {
     const { searchfilters = '[]' } = _.get(control, 'advancedSetting') || {};
     const searchFilters = safeParse(searchfilters, 'array');
     const controls = _.get(worksheetInfo, 'template.controls');
+    const title = worksheet.entityName || _.get(worksheetInfo, 'entityName');
+
     return (
       <div className="flexRow alignItemsCenter justifyContentCenter mTop10 pLeft10 pRight10">
         <div className="searchWrapper flex">
           <Icon icon="h5_search" />
           <input
             type="text"
-            placeholder={_l('搜索%0', worksheet.entityName || _.get(worksheetInfo, 'entityName') || _l('记录'))}
+            placeholder={_l('搜索%0', title) || _l('搜索记录')}
             value={keyWords}
             onChange={e => {
               this.handleSearch(e.target.value);
@@ -440,8 +448,8 @@ export default class RecordCardListDialog extends Component {
                   const { scanlink, scancontrol } = _.get(control, 'advancedSetting') || {};
                   setTimeout(() => {
                     if (
-                      (scanlink !== '1' && RegExp.isUrl(keyWords)) ||
-                      (scancontrol !== '1' && !RegExp.isUrl(keyWords))
+                      (scanlink !== '1' && RegExp.isURL(keyWords)) ||
+                      (scancontrol !== '1' && !RegExp.isURL(keyWords))
                     ) {
                       this.setState({ pageIndex: 1, list: [] });
                       return;
@@ -525,6 +533,8 @@ export default class RecordCardListDialog extends Component {
       }),
     };
     const coverCid = this.props.coverCid || (control && control.coverCid);
+    const title = worksheet.entityName || _.get(worksheetInfo, 'entityName') || _l('记录');
+
     return (
       <ScrollView
         className="recordCardList mTop10 flex"
@@ -622,11 +632,8 @@ export default class RecordCardListDialog extends Component {
                       {keyWords
                         ? _l('无匹配的结果')
                         : this.clickSearch
-                        ? _l(
-                            '输入%0后，显示可选择的记录',
-                            worksheet.entityName || _.get(worksheetInfo, 'entityName') || _l('记录'),
-                          )
-                        : _l('暂无%0', worksheet.entityName || _l('记录'))}
+                        ? _l('输入%0后，显示可选择的记录', title)
+                        : _l('暂无%0', title)}
                     </p>
                   )}
                 </div>

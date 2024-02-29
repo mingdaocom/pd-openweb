@@ -38,7 +38,7 @@ export default class Add extends React.Component {
     if (res) {
       params.ticket = res.ticket;
       params.randStr = res.randstr;
-      params.captchaType = md.staticglobal.getCaptchaType();
+      params.captchaType = md.global.getCaptchaType();
     }
     RegisterController.checkProjectCode(params).then(
       data => {
@@ -207,7 +207,7 @@ export default class Add extends React.Component {
                 () => {
                   this.doAddProjectCode(
                     Object.assign({}, res, {
-                      captchaType: md.staticglobal.getCaptchaType(),
+                      captchaType: md.global.getCaptchaType(),
                     }),
                     () => {
                       changeStep('editInfo');
@@ -217,7 +217,7 @@ export default class Add extends React.Component {
               );
             };
             if (this.state.isFrequentLoginError) {
-              if (md.staticglobal.getCaptchaType() === 1) {
+              if (md.global.getCaptchaType() === 1) {
                 new captcha(callback);
               } else {
                 new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), callback).show();

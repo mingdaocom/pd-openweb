@@ -177,7 +177,7 @@ export default class Widgets extends Component {
         picker={dateProps.mode === 'datetime' ? 'date' : dateProps.mode}
         showTime={showTime || false}
         format={showformat}
-        placeholder={this.state.isFocus ? dateProps.formatMode : _l('请选择日期')}
+        placeholder={this.state.isFocus ? showformat : _l('请选择日期')}
         suffixIcon={
           !disabled ? (
             <Icon

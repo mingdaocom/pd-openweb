@@ -1,16 +1,5 @@
 export default {
   /**
-  * 文件传输助手
-  * @param {Object} args 请求参数
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   sentFileTransfer: function (args, options = {}) {
-     
-     return $.api('Chat', 'SentFileTransfer', args, options);
-   },
-  /**
   * 获取预览链接
   * @param {Object} args 请求参数
   * @param {string} args.id 文件id
@@ -120,36 +109,6 @@ export default {
    getUserCountByTabName: function (args, options = {}) {
      
      return $.api('Chat', 'GetUserCountByTabName', args, options);
-   },
-  /**
-  * 获取群卡片列表
-  * @param {Object} args 请求参数
-  * @param {string} args.groupId 群id
-  * @param {integer} args.cardType 卡片类型 1 任务 2 日程 3 动态 4 投票
-  * @param {integer} args.pageIndex 页码
-  * @param {integer} args.pageSize 页大小
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getGroupCardList: function (args, options = {}) {
-     
-     return $.api('Chat', 'GetGroupCardList', args, options);
-   },
-  /**
-  * 获取单聊卡片列表
-  * @param {Object} args 请求参数
-  * @param {string} args.withUser 账号id
-  * @param {integer} args.cardType 卡片类型
-  * @param {integer} args.pageIndex 页码
-  * @param {integer} args.pageSize 页大小
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getUserCardList: function (args, options = {}) {
-     
-     return $.api('Chat', 'GetUserCardList', args, options);
    },
   /**
   * 发送文件到消息

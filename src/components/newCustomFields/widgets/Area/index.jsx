@@ -66,6 +66,7 @@ export default class Widgets extends Component {
     return (
       <CityPicker
         search={keywords}
+        defaultValue={city ? city.name : ''}
         level={type === 19 ? 1 : type === 23 ? 2 : 3}
         disabled={disabled}
         mustLast={anylevel === '1'}
@@ -80,9 +81,10 @@ export default class Widgets extends Component {
       >
         <button
           type="button"
-          className={cx('customFormControlBox customFormButton flexRow Border0', {
+          className={cx('customFormControlBox customFormButton flexRow', {
             controlDisabled: disabled,
             mobileCustomFormButton: isMobile,
+            Border0: !isMobile,
           })}
           disabled={disabled}
         >

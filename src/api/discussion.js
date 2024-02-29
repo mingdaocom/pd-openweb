@@ -3,15 +3,15 @@ export default {
   * 添加讨论
   * @param {Object} args 请求参数
   * @param {string} args.sourceId 源ID
-  * @param {} args.sourceType 类型
+  * @param {} args.sourceType
   * @param {string} args.message 消息
   * @param {string} args.replyId 被回复的讨论id
   * @param {string} args.attachments 本地附件
   * @param {string} args.knowledgeAtts 知识附件
   * @param {string} args.appId 基础模块或第三方应用的 appId
-  * @param {} args.location 坐标位置
+  * @param {} args.location
   * @param {string} args.extendsId 扩展ID(工作表:appId|viewId)
-  * @param {} args.entityType 0 = 全部，2=外部讨论
+  * @param {} args.entityType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -24,11 +24,11 @@ export default {
   * 获取指定源讨论
   * @param {Object} args 请求参数
   * @param {string} args.sourceId 源ID
-  * @param {} args.sourceType 类型
+  * @param {} args.sourceType
   * @param {integer} args.pageIndex 页码
   * @param {integer} args.pageSize 页大小
   * @param {boolean} args.isFocus 是否只取自己相关
-  * @param {} args.entityType 0 = 全部，1 = 不包含外部讨论，2=外部讨论
+  * @param {} args.entityType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -41,11 +41,11 @@ export default {
   * 获取讨论数量
   * @param {Object} args 请求参数
   * @param {string} args.sourceId 源ID
-  * @param {} args.sourceType 类型
+  * @param {} args.sourceType
   * @param {integer} args.pageIndex 页码
   * @param {integer} args.pageSize 页大小
   * @param {boolean} args.isFocus 是否只取自己相关
-  * @param {} args.entityType 0 = 全部，1 = 不包含外部讨论，2=外部讨论
+  * @param {} args.entityType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -58,7 +58,7 @@ export default {
   * 删除讨论
   * @param {Object} args 请求参数
   * @param {string} args.discussionId 讨论id
-  * @param {} args.sourceType 源类型
+  * @param {} args.sourceType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -71,7 +71,7 @@ export default {
   * 获取单条讨论的msg
   * @param {Object} args 请求参数
   * @param {string} args.discussionId 讨论id
-  * @param {} args.sourceType 源类型
+  * @param {} args.sourceType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -84,7 +84,7 @@ export default {
   * 获取源附件（不分页）
   * @param {Object} args 请求参数
   * @param {string} args.sourceId 讨论id
-  * @param {} args.sourceType 源类型
+  * @param {} args.sourceType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

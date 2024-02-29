@@ -1,7 +1,7 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Icon, LoadDiv, Tooltip, Checkbox } from 'ming-ui';
-import { Table, ConfigProvider, Select, Dropdown } from 'antd';
+import { Table, ConfigProvider, Dropdown } from 'antd';
 import PaginationWrap from '../PaginationWrap';
 import _ from 'lodash';
 import cx from 'classnames';
@@ -45,10 +45,9 @@ export default class PageTableCon extends Component {
 
     return (
       <div className="customColsWrap">
-        <div
-          className={cx('statistics', { checkBoxHalf: checkedCols.length && checkedCols.length !== columns.length })}
-        >
+        <div className="statistics">
           <Checkbox
+            clearselected={checkedCols.length && checkedCols.length !== columns.length}
             checked={_.every(columns, item => _.includes(checkedCols, item.dataIndex))}
             onClick={checked => {
               let checkedCols = [];

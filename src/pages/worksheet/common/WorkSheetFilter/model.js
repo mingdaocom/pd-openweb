@@ -319,16 +319,19 @@ export function createReducer(state = {}, action) {
       return updateWithLastAction(state, {
         needSave: { $set: !_.get(action, 'value.name') },
         nameIsUpdated: { $set: !!_.get(action, 'value.name') },
+        editingFilterVersion: { $set: Math.random() },
         editingFilter: { $merge: action.value },
       });
     case 'ADD_CONDITION':
       return updateWithLastAction(state, {
         needSave: { $set: true },
+        editingFilterVersion: { $set: Math.random() },
         editingFilter: { conditionsGroups: { [action.groupIndex]: { conditions: { $push: [action.condition] } } } },
       });
     case 'UPDATE_CONDITION':
       return updateWithLastAction(state, {
         needSave: { $set: true },
+        editingFilterVersion: { $set: Math.random() },
         editingFilter: {
           conditionsGroups: {
             [action.groupIndex]: {
@@ -344,6 +347,7 @@ export function createReducer(state = {}, action) {
     case 'UPDATE_CONDITIONS_GROUP':
       return updateWithLastAction(state, {
         needSave: { $set: true },
+        editingFilterVersion: { $set: Math.random() },
         editingFilter: {
           conditionsGroups:
             action.groupIndex === '*'
@@ -364,6 +368,7 @@ export function createReducer(state = {}, action) {
     case 'DELETE_CONDITION':
       return updateWithLastAction(state, {
         needSave: { $set: true },
+        editingFilterVersion: { $set: Math.random() },
         editingFilter: {
           conditionsGroups: { [action.groupIndex]: { conditions: { $splice: [[action.conditionIndex, 1]] } } },
         },
@@ -371,6 +376,7 @@ export function createReducer(state = {}, action) {
     case 'DELETE_CONDITIONS_GROUP':
       return updateWithLastAction(state, {
         needSave: { $set: true },
+        editingFilterVersion: { $set: Math.random() },
         editingFilter: {
           conditionsGroups: { $splice: [[action.groupIndex, 1]] },
         },
@@ -386,11 +392,13 @@ export function createReducer(state = {}, action) {
     case 'ADD_GROUP':
       return updateWithLastAction(state, {
         needSave: { $set: true },
+        editingFilterVersion: { $set: Math.random() },
         editingFilter: { isGroup: { $set: true }, conditionsGroups: { $push: [action.group] } },
       });
     case 'DELETE_GROUP':
       return updateWithLastAction(state, {
         needSave: { $set: true },
+        editingFilterVersion: { $set: Math.random() },
         editingFilter: { conditionsGroups: { $splice: [[action.groupIndex, 1]] } },
       });
     case 'SORT_FILTERS':

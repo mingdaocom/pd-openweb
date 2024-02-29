@@ -38,6 +38,7 @@ export const FILTER_CONDITION_TYPE = {
   ARREQ: 26, // 数组等于
   ARRNE: 27, // 数组不等于
   ALLCONTAIN: 28, // 同时包含
+  TEXT_ALLCONTAIN: 29, // 文本同时包含
   DATE_BETWEEN: 31, // DateBetween | 在范围内
   DATE_NBETWEEN: 32, // DateNBetween | 不在范围内
   DATE_GT: 33, // DateGt | >
@@ -48,6 +49,8 @@ export const FILTER_CONDITION_TYPE = {
   DATE_NE: 38, //  | 日期不是（到秒）
   NORMALUSER: 41, // NORMALUSER | 是常规用户
   PORTALUSER: 42, // PORTALUSER | 是外部门户用户
+  EQ_FOR_SINGLE: 51, // 是（单选专用）
+  NE_FOR_SINGLE: 52, // 不是（单选专用）
 };
 
 export const CONTROL_FILTER_WHITELIST = {
@@ -183,16 +186,12 @@ export const API_ENUM_TO_TYPE = {
   BARCODE: 47, // 条码
   ORG_ROLE: 48, // 组织角色
   RELATESEARCH: 51, // 查询记录
-  SECTION: 52, //标签页
+  SECTION: 52, // 标签页
 };
 
-export function getFilterTypeLabel(typeKey, type, control, controlType) {
-  const isNumber = typeKey === 'NUMBER';
-  const isDate = typeKey === 'DATE';
+export function getControlSelectType(control) {
   const isOptionsSingle = control && (control.type === 9 || control.type === 11);
   const isOptionsMultiple = control && control.type === 10;
-  const isCascader = control && control.type === 35;
-  const isArea = control && _.includes([19, 23, 24], control.type);
   // 人员
   const isUserSingleSingle =
     control && ((control.type === 26 && control.enumDefault === 0) || control.controlId === 'daid');
@@ -211,10 +210,23 @@ export function getFilterTypeLabel(typeKey, type, control, controlType) {
     isOptionsMultiple || isUserMultiple || isDepartmentMultiple || isOrgRoleMultiple || isRelateRecordMultiple;
   const isSingle =
     isOptionsSingle || isUserSingleSingle || isDepartmentSingle || isOrgRoleSingle || isRelateRecordSingle;
+  return { isMultiple, isSingle };
+}
+
+export function getFilterTypeLabel(typeKey, type, control, controlType) {
+  const isNumber = typeKey === 'NUMBER';
+  const isDate = typeKey === 'DATE';
+  const isCascader = control && control.type === 35;
+  const isDepartment = control && control.type === 27;
+  const isArea = control && _.includes([19, 23, 24], control.type);
+  const isRelateRecordMultiple = control && control.type === 29 && control.enumDefault === 2;
+  const { isSingle, isMultiple } = getControlSelectType(control);
   switch (type) {
     case FILTER_CONDITION_TYPE.LIKE:
       if (isDepartment || isArea) return _l('下级包含%25024');
       return _l('包含%25003');
+    case FILTER_CONDITION_TYPE.EQ_FOR_SINGLE:
+      return _l('是');
     case FILTER_CONDITION_TYPE.EQ:
       if (isNumber) return '=';
       if (isSingle || isArea) {
@@ -304,6 +316,8 @@ export function getFilterTypeLabel(typeKey, type, control, controlType) {
       return _l('不等于%25002');
     case FILTER_CONDITION_TYPE.ALLCONTAIN: // 数组同时包含
       return _l('同时包含%25023');
+    case FILTER_CONDITION_TYPE.TEXT_ALLCONTAIN: // 文本同时包含
+      return _l('同时包含');
     default:
       return '';
   }

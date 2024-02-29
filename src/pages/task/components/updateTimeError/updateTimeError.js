@@ -1,11 +1,14 @@
-﻿import 'src/components/mdDialog/dialog';
-import './updateTimeError.less';
+﻿import './updateTimeError.less';
 import moment from 'moment';
+import { Dialog } from 'ming-ui';
+import React from 'react';
 
-const errorMessage = (startTime) => {
+const errorMessage = startTime => {
+  const time = moment(startTime).format(`MM${_l('月')}DD${_l('日')}HH${_l('点')}`);
+
   return [
     _l('默认值'),
-    _l('所有子任务不早于%0开始，截止时间不变', moment(startTime).format(`MM${_l('月')}DD${_l('日')}HH${_l('点')}`)),
+    _l('所有子任务不早于%0开始，截止时间不变', time),
     _l('母任务开始时间设为当前最早子任务开始时间相同'),
     _l('修改后的母任务截止时间早于子任务列表中的最晚截止时间，晚于此截止时间的子任务的截止时间将设为和母任务相同'),
     _l('子任务的开始时间不能早于母任务的开始时间，是否继承母任务的开始时间?'),
@@ -22,14 +25,12 @@ const errorMessage = (startTime) => {
 const singleErrorDialog = (startTime, updateTypes, callback) => {
   const message = errorMessage(startTime);
 
-  $.DialogLayer({
-    showClose: false,
-    container: {
-      content: '<div class="Font16">' + message[updateTypes[0]] + '</div>',
-      yesText: _l('确定'),
-      yesFn() {
-        callback(updateTypes[0]);
-      },
+  Dialog.confirm({
+    closable: false,
+    title: message[updateTypes[0]],
+    okText: _l('确定'),
+    onOk: () => {
+      callback(updateTypes[0]);
     },
   });
 };
@@ -43,40 +44,34 @@ const singleErrorDialog = (startTime, updateTypes, callback) => {
 const moreErrorDialog = (startTime, updateTypes, callback) => {
   const message = errorMessage(startTime);
   let updateType = updateTypes[0];
-  let content = '';
-  updateTypes.forEach((item, i) => {
-    content += `
-                <div class="tanttRadio" data-type="${item}">
-                  <span class="tanttRadioItem">
-                    <span class="tanttRadioIcon ThemeBorderColor3 ${i === 0 ? 'tanttRadioChcked' : ''}">
-                      <i class="ThemeBGColor3"></i>
-                    </span>
-                    ${message[item]}
-                  </span>
-                </div>
-               `;
-  });
 
-  $.DialogLayer({
-    showClose: false,
-    container: {
-      header: _l('修改后的母任务开始时间晚于子任务的开始时间。'),
-      content,
-      yesText: _l('确定'),
-      yesFn() {
-        callback(updateType);
-      },
-    },
-    readyFn() {
-      $('.dialogContent .tanttRadioItem').on('click', function () {
-        $('.dialogContent .tanttRadioChcked').removeClass('tanttRadioChcked');
-        $(this)
-          .find('.tanttRadioIcon')
-          .addClass('tanttRadioChcked');
-        updateType = $(this)
-          .closest('.tanttRadio')
-          .data('type');
-      });
+  Dialog.confirm({
+    closable: false,
+    dialogClasses: 'moreErrorDialog',
+    title: _l('修改后的母任务开始时间晚于子任务的开始时间。'),
+    children: (
+      <React.Fragment>
+        {updateTypes.map((item, i) => (
+          <div className="tanttRadio" data-type={item}>
+            <span
+              className="tanttRadioItem"
+              onClick={e => {
+                $('.moreErrorDialog .tanttRadioChcked').removeClass('tanttRadioChcked');
+                $(e.target).find('.tanttRadioIcon').addClass('tanttRadioChcked');
+                updateType = $(e.target).closest('.tanttRadio').data('type');
+              }}
+            >
+              <span className={`tanttRadioIcon ThemeBorderColor3 ${i === 0 ? 'tanttRadioChcked' : ''}`}>
+                <i className="ThemeBGColor3"></i>
+              </span>
+              {message[item]}
+            </span>
+          </div>
+        ))}
+      </React.Fragment>
+    ),
+    onOk: () => {
+      callback(updateType);
     },
   });
 };
@@ -96,7 +91,7 @@ export const updateTimeErrorDialog = (source, startTime, callback) => {
   }
 };
 
-export const updateTimeError = (source) => {
+export const updateTimeError = source => {
   // 完全错误
   if (source.error.code === 600) {
     alert(_l('不可早于上级任务的开始时间'), 2);
@@ -118,16 +113,18 @@ export const updateTimeError = (source) => {
 /**
  * 修改任务状态二次确认
  */
-export const updateTaskErrorDialog = (callback) => {
-  $.DialogLayer({
-    showClose: false,
-    container: {
-      header: _l('任务还未开始，是否仍要完成此任务？'),
-      content: `<span style="font-size: 12px;color: #757575;">${_l('开始时间不可以晚于结束时间，如果您仍要完成任务，开始时间将被置空')}</span>`,
-      yesText: _l('完成任务'),
-      yesFn() {
-        callback();
-      },
+export const updateTaskErrorDialog = callback => {
+  Dialog.confirm({
+    closable: false,
+    title: _l('任务还未开始，是否仍要完成此任务？'),
+    children: (
+      <span style="font-size: 12px;color: #757575;">
+        {_l('开始时间不可以晚于结束时间，如果您仍要完成任务，开始时间将被置空')}
+      </span>
+    ),
+    okText: _l('完成任务'),
+    onOk: () => {
+      callback();
     },
   });
 };

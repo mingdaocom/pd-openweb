@@ -1,30 +1,5 @@
 export default {
   /**
-  * 申请顾问
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络Id
-  * @param {} args.type 升级后选择进入网络
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   applyForSalesAssistance: function (args, options = {}) {
-     
-     return $.api('Upgrade', 'ApplyForSalesAssistance', args, options);
-   },
-  /**
-  * 获取网络升级信息
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络Id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getProjectUpgradeInfo: function (args, options = {}) {
-     
-     return $.api('Upgrade', 'GetProjectUpgradeInfo', args, options);
-   },
-  /**
   * 获取合同信息
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络Id

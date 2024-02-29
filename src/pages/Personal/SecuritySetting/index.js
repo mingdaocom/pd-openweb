@@ -6,7 +6,6 @@ import accountSetting from 'src/api/accountSetting';
 import wxController from 'src/api/weixin';
 import { validateFunc } from '../components/ValidateInfo';
 import StepsVerifyDialog from '../components/stepsVerifyDialog/index';
-import { verifyPassword } from 'src/util';
 import { formatFormulaDate } from 'src/pages/worksheet/util.js';
 import common from '../common';
 import moment from 'moment';
@@ -102,18 +101,6 @@ export default class SecuritySetting extends Component {
       return;
     }
     this.setState({ visible: true });
-  };
-
-  confirmOpenVerify = password => {
-    const _this = this;
-    verifyPassword({
-      password,
-      success: () => {
-        _this.sureSettings('isTwoauthentication', 1, () => {
-          _this.setState({ isTwoauthentication: true, visible: false });
-        });
-      },
-    });
   };
 
   openopenWeixinLogin = openWeixinLogin => {
@@ -316,7 +303,11 @@ export default class SecuritySetting extends Component {
             email={email}
             isVerify={isVerify}
             visible={visible}
-            onOk={this.confirmOpenVerify}
+            onOk={() => {
+              this.sureSettings('isTwoauthentication', 1, () => {
+                this.setState({ isTwoauthentication: true, visible: false });
+              });
+            }}
             onCancel={() => this.setState({ visible: false })}
           />
         )}

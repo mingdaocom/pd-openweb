@@ -1,3 +1,8 @@
+﻿:root {
+  --app-primary-color: #1e88e5;
+  --app-primary-hover-color: #1565c0;
+}
+
 body,
 input,
 select,
@@ -61,6 +66,12 @@ a:focus {
 input,
 textarea {
   outline: none;
+}
+.ThemeBG {
+  background: #f5f5f5;
+}
+.ThemeBGColor9 {
+  box-shadow: 0 1px 2px 0px rgba(0, 0, 0, 0.24);
 }
 #app {
   height: 100%;
@@ -161,9 +172,6 @@ textarea {
   border-top: 0px;
   margin-top: -1px !important;
 }
-.clearLeft {
-  clear: left;
-}
 .clearfix:after {
   content: '';
   display: table;
@@ -221,15 +229,6 @@ textarea {
 }
 .BorderGrayD {
   border: 1px solid #ddd;
-}
-.BorderGray9 {
-  border: 1px solid #999 !important;
-}
-.BorderBottomGrayC {
-  border-bottom-color: #ccc !important;
-}
-.BorderBottomGrayD {
-  border-bottom-color: #ddd !important;
 }
 .borderColor_ef {
   border-color: #efefef !important;
@@ -290,9 +289,6 @@ body .Hidden {
 .Hover_21:hover {
   color: #2196f3 !important;
 }
-.ShaYellow {
-  color: #c3af64 !important;
-}
 /*浅黄色 官方群组*/
 .DisabledColor {
   color: #cac8bb !important;
@@ -318,9 +314,6 @@ body .Hidden {
 }
 .BGDDD {
   background-color: #ddd;
-}
-.BlueBG {
-  background-color: #1e88e5;
 }
 .WhiteBG {
   background-color: #fff;
@@ -1027,6 +1020,9 @@ body .Hidden {
 .Right8 {
   right: 8px;
 }
+.minHeight0 {
+  min-height: 0;
+}
 .minHeight30 {
   min-height: 30px !important;
 }
@@ -1308,21 +1304,6 @@ body .Hidden {
   border-radius: 50px;
 }
 
-/*自定义 checkbox样式*/
-.Icon_UnChecked {
-  background: url(./images/Ico_unChecked.png) no-repeat;
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
-}
-.Icon_Checked {
-  background: url(./images/Ico_checked.png) no-repeat;
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
-}
 .TextBox {
   height: 20px;
   font-size: 12px;
@@ -1852,12 +1833,6 @@ body > object {
 
 .zIndex99999 {
   z-index: 99999;
-}
-
-.followWeixinQrCode {
-  width: 98px;
-  height: 98px;
-  padding: 1px;
 }
 
 .msgExpandDiv .faceBtn {

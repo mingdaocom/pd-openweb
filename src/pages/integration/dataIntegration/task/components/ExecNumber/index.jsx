@@ -5,7 +5,7 @@ import _ from 'lodash';
 import { Switch, Dialog } from 'ming-ui';
 import projectSettingAjax from 'src/api/projectSetting';
 import monitorAjax from 'src/pages/integration/api/monitor';
-import { purchaseMethodFunc } from 'src/components/upgrade/choose/PurchaseMethodModal';
+import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
 
 let ajaxPromise = {};
 

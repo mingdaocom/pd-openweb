@@ -1,26 +1,23 @@
 ﻿import React from 'react';
 import ReactDom from 'react-dom';
-import Score from 'ming-ui/components/Score';
 import ajaxRequest from 'src/api/taskCenter';
 import {
   errorMessage,
   taskStatusDialog,
-  getCurrentTime,
   formatTaskTime,
   formatStatus,
   checkIsProject,
   returnCustonValue,
 } from './utils';
-import 'src/components/mdDialog/dialog';
 import Store from 'redux/configureStore';
 import doT from 'dot';
 import { addTask } from '../redux/actions';
 import singleFolder from '../containers/taskNavigation/tpl/singleFolder.html';
 import singleFolderComm from '../containers/taskNavigation/tpl/singleFolderComm.html';
 import { navigateTo } from 'src/router/navigateTo';
-import DeleteReconfirm from 'ming-ui/components/DeleteReconfirm';
 import { htmlEncodeReg } from 'src/util';
 import moment from 'moment';
+import { Dialog, DeleteReconfirm, Score, Checkbox } from 'ming-ui';
 
 // 加载loading
 export const listLoadingContent = pageIndex => {
@@ -170,16 +167,20 @@ export const checkTaskSubTask = (taskId, callback) => {
 
   taskStatusDialog(status, () => {
     if ($li.find('.icon-task-card').length > 0) {
-      const content = status ? _l('标记该任务为已完成') : _l('标记该任务为未完成');
-      $.DialogLayer({
-        dialogBoxID: 'enterStatus',
-        showClose: false,
-        container: {
-          content: '<div class="Font16 mBottom20">' + content + '</div>',
-          ckText: status ? _l('同时标记该任务下所有任务为已完成') : _l('同时标记该任务下所有任务为未完成'),
-          yesFn(isCk) {
-            callback($li, status, isCk);
-          },
+      Dialog.confirm({
+        title: status ? _l('标记该任务为已完成') : _l('标记该任务为未完成'),
+        closable: false,
+        dialogClasses: 'enterStatus',
+        children: (
+          <Checkbox
+            className="Gray_9"
+            defaultChecked={false}
+            text={status ? _l('同时标记该任务下所有任务为已完成') : _l('同时标记该任务下所有任务为未完成')}
+          />
+        ),
+        onOk: () => {
+          const isCk = $('.enterStatus .Checkbox').is('.checked');
+          callback($li, status, isCk);
         },
       });
     } else {
@@ -192,11 +193,7 @@ export const checkTaskSubTask = (taskId, callback) => {
 export const afterUpdateTaskCharge = (taskId, userImg, accountId) => {
   const $li = getTrOrLi(taskId);
 
-  $li.find('.updateUserHead:first')
-    .data('id', accountId)
-    .data('src', userImg)
-    .data('hasbusinesscard', false)
-    .off()
+  $li.find('.updateUserHead:first').data('id', accountId).data('src', userImg).data('hasbusinesscard', false).off();
 };
 
 // 修改任务日期后处理
@@ -1080,26 +1077,23 @@ export const deleteFolder = (folderId, hideNavigation) => {
 
 // 退出项目
 export const exitFolder = (folderId, hideNavigation) => {
-  $.DialogLayer({
-    dialogBoxID: 'exitFolder',
-    showClose: false,
-    container: {
-      content: '<div class="Font16 mBottom20">' + _l('确定退出该项目？') + '</div>',
-      yesFn() {
-        ajaxRequest
-          .removeFolderMember({
-            folderID: folderId,
-            accountID: md.global.Account.accountId,
-            isRemoveTaskMember: false,
-          })
-          .then(source => {
-            if (source.status) {
-              exitAndDeleteCallback(folderId, false, hideNavigation);
-            } else {
-              errorMessage(source.error);
-            }
-          });
-      },
+  Dialog.confirm({
+    title: _l('确定退出该项目？'),
+    closable: false,
+    onOk: () => {
+      ajaxRequest
+        .removeFolderMember({
+          folderID: folderId,
+          accountID: md.global.Account.accountId,
+          isRemoveTaskMember: false,
+        })
+        .then(source => {
+          if (source.status) {
+            exitAndDeleteCallback(folderId, false, hideNavigation);
+          } else {
+            errorMessage(source.error);
+          }
+        });
     },
   });
 };
@@ -1181,36 +1175,41 @@ export const updateFolderArchived = (projectId, folderId, pigeonhole, callback) 
 
 // 申请加入项目
 export const joinProjectPrompt = folderId => {
-  const content = `
-    <div class="folderInfo">
-      <textarea class="ThemeBorderColor3" placeholder="${_l('向负责人说明你想要加入项目的原因')}"></textarea>
-    </div>
-  `;
-  $.DialogLayer({
-    dialogBoxID: 'joinFolder',
-    container: {
-      header: _l('申请加入项目'),
-      content,
-      yesText: _l('申请加入'),
-      yesFn() {
-        ajaxRequest
-          .applyFolderMember({
-            folderID: folderId,
-            applyInfo: $('#joinFolder textarea').val(),
-          })
-          .then(source => {
-            if (source.status) {
-              alert(_l('操作成功'));
-            } else {
-              errorMessage(source.error);
-            }
-          });
-      },
+  Dialog.confirm({
+    title: _l('申请加入项目1'),
+    dialogClasses: 'joinFolder',
+    children: (
+      <div className="folderInfo">
+        <textarea
+          className="ThemeBorderColor3 w100"
+          autofocus={true}
+          placeholder={_l('向负责人说明你想要加入项目的原因')}
+          style={{
+            borderRadius: '4px',
+            borderColor: '#ccc !important',
+            fontSize: '13px',
+            height: '8em',
+            marginTop: '15px',
+            padding: '3px 5px',
+            resize: 'none',
+          }}
+        ></textarea>
+      </div>
+    ),
+    onOk: () => {
+      ajaxRequest
+        .applyFolderMember({
+          folderID: folderId,
+          applyInfo: $('.joinFolder textarea').val(),
+        })
+        .then(source => {
+          if (source.status) {
+            alert(_l('操作成功'));
+          } else {
+            errorMessage(source.error);
+          }
+        });
     },
-    readyFn() {
-      $('#joinFolder textarea').focus();
-    },
-    width: 550,
   });
 };
 

@@ -45,6 +45,7 @@ export const ACTION_ID = {
   ADD: '1',
   EDIT: '2',
   DELETE: '3',
+  CREATE_FILE: '4',
   RELATION: '20',
   NUMBER_FORMULA: '100',
   DATE_FORMULA: '101',
@@ -54,6 +55,7 @@ export const ACTION_ID = {
   OBJECT_TOTAL: '105',
   FUNCTION_CALCULATION: '106',
   WORKSHEET_TOTAL: '107',
+  CUSTOM_ACTION_TOTAL: '108',
   SEND_EMAIL_SINGLE_DISPLAY: '201',
   SEND_EMAIL: '202',
   SEND_TEMPLATE_MESSAGE: '203',
@@ -112,6 +114,8 @@ export const APP_TYPE = {
   PARAMETER: 40,
   API_PACKAGE: 41,
   API: 42,
+  CALENDAR: 43,
+  SNAPSHOT: 44,
   SYSTEM: 100,
   VARIABLE: 101,
   PROCESS: 102,
@@ -297,12 +301,14 @@ export const USER_ORGANIZE = {
   12: _l('主部门负责人'),
   13: _l('主部门上级负责人'),
   14: _l('主部门中的职位'),
+  15: _l('组织角色分管负责人'),
 };
 
 export const DEPARTMENT_ORGANIZE = {
   12: _l('部门负责人'),
   13: _l('上级部门负责人'),
   14: _l('部门中的职位'),
+  15: _l('组织角色分管负责人'),
 };
 
 export const EXEC_TIME_TYPE = {
@@ -551,12 +557,12 @@ export const DATE_SHOW_TYPES = [
   },
   {
     value: 2,
-    text: _l('US'),
+    text: 'US',
     format: _l('M/D/YYYY'),
   },
   {
     value: 3,
-    text: _l('EU'),
+    text: 'EU',
     format: _l('D/M/YYYY'),
   },
 ];

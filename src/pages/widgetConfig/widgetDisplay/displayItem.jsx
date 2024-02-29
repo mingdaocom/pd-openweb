@@ -1,15 +1,15 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useDrop, useDrag } from 'react-dnd-latest';
 import update from 'immutability-helper';
 import styled from 'styled-components';
 import cx from 'classnames';
-import { includes, head, some, pick, get, last, isEmpty, find } from 'lodash';
+import { includes, head, some, pick, get, last, isEmpty, find, flatten } from 'lodash';
 import { DRAG_ITEMS, WHOLE_SIZE, DRAG_MODE, DRAG_DISTANCE } from '../config/Drag';
-import { resetWidgets, getDefaultSizeByData, relateOrSectionTab } from '../util';
-import { insertNewLine, insertToCol, insertToRowEnd, isFullLineDragItem } from '../util/drag';
+import { resetWidgets, getDefaultSizeByData, relateOrSectionTab, putControlByOrder, genWidgetRowAndCol } from '../util';
+import { insertNewLine, insertToCol, insertToRowEnd, isFullLineDragItem, batchRemoveItems } from '../util/drag';
 import { getPathById, isFullLineControl } from '../util/widgets';
 import { getVerifyInfo } from '../util/setting';
-import { batchCopyWidgets, deleteSection } from '../util/data';
+import { batchCopyWidgets, deleteSection, batchShiftWidgets, handleAddWidgets } from '../util/data';
 import Components from './components';
 import WidgetDisplay from './widgetDisplay';
 
@@ -23,7 +23,7 @@ const DisplayItemWrap = styled.div`
   cursor: grab;
   transition: box-shadow 0.25s ease-in-out;
   transform: translate3d(0, 0, 0);
-  margin-top: ${props => (props.row && !props.isTab ? '4px' : '')};
+  margin-top: ${props => (props.row && !props.isTab ? '2px' : '')};
   margin-left: ${props => (props.col ? '4px' : '')};
   &.isInvalid {
     background-color: rgba(253, 154, 39, 0.12);
@@ -39,6 +39,9 @@ const DisplayItemWrap = styled.div`
   }
   &.isActive {
     box-shadow: 0 0 0 2px rgba(33, 150, 243, 1);
+  }
+  &.isBatchActive {
+    box-shadow: 0 0 0 2px #3c3c3c !important;
   }
   &.isDragging {
     opacity: 0.4;
@@ -93,6 +96,8 @@ export default function DisplayItem(props) {
     batchActive = [],
     setBatchActive = () => {},
     setStyleInfo = () => {},
+    batchDrag,
+    setBatchDrag = () => {},
   } = props;
   const { type, controlId, dataSource, sourceControlId } = data;
   const { worksheetId: globalSheetId } = globalSheetInfo;
@@ -139,7 +144,41 @@ export default function DisplayItem(props) {
       if (!monitor.didDrop()) return;
       const dropResult = monitor.getDropResult();
       if (!dropResult) return;
-      const { mode, rowIndex, path: dropPath, location, sectionId } = dropResult;
+      const { mode, rowIndex, path: dropPath, location, sectionId, activePath } = dropResult;
+
+      // 批量拖拽
+      if (batchActive.length > 0 && batchDrag) {
+        // 标签页过滤掉关联多条列表和子表
+        const filterBatchWidgets = batchActive
+          .map(i => ({ ...i, sectionId }))
+          .filter(i => !((relateOrSectionTab(i) || i.type === 34) && i.sectionId));
+        // 先移除需要批量拖拽到元素
+        const filterOldWidgets = batchRemoveItems(widgets, filterBatchWidgets);
+        // 批量拖拽走批量新增逻辑，定位新的activeWidget进行批量操作
+        // activePath[0]小于0，拖拽到头部
+        if (activePath[0] < 0) {
+          const newWidgets = putControlByOrder(filterBatchWidgets).concat(filterOldWidgets);
+          setWidgets(genWidgetRowAndCol(newWidgets));
+          setActiveWidget(last(filterBatchWidgets));
+        } else {
+          const [batchRow, batchCol] = activePath;
+          const newActiveWidget = widgets[batchRow][batchCol];
+          handleAddWidgets(
+            filterBatchWidgets,
+            {},
+            {
+              widgets: filterOldWidgets,
+              activeWidget: newActiveWidget,
+              allControls: flatten(filterOldWidgets),
+              setWidgets,
+              setActiveWidget,
+            },
+          );
+        }
+        setBatchDrag(false);
+        return;
+      }
+
       const newData = { ...data, sectionId };
       // 插入新行
       if (mode === DRAG_MODE.INSERT_NEW_LINE) {
@@ -175,6 +214,8 @@ export default function DisplayItem(props) {
       ) {
         return false;
       }
+      // 批量拖拽，当前拖拽物在批量选中区域内
+      if (batchDrag && _.find(batchActive, i => i.controlId === controlId)) return false;
       return true;
     },
     hover(item, monitor) {
@@ -239,11 +280,12 @@ export default function DisplayItem(props) {
       const sectionId = type === 52 && !_.includes(['view_top'], location) ? controlId : data.sectionId || '';
 
       if (includes(['left', 'right'], location)) {
-        return { mode: DRAG_MODE.INSERT_TO_COL, path, location, sectionId };
+        return { mode: DRAG_MODE.INSERT_TO_COL, path, location, sectionId, activePath: path };
       }
 
       return {
         mode: DRAG_MODE.INSERT_NEW_LINE,
+        activePath: [_.includes(['view_top', 'top'], location) ? path[0] - 1 : path[0], path[1]],
         rowIndex: _.includes(['view_top', 'top'], location) ? path[0] : path[0] + 1,
         sectionId,
       };
@@ -255,15 +297,28 @@ export default function DisplayItem(props) {
 
   const { isDragging } = dragCollectProps;
 
+  useEffect(() => {
+    if (batchActive.length > 0 && _.find(batchActive, b => b.controlId === data.controlId)) {
+      if (isDragging) {
+        setBatchDrag(true);
+      } else {
+        setBatchDrag(false);
+      }
+    }
+  }, [isDragging]);
+
   const width = `${(size * 100) / WHOLE_SIZE}%`;
 
-  const isActive =
-    data.controlId === activeWidget.controlId || !!find(batchActive, i => i.controlId === data.controlId);
+  const isBatchActive = !!find(batchActive, i => i.controlId === data.controlId);
+
+  const isActive = data.controlId === activeWidget.controlId || isBatchActive;
+
+  const isBatchDrag = isBatchActive && batchDrag;
 
   const { isValid } = getVerifyInfo(data, { controls: allControls });
 
   // 非激活状态或保存后校验字段是否配置正常
-  const isInvalid = !isValid && !isActive;
+  const isInvalid = !isValid && !(isActive || isBatchActive);
 
   drop(drag($ref));
 
@@ -366,6 +421,25 @@ export default function DisplayItem(props) {
     if (mode === 'hide') {
       handleHide(controlId);
     }
+    if (mode === 'batch') {
+      // 批量操作连选暂不支持选标签页本身
+      if (data.type === 52) return;
+      if (batchActive.length > 0) {
+        // 区域连选
+        if (option.shiftKey) {
+          batchShiftWidgets(props);
+        } else {
+          const newBatchData = find(batchActive || [], b => b.controlId === controlId)
+            ? batchActive.filter(b => b.controlId !== controlId)
+            : batchActive.concat(data);
+          setBatchActive(newBatchData);
+        }
+      } else {
+        setActiveWidget({});
+        setBatchActive([data]);
+      }
+      setStyleInfo({ activeStatus: false });
+    }
   };
 
   return (
@@ -378,44 +452,33 @@ export default function DisplayItem(props) {
       isTab={isTab}
       className={cx({
         isActive,
-        isDragging,
+        isDragging: isDragging || isBatchDrag,
+        isBatchActive,
         isInvalid,
       })}
       onClick={e => {
         e.stopPropagation();
 
-        const { metaKey, ctrlKey } = e;
-        const isMacOs = navigator.userAgent.toLocaleLowerCase().includes('mac os');
-        if (isMacOs ? metaKey : ctrlKey) {
-          // 批量操作连选暂不支持选标签页本身
-          if (data.type === 52) return;
-          let newBatchData = batchActive || [];
-          if (!isEmpty(activeWidget)) {
-            if (activeWidget.type !== 52) newBatchData.push(activeWidget);
-            setActiveWidget({});
+        const { shiftKey } = e;
+        if (batchActive.length > 0) {
+          // 区域连选
+          if (shiftKey) {
+            batchShiftWidgets(props);
+            return;
           }
-          newBatchData = find(newBatchData, b => b.controlId === controlId)
-            ? newBatchData.filter(b => b.controlId !== controlId)
-            : newBatchData.concat(data);
-          // 批量操作选中字段只剩一个，按单个字段选中处理
-          if (newBatchData.length === 1) {
-            setActiveWidget(head(newBatchData));
-            setBatchActive([]);
-          } else {
-            setBatchActive(newBatchData);
-          }
-          setStyleInfo({ activeStatus: false });
+          handleOperate('batch');
           return;
         }
 
         setActiveWidget(data);
       }}
     >
-      {!isDragging && batchActive.length <= 1 && (
+      {!(isDragging || isBatchDrag) && (
         <Components.WidgetOperation
           {...pick(props, ['fromType', 'data', 'globalSheetInfo'])}
           parentRef={$ref}
-          isActive={isActive}
+          batchMode={batchActive.length > 0}
+          isBatchActive={isBatchActive}
           handleOperate={handleOperate}
           onChange={onChange}
         />

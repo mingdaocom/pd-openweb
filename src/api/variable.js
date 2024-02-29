@@ -15,7 +15,7 @@ export default {
   * 批量获取变量
   * @param {Object} args 请求参数
   * @param {string} args.sourceId 来源id （sourceType = 0 时，传组织id，其他传应用id）
-  * @param {} args.sourceType 获取类型 0 = 组织级别，1= 应用级别，10 = 授权到应用下的变量（包含组织授权到该应用的和应用下创建的），11 = 授权到应用的组织变量（不包含应用下创建的）
+  * @param {} args.sourceType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -48,7 +48,6 @@ export default {
   /**
   * 编辑变量
   * @param {Object} args 请求参数
-  * @param {string} args.id 变量id
   * @param {integer} args.sourceType 来源类型 0 = 组织级别，1= 应用级别
   * @param {string} args.sourceId 来源id ，SourceType = 0 时为组织id，其他为应用id
   * @param {array} args.appIds 授权应用范围
@@ -59,6 +58,7 @@ export default {
   * @param {integer} args.scope 授权范围 1 = 所有应用，2 = 指定
   * @param {integer} args.controlType 变量类型（和工作表控件类型保持一致）
   * @param {string} args.value 变量值
+  * @param {string} args.id 变量id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -78,21 +78,6 @@ export default {
    remove: function (args, options = {}) {
      
      return $.api('Variable', 'Remove', args, options);
-   },
-  /**
-  * 仅更新变量值
-  * @param {Object} args 请求参数
-  * @param {string} args.id 变量id
-  * @param {string} args.name 变量名称
-  * @param {string} args.value 值
-  * @param {integer} args.editType 编辑类型 0 = 设为，1= 增加，2 = 减少
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   editValue: function (args, options = {}) {
-     
-     return $.api('Variable', 'EditValue', args, options);
    },
   /**
   * 获取日志

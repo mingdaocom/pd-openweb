@@ -1,7 +1,7 @@
 ﻿import React, { useState, useEffect } from 'react';
 import projectSettingController from 'src/api/projectSetting';
 import styled from 'styled-components';
-import mdImg from 'src/components/images/mingdao.png';
+import mdImg from 'staticfiles/images/mingdao.png';
 
 const PayHeaderWrap = styled.div`
   position: fixed;

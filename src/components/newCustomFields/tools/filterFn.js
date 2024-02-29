@@ -309,13 +309,13 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
         compareValue = currentControl.value;
         //是(等于)、不是(不等于) && (OPTIONS && (单选) || USER)
       } else if (
-        _.includes([2, 6, 26, 27], filterType) &&
+        _.includes([2, 6, 26, 27, 51, 52], filterType) &&
         ((_.includes([5], conditionGroupType) && _.includes([9, 10, 11, 27, 48], dataType)) ||
           _.includes([6], conditionGroupType))
       ) {
         const val = currentControl.value ? safeParse(currentControl.value) : currentControl.value;
         compareValues = typeof val === 'object' ? val : [currentControl.value];
-      } else if (_.includes([24, 25, 26, 27, 28], filterType) && _.includes([29], dataType)) {
+      } else if (_.includes([24, 25, 26, 27, 28, 51, 52], filterType) && _.includes([29], dataType)) {
         const val = currentControl.value ? safeParse(currentControl.value) : currentControl.value;
         compareValues = typeof val === 'object' ? val : [currentControl.value];
       } else {
@@ -377,7 +377,9 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
             return true;
         }
       // EQ: 2, // 是（等于）
+      // EQ_FOR_SINGLE: 51 是
       case FILTER_CONDITION_TYPE.EQ:
+      case FILTER_CONDITION_TYPE.EQ_FOR_SINGLE:
         switch (conditionGroupType) {
           case CONTROL_FILTER_WHITELIST.USERS.value: // ???
             if (_.isEmpty(value) && _.isEmpty(compareValues)) return true;
@@ -475,6 +477,21 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
             return isInValue;
           case CONTROL_FILTER_WHITELIST.BOOL.value:
             return value === '1';
+          // 给EQ_FOR_SINGLE专用
+          case CONTROL_FILTER_WHITELIST.RELATE_RECORD.value:
+          case CONTROL_FILTER_WHITELIST.CASCADER.value:
+            let isInVal = false;
+            _.map(compareValues, it => {
+              let itValue = dynamicSource.length > 0 ? it || {} : safeParse(it || '{}');
+              let valueN = _.isArray(value) ? value : safeParse(value || '[]', 'array');
+              _.map(valueN, item => {
+                let curId = dynamicSource.length > 0 ? itValue.sid : itValue.id;
+                if (curId === item.sid) {
+                  isInVal = true;
+                }
+              });
+            });
+            return isInVal;
           default:
             return true;
         }
@@ -549,7 +566,9 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
             return true;
         }
       //   NE: 6, // 不是（不等于）
+      //   NE_FOR_SINGLE: 52 不是
       case FILTER_CONDITION_TYPE.NE:
+      case FILTER_CONDITION_TYPE.NE_FOR_SINGLE:
         switch (conditionGroupType) {
           case CONTROL_FILTER_WHITELIST.USERS.value: // ???
             if (_.isEmpty(value) && _.isEmpty(compareValues)) return false;
@@ -645,6 +664,22 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
             return isInValue1;
           case CONTROL_FILTER_WHITELIST.BOOL.value:
             return value !== '1';
+          // 给NE_FOR_SINGLE专用
+          case CONTROL_FILTER_WHITELIST.RELATE_RECORD.value:
+          case CONTROL_FILTER_WHITELIST.CASCADER.value:
+            let isInV = true;
+            _.map(compareValues, it => {
+              let itValue = {};
+              itValue = dynamicSource.length > 0 ? it || {} : safeParse(it || '{}');
+              let valueN = _.isArray(value) ? value : safeParse(value || '[]', 'array');
+              _.map(valueN, item => {
+                let curId = dynamicSource.length > 0 ? itValue.sid : itValue.id;
+                if (curId === item.sid) {
+                  isInV = false;
+                }
+              });
+            });
+            return isInV;
           default:
             return true;
         }
@@ -1230,6 +1265,9 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
           default:
             return true;
         }
+      // 文本同时包含
+      case FILTER_CONDITION_TYPE.TEXT_ALLCONTAIN:
+        return compareValues.every(i => value.includes(i));
       default:
         return true;
     }
@@ -1342,7 +1380,7 @@ export const checkAllValueAvailable = (rules = [], data = [], recordId, from) =>
   if (filterRules && filterRules.length > 0) {
     filterRules.map(rule => {
       rule.ruleItems.map(item => {
-        if (item.type === 6) {
+        if (item.type === 6 && rule.checkType !== 2) {
           const { isAvailable } = checkValueAvailable(rule, data, recordId, from);
           isAvailable && errors.push(item.message);
         }
@@ -1350,6 +1388,36 @@ export const checkAllValueAvailable = (rules = [], data = [], recordId, from) =>
     });
   }
   return errors;
+};
+
+// 业务规则后端校验
+export const getRuleErrorInfo = (rules = [], badData = []) => {
+  return badData
+    .map(itemBadData => {
+      const errorInfo = [];
+      const [rowId, ruleId, controlId] = (itemBadData || '').split(':').reverse();
+
+      rules.map(rule => {
+        if (rule.ruleId === ruleId && _.find(_.get(rule, 'ruleItems') || [], r => r.type === 6)) {
+          _.get(rule, 'ruleItems').map(item => {
+            const errorIds = (_.get(item, 'controls') || []).map(c => c.controlId);
+            const curErrorIds = errorIds.length > 0 ? errorIds : (rule.filters || []).map(i => getIds(i));
+            curErrorIds.map(c => {
+              errorInfo.push({
+                controlId: c,
+                errorMessage: item.message,
+                ruleId,
+                errorType: FORM_ERROR_TYPE.RULE_ERROR,
+                showError: true,
+              });
+            });
+          });
+        }
+      });
+
+      return { rowId, controlId, errorInfo };
+    })
+    .filter(i => !_.isEmpty(i.errorInfo));
 };
 
 //判断所有业务规则是否有锁定状态
@@ -1375,7 +1443,7 @@ export const replaceStr = (str, index, value) => {
 };
 
 // 更新业务规则权限属性
-const updataDataPermission = ({ attrs = [], it, checkRuleValidator, from, item = {} }) => {
+const updateDataPermission = ({ attrs = [], it, checkRuleValidator, from, item = {} }) => {
   //子表或关联记录
   const isSubList = _.includes([29, 34], item.type);
   let fieldPermission = it.fieldPermission || '111';
@@ -1403,7 +1471,7 @@ const updataDataPermission = ({ attrs = [], it, checkRuleValidator, from, item =
       required = true;
       fieldPermission = replaceStr(fieldPermission, 1, '1');
       const { errorText } = onValidator({ item: { ...it, required, fieldPermission } });
-      checkRuleValidator(it.controlId, FORM_ERROR_TYPE.RULE_REQUIRED, errorText);
+      item.type !== 34 && checkRuleValidator(it.controlId, FORM_ERROR_TYPE.RULE_REQUIRED, errorText);
     } else {
       //编辑
       if (_.includes(attrs, 3)) {
@@ -1541,7 +1609,7 @@ export const updateRulesData = ({
           // 子表会出现控件id重复的情况
           const id = `${it.controlId}-${re.controlId}`;
           if ((relateRuleType['child'] || {})[id]) {
-            updataDataPermission({
+            updateDataPermission({
               attrs: relateRuleType['child'][id],
               it: re,
               checkRuleValidator,
@@ -1551,7 +1619,7 @@ export const updateRulesData = ({
           }
         });
         if ((relateRuleType['parent'] || {})[it.controlId]) {
-          updataDataPermission({
+          updateDataPermission({
             attrs: relateRuleType['parent'][it.controlId],
             it,
             checkRuleValidator,
@@ -1562,31 +1630,49 @@ export const updateRulesData = ({
 
       //走错误提示
       filterRules.map(rule => {
-        rule.ruleItems.map(({ type, message }) => {
-          const {
-            filterControlIds = [],
-            availableControlIds = [],
-            isAvailable,
-          } = checkValueAvailable(rule, formatData, recordId, from);
-          if (_.includes([6], type)) {
-            //过滤已经塞进去的错误
-            filterControlIds.map(id => checkRuleValidator(id, FORM_ERROR_TYPE.RULE_ERROR, '', rule.ruleId));
-            if (isAvailable) {
-              availableControlIds.map(controlId => {
-                if (!relateRuleType['errorMsg'][controlId]) {
-                  //错误提示(checkAllUpdate为true全操作，否则操作变更的字段updateControlIds)
-                  if (checkAllUpdate || (updateControlIds.length > 0 && _.includes(updateControlIds, controlId))) {
-                    pushType('errorMsg', controlId, message);
-                    if (_.find(formatData, fo => fo.controlId === controlId)) {
-                      const errorMsg = relateRuleType['errorMsg'][controlId] || '';
-                      checkRuleValidator(controlId, FORM_ERROR_TYPE.RULE_ERROR, errorMsg[0], rule.ruleId);
+        // 前端校验才走
+        if (rule.checkType !== 2) {
+          rule.ruleItems.map(({ type, message, controls = [] }) => {
+            const {
+              filterControlIds = [],
+              availableControlIds = [],
+              isAvailable,
+            } = checkValueAvailable(rule, formatData, recordId, from);
+            if (_.includes([6], type)) {
+              const errorIds = controls.map(i => i.controlId);
+              const curErrorIds = rule.type === 1 && errorIds.length > 0 ? errorIds : filterControlIds;
+              //过滤已经塞进去的错误
+              (rule.type === 1 ? curErrorIds : filterControlIds).map(id =>
+                checkRuleValidator(id, FORM_ERROR_TYPE.RULE_ERROR, '', rule),
+              );
+              if (isAvailable) {
+                availableControlIds.map(controlId => {
+                  if (!relateRuleType['errorMsg'][controlId]) {
+                    //错误提示(checkAllUpdate为true全操作，
+                    // ruleType === 1 校验规则，指定字段塞错误
+                    //否则操作变更的字段updateControlIds
+
+                    const pushError = (id, msg) => {
+                      pushType('errorMsg', id, msg);
+                      if (_.find(formatData, fo => fo.controlId === id)) {
+                        const errorMsg = relateRuleType['errorMsg'][id] || [];
+                        checkRuleValidator(id, FORM_ERROR_TYPE.RULE_ERROR, errorMsg[0], rule);
+                      }
+                    };
+
+                    if (checkAllUpdate || (updateControlIds.length > 0 && _.includes(updateControlIds, controlId))) {
+                      if (rule.type === 1 && errorIds.length > 0) {
+                        errorIds.map(e => pushError(e, message));
+                      } else {
+                        pushError(controlId, message);
+                      }
                     }
                   }
-                }
-              });
+                });
+              }
             }
-          }
-        });
+          });
+        }
       });
     }
   }

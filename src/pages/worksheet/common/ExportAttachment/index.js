@@ -4,6 +4,7 @@ import { Select } from 'antd';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import fileAjax from 'src/api/file';
 import { formatQuickFilter } from 'worksheet/util';
+import { getPssId } from 'src/util/pssId';
 import styled from 'styled-components';
 
 const hyphenList = [
@@ -92,7 +93,20 @@ class ExportAttachment extends Component {
       isGetWorksheet: true,
     };
 
-    fileAjax.downloadRowsBatchFile(params);
+    $.ajax({
+      headers: {
+        Authorization: `md_pss_id ${getPssId()}`,
+      },
+      type: 'POST',
+      url: `${md.global.Config.AjaxApiUrl}File/DownloadRowsBatchFile`,
+      data: JSON.stringify(params),
+      dataType: 'JSON',
+      contentType: 'application/json',
+    }).then(res => {
+      if (res && res.exception) {
+        alert(res.exception, 2);
+      }
+    });
     this.props.onCancel();
   };
 

@@ -28,7 +28,7 @@ const RecordLogDialogWrap = styled(Dialog)`
 `;
 
 export default function LogDetailDialog(props) {
-  const { visible, onCancel, currentRowInfo = {} } = props;
+  const { visible, projectId, onCancel, currentRowInfo = {} } = props;
   const [titleName, setTitleName] = useState('');
   const [controls, setControls] = useState(undefined);
   const appId = _.get(currentRowInfo, 'application.appId');
@@ -70,6 +70,7 @@ export default function LogDetailDialog(props) {
         <WorksheetRocordLog
           appId={appId}
           rowId={rowId}
+          projectId={projectId}
           worksheetId={worksheetId}
           showFilter={false}
           filterUniqueIds={filterUniqueIds}

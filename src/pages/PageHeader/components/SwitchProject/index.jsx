@@ -85,14 +85,17 @@ function SwitchProject(props) {
   const createRef = useRef();
   const [currentProject, setCurrentProject] = useState({});
   useEffect(() => {
-    const project = !_.isEmpty(getCurrentProject(projectId || localStorage.getItem('currentProjectId')))
-      ? getCurrentProject(projectId || localStorage.getItem('currentProjectId'))
-      : projects[0];
-    if (!project || !project.projectId) {
-      return;
+    const project = getCurrentProject(projectId || localStorage.getItem('currentProjectId'));
+    if (_.isEmpty(project)) {
+      if (projects[0] && projects[0].projectId) {
+        setCurrentProject(projects[0]);
+        safeLocalStorageSetItem('currentProjectId', projects[0].projectId);
+      } else {
+        setCurrentProject({ companyName: _l('外部协作'), projectId: 'external' });
+      }
+    } else {
+      setCurrentProject(project);
     }
-    setCurrentProject(project);
-    safeLocalStorageSetItem('currentProjectId', project.projectId);
   }, []);
   const [popupVisible, setPopupVisible] = useState();
   let menuContent = (

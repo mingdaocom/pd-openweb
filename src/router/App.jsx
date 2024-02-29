@@ -10,7 +10,7 @@ import { createDiscussion } from 'src/pages/chat/utils/group';
 import genRouteComponent from './genRouteComponent';
 import { ROUTE_CONFIG, withoutChatUrl } from './config';
 import { ROUTE_CONFIG_PORTAL } from 'src/pages/Portal/config';
-import { navigateTo, setHistoryObject } from './navigateTo';
+import { setHistoryObject } from './navigateTo';
 import store from 'redux/configureStore';
 import * as actions from 'src/pages/chat/redux/actions';
 import socketInit from '../socket';
@@ -21,8 +21,8 @@ import GlobalSearch from 'src/pages/PageHeader/components/GlobalSearch/index';
 import privateGuide from 'src/api/privateGuide';
 import Trigger from 'rc-trigger';
 import weixinCode from 'src/pages/NewPrivateDeployment/images/weixin.png';
-import { compatibleWorksheetRoute } from 'src/pages/Portal/util.js';
 import _ from 'lodash';
+import globalEvents from './globalEvents';
 
 @preall
 @errorBoundary(true)
@@ -32,10 +32,6 @@ export default class App extends Component {
     super(props);
     setHistoryObject(props.history);
     props.history.listen(location => {
-      if (md.global.updated) {
-        md.global.updated = false;
-        window.location.reload();
-      }
       if (window.ga) {
         window.ga('set', 'page', location.pathname + location.search);
         window.ga('send', 'pageview', location.pathname + location.search);
@@ -54,58 +50,8 @@ export default class App extends Component {
   }
 
   componentDidMount() {
-    const that = this;
-    const isMDClient = window.navigator.userAgent.indexOf('MDClient') > -1;
-    // 拦截 a 标签跳转
-    // TODO: 这个会拦截掉 react 的事件
-    $('body').on('click', 'a', function interceptLinkClick(e) {
-      if (e.which !== 1) return;
-      if (e.ctrlKey || e.shiftKey || e.metaKey) return;
-      // if (e.originalEvent && e.originalEvent.defaultPrevented) return;
-      if ($(e.target).closest('.mdEditorContent').length) return;
-      if ($(e.target).closest('.stopPropagation').length) return;
-      const $a = $(this);
-      if ($a.attr('download') || $a.attr('rel') === 'external' || (!isMDClient && $a.attr('target'))) {
-        return;
-      }
-      const link = $a.attr('href');
-      if (!link && link !== '') return;
-      const parsedLink = that.parseUrl(link);
-      const currentLink = window.location;
-      if (
-        parsedLink.protocol !== currentLink.protocol ||
-        parsedLink.hostname !== currentLink.hostname ||
-        parsedLink.port !== currentLink.port
-      ) {
-        return;
-      }
-      if (/\/form|worksheetshare\/\w*/.test(parsedLink.pathname)) {
-        return;
-      }
-      e.preventDefault();
-
-      // 系统消息 有的带protocol和hostname有的不带
-      // 从parsedLink里取出pathname, search和hash
-      const { pathname, search, hash } = parsedLink;
-      let url = `${pathname}${search}${hash}`;
-      //外部门户 worksheet老地址兼容处理
-      if (md.global.Account.isPortal && url.startsWith('/worksheet/')) {
-        compatibleWorksheetRoute(
-          url
-            .split(/\/worksheet\/(.*)/)
-            .filter(o => o)[0]
-            .split(/\/(.*)/)[0],
-          url.split(/\/row\/(.*)/).filter(o => o)[1],
-        );
-        return;
-      }
-
-      if (isMDClient && that.checkClientOpenWindow(url)) {
-        window.open(url);
-      } else {
-        navigateTo(url);
-      }
-    });
+    // 全局注入事件
+    globalEvents();
 
     // 绑定快捷操作
     !md.global.Account.isPortal && this.bindShortcut();
@@ -127,20 +73,6 @@ export default class App extends Component {
     if (nextProps.location !== this.props.location) {
       this.setState({ prevPath: this.props.location });
     }
-  }
-
-  parseUrl(url) {
-    var a = document.createElement('a');
-    a.href = url;
-    return {
-      protocol: a.protocol,
-      hostname: a.hostname,
-      port: a.port,
-      pathname: ('/' + a.pathname).replace('//', '/'),
-      search: a.search,
-      hash: a.hash,
-      origin: a.origin,
-    };
   }
 
   /**
@@ -186,32 +118,12 @@ export default class App extends Component {
       }
     }, 200);
 
-    $(document).on('keypress', function(e) {
+    $(document).on('keypress', function (e) {
       if (e.ctrlKey || e.shiftKey || e.altKey || e.cmdKey || e.metaKey) return;
       var tag = e.target.tagName && e.target.tagName.toLowerCase();
       if (tag === 'input' || tag === 'textarea' || $(e.target).is('[contenteditable]')) return;
       callDialog(e.which);
     });
-  }
-
-  /**
-   * 验证客户端是否新开窗口
-   */
-  checkClientOpenWindow(url) {
-    const clientOpenList = localStorage.getItem('clientOpenList')
-      ? JSON.parse(localStorage.getItem('clientOpenList'))
-      : [];
-    let isContain = false;
-
-    if (url.indexOf('hr') > -1 || url.indexOf('dossier') > -1 || url.indexOf('public') > -1) return true;
-
-    clientOpenList.forEach(item => {
-      if (url.indexOf(item) > -1) {
-        isContain = true;
-      }
-    });
-
-    return isContain;
   }
 
   /**
@@ -313,7 +225,7 @@ export default class App extends Component {
                   ) {
                     window.location.reload();
                   } else {
-                    window.location.goto('/app/my');
+                    window.location.goto('/dashboard');
                   }
                   return null;
                 }}

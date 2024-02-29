@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { string } from 'prop-types';
 import cx from 'classnames';
+import { Icon } from 'ming-ui';
 import { Motion, spring } from 'react-motion';
 import { navigateTo } from 'src/router/navigateTo';
 import { NATIVE_MODULES } from '../config';
@@ -36,11 +37,21 @@ export default class NativeHeader extends Component {
     return (
       <div className="nativeHeaderWrap">
         <div className="nativeModuleLogo">
-          <HomepageIcon
-            onClick={this.switchIndexSideVisible}
-            onMouseEnter={this.switchIndexSideVisible}
-            onMouseLeave={() => clearTimeout(this.timer)}
-          />
+          {window.backHomepageWay === 1 ? (
+            <div
+              className="homepageIcon alignItemsCenter justifyContentCenter"
+              style={{ flexWrap: 'nowrap' }}
+              onClick={() => navigateTo('/dashboard')}
+            >
+              <Icon className="Font20 Gray_75" icon="home_page" />
+            </div>
+          ) : (
+            <HomepageIcon
+              onClick={this.switchIndexSideVisible}
+              onMouseEnter={this.switchIndexSideVisible}
+              onMouseLeave={() => clearTimeout(this.timer)}
+            />
+          )}
           <CoordinationIcon className="nativeCoordinationIcon" />
           <div className="nativeTitle">{_l('协作套件')}</div>
           <Motion style={{ x: spring(indexSideVisible ? 0 : -352) }}>

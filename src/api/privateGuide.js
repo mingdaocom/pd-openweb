@@ -137,7 +137,7 @@ export default {
   * 添加试用授权
   * @param {Object} args 请求参数
   * @param {string} args.licenseCode 授权码
-  * @param {} args.extendFunType 增值功能类型
+  * @param {} args.extendFunType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

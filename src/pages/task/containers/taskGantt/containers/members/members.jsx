@@ -7,6 +7,7 @@ import { addMembers } from '../../redux/actions';
 import UserHead from 'src/components/userHead';
 import ajaxRequest from 'src/api/taskCenter';
 import _ from 'lodash';
+import { Dialog } from 'ming-ui';
 
 class Members extends Component {
   constructor(props) {
@@ -82,27 +83,25 @@ class Members extends Component {
       members.push(`<span class="ThemeColor3">${users[i].fullname}</span>`);
     }
 
-    const content = `<div style="color: #999;">
-                    ${_l(
-                      '您添加的%0不是项目成员也不在项目当前公开范围内，是否要将他们加入项目？',
-                      members.join('、') + (users.length > 3 ? _l(' 等%0人', users.length) : ''),
-                    )}
-                   </div>`;
-
-    $.DialogLayer({
-      showClose: false,
-      container: {
-        header: _l('加为项目成员'),
-        content,
-        noText: _l('暂不需要'),
-        yesText: _l('加入项目'),
-        yesFn() {
-          ajaxRequest.addFolderMembers({
-            folderID: config.folderId,
-            memberIDs: _.map(users, user => user.accountId).join(','),
-          });
-        },
-      },
+    Dialog.confirm({
+      title: _l('加为项目成员'),
+      cancelText: _l('暂不需要'),
+      okText: _l('加入项目'),
+      closable: false,
+      children: (
+        <div style="color: #999;">
+          {_l(
+            '您添加的%0不是项目成员也不在项目当前公开范围内，是否要将他们加入项目？',
+            members.join('、') + (users.length > 3 ? _l(' 等%0人', users.length) : ''),
+          )}
+        </div>
+      ),
+      onOk: () => {
+        ajaxRequest.addFolderMembers({
+          folderID: config.folderId,
+          memberIDs: _.map(users, user => user.accountId).join(','),
+        });
+      }
     });
   }
 

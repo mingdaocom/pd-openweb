@@ -85,7 +85,7 @@ export default function ActionBtn(props) {
                 <SwitchStyle>
                   <Icon
                     icon={!data.includes(o.value) ? 'ic_toggle_on' : 'ic_toggle_off'}
-                    className="Font30 Hand"
+                    className="Font28 Hand"
                     onClick={() => {
                       props.onChange(
                         JSON.stringify(

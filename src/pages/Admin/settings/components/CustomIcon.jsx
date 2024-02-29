@@ -1,10 +1,9 @@
 import React, { Component, Fragment } from 'react';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
 import cx from 'classnames';
-import { Icon, ScrollView } from 'ming-ui';
+import { Icon, ScrollView, QiniuUpload } from 'ming-ui';
 import ajaxRequest from 'src/api/appManagement';
 import SvgIcon from 'src/components/SvgIcon';
-import { getToken } from 'src/util';
 import './index.less';
 import _ from 'lodash';
 
@@ -18,89 +17,6 @@ export default class CustomIcon extends Component {
 
   componentWillMount() {
     this.getList();
-  }
-
-  componentDidMount() {
-    this.uploadFile();
-  }
-
-  /**
-   * 上传绑定
-   */
-  uploadFile() {
-    const _this = this;
-    const { projectId } = this.props;
-
-    $(this.uploadFileEl).plupload({
-      url: md.global.FileStoreConfig.uploadHost,
-      file_data_name: 'file',
-      multi_selection: true,
-      max_file_size: '50mb',
-      filters: {
-        mime_types: [{ title: 'SVG', extensions: 'svg' }],
-        prevent_duplicates: false,
-        max_file_size: 0,
-      },
-      autoUpload: false,
-      method: {
-        FilesAdded(up, files) {
-          const tokenFiles = [];
-
-          // 渲染图片列表
-          files.forEach(item => {
-            let fileExt = `.${File.GetExt(item.name)}`;
-            tokenFiles.push({ bucket: 2, ext: fileExt });
-          });
-
-          getToken(tokenFiles, 5).then(res => {
-            files.forEach((item, i) => {
-              item.token = res[i].uptoken;
-              item.key = res[i].key;
-              item.serverName = res[i].serverName;
-              item.fileName = res[i].fileName;
-            });
-
-            up.start();
-          });
-        },
-        BeforeUpload(up, file) {
-          const fileExt = `.${File.GetExt(file.name)}`;
-
-          up.settings.multipart_params = { token: file.token };
-          up.settings.multipart_params.key = file.key;
-          up.settings.multipart_params['x:serverName'] = file.serverName;
-          up.settings.multipart_params['x:filePath'] = file.key.replace(file.fileName, '');
-          up.settings.multipart_params['x:fileName'] = file.fileName.replace(/\.[^\.]*$/, '');
-          up.settings.multipart_params['x:originalFileName'] = encodeURIComponent(
-            file.name.indexOf('.') > -1 ? file.name.split('.').slice(0, -1).join('.') : file.name,
-          );
-          up.settings.multipart_params['x:fileExt'] = fileExt;
-        },
-        FileUploaded(up, file, res) {
-          const data = JSON.parse(res.response);
-
-          _this.cacheData.push({
-            fileName: data.fileName,
-            originalFileName: data.originalFileName,
-            serverName: data.serverName,
-            key: data.key,
-          });
-        },
-        UploadComplete() {
-          ajaxRequest.addCustomIcon({ projectId, data: _this.cacheData }).then(() => {
-            _this.cacheData = [];
-            _this.getList();
-          });
-        },
-        Error(up, error) {
-          if (error.code === window.plupload.FILE_SIZE_ERROR) {
-            alert(_l('单个文件大小超过50m，无法支持上传'), 2);
-          } else {
-            alert(_l('上传失败，请稍后再试。'), 2);
-          }
-        },
-      },
-    });
   }
 
   /**
@@ -168,7 +84,7 @@ export default class CustomIcon extends Component {
   };
 
   render() {
-    const { onClose } = this.props;
+    const { onClose, projectId } = this.props;
     const { selected, data } = this.state;
 
     return (
@@ -180,14 +96,42 @@ export default class CustomIcon extends Component {
             <Icon icon="backspace" className="Font22 ThemeHoverColor3 pointer" onClick={onClose} />
             <div className="Font17 bold flex mLeft10">{_l('自定义图标')}</div>
           </div>
-          <div
-            className="ThemeBGColor3 ThemeHoverBGColor2 pointer White appManagementUploadBtn"
-            id="customIconBtn"
-            ref={el => (this.uploadFileEl = el)}
+
+          <QiniuUpload
+            options={{
+              filters: {
+                mime_types: [{ extensions: 'svg' }],
+              },
+              ext_blacklist: [],
+              bucket: 2,
+              type: 5,
+            }}
+            onUploaded={(up, files) => {
+              this.cacheData.push(files);
+            }}
+            onUploadComplete={res => {
+              if (res) {
+                const data = this.cacheData.map(file => ({
+                  fileName: file.fileName.replace(/\.[^\.]*$/, ''),
+                  originalFileName: file.originalFileName,
+                  serverName: file.serverName,
+                  key: file.key,
+                }));
+                ajaxRequest.addCustomIcon({ projectId, data }).then(() => {
+                  this.cacheData = [];
+                  this.getList();
+                });
+              }
+            }}
+            onError={(up, err, errTip) => {
+              alert(errTip, 2);
+            }}
           >
-            <Icon icon="add" className="Font18 mRight2" />
-            {_l('上传图标')}
-          </div>
+            <div className="ThemeBGColor3 ThemeHoverBGColor2 pointer White appManagementUploadBtn" id="customIconBtn">
+              <Icon icon="add" className="Font18 mRight2" />
+              {_l('上传图标')}
+            </div>
+          </QiniuUpload>
         </div>
         <div className="mTop16 mLeft24 mRight24">
           {!selected.length ? (

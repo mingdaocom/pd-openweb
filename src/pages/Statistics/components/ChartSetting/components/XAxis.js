@@ -123,6 +123,10 @@ export default class XAxis extends Component {
       isAlert && alert(_l('时间类型不能作为x轴维度'), 2);
       return false;
     }
+    if ([reportTypes.PieChart].includes(reportType) && yaxisList.length > 1) {
+      isAlert && alert(_l('多数值时不能同时配置维度'), 2);
+      return false;
+    }
     if ([reportTypes.BarChart, reportTypes.RadarChart].includes(reportType) && split.controlId && yaxisList.length > 1) {
       isAlert && alert(_l('多数值时不能同时配置维度和分组'), 2);
       return false;
@@ -225,8 +229,7 @@ export default class XAxis extends Component {
                 </Fragment>
               )}
             </Menu.SubMenu>
-            {/*
-            <Menu.SubMenu popupClassName="chartMenu" title={_l('数据格式')} popupOffset={[0, -15]}>
+            <Menu.SubMenu popupClassName="chartMenu" title={_l('日期格式')} popupOffset={[0, -15]}>
               {timeFormats.map(item => (
                 <Menu.Item
                   className="valignWrapper"
@@ -240,7 +243,6 @@ export default class XAxis extends Component {
                 </Menu.Item>
               ))}
             </Menu.SubMenu>
-            */}
           </Fragment>
         )}
         {isArea && (

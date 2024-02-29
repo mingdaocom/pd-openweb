@@ -48,12 +48,13 @@ export default ({
   navColor,
   iconColor,
   showRoleDebug,
-  canDebug = false,
+  debugRole = { canDebug: false },
   roleSelectValue = [],
   otherAllShow = true,
 }) => {
   const [roleEntryVisible, setRoleEntryVisible] = useState(true);
   const [loading, setLoading] = useState(false);
+  const canDebug = (debugRole || {}).canDebug || false;
 
   useEffect(() => {
     if (!canEditData(permissionType) && !canEditApp(permissionType, isLock)) {

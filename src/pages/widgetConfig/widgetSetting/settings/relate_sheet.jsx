@@ -17,15 +17,15 @@ import {
 } from '../../util/setting';
 import Sort from 'src/pages/widgetConfig/widgetSetting/components/sublist/Sort';
 import { getSortData } from 'src/pages/worksheet/util';
-import { EditInfo, SettingItem, RelateDetail } from '../../styled';
+import { EditInfo, SettingItem } from '../../styled';
 import { useSheetInfo } from '../../hooks';
-import { getFilterRelateControls, toEditWidgetPage } from '../../util';
+import { getFilterRelateControls } from '../../util';
 import sheetComponents from '../components/relateSheet';
 import DynamicDefaultValue from '../components/DynamicDefaultValue';
 import { WHOLE_SIZE } from '../../config/Drag';
 import WidgetVerify from '../components/WidgetVerify';
 import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
-import WidgetRowHeight from '../components/WidgetRowHeight';
+import RelateDetailInfo from '../components/RelateDetailInfo';
 
 const { ConfigRelate } = sheetComponents;
 
@@ -107,18 +107,8 @@ const CoverWrap = styled.div`
 
 export default function RelateSheet(props) {
   let { from, data, deleteWidget, onChange, globalSheetInfo, saveControls, status: { saveIndex = 0 } = {} } = props;
-  const { worksheetId: sourceId, appId: defaultAppId, name: defaultWorksheetName } = globalSheetInfo;
-  const {
-    controlId,
-    enumDefault = 1,
-    showControls,
-    sourceEntityName,
-    relationControls = [],
-    dataSource,
-    viewId,
-    coverCid,
-    sourceControl,
-  } = data;
+  const { worksheetId: sourceId } = globalSheetInfo;
+  const { controlId, enumDefault = 1, showControls, relationControls = [], dataSource, viewId, coverCid } = data;
   let {
     showtype = String(enumDefault),
     allowlink,
@@ -161,7 +151,6 @@ export default function RelateSheet(props) {
     }
   }, [dataSource, loading, data.controlId, enumDefault]);
 
-  const isListDisplay = String(showtype) === '2';
   const filterControls = getFilterRelateControls(relationControls, showControls);
   const titleControl = _.find(filterControls, item => item.attribute === 1);
 
@@ -249,34 +238,7 @@ export default function RelateSheet(props) {
   return (
     <RelateSheetWrap>
       {dataSource ? (
-        <RelateDetail>
-          <div className="text">{defaultWorksheetName}</div>
-          <i
-            className={cx(
-              'Font16 Gray_9e mRight6',
-              !_.get(sourceControl, 'controlId') ? 'icon-trending' : 'icon-sync1',
-            )}
-          />
-          <div
-            className="name flexCenter overflow_ellipsis"
-            onClick={() => {
-              const toPage = () =>
-                toEditWidgetPage({
-                  sourceId: dataSource,
-                  ...(!_.get(sourceControl, 'controlId') ? {} : { targetControl: sourceControl.controlId }),
-                  fromURL: 'newPage',
-                });
-              props.relateToNewPage(toPage);
-            }}
-          >
-            <span className="overflow_ellipsis pointer ThemeColor3 Bold" title={sourceEntityName}>
-              {sourceEntityName}
-            </span>
-            {!loading && defaultAppId !== worksheetInfo.appId && (
-              <span className="mLeft6">({worksheetInfo.appName})</span>
-            )}
-          </div>
-        </RelateDetail>
+        <RelateDetailInfo {...props} sheetInfo={worksheetInfo} />
       ) : (
         <ConfigRelate
           {...props}
@@ -447,7 +409,6 @@ export default function RelateSheet(props) {
           </RelateSheetCover>
         </SettingItem>
       )}
-      {isListDisplay && <WidgetRowHeight {...props} />}
       {showtype === '2' && (
         <SettingItem>
           <div className="settingItemTitle">{_l('排序')}</div>
@@ -461,7 +422,7 @@ export default function RelateSheet(props) {
                   const control = sortsRelationControls.find(({ controlId }) => item.controlId === controlId) || {};
                   const flag = item.isAsc === true ? 2 : 1;
                   const { text } = getSortData(control.type, control).find(item => item.value === flag);
-                  const value = control.controlId ? _l('%0: %1', control.controlName, text) : '';
+                  const value = control.controlId ? `${control.controlName}：${text}` : '';
                   return p ? `${p}；${value}` : value;
                 }, '')
               ) : (

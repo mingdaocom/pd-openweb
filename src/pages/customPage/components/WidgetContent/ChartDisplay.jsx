@@ -17,7 +17,7 @@ const ChartDisplay = props => {
     }
   }, []);
 
-  if (!window.share && filterComponents.length && loadFilterComponentCount < filterComponents.length) {
+  if (!_.get(window, 'shareState.shareId') && filterComponents.length && loadFilterComponentCount < filterComponents.length) {
     return (
       <div className="w100 h100 flexRow alignItemsCenter justifyContentCenter">
         <LoadDiv />

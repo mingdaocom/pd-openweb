@@ -36,19 +36,6 @@ export default {
      return $.api('ExternalPortal', 'GetAppIdByAddressSuffix', args, options);
    },
   /**
-  * 自定义地址后缀 是否重复
-  * @param {Object} args 请求参数
-  * @param {string} args.appId 应用Id
-  * @param {string} args.customeAddressSuffix 自定义地址后缀
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getCustomAddressSuffixIsRepeated: function (args, options = {}) {
-     
-     return $.api('ExternalPortal', 'GetCustomAddressSuffixIsRepeated', args, options);
-   },
-  /**
   * 获取 用户协议
   * @param {Object} args 请求参数
   * @param {string} args.appId AppId
@@ -110,18 +97,6 @@ export default {
      return $.api('ExternalPortal', 'GetConfig', args, options);
    },
   /**
-  * 获取 门户讨论配置
-  * @param {Object} args 请求参数
-  * @param {string} args.appId AppId
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getDiscussConfig: function (args, options = {}) {
-     
-     return $.api('ExternalPortal', 'GetDiscussConfig', args, options);
-   },
-  /**
   * 创建 外部门户讨论工作流
   * @param {Object} args 请求参数
   * @param {string} args.appId AppId
@@ -163,8 +138,8 @@ export default {
   * 保存外部门户配置(含外部用户自定义字段)
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用id
-  * @param {} args.portalSet 外部门户配置
-  * @param {} args.worksheetControls 自定义控件
+  * @param {} args.portalSet
+  * @param {} args.worksheetControls
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -189,12 +164,12 @@ export default {
   /**
   * 发送 验证码（登录后）
   * @param {Object} args 请求参数
-  * @param {string} args.account 手机号/邮箱
-  * @param {string} args.appId 应用ID
-  * @param {} args.codeType 验证码类型(不能为0) 1：注销；2：申请修改；3：绑定新账号;4:更新密码
   * @param {string} args.ticket 验证码返票据
   * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
+  * @param {} args.captchaType
+  * @param {string} args.account 手机号/邮箱
+  * @param {string} args.appId 应用ID
+  * @param {} args.codeType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -206,10 +181,10 @@ export default {
   /**
   * 检查 验证码
   * @param {Object} args 请求参数
+  * @param {string} args.appId AppId
   * @param {string} args.verifyCode 验证码
   * @param {string} args.account 账号：手机号/邮箱
-  * @param {} args.handleType 检查类型 1：注销；2：申请修改
-  * @param {string} args.appId AppId
+  * @param {} args.handleType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -233,9 +208,9 @@ export default {
   /**
   * 获取待收集信息
   * @param {Object} args 请求参数
+  * @param {string} args.appId AppId
   * @param {boolean} args.getSystem 是否获取系统字段，这里只会添加（name,phone）
   * @param {string} args.exAccountId 外部账户Id
-  * @param {string} args.appId AppId
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -243,20 +218,6 @@ export default {
    getUserCollect: function (args, options = {}) {
      
      return $.api('ExternalPortal', 'GetUserCollect', args, options);
-   },
-  /**
-  * 获取用户详情
-  * @param {Object} args 请求参数
-  * @param {string} args.appId
-  * @param {string} args.rowId
-  * @param {string} args.exAccountId
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getUserDetail: function (args, options = {}) {
-     
-     return $.api('ExternalPortal', 'GetUserDetail', args, options);
    },
   /**
   * 获取外部用户日志
@@ -314,17 +275,6 @@ export default {
    addExAccounts: function (args, options = {}) {
      
      return $.api('ExternalPortal', 'AddExAccounts', args, options);
-   },
-  /**
-  * 
-  * @param {Object} args 请求参数
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getSimple: function (args, options = {}) {
-     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return $.api('ExternalPortal', 'GetSimple', args, options);
    },
   /**
   * 重新邀请
@@ -389,7 +339,7 @@ export default {
   * 修改外部用户状态
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用Id
-  * @param {} args.newState 新状态
+  * @param {} args.newState
   * @param {array} args.rowIds 行Id
   * @param {array} args.exAccountIds 外部用户Id
   * @param {Object} options 配置参数
@@ -445,9 +395,9 @@ export default {
   /**
   * 外部用户 绑定新账户
   * @param {Object} args 请求参数
+  * @param {string} args.appId AppId
   * @param {string} args.verifyCode 验证码
   * @param {string} args.account 新手机号
-  * @param {string} args.appId AppId
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -459,9 +409,9 @@ export default {
   /**
   * 外部用户 修改新账户
   * @param {Object} args 请求参数
+  * @param {string} args.appId AppId
   * @param {string} args.verifyCode 验证码
   * @param {string} args.account 新手机号
-  * @param {string} args.appId AppId
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -524,7 +474,12 @@ export default {
   /**
   * 
   * @param {Object} args 请求参数
-  * @param {integer} args.potralStatus 状态  0 = 所有用户（不包含待审核），3 = 未审核
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType
+  * @param {string} args.clientId 客户端标识
+记录输入密码之后，页面刷新不用重复输入密码操作
+滑动过期
   * @param {string} args.worksheetId 工作表id
   * @param {} args.getType
   * @param {array} args.filterControls 查询列
@@ -535,8 +490,8 @@ export default {
   * @param {string} args.keyWords 关键词
   * @param {integer} args.pageSize 页大小
   * @param {integer} args.pageIndex 页码
-  * @param {} args.searchType 搜索类型
-  * @param {} args.status 状态
+  * @param {} args.searchType
+  * @param {} args.status
   * @param {boolean} args.isUnRead 是否已读
   * @param {boolean} args.isGetWorksheet 是否查询工作表的详情
   * @param {string} args.viewId 视图Id
@@ -555,12 +510,7 @@ export default {
   * @param {string} args.reportId 统计图ID
   * @param {boolean} args.notGetTotal 不获取总记录数
   * @param {object} args.requestParams 请求参数
-  * @param {string} args.clientId 客户端标识
-记录输入密码之后，页面刷新不用重复输入密码操作
-滑动过期
-  * @param {string} args.ticket 验证码返票据
-  * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
+  * @param {integer} args.potralStatus 状态  0 = 所有用户（不包含待审核），3 = 未审核
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -674,14 +624,14 @@ export default {
   * @param {array} args.userIds 角色成员id集合
   * @param {array} args.pages 自定义页面
   * @param {array} args.extendAttrs 用户扩展权限字段
-  * @param {} args.generalAdd 是否启用 通用新增
-  * @param {} args.gneralShare 是否启用 通用分享
-  * @param {} args.generalImport 是否启用 通用导入
-  * @param {} args.generalExport 是否启用 通用导出
-  * @param {} args.generalDiscussion 是否启用 通用讨论
-  * @param {} args.generalSystemPrinting 是否启用 通用系统打印
-  * @param {} args.generalAttachmentDownload 是否启用 通用附件下载
-  * @param {} args.generalLogging 是否启用 通用日志
+  * @param {} args.generalAdd
+  * @param {} args.gneralShare
+  * @param {} args.generalImport
+  * @param {} args.generalExport
+  * @param {} args.generalDiscussion
+  * @param {} args.generalSystemPrinting
+  * @param {} args.generalAttachmentDownload
+  * @param {} args.generalLogging
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -708,7 +658,7 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用id
   * @param {string} args.roleId 角色id
-  * @param {} args.appRoleModel 角色配置实体
+  * @param {} args.appRoleModel
   * @param {string} args.projectId 网络id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -734,12 +684,13 @@ export default {
   /**
   * 发送外部门户验证码
   * @param {Object} args 请求参数
-  * @param {string} args.account 账号：手机号/邮箱
-  * @param {string} args.appId 应用ID
-  * @param {} args.verifyCodeType 类型短信或语音
   * @param {string} args.ticket 验证码返票据
   * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
+  * @param {} args.captchaType
+  * @param {string} args.account 账号：手机号/邮箱
+  * @param {string} args.appId 应用ID
+  * @param {} args.lang
+  * @param {} args.verifyCodeType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -764,15 +715,15 @@ export default {
   /**
   * 外部门户验证码登录与注册
   * @param {Object} args 请求参数
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType
   * @param {string} args.account 账号
   * @param {string} args.verifyCode 验证码
   * @param {string} args.appId 应用ID
   * @param {string} args.state 微信登录成功之后返回的临时状态码
 用于反向存储微信相关信息，具备有效期
   * @param {boolean} args.autoLogin 是否自动登录
-  * @param {string} args.ticket 验证码返票据
-  * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -784,14 +735,14 @@ export default {
   /**
   * 外部门户密码登录与注册
   * @param {Object} args 请求参数
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType
   * @param {string} args.account 账号
   * @param {string} args.password 前端RSA加密过后的密码
   * @param {string} args.appId 应用ID
   * @param {string} args.verifyCode 验证码
   * @param {boolean} args.autoLogin 是否自动登录
-  * @param {string} args.ticket 验证码返票据
-  * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -803,14 +754,14 @@ export default {
   /**
   * 外部门户两步验证登录
   * @param {Object} args 请求参数
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType
   * @param {string} args.state 首次登录成功之后返回的临时状态码
 用于反向存储用户相关信息，具备有效期
   * @param {string} args.account 账号
   * @param {string} args.verifyCode 验证码
   * @param {boolean} args.autoLogin 是否自动登录
-  * @param {string} args.ticket 验证码返票据
-  * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -944,13 +895,13 @@ export default {
   /**
   * 外部门户用户修改/找回密码
   * @param {Object} args 请求参数
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType
   * @param {string} args.account 账号
   * @param {string} args.password 前端RSA加密过后的密码
   * @param {string} args.appId 应用ID
   * @param {string} args.verifyCode 验证码
-  * @param {string} args.ticket 验证码返票据
-  * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

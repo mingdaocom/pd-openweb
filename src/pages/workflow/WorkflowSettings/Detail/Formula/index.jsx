@@ -74,12 +74,18 @@ export default class Formula extends Component {
   /**
    * 获取节点详情
    */
-  getNodeDetail(props, { appId } = {}) {
+  getNodeDetail(props, { sId } = {}) {
     const { processId, selectNodeId, selectNodeType } = props;
 
-    flowNode.getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, appId }).then(result => {
-      this.setState({ data: result });
-    });
+    flowNode
+      .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, selectNodeId: sId })
+      .then(result => {
+        if (result.actionId === ACTION_ID.CUSTOM_ACTION_TOTAL && !result.selectNodeId) {
+          this.getNodeDetail(props, { sId: result.flowNodeList[0].nodeId });
+        } else {
+          this.setState({ data: result });
+        }
+      });
   }
 
   /**
@@ -138,7 +144,7 @@ export default class Formula extends Component {
       return;
     }
 
-    if (actionId === ACTION_ID.OBJECT_TOTAL && !selectNodeId) {
+    if (_.includes([ACTION_ID.OBJECT_TOTAL, ACTION_ID.CUSTOM_ACTION_TOTAL], actionId) && !selectNodeId) {
       alert(_l('必须先选择一个对象'), 2);
       return;
     }
@@ -768,10 +774,6 @@ export default class Formula extends Component {
         className: 'Gray_75',
       },
     ];
-    const getTotalTypes = controlId => {
-      const currentControl = _.find(data.controls, o => o.controlId === controlId);
-      return getSummaryInfo(currentControl.type, currentControl);
-    };
 
     return (
       <Fragment>
@@ -841,68 +843,83 @@ export default class Formula extends Component {
               </div>
             )}
 
-            <div className="mTop20 bold">{_l('汇总')}</div>
-            <div className="mTop10 flexRow">
-              <Dropdown
-                className="flowDropdown flex"
-                data={[{ text: _l('记录数量'), value: '' }].concat(
-                  data.controls
-                    .filter(o => o.controlId.length === 24)
-                    .map(o => {
-                      return {
-                        text: (
-                          <Fragment>
-                            <span className="Gray_9e mRight5">[{CONTROLS_NAME[o.type]}]</span>
-                            <span>{o.controlName}</span>
-                          </Fragment>
-                        ),
-                        value: o.controlId,
-                        searchText: o.controlName,
-                      };
-                    }),
-                )}
-                openSearch
-                value={data.reportControlId}
-                border
-                renderTitle={
-                  data.reportControlId
-                    ? () => {
-                        const controlName = data.controls.find(o => o.controlId === data.reportControlId).controlName;
-                        return (
-                          <span className={cx({ errorColor: !controlName })}>{controlName || _l('字段已删除')}</span>
-                        );
-                      }
-                    : null
-                }
-                onChange={reportControlId => {
-                  if (reportControlId) {
-                    this.updateSource({ reportControlId, reportType: getTotalTypes(reportControlId).default });
-                  } else {
-                    this.updateSource({ reportControlId, reportType: 0 });
-                  }
-                }}
-              />
-              <div className="flex mLeft10">
-                {!!data.reportControlId && (
-                  <Dropdown
-                    className="flowDropdown"
-                    data={getTotalTypes(data.reportControlId)
-                      .list.filter(o => o && o.value)
-                      .map(o => {
-                        return {
-                          text: o.label,
-                          value: o.value,
-                        };
-                      })}
-                    value={data.reportType}
-                    border
-                    onChange={reportType => this.updateSource({ reportType })}
-                  />
-                )}
-              </div>
-            </div>
+            {this.renderTotalMethod()}
           </Fragment>
         )}
+      </Fragment>
+    );
+  }
+
+  /**
+   * 渲染汇总方式
+   */
+  renderTotalMethod() {
+    const { data } = this.state;
+    const getTotalTypes = controlId => {
+      const currentControl = _.find(data.controls, o => o.controlId === controlId);
+      return getSummaryInfo(currentControl.type, currentControl);
+    };
+
+    return (
+      <Fragment>
+        <div className="mTop20 bold">{_l('汇总')}</div>
+        <div className="mTop10 flexRow">
+          <Dropdown
+            className="flowDropdown flex"
+            data={[{ text: _l('记录数量'), value: '' }].concat(
+              data.controls
+                .filter(o => o.controlId.length === 24)
+                .map(o => {
+                  return {
+                    text: (
+                      <Fragment>
+                        <span className="Gray_9e mRight5">[{CONTROLS_NAME[o.type]}]</span>
+                        <span>{o.controlName}</span>
+                      </Fragment>
+                    ),
+                    value: o.controlId,
+                    searchText: o.controlName,
+                  };
+                }),
+            )}
+            openSearch
+            value={data.reportControlId}
+            border
+            renderTitle={
+              data.reportControlId
+                ? () => {
+                    const controlName = data.controls.find(o => o.controlId === data.reportControlId).controlName;
+                    return <span className={cx({ errorColor: !controlName })}>{controlName || _l('字段已删除')}</span>;
+                  }
+                : null
+            }
+            onChange={reportControlId => {
+              if (reportControlId) {
+                this.updateSource({ reportControlId, reportType: getTotalTypes(reportControlId).default });
+              } else {
+                this.updateSource({ reportControlId, reportType: 0 });
+              }
+            }}
+          />
+          <div className="flex mLeft10">
+            {!!data.reportControlId && (
+              <Dropdown
+                className="flowDropdown"
+                data={getTotalTypes(data.reportControlId)
+                  .list.filter(o => o && o.value)
+                  .map(o => {
+                    return {
+                      text: o.label,
+                      value: o.value,
+                    };
+                  })}
+                value={data.reportType}
+                border
+                onChange={reportType => this.updateSource({ reportType })}
+              />
+            )}
+          </div>
+        </div>
       </Fragment>
     );
   }
@@ -932,6 +949,31 @@ export default class Formula extends Component {
     this.updateSource({ appId, appList, filters: [], controls: [], reportControlId: '', reportType: 0 }, getControls);
   };
 
+  /**
+   * 渲染自定义动作多条汇总
+   */
+  renderCustomActionTotalContent() {
+    const { data } = this.state;
+
+    return (
+      <Fragment>
+        <div className="Font14 Gray_75 workflowDetailDesc">
+          {_l('对自定义动作触发工作流中的批量数据源进行汇总计算，如：记录数量、求和、平均、最大、最小等。')}
+        </div>
+
+        <div className="mTop20 bold">{_l('汇总对象')}</div>
+        <SelectNodeObject
+          appList={data.flowNodeList}
+          selectNodeId={data.selectNodeId}
+          selectNodeObj={data.selectNodeObj}
+          onChange={sId => this.getNodeDetail(this.props, { sId })}
+        />
+
+        {data.selectNodeId && this.renderTotalMethod()}
+      </Fragment>
+    );
+  }
+
   render() {
     const { data, showOtherWorksheet } = this.state;
 
@@ -945,7 +987,10 @@ export default class Formula extends Component {
           {...this.props}
           data={{ ...data }}
           icon={
-            _.includes([ACTION_ID.OBJECT_TOTAL, ACTION_ID.WORKSHEET_TOTAL], data.actionId)
+            _.includes(
+              [ACTION_ID.OBJECT_TOTAL, ACTION_ID.WORKSHEET_TOTAL, ACTION_ID.CUSTOM_ACTION_TOTAL],
+              data.actionId,
+            )
               ? 'icon-sigma'
               : 'icon-workflow_function'
           }
@@ -961,10 +1006,11 @@ export default class Formula extends Component {
               {data.actionId === ACTION_ID.OBJECT_TOTAL && this.renderObjectTotalContent()}
               {data.actionId === ACTION_ID.FUNCTION_CALCULATION && this.renderFunctionExecContent()}
               {data.actionId === ACTION_ID.WORKSHEET_TOTAL && this.renderWorksheetTotalContent()}
+              {data.actionId === ACTION_ID.CUSTOM_ACTION_TOTAL && this.renderCustomActionTotalContent()}
 
               {(data.appId || data.actionId !== ACTION_ID.WORKSHEET_TOTAL) && (
                 <FindMode
-                  isFormula={data.actionId !== ACTION_ID.WORKSHEET_TOTAL}
+                  isFormula={!_.includes([ACTION_ID.WORKSHEET_TOTAL, ACTION_ID.CUSTOM_ACTION_TOTAL], data.actionId)}
                   execute={data.execute}
                   onChange={execute => this.updateSource({ execute })}
                 />
@@ -981,7 +1027,7 @@ export default class Formula extends Component {
             (data.actionId === ACTION_ID.DATE_DIFF_FORMULA &&
               (data.startTime.fieldValue || data.startTime.fieldControlId) &&
               (data.endTime.fieldValue || data.endTime.fieldControlId)) ||
-            (data.actionId === ACTION_ID.OBJECT_TOTAL && data.selectNodeId) ||
+            (_.includes([ACTION_ID.OBJECT_TOTAL, ACTION_ID.CUSTOM_ACTION_TOTAL], data.actionId) && data.selectNodeId) ||
             (data.actionId === ACTION_ID.FUNCTION_CALCULATION && data.formulaValue) ||
             (data.actionId === ACTION_ID.WORKSHEET_TOTAL && data.appId)
           }

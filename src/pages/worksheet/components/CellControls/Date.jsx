@@ -160,7 +160,7 @@ export default class Date extends React.Component {
                 <DatePicker
                   {...cell}
                   {...(tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST ? { value } : {})}
-                  formData={rowFormData()}
+                  formData={_.isFunction(rowFormData) ? rowFormData() : rowFormData}
                   masterData={masterData()}
                   dropdownClassName="scrollInTable"
                   onChange={this.handleChange}

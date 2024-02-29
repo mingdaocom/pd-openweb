@@ -25,6 +25,7 @@ const ShadowCon = styled.div`
 `;
 
 const HIDDEN_CONTROL_IDS = ['rowid'];
+const NOT_LOGIN_HIDDEN_TYPES = [26, 27, 21, 48];
 
 const Shadow = styled.div`
   margin-top: 6px;
@@ -167,13 +168,14 @@ export default function RecordForm(props) {
       </div>
     );
   }
+  const dealFrom = recordId && from !== 21 ? 3 : 2;
   const getRulesData = updateRulesData({
-    from: recordId && from !== 21 ? 3 : 2,
+    from: dealFrom,
     rules: recordinfo.rules,
     data: formdata,
     recordId,
   })
-    .filter(control => controlState(control, recordId && from !== 21 ? 3 : 2).visible)
+    .filter(control => controlState(control, dealFrom).visible)
     .map(c =>
       Object.assign(!ignoreLock && isLock ? { ...c, disabled: true } : c, {
         isDraft: from === RECORD_INFO_FROM.DRAFT,
@@ -185,7 +187,7 @@ export default function RecordForm(props) {
   const tabControls = tabData.filter(tab => {
     if (tab.type === 52) {
       const childWidgets = getRulesData.filter(i => i.sectionId === tab.controlId);
-      return !_.every(childWidgets, c => !(controlState(c, from).visible && !c.hidden));
+      return !_.every(childWidgets, c => !(controlState(c, dealFrom).visible && !c.hidden));
     }
     return true;
   });
@@ -361,7 +363,11 @@ export default function RecordForm(props) {
                   flag={formFlag}
                   widgetStyle={widgetStyle}
                   controlProps={controlProps}
-                  data={formdata.filter(c => !_.includes(HIDDEN_CONTROL_IDS, c.controlId))}
+                  data={formdata.filter(
+                    c =>
+                      !_.includes(HIDDEN_CONTROL_IDS, c.controlId) &&
+                      !(_.get(window, 'shareState.isPublicForm') && _.includes(NOT_LOGIN_HIDDEN_TYPES, c.type)),
+                  )}
                   systemControlData={systemControlData}
                   rules={recordinfo.rules}
                   isWorksheetQuery={recordinfo.isWorksheetQuery}

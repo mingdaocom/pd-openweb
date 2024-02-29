@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import update from 'immutability-helper';
 import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
-import { getSubListError, filterHidedSubList } from 'worksheet/util';
+import { getSubListError, filterHidedSubList, handleChildTableUniqueError } from 'worksheet/util';
 import CustomFields from 'src/components/newCustomFields';
 import useWorksheetRowProvider from '../WorksheetRecordProvider';
 import './FillRecordControls.less';
@@ -164,7 +164,7 @@ class FillRecordControls extends React.Component {
     this.setState({ submitLoading: true });
     this.customwidget.current.submitFormData();
   }
-  async onSave(error, { data, updateControlIds }) {
+  async onSave(error, { data, updateControlIds, handleRuleError }) {
     if (error) {
       this.setState({ submitLoading: false });
       return;
@@ -247,9 +247,15 @@ class FillRecordControls extends React.Component {
         ..._.pick(this.props, ['appId', 'projectId', 'worksheetId', 'viewId', 'recordId']),
       },
       this.customwidget.current,
-      err => {
+      (err, res) => {
         if (err) {
           this.setState({ isSubmitting: false, submitLoading: false });
+        }
+        if (res && res.resultCode === 22) {
+          handleChildTableUniqueError({ badData: res.badData, data, cellObjs: this.cellObjs });
+        }
+        if (res && res.resultCode === 32) {
+          handleRuleError(res.badData, this.cellObjs);
         }
       },
     );

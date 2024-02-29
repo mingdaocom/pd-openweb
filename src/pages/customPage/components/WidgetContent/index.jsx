@@ -17,6 +17,7 @@ import Tools from './Tools';
 import WidthProvider from './widthProvider';
 import { COLUMN_HEIGHT } from '../../config';
 import { v4 as uuidv4 } from 'uuid';
+import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
 
 const AutoWidthGridLayout = WidthProvider(GridLayout);
 
@@ -77,6 +78,7 @@ const LayoutContent = styled.div`
     }
     .g2-tooltip {
       position: fixed !important;
+      z-index: 10 !important;
     }
   }
   .iframeNoneEvent iframe {
@@ -182,7 +184,7 @@ function WidgetContent(props) {
   }, [$input.current]);
   */
 
-  const handleToolClick = (clickType, { widget, index }) => {
+  const handleToolClick = (clickType, { widget, index, result }) => {
     switch (clickType) {
       case 'setting':
         setWidget(widget);
@@ -229,13 +231,13 @@ function WidgetContent(props) {
             config: update(widget.config, {
               mobileCount: {
                 $apply: (item = 1) => {
-                  return item === 1 ? 2 : 1;
+                  return item === 4 ? 1 : (item + 1);
                 }
               }
             })
           });
         } else {
-          const { btnType, direction } = widget.button.config || {};
+          const { btnType, direction } = _.get(widget, 'button.config') || {};
           updateWidget({
             widget,
             button: update(widget.button, {
@@ -253,6 +255,18 @@ function WidgetContent(props) {
           });
         }
         break;
+      case 'changeFontSize':
+          updateWidget({
+            widget,
+            config: update(widget.config, {
+              mobileFontSize: {
+                $apply: (item) => {
+                  return result;
+                }
+              }
+            })
+          });
+      break;
       default:
         break;
     }
@@ -298,7 +312,7 @@ function WidgetContent(props) {
         }}
         // draggableHandle=".customPageDraggableHandle"
         layout={getLayout(components)}
-        onLayoutChange={layouts => updateLayout({ layouts, layoutType, components })}
+        onLayoutChange={layouts => updateLayout({ layouts, layoutType, components, adjustScreen })}
         {...getLayoutConfig()}
       >
         {components.map((widget, index) => {
@@ -332,7 +346,7 @@ function WidgetContent(props) {
                   widget={widget}
                   editingWidget={editingWidget}
                   ids={ids}
-                  isCharge={isCharge}
+                  isCharge={isCharge && !(appPkg.isLock || appPkg.permissionType === APP_ROLE_TYPE.RUNNER_ROLE)}
                   config={config}
                   themeColor={appPkg.iconColor || apk.iconColor}
                   isLock={appPkg.isLock}
@@ -353,7 +367,7 @@ function WidgetContent(props) {
                     widget={widget}
                     layoutType={layoutType}
                     titleVisible={titleVisible}
-                    handleToolClick={clickType => handleToolClick(clickType, { widget, index })}
+                    handleToolClick={(clickType, result) => handleToolClick(clickType, { widget, index, result })}
                     updatePageInfo={updatePageInfo}
                   />
                 )}

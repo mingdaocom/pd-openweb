@@ -268,14 +268,20 @@ export const getFields = async ({
   isDestAppType = true,
   withRowId,
   withSys,
+  destType,
 }) => {
   let { dsType, workSheetId, tableName, dbName, schema, datasourceId, dataDestId } =
     _.get(node, ['nodeConfig', 'config']) || {};
   if (dsType === DATABASE_TYPE.APPLICATION_WORKSHEET) {
     const res = await worksheetApi.getWorksheetInfo({ worksheetId: workSheetId, getTemplate: true });
+    const resFields = isGetDest
+      ? _.get(res, 'template.controls') || []
+      : (_.get(res, 'template.controls') || []).map(o => {
+          return { ...o, alias: o.controlName };
+        });
     const fieldsParams = getInitWorkSheetFields(
-      _.get(res, 'template.controls') || [],
-      !isGetDest,
+      resFields,
+      isGetDest,
       isSourceAppType,
       isDestAppType,
       workSheetId,
@@ -295,6 +301,7 @@ export const getFields = async ({
       dbName,
       schema,
       tableName,
+      destType,
     };
     const res = await dataSourceApi.getTableFields(params, { fireImmediately: true });
     return res;
@@ -358,8 +365,14 @@ export const formatFieldsByType = list => {
   return initWorkSheetFields;
 };
 
-export const hsMorePkControl = preNode => {
-  return (_.get(preNode, 'nodeConfig.fields') || []).filter(o => o.isPk).length > 1;
+export const hsMorePkControl = (preNode, list) => {
+  //多源且多主键的情况 或者单个源，且不存在后端拼接的主键的情况下
+  const pks = (_.get(preNode, 'nodeConfig.fields') || []).filter(o => o.isPk);
+  const sourceNodes = list.filter(o => ['SOURCE_TABLE'].includes(o.nodeType));
+  return (
+    (pks.length > 1 && sourceNodes.length > 1) ||
+    (sourceNodes.length === 1 && pks.length > 1 && !pks.map(o => o.fid).includes('composite_primary_key'))
+  );
 };
 
 export const getUnionFeids = (defaultFields = [], list, node) => {
@@ -395,14 +408,14 @@ export const getUnionFeids = (defaultFields = [], list, node) => {
 export const setAllUnionFieldsCheck = (fieldList, setCheck) => {
   const fields = setCheck
     ? fieldList.map(it => {
-      return {
-        ...it,
-        resultField: {
-          ...it.resultField,
-          isCheck: true,
-        },
-      };
-    })
+        return {
+          ...it,
+          resultField: {
+            ...it.resultField,
+            isCheck: true,
+          },
+        };
+      })
     : fieldList;
   return fields.map(o => {
     let data = fields.filter(it => _.get(it, 'resultField.alias') === _.get(o, 'resultField.alias'));

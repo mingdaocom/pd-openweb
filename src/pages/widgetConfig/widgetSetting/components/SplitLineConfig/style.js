@@ -143,7 +143,7 @@ export const SectionItemWrap = styled.div`
     flex: 1;
     display: flex;
     justify-content: flex-start;
-    cursor: ${props => (props.hidetitle ? 'default' : 'pointer')};
+    cursor: ${props => (props.hidetitle && props.enumDefault2 === 0 ? 'default' : 'pointer')};
     ${props => (props.hidetitle ? ' align-items: center' : ' padding: 10px 0')};
     .Width20 {
       width: 20px;
@@ -188,7 +188,9 @@ export const SectionItemWrap = styled.div`
     margin-left: 8px;
     border-radius: 5px;
     cursor: ${props => (props.hidetitle ? 'default' : 'pointer')};
-    ${props => (props.visible ? 'transform: rotate(180deg)' : '')};
+    .iconBox {
+      ${props => (props.visible ? 'transform: rotate(180deg); transition: transform 0.2s ease-in-out;' : '')};
+    }
     i {
       color: #000000;
     }
@@ -228,7 +230,6 @@ export const SectionItemWrap = styled.div`
       height: unset;
       line-height: unset;
       margin-left: 12px;
-      ${props => (props.visible ? 'transform: rotate(180deg)' : '')};
       i {
         color: #9e9e9e;
       }

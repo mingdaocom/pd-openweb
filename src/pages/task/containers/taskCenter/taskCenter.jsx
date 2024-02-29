@@ -137,7 +137,6 @@ class TaskCenter extends Component {
           !$target.parent().is('.subItem') &&
           $target.closest('.messageDiv').length <= 0 &&
           $target.closest('#batchTaskFolder_autocomplete').length <= 0 &&
-          !$target.closest('.businessCardSite').length &&
           $target.closest('#chooseInviteDialog').length <= 0 &&
           $target.closest('#chooseInviteDialogoverlay').length <= 0 &&
           !$target.closest('.quickSelectUser').length &&

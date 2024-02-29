@@ -65,9 +65,7 @@ const SortableItem = SortableElement(props => {
         allowDownload &&
         md.global.Account.accountId &&
         !md.global.Account.isPortal &&
-        !window.share &&
-        !location.href.includes('public/query') &&
-        !_.get(window, 'shareState.isPublicForm'),
+        !_.get(window, 'shareState.shareId'),
       isDownload: isKc ? data.allowDown === 'ok' : data.accountId === md.global.Account.accountId || isPicture || data.allowDown === 'ok',
     });
   } else {
@@ -235,7 +233,7 @@ const Files = props => {
         path: item.previewUrl
           ? `${item.previewUrl}`
           : item.url
-          ? `${item.url}&imageView2/1/w/200/h/140`
+          ? `${item.url}${item.url.includes('?') ? '&' : '?'}imageView2/1/w/200/h/140`
           : `${item.serverName}${item.key}`,
         previewAttachmentType: 'QINIU',
         size: item.fileSize,

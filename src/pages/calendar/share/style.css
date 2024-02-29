@@ -140,7 +140,7 @@ header.joinStyle{
   min-height: 330px;
 }
 .icons{
-  background: url("/images/calendar/bg.png") no-repeat;
+  background: url("/staticfiles/images/calendar/bg.png") no-repeat;
   background-size: 140px 80px;
   position: absolute;
   left: 18px;
@@ -239,7 +239,7 @@ header.joinStyle{
   display: inline-block;
 }
 .folderListItemIcon span{
-  background-image: url("/images/calendar/type.png");
+  background-image: url("/staticfiles/images/calendar/type.png");
   background-size: 170px 40px;
   width: 33px;
   height: 40px;

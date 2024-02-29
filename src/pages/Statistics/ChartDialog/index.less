@@ -445,6 +445,20 @@
     &.ant-select-single.ant-select-open .ant-select-selection-item {
       color: inherit;
     }
+/*    &.ant-select-multiple .ant-select-selection-overflow {
+      height: 25px !important;
+      line-height: 25px !important;
+    }*/
+    &.ant-select-multiple .ant-select-selector {
+      height: auto;
+      line-height: auto;
+      .ant-select-selection-overflow-item {
+        line-height: 28px
+      }
+      .ant-tag-close-icon:hover svg {
+        fill: #2296F3;
+      }
+    }
   }
 }
 
@@ -475,6 +489,9 @@
     .icon-expand_less, .icon-expand_more {
       line-height: 10px;
     }
+    &.ant-picker-range .ant-picker-input > input {
+      font-size: 13px;
+    }
   }
   .chartColorInput {
     &:hover, &:focus {
@@ -488,6 +505,26 @@
     }
     .ant-input-suffix {
       width: 38px !important;
+    }
+  }
+  .addonBeforeWrapper {
+    position: relative;
+    .ant-select {
+      position: absolute;
+      z-index: 1;
+      border-right: 1px solid #d9d9d9;
+    }
+    .ant-select-selector {
+      width: 80px !important;
+      border: none !important;
+      background-color: transparent !important;
+      height: 28px !important;
+      &:hover {
+        border-color: #d9d9d9;
+      }
+    }
+    .ant-select-arrow {
+      right: 4px;
     }
   }
 }

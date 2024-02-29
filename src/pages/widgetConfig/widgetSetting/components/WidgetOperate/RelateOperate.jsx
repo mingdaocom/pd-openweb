@@ -3,8 +3,9 @@ import cx from 'classnames';
 import { isEmpty } from 'lodash';
 import { useSetState } from 'react-use';
 import { Checkbox, Dropdown } from 'ming-ui';
+import { Tooltip } from 'antd';
 import { formatViewToDropdown } from '../../../util';
-import { SheetViewWrap } from '../../../styled';
+import { SettingItem, SheetViewWrap } from '../../../styled';
 import { SYSTEM_CONTROL } from '../../../config/widget';
 import { FilterItemTexts, FilterDialog } from '../../components/FilterData';
 import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
@@ -20,11 +21,16 @@ export default function RelateOperate(props) {
     allowcancel = '1',
     openview = '',
     searchrange = '1',
+    allowdelete = '1',
+    allowexport = '1',
+    showquick = '1',
+    allowbatch = '0',
   } = getAdvanceSetting(data);
   const filters = getAdvanceSetting(data, 'filters');
   const { loading, views = [], controls = [] } = window.subListSheetConfig[controlId] || {};
   const selectedViewIsDeleted = !loading && viewId && !_.find(views, sheet => sheet.viewId === viewId);
   const selectedOpenViewIsDelete = !loading && openview && !_.find(views, sheet => sheet.viewId === openview);
+  const isList = enumDefault === 2 && showtype === '2';
 
   const [{ filterVisible }, setState] = useSetState({
     filterVisible: false,
@@ -58,13 +64,12 @@ export default function RelateOperate(props) {
       {_.includes([0, 1], enumDefault2) && (
         <Fragment>
           <SheetViewWrap>
-            <div className="viewCon">{_l('权限')}</div>
             <Dropdown
               border
               className="flex"
               data={[
-                { text: _l('所有记录'), value: '1' },
-                { text: _l('有查看权限的记录'), value: '0' },
+                { text: _l('全部'), value: '1' },
+                { text: _l('有查看权限的'), value: '0' },
               ]}
               value={searchrange}
               onChange={value => {
@@ -164,6 +169,16 @@ export default function RelateOperate(props) {
           />
         </div>
       )}
+      {isList && (
+        <div className="labelWrap">
+          <Checkbox
+            size="small"
+            text={_l('允许删除记录')}
+            checked={allowdelete !== '0'}
+            onClick={checked => onChange(handleAdvancedSettingChange(data, { allowdelete: String(+!checked) }))}
+          />
+        </div>
+      )}
       <div className="labelWrap mTop8 mBottom8">
         <Checkbox
           size="small"
@@ -199,6 +214,44 @@ export default function RelateOperate(props) {
           />
         </SheetViewWrap>
       ) : null}
+
+      {isList && (
+        <SettingItem>
+          <div className=" settingItemTitle">{_l('其他')}</div>
+          <div className="labelWrap">
+            <Checkbox
+              size="small"
+              checked={allowexport === '1'}
+              onClick={checked => onChange(handleAdvancedSettingChange(data, { allowexport: String(+!checked) }))}
+            >
+              <span style={{ marginRight: '4px' }}>{_l('允许导出')}</span>
+              <Tooltip placement="bottom" title={_l('勾选后支持在主记录详情中将已关联的记录导出为 Excel')}>
+                <i className="icon-help Gray_9e Font16"></i>
+              </Tooltip>
+            </Checkbox>
+          </div>
+          <div className="labelWrap">
+            <Checkbox
+              size="small"
+              text={_l('允许批量操作')}
+              checked={allowbatch === '1'}
+              onClick={checked => onChange(handleAdvancedSettingChange(data, { allowbatch: String(+!checked) }))}
+            />
+          </div>
+          <div className="labelWrap">
+            <Checkbox
+              size="small"
+              checked={showquick === '1'}
+              onClick={checked => onChange(handleAdvancedSettingChange(data, { showquick: String(+!checked) }))}
+            >
+              <span style={{ marginRight: '4px' }}>{_l('显示记录快捷方式')}</span>
+              <Tooltip placement="bottom" title={_l('点击后可以在下拉菜单中进行记录的其他操作')}>
+                <i className="icon-help Gray_9e Font16"></i>
+              </Tooltip>
+            </Checkbox>
+          </div>
+        </SettingItem>
+      )}
     </Fragment>
   );
 }

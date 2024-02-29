@@ -24,7 +24,7 @@ const CRED_TYPES = [
 export default function Cred({ data, onChange }) {
   return (
     <SettingItem>
-      <div className="settingItemTitle">{_l('证件类型')}</div>
+      <div className="settingItemTitle">{_l('类型')}</div>
       <Dropdown
         border
         isAppendToBody

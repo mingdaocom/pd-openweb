@@ -8,6 +8,7 @@ import Drag from '../WorkSheetLeft/Drag';
 import { canEditData, canEditApp } from 'src/pages/worksheet/redux/actions/util';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import { getEmbedValue } from 'src/components/newCustomFields/tools/utils.js';
+import { getTranslateInfo } from 'src/util';
 
 const AppItem = props => {
   const { appItem, appPkg, projectId, appId, groupId, isCharge } = props;
@@ -54,7 +55,7 @@ const AppItem = props => {
         <SvgIcon url={iconUrl} fill={iconColor} size={44} />
       </div>
       <div className="nameWrap flexRow alignItemsCenter justifyContentCenter">
-        <span className="Gray">{appItem.workSheetName}</span>
+        <span className="Gray">{getTranslateInfo(appId, workSheetId).name || appItem.workSheetName}</span>
       </div>
     </Fragment>
   );

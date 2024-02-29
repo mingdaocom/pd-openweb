@@ -26,7 +26,17 @@ export default class Widgets extends Component {
       content = formatFormulaDate({ value, unit, dot });
     } else if (enumDefault === 1 || enumDefault === 3) {
       const prefix = advancedSetting.prefix || '';
-      const suffix = advancedSetting.suffix || '';
+      const suffix =
+        advancedSetting.suffix ||
+        {
+          1: _l('分钟'),
+          2: _l('小时'),
+          3: _l('天'),
+          4: _l('月'),
+          5: _l('年'),
+          6: _l('秒'),
+        }[unit] ||
+        '';
       const hideUnit = !!prefix || !!suffix;
       let formatValue = toFixed(value, dot);
       if (advancedSetting.dotformat === '1') {

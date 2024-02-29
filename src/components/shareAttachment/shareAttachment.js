@@ -1,13 +1,12 @@
 ﻿import './style.less';
-import 'src/components/select/select';
 import { formatFileSize } from 'src/util';
 import copy from 'copy-to-clipboard';
 import doT from 'dot';
 import mainHtml from './tpl/main.htm';
 import searchListHtml from './tpl/searchList.htm';
 import searchListItemHtml from './tpl/searchListItem.htm';
-import s from 'src/components/common/mstc/s/s';
-import c from 'src/components/common/mstc/c/c';
+import createFeed from 'src/pages/feed/components/createFeed';
+import createCalendar from 'src/components/createCalendar/createCalendar';
 import saveToKnowledge from 'src/components/saveToKnowledge/saveToKnowledge';
 import KcController from 'src/api/kc';
 import WorksheetController from 'src/api/worksheet';
@@ -21,10 +20,12 @@ var listItemTpl = doT.template(searchListItemHtml);
 import { _getMyTaskList, _getChatList, _convertToOtherAttachment, createNewTask, createNewChat } from './ajax';
 import { ATTACHMENT_TYPE, NODE_VISIBLE_TYPE, WORKSHEET_VISIBLE_TYPE, SEND_TO_TYPE, CHAT_CARD_TYPE } from './enum';
 import folderDg from 'src/components/kc/folderSelectDialog/folderSelectDialog';
-import { index as DialogLayer } from 'src/components/mdDialog/dialog';
 import { getClassNameByExt } from 'src/util';
 import toMobileDailog from './toMobile';
 import _ from 'lodash';
+import React from 'react';
+import ReactDom from 'react-dom';
+import { Dropdown, Dialog } from 'ming-ui';
 
 // 目的地选择列表组件
 var SelectSendTo = function (options, callback) {
@@ -246,48 +247,41 @@ ShareAttachment.prototype = {
       attachmentType: SA.options.attachmentType,
     });
     var dialogBoxID = 'shareAttachmentDialog';
-    SA.dialog = new DialogLayer({
-      dialogBoxID: dialogBoxID,
-      className: 'shareAttachmentDialog darkHeader',
+    Dialog.confirm({
+      dialogClasses: `${dialogBoxID} shareAttachmentDialog darkHeader`,
       width: 540,
-      isSameClose: false,
-      container: {
-        header: SA.options.dialogTitle || _l('分享'),
-        content: html,
-        yesText: '',
-        noText: '',
-      },
-      readyFn: () => {
-        SA.$dialog = $('#' + dialogBoxID);
-        SA.dialogEle = {};
-        SA.dialogEle.$fileName = SA.$dialog.find('#fileName');
-        SA.dialogEle.$fileNameText = SA.$dialog.find('.fileNameText');
-        SA.dialogEle.$canDownloadSwitch = SA.$dialog.find('#canDownload');
-        if (
-          options.attachmentType === ATTACHMENT_TYPE.KC ||
-          options.attachmentType === ATTACHMENT_TYPE.WORKSHEET ||
-          options.attachmentType === ATTACHMENT_TYPE.WORKSHEETROW
-        ) {
-          SA.dialogEle.$fileName.hide();
-          SA.dialogEle.$fileNameText.text(SA.file.name).removeClass('hide');
-        } else {
-          SA.dialogEle.$fileName.val(SA.file.name);
-        }
-        if (options.attachmentType === ATTACHMENT_TYPE.WORKSHEET) {
-          SA.$dialog.find('.shareAttachmentDialogContainer').addClass('isWorksheet');
-        }
-        if (options.attachmentType === ATTACHMENT_TYPE.WORKSHEETROW) {
-          SA.$dialog.find('.shareAttachmentDialogContainer').addClass('isWorksheetRow');
-        }
-        SA.bindEvent();
-        SA.previewFile();
-        if (options.attachmentType === ATTACHMENT_TYPE.KC && options.node) {
-          SA.initModules();
-        } else {
-          SA.fetchBaseData(SA.initModules.bind(SA));
-        }
-      },
+      title: SA.options.dialogTitle || _l('分享'),
+      children: <div dangerouslySetInnerHTML={{ __html: html }}></div>,
+      noFooter: true,
     });
+    SA.$dialog = $('.' + dialogBoxID);
+    SA.dialogEle = {};
+    SA.dialogEle.$fileName = SA.$dialog.find('#fileName');
+    SA.dialogEle.$fileNameText = SA.$dialog.find('.fileNameText');
+    SA.dialogEle.$canDownloadSwitch = SA.$dialog.find('#canDownload');
+    if (
+      options.attachmentType === ATTACHMENT_TYPE.KC ||
+      options.attachmentType === ATTACHMENT_TYPE.WORKSHEET ||
+      options.attachmentType === ATTACHMENT_TYPE.WORKSHEETROW
+    ) {
+      SA.dialogEle.$fileName.hide();
+      SA.dialogEle.$fileNameText.text(SA.file.name).removeClass('hide');
+    } else {
+      SA.dialogEle.$fileName.val(SA.file.name);
+    }
+    if (options.attachmentType === ATTACHMENT_TYPE.WORKSHEET) {
+      SA.$dialog.find('.shareAttachmentDialogContainer').addClass('isWorksheet');
+    }
+    if (options.attachmentType === ATTACHMENT_TYPE.WORKSHEETROW) {
+      SA.$dialog.find('.shareAttachmentDialogContainer').addClass('isWorksheetRow');
+    }
+    SA.bindEvent();
+    SA.previewFile();
+    if (options.attachmentType === ATTACHMENT_TYPE.KC && options.node) {
+      SA.initModules();
+    } else {
+      SA.fetchBaseData(SA.initModules.bind(SA));
+    }
   },
   bindEvent: function () {
     var SA = this;
@@ -298,8 +292,8 @@ ShareAttachment.prototype = {
       SA.share();
     });
     SA.$dialog.on('click', '.shareAttachmentFooter .no', function () {
-      if (SA.dialog) {
-        SA.dialog.closeDialog();
+      if ($('.shareAttachmentDialog')[0]) {
+        $('.shareAttachmentDialog').parent().remove();
       }
     });
     SA.$dialog.on('click', '.addDescBtn', function () {
@@ -442,50 +436,55 @@ ShareAttachment.prototype = {
     if (SA.options.attachmentType === ATTACHMENT_TYPE.WORKSHEET) {
       dataArr = [
         {
-          id: SEND_TO_TYPE.CHAT,
-          name: _l('消息'),
+          value: SEND_TO_TYPE.CHAT,
+          text: _l('消息'),
         },
       ];
     } else if (SA.options.attachmentType === ATTACHMENT_TYPE.WORKSHEETROW) {
       dataArr = [
         {
-          id: SEND_TO_TYPE.CHAT,
-          name: _l('消息'),
+          value: SEND_TO_TYPE.CHAT,
+          text: _l('消息'),
         },
       ];
     } else {
       dataArr = [
         {
-          id: SEND_TO_TYPE.CHAT,
-          name: _l('消息'),
+          value: SEND_TO_TYPE.CHAT,
+          text: _l('消息'),
         },
         {
-          id: SEND_TO_TYPE.FEED,
-          name: _l('动态'),
+          value: SEND_TO_TYPE.FEED,
+          text: _l('动态'),
         },
         {
-          id: SEND_TO_TYPE.TASK,
-          name: _l('任务'),
+          value: SEND_TO_TYPE.TASK,
+          text: _l('任务'),
         },
         {
-          id: SEND_TO_TYPE.CALENDAR,
-          name: _l('日程'),
+          value: SEND_TO_TYPE.CALENDAR,
+          text: _l('日程'),
         },
         {
-          id: SEND_TO_TYPE.KC,
-          name: _l('知识'),
+          value: SEND_TO_TYPE.KC,
+          text: _l('知识'),
         },
       ];
     }
-    SA.$dialog.find('#sendToTarget').MDSelect({
-      defualtSelectedValue: SA.sendToTargetType,
-      zIndex: 1,
-      dataArr: dataArr,
-      lineHeight: 30,
-      onChange: function (value) {
-        SA.activeSendToOther(parseInt(value, 10));
-      },
-    });
+
+    ReactDom.render(
+      <Dropdown
+        className="sendToTargetDropdown w100"
+        data={dataArr}
+        defaultValue={SA.sendToTargetType}
+        isAppendToBody
+        menuStyle={{ width: 110 }}
+        onChange={value => {
+          SA.activeSendToOther(parseInt(value, 10));
+        }}
+      />,
+      document.getElementById('sendToTargetBox'),
+    );
   },
   initSelectTargetList: function () {
     var SA = this;
@@ -510,9 +509,9 @@ ShareAttachment.prototype = {
       var type = $(this).data('type');
       SA.activeSendToOther(type);
     });
-    if (SA.dialog) {
-      SA.dialog.dialogCenter();
-    }
+    // if (SA.dialog) {
+    //   SA.dialog.dialogCenter();
+    // }
     function showControlBtn() {
       $targetBtnList.find('.prev, .next').hide();
       if (left < 0) {
@@ -548,26 +547,26 @@ ShareAttachment.prototype = {
         SA.options.node.type === 1
           ? [
               {
-                id: NODE_VISIBLE_TYPE.CLOSE,
-                name: _l('关闭文件夹分享'),
+                value: NODE_VISIBLE_TYPE.CLOSE,
+                text: _l('关闭文件夹分享'),
               },
               {
-                id: NODE_VISIBLE_TYPE.PUBLIC,
-                name: _l('允许任何人查看'),
+                value: NODE_VISIBLE_TYPE.PUBLIC,
+                text: _l('允许任何人查看'),
               },
             ]
           : [
               {
-                id: NODE_VISIBLE_TYPE.CLOSE,
-                name: _l('关闭文件分享'),
+                value: NODE_VISIBLE_TYPE.CLOSE,
+                text: _l('关闭文件分享'),
               },
               {
-                id: NODE_VISIBLE_TYPE.PROJECT,
-                name: shareVisibleArea,
+                value: NODE_VISIBLE_TYPE.PROJECT,
+                text: shareVisibleArea,
               },
               {
-                id: NODE_VISIBLE_TYPE.PUBLIC,
-                name: _l('允许任何人查看'),
+                value: NODE_VISIBLE_TYPE.PUBLIC,
+                text: _l('允许任何人查看'),
               },
             ];
     } else if (
@@ -576,73 +575,75 @@ ShareAttachment.prototype = {
     ) {
       permissionList = [
         {
-          id: 1,
-          name: _l('关闭分享'),
+          value: 1,
+          text: _l('关闭分享'),
         },
         {
-          id: 2,
-          name: _l('允许任何人查看'),
+          value: 2,
+          text: _l('允许任何人查看'),
         },
       ];
     }
-    SA.$dialog.find('#selectSharePermission').MDSelect({
-      defualtSelectedValue: SA.options.node.visibleType,
-      dataArr: permissionList,
-      lineHeight: 30,
-      wordLength: 20,
-      onChange: function (value) {
-        SA.updateShareType(value, function (visibleType) {
-          // 当知识分享权限变动，切换模块显示
-          var $selectTargetCon = SA.$dialog.find('.selectTargetCon');
-          var $copyLinkCon = SA.$dialog.find('.copyLinkCon');
-          var $sendToOther = SA.$dialog.find('.sendToOther');
-          var $shareAttachmentFooter = SA.$dialog.find('.shareAttachmentFooter');
-          var selectTargetInited = $selectTargetCon.hasClass('inited');
-          var sendToOtherInited = $sendToOther.hasClass('inited');
-          SA.options.node.visibleType = visibleType;
-          function handleActivTarget() {
-            if (sendToOtherInited) {
-              $sendToOther.removeClass('hide');
-              $shareAttachmentFooter.removeClass('hide');
-            } else if (!selectTargetInited) {
-              if (SA.options.attachmentType === ATTACHMENT_TYPE.WORKSHEETROW) {
-                SA.activeSendToOther(SEND_TO_TYPE.CHAT);
+
+    ReactDom.render(
+      <Dropdown
+        className="selectSharePermissionDropdown w100"
+        data={permissionList}
+        defaultValue={SA.options.node.visibleType}
+        isAppendToBody
+        menuStyle={{ width: 170 }}
+        onChange={value => {
+          SA.updateShareType(value, function (visibleType) {
+            // 当知识分享权限变动，切换模块显示
+            var $selectTargetCon = SA.$dialog.find('.selectTargetCon');
+            var $copyLinkCon = SA.$dialog.find('.copyLinkCon');
+            var $sendToOther = SA.$dialog.find('.sendToOther');
+            var $shareAttachmentFooter = SA.$dialog.find('.shareAttachmentFooter');
+            var selectTargetInited = $selectTargetCon.hasClass('inited');
+            var sendToOtherInited = $sendToOther.hasClass('inited');
+            SA.options.node.visibleType = visibleType;
+            function handleActivTarget() {
+              if (sendToOtherInited) {
+                $sendToOther.removeClass('hide');
+                $shareAttachmentFooter.removeClass('hide');
+              } else if (!selectTargetInited) {
+                if (SA.options.attachmentType === ATTACHMENT_TYPE.WORKSHEETROW) {
+                  SA.activeSendToOther(SEND_TO_TYPE.CHAT);
+                } else {
+                  SA.initSelectTargetList();
+                }
               } else {
-                SA.initSelectTargetList();
+                $selectTargetCon.removeClass('hide');
               }
-            } else {
-              $selectTargetCon.removeClass('hide');
+              if ($copyLinkCon.hasClass('inited')) {
+                $copyLinkCon.removeClass('hide');
+              } else {
+                SA.initCopyLinkBtn();
+              }
+              $closedTip.addClass('hide');
             }
-            if ($copyLinkCon.hasClass('inited')) {
-              $copyLinkCon.removeClass('hide');
+            if (SA.checkClose(visibleType)) {
+              if (sendToOtherInited) {
+                $sendToOther.addClass('hide');
+                $shareAttachmentFooter.addClass('hide');
+              } else {
+                $selectTargetCon.addClass('hide');
+              }
+              SA.$dialog.find('.copyLinkCon').addClass('hide');
+              $closedTip.removeClass('hide');
             } else {
-              SA.initCopyLinkBtn();
+              if (SA.options.attachmentType === ATTACHMENT_TYPE.WORKSHEET) {
+                $copyLinkCon.removeClass('inited');
+                SA.updateWorkshhetShareUrl(1, handleActivTarget);
+              } else {
+                handleActivTarget();
+              }
             }
-            $closedTip.addClass('hide');
-          }
-          if (SA.checkClose(visibleType)) {
-            if (sendToOtherInited) {
-              $sendToOther.addClass('hide');
-              $shareAttachmentFooter.addClass('hide');
-            } else {
-              $selectTargetCon.addClass('hide');
-            }
-            SA.$dialog.find('.copyLinkCon').addClass('hide');
-            $closedTip.removeClass('hide');
-          } else {
-            if (SA.options.attachmentType === ATTACHMENT_TYPE.WORKSHEET) {
-              $copyLinkCon.removeClass('inited');
-              SA.updateWorkshhetShareUrl(1, handleActivTarget);
-            } else {
-              handleActivTarget();
-            }
-          }
-          if (SA.dialog) {
-            SA.dialog.dialogCenter();
-          }
-        });
-      },
-    });
+          });
+        }}
+      />,
+      document.getElementById('selectSharePermissionBox'),
+    );
     if (!SA.options.node.canChangeSharable) {
       SA.$dialog
         .find('.selectSharePermission')
@@ -735,8 +736,8 @@ ShareAttachment.prototype = {
         $sendToContent.empty();
         var sObj = {
           callback: function (postItem) {
-            if (SA.dialog) {
-              SA.dialog.closeDialog();
+            if ($('.shareAttachmentDialog')[0]) {
+              $('.shareAttachmentDialog').parent().remove();
             }
           },
         };
@@ -758,7 +759,7 @@ ShareAttachment.prototype = {
         if (shareDesc) {
           sObj.postMsg = shareDesc;
         }
-        s(sObj);
+        createFeed(sObj);
         break;
       }
       case SEND_TO_TYPE.TASK: {
@@ -782,8 +783,8 @@ ShareAttachment.prototype = {
         $sendToContent.empty();
         var cObj = {
           callback: function (source) {
-            if (source && SA.dialog) {
-              SA.dialog.closeDialog();
+            if (source && $('.shareAttachmentDialog')[0]) {
+              $('.shareAttachmentDialog').parent().remove();
             }
           },
         };
@@ -805,7 +806,7 @@ ShareAttachment.prototype = {
         if (shareDesc) {
           cObj.Message = shareDesc;
         }
-        c(cObj);
+        createCalendar(cObj);
         break;
       }
       case SEND_TO_TYPE.KC: {
@@ -831,9 +832,9 @@ ShareAttachment.prototype = {
         break;
       }
     }
-    if (SA.dialog) {
-      SA.dialog.dialogCenter();
-    }
+    // if (SA.dialog) {
+    //   SA.dialog.dialogCenter();
+    // }
   },
   showFooter: function () {
     var SA = this;
@@ -1055,8 +1056,8 @@ ShareAttachment.prototype = {
         sendPromise
           .then(function (data) {
             alert(_l('发送成功'));
-            if (SA.dialog) {
-              SA.dialog.closeDialog();
+            if ($('.shareAttachmentDialog')[0]) {
+              $('.shareAttachmentDialog').parent().remove();
             }
           })
           .fail(function (err) {
@@ -1110,8 +1111,8 @@ ShareAttachment.prototype = {
               return;
             }
             alert(_l('分享成功'));
-            if (SA.dialog) {
-              SA.dialog.closeDialog();
+            if ($('.shareAttachmentDialog')[0]) {
+              $('.shareAttachmentDialog').parent().remove();
             }
           })
           .fail(function (err) {
@@ -1149,8 +1150,8 @@ ShareAttachment.prototype = {
           .save(SA.kcPath)
           .then(function (message) {
             // alert(message || '保存成功');
-            if (SA.dialog) {
-              SA.dialog.closeDialog();
+            if ($('.shareAttachmentDialog')[0]) {
+              $('.shareAttachmentDialog').parent().remove();
             }
           })
           .fail(function (message) {

@@ -1,7 +1,7 @@
 ﻿import PropTypes from 'prop-types';
 import React from 'react';
 import cx from 'classnames';
-import 'src/components/emotion/emotion';
+import Emotion from 'src/components/emotion/emotion';
 import { addSuccess } from '../../redux/postActions';
 import MyUpdater from '../common/myupdater/myupdater';
 import { connect } from 'react-redux';
@@ -41,7 +41,7 @@ class Updater extends React.Component {
   componentDidMount() {
     this._isMounted = true;
     const comp = this;
-    $('.myUpdateItem_Content a').each(function () {
+    $('.myUpdateItem_Content a').each(function() {
       if ($(this).data('targetdiv')) {
         $(this).attr('targetdiv', $(this).data('targetdiv'));
       }
@@ -106,7 +106,7 @@ class Updater extends React.Component {
   };
 
   initEmotion = () => {
-    $(this.faceBtn).emotion({
+    new Emotion(this.faceBtn, {
       input: '#textarea_Updater',
       placement: 'right bottom',
       mdBear: false,

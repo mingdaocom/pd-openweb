@@ -334,10 +334,12 @@ export const getDatePickerConfigs = (data = {}) => {
 export const getShowFormat = data => {
   const { formatMode, mode } = getDatePickerConfigs(data);
   const { advancedSetting: { showformat = '0' } = {} } = data;
-  const showType = _.get(
-    _.find(DATE_SHOW_TYPES, i => i.value === showformat),
-    'format',
-  );
+  const showType = _.isNaN(Number(showformat))
+    ? showformat
+    : _.get(
+        _.find(DATE_SHOW_TYPES, i => i.value === showformat),
+        'format',
+      );
   if (mode === 'year') {
     return showformat === '1' ? _l('YYYY年') : formatMode;
   }
@@ -374,7 +376,7 @@ export const getTitleStyle = (titleStyle = '0000') => {
   const [isBold, isItalic, isUnderline, isLineThrough] = titleStyle.split('');
   let styleText = '';
   if (Number(isBold)) {
-    styleText = styleText + 'font-weight: bold;';
+    styleText = styleText + 'font-weight: bold !important;';
   }
   if (Number(isItalic)) {
     styleText = styleText + 'font-style: italic;padding-right:3px;';
@@ -389,4 +391,13 @@ export const getTitleStyle = (titleStyle = '0000') => {
     styleText = styleText + 'text-decoration: underline line-through;';
   }
   return styleText;
+};
+
+// 不允许重复的控件
+export const canAsUniqueWidget = item => {
+  return (
+    _.includes([2, 3, 4, 5, 7], item.type) ||
+    (item.type === 29 && item.enumDefault === 1) ||
+    (item.type === 26 && item.enumDefault === 0)
+  );
 };

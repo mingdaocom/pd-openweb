@@ -21,7 +21,7 @@ export default class EditPassword extends Component {
   }
 
   isPasswordRule = str => {
-    return RegExp.isPasswordRule(str, this.state.passwordRegex);
+    return RegExp.isPasswordValid(str, this.state.passwordRegex);
   };
 
   handleSubmit() {

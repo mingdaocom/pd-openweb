@@ -5,7 +5,6 @@ import { Checkbox, Modal, LoadDiv, ScrollView } from 'ming-ui';
 import { removeTempRecordValueFromLocal } from 'worksheet/util';
 import NewRecordContent from './NewRecordContent';
 import AdvancedSettingHandler from './AdvancedSettingHandler';
-
 import { browserIsMobile } from 'src/util';
 import { BrowserRouter } from 'react-router-dom';
 
@@ -17,6 +16,7 @@ export const BUTTON_ACTION_TYPE = {
 function NewRecord(props) {
   const {
     visible,
+    appId,
     worksheetId,
     title,
     notDialog,
@@ -33,17 +33,10 @@ function NewRecord(props) {
   const [shareVisible, setShareVisible] = useState();
   const [modalClassName] = useState(Math.random().toString().slice(2));
   const [abnormal, setAbnormal] = useState();
-  const [autoFill, setAutoFill] = useState(localStorage.getItem('new_record_autofill') === '1');
+  const [autoFill, setAutoFill] = useState(advancedSetting.autoreserve === '1');
   const [loading, setLoading] = useState();
   const continueAddVisible = showContinueAdd && advancedSetting.continueBtnVisible;
   const isEmbed = /\/embed\/view\//.test(location.pathname);
-  useEffect(() => {
-    if (autoFill) {
-      safeLocalStorageSetItem('new_record_autofill', '1');
-    } else {
-      localStorage.removeItem('new_record_autofill');
-    }
-  }, [autoFill]);
   const content = abnormal ? (
     <div className="Gray_9e TxtCenter mTop80 pTop100">{_l('该表已删除或没有权限')}</div>
   ) : (
@@ -70,13 +63,16 @@ function NewRecord(props) {
         </div>
       )}
       <span className="continue TxtMiddle clearfix InlineBlock Left Gray_9e">
-        {continueAddVisible && showFillNext && advancedSetting.autoFillVisible && (
-          <Checkbox
-            checked={autoFill}
-            onClick={() => setAutoFill(!autoFill)}
-            text={_l('继续创建时，保留本次提交内容')}
-          />
-        )}
+        {continueAddVisible &&
+          showFillNext &&
+          advancedSetting.autoreserve !== '1' &&
+          advancedSetting.autoFillVisible && (
+            <Checkbox
+              checked={autoFill}
+              onClick={() => setAutoFill(!autoFill)}
+              text={_l('继续创建时，保留本次提交内容')}
+            />
+          )}
       </span>
       <div className="flex" />
       {advancedSetting.closedrafts !== '1' && (
@@ -162,6 +158,9 @@ function NewRecord(props) {
           ]
         : [],
   };
+  useEffect(() => {
+    setAutoFill(advancedSetting.autoreserve === '1');
+  }, [advancedSetting.autoreserve]);
   return (
     <Fragment>
       {notDialog ? (

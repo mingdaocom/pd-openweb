@@ -1,10 +1,13 @@
-﻿#calendarEdit {
+﻿.calendarEdit {
   // override dialog css
   .noHeader {
     display: none;
   }
   .dialogContent {
     padding: 0;
+  }
+  .calendarDetail {
+    height: 100% !important;
   }
 }
 
@@ -473,4 +476,9 @@
       max-width: 175px;
     }
   }
+}
+
+.calendarEdit > .mui-dialog-scroll-container > .mui-dialog-dialog > .mui-dialog-header,
+.calendarEdit > .mui-dialog-scroll-container > .mui-dialog-dialog > .mui-dialog-body {
+  padding: 0 !important;
 }

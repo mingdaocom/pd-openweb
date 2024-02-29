@@ -10,10 +10,12 @@ import { Menu, MenuItem, Icon, MdLink } from 'ming-ui';
 import { changeBoardViewData } from 'src/pages/worksheet/redux/actions/boardView';
 import { APP_GROUP_CONFIG, DEFAULT_CREATE, DEFAULT_GROUP_NAME } from '../config';
 import { compareProps, getIds } from '../../util';
+import { getTranslateInfo } from 'src/util';
 import { convertColor } from 'worksheet/common/WorkSheetLeft/WorkSheetItem';
 import styled from 'styled-components';
 import _ from 'lodash';
 import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
+
 const LiCon = styled.li`
   &.active {
     background-color: ${props => props.lightIconColor} !important;
@@ -159,10 +161,11 @@ export default class SortableAppItem extends Component {
     } = this.props;
     const { visible, dbClickedAppGroupId } = this.state;
     const { name, appSectionId } = value;
-    const { groupId } = this.ids;
+    const { appId, groupId } = this.ids;
     const isFocus = appSectionId === focusGroupId || appSectionId === dbClickedAppGroupId;
     const isShowConfigIcon = appSectionId === groupId && !isFocus && canEditApp(permissionType);
     const url = this.getNavigateUrl(appSectionId);
+    const showName = getTranslateInfo(appId, appSectionId).name || name;
     return (
       <LiCon
         className={cx({ active: isFocus || groupId === appSectionId, isCanConfigAppGroup: isShowConfigIcon })}
@@ -197,8 +200,8 @@ export default class SortableAppItem extends Component {
               }
             }}
           >
-            <span title={name} onDoubleClick={() => this.handleDbClick(appSectionId)}>
-              {name}
+            <span title={showName} onDoubleClick={() => this.handleDbClick(appSectionId)}>
+              {showName}
             </span>
           </MdLink>
         )}

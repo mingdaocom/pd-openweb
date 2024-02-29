@@ -7,7 +7,8 @@ import { formatControlToServer } from 'src/components/newCustomFields/tools/util
 import { getInfo } from './utils';
 import { browserIsMobile, getRequest } from 'src/util';
 import _ from 'lodash';
-import { FILL_TIMES, WECHAT_FIELD_KEY } from '../publicWorksheetConfig/enum';
+import { WECHAT_FIELD_KEY } from '../publicWorksheetConfig/enum';
+import { canSubmitByLimitFrequency } from './utils';
 import { FILL_STATUS, SYSTEM_FIELD_IDS } from './enum';
 import moment from 'moment';
 import { themes } from 'src/pages/publicWorksheetConfig/enum';
@@ -88,7 +89,7 @@ function clearUrl(source) {
 async function getStatus(data, shareId) {
   const {
     visibleType,
-    fillTimes,
+    limitWriteFrequencySetting,
     linkSwitchTime = {},
     limitWriteCount = {},
     limitPasswordWrite = {},
@@ -205,12 +206,7 @@ async function getStatus(data, shareId) {
     }
   }
 
-  const publicWorksheetLastSubmit = localStorage.getItem('publicWorksheetLastSubmit_' + shareId);
-  if (
-    fillTimes === FILL_TIMES.UNLIMITED ||
-    !publicWorksheetLastSubmit ||
-    (fillTimes === FILL_TIMES.DAILY && moment().isAfter(moment(publicWorksheetLastSubmit).endOf('day')))
-  ) {
+  if (canSubmitByLimitFrequency(shareId, limitWriteFrequencySetting)) {
     return isWithinLimitWriteTime ? FILL_STATUS.NORMAL : FILL_STATUS.NOT_IN_FILL_TIME;
   } else {
     return FILL_STATUS.COMPLETED;
@@ -264,7 +260,6 @@ async function fillRowRelationRows(control, rowId, worksheetId) {
   let filledControl = control;
   await worksheetAjax
     .getRowRelationRows({
-      shareId: window.shareState.shareId,
       controlId: control.controlId,
       rowId,
       worksheetId,
@@ -563,14 +558,23 @@ function formatFileControls(controls) {
 }
 
 export function addWorksheetRow(
-  { shareId, worksheetId, formData = [], params = {}, publicWorksheetInfo, triggerUniqueError = () => {} },
+  {
+    shareId,
+    worksheetId,
+    formData = [],
+    params = {},
+    publicWorksheetInfo,
+    triggerUniqueError = () => {},
+    setSublistUniqueError = () => {},
+    setRuleError = () => {},
+  },
   cb = () => {},
 ) {
   const infoControl = getInfoControl(formData, publicWorksheetInfo);
   let receiveControls = formData
     .filter(c => !_.find(infoControl, ic => c.controlId === ic.controlId))
     .concat(infoControl)
-    .filter(item => item.type !== 30 && item.type !== 31 && item.type !== 32);
+    .filter(item => !_.includes([27, 21, 30, 31, 32, 48], item.type));
   // 举报表单填充举报链接 写死id  仅公网有效
   if (shareId === 'a7f10198e9d84702b68ba35f73c94cac') {
     receiveControls = fillReportSource(receiveControls, publicWorksheetInfo);
@@ -598,6 +602,12 @@ export function addWorksheetRow(
               break;
             case 11:
               triggerUniqueError(data.badData);
+              break;
+            case 22:
+              setSublistUniqueError(data.badData);
+              break;
+            case 32:
+              setRuleError(data.badData);
               break;
             case 14:
               alert(_l('验证码错误'), 3);

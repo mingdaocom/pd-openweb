@@ -7,12 +7,18 @@ import DialogSelectDept from 'src/components/dialogSelectDept';
 import cx from 'classnames';
 import TagInput from '../TagInput';
 import { CONTROLS_NAME, CONDITION_TYPE, DATE_LIST, FORMAT_TEXT } from '../../../enum';
-import { getConditionList, getConditionNumber, getFilterText, handleGlobalVariableName } from '../../../utils';
+import {
+  getConditionList,
+  getConditionNumber,
+  getFilterText,
+  handleGlobalVariableName,
+  checkConditionAllowEmpty,
+} from '../../../utils';
 import ActionFields from '../ActionFields';
 import Tag from '../Tag';
 import SelectOtherFields from '../SelectOtherFields';
 import { Tooltip, TimePicker } from 'antd';
-import { selectOrgRole } from 'src/components/DialogSelectOrgRole';
+import selectOrgRole from 'src/components/dialogSelectOrgRole';
 import moment from 'moment';
 import _ from 'lodash';
 
@@ -236,9 +242,18 @@ export default class TriggerCondition extends Component {
               <Checkbox
                 text={_l('条件异常时忽略')}
                 checked={item.ignoreEmpty === 1}
-                onClick={checked => this.switchFilterCondition(checked ? 0 : 1, i, j)}
+                onClick={checked => this.switchFilterCondition('ignoreEmpty', checked ? 0 : 1, i, j)}
               />
             )}
+
+          {item.conditionId && checkConditionAllowEmpty(item.filedTypeId, item.conditionId) && (
+            <Checkbox
+              className="mLeft15"
+              text={_l('值为空时忽略')}
+              checked={item.ignoreValueEmpty === 1}
+              onClick={checked => this.switchFilterCondition('ignoreValueEmpty', checked ? 0 : 1, i, j)}
+            />
+          )}
         </div>
         <div className="mTop10 relative flexRow">
           {this.renderItemValue(item, controlNumber, i, j, showType, unit)}
@@ -1198,11 +1213,11 @@ export default class TriggerCondition extends Component {
   /**
    * 切换过滤为空条件
    */
-  switchFilterCondition = (ignoreEmpty, i, j) => {
+  switchFilterCondition = (key, value, i, j) => {
     const data = _.cloneDeep(this.props.data);
     const { updateSource } = this.props;
 
-    data[i][j].ignoreEmpty = ignoreEmpty;
+    data[i][j][key] = value;
     updateSource(data);
   };
 

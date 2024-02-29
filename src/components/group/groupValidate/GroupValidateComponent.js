@@ -107,8 +107,7 @@ export default class GroupValidate extends React.Component {
             {_l('创建人')}： <span className="black">{result.createAccount.fullname}</span>{' '}
           </div>
           <div>
-            {_l('%0成员', result.isPost ? _l('群组') : _l('聊天'))}：
-            <span className="black">{result.groupMemberCount}</span>{' '}
+            {result.isPost ? _l('群组成员') : _l('聊天成员')}：<span className="black">{result.groupMemberCount}</span>{' '}
           </div>
         </div>
         <div className="group-create-tiem">
@@ -119,7 +118,9 @@ export default class GroupValidate extends React.Component {
             <span>{_l('群公告')}</span>
             <div>{result.about ? result.about : _l('暂无群公告')}</div>
           </div>
-        ) : undefined}
+        ) : (
+          undefined
+        )}
         {result.isMember ? (
           <div className="group-btns">
             <div className="group-btn group-send ThemeBGColor3" onClick={this.handleOpenChat.bind(this)}>
@@ -131,7 +132,9 @@ export default class GroupValidate extends React.Component {
                 <i className="icon-dynamic-empty"></i>
                 {_l('群组动态')}
               </div>
-            ) : undefined}
+            ) : (
+              undefined
+            )}
           </div>
         ) : (
           <div className="group-btns">
@@ -139,7 +142,9 @@ export default class GroupValidate extends React.Component {
               <div className="group-btn group-apply ThemeBGColor3" onClick={this.handleApply.bind(this)}>
                 {result.isApply ? _l('已申请') : _l('申请加入')}
               </div>
-            ) : undefined}
+            ) : (
+              undefined
+            )}
           </div>
         )}
       </div>

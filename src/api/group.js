@@ -59,16 +59,16 @@ export default {
   * @param {integer} args.pageIndex 页码
   * @param {integer} args.pageSize 页大小
   * @param {string} args.keywords 关键词
-  * @param {} args.status 群组状态
-  * @param {} args.searchGroupType 群组范围
-  * @param {} args.sortFiled 排序字段
-  * @param {} args.sortType 排序方式
-  * @param {} args.groupType 群组类型
+  * @param {} args.status
+  * @param {} args.searchGroupType
+  * @param {} args.sortFiled
+  * @param {} args.sortType
+  * @param {} args.groupType
   * @param {array} args.firstLetters 首字母
   * @param {boolean} args.containHidden 是否包含隐藏群组
   * @param {string} args.projectId 网络id
   * @param {boolean} args.withMapDepartment 是否含官方群组对应的部门
-  * @param {} args.dataRange 数据范围
+  * @param {} args.dataRange
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -101,7 +101,7 @@ export default {
   * @param {integer} args.pageIndex 页码
   * @param {integer} args.pageSize 页大小
   * @param {string} args.keywords 关键词
-  * @param {} args.type 用户类型
+  * @param {} args.type
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

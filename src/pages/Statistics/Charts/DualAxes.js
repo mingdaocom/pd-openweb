@@ -103,6 +103,7 @@ export default class extends Component {
       !_.isEqual(displaySetup.auxiliaryLines, oldDisplaySetup.auxiliaryLines) ||
       !_.isEqual(displaySetup.colorRules, oldDisplaySetup.colorRules) ||
       style.showXAxisSlider !== oldStyle.showXAxisSlider ||
+      style.tooltipValueType !== oldStyle.tooltipValueType ||
       !_.isEqual(chartColor, oldChartColor) ||
       nextProps.themeColor !== this.props.themeColor
     ) {
@@ -133,9 +134,11 @@ export default class extends Component {
     this.DualAxes.render();
   }
   getComponentConfig(props) {
-    const { themeColor, projectId, customPageConfig, reportData } = props;
-    const { chartColor } = customPageConfig;
-    const { map, contrastMap, displaySetup, yaxisList, rightY, yreportType, xaxes, split, sorts, style } = reportData;
+    const { themeColor, projectId, customPageConfig = {}, reportData } = props;
+    const { chartColor, chartColorIndex = 1 } = customPageConfig;
+    const { map, contrastMap, displaySetup, yaxisList, rightY, yreportType, xaxes, split, sorts } = reportData;
+    const styleConfig = reportData.style || {};
+    const style = chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0) ? { ...styleConfig, ...chartColor } : styleConfig;
     const splitId = split.controlId;
     const xaxesId = xaxes.controlId;
     const { xdisplay, ydisplay, showPileTotal, isPile, legendType, auxiliaryLines, colorRules } = displaySetup;
@@ -146,7 +149,7 @@ export default class extends Component {
     const isLeftSort = splitId || !_.isEmpty(leftSorts);
     const isRightSort = rightY.splitId || !_.isEmpty(rightSorts);
     const rightYDisplay = rightY.display.ydisplay;
-    const colors = getChartColors(chartColor || style, themeColor, projectId);
+    const colors = getChartColors(style, themeColor, projectId);
     const rightYColors = _.clone(colors).reverse();
 
     let sortLineXAxis = [];
@@ -347,16 +350,18 @@ export default class extends Component {
           const { name, id } = formatControlInfo(groupName);
           if (_.isNumber(value)) {
             const { dot } = _.find(yaxisList, { controlId: id }) || {};
+            const labelValue = formatrChartValue(value, false, newYaxisList, value ? undefined : id);
             return {
               name,
-              value: _.isNumber(value) ? value.toLocaleString('zh', { minimumFractionDigits: dot }) : '--',
+              value: _.isNumber(value) ? style.tooltipValueType ? labelValue : value.toLocaleString('zh', { minimumFractionDigits: dot }) : '--',
             };
           }
           if (_.isNumber(rightValue)) {
             const { dot } = _.find(rightY.yaxisList, { controlId: id }) || {};
+            const labelValue = formatrChartValue(rightValue, false, newRightYaxisList, value ? undefined : id);
             return {
               name,
-              value: _.isNumber(rightValue) ? rightValue.toLocaleString('zh', { minimumFractionDigits: dot }) : '--',
+              value: _.isNumber(rightValue) ? style.tooltipValueType ? labelValue : rightValue.toLocaleString('zh', { minimumFractionDigits: dot }) : '--',
             };
           }
           return {

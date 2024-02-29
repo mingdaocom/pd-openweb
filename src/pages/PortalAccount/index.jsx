@@ -21,6 +21,19 @@ const Wrap = styled.div`
   background-repeat: no-repeat;
   background-size: cover;
   overflow: hidden;
+  &.isCenter {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow-y: auto;
+    background-position: center center;
+    .con {
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+    }
+  }
   .backImageUrl {
     background-color: #ebebeb;
     background-position: center;
@@ -387,6 +400,64 @@ function ContainerCon(props) {
       </WrapWx>
     );
   }
+  const renderCon = () => {
+    return (
+      <React.Fragment>
+        {baseSetInfo.pageMode === 6 && (
+          <div
+            className={cx('backImageUrl', { isM: browserIsMobile() })}
+            style={{ backgroundImage: `url(${baseSetInfo.backImageUrl})` }}
+          />
+        )}
+        {isTpauth ? (
+          <TPAuth />
+        ) : status === 9 ? (
+          //9 收集信息
+          <Info
+            {...props}
+            status={status}
+            isAutoLogin={isAutoLogin}
+            accountId={accountId}
+            setStatus={setStatus}
+            {...baseSetInfo}
+            appId={appId}
+            state={state}
+            setState={state => setState({ state })}
+            account={account}
+            setAccount={setAccount}
+            fixInfo={fixInfo}
+          />
+        ) : (
+          <Container
+            {...props}
+            state={state}
+            isAutoLogin={isAutoLogin}
+            setAutoLogin={setAutoLogin}
+            status={status}
+            setStatus={setStatus}
+            setAccountId={setAccountId}
+            setLogState={state => setState({ state })}
+            {...baseSetInfo}
+            fixInfo={fixInfo}
+            appId={appId}
+            getBaseInfo={getBaseInfo}
+            account={account}
+            setAccount={setAccount}
+            isErrUrl={isErrUrl}
+            isWXOfficialExist={isWXOfficialExist}
+            authorizerInfo={authorizerInfo}
+            setParamForPcWx={setParamForPcWx}
+            paramForPcWx={paramForPcWx}
+            loginForType={loginForType}
+            loginForTypeBack={() => {
+              setLoginForType('');
+              setIsWXauth(true);
+            }}
+          />
+        )}
+      </React.Fragment>
+    );
+  };
   return (
     <Wrap
       style={
@@ -398,58 +469,7 @@ function ContainerCon(props) {
       }
       className={cx({ isCenter: baseSetInfo.pageMode !== 6 })}
     >
-      {baseSetInfo.pageMode === 6 && (
-        <div
-          className={cx('backImageUrl', { isM: browserIsMobile() })}
-          style={{ backgroundImage: `url(${baseSetInfo.backImageUrl})` }}
-        />
-      )}
-      {isTpauth ? (
-        <TPAuth />
-      ) : status === 9 ? (
-        //9 收集信息
-        <Info
-          {...props}
-          status={status}
-          isAutoLogin={isAutoLogin}
-          accountId={accountId}
-          setStatus={setStatus}
-          {...baseSetInfo}
-          appId={appId}
-          state={state}
-          setState={state => setState({ state })}
-          account={account}
-          setAccount={setAccount}
-          fixInfo={fixInfo}
-        />
-      ) : (
-        <Container
-          {...props}
-          state={state}
-          isAutoLogin={isAutoLogin}
-          setAutoLogin={setAutoLogin}
-          status={status}
-          setStatus={setStatus}
-          setAccountId={setAccountId}
-          setLogState={state => setState({ state })}
-          {...baseSetInfo}
-          fixInfo={fixInfo}
-          appId={appId}
-          getBaseInfo={getBaseInfo}
-          account={account}
-          setAccount={setAccount}
-          isErrUrl={isErrUrl}
-          isWXOfficialExist={isWXOfficialExist}
-          authorizerInfo={authorizerInfo}
-          setParamForPcWx={setParamForPcWx}
-          paramForPcWx={paramForPcWx}
-          loginForType={loginForType}
-          loginForTypeBack={() => {
-            setLoginForType('');
-            setIsWXauth(true);
-          }}
-        />
-      )}
+      {baseSetInfo.pageMode !== 6 ? <div className="con">{renderCon()}</div> : renderCon()}
     </Wrap>
   );
 }

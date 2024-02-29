@@ -10,7 +10,7 @@ import ChildTable from 'worksheet/components/ChildTable';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import { onValidator } from 'src/components/newCustomFields/tools/DataFormat';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils';
-import { emitter, getSubListError } from 'worksheet/util';
+import { emitter, getSubListError, handleChildTableUniqueError, handleRecordError } from 'worksheet/util';
 import { handleOpenInNew } from 'worksheet/common/recordInfo/crtl';
 import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
 
@@ -83,6 +83,11 @@ const Content = styled.div`
     line-height: 50px !important;
     top: -50px !important;
   }
+  .childTableCon .errorTip {
+    width: calc(100% - 200px);
+    height: 30px;
+    top: -35px;
+  }
 `;
 
 function hasNoRelationRelateControl(controls) {
@@ -135,7 +140,7 @@ export default function ChildTableDialog(props) {
         rows: value.rows,
         rules: _.get(cache.current.comp || {}, `worksheettable.current.table.rules`),
       },
-      controls || control.relationControls,
+      _.get(cache.current.comp || {}, `state.controls`) || control.relationControls,
       control.showControls,
       3,
     );
@@ -169,7 +174,16 @@ export default function ChildTableDialog(props) {
       })
       .then(data => {
         if (!data.data) {
-          alert(_l('保存失败'), 3);
+          if (data.resultCode === 22) {
+            handleChildTableUniqueError({
+              badData: data.badData,
+              data: [{ ...control, value }],
+              cellObjs: { [control.controlId]: { cell: cache.current.comp } },
+            });
+          }
+          handleRecordError(data.resultCode);
+          cache.current.isSaving = false;
+          setIsSaving(false);
         } else {
           alert(_l('保存成功'));
           cache.current.isSaving = false;

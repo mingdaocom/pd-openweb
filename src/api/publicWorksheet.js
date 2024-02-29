@@ -27,7 +27,6 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.worksheetId 工作表id
   * @param {string} args.code 代码
-  * @param {integer} args.fillTimes 填写次数
   * @param {string} args.ipControlId ip对应控件id
   * @param {string} args.browserControlId 浏览器对应控件id
   * @param {string} args.deviceControlId 设备对应控件id
@@ -40,14 +39,15 @@ export default {
   * @param {string} args.smsVerificationFiled 选择的手机号验证的字段
   * @param {string} args.smsSignature 短信签名
   * @param {integer} args.writeScope 填写人群范围
-  * @param {} args.linkSwitchTime 设置链接开启停止时间
-  * @param {} args.limitWriteTime 限制填写时间
-  * @param {} args.limitWriteCount 限制收集数量上限 0 or number
-  * @param {} args.limitPasswordWrite 限制密码写入 empty or string
+  * @param {} args.linkSwitchTime
+  * @param {} args.limitWriteTime
+  * @param {} args.limitWriteCount
+  * @param {} args.limitPasswordWrite
   * @param {boolean} args.cacheDraft 缓存未提交内容，下次自动填充
-  * @param {} args.cacheFieldData 缓存本次填写数据，下次自动填充
-  * @param {} args.weChatSetting 微信设置
-  * @param {} args.abilityExpand 能力增强
+  * @param {} args.cacheFieldData
+  * @param {} args.weChatSetting
+  * @param {} args.abilityExpand
+  * @param {} args.limitWriteFrequencySetting
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -72,7 +72,7 @@ export default {
   * 变更公开表单分享链接状态
   * @param {Object} args 请求参数
   * @param {string} args.worksheetId 工作表id
-  * @param {} args.visibleType 分享链接状态  1=关闭 2=公开
+  * @param {} args.visibleType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -121,7 +121,7 @@ export default {
   * 编辑公开查询状态
   * @param {Object} args 请求参数
   * @param {string} args.worksheetId 工作表id
-  * @param {} args.visibleType 分享链接状态  1=关闭 2=公开
+  * @param {} args.visibleType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -150,15 +150,15 @@ export default {
   * 获取公开表单信息
 起始方法
   * @param {Object} args 请求参数
-  * @param {string} args.shareId 对外分享标识
-  * @param {string} args.password 密码
-  * @param {string} args.printId 打印模板id
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType
   * @param {string} args.clientId 客户端标识
 记录输入密码之后，页面刷新不用重复输入密码操作
 滑动过期
-  * @param {string} args.ticket 验证码返票据
-  * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
+  * @param {string} args.shareId 对外分享标识
+  * @param {string} args.password 密码
+  * @param {string} args.printId 打印模板id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -190,7 +190,7 @@ export default {
   * @param {boolean} args.getViews 是否获取Views
   * @param {string} args.appId 应用Id
   * @param {boolean} args.handleDefault 处理默认值
-  * @param {} args.getControlType 0:显示控件 1：不显示控件（被动关联） 2：全部 3:全部关联控件 9:回收站的控件 11:获取表信息不处理隐藏controlSource
+  * @param {} args.getControlType
   * @param {array} args.worksheetIds 批量工作表id
   * @param {boolean} args.handControlSource 是否处理关联的原始类型
   * @param {boolean} args.getRules 是否需要验证规则
@@ -204,6 +204,21 @@ export default {
    getWorksheetInfo: function (args, options = {}) {
      
      return $.api('PublicWorksheet', 'GetWorksheetInfo', args, options);
+   },
+  /**
+  * 获取公开表单导入子表功能模块token
+  * @param {Object} args 请求参数
+  * @param {} args.tokenType
+  * @param {string} args.worksheetId
+  * @param {string} args.viewId
+  * @param {string} args.projectId 网络id ，TokenType = 4或6时，这个必穿
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getToken: function (args, options = {}) {
+     
+     return $.api('PublicWorksheet', 'GetToken', args, options);
    },
   /**
   * 获取记录详情
@@ -229,6 +244,12 @@ export default {
   /**
   * 获取关联记录
   * @param {Object} args 请求参数
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType
+  * @param {string} args.clientId 客户端标识
+记录输入密码之后，页面刷新不用重复输入密码操作
+滑动过期
   * @param {string} args.worksheetId 工作表id
   * @param {} args.getType
   * @param {array} args.filterControls 查询列
@@ -239,8 +260,8 @@ export default {
   * @param {string} args.keyWords 关键词
   * @param {integer} args.pageSize 页大小
   * @param {integer} args.pageIndex 页码
-  * @param {} args.searchType 搜索类型
-  * @param {} args.status 状态
+  * @param {} args.searchType
+  * @param {} args.status
   * @param {boolean} args.isUnRead 是否已读
   * @param {boolean} args.isGetWorksheet 是否查询工作表的详情
   * @param {string} args.viewId 视图Id
@@ -259,12 +280,6 @@ export default {
   * @param {string} args.reportId 统计图ID
   * @param {boolean} args.notGetTotal 不获取总记录数
   * @param {object} args.requestParams 请求参数
-  * @param {string} args.clientId 客户端标识
-记录输入密码之后，页面刷新不用重复输入密码操作
-滑动过期
-  * @param {string} args.ticket 验证码返票据
-  * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -276,6 +291,12 @@ export default {
   /**
   * 获取上次填写内容
   * @param {Object} args 请求参数
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType
+  * @param {string} args.clientId 客户端标识
+记录输入密码之后，页面刷新不用重复输入密码操作
+滑动过期
   * @param {string} args.worksheetId 工作表id
   * @param {} args.getType
   * @param {array} args.filterControls 查询列
@@ -286,8 +307,8 @@ export default {
   * @param {string} args.keyWords 关键词
   * @param {integer} args.pageSize 页大小
   * @param {integer} args.pageIndex 页码
-  * @param {} args.searchType 搜索类型
-  * @param {} args.status 状态
+  * @param {} args.searchType
+  * @param {} args.status
   * @param {boolean} args.isUnRead 是否已读
   * @param {boolean} args.isGetWorksheet 是否查询工作表的详情
   * @param {string} args.viewId 视图Id
@@ -306,12 +327,6 @@ export default {
   * @param {string} args.reportId 统计图ID
   * @param {boolean} args.notGetTotal 不获取总记录数
   * @param {object} args.requestParams 请求参数
-  * @param {string} args.clientId 客户端标识
-记录输入密码之后，页面刷新不用重复输入密码操作
-滑动过期
-  * @param {string} args.ticket 验证码返票据
-  * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -323,6 +338,12 @@ export default {
   /**
   * 查看已填写记录（行记录）
   * @param {Object} args 请求参数
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType
+  * @param {string} args.clientId 客户端标识
+记录输入密码之后，页面刷新不用重复输入密码操作
+滑动过期
   * @param {string} args.worksheetId 工作表id
   * @param {} args.getType
   * @param {array} args.filterControls 查询列
@@ -333,8 +354,8 @@ export default {
   * @param {string} args.keyWords 关键词
   * @param {integer} args.pageSize 页大小
   * @param {integer} args.pageIndex 页码
-  * @param {} args.searchType 搜索类型
-  * @param {} args.status 状态
+  * @param {} args.searchType
+  * @param {} args.status
   * @param {boolean} args.isUnRead 是否已读
   * @param {boolean} args.isGetWorksheet 是否查询工作表的详情
   * @param {string} args.viewId 视图Id
@@ -353,12 +374,6 @@ export default {
   * @param {string} args.reportId 统计图ID
   * @param {boolean} args.notGetTotal 不获取总记录数
   * @param {object} args.requestParams 请求参数
-  * @param {string} args.clientId 客户端标识
-记录输入密码之后，页面刷新不用重复输入密码操作
-滑动过期
-  * @param {string} args.ticket 验证码返票据
-  * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -370,16 +385,16 @@ export default {
   /**
   * 公开表单修改记录
   * @param {Object} args 请求参数
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType
+  * @param {string} args.clientId 客户端标识
+记录输入密码之后，页面刷新不用重复输入密码操作
+滑动过期
   * @param {string} args.shareId 公开表单分享id
   * @param {string} args.rowId 行id
   * @param {array} args.newOldControl 要修改的cell
   * @param {string} args.verifyCode 验证码【根据配置来校验是否必填】
-  * @param {string} args.clientId 客户端标识
-记录输入密码之后，页面刷新不用重复输入密码操作
-滑动过期
-  * @param {string} args.ticket 验证码返票据
-  * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -391,6 +406,9 @@ export default {
   /**
   * 提交公开表单信息（行记录）
   * @param {Object} args 请求参数
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType
   * @param {string} args.worksheetId 工作表id
   * @param {array} args.receiveControls 该行所有的cell
   * @param {array} args.receiveRows 批量新增所有rows
@@ -400,15 +418,12 @@ export default {
   * @param {string} args.btnRemark 按钮备注
   * @param {string} args.btnWorksheetId 点击按钮对应的工作表ID
   * @param {string} args.btnRowId 点击按钮对应的行记录ID
-  * @param {} args.masterRecord 主记录信息
+  * @param {} args.masterRecord
   * @param {string} args.pushUniqueId 推送ID
   * @param {string} args.verifyCode 验证码【根据配置来校验是否必填】
   * @param {integer} args.rowStatus 1：正常 21：草稿箱
   * @param {string} args.draftRowId 草稿ID
   * @param {string} args.clientId 未登录用户临时登录凭据
-  * @param {string} args.ticket 验证码返票据
-  * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -420,11 +435,11 @@ export default {
   /**
   * 公开表单发送验证码短信（配置了手机号短信验证）
   * @param {Object} args 请求参数
-  * @param {string} args.account 账号手机号
-  * @param {string} args.worksheetId 工作表ID
   * @param {string} args.ticket 验证码返票据
   * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
+  * @param {} args.captchaType
+  * @param {string} args.account 账号手机号
+  * @param {string} args.worksheetId 工作表ID
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -436,15 +451,15 @@ export default {
   /**
   * 公开表单删除记录
   * @param {Object} args 请求参数
-  * @param {string} args.shareId 公开表单分享id
-  * @param {string} args.rowId 行id
-  * @param {string} args.appId 应用Id
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType
   * @param {string} args.clientId 客户端标识
 记录输入密码之后，页面刷新不用重复输入密码操作
 滑动过期
-  * @param {string} args.ticket 验证码返票据
-  * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
+  * @param {string} args.shareId 公开表单分享id
+  * @param {string} args.rowId 行id
+  * @param {string} args.appId 应用Id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -468,6 +483,12 @@ export default {
   /**
   * 公开查询
   * @param {Object} args 请求参数
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType
+  * @param {string} args.clientId 客户端标识
+记录输入密码之后，页面刷新不用重复输入密码操作
+滑动过期
   * @param {string} args.worksheetId 工作表id
   * @param {} args.getType
   * @param {array} args.filterControls 查询列
@@ -478,8 +499,8 @@ export default {
   * @param {string} args.keyWords 关键词
   * @param {integer} args.pageSize 页大小
   * @param {integer} args.pageIndex 页码
-  * @param {} args.searchType 搜索类型
-  * @param {} args.status 状态
+  * @param {} args.searchType
+  * @param {} args.status
   * @param {boolean} args.isUnRead 是否已读
   * @param {boolean} args.isGetWorksheet 是否查询工作表的详情
   * @param {string} args.viewId 视图Id
@@ -498,12 +519,6 @@ export default {
   * @param {string} args.reportId 统计图ID
   * @param {boolean} args.notGetTotal 不获取总记录数
   * @param {object} args.requestParams 请求参数
-  * @param {string} args.clientId 客户端标识
-记录输入密码之后，页面刷新不用重复输入密码操作
-滑动过期
-  * @param {string} args.ticket 验证码返票据
-  * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

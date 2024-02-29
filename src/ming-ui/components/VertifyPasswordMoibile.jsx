@@ -1,12 +1,9 @@
 import React, { useState } from 'react';
 import { Modal } from 'antd-mobile';
-import { Input } from 'antd';
-import { Button, Textarea, Icon, Checkbox } from 'ming-ui';
-
+import { Button, VerifyPasswordInput } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import { verifyPassword } from 'src/util';
 import styled from 'styled-components';
-import cx from 'classnames';
 
 const VertifyPasswordDialogWrap = styled(Modal)`
   .am-modal-content {
@@ -55,69 +52,25 @@ const VertifyPasswordDialogWrap = styled(Modal)`
     }
   }
 `;
-const SectionName = styled.div`
-  font-size: 13px;
-  color: #333;
-  font-weight: 500;
-  margin: 0px 0 10px;
-  position: relative;
-  &.required {
-    &:before {
-      position: absolute;
-      left: -10px;
-      top: 3px;
-      color: red;
-      content: '*';
-    }
-  }
-`;
-
-const User = styled.div`
-  height: 36px;
-  background: #f5f5f5;
-  border-radius: 3px;
-  border: 1px solid #ddd;
-  padding: 0 10px;
-`;
 
 export default function MobileVertifyPassword(props) {
-  const { okText, cancelText, onOk, onClose, className, visible, title, removeNoneVerification } = props;
+  const { okText, cancelText, onOk, onClose, className, visible, removeNoneVerification } = props;
   const [password, setPassword] = useState('');
   const [isNoneVerification, setIsNoneVerification] = useState(false);
 
   return (
     <VertifyPasswordDialogWrap popup animationType="slide-up" className={className} onClose={onClose} visible={visible}>
-      <div className="Gray Font17 mBottom12 bold">{title || _l('安全认证')}</div>
-      <div className="passwordWrap mBottom25">
-        <SectionName>{_l('账号')}</SectionName>
-        <User className="mTop10 flexRow alignItemsCenter">
-          {md.global.Account.mobilePhone
-            ? md.global.Account.mobilePhone.replace(/((\+86)?\d{3})\d*(\d{4})/, '$1****$3')
-            : md.global.Account.email.replace(/(.{3}).*(@.*)/, '$1***$2')}
-        </User>
-
-        <SectionName className={cx('mTop20', { required: true })}>{_l('密码')}</SectionName>
-        <Input.Password
-          placeholder={_l('输入当前用户的密码')}
-          iconRender={visible =>
-            visible ? (
-              <Icon icon="visibility" className="Gray_9e" />
-            ) : (
-              <Icon icon="public-folder-hidden" className="Gray_9e" />
-            )
-          }
-          className="w100"
-          autocomplete="new-password"
-          onChange={e => setPassword(e.target.value)}
-        />
-        {!removeNoneVerification && (
-          <Checkbox
-            className="mTop15 flexRow Gray"
-            text={_l('一小时内免验证')}
-            onClick={checked => setIsNoneVerification(checked)}
-          />
-        )}
-      </div>
+      <VerifyPasswordInput
+        className="mBottom25"
+        showSubTitle={true}
+        autoFocus={true}
+        isRequired={true}
+        allowNoVerify={!removeNoneVerification}
+        onChange={({ password, isNoneVerification }) => {
+          setPassword(password);
+          setIsNoneVerification(isNoneVerification);
+        }}
+      />
       <div className="actionsWrap flexRow">
         <Button type="link" onClick={onClose} className="Gray_75 Font14 mRight10">
           {cancelText || _l('取消')}
@@ -125,6 +78,10 @@ export default function MobileVertifyPassword(props) {
         <Button
           type="primary"
           onClick={() => {
+            if (!password || !password.trim()) {
+              alert(_l('请输入密码'), 3);
+              return;
+            }
             verifyPassword({
               password,
               isNoneVerification,

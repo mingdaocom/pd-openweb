@@ -26,6 +26,7 @@ const Con = styled.div`
 `;
 
 export default function ViewLand(props) {
+  $('body').addClass('fixedScreen');
   const { appId, worksheetId, viewId } = _.get(props, 'match.params') || {};
   const [loading, setLoading] = useState(false);
   const [showHeader, setShowHeader] = useState(true);

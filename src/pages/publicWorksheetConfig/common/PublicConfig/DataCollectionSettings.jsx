@@ -1,28 +1,20 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Radio, Dropdown, Input, Icon, Checkbox } from 'ming-ui';
+import { Dropdown, Input, Icon, Checkbox } from 'ming-ui';
 import { DatePicker, TimePicker } from 'antd';
 import Trigger from 'rc-trigger';
 import localeZhCn from 'antd/es/date-picker/locale/zh_CN';
 import localeJaJp from 'antd/es/date-picker/locale/ja_JP';
 import localeZhTw from 'antd/es/date-picker/locale/zh_TW';
 import localeEn from 'antd/es/date-picker/locale/en_US';
-import {
-  FILL_TIMES_OPTIONS,
-  TIME_PERIOD_TYPE,
-  TIME_PERIOD_OPTIONS,
-  FILL_TIMES,
-  TIME_TYPE,
-  WEEKS,
-  MONTHS,
-} from '../../enum';
+import { FFILLLIMIT_OPTIONS, TIME_PERIOD_TYPE, TIME_PERIOD_OPTIONS, TIME_TYPE, WEEKS, MONTHS } from '../../enum';
 import cx from 'classnames';
 import _ from 'lodash';
 import dayjs from 'dayjs';
 import moment from 'moment';
 import CommonSwitch from './CommonSwitch';
 import SectionTitle from './SectionTitle';
-import { randomPassword } from 'src/util';
+import { generateRandomPassword } from 'src/util';
 
 const { RangePicker } = DatePicker;
 
@@ -184,6 +176,20 @@ const NoExpandSelect = styled.div`
   }
 `;
 
+const LimitWriteFrequencyWrap = styled.div`
+  .limitRangTypeDropdown {
+    width: 120px;
+  }
+  .limitWriteCount {
+    max-width: 200px;
+    .text {
+      right: 10px;
+      top: 0px;
+      line-height: 36px;
+    }
+  }
+`;
+
 export default function DataCollectionSettings(props) {
   const { data, setState } = props;
   const {
@@ -191,7 +197,7 @@ export default function DataCollectionSettings(props) {
     limitWriteTime = {},
     limitWriteCount = {},
     limitPasswordWrite = {},
-    fillTimes,
+    limitWriteFrequencySetting = { limitRangType: 1 },
     timeRange,
     titleFolded,
   } = data;
@@ -584,36 +590,60 @@ export default function DataCollectionSettings(props) {
               </div>
             )}
           </div>
-          <div className="mBottom24">
+          <LimitWriteFrequencyWrap>
             <CommonSwitch
-              checked={fillTimes !== FILL_TIMES.UNLIMITED}
+              checked={!!_.get(limitWriteFrequencySetting, 'isEnable')}
               onClick={() =>
                 setState({
-                  fillTimes: fillTimes === FILL_TIMES.UNLIMITED ? FILL_TIMES.ONETIME : FILL_TIMES.UNLIMITED,
+                  limitWriteFrequencySetting: {
+                    ...limitWriteFrequencySetting,
+                    isEnable: !_.get(limitWriteFrequencySetting, 'isEnable'),
+                  },
                 })
               }
               name={_l('限制填写次数')}
             />
-            {fillTimes !== FILL_TIMES.UNLIMITED && (
-              <div className="commonMargin">
-                {FILL_TIMES_OPTIONS.map((item, i) => (
-                  <Radio
-                    key={i}
-                    {...item}
-                    disableTitle
-                    checked={item.value === fillTimes}
-                    onClick={() => setState({ fillTimes: item.value })}
+            {!!_.get(limitWriteFrequencySetting, 'isEnable') && (
+              <div className="commonMargin flexRow">
+                <Dropdown
+                  border
+                  isAppendToBody
+                  selectClose={true}
+                  className="limitRangTypeDropdown"
+                  data={FFILLLIMIT_OPTIONS}
+                  value={_.get(limitWriteFrequencySetting, 'limitRangType')}
+                  onChange={limitRangType => {
+                    setState({ limitWriteFrequencySetting: { ...limitWriteFrequencySetting, limitRangType } });
+                  }}
+                />
+                <div className="flex Relative mLeft10 limitWriteCount">
+                  <Input
+                    className={'w100 pRight30'}
+                    value={_.get(limitWriteFrequencySetting, 'limitWriteCount') || ''}
+                    onChange={value => {
+                      (parseInt(value) || value === '') &&
+                        setState({
+                          limitWriteFrequencySetting: {
+                            ...limitWriteFrequencySetting,
+                            limitWriteCount: !!value ? (parseInt(value) > 10000 ? 10000 : parseInt(value)) : '',
+                          },
+                        });
+                    }}
                   />
-                ))}
+                  <span className="text Absolute">{_l('次')}</span>
+                </div>
               </div>
             )}
-          </div>
-          <div>
+          </LimitWriteFrequencyWrap>
+          <div className="mTop24">
             <CommonSwitch
               checked={limitPasswordWrite.isEnable}
               onClick={checked =>
                 setState({
-                  limitPasswordWrite: { isEnable: !checked, limitPasswordWrite: !checked ? randomPassword(4) : '' },
+                  limitPasswordWrite: {
+                    isEnable: !checked,
+                    limitPasswordWrite: !checked ? generateRandomPassword(4) : '',
+                  },
                 })
               }
               name={_l('凭密码填写')}

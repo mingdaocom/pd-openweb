@@ -11,7 +11,7 @@ import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
 const Wrap = styled.div`
   .line {
     border-top: 1px solid #eaeaea;
-    margin-top: 30px;
+    margin-top: 24px;
   }
 `;
 class ActionSet extends Component {
@@ -22,22 +22,10 @@ class ActionSet extends Component {
     };
   }
 
-  componentDidMount() {
-    this.fetchBtnByAll();
-  }
-
   fetchBtnByAll = () => {
     const { worksheetId, appId, rowId } = this.props;
     this.props.refreshFn(worksheetId, appId, '', rowId);
   };
-
-  // fresh = isAll => {
-  //   const { worksheetId, appId, viewId, rowId } = this.props;
-  //   this.props.refreshFn(worksheetId, appId, viewId, rowId);
-  //   if (isAll) {
-  //     this.fetchBtnByAll();
-  //   }
-  // };
 
   updateViewSet = data => {
     this.props.updateCurrentView(
@@ -87,9 +75,10 @@ class ActionSet extends Component {
     const showClickDetial = !['6'].includes(_.get(this.props, 'view.viewType') + '');
     return (
       <Wrap>
+        <div className="viewSetTitle">{_l('自定义动作')}</div>
         {showClickDetial && (
           <div
-            className="headerCon mTop30 Hand"
+            className="headerCon mTop24 Hand"
             onClick={() => {
               this.setState({
                 openList: openList.includes('clickAction')
@@ -149,7 +138,7 @@ class ActionSet extends Component {
         )}
         {showClickDetial && <div className="line"></div>}
         <div
-          className="headerCon mTop30 Hand"
+          className="headerCon mTop24 Hand"
           onClick={() => {
             this.setState({
               openList: openList.includes('recordAction')
@@ -211,7 +200,7 @@ class ActionSet extends Component {
           <React.Fragment>
             <div className="line"></div>
             <div
-              className="headerCon mTop30 Hand"
+              className="headerCon mTop24 Hand"
               onClick={() => {
                 this.setState({
                   openList: openList.includes('bathAction')

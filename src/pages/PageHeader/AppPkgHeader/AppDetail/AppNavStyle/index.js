@@ -21,7 +21,7 @@ const mobileNavList = [{
   activeStyle: 'nav_active',
 }];
 
-const pcNavList = [{
+export const pcNavList = [{
   name: _l('经典'),
   value: 0,
   style: 'classic',

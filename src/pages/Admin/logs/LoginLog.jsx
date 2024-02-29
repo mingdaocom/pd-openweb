@@ -85,6 +85,7 @@ export default class LoginLog extends Component {
                       accountId: log.accountId,
                     }}
                     size={24}
+                    projectId={Config.projectId}
                   />
                   <UserName
                     className="Gray Font13 pLeft5 pRight10 pTop3 flex ellipsis"

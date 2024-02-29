@@ -94,6 +94,7 @@ export default function PreviewData(props) {
     maxCount - dataCount,
   );
   const valuedData = needImportCellData.filter(row => !_.isEmpty(row.filter(_.identity)));
+  const dataColCount = _.get(needImportCellData, '0.length');
   const [mapConfig, setMapConfig] = useState(
     [...new Array(controls.length)]
       .map((a, i) => ({ [i]: _.get(controls, `${i}.controlId`) }))
@@ -172,6 +173,7 @@ export default function PreviewData(props) {
             data={needImportCellData}
             controls={controls}
             mapConfig={mapConfig}
+            columnCount={dataFrom === 'excel' && dataColCount}
             renderCellContent={({ rowIndex, columnIndex }) => {
               return (
                 <CellText className="ellipsis">{_.get(needImportCellData, `${rowIndex}.${columnIndex}`)}</CellText>
@@ -196,7 +198,7 @@ export default function PreviewData(props) {
             __html: _l(
               '导入 %0 行数据， %1/共 %2 列',
               needImportCellData.length,
-              `<span style="color:#f1a04a">${_l('%0 列', _.values(mapConfig).filter(_.identity).length)}</span>`,
+              `<span style="color:#f1a04a">${_.values(mapConfig).filter(_.identity).length}</span>`,
               controls.length,
             ),
           }}

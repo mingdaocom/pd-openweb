@@ -120,7 +120,9 @@ class External extends Component {
               }
               return (
                 <div className="">
-                  <div className={cx('timeStr', {})}>{timeStr}</div>
+                  <div className={cx('timeStr', {})}>
+                    {timeStr} <span className="pLeft3">{moment(it.date).format('dddd')}</span>
+                  </div>
                   {this.renderEventData(it.res)}
                 </div>
               );
@@ -139,7 +141,6 @@ class External extends Component {
         {eventData.map(it => {
           const { extendedProps = {}, timeList = [] } = it;
           const { rowid, stringColor = '', recordColor } = extendedProps;
-          console.log(recordColor);
           let editable = timeList.length > 1 ? timeList.filter(o => o.editable).length > 0 : timeList[0].editable; //多组时间,且有可编辑的权限，拖拽后选择时间组
           return (
             <div
@@ -226,9 +227,9 @@ class External extends Component {
     const typeEvent = getInitType();
     const eventData = calenderEventList[typeEvent];
     return (
-      <div id={`externalEvents-${this.state.random}`} className="externalEvents">
+      <div id={`externalEvents-${this.state.random}`} className="externalEvents flexColumn">
         {this.props.showExternal ? (
-          <div className="listBox">
+          <div className="listBox flexColumn flex">
             <div className="searchWrapper">
               <Icon icon="search" className="Font18" />
               <input
@@ -288,21 +289,12 @@ class External extends Component {
             )}
             {calendarLoading && <LoadDiv />}
             {this.state.isSearch && !calendarLoading && (
-              <ScrollView
-                className="eventListBox"
-                style={{
-                  maxHeight: document.documentElement.clientHeight - 190,
-                }}
-              >
+              <ScrollView className="eventListBox flex">
                 <div className="mcm">{this.renderSearchData(seachData)}</div>
               </ScrollView>
             )}
             {!this.state.isSearch && !calendarLoading && eventData && eventData.length > 0 && (
-              <ScrollView
-                className="eventListBox"
-                style={{ maxHeight: document.documentElement.clientHeight - 220 }}
-                updateEvent={this.handleScroll}
-              >
+              <ScrollView className="eventListBox flex" updateEvent={this.handleScroll}>
                 {this.renderListEvent()}
               </ScrollView>
             )}

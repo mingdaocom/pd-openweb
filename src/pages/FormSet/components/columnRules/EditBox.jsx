@@ -1,10 +1,10 @@
 import React, { Fragment } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { Icon, ScrollView } from 'ming-ui';
+import { Icon, ScrollView, RadioGroup } from 'ming-ui';
 import { Select, Tooltip } from 'antd';
-import * as actions from '../../redux/actions/action';
-import * as columnRules from '../../redux/actions/columnRules';
+import * as actions from './redux/actions/columnRules';
+import * as columnRules from './redux/actions/columnRules';
 import ActionDropDown from './actionDropdown/ActionDropDown';
 import handleSetMsg from './errorMsgDialog/ErrorMsg';
 import { actionsListData, originActionItem, getActionLabelByType, filterUnAvailable } from './config';
@@ -15,11 +15,63 @@ import cx from 'classnames';
 import Trigger from 'rc-trigger';
 import _ from 'lodash';
 
+const isLocalTest =
+  location.href.indexOf('localhost') > -1 ||
+  location.href.indexOf('meihua') > -1 ||
+  location.href.indexOf('sandbox') > -1;
+
+const CHECK_DISPLAY_OPTIONS = [
+  {
+    text: _l('仅前端'),
+    value: 0,
+  },
+  {
+    text: (
+      <span>
+        {_l('前端及后端')}
+        <Tooltip
+          placement="bottom"
+          title={_l(
+            '若条件字段在填写期间被其他端口更改，可通过该种校验方式确保提交数据时业务规则仍准确生效。但数据校验速度可能较慢。该功能为beta功能，若导致数据提交失败，可改为仅前端校验。',
+          )}
+        >
+          <i className="icon-help Gray_9e Font16 Hand mLeft6 mRight6"></i>
+        </Tooltip>
+        <Icon icon="beta1" style={{ background: '#fff', color: '#43BD36' }} />
+      </span>
+    ),
+    value: 1,
+  },
+  {
+    text: (
+      <span>
+        {_l('仅后端')}
+        <Tooltip placement="bottom" title={_l('测试专用，上线会隐藏')}>
+          <i className="icon-help Gray_9e Font16 Hand mLeft6 mRight6"></i>
+        </Tooltip>
+      </span>
+    ),
+    value: 2,
+  },
+];
+
+const HINT_DISPLAY_OPTIONS = [
+  {
+    text: _l('输入和提交时'),
+    value: 0,
+  },
+  {
+    text: _l('仅提交时'),
+    value: 1,
+  },
+];
+
 class EditBox extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       name: (props.selectRules || {}).name || '',
+      message: _.get(props.selectRules, 'ruleItems[0].message') || '',
       visible: false,
     };
   }
@@ -28,10 +80,13 @@ class EditBox extends React.Component {
     if (nextProps.selectRules.name !== this.state.name) {
       this.setState({ name: nextProps.selectRules.name });
     }
+    if (_.get(nextProps.selectRules, 'ruleItems[0].message') !== this.state.message) {
+      this.setState({ message: _.get(nextProps.selectRules, 'ruleItems[0].message') });
+    }
   }
 
   setErrorMsg = (item, index) => {
-    const { selectRules = {}, updateAction, updateActionError } = this.props;
+    const { selectRules = {}, updateSelectRule, updateError } = this.props;
     let { ruleItems = [] } = selectRules;
     handleSetMsg({
       value: item.message,
@@ -39,20 +94,21 @@ class EditBox extends React.Component {
         let currentActionData = ruleItems[index] || {};
         currentActionData.message = message;
         ruleItems.splice(index, 1, currentActionData);
-        updateAction(ruleItems);
-        updateActionError(index);
+        updateSelectRule('ruleItems', ruleItems);
+        updateError('action', '', index);
       },
     });
   };
 
+  // 筛选条件
   renderCondition = () => {
     const {
       selectRules,
       projectId,
       worksheetControls,
-      updateFilters,
+      updateSelectRule,
+      updateError,
       ruleError = {},
-      updateFilterError,
       appId,
       sheetSwitchPermit,
     } = this.props;
@@ -66,6 +122,7 @@ class EditBox extends React.Component {
           canEdit
           feOnly
           isRules={true}
+          version={selectRules.ruleId}
           supportGroup={true}
           projectId={projectId}
           appId={appId}
@@ -86,9 +143,9 @@ class EditBox extends React.Component {
                     groupFilters: conditions,
                   },
                 ];
-            updateFilters(newConditions);
+            updateSelectRule('filters', newConditions);
             if ((_.flatten(ruleError.filterError) || []).filter(i => i).length) {
-              updateFilterError(newConditions);
+              updateError('filters', newConditions);
             }
           }}
         />
@@ -96,20 +153,16 @@ class EditBox extends React.Component {
     );
   };
 
+  // 执行动作
   renderAction = () => {
-    const { selectRules = {}, updateAction, worksheetControls, ruleError = {}, updateActionError } = this.props;
+    const { selectRules = {}, updateSelectRule, worksheetControls, ruleError = {}, updateError } = this.props;
     const { visible } = this.state;
     let { ruleItems = [] } = selectRules;
-    let listData;
+    let listData = actionsListData.filter(i => i.value !== 6);
 
-    if (
-      location.href.indexOf('localhost') > -1 ||
-      location.href.indexOf('meihua') > -1 ||
-      location.href.indexOf('sandbox') > -1
-    ) {
-      listData = actionsListData;
-    } else {
-      listData = actionsListData.filter(it => _.includes([1, 2, 3, 4, 5, 6, 7], it.value));
+    // 单条业务规则只能配置一个【只读所有字段】，枚举7
+    if (ruleItems.some(i => i.type === 7)) {
+      listData = listData.filter(i => i.value !== 7);
     }
 
     return (
@@ -120,7 +173,7 @@ class EditBox extends React.Component {
           return (
             <div className="actionItemCon">
               <Select
-                className={cx('ruleListSelect', { flexItem: _.includes([7, 8], actionItem.type) })}
+                className={cx('ruleListSelect', { flexItem: _.includes([7], actionItem.type) })}
                 dropdownClassName="ruleListSelectDropdown"
                 value={getActionLabelByType(actionItem.type)}
                 options={listData}
@@ -128,7 +181,7 @@ class EditBox extends React.Component {
                 onChange={type => {
                   let currentActionData = { ...ruleItems[actionIndex] };
                   currentActionData.type = type;
-                  if (_.includes([7, 8], type)) {
+                  if (_.includes([7], type)) {
                     currentActionData.controls = [];
                     currentActionData.message = '';
                   }
@@ -142,11 +195,11 @@ class EditBox extends React.Component {
                     currentActionData = filterUnAvailable(currentActionData, worksheetControls, type);
                   }
                   ruleItems.splice(actionIndex, 1, currentActionData);
-                  updateAction(ruleItems);
+                  updateSelectRule('ruleItems', ruleItems);
                 }}
               />
-              {_.includes([7, 8], actionItem.type) ? null : actionItem.type === 6 ? (
-                <div className={cx('errorInputBox Hand', { errorBorder: ruleError.nameError })}>
+              {_.includes([7], actionItem.type) ? null : actionItem.type === 6 ? (
+                <div className={cx('errorInputBox Hand', { errorBorder: actionError })}>
                   {actionItem.message ? (
                     <span className="flexRow Gray_75 clearfix LineHeight36">
                       <span className="ellipsis">{actionItem.message}</span>
@@ -175,8 +228,8 @@ class EditBox extends React.Component {
                     let currentActionData = { ...ruleItems[actionIndex] };
                     currentActionData[key] = value;
                     ruleItems.splice(actionIndex, 1, currentActionData);
-                    updateAction(ruleItems);
-                    updateActionError(actionIndex);
+                    updateSelectRule('ruleItems', ruleItems);
+                    updateError('action', '', actionIndex);
                   }}
                 />
               )}
@@ -185,8 +238,8 @@ class EditBox extends React.Component {
                 className="Gray_9e deleteBtn Hand"
                 onClick={() => {
                   ruleItems.splice(actionIndex, 1);
-                  updateAction(ruleItems);
-                  updateActionError(actionIndex);
+                  updateSelectRule('ruleItems', ruleItems);
+                  updateError('action', '', actionIndex);
                 }}
               />
             </div>
@@ -204,7 +257,11 @@ class EditBox extends React.Component {
           popup={() => (
             <Fragment>
               {listData.map(i => (
-                <div onClick={() => updateAction(ruleItems.concat({ ...originActionItem, type: i.value }), true)}>
+                <div
+                  onClick={() =>
+                    updateSelectRule('ruleItems', ruleItems.concat({ ...originActionItem, type: i.value }))
+                  }
+                >
                   {i.label}
                   {i.warnText && (
                     <Tooltip placement="bottom" title={i.warnText}>
@@ -226,23 +283,116 @@ class EditBox extends React.Component {
     );
   };
 
+  // 校验方式 | 提示方式 ｜ 提示错误
+  renderCheck = () => {
+    const {
+      selectRules = {},
+      updateSelectRule,
+      updateError,
+      ruleError,
+      worksheetControls = [],
+      activeTab,
+    } = this.props;
+    const { checkType = '0', hintType = '0', ruleItems = [] } = selectRules;
+    const { controls = [], message = '' } = ruleItems[0] || {};
+    const isError = _.get(ruleError, 'actionError[0]');
+    const dropData = worksheetControls
+      .filter(i => !_.includes(SYS_CONTROLS.concat(SYS), i.controlId))
+      .map(i => (i.relationControls ? { ...i, relationControls: [] } : i));
+
+    const CHECK_DISPLAY_OPTIONS_FILTER =
+      location.href.indexOf('localhost') > -1 ||
+      location.href.indexOf('meihua') > -1 ||
+      location.href.indexOf('sandbox') > -1
+        ? CHECK_DISPLAY_OPTIONS
+        : CHECK_DISPLAY_OPTIONS.filter(i => i.value !== 2);
+
+    return (
+      <Fragment>
+        {isLocalTest && (
+          <Fragment>
+            <div className="conditionContainer mTop0">
+              <div className="Font14 Bold mBottom12">{_l('校验方式')}</div>
+              <RadioGroup
+                size="middle"
+                disableTitle={true}
+                checkedValue={checkType}
+                data={CHECK_DISPLAY_OPTIONS_FILTER}
+                onChange={value => updateSelectRule('checkType', value)}
+              />
+            </div>
+            <div className="conditionContainer">
+              <div className="Font14 Bold mBottom12">{_l('提示方式')}</div>
+              <RadioGroup
+                size="middle"
+                checkedValue={hintType}
+                data={HINT_DISPLAY_OPTIONS}
+                onChange={value => updateSelectRule('hintType', value)}
+              />
+            </div>
+          </Fragment>
+        )}
+        <div className="conditionContainer">
+          <div className="Font14 Bold mBottom12">{_l('提示错误')}</div>
+          {isLocalTest && (
+            <ActionDropDown
+              actionType={6}
+              values={controls}
+              activeTab={activeTab}
+              dropDownData={dropData}
+              onChange={(key, value) => {
+                const newVal = [{ controls: value, message, type: 6 }];
+                updateSelectRule('ruleItems', newVal);
+              }}
+            />
+          )}
+          <input
+            className={cx('ruleNameInput', { errorBorder: isError && !message, mTop12: isLocalTest })}
+            value={this.state.message}
+            placeholder={_l('请输入提示内容')}
+            onChange={e => this.setState({ message: e.target.value })}
+            onBlur={e => {
+              const newValue = [{ controls, message: e.target.value, type: 6 }];
+              updateSelectRule('ruleItems', newValue);
+              isError && updateError('action', newValue[0], 0);
+            }}
+          />
+        </div>
+      </Fragment>
+    );
+  };
+
+  renderContent = () => {
+    const { activeTab } = this.props;
+
+    // 交互规则
+    if (activeTab === 0) {
+      return this.renderAction();
+    }
+
+    // 验证规则
+    if (activeTab === 1) {
+      return this.renderCheck();
+    }
+  };
+
   render() {
-    const { selectRules = {}, updateRuleName, ruleError = {} } = this.props;
+    const { selectRules = {}, updateSelectRule } = this.props;
     return (
       <ScrollView className="editRuleBox">
         <div className="pTop20 pLeft24 pRight24 pBottom20 box-sizing">
           <div className="Font14 Bold">{_l('规则名称')}</div>
           <input
-            className={cx('mTop12 ruleNameInput', { errorBorder: ruleError.nameError })}
+            className="mTop12 ruleNameInput"
             value={this.state.name}
             onChange={e => this.setState({ name: e.target.value })}
             onBlur={e => {
               const name = !!e.target.value ? e.target.value : selectRules.name;
-              updateRuleName(name);
+              updateSelectRule('name', name);
             }}
           />
           {this.renderCondition()}
-          {this.renderAction()}
+          {this.renderContent()}
         </div>
       </ScrollView>
     );
@@ -257,6 +407,7 @@ const mapStateToProps = state => ({
   appId: state.formSet.worksheetInfo.appId,
   ruleError: state.formSet.ruleError,
   sheetSwitchPermit: state.formSet.worksheetInfo.switches,
+  activeTab: state.formSet.activeTab,
 });
 const mapDispatchToProps = dispatch => bindActionCreators({ ...actions, ...columnRules }, dispatch);
 

@@ -1,7 +1,12 @@
 ﻿#txtOldTaskName {
   width: 345px;
 }
+
 .task_title_icon {
   background: url(../images/task_name_ico.gif) no-repeat left center;
   padding-left: 25px;
+}
+
+.addOldTaskConfirm>.mui-dialog-scroll-container>.mui-dialog-dialog>.mui-dialog-body {
+  overflow: visible;
 }

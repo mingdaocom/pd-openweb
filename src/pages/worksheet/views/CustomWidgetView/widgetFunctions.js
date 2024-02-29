@@ -10,29 +10,31 @@ import { mobileSelectRecord } from 'src/components/recordCardListDialog/mobile';
 import { selectOrgRole as mobileSelectOrgRole } from 'mobile/components/SelectOrgRole';
 import { antAlert } from 'src/util/antdWrapper';
 import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
-import { selectOrgRole } from 'src/components/DialogSelectOrgRole';
+import selectOrgRole from 'src/components/dialogSelectOrgRole';
 import DialogSelectGroups from 'src/components/dialogSelectDept';
 import { selectRecord } from 'src/components/recordCardListDialog';
 import renderText from 'worksheet/components/CellControls/renderText';
 import selectLocation from './selectLocation';
 import { browserIsMobile, addBehaviorLog, mdAppResponse } from 'src/util';
+import { getFilledRequestParams } from '../../util';
 
-function mdPost(action, controller, data) {
+function mdPost(controller, action, data) {
   let pssId = getPssId();
   const headers = {
     authorization: pssId ? `md_pss_id ${pssId}` : '',
   };
-  if (window.share) {
-    headers.share = window.share;
-  }
   if (window.access_token) {
     // 工作流&统计服务
     headers.access_token = window.access_token;
     // 主站服务
     headers.Authorization = `access_token ${window.access_token}`;
   }
+  const clientId = window.clientId || sessionStorage.getItem('clientId');
+  if (window.needSetClientId({ clientId, controllerName: controller })) {
+    headers.clientId = clientId;
+  }
   return axios
-    .post(`${window.__api_server__.main}/${action}/${controller}`, data, {
+    .post(`${window.__api_server__.main.replace(/\/$/, '')}/${controller}/${action}`, data, {
       headers,
     })
     .then(res => {
@@ -45,8 +47,8 @@ function mdPost(action, controller, data) {
 }
 
 export const api = {
-  getFilterRowsTotalNum: data => mdPost('Worksheet', 'GetFilterRowsTotalNum', data),
-  getFilterRows: data => mdPost('Worksheet', 'GetFilterRows', data),
+  getFilterRowsTotalNum: data => mdPost('Worksheet', 'GetFilterRowsTotalNum', getFilledRequestParams(data)),
+  getFilterRows: data => mdPost('Worksheet', 'GetFilterRows', getFilledRequestParams(data)),
   getRowRelationRows: data => mdPost('Worksheet', 'GetRowRelationRows', data),
   getRowDetail: data => mdPost('Worksheet', 'GetRowDetail', data),
   addWorksheetRow: data => mdPost('Worksheet', 'AddWorksheetRow', data),

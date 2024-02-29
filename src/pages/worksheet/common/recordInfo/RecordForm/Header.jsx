@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { Tooltip } from 'ming-ui';
+import { Tooltip, Icon } from 'ming-ui';
 import styled from 'styled-components';
 import _ from 'lodash';
 import discussionAjax from 'src/api/discussion';
@@ -12,6 +12,8 @@ import Operates from './Operates';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
+import favoriteApi from 'src/api/favorite.js';
+import { getCurrentProject } from 'src/util';
 
 const SideBarIcon = styled(IconBtn)`
   display: flex;
@@ -24,6 +26,7 @@ const SideBarIcon = styled(IconBtn)`
   }
 `;
 
+let favCom = null;
 export default function InfoHeader(props) {
   const {
     isCharge,
@@ -56,10 +59,12 @@ export default function InfoHeader(props) {
     // exAccountDiscussEnum = 0, //外部用户的讨论类型 0：所有讨论 1：不可见内部讨论
     // approved: false, //允许外部用户允许查看审批流转详情
   } = props;
+  const { projectId = localStorage.getItem('currentProjectId') } = recordinfo;
   let { header } = props;
   const { isSmall, worksheetId, recordId, notDialog } = recordbase;
   const rowId = useRef(recordId);
   const [discussCount, setDiscussCount] = useState();
+  const [isFavorite, setIsFavorite] = useState(recordinfo.isFavorite);
   const discussVisible = isOpenPermit(permitList.recordDiscussSwitch, sheetSwitchPermit, viewId);
   const logVisible = isOpenPermit(permitList.recordLogSwitch, sheetSwitchPermit, viewId);
   const workflowVisible = isOpenPermit(permitList.approveDetailsSwitch, sheetSwitchPermit, viewId);
@@ -67,11 +72,14 @@ export default function InfoHeader(props) {
   const isPublicShare =
     _.get(window, 'shareState.isPublicRecord') ||
     _.get(window, 'shareState.isPublicView') ||
+    _.get(window, 'shareState.isPublicPage') ||
     _.get(window, 'shareState.isPublicQuery') ||
     _.get(window, 'shareState.isPublicForm') ||
     _.get(window, 'shareState.isPublicWorkflowRecord') ||
     _.get(window, 'shareState.isPublicPrint');
   const isPublicRecordLand = isPublicShare && notDialog;
+  const project = getCurrentProject(projectId);
+  const showFav = !window.shareState.shareId && !md.global.Account.isPortal && !_.isEmpty(project); //&& !_.isEmpty(recordinfo);
   const showSideBar =
     (!isPublicShare && !md.global.Account.isPortal && (workflowVisible || discussVisible || logVisible)) ||
     (md.global.Account.isPortal && props.allowExAccountDiscuss && discussVisible) ||
@@ -104,6 +112,11 @@ export default function InfoHeader(props) {
       loadDiscussionsCount();
     }
   }, [recordId, props.allowExAccountDiscuss]);
+
+  useEffect(() => {
+    setIsFavorite(_.get(props, 'recordinfo.isFavorite'));
+  }, [_.get(props, 'recordinfo.isFavorite'), recordId]);
+
   useEffect(() => {
     emitter.addListener('RELOAD_RECORD_INFO_DISCUSS', loadDiscussionsCount);
     return () => {
@@ -148,6 +161,63 @@ export default function InfoHeader(props) {
     );
   };
 
+  const onFav = () => {
+    if (window.isPublicApp) {
+      alert(_l('预览模式下，不能操作'), 3);
+      return;
+    }
+    if (loading || _.get(props, 'recordinfo.isFavorite') === undefined) {
+      return;
+    }
+    if (favCom) {
+      favCom.abort();
+    }
+    if (!isFavorite) {
+      favCom = favoriteApi.addFavorite({
+        worksheetId,
+        rowId: recordId,
+        viewId,
+      });
+    } else {
+      favCom = favoriteApi.removeFavorite({
+        projectId,
+        rowId: recordId,
+        worksheetId,
+        viewId,
+      });
+    }
+    favCom.then(res => {
+      setIsFavorite(!isFavorite);
+      favCom = null;
+      if (res) {
+        if (!isFavorite) {
+          alert(_l('收藏成功'));
+        } else {
+          alert(_l('已取消收藏'));
+        }
+      } else {
+        alert(_l('操作失败，稍后再试'), 3);
+      }
+    });
+  };
+
+  const favBtn = () => {
+    const btn = (
+      <IconBtn className="Hand favBtn" onClick={onFav}>
+        <Icon
+          className="Font22 Hand "
+          style={{ color: isFavorite ? '#FFC402' : '#9E9E9E' }}
+          icon={!isFavorite ? 'star_outline' : 'star'}
+        />
+      </IconBtn>
+    );
+    return (
+      <Tooltip offset={[0, 0]} text={<span>{isFavorite ? _l('取消收藏') : _l('收藏')}</span>}>
+        {btn}
+      </Tooltip>
+    );
+  };
+
   return (
     <div className="recordHeader flexRow Font22" style={{ zIndex: 10 }}>
       {!!header && !loading && (
@@ -179,6 +249,7 @@ export default function InfoHeader(props) {
           {!isPublicShare && !iseditting ? (
             <Operates
               isCharge={isCharge}
+              hideFav
               addRefreshEvents={addRefreshEvents}
               iseditting={iseditting}
               sideVisible={sideVisible}
@@ -194,8 +265,12 @@ export default function InfoHeader(props) {
           ) : (
             <div className="flex" />
           )}
+          {showFav && favBtn()}
           {showSideBar && sideBarBtn()}
-          {(!isPublicRecordLand || _.get(window, 'shareState.isPublicView')) && closeBtn()}
+          {(!isPublicRecordLand ||
+            _.get(window, 'shareState.isPublicView') ||
+            _.get(window, 'shareState.isPublicPage')) &&
+            closeBtn()}
         </div>
       )}
     </div>

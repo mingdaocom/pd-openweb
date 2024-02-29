@@ -133,7 +133,6 @@ function Buttons(props) {
               onClickAway={() => setPopupVisible(false)}
               onClickAwayExceptions={[
                 '.mdModalWrap',
-                '.mdDialog',
                 '.mui-dialog-container',
                 '.dropdownTrigger',
                 '.addFilterPopup',

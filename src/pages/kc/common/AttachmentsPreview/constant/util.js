@@ -46,6 +46,9 @@ function canDownload(attachment) {
 
 function showKcVersionPanel(attachment, options) {
   const { hideFunctions, fromType } = options;
+  if (_.get(window, 'shareState.shareId')) {
+    return false;
+  }
   if (hideFunctions && hideFunctions.indexOf('showKcVersionPanel') > -1) {
     return false;
   }

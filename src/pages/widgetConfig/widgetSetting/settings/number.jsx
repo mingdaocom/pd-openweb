@@ -94,6 +94,7 @@ export default function Number(props) {
               newOptions.itemcolor = JSON.stringify(_.isEmpty(itemcolor) ? defaultItemColor : itemcolor);
               newOptions.showinput = '1';
               newOptions.datamask = '';
+              newOptions.checkrange = '0';
               setNumValue(newOptions.numinterval);
               onChange({ ...handleAdvancedSettingChange(data, newOptions), dot: 0 });
               return;

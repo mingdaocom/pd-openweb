@@ -1,20 +1,5 @@
 export default {
   /**
-  * 获取指定时间段内的日程
-  * @param {Object} args 请求参数
-  * @param {string} args.accountIDs 被查看人的accountID,英文逗号拼接
-  * @param {string} args.startDate 开始时间
-  * @param {boolean} args.isCooperation 是否协作
-  * @param {string} args.endDate 结束时间
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getWidgetCalendars: function (args, options = {}) {
-     
-     return $.api('Calendar', 'GetWidgetCalendars', args, options);
-   },
-  /**
   * 获取受邀日程数
   * @param {Object} args 请求参数
   * @param {Object} options 配置参数
@@ -82,7 +67,7 @@ export default {
   * @param {boolean} args.isWorkCalendar 是否包含工作日程
   * @param {boolean} args.isTaskCalendar 是否包含任务日程
   * @param {string} args.categoryIDs 标签ID，英文逗号拼接
-  * @param {} args.filterTaskType 过滤类型
+  * @param {} args.filterTaskType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -90,20 +75,6 @@ export default {
    getCalendarList2: function (args, options = {}) {
      
      return $.api('Calendar', 'GetCalendarList2', args, options);
-   },
-  /**
-  * 获取我的全部日程
-  * @param {Object} args 请求参数
-  * @param {string} args.startDate 开始时间
-  * @param {string} args.endDate 截止时间
-  * @param {string} args.keywords 关键字
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getMeCalendars: function (args, options = {}) {
-     
-     return $.api('Calendar', 'GetMeCalendars', args, options);
    },
   /**
   * 获取日程列表
@@ -114,7 +85,7 @@ export default {
   * @param {string} args.categoryIDs 查看标签ID，英文逗号拼接
   * @param {boolean} args.isWorkCalendar 是否查看工作日程
   * @param {boolean} args.isTaskCalendar 是否查看任务日程
-  * @param {} args.filterTaskType 过滤任务类型
+  * @param {} args.filterTaskType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -148,31 +119,6 @@ export default {
    getCalendarDetail2: function (args, options = {}) {
      
      return $.api('Calendar', 'GetCalendarDetail2', args, options);
-   },
-  /**
-  * 根据时间获取日程
-  * @param {Object} args 请求参数
-  * @param {string} args.startTime 开始时间
-  * @param {string} args.endTime 截止时间
-  * @param {} args.types 类型，有默认值
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getDailyCalendars: function (args, options = {}) {
-     
-     return $.api('Calendar', 'GetDailyCalendars', args, options);
-   },
-  /**
-  * 获取（最近的）下一条日程
-  * @param {Object} args 请求参数
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getLastOneCalendar: function (args, options = {}) {
-     
-     return $.api('Calendar', 'GetLastOneCalendar', args, options);
    },
   /**
   * 获取日程分享详情（日程详情）
@@ -261,11 +207,11 @@ export default {
   * @param {string} args.knowledgeAtt 知识中心附件
   * @param {integer} args.remindTime 提醒时间
   * @param {integer} args.remindType 提醒时间分类
-  * @param {} args.frequency 重复频率时间
+  * @param {} args.frequency
   * @param {integer} args.interval 重复间隔
   * @param {integer} args.recurCount 重复次数
   * @param {string} args.untilDate 结束日期
-  * @param {} args.weekDay 重复周期
+  * @param {} args.weekDay
   * @param {string} args.appId 应用id
   * @param {boolean} args.voiceRemind 是否语音提醒
   * @param {Object} options 配置参数
@@ -321,7 +267,7 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.calendarID 日程ID
   * @param {integer} args.remindTime 提醒时间
-  * @param {} args.remindType 提醒类型
+  * @param {} args.remindType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -357,11 +303,11 @@ export default {
   * @param {boolean} args.isLock 是否锁
   * @param {string} args.attachments 附件
   * @param {string} args.knowledgeAtt 知识中心附件
-  * @param {} args.frequency 频率
+  * @param {} args.frequency
   * @param {integer} args.interval 重复间隔
   * @param {integer} args.recurCount 重复次数
   * @param {string} args.untilDate 结束日期
-  * @param {} args.weekDay 重复周期
+  * @param {} args.weekDay
   * @param {string} args.recurTime 复发时间
   * @param {boolean} args.isAllCalendar 是否全部日程
   * @param {boolean} args.reConfirm 重新确认
@@ -429,7 +375,7 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.calendarID 日程ID
   * @param {string} args.recurTime 复发日程
-  * @param {} args.newStatus 状态
+  * @param {} args.newStatus
   * @param {string} args.remark 描述
   * @param {string} args.catID 日程分类ID
   * @param {Object} options 配置参数
@@ -454,21 +400,6 @@ export default {
    removeMember: function (args, options = {}) {
      
      return $.api('Calendar', 'RemoveMember', args, options);
-   },
-  /**
-  * 旧用户，无accountID成员移除
-  * @param {Object} args 请求参数
-  * @param {string} args.calendarID 日程id
-  * @param {string} args.memberFlag 用户标识
-  * @param {string} args.recurTime 循环时间
-  * @param {boolean} args.isAllCalendar 是否所有日程
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   removeMemberWithoutAccountID: function (args, options = {}) {
-     
-     return $.api('Calendar', 'RemoveMemberWithoutAccountID', args, options);
    },
   /**
   * 转换日程到任务
@@ -497,19 +428,6 @@ export default {
      return $.api('Calendar', 'ConvertCalendarToTask', args, options);
    },
   /**
-  * 添加日程分类
-  * @param {Object} args 请求参数
-  * @param {string} args.catName 日程分类名称
-  * @param {} args.color 颜色
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   appendUserCalCategory: function (args, options = {}) {
-     
-     return $.api('Calendar', 'AppendUserCalCategory', args, options);
-   },
-  /**
   * 删除日程分类
   * @param {Object} args 请求参数
   * @param {string} args.catID 日程分类id
@@ -532,18 +450,6 @@ export default {
    updateUserCalCategoryInfo: function (args, options = {}) {
      
      return $.api('Calendar', 'UpdateUserCalCategoryInfo', args, options);
-   },
-  /**
-  * 修改日程分类顺序
-  * @param {Object} args 请求参数
-  * @param {string} args.cateIDs 日程分类ID，英文逗号拼接
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   updateUserCalCategoriesIndex: function (args, options = {}) {
-     
-     return $.api('Calendar', 'UpdateUserCalCategoriesIndex', args, options);
    },
   /**
   * 查找用户所有分类

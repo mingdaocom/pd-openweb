@@ -120,7 +120,7 @@ export default class Con extends React.Component {
               {sysList.length > 0 && <div style={{ paddingTop: 6 }}></div>}
               {otherList.length > 0 && (
                 <React.Fragment>
-                  <Wrap>{_l('普通')}</Wrap>
+                  <Wrap>{_l('自定义')}</Wrap>
                   {otherList.map(o => {
                     return <ItemCon {...this.props} data={o} />;
                   })}

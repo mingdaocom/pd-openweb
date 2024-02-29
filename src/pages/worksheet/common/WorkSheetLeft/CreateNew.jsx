@@ -40,7 +40,7 @@ export default class CreateNew extends Component {
         visible
         title={headerText}
         width={type === 'customPage' ? 580 : undefined}
-        okText={_l('创建')}
+        okText={_l('新建')}
         onOk={() => {
           const name = this.state.value.trim().slice(0, 100);
           const { configuration = {}, urlTemplate } = customPageArgs;

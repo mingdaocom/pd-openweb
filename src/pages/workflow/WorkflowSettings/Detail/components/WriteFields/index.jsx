@@ -1,10 +1,10 @@
 import React, { Component, Fragment } from 'react';
 import { Checkbox, Icon, Dialog, Switch } from 'ming-ui';
-import flowNode from '../../../../api/flowNode';
 import _ from 'lodash';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { NODE_TYPE } from '../../../enum';
+import { Tooltip } from 'antd';
 
 const READ_TYPE = [20, 22, 25, 30, 31, 32, 33, 34, 37, 38, 45, 47, 51];
 
@@ -57,31 +57,6 @@ export default class WriteFields extends Component {
     selectItem: {},
     foldIds: [],
   };
-
-  componentDidMount() {
-    const { selectNodeId, data } = this.props;
-
-    if (selectNodeId && !data.length) {
-      this.getNodeFormProperty(selectNodeId);
-    }
-  }
-
-  componentWillReceiveProps(nextProps, nextState) {
-    if (nextProps.selectNodeId !== this.props.selectNodeId) {
-      this.getNodeFormProperty(nextProps.selectNodeId);
-    }
-  }
-
-  /**
-   * 获取字段列表
-   */
-  getNodeFormProperty(selectNodeId) {
-    const { processId, nodeId, updateSource } = this.props;
-
-    flowNode.getNodeFormProperty({ processId, nodeId, selectNodeId }).then(result => {
-      updateSource({ formProperties: result });
-    });
-  }
 
   /**
    * 是否禁用
@@ -201,7 +176,7 @@ export default class WriteFields extends Component {
     return (
       <Box className="mTop15">
         <li className="flexRow">
-          <div className="flex" />
+          <div className="flex bold">{_l('名称')}</div>
           <div className="mLeft16">
             {!_.includes(hideTypes, 1) && (
               <Checkbox
@@ -370,11 +345,25 @@ export default class WriteFields extends Component {
   }
 
   render() {
-    const { data, showCard, updateSource, hideTypes } = this.props;
+    const { data, addNotAllowView, showCard, updateSource, hideTypes } = this.props;
     const { showTableControls, selectItem } = this.state;
 
     return (
       <Fragment>
+        <div className="flexRow">
+          <div className="flex" />
+          <Tooltip title={_l('勾选时，当工作表中新增字段时，新字段将自动设为允许查看')}>
+            <div>
+              <Checkbox
+                className="InlineBlock Font12 TxtMiddle"
+                text={_l('新增字段默认可查看')}
+                checked={!addNotAllowView}
+                onClick={checked => updateSource({ addNotAllowView: checked })}
+              />
+            </div>
+          </Tooltip>
+        </div>
+
         {this.renderContent({ data, showCard })}
 
         {showTableControls && (

@@ -6,6 +6,7 @@ import { SortableContainer, SortableElement, SortableHandle } from 'react-sortab
 import sheetAjax from 'src/api/worksheet';
 import cx from 'classnames';
 import _ from 'lodash';
+
 const confirm = Dialog.confirm;
 
 const SortHandle = SortableHandle(() => <Icon className="mRight10 Font16 mLeft7 Hand" icon="drag" />);
@@ -16,6 +17,7 @@ const Item = SortableElement(
     icon,
     color,
     btnId,
+    appId,
     editBtn,
     clickType,
     writeType,
@@ -53,7 +55,7 @@ const Item = SortableElement(
                 )}
               />
             )}
-            <span className={cx('flex overflow_ellipsis', { Gray_9e: disable })}> {name || ''}</span>
+            <span className={cx('flex overflow_ellipsis', { Gray_9e: disable })}>{name || ''}</span>
           </span>
           <Icon
             className="Font16 Hand copyIcon"

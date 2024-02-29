@@ -90,8 +90,8 @@ export default class extends Component {
     this.RadarChart.destroy();
   }
   componentWillReceiveProps(nextProps) {
-    const { displaySetup } = nextProps.reportData;
-    const { displaySetup: oldDisplaySetup } = this.props.reportData;
+    const { displaySetup, style } = nextProps.reportData;
+    const { displaySetup: oldDisplaySetup, style: oldStyle } = this.props.reportData;
     const chartColor = _.get(nextProps, 'customPageConfig.chartColor');
     const oldChartColor = _.get(this.props, 'customPageConfig.chartColor');
     // 显示设置
@@ -102,6 +102,7 @@ export default class extends Component {
       displaySetup.magnitudeUpdateFlag !== oldDisplaySetup.magnitudeUpdateFlag ||
       displaySetup.ydisplay.minValue !== oldDisplaySetup.ydisplay.minValue ||
       displaySetup.ydisplay.maxValue !== oldDisplaySetup.ydisplay.maxValue ||
+      style.tooltipValueType !== oldStyle.tooltipValueType ||
       !_.isEqual(chartColor, oldChartColor) ||
       nextProps.themeColor !== this.props.themeColor
     ) {
@@ -158,14 +159,16 @@ export default class extends Component {
     }
   }
   getComponentConfig(props) {
-    const { themeColor, projectId, customPageConfig, reportData } = props;
-    const { chartColor } = customPageConfig;
-    const { map, displaySetup, yaxisList, style, split, xaxes } = reportData;
+    const { themeColor, projectId, customPageConfig = {}, reportData } = props;
+    const { chartColor, chartColorIndex = 1 } = customPageConfig;
+    const { map, displaySetup, yaxisList, split, xaxes } = reportData;
+    const styleConfig = reportData.style || {};
+    const style = chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0) ? { ...styleConfig, ...chartColor } : styleConfig;
     const { position } = getLegendType(displaySetup.legendType);
     const { ydisplay } = displaySetup;
     const data = formatChartData(map, yaxisList, split.controlId, xaxes.controlId, ydisplay.minValue, ydisplay.maxValue);
     const newYaxisList = formatYaxisList(data, yaxisList);
-    const colors = getChartColors(chartColor || style, themeColor, projectId);
+    const colors = getChartColors(style, themeColor, projectId);
     const baseConfig = {
       data,
       appendPadding: [5, 0, 5, 0],
@@ -235,9 +238,10 @@ export default class extends Component {
           const { name, id } = formatControlInfo(groupName);
           const { dot } = _.find(yaxisList, { controlId: id }) || {};
           const { originalValue } = _.find(data, { originalId, groupName }) || {};
+          const labelValue = formatrChartValue(originalValue, false, newYaxisList, originalValue ? undefined : id);
           return {
             name,
-            value: _.isNumber(originalValue) ? originalValue.toLocaleString('zh', { minimumFractionDigits: dot }) : '--',
+            value: _.isNumber(originalValue) ? style.tooltipValueType ? labelValue : originalValue.toLocaleString('zh', { minimumFractionDigits: dot }) : '--',
           };
         },
       },

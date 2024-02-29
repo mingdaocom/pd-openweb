@@ -241,6 +241,7 @@ export default class Text extends React.Component {
             <div className={cx('cellDepartments cellControl', { singleLine })}>
               {value.map((department, index) => (
                 <Tooltip
+                  flag={department.departmentId}
                   mouseEnterDelay={0.6}
                   disable={!projectId}
                   text={

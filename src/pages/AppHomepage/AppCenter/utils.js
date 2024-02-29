@@ -35,3 +35,12 @@ export const transferExternalLinkUrl = (urlTemplate, projectId, appId) => {
   });
   return transferUrl;
 };
+
+export const getFilterApps = (apps, keywords) => {
+  if (!keywords.trim()) {
+    return apps;
+  }
+  return apps.filter(
+    app => [app.enName, app.name].filter(_.identity).join('').toLowerCase().indexOf(keywords.trim().toLowerCase()) > -1,
+  );
+};

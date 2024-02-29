@@ -26,7 +26,7 @@ const checkFuncs = {
     const { global = {} } = md;
     const { SysSettings = {} } = global;
     const { passwordRegexTip, passwordRegex } = SysSettings;
-    if (!(pwd && RegExp.isPasswordRule(pwd, passwordRegex))) {
+    if (!(pwd && RegExp.isPasswordValid(pwd, passwordRegex))) {
       return passwordRegexTip || _l('密码，至少8-20位，且含字母+数字');
     }
   },
@@ -115,7 +115,7 @@ export default class InitBindAccountDialog extends Component {
               account: _this.iti.getNumber(),
               ticket: res.ticket,
               randStr: res.randstr,
-              captchaType: md.staticglobal.getCaptchaType(),
+              captchaType: md.global.getCaptchaType(),
               needCheckCode: false,
             })
             .then(data => {
@@ -149,7 +149,7 @@ export default class InitBindAccountDialog extends Component {
       { leading: true },
     );
 
-    if (md.staticglobal.getCaptchaType() === 1) {
+    if (md.global.getCaptchaType() === 1) {
       new captcha(throttled);
     } else {
       new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), throttled).show();

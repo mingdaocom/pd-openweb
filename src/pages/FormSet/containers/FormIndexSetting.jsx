@@ -116,11 +116,6 @@ const Con = styled.div`
             flex-wrap: wrap;
             height: 70px;
             overflow: scroll;
-            .ruleItem {
-              .rule{
-                col
-              }
-            }
           }
           .activeCon {
             display: flex;
@@ -135,7 +130,7 @@ const Con = styled.div`
               color: #f44336;
               background-color: #fbe9e7;
             }
-            .opacity0{
+            .opacity0 {
               opacity: 0;
             }
             .edit {
@@ -185,7 +180,8 @@ const sortRules = { 1: _l('升序'), '-1': _l('降序'), text: _l('文本索引'
 const FILTER_TYPE_LIST = [40, 42, 43, 21, 25, 45, 14, 34, 22, 10010, 30, 47, 49, 50, 51, 52];
 
 function FormIndexSetting(props) {
-  const { worksheetId, appId } = props;
+  const { worksheetInfo } = props;
+  const { worksheetId, appId } = worksheetInfo;
   const input = React.createRef();
   const [showCreateIndex, setShowCreateIndex] = useState(false);
   const [isRename, setIsRename] = useState(false);
@@ -465,6 +461,8 @@ function FormIndexSetting(props) {
               currentIndexInfo={currentIndexInfo}
               selectedIndexList={selectedIndexList}
               worksheetAvailableFields={worksheetAvailableFields}
+              appId={appId}
+              worksheetId={worksheetId}
               getIndexesInfo={getIndexesInfo}
               indexList={indexList}
               onClose={() => {
@@ -479,8 +477,4 @@ function FormIndexSetting(props) {
   );
 }
 
-export default connect(state => {
-  const { worksheetId, worksheetInfo = {} } = state.formSet;
-  const { appId } = worksheetInfo;
-  return { worksheetId, appId };
-})(FormIndexSetting);
+export default FormIndexSetting;

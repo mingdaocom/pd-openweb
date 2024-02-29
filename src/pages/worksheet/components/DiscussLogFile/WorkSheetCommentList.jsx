@@ -75,6 +75,8 @@ export default class WorkSheetCommentList extends Component {
         rowId,
         title: typeof title === 'string' ? title : '',
       }),
+      offset: 45,
+      popupContainer: document.body,
       extendsId: `${appId || ''}|${viewId || ''}`,
       mentionsOptions: { isAtAll: !!rowId },
       autoFocus: true,

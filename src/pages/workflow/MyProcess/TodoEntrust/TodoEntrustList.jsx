@@ -11,7 +11,6 @@ import UserHead from 'src/components/userHead';
 import UserName from 'src/components/userName';
 import DelegationConfigModal from 'mobile/Process/ProcessDelegation/DelegationConfigModal';
 import { browserIsMobile } from 'src/util';
-import { QiniuImg } from 'src/pages/feed/components/common/img';
 import cx from 'classnames';
 
 const CardWrapper = styled.div`
@@ -169,18 +168,28 @@ function TodoEntrustList(props) {
                         {isMobile ? (
                           <div className="trusteeAvatarWrapper valignWrapper mRight10">
                             <div className="pointer circle">
-                              <QiniuImg
-                                style={{ backgroundColor: '#f5f5f5', borderRadius: '50%' }}
-                                size={22}
-                                qiniuSize={100}
-                                quality={90}
-                                lazy={false}
+                              <img
+                                style={{
+                                  backgroundColor: '#f5f5f5',
+                                  borderRadius: '50%',
+                                  width: '22px',
+                                  height: '22px',
+                                }}
                                 placeholder={`${md.global.FileStoreConfig.pictureHost.replace(
                                   /\/$/,
                                   '',
                                 )}/UserAvatar/default.gif`}
                                 className="circle"
-                                src={item.trustee.avatar || ''}
+                                src={
+                                  item.trustee.avatar
+                                    ? item.trustee.avatar.indexOf('?') > 0
+                                      ? item.trustee.avatar.replace(
+                                          /imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/,
+                                          'imageView2/2/w/100/h/100/q/90',
+                                        )
+                                      : `${item.trustee.avatar}?imageView2/2/w/100/h/100/q/90`
+                                    : ''
+                                }
                               />
                             </div>
                             <div className="Gray Font13 pLeft5 pRight10 pTop1 ellipsis">{item.trustee.fullName}</div>

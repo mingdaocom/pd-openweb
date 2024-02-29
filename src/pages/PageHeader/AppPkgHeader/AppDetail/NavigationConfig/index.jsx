@@ -14,7 +14,6 @@ export default function NavigationConfig(props) {
   const [appNaviDisplayType, setAppNaviDisplayType] = useState(app.appNaviDisplayType || 0);
   const [pcNaviDisplayType, setPcNaviDisplayType] = useState(app.pcNaviDisplayType || 0);
 
-
   useEffect(() => {
     if (!visible) return;
     setLoading(true);
@@ -76,7 +75,7 @@ export default function NavigationConfig(props) {
             className="mBottom30 mobileNavRadio"
             data={[
               {
-                text: _l('始终选中第一个%0', app.pcNaviStyle === 2 ? _l('分组') : _l('应用项')),
+                text: app.pcNaviStyle === 2 ? _l('始终选中第一个分组') : _l('始终选中第一个应用项'),
                 value: 1,
               },
               {

@@ -194,7 +194,7 @@ export default function ApiSearchConfig(props) {
                       },
                     }}
                   >
-                    <div className="addFilterControl pointer">{_l('+ %0', '添加筛选字段')}</div>
+                    <div className="addFilterControl pointer">+ {_l('添加筛选字段')}</div>
                   </Trigger>
                 );
               }}

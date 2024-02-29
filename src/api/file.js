@@ -68,12 +68,12 @@ export default {
   /**
   * 批量下载行记录附件
   * @param {Object} args 请求参数
-  * @param {} args.connectorType 命名方式连接符类型(0:空格,1:破折号,2:下划线,3:点)
-  * @param {boolean} args.rowsEstablishRolderType 每行数据创建一个文件夹(0不创建,1创建)
-  * @param {array} args.controlIds 附件控件IDs
-  * @param {array} args.fileJointNames 勾选文件名称
-  * @param {array} args.rowIds 行记录Ids
-  * @param {string} args.workSheetTitleId 标题字段id
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType
+  * @param {string} args.clientId 客户端标识
+记录输入密码之后，页面刷新不用重复输入密码操作
+滑动过期
   * @param {string} args.worksheetId 工作表id
   * @param {} args.getType
   * @param {array} args.filterControls 查询列
@@ -84,8 +84,8 @@ export default {
   * @param {string} args.keyWords 关键词
   * @param {integer} args.pageSize 页大小
   * @param {integer} args.pageIndex 页码
-  * @param {} args.searchType 搜索类型
-  * @param {} args.status 状态
+  * @param {} args.searchType
+  * @param {} args.status
   * @param {boolean} args.isUnRead 是否已读
   * @param {boolean} args.isGetWorksheet 是否查询工作表的详情
   * @param {string} args.viewId 视图Id
@@ -104,12 +104,12 @@ export default {
   * @param {string} args.reportId 统计图ID
   * @param {boolean} args.notGetTotal 不获取总记录数
   * @param {object} args.requestParams 请求参数
-  * @param {string} args.clientId 客户端标识
-记录输入密码之后，页面刷新不用重复输入密码操作
-滑动过期
-  * @param {string} args.ticket 验证码返票据
-  * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
+  * @param {} args.connectorType
+  * @param {boolean} args.rowsEstablishRolderType 每行数据创建一个文件夹(0不创建,1创建)
+  * @param {array} args.controlIds 附件控件IDs
+  * @param {array} args.fileJointNames 勾选文件名称
+  * @param {array} args.rowIds 行记录Ids
+  * @param {string} args.workSheetTitleId 标题字段id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

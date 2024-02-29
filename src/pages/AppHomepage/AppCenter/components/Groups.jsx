@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { string, bool, arrayOf, shape } from 'prop-types';
 import styled from 'styled-components';
 import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
-import { Dialog, ScrollView } from 'ming-ui';
+import { Dialog, ScrollView, UpgradeIcon } from 'ming-ui';
 import cx from 'classnames';
 import { VerticalMiddle, FlexCenter } from 'worksheet/components/Basics';
 import { navigateTo } from 'router/navigateTo';
@@ -68,7 +68,7 @@ function getSortType(type) {
 const SortableGroupItem = SortableElement(props => <GroupItem {...props} />);
 
 const SortableGroupList = SortableContainer(
-  ({ isAdmin, projectId, activeGroupId, groups, item, isDragging, setIsEditingGroupId, actions }) => {
+  ({ isAdmin, projectId, activeGroupId, groups, item, isDragging, setIsEditingGroupId, actions, dashboardColor }) => {
     return (
       <div>
         {!!item.groups.length &&
@@ -80,6 +80,7 @@ const SortableGroupList = SortableContainer(
                 index={j}
                 itemType={item.type}
                 {...{
+                  dashboardColor,
                   isDragging,
                   projectId,
                   activeGroupId,
@@ -143,7 +144,7 @@ export default function Groups(props) {
     activeGroup,
     groups = [],
     actions,
-    isAllActive,
+    dashboardColor,
   } = props;
   const [isDragging, setIsDragging] = useState();
   const [sorts, setSorts] = useState({});
@@ -164,15 +165,13 @@ export default function Groups(props) {
   const featureType = getFeatureStatus(projectId, VersionProductType.recycle);
   const expandBtn = (
     <BaseBtnCon
-      className={isFolded ? 'mLeft16' : ''}
+      className={isFolded ? 'mLeft24' : ''}
       onClick={() => {
         setIsFolded(!isFolded);
         safeLocalStorageSetItem('homeGroupsIsFolded', !isFolded ? '1' : '');
       }}
     >
-      <i
-        className={`expandIcon Right Hand Font20 Gray_75 icon ${!isFolded ? 'icon-menu_left' : 'icon-menu_right'}`}
-      ></i>
+      <i className={`expandIcon Right Hand Font20 Gray_75 icon ${!isFolded ? 'icon-menu_left' : 'icon-menu'}`}></i>
     </BaseBtnCon>
   );
   if (loading && !isFolded) {
@@ -218,36 +217,28 @@ export default function Groups(props) {
               {expandBtn}
             </VerticalMiddle>
             <GroupItem
+              dashboardColor={dashboardColor}
               itemType="static"
               className="mTop10"
-              fontIcon="home_page"
+              fontIcon="grid_view"
+              // fontIcon="home_page"
               to="/app/my"
-              active={!activeGroupId && !isAllActive}
-              name={_l('首页')}
+              active={!activeGroupId}
+              name={_l('我的应用')}
               onClick={() => {
                 actions.loadAppAndGroups({ projectId, noGroupsLoading: true });
                 navigateTo('/app/my');
               }}
             />
-            <GroupItem
-              itemType="static"
-              fontIcon="grid_view"
-              to="/app/my/all"
-              active={isAllActive}
-              name={_l('全部')}
-              onClick={() => {
-                actions.loadAppAndGroups({ projectId, noGroupsLoading: true });
-                navigateTo('/app/my/all');
-              }}
-            />
             {featureType && (
               <GroupItem
+                dashboardColor={dashboardColor}
                 itemType="static"
                 fontIcon="knowledge-recycle"
                 name={
                   <span>
                     {_l('回收站')}
-                    {isFree && <i className="upgradeIcon icon-auto_awesome"></i>}
+                    {isFree && <UpgradeIcon />}
                   </span>
                 }
                 onClick={() => {
@@ -285,6 +276,7 @@ export default function Groups(props) {
                             item,
                             isDragging,
                             setIsEditingGroupId,
+                            dashboardColor,
                           }}
                           axis={'y'}
                           hideSortableGhost

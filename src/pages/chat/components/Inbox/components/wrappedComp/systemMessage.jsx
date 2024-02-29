@@ -1,11 +1,10 @@
 ﻿import React, { Fragment, PureComponent } from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
-import 'src/components/emotion/emotion';
 import Avatar from '../baseComponent/avatar';
 import Star from '../baseComponent/star';
 import { formatInboxItem } from '../../util';
-import { browserIsMobile, getRequest } from 'src/util';
+import { getRequest } from 'src/util';
 import settingGroups from 'src/components/group/settingGroup/settingGroups';
 import AddressBookDialog from 'src/pages/chat/lib/addressBook';
 import ExecDialog from 'src/pages/workflow/components/ExecDialog';
@@ -19,6 +18,7 @@ import { addBehaviorLog } from 'src/util';
 import SvgIcon from 'src/components/SvgIcon';
 import { MSGTYPES } from '../../constants';
 import processAjax from 'src/pages/workflow/api/process';
+import Emotion from 'src/components/emotion/emotion';
 
 const Dot = styled.span`
   width: 4px;
@@ -196,7 +196,7 @@ export default class SystemMessage extends PureComponent {
     const { Message = {}, createTime, inboxType, app = null, processId = null } = this.props;
     const { showAddressBook, processInfo } = this.state;
     const { typeName, isFavorite, inboxId } = formatInboxItem(this.props);
-    const parse = $.fn.emotion.parse;
+    const parse = Emotion.parse;
 
     const starProps = {
       isFavorite,

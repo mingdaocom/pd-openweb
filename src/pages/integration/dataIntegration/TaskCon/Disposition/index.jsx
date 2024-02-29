@@ -299,6 +299,7 @@ function Disposition(props) {
                 });
                 updateSource({ ownerList: members });
               }}
+              companyId={props.currentProjectId}
               leastOne
               inline
               chatButton={false}

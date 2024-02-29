@@ -2,7 +2,7 @@ import EventEmitter from 'events';
 import JSEncrypt from 'jsencrypt';
 import React from 'react';
 import update from 'immutability-helper';
-import _, { get, upperFirst, isString, isNaN, isNumber } from 'lodash';
+import _, { get, upperFirst, isString } from 'lodash';
 import tinycolor from '@ctrl/tinycolor';
 import { Dialog } from 'ming-ui';
 import 'src/pages/PageHeader/components/NetState/index.less';
@@ -15,6 +15,8 @@ import captcha from 'src/components/captcha';
 import accountAjax from 'src/api/account';
 import actionLogAjax from 'src/api/actionLog';
 import { SYS_COLOR, SYS_CHART_COLORS } from 'src/pages/Admin/settings/config';
+import { AT_ALL_TEXT } from 'src/components/comment/config';
+import Emotion from 'src/components/emotion/emotion';
 
 export const emitter = new EventEmitter();
 
@@ -131,6 +133,8 @@ export const applicationIcon = (type, size = 'middle') => {
 
 /**
  * 获取字符串字节数
+ * @param {string} self - 要计算字节数的字符串
+ * @returns {number} - 字符串的字节数
  */
 export const getStringBytes = self => {
   let strLength = 0;
@@ -226,26 +230,6 @@ export const formatFileSize = (size, accuracy, space, units) => {
   }
   let i = Math.floor(Math.log(size) / Math.log(1024));
   return (size / Math.pow(1024, i)).toFixed(accuracy) * 1 + space + units[i];
-};
-
-/**
- * 随机生成一个字符串
- * @param {number} length 长度
- * @param {string} customStr 自定义字符串
- * @return {string} 随机字符串
- */
-export const getRandomString = (length, customStr) => {
-  let chars = customStr
-    ? customStr.split('')
-    : '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz'.split('');
-  if (!length) {
-    length = Math.floor(Math.random() * chars.length);
-  }
-  let str = '';
-  for (let i = 0; i < length; i++) {
-    str += chars[Math.floor(Math.random() * chars.length)];
-  }
-  return str;
 };
 
 export const downloadFile = url => {
@@ -720,18 +704,16 @@ export function accSub(arg1, arg2) {
 
 /**
  * 根据背景色判断文字颜色
+ * @param {string} backgroundColor - 背景色，格式为 '#RRGGBB'
+ * @returns {number} - 文字颜色判断值
  */
 export function getColorCountByBg(backgroundColor) {
-  const RgbValue =
-    'rgb(' +
-    parseInt('0x' + backgroundColor.slice(1, 3)) +
-    ',' +
-    parseInt('0x' + backgroundColor.slice(3, 5)) +
-    ',' +
-    parseInt('0x' + backgroundColor.slice(5, 7)) +
-    ')';
-  const RgbValueArry = RgbValue.replace('rgb(', '').replace(')', '').split(',');
-  return RgbValueArry[0] * 0.299 + RgbValueArry[1] * 0.587 + RgbValueArry[2] * 0.114;
+  const parseHex = hex => parseInt(hex, 16);
+  const [r, g, b] = [backgroundColor.slice(1, 3), backgroundColor.slice(3, 5), backgroundColor.slice(5, 7)].map(
+    parseHex,
+  );
+
+  return r * 0.299 + g * 0.587 + b * 0.114;
 }
 
 /**
@@ -836,48 +818,36 @@ export function buriedUpgradeVersionDialog(projectId, featureId, extra) {
   let upgradeName, versionType;
 
   if (!md.global.Config.IsLocal) {
+    const TYPE_NAME = { 1: _l('标准版'), 2: _l('专业版'), 3: _l('旗舰版') };
     const getFeatureType = versionIdV2 => {
       const versionInfo = _.find(Versions || [], item => item.VersionIdV2 === versionIdV2) || {};
       return {
-        versionName: versionInfo.Name,
-        versionType: versionInfo.VersionIdV2,
+        versionName: TYPE_NAME[versionIdV2],
+        versionType: versionIdV2,
         type: (_.find(versionInfo.Products || [], item => item.ProductType === featureId) || {}).Type,
       };
     };
-    upgradeName = [getFeatureType('1'), getFeatureType('2'), getFeatureType('3')].filter(item => item.type === '1')[0]
-      .versionName;
-    versionType = [getFeatureType('1'), getFeatureType('2'), getFeatureType('3')].filter(item => item.type === '1')[0]
-      .versionType;
+    const usableVersion = [getFeatureType('1'), getFeatureType('2'), getFeatureType('3')].filter(
+      item => item.type === '1',
+    )[0];
+
+    upgradeName = usableVersion.versionName;
+    versionType = usableVersion.versionType;
   }
 
-  if (dialogType === 'content') {
-    return upgradeVersionDialog({
-      projectId,
-      featureId,
-      isFree: licenseType === 0 || licenseType === 2,
-      explainText:
-        md.global.Config.IsLocal || md.global.Account.isPortal
-          ? _l('请升级版本')
-          : !!explainText
-          ? explainText
-          : _l('请升级至%0解锁开启', upgradeName),
-      dialogType,
-      versionType,
-    });
-  } else {
-    upgradeVersionDialog({
-      projectId,
-      featureId,
-      isFree: licenseType === 0 || licenseType === 2,
-      explainText:
-        md.global.Config.IsLocal || md.global.Account.isPortal
-          ? _l('请升级版本')
-          : !!explainText
-          ? explainText
-          : _l('请升级至%0解锁开启', upgradeName),
-      versionType,
-    });
-  }
+  return upgradeVersionDialog({
+    projectId,
+    featureId,
+    isFree: licenseType === 0 || licenseType === 2,
+    explainText:
+      md.global.Config.IsLocal || md.global.Account.isPortal
+        ? _l('请升级版本')
+        : !!explainText
+        ? explainText
+        : _l('请升级至%0解锁开启', upgradeName),
+    versionType,
+    dialogType,
+  });
 }
 
 /**
@@ -916,23 +886,28 @@ export function toFixed(num, dot = 0) {
 
 /**
  * 验证登录密码
+ * @param {Object} options - 选项对象
+ * @param {string} options.projectId - 网络 ID
+ * @param {string} options.password - 登录密码
+ * @param {boolean} options.closeImageValidation - 是否前3次关闭图像验证
+ * @param {boolean} options.isNoneVerification - 是否一小时内免验证
+ * @param {boolean} options.checkNeedAuth - 检测是否免验证
+ * @param {string} options.customActionName - 自定义 AJAX API 接口名称
+ * @param {boolean} options.ignoreAlert - 忽略报错
+ * @param {Function} options.success - 验证成功的回调函数
+ * @param {Function} options.fail - 验证失败的回调函数
  */
 export function verifyPassword({
   projectId = '',
   password = '',
-  closeImageValidation = false, // 是否前3次关闭图像验证
-  isNoneVerification = false, // 是否一小时内免验证
-  checkNeedAuth = false, // 检测是否免验证
-  customActionName = '', // 自定义ajax api接口名称
-  ignoreAlert = false, // 忽略报错
+  closeImageValidation = false,
+  isNoneVerification = false,
+  checkNeedAuth = false,
+  customActionName = '',
+  ignoreAlert = false,
   success = () => {},
   fail = () => {},
 }) {
-  if (!password.trim() && !checkNeedAuth) {
-    alert(_l('请输入密码'), 3);
-    fail();
-    return;
-  }
   const cb = function (res) {
     if (res.ret !== 0) {
       return;
@@ -952,7 +927,7 @@ export function verifyPassword({
             isNoneVerification,
             ticket: res.ticket,
             randStr: res.randstr,
-            captchaType: md.staticglobal.getCaptchaType(),
+            captchaType: md.global.getCaptchaType(),
             password: encrypt(password),
           },
     ).then(statusCode => {
@@ -976,7 +951,7 @@ export function verifyPassword({
     });
   };
   const captchaFuc = () => {
-    if (md.staticglobal.getCaptchaType() === 1) {
+    if (md.global.getCaptchaType() === 1) {
       new captcha(cb);
     } else {
       new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), cb).show();
@@ -991,33 +966,47 @@ export function verifyPassword({
   }
 }
 
-// 去除无效0
+/**
+ * 格式化数字字符串，去除无效的零，保留有效数字。
+ * @param {string} str - 要格式化的字符串。
+ * @returns {string} - 格式化后的字符串。
+ */
 export function formatStrZero(str = '') {
-  const numStr = (String(str).match(/[,\.\d]+/) || [])[0];
-  if (!numStr) {
-    return str;
-  }
-  const num = numStr.replace(/(?:\.0*|(\.\d+?)0+)$/, '$1');
-  return String(str).replace(numStr, num);
+  const numStr = String(str).match(/[,\.\d]+/) || [''];
+  const num = numStr[0].replace(/(?:\.0*|(\.\d+?)0+)$/, '$1');
+
+  return String(str).replace(numStr[0], num);
 }
 
-// 根据索引获取不重复名称
+/**
+ * 根据索引获取不重复名称
+ * @param {Array} data - 包含名称的对象数组
+ * @param {string} name - 初始名称
+ * @param {string} key - 用于比较的键名，默认为 'name'
+ * @returns {string} - 不重复的名称
+ */
 export const getUnUniqName = (data, name = '', key = 'name') => {
-  if (data.filter(item => item[key] === name).length) {
-    const maxNumber = _.max(
-      data
-        .filter(item => item[key].indexOf(String(name).replace(/\d*$/, '')) > -1)
-        .map(item => parseInt(item[key].match(/\d*$/)[0])),
+  const nameExists = _.some(data, [key, name]);
+
+  if (nameExists) {
+    const maxNumber = _.maxBy(
+      _.filter(data, item => _.startsWith(item[key], String(name))),
+      item => parseInt(item[key].replace(/^.*?(\d+)$/, '$1')),
     );
 
-    name = String(name).replace(/\d*$/, maxNumber + 1);
+    name = `${name}${parseInt(_.get(maxNumber, [key], 0)) + 1}`;
   }
 
   return name;
 };
 
 /**
- * 添加行为日志
+ * 添加行为日志。
+ * @param {string} type - 日志类型，可选值为 'app', 'worksheet', 'customPage', 'worksheetRecord', 'printRecord',
+ * 'printWord', 'pintTemplate', 'printQRCode', 'printBarCode', 'batchPrintWord', 'previewFile'。
+ * @param {string} entityId - 实体 ID。(根据访问类型不同， 传不同模块id：浏览应用，entityId =应用id，
+ * 浏览自定义页面，entityId = 页面id。其他的浏览行为 =worksheetId）
+ * @param {Object} params - 额外的参数，用于记录日志的详细信息。
  */
 export const addBehaviorLog = (type, entityId, params = {}) => {
   if (location.pathname.indexOf('public') > -1) return;
@@ -1035,6 +1024,8 @@ export const addBehaviorLog = (type, entityId, params = {}) => {
     batchPrintWord: 10, // 批量word打印
     previewFile: 11, // 文件预览
   };
+
+  // 调用 actionLogAjax.addLog 方法记录行为日志
   actionLogAjax.addLog({
     type: typeObj[type],
     entityId,
@@ -1043,61 +1034,57 @@ export const addBehaviorLog = (type, entityId, params = {}) => {
 };
 
 /**
- * 随机密码
+ * 生成包含大写字母、小写字母和数字的随机密码。
+ * @param {number} length - 密码长度。
+ * @returns {string} - 随机生成的密码。
  */
-export const randomPassword = length => {
-  let passwordArray = ['ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz', '1234567890'];
-  var password = [];
-  let n = 0;
-  for (let i = 0; i < length; i++) {
-    if (password.length < length - 3) {
-      let arrayRandom = Math.floor(Math.random() * 3);
-      let passwordItem = passwordArray[arrayRandom];
-      let item = passwordItem[Math.floor(Math.random() * passwordItem.length)];
-      password.push(item);
-    } else {
-      let newItem = passwordArray[n];
-      let lastItem = newItem[Math.floor(Math.random() * newItem.length)];
-      let spliceIndex = Math.floor(Math.random() * password.length);
-      password.splice(spliceIndex, 0, lastItem);
-      n++;
-    }
-  }
-  return password.join('');
+export const generateRandomPassword = length => {
+  const chars = {
+    uppercase: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+    lowercase: 'abcdefghijklmnopqrstuvwxyz',
+    number: '0123456789',
+  };
+
+  // 至少包含一个字符
+  const password = _.flatMap(Object.values(chars), group => _.sample(group)).join('');
+
+  // 生成剩余部分，并使用 Fisher-Yates 洗牌算法随机排序
+  const remainingChars = _.times(length - 3, i => _.sample(Object.values(chars)[i % 3]));
+  const shuffledPassword = _.shuffle([password, ...remainingChars]).join('');
+
+  return shuffledPassword;
 };
 
-export function parseNumber(numStr) {
-  if (numStr === '') {
-    return;
-  }
-  const result = Number(numStr);
-  if (!isNumber(result)) {
-    return;
-  } else if (isNaN(result)) {
-    return;
-  } else {
-    return result;
-  }
-}
 /**
- *十六进制颜色转为rgba
+ * 解析字符串为数字
+ * @param {string} numStr - 要解析的字符串
+ * @returns {number|undefined} - 解析结果，如果解析失败则返回 undefined
+ */
+export function parseNumber(numStr) {
+  const result = Number(numStr);
+  return isFinite(result) ? result : undefined;
+}
+
+/**
+ * 十六进制颜色转为RGBA
+ * @param {string} hex - 十六进制颜色代码，例如 '#RRGGBB'
+ * @param {number} opacity - 透明度，范围从 0 到 1，默认为 1
+ * @returns {string} - RGBA格式的颜色，例如 'rgba(R, G, B, A)'
  */
 export const hexToRgba = (hex, opacity = 1) => {
-  return (
-    'rgba(' +
-    parseInt('0x' + hex.slice(1, 3)) +
-    ',' +
-    parseInt('0x' + hex.slice(3, 5)) +
-    ',' +
-    parseInt('0x' + hex.slice(5, 7)) +
-    ',' +
-    opacity +
-    ')'
-  );
+  // 提取RGB部分并转换为十进制
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+
+  // 返回RGBA格式的颜色
+  return `rgba(${r}, ${g}, ${b}, ${opacity})`;
 };
 
 /**
- * 获取组织管理颜色配置
+ * 获取组织管理颜色配置。
+ * @param {string} projectId - 网络ID
+ * @returns {Object} - 包含图表颜色和主题颜色配置的对象。
  */
 export const getProjectColor = projectId => {
   const { PorjectColor, Account } = md.global;
@@ -1105,6 +1092,7 @@ export const getProjectColor = projectId => {
   const currentProjectId = localStorage.getItem('currentProjectId');
   const id = projectId || currentProjectId || _.get(projects[0], 'projectId');
   const data = _.find(PorjectColor, { projectId: id });
+
   if (data) {
     const mapColor = colors =>
       colors.map(item => {
@@ -1116,6 +1104,7 @@ export const getProjectColor = projectId => {
       });
     data.chartColor.system = _.isEmpty(data.chartColor.system) ? SYS_CHART_COLORS : mapColor(data.chartColor.system);
     data.themeColor.system = _.isEmpty(data.themeColor.system) ? SYS_COLOR : data.themeColor.system;
+
     return data;
   } else {
     return {
@@ -1132,17 +1121,25 @@ export const getProjectColor = projectId => {
 };
 
 /**
- * 获取组织管理主题色
+ * 获取组织管理主题色。
+ * @param {string} projectId - 网络ID
+ * @returns {[]} - 包含系统色和自定义色的颜色数组。
  */
 export const getThemeColors = projectId => {
+  // 获取项目颜色配置
   const { themeColor } = getProjectColor(projectId);
+  // 过滤并映射系统色，去除未启用的项
   const systemColorList = (themeColor.system || []).filter(item => item.enable !== false).map(item => item.color);
+  // 过滤并映射自定义色，去除未启用的项
   const customColorList = (themeColor.custom || []).filter(item => item.enable !== false).map(item => item.color);
+  // 合并系统色和自定义色的颜色数组
   return systemColorList.concat(customColorList);
 };
 
 /**
- * 设置应用favicon
+ * 设置应用的 favicon。
+ * @param {string} iconUrl - 图标的 URL。
+ * @param {string} iconColor - 用于设置图标的颜色。
  */
 export const setFavicon = (iconUrl, iconColor) => {
   fetch(iconUrl)
@@ -1152,6 +1149,351 @@ export const setFavicon = (iconUrl, iconColor) => {
       $('[rel="icon"]').attr('href', `data:image/svg+xml;base64,${data}`);
     });
 };
+
+/**
+ * 替换动态/任务等内容中的链接
+ * @param  {string} args.message        替换前的 html
+ * @param  {object[]} args.rUserList      @ 到的帐号列表
+ * @param  {object[]} args.rGroupList     @ 到的群组列表
+ * @param  {object[]} args.categories     打的话题
+ * @param  {boolean} args.noLink     只生成文本，不生成链接
+ * @param  {boolean} args.filterFace     不显示表情
+ * @return {string}                替换后的 html
+ */
+export const createLinksForMessage = function (args) {
+  let message = args.message.replace(/\n/g, '<br>');
+  let rUserList = args.rUserList;
+  let rGroupList = args.rGroupList;
+  let categories = args.categories;
+  let noLink = args.noLink;
+  let filterFace = args.filterFace;
+  let sourceType = args.sourceType;
+  let replaceStr = '';
+  let j;
+  const replaceMessageCustomTag = function (message, tagName, replaceHtmlFunc, filterCustom) {
+    let startTag, endTag;
+
+    if (!message) return message;
+    if (typeof tagName === 'string') {
+      startTag = '[' + tagName + ']';
+      endTag = '[/' + tagName + ']';
+    } else if (Array.isArray(tagName)) {
+      startTag = tagName[0];
+      endTag = tagName[1];
+    } else {
+      return message;
+    }
+
+    if (message.indexOf(startTag) > -1) {
+      const customRegExp = new RegExp(
+        '(' +
+          startTag.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&') +
+          ')([0-9a-zA-Z-]*\\|?.*?)' +
+          endTag.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&'),
+        'gi',
+      );
+
+      if (filterCustom) {
+        message = message.replace(customRegExp, '');
+      } else {
+        message = message.replace(customRegExp, function ($0, $1, $2) {
+          let customStr = $2;
+          let splitterIndex = customStr.indexOf('|');
+          if (splitterIndex === -1) {
+            return replaceHtmlFunc ? replaceHtmlFunc(customStr, _l('无法解析') + tagName) : '';
+          }
+          let customId = customStr.substr(0, splitterIndex);
+          let customName = customStr.substr(splitterIndex + 1);
+          return replaceHtmlFunc ? replaceHtmlFunc(customId, customName) : customName;
+        });
+      }
+    }
+
+    return message;
+  };
+
+  message = message.replace(/\[all\]atAll\[\/all\]/gi, '<a>@' + AT_ALL_TEXT[sourceType] + '</a>');
+
+  if (rUserList && rUserList.length > 0) {
+    for (j = 0; j < rUserList.length; j++) {
+      let rUser = rUserList[j];
+      replaceStr = '';
+      let name = htmlEncodeReg(rUser.name || rUser.fullname);
+      let aid = rUser.aid || rUser.accountId;
+      if (name) {
+        if (noLink) {
+          replaceStr += ' @' + name + ' ';
+        } else {
+          if (md.global.Account.isPortal || (aid || '').indexOf('a#') > -1) {
+            // 外部门户
+            replaceStr += ' <a>@' + name + '</a> ';
+          } else {
+            replaceStr +=
+              ' <a data-accountid="' + aid + '" target="_blank" href="/user_' + aid + '">@' + name + '</a> ';
+          }
+        }
+      }
+      let userRegExp = new RegExp('\\[aid]' + aid + '\\[/aid]', 'gi');
+      message = message.replace(userRegExp, replaceStr);
+    }
+  }
+  if (rGroupList && rGroupList.length > 0) {
+    for (j = 0; j < rGroupList.length; j++) {
+      let rGroup = rGroupList[j];
+      replaceStr = '';
+      if (rGroup.groupName) {
+        if (noLink) {
+          replaceStr += '@' + htmlEncodeReg(rGroup.groupName);
+        } else {
+          if (rGroup.isDelete) {
+            replaceStr +=
+              ' <span class="DisabledColor" title="群组已删除">@' + htmlEncodeReg(rGroup.groupName) + '</span> ';
+          } else {
+            replaceStr +=
+              ' <a target="_blank" data-groupid="' +
+              rGroup.groupID +
+              '" href="/group/groupValidate?gID=' +
+              rGroup.groupID +
+              '">@' +
+              htmlEncodeReg(rGroup.groupName) +
+              '</a> ';
+          }
+        }
+      }
+      let groupRegExp = new RegExp('\\[gid]' + rGroup.groupID + '\\[/gid]', 'gi');
+      message = message.replace(groupRegExp, replaceStr);
+    }
+  }
+
+  const getReplaceHtmlFunc = function (getLink, getPlain) {
+    return function (customId, customName) {
+      if (noLink) {
+        return getPlain ? getPlain(customId) : customName;
+      }
+      return getLink(customId, customName);
+    };
+  };
+
+  // TODO: 了解此处各字符串是否已由后台encode
+  // 话题
+  let findCategory = function (id) {
+    if (categories) {
+      for (let i = 0, l = categories.length; i < l; i++) {
+        if (categories[i].catID === id) {
+          return categories[i];
+        }
+      }
+    }
+  };
+  message = replaceMessageCustomTag(
+    message,
+    'cid',
+    getReplaceHtmlFunc(
+      function (id, name) {
+        const category = findCategory(id);
+        name = category ? category.catName : _l('未知话题');
+        return '<a target="_blank" href="/feed?catId=' + id + '">#' + htmlEncodeReg(name) + '#</a>';
+      },
+      function (id, name) {
+        const category = findCategory(id);
+        name = category ? category.catName : _l('未知话题');
+        return '#' + htmlEncodeReg(name) + '#';
+      },
+    ),
+  );
+  // 任务
+  message = replaceMessageCustomTag(
+    message,
+    'tid',
+    getReplaceHtmlFunc(function (id, name) {
+      return '<a target="_blank" href="/apps/task/task_' + id + '">' + htmlEncodeReg(name) + '</a>';
+    }),
+  );
+  // 项目
+  message = replaceMessageCustomTag(
+    message,
+    'fid',
+    getReplaceHtmlFunc(function (id, name) {
+      return '<a target="_blank" href="/apps/task/folder_' + id + '">' + htmlEncodeReg(name) + '</a>';
+    }),
+  );
+  // 日程
+  message = replaceMessageCustomTag(
+    message,
+    ['[CALENDAR]', '[CALENDAR]'],
+    getReplaceHtmlFunc(function (id, name) {
+      return '<a target="_blank" href="/apps/calendar/detail_' + id + '">' + htmlEncodeReg(name) + '</a>';
+    }),
+  );
+  // 问答中心
+  message = replaceMessageCustomTag(
+    message,
+    ['[STARTANSWER]', '[ENDANSWER]'],
+    getReplaceHtmlFunc(function (id, name) {
+      return '<a target="_blank" href="/feeddetail?itemID=' + id + '">' + htmlEncodeReg(name) + '</a>';
+    }),
+  );
+  // 文档版本
+  message = replaceMessageCustomTag(
+    message,
+    ['[docversion]', '[docversion]'],
+    getReplaceHtmlFunc(function (id, name) {
+      return (
+        '<a href="/feeddetail?itemID=' +
+        id +
+        '" target="_blank">' +
+        (htmlEncodeReg(name.split('|')[0]) || '文件') +
+        '</a>'
+      );
+    }),
+  );
+
+  if ((typeof filterFace === 'undefined' || !filterFace) && !noLink) {
+    message = Emotion.parse(message);
+  }
+
+  message = message.replace(/<br( \/)?>/g, '\n'); // .replace(/<[^>]+>/g, '');
+
+  if (!noLink) {
+    message = message.replace(/\n/g, '<br>');
+    let urlReg = /http(s)?:\/\/([\w-]+\.)+[\w-]+(\/[\w- .\/?%&=])?[^ <>\[\]*(){},\u4E00-\u9FA5]+/gi;
+
+    message = message.replace(urlReg, function (m) {
+      return '<a target="_blank" href="' + m + '">' + m + '</a>';
+    });
+  }
+
+  // 外部用户
+  if ((args.accountId || '').indexOf('a#') > -1) {
+    message = message.replace(new RegExp(`\\[aid\\]${args.accountId}\\[\\/aid\\]`, 'g'), args.accountName);
+  }
+
+  return message;
+};
+
+// 验证网络是否到期异步
+export const expireDialogAsync = function (projectId) {
+  let def = $.Deferred();
+  // 个人
+  if (!projectId) {
+    def.resolve();
+  } else {
+    if (getCurrentProject(projectId, true).licenseType === 0) {
+      upgradeVersionDialog({
+        projectId,
+        explainText: _l('请升级至付费版解锁开启'),
+        isFree: true,
+      });
+      def.reject();
+    } else {
+      def.resolve();
+    }
+  }
+
+  return def.promise();
+};
+
+// 提示邀请结果
+export const existAccountHint = function (result) {
+  const inviteNoticeMessage = function (title, accounts) {
+    if (!accounts.length) return '';
+    const USER_STATUS = {
+      2: _l('（被拒绝加入，需从后台恢复权限）'),
+      3: _l('（待审批）'),
+      4: _l('（被暂停权限，需从后台恢复权限）'),
+    };
+    let noticeMessage = title + '：<br/>';
+
+    accounts.forEach(item => {
+      let message = '';
+      if (item.account) {
+        // 不存在的用户
+        message = item.account;
+      } else {
+        // 已存在的用户
+        let accountArr = [];
+        if (item.email) {
+          accountArr.push(item.email);
+        }
+        if (item.mobilePhone) {
+          accountArr.push(item.mobilePhone);
+        }
+        let desc = accountArr.join(' / ') + (USER_STATUS[item.user] || '');
+        message = item.fullname + (desc.length ? '：' + desc : '');
+      }
+      noticeMessage += '<div class="Font12 Gray_c LineHeight25">' + message + '</div>';
+    });
+
+    return noticeMessage;
+  };
+  const SendMessageResult = {
+    Failed: 0,
+    Success: 1,
+    Limit: 2,
+  };
+
+  if (result.sendMessageResult === SendMessageResult.Failed) {
+    alert(_l('邀请失败'), 2);
+    return;
+  }
+
+  let accountInfos = []; // 成功
+  let existAccountInfos = []; // 已存在
+  let failedAccountInfos = []; // 失败
+  let limitAccountInfos = []; // 邀请限制
+  let forbidAccountInfos = []; // 账号来源类型受限
+
+  result.results.forEach(singleResult => {
+    // 成功
+    if (singleResult.accountInfos) {
+      accountInfos = accountInfos.concat(singleResult.accountInfos);
+    }
+
+    // 已存在
+    if (singleResult.existAccountInfos) {
+      existAccountInfos = existAccountInfos.concat(singleResult.existAccountInfos);
+    }
+
+    // 失败
+    if (singleResult.failedAccountInfos) {
+      failedAccountInfos = failedAccountInfos.concat(singleResult.failedAccountInfos);
+    }
+
+    // 限制
+    if (singleResult.limitAccountInfos) {
+      limitAccountInfos = limitAccountInfos.concat(singleResult.limitAccountInfos);
+    }
+
+    // 账号来源类型受限
+    if (singleResult.forbidAccountInfos) {
+      forbidAccountInfos = forbidAccountInfos.concat(singleResult.forbidAccountInfos);
+    }
+  });
+
+  let message = _l('邀请成功');
+  let isNotice =
+    existAccountInfos.length || failedAccountInfos.length || limitAccountInfos.length || forbidAccountInfos.length;
+
+  if (isNotice) {
+    message = inviteNoticeMessage(_l('以下用户邀请成功'), accountInfos);
+    message += inviteNoticeMessage(_l('以下用户已存在，不能重复邀请'), existAccountInfos);
+    message += inviteNoticeMessage(_l('以下用户超过邀请数量限制，无法邀请'), limitAccountInfos);
+    message += inviteNoticeMessage(_l('以下用户邀请失败'), failedAccountInfos);
+    message += inviteNoticeMessage(_l('以下用户账号来源类型受限'), forbidAccountInfos);
+  }
+
+  if (isNotice) {
+    alert(message, 3);
+  } else {
+    alert(message);
+  }
+
+  return {
+    accountInfos: accountInfos,
+    existAccountInfos: existAccountInfos,
+  };
+};
+
 /**
  * base64 字符串转 blob
  * @param {*} b64Data
@@ -1177,4 +1519,17 @@ export const b64toBlob = (b64Data, contentType = '', sliceSize = 512) => {
 
   const blob = new Blob(byteArrays, { type: contentType });
   return blob;
+};
+
+/**
+ * 获取返回数据
+ * @param {*} appId 应用id
+ * @param {*} 项目id (应用项id、分组id、视图id、...)
+ * @param {*} data 翻译包数据
+ * @returns { name、description、hintText、... }
+ */
+export const getTranslateInfo = (appId, id, data) => {
+  const langData = data || window[`langData-${appId}`] || [];
+  const info = _.find(langData, { correlationId: id });
+  return info ? info.data || {} : {};
 };

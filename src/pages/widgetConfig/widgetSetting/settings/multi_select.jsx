@@ -23,6 +23,7 @@ export default function MultiSelect(props) {
   return (
     <Fragment>
       <SettingItem>
+        <div className="settingItemTitle">{_l('显示方式')}</div>
         <RadioGroup
           size="middle"
           checkedValue={checktype}

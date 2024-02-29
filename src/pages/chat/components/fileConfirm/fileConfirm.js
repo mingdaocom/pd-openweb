@@ -1,11 +1,12 @@
-﻿import './style.less';
+import './style.less';
 import { formatFileSize, getClassNameByExt } from 'src/util';
 import mainTpl from './main.htm';
-import { index as DialogLayer} from 'src/components/mdDialog/dialog';
 import doT from 'dot';
 import moment from 'moment';
+import { Dialog, Button } from 'ming-ui';
+import React from 'react';
 
-var FileConfirm = function(file, callback) {
+var FileConfirm = function (file, callback) {
   var FC = this;
   FC.file = file;
   FC.callback = callback;
@@ -13,7 +14,7 @@ var FileConfirm = function(file, callback) {
 };
 
 FileConfirm.prototype = {
-  init: function() {
+  init: function () {
     var FC = this;
     var name;
     var file = FC.file;
@@ -28,61 +29,66 @@ FileConfirm.prototype = {
       name = moment().format('上传于YYYY-MM-DD HH时mm分');
     }
     var html = doT.template(mainTpl)();
-    FC.dialogBoxID =
-      'fileConfirmDialog_' +
-      Math.random()
-        .toString(16)
-        .slice(2);
-    FC.dialog = new DialogLayer({
-      dialogBoxID: FC.dialogBoxID,
-      className: 'fileConfirmDialog darkHeader',
+    FC.dialogBoxID = 'fileConfirmDialog_' + Math.random().toString(16).slice(2);
+
+    Dialog.confirm({
+      dialogClasses: `${FC.dialogBoxID} fileConfirmDialog darkHeader`,
       width: 540,
-      container: {
-        header: _l('上传文件'),
-        content: html,
-        yesText: _l('上传'),
-        yesFn: function() {
-          if (FC.yesFn()) {
-            $(document).off('keyup.fileConfirm.upload');
-          } else {
-            return false;
-          }
-        },
-        noFn: function() {
-          $(document).off('keyup.fileConfirm.upload');
-          if (FC.callback && typeof FC.callback.noFn === 'function') {
-            FC.callback.noFn(FC.file);
-          }
-        },
-      },
-      readyFn: () => {
-        FC.dialogEle = {};
-        FC.$dialog = $('#' + FC.dialogBoxID);
-        FC.dialogEle.$fileIcon = FC.$dialog.find('.fileIcon');
-        FC.dialogEle.$fileSize = FC.$dialog.find('.fileSize');
-        FC.dialogEle.$thumbnailCon = FC.$dialog.find('.thumbnailCon');
-        FC.dialogEle.$thumbnail = FC.$dialog.find('.thumbnail');
-        FC.dialogEle.$fileName = FC.$dialog.find('#fileName');
-        FC.dialogEle.$fileName.val(name);
-        FC.dialogEle.$fileName.focus();
-        $(document).on('keyup.fileConfirm.upload', function(e) {
-          e.stopPropagation();
-          if (e.keyCode === 13) {
-            if (FC.yesFn()) {
+      title: _l('上传文件'),
+      children: <div dangerouslySetInnerHTML={{ __html: html }}></div>,
+      footer: (
+        <div className="Dialog-footer-btns">
+          <Button
+            type="link"
+            onClick={() => {
               $(document).off('keyup.fileConfirm.upload');
-              FC.dialog.closeDialog();
-              $('.chatMessage-textarea textarea').focus();
-            } else {
-              return false;
-            }
-          }
-        });
-        FC.previewFile();
-        FC.first = true;
-      },
+              if (FC.callback && typeof FC.callback.noFn === 'function') {
+                FC.callback.noFn(FC.file);
+              }
+              $(`.${FC.dialogBoxID}`).parent().remove();
+            }}
+          >
+            {_l('取消')}
+          </Button>
+          <Button
+            type="primary"
+            onClick={() => {
+              if (FC.yesFn()) {
+                $(document).off('keyup.fileConfirm.upload');
+                $(`.${FC.dialogBoxID}`).parent().remove();
+              }
+            }}
+          >
+            {_l('上传')}
+          </Button>
+        </div>
+      ),
     });
+    FC.dialogEle = {};
+    FC.$dialog = $('.' + FC.dialogBoxID);
+    FC.dialogEle.$fileIcon = FC.$dialog.find('.fileIcon');
+    FC.dialogEle.$fileSize = FC.$dialog.find('.fileSize');
+    FC.dialogEle.$thumbnailCon = FC.$dialog.find('.thumbnailCon');
+    FC.dialogEle.$thumbnail = FC.$dialog.find('.thumbnail');
+    FC.dialogEle.$fileName = FC.$dialog.find('#fileName');
+    FC.dialogEle.$fileName.val(name);
+    FC.dialogEle.$fileName.focus();
+    $(document).on('keyup.fileConfirm.upload', function (e) {
+      e.stopPropagation();
+      if (e.keyCode === 13) {
+        if (FC.yesFn()) {
+          $(document).off('keyup.fileConfirm.upload');
+          $(`.${FC.dialogBoxID}`).parent().remove();
+          $('.chatMessage-textarea textarea').focus();
+        } else {
+          return false;
+        }
+      }
+    });
+    FC.previewFile();
+    FC.first = true;
   },
-  yesFn: function() {
+  yesFn: function () {
     var FC = this;
     if (FC.dialogEle.$fileName.val().trim() === '') {
       alert(_l('名称不能为空'), 3);
@@ -98,7 +104,7 @@ FileConfirm.prototype = {
       return true;
     }
   },
-  previewFile: function() {
+  previewFile: function () {
     var FC = this;
     if (File.isPicture('.' + FC.ext) && FileReader) {
       FC.loadPicture();
@@ -106,21 +112,21 @@ FileConfirm.prototype = {
       FC.loadDocIcon();
     }
   },
-  loadDocIcon: function() {
+  loadDocIcon: function () {
     var FC = this;
     FC.dialogEle.$fileIcon.show();
     var fileIconClass = getClassNameByExt('.' + FC.ext);
     FC.dialogEle.$fileIcon.addClass(fileIconClass).show();
     FC.dialogEle.$fileSize.text(formatFileSize(FC.file.size).replace(/ /g, ''));
   },
-  loadPicture: function() {
+  loadPicture: function () {
     var FC = this;
     FC.dialogEle.$thumbnailCon.show();
     var reader = new FileReader();
     var img = document.createElement('img');
     img.addEventListener(
       'error',
-      function() {
+      function () {
         FC.dialogEle.$thumbnail.hide();
         FC.loadDocIcon();
       },
@@ -128,7 +134,7 @@ FileConfirm.prototype = {
     );
     reader.addEventListener(
       'load',
-      function() {
+      function () {
         img.src = reader.result;
       },
       false,
@@ -138,11 +144,11 @@ FileConfirm.prototype = {
     }
     FC.dialogEle.$thumbnail.append(img).show();
   },
-  getFullFileName: function() {
+  getFullFileName: function () {
     var FC = this;
     return FC.dialogEle.$fileName.val() + (FC.ext ? '.' + FC.ext : '');
   },
-  validate: function(str) {
+  validate: function (str) {
     var illegalChars = /[\/\\\:\*\?\"\<\>\|]/g;
     var valid = illegalChars.test(str);
     if (valid) {
@@ -153,7 +159,7 @@ FileConfirm.prototype = {
   },
 };
 
-export default function(file, callback) {
+export default function (file, callback) {
   var fileConfirm = new FileConfirm(file, callback);
   return fileConfirm.dialog;
-};
+}

@@ -5,6 +5,25 @@ import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoW
 import cx from 'classnames';
 import _ from 'lodash';
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
+import renderTextCell from 'src/pages/worksheet/components/CellControls/renderText.js';
+
+const getTitle = (value, sourceControl) => {
+  const data = safeParse(value, 'array');
+
+  switch (sourceControl.type) {
+    case 26:
+    case 27:
+    case 48:
+      return data
+        .map(m => m.departmentName || m.fullname || m.organizeName)
+        .filter(m => m)
+        .join('、');
+    case 40:
+      return data.address || `${_l('经度')}：${_.round(data.x, 6)} ${_l('纬度')}：${_.round(data.y, 6)}`;
+    default:
+      return renderTextCell({ ...sourceControl, value: value });
+  }
+};
 
 function WorksheetRecordLogSelectTags(props) {
   const {
@@ -28,7 +47,7 @@ function WorksheetRecordLogSelectTags(props) {
   const isdecrypt = advancedSetting.isdecrypt;
   const clickHandle = (type, index) => {
     if (isMobile) return;
-    setPreview(true);
+    setPreview(index);
     setPreType({
       type: type,
       index: index,
@@ -69,18 +88,24 @@ function WorksheetRecordLogSelectTags(props) {
 
   const renderText = item => {
     let text = item;
-    if (needPreview && text.startsWith('[')) {
-      const arr = safeParse(text, 'array');
-      text = arr
-        .map(m => m.departmentName || m.fullname || m.organizeName)
-        .filter(m => m)
-        .join('、');
+    if (needPreview && text && ['[', '{'].includes(text[0])) {
+      let sourceControlType = (control || {}).sourceControlType;
+      let sourceControl = { ...(control || {}).sourceControl, type: sourceControlType };
+      if (!sourceControlType) {
+        sourceControl = control.relationControls.find(l => l.attribute === 1) || control.relationControls[0];
+      }
+
+      text = getTitle(item, sourceControl);
     }
     if (control) {
       const { type, enumDefault } = control;
       if (type === 3) {
         let _value = enumDefault === 1 ? text.replace(/\+86/, '') : text;
         return showMaskData && _.indexOf(maskList, text) < 0 ? dealMaskValue({ ...control, value: _value }) : _value;
+      }
+      if (type === 35) {
+        const titleControl = control.relationControls.find(l => l.controlId === control.sourceTitleControlId);
+        return titleControl ? renderTextCell({ ...titleControl, value: item }) || text : text;
       }
     }
     return showMaskData && _.indexOf(maskList, text) < 0 ? dealMaskValue({ ...control, value: text }) : text;
@@ -123,7 +148,7 @@ function WorksheetRecordLogSelectTags(props) {
         {renderList(newValue, 'new')}
         {renderList(defaultValue, 'default')}
       </div>
-      {preview && preType && recordInfo && (
+      {preview !== false && preType && recordInfo && (
         <RecordInfoWrapper
           visible
           allowAdd={false}
@@ -135,10 +160,10 @@ function WorksheetRecordLogSelectTags(props) {
           }}
           recordId={
             preType.type === 'old'
-              ? recordInfo.delList[0].recordId
+              ? recordInfo.delList[preview].recordId
               : preType.type === 'new'
-              ? recordInfo.addList[0].recordId
-              : recordInfo.defList[0].recordId
+              ? recordInfo.addList[preview].recordId
+              : recordInfo.defList[preview].recordId
           }
           worksheetId={recordInfo.worksheetId}
         />

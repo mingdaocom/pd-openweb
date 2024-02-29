@@ -71,9 +71,7 @@ export default props => {
             <div className="flexRow alignItemsCenter mTop15">
               <div className="ellipsis Font13 flex mRight20">
                 {controlName}
-                {(singleObj.required || _.includes(['portal_mobile', 'portal_role'], item.fieldId)) && (
-                  <span className="mLeft5 red">*</span>
-                )}
+                {singleObj.required && <span className="mLeft5 red">*</span>}
                 {singleObj.type === 29 && <span className="Gray_9e">{`（${_l('工作表')}“${sourceEntityName}”）`}</span>}
               </div>
             </div>

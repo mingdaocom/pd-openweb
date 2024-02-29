@@ -3,7 +3,7 @@ import { Icon } from 'ming-ui';
 import cx from 'classnames';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import './editPrint.less';
-import { createUploader } from 'src/pages/kc/utils/qiniuUpload';
+import createUploader from 'src/library/plupload/createUploader';
 import { getUrlByBucketName } from 'src/util';
 import appManagementAjax from 'src/api/appManagement';
 

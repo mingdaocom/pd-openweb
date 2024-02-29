@@ -233,6 +233,7 @@ export function UserSelector(props) {
               list={prefixUsers}
               onSelect={handleSelect}
               onShowMore={() => setHadShowMore(true)}
+              projectId={baseArgs.projectId}
             />
             <hr />
           </Fragment>
@@ -255,6 +256,7 @@ export function UserSelector(props) {
             }
             onSelect={handleSelect}
             appId={appId}
+            projectId={baseArgs.projectId}
           />
         }
         {!isStatic && loading && <LoadDiv />}

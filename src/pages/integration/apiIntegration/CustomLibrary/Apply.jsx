@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Dialog, Icon, LoadDiv } from 'ming-ui';
-import AddAppDialog from '../../components/AddAppDialog';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
+import dialogSelectApp from 'src/components/dialogSelectApp';
 
 const ApplyBtn = styled.div`
   padding: 0 32px;
@@ -37,7 +37,6 @@ const Item = styled.div`
 
 export default function Apply(props) {
   const { companyId, apiDetail = {}, onClose = () => {}, onApplySuccess } = props;
-  const [selectAppDialog, setSelectAppDialog] = useState(false);
   const [loading, setLoading] = useState(true);
   const [apiList, setApiList] = useState([]);
 
@@ -52,14 +51,14 @@ export default function Apply(props) {
       });
   }, []);
 
-  const onApply = selectedIds => {
+  const onApply = selectedApps => {
     packageVersionAjax
       .authorizeApkIds(
         {
           companyId,
           id: apiDetail.id,
           type: 1,
-          apkIds: selectedIds,
+          apkIds: selectedApps.map(app => app.appId),
         },
         {
           isIntegration: true,
@@ -69,7 +68,6 @@ export default function Apply(props) {
         if (res) {
           alert(_l('申请成功'));
           onApplySuccess();
-          setSelectAppDialog(false);
           onClose();
         }
       });
@@ -91,7 +89,10 @@ export default function Apply(props) {
           <div className="Gray_75 ellipsis">{apiDetail.explain}</div>
         </div>
 
-        <ApplyBtn className="flexRow alignItemsCenter" onClick={() => setSelectAppDialog(true)}>
+        <ApplyBtn
+          className="flexRow alignItemsCenter"
+          onClick={() => dialogSelectApp({ title: _l('选择授权应用'), projectId: companyId, onOk: onApply })}
+        >
           {_l('申请使用')}
         </ApplyBtn>
       </div>
@@ -123,10 +124,6 @@ export default function Apply(props) {
           'API 由企业组织应用管理员开放提供，申请使用后需选择授权使用的应用，管理员审核通过后被授权的应用将可以使用 API',
         )}
       </div>
-
-      {selectAppDialog && (
-        <AddAppDialog projectId={companyId} onCancel={() => setSelectAppDialog(false)} onOk={onApply} />
-      )}
     </Dialog>
   );
 }

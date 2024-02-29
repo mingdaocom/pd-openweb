@@ -387,10 +387,9 @@ export default function NavGroup(params) {
             onChange={newValue => {
               updateCurrentView(
                 Object.assign(view, {
-                  advancedSetting: updateViewAdvancedSetting(view, {
-                    ...newValue,
-                  }),
+                  advancedSetting: newValue,
                   editAttrs: ['advancedSetting'],
+                  editAdKeys: Object.keys(newValue),
                 }),
               );
             }}

@@ -1,8 +1,7 @@
 ﻿import React from 'react';
 import uploadNewVersionDailog from './kcUploadNewVersion/kcUploadNewVersion';
-
 import service from '../api/service';
-import { createUploader } from '../utils/qiniuUpload';
+import createUploader from 'src/library/plupload/createUploader';
 import { UPLOAD_ERROR } from '../constant/enum';
 
 class UploadNewVersion extends React.Component {

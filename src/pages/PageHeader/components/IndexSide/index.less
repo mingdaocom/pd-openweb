@@ -21,6 +21,7 @@
     box-sizing: border-box;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     height: 50px;
     padding: 0 8px;
     .homepageWrap {
@@ -32,13 +33,11 @@
       border-radius: 30px;
       padding: 0 16px;
       color: #757575;
-      &:not(.appIndexPage) {
-        cursor: pointer;
-        background-color: #eee;
-        &:hover {
-          background-color: #e5f4ff;
-          color: #2196f3;
-        }
+      cursor: pointer;
+      background-color: #eee;
+      &:hover {
+        background-color: #e5f4ff;
+        color: #2196f3;
       }
     }
     .homepage {
@@ -51,6 +50,14 @@
       }
       .icon {
         margin-bottom: 2px;
+      }
+    }
+    .moreWrap {
+      border-radius: 3px;
+      margin-right: 10px;
+      padding: 1px;
+      &:hover {
+        background-color: #eee;
       }
     }
   }
@@ -100,6 +107,7 @@
     .appInfo {
       flex: 1;
       padding-left: 12px;
+      min-width: 0;
     }
     .projectName {
       font-size: 12px;

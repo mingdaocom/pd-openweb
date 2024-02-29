@@ -13,13 +13,15 @@ import GunterView from './GunterView';
 import DetailView from './DetailView';
 import GroupFilter from '../GroupFilter';
 import CustomWidgetView from './CustomWidgetView';
+import ResourceView from './ResourceView';
+import MobileMapView from './MapView';
 import State from '../State';
 import worksheetAjax from 'src/api/worksheet';
 import { VIEW_TYPE_ICON, VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
 import { emitter } from 'worksheet/util';
 import _ from 'lodash';
 
-const { board, sheet, calendar, gallery, structure, gunter, detail, customize } = VIEW_DISPLAY_TYPE;
+const { board, sheet, calendar, gallery, structure, gunter, detail, customize, resource, map } = VIEW_DISPLAY_TYPE;
 
 const TYPE_TO_COMP = {
   [sheet]: SheetView,
@@ -29,6 +31,8 @@ const TYPE_TO_COMP = {
   [calendar]: CalendarView,
   [gunter]: GunterView,
   [detail]: DetailView,
+  [resource]: ResourceView,
+  [map]: MobileMapView,
   [customize]: CustomWidgetView,
 };
 
@@ -83,7 +87,8 @@ class View extends Component {
     );
   }
   render() {
-    const { view, viewResultCode, base, isCharge, appNaviStyle, hasDebugRoles } = this.props;
+    const { view, viewResultCode, base, isCharge, appNaviStyle, hasDebugRoles, controls, sheetSwitchPermit } =
+      this.props;
     if (viewResultCode !== 1) {
       return <State resultCode={viewResultCode} type="view" />;
     }
@@ -99,6 +104,8 @@ class View extends Component {
       view,
       hasDebugRoles,
       appNaviStyle,
+      controls,
+      sheetSwitchPermit,
     };
 
     let hasGroupFilter =
@@ -106,15 +113,17 @@ class View extends Component {
       !_.isEmpty(view.navGroup) &&
       view.navGroup.length > 0 &&
       !location.search.includes('chartId') &&
-      _.includes([sheet, gallery], String(view.viewType)); // 是否存在分组列表
+      _.includes([sheet, gallery, map], String(view.viewType)); // 是否存在分组列表
 
     if (hasGroupFilter) {
       return (
-        <GroupFilter
-          {...this.props}
-          changeMobielSheetLoading={this.props.changeMobielSheetLoading}
-          groupId={this.props.base.groupId}
-        />
+        <div className="overflowHidden flex Relative mobileView">
+          <GroupFilter
+            {...this.props}
+            changeMobielSheetLoading={this.props.changeMobielSheetLoading}
+            groupId={this.props.base.groupId}
+          />
+        </div>
       );
     }
     return (
@@ -156,6 +165,7 @@ export default connect(
           'changeMobileGroupFilters',
           'unshiftSheetRow',
           'changeMobileSheetRows',
+          'updateGroupFilter',
         ]),
       },
       dispatch,

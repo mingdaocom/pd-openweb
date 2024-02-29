@@ -1,7 +1,7 @@
 import React, { PureComponent, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { ScrollView, Input, Radio, Dropdown, Checkbox, LoadDiv, Tooltip, Icon } from 'ming-ui';
+import { ScrollView, Input, Radio, Dropdown, Checkbox, LoadDiv, Tooltip, Icon, Switch } from 'ming-ui';
 import SheetTable, { changeSheetModel } from './SheetTable';
 import { PERMISSION_WAYS, TEXTS, roleDetailPropType, actionList } from 'src/pages/Role/config.js';
 import styled from 'styled-components';
@@ -183,10 +183,10 @@ export default class extends PureComponent {
             </div>
             {showCheckbox && !isForPortal ? (
               <div className="mTop15 flexRow alignItemsCenter">
-                <Checkbox
-                  className={'subCheckbox InlineBlock'}
-                  checked={isChecked}
+                <Switch
                   size="small"
+                  className="InlineBlock"
+                  checked={isChecked}
                   onClick={checked => {
                     if (checked) {
                       const index = PERMISSION_WAYS_WITH_CHECKED.indexOf(permissionWay);
@@ -196,10 +196,9 @@ export default class extends PureComponent {
                       this.changePermissionWay(PERMISSION_WAYS_WITH_CHECKED[index]);
                     }
                   }}
-                >
-                  {_l('下属加入/拥有的记录')}
-                </Checkbox>
-                <Tooltip text={<span>{_l('汇报关系中，下属拥有的记录')} </span>} popupPlacement="top">
+                />
+                <span className="mLeft10"> {_l('下属加入/拥有的记录')}</span>
+                <Tooltip text={<span>{_l('在组织管理【汇报关系】中管理用户的下属')} </span>} popupPlacement="top">
                   <i className="icon-info_outline Font16 Gray_9e mLeft3 TxtMiddle" />
                 </Tooltip>
               </div>
@@ -208,13 +207,9 @@ export default class extends PureComponent {
               <div className="mTop15 flexRow">
                 <div className="left">
                   <span className="flexRow alignItemsCenter">
-                    <Checkbox
-                      className={'subCheckbox InlineBlock'}
+                    <Switch
+                      className="InlineBlock"
                       checked={optionalControls.filter(l => extendAttrs.includes(l.id)).length > 0}
-                      clearselected={
-                        optionalControls.filter(l => extendAttrs.includes(l.id)).length > 0 &&
-                        optionalControls.filter(l => !extendAttrs.includes(l.id)).length !== 0
-                      }
                       size="small"
                       onClick={checked => {
                         if (checked) {
@@ -223,14 +218,13 @@ export default class extends PureComponent {
                           onChange({ extendAttrs: optionalControls.map(l => l.id) });
                         }
                       }}
-                    >
-                      {_l('匹配用户权限标签的记录')}
-                    </Checkbox>
+                    />
+                    <span className="mLeft10">{_l('匹配用户权限标签的记录')}</span>
                     <Tooltip
                       text={
                         <span>
                           {_l(
-                            '可启用的权限标签字段来自于[用户扩展信息]的标签字段。勾选后，可根据[用户扩展信息-人员表]中配置的字段值，查看工作表被关联的字段所属记录。',
+                            '在本应用【用户-扩展】中管理用户的权限标签',
                           )}{' '}
                         </span>
                       }
@@ -363,14 +357,20 @@ export default class extends PureComponent {
                     (!!sheets.filter(obj => obj.views.filter(o => o[item.key]).length).length ||
                       !!pages.filter(o => o.checked).length);
                 } else if (item.operatorKey === 'ADD') {
-                  checked = sheets.filter(obj => obj.canAdd).length === sheets.length;
+                  checked = sheets.filter(obj => obj.canAdd).length === sheets.length && sheets.length > 0;
                   clearselected =
                     !checked &&
                     sheets.filter(obj => obj.canAdd).length !== sheets.length &&
                     sheets.filter(obj => obj.canAdd).length > 0;
                 } else {
-                  checked = !sheets.filter(obj => obj.views.filter(o => !o[item.key]).length).length;
-                  clearselected = !checked && !!sheets.filter(obj => obj.views.filter(o => o[item.key]).length).length;
+                  let viewsData = [];
+                  let allViews = [];
+                  sheets.map(obj => {
+                    viewsData.push(...obj.views.filter(o => o[item.key]));
+                    allViews.push(...obj.views);
+                  });
+                  checked = viewsData.length === allViews.length && allViews.length > 0;
+                  clearselected = !checked && viewsData.length !== allViews.length && viewsData.length > 0;
                 }
                 return (
                   <div key={index} className={'tableHeaderItem tableHeaderOther'}>

@@ -3,8 +3,8 @@ export default {
   * 获取根目录(共享文件夹)列表
   * @param {Object} args 请求参数
   * @param {string} args.keywords 关键词
-  * @param {} args.rootFilterType 根节点过滤类型
-  * @param {} args.status 状态
+  * @param {} args.rootFilterType
+  * @param {} args.status
   * @param {string} args.projectId 网络 Id，不能和 excludeProjectIds 同时存在
   * @param {array} args.excludeProjectIds 排除掉的网络 Id，逗号分割，不能和 p rojectId 同时存在
   * @param {Object} options 配置参数
@@ -26,18 +26,6 @@ export default {
    getRootDetail: function (args, options = {}) {
      
      return $.api('Kc', 'GetRootDetail', args, options);
-   },
-  /**
-  * 获取根文件夹
-  * @param {Object} args 请求参数
-  * @param {array} args.id 节点id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getRootInfoByIds: function (args, options = {}) {
-     
-     return $.api('Kc', 'GetRootInfoByIds', args, options);
    },
   /**
   * 添加根目录(共享文件夹)
@@ -114,7 +102,7 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.id 节点id
   * @param {string} args.memberId 成员id
-  * @param {} args.permission 更改为的权限
+  * @param {} args.permission
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -154,7 +142,7 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.id 节点id
   * @param {string} args.memberId 成员id
-  * @param {} args.memberStatus 状态
+  * @param {} args.memberStatus
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -179,15 +167,15 @@ export default {
   /**
   * 获取共享文件夹下节点列表
   * @param {Object} args 请求参数
-  * @param {} args.rootType 节点所属类型
+  * @param {} args.rootType
   * @param {string} args.parentId 父id
   * @param {string} args.keywords 关键词
-  * @param {} args.status 节点状态
-  * @param {} args.sortBy 节点排序字段
-  * @param {} args.sortType 排序类型
+  * @param {} args.status
+  * @param {} args.sortBy
+  * @param {} args.sortType
   * @param {integer} args.skip 页码
   * @param {integer} args.limit 页大小
-  * @param {} args.nodeType 节点类型
+  * @param {} args.nodeType
   * @param {array} args.filterIDs 过滤的id
   * @param {boolean} args.isFromFolderSelect 是否是选择文件夹
   * @param {Object} options 配置参数
@@ -202,8 +190,8 @@ export default {
   * 全局搜索，包括我的文件和所有根目录
   * @param {Object} args 请求参数
   * @param {string} args.keywords 关键词
-  * @param {} args.sortBy 节点排序字段
-  * @param {} args.sortType 排序类型
+  * @param {} args.sortBy
+  * @param {} args.sortType
   * @param {integer} args.skip 页码
   * @param {integer} args.limit 页大小
   * @param {Object} options 配置参数
@@ -217,12 +205,12 @@ export default {
   /**
   * 获取列表中文件夹总数和其中的文件总大小
   * @param {Object} args 请求参数
-  * @param {} args.rootType 节点所属类型
+  * @param {} args.rootType
   * @param {string} args.keywords 关键词
   * @param {string} args.parentId 父id
-  * @param {} args.status 节点状态
-  * @param {} args.sortBy 节点排序字段
-  * @param {} args.sortType 排序类型
+  * @param {} args.status
+  * @param {} args.sortBy
+  * @param {} args.sortType
   * @param {integer} args.skip 页码
   * @param {integer} args.limit 页大小
   * @param {array} args.filterIDs 过滤的id
@@ -239,7 +227,7 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.id 节点id
   * @param {string} args.path 路径
-  * @param {} args.actionType 查看类型是分享地址还是从知识中心读取
+  * @param {} args.actionType
   * @param {string} args.versionId 版本Id
   * @param {boolean} args.isOldest 获取最老的版本
   * @param {string} args.worksheetId 工作表Id
@@ -255,10 +243,10 @@ export default {
   * 添加节点
   * @param {Object} args 请求参数
   * @param {string} args.name 名称
-  * @param {} args.type 节点类型
+  * @param {} args.type
   * @param {string} args.parentId 父id
   * @param {string} args.rootId 根文件夹id
-  * @param {} args.source 来源
+  * @param {} args.source
   * @param {integer} args.size 大小
   * @param {string} args.filePath 地址
   * @param {string} args.originLinkUrl 原始链接
@@ -333,7 +321,7 @@ export default {
   * @param {string} args.name 名称
   * @param {boolean} args.isDownloadable 是否可下载
   * @param {boolean} args.isEditable 是否可编辑
-  * @param {} args.visibleType 分享类型
+  * @param {} args.visibleType
   * @param {string} args.newLinkUrl 链接地址
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -375,7 +363,7 @@ export default {
   * @param {string} args.keywords 关键词
   * @param {string} args.parentId 父id
   * @param {boolean} args.isPermanent 是否彻底删除
-  * @param {} args.locationType 节点类型
+  * @param {} args.locationType
   * @param {array} args.excludeNodeIds 排查哪些节点
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -402,7 +390,7 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.keywords 关键词
   * @param {string} args.parentId 父id
-  * @param {} args.locationType 所属类型
+  * @param {} args.locationType
   * @param {array} args.excludeNodeIds 排查的节点id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -417,8 +405,8 @@ export default {
   * @param {Object} args 请求参数
   * @param {array} args.ids 被移动的节点 id
   * @param {string} args.toId 移动到的节点或根节点 id
-  * @param {} args.toType 移动到的节点根目录类型
-  * @param {} args.handleNameType 重名时选择节点操作方式
+  * @param {} args.toType
+  * @param {} args.handleNameType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -432,10 +420,10 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.keywords 关键词
   * @param {string} args.parentId 父节点id
-  * @param {} args.fromType 源所属类型
+  * @param {} args.fromType
   * @param {string} args.toId 目标id
-  * @param {} args.toType 目标类型
-  * @param {} args.existNameExecuteType 操作类型
+  * @param {} args.toType
+  * @param {} args.existNameExecuteType
   * @param {array} args.excludeNodeIds 排除的节点id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -450,8 +438,8 @@ export default {
   * @param {Object} args 请求参数
   * @param {array} args.ids 节点id
   * @param {string} args.toId 目标id
-  * @param {} args.toType 目标类型
-  * @param {} args.handleNameType 操作类型
+  * @param {} args.toType
+  * @param {} args.handleNameType
   * @param {boolean} args.copySource CopySource
   * @param {string} args.des 文件流转时的描述
   * @param {boolean} args.isShareFolder 如果是分享文件夹的话，文件夹下的每个节点只判断是否可以下载
@@ -468,10 +456,10 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.keywords 关键词
   * @param {string} args.parentId 父节点id
-  * @param {} args.fromType 源所属类型
+  * @param {} args.fromType
   * @param {string} args.toId 目标id
-  * @param {} args.toType 目标类型
-  * @param {} args.existNameExecuteType 操作类型
+  * @param {} args.toType
+  * @param {} args.existNameExecuteType
   * @param {array} args.excludeNodeIds 排除的节点id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -530,21 +518,9 @@ export default {
      return $.api('Kc', 'AddNodeViewCount', args, options);
    },
   /**
-  * 增加下载数
-  * @param {Object} args 请求参数
-  * @param {string} args.id 节点 Id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   addNodeDownloadCount: function (args, options = {}) {
-     
-     return $.api('Kc', 'AddNodeDownloadCount', args, options);
-   },
-  /**
   * 获取当前使用的流量和可用流量总数
   * @param {Object} args 请求参数
-  * @param {} args.fromType 来源模块 工作表控件模块=9
+  * @param {} args.fromType
   * @param {string} args.projectId
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层

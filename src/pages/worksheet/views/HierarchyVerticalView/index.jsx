@@ -422,7 +422,7 @@ function HierarchyVertical(props) {
     !isDisabledCreate(sheetSwitchPermit) &&
     !_.isEmpty(hierarchyViewData) &&
     (viewControl || !_.isEmpty(viewControls)) &&
-    !_.get(window, 'shareState.isPublicView');
+    !(_.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage'));
 
   const renderContent = () => {
     const { viewControl, viewType, viewId, layersName = [], viewControls, advancedSetting = {} } = view;

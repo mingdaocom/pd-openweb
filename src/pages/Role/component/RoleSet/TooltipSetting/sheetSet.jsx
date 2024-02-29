@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { Checkbox, Tooltip, Icon, RadioGroup } from 'ming-ui';
+import { Checkbox, Tooltip, Icon, RadioGroup, Switch } from 'ming-ui';
 import lookPng from './img/look.png';
 import editPng from './img/edit.png';
 import delPng from './img/del.png';
+import cx from 'classnames';
+
 const Wrap = styled.div`
   .title {
     font-weight: 400;
@@ -95,18 +97,19 @@ function TipsRender(props) {
       </WrapTip>
       {!isForPortal && (
         <React.Fragment>
-          <p className="mBottom0 mTop24 Gray_75">{_l('额外包含以下记录')}</p>
+          <p className="mBottom0 mTop24 Gray_75">{_l('额外包含')}</p>
           <div className={'tipItem flexRow alignItemsCenter mTop20'}>
-            <Checkbox
+            <Switch
+              size="small"
               className="InlineBlock "
               checked={props.value === 30}
               onClick={() => {
                 onChange(props.value === 30 ? 20 : 30);
               }}
             />
-            {type === 'look' ? _l('下属加入的记录') : _l('下属拥有的记录')}
+            <span className="mLeft10">{type === 'look' ? _l('下属加入的记录') : _l('下属拥有的记录')}</span>
             {type !== 'look' && (
-              <Tooltip text={<span>{_l('基于组织的人员汇报关系，下属所拥有的记录')}</span>} popupPlacement="top">
+              <Tooltip text={<span>{_l('在组织管理【汇报关系】中管理用户的下属')}</span>} popupPlacement="top">
                 <i className="icon-info_outline Font16 mLeft6 Gray_bd" />
               </Tooltip>
             )}
@@ -115,14 +118,10 @@ function TipsRender(props) {
             <div className="tipExtendAttr flexRow mTop18">
               <div className="left">
                 <span className="flexRow alignItemsCenter">
-                  <Checkbox
-                    className="InlineBlock "
+                  <Switch
+                    size="small"
+                    className="InlineBlock"
                     checked={extendAttrList.filter(l => extendAttrValue.includes(l.id)).length > 0}
-                    clearselected={
-                      extendAttrValue.length > 0 &&
-                      extendAttrList.filter(l => !extendAttrValue.includes(l.id)).length !== 0
-                    }
-                    text={_l('匹配用户权限标签的记录')}
                     onClick={value => {
                       if (value) {
                         onChangeExtendAttr([]);
@@ -131,32 +130,31 @@ function TipsRender(props) {
                       }
                     }}
                   />
-                  <Tooltip
-                    text={_l(
-                      '可启用的权限标签字段来自于[用户扩展信息]的标签字段。勾选后，可根据[用户扩展信息-人员表]中配置的字段值，查看工作表被关联的字段所属记录。',
-                    )}
-                  >
-                    <Icon icon="workflow_error" className="Gray_bd" />
+                  <span className="mLeft10">{_l('匹配用户权限标签的记录')}</span>
+                  <Tooltip text={_l('在本应用【用户-扩展】中管理用户的权限标签')}>
+                    <Icon icon="info_outline" className="Gray_bd Font16 mLeft6" />
                   </Tooltip>
                 </span>
               </div>
-              <div className="right mLeft40" style={{ display: 'flex', gap: '10px 46px', flexWrap: 'wrap' }}>
-                {extendAttrList.map(item => (
-                  <span className="flexRow alignItemsCenter">
-                    <Checkbox
-                      className="InlineBlock"
-                      checked={extendAttrValue.indexOf(item.id) > -1}
-                      text={item.name}
-                      onClick={value => {
-                        if (value) {
+              <div className="flex mLeft40" style={{ display: 'flex', gap: '10px 46px', flexWrap: 'wrap' }}>
+                {extendAttrList.map(item => {
+                  const isChecked = extendAttrValue.indexOf(item.id) > -1;
+                  return (
+                    <span
+                      className="flexRow alignItemsCenter Hand"
+                      onClick={() => {
+                        if (isChecked) {
                           onChangeExtendAttr(extendAttrValue.filter(l => l !== item.id));
                         } else {
                           onChangeExtendAttr(extendAttrValue.concat(item.id));
                         }
                       }}
-                    />
-                  </span>
-                ))}
+                    >
+                      <Checkbox className="InlineBlock" checked={isChecked} />
+                      <span className={cx('Font13', isChecked ? 'Gray' : 'Gray_9e')}>{item.name}</span>
+                    </span>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -169,49 +167,46 @@ export default function SheetSet(props) {
   const [list, setState] = useState([]);
   const { onChange } = props;
 
-  useEffect(
-    () => {
-      const { sheet = {} } = props;
-      const { readLevel, editLevel, removeLevel, canEditExtendAttrs, canReadExtendAttrs, canRemoveExtendAttrs } = sheet;
-      const { showRead, showEdit, showRemove } = props.formatViews(sheet.views);
-      setState([
-        {
-          title: _l('可查看哪些记录？'),
-          img: lookPng,
-          k: 'readLevel',
-          type: 'look',
-          disable: ![20, 30, 100].includes(readLevel) || !showRead,
-          disabled: !showRead,
-          value: readLevel,
-          extendAttrValue: canReadExtendAttrs,
-          ek: 'canReadExtendAttrs',
-        },
-        {
-          title: _l('可修改哪些记录？'),
-          img: editPng,
-          k: 'editLevel',
-          type: 'edit',
-          disable: ![20, 30, 100].includes(editLevel) || !showRead || !showEdit,
-          disabled: !showRead || !showEdit,
-          value: editLevel,
-          extendAttrValue: canEditExtendAttrs,
-          ek: 'canEditExtendAttrs',
-        },
-        {
-          title: _l('可删除哪些记录？'),
-          img: delPng,
-          k: 'removeLevel',
-          type: undefined,
-          disable: ![20, 30, 100].includes(removeLevel) || !showRead || !showRemove,
-          disabled: !showRead || !showRemove,
-          value: removeLevel,
-          extendAttrValue: canRemoveExtendAttrs,
-          ek: 'canRemoveExtendAttrs',
-        },
-      ]);
-    },
-    [props],
-  );
+  useEffect(() => {
+    const { sheet = {} } = props;
+    const { readLevel, editLevel, removeLevel, canEditExtendAttrs, canReadExtendAttrs, canRemoveExtendAttrs } = sheet;
+    const { showRead, showEdit, showRemove } = props.formatViews(sheet.views);
+    setState([
+      {
+        title: _l('可查看哪些记录？'),
+        img: lookPng,
+        k: 'readLevel',
+        type: 'look',
+        disable: ![20, 30, 100].includes(readLevel) || !showRead,
+        disabled: !showRead,
+        value: readLevel,
+        extendAttrValue: canReadExtendAttrs,
+        ek: 'canReadExtendAttrs',
+      },
+      {
+        title: _l('可修改哪些记录？'),
+        img: editPng,
+        k: 'editLevel',
+        type: 'edit',
+        disable: ![20, 30, 100].includes(editLevel) || !showRead || !showEdit,
+        disabled: !showRead || !showEdit,
+        value: editLevel,
+        extendAttrValue: canEditExtendAttrs,
+        ek: 'canEditExtendAttrs',
+      },
+      {
+        title: _l('可删除哪些记录？'),
+        img: delPng,
+        k: 'removeLevel',
+        type: undefined,
+        disable: ![20, 30, 100].includes(removeLevel) || !showRead || !showRemove,
+        disabled: !showRead || !showRemove,
+        value: removeLevel,
+        extendAttrValue: canRemoveExtendAttrs,
+        ek: 'canRemoveExtendAttrs',
+      },
+    ]);
+  }, [props]);
 
   const getData = data => {
     const { value, type = 'operation', disable } = data;

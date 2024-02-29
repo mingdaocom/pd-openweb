@@ -8,7 +8,7 @@ import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import _ from 'lodash';
 import './index.less';
-import { getRandomString } from 'src/util';
+import { generateRandomPassword } from 'src/util';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
@@ -35,7 +35,7 @@ export default class UploadFilesTrigger extends Component {
       dragVisible: false,
       isComplete: true,
     };
-    this.id = props.id || getRandomString(16);
+    this.id = props.id || generateRandomPassword(16);
   }
   componentDidMount() {
     if (this.props.popupVisible) {
@@ -150,8 +150,8 @@ export default class UploadFilesTrigger extends Component {
       <ClickAwayable
         component="div"
         onClickAwayExceptions={[
-          '#folderSelectDialog_container',
-          '#addLinkFileDialog_container',
+          '.folderSelectDialog',
+          '.addLinkFileDialog',
           '.attachmentsPreview',
           '.UploadFilesTriggerPanel',
           '.triggerTraget',

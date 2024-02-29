@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { OtherFieldList, SelectOtherField, DynamicInput } from '../components';
 import { DynamicValueInputWrap } from '../styled';
-import { selectOrgRole } from 'src/components/DialogSelectOrgRole';
+import selectOrgRole from 'src/components/dialogSelectOrgRole';
 import update from 'immutability-helper';
 import _ from 'lodash';
 

@@ -2,12 +2,11 @@ import './style.less';
 import doT from 'dot';
 import mobileDialogHtml from './tpl/mobileDialog.htm';
 var dialogTpl = doT.template(mobileDialogHtml);
-import { index as DialogLayer } from 'src/components/mdDialog/dialog';
 import qs from 'query-string';
 import { ATTACHMENT_TYPE } from './enum';
 import attachmentController from 'src/api/attachment';
 import _ from 'lodash';
-
+import Dialog from 'ming-ui/components/Dialog';
 var ToMobileDialog = function (options) {
   var DEFAULTS = {
     sendToType: 1,
@@ -46,28 +45,28 @@ ToMobileDialog.prototype = {
   openDialog: function () {
     var TMD = this;
     var options = TMD.options;
-    TMD.dialog = new DialogLayer({
-      dialogBoxID: 'sendToMobile',
-      className: 'sendToMobile',
+    Dialog.confirm({
+      dialogClasses: 'sendToMobile',
       width: 540,
-      isSameClose: false,
-      container: {
-        header: _l('分享'),
-        content: dialogTpl({
-          tip: TMD.getTip(options.attachmentType),
-          targetText: TMD.getTargetText(options.sendToType),
-          attachmentType: options.attachmentType,
-          fileName: options.file.fullName,
-        }),
-        yesText: '',
-        noText: '',
-      },
-      readyFn: () => {
-        TMD.$dialog = $('#sendToMobile');
-        TMD.$QRCode = TMD.$dialog.find('.urlQrCode');
-        this.renderQR();
-      },
+      title: _l('分享'),
+      children: (
+        <div
+          dangerouslySetInnerHTML={{
+            __html: dialogTpl({
+              tip: TMD.getTip(options.attachmentType),
+              targetText: TMD.getTargetText(options.sendToType),
+              attachmentType: options.attachmentType,
+              fileName: options.file.fullName,
+            }),
+          }}
+        ></div>
+      ),
+      noFooter: true,
+
     });
+    TMD.$dialog = $('.sendToMobile');
+    TMD.$QRCode = TMD.$dialog.find('.urlQrCode');
+    this.renderQR();
   },
   renderQR() {
     var TMD = this;
@@ -111,27 +110,31 @@ ToMobileDialog.prototype = {
     var promise = $.Deferred();
     var options = TMD.options;
     var file = options.file;
-    attachmentController.getShareLocalAttachmentUrl({
-      filePath: options.file.qiniuPath,
-      hours: 48,
-    }).then(function (url) {
-      var qiniuParams = qs.parse(url.slice(url.indexOf('?') + 1));
-      url = url.slice(0, url.indexOf('?') > 0 ? url.indexOf('?') : undefined);
-      var urlParams = qs.stringify({
-        qiniuPath: url,
-        qiniutoken: qiniuParams.token,
-        e: qiniuParams.e,
-        name: file.name,
-        ext: file.ext,
-        size: file.size,
-        genTime: new Date().getTime(),
+    attachmentController
+      .getShareLocalAttachmentUrl({
+        filePath: options.file.qiniuPath,
+        hours: 48,
+      })
+      .then(function (url) {
+        var qiniuParams = qs.parse(url.slice(url.indexOf('?') + 1));
+        url = url.slice(0, url.indexOf('?') > 0 ? url.indexOf('?') : undefined);
+        var urlParams = qs.stringify({
+          qiniuPath: url,
+          qiniutoken: qiniuParams.token,
+          e: qiniuParams.e,
+          name: file.name,
+          ext: file.ext,
+          size: file.size,
+          genTime: new Date().getTime(),
+        });
+        attachmentController
+          .getShortUrl({
+            url: escape(md.global.Config.WebUrl + 'apps/kc/shareLocalAttachment.aspx?' + urlParams),
+          })
+          .then(function (result) {
+            promise.resolve(result.shortUrl || result);
+          });
       });
-      attachmentController.getShortUrl({
-        url: escape(md.global.Config.WebUrl + 'apps/kc/shareLocalAttachment.aspx?' + urlParams),
-      }).then(function (result) {
-        promise.resolve(result.shortUrl || result);
-      });
-    });
     return promise;
   },
   getQRCodeLink: function (url) {

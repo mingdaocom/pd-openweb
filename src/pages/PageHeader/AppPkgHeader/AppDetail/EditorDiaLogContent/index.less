@@ -8,6 +8,14 @@
       color: #ccc;
     }
 
+    .leftContent {
+      border-top: 1px solid #eaeaea;
+      border-right: 1px solid #eaeaea;
+      .editorNull {
+        border: none;
+      }
+    }
+
     .editorContent {
       overflow: hidden !important;
       .ck-content {
@@ -123,6 +131,18 @@
       /*transition: margin 0.2s;*/
       img {
         border: 2px solid #fff;
+      }
+    }
+    .clearCache {
+      position: absolute;
+      right: 20px;
+      top: 20px;
+      &:hover {
+        color: #2196f3 !important;
+      }
+      &.isLoading .icon {
+        display: inline-block;
+        animation: rotate 0.6s infinite linear;
       }
     }
   }

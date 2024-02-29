@@ -1,8 +1,8 @@
 ﻿import React, { Component } from 'react';
-import DialogLayer from 'src/components/mdDialog/dialog';
 import './less/exportFolder.less';
 import cx from 'classnames';
 import { addToken } from 'src/util';
+import { Dialog } from 'ming-ui';
 
 export default class ExportFolder extends Component {
   constructor(props) {
@@ -16,7 +16,10 @@ export default class ExportFolder extends Component {
         { key: 'stageName', name: _l('看板名称') },
         { key: 'control', name: _l('自定义任务内容') },
       ],
-      taskType: [{ key: 'topLevelTask', name: '项目下一级任务', disabled: true }, { key: 'subtask', name: _l('各级子任务'), noSelect: true }],
+      taskType: [
+        { key: 'topLevelTask', name: '项目下一级任务', disabled: true },
+        { key: 'subtask', name: _l('各级子任务'), noSelect: true },
+      ],
       taskArray: [
         { key: 'taskName', name: '任务标题', disabled: true },
         { key: null },
@@ -35,7 +38,7 @@ export default class ExportFolder extends Component {
   }
 
   componentDidMount() {
-    $('#exportFolder_container').on('click', '.printOperation .checkOperation', function () {
+    $('.exportFolder').on('click', '.printOperation .checkOperation', function () {
       $(this).toggleClass('checked');
     });
   }
@@ -51,28 +54,28 @@ export default class ExportFolder extends Component {
   }
 
   render() {
-    const settings = {
-      dialogBoxID: 'exportFolder',
-      oneScreen: true,
-      container: {
-        header: _l('选择您需要导出的部分'),
-        yesText: _l('导出'),
-        yesFn: () => {
-          this.submit();
-        },
-        noFn: this.props.onClose,
-      },
-    };
-
     return (
-      <DialogLayer {...settings}>
+      <Dialog
+        visible
+        className="exportFolder"
+        title={_l('选择您需要导出的部分')}
+        okText={_l('导出')}
+        onOk={() => this.submit()}
+        onCancel={this.props.onClose}
+      >
         <div className="printMessage Font16">{_l('项目')}</div>
         <ul className="printOperation">
           {this.state.folderArry.map((item, i) => {
             if (item.key) {
               return (
                 <li key={i}>
-                  <div className={cx({ checked: !item.noSelect }, item.disabled ? 'checkOperationDisabled' : 'checkOperation')} name={item.key}>
+                  <div
+                    className={cx(
+                      { checked: !item.noSelect },
+                      item.disabled ? 'checkOperationDisabled' : 'checkOperation',
+                    )}
+                    name={item.key}
+                  >
                     <i className="operationCheckbox icon-ok ThemeBGColor3 ThemeBorderColor3" />
                     {item.name}
                   </div>
@@ -88,7 +91,13 @@ export default class ExportFolder extends Component {
             if (item.key) {
               return (
                 <li key={i}>
-                  <div className={cx({ checked: !item.noSelect }, item.disabled ? 'checkOperationDisabled' : 'checkOperation')} name={item.key}>
+                  <div
+                    className={cx(
+                      { checked: !item.noSelect },
+                      item.disabled ? 'checkOperationDisabled' : 'checkOperation',
+                    )}
+                    name={item.key}
+                  >
                     <i className="operationCheckbox icon-ok ThemeBGColor3 ThemeBorderColor3" />
                     {item.name}
                   </div>
@@ -104,7 +113,13 @@ export default class ExportFolder extends Component {
             if (item.key) {
               return (
                 <li key={i}>
-                  <div className={cx({ checked: !item.noSelect }, item.disabled ? 'checkOperationDisabled' : 'checkOperation')} name={item.key}>
+                  <div
+                    className={cx(
+                      { checked: !item.noSelect },
+                      item.disabled ? 'checkOperationDisabled' : 'checkOperation',
+                    )}
+                    name={item.key}
+                  >
                     <i className="operationCheckbox icon-ok ThemeBGColor3 ThemeBorderColor3" />
                     {item.name}
                   </div>
@@ -114,7 +129,7 @@ export default class ExportFolder extends Component {
             return <li key={i} />;
           })}
         </ul>
-      </DialogLayer>
+      </Dialog>
     );
   }
 }

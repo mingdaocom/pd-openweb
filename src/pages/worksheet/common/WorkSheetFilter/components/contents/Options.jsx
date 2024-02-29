@@ -4,7 +4,7 @@ import { autobind } from 'core-decorators';
 import cx from 'classnames';
 import { CityPicker } from 'ming-ui';
 import DialogSelectGroups from 'src/components/dialogSelectDept';
-import { selectOrgRole } from 'src/components/DialogSelectOrgRole';
+import selectOrgRole from 'src/components/dialogSelectOrgRole';
 import TagCon from './TagCon';
 import { FILTER_CONDITION_TYPE } from '../../enum';
 import _ from 'lodash';
@@ -187,7 +187,6 @@ export default class Options extends Component {
                   name: last.path,
                 });
               }
-
             }}
             handleClose={() => {
               setTimeout(this.clearTemp, 10);
@@ -268,7 +267,10 @@ export default class Options extends Component {
     } else {
       const controlIsSingle = _.includes([9, 11], control.type);
       const selectSingle =
-        _.includes([FILTER_CONDITION_TYPE.ARREQ, FILTER_CONDITION_TYPE.ARRNE], type) && controlIsSingle;
+        _.includes(
+          [FILTER_CONDITION_TYPE.ARREQ, FILTER_CONDITION_TYPE.ARRNE, FILTER_CONDITION_TYPE.EQ_FOR_SINGLE],
+          type,
+        ) && controlIsSingle;
       let options = [];
       if (_.includes([9, 10, 11], control.type)) {
         options = control.options

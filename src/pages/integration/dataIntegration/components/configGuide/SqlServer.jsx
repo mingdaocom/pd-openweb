@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './index.less';
-import queryPermission from './images/queryPermission.png';
+import accountAuth from './images/accountAuth.png';
 import queryAgentState from './images/queryAgentState.png';
 import startAgent from './images/startAgent.png';
 import restartDb from './images/restartDb.png';
@@ -19,15 +19,6 @@ export default function SqlServerGuide(props) {
         <h5>{_l('先决条件')}</h5>
         <ul>
           <li>{_l('支持 SQL Server 的版本：2012, 2014, 2016, 2017, 2019')}</li>
-          <li>
-            {_l('当前账号具备Sysadmin 权限')}
-            <a
-              href="https://learn.microsoft.com/zh-cn/sql/relational-databases/track-changes/about-change-data-capture-sql-server?view=sql-server-ver16#permissions-required"
-              target="_blank"
-            >
-              <i className="icon-info_outline mLeft4 Hand" />
-            </a>
-          </li>
           <li>{_l('在 SQL Server 数据库上启用CDC')}</li>
           <li>{_l('SQL Server代理任务（CDC Agent）是启动状态')}</li>
           <li>{_l('确保数据库可以与数据集成通信')}</li>
@@ -37,19 +28,6 @@ export default function SqlServerGuide(props) {
         <div className="sqlText">
           <div>SELECT @@VERSION</div>
         </div>
-
-        <h5>{_l('查询当前用户是否属于 Sysadmin 权限')}</h5>
-        <div>{_l('必须为 Sysadmin 固定服务器角色的成员才允许对数据库启用CDC(变更数据捕获)功能：')}</div>
-        <div className="sqlText">
-          <div>exec sp_helpsrvrolemember 'sysadmin'</div>
-        </div>
-        <p>{_l('返回结果中 如果你的账号在 MemberName 列内即可')}</p>
-        <img
-          id="queryPermission"
-          src={queryPermission}
-          className="mBottom10"
-          onClick={() => setCurrentPic('queryPermission')}
-        />
 
         <h5>{_l('查询数据库是否已经启用CDC(变更数据捕获)')}</h5>
         <div>{_l('返回0代表未启用；1代表已启用')}</div>
@@ -67,6 +45,16 @@ export default function SqlServerGuide(props) {
         <ul>
           <li>{_l('your_db_name：数据库名称')}</li>
         </ul>
+        <div>{_l('如果启用 数据库CDC 提示权限不足，请使用sysadmin权限的账号去执行上述SQL')}</div>
+        <div className="sqlText">
+          <div>{_l('##查询指定的服务器角色 sysadmin 列表')}</div>
+          <div>exec sp_helpsrvrolemember 'sysadmin'</div>
+        </div>
+
+        <h5>{_l('SQLServer账号的权限说明')}</h5>
+        <p>{_l('只有开启数据库CDC才需要sysadmin权限，其余场景下无需sysadmin权限。')}</p>
+        <img id="accountAuth" src={accountAuth} onClick={() => setCurrentPic('accountAuth')} />
+        <p>TIPS：{_l('如使用数据库读写权限创建同步任务，需在创建数据源的时候必须指定数据库')}</p>
 
         <h5>{_l('查询表是否已经启用CDC(变更数据捕获)')}</h5>
         <div>{_l('返回0代表未启用；1代表已启用')}</div>
@@ -126,7 +114,7 @@ export default function SqlServerGuide(props) {
             https://cloud.tencent.com/product/sqlserver
           </a>
         </p>
-        <p className="subTitle">{_l('1. 创建 超级权限账号 即为 System Admin')}</p>
+        <p className="subTitle">{_l('1. 创建账号，如需要开启数据库CDC，则需要权限为 System Admin')}</p>
         <img id="createAdminAccount" src={createAdminAccount} onClick={() => setCurrentPic('createAdminAccount')} />
         <p className="subTitle">{_l('2. 腾讯云如何开启数据库的CDC')}</p>
         <p>{_l('路径：实例列表-数据库管理-其他-「开启/关闭数据库变更数据库捕获」')}</p>
@@ -141,7 +129,7 @@ export default function SqlServerGuide(props) {
             https://www.aliyun.com/product/rds/sqlserver
           </a>
         </p>
-        <p className="subTitle">{_l('1. 开启 System Admin 权限')}</p>
+        <p className="subTitle">{_l('1. 创建账号，如需要开启数据库CDC，则需要权限为 System Admin')}</p>
         <p>
           {_l('根据不同示例和服务资源的不同规格会有无法开启 System Admin权限的问题，具体参见：')}{' '}
           <a href="https://help.aliyun.com/document_detail/170736.html" target="_blank" className="mLeft8">

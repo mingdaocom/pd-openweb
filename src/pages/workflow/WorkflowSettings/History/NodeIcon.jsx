@@ -14,9 +14,21 @@ export default ({ type, appType, actionId }) => {
     bgColor = bgColor[actionId] || bgColor[appType];
   }
 
-  // 处理特殊的
+  // 处理特殊的外部门户节点
   if (appType === APP_TYPE.EXTERNAL_USER) {
     icon = actionId === ACTION_ID.ADD ? 'invited_users' : 'update_information';
+  }
+
+  // 处理特殊的任务节点
+  if (appType === APP_TYPE.TASK) {
+    icon = 'custom_assignment';
+    bgColor = '#01CA83';
+  }
+
+  // 处理特殊的日程节点
+  if (appType === APP_TYPE.CALENDAR) {
+    icon = 'sidebar_calendar';
+    bgColor = '#F15B75';
   }
 
   return (

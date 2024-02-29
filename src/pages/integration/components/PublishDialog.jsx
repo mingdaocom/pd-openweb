@@ -66,7 +66,7 @@ export default function PublishDialog(props) {
     { key: 'name', txt: '连接名称', required: true },
     { key: 'explain', txt: '说明', required: true },
     { key: 'company', txt: 'API 服务厂商', required: true },
-    { key: 'docUrl', txt: 'API 文档地址', required: true },
+    { key: 'docUrl', txt: '官网地址', required: true },
     { key: 'identity', txt: '连接模板作者' },
   ];
   const isDisable = () => {
@@ -165,7 +165,7 @@ export default function PublishDialog(props) {
               }
               e.stopPropagation();
               if (!hrefReg.test(info.docUrl || '')) {
-                return alert(_l('请填入正确的API文档地址'), 2);
+                return alert(_l('请填入正确的官网地址'), 2);
               }
               props.onOk({
                 apis: selectedList,

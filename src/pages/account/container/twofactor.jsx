@@ -133,7 +133,7 @@ export default function Twofactor(props) {
           if (request.ReturnUrl) {
             location.replace(getDataByFilterXSS(request.ReturnUrl));
           } else {
-            window.location.replace('/app/my');
+            window.location.replace('/dashboard');
           }
         }
       } else {

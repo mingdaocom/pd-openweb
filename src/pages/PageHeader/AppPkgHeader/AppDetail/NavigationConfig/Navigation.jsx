@@ -10,6 +10,7 @@ import appManagementApi from 'src/api/appManagement';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
 import SvgIcon from 'src/components/SvgIcon';
+import { getTranslateInfo } from 'src/util';
 import _ from 'lodash';
 
 const dndAccept = 'navigationGroup';
@@ -247,7 +248,7 @@ const Group = props => {
                     }
                   }}
                 />
-              ) : name}
+              ) : getTranslateInfo(app.id, id).name || name}
             </span>
             <Tooltip title={_l('修改')} placement="bottom">
               <Icon className="Gray_9e pointer Font17 operateIcon" icon="sp_edit_white" onClick={() => setEdit(true)} />
@@ -284,7 +285,12 @@ const Group = props => {
                   <SvgIcon url={`${md.global.FileStoreConfig.pubHost}/customIcon/${data.icon || '8_4_folder'}.svg`} fill="#9e9e9e" />
                 </Fragment>
               )}
-              <span className="flex name mLeft10 ellipsis" onClick={() => !data.isAppItem && setChildrenVisible(!childrenVisible)}>{name}</span>
+              <span
+                className="flex name mLeft10 ellipsis"
+                onClick={() => !data.isAppItem && setChildrenVisible(!childrenVisible)}
+              >
+                {getTranslateInfo(app.id, id).name || name}
+              </span>
               <Trigger
                 action={['click']}
                 popupVisible={edit}

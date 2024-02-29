@@ -6,8 +6,7 @@ import LoadDiv from 'ming-ui/components/LoadDiv';
 import { FROM_TYPE } from '../constant/enum';
 import * as Actions from '../actions/action';
 import attachmentAjax from 'src/api/attachment';
-import { cutStringWithHtml, htmlEncodeReg } from 'src/util';
-import { createLinksForMessage } from 'src/components/common/function';
+import { cutStringWithHtml, htmlEncodeReg, createLinksForMessage } from 'src/util';
 import moment from 'moment';
 
 class attachmentInfo extends React.Component {

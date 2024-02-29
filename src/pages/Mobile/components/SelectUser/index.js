@@ -324,7 +324,7 @@ export default class SelectUser extends Component {
       this.props.onClose();
       this.props.onSave(selectedUsers);
     } else {
-      Toast.info(_l('请选择%0', type === 'user' ? _l('人员') : _l('部门')));
+      Toast.info(type === 'user' ? _l('请选择人员') : _l('请选择部门'));
     }
   };
   handleSearch = () => {
@@ -468,7 +468,7 @@ export default class SelectUser extends Component {
                     }
                   }}
                 >
-                  <i className="mRight3">></i>
+                  <i className="mRight3">{'>'}</i>
                   {_l('按部门选择')}
                 </span>
                 {selectUserDepPath.map((department, index) => (
@@ -831,4 +831,5 @@ export default class SelectUser extends Component {
     );
   }
 }
+
 export const selectUser = props => functionWrap(SelectUser, { ...props });

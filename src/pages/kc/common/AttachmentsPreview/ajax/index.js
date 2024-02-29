@@ -24,8 +24,8 @@ const rejectErr = function (ajaxPromise) {
   return promise;
 };
 
-export function getKcNodeDetail(nodeId) {
-  return kcAjax.getNodeDetail({ id: nodeId, actionType: 14 });
+export function getKcNodeDetail(nodeId, worksheetId) {
+  return kcAjax.getNodeDetail({ id: nodeId, actionType: 14, worksheetId });
 }
 
 export function getPreviewLink(attachment) {

@@ -1,14 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './index.less';
 import login from 'src/api/login';
 import { navigateTo } from 'src/router/navigateTo';
-import { Support, Tooltip } from 'ming-ui';
+import { Support, Tooltip, LoadDiv, Dialog } from 'ming-ui';
+import cx from 'classnames';
 import { removePssId } from 'src/util/pssId';
-import { showFollowWeixinDialog } from 'src/components/common/function';
 import _ from 'lodash';
+import weixin from 'src/api/weixin';
+import langConfig from 'src/common/langConfig';
+import accountSetting from 'src/api/accountSetting';
 
 export default function UserMenu(props) {
   const [userVisible, handleChangeVisible] = useState(false);
+  const [languageVisible, handleChangeLanguageVisible] = useState(false);
+  const [showDialog, setShowDialog] = useState(false);
+  const [code, setCode] = useState('');
   const logout = () => {
     window.currentLeave = true;
 
@@ -53,8 +59,54 @@ export default function UserMenu(props) {
     );
   };
 
+  const renderTooltipLanguageText = () => {
+    return (
+      <div
+        className="languageSetTool"
+        onMouseOver={() => {
+          $('#userSet #languageSetItem').addClass('active');
+        }}
+        onMouseLeave={() => {
+          $('#userSet #languageSetItem').removeClass('active');
+        }}
+      >
+        <ul className="languageSetTooltip Normal">
+          {langConfig.map(item => (
+            <li
+              className={cx('ThemeBGColor3', { active: (getCookie('i18n_langtag') || md.global.Config.DefaultLang) === item.key })}
+              key={item.key}
+              onClick={() => {
+                const settingValue = { 'zh-Hans': '0', en: '1', ja: '2', 'zh-Hant': '3' };
+                accountSetting
+                  .editAccountSetting({ settingType: '6', settingValue: settingValue[item.key] })
+                  .then(res => {
+                    if (res) {
+                      setCookie('i18n_langtag', item.key);
+                      window.location.reload();
+                    } else {
+                      alert(_l('设置失败，请稍后再试'), 2);
+                    }
+                  });
+              }}
+            >
+              <span>{item.value}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
+
   const projectLength = md.global.Account.projects.length;
   const isAccount = md.global.Account.guideSettings.accountMobilePhone || md.global.Account.guideSettings.accountEmail;
+
+  useEffect(() => {
+    if (!showDialog || code) return;
+
+    weixin.getWeiXinServiceNumberQRCode().then(function(data) {
+      setCode(data);
+    });
+  }, [showDialog]);
 
   return (
     <div id="userSet">
@@ -111,6 +163,34 @@ export default function UserMenu(props) {
             </a>
           </li>
         )}
+
+        <li
+          className="ThemeBGColor3"
+          id="languageSetItem"
+          onClick={() => {
+          }}
+        >
+          <Tooltip
+            popupAlign={{
+              points: ['tr', 'tl'],
+              offset: [-2, -8],
+              overflow: { adjustX: true, adjustY: true },
+            }}
+            onPopupVisibleChange={languageVisible => {
+              handleChangeLanguageVisible(languageVisible);
+            }}
+            action={['hover']}
+            popup={renderTooltipLanguageText()}
+            popupVisible={languageVisible}
+          >
+            <a className="Hand clearfix">
+              <span className="icon icon-public" />
+              {_l('语言设置')}
+              <span className="Right icon-arrow-right font10 LineHeight36" />
+            </a>
+          </Tooltip>
+        </li>
+
       </ul>
 
       {md.global.Config.IsLocal && !md.global.SysSettings.hideDownloadApp && (
@@ -132,6 +212,23 @@ export default function UserMenu(props) {
           </a>
         </li>
       </ul>
+
+      {showDialog && (
+        <Dialog
+          visible
+          title={_l('关注明道云服务号')}
+          width={400}
+          footer={null}
+          handleClose={() => setShowDialog(false)}
+        >
+          <div className="flexRow alignItemsCenter">
+            <div className="flexColumn justifyContentCenter" style={{ width: 100, height: 100 }}>
+              {code ? <img src={code} width="100" height="100" /> : <LoadDiv />}
+            </div>
+            <div className="flex">{_l('用微信【扫一扫】二维码')}</div>
+          </div>
+        </Dialog>
+      )}
     </div>
   );
 }

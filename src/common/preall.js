@@ -50,13 +50,26 @@ function parseShareId() {
     window.shareState.isPublicWorkflowRecord = true;
     window.shareState.shareId = (location.pathname.match(/.*\/public\/workflow\/(\w{24})/) || '')[1];
   }
+  if (/\/public\/page/.test(location.pathname)) {
+    window.shareState.isPublicPage = true;
+    window.shareState.shareId = (location.pathname.match(/.*\/public\/page\/(\w{24})/) || '')[1];
+  }
+  if (/\/public\/chart/.test(location.pathname)) {
+    window.shareState.isPublicChart = true;
+    window.shareState.shareId = (location.pathname.match(/.*\/public\/chart\/(\w{24})/) || '')[1];
+  }
 }
 
 function clearLocalStorage() {
   try {
     Object.keys(localStorage)
       .map(key => ({ key, size: Math.floor(new Blob([localStorage[key]]).size / 1024) }))
-      .filter(item => item.size > 200 || item.key.startsWith('_AMap_'))
+      .filter(
+        item =>
+          (item.size > 200 || item.key.startsWith('_AMap_')) &&
+          !item.key.startsWith('cacheDraft_') &&
+          !item.key.startsWith('cacheFieldData_'),
+      )
       .forEach(item => {
         localStorage.removeItem(item.key);
       });
@@ -64,9 +77,11 @@ function clearLocalStorage() {
 }
 
 function getGlobalMeta({ allownotlogin, requestParams } = {}) {
+  const defaultSysSettings = _.get(md.global, ['SysSettings']);
+  const getCaptchaType = _.get(md.global, ['getCaptchaType']);
   const urlparams = qs.parse(unescape(unescape(window.location.search.slice(1))));
-  let args = requestParams || {};
   const urlObj = new URL(decodeURIComponent(location.href));
+  let args = requestParams || {};
 
   // 处理location.href方法异步的问题
   window.isWaiting = false;
@@ -86,19 +101,20 @@ function getGlobalMeta({ allownotlogin, requestParams } = {}) {
   clearLocalStorage(); // 清除 AMap 和 体积大于200k的 localStorage
 
   global.getGlobalMeta(args, { ajaxOptions: { async: false } }).then(data => {
+    // 无论登录与否，日期都要设置语言环境
+    const lang = getCookie('i18n_langtag') || data['md.global'].Config.DefaultLang;
+    moment.locale(getMomentLocale(lang));
+
     if (allownotlogin || window.isPublicApp) {
       window.config = data.config || {};
-      if (!window.md) {
-        window.md = { global: data['md.global'] };
-      } else {
-        window.md.global = data['md.global'];
+      window.md.global = data['md.global'];
+      window.md.global.getCaptchaType = getCaptchaType;
+
+      if (!_.get(window.md.global, ['SysSettings'])) {
+        window.md.global.SysSettings = defaultSysSettings;
       }
       if (window.md.global && !window.md.global.Account) {
         window.md.global.Account = {};
-      }
-      let SysSettings = _.get(window.md.global, ['SysSettings']);
-      if (!SysSettings) {
-        window.md.global.SysSettings = _.get(md.staticglobal, ['SysSettings']);
       }
       return;
     }
@@ -124,16 +140,16 @@ function getGlobalMeta({ allownotlogin, requestParams } = {}) {
       return;
     }
 
-    window.config = data.config || {};
-    window.md.global = data['md.global'];
-    window.md.global.Config.ServiceTel = '400-665-6655';
-    let SysSettings = _.get(window.md.global, ['SysSettings']);
-    const lang = getCookie('i18n_langtag') || data['md.global'].Config.DefaultLang;
-
     // 设置语言
     $('body').attr('id', lang);
-    if (!SysSettings) {
-      window.md.global.SysSettings = _.get(md.staticglobal, ['SysSettings']);
+
+    window.config = data.config || {};
+    window.md.global = data['md.global'];
+    window.md.global.getCaptchaType = getCaptchaType;
+    window.md.global.Config.ServiceTel = '400-665-6655';
+
+    if (!_.get(window.md.global, ['SysSettings'])) {
+      window.md.global.SysSettings = defaultSysSettings;
     }
     !md.global.Account.isPortal && window.mdKF5 && window.mdKF5();
 
@@ -156,7 +172,6 @@ function getGlobalMeta({ allownotlogin, requestParams } = {}) {
       }
     }
 
-    moment.locale(getMomentLocale(lang));
     // 设置md_pss_id
     setPssId(getPssId());
 
@@ -166,7 +181,7 @@ function getGlobalMeta({ allownotlogin, requestParams } = {}) {
   });
 }
 
-const wrapComponent = function(Comp, { allownotlogin, requestParams } = {}) {
+const wrapComponent = function (Comp, { allownotlogin, requestParams } = {}) {
   class Pre extends React.Component {
     constructor(props) {
       super(props);
@@ -196,7 +211,7 @@ const wrapComponent = function(Comp, { allownotlogin, requestParams } = {}) {
   return Pre;
 };
 
-export default function(Comp, { allownotlogin, requestParams } = {}) {
+export default function (Comp, { allownotlogin, requestParams } = {}) {
   if (_.isObject(Comp) && Comp.type === 'function') {
     getGlobalMeta({ allownotlogin, requestParams });
   } else {

@@ -1,5 +1,6 @@
 ﻿import React, { Component } from 'react';
 import Avatar from 'react-avatar-edit';
+import { Button } from 'ming-ui';
 import { Base64 } from 'js-base64';
 import accountAjax from 'src/api/account';
 import { getToken } from 'src/util';
@@ -136,9 +137,9 @@ export default class AvatarEditor extends Component {
         </div>
         {!browserIsMobile() ? (
           <div className="flexEnd">
-            <button type="button" className="ming Button Button--primary mTop20 saveBtn" onClick={this.onSave}>
+            <Button type="button" className="ming Button Button--primary mTop20 saveBtn" onClick={this.onSave}>
               {_l('完成')}
-            </button>
+            </Button>
           </div>
         ) : (
           <Wrap className="actionBox">

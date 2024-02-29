@@ -1,5 +1,5 @@
 import React, { Component, createRef } from 'react';
-import { Icon, Menu, MenuItem } from 'ming-ui';
+import { Icon, Menu, MenuItem, UpgradeIcon } from 'ming-ui';
 import styled from 'styled-components';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
@@ -226,6 +226,11 @@ class TaskNode extends Component {
       nodeType, //节点类型(See: 节点类型)
       isOnTrunk, //新增的是否是主干上的节点
     }).then(res => {
+      if (res.failed) {
+        alert(res.errorMsg, 2);
+        this.setState({ visible: false });
+        return;
+      }
       onAddNodes(res);
       this.setState({ visible: false });
     });
@@ -262,9 +267,7 @@ class TaskNode extends Component {
                 >
                   <Icon type={o.icon} style={{ color: o.color }} className="Font17" />
                   <span className="Font14">{o.txt}</span>
-                  {featureType === '2' && (
-                    <Icon type={'auto_awesome'} style={{ color: '#FBB400' }} className="Font17 mLeft10" />
-                  )}
+                  {featureType === '2' && <UpgradeIcon />}
                 </li>
               </React.Fragment>
             );

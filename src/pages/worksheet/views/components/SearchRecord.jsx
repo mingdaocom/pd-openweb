@@ -148,7 +148,7 @@ const SearchRecord = props => {
               </span>
             )}
             <span className="line mLeft15 mRight15"></span>
-            <div className="tip-top" data-tip={disable ? null : _l('上一条')}>
+            <div className="tip-top" data-tip={disable || isMobile ? null : _l('上一条')}>
               <Icon
                 className={cx('Gray_9e Font18', { Gray_bd: disable, cursorInitial: disable })}
                 icon="expand_less"
@@ -161,7 +161,7 @@ const SearchRecord = props => {
                 }}
               />
             </div>
-            <div className="tip-top" data-tip={disable ? null : _l('下一条')}>
+            <div className="tip-top" data-tip={disable || isMobile ? null : _l('下一条')}>
               <Icon
                 className={cx('Gray_9e Font18 mLeft8 mRight12', { Gray_bd: disable, cursorInitial: disable })}
                 icon="expand_more"

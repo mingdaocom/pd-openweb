@@ -243,13 +243,13 @@ class Task extends Component {
     );
   };
   publishTask = () => {
-    const { updating, flowData = {} } = this.state;
+    const { updating, flowData = {}, isNew } = this.state;
     if (updating) {
       return;
     }
     const destData = _.values(flowData.flowNodes).find(o => _.get(o, 'nodeType') === 'DEST_TABLE') || {};
     const isDestMDType = _.get(destData, 'nodeConfig.config.dsType') === DATABASE_TYPE.APPLICATION_WORKSHEET;
-    if (isDestMDType && !_.get(destData, 'nodeConfig.config.createTable')) {
+    if (isDestMDType && !_.get(destData, 'nodeConfig.config.createTable') && !isNew) {
       //目的地是表 且选择已有表
       this.setState({
         showPublishDialog: true,
@@ -294,7 +294,7 @@ class Task extends Component {
               isUpdate: false,
               jobId,
               showPublishFail: errorType === 0, //有错误
-              errorMsgList,
+              errorMsgList: errorMsgList,
             },
             () => {
               if (errorType === 1 && errorMsgList.length > 0) {

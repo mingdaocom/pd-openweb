@@ -59,22 +59,24 @@ export default class AppIntro extends Component {
     return (
       <Editor
         data={data}
-        className="appIntroDescriptionEditor "
+        className="appIntroDescriptionEditor"
         summary={summary}
         isEditing={isEditing}
         permissionType={permissionType}
         changeEditState={isEditing => {
+          if (cacheKey === 'appMultilingual') return;
           this.setState({ isEditing });
           changeEditState(isEditing);
         }}
         onSave={this.handleSave}
         changeSetting={changeSetting}
         onCancel={() => {
-          this.setState({ isEditing: false });
+          // this.setState({ isEditing: false });
           onCancel && onCancel();
         }}
         cacheKey={cacheKey}
         title={this.props.title}
+        renderLeftContent={this.props.renderLeftContent}
         minHeight={minHeight}
         maxHeight={maxHeight}
       />

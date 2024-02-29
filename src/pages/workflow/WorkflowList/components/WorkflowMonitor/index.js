@@ -85,11 +85,11 @@ export default class WorkflowMonitor extends Component {
       ...extraParams,
     };
     if (pageIndex === 1) {
-      Promise.all([flowMonitor.getDifferenceProcessList(params), flowMonitor.getDifferenceProcessCount(params)]).then(
-        ([res, count]) => {
+      Promise.all([flowMonitor.getDifferenceProcessCount(params), flowMonitor.getDifferenceProcessList(params)]).then(
+        ([count, res]) => {
           this.setState({
             loading: false,
-            detailList: res,
+            detailList: res ? res : this.state.detailList,
             count: count || 0,
           });
         },

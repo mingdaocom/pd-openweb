@@ -1,6 +1,5 @@
-import React, { useState, Fragment, useEffect, useRef } from 'react';
-import { Icon } from 'ming-ui';
-import cx from 'classnames';
+import React, { useState, useEffect, useRef } from 'react';
+import { Icon, ScrollView } from 'ming-ui';
 import { Carousel } from 'antd';
 import styled from 'styled-components';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
@@ -8,34 +7,77 @@ import { FILL_COLOR } from 'src/pages/widgetConfig/widgetDisplay/components/Widg
 import _ from 'lodash';
 import { browserIsMobile } from 'src/util/sso';
 import { addBehaviorLog } from 'src/util';
+import cx from 'classnames';
 
-const WidgetEmptyWrap = styled.div`
-  width: 100%;
-  height: 100px;
-  text-align: center;
-  line-height: 100px;
-  background: #f5f5f5;
+const videoReg = (data = {}) => {
+  return /(swf|avi|flv|mpg|rm|mov|wav|asf|3gp|mkv|rmvb|mp4)/i.test(data.ext || '');
+};
+const imgReg = (data = {}) => {
+  return /(gif|png|jpg|jpeg|webp|svg|psd|bmp|tif|tiff)/i.test(data.ext || '');
+};
+
+const FormCoverWrap = styled.div`
+  display: flex;
+  .thumbnailBox {
+    height: ${props => `${props.height || 600}px`};
+    width: ${props => (props.coverType === '1' ? '174px' : '176px')};
+    .nano-content {
+      padding-right: 10px;
+    }
+    .thumbnailContainer {
+      width: 100%;
+      height: 100%;
+      ${props => (props.coverType === '1' ? '' : 'padding-left: 2px;')}
+      background: ${props => props.bgColor || '#333333'};
+    }
+  }
 `;
 
 const CoverImgWrap = styled.div`
   position: relative;
-  width: 100%;
-  height: ${props => `${props.isMobile ? 240 : props.height ? props.height : 600}px`};
+  width: ${props => (props.fromThumbnail ? '164px' : '100%')};
+  height: ${({ isMobile, height = 600, fromThumbnail }) => {
+    return isMobile ? '240px' : fromThumbnail ? '112px' : `${height}px`;
+  }};
   background: ${props => props.bgColor || 'transparent'};
   overflow: hidden;
+  cursor: pointer;
+  box-sizing: border-box;
+  ${props => (props.fromThumbnail ? 'border: 3px solid transparent;' : '')}
+  ${props => (props.isActive ? 'border-color: #2196f3;' : '')}
+  ${({ fromThumbnail, coverType }) => (fromThumbnail && coverType !== '1' ? 'margin: 1px 0' : '')}
+  &:first-child {
+    margin-top: 0px;
+  }
+  &:last-child {
+    margin-bottom: 0px;
+  }
+  video {
+    width: 100%;
+    height: 100%;
+    object-fit: ${props => (props.coverType === '1' ? 'contain' : 'cover')};
+  }
+  .playIcon {
+    position: absolute;
+    left: calc(50% - 25px);
+    bottom: 80px;
+    background: rgba(0, 0, 0, 0.3);
+    width: 50px;
+    height: 50px;
+    text-align: center;
+    line-height: 50px;
+    border-radius: 50%;
+    font-size: 36px;
+    color: rgba(255, 255, 255, 0.85);
+  }
   .image {
     width: 100%;
     height: 100%;
     background-position: 50%;
     background-image: ${props => `url(${props.url})`};
     ${props => (props.isBgBlur ? 'position: absolute;z-index: 2;' : '')};
-    &.fill {
-      background-size: cover;
-    }
-    &.full {
-      background-repeat: no-repeat;
-      background-size: contain;
-    }
+    ${props =>
+      props.coverType === '1' ? 'background-repeat: no-repeat;background-size: contain;' : 'background-size: cover;'}
   }
   .bgBlur {
     width: 120%;
@@ -143,8 +185,8 @@ const CarouselComponent = styled(Carousel)`
 
 const CarouseWrap = styled.div`
   position: relative;
-  width: 100%;
-  height: 100%;
+  flex: 1;
+  min-width: 0;
   z-index: 3;
   .showNumWrap {
     width: 46px;
@@ -179,18 +221,23 @@ export default function FormCover(props) {
     coverheight = '600',
     animation = '1',
     autosecond = '3',
+    showthumbnail = '1',
   } = widgetStyle;
   const [imageData, setImageData] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const isMobile = browserIsMobile();
+  const $cover = useRef(null);
+  const isCurVideo = videoReg(imageData[currentIndex]);
+  const bgColor = _.get(
+    _.find(FILL_COLOR, c => c.value === covercolor),
+    'color',
+  );
 
   useEffect(() => {
     let newData = [];
     if (coverid) {
       const control = _.find(formData, i => i.controlId === coverid) || {};
-      newData = JSON.parse(control.value || '[]').filter(i =>
-        _.includes(['.png', '.jpg', '.jpeg'], (i.ext || '').toLowerCase()),
-      );
+      newData = JSON.parse(control.value || '[]').filter(i => videoReg(i) || imgReg(i));
     }
     setImageData(newData);
   }, [flag]);
@@ -210,11 +257,8 @@ export default function FormCover(props) {
     });
   };
 
-  const renderImage = data => {
-    const bgColor = _.get(
-      _.find(FILL_COLOR, c => c.value === covercolor),
-      'color',
-    );
+  const renderImage = ({ data, index, fromThumbnail = false }) => {
+    const isVideo = videoReg(data);
     return (
       <CoverImgWrap
         height={coverheight}
@@ -222,12 +266,36 @@ export default function FormCover(props) {
         url={data.viewUrl}
         isBgBlur={covercolor === '4'}
         isMobile={isMobile}
+        coverType={covertype}
+        fromThumbnail={fromThumbnail}
+        isActive={fromThumbnail && index === currentIndex}
+        onClick={e => {
+          e.stopPropagation();
+          if (fromThumbnail) {
+            setCurrentIndex(index);
+            $cover.current && $cover.current.goTo(index);
+          } else {
+            handleTriggerAction();
+          }
+        }}
       >
-        <div
-          onClick={() => handleTriggerAction()}
-          className={cx('image pointer', covertype === '1' ? 'full' : 'fill')}
-        />
+        {isVideo ? (
+          <video
+            src={data.viewUrl}
+            poster={data.previewUrl}
+            controls={!isMobile && !fromThumbnail}
+            width="100%"
+            height="100%"
+          ></video>
+        ) : (
+          <div className="image " />
+        )}
         {covercolor === '4' && <div className="bgBlur"></div>}
+        {isVideo && isMobile && (
+          <div className="playIcon">
+            <Icon icon="play_arrow" />
+          </div>
+        )}
       </CoverImgWrap>
     );
   };
@@ -238,41 +306,46 @@ export default function FormCover(props) {
 
   if (!imageData.length) {
     return null;
-    // return (
-    //   <WidgetEmptyWrap>
-    //     <div className="Gray_9e Font14">{_l('暂无图片')}</div>
-    //   </WidgetEmptyWrap>
-    // );
   }
   return (
-    <CarouseWrap>
-      <CarouselComponent
-        autoplay={autosecond !== '0'}
-        arrows={true}
-        prevArrow={
-          <div>
-            <Icon className="Font30" icon="navigate_before" />
+    <FormCoverWrap height={coverheight} coverType={covertype} bgColor={bgColor}>
+      <CarouseWrap>
+        <CarouselComponent
+          ref={$cover}
+          autoplay={autosecond !== '0'}
+          arrows={true}
+          prevArrow={
+            <div>
+              <Icon className="Font30" icon="navigate_before" />
+            </div>
+          }
+          nextArrow={
+            <div>
+              <Icon className="Font30" icon="navigate_next" />
+            </div>
+          }
+          effect={animation === '1' ? 'scrollx' : 'fade'}
+          autoplaySpeed={parseInt(autosecond) * 1000}
+          afterChange={index => {
+            setCurrentIndex(index);
+          }}
+        >
+          {imageData.map((data, index) => renderImage({ data, index }))}
+        </CarouselComponent>
+        {isMobile && (
+          <div className="showNumWrap">
+            <span className="Font15">{currentIndex + 1}</span>/<span className="Font12">{imageData.length}</span>
           </div>
-        }
-        nextArrow={
-          <div>
-            <Icon className="Font30" icon="navigate_next" />
+        )}
+        {!isCurVideo && <div className="maskDotBg"></div>}
+      </CarouseWrap>
+      {showthumbnail === '1' && !isMobile && imageData.length > 1 && (
+        <ScrollView className="thumbnailBox">
+          <div className="thumbnailContainer">
+            {imageData.map((data, index) => renderImage({ data, index, fromThumbnail: true }))}
           </div>
-        }
-        effect={animation === '1' ? 'scrollx' : 'fade'}
-        autoplaySpeed={parseInt(autosecond) * 1000}
-        afterChange={index => {
-          setCurrentIndex(index);
-        }}
-      >
-        {imageData.map(data => renderImage(data))}
-      </CarouselComponent>
-      {isMobile && (
-        <div className="showNumWrap">
-          <span className="Font15">{currentIndex + 1}</span>/<span className="Font12">{imageData.length}</span>
-        </div>
+        </ScrollView>
       )}
-      <div className="maskDotBg"></div>
-    </CarouseWrap>
+    </FormCoverWrap>
   );
 }

@@ -1,6 +1,3 @@
-__webpack_public_path__ = window.__webpack_public_path__;
-
-import { lang } from 'src/util/enum';
 import { getPssId } from 'src/util/pssId';
 import langConfig from './langConfig';
 import { antAlert, destroyAlert } from 'src/util/antdWrapper';
@@ -9,6 +6,9 @@ import moment from 'moment';
 
 /**
  * Cookies 写入
+ * @param {string} name - Cookie名称
+ * @param {string} value - Cookie值
+ * @param {Date} expire - 过期时间
  */
 window.setCookie = function setCookie(name, value, expire) {
   if (_.get(window, 'md.global.Config.HttpOnly')) {
@@ -17,73 +17,70 @@ window.setCookie = function setCookie(name, value, expire) {
   }
 
   // 过期时间处理
-  let expireDate;
-  if (!expire) {
-    let nextyear = new Date();
-    nextyear.setFullYear(nextyear.getFullYear(), nextyear.getMonth() + 1, nextyear.getDate() + 10);
-    expireDate = nextyear.toGMTString();
-  } else {
-    expireDate = expire.toGMTString();
-  }
+  const expiration = expire ? moment(expire).toDate() : moment().add(10, 'days').toDate();
 
-  if (document.domain.indexOf('mingdao.com') == -1) {
-    document.cookie = name + '=' + escape(value) + ';expires=' + expireDate + ';path=/';
-  } else {
-    document.cookie = name + '=' + escape(value) + ';expires=' + expireDate + ';path=/;domain=.mingdao.com';
-  }
+  const cookieOptions = {
+    expires: expiration.toGMTString(),
+    path: '/',
+    domain: document.domain.indexOf('mingdao.com') === -1 ? '' : '.mingdao.com',
+  };
+
+  document.cookie = `${name}=${escape(value)};expires=${cookieOptions.expires};path=${cookieOptions.path};domain=${
+    cookieOptions.domain
+  }`;
 };
 
 /**
  * Cookies 读取
+ * @param {string} name - Cookie名称
+ * @returns {string|null} - Cookie值
  */
 window.getCookie = function getCookie(name) {
   if (_.get(window, 'md.global.Config.HttpOnly')) {
     return localStorage.getItem(name) || null;
   }
 
-  let arr = document.cookie.match(new RegExp('(^| )' + name + '=([^;]*)(;|$)'));
-  if (arr != null) {
-    return unescape(arr[2]);
-  }
-  return null;
+  const cookieRegex = new RegExp(`(^| )${name}=([^;]*)(;|$)`);
+  const cookieMatch = document.cookie.match(cookieRegex);
+
+  return cookieMatch ? decodeURIComponent(cookieMatch[2]) : null;
 };
 
 /**
  * Cookies 删除
+ * @param {string} name - Cookie名称
  */
 window.delCookie = function delCookie(name) {
-  let exp = new Date();
-  exp.setTime(exp.getTime() - 10000);
-  if (getCookie(name) == null) {
-    return;
-  }
-  let cval = (document.cookie.match(new RegExp('(^| )' + name + '=([^;]*)(;|$)')) || [])[2];
-  if (!!cval) {
-    if (document.domain.indexOf('.mingdao.com') == -1) {
-      document.cookie = name + '=' + cval + ';expires=' + exp.toGMTString() + ';path=/';
-    } else {
-      document.cookie = name + '=' + cval + ';expires=' + exp.toGMTString() + ';path=/;domain=.mingdao.com';
-    }
+  const cookieValue = getCookie(name);
+
+  if (cookieValue) {
+    const cookieOptions = {
+      expires: moment().subtract(10, 'seconds').toDate().toGMTString(),
+      path: '/',
+      domain: document.domain.indexOf('.mingdao.com') !== -1 ? '.mingdao.com' : '',
+    };
+    document.cookie = `${name}=${cookieValue};expires=${cookieOptions.expires};path=${cookieOptions.path};domain=${cookieOptions.domain}`;
   }
 };
 
 /**
  * 多语言翻译
+ * @param {string} key - 翻译的键值
+ * @param {...string} args - 替换内容的参数
+ * @returns {string} - 翻译后的结果
  */
-window._l = function () {
-  let args = arguments;
-  let key = args[0];
+window._l = function (key, ...args) {
   let content = key;
 
   // 翻译文件内存在这个key
-  if (typeof mdTranslation !== 'undefined' && mdTranslation[key]) {
-    content = mdTranslation[key];
+  if (typeof translations !== 'undefined' && translations[key]) {
+    content = translations[key];
   }
 
-  // 含0% 1% 的内容参数替换
-  if (args.length > 1) {
-    for (let i = 1; i < args.length; i++) {
-      content = content.replace(new RegExp('%' + (i - 1), 'g'), args[i]);
+  // 含有0%、1%等内容参数替换
+  if (args.length > 0) {
+    for (let i = 0; i < args.length; i++) {
+      content = content.replace(new RegExp(`%${i}`, 'g'), args[i]);
     }
   } else if (/.*%\d{5}/.test(content)) {
     // 处理特殊多语境单词问题
@@ -101,66 +98,43 @@ window.isDingTalk = window.navigator.userAgent.toLowerCase().includes('dingtalk'
 /**
  * 全局变量
  */
-window.md = {};
-md.staticglobal = md.global = {
-  Account: {
-    accountId: '',
-    hrVisible: true,
-  },
-  /** 有新的更新 */
-  updated: false,
-  /** 存储地址配置 */
-  FileStoreConfig: {
-    uploadHost: 'https://upload.qiniup.com/',
-    documentHost: 'https://d1.mingdaoyun.cn/',
-    pictureHost: 'https://p1.mingdaoyun.cn/',
-    mediaHost: 'https://m1.mingdaoyun.cn/',
-    pubHost: 'https://fp1.mingdaoyun.cn/',
-  },
-  Config: {
-    ServiceTel: '400-665-6655',
-    IsLocal: true,
-  },
-  /** 内部各应用的 ID */
-  APPInfo: {
-    taskAppID: 'ab99d0bb-3249-46f9-8a60-6952cb76cac2',
-    taskFolderAppID: '66d51996-6a56-41ba-be15-0d388b548f00',
-    calendarAppID: '42c96ef1-3ab6-4269-9824-e21436f34a38',
-    worksheetAppID: '1e31c859-1605-4d8d-b3be-437ff871f02d',
-    worksheetRowAppID: 'c8bc1b25-2bbe-4334-b1e3-be1b207f3126',
-  },
-  AjaxRequestQueue: [],
-  getCaptchaType: () => {
-
-    return window.localStorage.getItem('captchaType')
-      ? parseInt(window.localStorage.getItem('captchaType'))
-      : navigator.userAgent.toLowerCase().match(/miniprogram|wechatdevtools|wxwork/) || !window.TencentCaptcha
-      ? 1
-      : md.global.Config.CaptchaType || 0;
-  },
-  domainSuffix: 'mingdao.com',
-  SysSettings: {
-    passwordRegex: /^(?=.*\d)(?=.*[a-zA-Z]).{8,20}$/,
-    passwordRegexTip: '',
-    hideHelpTip: true,
+window.md = {
+  global: {
+    Account: {
+      accountId: '',
+      hrVisible: true,
+    },
+    Config: {
+      DefaultLang: 'zh-Hans',
+      IsLocal: true,
+    },
+    getCaptchaType: () => {
+      return window.localStorage.getItem('captchaType')
+        ? parseInt(window.localStorage.getItem('captchaType'))
+        : navigator.userAgent.toLowerCase().match(/miniprogram|wechatdevtools|wxwork/) || !window.TencentCaptcha
+        ? 1
+        : md.global.Config.CaptchaType || 0;
+    },
+    SysSettings: {
+      passwordRegex: /^(?=.*\d)(?=.*[a-zA-Z]).{8,20}$/,
+      passwordRegexTip: '',
+      hideHelpTip: true,
+    },
   },
 };
 
 /**
  * 自定义alert
  */
-
 function customAlert() {
   window.nativeAlert = window.alert;
   window.alert = antAlert;
   window.destroyAlert = destroyAlert;
 }
 
-const isWeiXin = navigator.userAgent.toLowerCase().indexOf('micromessenger') >= 0;
-
 customAlert();
 
-if (isWeiXin) {
+if (navigator.userAgent.toLowerCase().indexOf('micromessenger')) {
   document.addEventListener('WeixinJSBridgeReady', () => {
     customAlert();
   });
@@ -169,46 +143,72 @@ if (isWeiXin) {
 // import mdNotification from 'ming-ui/functions/notify';
 // window.mdNotification = mdNotification; // TODO 测试用
 
-/**
- * 文件方法扩展
- */
 window.File = typeof File === 'undefined' ? {} : File;
-/** 获取后缀名 */
+
+/**
+ * 获取文件扩展名
+ * @param {string} fileName - 文件名
+ * @returns {string} - 文件扩展名
+ */
 File.GetExt = function (fileName) {
-  let t = (fileName || '').split('.');
+  const t = (fileName || '').split('.');
   return t.length > 1 ? t[t.length - 1] : '';
 };
-/* 获取文件名 */
+
+/**
+ * 获取文件名（不包含扩展名）
+ * @param {string} fileName - 文件名
+ * @returns {string} - 文件名（不包含扩展名）
+ */
 File.GetName = function (fileName) {
-  let t = (fileName || '').split('.');
+  const t = (fileName || '').split('.');
   t.pop();
-  return t.length >= 1 ? t.join('.') : '';
+  return t.join('.');
 };
+
+/**
+ * 检查文件扩展名是否有效
+ * @param {string} fileExt - 文件扩展名
+ * @returns {boolean} - 文件扩展名是否有效
+ */
 File.isValid = function (fileExt) {
-  let fileExts = ['.exe', '.vbs', '.bat', '.cmd', '.com', '.url'];
-  if (fileExt) {
-    fileExt = fileExt.toLowerCase();
-    return fileExts.indexOf(fileExt) === -1;
-  }
-  return true;
+  const fileExts = new Set(['.exe', '.vbs', '.bat', '.cmd', '.com', '.url']);
+  fileExt = (fileExt || '').toLowerCase();
+  return !fileExts.has(fileExt);
 };
+
+/**
+ * 检查文件扩展名是否为图片类型
+ * @param {string} fileExt - 文件扩展名
+ * @returns {boolean} - 文件扩展名是否为图片类型
+ */
 File.isPicture = function (fileExt) {
-  let fileExts = ['.jpg', '.gif', '.png', '.jpeg', '.bmp', '.webp', '.heic', '.heif', '.svg', '.tif', '.tiff'];
-  if (fileExt) {
-    fileExt = fileExt.toLowerCase();
-    return fileExts.indexOf(fileExt) !== -1;
-    // return fileExt == ".jpg" || fileExt == '.gif' || fileExt == '.png' || fileExt == 'jpeg';
-  }
-  return false;
+  const fileExts = new Set([
+    '.jpg',
+    '.gif',
+    '.png',
+    '.jpeg',
+    '.bmp',
+    '.webp',
+    '.heic',
+    '.heif',
+    '.svg',
+    '.tif',
+    '.tiff',
+  ]);
+  fileExt = (fileExt || '').toLowerCase();
+  return fileExts.has(fileExt);
 };
 
 /**
  * 返回表示“加载中”的 HTML 字符串
  * @deprecated 使用 utils 模块中的方法
- * @param {string} modifier 加载圈圈的大小，big 或 small 或 middle，默认 middle
+ * @param {string} modifier - 加载圈圈的大小，可选值为 'big'、'small' 或 'middle'，默认为 'middle'
+ * @returns {string} - 表示“加载中”的 HTML 字符串
  */
-window.LoadDiv = function (modifier) {
-  let size;
+window.LoadDiv = function (modifier = 'middle') {
+  let size, strokeWidth, r, cx, cy;
+
   if (modifier === 'big') {
     size = 36;
   } else if (modifier === 'small') {
@@ -217,41 +217,47 @@ window.LoadDiv = function (modifier) {
     modifier = 'middle';
     size = 24;
   }
-  let strokeWidth = Math.floor(size / 8);
-  let r = Math.floor(size / 2);
-  let cx = r + strokeWidth;
-  let cy = cx;
-  return (
-    '<div class="TxtCenter TxtMiddle mTop10 mBottom10 w100"><div class="divCenter MdLoader MdLoader--' +
-    modifier +
-    '"><svg class="MdLoader-circular"><circle class="MdLoader-path" stroke-width="' +
-    strokeWidth +
-    '" cx="' +
-    cx +
-    '" cy="' +
-    cy +
-    '" r="' +
-    r +
-    '"></circle></svg></div></div>'
-  );
+
+  strokeWidth = Math.floor(size / 8);
+  r = Math.floor(size / 2);
+  cx = r + strokeWidth;
+  cy = cx;
+
+  return `
+    <div class="TxtCenter TxtMiddle mTop10 mBottom10 w100">
+      <div class="divCenter MdLoader MdLoader--${modifier}">
+        <svg class="MdLoader-circular">
+          <circle class="MdLoader-path" stroke-width="${strokeWidth}" cx="${cx}" cy="${cy}" r="${r}"></circle>
+        </svg>
+      </div>
+    </div>
+  `;
 };
 
 /**
  * 兼容parse报错
+ * @param {string} str - 要解析的字符串
+ * @param {string} type - 返回值类型 ('array' 或 'object')
+ * @returns {Array|Object} - 解析结果或空数组/空对象
  */
 window.safeParse = (str, type) => {
+  if (!str) {
+    return type === 'array' ? [] : {};
+  }
   try {
     return JSON.parse(str);
   } catch (err) {
-    if (!(_.isUndefined(str) || str === '')) {
-      if (!(typeof str === 'string' && str.startsWith('deleteRowIds'))) {
-        console.error(err);
-      }
+    if (str && !str.startsWith('deleteRowIds')) {
+      console.error(err);
     }
     return type === 'array' ? [] : {};
   }
 };
 
+/**
+ * 安全地将数据存储到本地存储中
+ * @param {...any} args - 传递给 localStorage.setItem() 方法的参数
+ */
 window.safeLocalStorageSetItem = (...args) => {
   try {
     window.localStorage.setItem(...args);
@@ -260,6 +266,11 @@ window.safeLocalStorageSetItem = (...args) => {
   }
 };
 
+/**
+ * 安全地解析字符串为数组
+ * @param {string} str - 要解析的字符串
+ * @returns {Array} - 解析结果或空数组
+ */
 window.safeParseArray = str => {
   return window.safeParse(str, 'array');
 };
@@ -270,69 +281,37 @@ window.safeParseArray = str => {
  * @returns {string} 相对的时间，如15分钟前
  */
 window.createTimeSpan = dateStr => {
-  let dateTime = moment(dateStr).toDate();
+  const dateTime = moment(dateStr);
+  const now = moment();
+  const diff = now.diff(dateTime);
 
-  let year = dateTime.getFullYear();
-  let month = dateTime.getMonth();
-  let day = dateTime.getDate();
-  let hour = dateTime.getHours().toString().padStart(2, '0');
-  let minute = dateTime.getMinutes().toString().padStart(2, '0');
+  // 处理未来时间的情况
+  if (diff < 0) return '';
 
-  let now = new Date();
+  const milliseconds = diff;
+  const seconds = Math.floor(milliseconds / 1000);
+  const minutes = Math.floor(seconds / 60);
 
-  let today = new Date();
-  today.setFullYear(now.getFullYear());
-  today.setMonth(now.getMonth());
-  today.setDate(now.getDate());
-  today.setHours(0);
-  today.setMinutes(0);
-  today.setSeconds(0);
+  const year = dateTime.format('YYYY');
+  const month = dateTime.format('MM');
+  const day = dateTime.format('DD');
+  const hour = dateTime.format('HH');
+  const minute = dateTime.format('mm');
 
-  let milliseconds = 0;
-  let timeSpanStr;
-  if (dateTime - today >= 0) {
-    milliseconds = now - dateTime;
-    if (milliseconds < 1000 && milliseconds < 60000) {
-      timeSpanStr = _l('刚刚');
-    } else if (milliseconds > 1000 && milliseconds < 60000) {
-      timeSpanStr = Math.floor(milliseconds / 1000) + _l('秒前');
-    } else if (milliseconds > 60000 && milliseconds < 3600000) {
-      timeSpanStr = Math.floor(milliseconds / 60000) + _l('分钟前');
-    } else {
-      timeSpanStr = _l('今天') + ' ' + hour + ':' + minute;
-    }
-  } else {
-    milliseconds = today - dateTime;
-    if (milliseconds < 86400000) {
-      timeSpanStr = _l('昨天') + ' ' + hour + ':' + minute;
-    } else if (milliseconds > 86400000 && year == today.getFullYear()) {
-      timeSpanStr = _l('%0月%1日', month + 1, day) + ' ' + hour + ':' + minute;
-    } else {
-      timeSpanStr = _l('%0年%1月%2日', year, month + 1, day) + ' ' + hour + ':' + minute;
-    }
+  if (seconds < 60) {
+    return _l('刚刚');
+  } else if (minutes < 60) {
+    return `${minutes}${_l('分钟前')}`;
+  } else if (dateTime.isSame(now, 'd')) {
+    return `${_l('今天')} ${hour}:${minute}`;
+  } else if (dateTime.isSame(now.subtract(1, 'd'), 'd')) {
+    return `${_l('昨天')} ${hour}:${minute}`;
+  } else if (dateTime.format('YYYY') === now.format('YYYY')) {
+    return `${_l('%0月%1日', month, day)} ${hour}:${minute}`;
   }
-  return timeSpanStr;
+
+  return `${_l('%0年%1月%2日', year, month, day)} ${hour}:${minute}`;
 };
-
-/**
- * 订阅发布模式，用于Chat和PageHead的数据传递
- */
-(function ($) {
-  if (!$) return;
-  let o = $({});
-
-  $.subscribe = function () {
-    o.on.apply(o, arguments);
-  };
-
-  $.unsubscribe = function () {
-    o.off.apply(o, arguments);
-  };
-
-  $.publish = function () {
-    o.trigger.apply(o, arguments);
-  };
-})(jQuery);
 
 /** 通用请求 */
 (function ($) {
@@ -398,6 +377,11 @@ window.createTimeSpan = dateStr => {
       });
     }
   }
+
+  window.needSetClientId = ({ clientId, controllerName } = {}) =>
+    location.href.indexOf('/public/') > -1 &&
+    clientId &&
+    _.includes(['AppManagement', 'Worksheet', 'PublicWorksheet', 'report_api', 'HomeApp', 'Attachment', 'Kc'], controllerName);
 
   /** ajax 请求队列 */
   let ajaxQueue = $({});
@@ -474,28 +458,15 @@ window.createTimeSpan = dateStr => {
       AccountId: md.global.Account && md.global.Account.accountId ? md.global.Account.accountId : '',
     };
     let serverPath = __api_server__.main;
-
-    if (window.share) {
-      headers.share = window.share;
-      headers.Authorization = '';
-    }
-
-    // 公开的
-    const isPublicFrom = location.href.indexOf('/public/form/') > -1;
     const clientId = window.clientId || sessionStorage.getItem('clientId');
 
-    if (
-      location.href.indexOf('/public/') > -1 &&
-      clientId &&
-      (!isPublicFrom ||
-        controllerName === 'PublicWorksheet' ||
-        (_.get(window, 'shareState.isPublicForm') && controllerName + '/' + actionName === 'Worksheet/GetRowDetail'))
-    ) {
+    if (window.needSetClientId({ clientId, controllerName })) {
       headers.clientId = clientId;
     }
 
     if (window.publicAppAuthorization) {
       headers.shareAuthor = window.publicAppAuthorization;
+      headers.clientId = undefined;
       const { global = {} } = md;
       const { Config = {}, SysSettings = {} } = global;
       const { IsLocal } = Config;
@@ -540,12 +511,6 @@ window.createTimeSpan = dateStr => {
                   withCredentials: true,
                 }
               : null,
-            converters: {
-              'text json': function (result) {
-                result = result.replace(/"controlName":"(.*?)"/g, ($1, $2) => `"controlName":"${lang()[$2] || $2}"`);
-                return JSON.parse(result);
-              },
-            },
           },
           ajaxOptions,
         ),
@@ -667,14 +632,33 @@ window.createTimeSpan = dateStr => {
  * 加载多语言文件
  */
 (function () {
+  const pages = [
+    '/auth/workwx',
+    '/auth/chatTools',
+    '/auth/welink',
+    '/auth/feishu',
+    '/sso/dingding',
+    '/sso/sso',
+    '/sso/workweixin',
+  ];
+
+  if (pages.includes(location.pathname)) {
+    return;
+  }
+
   const lang = getCookie('i18n_langtag') || md.global.Config.DefaultLang;
   const currentLang = langConfig.find(item => item.key === lang);
 
   if (!!currentLang) {
-    let xhrObj = new XMLHttpRequest();
-    xhrObj.open('GET', currentLang.path, false);
+    const xhrObj = new XMLHttpRequest();
+    const script = document.createElement('script');
+    const path = !location.href.match(/mingdao\.com|share\.mingdao\.net/)
+      ? currentLang.path
+      : currentLang.path.replace('/staticfiles/lang', '/locale') +
+        `?${moment().format('YYYY_MM_DD_') + Math.floor(moment().hour() / 6)}`;
+
+    xhrObj.open('GET', path, false);
     xhrObj.send('');
-    let script = document.createElement('script');
     script.type = 'text/javascript';
     script.text = xhrObj.responseText;
     document.head.appendChild(script);
@@ -702,7 +686,9 @@ window.createTimeSpan = dateStr => {
   });
 })([Element.prototype, Document.prototype, DocumentFragment.prototype]);
 
-// 兼容钉钉内核63 问题
+/**
+ * 兼容钉钉内核63 问题
+ */
 if (!Object.fromEntries) {
   Object.fromEntries = function (entries) {
     let entriesObj = {};

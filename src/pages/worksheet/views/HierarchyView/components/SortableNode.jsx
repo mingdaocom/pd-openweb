@@ -146,7 +146,12 @@ export default class SortableRecordItem extends Component {
         _.find(currentControls, item => item.controlId === controlId),
         'viewId',
       );
-      return { worksheetId, viewId: configViewId };
+      const viewControlInfo = viewControls.find(o => o.worksheetId === worksheetId) || {};
+      return {
+        worksheetId,
+        viewId: configViewId,
+        cardwidth: _.get(viewControlInfo, 'advancedSetting.cardwidth'),
+      };
     }
     return { worksheetId, viewId };
   };
@@ -209,6 +214,7 @@ export default class SortableRecordItem extends Component {
           />
           <DraggableRecord
             {...this.props}
+            width={recordInfoPara.cardwidth || _.get(view, 'advancedSetting.cardwidth')}
             viewParaOfRecord={recordInfoPara}
             onDelete={() => deleteHierarchyRecord({ rows: [{ rowid: rowId, allowDelete: true }], path, pathId })}
             onUpdate={(value, relateSheet) =>

@@ -103,6 +103,7 @@ export default class CellEdit extends Component {
       isEr: false,
       isSetDefaultMap: false,
       duplicates: [],
+      fieldsBysource: [],
     };
   }
   componentDidMount() {
@@ -180,13 +181,17 @@ export default class CellEdit extends Component {
       (await getFields({
         node,
         projectId: currentProjectId,
-        isGetDest: true,
+        isGetDest: false,
         isSourceAppType: true,
         isDestAppType: isDestMDType,
+        destType: _.get(list.find(o => o.nodeType === 'DEST_TABLE') || {}, 'nodeConfig.config.dsType'),
       })) || [];
+    this.setState({
+      fieldsBysource: data,
+    });
     let fieldsData = (_.get(node, 'nodeConfig.fields') || []).map(o => {
       let field = data.find(it => it.id === o.id);
-      return { ...o, ..._.omit(field || {}, ['alias', 'isCheck']), isErr: !field };
+      return { ...o, ..._.omit(field || {}, ['alias', 'isCheck', 'isPk', 'isFakePk']), isErr: !field };
     });
     let otherData = data
       .filter(o => !fieldsData.find(a => a.id === o.id))
@@ -213,7 +218,7 @@ export default class CellEdit extends Component {
     this.setState({
       loading: true,
     });
-    const hsMorePkData = hsMorePkControl(preNode);
+    const hsMorePkData = hsMorePkControl(preNode, list);
     const isDestMDType =
       _.get(list.find(o => o.nodeType === 'DEST_TABLE') || {}, 'nodeConfig.config.dsType') ===
       DATABASE_TYPE.APPLICATION_WORKSHEET;
@@ -222,7 +227,7 @@ export default class CellEdit extends Component {
       : await getFields({
           node,
           projectId: this.props.currentProjectId,
-          isGetDest: false,
+          isGetDest: true,
           isSourceAppType: !srcIsDb,
           isDestAppType: isDestMDType,
         }); //目的地字段
@@ -235,7 +240,13 @@ export default class CellEdit extends Component {
         ? _.get(preNode, ['nodeConfig', 'fields'])
         : [mdUniquePkData, ..._.get(preNode, ['nodeConfig', 'fields'])];
       preFields = preFields.filter(o => o.isCheck);
-      let mapping = getInitFieldsMapping(preFields, !srcIsDb, _.get(node, 'nodeConfig.config.dsType'));
+      let mapping = getInitFieldsMapping(
+        preFields.map(o => {
+          return { ...o, name: o.alias };
+        }),
+        !srcIsDb,
+        _.get(node, 'nodeConfig.config.dsType'),
+      );
       const mapDt = await setFieldsMappingDefaultData({
         initMapping: mapping.filter(o => !!o.sourceField),
         destFields: fileList,
@@ -254,7 +265,10 @@ export default class CellEdit extends Component {
           ...node,
           nodeConfig: {
             ...node.nodeConfig,
-            config: { ..._.get(node, 'nodeConfig.config'), fieldsMapping: mapDt.fieldsMapping },
+            config: {
+              ..._.get(node, 'nodeConfig.config'),
+              fieldsMapping: mapDt.fieldsMapping,
+            },
           },
         },
       });
@@ -398,7 +412,7 @@ export default class CellEdit extends Component {
         }
         const preNode = list.filter(o => o.pathIds.length > 0 && o.pathIds[0].toDt.nodeId === node.nodeId)[0];
         let fields = (_.get(preNode, 'nodeConfig.fields') || []).filter(o => o.isCheck);
-        const hsMorePkData = hsMorePkControl(preNode);
+        const hsMorePkData = hsMorePkControl(preNode, list);
         fields = hsMorePkData ? [mdUniquePkData, ...fields] : fields;
         if (
           fieldsMapping.filter(
@@ -421,6 +435,10 @@ export default class CellEdit extends Component {
       if (fields.filter(o => _.get(o, 'isErr')).length > 0) {
         disable = true;
         txt = _l('存在已失效或已删除的字段');
+      }
+      if (fields.filter(o => _.get(o, 'isPk')).length <= 0) {
+        disable = true;
+        txt = _l('请设置主键');
       }
       if (fields.filter(o => !_.get(o, 'isCheck') && _.get(o, 'isPk')).length > 0) {
         disable = true;
@@ -466,16 +484,6 @@ export default class CellEdit extends Component {
     }
     if (['UNION'].includes(nodeType)) {
       const fields = _.get(node, 'nodeConfig.config.fields') || [];
-      // const { leftTableId, rightTableId } = _.get(node, ['nodeConfig', 'config']) || {};
-      // let leftNode = list.find(o => o.nodeId === leftTableId);
-      // let rightNode = list.find(o => o.nodeId === rightTableId);
-      // const leftFields = (_.get(leftNode, 'nodeConfig.fields') || []).filter(o => o.isCheck);
-      // const rightFields = (_.get(rightNode, 'nodeConfig.fields') || []).filter(o => o.isCheck);
-      // const ids = [...leftFields, ...rightFields].map(o => o.id);
-      // if (fields.filter(o => !ids.includes(o.id)).length > 0) {
-      //   disable = true;
-      //   txt = _l('请删除无效字段');
-      // }
       fields.map(o => {
         //同名只能勾选一个
         if (

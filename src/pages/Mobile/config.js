@@ -3,13 +3,13 @@ import { addSubPathOfRoutes } from 'src/util';
 export const ROUTE_CONFIG = addSubPathOfRoutes(
   {
     appHome: {
-      path: '/mobile/appHome',
+      path: '/mobile/dashboard',
       component: () =>
         import(
           /* webpackChunkName: "mobile-home" */
           'mobile/AppHome'
         ),
-      title: _l('首页'),
+      title: _l('工作台'),
     },
     appGroupList: {
       path: '/mobile/appGroupList',
@@ -33,7 +33,7 @@ export const ROUTE_CONFIG = addSubPathOfRoutes(
     processMatters: {
       path: '/mobile/processMatters',
       component: () => import('mobile/Process/ProcessMatters'),
-      title: _l('流程事项'),
+      title: _l('流程待办'),
     },
     processInform: {
       path: '/mobile/processInform',
@@ -134,6 +134,16 @@ export const ROUTE_CONFIG = addSubPathOfRoutes(
       component: () => import('mobile/SearchRecord'),
       title: _l('搜索'),
     },
+    recordCollection: {
+      path: '/mobile/recordfav/:projectId',
+      component: () => import('mobile/RecordCollect'),
+      title: _l('记录收藏'),
+    },
+    appCollection: {
+      path: '/mobile/appfav/:projectId',
+      component: () => import('mobile/AppCollect'),
+      title: _l('应用收藏'),
+    },
   },
   window.subPath,
 );
@@ -148,4 +158,6 @@ export const PORTAL = [
   'groupFilterDetail',
   'addDiscuss',
   'discuss',
+  'recordCollection',
+  'appCollection',
 ];

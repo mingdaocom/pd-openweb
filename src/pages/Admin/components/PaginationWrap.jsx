@@ -80,9 +80,9 @@ export default class PaginationWrap extends Component {
   }
 
   render() {
-    const { total, pageSize, pageIndex, onChange = () => {} } = this.props;
+    const { className, total, pageSize, pageIndex, onChange = () => {} } = this.props;
     return (
-      <Wrap>
+      <Wrap className={className}>
         <Pagination
           total={total}
           pageSize={pageSize || 50}

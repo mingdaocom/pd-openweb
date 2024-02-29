@@ -55,7 +55,7 @@ export default class WidgetsVerifyCode extends Component {
           ticket: res.ticket,
           randStr: res.randstr,
           worksheetId: worksheetId,
-          captchaType: md.staticglobal.getCaptchaType(),
+          captchaType: md.global.getCaptchaType(),
         })
         .then(data => {
           if (data === 1) {
@@ -80,7 +80,7 @@ export default class WidgetsVerifyCode extends Component {
       this.setState({ isSubmit: false });
     };
     const captchaFuc = () => {
-      if (md.staticglobal.getCaptchaType() === 1) {
+      if (md.global.getCaptchaType() === 1) {
         new captcha(cb, onCancel);
       } else {
         new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), cb).show();

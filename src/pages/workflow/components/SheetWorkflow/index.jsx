@@ -101,7 +101,7 @@ const renderSurplusTime = data => {
 };
 
 function CurrentWorkItems(props) {
-  const { formWidth, data, appId } = props;
+  const { formWidth, data, appId, projectId } = props;
   const { type } = data.flowNode || {};
   const allCurrentWorkItems = (data.currentWorkItems || []).filter(c => c.operationType !== 5);
   const [currentWorkItems, setCurrentWorkItems] = useState(allCurrentWorkItems);
@@ -131,6 +131,7 @@ function CurrentWorkItems(props) {
                   size={24}
                   user={{ userHead: data.workItemAccount.avatar, accountId: data.workItemAccount.accountId }}
                   appId={appId}
+                  projectId={projectId}
                 />
               )}
               <Fragment>
@@ -208,7 +209,7 @@ function WorkflowCard(props) {
             {isBranch && renderState(data)}
           </div>
         )}
-        <CurrentWorkItems data={data} formWidth={formWidth} appId={appId}/>
+        <CurrentWorkItems data={data} formWidth={formWidth} appId={appId} projectId={projectId}/>
         {receiveTime && (
           <div className="flexRow valignWrapper mBottom12">
             <div className="Font13 Gray_9e label">{_l('处理开始')}</div>
@@ -235,6 +236,7 @@ function WorkflowCard(props) {
             size={32}
             user={{ userHead: createAccount.avatar, accountId: createAccount.accountId }}
             appId={appId}
+            projectId={projectId}
           />
           <div className="flexColumn flex mLeft10">
             <div className="Font15 bold Gray">{process.name}</div>
@@ -351,12 +353,13 @@ export default function SheetWorkflow(props) {
     });
   };
 
-  const handleAction = ({ action, content, userId, backNodeId, signature }) => {
+  const handleAction = ({ action, content, userId, backNodeId, signature, files }) => {
     if (_.includes(['pass', 'overrule', 'return'], action)) {
       handleRequest(ACTION_TO_METHOD[action === 'return' ? 'overrule' : action], {
         opinion: content,
         backNodeId,
         signature,
+        files
       }).then(() => {
         setActionVisible(false);
         handleCloseDrawer();
@@ -570,6 +573,7 @@ export default function SheetWorkflow(props) {
             works={works}
             status={status}
             appId={appId}
+            projectId={projectId}
           />
         </ScrollView>
         {id && !completed && (
@@ -679,9 +683,7 @@ export default function SheetWorkflow(props) {
             action={currentWorkflow.value}
             selectedUser={{}}
             instance={currentWorkflow}
-            onAction={(action, content, userId, backNodeId, signature) => {
-              handleAction({ action, content, userId, backNodeId, signature });
-            }}
+            onAction={handleAction}
             onHide={() => {
               setActionVisible(false);
             }}

@@ -39,7 +39,7 @@ export default class Write extends Component {
       <Fragment>
         <div className="pLeft8 pRight8 pTop5">
           <span className="Gray_75">{_l('填写人：')}</span>
-          <MembersName accounts={item.accounts} />
+          <MembersName {...this.props} accounts={item.accounts} />
         </div>
         <div className="workflowContentInfo ellipsis mTop4 pBottom5">
           {item.formProperties.length ? (

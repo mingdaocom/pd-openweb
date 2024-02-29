@@ -34,7 +34,7 @@ export default class PublicShareChart extends Component {
           requestParams: { projectId:  _.get(data, 'data.projectId') },
         },
       );
-      window.share = _.get(data, 'data.shareAuthor');
+      window.clientId = _.get(data, 'data.clientId');
       this.setState({ data, loading: false });
     });
   }

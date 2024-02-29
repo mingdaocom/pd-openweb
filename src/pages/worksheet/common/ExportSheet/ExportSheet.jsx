@@ -9,6 +9,7 @@ import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import _ from 'lodash';
 import worksheetAjax from 'src/api/worksheet';
 import { getFilledRequestParams } from '../../util';
+import { Tooltip } from 'antd';
 
 export default class ExportSheet extends Component {
   static propTypes = {
@@ -88,6 +89,7 @@ export default class ExportSheet extends Component {
       exportExtIds,
 
       columnSearchWord: '', // 字段实时搜索
+      speed: false, // 加速导出
     };
   }
 
@@ -302,7 +304,7 @@ export default class ExportSheet extends Component {
         filtersGroup = [],
         sortControls,
       } = this.props;
-      const { columnsSelected, isStatistics, exportShowColumns, exportExtIds, type } = this.state;
+      const { columnsSelected, isStatistics, exportShowColumns, exportExtIds, type, speed } = this.state;
 
       // 获取Token 功能模块 token枚举，3 = 导出excel，4 = 导入excel生成表，5= word打印
       const token = await appManagement.getToken({ worksheetId, viewId, tokenType: 3 });
@@ -343,7 +345,7 @@ export default class ExportSheet extends Component {
             ]),
           ),
         navGroupFilters,
-
+        speed,
         // 成员字段、部门字段、关联表字段
         exportExtIds: columns
           .filter(column => {
@@ -508,6 +510,7 @@ export default class ExportSheet extends Component {
       columnSearchWord,
       loading,
       edited,
+      speed,
     } = this.state;
 
     if (
@@ -796,6 +799,30 @@ export default class ExportSheet extends Component {
                   onClick={() => this.chooseColumnId(column)}
                 />
               ))}
+
+            <Checkbox
+              text={
+                <span>
+                  {_l('加速导出')}
+                  <Tooltip
+                    overlayStyle={{ maxWidth: 350 }}
+                    title={
+                      <Fragment>
+                        <div>{_l('导出以下字段时走冗余值，可能会导出为旧数据')}</div>
+                        <div>{_l('· 关联表：显示方式为卡片、下拉框')}</div>
+                        <div>{_l('· 级联选择：高级设置中勾选“选择结果显示层级路径”')}</div>
+                        <div>{_l('· 他表字段：类型为存储数据')}</div>
+                      </Fragment>
+                    }
+                  >
+                    <i className="icon-info mLeft5 Font16 Gray_9e"></i>
+                  </Tooltip>
+                </span>
+              }
+              checked={speed}
+              size="small"
+              onClick={() => this.setState({ speed: !speed })}
+            />
 
             <div className="title">{_l('导出格式')}</div>
             <RadioGroup

@@ -124,7 +124,7 @@ export default class MoreOverlay extends Component {
       isMove,
       isCharge,
       permissionType,
-      onOpenFilter,
+      onSheetView,
       onOpenSetting,
       onRemove,
     } = this.props;
@@ -149,21 +149,21 @@ export default class MoreOverlay extends Component {
             </div>
           </Menu.Item>
         )}
-        {onOpenFilter && !!reportStatus && (
+        {onSheetView && !!reportStatus && (
           <Menu.Item
             className="pLeft10"
             onClick={() => {
-              onOpenFilter();
+              onSheetView();
               this.handleUpdateDropdownVisible(false);
             }}
           >
             <div className="flexRow valignWrapper">
-              <Icon className="Gray_9e Font18 mLeft5 mRight5" icon="filter" />
-              <span>{_l('筛选')}</span>
+              <Icon className="Gray_9e Font18 mLeft5 mRight5" icon="table" />
+              <span>{_l('以表格显示')}</span>
             </div>
           </Menu.Item>
         )}
-        {!md.global.Account.isPortal && (
+        {!md.global.Account.isPortal && !location.href.includes('embed/page') && (
           <Menu.Item
             className="pLeft10"
             onClick={() => {
@@ -221,7 +221,7 @@ export default class MoreOverlay extends Component {
             </div>
           </Menu.Item>
         )}
-        {isMove && isCharge && (
+        {isMove && (
           <Fragment>
             <Divider className="mTop5 mBottom5" />
             <Menu.Item className="pLeft10" onClick={this.handleUpdateOwnerId}>

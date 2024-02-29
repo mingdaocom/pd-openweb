@@ -87,14 +87,14 @@ class RadioGroup extends Component {
     });
     return (
       <div style={style} className={cls}>
-        {this.state.data.map((props, index) => (
+        {this.state.data.map((item, index) => (
           <Radio
-            {...props}
+            {...this.props}
+            {...item}
             className={radioItemClassName}
             onClick={(...arg) => this.handleClick(...arg)}
             key={index}
-            size={this.props.size}
-            disabled={this.props.disabled || props.disabled}
+            disabled={this.props.disabled || item.disabled}
           />
         ))}
       </div>

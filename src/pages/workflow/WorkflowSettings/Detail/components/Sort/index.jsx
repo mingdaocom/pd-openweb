@@ -36,7 +36,7 @@ export default ({ controls, sorts, updateSource }) => {
       (type === 37 && enumDefault2 === 6) ||
       (type === 38 && enumDefault === 1)
     ) {
-      ruleSort = [{ text: _l('1 → 9'), value: true }, { text: _l('9 → 1'), value: false }];
+      ruleSort = [{ text: '1 → 9', value: true }, { text: '9 → 1', value: false }];
     } else if (type === 2) {
       ruleSort = [{ text: _l('A → Z'), value: true }, { text: _l('Z → A'), value: false }];
     } else if (type === 46) {

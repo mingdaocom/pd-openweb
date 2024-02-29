@@ -51,7 +51,10 @@ export default class CreateRecordAndTask extends Component {
     const { showOtherWorksheet, isBatch } = this.state;
     const { data, updateSource } = this.props;
     const selectAppItem = data.appList.find(({ id }) => id === data.appId);
-    const fields = [].concat(data.fields.filter(v => v.type !== 29), data.fields.filter(v => v.type === 29));
+    const fields = [].concat(
+      data.fields.filter(v => v.type !== 29),
+      data.fields.filter(v => v.type === 29),
+    );
     const otherWorksheet = [
       {
         text: _l('其它应用下的工作表'),
@@ -186,7 +189,7 @@ export default class CreateRecordAndTask extends Component {
               <div className="flexRow alignItemsCenter mTop15">
                 <div className="ellipsis Font13 flex mRight20">
                   {controlName}
-                  {(singleObj.required || _.includes(['portal_mobile', 'portal_role'], item.fieldId)) && (
+                  {(singleObj.required || _.includes(['portal_role'], item.fieldId)) && (
                     <span className="mLeft5 red">*</span>
                   )}
                   {singleObj.type === 29 && (

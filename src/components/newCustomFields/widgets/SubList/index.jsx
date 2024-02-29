@@ -4,7 +4,7 @@ import ChildTable from 'worksheet/components/ChildTable';
 import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import sheetAjax from 'src/api/worksheet';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
-import { isRelateRecordTableControl } from 'worksheet/util';
+import { isRelateRecordTableControl, replaceControlsTranslateInfo } from 'worksheet/util';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { FROM } from '../../tools/config';
 import autobind from 'core-decorators/lib/autobind';
@@ -32,6 +32,7 @@ export default class SubList extends React.Component {
     this.state = {
       loading: true,
     };
+    this.debounceChange = _.debounce(this.props.onChange, 500);
   }
 
   componentDidMount() {
@@ -52,7 +53,7 @@ export default class SubList extends React.Component {
   }
 
   loadWorksheetInfo(worksheetId) {
-    const { recordId, controlId, value, updateRelationControls = () => {} } = this.props;
+    const { appId, recordId, controlId, value, updateRelationControls = () => {} } = this.props;
     const controlPermission = controlState({ ...this.props }, this.props.from);
     const args = { worksheetId, getTemplate: true, getRules: true };
     const { instanceId, workId } = browserIsMobile()
@@ -89,15 +90,22 @@ export default class SubList extends React.Component {
         this.setState({
           loading: false,
           searchConfig: formatSearchConfigs(queryRes),
-          controls: (_.get(info, 'template.controls') || []).map(c => ({
-            ...c,
-            ...(isWorkflow
-              ? {}
-              : {
-                  controlPermissions:
-                    isRelateRecordTableControl(c) || c.type === 34 ? '000' : controlPermission.editable ? '111' : '101',
-                }),
-          })),
+          controls: replaceControlsTranslateInfo(
+            appId,
+            (_.get(info, 'template.controls') || []).map(c => ({
+              ...c,
+              ...(isWorkflow
+                ? {}
+                : {
+                    controlPermissions:
+                      isRelateRecordTableControl(c) || c.type === 34
+                        ? '000'
+                        : controlPermission.editable
+                        ? '111'
+                        : '101',
+                  }),
+            })),
+          ),
           projectId: info.projectId,
           info,
         });
@@ -115,7 +123,9 @@ export default class SubList extends React.Component {
         rows,
       });
     }
-    const { value, recordId, onChange, from } = this.props;
+    const { value, recordId, from } = this.props;
+    const onChange =
+      lastAction.type === 'UPDATE_ROW' && lastAction.asyncUpdate ? this.debounceChange : this.props.onChange;
     const { controls } = this.state;
     const isAdd = !recordId;
     if (lastAction.type !== 'INIT_ROWS' && lastAction.type !== 'LOAD_ROWS') {
@@ -214,7 +224,7 @@ export default class SubList extends React.Component {
             masterData={{
               worksheetId,
               formData: formData
-                .map(c => _.pick(c, ['controlId', 'type', 'value', 'options', 'attribute']))
+                .map(c => _.pick(c, ['controlId', 'type', 'value', 'options', 'attribute', 'enumDefault']))
                 .filter(c => !!c.value),
             }}
             projectId={projectId}

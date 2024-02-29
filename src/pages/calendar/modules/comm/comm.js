@@ -1,6 +1,8 @@
 ﻿import doT from 'dot';
 import inviteSingleTpl from './tpl/refuserDialogHtml.html';
 import calendarController from 'src/api/calendar';
+import Dialog from 'ming-ui/components/Dialog';
+import React from 'react';
 
 // 页面 初始化
 // 公用配置
@@ -11,9 +13,12 @@ var Comm = {};
 Comm.settings = {
   date: '',
   categorys: window.localStorage.getItem('categorys') ? window.localStorage.getItem('categorys').split(',') : [], // 已选择的分类
-  isWorkCalendar: window.localStorage.getItem('isWorkCalendar') == null || window.localStorage.getItem('isWorkCalendar') == 'true',
-  isTaskCalendar: window.localStorage.getItem('isTaskCalendar') == null || window.localStorage.getItem('isTaskCalendar') == 'true',
-  filterTaskType: window.localStorage.getItem('filterTaskType') == null ? 2 : window.localStorage.getItem('filterTaskType'),
+  isWorkCalendar:
+    window.localStorage.getItem('isWorkCalendar') == null || window.localStorage.getItem('isWorkCalendar') == 'true',
+  isTaskCalendar:
+    window.localStorage.getItem('isTaskCalendar') == null || window.localStorage.getItem('isTaskCalendar') == 'true',
+  filterTaskType:
+    window.localStorage.getItem('filterTaskType') == null ? 2 : window.localStorage.getItem('filterTaskType'),
   otherUsers: [],
 };
 
@@ -39,43 +44,34 @@ Comm.inviteCalendar = {
     Comm.confirmOrUnconfirmInviteMe(calendarId, 1, '', recurTime, catID);
   },
   refuse: function (calendarId, recurTime, catID) {
-    $.DialogLayer({
-      dialogBoxID: 'inviteDirectMessages',
+    Dialog.confirm({
+      dialogClasses: 'inviteDirectMessages',
       width: 488,
-      container: {
-        header: '<span class="resuserTitle ThemeColor3">请回复您不能参加的原因</span>',
-        content: Comm.doT.template(inviteSingleTpl)({}),
-        noText: '',
-        yesText: '不能参加',
-        yesFn: function () {
-          // 其他
-          var $selectRadio = $('#refuserstd input:radio:checked');
-          var reason =
-            $selectRadio.attr('id') == 'radOther'
-              ? $('#txtrefuseReason')
-                  .val()
-                  .trim()
-              : $selectRadio.val();
+      title: <span className="resuserTitle ThemeColor3">{_l('请回复您不能参加的原因')}</span>,
+      children: <div dangerouslySetInnerHTML={{ __html: Comm.doT.template(inviteSingleTpl)({}) }}></div>,
+      okText: _l('不能参加'),
+      removeCancelBtn: true,
+      onOk: () => {
+        // 其他
+        var $selectRadio = $('#refuserstd input:radio:checked');
+        var reason = $selectRadio.attr('id') == 'radOther' ? $('#txtrefuseReason').val().trim() : $selectRadio.val();
 
-          if (reason === '' || reason == _l('输入您拒绝邀请的理由')) {
-            alert('请输入不能参加的理由', 3);
-            $('#txtrefuseReason').focus();
-            return false;
-          }
+        if (reason === '' || reason == _l('输入您拒绝邀请的理由')) {
+          alert('请输入不能参加的理由', 3);
+          $('#txtrefuseReason').focus();
+          return false;
+        }
 
-          Comm.confirmOrUnconfirmInviteMe(calendarId, 2, reason, recurTime, '');
-        },
+        Comm.confirmOrUnconfirmInviteMe(calendarId, 2, reason, recurTime, '');
       },
-      readyFn: function () {
-        // 不能参加的理由
-        $('#refuserstd').on('change', 'input:radio', function () {
-          if ($('#radOther').attr('checked')) {
-            $('#txtrefuseReason').show();
-          } else {
-            $('#txtrefuseReason').hide();
-          }
-        });
-      },
+    });
+    // 不能参加的理由
+    $('#refuserstd').on('change', 'input:radio', function () {
+      if ($('#radOther').attr('checked')) {
+        $('#txtrefuseReason').show();
+      } else {
+        $('#txtrefuseReason').hide();
+      }
     });
   },
 };

@@ -12,33 +12,7 @@ function cx(obj) {
     .join(' ');
 }
 
-const Cell = memo(
-  function Cell(props) {
-    const { style, columnIndex, rowIndex, renderCell } = props;
-    window.count++;
-    return renderCell({
-      style: { ...style, boxSizing: 'border-box' },
-      rowIndex,
-      columnIndex,
-    });
-  },
-  (prevProps, nextProps) => {
-    const { rowIndex, columnIndex, needUpdated = {} } = nextProps;
-    const { type, index } = needUpdated;
-    if (
-      (type === 'row' && index === rowIndex) ||
-      (type === 'column' && index === columnIndex) ||
-      (type === 'cell' && index === `${rowIndex}-${columnIndex}`) ||
-      type === 'all'
-    ) {
-      return false;
-    }
-    return areEqual(_.omit(prevProps, ['needUpdated']), _.omit(nextProps, ['needUpdated']));
-  },
-);
-
 export default function Grid(props) {
-  // console.log('grid render');
   const {
     id,
     leftFixed,
@@ -57,7 +31,8 @@ export default function Grid(props) {
     rowHeight,
     cache,
     getColumnWidth,
-    renderCell = () => {},
+    Cell,
+    tableData,
     setRef,
   } = props;
   const leftFixedWidth = leftFixedCount ? sum([...new Array(leftFixedCount)].map((n, i) => getColumnWidth(i))) : 0;
@@ -98,22 +73,22 @@ export default function Grid(props) {
       }}
       rowHeight={() => rowHeight}
       rowCount={config.rowCount}
+      itemData={{
+        ...tableData,
+        grid: {
+          id,
+          columnCount,
+          leftFixed,
+          rightFixed,
+          topFixed,
+          bottomFixed,
+          rightFixedCount,
+          leftFixedCount,
+          ...config,
+        },
+      }}
     >
-      {({ columnIndex, rowIndex, style, ...rest }) => (
-        <Cell
-          style={style}
-          renderCell={renderCell}
-          {...{
-            needUpdated: cache.needUpdated,
-            columnIndex: leftFixed
-              ? columnIndex
-              : rightFixed
-              ? columnCount - rightFixedCount + columnIndex
-              : leftFixedCount + columnIndex,
-            rowIndex: topFixed ? undefined : bottomFixed ? undefined : rowIndex,
-          }}
-        />
-      )}
+      {Cell}
     </VariableSizeGrid>
   );
 }

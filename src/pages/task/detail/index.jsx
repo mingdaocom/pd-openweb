@@ -25,7 +25,7 @@ class TaskDetailEntrypoint extends Component {
     return (
       <div className="taskDetailContainer flexColumn">
         <div className="flex">
-          <UniformRoute title={_l('%0', title)} taskId={id} openType={2} visible={true} component={TaskDetail} />
+          <UniformRoute title={title} taskId={id} openType={2} visible={true} component={TaskDetail} />
         </div>
       </div>
     );

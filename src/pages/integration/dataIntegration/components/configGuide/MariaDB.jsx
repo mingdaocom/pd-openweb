@@ -17,12 +17,7 @@ export default function MariaDBGuide(props) {
         <li className="pointer textUnderline" onClick={() => document.getElementById('authId').scrollIntoView()}>
           {_l('授权MariaDB账户对应的权限')}
         </li>
-        <li
-          className="pointer textUnderline"
-          onClick={() => document.getElementById('communicationId').scrollIntoView()}
-        >
-          {_l('确保数据库可以与数据集成通信')}
-        </li>
+        <li>{_l('确保数据库可以与数据集成通信')}</li>
       </ul>
 
       <h5 id="versionId">{_l('检查 MariaDB 版本')}</h5>
@@ -102,7 +97,7 @@ export default function MariaDBGuide(props) {
         </a>
       </p>
 
-      <h5 id="communicationId">{_l('确保数据库可以与数据集成通信')}</h5>
+      {/* <h5 id="communicationId">{_l('确保数据库可以与数据集成通信')}</h5>
       <div className="subTitle">{_l('1. 编辑MariaDB服务器的配置文件')}</div>
       <div className="sqlText">
         <div>sudo nano /etc/mysql/mysql.conf.d/mysqld.cnf</div>
@@ -111,7 +106,7 @@ export default function MariaDBGuide(props) {
       <div className="sqlText">
         <div>{_l('bind-address = 0.0.0.0 [这里是系统白名单，在左侧配置信息底部显示]')}</div>
       </div>
-      <p>{_l('也可以通过数据库服务器添加全局性的访问白名单')}</p>
+      <p>{_l('也可以通过数据库服务器添加全局性的访问白名单')}</p> */}
 
       <h5>{_l('测试连接')}</h5>
       <p>

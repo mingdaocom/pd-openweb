@@ -43,7 +43,6 @@ export function getSheetList(args) {
     }
     getAppSectionDetailRequest = homeAppApi.getAppSectionDetail(args);
     getAppSectionDetailRequest.then(data => {
-      dispatch({ type: 'SHEET_LIST_UPDATE_LOADING', loading: false });
       if (_.isEmpty(data)) {
         dispatch({ type: 'WORKSHEET_APP_SECTION_FAILURE' });
         return;
@@ -79,6 +78,7 @@ export function getSheetList(args) {
         });
         store.dispatch(updateALLSheetList(res));
       }
+      dispatch({ type: 'SHEET_LIST_UPDATE_LOADING', loading: false });
     });
   };
 }
@@ -255,7 +255,6 @@ export function copySheet(baseArgs, iconArgs) {
       isCopyMember: true,
       isCopyAdmin: true,
       type: 0,
-      name: _l('%0-复制', baseArgs.name),
     };
     const { parentGroupId } = iconArgs;
     if (parentGroupId) {

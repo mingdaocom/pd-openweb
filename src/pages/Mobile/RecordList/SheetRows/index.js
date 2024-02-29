@@ -81,7 +81,7 @@ class SheetRows extends Component {
             if (clicktype === '2') return;
             if (clicktype === '1') {
               let value = item[clickcid];
-              if (RegExp.isUrlRequest(value)) {
+              if (RegExp.isURL(value)) {
                 window.open(value);
               }
               return;

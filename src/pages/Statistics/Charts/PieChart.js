@@ -54,8 +54,8 @@ export default class extends Component {
     this.PieChart && this.PieChart.destroy();
   }
   componentWillReceiveProps(nextProps) {
-    const { displaySetup } = nextProps.reportData;
-    const { displaySetup: oldDisplaySetup } = this.props.reportData;
+    const { displaySetup, style } = nextProps.reportData;
+    const { displaySetup: oldDisplaySetup, style: oldStyle } = this.props.reportData;
     const chartColor = _.get(nextProps, 'customPageConfig.chartColor');
     const oldChartColor = _.get(this.props, 'customPageConfig.chartColor');
     if (
@@ -66,6 +66,7 @@ export default class extends Component {
       displaySetup.showNumber !== oldDisplaySetup.showNumber ||
       displaySetup.showPercent !== oldDisplaySetup.showPercent ||
       displaySetup.magnitudeUpdateFlag !== oldDisplaySetup.magnitudeUpdateFlag ||
+      style.tooltipValueType !== oldStyle.tooltipValueType ||
       !_.isEqual(chartColor, oldChartColor) ||
       nextProps.themeColor !== this.props.themeColor
     ) {
@@ -146,15 +147,17 @@ export default class extends Component {
     }
   }
   getPieConfig(props) {
-    const { themeColor, projectId, customPageConfig, reportData } = props;
-    const { chartColor } = customPageConfig;
-    const { map, displaySetup, yaxisList, summary, style, xaxes, reportId } = reportData;
+    const { themeColor, projectId, customPageConfig = {}, reportData } = props;
+    const { chartColor, chartColorIndex = 1 } = customPageConfig;
+    const { map, displaySetup, yaxisList, summary, xaxes, reportId } = reportData;
+    const styleConfig = reportData.style || {};
+    const style = chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0) ? { ...styleConfig, ...chartColor } : styleConfig;
     const data = xaxes.controlId ? formatChartData(map[0].value) : formatChartMap(map, yaxisList);
     const { position } = getLegendType(displaySetup.legendType);
     const isLabelVisible = displaySetup.showDimension || displaySetup.showNumber || displaySetup.showPercent;
     const newYaxisList = formatYaxisList(data, yaxisList);
     const isAnnular = displaySetup.showChartType === 1;
-    const colors = getChartColors(chartColor || style, themeColor, projectId);
+    const colors = getChartColors(style, themeColor, projectId);
     const isNewChart = _.isUndefined(reportId) && _.isEmpty(style);
     const isAlienationColor = getIsAlienationColor(reportData);
     const isOptionsColor = isNewChart ? isAlienationColor : style ? style.colorType === 0 && isAlienationColor : false;
@@ -203,9 +206,10 @@ export default class extends Component {
             formatter: ({ value, originalId }) => {
               const name = findName(originalId);
               const { dot } = yaxisList[0] || {};
+              const labelValue = formatrChartValue(value, false, newYaxisList, value ? undefined : originalId);
               return {
                 name,
-                value: _.isNumber(value) ? value.toLocaleString('zh', { minimumFractionDigits: dot }) : '--',
+                value: _.isNumber(value) ? style.tooltipValueType ? labelValue : value.toLocaleString('zh', { minimumFractionDigits: dot }) : '--',
               };
             },
           },

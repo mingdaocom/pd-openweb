@@ -12,11 +12,15 @@ const langs = eval(
     .toString()
     .replace('export default config;', 'module.exports = config;'),
 );
+const getTranslationJS = function(langPath) {
+  let fileContent = fs.readFileSync(path.join(__dirname, langPath), 'utf-8');
+  return eval(fileContent + 'module.exports = translations;');
+};
 const langPackage = {
-  en: require('./en/mdTranslation.js'),
-  ja: require('./ja/mdTranslation.js'),
-  'zh-Hans': require('./zh-Hans/mdTranslation.js'),
-  'zh-Hant': require('./zh-Hant/mdTranslation.js'),
+  en: getTranslationJS('./en/mdTranslation.js'),
+  ja: getTranslationJS('./ja/mdTranslation.js'),
+  'zh-Hans': getTranslationJS('./zh-Hans/mdTranslation.js'),
+  'zh-Hant': getTranslationJS('./zh-Hant/mdTranslation.js'),
 };
 
 // " 转义处理 并不含 \"
@@ -118,12 +122,7 @@ const buildPoToJs = function(done) {
 
     gettextToI18next(item.key, poText).then(
       function(result) {
-        fs.writeFileSync(
-          filePath + '.js',
-          UglifyJS.minify(
-            `var mdTranslation=${result};if (typeof module !== "undefined") { module.exports = mdTranslation; }`,
-          ).code,
-        );
+        fs.writeFileSync(filePath + '.js', UglifyJS.minify(`var translations=${result};`).code);
         console.log(filePath + '.js 构建成功');
       },
       function(err) {
@@ -142,9 +141,11 @@ const clearPoLangKey = function(done) {
 
   _.uniq(langKeys).map(function(key) {
     langs.forEach(item => {
-      content[item.key] += `#: Disabled references:1\nmsgid "${escapeSymbol(key)}"\nmsgstr "${escapeSymbol(
-        langPackage[item.key][key],
-      ) || ''}"\n\n`;
+      const value =
+        escapeSymbol(langPackage[item.key][key]) ||
+        (item.key === 'zh-Hans' ? escapeSymbol(key).replace(/%\d{5}$/, '') : '');
+
+      content[item.key] += `#: Disabled references:1\nmsgid "${escapeSymbol(key)}"\nmsgstr "${value}"\n\n`;
     });
   });
 

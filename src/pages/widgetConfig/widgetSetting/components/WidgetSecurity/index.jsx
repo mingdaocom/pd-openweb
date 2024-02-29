@@ -1,6 +1,6 @@
 import React, { useEffect, useState, Fragment } from 'react';
 import { Tooltip } from 'antd';
-import { Checkbox, Icon, Support } from 'ming-ui';
+import { Checkbox, Icon, Support, UpgradeIcon } from 'ming-ui';
 import { SettingItem, EditInfo } from 'src/pages/widgetConfig/styled';
 import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
 import { DISPLAY_MASK, CUSTOM_DISPLAY } from 'src/pages/widgetConfig/config/setting';
@@ -108,8 +108,8 @@ export default function ControlMask(props) {
               }
             }}
           >
-            <span className="mRight5">{_l('数据加密')}</span>
-            {isPayType && <Icon icon="auto_awesome" className="mRight5 Font16" style={{ color: '#ffb432' }} />}
+            <span className="mRight5">{_l('数据存储加密')}</span>
+            {isPayType && <UpgradeIcon />}
             <Tooltip
               placement="bottom"
               title={

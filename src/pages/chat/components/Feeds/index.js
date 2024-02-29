@@ -1,14 +1,11 @@
 import React, { Component } from 'react';
 import './index.less';
 import * as ajax from '../../utils/ajax';
-import LoadDiv from 'ming-ui/components/LoadDiv';
-import { createLinksForMessage } from 'src/components/common/function';
-import { getClassNameByExt } from 'src/util';
+import { getClassNameByExt, createLinksForMessage } from 'src/util';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import DialogLayer from 'src/components/mdDialog/dialog';
-import ReactDom from 'react-dom';
 import postAjax from 'src/api/post';
 import PostDetails from 'src/pages/feed/components/post/postDetails/postDetails';
+import { Dialog, LoadDiv } from 'ming-ui';
 
 const classify = files => {
   const imagelist = [];
@@ -73,9 +70,8 @@ export class FeesItem extends Component {
   handlePreviewFeed(item) {
     const { postID } = item;
 
-    let feedDialog;
-    const removeFn = function () {
-      feedDialog.closeDialog();
+    const removeFn = function() {
+      $('.chatFeedDialog').parent().remove();
     };
 
     postAjax
@@ -84,27 +80,16 @@ export class FeesItem extends Component {
       })
       .then(postItem => {
         if (postItem.success === '1') {
-          ReactDom.render(
-            <DialogLayer
-              dialogBoxID="chatFeedDialog"
-              width={800}
-              container={{
-                header: _l('动态详情'),
-                yesText: '',
-                noText: '',
-              }}
-              readyFn={function (Comp) {
-                $('#chatFeedDialog_container').on('click', event => {
-                  if (!$(event.target).closest('#chatFeedDialog').length) {
-                    Comp.closeDialog();
-                  }
-                });
-              }}
-            >
+          Dialog.confirm({
+            width: 800,
+            dialogClasses: 'chatFeedDialog',
+            title: _l('动态详情'),
+            noFooter: true,
+            children: (
               <PostDetails onRemove={removeFn} postItem={postItem} />
-            </DialogLayer>,
-            document.createElement('div'),
-          );
+            ),
+
+          })
         } else {
           return alert(_l('您的权限不足或此动态已被删除，无法查看'), 2);
         }
@@ -220,7 +205,9 @@ export default class Feeds extends Component {
               {_l('所有动态')}
               <i className="icon-sidebar-more" />
             </span>
-          ) : undefined}
+          ) : (
+            undefined
+          )}
         </div>
         <div className="ChatPanel-Feeds-body">
           {postList.map(item => (

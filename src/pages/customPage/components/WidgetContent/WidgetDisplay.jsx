@@ -9,8 +9,10 @@ import PreviewWraper from '../previewContent';
 import { RichText } from 'ming-ui';
 import FiltersGroupPreview from '../editWidget/filter/FiltersGroupPreview';
 import CarouselPreview from '../editWidget/carousel/Carousel';
-import MobileFilter from 'src/pages/Mobile/CustomPage/FilterContent';
+import MobileFilter from 'mobile/CustomPage/FilterContent';
+import MobileView from 'mobile/CustomPage/ViewContent';
 import { reportTypes } from 'statistics/Charts/common';
+import { browserIsMobile } from 'src/util';
 
 const WidgetContent = styled.div`
   flex: 1;
@@ -49,6 +51,7 @@ const WidgetDisplay = forwardRef((props, $cardRef) => {
     ...rest
   } = props;
   const { type, param = [], value, needUpdate, button, name, config = {} } = widget;
+  const { worksheetId } = ids;
   const componentType = getEnumType(type);
   const ref = useRef(null);
   const renderContent = () => {
@@ -77,11 +80,12 @@ const WidgetDisplay = forwardRef((props, $cardRef) => {
           needRefresh={!editable}
           isCharge={isCharge}
           className={cx({ disableChart: editable && widget.reportType === reportTypes.NumberChart })}
-          customPageConfig={rest.config}
+          customPageConfig={rest.config || {}}
           themeColor={rest.themeColor}
           isLock={rest.isLock}
           permissionType={rest.permissionType}
           appId={ids.appId}
+          pageId={worksheetId}
           report={{ id: value, name }}
           sourceType={1}
           needUpdate={needUpdate}
@@ -89,10 +93,16 @@ const WidgetDisplay = forwardRef((props, $cardRef) => {
           projectId={projectId}
           layoutType={layoutType}
           mobileCount={_.get(widget, 'config.mobileCount')}
+          mobileFontSize={_.get(widget, 'config.mobileFontSize')}
         />
       );
     }
     if (componentType === 'view') {
+      if (browserIsMobile()) {
+        return (
+          <MobileView appId={ids.appId} setting={widget} />
+        );
+      }
       return (
         editingWidget.viewId !== widget.viewId && (
           <ViewDisplay

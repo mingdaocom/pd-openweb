@@ -4,6 +4,7 @@ import { ConfigProvider, Select, Modal, Button } from 'antd';
 import { Icon } from 'ming-ui';
 import SelectWorksheet from 'src/pages/worksheet/components/SelectWorksheet';
 import sheetAjax from 'src/api/worksheet';
+import { getTranslateInfo } from 'src/util';
 
 export default class SheetModal extends Component {
   constructor(props) {
@@ -80,7 +81,7 @@ export default class SheetModal extends Component {
               )}
               {(views || []).map(item => (
                 <Select.Option className="selectOptionWrapper" key={item.viewId} value={item.viewId}>
-                  {item.name}
+                  {getTranslateInfo(appId, item.viewId).name || item.name}
                 </Select.Option>
               ))}
             </Select>

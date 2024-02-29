@@ -61,7 +61,7 @@ export default function RelateSheet({ data }) {
                         {};
                       return (
                         <th key={controlId} className="overflow_ellipsis" style={{ width: `${widths[index]}px` }}>
-                          {required && <span>{_l('*')}</span>}
+                          {required && <span>*</span>}
                           {controlName || SYSTEM_FIELD_TO_TEXT[controlId]}
                         </th>
                       );

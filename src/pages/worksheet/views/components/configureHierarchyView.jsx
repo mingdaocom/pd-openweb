@@ -16,7 +16,7 @@ const VerifyButton = styled(Button)`
   margin-top: 32px;
 `;
 const HierarchyViewConfigWrap = styled.div`
-  padding: 0 32px 24px 32px;
+  padding: 0 32px 24px;
   .relateTypeRadio {
     .Radio:last-child {
       margin-left: 88px;

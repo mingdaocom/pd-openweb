@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import departmentController from 'src/api/department';
 import { DepartmentList } from 'src/components/dialogSelectUser/GeneralSelect';
 import NoData from 'src/components/dialogSelectUser/GeneralSelect/NoData';
-import CreateDialog from 'src/pages/Admin/structure/modules/dialogCreateEditDept';
+import { createEditDeptDialog } from 'src/pages/Admin/user/membersDepartments/structure/components/CreateEditDeptDialog';
 import roleController from 'src/api/role';
 import { Dialog, LoadDiv, Radio, Checkbox } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
@@ -237,7 +237,9 @@ class DialogSelectDept extends React.Component {
           ? getTree(data)
           : this.state.list.concat(getTree(data));
         let states = !this.state.keywords
-          ? {}
+          ? {
+              allList: list,
+            }
           : {
               rootPageIndex: 1,
               departmentMoreIds: [],
@@ -420,10 +422,8 @@ class DialogSelectDept extends React.Component {
             //选中的是组织
             selectedDepartments = [];
           } else {
-            let list = this.getParentId(this.state.list, department.departmentId) || [];
-            list = list.map(it => it.departmentId);
             selectedDepartment.map(o => {
-              let l = this.getParentId(this.state.list, o.departmentId);
+              let l = this.getParentId(this.state.allList, o.departmentId) || [];
               l = l.map(it => it.departmentId);
               if (l.includes(department.departmentId)) {
                 selectedDepartments = selectedDepartments.filter(it => it.departmentId !== o.departmentId);
@@ -566,7 +566,7 @@ class DialogSelectDept extends React.Component {
   }
 
   render() {
-    const { title, width, onClose } = this.props;
+    const { title, width, onClose, className } = this.props;
     const { showProjectAll } = this.state;
     return (
       <Dialog
@@ -574,8 +574,7 @@ class DialogSelectDept extends React.Component {
         type="scroll"
         title={title}
         width={width}
-        // className={cx({ mobileDepartmentPickerDialog: this.props.displayType === 'mobile' })}
-        className={cx('mobileDepartmentPickerDialog')}
+        className={cx('mobileDepartmentPickerDialog', className)}
         ref={dialog => {
           this.dialog = dialog;
         }}
@@ -677,7 +676,7 @@ class DialogSelectDept extends React.Component {
               <div
                 className="selectDepartmentCreateBtn pointer ThemeColor3"
                 onClick={() => {
-                  CreateDialog({
+                  createEditDeptDialog({
                     type: 'create',
                     projectId: this.props.projectId,
                     departmentId: '',
@@ -718,6 +717,7 @@ export default function (opts) {
   const options = _.extend({}, DEFAULTS, opts);
 
   const listProps = {
+    className: options.className,
     title: options.title,
     width: options.displayType === 'mobile' ? '100%' : 480,
     unique: options.unique,

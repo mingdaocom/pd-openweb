@@ -82,7 +82,7 @@ export default {
   * @param {string} args.projectId 网络id
   * @param {string} args.accountIds 账号id
   * @param {string} args.departmentIds 部门ids
-  * @param {} args.userStatus 用户状态
+  * @param {} args.userStatus
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -214,7 +214,7 @@ export default {
   * @param {integer} args.pageSize 页面尺寸
   * @param {string} args.startDateTime 开始时间
   * @param {string} args.endDateTime 结束时间
-  * @param {} args.logType 用户行为日志类型 1=登录 2=登出
+  * @param {} args.logType
   * @param {array} args.accountIds 用户ID
   * @param {array} args.columnNames 列名称
   * @param {boolean} args.confirmExport 是否确认导出(超量的情况下传)
@@ -230,7 +230,7 @@ export default {
   * 导出应用全局日志
   * @param {Object} args 请求参数
   * @param {string} args.projectId 组织id
-  * @param {} args.queryType 应用日志查询类型,默认不传查询所有
+  * @param {} args.queryType
   * @param {array} args.operators 操作人id数组
   * @param {array} args.appIds 应用id数组
   * @param {array} args.worksheetIds 工作表id数组
@@ -255,7 +255,6 @@ export default {
   /**
   * 批量下载行记录附件
   * @param {Object} args 请求参数
-  * @param {string} args.controlId 附件控件id
   * @param {string} args.worksheetId 工作表id
   * @param {string} args.rowId 行id
   * @param {} args.getType
@@ -266,6 +265,7 @@ export default {
   * @param {boolean} args.getTemplate 是否获取模板
   * @param {string} args.shareId 分享页获取关联记录iD
   * @param {boolean} args.checkView 是否验证视图
+  * @param {string} args.controlId 附件控件id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

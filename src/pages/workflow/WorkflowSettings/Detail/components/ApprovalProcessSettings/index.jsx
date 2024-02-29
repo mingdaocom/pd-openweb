@@ -126,7 +126,7 @@ export default props => {
       {initiator === 5 && (
         <div className="flexRow alignItemsCenter">
           <div className="mRight10 mTop12">{_l('代理人')}</div>
-          <Member leastOne accounts={data.processConfig.initiatorMaps[initiator]} />
+          <Member companyId={companyId} leastOne accounts={data.processConfig.initiatorMaps[initiator]} />
           <div
             className={cx('Gray_c ThemeHoverColor3 mTop12 pointer', {
               mLeft8: data.processConfig.initiatorMaps[initiator].length,
@@ -175,7 +175,7 @@ export default props => {
             <span className="Gray_9e">{_l('（代理审批流程中负责人为空时的发起、审批、填写节点）')}</span>
           </div>
           <div className="flexRow alignItemsCenter">
-            <Member leastOne accounts={data.processConfig.agents} />
+            <Member companyId={companyId} leastOne accounts={data.processConfig.agents} />
             <div
               className={cx('Gray_c ThemeHoverColor3 mTop12 pointer', { mLeft8: data.processConfig.agents.length })}
               style={{ height: 28 }}
@@ -297,6 +297,7 @@ export default props => {
           <OperatorEmpty
             hideGoToSettings
             projectId={companyId}
+            appId={props.relationType === 2 ? props.relationId : ''}
             processId={!data.processConfig.agents.length ? processId : ''}
             title={_l('审批/填写人为空时（默认设置）')}
             titleInfo={_l('设置节点负责人为空时的默认处理方式，在每个节点中也可单独设置。')}

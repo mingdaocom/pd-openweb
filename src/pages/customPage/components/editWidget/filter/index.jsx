@@ -2,9 +2,7 @@ import React, { useState, Fragment, useEffect } from 'react';
 import SideWrap from '../../SideWrap';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { ConfigProvider, Button, Tooltip } from 'antd';
-import Dialog from 'rc-dialog';
-import 'rc-dialog/assets/index.css';
+import { ConfigProvider, Button, Tooltip, Modal } from 'antd';
 import update from 'immutability-helper';
 import { Header, EditWidgetContent } from '../../../styled';
 import worksheetApi from 'src/api/worksheet';
@@ -138,12 +136,17 @@ export default function Filter(props) {
       </DefaultItem>
     </SideWrap>
   ) : (
-    <Dialog
+    <Modal
       maskStyle={{ zIndex: 999 }}
       wrapClassName="customPageFilterWrap"
       className="editWidgetDialogWrap"
       visible
-      onClose={onClose}
+      transitionName=""
+      maskTransitionName=""
+      width="100%"
+      footer={null}
+      centered={true}
+      onCancel={onClose}
     >
       <Header>
         <div className="typeName">{_l('筛选器')}</div>
@@ -179,6 +182,6 @@ export default function Filter(props) {
           />
         </Wrap>
       </EditWidgetContent>
-    </Dialog>
+    </Modal>
   );
 }

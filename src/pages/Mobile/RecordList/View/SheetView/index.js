@@ -14,6 +14,7 @@ import { permitList } from 'src/pages/FormSet/config.js';
 import worksheetAjax from 'src/api/worksheet';
 import RecordAction from 'mobile/components/RecordInfo/RecordAction';
 import processAjax from 'src/pages/workflow/api/process';
+import { replaceBtnsTranslateInfo } from 'worksheet/util';
 import _ from 'lodash';
 
 const BatchOptBtn = styled.div`
@@ -136,7 +137,7 @@ class SheetView extends Component {
       })
       .then(data => {
         this.setState({
-          customBtns: data.filter(
+          customBtns: replaceBtnsTranslateInfo(appId, data).filter(
             item =>
               _.includes([CUSTOM_BUTTOM_CLICK_TYPE.IMMEDIATELY, CUSTOM_BUTTOM_CLICK_TYPE.CONFIRM], item.clickType) ||
               (item.writeObject === 1 && item.writeType === 1),

@@ -143,7 +143,7 @@ export default class Date extends React.Component {
               <div className="cellControlDatePickerCon">
                 <TimePicker
                   {...cell}
-                  formData={!rowFormData ? null : rowFormData()}
+                  formData={!rowFormData ? null : _.isFunction(rowFormData) ? rowFormData() : rowFormData}
                   value={value}
                   onChange={this.handleChange}
                   compProps={{

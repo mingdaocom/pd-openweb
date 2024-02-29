@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import cx from 'classnames';
-import { head, isEmpty, get, some } from 'lodash';
+import _, { head, isEmpty, get, some } from 'lodash';
 import { useDrop } from 'react-dnd-latest';
 import DisplayItem from './displayItem';
 import { DRAG_ITEMS, DRAG_MODE } from '../config/Drag';
@@ -34,6 +34,8 @@ export default function RowItem({ row, sectionId, index, ...rest }) {
       ) {
         return false;
       }
+      // 批量拖拽，当前拖拽物在批量选中区域内
+      if (rest.batchDrag && _.some(row, r => _.find(rest.batchActive || [], i => i.row === r.row))) return false;
       return true;
     },
     hover(item, monitor) {
@@ -62,10 +64,15 @@ export default function RowItem({ row, sectionId, index, ...rest }) {
       if (monitor.isOver({ shallow: true })) {
         if (!pointerDir) return;
         if (pointerDir === 'right') {
-          return { mode: DRAG_MODE.INSERT_TO_ROW_END, rowIndex: index, sectionId };
+          return { mode: DRAG_MODE.INSERT_TO_ROW_END, rowIndex: index, sectionId, activePath: [index, row.length - 1] };
         }
         // 上下插入整行控件
-        return { mode: DRAG_MODE.INSERT_NEW_LINE, rowIndex: pointerDir === 'top' ? index : index + 1, sectionId };
+        return {
+          mode: DRAG_MODE.INSERT_NEW_LINE,
+          rowIndex: pointerDir === 'top' ? index : index + 1,
+          sectionId,
+          activePath: [pointerDir === 'top' ? index - 1 : index, 0],
+        };
       }
     },
     collect(monitor) {

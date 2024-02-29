@@ -11,52 +11,6 @@ export default {
      return $.api('Account', 'GetAccountListInfo', args, options);
    },
   /**
-  * 获取积分的途径列表
-  * @param {Object} args 请求参数
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getAccountScore: function (args, options = {}) {
-     
-     return $.api('Account', 'GetAccountScore', args, options);
-   },
-  /**
-  * 获取所用级别列表
-  * @param {Object} args 请求参数
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getAccountPoint: function (args, options = {}) {
-     
-     return $.api('Account', 'GetAccountPoint', args, options);
-   },
-  /**
-  * 获取积分历史
-  * @param {Object} args 请求参数
-  * @param {integer} args.pageIndex 页码
-  * @param {integer} args.pageSize 页大小
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getAccountCostLogList: function (args, options = {}) {
-     
-     return $.api('Account', 'GetAccountCostLogList', args, options);
-   },
-  /**
-  * 获取个人账户的头像
-  * @param {Object} args 请求参数
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getAccountAvatar: function (args, options = {}) {
-     
-     return $.api('Account', 'GetAccountAvatar', args, options);
-   },
-  /**
   * 获取个人账户的联系方式
   * @param {Object} args 请求参数
   * @param {Object} options 配置参数
@@ -70,7 +24,7 @@ export default {
   /**
   * 获取个人账户的工作/教育履历
   * @param {Object} args 请求参数
-  * @param {} args.type 用户资历类型
+  * @param {} args.type
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -97,7 +51,7 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.fullname 真实姓名
   * @param {string} args.birthdate 出身日期
-  * @param {} args.gender 性别
+  * @param {} args.gender
   * @param {string} args.companyName 单位名称
   * @param {string} args.profession 职业
   * @param {string} args.address 地址
@@ -108,19 +62,6 @@ export default {
    editAccountBasicInfo: function (args, options = {}) {
      
      return $.api('Account', 'EditAccountBasicInfo', args, options);
-   },
-  /**
-  * 修改用户信息
-  * @param {Object} args 请求参数
-  * @param {string} args.companyName 公司名称
-  * @param {string} args.profession 职位
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   editAccountInfo: function (args, options = {}) {
-     
-     return $.api('Account', 'EditAccountInfo', args, options);
    },
   /**
   * 保存个人账户的联系方式
@@ -146,7 +87,7 @@ export default {
   * @param {string} args.description 工作内容/核心课程,null时不修改
   * @param {string} args.startDate 开始年月份,null时不修改
   * @param {string} args.endDate 结束年月份,null时不修改
-  * @param {} args.type LOV：1表示工作；2表示教育,null时不修改
+  * @param {} args.type
   * @param {integer} args.autoId 修改的Id
   * @param {string} args.isSoFar 是否至今仍在 0：是的  1：不是
   * @param {Object} options 配置参数
@@ -183,22 +124,11 @@ export default {
      return $.api('Account', 'GetAccountInfo', args, options);
    },
   /**
-  * 获取网络注册时的邮箱
-  * @param {Object} args 请求参数
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getProjectEmailIsVerify: function (args, options = {}) {
-     
-     return $.api('Account', 'GetProjectEmailIsVerify', args, options);
-   },
-  /**
   * 发送网络邮箱绑定的验证邮件
   * @param {Object} args 请求参数
   * @param {string} args.ticket 验证码返票据
   * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
+  * @param {} args.captchaType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -250,11 +180,11 @@ export default {
   /**
   * 发送修改帐号验证码
   * @param {Object} args 请求参数
-  * @param {string} args.account 账号
-  * @param {boolean} args.needCheckCode 是否需要验证密码输入
   * @param {string} args.ticket 验证码返票据
   * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
+  * @param {} args.captchaType
+  * @param {string} args.account 账号
+  * @param {boolean} args.needCheckCode 是否需要验证密码输入
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -266,10 +196,10 @@ export default {
   /**
   * 验证登录密码
   * @param {Object} args 请求参数
-  * @param {string} args.password 密码
   * @param {string} args.ticket 验证码返票据
   * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
+  * @param {} args.captchaType
+  * @param {string} args.password 密码
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -282,12 +212,12 @@ export default {
   * 验证登录密码
 根据设备（勾选之后1小时内免验证）
   * @param {Object} args 请求参数
-  * @param {string} args.projectId 组织ID
-  * @param {boolean} args.isNoneVerification 是否1小时内该设备免验证
-  * @param {string} args.password 密码
   * @param {string} args.ticket 验证码返票据
   * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
+  * @param {} args.captchaType
+  * @param {string} args.password 密码
+  * @param {string} args.projectId 组织ID
+  * @param {boolean} args.isNoneVerification 是否1小时内该设备免验证
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -313,7 +243,7 @@ export default {
   * 取消绑定明道云账号
   * @param {Object} args 请求参数
   * @param {string} args.state 状态码
-  * @param {} args.tpType 第三方类型
+  * @param {} args.tpType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -321,17 +251,6 @@ export default {
    unBindAccount: function (args, options = {}) {
      
      return $.api('Account', 'UnBindAccount', args, options);
-   },
-  /**
-  * 清理mq的session状态
-  * @param {Object} args 请求参数
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   clearMqSession: function (args, options = {}) {
-     
-     return $.api('Account', 'ClearMqSession', args, options);
    },
   /**
   * 退出指定设备已经登录的账号
@@ -462,7 +381,7 @@ export default {
   * 提醒管理员审核
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
-  * @param {} args.msgType 发送申请消息类型
+  * @param {} args.msgType
   * @param {boolean} args.sendIntergrationMsg 是否同步发送到集成消息
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -475,11 +394,11 @@ export default {
   /**
   * 退出网络（密码验证）
   * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {string} args.password 密码
   * @param {string} args.ticket 验证码返票据
   * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
+  * @param {} args.captchaType
+  * @param {string} args.projectId 网络id
+  * @param {string} args.password 密码
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -522,86 +441,6 @@ export default {
    getUntreatAuthList: function (args, options = {}) {
      
      return $.api('Account', 'GetUntreatAuthList', args, options);
-   },
-  /**
-  * 获取我的徽章
-  * @param {Object} args 请求参数
-  * @param {integer} args.pageIndex 页码
-  * @param {integer} args.pageSize 页大小
-  * @param {} args.type 徽章类型
-  * @param {string} args.keyword 关键词
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getMedalByType: function (args, options = {}) {
-     
-     return $.api('Account', 'GetMedalByType', args, options);
-   },
-  /**
-  * 修改是否显示
-  * @param {Object} args 请求参数
-  * @param {string} args.isShow 是否显示
-  * @param {string} args.mediaId 徽章id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   editAccountMedalIsShow: function (args, options = {}) {
-     
-     return $.api('Account', 'EditAccountMedalIsShow', args, options);
-   },
-  /**
-  * 授予勋章,若系统发放
-  * @param {Object} args 请求参数
-  * @param {string} args.toAccountIds 接收者
-  * @param {string} args.medalId 徽章id
-  * @param {string} args.remark 备注
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   addAccountMedalGrantLog: function (args, options = {}) {
-     
-     return $.api('Account', 'AddAccountMedalGrantLog', args, options);
-   },
-  /**
-  * 获得显示和不显示的徽章
-  * @param {Object} args 请求参数
-  * @param {string} args.displayType 0: 获得显示的徽章 1：获得不显示的徽章
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getDisplayMedalList: function (args, options = {}) {
-     
-     return $.api('Account', 'GetDisplayMedalList', args, options);
-   },
-  /**
-  * 获取系统默认全部勋章列表
-  * @param {Object} args 请求参数
-  * @param {} args.medalType 徽章类型
-  * @param {integer} args.pageIndex 页码
-  * @param {integer} args.pageSize 页大小
-  * @param {string} args.keyword 关键词
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getSystemMedals: function (args, options = {}) {
-     
-     return $.api('Account', 'GetSystemMedals', args, options);
-   },
-  /**
-  * 获取本周用户已发勋章数
-  * @param {Object} args 请求参数
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getWeekMedalCount: function (args, options = {}) {
-     
-     return $.api('Account', 'GetWeekMedalCount', args, options);
    },
   /**
   * 解绑邮件

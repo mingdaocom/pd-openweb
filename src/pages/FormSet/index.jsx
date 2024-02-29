@@ -1,12 +1,6 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
-import { navigateToApp } from 'src/pages/widgetConfig/util/data';
 import Header from 'src/components/worksheetConfigHeader';
 import DocumentTitle from 'react-document-title';
-import * as actions from './redux/actions/action';
-import * as columnRules from './redux/actions/columnRules';
 import Sidenav from './containers/Sidenav';
 import ValidationRules from './containers/ValidationRules';
 import ColumnRules from './containers/ColumnRules';
@@ -20,19 +14,25 @@ import './index.less';
 import ErrorState from 'src/components/errorPage/errorState';
 import { MODULE_TYPE_TO_NAME } from './config';
 import ErrorBoundary from 'src/ming-ui/components/ErrorWrapper.jsx';
+import LoadDiv from 'ming-ui/components/LoadDiv';
+import sheetAjax from 'src/api/worksheet';
+import { replaceControlsTranslateInfo } from 'worksheet/util';
+import { getTranslateInfo } from 'src/util';
+import { navigateToApp } from 'src/pages/widgetConfig/util/data';
 class FormSet extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      showCreateCustomBtn: false,
+      worksheetName: '',
+      loading: true,
+      worksheetControls: [],
+      worksheetRuleControls: [],
+      worksheetInfo: {},
     };
   }
 
   componentWillMount() {
-    const { match = { params: {} } } = this.props;
-    const { worksheetId } = match.params;
-    const { getWorksheetInfo } = this.props;
-    getWorksheetInfo(worksheetId);
+    this.getWorksheetInfo();
   }
 
   componentDidMount() {
@@ -43,37 +43,80 @@ class FormSet extends React.Component {
     $('html').removeClass('formSetWorksheet');
   }
 
+  getWorksheetInfo = () => {
+    const { match = {} } = this.props;
+    const { worksheetId } = match.params;
+    sheetAjax
+      .getWorksheetInfo({
+        worksheetId: worksheetId,
+        getTemplate: true,
+        getViews: true,
+        getSwitchPermit: true,
+      })
+      .then(data => {
+        data.name = getTranslateInfo(data.appId, worksheetId).name || data.name;
+        data.template.controls = replaceControlsTranslateInfo(data.appId, data.template.controls);
+        //0：非成员 1：表负责人（弃用） 2：管理员 3：成员 4:开发者
+        if (![2, 4].includes(data.roleType)) {
+          this.setState({
+            noRight: true,
+            loading: false,
+          });
+        } else {
+          const controls = _.sortBy(data.template.controls, o => o.row);
+          this.setState({
+            worksheetName: data.name,
+            loading: false,
+            worksheetControls: data.template.controls,
+            worksheetRuleControls: controls,
+            worksheetInfo: data,
+          });
+        }
+      });
+  };
+
   renderCon = type => {
-    {
-      switch (type) {
-        case 'alias':
-          return <Alias {...this.props} />;
-        case 'display':
-          return <ColumnRules />;
-        case 'validationBox':
-          return <ValidationRules />;
-        case 'printTemplate':
-          return <Print />;
-        case 'functionalSwitch':
-          return <FunctionalSwitch />;
-        case 'customBtn':
-          return <CustomBtnFormSet />;
-        case 'indexSetting':
-          return <FormIndexSetting />;
-        case 'submitForm':
-          return <SubmitFormSetting />;
-        default:
-          return <SubmitFormSetting />;
-          break;
-      }
+    const { match = {} } = this.props;
+    const { worksheetId } = match.params;
+    const param = {
+      ...this.props,
+      ...this.state,
+      worksheetId,
+      onChange: worksheetInfo => {
+        this.setState({
+          worksheetInfo,
+        });
+      },
+    };
+    switch (type) {
+      case 'alias':
+        return <Alias {...param} />;
+      case 'display':
+        return <ColumnRules {...this.state} />;
+      case 'validationBox':
+        return <ValidationRules />;
+      case 'printTemplate':
+        return <Print {...param} />;
+      case 'functionalSwitch':
+        return <FunctionalSwitch {...param} />;
+      case 'customBtn':
+        return <CustomBtnFormSet {...param} />;
+      case 'indexSetting':
+        return <FormIndexSetting {...param} />;
+      case 'submitForm':
+        return <SubmitFormSetting {...param} />;
+      default:
+        return <SubmitFormSetting {...param} />;
     }
   };
 
   render() {
-    const { match = { params: {} }, formSet = [], dispalyRulesNum = 0 } = this.props;
+    const { match = { params: {} } } = this.props;
     const { worksheetId, type = '' } = match.params;
-    const { worksheetName = '', noRight = false } = formSet;
-    const { showCreateCustomBtn } = this.state;
+    const { loading, noRight = false, worksheetName } = this.state;
+    if (loading) {
+      return <LoadDiv />;
+    }
     return (
       <div className="columnRulesWrap">
         <Header
@@ -95,7 +138,7 @@ class FormSet extends React.Component {
           </div>
         ) : (
           <div className="flexBox columnRulesBox">
-            <Sidenav worksheetId={worksheetId} type={type} displayNum={dispalyRulesNum} />
+            <Sidenav {...this.props} />
             <DocumentTitle
               title={_l('表单设置 - %0 - %1', MODULE_TYPE_TO_NAME[type || 'submitForm'], worksheetName || '')}
             />
@@ -106,11 +149,4 @@ class FormSet extends React.Component {
     );
   }
 }
-
-const mapStateToProps = state => ({
-  formSet: state.formSet,
-  dispalyRulesNum: state.formSet.dispalyRulesNum,
-});
-const mapDispatchToProps = dispatch => bindActionCreators({ ...actions, ...columnRules }, dispatch);
-
-export default connect(mapStateToProps, mapDispatchToProps)(FormSet);
+export default FormSet;

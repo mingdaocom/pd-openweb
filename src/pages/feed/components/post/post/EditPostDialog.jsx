@@ -1,8 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { edit } from '../../../redux/postActions';
-import { createLinksForMessage } from 'src/components/common/function';
-import { htmlDecodeReg } from 'src/util';
+import { htmlDecodeReg, createLinksForMessage } from 'src/util';
 import UploadFiles from 'src/components/UploadFiles';
 import { Dialog, Textarea, Button } from 'ming-ui';
 import _ from 'lodash';

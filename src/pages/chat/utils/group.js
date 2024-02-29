@@ -1,9 +1,7 @@
-import { existAccountHint } from 'src/components/common/function';
+import { existAccountHint } from 'src/util';
 import * as ajax from './ajax';
 import Constant from './constant';
 import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
-import Invite from 'src/components/common/inviteMember/inviteMember';
-import { encrypt } from 'src/util';
 
 const showInviteBox = options => {
   let param = {
@@ -18,23 +16,9 @@ const showInviteBox = options => {
         }
       },
     },
-    ChooseInviteSettings: {
-      callback(data, cb) {
-        if (typeof options.inviteCallback === 'function') {
-          options.inviteCallback(data, cb);
-        }
-      },
-    },
   };
 
-  param = $.extend(param, {
-    showMoreInvite: options.showMoreInvite !== false,
-  });
   dialogSelectUser(param);
-};
-
-const inviteFriend = (accounts, cb) => {
-  Invite.inviteToFriend(accounts, cb);
 };
 
 export const addGroupMembers = session => {
@@ -71,7 +55,6 @@ export const addGroupMembers = session => {
           accountIds,
         })
         .then(data => {
-          const accountInfos = data.results[0].accountInfos || [];
           existAccountHint(data);
         });
     } else if (type === Constant.SESSIONTYPE_USER) {
@@ -92,25 +75,6 @@ export const addGroupMembers = session => {
     }
   };
 
-  const inviteCallback = (accounts, cb) => {
-    const param = {};
-    accounts.map(account => {
-      param[encrypt(account.account)] = account.fullname;
-    });
-    if (type == Constant.SESSIONTYPE_GROUP) {
-      // 添加群组成员
-      ajax
-        .addMembers({
-          groupId: id,
-          accounts: param,
-        })
-        .then(data => {
-          const accountInfos = data.results[0].accountInfos || [];
-          existAccountHint(data, cb);
-        });
-    }
-  };
-
   if (type == Constant.SESSIONTYPE_GROUP) {
     ajax.fetchDetail(id).then(data => {
       if (data.groupUsers) {
@@ -122,7 +86,6 @@ export const addGroupMembers = session => {
         sourceId: id,
         fromType: 1,
         callback,
-        inviteCallback,
       });
     });
   } else {
@@ -131,9 +94,6 @@ export const addGroupMembers = session => {
       sourceId: current.accountId,
       fromType: 0,
       callback,
-      inviteCallback(accounts, cb) {
-        inviteFriend(accounts, cb);
-      },
       filterUserIDs: [id, current.accountId],
     });
   }
@@ -150,7 +110,6 @@ export const createDiscussion = (accountid, cb) => {
     filterList.push(accountid);
   }
   showInviteBox({
-    showMoreInvite: false,
     sourceId: current.accountId,
     fromType: 0,
     filterList,
@@ -176,9 +135,6 @@ export const createDiscussion = (accountid, cb) => {
         .then(data => {
           cb && cb(data, true);
         });
-    },
-    inviteCallback(accounts, cb) {
-      inviteFriend(accounts, cb);
     },
   });
 };

@@ -68,10 +68,16 @@ async function convert({ projectId, worksheetId, controlId, mapConfig = [], cont
             switch (control.type) {
               case WIDGETS_TO_API_TYPE_ENUM.DROP_DOWN:
               case WIDGETS_TO_API_TYPE_ENUM.FLAT_MENU:
-                value = getSelectedOptionKeys(item[key], control.options);
+                temp = getSelectedOptionKeys(item[key], control.options);
+                if (temp && temp !== '[]') {
+                  value = temp;
+                }
                 break;
               case WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT:
-                value = getSelectedOptionKeys(item[key], control.options, true);
+                temp = getSelectedOptionKeys(item[key], control.options, true);
+                if (temp && temp !== '[]') {
+                  value = temp;
+                }
                 break;
               case WIDGETS_TO_API_TYPE_ENUM.MONEY:
               case WIDGETS_TO_API_TYPE_ENUM.NUMBER:
@@ -157,7 +163,7 @@ async function convert({ projectId, worksheetId, controlId, mapConfig = [], cont
               case WIDGETS_TO_API_TYPE_ENUM.AREA_PROVINCE:
               case WIDGETS_TO_API_TYPE_ENUM.AREA_CITY:
               case WIDGETS_TO_API_TYPE_ENUM.AREA_COUNTY:
-                if (serverHandleControlValueCache[`${control.controlId}-${item.rowIndex}`]) {
+                if (cell.value && serverHandleControlValueCache[`${control.controlId}-${item.rowIndex}`]) {
                   rows[index][control.controlId] = JSON.stringify({
                     code: cell.value,
                     name: serverHandleControlValueCache[`${control.controlId}-${item.rowIndex}`],
@@ -165,38 +171,46 @@ async function convert({ projectId, worksheetId, controlId, mapConfig = [], cont
                 }
                 break;
               case WIDGETS_TO_API_TYPE_ENUM.USER_PICKER:
-                rows[index][control.controlId] = JSON.stringify(
-                  safeParse(cell.value, 'array').map(n => ({
-                    accountId: n.id,
-                    fullname: n.name,
-                    avatar: n.avatarUrl,
-                  })),
-                );
+                if (cell.value && cell.value !== '[]') {
+                  rows[index][control.controlId] = JSON.stringify(
+                    safeParse(cell.value, 'array').map(n => ({
+                      accountId: n.id,
+                      fullname: n.name,
+                      avatar: n.avatarUrl,
+                    })),
+                  );
+                }
                 break;
               case WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT:
-                rows[index][control.controlId] = JSON.stringify(
-                  safeParse(cell.value, 'array').map(n => ({
-                    departmentId: n.id,
-                    departmentName: n.name,
-                  })),
-                );
+                if (cell.value && cell.value !== '[]') {
+                  rows[index][control.controlId] = JSON.stringify(
+                    safeParse(cell.value, 'array').map(n => ({
+                      departmentId: n.id,
+                      departmentName: n.name,
+                    })),
+                  );
+                }
                 break;
               case WIDGETS_TO_API_TYPE_ENUM.ORG_ROLE:
-                rows[index][control.controlId] = JSON.stringify(
-                  safeParse(cell.value, 'array').map(n => ({
-                    organizeId: n.id,
-                    organizeName: n.name,
-                  })),
-                );
+                if (cell.value && cell.value !== '[]') {
+                  rows[index][control.controlId] = JSON.stringify(
+                    safeParse(cell.value, 'array').map(n => ({
+                      organizeId: n.id,
+                      organizeName: n.name,
+                    })),
+                  );
+                }
                 break;
               case WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET:
-                rows[index][control.controlId] = JSON.stringify(
-                  safeParse(cell.value, 'array').map(n => ({
-                    sid: n.id,
-                    name: n.name,
-                    sourcevalue: JSON.stringify({ rowid: n.id, name: n.name }),
-                  })),
-                );
+                if (cell.value && cell.value !== '[]') {
+                  rows[index][control.controlId] = JSON.stringify(
+                    safeParse(cell.value, 'array').map(n => ({
+                      sid: n.id,
+                      name: n.name,
+                      sourcevalue: JSON.stringify({ rowid: n.id, name: n.name }),
+                    })),
+                  );
+                }
                 break;
               default:
                 break;

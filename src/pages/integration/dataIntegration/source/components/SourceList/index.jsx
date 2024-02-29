@@ -381,7 +381,7 @@ export default function SourceList(props) {
         ) : item.roleType === ROLE_TYPE.ALL ? (
           <span>{_l('源 / 目的地')}</span>
         ) : (
-          <span>{_l('-')}</span>
+          <span>-</span>
         );
       },
     },

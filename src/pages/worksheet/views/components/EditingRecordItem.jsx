@@ -9,7 +9,7 @@ import _ from 'lodash';
 
 const EditingCardWrap = styled.div`
   position: absolute;
-  width: 280px;
+  width: ${porps => `${porps.width ? porps.width : 280}px`};
   border-radius: 3px;
   background-color: #fff;
   box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 3px;
@@ -78,8 +78,8 @@ export default function EditingRecord(props) {
   };
 
   return (
-    <EditingCardWrap style={style}>
-      <BaseCard {...props} renderTitle={renderTitleControl} />
+    <EditingCardWrap style={style} width={props.width}>
+      <BaseCard {...props} isQuickEditing renderTitle={renderTitleControl} />
     </EditingCardWrap>
   );
 }

@@ -16,7 +16,7 @@ export default function Area({ data, onChange }) {
   return (
     <Fragment>
       <SettingItem>
-        <div className="settingItemTitle">{_l('地区类型')}</div>
+        <div className="settingItemTitle">{_l('类型')}</div>
         <Dropdown border data={AREA_DISPLAY_OPTION} value={type} onChange={value => onChange({ type: value })} />
       </SettingItem>
     </Fragment>

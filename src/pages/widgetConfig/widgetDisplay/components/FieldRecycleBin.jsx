@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { Icon, Dialog, LoadDiv, Tooltip } from 'ming-ui';
+import { Icon, Dialog, LoadDiv, Tooltip, UpgradeIcon } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
 import UserHead from 'src/components/userHead/userHead';
 import { getWidgetInfo } from '../../util';
@@ -133,8 +133,10 @@ export default class FieldRecycleBin extends Component {
               {
                 ...item,
                 attribute: 0,
+                alias: '',
                 sectionId: parentControl ? item.sectionId : '',
                 size: item.size || getDefaultSizeByType(item.type),
+                ...(item.type === 34 && _.isUndefined(item.relationControls) ? { needUpdate: true } : {}),
               },
             ];
             if (parentControl) {
@@ -285,7 +287,7 @@ export default class FieldRecycleBin extends Component {
           >
             <Icon icon="trash" />
             <div className="recycle">{_l('回收站')}</div>
-            {isFree && <Icon icon="auto_awesome" className="freeIcon" />}
+            {isFree && <UpgradeIcon />}
           </div>
         )}
       </Fragment>

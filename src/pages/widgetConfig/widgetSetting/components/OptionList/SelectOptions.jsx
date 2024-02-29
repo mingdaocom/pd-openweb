@@ -165,7 +165,7 @@ export default function SelectOptions(props) {
               setOptionList(data);
               onChange({ dataSource: collectionId });
             } else {
-              alert(_l('%0', msg));
+              alert(msg);
             }
           });
       },
@@ -273,7 +273,7 @@ export default function SelectOptions(props) {
                       <div className="name">{value}</div>
                     </li>
                   ))}
-                {optionList.options.length > 15 && <li className="more">{_l('...')}</li>}
+                {optionList.options.length > 15 && <li className="more">...</li>}
               </ul>
             </OptionListItem>
           </Fragment>

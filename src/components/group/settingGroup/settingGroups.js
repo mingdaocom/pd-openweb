@@ -1,11 +1,9 @@
 import './settingGroups.css';
 import '@mdfe/jquery-plupload';
-import '@mdfe/poshytip';
-import { htmlEncodeReg, encrypt } from 'src/util';
+import { htmlEncodeReg, expireDialogAsync, existAccountHint } from 'src/util';
 import groupController from 'src/api/group';
 import invitationController from 'src/api/invitation';
 import doT from 'dot';
-import { index as dialog } from 'src/components/mdDialog/dialog';
 var ActionResult = {
   MissParams: -2,
   NotLogin: -1,
@@ -21,16 +19,15 @@ import groupInfoHtml from './tpl/groupInfo.html';
 import groupUserHtml from './tpl/groupUser.html';
 import groupSettingsHtml from './tpl/groupSettings.html';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
-import { expireDialogAsync, existAccountHint } from 'src/components/common/function';
 import DialogSelectGroups from 'src/components/dialogSelectDept';
 import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import 'src/components/uploadAttachment/uploadAttachment';
 import addFriends from 'src/components/addFriends';
-import 'src/components/select/select';
 import moment from 'moment';
 import UserHead from 'src/components/userHead';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { Dropdown } from 'ming-ui';
 
 var tips = {
   MDGroup: _l('个人群组'),
@@ -64,7 +61,7 @@ var tips = {
   inviteFailed: _l('重新邀请失败'),
 };
 
-var SettingGroup = function (el, opts) {
+var SettingGroup = function(el, opts) {
   this.init(opts);
 };
 
@@ -94,9 +91,7 @@ SettingGroup.DEFAULT = {
     FORBID_INVITE: 'FORBID_INVITE', // 邀请成员权限
     FORBID_SPEAK: 'FORBID_SPEAK', // 全群禁言
   },
-  success: function (type, data) {
-    // $.publish() $.subscribe()
-  },
+  success: function(type, data) {},
   settingsCallback: null,
   // common config
   resetOffset: true,
@@ -122,12 +117,12 @@ SettingGroup.DEFAULT = {
 
 $.extend(SettingGroup.prototype, {
   /*---------- Utils start------------------*/
-  getOptions: function (opts) {
+  getOptions: function(opts) {
     var options = $.extend(true, {}, SettingGroup.DEFAULT, opts);
     options.groupID = options.groupID || options.groupId;
     return options;
   },
-  opSuccess: function (type, args, tip) {
+  opSuccess: function(type, args, tip) {
     var _this = this;
     var options = _this.options;
     var msg = tip === undefined ? _l('操作成功') : tip;
@@ -138,11 +133,11 @@ $.extend(SettingGroup.prototype, {
       options.success(options.groupAction[type], args);
     }
   },
-  opFailed: function (hint, type) {
+  opFailed: function(hint, type) {
     alert(hint || _l('操作失败'), type || 2);
   },
   /*---------- init start------------------*/
-  init: function (opts) {
+  init: function(opts) {
     this.options = this.getOptions(opts);
 
     var _this = this;
@@ -153,7 +148,7 @@ $.extend(SettingGroup.prototype, {
       throw new Error('groupId required');
     }
   },
-  cacheData: function (result) {
+  cacheData: function(result) {
     var _this = this;
     var options = _this.options;
     options.isRefresh.info = false;
@@ -174,37 +169,36 @@ $.extend(SettingGroup.prototype, {
       options.deptMapData.depName = result.mapDepartmentName;
     }
   },
+
+  openConfirm: function() {
+    var _this = this;
+    var options = this.options;
+    options.dialogId = 'dialogBoxSettingGroup_' + options.groupID;
+
+    Confirm({
+      dialogClasses: `${options.dialogId} dialogBoxSettingGroup`,
+      noFooter: true,
+      width: 446,
+      children: <div dangerouslySetInnerHTML={{ __html: doT.template(mainHtml)(options) }}></div>,
+    });
+  },
+
   // render
-  showDialog: function () {
+  showDialog: function() {
     var _this = this;
     var options = this.options;
     options.dialogId = 'dialogBoxSettingGroup_' + options.groupID;
     options.resetOffset = true;
-    this.dialog = dialog({
-      dialogBoxID: options.dialogId,
-      className: 'dialogBoxSettingGroup',
-      container: {
-        header: '',
-        yesText: '',
-        noText: '',
-      },
-      width: 446,
-      callback: function () {
-        // 关闭 头像选择
-        _this.$avatar && _this.$avatar.poshytip('destroy');
-        _this = null;
-      },
-    });
 
     groupController
       .getGroupInfo({
         groupId: options.groupID,
       })
-      .then(function (result) {
+      .then(function(result) {
         if (result && result.status === 1) {
           _this.cacheData(result);
           // render dialog
-          _this.dialog.content(doT.template(mainHtml)(options));
+          _this.openConfirm();
           // get DOM
           _this.getContent();
           // bind event
@@ -213,20 +207,27 @@ $.extend(SettingGroup.prototype, {
           if (_this.options.isPost) {
             _this.initGroupTab();
           } else {
-            _this.$groupInfo.removeClass('Hidden').html(LoadDiv()).siblings().addClass('Hidden');
+            _this.$groupInfo
+              .removeClass('Hidden')
+              .html(LoadDiv())
+              .siblings()
+              .addClass('Hidden');
             _this.renderGroupInfo(_this.$groupInfo);
           }
         } else {
-          _this.dialog.closeDialog();
+          $('.dialogBoxSettingGroup') &&
+            $('.dialogBoxSettingGroup')
+              .parent()
+              .remove();
           alert(tips.stateTip, 3);
         }
       });
   },
-  getContent: function () {
+  getContent: function() {
     var _this = this;
     var options = this.options;
     // dialog
-    _this.$container = $('#' + options.dialogId);
+    _this.$container = $('.' + options.dialogId);
     // dialog top content
     _this.$avatar = _this.$container.find('.groupAvatar');
     _this.$name = _this.$container.find('.groupNameTotal .groupName');
@@ -240,7 +241,7 @@ $.extend(SettingGroup.prototype, {
   },
   /* event bind start */
   // bind event
-  initEvent: function () {
+  initEvent: function() {
     var _this = this;
     // bind groupInfo Event
     _this.bindGroupInfoEvent();
@@ -261,40 +262,39 @@ $.extend(SettingGroup.prototype, {
     }
   },
 
-  bindHeadEvent: function () {
+  bindHeadEvent: function() {
     var _this = this;
     var options = this.options;
     var $triggers;
     // noAuth return
     if (!options.isAdmin) return;
 
-    _this.bindPoshytip($.proxy(_this.bindGroupHeadPlugin, _this));
+    _this.bindPoshytip();
 
     $triggers = _this.$container.find('.groupHead');
-    $triggers.on('click', function (e) {
-      _this.$avatar.poshytip('show');
+    $triggers.on('click', function(e) {
+      $('.groupSettingAvatarSelect').show();
       e.stopPropagation();
     });
-
-    $(document)
-      .off('click.groupSetting scroll.groupSetting')
-      .on('click.groupSetting scroll.groupSetting', function () {
-        _this.$avatar.poshytip('hide');
-      });
   },
 
-  bindGroupInfoEvent: function () {
+  bindGroupInfoEvent: function() {
     var _this = this;
     var options = _this.options;
     var $groupInfo = _this.$groupInfo;
 
     // post group qrcode
     if (options.isPost) {
-      $groupInfo.one('mouseenter', '.qrcode', function () {
-        var $this = $(this);
-        $this.poshytip({
-          showOn: 'hover',
-          content: function (updateCallback) {
+      $groupInfo.on(
+        {
+          mouseover: function() {
+            var $that = $(this)
+
+            if ($groupInfo.find('.groupQRCodeImg').length) {
+              $groupInfo.find('.groupQRCodeImg').show();
+              return;
+            }
+
             invitationController
               .getQRCodeInviteLink({
                 sourceId: options.groupID,
@@ -303,34 +303,28 @@ $.extend(SettingGroup.prototype, {
                 width: 100,
                 height: 100,
               })
-              .then(function (data) {
+              .then(function(data) {
                 options.qrCodeUrl = data.linkUrl;
-                var oImg = new Image();
-                oImg.src = options.qrCodeUrl;
-                oImg.onload = function () {
-                  updateCallback('<img class="TxtBottom groupQRCodeImg" src="' + options.qrCodeUrl + '"/>');
-                };
+                $that.append('<img class="TxtBottom groupQRCodeImg" src="' + options.qrCodeUrl + '"/>');
               });
-            return LoadDiv();
           },
-          alignTo: 'target',
-          alignX: 'center',
-          alignY: 'bottom',
-          keepInViewport: false,
-        });
-        $this.poshytip('show');
-      });
+          mouseleave: function() {
+            $groupInfo.find('.groupQRCodeImg').hide();
+          },
+        },
+        '.qrcode',
+      );
     }
     // auth
     if (options.isAdmin) {
       // update group name and description
-      $groupInfo.on('blur', '.groupTextBox', function () {
+      $groupInfo.on('blur', '.groupTextBox', function() {
         var $this = $(this);
         var val = $this.val();
         if ($this.data('content') == $this.val()) return;
         if ($this.is('.groupName')) {
           _this.updateGroupName(val).then(
-            function () {
+            function() {
               _this.opSuccess(options.groupAction['RENAME'], {
                 groupId: options.groupID,
                 groupName: val,
@@ -340,14 +334,14 @@ $.extend(SettingGroup.prototype, {
               $this.val(val).data('content', val);
               _this.$name.text(val).attr('title', val);
             },
-            function (hint) {
+            function(hint) {
               $this.val($this.data('content'));
               _this.opFailed(hint);
             },
           );
         } else {
           _this.updateGroupDesc(val).then(
-            function () {
+            function() {
               $this.val(val).data('content', val);
               options.isRefresh.info = true;
               _this.opSuccess(options.groupAction['UPDATE_DESC'], {
@@ -355,14 +349,14 @@ $.extend(SettingGroup.prototype, {
                 groupAbout: val,
               });
             },
-            function () {
+            function() {
               $this.val($this.data('content'));
               _this.opFailed();
             },
           );
         }
       });
-      $groupInfo.on('keydown', '.groupTextBox', function (event) {
+      $groupInfo.on('keydown', '.groupTextBox', function(event) {
         const { keyCode } = event;
         if (keyCode === 13) {
           $(this).blur();
@@ -371,7 +365,7 @@ $.extend(SettingGroup.prototype, {
     }
   },
 
-  bindGroupMemberEvent: function () {
+  bindGroupMemberEvent: function() {
     var _this = this;
     var options = _this.options;
     var $groupMember = _this.$groupMember;
@@ -380,15 +374,17 @@ $.extend(SettingGroup.prototype, {
     if (!options.isAdmin) return;
     // member type change
 
-    $groupMember.on('click', '.settingMemberRole', function (event) {
+    $groupMember.on('click', '.settingMemberRole', function(event) {
       var $elem = $(this);
       _this.buildGroupMemberOpList($elem);
       event.stopPropagation();
     });
 
-    $groupMember.on('click', '.groupMemberOp', function (e) {
+    $groupMember.on('click', '.groupMemberOp', function(e) {
       e.stopPropagation();
-      var accountId = $(this).parent().data('accountid');
+      var accountId = $(this)
+        .parent()
+        .data('accountid');
       var type = $(this).data('op');
       var types = {
         0: 'admin',
@@ -407,7 +403,7 @@ $.extend(SettingGroup.prototype, {
 
     $(document)
       .off('click.groupSettingUserOp')
-      .on('click.groupSettingUserOp', function (event) {
+      .on('click.groupSettingUserOp', function(event) {
         var $target = $(event.target);
         // click area out of opList
         if ($target.closest('.groupMember .operation').length <= 0) {
@@ -416,12 +412,12 @@ $.extend(SettingGroup.prototype, {
       });
   },
 
-  bindGroupSettingEvent: function () {
+  bindGroupSettingEvent: function() {
     var _this = this;
     var options = _this.options;
     var $groupSettings = _this.$groupSettings;
 
-    $groupSettings.on('click', '.singleSetting label', function () {
+    $groupSettings.on('click', '.singleSetting label', function() {
       var $checkbox = $(this).prev(),
         type = $checkbox.data('type');
       switch (type) {
@@ -456,7 +452,7 @@ $.extend(SettingGroup.prototype, {
     // no auth return
     if (!options.isAdmin) return;
     // setting associated department
-    $groupSettings.on('click', '.officialDepSelect', function () {
+    $groupSettings.on('click', '.officialDepSelect', function() {
       var groupDeptMapData = options.deptMapData;
       if (!options.isProjectAdmin) {
         alert(tips.authTip, 3);
@@ -475,7 +471,7 @@ $.extend(SettingGroup.prototype, {
     });
   },
 
-  renderUserCard: function () {
+  renderUserCard: function() {
     var _this = this;
     var options = _this.options;
     _this.$container.find('img[data-accountid]').each((i, ele) => {
@@ -515,7 +511,7 @@ $.extend(SettingGroup.prototype, {
     });
   },
 
-  bindCommEvent: function () {
+  bindCommEvent: function() {
     var _this = this;
     var options = _this.options;
 
@@ -523,7 +519,7 @@ $.extend(SettingGroup.prototype, {
     _this.renderUserCard();
 
     // exit, delete, close group buttons
-    _this.$container.on('click', '.exitGroup,.deleteGroup,.closeGroup', function () {
+    _this.$container.on('click', '.exitGroup,.deleteGroup,.closeGroup', function() {
       var $this = $(this);
       var type = $this.data('type');
       var groupName = htmlEncodeReg(options.data.name);
@@ -544,18 +540,18 @@ $.extend(SettingGroup.prototype, {
 
     if (!options.isPost) {
       // 讨论组转群
-      _this.$groupInfo.on('click', '.convertLink', function () {
+      _this.$groupInfo.on('click', '.convertLink', function() {
         _this.updateGroupToPost();
       });
       // 消息免打扰
-      _this.$groupInfo.on('click', '.discussionChatNotice label', function () {
+      _this.$groupInfo.on('click', '.discussionChatNotice label', function() {
         var $checkbox = $(this).prev();
         _this.updateGroupNotice($checkbox);
       });
     }
   },
 
-  bindUserSearchEvent: function () {
+  bindUserSearchEvent: function() {
     var _this = this;
     var options = this.options;
     var $groupMember = this.$groupMember;
@@ -563,7 +559,7 @@ $.extend(SettingGroup.prototype, {
     var $input = $groupMember.find('.searchInput');
     var $clean = $groupMember.find('.searchCloseIcon');
 
-    $clean.on('click', function () {
+    $clean.on('click', function() {
       options.keywords = '';
       options.pageIndex = 1;
       options.isMoreUsers = true;
@@ -572,12 +568,12 @@ $.extend(SettingGroup.prototype, {
       _this.fetchGroupMember();
     });
 
-    $input.on('focus blur', function (e) {
+    $input.on('focus blur', function(e) {
       var type = e.type;
       $inputWrapper.toggleClass('ThemeBorderColor3', type === 'focus');
     });
 
-    $input.focus().on('keyup', function (event) {
+    $input.focus().on('keyup', function(event) {
       if (options.keywords !== this.value) {
         options.keywords = $.trim(this.value);
         $clean.toggleClass('Hidden', options.keywords === '');
@@ -589,7 +585,7 @@ $.extend(SettingGroup.prototype, {
       }
     });
 
-    $groupMember.find('.groupUserList').on('scroll', function (e) {
+    $groupMember.find('.groupUserList').on('scroll', function(e) {
       e.stopPropagation();
 
       var scrollHeight = this.scrollHeight,
@@ -603,9 +599,9 @@ $.extend(SettingGroup.prototype, {
   },
 
   // toggle Tab
-  toggleGroupTab: function (type) {
+  toggleGroupTab: function(type) {
     var _this = this;
-    var TYPES = (function () {
+    var TYPES = (function() {
       var types = {};
       types[(types['info'] = 0)] = 'info';
       types[(types['member'] = 1)] = 'member';
@@ -614,9 +610,19 @@ $.extend(SettingGroup.prototype, {
     })();
     var index = typeof type === 'number' ? type : TYPES[type];
 
-    _this.$tabList.find('.commItem').eq(index).addClass('activation').siblings().removeClass('activation');
+    _this.$tabList
+      .find('.commItem')
+      .eq(index)
+      .addClass('activation')
+      .siblings()
+      .removeClass('activation');
 
-    _this.$content.children().eq(index).removeClass('Hidden').siblings().addClass('Hidden');
+    _this.$content
+      .children()
+      .eq(index)
+      .removeClass('Hidden')
+      .siblings()
+      .addClass('Hidden');
 
     if (index == 0) {
       _this.loadGroupInfo();
@@ -627,11 +633,11 @@ $.extend(SettingGroup.prototype, {
     }
   },
 
-  initGroupTab: function () {
+  initGroupTab: function() {
     var _this = this;
     var options = _this.options;
 
-    _this.$tabList.on('click', '.commItem', function () {
+    _this.$tabList.on('click', '.commItem', function() {
       _this.toggleGroupTab($(this).index());
     });
 
@@ -639,39 +645,30 @@ $.extend(SettingGroup.prototype, {
   },
 
   // 添加成员
-  quickInviteEvent: function () {
+  quickInviteEvent: function() {
     var _this = this;
     var options = _this.options;
 
     // add member
-    _this.$container.on('click', '.addChatMember,.addGroupMember,.addGroupMemberTitle', function () {
+    _this.$container.on('click', '.addChatMember,.addGroupMember,.addGroupMemberTitle', function() {
       dialogSelectUser({
         sourceId: options.groupID,
         fromType: 1,
         SelectUserSettings: {
-          callback: function (userArray) {
+          callback: function(userArray) {
             _this.addMembers(userArray);
-          },
-        },
-        ChooseInviteSettings: {
-          callback: function (data, callbackInviteResult) {
-            var accountObj = {};
-            $.map(data, function (item) {
-              accountObj[encrypt(item.account)] = item.fullname;
-            });
-            _this.inviteMembers(accountObj, callbackInviteResult);
           },
         },
       });
     });
   },
   // 邀请
-  inviteFriends: function () {
+  inviteFriends: function() {
     var _this = this;
     var options = _this.options;
     var group = _this.options.data;
 
-    _this.$container.on('click', '.addGroupFriends', function () {
+    _this.$container.on('click', '.addGroupFriends', function() {
       addFriends({
         projectId: options.groupID,
         fromType: 1,
@@ -681,39 +678,33 @@ $.extend(SettingGroup.prototype, {
   },
   /** init top Head plugin start */
   // 头像选择层 组件绑定
-  bindPoshytip: function (callback) {
+  bindPoshytip: function() {
     var _this = this;
-    _this.$avatar.data('bind', true);
-    _this.$avatar.poshytip({
-      additionalClassName: 'z-depth-1-half groupSettingAvatarSelect',
-      showOn: 'none',
-      showTimeout: 0,
-      alignTo: 'target',
-      alignX: 'center',
-      alignY: 'bottom',
-      showAniDuration: 0,
-      offsetY: 8,
-      fixed: true,
-      content: function (updateCallback) {
-        groupController.getGroupAvatarSelectList().then(function (result) {
-          _this.$groupSelect = $(doT.template(groupHeadHtml)(result));
-          updateCallback(_this.$groupSelect);
-          callback();
-        });
-        return LoadDiv();
-      },
+    var $groupHeader = _this.$container.find('.groupHeader');
+
+    groupController.getGroupAvatarSelectList().then(function(result) {
+      $groupHeader.append(
+        `<div class="z-depth-1-half groupSettingAvatarSelect">
+          ${doT.template(groupHeadHtml)(result)}
+          <i class="icon-close Font20 pointer Gray_9e ThemeHoverColor3" />
+        </div>`,
+      );
+      _this.bindGroupHeadPlugin();
     });
   },
 
   // 修改头像 event bind
-  bindGroupHeadPlugin: function () {
+  bindGroupHeadPlugin: function() {
     var _this = this;
-    var options = this.options;
-    var $groupSelect = this.$groupSelect;
+    var $groupSelect = $('.groupSettingAvatarSelect .settingPictureLayer');
     var $upload = $groupSelect.find('.uploadGroupAvatar');
     var $input = $groupSelect.find('.hiddenUploadGroupAvatar');
 
-    $groupSelect.on('click', '.singleHead', function () {
+    $('.groupSettingAvatarSelect').on('click', '.icon-close', function() {
+      $('.groupSettingAvatarSelect').hide();
+    });
+
+    $groupSelect.on('click', '.singleHead', function() {
       var $this = $(this);
       var avatar = $this.data('name');
       if (avatar) {
@@ -721,7 +712,7 @@ $.extend(SettingGroup.prototype, {
       }
     });
 
-    $input.on('click', function (event) {
+    $input.on('click', function(event) {
       event.stopPropagation();
     });
 
@@ -737,11 +728,11 @@ $.extend(SettingGroup.prototype, {
       styleType: '0',
       tokenType: 2,
       checkProjectLimitFileSizeUrl: '',
-      filesAdded: function () {
+      filesAdded: function() {
         $upload.html("<i class='uploadTip'>" + tips.uploadingTip + '</i>');
       },
       createPicProgressBar: '',
-      callback: function (attachments) {
+      callback: function(attachments) {
         $upload.html(tips.customAvatar);
 
         if (attachments.length > 0) {
@@ -755,7 +746,7 @@ $.extend(SettingGroup.prototype, {
     });
   },
 
-  buildGroupMemberOpList: function ($elem) {
+  buildGroupMemberOpList: function($elem) {
     var _this = this;
     var $ops;
     var type = $elem.data('type');
@@ -789,19 +780,23 @@ $.extend(SettingGroup.prototype, {
   /*---------- tab init ------------------*/
 
   // 群组和讨论组 基本信息
-  loadGroupInfo: function () {
+  loadGroupInfo: function() {
     var _this = this;
     var options = _this.options;
     var $groupInfo = _this.$groupInfo;
 
-    $groupInfo.removeClass('Hidden').html(LoadDiv()).siblings().addClass('Hidden');
+    $groupInfo
+      .removeClass('Hidden')
+      .html(LoadDiv())
+      .siblings()
+      .addClass('Hidden');
     // 是否重新获取 新的数据
     if (options.isRefresh.info || !options.isPost) {
       groupController
         .getGroupInfo({
           groupId: options.groupID,
         })
-        .then(function (result) {
+        .then(function(result) {
           _this.cacheData(result);
           // render dialog
           _this.renderGroupInfo($groupInfo);
@@ -811,30 +806,32 @@ $.extend(SettingGroup.prototype, {
     }
   },
 
-  renderGroupInfo: function ($box) {
+  renderGroupInfo: function($box) {
     var _this = this;
     var group = this.options.data;
     // rebuild group title
     _this.$container.find('.groupNameTotal .groupIcon').toggleClass('Hidden', !group.isVerified);
-    _this.$container.find('.groupNameTotal .groupName').text(group.name).attr('title', group.name);
+    _this.$container
+      .find('.groupNameTotal .groupName')
+      .text(group.name)
+      .attr('title', group.name);
     group.isGroup = this.options.isPost;
 
     var tpl = doT.template(groupInfoHtml)(group);
     $box.html(tpl);
-    console.log(1);
     _this.renderUserCard();
-    if (this.options.resetOffset) {
-      _this.dialog.dialogCenter();
-      this.options.resetOffset = false;
-    }
   },
   // 群组成员
-  loadGroupMember: function () {
+  loadGroupMember: function() {
     var _this = this;
     var options = _this.options;
     var $groupMember = _this.$groupMember;
 
-    $groupMember.removeClass('Hidden').html(LoadDiv()).siblings().addClass('Hidden');
+    $groupMember
+      .removeClass('Hidden')
+      .html(LoadDiv())
+      .siblings()
+      .addClass('Hidden');
     // 是否重新获取 新的数据
     if (options.isRefresh.member) {
       options.isLoadingUser = false;
@@ -850,7 +847,7 @@ $.extend(SettingGroup.prototype, {
     }
   },
   // 加载成员
-  fetchGroupMember: function (isReload) {
+  fetchGroupMember: function(isReload) {
     var _this = this;
     var options = this.options;
     if (options.isLoadingUser || !options.isMoreUsers) return;
@@ -865,7 +862,7 @@ $.extend(SettingGroup.prototype, {
         pageIndex: options.pageIndex,
         pageSize: options.pageSize,
       })
-      .done(function (result) {
+      .done(function(result) {
         if (result.groupUsers && result.groupUsers.length < options.pageSize) {
           options.isMoreUsers = false;
         }
@@ -883,12 +880,12 @@ $.extend(SettingGroup.prototype, {
         }
         // render userList
       })
-      .always(function () {
+      .always(function() {
         options.isLoadingUser = false;
       });
   },
 
-  renderGroupMember: function ($box, isAppend) {
+  renderGroupMember: function($box, isAppend) {
     var _this = this;
     var options = this.options;
     var renderData = $.extend({}, options, {
@@ -901,25 +898,25 @@ $.extend(SettingGroup.prototype, {
       this.bindUserSearchEvent();
     }
     _this.renderUserCard();
-    if (options.resetOffset) {
-      _this.dialog.dialogCenter();
-      options.resetOffset = false;
-    }
   },
 
-  loadGroupSettings: function () {
+  loadGroupSettings: function() {
     var _this = this;
     var options = _this.options;
     var $groupSettings = _this.$groupSettings;
 
-    $groupSettings.removeClass('Hidden').html(LoadDiv()).siblings().addClass('Hidden');
+    $groupSettings
+      .removeClass('Hidden')
+      .html(LoadDiv())
+      .siblings()
+      .addClass('Hidden');
     // 是否重新获取 新的数据
     if (options.isRefresh.info) {
       groupController
         .getGroupInfo({
           groupId: options.groupID,
         })
-        .then(function (result) {
+        .then(function(result) {
           _this.cacheData(result);
           _this.renderGroupSettings($groupSettings);
         });
@@ -928,22 +925,17 @@ $.extend(SettingGroup.prototype, {
     }
   },
 
-  renderGroupSettings: function ($box) {
+  renderGroupSettings: function($box) {
     var _this = this;
     var options = this.options;
 
     var tpl = doT.template(groupSettingsHtml)(options.data);
     $box.html(tpl);
     _this.renderUserCard();
-
-    if (options.resetOffset) {
-      _this.dialog.dialogCenter();
-      options.resetOffset = false;
-    }
   },
   /*---------- update methods start------------------*/
   // update: GroupHead
-  updateGroupHead: function (avatar) {
+  updateGroupHead: function(avatar) {
     var _this = this;
     var options = _this.options;
 
@@ -952,20 +944,21 @@ $.extend(SettingGroup.prototype, {
         groupId: options.groupID,
         avatar: avatar,
       })
-      .then(function (result) {
+      .then(function(result) {
         if (result) {
           _this.opSuccess(options.groupAction['UPDATE_AVATAR'], {
             groupID: options.groupID,
             groupAvatar: result.avatar,
           });
-          _this.$avatar.attr('src', result.avatar).poshytip('hide');
+          _this.$avatar.attr('src', result.avatar);
+          $('.groupSettingAvatarSelect').hide();
         } else {
           _this.opFailed();
         }
       });
   },
   // update: GroupName
-  updateGroupName: function (groupName) {
+  updateGroupName: function(groupName) {
     var _this = this;
     var options = _this.options;
     var dfd = $.Deferred();
@@ -983,7 +976,7 @@ $.extend(SettingGroup.prototype, {
         groupId: options.groupID,
         groupName: groupName,
       })
-      .then(function (result) {
+      .then(function(result) {
         if (result) {
           dfd.resolve();
         } else {
@@ -994,7 +987,7 @@ $.extend(SettingGroup.prototype, {
     return dfd.promise();
   },
   // update: GroupAbout
-  updateGroupDesc: function (groupDesc) {
+  updateGroupDesc: function(groupDesc) {
     var _this = this;
     var options = _this.options;
     var dfd = $.Deferred();
@@ -1004,7 +997,7 @@ $.extend(SettingGroup.prototype, {
         groupId: options.groupID,
         groupAbout: groupDesc,
       })
-      .then(function (result) {
+      .then(function(result) {
         if (result) {
           dfd.resolve();
         } else {
@@ -1015,89 +1008,103 @@ $.extend(SettingGroup.prototype, {
     return dfd.promise();
   },
   // update: discussion to group
-  updateGroupToPost: function () {
+  updateGroupToPost: function() {
     var _this = this;
     var options = this.options;
     var projectId = '';
     var dict = {};
-    var content =
-      '<p class="mTop15 Gray_6">' +
-      tips.convertProject +
-      '<input type="hidden" id="selectProject"></p>' +
-      '<p class="mTop15 Gray_6">' +
-      tips.convertTip +
-      '</p>';
-    var projects = $.map(md.global.Account.projects, function (p) {
+    var projects = $.map(md.global.Account.projects, function(p) {
       dict[p.projectId] = p.licenseType;
       return {
-        id: p.projectId,
-        name: p.companyName,
+        value: p.projectId,
+        text: p.companyName,
       };
     });
 
     projects.push({
-      id: '',
-      name: tips.MDGroup,
+      value: '',
+      text: tips.MDGroup,
     });
 
     projectId = projects[0].id;
 
-    var dialogInfo = dialog({
-      dialogBoxID: 'convertToPost',
-      showClose: false,
+    var dialogInfoConfig = { okDisable: false };
+
+    Confirm({
+      dialogClasses: 'convertToPost',
+      closable: false,
       width: 500,
-      zIndex: 30,
-      container: {
-        header: tips.convertDialogTitle,
-        content: content,
-        yesFn: function () {
-          groupController
-            .updateGroupToPost({
-              groupId: options.groupID,
-              projectId: projectId,
-            })
-            .then(
-              function (result) {
-                if (result) {
-                  // reopen groupSetting dialog
-                  _this.dialog.closeDialog();
-                  //_this.showDialog();
-                  _this.opSuccess(options.groupAction['UPDATE_POST'], {
-                    groupId: options.groupID,
-                  });
-                } else {
-                  _this.opFailed();
-                }
-              },
-              function () {
+      title: tips.convertDialogTitle,
+      children: (
+        <div>
+          <p className="mTop15 Gray_6 flexRow alignItemsCenter">
+            {tips.convertProject}
+            <span className="InlineBlock flex mLeft15" id="selectProject"></span>
+          </p>
+          <p className="mTop15 Gray_6">'{tips.convertTip}</p>
+        </div>
+      ),
+      onOk: () => {
+        if (dialogInfoConfig.okDisable) return;
+        groupController
+          .updateGroupToPost({
+            groupId: options.groupID,
+            projectId: projectId,
+          })
+          .then(
+            function(result) {
+              if (result) {
+                $('.dialogBoxSettingGroup') &&
+                  $('.dialogBoxSettingGroup')
+                    .parent()
+                    .remove();
+                _this.opSuccess(options.groupAction['UPDATE_POST'], {
+                  groupId: options.groupID,
+                });
+              } else {
                 _this.opFailed();
-              },
-            );
-        },
-      },
-      status: 'enable',
-      readyFn: function () {
-        var $dialog = $('#convertToPost');
-        $dialog.find('#selectProject').MDSelect({
-          dataArr: projects,
-          maxWidth: 300,
-          onChange: function (id, name) {
-            projectId = id;
-            expireDialogAsync(projectId).then(
-              function () {
-                dialogInfo.enable();
-              },
-              function () {
-                dialogInfo.disable();
-              },
-            );
-          },
-        });
+              }
+            },
+            function() {
+              _this.opFailed();
+            },
+          );
       },
     });
+
+    var $dialog = $('.convertToPost');
+
+    ReactDOM.render(
+      <Dropdown
+        className="w100"
+        menuClass="w100"
+        border
+        data={projects}
+        onChange={value => {
+          projectId = value;
+          expireDialogAsync(projectId).then(
+            () => {
+              dialogInfoConfig.okDisable = false;
+              $('.convertToPost .ming.Button')
+                .eq(1)
+                .attr('disabled', false)
+                .removeClass('Button--disabled');
+            },
+            () => {
+              dialogInfoConfig.okDisable = true;
+              $('.convertToPost .ming.Button')
+                .eq(1)
+                .attr('disabled', true)
+                .addClass('Button--disabled');
+            },
+          );
+        }}
+      />,
+      $dialog.find('#selectProject')[0],
+    );
   },
   // update: notice
-  updateGroupNotice: function ($switch) {
+  updateGroupNotice: function($switch) {
     var _this = this;
     var options = _this.options;
     var isChecked = $switch.prop('checked');
@@ -1107,7 +1114,7 @@ $.extend(SettingGroup.prototype, {
         groupId: options.groupID,
         isPushNotice: isChecked,
       })
-      .then(function (result) {
+      .then(function(result) {
         if (result) {
           _this.opSuccess(options.groupAction['TROUBLE_FREE'], {
             groupId: options.groupID,
@@ -1122,7 +1129,7 @@ $.extend(SettingGroup.prototype, {
       });
   },
   // update: need approve
-  updateGroupApprove: function ($switch) {
+  updateGroupApprove: function($switch) {
     var _this = this;
     var options = _this.options;
     var isChecked = $switch.prop('checked');
@@ -1132,7 +1139,7 @@ $.extend(SettingGroup.prototype, {
         groupId: options.groupID,
         isApproval: !isChecked,
       })
-      .then(function (result) {
+      .then(function(result) {
         if (result) {
           _this.opSuccess(options.groupAction['APPROVE'], {
             groupId: options.groupID,
@@ -1147,7 +1154,7 @@ $.extend(SettingGroup.prototype, {
       });
   },
   // update: add in company groupList
-  updateGroupList: function ($switch) {
+  updateGroupList: function($switch) {
     var _this = this;
     var options = _this.options;
     var isChecked = $switch.prop('checked');
@@ -1157,7 +1164,7 @@ $.extend(SettingGroup.prototype, {
         groupId: options.groupID,
         isHidden: isChecked,
       })
-      .then(function (result) {
+      .then(function(result) {
         if (result) {
           options.isRefresh.info = true;
           _this.opSuccess(options.groupAction['ADD_IN_COMPANY'], {
@@ -1172,7 +1179,7 @@ $.extend(SettingGroup.prototype, {
       });
   },
   // update: assoiate department
-  updateGroupAssociate: function ($switch) {
+  updateGroupAssociate: function($switch) {
     var _this = this;
     var options = _this.options;
     var isChecked = $switch.prop('checked');
@@ -1184,7 +1191,7 @@ $.extend(SettingGroup.prototype, {
     }
   },
   // update: inviteAuth
-  updateGroupInviteAuth: function ($switch) {
+  updateGroupInviteAuth: function($switch) {
     var _this = this;
     var options = _this.options;
     var isChecked = $switch.prop('checked');
@@ -1194,7 +1201,7 @@ $.extend(SettingGroup.prototype, {
         groupId: options.groupID,
         isForbidInvite: !isChecked,
       })
-      .then(function (result) {
+      .then(function(result) {
         if (result) {
           _this.opSuccess(options.groupAction['FORBID_INVITE'], {
             groupId: options.groupID,
@@ -1210,7 +1217,7 @@ $.extend(SettingGroup.prototype, {
       });
   },
   // update: chatAuth
-  updateGroupChatAuth: function ($switch) {
+  updateGroupChatAuth: function($switch) {
     var _this = this;
     var options = _this.options;
     var isChecked = $switch.prop('checked');
@@ -1220,7 +1227,7 @@ $.extend(SettingGroup.prototype, {
         groupId: options.groupID,
         isForbidSpeak: !isChecked,
       })
-      .then(function (result) {
+      .then(function(result) {
         if (result) {
           _this.opSuccess(options.groupAction['FORBID_SPEAK'], {
             groupId: options.groupID,
@@ -1236,7 +1243,7 @@ $.extend(SettingGroup.prototype, {
   },
 
   // update: group department
-  updateGroupDepartment: function (deptId, deptName) {
+  updateGroupDepartment: function(deptId, deptName) {
     var _this = this;
     var options = _this.options;
     var isClose = deptId === undefined;
@@ -1247,7 +1254,7 @@ $.extend(SettingGroup.prototype, {
         isVerified: !isClose,
         mapDepartmentId: deptId,
       })
-      .then(function (result) {
+      .then(function(result) {
         if (result) {
           var newTitle = isClose ? tips.selectDepartment : _l('关联部门：') + deptName;
           _this.opSuccess(options.groupAction['VERIFY'], {
@@ -1257,7 +1264,10 @@ $.extend(SettingGroup.prototype, {
           });
           options.isRefresh.info = true;
           _this.$groupIcon.toggleClass('Hidden', isClose);
-          _this.$groupSettings.find('.officialDepSelect').html(newTitle).attr('title', newTitle);
+          _this.$groupSettings
+            .find('.officialDepSelect')
+            .html(newTitle)
+            .attr('title', newTitle);
         } else {
           _this.opFailed();
         }
@@ -1265,7 +1275,7 @@ $.extend(SettingGroup.prototype, {
   },
 
   // update: memberType
-  updateGroupMember: function (accountId, type) {
+  updateGroupMember: function(accountId, type) {
     var _this = this;
     switch (type) {
       case 'apply':
@@ -1294,7 +1304,7 @@ $.extend(SettingGroup.prototype, {
     }
   },
 
-  updateUserCallback: function (accountId, type) {
+  updateUserCallback: function(accountId, type) {
     var _this = this;
     var options = this.options;
     var $user = _this.$groupMember.find('.singleUser').filter('[data-accountid=' + accountId + ']');
@@ -1302,22 +1312,34 @@ $.extend(SettingGroup.prototype, {
     options.isRefresh.info = true;
     options.isRefresh.member = true;
     if (type === 'pass') {
-      $op.find('.settingMemberRole').data('type', 'member').find('.roleName').text(tips.roleMember);
+      $op
+        .find('.settingMemberRole')
+        .data('type', 'member')
+        .find('.roleName')
+        .text(tips.roleMember);
     } else if (type === 'admin') {
-      $op.find('.settingMemberRole').data('type', 'admin').find('.roleName').text(tips.roleAdmin);
+      $op
+        .find('.settingMemberRole')
+        .data('type', 'admin')
+        .find('.roleName')
+        .text(tips.roleAdmin);
     } else if (type === 'member') {
-      $op.find('.settingMemberRole').data('type', 'member').find('.roleName').text(tips.roleMember);
+      $op
+        .find('.settingMemberRole')
+        .data('type', 'member')
+        .find('.roleName')
+        .text(tips.roleMember);
     } else {
-      $user.slideUp(function () {
+      $user.slideUp(function() {
         $user.remove();
       });
     }
   },
 
-  passUser: function (accountId) {
+  passUser: function(accountId) {
     var _this = this;
     var options = _this.options;
-    var accounts = $.grep(options.users, function (user) {
+    var accounts = $.grep(options.users, function(user) {
       return user.accountId === accountId;
     });
     var aids = $.isArray(accountId) ? accountId : [accountId];
@@ -1327,7 +1349,7 @@ $.extend(SettingGroup.prototype, {
         groupId: options.groupID,
         accountIds: aids,
       })
-      .then(function (result) {
+      .then(function(result) {
         if (result) {
           _this.opSuccess(options.groupAction['ADD_MEMBER'], {
             groupId: options.groupID,
@@ -1341,7 +1363,7 @@ $.extend(SettingGroup.prototype, {
       });
   },
 
-  setAdmin: function (accountId) {
+  setAdmin: function(accountId) {
     var _this = this;
     var options = _this.options;
 
@@ -1350,7 +1372,7 @@ $.extend(SettingGroup.prototype, {
         groupId: options.groupID,
         accountIds: [accountId],
       })
-      .then(function (result) {
+      .then(function(result) {
         if (result) {
           _this.opSuccess(options.groupAction['ADD_ADMIN'], {
             groupId: options.groupID,
@@ -1364,7 +1386,7 @@ $.extend(SettingGroup.prototype, {
       });
   },
 
-  setMember: function (accountId) {
+  setMember: function(accountId) {
     var _this = this;
     var options = _this.options;
 
@@ -1373,7 +1395,7 @@ $.extend(SettingGroup.prototype, {
         groupId: options.groupID,
         accountId: accountId,
       })
-      .then(function (result) {
+      .then(function(result) {
         if (result == ActionResult.Success) {
           _this.opSuccess(options.groupAction['REMOVE_ADMIN'], {
             groupId: options.groupID,
@@ -1389,10 +1411,10 @@ $.extend(SettingGroup.prototype, {
       });
   },
 
-  addMembers: function (userArray) {
+  addMembers: function(userArray) {
     var _this = this;
     var options = _this.options;
-    var accountIds = $.map(userArray, function (user) {
+    var accountIds = $.map(userArray, function(user) {
       return user.accountId;
     });
 
@@ -1402,7 +1424,7 @@ $.extend(SettingGroup.prototype, {
         accountIds: accountIds,
         fromType: 1,
       })
-      .then(function (result) {
+      .then(function(result) {
         var formatedData = existAccountHint(result);
         if (formatedData.accountInfos.length) {
           _this.opSuccess(
@@ -1423,42 +1445,8 @@ $.extend(SettingGroup.prototype, {
       });
   },
 
-  inviteMembers: function (accounts, callbackInviteResult) {
-    var _this = this;
-    var options = _this.options;
-
-    invitationController
-      .inviteUser({
-        sourceId: options.groupID,
-        accounts: accounts,
-        fromType: 1,
-      })
-      .then(function (result) {
-        var formatedData = existAccountHint(result, callbackInviteResult);
-        if (formatedData.accountInfos.length) {
-          var accounts = $.grep(formatedData.accountInfos, function (account) {
-            return account.accountStatus === 1;
-          });
-          _this.opSuccess(
-            options.groupAction['ADD_MEMBERS'],
-            {
-              groupId: options.groupID,
-              accounts: accounts,
-            },
-            null,
-          );
-          options.isRefresh.member = true;
-          if (options.isPost) {
-            _this.toggleGroupTab('member');
-          } else {
-            _this.loadGroupInfo();
-          }
-        }
-      });
-  },
-
   // reinvite member
-  reInviteMembers: function (accountIds) {
+  reInviteMembers: function(accountIds) {
     var _this = this;
     var options = _this.options;
 
@@ -1468,7 +1456,7 @@ $.extend(SettingGroup.prototype, {
         accountIds: accountIds,
         fromType: 1,
       })
-      .then(function (result) {
+      .then(function(result) {
         if (result.sendMessageResult) {
           alert(tips.inviteSuccess, 1);
         } else {
@@ -1478,7 +1466,7 @@ $.extend(SettingGroup.prototype, {
   },
 
   // remove, refuse, cancelinvite: member
-  removeUser: function (accountId, type) {
+  removeUser: function(accountId, type) {
     var _this = this;
     var options = _this.options;
     var func = type === 'remove' ? 'removeUser' : type === 'refuse' ? 'refuseUser' : 'cancelInviteUser';
@@ -1487,7 +1475,7 @@ $.extend(SettingGroup.prototype, {
     groupController[func]({
       groupId: options.groupID,
       accountId: accountId,
-    }).then(function (result) {
+    }).then(function(result) {
       if (result) {
         _this.opSuccess(
           options.groupAction['REMOVE_MEMBER'],
@@ -1510,7 +1498,7 @@ $.extend(SettingGroup.prototype, {
   },
 
   // 删除（解散）群组、讨论组
-  deleteGroup: function (groupIds) {
+  deleteGroup: function(groupIds) {
     var _this = this;
     var options = _this.options;
     var gids = $.isArray(groupIds) ? groupIds : [groupIds];
@@ -1523,9 +1511,12 @@ $.extend(SettingGroup.prototype, {
           .removeGroup({
             groupIds: gids,
           })
-          .then(function (result) {
+          .then(function(result) {
             if (result) {
-              _this.dialog.closeDialog();
+              $('.dialogBoxSettingGroup') &&
+                $('.dialogBoxSettingGroup')
+                  .parent()
+                  .remove();
               _this.opSuccess(options.groupAction['DELETE'], {
                 groupId: groupIds,
               });
@@ -1537,22 +1528,31 @@ $.extend(SettingGroup.prototype, {
     });
   },
   // 关闭群组
-  closeGroup: function (groupIds, groupName) {
+  closeGroup: function(groupIds, groupName) {
     var _this = this;
     var options = _this.options;
     var gids = $.isArray(groupIds) ? groupIds : [groupIds];
 
     Confirm({
       title: tips.confirmCloseTitle,
-      description: tips.confirmCloseText1 + '<br/>' + tips.confirmCloseText2,
+      description: (
+        <div>
+          {tips.confirmCloseText1}
+          <br />
+          {tips.confirmCloseText2}
+        </div>
+      ),
       onOk: () => {
         groupController
           .closeGroup({
             groupIds: gids,
           })
-          .then(function (result) {
+          .then(function(result) {
             if (result) {
-              _this.dialog.closeDialog();
+              $('.dialogBoxSettingGroup') &&
+                $('.dialogBoxSettingGroup')
+                  .parent()
+                  .remove();
               _this.opSuccess(
                 options.groupAction['CLOSE_GROUP'],
                 {
@@ -1568,7 +1568,7 @@ $.extend(SettingGroup.prototype, {
     });
   },
   // 退出群组、讨论组
-  exitGroup: function (groupId, groupName) {
+  exitGroup: function(groupId, groupName) {
     var _this = this;
     var options = _this.options;
 
@@ -1580,10 +1580,13 @@ $.extend(SettingGroup.prototype, {
           .exitGroup({
             groupId: groupId,
           })
-          .then(function (result) {
+          .then(function(result) {
             if (result == ActionResult.Success) {
               var tip = options.isPost ? _l('%0群组已经退出', groupName) : _l('%0聊天已经退出', groupName);
-              _this.dialog.closeDialog();
+              $('.dialogBoxSettingGroup') &&
+                $('.dialogBoxSettingGroup')
+                  .parent()
+                  .remove();
               _this.opSuccess(
                 options.groupAction['EXIT_GROUP'],
                 {
@@ -1602,6 +1605,6 @@ $.extend(SettingGroup.prototype, {
   },
 });
 
-export default function (opts) {
+export default function(opts) {
   return new SettingGroup(null, opts);
 }

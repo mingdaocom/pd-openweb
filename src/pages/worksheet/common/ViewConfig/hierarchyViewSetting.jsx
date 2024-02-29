@@ -11,7 +11,6 @@ import update from 'immutability-helper';
 import Abstract from './components/Abstract';
 import CoverSetting from './components/CoverSettingCon';
 import DisplayControl from './components/DisplayControl';
-import { updateViewAdvancedSetting } from './util';
 import {
   HIERARCHY_VIEW_TYPE,
   CONNECT_LINE_TYPE,
@@ -107,7 +106,7 @@ const HierarchyViewSettingWrap = styled.div`
         transition: all 0.25s;
       }
       &.visible {
-        max-height: 425px;
+        max-height: 3000px;
         display: block;
         margin-top: -4px;
         padding-bottom: 4px;
@@ -468,8 +467,9 @@ export default function HierarchyViewSetting(props) {
                     updateCurrentView({
                       ...view,
                       appId,
-                      advancedSetting: updateViewAdvancedSetting(view, { abstract: value }),
+                      advancedSetting: { abstract: value },
                       editAttrs: ['advancedSetting'],
+                      editAdKeys: ['abstract'],
                     });
                   }}
                 />
@@ -477,8 +477,8 @@ export default function HierarchyViewSetting(props) {
                 <DisplayControl
                   {...props}
                   worksheetControls={filteredColumns}
-                  handleChange={checked => {
-                    updateCurrentView({ ...view, appId, showControlName: checked, editAttrs: ['showControlName'] });
+                  handleChange={data => {
+                    updateCurrentView({ ...view, appId, ...data });
                   }}
                   handleChangeSort={({ newControlSorts, newShowControls }) => {
                     updateCurrentView({
@@ -509,8 +509,18 @@ export default function HierarchyViewSetting(props) {
                       ...view,
                       appId,
                       coverType: coverTypeValue,
-                      advancedSetting: updateViewAdvancedSetting(view, { coverposition: value }),
+                      advancedSetting: { coverposition: value },
+                      editAdKeys: ['coverposition'],
                       editAttrs: ['coverType', 'advancedSetting'],
+                    });
+                  }}
+                  handleChangeCoverWidth={value => {
+                    updateCurrentView({
+                      ...view,
+                      appId,
+                      editAdKeys: ['cardwidth'],
+                      advancedSetting: { cardwidth: value },
+                      editAttrs: ['advancedSetting'],
                     });
                   }}
                   // 显示方式
@@ -527,8 +537,9 @@ export default function HierarchyViewSetting(props) {
                     updateCurrentView({
                       ...view,
                       appId,
-                      advancedSetting: updateViewAdvancedSetting(view, { opencover: value }),
+                      advancedSetting: { opencover: value },
                       editAttrs: ['advancedSetting'],
+                      editAdKeys: ['opencover'],
                     });
                   }}
                 />
@@ -580,6 +591,7 @@ export default function HierarchyViewSetting(props) {
               <div className="content">
                 <CardDisplay
                   {...item}
+                  updateViewShowcount={props.updateViewShowcount}
                   visible={visible}
                   handleDisplayChange={obj =>
                     handleChange({

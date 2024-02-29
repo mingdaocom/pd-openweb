@@ -399,6 +399,7 @@ export default class Widgets extends Component {
       disabled,
       hint,
       flag,
+      canAddKnowledge,
     } = this.props;
     const isOnlyAllowMobile = strDefault.split('')[1] === '1';
     const {
@@ -567,6 +568,7 @@ export default class Widgets extends Component {
               worksheetId={worksheetId}
               offset={[0, 2]}
               canAddLink={false}
+              canAddKnowledge={canAddKnowledge}
               minWidth={130}
               showAttInfo={false}
               advancedSetting={advancedSetting}

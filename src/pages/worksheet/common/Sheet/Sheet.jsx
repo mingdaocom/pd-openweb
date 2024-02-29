@@ -15,11 +15,12 @@ import GroupFilter from './GroupFilter';
 import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import DragMask from 'worksheet/common/DragMask';
 import { Skeleton } from 'ming-ui';
-const { sheet, gallery, board, calendar, gunter, detail, customize } = VIEW_DISPLAY_TYPE;
+const { sheet, gallery, board, calendar, gunter, detail, customize, map } = VIEW_DISPLAY_TYPE;
 import './style.less';
 import _ from 'lodash';
 import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
 import { MaxNavW, MinNavW, defaultNavOpenW, defaultNavCloseW } from 'src/pages/worksheet/common/ViewConfig/config.js';
+import { getTranslateInfo } from 'src/util';
 
 const Con = styled.div`
   flex: 1;
@@ -93,6 +94,8 @@ function Sheet(props) {
     navGroupFilters,
     openNewRecord,
     updateQuickFilter,
+    setLoadRequest = () => {},
+    abortPrevWorksheetInfoRequest = () => {},
   } = props;
   const cache = useRef({});
   const [viewConfigVisible, setViewConfigVisible] = useState(false);
@@ -112,10 +115,11 @@ function Sheet(props) {
   const navData = (_.get(worksheetInfo, 'template.controls') || []).find(
     o => o.controlId === _.get(view, 'navGroup[0].controlId'),
   );
+  const worksheetName = getTranslateInfo(appId, worksheetId).name || worksheetInfo.name || '';
   const hasGroupFilter =
     !_.isEmpty(view.navGroup) &&
     view.navGroup.length > 0 &&
-    _.includes([sheet, gallery, customize], String(view.viewType)) &&
+    _.includes([sheet, gallery, customize, map], String(view.viewType)) &&
     navData;
   const showQuickFilter =
     !_.isEmpty(view.fastFilters) &&
@@ -139,6 +143,7 @@ function Sheet(props) {
     appId,
     groupId,
     worksheetId,
+    views,
     view,
     activeViewStatus,
     viewId: view.viewId,
@@ -167,9 +172,10 @@ function Sheet(props) {
     );
   useEffect(() => {
     if (worksheetId) {
-      loadWorksheet(worksheetId);
+      abortPrevWorksheetInfoRequest();
+      loadWorksheet(worksheetId, setLoadRequest);
     }
-  }, [worksheetId, flag]);
+  }, [type === 'single' ? worksheetId : undefined, flag]);
 
   useEffect(() => {
     if (_.isArray(filtersGroup) && !loading) {
@@ -210,9 +216,9 @@ function Sheet(props) {
   return (
     <SheetContext.Provider value={{ config, isRequestingRelationControls: worksheetInfo.isRequestingRelationControls }}>
       <Con className="worksheetSheet">
-        {type === 'common' && worksheetInfo.name && (
+        {type === 'common' && worksheetName && (
           <DocumentTitle
-            title={`${worksheetInfo.name || ''} - ${(window.appInfo && window.appInfo.name) || _l('应用')}`}
+            title={`${worksheetName || ''} - ${(window.appInfo && window.appInfo.showName) || _l('应用')}`}
           />
         )}
         {loading ? (
@@ -271,9 +277,8 @@ function Sheet(props) {
                       }
                     }}
                   />
-                  {!_.get(window, 'shareState.isPublicView') && isOpenGroup && (
-                    <Drag left={groupFilterWidth} onMouseDown={() => setDragMaskVisible(true)} />
-                  )}
+                  {!(_.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage')) &&
+                    isOpenGroup && <Drag left={groupFilterWidth} onMouseDown={() => setDragMaskVisible(true)} />}
                   {viewComp}
                 </ConView>
               ) : (

@@ -25,7 +25,7 @@ import { openControlAttachmentInNewTab } from 'worksheet/controllers/record';
 import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import plupload from '@mdfe/jquery-plupload';
 import { navigateTo } from 'src/router/navigateTo';
-import addLinkFile from 'src/components/addLinkFile/addLinkFile';
+import addLinkFile from 'src/components/addLinkFile/addLinkFile.jsx';
 import _ from 'lodash';
 
 export const errorCode = {
@@ -57,6 +57,10 @@ export default class UploadFiles extends Component {
      * 是否显示添加链接文件
      */
     canAddLink: PropTypes.bool,
+    /**
+     * 是否显示添加知识文件
+     */
+    canAddKnowledge: PropTypes.bool,
     /**
      * 文件的最小宽度
      */
@@ -137,6 +141,7 @@ export default class UploadFiles extends Component {
   };
   static defaultProps = {
     canAddLink: false,
+    canAddKnowledge: true,
     minWidth: 140,
     maxWidth: 200,
     height: 118,
@@ -231,11 +236,7 @@ export default class UploadFiles extends Component {
     const { nativeFile } = this;
     let { noTotal, dropPasteElement, from, projectId, advancedSetting } = this.props;
     const isPublicWorkflow = _.get(window, 'shareState.isPublicWorkflowRecord');
-    const isPublic =
-      from === FROM.PUBLIC_ADD ||
-      from === FROM.WORKFLOW ||
-      window.isPublicWorksheet ||
-      isPublicWorkflow;
+    const isPublic = from === FROM.PUBLIC_ADD || from === FROM.WORKFLOW || window.isPublicWorksheet || isPublicWorkflow;
 
     const { licenseType } = _.find(md.global.Account.projects, item => item.projectId === projectId) || {};
 
@@ -320,9 +321,8 @@ export default class UploadFiles extends Component {
             return false;
           }
 
-          const temporaryDataLength = _this.state.temporaryData.filter(
-            attachment => attachment.fileExt !== '.url',
-          ).length;
+          const temporaryDataLength = _this.state.temporaryData.filter(attachment => attachment.fileExt !== '.url')
+            .length;
           const filesLength = files.filter(attachment => attachment.fileExt !== '.url').length;
           const currentFileLength = temporaryDataLength + filesLength;
 
@@ -383,6 +383,10 @@ export default class UploadFiles extends Component {
         },
         BeforeUpload(uploader, file) {
           _this.currentFile = uploader;
+          if (!file.key) {
+            _this.removeUploadingFile(file.id);
+            return;
+          }
           const fileExt = `.${File.GetExt(file.name)}`;
 
           uploader.settings.multipart_params = {
@@ -394,7 +398,12 @@ export default class UploadFiles extends Component {
           uploader.settings.multipart_params['x:filePath'] = (file.key || '').replace(file.fileName, '');
           uploader.settings.multipart_params['x:fileName'] = (file.fileName || '').replace(/\.[^\.]*$/, '');
           uploader.settings.multipart_params['x:originalFileName'] = encodeURIComponent(
-            file.name.indexOf('.') > -1 ? file.name.split('.').slice(0, -1).join('.') : file.name,
+            file.name.indexOf('.') > -1
+              ? file.name
+                  .split('.')
+                  .slice(0, -1)
+                  .join('.')
+              : file.name,
           );
           uploader.settings.multipart_params['x:fileExt'] = fileExt;
         },
@@ -532,13 +541,16 @@ export default class UploadFiles extends Component {
       },
       () => {
         this.props.onTemporaryDataUpdate(newTemporaryData);
+        if (!newTemporaryData.length) {
+          this.props.onUploadComplete(true);
+        }
       },
     );
   }
   openLinkDialog(item) {
     const _this = this;
 
-    new addLinkFile({
+    addLinkFile({
       showTitleTip: false,
       callback: link => {
         const { linkName, linkContent } = link;
@@ -821,7 +833,7 @@ export default class UploadFiles extends Component {
     }
   }
   render() {
-    let { controlId, isUpload, arrowLeft, minWidth, maxWidth, height, canAddLink, from } = this.props;
+    let { controlId, isUpload, arrowLeft, minWidth, maxWidth, height, canAddLink, canAddKnowledge, from } = this.props;
     let { temporaryData, kcAttachmentData, attachmentData } = this.state;
     let { totalSize, currentPrograss } = getAttachmentTotalSize(temporaryData);
     let length = temporaryData.length + kcAttachmentData.length + attachmentData.length;
@@ -854,7 +866,8 @@ export default class UploadFiles extends Component {
                 <i className="icon icon-knowledge-upload Gray_9e Font19" />
                 <span>{_l('本地')}</span>
               </div>
-              {md.global.Account.accountId &&
+              {canAddKnowledge &&
+                md.global.Account.accountId &&
                 md.global.Account.accountId.length === 36 &&
                 from !== FROM.DRAFT &&
                 !md.global.SysSettings.forbidSuites.includes('4') &&

@@ -14,7 +14,7 @@ import {
   PICK_TYPE,
 } from '../constant/enum';
 import { confirm, getParentId, getLocationType, getPermission, getParentName, isIE } from './index';
-import addLinkFile from 'src/components/addLinkFile/addLinkFile';
+import addLinkFile from 'src/components/addLinkFile/addLinkFile.jsx';
 import folderDg from 'src/components/kc/folderSelectDialog/folderSelectDialog';
 import createShare from 'src/components/createShare/createShare';
 
@@ -130,7 +130,7 @@ export function handleAddLinkFile(args) {
       : {}
     : folder;
   const location = { parentId: id, rootId };
-  const handle = new addLinkFile({
+  addLinkFile({
     callback: link => {
       const { linkName, linkContent } = link;
       const execTypeName = isEdit ? _l('保存') : _l('创建');
@@ -172,7 +172,7 @@ export function handleAddLinkFile(args) {
           originLinkUrl: item.originLinkUrl,
         }
       : undefined,
-  });
+  })
 }
 
 /** 批量下载 */

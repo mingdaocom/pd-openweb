@@ -95,7 +95,7 @@ export const getChartColors = (style, themeColor, projectId) => {
   if ([0, 1].includes(colorType)) {
     // 新颜色配置
     if (colorGroupId === 'adaptThemeColor' && themeColor) {
-      const adaptThemeColors = chartColors.filter(item => (item.themeColors || []).includes(themeColor.toLocaleUpperCase()));
+      const adaptThemeColors = chartColors.filter(item => (item.themeColors || []).map(n => n.toLocaleUpperCase()).includes(themeColor.toLocaleUpperCase()));
       return (adaptThemeColors[0] || chartColors[0]).colors;
     } else if (colorGroupId) {
       return (_.find(chartColors, { id: colorGroupId }) || chartColors[0]).colors;
@@ -672,7 +672,7 @@ export const getControlMinValue = (map, id) => {
 export const getControlAvgValue = (map, id) => {
   const mapRes = map.filter(m => m.controlId === id);
   const valueRes = (mapRes.length ? mapRes : map).map(m => m.value);
-  const sum = valueRes.reduce((previous, current) => current += previous);
+  const sum = valueRes.reduce((previous, current) => current += previous, 0);
   return sum / valueRes.length;
 }
 

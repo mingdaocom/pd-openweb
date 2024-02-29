@@ -19,6 +19,7 @@ import _ from 'lodash';
 import Group from '../Group';
 import DisplayControl from '../DisplayControl';
 import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { ShowChoose } from 'src/pages/worksheet/common/ViewConfig/style.jsx';
 
 const GunterTypeChoose = styled.div`
   ul > li {
@@ -47,46 +48,7 @@ const GunterTypeChoose = styled.div`
     }
   }
 `;
-const ShowChoose = styled.div`
-  .hiddenDaysBox {
-    margin-left: 26px;
-    display: flex;
-    li {
-      flex: 1;
-      height: 36px;
-      display: inline-block;
-      box-sizing: border-box;
-      text-align: center;
-      cursor: pointer;
-      line-height: 36px;
-      border: 1px solid #e0e0e0;
-      overflow: hidden;
-      margin-right: -1px;
-      position: relative;
-      &:last-child {
-        border-radius: 0 3px 3px 0;
-        overflow: hidden;
-      }
-      &:first-child {
-        border-radius: 3px 0px 0px 3px;
-        overflow: hidden;
-      }
-      &.checked {
-        background: #2196f3;
-        color: #fff;
-        border-top: 1px solid #2196f3;
-        border-bottom: 1px solid #2196f3;
-        z-index: 1;
-        &:last-child {
-          border-right: 1px solid #2196f3;
-        }
-        &:first-child {
-          border-left: 1px solid #2196f3;
-        }
-      }
-    }
-  }
-`;
+
 export default function GunterSet(props) {
   const { appId, view, updateCurrentView, worksheetControls = [] } = props;
   const { advancedSetting = {} } = view;
@@ -180,6 +142,7 @@ export default function GunterSet(props) {
         setDataId={milepost}
         controlList={worksheetControls.filter(item => _.includes([36], item.type))}
         key="milepost"
+        className="mTop32"
         addName={'里程碑'}
         title={_l('里程碑')}
         txt={_l('选择一个检查项字段标记记录属性为里程碑')}

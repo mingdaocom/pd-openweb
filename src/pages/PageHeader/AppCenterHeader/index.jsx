@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import Trigger from 'rc-trigger';
 import cx from 'classnames';
 import { emitter, getCurrentProject } from 'src/util';
-import { ScrollView, Menu, MenuItem, MdLink } from 'ming-ui';
+import { ScrollView, Menu, MenuItem } from 'ming-ui';
 import { VerticalMiddle } from 'worksheet/components/Basics';
 import CommonUserHandle from '../components/CommonUserHandle';
 import _ from 'lodash';
@@ -14,7 +14,7 @@ const Con = styled.div`
   align-items: center;
   background: #fff;
   height: 50px;
-  padding-left: 24px;
+  padding-left: 20px;
   box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.16);
 `;
 
@@ -34,31 +34,12 @@ const ProjectSwitch = styled(VerticalMiddle)`
     color: #9d9d9d;
   }
   &:hover {
-    background: #f2f2f2;
+    background: rgba(0, 0, 0, 0.05);
   }
 `;
 
 const Flex = styled.div`
   flex: 1;
-`;
-
-const AdminEntry = styled(VerticalMiddle)`
-  cursor: pointer;
-  height: 32px;
-  line-height: 32px;
-  padding: 0 12px 0 14px;
-  border-radius: 32px;
-  border: 1px solid #ddd;
-  color: #333;
-  margin: 0px 10px 0px 20px;
-  .icon {
-    margin-right: 5px;
-    color: #757575;
-    font-size: 20px;
-  }
-  &:hover {
-    background: #f5f5f5;
-  }
 `;
 
 const ProjectsMenuCon = styled.div`
@@ -121,10 +102,13 @@ function AppCenterHeader(props) {
   );
   useEffect(() => {
     const project = getCurrentProject(projectId || localStorage.getItem('currentProjectId'));
-    if (_.isEmpty(project) && projects.length) {
-      if (!projects[0].projectId) return;
-      setCurrentProject(projects[0]);
-      safeLocalStorageSetItem('currentProjectId', projects[0].projectId);
+    if (_.isEmpty(project)) {
+      if (projects[0] && projects[0].projectId) {
+        setCurrentProject(projects[0]);
+        safeLocalStorageSetItem('currentProjectId', projects[0].projectId);
+      } else {
+        setCurrentProject({ companyName: _l('外部协作'), projectId: 'external' });
+      }
     }
   }, []);
   const [popupVisible, setPopupVisible] = useState();
@@ -157,7 +141,7 @@ function AppCenterHeader(props) {
     menuContent = <ScrollCon height={Math.ceil((window.innerHeight - 160) / 40) * 40}>{menuContent}</ScrollCon>;
   }
   return (
-    <Con>
+    <Con className="appCenterHeader">
       {currentProject && (
         <Trigger
           popupVisible={popupVisible}
@@ -205,15 +189,8 @@ function AppCenterHeader(props) {
         </Trigger>
       )}
       <Flex />
-      {currentProject && currentProject.isProjectAdmin && (
-        <MdLink to={`/admin/home/${currentProject.projectId}`}>
-          <AdminEntry>
-            <i className="icon icon-business"></i>
-            {_l('组织管理')}
-          </AdminEntry>
-        </MdLink>
-      )}
-      <CommonUserHandle />
+
+      <CommonUserHandle type="dashboard" currentProject={currentProject} />
     </Con>
   );
 }

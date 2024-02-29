@@ -68,7 +68,7 @@ export default class Con extends React.Component {
             );
           })}
         {sysList.length > 0 && <div style={{ paddingTop: 6 }}></div>}
-        {!isForPortal && List.length > 0 && <Wrap>{_l('普通')}</Wrap>}
+        {!isForPortal && List.length > 0 && <Wrap>{_l('自定义')}</Wrap>}
         {List && (
           <SortableList
             items={List}

@@ -5,7 +5,7 @@ import { Checkbox, Select, Tooltip } from 'antd';
 import cx from 'classnames';
 import { defaultPivotTableStyle } from './TitleStyle';
 import store from 'redux/configureStore';
-import tinycolor from '@ctrl/tinycolor';
+import { isLightColor } from 'src/pages/customPage/util';
 
 const ColorBlock = styled.div`
   width: 14px;
@@ -58,16 +58,21 @@ const widthModels = [{
 }];
 
 const PreinstallStyle = props => {
-  const { style, onChangeStyle } = props;
+  const { style, onChangeStyle, customPageConfig } = props;
   const { pivotTableStyle = defaultPivotTableStyle, paginationVisible, paginationSize = 20, pcWidthModel = 1, mobileWidthModel = 1 } = style;
   const iconColor = _.get(store.getState().appPkg, 'iconColor');
+  const { pivoTableColor, pivoTableColorIndex = 1 } = customPageConfig;
 
   const handleChangePivotTableStyle = (data, isRequest) => {
+    const config = {
+      ...pivotTableStyle,
+      ...data
+    }
+    if (pivoTableColor) {
+      config.pivoTableColorIndex = pivoTableColorIndex + 1;
+    }
     onChangeStyle({
-      pivotTableStyle: {
-        ...pivotTableStyle,
-        ...data,
-      }
+      pivotTableStyle: config
     }, isRequest);
   }
 
@@ -78,7 +83,7 @@ const PreinstallStyle = props => {
         <div
           className="flex centerAlign pointer Gray_75"
           onClick={() => {
-            const isLight = tinycolor(iconColor).isLight();
+            const isLight = isLightColor(iconColor);
             handleChangePivotTableStyle({
               columnTextColor: isLight ? '#757575' : '#fff',
               columnBgColor: 'themeColor',

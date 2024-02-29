@@ -17,14 +17,14 @@ import {
 import appManagementAjax from 'src/api/appManagement';
 import { navigateTo } from 'src/router/navigateTo';
 import downloadAjax from 'src/api/download';
-import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { getFeatureStatus, buriedUpgradeVersionDialog, createLinksForMessage } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
-import { createLinksForMessage } from 'src/components/common/function';
 import unauthorizedPic from 'src/components/UnusualContent/unauthorized.png';
 import styled from 'styled-components';
 import moment from 'moment';
 import _ from 'lodash';
 import cx from 'classnames';
+import filterXss from 'xss';
 
 const FlexWrap = styled.div`
   flex: 1;
@@ -164,6 +164,7 @@ export default class AppAndWorksheetLog extends Component {
                       size={24}
                       appId={appId}
                       {...extra}
+                      projectId={projectId}
                     />
                     {isNormalUser ? (
                       <UserName
@@ -215,14 +216,13 @@ export default class AppAndWorksheetLog extends Component {
                     })
                   : '';
                 const txt = (isUser ? message : opeartContent).replace(/\<a.*?\>/, '').replace(/\<\/a\>/, '');
-
                 return opeartContent ? (
                   <Tooltip text={<spam>{txt}</spam>} popupPlacement="bottom">
                     <span>
                       {isUser ? (
-                        <span dangerouslySetInnerHTML={{ __html: message }}></span>
+                        <span dangerouslySetInnerHTML={{ __html: filterXss(message) }}></span>
                       ) : (
-                        <span dangerouslySetInnerHTML={{ __html: opeartContent }}></span>
+                        <span dangerouslySetInnerHTML={{ __html: filterXss(opeartContent) }}></span>
                       )}
                     </span>
                   </Tooltip>
@@ -455,8 +455,15 @@ export default class AppAndWorksheetLog extends Component {
         operationTypes: _.includes(operationTypes, 'all') ? [] : operationTypes,
         startDateTime: startDate
           ? startDate
-          : moment().subtract(29, 'days').startOf('day').format('YYYY-MM-DD HH:mm:ss'),
-        endDateTime: endDate ? endDate : moment().endOf('day').format('YYYY-MM-DD HH:mm:ss'),
+          : moment()
+              .subtract(29, 'days')
+              .startOf('day')
+              .format('YYYY-MM-DD HH:mm:ss'),
+        endDateTime: endDate
+          ? endDate
+          : moment()
+              .endOf('day')
+              .format('YYYY-MM-DD HH:mm:ss'),
         isSingle: appId ? true : false,
       })
       .then(res => {
@@ -505,7 +512,12 @@ export default class AppAndWorksheetLog extends Component {
       worksheetIds: _.includes(worksheetIds, 'all') || !worksheetIds.length ? undefined : worksheetIds,
       modules: _.includes(modules, 'all') || !modules.length ? undefined : modules,
       operationTypes: _.includes(operationTypes, 'all') || !operationTypes.length ? undefined : operationTypes,
-      startDateTime: startDate ? startDate : moment().subtract(29, 'days').startOf('day').format('YYYY-MM-DD HH:mm:ss'),
+      startDateTime: startDate
+        ? startDate
+        : moment()
+            .subtract(29, 'days')
+            .startOf('day')
+            .format('YYYY-MM-DD HH:mm:ss'),
       endDateTime: endDate ? endDate : moment().format('YYYY-MM-DD HH:mm:ss'),
       columnNames: this.columns.map(it => it.title),
       menuName: _.get(_.find(TAB_LIST, v => v.tab === logType) || {}, 'tabName'),
@@ -689,6 +701,7 @@ export default class AppAndWorksheetLog extends Component {
             {showRecordLog && (
               <LogDetailDialog
                 visible={showRecordLog}
+                projectId={projectId}
                 currentRowInfo={currentRowInfo}
                 onCancel={() => {
                   this.setState({ showRecordLog: false, currentRowInfo: {} });

@@ -536,7 +536,7 @@ function APISetting(props) {
                           setState({
                             showMenu: false,
                           });
-                          props.onDel && props.onDel();
+                          props.onDel && props.onDel(data);
                         }}
                       >
                         <span>{_l('删除')}</span>

@@ -18,9 +18,12 @@ export default class FixedContent extends Component {
           {isNoPublish ? (
             <React.Fragment>
               <div className="imgWrap mBottom18">
-                <Icon className="Font56 Gray_75" icon="send" />
+                <Icon className="Font64 Gray_75" icon="install_mobile-_terminal" />
               </div>
-              <div className="Font20 mBottom18">{_l('该应用暂未在此平台发布')}</div>
+              <div className="Font18 mBottom18 centerAlign">
+                <div>{_l('应用未在此平台发布')}</div>
+                <div>{_l('请至移动端使用')}</div>
+              </div>
             </React.Fragment>
           ) : (
             <React.Fragment>

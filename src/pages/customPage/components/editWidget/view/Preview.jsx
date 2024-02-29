@@ -55,9 +55,10 @@ const ViewWrap = styled.div`
   }
   &.hideAddRecord .addRecord,
   &.hideAddRecord .addBoardRecord,
+  &.hideAddRecord .addRecordItemWrapper,
   &.hideSearchRecord .icon-search,
   &.hideSearchRecord .searchWrapper {
-    display: none;
+    display: none !important;
   }
   &.disableSingleView {
     .SingleViewHeader,
@@ -74,7 +75,8 @@ const ViewWrap = styled.div`
     .worksheetBoardViewWrap .addBoardRecord,
     .galleryViewContentWrap .galleryItem,
     .calendarCon .scheduleBtn,
-    .calendarCon .worksheetFullCalendar  {
+    .calendarCon .worksheetFullCalendar, 
+    .SingleViewWrap .addRecord {
       pointer-events: none;
     }
   }
@@ -86,7 +88,6 @@ const ViewWrap = styled.div`
 `;
 
 const isMobile = browserIsMobile();
-const isPublicShare = location.href.includes('public/page');
 
 const navigateToView = (workSheetId, viewId) => {
   const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
@@ -109,14 +110,6 @@ export function View(props) {
   const { apkId, value, viewId, config = {} } = setting;
   const singleViewRef = useRef();
   const isMobileLayout = isMobile || layoutType === 'mobile';
-
-  if (isPublicShare) {
-    return (
-      <EmptyView className="SingleViewWrap valignWrapper emptyView">
-        <div className="Font15 Gray_9e">{_l('暂不支持显示视图组件')}</div>
-      </EmptyView>
-    );
-  }
 
   if (_.isEmpty(viewId)) {
     return (

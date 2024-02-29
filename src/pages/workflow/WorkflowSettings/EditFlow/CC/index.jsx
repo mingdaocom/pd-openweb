@@ -32,7 +32,7 @@ export default class CC extends Component {
       <Fragment>
         <div className="pLeft8 pRight8 pTop5 pBottom5">
           <span className="Gray_75">{_l('通知人：')}</span>
-          <MembersName accounts={item.accounts} />
+          <MembersName {...this.props} accounts={item.accounts} />
         </div>
         {item.isException && (
           <div className="pLeft8 pRight8 pBottom5 yellow">

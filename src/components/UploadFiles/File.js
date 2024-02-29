@@ -11,7 +11,7 @@ import folderDg from 'src/components/kc/folderSelectDialog/folderSelectDialog';
 import { getFileExtends, isDocument, formatTime } from './utils';
 import { formatFileSize, downloadFile, getClassNameByExt } from 'src/util';
 import saveToKnowledge from 'src/components/saveToKnowledge/saveToKnowledge';
-import addLinkFile from 'src/components/addLinkFile/addLinkFile';
+import addLinkFile from 'src/components/addLinkFile/addLinkFile.jsx';
 import _ from 'lodash';
 import RegExp from 'src/util/expression';
 
@@ -209,7 +209,7 @@ export default class FileComponent extends Component {
     const _this = this;
     const { data } = this.props;
 
-    new addLinkFile({
+    addLinkFile({
       isEdit: true,
       data: {
         name: data.originalFilename,
@@ -802,7 +802,7 @@ export default class FileComponent extends Component {
               {((!isMDLink && !hideDownload) ||
                 !hideDownload ||
                 (isMDLink && fileResponse.accountId === md.global.Account.accountId)) &&
-                !md.global.Account.isPortal && !window.share && (
+                !md.global.Account.isPortal && !_.get(window, 'shareState.shareId') && (
                   <div
                     className="UploadFiles-panelBtn"
                     onClick={event => {

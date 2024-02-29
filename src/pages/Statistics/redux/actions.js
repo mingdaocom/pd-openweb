@@ -23,7 +23,8 @@ import {
   formatValuesOfOriginConditions,
   redefineComplexControl,
 } from 'worksheet/common/WorkSheetFilter/util';
-import { getAppFeaturesPath } from 'src/util';
+import { getAppFeaturesPath, getTranslateInfo } from 'src/util';
+import { replaceControlsTranslateInfo } from 'src/pages/worksheet/util';
 import { fillUrl } from 'src/router/navigateTo';
 import _ from 'lodash';
 
@@ -39,10 +40,11 @@ export const changeBase = (data) => {
 let reportConfigDetailRequest = null;
 export const getReportConfigDetail = (data, callBack) => {
   return (dispatch, getState) => {
-    const { reportId, reportType, appId } = data;
+    const { reportId, reportType, appId, customPageConfig = {} } = data;
+    const appPkg = getState().appPkg;
     const { currentReport: oldReport, base } = getState().statistics;
-    const { viewId, permissions } = base;
-    const isPublicShare = location.href.includes('public/chart') || location.href.includes('public/page') || window.shareAuthor;
+    const { viewId, permissions, pageId } = base;
+    const isPublicShare = _.get(window, 'shareState.isPublicChart') || _.get(window, 'shareState.isPublicPage') || _.get(window, 'shareState.isPublicView') || window.shareAuthor;
 
     if (reportType) {
       dispatch({
@@ -68,9 +70,10 @@ export const getReportConfigDetail = (data, callBack) => {
     if (reportConfigDetailRequest && reportConfigDetailRequest.state() === 'pending') {
       reportConfigDetailRequest.abort();
     }
-    reportConfigDetailRequest = reportConfigAjax.getReportConfigDetail(data);
+    reportConfigDetailRequest = reportConfigAjax.getReportConfigDetail({ reportId, reportType, appId, pageId });
     reportConfigDetailRequest.then(result => {
-      const { currentReport, axisControls } = initConfigDetail(reportId, result, oldReport);
+      const { id } = window.appInfo || {};
+      const { currentReport, axisControls } = initConfigDetail(reportId, result, oldReport, customPageConfig);
       if (viewId && !reportId && !_.get(currentReport, ['filter', 'viewId'])) {
         currentReport.filter.viewId = viewId;
       }
@@ -83,7 +86,12 @@ export const getReportConfigDetail = (data, callBack) => {
       });
       dispatch({
         type: 'CHANGE_STATISTICS_AXIS_CONTROLS',
-        data: axisControls
+        data: axisControls.map(item => {
+          return {
+            ...item,
+            controlName: getTranslateInfo(id, item.controlId).name || item.controlName
+          }
+        })
       });
       if (callBack) {
         callBack();
@@ -104,10 +112,22 @@ let reportRequest = null;
 export const getReportData = () => {
   return (dispatch, getState) => {
     const { base, currentReport, reportData } = getState().statistics;
-    const { permissions, report, settingVisible, sheetVisible, filters, filtersGroup } = base;
+    const { permissions, report, pageId, settingVisible, sheetVisible, filters, filtersGroup } = base;
     const data = getNewReport(getState().statistics);
     const success = (result) => {
       const data = fillValueMap(result);
+      const { id } = window.appInfo || {};
+      if (data.xaxes && data.xaxes.controlId) {
+        data.xaxes.controlName = getTranslateInfo(id, data.xaxes.controlId).name || data.xaxes.controlName;
+      }
+      if (data.yaxisList) {
+        data.yaxisList = data.yaxisList.map(data => {
+          return {
+            ...data,
+            controlName: getTranslateInfo(id, data.controlId).name || data.controlName
+          }
+        });
+      }
       if (permissions) {
         const param = mergeReportData(currentReport, result, report.id);
         dispatch({
@@ -176,6 +196,7 @@ export const getReportData = () => {
       const { filter = {}, sorts, version, particleSizeType } = data;
       const params = {
         reportId: report.id,
+        pageId,
         version,
         reload: true,
         filters: []
@@ -218,7 +239,7 @@ export const getReportData = () => {
 export const getTableData = () => {
   return (dispatch, getState) => {
     const { base, reportData } = getState().statistics;
-    const { report, match, settingVisible, activeData, filters, filtersGroup } = base;
+    const { report, pageId, match, settingVisible, activeData, filters, filtersGroup } = base;
     const data = getNewReport(getState().statistics);
 
     dispatch({
@@ -245,6 +266,9 @@ export const getTableData = () => {
 
     if (settingVisible) {
       reportConfigAjax.getTableData(data, { fireImmediately: true }).then(result => {
+        if (!result.style) {
+          result.style = {};
+        }
         dispatch({
           type: 'CHANGE_STATISTICS_TABLE_DATA',
           data: formatYaxisList(result)
@@ -254,6 +278,7 @@ export const getTableData = () => {
       const { filter = {}, sorts, version, particleSizeType, country } = data;
       const params = {
         reportId: report.id,
+        pageId,
         version: data.version,
         reload: true,
         filters: []
@@ -285,6 +310,9 @@ export const getTableData = () => {
         });
       }
       reportRequestAjax.getTableData(params, { fireImmediately: true }).then(result => {
+        if (!result.style) {
+          result.style = {};
+        }
         dispatch({
           type: 'CHANGE_STATISTICS_TABLE_DATA',
           data: formatYaxisList(result)
@@ -298,7 +326,7 @@ export const getReportSingleCacheId = (data) => {
   return (dispatch, getState) => {
     const { base, worksheetInfo, currentReport } = getState().statistics;
     const { report, sheetId, filters = [], filtersGroup = [] } = base;
-    const { viewId, filterControls = [], filterRangeId, rangeType, rangeValue, dynamicFilter } = currentReport.filter || {};
+    const { viewId, filterControls = [], filterRangeId, rangeType, rangeValue, dynamicFilter, today = false, customRangeValue } = currentReport.filter || {};
     const { drillParticleSizeType } = currentReport.country || {};
     const { isPersonal, match, contrastType } = data;
 
@@ -320,7 +348,9 @@ export const getReportSingleCacheId = (data) => {
       filterRangeId,
       rangeType,
       rangeValue,
-      dynamicFilter
+      dynamicFilter,
+      today,
+      customRangeValue
     }, {
       fireImmediately: true
     }).then(result => {
@@ -391,13 +421,19 @@ export const getWorksheetInfo = (worksheetId) => {
         type: 'CHANGE_STATISTICS_DETAIL_LOADING',
         data: false
       });
+      worksheetResult.template.controls = replaceControlsTranslateInfo(worksheetResult.appId, _.get(worksheetResult, ['template', 'controls']));
       dispatch({
         type: 'CHANGE_STATISTICS_WORKSHEET_INFO',
         data: {
           worksheetId,
           appId: worksheetResult.appId,
-          name: worksheetResult.name,
-          views: worksheetResult.views,
+          name: getTranslateInfo(worksheetResult.appId, worksheetId).name || worksheetResult.name,
+          views: worksheetResult.views.map(item => {
+            return {
+              ...item,
+              name: getTranslateInfo(worksheetResult.appId, item.viewId).name || item.name
+            }
+          }),
           switches: worksheetResult.switches,
           columns: (_.get(worksheetResult, ['template', 'controls']) || []).map(item => redefineComplexControl(item))
         }

@@ -1,4 +1,4 @@
-﻿#createFolderBox {
+﻿.createFolderBox {
   margin: 0;
 }
 
@@ -23,7 +23,7 @@
   padding-left: 5px;
 }
 
-#createFolderBox .folderCharge {
+.createFolderBox .folderCharge {
   margin-top: 16px;
 }
 
@@ -37,15 +37,15 @@
   width: 100%;
   vertical-align: top;
 }
-#createFolderBox .folderMemberBox .nanoCon {
+.createFolderBox .folderMemberBox .nanoCon {
   overflow: hidden;
 }
 
-#createFolderBox .folderMemberBox .nanoCon.nano {
+.createFolderBox .folderMemberBox .nanoCon.nano {
   height: 300px;
 }
 
-#createFolderBox .folderMemberBox .memberList {
+.createFolderBox .folderMemberBox .memberList {
   /*overflow: hidden;
   overflow-y: auto;*/
   max-height: 300px;
@@ -372,7 +372,7 @@
   }
 
 /*�ļ�������*/
-#createFolderBox .folderContent .attribute {
+.createFolderBox .folderContent .attribute {
   position: relative;
   height: 38px;
   line-height: 38px;
@@ -380,12 +380,12 @@
   font-size: 0px;
 }
 
-  #createFolderBox .folderContent .attribute .title {
+  .createFolderBox .folderContent .attribute .title {
     display: inline-block;
     vertical-align: middle;
   }
 
-  #createFolderBox .folderContent .attribute .dropBox {
+  .createFolderBox .folderContent .attribute .dropBox {
     display: inline-block;
     border: 1px solid #ccc;
     border-radius: 3px;

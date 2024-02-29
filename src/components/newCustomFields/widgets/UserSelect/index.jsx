@@ -137,7 +137,7 @@ export default class Widgets extends Component {
                 </div>
               ) : (
                 <UserHead
-                  projectId={_.isEmpty(getCurrentProject(projectId)) ? '' : projectId}
+                  projectId={projectId}
                   className="userHead InlineBlock"
                   alwaysBindCard
                   key={index}

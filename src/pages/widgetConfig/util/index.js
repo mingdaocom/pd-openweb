@@ -14,7 +14,14 @@ import _, {
 import update from 'immutability-helper';
 import { navigateTo } from 'src/router/navigateTo';
 import { WHOLE_SIZE } from '../config/Drag';
-import { NOT_AS_TITLE_CONTROL } from '../config';
+import {
+  NOT_AS_TITLE_CONTROL,
+  HAVE_OPTION_WIDGET,
+  HAVE_TABLE_STYLE_WIDGET,
+  HAVE_HIGH_SETTING_WIDGET,
+  HAVE_MOBILE_WIDGET,
+  HAVE_MASK_WIDGET,
+} from '../config';
 import { RELATION_OPTIONS, DEFAULT_TEXT } from '../config/setting';
 import { compose } from 'redux';
 import { DEFAULT_CONFIG, DEFAULT_DATA, WIDGETS_TO_API_TYPE_ENUM, SYS_CONTROLS } from '../config/widget';
@@ -434,7 +441,17 @@ export const supportDisplayRow = item => {
 
 // 关联记录、关联查询须过滤的字段
 export const getFilterRelateControls = (controls = [], showControls = []) => {
-  const filterIds = [22, 43, 45, 47, 49, 51, 52, ...SYS_CONTROLS];
+  const filterIds = [
+    WIDGETS_TO_API_TYPE_ENUM.SPLIT_LINE,
+    WIDGETS_TO_API_TYPE_ENUM.OCR,
+    WIDGETS_TO_API_TYPE_ENUM.EMBED,
+    WIDGETS_TO_API_TYPE_ENUM.BAR_CODE,
+    WIDGETS_TO_API_TYPE_ENUM.SEARCH_BTN,
+    WIDGETS_TO_API_TYPE_ENUM.RELATION_SEARCH,
+    WIDGETS_TO_API_TYPE_ENUM.SECTION,
+    WIDGETS_TO_API_TYPE_ENUM.REMARK,
+    ...SYS_CONTROLS,
+  ];
   return _.filter(controls, item => !_.includes(filterIds, item.type) || _.includes(showControls, item.controlId));
 };
 
@@ -499,20 +516,68 @@ export const isShowUnitConfig = (data = {}, selectedControl = {}) => {
   return true;
 };
 
-export const supportSettingCollapse = props => {
-  const { data = {}, allControls = [] } = props;
-  const { dataSource, sourceControlId, type, advancedSetting = {} } = data;
+export const supportSettingCollapse = (props, key) => {
+  const { data = {}, allControls = [], isRecycle, from } = props;
+  const {
+    dataSource,
+    sourceControlId,
+    type,
+    advancedSetting = {},
+    strDefault = '',
+    enumDefault,
+    globalSheetInfo = {},
+  } = data;
 
-  switch (type) {
-    case 10:
-      return !(dataSource && advancedSetting.checktype === '0');
-    case 9:
-    case 11:
-      return !(dataSource && _.includes(['1', '2'], advancedSetting.showtype));
-    case 37:
-      const parsedDataSource = parseDataSource(dataSource);
-      const { relationControls = [] } = getControlByControlId(allControls, parsedDataSource);
-      const selectedControl = getControlByControlId(relationControls, sourceControlId);
-      return isShowUnitConfig(data, selectedControl);
+  const isDisplayList = type === 29 && advancedSetting.showtype === '2';
+
+  // 回收站只显示基础设置
+  if (isRecycle) {
+    return _.includes(['base'], key);
+  }
+
+  switch (key) {
+    case 'base':
+      return true;
+    case 'option':
+      return _.includes(HAVE_OPTION_WIDGET, type);
+    case 'style':
+      return _.includes(HAVE_TABLE_STYLE_WIDGET, type) || isDisplayList;
+    case 'highsetting':
+      switch (type) {
+        case 10:
+          return !(dataSource && advancedSetting.checktype === '0');
+        case 9:
+        case 11:
+          return !(dataSource && _.includes(['1', '2'], advancedSetting.showtype));
+        case 30:
+          return strDefault.split('')[0] === '0';
+        case 37:
+          const parsedDataSource = parseDataSource(dataSource);
+          const { relationControls = [] } = getControlByControlId(allControls, parsedDataSource);
+          const selectedControl = getControlByControlId(relationControls, sourceControlId);
+          return isShowUnitConfig(data, selectedControl);
+        default:
+          return _.includes(HAVE_HIGH_SETTING_WIDGET, type);
+      }
+    case 'security':
+      return (
+        HAVE_MASK_WIDGET.includes(type) ||
+        (type === 2 && enumDefault === 2) ||
+        (type === 6 && advancedSetting.showtype !== '2')
+      );
+    case 'relate':
+      return (
+        from !== 'subList' &&
+        globalSheetInfo.worksheetId !== dataSource &&
+        (type === 29 || (type === 34 && !dataSource.includes('-') && advancedSetting.detailworksheettype !== '2'))
+      );
+    case 'permission':
+      return true;
+    case 'mobile':
+      return (
+        (_.includes(HAVE_MOBILE_WIDGET, type) ||
+          (type === 14 && _.get(safeParse(advancedSetting.filetype || '{}'), 'type') !== '0')) &&
+        from !== 'subList'
+      );
   }
 };

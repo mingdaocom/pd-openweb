@@ -3,7 +3,7 @@ import { ScrollView, LoadDiv, Icon, Tooltip } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
 import { DetailHeader, DetailFooter, ProcessParameters } from '../components';
 import cx from 'classnames';
-import DialogIntegrationApi from 'src/components/DialogIntegrationApi';
+import selectIntegrationApi from 'src/components/dialogSelectIntegrationApi';
 import SvgIcon from 'src/components/SvgIcon';
 import { getRgbaByColor } from 'src/pages/widgetConfig/util';
 import _ from 'lodash';
@@ -14,7 +14,6 @@ export default class Api extends Component {
     this.state = {
       data: {},
       saveRequest: false,
-      visible: false,
     };
   }
 
@@ -128,8 +127,7 @@ export default class Api extends Component {
    * 渲染内容
    */
   renderContent() {
-    const { companyId, relationId } = this.props;
-    const { data, visible } = this.state;
+    const { data } = this.state;
 
     return (
       <Fragment>
@@ -144,7 +142,7 @@ export default class Api extends Component {
             <span
               className="Gray_9e ThemeHoverColor3 pointer alignItemsCenter"
               style={{ display: 'inline-flex' }}
-              onClick={() => this.setState({ visible: true })}
+              onClick={this.selectIntegrationApi}
             >
               <Icon icon="add_circle_outline" className="Font20 mRight5" />
               {_l('请选择 API 模板')}
@@ -156,7 +154,7 @@ export default class Api extends Component {
                 <Icon
                   icon="swap_horiz"
                   className="Font20 Gray_9e ThemeHoverColor3 pointer"
-                  onClick={() => this.setState({ visible: true })}
+                  onClick={this.selectIntegrationApi}
                 />
               </span>
             </Fragment>
@@ -193,7 +191,7 @@ export default class Api extends Component {
                 <Icon
                   icon="swap_horiz"
                   className="Font20 Gray_9e ThemeHoverColor3 pointer"
-                  onClick={() => this.setState({ visible: true })}
+                  onClick={this.selectIntegrationApi}
                 />
               </span>
             </Fragment>
@@ -206,20 +204,22 @@ export default class Api extends Component {
             <ProcessParameters {...this.props} data={data} updateSource={this.updateSource} />
           </Fragment>
         )}
-
-        {visible && (
-          <DialogIntegrationApi
-            projectId={companyId}
-            appId={relationId}
-            onOk={id => {
-              this.getNodeDetail(this.props, id);
-            }}
-            onClose={() => this.setState({ visible: false })}
-          />
-        )}
       </Fragment>
     );
   }
+
+  /**
+   * 选择已集成的api
+   */
+  selectIntegrationApi = () => {
+    const { companyId, relationId } = this.props;
+
+    selectIntegrationApi({
+      projectId: companyId,
+      appId: relationId,
+      onOk: id => this.getNodeDetail(this.props, id),
+    });
+  };
 
   render() {
     const { data } = this.state;

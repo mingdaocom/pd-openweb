@@ -106,6 +106,7 @@ Common.settingOptions = {
   isOpenMessageSound: 14,
   isOpenMessageTwinkle: 15,
   allowMultipleDevicesUse: 16,
+  backHomepageWay: 17,
 };
 
 export default Common;

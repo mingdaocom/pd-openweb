@@ -165,7 +165,8 @@ export const Wrap = styled.div`
     display: inline-block;
   }
   .title {
-    width: 56px;
+    width: 60px;
+    padding-right: 5px;
   }
   .rInfo {
     width: calc(100% - 56px);
@@ -239,6 +240,26 @@ export const Wrap = styled.div`
     &:hover {
       .hoverAvatar {
         display: block;
+      }
+    }
+  }
+  .languagueSetting {
+    border: 1px solid #e0e0e0;
+    border-radius: 3px;
+    overflow: hidden;
+    .languagueItem {
+      height: 32px;
+      line-height: 32px;
+      text-align: center;
+      border-right: 1px solid #e0e0e0;
+      background: #fff;
+      color: #bdbdbd;
+      &:last-child {
+        border-right: none;
+      }
+      &.active {
+        background: #2196f3;
+        color: #fff;
       }
     }
   }

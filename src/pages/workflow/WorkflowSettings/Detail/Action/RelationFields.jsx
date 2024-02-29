@@ -70,7 +70,7 @@ export default class RelationFields extends Component {
   }
 
   render() {
-    const { data, SelectNodeObjectChange, updateSource, isApproval } = this.props;
+    const { data, SelectNodeObjectChange, updateSource } = this.props;
 
     return (
       <Fragment>
@@ -113,14 +113,10 @@ export default class RelationFields extends Component {
               filterEncryptCondition={true}
             />
 
-            {!isApproval && (
-              <FindResult
-                executeType={data.executeType}
-                switchExecuteType={executeType => updateSource({ executeType })}
-              />
-            )}
-
-            {isApproval && <div className="mTop20 bold">{_l('未获取到数据时：继续执行')}</div>}
+            <FindResult
+              executeType={data.executeType}
+              switchExecuteType={executeType => updateSource({ executeType })}
+            />
           </Fragment>
         )}
       </Fragment>

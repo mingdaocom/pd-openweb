@@ -417,7 +417,11 @@ class TaskBasic extends Component {
           }}
           size={26}
           secretType={1}
-          operation={hasAuth || item.account.accountID === md.global.Account.accountId ? this.renderMemberOpHtml(item.account, hasAuth, item.status === 1) : null}
+          operation={
+            hasAuth || item.account.accountID === md.global.Account.accountId
+              ? this.renderMemberOpHtml(item.account, hasAuth, item.status === 1)
+              : null
+          }
         />
       </span>
     );
@@ -551,14 +555,6 @@ class TaskBasic extends Component {
         callback,
       },
       selectCb: callback,
-      ChooseInviteSettings: {
-        callback(users, callbackInviteResult) {
-          if (!callbackInviteResult) {
-            callbackInviteResult = function () {};
-          }
-          callback(users, callbackInviteResult);
-        },
-      },
     });
   };
 
@@ -811,15 +807,35 @@ class TaskBasic extends Component {
                   }}
                 />
               ) : (
-                <RichText
-                  id={taskId}
-                  maxWidth={550}
-                  data={data.summary || ''}
-                  onSave={this.updateTaskSummary}
-                  className={cx('taskDetailEdit appIntroDescriptionEditor')}
-                  maxHeight={500}
-                  dropdownPanelPosition={{ right: 'initial' }}
-                />
+                <div className="flexColumn">
+                  <RichText
+                    id={taskId}
+                    maxWidth={550}
+                    data={data.summary || ''}
+                    onActualSave={summary => (this.cacheSummary = summary)}
+                    className={cx('taskDetailEdit appIntroDescriptionEditor')}
+                    maxHeight={500}
+                    dropdownPanelPosition={{ right: 'initial' }}
+                  />
+                  <div className="flexRow taskDetailEditBtn alignItemsCenter">
+                    <div className="flex" />
+                    <span
+                      className="Gray_9e ThemeHoverColor3 mRight24"
+                      onClick={() => this.setState({ isEditing: false })}
+                    >
+                      {_l('取消')}
+                    </span>
+                    <span
+                      className="mRight16 taskDetailEditBtnSave ThemeBGColor3 ThemeHoverBGColor2"
+                      onClick={() => {
+                        this.updateTaskSummary(this.cacheSummary);
+                        this.setState({ isEditing: false });
+                      }}
+                    >
+                      {_l('保存')}
+                    </span>
+                  </div>
+                </div>
               )}
             </div>
             <div className="detailAtts">

@@ -37,6 +37,7 @@ export default class RecordCard extends Component {
   };
   static defaultProps = {
     from: 1,
+    showControls: [],
   };
   state = {
     forceShowFullValue: null,
@@ -95,6 +96,7 @@ export default class RecordCard extends Component {
       isCharge,
       disabledLink,
       worksheetId,
+      appId,
     } = this.props;
     const { cover, cardControls } = this;
     const { forceShowFullValue } = this.state;
@@ -168,6 +170,7 @@ export default class RecordCard extends Component {
                     isCharge={isCharge}
                     row={data}
                     worksheetId={worksheetId}
+                    appId={appId}
                   />
                 ) : (
                   <div className="emptyTag"></div>

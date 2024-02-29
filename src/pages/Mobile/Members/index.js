@@ -53,7 +53,7 @@ class Members extends Component {
                   },
                   ({ data }) => {
                     if (data) {
-                      this.props.history.push('/mobile/appHome');
+                      this.props.history.push('/mobile/dashboard');
                     }
                   },
                 ),

@@ -1,6 +1,6 @@
 import React, { Fragment, Component } from 'react';
 import cx from 'classnames';
-import { Dialog, Icon, Button, LoadDiv, ScrollView, Signature } from 'ming-ui';
+import { Dialog, Icon, Button, LoadDiv, ScrollView, Signature, VerifyPasswordInput } from 'ming-ui';
 import { Tooltip, Checkbox } from 'antd';
 import Card from './Card';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
@@ -12,7 +12,6 @@ import './index.less';
 import _ from 'lodash';
 import TodoEntrust from './TodoEntrust';
 import { verifyPassword } from 'src/util';
-import VerifyPassword from '../components/ExecDialog/components/VerifyPassword';
 
 const dateScope = getDateScope();
 
@@ -164,7 +163,7 @@ export default class MyProcess extends Component {
   };
   constructor(props) {
     super(props);
-    let stateTab = TABS.WAITING_APPROVE;
+    let stateTab = props.activeTab || TABS.WAITING_APPROVE;
     let filter = null;
 
     if (props.match) {
@@ -199,7 +198,7 @@ export default class MyProcess extends Component {
       approveType: null,
       encryptType: null,
       rejectVisible: false,
-      passVisible: false
+      passVisible: false,
     };
   }
   componentDidMount() {
@@ -454,7 +453,7 @@ export default class MyProcess extends Component {
               this.handleChangeTab(TABS.WAITING_APPROVE);
             }}
           >
-            <span>{_l('待审批')}</span>
+            <span>{_l('审批')}</span>
             {waitingApproval > 0 ? <span className="processCount red">{waitingApproval}</span> : null}
           </div>
           <div
@@ -463,7 +462,7 @@ export default class MyProcess extends Component {
               this.handleChangeTab(TABS.WAITING_FILL);
             }}
           >
-            <span>{_l('待填写')}</span>
+            <span>{_l('填写')}</span>
             {waitingWrite > 0 ? <span className="processCount red">{waitingWrite}</span> : null}
           </div>
           <div
@@ -472,7 +471,7 @@ export default class MyProcess extends Component {
               this.handleChangeTab(TABS.WAITING_EXAMINE);
             }}
           >
-            <span>{_l('待查看')}</span>
+            <span>{_l('抄送')}</span>
             {waitingExamine > 0 ? <span className="processCount red">{waitingExamine}</span> : null}
           </div>
           <div
@@ -481,7 +480,7 @@ export default class MyProcess extends Component {
               this.handleChangeTab(TABS.MY_SPONSOR);
             }}
           >
-            <span>{_l('我发起的')}</span>
+            <span>{_l('发起')}</span>
             {mySponsor > 0 ? <span className="processCount">{mySponsor}</span> : null}
           </div>
           <div className="cuttingLine" />
@@ -534,7 +533,13 @@ export default class MyProcess extends Component {
         <div className="icnoWrapper">
           <Icon icon="ic-line" />
         </div>
-        <span>{this.state.visible ? _l('暂无搜索结果') : _l('暂无流程')}</span>
+        <span>
+          {this.state.visible
+            ? _l('暂无搜索结果')
+            : this.state.stateTab === TABS.MY_SPONSOR
+            ? _l('暂无流程')
+            : _l('没有待办')}{' '}
+        </span>
       </div>
     );
   }
@@ -635,10 +640,16 @@ export default class MyProcess extends Component {
                   }
                 }}
               >
-                <div className={cx('passApprove bold pointer', { active: passVisible, all: approveCards.length })}>{_l('通过')}</div>
+                <div className={cx('passApprove bold pointer', { active: passVisible, all: approveCards.length })}>
+                  {_l('通过')}
+                </div>
               </Tooltip>
               <div
-                className={cx('rejectApprove bold pointer', { active: rejectVisible, select: rejectList.length, all: approveCards.length && rejectList.length === approveCards.length })}
+                className={cx('rejectApprove bold pointer', {
+                  active: rejectVisible,
+                  select: rejectList.length,
+                  all: approveCards.length && rejectList.length === approveCards.length,
+                })}
                 onClick={() => {
                   if (_.isEmpty(approveCards)) {
                     alert(_l('请先勾选需要处理的审批'), 2);
@@ -650,7 +661,9 @@ export default class MyProcess extends Component {
                 }}
               >
                 {_l('否决')}
-                {!(approveCards.length && rejectList.length === approveCards.length) && !!rejectList.length && rejectList.length}
+                {!(approveCards.length && rejectList.length === approveCards.length) &&
+                  !!rejectList.length &&
+                  rejectList.length}
               </div>
             </div>
           )}
@@ -735,7 +748,8 @@ export default class MyProcess extends Component {
     const { approveType, encryptType } = this.state;
     const type = approveType || encryptType;
     const batchType = type === 4 ? 'auth.passTypeList' : 'auth.overruleTypeList';
-    const approveCards = type === 4 ? this.state.approveCards : this.state.approveCards.filter(c => _.get(c, 'flowNode.btnMap')[5]);
+    const approveCards =
+      type === 4 ? this.state.approveCards : this.state.approveCards.filter(c => _.get(c, 'flowNode.btnMap')[5]);
     const signatureApproveCards = approveCards.filter(card => (_.get(card.flowNode, batchType) || []).includes(1));
     const encryptCard = approveCards.filter(card => _.get(card.flowNode, 'encrypt'));
     return (
@@ -760,6 +774,10 @@ export default class MyProcess extends Component {
             }
           };
           if (encryptCard.length) {
+            if (!this.password || !this.password.trim()) {
+              alert(_l('请输入密码'), 3);
+              return;
+            }
             verifyPassword({
               password: this.password,
               closeImageValidation: true,
@@ -793,8 +811,10 @@ export default class MyProcess extends Component {
         )}
         {encryptType && (
           <div className="mTop20">
-            <VerifyPassword
-              removeNoneVerification={true}
+            <VerifyPasswordInput
+              showSubTitle={false}
+              isRequired={true}
+              allowNoVerify={false}
               onChange={({ password }) => {
                 if (password !== undefined) this.password = password;
               }}
@@ -838,7 +858,9 @@ export default class MyProcess extends Component {
         ))}
         {!!noRejectCards.length && (
           <Fragment>
-            <div className="mBottom10 Gray_75">{_l('不能否决事项')} {noRejectCards.length}</div>
+            <div className="mBottom10 Gray_75">
+              {_l('不能否决事项')} {noRejectCards.length}
+            </div>
             {noRejectCards.map(item => (
               <Card
                 key={item.workId}
@@ -915,7 +937,7 @@ export default class MyProcess extends Component {
       isResetFilter,
       approveType,
       encryptType,
-      rejectVisible
+      rejectVisible,
     } = this.state;
 
     return (
@@ -978,9 +1000,6 @@ export default class MyProcess extends Component {
               }
             }}
             onError={() => {
-              if (stateTab === TABS.WAITING_EXAMINE) {
-                this.handleRead(this.state.selectCard);
-              }
               if ([TABS.WAITING_APPROVE, TABS.WAITING_FILL].includes(stateTab)) {
                 this.handleSave(this.state.selectCard);
               }

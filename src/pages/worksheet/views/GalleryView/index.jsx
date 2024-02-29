@@ -67,7 +67,10 @@ export default class RecordGallery extends Component {
       return;
     }
     const isNoAs =
-      !_.isEqual(_.omit(currentView, ['name', 'worksheetName']), _.omit(preView, ['name', 'worksheetName'])) ||
+      !_.isEqual(
+        _.omit(currentView, ['name', 'worksheetName', 'advancedSetting.rowcolumns', 'advancedSetting.checkradioid']),
+        _.omit(preView, ['name', 'worksheetName', 'advancedSetting.rowcolumns', 'advancedSetting.checkradioid']),
+      ) ||
       clicksearch !== this.state.clicksearch ||
       !_.isEqual(navGroupFilters, this.props.navGroupFilters);
     if (
@@ -159,10 +162,12 @@ export default class RecordGallery extends Component {
     let { base = {}, views = [], width } = props;
     const { viewId = '' } = base;
     const view = views.find(o => o.viewId === viewId) || {};
-    const { coverposition = '2' } = getAdvanceSetting(view);
+    const { coverposition = '2', cardwidth } = getAdvanceSetting(view);
     const isTopCover = coverposition === '2'; // 封面上
     width = width - 8 * 2; //padding:8px;
-    return Math.floor(width / Math.floor(width / (!isTopCover ? 336 : 246)));
+    const minW = !!cardwidth ? Number(cardwidth) + 16 : !isTopCover ? 336 : 246;
+    let W = minW > width ? minW : Math.floor(Math.floor(width) / Math.floor(Math.floor(width) / minW));
+    return W;
   };
 
   formData = row => {

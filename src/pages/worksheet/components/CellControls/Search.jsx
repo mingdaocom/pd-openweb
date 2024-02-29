@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { func, number, shape, string } from 'prop-types';
 import styled from 'styled-components';
 import Search from 'src/components/newCustomFields/widgets/Search';
@@ -83,6 +83,9 @@ export default function CellSearch(props) {
     updateControlValue,
   } = props;
   const [value, setValue] = useState(cell.value);
+  useEffect(() => {
+    setValue(cell.value);
+  }, [cell.value]);
   return (
     <Con
       className={cx(className, 'cellControl flexRow', {
@@ -105,7 +108,7 @@ export default function CellSearch(props) {
               advancedSetting: { ...cell.advancedSetting, width: 200 },
               ..._.pick(props, ['projectId', 'recordId', 'appId', 'worksheetId', 'viewId']),
             }}
-            formData={!rowFormData ? null : rowFormData()}
+            formData={!rowFormData ? null : _.isFunction(rowFormData) ? rowFormData() : rowFormData}
             defaultSelectProps={{ open: true, dropdownMatchSelectWidth: 420 }}
             onChange={(value, id) => {
               if (id) {

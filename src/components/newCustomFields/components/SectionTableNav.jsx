@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Motion, spring } from 'react-motion';
-import { Icon } from 'ming-ui';
+import { Icon, Tooltip } from 'ming-ui';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import SvgIcon from 'src/components/SvgIcon';
@@ -74,6 +74,7 @@ const SplitBtn = styled.div`
   padding-left: 10px;
   height: 56px;
   span {
+    display: inline-block;
     line-height: 1em;
     margin: 18px 0;
   }
@@ -201,14 +202,16 @@ export default function SectionTableNav(props) {
       )}
       {showSplitIcon && (
         <SplitBtn>
-          <span className={isSplit ? '' : 'tip-top'} data-tip={isSplit ? _l('取消分栏') : _l('分栏显示')}>
-            <i
-              className={`icon icon-${
-                isSplit ? 'call_to_action_off' : 'call_to_action_on'
-              } Font20 Gray_9e Hand ThemeHoverColor3`}
-              onClick={() => setSplit(!isSplit)}
-            />
-          </span>
+          <Tooltip text={isSplit ? _l('取消分栏') : _l('分栏显示')}>
+            <span>
+              <i
+                className={`icon icon-${
+                  isSplit ? 'call_to_action_off' : 'call_to_action_on'
+                } Font20 Gray_9e Hand ThemeHoverColor3`}
+                onClick={() => setSplit(!isSplit)}
+              />
+            </span>
+          </Tooltip>
         </SplitBtn>
       )}
     </Con>

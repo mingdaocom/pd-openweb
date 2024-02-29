@@ -3,8 +3,9 @@ import styled from 'styled-components';
 import NewRecord from 'worksheet/common/newRecord/NewRecord';
 import MobileNewRecord from 'worksheet/common/newRecord/MobileNewRecord';
 import ButtonDisplay from '../editWidget/button/ButtonDisplay';
-import { Dialog } from 'ming-ui';
+import { Dialog, Input } from 'ming-ui';
 import { Modal, Toast } from 'antd-mobile';
+import ConfirmButton from 'ming-ui/components/Dialog/ConfirmButton';
 import copy from 'copy-to-clipboard';
 import ScanQRCode from 'src/components/newCustomFields/components/ScanQRCode';
 import homeAppAjax from 'src/api/homeApp';
@@ -14,11 +15,13 @@ import processAjax from 'src/pages/workflow/api/process';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { hrefReg } from 'src/pages/customPage/components/previewContent';
 import { RecordInfoModal } from 'mobile/Record';
+import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
 import { genUrl } from '../../util';
 import { connect } from 'react-redux';
 import { browserIsMobile, mdAppResponse, addBehaviorLog } from 'src/util';
 import { getRequest } from 'src/util';
 import customBtnWorkflow from 'mobile/components/socket/customBtnWorkflow';
+import { showFilteredRecords } from 'worksheet/components/SearchRecordResult';
 import { navigateTo } from 'src/router/navigateTo';
 import _ from 'lodash';
 import moment from 'moment';
@@ -205,7 +208,47 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
         setCurrentScanBtn(item);
         scanQRCodeRef.current.handleScanCode();
       } else {
-        alert('请去移动端扫码操作', 3);
+        const { placeholder } = item.config || {};
+        const onOk = () => {
+          const value = _.get(scanQRCodeRef, 'current.state.value');
+          if (value) {
+            handleScanQRCodeResult(value, item);
+            dialogConfirm();
+          } else {
+            alert(_l('请输入内容'), 3);
+          }
+        };
+        const dialogConfirm = Dialog.confirm({
+          width: 480,
+          title: <span className="bold">{name}</span>,
+          description: (
+            <Input
+              autoFocus={true}
+              defaultValue=""
+              className="w100 confirmInput"
+              placeholder={placeholder}
+              ref={scanQRCodeRef}
+              onKeyDown={e => {
+                if (e.keyCode === 13) {
+                  onOk();
+                }
+              }}
+            />
+          ),
+          footer: (
+            <div className="Dialog-footer-btns">
+              <ConfirmButton
+                onClose={_.noop}
+                action={() => {
+                  onOk();
+                }}
+                type="primary"
+              >
+                {_l('确定')}
+              </ConfirmButton>
+            </div>
+          )
+        });
       }
     }
     if (action === 6) {
@@ -241,17 +284,6 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
   async function handleScanQRCodeResult(result, appCurrentScanBtn) {
     const scanBtn = appCurrentScanBtn || currentScanBtn;
     const { config = {}, value, viewId } = scanBtn;
-    const showModal = () => {
-      Modal.alert(<div className="WordBreak">{result}</div>, '', [
-        {
-          text: _l('复制'),
-          onPress: () => {
-            copy(result);
-            alert(_l('复制成功'), 1);
-          },
-        },
-      ]);
-    };
 
     // 链接
     if (hrefReg.test(result)) {
@@ -274,7 +306,8 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
           Toast.hide();
           run(data);
         } else {
-          const data = result.match(/app\/(.*)\/(.*)\/(.*)\/row\/(.*)/) || [];
+          const urlPath = result.split('?')[0];
+          const data = urlPath.match(/app\/(.*)\/(.*)\/(.*)\/row\/(.*)/) || [];
           const [url, appId, worksheetId, viewId, rowId] = data;
           if (appId && worksheetId && viewId && rowId) {
             run({
@@ -300,7 +333,26 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
     }
     // 文本，无处理
     if (config.text === 0) {
-      showModal();
+      if (isMobile) {
+        Modal.alert(<div className="WordBreak">{result}</div>, '', [
+          {
+            text: _l('复制'),
+            onPress: () => {
+              copy(result);
+              alert(_l('复制成功'), 1);
+            },
+          },
+        ]);
+      } else {
+        Dialog.confirm({
+          title: <div className="mTop10">{result}</div>,
+          onOk: () => {
+            copy(result);
+            alert(_l('复制成功'), 1);
+          },
+          okText: _l('复制')
+        });
+      }
     }
     // 文本，搜索打开记录
     if (config.text === 1 && value && viewId) {
@@ -310,11 +362,25 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
       isMobile && Toast.hide();
       const filterId = isFilter && scanBtn.filterId ? scanBtn.filterId : '';
       const searchId = scanBtn.searchId ? scanBtn.searchId : '';
-      window.mobileNavigateTo(
-        `/mobile/searchRecord/${appId}/${value}/${viewId}?keyWords=${encodeURIComponent(
-          result,
-        )}&filterId=${filterId}&searchId=${searchId}`,
-      );
+      if (isMobile) {
+        window.mobileNavigateTo(
+          `/mobile/searchRecord/${appId}/${value}/${viewId}?keyWords=${encodeURIComponent(
+            result,
+          )}&filterId=${filterId}&searchId=${searchId}`,
+        );
+      } else {
+        // window.open(`/mobile/searchRecord/${appId}/${value}/${viewId}?keyWords=${encodeURIComponent(
+        //     result,
+        //   )}&filterId=${filterId}&searchId=${searchId}`);
+        showFilteredRecords({
+          appId,
+          worksheetId: value,
+          viewId,
+          filterId,
+          searchId,
+          keyWords: result
+        });
+      }
     }
     // 文本，调用封装业务流程
     if (config.text === 2) {
@@ -327,7 +393,7 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
   return (
     <ButtonListWrap>
       <ButtonDisplay displayMode="display" layoutType={layoutType} onClick={handleClick} {...button} />
-      {includeScanQRCode && (
+      {includeScanQRCode && isMobile && (
         <ScanQRCode ref={scanQRCodeRef} projectId={projectId} onScanQRCodeResult={handleScanQRCodeResult} />
       )}
       {visible && (
@@ -360,17 +426,33 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
           hideNewRecord={() => setInfo({ visible: false })}
         />
       )}
-      <RecordInfoModal
-        className="full"
-        visible={!!previewRecord.rowId}
-        appId={previewRecord.appId}
-        worksheetId={previewRecord.worksheetId}
-        viewId={previewRecord.viewId}
-        rowId={previewRecord.rowId}
-        onClose={() => {
-          setPreviewRecord({});
-        }}
-      />
+      {isMobile ? (
+        <RecordInfoModal
+          className="full"
+          visible={!!previewRecord.rowId}
+          appId={previewRecord.appId}
+          worksheetId={previewRecord.worksheetId}
+          viewId={previewRecord.viewId}
+          rowId={previewRecord.rowId}
+          onClose={() => {
+            setPreviewRecord({});
+          }}
+        />
+      ) : (
+        !!previewRecord.rowId && (
+          <RecordInfoWrapper
+            visible
+            projectId={projectId}
+            recordId={previewRecord.rowId}
+            worksheetId={previewRecord.worksheetId}
+            appId={previewRecord.appId}
+            viewId={previewRecord.viewId}
+            hideRecordInfo={() => {
+              setPreviewRecord({});
+            }}
+          />
+        )
+      )}
     </ButtonListWrap>
   );
 }

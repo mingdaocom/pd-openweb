@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { createUploader } from 'src/pages/kc/utils/qiniuUpload';
+import createUploader from 'src/library/plupload/createUploader';
 
 export default class UploadFile extends Component {
   constructor(props) {

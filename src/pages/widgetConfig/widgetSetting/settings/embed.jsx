@@ -239,7 +239,7 @@ export default function Embed(props) {
               onChange(handleAdvancedSettingChange(data, { height: value }));
             }}
           />
-          <span>{_l('px')}</span>
+          <span>px</span>
         </div>
         {enumDefault !== 2 && (
           <div className="labelWrap">

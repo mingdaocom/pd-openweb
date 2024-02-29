@@ -20,6 +20,7 @@ export default function Text(props) {
   return (
     <Fragment>
       <SettingItem>
+        <div className="settingItemTitle">{_l('类型')}</div>
         <RadioGroup
           size="middle"
           checkedValue={data.enumDefault === 0 ? 2 : data.enumDefault}

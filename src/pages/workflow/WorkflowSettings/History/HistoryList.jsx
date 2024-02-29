@@ -1,14 +1,15 @@
 import React, { Component, Fragment } from 'react';
-import { string, number, arrayOf, shape, bool, func, any } from 'prop-types';
+import { string, number, arrayOf, shape, bool, func, any, array } from 'prop-types';
 import cx from 'classnames';
 import HistoryListItem from './HistoryListItem';
 import { STATUS2COLOR } from './config';
 import styled from 'styled-components';
-import { Menu, MenuItem, Support, Dialog } from 'ming-ui';
+import { Menu, MenuItem, Support, Dialog, Checkbox } from 'ming-ui';
 import { SUPPORT_HREF } from '../enum';
 import _ from 'lodash';
 import moment from 'moment';
 import processVersion from '../../api/processVersion';
+import { Tooltip } from 'antd';
 
 const HISTORY_TITLE = [
   { id: 'status', text: _l('状态') },
@@ -51,14 +52,18 @@ export default class HistoryList extends Component {
     getMore: func,
     hasMoreData: bool,
     requestPending: bool,
+    batchIds: array,
     onRecovery: func,
     onRefreshAccumulation: func,
+    onUpdateBatchIds: func,
   };
   static defaultProps = {
     data: [],
+    batchIds: [],
     getMore: () => {},
     onRecovery: () => {},
     onRefreshAccumulation: () => {},
+    onUpdateBatchIds: () => {},
   };
 
   state = {
@@ -197,6 +202,30 @@ export default class HistoryList extends Component {
     return (
       <div className="historyListWrap">
         <ul className="historyListTitle">
+          <li style={{ fontWeight: 600 }} className="Gray_75 Font14 batch">
+            <Tooltip placement="bottomLeft" align={{ offset: [-10, 0] }} title={_l('全选已加载列表')}>
+              <span className="InlineBlock" style={{ width: 18 }}>
+                <Checkbox
+                  checked={!!res.batchIds.length}
+                  clearselected={!!res.batchIds.length && res.batchIds.length !== data.length}
+                  onClick={checked => {
+                    res.onUpdateBatchIds(
+                      !checked || (checked && res.batchIds.length !== data.length)
+                        ? data.map(o => {
+                            return {
+                              id: o.id,
+                              status: o.status,
+                              cause: o.instanceLog.cause,
+                            };
+                          })
+                        : [],
+                    );
+                  }}
+                />
+              </span>
+            </Tooltip>
+          </li>
+
           {HISTORY_TITLE.map(item => {
             const { id, text } = item;
             return (

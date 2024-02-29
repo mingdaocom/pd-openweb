@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import ajaxRequest from 'src/api/taskCenter';
-import { expireDialogAsync } from 'src/components/common/function';
+import { expireDialogAsync } from 'src/util';
 import 'src/components/selectGroup/selectAllGroup';
 import DialogBase from 'ming-ui/components/Dialog/DialogBase';
 import _ from 'lodash';

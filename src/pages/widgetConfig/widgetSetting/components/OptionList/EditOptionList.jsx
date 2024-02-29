@@ -31,7 +31,7 @@ export default function EditOptionList(props) {
       if (code === 1) {
         onOk(isEmpty(data) ? nextData : data);
       } else {
-        alert(_l('%0', msg));
+        alert(msg);
       }
     });
   };

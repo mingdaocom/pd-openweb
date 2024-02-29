@@ -522,17 +522,22 @@ export const DEFAULT_DATA = {
     strDefault: '10',
     dataSource: '',
     sourceControlId: '', // 字段id
+    advancedSetting: {
+      sorttype: 'en',
+    },
   },
   CONCATENATE: {
     controlName: _l('文本组合%04000'),
     size: 12,
     advancedSetting: {
       analysislink: '1',
+      sorttype: 'en',
     },
   },
   AUTO_ID: {
     advancedSetting: {
       increase: '[{"type":1,"repeatType":0,"start":null,"length":0,"format":""}]',
+      sorttype: 'en',
     },
     controlName: _l('自动编号'),
     size: 6,
@@ -841,3 +846,47 @@ export const SYS_CONTROLS_WORKFLOW = ['wfname', 'wfcuaids', 'wfcaid', 'wfctime',
 
 // 所有控件
 export const ALL_WIDGETS_TYPE = { ...COMMON_USE_WIDGETS, ...ADVANCE_WIDGETS, ...RELATE_WIDGETS, ...SPECIAL_WIDGETS };
+
+// 表单模块组件
+export const EXPAND_ITEMS = [
+  {
+    key: 'base',
+    label: _l('基础设置'),
+    name: 'WidgetBase',
+  },
+  {
+    key: 'option',
+    label: _l('操作设置'),
+    name: 'WidgetOperate',
+  },
+  {
+    key: 'style',
+    label: _l('表格设置'),
+    name: 'WidgetStyle',
+  },
+  {
+    key: 'highsetting',
+    label: _l('高级设置'),
+    name: 'WidgetHighSetting',
+  },
+  {
+    key: 'security',
+    label: _l('安全'),
+    name: 'WidgetSecurity',
+  },
+  {
+    key: 'relate',
+    label: _l('双向关联'),
+    name: 'BothWayRelate',
+  },
+  {
+    key: 'permission',
+    label: _l('字段属性'),
+    name: 'WidgetPermission',
+  },
+  {
+    key: 'mobile',
+    label: _l('移动端设置'),
+    name: 'WidgetMobile',
+  },
+];

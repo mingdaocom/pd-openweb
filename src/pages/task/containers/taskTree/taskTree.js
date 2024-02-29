@@ -2,7 +2,6 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import './css/taskTree.less';
 import doT from 'dot';
-import 'src/components/mdDialog/dialog';
 import ajaxRequest from 'src/api/taskCenter';
 import { listLoadingContent } from '../../utils/taskComm';
 import { formatTaskTime, errorMessage, formatStatus, checkIsProject } from '../../utils/utils';

@@ -7,16 +7,15 @@ import { Flex, WhiteSpace } from 'antd-mobile';
 import withoutRows from './assets/withoutRows.png';
 
 const ViewEmptyWrap = styled.div`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -100%);
+  width: 100%;
+  height: 100%;
+  justify-content: center;
   &.empty {
     &:hover {
       color: #2196f3;
     }
   }
-  .iconWrap {
+  .iconCon {
     width: 120px;
     height: 120px;
     margin: 0 auto;
@@ -41,7 +40,7 @@ const ViewEmptyWrap = styled.div`
 const MobileViewEmpty = styled.div`
   width: 100%;
   height: 100%;
-`
+`;
 
 const STATUS_INFO = {
   empty: { text: _l('暂未添加记录'), icon: 'draft-box' },
@@ -59,21 +58,22 @@ export default function ViewEmpty({ filters = {}, viewFilter = [] }) {
 
   const status = getStatus();
   const { icon, text } = STATUS_INFO[status];
-  const isMobile = browserIsMobile()
-  if(isMobile) {
-    return (<MobileViewEmpty>
-      <Flex className="withoutRows" direction="column" justify="center" align="center">
-        <img className="img" src={withoutRows} />
-        <WhiteSpace size="md" />
-        <div className="text">{_l('此视图下暂无记录')}</div>
-      </Flex>
-    </MobileViewEmpty>);
+  const isMobile = browserIsMobile();
+  if (isMobile) {
+    return (
+      <MobileViewEmpty>
+        <Flex className="withoutRows" direction="column" justify="center" align="center">
+          <img className="img" src={withoutRows} />
+          <WhiteSpace size="md" />
+          <div className="text">{_l('此视图下暂无记录')}</div>
+        </Flex>
+      </MobileViewEmpty>
+    );
   }
 
-
   return (
-    <ViewEmptyWrap className={status}>
-      <div className="iconWrap">
+    <ViewEmptyWrap className={status + ' flexColumn'}>
+      <div className="iconCon">
         <i className={`icon-${icon}`}></i>
       </div>
       <p>{text}</p>

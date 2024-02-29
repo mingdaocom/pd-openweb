@@ -110,7 +110,7 @@ export const SearchUsers = styled.div`
 `;
 
 export function UserItem(props) {
-  const { className, notShowCurrentUserName, user = {}, type, onClick, appId } = props;
+  const { className, notShowCurrentUserName, user = {}, type, onClick, appId, projectId } = props;
   const { accountId, phone, fullname, job, department } = user;
 
   return (
@@ -123,6 +123,7 @@ export function UserItem(props) {
         }}
         appId={appId}
         size={28}
+        projectId={projectId}
       />
       <div className="flex flexColumn text">
         <div className="name ellipsis" title={fullname}>
@@ -159,6 +160,7 @@ export function UserList(props) {
     onSelect,
     onShowMore = () => {},
     appId,
+    projectId
   } = props;
   const [isShowMore, setIsShowMore] = useState(false);
   return (
@@ -172,6 +174,7 @@ export function UserList(props) {
             type={type}
             key={i}
             appId={appId}
+            projectId={projectId}
             onClick={() => onSelect(user)}
           />
         ))}

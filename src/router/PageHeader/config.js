@@ -1,6 +1,14 @@
 export const PAGE_HEADER_ROUTE_CONFIG = {
+  home: {
+    path: '/dashboard',
+    component: () => import('src/pages/PageHeader/AppCenterHeader'),
+  },
   my: {
     path: '/app/my/(group)?/:projectId?/:groupType?/:groupId?',
+    component: () => import('src/pages/PageHeader/AppCenterHeader'),
+  },
+  recordFav: {
+    path: '/favorite',
     component: () => import('src/pages/PageHeader/AppCenterHeader'),
   },
   lib: {

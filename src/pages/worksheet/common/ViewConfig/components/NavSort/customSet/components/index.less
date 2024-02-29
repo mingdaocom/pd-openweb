@@ -1,0 +1,44 @@
+.sortCustom,
+.sortCustomFile {
+  &.sortCustomFile {
+    z-index: 10000;
+    position: relative;
+    .addNext,
+    .deleteLine {
+      opacity: 0 !important;
+    }
+  }
+  .customsortItem {
+    height: 36px;
+    line-height: 36px;
+    .addNext {
+      opacity: 0;
+      width: 36px;
+      height: 36px;
+      line-height: 36px;
+      background: rgba(0, 0, 0, 0.04);
+      border-radius: 3px 3px 3px 3px;
+      &.disabled {
+        cursor: not-allowed;
+      }
+    }
+    .deleteLine {
+      opacity: 0;
+      color: #9e9e9e;
+      &:hover {
+        color: red;
+      }
+    }
+    &:hover {
+      .con {
+        background: rgba(0, 0, 0, 0.04);
+        border-radius: 3px 3px 3px 3px;
+      }
+      .dragHandle,
+      .addNext,
+      .deleteLine {
+        opacity: 1;
+      }
+    }
+  }
+}

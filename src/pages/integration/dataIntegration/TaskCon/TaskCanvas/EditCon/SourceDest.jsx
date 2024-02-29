@@ -31,6 +31,16 @@ const Wrap = styled.div`
     height: 36px;
   }
 `;
+const WrapTopic = styled.div`
+  .sourceDesInput {
+    width: 100%;
+    height: 40px;
+    background: #f5f5f5;
+    border-radius: 4px 4px 4px 4px;
+    line-height: 40px;
+    border: 1px solid #dedede;
+  }
+`;
 
 const initData = {
   dbList: [], //数据库列表
@@ -86,6 +96,10 @@ export default class SourceDest extends Component {
 
   initData = async (nextProps, isNext) => {
     const { currentProjectId: projectId, flowId, node = {} } = nextProps || this.props;
+    const isKafka = _.get(node, 'nodeConfig.config.dsType') === 'KAFKA';
+    if (isKafka) {
+      return;
+    }
     if (['SOURCE_TABLE', 'DEST_TABLE'].includes(node.nodeType)) {
       const { dbName, dsType, className, schema } = _.get(node, ['nodeConfig', 'config']) || {};
       if (!dsType) {
@@ -526,221 +540,229 @@ export default class SourceDest extends Component {
             canEdit={true}
           />
         </div>
-        {!!dsType && (
-          <React.Fragment>
-            <div className="title mTop20">
-              {dsType === DATABASE_TYPE.APPLICATION_WORKSHEET ? _l('应用') : _l('数据库')}
-            </div>
-            <Dropdown
-              {...dbParam}
-              placeholder={_l('请选择')}
-              onVisibleChange={visible => {
-                if (visible) {
-                  dsType === DATABASE_TYPE.APPLICATION_WORKSHEET
-                    ? this.getAppList(projectId)
-                    : this.getDatasourceList(node, projectId);
-                }
-              }}
-              itemLoading={loading}
-              className="mRight12 dropWorksheet"
-              onChange={value => {
-                this.onChangeConfig(
-                  {
-                    dbName:
-                      dsType !== DATABASE_TYPE.APPLICATION_WORKSHEET
-                        ? value
-                        : (dbList.find(it => it.value === value) || {}).text,
-                    appId: dsType === DATABASE_TYPE.APPLICATION_WORKSHEET ? value : '',
-                    tableName: '',
-                    schema: '',
-                    workSheetId: '',
-                    createTable: false, //是否新建工作表
-                    isOurCreateTable: false,
-                    appSectionId: undefined,
-                  },
-                  () => {
-                    this.setState(
-                      {
-                        sheetList: [],
-                        appInfo: {},
-                        worksheetInfo: {},
-                        schemaList: [],
-                      },
-                      () => {
-                        !!value && dsType === DATABASE_TYPE.APPLICATION_WORKSHEET && this.getAppInfo(value);
-                      },
-                    );
-                  },
-                );
-              }}
-              border
-              openSearch
-              cancelAble
-              isAppendToBody
-              data={dbList}
-            />
-            {schemaTypes.includes(className) && (
-              <React.Fragment>
-                <div className="title mTop20">{_l('schema')}</div>
-                <Dropdown
-                  placeholder={_l('请选择')}
-                  value={!schema ? undefined : schema}
-                  renderValue={schema}
-                  onVisibleChange={visible => {
-                    if (visible) {
-                      this.getSchemasList(projectId);
-                    }
-                  }}
-                  className="mRight12 dropWorksheet"
-                  onChange={value => {
-                    this.onChangeConfig(
-                      {
-                        schema: value,
-                        tableName: '',
-                        createTable: false, //是否新建工作表
-                        isOurCreateTable: false,
-                      },
-                      () => {
-                        this.setState({
-                          worksheetInfo: {},
-                          sheetList: [],
-                        });
-                      },
-                    );
-                  }}
-                  border
-                  openSearch
-                  cancelAble
-                  isAppendToBody
-                  data={schemaList}
-                />
-              </React.Fragment>
-            )}
-            {dsType === DATABASE_TYPE.APPLICATION_WORKSHEET && (
-              <React.Fragment>
-                <div className="title mTop20">{_l('分组')}</div>
-                <SheetGroupSelect
-                  hideTitle
-                  key={appId}
-                  className={'selectGroupDropWorksheet dropWorksheet w100'}
-                  suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
-                  appId={appId}
-                  value={appSectionId}
-                  onChange={appSectionId => {
-                    this.onChangeConfig(
-                      {
-                        tableName: '',
-                        appSectionId,
-                        workSheetId: '',
-                        createTable: false, //是否新建工作表
-                        isOurCreateTable: false,
-                      },
-                      () => {
-                        this.setState({
-                          sheetList: [],
-                          worksheetInfo: {},
-                        });
-                      },
-                    );
-                  }}
-                />
-              </React.Fragment>
-            )}
-            <div className="title mTop20">
-              {dsType === DATABASE_TYPE.APPLICATION_WORKSHEET ? _l('工作表') : _l('数据表')}
-            </div>
-            {dsType !== DATABASE_TYPE.APPLICATION_WORKSHEET ? (
-              <Wrap>
-                <SelectTables
-                  key={node.nodeId}
-                  className={cx('selectItem boderRadAll_4 mTop14 w100', {
-                    disabled: schemaTypes.includes(className) ? !dbName || !schema : !dbName,
-                  })}
-                  value={!tableName ? undefined : tableName}
-                  options={this.filterSheet(sheetList, true)}
-                  onChangeOptions={sheetList => this.setState({ sheetList })}
-                  onChangeTable={data => this.onChangeTables(_.get(data, 'value'))}
-                  projectId={this.props.currentProjectId}
-                  datasourceId={datasourceId || dataDestId}
-                  dbName={dbName}
-                  schema={schema}
-                  isMultiple={false}
-                  disabled={schemaTypes.includes(className) ? !dbName || !schema : !dbName}
-                  suffixIcon={<Icon icon="arrow-down-border Font14" />}
-                  placeholder={_l('请选择')}
-                  allowCreate={'DEST_TABLE' === node.nodeType}
-                  createText={_l('新建数据表')}
-                  onAdd={() => {
-                    this.onChangeTables('add');
-                  }}
-                  isSameDbObj={this.getAllSource().dBs.includes(`${dsType}-${dbName}-${schema || 'schema'}`)}
-                  sourceTables={this.getAllSource().sourceTables}
-                />
-              </Wrap>
-            ) : (
+        {!!dsType &&
+          (['kafka'].includes(className) ? (
+            <WrapTopic>
+              <div className="title mTop20">
+                <div className="title mTop20">{_l('主题表达式')} (topic)</div>
+                <div className="sourceDesInput mTop12 pLeft12">{dbName}</div>
+              </div>
+            </WrapTopic>
+          ) : (
+            <React.Fragment>
+              <div className="title mTop20">
+                {dsType === DATABASE_TYPE.APPLICATION_WORKSHEET ? _l('应用') : _l('数据库')}
+              </div>
               <Dropdown
-                {...tbParam}
+                {...dbParam}
                 placeholder={_l('请选择')}
-                className="mRight12 dropWorksheet"
                 onVisibleChange={visible => {
                   if (visible) {
-                    this.getSheetList();
+                    dsType === DATABASE_TYPE.APPLICATION_WORKSHEET
+                      ? this.getAppList(projectId)
+                      : this.getDatasourceList(node, projectId);
                   }
                 }}
-                renderItem={item => {
-                  return (
-                    <div className={cx('itemText', { disabled: item.disabled })}>
-                      {item.text}
-                      {item.disabled && (
-                        <Tooltip title={_l('名称包含特殊字符，无法同步')} placement="top" zIndex="100000">
-                          <Icon icon="info1" className="Gray_bd mLeft5 disabledIcon" />
-                        </Tooltip>
-                      )}
-                    </div>
-                  );
-                }}
                 itemLoading={loading}
-                onChange={this.onChangeTables}
-                renderTitle={() => {
-                  return (
-                    <div className="flexRow alignItemsCenter">
-                      <div className="flex overflow_ellipsis WordBreak" style={{ maxWidth: 446 }}>
-                        {tbParam.renderValue}
-                      </div>
-                      {dsType === DATABASE_TYPE.APPLICATION_WORKSHEET &&
-                        !_.get(node, 'nodeConfig.config.createTable') && (
-                          <Icon
-                            icon="task-new-detail"
-                            className="mLeft10 Font12 ThemeColor3 ThemeHoverColor2 Hand"
-                            onClick={e => {
-                              e.stopPropagation();
-                              if (!_.get(worksheetInfo, 'sectionId')) {
-                                this.getWorksheetInfo(workSheetId, worksheetInfo => {
-                                  window.open(
-                                    !_.get(worksheetInfo, 'sectionId')
-                                      ? `/app/${dbValue}`
-                                      : `/app/${dbValue}/${_.get(worksheetInfo, 'sectionId')}/${tbValue}`,
-                                  );
-                                });
-                              } else {
-                                window.open(`/app/${dbValue}/${worksheetInfo.sectionId}/${tbValue}`);
-                              }
-                            }}
-                          />
-                        )}
-                    </div>
+                className="mRight12 dropWorksheet"
+                onChange={value => {
+                  this.onChangeConfig(
+                    {
+                      dbName:
+                        dsType !== DATABASE_TYPE.APPLICATION_WORKSHEET
+                          ? value
+                          : (dbList.find(it => it.value === value) || {}).text,
+                      appId: dsType === DATABASE_TYPE.APPLICATION_WORKSHEET ? value : '',
+                      tableName: '',
+                      schema: '',
+                      workSheetId: '',
+                      createTable: false, //是否新建工作表
+                      isOurCreateTable: false,
+                      appSectionId: undefined,
+                    },
+                    () => {
+                      this.setState(
+                        {
+                          sheetList: [],
+                          appInfo: {},
+                          worksheetInfo: {},
+                          schemaList: [],
+                        },
+                        () => {
+                          !!value && dsType === DATABASE_TYPE.APPLICATION_WORKSHEET && this.getAppInfo(value);
+                        },
+                      );
+                    },
                   );
                 }}
                 border
-                menuClass={'dropWorksheetIntegration'}
+                openSearch
                 cancelAble
                 isAppendToBody
-                openSearch
-                data={sheetList}
+                data={dbList}
               />
-            )}
-          </React.Fragment>
-        )}
+              {schemaTypes.includes(className) && (
+                <React.Fragment>
+                  <div className="title mTop20">schema</div>
+                  <Dropdown
+                    placeholder={_l('请选择')}
+                    value={!schema ? undefined : schema}
+                    renderValue={schema}
+                    onVisibleChange={visible => {
+                      if (visible) {
+                        this.getSchemasList(projectId);
+                      }
+                    }}
+                    className="mRight12 dropWorksheet"
+                    onChange={value => {
+                      this.onChangeConfig(
+                        {
+                          schema: value,
+                          tableName: '',
+                          createTable: false, //是否新建工作表
+                          isOurCreateTable: false,
+                        },
+                        () => {
+                          this.setState({
+                            worksheetInfo: {},
+                            sheetList: [],
+                          });
+                        },
+                      );
+                    }}
+                    border
+                    openSearch
+                    cancelAble
+                    isAppendToBody
+                    data={schemaList}
+                  />
+                </React.Fragment>
+              )}
+              {dsType === DATABASE_TYPE.APPLICATION_WORKSHEET && (
+                <React.Fragment>
+                  <div className="title mTop20">{_l('分组')}</div>
+                  <SheetGroupSelect
+                    hideTitle
+                    key={appId}
+                    className={'selectGroupDropWorksheet dropWorksheet w100'}
+                    suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+                    appId={appId}
+                    value={appSectionId}
+                    onChange={appSectionId => {
+                      this.onChangeConfig(
+                        {
+                          tableName: '',
+                          appSectionId,
+                          workSheetId: '',
+                          createTable: false, //是否新建工作表
+                          isOurCreateTable: false,
+                        },
+                        () => {
+                          this.setState({
+                            sheetList: [],
+                            worksheetInfo: {},
+                          });
+                        },
+                      );
+                    }}
+                  />
+                </React.Fragment>
+              )}
+              <div className="title mTop20">
+                {dsType === DATABASE_TYPE.APPLICATION_WORKSHEET ? _l('工作表') : _l('数据表')}
+              </div>
+              {dsType !== DATABASE_TYPE.APPLICATION_WORKSHEET ? (
+                <Wrap>
+                  <SelectTables
+                    key={node.nodeId}
+                    className={cx('selectItem boderRadAll_4 mTop14 w100', {
+                      disabled: schemaTypes.includes(className) ? !dbName || !schema : !dbName,
+                    })}
+                    value={!tableName ? undefined : tableName}
+                    options={this.filterSheet(sheetList, true)}
+                    onChangeOptions={sheetList => this.setState({ sheetList })}
+                    onChangeTable={data => this.onChangeTables(_.get(data, 'value'))}
+                    projectId={this.props.currentProjectId}
+                    datasourceId={datasourceId || dataDestId}
+                    dbName={dbName}
+                    schema={schema}
+                    isMultiple={false}
+                    disabled={schemaTypes.includes(className) ? !dbName || !schema : !dbName}
+                    suffixIcon={<Icon icon="arrow-down-border Font14" />}
+                    placeholder={_l('请选择')}
+                    allowCreate={'DEST_TABLE' === node.nodeType}
+                    createText={_l('新建数据表')}
+                    onAdd={() => {
+                      this.onChangeTables('add');
+                    }}
+                    isSameDbObj={this.getAllSource().dBs.includes(`${dsType}-${dbName}-${schema || 'schema'}`)}
+                    sourceTables={this.getAllSource().sourceTables}
+                  />
+                </Wrap>
+              ) : (
+                <Dropdown
+                  {...tbParam}
+                  placeholder={_l('请选择')}
+                  className="mRight12 dropWorksheet"
+                  onVisibleChange={visible => {
+                    if (visible) {
+                      this.getSheetList();
+                    }
+                  }}
+                  renderItem={item => {
+                    return (
+                      <div className={cx('itemText', { disabled: item.disabled })}>
+                        {item.text}
+                        {item.disabled && (
+                          <Tooltip title={_l('名称包含特殊字符，无法同步')} placement="top" zIndex="100000">
+                            <Icon icon="info1" className="Gray_bd mLeft5 disabledIcon" />
+                          </Tooltip>
+                        )}
+                      </div>
+                    );
+                  }}
+                  itemLoading={loading}
+                  onChange={this.onChangeTables}
+                  renderTitle={() => {
+                    return (
+                      <div className="flexRow alignItemsCenter">
+                        <div className="flex overflow_ellipsis WordBreak" style={{ maxWidth: 446 }}>
+                          {tbParam.renderValue}
+                        </div>
+                        {dsType === DATABASE_TYPE.APPLICATION_WORKSHEET &&
+                          !_.get(node, 'nodeConfig.config.createTable') && (
+                            <Icon
+                              icon="task-new-detail"
+                              className="mLeft10 Font12 ThemeColor3 ThemeHoverColor2 Hand"
+                              onClick={e => {
+                                e.stopPropagation();
+                                if (!_.get(worksheetInfo, 'sectionId')) {
+                                  this.getWorksheetInfo(workSheetId, worksheetInfo => {
+                                    window.open(
+                                      !_.get(worksheetInfo, 'sectionId')
+                                        ? `/app/${dbValue}`
+                                        : `/app/${dbValue}/${_.get(worksheetInfo, 'sectionId')}/${tbValue}`,
+                                    );
+                                  });
+                                } else {
+                                  window.open(`/app/${dbValue}/${worksheetInfo.sectionId}/${tbValue}`);
+                                }
+                              }}
+                            />
+                          )}
+                      </div>
+                    );
+                  }}
+                  border
+                  menuClass={'dropWorksheetIntegration'}
+                  cancelAble
+                  isAppendToBody
+                  openSearch
+                  data={sheetList}
+                />
+              )}
+            </React.Fragment>
+          ))}
       </WrapL>
     );
   }

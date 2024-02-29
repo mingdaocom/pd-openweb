@@ -199,7 +199,7 @@ export default class AddViewDisplayMenu extends Component {
             <div key={id} className="viewTypeItem flexRow Hand" onClick={() => onClick({ id })}>
               <div className="valignWrapper flex">
                 <Icon style={{ color, fontSize: '20px' }} icon={icon} />
-                <span className="viewName mLeft12 Bold">{text}</span>
+                <span className="viewName mLeft12 Bold Font14">{text}</span>
               </div>
               {isNew && (
                 <div className="newIcon">

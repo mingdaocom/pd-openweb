@@ -179,10 +179,10 @@ export default function MaskSettingDialog(props) {
       onOk={() => {
         if (_.includes(['1', '2', '3'], detail.maskbegin) && (!detail.mdchar || err.mdErr)) {
           setErr({ mdErr: true });
-          return alert(_l('请填写限制开头显示的%0', detail.maskbegin === '1' ? _l('字数') : _l('字符')), 3);
+          return alert(detail.maskbegin === '1' ? _l('请填写限制开头显示的字数') : _l('请填写限制开头显示的字符'), 3);
         } else if (_.includes(['1', '2', '3'], detail.maskend) && (!detail.mechar || err.meErr)) {
           setErr({ meErr: true });
-          return alert(_l('请填写限制结尾显示的%0', detail.maskend === '1' ? _l('字数') : _l('字符')), 3);
+          return alert(detail.maskend === '1' ? _l('请填写限制结尾显示的字数') : _l('请填写限制结尾显示的字符'), 3);
         } else if (testInfo.visible && err.mlErr) {
           return alert(_l('虚拟掩码长度应在1～100以内'), 3);
         }

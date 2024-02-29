@@ -3,9 +3,13 @@
   .dropdownTrigger {
     .ming.Menu {
       width: 100%;
+      .icon-info {
+        color: #9d9d9d;
+      }
       li:hover {
         .Item-content:not(.disabled) {
-          span {
+          span,
+          .icon-info {
             color: #fff !important;
           }
           .flowDropdownGray {
@@ -130,6 +134,9 @@
       }
       &.BGDarkBlue {
         background: #4158db;
+      }
+      &.BGRed {
+        background: #F15B75;
       }
       input {
         height: 34px;

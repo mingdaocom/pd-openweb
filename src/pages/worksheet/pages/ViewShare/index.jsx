@@ -56,6 +56,7 @@ const Entry = props => {
 
   useEffect(() => {
     const clientId = sessionStorage.getItem(shareId);
+    window.clientId = clientId;
     getShareInfoByShareId({ clientId }).then(({ data }) => {
       localStorage.setItem('currentProjectId', data.projectId);
       preall(
@@ -74,7 +75,7 @@ const Entry = props => {
       const result = await sheetApi.getShareInfoByShareId({ shareId, ...data });
       const shareAuthor = _.get(result, 'data.shareAuthor');
       const clientId = _.get(result, 'data.clientId');
-      window.share = shareAuthor;
+      window.clientId = clientId;
       clientId && sessionStorage.setItem(shareId, clientId);
       setShare(result);
       resolve(result);

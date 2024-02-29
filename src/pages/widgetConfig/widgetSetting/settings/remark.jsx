@@ -1,8 +1,7 @@
 import React, { Fragment, useState } from 'react';
 import { SettingItem } from '../../styled';
 import { RichText, Icon } from 'ming-ui';
-import RcDialog from 'rc-dialog';
-import 'rc-dialog/assets/index.css';
+import { Modal } from 'antd';
 import EditIntro from 'src/pages/PageHeader/AppPkgHeader/AppDetail/EditIntro';
 import styled from 'styled-components';
 import cx from 'classnames';
@@ -26,8 +25,6 @@ const Wrap = styled.div`
 `;
 export default function Remark({ data, onChange }) {
   const [show, setShow] = useState(false);
-  const [top, setTop] = useState(0);
-  const [left, setLeft] = useState(300);
   const [hasChange, setHasChange] = useState(false);
   return (
     <Fragment>
@@ -48,19 +45,18 @@ export default function Remark({ data, onChange }) {
           />
         </Wrap>
         {show && (
-          <RcDialog
+          <Modal
             className="appIntroDialog"
             wrapClassName="appIntroDialogWrapCenter"
+            footer={null}
             visible={show}
-            onClose={() => {
+            onCancel={() => {
               setShow(false);
             }}
-            animation="zoom"
-            style={{ width: '800px' }}
+            centered={true}
+            width={800}
             maskStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }}
             bodyStyle={{ minHeight: '480px', padding: 0 }}
-            maskAnimation="fade"
-            // mousePosition={{ x: left, y: top }}
             closeIcon={<Icon icon="close" />}
           >
             <EditIntro
@@ -79,7 +75,7 @@ export default function Remark({ data, onChange }) {
               }}
               title={_l('内容')}
             />
-          </RcDialog>
+          </Modal>
         )}
       </SettingItem>
     </Fragment>

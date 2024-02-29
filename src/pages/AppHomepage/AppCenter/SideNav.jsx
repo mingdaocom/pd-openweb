@@ -2,15 +2,14 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
-import { Tooltip, ScrollView, Icon } from 'ming-ui';
+import { Tooltip, ScrollView } from 'ming-ui';
 import ThirdApp from './components/ThirdApp';
-import MyProcess from 'src/pages/workflow/MyProcess';
-import MyProcessEntry from 'src/pages/workflow/MyProcess/Entry';
 import PopupLinks from './components/PopupLinks';
 import privateSource from 'src/api/privateSource';
 import SvgIcon from 'src/components/SvgIcon';
 import _ from 'lodash';
 import { navigateTo } from 'src/router/navigateTo';
+import { getCurrentProject } from 'src/util';
 
 const NATIVE_APP_ITEM = [
   { id: 'feed', icon: 'dynamic-empty', text: _l('动态'), color: '#2196f3', href: '/feed', key: 1 },
@@ -22,7 +21,7 @@ const NATIVE_APP_ITEM = [
 
 const Con = styled.div`
   overflow: hidden;
-  background: #f7f8fc;
+  background: ${({ themeBgColor }) => themeBgColor};
   transition: width 0.2s;
   width: 68px;
   &.isExpanded {
@@ -40,12 +39,6 @@ const Con = styled.div`
         display: flex;
         align-items: center;
       }
-      .betaIcon {
-        position: absolute;
-        right: 12px;
-        color: #4caf50;
-        font-size: 15px;
-      }
     }
     .resourceEntry {
       width: 156px;
@@ -56,7 +49,7 @@ const Con = styled.div`
   }
 `;
 const Content = styled.div`
-  padding: 14px 8px;
+  padding: 16px 8px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -90,7 +83,7 @@ const ModuleEntry = styled(BaseEntry)`
   position: relative;
   .entryIcon {
     font-size: 24px;
-    color: #515151;
+    color: rgba(0, 0, 0, 0.65);
   }
   .name {
     font-size: 12px;
@@ -99,7 +92,7 @@ const ModuleEntry = styled(BaseEntry)`
     font-size: 14px;
   }
   .name {
-    color: #9e9e9e;
+    color: rgba(0, 0, 0, 0.4);
   }
   &.isExpanded {
     width: 164px;
@@ -108,9 +101,9 @@ const ModuleEntry = styled(BaseEntry)`
     .entryIcon,
     .fullName,
     .name {
-      color: #2196f3;
+      color: ${({ themeColor }) => themeColor};
     }
-    background: rgba(33, 150, 243, 0.1);
+    background: ${({ activeColor }) => activeColor};
   }
 `;
 
@@ -127,7 +120,7 @@ const ResourceEntry = styled(BaseEntry)`
   }
 `;
 
-const ProcessEntry = styled.div`
+const DashboardEntry = styled.div`
   position: relative;
   .count {
     cursor: pointer;
@@ -156,16 +149,23 @@ const ProcessEntry = styled.div`
 
 const moduleEntries = [
   {
+    type: 'dashboard',
+    icon: 'home1',
+    name: _l('工作台'),
+    href: '/dashboard',
+  },
+  {
     type: 'app',
     icon: 'widgets',
     name: _l('应用'),
     href: '/app/my',
   },
   {
-    type: 'myProcess',
-    icon: 'task_alt',
-    name: _l('待办'),
-    fullName: _l('流程待办%01011'),
+    type: 'favorite',
+    icon: 'star',
+    name: _l('收藏'),
+    fullName: _l('收藏'),
+    href: '/favorite',
   },
   {
     type: 'lib',
@@ -194,52 +194,9 @@ const moduleEntries = [
   },
 ];
 
-const educateEntries = [
-  {
-    type: 'title',
-    title: _l('学习'),
-  },
-  {
-    icon: 'sidebar_video_tutorial',
-    name: _l('视频学习'),
-    color: '#7C58C2',
-    href: 'https://learn.mingdao.net',
-  },
-  {
-    icon: 'help',
-    name: _l('帮助文档'),
-    color: '#5F7D8B',
-    href: 'https://help.mingdao.com',
-  },
-  {
-    icon: 'flag',
-    name: _l('实践案例'),
-    color: '#2eb240',
-    href: 'https://blog.mingdao.com/category/case-study',
-  },
-  {
-    type: 'title',
-    title: _l('资源'),
-  },
-  {
-    icon: 'rss_feed',
-    color: '#FFA700',
-    href: 'https://blog.mingdao.com',
-    name: _l('明道云博客'),
-  },
-  {
-    icon: 'zero',
-    color: '#2196F3',
-    name: _l('零代码社区'),
-    href: 'https://bbs.mingdao.net/',
-  },
-];
-
 export default function SideNav(props) {
-  const { active, currentProject = {} } = props;
+  const { active, currentProject = {}, countData, dashboardColor } = props;
   const [isExpanded, setIsExpanded] = useState(localStorage.getItem('homeNavIsExpanded') === '1');
-  const [countData, setCountData] = useState();
-  const [myProcessVisible, setMyProcessVisible] = useState();
   const [thirdPartyAppVisible, setThirdPartyAppVisible] = useState();
   const [sourcesList, setSourcesList] = useState([]);
   const { projectId } = currentProject;
@@ -248,6 +205,8 @@ export default function SideNav(props) {
       !_.includes(_.get(md, 'global.Config.ForbidSuites') || [], item.key) &&
       (item.id !== 'hr' || _.get(currentProject, 'isHrVisible')),
   );
+  const count = countData ? (countData.myProcessCount > 99 ? '99+' : countData.myProcessCount) : 0;
+  const isExternal = _.isEmpty(getCurrentProject(projectId));
 
   useEffect(() => {
     privateSource.getSources({ status: 1 }).then(result => {
@@ -265,17 +224,112 @@ export default function SideNav(props) {
     });
   }, []);
 
+  const renderModuleItem = (entry, index) => {
+    if (isExternal && entry.type === 'favorite') {
+      return '';
+    }
+    const content = (
+      <ModuleEntry
+        key={index}
+        themeColor={dashboardColor.themeColor}
+        activeColor={dashboardColor.activeColor}
+        className={cx('moduleEntry', {
+          active: active === entry.type,
+          libraryEntry: 'lib' === entry.type,
+          isExpanded,
+        })}
+        href={'lib' === entry.type ? `${entry.href}?projectId=${projectId}` : entry.href}
+        onClick={
+          !entry.href
+            ? e => {
+                if (entry.type === 'integration') {
+                  const type = localStorage.getItem('integrationUrl');
+                  navigateTo('/integration/' + (type || ''));
+                } else if (entry.type === 'plugin') {
+                  const type = localStorage.getItem('pluginUrl');
+                  navigateTo('/plugin/' + (type || ''));
+                }
+              }
+            : _.noop
+        }
+      >
+        <i className={`entryIcon icon icon-${entry.icon}`} />
+        <span className="name">{entry.name}</span>
+        <span className="fullName ellipsis">{entry.fullName || entry.name}</span>
+      </ModuleEntry>
+    );
+
+    switch (entry.type) {
+      case 'dashboard':
+        return (
+          <DashboardEntry isExpanded={isExpanded}>
+            {content}
+            {!!count && <span className={cx('count', { isExpanded, outed: String(count) === '99+' })}>{count}</span>}
+          </DashboardEntry>
+        );
+      case 'cooperation':
+        return (
+          <Trigger
+            action={['hover']}
+            popupAlign={{
+              points: ['tl', 'tr'],
+              offset: [12, -4],
+            }}
+            popup={
+              <PopupLinks
+                items={NATIVE_APP_ITEM.filter(
+                  item =>
+                    !_.includes(_.get(md, 'global.Config.ForbidSuites') || [], item.key) &&
+                    (item.id !== 'hr' || _.get(currentProject, 'isHrVisible')),
+                )}
+              />
+            }
+          >
+            {content}
+          </Trigger>
+        );
+      default:
+        return content;
+    }
+  };
+
+  const renderResourceItem = (entry, index) => {
+    const content = (
+      <ResourceEntry
+        {...(entry.href ? { target: '_blank' } : {})}
+        className="resourceEntry"
+        key={index}
+        href={entry.href}
+        onClick={() => {
+          if (!entry.href) {
+            if (entry.id === 'thirdPartyApp') {
+              setThirdPartyAppVisible(true);
+            }
+          }
+        }}
+      >
+        {entry.icon && <i className={`entryIcon icon icon-${entry.icon}`} style={{ color: entry.color }} />}
+        {entry.iconUrl && <SvgIcon size="18" fill={entry.color} url={entry.iconUrl} />}
+        <span className="fullName ellipsis">{entry.name}</span>
+      </ResourceEntry>
+    );
+
+    switch (true) {
+      case !isExpanded && _.includes(['thirdPartyApp', 'integration'], entry.id):
+        return (
+          <Tooltip popupPlacement="right" text={<span>{entry.name}</span>}>
+            {content}
+          </Tooltip>
+        );
+      default:
+        return content;
+    }
+  };
+
   return (
-    <Con className={cx({ isExpanded })}>
+    <Con className={cx({ isExpanded })} themeBgColor={dashboardColor.bgColor}>
       <ScrollView>
         <Content>
-          {myProcessVisible && (
-            <MyProcess
-              countData={countData}
-              onCancel={() => setMyProcessVisible(false)}
-              updateCountData={setCountData}
-            />
-          )}
           {thirdPartyAppVisible && <ThirdApp onCancel={() => setThirdPartyAppVisible(false)} />}
           <ModuleEntries>
             {(!cooperationItems.length ? moduleEntries.filter(m => m.type !== 'cooperation') : moduleEntries)
@@ -285,134 +339,11 @@ export default function SideNav(props) {
                   !(o.type === 'lib' && md.global.SysSettings.hideTemplateLibrary) &&
                   !(o.type === 'integration' && md.global.SysSettings.hideIntegration),
               )
-              .map((entry, i) => {
-                const content = (
-                  <ModuleEntry
-                    key={i}
-                    className={cx('moduleEntry', {
-                      active: active === entry.type,
-                      libraryEntry: 'lib' === entry.type,
-                      isExpanded,
-                    })}
-                    href={'lib' === entry.type ? `${entry.href}?projectId=${projectId}` : entry.href}
-                    onClick={
-                      !entry.href
-                        ? e => {
-                            if (entry.type === 'myProcess') {
-                              setMyProcessVisible(true);
-                            } else if (entry.type === 'integration') {
-                              const type = localStorage.getItem('integrationUrl');
-                              navigateTo('/integration/' + (type || ''));
-                            } else if (entry.type === 'plugin') {
-                              const type = localStorage.getItem('pluginUrl');
-                              navigateTo('/plugin/' + (type || ''));
-                            }
-                          }
-                        : _.noop
-                    }
-                  >
-                    <i className={`entryIcon icon icon-${entry.icon}`} />
-                    <span className="name">{entry.name}</span>
-                    <span className="fullName ellipsis">{entry.fullName || entry.name}</span>
-                    {entry.type === 'plugin' && isExpanded && <Icon icon="beta1" className="betaIcon" />}
-                  </ModuleEntry>
-                );
-                if (entry.type === 'myProcess') {
-                  return (
-                    <MyProcessEntry
-                      countData={countData}
-                      updateCountData={setCountData}
-                      renderContent={count => (
-                        <ProcessEntry isExpanded={isExpanded}>
-                          {content}
-                          {!!count && (
-                            <span
-                              className={cx('count', { isExpanded, outed: String(count) === '99+' })}
-                              onClick={() => {
-                                setMyProcessVisible(true);
-                              }}
-                            >
-                              {count}
-                            </span>
-                          )}
-                        </ProcessEntry>
-                      )}
-                    />
-                  );
-                }
-
-                if (entry.type === 'cooperation') {
-                  return (
-                    <Trigger
-                      action={['hover']}
-                      popupAlign={{
-                        points: ['tl', 'tr'],
-                        offset: [12, -4],
-                      }}
-                      popup={
-                        <PopupLinks
-                          items={NATIVE_APP_ITEM.filter(
-                            item =>
-                              !_.includes(_.get(md, 'global.Config.ForbidSuites') || [], item.key) &&
-                              (item.id !== 'hr' || _.get(currentProject, 'isHrVisible')),
-                          )}
-                        />
-                      }
-                    >
-                      {content}
-                    </Trigger>
-                  );
-                }
-                return content;
-              })}
+              .map((entry, index) => renderModuleItem(entry, index))}
           </ModuleEntries>
           <Spacer />
           <ResourceEntries>
-            {sourcesList.map((entry, index) => {
-              const content = (
-                <ResourceEntry
-                  {...(entry.href ? { target: '_blank' } : {})}
-                  className="resourceEntry"
-                  key={index}
-                  href={entry.href}
-                  onClick={() => {
-                    if (!entry.href) {
-                      if (entry.id === 'thirdPartyApp') {
-                        setThirdPartyAppVisible(true);
-                      }
-                    }
-                  }}
-                >
-                  {entry.icon && <i className={`entryIcon icon icon-${entry.icon}`} style={{ color: entry.color }} />}
-                  {entry.iconUrl && <SvgIcon size="18" fill={entry.color} url={entry.iconUrl} />}
-                  <span className="fullName ellipsis">{entry.name}</span>
-                </ResourceEntry>
-              );
-              if (entry.id === 'educate') {
-                return (
-                  <Trigger
-                    action={['hover']}
-                    popupAlign={{
-                      points: ['tl', 'tr'],
-                      offset: [16, -108],
-                      overflow: { adjustY: true },
-                    }}
-                    popup={<PopupLinks openInNew items={educateEntries} />}
-                    mouseLeaveDelay={0.2}
-                  >
-                    {content}
-                  </Trigger>
-                );
-              }
-              if (!isExpanded && _.includes(['recommend', 'thirdPartyApp', 'integration'], entry.id)) {
-                return (
-                  <Tooltip popupPlacement="right" text={<span>{entry.name}</span>}>
-                    {content}
-                  </Tooltip>
-                );
-              }
-              return content;
-            })}
+            {sourcesList.map((entry, index) => renderResourceItem(entry, index))}
             <ResourceEntry
               className="resourceEntry expandBtn"
               onClick={() => {
@@ -421,7 +352,7 @@ export default function SideNav(props) {
               }}
             >
               <span className="fullName Font12 Gray_9e flex" style={{ marginLeft: '25px' }}>
-                {_l('v%0', md.global.Config.Version)}
+                {'v' + md.global.Config.Version}
               </span>
               <i className={`entryIcon icon ${isExpanded ? 'icon-menu_left' : 'icon-menu_right'} Gray_75`} />
             </ResourceEntry>

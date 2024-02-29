@@ -496,7 +496,13 @@ export default class CustomPage extends Component {
           this.$originComponents = components;
           this.$originAdjustScreen = adjustScreen;
           this.$originConfig = config;
-          updatePageInfo({ components, pageId, version, modified: false });
+          updatePageInfo({
+            components,
+            pageId,
+            version,
+            modified: false,
+            filterComponents: components.filter(item => item.value && item.type === enumWidgetType.filter)
+          });
           alert(_l('保存成功'), 1);
         } else {
           alert(_l('保存失败'), 2);

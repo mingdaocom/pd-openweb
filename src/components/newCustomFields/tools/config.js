@@ -76,18 +76,24 @@ export const FORM_ERROR_TYPE_TEXT = {
       }
     }
   },
-  UNIQUE: ({ controlName: label }) => {
-    return `${_l('%0不允许重复', label)}`;
+  UNIQUE: ({ uniqueInRecord } = {}, isSubList) => {
+    if (!isSubList) {
+      return _l('不允许重复');
+    }
+    return uniqueInRecord ? _l('本记录内不允许重复') : _l('全局不允许重复');
   },
   NUMBER_RANGE: ({ value, advancedSetting }) => {
-    const { min, max } = advancedSetting;
+    const { min, max, numshow } = advancedSetting;
+    // 百分比提示时，数值异化
+    const showMin = numshow === '1' ? `${Number(min || 0) * 100}%` : min;
+    const showMax = numshow === '1' ? `${Number(max || 0) * 100}%` : max;
 
-    if (max === min) return _l('请输入%0', min);
+    if (max === min) return _l('请输入%0', showMin);
     if (max && min) {
-      if (+value > +max || +value < +min) return _l('请输入%0到%1之间的数值', min, max);
+      if (+value > +max || +value < +min) return _l('请输入%0到%1之间的数值', showMin, showMax);
     }
-    if (min && +value < +min) return _l('请输入大于等于%0的数', min);
-    if (max && +value > +max) return _l('请输入小于等于%0的数', max);
+    if (min && +value < +min) return _l('请输入大于等于%0的数', showMin);
+    if (max && +value > +max) return _l('请输入小于等于%0的数', showMax);
   },
   MULTI_SELECT_RANGE: ({ value, advancedSetting }) => {
     const { min, max } = advancedSetting;

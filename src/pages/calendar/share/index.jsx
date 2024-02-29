@@ -373,7 +373,7 @@ class CalendarShare extends Component {
         event.preventDefault();
         if (navigator.userAgent.search(/weibo|mqqbrowser|mingdao/i) >= 0) {
           var $addPrompt = $(
-            '<div class="promptDiv"><img src="/images/calendar/prompt.png" alt="提示浏览器打开" /></div>',
+            '<div class="promptDiv"><img src="/staticfiles/images/calendar/prompt.png" alt="提示浏览器打开" /></div>',
           );
           $('body').append($addPrompt);
           $addPrompt.on('click', function() {
@@ -393,7 +393,7 @@ class CalendarShare extends Component {
       .on('click', function(event) {
         event.preventDefault();
         var $addPrompt = $(
-          '<div class="promptDiv"><img src="/images/calendar/prompt.png" alt="提示浏览器打开" /></div>',
+          '<div class="promptDiv"><img src="/staticfiles/images/calendar/prompt.png" alt="提示浏览器打开" /></div>',
         );
         $('body').append($addPrompt);
         $addPrompt.on('click', function() {

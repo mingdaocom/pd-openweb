@@ -118,6 +118,7 @@ export function isDisplayPromptText(worksheetSettings) {
 
 export function renderLimitInfo(worksheetSettings) {
   const { linkSwitchTime = {}, limitWriteCount = {}, completeNumber, limitWriteTime } = worksheetSettings;
+  const remainCount = limitWriteCount.limitWriteCount - (completeNumber || 0);
 
   return (
     <React.Fragment>
@@ -149,7 +150,7 @@ export function renderLimitInfo(worksheetSettings) {
             {`${completeNumber || 0}/${limitWriteCount.limitWriteCount}`}
           </span>
           <span>{_l('份, 还剩')}</span>
-          <span className="bold Gray mLeft5 mRight5">{limitWriteCount.limitWriteCount - (completeNumber || 0)}</span>
+          <span className="bold Gray mLeft5 mRight5">{remainCount >= 0 ? remainCount : 0}</span>
           <span>{_l('份结束收集')};</span>
         </span>
       )}

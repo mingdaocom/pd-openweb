@@ -30,10 +30,11 @@ export default function FilterDialog(props) {
     globalSheetControls, //主标控件 用于 子表中的关联记录字段筛选选择范围，支持使用主表中的字段
     hideSupport,
     showCustom = false,
+    filterKey = 'filters',
   } = props;
 
   const { sourceControlId = '', type = '' } = data;
-  const [filters, setFilters] = useState(props.filters || getAdvanceSetting(data, 'filters'));
+  const [filters, setFilters] = useState(props.filters || getAdvanceSetting(data, [filterKey]));
 
   const relateSheetList = filterControlsFromAll(
     allControls,

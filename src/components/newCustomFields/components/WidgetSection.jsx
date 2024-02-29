@@ -126,6 +126,7 @@ export default function WidgetSection(props) {
       );
     }
     if (_.includes([29, 51], activeControl.type)) {
+      // 列表多条
       return (
         <TableContainer
           {...{
@@ -136,7 +137,7 @@ export default function WidgetSection(props) {
             recordId,
             formWidth,
             isSplit,
-            control: activeControl,
+            control: { ...activeControl, ...controlProps },
             sideVisible: controlProps.sideVisible,
             sheetSwitchPermit,
             addRefreshEvents: controlProps.addRefreshEvents,
@@ -152,7 +153,6 @@ export default function WidgetSection(props) {
         />
       );
     }
-    // 列表多条
   };
 
   return (

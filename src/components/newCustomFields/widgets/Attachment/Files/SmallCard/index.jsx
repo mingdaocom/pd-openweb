@@ -21,9 +21,11 @@ const SmallCard = props => {
 
   useEffect(() => {
     if (isPicture) {
-      loadImage(previewUrl).then().catch(error => {
-        setIsPicture(false);
-      });
+      loadImage(previewUrl)
+        .then()
+        .catch(error => {
+          setIsPicture(false);
+        });
     }
   }, []);
 
@@ -38,7 +40,7 @@ const SmallCard = props => {
         <MenuItem
           key="newPage"
           icon={<Icon icon="launch" className="Font17 pRight5" />}
-          onClick={(e) => {
+          onClick={e => {
             e.stopPropagation();
             onOpenControlAttachmentInNewTab(data.fileID);
             setDropdownVisible(false);
@@ -51,9 +53,9 @@ const SmallCard = props => {
         <MenuItem
           key="new_mail"
           icon={<Icon icon="new_mail" className="Font17 pRight5" />}
-          onClick={(e) => {
+          onClick={e => {
             e.stopPropagation();
-            setIsEdit(true)
+            setIsEdit(true);
             setDropdownVisible(false);
           }}
         >
@@ -63,7 +65,7 @@ const SmallCard = props => {
       <MenuItem
         key="share"
         icon={<Icon icon="share" className="Font17 pRight5" />}
-        onClick={(e) => {
+        onClick={e => {
           e.stopPropagation();
           handleShare(data, isDownload);
           setDropdownVisible(false);
@@ -74,7 +76,7 @@ const SmallCard = props => {
       <MenuItem
         key="saveKcCloud"
         icon={<Icon icon="knowledge-cloud" className="Font17 pRight5" />}
-        onClick={(e) => {
+        onClick={e => {
           e.stopPropagation();
           handleSaveKcCloud(data, isDownload);
           setDropdownVisible(false);
@@ -90,7 +92,13 @@ const SmallCard = props => {
   };
 
   return (
-    <div className={cx('attachmentSmallCard flexRow alignItemsCenter', { mobile: isMobile, hover: dropdownVisible || isEdit, mRight10: isDeleteFile && isMobile })}>
+    <div
+      className={cx('attachmentSmallCard flexRow alignItemsCenter', {
+        mobile: isMobile,
+        hover: dropdownVisible || isEdit,
+        mRight10: isDeleteFile && isMobile,
+      })}
+    >
       <div
         className="fileImageWrap fileImageWrap pointer flexRow alignItemsCenter justifyContentCenter"
         onClick={handlePreview}
@@ -101,12 +109,15 @@ const SmallCard = props => {
           <div className={cx(fileClassName, 'fileIcon')} />
         )}
         {isKc && (
-          <div className="kcIcon flexRow alignItemsCenter justifyContentCenter"><Icon className="Font16" icon="knowledge1" /></div>
+          <div className="kcIcon flexRow alignItemsCenter justifyContentCenter">
+            <Icon className="Font16" icon="knowledge1" />
+          </div>
         )}
       </div>
       <div className="fileContent flex flexColumn justifyContentCenter pointer" onClick={handlePreview}>
         <div className="fileName textEllipsis" ref={ref}>
-          {data.originalFilename}{data.ext}
+          {data.originalFilename}
+          {data.ext}
         </div>
         <div className={cx('fileSize Gray_75', { hide: !fileSizeVisible })}>{fileSize}</div>
       </div>
@@ -114,24 +125,30 @@ const SmallCard = props => {
         <div className="operateBtns flexRow alignItemsCenter">
           {deleteConfirmVisible ? (
             <Fragment>
-              <div className="cancelBtn mRight6" onClick={() => setDeleteConfirmVisible(false)}>{_l('取消')}</div>
-              <div className="deleteBtn mRight10" onClick={() => onDeleteMDFile(data)}>{_l('删除')}</div>
+              <div className="cancelBtn mRight6" onClick={() => setDeleteConfirmVisible(false)}>
+                {_l('取消')}
+              </div>
+              <div className="deleteBtn mRight10" onClick={() => onDeleteMDFile(data)}>
+                {_l('删除')}
+              </div>
             </Fragment>
           ) : (
             <Fragment>
               {allowDownload && (
                 <Tooltip title={_l('下载')} placement="bottom">
-                  <div className="btnWrap pointer" onClick={() => { handleDownload(data, isDownload) }}>
+                  <div
+                    className="btnWrap pointer"
+                    onClick={() => {
+                      handleDownload(data, isDownload);
+                    }}
+                  >
                     <Icon className="Gray_9e Font17" icon="download" />
                   </div>
                 </Tooltip>
               )}
               {isDeleteFile && (
                 <Tooltip title={_l('删除')} placement="bottom">
-                  <div
-                    className="btnWrap pointer delete"
-                    onClick={() => setDeleteConfirmVisible(true)}
-                  >
+                  <div className="btnWrap pointer delete" onClick={() => setDeleteConfirmVisible(true)}>
                     <Icon className="Gray_9e Font17" icon="task-new-delete" />
                   </div>
                 </Tooltip>
@@ -159,7 +176,7 @@ const SmallCard = props => {
                 originalFileName={data.originalFilename}
                 isEdit={isEdit}
                 setIsEdit={setIsEdit}
-                onSave={(name) => {
+                onSave={name => {
                   onAttachmentName(data.fileID, name);
                 }}
               >
@@ -169,23 +186,33 @@ const SmallCard = props => {
           )}
         </div>
       ) : (
-        isDeleteFile && <Icon onClick={() => onDeleteMDFile(data)} className="deleteIcon Gray_9e Font19" icon="closeelement-bg-circle" />
+        isDeleteFile && (
+          <Icon
+            onClick={() => onDeleteMDFile(data)}
+            className="deleteIcon Gray_9e Font19"
+            icon="closeelement-bg-circle"
+          />
+        )
       )}
     </div>
   );
-}
+};
 
 const NotSaveSmallCard = props => {
   const { data, isMobile } = props;
   const { onDeleteKCFile, onDeleteFile, onResetNameFile, onKCPreview, onPreview } = props;
   const { isKc, fileClassName, isPicture, fileSize, url } = props;
-  const previewImageUrl = isKc ? data.viewUrl : (url.indexOf('imageView2') > -1 ? url.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/200/h/140') : url + '&imageView2/1/w/200/h/140');
+  const previewImageUrl = isKc
+    ? data.viewUrl
+    : url.indexOf('imageView2') > -1
+    ? url.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/200/h/140')
+    : url + `${url.includes('?') ? '&' : '?'}imageView2/1/w/200/h/140`;
   const [isEdit, setIsEdit] = useState(false);
 
   const handlePreview = () => {
     if (isEdit) return;
     isKc ? onKCPreview(data) : onPreview(data);
-  }
+  };
 
   return (
     <div className={cx('attachmentSmallCard flexRow alignItemsCenter', { mobile: isMobile, hover: isEdit })}>
@@ -199,12 +226,15 @@ const NotSaveSmallCard = props => {
           <div className={cx(fileClassName, 'fileIcon')} />
         )}
         {isKc && (
-          <div className="kcIcon flexRow alignItemsCenter justifyContentCenter"><Icon className="Font16" icon="knowledge1" /></div>
+          <div className="kcIcon flexRow alignItemsCenter justifyContentCenter">
+            <Icon className="Font16" icon="knowledge1" />
+          </div>
         )}
       </div>
       <div className="fileContent flex flexColumn justifyContentCenter pointer" onClick={handlePreview}>
         <div className="fileName textEllipsis">
-          {data.originalFileName}{data.fileExt}
+          {data.originalFileName}
+          {data.fileExt}
         </div>
         <div className="fileSize Gray_75">{fileSize}</div>
       </div>
@@ -215,7 +245,7 @@ const NotSaveSmallCard = props => {
               originalFileName={data.originalFileName}
               isEdit={isEdit}
               setIsEdit={setIsEdit}
-              onSave={(name) => {
+              onSave={name => {
                 onResetNameFile(data.fileID, name);
               }}
             >
@@ -249,9 +279,9 @@ const NotSaveSmallCard = props => {
       )}
     </div>
   );
-}
+};
 
-export default (props) => {
+export default props => {
   const { data, removeUploadingFile, ...otherProps } = props;
   const { isMdFile } = props;
 
@@ -274,16 +304,18 @@ export default (props) => {
         </div>
         <div className="fileContent flex flexColumn justifyContentCenter pointer">
           <div className="fileName textEllipsis">
-            {base.fileName}{base.fileExt}
+            {base.fileName}
+            {base.fileExt}
           </div>
         </div>
-        <Icon onClick={() => removeUploadingFile(data)} className="deleteIcon Gray_9e Font19" icon="closeelement-bg-circle" />
+        <Icon
+          onClick={() => removeUploadingFile(data)}
+          className="deleteIcon Gray_9e Font19"
+          icon="closeelement-bg-circle"
+        />
       </div>
     );
   }
 
-  return (
-    isMdFile ? <SmallCard data={data} {...otherProps} /> : <NotSaveSmallCard data={data} {...otherProps} />
-  );
+  return isMdFile ? <SmallCard data={data} {...otherProps} /> : <NotSaveSmallCard data={data} {...otherProps} />;
 };
-

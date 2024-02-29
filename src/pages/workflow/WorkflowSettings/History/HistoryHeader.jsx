@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import { func } from 'prop-types';
+import React, { Component, Fragment } from 'react';
+import { array, func, bool, string } from 'prop-types';
 import { Icon } from 'ming-ui';
 import DateRangePicker from 'ming-ui/components/NewDateTimePicker/date-time-range';
 import Dropdown from '../../components/Dropdown';
@@ -7,15 +7,23 @@ import Search from '../../components/Search';
 import { FLOW_STATUS } from './config';
 import moment from 'moment';
 import cx from 'classnames';
+import SerialProcessDialog from './SerialProcessDialog';
+import instanceVersionAjax from '../../api/instanceVersion';
 
 export default class HistoryHeader extends Component {
   static propTypes = {
+    processId: string,
+    isSerial: bool,
     onFilter: func,
     onRefresh: func,
+    batchIds: array,
   };
   static defaultProps = {
+    processId: '',
+    isSerial: false,
     onFilter: () => {},
     onRefresh: () => {},
+    batchIds: [],
   };
 
   state = {
@@ -23,6 +31,7 @@ export default class HistoryHeader extends Component {
     time: ['', ''],
     searchVal: '',
     isRefresh: false,
+    showDialog: false,
   };
 
   formatData = data => {
@@ -62,8 +71,10 @@ export default class HistoryHeader extends Component {
   };
 
   render() {
-    const { onRefresh } = this.props;
-    const { status, time, isRefresh } = this.state;
+    const { onRefresh, isSerial, processId, batchIds } = this.props;
+    const { status, time, isRefresh, showDialog } = this.state;
+    const stopIdsCount = batchIds.filter(o => o.status === 1).length;
+    const refreshIdsCount = batchIds.filter(o => _.includes([3, 4], o.status) && o.cause !== 7777).length;
     const data = this.formatData(FLOW_STATUS);
     data.unshift({ value: 'all', text: _l('所有状态') });
 
@@ -83,39 +94,87 @@ export default class HistoryHeader extends Component {
 
     return (
       <div className="historyHeader">
-        <div className="filterName">
-          <Search handleChange={searchVal => this.handleFilter({ searchVal })} />
-        </div>
-        <div className="statusDropdown">
-          <Dropdown
-            className="historyHeaderStatusDropdown"
-            onChange={status => this.handleFilter({ status })}
-            selectedValue={status}
-            data={data}
-            placeholder={_l('所有状态')}
-          />
-        </div>
-        <DateRangePicker
-          mode="datetime"
-          timeMode="minute"
-          placeholder={_l('筛选时间范围')}
-          min={moment().add(-6, 'M')}
-          selectedValue={time}
-          children={
-            <div className="filterTimeRange">
-              <div className="timeContent">{this.renderTimePlaceholder()}</div>
-              <Icon icon="bellSchedule" className="Gray_9e Font18" />
+        {!!batchIds.length ? (
+          <Fragment>
+            <div
+              className={cx('historyHeaderBtn mRight15 stop', { disabled: !stopIdsCount })}
+              onClick={() => {
+                if (stopIdsCount) {
+                  instanceVersionAjax
+                    .endInstanceList({
+                      sources: batchIds.filter(o => o.status === 1).map(({ id }) => id),
+                    })
+                    .then(() => {
+                      onRefresh();
+                    });
+                }
+              }}
+            >
+              <i className="icon-workflow_suspend Font16 mRight5" />
+              {stopIdsCount ? _l('中止 (%0)', stopIdsCount) : _l('中止')}
             </div>
-          }
-          onOk={time => this.handleFilter({ time })}
-          onClear={() => this.handleFilter({ time: ['', ''] })}
-        />
-        {(status !== 'all' || time[0]) && (
-          <div className="clearFilter ThemeColor3" onClick={this.handleClearFilter}>
-            {_l('清除筛选')}
-          </div>
+            <div
+              className={cx('historyHeaderBtn mRight15 refresh', { disabled: !refreshIdsCount })}
+              onClick={() => {
+                if (refreshIdsCount) {
+                  instanceVersionAjax
+                    .resetInstanceList({
+                      sources: batchIds.filter(o => _.includes([3, 4], o.status)).map(({ id }) => id),
+                    })
+                    .then(() => {
+                      onRefresh();
+                    });
+                }
+              }}
+            >
+              <i className="icon-refresh1 Font16 mRight5" />
+              {refreshIdsCount ? _l('重试 (%0)', refreshIdsCount) : _l('重试')}
+            </div>
+          </Fragment>
+        ) : (
+          <Fragment>
+            <div className="filterName">
+              <Search handleChange={searchVal => this.handleFilter({ searchVal })} />
+            </div>
+            <div className="statusDropdown">
+              <Dropdown
+                className="historyHeaderStatusDropdown"
+                onChange={status => this.handleFilter({ status })}
+                selectedValue={status}
+                data={data}
+                placeholder={_l('所有状态')}
+              />
+            </div>
+            <DateRangePicker
+              mode="datetime"
+              timeMode="minute"
+              placeholder={_l('筛选时间范围')}
+              min={moment().add(-6, 'M')}
+              selectedValue={time}
+              children={
+                <div className="filterTimeRange">
+                  <div className="timeContent">{this.renderTimePlaceholder()}</div>
+                  <Icon icon="bellSchedule" className="Gray_9e Font18" />
+                </div>
+              }
+              onOk={time => this.handleFilter({ time })}
+              onClear={() => this.handleFilter({ time: ['', ''] })}
+            />
+            {(status !== 'all' || time[0]) && (
+              <div className="clearFilter ThemeColor3" onClick={this.handleClearFilter}>
+                {_l('清除筛选')}
+              </div>
+            )}
+            {isSerial && (
+              <div className="clearFilter ThemeColor3" onClick={() => this.setState({ showDialog: true })}>
+                {_l('查看串行等待中的流程')}
+              </div>
+            )}
+          </Fragment>
         )}
+
         <div className="flex" />
+
         <span
           data-tip={isRefresh ? _l('刷新中...') : _l('刷新')}
           id="historyRefresh"
@@ -136,6 +195,10 @@ export default class HistoryHeader extends Component {
             icon="ic_refresh_black"
           />
         </span>
+
+        {showDialog && (
+          <SerialProcessDialog processId={processId} onClose={() => this.setState({ showDialog: false })} />
+        )}
       </div>
     );
   }

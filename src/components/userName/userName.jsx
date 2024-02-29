@@ -15,6 +15,7 @@ class UserName extends React.Component {
     }),
     className: PropTypes.string,
     chatButton: PropTypes.bool,
+    projectId: PropTypes.string, // 网络id
   };
 
   static defaultProps = {
@@ -22,7 +23,7 @@ class UserName extends React.Component {
   };
 
   render() {
-    const { user, className, chatButton, isSecretary = false } = this.props;
+    const { user, className, chatButton, isSecretary = false, projectId } = this.props;
 
     const disabled =
       this.props.disabled ||
@@ -37,10 +38,11 @@ class UserName extends React.Component {
         'user-integration',
         '2',
         '4',
+        'isEmpty',
       ].includes(user.accountId);
 
     return (
-      <UserCard sourceId={user.accountId} disabled={disabled} chatButton={chatButton}>
+      <UserCard sourceId={user.accountId} disabled={disabled} chatButton={chatButton} projectId={projectId}>
         <a
           className={cx({ Gray_6: !user.accountId }, className)}
           href={disabled || isSecretary ? 'javascript:void(0);' : '/user_' + user.accountId}

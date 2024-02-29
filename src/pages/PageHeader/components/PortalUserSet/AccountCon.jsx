@@ -220,7 +220,7 @@ class TelCon extends React.Component {
           // portalSmsType: this.props.type, //1：注销 2：修改手机号 3：绑定手机号（不能为0）
           ticket: res.ticket,
           randStr: res.randstr,
-          captchaType: md.staticglobal.getCaptchaType(),
+          captchaType: md.global.getCaptchaType(),
           codeType: this.props.type, //验证码类型(不能为0) 1：注销；2：申请修改；3：绑定新账号
           account:
             this.props.type === 3
@@ -257,7 +257,7 @@ class TelCon extends React.Component {
         });
       };
 
-      if (md.staticglobal.getCaptchaType() === 1) {
+      if (md.global.getCaptchaType() === 1) {
         new captcha(callback);
       } else {
         new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), callback).show();

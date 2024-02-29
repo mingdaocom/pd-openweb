@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useMemo, useImperativeHandle, forwardRef, useEffect, Fragment } from 'react';
+import React, { useCallback, useRef, useMemo, useImperativeHandle, forwardRef, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import _ from 'lodash';
 import cx from 'classnames';
@@ -7,20 +7,16 @@ import autoSize from 'ming-ui/decorators/autoSize';
 import { useSetState } from 'react-use';
 import { useRefStore } from 'worksheet/hooks';
 import DragMask from 'worksheet/common/DragMask';
-import { generate } from '@ant-design/colors';
-import store from 'redux/configureStore';
 import worksheetApi from 'src/api/worksheet';
 import {
   emitter,
-  controlIsNumber,
   checkRulesErrorOfRowControl,
   getScrollBarWidth,
-  checkCellIsEmpty,
-  getRecordColor,
   filterEmptyChildTableRows,
+  clearSelection,
+  getControlStyles,
 } from 'worksheet/util';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { ROW_HEIGHT, WORKSHEETTABLE_FROM_MODULE, SHEET_VIEW_HIDDEN_TYPES } from 'worksheet/constants/enum';
+import { WORKSHEETTABLE_FROM_MODULE, SHEET_VIEW_HIDDEN_TYPES } from 'worksheet/constants/enum';
 import {
   handleLifeEffect,
   columnWidthFactory,
@@ -28,7 +24,7 @@ import {
   getRulePermissions,
   getTableHeadHeight,
 } from './util';
-import { MDCell, NoSearch, NoRecords } from './components';
+import { NoSearch, NoRecords, Cell } from './components';
 import './style.less';
 
 const StyledFixedTable = styled(FixedTable)`
@@ -82,6 +78,12 @@ const StyledFixedTable = styled(FixedTable)`
     white-space: nowrap;
     overflow: hidden;
   }
+  ${({ controlStyles }) => controlStyles || ''}
+  &.isChangeColumnWidth {
+    * {
+      user-select: none !important;
+    }
+  }
   &.hideVerticalLine {
     .cell:not(.lastFixedColumn) {
       border-right: none !important;
@@ -117,8 +119,10 @@ const StyledFixedTable = styled(FixedTable)`
 function WorksheetTable(props, ref) {
   const {
     fromModule = WORKSHEETTABLE_FROM_MODULE.APP,
+    showControlStyle,
     enableRules = true,
     recordColorConfig,
+    showHead = true,
     // 相关 id
     appId,
     worksheetId,
@@ -128,6 +132,7 @@ function WorksheetTable(props, ref) {
     noRenderEmpty,
     loading,
     isSubList,
+    isRelateRecordList,
     readonly,
     controls,
     projectId,
@@ -168,7 +173,7 @@ function WorksheetTable(props, ref) {
   } = props; // 显示
   const { rowHeadWidth = 70, renderRowHead } = props;
   const { onColumnWidthChange = () => {}, onCellClick, onFocusCell = () => {} } = props;
-  const { masterFormData = () => [], masterData = () => {}, getRowsCache } = props; // 获取子表所在记录表单数据
+  const { masterFormData = () => [], masterData = () => {} } = props; // 获取子表所在记录表单数据
   const { updateCell } = props;
   const isRelateRecordTable = fromModule === WORKSHEETTABLE_FROM_MODULE.RELATE_RECORD;
   const [state, setState] = useSetState({
@@ -177,6 +182,7 @@ function WorksheetTable(props, ref) {
     rulesLoading: !props.rules && (enableRules || isRelateRecordTable),
     data: props.data,
     maskVisible: false,
+    isChangeColumnWidth: false,
     sheetColumnWidths: props.sheetColumnWidths || {},
   });
   const {
@@ -184,28 +190,34 @@ function WorksheetTable(props, ref) {
     rules,
     data,
     maskVisible,
+    isChangeColumnWidth,
     sheetColumnWidths,
     maskLeft = 0,
     maskMinLeft = 0,
     maskMaxLeft = 0,
     maskOnChange,
   } = state;
-  const [cachedRows, updateCachedRow] = useRefStore({});
   const [cache, setCache] = useRefStore({});
   const [cellRefs, setCellRefs] = useRefStore({});
-  const [rulePermissions, updateRulePermissions] = useRefStore(
-    rules.length
-      ? getRulePermissions({
-          isSubList,
-          columns,
-          controls,
-          rules: rules,
-          data,
-        })
-      : {},
+  const defaultRulePermissions = useMemo(
+    () =>
+      rules.length
+        ? getRulePermissions({
+            isSubList,
+            columns,
+            controls,
+            rules: rules,
+            data,
+          })
+        : {},
+    [],
   );
+  const [rulePermissions, updateRulePermissions] = useState(defaultRulePermissions);
   const tableRef = useRef();
   window.tableRef = tableRef;
+  const handleUpdateRulePermissions = useCallback(newRulePermissions => {
+    updateRulePermissions(old => ({ ...(old || {}), ...newRulePermissions }));
+  }, []);
   const visibleColumns = useMemo(
     () =>
       (showRowHead ? [{ type: 'rowHead', width: rowHeadWidth }] : [])
@@ -241,258 +253,10 @@ function WorksheetTable(props, ref) {
       tableHeight -= rowHeight - 26;
     }
   }
-  function renderCell({ columnIndex, rowIndex, style, key, type }) {
-    const control = { ...visibleColumns[columnIndex] };
-    let row = data[rowIndex] || {};
-    if (cachedRows[row.rowid]) {
-      row = cachedRows[row.rowid];
-    }
-    if (row.isSubListFooter) {
-      return <span style={{ ...style, height: 26 }} />;
-    }
-    control.fieldPermission = rulePermissions[`${row.rowid}-${control.controlId}`] || control.fieldPermission || '111';
-    const cellIndex = rowIndex * cellColumnCount + columnIndex;
-    let value;
-    if (_.isFunction(getRowsCache)) {
-      value = _.get(getRowsCache(), row.rowid + '.' + control.controlId) || row[control.controlId];
-    } else {
-      const rowCache = store.getState().sheet.sheetview.rowCache || {};
-      value = rowCache[row.rowid + '-' + control.controlId] || row[control.controlId];
-    }
-    let className = cx(
-      `control-${control.type === 30 ? control.sourceControlType || control.type : control.type}`,
-      `row-${_.includes(['head', 'footer'], type) ? type : rowIndex}`,
-      `col-${columnIndex}`,
-      `cell-${cellIndex}`,
-      'cell',
-      `rowHeight-${_.findIndex(ROW_HEIGHT, h => h === rowHeight) || 0}`,
-      {
-        placeholder: !row.rowid,
-        emptyRow: row.rowid && _.isFunction(row.rowid.startsWith) && row.rowid.startsWith('empty'),
-        oddRow: rowIndex % 2 === 1,
-        readonly:
-          lineEditable &&
-          rowIndex >= 0 &&
-          columnIndex > 0 &&
-          control.fieldPermission &&
-          (control.fieldPermission[1] === '0' || control.fieldPermission[0] === '0'),
-        fixedRow: rowIndex === 0,
-        lastFixedColumn: columnIndex === fixedColumnCount,
-        alignRight: controlIsNumber(control),
-        focus: !_.isUndefined(cache.focusIndex) && cellIndex === cache.focusIndex,
-        highlight:
-          !_.isUndefined(window[`sheetTableHighlightRow${tableId}`]) &&
-          window[`sheetTableHighlightRow${tableId}`] === rowIndex,
-        highlightFromProps: sheetViewHighlightRows[row.rowid],
-        focusShowEditIcon:
-          tableType === 'classic' &&
-          _.includes(
-            [
-              WIDGETS_TO_API_TYPE_ENUM.DATE,
-              WIDGETS_TO_API_TYPE_ENUM.DATE_TIME,
-              WIDGETS_TO_API_TYPE_ENUM.TIME,
-              WIDGETS_TO_API_TYPE_ENUM.AREA_CITY,
-              WIDGETS_TO_API_TYPE_ENUM.AREA_COUNTY,
-              WIDGETS_TO_API_TYPE_ENUM.AREA_PROVINCE,
-              WIDGETS_TO_API_TYPE_ENUM.USER_PICKER,
-              WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT,
-              WIDGETS_TO_API_TYPE_ENUM.ORG_ROLE,
-              WIDGETS_TO_API_TYPE_ENUM.ATTACHMENT,
-              WIDGETS_TO_API_TYPE_ENUM.RICH_TEXT,
-              WIDGETS_TO_API_TYPE_ENUM.LOCATION,
-              WIDGETS_TO_API_TYPE_ENUM.SIGNATURE,
-              WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET,
-              WIDGETS_TO_API_TYPE_ENUM.CASCADER,
-            ],
-            control.type,
-          ) &&
-          checkCellIsEmpty(value),
-      },
-    );
-    const recordColor =
-      recordColorConfig &&
-      getRecordColor({
-        controlId: recordColorConfig.controlId,
-        colorItems: recordColorConfig.colorItems,
-        controls,
-        row,
-      });
-    if (recordColor && recordColorConfig.showBg && recordColor.lightColor && control.type !== 'emptyForResize') {
-      style.backgroundColor = recordColor.lightColor;
-    }
-    if (_.includes(['head', 'footer'], type)) {
-      style.height = 34;
-    }
-    if (state.rulesLoading) {
-      return <div className={className} style={{ ...style }} />;
-    }
-    if (control.type === 'emptyForResize') {
-      return <div style={style} />;
-    }
-    if (control.type === 'rowHead' && type !== 'footer') {
-      if (type === 'head' && columnHeadHeight > 34) {
-        style.height = columnHeadHeight;
-        className += ' wrapControlName';
-      }
-      const rowHead = renderRowHead({
-        className,
-        key,
-        style,
-        control,
-        row,
-        rowIndex: type === 'head' ? -1 : rowIndex,
-        data,
-      });
-      return recordColor && recordColorConfig.showLine ? (
-        <Fragment>
-          {rowHead}
-          <span
-            className="colorTag"
-            style={{
-              left: style.left + style.width - 10,
-              top: style.top + 6,
-              height: style.height - 12,
-              zIndex: 2,
-              backgroundColor: recordColor.color,
-            }}
-          />
-        </Fragment>
-      ) : (
-        rowHead
-      );
-    }
-    const error = cellErrors[`${row.rowid}-${control.controlId}`];
-    if (type === 'head') {
-      if (wrapControlName && columnHeadHeight > 34) {
-        style.height = columnHeadHeight;
-        className += ' wrapControlName';
-      }
-      return renderColumnHead({
-        tableId,
-        className,
-        control,
-        style,
-        columnIndex,
-        rowIndex,
-        data,
-        fixedColumnCount: fixedColumnCount + 1,
-        updateSheetColumnWidths: ({ controlId, value }) => {
-          onColumnWidthChange(controlId, value);
-          setState({
-            sheetColumnWidths: Object.assign({}, sheetColumnWidths, { [controlId]: value }),
-          });
-        },
-      });
-    } else if (type === 'footer') {
-      return renderFooterCell({ style, columnIndex });
-    } else {
-      return (
-        <MDCell
-          isTrash={isTrash}
-          from={from}
-          allowlink={allowlink}
-          isSubList={isSubList}
-          fromModule={fromModule}
-          appId={appId}
-          worksheetId={worksheetId}
-          viewId={viewId}
-          tableId={tableId}
-          tableType={tableType}
-          fixedColumnCount={fixedColumnCount}
-          lineEditable={!readonly && lineEditable}
-          className={className}
-          projectId={projectId}
-          control={control}
-          value={value}
-          cache={cache}
-          row={row}
-          error={error}
-          clearCellError={clearCellError}
-          rowHeight={rowHeight}
-          rowHeightEnum={rowHeightEnum}
-          rowFormData={() =>
-            (controls || columns)
-              .map(c => ({ ...c, value: row[c.controlId] }))
-              .concat(masterFormData().filter(c => c.controlId.length === 24))
-          }
-          masterData={masterData} // 子表字段所在记录数据 { worksheetId, formData }
-          sheetSwitchPermit={sheetSwitchPermit}
-          key={key}
-          style={{ ...style }}
-          columnIndex={columnIndex}
-          rowIndex={rowIndex}
-          cellIndex={cellIndex}
-          // 获取浮层插入位置
-          getPopupContainer={isFixed => {
-            if (cellPopupContainer) {
-              return cellPopupContainer;
-            }
-            return (
-              document.querySelector(`.sheetViewTable.id-${tableId}-id ${isFixed ? '.main-left' : '.main-center'}`) ||
-              document.body
-            );
-          }}
-          enterEditing={() => {
-            if (tableType === 'classic') {
-              if (cache.focusIndex !== cellIndex) {
-                focusCell(cellIndex);
-              }
-            }
-          }}
-          // 方法
-          onCellClick={onCellClick}
-          onFocusCell={action => {
-            onFocusCell(row, cellIndex);
-            if (action === 'openRecord') {
-              onCellClick();
-            } else {
-              focusCell(rowIndex * cellColumnCount + columnIndex);
-            }
-          }}
-          scrollTo={({ left, top } = {}) => {
-            tableRef.current.setScroll(left, top);
-          }}
-          // 校验
-          checkRulesErrorOfControl={(control, row) => {
-            return checkRulesErrorOfRowControl({ from: 3, rules, controls, control, row });
-          }}
-          cellUniqueValidate={cellUniqueValidate}
-          // 更新数据
-          updateCell={(args, options) => {
-            updateCell(args, {
-              ...options,
-              updateTable: () => {
-                tableRef.current.forceUpdate();
-              },
-              updateSuccessCb: async newRow => {
-                if (rules.length) {
-                  updateRulePermissions(
-                    getControlFieldPermissionsAfterRules(
-                      newRow,
-                      (isSubList ? columns : controls).map(c => ({
-                        ...c,
-                        fieldPermission: c.fieldPermission,
-                      })),
-                      rules,
-                    ),
-                  );
-                }
-                updateCachedRow(row.rowid, { ...row, ..._.omit(newRow, ['allowedit', 'allowdelete']) });
-                tableRef.current.updateRow(rowIndex);
-              },
-            });
-          }}
-          // 挂载 ref
-          registerRef={cellRef => {
-            setCellRefs(cellIndex, cellRef);
-          }}
-        />
-      );
-    }
-  }
   function showColumnWidthChangeMask({ columnWidth, defaultLeft, maskMinLeft, callback }) {
     setState({
       maskVisible: true,
+      isChangeColumnWidth: true,
       maskLeft: defaultLeft,
       maskMinLeft: maskMinLeft || defaultLeft - (columnWidth - 10),
       maskMaxLeft: window.innerWidth,
@@ -502,6 +266,12 @@ function WorksheetTable(props, ref) {
         setState({
           maskVisible: false,
         });
+        setTimeout(() => {
+          setState({
+            isChangeColumnWidth: false,
+          });
+          clearSelection();
+        }, 100);
       },
     });
   }
@@ -564,6 +334,7 @@ function WorksheetTable(props, ref) {
         (e.key === 'Enter' &&
           e.target.tagName.toLowerCase() !== 'body' &&
           !e.target.classList.contains('body') &&
+          !e.target.classList.contains('mdModalWrap') &&
           !e.target.classList.contains('nano-content'))) &&
       !(_.includes([26, 27], cell.props.cell.type) && e.key !== 'Enter')
     ) {
@@ -576,16 +347,6 @@ function WorksheetTable(props, ref) {
   useImperativeHandle(ref, () => ({
     refs: tableRef.current,
     rules,
-    updateSheetRow: newRow => {
-      const rowIndex = _.findIndex(data, { rowid: newRow.rowid });
-      if (!_.isUndefined(rowIndex)) {
-        updateCachedRow(newRow.rowid, {
-          ...data[rowIndex],
-          ..._.omit(newRow, data[rowIndex] ? ['allowedit', 'allowdelete'] : []),
-        });
-        tableRef.current.updateRow(rowIndex);
-      }
-    },
   }));
   function loadRules() {
     worksheetApi
@@ -595,7 +356,7 @@ function WorksheetTable(props, ref) {
       })
       .then(newRules => {
         if (newRules.length) {
-          updateRulePermissions(
+          handleUpdateRulePermissions(
             getRulePermissions({
               isSubList,
               columns,
@@ -629,8 +390,9 @@ function WorksheetTable(props, ref) {
     setState({ sheetColumnWidths: props.sheetColumnWidths || {} });
   }, [props.sheetColumnWidths]);
   useEffect(() => {
+    // 显示列变更，列宽变更
     tableRef.current.forceUpdate();
-  }, [showSummary, getColumnWidth, controls]);
+  }, [rowHeight, fixedColumnCount, columns.map(c => c.controlId).join(','), JSON.stringify(sheetColumnWidths)]);
   useEffect(() => {
     setCache('data', data);
     const propsData = props.data.filter(r => !r.isSubListFooter);
@@ -659,7 +421,7 @@ function WorksheetTable(props, ref) {
     }
     setState({ data: props.data });
     if (updatedRows.length && rules.length) {
-      updateRulePermissions(
+      handleUpdateRulePermissions(
         getRulePermissions({
           isSubList,
           columns,
@@ -668,15 +430,6 @@ function WorksheetTable(props, ref) {
           data: updatedRows,
         }),
       );
-    }
-    if (updatedRows.length) {
-      updatedRows.forEach(r => {
-        const rowIndex = _.findIndex(data, { rowid: r.rowid });
-        if (!_.isUndefined(rowIndex)) {
-          updateCachedRow(r.rowid, undefined);
-          tableRef.current.updateRow(rowIndex);
-        }
-      });
     }
   }, [props.data]);
   useEffect(() => {
@@ -687,6 +440,7 @@ function WorksheetTable(props, ref) {
       cache,
       tableType,
       isSubList,
+      isRelateRecordList,
       showColumnWidthChangeMask,
       focusCell,
       handleTableKeyDown,
@@ -704,6 +458,7 @@ function WorksheetTable(props, ref) {
     <React.Fragment>
       {maskVisible && <DragMask value={maskLeft} min={maskMinLeft} max={maskMaxLeft} onChange={maskOnChange} />}
       <StyledFixedTable
+        controlStyles={showControlStyle && getControlStyles(visibleColumns)}
         disablePanVertical={disablePanVertical}
         noRenderEmpty={noRenderEmpty}
         loading={loading}
@@ -712,6 +467,7 @@ function WorksheetTable(props, ref) {
           scrollBarHoverShow,
           hideVerticalLine: !showVerticalLine,
           showAsZebra,
+          isChangeColumnWidth,
         })}
         width={width}
         height={tableHeight}
@@ -725,9 +481,107 @@ function WorksheetTable(props, ref) {
         rowCount={tableRowCount}
         columnCount={visibleColumns.length}
         leftFixedCount={fixedColumnCount + 1}
-        renderHeadCell={args => renderCell({ ...args, type: 'head' })}
-        renderCell={renderCell}
-        renderFooterCell={showSummary && renderFooterCell ? args => renderCell({ ...args, type: 'footer' }) : undefined}
+        Cell={Cell}
+        showHead={showHead}
+        showFoot={showSummary}
+        tableData={{
+          tableId,
+          isTrash,
+          from,
+          allowlink,
+          isSubList,
+          fromModule,
+          appId,
+          worksheetId,
+          viewId,
+          projectId,
+          tableType,
+          controls,
+          visibleColumns,
+          columns,
+          cellColumnCount,
+          rowHeight,
+          rowHeightEnum,
+          fixedColumnCount,
+          columnHeadHeight,
+          recordColorConfig,
+          cellErrors,
+          lineEditable: !readonly && lineEditable,
+          rulePermissions,
+          masterData,
+          masterFormData,
+          sheetViewHighlightRows,
+          sheetSwitchPermit,
+          cache,
+          rows: data,
+          // functions
+          clearCellError,
+          updateSheetColumnWidths: ({ controlId, value }) => {
+            onColumnWidthChange(controlId, value);
+            setState({
+              sheetColumnWidths: Object.assign({}, sheetColumnWidths, { [controlId]: value }),
+            });
+          },
+          // 获取浮层插入位置
+          getPopupContainer: isFixed => {
+            if (cellPopupContainer) {
+              return cellPopupContainer;
+            }
+            return (
+              document.querySelector(`.sheetViewTable.id-${tableId}-id ${isFixed ? '.main-left' : '.main-center'}`) ||
+              document.body
+            );
+          },
+          enterEditing: cellIndex => {
+            if (tableType === 'classic') {
+              if (cache.focusIndex !== cellIndex) {
+                focusCell(cellIndex);
+              }
+            }
+          },
+          onCellClick,
+          onFocusCell: ({ row, cellIndex, rowIndex, columnIndex }) => {
+            onFocusCell(row, cellIndex);
+            focusCell(rowIndex * cellColumnCount + columnIndex);
+          },
+          // 校验
+          checkRulesErrorOfControl: (control, row) => {
+            return checkRulesErrorOfRowControl({ from: 3, rules, controls, control, row });
+          },
+          cellUniqueValidate,
+          scrollTo: ({ left, top } = {}) => {
+            tableRef.current.setScroll(left, top);
+          },
+          // 更新数据
+          updateCell: ({ row, rowIndex, args, options } = {}) => {
+            updateCell(args, {
+              ...options,
+              updateSuccessCb: async newRow => {
+                if (rules.length) {
+                  handleUpdateRulePermissions(
+                    getControlFieldPermissionsAfterRules(
+                      newRow,
+                      (isSubList ? columns : controls).map(c => ({
+                        ...c,
+                        fieldPermission: c.fieldPermission,
+                      })),
+                      rules,
+                    ),
+                  );
+                }
+              },
+            });
+          },
+          // 挂载 ref
+          registerRef: (cellRef, cellIndex) => {
+            setCellRefs(cellIndex, cellRef);
+          },
+          renderFunctions: {
+            head: renderColumnHead,
+            foot: renderFooterCell,
+            rowHead: renderRowHead,
+          },
+        }}
         // 空状态
         renderEmpty={({ style }) => {
           if (keyWords && showSearchEmpty) {

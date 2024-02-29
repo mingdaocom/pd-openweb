@@ -40,6 +40,8 @@ import { FIELD_TYPE_LIST } from 'src/pages/workflow/WorkflowSettings/enum';
 import _ from 'lodash';
 import { setFavicon } from 'src/util';
 
+const FIELD_TYPE = FIELD_TYPE_LIST.concat([{ text: _l('对象'), value: 10000006, en: 'object' }]);
+
 const Wrap = styled.div`
   input {
     border: 1px solid #ddd;
@@ -681,7 +683,7 @@ class WorksheetApi extends Component {
                 {o.alias || o.controlName}
               </div>
               <div className="mLeft30 w18">{o.required ? _l('是') : _l('否')}</div>
-              <div className="mLeft30 w14">{FIELD_TYPE_LIST.find(obj => obj.value === o.type).text}</div>
+              <div className="mLeft30 w14">{FIELD_TYPE.find(obj => obj.value === o.type).text}</div>
               <div className="mLeft30 w36">{o.desc}</div>
             </div>
             {renderInputs(workflowInfo.inputs.filter(item => item.dataSource === o.controlId))}

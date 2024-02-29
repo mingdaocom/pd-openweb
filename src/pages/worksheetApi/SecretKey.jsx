@@ -1,8 +1,16 @@
 import React, { Fragment, useState } from 'react';
 import appManagementAjax from 'src/api/appManagement';
-import { Dialog, Checkbox, Switch, RadioGroup } from 'ming-ui';
-import { Input } from 'antd';
+import { Dialog, Checkbox, Switch, RadioGroup, VerifyPasswordInput } from 'ming-ui';
 import { verifyPassword } from 'src/util';
+import styled from 'styled-components';
+
+const DialogWrap = styled(Dialog)`
+  .verifyPasswordInput {
+    .verifyPasswordTitle {
+      font-size: 13px !important;
+    }
+  }
+`;
 
 export default ({
   appId = '',
@@ -33,7 +41,7 @@ export default ({
   };
 
   return (
-    <Dialog
+    <DialogWrap
       visible={true}
       overlayClosable={false}
       title={appKey ? _l('编辑授权密钥') : _l('新建授权密钥')}
@@ -61,7 +69,7 @@ export default ({
 
       {appKey && (
         <Fragment>
-          <div className="mTop20">{_l('授权状态')}</div>
+          <div className="mTop20 bold">{_l('授权状态')}</div>
           <Switch
             className="mTop10"
             checked={displayStatus === 1}
@@ -73,12 +81,12 @@ export default ({
 
       {displayStatus === 1 && (
         <Fragment>
-          <div className="mTop20">{_l('接口权限')}</div>
+          <div className="mTop20 bold">{_l('接口权限')}</div>
           <div className="mTop10">
             <RadioGroup data={getData(displayType)} onChange={setType} />
           </div>
 
-          <div className="mTop20">{_l('其他设置')}</div>
+          <div className="mTop20 bold">{_l('其他设置')}</div>
           <Checkbox
             className="mTop10"
             text={_l('调用获取工作表列表接口时，视图参数为空则不返回数据')}
@@ -88,13 +96,11 @@ export default ({
         </Fragment>
       )}
 
-      <div className="mTop20">{_l('当前用户密码')}</div>
-      <Input.Password
-        className="boderRadAll_3 mTop10"
-        autocomplete="new-password"
-        placeholder={_l('请输入密码确认授权')}
-        onChange={e => setPassword(e.target.value)}
+      <VerifyPasswordInput
+        className="verifyPasswordInput mTop20"
+        showSubTitle={true}
+        onChange={({ password }) => setPassword(password)}
       />
-    </Dialog>
+    </DialogWrap>
   );
 };

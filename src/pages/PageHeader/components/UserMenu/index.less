@@ -31,14 +31,15 @@
   color: #fff !important;
 }
 
-#userSet #userSetItem.active {
-  background: #1f88e5 !important;
-}
-
-#userSet #userSetItem.active a,
-#userSet #userSetItem.active .icon,
-#userSet #userSetItem.active .icon-arrow-right {
-  color: #fff !important;
+#userSet #userSetItem, #userSet #languageSetItem {
+  &.active {
+    background: #1f88e5 !important;
+  }
+  &.active a,
+  &.active .icon,
+  &.active .icon-arrow-right {
+    color: #fff !important;
+  }
 }
 
 #userSet .createCompany {
@@ -72,7 +73,7 @@
 }
 
 // tooltip
-.userSetTool {
+.userSetTool, .languageSetTool {
   width: 200px;
   // height: 190px;
   padding: 5px 0;
@@ -83,34 +84,39 @@
   border-radius: 3px;
 }
 
-.userSetTooltip {
+.userSetTooltip, .languageSetTooltip {
   width: 100%;
   max-height: 320px;
   overflow-x: hidden;
+
+  li {
+    width: 100%;
+    height: 36px;
+    line-height: 36px;
+    display: inline-block;
+    padding: 0 15px;
+    overflow: hidden;
+    vertical-align: bottom;
+    white-space: nowrap;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    color: #000000;
+    cursor: pointer;
+  }
+  li:hover {
+    color: #fff;
+    background: #1f88e5;
+  }
+  li:not(:hover) {
+    background: #fff !important;
+  }
 }
 
-.userSetTooltip li {
-  width: 100%;
-  height: 36px;
-  line-height: 36px;
-  display: inline-block;
-  padding: 0 15px;
-  overflow: hidden;
-  vertical-align: bottom;
-  white-space: nowrap;
-  text-decoration: none;
-  text-overflow: ellipsis;
-  color: #000000;
-  cursor: pointer;
-}
-
-.userSetTooltip li:hover {
-  color: #fff;
-  background: #1f88e5;
-}
-
-.userSetTooltip li:not(:hover) {
-  background: #fff !important;
+.languageSetTooltip li.active {
+  &:hover {
+    color: #333;
+  }
+  background: #e5f0fd !important;
 }
 
 #userSet .icon-arrow-right {

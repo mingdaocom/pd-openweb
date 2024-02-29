@@ -111,7 +111,7 @@ export default function TelDialog(props) {
   const { passwordRegex, passwordRegexTip } = SysSettings;
   const codeDiv = useRef();
   const isPasswordRule = str => {
-    return RegExp.isPasswordRule(str, passwordRegex);
+    return RegExp.isPasswordValid(str, passwordRegex);
   };
   const findPwdCallback = res => {
     const { accountResult } = res;
@@ -218,7 +218,7 @@ export default function TelDialog(props) {
         appId: props.appId,
         ticket: res.ticket,
         randStr: res.randstr,
-        captchaType: md.staticglobal.getCaptchaType(),
+        captchaType: md.global.getCaptchaType(),
         account: props.account,
         codeType: 4, //更新密码
       };
@@ -250,7 +250,7 @@ export default function TelDialog(props) {
       });
     };
 
-    if (md.staticglobal.getCaptchaType() === 1) {
+    if (md.global.getCaptchaType() === 1) {
       new captcha(callback);
     } else {
       new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), callback).show();
@@ -277,7 +277,7 @@ export default function TelDialog(props) {
         password: encrypt(psd),
         appId,
         verifyCode: code,
-        captchaType: md.staticglobal.getCaptchaType(),
+        captchaType: md.global.getCaptchaType(),
         ticket,
         randStr: randstr,
       })
@@ -294,11 +294,11 @@ export default function TelDialog(props) {
       }
       doFindPwd(
         Object.assign({}, res, {
-          captchaType: md.staticglobal.getCaptchaType(),
+          captchaType: md.global.getCaptchaType(),
         }),
       );
     };
-    if (md.staticglobal.getCaptchaType() === 1) {
+    if (md.global.getCaptchaType() === 1) {
       new captcha(callback);
     } else {
       new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), callback).show();

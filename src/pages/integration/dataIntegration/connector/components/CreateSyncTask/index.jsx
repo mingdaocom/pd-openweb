@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Radio } from 'ming-ui';
 import _ from 'lodash';
-import { SYNC_TYPE } from '../../../constant';
+import { DATABASE_TYPE, SYNC_TYPE } from '../../../constant';
 import OnlySyncStep from '../OnlySyncStep';
 import { v4 as uuidv4 } from 'uuid';
 import taskFlowApi from 'src/pages/integration/api/taskFlow';
@@ -111,6 +111,13 @@ export default function CreateSyncTask(props) {
   const [syncType, setSyncType] = useState(SYNC_TYPE.NO_SELECT);
 
   const onInitTaskFlow = () => {
+    const extraConfig =
+      source.type === DATABASE_TYPE.KAFKA
+        ? {
+            dbName: _.get(source, ['formData', 'extraParams', 'topic']),
+            tableName: _.get(source, ['formData', 'extraParams', 'topic']),
+          }
+        : {};
     const data = {
       projectId: currentProjectId,
       owner: md.global.Account.accountId,
@@ -123,6 +130,7 @@ export default function CreateSyncTask(props) {
           dsType: source.type,
           className: source.className,
           iconBgColor: source.iconBgColor,
+          ...extraConfig,
         },
       },
       destNode: {

@@ -6,6 +6,7 @@ import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { functions } from './enum';
 import { asyncRun } from 'worksheet/util';
 import { handleDotAndRound } from 'src/components/newCustomFields/tools/DataFormat';
+import { toFixed } from 'src/util';
 
 function replaceControlIdToValue(expression, formData, inString) {
   expression = expression.replace(/\$(.+?)\$/g, matched => {
@@ -44,6 +45,9 @@ function formatFunctionResult(control, value) {
     case WIDGETS_TO_API_TYPE_ENUM.MONEY:
       try {
         result = (result || '').toString().match(/^-?[\d\.]+/)[0];
+        if (_.isNumber(Number(result)) && !_.isNaN(Number(result))) {
+          result = String(Number(toFixed(result, 10)));
+        }
       } catch (err) {}
       break;
     case WIDGETS_TO_API_TYPE_ENUM.DATE:
@@ -55,10 +59,11 @@ function formatFunctionResult(control, value) {
     case WIDGETS_TO_API_TYPE_ENUM.FLAT_MENU:
     case WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT:
     case WIDGETS_TO_API_TYPE_ENUM.DROP_DOWN:
+      const filterOptions = (control.options || []).filter(i => !i.isDeleted);
       const tempValue = (_.isString(result) ? result.split(',') : [].concat(result))
         .map(item => {
           return _.get(
-            _.find(control.options || [], option => option.value === item),
+            _.find(filterOptions, option => option.value === item),
             'key',
           );
         })

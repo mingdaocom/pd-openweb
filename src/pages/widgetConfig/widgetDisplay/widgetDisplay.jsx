@@ -20,7 +20,8 @@ export default function WidgetDisplay(props) {
     fromType,
     commonWidgets = [],
   } = props;
-  const { type, sourceControlType, required, hint, unit, desc, strDefault, controlId } = data;
+  const { type, sourceControlType, required, hint, unit, desc, strDefault, controlId, fieldPermission = '111' } = data;
+  const readOnly = fieldPermission[1] === '0';
   const {
     prefix,
     suffix,
@@ -52,12 +53,21 @@ export default function WidgetDisplay(props) {
   const displayRow = titlelayout_pc === '2' && supportDisplayRow(data);
 
   const getTitleContent = () => {
-    const controlNameCon = showTitle ? (
-      <div className={cx('controlName', { isSplitLine, flex: displayRow, overflow_ellipsis: !displayRow })}>
+    const controlNameCon = (
+      <div
+        className={cx('controlName', {
+          isSplitLine,
+          flex: displayRow,
+          breakAll: displayRow,
+          overflow_ellipsis: !displayRow,
+          hideTitle: !showTitle,
+        })}
+      >
         {controlName}
         {showIcon && <span className="icon-refresh Gray_9e mLeft6"></span>}
       </div>
-    ) : null;
+    );
+
     if (displayRow) {
       return (
         <div className="titleContent">
@@ -77,7 +87,7 @@ export default function WidgetDisplay(props) {
   // 分割线单独走展示
   if (type === 22) {
     return (
-      <TitleContentWrap>
+      <TitleContentWrap readOnly={readOnly}>
         <Component {...props} splitWidgets={commonWidgets} />
       </TitleContentWrap>
     );
@@ -103,10 +113,11 @@ export default function WidgetDisplay(props) {
       titleStyle={titleStyle}
       titleSize={titleSize}
       titleColor={titlecolor}
+      readOnly={readOnly}
     >
       <div className={cx('nameAndStatus', { minHeight18: !isSpecialControl && hidetitle === '1' })}>
         {required && <div className={cx({ required })}>*</div>}
-        <i className={cx(`typeIcon icon-${getIconByType(type)}`, { Visibility: !(showTitle && !isSplitLine) })}></i>
+        <i className={cx(`typeIcon icon-${getIconByType(type)}`)}></i>
 
         {getTitleContent()}
       </div>

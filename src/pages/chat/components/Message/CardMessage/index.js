@@ -4,15 +4,13 @@ import cx from 'classnames';
 import './index.less';
 import ChatController from 'src/api/chat';
 import * as utils from '../../../utils/';
-import { htmlDecodeReg } from 'src/util';
-import { createLinksForMessage } from 'src/components/common/function';
+import { htmlDecodeReg, createLinksForMessage } from 'src/util';
 import TaskDetail from 'src/pages/task/containers/taskDetail/taskDetail';
 import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper.jsx';
-import DialogLayer from 'src/components/mdDialog/dialog';
-import ReactDom from 'react-dom';
 import postAjax from 'src/api/post';
 import PostDetails from 'src/pages/feed/components/post/postDetails/postDetails';
 import moment from 'moment';
+import { Dialog } from 'ming-ui';
 import filterXss from 'xss';
 
 const vertical = {
@@ -104,9 +102,8 @@ export default class CardMessage extends Component {
     switch (md) {
       case 'post':
       case 'vote':
-        let feedDialog;
         const removeFn = () => {
-          feedDialog.closeDialog();
+          $('.chatFeedDialog').parent().remove();
         };
 
         postAjax
@@ -139,27 +136,15 @@ export default class CardMessage extends Component {
             if (Object.keys(properties).length) {
               postItem = Object.assign({}, postItem, properties);
             }
-            feedDialog = ReactDom.render(
-              <DialogLayer
-                dialogBoxID="chatFeedDialog"
-                width={800}
-                container={{
-                  header: _l('动态详情'),
-                  yesText: '',
-                  noText: '',
-                }}
-                readyFn={function (Comp) {
-                  $('#chatFeedDialog_container').on('click', event => {
-                    if (!$(event.target).closest('#chatFeedDialog').length) {
-                      Comp.closeDialog();
-                    }
-                  });
-                }}
-              >
+            Dialog.confirm({
+              width: 800,
+              dialogClasses: 'chatFeedDialog',
+              title: _l('动态详情'),
+              noFooter: true,
+              children: (
                 <PostDetails onRemove={removeFn} postItem={postItem} />
-              </DialogLayer>,
-              document.createElement('div'),
-            );
+              ),
+            })
           });
         break;
       case 'task':
@@ -222,7 +207,9 @@ export default class CardMessage extends Component {
             className="Message-cardSummary Message-cardItem-task"
             dangerouslySetInnerHTML={{ __html: filterXss(htmlDecodeReg(cardDetails.summary)) }}
           />
-        ) : undefined}
+        ) : (
+          undefined
+        )}
       </div>
     );
   }
@@ -317,7 +304,9 @@ export default class CardMessage extends Component {
             <i className="icon-ic_textsms_black" />
             <span>{commentCount}</span>
           </div>
-        ) : undefined}
+        ) : (
+          undefined
+        )}
       </div>
     );
   }

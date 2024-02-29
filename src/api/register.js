@@ -2,11 +2,11 @@ export default {
   /**
   * 发送注册验证码
   * @param {Object} args 请求参数
-  * @param {string} args.account 账号邮箱或手机号
-  * @param {} args.verifyCodeType 类型短信或语音
   * @param {string} args.ticket 验证码返票据
   * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
+  * @param {} args.captchaType
+  * @param {string} args.account 账号邮箱或手机号
+  * @param {} args.verifyCodeType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -18,11 +18,11 @@ export default {
   /**
   * 邀请加入网络进行已有账号登录
   * @param {Object} args 请求参数
-  * @param {string} args.account 账号邮箱或手机号
-  * @param {string} args.password 密码
   * @param {string} args.ticket 验证码返票据
   * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
+  * @param {} args.captchaType
+  * @param {string} args.account 账号邮箱或手机号
+  * @param {string} args.password 密码
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -34,11 +34,11 @@ export default {
   /**
   * 定向账号邀请加入网络进行已有账号登录
   * @param {Object} args 请求参数
-  * @param {string} args.confirmation token
-  * @param {string} args.password 密码
   * @param {string} args.ticket 验证码返票据
   * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
+  * @param {} args.captchaType
+  * @param {string} args.confirmation token
+  * @param {string} args.password 密码
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -87,13 +87,13 @@ export default {
   /**
   * 如果已有账号加入某个邀请模块(不含加入公司)
   * @param {Object} args 请求参数
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType
   * @param {string} args.password 密码
   * @param {string} args.confirmation token
   * @param {boolean} args.isLink 是否是链接
   * @param {string} args.account 账号邮箱或手机号
-  * @param {string} args.ticket 验证码返票据
-  * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -105,6 +105,8 @@ export default {
   /**
   * 创建账号
   * @param {Object} args 请求参数
+  * @param {string} args.regFrom 注册广告来源
+  * @param {string} args.referrer 注册来源页面
   * @param {string} args.password 密码
   * @param {string} args.fullname 用户名
   * @param {boolean} args.setSession 是否直接登录进入
@@ -115,8 +117,6 @@ export default {
   * @param {string} args.unionId 第三方账号
   * @param {string} args.state 第三方账号
   * @param {integer} args.tpType 第三方类型
-  * @param {string} args.regFrom 注册广告来源
-  * @param {string} args.referrer 注册来源页面
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -141,10 +141,10 @@ export default {
   /**
   * 根据企业号加入网络(检验企业号是否正确，含userCard)
   * @param {Object} args 请求参数
-  * @param {string} args.projectCode 企业号
   * @param {string} args.ticket 验证码返票据
   * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
+  * @param {} args.captchaType
+  * @param {string} args.projectCode 企业号
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -182,6 +182,8 @@ export default {
   /**
   * 创建企业网络
   * @param {Object} args 请求参数
+  * @param {string} args.regFrom 注册广告来源
+  * @param {string} args.referrer 注册来源页面
   * @param {string} args.companyName 企业名称
   * @param {string} args.tpCompanyId 第三方企业ID
   * @param {string} args.job 职位
@@ -195,9 +197,8 @@ export default {
   * @param {string} args.code 授权code方式
   * @param {string} args.unionId 第3方
   * @param {string} args.state 第3方
-  * @param {} args.tpType 第3方类型
-  * @param {string} args.regFrom 注册广告来源
-  * @param {string} args.referrer 注册来源页面
+  * @param {} args.tpType
+  * @param {integer} args.isInterested 是否对伙伴计划感兴趣
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -209,6 +210,8 @@ export default {
   /**
   * 邀请加入网络
   * @param {Object} args 请求参数
+  * @param {string} args.regFrom 注册广告来源
+  * @param {string} args.referrer 注册来源页面
   * @param {string} args.account 账号邮箱或手机号
   * @param {string} args.password 密码
   * @param {string} args.verifyCode 验证码
@@ -222,8 +225,6 @@ export default {
   * @param {string} args.jobNumber 工号
   * @param {string} args.contactPhone 座机
   * @param {string} args.email 邮箱
-  * @param {string} args.regFrom 注册广告来源
-  * @param {string} args.referrer 注册来源页面
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -235,6 +236,8 @@ export default {
   /**
   * 主动申请加入网络
   * @param {Object} args 请求参数
+  * @param {string} args.regFrom 注册广告来源
+  * @param {string} args.referrer 注册来源页面
   * @param {string} args.projectId 网络id
   * @param {string} args.account 账号邮箱或手机号
   * @param {string} args.password 密码
@@ -252,8 +255,6 @@ export default {
   * @param {integer} args.tpType 第3方类型
   * @param {string} args.jobId 兼容字段（不要传值）
   * @param {string} args.departmentId 兼容字段（不要传值）
-  * @param {string} args.regFrom 注册广告来源
-  * @param {string} args.referrer 注册来源页面
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -265,11 +266,11 @@ export default {
   /**
   * 发送找回密码验证码
   * @param {Object} args 请求参数
-  * @param {string} args.account 账号
-  * @param {} args.verifyCodeType 验证码类型
   * @param {string} args.ticket 验证码返票据
   * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
+  * @param {} args.captchaType
+  * @param {string} args.account 账号
+  * @param {} args.verifyCodeType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -281,6 +282,9 @@ export default {
   /**
   * 忘记密码 - 更新密码
   * @param {Object} args 请求参数
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType
   * @param {string} args.account 账号
   * @param {string} args.verifyCode 验证码
   * @param {string} args.password 密码

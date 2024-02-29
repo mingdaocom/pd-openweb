@@ -244,6 +244,11 @@ function NewRecord(props) {
                     actionType: advancedSetting.continueEndAction,
                   });
                 };
+                if (advancedSetting.autoreserve === '1') {
+                  setAutoFill(true);
+                  retain();
+                  return;
+                }
                 showActionSheetWithOptions(retain, noretain);
               } else {
                 newRecordContent.current.newRecord({

@@ -285,7 +285,7 @@ const NotSaveImageCard = props => {
     ? data.viewUrl
     : url.indexOf('imageView2') > -1
     ? url.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, `imageView2/${mode}/${size}`)
-    : url + `&imageView2/${mode}/${size}`;
+    : url + `${url.includes('?') ? '&' : '?'}imageView2/${mode}/${size}`;
   const [isEdit, setIsEdit] = useState(false);
   const [isPicture, setIsPicture] = useState(props.isPicture);
   const [imgClassName, setImgClassName] = useState('w100');

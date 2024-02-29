@@ -204,7 +204,7 @@ export default class GroupWrap extends Component {
   renderControlName() {
     const { dragValue, widthConfig } = this.state;
     const { width, controls, viewConfig } = this.props;
-    const { displayControls } = viewConfig;
+    const displayControls = viewConfig.displayControls || [];
     const titleControl = _.find(controls, { attribute: 1 });
     const startIndex = displayControls.length + 1;
     const endIndex = displayControls.length + 2;

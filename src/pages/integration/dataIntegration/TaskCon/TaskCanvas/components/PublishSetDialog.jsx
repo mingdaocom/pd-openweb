@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import styled from 'styled-components';
-import { Dialog, Dropdown, Checkbox, Tooltip, Icon } from 'ming-ui';
+import { Dialog, Dropdown, Checkbox, Tooltip, Icon, VerifyPasswordInput } from 'ming-ui';
 import _ from 'lodash';
 import { getIconByType } from 'src/pages/widgetConfig/util';
-import { Input } from 'antd';
 import cx from 'classnames';
 import { EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
 import 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/style.less';
@@ -18,6 +17,11 @@ const Wrap = styled.div`
   }
   .ming.Item .Item-content .itemText {
     padding-left: 10px;
+  }
+  .verifyPasswordWrap {
+    .verifyPasswordTitle {
+      font-size: 14px !important;
+    }
   }
 `;
 
@@ -43,7 +47,7 @@ export default function PublishSetDialog(props) {
   return (
     <Dialog
       visible
-      title={_l('更新发布')}
+      title={<span className="bold">{_l('更新发布')}</span>}
       width={552}
       className="publishSetDialog"
       showCancel={true}
@@ -136,22 +140,16 @@ export default function PublishSetDialog(props) {
           />
         </div>
         {isCleanDestTableData && (
-          <div>
-            <p className="mTop15 mBottom7">{_l('当前用户登录密码')}</p>
-            <Input.Password
-              iconRender={visible => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
-              className={cx('password')}
-              value={password}
-              placeholder={_l('请输入密码确认授权')}
-              autoComplete="new-password"
-              onChange={e => {
-                let value = e.target.value;
-                setState({
-                  password: value,
-                });
-              }}
-            />
-          </div>
+          <VerifyPasswordInput
+            className="mTop15 verifyPasswordWrap"
+            showSubTitle={true}
+            autoFocus={false}
+            isRequired={false}
+            allowNoVerify={false}
+            onChange={({ password }) => {
+              setState({ password });
+            }}
+          />
         )}
       </Wrap>
     </Dialog>

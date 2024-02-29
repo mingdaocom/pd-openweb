@@ -2,6 +2,7 @@ import _ from 'lodash';
 import Constant from './constant';
 import { htmlDecodeReg } from 'src/util';
 import moment from 'moment';
+import Emotion from 'src/components/emotion/emotion';
 
 /**
  * 时间戳的转换
@@ -51,7 +52,7 @@ export const createTimeSpan = dateStr => {
     } else if (milliseconds > 86400000 && year == today.getFullYear()) {
       timeSpanStr = _l('%0月%1日', month + 1, day) + ' ' + hour + ':' + minute;
     } else {
-      timeSpanStr = _l('%0/%1/%2/', year, month + 1, day) + ' ' + hour + ':' + minute;
+      timeSpanStr = `${year}/${month + 1}/${day} ${hour}:${minute}`;
     }
   }
   return timeSpanStr;
@@ -498,7 +499,7 @@ export const tagConvert = msg => {
  * @param {*} message
  */
 export const messageContentParser = message => {
-  return $.fn.emotion.parse(toLink(tagConvert(message)).replace(/\n/g, '<br>').replace(/\s{2}/g, ' &nbsp;'));
+  return Emotion.parse(toLink(tagConvert(message)).replace(/\n/g, '<br>').replace(/\s{2}/g, ' &nbsp;'));
 };
 
 /**

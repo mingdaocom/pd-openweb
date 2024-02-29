@@ -1,17 +1,16 @@
 import React, { Component, Fragment, useState, createRef, useEffect } from 'react';
 import functionWrap from 'ming-ui/components/FunctionWrap';
-import { Dialog, Switch, Tooltip, Button } from 'ming-ui';
+import { Dialog, Tooltip, Button, VerifyPasswordInput } from 'ming-ui';
 import { Input } from 'antd';
 import ClipboardButton from 'react-clipboard.js';
 import RegExp from 'src/util/expression';
 import appManagementAjax from 'src/api/appManagement';
-import { getRandomString, verifyPassword } from 'src/util';
+import { generateRandomPassword, verifyPassword } from 'src/util';
 import captcha from 'src/components/captcha';
 import styled from 'styled-components';
 import cx from 'classnames';
 
 const PasswordInputBox = styled.div`
-  margin-bottom: 20px;
   line-height: 34px;
   box-sizing: border-box;
   border-radius: 2px;
@@ -69,7 +68,7 @@ const checkPassword = password => {
     alert(_l('请输入8~20个字'), 3);
     return true;
   }
-  if (!RegExp.isPasswordRule(password, /^[0-9A-Za-z]{8,20}$/)) {
+  if (!RegExp.isPasswordValid(password, /^[0-9A-Za-z]{8,20}$/)) {
     alert(_l('请输入字母数字'), 3);
     return true;
   }
@@ -126,59 +125,24 @@ const graphicVertify = (callback = () => {}) => {
     }
     callback();
   };
-  if (md.staticglobal.getCaptchaType() === 1) {
+  if (md.global.getCaptchaType() === 1) {
     new captcha(cb);
   } else {
     new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), cb).show();
   }
 };
 
-function VerifyUsePassword(props) {
-  const { userPassword, setPassword = () => {}, isAutoFocus } = props;
-  const passwordInput = createRef();
-
-  useEffect(() => {
-    if (isAutoFocus && passwordInput) {
-      passwordInput.current.focus();
-    }
-  }, []);
-
-  return (
-    <Fragment>
-      <div className="Fotn14 mBottom12" style={{ color: '#202328' }}>
-        {_l('当前用户登录密码')}
-      </div>
-      <Input.Password
-        className="boderRadAll_3"
-        ref={passwordInput}
-        autocomplete="new-password"
-        placeholder={_l('请输入密码确认授权')}
-        value={userPassword}
-        onChange={e => setPassword(e.target.value)}
-      />
-    </Fragment>
-  );
-}
-
 // 锁定应用（开启应用锁）
 function LockApp(props) {
   const { visible, onCancel = () => {}, appId } = props;
   const passwordInputRef = createRef();
   const [canEdit, setCanEdit] = useState(true);
-  const [userPassword, setUserPassword] = useState('');
   const [password, setPassword] = useState();
   const inputExtra = canEdit ? {} : { readonly: 'readonly' };
 
   useEffect(() => {
     passwordInputRef.current.focus();
   }, []);
-
-  // 随机生成密码
-  const randomPassword = () => {
-    let psd = getRandomString(16, '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz');
-    setPassword(psd);
-    setCanEdit(false);
-  };
 
   return (
     <Dialog
@@ -194,24 +158,20 @@ function LockApp(props) {
           setCanEdit(true);
           return;
         }
-        if (!userPassword.trim()) {
-          alert(_l('请输入用户登录密码'), 3);
-          return;
-        }
-
-        verifyPassword({
-          password: userPassword,
-          success: () => {
-            handleRequest('addLock', { appId, password }, props);
-          },
-        });
+        handleRequest('addLock', { appId, password }, props);
       }}
     >
       <PasswordInputBox>
         <div className="flexRow">
           <span>{_l('设置锁定密码')}</span>
           {canEdit && (
-            <span className="ThemeColor Hand mLeft70" onClick={randomPassword}>
+            <span
+              className="ThemeColor Hand mLeft70"
+              onClick={() => {
+                setPassword(generateRandomPassword(16));
+                setCanEdit(false);
+              }}
+            >
               {_l('随机生成')}
             </span>
           )}
@@ -256,7 +216,6 @@ function LockApp(props) {
           {_l('不推荐设置私人的常用密码。请妥善保管密码，如果忘记密码只能关闭锁定后重新设置')}
         </div>
       </PasswordInputBox>
-      <VerifyUsePassword setPassword={val => setUserPassword(val)} userPassword={userPassword} />
     </Dialog>
   );
 }
@@ -266,11 +225,7 @@ class UnLockDialog extends Component {
     super(props);
     this.state = {};
   }
-  componentDidMount() {
-    if (this.passwordInput) {
-      this.passwordInput.focus();
-    }
-  }
+  componentDidMount() {}
 
   // 解锁应用
   handleUnlock = () => {
@@ -281,13 +236,12 @@ class UnLockDialog extends Component {
       handleRequest('resetLock', { appId }, this.props);
       return;
     }
-    if (checkPassword(lockPassword)) return;
 
     graphicVertify(() => handleRequest('unlock', { appId, password: lockPassword }, this.props));
   };
 
   render() {
-    const { visible, onCancel = () => {}, sourceType, isOwner, appId, isPassword, isLock } = this.props;
+    const { visible, onCancel = () => {}, sourceType, isOwner, appId, isLock } = this.props;
     const { lockPassword } = this.state;
     const isNormalApp = sourceType === 1;
 
@@ -425,11 +379,6 @@ function CloseLock(props) {
       okText={_l('确定')}
       onCancel={onCancel}
       onOk={() => {
-        if (!userPassword.trim()) {
-          alert(_l('请输入用户登录密码'), 3);
-          return;
-        }
-
         verifyPassword({
           password: userPassword,
           success: () => {
@@ -439,7 +388,11 @@ function CloseLock(props) {
       }}
     >
       <div className="Gray_9e Font14 mBottom16">{_l('关闭后将不再对应用进行锁定。关闭应用锁定，需验证您的身份。')}</div>
-      <VerifyUsePassword isAutoFocus={true} userPassword={userPassword} setPassword={val => setUserPassword(val)} />
+      <VerifyPasswordInput
+        className="mBottom25"
+        autoFocus={true}
+        onChange={({ password }) => setUserPassword(password)}
+      />
     </Dialog>
   );
 }

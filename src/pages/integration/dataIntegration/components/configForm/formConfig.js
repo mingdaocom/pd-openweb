@@ -218,24 +218,202 @@ export const customFormData = (databaseType, dbRoleType, isCreateConnector, form
     },
   ];
 
+  const kafkaFormData = [
+    ...commonNameRoleTypeFields,
+    {
+      controlId: 'address',
+      controlName: _l('服务器地址'),
+      type: 2,
+      row: 1,
+      col: 0,
+      required: true,
+      size: 6,
+      value: _.get(formData, 'address') || '',
+    },
+    {
+      controlId: 'post',
+      controlName: _l('端口号'),
+      type: 2,
+      row: 1,
+      col: 1,
+      required: true,
+      size: 6,
+      value: _.get(formData, 'post') || '',
+    },
+    {
+      controlId: 'topic',
+      controlName: _l('主题表达式（topic）'),
+      type: 2,
+      row: 2,
+      col: 0,
+      required: true,
+      size: 12,
+      value: _.get(formData, ['extraParams', 'topic']) || '',
+    },
+    {
+      controlId: 'authType',
+      controlName: _l('认证方式'),
+      type: 11,
+      row: 3,
+      col: 0,
+      size: 6,
+      options: [
+        {
+          key: 'PLAINTEXT',
+          value: _l('无认证'),
+          index: 1,
+          isDeleted: false,
+          color: '#08C9C9',
+          score: 0,
+        },
+        {
+          key: 'SASL_PLAINTEXT',
+          value: _l('账号密码'),
+          index: 2,
+          isDeleted: false,
+          color: '#2196F3',
+          score: 0,
+        },
+      ],
+      required: true,
+      value: _.get(formData, ['extraParams', 'authType']) === 'SASL_PLAINTEXT' ? '["SASL_PLAINTEXT"]' : `["PLAINTEXT"]`,
+    },
+    ...(_.get(formData, ['extraParams', 'authType']) === 'SASL_PLAINTEXT'
+      ? [
+          {
+            controlId: 'user',
+            controlName: _l('账号'),
+            type: 2,
+            row: 4,
+            col: 0,
+            required: false,
+            size: 6,
+            value: _.get(formData, 'user') || '',
+          },
+          {
+            controlId: 'password',
+            controlName: _l('密码'),
+            type: 2,
+            row: 4,
+            col: 1,
+            required: false,
+            desc: _l('保存密码后将加密存储，不可查看密码原文'),
+            size: 6,
+            value: _.get(formData, 'password') || '',
+            enumDefault: 2,
+            advancedSetting: allFieldDisabled
+              ? {}
+              : {
+                  masktype: 'all',
+                  datamask: '1',
+                  isdecrypt: '1',
+                },
+          },
+          {
+            controlId: 'saslMechanism',
+            controlName: _l('加密方式'),
+            type: 11,
+            row: 5,
+            col: 0,
+            size: 12,
+            options: [
+              {
+                key: 'PLAIN',
+                value: 'PLAIN',
+                index: 1,
+                isDeleted: false,
+                color: '#2196F3',
+                score: 0,
+              },
+              // {
+              //   key: 'SHA256',
+              //   value: 'SHA256',
+              //   index: 2,
+              //   isDeleted: false,
+              //   color: '#08C9C9',
+              //   score: 0,
+              // },
+              // {
+              //   key: 'SHA512',
+              //   value: 'SHA512',
+              //   index: 3,
+              //   isDeleted: false,
+              //   color: '#00C345',
+              //   score: 0,
+              // },
+            ],
+            required: false,
+            value: '["PLAIN"]',
+          },
+        ]
+      : []),
+    // [
+    //     {
+    //       controlId: 'clientConfig',
+    //       controlName: _l('Kerberos 客户端配置'),
+    //       type: 14,
+    //       row: 4,
+    //       col: 0,
+    //       required: true,
+    //       size: 12,
+    //       value: _.get(formData, 'clientConfig') || '',
+    //     },
+    //     {
+    //       controlId: 'keyTabFile',
+    //       controlName: _l('Keytab 文件'),
+    //       type: 14,
+    //       row: 5,
+    //       col: 0,
+    //       required: true,
+    //       size: 12,
+    //       value: _.get(formData, 'keyTabFile') || '',
+    //     },
+    //     {
+    //       controlId: 'principal',
+    //       controlName: _l('服务主体（principal）'),
+    //       type: 2,
+    //       row: 6,
+    //       col: 0,
+    //       required: true,
+    //       size: 6,
+    //       value: _.get(formData, 'principal') || '',
+    //     },
+    //     {
+    //       controlId: 'serverName',
+    //       controlName: _l('服务的名称'),
+    //       type: 2,
+    //       row: 6,
+    //       col: 1,
+    //       required: true,
+    //       size: 6,
+    //       value: _.get(formData, 'serverName') || '',
+    //     },
+    //   ]
+  ];
+
   let data;
   switch (databaseType) {
     case DATABASE_TYPE.ORACLE:
-      data = isCreateConnector ? oracleFormData.splice(2, oracleFormData.length) : oracleFormData;
+      data = oracleFormData;
       break;
     case DATABASE_TYPE.MONGO_DB:
     case DATABASE_TYPE.ALIYUN_MONGODB:
     case DATABASE_TYPE.TENCENT_MONGODB:
-      data = isCreateConnector ? mangoDBFormData.splice(2, mangoDBFormData.length) : mangoDBFormData;
+      data = mangoDBFormData;
+      break;
+    case DATABASE_TYPE.KAFKA:
+      data = kafkaFormData;
       break;
     default:
-      data = isCreateConnector ? basicFormData.splice(2, basicFormData.length) : basicFormData;
+      data = basicFormData;
       break;
   }
 
-  return data.map(item => {
-    return allFieldDisabled ? { ...item, disabled: true } : item;
-  });
+  return data
+    .filter((_, index) => !isCreateConnector || index > 1)
+    .map(item => {
+      return allFieldDisabled ? { ...item, disabled: true } : item;
+    });
 };
 
 export const getCardDescription = databaseType => {
@@ -264,6 +442,8 @@ export const getCardDescription = databaseType => {
       return _l('系统将通过 Change Streams 实时同步数据库的所有变动');
     case DATABASE_TYPE.APPLICATION_WORKSHEET:
       return _l('系统将实时同步数据到所选工作表');
+    case DATABASE_TYPE.KAFKA:
+      return _l('系统将实时同步Kafka的所有数据');
     default:
       return _l('');
   }

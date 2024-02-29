@@ -41,7 +41,7 @@ const initialState = {
 
 function updateLayout(state, payload) {
   // 更新移动布局的layout时可能是部分更新，所以要将显示的component传过来
-  const { layoutType, layouts, components } = payload;
+  const { layoutType, layouts, components, adjustScreen } = payload;
   if (!layouts) return state;
   if (_.includes(['web', 'mobile'], layoutType)) {
     return update(state, {
@@ -50,8 +50,13 @@ function updateLayout(state, payload) {
           return items.map(item => {
             const index = _.findIndex(components, v => (v.id || v.uuid) === (item.id || item.uuid));
             if (index >= 0) {
+              const data = layouts[index];
+              const maxH = 40;
+              if (adjustScreen && data.h >= maxH) {
+                data.h = maxH;
+              }
               return update(item, {
-                [layoutType]: { layout: { $set: _.pick(layouts[index], ['x', 'y', 'w', 'h', 'minW', 'minH']) } },
+                [layoutType]: { layout: { $set: _.pick(data, ['x', 'y', 'w', 'h', 'minW', 'minH']) } },
               });
             } else {
               return item;

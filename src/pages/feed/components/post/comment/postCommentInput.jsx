@@ -13,7 +13,7 @@ import 'src/components/selectGroup/selectAllGroup';
 import 'src/components/mentioninput/mentionsInput';
 import 'src/components/autoTextarea/autoTextarea';
 import 'src/components/uploadAttachment/uploadAttachment';
-import 'src/components/emotion/emotion';
+import Emotion from 'src/components/emotion/emotion';
 import _ from 'lodash';
 
 const LET_ME_REPLY = _l('我来回复');
@@ -151,7 +151,9 @@ const PostCommentInput = createReactClass({
                 }
               }
 
-              $(button).addClass('Disabled').prop('disabled', true);
+              $(button)
+                .addClass('Disabled')
+                .prop('disabled', true);
               dispatch(
                 addComment(
                   {
@@ -183,7 +185,9 @@ const PostCommentInput = createReactClass({
                       kcAttachments: [],
                     });
                     $(textarea).blur();
-                    $(button).removeClass('Disabled').prop('disabled', false);
+                    $(button)
+                      .removeClass('Disabled')
+                      .prop('disabled', false);
                     if (comp.props.onPublished) {
                       comp.props.onPublished();
                     }
@@ -191,10 +195,14 @@ const PostCommentInput = createReactClass({
                       isEditing: false,
                       hasAttachment: false,
                     });
-                    $(button).removeClass('Disabled').prop('disabled', false);
+                    $(button)
+                      .removeClass('Disabled')
+                      .prop('disabled', false);
                   },
                   () => {
-                    $(button).removeClass('Disabled').prop('disabled', false);
+                    $(button)
+                      .removeClass('Disabled')
+                      .prop('disabled', false);
                   },
                 ),
               );
@@ -223,7 +231,8 @@ const PostCommentInput = createReactClass({
     if (comp.props.focus) {
       $(textarea).focus();
     }
-    $(this.faceBtn).emotion({
+
+    new Emotion(this.faceBtn, {
       input: '#text_' + this.props.postItem.postID + '_' + this.props.postItem.commentID + 'C',
       placement: 'left bottom',
       relatedLeftSpace: -17,
@@ -242,7 +251,9 @@ const PostCommentInput = createReactClass({
   resetSelectGroup(isReshare) {
     const selectGroup = this.selectGroup;
     if (!isReshare) {
-      $(selectGroup).next('.viewTo').remove();
+      $(selectGroup)
+        .next('.viewTo')
+        .remove();
       return;
     }
     const selectGroupOptions = { defaultValue: { group: [], project: [] }, groupLink: true };
@@ -250,11 +261,15 @@ const PostCommentInput = createReactClass({
   },
 
   handleMouseover() {
-    $(this.faceBtn).removeClass('icon-smile').addClass('icon-smilingFace ThemeColor3');
+    $(this.faceBtn)
+      .removeClass('icon-smile')
+      .addClass('icon-smilingFace ThemeColor3');
   },
 
   handleMouseout() {
-    $(this.faceBtn).addClass('icon-smile').removeClass('icon-smilingFace ThemeColor3');
+    $(this.faceBtn)
+      .addClass('icon-smile')
+      .removeClass('icon-smilingFace ThemeColor3');
   },
 
   handleOpenUploadFiles() {

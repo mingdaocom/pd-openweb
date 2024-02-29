@@ -2,7 +2,7 @@ import React, { Fragment, Component } from 'react';
 import intlTelInput from '@mdfe/intl-tel-input';
 import '@mdfe/intl-tel-input/build/css/intlTelInput.min.css';
 import utils from '@mdfe/intl-tel-input/build/js/utils';
-import { Dialog } from 'ming-ui';
+import { Dialog, VerifyPasswordInput } from 'ming-ui';
 import FunctionWrap from 'ming-ui/components/FunctionWrap';
 import accountController from 'src/api/account';
 import captcha from 'src/components/captcha';
@@ -181,7 +181,7 @@ export default class ValidateInfoCon extends Component {
           account: type === 'email' ? email : mobile,
           ticket: res.ticket,
           randStr: res.randstr,
-          captchaType: md.staticglobal.getCaptchaType(),
+          captchaType: md.global.getCaptchaType(),
         })
         .then(data => {
           if (data === 1) {
@@ -202,7 +202,7 @@ export default class ValidateInfoCon extends Component {
           }
         });
     };
-    if (md.staticglobal.getCaptchaType() === 1) {
+    if (md.global.getCaptchaType() === 1) {
       new captcha(callback);
     } else {
       new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), callback).show();
@@ -350,17 +350,10 @@ export default class ValidateInfoCon extends Component {
           </Fragment>
         ) : (
           <Fragment>
-            <div>{_l('登录密码')}</div>
-            <InputCom
-              type="password"
-              autocomplete="new-password"
-              placeholder={_l('请输入登录密码')}
-              className="inputBox w100 LineHeight30 Font12 mBottom20 mTop10"
-              onChange={e => this.changeValue(e, 'password')}
-              onPaste={e => {
-                alert(_l('禁止粘贴'), 3);
-                e.preventDefault();
-              }}
+            <VerifyPasswordInput
+              className="mBottom10"
+              showSubTitle={false}
+              onChange={({ password }) => this.setState({ password })}
             />
             <button
               type="button"

@@ -29,7 +29,7 @@ import { updateSheetList, deleteSheet, updateSheetListAppItem } from 'worksheet/
 import SheetMoreOperate from './SheetMoreOperate';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
-import { getAppFeaturesVisible } from 'src/util';
+import { getAppFeaturesVisible, getTranslateInfo } from 'src/util';
 import { BatchOperate } from 'worksheet/common';
 import WorksheetDraft from 'src/pages/worksheet/common/WorksheetDraft';
 import { findSheet } from 'worksheet/util';
@@ -99,7 +99,8 @@ function SheetHeader(props) {
   } = props;
   const { pageSize, sortControls } = sheetFetchParams;
   const updateFiltersWithView = args => updateFilters(args, view);
-  const { worksheetId, name, desc, projectId, allowAdd, entityName, roleType, advancedSetting = {} } = worksheetInfo;
+  const { worksheetId, desc, projectId, allowAdd, entityName, roleType, advancedSetting = {} } = worksheetInfo;
+  const name = getTranslateInfo(appId, worksheetId).name || worksheetInfo.name || '';
   const [sheetDescVisible, setSheetDescVisible] = useState();
   const [statisticsVisible, setStatisticsVisible] = useState();
   const [discussionVisible, setDiscussionVisible] = useState();
@@ -233,7 +234,7 @@ function SheetHeader(props) {
               overlayClassName="sheetDescPopoverOverlay"
               content={
                 <div className="popoverContent">
-                  <RichText data={desc || ''} disabled={true} />
+                  <RichText data={getTranslateInfo(appId, worksheetId).description || desc || ''} disabled={true} />
                 </div>
               }
             >
@@ -256,7 +257,7 @@ function SheetHeader(props) {
             worksheetId={worksheetId}
             isEditing={descIsEditing}
             setDescIsEditing={setDescIsEditing}
-            desc={desc || ''}
+            desc={descIsEditing ? desc || '' : getTranslateInfo(appId, worksheetId).description || desc || ''}
             onClose={() => {
               setSheetDescVisible(false);
             }}
@@ -298,7 +299,7 @@ function SheetHeader(props) {
               projectId={projectId}
               className="sheetSelectIconWrap"
               isActive={true}
-              name={name}
+              name={worksheetInfo.name}
               appItem={sheet}
               icon={sheet.icon}
               appId={appId}
@@ -320,17 +321,19 @@ function SheetHeader(props) {
             {(String(view.viewType) === VIEW_DISPLAY_TYPE.structure && _.includes([0, 1], Number(view.childType))) ||
             String(view.viewType) === VIEW_DISPLAY_TYPE.gunter ? null : (
               <Fragment>
-                <SearchInput
-                  keyWords={filters.keyWords}
-                  viewId={viewId}
-                  className="queryInput worksheetQueryInput"
-                  onOk={value => {
-                    updateFiltersWithView({ keyWords: (value || '').trim() });
-                  }}
-                  onClear={() => {
-                    updateFiltersWithView({ keyWords: '' });
-                  }}
-                />
+                {String(view.viewType) !== VIEW_DISPLAY_TYPE.map && (
+                  <SearchInput
+                    keyWords={filters.keyWords}
+                    viewId={viewId}
+                    className="queryInput worksheetQueryInput"
+                    onOk={value => {
+                      updateFiltersWithView({ keyWords: (value || '').trim() });
+                    }}
+                    onClear={() => {
+                      updateFiltersWithView({ keyWords: '' });
+                    }}
+                  />
+                )}
                 {chartId ? (
                   <span className={cx('worksheetFilterBtn ThemeColor3 ThemeBGColor6 active')}>
                     <i className="icon icon-worksheet_filter" />
@@ -420,7 +423,7 @@ function SheetHeader(props) {
                 onClick={openNewRecord}
               >
                 <span className="Icon icon icon-plus Font13 mRight5 White" />
-                <span className="White bold">{entityName}</span>
+                <span className="White bold">{getTranslateInfo(appId, worksheetId).recordName || entityName}</span>
               </span>
             )}
           </VerticalCenter>
@@ -429,7 +432,7 @@ function SheetHeader(props) {
       <CSSTransitionGroup transitionName="Discussion" transitionEnterTimeout={500} transitionLeaveTimeout={300}>
         {discussionVisible && (
           <Discussion
-            title={name}
+            title={worksheetInfo.name}
             appId={appId}
             appSectionId={groupId}
             viewId={viewId}

@@ -112,13 +112,15 @@ export default function PointConfig({ data = {}, onChange }) {
             </div>
           </div>
         </div>
-        <Dropdown
-          className="mLeft12"
-          border
-          value={roundtype}
-          data={ROUND_TYPE}
-          onChange={value => onChange(handleAdvancedSettingChange(data, { roundtype: value }))}
-        />
+        {_.includes([6, 8], data.type) ? null : (
+          <Dropdown
+            className="mLeft12"
+            border
+            value={roundtype}
+            data={ROUND_TYPE}
+            onChange={value => onChange(handleAdvancedSettingChange(data, { roundtype: value }))}
+          />
+        )}
       </div>
       {dot ? (
         <Checkbox

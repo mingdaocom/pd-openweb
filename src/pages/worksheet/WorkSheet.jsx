@@ -1,10 +1,11 @@
-import React, { Component, useEffect, useState } from 'react';
+import React, { Component, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { withRouter } from 'react-router';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import qs from 'query-string';
+import tinycolor from '@ctrl/tinycolor';
 import { LoadDiv, WaterMark } from 'ming-ui';
 import { navigateTo } from 'src/router/navigateTo';
 import { WorkSheetLeft, WorkSheetPortal, WorksheetEmpty } from './common';
@@ -20,8 +21,10 @@ import _ from 'lodash';
 
 let request = null;
 
-const WorkSheetContainer = (props) => {
-  const { appId, id, type, params, sheetListLoading, isCharge, sheetList, appGroups } = props;
+const WorkSheetContainer = props => {
+  const { appId, id, type, params, sheetListLoading, isCharge, sheetList, appPkg } = props;
+  const { appGroups = [], currentPcNaviStyle } = appPkg;
+  const cache = useRef({});
   const [data, setData] = useState({});
   const [loading, setLoading] = useState(true);
 
@@ -35,18 +38,20 @@ const WorkSheetContainer = (props) => {
         request = homeAppApi.getPageInfo({
           appId,
           id,
-          sectionId: params.groupId
+          sectionId: params.groupId,
         });
         request.then(data => {
           const storage = JSON.parse(localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${appId}`)) || {};
           if (![1, 4].includes(data.resultCode) || (storage.lastWorksheetId === id && data.resultCode === 4)) {
             moveSheetCache(appId, params.groupId);
-            homeAppApi.getAppFirstInfo({
-              appId,
-              appSectionId: params.groupId
-            }).then(data => {
-              navigateTo(`/app/${appId}/${data.appSectionId}/${data.workSheetId || ''}`);
-            });
+            homeAppApi
+              .getAppFirstInfo({
+                appId,
+                appSectionId: params.groupId,
+              })
+              .then(data => {
+                navigateTo(`/app/${appId}/${data.appSectionId}/${data.workSheetId || ''}`);
+              });
             return;
           }
           setData(data);
@@ -54,8 +59,10 @@ const WorkSheetContainer = (props) => {
         });
       }
     } else {
-      setData({ wsType: type, resultCode: 1 });
-      setLoading(false);
+      setTimeout(() => {
+        setData({ wsType: type, resultCode: 1 });
+        setLoading(false);
+      }, 0);
     }
   }, [id, params.groupId]);
 
@@ -75,19 +82,12 @@ const WorkSheetContainer = (props) => {
   }, [id, sheetListLoading]);
 
   if (id ? loading : sheetListLoading) {
-    return (
-      <LoadDiv size="big" className="mTop32" />
-    );
+    return <LoadDiv size="big" className="mTop32" />;
   }
 
   if (data.resultCode !== 1) {
     if (data.resultCode === -20000) {
-      return (
-        <WorksheetEmpty
-          appId={appId}
-          groupId={params.groupId}
-        />
-      );
+      return <WorksheetEmpty appId={appId} groupId={params.groupId} />;
     } else {
       const res = appGroups.map(data => {
         const { appSectionId, workSheetInfo = [], childSections = [] } = data;
@@ -96,34 +96,53 @@ const WorkSheetContainer = (props) => {
           return data.workSheetInfo.map(data => {
             return {
               ...data,
-              appSectionId: parentId
-            }
+              appSectionId: parentId,
+            };
           });
         });
-        return workSheetInfo.map(data => {
-          return {
-            ...data,
-            appSectionId
-          }
-        }).concat(_.flatten(child));
+        return workSheetInfo
+          .map(data => {
+            return {
+              ...data,
+              appSectionId,
+            };
+          })
+          .concat(_.flatten(child));
       });
       const appItem = _.find(_.flatten(res), { workSheetId: id });
       return (
-        <UnNormal type="sheet" resultCode={appItem && appItem.appSectionId !== params.groupId ? -20000 : (data.resultCode || -10000)} />
+        <UnNormal
+          type="sheet"
+          resultCode={appItem && appItem.appSectionId !== params.groupId ? -20000 : data.resultCode || -10000}
+        />
       );
     }
   }
 
   if (data.wsType) {
-    return (
-      id ? <CustomPageContent ids={{ ...params, appId }} id={id} /> : null
-    );
+    const currentSheet =
+      currentPcNaviStyle === 2 && data.urlTemplate
+        ? {
+            urlTemplate: data.urlTemplate,
+            configuration: data.configuration,
+            workSheetName: data.name,
+          }
+        : undefined;
+    return id ? <CustomPageContent currentSheet={currentSheet} ids={{ ...params, appId }} id={id} /> : null;
   } else {
     return (
-      <Sheet flag={qs.parse((location.search || '').slice(1)).flag} />
+      <Sheet
+        flag={qs.parse((location.search || '').slice(1)).flag}
+        setLoadRequest={loadRequest => (cache.current.loadRequest = loadRequest)}
+        abortPrevWorksheetInfoRequest={() => {
+          if (_.isFunction(_.get(cache, 'current.loadRequest.abort'))) {
+            cache.current.loadRequest.abort();
+          }
+        }}
+      />
     );
   }
-}
+};
 
 class WorkSheet extends Component {
   static propTypes = {
@@ -134,7 +153,7 @@ class WorkSheet extends Component {
     super(props);
   }
   componentDidMount() {
-    const { match, updateBase } = this.props;
+    const { appPkg, match, updateBase } = this.props;
     $(document.body).addClass('fixedScreen');
     if (window.isPublicApp) {
       $(document.body).addClass('isPublicApp');
@@ -187,16 +206,43 @@ class WorkSheet extends Component {
       });
     }
     this.setCache(nextProps.match.params);
+    if (
+      _.get(this.props, 'appPkg.iconColor') !== _.get(nextProps, 'appPkg.iconColor') ||
+      (!this.appThemeColorStyle && _.get(nextProps, 'appPkg.iconColor'))
+    ) {
+      this.changeAppThemeColor(_.get(nextProps, 'appPkg.iconColor'));
+    }
   }
   shouldComponentUpdate(nextProps) {
     return nextProps.sheetListLoading !== this.props.sheetListLoading || !/\/app\/[\w-]+$/.test(location.pathname);
   }
   componentWillUnmount() {
+    const { updateWorksheetLoading } = this.props;
     this.props.updateSheetListLoading(true);
     $(document.body).removeClass('fixedScreen');
     // 取消禁止浏览器触摸板触发的前进后退
     document.body.style.overscrollBehaviorX = null;
     document.removeEventListener('keydown', this.changeFull);
+    this.removeAppThemeColor();
+    updateWorksheetLoading(true);
+  }
+  changeAppThemeColor(themeColor) {
+    if (themeColor) {
+      this.removeAppThemeColor();
+      const style = document.createElement('style');
+      style.innerHTML = `:root { --app-primary-color: ${themeColor}; --app-primary-hover-color: ${tinycolor(themeColor)
+        .darken(5)
+        .toString()}; }`;
+      document.head.appendChild(style);
+      this.appThemeColorStyle = style;
+    } else if (!themeColor && this.appThemeColorStyle) {
+      this.removeAppThemeColor();
+    }
+  }
+  removeAppThemeColor() {
+    if (this.appThemeColorStyle) {
+      document.head.removeChild(this.appThemeColorStyle);
+    }
   }
   changeFull(e) {
     const isMacOs = navigator.userAgent.toLocaleLowerCase().includes('mac os');
@@ -256,7 +302,7 @@ class WorkSheet extends Component {
   }
   render() {
     let { visible, sheetList = [], pageId, match, appPkg, isCharge, sheetListLoading } = this.props;
-    const { projectId, currentPcNaviStyle, appGroups = [] } = appPkg;
+    const { projectId, currentPcNaviStyle } = appPkg;
     let { appId, groupId, worksheetId } = match.params;
     if (md.global.Account.isPortal) {
       appId = md.global.Account.appId;
@@ -285,7 +331,7 @@ class WorkSheet extends Component {
                 sheetListLoading={sheetListLoading}
                 isCharge={isCharge}
                 sheetList={sheetList}
-                appGroups={appGroups}
+                appPkg={appPkg}
               />
             ) : (
               <WorkSheetPortal
@@ -305,7 +351,7 @@ class WorkSheet extends Component {
               sheetListLoading={sheetListLoading}
               isCharge={isCharge}
               sheetList={sheetList}
-              appGroups={appGroups}
+              appPkg={appPkg}
             />
           )}
         </div>
@@ -328,7 +374,7 @@ export default withRouter(
         {
           updateBase,
           updateWorksheetLoading,
-          updateSheetListLoading
+          updateSheetListLoading,
         },
         dispatch,
       ),

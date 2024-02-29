@@ -85,7 +85,6 @@ const WrapListHeader = styled.div`
 let ajaxPromise = null;
 
 function Con(props) {
-  let str = 'https://alifile.mingdaocloud.com/open/js/apilibrary.js' + '?' + moment().format('YYYYMMDD');
   const cache = useRef({ pgIndex: 1 });
   const initData = {
     loading: false,
@@ -295,13 +294,6 @@ function Con(props) {
         getUrl: 'https://api.mingdao.com/integration',
         installUrl: __api_server__.integration || md.global.Config.IntegrationAPIUrl,
       });
-  };
-  const loadLib = () => {
-    loadScript(str, err => {
-      if (!err && window.MDAPILibrary) {
-        renderLibCon();
-      }
-    });
   };
 
   const renderCon = () => {

@@ -4,10 +4,8 @@ import { Motion, spring } from 'react-motion';
 import { generate } from '@ant-design/colors';
 import cx from 'classnames';
 import DocumentTitle from 'react-document-title';
-import { Icon, Menu, MenuItem, Skeleton } from 'ming-ui';
+import { Icon, Menu, MenuItem, Skeleton, UpgradeIcon } from 'ming-ui';
 import { connect } from 'react-redux';
-import RcDialog from 'rc-dialog';
-import 'rc-dialog/assets/index.css';
 import { navigateTo } from 'src/router/navigateTo';
 import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
 import CopyApp from 'src/pages/AppHomepage/components/CopyApp';
@@ -30,12 +28,13 @@ import NavigationConfig from './NavigationConfig';
 import './index.less';
 import { getAppFeaturesVisible, getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { getSheetListFirstId } from 'worksheet/util';
-import AppAnalytics from 'src/pages/Admin/useAnalytics/components/AppAnalytics';
+import AppAnalytics from 'src/pages/Admin/app/useAnalytics/components/AppAnalytics';
 import { unlockAppLockPassword } from 'src/pages/AppSettings/components/LockApp/AppLockPasswordDialog';
 import _ from 'lodash';
 import { isHaveCharge, canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util.js';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
-import { setFavicon } from 'src/util';
+import { setFavicon, getTranslateInfo } from 'src/util';
+import { pcNavList } from 'src/pages/PageHeader/AppPkgHeader/AppDetail/AppNavStyle';
 import RoleSelect from './RoleSelect';
 import appManagementApi from 'src/api/appManagement';
 
@@ -103,8 +102,10 @@ export default class AppInfo extends Component {
 
   componentWillReceiveProps(nextProps) {
     this.ids = getIds(nextProps);
-    if (compareProps(nextProps.match.params, this.props.match.params, ['appId'])) {
-      this.getData();
+    if (
+      compareProps(nextProps.match.params, this.props.match.params, ['appId'])
+    ) {
+      this.getData(nextProps);
     }
     if (
       (this.ids.appId === getIds(this.props).appId && checkRecordInfo(nextProps.location.pathname)) ||
@@ -166,72 +167,73 @@ export default class AppInfo extends Component {
     return 'theme';
   };
 
-  getData = () => {
-    const { syncAppDetail } = this.props;
-    const { appId, worksheetId } = this.ids;
+  getData = async (props = this.props) => {
+    const { syncAppDetail } = props;
+    let { appId, worksheetId } = this.ids;
+
     if (!appId || appId === 'id') return;
-    api
-      .getApp(
-        {
-          appId: md.global.Account.isPortal ? md.global.Account.appId : appId,
-          getSection: true,
-          getManager: window.isPublicApp ? false : true,
-        },
-        { silent: true },
-      )
-      .then(data => {
-        data.currentPcNaviStyle = checkRecordInfo(location.pathname) ? 0 : data.pcNaviStyle;
-        data.themeType = this.getThemeType(data.iconColor, data.navColor);
 
-        this.setState({ data });
-        // 同步应用信息至工作表
-        const appDetail = _.pick(data, [
-          'navColor',
-          'iconColor',
-          'lightColor',
-          'iconUrl',
-          'projectId',
-          'name',
-          'id',
-          'fixed',
-          'fixRemark',
-          'fixAccount',
-          'isLock',
-          'permissionType',
-          'appDisplay',
-          'webMobileDisplay',
-          'pcDisplay',
-          'pcNaviStyle',
-          'currentPcNaviStyle',
-          'themeType',
-          'viewHideNavi',
-          'managers',
-          'selectAppItmeType',
-          'canDebug',
-        ]);
-        syncAppDetail(appDetail);
-        this.checkNavigationStyle(data.currentPcNaviStyle);
-        if (data.currentPcNaviStyle === 2) {
-          this.checkIsFull(worksheetId);
-        } else {
-          document.querySelector('#wrapper').classList.remove('fullWrapper');
-        }
-        window.appInfo = data;
-        this.dataCache = _.pick(data, ['icon', 'iconColor', 'name']);
-        setFavicon(data.iconUrl, data.iconColor);
+    appId = md.global.Account.isPortal ? md.global.Account.appId : appId;
+    const data = await api.getApp(
+      {
+        appId,
+        getSection: true,
+        getManager: window.isPublicApp ? false : true,
+        getLang: true
+      },
+      { silent: true },
+    );
 
-        if (appDetail.canDebug) {
-          this.getAppRoleList(data.id);
-        }
+    const { langInfo } = data;
+    if (langInfo && langInfo.appLangId && langInfo.version !== window[`langVersion-${appId}`]) {
+      const lang = await appManagementApi.getAppLangDetail({
+        projectId: data.projectId,
+        appId,
+        appLangId: langInfo.appLangId
       });
-  };
+      window[`langData-${appId}`] = lang;
+      window[`langVersion-${appId}`] = langInfo.version;
+    }
 
-  getAppRoleList = appId => {
-    appManagementApi.getDebugRoles({ appId }).then(({ roles }) => {
-      this.setState({
-        roleList: roles,
-      });
-    });
+    data.currentPcNaviStyle = checkRecordInfo(location.pathname) || !_.find(pcNavList, { value: data.pcNaviStyle }) ? 0 : data.pcNaviStyle;
+    data.themeType = this.getThemeType(data.iconColor, data.navColor);
+
+    this.setState({ data });
+    // 同步应用信息至工作表
+    const appDetail = _.pick(data, [
+      'navColor',
+      'iconColor',
+      'lightColor',
+      'iconUrl',
+      'projectId',
+      'name',
+      'id',
+      'fixed',
+      'fixRemark',
+      'fixAccount',
+      'isLock',
+      'permissionType',
+      'appDisplay',
+      'webMobileDisplay',
+      'pcDisplay',
+      'pcNaviStyle',
+      'currentPcNaviStyle',
+      'themeType',
+      'viewHideNavi',
+      'managers',
+      'selectAppItmeType',
+      'debugRole',
+    ]);
+    syncAppDetail(appDetail);
+    this.checkNavigationStyle(data.currentPcNaviStyle);
+    if (data.currentPcNaviStyle === 2) {
+      this.checkIsFull(worksheetId);
+    } else {
+      document.querySelector('#wrapper').classList.remove('fullWrapper');
+    }
+    window.appInfo = data;
+    this.dataCache = _.pick(data, ['icon', 'iconColor', 'name']);
+    setFavicon(data.iconUrl, data.iconColor);
   };
 
   switchVisible = (obj, cb) => {
@@ -429,9 +431,7 @@ export default class AppInfo extends Component {
         {...rest}
       >
         <span>{text}</span>
-        {_.includes(['appAnalytics', 'appLogs'], type) && featureType === '2' && (
-          <icon className="icon-auto_awesome Font16 mLeft6" style={{ color: '#fcb400' }} />
-        )}
+        {_.includes(['appAnalytics', 'appLogs'], type) && featureType === '2' && <UpgradeIcon />}
         {type === 'worksheetapi' && <Icon icon="external_collaboration" className="mLeft10 worksheetapiIcon" />}
       </MenuItem>
     );
@@ -451,12 +451,11 @@ export default class AppInfo extends Component {
     this.props.refreshSheetList();
   };
 
-  renderAppInfoWrap = () => {
+  renderAppInfoWrap = (showName) => {
     const { appStatus, ...props } = this.props;
     const { appConfigVisible, modifyAppIconAndNameVisible, data } = this.state;
     const {
       id: appId,
-      name,
       iconUrl,
       navColor,
       iconColor,
@@ -499,22 +498,37 @@ export default class AppInfo extends Component {
     }
 
     const renderHomepageIconWrap = () => {
-      return (
-        <div
-          className="homepageIconWrap"
-          onClick={() => {
-            window.disabledSideButton = false;
-            this.changeIndexVisible();
-          }}
-          onMouseEnter={this.changeIndexVisible}
-          onMouseLeave={() => {
-            window.disabledSideButton = false;
-            clearTimeout(this.timer);
-          }}
-        >
-          <HomepageIcon />
-        </div>
-      );
+      if (window.backHomepageWay === 1) {
+        return (
+          <div
+            className="homepageIconWrap"
+            onClick={() => {
+              navigateTo('/dashboard');
+            }}
+          >
+            <div className="homepageIcon alignItemsCenter justifyContentCenter" style={{ flexWrap: 'nowrap' }}>
+              <Icon className="Font20" icon="home_page" />
+            </div>
+          </div>
+        );
+      } else {
+        return (
+          <div
+            className="homepageIconWrap"
+            onClick={() => {
+              window.disabledSideButton = false;
+              this.changeIndexVisible();
+            }}
+            onMouseEnter={this.changeIndexVisible}
+            onMouseLeave={() => {
+              window.disabledSideButton = false;
+              clearTimeout(this.timer);
+            }}
+          >
+            <HomepageIcon />
+          </div>
+        );
+      }
     };
 
     const renderAppDetailWrap = () => {
@@ -538,7 +552,7 @@ export default class AppInfo extends Component {
                     size={currentPcNaviStyle === 1 ? 28 : 24}
                   />
                 </div>
-                <span className="appName overflow_ellipsis">{name}</span>
+                <span className="appName overflow_ellipsis">{showName}</span>
               </div>
             </div>
           )}
@@ -662,7 +676,6 @@ export default class AppInfo extends Component {
       id: appId,
       iconColor = '#616161',
       navColor = '#616161',
-      name,
       iconUrl,
       description,
       permissionType,
@@ -672,14 +685,15 @@ export default class AppInfo extends Component {
       pcDisplay,
       currentPcNaviStyle,
       themeType,
-      canDebug,
+      debugRole,
     } = data;
     const isUpgrade = appStatus === 10;
     const isNormalApp = _.includes([1, 5], appStatus);
     const isAuthorityApp = canEditApp(permissionType, isLock);
     const hasCharge = canEditApp(permissionType) || canEditData(permissionType);
     const AppGroupComponent = currentPcNaviStyle === 1 ? LeftAppGroup : AppGroup;
-
+    const showName = getTranslateInfo(appId, appId).name || data.name;
+    const canDebug = (debugRole || {}).canDebug || false;
     // loading 不展示导航
     if (_.isEmpty(data)) {
       return null;
@@ -692,8 +706,8 @@ export default class AppInfo extends Component {
           width: currentPcNaviStyle === 1 ? 240 : undefined,
         }}
       >
-        <DocumentTitle title={name} />
-        {this.renderAppInfoWrap()}
+        <DocumentTitle title={showName} />
+        {this.renderAppInfoWrap(showName)}
         {currentPcNaviStyle === 1 && (((pcDisplay || fixed) && !isAuthorityApp) || isUpgrade) && (
           <div className="LeftAppGroupWrap w100 h100">
             <Skeleton active={false} />
@@ -704,7 +718,7 @@ export default class AppInfo extends Component {
             appStatus={appStatus}
             projectId={projectId}
             appPkg={data}
-            roleSelectValue={roleList.filter(l => l.seleted)}
+            roleSelectValue={(debugRole || {}).selectedRoles || []}
             roleDebugVisible={roleDebugVisible}
             {...props}
             {..._.pick(data, ['permissionType', 'isLock'])}
@@ -743,14 +757,16 @@ export default class AppInfo extends Component {
           </Fragment>
         )}
         {/* 当应用状态正常且应用描述有值且第一次进入此应用会弹出编辑框 */}
-        <RcDialog
+        <Modal
           zIndex={1000}
           className="appIntroDialog"
           wrapClassName={cx('appIntroDialogWrapCenter', { preview: !isEditing })}
           visible={editAppIntroVisible || (!window.isPublicApp && isShowAppIntroFirst && description && isNormalApp)}
-          onClose={() => this.switchVisible({ editAppIntroVisible: false, isShowAppIntroFirst: false })}
+          onCancel={() => this.switchVisible({ editAppIntroVisible: false, isShowAppIntroFirst: false })}
           animation="zoom"
-          style={{ width: '800px' }}
+          width={800}
+          footer={null}
+          centered={true}
           maskStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }}
           bodyStyle={{ padding: 0 }}
           maskAnimation="fade"
@@ -760,7 +776,7 @@ export default class AppInfo extends Component {
           <EditAppIntro
             cacheKey="appIntroDescription"
             data={data}
-            description={description}
+            description={isEditing ? description : (getTranslateInfo(appId, appId).description || description)}
             permissionType={permissionType}
             isLock={isLock}
             // isEditing={!description && isAuthorityApp}
@@ -784,9 +800,9 @@ export default class AppInfo extends Component {
               this.switchVisible({ editAppIntroVisible: false, isShowAppIntroFirst: false, hasChange: false })
             }
           />
-        </RcDialog>
+        </Modal>
         {copyAppVisible && (
-          <CopyApp title={name} para={{ appId }} onCancel={() => this.switchVisible({ copyAppVisible: false })} />
+          <CopyApp title={showName} para={{ appId }} onCancel={() => this.switchVisible({ copyAppVisible: false })} />
         )}
 
         <Drawer
@@ -826,7 +842,7 @@ export default class AppInfo extends Component {
         {md.global.Account.isPortal ? (
           <PortalUserSet
             appId={md.global.Account.appId}
-            name={data.name}
+            name={showName}
             iconColor={data.iconColor}
             currentPcNaviStyle={currentPcNaviStyle}
           />
@@ -837,7 +853,7 @@ export default class AppInfo extends Component {
         )}
         {appAnalyticsVisible && (
           <AppAnalytics
-            currentAppInfo={{ appId, name, iconColor, iconUrl }}
+            currentAppInfo={{ appId, name: showName, iconColor, iconUrl }}
             projectId={projectId}
             onCancel={() => {
               this.setState({ appAnalyticsVisible: false });

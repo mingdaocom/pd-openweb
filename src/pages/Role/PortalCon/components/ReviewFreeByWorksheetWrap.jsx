@@ -16,6 +16,8 @@ import { WIDGETS_TO_API_TYPE_ENUM_N } from 'src/pages/Role/PortalCon/setting/Inf
 import SelectWorksheet from 'src/pages/widgetConfig/widgetSetting/components/SearchWorksheet/SelectWorksheet';
 import _ from 'lodash';
 const typeList = _.keys(WIDGETS_TO_API_TYPE_ENUM_N);
+import { getTranslateInfo } from 'src/util';
+import { replaceControlsTranslateInfo } from 'worksheet/util';
 
 export default function ReviewFreeByWorksheetWrap(props) {
   const { appId, projectId, onChange, query, canChooseOtherApp } = props;
@@ -35,6 +37,9 @@ export default function ReviewFreeByWorksheetWrap(props) {
 
   useEffect(() => {
     homeAppAjax.getWorksheetsByAppId({ appId, type: 0 }).then(res => {
+      res.forEach(sheet => {
+        sheet.workSheetName = getTranslateInfo(appId, sheet.workSheetId).name || sheet.workSheetName
+      });
       setSheetList(res);
       setOriginSheetList(res);
       setLoading(false);
@@ -69,6 +74,7 @@ export default function ReviewFreeByWorksheetWrap(props) {
   const setControlsFn = data => {
     if (!data.workSheetId) return;
     worksheetAjax.getWorksheetInfo({ worksheetId: data.workSheetId, getTemplate: true, appId }).then(res => {
+      res.template.controls = replaceControlsTranslateInfo(appId, res.template.controls);
       let da = { sourceId: data.workSheetId, sourceName: res.name, templates: res.template, appName };
       da = clear ? { ...da, configs: [], items: [] } : da;
       onChange({
@@ -176,7 +182,7 @@ export default function ReviewFreeByWorksheetWrap(props) {
                 {sheetName ? (
                   <span className={cx(isSheetDelete ? 'Red' : 'Gray')}>
                     {isSheetDelete ? _l('工作表已删除') : sheetName}
-                    {appName && <span>{_l('（%0）', appName)}</span>}
+                    {appName && <span>（{appName}）</span>}
                   </span>
                 ) : (
                   <span className="Gray_bd">{_l('选择工作表')}</span>

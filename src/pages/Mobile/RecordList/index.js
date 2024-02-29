@@ -20,6 +20,7 @@ import cx from 'classnames';
 import FixedPage from 'mobile/App/FixedPage.jsx';
 import { openAddRecord } from 'mobile/Record/addRecord';
 import alreadyDelete from './State/assets/alreadyDelete.png';
+import { AddRecordBtn, BatchOperationBtn } from 'mobile/components/RecordActions';
 import _ from 'lodash';
 
 @withRouter
@@ -111,7 +112,7 @@ class RecordList extends Component {
     } = this.props;
     const { viewId } = base;
     const { detail } = appDetail;
-    const { appNaviStyle, canDebug } = detail;
+    const { appNaviStyle, debugRole } = detail;
 
     const { name, advancedSetting = {} } = worksheetInfo;
     let views = worksheetInfo.views.filter(
@@ -138,7 +139,7 @@ class RecordList extends Component {
       calendarcids[0].begin &&
       calendarInfo.length > 0 &&
       (!calendarInfo[0].startData || !calendarInfo[0].startData.controlId);
-    const isHaveSelectControl = _.includes([1, 2, 4, 5], view.viewType)
+    const isHaveSelectControl = _.includes([1, 2, 4, 5, 7], view.viewType)
       ? viewControl === 'create' ||
         (viewControl && _.find(worksheetControls, item => item.controlId === viewControl)) ||
         !_.isEmpty(viewControls) ||
@@ -156,7 +157,7 @@ class RecordList extends Component {
         </div>
       );
     }
-    const hasDebugRoles = canDebug && !_.isEmpty(debugRoles);
+    const hasDebugRoles = (debugRole || {}).canDebug && !_.isEmpty(debugRoles);
     const bottom20 = hasDebugRoles ? '60px' : '20px';
     const bottom70 = hasDebugRoles ? '110px' : '70px';
     const bottom78 = hasDebugRoles ? '118px' : '78px';
@@ -211,7 +212,7 @@ class RecordList extends Component {
                         bottom:
                           view.childType === 1 && view.viewType === 6
                             ? 140
-                            : _.includes([1, 3, 4, 6, 21], view.viewType) ||
+                            : _.includes([1, 3, 4, 6, 21, 8], view.viewType) ||
                               (!_.isEmpty(view.navGroup) && view.navGroup.length)
                             ? bottom70
                             : bottom130,
@@ -221,7 +222,7 @@ class RecordList extends Component {
                         bottom:
                           view.childType === 1 && view.viewType === 6
                             ? 100
-                            : [1, 3, 4, 6, 21].includes(view.viewType) ||
+                            : [1, 3, 4, 6, 21, 8].includes(view.viewType) ||
                               (!_.isEmpty(view.navGroup) && view.navGroup.length && _.includes([0], view.viewType)) ||
                               !(canDelete || showCusTomBtn)
                             ? bottom20
@@ -234,7 +235,7 @@ class RecordList extends Component {
                     let currentGroupInfo =
                       localStorage.getItem('currentGroupInfo') && JSON.parse(localStorage.getItem('currentGroupInfo'));
                     if (_.isEmpty(currentGroupInfo)) {
-                      window.mobileNavigateTo('/mobile/appHome');
+                      window.mobileNavigateTo('/mobile/dashboard');
                     } else {
                       window.mobileNavigateTo(
                         `/mobile/groupAppList/${currentGroupInfo.id}/${currentGroupInfo.groupType}`,
@@ -248,61 +249,52 @@ class RecordList extends Component {
               />
             )}
           {(canDelete || showCusTomBtn) && view.viewType === 0 && !batchOptVisible && _.isEmpty(view.navGroup) && (
-            <div
-              className="batchOperation"
+            <BatchOperationBtn
               style={{
                 bottom: appNaviStyle === 2 && location.href.includes('mobile/app') ? bottom70 : bottom20,
               }}
               onClick={() => this.props.changeBatchOptVisible(true)}
-            >
-              <Icon icon={'task-complete'} className="Font24" />
-            </div>
+            />
           )}
           {isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) &&
           worksheetInfo.allowAdd &&
           isHaveSelectControl &&
           !batchOptVisible &&
           ((view.viewType === 6 && view.childType !== 1) || view.viewType !== 6) ? (
-            <div
-              className="addRecordItemWrapper"
-              style={{ bottom: !isHideTabBar && appNaviStyle === 2 ? bottom70 : bottom20 }}
-            >
-              <Button
-                style={{ backgroundColor: appColor }}
-                className={cx('addRecordBtn flex valignWrapper', {
-                  Right: ([2, 5].includes(view.viewType) && currentSheetRows.length) || [2].includes(view.viewType),
-                  mRight16: ([2, 5].includes(view.viewType) && currentSheetRows.length) || [2].includes(view.viewType),
-                })}
-                onClick={() => {
-                  openAddRecord({
-                    className: 'full',
-                    worksheetInfo,
-                    appId: params.appId,
-                    worksheetId: worksheetInfo.worksheetId,
-                    viewId: view.viewId,
-                    addType: 2,
-                    entityName: worksheetInfo.entityName,
-                    openRecord: this.sheetViewOpenRecord,
-                    onAdd: data => {
-                      if (_.isEmpty(data)) {
-                        return;
-                      }
+            <AddRecordBtn
+              entityName={worksheetInfo.entityName}
+              backgroundColor={appColor}
+              warpStyle={{ bottom: !isHideTabBar && appNaviStyle === 2 ? bottom70 : bottom20 }}
+              btnClassName={cx({
+                Right: ([2, 5, 7].includes(view.viewType) && currentSheetRows.length) || [2].includes(view.viewType),
+                mRight16: ([2, 5, 7].includes(view.viewType) && currentSheetRows.length) || [2].includes(view.viewType),
+              })}
+              onClick={() => {
+                openAddRecord({
+                  className: 'full',
+                  worksheetInfo,
+                  appId: params.appId,
+                  worksheetId: worksheetInfo.worksheetId,
+                  viewId: view.viewId,
+                  addType: 2,
+                  entityName: worksheetInfo.entityName,
+                  openRecord: this.sheetViewOpenRecord,
+                  onAdd: data => {
+                    if (_.isEmpty(data)) {
+                      return;
+                    }
 
-                      if (view.viewType) {
-                        this.props.addNewRecord(data, view);
-                      } else {
-                        this.props.unshiftSheetRow(data);
-                      }
-                    },
-                    showDraftsEntry: true,
-                    sheetSwitchPermit,
-                  });
-                }}
-              >
-                <Icon icon="add" className="Font22 mRight5" />
-                {worksheetInfo.entityName}
-              </Button>
-            </div>
+                    if (view.viewType) {
+                      this.props.addNewRecord(data, view);
+                    } else {
+                      this.props.unshiftSheetRow(data);
+                    }
+                  },
+                  showDraftsEntry: true,
+                  sheetSwitchPermit,
+                });
+              }}
+            />
           ) : null}
         </div>
         <RecordInfoModal

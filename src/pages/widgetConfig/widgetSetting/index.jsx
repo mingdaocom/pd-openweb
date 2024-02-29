@@ -85,7 +85,7 @@ function WidgetSetting(props) {
   }, [controlId]);
 
   const renderSetting = () => {
-    if (isEmpty(data)) return <div className="emptyStatus">{'没有选中的字段'}</div>;
+    if (isEmpty(data)) return <div className="emptyStatus">{_l('没有选中的字段')}</div>;
     if ([17, 18].includes(type)) return <div className="emptyStatus">{_l('日期段控件已下架，不支持配置')}</div>;
     return (
       <Fragment>

@@ -158,7 +158,7 @@ export default function TodoEntrustModal(props) {
 
         <FormItem>
           <span className="bold">{_l('组织')}</span>
-          <span className="Red bold">{_l(' *')}</span>
+          <span className="Red bold"> *</span>
           <div>
             <Dropdown
               className="mTop10 w100 Font13"
@@ -173,7 +173,7 @@ export default function TodoEntrustModal(props) {
 
         <FormItem>
           <span className="bold">{_l('委托给')}</span>
-          <span className="Red bold">{_l(' *')}</span>
+          <span className="Red bold"> *</span>
           <div className="flexRow mTop10">
             {formData.trustee && (
               <UserItemWrapper>
@@ -221,7 +221,7 @@ export default function TodoEntrustModal(props) {
             <div className="mTop10 dateItem">
               <div className="Font13 mBottom5">
                 {_l('结束')}
-                <span className="Red bold">{_l(' *')}</span>
+                <span className="Red bold"> *</span>
               </div>
               <DatePicker
                 style={{ width: '100%', borderRadius: '3px' }}

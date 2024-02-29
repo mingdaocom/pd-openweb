@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
-import DialogLayer from 'src/components/mdDialog/dialog';
-import ReactDom from 'react-dom';
 import 'src/pages/PageHeader/AppNameHeader/index.less';
-import { Icon, Menu } from 'ming-ui';
+import { Icon, Menu, Dialog } from 'ming-ui';
 import CSSTransitionGroup from 'react-addons-css-transition-group';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
@@ -28,6 +26,8 @@ import { getAppId } from 'src/pages/PortalAccount/util.js';
 import _ from 'lodash';
 import { WrapHeader, Wrap, ModalWrap, RedMenuItemWrap } from './style';
 import Trigger from 'rc-trigger';
+import langConfig from 'src/common/langConfig';
+import accountSetting from 'src/api/accountSetting';
 
 export default class PortalUserSet extends Component {
   constructor(props) {
@@ -126,19 +126,14 @@ export default class PortalUserSet extends Component {
   };
   //编辑详细资料
   handleUploadImg = () => {
-    const options = {
-      container: {
-        content: '',
-        yesText: null,
-        noText: null,
-        header: _l('上传头像'),
-      },
-      dialogBoxID: 'uploadAvatorDialogId',
-      width: browserIsMobile() ? '100%' : '460px',
-    };
     const { currentData, avatar = '' } = this.state;
-    ReactDom.render(
-      <DialogLayer {...options}>
+
+    Dialog.confirm({
+      dialogClasses: 'uploadAvatorDialogId',
+      width: browserIsMobile() ? '100%' : '460px',
+      title: _l('上传头像'),
+      noFooter: true,
+      children: (
         <AvatorInfo
           editAvatar={res => {
             ///更新数据 /////
@@ -155,18 +150,17 @@ export default class PortalUserSet extends Component {
               .then(res => {
                 this.setState({ avatar: res.data.portal_avatar }, () => {
                   md.global.Account.avatar = res.data.portal_avatar;
-                  $('#uploadAvatorDialogId_container,#uploadAvatorDialogId_mask').remove();
+                  $('.uploadAvatorDialogId').parent().remove();
                 });
               });
           }}
           avatar={avatar.split('imageView2')[0]}
           closeDialog={() => {
-            $('#uploadAvatorDialogId_container,#uploadAvatorDialogId_mask').remove();
+            $('.uploadAvatorDialogId').parent().remove();
           }}
         />
-      </DialogLayer>,
-      document.createElement('div'),
-    );
+      ),
+    });
   };
 
   //头像和徽章
@@ -244,7 +238,7 @@ export default class PortalUserSet extends Component {
             onClickAway={() => this.setState({ showUserInfo: false })}
             // 知识文件选择层 点击时不收起
             onClickAwayExceptions={[
-              '#uploadAvatorDialogId,.mui-dialog-container,.rc-trigger-popup,#uploadAvatorDialogId_mask,.am-modal-mask,.am-modal-wrap',
+              '.uploadAvatorDialogId,.mui-dialog-container,.rc-trigger-popup,#uploadAvatorDialogId_mask,.am-modal-mask,.am-modal-wrap',
             ]}
           >
             <CSSTransitionGroup
@@ -345,6 +339,36 @@ export default class PortalUserSet extends Component {
                         </span>
                       </span>
                     </div>
+                    <div className={cx('tel flexRow alignItemsCenter mTop24')}>
+                      <span className="title InlineBlock Gray_9e">{_l('语言设置')}</span>
+                      <div className="languagueSetting flexRow flex">
+                        {langConfig.map(item => {
+                          return (
+                            <div
+                              className={cx('languagueItem flex Hand', {
+                                active: (getCookie('i18n_langtag') || md.global.Config.DefaultLang) === item.key,
+                              })}
+                              onClick={() => {
+                                const settingValue = { 'zh-Hans': '0', en: '1', ja: '2', 'zh-Hant': '3' };
+                                accountSetting
+                                  .editAccountSetting({ settingType: '6', settingValue: settingValue[item.key] })
+                                  .then(res => {
+                                    if (res) {
+                                      setCookie('i18n_langtag', item.key);
+                                      window.location.reload();
+                                    } else {
+                                      alert(_l('设置失败，请稍后再试'), 2);
+                                    }
+                                  });
+                              }}
+                            >
+                              {item.value}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
                     <h6 className={cx('Font16', { mTop32: !isMobile, mTop24: isMobile })}>{_l('我的信息')}</h6>
                     <div className="infoBox">
                       {info

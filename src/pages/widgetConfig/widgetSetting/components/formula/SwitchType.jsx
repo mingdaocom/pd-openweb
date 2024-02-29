@@ -42,6 +42,7 @@ export default function SwitchType({ data, onChange }) {
 
   return (
     <SettingItem>
+      <div className="settingItemTitle">{_l('类型')}</div>
       <RadioGroup size="middle" checkedValue={data.type} data={FORMULA_TYPES} onChange={handleChange} />
     </SettingItem>
   );

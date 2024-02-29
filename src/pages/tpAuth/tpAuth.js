@@ -148,7 +148,7 @@ TPAuth.login = function() {
             TPAuth.autoBindSuc();
           } else {
             $('.loginTip').show();
-            var redirectUrl = TPAuth.options.tpParams.returnUrl || '/app/my';
+            var redirectUrl = TPAuth.options.tpParams.returnUrl || '/dashboard';
             window.location.replace(redirectUrl);
           }
         } else {

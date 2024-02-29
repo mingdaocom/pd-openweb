@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import worksheetAjax from 'src/api/worksheet';
+import { getTranslateInfo } from 'src/util';
+import { replaceControlsTranslateInfo } from 'worksheet/util';
 import _ from 'lodash';
 
 export default function AdvancedSettingHandler(Comp) {
@@ -17,6 +19,14 @@ export default function AdvancedSettingHandler(Comp) {
             worksheetId,
           })
           .then(data => {
+            const translateInfo = getTranslateInfo(data.appId, worksheetId);
+            if (data.advancedSetting) {
+              data.advancedSetting.title = translateInfo.formTitle || data.advancedSetting.title;
+              data.advancedSetting.sub = translateInfo.formSub || data.advancedSetting.sub;
+              data.advancedSetting.continue = translateInfo.formContinue || data.advancedSetting.continue;
+            }
+            data.entityName = translateInfo.recordName || data.entityName;
+            data.template.controls = replaceControlsTranslateInfo(data.appId, data.template.controls);
             setWorksheetInfo(data);
             setLoading(false);
           });
@@ -41,6 +51,8 @@ export default function AdvancedSettingHandler(Comp) {
             _.isUndefined(advancedSettingData.showcontinue) ? '1' : advancedSettingData.showcontinue,
           ), // 是否显示保留数据继续提交选项
           closedrafts: advancedSettingData.closedrafts,
+          autoreserve: advancedSettingData.autoreserve,
+          reservecontrols: advancedSettingData.reservecontrols !== 'all' ? advancedSettingData.reservecontrols : '',
         }
       : undefined;
     return <Comp {...props} loading={loading} worksheetInfo={worksheetInfo} advancedSetting={advancedSetting} />;

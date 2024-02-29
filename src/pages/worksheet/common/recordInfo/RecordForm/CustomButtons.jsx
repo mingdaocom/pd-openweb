@@ -123,8 +123,9 @@ export default class CustomButtons extends React.Component {
     }
     function verifyConform(removeNoneVerification) {
       VerifyPasswordConfirm.confirm({
-        title: _l('安全认证'),
         allowNoVerify: !removeNoneVerification,
+        isRequired: true,
+        closeImageValidation: true,
         onOk: run,
       });
     }
@@ -321,7 +322,13 @@ export default class CustomButtons extends React.Component {
         if (res.resultCode === 11) {
           if (customwidget && _.isFunction(customwidget.uniqueErrorUpdate)) {
             customwidget.uniqueErrorUpdate(res.badData);
+            cb(true);
           }
+        } else if (res.resultCode === 22) {
+          handleRecordError(res.resultCode);
+          cb(true, res);
+        } else if (res.resultCode === 32) {
+          cb(true, res);
         } else {
           handleRecordError(res.resultCode);
           cb(true);

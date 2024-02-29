@@ -6,7 +6,7 @@ let ajaxRequest = null;
 export const updateProjectId = projectId => dispatch => {
   dispatch({ type: 'CHANGE_PROJECT_ID', projectId });
 };
-export const getRoleList = () => (dispatch, getState) => {
+export const getRoleList = isAdd => (dispatch, getState) => {
   const {
     rolePageInfo = {},
     projectId,
@@ -42,9 +42,12 @@ export const getRoleList = () => (dispatch, getState) => {
       type: 'UPDATE_IS_LOADING',
       isLoading: false,
     });
-    if (pageIndex === 1) {
+    if (isAdd && pageIndex !== 1) {
+      temp = res.list && !_.isEmpty(res.list) && res.list[res.list.length - 1];
       dispatch(updateCurrentRole(temp));
-      isRequestUserList && !_.isEmpty(temp) && dispatch(getUserList({ roleId: temp.organizeId }));
+    } else if (pageIndex === 1) {
+      dispatch(updateCurrentRole(temp));
+      (isRequestUserList || isAdd) && !_.isEmpty(temp) && dispatch(getUserList({ roleId: temp.organizeId }));
     }
   });
 };

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Dropdown, Menu } from 'antd';
 import { formatYaxisList, formatrChartValue, formatControlInfo, formatrChartAxisValue, getLegendType, getChartColors, getStyleColor } from './common';
 import { formatSummaryName, isFormatNumber } from 'statistics/common';
+import { formatNumberFromInput } from 'src/util';
 
 const formatChartData = (data, splitId) => {
   if (_.isEmpty(data)) {
@@ -112,6 +113,7 @@ export default class extends Component {
       !_.isEqual(displaySetup.ydisplay, oldDisplaySetup.ydisplay) ||
       !_.isEqual(displaySetup.colorRules, oldDisplaySetup.colorRules) ||
       !_.isEqual(style.quadrant, oldStyle.quadrant) ||
+      style.tooltipValueType !== oldStyle.tooltipValueType ||
       !_.isEqual(chartColor, oldChartColor) ||
       nextProps.themeColor !== this.props.themeColor
     ) {
@@ -173,14 +175,16 @@ export default class extends Component {
     }
   }
   getComponentConfig(props) {
-    const { themeColor, projectId, customPageConfig, reportData } = props;
-    const { chartColor } = customPageConfig;
-    const { map, displaySetup, xaxes, yaxisList, split, style = {}, valueMap = {} } = reportData;
+    const { themeColor, projectId, customPageConfig = {}, reportData } = props;
+    const { chartColor, chartColorIndex = 1 } = customPageConfig;
+    const { map, displaySetup, xaxes, yaxisList, split, valueMap = {} } = reportData;
     const { xdisplay, ydisplay, colorRules, showChartType } = displaySetup;
+    const styleConfig = reportData.style || {};
+    const style = chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0) ? { ...styleConfig, ...chartColor } : styleConfig;
     const { quadrant = {} } = style;
     const data = formatChartData(map, split.controlId);
     const { position } = getLegendType(displaySetup.legendType);
-    const colors = getChartColors(chartColor || style, themeColor, projectId);
+    const colors = getChartColors(style, themeColor, projectId);
     const rule = _.get(colorRules[0], 'dataBarRule') || {};
     const isRuleColor = _.isEmpty(split.controlId) && !_.isEmpty(rule);
     const controlMinAndMax = isRuleColor ? getControlMinAndMax(yaxisList, data) : {};
@@ -229,13 +233,22 @@ export default class extends Component {
           }
         },
         [xField]: {
-          alias: _.get(yaxisList[0], 'rename') || _.get(yaxisList[0], 'controlName')
+          alias: _.get(yaxisList[0], 'rename') || _.get(yaxisList[0], 'controlName'),
+          formatter: value => {
+            return style.tooltipValueType ? formatrChartValue(value, false, yaxisList) : value;
+          }
         },
         [yField]: {
-          alias: _.get(yaxisList[1], 'rename') || _.get(yaxisList[1], 'controlName')
+          alias: _.get(yaxisList[1], 'rename') || _.get(yaxisList[1], 'controlName'),
+          formatter: value => {
+            return style.tooltipValueType ? formatrChartValue(value, false, yaxisList) : value;
+          }
         },
         [sizeField]: {
-          alias: _.get(yaxisList[2], 'rename') || _.get(yaxisList[2], 'controlName')
+          alias: _.get(yaxisList[2], 'rename') || _.get(yaxisList[2], 'controlName'),
+          formatter: value => {
+            return style.tooltipValueType ? formatrChartValue(value, false, yaxisList) : value;
+          }
         },
         [split.controlId]: {
           alias: split.controlName,
@@ -275,7 +288,7 @@ export default class extends Component {
         title: ydisplay.showTitle && ydisplay.title ? { text: ydisplay.title } : null,
         label: ydisplay.showDial ? {
           formatter: (value) => {
-            return value ? formatrChartAxisValue(Number(value), false, yaxisList) : null;
+            return value ? formatrChartAxisValue(Number(formatNumberFromInput(value)), false, yaxisList) : null;
           }
         } : null,
         line: {
@@ -292,7 +305,7 @@ export default class extends Component {
           autoHide: true,
           autoEllipsis: true,
           formatter: (value) => {
-            return value ? formatrChartAxisValue(Number(value), false, yaxisList) : null;
+            return value ? formatrChartAxisValue(Number(formatNumberFromInput(value)), false, yaxisList) : null;
           }
         } : null,
         grid: {

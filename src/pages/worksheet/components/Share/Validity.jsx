@@ -5,7 +5,7 @@ import moment from 'moment';
 import _ from 'lodash';
 import locale from 'antd/es/date-picker/locale/zh_CN';
 import './Validity.less';
-import { randomPassword } from 'src/util';
+import { generateRandomPassword } from 'src/util';
 
 const alwaysValue = '9999-12-31 23:59:59';
 
@@ -153,7 +153,7 @@ export default function Validity(props) {
           checked={password}
           className="mRight10"
           onChange={event => {
-            const password = randomPassword(4);
+            const password = generateRandomPassword(4);
             if (event.target.checked) {
               setCustomPassword(password);
               onChange({ password });

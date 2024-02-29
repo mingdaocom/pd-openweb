@@ -148,7 +148,7 @@ export function loadPublicWorksheet({ worksheetId }) {
           },
           worksheetSettings: {
             ..._.pick(data, [
-              'fillTimes',
+              'limitWriteFrequencySetting',
               'ipControlId',
               'browserControlId',
               'deviceControlId',
@@ -282,7 +282,7 @@ export function resetControls() {
             },
             worksheetSettings: {
               ..._.pick(data, [
-                'fillTimes',
+                'limitWriteFrequencySetting',
                 'ipControlId',
                 'browserControlId',
                 'deviceControlId',

@@ -23,6 +23,7 @@ const Entry = props => {
 
   useEffect(() => {
     const clientId = sessionStorage.getItem(shareId);
+    window.clientId = clientId;
     getShareInfoByShareId({ clientId, printId }).then(({ data }) => {
       if (!data.rowId) {
         location.href = `/public/view/${shareId}`;
@@ -43,10 +44,9 @@ const Entry = props => {
   const getShareInfoByShareId = data => {
     return new Promise(async (resolve, reject) => {
       const result = await sheetApi.getShareInfoByShareId({ shareId, ...data });
-      const shareAuthor = _.get(result, 'data.shareAuthor');
       const clientId = _.get(result, 'data.identity');
       const printClientId = _.get(result, 'data.clientId');
-      window.share = shareAuthor;
+      window.clientId = printClientId;
       clientId && sessionStorage.setItem(shareId, clientId);
 
       if (printClientId) {

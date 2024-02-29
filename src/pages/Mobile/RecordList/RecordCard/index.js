@@ -11,9 +11,14 @@ import emptyCover from 'src/pages/worksheet/assets/emptyCover.png';
 import { WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/util';
 import './index.less';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import { getRecordColorConfig, getRecordColor } from 'src/pages/worksheet/util';
+import { getRecordColorConfig, getRecordColor, getControlStyles } from 'src/pages/worksheet/util';
 import { isDocument } from 'src/components/UploadFiles/utils';
 import _ from 'lodash';
+import styled from 'styled-components';
+
+const Con = styled.div`
+  ${({ controlStyles }) => controlStyles || ''}
+`;
 
 function getCoverControlData(data) {
   return _.find(data, file => File.isPicture(file.ext) || (isDocument(file.ext) && file.previewUrl));
@@ -210,12 +215,12 @@ export default class RecordCard extends Component {
         <div className="controlContent">
           {data[visibleControl.controlId] ? (
             <CellControl
+              className={`control-val-${visibleControl.controlId} w100`}
               worksheetId={view.worksheetId}
               row={data}
               rowHeight={34}
               cell={cell}
               from={4}
-              className={'w100'}
             />
           ) : (
             <div className="emptyTag"></div>
@@ -261,7 +266,7 @@ export default class RecordCard extends Component {
             style={{ backgroundColor: recordColor.color }}
           ></div>
         )}
-        <div className="flexRow valignWrapper mBottom5">
+        <div className={cx('flexRow valignWrapper mBottom5', `control-val-${titleControl.controlId}`)}>
           {advancedSetting.checkradioid && (
             <Checkbox
               className="mRight5"
@@ -273,7 +278,7 @@ export default class RecordCard extends Component {
               }}
             />
           )}
-          <div className="Gray bold Font14 ellipsis">{titleText}</div>
+          <div className="titleText Gray bold Font14 ellipsis">{titleText}</div>
         </div>
         {advancedSetting.abstract && (
           <div className="Gray_9e Font12 mBottom8 abstract">{this.renderControl(advancedSetting.abstract)}</div>
@@ -298,12 +303,22 @@ export default class RecordCard extends Component {
     }
   };
   render() {
-    const { view, data, onClick, batchOptVisible } = this.props;
+    const { view, data, onClick, batchOptVisible, controls } = this.props;
     const { advancedSetting, coverCid } = view;
     let batchOptChecked = batchOptVisible && data.check;
+    const showControlStyle = _.get(view, 'advancedSetting.controlstyleapp') === '1';
 
+    const controlStyles =
+      showControlStyle &&
+      getControlStyles(
+        view.displayControls
+          .map(id => _.find(controls, { controlId: id }))
+          .concat(_.find(controls, { attribute: 1 }))
+          .filter(_.identity),
+      );
     return (
-      <div
+      <Con
+        controlStyles={controlStyles}
         className={cx('mobileWorksheetRecordCard', {
           coverRight: [undefined, '0'].includes(advancedSetting.coverposition),
           converTop: ['2'].includes(advancedSetting.coverposition),
@@ -322,7 +337,7 @@ export default class RecordCard extends Component {
             <Icon icon="done" />
           </div>
         )}
-      </div>
+      </Con>
     );
   }
 }

@@ -6,6 +6,7 @@ import projectSettingController from 'src/api/projectSetting';
 import ClipboardButton from 'react-clipboard.js';
 import { FROM_TYPE, DETAIL_MODE } from './';
 import _ from 'lodash';
+import DialogSettingInviteRules from 'src/pages/Admin/user/membersDepartments/structure/components/dialogSettingInviteRules';
 
 const DISPLAY_OPTIONS = [
   {
@@ -24,6 +25,7 @@ export default class PublicLink extends Component {
     this.state = {
       loading: false,
       expireHours: 0,
+      showDialogSettingInviteRules: false,
     };
   }
 
@@ -85,7 +87,7 @@ export default class PublicLink extends Component {
 
   render() {
     const { projectId, fromType, setDetailMode, code, url, tokens } = this.props;
-    const { loading, expireHours } = this.state;
+    const { loading, expireHours, showDialogSettingInviteRules } = this.state;
     const isProject = fromType === FROM_TYPE.NORMAL;
     const isFriend = fromType === FROM_TYPE.PERSONAL;
 
@@ -164,12 +166,20 @@ export default class PublicLink extends Component {
         {isProject && (
           <div className="footContainer">
             <div className="addBox Gray_9e">
-              <span onClick={() => window.open(`${location.origin}/admin/structure/${projectId}/isShowSetting`)}>
+              <span onClick={() => this.setState({ showDialogSettingInviteRules: true })}>
                 <Icon icon="settings1" />
                 {_l('邀请设置')}
               </span>
             </div>
           </div>
+        )}
+
+        {showDialogSettingInviteRules && (
+          <DialogSettingInviteRules
+            showDialogSettingInviteRules={showDialogSettingInviteRules}
+            setValue={({ showDialogSettingInviteRules }) => this.setState({ showDialogSettingInviteRules })}
+            projectId={projectId}
+          />
         )}
       </div>
     );

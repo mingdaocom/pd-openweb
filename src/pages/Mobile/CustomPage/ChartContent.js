@@ -70,6 +70,7 @@ const HorizontalChartContent = styled.div`
 function ChartComponent(props) {
   const { widget, reportId, name, accessToken, filters = [], pageComponents, projectId, themeColor, filtersGroup = [] } = props;
   const mobileCount = _.get(widget, 'config.mobileCount');
+  const mobileFontSize = _.get(widget, 'config.mobileFontSize');
   const [loading, setLoading] = useState(true);
   const [filterVisible, setFilterVisible] = useState(false);
   const [zoomVisible, setZoomVisible] = useState(false);
@@ -218,8 +219,9 @@ function ChartComponent(props) {
       <Chart
         data={data}
         loading={loading}
-        mobileCount={mobileCount}
+        mobileFontSize={mobileFontSize}
         projectId={projectId}
+        mobileCount={mobileCount}
         themeColor={themeColor}
         pageConfig={pageConfig}
         onOpenFilterModal={handleOpenFilterModal}
@@ -266,7 +268,7 @@ function ChartComponent(props) {
               pageComponents={pageComponents}
               data={zoomData}
               loading={loading}
-              mobileCount={mobileCount}
+              mobileFontSize={mobileFontSize}
               onOpenFilterModal={handleOpenFilterModal}
               onOpenZoomModal={handleOpenZoomModal}
               onLoadBeforeData={(index) => {
@@ -299,7 +301,7 @@ function ChartContent(props) {
     }
   }, []);
 
-  if (!window.share && filterComponents.length && loadFilterComponentCount < filterComponents.length) {
+  if (!_.get(window, 'shareState.shareId') && filterComponents.length && loadFilterComponentCount < filterComponents.length) {
     return (
       <Flex justify="center" align="center" className="h100 w100">
         <ActivityIndicator size="large" />

@@ -7,9 +7,9 @@ const StatusWrap = styled.div`
   i {
     font-size: 18px;
     margin-left: 3px;
-    &:first-child {
-      margin-left: ${props => (props.showTitle ? '3px' : '0px')};
-    }
+    // &:first-child {
+    //   margin-left: ${props => (props.showTitle ? '3px' : '0px')};
+    // }
     &.title {
       color: #2196f3;
     }

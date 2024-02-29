@@ -216,7 +216,7 @@ export default class HistoryDetail extends Component {
     const { data, isRetry } = this.state;
     const { instanceLog, logs } = data;
     const { cause } = instanceLog;
-    const showRetry = (data.status === 3 && _.includes([20001, 20002], cause)) || (status === 4 && cause !== 7777);
+    const showRetry = _.includes([3, 4], data.status) && cause !== 7777;
     const showSuspend = data.status === 1;
 
     if (showRetry || showSuspend) {
@@ -331,7 +331,7 @@ export default class HistoryDetail extends Component {
             </div>
             <ul className="logList">
               {works.map((item, index) => {
-                const { flowNode, startDate, endDate, status, logs, multipleLevelType, sort } = item;
+                const { flowNode, startDate, endDate, status, logs, multipleLevelType, sort, app } = item;
                 const { name, alias } = flowNode;
                 const { type } = NODE_TYPE[flowNode.child && flowNode.type === 0 ? 16 : flowNode.type] || {};
 
@@ -359,6 +359,7 @@ export default class HistoryDetail extends Component {
                           {multipleLevelType !== 0 && sort && _l('（第%0级）', sort)}
                         </div>
                         {alias && <div className="Gray_75 Font13 ellipsis">{_l('别名：%0', alias)}</div>}
+                        {app && <div className="Gray_75 Font13 ellipsis">{_l('工作表 “%0”', app.name)}</div>}
                       </div>
                     </div>
 

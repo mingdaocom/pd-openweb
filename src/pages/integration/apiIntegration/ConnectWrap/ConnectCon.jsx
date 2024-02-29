@@ -615,17 +615,20 @@ function ConnectCon(props) {
                   <span className={cx({ 'flex WordBreak overflow_ellipsis': isFix })}>
                     {connectData.name || _l('未命名连接')}
                   </span>
-                  {connectData.type === 2 && (
+                  {connectData.type === 2 &&
                     // 安装的API 有文档链接icon
-                    <Icon
-                      className="Hand docUrl Font14 InlineBlock ThemeColor3 mLeft5"
-                      icon="task-new-detail"
-                      onClick={() => {
-                        const docUrl = _.get(connectData, 'info.docUrl');
-                        !!docUrl && window.open(docUrl);
-                      }}
-                    />
-                  )}
+                    !!_.get(connectData, 'info.docUrl') && (
+                      <span
+                        className="ThemeColor3 Hand mLeft5"
+                        onClick={() => {
+                          const docUrl = _.get(connectData, 'info.docUrl');
+                          !!docUrl && window.open(docUrl);
+                        }}
+                      >
+                        <span className="Font14">{_l('官网地址')}</span>
+                        <Icon className="Hand docUrl Font14 InlineBlock ThemeColor3 mLeft5" icon="task-new-detail" />
+                      </span>
+                    )}
                   {!!nodeInfo.startEventId &&
                     (connectData.type === 1 || connectData.type === 2) && //自定义的连接或者安装的 安装的连接 不可修改连接LOGO
                     isConnectOwner && (
@@ -652,12 +655,7 @@ function ConnectCon(props) {
                   onClickAway={() => {
                     setState({ showEdit: false });
                   }}
-                  onClickAwayExceptions={[
-                    '.ant-modal-mask',
-                    '.ant-modal-wrap',
-                    '.mdDialog',
-                    '.mui-dialog-scroll-container',
-                  ]}
+                  onClickAwayExceptions={['.ant-modal-mask', '.ant-modal-wrap', '.mui-dialog-scroll-container']}
                 />
               </div>
             )}

@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { Checkbox, Radio, Input, Space } from 'antd';
+import { Checkbox, Radio, Input, Space, Select, Tag } from 'antd';
 import { Icon, ColorPicker } from 'ming-ui';
 import cx from 'classnames';
 import { reportTypes } from 'statistics/Charts/common';
@@ -9,8 +9,8 @@ export default class Label extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      ruleColorModalVisible: false
-    }
+      ruleColorModalVisible: false,
+    };
   }
   render() {
     const { currentReport, onChangeDisplayValue, onUpdateDisplaySetup, onChangeStyle } = this.props;
@@ -108,7 +108,10 @@ export default class Label extends Component {
                 {_l('使用仪表盘颜色')}
               </Checkbox>
             </div>
-            <div className="flexRow valignWrapper" style={isApplyGaugeColor ? { filter: 'opacity(0.5)', pointerEvents: 'none' } : undefined}>
+            <div
+              className="flexRow valignWrapper"
+              style={isApplyGaugeColor ? { filter: 'opacity(0.5)', pointerEvents: 'none' } : undefined}
+            >
               <div>{_l('颜色')}</div>
               {_.isEmpty(colorRule) && (
                 <ColorPicker
@@ -120,8 +123,7 @@ export default class Label extends Component {
                   }}
                 >
                   <div className="colorWrap pointer">
-                    <div className="colorBlock" style={{ backgroundColor: fontColor }}>
-                    </div>
+                    <div className="colorBlock" style={{ backgroundColor: fontColor }}></div>
                   </div>
                 </ColorPicker>
               )}
@@ -137,7 +139,7 @@ export default class Label extends Component {
                 <div
                   className="entranceWrap ruleIcon flexRow valignWrapper pointer"
                   onClick={() => {
-                    const newColorRules = colorRules.map((item, index) => index === 0 ? {} : item);
+                    const newColorRules = colorRules.map((item, index) => (index === 0 ? {} : item));
                     onChangeDisplayValue('colorRules', newColorRules);
                   }}
                 >
@@ -151,11 +153,11 @@ export default class Label extends Component {
             yaxisList={currentReport.yaxisList}
             reportType={currentReport.reportType}
             colorRule={colorRule || {}}
-            onSave={(data) => {
+            onSave={data => {
               const rule = {
                 controlId: '',
-                dataBarRule: data
-              }
+                dataBarRule: data,
+              };
               if (colorRules.length) {
                 onChangeDisplayValue('colorRules', [rule, colorRules[1]]);
               } else {
@@ -194,7 +196,7 @@ export default class Label extends Component {
                 className="chartInput mBottom16"
                 value={currentValueName}
                 onChange={event => {
-                  onChangeStyle({ currentValueName: event.target.value })
+                  onChangeStyle({ currentValueName: event.target.value });
                 }}
               />
             )}
@@ -217,7 +219,7 @@ export default class Label extends Component {
                 className="chartInput mBottom16"
                 value={targetValueName}
                 onChange={event => {
-                  onChangeStyle({ targetValueName: event.target.value })
+                  onChangeStyle({ targetValueName: event.target.value });
                 }}
               />
             )}
@@ -244,15 +246,21 @@ export default class Label extends Component {
               <div className="valignWrapper mBottom16 mLeft25">
                 <Radio.Group
                   value={showValueType}
-                  onChange={(event) => {
+                  onChange={event => {
                     const { value } = event.target;
-                    onChangeStyle({ showValueType: value })
+                    onChangeStyle({ showValueType: value });
                   }}
                 >
                   <Space direction="vertical">
-                    <Radio value={1} className="Font13">{_l('数值')}</Radio>
-                    <Radio value={2} className="Font13">{_l('百分比')}</Radio>
-                    <Radio value={3} className="Font13">{_l('数值/目标值')}</Radio>
+                    <Radio value={1} className="Font13">
+                      {_l('数值')}
+                    </Radio>
+                    <Radio value={2} className="Font13">
+                      {_l('百分比')}
+                    </Radio>
+                    <Radio value={3} className="Font13">
+                      {_l('数值/目标值')}
+                    </Radio>
                   </Space>
                 </Radio.Group>
               </div>
@@ -270,13 +278,15 @@ export default class Label extends Component {
         return summary.showTotal || _.get(rightY, 'summary.showTotal');
       }
       return false;
-    }
+    };
+
+    const showMultiple = reportType === reportTypes.LineChart && displaySetup.showNumber;
 
     return (
       <Fragment>
-        <div className="flexRow valignWrapper">
+        <div className={cx('flexRow valignWrapper', showMultiple ? 'mBottom10' : 'mBottom16')}>
           <Checkbox
-            className="flexRow mLeft0 mBottom16"
+            className="flexRow mLeft0"
             checked={displaySetup.showDimension || displaySetup.showNumber || displaySetup.showPercent}
             onChange={() => {
               if (displaySetup.showDimension || displaySetup.showNumber || displaySetup.showPercent) {
@@ -296,9 +306,54 @@ export default class Label extends Component {
               }
             }}
           >
-            {_l('显示%0', reportType === reportTypes.FunnelChart ? _l('转化率') : _l('数据'))}
+            {reportType === reportTypes.FunnelChart ? _l('显示转化率') : _l('显示数据')}
           </Checkbox>
         </div>
+        {reportType === reportTypes.LineChart && displaySetup.showNumber && (
+          <Select
+            mode="multiple"
+            className="chartSelect mBottom16 w100"
+            value={_.isEmpty(style.chartShowLabelIds) ? ['all'] : style.chartShowLabelIds}
+            suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+            tagRender={props => {
+              const { label, value, closable, onClose } = props;
+              const isExist = value == 'all' ? true : _.find(yaxisList, { controlId: value });
+              const onPreventMouseDown = event => {
+                event.preventDefault();
+                event.stopPropagation();
+              };
+              return (
+                <Tag
+                  color={isExist ? undefined : 'error'}
+                  onMouseDown={onPreventMouseDown}
+                  closable={closable}
+                  onClose={onClose}
+                >
+                  {isExist ? label : _l('字段已删除')}
+                </Tag>
+              );
+            }}
+            onDeselect={value => {
+              const chartShowLabelIds = style.chartShowLabelIds || [];
+              onChangeStyle({ chartShowLabelIds: chartShowLabelIds.filter(n => n !== value) });
+            }}
+            onSelect={value => {
+              if (value === 'all') {
+                onChangeStyle({ chartShowLabelIds: ['all'] });
+              } else {
+                const chartShowLabelIds = style.chartShowLabelIds || [];
+                onChangeStyle({ chartShowLabelIds: chartShowLabelIds.filter(n => n !== 'all').concat(value) });
+              }
+            }}
+          >
+            <Select.Option value="all">{_l('全部')}</Select.Option>
+            {yaxisList.map(item => (
+              <Select.Option key={item.controlId} value={item.controlId}>
+                {item.controlName}
+              </Select.Option>
+            ))}
+          </Select>
+        )}
         {getShowLabelPercent() && (
           <div className="flexRow valignWrapper">
             <Checkbox
@@ -325,7 +380,12 @@ export default class Label extends Component {
             </Checkbox>
           </div>
         )}
-        {[reportTypes.BarChart, reportTypes.LineChart, reportTypes.DualAxes, reportTypes.BidirectionalBarChart].includes(reportType) && (
+        {[
+          reportTypes.BarChart,
+          reportTypes.LineChart,
+          reportTypes.DualAxes,
+          reportTypes.BidirectionalBarChart,
+        ].includes(reportType) && (
           <div className="flexRow valignWrapper">
             <Checkbox
               className="flexRow mLeft0 mBottom16"

@@ -109,7 +109,7 @@ const Wrap = styled.div`
 `;
 //回收站
 export default function TrashDialog(props) {
-  const { appId, worksheetId, views } = props;
+  const { projectId, appId, worksheetId, views } = props;
   const [{ loading, list, allList, keyWords }, setState] = useSetState({
     loading: false,
     list: [],
@@ -258,6 +258,7 @@ export default function TrashDialog(props) {
         return (
           <div className="flexRow alignItemsCenter">
             <UserHead
+              projectId={projectId}
               size={28}
               user={{
                 userHead: _.get(data, 'updateAccount.avatar'),

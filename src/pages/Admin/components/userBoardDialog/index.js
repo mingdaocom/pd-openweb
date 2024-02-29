@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
-import { Dialog, VerifyPasswordConfirm } from 'ming-ui';
+import { Dialog, VerifyPasswordConfirm, Checkbox } from 'ming-ui';
 import userController from 'src/api/user';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import UserHead from 'src/components/userHead';
 import { getPssId } from 'src/util/pssId';
 import moment from 'moment';
-import cx from 'classnames';
 import './index.less';
 import { getCurrentProject } from 'src/util';
 
@@ -40,9 +39,9 @@ class UserBoardDialog extends Component {
     }
     this.props.onCancel();
     VerifyPasswordConfirm.confirm({
-      title: <div className="Bold">{_l('请输入登录密码，以验证管理员身份')}</div>,
-      description: '',
       allowNoVerify: false,
+      isRequired: false,
+      closeImageValidation: false,
       onOk: () => {
         var url = `${md.global.Config.AjaxApiUrl}download/exportProjectUserList`;
         let projectName = getCurrentProject(projectId, true).companyName || '';
@@ -102,12 +101,12 @@ class UserBoardDialog extends Component {
               <thead>
                 <tr>
                   <th className="checkBox">
-                    <span
-                      className={cx('checkAll TxtMiddle mRight5 Icon_UnChecked ', { Icon_Checked: isChecked })}
-                      onClick={() => {
-                        this.setState({ selected: isChecked ? [] : userList.map(it => it.accountId) });
+                    <Checkbox
+                      checked={isChecked}
+                      onClick={checked => {
+                        this.setState({ selected: checked ? [] : userList.map(it => it.accountId) });
                       }}
-                    ></span>
+                    />
                   </th>
                   <th width="20%">{_l('姓名/职位')}</th>
                   <th width="15%">{_l('部门')}</th>
@@ -123,14 +122,14 @@ class UserBoardDialog extends Component {
                   return (
                     <tr className="userItem" key={accountId}>
                       <td className="checkBox">
-                        <span
-                          className={cx('check TxtMiddle mRight5 Icon_UnChecked', { Icon_Checked: checked })}
-                          onClick={() => {
+                        <Checkbox
+                          checked={checked}
+                          onClick={checked => {
                             this.setState({
                               selected: checked ? selected.filter(it => it !== accountId) : selected.concat(accountId),
                             });
                           }}
-                        ></span>
+                        />
                       </td>
                       <td>
                         <table class="w100" style={{ tableLayout: 'fixed' }}>
@@ -143,6 +142,7 @@ class UserBoardDialog extends Component {
                                   accountId: accountId,
                                 }}
                                 size={36}
+                                projectId={this.props.projectId}
                               />
                             </td>
                             <td>
@@ -177,22 +177,28 @@ class UserBoardDialog extends Component {
                           <span>{user.contactPhone}</span>
                         </div>
                         <div>
-                          <span>{user.mobilePhone}</span>
-                          {user.isPrivateMobile && (
+                          {user.isPrivateMobile ? (
                             <span title={_l('保密')} className="overflow_ellipsis">
                               *********
                             </span>
+                          ) : user.mobilePhone ? (
+                            <span>{user.mobilePhone}</span>
+                          ) : (
+                            ''
                           )}
                         </div>
                       </td>
                       <td>
-                        <span className="email" title={user.email}>
-                          {user.email}
-                        </span>
-                        {user.isPrivateEmail && (
+                        {user.isPrivateEmail ? (
                           <span title={_l('保密')} className="overflow_ellipsis">
                             *********
                           </span>
+                        ) : user.email ? (
+                          <span className="email" title={user.email}>
+                            {user.email}
+                          </span>
+                        ) : (
+                          ''
                         )}
                       </td>
                     </tr>

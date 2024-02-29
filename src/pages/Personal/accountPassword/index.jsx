@@ -192,7 +192,6 @@ export default class AccountChart extends React.Component {
       alert(_l('无法解绑，邮箱和手机，请至少保留其一'), 2);
       return;
     }
-
     validateFunc({
       title: type === 'email' ? _l('解绑邮箱') : _l('解绑手机号'),
       type,
@@ -314,7 +313,7 @@ export default class AccountChart extends React.Component {
             .sendProjectBindEmail({
               ticket: res.ticket,
               randStr: res.randstr,
-              captchaType: md.staticglobal.getCaptchaType(),
+              captchaType: md.global.getCaptchaType(),
             })
             .then(function(data) {
               if (data) {
@@ -329,7 +328,7 @@ export default class AccountChart extends React.Component {
       { leading: true },
     );
 
-    if (md.staticglobal.getCaptchaType() === 1) {
+    if (md.global.getCaptchaType() === 1) {
       new captcha(throttled);
     } else {
       new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), throttled).show();

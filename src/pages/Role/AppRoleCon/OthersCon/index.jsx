@@ -7,13 +7,48 @@ import { VersionProductType } from 'src/util/enum';
 import EditUserExtendInfo from './EditUserExtendInfo.jsx';
 import UserExtendInfo from './UserExtendInfo.jsx';
 import worksheetAjax from 'src/api/worksheet';
+import img1 from './img/img1.png';
+import img2 from './img/img2.png';
 
 const Con = styled.div`
-  margin: 0 41px;
+  margin: 0 auto;
   height: 100%;
   position: relative;
   .userExtendInfo-desc .help {
     vertical-align: unset !important;
+  }
+`;
+
+const Des = styled.div`
+  min-width: 640px;
+  width: 45%;
+  .imgDes {
+    max-width: 640px;
+    margin: 30px auto;
+  }
+  padding: 30px 40px;
+  background: #f7f7f7;
+  min-height: 100%;
+  overflow: auto;
+  .title {
+    font-weight: 600;
+  }
+  .con {
+    font-weight: 400;
+  }
+  .desCard {
+    width: 140px;
+    height: 56px;
+    text-align: center;
+    line-height: 56px;
+    border-radius: 6px 6px 6px 6px;
+    border: 1px solid #dddddd;
+    background: #fff;
+    &.c {
+      background: #2196f3;
+      border: 0;
+      color: #fff;
+    }
   }
 `;
 
@@ -104,7 +139,7 @@ function OthersCon(props) {
           </h5>
         </div>
         <div className="explain-desc">
-          {_l('如在销售管理应用中')}： <br />- {_l('可以通过建立成员表来管理销售人员的团队、地区、关联订单等扩展信息')}{' '}
+          {_l('如在销售管理应用中')}： <br />- {_l('可以通过建立成员表来管理销售人员的团队、地区、关联订单等扩展信息')}
           <br />- {_l('可以根据订单所关联的团队，来筛选出当前销售人员所在团队的订单')}
         </div>
         <div className="mTop30 center">
@@ -122,6 +157,68 @@ function OthersCon(props) {
           <Support type={3} href="https://help.mingdao.com/user4" text={_l('帮助')} />
         </div>
       </ExplainCon>
+    );
+  };
+
+  const renderDes = () => {
+    const href = 'https://help.mingdao.com/user4';
+    const hrefStr = md.global.Config.HelpUrl
+      ? href.replace('https://help.mingdao.com', md.global.Config.HelpUrl)
+      : href;
+    return (
+      <Des className="">
+        <div className="title Gray_75">{_l('什么是用户扩展信息表？')}</div>
+        <div className="con mTop12 Gray_75">
+          {_l(
+            '用户扩展信息表非常类似于组织中的用户管理表。在组织中，可以全局管理成员基础信息，如：部门、职位、组织角色等。其中部门、组织角色可用于数据权限范围，在工作表添加部门字段，可以使用户对自己所在部门的记录都拥有权限。同样在具体应用中，往往也需要额外管理用户在本应用中的扩展信息。如：销售管理应用中，需要管理销售人员所在的团队、区域、职能等，同时也希望这些信息可以类似部门一样用于数据权限范围。此时就可以建立一张销售人员表。',
+          )}
+        </div>
+        <div className="title mTop24 Gray_75">{_l('什么是权限标签？')}</div>
+        <div className="con mTop12 Gray_75">
+          {_l(
+            '权限标签指用于控制数据权限范围的扩展信息字段（仅支持关联类型字段）。当用户访问应用时，系统可以从扩展信息表中读取当前用户的权限标签，从而使用户对其他工作表中关联了相同标签的记录拥有权限。',
+          )}
+        </div>
+        <div className="title mTop24 Gray_75">{_l('权限标签如何用于数据权限范围？')}</div>
+        <div className="con mTop12 Gray_75">
+          {_l('权限标签用于数据权限范围时和部门字段类似，只是没有专门的系统字段，需要通过关联记录字段来灵活实现。')}
+        </div>
+        <div className="con mTop10 Gray_75">
+          {_l(
+            '如：还是在销售管理应用中，用户扩展信息表中已设置了团队作为用户权限标签（关联团队表），并且订单表也关联了所属团队时。那么当用户访问应用时，系统就可以根据读取到的用户所在团队，并从订单表中过滤出关联了相同团队的订单，从而实现用户对属于自己团队的订单拥有查看、编辑或删除权限（可以在角色权限中进行设置）。',
+          )}
+        </div>
+        <div
+          className="con mTop10 Gray_75"
+          dangerouslySetInnerHTML={{
+            __html: _l(
+              '此过程如下图所示：（前往 %0帮助中心%1 了解更多）',
+              `<a href=${hrefStr} target="_blank" class="ThemeColor3 ThemeHoverColor2 Hand">
+             `,
+              `</a>`,
+            ),
+          }}
+        ></div>
+        <div className="imgDes flexRow alignItemsCenter">
+          <div className="left">
+            <div className="desCard">{_l('销售人员')}</div>
+          </div>
+          <div className="center flex flexRow alignItemsCenter justifyContentCenter">
+            <div className="flex"></div>
+            <img src={img1} width={56} />
+            <div className="flex"></div>
+            <div className="desCard c">{_l('团队')}</div>
+            <div className="flex"></div>
+            <img src={img2} width={56} />
+            <div className="flex"></div>
+          </div>
+          <div className="right flexColumn">
+            <div className="desCard">{_l('订单')}</div>
+            <div className="desCard mTop10">{_l('订单')}</div>
+            <div className="desCard mTop10">{_l('订单')}</div>
+          </div>
+        </div>
+      </Des>
     );
   };
 
@@ -168,7 +265,12 @@ function OthersCon(props) {
     }
   };
 
-  return <Con>{renderCon()}</Con>;
+  return (
+    <Con className="flexRow">
+      <div className="flex">{renderCon()}</div>
+      {step !== 0 && renderDes()}
+    </Con>
+  );
 }
 
 export default OthersCon;

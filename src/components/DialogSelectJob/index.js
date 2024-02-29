@@ -174,6 +174,4 @@ class DialogSelectJob extends Component {
   }
 }
 
-export default DialogSelectJob;
-
-export const selectJob = props => FunctionWrap(DialogSelectJob, { ...props });
+export default props => FunctionWrap(DialogSelectJob, { ...props });

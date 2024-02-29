@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import withClickAway from 'ming-ui/decorators/withClickAway';
-import { Dialog, Radio, ScrollView, Support, Icon, Tooltip } from 'ming-ui';
+import { Radio, ScrollView, Support, Icon, Tooltip } from 'ming-ui';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import { NODE_TYPE, ACTION_ID, APP_TYPE, TRIGGER_ID } from '../../enum';
 import { getFeatureStatus, buriedUpgradeVersionDialog, getCurrentProject } from 'src/util';
@@ -11,6 +11,7 @@ import _ from 'lodash';
 import CodeSnippet from '../../../components/CodeSnippet';
 import { Base64 } from 'js-base64';
 import cx from 'classnames';
+import BranchDialog from './BranchDialog';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
@@ -221,6 +222,12 @@ export default class CreateNodeDialog extends Component {
               secondList: [
                 {
                   type: 9,
+                  name: _l('汇总按钮批量数据源'),
+                  actionId: '108',
+                  describe: _l('对自定义动作触发工作流中的批量数据源进行汇总计算'),
+                },
+                {
+                  type: 9,
                   name: _l('从工作表汇总'),
                   appType: 1,
                   actionId: '107',
@@ -363,6 +370,14 @@ export default class CreateNodeDialog extends Component {
               appType: 14,
               iconColor: '#4C7D9E',
               iconName: 'icon-print',
+            },
+            {
+              type: 6,
+              name: _l('获取页面快照'),
+              appType: 44,
+              actionId: '4',
+              iconColor: '#4C7D9E',
+              iconName: 'icon-camera_alt',
             },
             {
               type: 6,
@@ -603,6 +618,30 @@ export default class CreateNodeDialog extends Component {
               iconColor: '#01CA83',
               iconName: 'icon-custom_assignment',
             },
+            {
+              type: 6,
+              appType: 43,
+              name: _l('创建日程'),
+              iconColor: '#F15B75',
+              iconName: 'icon-sidebar_calendar',
+              typeText: _l('创建方式'),
+              secondList: [
+                {
+                  type: 6,
+                  appType: 43,
+                  actionId: '1',
+                  name: _l('创建系统日程'),
+                  describe: _l('创建一个系统内日程。可同时生成一个ICS文件在之后节点中使用'),
+                },
+                {
+                  type: 6,
+                  appType: 43,
+                  actionId: '4',
+                  name: _l('生成ICS文件'),
+                  describe: _l('仅生成一个日程ICS文件，可添加至个人日历'),
+                },
+              ],
+            },
           ],
         },
         {
@@ -676,25 +715,11 @@ export default class CreateNodeDialog extends Component {
       ],
       selectItem: null,
       selectSecond: false,
-      showDialog: false,
-      isOrdinary: true,
-      showBranchDialog: false,
-      moveType: 1,
+      branchDialogModel: 0,
       foldFeatures: safeParse(localStorage.getItem(`workflowFoldFeatures-${md.global.Account.accountId}`)) || {},
       showApprovalDialog: false,
       showCodeSnippetDialog: false,
     };
-
-    if (!_.includes([APP_TYPE.CUSTOM_ACTION, APP_TYPE.PBC], props.flowInfo.startAppType) || props.flowInfo.child) {
-      this.state.list.forEach(o => {
-        _.remove(
-          o.items,
-          item =>
-            item.type === NODE_TYPE.PUSH ||
-            (item.iconName === 'icon-custom_assignment' && md.global.SysSettings.forbidSuites.includes('2')),
-        );
-      });
-    }
 
     if (
       props.flowInfo.startAppType === APP_TYPE.EXTERNAL_USER &&
@@ -731,6 +756,37 @@ export default class CreateNodeDialog extends Component {
       }
     });
 
+    // 非批量自定义动作数据源去除按钮汇总
+    if (
+      props.flowInfo.startAppType !== APP_TYPE.CUSTOM_ACTION ||
+      props.flowNodeMap[props.flowInfo.startNodeId].actionId !== ACTION_ID.BATCH_ACTION
+    ) {
+      this.state.list.forEach(o => {
+        o.items.forEach(obj => {
+          _.remove(obj.secondList || [], item => item.actionId === ACTION_ID.CUSTOM_ACTION_TOTAL);
+        });
+      });
+    }
+
+    // 公网不可用功能
+    if (
+      !['localhost', 'web.dev.mingdao.net', 'sandbox.mingdao.com', 'meihua.mingdao.com'].includes(location.hostname)
+    ) {
+      this.state.list.forEach(o => {
+        _.remove(o.items, item => item.appType === APP_TYPE.SNAPSHOT);
+      });
+    }
+
+    // 移除任务、日程
+    this.state.list.forEach(o => {
+      _.remove(
+        o.items,
+        o =>
+          (o.appType === APP_TYPE.TASK && _.includes(md.global.Config.ForbidSuites, 2)) ||
+          (o.appType === APP_TYPE.CALENDAR && _.includes(md.global.Config.ForbidSuites, 3)),
+      );
+    });
+
     this.cacheList = _.cloneDeep(this.state.list);
   }
 
@@ -742,17 +798,14 @@ export default class CreateNodeDialog extends Component {
       this.setState({
         selectItem: null,
         selectSecond: false,
-        showDialog: false,
-        isOrdinary: true,
-        showBranchDialog: false,
-        moveType: 1,
+        branchDialogModel: 0,
         showApprovalDialog: false,
       });
     }
 
     // 审批流程过滤节点
     if ((nextProps.selectProcessId && nextProps.flowInfo.id !== nextProps.selectProcessId) || nextProps.isApproval) {
-      _.remove(this.state.list, o => _.includes(['notice', 'artificial', 'external'], o.id));
+      _.remove(this.state.list, o => _.includes(['artificial', 'external'], o.id));
       this.state.list.forEach(o => {
         _.remove(
           o.items,
@@ -760,14 +813,18 @@ export default class CreateNodeDialog extends Component {
             !_.includes(
               [
                 NODE_TYPE.SEARCH,
-                NODE_TYPE.GET_MORE_RECORD,
-                NODE_TYPE.DELAY,
-                NODE_TYPE.FORMULA,
-                NODE_TYPE.API,
-                NODE_TYPE.API_PACKAGE,
                 NODE_TYPE.WEBHOOK,
+                NODE_TYPE.FORMULA,
+                NODE_TYPE.MESSAGE,
+                NODE_TYPE.EMAIL,
+                NODE_TYPE.DELAY,
+                NODE_TYPE.GET_MORE_RECORD,
                 NODE_TYPE.CODE,
+                NODE_TYPE.TEMPLATE,
                 NODE_TYPE.JSON_PARSE,
+                NODE_TYPE.API_PACKAGE,
+                NODE_TYPE.API,
+                NODE_TYPE.NOTICE,
                 NODE_TYPE.FIND_SINGLE_MESSAGE,
                 NODE_TYPE.FIND_MORE_MESSAGE,
               ],
@@ -929,118 +986,6 @@ export default class CreateNodeDialog extends Component {
   }
 
   /**
-   * 渲染结果分支
-   */
-  renderResultBranch() {
-    const { isLast, flowNodeMap, nodeId } = this.props;
-    const { isOrdinary } = this.state;
-    const { typeId } = flowNodeMap[nodeId] || {};
-
-    return (
-      <Dialog
-        visible
-        width={560}
-        title={
-          typeId === NODE_TYPE.APPROVAL
-            ? _l('在审批节点下添加分支有两种选择：')
-            : _l('在查找指定数据节点下添加分支有两种选择：')
-        }
-        onCancel={() => this.setState({ showDialog: false, isOrdinary: true })}
-        onOk={() =>
-          isLast || (flowNodeMap[(flowNodeMap[nodeId] || {}).nextId] || {}).actionId === ACTION_ID.PBC_OUT
-            ? this.onOk({ noMove: true })
-            : this.setState({ showDialog: false, showBranchDialog: true })
-        }
-      >
-        <Radio
-          className="Font15"
-          text={_l('添加普通分支')}
-          checked={isOrdinary}
-          onClick={() => this.setState({ isOrdinary: true })}
-        />
-        <div className="Gray_75 Font13 pLeft30 mTop5 mBottom15">
-          {typeId === NODE_TYPE.APPROVAL
-            ? _l('只对“通过”审批的数据进行分支处理')
-            : _l('对查找到的数据进行分支处理。未查找到数据时，流程中止')}
-        </div>
-        <Radio
-          className="Font15"
-          text={typeId === NODE_TYPE.APPROVAL ? _l('添加审批结果分支') : _l('添加查找结果分支')}
-          checked={!isOrdinary}
-          onClick={() => this.setState({ isOrdinary: false })}
-        />
-        <div className="Gray_75 Font13 pLeft30 mTop5">
-          {typeId === NODE_TYPE.APPROVAL
-            ? _l('分支固定为“通过”和“否决”。如果你同时需要对“否决”审批的数据进行处理时选择此分支')
-            : _l(
-                '分支固定为“查找到数据”和“未查找到数据”。如果你需要在“未查找到”数据的情况下继续执行流程，请选择此分支',
-              )}
-        </div>
-      </Dialog>
-    );
-  }
-
-  /**
-   * 渲染分支
-   */
-  renderBranch() {
-    const { nodeId, flowNodeMap } = this.props;
-    const { isOrdinary, moveType } = this.state;
-    const { typeId, actionId } = flowNodeMap[nodeId] || {};
-    const MOVE_TYPE = () => {
-      if (isOrdinary) {
-        return [
-          { text: _l('左侧'), value: 1 },
-          { text: _l('不移动'), value: 0 },
-        ];
-      }
-
-      if (typeId === NODE_TYPE.APPROVAL) {
-        return [
-          { text: _l('左侧（通过分支）'), value: 1 },
-          { text: _l('右侧（否决分支）'), value: 2 },
-          { text: _l('不移动'), value: 0 },
-        ];
-      }
-
-      if (
-        _.includes([NODE_TYPE.SEARCH, NODE_TYPE.FIND_SINGLE_MESSAGE], typeId) ||
-        (typeId === NODE_TYPE.ACTION && actionId === ACTION_ID.RELATION)
-      ) {
-        return [
-          { text: _l('左侧（有数据分支）'), value: 1 },
-          { text: _l('右侧（无数据分支）'), value: 2 },
-          { text: _l('不移动'), value: 0 },
-        ];
-      }
-    };
-
-    return (
-      <Dialog
-        visible
-        width={560}
-        title={_l('分支下方的节点整体放置在')}
-        onCancel={() => this.setState({ showBranchDialog: false, isOrdinary: true, moveType: 1 })}
-        onOk={this.onOk}
-      >
-        {MOVE_TYPE().map(o => (
-          <div key={o.value} className="mBottom15">
-            <Radio
-              className="Font15"
-              text={o.text}
-              checked={moveType === o.value}
-              onClick={() => this.setState({ moveType: o.value })}
-            />
-          </div>
-        ))}
-        <div className="Gray_75 Font13 pLeft30" style={{ marginTop: -10 }}>
-          {_l('等待分支汇集后再执行下方节点')}
-        </div>
-      </Dialog>
-    );
-  }
-
-  /**
    * 判断是否是条件分支
    */
   isConditionalBranch() {
@@ -1074,13 +1019,13 @@ export default class CreateNodeDialog extends Component {
 
     // 分支 并且 上一个节点是审批
     if (item.type === NODE_TYPE.BRANCH && this.isConditionalBranch()) {
-      this.setState({ selectItem: item, showDialog: true });
+      this.setState({ selectItem: item, branchDialogModel: 2 });
     } else if (
       item.type === NODE_TYPE.BRANCH &&
       !isLast &&
       (flowNodeMap[(flowNodeMap[nodeId] || {}).nextId] || {}).actionId !== ACTION_ID.PBC_OUT
     ) {
-      this.setState({ selectItem: item, showBranchDialog: true });
+      this.setState({ selectItem: item, branchDialogModel: 1 });
     } else if (
       (_.includes([NODE_TYPE.CODE, NODE_TYPE.PUSH, NODE_TYPE.FILE, NODE_TYPE.API_PACKAGE, NODE_TYPE.API], item.type) ||
         (item.type === NODE_TYPE.ACTION && item.appType === APP_TYPE.GLOBAL_VARIABLE)) &&
@@ -1096,7 +1041,7 @@ export default class CreateNodeDialog extends Component {
       this.addFlowNode({
         actionId: item.actionId,
         appType: item.appType,
-        name: item.type === NODE_TYPE.APPROVAL_PROCESS ? _l('发起审批') : item.name,
+        name: item.type === NODE_TYPE.APPROVAL_PROCESS ? _l('未命名审批流程') : item.name,
         prveId: nodeId,
         typeId: item.type,
       });
@@ -1104,11 +1049,11 @@ export default class CreateNodeDialog extends Component {
   }
 
   /**
-   * dialog确定
+   * 分支弹层确认
    */
-  onOk = ({ noMove }) => {
+  createBranchNode = ({ isOrdinary, moveType }) => {
     const { nodeId } = this.props;
-    const { selectItem, isOrdinary, moveType } = this.state;
+    const { selectItem } = this.state;
 
     if (this.isConditionalBranch()) {
       this.addFlowNode({
@@ -1116,7 +1061,7 @@ export default class CreateNodeDialog extends Component {
         prveId: nodeId,
         resultFlow: !isOrdinary,
         typeId: NODE_TYPE.BRANCH,
-        moveType: noMove ? 0 : moveType,
+        moveType,
       });
     } else {
       this.addFlowNode({
@@ -1125,7 +1070,7 @@ export default class CreateNodeDialog extends Component {
         name: selectItem.name,
         prveId: nodeId,
         typeId: selectItem.type,
-        moveType: noMove ? 0 : moveType,
+        moveType,
       });
     }
   };
@@ -1142,14 +1087,7 @@ export default class CreateNodeDialog extends Component {
 
   render() {
     const { nodeId, selectAddNodeId, flowInfo, selectProcessId, isApproval, selectCopy, flowNodeMap } = this.props;
-    const {
-      selectItem,
-      selectSecond,
-      showDialog,
-      showBranchDialog,
-      showApprovalDialog,
-      showCodeSnippetDialog,
-    } = this.state;
+    const { selectItem, selectSecond, showApprovalDialog, showCodeSnippetDialog, branchDialogModel } = this.state;
 
     return (
       <ReactCSSTransitionGroup
@@ -1209,9 +1147,14 @@ export default class CreateNodeDialog extends Component {
               <ScrollView>{this.renderContent()}</ScrollView>
             </div>
 
-            {showDialog && this.renderResultBranch()}
-
-            {showBranchDialog && this.renderBranch()}
+            {!!branchDialogModel && (
+              <BranchDialog
+                {...this.props}
+                isConditionalBranch={branchDialogModel === 2}
+                onSave={({ isOrdinary, moveType }) => this.createBranchNode({ isOrdinary, moveType })}
+                onClose={() => this.setState({ branchDialogModel: 0 })}
+              />
+            )}
 
             {showApprovalDialog && (
               <SelectApprovalProcess
@@ -1220,7 +1163,7 @@ export default class CreateNodeDialog extends Component {
                 onOk={({ processId }) =>
                   this.addFlowNode({
                     appType: APP_TYPE.APPROVAL,
-                    name: _l('发起审批'),
+                    name: _l('未命名审批流程'),
                     prveId: nodeId,
                     typeId: NODE_TYPE.APPROVAL_PROCESS,
                     appId: processId,

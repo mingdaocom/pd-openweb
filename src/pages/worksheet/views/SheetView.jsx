@@ -264,7 +264,7 @@ class TableView extends React.Component {
       addBehaviorLog('worksheetRecord', worksheetId, { rowId: row.rowid }); // 埋点
       setHighLight(this.tableId, rowIndex);
       const newState = {
-        recordInfoVisible: true,
+        recordInfoVisible: row,
         recordId: row.rowid,
       };
       if (cell && cell.type === 29 && cell.enumDefault === 2) {
@@ -278,6 +278,11 @@ class TableView extends React.Component {
   handleCellMouseDown({ rowIndex }) {
     const { setHighLight } = this.props;
     setHighLight(this.tableId, rowIndex);
+  }
+
+  get showControlStyle() {
+    const { view } = this.props;
+    return _.get(view, 'advancedSetting.controlstyle') === '1';
   }
 
   get tableType() {
@@ -379,7 +384,7 @@ class TableView extends React.Component {
     return this.props.chartId || this.props.chartIdFromUrl;
   }
   get readonly() {
-    return !!this.chartId || _.get(window, 'shareState.isPublicView');
+    return !!this.chartId || _.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage');
   }
 
   get disabledFunctions() {
@@ -464,8 +469,9 @@ class TableView extends React.Component {
 
   @autobind
   renderSummaryCell({ style, columnIndex, rowIndex }) {
-    const { viewId, sheetViewData, changeWorksheetSheetViewSummaryType } = this.props;
-    const { rowsSummary } = sheetViewData;
+    const { viewId, sheetViewData, changeWorksheetSheetViewSummaryType, sheetViewConfig } = this.props;
+    const { allWorksheetIsSelected, sheetSelectedRows } = sheetViewConfig;
+    const { rowsSummary, rows } = sheetViewData;
     const control = [{ type: 'summaryhead' }].concat(this.columns)[columnIndex];
     return (
       <SummaryCell
@@ -475,13 +481,17 @@ class TableView extends React.Component {
         summaryType={control && rowsSummary.types[control.controlId]}
         summaryValue={control && rowsSummary.values[control.controlId]}
         control={control}
+        rows={rows}
+        selectedIds={sheetSelectedRows.map(r => r.rowid)}
+        allWorksheetIsSelected={allWorksheetIsSelected}
         changeWorksheetSheetViewSummaryType={changeWorksheetSheetViewSummaryType}
       />
     );
   }
 
   @autobind
-  renderColumnHead({ tableId, control, className, style, columnIndex, fixedColumnCount, scrollTo, ...rest }) {
+  renderColumnHead({ control, className, style, columnIndex, fixedColumnCount, scrollTo, ...rest }) {
+    const { tableId } = this;
     const {
       appId,
       worksheetId,
@@ -579,6 +589,7 @@ class TableView extends React.Component {
       buttons,
       sheetViewData,
       sheetViewConfig,
+      getWorksheetSheetViewSummary,
       refreshWorksheetControls,
     } = this.props;
     // functions
@@ -672,7 +683,10 @@ class TableView extends React.Component {
           }
         }}
         updateRows={updateRows}
-        hideRows={hideRows}
+        hideRows={rowIds => {
+          hideRows(rowIds);
+          getWorksheetSheetViewSummary();
+        }}
         rowIndex={rowIndex}
         data={data}
         handleAddSheetRow={addRecord}
@@ -688,20 +702,15 @@ class TableView extends React.Component {
   }
 
   asyncUpdate(row, cell, options) {
-    const { worksheetInfo, updateControlOfRow, controls, sheetSearchConfig } = this.props;
+    const { worksheetInfo, updateControlOfRow, controls, sheetSearchConfig, sheetViewData = {} } = this.props;
+    const { rows = [] } = sheetViewData;
+    row = _.find(rows, { rowid: row.rowid }) || {};
     const { projectId, rules = [] } = worksheetInfo;
     const asyncUpdateCell = (cid, newValue) => {
       if (typeof newValue === 'object' || cid === cell.controlId) {
         return;
       }
-      updateControlOfRow(
-        { recordId: row.rowid, cell: { controlId: cid, value: newValue } },
-        {
-          updateSuccessCb: needUpdateRow => {
-            this.table.current.table.updateSheetRow({ ...needUpdateRow, allowedit: true, allowdelete: true });
-          },
-        },
-      );
+      updateControlOfRow({ recordId: row.rowid, cell: { controlId: cid, value: newValue }, rules });
     };
     const dataFormat = new DataFormat({
       data: controls.filter(c => c.advancedSetting).map(c => ({ ...c, value: (row || {})[c.controlId] || c.value })),
@@ -730,7 +739,7 @@ class TableView extends React.Component {
         c.editType = cell.editType;
       }
     });
-    updateControlOfRow({ cell, cells: updatedCells, recordId: row.rowid }, options);
+    updateControlOfRow({ cell, cells: updatedCells, recordId: row.rowid, rules }, options);
   }
 
   render() {
@@ -744,6 +753,7 @@ class TableView extends React.Component {
       viewId,
       sheetSwitchPermit,
       worksheetInfo,
+      maxCount,
       filters,
       quickFilter,
       navGroupFilters,
@@ -779,7 +789,7 @@ class TableView extends React.Component {
     } = this.state;
     const { lineNumberBegin, columns } = this;
     const needClickToSearch = !this.chartId && _.get(view, 'advancedSetting.clicksearch') === '1';
-    const showSummary = (_.get(view, 'advancedSetting.showsummary') || '1') === '1';
+    const showSummary = (_.get(view, 'advancedSetting.showsummary') || '1') === '1' && !maxCount;
     const showVerticalLine = (_.get(view, 'advancedSetting.showvertical') || '1') === '1';
     const showAsZebra = (_.get(view, 'advancedSetting.alternatecolor') || '0') === '1'; // 斑马颜色
     const wrapControlName = (_.get(view, 'advancedSetting.titlewrap') || '0') === '1';
@@ -791,7 +801,7 @@ class TableView extends React.Component {
     const { rowHeadWidth } = this;
     return (
       <React.Fragment>
-        {recordInfoVisible && (
+        {!!recordInfoVisible && (
           <RecordInfo
             tableType={this.tableType}
             widgetStyle={worksheetInfo.advancedSetting}
@@ -808,7 +818,7 @@ class TableView extends React.Component {
             viewId={tempViewIdForRecordInfo || viewId}
             appSectionId={groupId}
             view={view}
-            visible={recordInfoVisible}
+            visible={!!recordInfoVisible}
             hideRecordInfo={closeId => {
               if (!closeId || closeId === this.state.recordId) {
                 this.setState({ recordInfoVisible: false, tempViewIdForRecordInfo: undefined });
@@ -826,6 +836,7 @@ class TableView extends React.Component {
             getWorksheetSummary={getWorksheetSheetViewSummary}
             currentSheetRows={rows}
             handleAddSheetRow={addRecord}
+            workflowStatus={recordInfoVisible && recordInfoVisible.wfstatus}
           />
         )}
         {loading && (
@@ -855,6 +866,7 @@ class TableView extends React.Component {
         )}
         {!loading && (
           <WorksheetTable
+            showControlStyle={this.showControlStyle}
             tableType={this.tableType}
             readonly={readonly}
             ref={this.table}
@@ -901,7 +913,11 @@ class TableView extends React.Component {
             projectId={projectId}
             // 表格样式
             wrapControlName={wrapControlName}
-            showSummary={!this.chartId && showSummary && !_.get(window, 'shareState.isPublicView')}
+            showSummary={
+              !this.chartId &&
+              showSummary &&
+              !(_.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage'))
+            }
             showVerticalLine={showVerticalLine}
             showAsZebra={showAsZebra}
             onCellClick={this.handleCellClick}
@@ -953,6 +969,7 @@ export default connect(
     sheetSwitchPermit: state.sheet.sheetSwitchPermit || [],
     sheetSearchConfig: state.sheet.sheetSearchConfig || [],
     chartIdFromUrl: _.get(state, 'sheet.base.chartId'),
+    maxCount: _.get(state, 'sheet.base.maxCount'),
     // sheetview
     sheetViewData: state.sheet.sheetview.sheetViewData,
     sheetFetchParams: state.sheet.sheetview.sheetFetchParams,

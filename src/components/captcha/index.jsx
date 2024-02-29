@@ -1,11 +1,11 @@
 ﻿import React, { Fragment } from 'react';
 import { Dialog } from 'ming-ui';
 import './index.less';
-import { getRandomString } from 'src/util';
+import { generateRandomPassword } from 'src/util';
 import _ from 'lodash';
 
 export default (callback = () => {}, onCancel = () => {}) => {
-  const randstr = getRandomString(16);
+  const randstr = generateRandomPassword(16);
   const getImgLink = () => {
     return `${
       __api_server__.main
@@ -36,8 +36,10 @@ export default (callback = () => {}, onCancel = () => {}) => {
       </Fragment>
     ),
     onOk: () => {
-      return new Promise(function (reslove, reject) {
-        const value = $('.captchaInput').val().trim();
+      return new Promise(function(reslove, reject) {
+        const value = $('.captchaInput')
+          .val()
+          .trim();
 
         if (!value) {
           alert(_l('请输入验证码'), 3);

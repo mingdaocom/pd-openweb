@@ -6,7 +6,7 @@ export function getUrlList(text) {
 
   for(let i = 0; i < array.length; i++) {
     let content = array[i];
-    if (RegExp.isUrlRequest(content)) {
+    if (RegExp.isURL(content)) {
       result.push(content);
     }
   }

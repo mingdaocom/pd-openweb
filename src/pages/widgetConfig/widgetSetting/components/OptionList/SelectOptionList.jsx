@@ -39,7 +39,7 @@ export default function SelectOptionList(props) {
       if (code === 1) {
         setInfo({ list: data });
       } else {
-        alert(_l('%0', msg));
+        alert(msg);
       }
     });
   }, [app]);

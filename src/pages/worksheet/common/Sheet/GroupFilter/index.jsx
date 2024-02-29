@@ -407,14 +407,19 @@ function GroupFilter(props) {
           fetchData({ worksheetId, viewId: '', rowId, cb });
         } else {
           let { data = [] } = result;
+          let newDate = data;
           if (soucre.type !== 35 && navfilters.length > 0 && navshow === '2') {
-            data = data.filter(o => navfilters.map(value => safeParse(value).id).includes(o.rowid));
+            newDate = [];
+            const ids = navfilters.map(value => safeParse(value).id);
+            ids.map(it => {
+              newDate = newDate.concat(data.find(o => o.rowid === it));
+            });
           }
           const controls = _.get(result, ['template', 'controls']) || [];
           const control = controls.find(item => item.attribute === 1);
           dataUpdate({
             filterData: navGroupData,
-            data: data.map(item => {
+            data: newDate.map(item => {
               return {
                 value: item.rowid,
                 txt: renderTxt(item, control, viewId),
@@ -431,18 +436,18 @@ function GroupFilter(props) {
   const loadData = obj => {
     fetchData(obj);
   };
-  const dataUpdate = ({ filterData, data, rowId, cb }) => {
+  const dataUpdate = ({ filterData, data, rowId, cb }, notUpdate) => {
     if (rowId && !keywords) {
       filterData.forEach(item => {
         if (item.value === rowId) {
           item.children = data;
         } else if (_.isArray(item.children)) {
-          dataUpdate({ filterData: item.children, data, rowId });
+          dataUpdate({ filterData: item.children, data, rowId }, true);
         }
       });
-      setGroupFilterData(filterData);
+      !notUpdate && setGroupFilterData(filterData);
     } else {
-      setGroupFilterData(data);
+      !notUpdate && setGroupFilterData(data);
     }
     setLoading(false);
     cb && cb();
@@ -576,7 +581,13 @@ function GroupFilter(props) {
     }
     if (isOption && navfilters.length > 0 && navshow === '2') {
       // 显示 指定项 //加上全部和空
-      navData = navData.filter(o => navfilters.includes(o.value) || ['null', ''].includes(o.value));
+      let list = ['', ...navfilters, 'null'];
+      const data = navData;
+      navData = [];
+      list.map(it => {
+        navData = navData.concat(data.find(o => o.value === it));
+      });
+      navData = navData.filter(o => !!o);
     }
     return (
       <ScrollView className="flex">

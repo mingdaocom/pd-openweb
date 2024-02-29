@@ -71,11 +71,12 @@ export default class Gunter extends Component {
     if (
       view.viewId !== this.props.view.viewId ||
       view.advancedSetting.navshow !== this.props.view.advancedSetting.navshow || //显示项设置 更新数据
-      view.advancedSetting.navfilters !== this.props.view.advancedSetting.navfilters
+      view.advancedSetting.navfilters !== this.props.view.advancedSetting.navfilters ||
+      view.moreSort !== this.props.view.moreSort // 排序
     ) {
       this.props.resetLoadGunterView();
       this.setState({
-        directoryWidth: this.getDirectoryWidth(view.viewId)
+        directoryWidth: this.getDirectoryWidth(view.viewId),
       });
     }
     if (view.advancedSetting.calendartype !== this.props.view.advancedSetting.calendartype) {
@@ -113,7 +114,7 @@ export default class Gunter extends Component {
   getDirectoryWidth(viewId) {
     const gunterDirectoryWidth = localStorage.getItem(`gunterDirectoryWidth-${viewId}`);
     const worksheetContentBoxEl = document.querySelector('.worksheetSheet');
-    const contentBoxWidth = worksheetContentBoxEl ? (worksheetContentBoxEl.clientWidth / 3) : 210;
+    const contentBoxWidth = worksheetContentBoxEl ? worksheetContentBoxEl.clientWidth / 3 : 210;
     return isGunterExport ? 570 : gunterDirectoryWidth ? Number(gunterDirectoryWidth) : contentBoxWidth;
   }
   render() {

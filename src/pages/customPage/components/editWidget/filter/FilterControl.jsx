@@ -12,6 +12,8 @@ import FilterDefaultValue from './FilterDefaultValue';
 import FilterShowItem from './FilterShowItem';
 import { FASTFILTER_CONDITION_TYPE, getSetDefault } from 'worksheet/common/ViewConfig/components/fastFilter/util';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import { replaceControlsTranslateInfo } from 'src/pages/worksheet/util';
+import { getTranslateInfo } from 'src/util';
 import _ from 'lodash';
 
 export default function FilterControl(props) {
@@ -40,7 +42,8 @@ export default function FilterControl(props) {
         setLoading(false);
         data = data.map(sheet => {
           const controls = _.get(sheet, 'template.controls');
-          _.set(sheet, 'template.controls', controls.map(redefineComplexControl));
+          _.set(sheet, 'template.controls', replaceControlsTranslateInfo(sheet.appId, controls).map(redefineComplexControl));
+          sheet.name = getTranslateInfo(sheet.appId, sheet.worksheetId).name || sheet.name;
           return sheet;
         });
         setSheetList(sheetList.concat(data));
@@ -108,7 +111,7 @@ export default function FilterControl(props) {
             const newControls = objectControls.map(f => {
               const data = { ...f }
               if (f.worksheetId === item.worksheetId) {
-                data.controlId =  value;
+                data.controlId = value || '';
               } else if (!index) {
                 data.controlId = '';
               }

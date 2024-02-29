@@ -5,7 +5,7 @@ import Menu from 'ming-ui/components/Menu';
 import MenuItem from 'ming-ui/components/MenuItem';
 import Dialog from 'ming-ui/components/Dialog';
 import DialogImportExcelCreate from 'src/pages/worksheet/components/DialogImportExcelCreate';
-import ImportApp from 'src/pages/Admin/appManagement/modules/ImportApp.jsx';
+import ImportApp from 'src/pages/Admin/app/appManagement/modules/ImportApp.jsx';
 import { navigateTo } from 'src/router/navigateTo';
 import { generate } from '@ant-design/colors';
 import { getFeatureStatus, buriedUpgradeVersionDialog, getThemeColors } from 'src/util';
