@@ -63,7 +63,7 @@ export default () => {
               window.open(`${window.subPath || ''}/app/${appId}/${worksheetId}/${viewId || 'undefined'}/row/${rowId}`);
             } else {
               // 已经打开记录的直接刷新
-              if ($(`.recordInfoCon[data-record-id="${rowId}"]`).length) {
+              if ($(`.recordInfoCon[data-record-id="${rowId}"][data-view-id="${viewId}"]`).length) {
                 emitter.emit('RELOAD_RECORD_INFO', {
                   worksheetId,
                   recordId: rowId,

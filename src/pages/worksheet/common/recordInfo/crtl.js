@@ -104,6 +104,7 @@ export function updateRecord(
     rowId: recordId,
     newOldControl: updatedControls,
     projectID: projectId,
+    pushUniqueId: md.global.Config.pushUniqueId,
   };
   if (instanceId && workId) {
     apiargs.getType = 9;

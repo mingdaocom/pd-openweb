@@ -14,28 +14,87 @@ class DialogCreateAndEditPosition extends React.Component {
     };
   }
 
+  handleSubmit = () => {
+    const { filed, positionList, projectId, currentPosition } = this.props;
+    const { exsistCurrentName, submitLoading } = this.state;
+    let jobName = this.state.jobName.trim();
+
+    fixedDataAjax.checkSensitive({ content: jobName }).then(res => {
+      if (res) {
+        this.setState({ submitLoading: false });
+        return alert(_l('输入内容包含敏感词，请重新填写'), 3);
+      }
+      if (filed === 'edit') {
+        jobAjax
+          .editJobName({ jobName: jobName, projectId, jobId: currentPosition.jobId })
+          .then(res => {
+            if (res) {
+              alert(_l('修改成功'));
+              let roleInfo = { ...currentPosition, jobName };
+              this.props.updateCurrentPosition(roleInfo);
+              let list = positionList.map(it => {
+                if (it.jobId === currentPosition.jobId) {
+                  return { ...it, jobName };
+                }
+                return it;
+              });
+              this.props.updatePositionList(list);
+            } else {
+              alert(_l('修改失败'), 2);
+            }
+            this.props.onCancel();
+            this.setState({ submitLoading: false });
+          })
+          .fail(err => {
+            this.setState({ submitLoading: false });
+          });
+      } else {
+        jobAjax
+          .addJob({ jobName: jobName, projectId })
+          .then(res => {
+            if (res) {
+              alert(_l('创建成功'));
+              let roleInfo = (positionList && !_.isEmpty(positionList) && positionList[0]) || {};
+              this.props.updateCurrentPosition(roleInfo);
+              this.props.getPositionList();
+            } else {
+              alert(_l('创建失败'), 2);
+            }
+            this.props.onCancel();
+            this.setState({ submitLoading: false });
+          })
+          .fail(err => {
+            this.setState({ submitLoading: false });
+          });
+      }
+    });
+  };
+
   footer = () => {
     const { filed, positionList, projectId, currentPosition } = this.props;
-    const { exsistCurrentName } = this.state;
+    const { exsistCurrentName, submitLoading } = this.state;
     let jobName = this.state.jobName.trim();
+
     return (
       <div className="createPositionDialogFooter">
         {filed === 'edit' ? (
           <span
             className="LineHeight20 Left mTop5 Hand deleteBtn"
             onClick={() => {
-              jobAjax.deleteJobs({
-                jobIds: [currentPosition.jobId],
-                projectId,
-              }).then(res => {
-                if (res) {
-                  alert(_l('删除成功'));
-                  this.props.getPositionList();
-                  this.props.onCancel();
-                } else {
-                  alert(_l('职位存在成员，无法删除'), 2);
-                }
-              });
+              jobAjax
+                .deleteJobs({
+                  jobIds: [currentPosition.jobId],
+                  projectId,
+                })
+                .then(res => {
+                  if (res) {
+                    alert(_l('删除成功'));
+                    this.props.getPositionList();
+                    this.props.onCancel();
+                  } else {
+                    alert(_l('职位存在成员，无法删除'), 2);
+                  }
+                });
             }}
           >
             <i class="icon-task-new-delete Font16 mRight10"></i>
@@ -51,55 +110,21 @@ class DialogCreateAndEditPosition extends React.Component {
           class={cx('nyesText ', {
             ThemeBGColor3: !exsistCurrentName,
             boderRadAll_3: !exsistCurrentName,
-            disabledComfrim: exsistCurrentName,
+            disabledComfrim: exsistCurrentName || submitLoading,
           })}
           onClick={() => {
             if (!jobName) {
               alert(_l('请输入职位名称'), 3);
               return;
-            } else if (exsistCurrentName) {
+            } else if (exsistCurrentName || submitLoading) {
               return;
             } else if (!!positionList.find(it => it.jobName === jobName)) {
               alert(_l('该职位名称已存在'), 3);
               this.setState({ exsistCurrentName: true });
               return;
             }
-            fixedDataAjax.checkSensitive({ content: jobName }).then(res => {
-              if (res) {
-                return alert(_l('输入内容包含敏感词，请重新填写'), 3);
-              }
-              if (filed === 'edit') {
-                jobAjax.editJobName({ jobName: jobName, projectId, jobId: currentPosition.jobId }).then(res => {
-                  if (res) {
-                    alert(_l('修改成功'));
-                    let roleInfo = { ...currentPosition, jobName };
-                    this.props.updateCurrentPosition(roleInfo);
-                    let list = positionList.map(it => {
-                      if (it.jobId === currentPosition.jobId) {
-                        return { ...it, jobName };
-                      }
-                      return it;
-                    });
-                    this.props.updatePositionList(list);
-                  } else {
-                    alert(_l('修改失败'), 2);
-                  }
-                  this.props.onCancel();
-                });
-              } else {
-                jobAjax.addJob({ jobName: jobName, projectId }).then(res => {
-                  if (res) {
-                    alert(_l('创建成功'));
-                    let roleInfo = (positionList && !_.isEmpty(positionList) && positionList[0]) || {};
-                    this.props.updateCurrentPosition(roleInfo);
-                    this.props.getPositionList();
-                  } else {
-                    alert(_l('创建失败'), 2);
-                  }
-                  this.props.onCancel();
-                });
-              }
-            });
+
+            this.setState({ submitLoading: true }, this.handleSubmit);
           }}
         >
           {_l('保存')}

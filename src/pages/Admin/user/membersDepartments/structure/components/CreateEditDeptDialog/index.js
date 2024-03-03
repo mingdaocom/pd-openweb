@@ -24,6 +24,7 @@ export default class CreateEditDeptDialog extends Component {
       departmentInfo: {},
       parentDepartment: {},
       chargeUsers: [],
+      submitLoading: false,
     };
   }
   componentDidMount() {
@@ -49,18 +50,29 @@ export default class CreateEditDeptDialog extends Component {
       });
   };
   onOk = () => {
-    const { projectId, departmentId, type, callback = () => {}, newDepartments } = this.props;
-    const { departmentInfo = {}, parentDepartment, chargeUsers = [] } = this.state;
+    const { departmentInfo = {}, parentDepartment, submitLoading } = this.state;
     const { departmentName } = departmentInfo;
-    const _this = this;
     if (parentDepartment.departmentId && parentDepartment.departmentId === departmentInfo.departmentId) {
       return alert(_l('不能设设置自己为上级部门'), 3);
     }
     if (!departmentName) {
       return alert(_l('请输入部门名称'), 2);
     }
+
+    if (submitLoading) return;
+
+    this.setState({ submitLoading: true }, this.handleSubmit);
+  };
+
+  handleSubmit = () => {
+    const { projectId, departmentId, type, callback = () => {}, newDepartments } = this.props;
+    const { departmentInfo = {}, parentDepartment, chargeUsers = [] } = this.state;
+    const { departmentName } = departmentInfo;
+    const _this = this;
+
     fixedDataAjax.checkSensitive({ content: departmentName }).then(res => {
       if (res) {
+        this.setState({ submitLoading: false });
         return alert(_l('输入内容包含敏感词，请重新填写'), 3);
       }
       if (type === 'create') {
@@ -81,9 +93,11 @@ export default class CreateEditDeptDialog extends Component {
             } else if (data.resultStatus === RESULTS.PARENTNOTTOSUB) {
               alert(_l('不能设置子部门为自己的上级部门'), 3);
             }
+            this.setState({ submitLoading: false });
           })
           .fail(err => {
             alert(_l('创建失败'), 2);
+            this.setState({ submitLoading: false });
           });
       } else {
         departmentController
@@ -120,9 +134,11 @@ export default class CreateEditDeptDialog extends Component {
             } else if (data.resultStatus === RESULTS.PARENTNOTTOSUB) {
               alert(_l('不能设置子部门为自己的上级部门'), 3);
             }
+            this.setState({ submitLoading: false });
           })
           .fail(err => {
             alert(_l('编辑失败'), 2);
+            this.setState({ submitLoading: false });
           });
       }
     });
@@ -160,7 +176,7 @@ export default class CreateEditDeptDialog extends Component {
 
   render() {
     const { projectId, type, visible, onCancel = () => {} } = this.props;
-    const { departmentInfo, parentDepartment, chargeUsers } = this.state;
+    const { departmentInfo, parentDepartment, chargeUsers, submitLoading } = this.state;
     const { companyName } = _.find(md.global.Account.projects, item => item.projectId === projectId) || {};
 
     return (
@@ -169,6 +185,7 @@ export default class CreateEditDeptDialog extends Component {
         title={type === 'create' ? _l('创建部门') : _l('编辑部门')}
         onCancel={onCancel}
         onOk={this.onOk}
+        okDisabled={submitLoading}
       >
         <div className="departmentInfoList">
           <div className="singleInfo departmentName">

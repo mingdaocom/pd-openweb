@@ -64,6 +64,7 @@ const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
 function NewRecordForm(props) {
   const {
     loading,
+    maskLoading,
     from,
     isCustomButton,
     isCharge,
@@ -575,7 +576,7 @@ function NewRecordForm(props) {
                 // if (needHideRestore) {
                 //   setRestoreVisible(false);
                 // }
-                if (isSubmitting.current) {
+                if (isSubmitting.current || maskLoading) {
                   return;
                 }
                 if (!isMobile) {

@@ -42,6 +42,7 @@ function NewRecord(props) {
   ) : (
     <NewRecordContent
       {...props}
+      maskLoading={loading}
       registerFunc={funcs => (newRecordContent.current = funcs)}
       title={advancedSetting.title || title}
       notDialog={notDialog}

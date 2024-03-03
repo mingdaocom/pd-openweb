@@ -193,7 +193,7 @@ export default class WeiXin extends Component {
   };
   cancelBind = () => {
     let { appId } = this.state;
-    projectAjax.cancelBindingWeiXin({ appId }).then(res => {
+    projectAjax.cancelBindingWeiXin({ appId, projectId: Config.projectId }).then(res => {
       this.setState({ cancelBindVisible: false });
       if (res) {
         alert(_l('取消成功'), 1);

@@ -12,6 +12,7 @@ class DialogCreateAndEditRole extends React.Component {
     this.state = {
       roleName: props.filed === 'edit' ? props.currentRole.organizeName : '',
       remark: props.filed === 'edit' ? props.currentRole.remark : '',
+      submitLoading: false,
     };
   }
 
@@ -19,11 +20,83 @@ class DialogCreateAndEditRole extends React.Component {
     this.input.focus();
   }
 
-  footer = () => {
+  handleSubmit = () => {
     const { filed, roleList, projectId, currentRole, searchValue } = this.props;
-    const { exsistCurrentName } = this.state;
     let roleName = this.state.roleName.trim();
     let remark = this.state.remark.trim();
+
+    fixedDataAjax.checkSensitive({ content: roleName }).then(res => {
+      if (res) {
+        this.setState({ submitLoading: false });
+        return alert(_l('输入内容包含敏感词，请重新填写'), 3);
+      }
+      if (filed === 'edit') {
+        organizeAjax
+          .editOrganizeName({
+            organizeName: roleName,
+            projectId,
+            remark,
+            organizeId: currentRole.organizeId,
+          })
+          .then(res => {
+            if (!res) {
+              alert(_l('修改失败'), 2);
+            } else if (res === 1) {
+              alert(_l('修改成功'));
+              let list = roleList.map(it => {
+                if (it.organizeId === currentRole.organizeId) {
+                  return { ...it, organizeName: roleName, organizeId: currentRole.organizeId, remark };
+                }
+                return it;
+              });
+              this.props.updateCurrentRole({
+                organizeName: roleName,
+                organizeId: currentRole.organizeId,
+                remark,
+              });
+              this.props.updateRoleList(list);
+            } else if (res === 2) {
+              alert(_l('该角色名称已存在'), 3);
+            }
+            this.props.onCancel();
+            this.setState({ submitLoading: false });
+          })
+          .fail(err => {
+            this.setState({ submitLoading: false });
+          });
+      } else {
+        organizeAjax
+          .addOrganize({ organizeName: roleName, projectId, remark })
+          .then(res => {
+            if (!res) {
+              alert(_l('创建失败'), 2);
+              this.props.onCancel();
+            } else if (res === 1) {
+              alert(_l('创建成功'));
+              this.props.updateIsRequestList(false);
+              if (!searchValue || roleName.indexOf(searchValue) > -1) {
+                this.props.updateCurrentRole({ organizeName: roleName, remark });
+              }
+              this.props.getRoleList(true);
+              this.props.onCancel();
+            } else if (res === 2) {
+              alert(_l('该角色名称已存在'), 3);
+              this.setState({ exsistCurrentName: true });
+            }
+            this.setState({ submitLoading: false });
+          })
+          .fail(err => {
+            this.setState({ submitLoading: false });
+          });
+      }
+    });
+  };
+
+  footer = () => {
+    const { filed, roleList } = this.props;
+    const { exsistCurrentName, submitLoading } = this.state;
+    let roleName = this.state.roleName.trim();
+
     return (
       <div className="createPositionDialogFooter">
         <span class="noText ThemeHoverColor3 Hand" onClick={() => this.props.onCancel()}>
@@ -33,73 +106,21 @@ class DialogCreateAndEditRole extends React.Component {
           class={cx('nyesText ', {
             ThemeBGColor3: !exsistCurrentName,
             boderRadAll_3: !exsistCurrentName,
-            disabledComfrim: exsistCurrentName,
+            disabledComfrim: exsistCurrentName || submitLoading,
           })}
           onClick={() => {
             if (!roleName) {
               alert(_l('请输入角色名称'), 3);
               return;
-            } else if (exsistCurrentName) {
+            } else if (exsistCurrentName || submitLoading) {
               return;
             } else if (!!roleList.find(it => it.roleName === roleName)) {
               alert(_l('该角色名称已存在'), 3);
               this.setState({ exsistCurrentName: true });
               return;
             }
-            fixedDataAjax.checkSensitive({ content: roleName }).then(res => {
-              if (res) {
-                return alert(_l('输入内容包含敏感词，请重新填写'), 3);
-              }
-              if (filed === 'edit') {
-                organizeAjax
-                  .editOrganizeName({
-                    organizeName: roleName,
-                    projectId,
-                    remark,
-                    organizeId: currentRole.organizeId,
-                  })
-                  .then(res => {
-                    if (!res) {
-                      alert(_l('修改失败'), 2);
-                    } else if (res === 1) {
-                      alert(_l('修改成功'));
-                      let list = roleList.map(it => {
-                        if (it.organizeId === currentRole.organizeId) {
-                          return { ...it, organizeName: roleName, organizeId: currentRole.organizeId, remark };
-                        }
-                        return it;
-                      });
-                      this.props.updateCurrentRole({
-                        organizeName: roleName,
-                        organizeId: currentRole.organizeId,
-                        remark,
-                      });
-                      this.props.updateRoleList(list);
-                    } else if (res === 2) {
-                      alert(_l('该角色名称已存在'), 3);
-                    }
-                    this.props.onCancel();
-                  });
-              } else {
-                organizeAjax.addOrganize({ organizeName: roleName, projectId, remark }).then(res => {
-                  if (!res) {
-                    alert(_l('创建失败'), 2);
-                    this.props.onCancel();
-                  } else if (res === 1) {
-                    alert(_l('创建成功'));
-                    this.props.updateIsRequestList(false);
-                    if (!searchValue || roleName.indexOf(searchValue) > -1) {
-                      this.props.updateCurrentRole({ organizeName: roleName, remark });
-                    }
-                    this.props.getRoleList(true);
-                    this.props.onCancel();
-                  } else if (res === 2) {
-                    alert(_l('该角色名称已存在'), 3);
-                    this.setState({ exsistCurrentName: true });
-                  }
-                });
-              }
-            });
+
+            this.setState({ submitLoading: true }, this.handleSubmit);
           }}
         >
           {filed === 'edit' ? _l('保存') : _l('创建')}

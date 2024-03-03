@@ -76,8 +76,8 @@ const featureData = [
     name: _l('应用附件上传量'),
     dataTip: _l('所有应用中每自然年的文件上传量，包含附件字段、讨论中上传的文件量'),
     value0: _l('2G/年'),
-    value1: _l('5G/年'),
-    value2: _l('15G/年'),
+    value1: _l('50G/年'),
+    value2: _l('150G/年'),
     value3: _l('300G/月年'),
   },
   {
