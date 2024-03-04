@@ -141,13 +141,13 @@ export default class CommonUserHandle extends Component {
             <div className="appPkgHeaderSearch tip-bottom-left" data-tip={_l('超级搜索(F)')}>
               <Icon icon="search" className="Font20" onClick={this.openGlobalSearch.bind(this)} />
             </div>
-            <div
+            {/*<div
               className="workflowHelpIconWrap pointer"
               data-tip={_l('帮助')}
               onClick={() => window.KF5SupportBoxAPI && window.KF5SupportBoxAPI.open()}
             >
               <Icon icon="workflow_help" className="helpIcon Font20" />
-            </div>
+            </div>*/}
           </React.Fragment>
         )}
 
@@ -176,13 +176,13 @@ export default class CommonUserHandle extends Component {
               </MdLink>
             )}
 
-            <BtnCon
+            {/*<BtnCon
               className={cx(`${type === 'native' ? 'mLeft10' : ''}`, { isDashboard: type === 'dashboard' })}
               data-tip={_l('帮助')}
               onClick={() => window.KF5SupportBoxAPI && window.KF5SupportBoxAPI.open()}
             >
               <Icon icon="workflow_help" />
-            </BtnCon>
+            </BtnCon>*/}
           </React.Fragment>
         )}
 
