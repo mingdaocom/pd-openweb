@@ -7,8 +7,8 @@
     "remove-unsafe-words": "cross-env NODE_ENV=production NODE_OPTIONS=--max_old_space_size=20480 node ./node_modules/gulp/bin/gulp.js remove-unsafe-words",
     "publish": "cross-env NODE_ENV=production API_SERVER=/wwwapi/ WEBPACK_PUBLIC_PATH=/dist/pack/ node --max-old-space-size=8192 ./node_modules/gulp/bin/gulp.js publish",
     "trans": "node ./node_modules/gulp/bin/gulp.js buildDPPot",
-    "buildPoToJs": "node ./node_modules/gulp/bin/gulp.js buildPoToJs"
-    "clearPoLangKey": "node ./node_modules/gulp/bin/gulp.js clearPoLangKey",
+    "buildPoToJs": "node ./node_modules/gulp/bin/gulp.js buildPoToJs",
+    "clearPoLangKey": "node ./node_modules/gulp/bin/gulp.js clearPoLangKey"
   },
   "dependencies": {
     "@ant-design/colors": "^6.0.0",
