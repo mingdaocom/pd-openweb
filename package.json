@@ -166,7 +166,7 @@
     "thread-loader": "^1.1.2",
     "uglify-js": "^3.17.3",
     "url-loader": "^0.6.2",
-    "webpack": "^5.64.4",
+    "webpack": "5.89.0",
     "webpack-inject-plugin": "1.5.5",
     "webpack-merge": "^5.8.0",
     "webpackbar": "^5.0.2"
