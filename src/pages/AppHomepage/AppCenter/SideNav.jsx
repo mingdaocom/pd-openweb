@@ -357,13 +357,6 @@ export default function SideNav(props) {
               <i className={`entryIcon icon ${isExpanded ? 'icon-menu_left' : 'icon-menu_right'} Gray_75`} />
             </ResourceEntry>
           </ResourceEntries>
-          {/* isExpanded && md.global.Config.IsPlatformLocal && md.global.Config.IsCobranding && (
-            <div className="w100 TxtCenter pTop12 pBottom12 Gray_9e">
-              <span className="pointer Font12" onClick={() => window.open('https://www.mingdao.com')}>
-                {_l('基于明道云应用平台内核')}
-              </span>
-            </div>
-          )*/}
         </Content>
       </ScrollView>
     </Con>

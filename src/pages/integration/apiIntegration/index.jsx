@@ -71,7 +71,7 @@ const list = [
 ];
 
 function APILibraryCon(props) {
-  // 是否启用明道云API库，默认开启
+  // 是否启用API库，默认开启
   const hideIntegrationLibrary = md.global.Config.IsLocal && md.global.SysSettings.hideIntegrationLibrary;
   const { currentProjectId, match = { params: {} } } = props;
   const [tab, setTab] = useState(

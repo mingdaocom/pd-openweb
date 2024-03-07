@@ -49,7 +49,7 @@ const Wrap = styled.div`
 // 至少包含4位字母或数字（前端校验）
 // 只能输入数字、字母、中划线（前端校验）
 // 重复校验（点击确定按钮，或失焦时校验） 提示：此名称已被占用
-// 不能和明道地址冲突（点击确定按钮，或失焦时校验，提示：此名称和系统地址冲突，请重新输入
+// 不能和HAP地址冲突（点击确定按钮，或失焦时校验，提示：此名称和系统地址冲突，请重新输入
 export default function EditPortalUrlDialog(props) {
   const { onOk, onCancel, urlPre, appId } = props;
   const inputRef = useRef(null);

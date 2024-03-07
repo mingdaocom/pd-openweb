@@ -94,7 +94,7 @@ export const insertControlInSameLine = ({ widgets, srcItem, srcPath, dropPath, l
   const [starRowIndex, startColIndex] = srcPath || [];
   return update(widgets, {
     [rowIndex]: {
-      $apply: row => {
+      $apply: (row = []) => {
         // 如果放在第一个的左边
         if (colIndex === 0 && location === 'left') {
           return [srcItem].concat(row).map(item => ({ ...item, size: WHOLE_SIZE / (row.length + 1) }));

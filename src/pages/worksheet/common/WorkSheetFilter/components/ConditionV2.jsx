@@ -269,6 +269,8 @@ export default class Condition extends Component {
             }}
             value={(dynamicSource[0] || {}).cid || ''}
             onChange={value => {
+              const dateRangeSetObj =
+                conditionGroupType === CONTROL_FILTER_WHITELIST.DATE.value ? { dateRange: 0 } : {};
               onChange({
                 dynamicSource: [
                   {
@@ -277,6 +279,7 @@ export default class Condition extends Component {
                     staticValue: '',
                   },
                 ],
+                ...dateRangeSetObj,
               });
             }}
           />

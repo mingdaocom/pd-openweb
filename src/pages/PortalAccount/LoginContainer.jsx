@@ -52,7 +52,7 @@ const WrapWXCon = styled.div`
     background: #ffffff;
     border: 1px solid #f4f4f4;
     border-radius: 8px;
-    margin: 20px auto;
+    margin: 0 auto;
     box-sizing: border-box;
     position: relative;
     overflow: hidden;
@@ -770,8 +770,9 @@ export default function LoginContainer(props) {
                 </div>
               )}
             </div>
+            <div className="mTop16 TxtCenter Gray_75 Font14 Bold">{_l('扫描关注微信公众号并登录')}</div>
             <div
-              className="mTop24 flexRow alignItemsCenter Hand justifyContentCenter"
+              className="mTop20 flexRow alignItemsCenter Hand justifyContentCenter"
               onClick={() => {
                 setAutoLogin(!isAutoLogin);
               }}

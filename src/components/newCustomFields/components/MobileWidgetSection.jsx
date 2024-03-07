@@ -152,7 +152,11 @@ export default function MobileWidgetSection(props) {
                 <TabIcon control={tab} widgetStyle={widgetStyle} activeTabControlId={activeTabControlId} />
                 {tab.controlName}
               </span>
-              {tab.type === 29 && disabled && tab.value ? <span>{`(${tab.value})`}</span> : ''}
+              {_.get(tab, 'advancedSetting.showcount') !== '1' && tab.type === 29 && disabled && tab.value ? (
+                <span>{`(${tab.value})`}</span>
+              ) : (
+                ''
+              )}
             </Fragment>
           );
         }}

@@ -91,7 +91,7 @@ function WorksheetRecordLogSelectTags(props) {
     if (needPreview && text && ['[', '{'].includes(text[0])) {
       let sourceControlType = (control || {}).sourceControlType;
       let sourceControl = { ...(control || {}).sourceControl, type: sourceControlType };
-      if (!sourceControlType) {
+      if (!sourceControlType && control) {
         sourceControl = control.relationControls.find(l => l.attribute === 1) || control.relationControls[0];
       }
 

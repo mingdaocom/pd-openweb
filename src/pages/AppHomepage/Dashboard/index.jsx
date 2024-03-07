@@ -28,6 +28,7 @@ const Wrapper = styled.div`
       justify-content: space-between;
       align-items: flex-end;
       padding: 24px 0 16px;
+      white-space: nowrap;
       .logoWrapper {
         display: flex;
         align-items: center;

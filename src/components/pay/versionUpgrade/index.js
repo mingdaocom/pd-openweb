@@ -408,9 +408,9 @@ export default class VersionUpgrade extends Component {
             {this.renderFeatureDetail()}
             <div className="privateVersion TxtCenter mTop80">
               <div className="title Font32">{_l('应用定制')}</div>
-              <div className="mTop24 Font18">{_l('根据贵公司需求量身定制咨询明道部署顾问')}</div>
+              <div className="mTop24 Font18">{_l('根据贵公司需求量身定制咨询部署顾问')}</div>
               <div className="mTop20">
-                {_l('明道顾问为您按需搭建业务定制应用包。包括销售、营销、生成、研发、运营等业务环节。')}
+                {_l('顾问为您按需搭建业务定制应用包。包括销售、营销、生成、研发、运营等业务环节。')}
               </div>
               <div>
                 {_l('配置自动化工作流，帮你大幅度降低人力成本。')}

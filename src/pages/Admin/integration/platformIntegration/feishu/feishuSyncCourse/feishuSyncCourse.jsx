@@ -99,7 +99,7 @@ export default class WorkwxSyncCourse extends React.Component {
           <img src={fsImg3} />
           <img src={fsImg3_1} />
           <p className="Font14 Gray_75 mTop24 LineHeight22">
-            {_l('2.切换到“机器人”，启用机器人功能，这样在飞书消息测就能直接收到明道云内部的流程、应用消息')}
+            {_l('2.切换到“机器人”，启用机器人功能，这样在飞书消息测就能直接收到内部的流程、应用消息')}
           </p>
           <img src={fsImg4} />
           <p className="Font14 Gray_75 mTop24 LineHeight22">{_l('3. 前往“权限管理”，开启所需的七个权限')}</p>

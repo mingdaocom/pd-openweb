@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import SheetView from 'worksheet/views/SheetView';
+import ViewContext from './ViewContext';
 import BoardView from './BoardView';
 import HierarchyView from './HierarchyView';
 import { navigateTo } from 'src/router/navigateTo';
@@ -116,13 +117,15 @@ function View(props) {
   const Component = TYPE_TO_COMP[viewType];
 
   return (
-    <Con>
-      {!Component || activeViewStatus !== 1 ? (
-        <UnNormal resultCode={error ? -999999 : activeViewStatus} />
-      ) : (
-        <Component {...viewProps} />
-      )}
-    </Con>
+    <ViewContext.Provider value={{ isCharge: props.isCharge }}>
+      <Con>
+        {!Component || activeViewStatus !== 1 ? (
+          <UnNormal resultCode={error ? -999999 : activeViewStatus} />
+        ) : (
+          <Component {...viewProps} />
+        )}
+      </Con>
+    </ViewContext.Provider>
   );
 }
 

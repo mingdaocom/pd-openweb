@@ -430,31 +430,39 @@ class LoginContainer extends React.Component {
             <span className={cx('line', { mTop80: !canLDAP })} />
           </React.Fragment>
         )}
-        {!hideRegister && (
-          <span
-            className="btnUseOldAccount Hand"
-            onClick={() => {
-              if (md.global.Config.IsPlatformLocal) {
-                //平台版=>/register
-                location.href = '/register';
-              } else if (linkInvite) {
-                location.href = linkInvite;
-              } else {
-                let request = getRequest();
-                let returnUrl = getDataByFilterXSS(request.ReturnUrl || '');
-                if (returnUrl.indexOf('type=privatekey') > -1) {
-                  location.href = '/register?ReturnUrl=' + encodeURIComponent(returnUrl);
-                } else if (isBindAccount) {
-                  location.href = `/register?state=${request.state}&tpType=${request.tpType}&unionId=${request.unionId}`;
-                } else {
-                  location.href = '/register';
-                }
-              }
-            }}
-          >
-            {_l('注册新账号')}
-          </span>
-        )}
+        <div className="flexRow alignItemsCenter justifyContentCenter footerCon">
+          {!hideRegister && (
+            <React.Fragment>
+              <span
+                className="changeBtn Hand TxtRight"
+                onClick={() => {
+                  if (md.global.Config.IsPlatformLocal) {
+                    //平台版=>/register
+                    location.href = '/register';
+                  } else if (linkInvite) {
+                    location.href = linkInvite;
+                  } else {
+                    let request = getRequest();
+                    let returnUrl = getDataByFilterXSS(request.ReturnUrl || '');
+                    if (returnUrl.indexOf('type=privatekey') > -1) {
+                      location.href = '/register?ReturnUrl=' + encodeURIComponent(returnUrl);
+                    } else if (isBindAccount) {
+                      location.href = `/register?state=${request.state}&tpType=${request.tpType}&unionId=${request.unionId}`;
+                    } else {
+                      location.href = '/register';
+                    }
+                  }
+                }}
+              >
+                {_l('注册新账号')}
+              </span>
+              <span className="lineCenter mLeft16"></span>
+            </React.Fragment>)
+          }
+          <div className={cx("TxtLeft", !hideRegister ? 'mLeft16' : '')}>
+            <ChangeLang className='justifyContentLeft' />
+          </div>
+        </div>
       </React.Fragment>
     );
   };
@@ -485,7 +493,6 @@ class LoginContainer extends React.Component {
             {this.renderCon()}
             {this.renderFooter()}
           </div>
-          <ChangeLang />
           {md.global.Config.IsPlatformLocal && md.global.Config.IsCobranding && (
             <div
               className={cx('powered w100 flexRow valignWrapper Font12', this.state.homeImage ? 'White' : 'Gray_9e', {

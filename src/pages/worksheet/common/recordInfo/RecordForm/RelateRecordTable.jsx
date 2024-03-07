@@ -806,7 +806,7 @@ export default function RelateRecordTable(props) {
         options.updateSuccessCb(updatedRow);
       }
       // 处理新增自定义选项
-      const updatedControl = _.find(tableControls, { controlId: cell.controlId });
+      const updatedControl = cell && _.find(tableControls, { controlId: cell.controlId });
       if (
         updatedControl &&
         _.includes([WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT, WIDGETS_TO_API_TYPE_ENUM.DROP_DOWN], cell.type) &&

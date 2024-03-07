@@ -46,7 +46,7 @@ export const SYS_CHART_COLORS = [
   },
   {
     name: _l('商务'),
-    colors: ['#1478ED', '#8BC7F7', '#46B3F3', '#1A9FEF', '#178CEE', '#0E50EB', '#0A41C8', '#0B31A5'],
+    colors: ['#1478ED', '#30D1FF', '#A3A9F5', '#B7D2F8', '#787CA9', '#F25929', '#0B31A5', '#16215B'],
     themeColors: ['#3054EB'],
     id: '4',
   },

@@ -187,17 +187,23 @@ class TwofactorContainer extends React.Component {
           <div className="Clear"></div>
         </div>
         <span className={cx('line', {})} style={{ marginTop: 150 }}></span>
-        <span
-          className="btnUseOldAccount Hand"
-          onClick={() => {
-            this.setState({
-              type: type !== 1 ? 1 : 2,
-              account: '',
-            });
-          }}
-        >
-          {type !== 2 ? _l('使用邮箱验证') : _l('使用手机短信验证')}
-        </span>
+        <div className="flexRow alignItemsCenter justifyContentCenter footerCon">
+          <span
+            className="changeBtn Hand TxtRight"
+            onClick={() => {
+              this.setState({
+                type: type !== 1 ? 1 : 2,
+                account: '',
+              });
+            }}
+          >
+            {type !== 2 ? _l('使用邮箱验证') : _l('使用手机短信验证')}
+          </span>
+          <span className="lineCenter mLeft16"></span>
+          <div className="mLeft16 TxtLeft">
+            <ChangeLang className="justifyContentLeft" />
+          </div>
+        </div>
       </React.Fragment>
     );
   };
@@ -214,7 +220,6 @@ class TwofactorContainer extends React.Component {
             {this.renderCon()}
             {this.renderFooter()}
           </div>
-          <ChangeLang />
         </div>
       );
     }

@@ -24,6 +24,7 @@ import {
   appRoleSuccessData2,
   DATA_RELATIONS_SUCCESS_DATA,
   NUMBER_SUCCESS_DATA,
+  ADD_ROW_SUCCESS,
 } from './config';
 import homeApp from 'src/api/homeApp';
 import { Icon, Dialog, Textarea, LoadDiv, ScrollView, Skeleton } from 'ming-ui';
@@ -1396,7 +1397,7 @@ class WorksheetApi extends Component {
         triggerWorkflow: true,
       },
       {
-        successData: ADD_WORKSHEET_SUCCESS,
+        successData: ADD_ROW_SUCCESS,
       },
     );
   }

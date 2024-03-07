@@ -98,7 +98,7 @@ function createShare(props) {
       '\n' +
       url +
       '\n\n' +
-      _l('分享自明道云日程')
+      _l('分享自日程')
     );
   };
 

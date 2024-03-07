@@ -55,7 +55,7 @@ const mathods = [
     icon: 'icon-wechat_pay',
     iconColor: '#15BA11',
     title: _l('在线支付'),
-    description: _l('适合对明道云产品已经完成试用的中小企业客户'),
+    description: _l('适合对HAP产品已经完成试用的中小企业客户'),
   },
   {
     type: 'partner',
@@ -68,7 +68,7 @@ const mathods = [
     type: 'consultant',
     icon: 'icon-history_edu',
     iconColor: '#2196F3',
-    title: _l('联系明道云顾问购买'),
+    title: _l('联系顾问购买'),
     description: _l('适合具备自主搭建应用能力的客户'),
   },
 ];
@@ -115,7 +115,7 @@ export default function PurchaseMethodModal(props) {
           );
         })}
       </div>
-      <div className="TxtCenter Gray_75 Font16">{_l('*任何购买渠道下，明道云产品授权的价格部分都是一致的')}</div>
+      <div className="TxtCenter Gray_75 Font16">{_l('*任何购买渠道下，HAP产品授权的价格部分都是一致的')}</div>
     </DialogWrap>
   );
 }

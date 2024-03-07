@@ -1,13 +1,8 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv, Icon, Dialog, Dropdown, Checkbox } from 'ming-ui';
+import { ScrollView, LoadDiv, Icon, Dialog, Dropdown, Checkbox, TagTextarea } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
 import { DetailHeader, DetailFooter, ParameterList, KeyPairs, TestParameter, ChatGPT } from '../components';
 import { ACTION_ID } from '../../enum';
-import Editor from 'react-simple-code-editor';
-import { highlight, languages } from 'prismjs/components/prism-core';
-import 'prismjs/components/prism-clike';
-import 'prismjs/components/prism-javascript';
-import 'prismjs/themes/prism.css';
 import { Base64 } from 'js-base64';
 import _ from 'lodash';
 import cx from 'classnames';
@@ -62,6 +57,16 @@ export default class Code extends Component {
       !_.isEmpty(this.state.data)
     ) {
       this.updateSource({ name: nextProps.selectNodeName });
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (
+      prevState.data.code !== this.state.data.code ||
+      (!prevState.isFullCode && this.state.isFullCode) ||
+      (prevState.isFullCode && !this.state.isFullCode)
+    ) {
+      this.updateCodeMirrorContent(this.state.data.code);
     }
   }
 
@@ -131,6 +136,25 @@ export default class Code extends Component {
 
     this.setState({ saveRequest: true });
   };
+
+  /**
+   * 更新代码编辑器内容
+   */
+  updateCodeMirrorContent(code) {
+    const { isFullCode } = this.state;
+
+    if (isFullCode && this.fullCodeTagtextarea) {
+      const cursor = this.fullCodeTagtextarea.cmObj.getCursor();
+
+      this.fullCodeTagtextarea.setValue(code);
+      this.fullCodeTagtextarea.cmObj.setCursor(cursor);
+    } else if (this.tagtextarea) {
+      const cursor = this.tagtextarea.cmObj.getCursor();
+
+      this.tagtextarea.setValue(code);
+      this.tagtextarea.cmObj.setCursor(cursor);
+    }
+  }
 
   /**
    * Output对象参数列表
@@ -253,19 +277,22 @@ export default class Code extends Component {
   /**
    * 渲染代码块
    */
-  renderCode(minHeight = { minHeight: 250 }) {
-    const { data } = this.state;
+  renderCode() {
+    const { data, isFullCode } = this.state;
 
     return (
-      <Editor
-        value={data.code}
-        onValueChange={code => this.updateSource({ code })}
-        highlight={code => highlight(code, languages.js)}
-        textareaClassName="codeTextarea"
-        style={{
-          fontFamily: '"Fira code", "Fira Mono", monospace',
-          fontSize: 13,
-          ...minHeight,
+      <TagTextarea
+        className="workflowCodeMirrorBox"
+        height={isFullCode ? '100%' : 0}
+        defaultValue={data.code}
+        codeMirrorMode={data.actionId === ACTION_ID.JAVASCRIPT ? 'javascript' : 'python'}
+        getRef={tag => {
+          this[isFullCode ? 'fullCodeTagtextarea' : 'tagtextarea'] = tag;
+        }}
+        lineNumbers
+        maxHeight={10000000}
+        onChange={(err, value, obj) => {
+          this.updateSource({ code: value });
         }}
       />
     );
@@ -435,7 +462,7 @@ export default class Code extends Component {
             width={800}
             footer={null}
           >
-            {this.renderCode({ minHeight: '100%' })}
+            {this.renderCode()}
           </Dialog>
         )}
 

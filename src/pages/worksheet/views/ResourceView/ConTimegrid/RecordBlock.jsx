@@ -19,6 +19,7 @@ const Wrap = styled.div`
   position: absolute;
   z-index: 1;
   margin-top: 1px;
+  margin-left: -0.5px;
   padding: 1px;
   color: ${props => props.row.fontColor};
   line-height: ${lineHeight}px;

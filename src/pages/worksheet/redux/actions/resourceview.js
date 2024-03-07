@@ -48,8 +48,9 @@ export const fetchRows = (refresh = true) => {
       beginTime = moment((gridTimes[0] || {}).date).format('YYYY-MM-DD HH:mm');
       endTime = moment((gridTimes[gridTimes.length - 1] || {}).date).format('YYYY-MM-DD 23:59:59');
     } else {
-      beginTime = `${moment((gridTimes[0] || {}).date).format('YYYY-MM-DD')} ${!!times[0] && times.length > 1 ? times[0] : '00:00'
-        }`;
+      beginTime = `${moment((gridTimes[0] || {}).date).format('YYYY-MM-DD')} ${
+        !!times[0] && times.length > 1 ? times[0] : '00:00'
+      }`;
       endTime =
         type === 'Week'
           ? `${moment(moment((gridTimes[gridTimes.length - 1] || {}).date)).format('YYYY-MM-DD HH:59')}`
@@ -111,8 +112,9 @@ export const fetchRowsByGroupId = (kanbanKey, kanbanIndex) => {
       beginTime = moment((gridTimes[0] || {}).date).format('YYYY-MM-DD HH:mm');
       endTime = moment((gridTimes[gridTimes.length - 1] || {}).date).format('YYYY-MM-DD 23:59:59');
     } else {
-      beginTime = `${moment((gridTimes[0] || {}).date).format('YYYY-MM-DD')} ${!!times[0] && times.length > 1 ? times[0] : '00:00'
-        }`;
+      beginTime = `${moment((gridTimes[0] || {}).date).format('YYYY-MM-DD')} ${
+        !!times[0] && times.length > 1 ? times[0] : '00:00'
+      }`;
       endTime =
         type === 'Week'
           ? `${moment(moment((gridTimes[gridTimes.length - 1] || {}).date)).format('YYYY-MM-DD HH:59')}`
@@ -317,7 +319,12 @@ export const updateRecordTime = (row, start, end, key, newKey) => {
         controlName: viewControlData.controlName,
         dot: viewControlData.dot,
         type: viewControlData.type,
-        value: viewControlData.type === 29 ? JSON.stringify([{ name: newData.name, sid: newData.key }]) : newData.data,
+        value:
+          viewControlData.type === 29
+            ? JSON.stringify([{ name: newData.name, sid: newData.key }])
+            : viewControlData.type === 26
+            ? `[${newData.name}]`
+            : newData.data,
       });
     }
 

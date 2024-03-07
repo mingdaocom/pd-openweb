@@ -354,7 +354,7 @@ export default function CarouselPreview(props) {
       <div
         onClick={() => handleTriggerAction(record)}
         className={cx('image pointer', { fill: config.fill === 1, full: config.fill === 2 })}
-        style={{ backgroundImage: `url(${data.viewUrl}|imageView2/0/q/100)` }}
+        style={{ backgroundImage: `url(${data.viewUrl}&|imageView2/0/q/100)` }}
       />
     );
   }

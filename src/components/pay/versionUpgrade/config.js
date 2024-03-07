@@ -369,7 +369,7 @@ const featureData = [
   {
     className: 'ding',
     name: _l('钉钉整合'),
-    dataTip: _l('将明道应用发布到钉钉内使用，可以在钉钉收到明道应用消息'),
+    dataTip: _l('将应用发布到钉钉内使用，可以在钉钉收到应用消息'),
     value0: 'basicNo',
     value1: 'basicPng',
     value2: 'basicPng',
@@ -378,7 +378,7 @@ const featureData = [
   {
     className: 'weixin',
     name: _l('企业微信整合'),
-    dataTip: _l('在企业微信中使用明道云'),
+    dataTip: _l('在企业微信中使用HAP'),
     value0: 'basicNo',
     value1: 'basicPng',
     value2: 'basicPng',
@@ -387,7 +387,7 @@ const featureData = [
   {
     className: 'feishu',
     name: _l('飞书整合'),
-    dataTip: _l('在飞书中使用明道云'),
+    dataTip: _l('在飞书中使用HAP'),
     value0: 'basicNo',
     value1: 'basicPng',
     value2: 'basicPng',
@@ -396,7 +396,7 @@ const featureData = [
   {
     className: 'LDAP',
     name: _l('LDAP/AD整合'),
-    dataTip: _l('明道云可与您的LDAP/AD目录进行整合， 终端用户可实现单点登录'),
+    dataTip: _l('HAP可与您的LDAP/AD目录进行整合， 终端用户可实现单点登录'),
     value0: 'basicNo',
     value1: 'basicPng',
     value2: 'basicPng',

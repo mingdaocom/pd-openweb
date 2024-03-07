@@ -57,7 +57,7 @@ const isInterestedList = [
         className="itemText"
         dangerouslySetInnerHTML={{
           __html: _l(
-            '我是用户，并对明道云 %0伙伴政策%1 感兴趣',
+            '我是用户，并对HAP %0伙伴政策%1 感兴趣',
             `<a class='Bold pLeft5 pRight5 Hand' target="_blank" href="https://www.mingdao.com/partners" >`,
             `</a>`,
           ),

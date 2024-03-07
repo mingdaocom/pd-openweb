@@ -167,7 +167,7 @@ class UserCard extends React.Component {
     chatButton: PropTypes.bool, // 是否显示发消息按钮
   };
   static defaultProps = {
-    type: 1, // 1 人员 2 群组 3 通用`明道云小秘书` 4 `任务 文件夹 群组 明道云小秘书`
+    type: 1, // 1 人员 2 群组 3 通用`小秘书` 4 `任务 文件夹 群组 小秘书`
     chatButton: true,
   };
 

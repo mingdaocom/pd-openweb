@@ -1,9 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { ScrollView, Skeleton } from 'ming-ui';
 import DocumentTitle from 'react-document-title';
+import ViewContext from 'worksheet/views/ViewContext';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
 import CustomFields from 'src/components/newCustomFields';
 import DragMask from 'worksheet/common/DragMask';
@@ -14,7 +15,7 @@ import FormCover from './FormCover';
 import Abnormal from './Abnormal';
 import SectionTableNav from '../../../../../components/newCustomFields/components/SectionTableNav';
 import { browserIsMobile } from 'src/util';
-import _ from 'lodash';
+import _, { get } from 'lodash';
 
 const ShadowCon = styled.div`
   width: 100%;
@@ -139,6 +140,7 @@ export default function RecordForm(props) {
     });
   });
   const { isSmall, isSubList, worksheetId, recordId, recordTitle, allowEdit, viewId = '' } = recordbase;
+  const viewContext = useContext(ViewContext);
   if (loading) {
     return (
       <div className="contentBox flexColumn" style={{ width: formWidth }}>
@@ -387,7 +389,7 @@ export default function RecordForm(props) {
                   viewId={viewId}
                   showSplitIcon={type === 'edit' && commonData.length > 0}
                   appId={recordinfo.appId}
-                  isCharge={recordbase.isCharge}
+                  isCharge={get(viewContext, 'isCharge') || recordbase.isCharge}
                   onFormDataReady={dataFormat => {
                     setNavVisible();
                     if (!recordId) {

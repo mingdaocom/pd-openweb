@@ -1691,6 +1691,12 @@ export const ADD_WORKSHEET_SUCCESS = {
   error_code: 1,
 };
 
+export const ADD_ROW_SUCCESS = {
+  data: _l('rowId'),
+  success: true,
+  error_code: 1,
+}
+
 // 获取工作表结构信息成功返回
 export const WORKSHEETINFO_SUCCESS_DATA = {
   data: {

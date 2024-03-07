@@ -259,7 +259,7 @@ export default function CustomLibrary(props) {
 
         <SearchBox className="flexRow alignItemsCenter mLeft20">
           <Icon type="search" className="Font18 Gray_9d" />
-          <input type="text" ref={keywordsRef} placeholder="搜索连接" onChange={e => onChange(e.target.value.trim())} />
+          <input type="text" ref={keywordsRef} placeholder={_l('搜索连接')} onChange={e => onChange(e.target.value.trim())} />
           {keywords && (
             <div
               className="searchClear flexRow alignItemsCenter justifyContentCenter"

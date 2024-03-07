@@ -157,8 +157,9 @@ export default class RecordForm extends Component {
         onClick={() => {
           if (location.pathname.indexOf('public') > -1) return;
           window.mobileNavigateTo(
-            `/mobile/recordList/${recordBase.appId}/${recordBase.groupId}/${recordBase.worksheetId}`,
+            `/mobile/recordList/${recordBase.appId}/${recordInfo.groupId}/${recordBase.worksheetId}`,
           );
+          onClose && onClose();
         }}
       >
         <span className="ellipsis">{_l('工作表：%0', recordInfo.worksheetName)}</span>

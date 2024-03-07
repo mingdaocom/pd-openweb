@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import ChangeLang from 'src/components/ChangeLang';
 import Container from './container/registerContainer';
 import RegisterName from './container/registerName';
 import CreateOrAdd from './container/createOrAdd';
@@ -475,7 +474,6 @@ class RegisterContainer extends React.Component {
           )}
           {this.renderCon()}
         </div>
-        <ChangeLang />
       </div>
     );
   }

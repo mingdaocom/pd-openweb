@@ -213,21 +213,27 @@ class FindPassword extends React.Component {
         {!isMingdaoApp ? (
           <React.Fragment>
             <span className="line" style={{ marginTop: '125px' }}></span>
-            <span
-              className="btnUseOldAccount Hand"
-              onClick={() => {
-                let request = getRequest();
-                let returnUrl = request.ReturnUrl;
+            <div className="flexRow alignItemsCenter justifyContentCenter footerCon">
+              <span
+                className="changeBtn Hand TxtRight"
+                onClick={() => {
+                  let request = getRequest();
+                  let returnUrl = request.ReturnUrl;
 
-                if (returnUrl) {
-                  location.href = '/login?ReturnUrl=' + encodeURIComponent(returnUrl);
-                } else {
-                  location.href = '/login';
-                }
-              }}
-            >
-              {_l('返回登录页面')}
-            </span>
+                  if (returnUrl) {
+                    location.href = '/login?ReturnUrl=' + encodeURIComponent(returnUrl);
+                  } else {
+                    location.href = '/login';
+                  }
+                }}
+              >
+                {_l('返回登录页面')}
+              </span>
+              <span className="lineCenter mLeft16"></span>
+              <div className="mLeft16 TxtLeft">
+                <ChangeLang className="justifyContentLeft" />
+              </div>
+            </div>
           </React.Fragment>
         ) : (
           <div style={{ marginTop: '125px' }}></div>
@@ -248,7 +254,6 @@ class FindPassword extends React.Component {
           )}
           {this.renderCon()}
         </div>
-        <ChangeLang />
       </div>
     );
   }

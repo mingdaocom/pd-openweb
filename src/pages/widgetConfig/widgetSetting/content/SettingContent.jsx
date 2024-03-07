@@ -12,7 +12,7 @@ const { Panel } = Collapse;
 const totalExpandKeys = EXPAND_ITEMS.map(i => i.key);
 
 export default function SettingContent(props) {
-  const { data: { type, controlId } = {}, mode, globalSheetInfo = {} } = props;
+  const { data: { controlId } = {}, mode } = props;
   const [expandKeys, setExpandKeys] = useState([]);
 
   const getPanelData = () => {
@@ -30,12 +30,8 @@ export default function SettingContent(props) {
   };
 
   useEffect(() => {
-    const tempValue = safeParse(window.localStorage.getItem(`worksheetExpand-${globalSheetInfo.worksheetId}`) || '[]');
-    if (_.includes([29, 34, 35, 51], type) && !_.includes(tempValue, 'base')) {
-      tempValue.push('base');
-    }
-    setExpandKeys(!_.isEmpty(tempValue) ? tempValue : totalExpandKeys);
-  }, [mode, controlId]);
+    setExpandKeys(totalExpandKeys);
+  }, [controlId]);
 
   return (
     <SettingCollapseWrap
@@ -43,7 +39,6 @@ export default function SettingContent(props) {
       activeKey={expandKeys}
       expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
       onChange={value => {
-        safeLocalStorageSetItem(`worksheetExpand-${globalSheetInfo.worksheetId}`, JSON.stringify(value));
         setExpandKeys(value);
       }}
     >

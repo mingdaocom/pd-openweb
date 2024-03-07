@@ -149,7 +149,7 @@ async function getStatus(data, shareId) {
           safeLocalStorageSetItem('wxUserInfo', JSON.stringify(userInfo || {}));
 
           if (writeScope !== 1 && !md.global.Config.IsLocal && !!userInfo.state && weChatSetting.collectChannel === 1) {
-            //平台或组织用户，非私有部署环境，state不为空，明道云公众号
+            //平台或组织用户，非私有部署环境，state不为空，公众号
             //走自动登录逻辑
             const loginResult = await loginApi.tPLogin({
               unionId: userInfo.unionId,

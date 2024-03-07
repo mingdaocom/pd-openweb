@@ -167,15 +167,6 @@ export default function Number(props) {
                 checked={numshow === '1'}
                 onClick={checked => {
                   let tempData = { numshow: checked ? '0' : '1' };
-                  if (!checked) {
-                    tempData = {
-                      ...tempData,
-                      min: '0',
-                      max: '1',
-                      numinterval: '0.1',
-                    };
-                    setNumValue(tempData.numinterval);
-                  }
                   onChange(handleAdvancedSettingChange(data, tempData));
                 }}
                 text={_l('按百分比显示')}

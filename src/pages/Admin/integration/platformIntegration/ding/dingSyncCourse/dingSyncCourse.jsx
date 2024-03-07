@@ -381,7 +381,7 @@ export default class DingSyncCourse extends React.Component {
             </p>
             <img src={imgPng4_2} alt={_l('完善接口信息')} />
             <img src={imgPng4_3} alt={_l('完善接口信息')} />
-            <p className="Font14 Gray_75 mTop24 LineHeight22">{_l('首页可以找到CorpId，填入明道云对应输入框内')}</p>
+            <p className="Font14 Gray_75 mTop24 LineHeight22">{_l('首页可以找到CorpId，填入对应输入框内')}</p>
             <img src={imgPng4_4} alt={_l('完善接口信息')} />
             <h3 className="Font18 Gray mTop40">{_l('5.申请开通企业通讯录权限')}</h3>
             <p className="Font14 Gray_75 mTop24 LineHeight22">

@@ -54,7 +54,14 @@ const SettingWrap = styled.div`
 `;
 
 function WidgetSetting(props) {
-  const { widgets = [], activeWidget: data = {}, handleDataChange, queryConfigs = [], ...rest } = props;
+  const {
+    widgets = [],
+    activeWidget: data = {},
+    handleDataChange,
+    queryConfigs = [],
+    globalSheetInfo,
+    ...rest
+  } = props;
   const { type, controlId } = data;
   const ENUM_TYPE = enumWidgetType[type];
   const info = DEFAULT_CONFIG[ENUM_TYPE] || {};
@@ -66,7 +73,7 @@ function WidgetSetting(props) {
 
   // 1: 设置，2: 样式， 3: 说明
   const [mode, setMode] = useState(1);
-  const allProps = { ...rest, data, info, widgets, mode, queryConfig, onChange: onChange };
+  const allProps = { ...rest, data, info, globalSheetInfo, widgets, mode, queryConfig, onChange: onChange };
 
   const getContent = () => {
     if (mode === 2) {
@@ -79,9 +86,8 @@ function WidgetSetting(props) {
   };
 
   useEffect(() => {
-    if (controlId) {
-      setMode(1);
-    }
+    const tempMode = safeParse(window.localStorage.getItem(`worksheetMode-${globalSheetInfo.worksheetId}`));
+    setMode(tempMode || mode);
   }, [controlId]);
 
   const renderSetting = () => {
@@ -89,7 +95,13 @@ function WidgetSetting(props) {
     if ([17, 18].includes(type)) return <div className="emptyStatus">{_l('日期段控件已下架，不支持配置')}</div>;
     return (
       <Fragment>
-        <WidgetIntro {...allProps} setMode={setMode} />
+        <WidgetIntro
+          {...allProps}
+          setMode={value => {
+            safeLocalStorageSetItem(`worksheetMode-${globalSheetInfo.worksheetId}`, JSON.stringify(value));
+            setMode(value);
+          }}
+        />
         <ScrollView className="flex">
           <div className="settingContentWrap">{getContent()}</div>
         </ScrollView>

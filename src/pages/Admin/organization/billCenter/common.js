@@ -30,10 +30,10 @@ Common.orderRecordType = {
   AppBillAutoPay: 6,// 应用账单(自动支付)
   AppReturnMoney: 7,// 应用账单(归还扣款)
   DayPackage: 8, // 天数包
-  OAPackage: 9, // 明道云OA
-  UpgradeEnterpriseAndOA: 10, // 升级到明道云标准版+OA
-  ApprovePackage: 11, // 购买明道云审批
-  EnterpriseAndApprove: 12, // 明道云标准版+审批
+  OAPackage: 9, // OA
+  UpgradeEnterpriseAndOA: 10, // 升级到标准版+OA
+  ApprovePackage: 11, // 购买审批
+  EnterpriseAndApprove: 12, // 标准版+审批
   Enterprise: 13, // 专业版
   Ultimate: 14, // 旗舰版
   EMAIL: 15, // 邮件发送

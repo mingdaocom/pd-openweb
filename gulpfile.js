@@ -188,7 +188,7 @@ gulp.task('build-md-function', alldone => {
           } }
         `,
       );
-      console.log(gutil.colors.green('明道函数功能运算核心库构建成功 🎉🎉🎉 '));
+      console.log(gutil.colors.green('函数功能运算核心库构建成功 🎉🎉🎉 '));
     } else {
       console.log(gutil.colors.red('💀 没有找到生成的文件'));
     }

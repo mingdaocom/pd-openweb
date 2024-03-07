@@ -146,24 +146,31 @@
   margin-top: 130px;
 }
 
-.registerBox .registerContainer .btnUseOldAccount {
-  font-size: 14px;
-  color: #2196f3;
-  display: block;
+.registerBox .registerContainer .footerCon {
   margin: 20px auto 0;
   text-align: center;
 }
 
-.registerBox .registerContainer .btnUseOldAccount .textG,
-.registerBox .registerContainer .btnUseOldAccount .textG:hover {
+.registerBox .registerContainer .footerCon .changeBtn {
+  font-size: 14px;
+}
+
+.registerBox .registerContainer .footerCon .lineCenter {
+  width: 1px;
+  height: 11px;
+  border: 1px solid #d3d3d3;
+}
+
+.registerBox .registerContainer .footerCon .textG,
+.registerBox .registerContainer .footerCon .textG:hover {
   color: #757575;
 }
 
-.registerBox .registerContainer .btnUseOldAccount .textB {
+.registerBox .registerContainer .footerCon .textB {
   color: #2196f3;
 }
 
-.registerBox .registerContainer .btnUseOldAccount .textB:hover {
+.registerBox .registerContainer .footerCon .textB:hover {
   color: #1182dd;
 }
 

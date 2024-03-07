@@ -165,7 +165,7 @@ export default function Share(props) {
                       getCopyContent: urlForCopy =>
                         getCopyContent(
                           'public',
-                          shareData.password ? `${urlForCopy}? ${_l('密码')}: ${shareData.password}` : urlForCopy + '?',
+                          urlForCopy + '?',
                         ),
                     }
                   : {})}

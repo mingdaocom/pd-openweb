@@ -197,7 +197,7 @@ class PrivateImageInstall extends Component {
         <div
           className="info"
           dangerouslySetInnerHTML={{
-            __html: _l('如果您未有明道云账号，请 %0 ； 如果您已有明道云账号，请 %1', url1, url2),
+            __html: _l('如果您未有 HAP 账号，请 %0 ； 如果您已有 HAP 账号，请 %1', url1, url2),
           }}
         ></div>
         <div className="server">
@@ -328,12 +328,12 @@ class PrivateImageInstall extends Component {
   render() {
     return (
       <Fragment>
-        <DocumentTitle title={_l('私有部署版')} />
+        <DocumentTitle title={_l('HAP 私有部署版')} />
         <div className="header">
           <div>
             <img src={logo} />
           </div>
-          <div className="text">{_l('私有部署版')}</div>
+          <div className="text">{_l('HAP 私有部署版')}</div>
         </div>
         {this.renderContent()}
       </Fragment>

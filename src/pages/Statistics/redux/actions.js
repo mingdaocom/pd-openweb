@@ -511,7 +511,7 @@ export const changeSheetId = (activeSheetId) => {
     });
     dispatch(getReportConfigDetail({
       appId: activeSheetId,
-      reportType: null,
+      reportType: reportTypes.BarChart,
       reportId: null
     }));
   }

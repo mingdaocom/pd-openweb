@@ -206,7 +206,7 @@ async function serve({ done = () => {}, needOpen = true } = {}) {
       const lanIps = getLanIp();
       const localUrl = `http://localhost:${port}`;
       statusData.localUrl = localUrl;
-      console.log('\n明道云启动成功! 🎉 🎉 🎉\n');
+      console.log('\n启动成功! 🎉 🎉 🎉\n');
       logObj({
         地址: localUrl,
         局域网地址: `http://${lanIps[0]}:${port}`,

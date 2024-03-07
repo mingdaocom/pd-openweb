@@ -9,6 +9,7 @@ import { encrypt, mdAppResponse } from 'src/util';
 import { setPssId } from 'src/util/pssId';
 import { getRequest, htmlDecodeReg } from 'src/util';
 import _ from 'lodash';
+import ChangeLang from 'src/components/ChangeLang';
 
 export default class Container extends React.Component {
   constructor(props) {
@@ -438,44 +439,55 @@ export default class Container extends React.Component {
           }}
         />
         {/* 已有账号只能登录并加入 */}
-        {!inviteInfo.account && (
+        {!inviteInfo.account ? (
           <React.Fragment>
             <span className={cx('line', { mTopH: loginForAdd })}></span>
-            <span className="btnUseOldAccount">
-              {isLink ? (
-                loginForAdd ? (
-                  <span
-                    className="Hand"
-                    onClick={() => {
-                      this.useOldAccountFn();
-                    }}
-                  >
-                    {_l('注册并加入')}
-                  </span>
-                ) : (
-                  <React.Fragment>
-                    <span className="textG">{_l('已经有账号')} , </span>
+            <div className="flexRow alignItemsCenter justifyContentCenter footerCon">
+              <span className="changeBtn Hand TxtRight">
+                {isLink ? (
+                  loginForAdd ? (
                     <span
-                      className="textB Hand"
+                      className="Hand textB"
                       onClick={() => {
                         this.useOldAccountFn();
                       }}
                     >
-                      {_l('登录')}
+                      {_l('注册并加入')}
                     </span>
-                  </React.Fragment>
-                )
-              ) : (
-                <span
-                  className="Hand"
-                  onClick={() => {
-                    this.useOldAccountFn();
-                  }}
-                >
-                  {_l('登录已有账号')}
-                </span>
-              )}
-            </span>
+                  ) : (
+                    <React.Fragment>
+                      <span className="textG">{_l('已有明道云账号')} , </span>
+                      <span
+                        className="textB Hand"
+                        onClick={() => {
+                          this.useOldAccountFn();
+                        }}
+                      >
+                        {_l('登录')}
+                      </span>
+                    </React.Fragment>
+                  )
+                ) : (
+                  <span
+                    className="Hand textB"
+                    onClick={() => {
+                      this.useOldAccountFn();
+                    }}
+                  >
+                    {_l('登录已有账号')}
+                  </span>
+                )}
+              </span>
+              <span className="lineCenter mLeft16"></span>
+              <div className="mLeft16 TxtLeft">
+                <ChangeLang className="justifyContentLeft" />
+              </div>
+            </div>
+          </React.Fragment>
+        ) : (
+          <React.Fragment>
+            <span className={cx('line', { mTopH: loginForAdd })}></span>
+            <ChangeLang className="mTop20" />
           </React.Fragment>
         )}
       </React.Fragment>

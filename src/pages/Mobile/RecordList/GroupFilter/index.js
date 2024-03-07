@@ -500,15 +500,16 @@ const GroupFilter = props => {
     );
   };
   const getSearchRecordResult = keywords => {
-    let param =
-      soucre.type === 35 || keywords
-        ? {
-            getType: 10,
-          }
-        : {
-            appId,
-            searchType: 1,
-          };
+    let param = keywords
+      ? {}
+      : soucre.type === 35
+      ? {
+          getType: 10,
+        }
+      : {
+          appId,
+          searchType: 1,
+        };
     sheetAjax
       .getFilterRows({
         worksheetId: base.worksheetId,
