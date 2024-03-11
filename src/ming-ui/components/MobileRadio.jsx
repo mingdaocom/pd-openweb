@@ -12,7 +12,7 @@ export default class MobileRadio extends Component {
     allowAdd: PropTypes.bool,
     callback: PropTypes.func,
     data: PropTypes.array,
-    value: PropTypes.array,
+    value: PropTypes.any,
     renderText: PropTypes.any,
   };
 

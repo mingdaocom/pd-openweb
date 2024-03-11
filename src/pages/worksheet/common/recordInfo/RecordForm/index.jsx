@@ -467,7 +467,7 @@ RecordForm.propTypes = {
   type: PropTypes.string,
   loading: PropTypes.bool,
   showError: PropTypes.bool,
-  formFlag: PropTypes.string,
+  formFlag: PropTypes.any,
   abnormal: PropTypes.bool,
   controlProps: PropTypes.shape({}),
   view: PropTypes.shape({}),

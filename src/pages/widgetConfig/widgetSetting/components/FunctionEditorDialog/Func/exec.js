@@ -131,7 +131,11 @@ export default function (control, formData, { update, type } = {}) {
       if (is_iOS && fnType === 'javascript') {
         // iOS15以下不支持web worker，改为直接运行
         result = eval('function run() { ' + expression + ' } run()');
-        update(_.isUndefined(result) || _.isNaN(result) || _.isNull(result) ? '' : String(result));
+        update(
+          _.isUndefined(result) || _.isNaN(result) || _.isNull(result)
+            ? ''
+            : String(formatFunctionResult(control, result)),
+        );
         return;
       }
       if (type === 'lib') {

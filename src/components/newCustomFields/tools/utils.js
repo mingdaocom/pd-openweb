@@ -834,14 +834,16 @@ export const getCheckAndOther = value => {
   let checkIds = [];
   let otherValue = '';
 
-  safeParse(value, 'array').forEach(item => {
-    if ((item || '').toString().indexOf('other:') > -1) {
-      otherValue = _.replace(item, 'other:', '');
-      checkIds.push('other');
-    } else {
-      checkIds.push(item);
-    }
-  });
+  if (/^\[.*\]$/.test(value)) {
+    safeParse(value, 'array').forEach(item => {
+      if ((item || '').toString().indexOf('other:') > -1) {
+        otherValue = _.replace(item, 'other:', '');
+        checkIds.push('other');
+      } else {
+        checkIds.push(item);
+      }
+    });
+  }
 
   return { checkIds, otherValue };
 };

@@ -113,10 +113,10 @@ export default class UpdateFields extends Component {
       _.remove(TYPES, o => o.value === 2);
     }
 
-    // 数值 || 金额 || 选项 || 附件 || 人员 || 部门 || 关联他表多条
+    // 数值 || 金额 || 选项 || 附件 || 人员 || 部门 || 组织角色 || 关联他表多条
     if (
       item.fieldId &&
-      (_.includes([6, 8, 9, 10, 11, 14, 26, 27], item.type) || (item.type === 29 && item.enumDefault === 2)) &&
+      (_.includes([6, 8, 9, 10, 11, 14, 26, 27, 48], item.type) || (item.type === 29 && item.enumDefault === 2)) &&
       type === 1 &&
       !isBatch
     ) {

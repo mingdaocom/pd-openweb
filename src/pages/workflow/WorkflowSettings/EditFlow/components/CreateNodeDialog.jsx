@@ -722,6 +722,15 @@ export default class CreateNodeDialog extends Component {
     };
 
     if (
+      !_.includes([APP_TYPE.CUSTOM_ACTION, APP_TYPE.PBC, APP_TYPE.SHEET], props.flowInfo.startAppType) ||
+      props.flowInfo.child
+    ) {
+      this.state.list.forEach(o => {
+        _.remove(o.items, item => item.type === NODE_TYPE.PUSH);
+      });
+    }
+
+    if (
       props.flowInfo.startAppType === APP_TYPE.EXTERNAL_USER &&
       props.flowInfo.startTriggerId === TRIGGER_ID.DISCUSS
     ) {

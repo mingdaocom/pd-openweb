@@ -69,7 +69,7 @@ const SettingItem = styled.div`
     display: flex;
     margin-top: 16px;
     .ming.Radio {
-      width: 180px;
+      width: 200px;
     }
   }
   .logoBoxBorder {

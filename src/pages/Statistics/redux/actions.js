@@ -421,14 +421,16 @@ export const getWorksheetInfo = (worksheetId) => {
         type: 'CHANGE_STATISTICS_DETAIL_LOADING',
         data: false
       });
-      worksheetResult.template.controls = replaceControlsTranslateInfo(worksheetResult.appId, _.get(worksheetResult, ['template', 'controls']));
+      if (_.get(worksheetResult, ['template', 'controls'])) {
+        worksheetResult.template.controls = replaceControlsTranslateInfo(worksheetResult.appId, _.get(worksheetResult, ['template', 'controls']));
+      }
       dispatch({
         type: 'CHANGE_STATISTICS_WORKSHEET_INFO',
         data: {
           worksheetId,
           appId: worksheetResult.appId,
           name: getTranslateInfo(worksheetResult.appId, worksheetId).name || worksheetResult.name,
-          views: worksheetResult.views.map(item => {
+          views: (worksheetResult.views || []).map(item => {
             return {
               ...item,
               name: getTranslateInfo(worksheetResult.appId, item.viewId).name || item.name
@@ -511,7 +513,7 @@ export const changeSheetId = (activeSheetId) => {
     });
     dispatch(getReportConfigDetail({
       appId: activeSheetId,
-      reportType: reportTypes.BarChart,
+      reportType: null,
       reportId: null
     }));
   }

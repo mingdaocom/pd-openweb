@@ -49,10 +49,25 @@ function QuickFilter(props) {
   const store = useRef({});
   const [values, setValues] = useState({});
   const debounceUpdateQuickFilter = useRef(_.debounce(updateQuickFilter, 500));
+  const items = useMemo(
+    () =>
+      filters
+        .map(filter => {
+          const newControl = filter.control;
+          return {
+            ...filter,
+            control: newControl,
+            dataType: newControl ? newControl.type : filter.dataType,
+            filterType: newControl && newControl.encryId ? 2 : filter.filterType,
+          };
+        })
+        .filter(c => c.control && !(window.shareState.shareId && _.includes([26, 27, 48], c.control.type))),
+    [JSON.stringify(filters)],
+  );
 
   const update = newValues => {
     const valuesToUpdate = newValues || values;
-    const quickFilter = filters
+    const quickFilter = items
       .map((filter, i) => ({
         ...filter,
         filterType: filter.filterType || 1,

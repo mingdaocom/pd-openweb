@@ -932,7 +932,9 @@ export const onValidator = ({ item, data, masterData, ignoreRequired, verifyAllC
       // 其他选项必填
       if (_.includes([9, 10, 11], item.type) && !ignoreRequired) {
         const hasOtherOption = _.find(item.options, i => i.key === 'other' && !i.isDeleted);
-        const selectOther = _.find(safeParse(item.value || '[]'), i => (i || '').includes('other'));
+        const selectOther = /^\[.*\]$/.test(item.value)
+          ? _.find(safeParse(item.value || '[]'), i => (i || '').includes('other'))
+          : false;
         if (
           hasOtherOption &&
           _.get(item.advancedSetting, 'otherrequired') === '1' &&
