@@ -456,7 +456,7 @@ export default class Container extends React.Component {
                     </span>
                   ) : (
                     <React.Fragment>
-                      <span className="textG">{_l('已有明道云账号')} , </span>
+                      <span className="textG">{_l('已有账号')} , </span>
                       <span
                         className="textB Hand"
                         onClick={() => {
