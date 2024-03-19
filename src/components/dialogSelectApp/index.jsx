@@ -95,7 +95,7 @@ const AppDialog = styled(Dialog)`
 `;
 
 const SelectApp = props => {
-  const { projectId, title = _l('选择应用'), onOk, onClose } = props;
+  const { projectId, title = _l('选择应用'), onOk, onClose, isGetManagerApps } = props;
   const [appList, setAppList] = useState([]);
   const [fetchState, setFetchState] = useSetState({
     pageIndex: 1,
@@ -104,6 +104,21 @@ const SelectApp = props => {
     keyWords: '',
   });
   const [selectedApps, setSelectedApps] = useState([]);
+
+  useEffect(() => {
+    !isGetManagerApps && getProjectAppList();
+  }, [fetchState.loading, fetchState.pageIndex, fetchState.keyWords]);
+
+  useEffect(() => {
+    if (isGetManagerApps) {
+      appManagementApi.getManagerApps({ projectId }).then(res => {
+        if (res) {
+          setAppList(res);
+          setFetchState({ loading: false });
+        }
+      });
+    }
+  }, []);
 
   const columns = [
     {
@@ -177,7 +192,7 @@ const SelectApp = props => {
     },
   ];
 
-  const getAppList = () => {
+  const getProjectAppList = () => {
     if (!fetchState.loading) return;
     appManagementApi
       .getAppsForProject({
@@ -194,11 +209,9 @@ const SelectApp = props => {
       });
   };
 
-  useEffect(getAppList, [fetchState.loading, fetchState.pageIndex, fetchState.keyWords]);
-
   const onSearch = useCallback(
     _.debounce(value => {
-      setFetchState({ loading: true, pageIndex: 1, keyWords: value });
+      setFetchState(isGetManagerApps ? { keyWords: value } : { loading: true, pageIndex: 1, keyWords: value });
     }, 500),
     [],
   );
@@ -239,19 +252,23 @@ const SelectApp = props => {
           <div className="noDataContent">{fetchState.keyWords ? _l('暂无搜索结果') : _l('暂无应用')}</div>
         ) : (
           <ScrollView className="appListWrapper" onScrollEnd={onScrollEnd}>
-            {appList.map((appItem, i) => {
-              return (
-                <div key={i} className="dataItem">
-                  {columns.map((item, j) => {
-                    return (
-                      <div key={`${i}-${j}`} className={`${item.dataIndex}`}>
-                        {item.render ? item.render(appItem) : appItem[item.dataIndex]}
-                      </div>
-                    );
-                  })}
-                </div>
-              );
-            })}
+            {appList
+              .filter(
+                item => !isGetManagerApps || item.appName.toLowerCase().includes(fetchState.keyWords.toLowerCase()),
+              )
+              .map((appItem, i) => {
+                return (
+                  <div key={i} className="dataItem">
+                    {columns.map((item, j) => {
+                      return (
+                        <div key={`${i}-${j}`} className={`${item.dataIndex}`}>
+                          {item.render ? item.render(appItem) : appItem[item.dataIndex]}
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })}
           </ScrollView>
         )}
       </div>

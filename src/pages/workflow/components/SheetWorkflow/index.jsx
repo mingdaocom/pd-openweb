@@ -331,7 +331,16 @@ export default function SheetWorkflow(props) {
         setList(list);
         setLoading(false);
         if (list.length === 1 && unfinished.length === 1) {
-          handleViewFlowStep(list[0]);
+          const firstData = list[0];
+          if (_.get(firstData, 'currents.length')) {
+            const data = firstData.currents.filter(n => {
+              const userIds = n.currentWorkItems.map(n => n.workItemAccount.accountId);
+              return userIds.includes(md.global.Account.accountId);
+            });
+            handleViewFlowStep(data[0] || firstData.currents[0]);
+          } else {
+            handleViewFlowStep(firstData);
+          }
         } else {
           resolve(list);
         }

@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import styled from 'styled-components';
+import { useMeasure } from 'react-use';
 import emptyPng from 'src/pages/worksheet/assets/record.png';
 
 const Con = styled.div`
@@ -23,20 +24,12 @@ const Con = styled.div`
     background-color: #f5f5f5;
   }
 `;
-export default class NoRecords extends React.PureComponent {
-  static propTypes = {
-    style: PropTypes.shape(),
-    sheetIsFiltered: PropTypes.bool,
-    text: PropTypes.bool,
-    icon: PropTypes.element,
-    allowAdd: PropTypes.bool,
-    showNewRecord: PropTypes.func,
-  };
-
-  render() {
-    const { style, sheetIsFiltered, allowAdd, showNewRecord, text, icon } = this.props;
-    return (
-      <Con style={style}>
+export default function NoRecords(props) {
+  const { style, sheetIsFiltered, allowAdd, showNewRecord, text, icon } = props;
+  const [ref, { height }] = useMeasure();
+  return (
+    <Con ref={ref} style={style}>
+      {!!height && (
         <div
           className={cx('TxtCenter', {
             Hand: !(sheetIsFiltered || !allowAdd),
@@ -48,7 +41,7 @@ export default class NoRecords extends React.PureComponent {
             showNewRecord();
           }}
         >
-          {icon || <i className="iconBox mBottom12" />}
+          {height > 200 && (icon || <i className="iconBox mBottom12" />)}
           <span className="Gray_9e Block mBottom20 TxtCenter Font17 Gray_9e">
             {text
               ? text
@@ -59,7 +52,16 @@ export default class NoRecords extends React.PureComponent {
               : _l('暂未添加记录')}
           </span>
         </div>
-      </Con>
-    );
-  }
+      )}
+    </Con>
+  );
 }
+
+NoRecords.propTypes = {
+  style: PropTypes.shape(),
+  sheetIsFiltered: PropTypes.bool,
+  text: PropTypes.bool,
+  icon: PropTypes.element,
+  allowAdd: PropTypes.bool,
+  showNewRecord: PropTypes.func,
+};

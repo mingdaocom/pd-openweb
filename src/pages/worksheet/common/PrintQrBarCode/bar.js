@@ -37,6 +37,7 @@ export class BarLabel {
     height = 100,
     fontSize = 1,
     firstIsTitle = false,
+    showBarValue = false,
     codePosition = 'top',
     size = 'm',
     value,
@@ -54,6 +55,7 @@ export class BarLabel {
       codePosition,
       value,
       texts,
+      showBarValue,
     });
     this.setLayoutParams();
     this.init();
@@ -103,12 +105,15 @@ export class BarLabel {
     );
   }
   async render() {
-    if (this.options.isDebug) {
+    const { isDebug, showBarValue } = this.options;
+    if (isDebug) {
       this.drawPadding();
       this.drawGrid();
     }
     await this.drawBar();
-    this.drawBarText();
+    if (showBarValue) {
+      this.drawBarText();
+    }
     this.drawTexts();
   }
   // 处理文字换行
@@ -239,10 +244,11 @@ export class BarLabel {
     return (width / count) * 2;
   }
   drawTexts() {
-    let { isPreview, firstIsTitle, codePosition, texts } = this.options;
+    let { isPreview, firstIsTitle, codePosition, texts, showBarValue } = this.options;
     const { paddingX, paddingY, height, fontSize } = this.layout;
     const textX = paddingX * this.unitSize;
-    const textY = codePosition === 'top' ? (paddingY + height + 2) * this.unitSize : paddingY * this.unitSize;
+    const textY =
+      codePosition === 'top' ? (paddingY + height + (showBarValue ? 2 : 0)) * this.unitSize : paddingY * this.unitSize;
     const textWidth = this._width - 2 * paddingX * this.unitSize;
     const textHeight = fontSize * this.unitSize;
     texts = _.flatten(

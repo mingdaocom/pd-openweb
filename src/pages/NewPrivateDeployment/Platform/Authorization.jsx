@@ -397,7 +397,7 @@ const AppreciationServer = props => {
   }
   return (
     <div className="appreciationServer flexColumn card flex mRight20">
-      <div className="Font15 bold">{_l('增值服务')}</div>
+      <div className="Font15 bold">{_l('增值产品')}</div>
       {loading ? (
         <LoadDiv className="mTop20" />
       ) : (

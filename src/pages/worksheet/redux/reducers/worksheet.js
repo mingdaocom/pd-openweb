@@ -124,6 +124,7 @@ export function filters(state = initialFiltersState, action) {
     case 'WORKSHEET_UPDATE_FILTERS':
       return { ...state, ...action.filters };
     case 'WORKSHEET_INIT':
+    case 'WORKSHEET_CLEAR_FILTERS':
       return initialFiltersState;
     case 'WORKSHEET_UPDATE_BASE':
       return { ...state, keyWords: '' };

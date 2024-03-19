@@ -8,6 +8,7 @@ import { Modal, Button, Progress } from 'antd';
 import { QUICK_ENTRY_CONFIG, USER_COUNT, ITEM_COUNT, UPLOAD_COUNT, formatFileSize, formatValue } from './config';
 import moment from 'moment';
 import { getCurrentProject } from 'src/util';
+import { navigateTo } from 'src/router/navigateTo';
 import InstallDialog from './installDialog';
 import { Support, Tooltip, Icon } from 'ming-ui';
 import addFriends from 'src/components/addFriends';
@@ -85,9 +86,9 @@ export default function HomePage({ match, location: routerLocation }) {
 
   const linkHref = (type, subType) => {
     if (subType) {
-      location.assign(`/admin/${type}/${projectId}/${subType}`);
+      navigateTo(`/admin/${type}/${projectId}/${subType}`);
     } else {
-      location.assign(`/admin/${type}/${projectId}`);
+      navigateTo(`/admin/${type}/${projectId}`);
     }
   };
   const handleActionClick = action => {

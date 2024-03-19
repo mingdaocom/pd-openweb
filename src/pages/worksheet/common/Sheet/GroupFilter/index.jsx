@@ -403,8 +403,15 @@ function GroupFilter(props) {
       )
       .then(result => {
         if (result.resultCode === 4) {
-          //视图删除的情况下，显示成为选中视图的状态
+          //视图删除的情况下，显示成未选中视图的状态
           fetchData({ worksheetId, viewId: '', rowId, cb });
+        } else if (result.resultCode === 7) {
+          dataUpdate({
+            filterData: navGroupData,
+            data: [],
+            rowId,
+            cb,
+          });
         } else {
           let { data = [] } = result;
           let newDate = data;
@@ -419,7 +426,7 @@ function GroupFilter(props) {
           const control = controls.find(item => item.attribute === 1);
           dataUpdate({
             filterData: navGroupData,
-            data: newDate.map(item => {
+            data: newDate.map((item = {}) => {
               return {
                 value: item.rowid,
                 txt: renderTxt(item, control, viewId),

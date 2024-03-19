@@ -480,7 +480,7 @@ class AppHome extends React.Component {
         {/* 宣传栏 */}
         {boardSwitch && !isExternal ? (
           <Fragment>
-            <BulletinBoard loading={false} platformSetting={platformSetting} height={200} />
+            <BulletinBoard loading={false} platformSetting={platformSetting} height={150} />
             <div className="spaceBottom"></div>
           </Fragment>
         ) : (

@@ -112,6 +112,7 @@ class ColumnHead extends Component {
       className,
       type = '',
       worksheetId = '',
+      disabled,
       count,
       style,
       isLast,
@@ -151,6 +152,7 @@ class ColumnHead extends Component {
     control = redefineComplexControl(control);
     return (
       <BaseColumnHead
+        disabled={disabled}
         columnIndex={columnIndex}
         className={className}
         style={style}

@@ -137,7 +137,14 @@ export default class Widgets extends Component {
     const { projectId } = this.props;
 
     if (isWx) {
-      handleTriggerEvent(this.handleWxScanQRCode, bindWeiXin());
+      handleTriggerEvent(this.handleWxScanQRCode, bindWeiXin(), (errType) => {
+        if (errType) {
+          import('html5-qrcode').then(data => {
+            this.qrCodeComponent = data;
+            this.handleScanQRCode();
+          });
+        }
+      });
       return;
     }
 
@@ -154,7 +161,14 @@ export default class Widgets extends Component {
     }
 
     if (isFeishu) {
-      handleTriggerEvent(this.handleFeishuScanQRCode, bindFeishu(projectId));
+      handleTriggerEvent(this.handleFeishuScanQRCode, bindFeishu(projectId), (errType) => {
+        if (errType) {
+          import('html5-qrcode').then(data => {
+            this.qrCodeComponent = data;
+            this.handleScanQRCode();
+          });
+        }
+      });
       return;
     }
 

@@ -313,7 +313,13 @@ const BaseCard = props => {
             controlState(item).editable;
       currentContent = (
         <div onClick={e => e.stopPropagation()}>
-          <Switch cell={item} from={4} editable={canEdit} updateCell={({ value }) => props.onChange(item, value)} />
+          <Switch
+            className="overflowHidden"
+            cell={item}
+            from={4}
+            editable={canEdit}
+            updateCell={({ value }) => props.onChange(item, value)}
+          />
         </div>
       );
     }

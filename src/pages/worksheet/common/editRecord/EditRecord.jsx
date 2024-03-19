@@ -5,6 +5,7 @@ import { autobind } from 'core-decorators';
 import { Dialog, Dropdown } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
 import RadioGroup from 'ming-ui/components/RadioGroup';
+import { getIconByType } from 'src/pages/widgetConfig/util';
 import CustomFields from 'src/components/newCustomFields';
 import { SYSTEM_CONTROL_WITH_UAID, WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
 import quickSelectUser from 'ming-ui/functions/quickSelectUser';
@@ -310,6 +311,18 @@ export default class EditRecord extends Component {
     }
   }
 
+  renderItem(item) {
+    return (
+      <span>
+        <i
+          className={cx('Font16 icon Gray_9e mRight6', `icon-${getIconByType(item.control.type)}`)}
+          style={{ verticalAlign: 'text-top' }}
+        ></i>
+        {item.text}
+      </span>
+    );
+  }
+
   render() {
     const {
       isUpdating,
@@ -353,7 +366,9 @@ export default class EditRecord extends Component {
                 value={selectedControlId}
                 data={controlsForSelect
                   .filter(o => !SYS.includes(o.controlId) || o.controlId === 'ownerid')
-                  .map(control => ({ text: control.controlName, value: control.controlId }))}
+                  .map(control => ({ text: control.controlName, value: control.controlId, control }))}
+                renderItem={this.renderItem}
+                renderTitle={this.renderItem}
                 onChange={value => {
                   const newFormData = formData.map(control =>
                     control.controlId === value ? Object.assign({}, control, { value: undefined }) : control,

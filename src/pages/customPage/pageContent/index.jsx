@@ -151,6 +151,12 @@ function CustomPageContent(props) {
   const { urlTemplate, configuration } = currentSheet;
 
   useEffect(() => {
+    if (id && isFullscreen) {
+      closeFullscreen();
+    }
+  }, [id]);
+
+  useEffect(() => {
     if (urlTemplate) {
       updatePageInfo({
         config: {

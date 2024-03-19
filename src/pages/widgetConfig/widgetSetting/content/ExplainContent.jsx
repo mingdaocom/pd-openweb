@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { Input, Tooltip, Collapse } from 'antd';
 import { Icon } from 'ming-ui';
 import { CaretRightOutlined } from '@ant-design/icons';
@@ -69,6 +69,11 @@ const DevelopContent = ({ data, allControls, onChange }) => {
   const { alias = '', remark, controlId } = data;
   const [value, setValue] = useState(alias);
   const [error, setError] = useState(0);
+
+  useEffect(() => {
+    setValue(alias);
+  }, [controlId]);
+
   return (
     <Fragment>
       <SettingItem>

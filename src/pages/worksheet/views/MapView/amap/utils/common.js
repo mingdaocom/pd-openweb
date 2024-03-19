@@ -1,11 +1,11 @@
-const hasWindow = (typeof window !== 'undefined');
+const hasWindow = typeof window !== 'undefined';
 
 /*
  * [lng, lat]
  * {lng, lat}
  * {longitude, latitude}
  */
-export const getAMapPosition = (pos) => {
+export const getAMapPosition = pos => {
   if (!pos) {
     return pos;
   }
@@ -15,7 +15,7 @@ export const getAMapPosition = (pos) => {
   }
   let lng = 0;
   let lat = 0;
-  if (({}).toString.call(pos) === '[object Array]') {
+  if ({}.toString.call(pos) === '[object Array]') {
     lng = pos[0];
     lat = pos[1];
   } else if ('lng' in pos && 'lat' in pos) {
@@ -25,10 +25,11 @@ export const getAMapPosition = (pos) => {
     lng = pos.longitude;
     lat = pos.latitude;
   }
-  return hasWindow ? new window.AMap.LngLat(lng, lat) : null;
+
+  return hasWindow ? new AMap.LngLat(lng, lat) : null;
 };
 
-export const getAMapPixel = (ofst) => {
+export const getAMapPixel = ofst => {
   if (!ofst) {
     return ofst;
   }
@@ -37,14 +38,14 @@ export const getAMapPixel = (ofst) => {
   }
   let x = 0;
   let y = 0;
-  if (({}).toString.call(ofst) === '[object Array]') {
+  if ({}.toString.call(ofst) === '[object Array]') {
     x = ofst[0];
     y = ofst[1];
   }
   return hasWindow ? new window.AMap.Pixel(x, y) : null;
 };
 
-export const getAMapSize = (size) => {
+export const getAMapSize = size => {
   if (!size) {
     return size;
   }
@@ -54,11 +55,11 @@ export const getAMapSize = (size) => {
   return hasWindow ? new window.AMap.Size(size.width, size.height) : null;
 };
 
-export const isFun = (arg) => {
-  return !!arg && (typeof arg === 'function');
+export const isFun = arg => {
+  return !!arg && typeof arg === 'function';
 };
 
-export const toCapitalString = (str) => {
+export const toCapitalString = str => {
   return str[0].toUpperCase() + str.slice(1, str.length);
 };
 

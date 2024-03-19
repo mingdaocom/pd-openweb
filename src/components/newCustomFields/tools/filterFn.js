@@ -257,10 +257,9 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
     if (filterData.dateRange === 18) {
       filterData.dataShowType = advancedSetting.showtype;
     }
-    //手机号默认去除区号
+    //手机号去除区号
     if (control.type === 3) {
-      const { dialCode = '' } = safeParse(advancedSetting.defaultarea || '{}');
-      value = (value || '').replace(dialCode, '');
+      value = (value || '').replace('+86', '');
     }
     if (_.includes([9, 10, 11], control.type) && value && value.indexOf('other')) {
       const optionsFormatVal = safeParse(value, 'array').map(i => (i.startsWith('other:') ? 'other' : i));
@@ -295,6 +294,9 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
       // 他表字段取原字段类型，不然日期值截取有问题，比较出错
       if (currentControl.type === 30) {
         currentControl.type = currentControl.sourceControlType;
+      }
+      if (currentControl.type === 3) {
+        currentControl.value = (currentControl.value || '').replace('+86', '');
       }
       //是(等于)、不是(不等于)、大于(等于)、小于(等于) && NUMBER
       //大于、小于 && NUMBER、DATE

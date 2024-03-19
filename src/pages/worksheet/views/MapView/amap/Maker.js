@@ -1,21 +1,11 @@
 import React from 'react';
 import { render } from 'react-dom';
 import log from './utils/log';
-import {
-  MarkerConfigurableProps,
-  MarkerAllProps,
-  renderMarkerComponent
-} from './utils/markerUtils';
-import {
-  getAMapPosition,
-  getAMapPixel,
-  isFun,
-  toCapitalString,
-} from './utils/common';
+import { MarkerConfigurableProps, MarkerAllProps, renderMarkerComponent } from './utils/markerUtils';
+import { getAMapPosition, getAMapPixel, isFun, toCapitalString } from './utils/common';
 import PropTypes from 'prop-types';
 
 class Marker extends React.Component {
-
   static propTypes = {
     map: PropTypes.object,
     element: HTMLDivElement,
@@ -58,8 +48,8 @@ class Marker extends React.Component {
     const events = this.exposeMarkerInstance(props);
     events && this.bindMarkerEvents(events);
 
-    this.marker.render = (function(marker) {
-      return function(component) {
+    this.marker.render = (function (marker) {
+      return function (component) {
         renderMarkerComponent(component, marker);
       };
     })(this.marker);
@@ -70,7 +60,7 @@ class Marker extends React.Component {
   // 在创建实例时根据传入配置，设置初始化选项
   buildCreateOptions(props) {
     let opts = {};
-    MarkerAllProps.forEach((key) => {
+    MarkerAllProps.forEach(key => {
       if (key in props) {
         opts[key] = this.getSetterParam(key, props[key]);
       }
@@ -81,7 +71,7 @@ class Marker extends React.Component {
 
   // 初始化标记的外观
   setMarkerLayout(props) {
-    if (('render' in props) || ('children' in props)) {
+    if ('render' in props || 'children' in props) {
       this.createContentWrapper();
       if ('className' in props && props.className) {
         // https://github.com/ElemeFE/react-amap/issues/40
@@ -114,7 +104,7 @@ class Marker extends React.Component {
   }
 
   refreshMarkerLayout(nextProps) {
-    MarkerConfigurableProps.forEach((key) => {
+    MarkerConfigurableProps.forEach(key => {
       // 必须确定属性改变才进行刷新
       if (this.props[key] !== nextProps[key]) {
         if (key === 'visible') {
@@ -134,9 +124,13 @@ class Marker extends React.Component {
   }
 
   getSetterParam(key, val) {
-    if (key === 'position') {
-      return getAMapPosition(val);
-    } else if (key === 'offset') {
+    if (MarkerAllProps.indexOf(key) === -1) {
+      return null;
+    }
+    // if (key === 'position') {
+    //   return getAMapPosition(val);
+    // }
+     if (key === 'offset') {
       return getAMapPixel(val);
     }
     return val;
@@ -166,11 +160,12 @@ class Marker extends React.Component {
 
   bindMarkerEvents(events) {
     const list = Object.keys(events);
-    list.length && list.forEach((evName) => {
-      this.marker.on(evName, (e)=>{
-        events[evName](e, e.target);
+    list.length &&
+      list.forEach(evName => {
+        this.marker.on(evName, e => {
+          events[evName](e, e.target);
+        });
       });
-    });
   }
 
   render() {
@@ -179,7 +174,7 @@ class Marker extends React.Component {
 
   componentWillUnmount() {
     this.marker.hide();
-    this.marker.setMap(null);
+    this.map.remove(this.marker);
     delete this.marker;
   }
 }

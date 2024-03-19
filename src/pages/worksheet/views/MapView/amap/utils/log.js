@@ -8,7 +8,7 @@ const errorMap = {
   'SRC_REQUIRED': 'GroundImage 组件必需设置 src 属性',
   'BOUNDS_REQUIRED': 'GroundImage 组件必需设置 bounds 属性',
   'WINDOW_POSITION_REQUIRED': 'InfoWindow 组件必需设置 position 属性',
-  'INVALID_AMAP_PLUGIN': 'plugins 属性不正确；目前支持的插件有\'Scale\', \'ToolBar\', \'MapType\', \'OverView\''
+  'INVALID_AMAP_PLUGIN': 'plugins 属性不正确；目前支持的插件有\'Scale\', \'ToolBar\', \'MapType\', \'HawkEye\''
 };
 
 const getMessage = (key) => {

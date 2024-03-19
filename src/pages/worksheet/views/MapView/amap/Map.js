@@ -77,7 +77,7 @@ const defaultOpts = {
     liteStyle: true,
     autoPosition: false,
   },
-  OverView: {},
+  HawkEye: {},
   ControlBar: {},
 };
 
@@ -96,7 +96,7 @@ class Map extends Component {
     };
     if (typeof window !== 'undefined') {
       this.pluginMap = {};
-      this.loader = new MapLoader().loadJs();
+      this.loader = new MapLoader().loadJs('https://webapi.amap.com/maps?v=2.0&key=9aedaf173cec6f03d4b9ce7c8a9159c5');
     }
   }
 
@@ -258,7 +258,7 @@ class Map extends Component {
   }
 
   setPlugins(props) {
-    const pluginList = ['Scale', 'ToolBar', 'MapType', 'OverView', 'ControlBar'];
+    const pluginList = ['Scale', 'ToolBar', 'MapType', 'HawkEye', 'ControlBar'];
     if ('plugins' in props) {
       const plugins = props.plugins;
       if (plugins && plugins.length) {
@@ -310,7 +310,7 @@ class Map extends Component {
     switch (name) {
       case 'Scale':
       case 'ToolBar':
-      case 'OverView':
+      case 'HawkEye':
       case 'MapType':
         this.setMapPlugin(name, opts);
         break;

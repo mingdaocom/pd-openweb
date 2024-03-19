@@ -106,6 +106,7 @@ export function UserSelector(props) {
     const res = [_.pick(user, ['accountId', 'avatar', 'fullname', 'job'])];
     onSelect(res);
     selectCb(res);
+    setKeywords('');
     onClose();
   }
   useClickAway(conRef, e => {

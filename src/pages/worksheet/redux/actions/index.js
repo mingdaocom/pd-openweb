@@ -23,13 +23,20 @@ import { refreshBtnData } from 'src/pages/FormSet/util';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
-import { getFilledRequestParams, replaceControlsTranslateInfo } from 'src/pages/worksheet/util';
+import { getFilledRequestParams, needHideViewFilters, replaceControlsTranslateInfo } from 'src/pages/worksheet/util';
 import _ from 'lodash';
 import { emitter, getTranslateInfo } from 'src/util';
 import { initMapViewData, mapNavGroupFiltersUpdate } from './mapView';
 
 export const updateBase = base => {
   return (dispatch, getState) => {
+    const sheet = getState().sheet;
+    if (_.get(sheet, 'base.viewId') && base.viewId && _.get(sheet, 'base.viewId') !== base.viewId) {
+      const view = _.find(sheet.views, v => v.viewId === base.viewId);
+      if (view && needHideViewFilters(view)) {
+        dispatch(clearFilters());
+      }
+    }
     dispatch({
       type: 'WORKSHEET_UPDATE_BASE',
       base: Object.assign({}, base, {
@@ -506,6 +513,15 @@ export function updateFilters(filters, view) {
       filters,
     });
     dispatch(refreshSheet(view, { changeFilters: true }));
+  };
+}
+
+// 清空筛选条件
+export function clearFilters(filters, view) {
+  return dispatch => {
+    dispatch({
+      type: 'WORKSHEET_CLEAR_FILTERS',
+    });
   };
 }
 

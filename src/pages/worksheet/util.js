@@ -15,7 +15,7 @@ import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
 import { FORM_ERROR_TYPE_TEXT } from 'src/components/newCustomFields/tools/config';
 import { controlState, getTitleTextFromRelateControl, getValueStyle } from 'src/components/newCustomFields/tools/utils';
 import { checkRuleLocked, updateRulesData } from 'src/components/newCustomFields/tools/filterFn';
-import { RELATE_RECORD_SHOW_TYPE, RELATION_SEARCH_SHOW_TYPE } from 'worksheet/constants/enum';
+import { RELATE_RECORD_SHOW_TYPE, RELATION_SEARCH_SHOW_TYPE, VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import renderCellText from 'worksheet/components/CellControls/renderText';
 import { getTranslateInfo } from 'src/util';
@@ -1553,7 +1553,7 @@ export function KVClear(key, { needEncode = true } = {}) {
 
 export const getFilledRequestParams = params => {
   const request = getRequest();
-  const requestParams = {};
+  const requestParams = _.isObject(params.requestParams) ? { ...params.requestParams } : {};
 
   if (_.isEmpty(request)) {
     return params;
@@ -1630,8 +1630,8 @@ export function handleChildTableUniqueError({ badData = [], cellObjs = {}, data 
     const childTableComp = (cellObjs || {})[childTableControlId];
     const childTableControl = _.find(data, { controlId: childTableControlId });
     if (childTableControl && childTableComp) {
-      const badRowIds = (_.get(childTableControl, 'value.rows') || [])
-        .filter(r => r[controlId].indexOf(value) > -1)
+      const badRowIds = filterEmptyChildTableRows(_.get(childTableControl, 'value.rows') || [])
+        .filter(r => (r[controlId] || '').indexOf(value) > -1)
         .map(r => r.rowid);
       if (!badRowIds.length) return;
       childTableComp.cell.setState({
@@ -1709,4 +1709,11 @@ export function getControlStyles(controls) {
     }
   `,
     );
+}
+
+export function needHideViewFilters(view) {
+  return (
+    (String(view.viewType) === VIEW_DISPLAY_TYPE.structure && _.includes([0, 1], Number(view.childType))) ||
+    String(view.viewType) === VIEW_DISPLAY_TYPE.gunter
+  );
 }

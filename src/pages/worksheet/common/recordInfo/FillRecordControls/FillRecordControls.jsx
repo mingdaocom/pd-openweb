@@ -302,6 +302,7 @@ class FillRecordControls extends React.Component {
             worksheetId={worksheetId}
             showError={showError}
             registerCell={({ item, cell }) => (this.cellObjs[item.controlId] = { item, cell })}
+            disabledFunctions={['controlRefresh']}
             onChange={data => {
               this.setState({
                 formData: data,

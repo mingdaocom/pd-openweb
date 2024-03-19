@@ -349,6 +349,7 @@ export default class CustomFields extends Component {
       widgetStyle = {},
       disabled,
       tabControlProp: { setNavVisible } = {},
+      disabledFunctions = [],
     } = this.props;
     const { titlelayout_pc = '1', titlelayout_app = '1' } = widgetStyle;
     const { errorItems, uniqueErrorItems, loadingItems } = this.state;
@@ -382,6 +383,7 @@ export default class CustomFields extends Component {
         (isMobile ? disabled && titlelayout_app === '2' : titlelayout_pc === '2') && supportDisplayRow(item);
 
       const showRefreshBtn =
+        !disabledFunctions.includes('controlRefresh') &&
         from !== FROM.DRAFT &&
         !_.get(window, 'shareState.isPublicView') &&
         !_.get(window, 'shareState.isPublicQuery') &&

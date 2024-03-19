@@ -19,6 +19,7 @@ import { sysRoleType } from 'src/pages/Role/config.js';
 import { userStatusList } from 'src/pages/Role/AppRoleCon/UserCon/config.js';
 import AppManagement from 'src/api/appManagement.js';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
+import { getCurrentProject } from 'src/util';
 
 const Wrap = styled.div`
   padding: 20px 10px 20px 10px;
@@ -230,7 +231,8 @@ function User(props) {
   //获取部门全路径
   const getDepartmentFullName = (departmentData = []) => {
     const departmentIds = departmentData.filter(it => !fullDepartmentInfo[it]);
-    if (_.isEmpty(departmentIds)) {
+    const isExternal = _.isEmpty(getCurrentProject(projectId)); // 是否为外协人员
+    if (_.isEmpty(departmentIds) || isExternal) {
       return;
     }
     departmentController

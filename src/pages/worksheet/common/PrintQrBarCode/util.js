@@ -167,6 +167,7 @@ export function createBarLabeObjectFromConfig(config = {}, value, texts = [], { 
     height,
     firstIsTitle: config.firstIsBold,
     fontSize: config.fontSize,
+    showBarValue: config.showBarValue,
     codePosition: {
       [BAR_POSITION.TOP]: 'top',
       [BAR_POSITION.BOTTOM]: 'bottom',

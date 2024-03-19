@@ -14,7 +14,7 @@ import SelectIcon from 'worksheet/common/SelectIcon';
 import Statistics from 'statistics';
 import Discussion from 'worksheet/common/Discussion';
 import SearchInput from 'worksheet/components/SearchInput';
-import { emitter } from 'worksheet/util';
+import { emitter, needHideViewFilters } from 'worksheet/util';
 import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import {
   addNewRecord,
@@ -318,8 +318,7 @@ function SheetHeader(props) {
         </div>
         {viewId && (
           <VerticalCenter>
-            {(String(view.viewType) === VIEW_DISPLAY_TYPE.structure && _.includes([0, 1], Number(view.childType))) ||
-            String(view.viewType) === VIEW_DISPLAY_TYPE.gunter ? null : (
+            {needHideViewFilters(view) ? null : (
               <Fragment>
                 {String(view.viewType) !== VIEW_DISPLAY_TYPE.map && (
                   <SearchInput

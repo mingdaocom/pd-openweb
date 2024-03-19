@@ -44,6 +44,7 @@ export default function SheetField(props) {
 
   const parsedDataSource = parseDataSource(dataSource);
   const [searchValue, setSearchValue] = useState('');
+  const [visible, setVisible] = useState(false);
   const [{ sheetName, controlName, sheetDel, controlDel, dataSourceDisabled, sheetFieldDisabled }, setInfo] =
     useSetState({
       sheetName: '',
@@ -204,6 +205,11 @@ export default function SheetField(props) {
         <div className="settingItemTitle">{_l('显示字段')}</div>
         <Dropdown
           trigger={['click']}
+          visible={visible}
+          onVisibleChange={visible => {
+            if (visible) setSearchValue('');
+            setVisible(visible);
+          }}
           disabled={sheetFieldDisabled}
           getPopupContainer={() => $ref.current}
           overlay={

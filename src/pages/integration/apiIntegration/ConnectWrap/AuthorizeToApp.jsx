@@ -335,6 +335,7 @@ function AuthorizeToApp(props) {
   const onAddApp = () => {
     selectApp({
       projectId: projectId,
+      isGetManagerApps: true,
       title: _l('选择授权应用'),
       onOk: selectedList => {
         authorizeApp(

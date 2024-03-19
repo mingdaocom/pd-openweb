@@ -312,6 +312,7 @@ export default function Sider(props) {
     showTexts = [],
     labelCustomWidth,
     labelCustomHeight,
+    showBarValue = false,
     showControlName = true,
     firstIsBold = true,
     labelSize = 0,
@@ -601,6 +602,16 @@ export default function Sider(props) {
           }}
         />
       </ConfigItem>
+      {/* 可能会放开配置，需要后端加属性
+      {printType === PRINT_TYPE.BAR && (
+        <Checkbox
+          className="mTop15 mBottom15"
+          size="small"
+          text={_l('显示条码值')}
+          checked={showBarValue}
+          onClick={() => onUpdate({ showBarValue: !showBarValue })}
+        />
+      )} */}
       <Checkbox
         className="mTop15 mBottom15"
         size="small"

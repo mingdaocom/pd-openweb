@@ -467,6 +467,10 @@ class TableView extends React.Component {
     return rowHeadWidth + 8;
   }
 
+  get needClickToSearch() {
+    return !this.chartId && _.get(this.props, 'view.advancedSetting.clicksearch') === '1';
+  }
+
   @autobind
   renderSummaryCell({ style, columnIndex, rowIndex }) {
     const { viewId, sheetViewData, changeWorksheetSheetViewSummaryType, sheetViewConfig } = this.props;
@@ -533,6 +537,7 @@ class TableView extends React.Component {
         }
         disabledFunctions={this.disabledFunctions}
         readonly={this.readonly}
+        disabled={this.needClickToSearch && _.isEmpty(quickFilter)}
         isLast={control.controlId === _.last(this.columns).controlId}
         columnIndex={columnIndex}
         fixedColumnCount={fixedColumnCount}
@@ -788,7 +793,6 @@ class TableView extends React.Component {
       disableMaskDataControls,
     } = this.state;
     const { lineNumberBegin, columns } = this;
-    const needClickToSearch = !this.chartId && _.get(view, 'advancedSetting.clicksearch') === '1';
     const showSummary = (_.get(view, 'advancedSetting.showsummary') || '1') === '1' && !maxCount;
     const showVerticalLine = (_.get(view, 'advancedSetting.showvertical') || '1') === '1';
     const showAsZebra = (_.get(view, 'advancedSetting.alternatecolor') || '0') === '1'; // 斑马颜色
@@ -927,19 +931,19 @@ class TableView extends React.Component {
             renderRowHead={this.renderRowHead}
             noRecordAllowAdd={false}
             emptyIcon={
-              (needClickToSearch && _.isEmpty(quickFilter)) ||
+              (this.needClickToSearch && _.isEmpty(quickFilter)) ||
               (this.navGroupToSearch() && _.isEmpty(navGroupFilters)) ? (
                 <span />
               ) : undefined
             }
             showSearchEmpty={
               !(
-                (needClickToSearch && _.isEmpty(quickFilter)) ||
+                (this.needClickToSearch && _.isEmpty(quickFilter)) ||
                 (this.navGroupToSearch() && _.isEmpty(navGroupFilters))
               )
             }
             emptyText={
-              needClickToSearch && _.isEmpty(quickFilter) ? (
+              this.needClickToSearch && _.isEmpty(quickFilter) ? (
                 <span className="Font14">{_l('执行查询后显示结果')}</span>
               ) : this.navGroupToSearch() && _.isEmpty(navGroupFilters) ? (
                 <span className="Font14">{_l('请从左侧选择一个%0查看', (navGroupData || {}).controlName)}</span>

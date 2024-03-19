@@ -165,7 +165,7 @@ export default class Widgets extends Component {
             onClick={this.joinTextareaEdit}
           >
             <span
-              className={cx({ maskHoverTheme: disabled && isMask })}
+              className={cx('WordBreak', { maskHoverTheme: disabled && isMask })}
               style={browserIsMobile() ? { wordWrap: 'break-word' } : {}}
               onClick={() => {
                 if (disabled && isMask) this.setState({ maskStatus: false });

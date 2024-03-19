@@ -74,7 +74,7 @@ export default class Widgets extends Component {
       masterData,
       onBlur,
     } = this.props;
-    const { originValue, dateProps = {} } = this.state;
+    const { originValue, dateProps = {}, isFocus } = this.state;
     let { value } = this.props;
     if (/^\d+$/.test(String(value)) && String(value).length < 5) {
       value = '';
@@ -84,6 +84,8 @@ export default class Widgets extends Component {
     const allowtime = advancedSetting.allowtime || '00:00-24:00';
     const timeinterval = advancedSetting.timeinterval || '1';
     const lang = getCookie('i18n_langtag') || md.global.Config.DefaultLang;
+    const isLocalFormat = _.includes(['zh-Hans', 'zh-Hant'], lang) && isFocus;
+    const focusFormat = isLocalFormat ? _.get(getDatePickerConfigs(this.props), 'formatMode') : showformat;
     let showTime;
     let minDate;
     let maxDate;
@@ -176,7 +178,7 @@ export default class Widgets extends Component {
         value={value ? moment(value) : ''}
         picker={dateProps.mode === 'datetime' ? 'date' : dateProps.mode}
         showTime={showTime || false}
-        format={showformat}
+        format={focusFormat}
         placeholder={this.state.isFocus ? showformat : _l('请选择日期')}
         suffixIcon={
           !disabled ? (

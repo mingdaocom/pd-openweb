@@ -24,13 +24,13 @@ const AMAP_URL =
 let map;
 
 export default class MapLoader {
-  loadJs() {
+  loadJs(url) {
     if (map) {
       return map;
     } else {
       return new Promise((resolve, reject) => {
         $.ajax({
-          url: AMAP_URL,
+          url: url || AMAP_URL,
           dataType: 'script',
         });
         const aMapTimer = setInterval(() => {

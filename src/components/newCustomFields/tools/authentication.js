@@ -26,6 +26,8 @@ export const bindWeiXin = () => {
           window.nativeAlert(JSON.stringify(res));
           reject();
         });
+      } else {
+        reject(1);
       }
     });
   });
@@ -73,6 +75,10 @@ export const bindFeishu = projectId => {
       projectId,
       url,
     }).then(data => {
+      if (!data) {
+        reject(1);
+        return;
+      }
       window.h5sdk.config({
         appId: data.appId,
         timestamp: data.timestamp,

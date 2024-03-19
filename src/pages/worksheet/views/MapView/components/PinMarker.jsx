@@ -32,7 +32,9 @@ const Con = styled(Marker)`
   }
   .markCon {
     display: flex;
-    transform: translateX(-8px);
+    position: relative;
+    left: -17px;
+    transform: translateX(50%);
   }
   .pinIcon {
     color: #f44336 !important;
@@ -220,6 +222,7 @@ export default function MarkerCard(props) {
           onMouseOver={() => setActive(true)}
           onMouseOut={() => setActive(false)}
           onClick={e => {
+            if (isMobile) return;
             handleRecordClick(view, marker.record, () => {
               openRecord();
               addBehaviorLog('worksheetRecord', worksheetInfo.worksheetId, { rowId: record.rowid }); // 埋点

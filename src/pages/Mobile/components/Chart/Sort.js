@@ -46,7 +46,7 @@ export default class ChartSort extends Component {
     });
   };
   handleChangeSorts = sorts => {
-    const { xaxes, yaxisList, rightY, split, reportType, lines, columns } = this.props.currentReport;
+    const { xaxes = {}, yaxisList, rightY, split = {}, reportType, lines, columns } = this.props.currentReport;
     const isPivotTable = reportType === reportTypes.PivotTable;
     const yList = yaxisList.map(item => item.controlId);
     if (isPivotTable) {

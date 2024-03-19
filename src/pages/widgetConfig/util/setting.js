@@ -345,7 +345,10 @@ export const getShowFormat = data => {
   }
   // 年月需要特殊处理
   if (mode === 'month') {
-    return showformat === '1' ? _l('YYYY年M月') : _.includes(['2', '3'], showformat) ? 'M/YYYY' : formatMode;
+    if (showformat === '1') return _l('YYYY年M月');
+    if (_.includes(['2', '3'], showformat)) return 'M/YYYY';
+    if (showformat === '4') return 'YYYY/M';
+    return formatMode;
   }
   return formatMode.replace('YYYY-MM-DD', showType);
 };

@@ -151,7 +151,7 @@ export default class extends Component {
               3: {
                 fill: {
                   type: 'pbf',
-                  url: `${url}districtDataConfigFile/516b2703-d692-44e6-80dd-b3f5df0186e7.bin`
+                  url: `${url}districtDataConfigFile/524f7de2-7d69-4fa7-8da3-7ff42fa69ee4.bin`
                 },
                 line: {
                   type: 'pbf',
