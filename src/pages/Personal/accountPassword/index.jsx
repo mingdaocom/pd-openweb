@@ -126,7 +126,12 @@ export default class AccountChart extends React.Component {
         this.showNewWindow(url, wWidth, wHeight, positionObj.left, positionObj.top);
       }
     } else {
-      this.cancelBindAccount(currentType.state, type);
+      const text = type === 'weiXinBind' ? _l('微信') : 'QQ';
+      Dialog.confirm({
+        title: _l('解绑%0', text),
+        description: _l('确认解绑%0，解绑之后不能通过%1登录？', text, text),
+        onOk: () => this.cancelBindAccount(currentType.state, type),
+      });
     }
   }
 

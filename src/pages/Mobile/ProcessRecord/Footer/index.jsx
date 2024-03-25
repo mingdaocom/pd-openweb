@@ -237,6 +237,10 @@ export default class Footer extends Component {
      * 通过、否决、退回
      */
     if (_.includes(['pass', 'overrule', 'return'], action)) {
+      if (action === 'return' && !backNodeId) {
+        backNodeId = _.get(instance, 'backFlowNodes[0].id') || '';
+      }
+
       this.request(
         ACTION_TO_METHOD[action],
         { opinion: content, backNodeId, signature, files },

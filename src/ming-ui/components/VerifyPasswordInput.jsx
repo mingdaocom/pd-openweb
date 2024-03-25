@@ -28,13 +28,21 @@ const RequiredBox = styled.div`
   color: #f44336;
 `;
 
+const NoPassword = styled.div`
+  color: #9e9e9e;
+  cursor: pointer;
+  &:hover {
+    color: #757575;
+  }
+`;
+
 export default function VerifyPasswordInput(props) {
   const { className, showSubTitle, isRequired, autoFocus, allowNoVerify, onChange = () => {} } = props;
 
   const settingBtns = () => {
     return (
       <span
-        className="ThemeColor Hand mLeft5"
+        className="ThemeColor Hand"
         onClick={() => {
           window.open('/personal?type=account');
         }}
@@ -70,35 +78,35 @@ export default function VerifyPasswordInput(props) {
       <div className="Font13 mTop20 mBottom10 relative flexRow alignItemsCenter">
         {isRequired && <RequiredBox className="Absolute">*</RequiredBox>}
         <span className="flex Gray label">{_l('密码')}</span>
-        <div>
-          <Tooltip
-            action="hover"
-            tooltipStyle={{ maxWidth: 360 }}
-            text={
-              <Fragment>
-                {isRequired ? (
+        <Tooltip
+          action="hover"
+          tooltipStyle={{ maxWidth: 360 }}
+          text={
+            <Fragment>
+              {isRequired ? (
+                <div>
+                  <div>{_l('此操作必须验证用户密码。')}</div>
+                  <div>{_l('如果你是集成帐号，还没有设置过当前平台密码，请先在个人中心设置密码')}</div>
+                  {settingBtns()}
+                </div>
+              ) : (
+                <div>
+                  <div>{_l('如果你是集成帐号，还没有设置过当前平台密码：')}</div>
+                  <div>{_l('- 不需要输入，不进行安全验证')}</div>
                   <div>
-                    <div>{_l('此操作必须验证用户密码。')}</div>
-                    <div>{_l('如果你是集成帐号，还没有设置过当前平台密码，请先在个人中心设置密码')}</div>
+                    {_l('- 如果你希望提高安全性，可在个人中心设置密码。设置后将必须输入密码进行安全验证')}
                     {settingBtns()}
                   </div>
-                ) : (
-                  <div>
-                    <div>{_l('如果你是集成帐号，还没有设置过当前平台密码：')}</div>
-                    <div>{_l('- 不需要输入，不进行安全验证')}</div>
-                    <div>
-                      {_l('- 如果你希望提高安全性，可在个人中心设置密码。设置后将必须输入密码进行安全验证')}
-                      {settingBtns()}
-                    </div>
-                  </div>
-                )}
-              </Fragment>
-            }
-          >
-            <i className="icon icon-workflow_help Gray_9e mRight5 Hand" />
-          </Tooltip>
-          <span className="Gray_9e">{_l('没有密码')}</span>
-        </div>
+                </div>
+              )}
+            </Fragment>
+          }
+        >
+          <NoPassword className="flexRow alignItemsCenter">
+            <i className="icon icon-workflow_help mRight5 Font16" />
+            <span>{_l('没有密码')}</span>
+          </NoPassword>
+        </Tooltip>
       </div>
 
       <div style={{ height: 0, overflow: 'hidden' }}>

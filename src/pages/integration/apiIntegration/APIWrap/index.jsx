@@ -679,8 +679,8 @@ function APISetting(props) {
                         placeholder={_l('添加API标题')}
                         onChange={e => {
                           let str = e.target.value;
-                          if (e.target.value.trim().length > 20) {
-                            str = e.target.value.trim().slice(0, 20);
+                          if (e.target.value.trim().length > 40) {
+                            str = e.target.value.trim().slice(0, 40);
                           }
                           setState({
                             data: { ...data, name: str },
@@ -692,7 +692,7 @@ function APISetting(props) {
                         onBlur={e => {
                           updateInfo({
                             ...data,
-                            name: !e.target.value.trim() ? _l('未命名API') : e.target.value.trim().slice(0, 20),
+                            name: !e.target.value.trim() ? _l('未命名API') : e.target.value.trim().slice(0, 40),
                           });
                           setState({ editingName: false });
                         }}
@@ -728,15 +728,15 @@ function APISetting(props) {
                       value={data.explain}
                       onChange={e => {
                         let str = e.target.value;
-                        if (e.target.value.trim().length > 100) {
-                          str = e.target.value.trim().slice(0, 100);
+                        if (e.target.value.trim().length > 200) {
+                          str = e.target.value.trim().slice(0, 200);
                         }
                         setState({
                           data: { ...data, explain: str },
                         });
                       }}
                       onBlur={e => {
-                        updateInfo({ ...data, explain: e.target.value.trim().slice(0, 100) });
+                        updateInfo({ ...data, explain: e.target.value.trim().slice(0, 200) });
                         setState({ editing: false });
                       }}
                     />

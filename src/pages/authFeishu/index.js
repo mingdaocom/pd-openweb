@@ -54,11 +54,12 @@ if (code) {
       },
       async: true,
       succees: result => {
-        const { agentId, state } = result.data;
+        const { agentId, state, callBackUrl } = result.data;
+        const defaultCallBackUrl = 'https://open.feishu.cn/open-apis';
         const redirect_uri = encodeURIComponent(
           `${location.origin}/auth/feishu?url=${newUrl ? encodeURIComponent(newUrl) : ''}`,
         );
-        location.href = `https://open.feishu.cn/open-apis/authen/v1/index?redirect_uri=${redirect_uri}&app_id=${agentId}&state=${state}`;
+        location.href = `${callBackUrl || defaultCallBackUrl}/authen/v1/index?redirect_uri=${redirect_uri}&app_id=${agentId}&state=${state}`;
       },
       error: login,
     });

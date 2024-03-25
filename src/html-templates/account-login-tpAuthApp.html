@@ -8,7 +8,6 @@
     <meta name="force-rendering" content="webkit" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <title>登录中</title>
-    <script src="/src/library/jquery/1.8.3/jquery.js"></script>
     <link rel="stylesheet" href="/src/common/mdcss/freestyle.css" />
     <script src="/src/common/mdjs/freestyle.js"></script>
   </head>
@@ -28,50 +27,61 @@
           return theRequest;
       };
       var request = getRequest();
-      var getGlobalMeta = cb => {
-          $.ajax({
-              url: __api_server__.main + 'Global/GetGlobalMeta',
-              type: 'POST',
-              data: JSON.stringify({}),
-              dataType: 'JSON',
-              contentType: 'application/json',
-          }).done(res => {
-              var data = res.data;
-              var ApiUrl = data['md.global'].Config.ApiUrl
-              cb(ApiUrl);
-          })
-      };
-      getGlobalMeta((ApiUrl) => {
-          $.ajax({
-              url: ApiUrl + "/oauth2/h5login",
-              type: 'POST',
-              data: JSON.stringify(request),
-              dataType: 'JSON',
-              contentType: 'application/json',
-          }).done(res => {
-              if (res.success) {
-                  var ua = navigator.userAgent;
-                  var isIOS = !!ua.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/);
-                  var info = {
-                        sessonId: '',
-                        type: 'native',
-                        settings: {
-                            action: 'login',
-                            accessTokenInfo: res
+
+      function getGlobalMeta(cb) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', __api_server__.main + 'Global/GetGlobalMeta', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    var data = response.data;
+                    var ApiUrl = data['md.global'].Config.ApiUrl;
+                    cb(ApiUrl);
+                }
+            }
+        }
+        xhr.send(JSON.stringify({}));
+      }
+
+      getGlobalMeta(function(ApiUrl) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', ApiUrl + '/oauth2/h5login', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    if (response.success) {
+                        var ua = navigator.userAgent;
+                        var isIOS = !!ua.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/);
+                        var info = {
+                            sessionId: '',
+                            type: 'native',
+                            settings: {
+                                action: 'login',
+                                accessTokenInfo: response
+                            }
+                        };
+                        var string = JSON.stringify(info);
+                        var base64 = window.btoa(string);
+                        if (isIOS) {
+                            window.webkit.messageHandlers.MD_APP_REQUEST.postMessage(base64);
+                        } else {
+                            window.Android.MD_APP_REQUEST(base64);
                         }
+                    } else {
+                        alert('登录失败!');
                     }
-                  var string = JSON.stringify(info);
-                  var base64 = window.btoa(string);
-                  if (isIOS) {
-                      window.webkit.messageHandlers.MD_APP_REQUEST.postMessage(base64);
-                  } else {
-                      window.Android.MD_APP_REQUEST(base64);
-                  }
-              } else {
-                  alert('登录失败!')
-              }
-          })
-      })
+                }
+            }
+        };
+
+        xhr.send(JSON.stringify(request));
+      });
     </script>
   </body>
 </html>

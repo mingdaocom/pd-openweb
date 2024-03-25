@@ -21,7 +21,7 @@ export default class extends Component {
     let backFlowNode = '';
     let content = '';
 
-    if (props.action === 'return' && isCallBack && backFlowNodes.length) {
+    if (props.action === 'return' && backFlowNodes.length) {
       backFlowNode = backFlowNodes[0].id;
     }
     if (props.action === 'pass' && _.find(opinions[4], { selected: true })) {

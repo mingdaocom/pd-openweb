@@ -97,6 +97,7 @@ export default class SearchWorksheetDialog extends Component {
       controlVisible: false,
       relationControls: relationControls,
       sheetSwitchPermit: [],
+      views: [],
       loading: true,
     };
   }
@@ -123,6 +124,12 @@ export default class SearchWorksheetDialog extends Component {
           sheetId: sourceId || (this.relateField() ? data.dataSource : ''),
           sheetName: this.relateField() ? data.sourceEntityName : '',
           controls: this.relateField() ? this.state.relationControls : [],
+          sheetSwitchPermit: this.relateField()
+            ? _.get(window.subListSheetConfig, `${data.controlId}.sheetInfo.switches`)
+            : [],
+          views: this.relateField()
+            ? _.get(window.subListSheetConfig, `${data.controlId}.sheetInfo.switches.views`)
+            : [],
           loading: !!id,
         },
         () => {
@@ -154,7 +161,7 @@ export default class SearchWorksheetDialog extends Component {
     const { sheetId, appId } = this.state;
     if (!sheetId) return;
     worksheetAjax
-      .getWorksheetInfo({ worksheetId: sheetId, getTemplate: true, getSwitchPermit: true, appId })
+      .getWorksheetInfo({ worksheetId: sheetId, getTemplate: true, getSwitchPermit: true, appId, getViews: true })
       .then(res => {
         const { controls = [] } = res.template || {};
         this.setState({
@@ -162,6 +169,7 @@ export default class SearchWorksheetDialog extends Component {
           sheetName: res.name,
           isSheetDelete: !controls.length,
           sheetSwitchPermit: res.switches,
+          views: res.views,
         });
       });
   };
@@ -354,6 +362,7 @@ export default class SearchWorksheetDialog extends Component {
       moreSort,
       queryCount,
       sheetSwitchPermit,
+      views = [],
     } = this.state;
     const { from, onClose, data = {}, globalSheetInfo = {}, allControls = [], queryControls = [] } = this.props;
     const totalControls = from === 'subList' ? queryControls : allControls;
@@ -367,6 +376,8 @@ export default class SearchWorksheetDialog extends Component {
     const normalField = !(selfCascader || relateField || subField);
     // 关联本表
     const selfRelate = selfCascader || relateField;
+
+    const viewId = _.get(views, '0.viewId');
 
     const checkFilters = _.isEmpty(items) || !checkConditionCanSave(items, true);
     const checkConfigs = _.isEmpty(configs) || !_.every(configs, con => !!con.cid);
@@ -512,6 +523,7 @@ export default class SearchWorksheetDialog extends Component {
                       columns={dealRelationControls(controls)}
                       conditions={filterItems}
                       sheetSwitchPermit={sheetSwitchPermit}
+                      viewId={viewId}
                       from="relateSheet"
                       filterResigned={false}
                       showCustom={true}

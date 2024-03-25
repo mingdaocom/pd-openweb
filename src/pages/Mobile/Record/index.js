@@ -7,6 +7,7 @@ import { Modal } from 'antd-mobile';
 import { Provider } from 'react-redux';
 import { configureStore } from 'src/redux/configureStore';
 import functionWrap from 'ming-ui/components/FunctionWrap';
+import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
 
 const ModalWrap = styled(Modal)`
   height: 95%;
@@ -26,7 +27,15 @@ const ModalWrap = styled(Modal)`
 const RecordInfoPage = props => {
   const { params } = props.match;
   const { appId, worksheetId, viewId, rowId } = params;
-  return <RecordInfo appId={appId} worksheetId={worksheetId} viewId={viewId} recordId={rowId} />;
+  return (
+    <RecordInfo
+      appId={appId}
+      worksheetId={worksheetId}
+      viewId={viewId}
+      recordId={rowId}
+      from={RECORD_INFO_FROM.WORKSHEET_ROW_LAND}
+    />
+  );
 };
 
 export default AppPermissions(RecordInfoPage);

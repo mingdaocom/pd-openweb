@@ -7,7 +7,7 @@ export default function Attachment(props) {
     <CommonDisplay>
       <div className="intro">
         <i className="icon-ic_attachment_black"></i>
-        <span>{_l('添加附件')}</span>
+        <span>{_.get(props, 'data.hint') || _l('添加附件')}</span>
       </div>
     </CommonDisplay>
   );

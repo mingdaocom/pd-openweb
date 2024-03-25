@@ -33,4 +33,11 @@ RegExp.isVideo = fileExt => {
   return /.*?\.(mov|mp4|avi|mkv|3gp|3g2|m4v|rm|rmvb|webm)$/.test((fileExt || '').toLowerCase());
 };
 
+// 验证一个字符串是否是链接
+RegExp.isUrlRequest = url => {
+  if (/^data:|^chrome-extension:|^(https?:)?\/\/|^[\{\}\[\]#*;,'§\$%&\(=?`´\^°<>]/.test(url)) return true;
+  if (/^\//.test(url)) return true;
+  return false;
+};
+
 export default RegExp;

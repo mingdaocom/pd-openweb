@@ -106,7 +106,7 @@ class WorkSheetLeft extends Component {
     };
     return (
       <Fragment>
-        <div className="flex">
+        <div className="flex flexColumn">
           <Wrap>
             <DndProvider key="navigationList" context={window} backend={HTML5Backend}>
               {data.map((item, index) => this.renderSheetAppItem(item, workSheetItemProps, index))}

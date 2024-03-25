@@ -16,6 +16,7 @@ import {
   formatWeekDay,
   sortGrouping,
 } from 'src/pages/worksheet/views/GunterView/util';
+import { getDynamicValue } from 'src/components/newCustomFields/tools/DataFormat';
 import { formatQuickFilter, getFilledRequestParams, handleRecordError } from 'worksheet/util';
 import { PERIOD_TYPE } from 'src/pages/worksheet/views/GunterView/config';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
@@ -390,6 +391,19 @@ export const addRecord = (cell, row) => {
     }
 
     dispatch(updateGroupingRow({ [cell.controlId]: cell.value }, row.rowid));
+
+    controls.forEach(c => {
+      if (c.advancedSetting && c.advancedSetting.defsource && c.type !== 30) {
+        const value =  getDynamicValue(row, c);
+        receiveControls.push({
+          controlId: c.controlId,
+          controlName: c.controlName,
+          dot: c.dot,
+          type: c.type,
+          value
+        });
+      }
+    });
 
     sheetAjax
       .addWorksheetRow({

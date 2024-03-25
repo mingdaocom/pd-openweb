@@ -128,7 +128,7 @@ export default function RelateSheet(props) {
   const {
     loading,
     data: { info: worksheetInfo = {}, views = [], controls = [] },
-  } = useSheetInfo({ worksheetId: dataSource, saveIndex });
+  } = useSheetInfo({ worksheetId: dataSource, getSwitchPermit: true, saveIndex });
 
   useEffect(() => {
     //  切换控件手动更新

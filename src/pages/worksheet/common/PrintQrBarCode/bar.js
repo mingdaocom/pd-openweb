@@ -37,7 +37,7 @@ export class BarLabel {
     height = 100,
     fontSize = 1,
     firstIsTitle = false,
-    showBarValue = false,
+    showBarValue = true,
     codePosition = 'top',
     size = 'm',
     value,

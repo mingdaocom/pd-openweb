@@ -2001,9 +2001,7 @@ export default class DataFormat {
           (_.find(this.data, da => da.controlId === _.get(item.dynamicSource[0] || {}, 'cid')) || {}).value;
         //条件字段
         const conditionExit = _.find(controls.concat(SYSTEM_CONTROLS), con => con.controlId === item.controlId);
-        return isDynamicValue
-          ? fieldResult && fieldResult !== '[]' && fieldResult !== '{}' && fieldResult !== 0
-          : conditionExit;
+        return isDynamicValue ? fieldResult : conditionExit;
       });
     });
   };
@@ -2189,47 +2187,49 @@ export default class DataFormat {
                   //子表
                   if (controlType === 34) {
                     const newValue = [];
-                    filterData.forEach(item => {
-                      let row = {};
-                      canMapConfigs.map(({ cid = '', subCid = '' }) => {
-                        const controlVal = _.find(currentControl.relationControls || [], re => re.controlId === cid);
-                        if (controlVal) {
-                          if (subCid === 'rowid') {
+                    if (filterData.length) {
+                      filterData.forEach(item => {
+                        let row = {};
+                        canMapConfigs.map(({ cid = '', subCid = '' }) => {
+                          const controlVal = _.find(currentControl.relationControls || [], re => re.controlId === cid);
+                          if (controlVal) {
+                            if (subCid === 'rowid') {
+                              row[cid] =
+                                controlVal.type === 29
+                                  ? JSON.stringify([
+                                      {
+                                        sourcevalue: JSON.stringify(item),
+                                        row: item,
+                                        type: 8,
+                                        sid: item.rowid,
+                                      },
+                                    ])
+                                  : item.rowid;
+                              return;
+                            }
                             row[cid] =
-                              controlVal.type === 29
-                                ? JSON.stringify([
-                                    {
-                                      sourcevalue: JSON.stringify(item),
-                                      row: item,
-                                      type: 8,
-                                      sid: item.rowid,
-                                    },
-                                  ])
-                                : item.rowid;
-                            return;
+                              controlVal.type === 2
+                                ? getCurrentValue(
+                                    _.find(controls, s => s.controlId === subCid),
+                                    item[subCid],
+                                    controlVal,
+                                  )
+                                : _.includes([9, 10, 11], controlVal.type)
+                                ? getControlValue(controls, controlVal, subCid, item[subCid])
+                                : item[subCid] || '';
                           }
-                          row[cid] =
-                            controlVal.type === 2
-                              ? getCurrentValue(
-                                  _.find(controls, s => s.controlId === subCid),
-                                  item[subCid],
-                                  controlVal,
-                                )
-                              : _.includes([9, 10, 11], controlVal.type)
-                              ? getControlValue(controls, controlVal, subCid, item[subCid])
-                              : item[subCid] || '';
+                        });
+                        //映射明细所有字段值不为空
+                        if (_.some(Object.values(row), i => !_.isUndefined(i))) {
+                          newValue.push({
+                            ...row,
+                            rowid: `temprowid-${uuidv4()}`,
+                            allowedit: true,
+                            addTime: new Date().getTime(),
+                          });
                         }
                       });
-                      //映射明细所有字段值不为空
-                      if (_.some(Object.values(row), i => !_.isUndefined(i))) {
-                        newValue.push({
-                          ...row,
-                          rowid: `temprowid-${uuidv4()}`,
-                          allowedit: true,
-                          addTime: new Date().getTime(),
-                        });
-                      }
-                    });
+                    }
                     updateData({
                       action: 'clearAndSet',
                       isDefault: true,

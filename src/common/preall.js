@@ -104,6 +104,15 @@ function getGlobalMeta({ allownotlogin, requestParams } = {}) {
     // 无论登录与否，日期都要设置语言环境
     const lang = getCookie('i18n_langtag') || data['md.global'].Config.DefaultLang;
     moment.locale(getMomentLocale(lang));
+    // 中文环境下，MMM以英文呈现
+    moment
+      .locales()
+      .filter(locale => /^zh-/.test(locale))
+      .forEach(locale => {
+        moment.updateLocale(locale, {
+          monthsShort: 'Jan_Feb_Mar_Apr_May_Jun_Jul_Aug_Sep_Oct_Nov_Dec'.split('_'),
+        });
+      });
 
     if (allownotlogin || window.isPublicApp) {
       window.config = data.config || {};

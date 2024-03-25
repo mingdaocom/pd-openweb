@@ -43,6 +43,9 @@ export default class Text extends Component {
           option_create(data, escape) {
             return `<div class="create ThemeColor3">${_l('使用“%0”', filterXSS(data.input))}</div>`;
           },
+          item(data, escape) {
+            return '<div class="item ellipsis TxtMiddle">' + escape(data.text) + '</div>';
+          },
         },
         onInitialize: function () {
           const $selectize = this;

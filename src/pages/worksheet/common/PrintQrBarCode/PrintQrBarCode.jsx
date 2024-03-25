@@ -79,6 +79,7 @@ function getDefaultConfig(printType) {
     printType: 1,
     codeFaultTolerance: CODE_FAULT_TOLERANCE.L,
     showControlName: true,
+    showBarValue: true,
     firstIsBold: true,
     layout:
       {
