@@ -58,8 +58,9 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
     appId: '',
     name: '',
     writeControls: [],
+    sheetSwitchPermit: []
   });
-  const { visible, value: worksheetId, viewId, appId, name, writeControls = [] } = createRecordInfo;
+  const { visible, value: worksheetId, viewId, appId, name, writeControls = [], sheetSwitchPermit = [] } = createRecordInfo;
   const isMobile = browserIsMobile();
   const scanQRCodeRef = useRef();
   const [currentScanBtn, setCurrentScanBtn] = useState();
@@ -140,8 +141,9 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
       const { btnId } = item;
       isMobile && Toast.loading(_l('加载中，请稍后'));
       const { appId } = await homeAppAjax.getAppSimpleInfo({ workSheetId: value });
+      const sheetSwitchPermit = await worksheetAjax.getSwitchPermit({ appId, worksheetId: value });
       isMobile && Toast.hide();
-      const param = { visible: true, value, viewId, appId, name };
+      const param = { visible: true, value, viewId, appId, name, sheetSwitchPermit };
       if (isMingdao) {
         const url = `/mobile/addRecord/${appId}/${value}/${viewId}`;
         window.location.href = btnId ? `${url}?btnId=${btnId}` : url;
@@ -410,6 +412,7 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
           worksheetId={worksheetId}
           viewId={viewId}
           writeControls={writeControls}
+          sheetSwitchPermit={sheetSwitchPermit}
           showDraftsEntry={isMobile ? true : false}
           openRecord={
             isMobile
