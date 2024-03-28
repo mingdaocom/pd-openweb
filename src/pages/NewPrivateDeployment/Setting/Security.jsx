@@ -216,7 +216,7 @@ const UserPassword = props => {
       <div className="flexRow valignWrapper">
         <div className="flex flexColumn">
           <div className="Font14 bold mBottom8">{_l('首次登录需修改密码')}</div>
-          <div className="Gray_9e">{_l('此设置仅对自主创建或导入的预设账号生效')}</div>
+          <div className="Gray_9e">{_l('在首次登录自主创建的账号、导入的预设账号、被管理员重置密码的账号时生效')}</div>
         </div>
         <Switch
           checked={firstLoginResetPassword}

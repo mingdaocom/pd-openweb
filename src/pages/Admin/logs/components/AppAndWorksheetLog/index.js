@@ -603,15 +603,19 @@ export default class AppAndWorksheetLog extends Component {
           </div>
 
           <div>
-            <span className="tipInfo">
-              {_l('保留最近6个月的应用日志')}
-              <Tooltip
-                text={<span>{_l('导出上限10万条，超出限制可以先筛选，再分次导出。')}</span>}
-                popupPlacement="bottom"
-              >
-                <Icon icon="info" className="Font14 mLeft5 Gray_9e" />
-              </Tooltip>
-            </span>
+            {md.global.Config.IsLocal ? (
+              ''
+            ) : (
+              <span className="tipInfo">
+                {_l('保留最近6个月的应用日志')}
+                <Tooltip
+                  text={<span>{_l('导出上限10万条，超出限制可以先筛选，再分次导出。')}</span>}
+                  popupPlacement="bottom"
+                >
+                  <Icon icon="info" className="Font14 mLeft5 Gray_9e" />
+                </Tooltip>
+              </span>
+            )}
             <Button
               type="primary"
               className="export mLeft24"
@@ -638,6 +642,16 @@ export default class AppAndWorksheetLog extends Component {
                 searchValues={searchValues}
                 showExpandBtn={true}
                 onChange={searchParams => {
+                  const { startDate, endDate } = searchParams;
+
+                  if (
+                    md.global.Config.IsLocal &&
+                    moment(endDate).subtract(180, 'days').format('YYYYMMDDHHmmss') >
+                      moment(startDate).format('YYYYMMDDHHmmss')
+                  ) {
+                    alert(_l('最大跨度180天'), 2);
+                    return;
+                  }
                   if (searchParams.appIds && searchParams.appIds.length && !_.isEqual(searchParams.appIds, appIds)) {
                     this.getWorksheetList(searchParams.appIds);
                   }

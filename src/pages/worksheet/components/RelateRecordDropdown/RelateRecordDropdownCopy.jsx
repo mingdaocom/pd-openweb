@@ -711,7 +711,7 @@ export default class RelateRecordDropdown extends React.Component {
             addType={2}
             defaultFormDataEditable
             defaultFormData={
-              checkIsTextControl(this.searchControl.type) && keywords
+              this.searchControl && checkIsTextControl(this.searchControl.type) && keywords
                 ? {
                     [this.searchControl.controlId]: keywords,
                   }

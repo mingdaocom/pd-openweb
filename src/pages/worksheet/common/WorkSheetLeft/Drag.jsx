@@ -47,6 +47,9 @@ const spliceTarget = (groups, target, data) => {
       }
     });
   } else {
+    if (!target.parentId) {
+      data.parentId = undefined;
+    }
     groups.splice(data.first ? index : index + 1, 0, data);
     return groups;
   }

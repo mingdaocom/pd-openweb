@@ -92,7 +92,7 @@ export default function CustomSelectDate(props) {
             ))}
 
             <DatePicker.RangePicker
-              min={moment().subtract(6, 'months')}
+              min={md.global.Config.IsLocal ? undefined : moment().subtract(6, 'months')}
               onOk={date => {
                 const searchDateStr =
                   date && date.length ? `${date[0].format(dateFormat)}~${date[1].format(dateFormat)} ` : undefined;
