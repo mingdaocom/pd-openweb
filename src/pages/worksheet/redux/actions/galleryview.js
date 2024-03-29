@@ -1,12 +1,15 @@
 import worksheetAjax from 'src/api/worksheet';
 import { getNavGroupCount } from './index';
 import { formatQuickFilter, getFilledRequestParams } from 'worksheet/util';
+import { browserIsMobile } from 'src/util';
 import _ from 'lodash';
 export const fetch = index => {
   return (dispatch, getState) => {
     const { base, filters, galleryview, quickFilter, navGroupFilters } = getState().sheet;
     const { appId, viewId, worksheetId, chartId, maxCount } = base;
     let { galleryIndex, gallery } = galleryview;
+    const isMobile = browserIsMobile();
+
     if (index <= 1) {
       dispatch({ type: 'CHANGE_GALLERY_VIEW_LOADING', loading: true });
     } else {
@@ -14,14 +17,16 @@ export const fetch = index => {
     }
     const args = {
       worksheetId,
-      pageSize: 50,
+      pageSize: isMobile ? 20 : 50,
       pageIndex: index,
       status: 1,
       appId,
       viewId,
       reportId: chartId || undefined,
       ...filters,
-      fastFilters: formatQuickFilter(quickFilter),
+      fastFilters: isMobile
+        ? formatQuickFilter(_.get(getState(), 'mobile.quickFilter') || [])
+        : formatQuickFilter(quickFilter),
       navGroupFilters,
     };
     if (maxCount) {

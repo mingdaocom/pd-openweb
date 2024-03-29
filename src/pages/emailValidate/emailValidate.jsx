@@ -69,7 +69,7 @@ function Comp(props) {
       </div>
       <div class="main">
         {renderCon()}
-        <a href="https://www.mingdao.com/login" class="btn btnEnabled Font14 mBottom20">
+        <a href="/login" class="btn btnEnabled Font14 mBottom20">
           {_l('登录')}
         </a>
       </div>

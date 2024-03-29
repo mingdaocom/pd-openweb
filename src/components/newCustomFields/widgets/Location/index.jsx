@@ -72,7 +72,6 @@ const isDing = window.navigator.userAgent.toLowerCase().includes('dingtalk');
 const isFeishu = window.navigator.userAgent.toLowerCase().includes('feishu');
 const isMobile = browserIsMobile();
 const isApp = (isWxWork || isWx || isWeLink || isDing || isFeishu) && isMobile;
-const isHttps = location.protocol.includes('https');
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -94,7 +93,7 @@ export default class Widgets extends Component {
     const geolocation = (typeof strDefault === 'string' ? strDefault : '00')[0] === '1';
 
     if (isWx) {
-      if (!geolocation && isHttps) {
+      if (!geolocation) {
         this.setState({ visible: true });
       } else {
         handleTriggerEvent(this.handleWxSelectLocation, bindWeiXin());
@@ -103,7 +102,7 @@ export default class Widgets extends Component {
     }
 
     if (isWxWork) {
-      if (!geolocation && isHttps) {
+      if (!geolocation) {
         this.setState({ visible: true });
       } else {
         handleTriggerEvent(this.handleWxSelectLocation, bindWxWork(projectId));
@@ -117,7 +116,7 @@ export default class Widgets extends Component {
     }
 
     if (isDing) {
-      if (!geolocation && isHttps) {
+      if (!geolocation) {
         this.setState({ visible: true });
       } else {
         handleTriggerEvent(this.handleDingSelectLocation, bindDing(projectId));
@@ -126,7 +125,7 @@ export default class Widgets extends Component {
     }
 
     if (isWeLink) {
-      if (!geolocation && isHttps) {
+      if (!geolocation) {
         this.setState({ visible: true });
       } else {
         handleTriggerEvent(this.handleWeLinkSelectLocation, bindWeLink(projectId));
