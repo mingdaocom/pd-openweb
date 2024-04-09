@@ -62,8 +62,8 @@ const AuthorizationIntercept = () => {
     });
   }, []);
 
-  const url1 = `<a href="https://www.mingdao.com/register?ReturnUrl=${encodeURIComponent(`/personal?type=privatekey&ltv=${serverInfo.licenseTemplateVersion}&serverId=${serverInfo.serverId}#apply`)}" target="_blank">${_l('注册并申请')}</a>`;
-  const url2 = `<a href="https://www.mingdao.com/personal?type=privatekey&ltv=${serverInfo.licenseTemplateVersion}&serverId=${serverInfo.serverId}#apply" target="_blank">${_l('登录并申请')}</a>`;
+  const url1 = `<a href="https://www.mingdao.com/register?ReturnUrl=${encodeURIComponent(`/personal?type=privatekey&v=${serverInfo.systemVersion}&ltv=${serverInfo.licenseTemplateVersion}&serverId=${serverInfo.serverId}#apply`)}" target="_blank">${_l('注册并申请')}</a>`;
+  const url2 = `<a href="https://www.mingdao.com/personal?type=privatekey&v=${serverInfo.systemVersion}&ltv=${serverInfo.licenseTemplateVersion}&serverId=${serverInfo.serverId}#apply" target="_blank">${_l('登录并申请')}</a>`;
   const url3 = `<a href="https://docs.pd.mingdao.com/faq/deployment#%E5%AF%86%E9%92%A5%E4%B8%A2%E5%A4%B1%E6%9C%8D%E5%8A%A1%E5%99%A8id-%E4%B8%8D%E6%98%BE%E7%A4%BA" target="_blank">${_l('查看帮助')}</a>`;
 
   return (

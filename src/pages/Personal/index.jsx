@@ -30,7 +30,10 @@ export default class PersonalEntrypoint extends Component {
   }
 
   render() {
-    const menus = common.MENULEFT;
+    const menus =
+      !md.global.Config.IsLocal || (md.global.Config.IsLocal && md.global.Config.ShowLicense)
+        ? common.MENULEFT
+        : common.MENULEFT.slice(0, -1);
     const type = getRequest().type || 'information';
     const currentComp = _.get(
       _.find(menus, menu => menu.typetag.includes(type)),

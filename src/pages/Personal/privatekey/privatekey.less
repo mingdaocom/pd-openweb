@@ -1,0 +1,129 @@
+.personalEntrypointWrapper {
+  padding: 24px 40px;
+}
+.personalEntrypointWrapper.card {
+  box-shadow: none;
+}
+
+.personalEntrypointWrapper .personalEntrypointInfo {
+  flex-wrap: wrap;
+}
+.personalEntrypoint {
+  &Header {
+    justify-content: space-between;
+    .applyPrivateKey {
+      color: #2196f3;
+    }
+  }
+  &Info {
+    color: #333333;
+    height: 72px;
+    background-color: #f5f5f5;
+    padding: 0 31px;
+    margin-top: 10px;
+
+    a {
+      text-decoration: none;
+      margin: 0 3px 0 4px;
+    }
+    .addWeiXin {
+      font-size: 13px;
+      color: #fff;
+      margin-left: 10px;
+      padding: 2px 10px;
+      border-radius: 24px;
+      background-color: #47b14b;
+    }
+  }
+  &Content {
+    margin-top: 24px;
+    .justifyCenter {
+      justify-content: center;
+    }
+    .titleWrapper {
+      border-bottom: 1px solid #ccc;
+      padding: 0 10px 10px;
+      margin-bottom: 10px;
+      > div {
+        flex: 1;
+      }
+    }
+    .companyItem {
+      padding: 10px;
+      &:hover {
+        background: #f8f8f8;
+      }
+      > div {
+        flex: 1;
+      }
+    }
+    .serverId {
+      width: 250px;
+      word-break: break-all;
+    }
+    .companyPrivateKeyItem {
+      background-color: #f7f7f7;
+      margin-top: 10px;
+      padding: 20px;
+    }
+    .copyWrapper {
+      position: absolute;
+      right: 10px;
+      bottom: 15px;
+    }
+    .withoutList {
+      padding: 60px 0;
+      .iconWrapper {
+        color: #bdbdbd;
+        width: 79px;
+        height: 79px;
+        border-radius: 50%;
+        justify-content: center;
+        background-color: #f5f5f5;
+        margin-bottom: 20px;
+      }
+    }
+  }
+  &Wrapper {
+    .applyForm {
+      padding: 40px;
+    }
+    .formItem {
+      margin-bottom: 20px;
+      input {
+        border: 1px solid #ddd;
+      }
+    }
+    .Input {
+      width: 290px;
+    }
+    .verificationWrapper {
+      position: relative;
+      .icon {
+        font-size: 16px;
+        color: #ddd;
+        position: absolute;
+        top: 9px;
+        left: 9px;
+      }
+    }
+    .verificationCode {
+      width: 170px;
+      padding-left: 30px;
+    }
+    .getVerificationCode {
+      width: 110px;
+      font-size: 14px;
+      background-color: #219dff;
+      &.disabled {
+        background-color: #ccc !important;
+      }
+    }
+    .generateKey {
+      font-size: 16px;
+      border-radius: 25px;
+      margin-top: 40px;
+      background-color: #219dff;
+    }
+  }
+}

@@ -59,7 +59,7 @@ const Wrap = styled.div`
   .versionsInfo {
     width: 360px;
     .label {
-      width: 65px;
+      margin-right: 10px;
     }
   }
   .ant-table-thead th {
@@ -218,7 +218,7 @@ const AuthorizationInfo = props => {
                 </div>
                 <div className="flexColumn valignWrapper flex">
                   <div className="Font14 Gray_9e mBottom5 pBottom2">{_l('工作流总数上限/单月')}</div>
-                  <div className="Font17 mBottom5 bold">{platformLicenseInfo.workflowNum >= 1000000 ? _l('不限') : platformLicenseInfo.workflowNum}</div>
+                  <div className="Font17 mBottom5 bold">{platformLicenseInfo.workflowNum >= 1000000 ? _l('不限') : platformLicenseInfo.workflowNum * 1000 }</div>
                 </div>
                 <div className="flex" />
               </div>

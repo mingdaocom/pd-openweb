@@ -109,7 +109,7 @@ export default props => {
               </div>
               <div className="item left">
                 <div className="Gray_9e">{_l('工作流总数上限/单月')}</div>
-                <div>{codeInfo.workflowNum >= 1000000 ? _l('不限') : codeInfo.workflowNum}</div>
+                <div>{codeInfo.workflowNum >= 1000000 ? _l('不限') : codeInfo.workflowNum * 1000 }</div>
               </div>
             </Fragment>
           )}

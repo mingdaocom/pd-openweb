@@ -230,16 +230,41 @@ export default class RelateRecordCards extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    const {
+      control: { relationControls = [], showControls = [], value, from, disabled },
+    } = nextProps;
     if (this.props.control.dataSource !== nextProps.control.dataSource) {
-      const {
-        control: { relationControls = [], showControls = [] },
-      } = nextProps;
       const hasRelateControl = this.hasRelateControl(relationControls, showControls);
+
+      if (browserIsMobile() && _.includes([FROM.H5_EDIT, FROM.H5_ADD, FROM.RECORDINFO], from) && !disabled) {
+        if (!value || _.isNumber(value)) {
+          this.setState({ records: [], count: 0, addedIds: [], deletedIds: [] }, () => {
+            this.loadControls(nextProps);
+            this.loadMoreRecords(1, nextProps);
+          });
+        } else {
+          this.loadControls(nextProps);
+          this.setState({ records: nextProps.records, count: nextProps.records.length });
+        }
+        return;
+      }
+
       if (hasRelateControl) {
         this.setState({ sheetTemplateLoading: true });
-        this.loadControls();
       }
+    } else if (browserIsMobile() && _.includes([FROM.H5_EDIT, FROM.H5_ADD, FROM.RECORDINFO], from) && !disabled) {
+      if (!value || _.isNumber(value)) {
+        this.setState({ records: [], count: 0, addedIds: [], deletedIds: [] }, () => {
+          this.loadControls(nextProps);
+          this.loadMoreRecords(1, nextProps);
+        });
+      } else {
+        this.loadControls(nextProps);
+        this.setState({ records: nextProps.records, count: nextProps.records.length });
+      }
+      return;
     }
+
     if (nextProps.flag !== this.props.flag) {
       if (
         (_.get(window, 'shareState.isPublicForm') &&
@@ -341,18 +366,21 @@ export default class RelateRecordCards extends Component {
     );
   }
 
-  loadControls() {
-    sheetAjax.getWorksheetInfo({ worksheetId: this.props.control.dataSource, getTemplate: true }).then(data => {
-      this.setState({
-        controls: data.template.controls,
-        sheetTemplateLoading: false,
+  loadControls(nextProps) {
+    const { dataSource, worksheetId } = (nextProps || this.props).control;
+    sheetAjax
+      .getWorksheetInfo({ worksheetId: dataSource, getTemplate: true, relationWorksheetId: worksheetId })
+      .then(data => {
+        this.setState({
+          controls: data.template.controls,
+          sheetTemplateLoading: false,
+        });
       });
-    });
   }
 
   @autobind
-  loadMoreRecords(pageIndex = 2) {
-    const { controlId, recordId, worksheetId } = this.props.control;
+  loadMoreRecords(pageIndex = 2, nextProps) {
+    const { controlId, recordId, worksheetId } = (nextProps || this.props).control;
     this.setState({
       isLoadingMore: true,
     });

@@ -36,6 +36,12 @@ Common.MENULEFT = [
     typetag: ['system'],
     component: () => import('./systemSettings'),
   },
+  {
+    title: _l('产品密钥'),
+    icon: 'icon-key1',
+    typetag: ['privatekey'],
+    component: () => import('./privatekey'),
+  },
 ];
 
 Common.PROJECT_STATUS_TYPES_LABLE = {

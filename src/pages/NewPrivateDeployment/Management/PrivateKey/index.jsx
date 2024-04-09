@@ -138,7 +138,7 @@ const Wrap = styled.div`
 `;
 
 
-const LicenseVersions = [_l('社区版'), _l('标准版'), _l('专业版'), _l('大型企业版'), _l('教学版')];
+const LicenseVersions = [_l('社区版'), _l('标准版'), _l('专业版'), _l('大型企业版'), _l('教学版'), _l('专业版试用')];
 
 const formatDate = date => {
   const year = moment(date).format('YYYY');
@@ -209,7 +209,7 @@ const PrivateKey = props => {
     });
   }
 
-  const moreQueryParams = ('&ltv=' + serverInfo.licenseTemplateVersion);
+  const moreQueryParams = ('&v=' + serverInfo.systemVersion + '&ltv=' + serverInfo.licenseTemplateVersion);
 
   const renderLicenseItem = (item, index) => {
     const { serverId, licenseCode, startDate, expirationDate, licenseVersion, visible, state, technicalSupport, projectNum, projectUserNum, externalUserNum, applicationNum, workflowNum, worktableNum, worktableRowNum } = item;

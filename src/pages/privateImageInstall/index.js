@@ -183,7 +183,13 @@ class PrivateImageInstall extends Component {
     if (channel) {
       moreQueryParams += '&channel=' + channel;
     }
-    // 密钥模板版本
+
+     // 系统版本
+     if (stepResult.systemVersion) {
+      moreQueryParams += '&v=' + stepResult.systemVersion;
+    }
+
+    // 密钥版本
     if (stepResult.licenseTemplateVersion) {
       moreQueryParams += '&ltv=' + stepResult.licenseTemplateVersion;
     }
