@@ -11,6 +11,7 @@ import processVersion from 'src/pages/workflow/api/processVersion';
 import { START_APP_TYPE } from 'src/pages/workflow/WorkflowList/utils';
 import projectAjax from 'src/api/project';
 import IsAppAdmin from '../../../components/IsAppAdmin';
+import { navigateTo } from 'src/router/navigateTo';
 
 const TYPE_LIST = [
   { label: _l('工作表事件'), value: 1 },
@@ -394,6 +395,9 @@ function AddWorkflowDialog(props) {
                   defaultIcon={(START_APP_TYPE[item.child ? 'subprocess' : item.startAppType] || {}).iconName}
                   iconColor={(START_APP_TYPE[item.child ? 'subprocess' : item.startAppType] || {}).iconColor}
                   createType={2}
+                  ckeckSuccessCb={() => {
+                    navigateTo(`/workflowedit/${item.id}`);
+                  }}
                 />
               </div>
               <div className="columnType">

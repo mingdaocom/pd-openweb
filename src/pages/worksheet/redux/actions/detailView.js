@@ -33,6 +33,7 @@ export const fetchRows = (pageIndex, keyWords) => {
         list: pageIndex > 1 ? detailViewRows.concat(res.data) : res.data,
         resultCode: res.resultCode,
       });
+      dispatch({ type: 'CHANGE_DETAIL_VIEW_ROWS_COUNT', count: res.count });
       dispatch({ type: 'CHANGE_DETAIL_VIEW_NO_MORE_ROWS', noMore: res.data.length < 50 });
       dispatch({ type: 'CHANGE_DETAIL_VIEW_LOADING', loading: false });
     });
@@ -65,6 +66,7 @@ export const updateRow = data => {
         type: 'CHANGE_DETAIL_VIEW_ROWS',
         list: [data].concat(detailViewRows),
       });
+      dispatch({ type: 'CHANGE_DETAIL_VIEW_ROWS_COUNT', count: detailView.detailViewRowsCount + 1 });
     } else {
       dispatch({
         type: 'CHANGE_DETAIL_VIEW_ROWS',
@@ -90,5 +92,6 @@ export const deleteRow = id => {
       type: 'CHANGE_DETAIL_VIEW_ROWS',
       list: newList,
     });
+    dispatch({ type: 'CHANGE_DETAIL_VIEW_ROWS_COUNT', count: detailView.detailViewRowsCount - 1 });
   };
 };

@@ -8,6 +8,16 @@ export function detailViewRows(state = [], action) {
   }
 }
 
+export function detailViewRowsCount(state = 0, action) {
+  const { type } = action;
+  switch (type) {
+    case 'CHANGE_DETAIL_VIEW_ROWS_COUNT':
+      return action.count;
+    default:
+      return state;
+  }
+}
+
 export function noMoreRows(state = false, action) {
   const { type } = action;
   switch (type) {

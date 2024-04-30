@@ -41,7 +41,7 @@ export const permissionObj = {
     'applog',
     'database',
     'settings',
-    'aggregationTable',
+    'tableAggregation',
   ],
 };
 
@@ -227,7 +227,7 @@ export const menuList = [
       },
       {
         name: _l('聚合表'),
-        key: 'aggregationTable',
+        key: 'tableAggregation',
         featureId: VersionProductType.aggregation,
         routes: [
           {

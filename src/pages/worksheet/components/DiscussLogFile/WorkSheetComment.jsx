@@ -62,35 +62,29 @@ export default class WorkSheetComment extends React.Component {
     } = nextProps || this.props;
     const { discussions = [] } = this.state;
     let data = [];
+    formdata = formdata.filter(
+      o =>
+        [o.sourceControlType, o.type].includes(26) && //成员字段
+        (o.userPermission !== 0 || o.controlId === 'ownerid' || (o.type === 30 && _.get(o, 'strDefault.0') !== '1')), //排除仅用于记录人员数据(除了拥有者字段外)
+    );
     if (status === 1) {
       //内部讨论
       if (!allowExAccountDiscuss || (allowExAccountDiscuss && exAccountDiscussEnum !== 0)) {
         //未配置外部人员可参与讨论 或配置了外部成员不可见内部讨论 不能@外部用户
-        formdata = formdata.filter(
-          o =>
-            o.type === 26 && //成员字段
-            (o.userPermission !== 0 || o.controlId === 'ownerid') && //排除仅用于记录人员数据(除了拥有者字段外)
-            (o.advancedSetting || {}).usertype !== '2',
-        );
+        formdata = formdata.filter(o => (o.advancedSetting || {}).usertype !== '2');
       }
     }
-    formdata
-      .filter(
-        o =>
-          o.type === 26 && //成员字段
-          (o.userPermission !== 0 || o.controlId === 'ownerid'), //排除仅用于记录人员数据(除了拥有者字段外)
-      )
-      .map(o => {
-        let d;
-        try {
-          d = JSON.parse(o.value).map(item => {
-            return Object.assign({}, item, { job: o.controlName });
-          });
-        } catch (err) {
-          d = [];
-        }
-        data = data.concat(d);
-      });
+    formdata.map(o => {
+      let d;
+      try {
+        d = JSON.parse(o.value).map(item => {
+          return Object.assign({}, item, { job: o.controlName });
+        });
+      } catch (err) {
+        d = [];
+      }
+      data = data.concat(d);
+    });
     let accountsInMessage = [];
     let dis = discussions.map(o => {
       accountsInMessage = accountsInMessage.concat(o.accountsInMessage);

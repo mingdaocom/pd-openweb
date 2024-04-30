@@ -259,6 +259,7 @@ export const enterpriseRegister = () => {
             }),
           );
         }
+        break;
       case 'editInfo':
         const data = await accountApi.checkJoinProjectByTokenWithCard({
           projectId: request.projectId,
@@ -275,6 +276,7 @@ export const enterpriseRegister = () => {
           dispatch(updateUseCard(data.userCard));
           accountInfo.tokenProjectCode = data.token;
         }
+        break;
     }
     dispatch(initRegisterData(accountInfo));
   };

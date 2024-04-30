@@ -46,6 +46,12 @@ const Con = styled.div`
   height: 37px;
   padding: 0 20px 0 20px;
   border-bottom: 1px solid #e0e0e0;
+
+  .detailAllCount {
+    padding-left: 16px;
+    font-size: 14px;
+    color: #888;
+  }
 `;
 
 function ViewControl(props) {
@@ -87,6 +93,7 @@ function ViewControl(props) {
     appPkg,
     updateCurrentViewState,
     updateViewShowcount,
+    detailView,
   } = props;
   const { worksheetId, projectId } = worksheetInfo;
   const { count, pageCountAbnormal, rowsSummary } = sheetViewData;
@@ -287,6 +294,11 @@ function ViewControl(props) {
             }}
           />
         )}
+
+      {Number(view.viewType) === 6 && Number(view.childType) === 2 && (
+        <div className="detailAllCount">{_l('共') + detailView.detailViewRowsCount + _l('条')}</div>
+      )}
+
       {Number(view && view.viewType) === 0 && (
         <Pagination
           abnormalMode={pageCountAbnormal}
@@ -517,6 +529,7 @@ export default connect(
     navGroupFilters: state.sheet.navGroupFilters,
     controls: state.sheet.controls,
     sheetSwitchPermit: state.sheet.sheetSwitchPermit || [],
+    detailView: state.sheet.detailView,
     // sheetview
     sheetViewData: state.sheet.sheetview.sheetViewData,
     sheetFetchParams: state.sheet.sheetview.sheetFetchParams,

@@ -300,7 +300,7 @@ export default class AggregationTable extends Component {
                         >
                           <Icon icon="aggregate_table" className="Font24 White" />
                         </div>
-                        <div className="flex flexColumn name mLeft10 mRight40">
+                        <div className="flex flexColumn name mLeft10 mRight40 ellipsis">
                           <div className="ellipsis Font14" title={name}>
                             {name}
                           </div>

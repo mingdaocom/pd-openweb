@@ -47,6 +47,7 @@ function CheckIsAppAdminCon(props) {
         appId,
       })
       .then(res => {
+        onCancel();
         if (res) {
           if (_.isFunction(callback)) {
             callback();
@@ -55,7 +56,6 @@ function CheckIsAppAdminCon(props) {
           addBehaviorLog('app', appId); // 浏览应用埋点
           navigateTo(`/app/${appId}`);
         }
-        onCancel();
       });
   };
 
