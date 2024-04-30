@@ -5,9 +5,8 @@ import Config from '../../config';
 import './index.less';
 import groupController from 'src/api/group';
 import Empty from '../../common/TableEmpty';
-import cx from 'classnames';
 import PaginationWrap from '../../components/PaginationWrap';
-import DialogSelectGroups from 'src/components/dialogSelectDept';
+import { dialogSelectDept } from 'ming-ui/functions';
 import CreateGroup from 'src/components/group/create/creatGroup';
 import moment from 'moment';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
@@ -215,7 +214,8 @@ export default class GroupsList extends Component {
 
   handleEditDept(record) {
     const _this = this;
-    new DialogSelectGroups({
+
+    dialogSelectDept({
       projectId: Config.projectId,
       unique: true,
       selectFn: data => {
@@ -236,7 +236,8 @@ export default class GroupsList extends Component {
 
   handleSetDept(record) {
     const _this = this;
-    new DialogSelectGroups({
+
+    dialogSelectDept({
       projectId: Config.projectId,
       callback: function (data) {
         _this.updateDeptMappingGroup(record.groupId, true, data.departmentId);

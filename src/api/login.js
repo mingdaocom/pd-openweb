@@ -18,7 +18,7 @@ export default {
   **/
    mDAccountLogin: function (args, options = {}) {
      
-     return $.api('Login', 'MDAccountLogin', args, options);
+     return mdyAPI('Login', 'MDAccountLogin', args, options);
    },
   /**
   * 使用明道云账号自动登录，如果登录失败，需要把本地保存的密码清理掉
@@ -35,7 +35,7 @@ export default {
   **/
    mDAccountAutoLogin: function (args, options = {}) {
      
-     return $.api('Login', 'MDAccountAutoLogin', args, options);
+     return mdyAPI('Login', 'MDAccountAutoLogin', args, options);
    },
   /**
   * 两步验证登录
@@ -51,7 +51,7 @@ export default {
   **/
    mDTwofactorLogin: function (args, options = {}) {
      
-     return $.api('Login', 'MDTwofactorLogin', args, options);
+     return mdyAPI('Login', 'MDTwofactorLogin', args, options);
    },
   /**
   * 检查登陆状态
@@ -63,7 +63,7 @@ export default {
   **/
    checkLogin: function (args, options = {}) {
      
-     return $.api('Login', 'CheckLogin', args, options);
+     return mdyAPI('Login', 'CheckLogin', args, options);
    },
   /**
   * 登出
@@ -74,7 +74,7 @@ export default {
   **/
    loginOut: function (args, options = {}) {
      
-     return $.api('Login', 'LoginOut', args, options);
+     return mdyAPI('Login', 'LoginOut', args, options);
    },
   /**
   * 发送验证码
@@ -85,13 +85,14 @@ export default {
   * @param {string} args.state 状态位
   * @param {integer} args.type 发送类型
 1为手机号；2为邮箱
+  * @param {} args.lang
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    sendTwofactorVerifyCode: function (args, options = {}) {
      
-     return $.api('Login', 'SendTwofactorVerifyCode', args, options);
+     return mdyAPI('Login', 'SendTwofactorVerifyCode', args, options);
    },
   /**
   * LDAP账号登录
@@ -110,7 +111,7 @@ export default {
   **/
    lDAPLogin: function (args, options = {}) {
      
-     return $.api('Login', 'LDAPLogin', args, options);
+     return mdyAPI('Login', 'LDAPLogin', args, options);
    },
   /**
   * 第三方账号登录
@@ -124,7 +125,7 @@ export default {
   **/
    tPLogin: function (args, options = {}) {
      
-     return $.api('Login', 'TPLogin', args, options);
+     return mdyAPI('Login', 'TPLogin', args, options);
    },
   /**
   * 第三方使用明道云账号SSO登录
@@ -137,7 +138,7 @@ export default {
   **/
    tPMDAccountLogin: function (args, options = {}) {
      
-     return $.api('Login', 'TPMDAccountLogin', args, options);
+     return mdyAPI('Login', 'TPMDAccountLogin', args, options);
    },
   /**
   * 【三方应用】企业微信二维码登录
@@ -149,7 +150,7 @@ export default {
   **/
    workWeiXinLogin: function (args, options = {}) {
      
-     return $.api('Login', 'WorkWeiXinLogin', args, options);
+     return mdyAPI('Login', 'WorkWeiXinLogin', args, options);
    },
   /**
   * 【三方应用】企业微信安装应用登录
@@ -163,7 +164,7 @@ export default {
   **/
    workWeiXinInstallAuthLogin: function (args, options = {}) {
      
-     return $.api('Login', 'WorkWeiXinInstallAuthLogin', args, options);
+     return mdyAPI('Login', 'WorkWeiXinInstallAuthLogin', args, options);
    },
   /**
   * 获取企业微信企业相关信息
@@ -175,7 +176,7 @@ export default {
   **/
    getWorkWeiXinCorpInfo: function (args, options = {}) {
      
-     return $.api('Login', 'GetWorkWeiXinCorpInfo', args, options);
+     return mdyAPI('Login', 'GetWorkWeiXinCorpInfo', args, options);
    },
   /**
   * 企业微信小程序登录
@@ -188,7 +189,7 @@ export default {
   **/
    workWeiXinMiniProgramLogin: function (args, options = {}) {
      
-     return $.api('Login', 'WorkWeiXinMiniProgramLogin', args, options);
+     return mdyAPI('Login', 'WorkWeiXinMiniProgramLogin', args, options);
    },
   /**
   * 【三方应用】企业微信三方应用明道云登录
@@ -201,7 +202,7 @@ export default {
   **/
    workWeiXinH5Login: function (args, options = {}) {
      
-     return $.api('Login', 'WorkWeiXinH5Login', args, options);
+     return mdyAPI('Login', 'WorkWeiXinH5Login', args, options);
    },
   /**
   * 获取钉钉企业相关信息
@@ -213,7 +214,7 @@ export default {
   **/
    getDingDingCorpInfo: function (args, options = {}) {
      
-     return $.api('Login', 'GetDingDingCorpInfo', args, options);
+     return mdyAPI('Login', 'GetDingDingCorpInfo', args, options);
    },
   /**
   * 钉钉应用登录
@@ -227,7 +228,7 @@ export default {
   **/
    dingDingAppLogin: function (args, options = {}) {
      
-     return $.api('Login', 'DingDingAppLogin', args, options);
+     return mdyAPI('Login', 'DingDingAppLogin', args, options);
    },
   /**
   * 【自建应用集成】企业微信自建应用集成登录
@@ -241,7 +242,7 @@ export default {
   **/
    workWeiXinAppLoginByApp: function (args, options = {}) {
      
-     return $.api('Login', 'WorkWeiXinAppLoginByApp', args, options);
+     return mdyAPI('Login', 'WorkWeiXinAppLoginByApp', args, options);
    },
   /**
   * 【自建应用集成】获取企业微信自建应用集成企业相关信息
@@ -253,7 +254,7 @@ export default {
   **/
    getWorkWeiXinCorpInfoByApp: function (args, options = {}) {
      
-     return $.api('Login', 'GetWorkWeiXinCorpInfoByApp', args, options);
+     return mdyAPI('Login', 'GetWorkWeiXinCorpInfoByApp', args, options);
    },
   /**
   * 【自建应用集成】Welink自建应用集成登录
@@ -266,7 +267,7 @@ export default {
   **/
    welinkAppLoginByApp: function (args, options = {}) {
      
-     return $.api('Login', 'WelinkAppLoginByApp', args, options);
+     return mdyAPI('Login', 'WelinkAppLoginByApp', args, options);
    },
   /**
   * 【自建应用集成】获取企业微信自建应用集成企业相关信息
@@ -278,7 +279,7 @@ export default {
   **/
    getFeishuCorpInfoByApp: function (args, options = {}) {
      
-     return $.api('Login', 'GetFeishuCorpInfoByApp', args, options);
+     return mdyAPI('Login', 'GetFeishuCorpInfoByApp', args, options);
    },
   /**
   * 【自建应用集成】飞书自建应用集成登录
@@ -292,6 +293,6 @@ export default {
   **/
    feishuAppLoginByApp: function (args, options = {}) {
      
-     return $.api('Login', 'FeishuAppLoginByApp', args, options);
+     return mdyAPI('Login', 'FeishuAppLoginByApp', args, options);
    },
 };

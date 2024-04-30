@@ -10,9 +10,9 @@ const ColumnListWrap = styled.div`
   width: 100%;
   background: #fff;
   z-index: 1;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.1);
   .header.search {
     padding: 0 20px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.1);
     border-bottom: 1px solid #eee;
     .icon {
       color: #8c8c8c;
@@ -38,6 +38,10 @@ const ColumnListWrap = styled.div`
       max-height: 300px;
       width: 100%;
       border-radius: 0 0 3px 3px;
+      &.ming.Menu {
+        box-shadow: none;
+        position: relative;
+      }
       li.Item .Item-content:hover {
         .controlItem {
           .controlIcon,

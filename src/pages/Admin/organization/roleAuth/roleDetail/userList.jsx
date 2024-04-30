@@ -1,10 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import LoadDiv from 'ming-ui/components/LoadDiv';
-import UserHead from 'src/components/userHead';
-
+import { LoadDiv, UserHead } from 'ming-ui';
 import RoleController from 'src/api/role';
 import PaginationWrap from '../../../components/PaginationWrap';
+import { navigateTo } from 'src/router/navigateTo';
 import cx from 'classnames';
 import _ from 'lodash';
 
@@ -75,9 +74,9 @@ class RoleUserList extends React.Component {
       roleId,
       keywords,
     })
-      .done(({ allCount, list } = {}) => {
+      .then(({ allCount, list } = {}) => {
         if (allCount === undefined) {
-          return $.Deferred().reject().promise();
+          return Promise.reject();
         }
         this.setState({
           isLoading: false,
@@ -87,7 +86,7 @@ class RoleUserList extends React.Component {
 
         callback(allCount !== 0);
       })
-      .fail(() => {
+      .catch(() => {
         this.setState({
           isLoading: false,
         });
@@ -110,10 +109,16 @@ class RoleUserList extends React.Component {
       return (
         <React.Fragment>
           {_.map(users, user => {
+            const isOwner = user.accountId === md.global.Account.accountId;
+
             return (
               <tr key={user.accountId} className="tdHover">
                 <td className="userHeadBox">
-                  <UserHead user={{ userHead: user.avatar, accountId: user.accountId }} size={32} projectId={projectId} />
+                  <UserHead
+                    user={{ userHead: user.avatar, accountId: user.accountId }}
+                    size={32}
+                    projectId={projectId}
+                  />
                 </td>
                 <td className="userName">{user.fullName}</td>
                 <td className="userProfession">{user.profession}</td>
@@ -124,7 +129,7 @@ class RoleUserList extends React.Component {
                       pLeft8: this.roleUserList.clientHeight > this.roleAuthDetailScroll.clientHeight,
                     })}
                   >
-                    {userOpAuth && !(user.accountId === md.global.Account.accountId && isSuperAdmin) ? (
+                    {userOpAuth && !(isOwner && isSuperAdmin) ? (
                       <span
                         className="adminHoverDeleteColor"
                         onClick={() => {
@@ -135,14 +140,18 @@ class RoleUserList extends React.Component {
                           }).then(res => {
                             if (res) {
                               alert(_l('操作成功'));
-                              this.getUserList();
+                              if (isOwner) {
+                                location.href = '/admin/sysroles/' + projectId;
+                              } else {
+                                this.getUserList();
+                              }
                             } else {
                               alert(_l('操作失败'), 2);
                             }
                           });
                         }}
                       >
-                        {_l('移除')}
+                        {isOwner ? _l('退出') : _l('移除')}
                       </span>
                     ) : null}
                   </td>

@@ -9,7 +9,7 @@ export default {
   **/
    getSysColor: function (args, options = {}) {
      
-     return $.api('ProjectSetting', 'GetSysColor', args, options);
+     return mdyAPI('ProjectSetting', 'GetSysColor', args, options);
    },
   /**
   * 获取 是否允许申请后台组织管理员权限
@@ -21,7 +21,19 @@ export default {
   **/
    getAllowApplyManageRole: function (args, options = {}) {
      
-     return $.api('ProjectSetting', 'GetAllowApplyManageRole', args, options);
+     return mdyAPI('ProjectSetting', 'GetAllowApplyManageRole', args, options);
+   },
+  /**
+  * 获取 平台登录配置（Mingdao）
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getMDLoginSetting: function (args, options = {}) {
+     
+     return mdyAPI('ProjectSetting', 'GetMDLoginSetting', args, options);
    },
   /**
   * 获取SSO相关配置
@@ -33,7 +45,7 @@ export default {
   **/
    getSsoSettings: function (args, options = {}) {
      
-     return $.api('ProjectSetting', 'GetSsoSettings', args, options);
+     return mdyAPI('ProjectSetting', 'GetSsoSettings', args, options);
    },
   /**
   * 二级域名
@@ -45,7 +57,7 @@ export default {
   **/
    getSubDomain: function (args, options = {}) {
      
-     return $.api('ProjectSetting', 'GetSubDomain', args, options);
+     return mdyAPI('ProjectSetting', 'GetSubDomain', args, options);
    },
   /**
   * 新用户加入企业必填字段
@@ -57,7 +69,7 @@ export default {
   **/
    getPrivacy: function (args, options = {}) {
      
-     return $.api('ProjectSetting', 'GetPrivacy', args, options);
+     return mdyAPI('ProjectSetting', 'GetPrivacy', args, options);
    },
   /**
   * 获取是否允许全员可见组织结构
@@ -69,7 +81,7 @@ export default {
   **/
    getStructureForAll: function (args, options = {}) {
      
-     return $.api('ProjectSetting', 'GetStructureForAll', args, options);
+     return mdyAPI('ProjectSetting', 'GetStructureForAll', args, options);
    },
   /**
   * 获取 是否开启了水印
@@ -81,7 +93,7 @@ export default {
   **/
    getEnabledWatermark: function (args, options = {}) {
      
-     return $.api('ProjectSetting', 'GetEnabledWatermark', args, options);
+     return mdyAPI('ProjectSetting', 'GetEnabledWatermark', args, options);
    },
   /**
   * 获取 是否开启了用户密码输入可以设置免密验证
@@ -93,7 +105,7 @@ export default {
   **/
    getEnabledNoneVerification: function (args, options = {}) {
      
-     return $.api('ProjectSetting', 'GetEnabledNoneVerification', args, options);
+     return mdyAPI('ProjectSetting', 'GetEnabledNoneVerification', args, options);
    },
   /**
   * 获取 是否只允许管理员创建应用
@@ -105,7 +117,7 @@ export default {
   **/
    getOnlyManagerCreateApp: function (args, options = {}) {
      
-     return $.api('ProjectSetting', 'GetOnlyManagerCreateApp', args, options);
+     return mdyAPI('ProjectSetting', 'GetOnlyManagerCreateApp', args, options);
    },
   /**
   * 获取 是否自动订购工作流升级包
@@ -117,7 +129,7 @@ export default {
   **/
    getAutoPurchaseWorkflowExtPack: function (args, options = {}) {
      
-     return $.api('ProjectSetting', 'GetAutoPurchaseWorkflowExtPack', args, options);
+     return mdyAPI('ProjectSetting', 'GetAutoPurchaseWorkflowExtPack', args, options);
    },
   /**
   * 获取 是否自动订购数据集成升级包
@@ -129,7 +141,19 @@ export default {
   **/
    getAutoPurchaseDataPipelineExtPack: function (args, options = {}) {
      
-     return $.api('ProjectSetting', 'GetAutoPurchaseDataPipelineExtPack', args, options);
+     return mdyAPI('ProjectSetting', 'GetAutoPurchaseDataPipelineExtPack', args, options);
+   },
+  /**
+  * 获取 API集成 仅管理员 可用开关（integration 简写成 intg）
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getOnlyManagerSettings: function (args, options = {}) {
+     
+     return mdyAPI('ProjectSetting', 'GetOnlyManagerSettings', args, options);
    },
   /**
   * LOGO
@@ -154,7 +178,7 @@ export default {
   **/
    setLogo: function (args, options = {}) {
      
-     return $.api('ProjectSetting', 'SetLogo', args, options);
+     return mdyAPI('ProjectSetting', 'SetLogo', args, options);
    },
   /**
   * 二级域名页面背景图片
@@ -179,7 +203,7 @@ export default {
   **/
    setCustomeHomeImage: function (args, options = {}) {
      
-     return $.api('ProjectSetting', 'SetCustomeHomeImage', args, options);
+     return mdyAPI('ProjectSetting', 'SetCustomeHomeImage', args, options);
    },
   /**
   * 设置允许全员可见组织结构
@@ -204,7 +228,7 @@ export default {
   **/
    setStructureForAll: function (args, options = {}) {
      
-     return $.api('ProjectSetting', 'SetStructureForAll', args, options);
+     return mdyAPI('ProjectSetting', 'SetStructureForAll', args, options);
    },
   /**
   * 设置允许员工自行添加下属
@@ -229,7 +253,7 @@ export default {
   **/
    setStructureSelfEdit: function (args, options = {}) {
      
-     return $.api('ProjectSetting', 'SetStructureSelfEdit', args, options);
+     return mdyAPI('ProjectSetting', 'SetStructureSelfEdit', args, options);
    },
   /**
   * 设置 是否 只允许管理员创建应用
@@ -242,7 +266,7 @@ export default {
   **/
    setOnlyManagerCreateApp: function (args, options = {}) {
      
-     return $.api('ProjectSetting', 'SetOnlyManagerCreateApp', args, options);
+     return mdyAPI('ProjectSetting', 'SetOnlyManagerCreateApp', args, options);
    },
   /**
   * 设置 是否 只允许管理员创建应用
@@ -267,7 +291,7 @@ export default {
   **/
    setEnabledWatermark: function (args, options = {}) {
      
-     return $.api('ProjectSetting', 'SetEnabledWatermark', args, options);
+     return mdyAPI('ProjectSetting', 'SetEnabledWatermark', args, options);
    },
   /**
   * 设置 是否 启用用户密码输入可以设置免密验证
@@ -292,7 +316,7 @@ export default {
   **/
    setEnabledNoneVerification: function (args, options = {}) {
      
-     return $.api('ProjectSetting', 'SetEnabledNoneVerification', args, options);
+     return mdyAPI('ProjectSetting', 'SetEnabledNoneVerification', args, options);
    },
   /**
   * 设置 是否 自动订购工作流升级包
@@ -305,7 +329,7 @@ export default {
   **/
    setAutoPurchaseWorkflowExtPack: function (args, options = {}) {
      
-     return $.api('ProjectSetting', 'SetAutoPurchaseWorkflowExtPack', args, options);
+     return mdyAPI('ProjectSetting', 'SetAutoPurchaseWorkflowExtPack', args, options);
    },
   /**
   * 设置 是否 自动订购数据集成升级包
@@ -318,10 +342,11 @@ export default {
   **/
    setAutoPurchaseDataPipelineExtPack: function (args, options = {}) {
      
-     return $.api('ProjectSetting', 'SetAutoPurchaseDataPipelineExtPack', args, options);
+     return mdyAPI('ProjectSetting', 'SetAutoPurchaseDataPipelineExtPack', args, options);
    },
   /**
   * 设置 是否允许申请后台组织管理员权限
+超级管理员才能操作
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
   * @param {boolean} args.allowApplyManageRole 是否允许申请管理员
@@ -331,7 +356,20 @@ export default {
   **/
    setAllowApplyManageRole: function (args, options = {}) {
      
-     return $.api('ProjectSetting', 'SetAllowApplyManageRole', args, options);
+     return mdyAPI('ProjectSetting', 'SetAllowApplyManageRole', args, options);
+   },
+  /**
+  * 设置 平台登录配置（Mingdao）
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {boolean} args.enabledMDLogin 是否开启平台账号登录
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   setMDLoginSetting: function (args, options = {}) {
+     
+     return mdyAPI('ProjectSetting', 'SetMDLoginSetting', args, options);
    },
   /**
   * 设置 是否开启SSO
@@ -344,7 +382,20 @@ export default {
   **/
    setSso: function (args, options = {}) {
      
-     return $.api('ProjectSetting', 'SetSso', args, options);
+     return mdyAPI('ProjectSetting', 'SetSso', args, options);
+   },
+  /**
+  * 设置 Sso 自定义显示名称
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.ssoName Sso 自定义显示名称
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   setSsoName: function (args, options = {}) {
+     
+     return mdyAPI('ProjectSetting', 'SetSsoName', args, options);
    },
   /**
   * 设置 SSOUrl
@@ -358,7 +409,7 @@ export default {
   **/
    setSsoUrl: function (args, options = {}) {
      
-     return $.api('ProjectSetting', 'SetSsoUrl', args, options);
+     return mdyAPI('ProjectSetting', 'SetSsoUrl', args, options);
    },
   /**
   * 设置二级域名
@@ -383,7 +434,7 @@ export default {
   **/
    setSubDomin: function (args, options = {}) {
      
-     return $.api('ProjectSetting', 'SetSubDomin', args, options);
+     return mdyAPI('ProjectSetting', 'SetSubDomin', args, options);
    },
   /**
   * 新用户加入企业必填字段
@@ -401,7 +452,23 @@ MD.Enum.ProjectSetting.UserFillDepartmentEnabled
   **/
    setPrivacy: function (args, options = {}) {
      
-     return $.api('ProjectSetting', 'SetPrivacy', args, options);
+     return mdyAPI('ProjectSetting', 'SetPrivacy', args, options);
+   },
+  /**
+  * 仅管理员 可用开关
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId
+  * @param {boolean} args.onlyManagerCreateApp 是否 只允许管理员创建应用（可空，空置不设置该值）
+  * @param {boolean} args.apiIntgOnlyManager 是否 只允许管理员创建应用（可空，空置不设置该值）
+  * @param {boolean} args.dataPipeOnlyManager 数据集成 仅管理员 可用开关（可空，空置不设置该值）
+  * @param {boolean} args.pluginsOnlyManager 插件 仅管理员 可用开关（可空，空置不设置该值）
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   setOnlyManager: function (args, options = {}) {
+     
+     return mdyAPI('ProjectSetting', 'SetOnlyManager', args, options);
    },
   /**
   * 新用户加入企业必填字段
@@ -418,7 +485,7 @@ MD.Enum.ProjectSetting.UserFillDepartmentEnabled
   **/
    setPrivacys: function (args, options = {}) {
      
-     return $.api('ProjectSetting', 'SetPrivacys', args, options);
+     return mdyAPI('ProjectSetting', 'SetPrivacys', args, options);
    },
   /**
   * 获取LDAP信息
@@ -430,7 +497,7 @@ MD.Enum.ProjectSetting.UserFillDepartmentEnabled
   **/
    getProjectLdapSetting: function (args, options = {}) {
      
-     return $.api('ProjectSetting', 'GetProjectLdapSetting', args, options);
+     return mdyAPI('ProjectSetting', 'GetProjectLdapSetting', args, options);
    },
   /**
   * 修改LDAP信息
@@ -457,7 +524,7 @@ MD.Enum.ProjectSetting.UserFillDepartmentEnabled
   **/
    updateProjectLdapSetting: function (args, options = {}) {
      
-     return $.api('ProjectSetting', 'UpdateProjectLdapSetting', args, options);
+     return mdyAPI('ProjectSetting', 'UpdateProjectLdapSetting', args, options);
    },
   /**
   * 修改LDAP开启状态
@@ -470,7 +537,20 @@ MD.Enum.ProjectSetting.UserFillDepartmentEnabled
   **/
    updateLdapState: function (args, options = {}) {
      
-     return $.api('ProjectSetting', 'UpdateLdapState', args, options);
+     return mdyAPI('ProjectSetting', 'UpdateLdapState', args, options);
+   },
+  /**
+  * 修改LDAP开启状态
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.ldapName Ldap 自定义显示名称
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   updateLdapName: function (args, options = {}) {
+     
+     return mdyAPI('ProjectSetting', 'UpdateLdapName', args, options);
    },
   /**
   * 获取自定义颜色设置
@@ -482,7 +562,7 @@ MD.Enum.ProjectSetting.UserFillDepartmentEnabled
   **/
    getColorSettings: function (args, options = {}) {
      
-     return $.api('ProjectSetting', 'GetColorSettings', args, options);
+     return mdyAPI('ProjectSetting', 'GetColorSettings', args, options);
    },
   /**
   * 编辑自定义颜色设置
@@ -497,7 +577,7 @@ MD.Enum.ProjectSetting.UserFillDepartmentEnabled
   **/
    editColorSettings: function (args, options = {}) {
      
-     return $.api('ProjectSetting', 'EditColorSettings', args, options);
+     return mdyAPI('ProjectSetting', 'EditColorSettings', args, options);
    },
   /**
   * 开启api网络代理
@@ -510,7 +590,7 @@ MD.Enum.ProjectSetting.UserFillDepartmentEnabled
   **/
    setApiProxyState: function (args, options = {}) {
      
-     return $.api('ProjectSetting', 'SetApiProxyState', args, options);
+     return mdyAPI('ProjectSetting', 'SetApiProxyState', args, options);
    },
   /**
   * 获取api网络代理设置开启状态
@@ -522,7 +602,7 @@ MD.Enum.ProjectSetting.UserFillDepartmentEnabled
   **/
    getApiProxyState: function (args, options = {}) {
      
-     return $.api('ProjectSetting', 'GetApiProxyState', args, options);
+     return mdyAPI('ProjectSetting', 'GetApiProxyState', args, options);
    },
   /**
   * 获取api网络代理配置信息
@@ -534,7 +614,7 @@ MD.Enum.ProjectSetting.UserFillDepartmentEnabled
   **/
    getApiProxySettings: function (args, options = {}) {
      
-     return $.api('ProjectSetting', 'GetApiProxySettings', args, options);
+     return mdyAPI('ProjectSetting', 'GetApiProxySettings', args, options);
    },
   /**
   * 保存api网络代理配置
@@ -552,7 +632,7 @@ MD.Enum.ProjectSetting.UserFillDepartmentEnabled
   **/
    editApiProxySettings: function (args, options = {}) {
      
-     return $.api('ProjectSetting', 'EditApiProxySettings', args, options);
+     return mdyAPI('ProjectSetting', 'EditApiProxySettings', args, options);
    },
   /**
   * &lt;br&gt; ProcessType = 10 &gt;  RemoveProjectUserMemoryCache : 移除 （整网络）网络成员 内存缓存 
@@ -570,6 +650,6 @@ MD.Enum.ProjectSetting.UserFillDepartmentEnabled
   **/
    projectClearCache: function (args, options = {}) {
      
-     return $.api('ProjectSetting', 'ProjectClearCache', args, options);
+     return mdyAPI('ProjectSetting', 'ProjectClearCache', args, options);
    },
 };

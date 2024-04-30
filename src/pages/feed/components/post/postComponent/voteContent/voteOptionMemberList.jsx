@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import UserHead from 'src/components/userHead';
+import { UserHead } from 'ming-ui';
 
 /**
  * 某条投票项的投票用户列表
@@ -27,7 +27,7 @@ VoteOptionMemberList.propTypes = {
       uid: PropTypes.string,
       name: PropTypes.string,
       avatarSmall: PropTypes.string,
-    })
+    }),
   ).isRequired,
 };
 

@@ -8,7 +8,7 @@ import RadioGroup from 'ming-ui/components/RadioGroup';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import CustomFields from 'src/components/newCustomFields';
 import { SYSTEM_CONTROL_WITH_UAID, WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
-import quickSelectUser from 'ming-ui/functions/quickSelectUser';
+import { quickSelectUser } from 'ming-ui/functions';
 import { CONTROL_EDITABLE_WHITELIST } from 'worksheet/constants/enum';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
@@ -63,7 +63,7 @@ export default class EditRecord extends Component {
         control =>
           ((control.type < 10000 &&
             _.includes(CONTROL_EDITABLE_WHITELIST, control.type) &&
-            !(control.type === 29 && _.get(control, 'advancedSetting.showtype') === '2') &&
+            !(control.type === 29 && _.includes(['2', '5', '6'], _.get(control, 'advancedSetting.showtype'))) &&
             !_.find(SYSTEM_CONTROL_WITH_UAID.concat(WORKFLOW_SYSTEM_CONTROL), { controlId: control.controlId }) &&
             !_.find(view.controls, id => control.controlId === id)) ||
             control.controlId === 'ownerid') &&

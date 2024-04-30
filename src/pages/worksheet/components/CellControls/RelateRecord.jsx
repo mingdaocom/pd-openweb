@@ -17,7 +17,7 @@ import RelateRecordDropdown from 'worksheet/components/RelateRecordDropdown';
 import { openChildTable } from '../ChildTableDialog';
 import { openRelateRelateRecordTable } from '../RelateRecordTableDialog';
 import autobind from 'core-decorators/lib/autobind';
-import _ from 'lodash';
+import _, { includes } from 'lodash';
 import { browserIsMobile } from 'src/util';
 
 const RecordCardCellRelateRecord = styled.div`
@@ -263,18 +263,24 @@ export default class RelateRecord extends React.Component {
     let { records } = this.state;
     const { isRequestingRelationControls } = this.context || {};
     const { advancedSetting = {} } = cell;
-    const isSublist = cell.type === 34;
+    const isSubList = cell.type === 34;
     const { showtype, allowlink, ddset } = advancedSetting; // 1 卡片 2 列表 3 下拉
     const allowOpenList = from !== 21 && !isTrash && worksheetId && recordId;
     const recordsLength = this.getReordsLength(cell.value);
     let showCount = recordsLength >= 1000 ? '999+' : recordsLength;
-    if (isSublist && recordsLength >= 1000) {
+    if (isSubList && recordsLength >= 1000) {
       showCount = 1000;
     }
     if (isRequestingRelationControls) {
       return <div className={className} style={style} onClick={onClick} />;
     }
-    if (parseInt(showtype, 10) === RELATE_RECORD_SHOW_TYPE.LIST || isSublist) {
+    if (
+      includes(
+        [RELATE_RECORD_SHOW_TYPE.LIST, RELATE_RECORD_SHOW_TYPE.TABLE, RELATE_RECORD_SHOW_TYPE.TAB_TABLE],
+        parseInt(showtype, 10),
+      ) ||
+      isSubList
+    ) {
       return (
         <div className={className} style={style} onClick={onClick}>
           {recordsLength > 0 && (
@@ -285,7 +291,7 @@ export default class RelateRecord extends React.Component {
                   return;
                 }
                 e.stopPropagation();
-                if (isSublist) {
+                if (isSubList) {
                   openChildTable({
                     openFrom: 'cell',
                     allowEdit: editable && from !== 4,
@@ -309,6 +315,7 @@ export default class RelateRecord extends React.Component {
                   });
                 } else {
                   openRelateRelateRecordTable({
+                    openFrom: 'cell',
                     title: getTitleTextFromControls(_.isFunction(rowFormData) ? rowFormData() : rowFormData),
                     appId,
                     viewId,
@@ -327,7 +334,7 @@ export default class RelateRecord extends React.Component {
                 }
               }}
             >
-              <i className={cx('icon', isSublist ? 'icon-table' : 'icon-link_record')}></i>
+              <i className={cx('icon', isSubList ? 'icon-table' : 'icon-link_record')}></i>
               {showCount}
             </div>
           )}
@@ -446,7 +453,11 @@ export default class RelateRecord extends React.Component {
                 onOpenDialog={() => this.setState({ dialogActive: true })}
               />
             }
-            getPopupContainer={popupContainer}
+            getPopupContainer={() =>
+              rowIndex === 0 && this.isSubList
+                ? document.querySelector(`.worksheetTableComp.id-${tableId}-id`) || document.body
+                : popupContainer()
+            }
             popupClassName="filterTrigger"
             popupVisible={isediting}
             destroyPopupOnHide

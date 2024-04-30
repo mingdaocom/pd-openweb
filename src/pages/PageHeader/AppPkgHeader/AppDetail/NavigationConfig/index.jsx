@@ -12,7 +12,9 @@ export default function NavigationConfig(props) {
   const [loading, setLoading] = useState(false);
   const [gridDisplayMode, setGridDisplayMode] = useState(app.gridDisplayMode || 0);
   const [appNaviDisplayType, setAppNaviDisplayType] = useState(app.appNaviDisplayType || 0);
-  const [pcNaviDisplayType, setPcNaviDisplayType] = useState(app.pcNaviDisplayType || 0);
+  const [expandType, setExpandType] = useState(app.expandType || 0);
+  const [displayIcon, setDisplayIcon] = useState(app.displayIcon || '011');
+  const [hideFirstSection, setHideFirstSection] = useState(app.hideFirstSection || false);
 
   useEffect(() => {
     if (!visible) return;
@@ -36,58 +38,156 @@ export default function NavigationConfig(props) {
     );
   };
 
+  const renderDisplayIcon = list => {
+    return (
+      <Fragment>
+        {list.map((item, index) => (
+          <Checkbox
+            className={cx('mLeft0 mRight10', { hide: !item.show })}
+            checked={displayIcon.split('')[index] === '1'}
+            onChange={e => {
+              const value = e.target.checked ? '1' : '0';
+              const res = displayIcon.split('').map((n, i) => i === index ? value : n).join('');
+              setDisplayIcon(res);
+              onChangeApp({ displayIcon: res });
+            }}
+          >
+            <span className="Normal">{item.name}</span>
+          </Checkbox>
+        ))}
+      </Fragment>
+    );
+  };
+
   const renderPcConfig = () => {
     return (
       <Fragment>
         {renderNavStyleConfig('pcNaviStyle')}
-        {app.currentPcNaviStyle === 1 && (
-          <div className="content mBottom24">
-            <div className="title Font13 mBottom12 pAll0 bold">{_l('分组展开方式')}</div>
-            <RadioGroup
-              size="middle"
-              className="mBottom20 mobileNavRadio"
-              data={[
-                {
-                  text: _l('默认全展开'),
-                  value: 0,
-                },
-                {
-                  text: _l('默认全收起'),
-                  value: 1,
-                },
-                {
-                  text: _l('每次展开单个一级分组（其他自动收起）'),
-                  value: 2,
-                },
-              ]}
-              checkedValue={pcNaviDisplayType}
-              onChange={value => {
-                setPcNaviDisplayType(value);
-                onChangeApp({ pcNaviDisplayType: value });
-              }}
-            ></RadioGroup>
-          </div>
-        )}
         <div className="content mBottom24">
-          <div className="title Font13 mBottom12 pAll0 bold">{_l('每次访问时')}</div>
-          <RadioGroup
-            size="middle"
-            className="mBottom30 mobileNavRadio"
-            data={[
-              {
-                text: app.pcNaviStyle === 2 ? _l('始终选中第一个分组') : _l('始终选中第一个应用项'),
-                value: 1,
-              },
-              {
-                text: _l('记住上次使用'),
-                value: 2,
-              },
-            ]}
-            checkedValue={app.selectAppItmeType}
-            onChange={value => {
-              onChangeApp({ selectAppItmeType: value });
-            }}
-          ></RadioGroup>
+          <div className="title Font13 mBottom15 pAll0 bold">{_l('设置')}</div>
+          {app.currentPcNaviStyle === 3 && (
+            <div className="flexRow alignItemsCenter mBottom15">
+              <div style={{ width: 100 }}>{_l('展开方式')}</div>
+              <RadioGroup
+                size="middle"
+                data={[
+                  {
+                    text: _l('常规'),
+                    value: 0,
+                  },
+                  {
+                    text: _l('手风琴'),
+                    value: 1,
+                  }
+                ]}
+                checkedValue={expandType}
+                onChange={value => {
+                  setExpandType(value);
+                  onChangeApp({ expandType: value });
+                }}
+              ></RadioGroup>
+            </div>
+          )}
+          <div className="flexRow alignItemsCenter mBottom15">
+            <div style={{ width: 100 }}>{_l('显示图标')}</div>
+            {app.currentPcNaviStyle === 0 && (
+              renderDisplayIcon([
+                {
+                  name: _l('第1级'),
+                  show: true
+                },
+                {
+                  name: _l('第2级'),
+                  show: true
+                },
+                {
+                  name: _l('第3级'),
+                  show: true
+                }
+              ])
+            )}
+            {app.currentPcNaviStyle === 1 && (
+              renderDisplayIcon([
+                {
+                  name: _l('第1级'),
+                  show: false
+                },
+                {
+                  name: _l('第2级'),
+                  show: false
+                },
+                {
+                  name: _l('第3级'),
+                  show: true
+                }
+              ])
+            )}
+            {app.currentPcNaviStyle === 2 && (
+              renderDisplayIcon([
+                {
+                  name: _l('第1级'),
+                  show: true
+                },
+                {
+                  name: _l('第2级'),
+                  show: true
+                },
+                {
+                  name: _l('第3级'),
+                  show: false
+                }
+              ])
+            )}
+            {app.currentPcNaviStyle === 3 && (
+              renderDisplayIcon([
+                {
+                  name: _l('第1级'),
+                  show: false
+                },
+                {
+                  name: _l('第2级'),
+                  show: true
+                },
+                {
+                  name: _l('第3级'),
+                  show: true
+                }
+              ])
+            )}
+          </div>
+          <div className="flexRow">
+            <div style={{ width: 100 }}>{_l('其他')}</div>
+            <div className="flex">
+              <Checkbox
+                checked={app.selectAppItmeType === 2}
+                onChange={e => {
+                  onChangeApp({ selectAppItmeType: app.selectAppItmeType === 2 ? 1 : 2 });
+                }}
+              >
+                <span className="Normal">{_l('记住上次访问的应用项')}</span>
+              </Checkbox>
+              {app.currentPcNaviStyle === 3 && (
+                <div className="flexRow alignItemsCenter mTop3">
+                  <Checkbox
+                    checked={hideFirstSection}
+                    onChange={e => {
+                      setHideFirstSection(e.target.checked);
+                      onChangeApp({ hideFirstSection: e.target.checked });
+                    }}
+                  >
+                    <span className="Normal">{_l('隐藏首个分组标题')}</span>
+                  </Checkbox>
+                  <Tooltip
+                    title={_l('在树形列表中，隐藏第 1 级分组标题，直接显示分组内应用项。通常用于首个分组中的应用项作为应用首页的场景')}
+                    arrowPointAtCenter={true}
+                    placement="bottom"
+                  >
+                    <Icon className="Font16 Gray_9e pointer" icon="info_outline" />
+                  </Tooltip>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
         <div className="flexRow alignItemsCenter mBottom12 title">
           <div className="flex Font13 bold">{_l('导航管理')}</div>

@@ -1,7 +1,6 @@
 import React, { memo, useEffect, useLayoutEffect, useState } from 'react';
 import cx from 'classnames';
-import { ScrollView, Switch, LoadDiv } from 'ming-ui';
-import SvgIcon from 'src/components/SvgIcon';
+import { ScrollView, Switch, LoadDiv, SvgIcon } from 'ming-ui';
 import ajaxRequest from 'src/api/appManagement';
 import _ from 'lodash';
 import './index.less';
@@ -324,10 +323,11 @@ function IconTabs(props) {
               primaryColor="#2196f3"
               checked={setting.isLine}
               onClick={value => {
+                const scrollElem = document.querySelector('.iconsScrollViewWrap .nano-content');
                 let param = {
                   ...setting,
                   isLine: !value,
-                  changeScrollTop: document.querySelector('.iconsScrollViewWrap .nano-content').scrollTop,
+                  changeScrollTop: scrollElem ? scrollElem.scrollTop : setting.scrollTop,
                 };
                 setSetting(param);
 

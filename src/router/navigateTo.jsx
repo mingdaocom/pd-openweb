@@ -1,6 +1,6 @@
 ﻿import ReactDOM from 'react-dom';
 import { getAppFeaturesPath } from 'src/util';
-import { getSuffix } from 'src/pages/PortalAccount/util';
+import { getSuffix } from 'src/pages/accountLogin/portalAccount/util';
 import _ from 'lodash';
 
 const urlStack = [];

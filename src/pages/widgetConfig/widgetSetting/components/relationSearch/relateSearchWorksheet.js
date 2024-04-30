@@ -1,18 +1,16 @@
 import React, { useState, useEffect, Fragment } from 'react';
 import cx from 'classnames';
 import { useSetState } from 'react-use';
-import { LoadDiv, Dialog, Button, Support, Switch, Dropdown } from 'ming-ui';
-import SvgIcon from 'src/components/SvgIcon';
+import { LoadDiv, Dialog, Button, Support, Switch, Dropdown, SvgIcon } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
 import { FilterContent, AddRelate } from './styled';
 import SelectSheetFromApp from '../SelectSheetFromApp';
 import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting';
-import { enumWidgetType, toEditWidgetPage } from 'src/pages/widgetConfig/util';
+import { enumWidgetType, toEditWidgetPage, isSheetDisplay } from 'src/pages/widgetConfig/util';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import { DEFAULT_CONFIG } from 'src/pages/widgetConfig/config/widget';
 import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/FilterConfig';
 import { checkConditionCanSave } from 'src/pages/FormSet/components/columnRules/config';
-import { isRelateRecordTableControl } from 'src/pages/worksheet/util.js';
 import _ from 'lodash';
 import { BrowserRouter } from 'react-router-dom';
 
@@ -88,7 +86,7 @@ function FilterRelateSearch(props) {
             }}
             showCustom={true}
             currentColumns={allControls
-              .filter(i => !isRelateRecordTableControl(i))
+              .filter(i => !isSheetDisplay(i))
               .concat({
                 controlId: 'current-rowid',
                 controlName: _l('当前记录'),
@@ -170,7 +168,7 @@ export function RelateSearchWorksheet(props) {
             handleSetSource({ newControls: filterControls });
           }
         })
-        .always(() => setState({ loading: false }));
+        .finally(() => setState({ loading: false }));
     }
 
     if (relateType === 'filter' && sheetId) {
@@ -185,7 +183,7 @@ export function RelateSearchWorksheet(props) {
             projectId: res.projectId,
           });
         })
-        .always(() => setState({ loading: false }));
+        .finally(() => setState({ loading: false }));
     }
   }, [relateType, sheetId]);
 
@@ -333,7 +331,7 @@ export function RelateSearchWorksheet(props) {
       <Fragment>
         <div className="intro">
           {_l('根据条件查询目标工作表的记录。如：查询关联客户的订单。')}
-          <Support type={3} href="https://help.mingdao.com/sheet37" text={_l('帮助')} />
+          <Support type={3} href="https://help.mingdao.com/worksheet/control-query-records" text={_l('帮助')} />
         </div>
         <div className="relateWrap">
           <ul className="relateTypeTab">

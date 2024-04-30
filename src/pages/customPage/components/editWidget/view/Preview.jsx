@@ -75,7 +75,7 @@ const ViewWrap = styled.div`
     .worksheetBoardViewWrap .addBoardRecord,
     .galleryViewContentWrap .galleryItem,
     .calendarCon .scheduleBtn,
-    .calendarCon .worksheetFullCalendar, 
+    .calendarCon .worksheetFullCalendar,
     .SingleViewWrap .addRecord {
       pointer-events: none;
     }
@@ -90,12 +90,11 @@ const ViewWrap = styled.div`
 const isMobile = browserIsMobile();
 
 const navigateToView = (workSheetId, viewId) => {
-  const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
   homeAppApi.getAppSimpleInfo({
     workSheetId
   }).then(data => {
     const { appId, appSectionId } = data;
-    if (isMingdao) {
+    if (window.isMingDaoApp) {
       window.location.href = `/mobile/recordList/${appId}/${appSectionId}/${workSheetId}/${viewId}`;
     } else if (isMobile) {
       window.mobileNavigateTo(`/mobile/recordList/${appId}/${appSectionId}/${workSheetId}/${viewId}`);

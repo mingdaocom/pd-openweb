@@ -10,14 +10,13 @@ import PropTypes from 'prop-types';
 import qs from 'query-string';
 import { navigateTo } from 'src/router/navigateTo';
 import MDLeftNav from 'src/pages/feed/components/common/mdLeftNav';
-import { List, Item, Menu, MenuItem, Input, Icon, Splitter, ScrollView, Dialog } from 'ming-ui';
+import { List, Item, Menu, MenuItem, Input, Icon, Splitter, ScrollView, Dialog, Tooltip } from 'ming-ui';
 import service from '../../api/service';
 import * as kcActions from '../../redux/actions/kcAction';
 import { ROOT_FILTER_TYPE, ROOT_PERMISSION_TYPE, PICK_TYPE } from '../../constant/enum';
 import { getRootByPath, shallowEqual, humanFileSize } from '../../utils';
 import { getRootLog } from './rootLog';
 import { addNewRoot, editRoot, removeRoot } from './rootHandler';
-import { Tooltip } from 'ming-ui';
 import './KcLeft.less';
 
 class KcLeft extends Component {

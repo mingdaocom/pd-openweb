@@ -34,9 +34,9 @@ function mdPost({ action, controller, data, abortController } = {}) {
 
 class RequestPool {
   queues = {};
-  maxConcurrentRequests = 3;
-  constructor({ abortController } = {}) {
+  constructor({ abortController, maxConcurrentRequests = 3 } = {}) {
     this.abortController = abortController;
+    this.maxConcurrentRequests = maxConcurrentRequests;
     this.init();
   }
   init() {

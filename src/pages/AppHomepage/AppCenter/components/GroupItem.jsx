@@ -4,8 +4,7 @@ import styled from 'styled-components';
 import Trigger from 'rc-trigger';
 import cx from 'classnames';
 import { navigateTo } from 'router/navigateTo';
-import SvgIcon from 'src/components/SvgIcon';
-import { Menu, MenuItem, Icon, Tooltip, MdLink } from 'ming-ui';
+import { Menu, MenuItem, Icon, Tooltip, MdLink, SvgIcon } from 'ming-ui';
 import { VerticalMiddle, FlexSpacer } from 'worksheet/components/Basics';
 import _ from 'lodash';
 

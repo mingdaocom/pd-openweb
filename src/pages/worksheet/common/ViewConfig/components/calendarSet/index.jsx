@@ -3,7 +3,6 @@ import SelectStartOrEndGroups from '../SelectStartOrEndControl/SelectStartOrEndG
 import { updateViewAdvancedSetting } from 'src/pages/worksheet/common/ViewConfig/util.js';
 import { Checkbox, Icon } from 'ming-ui';
 import { Select } from 'antd';
-import Color from '../Color';
 let obj = [_l('月'), _l('周'), _l('日')];
 let weekObj = [_l('周一'), _l('周二'), _l('周三'), _l('周四'), _l('周五'), _l('周六'), _l('周日')];
 import styled from 'styled-components';

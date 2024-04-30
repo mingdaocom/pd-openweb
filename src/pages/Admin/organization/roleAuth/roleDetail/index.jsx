@@ -12,7 +12,7 @@ import PermissionsList from './permissionList';
 import EditRoleDialog from '../createEditRole';
 import { Input } from 'antd';
 import { getCurrentProject } from 'src/util';
-import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
+import { dialogSelectUser } from 'ming-ui/functions';
 import './style.less';
 import _ from 'lodash';
 const { Search } = Input;

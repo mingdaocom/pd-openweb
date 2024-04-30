@@ -259,22 +259,6 @@ export const cssStr = ` #wordPrintCon {
  #wordPrintCon .relationsTable.noData .ant-table-tbody {
   display: none;
 }
-@media print {
-   #wordPrintCon .react-resizable-handle {
-    display: none;
-  }
-   #wordPrintCon .ant-table .ant-table-container::before,
-   #wordPrintCon .ant-table .ant-table-container::after {
-    display: none;
-  }
-   #wordPrintCon .ant-table table {
-    border-radius: 0px;
-    border: 1.5px solid #ddd;
-    border-bottom: 0px;
-    border-right: 0px;
-    border-left: 0px;
-  }
-}
  #wordPrintCon .recordAttachments .recordAttachmentPictures {
   margin-top: -4px;
   overflow: hidden;

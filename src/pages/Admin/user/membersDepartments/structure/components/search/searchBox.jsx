@@ -90,7 +90,7 @@ class SearchBox extends Component {
           this.setState({ showResult: false });
         }}
         onClickAwayExceptions={['.searchInput']}
-        isSearching={isSearching || (this.ajaxObj && this.ajaxObj.state() === 'pending')}
+        isSearching={isSearching}
         showResult={this.state.showResult}
         data={result}
         keywords={keywords}
@@ -158,7 +158,7 @@ class SearchBox extends Component {
           ref={input => (this.input = input)}
           onChange={e => {
             this.setState({ searchValue: e.target.value });
-            if (this.ajaxObj && this.ajaxObj.state() === 'pending' && this.ajaxObj.abort) {
+            if (this.ajaxObj && this.ajaxObj.abort) {
               this.ajaxObj.abort();
               this.ajaxObj = null;
             }

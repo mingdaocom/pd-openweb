@@ -9,6 +9,6 @@ export default {
   **/
    setAccountGuide: function (args, options = {}) {
      
-     return $.api('AccountGuide', 'SetAccountGuide', args, options);
+     return mdyAPI('AccountGuide', 'SetAccountGuide', args, options);
    },
 };

@@ -1,14 +1,14 @@
 import React, { Component, Fragment, useMemo, useImperativeHandle, forwardRef } from 'react';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
-import { Tooltip } from 'antd';
+import { Tooltip, Popover } from 'antd';
 import ChartDialog from '../ChartDialog';
 import login from 'src/api/login';
 import reportApi from '../api/report';
 import ErrorBoundary from 'src/ming-ui/components/ErrorWrapper';
 import { Provider } from 'react-redux';
 import { configureStore } from 'src/redux/configureStore';
-import { fillValueMap } from '../common';
+import { fillValueMap, chartNav } from '../common';
 import { reportTypes } from '../Charts/common';
 import { Loading, WithoutData, Abnormal } from '../components/ChartStatus';
 import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
@@ -27,7 +27,7 @@ class Card extends Component {
   static defaultProps = {
     needEnlarge: true,
     needTimingRefresh: true,
-    onLoad: _.noop
+    onLoad: _.noop,
   };
   constructor(props) {
     super(props);
@@ -38,22 +38,27 @@ class Card extends Component {
       settingVisible: true,
       scopeVisible: false,
       sheetVisible: false,
-      activeData: undefined
-    }
+      isLinkageFilter: true,
+      activeData: undefined,
+    };
     this.isPublicShare = window.shareAuthor || _.get(window, 'shareState.shareId');
   }
   componentDidMount() {
     this.getData(this.props);
   }
   componentWillReceiveProps(nextProps) {
-    if (nextProps.needUpdate !== this.props.needUpdate || !_.isEqual(nextProps.filtersGroup, this.props.filtersGroup)) {
+    if (
+      nextProps.needUpdate !== this.props.needUpdate ||
+      !_.isEqual(nextProps.filtersGroup, this.props.filtersGroup) ||
+      !_.isEqual(nextProps.linkageFiltersGroup, this.props.linkageFiltersGroup)
+    ) {
       this.getData(nextProps);
     }
   }
   componentWillUnmount = () => {
     clearInterval(this.timer);
     this.abortRequest();
-  }
+  };
   initInterval = () => {
     clearInterval(this.timer);
     const { report, customPageConfig = {} } = this.props;
@@ -68,34 +73,38 @@ class Card extends Component {
         });
       }
     }, refresh * 1000);
-  }
+  };
   abortRequest = () => {
-    if (this.request && this.request.state() === 'pending' && this.request.abort) {
+    if (this.request && this.request.abort) {
       this.request.abort();
     }
-  }
+  };
   getData = (props, reload = false, refresh = false) => {
-    const { needTimingRefresh, needRefresh = true, report, filters, filtersGroup, pageId } = props || this.props;
-    const shareAuthor = window.shareAuthor;
-    const headersConfig = {
-      share: shareAuthor,
-    };
-    const printFilter = location.href.includes('printPivotTable') && JSON.parse(sessionStorage.getItem(`printFilter-${report.id}`));
+    const {
+      needTimingRefresh,
+      needRefresh = true,
+      report,
+      filters,
+      filtersGroup,
+      linkageFiltersGroup,
+      pageId,
+      sourceType,
+    } = props || this.props;
+    const { isLinkageFilter } = this.state;
+    const printFilter =
+      location.href.includes('printPivotTable') && JSON.parse(sessionStorage.getItem(`printFilter-${report.id}`));
     this.setState({ loading: true });
     this.abortRequest();
-    this.request = reportApi[refresh ? 'refreshData' : 'getData'](
-      {
-        reportId: report.id,
-        pageId,
-        version: '6.5',
-        reload,
-        filters: printFilter ? printFilter : [filters, filtersGroup].filter(_ => _)
-      },
-      {
-        fireImmediately: true,
-        headersConfig: shareAuthor ? headersConfig : undefined
-      }
-    );
+    const api = sourceType === 3 ? 'getFavoriteData' : refresh ? 'refreshData' : 'getData';
+    this.request = reportApi[api]({
+      reportId: report.id,
+      pageId,
+      version: '6.5',
+      reload,
+      filters: printFilter
+        ? printFilter
+        : [filters, filtersGroup, isLinkageFilter && linkageFiltersGroup].filter(_ => _),
+    });
     this.request.then(result => {
       this.setState({
         reportData: fillValueMap(result),
@@ -104,52 +113,66 @@ class Card extends Component {
       this.props.onLoad(result);
     });
     needTimingRefresh && needRefresh && this.initInterval();
-  }
+  };
   handleOperateClick = ({ settingVisible, sheetVisible = false, activeData }) => {
     this.setState({
       dialogVisible: true,
       settingVisible,
       scopeVisible: false,
       sheetVisible,
-      activeData
+      activeData,
     });
-  }
-  handleOpenChartDialog = (data) => {
-    const { report, filters, filtersGroup } = this.props;
-    const { reportData } = this.state;
+  };
+  handleOpenChartDialog = data => {
+    const { report, filters, filtersGroup, linkageFiltersGroup } = this.props;
+    const { reportData, isLinkageFilter } = this.state;
     const { appId, filter, style, country } = reportData;
     const { filterRangeId, rangeType, rangeValue, dynamicFilter, today = false, customRangeValue } = filter;
     const { drillParticleSizeType } = country || {};
-    const viewDataType = style ? (style.viewDataType || 1) : 1;
+    const viewDataType = style ? style.viewDataType || 1 : 1;
     if (viewDataType === 2 && filter.viewId && [VIEW_DISPLAY_TYPE.sheet].includes(filter.viewType.toString())) {
-      reportApi.getReportSingleCacheId({
-        ...data,
-        appId,
-        filterRangeId,
-        rangeType,
-        rangeValue,
-        dynamicFilter,
-        today,
-        customRangeValue,
-        particleSizeType: drillParticleSizeType,
-        filters: [filters, filtersGroup].filter(_ => _),
-        isPersonal: true,
-        reportId: report.id
-      }).then(result => {
-        if (result.id) {
-          window.open(fillUrl(`/worksheet/${appId}/view/${filter.viewId}?chartId=${result.id}&${getAppFeaturesPath()}`));
-        }
-      });
+      reportApi
+        .getReportSingleCacheId({
+          ...data,
+          appId,
+          filterRangeId,
+          rangeType,
+          rangeValue,
+          dynamicFilter,
+          today,
+          customRangeValue,
+          particleSizeType: drillParticleSizeType,
+          filters: [filters, filtersGroup, isLinkageFilter && linkageFiltersGroup].filter(_ => _),
+          isPersonal: true,
+          reportId: report.id,
+        })
+        .then(result => {
+          if (result.id) {
+            window.open(
+              fillUrl(`/worksheet/${appId}/view/${filter.viewId}?chartId=${result.id}&${getAppFeaturesPath()}`),
+            );
+          }
+        });
     } else {
       this.handleOperateClick({
         settingVisible: false,
         sheetVisible: true,
-        activeData: data
+        activeData: data,
       });
     }
-  }
+  };
   renderChart() {
-    const { projectId, report, mobileCount, mobileFontSize, layoutType, sourceType, themeColor, customPageConfig = {} } = this.props;
+    const {
+      projectId,
+      report,
+      mobileCount,
+      mobileFontSize,
+      layoutType,
+      sourceType,
+      themeColor,
+      customPageConfig = {},
+    } = this.props;
+    const { pageEditable = false, linkageMatch = {}, onUpdateLinkageFiltersGroup = _.noop } = this.props;
     const { id } = report;
     const { loading, reportData } = this.state;
     const { reportType } = reportData;
@@ -161,7 +184,9 @@ class Card extends Component {
           loading={loading}
           isThumbnail={true}
           isViewOriginalData={!this.isPublicShare}
+          isLinkageData={sourceType === 1 && customPageConfig.autoLinkage && !pageEditable}
           onOpenChartDialog={this.handleOpenChartDialog}
+          onUpdateLinkageFiltersGroup={onUpdateLinkageFiltersGroup}
           mobileCount={mobileCount}
           mobileFontSize={mobileFontSize}
           layoutType={layoutType}
@@ -170,8 +195,9 @@ class Card extends Component {
           themeColor={themeColor}
           reportData={{
             ...reportData,
-            reportId: id
+            reportId: id,
           }}
+          linkageMatch={linkageMatch}
         />
       </ErrorBoundary>
     );
@@ -179,22 +205,24 @@ class Card extends Component {
   renderContent() {
     const { reportType, map, contrastMap, contrast, data } = this.state.reportData;
 
-    if ([
-      reportTypes.BarChart,
-      reportTypes.LineChart,
-      reportTypes.RadarChart,
-      reportTypes.FunnelChart,
-      reportTypes.DualAxes,
-      reportTypes.CountryLayer,
-      reportTypes.BidirectionalBarChart,
-      reportTypes.ScatterChart,
-      reportTypes.WordCloudChart,
-      reportTypes.TopChart
-    ].includes(reportType)) {
-      return (map.length || contrastMap.length) ? this.renderChart() : <WithoutData />;
+    if (
+      [
+        reportTypes.BarChart,
+        reportTypes.LineChart,
+        reportTypes.RadarChart,
+        reportTypes.FunnelChart,
+        reportTypes.DualAxes,
+        reportTypes.CountryLayer,
+        reportTypes.BidirectionalBarChart,
+        reportTypes.ScatterChart,
+        reportTypes.WordCloudChart,
+        reportTypes.TopChart,
+      ].includes(reportType)
+    ) {
+      return map.length || contrastMap.length ? this.renderChart() : <WithoutData />;
     }
     if ([reportTypes.GaugeChart, reportTypes.ProgressChart, reportTypes.PieChart].includes(reportType)) {
-      return _.isEmpty(map) ? <WithoutData /> : this.renderChart()
+      return _.isEmpty(map) ? <WithoutData /> : this.renderChart();
     }
     if ([reportTypes.NumberChart].includes(reportType)) {
       return this.renderChart();
@@ -221,17 +249,47 @@ class Card extends Component {
     } else {
       return (
         <div className="content flexColumn">
-          {loading ? <Loading /> : reportData.status > 0 ? this.renderContent() : <Abnormal status={reportData.status} />}
+          {loading ? (
+            <Loading />
+          ) : reportData.status > 0 ? (
+            this.renderContent()
+          ) : (
+            <Abnormal status={reportData.status} />
+          )}
         </div>
       );
     }
   }
   render() {
-    const { dialogVisible, reportData, settingVisible, scopeVisible, sheetVisible, activeData } = this.state;
+    const { dialogVisible, reportData, settingVisible, scopeVisible, sheetVisible, activeData, isLinkageFilter } =
+      this.state;
     const { showTitle = true } = reportData.displaySetup || {};
-    const { report, appId, pageId, ownerId, roleType, sourceType, needEnlarge, needRefresh = true, worksheetId, filters, filtersGroup, className, onRemove, isCharge, permissionType, isLock, customPageConfig = {}, themeColor } = this.props;
+    const {
+      sourceType,
+      filtersGroup,
+      linkageFiltersGroup,
+      initiateChartInfo,
+      customPageConfig = {},
+      themeColor,
+    } = this.props;
+    const {
+      report,
+      appId,
+      pageId,
+      ownerId,
+      needEnlarge,
+      needRefresh = true,
+      filters,
+      className,
+      onRemove,
+      isCharge,
+      permissionType,
+      isLock,
+      projectId,
+      onCancelFavorite,
+    } = this.props;
     const permissions = sourceType ? permissionType > 0 : ownerId || isCharge;
-    const isSheetView = ![reportTypes.PivotTable, reportTypes.NumberChart].includes(reportData.reportType);
+    const isSheetView = ![reportTypes.PivotTable].includes(reportData.reportType);
 
     return (
       <div
@@ -242,20 +300,83 @@ class Card extends Component {
       >
         <div className="header">
           {(sourceType ? false : permissions) && (
-            <span data-tip={_l('拖拽')} className="iconItem dragWrap Gray_9e">
+            <span data-tip={_l('拖拽')} className="iconItem dragWrap Gray_9e mRight5">
               <Icon icon="drag" />
             </span>
           )}
-          <div className="flex valignWrapper ellipsis">
-            <div className="pointer ellipsis bold pLeft5 reportName">{reportData.name}</div>
+          <div className="flex valignWrapper" style={{ minWidth: 0 }}>
+            <div className="pointer ellipsis bold reportName" style={{ maxWidth: '80%' }}>
+              {reportData.name}
+            </div>
             {reportData.desc && (
               <Tooltip title={reportData.desc} placement="bottom">
-                <Icon
-                  icon="info"
-                  className="Font18 pointer Gray_9e mLeft7 mRight7 reportDesc"
-                />
+                <Icon icon="info" className="Font18 pointer Gray_9e mLeft7 reportDesc" />
               </Tooltip>
             )}
+            {sourceType && !_.isEmpty(initiateChartInfo) && (
+              <Popover
+                visible={undefined}
+                trigger="click"
+                placement="bottom"
+                overlayClassName="customPageAutoLinkagePopoverWrap"
+                content={
+                  <div className="customPageAutoLinkagePopover">
+                    <div className="Font14 bold mBottom5">
+                      {_l('作用于图表的条件')} · <span>{initiateChartInfo.length}</span>
+                    </div>
+                    {initiateChartInfo.map(item => (
+                      <div className="linkageFilter">
+                        {item.filters.map((n, index) => (
+                          <div className="flexRow alignItemsCenter" key={n.controlId}>
+                            {!index && (
+                              <Icon
+                                className="Font16 mRight5 ThemeColor"
+                                icon={_.find(chartNav, { type: item.reportType }).icon}
+                              />
+                            )}
+                            <div
+                              className={cx({ mLeft20: index })}
+                              dangerouslySetInnerHTML={{
+                                __html: _l(
+                                  '%0是%1',
+                                  `<span class="bold mRight2">${n.controlName}</span>`,
+                                  `<span class="bold mLeft2">${n.controlValue || '--'}</span>`,
+                                ),
+                              }}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                }
+              >
+                <span
+                  className={cx('mLeft7 pTop5 filterCriteriaIcon', { 'tip-bottom-right': !showTitle })}
+                  data-tip={_l('作用于图表的条件')}
+                >
+                  <Icon icon="filter_criteria" className="Font18 pointer Gray_9e" />
+                </span>
+              </Popover>
+            )}
+            {/*sourceType && !_.isEmpty(initiateChartInfo) && (
+              <span className="mLeft7 pTop5" data-tip={_l('取消联动筛选')}>
+                <Icon
+                  icon="link_Dismiss flex"
+                  className={cx('Font18 pointer', isLinkageFilter ? 'Gray_9e' : 'ThemeColor')}
+                  onClick={() => {
+                    this.setState(
+                      {
+                        isLinkageFilter: !isLinkageFilter,
+                      },
+                      () => {
+                        this.getData();
+                      },
+                    );
+                  }}
+                />
+              </span>
+            )*/}
           </div>
           <div className="operateIconWrap valignWrapper Relative">
             {needEnlarge && !this.isPublicShare && (sourceType ? reportData.status > 0 : true) && (
@@ -268,7 +389,7 @@ class Card extends Component {
                     sheetVisible: false,
                     settingVisible: false,
                     scopeVisible: true,
-                    activeData: undefined
+                    activeData: undefined,
                   });
                 }}
               >
@@ -276,7 +397,11 @@ class Card extends Component {
               </span>
             )}
             {needRefresh && reportData.status > 0 && (
-              <span onClick={() => this.getData(this.props, true)} data-tip={_l('刷新')} className="iconItem Gray_9e freshDataIconWrap">
+              <span
+                onClick={() => this.getData(this.props, true)}
+                data-tip={_l('刷新')}
+                className="iconItem Gray_9e freshDataIconWrap"
+              >
                 <Icon className="Font20" icon="refresh1" />
               </span>
             )}
@@ -287,53 +412,68 @@ class Card extends Component {
                 onClick={() => {
                   this.handleOperateClick({
                     settingVisible: false,
-                    activeData: undefined
+                    activeData: undefined,
                   });
                 }}
               >
                 <Icon icon="task-new-fullscreen" />
               </span>
             )}
-            {needEnlarge && !this.isPublicShare && (sourceType ? reportData.status > 0 : true) && (
+            {needEnlarge && !this.isPublicShare && (sourceType === 3 ? true : reportData.status > 0) && (
               <MoreOverlay
                 className="iconItem Gray_9e Font20"
+                projectId={projectId}
+                pageId={pageId}
                 themeColor={themeColor}
                 permissions={permissions}
                 permissionType={permissionType}
                 isLock={isLock}
                 isCharge={isCharge}
-                reportStatus={reportData.reportType}
+                reportData={reportData}
+                reportStatus={reportData.status}
                 reportType={reportData.reportType}
+                favorite={reportData.favorite}
+                onCancelFavorite={onCancelFavorite}
                 filter={reportData.filter}
+                sourceType={sourceType}
                 isMove={sourceType ? false : permissions && isCharge}
-                onRemove={sourceType ? false : (permissions && onRemove)}
+                onRemove={sourceType ? false : permissions && onRemove}
                 exportData={{
                   filters,
-                  filtersGroup
+                  filtersGroup,
+                  linkageFiltersGroup: isLinkageFilter && linkageFiltersGroup,
                 }}
                 report={{
                   id: report.id,
                   name: reportData.name,
-                  desc: reportData.desc
+                  desc: reportData.desc,
                 }}
                 ownerId={ownerId}
                 appId={appId}
-                worksheetId={sourceType ? worksheetId : null}
-                onOpenSetting={(sourceType !== 2 && sourceType ? isCharge : permissions) ? () => {
-                  this.handleOperateClick({
-                    settingVisible: true,
-                    activeData: undefined
-                  });
-                } : null}
-                onSheetView={isSheetView ? () => {
-                  this.setState({
-                    dialogVisible: true,
-                    sheetVisible: true,
-                    settingVisible: false,
-                    scopeVisible: false,
-                    activeData: undefined
-                  });
-                } : null}
+                worksheetId={reportData.appId}
+                onOpenSetting={
+                  (sourceType === 1 ? isCharge : permissions)
+                    ? () => {
+                        this.handleOperateClick({
+                          settingVisible: true,
+                          activeData: undefined,
+                        });
+                      }
+                    : null
+                }
+                onSheetView={
+                  isSheetView
+                    ? () => {
+                        this.setState({
+                          dialogVisible: true,
+                          sheetVisible: true,
+                          settingVisible: false,
+                          scopeVisible: false,
+                          activeData: undefined,
+                        });
+                      }
+                    : null
+                }
               />
             )}
           </div>
@@ -342,10 +482,11 @@ class Card extends Component {
         {dialogVisible && (
           <ChartDialog
             {...this.props}
+            linkageFiltersGroup={isLinkageFilter && linkageFiltersGroup}
             report={{
               ...report,
               name: reportData.name,
-              desc: reportData.desc
+              desc: reportData.desc,
             }}
             pageId={pageId}
             customPageConfig={customPageConfig}
@@ -364,8 +505,8 @@ class Card extends Component {
                   reportData: {
                     ...reportData,
                     name: reportName,
-                    desc: reportDesc
-                  }
+                    desc: reportDesc,
+                  },
                 });
               }
               if (isRequest) {

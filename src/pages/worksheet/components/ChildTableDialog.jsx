@@ -1,18 +1,23 @@
 import React, { Fragment, useState, useRef, useEffect } from 'react';
-import _ from 'lodash';
+import _, { get } from 'lodash';
 import cx from 'classnames';
 import { Button, Modal, Dialog } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
 import worksheetAjax from 'src/api/worksheet';
+import { useKey } from 'react-use';
 import styled from 'styled-components';
 import { ROW_HEIGHT } from 'worksheet/constants/enum';
 import ChildTable from 'worksheet/components/ChildTable';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import { onValidator } from 'src/components/newCustomFields/tools/DataFormat';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils';
-import { emitter, getSubListError, handleChildTableUniqueError, handleRecordError } from 'worksheet/util';
-import { handleOpenInNew } from 'worksheet/common/recordInfo/crtl';
+import { emitter, handleRecordError } from 'worksheet/util';
 import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
+
+/**
+ * TODO
+ * 从记录详细打开记录共用 store 太乱了，请重构
+ */
 
 const Con = styled.div`
   width: 100%;
@@ -21,13 +26,27 @@ const Con = styled.div`
   flex-direction: column;
 `;
 
+const IconBtn = styled.span`
+  color: #9e9e9e;
+  cursor: pointer;
+  display: inline-block;
+  height: 28px;
+  font-size: 20px;
+  line-height: 28px;
+  padding: 0 4px;
+  border-radius: 5px;
+  &:hover {
+    background: #f7f7f7;
+  }
+`;
+
 const Header = styled.div`
   height: 50px;
   padding: 0 24px;
   display: flex;
   align-items: center;
   .inner {
-    max-width: calc(100% - 200px);
+    width: 100%;
   }
   .main {
     font-size: 17px;
@@ -84,7 +103,7 @@ const Content = styled.div`
     top: -50px !important;
   }
   .childTableCon .errorTip {
-    width: calc(100% - 200px);
+    width: calc(100% - 300px);
     height: 30px;
     top: -35px;
   }
@@ -98,7 +117,6 @@ export default function ChildTableDialog(props) {
   const {
     allowEdit = false,
     openFrom,
-    title,
     isWorkflow,
     initSource,
     entityName,
@@ -119,31 +137,24 @@ export default function ChildTableDialog(props) {
   } = props;
   const cache = useRef({});
   const rowHeight = ROW_HEIGHT[Number(_.get(control, 'advancedSetting.rowheight'))] || 34;
-  const meedUpdateControls = _.isEmpty(controls) || hasNoRelationRelateControl(controls);
+  const needUpdateControls = _.isEmpty(controls) || hasNoRelationRelateControl(controls);
   const [loading, setLoading] = useState(typeof props.searchConfig === 'undefined');
   const [searchConfig, setSearchConfig] = useState(props.searchConfig);
   const [changed, setChanged] = useState(false);
+  const [isFullScreen, setIsFullScreen] = useState(openFrom !== 'cell');
   const [refreshFlag, setRefreshFlag] = useState(Math.random());
   const [value, setValue] = useState({});
   const [isSaving, setIsSaving] = useState(false);
   const conHeight = window.innerHeight - 32 - 50;
   const maxHeight = conHeight - 31 - 36 - 10;
-  const maxShowRowCount = Math.floor((maxHeight - 30) / rowHeight);
-  const allowOpenInNew = !control.isDraft && !_.get(window, 'shareState.shareId');
+  const maxShowRowCount = Math.floor((maxHeight - 30 - 40) / rowHeight);
   const width = window.innerWidth - 32 * 2 > 1600 ? 1600 : window.innerWidth - 32 * 2;
   function handleSave(close) {
     if (cache.current.isSaving) {
       return;
     }
-    const errors = getSubListError(
-      {
-        rows: value.rows,
-        rules: _.get(cache.current.comp || {}, `worksheettable.current.table.rules`),
-      },
-      _.get(cache.current.comp || {}, `state.controls`) || control.relationControls,
-      control.showControls,
-      3,
-    );
+    const store = cache.current.comp.props.store;
+    const errors = store.getErrors();
     const validatedResult = onValidator({ item: { ...control, value } });
     if (validatedResult.errorType) {
       alert(validatedResult.errorText, 3);
@@ -151,16 +162,9 @@ export default function ChildTableDialog(props) {
     }
     if (!_.isEmpty(errors)) {
       alert(_l('请正确填写表单'), 3);
-      cache.current.comp.setState({
-        error: !_.isEmpty(errors),
-        cellErrors: errors,
-      });
       return;
     } else {
-      cache.current.comp.setState({
-        error: !_.isEmpty(errors),
-        cellErrors: errors,
-      });
+      store.clearSubListErrors();
     }
     cache.current.isSaving = true;
     setIsSaving(true);
@@ -170,16 +174,12 @@ export default function ChildTableDialog(props) {
         viewId,
         worksheetId,
         rowId: recordId,
-        newOldControl: [formatControlToServer({ ...control, value: { ...value, controls } })],
+        newOldControl: [formatControlToServer({ ...control, store, value: { ...value, controls } })],
       })
       .then(data => {
         if (!data.data) {
           if (data.resultCode === 22) {
-            handleChildTableUniqueError({
-              badData: data.badData,
-              data: [{ ...control, value }],
-              cellObjs: { [control.controlId]: { cell: cache.current.comp } },
-            });
+            store.setUniqueError({ badData: data.badData });
           }
           handleRecordError(data.resultCode);
           cache.current.isSaving = false;
@@ -209,30 +209,24 @@ export default function ChildTableDialog(props) {
       });
     }
   }, []);
+  useKey('e', e => {
+    if (window.isMacOs ? e.metaKey : e.ctrlKey) {
+      setIsFullScreen(old => !old);
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  });
   return (
     <Modal
       visible
+      keyboard
       type="fixed"
       verticalAlign="bottom"
       width={width}
-      closeSize={50}
-      onCancel={() => {
-        if (!changed) {
-          onClose();
-          return;
-        }
-        Dialog.confirm({
-          title: _l('您是否保存此次更改'),
-          description: _l('当前有尚末保存的更改，您在离开当前页面前是否需要保存这些更改。'),
-          cancelType: 'ghost',
-          okText: _l('是，保存更改'),
-          cancelText: _l('否，放弃更改'),
-          onlyClose: true,
-          onOk: () => handleSave(true),
-          onCancel: onClose,
-        });
-      }}
+      closeIcon={<span />}
       bodyStyle={{ padding: 0, position: 'relative' }}
+      fullScreen={isFullScreen}
+      onCancel={onClose}
     >
       <Con>
         <Header>
@@ -240,20 +234,42 @@ export default function ChildTableDialog(props) {
             <div className="main ellipsis" title={control.controlName}>
               {control.controlName}
             </div>
-            <div className="split"> - </div>
-            <div
-              className={cx('flexCenter', { Hand: allowOpenInNew })}
-              onClick={() => allowOpenInNew && handleOpenInNew({ appId, worksheetId, viewId, recordId })}
+            <div className="flex"></div>
+            <IconBtn
+              className="mRight10 ThemeHoverColor3"
+              data-tip={
+                isFullScreen
+                  ? _l('退出%0', window.isMacOs ? '(⌘ + E)' : '(Ctrl + E)')
+                  : _l('全屏%0', window.isMacOs ? '(⌘ + E)' : '(Ctrl + E)')
+              }
+              onClick={() => {
+                setIsFullScreen(!isFullScreen);
+              }}
             >
-              <div className="sec ellipsis" title={title}>
-                {title}
-              </div>
-              {allowOpenInNew && (
-                <span className="openInNewTab ThemeHoverColor3" data-tip={_l('新窗口打开')}>
-                  <i className="icon-launch" />
-                </span>
-              )}
-            </div>
+              <i className={`icon icon-${isFullScreen ? 'worksheet_narrow' : 'worksheet_enlarge'}`}></i>
+            </IconBtn>
+            <IconBtn
+              className={cx('ThemeHoverColor3', { mRight10: changed })}
+              data-tip={_l('关闭(Esc)')}
+              onClick={() => {
+                if (!changed) {
+                  onClose();
+                  return;
+                }
+                Dialog.confirm({
+                  title: _l('您是否保存此次更改'),
+                  description: _l('当前有尚末保存的更改，您在离开当前页面前是否需要保存这些更改。'),
+                  cancelType: 'ghost',
+                  okText: _l('是，保存更改'),
+                  cancelText: _l('否，放弃更改'),
+                  onlyClose: true,
+                  onOk: () => handleSave(true),
+                  onCancel: onClose,
+                });
+              }}
+            >
+              <i className="icon icon-close"></i>
+            </IconBtn>
           </div>
           {changed && (
             <Fragment>
@@ -266,7 +282,7 @@ export default function ChildTableDialog(props) {
         </Header>
         <Content>
           <ChildTable
-            needResetControls={meedUpdateControls}
+            needResetControls={needUpdateControls}
             registerCell={comp => {
               cache.current.comp = comp;
             }}
@@ -279,10 +295,11 @@ export default function ChildTableDialog(props) {
             entityName={entityName}
             rules={rules}
             appId={appId}
+            worksheetId={worksheetId}
             viewId={viewId}
             from={from}
-            control={
-              allowEdit
+            control={{
+              ...(allowEdit
                 ? control
                 : {
                     ...control,
@@ -291,8 +308,11 @@ export default function ChildTableDialog(props) {
                       allowcancel: '0',
                       allowedit: '0',
                     }),
-                  }
-            }
+                  }),
+              addRefreshEvents: (name, value) => {
+                cache.current.reload = value;
+              },
+            }}
             controls={controls}
             recordId={recordId}
             searchConfig={searchConfig}
@@ -320,11 +340,14 @@ export default function ChildTableDialog(props) {
                   return { ...oldValue, updated, deleted, rows };
                 });
                 setChanged(true);
-              } else {
+              } else if (get(changedValues, 'lastAction.type') !== 'FORCE_SET_OUT_ROWS') {
                 onChange(changedValues, 'childTableDialog');
               }
             }}
             mobileIsEdit={mobileIsEdit}
+            addRefreshEvents={(name, value) => {
+              cache.current[name] = value;
+            }}
           />
         </Content>
       </Con>

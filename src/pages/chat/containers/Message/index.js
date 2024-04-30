@@ -19,7 +19,7 @@ import MapMessage from '../../components/Message/MapMessage';
 import Constant from '../../utils/constant';
 import * as actions from '../../redux/actions';
 import * as socket from '../../utils/socket';
-import UserCard from 'src/components/UserCard';
+import { UserCard } from 'ming-ui';
 
 class Message extends Component {
   constructor(props) {

@@ -76,6 +76,11 @@ function OptionsSteps(props, ref) {
       } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
         e.stopPropagation();
         e.preventDefault();
+
+        // 过滤删除和隐藏的
+        const filterOptions = options.filter(i => !i.isDeleted && (i.key === safeParse(value)[0] || !i.hide));
+        if (!filterOptions.length) return;
+
         let nextIndex = selectedIndex + (e.key === 'ArrowUp' ? -1 : 1);
         if (nextIndex < 0) {
           nextIndex = 0;

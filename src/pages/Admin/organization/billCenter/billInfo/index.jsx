@@ -1,8 +1,7 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import axios from 'axios';
-import { LoadDiv, Dropdown, ScrollView } from 'ming-ui';
+import { LoadDiv, Dropdown, ScrollView, UserHead } from 'ming-ui';
 import orderAjax from 'src/api/order';
-import UserHead from 'src/components/userHead/userHead.jsx';
 import copy from 'copy-to-clipboard';
 import projectAjax from 'src/api/project';
 import applicationAjax from 'src/api/application';
@@ -57,7 +56,7 @@ export default function BillInfo({ match }) {
       .then(({ list }) => {
         setData({ list });
       })
-      .always(() => {
+      .finally(() => {
         setLoading(false);
       });
   };
@@ -115,7 +114,7 @@ export default function BillInfo({ match }) {
       .then(({ list, allCount }) => {
         setData({ list, allCount });
       })
-      .always(() => {
+      .finally(() => {
         setLoading(false);
       });
   }, [paras]);
@@ -305,7 +304,7 @@ export default function BillInfo({ match }) {
               popupVisible={datePickerVisible}
               onPopupVisibleChange={visible => setVisible({ datePickerVisible: visible })}
               action={['click']}
-              popupAlign={{ points: ['tl', 'bl'] }}
+              popupAlign={{ points: ['tl', 'bl'], offset: [0, 0], overflow: { adjustX: true, adjustY: true } }}
               popup={
                 <DatePickerFilter
                   updateData={data => {

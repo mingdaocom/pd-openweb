@@ -170,7 +170,7 @@ class PublicWorksheetConfigForm extends React.Component {
                       maxLength={200}
                       emptyTip={_l('未命名表单')}
                       value={worksheetInfo.name}
-                      onChange={value => updateWorksheetInfo({ name: value })}
+                      onChange={value => updateWorksheetInfo({ name: value.trim() })}
                     />
                   </div>
                   <div className="worksheetDescription WordBreak">

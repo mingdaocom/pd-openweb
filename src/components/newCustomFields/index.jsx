@@ -9,6 +9,7 @@ import cx from 'classnames';
 import './style.less';
 import widgets from './widgets';
 import WidgetsDesc from './components/WidgetsDesc';
+import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import WidgetsVerifyCode from './components/WidgetsVerifyCode';
 import {
   convertControl,
@@ -20,17 +21,20 @@ import {
   getHideTitleStyle,
   formatControlValue,
 } from './tools/utils';
+import { isRelateRecordTableControl } from 'worksheet/util';
 import { FORM_ERROR_TYPE, FROM, UN_TEXT_TYPE } from './tools/config';
 import { updateRulesData, checkAllValueAvailable, replaceStr, getRuleErrorInfo } from './tools/filterFn';
 import DataFormat, { checkRequired } from './tools/DataFormat';
 import { browserIsMobile } from 'src/util';
 import { formatSearchConfigs, supportDisplayRow } from 'src/pages/widgetConfig/util';
-import _ from 'lodash';
+import _, { get, isEmpty } from 'lodash';
 import FormLabel from './components/FormLabel';
 import WidgetSection from './components/WidgetSection';
 import MobileWidgetSection from './components/MobileWidgetSection';
 import styled from 'styled-components';
 import RefreshBtn from './components/RefreshBtn';
+import { dealCustomEvent } from './tools/customEvent';
+import { getExpandWidgetIds } from 'src/pages/widgetConfig/widgetSetting/components/SplitLineConfig/config';
 
 const CustomFormItemControlWrap = styled.div`
   &.customFormItemControl .customFormReadonly,
@@ -69,6 +73,16 @@ const CustomFormItemControlWrap = styled.div`
     }
   }
 
+  .numberControlBox {
+    min-height: ${props => `${props.height || 36}px`};
+    .iconWrap {
+      height: ${props => `${(props.height || 36) * 0.4}px`};
+      &:hover {
+        height: ${props => `${(props.height || 36) * 0.6}px`};
+      }
+    }
+  }
+
   .CityPicker-input-container {
     .CityPicker-input-textCon {
       ${props => (props.size ? `font-size: ${props.size} !important;` : '')}
@@ -80,6 +94,7 @@ const CustomFormItemControlWrap = styled.div`
 `;
 
 export default class CustomFields extends Component {
+  static contextType = RecordInfoContext;
   static propTypes = {
     flag: PropTypes.any,
     initSource: PropTypes.bool,
@@ -148,6 +163,8 @@ export default class CustomFields extends Component {
     };
 
     this.controlRefs = {};
+
+    this.storeCenter = {};
   }
 
   componentWillMount() {
@@ -156,23 +173,13 @@ export default class CustomFields extends Component {
 
     if (!rulesLoading && !isWorksheetQuery) {
       this.initSource(data, disabled);
-    } else if (rulesLoading) {
-      this.getRules(
-        undefined,
-        () => {
-          if (isWorksheetQuery && !searchConfig.length) {
-            this.getSearchConfig();
-          }
-        },
-        isWorksheetQuery && !searchConfig.length,
-      );
-    } else if (isWorksheetQuery && !searchConfig.length) {
-      this.getSearchConfig();
+    } else if (rulesLoading || (isWorksheetQuery && !searchConfig.length)) {
+      this.getConfig(this.props, { getRules: rulesLoading, getSearchConfig: isWorksheetQuery && !searchConfig.length });
     }
   }
 
   componentDidMount() {
-    if (navigator.userAgent.toLowerCase().indexOf('micromessenger') >= 0) {
+    if (window.isWeiXin) {
       // 处理微信webview键盘收起 网页未撑开
       $(document).on('blur', '.customFieldsContainer input', () => {
         window.scrollTo(0, 0);
@@ -191,11 +198,19 @@ export default class CustomFields extends Component {
       });
     }
     if (this.props.worksheetId !== nextProps.worksheetId) {
-      this.getRules(nextProps);
+      this.getConfig(nextProps, { getRules: true, getSearchConfig: true });
     }
-    if (this.props.isWorksheetQuery !== nextProps.isWorksheetQuery && nextProps.isWorksheetQuery) {
-      this.getSearchConfig(nextProps);
+    if (this.props.recordId !== nextProps.recordId) {
+      this.storeCenter = {};
     }
+  }
+
+  get workflowParams() {
+    const { mobileApprovalRecordInfo = {} } = this.props;
+    const { instanceId, workId } = browserIsMobile()
+      ? mobileApprovalRecordInfo
+      : _.get(this, 'context.recordBaseInfo') || {};
+    return { instanceId, workId };
   }
 
   con = React.createRef();
@@ -205,8 +220,11 @@ export default class CustomFields extends Component {
    */
   initSource(data, disabled, { setStateCb = () => {} } = {}) {
     const {
+      appId,
+      isCharge,
       isCreate,
       projectId,
+      worksheetId,
       initSource,
       recordId,
       recordCreateTime,
@@ -215,12 +233,19 @@ export default class CustomFields extends Component {
       masterRecordRowId,
       ignoreLock,
       verifyAllControls,
+      controlProps = {},
+      mobileApprovalRecordInfo = {},
     } = this.props;
     const { rules = [] } = this.state;
-
+    const { instanceId, workId } = this.workflowParams;
     this.dataFormat = new DataFormat({
+      setSubListStore: true,
+      isCharge,
       projectId,
-      data,
+      appId,
+      worksheetId,
+      recordId,
+      data: data.map(c => ({ ...c, ...controlProps })),
       isCreate: _.isUndefined(isCreate) ? initSource || !recordId : isCreate,
       disabled,
       recordCreateTime,
@@ -228,7 +253,10 @@ export default class CustomFields extends Component {
       ignoreLock,
       rules,
       from,
+      instanceId,
+      workId,
       verifyAllControls,
+      storeCenter: this.storeCenter,
       embedData: {
         ..._.pick(this.props, ['projectId', 'appId', 'groupId', 'worksheetId', 'recordId', 'viewId']),
       },
@@ -275,16 +303,44 @@ export default class CustomFields extends Component {
   }
 
   /**
+   * 获取配置（业务规则 || 查询配置）
+   */
+  getConfig = async (props, { getRules, getSearchConfig }) => {
+    const { data, disabled, worksheetId, onRulesLoad = () => {} } = props;
+    let rules;
+    let config;
+
+    // 获取字段显示规则
+    if (getRules) {
+      rules = await sheetAjax.getControlRules({ worksheetId, type: 1 });
+      onRulesLoad(rules);
+    }
+
+    // 获取查询配置
+    if (getSearchConfig) {
+      config = await sheetAjax.getQueryBySheetId({ worksheetId });
+    }
+
+    this.setState(
+      {
+        ...(getRules ? { rules } : {}),
+        ...(getSearchConfig ? { searchConfig: formatSearchConfigs(config) } : {}),
+      },
+      () => this.initSource(data, disabled),
+    );
+  };
+
+  /**
    * 规则筛选数据
    */
   getFilterDataByRule(isInit) {
-    const { ignoreHideControl, recordId, from } = this.props;
+    const { ignoreHideControl, recordId, from, systemControlData } = this.props;
     const { rules = [] } = this.state;
 
     let tempRenderData = updateRulesData({
       rules,
       recordId,
-      data: this.dataFormat.getDataSource(),
+      data: this.dataFormat.getDataSource().concat(systemControlData || []),
       from: this.props.from,
       updateControlIds: this.dataFormat.getUpdateRuleControlIds(),
       ignoreHideControl,
@@ -306,37 +362,6 @@ export default class CustomFields extends Component {
   }
 
   /**
-   * 获取字段显示规则
-   */
-  getRules = (nextProps, cb = () => {}, noInitSource) => {
-    const { worksheetId, disabled, onRulesLoad = () => {} } = nextProps || this.props;
-
-    sheetAjax.getControlRules({ worksheetId, type: 1 }).then(rules => {
-      const { data } = nextProps || this.props;
-      onRulesLoad(rules);
-      this.setState({ rules }, () => {
-        if (!noInitSource) {
-          this.initSource(data, disabled);
-        }
-        cb();
-      });
-    });
-  };
-
-  /**
-   * 获取查询配置
-   */
-  getSearchConfig = nextProps => {
-    const { worksheetId, disabled } = nextProps || this.props;
-
-    sheetAjax.getQueryBySheetId({ worksheetId }, { ajaxOptions: { async: false } }).then(res => {
-      this.setState({ searchConfig: formatSearchConfigs(res) }, () =>
-        this.initSource((nextProps || this.props).data, disabled),
-      );
-    });
-  };
-
-  /**
    * 渲染表单
    */
   renderForm(renderData = []) {
@@ -351,6 +376,7 @@ export default class CustomFields extends Component {
       tabControlProp: { setNavVisible } = {},
       disabledFunctions = [],
     } = this.props;
+    const { instanceId, workId } = this.workflowParams;
     const { titlelayout_pc = '1', titlelayout_app = '1' } = widgetStyle;
     const { errorItems, uniqueErrorItems, loadingItems } = this.state;
     const isMobile = browserIsMobile();
@@ -379,8 +405,7 @@ export default class CustomFields extends Component {
 
       const isFull = isMobile || forceFull || item.size === 12;
       const hideTitleStyle = getHideTitleStyle(item, data) || {};
-      const displayRow =
-        (isMobile ? disabled && titlelayout_app === '2' : titlelayout_pc === '2') && supportDisplayRow(item);
+      const displayRow = (isMobile ? titlelayout_app === '2' : titlelayout_pc === '2') && supportDisplayRow(item);
 
       const showRefreshBtn =
         !disabledFunctions.includes('controlRefresh') &&
@@ -438,6 +463,8 @@ export default class CustomFields extends Component {
           >
             {this.getWidgets(
               Object.assign({}, item, controlProps, {
+                instanceId,
+                workId,
                 richTextControlCount,
                 isDraft: from === FROM.DRAFT,
                 ...(item.type === 22 ? { setNavVisible } : {}),
@@ -536,7 +563,10 @@ export default class CustomFields extends Component {
     if (!_.get(value, 'rows')) {
       onWidgetChange();
     }
-    if (item.value !== value || cid !== item.controlId) {
+    if (item.value !== value || cid !== item.controlId || get(value, 'isFormTable')) {
+      if (get(value, 'isFormTable')) {
+        value = value.value;
+      }
       this.dataFormat.updateDataSource({
         controlId: cid,
         value,
@@ -556,6 +586,38 @@ export default class CustomFields extends Component {
       }
     }
   };
+
+  /**
+   * 自定义事件
+   */
+  triggerCustomEvent(props) {
+    const { systemControlData } = this.props;
+    const { searchConfig = [], errorItems = [] } = this.state;
+
+    const customProps = {
+      ...props,
+      ..._.pick(this.props, ['from', 'recordId', 'projectId', 'worksheetId', 'appId']),
+      formData: this.dataFormat.getDataSource().concat(systemControlData || []),
+      searchConfig: searchConfig.filter(s => s.resultType !== 0),
+      checkRuleValidator: (controlId, errorType, errorMessage) => {
+        this.dataFormat.setErrorControl(controlId, errorType, errorMessage);
+      },
+      setErrorItems: errorInfo => {
+        const newErrorItems = errorItems.concat(errorInfo);
+        this.setState({ errorItems: newErrorItems });
+      },
+      setRenderData: newData => {
+        this.setState({
+          renderData: newData,
+          errorItems: this.dataFormat.getErrorControls(),
+        });
+      },
+      handleChange: (value, cid, item, searchByChange) => {
+        this.handleChange(value, cid, item, searchByChange);
+      },
+    };
+    dealCustomEvent(customProps);
+  }
 
   /**
    * 获取控件
@@ -581,8 +643,9 @@ export default class CustomFields extends Component {
       mobileApprovalRecordInfo = {},
       customWidgets,
       isDraft,
+      masterData,
     } = this.props;
-    const { errorItems, uniqueErrorItems, renderData } = this.state;
+    const { renderData } = this.state;
     // 字段描述显示方式
     const hintType = _.get(item, 'advancedSetting.hinttype') || '0';
     const hintShowAsText =
@@ -620,12 +683,15 @@ export default class CustomFields extends Component {
 
     // (禁用或只读) 且 内容不存在
     if (
-      !_.includes([22, 52], item.type) &&
+      !_.includes([22, 52, 34], item.type) &&
+      !(item.type === 29 && isRelateRecordTableControl(item)) &&
       (item.disabled || _.includes([25, 31, 32, 33, 37, 38], item.type) || !isEditable) &&
       ((!item.value && item.value !== 0 && !_.includes([28, 47, 51], item.type)) ||
         (item.type === 29 &&
           (safeParse(item.value).length <= 0 ||
-            (typeof item.value === 'string' && item.value.startsWith('deleteRowIds')))) ||
+            (browserIsMobile() && !item.value) ||
+            (typeof item.value === 'string' && item.value.startsWith('deleteRowIds')) ||
+            (_.get(window, 'shareState.isPublicForm') && item.value === 0))) ||
         (_.includes([21, 26, 27, 48, 35, 14, 10, 11], item.type) &&
           _.isArray(JSON.parse(item.value)) &&
           !JSON.parse(item.value).length))
@@ -642,6 +708,7 @@ export default class CustomFields extends Component {
       <React.Fragment>
         <Widgets
           {...item}
+          customFields={this}
           mobileApprovalRecordInfo={mobileApprovalRecordInfo}
           flag={flag}
           isCharge={isCharge}
@@ -657,9 +724,9 @@ export default class CustomFields extends Component {
           recordId={recordId}
           appId={appId}
           isDraft={isDraft} // 子表单条记录详情from不对，新增参数以供使用
-          totalErrors={errorItems.concat(uniqueErrorItems)}
           viewIdForPermit={viewId}
           initSource={initSource}
+          masterData={masterData}
           onChange={(value, cid = controlId, searchByChange) => {
             this.handleChange(value, cid, item, searchByChange);
             // 非文本change校验重复、文本失焦校验
@@ -846,7 +913,17 @@ export default class CustomFields extends Component {
             return controlState(item, from).visible && controlState(item, from).editable && item.type !== 52;
           })
           .map(it => it.controlId);
-    const totalErrors = errorItems.concat(uniqueErrorItems).filter(it => _.includes(ids, it.controlId));
+    const subListErrorControls = data
+      .filter(c => c.type === 34)
+      .map(c => ({
+        controlId: c.controlId,
+        error: c.store && c.store.getErrors(),
+      }))
+      .filter(c => !isEmpty(c.error));
+    const totalErrors = errorItems
+      .concat(uniqueErrorItems)
+      .concat(subListErrorControls)
+      .filter(it => _.includes(ids, it.controlId));
     const hasError = !!totalErrors.length;
     const hasRuleError = errors.length;
 
@@ -854,7 +931,21 @@ export default class CustomFields extends Component {
     this.updateErrorState(hasError);
 
     // 标签页内报错，展开标签页
+    // 分段内报错，展开分段
     if (hasError) {
+      // 分段
+      data.forEach(d => {
+        if (d.type === 22) {
+          const expandWidgetIds = getExpandWidgetIds(data, d, from);
+          const { handleExpand } = this.controlRefs[d.controlId] || {};
+          const visibleErrors = totalErrors.filter(i => _.includes(expandWidgetIds, i.controlId));
+          if (visibleErrors.length > 0 && _.isFunction(handleExpand)) {
+            handleExpand(true);
+          }
+        }
+      });
+
+      // 标签页
       // 定位到第一个报错
       const firstErrorItem = _.head(
         totalErrors.map(t => _.find(data, d => d.controlId === t.controlId)).sort((a, b) => a.row - b.row),
@@ -914,22 +1005,24 @@ export default class CustomFields extends Component {
           const [rowId, ruleId, controlId] = (itemBadData || '').split(':').reverse();
           const control = _.find(data, d => d.controlId === controlId);
           if (control && control.type === 34) {
-            const ruleError = getRuleErrorInfo(
-              _.get(cellObjs || {}, `${control.controlId}.cell.worksheettable.current.table.rules`),
-              [[ruleId, rowId].join(':')],
-            );
+            const state = control.store && control.store.getState();
+            const ruleError = getRuleErrorInfo(_.get(state, 'base.worksheetInfo.rules'), [[ruleId, rowId].join(':')]);
             ruleError.forEach(ruleErrorItem => {
               if (_.get(ruleErrorItem, 'errorInfo.0.errorMessage')) {
-                if (_.get(cellObjs || {}, `${control.controlId}.cell`)) {
-                  _.get(cellObjs || {}, `${control.controlId}.cell`).setState({
-                    error: true,
-                    cellErrors: {
-                      [`${rowId}-${_.get(ruleErrorItem, 'errorInfo.0.controlId')}`]: _.get(
-                        ruleErrorItem,
-                        'errorInfo.0.errorMessage',
-                      ),
+                const error = {
+                  [`${rowId}-${_.get(ruleErrorItem, 'errorInfo.0.controlId')}`]: _.get(
+                    ruleErrorItem,
+                    'errorInfo.0.errorMessage',
+                  ),
+                };
+                if (!isEmpty(error)) {
+                  this.dataFormat.callStore(
+                    { fnName: 'dispatch', controlId: controlId },
+                    {
+                      type: 'UPDATE_CELL_ERRORS',
+                      value: error,
                     },
-                  });
+                  );
                 }
               }
             });
@@ -989,9 +1082,10 @@ export default class CustomFields extends Component {
 
   render() {
     const isMobile = browserIsMobile();
-    const { from, disabled } = this.props;
+    const { from, disabled, widgetStyle = {}, ignoreSection, tabControlProp = {} } = this.props;
+    const { otherTabs = [] } = tabControlProp;
     const { rulesLoading, renderData } = this.state;
-    let { commonData, tabData } = getControlsByTab(renderData);
+    let { commonData, tabData } = getControlsByTab(renderData, widgetStyle, from, ignoreSection, otherTabs);
     tabData = tabData.filter(control => controlState(control, from).visible).filter(c => !c.hidden);
 
     if (rulesLoading) {

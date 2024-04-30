@@ -66,8 +66,8 @@ export default function Date(props) {
                 moments = [];
               }
               onChange({
-                minValue: moments[0] && moments[0].format(valueFormat),
-                maxValue: moments[1] && moments[1].format(valueFormat),
+                minValue: moments[0] && moments[0].format(valueFormat === 'YYYY-MM-DD HH' ? undefined : valueFormat),
+                maxValue: moments[1] && moments[1].format(valueFormat === 'YYYY-MM-DD HH' ? undefined : valueFormat),
               });
             }}
           />
@@ -123,7 +123,9 @@ export default function Date(props) {
                 dropdownClassName="scrollInTable"
                 onChange={date => {
                   onChange({
-                    value: date ? moment(date).format(valueFormat) : undefined,
+                    value: date
+                      ? moment(date).format(valueFormat === 'YYYY-MM-DD HH' ? undefined : valueFormat)
+                      : undefined,
                   });
                 }}
                 compProps={{

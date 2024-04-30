@@ -9,7 +9,7 @@ export default {
   **/
    expansionInfos: function (args, options = {}) {
      
-     return $.api('AdminManage', 'ExpansionInfos', args, options);
+     return mdyAPI('AdminManage', 'ExpansionInfos', args, options);
    },
   /**
   * 获取余额
@@ -21,7 +21,7 @@ export default {
   **/
    getHidBalance: function (args, options = {}) {
      
-     return $.api('AdminManage', 'GetHidBalance', args, options);
+     return mdyAPI('AdminManage', 'GetHidBalance', args, options);
    },
   /**
   * 网络到期天数信息
@@ -33,7 +33,7 @@ export default {
   **/
    projectExpireDays: function (args, options = {}) {
      
-     return $.api('AdminManage', 'ProjectExpireDays', args, options);
+     return mdyAPI('AdminManage', 'ProjectExpireDays', args, options);
    },
   /**
   * 企业管理通告
@@ -45,6 +45,6 @@ export default {
   **/
    announcement: function (args, options = {}) {
      
-     return $.api('AdminManage', 'Announcement', args, options);
+     return mdyAPI('AdminManage', 'Announcement', args, options);
    },
 };

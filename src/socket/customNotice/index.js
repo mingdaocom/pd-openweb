@@ -1,6 +1,6 @@
 import React from 'react';
 import { antNotification, Icon } from 'ming-ui';
-import { renderBtnList } from 'ming-ui/functions/notify';
+import { renderBtnList } from 'ming-ui/functions/mdNotification';
 import ErrorDialog from 'src/pages/worksheet/common/WorksheetBody/ImportDataFromExcel/ErrorDialog';
 import { downloadFile } from 'src/util';
 import { navigateTo } from 'src/router/navigateTo';
@@ -9,15 +9,11 @@ import _ from 'lodash';
 export default function customNotice() {
   const { socket } = window.IM || {};
   if (socket) {
-    $('body').on('click', 'a', function(evt) {
+    $('body').on('click', 'a', function (evt) {
       if ($(evt.target).closest('.customNotification').length) {
         evt.preventDefault();
 
-        const href = (
-          $(evt.target)
-            .closest('a')
-            .attr('href') || ''
-        ).toLocaleLowerCase();
+        const href = ($(evt.target).closest('a').attr('href') || '').toLocaleLowerCase();
 
         if (href.indexOf('worksheetexcel') > -1) {
           const downloadUrl = `${__api_server__.main + href}`;
@@ -33,32 +29,14 @@ export default function customNotice() {
           const id = href.slice(href.indexOf('excelbatcherrorpage') + 15).split('/');
           new ErrorDialog({ fileKey: id[1], isBatch: true });
         }
-
-        if (href.indexOf('backup') > -1 || href.indexOf('restore') > -1) {
-          const currentAppId = location.href.slice(
-            location.href.indexOf('app/') + 4,
-            location.href.indexOf('app/') + 40,
-          );
-          const appId = href.slice(href.indexOf('app/') + 4, href.indexOf('app/') + 40);
-
-          if (href.indexOf('backup') > -1) {
-            location.href = `/app/${appId}/settings/backup`;
-          } else {
-            if (currentAppId === appId) {
-              location.href = `/app/${appId}`;
-            } else {
-              navigateTo(`/app/${appId}`);
-            }
-          }
-        }
       }
     });
 
     socket.on('custom', data => {
-      const { id, status, title, msg, link, color } = data;
+      const { id, status, title, msg, link, linkText, color } = data;
       let action = '';
       const linkBtn = {
-        text: _l('查看详情'),
+        text: linkText || _l('查看详情'),
         onClick: () => window.open(link),
       };
 
@@ -66,7 +44,7 @@ export default function customNotice() {
         action = 'info';
       } else if (status === 2) {
         action = 'success';
-      } else if(status === 3) {
+      } else if (status === 3) {
         action = 'warning';
       } else {
         action = 'error';

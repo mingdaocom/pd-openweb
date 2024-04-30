@@ -34,8 +34,7 @@ export default class RecordWrapper extends Component {
       },
       row,
       () => {
-        const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
-        if (isMingdao) {
+        if (window.isMingDaoApp) {
           window.location.href = `/mobile/record/${appId}/${worksheetId}/${base.viewId}/${row.rowid}`;
         } else {
           this.setState({

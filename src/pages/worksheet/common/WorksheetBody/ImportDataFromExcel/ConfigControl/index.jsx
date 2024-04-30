@@ -9,31 +9,7 @@ import DropDownItem from './DropDownItem';
 import _ from 'lodash';
 
 const allowConfigControlTypes = [
-  2,
-  3,
-  4,
-  5,
-  6,
-  7,
-  8,
-  9,
-  10,
-  11,
-  14,
-  15,
-  16,
-  19,
-  23,
-  24,
-  26,
-  27,
-  28,
-  29,
-  33,
-  36,
-  41,
-  46,
-  48,
+  2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 14, 15, 16, 19, 23, 24, 26, 27, 28, 29, 33, 36, 41, 46, 48,
 ];
 const recordObj = {
   text: '记录ID',
@@ -129,16 +105,15 @@ export default class ConfigControl extends Component {
 
   componentWillMount() {
     const { appId, worksheetId } = this.props;
-    this.getWorksheetInfo(appId, worksheetId);
+    this.getWorksheetInfo({ appId, worksheetId });
   }
 
   /**
    * 通过API获取模板
    */
-  async getWorksheetInfo(appId, worksheetId, isRelate) {
+  async getWorksheetInfo(args = {}, isRelate) {
     const data = await sheetAjax.getWorksheetInfo({
-      appId,
-      worksheetId,
+      ...args,
       getTemplate: true,
     });
 
@@ -348,7 +323,6 @@ export default class ConfigControl extends Component {
     const configData = await $.ajax({
       type: 'GET',
       url: `${md.global.Config.WorksheetDownUrl}/ExportExcel/GetConfig`,
-      async: false,
       data: {
         worksheetId,
         appId,
@@ -429,7 +403,14 @@ export default class ConfigControl extends Component {
     // 获取关联表相关属性
     await Promise.all(
       _.uniqBy(relateArr, o => o.workSheetId).map(item => {
-        return this.getWorksheetInfo(item.appId, item.workSheetId, true);
+        return this.getWorksheetInfo(
+          {
+            appId: item.appId,
+            workSheetId: item.workSheetId,
+            relationWorksheetId: worksheetId,
+          },
+          true,
+        );
       }),
     );
   }
@@ -476,15 +457,8 @@ export default class ConfigControl extends Component {
   beginImport = controlMappingFilter => {
     (async () => {
       const { isCharge } = this.props;
-      const {
-        tigger,
-        repeatConfig,
-        repeatRecord,
-        worksheetControls,
-        edited,
-        controlMapping,
-        relateSource,
-      } = this.state;
+      const { tigger, repeatConfig, repeatRecord, worksheetControls, edited, controlMapping, relateSource } =
+        this.state;
       let columnContent;
       let fieldContent;
       let repeatModeContent;
@@ -602,15 +576,8 @@ export default class ConfigControl extends Component {
 
   onImport = controlMapping => {
     const { filePath, fileId, fileKey, worksheetId, appId, selectRow, importSheetInfo, onSave, onCancel } = this.props;
-    const {
-      workSheetProjectId,
-      repeatRecord,
-      tigger,
-      repeatConfig,
-      userControls,
-      departmentControls,
-      errorSkip,
-    } = this.state;
+    const { workSheetProjectId, repeatRecord, tigger, repeatConfig, userControls, departmentControls, errorSkip } =
+      this.state;
 
     let cellConfigs = controlMapping.map(item => {
       if (_.find(userControls.concat(departmentControls), i => i.value === item.matchId)) {
@@ -731,7 +698,7 @@ export default class ConfigControl extends Component {
           }),
           dataType: 'JSON',
           contentType: 'application/json',
-        }).done(res => {
+        }).then(res => {
           if (res) {
             alert(_l('保存成功'));
           }
@@ -746,16 +713,8 @@ export default class ConfigControl extends Component {
    */
   renderFooter() {
     const { onPrevious, isCharge } = this.props;
-    const {
-      repeatRecord,
-      tigger,
-      repeatConfig,
-      fieldsList,
-      controlMapping,
-      edited,
-      errorSkip,
-      showErrorSkip,
-    } = this.state;
+    const { repeatRecord, tigger, repeatConfig, fieldsList, controlMapping, edited, errorSkip, showErrorSkip } =
+      this.state;
     const controlMappingFilter = controlMapping.filter(item => item.ColumnNum) || [];
     const skipSize = errorSkip.filter(item => item.value).length;
     const list = [

@@ -163,6 +163,7 @@ class AddDiscuss extends Component {
   }
   render() {
     const { value, files, showSelectUser } = this.state;
+    const { projectId } = this.props;
     const { appId, discussionInfo } = this.props.match.params;
     const { replyId, replyName } = discussionInfo;
     return (
@@ -186,6 +187,8 @@ class AddDiscuss extends Component {
           <Flex.Item className="flexRow">
             <UploadFileWrapper
               files={files}
+              projectId={projectId}
+              appId={appId}
               onChange={files => {
                 this.setState({
                   files,

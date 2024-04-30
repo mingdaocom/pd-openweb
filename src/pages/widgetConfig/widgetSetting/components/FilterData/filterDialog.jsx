@@ -133,7 +133,7 @@ export default function FilterDialog(props) {
           <Support
             type={3}
             style={{ position: 'absolute', bottom: 27 }}
-            href={helpHref || 'https://help.mingdao.com/sheet14'}
+            href={helpHref || 'https://help.mingdao.com/worksheet/filter-associated-records'}
             text={_l('帮助')}
           />
         )}

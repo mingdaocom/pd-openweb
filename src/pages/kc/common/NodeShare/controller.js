@@ -84,7 +84,7 @@ export function getAttachment() {
             return;
           }
         })
-        .fail(err => {
+        .catch(err => {
           console.log(err);
           alert(_l('获取附件详情失败'), 2);
         });

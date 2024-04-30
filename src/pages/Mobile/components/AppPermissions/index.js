@@ -96,7 +96,7 @@ const appPermissions = (Component) => {
     componentDidMount() {
       const { params, path } = this.props.match;
       const { appId } = params;
-      if (['undefined', 'null'].includes(appId)) {
+      if (['undefined', 'null'].includes(appId) || _.get(window, 'shareState.shareId')) {
         this.setState({ loading: false });
         return
       }
@@ -119,7 +119,7 @@ const appPermissions = (Component) => {
       }).then(status => {
         this.getApp(appId);
         this.setState({ appStatus: status });
-      }).fail(error => {
+      }).catch(error => {
         this.setState({ appStatus: error.errorCode, loading: false });
       });
     }
@@ -143,7 +143,7 @@ const appPermissions = (Component) => {
             appId,
             appLangId: langInfo.appLangId
           }).then(lang => {
-            window[`langData-${appId}`] = lang;
+            window[`langData-${appId}`] = lang.items;
             window[`langVersion-${appId}`] = langInfo.version;
             this.setState({ loading: false });
           });

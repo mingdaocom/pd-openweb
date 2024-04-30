@@ -303,7 +303,7 @@ export const getFields = async ({
       tableName,
       destType,
     };
-    const res = await dataSourceApi.getTableFields(params, { fireImmediately: true });
+    const res = await dataSourceApi.getTableFields(params);
     return res;
   }
 };
@@ -434,7 +434,7 @@ export const setFeildAlias = fields => {
   _.forEach(result, (a, k) => {
     if (a.length > 1) {
       a.map((it, i) => {
-        newFeilds = newFeilds.concat({ ...it, alias: `${it.alias}${i > 0 ? i : ''}` });
+        newFeilds = newFeilds.concat({ ...it, alias: `${it.alias || _l('未命名')}${i > 0 ? i : ''}` });
       });
     } else {
       newFeilds = newFeilds.concat(a);

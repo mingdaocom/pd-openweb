@@ -56,7 +56,7 @@ class DialogSettingInviteRules extends React.Component {
     return (
       <Dialog
         width={640}
-        title={_l('人员加入规则设置')}
+        title={_l('用户加入规则')}
         okText={_l('保存')}
         cancelText={_l('取消')}
         className="showRulesDialog"

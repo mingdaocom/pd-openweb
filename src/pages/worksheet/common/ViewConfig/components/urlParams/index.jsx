@@ -138,7 +138,7 @@ export default function UrlParams(props) {
           {_l('视图链接')}
         </LinkText>
         <span>{_l('后。在加载页面时可动态获取参数值用于视图的筛选条件。')}</span>
-        <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/view8" />
+        <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/view/link-parameter" />
       </div>
       {!!params.length && (
         <ParamsWrapper ref={paramsRef}>

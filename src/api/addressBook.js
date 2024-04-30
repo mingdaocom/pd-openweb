@@ -12,7 +12,7 @@ export default {
   **/
    getAccountByAccount: function (args, options = {}) {
      
-     return $.api('AddressBook', 'GetAccountByAccount', args, options);
+     return mdyAPI('AddressBook', 'GetAccountByAccount', args, options);
    },
   /**
   * 获取加我为好友，我还没有同意的人的列表
@@ -25,7 +25,7 @@ export default {
   **/
    getNewFriends: function (args, options = {}) {
      
-     return $.api('AddressBook', 'GetNewFriends', args, options);
+     return mdyAPI('AddressBook', 'GetNewFriends', args, options);
    },
   /**
   * 获取根据手机通讯录推荐的明道云联系人
@@ -38,7 +38,7 @@ export default {
   **/
    getMobileAddressRecommend: function (args, options = {}) {
      
-     return $.api('AddressBook', 'GetMobileAddressRecommend', args, options);
+     return mdyAPI('AddressBook', 'GetMobileAddressRecommend', args, options);
    },
   /**
   * 获取我的所有联系人
@@ -57,7 +57,7 @@ export default {
   **/
    getAllAddressbook: function (args, options = {}) {
      
-     return $.api('AddressBook', 'GetAllAddressbook', args, options);
+     return mdyAPI('AddressBook', 'GetAllAddressbook', args, options);
    },
   /**
   * 查询通讯录联系人以及部门
@@ -76,7 +76,7 @@ export default {
   **/
    searchAddressbookAndDepartment: function (args, options = {}) {
      
-     return $.api('AddressBook', 'SearchAddressbookAndDepartment', args, options);
+     return mdyAPI('AddressBook', 'SearchAddressbookAndDepartment', args, options);
    },
   /**
   * 搜索聊天联系人以及群组，需要过滤自己
@@ -90,7 +90,7 @@ export default {
   **/
    getAllChatAddressbookByKeywords: function (args, options = {}) {
      
-     return $.api('AddressBook', 'GetAllChatAddressbookByKeywords', args, options);
+     return mdyAPI('AddressBook', 'GetAllChatAddressbookByKeywords', args, options);
    },
   /**
   * 关键词搜索通讯录（任务 协作用户快速搜索）
@@ -109,7 +109,7 @@ export default {
   **/
    getUserAddressbookByKeywords: function (args, options = {}) {
      
-     return $.api('AddressBook', 'GetUserAddressbookByKeywords', args, options);
+     return mdyAPI('AddressBook', 'GetUserAddressbookByKeywords', args, options);
    },
   /**
   * 忽略推荐好友
@@ -121,7 +121,7 @@ export default {
   **/
    addIgnoreMobileAddress: function (args, options = {}) {
      
-     return $.api('AddressBook', 'AddIgnoreMobileAddress', args, options);
+     return mdyAPI('AddressBook', 'AddIgnoreMobileAddress', args, options);
    },
   /**
   * 请求添加好友
@@ -136,7 +136,7 @@ export default {
   **/
    addFriend: function (args, options = {}) {
      
-     return $.api('AddressBook', 'AddFriend', args, options);
+     return mdyAPI('AddressBook', 'AddFriend', args, options);
    },
   /**
   * 移除好友
@@ -148,7 +148,7 @@ export default {
   **/
    removeFriend: function (args, options = {}) {
      
-     return $.api('AddressBook', 'RemoveFriend', args, options);
+     return mdyAPI('AddressBook', 'RemoveFriend', args, options);
    },
   /**
   * 同意请求添加好友
@@ -160,7 +160,7 @@ export default {
   **/
    editAgreeFriend: function (args, options = {}) {
      
-     return $.api('AddressBook', 'EditAgreeFriend', args, options);
+     return mdyAPI('AddressBook', 'EditAgreeFriend', args, options);
    },
   /**
   * 拒绝请求添加好友
@@ -172,7 +172,7 @@ export default {
   **/
    editRefuseFriend: function (args, options = {}) {
      
-     return $.api('AddressBook', 'EditRefuseFriend', args, options);
+     return mdyAPI('AddressBook', 'EditRefuseFriend', args, options);
    },
   /**
   * 忽略请求加为好友
@@ -184,6 +184,6 @@ export default {
   **/
    editIgnoreFriend: function (args, options = {}) {
      
-     return $.api('AddressBook', 'EditIgnoreFriend', args, options);
+     return mdyAPI('AddressBook', 'EditIgnoreFriend', args, options);
    },
 };

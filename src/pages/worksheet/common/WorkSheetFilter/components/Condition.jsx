@@ -197,7 +197,7 @@ export default class Condition extends Component {
         type => !_.includes([FILTER_CONDITION_TYPE.BETWEEN, FILTER_CONDITION_TYPE.NBETWEEN], type.value),
       );
     }
-    if (from === 'subTotal' && control && _.includes([19, 23, 24, 35], control.type)) {
+    if (from === 'subTotal' && control && _.includes([19, 23, 24, 27, 35], control.type)) {
       conditionFilterTypes = conditionFilterTypes.filter(
         type =>
           !_.includes(

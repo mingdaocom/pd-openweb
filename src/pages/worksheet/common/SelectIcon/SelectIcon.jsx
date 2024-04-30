@@ -25,7 +25,7 @@ export default class extends Component {
       }).then(data => {
         this.updateName(newName);
         this.updateIcon({ icon: newIcon || icon });
-      }).fail(err => {
+      }).catch(err => {
         alert(_l('修改分组名称失败'), 2);
       });
     } else {
@@ -39,7 +39,7 @@ export default class extends Component {
       }).then(data => {
         this.updateName(newName);
         this.updateIcon({ icon: newIcon || icon });
-      }).fail(err => {
+      }).catch(err => {
         alert(_l('修改工作表名称失败'), 2);
       });
     }
@@ -50,7 +50,7 @@ export default class extends Component {
     const name = (newName || originalName).slice(0, 100);
     const { currentPcNaviStyle } = store.getState().appPkg;
     isActive && store.dispatch(updateAppItemInfo(workSheetId, appItem.type, name));
-    if (currentPcNaviStyle === 1) {
+    if ([1, 3].includes(currentPcNaviStyle)) {
       const singleRef = getAppSectionRef(groupId);
       singleRef.dispatch(updateSheetListAppItem(workSheetId, {
         workSheetName: newName,
@@ -65,7 +65,7 @@ export default class extends Component {
     const { originalIcon } = this.state;
     const { workSheetId, appItem, groupId } = this.props;
     const { currentPcNaviStyle } = store.getState().appPkg;
-    if (currentPcNaviStyle === 1) {
+    if ([1, 3].includes(currentPcNaviStyle)) {
       const singleRef = getAppSectionRef(groupId);
       singleRef.dispatch(updateSheetListAppItem(workSheetId, args));
     } else {

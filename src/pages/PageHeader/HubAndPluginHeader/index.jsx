@@ -66,7 +66,7 @@ export default class HubAndPluginHeader extends Component {
       <Wrap className="nativeHeaderWrap flexRow">
         <div className="flex flexRow alignItemsCenter">
           <div className="nativeModuleLogo">
-            <HomeEntry data-tip={_l('主页')} onClick={() => navigateTo('/dashboard')}>
+            <HomeEntry data-tip={_l('首页')} onClick={() => navigateTo('/dashboard')}>
               <i className="icon-home_page Font18"></i>
             </HomeEntry>
             <div className="nativeTitle">{isPlugin ? _l('插件中心') : _l('集成中心')}</div>

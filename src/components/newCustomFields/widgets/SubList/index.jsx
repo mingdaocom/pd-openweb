@@ -2,14 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ChildTable from 'worksheet/components/ChildTable';
 import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
-import sheetAjax from 'src/api/worksheet';
-import publicWorksheetAjax from 'src/api/publicWorksheet';
-import { isRelateRecordTableControl, replaceControlsTranslateInfo } from 'worksheet/util';
-import { controlState } from 'src/components/newCustomFields/tools/utils';
-import { FROM } from '../../tools/config';
 import autobind from 'core-decorators/lib/autobind';
 import { browserIsMobile } from 'src/util';
-import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
 import _ from 'lodash';
 
 export default class SubList extends React.Component {
@@ -29,88 +23,7 @@ export default class SubList extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {
-      loading: true,
-    };
     this.debounceChange = _.debounce(this.props.onChange, 500);
-  }
-
-  componentDidMount() {
-    this.loadWorksheetInfo(this.props.dataSource);
-  }
-
-  get publicLinkId() {
-    try {
-      return (
-        /\/public\/workflow/.test(location.pathname) &&
-        decodeURIComponent(location.pathname)
-          .split(' ')[0]
-          .match(/\/public\/workflow\/(\w{24})/)[1]
-      );
-    } catch (err) {
-      return;
-    }
-  }
-
-  loadWorksheetInfo(worksheetId) {
-    const { appId, recordId, controlId, value, updateRelationControls = () => {} } = this.props;
-    const controlPermission = controlState({ ...this.props }, this.props.from);
-    const args = { worksheetId, getTemplate: true, getRules: true };
-    const { instanceId, workId } = browserIsMobile()
-      ? this.props.mobileApprovalRecordInfo || {}
-      : _.get(this, 'context.recordBaseInfo') || {};
-    const linkId = this.publicLinkId;
-
-    let getWorksheetInfoPromise;
-    if (linkId) {
-      args.linkId = linkId;
-      args.controlId = controlId;
-      getWorksheetInfoPromise = sheetAjax.getWorksheetInfoByWorkItem;
-    } else if (recordId && instanceId && workId) {
-      args.instanceId = instanceId;
-      args.workId = workId;
-      args.controlId = controlId;
-      getWorksheetInfoPromise = sheetAjax.getWorksheetInfoByWorkItem;
-    } else if (this.props.from !== FROM.PUBLIC_ADD || _.get(window, 'shareState.isPublicFormPreview')) {
-      getWorksheetInfoPromise = sheetAjax.getWorksheetInfo;
-    } else {
-      getWorksheetInfoPromise = publicWorksheetAjax.getWorksheetInfo;
-    }
-    args.relationWorksheetId = this.props.worksheetId;
-    Promise.all([getWorksheetInfoPromise(args), sheetAjax.getQueryBySheetId({ worksheetId })]).then(
-      ([info, queryRes]) => {
-        const isWorkflow = ((instanceId && workId) || linkId) && info.workflowChildTableSwitch !== false;
-
-        if (!_.isObject(value) && isWorkflow) {
-          updateRelationControls(
-            worksheetId,
-            info.template.controls.filter(c => c.controlId !== 'rowid'),
-          );
-        }
-        this.setState({
-          loading: false,
-          searchConfig: formatSearchConfigs(queryRes),
-          controls: replaceControlsTranslateInfo(
-            appId,
-            (_.get(info, 'template.controls') || []).map(c => ({
-              ...c,
-              ...(isWorkflow
-                ? {}
-                : {
-                    controlPermissions:
-                      isRelateRecordTableControl(c) || c.type === 34
-                        ? '000'
-                        : controlPermission.editable
-                        ? '111'
-                        : '101',
-                  }),
-            })),
-          ),
-          projectId: info.projectId,
-          info,
-        });
-      },
-    );
   }
 
   @autobind
@@ -119,27 +32,38 @@ export default class SubList extends React.Component {
       if (!this.childTable.current) return;
 
       this.childTable.current.store.dispatch({
-        type: 'INIT_ROWS',
+        type: 'FORCE_SET_OUT_ROWS',
         rows,
       });
     }
     const { value, recordId, from } = this.props;
     const onChange =
       lastAction.type === 'UPDATE_ROW' && lastAction.asyncUpdate ? this.debounceChange : this.props.onChange;
-    const { controls } = this.state;
     const isAdd = !recordId;
-    if (lastAction.type !== 'INIT_ROWS' && lastAction.type !== 'LOAD_ROWS') {
+    if (
+      !_.includes(
+        [
+          'INIT_ROWS',
+          'LOAD_ROWS',
+          'UPDATE_BASE_LOADING',
+          'UPDATE_BASE',
+          'UPDATE_CELL_ERRORS',
+          'FORCE_SET_OUT_ROWS',
+          'RESET',
+        ],
+        lastAction.type,
+      ) &&
+      !/^@/.test(lastAction.type)
+    ) {
       if (isAdd) {
         onChange({
           isAdd: true,
-          controls,
           rows: rows.filter(row => !row.empty),
         });
       } else if (lastAction.type === 'CLEAR_AND_SET_ROWS') {
         onChange({
           deleted: originRows.map(r => r.rowid),
           updated: rows.map(r => r.rowid),
-          controls,
           rows: rows,
         });
       } else {
@@ -161,7 +85,6 @@ export default class SubList extends React.Component {
         onChange({
           deleted,
           updated,
-          controls,
           rows: rows,
         });
       }
@@ -170,7 +93,6 @@ export default class SubList extends React.Component {
       onChange({
         deleted: [],
         updated: (rows || []).map(r => r.rowid),
-        controls,
         rows: rows || [],
         isDefault: true,
       });
@@ -191,34 +113,21 @@ export default class SubList extends React.Component {
       sheetSwitchPermit,
       flag,
     } = this.props;
-    const { controls, projectId, info } = this.state;
-    const { instanceId, workId } = browserIsMobile()
-      ? this.props.mobileApprovalRecordInfo || {}
-      : _.get(this, 'context.recordBaseInfo') || {};
     const control = { ...this.props };
-    const { loading, searchConfig } = this.state;
     return (
-      <div
-        className="mdsubList"
-        style={{ minHeight: 74, margin: '2px 0 12px', background: loading ? '#f7f7f7' : 'transparent' }}
-      >
-        {!loading && (
+      <div className="mdsubList" style={{ minHeight: 74, margin: '2px 0 12px' }}>
+        {
           <ChildTable
             showSearch
             showExport
             ref={this.childTable}
-            isWorkflow={((instanceId && workId) || this.linkId) && info.workflowChildTableSwitch !== false}
             initSource={initSource}
-            entityName={info.entityName}
-            rules={info.rules}
             registerCell={registerCell}
-            appId={info.appId || appId}
+            appId={appId}
             viewId={viewIdForPermit}
             from={from}
             control={control}
-            controls={controls}
             recordId={recordId}
-            searchConfig={searchConfig || []}
             sheetSwitchPermit={sheetSwitchPermit}
             flag={flag}
             masterData={{
@@ -227,11 +136,10 @@ export default class SubList extends React.Component {
                 .map(c => _.pick(c, ['controlId', 'type', 'value', 'options', 'attribute', 'enumDefault']))
                 .filter(c => !!c.value),
             }}
-            projectId={projectId}
             onChange={this.handleChange}
             mobileIsEdit={browserIsMobile() ? !disabled : undefined}
           />
-        )}
+        }
       </div>
     );
   }

@@ -8,7 +8,7 @@ export default {
   **/
    getHomePage: function (args, options = {}) {
      
-     return $.api('Map', 'GetHomePage', args, options);
+     return mdyAPI('Map', 'GetHomePage', args, options);
    },
   /**
   * 搜索（名称）
@@ -26,7 +26,7 @@ export default {
   **/
    searchName: function (args, options = {}) {
      
-     return $.api('Map', 'SearchName', args, options);
+     return mdyAPI('Map', 'SearchName', args, options);
    },
   /**
   * 搜索（用户）
@@ -42,7 +42,7 @@ export default {
   **/
    searchUser: function (args, options = {}) {
      
-     return $.api('Map', 'SearchUser', args, options);
+     return mdyAPI('Map', 'SearchUser', args, options);
    },
   /**
   * 获取用户所有模板
@@ -54,7 +54,7 @@ export default {
   **/
    getUserApps: function (args, options = {}) {
      
-     return $.api('Map', 'GetUserApps', args, options);
+     return mdyAPI('Map', 'GetUserApps', args, options);
    },
   /**
   * 获取分类信息
@@ -65,7 +65,7 @@ export default {
   **/
    getCategory: function (args, options = {}) {
      
-     return $.api('Map', 'GetCategory', args, options);
+     return mdyAPI('Map', 'GetCategory', args, options);
    },
   /**
   * 获取行业信息
@@ -76,7 +76,7 @@ export default {
   **/
    getIndustry: function (args, options = {}) {
      
-     return $.api('Map', 'GetIndustry', args, options);
+     return mdyAPI('Map', 'GetIndustry', args, options);
    },
   /**
   * 获取应用库FileUrl Token
@@ -89,7 +89,7 @@ export default {
   **/
    getLibraryToken: function (args, options = {}) {
      
-     return $.api('Map', 'GetLibraryToken', args, options);
+     return mdyAPI('Map', 'GetLibraryToken', args, options);
    },
   /**
   * 获取专题详情
@@ -101,7 +101,7 @@ export default {
   **/
    getSpecialApps: function (args, options = {}) {
      
-     return $.api('Map', 'GetSpecialApps', args, options);
+     return mdyAPI('Map', 'GetSpecialApps', args, options);
    },
   /**
   * 获取应用详情
@@ -113,7 +113,7 @@ export default {
   **/
    getDetial: function (args, options = {}) {
      
-     return $.api('Map', 'GetDetial', args, options);
+     return mdyAPI('Map', 'GetDetial', args, options);
    },
   /**
   * 获取已上架应用（分页）
@@ -126,7 +126,7 @@ export default {
   **/
    gets: function (args, options = {}) {
      
-     return $.api('Map', 'Gets', args, options);
+     return mdyAPI('Map', 'Gets', args, options);
    },
   /**
   * 获取应用库小红点
@@ -137,7 +137,7 @@ export default {
   **/
    getNew: function (args, options = {}) {
      
-     return $.api('Map', 'GetNew', args, options);
+     return mdyAPI('Map', 'GetNew', args, options);
    },
   /**
   * 获取map平台设置
@@ -149,6 +149,6 @@ export default {
   **/
    getPlatformSetting: function (args, options = {}) {
      
-     return $.api('Map', 'GetPlatformSetting', args, options);
+     return mdyAPI('Map', 'GetPlatformSetting', args, options);
    },
 };

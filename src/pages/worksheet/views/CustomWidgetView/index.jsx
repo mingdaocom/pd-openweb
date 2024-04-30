@@ -8,19 +8,11 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { string, arrayOf, shape, func, bool } from 'prop-types';
 import { browserIsMobile, emitter } from 'src/util';
+import { CUSTOM_WIDGET_VIEW_STATUS, PLUGIN_INFO_SOURCE, PLUGIN_INFO_STATE } from 'worksheet/constants/enum';
 
 const Con = styled.div`
   height: 100%;
 `;
-
-const STATUS = {
-  NORMAL: 1,
-  NO_CONFIG: 2,
-  NOT_PUBLISH: 3,
-  LOAD_SCRIPT_SUCCESS: 4,
-  LOAD_SCRIPT_ERROR: 5,
-  DELETED: 6,
-};
 
 function getDefaultOfParam(control) {
   try {
@@ -45,13 +37,20 @@ function getParamsMap(view = {}) {
   return result;
 }
 
-// !_.get(item, 'pluginInfo.id');
-
 function getViewStatus({ view, scriptUrl }) {
-  if (!_.get(view, 'pluginInfo.id')) {
-    return STATUS.DELETED;
+  if (
+    _.get(view, 'pluginInfo.state') === PLUGIN_INFO_STATE.DISABLED &&
+    _.get(view, 'pluginInfo.source') === PLUGIN_INFO_SOURCE.DEVELOPMENT
+  ) {
+    return CUSTOM_WIDGET_VIEW_STATUS.DEVELOPING;
+  } else if (_.get(view, 'pluginInfo.state') === PLUGIN_INFO_STATE.DISABLED) {
+    return CUSTOM_WIDGET_VIEW_STATUS.NOT_PUBLISH;
+  } else if (_.get(view, 'pluginInfo.state') === PLUGIN_INFO_STATE.DELETED || _.isUndefined(view.pluginInfo)) {
+    return CUSTOM_WIDGET_VIEW_STATUS.DELETED;
+  } else if (_.get(view, 'pluginInfo.state') === PLUGIN_INFO_STATE.EXPIRED) {
+    return CUSTOM_WIDGET_VIEW_STATUS.EXPIRED;
   } else {
-    return scriptUrl ? STATUS.NORMAL : STATUS.NOT_PUBLISH;
+    return scriptUrl ? CUSTOM_WIDGET_VIEW_STATUS.NORMAL : CUSTOM_WIDGET_VIEW_STATUS.NOT_PUBLISH;
   }
 }
 
@@ -91,17 +90,19 @@ function CustomWidgetView(props) {
   }, []);
   return (
     <Con ref={conRef}>
-      {_.includes([STATUS.NOT_PUBLISH, STATUS.DELETED], status) && (
-        <Abnormal status={status} showDebugButton={showDebugButton} />
-      )}
-      {status === STATUS.LOAD_SCRIPT_ERROR && (
-        <Abnormal
-          status={status}
-          showDebugButton={showDebugButton}
-          text={_l('加载脚本%0失败', scriptUrl ? ' ' + scriptUrl + ' ' : '')}
-        />
-      )}
-      {status === STATUS.NORMAL && (
+      {status !== CUSTOM_WIDGET_VIEW_STATUS.NORMAL &&
+        !(status === CUSTOM_WIDGET_VIEW_STATUS.DEVELOPING && scriptUrl) && (
+          <Abnormal
+            status={status}
+            showDebugButton={showDebugButton}
+            text={
+              status === CUSTOM_WIDGET_VIEW_STATUS.LOAD_SCRIPT_ERROR &&
+              _l('加载脚本%0失败', scriptUrl ? ' ' + scriptUrl + ' ' : '')
+            }
+          />
+        )}
+      {(status === CUSTOM_WIDGET_VIEW_STATUS.NORMAL ||
+        (status === CUSTOM_WIDGET_VIEW_STATUS.DEVELOPING && scriptUrl)) && (
         <WidgetContainer
           scriptUrl={scriptUrl}
           isServerUrl={scriptUrl === codeUrl}
@@ -119,7 +120,7 @@ function CustomWidgetView(props) {
           flag={flag}
           onLoadScript={err => {
             if (err) {
-              setStatus(STATUS.LOAD_SCRIPT_ERROR);
+              setStatus(CUSTOM_WIDGET_VIEW_STATUS.LOAD_SCRIPT_ERROR);
             }
           }}
         />

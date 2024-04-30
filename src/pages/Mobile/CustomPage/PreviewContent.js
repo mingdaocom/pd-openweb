@@ -66,7 +66,7 @@ function KcShareFolderPreviewContent(props) {
         .then(({ node }) => {
           setNode(node);
         })
-        .always(() => setLoading(false));
+        .finally(() => setLoading(false));
     }, [shareId]);
   }
   return (
@@ -114,7 +114,7 @@ function KcShareNodePreviewContent(props) {
         .then(({ node }) => {
           setNode(node);
         })
-        .always(() => setLoading(false));
+        .finally(() => setLoading(false));
     }, [shareId]);
   }
   return (

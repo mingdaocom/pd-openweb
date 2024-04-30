@@ -2,11 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import cx from 'classnames';
-import { Dialog } from 'ming-ui';
+import { Dialog, RichText } from 'ming-ui';
 import EditableCellCon from '../EditableCellCon';
 import { regexFilterHtmlScript } from 'worksheet/util';
 import renderText from './renderText';
-import { RichText } from 'ming-ui';
 export default class Text extends React.Component {
   static propTypes = {
     className: PropTypes.string,

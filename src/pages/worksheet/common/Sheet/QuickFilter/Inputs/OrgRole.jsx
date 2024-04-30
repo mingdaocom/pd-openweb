@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { arrayOf, func, string } from 'prop-types';
-import selectOrgRole from 'src/components/dialogSelectOrgRole';
+import { quickSelectRole } from 'ming-ui/functions';
 import { BaseSelectedItem } from './Styles';
 import _ from 'lodash';
 
@@ -55,9 +55,9 @@ export default function Departments(props) {
     <Con
       isEmpty={!values.length}
       active={active}
-      onClick={() => {
+      onClick={e => {
         setActive(true);
-        selectOrgRole({
+        quickSelectRole(e.target, {
           projectId,
           showCurrentOrgRole: true,
           showCompanyName: true,

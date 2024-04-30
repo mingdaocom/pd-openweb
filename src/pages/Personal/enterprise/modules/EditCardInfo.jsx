@@ -38,21 +38,25 @@ export default class EditCardInfo extends Component {
   }
 
   handleSubmit() {
-    if(!this.state.contactPhone) {
-      alert(_l('工作电话不能为空'), 2)
-      return
+    const { userInfo, updateData = () => {} } = this.props;
+    if (!this.state.contactPhone) {
+      alert(_l('工作电话不能为空'), 2);
+      return;
     }
-    account.editUserCardContactPhone({
-      projectId: this.props.userInfo.projectId,
-      contactPhone: this.state.contactPhone,
-    }).then((result) => {
-      if (result) {
-        this.props.closeDialog();
-        alert(_l('保存成功'));
-      } else {
-        alert(_l('操作失败'), 2);
-      }
-    });
+    account
+      .editUserCardContactPhone({
+        projectId: this.props.userInfo.projectId,
+        contactPhone: this.state.contactPhone,
+      })
+      .then(result => {
+        if (result) {
+          this.props.closeDialog();
+          alert(_l('保存成功'));
+          updateData({ ...userInfo, contactPhone: this.state.contactPhone });
+        } else {
+          alert(_l('操作失败'), 2);
+        }
+      });
   }
 
   render() {

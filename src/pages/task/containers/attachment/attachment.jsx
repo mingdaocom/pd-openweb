@@ -138,7 +138,7 @@ class Attachment extends Component {
     let mRight = 0;
     /* 存在滚动条*/
     if (domHeight < elementHeight) {
-      mRight = $.browser.chrome ? 10 : 17;
+      mRight = window.isChrome ? 10 : 17;
     }
 
     $('#taskAttachmentList .attachmentheader').css('marginRight', mRight);

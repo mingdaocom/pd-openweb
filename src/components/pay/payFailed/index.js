@@ -47,6 +47,6 @@ function PayFailed(props) {
   );
 }
 
-const Comp = preall(PayFailed, { allownotlogin: false });
+const Comp = preall(PayFailed, { allowNotLogin: false });
 
 ReactDOM.render(<Comp />, document.querySelector('#payFailed'));

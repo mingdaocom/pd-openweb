@@ -1,9 +1,10 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import './index.less';
 import { Input } from 'antd';
 import userPassword from 'src/api/account';
 import { encrypt } from 'src/util';
 import RegExp from 'src/util/expression';
+import _ from 'lodash';
 
 export default class EditPassword extends Component {
   constructor(props) {
@@ -15,6 +16,7 @@ export default class EditPassword extends Component {
     this.state = {
       originPassword: '',
       newPassword: '',
+      confirmPassword: '',
       passwordRegexTip,
       passwordRegex,
     };
@@ -25,23 +27,42 @@ export default class EditPassword extends Component {
   };
 
   handleSubmit() {
-    const { originPassword, newPassword } = this.state;
+    const { isNullCredential } = this.props;
+    const { originPassword, newPassword, confirmPassword } = this.state;
     if (!newPassword) {
       alert(_l('请设置新密码'), 3);
       $('#newInput').focus();
       return;
     }
     if (!this.isPasswordRule(newPassword)) {
-      let msg = this.state.passwordRegexTip || _l('8-20位，需包含字母和数字');
+      let msg = this.state.passwordRegexTip || _l('密码,8-20位，必须字母+数字');
       alert(msg, 3);
       $('#newInput').focus().select();
       return;
     }
+    if (isNullCredential) {
+      if (!confirmPassword) {
+        alert(_l('请确认密码'), 3);
+        $('#confirmPassword').focus();
+        return;
+      }
+      if (!this.isPasswordRule(confirmPassword)) {
+        let msg = this.state.passwordRegexTip || _l('密码,8-20位，必须字母+数字');
+        alert(msg, 3);
+        $('#confirmPassword').focus().select();
+        return;
+      }
+      if (!_.isEqual(newPassword, confirmPassword)) {
+        alert(_l('两次输入密码不一致'), 3);
+        return;
+      }
+    }
+
     userPassword
       .editPwd({
-        oldPwd: originPassword ? encrypt(originPassword) : '',
+        oldPwd: originPassword && !isNullCredential ? encrypt(originPassword) : undefined,
         newPwd: encrypt(newPassword),
-        confirmPwd: encrypt(newPassword),
+        confirmPwd: isNullCredential ? encrypt(confirmPassword) : encrypt(newPassword),
       })
       .then(data => {
         window.localStorage.removeItem('LoginCheckList'); // accountId 和 encryptPassword 清理掉
@@ -73,11 +94,11 @@ export default class EditPassword extends Component {
           alert(_l('保存失败'), 2);
         }
       })
-      .fail();
+      .catch();
   }
 
   forbidRefresh() {
-    $("<div class='passwordModifySuccessMask'></div>").appendTo('body');
+    $("<div class='passwordModifySuccessMask'></div>").appendTo('html > body');
     this.forbidF5();
     this.forbidRightClick();
   }
@@ -106,24 +127,28 @@ export default class EditPassword extends Component {
   }
 
   render() {
-    const { originPassword, newPassword } = this.state;
+    const { isNullCredential } = this.props;
+    const { originPassword, newPassword, confirmPassword } = this.state;
     return (
       <div className="clearfix">
-        <div className="Gray">{_l('原有密码')}</div>
-        <Input.Password
-          id="originInput"
-          autocomplete="new-password"
-          value={originPassword}
-          className="mTop10 mBottom10"
-          placeholder={_l('原有密码')}
-          onChange={e => this.setState({ originPassword: e.target.value })}
-        />
-        <div className="clearfix Block">
-          <span className="Gray_9e Left">{_l('集成账户原有密码可不输入（用于密码初始化）')}</span>
-          <a class="NoUnderline Right ThemeColor3 Hover_49" target="_blank" href="/findPassword">
-            {_l('忘记密码？')}
-          </a>
-        </div>
+        {!isNullCredential && (
+          <Fragment>
+            <div className="Gray">{_l('原有密码')}</div>
+            <Input.Password
+              id="originInput"
+              autocomplete="new-password"
+              value={originPassword}
+              className="mTop10 mBottom10"
+              placeholder={_l('原有密码')}
+              onChange={e => this.setState({ originPassword: e.target.value })}
+            />
+            <div className="clearfix Block">
+              <a class="NoUnderline Right ThemeColor3 Hover_49" target="_blank" href="/findPassword">
+                {_l('忘记密码？')}
+              </a>
+            </div>
+          </Fragment>
+        )}
         <div className="Gray mTop24">{_l('新密码')}</div>
         <Input.Password
           id="newInput"
@@ -133,7 +158,22 @@ export default class EditPassword extends Component {
           placeholder={_l('新密码')}
           onChange={e => this.setState({ newPassword: e.target.value })}
         />
-        <div className="Gray_9e">{this.state.passwordRegexTip || _l('8-20位，需包含字母和数字')}</div>
+        <div className="Gray_9e">{this.state.passwordRegexTip || _l('密码,8-20位，必须字母+数字')}</div>
+
+        {isNullCredential && (
+          <Fragment>
+            <div className="Gray mTop24">{_l('再次输入新密码')}</div>
+            <Input.Password
+              id="confirmPassword"
+              autocomplete="new-password"
+              value={confirmPassword}
+              className="mTop10 mBottom10"
+              placeholder={_l('再次输入新密码')}
+              onChange={e => this.setState({ confirmPassword: e.target.value })}
+            />
+          </Fragment>
+        )}
+
         <div className="mTop40 Right mBottom24">
           <span className="Font14 Gray_9e mRight32 Hover_49 Hand" onClick={() => this.props.closeDialog()}>
             {_l('取消')}

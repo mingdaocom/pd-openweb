@@ -60,7 +60,7 @@ export default function RelateStyle(props) {
             </Tooltip>
           </Checkbox>
         </div>
-        <div className="labelWrap mTop16">
+        <div className="labelWrap">
           <Checkbox
             size="small"
             checked={alternatecolor === '1'}

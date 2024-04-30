@@ -12,7 +12,7 @@ import './less/Menu.less';
 @withClickAway
 class Menu extends Component {
   static propTypes = {
-    fixedHeader: PropTypes.element,
+    fixedHeader: PropTypes.any,
     parentMenuItem: PropTypes.any,
     isSubMenu: PropTypes.bool,
     con: PropTypes.string,

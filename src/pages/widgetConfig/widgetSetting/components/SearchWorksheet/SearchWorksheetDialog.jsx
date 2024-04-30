@@ -14,9 +14,11 @@ import { getControls } from '../DynamicDefaultValue/util';
 import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify/InputValue';
 import SortConditions from 'src/pages/worksheet/common/ViewConfig/components/SortConditions';
 import { SYS_CONTROLS, FORM_HIDDEN_CONTROL_IDS } from 'src/pages/widgetConfig/config/widget.js';
-import '../DynamicDefaultValue/inputTypes/SubSheet/style.less';
+import 'src/pages/widgetConfig/styled/style.less';
 import cx from 'classnames';
 import _ from 'lodash';
+import { isSheetDisplay } from 'src/pages/widgetConfig/util';
+import { RESULT_DISPLAY } from '../CustomEvent/config';
 
 const rowControl = [{ controlId: 'rowid', type: 2, controlName: _l('记录ID') }];
 const RadioDisplay = [
@@ -90,6 +92,7 @@ export default class SearchWorksheetDialog extends Component {
       configs: [], //选择字段
       items: [],
       moreType: 0, // 获取第一条
+      resultType: 0, // 结果条件成立时
       moreSort: [], // 排序
       queryCount: '', // 查询数量
       visible: false,
@@ -121,6 +124,9 @@ export default class SearchWorksheetDialog extends Component {
           sheetList,
           originSheetList: sheetList,
           appId: globalSheetInfo.appId,
+          appName: this.relateField()
+            ? _.get(window.subListSheetConfig, `${data.controlId}.sheetInfo.appName`)
+            : globalSheetInfo.appName,
           sheetId: sourceId || (this.relateField() ? data.dataSource : ''),
           sheetName: this.relateField() ? data.sourceEntityName : '',
           controls: this.relateField() ? this.state.relationControls : [],
@@ -138,6 +144,7 @@ export default class SearchWorksheetDialog extends Component {
               items: queryConfig.items,
               configs: queryConfig.configs,
               moreType: queryConfig.moreType || 0,
+              resultType: queryConfig.resultType || 0,
               moreSort: queryConfig.moreSort,
               queryCount: queryConfig.queryCount,
               controls: queryConfig.templates ? _.get(queryConfig.templates[0] || {}, 'controls') : [],
@@ -170,6 +177,7 @@ export default class SearchWorksheetDialog extends Component {
           isSheetDelete: !controls.length,
           sheetSwitchPermit: res.switches,
           views: res.views,
+          appName: res.appName,
         });
       });
   };
@@ -203,6 +211,7 @@ export default class SearchWorksheetDialog extends Component {
       appName,
       moreSort,
       moreType,
+      resultType,
       queryCount,
     } = this.state;
     const worksheetId = from === 'subList' ? subListSheetId : globalSheetInfo.worksheetId;
@@ -218,6 +227,7 @@ export default class SearchWorksheetDialog extends Component {
       items,
       configs,
       moreType,
+      resultType,
       moreSort,
       queryCount,
     };
@@ -271,7 +281,7 @@ export default class SearchWorksheetDialog extends Component {
     controls = controls.filter(co => {
       return (
         _.includes([2, 3, 4, 5, 6, 8, 9, 10, 11, 15, 16, 19, 23, 24, 26, 27, 28, 36, 46, 48], co.type) ||
-        (co.type === 29 && (co.advancedSetting || {}).showtype !== '2')
+        !isSheetDisplay(co)
       );
     });
     return controls.filter(i => !_.includes(configs.map(x => x.cid) || [], i.controlId));
@@ -359,12 +369,22 @@ export default class SearchWorksheetDialog extends Component {
       loading = false,
       isSheetDelete,
       moreType,
+      resultType,
       moreSort,
       queryCount,
       sheetSwitchPermit,
+      customTitle,
       views = [],
     } = this.state;
-    const { from, onClose, data = {}, globalSheetInfo = {}, allControls = [], queryControls = [] } = this.props;
+    const {
+      from,
+      onClose,
+      data = {},
+      globalSheetInfo = {},
+      allControls = [],
+      queryControls = [],
+      fromCustom,
+    } = this.props;
     const totalControls = from === 'subList' ? queryControls : allControls;
     // 同源级联
     const selfCascader = data.type === 35 && data.dataSource === sheetId;
@@ -381,7 +401,9 @@ export default class SearchWorksheetDialog extends Component {
 
     const checkFilters = _.isEmpty(items) || !checkConditionCanSave(items, true);
     const checkConfigs = _.isEmpty(configs) || !_.every(configs, con => !!con.cid);
-    const okDisabled = normalField
+    const okDisabled = fromCustom
+      ? !sheetId || checkFilters
+      : normalField
       ? !sheetId || checkFilters || _.isEmpty(configs)
       : selfRelate
       ? checkFilters
@@ -396,7 +418,7 @@ export default class SearchWorksheetDialog extends Component {
     return (
       <Dialog
         visible={true}
-        title={<span className="Bold">{_l('查询工作表')}</span>}
+        title={<span className="Bold">{customTitle || _l('查询工作表')}</span>}
         width={640}
         onCancel={onClose}
         okDisabled={okDisabled}
@@ -461,6 +483,7 @@ export default class SearchWorksheetDialog extends Component {
                                         configs: [],
                                         moreSort: [],
                                         moreType: 0,
+                                        resultType: 0,
                                         showMenu: false,
                                       },
                                       this.setControls,
@@ -538,152 +561,170 @@ export default class SearchWorksheetDialog extends Component {
                 )}
               </SettingItem>
 
-              {/**普通、关联单条、级联 */}
-              {(normalField || (data.type === 29 && data.enumDefault === 1) || selfCascader) && (
+              {fromCustom ? (
                 <SettingItem className="mTop12">
-                  <div className="settingItemTitle">{_l('查询到多条时')}</div>
+                  <div className="settingItemTitle">{_l('查询到以下结果时条件成立')}</div>
                   <RadioGroup
                     size="middle"
-                    checkedValue={moreType}
-                    data={RadioDisplay}
-                    onChange={value => this.setState({ moreType: value })}
+                    vertical={true}
+                    checkedValue={resultType}
+                    data={RESULT_DISPLAY}
+                    onChange={value => this.setState({ resultType: value })}
                   />
                 </SettingItem>
-              )}
-
-              <SettingItem className="mTop12">
-                <div className="settingItemTitle">{_l('排序规则')}</div>
-                <SortConditions
-                  className="searchWorksheetSort"
-                  helperClass="zIndex99999"
-                  columns={controls.filter(o => ![22, 43, 45, 49, 51, 52, 10010].includes(o.type))}
-                  sortConditions={moreSort}
-                  showSystemControls
-                  onChange={value =>
-                    this.setState({
-                      moreSort: value.map(i => ({
-                        ...i,
-                        dataType: _.get(
-                          _.find(controls, c => c.controlId === i.controlId),
-                          'type',
-                        ),
-                      })),
-                    })
-                  }
-                />
-              </SettingItem>
-
-              {/**关联多条、子表 */}
-              {(data.type === 34 || (data.type === 29 && data.enumDefault === 2)) && (
-                <SettingItem className="mTop12">
-                  <div className="settingItemTitle">{_l('查询数量')}</div>
-                  <InputValue
-                    className="w100"
-                    type={2}
-                    placeholder={getDefaultCount(data)}
-                    value={queryCount ? queryCount.toString() : undefined}
-                    onChange={value => this.setState({ queryCount: value })}
-                    onBlur={value => {
-                      this.setState({ queryCount: getDefaultCount(data, value) });
-                    }}
-                  />
-                </SettingItem>
-              )}
-
-              <SettingItem className="mTop12">
-                <div className="settingItemTitle">{_l('赋值')}</div>
-                {normalField && (
-                  <Fragment>
-                    <div>
-                      {_l('将')}
-                      <Dropdown
-                        className="mLeft12 mRight12 Width250"
-                        border
-                        isAppendToBody
-                        placeholder={
-                          isDelete ? (
-                            <Tooltip
-                              text={<span>{_l('ID: %0', _.get(configs[0] || {}, 'subCid'))}</span>}
-                              popupPlacement="bottom"
-                            >
-                              <span className="Red">{_l('字段已删除')}</span>
-                            </Tooltip>
-                          ) : (
-                            _l('选择查询表字段')
-                          )
-                        }
-                        disabled={!sheetId}
-                        value={isDelete ? undefined : _.get(configs[0] || {}, 'subCid')}
-                        data={this.getDropData(controls, data)}
-                        renderItem={(selectData = {}) => {
-                          return (
-                            <span>
-                              {selectData.text}
-                              {selectData.isEqualSource && (
-                                <span className="Gray_9e subText">（{_l('相同选项集')}）</span>
-                              )}
-                            </span>
-                          );
-                        }}
-                        onChange={controlId => this.setState({ configs: [{ cid: data.controlId, subCid: controlId }] })}
+              ) : (
+                <Fragment>
+                  {/**普通、关联单条、级联 */}
+                  {(normalField || (data.type === 29 && data.enumDefault === 1) || selfCascader) && (
+                    <SettingItem className="mTop12">
+                      <div className="settingItemTitle">{_l('查询到多条时')}</div>
+                      <RadioGroup
+                        size="middle"
+                        checkedValue={moreType}
+                        data={RadioDisplay}
+                        onChange={value => this.setState({ moreType: value })}
                       />
-                      {_l('的值写入当前字段')}
-                    </div>
-                  </Fragment>
-                )}
-                {selfRelate && <div>{_l('将获取到的记录写入到当前字段')}</div>}
-                {subField && (
-                  <div>
-                    <div className="Gray_75 mBottom12">
-                      {_l('查询到的每行记录添加为一行子表明细。请选择需要写入的字段。')}
-                    </div>
-                    {this.renderMapping()}
-                    <Trigger
-                      action={['click']}
-                      popupVisible={controlVisible}
-                      onPopupVisibleChange={controlVisible => {
-                        if (!sheetId) {
-                          return;
-                        }
-                        this.setState({ controlVisible });
-                      }}
-                      popupStyle={{ width: 280 }}
-                      popup={
-                        <SelectControl
-                          list={this.filterSelectControls(relationControls)}
-                          onClick={item => {
-                            this.setState({
-                              configs: this.state.configs.concat([{ cid: item.controlId, subCid: '' }]),
-                            });
-                          }}
-                        />
+                    </SettingItem>
+                  )}
+
+                  <SettingItem className="mTop12">
+                    <div className="settingItemTitle">{_l('排序规则')}</div>
+                    <SortConditions
+                      className="searchWorksheetSort"
+                      helperClass="zIndex99999"
+                      columns={controls.filter(o => ![22, 43, 45, 49, 51, 52, 10010].includes(o.type))}
+                      sortConditions={moreSort}
+                      showSystemControls
+                      onChange={value =>
+                        this.setState({
+                          moreSort: value.map(i => ({
+                            ...i,
+                            dataType: _.get(
+                              _.find(controls, c => c.controlId === i.controlId),
+                              'type',
+                            ),
+                          })),
+                        })
                       }
-                      popupAlign={{
-                        points: ['tl', 'bl'],
-                        offset: [0, 3],
-                        overflow: {
-                          adjustX: true,
-                          adjustY: true,
-                        },
-                      }}
-                    >
-                      <div className="addFilterIcon pointer">
-                        <span
-                          onClick={() => {
+                    />
+                  </SettingItem>
+
+                  {/**关联多条、子表 */}
+                  {(data.type === 34 || (data.type === 29 && data.enumDefault === 2)) && (
+                    <SettingItem className="mTop12">
+                      <div className="settingItemTitle">{_l('查询数量')}</div>
+                      <InputValue
+                        className="w100"
+                        type={2}
+                        placeholder={getDefaultCount(data)}
+                        value={queryCount ? queryCount.toString() : undefined}
+                        onChange={value => this.setState({ queryCount: value })}
+                        onBlur={value => {
+                          this.setState({ queryCount: getDefaultCount(data, value) });
+                        }}
+                      />
+                    </SettingItem>
+                  )}
+
+                  <SettingItem className="mTop12">
+                    <div className="settingItemTitle">{_l('赋值')}</div>
+                    {normalField && (
+                      <Fragment>
+                        <div>
+                          {_l('将')}
+                          <Dropdown
+                            className="mLeft12 mRight12 Width250"
+                            border
+                            isAppendToBody
+                            placeholder={
+                              isDelete ? (
+                                <Tooltip
+                                  text={<span>{_l('ID: %0', _.get(configs[0] || {}, 'subCid'))}</span>}
+                                  popupPlacement="bottom"
+                                >
+                                  <span className="Red">{_l('字段已删除')}</span>
+                                </Tooltip>
+                              ) : (
+                                _l('选择查询表字段')
+                              )
+                            }
+                            disabled={!sheetId}
+                            value={isDelete ? undefined : _.get(configs[0] || {}, 'subCid')}
+                            data={this.getDropData(controls, data)}
+                            renderItem={(selectData = {}) => {
+                              return (
+                                <span>
+                                  {selectData.text}
+                                  {selectData.isEqualSource && (
+                                    <span className="Gray_9e subText">（{_l('相同选项集')}）</span>
+                                  )}
+                                </span>
+                              );
+                            }}
+                            onChange={controlId =>
+                              this.setState({ configs: [{ cid: data.controlId, subCid: controlId }] })
+                            }
+                          />
+                          {_l('的值写入当前字段')}
+                        </div>
+                      </Fragment>
+                    )}
+                    {selfRelate && <div>{_l('将获取到的记录写入到当前字段')}</div>}
+                    {subField && (
+                      <div>
+                        <div className="Gray_75 mBottom12">
+                          {_l('查询到的每行记录添加为一行子表明细。请选择需要写入的字段。')}
+                        </div>
+                        {this.renderMapping()}
+                        <Trigger
+                          action={['click']}
+                          popupVisible={controlVisible}
+                          onPopupVisibleChange={controlVisible => {
                             if (!sheetId) {
-                              alert(_l('请选择工作表'), 3);
                               return;
                             }
+                            this.setState({ controlVisible });
+                          }}
+                          popupStyle={{ width: 280 }}
+                          popup={
+                            <SelectControl
+                              list={this.filterSelectControls(relationControls)}
+                              onClick={item => {
+                                this.setState({
+                                  configs: this.state.configs.concat([{ cid: item.controlId, subCid: '' }]),
+                                });
+                              }}
+                            />
+                          }
+                          popupAlign={{
+                            points: ['tl', 'bl'],
+                            offset: [0, 3],
+                            overflow: {
+                              adjustX: true,
+                              adjustY: true,
+                            },
                           }}
                         >
-                          <i className="icon icon-add"></i>
-                          {_l('选择子表字段')}
-                        </span>
+                          <div className="addFilterIcon pointer">
+                            <span
+                              onClick={() => {
+                                if (!sheetId) {
+                                  alert(_l('请选择工作表'), 3);
+                                  return;
+                                }
+                              }}
+                            >
+                              <i className="icon icon-add"></i>
+                              {_l('选择子表字段')}
+                            </span>
+                          </div>
+                        </Trigger>
                       </div>
-                    </Trigger>
-                  </div>
-                )}
-              </SettingItem>
+                    )}
+                  </SettingItem>
+                </Fragment>
+              )}
+
               {visible && (
                 <SelectWorksheet
                   {...this.props}

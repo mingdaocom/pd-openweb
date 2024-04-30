@@ -230,12 +230,12 @@ export default class CreateRecordAndTask extends Component {
             projectId={this.props.companyId}
             worksheetType={0}
             selectedAppId={this.props.relationId}
-            selectedWrorkesheetId={data.appId}
+            selectedWorksheetId={data.appId}
             visible
-            onOk={(selectedAppId, selectedWrorkesheetId, obj) => {
+            onOk={(selectedAppId, worksheetId, obj) => {
               const isCurrentApp = this.props.relationId === selectedAppId;
               this.switchWorksheet(
-                selectedWrorkesheetId,
+                worksheetId,
                 obj.workSheetName,
                 !isCurrentApp && selectedAppId,
                 !isCurrentApp && obj.appName,

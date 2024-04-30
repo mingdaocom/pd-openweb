@@ -129,7 +129,7 @@ class DiaActionTree extends React.Component {
           alert(_l('删除失败'), 2);
         }
       })
-      .fail(err => {
+      .catch(err => {
         alert(_l('删除失败'), 2);
       });
   };

@@ -3,6 +3,7 @@ import React, { Component, Fragment } from 'react';
 import { Checkbox, Icon } from 'ming-ui';
 import { Modal, List, Button } from 'antd-mobile';
 import { ModalWrap } from 'src/pages/Mobile/baseStyled.jsx';
+import { MAX_OPTIONS_COUNT } from 'src/pages/widgetConfig/config';
 import './less/MobileCheckbox.less';
 import _ from 'lodash';
 
@@ -43,9 +44,21 @@ export default class MobileCheckbox extends Component {
   }
 
   render() {
-    const { disabled, allowAdd, children, data, checked, callback, renderText, otherValue, controlName } = this.props;
+    const {
+      disabled,
+      allowAdd,
+      children,
+      data,
+      checked,
+      callback,
+      renderText,
+      otherValue,
+      controlName,
+      delOptions = [],
+    } = this.props;
     const { visible, selectChecked, keywords } = this.state;
-    let source = [].concat(data);
+    let source = [].concat(data).filter(item => !item.isDeleted && !item.hide);
+    const canAddOption = source.length < MAX_OPTIONS_COUNT;
 
     selectChecked.forEach(item => {
       if ((item || '').indexOf('add_') > -1) {
@@ -140,10 +153,13 @@ export default class MobileCheckbox extends Component {
                   </List.Item>
                 ))}
 
-              {!!keywords.length && allowAdd && !source.find(item => item.value === keywords) && (
+              {!!keywords.length && allowAdd && !source.find(item => item.value === keywords) && canAddOption && (
                 <List.Item
                   onClick={() => {
+                    if (!_.trim(keywords)) return;
                     this.setState({ keywords: '' });
+                    const opt = _.find(delOptions, v => v.value === keywords);
+                    if (opt) return alert(_l('不得与已有选项（包括回收站）重复'), 2);
                     this.onChange(`add_${keywords}`);
                   }}
                 >

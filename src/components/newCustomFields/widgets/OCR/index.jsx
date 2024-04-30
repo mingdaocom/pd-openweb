@@ -3,9 +3,8 @@ import React, { Component, Fragment } from 'react';
 import { Icon, QiniuUpload } from 'ming-ui';
 import ajax from 'src/api/worksheet';
 import { upgradeVersionDialog, browserIsMobile } from 'src/util';
-import { getParamsByConfigs } from '../Search/util';
+import { getParamsByConfigs, handleUpdateApi } from '../Search/util';
 import { formatResponseData } from 'src/components/UploadFiles/utils.js';
-import { v4 as uuidv4 } from 'uuid';
 import _ from 'lodash';
 
 export default class Widgets extends Component {
@@ -157,7 +156,6 @@ export default class Widgets extends Component {
       controlId,
       projectId,
       appId,
-      getControlRef,
     } = this.props;
 
     if (!dataSource) {
@@ -172,7 +170,7 @@ export default class Widgets extends Component {
       this.postList.abort();
     }
 
-    const paramsData = getParamsByConfigs(requestMap, formData, file, getControlRef);
+    const paramsData = getParamsByConfigs(requestMap, formData, file);
 
     let params = {
       data: !requestMap.length || _.isEmpty(paramsData) ? '' : paramsData,
@@ -220,37 +218,8 @@ export default class Widgets extends Component {
   };
 
   handleUpdate = (itemData = {}) => {
-    const { advancedSetting: { responsemap } = {}, formData } = this.props;
-    const responseMap = safeParse(responsemap || '[]');
-    responseMap.map(item => {
-      const control = _.find(formData, i => i.controlId === item.cid);
-      if (control && !_.isUndefined(itemData[item.cid])) {
-        // 子表直接赋值
-        if (control.type === 34 && _.includes([10000007, 10000008], item.type)) {
-          this.props.onChange(
-            {
-              action: 'clearAndSet',
-              rows: safeParse(itemData[item.cid] || '[]').map(i => {
-                return {
-                  ...i,
-                  rowid: `temprowid-${uuidv4()}`,
-                  allowedit: true,
-                  addTime: new Date().getTime(),
-                };
-              }),
-            },
-            control.controlId,
-          );
-        } else if (!item.subid) {
-          // 普通数组特殊处理
-          const itemVal =
-            item.type === 10000007 && itemData[item.cid] && _.isArray(safeParse(itemData[item.cid]))
-              ? safeParse(itemData[item.cid]).join(',')
-              : itemData[item.cid];
-          this.props.onChange(itemVal, control.controlId);
-        }
-        this.setState({ data: null, open: false, keywords: '' });
-      }
+    handleUpdateApi(this.props, itemData, false, () => {
+      this.setState({ data: null, open: false, keywords: '' });
     });
   };
 

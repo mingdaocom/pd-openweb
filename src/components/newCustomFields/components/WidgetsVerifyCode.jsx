@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import { Button } from 'ming-ui';
-import captcha from 'src/components/captcha';
+import { captcha } from 'ming-ui/functions';
 import { specialTelVerify } from '../tools/utils';
 import { initIntlTelInput } from '../tools/DataFormat';
 import publicWorksheetAjax from 'src/api/publicWorksheet';

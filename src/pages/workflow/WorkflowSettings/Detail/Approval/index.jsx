@@ -109,14 +109,11 @@ export default class Approval extends Component {
    * 获取节点详情
    */
   getNodeDetail(props, sId, callback = () => {}) {
-    const { processId, selectNodeId, selectNodeType, isApproval } = props;
+    const { processId, selectNodeId, selectNodeType, isApproval, instanceId } = props;
     const { data } = this.state;
 
     flowNode
-      .getNodeDetail(
-        { processId, nodeId: selectNodeId, flowNodeType: selectNodeType, selectNodeId: sId },
-        { fireImmediately: true },
-      )
+      .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, selectNodeId: sId, instanceId })
       .then(result => {
         if (sId) {
           result = Object.assign({}, data, {
@@ -198,6 +195,7 @@ export default class Approval extends Component {
       userTaskNullMap,
       candidateUserMap,
       addNotAllowView,
+      signOperationType,
     } = data;
 
     if (!selectNodeId) {
@@ -256,6 +254,7 @@ export default class Approval extends Component {
         userTaskNullMap,
         candidateUserMap,
         addNotAllowView,
+        signOperationType,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -329,11 +328,6 @@ export default class Approval extends Component {
   renderMember() {
     const { data, showSelectUserDialog } = this.state;
     const { accounts } = data;
-    const updateAccounts = ({ accounts }) => {
-      this.updateSource({ accounts }, () => {
-        this.switchApprovalSettings(false, 16);
-      });
-    };
 
     return (
       <div className="mTop15">
@@ -341,7 +335,7 @@ export default class Approval extends Component {
           companyId={this.props.companyId}
           appId={this.props.relationType === 2 ? this.props.relationId : ''}
           accounts={accounts}
-          updateSource={updateAccounts}
+          updateSource={this.updateSource}
         />
 
         <div
@@ -358,7 +352,7 @@ export default class Approval extends Component {
             nodeId={this.props.selectNodeId}
             unique={false}
             accounts={accounts}
-            updateSource={updateAccounts}
+            updateSource={this.updateSource}
             onClose={() => this.setState({ showSelectUserDialog: false })}
           />
         </div>
@@ -664,6 +658,11 @@ export default class Approval extends Component {
    */
   renderApprovalSettings() {
     const { data } = this.state;
+    const SIGN_TYPE = [
+      { text: _l('审批前加签'), value: 1 },
+      { text: _l('通过后加签'), value: 2 },
+      { text: _l('用户可选'), value: 0 },
+    ];
 
     return (
       <Fragment>
@@ -778,18 +777,34 @@ export default class Approval extends Component {
               />
             </div>
             {_.includes(data.operationTypeList, 7) && (
-              <UserRange
-                {...this.props}
-                operationUserRange={data.operationUserRange}
-                operationType="7"
-                title={_l('可加签给：')}
-                btnText={_l('添加加签候选人')}
-                updateSource={({ accounts }) =>
-                  this.updateSource({
-                    operationUserRange: Object.assign({}, data.operationUserRange, { [7]: accounts }),
-                  })
-                }
-              />
+              <Fragment>
+                <div className="mLeft25 relative">
+                  <div className="Font13 mTop5 Gray_9e">{_l('加签方式')}</div>
+                  <div className="flexRow mTop10">
+                    {SIGN_TYPE.map((item, i) => (
+                      <div className="mRight40" key={i}>
+                        <Radio
+                          text={item.text}
+                          checked={data.signOperationType === item.value}
+                          onClick={() => this.updateSource({ signOperationType: item.value })}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <UserRange
+                  {...this.props}
+                  operationUserRange={data.operationUserRange}
+                  operationType="7"
+                  title={_l('可加签给：')}
+                  btnText={_l('添加加签候选人')}
+                  updateSource={({ accounts }) =>
+                    this.updateSource({
+                      operationUserRange: Object.assign({}, data.operationUserRange, { [7]: accounts }),
+                    })
+                  }
+                />
+              </Fragment>
             )}
           </Fragment>
         )}
@@ -1270,7 +1285,7 @@ export default class Approval extends Component {
                       type={3}
                       text={_l('帮助')}
                       className="ThemeColor3 ThemeHoverColor2"
-                      href="https://help.mingdao.com/flow41"
+                      href="https://help.mingdao.com/worksheet/field-filter"
                     />
                   </div>
 

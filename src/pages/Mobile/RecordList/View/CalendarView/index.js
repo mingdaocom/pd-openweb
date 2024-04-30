@@ -94,8 +94,8 @@ class MobileCalendarView extends Component {
       eventClick: eventInfo => {
         if (calendarType === '2') {
           const { extendedProps } = eventInfo.event._def;
-          const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
-          if (isMingdao) {
+
+          if (window.isMingDaoApp) {
             const { base } = this.props;
             window.location.href = `/mobile/record/${base.appId}/${base.worksheetId}/${base.viewId}/${extendedProps.rowid}`;
             return;

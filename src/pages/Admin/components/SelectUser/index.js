@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Icon } from 'ming-ui';
 import { Select } from 'antd';
-import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
+import { dialogSelectUser } from 'ming-ui/functions';
 
 export default function SelectUser(props) {
   const { projectId, changeData = () => {}, className } = props;

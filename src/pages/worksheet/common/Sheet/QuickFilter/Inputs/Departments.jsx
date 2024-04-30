@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { arrayOf, func, string } from 'prop-types';
-import DialogSelectGroups from 'src/components/dialogSelectDept';
+import { dialogSelectDept } from 'ming-ui/functions';
 import { BaseSelectedItem } from './Styles';
 import _ from 'lodash';
 
@@ -57,7 +57,7 @@ export default function Departments(props) {
       active={active}
       onClick={() => {
         setActive(true);
-        return new DialogSelectGroups({
+        dialogSelectDept({
           unique: !isMultiple,
           projectId,
           isIncludeRoot: false,

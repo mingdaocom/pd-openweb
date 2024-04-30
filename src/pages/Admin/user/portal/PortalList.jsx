@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
 import './index.less';
 import { Link } from 'react-router-dom';
-import { LoadDiv, DatePicker, Icon, ScrollView, Dialog, Checkbox, Button, Dropdown } from 'ming-ui';
+import { LoadDiv, DatePicker, Icon, ScrollView, Dialog, Checkbox, Button, Dropdown, UserHead } from 'ming-ui';
 import cx from 'classnames';
 import Search from 'src/pages/workflow/components/Search';
-import UserHead from 'src/components/userHead/userHead';
 import PaginationWrap from '../../components/PaginationWrap';
 import ajaxRequest from 'src/api/externalPortal';
 import projectAjax from 'src/api/project';

@@ -1,24 +1,28 @@
 import React, { Fragment, useState, useEffect } from 'react';
-import { connect } from 'react-redux';
 import CSSTransitionGroup from 'react-addons-css-transition-group';
+import Trigger from 'rc-trigger';
 import MoreOption from '../components/MoreOption';
 import worksheetAjax from 'src/api/worksheet';
 import { CreateIndex } from 'worksheet/common';
-import { Support, Icon, LoadDiv } from 'ming-ui';
+import { Support, Icon, LoadDiv, Tooltip } from 'ming-ui';
 import styled from 'styled-components';
 import cx from 'classnames';
 import _ from 'lodash';
+import '../components/MoreOption.less';
 
 const Con = styled.div`
   width: 100%;
   height: 100%;
   background: #fff;
   position: relative !important;
+  overflow: hidden;
   .setIndexList {
     width: 100%;
     height: 100%;
     overflow: auto;
     padding: 32px 40px;
+    display: flex;
+    flex-direction: column;
     .add {
       padding: 0 16px;
       line-height: 38px;
@@ -48,130 +52,126 @@ const Con = styled.div`
         line-height: 130px;
       }
     }
-    .contentBox {
-      .templates {
+    .printTemplatesList {
+      width: 100%;
+      .printTemplatesList-box {
+        overflow-y: scroll;
         position: relative;
-        margin-right: 16px;
-        margin-top: 20px;
-        margin-bottom: 4px;
-        display: inline-block;
-        border-radius: 3px;
-        width: 300px;
-        // height: 130px;
-        background: #ffffff 0% 0% no-repeat padding-box;
-        opacity: 1;
-        .topBox {
-          border-radius: 3px 3px 0px 0px;
-          height: 40px;
-          background: #f5f5f5 0% 0% no-repeat padding-box;
-          padding: 0 15px;
-          line-height: 40px;
-          width: 100%;
-          color: #333;
+        &::-webkit-scrollbar {
+          width: 0px !important;
+        }
+        -ms-overflow-style: none; /* Internet Explorer和Edge */
+        scrollbar-width: none; /* Firefox */
+      }
+      .printTemplatesList-header {
+        display: flex;
+        align-items: center;
+        font-size: 13px;
+        color: #757575;
+        font-weight: 600;
+        padding-bottom: 11px;
+        border-bottom: 1px solid #dddddd;
+      }
+      .printTemplatesList-tr {
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid #eaeaea;
+        height: auto !important;
+        min-height: 68px !important;
+        &:hover {
+          background: #fafafa;
+        }
+        .field {
+          padding: 10px 0;
+        }
+        .field .viewsBox {
+          width: fit-content;
+          max-width: 100%;
+        }
+        .status {
           display: flex;
-          &.defaulteTem {
-            background: #465a65;
-          }
-          .iconTitle {
-            // margin-right: 6px;
-            width: 16px;
-            line-height: 40px;
-          }
-          span {
-            flex: 1;
+          justify-content: space-between;
+          line-height: 24px;
+          margin-top: 0px;
+          .fail,
+          .inLine {
+            height: 24px;
             padding: 0 12px;
-            max-width: 100%;
-            word-break: break-all;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            border-radius: 12px;
+            color: #f44336;
+            background-color: #fbe9e7;
           }
-          input {
-            flex: 1;
-            width: 100%;
-            height: 25px;
-            background: #ffffff 0% 0% no-repeat padding-box;
-            border-radius: 2px;
-            line-height: 25px;
-            padding: 0px 12px;
-            box-sizing: border-box;
-            color: #333333;
-            margin: 7px 0;
-            border: 1px solid #2196f3;
+          .opacity0 {
+            opacity: 0;
           }
-
-          .moreActive {
-            line-height: 40px;
-            margin-left: 6px;
+          .edit {
+            color: #2196f3;
+            &:hover {
+              opacity: 0.8;
+            }
           }
         }
-        .con {
-          border-bottom: 1px solid #dddddd;
-          border-left: 1px solid #dddddd;
-          border-right: 1px solid #dddddd;
-          border-radius: 0px 0px 3px 3px;
-          padding: 12px 15px;
-          .content {
-            display: flex;
-            flex-wrap: wrap;
-            height: 70px;
-            overflow: scroll;
-          }
-          .activeCon {
-            display: flex;
-            justify-content: space-between;
-            line-height: 24px;
-            margin-top: 0px;
-            .fail,
-            .inLine {
-              height: 24px;
-              padding: 0 17px;
-              border-radius: 12px;
-              color: #f44336;
-              background-color: #fbe9e7;
-            }
-            .opacity0 {
-              opacity: 0;
-            }
-            .edit {
-              color: #2196f3;
-              &:hover {
-                opacity: 0.8;
-              }
+        .activeCon {
+          display: flex;
+
+          & > span {
+            display: inline-flex;
+            color: #2196f3;
+
+            &:hover {
+              opacity: 0.8;
             }
           }
+        }
+        .more {
+          position: relative;
         }
       }
-      .moreOptionTrigger {
-        top: 30px;
-        right: 7px;
-        position: absolute;
-        padding: 6px 0;
-        background: #fff;
-        box-shadow: 0px 4px 16px #0000003d;
-        border-radius: 2px;
-        z-index: 1;
-        li {
+      .printTemplatesList-header,
+      .printTemplatesList-tr {
+        .w120px {
           width: 120px;
-          height: 36px;
-          line-height: 36px;
-          padding: 0 20px;
-          box-sizing: border-box;
-          color: #333;
-          cursor: pointer;
-          &:hover {
-            background: #eaeaea;
-          }
-          &.red {
-            color: red;
-            &:hover {
-              background: red;
-              color: #fff;
-            }
-          }
+        }
+        .w80px {
+          width: 80px;
+        }
+        .w150px {
+          width: 150px;
+        }
+        .name {
+          padding-left: 11px;
         }
       }
     }
+  }
+  .uniqueIndexColor {
+    color: #4caf50;
+  }
+  .wildcardIndexColor {
+    color: #ffa340;
+  }
+`;
+
+const ArrowUp = styled.span`
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent #9e9e9e transparent;
+  cursor: pointer;
+  &:hover,
+  &.active {
+    border-color: transparent transparent #2196f3 transparent;
+  }
+`;
+
+const ArrowDown = styled.span`
+  border-width: 5px;
+  border-style: solid;
+  border-color: #9e9e9e transparent transparent transparent;
+  cursor: pointer;
+  margin-top: 2px;
+  &:hover,
+  &.active {
+    border-color: #2196f3 transparent transparent transparent;
   }
 `;
 
@@ -181,7 +181,7 @@ const FILTER_TYPE_LIST = [40, 42, 43, 21, 25, 45, 14, 34, 22, 10010, 30, 47, 49,
 
 function FormIndexSetting(props) {
   const { worksheetInfo } = props;
-  const { worksheetId, appId } = worksheetInfo;
+  const { worksheetId, appId, template } = worksheetInfo;
   const input = React.createRef();
   const [showCreateIndex, setShowCreateIndex] = useState(false);
   const [isRename, setIsRename] = useState(false);
@@ -193,6 +193,8 @@ function FormIndexSetting(props) {
   const [isloading, setIsloading] = useState(true);
   const [selectedIndexList, setSelectedIndexList] = useState([{}]);
   const [worksheetAvailableFields, setWorksheetAvailableFields] = useState([]);
+  const [sort, setSort] = useState('');
+
   useEffect(() => {
     if (!worksheetId) return;
     getIndexesInfo();
@@ -244,6 +246,17 @@ function FormIndexSetting(props) {
   if (isloading) {
     return <LoadDiv />;
   }
+
+  let list = indexList;
+
+  if (sort !== '') {
+    list = indexList.sort((a, b) => {
+      return sort === 'ASC'
+        ? a.customeIndexName.charCodeAt(0) - b.customeIndexName.charCodeAt(0)
+        : b.customeIndexName.charCodeAt(0) - a.customeIndexName.charCodeAt(0);
+    });
+  }
+
   return (
     <Fragment>
       <Con className="Relative">
@@ -265,7 +278,7 @@ function FormIndexSetting(props) {
                 <span className="Font13 Gray_9e">
                   {_l('手动为大数据量的工作表建立合适的索引，可以加快工作表检索速度，最多创建%0个。', MAX_COUNT)}
                 </span>
-                <Support type={3} text={_l('帮助')} href="https://help.mingdao.com/sheet34" />
+                <Support type={3} text={_l('帮助')} href="https://help.mingdao.com/worksheet/index-acceleration" />
               </p>
             </div>
             <span
@@ -298,126 +311,115 @@ function FormIndexSetting(props) {
               <div className="mTop20 Gray_9e Font15">{_l('暂无索引')}</div>
             </div>
           ) : (
-            <div className="contentBox">
-              {indexList.map(item => {
-                // 运维创建索引且非升降序、文本类型
-                let notSystemIndexTypeList = [1, -1, 'text'];
-                let isSpecial =
-                  item.isSystem && item.indexFields.some(item => !_.includes(notSystemIndexTypeList, item.indexType));
-                if (!isSpecial && item.isSystem) return '';
-                return (
-                  <div key={item.indexConfigId} className="templates">
-                    <div className="topBox">
-                      <Icon icon="db_index" className="iconTitle Font16 Gray_75" />
-                      {isRename && templateId === item.indexConfigId ? (
-                        <input
-                          type="text"
-                          ref={input}
-                          defaultValue={item.customeIndexName}
-                          onBlur={e => {
-                            setTemplateId('');
-                            setIsRename(false);
-                            if (!_.trim(e.target.value)) {
-                              alert(_l('请输入索引名称'), 3);
-                              input.current.focus();
-                              return;
-                            }
-                            if (_.trim(e.target.value) === item.customeIndexName) return;
-                            let data = indexList.map(os => {
-                              if (os.indexConfigId === item.indexConfigId) {
-                                return {
-                                  ...os,
-                                  customeIndexName: _.trim(e.target.value),
-                                };
-                              } else {
-                                return os;
-                              }
-                            });
-                            setIndexList(data || []);
-                            editIndex({
-                              ...item,
-                              customeIndexName: _.trim(e.target.value),
-                            });
-                          }}
-                        />
-                      ) : (
-                        <span className="Bold"> {item.customeIndexName}</span>
-                      )}
-                      {
+            <div className="printTemplatesList flex overflowHidden flexColumn">
+              <div className="printTemplatesList-header">
+                <div className="name flex mRight20 valignWrapper">
+                  <div className="flex">{_l('名称')}</div>
+                  <div className="flexColumn">
+                    <ArrowUp className={cx({ active: sort === 'ASC' })} onClick={() => setSort('ASC')} />
+                    <ArrowDown className={cx({ active: sort === 'DESC' })} onClick={() => setSort('DESC')} />
+                  </div>
+                </div>
+                <div className="type mRight20 w120px">{_l('索引类型')}</div>
+                <div className="field flex mRight20">{_l('索引字段')}</div>
+                <div className="action mRight8 w80px">{_l('操作')}</div>
+                <div className="more w80px"></div>
+              </div>
+              <div className="printTemplatesList-box flex">
+                {list.map(item => {
+                  // 运维创建索引且非升降序、文本类型
+                  let notSystemIndexTypeList = [1, -1, 'text'];
+                  let isSpecial =
+                    item.isSystem && item.indexFields.some(item => !_.includes(notSystemIndexTypeList, item.indexType));
+                  if (!isSpecial && item.isSystem) return '';
+
+                  const type =
+                    item.uniqueIndex && !item.wildcardIndex
+                      ? 1
+                      : item.wildcardIndex || item.indexFields.some(item => item.indexType === 'text')
+                      ? 2
+                      : 0;
+
+                  return (
+                    <div className="printTemplatesList-tr" key={`formIndexSetting-${item.indexConfigId}`}>
+                      <div className="name flex mRight20 valignWrapper overflowHidden">
                         <Icon
-                          icon="task-point-more"
-                          className="moreActive Hand Font18 Gray_9e"
-                          onClick={() => {
-                            setShowMoreOption(true);
-                            setTemplateId(item.indexConfigId ? item.indexConfigId : item.systemIndexName);
-                          }}
+                          icon={type === 0 ? 'db_index' : type === 1 ? 'score' : 'task_custom_text-box'}
+                          className={cx(
+                            'iconTitle Font24 mRight13',
+                            type === 0 ? 'Gray_75' : type === 1 ? 'uniqueIndexColor' : 'wildcardIndexColor',
+                          )}
                         />
-                      }
-                      {showMoreOption &&
-                        (templateId === item.indexConfigId ||
-                          (item.isSystem && templateId === item.systemIndexName)) && (
-                          <MoreOption
-                            disabledRename={item.isSystem}
-                            delTxt={_l('删除索引')}
-                            description={_l('确定删除索引吗？删除后将无法恢复')}
-                            showMoreOption={showMoreOption}
-                            onClickAwayExceptions={[]}
-                            onClickAway={() => {
-                              setShowMoreOption(false);
-                            }}
-                            setFn={data => {
-                              setIsRename(true);
-                              setShowMoreOption(false);
-                            }}
-                            deleteFn={data => {
-                              worksheetAjax
-                                .removeRowIndex({
-                                  appId,
-                                  worksheetId: item.worksheetId,
-                                  indexConfigId: item.indexConfigId,
-                                  isSystemIndex: item.isSystem,
-                                  systemIndexName: item.systemIndexName,
-                                })
-                                .then(res => {
-                                  if (res.responseEnum === 0) {
-                                    alert(_l('操作成功。为保障性能，系统将在空闲时删除此索引'));
-                                    getIndexesInfo();
-                                  } else if (res.responseEnum === -1) {
-                                    alert(_l('删除失败'), 2);
-                                  }
-                                });
+                        {isRename && templateId === item.indexConfigId ? (
+                          <input
+                            type="text"
+                            ref={input}
+                            defaultValue={item.customeIndexName}
+                            onBlur={e => {
+                              setTemplateId('');
+                              setIsRename(false);
+                              if (!_.trim(e.target.value)) {
+                                alert(_l('请输入索引名称'), 3);
+                                input.current.focus();
+                                return;
+                              }
+                              if (_.trim(e.target.value) === item.customeIndexName) return;
+                              let data = indexList.map(os => {
+                                if (os.indexConfigId === item.indexConfigId) {
+                                  return {
+                                    ...os,
+                                    customeIndexName: _.trim(e.target.value),
+                                  };
+                                } else {
+                                  return os;
+                                }
+                              });
+                              setIndexList(data || []);
+                              editIndex({
+                                ...item,
+                                customeIndexName: _.trim(e.target.value),
+                              });
                             }}
                           />
+                        ) : (
+                          <Tooltip text={item.customeIndexName}>
+                            <span className="overflow_ellipsis"> {item.customeIndexName}</span>
+                          </Tooltip>
                         )}
-                    </div>
-                    <div className="con">
-                      <div className="content">
-                        {(item.indexFields || []).map((it, i) => (
-                          <div className="ruleItem" key={it.fieldId}>
-                            <span className={cx('filed', { Red: it.isDelete && !item.isSystem })}>
-                              {it.isDelete && !item.isSystem
-                                ? _l('字段已删除')
-                                : _.get(getFieldObjById(it.fieldId), 'name')
-                                ? _.get(getFieldObjById(it.fieldId), 'name')
-                                : it.fieldId}
-                            </span>
-                            <span className="rule Gray_9e">
-                              {!isSpecial ? `（${sortRules[it.indexType]}）` : `（${it.indexType}）`}
-                            </span>
-                            {i < item.indexFields.length - 1 ? '，' : ''}
-                          </div>
-                        ))}
+                        <span className="status mLeft12 nowrap">
+                          {item.indexStateId === 1 && item.uniqueIndex && (
+                            <span className="Gray_9e">{_l('唯一索引')}</span>
+                          )}
+                          {item.indexStateId === -1 && <span className="fail">{_l('后台执行失败')}</span>}
+                          {item.indexStateId === 0 && <span className="inLine">{_l('排队中')}</span>}
+                        </span>
                       </div>
-                      <div className="activeCon">
-                        {item.indexStateId === 1 && item.uniqueIndex && (
-                          <span className="Gray_9e">{_l('唯一索引')}</span>
-                        )}
-                        {item.indexStateId === -1 && <span className="fail">{_l('后台执行失败')}</span>}
-                        {item.indexStateId === 0 && <span className="inLine">{_l('排队中')}</span>}
-                        <span className="opacity0">{_l('占位')}</span>
+                      <div className="type mRight20 w120px">
+                        {type === 0 ? _l('普通索引') : type === 1 ? _l('唯一索引') : _l('文本索引')}
+                      </div>
+                      <div className="field flex mRight20">
+                        <div className="viewsBox">
+                          {(item.indexFields || []).map((it, i) => (
+                            <span className="ruleItem" key={it.fieldId}>
+                              <span className={cx('filed', { Red: it.isDelete && !item.isSystem })}>
+                                {it.isDelete && !item.isSystem
+                                  ? _l('字段已删除')
+                                  : _.get(getFieldObjById(it.fieldId), 'name')
+                                  ? _.get(getFieldObjById(it.fieldId), 'name')
+                                  : it.fieldId}
+                              </span>
+                              <span className="rule Gray_9e">
+                                {!isSpecial ? `（${sortRules[it.indexType]}）` : `（${it.indexType}）`}
+                              </span>
+                              {i < item.indexFields.length - 1 ? '、' : ''}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="activeCon mRight8 w80px">
                         {!isSpecial && (
                           <span
-                            className="Hand mLeft24 edit"
+                            className="Hand edit Bold"
                             onClick={() => {
                               let selectFiledsList = _.differenceWith(
                                 worksheetAvailableFields,
@@ -443,10 +445,70 @@ function FormIndexSetting(props) {
                           </span>
                         )}
                       </div>
+                      <div className="more w80px TxtCenter">
+                        <Trigger
+                          popupVisible={
+                            showMoreOption &&
+                            (templateId === item.indexConfigId ||
+                              (item.isSystem && templateId === item.systemIndexName))
+                          }
+                          action={['click']}
+                          popupAlign={{
+                            points: ['tr', 'br'],
+                            overflow: { adjustX: true, adjustY: true },
+                          }}
+                          getPopupContainer={() => document.body}
+                          onPopupVisibleChange={showDropOption => {
+                            setShowMoreOption(showDropOption);
+                            setTemplateId(
+                              showDropOption ? (item.indexConfigId ? item.indexConfigId : item.systemIndexName) : '',
+                            );
+                          }}
+                          popup={
+                            <MoreOption
+                              disabledRename={item.isSystem}
+                              delTxt={_l('删除索引')}
+                              description={_l('确定删除索引吗？删除后将无法恢复')}
+                              showMoreOption={showMoreOption}
+                              setFn={data => {
+                                setIsRename(true);
+                                setShowMoreOption(false);
+                              }}
+                              deleteFn={data => {
+                                worksheetAjax
+                                  .removeRowIndex({
+                                    appId,
+                                    worksheetId: item.worksheetId,
+                                    indexConfigId: item.indexConfigId,
+                                    isSystemIndex: item.isSystem,
+                                    systemIndexName: item.systemIndexName,
+                                  })
+                                  .then(res => {
+                                    if (res.responseEnum === 0) {
+                                      alert(_l('操作成功。为保障性能，系统将在空闲时删除此索引'));
+                                      getIndexesInfo();
+                                    } else if (res.responseEnum === -1) {
+                                      alert(_l('删除失败'), 2);
+                                    }
+                                  });
+                              }}
+                            />
+                          }
+                        >
+                          <Icon
+                            icon="task-point-more"
+                            className="moreActive Hand Font18 Gray_9e Hover_21"
+                            onClick={() => {
+                              setShowMoreOption(true);
+                              setTemplateId(item.indexConfigId ? item.indexConfigId : item.systemIndexName);
+                            }}
+                          />
+                        </Trigger>
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
           )}
         </div>

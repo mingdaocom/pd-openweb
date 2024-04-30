@@ -17,11 +17,9 @@ export default class Action extends Component {
     const { item } = this.props;
 
     if (
-      (!item.appId &&
-        !item.selectNodeId &&
-        !_.includes([APP_TYPE.PROCESS, APP_TYPE.CALENDAR, APP_TYPE.SNAPSHOT], item.appType)) ||
+      (!item.appId && !item.selectNodeId && !_.includes([APP_TYPE.PROCESS, APP_TYPE.CALENDAR], item.appType)) ||
       (_.includes(
-        [APP_TYPE.PROCESS, APP_TYPE.EXTERNAL_USER, APP_TYPE.GLOBAL_VARIABLE, APP_TYPE.CALENDAR, APP_TYPE.SNAPSHOT],
+        [APP_TYPE.PROCESS, APP_TYPE.EXTERNAL_USER, APP_TYPE.GLOBAL_VARIABLE, APP_TYPE.CALENDAR],
         item.appType,
       ) &&
         !item.fields.length)
@@ -252,31 +250,6 @@ export default class Action extends Component {
 
       return <div className="pLeft8 pRight8 Gray_75">{_l('仅生成ICS文件')}</div>;
     }
-
-    // 获取屏幕快照
-    if (item.appType === APP_TYPE.SNAPSHOT) {
-      let { fieldValue } = _.find(item.fields, o => o.fieldId === 'url');
-      const arr = fieldValue.match(/\$[^ \r\n]+?\$/g);
-
-      if (arr) {
-        arr.forEach(obj => {
-          fieldValue = fieldValue.replace(
-            obj,
-            (
-              item.formulaMap[
-                obj
-                  .replace(/\$/g, '')
-                  .split(/([a-zA-Z0-9#]{24,32})-/)
-                  .filter(item => item)
-                  .join('-')
-              ] || {}
-            ).name || '',
-          );
-        });
-      }
-
-      return <div className="pLeft8 pRight8 Gray_75 ellipsis">{_l('获取：%0', fieldValue)}</div>;
-    }
   }
 
   getMemberName(item) {
@@ -291,7 +264,7 @@ export default class Action extends Component {
 
   render() {
     const { processId, item, disabled, selectNodeId, openDetail, isSimple } = this.props;
-    const bgClassName = _.includes([APP_TYPE.PROCESS, APP_TYPE.GLOBAL_VARIABLE, APP_TYPE.SNAPSHOT], item.appType)
+    const bgClassName = _.includes([APP_TYPE.PROCESS, APP_TYPE.GLOBAL_VARIABLE], item.appType)
       ? 'BGBlueAsh'
       : item.appType === APP_TYPE.TASK
       ? 'BGGreen'
@@ -309,15 +282,9 @@ export default class Action extends Component {
               {
                 errorShadow:
                   (((item.appId || item.selectNodeId) &&
-                    !_.includes([APP_TYPE.PROCESS, APP_TYPE.CALENDAR, APP_TYPE.SNAPSHOT], item.appType)) ||
+                    !_.includes([APP_TYPE.PROCESS, APP_TYPE.CALENDAR], item.appType)) ||
                     (_.includes(
-                      [
-                        APP_TYPE.PROCESS,
-                        APP_TYPE.EXTERNAL_USER,
-                        APP_TYPE.GLOBAL_VARIABLE,
-                        APP_TYPE.CALENDAR,
-                        APP_TYPE.SNAPSHOT,
-                      ],
+                      [APP_TYPE.PROCESS, APP_TYPE.EXTERNAL_USER, APP_TYPE.GLOBAL_VARIABLE, APP_TYPE.CALENDAR],
                       item.appType,
                     ) &&
                       (item.fields || []).length)) &&
@@ -333,15 +300,9 @@ export default class Action extends Component {
                   'workflowAvatar',
                   (!item.appId &&
                     !item.selectNodeId &&
-                    !_.includes([APP_TYPE.PROCESS, APP_TYPE.CALENDAR, APP_TYPE.SNAPSHOT], item.appType)) ||
+                    !_.includes([APP_TYPE.PROCESS, APP_TYPE.CALENDAR], item.appType)) ||
                     (_.includes(
-                      [
-                        APP_TYPE.PROCESS,
-                        APP_TYPE.EXTERNAL_USER,
-                        APP_TYPE.GLOBAL_VARIABLE,
-                        APP_TYPE.CALENDAR,
-                        APP_TYPE.SNAPSHOT,
-                      ],
+                      [APP_TYPE.PROCESS, APP_TYPE.EXTERNAL_USER, APP_TYPE.GLOBAL_VARIABLE, APP_TYPE.CALENDAR],
                       item.appType,
                     ) &&
                       !(item.fields || []).length)

@@ -40,7 +40,7 @@ export const updateSettings =
           dispatch({ type: 'PUBLICWORKSHEET_UPDATE_SETTINGS', value });
         }
       })
-      .fail(err => {
+      .catch(err => {
         cb(false);
       });
   };
@@ -66,7 +66,7 @@ function updateBaseConfig(dispatch, getState, value, cb) {
         cb(worksheetId);
       }
     })
-    .fail(err => {
+    .catch(err => {
       alert(_l('保存失败'), 3);
     });
 }
@@ -107,7 +107,7 @@ export function addWorksheetControl(controlName, cb = () => {}) {
         dispatch(hideControl(data.controlId));
         cb(data);
       })
-      .fail(err => {
+      .catch(err => {
         alert(_l('添加文本字段失败'), 3);
       });
   };
@@ -121,13 +121,21 @@ export function loadPublicWorksheet({ worksheetId }) {
         dispatch({
           type: 'PUBLICWORKSHEET_LOAD_SUCCESS',
           controls: data.controls,
-          originalControls: data.originalControls.filter(
-            control =>
-              !(
-                (control.type === 29 && !_.includes([0, 1], control.enumDefault2)) ||
-                (control.type === 51 && _.get(control, 'advancedSetting.showtype') === '2')
-              ) && !_.includes(['caid', 'ownerid', 'ctime', 'utime'], control.controlId),
-          ),
+          originalControls: data.originalControls
+            .filter(
+              control =>
+                !(
+                  (control.type === 29 && !_.includes([0, 1], control.enumDefault2)) ||
+                  (control.type === 51 && _.get(control, 'advancedSetting.showtype') === '2')
+                ) && !_.includes(['caid', 'ownerid', 'ctime', 'utime'], control.controlId),
+            )
+            .map(c => ({
+              ...c,
+              advancedSetting:
+                c.type === 29 && _.includes(['2', '6'], _.get(c, 'advancedSetting.showtype'))
+                  ? { ...(c.advancedSetting || {}), showtype: '5' }
+                  : c.advancedSetting,
+            })),
           shareId: data.shareId,
           url: data.url,
           worksheetInfo: {
@@ -310,7 +318,7 @@ export function resetControls() {
           });
         }
       })
-      .fail(() => {
+      .catch(() => {
         alert(_l('重置失败'), 2);
       });
   };

@@ -1,9 +1,10 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import selectOrgRolePc from 'src/components/dialogSelectOrgRole';
+import { quickSelectRole } from 'ming-ui/functions';
 import SelectOrgRole from 'mobile/components/SelectOrgRole';
 import cx from 'classnames';
 import { browserIsMobile } from 'src/util';
+import { dealUserRange } from '../../tools/utils';
 import _ from 'lodash';
 
 export default class Widgets extends Component {
@@ -22,8 +23,8 @@ export default class Widgets extends Component {
   /**
    * 选择组织角色
    */
-  pickOrgRole = () => {
-    const { projectId, enumDefault } = this.props;
+  pickOrgRole = e => {
+    const { projectId, formData, enumDefault } = this.props;
 
     if (!_.find(md.global.Account.projects, item => item.projectId === projectId)) {
       alert(_l('您不是该组织成员，无法获取其组织角色列表，请联系组织管理员'), 3);
@@ -33,15 +34,22 @@ export default class Widgets extends Component {
     if (browserIsMobile()) {
       this.setState({ showMobileOrgRole: true });
     } else {
-      selectOrgRolePc({
+      const orgRange = dealUserRange(this.props, formData);
+      quickSelectRole(e.target, {
         projectId,
-        unique: enumDefault === 0,
+        unique: enumDefault !== 1,
+        offset: {
+          top: 16,
+          left: -16,
+        },
         onSave: this.onSave,
+        appointedOrganizeIds: _.get(orgRange, 'appointedOrganizeIds'),
       });
     }
   };
 
   onSave = data => {
+    if (_.isEmpty(data)) return;
     const filterData = data.map(i => ({ organizeId: i.organizeId, organizeName: i.organizeName }));
     const { enumDefault, onChange, value } = this.props;
     const newData =
@@ -61,9 +69,10 @@ export default class Widgets extends Component {
   }
 
   render() {
-    const { projectId, disabled, enumDefault } = this.props;
+    const { projectId, disabled, enumDefault, formData, masterData = {} } = this.props;
     const value = JSON.parse(this.props.value || '[]');
     const { showMobileOrgRole } = this.state;
+    const orgRange = dealUserRange(this.props, formData, masterData);
 
     return (
       <div className="customFormControlBox customFormControlUser">
@@ -100,6 +109,7 @@ export default class Widgets extends Component {
             visible={true}
             unique={enumDefault === 0}
             onSave={this.onSave}
+            appointedOrganizeIds={_.get(orgRange, 'appointedOrganizeIds')}
             onClose={() => this.setState({ showMobileOrgRole: false })}
           />
         )}

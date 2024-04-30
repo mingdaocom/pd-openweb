@@ -12,7 +12,7 @@ import * as utils from '../../utils';
 import ChatPanelHeader from '../ChatPanelHeader';
 import ChatPanelSessionInfo from '../ChatPanelSessionInfo';
 import Constant from '../../utils/constant';
-import mdNotification from 'ming-ui/functions/notify';
+import { mdNotification } from 'ming-ui/functions';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import { setCaretPosition } from 'src/util';
 

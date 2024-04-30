@@ -247,7 +247,7 @@ class RecordCalendar extends Component {
 
   calendarActionFn = () => {
     const { random } = this.state;
-    if (!this.isSafari()) {
+    if (!window.isSafari) {
       document
         .querySelector(`.boxCalendar_${random} .fc-view-harness-active`)
         .addEventListener('dblclick', this.dbClickDay, true);
@@ -443,11 +443,6 @@ class RecordCalendar extends Component {
       endDivStr = moment(endDivStr).subtract(1, 'day').format('YYYY-MM-DD');
     }
     this.showChooseTrigger(endDivStr, info.view.type);
-  };
-
-  isSafari = () => {
-    let ua = window.navigator.userAgent;
-    return ua.indexOf('Safari') != -1 && ua.indexOf('Version') != -1;
   };
 
   // 兼容Safari
@@ -1071,7 +1066,7 @@ class RecordCalendar extends Component {
                   return;
                 }
                 // isSafari 且 双击
-                if (this.isSafari() && this.dbClickFn()) {
+                if (window.isSafari && this.dbClickFn()) {
                   this.selectFn({ ...info });
                   return;
                 }

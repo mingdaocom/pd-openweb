@@ -59,7 +59,6 @@ export default class SendToolbar extends Component {
     this.state = {
       visible: true,
       isHidden: true,
-      isCapture: _.includes(navigator.userAgent, 'MDClient'),
     };
   }
   componentDidMount() {
@@ -304,13 +303,12 @@ export default class SendToolbar extends Component {
         })
         .then(result => {
           if (!result || !result.node) {
-            return $.Deferred().reject();
+            return Promise.reject();
           }
           result.node.forEach(item => {
             this.handleSendCardToChat(item);
           });
-        })
-        .always(() => {});
+        });
     });
     this.setState({ visible: false });
   }
@@ -339,7 +337,7 @@ export default class SendToolbar extends Component {
       .then(reuslt => {
         alert(_l('发送成功'));
       })
-      .fail(error => {
+      .catch(error => {
         alert(_l('发送失败'), 2);
       });
   }
@@ -393,7 +391,7 @@ export default class SendToolbar extends Component {
   render() {
     const { session } = this.props;
     const { id } = session;
-    const { isCapture } = this.state;
+
     return (
       <div className="ChatPanel-sendToolbar">
         <div
@@ -426,7 +424,7 @@ export default class SendToolbar extends Component {
           </div>
         )}
         <div
-          className={cx('icon-btn tip-top', { btnCapture: !isCapture })}
+          className={cx('icon-btn tip-top', { btnCapture: !window.isMDClient })}
           data-tip={_l('截屏')}
           onClick={this.handleIpcRenderer.bind(this)}
         >

@@ -115,3 +115,19 @@ export const getAllFavorites = projectId => (dispatch, getState) => {
     });
   });
 };
+
+export const getAllCollectCharts = projectId => (dispatch, getState) => {
+  favoriteAjax.getAllFavorites({ projectId, type: 2, isRefresh: 1 }).then(res => {
+    dispatch({
+      type: 'COLLECT_CHARTS',
+      data: res,
+    });
+  });
+};
+
+export const clearAllCollectCharts = () => dispatch => {
+  dispatch({
+    type: 'COLLECT_CHARTS',
+    data: [],
+  });
+};

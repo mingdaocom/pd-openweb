@@ -1,6 +1,6 @@
 import React from 'react';
 import withClickAway from 'ming-ui/decorators/withClickAway';
-import { Dialog } from 'ming-ui';
+import { Dialog, Icon } from 'ming-ui';
 const confirm = Dialog.confirm;
 
 @withClickAway
@@ -28,10 +28,13 @@ export default class MoreOption extends React.Component {
         <ul className="moreOptionTrigger">
           {showCopy && (
             <li
-              onClick={() => {
+              className="valignWrapper"
+              onClick={e => {
+                e.stopPropagation();
                 onCopy();
               }}
             >
+              <Icon icon="copy" className="Font16 Gray_9e mRight10" />
               {_l('复制')}
             </li>
           )}
@@ -39,22 +42,27 @@ export default class MoreOption extends React.Component {
             ''
           ) : (
             <li
-              onClick={() => {
+              className="valignWrapper"
+              onClick={e => {
+                e.stopPropagation();
                 setFn({
                   isRename: true,
                   showMoreOption: false,
                 });
               }}
             >
+              <Icon icon="edit" className="Font16 Gray_9e mRight10" />
               {_l('重命名')}
             </li>
           )}
           <li
-            className="Red"
-            onClick={() => {
+            className="Red valignWrapper"
+            onClick={e => {
+              e.stopPropagation();
               this.deleteFn();
             }}
           >
+            <Icon icon="task-new-delete" className="Font16 deleteIcon mRight10" />
             {delTxt || _l('删除模板')}
           </li>
         </ul>

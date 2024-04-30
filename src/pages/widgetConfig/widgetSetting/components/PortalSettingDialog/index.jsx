@@ -14,7 +14,7 @@ import Settings from 'src/pages/widgetConfig/widgetSetting/settings';
 import TelConfig from 'src/pages/widgetConfig/widgetSetting/components/WidgetHighSetting/ControlSetting/TelConfig';
 import WidgetVerify from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify';
 import WidgetExplain from 'src/pages/widgetConfig/widgetSetting/components/WidgetExplain';
-import 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/inputTypes/SubSheet/style.less';
+import 'src/pages/widgetConfig/styled/style.less';
 import Switch from '../../settings/switch';
 import DynamicDefaultValue from '../DynamicDefaultValue';
 import { SettingItem } from 'src/pages/widgetConfig/styled';

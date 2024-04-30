@@ -37,7 +37,17 @@ const NoPassword = styled.div`
 `;
 
 export default function VerifyPasswordInput(props) {
-  const { className, showSubTitle, isRequired, autoFocus, allowNoVerify, onChange = () => {} } = props;
+  const {
+    className,
+    showSubTitle,
+    isRequired,
+    autoFocus,
+    allowNoVerify,
+    showAccountEmail,
+    onChange = () => {},
+  } = props;
+  const mobilePhone = md.global.Account.mobilePhone.replace(/((\+86)?\d{3})\d*(\d{4})/, '$1****$3');
+  const email = md.global.Account.email.replace(/(.{3}).*(@.*)/, '$1***$2');
 
   const settingBtns = () => {
     return (
@@ -70,9 +80,7 @@ export default function VerifyPasswordInput(props) {
 
       <div className="Font13 Gray label">{_l('账号')}</div>
       <User className="mTop10 flexRow alignItemsCenter">
-        {md.global.Account.mobilePhone
-          ? md.global.Account.mobilePhone.replace(/((\+86)?\d{3})\d*(\d{4})/, '$1****$3')
-          : md.global.Account.email.replace(/(.{3}).*(@.*)/, '$1***$2')}
+        {showAccountEmail && email ? email : mobilePhone ? mobilePhone : email}
       </User>
 
       <div className="Font13 mTop20 mBottom10 relative flexRow alignItemsCenter">

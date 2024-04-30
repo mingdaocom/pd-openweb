@@ -248,7 +248,7 @@ export function updateControlOfRow({ cell = {}, cells = [], recordId, rules }, o
           handleRecordError(res.resultCode);
         }
       })
-      .fail(err => {
+      .catch(err => {
         alert(_l('编辑失败！'), 3);
       });
   };
@@ -278,7 +278,10 @@ export function refresh({ resetPageIndex, changeFilters, noLoading, noClearSelec
     const needClickToSearch = !chartId && _.get(view, 'advancedSetting.clicksearch') === '1';
     //设置了筛选列表，且不显示全部，需手动选择分组后展示数据
     const navGroupToSearch =
-      !chartId && _.get(view, 'advancedSetting.showallitem') === '1' && _.get(view, 'navGroup').length > 0;
+      !chartId &&
+      _.get(view, 'advancedSetting.showallitem') === '1' &&
+      !_.get(view, 'navGroup[0].viewId') &&
+      _.get(view, 'navGroup').length > 0;
     if (filters.keyWords || resetPageIndex || changeFilters) {
       dispatch(changePageIndex(1));
     }
@@ -428,7 +431,7 @@ export function saveSheetLayout({ closePopup = () => {} }) {
     worksheetAjax
       .saveWorksheetView(updates)
       .then(() => {})
-      .fail(err => {
+      .catch(err => {
         alert(_l('保存表格外观失败！'), 3);
         console.log(err);
       });

@@ -8,7 +8,7 @@ import AddFriend from './AddFriend';
 import API, { removeFriend } from '../api';
 import { config } from '../config';
 import departmentController from 'src/api/department';
-import AddFriendConfirm from 'src/components/addFriendConfirm/addFriendConfirm';
+import { addFriendConfirm } from 'ming-ui/functions';
 import _ from 'lodash';
 import moment from 'moment';
 
@@ -52,8 +52,8 @@ export default class UserDetail extends React.Component {
     this.setState({
       isLoading: true,
     });
-    API.fetchUserDetail(accountId).then(
-      data => {
+    API.fetchUserDetail(accountId)
+      .then(data => {
         if (data) {
           data.userCards = (_.get(data, 'userCards') || []).filter(item => item.companyName);
           const { userCards } = data;
@@ -72,20 +72,19 @@ export default class UserDetail extends React.Component {
             data,
           });
         }
-      },
-      () => {
+      })
+      .catch(() => {
         this.setState({
           ...defaultState,
           // assign default state
           data: undefined,
         });
-      },
-    );
+      });
   }
 
   addFriendConfirm() {
     const { accountId } = this.props;
-   AddFriendConfirm({
+    addFriendConfirm({
       accountId,
     });
   }
@@ -96,7 +95,7 @@ export default class UserDetail extends React.Component {
       title: _l('确认删除当前好友？'),
       description: _l('删除后您将不显示在对方的好友列表里'),
       onOk: () => {
-        removeFriend(accountId).done(() => {
+        removeFriend(accountId).then(() => {
           alert(_l('删除成功'), 1);
           this.setState({
             data: {

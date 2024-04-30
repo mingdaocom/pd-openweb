@@ -6,7 +6,7 @@ import projectAjax from 'src/api/project';
 import processVersionAjax from 'src/pages/workflow/api/processVersion';
 import { selectDateList, dateDimension, formatter } from '../../util';
 import { formatValue } from 'src/pages/Admin/homePage/config.js';
-import DialogSelectDept from 'src/components/dialogSelectDept';
+import { dialogSelectDept } from 'ming-ui/functions';
 import LineChart from '../LineChart';
 import loadingSvg from '../loading.svg';
 import axios from 'axios';
@@ -198,7 +198,7 @@ export default class Overview extends Component {
       .then(({ workflow = {}, record = {}, app = {}, attachment = {} }) => {
         this.updateChartData({ workflow, record, app, attachment });
       })
-      .fail(err => {
+      .catch(err => {
         this.setState({ loading: false });
       });
   };
@@ -372,7 +372,8 @@ export default class Overview extends Component {
   }
   handleSelectDepartment = () => {
     const { projectId } = this.props;
-    new DialogSelectDept({
+
+    dialogSelectDept({
       projectId,
       unique: true,
       fromAdmin: true,

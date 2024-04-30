@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { FROM } from '../../tools/config';
-import UserHead from 'src/components/userHead';
-import quickSelectUser from 'ming-ui/functions/quickSelectUser';
+import { UserHead } from 'ming-ui';
+import { quickSelectUser } from 'ming-ui/functions';
 import cx from 'classnames';
 import SelectUser from 'mobile/components/SelectUser';
 import { browserIsMobile, getCurrentProject } from 'src/util';
@@ -122,7 +122,17 @@ export default class Widgets extends Component {
   }
 
   render() {
-    const { projectId, disabled, enumDefault, from, formData = [], worksheetId, controlId, appId, dataSource } = this.props;
+    const {
+      projectId,
+      disabled,
+      enumDefault,
+      from,
+      formData = [],
+      worksheetId,
+      controlId,
+      appId,
+      dataSource,
+    } = this.props;
     const { showSelectUser } = this.state;
     const value = this.getUserValue();
     const isMobile = browserIsMobile();

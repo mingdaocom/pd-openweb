@@ -1,15 +1,14 @@
 import React, { Component, Fragment } from 'react';
-import { Icon, Button, Tooltip } from 'ming-ui';
+import { Icon, Button, Tooltip, UserHead, UserName } from 'ming-ui';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
 import actionLogAjax from 'src/api/actionLog';
 import downloadAjax from 'src/api/download';
 import SearchWrap from '../components/SearchWrap';
 import PageTableCon from '../components/PageTableCon';
-import UserHead from 'src/components/userHead';
-import UserName from 'src/components/userName';
 import { LOGIN_LOG_COLUMNS } from './enum';
 import Config from '../config';
+import { dateConvertToUserZone } from 'src/util';
 import moment from 'moment';
 import _ from 'lodash';
 import styled from 'styled-components';
@@ -60,7 +59,7 @@ export default class LoginLog extends Component {
           };
         },
         render: (text, record = {}) => {
-          let { log = {} } = record;
+          let { log = {}, date } = record;
           const {
             logType,
             browserName,
@@ -96,6 +95,8 @@ export default class LoginLog extends Component {
                   />
                 </div>
               );
+            case 'date':
+              return <span>{dateConvertToUserZone(date)}</span>;
             case 'loginVenue':
               return <span>{log.title || ''}</span>;
             case 'loginType':

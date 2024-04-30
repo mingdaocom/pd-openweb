@@ -1,9 +1,8 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Motion, spring } from 'react-motion';
-import { Icon, Tooltip } from 'ming-ui';
+import { Icon, Tooltip, SvgIcon } from 'ming-ui';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import SvgIcon from 'src/components/SvgIcon';
 import cx from 'classnames';
 import _ from 'lodash';
 
@@ -137,12 +136,15 @@ export default function SectionTableNav(props) {
     let iconUrl = control.iconUrl;
     const showIcon = _.get(widgetStyle, 'showicon') || '1';
 
-    if (control.type === 52 && showIcon === '1') {
+    if (showIcon !== '1') return null;
+
+    if (_.includes([51, 52], control.type)) {
       const icon = _.get(control, 'advancedSetting.icon');
       if (!icon) {
+        const defaultIcon = control.type === 51 ? 'Worksheet_query' : 'tab';
         return (
           <IconCon>
-            <Icon icon="tab" className="Font14" style={{ color: '#6e6e6e' }} />
+            <Icon icon={defaultIcon} className="Font14" style={{ color: '#6e6e6e' }} />
           </IconCon>
         );
       }
@@ -164,27 +166,34 @@ export default function SectionTableNav(props) {
         <Motion defaultStyle={{ scrollLeft }} style={{ scrollLeft: spring(-1 * scrollLeft) }}>
           {value => <span style={{ marginLeft: value.scrollLeft }}></span>}
         </Motion>
-        {controls.map((control, i) => (
-          <Tab
-            key={i}
-            className={cx('ellipsis', activeControlId === control.controlId ? 'active' : '')}
-            onClick={() => {
-              if (activeControlId !== control.controlId) {
-                onClick(control.controlId, control);
-              }
-            }}
-          >
-            {renderIcon(control)}
-            <span className="ellipsis" title={control.controlName}>
-              {control.controlName}
-            </span>
-            {_.get(control, 'advancedSetting.showcount') !== '1' &&
-              control.type !== 51 &&
-              _.isNumber(Number(control.value)) &&
-              !_.isNaN(Number(control.value)) &&
-              Number(control.value) !== 0 && <Num> ( {control.value || 0} ) </Num>}
-          </Tab>
-        ))}
+        {controls.map((control, i) => {
+          let showNum =
+            _.get(control, 'advancedSetting.showcount') !== '1' &&
+            control.type !== 51 &&
+            _.isNumber(Number(control.value)) &&
+            !_.isNaN(Number(control.value)) &&
+            Number(control.value) !== 0;
+          let num = control.value || 0;
+          if (control.type === 29 && control.store && !control.store.getState().loading) {
+            num = control.store.getState().tableState.count;
+          }
+          return (
+            <Tab
+              key={i}
+              title={control.controlName}
+              className={cx('ellipsis', activeControlId === control.controlId ? 'active' : '')}
+              onClick={() => {
+                if (activeControlId !== control.controlId) {
+                  onClick(control.controlId, control);
+                }
+              }}
+            >
+              {renderIcon(control)}
+              <span className="ellipsis">{control.controlName}</span>
+              {showNum && !!num && <Num> ( {num} ) </Num>}
+            </Tab>
+          );
+        })}
       </TabCon>
       {scrollBtnVisible && (
         <ScrollBtn>

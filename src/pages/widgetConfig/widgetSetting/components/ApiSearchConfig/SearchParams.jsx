@@ -60,6 +60,7 @@ export default function SearchParams(props) {
             </div>
           )}
           {item.controlName}
+          {item.alias && <span className="Gray_9e">（{item.alias}）</span>}
         </div>
         <DynamicDefaultValue
           from={data.type === 43 ? 3 : 2} // 为了异化默认值其他字段配置

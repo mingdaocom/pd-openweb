@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import RecentOrCollectAppList from './RecentOrCollectAppList';
 import AddCollectApp from './AddCollectApp';
+import _ from 'lodash';
 
 const Wrapper = styled.div`
   flex: 1;
@@ -22,7 +23,7 @@ const Wrapper = styled.div`
 `;
 
 export default function CollectionApps(props) {
-  const { projectId, markedApps, onMarkApp, apps, onMarkApps, loading, onAppSorted } = props;
+  const { projectId, markedApps, onMarkApp, apps, onMarkApps, loading, onAppSorted, currentTheme } = props;
   const [isExpand, setIsExpand] = useState(localStorage.getItem(`collectAppExpand_${projectId}`) === 'true');
   const [isOverflow, setIsOverflow] = useState(false);
 
@@ -33,7 +34,10 @@ export default function CollectionApps(props) {
   return (
     <Wrapper>
       <div className="cardTitle alignItemsCenter">
-        <div className="titleText">{_l('应用收藏')}</div>
+        <div className="titleText">
+          {currentTheme.appCollectIcon && <img src={currentTheme.appCollectIcon} />}
+          {_l('应用收藏')}
+        </div>
         <div
           className="titleBtn mLeft12"
           onClick={() => {

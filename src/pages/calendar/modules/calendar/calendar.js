@@ -109,7 +109,7 @@ Calendar.Method = {
           }
 
           var pageX = jsEvent.clientX;
-          var pageY = $.browser.chrome ? jsEvent.clientY + document.body.scrollTop : jsEvent.clientY + document.documentElement.scrollTop;
+          var pageY = window.isChrome ? jsEvent.clientY + document.body.scrollTop : jsEvent.clientY + document.documentElement.scrollTop;
           var gapRight = $(window).width() - pageX; // 离右边距离
           var calhoverWidth = 360;
 
@@ -263,30 +263,17 @@ Calendar.Method = {
           }
         };
 
-        var ieVer = parseInt($.browser.version, 10);
-        if ($.browser.msie && (ieVer == 7 || ieVer == 8)) {
-          var isRangeTime = +new Date();
-          Calendar.settings.isRangeTime.push(isRangeTime);
-          Calendar.settings.isRange++;
-
-          if (Calendar.settings.isRange == 2) {
-            date = Calendar.settings.isFirstData;
-          }
-
-          calendarClickFun(); // 操作方法
+        if (date.toString() != Calendar.settings.lastDate.toString()) {
+          Calendar.settings.isRange = 0;
+          Calendar.settings.isRangeTime = [];
+          Calendar.settings.isRangeTime[0] = +new Date();
         } else {
-          if (date.toString() != Calendar.settings.lastDate.toString()) {
-            Calendar.settings.isRange = 0;
-            Calendar.settings.isRangeTime = [];
-            Calendar.settings.isRangeTime[0] = +new Date();
-          } else {
-            Calendar.settings.isRangeTime[1] = +new Date();
-          }
-          Calendar.settings.lastDate = date;
-          Calendar.settings.isRange++;
-
-          calendarClickFun(); // 操作方法
+          Calendar.settings.isRangeTime[1] = +new Date();
         }
+        Calendar.settings.lastDate = date;
+        Calendar.settings.isRange++;
+
+        calendarClickFun(); // 操作方法
       },
     });
 
@@ -539,7 +526,7 @@ Calendar.Method = {
 
   // 视图样式调整
   editViewStyle: function () {
-    if ($.browser.safari && window.localStorage.getItem('lastView') === 'month') {
+    if (/Safari/.test(navigator.userAgent) && window.localStorage.getItem('lastView') === 'month') {
       $('.fc-month-view').css('position', 'static');
     } else {
       $('.fc-month-view').css('position', 'relative');
@@ -598,7 +585,7 @@ Calendar.Method = {
       if ($('.fc-time-grid').find('.rect').length == 0 && isToday) {
         var data = CurrentDate;
         var time = data.getHours() + parseFloat((data.getMinutes() / 60).toFixed(2));
-        var h = time * 40 + ($.browser.mozilla ? 0 : data.getHours()) - 4.5 + 'px';
+        var h = time * 40 + (window.isFirefox ? 0 : data.getHours()) - 4.5 + 'px';
 
         var div = '<div style="text-align:right;width: 100%;top:' + h + ';position: absolute;z-index: 8;left:54px;">';
         div += '<div class="rect"></div><div class="rectLine"></div>';
@@ -986,7 +973,7 @@ Calendar.Event = function () {
     .on('click', '.calendarListModel li', function (event) {
       var $el = $(this);
       var pageX = event.clientX;
-      var pageY = $.browser.chrome ? event.clientY + document.body.scrollTop : event.clientY + document.documentElement.scrollTop;
+      var pageY = window.isChrome ? event.clientY + document.body.scrollTop : event.clientY + document.documentElement.scrollTop;
       var gapRight = $(window).width() - pageX; // 离右边距离
       var calhoverWidth = 360;
       var isTask = $el.data('istask');

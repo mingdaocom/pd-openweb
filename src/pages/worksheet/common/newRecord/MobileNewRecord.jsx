@@ -213,6 +213,10 @@ function NewRecord(props) {
         <WingBlank className="flexColumn TxtCenter" size="sm">
           <div
             onClick={() => {
+              if (window.isPublicApp) {
+                alert(_l('预览模式下，不能操作'), 3);
+                return;
+              }
               newRecordContent.current.newRecord({
                 autoFill,
                 rowStatus: 21,
@@ -229,6 +233,10 @@ function NewRecord(props) {
           <Button
             className="Font13 bold Gray_75"
             onClick={() => {
+              if (window.isPublicApp) {
+                alert(_l('预览模式下，不能操作'), 3);
+                return;
+              }
               if (advancedSetting.autoFillVisible && advancedSetting.continueEndAction === 2 && _.isNull(autoFill)) {
                 const retain = () => {
                   newRecordContent.current.newRecord({
@@ -268,6 +276,10 @@ function NewRecord(props) {
           className="Font13 bold"
           type="primary"
           onClick={async () => {
+            if (window.isPublicApp) {
+              alert(_l('预览模式下，不能操作'), 3);
+              return;
+            }
             if (customButtonConfirm) {
               try {
                 await customButtonConfirm();

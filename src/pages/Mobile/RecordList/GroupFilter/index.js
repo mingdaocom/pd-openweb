@@ -158,7 +158,7 @@ const GroupFilter = props => {
   const fetchData = ({ worksheetId, viewId, rowId, cb }) => {
     ajaxFn && ajaxFn.abort();
     let param =
-      soucre.type === 35 || keywords
+      soucre.type === 35
         ? {
             getType: 10,
           }
@@ -166,6 +166,7 @@ const GroupFilter = props => {
             appId,
             searchType: 1,
             getType: !viewId ? 7 : 10,
+            viewId: viewId || soucre.viewId, //关联记录时，如果有关联视图，应该按照视图设置的排序方式排序
           };
     let { navfilters = '[]', navshow } = getAdvanceSetting(view);
     try {
@@ -177,6 +178,10 @@ const GroupFilter = props => {
       /// 显示 符合筛选条件的处理
       let filterControls = navfilters.map(handleCondition);
       param = { ...param, filterControls };
+    }
+    if (soucre.type === 29 && !!_.get(soucre, 'advancedSetting.searchcontrol') && keywords) {
+      param.controlId = _.get(soucre, 'controlId');
+      param.relationWorksheetId = view.worksheetId;
     }
     ajaxFn = sheetAjax.getFilterRows({
       worksheetId,

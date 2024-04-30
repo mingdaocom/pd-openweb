@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { withRouter } from 'react-router-dom';
-import { LoadDiv } from 'ming-ui';
+import { LoadDiv, WaterMark } from 'ming-ui';
 import { emitter, getCurrentProject } from 'src/util';
 import AppGroups from './AppGroups';
 import SideNav from './SideNav';
 import AppLib from 'src/pages/AppHomepage/AppLib';
 import _ from 'lodash';
-import { WaterMark } from 'ming-ui';
 import { getTodoCount } from 'src/pages/workflow/MyProcess/Entry';
 import Dashboard from '../Dashboard';
 import RecordFav from '../RecordFav';
@@ -19,6 +18,10 @@ const Con = styled.div`
   display: flex;
   height: 100%;
   position: relative;
+  background-repeat: no-repeat;
+  background-size: 100%;
+  background-position: bottom;
+  background-blend-mode: normal;
 `;
 
 const AppLibCon = styled.div`
@@ -45,6 +48,7 @@ function AppCenter(props) {
   const [platformSetting, setPlatformSetting] = useState(cachePlatformSetting[currentProject.projectId] || {});
   const [isLoading, setIsLoading] = useState(true);
   const dashboardColor = getDashboardColor((platformSetting || {}).color);
+  const currentTheme = (platformSetting || {}).advancedSetting || {};
 
   const getKey = () => {
     let key = 'app';
@@ -83,7 +87,7 @@ function AppCenter(props) {
           cachePlatformSetting[projectId] = res;
         }
       })
-      .fail(() => setIsLoading(false));
+      .catch(() => setIsLoading(false));
   };
 
   const updatePlatformSetting = (updateObj, cb) => {
@@ -100,7 +104,7 @@ function AppCenter(props) {
             cb && cb();
           }
         })
-        .fail(() => {
+        .catch(() => {
           alert(_l('更新工作台配置失败！'), 2);
           setPlatformSetting(oldValue);
         });
@@ -151,6 +155,7 @@ function AppCenter(props) {
             platformSetting={platformSetting}
             updatePlatformSetting={updatePlatformSetting}
             dashboardColor={dashboardColor}
+            hasBgImg={keyStr === 'dashboard' && currentTheme.bgImg}
           />
         );
       default:
@@ -170,12 +175,18 @@ function AppCenter(props) {
 
   return (
     <WaterMark projectId={currentProject.projectId}>
-      <Con>
+      <Con
+        style={{
+          backgroundImage: keyStr === 'dashboard' && currentTheme.bgImg ? `url(${currentTheme.bgImg})` : 'unset',
+          backgroundColor: keyStr === 'dashboard' && currentTheme.bgImg ? dashboardColor.bgColor : 'unset',
+        }}
+      >
         <SideNav
           active={keyStr}
           currentProject={currentProject}
           countData={countData}
           dashboardColor={dashboardColor}
+          hasBgImg={keyStr === 'dashboard' && currentTheme.bgImg}
         />
         {renderCon()}
       </Con>

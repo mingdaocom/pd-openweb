@@ -63,7 +63,7 @@ export function getSheetList(args) {
       if (isCharge && isMaturity && sheetInfo.type === 0 && currentPcNaviStyle === 0) {
         dispatch(updateGuidanceVisible());
       }
-      if (currentPcNaviStyle === 1) {
+      if ([1, 3].includes(currentPcNaviStyle)) {
         const { appSectionDetail } = store.getState().sheetList;
         const { appSectionId } = data;
         const res = appSectionDetail.map(data => {
@@ -116,7 +116,7 @@ export function getAllAppSectionDetail(appId, callBack) {
             .map(item => {
               return {
                 ...item,
-                workSheetInfo: item.workSheetInfo.filter(o => o.status === 1 && !o.navigateHide),
+                workSheetInfo: item.workSheetInfo.filter(o => [1, 4].includes(o.status) && !o.navigateHide),
               };
             })
             .filter(o => o.workSheetInfo && o.workSheetInfo.length > 0);
@@ -146,7 +146,6 @@ export function getAllAppSectionDetail(appId, callBack) {
 export function updateSheetListAppItem(id, args) {
   return function (dispatch, getState) {
     const { data } = getState().sheetList;
-    const { currentPcNaviStyle } = store.getState().appPkg;
     const update = list => {
       return list.map(item => {
         if (item.workSheetId === id) {
@@ -336,7 +335,7 @@ export function moveSheet(ages) {
             navigateTo(`/app/${sourceAppId}/${sourceAppSectionId}`);
           }
         }
-        if (!ResultAppSectionId || appPkg.currentPcNaviStyle === 1) {
+        if (!ResultAppSectionId || [1, 3].includes(appPkg.currentPcNaviStyle)) {
           window.updateAppGroups();
         }
         moveSheetCache(appId, sourceAppSectionId);
@@ -511,7 +510,7 @@ export function addWorkSheet(args, cb) {
           cb && cb(result);
         }
       })
-      .fail(result => {
+      .catch(result => {
         cb && cb();
       });
   };
@@ -581,8 +580,8 @@ export function createAppItem(args) {
     };
     const callBack = res => {
       pending = false;
-      const { pageId } = res;
-      if (type === 'customPage') {
+      const { pageId } = res || {};
+      if (type === 'customPage' && pageId) {
         navigateTo(`/app/${appId}/${firstGroupId || groupId}/${pageId}`);
         store.dispatch(updatePageInfo({ pageName: name, pageId }));
         if (!urlTemplate) {

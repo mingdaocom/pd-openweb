@@ -62,7 +62,7 @@ export default class Start extends Component {
     }
 
     if (
-      ((item.appType === APP_TYPE.SHEET || item.appType === APP_TYPE.DATE) && !item.appName) ||
+      (_.includes([APP_TYPE.SHEET, APP_TYPE.DATE, APP_TYPE.EVENT_PUSH], item.appType) && !item.appName) ||
       (item.appType === APP_TYPE.LOOP && !item.executeTime) ||
       (item.appType === APP_TYPE.WEBHOOK && !item.count) ||
       (_.includes([APP_TYPE.USER, APP_TYPE.DEPARTMENT, APP_TYPE.EXTERNAL_USER], item.appType) && !item.triggerId)
@@ -70,8 +70,8 @@ export default class Start extends Component {
       return <div className="workflowStartNull">{_l('设置触发方式')}</div>;
     }
 
-    // 工作表触发
-    if (item.appType === APP_TYPE.SHEET) {
+    // 工作表触发 || 事件推送
+    if (_.includes([APP_TYPE.SHEET, APP_TYPE.EVENT_PUSH], item.appType)) {
       return (
         <Fragment>
           <div className="workflowContentInfo ellipsis workflowContentBG">

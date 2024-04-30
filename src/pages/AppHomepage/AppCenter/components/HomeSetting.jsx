@@ -96,11 +96,7 @@ export default function HomeSetting(props) {
   const [customDrawerVisible, setCustomDrawerVisible] = useState(false);
 
   function handleUpdate(key, value) {
-    onUpdate({
-      ...setting,
-      [key]: value,
-      editingKey: key,
-    });
+    onUpdate({ ...setting, [key]: value });
   }
 
   return (

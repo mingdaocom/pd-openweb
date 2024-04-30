@@ -448,7 +448,6 @@ export default props => {
               diameter={47}
               foregroundColor="#BDBDBD"
               backgroundColor="#fff"
-              format={percent => ''}
               percent={parseInt(progress)}
             />
           </div>

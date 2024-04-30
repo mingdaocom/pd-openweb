@@ -1,34 +1,33 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import createReactClass from 'create-react-class';
 import cx from 'classnames';
 
-const editableBlock = createReactClass({
-  displayName: 'editableBlock',
-
-  propTypes: {
+class EditableBlock extends React.Component {
+  static propTypes = {
     value: PropTypes.string,
     className: PropTypes.string,
     onChange: PropTypes.func,
     canEdit: PropTypes.bool,
     validateFileName: PropTypes.func,
     ext: PropTypes.string,
-  },
+  };
 
-  getInitialState() {
-    return {
-      value: this.props.value,
-      value2: this.props.value,
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      value: props.value,
+      value2: props.value,
       isEditing: false,
     };
-  },
+  }
 
   componentWillReceiveProps(nextProps) {
     this.setState({
       value: nextProps.value,
       value2: nextProps.value,
     });
-  },
+  }
 
   renameHandle() {
     const value = this.state.value;
@@ -42,7 +41,7 @@ const editableBlock = createReactClass({
     this.setState({
       isEditing: false,
     });
-  },
+  }
 
   render() {
     const isEditing = this.state.isEditing;
@@ -64,7 +63,7 @@ const editableBlock = createReactClass({
               },
               () => {
                 this.inputFileName.focus();
-              }
+              },
             );
           }}
         >
@@ -72,7 +71,7 @@ const editableBlock = createReactClass({
           {extOfShow}
         </span>
         <input
-          ref={(input) => {
+          ref={input => {
             this.inputFileName = input;
           }}
           type="text"
@@ -80,13 +79,13 @@ const editableBlock = createReactClass({
             hide: !isEditing,
           })}
           value={this.state.value}
-          onChange={(e) => {
+          onChange={e => {
             this.setState({
               value: e.target.value,
             });
           }}
           onBlur={this.renameHandle}
-          onKeyDown={(evt) => {
+          onKeyDown={evt => {
             if (evt.keyCode === 13) {
               evt.target.blur();
             }
@@ -96,7 +95,7 @@ const editableBlock = createReactClass({
         />
       </div>
     );
-  },
-});
+  }
+}
 
-export default editableBlock;
+export default EditableBlock;

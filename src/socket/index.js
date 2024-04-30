@@ -6,6 +6,7 @@ import worksheetSocket from 'worksheet/components/socket';
 import appSocketInit from 'src/pages/Admin/app/appManagement/socket';
 import exportPivotTableSocket from 'statistics/components/socket';
 import customNotice from './customNotice';
+import appManageSocket from 'src/pages/AppSettings/components/socket';
 import { getPssId } from 'src/util/pssId';
 import { notification } from 'antd';
 
@@ -48,6 +49,9 @@ export default () => {
   exportPivotTableSocket();
   // 自定义通知
   customNotice();
+
+  // 应用备份/应用升级
+  appManageSocket();
 
   wsexcelbatchSocketInit();
 };

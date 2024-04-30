@@ -298,7 +298,7 @@ class EditFlow extends Component {
     if (isCopy) return;
 
     // 审批流开始节点未完成配置
-    if (flowInfo.id !== processId) {
+    if (flowInfo.id !== processId && !flowInfo.parentId) {
       let startConfigComplete = false;
 
       Object.keys(workflowDetail.flowNodeMap).forEach(key => {
@@ -425,7 +425,7 @@ class EditFlow extends Component {
   };
 
   render() {
-    const { flowInfo, workflowDetail } = this.props;
+    const { flowInfo, workflowDetail, instanceId } = this.props;
     const {
       nodeId,
       selectNodeId,
@@ -447,7 +447,9 @@ class EditFlow extends Component {
     const detailProps = {
       selectNodeId,
       selectNodeType,
-      isCopy,
+      instanceId,
+      debugEvents: flowInfo.debugEvents,
+      isIntegration: location.href.indexOf('integration') > -1,
       closeDetail: this.closeDetail,
       haveChange: this.haveChange,
       deleteNode: this.deleteNode,
@@ -477,7 +479,7 @@ class EditFlow extends Component {
           </div>
         </div>
 
-        <Detail {...detailProps} isIntegration={location.href.indexOf('integration') > -1} />
+        <Detail {...detailProps} />
         <CreateNodeDialog
           flowInfo={flowInfo}
           flowNodeMap={flowNodeMap}
@@ -536,6 +538,7 @@ class EditFlow extends Component {
 
         <EditingBar
           visible={isCopy}
+          isBlack
           title={
             selectCopyIds.length
               ? _l('已选择%0个复制节点', selectCopyIds.length)

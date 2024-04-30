@@ -19,8 +19,6 @@ import {
   saveTempRecordValueToLocal,
   removeTempRecordValueFromLocal,
   filterHidedSubList,
-  getSubListError,
-  isRelateRecordTableControl,
 } from 'worksheet/util';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
 import { updateRulesData, checkRuleLocked } from 'src/components/newCustomFields/tools/filterFn';
@@ -267,11 +265,13 @@ export default class RecordInfo extends Component {
           alert(draftType === 'submit' ? _l('记录添加成功') : _l('记录保存成功'));
           this.props.onClose();
           this.props.getDraftData({ appId, worksheetId });
+        } else if (res.resultCode === 2) {
+          alert(_l('当前草稿已保存，请勿重复提交'), 2);
         } else {
           alert(draftType === 'submit' ? _l('记录添加失败') : _l('记录保存失败'), 2);
         }
       })
-      .fail(err => {
+      .catch(err => {
         if (_.isObject(err)) {
           alert(err.errorMessage || _l('记录添加失败'), 2);
         } else {
@@ -317,8 +317,8 @@ export default class RecordInfo extends Component {
         }
       }
     };
-    const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
-    if (isWxWork) {
+
+    if (window.isWxWork) {
       KVGet(`${md.global.Account.accountId}${viewId}-${recordId}-recordInfo`).then(data => {
         tempData = data;
         handleFillValue();
@@ -368,64 +368,6 @@ export default class RecordInfo extends Component {
     }
 
     let hasError;
-    const { cellObjs } = this;
-    const subListControls = filterHidedSubList(data, this.submitType === 'draft' ? 2 : 3);
-    function getRows(controlId) {
-      try {
-        return cellObjs[controlId].cell.props.rows;
-      } catch (err) {
-        return [];
-      }
-    }
-    function getControls(controlId) {
-      try {
-        return cellObjs[controlId].cell.controls;
-      } catch (err) {
-        return;
-      }
-    }
-    if (subListControls.length) {
-      const errors = subListControls
-        .map(control => ({
-          id: control.controlId,
-          value: getSubListError(
-            {
-              rows: getRows(control.controlId),
-              rules: _.get(cellObjs || {}, `${control.controlId}.cell.props.rules`),
-            },
-            getControls(control.controlId) || control.relationControls,
-            control.showControls,
-            3,
-          ),
-        }))
-        .filter(c => !_.isEmpty(c.value));
-      if (errors.length) {
-        hasError = true;
-        errors.forEach(error => {
-          const errorSublist = cellObjs[error.id];
-          if (errorSublist) {
-            errorSublist.cell.setState({
-              error: !_.isEmpty(error.value),
-              cellErrors: error.value,
-            });
-          }
-        });
-      } else {
-        subListControls.forEach(control => {
-          const errorSublist = cellObjs[control.controlId];
-          if (errorSublist) {
-            errorSublist.cell.setState({
-              error: false,
-              cellErrors: {},
-            });
-          }
-        });
-      }
-      if (this.customwidget.current.con.current.querySelector('.cellControlErrorTip')) {
-        hasError = true;
-      }
-    }
-
     if (hasError && !ignoreError) {
       alert(_l('请正确填写%0', recordInfo.entityName), 3);
       callback({ error: true });
@@ -464,7 +406,7 @@ export default class RecordInfo extends Component {
             this.setState({ submitLoading: false });
           }
         })
-        .fail(err => {
+        .catch(err => {
           if (_.isObject(err)) {
             alert(err.errorMessage || _l('记录添加失败'), 2);
           } else {
@@ -523,10 +465,10 @@ export default class RecordInfo extends Component {
   };
   refreshSubList = (tempFormData, updateControlIds) => {
     tempFormData
-      .filter(c => _.find(updateControlIds, id => c.controlId === id) && c.type === 34)
+      .filter(c => _.find(updateControlIds, id => c.controlId === id))
       .forEach(c => {
         if (_.isFunction(this.refreshEvents[c.controlId])) {
-          this.refreshEvents[c.controlId](null, { noLoading: true });
+          this.refreshEvents[c.controlId]({ noLoading: true });
         }
       });
   };
@@ -557,6 +499,10 @@ export default class RecordInfo extends Component {
           );
         }}
         onSubmitRecord={() => {
+          if (window.isPublicApp) {
+            alert(_l('预览模式下，不能操作'), 3);
+            return;
+          }
           this.saveDraftData({ draftType: 'submit' });
         }}
         onCancelSave={() => {
@@ -575,6 +521,10 @@ export default class RecordInfo extends Component {
           }
         }}
         onSaveRecord={() => {
+          if (window.isPublicApp) {
+            alert(_l('预览模式下，不能操作'), 3);
+            return;
+          }
           if (getDataType === 21) {
             return this.saveDraftData({ draftType: 'draft' });
           }
@@ -586,7 +536,7 @@ export default class RecordInfo extends Component {
   }
   renderFooter() {
     const { hideOtherOperate, footer } = this.props;
-    const { recordInfo, recordBase, currentTab, isEditRecord, tempFormData } = this.state;
+    const { recordInfo = {}, recordBase, currentTab, isEditRecord, tempFormData } = this.state;
     if (footer && !recordBase.viewId) {
       return React.cloneElement(footer, {
         onSubmit: this.handleSubmit,
@@ -597,7 +547,14 @@ export default class RecordInfo extends Component {
       return null;
     }
     if (currentTab.type === 29 && !isEditRecord) {
-      return <RelationAction controlId={currentTab.id} getDataType={this.props.getDataType} formData={tempFormData} />;
+      return (
+        <RelationAction
+          controlId={currentTab.id}
+          getDataType={this.props.getDataType}
+          formData={tempFormData}
+          rulesLocked={recordInfo.rulesLocked}
+        />
+      );
     }
     return this.renderRecordBtns();
   }

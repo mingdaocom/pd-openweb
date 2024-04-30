@@ -2,17 +2,17 @@ import React, { createRef } from 'react';
 import intlTelInput from '@mdfe/intl-tel-input';
 import '@mdfe/intl-tel-input/build/css/intlTelInput.min.css';
 import utils from '@mdfe/intl-tel-input/build/js/utils';
-import captcha from 'src/components/captcha';
+import { captcha } from 'ming-ui/functions';
 import cx from 'classnames';
-import Config from 'src/pages/account/config';
+import { ActionResult, CodeTypeEnum } from 'src/pages/accountLogin/config';
 import styled from 'styled-components';
 import { browserIsMobile } from 'src/util';
 import externalPortalAjax from 'src/api/externalPortal';
 
-const { ActionResult } = Config;
 const AccountWrap = styled.div`
   .iti {
     width: 100%;
+    height: 36px;
     .telInput {
       width: 100%;
       padding-left: 52px !important;
@@ -142,16 +142,20 @@ class TelCon extends React.Component {
     if (this.mobile) {
       this.iti && this.iti.destroy();
       this.iti = intlTelInput(this.mobile, {
+        i18n: {
+          searchPlaceholder: _l('搜索'),
+        },
         customPlaceholder: () => {
           return emailOrTel;
         },
         autoPlaceholder: 'off',
-        initialCountry: 'cn',
         loadUtils: '',
-        preferredCountries: ['cn'],
+        initialCountry: _.get(md, 'global.Config.DefaultConfig.initialCountry') || 'cn',
+        preferredCountries: _.get(md, 'global.Config.DefaultConfig.preferredCountries') || ['cn'],
         utilsScript: utils,
         separateDialCode: false,
       });
+      $(this.mobile).on('onBlur', e => this.onChangeAccount(e));
     }
   };
 
@@ -285,6 +289,19 @@ class TelCon extends React.Component {
     }, 1000);
   };
 
+  onChangeAccount = e => {
+    const { setNewAccount, setIsValidNumber, inputType, setCountry } = this.props;
+    const isPhone = inputType === 'phone';
+    if ((isPhone ? e.target.value.replace(/[^\d]/g, '') : e.target.value.trim()).length < e.target.value.length) {
+      setNewAccount(isPhone ? e.target.value.replace(/[^\d]/g, '') : e.target.value.trim());
+      isPhone && this.iti.setNumber(`${e.target.value.replace(/[^\d]/g, '')}`);
+    } else {
+      setNewAccount(isPhone ? this.iti.getNumber() : e.target.value.trim());
+    }
+    setCountry(isPhone ? `+${this.iti.getSelectedCountryData().dialCode}` : '');
+    setIsValidNumber(isPhone ? this.iti.isValidNumber() : this.isValidEmail(e.target.value.trim()));
+  };
+
   render() {
     const { account, setCode, setNewAccount, setIsValidNumber, inputType } = this.props;
     const { verifyCodeLoading, verifyCodeText } = this.state;
@@ -305,20 +322,7 @@ class TelCon extends React.Component {
             type="text"
             className={cx('telInput')}
             ref={mobile => (this.mobile = mobile)}
-            onChange={e => {
-              if (
-                (inputType === 'phone' ? e.target.value.replace(/[^\d]/g, '') : e.target.value.trim()).length <
-                e.target.value.length
-              ) {
-                setNewAccount(inputType === 'phone' ? e.target.value.replace(/[^\d]/g, '') : e.target.value.trim());
-                inputType === 'phone' && this.iti.setNumber(`${e.target.value.replace(/[^\d]/g, '')}`);
-              } else {
-                setIsValidNumber(
-                  inputType === 'phone' ? this.iti.isValidNumber() : this.isValidEmail(e.target.value.trim()),
-                );
-                setNewAccount(inputType === 'phone' ? this.iti.getNumber() : e.target.value.trim());
-              }
-            }}
+            onBlur={this.onChangeAccount}
           />
         </div>
         <div
@@ -350,7 +354,7 @@ class TelCon extends React.Component {
               id="btnSendVerifyCode"
               value={verifyCodeText || (verifyCodeLoading ? _l('发送中...') : _l('获取验证码'))}
               onClick={e => {
-                this.handleSendVerifyCode(Config.CodeTypeEnum.message);
+                this.handleSendVerifyCode(CodeTypeEnum.message);
               }}
             />
           </div>

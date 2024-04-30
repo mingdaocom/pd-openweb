@@ -14,13 +14,13 @@ import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import sheetAjax from 'src/api/worksheet';
 import RecordCoverCard from 'worksheet/components/RelateRecordCards/RecordCoverCard';
 import { LoadingButton, getCardWidth } from 'worksheet/components/RelateRecordCards/RelateRecordCards';
-import { Button } from 'worksheet/common/recordInfo/RecordForm/RelateRecordBtn';
+import RelateRecordTable from 'worksheet/components/RelateRecordTable';
+import { Button } from 'worksheet/components/RelateRecordTable/RelateRecordBtn.jsx';
 import { getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
 import { browserIsMobile, addBehaviorLog } from 'src/util';
 import { openAddRecord } from 'mobile/Record/addRecord';
 import { RecordInfoModal } from 'mobile/Record';
 import { WithoutRows } from 'mobile/RecordList/SheetRows';
-import { FROM } from 'src/components/newCustomFields/tools/config';
 
 const PAGE_SIZE = 50;
 
@@ -289,7 +289,7 @@ function Texts(props) {
   );
 }
 
-export default function RelationSearch(props) {
+function RelationSearch(props) {
   const {
     isDialog,
     from,
@@ -347,6 +347,7 @@ export default function RelationSearch(props) {
         .getWorksheetInfo({
           worksheetId: control.dataSource,
           getTemplate: true,
+          relationWorksheetId: worksheetId,
         })
         .then(res => {
           setWorksheetAllowAdd(res.allowAdd);
@@ -431,7 +432,6 @@ export default function RelationSearch(props) {
     });
   });
   const handleOpenRecord = useCallback(needOpenRecordId => {
-
     addBehaviorLog('worksheetRecord', control.dataSource, { rowId: needOpenRecordId }); // 埋点
     if (isMobile) {
       setRecordInfoVisible(true);
@@ -534,6 +534,7 @@ export default function RelationSearch(props) {
           visible
           appId={control.appId}
           worksheetId={control.dataSource}
+          viewId={_.get(control, 'advancedSetting.openview') || control.viewId}
           rowId={openRecordId}
           onClose={() => {
             setRecordInfoVisible(false);
@@ -623,3 +624,21 @@ export function RelationSearchDialog(props) {
   );
 }
 export const openRelationSearchDialog = props => functionWrap(RelationSearchDialog, props);
+
+export default function (props) {
+  const { worksheetId, recordId, disabled, formData } = props;
+  if (props.advancedSetting.showtype === String(RELATION_SEARCH_SHOW_TYPE.EMBED_LIST)) {
+    return (
+      <RelateRecordTable
+        control={{ ...props }}
+        allowEdit={!disabled}
+        recordId={recordId}
+        worksheetId={worksheetId}
+        formData={formData}
+        // updateWorksheetControls={updateWorksheetControls}
+      />
+    );
+  } else {
+    return <RelationSearch {...props} />;
+  }
+}

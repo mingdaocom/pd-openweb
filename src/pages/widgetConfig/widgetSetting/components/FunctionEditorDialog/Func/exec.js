@@ -127,8 +127,8 @@ export default function (control, formData, { update, type } = {}) {
   return (function () {
     try {
       let result;
-      const is_iOS = /iphone/.test(navigator.userAgent.toLowerCase());
-      if (is_iOS && fnType === 'javascript') {
+
+      if (window.isIphone && fnType === 'javascript') {
         // iOS15以下不支持web worker，改为直接运行
         result = eval('function run() { ' + expression + ' } run()');
         update(

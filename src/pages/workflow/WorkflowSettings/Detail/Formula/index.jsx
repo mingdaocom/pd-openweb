@@ -75,10 +75,10 @@ export default class Formula extends Component {
    * 获取节点详情
    */
   getNodeDetail(props, { sId } = {}) {
-    const { processId, selectNodeId, selectNodeType } = props;
+    const { processId, selectNodeId, selectNodeType, instanceId } = props;
 
     flowNode
-      .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, selectNodeId: sId })
+      .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, selectNodeId: sId, instanceId })
       .then(result => {
         if (result.actionId === ACTION_ID.CUSTOM_ACTION_TOTAL && !result.selectNodeId) {
           this.getNodeDetail(props, { sId: result.flowNodeList[0].nodeId });
@@ -859,6 +859,7 @@ export default class Formula extends Component {
       const currentControl = _.find(data.controls, o => o.controlId === controlId);
       return getSummaryInfo(currentControl.type, currentControl);
     };
+    const reportControl = data.controls.find(o => o.controlId === data.reportControlId) || {};
 
     return (
       <Fragment>
@@ -888,21 +889,23 @@ export default class Formula extends Component {
             renderTitle={
               data.reportControlId
                 ? () => {
-                    const controlName = data.controls.find(o => o.controlId === data.reportControlId).controlName;
-                    return <span className={cx({ errorColor: !controlName })}>{controlName || _l('字段已删除')}</span>;
+                    return (
+                      <span className={cx({ errorColor: !reportControl.controlName })}>
+                        {reportControl.controlName || _l('字段已删除')}
+                      </span>
+                    );
                   }
                 : null
             }
             onChange={reportControlId => {
-              if (reportControlId) {
-                this.updateSource({ reportControlId, reportType: getTotalTypes(reportControlId).default });
-              } else {
-                this.updateSource({ reportControlId, reportType: 0 });
-              }
+              this.updateSource({
+                reportControlId,
+                reportType: reportControlId ? getTotalTypes(reportControlId).default : 0,
+              });
             }}
           />
           <div className="flex mLeft10">
-            {!!data.reportControlId && (
+            {!!reportControl.controlName && (
               <Dropdown
                 className="flowDropdown"
                 data={getTotalTypes(data.reportControlId)
@@ -1039,12 +1042,12 @@ export default class Formula extends Component {
             projectId={this.props.companyId}
             worksheetType={0}
             selectedAppId={this.props.relationId}
-            selectedWrorkesheetId={data.appId}
+            selectedWorksheetId={data.appId}
             visible
-            onOk={(selectedAppId, selectedWrorkesheetId, obj) => {
+            onOk={(selectedAppId, worksheetId, obj) => {
               const isCurrentApp = this.props.relationId === selectedAppId;
               this.switchWorksheet(
-                selectedWrorkesheetId,
+                worksheetId,
                 obj.workSheetName,
                 !isCurrentApp && selectedAppId,
                 !isCurrentApp && obj.appName,

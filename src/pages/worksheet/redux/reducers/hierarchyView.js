@@ -109,7 +109,7 @@ const addChildrenRecordState = ({ state, data, path, pathId, spliceTempRecord = 
       return update(children, {
         $splice: [
           [
-            children.length,
+            children.length - 1,
             0,
             ...initState({
               data: [data],

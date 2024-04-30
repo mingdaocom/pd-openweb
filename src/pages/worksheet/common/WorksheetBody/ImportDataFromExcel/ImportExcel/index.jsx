@@ -67,7 +67,7 @@ export default class ImportExcel extends React.Component {
         },
         Error(up, err, errTip) {
           if (err.code === window.plupload.FILE_SIZE_ERROR) {
-            alert(_l('单个文件大小超过10mb，无法支持上传'), 2);
+            alert(_l('单个文件大小超过10MB，无法支持上传'), 2);
           } else {
             alert(_l('上传失败，请稍后再试。'), 2);
           }
@@ -182,7 +182,7 @@ export default class ImportExcel extends React.Component {
               '支持10MB以内的xls、xlsx、csv文件, 最大行数不超过%0行，列数不超过200列；导入多选类型的控件，请确保Excel字段内各个选项/人员用“，”隔开；导入地区控件，省市县之间以“/”隔开，如：江西省/上饶市/铅山县，如填写的地区格式没有“/”，则会按照名称精准匹配',
               worksheetExcelImportDataLimitCount,
             )}
-            <Support type={3} href="https://help.mingdao.com/operation3" text={_l('使用帮助')} />
+            <Support type={3} href="https://help.mingdao.com/worksheet/import-Excel-data" text={_l('使用帮助')} />
           </div>
         }
         overlayClosable={false}

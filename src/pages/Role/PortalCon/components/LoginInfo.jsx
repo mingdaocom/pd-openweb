@@ -62,11 +62,7 @@ const Wrap = styled.div`
     }
   }
 `;
-/**
- * 是否微信浏览*/
-const isWeiXin = ua => {
-  return ua.indexOf('micromessenger') >= 0;
-};
+
 let ajaxFn = null;
 function LoginInfo(props) {
   const { appId } = props;

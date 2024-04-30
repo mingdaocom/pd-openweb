@@ -42,7 +42,7 @@ export default class SubProcess extends Component {
    * 获取节点详情
    */
   getNodeDetail(props, obj = {}) {
-    const { processId, selectNodeId, selectNodeType } = props;
+    const { processId, selectNodeId, selectNodeType, instanceId } = props;
     const { data } = this.state;
 
     flowNode
@@ -52,6 +52,7 @@ export default class SubProcess extends Component {
         flowNodeType: selectNodeType,
         selectNodeId: obj.selectNodeId,
         appId: obj.subProcessId,
+        instanceId,
       })
       .then(result => {
         this.setState({

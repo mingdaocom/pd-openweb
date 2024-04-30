@@ -17,6 +17,8 @@ import {
   UPDATE_EDIT_PAGE_VISIBLE,
   UPDATE_COMPONENTS,
   UPDATE_FILTERS_GROUP,
+  UPDATE_LINKAGE_FILTERS_GROUP,
+  DELETE_LINKAGE_FILTERS_GROUP
 } from './actionType';
 import { getDefaultLayout, getIndexById, enumWidgetType } from '../util';
 import maxBy from 'lodash/maxBy';
@@ -35,6 +37,7 @@ const initialState = {
   apk: {},
   components: [],
   filtersGroup: {},
+  linkageFiltersGroup: {},
   filterComponents: [],
   loadFilterComponentCount: 0
 };
@@ -186,7 +189,7 @@ export default function customPage(state = initialState, action) {
                 title: '',
                 titleVisible: false,
                 visible: true,
-                layout: getDefaultLayout({ components: state.components, layoutType: 'web', type: payload.type }),
+                layout: getDefaultLayout({ components: state.components, layoutType: 'web', type: payload.type, config: payload.config }),
               },
               mobile: {
                 title: '',
@@ -285,12 +288,27 @@ export default function customPage(state = initialState, action) {
         },
       });
     case UPDATE_FILTERS_GROUP:
-      const { value, filters } = payload;
       return {
         ...state,
         filtersGroup: {
           ...state.filtersGroup,
-          [value]: filters
+          [payload.value]: payload.filters
+        }
+      }
+    case UPDATE_LINKAGE_FILTERS_GROUP:
+      return {
+        ...state,
+        linkageFiltersGroup: {
+          ...state.linkageFiltersGroup,
+          [payload.value]: payload.filters
+        }
+      }
+    case DELETE_LINKAGE_FILTERS_GROUP:
+      delete state.linkageFiltersGroup[payload.value];
+      return {
+        ...state,
+        linkageFiltersGroup: {
+          ...state.linkageFiltersGroup
         }
       }
     default:

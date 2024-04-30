@@ -244,7 +244,6 @@ export default class TableRelation extends React.Component {
         let data = [];
         data = this.changeData(nextControl.dataIndex, width + nextWidth - w, this.changeData(controlId, w));
         handChange({
-          ...printData,
           controlStyles: data,
         });
       },

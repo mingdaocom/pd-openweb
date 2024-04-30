@@ -1,4 +1,4 @@
-import { number } from 'prop-types';
+import { number, string } from 'prop-types';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -20,7 +20,7 @@ const MODE = {
 };
 
 export default function CreateByMingDaoYun(props) {
-  const { mode = MODE.CREATE, fontSize = 13 } = props;
+  const { className, mode = MODE.CREATE, fontSize = 13 } = props;
   const html = {
     [MODE.CREATE]: _l('使用 %0HAP%1 创建', '<a href="https://mingdao.com" target="_blank">', '</a>'),
     [MODE.POWERED]: _l(
@@ -31,6 +31,7 @@ export default function CreateByMingDaoYun(props) {
   }[mode];
   return (
     <CreatedBy
+      className={className}
       style={{ fontSize }}
       dangerouslySetInnerHTML={{
         __html: html,
@@ -42,4 +43,5 @@ export default function CreateByMingDaoYun(props) {
 CreateByMingDaoYun.propTypes = {
   mode: number,
   fontSize: number,
+  className: string,
 };

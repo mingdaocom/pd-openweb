@@ -61,35 +61,33 @@ export default class CreateEditRoleDialog extends React.Component {
   fetchAuth() {
     const { type, projectId, roleId } = this.props;
     if (type === TYPES.EDIT) {
-      return $
-        .when(
-          RoleController.getUserPermissions({
-            projectId,
-            roleId,
-          }),
-          RoleController.getRolePermisson({
-            projectId,
-            roleId,
-          })
-        )
-        .then((userPermissions, rolePermissions) => {
-          RoleAuthCommon.formatRoleAuth(rolePermissions, false);
-          this.getGrantPermission(userPermissions);
-          const _dict = {};
-          _.each(rolePermissions.permissionTypes, function (type) {
-            _.each(type.subPermissions, function (item) {
-              _dict[item.permissionId] = item;
-            });
-          });
-          this.setState({
-            isLoading: false,
-            roleName: rolePermissions.roleName,
-            rolePermissions: _dict,
-            permissions: {
-              permissionTypes: userPermissions,
-            },
+      return Promise.all([
+        RoleController.getUserPermissions({
+          projectId,
+          roleId,
+        }),
+        RoleController.getRolePermisson({
+          projectId,
+          roleId,
+        }),
+      ]).then(([userPermissions, rolePermissions]) => {
+        RoleAuthCommon.formatRoleAuth(rolePermissions, false);
+        this.getGrantPermission(userPermissions);
+        const _dict = {};
+        _.each(rolePermissions.permissionTypes, function (type) {
+          _.each(type.subPermissions, function (item) {
+            _dict[item.permissionId] = item;
           });
         });
+        this.setState({
+          isLoading: false,
+          roleName: rolePermissions.roleName,
+          rolePermissions: _dict,
+          permissions: {
+            permissionTypes: userPermissions,
+          },
+        });
+      });
     } else {
       return RoleController.getUserPermissions({
         projectId,

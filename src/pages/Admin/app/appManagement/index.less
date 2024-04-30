@@ -1,8 +1,11 @@
 .appManagementList {
   .columnWidth {
     width: 150px;
-    @media (max-width: 1280px) {
-      width: 120px;
+    @media (max-width: 1360px) {
+      width: 100px;
+      &.dataBase {
+        width: 120px;
+      }
     }
   }
   .manageListSearch {
@@ -10,6 +13,16 @@
     align-items: center;
     .w180 {
       width: 180px;
+    }
+    .mdAntSelect {
+      .ant-select-selector {
+        padding-right: 5px;
+        cursor: pointer;
+      }
+      .ant-select-arrow {
+        right: 5px;
+        color: #9e9e9e;
+      }
     }
   }
   .manageList {
@@ -83,7 +96,7 @@
         width: 18px;
         height: 18px;
         background: #fff;
-        border: 1px solid #EFEFEF;
+        border: 1px solid #efefef;
         border-radius: 50%;
         i {
           font-size: 12px;
@@ -139,13 +152,6 @@
       font-size: 17px;
       text-align: center;
     }
-  }
-  .appManagementCount {
-    margin: 16px 24px 0;
-    padding: 0 24px;
-    background: rgba(33, 150, 243, 0.05);
-    align-items: center;
-    height: 40px;
   }
   .manageListOrder {
     transform: scale(0.8);
@@ -257,4 +263,9 @@
     overflow: initial !important;
     padding-bottom: 0 !important;
   }
+}
+
+.actionAppTrigger {
+  width: 135px;
+  height: 84px;
 }

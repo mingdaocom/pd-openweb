@@ -32,7 +32,6 @@ export default class GunterChart extends Component {
   }
   componentDidMount() {
     const { isMobile } = this.props;
-    const isIPad = navigator.userAgent.toLocaleLowerCase().includes('ipad');
     const scroll = new IScroll(this.$ref.current, {
       scrollX: true,
       scrollY: true,
@@ -42,7 +41,7 @@ export default class GunterChart extends Component {
       mouseWheel: true,
       bounce: false,
       momentum: false,
-      disablePointer: isIPad ? false : !isMobile,
+      disablePointer: window.isIPad ? false : !isMobile,
       interactiveScrollbars: true,
       probeType: 2,
     });

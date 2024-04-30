@@ -23,8 +23,7 @@ const filterShowItem = control => {
       return true;
     }
   });
-}
-
+};
 
 function FilterShowItem(props) {
   const { filterId, dataType, sheet, allControls, control, advancedSetting, onChangeAdvancedSetting } = props;
@@ -32,20 +31,26 @@ function FilterShowItem(props) {
   const [filterVisible, setFilterVisible] = useState(false);
   const [filters, setFilters] = useState([]);
   const [relateControls, setRelateControls] = useState([]);
-  const showNavfilters = advancedSetting.showNavfilters ? JSON.parse(advancedSetting.showNavfilters) : (navfilters ? JSON.parse(navfilters) : []);
+  const showNavfilters = advancedSetting.showNavfilters
+    ? JSON.parse(advancedSetting.showNavfilters)
+    : navfilters
+    ? JSON.parse(navfilters)
+    : [];
   const globalSheetControls = allControls.filter(data => data && data.controlId !== control.controlId);
 
   useEffect(() => {
     if (control.type === 29 && control.dataSource) {
-      sheetApi.getWorksheetInfo({
-        worksheetId: control.dataSource,
-        getTemplate: true
-      }).then(data => {
-        setRelateControls(_.get(data, ['template', 'controls']));
-      });
+      sheetApi
+        .getWorksheetInfo({
+          worksheetId: control.dataSource,
+          getTemplate: true,
+          relationWorksheetId: sheet.worksheetId,
+        })
+        .then(data => {
+          setRelateControls(_.get(data, ['template', 'controls']));
+        });
     }
   }, [control.controlId]);
-  
 
   return (
     <div className="mBottom15">
@@ -62,7 +67,7 @@ function FilterShowItem(props) {
           onChangeAdvancedSetting({
             navshow: value,
             navfilters: JSON.stringify([]),
-            showNavfilters: JSON.stringify([])
+            showNavfilters: JSON.stringify([]),
           });
           if (value === '3') {
             setFilterVisible(true);
@@ -70,11 +75,7 @@ function FilterShowItem(props) {
         }}
       >
         {filterShowItem(control).map(data => (
-          <Select.Option
-            className="selectOptionWrapper"
-            key={data.value}
-            value={data.value}
-          >
+          <Select.Option className="selectOptionWrapper" key={data.value} value={data.value}>
             <div className="valignWrapper h100 w100">
               <span className="mLeft5 Font13 ellipsis">{data.text}</span>
             </div>
@@ -103,8 +104,8 @@ function FilterShowItem(props) {
                   const name = getTitleTextFromRelateControl(control, data);
                   return JSON.stringify({
                     id: data.rowid,
-                    name: name
-                  })
+                    name: name,
+                  });
                 });
                 onChangeAdvancedSetting({
                   navfilters,
@@ -116,18 +117,18 @@ function FilterShowItem(props) {
                   return JSON.stringify({
                     id: data.accountId,
                     name: data.fullname,
-                    avatar: data.avatar
-                  })
+                    avatar: data.avatar,
+                  });
                 });
                 onChangeAdvancedSetting({
                   navfilters,
-                  showNavfilters: JSON.stringify(res)
+                  showNavfilters: JSON.stringify(res),
                 });
               } else {
                 const navfilters = JSON.stringify(info.values);
                 onChangeAdvancedSetting({
                   navfilters,
-                  showNavfilters: navfilters
+                  showNavfilters: navfilters,
                 });
               }
             }}
@@ -149,7 +150,7 @@ function FilterShowItem(props) {
               onChange={({ filters }) => {
                 onChangeAdvancedSetting({
                   navfilters: JSON.stringify(filters.map(handleCondition)),
-                  showNavfilters: JSON.stringify(filters)
+                  showNavfilters: JSON.stringify(filters),
                 });
                 setFilterVisible(false);
               }}

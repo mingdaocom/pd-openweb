@@ -3,7 +3,7 @@ import { getStringBytes, upgradeVersionDialog, expireDialogAsync } from 'src/uti
 import doT from 'dot';
 import mainHtml from './tpl/main.html';
 import groupHeadHtml from '../settingGroup/tpl/groupHead.html';
-import DialogSelectGroups from 'src/components/dialogSelectDept';
+import { dialogSelectDept } from 'ming-ui/functions';
 import 'src/components/uploadAttachment/uploadAttachment';
 import groupController from 'src/api/group';
 import userController from 'src/api/user';
@@ -26,7 +26,7 @@ var tips = {
   customAvatarTip: '+ ' + _l('使用自定义头像'),
 };
 
-CreateGroup.createInit = function(settings) {
+CreateGroup.createInit = function (settings) {
   var DEFAULTS = {
     selectedDeptSetting: null,
     defaultAvatar: `${md.global.FileStoreConfig.pictureHost}GroupAvatar/default.png?imageView2/1/w/100/h/100/q/90`,
@@ -34,7 +34,7 @@ CreateGroup.createInit = function(settings) {
       projectId: project.projectId || '',
       createGroupInProject: false,
       openApproval: false,
-      callback: function() {},
+      callback: function () {},
     },
   };
   CreateGroup.options = $.extend(true, {}, DEFAULTS, { settings: settings });
@@ -76,7 +76,7 @@ CreateGroup.createInit = function(settings) {
   CreateGroup.bindEvent();
 };
 
-CreateGroup.bindEvent = function() {
+CreateGroup.bindEvent = function () {
   var $dialogBoxCreateGroup = CreateGroup.$content;
   var $groupType = $dialogBoxCreateGroup.find('.groupType');
   var $selectDep = $dialogBoxCreateGroup.find('.selectDep');
@@ -87,7 +87,7 @@ CreateGroup.bindEvent = function() {
   var $approval = $dialogBoxCreateGroup.find('#createGroupApproval');
 
   var _projects = [];
-  $.each(md.global.Account.projects, function(i, p) {
+  $.each(md.global.Account.projects, function (i, p) {
     _projects.push({
       value: p.projectId,
       text: p.companyName,
@@ -109,7 +109,7 @@ CreateGroup.bindEvent = function() {
   );
 
   // 群组类型
-  $type.on('change', function() {
+  $type.on('change', function () {
     var settings = CreateGroup.options.settings;
     CreateGroup.options.isProject = $(this).hasClass('official') && $(this).prop('checked');
     if (CreateGroup.options.isProject) {
@@ -123,13 +123,13 @@ CreateGroup.bindEvent = function() {
   });
 
   // 审批
-  $approval.on('change', function() {
+  $approval.on('change', function () {
     var settings = CreateGroup.options.settings;
     settings.openApproval = $(this).prop('checked');
   });
 
   // 设置关联部门弹窗
-  $deptCheckbox.on('change', function() {
+  $deptCheckbox.on('change', function () {
     if ($(this).prop('checked')) {
       $selectDep.show();
     } else {
@@ -137,8 +137,8 @@ CreateGroup.bindEvent = function() {
       $selectDep.html(tips.selectDepartment).hide();
     }
   });
-  $selectDep.on('click', function() {
-    new DialogSelectGroups({
+  $selectDep.on('click', function () {
+    dialogSelectDept({
       projectId: CreateGroup.options.settings.projectId,
       unique: true,
       selectFn: data => {
@@ -148,13 +148,11 @@ CreateGroup.bindEvent = function() {
     });
   });
 
-  $dialogBoxCreateGroup.on('click', '.cancelCreate', function() {
-    $('.dialogBoxCreateGroup')
-      .parent()
-      .remove();
+  $dialogBoxCreateGroup.on('click', '.cancelCreate', function () {
+    $('.dialogBoxCreateGroup').parent().remove();
   });
 
-  $dialogBoxCreateGroup.on('click', '.btnCreate', function() {
+  $dialogBoxCreateGroup.on('click', '.btnCreate', function () {
     if ($(this).prop('disbled')) {
       return false;
     }
@@ -172,7 +170,7 @@ CreateGroup.bindEvent = function() {
   });
 };
 
-CreateGroup.bindHeadAvatar = function() {
+CreateGroup.bindHeadAvatar = function () {
   var $container = CreateGroup.$content.find('.groupTopContent');
   var $groupHeader = CreateGroup.$content.find('.groupHeader');
   var $avatar = $container.find('.groupAvatar');
@@ -180,7 +178,7 @@ CreateGroup.bindHeadAvatar = function() {
 
   CreateGroup.$avatar = $avatar;
 
-  groupController.getGroupAvatarSelectList().then(function(result) {
+  groupController.getGroupAvatarSelectList().then(function (result) {
     srcBasePath = result.basePath;
 
     $groupHeader.append(
@@ -198,11 +196,11 @@ CreateGroup.bindHeadAvatar = function() {
     var $upload = $groupSelect.find('.uploadGroupAvatar');
     var $input = $groupSelect.find('.hiddenUploadGroupAvatar');
 
-    $('.createGroupAvatarSelect').on('click', '.icon-close', function() {
+    $('.createGroupAvatarSelect').on('click', '.icon-close', function () {
       $('.createGroupAvatarSelect').hide();
     });
 
-    $groupSelect.on('click', '.singleHead', function() {
+    $groupSelect.on('click', '.singleHead', function () {
       var $this = $(this);
       var avatar = $this.data('name');
       if (avatar) {
@@ -213,7 +211,7 @@ CreateGroup.bindHeadAvatar = function() {
       $('.createGroupAvatarSelect').hide();
     });
 
-    $input.on('click', function(event) {
+    $input.on('click', function (event) {
       event.stopPropagation();
     });
 
@@ -229,11 +227,11 @@ CreateGroup.bindHeadAvatar = function() {
       styleType: '0',
       tokenType: 2,
       checkProjectLimitFileSizeUrl: '',
-      filesAdded: function() {
+      filesAdded: function () {
         $upload.html("<i class='uploadTip'>" + tips.uploadingTip + '</i>');
       },
       createPicProgressBar: '',
-      callback: function(attachments) {
+      callback: function (attachments) {
         $upload.html(tips.customAvatarTip);
 
         if (attachments.length > 0) {
@@ -249,19 +247,16 @@ CreateGroup.bindHeadAvatar = function() {
   }
 
   var $triggers = CreateGroup.$content.find('.groupHead,.modifyGroupAvatar');
-  $triggers.on('click', function(e) {
+  $triggers.on('click', function (e) {
     $('.createGroupAvatarSelect').show();
     e.stopPropagation();
   });
 };
 
-CreateGroup.checkIsProjectAdmin = function() {
+CreateGroup.checkIsProjectAdmin = function () {
   var $dialogBoxCreateGroup = CreateGroup.$content;
   var $officialGroup = $dialogBoxCreateGroup.find('.officialGroup');
-  $dialogBoxCreateGroup
-    .find('.selectDep')
-    .html(tips.selectDepartment)
-    .hide();
+  $dialogBoxCreateGroup.find('.selectDep').html(tips.selectDepartment).hide();
   $dialogBoxCreateGroup.find('.deptCheckbox').prop('checked', false);
   CreateGroup.options.selectedDeptSetting = null;
 
@@ -270,7 +265,7 @@ CreateGroup.checkIsProjectAdmin = function() {
       .validateUserIsProjectAdmin({
         projectId: CreateGroup.options.settings.projectId,
       })
-      .then(function(result) {
+      .then(function (result) {
         if (result) {
           $officialGroup.show();
         } else {
@@ -284,31 +279,25 @@ CreateGroup.checkIsProjectAdmin = function() {
   CreateGroup.disableBtn();
 };
 
-CreateGroup.disableBtn = function() {
+CreateGroup.disableBtn = function () {
   var $dialogBoxCreateGroup = CreateGroup.$content;
   var $btnCreate = $dialogBoxCreateGroup.find('.btnCreate');
 
   var _projectId = CreateGroup.options.settings.projectId;
-  expireDialogAsync(_projectId).then(
-    function() {
+
+  expireDialogAsync(_projectId)
+    .then(() => {
       $btnCreate.prop('disabled', false).removeAttr('style');
-    },
-    function() {
+    })
+    .catch(() => {
       $btnCreate.prop('disabled', true).css('cursor', 'not-allowed');
-    },
-  );
+    });
 };
 
-CreateGroup.createGroupConfirm = function() {
+CreateGroup.createGroupConfirm = function () {
   var $dialogBoxCreateGroup = CreateGroup.$content;
-  var about = $dialogBoxCreateGroup
-    .find('.txtGroupAbout')
-    .val()
-    .trim();
-  var groupName = $dialogBoxCreateGroup
-    .find('.txtGroupName')
-    .val()
-    .trim();
+  var about = $dialogBoxCreateGroup.find('.txtGroupAbout').val().trim();
+  var groupName = $dialogBoxCreateGroup.find('.txtGroupName').val().trim();
   var $createBtn = $dialogBoxCreateGroup.find('.btnCreate');
 
   var departmentId = null;
@@ -327,11 +316,9 @@ CreateGroup.createGroupConfirm = function() {
       projectId: CreateGroup.options.settings.projectId || '',
       mapDepartmentId: departmentId || '',
     })
-    .then(function(result) {
+    .then(function (result) {
       if (result) {
-        $('.dialogBoxCreateGroup')
-          .parent()
-          .remove();
+        $('.dialogBoxCreateGroup').parent().remove();
         // chat处理回调
         if (typeof CreateGroup.options.settings.callback === 'function') {
           CreateGroup.options.settings.callback.call(null, result);

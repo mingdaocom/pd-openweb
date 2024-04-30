@@ -16,7 +16,7 @@ var app = {
   getDate: function(args, options) {
     base.ajaxOptions.url = base.server() + '/app/getDate';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'appgetDate', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'appgetDate', args, $.extend(base, options));
   },
   /**
    * 获取图表信息
@@ -28,7 +28,7 @@ var app = {
   getReport: function(args, options) {
     base.ajaxOptions.url = base.server() + '/app/getReport';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'appgetReport', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'appgetReport', args, $.extend(base, options));
   },
   /**
    * 获取工作表控件
@@ -40,7 +40,7 @@ var app = {
   getTemplate: function(args, options) {
     base.ajaxOptions.url = base.server() + '/app/getReportConfigDetail';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'appgetReportConfigDetail', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'appgetReportConfigDetail', args, $.extend(base, options));
   },
 };
 export default app;

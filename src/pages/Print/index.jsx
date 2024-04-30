@@ -11,7 +11,7 @@ import instance from 'src/pages/workflow/api/instanceVersion';
 import './index.less';
 import SaveDia from './components/saveDia';
 import { fromType, typeForCon, PRINT_TYPE, DEFAULT_FONT_SIZE, FILTER_SYS } from './config';
-import mdNotification from 'ming-ui/functions/notify';
+import { mdNotification } from 'ming-ui/functions';
 import webCacheAjax from 'src/api/webCache';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import { updateRulesData } from 'src/components/newCustomFields/tools/filterFn';
@@ -23,7 +23,7 @@ import _ from 'lodash';
 import { addBehaviorLog, getTranslateInfo } from 'src/util';
 import { replaceControlsTranslateInfo } from 'worksheet/util';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { canEditApp } from 'src/pages/worksheet/redux/actions/util.js';
+import { canEditApp, isHaveCharge } from 'src/pages/worksheet/redux/actions/util.js';
 
 class PrintForm extends React.Component {
   constructor(props) {
@@ -42,6 +42,7 @@ class PrintForm extends React.Component {
         shareType: 0, //0 = 默认，1= 内部
         approval: [],
         views: [],
+        filters: [], // 过滤条件
       },
       isChange: false, // 当前模板是否修改
       appId,
@@ -57,7 +58,8 @@ class PrintForm extends React.Component {
       saveLoading: false,
       approval: [],
       useWps: false,
-      isUserAdmin: false
+      isUserAdmin: false,
+      isHaveCharge: false,
     };
   }
   componentWillMount = () => {
@@ -79,31 +81,37 @@ class PrintForm extends React.Component {
       });
     }
   }
-  getApp = (cb) => {
+  getApp = cb => {
     const { params } = this.state;
     const { type, from, appId, printType } = params;
-    if (from === fromType.PRINT && type === typeForCon.NEW && appId && printType !== 'flow') {
-      homeAppApi.getApp({ appId: appId, getLang: true }, { silent: true }).then(data => {
-        this.setState({
-          isUserAdmin: canEditApp(data.permissionType, data.isLock), //开发者|管理员
-        });
+    homeAppApi.getApp({ appId: appId, getLang: true }, { silent: true }).then(data => {
+      this.setState({
+        isHaveCharge: isHaveCharge(data.permissionType, data.isLock),
+        isUserAdmin:
+          from === fromType.PRINT && type === typeForCon.NEW && appId && printType !== 'flow'
+            ? canEditApp(data.permissionType, data.isLock)
+            : this.state.isUserAdmin,
+      });
+      if (from === fromType.PRINT && type === typeForCon.NEW && appId && printType !== 'flow') {
         if (data.langInfo && data.langInfo.appLangId) {
-          appManagementApi.getAppLangDetail({
-            projectId: data.projectId,
-            appId,
-            appLangId: data.langInfo.appLangId
-          }).then(lang => {
-            window[`langData-${appId}`] = lang;
-            cb && cb();
-          });
+          appManagementApi
+            .getAppLangDetail({
+              projectId: data.projectId,
+              appId,
+              appLangId: data.langInfo.appLangId,
+            })
+            .then(lang => {
+              window[`langData-${appId}`] = lang.items;
+              cb && cb();
+            });
         } else {
           cb && cb();
         }
-      });
-    } else {
-      cb && cb();
-    }
-  }
+      } else {
+        cb && cb();
+      }
+    });
+  };
   getParamFn = () => {
     if (location.href.indexOf('printForm') > -1) {
       const { params = {} } = this.state;
@@ -209,7 +217,7 @@ class PrintForm extends React.Component {
       contentType: 'application/json',
       data: JSON.stringify(payload),
     })
-      .done(r => {
+      .then(r => {
         this.setState(
           {
             ajaxUrlStr: r.data,
@@ -418,10 +426,12 @@ class PrintForm extends React.Component {
       receiveControls = receiveControls.map(l => {
         let _control = (_.get(info.template, 'controls') || []).find(m => m.controlId === l.controlId);
 
-        return _control ? {
-          ...l,
-          advancedSetting: _control.advancedSetting,
-        } : l;
+        return _control
+          ? {
+              ...l,
+              advancedSetting: _control.advancedSetting,
+            }
+          : l;
       });
       let dat = (res.receiveControls || []).filter(o => ![43, 49].includes(o.type)); //去除 文本识别 43 接口查询按钮
       let attribute = dat.find(it => it.attribute === 1);
@@ -445,6 +455,7 @@ class PrintForm extends React.Component {
           }),
         systemControl: sysToPrintData(res),
         approvalIds: res.approvalIds,
+        filters: res.filters,
       };
 
       let infoPromiseList = [];
@@ -454,6 +465,7 @@ class PrintForm extends React.Component {
             sheetAjax.getWorksheetInfo({
               worksheetId: l.dataSource,
               getTemplate: true,
+              relationWorksheetId: worksheetId,
             }),
           );
         }
@@ -533,9 +545,10 @@ class PrintForm extends React.Component {
       });
   };
 
-  handChange = printData => {
+  handChange = changeData => {
     this.setState({
-      printData: printData,
+      printData: Object.assign(this.state.printData, changeData),
+      // printData: printData,
       isChange: true,
     });
   };
@@ -567,7 +580,7 @@ class PrintForm extends React.Component {
         if (
           o.relationControls &&
           o.relationControls.length > 0 &&
-          (o.advancedSetting.showtype === '2' || [34, 51].includes(o.type)) //关联表列表||子表||查询列表
+          (['2', '5', '6'].includes(o.advancedSetting.showtype) || [34, 51].includes(o.type)) //关联表列表||子表||查询列表
         ) {
           //关联表 列表
           let relations = [];
@@ -591,6 +604,7 @@ class PrintForm extends React.Component {
         }
       });
     }
+
     sheetAjax
       .editPrint({
         id: printId,
@@ -606,6 +620,7 @@ class PrintForm extends React.Component {
             'companyName',
             'qrCode',
             'printTime',
+            'printAccount',
             'remark',
             'controlStyles',
             'relationStyle',
@@ -624,6 +639,8 @@ class PrintForm extends React.Component {
             'name',
             'font',
             'approvePosition',
+            'allowDownloadPermission',
+            'filters',
           ]),
           approvalIds: approvalIds,
           projectId,
@@ -697,8 +714,9 @@ class PrintForm extends React.Component {
   };
 
   renderWordCon = () => {
-    const { ajaxUrlStr, showPdf, params, printData, showHeader, useWps } = this.state;
-    const { fileTypeNum } = params;
+    const { ajaxUrlStr, showPdf, params, printData, showHeader, useWps, isHaveCharge } = this.state;
+    const { fileTypeNum, allowDownloadPermission } = params;
+    const allowDown = isHaveCharge || !allowDownloadPermission;
 
     if (!showPdf) {
       return (
@@ -719,20 +737,22 @@ class PrintForm extends React.Component {
 
               {ajaxUrlStr !== 'error' && (
                 <Fragment>
-                  <p
-                    className="downWord"
-                    onClick={() => {
-                      this.handleBehaviorLog();
-                      this.downFn();
-                    }}
-                  >
-                    <Icon
-                      icon={'file_download'}
-                      className="Font16"
-                      style={{ marginLeft: -14, 'vertical-align': 'bottom' }}
-                    />
-                    {_l(fileTypeNum === 5 ? '下载Excel文件' : '下载Word文件')}
-                  </p>
+                  {allowDown && (
+                    <p
+                      className="downWord"
+                      onClick={() => {
+                        this.handleBehaviorLog();
+                        this.downFn();
+                      }}
+                    >
+                      <Icon
+                        icon={'file_download'}
+                        className="Font16"
+                        style={{ marginLeft: -14, 'vertical-align': 'bottom' }}
+                      />
+                      {_l(fileTypeNum === 5 ? '下载Excel文件' : '下载Word文件')}
+                    </p>
+                  )}
                   {/* {fileTypeNum !== 5 && ( */}
                   <div
                     className="toPdf"
@@ -792,6 +812,8 @@ class PrintForm extends React.Component {
       sheetSwitchPermit,
       showHeader,
       approval,
+      isUserAdmin,
+      isHaveCharge,
     } = this.state;
     const { type, isDefault, worksheetId, viewId } = params;
     let { receiveControls = [], systemControl = [] } = printData;
@@ -849,7 +871,8 @@ class PrintForm extends React.Component {
       downFn: this.downFn,
       showPdf,
       sheetSwitchPermit: sheetSwitchPermit,
-      isUserAdmin: this.state.isUserAdmin
+      isUserAdmin: isUserAdmin,
+      isHaveCharge: isHaveCharge,
     };
 
     return (

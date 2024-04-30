@@ -2,6 +2,56 @@ import _ from 'lodash';
 import { combineReducers } from 'redux';
 import { browserIsMobile } from 'src/util';
 
+function baseLoading(state = true, action) {
+  switch (action.type) {
+    case 'UPDATE_BASE_LOADING':
+      return action.value;
+    default:
+      return state;
+  }
+}
+
+function base(state = {}, action) {
+  // controls, searchConfig, rules, projectId, workflowChildTableSwitch, entityName, appId
+  // masterData, recordId
+  // TODO 属性排查
+  switch (action.type) {
+    case 'UPDATE_BASE':
+      return {
+        loaded: false,
+        reset: false,
+        ...action.value,
+      };
+    case 'LOAD_ROWS':
+      return {
+        ...state,
+        loaded: true,
+      };
+    case 'CLEAR_AND_SET_ROWS':
+      return {
+        ...state,
+        reset: true,
+      };
+    case 'RESET':
+      return {
+        ...state,
+        loaded: false,
+        reset: false,
+      };
+    default:
+      return state;
+  }
+}
+
+function cellErrors(state = {}, action) {
+  switch (action.type) {
+    case 'UPDATE_CELL_ERRORS':
+      return action.value;
+    default:
+      return state;
+  }
+}
+
 function lastAction(state = null, action) {
   return action;
 }
@@ -40,6 +90,7 @@ function rows(state = [], action) {
   }
   switch (action.type) {
     case 'INIT_ROWS':
+    case 'FORCE_SET_OUT_ROWS':
     case 'CLEAR_AND_SET_ROWS':
       newState = action.rows.map(row => ({ ...row }));
       break;
@@ -74,6 +125,9 @@ function rows(state = [], action) {
 }
 
 export default combineReducers({
+  cellErrors,
+  baseLoading,
+  base,
   originRows,
   lastAction,
   rows,

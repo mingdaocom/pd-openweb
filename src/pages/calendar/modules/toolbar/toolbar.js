@@ -10,10 +10,9 @@ import synchronousTpl from './tpl/synchronous.html';
 import calendarInviteTpl from './tpl/calendarInvite.html';
 import addOtherUserTpl from './tpl/addOtherUser.html';
 import ClassificationCalendarHtml from './tpl/ClassificationCalendar.html';
-import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
+import { dialogSelectUser } from 'ming-ui/functions';
 import calendarAjax from 'src/api/calendar';
-import UserHead from 'src/components/userHead';
-import Dialog from 'ming-ui/components/Dialog';
+import { Dialog, UserHead, UserCard } from 'ming-ui';
 
 Toolbar.settings = {
   oldCategoryList: [],
@@ -34,7 +33,6 @@ import _ from 'lodash';
 import copy from 'copy-to-clipboard';
 import { formatRecur } from '../calendarDetail/common';
 import moment from 'moment';
-import UserCard from 'src/components/UserCard';
 
 // 绑定事件
 Toolbar.Event = function () {

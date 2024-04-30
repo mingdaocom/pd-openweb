@@ -8,6 +8,7 @@ import wechatPng from '../../img/wechat_work.png';
 import { navigateTo } from 'src/router/navigateTo';
 import { Modal } from 'antd';
 import homeAppAjax from 'src/api/homeApp';
+import AppSettingHeader from '../AppSettingHeader';
 
 const Wrap = styled.div`
   h3,
@@ -251,8 +252,8 @@ class EditPublishSetDialog extends React.Component {
     return (
       <Wrap>
         <WrapCon>
-          <h3 className="Font17 Bold InlineBlock">{_l('发布')}</h3>
-          <h6 className="Font15 Bold">{_l('发布到组织工作台')}</h6>
+          <AppSettingHeader title={_l('发布')} />
+          <h6 className="Font15 Bold pTop0">{_l('发布到组织工作台')}</h6>
           <p className="Gray_9 mTop12">{_l('设置用户在哪些设备环境下可见此应用，管理员和开发者在PC端始终可见')}</p>
           <div className="con">
             <ul>

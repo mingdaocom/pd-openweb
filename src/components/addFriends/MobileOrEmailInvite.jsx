@@ -6,8 +6,8 @@ import Requests from 'src/api/addressBook';
 import EmailInput from 'src/pages/Role/PortalCon/components/Email';
 import { FROM_TYPE, DETAIL_MODE } from './';
 import cx from 'classnames';
-import captcha from 'src/components/captcha';
-import _ from 'lodash';
+import { captcha } from 'ming-ui/functions';
+import _, { unset } from 'lodash';
 import { existAccountHint } from 'src/util';
 import { encrypt } from 'src/util';
 import DialogSettingInviteRules from 'src/pages/Admin/user/membersDepartments/structure/components/dialogSettingInviteRules';
@@ -38,7 +38,7 @@ export default class MobileOrEmailInvite extends Component {
       loading: false,
       keywords: '',
       searchData: null,
-      selectType: TYPE_MODE.MOBILE,
+      selectType: !md.global.SysSettings.enableSmsCustomContent ? TYPE_MODE.EMAIL : TYPE_MODE.MOBILE,
     };
   }
 
@@ -65,10 +65,10 @@ export default class MobileOrEmailInvite extends Component {
           randStr: res.randstr,
           captchaType: md.global.getCaptchaType(),
         })
-          .done(res => {
+          .then(res => {
             _this.setState({ searchData: res.list });
           })
-          .fail(err => {
+          .catch(err => {
             if (err) {
               alert(_l('请输入手机号/邮箱地址'), 3);
             }
@@ -110,7 +110,7 @@ export default class MobileOrEmailInvite extends Component {
       accounts: accounts,
       fromType,
     })
-      .done(result => {
+      .then(result => {
         existAccountHint(result);
 
         // 1代表成功
@@ -122,7 +122,7 @@ export default class MobileOrEmailInvite extends Component {
           cb();
         }
       })
-      .fail(() => {
+      .catch(() => {
         alert('邀请失败', 2);
         this.setState({ loading: false });
       });
@@ -163,7 +163,7 @@ export default class MobileOrEmailInvite extends Component {
       .then(data => {
         this.invite(accountObj);
       })
-      .fail(() => {
+      .catch(() => {
         alert(_l('邀请发送失败'), 2);
         this.setState({ loading: false });
       });
@@ -172,7 +172,14 @@ export default class MobileOrEmailInvite extends Component {
   renderItem = (item, index) => {
     let content = '';
     if (this.state.selectType === TYPE_MODE.MOBILE) {
-      content = <Tel data={item} inputClassName="rowTel" onChange={data => this.handleChange(data, index)} />;
+      content = (
+        <Tel
+          data={item}
+          inputClassName="rowTel"
+          allowDropdown={true}
+          onChange={data => this.handleChange(data, index)}
+        />
+      );
     } else {
       content = (
         <EmailInput data={o} inputClassName="rowTel pLeft8" onChange={data => this.handleChange(data, index)} />
@@ -277,21 +284,23 @@ export default class MobileOrEmailInvite extends Component {
           )}
         </div>
 
-        <RadioGroup
-          size="middle"
-          className="mBottom20"
-          checkedValue={selectType}
-          data={DISPLAY_OPTIONS}
-          onChange={value => this.setState({ selectType: value, list: defaultList })}
-        />
-        <div className="resultContent" style={{ maxHeight: 230 }}>
+        {md.global.SysSettings.enableSmsCustomContent && (
+          <RadioGroup
+            size="middle"
+            className="mBottom20"
+            checkedValue={selectType}
+            data={DISPLAY_OPTIONS}
+            onChange={value => this.setState({ selectType: value, list: defaultList })}
+          />
+        )}
+        <div className="resultContent" style={{ minHeight: 230, overflow: 'unset' }}>
           {list.map((item, index) => this.renderItem(item, index))}
-        </div>
-        <div className="addBox ThemeColor3">
-          <span onClick={this.handleAdd}>
-            <Icon icon="add1" />
-            {_l('添加')}
-          </span>
+          <div className="addBox ThemeColor3">
+            <span onClick={this.handleAdd}>
+              <Icon icon="add1" />
+              {_l('添加')}
+            </span>
+          </div>
         </div>
 
         <div className="footContainer">

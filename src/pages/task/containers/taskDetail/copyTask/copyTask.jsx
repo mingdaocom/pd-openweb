@@ -1,7 +1,7 @@
 ﻿import React, { Component } from 'react';
 import { Dialog } from 'ming-ui';
 import ajaxRequest from 'src/api/taskCenter';
-import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
+import { dialogSelectUser } from 'ming-ui/functions';
 import './less/copyTask.less';
 
 export default class CopyTask extends Component {

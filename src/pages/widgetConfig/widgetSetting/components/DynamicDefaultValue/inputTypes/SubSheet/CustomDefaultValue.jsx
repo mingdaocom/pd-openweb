@@ -3,7 +3,7 @@ import { Dialog } from 'ming-ui';
 import { v4 as uuidv4 } from 'uuid';
 import ChildTable from 'worksheet/components/ChildTable';
 import { handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
-import './style.less';
+import 'src/pages/widgetConfig/styled/style.less';
 
 export default class CustomDefaultValue extends Component {
   constructor(props) {

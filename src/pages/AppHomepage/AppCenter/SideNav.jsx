@@ -2,11 +2,10 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
-import { Tooltip, ScrollView } from 'ming-ui';
+import { Tooltip, ScrollView, SvgIcon } from 'ming-ui';
 import ThirdApp from './components/ThirdApp';
 import PopupLinks from './components/PopupLinks';
 import privateSource from 'src/api/privateSource';
-import SvgIcon from 'src/components/SvgIcon';
 import _ from 'lodash';
 import { navigateTo } from 'src/router/navigateTo';
 import { getCurrentProject } from 'src/util';
@@ -21,7 +20,7 @@ const NATIVE_APP_ITEM = [
 
 const Con = styled.div`
   overflow: hidden;
-  background: ${({ themeBgColor }) => themeBgColor};
+  background-color: ${({ themeBgColor }) => themeBgColor};
   transition: width 0.2s;
   width: 68px;
   &.isExpanded {
@@ -195,18 +194,22 @@ const moduleEntries = [
 ];
 
 export default function SideNav(props) {
-  const { active, currentProject = {}, countData, dashboardColor } = props;
+  const { active, currentProject = {}, countData, dashboardColor, hasBgImg } = props;
   const [isExpanded, setIsExpanded] = useState(localStorage.getItem('homeNavIsExpanded') === '1');
   const [thirdPartyAppVisible, setThirdPartyAppVisible] = useState();
   const [sourcesList, setSourcesList] = useState([]);
   const { projectId } = currentProject;
   const cooperationItems = NATIVE_APP_ITEM.filter(
     item =>
-      !_.includes(_.get(md, 'global.Config.ForbidSuites') || [], item.key) &&
+      md.global.SysSettings.forbidSuites.indexOf(item.key) === -1 &&
       (item.id !== 'hr' || _.get(currentProject, 'isHrVisible')),
   );
   const count = countData ? (countData.myProcessCount > 99 ? '99+' : countData.myProcessCount) : 0;
   const isExternal = _.isEmpty(getCurrentProject(projectId));
+  const allowPlugin = _.get(
+    _.find(md.global.Account.projects, item => item.projectId === projectId),
+    'allowPlugin',
+  );
 
   useEffect(() => {
     privateSource.getSources({ status: 1 }).then(result => {
@@ -228,6 +231,10 @@ export default function SideNav(props) {
     if (isExternal && entry.type === 'favorite') {
       return '';
     }
+    if (!allowPlugin && entry.type === 'plugin') {
+      return '';
+    }
+
     const content = (
       <ModuleEntry
         key={index}
@@ -279,7 +286,7 @@ export default function SideNav(props) {
               <PopupLinks
                 items={NATIVE_APP_ITEM.filter(
                   item =>
-                    !_.includes(_.get(md, 'global.Config.ForbidSuites') || [], item.key) &&
+                    md.global.SysSettings.forbidSuites.indexOf(item.key) === -1 &&
                     (item.id !== 'hr' || _.get(currentProject, 'isHrVisible')),
                 )}
               />
@@ -327,7 +334,7 @@ export default function SideNav(props) {
   };
 
   return (
-    <Con className={cx({ isExpanded })} themeBgColor={dashboardColor.bgColor}>
+    <Con className={cx({ isExpanded })} themeBgColor={hasBgImg ? 'unset' : dashboardColor.bgColor}>
       <ScrollView>
         <Content>
           {thirdPartyAppVisible && <ThirdApp onCancel={() => setThirdPartyAppVisible(false)} />}

@@ -39,9 +39,8 @@ import {
 } from '../../utils/taskComm';
 import { navigateTo } from 'src/router/navigateTo';
 import _ from 'lodash';
-import UserHead from 'src/components/userHead';
 import Trigger from 'rc-trigger';
-import { LoadDiv as MingUiLoadDiv } from 'ming-ui';
+import { LoadDiv as MingUiLoadDiv, UserHead } from 'ming-ui';
 import styled from 'styled-components';
 
 const taskNavigationSettings = {
@@ -108,8 +107,16 @@ function SearchFolder(props) {
   }, [visible]);
 
   const searchFetch = (value = '') => {
-    setLoading(true);
     setSearch(value.trim());
+    if (!value.trim()) {
+      setData({
+        folders: [],
+        labels: [],
+      });
+      setVisible(false)
+      return;
+    }
+    setLoading(true);
     ajaxRequest
       .searchFolderList({
         keywords: value.trim(),
@@ -394,9 +401,11 @@ class TaskNavigation extends Component {
 
     // 多个网络获取项目数据
     $.map(networks, (projectId, i) => {
-      $('.networkFolderList[data-projectid=' + projectId + ']')
-        .find('.clipLoader')
-        .removeClass('Hidden');
+      if (projectId) {
+        $('.networkFolderList[data-projectid=' + projectId + ']')
+          .find('.clipLoader')
+          .removeClass('Hidden');
+      }
       this.getNetworkData(projectId, folders);
     });
   }
@@ -517,9 +526,11 @@ class TaskNavigation extends Component {
         const projectId = $(this).closest('.networkFolderList').attr('data-projectid');
         const folders = getTaskStorage('folderState') || [];
 
-        $('.networkFolderList[data-projectid=' + projectId + ']')
-          .find('.clipLoader')
-          .removeClass('Hidden');
+        if (projectId) {
+          $('.networkFolderList[data-projectid=' + projectId + ']')
+            .find('.clipLoader')
+            .removeClass('Hidden');
+        }
 
         that.getNetworkData(projectId, folders, () => {
           $folderList.slideDown(() => {
@@ -1183,10 +1194,12 @@ class TaskNavigation extends Component {
     $('.navContent').prepend(doT.template(topFolderHtml)(data));
     $('#folderLoading').remove();
     // 选中
-    const $el = $('.topFolderList .folderList li[data-id=' + folderId + ']')
-      .removeClass('ThemeBGColor8')
-      .eq(0)
-      .addClass('ThemeBGColor8');
+    const $el = folderId
+      ? $('.topFolderList .folderList li[data-id=' + folderId + ']')
+          .removeClass('ThemeBGColor8')
+          .eq(0)
+          .addClass('ThemeBGColor8')
+      : [];
     this.renderFolderAvatar();
     if ($el.length) {
       $('.navContent').scrollTop($el.offset().top - 300);
@@ -1201,7 +1214,7 @@ class TaskNavigation extends Component {
       if (source.status) {
         $.map(source.data, (network, i) => {
           const { projectID, noticeCount } = network;
-          if (noticeCount) {
+          if (noticeCount && projectID) {
             $('.networkFolderList[data-projectid=' + projectID + ']')
               .attr('data-count', noticeCount)
               .find('.allFolders .folderNewTip')
@@ -1252,7 +1265,9 @@ class TaskNavigation extends Component {
   renderSlideFolder(data, projectId, callback) {
     const singleFolderTpl = singleFolder.replace('#include.singleFolderComm', singleFolderComm);
     const projectFolderTpl = projectFolder.replace('#include.singleFolderComm', singleFolderComm);
-    const $folderList = $('.networkFolderList[data-projectid=' + projectId + ']').find('.folderList');
+    const $folderList = projectId
+      ? $('.networkFolderList[data-projectid=' + projectId + ']').find('.folderList')
+      : $('.networkFolderList[data-null=null]').find('.folderList');
     // 移除已存在的
     $folderList.find('li').not('.slideFolders,.pigeonholeFolder,.nullFolderTask').remove();
     // 项目文件夹
@@ -1272,10 +1287,12 @@ class TaskNavigation extends Component {
       }
     });
 
-    $('.networkFolderList[data-projectid=' + projectId + ']')
-      .attr('data-count', count)
-      .find('.allFolders .folderNewTip')
-      .toggleClass('Hidden', !count);
+    if (projectId) {
+      $('.networkFolderList[data-projectid=' + projectId + ']')
+        .attr('data-count', count)
+        .find('.allFolders .folderNewTip')
+        .toggleClass('Hidden', !count);
+    }
 
     // 处理箭头
     $folderList
@@ -1320,20 +1337,25 @@ class TaskNavigation extends Component {
       .html(isExistList ? _l('隐藏') : _l('无'));
 
     // 隐藏loading
-    $('.networkFolderList[data-projectid=' + projectId + ']')
-      .find('.clipLoader')
-      .addClass('Hidden');
+    if (projectId) {
+      $('.networkFolderList[data-projectid=' + projectId + ']')
+        .find('.clipLoader')
+        .addClass('Hidden');
+    }
 
     if ($.isFunction(callback) && isExistList) {
       callback();
     } else {
       $folderList.show();
       const { folderId } = this.props.taskConfig;
-      const $el = $(
-        '.networkFolderList[data-projectid=' + projectId + '] .folderList li.ThemeBGColor8[data-id=' + folderId + ']',
-      );
-      if ($el.length) {
-        $('.navContent').scrollTop($el.offset().top - 300);
+
+      if (projectId) {
+        const $el = $(
+          '.networkFolderList[data-projectid=' + projectId + '] .folderList li.ThemeBGColor8[data-id=' + folderId + ']',
+        );
+        if ($el.length) {
+          $('.navContent').scrollTop($el.offset().top - 300);
+        }
       }
     }
   }
@@ -1349,9 +1371,14 @@ class TaskNavigation extends Component {
       // 数据
       const allFolders = doT.template(projectFolderTpl)(data.folderFileList);
       this.renderFolderAvatar();
-      $('.networkFolderList[data-projectid=' + projectId + ']')
-        .find('.folderList')
-        .prepend(allFolders);
+
+      if (projectId) {
+        $('.networkFolderList[data-projectid=' + projectId + ']')
+          .find('.folderList')
+          .prepend(allFolders);
+      } else {
+        $('.networkFolderList[data-null=null]').find('.folderList').prepend(allFolders);
+      }
     }
   }
 
@@ -1362,14 +1389,20 @@ class TaskNavigation extends Component {
     if (data.folderList && data.folderList.length > 0) {
       const { folderId } = this.props.taskConfig;
       const allFolders = doT.template(singleFolderTpl)(data.folderList); // 数据
-      const $networkFolderList = $('.networkFolderList[data-projectid=' + projectId + ']');
+      const $networkFolderList = projectId
+        ? $('.networkFolderList[data-projectid=' + projectId + ']')
+        : $('.networkFolderList[data-null=null]');
 
       $networkFolderList.find('.slideFolders').before(allFolders);
-      $networkFolderList
-        .find('.folderList li[data-id=' + folderId + ']')
-        .removeClass('ThemeBGColor8')
-        .eq(0)
-        .addClass('ThemeBGColor8'); // 选中
+
+      if (folderId) {
+        $networkFolderList
+          .find('.folderList li[data-id=' + folderId + ']')
+          .removeClass('ThemeBGColor8')
+          .eq(0)
+          .addClass('ThemeBGColor8'); // 选中
+      }
+
       this.renderFolderAvatar();
     }
   }

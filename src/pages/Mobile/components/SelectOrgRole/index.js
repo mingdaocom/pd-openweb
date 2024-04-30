@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { Icon, ScrollView } from 'ming-ui';
+import { Icon, ScrollView, LoadDiv } from 'ming-ui';
 import { Modal, Button, WingBlank, Checkbox } from 'antd-mobile';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import organizeAjax from 'src/api/organize.js';
@@ -16,31 +16,94 @@ export default class SelectOrgRole extends Component {
       orgRoleList: [],
       isLoading: false,
       isMore: false,
+      treeData: [],
+      expendTreeNodeKey: [],
+      searchList: [],
+      pageIndex: 1,
+      selectedOrgRole: [],
     };
   }
   componentDidMount() {
-    this.getData();
+    this.init();
   }
-  getData = () => {
-    const { projectId } = this.props;
-    let { keywords, pageIndex = 1, orgRoleList = [] } = this.state;
+
+  init() {
+    const { projectId, appointedOrganizeIds } = this.props;
+    organizeAjax
+      .getOrgRoleGroupsByProjectId({
+        projectId,
+      })
+      .then(res => {
+        let groups = [
+          {
+            orgRoleGroupName: _l('默认'),
+            orgRoleGroupId: '',
+          },
+        ]
+          .concat(res)
+          .map(l => {
+            return {
+              ...l,
+              children: [],
+              fetched: false,
+            };
+          });
+        !appointedOrganizeIds && this.setState({ expendTreeNodeKey: [groups[0].orgRoleGroupId] });
+        this.getData(groups, groups[0].orgRoleGroupId);
+      });
+  }
+
+  getData = (groups, orgRoleGroupId) => {
+    const { projectId, appointedOrganizeIds = [] } = this.props;
+    let { keywords, pageIndex = 1, treeData, searchList } = this.state;
+    let treeList = groups || treeData;
+
     organizeAjax
       .getOrganizes({
         projectId,
         keywords,
         pageIndex,
-        pageSize: 20,
+        pageSize: keywords ? 50 : 500,
+        appointedOrganizeIds,
+        orgRoleGroupId,
       })
-      .then(res => {
+      .then(result => {
+        if (keywords) {
+          let list = pageIndex === 1 ? result.list : searchList.concat(result.list);
+          this.setState({
+            searchList: list,
+            isMore: result.allCount > list.length,
+            loading: false,
+          });
+          return;
+        }
+        if (appointedOrganizeIds.length) {
+          result.list.forEach(l => {
+            let index = _.findIndex(treeList, o => o.orgRoleGroupId === l.orgRoleGroupId);
+            treeList[index].children.push(l);
+            !treeList[index].fetched && (treeList[index].fetched = true);
+          });
+          treeList = treeList.filter(l => l.fetched);
+          treeList[0] && this.setState({ expendTreeNodeKey: [treeList[0].orgRoleGroupId] });
+        } else {
+          let index = _.findIndex(treeList, l => l.orgRoleGroupId === orgRoleGroupId);
+          treeList[index].children = result.list;
+          treeList[index].fetched = true;
+        }
+
         this.setState({
-          orgRoleList: pageIndex === 1 ? res.list : orgRoleList.concat(res.list),
-          pageIndex: pageIndex + 1,
-          isMore: res.list.length >= 20 ? true : false,
           isLoading: false,
+          treeData: treeList,
         });
       });
   };
+
   handleSearch = () => {
+    if (!this.state.keywords) {
+      this.setState({ searchList: [], pageIndex: 1 });
+      return;
+    }
+
     this.setState(
       {
         pageIndex: 1,
@@ -50,11 +113,13 @@ export default class SelectOrgRole extends Component {
       },
     );
   };
+
   handleSave = () => {
     const { selectedOrgRole } = this.state;
     this.props.onSave(selectedOrgRole);
     this.props.onClose();
   };
+
   renderSearch() {
     const { keywords } = this.state;
     return (
@@ -96,11 +161,17 @@ export default class SelectOrgRole extends Component {
       </div>
     );
   }
+
   onScrollEnd = () => {
-    let { isMore, isLoading } = this.state;
-    if (!isMore || isLoading) return;
-    this.getData();
+    const { isMore, isLoading, keywords, pageIndex } = this.state;
+
+    if (!keywords || isLoading || !isMore) return;
+
+    this.setState({ pageIndex: pageIndex + 1 }, () => {
+      this.getData();
+    });
   };
+
   renderSelected() {
     const { selectedOrgRole = [] } = this.state;
     return (
@@ -125,6 +196,23 @@ export default class SelectOrgRole extends Component {
       </div>
     );
   }
+
+  handleExpend = groupItem => {
+    const { expendTreeNodeKey } = this.state;
+    const { orgRoleGroupId, fetched } = groupItem;
+
+    if (expendTreeNodeKey.includes(orgRoleGroupId)) {
+      this.setState({ expendTreeNodeKey: expendTreeNodeKey.filter(l => l !== orgRoleGroupId) });
+      return;
+    }
+
+    if (!fetched) {
+      this.getData(undefined, orgRoleGroupId);
+    }
+
+    this.setState({ expendTreeNodeKey: expendTreeNodeKey.concat([orgRoleGroupId]) });
+  };
+
   checkOrgRoles = item => {
     const { unique } = this.props;
     const { selectedOrgRole = [] } = this.state;
@@ -138,32 +226,92 @@ export default class SelectOrgRole extends Component {
       this.setState({ selectedOrgRole: selectedOrgRole.filter(it => it.organizeId !== item.organizeId) });
     }
   };
-  renderList = () => {
-    const { orgRoleList = [], selectedOrgRole = [] } = this.state;
+
+  renderChildren = groupItem => {
+    const { expendTreeNodeKey, selectedOrgRole, keywords, searchList } = this.state;
     const selectedOrgRoleIds = selectedOrgRole.map(item => item.organizeId);
+
+    if (groupItem && !expendTreeNodeKey.includes(groupItem.orgRoleGroupId)) return;
+
+    return (groupItem ? groupItem.children : searchList).map(roleItem => {
+      return (
+        <div className="flexRow orgRoleItem" key={roleItem.organizeId} onClick={() => this.checkOrgRoles(roleItem)}>
+          <CheckboxItem
+            checked={_.includes(selectedOrgRoleIds, roleItem.organizeId)}
+            onChange={() => this.checkOrgRoles(roleItem)}
+          ></CheckboxItem>
+          <div className="flex organizeName ellipsis Gray">{roleItem.organizeName}</div>
+        </div>
+      );
+    });
+  };
+
+  renderParent = () => {
+    const { isLoading, keywords, treeData, expendTreeNodeKey, searchList } = this.state;
+    if (isLoading) {
+      return <LoadDiv />;
+    }
+
+    if (
+      !treeData.length ||
+      (treeData.length === 1 && treeData[0].orgRoleGroupId === '' && !treeData[0].children.length)
+    ) {
+      return (
+        <div className="emptyWrap">
+          <div className="Gray_bd Font14">{_l('没有可选组织角色')}</div>
+        </div>
+      );
+    }
+
+    if (keywords && !searchList.length) {
+      return (
+        <div className="GSelect-NoData">
+          <i className="icon-search GSelect-iconNoData" />
+          <p className="GSelect-noDataText">{keywords ? _l('搜索无结果') : _l('无结果')}</p>
+        </div>
+      );
+    }
+
     return (
       <ScrollView className="flex orgRolelist" onScrollEnd={this.onScrollEnd}>
-        {orgRoleList.map(item => (
-          <div className="flexRow orgRoleItem" key={item.organizeId} onClick={() => this.checkOrgRoles(item)}>
-            <CheckboxItem
-              checked={_.includes(selectedOrgRoleIds, item.organizeId)}
-              onChange={() => this.checkOrgRoles(item)}
-            ></CheckboxItem>
-            <div className="flex organizeName ellipsis Gray">{item.organizeName}</div>
-          </div>
-        ))}
+        {!keywords &&
+          treeData.map(groupItem => {
+            if (groupItem.orgRoleGroupId === '' && !groupItem.children.length) return null;
+
+            return (
+              <Fragment key={`mobile-role-fragment-${groupItem.orgRoleGroupId}`}>
+                <div
+                  className="groupItem GrayBGF8 Hand ellipsis"
+                  key={`mobile-role-groupItem-${groupItem.orgRoleGroupId}`}
+                  onClick={() => this.handleExpend(groupItem)}
+                >
+                  <Icon
+                    icon="task_custom_btn_unfold"
+                    className={cx('Gray_9e mRight13 expendIcon InlineBlock', {
+                      rotate: !expendTreeNodeKey.includes(groupItem.orgRoleGroupId),
+                    })}
+                  />
+                  <span className="Font15 Bold ellipsis">{groupItem.orgRoleGroupName}</span>
+                </div>
+                {this.renderChildren(groupItem)}
+              </Fragment>
+            );
+          })}
+        {keywords && this.renderChildren()}
       </ScrollView>
     );
   };
+
   renderContent = () => {
     return (
       <div className="flex flexColumn">
         {this.renderSearch()}
         {this.renderSelected()}
-        {this.renderList()}
+        {this.renderParent()}
       </div>
     );
   };
+
   render() {
     const { visible, onClose } = this.props;
     return (

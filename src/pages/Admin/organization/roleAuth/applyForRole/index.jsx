@@ -1,12 +1,7 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-
 import RoleController from 'src/api/role';
-import LoadDiv from 'ming-ui/components/LoadDiv';
-import Dialog from 'ming-ui/components/Dialog';
-import UserHead from 'src/components/userHead';
+import { LoadDiv, UserHead, Dialog } from 'ming-ui';
 import PaginationWrap from '../../../components/PaginationWrap';
-
 import './style.less';
 import _ from 'lodash';
 
@@ -47,10 +42,10 @@ export default class ApplyForRole extends React.Component {
             isLoading: false,
           });
         } else {
-          return $.Deferred().reject().promise();
+          return Promise.reject();
         }
       })
-      .fail(() => {
+      .catch(() => {
         this.setState({
           isLoading: false,
         });
@@ -77,7 +72,7 @@ export default class ApplyForRole extends React.Component {
                 </td>
                 <td>{user.fullName}</td>
                 <td>{user.departName}</td>
-                <td>{user.profession}</td>
+                <td>{user.jobName}</td>
                 <td>{user.roleName}</td>
                 <td>
                   <span
@@ -93,10 +88,10 @@ export default class ApplyForRole extends React.Component {
                             alert(_l('操作成功'), 1);
                             this.fetchData();
                           } else {
-                            return $.Deferred().reject().promise();
+                            return Promise.reject();
                           }
                         })
-                        .fail(function () {
+                        .catch(function () {
                           alert(_l('操作失败'), 2);
                         });
                     }}
@@ -116,10 +111,10 @@ export default class ApplyForRole extends React.Component {
                             alert(_l('操作成功'), 1);
                             this.fetchData();
                           } else {
-                            return $.Deferred().reject().promise();
+                            return Promise.reject();
                           }
                         })
-                        .fail(function () {
+                        .catch(function () {
                           alert(_l('操作失败'), 2);
                         });
                     }}

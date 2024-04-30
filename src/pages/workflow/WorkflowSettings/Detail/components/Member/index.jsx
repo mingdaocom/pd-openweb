@@ -1,14 +1,12 @@
 import React, { Component, Fragment } from 'react';
 import './index.less';
 import cx from 'classnames';
-import { Dropdown } from 'ming-ui';
-import UserHead from 'src/components/userHead';
+import { Dropdown, UserHead } from 'ming-ui';
 import { USER_TYPE, USER_ORGANIZE, DEPARTMENT_ORGANIZE } from '../../../enum';
 import Tag from '../Tag';
 import _ from 'lodash';
 import { handleGlobalVariableName } from '../../../utils';
-import selectJob from 'src/components/dialogSelectJob';
-import selectOrgRole from 'src/components/dialogSelectOrgRole';
+import { dialogSelectOrgRole, dialogSelectJob } from 'ming-ui/functions';
 import { Tooltip } from 'antd';
 
 export default class Member extends Component {
@@ -219,7 +217,7 @@ export default class Member extends Component {
   selectJob = index => {
     const { companyId } = this.props;
 
-    selectJob({
+    dialogSelectJob({
       projectId: companyId,
       overlayClosable: false,
       unique: true,
@@ -240,7 +238,7 @@ export default class Member extends Component {
   selectOrgRole = index => {
     const { companyId } = this.props;
 
-    selectOrgRole({
+    dialogSelectOrgRole({
       projectId: companyId,
       unique: true,
       onSave: roles => {

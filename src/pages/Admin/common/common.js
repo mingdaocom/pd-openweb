@@ -42,32 +42,15 @@ AdminCommon.getProjectPermissionsByUser = function () {
     // 组织管理员(无工作流、应用)
     if (data.isProjectAdmin) {
       res.push(AUTHORITY_DICT.PROJECT_ADMIN);
-      // 各种集成权限
-      if (data.projectIntergrationType === 0 || data.projectIntergrationType === 100) {
-        let temp = [
-          AUTHORITY_DICT.HAS_DING,
-          AUTHORITY_DICT.HAS_WORKWX,
-          AUTHORITY_DICT.HAS_WELINK,
-          AUTHORITY_DICT.HAS_FEISHU,
-        ];
-        res.push(...temp);
-      }
-      if (data.projectIntergrationType === 1) {
-        res.push(AUTHORITY_DICT.HAS_DING);
-      }
-      if (data.projectIntergrationType === 3) {
-        res.push(AUTHORITY_DICT.HAS_WORKWX);
-      }
-      if (data.projectIntergrationType === 4) {
-        res.push(AUTHORITY_DICT.HAS_WELINK);
-      }
-      if (data.projectIntergrationType === 6) {
-        res.push(AUTHORITY_DICT.HAS_FEISHU);
-      }
     }
     // 应用管理员(只包含应用、工作流)
     if (data.isProjectAppManager) {
       res.push(AUTHORITY_DICT.APK_ADMIN);
+    }
+
+    // 有角色（显示管理员菜单）
+    if (data.hasRole) {
+      res.push(AUTHORITY_DICT.SHOW_MANAGER);
     }
 
     return res;

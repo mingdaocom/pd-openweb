@@ -1,12 +1,11 @@
 import React, { Fragment, Component } from 'react';
 import { Drawer, Select } from 'antd';
-import { Icon, LoadDiv } from 'ming-ui';
+import { Icon, LoadDiv, SvgIcon } from 'ming-ui';
 import cx from 'classnames';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
-import quickSelectUser from 'ming-ui/functions/quickSelectUser';
+import { quickSelectUser } from 'ming-ui/functions';
 import AppFilter from '../AppFilter';
 import { TABS } from '../index';
-import SvgIcon from 'src/components/SvgIcon';
 import { getDateScope } from '../config';
 import './index.less';
 import _ from 'lodash';
@@ -112,7 +111,7 @@ export default class Filter extends Component {
       loading: true,
     });
 
-    if (this.request && this.request.state() === 'pending') {
+    if (this.request) {
       this.request.abort();
     }
 

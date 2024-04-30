@@ -95,7 +95,7 @@ export default class ExportApp extends React.Component {
       data: JSON.stringify(params),
       dataType: 'JSON',
       contentType: 'application/json',
-    }).done(({ state, exception }) => {
+    }).then(({ state, exception }) => {
       if (state !== 1) {
         alert(exception, 2, 3000);
       }
@@ -106,14 +106,10 @@ export default class ExportApp extends React.Component {
   checkedPassword = (checkFiled, password) => {
     let reason;
     let copyErrors = { ...this.state.errors };
+    const { passwordRegex } = md.global.SysSettings;
 
-    if (
-      !password ||
-      password.length < 6 ||
-      password.length > 20 ||
-      !RegExp.isPasswordValid(password, /^[0-9A-Za-z]{8,20}$/)
-    ) {
-      reason = _l('请输入8-20位字符，仅支持数字和英文字母');
+    if (!password || password.length < 8 || password.length > 20 || !RegExp.isPasswordValid(password, passwordRegex)) {
+      reason = _l('请输入8-20位字符，必须含字母+数字');
     }
 
     if (!reason) {
@@ -272,7 +268,7 @@ export default class ExportApp extends React.Component {
             <span className="Gray_75">
               {_l('将应用配置导出为文件，之后可以将此文件导入其他组织以实现应用迁移，可选择同时导出部分示例数据。')}
             </span>
-            <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/apply3" />
+            <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/application/import-export" />
           </div>
           {relation && (
             <div className="exportWarning">

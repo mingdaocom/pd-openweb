@@ -62,7 +62,6 @@ ToMobileDialog.prototype = {
         ></div>
       ),
       noFooter: true,
-
     });
     TMD.$dialog = $('.sendToMobile');
     TMD.$QRCode = TMD.$dialog.find('.urlQrCode');
@@ -73,7 +72,7 @@ ToMobileDialog.prototype = {
     var options = TMD.options;
     var attachmentType = options.attachmentType;
     var img;
-    var urlPromise = $.Deferred();
+    var urlPromise;
     switch (attachmentType) {
       case ATTACHMENT_TYPE.COMMON:
         urlPromise = attachmentController.getShareLocalAttachmentUrl({
@@ -93,49 +92,50 @@ ToMobileDialog.prototype = {
       default:
         break;
     }
-    $.when(urlPromise)
-      .then(function (url) {
+    Promise.all([urlPromise])
+      .then(function ([url]) {
         var imgUrl = TMD.getQRCodeLink(url);
         img = TMD.getImg(imgUrl, function () {
           TMD.$QRCode.empty().append($('<p class="loadError">加载二维码失败</p>'));
         });
         TMD.$QRCode.empty().append(img);
       })
-      .fail(function () {
+      .catch(function () {
         TMD.$QRCode.empty().append($('<p class="loadError">加载二维码失败</p>'));
       });
   },
   genQiniuFileShareUrl: function () {
     var TMD = this;
-    var promise = $.Deferred();
     var options = TMD.options;
     var file = options.file;
-    attachmentController
-      .getShareLocalAttachmentUrl({
-        filePath: options.file.qiniuPath,
-        hours: 48,
-      })
-      .then(function (url) {
-        var qiniuParams = qs.parse(url.slice(url.indexOf('?') + 1));
-        url = url.slice(0, url.indexOf('?') > 0 ? url.indexOf('?') : undefined);
-        var urlParams = qs.stringify({
-          qiniuPath: url,
-          qiniutoken: qiniuParams.token,
-          e: qiniuParams.e,
-          name: file.name,
-          ext: file.ext,
-          size: file.size,
-          genTime: new Date().getTime(),
-        });
-        attachmentController
-          .getShortUrl({
-            url: escape(md.global.Config.WebUrl + 'apps/kc/shareLocalAttachment.aspx?' + urlParams),
-          })
-          .then(function (result) {
-            promise.resolve(result.shortUrl || result);
+
+    return new Promise((resolve, reject) => {
+      attachmentController
+        .getShareLocalAttachmentUrl({
+          filePath: options.file.qiniuPath,
+          hours: 48,
+        })
+        .then(function (url) {
+          var qiniuParams = qs.parse(url.slice(url.indexOf('?') + 1));
+          url = url.slice(0, url.indexOf('?') > 0 ? url.indexOf('?') : undefined);
+          var urlParams = qs.stringify({
+            qiniuPath: url,
+            qiniutoken: qiniuParams.token,
+            e: qiniuParams.e,
+            name: file.name,
+            ext: file.ext,
+            size: file.size,
+            genTime: new Date().getTime(),
           });
-      });
-    return promise;
+          attachmentController
+            .getShortUrl({
+              url: escape(md.global.Config.WebUrl + 'apps/kc/shareLocalAttachment.aspx?' + urlParams),
+            })
+            .then(function (result) {
+              resolve(result.shortUrl || result);
+            });
+        });
+    });
   },
   getQRCodeLink: function (url) {
     return md.global.Config.AjaxApiUrl + 'code/CreateQrCodeImage?url=' + encodeURIComponent(url);

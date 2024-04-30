@@ -134,7 +134,7 @@ SelectSendTo.prototype = {
           ST.defaultListData = undefined;
           ST.select(0);
         })
-        .fail(function (err) {
+        .catch(function (err) {
           alert(_l('创建失败'), 2);
         });
     });
@@ -159,7 +159,7 @@ SelectSendTo.prototype = {
         ST.listTplData = ST.formatDataTplData(listData);
         ST.renderList();
       })
-      .fail(function (err) {
+      .catch(function (err) {
         alert(_l('获取数据失败'), 2);
       });
   },
@@ -364,7 +364,7 @@ ShareAttachment.prototype = {
               callback(data);
             }
           })
-          .fail(function (err) {
+          .catch(function (err) {
             console.log(err);
           });
         break;
@@ -393,7 +393,7 @@ ShareAttachment.prototype = {
               callback(data);
             }
           })
-          .fail(function (err) {
+          .catch(function (err) {
             console.log(err);
           });
         break;
@@ -877,7 +877,7 @@ ShareAttachment.prototype = {
           .join('/');
         callback(result, path);
       })
-      .fail(() => {
+      .catch(() => {
         // alert('保存失败，未能成功调出知识文件选择层');
       });
   },
@@ -1060,7 +1060,7 @@ ShareAttachment.prototype = {
               $('.shareAttachmentDialog').parent().remove();
             }
           })
-          .fail(function (err) {
+          .catch(function (err) {
             alert(_l('发送失败'), err);
           });
         break;
@@ -1115,7 +1115,7 @@ ShareAttachment.prototype = {
               $('.shareAttachmentDialog').parent().remove();
             }
           })
-          .fail(function (err) {
+          .catch(function (err) {
             alert(_l('分享失败'), err);
           });
         break;
@@ -1154,7 +1154,7 @@ ShareAttachment.prototype = {
               $('.shareAttachmentDialog').parent().remove();
             }
           })
-          .fail(function (message) {
+          .catch(function (message) {
             alert(message || _l('保存失败'), 3);
           });
         break;
@@ -1268,7 +1268,7 @@ ShareAttachment.prototype = {
           SA.callbacks.performUpdateItem(parseInt(visibleType, 10));
         }
       })
-      .fail(function (err) {
+      .catch(function (err) {
         alert(_l('修改失败'), 3);
       });
   },
@@ -1287,7 +1287,7 @@ ShareAttachment.prototype = {
           SA.callbacks.updateView({ shareRange: visibleType });
         }
       })
-      .fail(function (err) {
+      .catch(function (err) {
         alert(_l('修改失败'), 3);
       });
   },
@@ -1306,7 +1306,7 @@ ShareAttachment.prototype = {
           SA.callbacks.updateShareRangeOfRecord(visibleType);
         }
       })
-      .fail(function (err) {
+      .catch(function (err) {
         alert(_l('修改失败'), 3);
       });
   },

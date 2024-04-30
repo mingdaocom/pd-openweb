@@ -3,8 +3,7 @@ import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import cx from 'classnames';
 import { CityPicker } from 'ming-ui';
-import DialogSelectGroups from 'src/components/dialogSelectDept';
-import selectOrgRole from 'src/components/dialogSelectOrgRole';
+import { quickSelectRole, dialogSelectDept } from 'ming-ui/functions';
 import TagCon from './TagCon';
 import { FILTER_CONDITION_TYPE } from '../../enum';
 import _ from 'lodash';
@@ -40,6 +39,13 @@ export default class Options extends Component {
       search: undefined,
     };
   }
+
+  componentWillReceiveProps(nextProps) {
+    if (!_.isEqual(nextProps.fullValues, this.props.fullValues)) {
+      this.setState({ selectedOptions: this.getDefaultSelectedOptions(nextProps.fullValues, nextProps.control) });
+    }
+  }
+
   getDefaultSelectedOptions(values, control) {
     values = values || [];
     if (_.includes([19, 23, 24], control.type)) {
@@ -47,12 +53,7 @@ export default class Options extends Component {
     } else if (control.type === 27 || control.type === 48) {
       return values.map(value => JSON.parse(value));
     } else if (control.type === 28) {
-      return values
-        .filter(v => v)
-        .map(value => ({
-          id: value,
-          name: SCORE_TEXT[parseInt(value, 10) - 1],
-        }));
+      return values.map(safeParse).filter(v => !_.isEmpty(v));
     } else if (_.includes([9, 10, 11], control.type)) {
       return values.length
         ? _.compact(
@@ -211,7 +212,7 @@ export default class Options extends Component {
         <div
           className="filterSelectDepartment"
           onClick={() => {
-            const D = new DialogSelectGroups({
+            dialogSelectDept({
               unique: selectSingle,
               projectId,
               isIncludeRoot: false,
@@ -240,8 +241,8 @@ export default class Options extends Component {
       return (
         <div
           className="filterSelectDepartment"
-          onClick={() => {
-            selectOrgRole({
+          onClick={e => {
+            quickSelectRole(e.target, {
               projectId,
               unique: selectSingle,
               showCurrentOrgRole: !_.includes(['rule', 'portal'], from),

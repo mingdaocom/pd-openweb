@@ -5,7 +5,7 @@ import { getParamsFromUrl, getCalendarDetail } from './common';
 import ErrorState from 'src/components/errorPage/errorState';
 import DocumentTitle from 'react-document-title';
 import { htmlDecodeReg, getAppFeaturesPath } from 'src/util';
-import { Dialog, LoadDiv } from 'ming-ui'
+import { Dialog, LoadDiv } from 'ming-ui';
 
 export let Config = {};
 
@@ -60,28 +60,26 @@ class Container extends Component {
 
   fetchData(isShowLoading, props) {
     const { calendarId, recurTime } = props || this.props;
-    const dfd = $.Deferred();
     if (isShowLoading) {
       this.setState({
         isLoading: true,
         noAuth: false,
       });
     }
-    getCalendarDetail(calendarId, recurTime).then(
-      ({ data }) => {
+    getCalendarDetail(calendarId, recurTime)
+      .then(({ data }) => {
         data.calendar.title = htmlDecodeReg(data.calendar.title);
         this.setState({
           isLoading: false,
           data,
         });
-      },
-      () => {
+      })
+      .catch(() => {
         this.setState({
           isLoading: false,
           noAuth: true,
         });
-      },
-    );
+      });
   }
 
   renderContent() {
@@ -112,7 +110,7 @@ class Container extends Component {
       return (
         <Dialog
           visible
-          dialogClasses='calendarEdit'
+          dialogClasses="calendarEdit"
           width={570}
           showFooter={false}
           closable={false}
@@ -126,12 +124,12 @@ class Container extends Component {
         >
           {this.renderContent()}
         </Dialog>
-      )
+      );
     }
   }
 }
 
-export default function(options) {
+export default function (options) {
   const defaults = {
     container: '',
     isDetailPage: false,
@@ -148,12 +146,12 @@ export default function(options) {
 
   if (Config.isDetailPage && Config.container) {
     Config = Object.assign({}, Config, getParamsFromUrl());
-    Config.exitCallback = Config.deleteCallback = function() {
+    Config.exitCallback = Config.deleteCallback = function () {
       window.location.href = '/apps/calendar/home' + '?' + getAppFeaturesPath();
     };
   } else {
     const { saveCallback } = Config;
-    Config.exitCallback = function() {
+    Config.exitCallback = function () {
       // 日程首页的一些操作
       if (location.href.indexOf('/apps/calendar/home') !== -1) {
         $('.showActiveTitleMessage').remove();
@@ -166,7 +164,7 @@ export default function(options) {
       }
     };
 
-    Config.deleteCallback = function() {
+    Config.deleteCallback = function () {
       // 日程首页的一些操作
       if (location.href.indexOf('/apps/calendar/home') !== -1) {
         $('.showActiveTitleMessage').remove();

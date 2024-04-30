@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import Commenter from 'src/components/comment/commenter';
-import UserHead from 'src/components/userHead';
+import { UserHead } from 'ming-ui';
 import { getCurrentProject } from 'src/util';
 import _ from 'lodash';
 
@@ -27,6 +27,7 @@ export default class WorkSheetCommenter extends Component {
       sourceId: id,
       sourceType: rowId ? Commenter.TYPES.WORKSHEETROW : Commenter.TYPES.WORKSHEET,
       appId: rowId ? md.global.APPInfo.worksheetRowAppID : md.global.APPInfo.worksheetAppID,
+      fromAppId: appId,
       projectId,
       remark: JSON.stringify({
         type: 'worksheet',

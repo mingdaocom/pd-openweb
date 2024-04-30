@@ -1,10 +1,9 @@
 import React from 'react';
 import { string } from 'prop-types';
-import { Button, Icon } from 'ming-ui';
+import { Button, Icon, SvgIcon } from 'ming-ui';
 import cx from 'classnames';
 import styled from 'styled-components';
 import tinycolor from '@ctrl/tinycolor';
-import SvgIcon from 'src/components/SvgIcon';
 import { ButtonListWrap, GraphWrap } from './styled';
 import _ from 'lodash';
 
@@ -71,10 +70,7 @@ const BtnWrap = styled.div`
     padding: 0 14px;
     background-color: ${props => props.color};
     &:hover {
-      background-color: ${props =>
-        tinycolor(props.color)
-          .darken(20)
-          .toString()};
+      background-color: ${props => tinycolor(props.color).darken(20).toString()};
     }
     .icon {
       font-size: 20px;
@@ -143,14 +139,17 @@ export default function BtnList({
                   const { color, name, config } = item;
                   const defaultIcon = btnType === 2 ? `custom_actions` : null;
                   const icon = _.get(config, 'icon') || defaultIcon;
-                  const iconUrl = icon ? `${md.global.FileStoreConfig.pubHost}/customIcon/${icon}.svg` : _.get(config, 'iconUrl');
+                  const iconUrl = icon
+                    ? `${md.global.FileStoreConfig.pubHost}/customIcon/${icon}.svg`
+                    : _.get(config, 'iconUrl');
                   const actualIndex = i * count + index;
                   return (
                     <BtnWrap
                       key={index}
                       style={{ ...getWidth() }}
                       color={color}
-                      onClick={() => onClick({ index: actualIndex })}>
+                      onClick={() => onClick({ index: actualIndex })}
+                    >
                       <div
                         className={cx('btnBox', {
                           isFullWidth,
@@ -158,7 +157,7 @@ export default function BtnList({
                           error: errorBtns.includes(index),
                           adjustText: style === 3,
                           noMargin: btnType === 2,
-                          horizontal: btnType === 2 && direction === 2
+                          horizontal: btnType === 2 && direction === 2,
                         })}
                       >
                         {btnType === 2 ? (
@@ -169,7 +168,11 @@ export default function BtnList({
                           >
                             {iconUrl && (
                               <div className="iconWrap flexRow valignWrapper">
-                                <SvgIcon url={iconUrl} fill={style === 3 ? color : '#fff'} size={direction === 1 ? 36 : 28} />
+                                <SvgIcon
+                                  url={iconUrl}
+                                  fill={style === 3 ? color : '#fff'}
+                                  size={direction === 1 ? 36 : 28}
+                                />
                               </div>
                             )}
                             <div className="nameWrap valignWrapper">

@@ -76,11 +76,11 @@ export default class Write extends Component {
    * 获取节点详情
    */
   getNodeDetail(props, sId) {
-    const { processId, selectNodeId, selectNodeType, isApproval } = props;
+    const { processId, selectNodeId, selectNodeType, isApproval, instanceId } = props;
     const { data } = this.state;
 
     flowNode
-      .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, selectNodeId: sId })
+      .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, selectNodeId: sId, instanceId })
       .then(result => {
         if (sId) {
           result = Object.assign({}, data, {
@@ -398,7 +398,7 @@ export default class Write extends Component {
                       type={3}
                       text={_l('帮助')}
                       className="ThemeColor3 ThemeHoverColor2"
-                      href="https://help.mingdao.com/flow41"
+                      href="https://help.mingdao.com/worksheet/field-filter"
                     />
                   </div>
 

@@ -436,7 +436,7 @@ export default function FieldMappingList(props) {
                   </div>
                 )}
                 {sourceField.disabled && (
-                  <a href="https://help.mingdao.com/integration2" target="_blank">
+                  <a href="https://help.mingdao.com/integration/data-integration" target="_blank">
                     <div data-tip={_l('名称包含特殊字符，无法同步')} className="tip-top">
                       <Icon icon="help" className="Gray_bd mLeft5" />
                     </div>
@@ -511,7 +511,7 @@ export default function FieldMappingList(props) {
                   </div>
                 )}
                 {sourceField.disabled && (
-                  <a href="https://help.mingdao.com/integration2" target="_blank">
+                  <a href="https://help.mingdao.com/integration/data-integration" target="_blank">
                     <div data-tip={_l('名称包含特殊字符，无法同步')} className="tip-top">
                       <Icon icon="help" className="Gray_bd mLeft5" />
                     </div>
@@ -528,7 +528,7 @@ export default function FieldMappingList(props) {
                     className="tip-top pointer"
                     onClick={() =>
                       window.open(
-                        'https://help.mingdao.com/integration2#%E4%B8%8D%E6%94%AF%E6%8C%81%E5%90%8C%E6%AD%A5%E7%9A%84%E5%AD%97%E6%AE%B5',
+                        'https://help.mingdao.com/integration/data-integration#field-sync-rule',
                       )
                     }
                   >

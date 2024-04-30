@@ -5,7 +5,6 @@ import { arrayOf, func, number, shape, string } from 'prop-types';
 import Dropdown from 'src/components/newCustomFields/widgets/Dropdown';
 import Checkbox from 'src/components/newCustomFields/widgets/Checkbox';
 import Option from './StyledOption';
-import { BaseSelectedItem } from './Styles';
 import _ from 'lodash';
 
 const Con = styled.div`
@@ -126,6 +125,7 @@ export default function Options(props) {
       <FullLineCon>
         {options
           .filter(o => !o.isDeleted)
+          .slice(0, 20)
           .map((o, i) => (
             <Option
               className={cx({ multiple, checked: _.includes(values, o.key) })}
@@ -154,7 +154,13 @@ export default function Options(props) {
       <Con>
         <Dropdown
           fromFilter
-          {...{ ...control, options, advancedSetting: { ...control.advancedSetting, allowadd: '0', showtype: '1' } }}
+          {...{
+            ...control,
+            advancedSetting: { ...control.advancedSetting, allowadd: '0', showtype: '1' },
+            options: options.map(o => {
+              return { ...o, hide: false }; //视图 快速筛选不隐藏选项
+            }),
+          }}
           default={undefined}
           dropdownClassName="scrollInTable withIsEmpty"
           value={JSON.stringify(values)}
@@ -173,7 +179,14 @@ export default function Options(props) {
     return (
       <Con isMultiple>
         <Checkbox
-          {...{ ...control, options, advancedSetting: { ...control.advancedSetting, checktype: '1' } }}
+          {...{
+            ...control,
+            options,
+            advancedSetting: { ...control.advancedSetting, checktype: '1' },
+            options: control.options.map(o => {
+              return { ...o, hide: false }; //视图 快速筛选不隐藏选项
+            }),
+          }}
           default={undefined}
           fromFilter
           isFocus

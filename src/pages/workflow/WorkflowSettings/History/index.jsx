@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { withRouter, Link } from 'react-router-dom';
-import { Icon, ScrollView, LoadDiv, Dialog, Dropdown } from 'ming-ui';
+import { Icon, ScrollView, LoadDiv, Dialog, Dropdown, UserHead } from 'ming-ui';
 import HistoryHeader from './HistoryHeader';
 import HistoryList from './HistoryList';
 import HistoryDetail from './HistoryDetail';
@@ -9,13 +9,14 @@ import './index.less';
 import api from '../../api/instance';
 import process from '../../api/process';
 import processVersion from '../../api/processVersion';
-import UserHead from 'src/components/userHead';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import { FLOW_STATUS } from './config';
 import DateRangePicker from 'ming-ui/components/NewDateTimePicker/date-time-range';
 import _ from 'lodash';
 import moment from 'moment';
+import Detail from '../Detail';
+import ArchivedList from '../../components/ArchivedList';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
@@ -24,7 +25,14 @@ class History extends Component {
   constructor(props) {
     super(props);
 
-    const ids = (props.match.params.actionId || '').split('_');
+    const { operator, operatorId } = props.match.params;
+    let ids = [];
+
+    if (!_.includes(['execHistory', 'subprocessHistory'], operator)) {
+      ids = [operator];
+    } else if (operator === 'subprocessHistory') {
+      ids = (operatorId || '').split('_');
+    }
 
     this.state = {
       data: [],
@@ -44,6 +52,8 @@ class History extends Component {
       accumulation: {},
       requestPending: false,
       batchIds: [],
+      selectNodeObj: {},
+      archivedId: '',
     };
   }
 
@@ -60,12 +70,16 @@ class History extends Component {
 
   getData = (callback = () => {}) => {
     const processId = this.props.flowInfo.id;
-    const { pageIndex, workId, instanceId, filters, requestPending } = this.state;
+    const { pageIndex, workId, instanceId, filters, requestPending, archivedId } = this.state;
     const { pageSize, filterPara } = this;
-    let para = { pageIndex, processId, pageSize, workId, instanceId, ...filterPara };
+    let para = { pageIndex, processId, pageSize, workId, instanceId, archivedId, ...filterPara };
 
     if (_.isEmpty(filters) && !para.startDate) {
       para.startDate = moment().add(-6, 'M').format('YYYY/MM/DD HH:mm');
+    }
+
+    if (archivedId) {
+      para.startDate = undefined;
     }
 
     if (requestPending) return;
@@ -82,7 +96,7 @@ class History extends Component {
         });
         callback();
       })
-      .always(() => {
+      .finally(() => {
         this.setState({ requestPending: false });
       });
   };
@@ -285,17 +299,34 @@ class History extends Component {
       accumulation,
       requestPending,
       batchIds,
+      selectNodeObj,
     } = this.state;
     const { lastPublishDate, parentId, enabled } = flowInfo;
     const isMoreHistory = !_.isEmpty(filters) && !showFilter;
+    const detailProps = {
+      processId: selectNodeObj.processId,
+      selectNodeId: selectNodeObj.selectNodeId,
+      selectNodeType: selectNodeObj.selectNodeType,
+      debugEvents: selectNodeObj.debugEvents,
+      instanceId: selectActionId,
+      closeDetail: () => this.setState({ selectNodeObj: {} }),
+    };
 
     if (selectActionId) {
       return (
-        <ScrollView className="workflowHistoryWrap flex">
-          <div className="workflowHistoryContentWrap">
-            <HistoryDetail id={selectActionId} onClick={() => this.setState({ selectActionId: '' })} />
-          </div>
-        </ScrollView>
+        <Fragment>
+          <ScrollView className="workflowHistoryWrap flex">
+            <div className="workflowHistoryContentWrap">
+              <HistoryDetail
+                id={selectActionId}
+                onClick={() => this.setState({ selectActionId: '' })}
+                openNodeDetail={selectNodeObj => this.setState({ selectNodeObj })}
+              />
+            </div>
+          </ScrollView>
+
+          <Detail {...detailProps} />
+        </Fragment>
       );
     }
 
@@ -347,6 +378,11 @@ class History extends Component {
                 >
                   {_l('查看更早')}
                 </span>
+                <ArchivedList
+                  className="mLeft10 ThemeColor3 ThemeHoverColor2"
+                  hideIcon
+                  onChange={archivedId => this.setState({ archivedId, pageIndex: 1 }, this.getData)}
+                />
               </Fragment>
             )}
           </div>

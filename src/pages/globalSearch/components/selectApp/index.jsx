@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import Trigger from 'rc-trigger';
-import { Icon, Input, LoadDiv } from 'ming-ui';
+import { Icon, Input, LoadDiv, SvgIcon } from 'ming-ui';
 import cx from 'classnames';
 import HomeAjax from 'src/api/homeApp';
-import SvgIcon from 'src/components/SvgIcon';
 import './index.less';
 
 export default function SelectApp(props) {

@@ -8,7 +8,7 @@ export default {
   **/
    getInviteAccountInfo: function (args, options = {}) {
      
-     return $.api('Invitation', 'GetInviteAccountInfo', args, options);
+     return mdyAPI('Invitation', 'GetInviteAccountInfo', args, options);
    },
   /**
   * 邀请用户加入某个模块
@@ -23,7 +23,7 @@ export default {
   **/
    inviteUser: function (args, options = {}) {
      
-     return $.api('Invitation', 'InviteUser', args, options);
+     return mdyAPI('Invitation', 'InviteUser', args, options);
    },
   /**
   * 获取通用邀请链接
@@ -38,7 +38,7 @@ export default {
   **/
    getInviteLink: function (args, options = {}) {
      
-     return $.api('Invitation', 'GetInviteLink', args, options);
+     return mdyAPI('Invitation', 'GetInviteLink', args, options);
    },
   /**
   * 二维码链接
@@ -53,7 +53,7 @@ export default {
   **/
    getQRCodeInviteLink: function (args, options = {}) {
      
-     return $.api('Invitation', 'GetQRCodeInviteLink', args, options);
+     return mdyAPI('Invitation', 'GetQRCodeInviteLink', args, options);
    },
   /**
   * 获取当前用户所有有效的链接
@@ -68,7 +68,7 @@ export default {
   **/
    getAllValidTokenByAccountId: function (args, options = {}) {
      
-     return $.api('Invitation', 'GetAllValidTokenByAccountId', args, options);
+     return mdyAPI('Invitation', 'GetAllValidTokenByAccountId', args, options);
    },
   /**
   * 设置链接失效
@@ -80,7 +80,7 @@ export default {
   **/
    updateAuthToExpire: function (args, options = {}) {
      
-     return $.api('Invitation', 'UpdateAuthToExpire', args, options);
+     return mdyAPI('Invitation', 'UpdateAuthToExpire', args, options);
    },
   /**
   * 更新链接失效时间
@@ -93,6 +93,6 @@ export default {
   **/
    updateAuthDeadtime: function (args, options = {}) {
      
-     return $.api('Invitation', 'UpdateAuthDeadtime', args, options);
+     return mdyAPI('Invitation', 'UpdateAuthDeadtime', args, options);
    },
 };

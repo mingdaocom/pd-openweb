@@ -9,7 +9,7 @@ export default {
   **/
    getProjectInfo: function (args, options = {}) {
      
-     return $.api('Project', 'GetProjectInfo', args, options);
+     return mdyAPI('Project', 'GetProjectInfo', args, options);
    },
   /**
   * 获取组织与授权相关信息，只返回授权/登录账户是否管理员/是否开启水印
@@ -22,7 +22,7 @@ export default {
   **/
    getProjectLicenseInfo: function (args, options = {}) {
      
-     return $.api('Project', 'GetProjectLicenseInfo', args, options);
+     return mdyAPI('Project', 'GetProjectLicenseInfo', args, options);
    },
   /**
   * 保存公司信息
@@ -39,7 +39,7 @@ export default {
   **/
    setProjectInfo: function (args, options = {}) {
      
-     return $.api('Project', 'SetProjectInfo', args, options);
+     return mdyAPI('Project', 'SetProjectInfo', args, options);
    },
   /**
   * 二级域名有效性验证
@@ -51,7 +51,7 @@ export default {
   **/
    checkSubDomain: function (args, options = {}) {
      
-     return $.api('Project', 'CheckSubDomain', args, options);
+     return mdyAPI('Project', 'CheckSubDomain', args, options);
    },
   /**
   * 获取二级域名页面数据
@@ -64,7 +64,7 @@ export default {
   **/
    getProjectSubDomainInfo: function (args, options = {}) {
      
-     return $.api('Project', 'GetProjectSubDomainInfo', args, options);
+     return mdyAPI('Project', 'GetProjectSubDomainInfo', args, options);
    },
   /**
   * 获取网络财务信息
@@ -76,7 +76,7 @@ export default {
   **/
    getProjectFinance: function (args, options = {}) {
      
-     return $.api('Project', 'GetProjectFinance', args, options);
+     return mdyAPI('Project', 'GetProjectFinance', args, options);
    },
   /**
   * 修改网络财务信息
@@ -102,7 +102,7 @@ export default {
   **/
    updateProjectFinance: function (args, options = {}) {
      
-     return $.api('Project', 'UpdateProjectFinance', args, options);
+     return mdyAPI('Project', 'UpdateProjectFinance', args, options);
    },
   /**
   * 获取网络授权辅助信息
@@ -116,7 +116,7 @@ export default {
   **/
    getProjectLicenseSupportInfo: function (args, options = {}) {
      
-     return $.api('Project', 'GetProjectLicenseSupportInfo', args, options);
+     return mdyAPI('Project', 'GetProjectLicenseSupportInfo', args, options);
    },
   /**
   * 获取网络有效成员数量
@@ -128,7 +128,7 @@ export default {
   **/
    getEffectiveUsersCount: function (args, options = {}) {
      
-     return $.api('Project', 'GetEffectiveUsersCount', args, options);
+     return mdyAPI('Project', 'GetEffectiveUsersCount', args, options);
    },
   /**
   * 获取网络注销记录
@@ -140,7 +140,7 @@ export default {
   **/
    getProjectLogOff: function (args, options = {}) {
      
-     return $.api('Project', 'GetProjectLogOff', args, options);
+     return mdyAPI('Project', 'GetProjectLogOff', args, options);
    },
   /**
   * 申请注销
@@ -153,7 +153,7 @@ export default {
   **/
    applyCancelProject: function (args, options = {}) {
      
-     return $.api('Project', 'ApplyCancelProject', args, options);
+     return mdyAPI('Project', 'ApplyCancelProject', args, options);
    },
   /**
   * 取消申请注销
@@ -165,7 +165,7 @@ export default {
   **/
    removeApplyCancelProject: function (args, options = {}) {
      
-     return $.api('Project', 'RemoveApplyCancelProject', args, options);
+     return mdyAPI('Project', 'RemoveApplyCancelProject', args, options);
    },
   /**
   * 取消高级模式试用授权
@@ -177,7 +177,7 @@ export default {
   **/
    removeProjectTrialLicense: function (args, options = {}) {
      
-     return $.api('Project', 'RemoveProjectTrialLicense', args, options);
+     return mdyAPI('Project', 'RemoveProjectTrialLicense', args, options);
    },
   /**
   * 获取我邀请加入网络成员的历史记录
@@ -191,7 +191,7 @@ export default {
   **/
    getInvitedUsersJoinProjectLog: function (args, options = {}) {
      
-     return $.api('Project', 'GetInvitedUsersJoinProjectLog', args, options);
+     return mdyAPI('Project', 'GetInvitedUsersJoinProjectLog', args, options);
    },
   /**
   * 获取网络集成类型
@@ -204,7 +204,7 @@ export default {
   **/
    getProjectSource: function (args, options = {}) {
      
-     return $.api('Project', 'GetProjectSource', args, options);
+     return mdyAPI('Project', 'GetProjectSource', args, options);
    },
   /**
   * 获取网络邀请人数赠送规则
@@ -216,7 +216,7 @@ export default {
   **/
    getInviteGiveRule: function (args, options = {}) {
      
-     return $.api('Project', 'GetInviteGiveRule', args, options);
+     return mdyAPI('Project', 'GetInviteGiveRule', args, options);
    },
   /**
   * 获取网络内待审批用户数量
@@ -228,7 +228,7 @@ export default {
   **/
    getProjectUnauditedUserCount: function (args, options = {}) {
      
-     return $.api('Project', 'GetProjectUnauditedUserCount', args, options);
+     return mdyAPI('Project', 'GetProjectUnauditedUserCount', args, options);
    },
   /**
   * 给用户发送安装手机App或企业客户端通知
@@ -242,7 +242,7 @@ export default {
   **/
    pushInstallClientMsg: function (args, options = {}) {
      
-     return $.api('Project', 'PushInstallClientMsg', args, options);
+     return mdyAPI('Project', 'PushInstallClientMsg', args, options);
    },
   /**
   * 绑定微信公众号
@@ -254,7 +254,7 @@ export default {
   **/
    bindingWeiXin: function (args, options = {}) {
      
-     return $.api('Project', 'BindingWeiXin', args, options);
+     return mdyAPI('Project', 'BindingWeiXin', args, options);
    },
   /**
   * 获取绑定的微信公众号信息
@@ -266,11 +266,12 @@ export default {
   **/
    getWeiXinBindingInfo: function (args, options = {}) {
      
-     return $.api('Project', 'GetWeiXinBindingInfo', args, options);
+     return mdyAPI('Project', 'GetWeiXinBindingInfo', args, options);
    },
   /**
   * 取消绑定微信公众号
   * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
   * @param {string} args.appId
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -278,7 +279,7 @@ export default {
   **/
    cancelBindingWeiXin: function (args, options = {}) {
      
-     return $.api('Project', 'CancelBindingWeiXin', args, options);
+     return mdyAPI('Project', 'CancelBindingWeiXin', args, options);
    },
   /**
   * 微信公众号绑定回调
@@ -292,7 +293,7 @@ export default {
   **/
    callBackWeiXinBinding: function (args, options = {}) {
      
-     return $.api('Project', 'CallBackWeiXinBinding', args, options);
+     return mdyAPI('Project', 'CallBackWeiXinBinding', args, options);
    },
   /**
   * 私有部署绑定微信公众号
@@ -307,7 +308,7 @@ export default {
   **/
    addTpAuthorizerInfo: function (args, options = {}) {
      
-     return $.api('Project', 'AddTpAuthorizerInfo', args, options);
+     return mdyAPI('Project', 'AddTpAuthorizerInfo', args, options);
    },
   /**
   * 获取所有专属算力实例
@@ -320,7 +321,7 @@ export default {
   **/
    getComputingInstances: function (args, options = {}) {
      
-     return $.api('Project', 'GetComputingInstances', args, options);
+     return mdyAPI('Project', 'GetComputingInstances', args, options);
    },
   /**
   * 获取专属算力实例详情
@@ -333,7 +334,7 @@ export default {
   **/
    getComputingInstanceDetail: function (args, options = {}) {
      
-     return $.api('Project', 'GetComputingInstanceDetail', args, options);
+     return mdyAPI('Project', 'GetComputingInstanceDetail', args, options);
    },
   /**
   * 更新专属算力实例名称
@@ -349,7 +350,7 @@ export default {
   **/
    updateComputingInstance: function (args, options = {}) {
      
-     return $.api('Project', 'UpdateComputingInstance', args, options);
+     return mdyAPI('Project', 'UpdateComputingInstance', args, options);
    },
   /**
   * 重试创建专属算力实例
@@ -363,6 +364,118 @@ export default {
   **/
    retryComputingInstance: function (args, options = {}) {
      
-     return $.api('Project', 'RetryComputingInstance', args, options);
+     return mdyAPI('Project', 'RetryComputingInstance', args, options);
+   },
+  /**
+  * 获取专属数据库实例创建数量限制值
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getDBInstanceLimit: function (args, options = {}) {
+     
+     return mdyAPI('Project', 'GetDBInstanceLimit', args, options);
+   },
+  /**
+  * 获取专属数据库实例
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getDBInstances: function (args, options = {}) {
+     
+     return mdyAPI('Project', 'GetDBInstances', args, options);
+   },
+  /**
+  * 创建专属数据库实例
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId
+  * @param {string} args.id
+  * @param {string} args.name
+  * @param {string} args.host
+  * @param {integer} args.port
+  * @param {string} args.account
+  * @param {string} args.password
+  * @param {string} args.dbName
+  * @param {string} args.other
+  * @param {} args.status
+  * @param {string} args.remark
+  * @param {string} args.createTime
+  * @param {} args.creator
+  * @param {integer} args.numberOfApp
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   createDBInstance: function (args, options = {}) {
+     
+     return mdyAPI('Project', 'CreateDBInstance', args, options);
+   },
+  /**
+  * 测试专属数据库连接
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId
+  * @param {string} args.id
+  * @param {string} args.name
+  * @param {string} args.host
+  * @param {integer} args.port
+  * @param {string} args.account
+  * @param {string} args.password
+  * @param {string} args.dbName
+  * @param {string} args.other
+  * @param {} args.status
+  * @param {string} args.remark
+  * @param {string} args.createTime
+  * @param {} args.creator
+  * @param {integer} args.numberOfApp
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   testConnection: function (args, options = {}) {
+     
+     return mdyAPI('Project', 'TestConnection', args, options);
+   },
+  /**
+  * 编辑专属数据库实例
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId
+  * @param {string} args.id
+  * @param {string} args.name
+  * @param {string} args.host
+  * @param {integer} args.port
+  * @param {string} args.account
+  * @param {string} args.password
+  * @param {string} args.dbName
+  * @param {string} args.other
+  * @param {} args.status
+  * @param {string} args.remark
+  * @param {string} args.createTime
+  * @param {} args.creator
+  * @param {integer} args.numberOfApp
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editDBInstance: function (args, options = {}) {
+     
+     return mdyAPI('Project', 'EditDBInstance', args, options);
+   },
+  /**
+  * 删除专属数据库实例
+  * @param {Object} args 请求参数
+  * @param {string} args.instanceId
+  * @param {string} args.projectId
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   removeDBInstance: function (args, options = {}) {
+     
+     return mdyAPI('Project', 'RemoveDBInstance', args, options);
    },
 };

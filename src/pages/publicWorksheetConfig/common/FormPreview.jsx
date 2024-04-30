@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import { SYS_CONTROLS_WORKFLOW } from 'src/pages/widgetConfig/config/widget.js';
 import PublicFormDisplay from '../../widgetConfig/widgetDisplay/publicFormDisplay';
-import { isRelateRecordTableControl } from 'src/pages/worksheet/util.js';
+import { isOldSheetList } from 'src/pages/widgetConfig/util';
 
 export default class FormPreview extends React.Component {
   static propTypes = {
@@ -32,8 +32,8 @@ export default class FormPreview extends React.Component {
           controls={controls
             .filter(c => !_.includes(SYS_CONTROLS_WORKFLOW.concat(['rowid']), c.controlId))
             .map(item => {
-              // 公开表单关联多条列表改成卡片显示，让配置能随意拖动
-              if (isRelateRecordTableControl(item)) {
+              // 公开表单关联多条列表(旧)改成卡片显示，让配置能随意拖动
+              if (isOldSheetList(item)) {
                 return { ...item, advancedSetting: Object.assign({}, item.advancedSetting, { showtype: '1' }) };
               }
               return item;

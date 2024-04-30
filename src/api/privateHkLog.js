@@ -13,8 +13,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getLogs: function (args, options = {}) {
-     
-     return $.api('PrivateHkLog', 'GetLogs', args, options);
+
+     return mdyAPI('PrivateHkLog', 'GetLogs', args, options);
    },
   /**
   * 下载日志
@@ -24,7 +24,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    downloadLogs: function (args, options = {}) {
-     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return $.api('PrivateHkLog', 'DownloadLogs', args, options);
+     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' });
+     return mdyAPI('PrivateHkLog', 'DownloadLogs', args, options);
    },
 };

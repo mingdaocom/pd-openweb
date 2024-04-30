@@ -86,12 +86,13 @@ export default class ChartDialog extends Component {
     }
   }
   getReportConfigDetail(reportType) {
-    const { report = {}, permissions, pageId, ownerId, sourceType, filters, filtersGroup, customPageConfig = {} } = this.props;
+    const { base, report = {}, permissions, pageId, ownerId, sourceType, filters, filtersGroup, linkageFiltersGroup, customPageConfig = {}, appType } = this.props;
     const { reportId, worksheetId, viewId, settingVisible, sheetVisible } = this.state;
     this.props.changeBase({
       permissions,
       report,
       sourceType,
+      appType: base.appType || appType,
       isPublic: !ownerId,
       sheetId: worksheetId,
       viewId,
@@ -99,7 +100,8 @@ export default class ChartDialog extends Component {
       settingVisible,
       sheetVisible,
       filters,
-      filtersGroup
+      filtersGroup,
+      linkageFiltersGroup
     });
     this.props.getReportConfigDetail({
       reportId,
@@ -118,9 +120,13 @@ export default class ChartDialog extends Component {
     });
   }
   handleSave = () => {
+    const { appType } = this.props.base;
     const data = getNewReport(this.props);
     delete data.filter.filterControls;
-    reportConfig.saveReportConfig(data).then(result => {
+    reportConfig.saveReportConfig({
+      ...data,
+      appType
+    }).then(result => {
       const { updateDialogVisible } = this.props;
       updateDialogVisible({
         dialogVisible: false,
@@ -202,14 +208,14 @@ export default class ChartDialog extends Component {
     this.getReportConfigDetail(type);
   }
   renderHeader() {
-    const { report, permissions, isCharge, isLock, permissionType, sourceType = 0, currentReport, reportData, worksheetInfo, base, onRemove, ownerId } = this.props;
+    const { report, permissions, isCharge, isLock, permissionType, sourceType = 0, currentReport, reportData, worksheetInfo, base, onRemove, ownerId, projectId, onCancelFavorite } = this.props;
     const { saveLoading, settingVisible } = this.state;
     const isPublicShareChart = location.href.includes('public/chart');
     const isPublicSharePage = window.shareAuthor || _.get(window, 'shareState.shareId');
     return (
       <div className="header valignWrapper">
         <Header {...this.props} />
-        <div className="flexRow valignWrapper">
+        <div className="flexRow valignWrapper settingWrapper">
           {settingVisible && (
             <ConfigProvider autoInsertSpaceInButton={false}>
               <Button className="buttonSave" block shape="round" type="primary" onClick={this.handleVerifySave}>
@@ -217,7 +223,7 @@ export default class ChartDialog extends Component {
               </Button>
             </ConfigProvider>
           )}
-          {!settingVisible && report.id && (sourceType !== 2 && sourceType ? isCharge : permissions) && (
+          {!settingVisible && report.id && (sourceType === 1 ? isCharge : permissions) && (
             <Tooltip title={_l('设置')} placement="bottom">
               <Icon
                 icon="settings"
@@ -246,24 +252,30 @@ export default class ChartDialog extends Component {
             <MoreOverlay
               className="Gray_9e pointer mLeft16 Font24"
               reportType={currentReport.reportType}
-              reportStatus={reportData.reportType}
+              reportData={reportData}
+              reportStatus={reportData.status}
+              favorite={reportData.favorite}
+              onCancelFavorite={onCancelFavorite}
               permissions={permissions}
               isCharge={isCharge}
               isLock={isLock}
               permissionType={permissionType}
+              sourceType={sourceType}
               isMove={sourceType ? false : permissions && isCharge}
               report={report}
               filter={currentReport.filter}
               exportData={{
                 filters: base.filters,
                 filtersGroup: base.filtersGroup,
+                linkageFiltersGroup: base.linkageFiltersGroup,
                 sorts: currentReport.sorts,
                 particleSizeType: currentReport.particleSizeType,
                 ...currentReport.filter
               }}
               sheetVisible={base.sheetVisible}
+              projectId={projectId}
               appId={worksheetInfo.appId}
-              worksheetId={sourceType ? worksheetInfo.worksheetId : null}
+              worksheetId={reportData.appId}
               onRemove={sourceType ? false : (permissions && report.id && onRemove)}
               ownerId={ownerId}
             />
@@ -327,7 +339,7 @@ export default class ChartDialog extends Component {
     );
   }
   renderChart() {
-    const { projectId, base, themeColor, customPageConfig = {} } = this.props;
+    const { projectId, base, isCharge, themeColor, customPageConfig = {} } = this.props;
     const { settingVisible, scopeVisible } = this.state;
     return (
       <Chart
@@ -337,6 +349,7 @@ export default class ChartDialog extends Component {
         sheetVisible={base.sheetVisible}
         settingVisible={settingVisible}
         scopeVisible={scopeVisible}
+        isCharge={isCharge}
         renderHeaderDisplaySetup={this.renderHeaderDisplaySetup}
         onChangeSheetVisible={(visible) => {
           this.handleChangeSheetVisible(visible);
@@ -396,7 +409,10 @@ export default class ChartDialog extends Component {
               </Tabs.TabPane>
               {![reportTypes.GaugeChart, reportTypes.ProgressChart].includes(currentReport.reportType) && (
                 <Tabs.TabPane tab={_l('分析')} key="analyse" disabled={reportData.status <= 0}>
-                  <ChartAnalyse />
+                  <ChartAnalyse
+                    sourceType={sourceType}
+                    reportId={this.state.reportId}
+                  />
                 </Tabs.TabPane>
               )}
             </Tabs>
@@ -495,13 +511,13 @@ export default class ChartDialog extends Component {
     );
   }
   render() {
-    const { nodialog, reportData, detailLoading } = this.props;
+    const { nodialog, reportData, detailLoading, className } = this.props;
 
     const content = detailLoading || _.isEmpty(reportData) ? <Loading /> : this.renderContent();
 
     if (nodialog) {
       return (
-        <div className="ChartDialog">
+        <div className={cx('ChartDialog', className)}>
           {this.renderHeader()}
           <div className="flexRow flex overflowHidden">
             {content}
@@ -512,7 +528,7 @@ export default class ChartDialog extends Component {
 
     const dialogProps = {
       dialogClasses: 'ChartDialogContainer',
-      className: 'ChartDialog',
+      className: cx('ChartDialog', className),
       okText: _l('确认'),
       width: document.body.clientWidth - 64,
       type: 'fixed',

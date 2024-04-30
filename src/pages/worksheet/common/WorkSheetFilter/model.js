@@ -124,8 +124,8 @@ class Actions {
     });
   }
   @autobind
-  addCondition(control, groupIndex = 0) {
-    const condition = getDefaultCondition(control);
+  addCondition(control, groupIndex = 0, from) {
+    const condition = getDefaultCondition(control, from);
     this.dispatch({
       type: 'ADD_CONDITION',
       condition: condition,

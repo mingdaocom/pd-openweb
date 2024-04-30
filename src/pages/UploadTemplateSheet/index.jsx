@@ -62,6 +62,16 @@ export default class UploadTemplateSheet extends React.Component {
           type: 16,
           size: '40*10',
         },
+        {
+          controlId: 'printerid',
+          controlName: _l('打印人'),
+          type: 26,
+        },
+        {
+          controlId: 'ptime',
+          controlName: _l('打印时间'),
+          type: 16,
+        },
       ],
       cardControls: [],
 
@@ -96,6 +106,7 @@ export default class UploadTemplateSheet extends React.Component {
         const { type } = await sheetAjax.getWorksheetInfo({
           getTemplate: true,
           worksheetId: controls[i].dataSource,
+          relationWorksheetId: worksheetId,
         });
 
         // 判断是否为空白创建的子表
@@ -135,9 +146,9 @@ export default class UploadTemplateSheet extends React.Component {
 
         // 是否为关联记录（列表）、子表
         const isRalate =
-          (type == 29 && advancedSetting && advancedSetting.showtype === '2') ||
+          (type == 29 && advancedSetting && ['2', '5', '6'].includes(advancedSetting.showtype)) ||
           type == 34 ||
-          (type == 51 && advancedSetting && advancedSetting.showtype === '2');
+          (type == 51 && advancedSetting && ['2', '5', '6'].includes(advancedSetting.showtype));
         if (isRalate) cardControls.push(controls[i]);
         else commonControls.push(controls[i]);
       }
@@ -226,20 +237,23 @@ export default class UploadTemplateSheet extends React.Component {
     );
   };
 
-  strQrcodeField = (it, alias = false) => {
+  strQrcodeField = (it, alias = false, relation, hasS = false) => {
     const { controls } = this.state;
     const { enumDefault, dataSource } = it;
+    const worksheetControls = relation ? relation.controlList : controls;
     let ISBN = 'ISBN号';
     if (it.enumDefault2 === 1) {
       ISBN = 'privatelink';
     } else if (alias) {
       ISBN = it.dataSource.slice(1, -1);
     } else {
-      let control = controls.find(l => l.controlId === it.dataSource.slice(1, -1));
+      let control = worksheetControls.find(l => l.controlId === it.dataSource.slice(1, -1));
       control && (ISBN = control.controlName);
     }
 
-    return `[${enumDefault === 1 ? 'barcode' : 'qrcode'}]${dataSource === '$rowid$' ? 'recordid' : ISBN}${
+    return `[${enumDefault === 1 ? 'barcode' : 'qrcode'}]${
+      relation ? (alias ? relation.controlId : relation.controlName) + '.' : ''
+    }${dataSource === '$rowid$' ? 'recordid' : ISBN}${hasS ? '[S]' : ''}${
       enumDefault === 1 ? '$[40*10]$' : '$[20*20]$'
     }`;
   };
@@ -315,14 +329,16 @@ export default class UploadTemplateSheet extends React.Component {
         it.showControls.length &&
         // 是否以卡片形式展现关联表
         it.advancedSetting &&
-        it.advancedSetting.showtype !== '2' ? (
+        !['2', '5', '6'].includes(it.advancedSetting.showtype) ? (
           <React.Fragment>
             {/** 字段列表 */}
             {showControls.map(o => {
               const control = (it.relationControls || []).find(a => o === a.controlId);
               // 过滤掉关联字段列表类型
               const isRealtionList =
-                [29, 51].includes(control.type) && control.advancedSetting && control.advancedSetting.showtype === '2';
+                [29, 51].includes(control.type) &&
+                control.advancedSetting &&
+                ['2', '5', '6'].includes(control.advancedSetting.showtype);
               // 是否为子表。分割线。备注
               const isNotSupport = [21, 34].concat(controlNo).includes(control.type);
               return isRealtionList || isNotSupport ? '' : this.renderRelaItem(it, control, true);
@@ -364,7 +380,8 @@ export default class UploadTemplateSheet extends React.Component {
                 const { type, advancedSetting } = o;
 
                 // 过滤掉关联字段列表类型
-                const isRealtionList = [29, 51].includes(type) && advancedSetting && advancedSetting.showtype === '2';
+                const isRealtionList =
+                  [29, 51].includes(type) && advancedSetting && ['2', '5', '6'].includes(advancedSetting.showtype);
 
                 // 是否为子表、分割线、备注
                 const isNotSupport = [21, 34].concat(controlNo).includes(type);
@@ -394,15 +411,27 @@ export default class UploadTemplateSheet extends React.Component {
    * 关联表字段
    */
   renderRelaItem = (it, o, isRela) => {
+    let str = `${it.controlName}.${o.controlName}`;
+    let strAlias = `${it.alias || it.controlId}.${o.alias || o.controlId}`;
+
+    if (o.type === 47) {
+      str = this.strQrcodeField(o, false, it, isRela);
+      strAlias = this.strQrcodeField(o, true, it, isRela);
+    }
+
+    if (o.type === 47 && o.enumDefault2 === 1) {
+      return null;
+    }
+
     return (
       <div className="list">
         <span className="textIndent">{`${o.controlName}`}</span>
         <span className="copySpan">
-          {`#{${it.controlName}.${o.controlName}${isRela ? '[S]' : ''}${this.strForFile(o)}}`}
+          {`#{${str}${o.type !== 47 && isRela ? '[S]' : ''}${this.strForFile(o)}}`}
           {this.renderIcon()}
         </span>
         <span className="copySpan">
-          {`#{${it.alias || it.controlId}.${o.alias || o.controlId}${isRela ? '[S]' : ''}${this.strForFile(o)}}`}
+          {`#{${strAlias}${o.type !== 47 && isRela ? '[S]' : ''}${this.strForFile(o)}}`}
           {this.renderIcon()}
         </span>
       </div>
@@ -484,7 +513,7 @@ export default class UploadTemplateSheet extends React.Component {
               <Support
                 className="mRight5 supportVerticalTop"
                 type={3}
-                href="https://help.mingdao.com/operation18"
+                href="https://help.mingdao.com/worksheet/print-template-rules"
                 text={_l('帮助文档')}
               />
               {_l('了解更多')}
@@ -572,7 +601,9 @@ export default class UploadTemplateSheet extends React.Component {
 
                         // 过滤掉关联字段列表类型
                         const isRealtionList =
-                          [29, 51].includes(type) && advancedSetting && advancedSetting.showtype === '2';
+                          [29, 51].includes(type) &&
+                          advancedSetting &&
+                          ['2', '5', '6'].includes(advancedSetting.showtype);
 
                         // 是否为子表。分割线。备注
                         const isNotSupport = controlNo.includes(type) || type == 34;
@@ -717,7 +748,7 @@ export default class UploadTemplateSheet extends React.Component {
                   '7. 批量打印 Word 模板时，默认所有数据连续打印，如需实现分页功能（每条数据另起一页），需在模板中的第一个段落配置段前分页。设置方法可参考',
                 )}
               </span>
-              <Support type={3} href="https://help.mingdao.com/operation20" text={_l('这里')} />。
+              <Support type={3} href="https://help.mingdao.com/worksheet/batch-print" text={_l('这里')} />。
               <span>{_l(' Excel 模板批量打印时会自动分页打印，无需特殊设置。')}</span>
             </p>
             <br />
@@ -727,7 +758,7 @@ export default class UploadTemplateSheet extends React.Component {
                 <Support
                   className="mRight5 supportVerticalTop"
                   type={3}
-                  href="https://help.mingdao.com/operation17"
+                  href="https://help.mingdao.com/worksheet/word-print-template"
                   text={_l('帮助文档')}
                 />
               </span>

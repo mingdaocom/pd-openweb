@@ -16,6 +16,7 @@ export default class QiniuUpload extends React.Component {
     onBeforeUpload: PropTypes.func,
     onError: PropTypes.func,
     onUploadComplete: PropTypes.func,
+    onRemoveUploadingFile: PropTypes.func,
   };
 
   componentDidMount() {
@@ -28,7 +29,9 @@ export default class QiniuUpload extends React.Component {
       onBeforeUpload = () => {},
       onError = () => {},
       onUploadComplete = () => {},
+      onRemoveUploadingFile,
       bucket,
+      getTokenParam = {},
     } = this.props;
 
     if (this.upload) {
@@ -38,6 +41,8 @@ export default class QiniuUpload extends React.Component {
           {
             browse_button: this.upload,
             bucket,
+            getTokenParam,
+            onRemoveUploadingFile,
             init: {
               Init: onInit,
               FilesAdded: (up, files) => {
@@ -51,31 +56,13 @@ export default class QiniuUpload extends React.Component {
                 up.settings.multipart_params['x:filePath'] = file.key.replace(file.fileName, '');
                 up.settings.multipart_params['x:fileName'] = file.fileName.replace(/\.[^\.]*$/, '');
                 up.settings.multipart_params['x:originalFileName'] = encodeURIComponent(
-                  file.name.indexOf('.') > -1
-                    ? file.name
-                        .split('.')
-                        .slice(0, -1)
-                        .join('.')
-                    : file.name,
+                  file.name.indexOf('.') > -1 ? file.name.split('.').slice(0, -1).join('.') : file.name,
                 );
                 up.settings.multipart_params['x:fileExt'] = fileExt;
                 onBeforeUpload(up, file);
               },
               FileUploaded: (up, file, info) => {
-                const response = info.response;
-
-                // 处理分片上传之后返回值少了的问题
-                if (!response.serverName || response.serverName === 'null') {
-                  response.fileExt = `.${File.GetExt(file.name)}`;
-                  response.fileName = File.GetName(file.name);
-                  response.filePath = file.key.replace(new RegExp(file.fileName), '');
-                  response.originalFileName = File.GetName(file.name);
-                  response.serverName = file.serverName;
-                } else {
-                  response.originalFileName = decodeURIComponent(response.originalFileName);
-                }
-
-                onUploaded(up, file, response);
+                onUploaded(up, file, info.response);
               },
               UploadProgress: (uploader, file) => {
                 onUploadProgress(uploader, file);

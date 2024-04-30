@@ -14,7 +14,7 @@ var packageVersion = {
   add: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/add';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1packageadd', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v1packageadd', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 创建API
@@ -27,7 +27,7 @@ var packageVersion = {
   addApi: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/addApi';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1packageaddApi', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v1packageaddApi', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 授权
@@ -40,7 +40,7 @@ var packageVersion = {
   authorize: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/authorize';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1packageauthorize', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v1packageauthorize', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 申请授权应用
@@ -53,7 +53,7 @@ var packageVersion = {
   authorizeApkIds: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/authorizeApkIds';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1packageauthorizeApkIds', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v1packageauthorizeApkIds', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 复制
@@ -66,7 +66,7 @@ var packageVersion = {
   copy: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/copy';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1packagecopy', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v1packagecopy', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 获取API管理数量
@@ -79,7 +79,7 @@ var packageVersion = {
   count: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/count';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1packagecount', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v1packagecount', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 删除API管理
@@ -92,7 +92,7 @@ var packageVersion = {
   delete: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/delete';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1packagedelete', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v1packagedelete', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 删除API
@@ -105,7 +105,7 @@ var packageVersion = {
   deleteApi: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/deleteApi';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1packagedeleteApi', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v1packagedeleteApi', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 执行api
@@ -118,7 +118,7 @@ var packageVersion = {
   executeApi: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/executeApi';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1packageexecuteApi', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v1packageexecuteApi', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 获取API详情
@@ -131,7 +131,7 @@ var packageVersion = {
   getApiDetail: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/getApiDetail';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1packagegetApiDetail', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v1packagegetApiDetail', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 获取API列表
@@ -144,7 +144,7 @@ var packageVersion = {
   getApiList: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/getApiList';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1packagegetApiList', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v1packagegetApiList', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 获取API被引用列表
@@ -157,7 +157,7 @@ var packageVersion = {
   getApiRelationList: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/getApiRelationList';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1packagegetApiRelationList', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v1packagegetApiRelationList', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 获取授权申请列表
@@ -170,7 +170,7 @@ var packageVersion = {
   getAuthorizationList: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/getAuthorizationList';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1packagegetAuthorizationList', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v1packagegetAuthorizationList', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 获取API管理详情
@@ -183,7 +183,7 @@ var packageVersion = {
   getDetail: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/getDetail';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1packagegetDetail', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v1packagegetDetail', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 获取历史详情
@@ -196,7 +196,7 @@ var packageVersion = {
   getHistoryDetail: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/getHistoryDetail';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'v1packagegetHistoryDetail', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'v1packagegetHistoryDetail', args, $.extend(base, options));
   },
   /**
    * 获取历史运行列表
@@ -217,7 +217,7 @@ var packageVersion = {
   getHistoryList: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/getHistoryList';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'v1packagegetHistoryList', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'v1packagegetHistoryList', args, $.extend(base, options));
   },
   /**
    * 获取API管理列表
@@ -230,7 +230,7 @@ var packageVersion = {
   getList: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/getList';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1packagegetList', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v1packagegetList', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 安装
@@ -243,7 +243,7 @@ var packageVersion = {
   install: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/install';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1packageinstall', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v1packageinstall', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * API排序
@@ -256,7 +256,7 @@ var packageVersion = {
   sortApis: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/sortApis';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1packagesortApis', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v1packagesortApis', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 修改管理
@@ -269,7 +269,7 @@ var packageVersion = {
   update: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/update';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1packageupdate', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v1packageupdate', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 开启关闭授权
@@ -282,7 +282,7 @@ var packageVersion = {
   updateAuthorization: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/updateAuthorization';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1packageupdateAuthorization', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v1packageupdateAuthorization', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 更新申请授权应用操作的状态
@@ -295,7 +295,7 @@ var packageVersion = {
   updateAuthorizeStatus: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/updateAuthorizeStatus';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1packageupdateAuthorizeStatus', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v1packageupdateAuthorizeStatus', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 公开的排序
@@ -308,7 +308,7 @@ var packageVersion = {
   updateIndex: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/updateIndex';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1packageupdateIndex', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v1packageupdateIndex', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 公开的修改安装量
@@ -321,7 +321,7 @@ var packageVersion = {
   updateInstallCount: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/updateInstallCount';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1packageupdateInstallCount', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v1packageupdateInstallCount', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 公开的修改状态
@@ -334,7 +334,7 @@ var packageVersion = {
   updateStatus: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/updateStatus';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1packageupdateStatus', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v1packageupdateStatus', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 申请上架
@@ -347,7 +347,7 @@ var packageVersion = {
   upper: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/upper';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1packageupper', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v1packageupper', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 验证没有安装的接口
@@ -360,7 +360,7 @@ var packageVersion = {
   validate: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/validate';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1packagevalidate', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v1packagevalidate', JSON.stringify(args), $.extend(base, options));
   },
 };
 export default packageVersion;

@@ -164,7 +164,14 @@ export default function WidgetVerify(props) {
             <Checkbox
               size="small"
               checked={checkrange === '1'}
-              onClick={checked => onChange(handleAdvancedSettingChange(data, { checkrange: checked ? '0' : '1' }))}
+              onClick={checked => {
+                let tempData = { checkrange: checked ? '0' : '1' };
+                if (type === 6 && checked) {
+                  tempData.min = '';
+                  tempData.max = '';
+                }
+                onChange(handleAdvancedSettingChange(data, tempData));
+              }}
               text={title}
             />
           </div>

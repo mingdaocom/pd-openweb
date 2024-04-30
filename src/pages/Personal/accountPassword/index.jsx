@@ -10,7 +10,7 @@ import { initBindAcoount } from '../components/InitBindAccountDialog';
 import { validateFunc } from '../components/ValidateInfo';
 import accountController from 'src/api/account';
 import cx from 'classnames';
-import captcha from 'src/components/captcha';
+import { captcha } from 'ming-ui/functions';
 import common from '../common';
 import { encrypt } from 'src/util';
 
@@ -81,8 +81,9 @@ export default class AccountChart extends React.Component {
 
   getData = () => {
     this.setState({ loading: true });
-    $.when(this.getAccount(), this.getInfo()).then((account, info) => {
+    Promise.all([this.getAccount(), this.getInfo()]).then(([account, info]) => {
       this.setState({
+        isNullCredential: account.isNullCredential, // 未设置过密码
         email: account.email,
         isVerify: account.isVerify,
         mobilePhone: account.mobilePhone,
@@ -151,7 +152,7 @@ export default class AccountChart extends React.Component {
           alert(_l('取消绑定失败'), 2);
         }
       })
-      .fail();
+      .catch();
   }
 
   showNewWindow(url, width, height, left, top) {
@@ -182,7 +183,7 @@ export default class AccountChart extends React.Component {
     validateFunc({
       title: type === 'email' ? _l('绑定邮箱') : _l('绑定手机号码'),
       type,
-      des: '您需要先绑定手机号，才能继续创建组织',
+      des: '',
       showStep: true,
       callback: function () {
         location.reload();
@@ -243,7 +244,7 @@ export default class AccountChart extends React.Component {
           alert(_l('操作失败'), 2);
         }
       })
-      .fail();
+      .catch();
   }
 
   // 隐私设置
@@ -387,7 +388,16 @@ export default class AccountChart extends React.Component {
   };
 
   render() {
-    const { email, mobilePhone, loading, isVerify, needInit, workBind = {}, editPasswordVisible } = this.state;
+    const {
+      email,
+      mobilePhone,
+      loading,
+      isVerify,
+      needInit,
+      workBind = {},
+      editPasswordVisible,
+      isNullCredential,
+    } = this.state;
     const mobilePhoneWarnLight = md.global.Account.guideSettings.accountMobilePhone && !mobilePhone;
     const emailWarnLight = md.global.Account.guideSettings.accountEmail && (!email || !isVerify);
 
@@ -413,35 +423,39 @@ export default class AccountChart extends React.Component {
               {mobilePhone || _l('未绑定')}
               {mobilePhoneWarnLight && <span className="warnLight warnLightMEPosition warnLightPhone" />}
             </span>
-            {mobilePhone ? (
+            {md.global.SysSettings.enableEditAccountInfo && (
               <Fragment>
-                <span
-                  className="Hand ThemeColor3 Hover_49 mLeft24 mRight24"
-                  onClick={() => this.handleChangeAccount('mobile')}
-                >
-                  {_l('修改')}
-                </span>
-                <span className="Hand ThemeColor3 Hover_49" onClick={() => this.handleUnBindAccount('mobile')}>
-                  {_l('解绑')}
-                </span>
+                {mobilePhone ? (
+                  <Fragment>
+                    <span
+                      className="Hand ThemeColor3 Hover_49 mLeft24 mRight24"
+                      onClick={() => this.handleChangeAccount('mobile')}
+                    >
+                      {_l('修改')}
+                    </span>
+                    <span className="Hand ThemeColor3 Hover_49" onClick={() => this.handleUnBindAccount('mobile')}>
+                      {_l('解绑')}
+                    </span>
+                  </Fragment>
+                ) : (
+                  <span
+                    className="Hand ThemeColor3 Hover_49 mLeft24"
+                    onClick={() => {
+                      if (needInit) {
+                        initBindAcoount({
+                          title: _l('绑定手机号'),
+                          showFooter: false,
+                          getData: this.getData,
+                        });
+                      } else {
+                        this.handleBindAccount('mobile');
+                      }
+                    }}
+                  >
+                    {_l('绑定')}
+                  </span>
+                )}
               </Fragment>
-            ) : (
-              <span
-                className="Hand ThemeColor3 Hover_49 mLeft24"
-                onClick={() => {
-                  if (needInit) {
-                    initBindAcoount({
-                      title: _l('绑定手机号'),
-                      showFooter: false,
-                      getData: this.getData,
-                    });
-                  } else {
-                    this.handleBindAccount('mobile');
-                  }
-                }}
-              >
-                {_l('绑定')}
-              </span>
             )}
           </span>
           {this.renderRedDot(mobilePhoneWarnLight, 'accountMobilePhone')}
@@ -455,35 +469,44 @@ export default class AccountChart extends React.Component {
                   {email ? (
                     <span>
                       <span className={cx(isVerify ? '' : 'Gray_9e mRight12')}>{email}</span>
-                      {!isVerify && <span>{_l('未验证')}</span>}
+                      {!isVerify && md.global.SysSettings.enableEditAccountInfo && <span>{_l('未验证')}</span>}
                     </span>
-                  ) : (
+                  ) : md.global.SysSettings.enableEditAccountInfo ? (
                     _l('未绑定')
+                  ) : (
+                    ''
                   )}
                   {emailWarnLight ? <span className="warnLight warnLightMEPosition warnLightEmail" /> : null}
                 </span>
-                {email ? (
+                {md.global.SysSettings.enableEditAccountInfo && (
                   <Fragment>
-                    <span
-                      className="Hand ThemeColor3 Hover_49 mLeft24 mRight24"
-                      onClick={() => this.handleChangeAccount('email')}
-                    >
-                      {_l('修改')}
-                    </span>
-                    {isVerify ? (
-                      <span className="Hand ThemeColor3 Hover_49" onClick={() => this.handleUnBindAccount('email')}>
-                        {_l('解绑')}
-                      </span>
+                    {email ? (
+                      <Fragment>
+                        <span
+                          className="Hand ThemeColor3 Hover_49 mLeft24 mRight24"
+                          onClick={() => this.handleChangeAccount('email')}
+                        >
+                          {_l('修改')}
+                        </span>
+                        {isVerify ? (
+                          <span className="Hand ThemeColor3 Hover_49" onClick={() => this.handleUnBindAccount('email')}>
+                            {_l('解绑')}
+                          </span>
+                        ) : (
+                          <span className="Hand ThemeColor3 Hover_49" onClick={() => this.handleReviewEmail()}>
+                            {_l('验证')}
+                          </span>
+                        )}
+                      </Fragment>
                     ) : (
-                      <span className="Hand ThemeColor3 Hover_49" onClick={() => this.handleReviewEmail()}>
-                        {_l('验证')}
+                      <span
+                        className="Hand ThemeColor3 Hover_49 mLeft24"
+                        onClick={() => this.handleBindAccount('email')}
+                      >
+                        {_l('绑定')}
                       </span>
                     )}
                   </Fragment>
-                ) : (
-                  <span className="Hand ThemeColor3 Hover_49 mLeft24" onClick={() => this.handleBindAccount('email')}>
-                    {_l('绑定')}
-                  </span>
                 )}
               </span>
               {this.renderRedDot(emailWarnLight, 'accountEmail')}
@@ -491,7 +514,7 @@ export default class AccountChart extends React.Component {
             <div className="accountRowItem">
               <div className="accountLabel Gray_75">{_l('密码')}</div>
               <span className="Hand ThemeColor3 Hover_49" onClick={() => this.setState({ editPasswordVisible: true })}>
-                {_l('修改')}
+                {isNullCredential ? _l('设置') : _l('修改')}
               </span>
             </div>
           </Fragment>
@@ -527,13 +550,16 @@ export default class AccountChart extends React.Component {
         <div className="Font17 Bold Gray mBottom40 mTop20">{_l('隐私')}</div>
         {this.joinFriend()}
         <Dialog
-          title={_l('修改密码')}
+          title={isNullCredential ? _l('设置密码') : _l('修改密码')}
           showFooter={false}
           visible={editPasswordVisible}
           onCancel={() => this.setState({ editPasswordVisible: false })}
           className="editPasswordDialogId"
         >
-          <EditPassword closeDialog={() => this.setState({ editPasswordVisible: false })} />
+          <EditPassword
+            isNullCredential={isNullCredential}
+            closeDialog={() => this.setState({ editPasswordVisible: false })}
+          />
         </Dialog>
       </div>
     );

@@ -10,10 +10,11 @@ import { isRelateMoreList } from 'src/pages/FormSet/components/columnRules/confi
 import { onValidator } from './DataFormat';
 import { controlState } from './utils';
 import { FORM_ERROR_TYPE } from './config';
-import { accDiv } from 'src/util';
+import { accDiv, accMul } from 'src/util';
 import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting';
 import _ from 'lodash';
 import { filterEmptyChildTableRows } from 'worksheet/util';
+import { toFixed } from '../../../util';
 
 export const isEmptyValue = value => {
   return _.isUndefined(value) || _.isNull(value) || String(value).trim() === '';
@@ -307,7 +308,7 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
       ) {
         compareValue = currentControl.value;
         // 日期或时间字段根据显示格式处理数据
-      } else if (_.includes([17, 18, 33, 34, 35, 36], filterType) && _.includes([4, 10], conditionGroupType)) {
+      } else if (_.includes([17, 18, 33, 34, 35, 36, 37, 38], filterType) && _.includes([4, 10], conditionGroupType)) {
         compareValue = currentControl.value;
         //是(等于)、不是(不等于) && (OPTIONS && (单选) || USER)
       } else if (
@@ -342,7 +343,7 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
     }
 
     // 时间类显示类型
-    if ((_.includes[(15, 16, 46)], control.type)) {
+    if (_.includes([15, 16, 46], control.type)) {
       formatMode = getFormatMode(control, currentControl, conditionGroupType);
       timeLevel = TIME_OPTIONS[TIME_MODE_OPTIONS[formatMode]];
       // 今天、昨天、明天，对比单位天
@@ -357,11 +358,13 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
       return (con.originType === 37 || con.type === 31 || (con.originType === 30 && con.sourceControltype === 37)) &&
         v &&
         /^\d+\.\d+$/.test(`${v}`)
-        ? accDiv((parseFloat(v) * 100).toFixed(isNumShow ? con.dot + 2 : con.dot), 100)
+        ? accDiv(parseFloat(toFixed(accMul(parseFloat(v), 100), isNumShow ? con.dot + 2 : con.dot)), 100)
         : v;
     }
     value = formatValueByUnit(value, control);
     compareValue = formatValueByUnit(compareValue, currentControl);
+
+    let store, state;
 
     switch (filterType) {
       //   LIKE: 1, // 包含
@@ -732,7 +735,7 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
               return safeParse(value).length <= 0;
             }
           case CONTROL_FILTER_WHITELIST.RELATE_RECORD.value:
-            if (showtype === '2') {
+            if (_.includes(['2', '5', '6'], showtype)) {
               //关联表 列表
               if (_.isArray(value)) {
                 return value.length === 0;
@@ -746,18 +749,20 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
               if (!value) {
                 return !value;
               } else {
-                return safeParse(value).length <= 0 || (typeof value === 'string' && value.startsWith('deleteRowIds'));
+                return (
+                  safeParse(value).length <= 0 ||
+                  (typeof value === 'string' && value.startsWith('deleteRowIds')) ||
+                  value === '0'
+                );
               }
             }
-          case CONTROL_FILTER_WHITELIST.SUBLIST.value: //子表
-            if (!value) {
-              return !value;
+          case CONTROL_FILTER_WHITELIST.SUBLIST.value: // 子表
+            store = control.store;
+            state = store && store.getState();
+            if (state && state.rows && !state.baseLoading) {
+              return filterEmptyChildTableRows(state.rows).length <= 0;
             } else {
-              if (value.rows) {
-                return filterEmptyChildTableRows(value.rows).length <= 0;
-              } else {
-                return value === '0';
-              }
+              return value === '0' || !value;
             }
           default:
             return true;
@@ -811,7 +816,7 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
               return safeParse(value).length > 0;
             }
           case CONTROL_FILTER_WHITELIST.RELATE_RECORD.value:
-            if (showtype === '2') {
+            if (_.includes(['2', '5', '6'], showtype)) {
               //关联表 列表
               if (_.isArray(value)) {
                 return value.length !== 0;
@@ -828,15 +833,13 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
                 return safeParse(value).length > 0;
               }
             }
-          case CONTROL_FILTER_WHITELIST.SUBLIST.value: //子表
-            if (!value) {
-              return !!value;
+          case CONTROL_FILTER_WHITELIST.SUBLIST.value: // 子表
+            store = control.store;
+            state = store && store.getState();
+            if (state && state.rows && !state.baseLoading) {
+              return filterEmptyChildTableRows(state.rows).length > 0;
             } else {
-              if (value.rows) {
-                return value.rows.length > 0;
-              } else {
-                return value !== '0';
-              }
+              return Number(value) > 0;
             }
           default:
             return true;
@@ -1296,7 +1299,7 @@ const flattenArr = (obj = {}) => {
   }, []);
 };
 
-const getResult = (arr, index, result, ava) => {
+export const getResult = (arr, index, result, ava) => {
   if (!index) {
     return result;
   } else {
@@ -1445,7 +1448,7 @@ export const replaceStr = (str, index, value) => {
 };
 
 // 更新业务规则权限属性
-const updateDataPermission = ({ attrs = [], it, checkRuleValidator, from, item = {} }) => {
+export const updateDataPermission = ({ attrs = [], it, checkRuleValidator, item = {} }) => {
   //子表或关联记录
   const isSubList = _.includes([29, 34], item.type);
   let fieldPermission = it.fieldPermission || '111';
@@ -1615,7 +1618,6 @@ export const updateRulesData = ({
               attrs: relateRuleType['child'][id],
               it: re,
               checkRuleValidator,
-              from,
               item: it,
             });
           }
@@ -1625,7 +1627,6 @@ export const updateRulesData = ({
             attrs: relateRuleType['parent'][it.controlId],
             it,
             checkRuleValidator,
-            from,
           });
         }
       });
@@ -1651,7 +1652,7 @@ export const updateRulesData = ({
                 availableControlIds.map(controlId => {
                   if (!relateRuleType['errorMsg'][controlId]) {
                     //错误提示(checkAllUpdate为true全操作，
-                    // ruleType === 1 校验规则，指定字段塞错误
+                    // 有变更时，ruleType === 1 指定字段直接塞错误
                     //否则操作变更的字段updateControlIds
 
                     const pushError = (id, msg) => {
@@ -1662,7 +1663,10 @@ export const updateRulesData = ({
                       }
                     };
 
-                    if (checkAllUpdate || (updateControlIds.length > 0 && _.includes(updateControlIds, controlId))) {
+                    if (
+                      checkAllUpdate ||
+                      (updateControlIds.length > 0 && (rule.type === 1 || _.includes(updateControlIds, controlId)))
+                    ) {
                       if (rule.type === 1 && errorIds.length > 0) {
                         errorIds.map(e => pushError(e, message));
                       } else {

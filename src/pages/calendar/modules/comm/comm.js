@@ -67,7 +67,7 @@ Comm.inviteCalendar = {
     });
     // 不能参加的理由
     $('#refuserstd').on('change', 'input:radio', function () {
-      if ($('#radOther').attr('checked')) {
+      if ($('#radOther')[0].checked) {
         $('#txtrefuseReason').show();
       } else {
         $('#txtrefuseReason').hide();

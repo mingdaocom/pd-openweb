@@ -107,7 +107,7 @@ function SheetHeader(props) {
   const [editNameVisible, setEditNameVisible] = useState();
   const [descIsEditing, setDescIsEditing] = useState(false);
   const [inFull, setInFull] = useState(false);
-  const sheetList = appPkg.currentPcNaviStyle === 1 ? getAppSectionData(groupId) : props.sheetList;
+  const sheetList = [1, 3].includes(appPkg.currentPcNaviStyle) ? getAppSectionData(groupId) : props.sheetList;
   const sheet = findSheet(worksheetId, sheetList) || {};
   const canNewRecord = isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) && allowAdd;
   const { rows, count, permission, rowsSummary } = sheetViewData;
@@ -182,7 +182,7 @@ function SheetHeader(props) {
               <Tooltip
                 text={
                   <span>
-                    {_l('退出')} ({navigator.userAgent.toLocaleLowerCase().includes('mac os') ? '⌘ + E' : 'Shift + E'})
+                    {_l('退出')} ({window.isMacOs ? '⌘ + E' : 'Shift + E'})
                   </span>
                 }
                 popupPlacement="bottom"
@@ -201,7 +201,7 @@ function SheetHeader(props) {
                 text={
                   <span>
                     {inFull ? _l('退出') : _l('展开')} (
-                    {navigator.userAgent.toLocaleLowerCase().includes('mac os') ? '⌘ + E' : 'Shift + E'})
+                    {window.isMacOs ? '⌘ + E' : 'Shift + E'})
                   </span>
                 }
                 popupPlacement="bottom"
@@ -286,7 +286,7 @@ function SheetHeader(props) {
             isLock={_.get(appPkg, 'isLock')}
             permissionType={_.get(appPkg, 'permissionType')}
             deleteSheet={data => {
-              if (appPkg.currentPcNaviStyle === 1) {
+              if ([1, 3].includes(appPkg.currentPcNaviStyle)) {
                 const singleRef = getAppSectionRef(data.groupId);
                 singleRef.dispatch(deleteSheet(data));
               } else {

@@ -89,7 +89,7 @@ export default class ExportDialog extends Component {
       alert(_l('请选择时间段'), 3);
     } else {
       $('#__VIEWSTATE').remove();
-      if (window.navigator && window.navigator.userAgent.indexOf('MDClient') < 0) {
+      if (!window.isMDClient) {
         $('#outPutFormBox').attr('target', '_blank');
       }
       $('#outPutFormBox').submit();

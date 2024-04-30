@@ -14,20 +14,20 @@ import {
   MenuItem,
   WaterMark,
   UpgradeIcon,
+  SvgIcon,
+  UserHead,
 } from 'ming-ui';
 import qs from 'query-string';
 import { Link } from 'react-router-dom';
 import { navigateTo } from 'router/navigateTo';
 import cx from 'classnames';
 import Search from '../components/Search';
-import UserHead from 'src/components/userHead/userHead';
 import { APP_TYPE } from '../WorkflowSettings/enum';
 import PublishBtn from './components/PublishBtn';
 import DeleteFlowBtn from './components/DeleteFlowBtn';
 import CopyFlowBtn from './components/CopyFlowBtn';
 import ListName from './components/ListName';
 import { FLOW_TYPE, TYPES, FLOW_TYPE_NULL, START_APP_TYPE, getActionTypeContent, DATE_SCOPE } from './utils/index';
-import SvgIcon from 'src/components/SvgIcon';
 import CreateWorkflow from './components/CreateWorkflow';
 import styled from 'styled-components';
 import DocumentTitle from 'react-document-title';
@@ -400,7 +400,7 @@ class AppWorkflowList extends Component {
 
     return (
       <ul className="workflowHeader flexColumn">
-        {TYPES.map(item => (
+        {TYPES.filter(o => o.value !== FLOW_TYPE.EVENT_PUSH || count[o.value]).map(item => (
           <Fragment>
             {item.value === FLOW_TYPE.PBC && <div className="workflowHeaderLine" />}
             <Link className="NoUnderline" to={`${url}?type=${item.value}`} key={item.value}>
@@ -411,7 +411,7 @@ class AppWorkflowList extends Component {
                 {item.value === FLOW_TYPE.PBC && (
                   <Support
                     className="pointer Gray_9e mLeft2"
-                    href="https://help.mingdao.com/flow_pbp"
+                    href="https://help.mingdao.com/workflow/pbp"
                     type={1}
                     text={_l('帮助')}
                   />
@@ -728,7 +728,10 @@ class AppWorkflowList extends Component {
           </Link>
         </MenuItem>
 
-        {!_.includes([FLOW_TYPE.OTHER_APP, FLOW_TYPE.APPROVAL, FLOW_TYPE.CUSTOM_ACTION], type) && (
+        {!_.includes(
+          [FLOW_TYPE.OTHER_APP, FLOW_TYPE.APPROVAL, FLOW_TYPE.CUSTOM_ACTION, FLOW_TYPE.EVENT_PUSH],
+          type,
+        ) && (
           <MenuItem>
             <CopyFlowBtn
               item={data}
@@ -795,7 +798,7 @@ class AppWorkflowList extends Component {
         appManagementAjax.addWorkflow({ projectId: res.companyId });
         navigateTo(`/workflowedit/${res.id}`);
       })
-      .always(() => {
+      .finally(() => {
         this.requestPending = false;
       });
   };

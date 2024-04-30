@@ -65,13 +65,9 @@ const LocationWrap = styled.div`
 `;
 
 const { IsLocal } = md.global.Config;
-const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
-const isWx = window.navigator.userAgent.toLowerCase().includes('micromessenger') && !IsLocal && !isWxWork;
-const isWeLink = window.navigator.userAgent.toLowerCase().includes('huawei-anyoffice');
-const isDing = window.navigator.userAgent.toLowerCase().includes('dingtalk');
-const isFeishu = window.navigator.userAgent.toLowerCase().includes('feishu');
+const isWx = window.isWeiXin && !IsLocal && !window.isWxWork;
 const isMobile = browserIsMobile();
-const isApp = (isWxWork || isWx || isWeLink || isDing || isFeishu) && isMobile;
+const isApp = (window.isWxWork || isWx || window.isWeLink || window.isDingTalk || window.isFeiShu) && isMobile;
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -101,7 +97,7 @@ export default class Widgets extends Component {
       return;
     }
 
-    if (isWxWork) {
+    if (window.isWxWork) {
       if (!geolocation) {
         this.setState({ visible: true });
       } else {
@@ -110,12 +106,12 @@ export default class Widgets extends Component {
       return;
     }
 
-    if (isFeishu) {
+    if (window.isFeiShu) {
       handleTriggerEvent(this.handleFeishuSelectLocation, bindFeishu(projectId));
       return;
     }
 
-    if (isDing) {
+    if (window.isDingTalk) {
       if (!geolocation) {
         this.setState({ visible: true });
       } else {
@@ -124,7 +120,7 @@ export default class Widgets extends Component {
       return;
     }
 
-    if (isWeLink) {
+    if (window.isWeLink) {
       if (!geolocation) {
         this.setState({ visible: true });
       } else {

@@ -1,7 +1,6 @@
 import React, { Component, Fragment } from 'react';
-import { Dialog, Button, Icon, LoadDiv, Support } from 'ming-ui';
+import { Dialog, Button, Icon, LoadDiv, Support, SvgIcon } from 'ming-ui';
 import Trigger from 'rc-trigger';
-import SvgIcon from 'src/components/SvgIcon';
 import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon/index.jsx';
 import successImg from '../images/succuss.png';
 import congratulationImg from '../images/congratulation.png';
@@ -96,7 +95,7 @@ export default class DialogCreateApp extends Component {
               <Support
                 type={2}
                 text={_l('帮助')}
-                href="https://help.mingdao.com/sheet50"
+                href="https://help.mingdao.com/worksheet/import-excel-create"
                 className="Gray_bd mRight30"
               />
               <Button type="link" className="mRight15 stepLast" onClick={this.props.handleLast}>

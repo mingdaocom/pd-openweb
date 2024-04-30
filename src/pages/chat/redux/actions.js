@@ -3,6 +3,7 @@ import * as utils from '../utils';
 import * as socket from '../utils/socket';
 import config from '../utils/config';
 import Constant from '../utils/constant';
+import { dateConvertToUserZone } from 'src/util';
 import _ from 'lodash';
 
 /**
@@ -49,7 +50,7 @@ export const updateSessionList = result => (dispatch, getState) => {
       // 计数
       if ('count' in result) {
         item.count = 'weak' in result ? item.count : (item.count || 0) + result.count;
-        item.time = utils.formatMsgDate(result.time || utils.getCurrentTime());
+        item.time = utils.formatMsgDate(dateConvertToUserZone(result.time || utils.getCurrentTime()));
         item.msg.con = result.msg;
         item.id = result.msgId;
         item.isPush = result.isPush;
@@ -80,7 +81,7 @@ export const updateSessionList = result => (dispatch, getState) => {
       }
       // 添加会话
       if ('addMsg' in result) {
-        item.time = utils.formatMsgDate(result.time || utils.getCurrentTime());
+        item.time = utils.formatMsgDate(dateConvertToUserZone(result.time || utils.getCurrentTime()));
         item.msg.con = result.addMsg;
         adjust.push(item);
         delete item.isSession;
@@ -238,7 +239,7 @@ export const addGroupSession =
             type: Constant.SESSIONTYPE_GROUP,
             value: groupId,
           })
-          .done(group => {
+          .then(group => {
             const message = Object.assign(
               {
                 isGroup: true,
@@ -308,7 +309,7 @@ export const addUserSession =
             type: Constant.SESSIONTYPE_USER,
             value: id,
           })
-          .done(user => {
+          .then(user => {
             const message = Object.assign(
               {
                 count: 0,
@@ -954,7 +955,7 @@ export const updateMessage = message => (dispatch, getState) => {
         item.id = message.id;
         // 替换成服务器的时间
         if (socket && socket.time) {
-          item.timestamp = createTimeSpan(socket.time);
+          item.timestamp = createTimeSpan(dateConvertToUserZone(socket.time));
         }
         // 引用消息
         if (item.refer) {
@@ -1172,7 +1173,7 @@ export const newNotifyMessage = message => (dispatch, getState) => {
 
   if ('isSilent' in message ? (!message.isSilent || [1, 2].includes(showBadge)) && !message.weak : !message.weak) {
     utils.flashTitle();
-    utils.playReceiveAudio();
+    utils.playSystemNewMsgAudio();
   }
 };
 
@@ -1205,7 +1206,7 @@ export const newUserMessage = message => (dispatch, getState) => {
     );
     if (count) {
       utils.flashTitle();
-      utils.playReceiveAudio();
+      utils.playSessionNewMsgAudio();
       utils.sessionListScrollTop();
     }
   } else {
@@ -1230,7 +1231,7 @@ export const newUserMessage = message => (dispatch, getState) => {
       dispatch(addSession(message, id));
       if (message.count) {
         utils.flashTitle();
-        utils.playReceiveAudio();
+        utils.playSessionNewMsgAudio();
         utils.sessionListScrollTop();
       }
     }
@@ -1336,7 +1337,7 @@ export const newGroupMessage = message => (dispatch, getState) => {
     );
     if (message.isPush && count && !('sysType' in message)) {
       utils.flashTitle();
-      utils.playReceiveAudio();
+      utils.playSessionNewMsgAudio();
       utils.sessionListScrollTop();
     }
   } else {
@@ -1346,7 +1347,7 @@ export const newGroupMessage = message => (dispatch, getState) => {
     dispatch(addSession(message, message.to));
     if (message.isPush && message.count && !('sysType' in message)) {
       utils.flashTitle();
-      utils.playReceiveAudio();
+      utils.playSessionNewMsgAudio();
       utils.sessionListScrollTop();
     }
   }
@@ -1536,7 +1537,7 @@ export const refresh = () => (dispatch, getState) => {
       pageIndex: 1,
       pageSize: 30,
     })
-    .done(res => {
+    .then(res => {
       if (id) {
         res.forEach(item => {
           if (item && item.value == id) {
@@ -1554,7 +1555,7 @@ export const refresh = () => (dispatch, getState) => {
             id,
             type: isGroup ? Constant.SESSIONTYPE_GROUP : Constant.SESSIONTYPE_USER,
           })
-          .done(res => {
+          .then(res => {
             res = $.isArray(res) ? res.reverse() : [];
             const newMessages = {
               [id]: utils.formatMessages(res),

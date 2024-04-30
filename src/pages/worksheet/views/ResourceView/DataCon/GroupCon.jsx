@@ -6,8 +6,7 @@ import { types, minControlWidth, lineBottomHeight } from '../config';
 import { sortControlByIds } from 'worksheet/util';
 import CellControl from 'src/pages/worksheet/components/CellControls/index.jsx';
 import addRecord from 'worksheet/common/newRecord/addRecord';
-import { Icon } from 'ming-ui';
-import UserHead from 'src/components/userHead';
+import { Icon, UserHead } from 'ming-ui';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import sheetAjax from 'src/api/worksheet';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
@@ -156,7 +155,7 @@ const TbWrap = styled.div`
 export default function GroupCon(props) {
   const headContainer = useRef(null);
   const tbodyContainer = useRef(null);
-  const { resourceview, view, controls, viewId, projectId, appId, worksheetInfo } = props;
+  const { resourceview, view, controls, viewId, projectId, appId, worksheetInfo, base = {} } = props;
   const { resourceDataByKey, keywords } = resourceview;
   const viewControlInfo = controls.find(o => o.controlId === _.get(view, 'viewControl')) || {};
   const { dataSource } = viewControlInfo;
@@ -300,6 +299,7 @@ export default function GroupCon(props) {
         worksheetId: dataSource,
         getSwitchPermit: true,
         resultType: 2,
+        relationWorksheetId: base.worksheetId,
       })
       .then(res => {
         const { switches, worksheetId, appId } = res;

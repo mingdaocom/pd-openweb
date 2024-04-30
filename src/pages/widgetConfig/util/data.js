@@ -9,14 +9,21 @@ import update from 'immutability-helper';
 import _, { includes, get, isEmpty, omit, findIndex, filter, find, head, last, flatten } from 'lodash';
 import { canAsUniqueWidget, getAdvanceSetting, handleAdvancedSettingChange, isExceedMaxControlLimit } from './setting';
 import { insertControlInSameLine, batchRemoveItems } from './drag';
-import { getControlByControlId, adjustControlSize, putControlByOrder, getBoundRowByTab, fixedBottomWidgets } from '.';
+import {
+  getControlByControlId,
+  adjustControlSize,
+  putControlByOrder,
+  getBoundRowByTab,
+  fixedBottomWidgets,
+  notInsetSectionTab,
+  isTabSheetList,
+} from '.';
 import { getPathById, isHaveGap } from './widgets';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { ControlTag } from '../styled';
 import { Tooltip, Dialog } from 'ming-ui';
 import { v4 as uuidv4 } from 'uuid';
 import { ALL_SYS } from '../config/widget';
-import { isRelateRecordTableControl } from 'worksheet/util';
 import homeAppApi from 'src/api/homeApp';
 
 // 获取动态默认值
@@ -104,10 +111,7 @@ export function dealRelateSheetDefaultValue(data) {
             ..._.omit(item, 'relateSheetName'),
             staticValue: JSON.stringify(
               parsedValue.map(v => {
-                if (v.indexOf('rowid') >= 0) {
-                  return JSON.parse(v).rowid;
-                }
-                return v;
+                return _.get(safeParse(v), 'rowid') || v;
               }),
             ),
           };
@@ -144,6 +148,29 @@ export function dealUserId(data, dataType) {
     return update(data, {
       advancedSetting: {
         $apply: item => ({ ...item, defsource: JSON.stringify(newValue) }),
+      },
+    });
+  } catch (error) {
+    console.log(error);
+  }
+  return data;
+}
+
+export function dealCascaderId(data) {
+  const value = _.get(data, ['advancedSetting', 'topfilters']) || '[]';
+  try {
+    const settings = value && JSON.parse(value);
+    if (_.isEmpty(settings)) return data;
+    const newValue = settings.map(setting =>
+      update(setting, {
+        $apply: item => {
+          return safeParse(item || '{}')['id'] || item;
+        },
+      }),
+    );
+    return update(data, {
+      advancedSetting: {
+        $apply: item => ({ ...item, topfilters: JSON.stringify(newValue) }),
       },
     });
   } catch (error) {
@@ -278,8 +305,13 @@ export const getMoneyCnControls = (controls, data) => {
 };
 
 // 获取控件的文本呈现值
-export function formatColumnToText(column, numberOnly, noMask) {
-  return renderCellText(column, { noUnit: numberOnly, noSplit: numberOnly, noMask: noMask });
+export function formatColumnToText(column, numberOnly, noMask, options = {}) {
+  return renderCellText(column, {
+    noUnit: numberOnly,
+    noSplit: numberOnly,
+    noMask: noMask,
+    doNotHandleTimeZone: options.doNotHandleTimeZone,
+  });
 }
 
 // 通过id 获取控件的值
@@ -400,13 +432,80 @@ export const dealControlPos = controls => {
   return _.flatten(sortableControls.map((item, row) => item.map((control, col) => ({ ...control, row, col }))));
 };
 
+// 自定义事件保存时处理执行动作内默认值
+const dealCusTomEventActions = (actionItems = [], controls = []) => {
+  return actionItems.map(item => {
+    const currentControl = _.find(controls, c => c.controlId === item.controlId);
+    // 默认值处理，成员、部门等取id
+    if (currentControl && item.value) {
+      // 用户id替换
+      if (_.includes([26, 27, 48], currentControl.type)) {
+        const ids = {
+          26: 'accountId',
+          27: 'departmentId',
+          48: 'organizeId',
+        };
+        const dealData = dealUserId(
+          { ...currentControl, advancedSetting: { defsource: item.value } },
+          ids[currentControl.type],
+        );
+        return { ...item, value: _.get(dealData, 'advancedSetting.defsource') };
+      }
+
+      if (_.includes([29, 35, 51], currentControl.type)) {
+        const dealReData = dealRelateSheetDefaultValue({
+          ...currentControl,
+          advancedSetting: { defsource: item.value },
+        });
+        return { ...item, value: _.get(dealReData, 'advancedSetting.defsource') };
+      }
+
+      return item;
+    } else {
+      return item;
+    }
+  });
+};
+
 export const formatControlsData = (controls = [], fromSub = false) => {
-  return controls.map(data => {
-    const { type } = data;
+  return controls.map(item => {
+    const { type } = item;
+    let data = { ...item };
+
+    const isRelate = fromSub ? false : true;
 
     // 有一批老数据影响了默认值功能，清空掉
     if (_.get(data, 'default') === '[]') {
       data.default = '';
+    }
+
+    // 自定义事件筛选处理
+    const customEvent = getAdvanceSetting(data, 'custom_event') || [];
+    if (!isEmpty(customEvent)) {
+      const newCustomEvent = customEvent.map(c => {
+        return {
+          ...c,
+          eventActions: (c.eventActions || []).map(e => {
+            return {
+              ...e,
+              filters: (e.filters || []).map(f => {
+                const newFilterItems = handleFilters(
+                  { advancedSetting: { filterItems: JSON.stringify(f.filterItems) } },
+                  isRelate,
+                  'filterItems',
+                );
+                return { ...f, filterItems: getAdvanceSetting(newFilterItems, 'filterItems') };
+              }),
+              actions: (e.actions || []).map(a => {
+                const newActionItems = dealCusTomEventActions(a.actionItems, controls);
+                // 只有设置值、创建等动作能配默认值
+                return _.includes(['5', '12'], a.actionType) ? { ...a, actionItems: newActionItems } : a;
+              }),
+            };
+          }),
+        };
+      });
+      data = handleAdvancedSettingChange(data, { custom_event: JSON.stringify(newCustomEvent) });
     }
 
     // 子表控件递归处理其中的字段
@@ -462,10 +561,16 @@ export const formatControlsData = (controls = [], fromSub = false) => {
       // 处理关联表叠加筛选条件里的 成员 部门 地区 他表字段 这几个类型的字段 values 处理成 [id, id]
       // 子表里关联筛选，不清配置rcid
       if (!isEmpty(getAdvanceSetting(data, 'filters'))) {
-        data = handleFilters(data, fromSub ? false : true);
+        data = handleFilters(data, isRelate);
       }
       if (!isEmpty(getAdvanceSetting(data, 'resultfilters'))) {
         data = handleFilters(data, true, 'resultfilters');
+      }
+      if (getAdvanceSetting(data, 'topshow') === 3 && !isEmpty(getAdvanceSetting(data, 'topfilters'))) {
+        data = handleFilters(data, isRelate, 'topfilters');
+      }
+      if (getAdvanceSetting(data, 'topshow') === 2 && !isEmpty(getAdvanceSetting(data, 'topfilters'))) {
+        data = dealCascaderId(data);
       }
       // 关联表sid处理
       return fromSub
@@ -567,6 +672,30 @@ export const dealRequestControls = (controls, needChild) => {
   return needChild ? newControls : filterControls;
 };
 
+// 处理自定义事件--查询api成立条件filters里控件type
+export const getFilterControls = (controls = []) => {
+  const result = [];
+  if (_.isEmpty(controls)) return result;
+  controls.forEach(c => {
+    if (!c.dataSource) {
+      // 普通数组按原字段多选类型来
+      if (c.type === 10000007) {
+        const originType = _.get(
+          _.find(controls, o => o.dataSource === c.controlId),
+          'type',
+        );
+        result.push({ ...c, type: originType, enumDefault: !_.includes([6, 16], originType) ? 1 : 0 });
+      } else if (c.type === 10000008) {
+        // 只有为空、不为空，按子表来
+        result.push({ ...c, type: 34 });
+      } else {
+        result.push(c);
+      }
+    }
+  });
+  return result;
+};
+
 // 如果新增控件在可视区外则滚动至可视区内
 export const scrollToVisibleRange = (data, widgetProps) => {
   const { activeWidget } = widgetProps;
@@ -591,7 +720,7 @@ export const scrollToVisibleRange = (data, widgetProps) => {
 // 批量添加
 export const handleAddWidgets = (data, para = {}, widgetProps, callback) => {
   const { widgets, activeWidget, allControls, setWidgets, setActiveWidget, globalSheetInfo = {} } = widgetProps;
-  const { mode, path, location, rowIndex } = para;
+  const { mode, path, location, displayItemType, rowIndex } = para;
   const tempData = head(data);
   const featureType = getFeatureStatus(globalSheetInfo.projectId, tempData.featureId);
   if (_.includes([49, 50], tempData.type) && featureType === '2') {
@@ -606,10 +735,19 @@ export const handleAddWidgets = (data, para = {}, widgetProps, callback) => {
 
   // 拖拽添加的情况
   if (mode) {
+    // 标签页表格拖拽到普通控件中，更改showtype
+    if (isTabSheetList(data) && displayItemType === 'common') {
+      data = handleAdvancedSettingChange(data, { showtype: '5' });
+    }
     // 拖到单独的行
     if (mode === DRAG_MODE.INSERT_NEW_LINE) {
       setWidgets(update(widgets, { $splice: [[rowIndex, 0, data]] }));
       setActiveWidget(data[0]);
+
+      // 标签页拖拽添加，置顶配置同步更新
+      if (_.isFunction(callback)) {
+        callback();
+      }
       return;
     }
     // 拖到行的末尾
@@ -651,17 +789,21 @@ export const handleAddWidgets = (data, para = {}, widgetProps, callback) => {
 
       // 如果激活控件是标签页控件
       if (tempActiveWidget.type === 52) {
-        // 子表、多条列表，插入分界
-        if (isRelateRecordTableControl(item) || item.type === 34) {
-          currentRowIndex = getBoundRowByTab(widgets) - 1;
+        // 不支持的控件,已标签页显示的在底下，其他放入分界位置
+        if (notInsetSectionTab(item)) {
+          currentRowIndex = fixedBottomWidgets(item) ? currentRowIndex : getBoundRowByTab(widgets) - 1;
         } else {
           const childrenList = getChildWidgetsBySection(allControls, tempActiveWidget.controlId);
           currentRowIndex = currentRowIndex + childrenList.length;
         }
       } else {
         // 当前激活控件非特殊控件，但是添加控件是特殊控件，直接添加末尾
-        if (fixedBottomWidgets(item)) {
+        if (!fixedBottomWidgets(activeWidget) && fixedBottomWidgets(item)) {
           currentRowIndex = newWidgets.length - 1;
+        }
+        // 当前激活控件特殊控件，但是添加控件是非特殊控件，直接添加在分界线
+        if (fixedBottomWidgets(activeWidget) && !fixedBottomWidgets(item)) {
+          currentRowIndex = getBoundRowByTab(widgets) - 1;
         }
       }
     }
@@ -780,7 +922,7 @@ export const getChildWidgetsBySection = (controls = [], id) => {
 
 // 批量复制控件数据处理
 export const batchCopyWidgets = (props, selectWidgets = []) => {
-  const { widgets, allControls, queryConfigs, setActiveWidget, setWidgets, updateQueryConfigs } = props;
+  const { widgets, allControls, queryConfigs, setActiveWidget, setWidgets } = props;
 
   const copyWidgets = [];
   let childCount = 0;
@@ -834,7 +976,6 @@ export const batchCopyWidgets = (props, selectWidgets = []) => {
 
   setActiveWidget(newActiveWidget);
   setWidgets(newWidgets);
-  // updateQueryConfigs(queryConfigs.concat(newQueries), 'cover');
   return;
 };
 

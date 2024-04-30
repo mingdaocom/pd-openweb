@@ -2,7 +2,7 @@ import React from 'react';
 import { MSGTYPES } from '../../constants';
 import { applicationIcon } from 'src/util';
 import cx from 'classnames';
-import UserCard from 'src/components/UserCard';
+import { UserCard } from 'ming-ui';
 
 const formatUser = function (props) {
   const { accountId, fullname, avatar, inboxType, appId } = props;
@@ -59,7 +59,6 @@ export default class Avatar extends React.Component {
       ...formatUser(props),
     };
   }
-
 
   render() {
     const { accountId, fullname, avatar, applicationType, appId } = this.state;

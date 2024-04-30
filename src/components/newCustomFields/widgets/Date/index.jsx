@@ -10,7 +10,7 @@ import en_US from 'antd/es/date-picker/locale/en_US';
 import ja_JP from 'antd/es/date-picker/locale/ja_JP';
 import { getDynamicValue } from '../../tools/DataFormat';
 import { compareWithTime } from '../../tools/utils';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile, dateConvertToUserZone, dateConvertToServerZone } from 'src/util';
 import { getDatePickerConfigs, getShowFormat } from 'src/pages/widgetConfig/util/setting.js';
 import moment from 'moment';
 import _ from 'lodash';
@@ -52,9 +52,8 @@ export default class Widgets extends Component {
     const { dateProps = {} } = this.state;
 
     if (value) {
-      value = moment(moment(value).format(dateProps.formatMode)).format(
-        type === 15 ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm:ss',
-      );
+      const date = moment(moment(value).format(dateProps.formatMode));
+      value = type === 15 ? date.format('YYYY-MM-DD') : dateConvertToServerZone(date);
     }
 
     this.props.onChange(value);
@@ -82,7 +81,7 @@ export default class Widgets extends Component {
     const showformat = getShowFormat(this.props);
     const allowweek = advancedSetting.allowweek || '1234567';
     const allowtime = advancedSetting.allowtime || '00:00-24:00';
-    const timeinterval = advancedSetting.timeinterval || '1';
+    const timeInterval = parseInt(advancedSetting.timeinterval || '1');
     const lang = getCookie('i18n_langtag') || md.global.Config.DefaultLang;
     const isLocalFormat = _.includes(['zh-Hans', 'zh-Hant'], lang) && isFocus;
     const focusFormat = isLocalFormat ? _.get(getDatePickerConfigs(this.props), 'formatMode') : showformat;
@@ -117,20 +116,18 @@ export default class Widgets extends Component {
         dateProps.mode === 'year' || dateProps.mode === 'month' || dateProps.mode === 'date'
           ? dateProps.mode
           : mobileMode;
+      let dateTime = type === 15 ? value : dateConvertToUserZone(value);
+
       return (
         <Fragment>
           <div
             className={cx('customFormControlBox customFormButton flexRow', { controlDisabled: disabled })}
-            onClick={
-              disabled
-                ? () => {}
-                : () => {
-                    this.setState({ showMobileDatePicker: true });
-                  }
-            }
+            onClick={() => {
+              !disabled && this.setState({ showMobileDatePicker: true });
+            }}
           >
             <span className={cx('flex mRight20 ellipsis', { Gray_bd: !value })}>
-              {value ? moment(value).format(showformat) : _l('请选择日期')}
+              {value ? moment(type === 15 ? value : dateConvertToUserZone(value)).format(showformat) : _l('请选择日期')}
             </span>
             {!disabled && (
               <Icon
@@ -141,10 +138,11 @@ export default class Widgets extends Component {
           </div>
           {this.state.showMobileDatePicker && (
             <MobileDatePicker
+              minuteStep={timeInterval}
               customHeader={controlName}
               isOpen={this.state.showMobileDatePicker}
               precision={precision}
-              value={value ? new Date(moment(value)) : new Date()}
+              value={dateTime}
               min={minDate ? new Date(moment(minDate)) : new Date(1900, 1, 1, 0, 0, 0)}
               max={maxDate ? new Date(moment(maxDate)) : new Date(2100, 12, 31, 23, 59, 59)}
               disabled={disabled}
@@ -163,7 +161,7 @@ export default class Widgets extends Component {
     }
 
     const timeArr = allowtime.split('-');
-    if (type === 16) {
+    if (type === 16 && this.props.showTime !== false) {
       showTime = {
         defaultValue:
           parseInt(timeArr[0]) === 0 && parseInt(timeArr[1]) === 24 ? moment() : moment(timeArr[0], 'HH:mm'),
@@ -175,7 +173,7 @@ export default class Widgets extends Component {
         className={cx('w100 customAntPicker customFormControlBox', { controlDisabled: disabled })}
         locale={lang === 'en' ? en_US : lang === 'ja' ? ja_JP : lang === 'zh-Hant' ? zh_TW : zh_CN}
         disabled={disabled}
-        value={value ? moment(value) : ''}
+        value={value ? moment(type === 15 ? value : dateConvertToUserZone(value)) : ''}
         picker={dateProps.mode === 'datetime' ? 'date' : dateProps.mode}
         showTime={showTime || false}
         format={focusFormat}
@@ -189,7 +187,7 @@ export default class Widgets extends Component {
           ) : null
         }
         hideDisabledOptions
-        minuteStep={parseInt(timeinterval)}
+        minuteStep={timeInterval}
         disabledDate={currentDate => {
           if (currentDate) {
             const day = currentDate.day();

@@ -1,6 +1,6 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import { Radio } from 'antd';
-import { Tooltip, Checkbox, RadioGroup, Dropdown, Input, Slider } from 'ming-ui';
+import { Tooltip, RadioGroup, Dropdown, Input, Slider, Switch } from 'ming-ui';
 import styled from 'styled-components';
 import cx from 'classnames';
 import ControlSelect from 'worksheet/components/ControlSelect';
@@ -583,14 +583,24 @@ export default function Sider(props) {
           </ConfigItem>
         </Fragment>
       )}
+      {printType === PRINT_TYPE.BAR && (
+        <div className="mTop15 flexRow justifyContentCenter">
+          <div>{_l('显示文本')}</div>
+          <div className="flex"></div>
+          <Switch
+            size="small"
+            primaryColor="#2196f3"
+            checked={showBarValue}
+            onClick={() => onUpdate({ showBarValue: !showBarValue })}
+          />
+        </div>
+      )}
       <TypeLabel>{_l('显示字段')}</TypeLabel>
       <ConfigItem label={_l('字号')}>
         <Slider
           triggerWhenMove
-          numStyle={{
-            color: '#757575',
-            marginLeft: 18,
-          }}
+          className="flex"
+          showNumber={false}
           showTip={false}
           showInput={false}
           min={0.5}
@@ -601,24 +611,18 @@ export default function Sider(props) {
             onUpdate({ fontSize: Number(newFontSize) });
           }}
         />
+        <span className="mLeft10 Gray_75">{fontSize}</span>
       </ConfigItem>
-      {/* 可能会放开配置，需要后端加属性
-      {printType === PRINT_TYPE.BAR && (
-        <Checkbox
-          className="mTop15 mBottom15"
+      <div className="mTop15 flexRow justifyContentCenter">
+        <div>{_l('显示字段名称')}</div>
+        <div className="flex"></div>
+        <Switch
           size="small"
-          text={_l('显示条码值')}
-          checked={showBarValue}
-          onClick={() => onUpdate({ showBarValue: !showBarValue })}
+          primaryColor="#2196f3"
+          checked={showControlName}
+          onClick={() => onUpdate({ showControlName: !showControlName })}
         />
-      )} */}
-      <Checkbox
-        className="mTop15 mBottom15"
-        size="small"
-        text={_l('显示字段名称')}
-        checked={showControlName}
-        onClick={() => onUpdate({ showControlName: !showControlName })}
-      />
+      </div>
       <Tip>{_l('当前尺寸下最大容纳%0行文字，字段内容超过1行后，默认向下换行直到完整显示。', maxLineNumber)}</Tip>
       <div className="Relative">
         <Tooltip text={<span>{_l('显示为标题')}</span>}>

@@ -600,7 +600,7 @@ export default class Ding extends React.Component {
                         dangerouslySetInnerHTML={{
                           __html: _l(
                             '此功能需要在钉钉中开启添加待办任务接口权限。%0如何开启？%1',
-                            '<a href="https://help.mingdao.com/dingding#pending" target="_blank">',
+                            '<a href="https://help.mingdao.com/dingtalk/integration-guide#pending" target="_blank">',
                             '</a>',
                           ),
                         }}

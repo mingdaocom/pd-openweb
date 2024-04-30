@@ -5,6 +5,7 @@ import AdminCommon from './common/common';
 import { Switch, Route } from 'react-router-dom';
 import Menu from './menu';
 import ApplyComp from './apply';
+import NormalSystemRoles from './organization/roleAuth/normalSystemRoles';
 import Empty from './common/TableEmpty';
 import { menuList, permissionObj } from './router.config.js';
 import Loadable from 'react-loadable';
@@ -132,6 +133,7 @@ export default class AdminEntryPoint extends PureComponent {
     );
     return (
       <Switch>
+        <Route path="/admin/mycharacter/:projectId" component={NormalSystemRoles} />
         <Route path="/admin/apply/:projectId/:roleId?" component={ApplyComp} />
         <Route path="/admin/:routeType/:projectId">{this.renderHomeContent(routesWithAuthority)}</Route>
       </Switch>
@@ -147,7 +149,7 @@ export default class AdminEntryPoint extends PureComponent {
   render() {
     const { authority = [], isLoading, routeKeys } = this.state;
     let { isSuperAdmin } = getCurrentProject(Config.projectId, true);
-    
+
     if (isLoading) {
       return <LoadDiv className="mTop10" />;
     }
@@ -156,6 +158,19 @@ export default class AdminEntryPoint extends PureComponent {
     if (authority.indexOf(AUTHORITY_DICT.NOT_MEMBER) > -1) {
       return CommonEmpty;
     }
+
+    if (
+      authority.indexOf(AUTHORITY_DICT.HAS_PERMISSIONS) === -1 &&
+      authority.indexOf(AUTHORITY_DICT.SHOW_MANAGER) > -1
+    ) {
+      if (location.href.indexOf('admin/mycharacter') === -1) {
+        navigateTo('/admin/mycharacter/' + Config.projectId);
+      } else {
+        return this.renderRoutes();
+      }
+      return null;
+    }
+
     //  是否有管理员基本权限
     if (authority.indexOf(AUTHORITY_DICT.HAS_PERMISSIONS) === -1 && location.href.indexOf('admin/apply') === -1) {
       navigateTo('/admin/apply/' + Config.projectId);

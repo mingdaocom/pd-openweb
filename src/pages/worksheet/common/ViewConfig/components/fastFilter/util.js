@@ -24,6 +24,13 @@ const NUMBER_TYPE = [
   { text: _l('在范围内'), value: FILTER_CONDITION_TYPE.BETWEEN },
   { text: _l('等于'), value: FILTER_CONDITION_TYPE.EQ },
 ];
+// 数值筛选方式
+const DATE_FILTER_TYPE_ENUM = [
+  { text: _l('等于'), value: FILTER_CONDITION_TYPE.DATEENUM },
+  { text: _l('早于'), value: FILTER_CONDITION_TYPE.DATE_LT },
+  { text: _l('晚于'), value: FILTER_CONDITION_TYPE.DATE_GT },
+  { text: _l('在范围内'), value: FILTER_CONDITION_TYPE.DATE_BETWEEN },
+];
 // 多选的筛选方式
 const MULTI_SELECT_TYPE = [
   { text: _l('等于'), value: FILTER_CONDITION_TYPE.ARREQ },
@@ -38,7 +45,7 @@ const OPTIONS_TYPE = [
 // 显示方式
 const SHOW_TYPE = [
   { text: _l('下拉框'), value: 2 },
-  { text: _l('平铺'), value: 1 },
+  { text: _l('平铺'), txt: _l('（最多显示20个）'), value: 1 },
 ];
 
 export const DATE_TYPE_M = [7, 8, 9, 12, 13, 14, 15, 16, 17];
@@ -144,6 +151,18 @@ export const NUMBER_FILTER_TYPE = {
   ],
   txt: '筛选方式',
 };
+// 筛选方式
+export const DATE_FILTER_TYPE = {
+  //日期
+  key: 'filterType',
+  default: FILTER_CONDITION_TYPE.DATEENUM,
+  types: DATE_FILTER_TYPE_ENUM,
+  keys: [
+    15, // 日期
+    16, //日期时间
+  ],
+  txt: '筛选方式',
+};
 //筛选方式
 export const RELA_FILTER_TYPE = {
   key: 'filterType',
@@ -208,14 +227,32 @@ export const NAV_SHOW_TYPE = {
 //     26 //成员
 //   ],
 // };
-const list = _.flattenDeep(DATE_TYPE)
+// 数值筛选方式
+const DATE_GRANULARITY_TYPE_ENUM = [
+  { text: _l('年'), value: 5 },
+  { text: _l('月'), value: 4 },
+  { text: _l('日'), value: 3 },
+];
+// 颗粒度
+export const DATE_GRANULARITY_TYPE = {
+  //日期
+  key: 'dateRangeType',
+  default: 3,
+  types: DATE_GRANULARITY_TYPE_ENUM,
+  keys: [
+    15, // 日期
+    16, //日期时间
+  ],
+  txt: '颗粒度',
+};
+export const DATE_TYPE_ALL = _.flattenDeep(DATE_TYPE)
   .map(o => o.value)
   .filter(o => o !== 'all');
 
 //预设时间
 export const DATE_RANGE = {
   key: 'daterange',
-  default: list, //全选
+  default: DATE_TYPE_ALL, //全选
   types: DATE_TYPE,
   keys: [
     15, // 日期
@@ -269,6 +306,7 @@ export const DIRECTION_TYPE = {
 export const FAST_FILTERS_WHITELIST = [
   TEXT_FILTER_TYPE,
   NUMBER_FILTER_TYPE,
+  DATE_FILTER_TYPE,
   DIRECTION_TYPE,
   SHOW_RELATE_TYPE,
   DATE_RANGE,
@@ -278,6 +316,7 @@ export const FAST_FILTERS_WHITELIST = [
   GROUP_FILTER_TYPE,
   MULTI_SELECT_FILTER_TYPE,
   LIMIT,
+  DATE_GRANULARITY_TYPE,
 ];
 // 支持快速筛选的字段
 export const FASTFILTER_CONDITION_TYPE = [
@@ -339,6 +378,20 @@ export const Filter_KEYS = ['filterType'];
 export const getControlFormatType = (control = {}) => {
   return redefineComplexControl(control).type;
 };
+export const getDefaultDateRange = (control = {}) => {
+  return _.get(control, 'advancedSetting.showtype') === '5'
+    ? DATE_TYPE_Y
+    : _.get(control, 'advancedSetting.showtype') === '4'
+    ? DATE_TYPE_M
+    : DATE_TYPE_ALL;
+};
+export const getDefaultDateRangeType = (control = {}) => {
+  return _.get(control, 'advancedSetting.showtype') === '5'
+    ? 5
+    : _.get(control, 'advancedSetting.showtype') === '4'
+    ? 4
+    : 3;
+};
 export const getSetDefault = (control = {}) => {
   let type = getControlFormatType(control);
   let fastFilterSet = {
@@ -346,23 +399,22 @@ export const getSetDefault = (control = {}) => {
     dataType: type,
   };
   FAST_FILTERS_WHITELIST.map(o => {
+    let defaultValue = o.default;
     if (o.keys.includes(type)) {
       const { advancedSetting = {} } = fastFilterSet;
       if (!ADVANCEDSETTING_KEYS.includes(o.key)) {
+        if (DATE_GRANULARITY_TYPE.keys.includes(type) && o.key === 'dateRangeType') {
+          defaultValue = getDefaultDateRangeType(control);
+        }
         fastFilterSet = {
           ...fastFilterSet,
-          [o.key]: control[o.key] || o.default,
+          [o.key]: control[o.key] || defaultValue,
         };
       } else {
-        let defaultValue = o.default;
-        if (DATE_RANGE.keys.includes(control.type)) {
-          defaultValue =
-            _.get(control, 'advancedSetting.showtype') === '5'
-              ? DATE_TYPE_Y
-              : _.get(control, 'advancedSetting.showtype') === '4'
-              ? DATE_TYPE_M
-              : defaultValue;
+        if (DATE_RANGE.keys.includes(type) && o.key === 'daterange') {
+          defaultValue = getDefaultDateRange(control);
         }
+
         fastFilterSet = {
           ...fastFilterSet,
           advancedSetting: {

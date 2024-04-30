@@ -1,7 +1,7 @@
-import React from 'react';
-import { Icon, LoadDiv, Support, UpgradeIcon } from 'ming-ui';
+import React, { useEffect, useRef, useState } from 'react';
+import { Icon, LoadDiv, Support, UpgradeIcon, Tooltip } from 'ming-ui';
 import { Drawer } from 'antd';
-import cx from 'classnames';
+import Trigger from 'rc-trigger';
 import './print.less';
 import EditPrint from '../components/EditPrint';
 import MoreOption from '../components/MoreOption';
@@ -15,6 +15,339 @@ import { getPrintCardInfoOfTemplate } from 'src/pages/worksheet/common/PrintQrBa
 import { printQrBarCode } from 'worksheet/common/PrintQrBarCode';
 import _ from 'lodash';
 import sheetAjax from 'src/api/worksheet';
+import ShowBtnFilterDialog from 'src/pages/worksheet/common/CreateCustomBtn/components/ShowBtnFilterDialog.jsx';
+import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
+import { SortableContainer, SortableElement, SortableHandle, arrayMove } from 'react-sortable-hoc';
+import { handleCondition } from 'src/pages/widgetConfig/util/data';
+import { filterData } from 'src/pages/FormSet/components/columnRules/config.js';
+
+const SortHandle = SortableHandle(() => <Icon className="Font14 Hand Gray_9e Hover_21 dragIcon" icon="drag" />);
+const SortableItem = SortableElement(props => {
+  const {
+    it,
+    showDropOption,
+    isRename,
+    templateId,
+    showMoreOption,
+    isChangeDrop,
+    showFilters,
+    worksheetInfo = {},
+    worksheetControls = [],
+    printInfo,
+    isCustom,
+    updatePrint,
+    changeState,
+    editPrintName,
+    deletePrint,
+    editPrintRange,
+    editPrintFilters,
+    loadPrint,
+  } = props;
+  const { views = [] } = worksheetInfo;
+  const inputRef = useRef();
+  const [inputName, setInputName] = useState(it.name);
+
+  useEffect(() => {
+    if (isRename) {
+      setInputName(it.name);
+      setTimeout(() => {
+        $(inputRef).focus();
+      }, 200);
+    }
+  }, [isRename]);
+
+  const onPreview = () => {
+    if ($('.printTemplatesList-tr .name input')[0]) return;
+    if (_.includes([PRINT_TYPE.QR_CODE_PRINT, PRINT_TYPE.BAR_CODE_PRINT], it.type)) {
+      printQrBarCode({
+        mode: 'preview',
+        id: it.id,
+        printType: it.printType,
+        projectId: worksheetInfo.projectId,
+        worksheetId: worksheetInfo.worksheetId,
+        controls: _.get(worksheetInfo, 'template.controls'),
+      });
+    } else {
+      changeState({
+        templateId: it.id,
+        name: it.name,
+        type: 'preview',
+        showPrintTemDialog: true,
+        isDefault: it.type === PRINT_TYPE.SYS_PRINT,
+        fileTypeNum: it.type,
+      });
+    }
+  };
+
+  const getViewText = () => {
+    let viewText = '';
+    if (it.range === 1) {
+      viewText = _l('所有记录');
+    } else if (it.range !== 1 && it.views.length <= 0) {
+      viewText = _l('未指定视图');
+    } else if (it.range === 3 && it.views.length > 0) {
+      viewText = it.views.map(item => item.name || item.viewName).join('、');
+    }
+    return viewText;
+  };
+
+  const getFiltersLength = () => {
+    const filters = filterData(
+      worksheetControls.filter(item => {
+        return item.viewDisplay || !('viewDisplay' in item);
+      }) || [],
+      it.filters || [],
+    );
+    const filtersLength = _.flatMap(filters, l => l.groupFilters).length;
+    return filtersLength === 0 ? '' : `(${filtersLength})`;
+  };
+
+  return (
+    <div className="printTemplatesList-tr" onClick={onPreview}>
+      <SortHandle />
+      <div className="name flex mRight20 valignWrapper overflowHidden">
+        <Icon
+          icon={PRINT_TYPE_STYLE[it.type] ? PRINT_TYPE_STYLE[it.type].icon : printInfo.icon}
+          className={`iconTitle mRight13 ${
+            [PRINT_TYPE.WORD_PRINT, PRINT_TYPE.EXCEL_PRINT].includes(it.type) || printInfo.icon !== 'doc'
+              ? 'Font24'
+              : 'Font22'
+          }`}
+        />
+        <div className="flex overflow_ellipsis">
+          {isRename && templateId === it.id ? (
+            <input
+              type="text"
+              className='Font13'
+              ref={inputRef}
+              value={inputName}
+              onChange={e => {
+                e.stopPropagation();
+                setInputName(e.target.value);
+              }}
+              onBlur={e => {
+                e.stopPropagation();
+                if (!_.trim(inputName)) {
+                  alert(_l('请输入模板名称'), 3);
+                  $(inputRef).focus();
+                  return;
+                }
+                updatePrint(it.id, { name: inputName });
+                editPrintName({ id: it.id, name: inputName });
+                changeState({
+                  templateId: '',
+                  isRename: false,
+                });
+              }}
+            />
+          ) : (
+            <Tooltip text={it.name}>
+              <span className="overflow_ellipsis printName Font13">{it.name}</span>
+            </Tooltip>
+          )}
+          {[PRINT_TYPE.QR_CODE_PRINT, PRINT_TYPE.BAR_CODE_PRINT].includes(it.type) && (
+            <div className="printSize">{printInfo.text}</div>
+          )}
+        </div>
+      </div>
+      <div className="views flex mRight20">
+        <span className="viewText printName WordBreak">{getViewText()}</span>
+      </div>
+      <div className="activeCon mRight8 w180px flexRow " onClick={e => e.stopPropagation()}>
+        <Trigger
+          popupVisible={showDropOption && templateId === it.id}
+          action={['click']}
+          popupAlign={{
+            points: ['tl', 'bl'],
+            overflow: { adjustX: true, adjustY: true },
+          }}
+          getPopupContainer={() => document.body}
+          onPopupVisibleChange={showDropOption => {
+            changeState({ showDropOption: showDropOption });
+            if (isChangeDrop) {
+              editPrintRange({
+                id: it.id,
+                range: it.range,
+                viewsIds: it.views.map(o => o.viewId),
+              });
+            }
+          }}
+          popup={
+            <RangeDrop
+              className="printRangeDrop"
+              printData={it}
+              views={views}
+              onClose={() => {
+                changeState({ showDropOption: false });
+              }}
+              setData={data => {
+                updatePrint(data.printData.id, { ...data.printData });
+                changeState({ isChangeDrop: true });
+              }}
+            />
+          }
+        >
+          <span
+            className="Hand Bold"
+            onClick={e => {
+              changeState({
+                templateId: it.id,
+                showDropOption: true,
+                isRename: false,
+              });
+            }}
+          >
+            {_l('使用范围')}
+          </span>
+        </Trigger>
+        <span
+          className="Hand Bold"
+          onClick={e => {
+            changeState({
+              templateId: it.id,
+              showFilters: true,
+              isRename: false,
+            });
+          }}
+        >
+          {_l('过滤条件')}
+          {getFiltersLength()}
+        </span>
+        {showFilters && templateId === it.id && (
+          <ShowBtnFilterDialog
+            sheetSwitchPermit={worksheetInfo.switches}
+            projectId={worksheetInfo.projectId}
+            appId={worksheetInfo.appId}
+            columns={worksheetControls
+              .filter(item => {
+                return item.viewDisplay || !('viewDisplay' in item);
+              })
+              .map(control => redefineComplexControl(control))}
+            filters={it.filters}
+            isShowBtnFilterDialog={showFilters}
+            setValue={({ filters, isShowBtnFilterDialog, isOk }) => {
+              if (isOk) {
+                const isEmptyFilter =
+                  filterData(
+                    worksheetControls.filter(item => {
+                      return item.viewDisplay || !('viewDisplay' in item);
+                    }) || [],
+                    filters || [],
+                  ).length === 0;
+                editPrintFilters({
+                  id: it.id,
+                  filters: isEmptyFilter ? [] : filters,
+                });
+              }
+              changeState({
+                showFilters: isShowBtnFilterDialog,
+              });
+            }}
+          />
+        )}
+        <span
+          className="Hand Bold"
+          onClick={e => {
+            changeState({ isRename: false });
+            if (_.includes([PRINT_TYPE.QR_CODE_PRINT, PRINT_TYPE.BAR_CODE_PRINT], it.type)) {
+              printQrBarCode({
+                isCharge: true,
+                mode: 'editTemplate',
+                id: it.id,
+                printType: it.printType,
+                projectId: worksheetInfo.projectId,
+                worksheetId: worksheetInfo.worksheetId,
+                controls: _.get(worksheetInfo, 'template.controls'),
+                onClose: () => {
+                  loadPrint({ worksheetId: worksheetInfo.worksheetId });
+                },
+              });
+            } else if (isCustom) {
+              // 上传的模板
+              changeState({
+                templateId: it.id,
+                showEditPrint: true,
+                type: 'edit',
+                fileType: it.type === 5 ? 'Excel' : 'Word',
+              });
+            } else {
+              // 系统模板
+              changeState({
+                templateId: it.id,
+                type: 'edit',
+                showPrintTemDialog: true,
+                isDefault: it.type === PRINT_TYPE.SYS_PRINT,
+              });
+            }
+          }}
+        >
+          {_l('编辑')}
+        </span>
+      </div>
+      <div className="more w80px TxtCenter">
+        <Icon
+          icon="task-point-more"
+          className="moreActive Hand Font18 Gray_9e Hover_21"
+          onClick={e => {
+            e.stopPropagation();
+            changeState({
+              templateId: it.id,
+              showMoreOption: true,
+              isRename: false,
+            });
+          }}
+        />
+        {showMoreOption && templateId === it.id && (
+          <MoreOption
+            isRename={isRename}
+            templateId={it.id}
+            showMoreOption={showMoreOption}
+            onClickAwayExceptions={[]}
+            onClickAway={() => changeState({ showMoreOption: false })}
+            setFn={data => {
+              changeState({
+                ...data,
+              });
+            }}
+            deleteFn={data => {
+              deletePrint(it.id);
+              changeState({
+                ...data,
+              });
+            }}
+          />
+        )}
+      </div>
+    </div>
+  );
+});
+
+const SortableList = SortableContainer(props => {
+  const { items } = props;
+
+  return (
+    <div className="sortablePrintItemList">
+      {items.map((it, index) => {
+        let printInfo = getPrintCardInfoOfTemplate(it);
+        let isCustom = [PRINT_TYPE.WORD_PRINT, PRINT_TYPE.EXCEL_PRINT].includes(it.type);
+        let style = {};
+        if (isCustom) style.background = PRINT_TYPE_STYLE[it.type].background;
+
+        return (
+          <SortableItem
+            key={it.id || index}
+            index={index}
+            printInfo={printInfo}
+            isCustom={isCustom}
+            style={style}
+            it={it}
+            {...props}
+          />
+        );
+      })}
+    </div>
+  );
+});
 
 class CreatePrintDrawer extends React.Component {
   constructor(props) {
@@ -119,21 +452,16 @@ class Print extends React.Component {
       fileType: undefined, // 自定义模版 word/excel
       fileTypeNum: null,
       printData: [],
+      defaulteTemData: [],
+      codeTemData: [],
       loading: false,
+      showFilters: false,
+      sortIds: [],
     };
   }
   componentDidMount() {
     const { worksheetId } = this.props;
     this.loadPrint({ worksheetId: worksheetId }); // 获取当前模板
-  }
-
-  componentWillUpdate(nextProps, nextState) {
-    const { isRename } = nextState;
-    if (isRename) {
-      setTimeout(() => {
-        $(this.input).focus();
-      }, 200);
-    }
   }
 
   loadPrint = ({ worksheetId }) => {
@@ -164,6 +492,17 @@ class Print extends React.Component {
         fileType: fileType,
       });
     }
+  };
+
+  editPrintFilters = ({ id, filters }) => {
+    const { worksheetId } = this.props;
+    sheetAjax.editPrintFilter({ id, filters: (filters || []).map(handleCondition) }).then(res => {
+      if (!res) {
+        alert(_l('修改失败'), 2);
+      } else {
+        this.loadPrint({ worksheetId });
+      }
+    });
   };
 
   editPrintName = ({ id, name }) => {
@@ -225,219 +564,96 @@ class Print extends React.Component {
       });
   };
 
-  renderPrintItem = data => {
-    const { showDropOption, isRename, templateId, showMoreOption, isChangeDrop } = this.state;
-    const { worksheetInfo = {} } = this.props;
+  onSortEnd = ({ oldIndex, newIndex }, type) => {
+    const { printData } = this.state;
+    const { worksheetInfo = {}, worksheetId } = this.props;
+
+    let defaulteTemIds = printData
+      .filter(it => [PRINT_TYPE.SYS_PRINT, PRINT_TYPE.WORD_PRINT, PRINT_TYPE.EXCEL_PRINT].includes(it.type))
+      .map(l => {
+        return {
+          printId: l.id,
+        };
+      }); //记录打印
+    let codeTemIds = printData
+      .filter(it => it.type === PRINT_TYPE.QR_CODE_PRINT || it.type === PRINT_TYPE.BAR_CODE_PRINT)
+      .map(l => {
+        return {
+          printId: l.id,
+        };
+      }); //条码打印
+
+    if (type === 0) {
+      defaulteTemIds = arrayMove(defaulteTemIds, oldIndex, newIndex);
+    } else {
+      codeTemIds = arrayMove(codeTemIds, oldIndex, newIndex);
+    }
+
+    const sortItems = defaulteTemIds.concat(codeTemIds).map((l, i) => {
+      return {
+        ...l,
+        sort: i,
+      };
+    });
+
+    sheetAjax
+      .editPrintTemplateSort({
+        projectId: worksheetInfo.projectId,
+        worksheetId: worksheetId,
+        sortItems: sortItems,
+      })
+      .then(res => {
+        if (res) {
+          const sorData = [];
+          sortItems.forEach(l => {
+            let it = printData.find(m => l.printId === m.id);
+            sorData.push(it);
+          });
+          this.setState({
+            printData: sorData,
+          });
+        }
+      });
+  };
+
+  changeState = value => {
+    this.setState({
+      ...value,
+    });
+  };
+
+  renderPrintItem = (data, type) => {
+    const { showDropOption, isRename, templateId, showMoreOption, isChangeDrop, showFilters } = this.state;
+    const { worksheetInfo = {}, worksheetControls } = this.props;
     const { views = [] } = worksheetInfo;
 
-    return data.map(it => {
-      let printInfo = getPrintCardInfoOfTemplate(it);
-      let isCustom = [PRINT_TYPE.WORD_PRINT, PRINT_TYPE.EXCEL_PRINT].includes(it.type);
-      let style = {};
-      if (isCustom) style.background = PRINT_TYPE_STYLE[it.type].background;
-
-      return (
-        <div className={cx('templates')}>
-          <div className={cx('topBox', { defaulteTem: !isCustom })} style={style}>
-            <Icon
-              icon={PRINT_TYPE_STYLE[it.type] ? PRINT_TYPE_STYLE[it.type].icon : printInfo.icon}
-              className={`iconTitle ${
-                [PRINT_TYPE.WORD_PRINT, PRINT_TYPE.EXCEL_PRINT].includes(it.type) || printInfo.icon !== 'doc'
-                  ? 'Font22'
-                  : 'Font16'
-              }`}
-            />
-            {isRename && templateId === it.id ? (
-              <input
-                type="text"
-                ref={el => {
-                  this.input = el;
-                }}
-                value={it.name}
-                onChange={e => {
-                  this.updatePrint(it.id, { name: e.target.value });
-                }}
-                onBlur={() => {
-                  if (!_.trim(it.name)) {
-                    alert(_l('请输入模板名称'), 3);
-                    $(this.input).focus();
-                    return;
-                  }
-                  this.editPrintName({ id: it.id, name: it.name });
-                  this.setState({
-                    templateId: '',
-                    isRename: false,
-                  });
-                }}
-              />
-            ) : (
-              <span className="Bold"> {it.name}</span>
-            )}
-            <Icon
-              icon="task-point-more"
-              className="moreActive Hand Font18"
-              onClick={() => {
-                this.setState({
-                  templateId: it.id,
-                  showMoreOption: true,
-                });
-              }}
-            />
-            {showMoreOption && templateId === it.id && (
-              <MoreOption
-                isRename={isRename}
-                templateId={it.id}
-                showMoreOption={showMoreOption}
-                onClickAwayExceptions={[]}
-                onClickAway={() => this.setState({ showMoreOption: false })}
-                setFn={data => {
-                  this.setState({
-                    ...this.state,
-                    ...data,
-                  });
-                }}
-                deleteFn={data => {
-                  this.deletePrint(it.id);
-                  this.setState({
-                    ...this.state,
-                    ...data,
-                  });
-                }}
-              />
-            )}
-          </div>
-          <div className="con">
-            <div className="view">
-              {it.range === 1 && <span className="viewText">{_l('使用范围：所有记录')}</span>}
-              {it.range !== 1 && it.views.length <= 0 && <span className="viewText">{_l('使用范围：未指定视图')}</span>}
-              {it.range === 3 && it.views.length > 0 && (
-                <span
-                  className="viewText"
-                  style={{ WebkitBoxOrient: 'vertical' }}
-                  title={it.views.map((item, i) => {
-                    return i + 1 >= it.views.length ? item.name || item.viewName : `${item.name || item.viewName}、`;
-                  })}
-                >
-                  {_l('使用范围：%0视图', it.views.length)}（
-                  {it.views.map((item, i) => {
-                    return i + 1 >= it.views.length ? item.name || item.viewName : `${item.name || item.viewName}、`;
-                  })}
-                  ）
-                </span>
-              )}
-            </div>
-            {[PRINT_TYPE.QR_CODE_PRINT, PRINT_TYPE.BAR_CODE_PRINT].includes(it.type) && (
-              <div className="printSize">
-                {_l('打印尺寸')}：{printInfo.text}
-              </div>
-            )}
-            <div className="createMethod">
-              {_l('创建方式') + '：' + (isCustom ? PRINT_TYPE_STYLE[it.type].text : _l('系统默认打印'))}
-            </div>
-            <div className="activeCon Relative">
-              <span
-                className="Hand"
-                onClick={() => {
-                  this.setState({
-                    templateId: it.id,
-                    showDropOption: true,
-                  });
-                }}
-              >
-                {_l('使用范围')}
-              </span>
-              {showDropOption && templateId === it.id && (
-                <RangeDrop
-                  printData={it}
-                  views={views}
-                  onClickAwayExceptions={[]}
-                  onClickAway={() => {
-                    this.setState({ showDropOption: false });
-                    if (isChangeDrop) {
-                      this.editPrintRange({
-                        id: it.id,
-                        range: it.range,
-                        viewsIds: it.views.map(o => o.viewId),
-                      });
-                    }
-                  }}
-                  onClose={() => {
-                    this.setState({ showDropOption: false });
-                  }}
-                  setData={data => {
-                    this.updatePrint(data.printData.id, { ...data.printData });
-                    this.setState({ isChangeDrop: true });
-                  }}
-                />
-              )}
-              <span
-                className="Hand"
-                onClick={() => {
-                  if (_.includes([PRINT_TYPE.QR_CODE_PRINT, PRINT_TYPE.BAR_CODE_PRINT], it.type)) {
-                    printQrBarCode({
-                      mode: 'preview',
-                      id: it.id,
-                      printType: it.printType,
-                      projectId: worksheetInfo.projectId,
-                      worksheetId: worksheetInfo.worksheetId,
-                      controls: _.get(worksheetInfo, 'template.controls'),
-                    });
-                  } else {
-                    this.setState({
-                      templateId: it.id,
-                      name: it.name,
-                      type: 'preview',
-                      showPrintTemDialog: true,
-                      isDefault: it.type === PRINT_TYPE.SYS_PRINT,
-                      fileTypeNum: it.type,
-                    });
-                  }
-                }}
-              >
-                {_l('预览')}
-              </span>
-              <span
-                className="Hand mLeft24"
-                onClick={() => {
-                  if (_.includes([PRINT_TYPE.QR_CODE_PRINT, PRINT_TYPE.BAR_CODE_PRINT], it.type)) {
-                    printQrBarCode({
-                      isCharge: true,
-                      mode: 'editTemplate',
-                      id: it.id,
-                      printType: it.printType,
-                      projectId: worksheetInfo.projectId,
-                      worksheetId: worksheetInfo.worksheetId,
-                      controls: _.get(worksheetInfo, 'template.controls'),
-                      onClose: () => {
-                        this.loadPrint({ worksheetId: worksheetInfo.worksheetId });
-                      },
-                    });
-                  } else if (isCustom) {
-                    // 上传的模板
-                    this.setState({
-                      templateId: it.id,
-                      showEditPrint: true,
-                      type: 'edit',
-                      fileType: it.type === 5 ? 'Excel' : 'Word',
-                    });
-                  } else {
-                    // 系统模板
-                    this.setState({
-                      templateId: it.id,
-                      type: 'edit',
-                      showPrintTemDialog: true,
-                      isDefault: it.type === PRINT_TYPE.SYS_PRINT,
-                    });
-                  }
-                }}
-              >
-                {_l('编辑')}
-              </span>
-            </div>
-          </div>
-        </div>
-      );
-    });
+    return (
+      <SortableList
+        useDragHandle
+        axis={'xy'}
+        worksheetInfo={worksheetInfo}
+        worksheetControls={worksheetControls}
+        showDropOption={showDropOption}
+        isRename={isRename}
+        isChangeDrop={isChangeDrop}
+        showFilters={showFilters}
+        showMoreOption={showMoreOption}
+        templateId={templateId}
+        hideSortableGhost
+        transitionDuration={0}
+        helperClass="sortablePrintTempItemHelperClass"
+        distance={3}
+        items={data}
+        onSortEnd={param => this.onSortEnd(param, type)}
+        updatePrint={this.updatePrint}
+        changeState={this.changeState}
+        editPrintName={this.editPrintName}
+        deletePrint={this.deletePrint}
+        editPrintRange={this.editPrintRange}
+        editPrintFilters={this.editPrintFilters}
+        loadPrint={this.loadPrint}
+      />
+    );
   };
 
   renderCon = () => {
@@ -461,7 +677,7 @@ class Print extends React.Component {
     return (
       <div className="printBox Relative">
         <div className="printBoxList">
-          <div className="">
+          <div className="h100 overflowHidden">
             <div className="topBoxText">
               <div className="textCon">
                 <h5 className="formName Gray Font17 Bold">{_l('打印模板')}</h5>
@@ -469,7 +685,7 @@ class Print extends React.Component {
                   <span className="Font13 Gray_9e">
                     {_l('保存系统打印的配置为模板，或上传 Word、Excel 模板自由定义记录打印的样式。')}
                   </span>
-                  <Support type={3} text={_l('帮助')} href="https://help.mingdao.com/operation15" />
+                  <Support type={3} text={_l('帮助')} href="https://help.mingdao.com/worksheet/print-template" />
                 </p>
               </div>
               <span
@@ -492,11 +708,19 @@ class Print extends React.Component {
               </p>
             ) : (
               <React.Fragment>
-                <div className="printTemplatesList">
-                  {defaulteTemData.length > 0 && <p className="printTemTi">{_l('记录打印')}</p>}
-                  {defaulteTemData.length > 0 && this.renderPrintItem(defaulteTemData || [])}
-                  {codeTemData.length > 0 && <p className="printTemTi">{_l('条码打印')}</p>}
-                  {codeTemData.length > 0 && this.renderPrintItem(codeTemData || [])}
+                <div className="printTemplatesList withPrintTemp flex overflowHidden flexColumn">
+                  <div className="printTemplatesList-header">
+                    <div className="name flex mRight20 valignWrapper overflow_ellipsis">{_l('名称')}</div>
+                    <div className="views flex mRight20">{_l('使用范围')}</div>
+                    <div className="action mRight8 w180px">{_l('操作')}</div>
+                    <div className="more w80px"></div>
+                  </div>
+                  <div className="printTemplatesList-box flex">
+                    {defaulteTemData.length > 0 && <p className="printTemTi">{_l('记录打印')}</p>}
+                    {defaulteTemData.length > 0 && this.renderPrintItem(defaulteTemData || [], 0)}
+                    {codeTemData.length > 0 && <p className="printTemTi">{_l('条码打印')}</p>}
+                    {codeTemData.length > 0 && this.renderPrintItem(codeTemData || [], 1)}
+                  </div>
                 </div>
               </React.Fragment>
             )}
@@ -514,6 +738,7 @@ class Print extends React.Component {
                 templateId={templateId}
                 worksheetId={worksheetId}
                 fileType={fileType}
+                updatePrint={this.updatePrint}
                 refreshFn={() => {
                   this.setState({ showEditPrint: false, type: '' });
                   this.loadPrint({ worksheetId: worksheetId }); // 获取当前模板

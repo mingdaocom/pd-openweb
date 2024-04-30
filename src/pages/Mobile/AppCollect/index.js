@@ -38,9 +38,9 @@ export default class RecordCollect extends Component {
     homeAppAjax
       .myPlatform({ projectId, containsLinks: true })
       .then(({ markedAppItems = [] }) => {
-        this.setState({ markedAppItems, loading: false });
+        this.setState({ markedAppItems: markedAppItems.filter(o => o && !o.webMobileDisplay), loading: false });
       })
-      .fail(err => {
+      .catch(err => {
         this.setState({ markedAppItems: [], loading: false });
       });
   };

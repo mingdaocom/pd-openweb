@@ -1,7 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { Flex, ActionSheet, Modal } from 'antd-mobile';
-import { Icon, LoadDiv } from 'ming-ui';
-import SvgIcon from 'src/components/SvgIcon';
+import { Icon, LoadDiv, SvgIcon } from 'ming-ui';
 import AppStatus from 'src/pages/AppHomepage/AppCenter/components/AppStatus';
 import homeAppAjax from 'src/api/homeApp';
 import { generateRandomPassword, getCurrentProject } from 'src/util';
@@ -10,8 +9,6 @@ import DocumentTitle from 'react-document-title';
 import cx from 'classnames';
 import './index.less';
 import _ from 'lodash';
-
-const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
 
 class AppList extends Component {
   constructor(props) {
@@ -97,7 +94,7 @@ class AppList extends Component {
           window.mobileNavigateTo(`/mobile/appBox`);
         }
         if (buttonIndex === 1) {
-          const title = isWxWork ? _l('创建自定义应用请前往企业微信PC桌面端') : _l('创建自定义应用请前往PC端');
+          const title = window.isWxWork ? _l('创建自定义应用请前往企业微信PC桌面端') : _l('创建自定义应用请前往PC端');
           Modal.alert(title, null, [{ text: _l('我知道了'), onPress: () => {} }]);
         }
       },

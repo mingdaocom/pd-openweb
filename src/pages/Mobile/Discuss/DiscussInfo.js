@@ -15,8 +15,6 @@ import externalPortalAjax from 'src/api/externalPortal';
 import AddDiscuss from 'mobile/AddDiscuss';
 import _ from 'lodash';
 
-const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
-
 const tabs = md.global.Account.isPortal
   ? [{ title: _l('讨论'), type: 1 }]
   : [

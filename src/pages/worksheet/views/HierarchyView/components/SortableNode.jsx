@@ -4,7 +4,6 @@ import cx from 'classnames';
 import { isEmpty, isEqual, pick } from 'lodash';
 import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
 import { RecordInfoModal } from 'mobile/Record';
-import { getItem } from '../../util';
 import { getPosition } from '../util';
 import SVG from 'svg.js';
 import DraggableRecord from './DraggableRecord';
@@ -119,8 +118,7 @@ export default class SortableRecordItem extends Component {
     }
   };
   handleRecordVisible = rowId => {
-    const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
-    if (isMingdao) {
+    if (window.isMingDaoApp) {
       const { appId, treeData } = this.props;
       const curInfo = treeData[rowId];
       window.location.href = `/mobile/record/${appId}/${curInfo.wsid}/${rowId}`;
@@ -193,7 +191,7 @@ export default class SortableRecordItem extends Component {
     } = this.props;
     const { recordInfoRowId, recordInfoVisible } = this.state;
     const { rowId, path = [], pathId = [] } = data;
-    const { rowId: draggingId } = getItem('draggingHierarchyItem') || '';
+    const { rowId: draggingId } = safeParse(localStorage.getItem('draggingHierarchyItem'));
     const recordInfoPara = this.getRecordInfoPara();
     const { advancedSetting = {} } = view;
     if (recordInfoPara.worksheetId === worksheetInfo.worksheetId) {

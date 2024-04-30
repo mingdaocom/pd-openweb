@@ -1,12 +1,15 @@
 import React from 'react';
-import { Icon } from 'ming-ui';
+import { Icon, Checkbox } from 'ming-ui';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
 import cx from 'classnames';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import styled from 'styled-components';
-import { Checkbox } from 'ming-ui';
-import { formatControlsChildBySectionId, getRealData } from 'src/pages/worksheet/common/CreateCustomBtn/utils.js';
+import {
+  formatControlsChildBySectionId,
+  getRealData,
+  canNotForCustomWrite,
+} from 'src/pages/worksheet/common/CreateCustomBtn/utils.js';
 import _ from 'lodash';
 
 const ChooseWidgetWrap = styled.div`
@@ -128,7 +131,7 @@ export default class ChooseWidget extends React.Component {
   }
   getData = props => {
     const { writeObject, relationControls = [], widgetList = [] } = props;
-    return writeObject !== 1 ? relationControls : widgetList; //排除子表
+    return (writeObject !== 1 ? relationControls : widgetList).filter(o => !canNotForCustomWrite(o));
   };
   setPoint = () => {
     let wh = $(window).height();
@@ -168,7 +171,7 @@ export default class ChooseWidget extends React.Component {
             othersAdd.map(o => {
               return {
                 controlId: o.controlId,
-                type: this.props.isDisable(o.type) ? 1 : o.required ? 3 : 2, //1：只读 2：填写 3：必填
+                type: this.props.isOnlyRead(o.type) ? 1 : o.required ? 3 : 2, //1：只读 2：填写 3：必填
               };
             }),
           )
@@ -179,7 +182,7 @@ export default class ChooseWidget extends React.Component {
   renderCon = item => {
     const { closeList = [], writeControls = [] } = this.state;
     if (
-      ([29, 51].includes(item.type) && item.advancedSetting.showtype === '2') || //排除关联表多条
+      canNotForCustomWrite(item) || //排除表格类的显示方式
       ALL_SYS.includes(item.controlId) //排除系统字段
     ) {
       return '';

@@ -10,6 +10,7 @@ import {
   TEXT_FILTER_TYPE,
   LIMIT,
   NUMBER_FILTER_TYPE,
+  DATE_FILTER_TYPE,
   RELA_FILTER_TYPE,
   GROUP_FILTER_TYPE,
   DIRECTION_TYPE,
@@ -25,6 +26,9 @@ import {
   getControlFormatType,
   DATE_TYPE_M,
   DATE_TYPE_Y,
+  DATE_GRANULARITY_TYPE,
+  getDefaultDateRange,
+  getDefaultDateRangeType,
 } from './util';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import { Radio } from 'antd';
@@ -115,6 +119,33 @@ const Wrap = styled.div`
         padding: 0 12px 0 12px;
         .icon {
           line-height: 35px;
+        }
+        &.timeRange {
+          padding: 0 0 0 12px;
+          .act{
+            width: 18px;
+            height: 18px;
+            margin-right: 5px;
+          }
+          .clearTimeRange,
+          .changeTimeRange{
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            display:block;
+            &.clearTimeRange{
+              display:none;
+            }
+          }
+          &:hover{
+            .clearTimeRange{
+              display:block;
+            }
+            .changeTimeRange{
+              display:none;
+            }
+          }
         }
         .itemText {
           text-align: left;
@@ -309,17 +340,63 @@ function Edit(params) {
 
   const renderDrop = data => {
     let conData = worksheetControls.find(item => item.controlId === control.controlId) || {};
+    let dataInfo = data.types.map(o => {
+      return { ...o, disabled: !!conData.encryId && o.value !== FILTER_CONDITION_TYPE.EQ };
+    });
+    if (['dateRangeType'].includes(data.key)) {
+      dataInfo =
+        _.get(conData, 'advancedSetting.showtype') === '5'
+          ? dataInfo.filter(o => o.value === 5)
+          : _.get(conData, 'advancedSetting.showtype') === '4'
+          ? dataInfo.filter(o => o.value !== 3)
+          : dataInfo;
+    }
+    let type = getControlFormatType(control);
+    let value = ['filterType', 'dateRangeType'].includes(data.key)
+      ? ['filterType'].includes(data.key) && data.keys.includes(type) && control[data.key] === 0
+        ? FILTER_CONDITION_TYPE.DATE_BETWEEN //兼容老数据的默认值
+        : control[data.key]
+      : JSON.parse(advancedSetting[data.key]) || data.default;
     return (
       <React.Fragment>
         <div className="title">{data.txt}</div>
         <Dropdown
-          data={data.types.map(o => {
-            return { ...o, disabled: !!conData.encryId && o.value !== FILTER_CONDITION_TYPE.EQ };
-          })}
-          value={data.key === 'filterType' ? control[data.key] : JSON.parse(advancedSetting[data.key]) || data.default}
+          data={dataInfo}
+          value={!dataInfo.find(o => o.value === value) ? undefined : value}
           className="flex"
           onChange={newValue => {
-            updateViewSet({ [data.key]: newValue });
+            let dataNew = { [data.key]: newValue };
+            if (data.keys.includes(type)) {
+              let daterange = getDaterange();
+              if (['dateRangeType'].includes(data.key)) {
+                dataNew = {
+                  ...dataNew,
+                  advancedSetting: {
+                    ...advancedSetting,
+                    daterange: JSON.stringify(
+                      daterange.filter(o =>
+                        newValue == 5 ? DATE_TYPE_Y.includes(o) : newValue == 4 ? DATE_TYPE_M.includes(o) : true,
+                      ),
+                    ),
+                  },
+                };
+              }
+              if (['filterType'].includes(data.key)) {
+                //日期字段筛选方式切换，颗粒度清空
+                dataNew = {
+                  ...dataNew,
+                  advancedSetting: {
+                    ...advancedSetting,
+                    daterange: JSON.stringify(daterange.filter(o => getDefaultDateRange(conData).includes(o))),
+                  },
+                  dateRangeType:
+                    newValue !== FILTER_CONDITION_TYPE.DATEENUM ? undefined : getDefaultDateRangeType(conData),
+                };
+              }
+            }
+            updateViewSet({
+              ...dataNew,
+            });
           }}
           isAppendToBody
         />
@@ -338,9 +415,12 @@ function Edit(params) {
         <div className="title">{data.txt}</div>
         <Radio.Group
           onChange={e => {
-            //  筛选方式默认等于
-            if (data.key === 'allowitem' && e.target.value === 1) {
-              updateViewSet({ [data.key]: e.target.value, filterType: FILTER_CONDITION_TYPE.EQ });
+            //  筛选方式默认等于 多选类型的字段
+            if (data.key === 'allowitem' && e.target.value === 1 && MULTI_SELECT_FILTER_TYPE.keys.includes(dataType)) {
+              updateViewSet({
+                [data.key]: e.target.value,
+                filterType: MULTI_SELECT_FILTER_TYPE.default,
+              });
             } else {
               updateViewSet({ [data.key]: e.target.value });
             }
@@ -411,27 +491,46 @@ function Edit(params) {
     });
   };
   const renderTimeType = () => {
-    let daterange = getDaterange();
+    const dateRangeType = _.get(control, 'dateRangeType') + '';
+    let daterange = getDaterange().filter(o =>
+      dateRangeType === '5' ? DATE_TYPE_Y.includes(o) : dateRangeType === '4' ? DATE_TYPE_M.includes(o) : true,
+    );
     let dateRanges = DATE_RANGE.types;
     const activeControl = worksheetControls.find(item => item.controlId === control.controlId);
     const showType = _.get(activeControl, 'advancedSetting.showtype');
     let isAllRange = daterange.length >= DATE_RANGE.default.length;
-    if (_.includes(['4', '5'], showType)) {
+    if (_.includes(['4', '5'], showType) || _.includes(['4', '5'], dateRangeType)) {
       dateRanges = dateRanges
-        .map(options => options.filter(o => _.includes(showType === '5' ? DATE_TYPE_Y : DATE_TYPE_M, o.value)))
+        .map(options =>
+          options.filter(o => _.includes([dateRangeType, showType].includes('5') ? DATE_TYPE_Y : DATE_TYPE_M, o.value)),
+        )
         .filter(options => options.length);
-      isAllRange = showType === '5' ? daterange.length >= DATE_TYPE_Y.length : daterange.length >= DATE_TYPE_M.length;
+      isAllRange = [dateRangeType, showType].includes('5')
+        ? daterange.length >= DATE_TYPE_Y.length
+        : daterange.length >= DATE_TYPE_M.length;
     }
     return (
       <React.Fragment>
         <div className="title">{DATE_RANGE.txt}</div>
         <DropdownWrapper className="w100 dropTimeWrap" downElement={<div>{renderListItem(dateRanges)}</div>}>
           <div className="Dropdown--input Dropdown--border mTop6">
-            <div className="inputBox">
-              <div className={cx('itemText', { Gray_bd: daterange.length <= 0 })}>
+            <div className="inputBox timeRange flexRow alignItemsCenter">
+              <div className={cx('itemText flex', { Gray_bd: daterange.length <= 0 })}>
                 {isAllRange ? _l('全选') : daterange.length <= 0 ? _l('请选择') : _l('选了 %0 个', daterange.length)}
               </div>
-              <Icon icon={'arrow-down-border'} className="mLeft12 Font18 Gray_9e" />
+              <div className="act Relative">
+                <Icon icon={'arrow-down-border'} className="Font14 Gray_9e changeTimeRange" />
+                <Icon
+                  icon={'cancel1'}
+                  className="Font14 Gray_9e clearTimeRange Hand"
+                  onClick={e => {
+                    e.stopPropagation();
+                    updateViewSet({
+                      advancedSetting: { ...advancedSetting, daterange: '[]' },
+                    });
+                  }}
+                />
+              </div>
             </div>
           </div>
         </DropdownWrapper>
@@ -538,11 +637,15 @@ function Edit(params) {
             );
           }}
         />
-        {[TEXT_FILTER_TYPE, RELA_FILTER_TYPE, GROUP_FILTER_TYPE, NUMBER_FILTER_TYPE].map(o => {
+        {[TEXT_FILTER_TYPE, RELA_FILTER_TYPE, GROUP_FILTER_TYPE, NUMBER_FILTER_TYPE, DATE_FILTER_TYPE].map(o => {
           if (o.keys.includes(dataType)) {
             return renderDrop(o);
           }
         })}
+        {/* 日期类型且筛选方式为等于 */}
+        {DATE_GRANULARITY_TYPE.keys.includes(dataType) &&
+          [FILTER_CONDITION_TYPE.DATEENUM].includes(control.filterType) &&
+          renderDrop(DATE_GRANULARITY_TYPE)}
         {TEXT_FILTER_TYPE.keys.includes(dataType) &&
           FILTER_CONDITION_TYPE.TEXT_ALLCONTAIN === control[TEXT_FILTER_TYPE.key] && (
             <div className="mTop10 Gray_75">
@@ -644,7 +747,7 @@ function Edit(params) {
             }}
           />
         </div> */}
-        {[29].includes(dataType) && (
+        {[29].includes(dataType) && _.get(advancedSetting, 'navshow') !== '2' && (
           <SearchConfig
             controls={dataControls.relationControls}
             data={advancedSetting}

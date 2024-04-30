@@ -11,7 +11,7 @@ import moment from 'moment';
 import { FLOW_STATUS } from 'src/pages/workflow/WorkflowSettings/History/config.js';
 import Search from 'src/pages/workflow/components/Search/index.jsx';
 import DateRangePicker from 'ming-ui/components/NewDateTimePicker/date-time-range';
-import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
+import { dialogSelectUser } from 'ming-ui/functions';
 
 const Wrap = styled.div`
   background: #ffffff;

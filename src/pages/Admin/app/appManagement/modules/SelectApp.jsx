@@ -3,9 +3,8 @@ import ajaxRequest from 'src/api/appManagement';
 import Config from '../../../config';
 import Search from 'src/pages/workflow/components/Search';
 import './index.less';
-import { LoadDiv, ScrollView, Checkbox, Tooltip } from 'ming-ui';
+import { LoadDiv, ScrollView, Checkbox, Tooltip, SvgIcon } from 'ming-ui';
 import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
-import SvgIcon from 'src/components/SvgIcon';
 import cx from 'classnames';
 import _ from 'lodash';
 

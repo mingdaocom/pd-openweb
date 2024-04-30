@@ -24,6 +24,7 @@ import {
 import styled from 'styled-components';
 import cx from 'classnames';
 import _ from 'lodash';
+import { isSheetDisplay } from 'src/pages/widgetConfig/util';
 
 const MenuStyle = styled.div`
   display: flex;
@@ -165,10 +166,7 @@ export default class SelectOtherField extends Component {
       types = types.filter(item => item.key !== OTHER_FIELD_TYPE.FX);
     }
     // 没有动态值的控件
-    if (
-      _.includes(CAN_NOT_AS_FIELD_DYNAMIC_FIELD, data.type) ||
-      (data.type === 29 && _.get(data.advancedSetting || {}, 'showtype') === '2')
-    ) {
+    if (_.includes(CAN_NOT_AS_FIELD_DYNAMIC_FIELD, data.type) || isSheetDisplay(data)) {
       types = types.filter(item => item.key !== OTHER_FIELD_TYPE.FIELD);
     }
     // 有其他字段的控件 ｜ api查询其他字段
@@ -190,6 +188,10 @@ export default class SelectOtherField extends Component {
     if (this.props.hideSearchAndFun) {
       types = types.filter(item => !_.includes([OTHER_FIELD_TYPE.SEARCH, OTHER_FIELD_TYPE.FX], item.key));
     }
+    //自定义事件没有查询工作表
+    if (this.props.fromCustomEvent) {
+      types = types.filter(item => !_.includes([OTHER_FIELD_TYPE.SEARCH], item.key));
+    }
     return types;
   };
 
@@ -207,8 +209,7 @@ export default class SelectOtherField extends Component {
     } = this.props;
     const filterTypes = this.getCurrentField(data);
     //子表、列表特殊处理
-    const isSubList =
-      _.includes([34], data.type) || (data.type === 29 && _.get(data.advancedSetting || {}, 'showtype') === '2');
+    const isSubList = _.includes([34], data.type) || isSheetDisplay(data);
     return (
       <Fragment>
         <div ref={this.$wrap} className="selectOtherFieldContainer">

@@ -1,16 +1,15 @@
 import React, { Fragment } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Menu, Dropdown } from 'antd';
+import { Menu } from 'antd';
+import Trigger from 'rc-trigger';
 import { LoadDiv, RadioGroup, Dropdown as MingDropdown } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
 import VerifyDel from 'src/pages/worksheet/views/components/VerifyDel';
 import { useSetState } from 'react-use';
 import CardDisplay from './CardDisplay';
 import update from 'immutability-helper';
-import Abstract from './components/Abstract';
-import CoverSetting from './components/CoverSettingCon';
-import DisplayControl from './components/DisplayControl';
+import { Abstract, CoverSetting, DisplayControl } from './components';
 import {
   HIERARCHY_VIEW_TYPE,
   CONNECT_LINE_TYPE,
@@ -21,13 +20,31 @@ import { filterAndFormatterControls } from 'src/pages/worksheet/views/util';
 
 const EmptyHint = styled.div`
   margin: -6px 0 0 20px;
-  background: #fff;
   padding: 18px 12px;
   border-radius: 3px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.24);
   width: 280px;
   color: #9e9e9e;
   font-size: 13px;
+`;
+
+const Wrap = styled.div`
+  width: 440px;
+  .ant-menu-item {
+    clear: both;
+    color: rgba(0, 0, 0, 0.85);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 36px !important;
+    height: 36px !important;
+    margin: 0;
+    transition: all 0.3s;
+    margin: 0 !important;
+  }
+  .ant-menu-item:hover {
+    background-color: #f5f5f5;
+    color: rgba(0, 0, 0, 0.85) !important;
+  }
 `;
 
 const HierarchyViewSettingWrap = styled.div`
@@ -216,19 +233,28 @@ export default function HierarchyViewSetting(props) {
   const { view, currentSheetInfo, updateCurrentView, appId, filteredColumns } = props;
   const { viewControls = [], childType, advancedSetting, layersName } = view;
 
-  const [{ activeIndex, delIndex, hierarchyViewType, hierarchyViewConnectLine, minHierarchyLevel }, setSetting] =
-    useSetState({
-      activeIndex: -1,
-      delIndex: -1,
-      hierarchyViewType: (advancedSetting || {}).hierarchyViewType || '0',
-      hierarchyViewConnectLine: (advancedSetting || {}).hierarchyViewConnectLine || '0',
-      minHierarchyLevel: (advancedSetting || {}).minHierarchyLevel || '2',
-    });
+  const [
+    { activeIndex, delIndex, hierarchyViewType, hierarchyViewConnectLine, minHierarchyLevel, visible },
+    setSetting,
+  ] = useSetState({
+    activeIndex: -1,
+    delIndex: -1,
+    hierarchyViewType: (advancedSetting || {}).hierarchyViewType || '0',
+    hierarchyViewConnectLine: (advancedSetting || {}).hierarchyViewConnectLine || '0',
+    minHierarchyLevel: (advancedSetting || {}).minHierarchyLevel || '2',
+    visible: false,
+  });
 
   const getSelectableControls = sheetInfo => {
     const { controls = [] } = _.get(sheetInfo, 'template') || {};
     const existSheet = viewControls.map(item => item.worksheetId);
-    return _.filter(controls, item => item.type === 29 && !_.includes(existSheet, item.dataSource));
+    return _.filter(
+      controls,
+      item =>
+        (item.type === 29 ||
+          (item.type === 34 && _.includes(['0', '1'], _.get(item, 'advancedSetting.detailworksheettype')))) &&
+        !_.includes(existSheet, item.dataSource),
+    );
   };
 
   const [{ availableControls, controlLoading }, setControls] = useSetState({
@@ -248,16 +274,21 @@ export default function HierarchyViewSetting(props) {
 
   const getAvailableControls = () => {
     const { worksheetId = '' } = _.last(viewControls) || {};
+    const prevViewControl = _.last(viewControls.slice(0, -1));
     if (controlLoading) return;
     setControls({ controlLoading: true });
     worksheetAjax
-      .getWorksheetInfo({ worksheetId, getTemplate: true })
+      .getWorksheetInfo({
+        worksheetId,
+        getTemplate: true,
+        relationWorksheetId: prevViewControl ? prevViewControl.worksheetId : currentSheetInfo.worksheetId,
+      })
       .then(data => {
         setControls({
           availableControls: getSelectableControls(data),
         });
       })
-      .always(() => {
+      .finally(() => {
         setControls({ controlLoading: false });
       });
   };
@@ -328,6 +359,7 @@ export default function HierarchyViewSetting(props) {
               key={controlId}
               onClick={() => {
                 addViewControl(item);
+                setSetting({ visible: false });
               }}
             >
               <i className="icon-link2 Gray_9e Font15"></i>
@@ -607,18 +639,24 @@ export default function HierarchyViewSetting(props) {
           </li>
         );
       })}
-
-      <Dropdown
-        overlayClassName="addHierarchyRelate"
-        trigger={['click']}
-        overlay={renderRelate()}
-        placement="bottomLeft"
+      <Trigger
+        action={['click']}
+        getPopupContainer={() => document.body}
+        popupClassName="addHierarchyRelate"
+        popupAlign={{
+          points: ['tl', 'bl'],
+          offset: [0, 4],
+          overflow: { adjustX: true, adjustY: true },
+        }}
+        popupVisible={visible}
+        onPopupVisibleChange={visible => setSetting({ visible })}
+        popup={<Wrap className="Relative ant-dropdown-menu">{renderRelate()}</Wrap>}
       >
         <div className={cx('addRelate')} onClick={getAvailableControls}>
           <i className="icon-add Font20"></i>
           <span className="InlineBlock TxtTop">{_l('下一级关联')}</span>
         </div>
-      </Dropdown>
+      </Trigger>
     </HierarchyViewSettingWrap>
   );
 }

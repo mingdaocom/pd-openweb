@@ -399,6 +399,6 @@ class ContractCom extends Component {
   }
 }
 
-const WrappedComp = preall(ContractCom, { allownotlogin: true });
+const WrappedComp = preall(ContractCom, { allowNotLogin: true });
 
 ReactDOM.render(<WrappedComp />, document.querySelector('#contractWrap'));

@@ -7,7 +7,7 @@ import WidgetColor from '../components/WidgetColor';
 import cx from 'classnames';
 import { handleAdvancedSettingChange, updateConfig } from '../../util/setting';
 import { SettingCollapseWrap } from './styled';
-import { isRelateRecordTableControl } from 'worksheet/util';
+import { notExplainDisplay } from '../../util';
 import { HAVE_VALUE_STYLE_WIDGET } from '../../config';
 import { SectionItem } from '../components/SplitLineConfig/style';
 
@@ -35,8 +35,7 @@ const DISPLAY_TYPES = [
 const getStyleOptions = data => {
   const defaultData = [];
   // 不支持字段名称样式
-  // 分段、标签页、多条列表
-  if (!(_.includes([22, 52], data.type) || isRelateRecordTableControl(data))) {
+  if (!notExplainDisplay(data)) {
     defaultData.push({
       text: _l('名称'),
       key: 'title',

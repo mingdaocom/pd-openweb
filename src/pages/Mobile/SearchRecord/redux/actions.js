@@ -7,7 +7,7 @@ export const changeSearchSheetRows = ({ worksheetId, appId, viewId, keyWords, pa
   dispatch,
   getState,
 ) => {
-  if (request && request.state() === 'pending') {
+  if (request) {
     request.abort();
   }
   if (!keyWords) {

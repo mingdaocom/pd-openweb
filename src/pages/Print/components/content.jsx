@@ -124,6 +124,7 @@ export default class Con extends React.Component {
           //关联表多行列表/子表打印
           if (isRelationControls) {
             const item = tableData[0];
+
             if (isHideNull) {
               if ([29, 34, 51].includes(item[0].type)) {
                 //关联表,子表，是否空值隐藏
@@ -441,7 +442,6 @@ export default class Con extends React.Component {
         });
       }
       handChange({
-        ...printData,
         relationStyle: data,
       });
     };
@@ -1145,16 +1145,28 @@ export default class Con extends React.Component {
                   })}
                 </table>
               ) : null}
-              {printData.printTime && (
+              {(printData.printTime || printData.printAccount) && (
                 <p
                   style={{
                     marginTop: 15,
                     textAlign: 'right',
                     width: '100%',
+                    fontSize: 13,
                   }}
+                  className="printInfo"
                 >
-                  {_l('打印时间：')}
-                  {moment().format('YYYY-MM-DD HH:mm:ss')}
+                  {printData.printAccount && (
+                    <span className="mRight24">
+                      {_l('打印人：')}
+                      {md.global.Account.fullname}
+                    </span>
+                  )}
+                  {printData.printTime && (
+                    <span>
+                      {_l(' 打印时间：')}
+                      {moment().format('YYYY-MM-DD HH:mm:ss')}
+                    </span>
+                  )}
                 </p>
               )}
             </div>

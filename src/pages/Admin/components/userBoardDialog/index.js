@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
-import { Dialog, VerifyPasswordConfirm, Checkbox } from 'ming-ui';
+import { Dialog, VerifyPasswordConfirm, Checkbox, UserHead } from 'ming-ui';
 import userController from 'src/api/user';
 import functionWrap from 'ming-ui/components/FunctionWrap';
-import UserHead from 'src/components/userHead';
 import { getPssId } from 'src/util/pssId';
 import moment from 'moment';
 import './index.less';

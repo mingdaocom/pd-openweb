@@ -28,14 +28,12 @@ const CONFIGS = [
     title: _l('自定义图标'),
     descrption: _l('上传的图标可用于应用、应用项、工作表等地方'),
     clickFunc: 'openCustomSvg',
-    icon: 'style',
   },
   {
     key: 'customColor',
     title: _l('自定义颜色'),
     descrption: _l('自定义颜色可用于应用、自定义页面等地方'),
     clickFunc: 'openCustomColor',
-    icon: 'color_lens',
   },
 ];
 export default class GeneralSettings extends Component {
@@ -91,7 +89,6 @@ export default class GeneralSettings extends Component {
                 <Item key={key}>
                   <div className="flex">
                     <div className="bold mBottom5 Font14">
-                      <Icon icon={item.icon} className="Gray_9e Font18 mRight8" />
                       {title}
                       {key === 'customIcon' && featureType === '2' && <UpgradeIcon />}
                     </div>

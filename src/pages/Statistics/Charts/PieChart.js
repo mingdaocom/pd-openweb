@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
 import { getLegendType, formatrChartValue, formatYaxisList, getChartColors, getAlienationColor } from './common';
 import { formatSummaryName, getIsAlienationColor, isFormatNumber } from 'statistics/common';
+import { Icon } from 'ming-ui';
 import { Dropdown, Menu } from 'antd';
 import { browserIsMobile } from 'src/util';
 import { toFixed } from 'src/util';
+import tinycolor from '@ctrl/tinycolor';
 import _ from 'lodash';
 
 const formatChartData = data => {
@@ -68,43 +70,79 @@ export default class extends Component {
       displaySetup.magnitudeUpdateFlag !== oldDisplaySetup.magnitudeUpdateFlag ||
       style.tooltipValueType !== oldStyle.tooltipValueType ||
       !_.isEqual(chartColor, oldChartColor) ||
-      nextProps.themeColor !== this.props.themeColor
+      nextProps.themeColor !== this.props.themeColor ||
+      !_.isEqual(nextProps.linkageMatch, this.props.linkageMatch)
     ) {
       const pieConfig = this.getPieConfig(nextProps);
       this.PieChart.update(pieConfig);
     }
-    if (displaySetup.showChartType !== oldDisplaySetup.showChartType) {
+    if (
+      displaySetup.showChartType !== oldDisplaySetup.showChartType ||
+      nextProps.isLinkageData !== this.props.isLinkageData
+    ) {
       this.PieChart.destroy();
       this.PieChart = new this.PieComponent(this.chartEl, this.getPieConfig(nextProps));
       this.PieChart.render();
     }
   }
   renderPieChart() {
-    const { reportData, isViewOriginalData } = this.props;
-    const { displaySetup } = reportData;
-    this.PieChart = new this.PieComponent(this.chartEl, this.getPieConfig(this.props));
-    if (displaySetup.showRowList && isViewOriginalData) {
-      this.PieChart.on('element:click', this.handleClick);
+    const { reportData } = this.props;
+    const { displaySetup, style, xaxes } = reportData;
+    if (this.chartEl) {
+      this.PieChart = new this.PieComponent(this.chartEl, this.getPieConfig(this.props));
+      this.isViewOriginalData = displaySetup.showRowList && this.props.isViewOriginalData;
+      this.isLinkageData = this.props.isLinkageData && !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0) && xaxes.controlId;
+      if (this.isViewOriginalData || this.isLinkageData) {
+        this.PieChart.on('element:click', this.handleClick);
+      }
+      this.PieChart.render();
     }
-    this.PieChart.render();
   }
   handleClick = data => {
-    const { xaxes } = this.props.reportData;
+    const { xaxes, appId, reportId, name, reportType, style } = this.props.reportData;
     const event = data.gEvent;
     const currentData = data.data;
     const param = {};
+    const linkageMatch = {
+      sheetId: appId,
+      reportId,
+      reportName: name,
+      reportType,
+      filters: []
+    };
     if (xaxes.cid) {
       const isNumber = isFormatNumber(xaxes.controlType);
       const value = currentData.data.originalId;
       param[xaxes.cid] = isNumber && value ? Number(value) : value;
+      linkageMatch.value = value;
+      linkageMatch.filters.push({
+        controlId: xaxes.controlId,
+        values: [param[xaxes.cid]],
+        controlName: xaxes.controlName,
+        controlValue: currentData.data.name,
+        type: xaxes.controlType,
+        control: xaxes
+      });
     }
+    if (_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length) {
+      linkageMatch.onlyChartIds = style.autoLinkageChartObjectIds;
+    }
+    const isAll = this.isViewOriginalData && this.isLinkageData;
     this.setState({
-      dropdownVisible: true,
+      dropdownVisible: isAll,
       offset: {
         x: event.x + 20,
         y: event.y,
       },
       match: param,
+      linkageMatch
+    }, () => {
+      if (!isAll && this.isViewOriginalData) {
+        this.handleRequestOriginalData();
+      }
+      if (!isAll && this.isLinkageData) {
+        this.handleAutoLinkage();
+      }
     });
   }
   handleRequestOriginalData = () => {
@@ -120,6 +158,16 @@ export default class extends Component {
     } else {
       this.props.requestOriginalData(data);
     }
+  }
+  handleAutoLinkage = () => {
+    const { linkageMatch } = this.state;
+    this.props.onUpdateLinkageFiltersGroup(linkageMatch);
+    this.setState({
+      dropdownVisible: false,
+    }, () => {
+      const pieConfig = this.getPieConfig(this.props);
+      this.PieChart.update(pieConfig);
+    });
   }
   interactions(isAnnular) {
     if (browserIsMobile()) {
@@ -147,7 +195,7 @@ export default class extends Component {
     }
   }
   getPieConfig(props) {
-    const { themeColor, projectId, customPageConfig = {}, reportData } = props;
+    const { themeColor, projectId, customPageConfig = {}, reportData, linkageMatch } = props;
     const { chartColor, chartColorIndex = 1 } = customPageConfig;
     const { map, displaySetup, yaxisList, summary, xaxes, reportId } = reportData;
     const styleConfig = reportData.style || {};
@@ -188,7 +236,21 @@ export default class extends Component {
           formatter: findName,
         },
       },
-      color: isOptionsColor ? getAlienationColor.bind(this, xaxes) : colors,
+      color: (data) => {
+        const index = _.findIndex(baseConfig.data, { originalId: data.originalId });
+        let color = colors[index % colors.length];
+        if (isOptionsColor) {
+          color = getAlienationColor(xaxes, data);
+        }
+        if (!_.isEmpty(linkageMatch)) {
+          if (linkageMatch.value === data.originalId) {
+            return color;
+          } else {
+            return tinycolor(color).setAlpha(0.3).toRgbString();
+          }
+        }
+        return color;
+      },
       legend: displaySetup.showLegend
         ? {
             position,
@@ -258,20 +320,6 @@ export default class extends Component {
           }
         : false,
       interactions: this.interactions(isAnnular),
-      // events: {
-      //   onRingMouseenter: (event) => {
-      //     if (event.data.value !== event.data.originalValue) {
-      //       event.data._value = event.data.value;
-      //       event.data.value = event.data.originalValue;
-      //     }
-      //   },
-      //   onRingMouseleave: (event) => {
-      //     if (event.data._value) {
-      //       event.data.value = event.data._value;
-      //       delete event.data._value;
-      //     }
-      //   }
-      // }
     };
     return baseConfig;
   }
@@ -287,8 +335,15 @@ export default class extends Component {
   renderOverlay() {
     return (
       <Menu className="chartMenu" style={{ width: 160 }}>
+        <Menu.Item onClick={this.handleAutoLinkage} key="autoLinkage">
+          <div className="flexRow valignWrapper">
+            <Icon icon="link1" className="mRight8 Gray_9e Font20 autoLinkageIcon" />
+            <span>{_l('联动')}</span>
+          </div>
+        </Menu.Item>
         <Menu.Item onClick={this.handleRequestOriginalData} key="viewOriginalData">
           <div className="flexRow valignWrapper">
+            <Icon icon="table" className="mRight8 Gray_9e Font18" />
             <span>{_l('查看原始数据')}</span>
           </div>
         </Menu.Item>

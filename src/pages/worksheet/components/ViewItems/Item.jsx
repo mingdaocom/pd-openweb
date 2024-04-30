@@ -4,7 +4,7 @@ import { Icon, MdLink, Tooltip } from 'ming-ui';
 import Trigger from 'rc-trigger';
 import 'rc-trigger/assets/index.css';
 import './ViewItems.less';
-import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
+import { PLUGIN_INFO_SOURCE, VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { getTranslateInfo } from 'src/util';
@@ -46,12 +46,7 @@ export default class Item extends Component {
     return isOpenPermit(permitList.viewExportSwitch, sheetSwitchPermit, item.viewId);
   };
   renderSettingMenu = () => {
-    const {
-      item,
-      updateAdvancedSetting,
-      list,
-      getNavigateUrl,
-    } = this.props;
+    const { item, updateAdvancedSetting, list, getNavigateUrl } = this.props;
 
     return (
       <SettingMenu
@@ -100,10 +95,10 @@ export default class Item extends Component {
     const { isEdit } = this.state;
 
     const customViewDebugUrl = window.localStorage.getItem(`customViewDebugUrl_${item.viewId}`);
-    const pluginIsPublished = _.get(item, 'pluginInfo.source') === 1;
+    const pluginIsInDevelop = _.get(item, 'pluginInfo.source') === PLUGIN_INFO_SOURCE.DEVELOPMENT;
     const pluginIsDeleted = !_.get(item, 'pluginInfo.id');
     const codeUrl = _.get(item, 'pluginInfo.codeUrl');
-    const showWidgetDebugIcon = item.viewType === 21 && !pluginIsPublished && !pluginIsDeleted;
+    const showWidgetDebugIcon = item.viewType === 21 && pluginIsInDevelop && !pluginIsDeleted;
 
     return (
       <div

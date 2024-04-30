@@ -93,7 +93,7 @@ class CommentList extends React.Component {
   }
 
   abortRequest() {
-    if (this.ajax && this.ajax.state() === 'pending' && this.ajax.abort) {
+    if (this.ajax && this.ajax.abort) {
       this.ajax.abort();
     }
   }
@@ -131,7 +131,7 @@ class CommentList extends React.Component {
           alert(_l('获取讨论失败'), 2);
         }
       })
-      .always(() => {
+      .finally(() => {
         this.setState({
           isLoading: false,
         });

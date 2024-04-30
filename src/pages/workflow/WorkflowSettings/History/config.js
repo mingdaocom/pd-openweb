@@ -160,6 +160,7 @@ export const NODE_TYPE = {
   25: { type: 'api', text: _l('调用已集成 API') },
   26: { type: 'approveProcess', text: _l('审批流程') },
   27: { type: 'notice', text: _l('站内通知') },
+  28: { type: 'snapshot', text: _l('获取页面快照') },
   1000: { type: 'singleInfo', text: _l('获取单条人员/部门信息') },
   1001: { type: 'moreInfo', text: _l('获取多条人员/部门信息') },
 };
@@ -204,6 +205,7 @@ export const NODE_ICON = {
       20: 'hr_structure',
       21: 'workflow',
       23: 'language',
+      25: 'sending',
       106: 'replyto',
     },
     text: {
@@ -217,6 +219,7 @@ export const NODE_ICON = {
       20: _l('人员事件触发'),
       21: _l('部门事件触发'),
       23: _l('外部用户事件触发'),
+      25: _l('事件推送'),
       106: _l('讨论通知触发'),
     },
     bgColor: {
@@ -230,13 +233,14 @@ export const NODE_ICON = {
       20: '#01ca83',
       21: '#01ca83',
       23: '#01ca83',
+      25: '#4C7D9E',
       106: '#2196f3',
     },
   },
   gateway: {
     icon: 'workflow_branch',
     text: _l('分支'),
-    bgColor: '#4c7d9e',
+    bgColor: '#2196f3',
   },
   write: {
     icon: 'workflow_write',
@@ -258,14 +262,12 @@ export const NODE_ICON = {
       1: 'workflow_new',
       2: 'workflow_update',
       3: 'hr_delete',
-      4: 'camera_alt',
       20: 'workflow_search',
     },
     text: {
       1: _l('新增记录'),
       2: _l('更新记录'),
       3: _l('删除记录'),
-      4: _l('获得页面快照'),
       20: _l('获得指定关联记录'),
     },
     bgColor: '#FFA340',
@@ -283,7 +285,7 @@ export const NODE_ICON = {
   formula: {
     icon: 'workflow_function',
     text: _l('运算'),
-    bgColor: '#4c7d9e',
+    bgColor: '#01CA83',
   },
   msg: {
     icon: 'workflow_sms',
@@ -374,6 +376,11 @@ export const NODE_ICON = {
     icon: 'hr_message_reminder',
     text: _l('站内通知'),
     bgColor: '#2196f3',
+  },
+  snapshot: {
+    icon: 'camera_alt',
+    text: _l('获取页面快照'),
+    bgColor: '#4c7d9e',
   },
   singleInfo: {
     icon: 'person_search',

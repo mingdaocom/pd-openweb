@@ -387,19 +387,22 @@ function GroupFilter(props) {
       let filterControls = navfilters.map(o => handleCondition(o));
       param = { ...param, filterControls };
     }
+    if (soucre.type === 29 && !!_.get(soucre, 'advancedSetting.searchcontrol') && keywords) {
+      param.controlId = _.get(soucre, 'controlId');
+      param.relationWorksheetId = view.worksheetId;
+    }
     sheetAjax
       .getFilterRows(
         getFilledRequestParams({
           worksheetId,
           viewId,
-          keywords,
+          keyWords: keywords,
           pageIndex: 1,
           pageSize: 10000,
           isGetWorksheet: true,
           kanbanKey: rowId,
           ...param,
         }),
-        { fireImmediately: true },
       )
       .then(result => {
         if (result.resultCode === 4) {
@@ -422,6 +425,7 @@ function GroupFilter(props) {
               newDate = newDate.concat(data.find(o => o.rowid === it));
             });
           }
+          newDate = newDate.filter(o => !!o);
           const controls = _.get(result, ['template', 'controls']) || [];
           const control = controls.find(item => item.attribute === 1);
           dataUpdate({

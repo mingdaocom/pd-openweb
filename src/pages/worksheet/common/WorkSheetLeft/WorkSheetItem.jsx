@@ -1,9 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { Icon, MdLink, Tooltip } from 'ming-ui';
+import { Icon, MdLink, Tooltip, SvgIcon } from 'ming-ui';
 import tinycolor from '@ctrl/tinycolor';
 import MoreOperation from './MoreOperation';
-import SvgIcon from 'src/components/SvgIcon';
 import Drag from './Drag';
 import styled from 'styled-components';
 import _ from 'lodash';
@@ -29,10 +28,10 @@ export default class WorkSheetItem extends Component {
   }
   svgColor(isActive) {
     const { iconColor, currentPcNaviStyle, themeType } = this.props.appPkg;
-    const darkColor = currentPcNaviStyle === 1 && !['light'].includes(themeType);
+    const darkColor = [1, 3].includes(currentPcNaviStyle) && !['light'].includes(themeType);
     if (darkColor) {
       return `rgba(255, 255, 255, ${isActive ? 1 : 0.9})`;
-    } else if (currentPcNaviStyle === 1) {
+    } else if ([1, 3].includes(currentPcNaviStyle)) {
       return isActive || ['light'].includes(themeType) ? iconColor : '#757575';
     } else {
       return isActive ? iconColor : '#757575';
@@ -40,12 +39,12 @@ export default class WorkSheetItem extends Component {
   }
   textColor(isActive) {
     const { iconColor, currentPcNaviStyle, themeType } = this.props.appPkg;
-    const darkColor = currentPcNaviStyle === 1 && !['light'].includes(themeType);
+    const darkColor = [1, 3].includes(currentPcNaviStyle) && !['light'].includes(themeType);
     return darkColor ? `rgba(255, 255, 255, ${isActive ? 1 : 0.9})` : isActive ? iconColor : undefined;
   }
   bgColor() {
     const { iconColor, currentPcNaviStyle, themeType } = this.props.appPkg;
-    if (currentPcNaviStyle === 1 && !['light'].includes(themeType)) {
+    if ([1, 3].includes(currentPcNaviStyle) && !['light'].includes(themeType)) {
       return themeType === 'theme' ? 'rgba(0, 0, 0, 0.15)' : 'rgba(255, 255, 255, 0.15)';
     } else {
       return convertColor(iconColor);
@@ -77,10 +76,21 @@ export default class WorkSheetItem extends Component {
       sheetListVisible,
       disableTooltip,
     } = this.props;
-    const { workSheetId, icon, iconUrl, status, parentStatus, type, configuration = {}, urlTemplate } = appItem;
+    const {
+      workSheetId,
+      icon,
+      iconUrl,
+      status,
+      parentStatus,
+      type,
+      configuration = {},
+      urlTemplate,
+      layerIndex,
+    } = appItem;
     const workSheetName = getTranslateInfo(appId, workSheetId).name || appItem.workSheetName;
     const isActive = activeSheetId === workSheetId;
-    const { iconColor, currentPcNaviStyle, themeType } = appPkg;
+    const { iconColor, currentPcNaviStyle, themeType, displayIcon = '', hideFirstSection } = appPkg;
+    const showIcon = currentPcNaviStyle === 3 && hideFirstSection && appItem.firstGroupIndex === 0 ? true : displayIcon.split('')[layerIndex] === '1';
     const isNewOpen = configuration.openType == '2';
     const url = this.getNavigateUrl(isActive);
     const handleNewOpen = () => {
@@ -105,13 +115,41 @@ export default class WorkSheetItem extends Component {
       });
       window.open(urlList.join(''));
     };
+    const renderHideIcon = () => {
+      let icon = 'visibility_off';
+      if (status === 3 || parentStatus === 3) {
+        icon = 'desktop_off';
+      }
+      if (status === 4 || parentStatus === 4) {
+        icon = 'mobile_off';
+      }
+      return (
+        ([2, 3, 4].includes(status) || [2, 3, 4].includes(parentStatus)) && (
+          <Tooltip
+            popupPlacement="right"
+            text={<span>{_l('仅系统角色在导航中可见（包含管理员、开发者），应用项权限依然遵循角色权限原则')}</span>}
+          >
+            <Icon
+              className="Font16 mRight10 visibilityIcon"
+              icon={icon}
+              style={{ color: [1, 3].includes(currentPcNaviStyle) && themeType === 'theme' ? '#FCD8D3' : '#ee6f09' }}
+            />
+          </Tooltip>
+        )
+      );
+    };
     const Content = (
       <Fragment>
-        <div className="iconWrap">
-          <SvgIcon url={iconUrl} fill={this.svgColor(isActive)} size={22} />
-        </div>
+        {showIcon && (
+          <div className="iconWrap mRight10">
+            <SvgIcon url={iconUrl} fill={this.svgColor(isActive)} size={22} />
+          </div>
+        )}
         <span
-          className={cx('name ellipsis Font14 mLeft10 mRight10', { bold: isActive })}
+          className={cx('name ellipsis Font14 mRight10', {
+            bold: isActive,
+            pLeft8: !showIcon && layerIndex === 2 && [1].includes(currentPcNaviStyle),
+          })}
           title={workSheetName}
           style={{ color: this.textColor(isActive) }}
         >
@@ -122,20 +160,7 @@ export default class WorkSheetItem extends Component {
             <Icon className="Font16 mRight10 mTop2 openIcon" icon="launch" />
           </Tooltip>
         )}
-        {(status === 2 || parentStatus === 2) && (
-          <Tooltip
-            popupPlacement="right"
-            text={
-              <span>{_l('仅系统角色在导航中可见（包含管理员、运营者、开发者），应用项权限依然遵循角色权限原则')}</span>
-            }
-          >
-            <Icon
-              className="Font16 mRight10"
-              icon="visibility_off"
-              style={{ color: currentPcNaviStyle === 1 && themeType === 'theme' ? '#FCD8D3' : '#ee6f09' }}
-            />
-          </Tooltip>
-        )}
+        {renderHideIcon()}
       </Fragment>
     );
     return (
@@ -180,11 +205,17 @@ export default class WorkSheetItem extends Component {
               </MdLink>
             )}
 
-            <MoreOperation {...this.props}>
-              <div className="rightArea moreBtn">
-                <Icon icon="more_horiz" className="Font18 moreIcon" />
-              </div>
-            </MoreOperation>
+            {!(
+              !canEditApp(_.get(appPkg, ['permissionType'])) &&
+              !canEditData(_.get(appPkg, ['permissionType'])) &&
+              (window.isPublicApp || md.global.Account.isPortal)
+            ) && (
+              <MoreOperation {...this.props}>
+                <div className="rightArea moreBtn">
+                  <Icon icon="more_horiz" className="Font18 moreIcon" />
+                </div>
+              </MoreOperation>
+            )}
           </Wrap>
         </Tooltip>
       </Drag>

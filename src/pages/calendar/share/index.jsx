@@ -27,7 +27,7 @@ class CalendarShare extends Component {
 
   init() {
     // 是微信打开
-    if (this.isWeiXin()) {
+    if (window.isWeiXin) {
       // 获取授权id
       this.settings.thirdID = this.getUrlParam('id');
       // 获取jsapi_ticket
@@ -464,12 +464,6 @@ class CalendarShare extends Component {
   }
 
   /**
-   * 是否微信浏览*/
-  isWeiXin() {
-    return navigator.userAgent.toLowerCase().indexOf('micromessenger') >= 0;
-  }
-
-  /**
    * 获取url参数
    */
   getUrlParam(name) {
@@ -615,6 +609,6 @@ class CalendarShare extends Component {
   }
 }
 
-const WrappedComp = preall(CalendarShare, { allownotlogin: true });
+const WrappedComp = preall(CalendarShare, { allowNotLogin: true });
 
 render(<WrappedComp />, document.getElementById('app'));

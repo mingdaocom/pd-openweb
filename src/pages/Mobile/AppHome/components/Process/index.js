@@ -110,7 +110,7 @@ export default function Process(props) {
   };
 
   const getList = () => {
-    if (request && request.state() === 'pending') {
+    if (request) {
       request.abort();
     }
 
@@ -195,7 +195,7 @@ export default function Process(props) {
                   onClick={() => setData({ previewRecord: { instanceId: item.id, workId: item.workId } })}
                 >
                   <img src={_.get(item, 'createAccount.avatar')} className="mRight10" />
-                  <div className="flex ellipsis Font15">{item.title}</div>
+                  <div className="flex ellipsis Font15">{item.title || _l('未命名')}</div>
                 </div>
               );
             })

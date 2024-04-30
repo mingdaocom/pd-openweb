@@ -1,0 +1,96 @@
+.dataBaseWrap {
+  padding: 0 20px;
+  overflow-y: scroll;
+  .emptyWrap {
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    img {
+      width: 85px;
+      height: auto;
+      margin-bottom: 26px;
+    }
+    .textCon {
+      width: 100%;
+      max-width: 448px;
+      font-size: 14px;
+      line-height: 25px;
+      margin-bottom: 70px;
+    }
+    .dataBaseCreateButton .Icon {
+      margin-right: 5px;
+    }
+  }
+
+  .dataBaseExplain {
+    width: 100%;
+    background: #f2fafe;
+    border-radius: 3px;
+    font-size: 13px;
+    padding: 14px 22px 14px 12px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    .createDataBaseButton {
+      color: #2196f3;
+    }
+  }
+
+  .exclusiveCompList {
+    li {
+      padding: 18px 19px 18px 23px;
+      background: #ffffff;
+      border-radius: 3px 3px 3px 3px;
+      border: 1px solid #e6e6e6;
+      margin-bottom: 22px;
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 26px;
+        .left {
+          display: flex;
+          align-items: center;
+        }
+        .right {
+          flex-shrink: 0;
+        }
+        .imgCon {
+          width: 23px;
+          display: inline-block;
+          img {
+            width: 100%;
+            height: auto;
+          }
+        }
+        .manageBtn {
+          cursor: pointer;
+          background: #ffffff;
+          border: 1px solid #eaeaea;
+          font-weight: 600;
+          color: #2196f3;
+          padding: 8px 18px;
+          border-radius: 16px;
+          margin-left: 24px;
+          &:hover {
+            border: 1px solid #2196f3;
+          }
+        }
+      }
+      .content {
+        gap: 140px;
+      }
+    }
+  }
+}
+
+.connectDataBaseDialog {
+  .ming.Button--primary {
+    border-radius: 32px;
+  }
+}

@@ -4,7 +4,7 @@ import { Tooltip } from 'antd';
 import _ from 'lodash';
 import cx from 'classnames';
 import { USER_TYPE } from '../../../enum';
-import quickSelectUser from 'ming-ui/functions/quickSelectUser';
+import { quickSelectUser } from 'ming-ui/functions';
 import Member from '../Member';
 
 export default ({

@@ -59,7 +59,7 @@ Config.EVENTS = {
 };
 
 Config.abortRequest = function (request) {
-  if (request && typeof request.state === 'function' && request.state() === 'pending' && request.abort) {
+  if (request && request.abort) {
     request.abort();
   }
 };
@@ -68,12 +68,9 @@ Config.AUTHORITY_DICT = {
   PROJECT_ADMIN: 'PROJECT_ADMIN',
   APK_ADMIN: 'APK_ADMIN',
   HAS_PERMISSIONS: 'HAS_PERMISSIONS',
-  HAS_DING: 'HAS_DING',
-  HAS_WORKWX: 'HAS_WORKWX',
-  HAS_WELINK: 'HAS_WELINK',
-  HAS_FEISHU: 'HAS_FEISHU',
   NOT_MEMBER: 'NOT_MEMBER', //不是成员
   OLD_VERSION: 'OLD_VERSION', //版本过期
+  SHOW_MANAGER: 'SHOW_MANAGER', // 显示管理员菜单
 };
 
 Config.DATE_FILTER = [

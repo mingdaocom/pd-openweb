@@ -10,6 +10,13 @@ export const DynamicValueInputWrap = styled(FlexCenter)`
   .tagTextAreaWrap {
     width: calc(100% - 36px);
   }
+  .customTreeSelect,
+  .customCascader {
+    z-index: -1;
+    width: 100% !important;
+    position: absolute;
+    left: 0;
+  }
   .CodeMirror-code {
     line-height: 28px;
   }
@@ -208,9 +215,8 @@ export const FieldInfo = styled(FlexCenter)`
 
 export const OtherFieldList = styled(FlexCenter)`
   flex-wrap: wrap;
-  width: calc(100% - 36px);
+  width: ${props => (props.totalWidth ? '100%' : 'calc(100% - 36px)')};
   box-sizing: border-box;
-  width: calc(100% - 36px);
   padding: 0 6px 5px 12px;
   min-height: 36px;
   line-height: 32px;

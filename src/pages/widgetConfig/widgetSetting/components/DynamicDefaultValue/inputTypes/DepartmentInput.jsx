@@ -1,14 +1,11 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import { OtherFieldList, SelectOtherField, DynamicInput } from '../components';
 import { DynamicValueInputWrap } from '../styled';
-import DialogSelectGroups from 'src/components/dialogSelectDept';
+import { dialogSelectDept } from 'ming-ui/functions';
 import update from 'immutability-helper';
 import _ from 'lodash';
 
-@connect(({ appPkg }) => ({
-  projectId: appPkg.projectId,
-}))
+
 export default class DepartmentInput extends Component {
   // 成员多选数据处理
   removeItem = id => {
@@ -29,8 +26,8 @@ export default class DepartmentInput extends Component {
     const { globalSheetInfo, onDynamicValueChange, data = {} } = this.props;
     const { projectId } = globalSheetInfo;
     const unique = data.enumDefault === 0;
-    // eslint-disable-next-line no-new
-    new DialogSelectGroups({
+
+    dialogSelectDept({
       projectId,
       isIncludeRoot: false,
       unique: unique,

@@ -423,7 +423,7 @@ export function initConfigDetail(id, data, currentReport, customPageConfig) {
 export const version = '6.5';
 
 export const getNewReport = ({ currentReport, worksheetInfo, base }) => {
-  const { isPublic, sourceType, report } = base;
+  const { isPublic, sourceType, report = {} } = base;
   const newCurrentReport = _.cloneDeep(currentReport);
   const { yaxisList, displaySetup, rightY, xaxes, pivotTable } = newCurrentReport;
 
@@ -1694,6 +1694,17 @@ export const areaParticleSizeDropdownData = [
   { text: _l('省'), value: 1 },
   { text: _l('市'), value: 2 },
   { text: _l('区/县'), value: 3 },
+];
+
+/**
+ * 地区控件的粒度
+ */
+export const cascadeParticleSizeDropdownData = [
+  { text: _l('一级'), value: 1 },
+  { text: _l('二级'), value: 2 },
+  { text: _l('三级'), value: 3 },
+  { text: _l('四级'), value: 4 },
+  { text: _l('五级'), value: 5 },
 ];
 
 /**

@@ -15,12 +15,10 @@ import {
   afterUpdateTaskStage,
 } from '../../../utils/taskComm';
 import { checkIsProject } from '../../../utils/utils';
-import UserHead from 'src/components/userHead';
-import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
-import quickSelectUser from 'ming-ui/functions/quickSelectUser';
+import { dialogSelectUser, quickSelectUser } from 'ming-ui/functions';
 import UploadFiles from 'src/components/UploadFiles';
 import UploadFilesTrigger from 'src/components/UploadFilesTrigger';
-import Dropdown from 'ming-ui/components/Dropdown';
+import { Dropdown, UserHead } from 'ming-ui';
 import { navigateTo } from 'src/router/navigateTo';
 import { htmlDecodeReg } from 'src/util';
 import {

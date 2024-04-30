@@ -1,5 +1,5 @@
 import { emitter } from 'worksheet/util';
-import mdNotification from 'ming-ui/functions/notify';
+import { mdNotification } from 'ming-ui/functions';
 import './index.less';
 import workflowHistory from './workflowHistory';
 import { FLOW_FAIL_REASON } from 'src/pages/workflow/WorkflowSettings/History/config';

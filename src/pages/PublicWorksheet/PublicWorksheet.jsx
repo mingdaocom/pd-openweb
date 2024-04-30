@@ -15,6 +15,8 @@ import './index.less';
 import _ from 'lodash';
 import { generate } from '@ant-design/colors';
 import { VerificationPass } from 'worksheet/components/ShareState';
+import { getRequest } from 'src/util';
+import cx from 'classnames';
 
 const TopBar = styled.div(
   ({ color }) => `height: 10px; background: ${color}; opacity: .4; border-radius: 3px 3px 0 0;`,
@@ -55,12 +57,18 @@ export default class PublicWorksheet extends React.Component {
       const shareId = urlMatch[1];
       window.publicWorksheetShareId = shareId;
       this.shareId = shareId;
-      getPublicWorksheet({ shareId }, info => {
-        this.setState({ loading: false, ...info });
-        if (info.status === FILL_STATUS.NOT_IN_FILL_TIME) {
-          alert(_l('你访问的表单暂未开放!'), 3);
-        }
-      });
+      getPublicWorksheet(
+        {
+          shareId,
+          langType: getCurrentLangCode(),
+        },
+        info => {
+          this.setState({ loading: false, ...info });
+          if (info.status === FILL_STATUS.NOT_IN_FILL_TIME) {
+            alert(_l('你访问的表单暂未开放!'), 3);
+          }
+        },
+      );
     }
   }
 
@@ -68,18 +76,132 @@ export default class PublicWorksheet extends React.Component {
     const { isPreview } = this.props;
     const { loading, publicWorksheetInfo = {}, formData, rules, status, qrurl } = this.state;
     const { worksheetId, coverUrl, projectName, themeBgColor, writeScope } = publicWorksheetInfo;
+    const request = getRequest();
+    const { bg, footer } = request;
+    const hideBg = bg === 'no';
+
+    const renderContent = () => {
+      return (
+        <React.Fragment>
+          <div className="formContent flexColumn">
+            {!hideBg && (
+              <React.Fragment>
+                {worksheetId && (
+                  <Absolute top="0" right="-48">
+                    <div
+                      className="qrIcon icon icon-zendeskHelp-qrcode"
+                      onMouseEnter={() => {
+                        let qrurl = location.href;
+                        if (isPreview) {
+                          try {
+                            qrurl = new URL(location.href).searchParams.get('url');
+                          } catch (err) {
+                            console.error(err);
+                          }
+                        }
+                        this.setState({ qrurl });
+                      }}
+                    >
+                      <Qr url={qrurl} />
+                    </div>
+                  </Absolute>
+                )}
+                <TopBar color={themeBgColor} />
+              </React.Fragment>
+            )}
+
+            {loading && (
+              <div style={{ padding: 10 }}>
+                <Skeleton
+                  style={{ flex: 1 }}
+                  direction="column"
+                  widths={['30%', '40%', '90%', '60%']}
+                  active
+                  itemStyle={{ marginBottom: '10px' }}
+                />
+                <Skeleton
+                  style={{ flex: 1 }}
+                  direction="column"
+                  widths={['40%', '55%', '100%', '80%']}
+                  active
+                  itemStyle={{ marginBottom: '10px' }}
+                />
+                <Skeleton
+                  style={{ flex: 2 }}
+                  direction="column"
+                  widths={['45%', '100%', '100%', '100%']}
+                  active
+                  itemStyle={{ marginBottom: '10px' }}
+                />
+              </div>
+            )}
+
+            {!loading &&
+              (!_.includes([FILL_STATUS.NORMAL, FILL_STATUS.NOT_IN_FILL_TIME], status) ? (
+                <NotFillStatus
+                  publicWorksheetInfo={publicWorksheetInfo}
+                  status={status}
+                  onRefill={async () => {
+                    const formData = await getFormData(publicWorksheetInfo, FILL_STATUS.NORMAL);
+                    this.setState({
+                      status: FILL_STATUS.NORMAL,
+                      formData,
+                      publicWorksheetInfo: {
+                        ...publicWorksheetInfo,
+                        completeNumber: publicWorksheetInfo.completeNumber + 1,
+                      },
+                    });
+                    $('.nano').nanoScroller({ scrollTop: 0 });
+                  }}
+                  formData={formData}
+                  rules={rules}
+                />
+              ) : (
+                <FillWorksheet
+                  rules={rules}
+                  isPreview={isPreview}
+                  loading={loading}
+                  publicWorksheetInfo={publicWorksheetInfo}
+                  formData={formData}
+                  status={status}
+                  onSubmit={() => {
+                    this.setState({ status: FILL_STATUS.COMPLETED });
+                  }}
+                />
+              ))}
+          </div>
+          {worksheetId && footer !== 'no' && (
+            <div className="mingdaoCon">
+              {_l('由 %0 创建的表单 ', projectName || '')}
+              {/* a7f10198e9d84702b68ba35f73c94cac 是写死的举报表单的shareId  */}
+              {this.shareId && this.shareId !== 'a7f10198e9d84702b68ba35f73c94cac' && (
+                <a
+                  target="_blank"
+                  href={`/form/a7f10198e9d84702b68ba35f73c94cac?from=${encodeURIComponent(location.href)}`}
+                >
+                  {_l('举报')}
+                </a>
+              )}
+              <div className="Right">
+                <CreateByMingDaoYun mode={2} />
+              </div>
+            </div>
+          )}
+        </React.Fragment>
+      );
+    };
 
     return (
       <div
-        className="publicWorksheet"
-        style={{ backgroundColor: themeBgColor ? generate(themeBgColor)[0] : undefined }}
+        className={cx('publicWorksheet', { hideBg })}
+        style={{ backgroundColor: !hideBg ? (themeBgColor ? generate(themeBgColor)[0] : undefined) : '#f7f7f7' }}
       >
         {!loading && (
           <DocumentTitle
             title={
               status !== FILL_STATUS.NEED_FILL_PASSWORD
                 ? worksheetId
-                  ? publicWorksheetInfo.name || _l('未命名表单')
+                  ? publicWorksheetInfo.name || _l('公开表单')
                   : _l('你访问的表单不存在')
                 : _l('填写密码')
             }
@@ -115,93 +237,17 @@ export default class PublicWorksheet extends React.Component {
           />
         ) : (
           <ScrollView className="flex">
-            <BgContainer
-              coverUrl={coverUrl}
-              theme={themeBgColor}
-              isDisplayAvatar={!isPreview && writeScope !== 1 && !loading}
-            >
-              <div className="formContent flexColumn">
-                {worksheetId && (
-                  <Absolute top="0" right="-48">
-                    <div
-                      className="qrIcon icon icon-zendeskHelp-qrcode"
-                      onMouseEnter={() => {
-                        let qrurl = location.href;
-                        if (isPreview) {
-                          try {
-                            qrurl = new URL(location.href).searchParams.get('url');
-                          } catch (err) {
-                            console.error(err);
-                          }
-                        }
-                        this.setState({ qrurl });
-                      }}
-                    >
-                      <Qr url={qrurl} />
-                    </div>
-                  </Absolute>
-                )}
-                <TopBar color={themeBgColor} />
-                {loading && (
-                  <div style={{ padding: 10 }}>
-                    <Skeleton
-                      style={{ flex: 1 }}
-                      direction="column"
-                      widths={['30%', '40%', '90%', '60%']}
-                      active
-                      itemStyle={{ marginBottom: '10px' }}
-                    />
-                    <Skeleton
-                      style={{ flex: 1 }}
-                      direction="column"
-                      widths={['40%', '55%', '100%', '80%']}
-                      active
-                      itemStyle={{ marginBottom: '10px' }}
-                    />
-                    <Skeleton
-                      style={{ flex: 2 }}
-                      direction="column"
-                      widths={['45%', '100%', '100%', '100%']}
-                      active
-                      itemStyle={{ marginBottom: '10px' }}
-                    />
-                  </div>
-                )}
-                {!loading &&
-                  (!_.includes([FILL_STATUS.NORMAL, FILL_STATUS.NOT_IN_FILL_TIME], status) ? (
-                    <NotFillStatus
-                      publicWorksheetInfo={publicWorksheetInfo}
-                      status={status}
-                      onRefill={async () => {
-                        const formData = await getFormData(publicWorksheetInfo, FILL_STATUS.NORMAL);
-                        this.setState({
-                          status: FILL_STATUS.NORMAL,
-                          formData,
-                          publicWorksheetInfo: {
-                            ...publicWorksheetInfo,
-                            completeNumber: publicWorksheetInfo.completeNumber + 1,
-                          },
-                        });
-                        $('.nano').nanoScroller({ scrollTop: 0 });
-                      }}
-                      formData={formData}
-                      rules={rules}
-                    />
-                  ) : (
-                    <FillWorksheet
-                      rules={rules}
-                      isPreview={isPreview}
-                      loading={loading}
-                      publicWorksheetInfo={publicWorksheetInfo}
-                      formData={formData}
-                      status={status}
-                      onSubmit={() => {
-                        this.setState({ status: FILL_STATUS.COMPLETED });
-                      }}
-                    />
-                  ))}
-              </div>
-            </BgContainer>
+            {hideBg ? (
+              renderContent()
+            ) : (
+              <BgContainer
+                coverUrl={coverUrl}
+                theme={themeBgColor}
+                isDisplayAvatar={!isPreview && writeScope !== 1 && !loading}
+              >
+                {renderContent()}
+              </BgContainer>
+            )}
           </ScrollView>
         )}
       </div>

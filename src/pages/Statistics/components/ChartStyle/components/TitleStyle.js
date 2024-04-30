@@ -57,7 +57,11 @@ export const defaultPivotTableStyle = {
 
 const TitleStyle = props => {
   const { name, type, style, pivotTable = {}, onChangeStyle, themeColor, customPageConfig = {} } = props;
-  const pivotTableStyle = replaceColor(style.pivotTableStyle || defaultPivotTableStyle, {}, themeColor);
+  const pivotTableStyle = replaceColor({
+    pivotTableStyle: style.pivotTableStyle || defaultPivotTableStyle,
+    customPageConfig: {},
+    themeColor
+  });
   const textColor = type === 'line' ? pivotTableStyle.lineTextColor : pivotTableStyle.columnTextColor;
   const bgColor = type === 'line' ? pivotTableStyle.lineBgColor : pivotTableStyle.columnBgColor;
   const { lines = [] } = pivotTable;

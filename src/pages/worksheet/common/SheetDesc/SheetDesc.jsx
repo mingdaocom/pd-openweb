@@ -31,7 +31,7 @@ export default class SheetDesc extends Component {
         }).then((data) => {
           this.props.onSave(desc);
           alert(_l('修改成功'));
-        }).fail((err) => {
+        }).catch((err) => {
           alert(_l('修改描述失败'), 2);
         });
       } else {

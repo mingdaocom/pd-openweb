@@ -1,11 +1,10 @@
 import React, { PureComponent } from 'react';
 import classNames from 'classnames';
-import { Icon, Checkbox, Tooltip } from 'ming-ui';
+import { Icon, Checkbox, Tooltip, SvgIcon } from 'ming-ui';
 import TransitionGroup from 'react-addons-transition-group';
 import ViewGroup from './ViewGroup';
 import RoleSetTool from 'src/pages/Role/component/RoleSet/TooltipSetting';
 import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum';
-import SvgIcon from 'src/components/SvgIcon';
 import styled from 'styled-components';
 import _ from 'lodash';
 const Wrap = styled.div`

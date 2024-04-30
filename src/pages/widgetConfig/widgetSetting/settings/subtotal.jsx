@@ -94,7 +94,7 @@ const RecordCount = styled.div`
 `;
 
 export default function Subtotal(props) {
-  const { data, onChange, allControls } = props;
+  const { data, onChange, allControls, globalSheetInfo = {} } = props;
   const { sourceControlId, dataSource, enumDefault, enumDefault2, unit } = data;
   const { summaryresult = '0', numshow } = getAdvanceSetting(data);
   const [visible, setVisible] = useState(false);
@@ -114,7 +114,7 @@ export default function Subtotal(props) {
 
   // 获取汇总关联表控件的表id
   const { dataSource: worksheetId, relationControls } = getControlByControlId(allControls, parsedDataSource);
-  const { loading, data: sheetData } = useSheetInfo({ worksheetId });
+  const { loading, data: sheetData } = useSheetInfo({ worksheetId, relationWorksheetId: globalSheetInfo.worksheetId });
   // 空白子表手动取值
   const availableControls = (
     (sheetData.info || {}).worksheetId ? sheetData.controls || [] : (relationControls || []).concat(SYSTEM_CONTROL)
@@ -224,6 +224,8 @@ export default function Subtotal(props) {
                 const controlName = value === 'count' ? _l('记录数量') : get(originControl, 'controlName');
                 const invalidError =
                   originControl && originControl.type === 30 && (originControl.strDefault || '')[0] === '1';
+                  // 数据没回不显示已删除
+                if (loading || (sheetData.info || {}).worksheetId !== worksheetId) return <div className="text"></div>;
                 return (
                   <div className={cx('text', { Red: !controlName || invalidError })}>
                     {controlName ? (
@@ -318,7 +320,7 @@ export default function Subtotal(props) {
                 {...props}
                 relationControls={availableControls}
                 fromCondition={'subTotal'}
-                helpHref="https://help.mingdao.com/sheet19"
+                helpHref="https://help.mingdao.com/worksheet/control-rollup"
                 onChange={({ filters }) => {
                   filtersCache.current = filters;
                   onChange(handleAdvancedSettingChange(data, { filters: JSON.stringify(filters) }));

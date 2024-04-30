@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import { Parser } from 'hot-formula-parser';
@@ -15,6 +15,31 @@ import { FORMULA } from './enum';
 import FnList from './FnList';
 import { SettingItem } from '../../../styled';
 import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
+import styled from 'styled-components';
+
+const CAL_LIST = ['+', '-', '*', '/', '(', ')'];
+
+const CalItem = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0;
+  div {
+    width: 43px;
+    height: 28px;
+    text-align: center;
+    line-height: 26px;
+    background: #ffffff;
+    border-radius: 3px;
+    border: 1px solid #dddddd;
+    cursor: pointer;
+    &:last-child {
+      margin-right: 0;
+    }
+    &:hover {
+      border: 1px solid #2196f3;
+    }
+  }
+`;
 
 export default class Formula extends React.Component {
   constructor(props) {
@@ -253,7 +278,7 @@ export default class Formula extends React.Component {
   }
 
   render() {
-    let { data, allControls, worksheetData, onChange } = this.props;
+    let { data, allControls, worksheetData, onChange, dataSourceTitle, fromAggregation, className } = this.props;
     const { selectColumnVisible, showInSideFormulaSelect, shoOutSideFormulaSelect, calType, fnmatch } = this.state;
     const dataSource = data.dataSource || '';
     const { nullzero, numshow } = getAdvanceSetting(data);
@@ -277,40 +302,86 @@ export default class Formula extends React.Component {
       />
     );
     return (
-      <div>
+      <div className={className}>
+        {!fromAggregation && (
+          <SettingItem>
+            <div className="settingItemTitle">{_l('计算方式')}</div>
+            <Dropdown
+              border
+              className="calType WhiteBG"
+              data={this.getCommonCalType()}
+              value={calType}
+              onChange={type => {
+                if (calType === type) return;
+                onChange(
+                  handleAdvancedSettingChange(
+                    { ...data, dataSource: '', enumDefault: type },
+                    { nullzero: type === 1 ? '1' : '0' },
+                  ),
+                );
+                this.setState({
+                  calType: type,
+                  formulaStr: '',
+                  fnmatch: '',
+                  fnmatchPos: undefined,
+                  selectColumnVisible: false,
+                  showInSideFormulaSelect: false,
+                  shoOutSideFormulaSelect: false,
+                  hasDeletedWidget: false,
+                });
+                this.tagtextarea.setValue('');
+              }}
+            />
+          </SettingItem>
+        )}
         <SettingItem>
-          <div className="settingItemTitle">{_l('计算方式')}</div>
-          <Dropdown
-            border
-            className="calType WhiteBG"
-            data={this.getCommonCalType()}
-            value={calType}
-            onChange={type => {
-              onChange(
-                handleAdvancedSettingChange({ ...data, enumDefault: type }, { nullzero: type === 1 ? '1' : '0' }),
-              );
-              this.setState({
-                calType: type,
-                formulaStr: '',
-                fnmatch: '',
-                fnmatchPos: undefined,
-                selectColumnVisible: false,
-                showInSideFormulaSelect: false,
-                shoOutSideFormulaSelect: false,
-                hasDeletedWidget: false,
-              });
-              this.tagtextarea.setValue('');
-            }}
-          />
-        </SettingItem>
-        <SettingItem>
-          <div className="settingItemTitle">{this.getFormulaByType(calType).fnName}</div>
+          <div className="settingItemTitle">{dataSourceTitle || this.getFormulaByType(calType).fnName}</div>
           <div className="formulaCon">
+            {calType === FORMULA.CUSTOM.type && (
+              <Fragment>
+                <div className="customTip">
+                  {fromAggregation ? _l('英文输入+、-、*、/、( ) 进行运算') : _l('英文输入+、-、*、/、( ) 进行运算或')}
+                  {!fromAggregation && (
+                    <span className="Hand ThemeColor3 addFormula">
+                      <span
+                        onClick={() => {
+                          this.setState({ shoOutSideFormulaSelect: true });
+                        }}
+                      >
+                        {_l('添加公式')}
+                      </span>
+                      {shoOutSideFormulaSelect && fnListEle}
+                    </span>
+                  )}
+                </div>
+                <CalItem className="formulaBtns">
+                  {CAL_LIST.map(calItem => {
+                    return (
+                      <div
+                        onClick={() => {
+                          this.tagtextarea.cmObj.focus();
+                          const cursor = this.tagtextarea.cmObj.getCursor();
+                          this.tagtextarea.cmObj.replaceRange(`${calItem}`, cursor, undefined, 'insertfn');
+                          this.tagtextarea.cmObj.setCursor({ line: cursor.line, ch: cursor.ch + key.length + 1 });
+                          const newFnmatch = this.tagtextarea.cmObj.getValue();
+                          this.setState({ formulaStr: newFnmatch });
+                          onChange({ dataSource: this.genFormula(newFnmatch) });
+                        }}
+                      >
+                        {calItem}
+                      </div>
+                    );
+                  })}
+                </CalItem>
+              </Fragment>
+            )}
             <div className="formulaBox">
               <TagTextarea
                 autoComma
+                key={calType}
                 mode={calType === FORMULA.CUSTOM.type ? 2 : 3}
                 defaultValue={formulaValue}
+                {...(calType === FORMULA.CUSTOM.type ? { height: 108 } : {})}
                 maxHeight={140}
                 getRef={tagtextarea => {
                   this.tagtextarea = tagtextarea;
@@ -345,38 +416,22 @@ export default class Formula extends React.Component {
                 }))}
               />
             </div>
-            {calType === FORMULA.CUSTOM.type && (
-              <div className="customTip">
-                {_l('英文输入+、-、*、/、( ) 进行运算或')}
-                <span className="Hand ThemeColor3 addFormula">
-                  <span
-                    onClick={() => {
-                      this.setState({ shoOutSideFormulaSelect: true });
-                    }}
-                  >
-                    {_l('添加公式')}
-                  </span>
-                  {shoOutSideFormulaSelect && fnListEle}
-                </span>
-              </div>
-            )}
           </div>
         </SettingItem>
         {data.type === 31 && calType === FORMULA.CUSTOM.type && (
-          <SettingItem>
-            <Checkbox
-              size="small"
-              checked={nullzero === '1'}
-              text={_l('参与计算的字段值为空时，视为0')}
-              onClick={checked => {
-                onChange(
-                  handleAdvancedSettingChange(data, {
-                    nullzero: checked ? '0' : '1',
-                  }),
-                );
-              }}
-            />
-          </SettingItem>
+          <Checkbox
+            className="mTop12"
+            size={fromAggregation ? 'default' : 'small'}
+            checked={nullzero === '1'}
+            text={_l('参与计算的字段值为空时，视为0')}
+            onClick={checked => {
+              onChange(
+                handleAdvancedSettingChange(data, {
+                  nullzero: checked ? '0' : '1',
+                }),
+              );
+            }}
+          />
         )}
         <PointerConfig
           data={data}

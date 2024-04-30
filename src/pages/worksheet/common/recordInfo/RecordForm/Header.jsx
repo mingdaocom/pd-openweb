@@ -79,7 +79,8 @@ export default function InfoHeader(props) {
     _.get(window, 'shareState.isPublicPrint');
   const isPublicRecordLand = isPublicShare && notDialog;
   const project = getCurrentProject(projectId);
-  const showFav = !window.shareState.shareId && !md.global.Account.isPortal && !_.isEmpty(project); //&& !_.isEmpty(recordinfo);
+  const showFav =
+    !window.shareState.shareId && !window.isPublicApp && !md.global.Account.isPortal && !_.isEmpty(project); //&& !_.isEmpty(recordinfo);
   const showSideBar =
     (!isPublicShare && !md.global.Account.isPortal && (workflowVisible || discussVisible || logVisible)) ||
     (md.global.Account.isPortal && props.allowExAccountDiscuss && discussVisible) ||
@@ -132,9 +133,11 @@ export default function InfoHeader(props) {
   const sideBarBtn = () => {
     return (
       <SideBarIcon className="Hand ThemeHoverColor3" onClick={onSideIconClick}>
-        <span data-tip={sideVisible ? _l('收起') : _l('展开')}>
-          <i className={`icon ${sideVisible ? 'icon-sidebar_close' : 'icon-sidebar_open'}`} />
-        </span>
+        <Tooltip offset={[0, 0]} text={<span>{sideVisible ? _l('收起') : _l('展开')}</span>}>
+          <span>
+            <i className={`icon ${sideVisible ? 'icon-sidebar_close' : 'icon-sidebar_open'}`} />
+          </span>
+        </Tooltip>
         {!sideVisible && !!discussCount && (
           <span className="discussCount">
             {discussCount > 99 ? '99+' : discussCount}
@@ -155,7 +158,7 @@ export default function InfoHeader(props) {
     return notDialog ? (
       btn
     ) : (
-      <Tooltip offset={[0, 0]} text={<span>{_l('关闭（esc）')}</span>}>
+      <Tooltip offset={[0, 0]} text={<span className="nowrap">{_l('关闭（esc）')}</span>}>
         {btn}
       </Tooltip>
     );
@@ -203,12 +206,12 @@ export default function InfoHeader(props) {
 
   const favBtn = () => {
     const btn = (
-      <IconBtn className="Hand favBtn" onClick={onFav}>
-        <Icon
-          className="Font22 Hand "
-          style={{ color: isFavorite ? '#FFC402' : '#9E9E9E' }}
-          icon={!isFavorite ? 'star_outline' : 'star'}
-        />
+      <IconBtn
+        className={cx('Hand favBtn', { ThemeHoverColor3: !isFavorite })}
+        style={{ color: isFavorite ? '#FFC402' : '#9E9E9E' }}
+        onClick={onFav}
+      >
+        <Icon className="Font22 Hand" icon={!isFavorite ? 'star_outline' : 'star'} />
       </IconBtn>
     );
     return (

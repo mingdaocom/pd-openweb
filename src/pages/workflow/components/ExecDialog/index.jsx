@@ -103,7 +103,7 @@ export default class ExecDialog extends Component {
           });
         });
       })
-      .fail(res => {
+      .catch(res => {
         onError();
       });
   };

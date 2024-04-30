@@ -14,7 +14,7 @@ import renderText from './renderText';
 import { emitter, isKeyBoardInputChar } from 'worksheet/util';
 import { FROM } from './enum';
 import { browserIsMobile, accMul, formatStrZero, formatNumberFromInput } from 'src/util';
-import _ from 'lodash';
+import _, { get, isEqual } from 'lodash';
 import ChildTableContext from '../ChildTable/ChildTableContext';
 
 const InputCon = styled.div`
@@ -114,6 +114,9 @@ export default class Text extends React.Component {
     ) {
       this.setState({ value: formatStrZero(nextProps.cell.value) });
     }
+    if (!isEqual(get(nextProps, 'row.rowid'), get(this.props, 'row.rowid'))) {
+      this.setState({ oldValue: undefined });
+    }
   }
 
   componentDidUpdate(prevProps) {
@@ -155,6 +158,12 @@ export default class Text extends React.Component {
   get isMultipleLine() {
     const { cell } = this.props;
     return cell.type === 2 && cell.enumDefault === 1;
+  }
+
+  get step() {
+    const stepStr = get(this.props.cell, 'advancedSetting.numinterval') || 1;
+    const NumberStep = Number(stepStr);
+    return _.isNumber(NumberStep) && !_.isNaN(NumberStep) ? NumberStep : 1;
   }
 
   con = React.createRef();
@@ -342,7 +351,7 @@ export default class Text extends React.Component {
     } else if (_.includes(['ArrowUp', 'ArrowDown'], e.key) && _.includes([6, 8], cell.type)) {
       const num = Number(this.state.value);
       if (_.isNumber(num) && !_.isNaN(num)) {
-        this.handleChange(num + (e.key === 'ArrowUp' ? 1 : -1));
+        this.handleChange(num + (e.key === 'ArrowUp' ? 1 * this.step : -1 * this.step));
       }
       e.preventDefault();
     } else if (e.keyCode === 9) {
@@ -407,9 +416,7 @@ export default class Text extends React.Component {
     if (cell.type === 38 && cell.enumDefault === 3 && cell.advancedSetting.hideneg === '1' && parseInt(value, 10) < 0) {
       value = '';
     }
-    const isSafari = /^((?!chrome).)*safari.*$/.test(navigator.userAgent.toLowerCase());
-    const isMacWxWork =
-      /wxwork/.test(navigator.userAgent.toLowerCase()) && /applewebkit/.test(navigator.userAgent.toLowerCase());
+    const isMacWxWork = window.isWxWork && /applewebkit/.test(navigator.userAgent.toLowerCase());
     let text = renderText({ ...cell, value }, { noMask: forceShowFullValue });
     if (text.length > 3000) {
       text = text.slice(0, 3000);
@@ -429,7 +436,7 @@ export default class Text extends React.Component {
               height: style.height,
             }}
           >
-            {isSafari || isMacWxWork ? ( // 子表行内编辑 input 位置会计算异常 改用textarea模拟
+            {window.isSafari || isMacWxWork ? ( // 子表行内编辑 input 位置会计算异常 改用textarea模拟
               <Input
                 className="Ming stopPropagation"
                 {...editProps}
@@ -466,7 +473,7 @@ export default class Text extends React.Component {
         {error && <CellErrorTips pos={rowIndex === 0 ? 'bottom' : 'top'} error={error} />}
         {this.isMultipleLine && (
           <MultipleLineTip className="ellipsis">
-            {navigator.userAgent.indexOf('Mac OS') > 0 ? _l('⌘+Enter结束编辑') : _l('Ctrl+Enter结束编辑')}
+            {window.isMacOs ? _l('⌘+Enter结束编辑') : _l('Ctrl+Enter结束编辑')}
           </MultipleLineTip>
         )}
       </ClickAwayable>
@@ -478,7 +485,7 @@ export default class Text extends React.Component {
         getPopupContainer={this.isMultipleLine ? getPopupContainer(popupContainer, rows) : popupContainer}
         popupClassName="filterTrigger"
         popupVisible={isediting}
-        destroyPopupOnHide={!(navigator.userAgent.match(/[Ss]afari/) && !navigator.userAgent.match(/[Cc]hrome/))} // 不是 Safari
+        destroyPopupOnHide={!window.isSafari} // 不是 Safari
         popupAlign={{
           points: ['tl', 'tl'],
           overflow: {

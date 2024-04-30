@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect, useState, useRef } from 'react';
 import homeAppApi from 'api/homeApp';
-import { Icon, ScrollView, Menu, MenuItem, Skeleton, Tooltip } from 'ming-ui';
+import { Icon, ScrollView, Menu, MenuItem, Skeleton, Tooltip, SvgIcon } from 'ming-ui';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import {
@@ -48,19 +48,29 @@ const appSectionRefs = {};
 const AppSectionItem = props => {
   const { projectId, sheet, appPkg, ids, item, unfoldAppSectionId, appSectionDetail } = props;
   const { onUpdateAppSectionItem, onDelAppSection } = props;
-  const { iconColor, currentPcNaviStyle, themeType, pcNaviDisplayType } = appPkg;
+  const { iconColor, currentPcNaviStyle, themeType, expandType } = appPkg;
   const [edit, setEdit] = useState(item.edit || false);
   const isCurrentChildren = !!findSheet(ids.worksheetId, item.items);
-  const hideAppSection = appSectionDetail.length === 1 && _.isEmpty(item.workSheetName) && !item.edit;
+  const hideAppSection = () => {
+    if (currentPcNaviStyle === 3) {
+      return item.index === 0 && (appPkg.hideFirstSection || _.isEmpty(item.workSheetName)) && !item.edit;
+    } else {
+      return appSectionDetail.length === 1 && _.isEmpty(item.workSheetName) && !item.edit;
+    }
+  };
   const childrenHideKey = `${item.workSheetId}-hide`;
   const getDefaultVisible = () => {
-    if (pcNaviDisplayType === 1 && hideAppSection) {
-      return true;
+    if (currentPcNaviStyle === 3) {
+      if ((appPkg.hideFirstSection || _.isEmpty(item.workSheetName)) && item.index === 0) {
+        return true;
+      }
+      if (expandType === 1) {
+        return isCurrentChildren;
+      }
+      return localStorage.getItem(childrenHideKey) ? false : expandType === 0;
+    } else {
+      return localStorage.getItem(childrenHideKey) ? false : true;
     }
-    if (pcNaviDisplayType === 2) {
-      return isCurrentChildren;
-    }
-    return localStorage.getItem(childrenHideKey) ? false : pcNaviDisplayType === 0;
   };
   const [childrenVisible, setChildrenVisible] = useState(getDefaultVisible());
   const [popupVisible, setPopupVisible] = useState(false);
@@ -84,13 +94,20 @@ const AppSectionItem = props => {
   }, [item.edit]);
 
   useEffect(() => {
-    if (unfoldAppSectionId && pcNaviDisplayType === 2 && unfoldAppSectionId !== item.workSheetId) {
+    const hideFirstSection = item.index === 0 && appPkg.hideFirstSection && !item.edit;
+    if (
+      unfoldAppSectionId &&
+      currentPcNaviStyle === 3 &&
+      !hideFirstSection &&
+      expandType === 1 &&
+      unfoldAppSectionId !== item.workSheetId
+    ) {
       setChildrenVisible(false);
     }
   }, [unfoldAppSectionId]);
 
   const bgColor = () => {
-    if (currentPcNaviStyle === 1 && !['light'].includes(themeType)) {
+    if ([1, 3].includes(currentPcNaviStyle) && !['light'].includes(themeType)) {
       return themeType === 'theme' ? 'rgba(0, 0, 0, 0.15)' : 'rgba(255, 255, 255, 0.15)';
     } else {
       return convertColor(iconColor);
@@ -186,7 +203,12 @@ const AppSectionItem = props => {
   };
 
   return (
-    <div className="appGroupWrap">
+    <div
+      className={cx('appGroupWrap', {
+        treeAppGroupWrap: currentPcNaviStyle === 3 && !hideAppSection(),
+        hideFirstSection: currentPcNaviStyle === 3 && appPkg.hideFirstSection && item.index === 0
+      })}
+    >
       <Drag
         appItem={item}
         appPkg={appPkg}
@@ -195,9 +217,12 @@ const AppSectionItem = props => {
           window.dragNow = null;
         }}
       >
-        {!hideAppSection && (
+        {!hideAppSection() && (
           <div
-            className={cx('appGroup flexRow alignItemsCenter pointer', { hover: popupVisible, close: !childrenVisible || isDrag })}
+            className={cx('appGroup flexRow alignItemsCenter pointer', {
+              hover: popupVisible,
+              close: (currentPcNaviStyle === 1 ? !childrenVisible : true) || isDrag,
+            })}
             style={{
               backgroundColor: isActive && bgColor(),
             }}
@@ -230,7 +255,7 @@ const AppSectionItem = props => {
               setIsDrag(false);
             }}
           >
-            <div className="flex ellipsis bold nameWrap">
+            <div className="flex ellipsis bold nameWrap flexRow alignItemsCenter">
               {edit ? (
                 <input
                   autoFocus
@@ -248,7 +273,19 @@ const AppSectionItem = props => {
                   }}
                 />
               ) : (
-                getTranslateInfo(ids.appId, item.workSheetId).name || item.workSheetName || _l('未命名分组')
+                <Fragment>
+                  {currentPcNaviStyle === 3 && (
+                    <SvgIcon
+                      url={
+                        item.iconUrl ? item.iconUrl : `${md.global.FileStoreConfig.pubHost}/customIcon/${item.icon}.svg`
+                      }
+                      fill={['light'].includes(themeType) ? appPkg.iconColor : '#fff'}
+                      size={22}
+                      className="mRight10"
+                    />
+                  )}
+                  {getTranslateInfo(ids.appId, item.workSheetId).name || item.workSheetName || _l('未命名分组')}
+                </Fragment>
               )}
             </div>
             {!edit && (
@@ -281,6 +318,7 @@ const AppSectionItem = props => {
             worksheetId={ids.worksheetId}
             isCharge={sheet.isCharge}
             appPkg={appPkg}
+            firstGroupIndex={item.index}
           />
         </div>
       </Drag>
@@ -377,19 +415,25 @@ const LeftAppGroup = props => {
   };
 
   const handleDelAppSection = (workSheetId, sourceAppSectionId) => {
-    if (appSectionDetail.length === 1) {
-      updateALLSheetList(appSectionDetail.map(data => Object.assign(data, { name: '' })));
+    const sectionRes = appSectionDetail.map(n => {
+      return {
+        ...n,
+        items: getAppSectionData(n.appSectionId)
+      };
+    });
+    if (sectionRes.length === 1) {
+      updateALLSheetList(sectionRes.map(data => Object.assign({}, data, { workSheetName: '' })));
       homeAppApi
-        .updateAppSection({
+        .updateAppSectionName({
           appId: ids.appId,
           appSectionId: workSheetId,
-          appSectionName: '',
+          name: '',
         })
         .then(data => {});
       return;
     }
-    const { items = [] } = _.find(appSectionDetail, { workSheetId });
-    const res = appSectionDetail
+    const { items = [] } = _.find(sectionRes, { workSheetId });
+    const res = sectionRes
       .filter(data => data.workSheetId !== workSheetId)
       .map(data => {
         if (data.workSheetId === sourceAppSectionId) {
@@ -420,6 +464,11 @@ const LeftAppGroup = props => {
     return tinycolor(appPkg.iconColor).setAlpha(0.3).toRgbString();
   };
 
+  const skeletonVisible = appSectionDetail.length === 1 &&
+              _.isEmpty(appSectionDetail[0].items) &&
+              _.isEmpty(appSectionDetail[0].workSheetName) &&
+              !appSectionDetail[0].edit;
+
   return (
     <React.Fragment>
       <div className="LeftAppGroupWrap flex w100 flexColumn Relative">
@@ -427,16 +476,16 @@ const LeftAppGroup = props => {
           <Skeleton className="w100 h100" active={true} />
         ) : (
           <Fragment>
-            {appSectionDetail.length === 1 &&
-              _.isEmpty(appSectionDetail[0].items) &&
-              _.isEmpty(appSectionDetail[0].workSheetName) &&
-              !appSectionDetail[0].edit && <Skeleton className="w100 h100 Absolute" />}
+            {skeletonVisible && (
+              <Skeleton className="w100 h100 Absolute" />
+            )}
             <DndProvider key="navigationList" context={window} backend={HTML5Backend}>
-              <ScrollView>
+              <ScrollView className={cx({ hide: skeletonVisible })}>
                 {appSectionDetail.map((data, index) => (
                   <AppSectionItem
                     key={data.workSheetId}
                     ids={ids}
+                    skeletonVisible={skeletonVisible}
                     item={{
                       ...data,
                       index,

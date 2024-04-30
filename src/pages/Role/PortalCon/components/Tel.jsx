@@ -17,10 +17,10 @@ export default class Tel extends Component {
       loadUtils: '',
       utilsScript: utils,
       separateDialCode: true,
-      initialCountry: 'cn',
-      // preferredCountries: ['cn'],
-      onlyCountries: ['cn'], //只支持大陆号码
-      allowDropdown: false,//不下拉
+      showSelectedDialCode: true,
+      initialCountry: this.props.allowDropdown ? _.get(md, 'global.Config.DefaultConfig.initialCountry') || 'cn' : 'cn',
+      onlyCountries: this.props.allowDropdown ? [] : ['cn'], //只支持大陆号码
+      allowDropdown: this.props.allowDropdown || false, //不下拉
     });
 
     this.setValue(value);

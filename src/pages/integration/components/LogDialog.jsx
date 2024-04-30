@@ -94,7 +94,10 @@ export default function LogDialog(props) {
     try {
       da = JSON.parse(info);
     } catch (error) {
-      da = {};
+      da = {
+        //无法JSON.parse，兼容呈现
+        data: info,
+      };
     }
     return da;
   };

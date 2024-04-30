@@ -317,16 +317,16 @@ export default class OpenActionContent extends Component {
             projectId={this.props.companyId}
             worksheetType={data.pushType === PUSH_TYPE.PAGE ? 1 : 0}
             selectedAppId={this.props.relationId}
-            selectedWrorkesheetId={data.appId}
+            selectedWorksheetId={data.appId}
             visible
-            onOk={(selectedAppId, selectedWrorkesheetId, obj) => {
+            onOk={(selectedAppId, worksheetId, obj) => {
               const isCurrentApp = this.props.relationId === selectedAppId;
 
               if (!isCurrentApp && selectedAppId) {
                 this.setState({ otherAppName: !isCurrentApp && obj.appName });
               }
 
-              this.switchWorksheet(selectedWrorkesheetId);
+              this.switchWorksheet(worksheetId);
             }}
             onHide={() => this.setState({ showOtherWorksheet: false })}
           />

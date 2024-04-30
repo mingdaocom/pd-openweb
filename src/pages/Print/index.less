@@ -142,6 +142,11 @@
       background-color: #525659;
       color: #333;
     }
+    .iframeDiv {
+      .toolbarButton#download {
+        display: none;
+      }
+    }
   }
 }
 
@@ -168,6 +173,7 @@
     overflow-x: initial;
     padding: 0;
     background: #fff;
+    height: auto !important;
   }
   .nano-pane {
     display: none;
@@ -180,5 +186,18 @@
     padding: 0 !important;
     height: auto !important;
     background: #fff;
+  }
+  .printTem .printInfo {
+    margin-bottom: 5em;
+  }
+  #app,
+  #wrapper,
+  #containerWrapper,
+  #container,
+  .printTem,
+  .printTemCon,
+  .printTemCon > div {
+    height: auto !important;
+    width: 100%;
   }
 }

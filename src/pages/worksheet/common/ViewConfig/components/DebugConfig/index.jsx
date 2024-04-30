@@ -9,6 +9,7 @@ import copy from 'copy-to-clipboard';
 import Input from 'ming-ui/components/Input';
 import { emitter } from 'src/util';
 import tailwindIcon from './tailwind.svg';
+import vueIcon from './vue.svg';
 
 const Wrap = styled.div`
   li {
@@ -117,6 +118,22 @@ const OPTIONS = [
     svg: tailwindIcon,
     width: 18,
     tip: _l('该模板 mdye-cli 依赖版本 >= beta-0.0.23'),
+  },
+  {
+    text: _l('Vue 模板'),
+    template: 'Vue',
+    value: 5,
+    svg: vueIcon,
+    width: 16,
+    tip: _l('Vue3，该模板 mdye-cli 依赖版本 >= beta-0.0.34'),
+  },
+  {
+    text: _l('Vue2 模板'),
+    template: 'Vue2',
+    value: 6,
+    svg: vueIcon,
+    width: 16,
+    tip: _l('该模板 mdye-cli 依赖版本 >= beta-0.0.34，Vue2 官方已经终止支持且不再维护，不建议再使用 Vue 2。'),
   },
 ];
 export default function DebugConfig(params) {
@@ -271,7 +288,7 @@ export default function DebugConfig(params) {
                     ) : (
                       <Icon className="Hand Font18" icon={item.iconTxt} style={{ color: item.color }} />
                     )}
-                    <span className="mLeft15"> {item.text}</span>
+                    <span className="mLeft20"> {item.text}</span>
                   </div>
                 );
               }}

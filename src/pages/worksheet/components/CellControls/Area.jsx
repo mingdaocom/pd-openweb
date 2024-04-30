@@ -219,7 +219,7 @@ export default class Date extends React.Component {
             this.handleExit();
           }
         }}
-        destroyPopupOnHide={!(navigator.userAgent.match(/[Ss]afari/) && !navigator.userAgent.match(/[Cc]hrome/))} // 不是 Safari
+        destroyPopupOnHide={!window.isSafari} // 不是 Safari
         disabled={!isediting}
       >
         <EditableCellCon

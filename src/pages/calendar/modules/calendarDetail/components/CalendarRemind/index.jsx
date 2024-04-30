@@ -90,7 +90,7 @@ export default class CalendarRemind extends Component {
         id,
         remindType,
         remindTime: value,
-      }).done(() => {
+      }).then(() => {
         this.props.change({
           remindTime: minutes,
         });
@@ -104,7 +104,7 @@ export default class CalendarRemind extends Component {
     updateRemindVoice({
       id,
       voiceRemind,
-    }).done(() => {
+    }).then(() => {
       this.props.change({
         voiceRemind,
       });

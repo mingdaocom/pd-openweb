@@ -45,6 +45,9 @@ body,
     background-color: #fff;
     box-shadow: 0px 1px 4px #00000029;
 
+    .infoCon {
+      padding: 32px 32px 0px 32px;
+    }
     .worksheetName {
       white-space: break-spaces;
       line-height: 1em;
@@ -91,7 +94,7 @@ body,
 
   .submitCon {
     text-align: center;
-    margin: 30px 0 30px;
+    margin: 30px 32px;
     .submitBtn {
       max-width: 736px;
       span {
@@ -120,6 +123,19 @@ body,
       }
     }
   }
+
+  &.hideBg {
+    .formContent {
+      width: 100% !important;
+      margin: 0;
+      border-radius: 0;
+      box-shadow: none;
+    }
+    .mingdaoCon {
+      width: 100% !important;
+      padding: 12px 32px;
+    }
+  }
 }
 
 @media (min-width: 1200px) {
@@ -138,9 +154,8 @@ body,
 
   .publicWorksheet {
     .infoCon {
-      padding: 0 16px !important;
+      padding: 24px 24px 0px 24px !important;
     }
-
     .formMain {
       padding: 0 24px !important;
     }
@@ -161,6 +176,9 @@ body,
 
       .receipt {
         padding: 0 24px;
+      }
+      .submitCon {
+        margin: 30px 24px;
       }
     }
 

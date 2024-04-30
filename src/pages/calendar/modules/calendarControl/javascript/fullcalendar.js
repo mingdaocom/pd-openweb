@@ -1355,7 +1355,7 @@ function EventManager(options) {
             callback(events);
             popLoading();
           })
-          .fail(function () {
+          .catch(function () {
             applyAll(error, this, arguments);
             callback();
           });
@@ -3546,7 +3546,7 @@ MouseFollower.prototype = {
         var calendarMonthTop =
             window.localStorage.getItem('lastView') === 'month' ? $('.fc-view.fc-month-view').scrollTop() : 0,
           calendarMonthLeft = 0;
-        if (window.localStorage.getItem('lastView') === 'month' && $.browser.safari) {
+        if (window.localStorage.getItem('lastView') === 'month' && /Safari/.test(navigator.userAgent)) {
           calendarMonthTop = 0;
           calendarMonthLeft = 250;
         }
@@ -3629,7 +3629,7 @@ MouseFollower.prototype = {
     var calendarMonthTop =
         window.localStorage.getItem('lastView') === 'month' ? $('.fc-view.fc-month-view').scrollTop() : 0,
       calendarMonthLeft = 0;
-    if (window.localStorage.getItem('lastView') === 'month' && $.browser.safari) {
+    if (window.localStorage.getItem('lastView') === 'month' && /Safari/.test(navigator.userAgent)) {
       calendarMonthTop = 0;
       calendarMonthLeft = 250;
     }
@@ -3823,15 +3823,6 @@ $.extend(Grid.prototype, {
         _this.dayMousedown(ev);
       }
     });
-
-    if ($.browser.msie) {
-      var ieVer = parseInt($.browser.version, 10);
-      if (ieVer <= 8) {
-        this.el.on('dblclick', function () {
-          _this.dayMousedown(event, 1);
-        });
-      }
-    }
 
     this.bindSegHandlers(); // attach event-element-related handlers. in Grid.events.js
   },
@@ -4278,7 +4269,7 @@ $.extend(Grid.prototype, {
           if (hasChanged) {
             view.eventDrop(el[0], event, newStart, ev); // will rerender all events...
 
-            if ($.browser.safari && window.localStorage.getItem('lastView') === 'month') {
+            if (/Safari/.test(navigator.userAgent) && window.localStorage.getItem('lastView') === 'month') {
               $('.fc-month-view').css('position', 'static');
             } else {
               $('.fc-month-view').css('position', 'relative');
@@ -4381,7 +4372,7 @@ $.extend(Grid.prototype, {
         if (newEnd) {
           view.eventResize(el[0], event, newEnd, ev); // will rerender all events...
 
-          if ($.browser.safari && window.localStorage.getItem('lastView') === 'month') {
+          if (/Safari/.test(navigator.userAgent) && window.localStorage.getItem('lastView') === 'month') {
             $('.fc-month-view').css('position', 'static');
           } else {
             $('.fc-month-view').css('position', 'relative');

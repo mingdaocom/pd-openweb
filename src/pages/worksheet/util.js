@@ -625,9 +625,23 @@ export function controlIsNumber({ type, sourceControlType, enumDefault, enumDefa
 /**
  * 是否是按关联表格呈现的控件
  */
-export function isRelateRecordTableControl({ type, enumDefault, advancedSetting = {} }) {
+export function isRelateRecordTableControl(
+  { type, enumDefault, advancedSetting = {} },
+  { ignoreInFormTable = false } = {},
+) {
   return (
-    (type === 29 && enumDefault === 2 && parseInt(advancedSetting.showtype, 10) === RELATE_RECORD_SHOW_TYPE.LIST) ||
+    (type === 29 &&
+      enumDefault === 2 &&
+      _.includes(
+        ignoreInFormTable
+          ? [String(RELATE_RECORD_SHOW_TYPE.LIST), String(RELATE_RECORD_SHOW_TYPE.TAB_TABLE)]
+          : [
+              String(RELATE_RECORD_SHOW_TYPE.LIST),
+              String(RELATE_RECORD_SHOW_TYPE.TABLE),
+              String(RELATE_RECORD_SHOW_TYPE.TAB_TABLE),
+            ],
+        advancedSetting.showtype,
+      )) ||
     (type === 51 && advancedSetting.showtype === String(RELATION_SEARCH_SHOW_TYPE.LIST))
   );
 }
@@ -814,7 +828,6 @@ export function parseRecordTempValue(data = {}, originFormData, defaultRelatedSh
           ...c,
           value: {
             isAdd: true,
-            controls: c.relationControls,
             rows: data[c.controlId],
             action: 'clearAndSet',
           },
@@ -843,11 +856,11 @@ export function parseRecordTempValue(data = {}, originFormData, defaultRelatedSh
   } catch (err) {}
   return { formdata, relateRecordData };
 }
-const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
+
 const debouncedKVSet = _.debounce(KVSet, 1000);
 
 export function saveTempRecordValueToLocal(key, id, value, max = 5) {
-  if (isWxWork) {
+  if (window.isWxWork) {
     debouncedKVSet(`${md.global.Account.accountId}${id}-${key}`, value);
     return debouncedKVSet;
   }
@@ -876,7 +889,7 @@ export function saveTempRecordValueToLocal(key, id, value, max = 5) {
 }
 
 export function removeTempRecordValueFromLocal(key, id) {
-  if (isWxWork) {
+  if (window.isWxWork) {
     KVClear(`${md.global.Account.accountId}${id}-${key}`);
     return;
   }
@@ -1341,7 +1354,7 @@ export function getSheetListFirstId(sheetList = [], isCharge = true) {
       if (result) {
         break;
       }
-    } else if (isCharge ? true : current.status === 1 && !current.navigateHide) {
+    } else if (isCharge ? true : [1, 4].includes(current.status) && !current.navigateHide) {
       result = current.workSheetId;
       break;
     }
@@ -1624,25 +1637,24 @@ export function handleRecordError(resultCode, control) {
   }
 }
 
-export function handleChildTableUniqueError({ badData = [], cellObjs = {}, data = {} } = {}) {
+export function getSubListUniqueError({ control, badData = [] } = {}) {
   if (badData[0]) {
     const [childTableControlId, controlId, value] = badData[0].split(':');
-    const childTableComp = (cellObjs || {})[childTableControlId];
-    const childTableControl = _.find(data, { controlId: childTableControlId });
-    if (childTableControl && childTableComp) {
-      const badRowIds = filterEmptyChildTableRows(_.get(childTableControl, 'value.rows') || [])
-        .filter(r => (r[controlId] || '').indexOf(value) > -1)
-        .map(r => r.rowid);
-      if (!badRowIds.length) return;
-      childTableComp.cell.setState({
-        error: true,
-        cellErrors: badRowIds
-          .map(rowId => ({
-            [`${rowId}-${controlId}`]: FORM_ERROR_TYPE_TEXT.UNIQUE(),
-          }))
-          .reduce((a, b) => ({ ...a, ...b })),
-      });
-    }
+    const rows = control.store.getState().rows;
+    const badRowIds = filterEmptyChildTableRows(rows)
+      .filter(r =>
+        value.indexOf('-') > -1 ? (r[controlId] || '').indexOf(value) > -1 : (r[controlId] || '') === value,
+      )
+      .map(r => r.rowid);
+    if (!badRowIds.length) return {};
+    return {
+      controlId: childTableControlId,
+      error: badRowIds
+        .map(rowId => ({
+          [`${rowId}-${controlId}`]: FORM_ERROR_TYPE_TEXT.UNIQUE(),
+        }))
+        .reduce((a, b) => ({ ...a, ...b })),
+    };
   }
 }
 

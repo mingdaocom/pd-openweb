@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Icon, Switch, Button, Radio, QiniuUpload, Slider } from 'ming-ui';
+import { Icon, Switch, Button, Radio, QiniuUpload, Slider, Dropdown, Dialog } from 'ming-ui';
 import { Drawer, Input } from 'antd';
 import _ from 'lodash';
 import cx from 'classnames';
 import { getRgbaByColor } from 'src/pages/widgetConfig/util';
 import BulletinSetting from './BulletinSetting';
 import projectSettingApi from 'src/api/projectSetting';
-import { themeColors } from './utils';
+import { chartRefreshOptions, themeColors } from './utils';
+import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
+import { upgradeVersionDialog } from 'src/util';
 
 const SettingDrawer = styled(Drawer)`
   .ant-drawer-header {
@@ -35,7 +37,7 @@ const SettingDrawer = styled(Drawer)`
   }
   .ant-drawer-content-wrapper {
     .ant-drawer-body {
-      padding: 0 24px;
+      padding: 0 24px 24px;
     }
   }
 
@@ -171,6 +173,74 @@ const HeightSlider = styled(Slider)`
   }
 `;
 
+const SortItem = styled.div`
+  z-index: 1000;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  height: 48px;
+  font-size: 14px;
+  font-weight: bold;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  padding: 0 12px;
+  margin-bottom: 16px;
+  cursor: pointer;
+  &:hover {
+    border-color: #2196f3;
+  }
+`;
+
+const AdvancedThemeItem = styled.div`
+  position: relative;
+  cursor: pointer;
+  img {
+    width: 28px;
+    height: 28px;
+  }
+  .themeMask {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    border-radius: 3px;
+    background: rgba(0, 0, 0, 0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    i {
+      color: #fff;
+      font-size: 18px;
+    }
+  }
+`;
+
+const SortableItem = SortableElement(data => {
+  const { moduleType } = data;
+  const modulesText = { 0: _l('应用收藏'), 1: _l('最近使用'), 2: _l('记录收藏'), 3: _l('图表收藏') };
+
+  return (
+    <SortItem>
+      <Icon className="mRight8 Font14 Gray_9e" icon="drag" />
+      <span>{modulesText[moduleType]}</span>
+    </SortItem>
+  );
+});
+
+const SortableList = SortableContainer(props => {
+  const { sortIds } = props;
+
+  return (
+    <div className="flexColumn mTop16">
+      {sortIds.map((moduleType, index) => {
+        return <SortableItem moduleType={moduleType} key={`item_${moduleType}`} index={index} />;
+      })}
+    </div>
+  );
+});
+
 export default function DashboardSetting(props) {
   const {
     currentProject = {},
@@ -179,15 +249,26 @@ export default function DashboardSetting(props) {
     updatePlatformSetting,
     updateHomeSetting,
     onClose,
+    onSetAdvancedTheme,
+    currentTheme,
+    advancedThemes,
   } = props;
   const { slogan, bulletinBoards, color, boardSwitch, logoSwitch, logo, logoHeight } = platformSetting;
-  const { markedAppDisplay, displayCommonApp, rowCollect, todoDisplay } = homeSetting;
+  const { markedAppDisplay, displayCommonApp, rowCollect, todoDisplay, displayApp, displayChart, sortItems } =
+    homeSetting;
   const [uploadLoading, setUploadLoading] = useState(false);
   const [bulletinSetVisible, setBulletinSetVisible] = useState(false);
   const [enableSlider, setEnableSlider] = useState(false);
-
+  const [sortVisible, setSortVisible] = useState(false);
+  const [sortModuleIds, setSortModuleIds] = useState(
+    sortItems && sortItems.length ? sortItems.map(item => item.moduleType) : [0, 1, 2, 3],
+  );
   const isAdmin = currentProject.isSuperAdmin || currentProject.isProjectAdmin;
-  const currentColor = !color || !_.includes(themeColors, color) ? '#2196F3' : color;
+  const currentColor = _.isEmpty(currentTheme)
+    ? !color || !_.includes(themeColors, color)
+      ? '#2196F3'
+      : color
+    : currentTheme.themeKey;
 
   const collectRadios = [
     { value: 0, text: _l('显示当前组织') },
@@ -239,32 +320,46 @@ export default function DashboardSetting(props) {
                     }?imageView2/2/h/200/q/90`}
                     alt="logo"
                   />
-                  <div className="logoIconBox">
-                    <QiniuUpload
-                      className="w100"
-                      options={{
-                        multi_selection: false,
-                        filters: {
-                          mime_types: [{ title: 'image', extensions: 'jpg,jpeg,png,gif' }],
-                        },
-                        type: 4,
-                        max_file_size: '0.5m',
-                      }}
-                      onUploaded={(up, file, response) => {
-                        up.disableBrowse(false);
-                        setUploadLoading(false);
-                        updateLogo(file.fileName);
-                      }}
-                      onAdd={(up, files) => {
-                        setUploadLoading(true);
-                        up.disableBrowse();
-                      }}
-                      onError={(up, err, errTip) => {
-                        alert(errTip, 2);
-                      }}
-                    >
+                  <div
+                    className="logoIconBox"
+                    onClick={() => {
+                      currentProject.licenseType === 0 &&
+                        upgradeVersionDialog({
+                          projectId: currentProject.projectId,
+                          explainText: _l('请升级至付费版解锁开启'),
+                          isFree: true,
+                        });
+                    }}
+                  >
+                    {currentProject.licenseType === 0 ? (
                       <span className="Font15 icon-upload_pictures"></span>
-                    </QiniuUpload>
+                    ) : (
+                      <QiniuUpload
+                        className="w100"
+                        options={{
+                          multi_selection: false,
+                          filters: {
+                            mime_types: [{ title: 'image', extensions: 'jpg,jpeg,png,gif' }],
+                          },
+                          type: 4,
+                          max_file_size: '0.5m',
+                        }}
+                        onUploaded={(up, file, response) => {
+                          up.disableBrowse(false);
+                          setUploadLoading(false);
+                          updateLogo(file.fileName);
+                        }}
+                        onAdd={(up, files) => {
+                          setUploadLoading(true);
+                          up.disableBrowse();
+                        }}
+                        onError={(up, err, errTip) => {
+                          alert(errTip, 2);
+                        }}
+                      >
+                        <span className="Font15 icon-upload_pictures"></span>
+                      </QiniuUpload>
+                    )}
                   </div>
                 </div>
                 <div className="Gray_9e Font13 mTop10">{_l('建议尺寸 400*180 px，512 KB以内')}</div>
@@ -333,7 +428,7 @@ export default function DashboardSetting(props) {
                       className={cx('colorItem', { isActive: currentColor === item })}
                       style={{ backgroundColor: getRgbaByColor(item, '0.12') }}
                       onClick={() => {
-                        updatePlatformSetting({ color: item });
+                        updatePlatformSetting({ color: item, advancedSetting: {} });
                       }}
                     >
                       <div className="insideBlock" style={{ backgroundColor: item }}>
@@ -342,12 +437,28 @@ export default function DashboardSetting(props) {
                     </div>
                   );
                 })}
+                {!md.global.Config.IsLocal &&
+                  advancedThemes.map(item => (
+                    <AdvancedThemeItem onClick={() => currentColor !== item.themeKey && onSetAdvancedTheme(item)}>
+                      <img src={item.themeIcon} />
+                      {currentColor === item.themeKey && (
+                        <div className="themeMask">
+                          <Icon icon="done" />
+                        </div>
+                      )}
+                    </AdvancedThemeItem>
+                  ))}
               </div>
             </SettingItem>
           </div>
         )}
 
-        <div className="sectionTitle">{_l('个人设置')}</div>
+        <div className="flexRow alignItemsCenter">
+          <div className="sectionTitle flex">{_l('个人设置')}</div>
+          <Button type="ghost" onClick={() => setSortVisible(true)}>
+            {_l('排序')}
+          </Button>
+        </div>
         <SettingItem>
           <div className="settingHeader">
             <div className="titleText">{_l('流程待办')}</div>
@@ -375,7 +486,7 @@ export default function DashboardSetting(props) {
                 {...item}
                 size="small"
                 checked={markedAppDisplay === item.value}
-                onClick={() => updateHomeSetting({ markedAppDisplay: item.value, editingKey: 'markedAppDisplay' })}
+                onClick={() => updateHomeSetting({ markedAppDisplay: item.value }, 'markedAppDisplay')}
               />
             ))}
           </div>
@@ -391,11 +502,26 @@ export default function DashboardSetting(props) {
             />
           </div>
         </SettingItem>
-
         <SettingItem>
           <div className="settingHeader">
             <div className="titleText">{_l('记录收藏')}</div>
             <Switch size="small" checked={rowCollect} onClick={() => updateHomeSetting({ rowCollect: !rowCollect })} />
+          </div>
+        </SettingItem>
+        <SettingItem>
+          <div className="settingHeader">
+            <div className="titleText">{_l('图表收藏')}</div>
+            <Switch
+              size="small"
+              checked={displayChart}
+              onClick={() => updateHomeSetting({ displayChart: !displayChart })}
+            />
+          </div>
+        </SettingItem>
+        <SettingItem>
+          <div className="settingHeader">
+            <div className="titleText">{_l('应用')}</div>
+            <Switch size="small" checked={displayApp} onClick={() => updateHomeSetting({ displayApp: !displayApp })} />
           </div>
         </SettingItem>
       </SettingDrawer>
@@ -406,6 +532,29 @@ export default function DashboardSetting(props) {
           updatePlatformSetting={updatePlatformSetting}
           onClose={() => setBulletinSetVisible(false)}
         />
+      )}
+
+      {sortVisible && (
+        <Dialog
+          visible
+          width={480}
+          title={_l('排序')}
+          onCancel={() => setSortVisible(false)}
+          onOk={() => {
+            const sortItems = sortModuleIds.map(item => ({ moduleType: item }));
+            updateHomeSetting({ sortItems });
+            setSortVisible(false);
+          }}
+        >
+          <SortableList
+            sortIds={sortModuleIds}
+            onSortEnd={({ oldIndex, newIndex }) => {
+              if (oldIndex === newIndex) return;
+              const newSortIds = arrayMove(sortModuleIds, oldIndex, newIndex);
+              setSortModuleIds(newSortIds);
+            }}
+          />
+        </Dialog>
       )}
     </React.Fragment>
   );

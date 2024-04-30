@@ -1,7 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { Flex, ActionSheet, Modal } from 'antd-mobile';
-import { Icon, Button } from 'ming-ui';
-import SvgIcon from 'src/components/SvgIcon';
+import { Icon, Button, SvgIcon } from 'ming-ui';
 import ApplicationItem from '../ApplicationItem';
 import { generateRandomPassword, getCurrentProject, addBehaviorLog } from 'src/util';
 import styled from 'styled-components';
@@ -30,10 +29,7 @@ export default class ApplicationList extends Component {
   }
 
   renderErr() {
-    const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
-    const isWeLink = window.navigator.userAgent.toLowerCase().includes('huawei-anyoffice');
-    const isDing = window.navigator.userAgent.toLowerCase().includes('dingtalk');
-    const isApp = isWxWork || isWeLink || isDing;
+    const isApp = window.isWxWork || window.isWeLink || window.isDingTalk;
     const cannotCreateApp = isApp ? _.get(md.global.Account.projects[0], ['cannotCreateApp']) : true;
     const { externalApps } = this.props.myAppData || {};
 
@@ -101,7 +97,6 @@ export default class ApplicationList extends Component {
 
   // 添加应用
   showActionSheet = () => {
-    const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
     const BUTTONS = [
       { name: _l('从模板库添加'), icon: 'application_library', iconClass: 'Font18' },
       { name: _l('自定义创建'), icon: 'add1', iconClass: 'Font18' },
@@ -135,7 +130,7 @@ export default class ApplicationList extends Component {
           window.mobileNavigateTo(`/mobile/appBox`);
         }
         if (buttonIndex === 1) {
-          const title = isWxWork ? _l('创建自定义应用请前往企业微信PC桌面端') : _l('创建自定义应用请前往PC端');
+          const title = window.isWxWork ? _l('创建自定义应用请前往企业微信PC桌面端') : _l('创建自定义应用请前往PC端');
           Modal.alert(title, null, [{ text: _l('我知道了'), onPress: () => {} }]);
         }
       },

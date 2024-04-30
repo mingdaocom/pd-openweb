@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component, Fragment, useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import './index.less';
 import ajaxRequest from 'src/api/worksheet';
@@ -16,7 +16,6 @@ import {
   SIDEBAR_LIST,
   appRoleErrorData,
   appSuccessData,
-  AddWorksheetParam,
   ADD_API_CONTROLS,
   ADD_WORKSHEET_SUCCESS,
   WORKSHEETINFO_SUCCESS_DATA,
@@ -27,11 +26,10 @@ import {
   ADD_ROW_SUCCESS,
 } from './config';
 import homeApp from 'src/api/homeApp';
-import { Icon, Dialog, Textarea, LoadDiv, ScrollView, Skeleton } from 'ming-ui';
+import { Icon, Dialog, Textarea, LoadDiv, ScrollView, Skeleton, SvgIcon } from 'ming-ui';
 import { navigateTo } from 'src/router/navigateTo';
 import noDataImg from './img/lock.png';
 import AliasDialog from 'src/pages/FormSet/components/AliasDialog.jsx';
-import SvgIcon from 'src/components/SvgIcon';
 import MoreOption from './MoreOption';
 import processAjax from 'src/pages/workflow/api/process';
 import preall from 'src/common/preall';
@@ -40,6 +38,9 @@ import styled from 'styled-components';
 import { FIELD_TYPE_LIST } from 'src/pages/workflow/WorkflowSettings/enum';
 import _ from 'lodash';
 import { setFavicon } from 'src/util';
+import Share from 'src/pages/worksheet/components/Share';
+import { ShareState, VerificationPass, SHARE_STATE } from 'worksheet/components/ShareState';
+import DocumentTitle from 'react-document-title';
 
 const FIELD_TYPE = FIELD_TYPE_LIST.concat([{ text: _l('对象'), value: 10000006, en: 'object' }]);
 
@@ -99,7 +100,6 @@ class WorksheetAliasDialog extends React.Component {
   }
 }
 
-@preall
 class WorksheetApi extends Component {
   constructor(props) {
     super(props);
@@ -130,6 +130,7 @@ class WorksheetApi extends Component {
       pbcList: [],
       workflowInfo: {},
       menuList: MENU_LIST,
+      shareVisible: false,
     };
     this.canScroll = true;
   }
@@ -139,42 +140,69 @@ class WorksheetApi extends Component {
   }
 
   getAppInfo() {
+    const { isSharePage, shareData = {} } = this.props;
+
     this.setState({
       loading: true,
     });
 
-    Promise.all([
-      // 获取应用详细信息
-      homeApp.getApp(
-        {
-          appId: this.getId(),
-        },
-        {
-          silent: true,
-        },
-      ),
-      // 获取应用下所有工作表信息
-      homeApp.getWorksheetsByAppId({
-        appId: this.getId(),
-        type: 0,
-      }),
-      appManagementAjax.getAuthorizes({ appId: this.getId() }),
-      homeApp.getApiInfo({ appId: this.getId() }),
+    const promiseList = isSharePage
+      ? [
+          // 获取应用下所有工作表信息
+          homeApp.getWorksheetsByAppId({
+            appId: this.getId(),
+            type: 0,
+          }),
+          homeApp.getApiInfo({ appId: this.getId() }),
 
-      // 获取选项集参数接口
-      ajaxRequest.addOrUpdateOptionSetApiInfo(),
-      ajaxRequest.optionSetListApiInfo(),
-      processAjax.getProcessListApi({ relationId: this.getId() }),
-    ]).then(res => {
+          // 获取选项集参数接口
+          ajaxRequest.addOrUpdateOptionSetApiInfo(),
+          ajaxRequest.optionSetListApiInfo(),
+          processAjax.getProcessListApi({ relationId: this.getId() }),
+        ]
+      : [
+          // 获取应用下所有工作表信息
+          homeApp.getWorksheetsByAppId({
+            appId: this.getId(),
+            type: 0,
+          }),
+          homeApp.getApiInfo({ appId: this.getId() }),
+          // 获取选项集参数接口
+          ajaxRequest.addOrUpdateOptionSetApiInfo(),
+          ajaxRequest.optionSetListApiInfo(),
+          processAjax.getProcessListApi({ relationId: this.getId() }),
+          // 获取应用详细信息
+          homeApp.getApp(
+            {
+              appId: this.getId(),
+            },
+            {
+              silent: true,
+            },
+          ),
+          appManagementAjax.getAuthorizes({ appId: this.getId() }),
+        ];
+
+    Promise.all(promiseList).then(res => {
+      let resArr = isSharePage ? res.concat([undefined, undefined]) : res;
       const [
-        dataApp = {},
         worksheetList = [],
-        authorizes = [],
         appInfo = {},
         addOptionsParams = [],
         getOptionsParams = [],
         pbcList = [],
-      ] = res;
+        dataApp = {},
+        authorizes = [],
+      ] = resArr;
+
+      if (isSharePage) {
+        dataApp.iconUrl = shareData.appIcon;
+        dataApp.id = shareData.appId;
+        dataApp.iconColor = shareData.appIconColor;
+        dataApp.name = shareData.appName;
+        dataApp.projectId = shareData.projectId;
+      }
+
       setFavicon(dataApp.iconUrl, dataApp.iconColor);
 
       for (const item of addOptionsParams.requestParams || []) {
@@ -251,15 +279,18 @@ class WorksheetApi extends Component {
           });
         }
       });
-      this.setState({ data, numberTypeList: list.template.controls || [], loading: false, alias: list.alias, menuList: MENU_LIST }, () => {
-        this.scrollToFixedPosition();
-      });
+      this.setState(
+        { data, numberTypeList: list.template.controls || [], loading: false, alias: list.alias, menuList: MENU_LIST },
+        () => {
+          this.scrollToFixedPosition();
+        },
+      );
     });
   };
 
   // 获取工作流信息
   getWorkflowApiInfo = processId => {
-    processAjax.getProcessApiInfo({ processId }).then(res => {
+    processAjax.getProcessApiInfo({ processId, relationId: this.getId() }).then(res => {
       this.setState({ workflowInfo: res }, () => {
         this.scrollToFixedPosition();
       });
@@ -267,6 +298,10 @@ class WorksheetApi extends Component {
   };
 
   getId() {
+    const { isSharePage } = this.props;
+    if (isSharePage) {
+      return this.props.appId;
+    }
     const ids = window.location.pathname.replace(/.*\/worksheetapi\//g, '').split('/');
     return ids[0];
   }
@@ -506,8 +541,8 @@ class WorksheetApi extends Component {
         </div>
         {this.renderRightContent({
           data: this.getUrl(url, {
-            appKey: apiRequest.appKey || 'APPKEY',
-            sign: apiRequest.sign || 'SIGN',
+            appKey: apiRequest.appKey || 'YOUR_APP_KEY',
+            sign: apiRequest.sign || 'YOUR_SIGN',
           }),
           successData: appSuccessData,
           errorData: appRoleErrorData,
@@ -548,8 +583,8 @@ class WorksheetApi extends Component {
         </div>
         {this.renderRightContent({
           data: {
-            appKey: data[0].appKey || 'APPKEY',
-            sign: data[0].sign || 'SIGN',
+            appKey: data[0].appKey || 'YOUR_APP_KEY',
+            sign: data[0].sign || 'YOUR_SIGN',
             worksheetId: data[0].alias || data[0].worksheetId,
           },
           successData: WORKSHEETINFO_SUCCESS_DATA,
@@ -649,8 +684,8 @@ class WorksheetApi extends Component {
         </div>
         {this.renderRightContent({
           data: {
-            appKey: data[0].appKey || 'APPKEY',
-            sign: data[0].sign || 'SIGN',
+            appKey: data[0].appKey || 'YOUR_APP_KEY',
+            sign: data[0].sign || 'YOUR_SIGN',
             name: data[0].name || 'NAME',
             alias: data[0].alias,
             sectionId: appInfo.apiResponse.sections[0].sectionId || 'sectionId',
@@ -668,7 +703,7 @@ class WorksheetApi extends Component {
    */
   renderWorkflowInfo() {
     const { data = [], workflowInfo } = this.state;
-    let inputExample = { appKey: data[0].appKey || 'APPKEY', sign: data[0].sign || 'SIGN' };
+    let inputExample = { appKey: data[0].appKey || 'YOUR_APP_KEY', sign: data[0].sign || 'YOUR_SIGN' };
     let outputExample = {};
     const renderInputs = source => {
       return source.map(o => {
@@ -796,7 +831,7 @@ class WorksheetApi extends Component {
           let dataObj = {};
           data.map(({ name, desc }) => {
             dataObj[name] = _.includes(['appKey', 'sign'], name)
-              ? (this.state.data[0] || {})[name] || name.toUpperCase()
+              ? (this.state.data[0] || {})[name] || { appKey: 'YOUR_APP_KEY', sign: 'YOUR_SIGN' }[name]
               : desc;
           });
 
@@ -939,6 +974,7 @@ class WorksheetApi extends Component {
    */
   renderTable(item, i) {
     const { showAliasDialog, numberTypeList = [], showWorksheetAliasDialog, alias } = this.state;
+    const { isSharePage } = this.props;
 
     return (
       <Fragment>
@@ -947,31 +983,35 @@ class WorksheetApi extends Component {
           <div className="Font14 bold mTop20">
             <span className="mRight20 Gray_75">{_l('工作表ID：') + item.worksheetId}</span>
             <span className="Gray_75">{_l('工作表别名：') + (alias || '')}</span>
-            <span
-              className="Hand Font13 mLeft20"
-              style={{ color: '#2196F3' }}
-              onClick={() => {
-                this.setState({
-                  showWorksheetAliasDialog: true,
-                });
-              }}
-            >
-              {_l('设置')}
-            </span>
+            {!isSharePage && (
+              <span
+                className="Hand Font13 mLeft20"
+                style={{ color: '#2196F3' }}
+                onClick={() => {
+                  this.setState({
+                    showWorksheetAliasDialog: true,
+                  });
+                }}
+              >
+                {_l('设置')}
+              </span>
+            )}
           </div>
           <div className="Font17 bold mTop40">
             {MENU_LIST[0].title}{' '}
-            <span
-              className="Right Hand Font13"
-              style={{ color: '#2196F3' }}
-              onClick={() => {
-                this.setState({
-                  showAliasDialog: !showAliasDialog,
-                });
-              }}
-            >
-              {_l('设置字段别名')}
-            </span>
+            {!isSharePage && (
+              <span
+                className="Right Hand Font13"
+                style={{ color: '#2196F3' }}
+                onClick={() => {
+                  this.setState({
+                    showAliasDialog: !showAliasDialog,
+                  });
+                }}
+              >
+                {_l('设置字段别名')}
+              </span>
+            )}
           </div>
           <div className="flexRow worksheetApiLine flexRowHeight bold mTop25">
             <div className="w22">{_l('字段ID')}</div>
@@ -1247,7 +1287,7 @@ class WorksheetApi extends Component {
    * 渲染通用的左内容
    */
   renderLeftContent(i) {
-    const { data, menuList  } = this.state;
+    const { data, menuList } = this.state;
 
     return (
       <div className="worksheetApiContent1">
@@ -1326,8 +1366,8 @@ class WorksheetApi extends Component {
    */
   setCommonPostParameters(item, otherOptions) {
     return {
-      appKey: item.appKey || 'APPKEY',
-      sign: item.sign || 'SIGN',
+      appKey: item.appKey || 'YOUR_APP_KEY',
+      sign: item.sign || 'YOUR_SIGN',
       worksheetId: item.alias || item.worksheetId,
       ...otherOptions,
     };
@@ -1631,11 +1671,18 @@ class WorksheetApi extends Component {
       });
   }, 300);
 
+  changeShareVisible = value => {
+    this.setState({
+      shareVisible: value,
+    });
+  };
+
   /**
    * 渲染选项集
    */
   renderOptions() {
     const { appInfo = {} } = this.state;
+    const { apiRequest = {} } = appInfo;
     return (
       <Fragment>
         {OPTIONS_FUNCTION_LIST.map(({ id, title, data = [], apiName, requestData, successData, errorData }, i) => {
@@ -1663,7 +1710,15 @@ class WorksheetApi extends Component {
                   );
                 })}
               </div>
-              {this.renderRightContent({ data: requestData, successData, errorData })}
+              {this.renderRightContent({
+                data: {
+                  ...requestData,
+                  appKey: apiRequest.appKey || 'YOUR_APP_KEY',
+                  sign: apiRequest.sign || 'YOUR_SIGN',
+                },
+                successData,
+                errorData,
+              })}
             </div>
           );
         })}
@@ -1672,7 +1727,12 @@ class WorksheetApi extends Component {
   }
 
   render() {
-    const { data = [], loading, selectId, dataApp, isError } = this.state;
+    const { data = [], loading, selectId, dataApp, isError, shareVisible, appInfo } = this.state;
+    const { isSharePage } = this.props;
+    const appId = this.getId();
+    const sidebarList = isSharePage
+      ? SIDEBAR_LIST.filter(l => !['authorizationInstr', 'whiteList'].includes(l.key))
+      : SIDEBAR_LIST;
 
     if (isError) {
       return (
@@ -1693,7 +1753,7 @@ class WorksheetApi extends Component {
 
     return (
       <div className="flexColumn h100">
-        <header className="worksheetApiHeader flexRow pLeft30">
+        <header className="worksheetApiHeader flexRow pLeft30 pRight30">
           {data && (
             <React.Fragment>
               <span
@@ -1702,7 +1762,7 @@ class WorksheetApi extends Component {
                   backgroundColor: dataApp.iconColor,
                 }}
                 onClick={() => {
-                  navigateTo(`/app/${this.getId()}`);
+                  navigateTo(`/app/${appId}`);
                 }}
               >
                 <SvgIcon url={dataApp.iconUrl} fill="#fff" size={24} addClassName="mTop3" />
@@ -1710,7 +1770,7 @@ class WorksheetApi extends Component {
               <span
                 className="appName Hand bold mRight5"
                 onClick={() => {
-                  navigateTo(`/app/${this.getId()}`);
+                  navigateTo(`/app/${appId}`);
                 }}
               >
                 {dataApp.name}
@@ -1718,6 +1778,16 @@ class WorksheetApi extends Component {
             </React.Fragment>
           )}
           {_l('API说明')}
+          <div className="flex"></div>
+          {!isSharePage && (
+            <div
+              className="shareButton Hand Gray_75 flexRow valignWrapper"
+              onClick={() => this.changeShareVisible(true)}
+            >
+              <Icon icon="share" className="mRight8 Font18" />
+              <span className="Font14">{_l('分享')}</span>
+            </div>
+          )}
         </header>
         <div className="flex flexRow">
           <div className="worksheetApiSide h100">
@@ -1727,7 +1797,7 @@ class WorksheetApi extends Component {
               </div>
             ) : (
               <ScrollView>
-                {SIDEBAR_LIST.map(({ key, title }) => {
+                {sidebarList.map(({ key, title }) => {
                   return (
                     <div
                       className={cx('worksheetApiMenuTitle', { active: selectId === key })}
@@ -1784,12 +1854,16 @@ class WorksheetApi extends Component {
                   </div>
                   <div className="worksheetApiContent2" />
                 </div>
-                <div className="flexRow worksheetApiLi" id="authorizationInstr-content">
-                  {this.renderAuthorizationManagement()}
-                </div>
-                <div className="flexRow worksheetApiLi" id="whiteList-content">
-                  {this.renderWhiteList()}
-                </div>
+                {!isSharePage && (
+                  <React.Fragment>
+                    <div className="flexRow worksheetApiLi" id="authorizationInstr-content">
+                      {this.renderAuthorizationManagement()}
+                    </div>
+                    <div className="flexRow worksheetApiLi" id="whiteList-content">
+                      {this.renderWhiteList()}
+                    </div>
+                  </React.Fragment>
+                )}
                 <div className="flexRow worksheetApiLi" id="appInfo-content">
                   {this.renderAppInfo()}
                 </div>
@@ -1818,9 +1892,133 @@ class WorksheetApi extends Component {
             )}
           </div>
         </div>
+        {shareVisible && (
+          <Share
+            title={_l('分享文档')}
+            from="worksheetApi"
+            isCharge={true}
+            params={{
+              appId: appId,
+              sourceId: _.get(appInfo, 'apiRequest.appKey'),
+              title: _l('API说明'),
+            }}
+            getCopyContent={(type, url) => url}
+            onClose={() => this.changeShareVisible(false)}
+          />
+        )}
       </div>
     );
   }
 }
 
-ReactDOM.render(<WorksheetApi />, document.getElementById('app'));
+const Entry = () => {
+  const isSharePage = location.pathname.includes('/public/');
+  const pathname = location.pathname.split('/');
+  const id = pathname[pathname.length - 1];
+  const [loading, setLoading] = useState(true);
+  const [share, setShare] = useState({});
+
+  useEffect(() => {
+    if (!isSharePage) {
+      preall({ type: 'function' });
+      setLoading(false);
+      return;
+    }
+
+    const clientId = sessionStorage.getItem(id);
+    window.clientId = clientId;
+
+    getEntityShareById({
+      clientId,
+      langType: getCurrentLangCode(),
+    }).then(result => {
+      preall({ type: 'function' }, { allowNotLogin: true, requestParams: { projectId: result.data.projectId } });
+      setShare(result);
+      setLoading(false);
+    });
+  }, []);
+
+  const getEntityShareById = data => {
+    return new Promise(async (resolve, reject) => {
+      const result = await appManagementAjax.getEntityShareById({ id, sourceType: 45, ...data });
+      const clientId = _.get(result, 'data.clientId');
+      window.clientId = clientId;
+      clientId && sessionStorage.setItem(id, clientId);
+      resolve(result);
+    });
+  };
+
+  const renderContent = () => {
+    if ([14, 18, 19].includes(share.resultCode)) {
+      return (
+        <VerificationPass
+          validatorPassPromise={(value, captchaResult) => {
+            return new Promise(async (resolve, reject) => {
+              if (value) {
+                getEntityShareById({
+                  password: value,
+                  ...captchaResult,
+                }).then(data => {
+                  if (data.resultCode === 1) {
+                    setShare(data);
+                    resolve(data);
+                  } else {
+                    reject(SHARE_STATE[data.resultCode]);
+                  }
+                });
+              } else {
+                reject();
+              }
+            });
+          }}
+        />
+      );
+    }
+
+    return <ShareState code={share.resultCode} />;
+  };
+
+  if (loading) {
+    return (
+      <div className="w100 h100 flexColumn alignItemsCenter justifyContentCenter">
+        <LoadDiv />
+      </div>
+    );
+  }
+
+  // 登录打开
+  if (!isSharePage) {
+    return <WorksheetApi isSharePage={isSharePage} />;
+  }
+
+  // 分享打开
+  if (share.resultCode === 1) {
+    return <WorksheetApi isSharePage={isSharePage} appId={share.data.appId} shareData={share.data} />;
+  }
+
+  // 密码验证
+  return (
+    <div className="flexColumn h100">
+      <header className="worksheetApiHeader flexRow pLeft30 pRight30">
+        {share.data && (
+          <React.Fragment>
+            <span
+              className="appIconWrapIcon"
+              style={{
+                backgroundColor: share.data.appIconColor,
+              }}
+            >
+              <SvgIcon url={share.data.appIcon} fill="#fff" size={24} addClassName="mTop3" />
+            </span>
+            <span className="appName Hand bold mRight5">{share.data.appName}</span>
+            {share.data.appName && <DocumentTitle title={`${share.data.appName}-${_l('API说明')}`} />}
+          </React.Fragment>
+        )}
+        {_l('API说明')}
+      </header>
+      {renderContent()}
+    </div>
+  );
+};
+
+ReactDOM.render(<Entry />, document.getElementById('app'));

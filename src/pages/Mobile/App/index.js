@@ -1,7 +1,7 @@
 import React, { Fragment, Component } from 'react';
 import { connect } from 'react-redux';
 import { List, Flex, ActionSheet, Modal, ActivityIndicator, Accordion, Switch, TabBar } from 'antd-mobile';
-import { Icon, WaterMark } from 'ming-ui';
+import { Icon, WaterMark, SvgIcon } from 'ming-ui';
 import cx from 'classnames';
 import * as actions from './redux/actions';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
@@ -12,7 +12,6 @@ import { AppPermissionsInfo } from '../components/AppPermissions';
 import RecordList from 'mobile/RecordList';
 import CustomPage from 'mobile/CustomPage';
 import './index.less';
-import SvgIcon from 'src/components/SvgIcon';
 import FixedPage from './FixedPage';
 import UpgradeContent from 'src/components/UpgradeContent';
 import PortalUserSet from 'src/pages/PageHeader/components/PortalUserSet/index.jsx';
@@ -117,7 +116,7 @@ class App extends Component {
       const workSheetInfo = this.getWorksheetList(sections);
       const { workSheetId } = isCharge
         ? workSheetInfo[0]
-        : workSheetInfo.filter(o => o.status === 1 && !o.navigateHide)[0];
+        : workSheetInfo.filter(o => [1, 3].includes(o.status) && !o.navigateHide)[0];
       window.mobileNavigateTo(`/mobile/app/${params.appId}/${appSectionId}/${workSheetId}`);
     }
   };
@@ -178,8 +177,8 @@ class App extends Component {
     const isCharge = canEditApp(detail.permissionType, detail.isLock);
 
     return workSheetInfo
-      .filter(item => (viewHideNavi ? true : item.status !== 2))
-      .filter(it => (isCharge ? true : it.status === 1 && !it.navigateHide))
+      .filter(item => (viewHideNavi ? true : ![2, 4].includes(item.status)))
+      .filter(it => (isCharge ? true : [1, 3].includes(it.status) && !it.navigateHide))
       .map(item => {
         if (item.type !== 2) {
           return (
@@ -196,7 +195,9 @@ class App extends Component {
                 this.handleOpenSheet(data, item);
               }}
             >
-              <span className="Font15 Gray LineHeight40">{getTranslateInfo(detail.id, item.workSheetId).name || item.workSheetName}</span>
+              <span className="Font15 Gray LineHeight40">
+                {getTranslateInfo(detail.id, item.workSheetId).name || item.workSheetName}
+              </span>
             </Item>
           );
         }
@@ -251,7 +252,7 @@ class App extends Component {
     const screenWidth = $(window).width();
 
     return groupData
-      .filter(item => (viewHideNavi ? true : item.status !== 2))
+      .filter(item => (viewHideNavi ? true : ![2, 4].includes(item.status)))
       .map(v => {
         if (v.workSheetId === 'other' && _.isEmpty(v.workSheetInfo)) return;
         return (
@@ -259,8 +260,8 @@ class App extends Component {
             {this.renderHeader(v, 'level2')}
             <Flex className="sudokuWrapper" wrap="wrap">
               {v.workSheetInfo
-                .filter(v => (viewHideNavi ? true : v.status !== 2))
-                .filter(it => (isCharge ? true : it.status === 1 && !it.navigateHide))
+                .filter(v => (viewHideNavi ? true : ![2, 4].includes(v.status)))
+                .filter(it => (isCharge ? true : [1, 3].includes(it.status) && !it.navigateHide))
                 .map(v => (
                   <div
                     key={v.workSheetId}
@@ -456,9 +457,17 @@ class App extends Component {
     const { appDetail, match, debugRoles = [] } = this.props;
 
     let { appName, detail, appSection, status } = appDetail;
-    const { fixed, webMobileDisplay, fixAccount, fixRemark, permissionType, appNaviDisplayType, appStatus, debugRole = {} } =
-      detail;
-    const isUpgrade = appStatus === 4;
+    const {
+      fixed,
+      webMobileDisplay,
+      fixAccount,
+      fixRemark,
+      permissionType,
+      appNaviDisplayType,
+      appStatus,
+      debugRole = {},
+    } = detail;
+    const isUpgrade = _.includes([4, 11], appStatus);
     const isAuthorityApp = permissionType >= APP_ROLE_TYPE.ADMIN_ROLE;
     appSection = isAuthorityApp
       ? appSection
@@ -466,7 +475,7 @@ class App extends Component {
           .map(item => {
             return {
               ...item,
-              workSheetInfo: item.workSheetInfo.filter(o => o.status === 1 && !o.navigateHide),
+              workSheetInfo: item.workSheetInfo.filter(o => [1, 3].includes(o.status) && !o.navigateHide),
             };
           })
           .filter(o => o.workSheetInfo && o.workSheetInfo.length > 0);
@@ -487,7 +496,7 @@ class App extends Component {
               : appSection.map(item => item.appSectionId),
           };
     const isEmptyAppSection = appSection.length === 1 && !appSection[0].name;
-    const hasDebugRoles = (debugRole.canDebug) && !_.isEmpty(debugRoles);
+    const hasDebugRoles = debugRole.canDebug && !_.isEmpty(debugRoles);
     if (!detail || detail.length <= 0) {
       return <AppPermissionsInfo appStatus={2} appId={params.appId} />;
     } else if (status === 4) {
@@ -599,7 +608,7 @@ class App extends Component {
     }
     if (type === 1) {
       return (
-        <div className="flex">
+        <div className="h100">
           <CustomPage
             pageTitle={getTranslateInfo(id, data.workSheetId).name || data.workSheetName}
             now={Date.now()}
@@ -647,13 +656,15 @@ class App extends Component {
 
     const sheetList = this.getWorksheetList(appSection)
       .filter(v => v.type !== 2)
-      .filter(item => (isAuthorityApp ? true : item.status === 1 && !item.navigateHide)) //左侧列表状态为1 且 角色权限没有设置隐藏
+      .filter(item => (isAuthorityApp ? true : [1, 3].includes(item.status) && !item.navigateHide)) //左侧列表状态为1 且 角色权限没有设置隐藏
       .slice(0, 4);
 
     const data = _.find(sheetList, { workSheetId: selectedTab });
     const isHideNav = detail.permissionType < APP_ROLE_TYPE.ADMIN_ROLE && sheetList.length === 1 && !!data;
     return (
-      <div className={cx('flexColumn h100', { 'bottomNavWrap pBottom40': debugRole.canDebug && !_.isEmpty(debugRoles) })}>
+      <div
+        className={cx('flexColumn h100', { 'bottomNavWrap pBottom40': debugRole.canDebug && !_.isEmpty(debugRoles) })}
+      >
         <div className={cx('flex overflowHidden flexColumn', { recordListWrapper: !isHideNav })}>
           {/* 外部门户显示头部导航 */}
           {selectedTab !== 'more' && md.global.Account.isPortal && this.renderAppHeader()}

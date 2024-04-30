@@ -143,7 +143,7 @@ export default function SideNav(props) {
               let item = viewTypeConfig.find(d => d.type === o);
               //只有表格和画廊、看板视图、日历视图、甘特图、详情视图(多条)有快速筛选
               let hasFastFilter =
-                ['sheet', 'gallery', 'board', 'calendar', 'gunter'].includes(viewTypeText) ||
+                ['sheet', 'gallery', 'board', 'calendar', 'gunter', 'resource'].includes(viewTypeText) ||
                 (viewTypeText === 'detail' && view.childType === 2);
               let hasNavGroup = ['sheet', 'gallery', 'map'].includes(viewTypeText);
               if (viewTypeText === 'customize') {

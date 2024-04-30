@@ -73,7 +73,8 @@ function getRefreshControls(controls) {
         ],
         c.type,
       ) ||
-      (c.type === WIDGETS_TO_API_TYPE_ENUM.SHEET_FIELD && _.get(c, 'strDefault.0') !== '1'),
+      (c.type === WIDGETS_TO_API_TYPE_ENUM.SHEET_FIELD && _.get(c, 'strDefault.0') !== '1') ||
+      (c.type === WIDGETS_TO_API_TYPE_ENUM.CASCADER && _.get(c, 'advancedSetting.storelayer') === '1'),
   );
 }
 
@@ -222,7 +223,7 @@ export default function RefreshRecordDialog(props) {
       description={
         <div>
           {_l('此操作仅系统角色可以执行。单次最多刷新10w行数据，后台异步完成后会发送通知。')}
-          <Support className="moreHelp" type={3} href="https://help.mingdao.com/sheet43" text={_l('使用帮助')} />
+          <Support className="moreHelp" type={3} href="https://help.mingdao.com/worksheet/batch-refresh" text={_l('使用帮助')} />
         </div>
       }
       overlayClosable={false}
@@ -337,7 +338,7 @@ export default function RefreshRecordDialog(props) {
           [
             { title: _l('刷新字段值'), controls: refreshControls },
             { title: _l('刷新选项排序和分值'), controls: refreshSortControls },
-            { title: _l('刷新加密规则字段值'), controls: encryptControls },
+            { title: _l('刷新字段加密值'), controls: encryptControls },
           ]
             .filter(item => item.controls.length)
             .map(item => (

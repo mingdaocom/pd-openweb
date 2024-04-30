@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Support, Icon, Tooltip, CheckboxGroup, Checkbox } from 'ming-ui';
-import SvgIcon from 'src/components/SvgIcon';
+import { Support, Icon, Tooltip, CheckboxGroup, Checkbox, SvgIcon } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
 import homeAppAjax from 'src/api/homeApp';
 
@@ -54,7 +53,7 @@ export default function UserExtendInfo(props) {
         status: status,
       })
       .then(res => {})
-      .fail(err => alert(err));
+      .catch(err => alert(err));
   };
 
   const changeCheckedValue = (ck, value) => {
@@ -77,7 +76,7 @@ export default function UserExtendInfo(props) {
         {_l(
           '通过工作表管理应用成员额外的扩展信息字段，在角色权限、筛选器中可以使用用户的扩展信息字段来作为动态筛选条件',
         )}
-        <Support className="help" type={3} href="https://help.mingdao.com/user4" text={_l('帮助')} />
+        <Support className="help" type={3} href="https://help.mingdao.com/role/extended-info" text={_l('帮助')} />
       </div>
       <div className="worksheetInfoBox mTop16">
         <SvgIcon url={data.iconUrl} fill="#757575" className="mRight8" size={24} />

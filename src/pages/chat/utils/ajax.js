@@ -134,7 +134,7 @@ export const getImageContext = (conf) => {
     type: 'get',
     dataType: 'jsonp',
     jsonp: 'cb',
-  }).done((res) => {
+  }).then((res) => {
     if (!$.isArray(res)) {
       res = [];
     }
@@ -196,7 +196,7 @@ export const fetchDetail = (groupid) => {
   return new Promise((resolve, reject) => {
     GroupController.getGroupInfo({
       groupId: groupid,
-    }).done((res) => {
+    }).then((res) => {
       const users = [];
       for (let i = 0; i < res.groupUsers.length; i++) {
         const user = res.groupUsers[i];
@@ -227,10 +227,10 @@ export const addMembers = (param) => {
       obj.accounts = param.accounts;
     }
     CommonAjaxInvitation.inviteUser(obj)
-      .done((data) => {
+      .then((data) => {
         resolve(data);
       })
-      .fail((xhr) => {
+      .catch((xhr) => {
         reject(xhr);
       });
   });
@@ -246,14 +246,14 @@ export const createGroup = (param) => {
       groupName: param.groupname,
       accountIds: JSON.stringify(param.useridlist),
     })
-      .done((res) => {
+      .then((res) => {
         if (res.msg == 1) {
           resolve(res.data);
         } else {
           reject(res.msg);
         }
       })
-      .fail((xhr) => {
+      .catch((xhr) => {
         reject(xhr);
       });
   });
@@ -268,10 +268,10 @@ export const createDiscussion = (param) => {
     GroupController.addDiscussionGroup({
       accountIds: param.accountIds,
     })
-      .done((res) => {
+      .then((res) => {
         resolve(res);
       })
-      .fail((xhr) => {
+      .catch((xhr) => {
         reject(xhr);
       });
   });
@@ -285,7 +285,7 @@ export const getVideoInfo = (url) => {
   return new Promise((resolve, reject) => {
     $.ajax({
       url,
-    }).done(result => {
+    }).then(result => {
       resolve(result);
     });
   });

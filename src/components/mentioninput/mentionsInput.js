@@ -419,10 +419,6 @@ Modified by Kenneth Auchenberg
       if (e.keyCode === KEY.LEFT || e.keyCode === KEY.RIGHT || e.keyCode === KEY.HOME || e.keyCode === KEY.END) {
         _.defer(resetBuffer);
 
-        if (navigator.userAgent.indexOf('MSIE 9') > -1) {
-          _.defer(updateValues);
-        }
-
         return;
       }
 
@@ -724,7 +720,7 @@ Modified by Kenneth Auchenberg
     }
 
     function getUsers(query, recordAtdatas = []) {
-      if (promiseObj && promiseObj.abort && promiseObj.state() === 'pending') {
+      if (promiseObj && promiseObj.abort) {
         promiseObj.abort();
       }
       if (recordAtdatas.length > 15 && settings.forReacordDiscussion) {

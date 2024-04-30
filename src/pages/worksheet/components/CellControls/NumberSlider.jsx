@@ -85,7 +85,7 @@ export default class NumberSlider extends React.Component {
 
   @autobind
   handleTableKeyDown(e) {
-    const { cell, isediting, updateEditingStatus, updateCell } = this.props;
+    const { cell, isediting, editable, updateEditingStatus, updateCell } = this.props;
     const { min, max, numinterval } = cell.advancedSetting || {};
     const minNumber = levelSafeParse(min);
     const maxNumber = levelSafeParse(max);
@@ -108,6 +108,9 @@ export default class NumberSlider extends React.Component {
         this.setState({ value: newValue, changed: true });
       }
     } else if (/^[0-9]$/.test(e.key)) {
+      if (!editable) {
+        return;
+      }
       let inputValue = Number(e.key);
       const { prevValueId } = this;
       if (!_.isNaN(inputValue)) {

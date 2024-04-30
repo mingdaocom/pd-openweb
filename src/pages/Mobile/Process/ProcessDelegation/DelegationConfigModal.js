@@ -201,6 +201,8 @@ export default function DelegationConfigModal(props) {
     });
   };
 
+  if (!orgInfo) return null;
+
   const disabled = !orgInfo.projectId || !user.accountId || !dateInfo.endDate;
 
   return (

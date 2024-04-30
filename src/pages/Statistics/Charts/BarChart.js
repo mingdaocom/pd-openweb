@@ -18,6 +18,7 @@ import { Icon } from 'ming-ui';
 import { Dropdown, Menu } from 'antd';
 import { formatSummaryName, getIsAlienationColor, isFormatNumber } from 'statistics/common';
 import { toFixed } from 'src/util';
+import tinycolor from '@ctrl/tinycolor';
 import _ from 'lodash';
 
 export const formatDataCount = (data, isVertical, newYaxisList) => {
@@ -66,7 +67,7 @@ export const formatChartData = (data, yaxisList, splitControlId, xaxesControlId)
             groupKey: element.originalKey,
             value: target[0].v,
             name: name || (!splitControlId && !xaxesControlId ? element.originalKey : undefined),
-            originalId: item.originalX || name || element.originalKey
+            originalId: item.originalX || (xaxesControlId ? '' : name || element.originalKey),
           });
         }
       }
@@ -104,7 +105,8 @@ export default class extends Component {
       newYaxisList: [],
       dropdownVisible: false,
       offset: {},
-      match: null
+      match: null,
+      linkageMatch: null,
     }
     this.BarChart = null;
   }
@@ -146,7 +148,8 @@ export default class extends Component {
       style.showXAxisSlider !== oldStyle.showXAxisSlider ||
       style.tooltipValueType !== oldStyle.tooltipValueType ||
       !_.isEqual(chartColor, oldChartColor) ||
-      nextProps.themeColor !== this.props.themeColor
+      nextProps.themeColor !== this.props.themeColor ||
+      !_.isEqual(nextProps.linkageMatch, this.props.linkageMatch)
     ) {
       const { BarChartConfig } = this.getComponentConfig(nextProps);
       this.BarChart.update(BarChartConfig);
@@ -155,44 +158,88 @@ export default class extends Component {
     if (
       displaySetup.showChartType !== oldDisplaySetup.showChartType ||
       displaySetup.isPile !== oldDisplaySetup.isPile ||
-      displaySetup.isPerPile !== oldDisplaySetup.isPerPile
+      displaySetup.isPerPile !== oldDisplaySetup.isPerPile ||
+      nextProps.isLinkageData !== this.props.isLinkageData
     ) {
       this.BarChart.destroy();
       this.renderBarChart(nextProps);
     }
   }
   renderBarChart(props) {
-    const { reportData, isViewOriginalData } = props;
-    const { displaySetup } = reportData;
+    const { reportData } = props;
+    const { displaySetup, style, xaxes, split } = reportData;
     const { BarChartComponent, BarChartConfig } = this.getComponentConfig(props);
-    this.BarChart = new BarChartComponent(this.chartEl, BarChartConfig);
-    if (displaySetup.showRowList && isViewOriginalData) {
-      this.BarChart.on('element:click', this.handleClick);
+    if (this.chartEl) {
+      this.BarChart = new BarChartComponent(this.chartEl, BarChartConfig);
+      this.isViewOriginalData = displaySetup.showRowList && props.isViewOriginalData;
+      this.isLinkageData = props.isLinkageData && !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0) && (xaxes.controlId || split.controlId);
+      if (this.isViewOriginalData || this.isLinkageData) {
+        this.BarChart.on('element:click', this.handleClick);
+      }
+      this.BarChart.render();
     }
-    this.BarChart.render();
   }
   handleClick = (data) => {
-    const { xaxes, split } = this.props.reportData;
+    const { xaxes, split, appId, reportId, name, reportType, style } = this.props.reportData;
     const event = data.gEvent;
     const currentData = data.data;
     const param = {};
+    const linkageMatch = {
+      sheetId: appId,
+      reportId,
+      reportName: name,
+      reportType,
+      filters: []
+    };
     if (xaxes.cid) {
       const isNumber = isFormatNumber(xaxes.controlType);
       const value = currentData.data.name ? currentData.data.originalId : '';
       param[xaxes.cid] = isNumber && value ? Number(value) : value;
+      linkageMatch.value = value;
+      linkageMatch.filters.push({
+        controlId: xaxes.controlId,
+        values: [param[xaxes.cid]],
+        controlName: xaxes.controlName,
+        controlValue: currentData.data.name,
+        type: xaxes.controlType,
+        control: xaxes
+      });
     }
     if (split.controlId) {
       const isNumber = isFormatNumber(split.controlType);
       const value = currentData.data.groupKey;
       param[split.cid] = isNumber && value ? Number(value) : value;
+      if (!xaxes.cid) {
+        linkageMatch.value = currentData.data.originalId;
+      }
+      linkageMatch.filters.push({
+        controlId: split.controlId,
+        values: [param[split.cid]],
+        controlName: split.controlName,
+        controlValue: formatControlInfo(currentData.data.groupName).name,
+        type: split.controlType,
+        control: split
+      });
     }
+    if (_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length) {
+      linkageMatch.onlyChartIds = style.autoLinkageChartObjectIds;
+    }
+    const isAll = this.isViewOriginalData && this.isLinkageData;
     this.setState({
-      dropdownVisible: true,
+      dropdownVisible: isAll,
       offset: {
         x: event.x + 20,
         y: event.y
       },
-      match: param
+      match: param,
+      linkageMatch
+    }, () => {
+      if (!isAll && this.isViewOriginalData) {
+        this.handleRequestOriginalData();
+      }
+      if (!isAll && this.isLinkageData) {
+        this.handleAutoLinkage();
+      }
     });
   }
   handleRequestOriginalData = () => {
@@ -209,12 +256,18 @@ export default class extends Component {
       this.props.requestOriginalData(data);
     }
   }
-  getCustomColor(data, colors, { originalId }) {
-    const inedx = _.findIndex(data, { originalId });
-    return colors[inedx % colors.length];
+  handleAutoLinkage = () => {
+    const { linkageMatch } = this.state;
+    this.props.onUpdateLinkageFiltersGroup(linkageMatch);
+    this.setState({
+      dropdownVisible: false,
+    }, () => {
+      const { BarChartConfig } = this.getComponentConfig(this.props);
+      this.BarChart.update(BarChartConfig);
+    });
   }
   getComponentConfig(props) {
-    const { themeColor, projectId, customPageConfig = {}, reportData } = props;
+    const { themeColor, projectId, customPageConfig = {}, reportData, linkageMatch } = props;
     const { chartColor, chartColorIndex = 1 } = customPageConfig;
     const { map, displaySetup, xaxes, yaxisList, split, reportId, summary } = reportData;
     const styleConfig = reportData.style || {};
@@ -249,33 +302,8 @@ export default class extends Component {
     const rule = _.get(colorRules[0], 'dataBarRule') || {};
     const isRuleColor = yaxisList.length === 1 && _.isEmpty(split.controlId) && !_.isEmpty(rule);
     const controlMinAndMax = isRuleColor ? getControlMinAndMax(yaxisList, data) : {};
-    let index = -1;
-    const getColor = () => {
-      if (isOptionsColor) {
-        return getAlienationColor.bind(this, xaxes);
-      } else if (isCustomColor) {
-        return this.getCustomColor.bind(this, data, colors);
-      } else if (style.colorType === 0 && split.controlId && _.get(split, 'options.length')) {
-        const optionsColors = split.options.map(c => c.color).filter(c => c);
-        if (optionsColors.length) {
-          return (item) => {
-            const { id } = formatControlInfo(item.groupName);
-            const option = _.find(split.options, { key: id }) || {};
-            return option.color;
-          }
-        } else {
-          return colors;
-        }
-      } else {
-        return colors;
-      }
-    }
-    const getRuleColor = () => {
-      if (index >= data.length - 1) {
-        index = -1;
-      }
-      index = index + 1;
-      const { value } = data[index] || {};
+
+    const getRuleColor = value => {
       const color = getStyleColor({
         value,
         controlMinAndMax,
@@ -315,7 +343,41 @@ export default class extends Component {
         end: 0.5,
         formatter: () => null
       } : undefined,
-      color: isRuleColor ? getRuleColor : getColor(),
+      rawFields: ['groupName', 'controlId', 'originalId'].concat(split.controlId ? undefined : 'value'),
+      color: data => {
+        const controlId = formatControlInfo(data.groupName).id;
+        const controlIndex = _.findIndex(yaxisList, { controlId });
+        let color = colors[controlIndex % colors.length];
+        if (isRuleColor) {
+          color = getRuleColor(data.value);
+        }
+        if (split.controlId) {
+          const splitIndex = _.findIndex(map, { originalKey: controlId });
+          color = colors[splitIndex % colors.length] || colors[0];
+        }
+        if (isOptionsColor) {
+          color = getAlienationColor(xaxes, data);
+        }
+        if (isCustomColor) {
+          const index = _.findIndex(baseConfig.data, { originalId: data.originalId });
+          color = colors[index % colors.length];
+        }
+        if (split.controlId && style.colorType === 0 && _.get(split, 'options.length')) {
+          const optionsColors = split.options.map(c => c.color).filter(c => c);
+          if (optionsColors.length) {
+            const option = _.find(split.options, { key: controlId }) || {};
+            color = option.color;
+          }
+        }
+        if (!_.isEmpty(linkageMatch)) {
+          if (linkageMatch.value === data.originalId) {
+            return color;
+          } else {
+            return tinycolor(color).setAlpha(0.3).toRgbString();
+          }
+        }
+        return color;
+      },
       legend: showLegend && (yaxisList.length > 1 || split.controlId)
         ? {
             position,
@@ -495,8 +557,15 @@ export default class extends Component {
   renderOverlay() {
     return (
       <Menu className="chartMenu" style={{ width: 160 }}>
+        <Menu.Item onClick={this.handleAutoLinkage} key="autoLinkage">
+          <div className="flexRow valignWrapper">
+            <Icon icon="link1" className="mRight8 Gray_9e Font20 autoLinkageIcon" />
+            <span>{_l('联动')}</span>
+          </div>
+        </Menu.Item>
         <Menu.Item onClick={this.handleRequestOriginalData} key="viewOriginalData">
           <div className="flexRow valignWrapper">
+            <Icon icon="table" className="mRight8 Gray_9e Font18" />
             <span>{_l('查看原始数据')}</span>
           </div>
         </Menu.Item>

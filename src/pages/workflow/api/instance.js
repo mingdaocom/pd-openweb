@@ -13,7 +13,7 @@ var instance = {
   count: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/instance/count';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'instancecount', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'instancecount', args, $.extend(base, options));
   },
   /**
    * 审批-转审
@@ -26,7 +26,19 @@ var instance = {
   forward: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/instance/forward';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'instanceforward', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'instanceforward', JSON.stringify(args), $.extend(base, options));
+  },
+  /**
+   * 获取归档服务地址
+   * @param {Object} args 请求参数
+   * @param {string} [args.access_token] 令牌
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   */
+  getArchivedList: function(args, options) {
+    base.ajaxOptions.url = base.server(options) + '/instance/getArchivedList';
+    base.ajaxOptions.type = 'GET';
+    return mdyAPI(controllerName, 'instancegetArchivedList', args, $.extend(base, options));
   },
   /**
    * 获取历史详情
@@ -39,7 +51,7 @@ var instance = {
   getHistoryDetail: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/instance/getHistoryDetail';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'instancegetHistoryDetail', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'instancegetHistoryDetail', args, $.extend(base, options));
   },
   /**
    * 获取历史运行列表
@@ -60,7 +72,7 @@ var instance = {
   getHistoryList: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/instance/getHistoryList';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'instancegetHistoryList', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'instancegetHistoryList', args, $.extend(base, options));
   },
   /**
    * 获取实例基本信息
@@ -73,7 +85,7 @@ var instance = {
   getInstance: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/instance/getInstance';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'instancegetInstance', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'instancegetInstance', args, $.extend(base, options));
   },
   /**
    * 对应各种操作
@@ -86,7 +98,7 @@ var instance = {
   operation: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/instance/operation';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'instanceoperation', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'instanceoperation', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 审批-否决
@@ -99,7 +111,7 @@ var instance = {
   overrule: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/instance/overrule';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'instanceoverrule', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'instanceoverrule', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 审批-通过
@@ -112,7 +124,7 @@ var instance = {
   pass: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/instance/pass';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'instancepass', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'instancepass', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 撤回
@@ -125,7 +137,7 @@ var instance = {
   revoke: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/instance/revoke';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'instancerevoke', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'instancerevoke', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 审批-加签
@@ -138,7 +150,7 @@ var instance = {
   signTask: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/instance/sign';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'instancesign', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'instancesign', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 填写动作-提交
@@ -151,7 +163,7 @@ var instance = {
   submit: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/instance/submit';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'instancesubmit', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'instancesubmit', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 填写动作-填写转给其他人
@@ -164,7 +176,7 @@ var instance = {
   transfer: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/instance/transfer';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'instancetransfer', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'instancetransfer', JSON.stringify(args), $.extend(base, options));
   },
 };
 export default instance;

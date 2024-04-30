@@ -1,26 +1,52 @@
 import React from 'react';
-import { createStore, applyMiddleware, compose } from 'redux';
-import thunk from 'redux-thunk';
-import { Provider } from 'react-redux';
+import { Provider, connect } from 'react-redux';
 import _ from 'lodash';
 import ChildTable from './ChildTable';
-import reducer from './redux/reducer';
+import generateStore from './redux/store';
 import './style.less';
 
+const ChildTableComp = connect(state => ({
+  baseLoading: state.baseLoading,
+  base: state.base,
+  rows: state.rows,
+  lastAction: state.lastAction,
+}))(props => {
+  const { baseLoading } = props;
+  if (baseLoading) {
+    return (
+      <div
+        style={{
+          minHeight: 74,
+          background: '#f7f7f7',
+        }}
+      ></div>
+    );
+  }
+  return <ChildTable {...props} />;
+});
 export default class extends React.Component {
   constructor(props) {
     super(props);
-    const logger = () => next => action => {
-      const emptyCount = Number(_.get(props, 'control.advancedSetting.blankrow'));
-      action.emptyCount = _.isNumber(emptyCount) && !_.isNaN(emptyCount) ? emptyCount : 1;
-      return next(action);
-    };
-    this.store = createStore(reducer, compose(applyMiddleware(thunk, logger)));
+    const { worksheetId, recordId, masterData } = props;
+    this.store =
+      props.control.store ||
+      generateStore(props.control, {
+        initRowIsCreate: props.initRowIsCreate,
+        relationWorksheetId: worksheetId,
+        recordId,
+        masterData,
+      });
+    this.store.init();
     this.bindSubscribe();
   }
 
   componentWillReceiveProps(nextProps) {
     const { onChange } = nextProps;
+    if (nextProps.control.store && nextProps.control.store !== this.store) {
+      this.store = nextProps.control.store;
+      this.store.init();
+      this.bindSubscribe();
+    }
     const state = this.store.getState() || {};
     if (nextProps.from === 21 && !_.isEqual(this.props.flag, nextProps.flag) && !_.isEmpty(state.rows)) {
       // h5草稿箱已有子表值时编辑赋值
@@ -45,9 +71,17 @@ export default class extends React.Component {
   }
 
   render() {
+    const { registerCell = () => {} } = this.props;
     return (
       <Provider store={this.store}>
-        <ChildTable {...this.props} />
+        <ChildTableComp
+          {...this.props}
+          store={this.store}
+          registerCell={ref => {
+            registerCell(ref);
+            this.store.ref = ref;
+          }}
+        />
       </Provider>
     );
   }

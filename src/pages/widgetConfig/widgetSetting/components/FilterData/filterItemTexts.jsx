@@ -1,7 +1,7 @@
 import React from 'react';
 import { filterData } from 'src/pages/FormSet/components/columnRules/config.js';
 import { redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { isEmpty } from 'lodash';
+import _, { isEmpty } from 'lodash';
 import styled from 'styled-components';
 import { getAdvanceSetting } from '../../../util/setting';
 import './filterDialog.less';
@@ -17,11 +17,25 @@ const FilterTextWrap = styled.div`
   margin: 10px 0;
   display: flex;
   cursor: pointer;
+  .clearFilter {
+    opacity: 0;
+  }
   &:hover {
     background: #f5f5f5;
     border-color: #d8d8d8;
     .editFilter {
       color: #2196f3;
+    }
+    .clearFilter {
+      opacity: 1;
+    }
+  }
+
+  &.customEventFilterValue {
+    border: none !important;
+    margin: 0 !important;
+    .editFilter {
+      display: none !important;
     }
   }
 
@@ -85,7 +99,7 @@ export default class FilterItemTexts extends React.Component {
     return (
       <div key={`${item.id}--${key || index}`} className="pRight10 mTop6 flexBox renderFilterItem">
         {index ? <span className="mRight10 Gray_75 Font13">{spliceText}</span> : null}
-        <span className="mRight10" style={{ flexShrink: 0, maxWidth: '100%' }}>
+        <span className="mRight10 breakAll" style={{ flexShrink: 0, maxWidth: '100%' }}>
           {item.name}
         </span>
         {item.type ? <span className="Bold LineHeight19 mRight10 Gray Font13">{item.type.text}</span> : null}
@@ -110,7 +124,16 @@ export default class FilterItemTexts extends React.Component {
     );
   }
   render() {
-    let { data, allControls, controls, editFn, loading = true, globalSheetControls = [], className } = this.props;
+    let {
+      data,
+      allControls,
+      controls,
+      editFn,
+      loading = true,
+      globalSheetControls = [],
+      className,
+      onClear,
+    } = this.props;
     const filters = this.props.filters || getAdvanceSetting(data, 'filters');
     let filterItemTexts;
     if (this.props.filterItemTexts) {
@@ -131,7 +154,9 @@ export default class FilterItemTexts extends React.Component {
       <FilterTextWrap
         className={className}
         onClick={() => {
-          editFn();
+          if (_.isFunction(editFn)) {
+            editFn();
+          }
         }}
       >
         <div className="txtFilter fieldEditTxtFilter">
@@ -169,6 +194,17 @@ export default class FilterItemTexts extends React.Component {
             </div>
           )}
         </div>
+        {!!onClear && (
+          <div
+            className="clearFilter mRight8 pTop5"
+            onClick={e => {
+              e.stopPropagation();
+              onClear();
+            }}
+          >
+            <i className="icon-closeelement-bg-circle Gray_9e Font16 ThemeHoverColor3 TxtMiddle"></i>
+          </div>
+        )}
         <div className="editFilter">
           <i className="icon-edit"></i>
         </div>

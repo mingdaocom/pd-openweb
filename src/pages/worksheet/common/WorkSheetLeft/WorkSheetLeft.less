@@ -13,7 +13,7 @@
     .rightArea,
     .workSheetItem .name,
     .newWorkSheet .text,
-    .workSheetItem .icon-visibility_off {
+    .workSheetItem .visibilityIcon {
       display: none !important;
     }
     .workSheetItem {
@@ -95,6 +95,9 @@
   }
   .groupItems {
     transition: height 0.2s;
+  }
+  .pLeft48 {
+    padding-left: 48px;
   }
   .newWorkSheet {
     padding: 12px;
@@ -192,6 +195,18 @@
       }
     }
   }
+  .hideItemOperate {
+    .Item-content {
+      padding-left: 20px !important;
+      .icon {
+        color: #2196f3 !important;
+        margin: 0;
+      }
+      &:not(.disabled):hover i.icon {
+        color: #fff !important;
+      }
+    }
+  }
 }
 
 .createNewMenu {
@@ -238,4 +253,8 @@
     height: 1px;
     border-bottom: 1px solid #eaeaea;
   }
+}
+
+.copySheetDialog {
+  max-height: none !important;
 }

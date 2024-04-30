@@ -4,24 +4,24 @@ import kcService from '../../../api/service';
 import attachmentAjax from 'src/api/attachment';
 
 const rejectErr = function (ajaxPromise) {
-  const promise = $.Deferred();
-  ajaxPromise
-    .then(resp => {
-      if (!resp) {
-        resp = {
-          error: 'no response',
-        };
-      }
-      if (resp.error) {
-        promise.reject(resp.error);
-      } else {
-        promise.resolve(resp);
-      }
-    })
-    .fail(() => {
-      promise.reject();
-    });
-  return promise;
+  return new Promise((resolve, reject) => {
+    ajaxPromise
+      .then(resp => {
+        if (!resp) {
+          resp = {
+            error: 'no response',
+          };
+        }
+        if (resp.error) {
+          reject(resp.error);
+        } else {
+          resolve(resp);
+        }
+      })
+      .catch(() => {
+        reject();
+      });
+  });
 };
 
 export function getKcNodeDetail(nodeId, worksheetId) {
@@ -41,35 +41,36 @@ export function getChatPreviewLink(attachment) {
 }
 
 export function fetchViewUrl(attachment) {
-  const promise = $.Deferred();
   const param = {
     path: attachment.sourceNode.path,
     id: attachment.sourceNode.fileid || Math.random().toString(16),
     ext: attachment.ext,
   };
-  getChatPreviewLink(param)
-    .then(resp => {
-      if (!resp) {
-        resp = {
-          error: true,
-        };
-      }
-      if (resp.error) {
-        promise.reject('获取预览链接失败');
-      } else {
-        if (resp.viewUrl) {
-          attachment.viewUrl = resp.viewUrl;
-          attachment.previewType = resp.viewType;
-        } else {
-          promise.reject('获取预览链接失败');
+
+  return new Promise((resolve, reject) => {
+    getChatPreviewLink(param)
+      .then(resp => {
+        if (!resp) {
+          resp = {
+            error: true,
+          };
         }
-        promise.resolve(attachment);
-      }
-    })
-    .fail(error => {
-      promise.reject('获取预览链接失败');
-    });
-  return promise;
+        if (resp.error) {
+          reject('获取预览链接失败');
+        } else {
+          if (resp.viewUrl) {
+            attachment.viewUrl = resp.viewUrl;
+            attachment.previewType = resp.viewType;
+          } else {
+            reject('获取预览链接失败');
+          }
+          resolve(attachment);
+        }
+      })
+      .catch(error => {
+        reject('获取预览链接失败');
+      });
+  });
 }
 
 export function renameFile(docVersionID, fileID, newName, ext, sourceID) {

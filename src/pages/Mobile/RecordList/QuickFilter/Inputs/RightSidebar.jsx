@@ -11,6 +11,7 @@ const Con = styled.div`
   top: 0;
   left: 0;
   background: #fff;
+  z-index: 1;
   // transform: ${props => `translateX(${-props.width}px)`};
   .rightSidebar-content {
     overflow-y: auto;

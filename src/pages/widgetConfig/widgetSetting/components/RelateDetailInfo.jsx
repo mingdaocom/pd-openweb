@@ -5,7 +5,7 @@ import cx from 'classnames';
 
 export default function RelateDetailInfo(props) {
   const { data, globalSheetInfo = {}, sheetInfo = {} } = props;
-  const { sourceControl = {}, sourceEntityName, dataSource } = data;
+  const { sourceControl = {}, dataSource } = data;
   const { controlId: sourceControlId } = sourceControl;
   const { name, appId } = globalSheetInfo;
 
@@ -25,8 +25,8 @@ export default function RelateDetailInfo(props) {
           props.relateToNewPage(toPage);
         }}
       >
-        <span className="overflow_ellipsis pointer ThemeColor3 Bold" title={sourceEntityName}>
-          {sourceEntityName}
+        <span className="overflow_ellipsis pointer ThemeColor3 Bold" title={sheetInfo.name}>
+          {sheetInfo.name}
         </span>
         {!_.isEmpty(sheetInfo) && appId !== sheetInfo.appId && <span className="mLeft6">({sheetInfo.appName})</span>}
       </div>

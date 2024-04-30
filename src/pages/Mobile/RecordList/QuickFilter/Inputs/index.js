@@ -200,9 +200,13 @@ export function validate(condition) {
       dataType,
     )
   ) {
-    return condition.dateRange === 18
-      ? !_.isUndefined(condition.minValue) && !_.isUndefined(condition.maxValue)
-      : !!condition.dateRange;
+    if (condition.dateRange === 18 && condition.filterType === FILTER_CONDITION_TYPE.DATE_BETWEEN) {
+      return !_.isUndefined(condition.minValue) && !_.isUndefined(condition.maxValue);
+    } else if (condition.dateRange === 18) {
+      return !_.isUndefined(condition.value);
+    } else {
+      return !!condition.dateRange;
+    }
   }
   return false;
 }

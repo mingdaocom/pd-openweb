@@ -1,6 +1,5 @@
 import React from 'react';
-import { Icon, ScrollView } from 'ming-ui';
-import { LoadDiv } from 'ming-ui';
+import { Icon, ScrollView, LoadDiv } from 'ming-ui';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import AliasDialog from '../components/AliasDialog';
@@ -132,7 +131,7 @@ class Alias extends React.Component {
                         .then(data => {
                           // alert(_l('修改成功'));
                         })
-                        .fail(err => {
+                        .catch(err => {
                           alert(_l('修改失败'), 2);
                         });
                     }}
@@ -179,7 +178,7 @@ class Alias extends React.Component {
                         entityName: name,
                       });
                     })
-                    .fail(err => {
+                    .catch(err => {
                       alert(_l('修改失败'), 2);
                     });
                 }}

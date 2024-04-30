@@ -24,7 +24,7 @@ export const listLoadingContent = pageIndex => {
   if (pageIndex == 1) {
     if ($('#taskList').find('#taskFilterLoading').length === 0) {
       $('#taskList').append(
-        '<div id="taskFilterLoading"><div class="loadingCenter"> ' + LoadDiv('big') + ' </div></div>',
+        '<div id="taskFilterLoading"><div class="loadingCenter"> ' + LoadDiv() + ' </div></div>',
       );
     }
   } else {

@@ -11,13 +11,12 @@ import WorkHandoverDialog from 'src/pages/Admin/components/WorkHandoverDialog';
 import { refuseUserJoinFunc } from '../refuseUserJoinDia';
 import departmentController from 'src/api/department';
 import moment from 'moment';
-import { Checkbox, Tooltip, Dialog, Input, Menu, MenuItem } from 'ming-ui';
+import { Checkbox, Tooltip, Dialog, Input, Menu, MenuItem, UserHead } from 'ming-ui';
 import './userItem.less';
 import { encrypt } from 'src/util';
 import RegExp from 'src/util/expression';
 import Trigger from 'rc-trigger';
 import userController from 'src/api/user';
-import UserHead from 'src/components/userHead';
 import _ from 'lodash';
 
 class UserItem extends Component {

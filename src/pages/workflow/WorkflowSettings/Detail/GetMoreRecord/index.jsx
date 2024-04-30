@@ -51,16 +51,18 @@ export default class GetMoreRecord extends Component {
    * 获取节点详情
    */
   getNodeDetail(props, extra = {}) {
-    const { processId, selectNodeId, selectNodeType } = props;
+    const { processId, selectNodeId, selectNodeType, instanceId } = props;
     const { data } = this.state;
 
-    flowNode.getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, ...extra }).then(result => {
-      this.setState({
-        data: _.isEmpty(extra) ? result : { ...result, name: data.name },
-        cacheKey: +new Date(),
-        noAction: !result.actionId || !!extra.actionId,
+    flowNode
+      .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, instanceId, ...extra })
+      .then(result => {
+        this.setState({
+          data: _.isEmpty(extra) ? result : { ...result, name: data.name },
+          cacheKey: +new Date(),
+          noAction: !result.actionId || !!extra.actionId,
+        });
       });
-    });
   }
 
   /**
@@ -767,19 +769,15 @@ export default class GetMoreRecord extends Component {
         <div className="mTop30 bold">{_l('获取后，删除记录')}</div>
         <div className="mTop5 Gray_9e">{_l('最大删除1000行数据')}</div>
 
-        {data.actionId !== ACTION_ID.BATCH_DELETE && (
-          <Fragment>
-            <div className="mTop15 flexRow">
-              <Checkbox
-                className="InlineFlex"
-                text={_l('彻底删除记录，不放入回收站')}
-                checked={data.destroy}
-                onClick={checked => this.updateSource({ destroy: !checked })}
-              />
-            </div>
-            <div className="Gray_9e mTop5 mLeft26">{_l('彻底删除后数据不可恢复，请谨慎操作')}</div>
-          </Fragment>
-        )}
+        <div className="mTop15 flexRow">
+          <Checkbox
+            className="InlineFlex"
+            text={_l('彻底删除记录，不放入回收站')}
+            checked={data.destroy}
+            onClick={checked => this.updateSource({ destroy: !checked })}
+          />
+        </div>
+        <div className="Gray_9e mTop5 mLeft26">{_l('彻底删除后数据不可恢复，请谨慎操作')}</div>
       </Fragment>
     );
   }
@@ -832,12 +830,12 @@ export default class GetMoreRecord extends Component {
             projectId={this.props.companyId}
             worksheetType={0}
             selectedAppId={this.props.relationId}
-            selectedWrorkesheetId={data.appId}
+            selectedWorksheetId={data.appId}
             visible
-            onOk={(selectedAppId, selectedWrorkesheetId, obj) => {
+            onOk={(selectedAppId, worksheetId, obj) => {
               const isCurrentApp = this.props.relationId === selectedAppId;
               this.switchWorksheet(
-                selectedWrorkesheetId,
+                worksheetId,
                 obj.workSheetName,
                 !isCurrentApp && selectedAppId,
                 !isCurrentApp && obj.appName,

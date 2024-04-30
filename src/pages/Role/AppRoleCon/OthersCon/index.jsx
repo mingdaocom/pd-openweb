@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import ExplainImg from '../../img/userExtendInfo.png';
 import { Support, LoadDiv } from 'ming-ui';
-import { getRequest, getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
 import EditUserExtendInfo from './EditUserExtendInfo.jsx';
 import UserExtendInfo from './UserExtendInfo.jsx';
@@ -107,7 +107,7 @@ function OthersCon(props) {
           setStep(3);
         }
       })
-      .fail(err => setLoading(false));
+      .catch(err => setLoading(false));
   }, []);
 
   const changeStep = num => {
@@ -123,7 +123,7 @@ function OthersCon(props) {
           setData(res);
         }
       })
-      .fail(err => setLoading(false));
+      .catch(err => setLoading(false));
   };
 
   const renderExplain = () => {
@@ -154,17 +154,13 @@ function OthersCon(props) {
           </button>
         </div>
         <div className="center mTop30">
-          <Support type={3} href="https://help.mingdao.com/user4" text={_l('帮助')} />
+          <Support type={3} href="https://help.mingdao.com/role/extended-info" text={_l('帮助')} />
         </div>
       </ExplainCon>
     );
   };
 
   const renderDes = () => {
-    const href = 'https://help.mingdao.com/user4';
-    const hrefStr = md.global.Config.HelpUrl
-      ? href.replace('https://help.mingdao.com', md.global.Config.HelpUrl)
-      : href;
     return (
       <Des className="">
         <div className="title Gray_75">{_l('什么是用户扩展信息表？')}</div>
@@ -188,17 +184,10 @@ function OthersCon(props) {
             '如：还是在销售管理应用中，用户扩展信息表中已设置了团队作为用户权限标签（关联团队表），并且订单表也关联了所属团队时。那么当用户访问应用时，系统就可以根据读取到的用户所在团队，并从订单表中过滤出关联了相同团队的订单，从而实现用户对属于自己团队的订单拥有查看、编辑或删除权限（可以在角色权限中进行设置）。',
           )}
         </div>
-        <div
-          className="con mTop10 Gray_75"
-          dangerouslySetInnerHTML={{
-            __html: _l(
-              '此过程如下图所示：（前往 %0帮助中心%1 了解更多）',
-              `<a href=${hrefStr} target="_blank" class="ThemeColor3 ThemeHoverColor2 Hand">
-             `,
-              `</a>`,
-            ),
-          }}
-        ></div>
+        <div className="con mTop10 Gray_75">
+          {_l('此过程如下图所示：了解更多前往')}
+          <Support type={3} href={'https://help.mingdao.com/role/extended-info'} text={_l('帮助中心')} />
+        </div>
         <div className="imgDes flexRow alignItemsCenter">
           <div className="left">
             <div className="desCard">{_l('销售人员')}</div>

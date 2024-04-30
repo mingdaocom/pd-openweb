@@ -25,6 +25,7 @@ import FindSystem from './FindSystem';
 import ApiPackage from './ApiPackage';
 import Api from './Api';
 import ApprovalProcess from './ApprovalProcess';
+import Snapshot from './Snapshot';
 
 export default {
   0: Start,
@@ -54,6 +55,7 @@ export default {
   25: Api,
   26: ApprovalProcess,
   27: CC,
+  28: Snapshot,
   1000: FindSystem,
   1001: FindSystem,
 };

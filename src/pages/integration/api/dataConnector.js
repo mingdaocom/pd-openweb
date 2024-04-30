@@ -13,7 +13,7 @@ var dataConnector = {
   getCommonTypes: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'dataConnector/getCommonTypes';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'dataConnectorgetCommonTypes', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'dataConnectorgetCommonTypes', JSON.stringify(args), $.extend(base, options));
   }
 };
 

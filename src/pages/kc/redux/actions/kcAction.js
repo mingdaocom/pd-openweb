@@ -398,7 +398,7 @@ export function addNewFolder(folderName, cb = () => {}) {
         })
         .then(newFolder => {
           if (!newFolder) {
-            return $.Deferred().reject();
+            return Promise.reject();
           }
           alert(_l('新建成功'));
           dispatch({
@@ -407,7 +407,7 @@ export function addNewFolder(folderName, cb = () => {}) {
           });
           cb(null);
         })
-        .fail(() => {
+        .catch(() => {
           alert(_l('操作失败，请稍后重试'), 2);
         });
     } else {
@@ -503,13 +503,13 @@ export function starNode(item) {
       .starNode({ id: item.id, star: isStared })
       .then(result => {
         if (!result) {
-          return $.Deferred().reject();
+          return Promise.reject();
         }
         alert(isStared ? '标星成功' : '取消标星成功');
         item.isStared = isStared;
         dispatch(updateNodeItem(item));
       })
-      .fail(() => alert('操作失败，请稍后重试'), 3);
+      .catch(() => alert('操作失败，请稍后重试'), 3);
   };
 }
 

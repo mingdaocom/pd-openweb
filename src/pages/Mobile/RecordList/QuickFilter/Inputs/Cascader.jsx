@@ -147,8 +147,10 @@ export default class Cascader extends Component {
   renderH5Header() {
     const { onChange, control = {} } = this.props;
     const { advancedSetting = {} } = control;
-    const { anylevel = '0' } = advancedSetting;
+    const { anylevel = '0', minlayer = '0' } = advancedSetting;
     const { operatePath, selectItem, layersName } = this.state;
+    const minLayer = Number(minlayer);
+
     return (
       <div
         className="flexRow Font17 ThemeColor3 pLeft15 pRight15 relative"
@@ -179,7 +181,7 @@ export default class Cascader extends Component {
         <div className="ellipsis Gray" style={{ position: 'absolute', left: '50%', marginLeft: -65, width: 130 }}>
           {(layersName || [])[operatePath.length] || _l('%0级', nzh.cn.encodeS(operatePath.length + 1))}
         </div>
-        {!+anylevel && (
+        {(minLayer && !+anylevel ? operatePath.length >= minLayer : !+anylevel) && (
           <div
             onClick={() => {
               this.setState({ visible: false, operatePath: [], selectItem: {}, selectedId: '' });
@@ -237,14 +239,18 @@ export default class Cascader extends Component {
   renderH5Content() {
     const { control } = this.props;
     const { advancedSetting = {} } = control;
-    const { anylevel = '0' } = advancedSetting;
+    const { anylevel = '0', minlayer = '0', limitlayer = '0' } = advancedSetting;
     const { options = [], operatePath, selectedId, selectItem, isError } = this.state;
+    const minLayer = Number(minlayer);
+    const limitLayer = Number(limitlayer);
 
     if (isError) return <div className="mTop10">{_l('数据源异常')}</div>;
     if (options === null) return <LoadDiv />;
     if (!options.length) return <div className="mTop10">{_l('无数据')}</div>;
 
-    const h5Options = this.getH5Options();
+    const h5Options = this.getH5Options().map(item =>
+      limitLayer && limitLayer === operatePath.length ? { ...item, isLeaf: true } : item,
+    );
 
     if (!h5Options.length) return <LoadDiv />;
     // 必须选择最后一级
@@ -273,6 +279,67 @@ export default class Cascader extends Component {
                   </div>
                 )}
               </div>
+            </List.Item>
+          ))}
+        </List>
+      );
+    }
+
+    // 至少向后选择指定级
+    if (minLayer) {
+      return (
+        <List>
+          {h5Options.map(item => (
+            <List.Item
+              key={item.value}
+              onClick={() => {
+                if (operatePath.length >= minLayer) return;
+
+                if (item.isLeaf) {
+                  this.setState({ visible: false, operatePath: [], selectedId: item.value });
+                  this.treeSelectChange(item.value, item.label);
+                } else {
+                  this.setState({ operatePath: operatePath.concat(item.value) }, () => {
+                    this.loadData(item.value);
+                  });
+                }
+              }}
+            >
+              {operatePath.length >= minLayer ? (
+                <div className="flexRow">
+                  <Radio
+                    className="flex cascaderRadio flexRow"
+                    text={item.label}
+                    checked={selectItem.id ? item.value === selectItem.id : item.value === selectedId}
+                    onClick={() => this.setState({ selectItem: { id: item.value, label: item.label } })}
+                  />
+                  {!item.isLeaf && (
+                    <Fragment>
+                      <div style={{ borderRight: '1px solid #e0e0e0', height: 18, marginTop: 4 }} />
+                      <div
+                        className="pLeft10 Font16 Gray_9e"
+                        onClick={e => {
+                          e.stopPropagation();
+                          this.setState({ operatePath: operatePath.concat(item.value) }, () => {
+                            this.loadData(item.value);
+                          });
+                        }}
+                      >
+                        <i className="icon-arrow-right-border" />
+                      </div>
+                    </Fragment>
+                  )}
+                </div>
+              ) : (
+                <div className="flexRow">
+                  <div className="flex ellipsis">{item.label}</div>
+                  {!item.isLeaf && (
+                    <div className="pLeft10 Font16 Gray_9e">
+                      <i className="icon-arrow-right-border" />
+                    </div>
+                  )}
+                </div>
+              )}
             </List.Item>
           ))}
         </List>

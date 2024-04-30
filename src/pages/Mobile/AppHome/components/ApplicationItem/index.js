@@ -1,6 +1,5 @@
 import React from 'react';
-import { Icon } from 'ming-ui';
-import SvgIcon from 'src/components/SvgIcon';
+import { Icon, SvgIcon } from 'ming-ui';
 import AppStatus from 'src/pages/AppHomepage/AppCenter/components/AppStatus';
 import { generateRandomPassword, addBehaviorLog } from 'src/util';
 import { getRgbaByColor } from 'src/pages/widgetConfig/util';
@@ -88,7 +87,7 @@ export default function ApplicationItem(props) {
         radius={radius}
         className={cx(`appItem ${className}`, { mRight10: index % 2 === 0 })}
         key={id}
-        onClick={() => {
+        onClick={(e) => {
           if (!!type) {
             //应用项
             addBehaviorLog(type === 2 ? 'worksheet' : 'customPage', itemId); // 埋点

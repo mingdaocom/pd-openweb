@@ -9,7 +9,7 @@ export default {
   **/
    editProviders: function (args, options = {}) {
      
-     return $.api('Sms', 'EditProviders', args, options);
+     return mdyAPI('Sms', 'EditProviders', args, options);
    },
   /**
   * 获取服务商信息
@@ -20,6 +20,6 @@ export default {
   **/
    getProviders: function (args, options = {}) {
      
-     return $.api('Sms', 'GetProviders', args, options);
+     return mdyAPI('Sms', 'GetProviders', args, options);
    },
 };

@@ -34,6 +34,7 @@ export default function SheetField(props) {
     data,
     allControls,
     onChange,
+    globalSheetInfo = {},
     status: { saveIndex },
   } = props;
   const { controlId, dataSource, strDefault = '10' } = data;
@@ -77,7 +78,7 @@ export default function SheetField(props) {
   const {
     loading,
     data: { info, controls },
-  } = useSheetInfo({ worksheetId });
+  } = useSheetInfo({ worksheetId, relationWorksheetId: globalSheetInfo.worksheetId });
 
   const fields = getFieldsByControls(controls);
   const filterBySearch = searchValue ? _.filter(fields, item => _.includes(item.controlName, searchValue)) : fields;

@@ -46,6 +46,8 @@ export const getIcons = (type, appType, actionId) => {
         icon = 'icon-parameter';
       } else if (appType === APP_TYPE.APPROVAL_START) {
         icon = 'icon-approval';
+      } else if (appType === APP_TYPE.EVENT_PUSH) {
+        icon = 'icon-sending';
       } else {
         icon = 'icon-table';
       }
@@ -80,8 +82,6 @@ export const getIcons = (type, appType, actionId) => {
         icon = 'icon-invited_users';
       } else if (appType === APP_TYPE.CALENDAR) {
         icon = 'icon-sidebar_calendar';
-      } else if (appType === APP_TYPE.SNAPSHOT) {
-        icon = 'icon-camera_alt';
       }
       break;
     case NODE_TYPE.SEARCH:
@@ -151,6 +151,9 @@ export const getIcons = (type, appType, actionId) => {
     case NODE_TYPE.NOTICE:
       icon = 'icon-hr_message_reminder';
       break;
+    case NODE_TYPE.SNAPSHOT:
+      icon = 'icon-camera_alt';
+      break;
     case NODE_TYPE.SYSTEM:
       if (appType === APP_TYPE.PROCESS) {
         icon = 'icon-parameter';
@@ -194,6 +197,7 @@ export const getStartNodeColor = (appType, triggerId) => {
     case APP_TYPE.WEBHOOK:
     case APP_TYPE.CUSTOM_ACTION:
     case APP_TYPE.PBC:
+    case APP_TYPE.EVENT_PUSH:
       return 'BGBlueAsh';
     case APP_TYPE.USER:
     case APP_TYPE.DEPARTMENT:
@@ -572,4 +576,25 @@ export const clearFlowNodeMapParameter = flowNodeMap => {
   });
 
   return flowNodeMap;
+};
+
+/**
+ * 处理执行的返回值
+ */
+export const handleExecReturnValue = item => {
+  const MAP = {
+    14: ['originalFilename', 'ext'],
+    26: ['fullName'],
+    27: ['departmentName'],
+    48: ['organizeName'],
+  };
+  const parseMap = MAP[item.type];
+
+  if (parseMap) {
+    return safeParse(item.fieldValueDefault)
+      .map(obj => parseMap.map(key => obj[key]).join(''))
+      .join(',');
+  }
+
+  return item.fieldValueDefault;
 };

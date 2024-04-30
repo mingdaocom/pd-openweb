@@ -23,6 +23,7 @@ import {
   getControlFieldPermissionsAfterRules,
   getRulePermissions,
   getTableHeadHeight,
+  checkCellFullVisible,
 } from './util';
 import { NoSearch, NoRecords, Cell } from './components';
 import './style.less';
@@ -142,7 +143,7 @@ function WorksheetTable(props, ref) {
     height,
     setHeightAsRowCount,
     rowCount,
-    rowHeight,
+    rowHeight = 34,
     rowHeightEnum,
     showRowHead = true,
     showSearchEmpty = true,
@@ -161,6 +162,8 @@ function WorksheetTable(props, ref) {
     allowlink,
     addNewRow,
     cellUniqueValidate,
+    onUpdateRules = () => {},
+    tableFooter,
   } = props;
   const { emptyIcon, emptyText, sheetIsFiltered, allowAdd, noRecordAllowAdd, showNewRecord } = props; // 空状态
   const { keyWords } = props; // 搜索
@@ -288,7 +291,7 @@ function WorksheetTable(props, ref) {
     if (newIndex === -10000) {
       return;
     }
-    const focusElement = tableRef.current.dom.current.querySelector(`.cell-${newIndex}`);
+    const focusElement = tableRef.current && tableRef.current.dom.current.querySelector(`.cell-${newIndex}`);
     if (focusElement.classList.contains('emptyRow') && cache.data[Math.floor(newIndex / cellColumnCount)]) {
       onFocusCell(cache.data[Math.floor(newIndex / cellColumnCount)], newIndex);
     }
@@ -296,6 +299,10 @@ function WorksheetTable(props, ref) {
       `.cell-${newIndex - (newIndex % cellColumnCount)}`,
     );
     if (focusElement) {
+      const checkResult = checkCellFullVisible(focusElement);
+      if (!checkResult.fullvisible) {
+        tableRef.current.setScroll(checkResult.newLeft);
+      }
       focusElement.classList.add('focus');
       if (focusElement.classList.contains('focusInput')) {
         const input = document.createElement('input');
@@ -356,6 +363,7 @@ function WorksheetTable(props, ref) {
       })
       .then(newRules => {
         if (newRules.length) {
+          onUpdateRules(newRules);
           handleUpdateRulePermissions(
             getRulePermissions({
               isSubList,
@@ -392,7 +400,15 @@ function WorksheetTable(props, ref) {
   useEffect(() => {
     // 显示列变更，列宽变更
     tableRef.current.forceUpdate();
-  }, [rowHeight, fixedColumnCount, columns.map(c => c.controlId).join(','), JSON.stringify(sheetColumnWidths)]);
+  }, [
+    tableType,
+    width,
+    rowHeight,
+    rowHeadWidth,
+    fixedColumnCount,
+    columns.map(c => c.controlId).join(','),
+    JSON.stringify(sheetColumnWidths),
+  ]);
   useEffect(() => {
     setCache('data', data);
     const propsData = props.data.filter(r => !r.isSubListFooter);
@@ -411,6 +427,13 @@ function WorksheetTable(props, ref) {
       filterEmptyChildTableRows(propsData).length > filterEmptyChildTableRows(filteredData).length
     ) {
       updatedRows = propsData.filter(row => !_.find(filteredData, r => r.rowid === row.rowid));
+    } else if (
+      !_.intersection(
+        propsData.map(c => c.rowid),
+        filteredData.map(c => c.rowid),
+      ).length
+    ) {
+      updatedRows = propsData;
     } else {
       props.data.forEach(row => {
         const oldRow = _.find(data, r => r.rowid === row.rowid);
@@ -598,6 +621,7 @@ function WorksheetTable(props, ref) {
             />
           );
         }}
+        tableFooter={tableFooter}
       />
       {!data.length && showSearchEmpty && keyWords && <NoSearch keyWords={keyWords} />}
     </React.Fragment>

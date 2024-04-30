@@ -239,7 +239,7 @@ export default function Steps(props) {
   } = props;
   const barRef = useRef();
   const selectedOption = _.find(options, i => i.key === value);
-  const filterOptions = options.filter(i => !i.isDeleted);
+  const filterOptions = options.filter(i => !i.isDeleted && (i.key === value || !i.hide));
   const getCurrent = value => {
     return _.findIndex(filterOptions, i => i.key === value);
   };

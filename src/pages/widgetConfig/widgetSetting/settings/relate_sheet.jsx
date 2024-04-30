@@ -153,6 +153,7 @@ export default function RelateSheet(props) {
 
   const filterControls = getFilterRelateControls(relationControls, showControls);
   const titleControl = _.find(filterControls, item => item.attribute === 1);
+  const RELATION_SHEET_DISPLAY = getDisplayType({ from, type: enumDefault });
 
   useEffect(() => {
     setState({ isRelateView: Boolean(viewId) });
@@ -172,8 +173,8 @@ export default function RelateSheet(props) {
       });
     }
   }, [scancontrol, scanlink]);
-  const isSheetDisplay = () => {
-    return showtype === '2';
+  const isSheetDisplay = value => {
+    return _.includes(['2', '5', '6'], value || showtype);
   };
 
   const getShowControls = controls => {
@@ -274,11 +275,11 @@ export default function RelateSheet(props) {
             if (value === 1) {
               let nextData = { ...data, enumDefault: 1 };
               // 从关联多条列表切换到关联单条自动切换为单条卡片
-              if (showtype === '2') {
+              if (isSheetDisplay()) {
                 nextData = handleAdvancedSettingChange(nextData, { showtype: '1' });
               }
               // 关联单条不支持一下操作
-              nextData = handleAdvancedSettingChange(nextData, { sorts: '', allowcancel: '0' });
+              nextData = handleAdvancedSettingChange(nextData, { sorts: '', allowcancel: '1' });
               onChange(nextData);
               return;
             }
@@ -292,7 +293,13 @@ export default function RelateSheet(props) {
         <Dropdown
           border
           value={showtype}
-          data={getDisplayType({ from, type: enumDefault })}
+          data={RELATION_SHEET_DISPLAY.filter(i => !i.disabled)}
+          renderTitle={() =>
+            _.get(
+              _.find(RELATION_SHEET_DISPLAY, r => r.value === showtype),
+              'text',
+            )
+          }
           onChange={value => {
             let nextData = handleAdvancedSettingChange(data, { showtype: value });
             // 非卡片 铺满整行
@@ -303,7 +310,7 @@ export default function RelateSheet(props) {
               nextData = { ...handleAdvancedSettingChange(nextData, { searchfilters: '' }), showControls: [] };
             }
             // 切换为列表 必填置为false,标题样式、动态默认值清空
-            if (value === '2') {
+            if (isSheetDisplay(value)) {
               const newDefsource = safeParse(_.get(nextData, 'advancedSetting.defsource') || '[]');
 
               nextData = {
@@ -321,7 +328,14 @@ export default function RelateSheet(props) {
                 }),
               };
             } else {
-              nextData = handleAdvancedSettingChange(nextData, { sorts: '' });
+              nextData = {
+                ...handleAdvancedSettingChange(nextData, { sorts: '', resultfilters: '' }),
+                strDefault: updateConfig({
+                  config: strDefault,
+                  value: 0,
+                  index: 0,
+                }),
+              };
             }
             onChange(nextData);
           }}
@@ -409,7 +423,7 @@ export default function RelateSheet(props) {
           </RelateSheetCover>
         </SettingItem>
       )}
-      {showtype === '2' && (
+      {isSheetDisplay() && (
         <SettingItem>
           <div className="settingItemTitle">{_l('排序')}</div>
           <EditInfo className="pointer subListSortInput" onClick={() => setState({ sortVisible: true })}>
@@ -457,7 +471,7 @@ export default function RelateSheet(props) {
         </SettingItem>
       )}
       <DynamicDefaultValue {...props} titleControl={titleControl} />
-      {showtype !== '2' && <WidgetVerify {...props} />}
+      {!isSheetDisplay() && <WidgetVerify {...props} />}
     </RelateSheetWrap>
   );
 }

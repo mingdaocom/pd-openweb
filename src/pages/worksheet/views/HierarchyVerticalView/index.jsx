@@ -11,7 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { LoadDiv } from 'ming-ui';
 import _ from 'lodash';
 import { isAllowQuickSwitch, isDisabledCreate, isTextTitle, getSearchData } from '../util';
-import { hierarchyViewCanSelectFields, getItem, setItem } from '../HierarchyView/util';
+import { hierarchyViewCanSelectFields } from '../HierarchyView/util';
 import { ITEM_TYPE, SCROLL_CONFIG } from '../HierarchyView/config';
 import * as hierarchyActions from 'worksheet/redux/actions/hierarchy';
 import * as viewActions from 'worksheet/redux/actions/index';
@@ -94,7 +94,7 @@ function HierarchyVertical(props) {
     ...rest
   } = props;
   const IS_MOBILE = browserIsMobile();
-  const { scale: configScale, level: configLevel = '' } = getItem(`hierarchyConfig-${viewId}`) || {};
+  const { scale: configScale, level: configLevel = '' } = safeParse(localStorage.getItem(`hierarchyConfig-${viewId}`));
   const { loading, pageIndex } = hierarchyDataStatus;
   const [{ addRecordDefaultValue, level, scale, createRecordVisible, addRecordPath }, setState] = useSetState({
     scale: (!IS_MOBILE && configScale) || 100,
@@ -154,7 +154,7 @@ function HierarchyVertical(props) {
 
   useEffect(() => {
     getDefaultHierarchyData();
-    const { level } = getItem(`hierarchyConfig-${viewId}`) || {};
+    const { level } = safeParse(localStorage.getItem(`hierarchyConfig-${viewId}`));
     level && setState({ level: level });
     // 多表关联把所有的关联控件获取到 以便后续展示
     const { viewType, childType } = view;

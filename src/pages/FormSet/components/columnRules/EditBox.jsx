@@ -1,70 +1,19 @@
 import React, { Fragment } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { Icon, ScrollView, RadioGroup } from 'ming-ui';
+import { Icon, ScrollView, Checkbox } from 'ming-ui';
 import { Select, Tooltip } from 'antd';
 import * as actions from './redux/actions/columnRules';
 import * as columnRules from './redux/actions/columnRules';
 import ActionDropDown from './actionDropdown/ActionDropDown';
 import handleSetMsg from './errorMsgDialog/ErrorMsg';
-import { actionsListData, originActionItem, getActionLabelByType, filterUnAvailable } from './config';
+import { actionsListData, originActionItem, getActionLabelByType, filterUnAvailable, getErrorControls } from './config';
 import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/FilterConfig';
 import { redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { SYS_CONTROLS, SYS } from 'src/pages/widgetConfig/config/widget';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
 import _ from 'lodash';
-
-const isLocalTest =
-  location.href.indexOf('localhost') > -1 ||
-  location.href.indexOf('meihua') > -1 ||
-  location.href.indexOf('sandbox') > -1;
-
-const CHECK_DISPLAY_OPTIONS = [
-  {
-    text: _l('仅前端'),
-    value: 0,
-  },
-  {
-    text: (
-      <span>
-        {_l('前端及后端')}
-        <Tooltip
-          placement="bottom"
-          title={_l(
-            '若条件字段在填写期间被其他端口更改，可通过该种校验方式确保提交数据时业务规则仍准确生效。但数据校验速度可能较慢。该功能为beta功能，若导致数据提交失败，可改为仅前端校验。',
-          )}
-        >
-          <i className="icon-help Gray_9e Font16 Hand mLeft6 mRight6"></i>
-        </Tooltip>
-        <Icon icon="beta1" style={{ background: '#fff', color: '#43BD36' }} />
-      </span>
-    ),
-    value: 1,
-  },
-  {
-    text: (
-      <span>
-        {_l('仅后端')}
-        <Tooltip placement="bottom" title={_l('测试专用，上线会隐藏')}>
-          <i className="icon-help Gray_9e Font16 Hand mLeft6 mRight6"></i>
-        </Tooltip>
-      </span>
-    ),
-    value: 2,
-  },
-];
-
-const HINT_DISPLAY_OPTIONS = [
-  {
-    text: _l('输入和提交时'),
-    value: 0,
-  },
-  {
-    text: _l('仅提交时'),
-    value: 1,
-  },
-];
 
 class EditBox extends React.Component {
   constructor(props) {
@@ -165,8 +114,10 @@ class EditBox extends React.Component {
       listData = listData.filter(i => i.value !== 7);
     }
 
+    const filterControls = worksheetControls.filter(i => !_.includes(SYS_CONTROLS.concat(SYS), i.controlId));
+
     return (
-      <div className="conditionContainer">
+      <div className="conditionContainer mTop0">
         <div className="Font14 Bold">{_l('则执行动作')}</div>
         {ruleItems.map((actionItem, actionIndex) => {
           const actionError = (ruleError.actionError || {})[actionIndex] || false;
@@ -223,7 +174,7 @@ class EditBox extends React.Component {
                   actionError={actionError}
                   actionType={actionItem.type}
                   values={actionItem.controls}
-                  dropDownData={worksheetControls.filter(i => !_.includes(SYS_CONTROLS.concat(SYS), i.controlId))}
+                  dropDownData={filterControls}
                   onChange={(key, value) => {
                     let currentActionData = { ...ruleItems[actionIndex] };
                     currentActionData[key] = value;
@@ -283,8 +234,8 @@ class EditBox extends React.Component {
     );
   };
 
-  // 校验方式 | 提示方式 ｜ 提示错误
-  renderCheck = () => {
+  // 提示方式 ｜ 提示错误
+  renderPrompt = () => {
     const {
       selectRules = {},
       updateSelectRule,
@@ -293,72 +244,97 @@ class EditBox extends React.Component {
       worksheetControls = [],
       activeTab,
     } = this.props;
-    const { checkType = '0', hintType = '0', ruleItems = [] } = selectRules;
+    const { hintType = 0, checkType = 0, ruleItems = [] } = selectRules;
     const { controls = [], message = '' } = ruleItems[0] || {};
     const isError = _.get(ruleError, 'actionError[0]');
-    const dropData = worksheetControls
-      .filter(i => !_.includes(SYS_CONTROLS.concat(SYS), i.controlId))
-      .map(i => (i.relationControls ? { ...i, relationControls: [] } : i));
-
-    const CHECK_DISPLAY_OPTIONS_FILTER =
-      location.href.indexOf('localhost') > -1 ||
-      location.href.indexOf('meihua') > -1 ||
-      location.href.indexOf('sandbox') > -1
-        ? CHECK_DISPLAY_OPTIONS
-        : CHECK_DISPLAY_OPTIONS.filter(i => i.value !== 2);
+    const dropData = getErrorControls(worksheetControls);
 
     return (
-      <Fragment>
-        {isLocalTest && (
-          <Fragment>
-            <div className="conditionContainer mTop0">
-              <div className="Font14 Bold mBottom12">{_l('校验方式')}</div>
-              <RadioGroup
-                size="middle"
-                disableTitle={true}
-                checkedValue={checkType}
-                data={CHECK_DISPLAY_OPTIONS_FILTER}
-                onChange={value => updateSelectRule('checkType', value)}
-              />
-            </div>
-            <div className="conditionContainer">
-              <div className="Font14 Bold mBottom12">{_l('提示方式')}</div>
-              <RadioGroup
-                size="middle"
-                checkedValue={hintType}
-                data={HINT_DISPLAY_OPTIONS}
-                onChange={value => updateSelectRule('hintType', value)}
-              />
-            </div>
-          </Fragment>
-        )}
-        <div className="conditionContainer">
-          <div className="Font14 Bold mBottom12">{_l('提示错误')}</div>
-          {isLocalTest && (
-            <ActionDropDown
-              actionType={6}
-              values={controls}
-              activeTab={activeTab}
-              dropDownData={dropData}
-              onChange={(key, value) => {
-                const newVal = [{ controls: value, message, type: 6 }];
-                updateSelectRule('ruleItems', newVal);
-              }}
-            />
-          )}
-          <input
-            className={cx('ruleNameInput', { errorBorder: isError && !message, mTop12: isLocalTest })}
-            value={this.state.message}
-            placeholder={_l('请输入提示内容')}
-            onChange={e => this.setState({ message: e.target.value })}
-            onBlur={e => {
-              const newValue = [{ controls, message: e.target.value, type: 6 }];
-              updateSelectRule('ruleItems', newValue);
-              isError && updateError('action', newValue[0], 0);
+      <div className="conditionContainer mTop0">
+        <div className="Font14 Bold mBottom20">{_l('则提示错误')}</div>
+        <div className="Font14 mBottom12">
+          {_l('提示内容')}
+          <span className="Red">*</span>
+        </div>
+        <input
+          className={cx('ruleNameInput', { errorBorder: isError && !message })}
+          value={this.state.message}
+          placeholder={_l('请输入提示内容')}
+          onChange={e => this.setState({ message: e.target.value })}
+          onBlur={e => {
+            const newValue = [{ controls, message: e.target.value, type: 6 }];
+            updateSelectRule('ruleItems', newValue);
+            isError && updateError('action', newValue[0], 0);
+          }}
+        />
+        <div className="mTop24">
+          <div className="Font14 mBottom12">{_l('指定字段')}</div>
+          <ActionDropDown
+            actionType={6}
+            values={controls}
+            activeTab={activeTab}
+            dropDownData={dropData}
+            onChange={(key, value) => {
+              const newVal = [{ controls: value, message, type: 6 }];
+              updateSelectRule('ruleItems', newVal);
             }}
           />
         </div>
-      </Fragment>
+        <div className="mTop24">
+          <div className="Font14 Bold mBottom12">{_l('其他')}</div>
+          <Checkbox
+            text={
+              <span>
+                {_l('在字段输入时实时提示')}
+                <Tooltip
+                  placement="bottom"
+                  title={_l(
+                    '勾选后，在条件字段输入和失焦时实时提示错误。取消勾选后，只会在最后点击提交按钮时提示错误。',
+                  )}
+                >
+                  <i className="icon-help Gray_9e Font16 Hand mLeft6"></i>
+                </Tooltip>
+              </span>
+            }
+            checked={hintType === 0}
+            onClick={checked => {
+              updateSelectRule('hintType', checked ? 1 : 0);
+            }}
+          />
+
+          <Checkbox
+            className="mTop12"
+            text={
+              <span>
+                {_l('保存数据到服务器时再次校验')}
+                <Icon icon="beta1" className="mRight6 mLeft6" style={{ background: '#fff', color: '#43BD36' }} />
+                <Tooltip
+                  placement="bottom"
+                  title={
+                    <span>
+                      {_l(
+                        '勾选后，除了对表单已加载数据进行校验外，在数据保存时会再次对服务器中的最新数据进行校验，确保数据严格遵循业务规则约束。',
+                      )}
+                      <br />
+                      {_l(
+                        '如：在出库场景中，由于多人提交，在填写期间实际库存数可能会小于表单显示的库存数时，通过此方式可按照服务器的实际库存数进行校验，确保库存数不会为负。',
+                      )}
+                      <br />
+                      {_l('注意：开启后校验速度会变慢，请根据实际场景合理使用。')}
+                    </span>
+                  }
+                >
+                  <i className="icon-help Gray_9e Font16 Hand"></i>
+                </Tooltip>
+              </span>
+            }
+            checked={checkType === 1}
+            onClick={checked => {
+              updateSelectRule('checkType', checked ? 0 : 1);
+            }}
+          />
+        </div>
+      </div>
     );
   };
 
@@ -372,7 +348,7 @@ class EditBox extends React.Component {
 
     // 验证规则
     if (activeTab === 1) {
-      return this.renderCheck();
+      return this.renderPrompt();
     }
   };
 

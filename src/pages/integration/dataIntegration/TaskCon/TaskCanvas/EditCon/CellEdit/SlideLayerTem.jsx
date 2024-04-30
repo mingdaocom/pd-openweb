@@ -134,6 +134,9 @@ export default function SlideLayerTem(props) {
               onClick={() => {
                 cb({
                   fields: fields.map(o => {
+                    if ([22].includes(o.mdType)) {
+                      return o;
+                    }
                     return { ...o, isCheck: !isAll };
                   }),
                 });
@@ -150,6 +153,7 @@ export default function SlideLayerTem(props) {
           <div className="itemBox Gray_75">{_l('重命名')}</div>
         </div>
         {fields.map(item => {
+          const isNotSupport = [22].includes(item.mdType); //排除分段
           return (
             <div className="tableCon flexRow alignItemsCenter">
               {item.isErr && (
@@ -166,8 +170,8 @@ export default function SlideLayerTem(props) {
               <div className="itemBox itemBoxCheck">
                 <Checkbox
                   className="TxtMiddle InlineBlock mRight0 checked_selected checkBox "
-                  checked={item.isCheck}
-                  disabled={item.isErr}
+                  checked={item.isCheck && !isNotSupport}
+                  disabled={item.isErr || isNotSupport}
                   onClick={() => {
                     cb({
                       fields: fields.map(o => {
@@ -189,6 +193,11 @@ export default function SlideLayerTem(props) {
                   />
                 )}
                 <span className={cx({ Red: item.isErr })}> {item.name}</span>
+                {isNotSupport && (
+                  <div data-tip={_l('暂不支持同步')} className="tip-top pointer">
+                    <Icon icon="help" className="Gray_bd mLeft5" />
+                  </div>
+                )}
                 {item.aggFuncType && (
                   <span className="Gray_9e">({OPERATION_TYPE_DATA.find(o => o.value === item.aggFuncType).text})</span>
                 )}

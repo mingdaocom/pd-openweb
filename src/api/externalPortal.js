@@ -9,7 +9,7 @@ export default {
   **/
    getLoginUrl: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'GetLoginUrl', args, options);
+     return mdyAPI('ExternalPortal', 'GetLoginUrl', args, options);
    },
   /**
   * 获取 门户配置
@@ -21,7 +21,7 @@ export default {
   **/
    getPortalSetByAppId: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'GetPortalSetByAppId', args, options);
+     return mdyAPI('ExternalPortal', 'GetPortalSetByAppId', args, options);
    },
   /**
   * 获取 门户应用ID
@@ -33,7 +33,7 @@ export default {
   **/
    getAppIdByAddressSuffix: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'GetAppIdByAddressSuffix', args, options);
+     return mdyAPI('ExternalPortal', 'GetAppIdByAddressSuffix', args, options);
    },
   /**
   * 获取 用户协议
@@ -45,7 +45,7 @@ export default {
   **/
    getUserAgreement: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'GetUserAgreement', args, options);
+     return mdyAPI('ExternalPortal', 'GetUserAgreement', args, options);
    },
   /**
   * 获取 隐私条款
@@ -57,7 +57,7 @@ export default {
   **/
    getPrivacyTerms: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'GetPrivacyTerms', args, options);
+     return mdyAPI('ExternalPortal', 'GetPrivacyTerms', args, options);
    },
   /**
   * 根据AppId获取外部门户配置(含用户自定义字段)
@@ -69,7 +69,7 @@ export default {
   **/
    getPortalSet: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'GetPortalSet', args, options);
+     return mdyAPI('ExternalPortal', 'GetPortalSet', args, options);
    },
   /**
   * 根据AppId获取门户启用状态
@@ -81,7 +81,7 @@ export default {
   **/
    getPortalEnableState: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'GetPortalEnableState', args, options);
+     return mdyAPI('ExternalPortal', 'GetPortalEnableState', args, options);
    },
   /**
   * 根据 AppId
@@ -94,7 +94,7 @@ export default {
   **/
    getConfig: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'GetConfig', args, options);
+     return mdyAPI('ExternalPortal', 'GetConfig', args, options);
    },
   /**
   * 创建 外部门户讨论工作流
@@ -106,7 +106,7 @@ export default {
   **/
    createEPDiscussWorkFlow: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'CreateEPDiscussWorkFlow', args, options);
+     return mdyAPI('ExternalPortal', 'CreateEPDiscussWorkFlow', args, options);
    },
   /**
   * 编辑 外部门户的启用状态
@@ -119,7 +119,7 @@ export default {
   **/
    editExPortalEnable: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'EditExPortalEnable', args, options);
+     return mdyAPI('ExternalPortal', 'EditExPortalEnable', args, options);
    },
   /**
   * 修改是否发送短信
@@ -132,7 +132,7 @@ export default {
   **/
    editIsSendMsgs: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'EditIsSendMsgs', args, options);
+     return mdyAPI('ExternalPortal', 'EditIsSendMsgs', args, options);
    },
   /**
   * 保存外部门户配置(含外部用户自定义字段)
@@ -146,7 +146,7 @@ export default {
   **/
    editPortalSet: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'EditPortalSet', args, options);
+     return mdyAPI('ExternalPortal', 'EditPortalSet', args, options);
    },
   /**
   * 编辑 门户自定义访问地址
@@ -159,7 +159,7 @@ export default {
   **/
    editCustomAddressSuffix: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'EditCustomAddressSuffix', args, options);
+     return mdyAPI('ExternalPortal', 'EditCustomAddressSuffix', args, options);
    },
   /**
   * 发送 验证码（登录后）
@@ -176,7 +176,7 @@ export default {
   **/
    sendAccountVerifyCode: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'SendAccountVerifyCode', args, options);
+     return mdyAPI('ExternalPortal', 'SendAccountVerifyCode', args, options);
    },
   /**
   * 检查 验证码
@@ -191,7 +191,7 @@ export default {
   **/
    checkExAccountVerifyCode: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'CheckExAccountVerifyCode', args, options);
+     return mdyAPI('ExternalPortal', 'CheckExAccountVerifyCode', args, options);
    },
   /**
   * 获取外部人员列表基础配置信息
@@ -203,7 +203,7 @@ export default {
   **/
    getUserTemple: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'GetUserTemple', args, options);
+     return mdyAPI('ExternalPortal', 'GetUserTemple', args, options);
    },
   /**
   * 获取待收集信息
@@ -217,7 +217,7 @@ export default {
   **/
    getUserCollect: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'GetUserCollect', args, options);
+     return mdyAPI('ExternalPortal', 'GetUserCollect', args, options);
    },
   /**
   * 获取外部用户日志
@@ -234,7 +234,7 @@ export default {
   **/
    getUserActionLogs: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'GetUserActionLogs', args, options);
+     return mdyAPI('ExternalPortal', 'GetUserActionLogs', args, options);
    },
   /**
   * 
@@ -247,7 +247,7 @@ export default {
   **/
    dateHistogram: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'DateHistogram', args, options);
+     return mdyAPI('ExternalPortal', 'DateHistogram', args, options);
    },
   /**
   * 通过Excel文件批量导入用户
@@ -260,7 +260,7 @@ export default {
   **/
    importExAccounts: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'ImportExAccounts', args, options);
+     return mdyAPI('ExternalPortal', 'ImportExAccounts', args, options);
    },
   /**
   * 手动邀请用户
@@ -274,7 +274,7 @@ export default {
   **/
    addExAccounts: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'AddExAccounts', args, options);
+     return mdyAPI('ExternalPortal', 'AddExAccounts', args, options);
    },
   /**
   * 重新邀请
@@ -288,7 +288,7 @@ export default {
   **/
    reinviteExAccount: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'ReinviteExAccount', args, options);
+     return mdyAPI('ExternalPortal', 'ReinviteExAccount', args, options);
    },
   /**
   * 后台保存外部用户信息
@@ -303,7 +303,7 @@ export default {
   **/
    saveUserDetailForBackgroud: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'SaveUserDetailForBackgroud', args, options);
+     return mdyAPI('ExternalPortal', 'SaveUserDetailForBackgroud', args, options);
    },
   /**
   * 保存外部用户信息
@@ -318,7 +318,7 @@ export default {
   **/
    saveUserDetail: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'SaveUserDetail', args, options);
+     return mdyAPI('ExternalPortal', 'SaveUserDetail', args, options);
    },
   /**
   * 批量更改用户角色
@@ -333,7 +333,7 @@ export default {
   **/
    editExAccountsRole: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'EditExAccountsRole', args, options);
+     return mdyAPI('ExternalPortal', 'EditExAccountsRole', args, options);
    },
   /**
   * 修改外部用户状态
@@ -348,7 +348,7 @@ export default {
   **/
    editExAccountState: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'EditExAccountState', args, options);
+     return mdyAPI('ExternalPortal', 'EditExAccountState', args, options);
    },
   /**
   * 批量(审核)同意的用户
@@ -364,7 +364,7 @@ export default {
   **/
    auditPassExAccountToNewRole: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'AuditPassExAccountToNewRole', args, options);
+     return mdyAPI('ExternalPortal', 'AuditPassExAccountToNewRole', args, options);
    },
   /**
   * 批量(审核)拒绝的用户
@@ -378,7 +378,7 @@ export default {
   **/
    refusePassExAccount: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'RefusePassExAccount', args, options);
+     return mdyAPI('ExternalPortal', 'RefusePassExAccount', args, options);
    },
   /**
   * 外部用户 注销
@@ -390,7 +390,7 @@ export default {
   **/
    editExAccountCancel: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'EditExAccountCancel', args, options);
+     return mdyAPI('ExternalPortal', 'EditExAccountCancel', args, options);
    },
   /**
   * 外部用户 绑定新账户
@@ -404,7 +404,7 @@ export default {
   **/
    bindExAccount: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'BindExAccount', args, options);
+     return mdyAPI('ExternalPortal', 'BindExAccount', args, options);
    },
   /**
   * 外部用户 修改新账户
@@ -418,7 +418,7 @@ export default {
   **/
    editExAccount: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'EditExAccount', args, options);
+     return mdyAPI('ExternalPortal', 'EditExAccount', args, options);
    },
   /**
   * 批量删除用户
@@ -432,7 +432,7 @@ export default {
   **/
    removeUsers: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'RemoveUsers', args, options);
+     return mdyAPI('ExternalPortal', 'RemoveUsers', args, options);
    },
   /**
   * 获取显示列
@@ -444,7 +444,7 @@ export default {
   **/
    getViewShowControls: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'GetViewShowControls', args, options);
+     return mdyAPI('ExternalPortal', 'GetViewShowControls', args, options);
    },
   /**
   * 编辑显示列
@@ -457,7 +457,7 @@ export default {
   **/
    editViewShowControls: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'EditViewShowControls', args, options);
+     return mdyAPI('ExternalPortal', 'EditViewShowControls', args, options);
    },
   /**
   * 获取外部用户分类数量
@@ -469,7 +469,7 @@ export default {
   **/
    getExAccountCategoryCount: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'GetExAccountCategoryCount', args, options);
+     return mdyAPI('ExternalPortal', 'GetExAccountCategoryCount', args, options);
    },
   /**
   * 
@@ -517,7 +517,7 @@ export default {
   **/
    getFilterRows: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'GetFilterRows', args, options);
+     return mdyAPI('ExternalPortal', 'GetFilterRows', args, options);
    },
   /**
   * 获取详情
@@ -531,7 +531,7 @@ export default {
   **/
    getDetail: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'GetDetail', args, options);
+     return mdyAPI('ExternalPortal', 'GetDetail', args, options);
    },
   /**
   * 获取网络下所有外部用户
@@ -553,7 +553,7 @@ export default {
   **/
    getUsers: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'GetUsers', args, options);
+     return mdyAPI('ExternalPortal', 'GetUsers', args, options);
    },
   /**
   * 应用下选外部用户
@@ -570,7 +570,7 @@ export default {
   **/
    getUsersByApp: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'GetUsersByApp', args, options);
+     return mdyAPI('ExternalPortal', 'GetUsersByApp', args, options);
    },
   /**
   * 批量删除网络下外部用户
@@ -583,7 +583,7 @@ export default {
   **/
    removeUsersByPorject: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'RemoveUsersByPorject', args, options);
+     return mdyAPI('ExternalPortal', 'RemoveUsersByPorject', args, options);
    },
   /**
   * 获取所有设置了外部的应用信息
@@ -597,7 +597,7 @@ export default {
   **/
    getAppInfoByProject: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'GetAppInfoByProject', args, options);
+     return mdyAPI('ExternalPortal', 'GetAppInfoByProject', args, options);
    },
   /**
   * 获取外部门户的角色列表
@@ -609,7 +609,7 @@ export default {
   **/
    getExRoles: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'GetExRoles', args, options);
+     return mdyAPI('ExternalPortal', 'GetExRoles', args, options);
    },
   /**
   * 新增外部角色
@@ -638,7 +638,7 @@ export default {
   **/
    addExRole: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'AddExRole', args, options);
+     return mdyAPI('ExternalPortal', 'AddExRole', args, options);
    },
   /**
   * 设置默认角色
@@ -651,7 +651,7 @@ export default {
   **/
    editDefaultExRole: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'EditDefaultExRole', args, options);
+     return mdyAPI('ExternalPortal', 'EditDefaultExRole', args, options);
    },
   /**
   * 配置外部角色权限
@@ -666,7 +666,7 @@ export default {
   **/
    editAppExRole: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'EditAppExRole', args, options);
+     return mdyAPI('ExternalPortal', 'EditAppExRole', args, options);
    },
   /**
   * 删除外部角色(此角色的外部用户使用默认角色)
@@ -679,7 +679,7 @@ export default {
   **/
    removeExRole: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'RemoveExRole', args, options);
+     return mdyAPI('ExternalPortal', 'RemoveExRole', args, options);
    },
   /**
   * 发送外部门户验证码
@@ -697,7 +697,7 @@ export default {
   **/
    sendVerifyCode: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'SendVerifyCode', args, options);
+     return mdyAPI('ExternalPortal', 'SendVerifyCode', args, options);
    },
   /**
   * 自动登录
@@ -710,7 +710,7 @@ export default {
   **/
    autoLogin: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'AutoLogin', args, options);
+     return mdyAPI('ExternalPortal', 'AutoLogin', args, options);
    },
   /**
   * 外部门户验证码登录与注册
@@ -730,7 +730,7 @@ export default {
   **/
    login: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'Login', args, options);
+     return mdyAPI('ExternalPortal', 'Login', args, options);
    },
   /**
   * 外部门户密码登录与注册
@@ -749,7 +749,7 @@ export default {
   **/
    pwdLogin: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'PwdLogin', args, options);
+     return mdyAPI('ExternalPortal', 'PwdLogin', args, options);
    },
   /**
   * 外部门户两步验证登录
@@ -768,7 +768,7 @@ export default {
   **/
    twofactorLogin: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'TwofactorLogin', args, options);
+     return mdyAPI('ExternalPortal', 'TwofactorLogin', args, options);
    },
   /**
   * 外部门户两步验证获取用户信息
@@ -781,7 +781,7 @@ export default {
   **/
    getTwofactorInfo: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'GetTwofactorInfo', args, options);
+     return mdyAPI('ExternalPortal', 'GetTwofactorInfo', args, options);
    },
   /**
   * 外部门户单点登录
@@ -795,7 +795,7 @@ export default {
   **/
    exportalSSO: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'ExportalSSO', args, options);
+     return mdyAPI('ExternalPortal', 'ExportalSSO', args, options);
    },
   /**
   * 收集信息与登录
@@ -809,7 +809,7 @@ export default {
   **/
    infoLogin: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'InfoLogin', args, options);
+     return mdyAPI('ExternalPortal', 'InfoLogin', args, options);
    },
   /**
   * 返回外部门户微信登录跳转地址
@@ -821,7 +821,7 @@ export default {
   **/
    getTpLoginUrlInfo: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'GetTpLoginUrlInfo', args, options);
+     return mdyAPI('ExternalPortal', 'GetTpLoginUrlInfo', args, options);
    },
   /**
   * 外部门户微信登录
@@ -836,7 +836,7 @@ export default {
   **/
    tpLogin: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'TpLogin', args, options);
+     return mdyAPI('ExternalPortal', 'TpLogin', args, options);
    },
   /**
   * 返回外部门户平台二维码登录扫码地址
@@ -848,7 +848,7 @@ export default {
   **/
    getSelfLoginScanUrl: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'GetSelfLoginScanUrl', args, options);
+     return mdyAPI('ExternalPortal', 'GetSelfLoginScanUrl', args, options);
    },
   /**
   * 返回外部门户平台二维码扫码之后跳转登录地址
@@ -861,7 +861,7 @@ export default {
   **/
    getSelfTpLoginUrlInfo: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'GetSelfTpLoginUrlInfo', args, options);
+     return mdyAPI('ExternalPortal', 'GetSelfTpLoginUrlInfo', args, options);
    },
   /**
   * 返回外部门户微信公众号关注地址
@@ -874,7 +874,7 @@ export default {
   **/
    getTpLoginSubscribedScanUrl: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'GetTpLoginSubscribedScanUrl', args, options);
+     return mdyAPI('ExternalPortal', 'GetTpLoginSubscribedScanUrl', args, options);
    },
   /**
   * 获取外部门户微信扫码登录结果
@@ -890,7 +890,7 @@ export default {
   **/
    scanTpLogin: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'ScanTpLogin', args, options);
+     return mdyAPI('ExternalPortal', 'ScanTpLogin', args, options);
    },
   /**
   * 外部门户用户修改/找回密码
@@ -908,6 +908,6 @@ export default {
   **/
    findPwd: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'FindPwd', args, options);
+     return mdyAPI('ExternalPortal', 'FindPwd', args, options);
    },
 };

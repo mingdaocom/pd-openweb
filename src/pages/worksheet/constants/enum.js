@@ -213,8 +213,10 @@ export const CELL_RENDER_TYPE = {
 /** 关联记录显示类型 */
 export const RELATE_RECORD_SHOW_TYPE = {
   CARD: 1,
-  LIST: 2,
+  LIST: 2, // 老列表，后面选不了了
   DROPDOWN: 3,
+  TABLE: 5,
+  TAB_TABLE: 6,
 };
 
 /** 关联记录显示类型 */
@@ -222,6 +224,8 @@ export const RELATION_SEARCH_SHOW_TYPE = {
   CARD: 1,
   LIST: 2,
   TEXT: 3,
+  EMBED_LIST: 5,
+  TAB_LIST: 6,
 };
 
 /** 工作表表格位置 */
@@ -318,4 +322,31 @@ export const RECORD_COLOR_SHOW_TYPE = {
   LINE_BG: '1',
   BG: '2',
   // DARK_BG: '3',
+};
+
+/**
+ * 插件信息
+ */
+export const PLUGIN_INFO_STATE = {
+  DISABLED: 0,
+  ENABLED: 1,
+  DELETED: 2,
+  EXPIRED: 3,
+};
+
+export const PLUGIN_INFO_SOURCE = {
+  DEVELOPMENT: 0,
+  PUBLISH: 1,
+  IMPORT: 2,
+};
+
+export const CUSTOM_WIDGET_VIEW_STATUS = {
+  NORMAL: 1,
+  NO_CONFIG: 2,
+  NOT_PUBLISH: 3,
+  LOAD_SCRIPT_SUCCESS: 4,
+  LOAD_SCRIPT_ERROR: 5,
+  DELETED: 6,
+  DEVELOPING: 7,
+  EXPIRED: 8,
 };

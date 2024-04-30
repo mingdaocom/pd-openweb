@@ -24,8 +24,8 @@ import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
 import { getFilledRequestParams, needHideViewFilters, replaceControlsTranslateInfo } from 'src/pages/worksheet/util';
-import _ from 'lodash';
-import { emitter, getTranslateInfo } from 'src/util';
+import _, { get } from 'lodash';
+import { getTranslateInfo } from 'src/util';
 import { initMapViewData, mapNavGroupFiltersUpdate } from './mapView';
 
 export const updateBase = base => {
@@ -73,12 +73,7 @@ export function loadWorksheet(worksheetId, setRequest) {
     const { base = {} } = getState().sheet;
     const { appId, viewId, chartId } = base;
 
-    if (
-      worksheetRequest &&
-      worksheetRequest.state() === 'pending' &&
-      worksheetRequest.abort &&
-      base.type !== 'single'
-    ) {
+    if (worksheetRequest && worksheetRequest.abort && base.type !== 'single') {
       worksheetRequest.abort();
     }
 
@@ -168,10 +163,12 @@ export function loadWorksheet(worksheetId, setRequest) {
           });
         }
       })
-      .fail(err => {
-        dispatch({
-          type: 'WORKSHEET_INIT_FAIL',
-        });
+      .catch(err => {
+        if (!get(err, 'errorCode') === 1) {
+          dispatch({
+            type: 'WORKSHEET_INIT_FAIL',
+          });
+        }
       });
   };
 }
@@ -313,7 +310,7 @@ export function saveView(viewId, newConfig, cb) {
           cb(nextView);
         }
       })
-      .fail(err => {
+      .catch(err => {
         alert(_l('视图配置保存失败'), 3);
       });
   };
@@ -361,11 +358,6 @@ export function refreshSheet(view, options) {
 
 // 添加记录
 export function addNewRecord(data, view) {
-  emitter.emit('POST_MESSAGE_TO_CUSTOM_WIDGET', {
-    action: 'new-record',
-    value: data,
-  });
-
   return dispatch => {
     if (String(view.viewType) === VIEW_DISPLAY_TYPE.sheet) {
       dispatch(sheetViewAddRecord(data));
@@ -571,12 +563,7 @@ export function getNavGroupCount() {
     const { filters = {}, base = {}, quickFilter = {} } = sheet;
     const { appId, worksheetId, viewId } = base;
     const { filterControls, filtersGroup, keyWords, searchType } = filters;
-    if (
-      getNavGroupRequest &&
-      getNavGroupRequest.state() === 'pending' &&
-      getNavGroupRequest.abort &&
-      preWorksheetIds.includes(worksheetId)
-    ) {
+    if (getNavGroupRequest && getNavGroupRequest.abort && preWorksheetIds.includes(worksheetId)) {
       getNavGroupRequest.abort();
     }
     if (!worksheetId && !viewId) {
@@ -669,9 +656,10 @@ export function updateSearchRecord(view = {}, record) {
 // 初始化移动端甘特图所需要的数据
 export function initMobileGunter({ appId, worksheetId, viewId, access_token }) {
   return function (dispatch) {
-    const headersConfig = {
-      Authorization: `access_token ${access_token}`,
-    };
+    if (access_token) {
+      window.access_token = access_token;
+    }
+
     const base = {
       appId,
       worksheetId,
@@ -681,14 +669,12 @@ export function initMobileGunter({ appId, worksheetId, viewId, access_token }) {
       type: 'WORKSHEET_UPDATE_BASE',
       base,
     });
-    worksheetAjax
-      .getWorksheetInfo({ worksheetId, getViews: true, getTemplate: true, getRules: true }, { headersConfig })
-      .then(res => {
-        dispatch({
-          type: 'WORKSHEET_INIT',
-          value: res,
-        });
+    worksheetAjax.getWorksheetInfo({ worksheetId, getViews: true, getTemplate: true, getRules: true }).then(res => {
+      dispatch({
+        type: 'WORKSHEET_INIT',
+        value: res,
       });
+    });
   };
 }
 

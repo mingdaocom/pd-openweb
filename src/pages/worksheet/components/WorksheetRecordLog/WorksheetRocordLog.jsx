@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useImperativeHandle, forwardRef, useRef } from 'react';
-import { Icon, ScrollView, LoadDiv, Tooltip } from 'ming-ui';
+import { Icon, ScrollView, LoadDiv, Tooltip, UserHead } from 'ming-ui';
 import { Divider } from 'antd';
 import { useSetState } from 'react-use';
 import Trigger from 'rc-trigger';
@@ -13,14 +13,14 @@ import WorksheetRecordLogSelectTags from './component/WorksheetRecordLogSelectTa
 import WorksheetRecordLogThumbnail from './component/WorksheetRecordLogThumbnail';
 import WorksheetRecordLogDiffText from './component/WorksheetRecordLogDiffText';
 import WorksheetRecordLogSubList from './component/WorksheetRecordLogSubList';
-import quickSelectUser from 'ming-ui/functions/quickSelectUser';
+import { quickSelectUser } from 'ming-ui/functions';
 import TriggerSelect from './component/TriggerSelect';
 import DatePickSelect from '../DatePickerSelect';
 import sheetAjax from 'src/api/worksheet';
 import './WorksheetRocordLog.less';
 import { assembleListData, assembleNewLogListData, getShowWfstatusValue, numberControlHandle } from './util';
 import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
-import { browserIsMobile, createLinksForMessage } from 'src/util';
+import { browserIsMobile, createLinksForMessage, dateConvertToUserZone } from 'src/util';
 import {
   GET_SYSTEM_USER,
   FILTER_FIELD_BY_ATTR,
@@ -35,7 +35,6 @@ import {
   WORKFLOW_SYSTEM_CONTROL,
 } from 'src/pages/widgetConfig/config/widget';
 import copy from 'copy-to-clipboard';
-import UserHead from 'src/components/userHead';
 
 const reg = new RegExp('<[^<>]+>', 'g');
 const PAGE_SIZE = 20;
@@ -95,8 +94,9 @@ function renderContent(data, recordInfo, extendParam) {
       newList = newValue ? [renderText({ ...control, value: newValue })] : [];
     } else if (type === 29) {
       const { advancedSetting = {} } = control || {};
+
       if (
-        ([8, 2].includes(requestType) || advancedSetting.showtype === '2') &&
+        ([8, 2].includes(requestType) || ['2', '5', '6'].includes(advancedSetting.showtype)) &&
         !oldValue &&
         [1, 2].includes(editType)
       ) {
@@ -127,9 +127,9 @@ function renderContent(data, recordInfo, extendParam) {
     let _newValue = [];
     let _defaultValue = [];
     if (type === 29) {
-      _oldValue = _.differenceBy(oldList, newList, 'recordId').map(l => l.name);
-      _newValue = _.differenceBy(newList, oldList, 'recordId').map(l => l.name);
-      _defaultValue = _.intersectionBy(oldList, newList, 'recordId').map(l => l.name);
+      _oldValue = _.differenceBy(oldList, newList, 'recordId').map(l => l.name || _l('未命名'));
+      _newValue = _.differenceBy(newList, oldList, 'recordId').map(l => l.name || _l('未命名'));
+      _defaultValue = _.intersectionBy(oldList, newList, 'recordId').map(l => l.name || _l('未命名'));
     } else if ((type === 6 || type === 8) && editType !== 0) {
       _defaultValue = oldList;
       _newValue = editType === 1 ? newList : [];
@@ -570,6 +570,7 @@ function WorksheetRocordLog(props, ref) {
   });
   const [moreList, setMoreList] = useState([]);
   const [worksheetInfo, setWorksheetInfo] = useState({});
+  const [isSimplify, setIsSimplify] = useState((localStorage.getItem('mdTimeFormat') || 'simplify') === 'simplify');
   let INIT_SIGN = false;
   const isMobile = browserIsMobile();
 
@@ -881,6 +882,12 @@ function WorksheetRocordLog(props, ref) {
     loadNewEdition({ filedId: control.controlId, lastMark: undefined });
   };
 
+  const handleTimeFormat = () => {
+    const timeFormat = isSimplify ? 'whole' : 'simplify';
+    setIsSimplify(!isSimplify);
+    localStorage.setItem('mdTimeFormat', timeFormat);
+  };
+
   return (
     <ScrollView className="logScroll flex worksheetRecordLog" onScrollEnd={handleScroll}>
       <div className={cx('logBox', { mobileLogBox: isMobile })}>
@@ -988,6 +995,14 @@ function WorksheetRocordLog(props, ref) {
               .replace('user_agent:', '');
           }
 
+          const wholeTime = moment(dateConvertToUserZone(item.time));
+          const showWholeTime = `${_l(
+            '%0年%1月%2日',
+            wholeTime.format('YYYY'),
+            wholeTime.format('MM'),
+            wholeTime.format('DD'),
+          )} ${moment(wholeTime).format('HH:mm:ss')}`;
+
           return (
             <div className="worksheetRocordLogCard" key={`worksheetRocordLogCard-${item.time}-${index}`}>
               <div className={cx('worksheetRocordLogCardTopBox', { mBottom0: item.type === 1 })}>
@@ -1057,8 +1072,12 @@ function WorksheetRocordLog(props, ref) {
                 ) : (
                   ''
                 )}
-                <div className="worksheetRocordLogCardName nowrap Gray_9e mLeft12">
-                  {createTimeSpan(moment(item.time).format('YYYY-MM-DD HH:mm:ss'))}
+                <div
+                  className="worksheetRocordLogCardName nowrap Gray_9e mLeft12 Hand Hover_21 timeDataTip"
+                  onClick={handleTimeFormat}
+                  data-tip={isSimplify ? showWholeTime : ''}
+                >
+                  {isSimplify ? createTimeSpan(dateConvertToUserZone(item.time), true) : showWholeTime}
                 </div>
               </div>
 
@@ -1082,6 +1101,14 @@ function WorksheetRocordLog(props, ref) {
                   l => l.oldValue !== '' || l.newValue !== '',
                 ).length;
 
+                const childWholeTime = moment(dateConvertToUserZone(childData.operatContent.createTime));
+                const showChildWholeTime = `${_l(
+                  '%0年%1月%2日',
+                  childWholeTime.format('YYYY'),
+                  childWholeTime.format('MM'),
+                  childWholeTime.format('DD'),
+                )} ${childWholeTime.format('HH:mm:ss')}`;
+
                 return (
                   <div
                     key={`worksheetRocordLogCardHrCon-${item.accountName}-${index}`}
@@ -1097,9 +1124,14 @@ function WorksheetRocordLog(props, ref) {
                             </Tooltip>
                           )}
                         </span>
-
-                        <span>
-                          {createTimeSpan(moment(childData.operatContent.createTime).format('YYYY-MM-DD HH:mm:ss'))}
+                        <span
+                          className="Hand Hover_21 timeDataTip"
+                          onClick={handleTimeFormat}
+                          data-tip={isSimplify ? showChildWholeTime : ''}
+                        >
+                          {isSimplify
+                            ? createTimeSpan(dateConvertToUserZone(childData.operatContent.createTime), true)
+                            : showChildWholeTime}
                         </span>
                       </div>
                     )}
@@ -1166,7 +1198,13 @@ function WorksheetRocordLog(props, ref) {
                       {item.accountName} <span className="Gray_9e">{_l('更新了 %0 个字段', item.child.length)}</span>
                     </span>
                   </div>
-                  <div className="worksheetRocordLogCardName Gray_9e">{createTimeSpan(item.time)}</div>
+                  <div
+                    className="worksheetRocordLogCardName Gray_9e Hover_21 timeDataTip Hand"
+                    data-tip={isSimplify ? createTimeSpan(dateConvertToUserZone(item.time), true) : ''}
+                    onClick={handleTimeFormat}
+                  >
+                    {createTimeSpan(dateConvertToUserZone(item.time), true)}
+                  </div>
                 </div>
                 {item.child.map(childData => {
                   const message = createLinksForMessage({

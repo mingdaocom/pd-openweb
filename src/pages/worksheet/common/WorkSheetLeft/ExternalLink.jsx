@@ -74,7 +74,7 @@ export const EditExternalLink = (props) => {
       workSheetId: appItem.workSheetId,
       ...data
     }).then(res => {
-      if (currentPcNaviStyle === 1) {
+      if ([1, 3].includes(currentPcNaviStyle)) {
         const singleRef = getAppSectionRef(groupId);
         singleRef.dispatch(updateSheetListAppItem(appItem.workSheetId, data));
         store.dispatch(updatePageInfo({ flag: Date.now() }));

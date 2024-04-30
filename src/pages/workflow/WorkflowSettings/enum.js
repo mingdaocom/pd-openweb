@@ -27,6 +27,7 @@ export const NODE_TYPE = {
   API: 25,
   APPROVAL_PROCESS: 26,
   NOTICE: 27,
+  SNAPSHOT: 28,
   SYSTEM: 100,
   FIND_SINGLE_MESSAGE: 1000,
   FIND_MORE_MESSAGE: 1001,
@@ -108,6 +109,7 @@ export const APP_TYPE = {
   TEMPLATE: 22,
   EXTERNAL_USER: 23,
   ORGANIZATION_ROLE: 24,
+  EVENT_PUSH: 25,
   NO_AUTH: 30,
   BASIC_AUTH: 31,
   OAUTH2: 32,
@@ -342,77 +344,77 @@ export const TIME_TYPE_NAME = {
 
 export const SUPPORT_HREF = {
   // worksheet
-  '0-1': 'https://help.mingdao.com/flow7',
+  '0-1': 'https://help.mingdao.com/workflow/trigger-by-worksheet',
   // loop
-  '0-5': 'https://help.mingdao.com/flow8',
+  '0-5': 'https://help.mingdao.com/workflow/trigger-by-scheduled',
   // date
-  '0-6': 'https://help.mingdao.com/flow9',
+  '0-6': 'https://help.mingdao.com/workflow/trigger-by-date-field',
   // webhook触发
-  '0-7': 'https://help.mingdao.com/flow10',
+  '0-7': 'https://help.mingdao.com/workflow/trigger-by-webhook',
   // 分支
-  1: 'https://help.mingdao.com/flow25',
+  1: 'https://help.mingdao.com/workflow/node-branch',
   // 填写节点
-  3: 'https://help.mingdao.com/flow20',
+  3: 'https://help.mingdao.com/workflow/node-fill-in',
   // 审批节点
-  4: 'https://help.mingdao.com/flow19',
+  4: 'https://help.mingdao.com/workflow/node-approve',
   // 通知节点
-  5: 'https://help.mingdao.com/flow21',
+  5: 'https://help.mingdao.com/workflow/node-cc-send-internal-notification',
   // 新增记录
-  '6-1-1': 'https://help.mingdao.com/flow11',
+  '6-1-1': 'https://help.mingdao.com/workflow/node-add-record',
   // 新增任务
-  '6-1-2': 'https://help.mingdao.com/flow31',
+  '6-1-2': 'https://help.mingdao.com/workflow/node-new-task',
   // 更新记录
-  '6-2': 'https://help.mingdao.com/flow12',
+  '6-2': 'https://help.mingdao.com/workflow/node-update-record',
   // 更新流程参数
-  '6-2-102': 'https://help.mingdao.com/flow13',
+  '6-2-102': 'https://help.mingdao.com/workflow/node-update-parameters',
   // 删除记录
-  '6-3': 'https://help.mingdao.com/flow18',
+  '6-3': 'https://help.mingdao.com/workflow/node-delete-record',
   // 获取关联记录
-  '6-20': 'https://help.mingdao.com/flow49',
+  '6-20': 'https://help.mingdao.com/workflow/node-get-single-data',
   // 批量新增
-  '6-21': 'https://help.mingdao.com/flow11',
+  '6-21': 'https://help.mingdao.com/workflow/node-add-record',
   // 从工作表获取一条指定记录
-  '7-406': 'https://help.mingdao.com/flow49',
+  '7-406': 'https://help.mingdao.com/workflow/node-get-single-data',
   // 从多条数据节点获取一条指定记录
-  '7-407': 'https://help.mingdao.com/flow49',
+  '7-407': 'https://help.mingdao.com/workflow/node-get-single-data',
   // 发送API请求
-  8: 'https://help.mingdao.com/flow33',
+  8: 'https://help.mingdao.com/workflow/node-send-api-request',
   // 公式
-  9: 'https://help.mingdao.com/flow27',
+  9: 'https://help.mingdao.com/workflow/node-calculation',
   // 短信
-  10: 'https://help.mingdao.com/flow22',
+  10: 'https://help.mingdao.com/workflow/node-send-sms',
   // 邮件
-  11: 'https://help.mingdao.com/flow24',
+  11: 'https://help.mingdao.com/workflow/node-send-email',
   // 延时
-  12: 'https://help.mingdao.com/flow26',
+  12: 'https://help.mingdao.com/workflow/node-delay',
   // 获取多条
-  13: 'https://help.mingdao.com/flow15',
+  13: 'https://help.mingdao.com/workflow/node-get-multiple-data',
   // 代码块
-  14: 'https://help.mingdao.com/flow34',
+  14: 'https://help.mingdao.com/workflow/node-code-block',
   // 获取链接
-  15: 'https://help.mingdao.com/flow28',
+  15: 'https://help.mingdao.com/workflow/node-get-link',
   // 子流程
-  16: 'https://help.mingdao.com/flow29',
+  16: 'https://help.mingdao.com/workflow/node-subflow',
   // 界面推送
-  17: 'https://help.mingdao.com/flow32',
+  17: 'https://help.mingdao.com/workflow/node-interface-push',
   // 获取记录打印文件
-  18: 'https://help.mingdao.com/flow30',
+  18: 'https://help.mingdao.com/workflow/node-print-record',
   // 发送服务号消息
-  19: 'https://help.mingdao.com/flow_wechat',
+  19: 'https://help.mingdao.com/node-send-wechat-official-account-template-message',
   // 调用封装业务流程
-  20: 'https://help.mingdao.com/flow70',
+  20: 'https://help.mingdao.com/workflow/node-call-pbp',
   // JSON解析
-  21: 'https://help.mingdao.com/flow75',
+  21: 'https://help.mingdao.com/workflow/node-json-parsing',
   // 调用已集成 API
-  25: 'https://help.mingdao.com/flow60',
+  25: 'https://help.mingdao.com/workflow/node-call-integrated-api',
   // 发起审批
-  26: 'https://help.mingdao.com/flow85',
+  26: 'https://help.mingdao.com/workflow/node-initiate-approval-flow',
   // 获取单条系统信息
-  1000: 'https://help.mingdao.com/flow44',
+  1000: 'https://help.mingdao.com/workflow/node-get-single-data-from-user',
   // 获取多条系统信息
-  1001: 'https://help.mingdao.com/flow45',
+  1001: 'https://help.mingdao.com/workflow/node-get-multiple-data-from-user',
   // 什么是排队中
-  queue: 'https://help.mingdao.com/flow65',
+  queue: 'https://help.mingdao.com/workflow/in-queue',
 };
 
 export const RELATION_TYPE = {

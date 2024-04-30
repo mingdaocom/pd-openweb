@@ -71,10 +71,21 @@ export const getDisplayType = ({ from, type }) => {
     return [
       {
         key: 'list',
-        text: _l('列表'),
+        text: _l('表格（旧）'),
         value: '2',
+        disabled: true,
       },
       ...DISPLAY_TYPE,
+      {
+        key: 'embed_list',
+        text: _l('表格'),
+        value: '5',
+      },
+      {
+        key: 'tab_list',
+        text: _l('标签页表格'),
+        value: '6',
+      },
     ];
   }
   return DISPLAY_TYPE;
@@ -192,6 +203,9 @@ export const getVerifyInfo = (data, { controls }) => {
     if (type === 50 && (!advancedSetting.itemsource || !advancedSetting.itemtitle)) {
       return { isValid: false, text: _l('有必填项未配置') };
     }
+  }
+  if (type === 6 && advancedSetting.showtype === '3' && !advancedSetting.numinterval) {
+    return { isValid: false, text: _l('未配置步长') };
   }
   return { isValid };
 };

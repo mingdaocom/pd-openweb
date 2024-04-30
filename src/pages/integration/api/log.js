@@ -19,7 +19,7 @@ var log = {
   getLog: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'log/getLog';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'loggetLog', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'loggetLog', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -39,7 +39,7 @@ var log = {
   getErrorDetail: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'log/getErrorDetail';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'loggetErrorDetail', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'loggetErrorDetail', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -59,7 +59,7 @@ var log = {
   getErrorLog: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'log/getErrorLog';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'loggetErrorLog', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'loggetErrorLog', JSON.stringify(args), $.extend(base, options));
   }
 };
 

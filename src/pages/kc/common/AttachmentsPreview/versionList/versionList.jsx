@@ -95,7 +95,7 @@ class VersionList extends React.Component {
           );
           alert('成功删除该版本');
         })
-        .fail(() => {
+        .catch(() => {
           alert('删除失败', 3);
         });
     }

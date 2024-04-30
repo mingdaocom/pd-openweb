@@ -108,7 +108,9 @@ export default class Widgets extends Component {
       if (!isLegal) {
         return (
           <div className="embedContainer">
-            <div className="w100 h100 Gray_9e BGF7F7F7 Font15 crossCenter">{_l('嵌入内容无法解析')}</div>
+            <div className="w100 h100 Gray_9e BGF7F7F7 Font15 flexRow alignItemsCenter justifyContentCenter">
+              {_l('嵌入内容无法解析')}
+            </div>
           </div>
         );
       }

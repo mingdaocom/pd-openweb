@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { OtherFieldList, SelectOtherField, DynamicInput } from '../components';
 import { DynamicValueInputWrap } from '../styled';
-import selectOrgRole from 'src/components/dialogSelectOrgRole';
+import { dialogSelectOrgRole } from 'ming-ui/functions';
 import update from 'immutability-helper';
 import _ from 'lodash';
 
@@ -41,7 +41,7 @@ export default class RoleInput extends Component {
             {...this.props}
             removeItem={this.removeItem}
             onClick={() => {
-              selectOrgRole({
+              dialogSelectOrgRole({
                 projectId,
                 unique: data.enumDefault === 0,
                 onSave: arr => {

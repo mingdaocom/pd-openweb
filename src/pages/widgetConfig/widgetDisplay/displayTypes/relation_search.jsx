@@ -1,7 +1,9 @@
 import React, { useState, useEffect, Fragment } from 'react';
 import { isEmpty } from 'lodash';
-import { CommonDisplay, EditModelWrap, EmptySheetPlaceHolder } from '../../styled';
+import { CommonDisplay, EditModelWrap } from '../../styled';
 import { getAdvanceSetting, getShowControls } from '../../util/setting';
+import { isSheetDisplay } from '../../util';
+import worksheetAjax from 'src/api/worksheet';
 import { SYSTEM_FIELD_TO_TEXT } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
 
 const SYSTEM_CONTROL = Object.keys(SYSTEM_FIELD_TO_TEXT).map(item => ({
@@ -9,10 +11,23 @@ const SYSTEM_CONTROL = Object.keys(SYSTEM_FIELD_TO_TEXT).map(item => ({
   controlName: SYSTEM_FIELD_TO_TEXT[item],
 }));
 
-export default function RelationSearch({ data }) {
-  const { enumDefault, hint = '', relationControls = [] } = data;
+export default function RelationSearch({ data = {}, fromType }) {
+  const { enumDefault, hint = '', dataSource, controlId } = data;
   const { showtype = String(enumDefault) } = getAdvanceSetting(data);
+  const [controls, setControls] = useState([]);
 
+  useEffect(() => {
+    // 公开表单relationControls需要掉接口
+    if (fromType === 'public') {
+      if (!dataSource) return;
+      worksheetAjax.getWorksheetInfo({ worksheetId: dataSource, getTemplate: true, getViews: true }).then(res => {
+        const { template } = res;
+        setControls(_.get(template, 'controls') || []);
+      });
+    }
+  }, [controlId]);
+
+  const relationControls = fromType === 'public' ? controls : data.relationControls || [];
   const showControls = getShowControls(relationControls.concat(SYSTEM_CONTROL), data.showControls);
 
   const getWidths = () => {
@@ -31,7 +46,7 @@ export default function RelationSearch({ data }) {
       return <CommonDisplay></CommonDisplay>;
     }
 
-    if (showtype === '2') {
+    if (isSheetDisplay(data)) {
       return (
         <EditModelWrap isTab={true}>
           {showControls.length > 0 ? (

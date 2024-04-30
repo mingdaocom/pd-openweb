@@ -3,7 +3,7 @@ import cx from 'classnames';
 import Trigger from 'rc-trigger';
 import 'rc-trigger/assets/index.css';
 import { string, func, oneOf, bool } from 'prop-types';
-import { Icon, MdLink } from 'ming-ui';
+import { Icon, MdLink, SvgIcon } from 'ming-ui';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import AppOperator from './AppOperator';
 import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
@@ -12,7 +12,6 @@ import CopyApp from 'src/pages/AppHomepage/components/CopyApp';
 import LineClampTextBox from 'src/pages/AppHomepage/components/LineClampTextBox';
 import { compareProps } from 'src/pages/PageHeader/util';
 import AppStatusComp from './AppStatus';
-import SvgIcon from 'src/components/SvgIcon';
 import _ from 'lodash';
 import { canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util.js';
 import { getAppNavigateUrl, transferExternalLinkUrl } from '../utils';
@@ -284,6 +283,7 @@ export default class MyAppItem extends Component {
           {copyAppVisible && (
             <CopyApp
               title={name}
+              projectId={projectId}
               para={{ appId: id, groupId, groupType }}
               onCopy={appId => onCopy({ type, id, projectId, ...appId })}
               onCancel={() => this.switchVisible({ copyAppVisible: false })}

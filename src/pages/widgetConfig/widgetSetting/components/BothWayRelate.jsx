@@ -55,7 +55,7 @@ export default function BothWayRelate(props) {
                   sheetName,
                   name || sourceName,
                 )}
-                <Support type={3} text={_l('什么是双向关联?')} href="https://help.mingdao.com/sheet12" />
+                <Support type={3} text={_l('什么是双向关联?')} href="https://help.mingdao.com/worksheet/associations" />
               </span>
             }
           >

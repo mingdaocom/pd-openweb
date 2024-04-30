@@ -1,14 +1,15 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { ScrollView } from 'ming-ui';
 import { isEmpty } from 'lodash';
 import { DEFAULT_CONFIG } from '../config/widget';
-import { enumWidgetType } from '../util';
+import { enumWidgetType, supportWidgetIntroOptions } from '../util';
 import WidgetIntro from './components/WidgetIntro';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import SettingContent from './content/SettingContent';
 import StyleContent from './content/StyleContent';
 import ExplainContent from './content/ExplainContent';
+import CustomEvent from './content/CustomEvent';
+import { getAdvanceSetting } from '../util/setting';
 
 const SettingWrap = styled.div`
   position: relative;
@@ -25,6 +26,7 @@ const SettingWrap = styled.div`
   .settingContentWrap {
     width: 100%;
     padding: 0px 20px 60px 20px;
+    overflow-x: hidden;
   }
   .labelWrap {
     display: flex;
@@ -65,29 +67,44 @@ function WidgetSetting(props) {
   const { type, controlId } = data;
   const ENUM_TYPE = enumWidgetType[type];
   const info = DEFAULT_CONFIG[ENUM_TYPE] || {};
-  const queryConfig = _.find(queryConfigs, item => item.controlId === controlId) || {};
+  const queryId = _.get(getAdvanceSetting(data, 'dynamicsrc'), 'id');
+  const queryConfig = _.find(queryConfigs, item => item.id === queryId) || {};
+  const customQueryConfig = queryConfigs.filter(i => i.controlId === controlId);
   const onChange = (obj, callback) => {
     if (isEmpty(obj)) return;
     handleDataChange(controlId, { ...data, ...obj }, callback);
   };
 
-  // 1: 设置，2: 样式， 3: 说明
+  // 1: 设置，2: 样式， 3: 说明，4: 事件
   const [mode, setMode] = useState(1);
-  const allProps = { ...rest, data, info, globalSheetInfo, widgets, mode, queryConfig, onChange: onChange };
+  const allProps = {
+    ...rest,
+    data,
+    info,
+    globalSheetInfo,
+    widgets,
+    mode,
+    queryConfig,
+    customQueryConfig,
+    onChange: onChange,
+  };
 
   const getContent = () => {
     if (mode === 2) {
       return <StyleContent {...allProps} />;
     } else if (mode === 3) {
       return <ExplainContent {...allProps} />;
+    } else if (mode === 4) {
+      return <CustomEvent {...allProps} />;
     } else {
       return <SettingContent {...allProps} />;
     }
   };
 
   useEffect(() => {
-    const tempMode = safeParse(window.localStorage.getItem(`worksheetMode-${globalSheetInfo.worksheetId}`));
-    setMode(tempMode || mode);
+    const tempMode = safeParse(window.localStorage.getItem(`worksheetMode-${globalSheetInfo.worksheetId}`) || '1');
+    const canNotSet = (controlId || '').includes('-') || !supportWidgetIntroOptions(data, tempMode);
+    setMode(canNotSet ? 1 : tempMode || mode);
   }, [controlId]);
 
   const renderSetting = () => {
@@ -102,9 +119,7 @@ function WidgetSetting(props) {
             setMode(value);
           }}
         />
-        <ScrollView className="flex">
-          <div className="settingContentWrap">{getContent()}</div>
-        </ScrollView>
+        <div className="settingContentWrap">{getContent()}</div>
       </Fragment>
     );
   };

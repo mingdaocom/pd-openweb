@@ -1,7 +1,5 @@
 import React, { useRef } from 'react';
-
-import { UserSelector, SelectWrapper } from 'ming-ui/functions/quickSelectUser';
-import quickSelectUser from 'ming-ui/functions/quickSelectUser';
+import { quickSelectUser } from 'ming-ui/functions';
 
 export default function () {
   const buttonRef = useRef();
@@ -32,19 +30,6 @@ export default function () {
       >
         open
       </button>
-      <SelectWrapper
-        {...{
-          offset: [0, 4],
-          projectId: md.global.Account.projects[0].projectId,
-          includeSystemField: true,
-          includeUndefinedAndMySelf: true,
-          tabType: 3,
-          onSelect: console.log,
-          selectCb: console.log,
-        }}
-      >
-        <button>wrapper</button>
-      </SelectWrapper>
     </div>
   );
 }

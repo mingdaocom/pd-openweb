@@ -4,6 +4,7 @@ import { isEmpty } from 'lodash';
 import RowItem from '../rowItem';
 import { putControlByOrder } from '../../util';
 import BottomDragPointer from '../components/BottomDragPointer';
+import { DRAG_ACCEPT } from '../../config/Drag';
 
 const SectionWrap = styled.div`
   padding: 8px 12px;
@@ -29,8 +30,9 @@ export default function Section(props) {
               row={childRow}
               index={row + index + 1}
               {..._.omit(props, ['data', 'path'])}
-              displayItemType="common"
+              acceptList={DRAG_ACCEPT.tabItem}
               splitWidgets={relationControls}
+              displayItemType="tabItem"
             />
           )
         );
@@ -39,6 +41,7 @@ export default function Section(props) {
         sectionId={data.controlId}
         rowIndex={row + relationControls.length + 1}
         showEmpty={isEmpty(relationControls)}
+        displayItemType="tabItem"
       />
     </SectionWrap>
   );

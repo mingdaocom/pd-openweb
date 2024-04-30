@@ -9,11 +9,17 @@ import NoProjectsStatus from '../AppCenter/components/NoProjectsStatus';
 import AppGrid from '../AppCenter/components/AppGrid';
 import CollectionApps from './CollectionApps';
 import BulletinBoard from './BulletinBoard';
-import { getGreetingText, themeColors } from './utils';
+import { getGreetingText, themeColors, MODULE_TYPES } from './utils';
 import { getFilterApps } from '../AppCenter/utils';
 import DashboardSetting from './DashboardSetting';
 import RecordFav from 'src/pages/AppHomepage/RecordFav';
 import RecentApps from './RecentApps';
+import CollectionCharts from './CollectionCharts';
+import cx from 'classnames';
+import _ from 'lodash';
+import { getToken } from 'src/util';
+import { Base64 } from 'js-base64';
+import axios from 'axios';
 
 const Wrapper = styled.div`
   flex: 1;
@@ -54,20 +60,28 @@ const Wrapper = styled.div`
       }
     }
 
-    .Height220 {
-      height: 220px;
+    .Height300 {
+      height: 300px;
     }
-    .Height260 {
-      height: 260px;
-    }
-    .Height320 {
-      height: 320px;
+
+    .sortableCardsWrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-bottom: 20px;
+
+      .sortItem {
+        width: 100%;
+        margin-bottom: 0;
+        &.halfWidth {
+          width: calc(50% - 10px);
+        }
+      }
     }
   }
 `;
 
-const CardItem = styled.div`
-  flex: 1;
+export const CardItem = styled.div`
   display: flex;
   flex-direction: column;
   min-width: 0;
@@ -80,8 +94,24 @@ const CardItem = styled.div`
   &.bulletinBoard {
     padding: 0;
   }
-  &.collectCard {
-    min-height: 176px;
+  &.appCollectCard {
+    min-height: 118px;
+    .autosize {
+      height: auto !important;
+    }
+  }
+  &.recentCard,
+  &.rowCollectCard {
+    max-height: 300px;
+    &.halfWidth {
+      height: 300px;
+    }
+  }
+  &.recentCard {
+    min-height: 118px;
+  }
+  &.rowCollectCard {
+    min-height: 100px;
   }
   .cardTitle {
     height: 48px;
@@ -120,6 +150,8 @@ const CardItem = styled.div`
     align-items: center;
     color: #868686;
     font-size: 14px;
+    margin-top: 36px;
+    margin-bottom: 36px;
     img {
       width: 80px;
       height: 80px;
@@ -134,6 +166,24 @@ const CardItem = styled.div`
   }
 `;
 
+const NewThemeSet = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  margin-right: 16px;
+  cursor: pointer;
+
+  .newThemeIcon {
+    width: 24px;
+    height: 24px;
+    background-size: contain;
+    background-repeat: no-repeat;
+  }
+`;
+
 export default function Dashboard(props) {
   const {
     projectId,
@@ -143,6 +193,7 @@ export default function Dashboard(props) {
     platformSetting = {},
     updatePlatformSetting,
     dashboardColor,
+    hasBgImg,
   } = props;
   const projects = _.get(md, 'global.Account.projects');
   const isExternal = projectId === 'external';
@@ -151,6 +202,7 @@ export default function Dashboard(props) {
   const actions = useMemo(() => new CreateActions({ dispatch, state }), [state]);
   const [flag, setFlag] = useState(null);
   const [settingVisible, setSettingVisible] = useState(false);
+  const [advancedThemes, setAdvancedThemes] = useState([]);
   const {
     origin = {},
     dashboardLoading,
@@ -164,12 +216,33 @@ export default function Dashboard(props) {
     markedApps = [],
     recentAppItems = [],
   } = state;
-  const { logo, logoSwitch, slogan, boardSwitch, color = '', logoHeight, bulletinBoards } = platformSetting;
-  const { displayCommonApp, rowCollect, todoDisplay } = origin.homeSetting || {};
+  const {
+    logo,
+    logoSwitch,
+    slogan,
+    boardSwitch,
+    color = '',
+    logoHeight,
+    bulletinBoards = [],
+    advancedSetting = {},
+  } = platformSetting;
+  const { displayCommonApp, rowCollect, todoDisplay, displayApp, displayChart, sortItems } = origin.homeSetting || {};
+
+  const hasNewTheme =
+    (currentProject.isSuperAdmin || currentProject.isProjectAdmin) &&
+    !md.global.Config.IsLocal &&
+    !!advancedThemes.filter(item => item.isNewTheme).length;
+  const newTheme = advancedThemes.filter(item => item.isNewTheme)[0] || {};
 
   const fetchData = () => {
     !isExternal ? actions.loadDashboardInfo({ projectId }) : actions.loadAppAndGroups({ projectId });
   };
+
+  useEffect(() => {
+    fetch('https://filepub.mingdao.com/dashboard/themes.js')
+      .then(res => res.text())
+      .then(res => setAdvancedThemes(eval(res)));
+  }, []);
 
   useEffect(fetchData, [projectId]);
 
@@ -177,7 +250,9 @@ export default function Dashboard(props) {
     color &&
       $('.appCenterHeader').css(
         'background',
-        color === '#2196F3' || !_.includes(themeColors, color) ? '#fff' : dashboardColor.bgColor,
+        color === '#2196F3' || (!_.includes(themeColors, color) && !color.startsWith('#'))
+          ? '#fff'
+          : dashboardColor.bgColor,
       );
 
     return () => {
@@ -185,8 +260,131 @@ export default function Dashboard(props) {
     };
   }, [color]);
 
+  const onSetAdvancedTheme = theme => {
+    const hasThemePic = !!bulletinBoards.filter(item => item.themeKey === theme.themeKey).length;
+    hasThemePic
+      ? updatePlatformSetting({
+          color: theme.themeColor,
+          boardSwitch: true,
+          advancedSetting: theme,
+        })
+      : getToken([{ bucket: 4, ext: '.jpg' }]).then(res => {
+          if (res.error) {
+            alert(res.error);
+          } else {
+            const url = `${md.global.FileStoreConfig.uploadHost}putb64/-1/key/${Base64.encode(res[0].key)}`;
+            axios
+              .post(url, theme.bulletinPic.replace('data:image/jpeg;base64,', ''), {
+                headers: {
+                  'Content-Type': 'application/octet-stream',
+                  Authorization: `UpToken ${res[0].uptoken}`,
+                },
+              })
+              .then(({ data }) => {
+                const { key = '' } = data || {};
+                updatePlatformSetting({
+                  color: theme.themeColor,
+                  boardSwitch: true,
+                  bulletinBoards: [
+                    {
+                      url: md.global.FileStoreConfig.pictureHost + key,
+                      key,
+                      bucket: 4,
+                      link: theme.bulletinLink,
+                      title: theme.bulletinTitle,
+                      themeKey: theme.themeKey,
+                    },
+                  ].concat(bulletinBoards),
+                  advancedSetting: theme,
+                });
+              });
+          }
+        });
+  };
+
+  const renderSortableModules = () => {
+    const sortModuleIds = sortItems && sortItems.length ? sortItems.map(item => item.moduleType) : [0, 1, 2, 3];
+    const halfWidth =
+      Math.abs(
+        _.indexOf(sortModuleIds, MODULE_TYPES.RECENT) - _.indexOf(sortModuleIds, MODULE_TYPES.ROW_COLLECTION),
+      ) === 1 &&
+      displayCommonApp &&
+      rowCollect;
+
+    return (
+      <div className="sortableCardsWrap">
+        {sortModuleIds.map(type => {
+          switch (type) {
+            case MODULE_TYPES.APP_COLLECTION:
+              return !!markedApps.length ? (
+                <CardItem className="sortItem appCollectCard">
+                  <CollectionApps
+                    loading={dashboardLoading}
+                    projectId={projectId}
+                    apps={apps}
+                    markedApps={markedApps}
+                    onMarkApp={para => actions.markApp(para)}
+                    onMarkApps={para => actions.markApps(para)}
+                    onAppSorted={args => {
+                      actions.updateAppSort(args);
+                    }}
+                    currentTheme={advancedSetting}
+                  />
+                </CardItem>
+              ) : null;
+            case MODULE_TYPES.RECENT:
+              return displayCommonApp ? (
+                <CardItem className={cx('sortItem recentCard', { halfWidth })}>
+                  <RecentApps
+                    loading={dashboardLoading}
+                    projectId={projectId}
+                    recentApps={recentApps}
+                    recentAppItems={recentAppItems}
+                    onMarkApp={para => actions.markApp(para)}
+                    dashboardColor={dashboardColor}
+                    currentTheme={advancedSetting}
+                  />
+                </CardItem>
+              ) : null;
+            case MODULE_TYPES.ROW_COLLECTION:
+              return rowCollect ? (
+                <CardItem className={cx('sortItem rowCollectCard', { halfWidth })}>
+                  <div className="cardTitle pointer">
+                    <div className="titleText">
+                      {advancedSetting.recordFavIcon && <img src={advancedSetting.recordFavIcon} />}
+                      {_l('记录收藏')}
+                    </div>
+                    <div className="flex"></div>
+                    <div
+                      className="viewAll"
+                      onClick={() => {
+                        navigateTo('/favorite');
+                      }}
+                    >
+                      <span>{_l('全部')}</span>
+                      <Icon icon="arrow-right-border" className="mLeft5 Font16" />
+                    </div>
+                  </div>
+                  <RecordFav
+                    className="overflowHidden pLeft5 pRight5"
+                    projectId={projectId}
+                    forCard
+                    loading={dashboardLoading}
+                  />
+                </CardItem>
+              ) : null;
+            default:
+              return displayChart ? (
+                <CollectionCharts projectId={projectId} flag={flag} currentTheme={advancedSetting} />
+              ) : null;
+          }
+        })}
+      </div>
+    );
+  };
+
   return (
-    <Wrapper style={{ background: dashboardColor.bgColor }} logoHeight={logoHeight || 40}>
+    <Wrapper style={{ backgroundColor: hasBgImg ? 'unset' : dashboardColor.bgColor }} logoHeight={logoHeight || 40}>
       <ScrollView className="flex">
         <div className="dashboardContent">
           <div className="dashboardHeader">
@@ -208,6 +406,31 @@ export default function Dashboard(props) {
             )}
 
             <div className="flexRow">
+              {hasNewTheme && (
+                <Tooltip
+                  title={
+                    advancedSetting.themeKey === newTheme.themeKey
+                      ? _l('修改主题')
+                      : _l('使用%0主题', newTheme.themeName)
+                  }
+                  placement="bottom"
+                >
+                  <NewThemeSet
+                    onClick={() => {
+                      advancedSetting.themeKey === newTheme.themeKey
+                        ? setSettingVisible(true)
+                        : onSetAdvancedTheme(newTheme);
+                    }}
+                  >
+                    <div
+                      className="newThemeIcon"
+                      style={{
+                        backgroundImage: `url(${newTheme.themeIcon})`,
+                      }}
+                    ></div>
+                  </NewThemeSet>
+                </Tooltip>
+              )}
               <Tooltip title={_l('刷新')} placement="bottom">
                 <div
                   className="headerIcon"
@@ -232,18 +455,25 @@ export default function Dashboard(props) {
                   platformSetting={platformSetting}
                   homeSetting={origin.homeSetting}
                   updatePlatformSetting={updatePlatformSetting}
-                  updateHomeSetting={updateObj => {
-                    actions.editHomeSetting({ projectId, ...origin.homeSetting, ...updateObj });
+                  updateHomeSetting={(updateObj, editingKey) => {
+                    actions.editHomeSetting({
+                      projectId,
+                      setting: { ...origin.homeSetting, ...updateObj },
+                      editingKey,
+                    });
                   }}
                   onClose={() => setSettingVisible(false)}
+                  currentTheme={advancedSetting}
+                  onSetAdvancedTheme={onSetAdvancedTheme}
+                  advancedThemes={advancedThemes}
                 />
               )}
             </div>
           </div>
 
-          <div className={`flexRow ${todoDisplay === 1 ? 'Height260' : 'Height220'}`}>
+          <div className="flexRow">
             {boardSwitch && !isExternal && (
-              <CardItem className="mRight20 bulletinBoard overflowHidden">
+              <CardItem className="flex mRight20 bulletinBoard overflowHidden">
                 <BulletinBoard
                   loading={dashboardLoading}
                   platformSetting={platformSetting}
@@ -251,7 +481,7 @@ export default function Dashboard(props) {
                 />
               </CardItem>
             )}
-            <CardItem>
+            <CardItem className="flex">
               <Process
                 loading={dashboardLoading}
                 displayComplete={!boardSwitch || isExternal}
@@ -261,6 +491,7 @@ export default function Dashboard(props) {
                 todoDisplay={todoDisplay}
                 flag={flag}
                 setFlag={setFlag}
+                currentTheme={advancedSetting}
               />
             </CardItem>
           </div>
@@ -271,86 +502,34 @@ export default function Dashboard(props) {
             </CardItem>
           )}
 
-          {!isExternal && !!markedApps.length && (
-            <CardItem className="collectCard">
-              <CollectionApps
+          {!isExternal && renderSortableModules()}
+
+          {(displayApp || isExternal) && (
+            <CardItem className="flex">
+              <AppGrid
+                dashboardColor={dashboardColor}
+                isDashboard={true}
+                setting={origin.homeSetting}
+                isAdmin={isAdmin}
                 loading={dashboardLoading}
+                keywords={keywords}
+                actions={actions}
                 projectId={projectId}
-                apps={apps}
-                markedApps={markedApps}
-                onMarkApp={para => actions.markApp(para)}
-                onMarkApps={para => actions.markApps(para)}
-                onAppSorted={args => {
-                  actions.updateAppSort(args);
-                }}
+                currentProject={currentProject}
+                markedGroup={markedGroup}
+                markedApps={getFilterApps(
+                  markedApps.filter(item => item.type === 0),
+                  keywords,
+                )}
+                myApps={getFilterApps(apps, keywords)}
+                externalApps={getFilterApps(externalApps, keywords)}
+                aloneApps={getFilterApps(aloneApps, keywords)}
+                groups={groups}
+                hideExternalTitle={isExternal}
+                currentTheme={advancedSetting}
               />
             </CardItem>
           )}
-
-          {(displayCommonApp || rowCollect) && !isExternal && (
-            <div className="flexRow Height320">
-              {displayCommonApp && (
-                <CardItem className={`${rowCollect ? 'mRight20' : ''}`}>
-                  <RecentApps
-                    loading={dashboardLoading}
-                    projectId={projectId}
-                    recentApps={recentApps}
-                    recentAppItems={recentAppItems}
-                    onMarkApp={para => actions.markApp(para)}
-                    dashboardColor={dashboardColor}
-                  />
-                </CardItem>
-              )}
-
-              {rowCollect && (
-                <CardItem>
-                  <div className="cardTitle pointer">
-                    <div className="titleText">{_l('记录收藏')}</div>
-                    <div className="flex"></div>
-                    <div
-                      className="viewAll"
-                      onClick={() => {
-                        navigateTo('/favorite');
-                      }}
-                    >
-                      <span>{_l('全部')}</span>
-                      <Icon icon="arrow-right-border" className="mLeft5 Font16" />
-                    </div>
-                  </div>
-                  <RecordFav
-                    className="overflowHidden pLeft5 pRight5"
-                    projectId={projectId}
-                    forCard
-                    loading={dashboardLoading}
-                  />
-                </CardItem>
-              )}
-            </div>
-          )}
-
-          <CardItem>
-            <AppGrid
-              dashboardColor={dashboardColor}
-              isDashboard={true}
-              setting={origin.homeSetting}
-              isAdmin={isAdmin}
-              loading={dashboardLoading}
-              keywords={keywords}
-              actions={actions}
-              projectId={projectId}
-              currentProject={currentProject}
-              markedGroup={markedGroup}
-              markedApps={getFilterApps(
-                markedApps.filter(item => item.type === 0),
-                keywords,
-              )}
-              myApps={getFilterApps(apps, keywords)}
-              externalApps={getFilterApps(externalApps, keywords)}
-              aloneApps={getFilterApps(aloneApps, keywords)}
-              groups={groups}
-              hideExternalTitle={isExternal}
-            />
-          </CardItem>
         </div>
       </ScrollView>
     </Wrapper>

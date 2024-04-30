@@ -1,22 +1,7 @@
 import structureController from 'src/api/structure';
 import projectSettingController from 'src/api/projectSetting';
 import Config from '../../config';
-import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
-
-export function getAuth() {
-  return projectSettingController
-    .getStructureForAll({
-      projectId: Config.projectId,
-    })
-    .then(
-      res => {
-        return res;
-      },
-      () => {
-        return $.Deferred().resolve(false).promise();
-      },
-    );
-}
+import { dialogSelectUser } from 'ming-ui/functions';
 
 export function setStructureForAll(params) {
   return projectSettingController
@@ -30,7 +15,7 @@ export function setStructureForAll(params) {
       },
       () => {
         alert(_l('操作失败'), 2);
-        return $.Deferred().reject().promise();
+        return Promise.reject();
       },
     );
 }
@@ -47,7 +32,7 @@ export function setStructureSelfEdit(params) {
       },
       () => {
         alert(_l('操作失败'), 2);
-        return $.Deferred().reject().promise();
+        return Promise.reject();
       },
     );
 }

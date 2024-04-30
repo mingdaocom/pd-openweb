@@ -64,22 +64,21 @@ export const formListBottom = [
   {
     label: _l('用户姓名'),
     key: 'fullnameAttr',
-    desc: _l('用户姓名字段，用于同步至系统用户姓名字段'),
-    errorMsg: _l('请输入LDAP Server用户姓名字段名称'),
+    desc: _l('同步至系统用户姓名。未填写时，默认取displayname的值'),
   },
   {
     label: _l('部门'),
     key: 'departmentAttr',
-    desc: _l('用户所属部门字段，用于同步至系统用户部门信息'),
+    desc: _l('同步至系统用户部门。未填写时，默认取department的值'),
   },
   {
     label: _l('职位'),
     key: 'jobAttr',
-    desc: _l('用户职位字段，用于同步至系统用户职位信息'),
+    desc: _l('同步至系统用户职位。未填写时，默认取title的值'),
   },
   {
     label: _l('联系电话'),
     key: 'workphoneAttr',
-    desc: _l('用户联系电话字段，用于同步至系统用户联系电话信息'),
+    desc: _l('同步至系统用户联系电话。未填写时，默认取telephoneNumber的值'),
   },
 ];

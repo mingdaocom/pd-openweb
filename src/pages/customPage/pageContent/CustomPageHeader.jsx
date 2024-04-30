@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, Fragment } from 'react';
 import { string } from 'prop-types';
-import { Tooltip, Icon, LoadDiv, RichText } from 'ming-ui';
+import { Tooltip, Icon, LoadDiv, RichText, SvgIcon } from 'ming-ui';
 import DeleteConfirm from 'ming-ui/components/DeleteReconfirm';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
@@ -16,7 +16,6 @@ import Share from 'src/pages/worksheet/components/Share';
 import { pick } from 'lodash';
 import { createFontLink, exportImage } from 'src/pages/customPage/util';
 import { saveAs } from 'file-saver';
-import SvgIcon from 'src/components/SvgIcon';
 import { navigateTo } from 'src/router/navigateTo';
 import { getAppSectionRef } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup';
 import { deleteSheet } from 'worksheet/redux/actions/sheetList';
@@ -29,12 +28,14 @@ import { updateSheetListAppItem } from 'worksheet/redux/actions/sheetList';
 import { replaceColor, isLightColor } from 'src/pages/customPage/util';
 import { getTranslateInfo } from 'src/util';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
+import { chartNav } from 'statistics/common';
 
 export default function CustomPageHeader(props) {
   const {
     currentSheet,
     updateEditPageVisible,
     updatePageInfo,
+    deleteLinkageFiltersGroup,
     ids = {},
     updateSheetListIsUnfold,
     copyCustomPage,
@@ -43,14 +44,11 @@ export default function CustomPageHeader(props) {
     pageName,
     apk,
     appPkg,
+    linkageFiltersGroup,
     ...rest
   } = props;
   //运营者|开发者 均可分享
   const isCharge = props.isCharge || canEditData(_.get(appPkg, ['permissionType']));
-  const isSafari = () => {
-    var ua = window.navigator.userAgent;
-    return ua.indexOf('Safari') != -1 && ua.indexOf('Version') != -1;
-  };
   const { groupId } = ids;
   const { appName } = apk;
   const pageConfig = replaceColor(props.config || {}, appPkg.iconColor || apk.iconColor);
@@ -63,6 +61,7 @@ export default function CustomPageHeader(props) {
   const { popupVisible, editNameVisible, editIntroVisible } = visible;
   const name = pageName !== workSheetName ? workSheetName || pageName : pageName || workSheetName;
   const showName = getTranslateInfo(appId, pageId).name || name;
+  const showAppName = getTranslateInfo(appId, appId).name || appName;
   const [shareDialogVisible, setShareDialogVisible] = useState(false);
   const [exportLoading, setExportLoading] = useState(false);
   const [descIsEditing, setDescIsEditing] = useState(false);
@@ -75,6 +74,7 @@ export default function CustomPageHeader(props) {
       handleClick(urlTemplate ? 'editPage' : 'editCanvas');
     };
     return () => {
+      updatePageInfo({ linkageFiltersGroup: {} });
       delete window.editCustomPage;
     };
   }, [pageId]);
@@ -118,7 +118,7 @@ export default function CustomPageHeader(props) {
         ...data,
       })
       .then(result => {
-        if (currentPcNaviStyle === 1) {
+        if ([1, 3].includes(currentPcNaviStyle)) {
           const singleRef = getAppSectionRef(groupId);
           singleRef.dispatch(updateSheetListAppItem(pageId, data));
         } else {
@@ -183,7 +183,7 @@ export default function CustomPageHeader(props) {
               worksheetId: pageId,
               parentGroupId: currentSheet.parentGroupId,
             };
-            if (currentPcNaviStyle === 1) {
+            if ([1, 3].includes(currentPcNaviStyle)) {
               const singleRef = getAppSectionRef(groupId);
               singleRef.dispatch(deleteSheet(data));
             } else {
@@ -205,12 +205,94 @@ export default function CustomPageHeader(props) {
   const isEmbedPage = location.href.includes('embed/page');
   const isEmbed = location.href.includes('#embed');
 
+  const renderLinkageFiltersPopover = () => {
+    const toArray = () => {
+      let result = [];
+      for (let key in linkageFiltersGroup) {
+        const item = linkageFiltersGroup[key];
+        result.push({
+          key,
+          ...item,
+        });
+      }
+      return result;
+    };
+    const res = toArray();
+    return (
+      <div className="customPageAutoLinkagePopover">
+        <div className="valignWrapper" style={{ padding: '0 4px 0 9px' }}>
+          <div className="Font17 bold Gray flex">{_l('联动筛选')}</div>
+          <Icon
+            className="Font24 Gray_9e pointer"
+            icon="close"
+            onClick={() => document.querySelector('.autoLinkageTrigger').click()}
+          />
+        </div>
+        {res.length ? (
+          <Fragment>
+            <div className="linkageFilterWrap">
+              {res.map(item => (
+                <div className="linkageFilter mTop10" key={item.reportId}>
+                  <div className="flexRow alignItemsCenter mBottom2">
+                    <Icon
+                      className="Font16 mRight5 ThemeColor"
+                      icon={_.find(chartNav, { type: item.reportType }).icon}
+                    />
+                    <div className="flex ellipsis bold">{item.reportName}</div>
+                    <Icon
+                      className="Font17 Gray_9e pointer"
+                      icon="delete2"
+                      onClick={() => deleteLinkageFiltersGroup({ value: item.key })}
+                    />
+                  </div>
+                  <div className="flexColumn mLeft20">
+                    {item.filters.map(n => (
+                      <div
+                        key={n.controlId}
+                        dangerouslySetInnerHTML={{
+                          __html: _l(
+                            '%0是%1',
+                            `<span class="bold mRight2">${n.controlName}</span>`,
+                            `<span class="bold mLeft2">${n.controlValue || '--'}</span>`,
+                          ),
+                        }}
+                      ></div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="mTop10 TxtRight">
+              <span
+                className="pointer ThemeColor closeText"
+                onClick={() => {
+                  updatePageInfo({ linkageFiltersGroup: {} });
+                  document.querySelector('.autoLinkageTrigger').click();
+                }}
+              >
+                {_l('清空并关闭')}
+              </span>
+            </div>
+          </Fragment>
+        ) : (
+          <div className="flexColumn alignItemsCenter justifyContentCenter mTop20 mBottom20">
+            <Icon className="Font64 Gray_df" icon="linkage_filter" />
+            <div className="Gray_9e mTop5 Font14">{_l('未发起联动筛选')}</div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <Fragment>
       <header
         className={cx({
           embedPageHeader: isEmbed || isEmbedPage,
-          hide: appPkg.currentPcNaviStyle === 2 ? false : !(urlTemplate ? configuration.hideHeaderBar === '0' : pageConfig.headerVisible),
+          hide:
+            appPkg.currentPcNaviStyle === 2
+              ? false
+              : !(urlTemplate ? configuration.hideHeaderBar === '0' : pageConfig.headerVisible),
           darkTheme: pageConfig.pageBgColor && !isLightColor(pageConfig.pageBgColor),
         })}
         style={{
@@ -225,7 +307,7 @@ export default function CustomPageHeader(props) {
               <Tooltip
                 text={
                   <span>
-                    {_l('退出')} ({navigator.userAgent.toLocaleLowerCase().includes('mac os') ? '⌘ + E' : 'Shift + E'})
+                    {_l('退出')} ({window.isMacOs ? '⌘ + E' : 'Shift + E'})
                   </span>
                 }
                 popupPlacement="bottom"
@@ -245,7 +327,7 @@ export default function CustomPageHeader(props) {
                 text={
                   <span>
                     {inFull ? _l('退出') : _l('展开')} (
-                    {navigator.userAgent.toLocaleLowerCase().includes('mac os') ? '⌘ + E' : 'Shift + E'})
+                    {window.isMacOs ? '⌘ + E' : 'Shift + E'})
                   </span>
                 }
                 popupPlacement="bottom"
@@ -279,9 +361,9 @@ export default function CustomPageHeader(props) {
               <div className="svgWrap valignWrapper" style={{ backgroundColor: apk.iconColor }}>
                 <SvgIcon url={apk.iconUrl} fill="#fff" size={22} />
               </div>
-              {(appName || name) && (
+              {(showAppName || showName) && (
                 <span className="pageName Font17 ellipsis">
-                  {appName}-{name}
+                  {showAppName}-{showName}
                 </span>
               )}
             </div>
@@ -333,6 +415,21 @@ export default function CustomPageHeader(props) {
         </div>
         {!urlTemplate && (
           <Fragment>
+            {pageConfig.autoLinkage && (
+              <Popover
+                visible={undefined}
+                trigger="click"
+                placement="bottom"
+                overlayClassName="customPageAutoLinkagePopoverWrap"
+                content={renderLinkageFiltersPopover()}
+              >
+                <Tooltip text={<span>{_l('联动筛选')}</span>} popupPlacement="bottom">
+                  <div className="iconWrap valignWrapper mLeft20 autoLinkageTrigger">
+                    <Icon className="Font22 pointer" icon="linkage_filter" />
+                  </div>
+                </Tooltip>
+              </Popover>
+            )}
             <Tooltip text={<span>{_l('刷新')}</span>} popupPlacement="bottom">
               <div className="iconWrap valignWrapper mLeft20" onClick={resetPage}>
                 <Icon className="Font20 pointer" icon="task-later" />
@@ -343,7 +440,7 @@ export default function CustomPageHeader(props) {
                 <div
                   className="iconWrap valignWrapper mLeft20"
                   onClick={() => {
-                    setConfigVisible(true)
+                    setConfigVisible(true);
                   }}
                 >
                   <Icon className="Font20 pointer" icon="tune" />
@@ -376,7 +473,7 @@ export default function CustomPageHeader(props) {
               ))}
           </Fragment>
         )}
-        {!isSafari() && !isPublicShare && pageConfig.fullScreenVisible && (
+        {!isPublicShare && pageConfig.fullScreenVisible && (
           <Tooltip text={<span>{_l('全屏展示')}</span>} popupPlacement="bottom">
             <div className="iconWrap valignWrapper mLeft20" onClick={() => toggle(true)}>
               <Icon icon="full_screen" className="Font20 pointer" />
@@ -388,7 +485,7 @@ export default function CustomPageHeader(props) {
         title={_l('自定义页面说明')}
         isCharge={isCharge}
         visible={editIntroVisible}
-        desc={descIsEditing ? (desc || '') : (getTranslateInfo(appId, pageId).description || desc || '')}
+        desc={descIsEditing ? desc || '' : getTranslateInfo(appId, pageId).description || desc || ''}
         isEditing={descIsEditing}
         setDescIsEditing={setDescIsEditing}
         onClose={() => {
@@ -454,7 +551,7 @@ export default function CustomPageHeader(props) {
             customApi.updatePage({
               appId: id,
               adjustScreen,
-              config
+              config,
             });
           }}
         />

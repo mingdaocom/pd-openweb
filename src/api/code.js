@@ -8,7 +8,7 @@ export default {
   **/
    createQrCodeImage: function (args, options = {}) {
      options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return $.api('Code', 'CreateQrCodeImage', args, options);
+     return mdyAPI('Code', 'CreateQrCodeImage', args, options);
    },
   /**
   * 生成验证码
@@ -19,7 +19,7 @@ export default {
   **/
    createVerifyCodeImage: function (args, options = {}) {
      options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return $.api('Code', 'CreateVerifyCodeImage', args, options);
+     return mdyAPI('Code', 'CreateVerifyCodeImage', args, options);
    },
   /**
   * AI生成代码块
@@ -33,7 +33,7 @@ export default {
   **/
    generateCodeBlock: function (args, options = {}) {
      
-     return $.api('Code', 'GenerateCodeBlock', args, options);
+     return mdyAPI('Code', 'GenerateCodeBlock', args, options);
    },
   /**
   * 获取AI聊天历史记录
@@ -44,7 +44,7 @@ export default {
   **/
    getGenerateCodeRecord: function (args, options = {}) {
      options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return $.api('Code', 'GetGenerateCodeRecord', args, options);
+     return mdyAPI('Code', 'GetGenerateCodeRecord', args, options);
    },
   /**
   * 保存ai聊天记录
@@ -58,6 +58,6 @@ export default {
   **/
    saveGenerateCodeRecord: function (args, options = {}) {
      
-     return $.api('Code', 'SaveGenerateCodeRecord', args, options);
+     return mdyAPI('Code', 'SaveGenerateCodeRecord', args, options);
    },
 };

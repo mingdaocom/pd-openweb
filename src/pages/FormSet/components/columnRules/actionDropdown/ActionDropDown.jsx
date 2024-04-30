@@ -6,6 +6,7 @@ import { Icon, Checkbox, Tooltip } from 'ming-ui';
 import './ActionDropDown.less';
 import { getTextById, getNewDropDownData, getNewIconByType } from '../config';
 import _ from 'lodash';
+import { isSheetDisplay } from '../../../../widgetConfig/util';
 export default class DropDownItem extends Component {
   static propTypes = {
     values: PropTypes.arrayOf(PropTypes.shape({})),
@@ -163,27 +164,28 @@ export default class DropDownItem extends Component {
     const { values = [], actionType } = this.props;
     const findChildItem = id => _.find(values, v => v.controlId === id && _.isEmpty(v.childControlIds));
 
-    const checked =
-      _.isEmpty(parentControl) || item.sectionId
-        ? findChildItem(item.controlId)
-        : _.includes(
-            _.get(
-              _.find(values, v => v.controlId === parentControl.controlId && !_.isEmpty(v.childControlIds)),
-              'childControlIds',
-            ) || [],
-            item.controlId,
-          );
+    const hasParentControl = isSheetDisplay(parentControl) || _.get(parentControl, 'type') === 34;
+
+    const checked = !hasParentControl
+      ? findChildItem(item.controlId)
+      : _.includes(
+          _.get(
+            _.find(values, v => v.controlId === parentControl.controlId && !_.isEmpty(v.childControlIds)),
+            'childControlIds',
+          ) || [],
+          item.controlId,
+        );
     // 关联多条列表必填不能配置
     const disabled =
-      (item.type === 29 && _.get(item.advancedSetting || {}, 'showtype') === '2' && actionType === 5) ||
-      (item.type === 52 && _.includes([3, 4, 5], actionType));
+      (isSheetDisplay(item) && actionType === 5) || (item.type === 52 && _.includes([3, 4, 5, 6], actionType));
     return (
       <Checkbox
         checked={!!checked}
         disabled={disabled}
         onClick={(checked, value, e) => {
           e.stopPropagation();
-          this.updateValues(item.sectionId ? '' : parentControl.controlId, item.controlId);
+          if (disabled) return;
+          this.updateValues(hasParentControl ? parentControl.controlId : '', item.controlId);
         }}
       />
     );

@@ -1,12 +1,10 @@
 import React, { Component, Fragment } from 'react';
 import { Steps } from 'antd';
-import { QiniuUpload, Button, Support, Dialog, antNotification, Icon, Tooltip } from 'ming-ui';
-import CheckBox from 'ming-ui/components/Checkbox';
-import SvgIcon from 'src/components/SvgIcon';
+import { QiniuUpload, Button, Support, Dialog, antNotification, Icon, SvgIcon, Checkbox } from 'ming-ui';
 import UpgradeDetail from '../UpgradeDetail';
 import UpgradeItemWrap from '../UpgradeItemWrap';
 import UpgradeStatus from '../UpgradeStatus';
-import Beta from '../Beta';
+import Beta from '../../../Beta';
 import { UPGARADE_TYPE_LIST, UPGRADE_ERRORMSG, UPGRADE_DETAIL_TYPE_LIST } from '../../../../config';
 import { getCheckedInfo, getViewIcon } from '../../../../util';
 import { formatFileSize } from 'src/util';
@@ -23,7 +21,6 @@ const { Step } = Steps;
 const items = [{ title: _l('上传文件') }, { title: _l('升级范围') }, { title: _l('开始导入') }];
 const detailTypeList = UPGRADE_DETAIL_TYPE_LIST.map(v => v.type);
 const upgradeTypeList = UPGARADE_TYPE_LIST.map(v => v.type);
-let timeout = null;
 export default class UpgradeProcess extends Component {
   constructor(props) {
     super(props);
@@ -48,57 +45,6 @@ export default class UpgradeProcess extends Component {
       showUpgradeStatus: false,
     };
   }
-
-  componentDidMount() {
-    this.getUpgradeStatus();
-  }
-
-  getUpgradeStatus = () => {
-    if (!window.IM) return;
-    const { appDetail } = this.props;
-    IM.socket.on('upgrade_app', result => {
-      const { id, appId, projectId, status } = result;
-      const appName = appDetail.name;
-      let title = status === 1 ? _l('应用正在导入升级中...') : status === 2 ? _l('导入升级完成') : _l('导入升级失败');
-      let msg =
-        status === 1
-          ? _l(`应用“${appName}”正在导入升级，完成后会通知您`)
-          : status === 2
-          ? _l(`应用“${appName}”导入升级完成`)
-          : _l(`应用“${appName}”导入升级失败`);
-      let action = '';
-      if (status === 1) {
-        action = 'info';
-      } else if (status === 2) {
-        action = 'success';
-      } else if (status === 3) {
-        action = 'warning';
-      } else {
-        action = 'error';
-      }
-      antNotification[action]({
-        key: id,
-        className: 'customNotification',
-        closeIcon: <Icon icon="close" className="Font20 Gray_9d ThemeHoverColor3" />,
-        duration: 5,
-        message: title,
-        description: <div dangerouslySetInnerHTML={{ __html: msg }} />,
-        loading: status === 1,
-        onBtnClick: () => {
-          antNotification.close(id);
-        },
-      });
-      if (status === 0) {
-        this.setState({ showUpgradeStatus: false });
-      }
-      if (status === 2) {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => {
-          location.href = `/app/${appId}`;
-        }, 500);
-      }
-    });
-  };
 
   getIds = (type, data) => {
     return (data[type] || []).map(({ id }) => id);
@@ -173,7 +119,7 @@ export default class UpgradeProcess extends Component {
           });
         }
       })
-      .fail(err => {
+      .catch(err => {
         this.setState({ compareLoading: false, analyzeLoading: false });
       });
   };
@@ -232,7 +178,7 @@ export default class UpgradeProcess extends Component {
           {_l(
             '导入单个应用文件，实现对当前应用快速升级。请确认私有部署的版本，高版本向低版本导入，可能会导入失败。应用升级需要一段时间，正在升级中的应用将为不可用状态。',
           )}
-          <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/apply19" />
+          <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/application/import-export" />
         </div>
         <div className="uploadWrap flex">
           {isEncrypt ? (
@@ -485,14 +431,14 @@ export default class UpgradeProcess extends Component {
         })}
         <div className="importActionWrap">
           <div className="actionContent">
-            <CheckBox
+            <Checkbox
               checked={matchOffice}
               onClick={checked => {
                 this.setState({ matchOffice: !checked });
               }}
             />
             <span className="mRight30">{_l('导入时匹配人员部门')}</span>
-            <CheckBox
+            <Checkbox
               checked={backupCurrentVersion}
               onClick={checked => {
                 this.setState({ backupCurrentVersion: !checked });
@@ -594,7 +540,7 @@ export default class UpgradeProcess extends Component {
             <div className="Font15">{appDetail.name}</div>
           </div>
           <div className="Gray_9d Font14 w110 TxtRight helpIcon">
-            <Support title={_l('帮助')} type={1} href="https://help.mingdao.com/apply19" />
+            <Support title={_l('帮助')} type={1} href="https://help.mingdao.com/application/import-export" />
           </div>
         </div>
         <div className="upgradeProcessContent">
@@ -620,7 +566,7 @@ export default class UpgradeProcess extends Component {
           />
         )}
 
-        {showUpgradeStatus && <UpgradeStatus appPkg={appDetail} />}
+        {showUpgradeStatus && <UpgradeStatus appPkg={{ ...appDetail, appStatus: 4 }} />}
       </div>
     );
   }

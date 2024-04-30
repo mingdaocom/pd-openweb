@@ -37,8 +37,7 @@ class CurrentDateInfo extends Component {
   };
   // 跳转至详情
   navigateToDetail = rowId => {
-    const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
-    if (isMingdao) {
+    if (window.isMingDaoApp) {
       const { base } = this.props;
       window.location.href = `/mobile/record/${base.appId}/${base.worksheetId}/${base.viewId}/${rowId}`;
       return;

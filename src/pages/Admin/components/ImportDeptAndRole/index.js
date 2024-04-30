@@ -4,7 +4,7 @@ import { Table } from 'antd';
 import Config from '../../config';
 import jobController from 'src/api/job';
 import departmentController from 'src/api/department';
-import captcha from 'src/components/captcha';
+import { captcha } from 'ming-ui/functions';
 import UploadFile from '../UploadFile';
 import styled from 'styled-components';
 import cx from 'classnames';
@@ -369,7 +369,7 @@ export default class ImportDeptAndRole extends Component {
             });
           }
         })
-        .fail(res => {
+        .catch(res => {
           _this.setState({ importError: true, importFileLoading: false });
         });
     };

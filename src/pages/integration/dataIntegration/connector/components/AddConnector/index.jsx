@@ -392,7 +392,7 @@ export default function AddConnector(props) {
                 errorMsgList: res.errorMsgList,
               });
             })
-            .fail(() => {
+            .catch(() => {
               setNextOrSaveDisabled(false);
               setResDialog({ visible: false });
             });

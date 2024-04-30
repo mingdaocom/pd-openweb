@@ -16,21 +16,14 @@ const getPermissionInfo = (activeRelateSheetControl, rowInfo, worksheet) => {
   const { enumDefault2, strDefault, controlPermissions = '111', advancedSetting } = activeRelateSheetControl;
   const [, , onlyRelateByScanCode] = strDefault.split('').map(b => !!+b);
   const isSubList = activeRelateSheetControl.type === 34;
-  const allowRemoveRelation = typeof advancedSetting.allowcancel === 'undefined' ? true : advancedSetting.allowcancel === '1';
+  const allowRemoveRelation =
+    typeof advancedSetting.allowcancel === 'undefined' ? true : advancedSetting.allowcancel === '1';
   const allowLink = advancedSetting.allowlink !== '0';
   const isCreate = isSubList
     ? allowEdit && controlPermission.editable && enumDefault2 !== 1 && enumDefault2 !== 11 && !onlyRelateByScanCode
-    : allowEdit &&
-      controlPermission.editable &&
-      allowAdd &&
-      enumDefault2 !== 1 &&
-      enumDefault2 !== 11;
+    : allowEdit && controlPermission.editable && allowAdd && enumDefault2 !== 1 && enumDefault2 !== 11;
   const isRelevance =
-    !isSubList &&
-    controlPermission.editable &&
-    enumDefault2 !== 10 &&
-    enumDefault2 !== 11 &&
-    allowEdit;
+    !isSubList && controlPermission.editable && enumDefault2 !== 10 && enumDefault2 !== 11 && allowEdit;
   const hasEdit = controlPermission.editable && allowEdit && (allowAdd || isSubList);
   const isScanQR = getIsScanQR();
 
@@ -45,17 +38,16 @@ const getPermissionInfo = (activeRelateSheetControl, rowInfo, worksheet) => {
     controlPermission,
     onlyRelateByScanCode: onlyRelateByScanCode && isScanQR,
   };
-}
+};
 
 export const updateBase = base => (dispatch, getState) => {
   dispatch({
     type: 'MOBILE_UPDATE_BASE',
     base,
   });
-}
+};
 
 export const loadRow = (control, getType) => (dispatch, getState) => {
-
   const { base, rowInfo } = getState().mobile;
   const { instanceId, workId, worksheetId, rowId } = base;
   const params = {};
@@ -97,7 +89,7 @@ export const loadRowRelationRows = (relationControl, getType) => async (dispatch
     controlId,
     rowId,
     worksheetId,
-    getType
+    getType,
   };
   const control = relationControl || _.find(rowInfo.templateControls, { controlId });
 
@@ -116,6 +108,7 @@ export const loadRowRelationRows = (relationControl, getType) => async (dispatch
     resWorksheetInfo = await worksheetAjax.getWorksheetInfo({
       worksheetId: control.dataSource,
       getTemplate: true,
+      relationWorksheetId: worksheetId,
     });
     relationControls = _.get(resWorksheetInfo, 'template.controls') || [];
     const filterControls = getFilter({
@@ -175,30 +168,30 @@ export const updateRelationRows = (data, value) => (dispatch, getState) => {
   const { relationRow } = getState().mobile;
   dispatch({
     type: 'MOBILE_RELATION_ROWS',
-    data
+    data,
   });
   dispatch({
     type: 'MOBILE_RELATION_ROW',
     data: {
-      count: relationRow.count + value
-    }
+      count: relationRow.count + value,
+    },
   });
-}
+};
 
-export const updatePageIndex = (index) => (dispatch, getState) => {
+export const updatePageIndex = index => (dispatch, getState) => {
   dispatch({
     type: 'MOBILE_RELATION_LOAD_PARAMS',
-    data: { pageIndex: index }
+    data: { pageIndex: index },
   });
   dispatch(loadRowRelationRows());
-}
+};
 
-export const updateActionParams = (data) => (dispatch, getState) => {
+export const updateActionParams = data => (dispatch, getState) => {
   dispatch({
     type: 'MOBILE_RELATION_ACTION_PARAMS',
-    data
+    data,
   });
-}
+};
 
 export const reset = () => (dispatch, getState) => {
   dispatch({
@@ -206,26 +199,26 @@ export const reset = () => (dispatch, getState) => {
     data: {
       pageIndex: 1,
       loading: true,
-      isMore: true
-    }
+      isMore: true,
+    },
   });
   dispatch({
     type: 'MOBILE_RELATION_ACTION_PARAMS',
     data: {
       isEdit: false,
-      selectedRecordIds: []
-    }
+      selectedRecordIds: [],
+    },
   });
   dispatch({
-    type: 'MOBILE_RELATION_ROW_INFO', data: {}
+    type: 'MOBILE_RELATION_ROW_INFO',
+    data: {},
   });
   dispatch({
     type: 'MOBILE_RELATION_ROWS',
-    data: []
+    data: [],
   });
   dispatch({
     type: 'MOBILE_RELATION_ROW',
-    data: { count: 0 }
+    data: { count: 0 },
   });
-}
-
+};

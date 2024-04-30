@@ -223,7 +223,7 @@ class SheetView extends Component {
             this.props.changeBatchOptData([]);
           }
         })
-        .fail(err => {
+        .catch(err => {
           alert(_l('批量删除失败'), 2);
         });
       this.props.changeBatchOptVisible(false);

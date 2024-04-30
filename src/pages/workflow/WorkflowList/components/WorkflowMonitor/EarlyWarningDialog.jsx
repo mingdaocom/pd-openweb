@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
-import { Dialog, Button } from 'ming-ui';
+import { Dialog, Button, UserHead } from 'ming-ui';
 import { Select } from 'antd';
 import flowMonitor from 'src/pages/workflow/api/processVersion.js';
 import functionWrap from 'ming-ui/components/FunctionWrap';
-import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
-import UserHead from 'src/components/userHead';
+import { dialogSelectUser } from 'ming-ui/functions';
 import styled from 'styled-components';
 
 const NotifierCon = styled.div`

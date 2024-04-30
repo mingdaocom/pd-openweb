@@ -127,7 +127,7 @@ export default class ViewItems extends Component {
         this.props.updateViewList(res, res[0]);
         this.computeDirectionVisible();
       })
-      .fail(err => {
+      .catch(err => {
         alert(_l('获取视图列表失败'), 2);
       });
   }
@@ -196,7 +196,7 @@ export default class ViewItems extends Component {
         this.props.onAddView(newViewList, result);
         this.handleScrollPosition(0);
       })
-      .fail(err => {
+      .catch(err => {
         alert(_l('新建视图失败'), 2);
       });
   };
@@ -224,7 +224,7 @@ export default class ViewItems extends Component {
             );
             this.handleScrollPosition(0);
           })
-          .fail(err => {
+          .catch(err => {
             alert(_l('删除视图失败'), 2);
           });
       },
@@ -247,7 +247,7 @@ export default class ViewItems extends Component {
         this.handleSortViews(list);
         this.props.onAddView(list, result);
       })
-      .fail(err => {
+      .catch(err => {
         alert(_l('复制视图失败'), 2);
       });
   };
@@ -315,7 +315,7 @@ export default class ViewItems extends Component {
         viewIds: newViewList.map(item => item.viewId),
       })
       .then(result => {})
-      .fail(err => {
+      .catch(err => {
         alert(_l('退拽排序视图失败'), 2);
       });
   };

@@ -6,14 +6,15 @@ export default {
   * @param {string} args.randStr 票据随机字符串
   * @param {} args.captchaType
   * @param {string} args.account 账号邮箱或手机号
+  * @param {} args.lang
   * @param {} args.verifyCodeType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    sendRegisterVerifyCode: function (args, options = {}) {
-     
-     return $.api('Register', 'SendRegisterVerifyCode', args, options);
+
+     return mdyAPI('Register', 'SendRegisterVerifyCode', args, options);
    },
   /**
   * 邀请加入网络进行已有账号登录
@@ -28,8 +29,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    checkExistAccount: function (args, options = {}) {
-     
-     return $.api('Register', 'CheckExistAccount', args, options);
+
+     return mdyAPI('Register', 'CheckExistAccount', args, options);
    },
   /**
   * 定向账号邀请加入网络进行已有账号登录
@@ -44,8 +45,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    checkExistAccountByConfirmation: function (args, options = {}) {
-     
-     return $.api('Register', 'CheckExistAccountByConfirmation', args, options);
+
+     return mdyAPI('Register', 'CheckExistAccountByConfirmation', args, options);
    },
   /**
   * 创建组织时
@@ -56,8 +57,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    checkExistAccountByCurrentAccount: function (args, options = {}) {
-     
-     return $.api('Register', 'CheckExistAccountByCurrentAccount', args, options);
+
+     return mdyAPI('Register', 'CheckExistAccountByCurrentAccount', args, options);
    },
   /**
   * 验证邀请链接
@@ -69,8 +70,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    checkInviteLink: function (args, options = {}) {
-     
-     return $.api('Register', 'CheckInviteLink', args, options);
+
+     return mdyAPI('Register', 'CheckInviteLink', args, options);
    },
   /**
   * 申请加入网络，根据projectId返回网络设置信息
@@ -81,8 +82,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    checkJoinLink: function (args, options = {}) {
-     
-     return $.api('Register', 'CheckJoinLink', args, options);
+
+     return mdyAPI('Register', 'CheckJoinLink', args, options);
    },
   /**
   * 如果已有账号加入某个邀请模块(不含加入公司)
@@ -99,8 +100,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    joinByExistAccount: function (args, options = {}) {
-     
-     return $.api('Register', 'JoinByExistAccount', args, options);
+
+     return mdyAPI('Register', 'JoinByExistAccount', args, options);
    },
   /**
   * 创建账号
@@ -122,8 +123,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    createAccount: function (args, options = {}) {
-     
-     return $.api('Register', 'CreateAccount', args, options);
+
+     return mdyAPI('Register', 'CreateAccount', args, options);
    },
   /**
   * 设置 用户名称
@@ -135,8 +136,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    setAccountInfo: function (args, options = {}) {
-     
-     return $.api('Register', 'SetAccountInfo', args, options);
+
+     return mdyAPI('Register', 'SetAccountInfo', args, options);
    },
   /**
   * 根据企业号加入网络(检验企业号是否正确，含userCard)
@@ -150,8 +151,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    checkProjectCode: function (args, options = {}) {
-     
-     return $.api('Register', 'CheckProjectCode', args, options);
+
+     return mdyAPI('Register', 'CheckProjectCode', args, options);
    },
   /**
   * 返回公司工商信息
@@ -162,8 +163,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getCompanyInfo: function (args, options = {}) {
-     
-     return $.api('Register', 'GetCompanyInfo', args, options);
+
+     return mdyAPI('Register', 'GetCompanyInfo', args, options);
    },
   /**
   * 检查校验用户是否可以创建企业网络
@@ -176,8 +177,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    checkCreateCompany: function (args, options = {}) {
-     
-     return $.api('Register', 'CheckCreateCompany', args, options);
+
+     return mdyAPI('Register', 'CheckCreateCompany', args, options);
    },
   /**
   * 创建企业网络
@@ -204,8 +205,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    createCompany: function (args, options = {}) {
-     
-     return $.api('Register', 'CreateCompany', args, options);
+
+     return mdyAPI('Register', 'CreateCompany', args, options);
    },
   /**
   * 邀请加入网络
@@ -230,8 +231,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    inviteJoinCompany: function (args, options = {}) {
-     
-     return $.api('Register', 'InviteJoinCompany', args, options);
+
+     return mdyAPI('Register', 'InviteJoinCompany', args, options);
    },
   /**
   * 主动申请加入网络
@@ -260,8 +261,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    applyJoinCompany: function (args, options = {}) {
-     
-     return $.api('Register', 'ApplyJoinCompany', args, options);
+
+     return mdyAPI('Register', 'ApplyJoinCompany', args, options);
    },
   /**
   * 发送找回密码验证码
@@ -270,14 +271,15 @@ export default {
   * @param {string} args.randStr 票据随机字符串
   * @param {} args.captchaType
   * @param {string} args.account 账号
+  * @param {} args.lang
   * @param {} args.verifyCodeType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    sendFindPasswordVerifyCode: function (args, options = {}) {
-     
-     return $.api('Register', 'SendFindPasswordVerifyCode', args, options);
+
+     return mdyAPI('Register', 'SendFindPasswordVerifyCode', args, options);
    },
   /**
   * 忘记密码 - 更新密码
@@ -293,8 +295,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    updatePassword: function (args, options = {}) {
-     
-     return $.api('Register', 'UpdatePassword', args, options);
+
+     return mdyAPI('Register', 'UpdatePassword', args, options);
    },
   /**
   * 获取重置密码触发信息
@@ -305,8 +307,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getResetPasswordTrigerInfo: function (args, options = {}) {
-     
-     return $.api('Register', 'GetResetPasswordTrigerInfo', args, options);
+
+     return mdyAPI('Register', 'GetResetPasswordTrigerInfo', args, options);
    },
   /**
   * 根据状态码重置密码
@@ -318,7 +320,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    resetPasswordByState: function (args, options = {}) {
-     
-     return $.api('Register', 'ResetPasswordByState', args, options);
+
+     return mdyAPI('Register', 'ResetPasswordByState', args, options);
    },
 };

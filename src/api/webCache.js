@@ -11,7 +11,7 @@ export default {
   **/
    add: function (args, options = {}) {
      
-     return $.api('WebCache', 'Add', args, options);
+     return mdyAPI('WebCache', 'Add', args, options);
    },
   /**
   * 单个清理
@@ -23,7 +23,7 @@ export default {
   **/
    clear: function (args, options = {}) {
      
-     return $.api('WebCache', 'Clear', args, options);
+     return mdyAPI('WebCache', 'Clear', args, options);
    },
   /**
   * 批量清理
@@ -35,7 +35,7 @@ export default {
   **/
    clears: function (args, options = {}) {
      
-     return $.api('WebCache', 'Clears', args, options);
+     return mdyAPI('WebCache', 'Clears', args, options);
    },
   /**
   * 获取单体
@@ -47,7 +47,7 @@ export default {
   **/
    get: function (args, options = {}) {
      
-     return $.api('WebCache', 'Get', args, options);
+     return mdyAPI('WebCache', 'Get', args, options);
    },
   /**
   * 获取批量
@@ -59,6 +59,6 @@ export default {
   **/
    gets: function (args, options = {}) {
      
-     return $.api('WebCache', 'Gets', args, options);
+     return mdyAPI('WebCache', 'Gets', args, options);
    },
 };

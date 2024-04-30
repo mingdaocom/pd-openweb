@@ -1,5 +1,5 @@
 ﻿import React, { Component } from 'react';
-import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
+import { dialogSelectUser } from 'ming-ui/functions';
 import './less/copyFolder.less';
 import ajaxRequest from 'src/api/taskCenter';
 import { expireDialogAsync } from 'src/util';
@@ -165,7 +165,7 @@ export default class CopyFolder extends Component {
       .then(() => {
         this.setState({ projectId, showNetwork: false });
       })
-      .fail(() => {
+      .catch(() => {
         this.setState({ projectId: '', showNetwork: false });
       });
   }

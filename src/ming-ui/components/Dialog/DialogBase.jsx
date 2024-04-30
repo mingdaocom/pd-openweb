@@ -197,14 +197,7 @@ class DialogBase extends Component {
         this._ghost.style.height = `${windowHeight - dialogContainerPadding * 2}px`;
       }
 
-      const UA = window.navigator.userAgent;
-      const isIE = UA.indexOf('Trident') >= 0 || UA.indexOf('MSIE') >= 0 || UA.indexOf('Windows NT') >= 0;
-
-      if (
-        this.props.type === 'fixed'
-        /* || (!this.props.type
-              && isIE)*/
-      ) {
+      if (this.props.type === 'fixed') {
         this._dialog.style.height = `${windowHeight - dialogContainerPadding * 2}px`;
       }
 
@@ -308,14 +301,7 @@ class DialogBase extends Component {
     const overlayOnClick = e => {
       e.stopPropagation();
 
-      if (
-        overlayClosable &&
-        this.props.onClose &&
-        !window
-          .getSelection()
-          .toString()
-          .trim()
-      ) {
+      if (overlayClosable && this.props.onClose && !window.getSelection().toString().trim()) {
         this.props.onClose(e);
       }
     };

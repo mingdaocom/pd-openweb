@@ -6,7 +6,7 @@ import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
 import 'rc-trigger/assets/index.css';
-import { Menu, MenuItem, Icon, MdLink } from 'ming-ui';
+import { Menu, MenuItem, Icon, MdLink, SvgIcon } from 'ming-ui';
 import { changeBoardViewData } from 'src/pages/worksheet/redux/actions/boardView';
 import { APP_GROUP_CONFIG, DEFAULT_CREATE, DEFAULT_GROUP_NAME } from '../config';
 import { compareProps, getIds } from '../../util';
@@ -71,6 +71,7 @@ export default class SortableAppItem extends Component {
     return (
       compareProps(this.props.match.params, nextProps.match.params, ['appId', 'groupId']) ||
       compareProps(this.props, nextProps, ['value']) ||
+      compareProps(this.props.appPkg, nextProps.appPkg, ['displayIcon']) ||
       compareProps(this.state, nextState) ||
       appSectionId === groupId
     );
@@ -111,10 +112,16 @@ export default class SortableAppItem extends Component {
     const { permissionType, value, appPkg } = this.props;
     const isCharge = appPkg.viewHideNavi;
     const { workSheetInfo = [], childSections = [] } = value;
-    const firstAppItem = (isCharge ? workSheetInfo : workSheetInfo.filter(item => item.status === 1 && !item.navigateHide))[0] || {};
+    const firstAppItem =
+      (isCharge
+        ? workSheetInfo
+        : workSheetInfo.filter(item => [1, 4].includes(item.status) && !item.navigateHide))[0] || {};
     if (firstAppItem.type === 2) {
       const { workSheetInfo = [] } = _.find(childSections, { appSectionId: firstAppItem.workSheetId });
-      const childrenFirstAppItem = (isCharge ? workSheetInfo : workSheetInfo.filter(item => item.status === 1 && !item.navigateHide))[0] || {};
+      const childrenFirstAppItem =
+        (isCharge
+          ? workSheetInfo
+          : workSheetInfo.filter(item => [1, 4].includes(item.status) && !item.navigateHide))[0] || {};
       return childrenFirstAppItem.workSheetId;
     } else {
       return firstAppItem.workSheetId;
@@ -166,6 +173,7 @@ export default class SortableAppItem extends Component {
     const isShowConfigIcon = appSectionId === groupId && !isFocus && canEditApp(permissionType);
     const url = this.getNavigateUrl(appSectionId);
     const showName = getTranslateInfo(appId, appSectionId).name || name;
+    const showIcon = (_.get(appPkg, 'displayIcon') || '').split('')[0] === '1';
     return (
       <LiCon
         className={cx({ active: isFocus || groupId === appSectionId, isCanConfigAppGroup: isShowConfigIcon })}
@@ -200,6 +208,14 @@ export default class SortableAppItem extends Component {
               }
             }}
           >
+            {showIcon && (
+              <SvgIcon
+                size={20}
+                url={value.iconUrl}
+                fill={['light'].includes(appPkg.themeType) ? appPkg.iconColor : '#fff'}
+                className="mRight5"
+              />
+            )}
             <span title={showName} onDoubleClick={() => this.handleDbClick(appSectionId)}>
               {showName}
             </span>

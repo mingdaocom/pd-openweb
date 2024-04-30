@@ -104,7 +104,7 @@ export default class SelectUser extends Component {
       loading: true,
     });
 
-    if (this.request && this.request.state() === 'pending') {
+    if (this.request && _.isFunction(this.request.abort)) {
       this.request.abort();
     }
 
@@ -186,7 +186,7 @@ export default class SelectUser extends Component {
       departmentUsersLoading: true,
     });
 
-    if (this.request && this.request.state() === 'pending') {
+    if (this.request) {
       this.request.abort();
     }
     const { projectId } = this.props;

@@ -1,56 +1,48 @@
 import React, { Component, Fragment } from 'react';
-import { Icon, Switch, LoadDiv, Tooltip, Support, UpgradeIcon } from 'ming-ui';
-import { Input, Select, Checkbox, Button } from 'antd';
+import { Icon, Switch, LoadDiv, Tooltip, Support, UpgradeIcon, VerifyPasswordConfirm, Checkbox } from 'ming-ui';
+import { Input, Select, Button } from 'antd';
 import cx from 'classnames';
 import './index.less';
 import { formListTop, formListBottom } from './form.config.js';
 import projectSettingController from 'src/api/projectSetting';
 import Config from '../../config';
 import ViewKeyDialog from './ViewKey';
-import {
-  getFeatureStatus,
-  buriedUpgradeVersionDialog,
-  encrypt,
-  upgradeVersionDialog,
-  getCurrentProject,
-} from 'src/util';
+import { getFeatureStatus, buriedUpgradeVersionDialog, upgradeVersionDialog, getCurrentProject } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
 import _ from 'lodash';
 
 const headerTitle = {
   index: _l('其他'),
-  effective: _l('LDAP用户目录'),
-  webProxy: _l('API网络代理'),
+  effective: _l('LDAP登录'),
   sso: _l('SSO'),
 };
 const DATA_INFO = [
   {
     key: 'effective',
-    label: _l('LDAP用户目录'),
+    label: _l('LDAP登录'),
     showSetting: true,
     description: _l('在付费版下，您可以集成LDAP用户目录，实现统一身份认证管理 （需确保员工的账号已和邮箱绑定）'),
     featureId: VersionProductType.LDAPIntergration,
-  },
-  {
-    key: 'orgKey',
-    label: _l('组织密钥'),
-    showSetting: false,
-    docLink: 'https://www.showdoc.com.cn/mingdao',
-    description: _l('此密钥是用于访问企业授权开放接口的凭证'),
-  },
-  {
-    key: 'webProxy',
-    label: _l('API网络代理'),
-    showSetting: true,
-    docLink: 'https://help.mingdao.com/apiproxy',
-    description: _l('启用后，您可以在发送API请求时选择通过设置的代理服务器发送'),
-    featureId: VersionProductType.apiRequestProxy,
+    showCustomName: true,
   },
   {
     key: 'sso',
-    label: _l('SSO'),
+    label: _l('SSO登录'),
     showSetting: true,
-    description: _l('您可以通过组织的二级域名，以SSO登录方式登录到平台'),
+    description: _l('在付费版本下，您可以通过组织的二级域名，以SSO登录方式登录到平台'),
+    showCustomName: true,
+  },
+  {
+    key: 'enabledMDLogin',
+    label: _l('平台帐号登录'),
+    description: _l('当组织启用了LDAP，SSO或第三方平台集成帐号登录时，可以关闭本平台账号登录'),
+  },
+  {
+    key: 'orgKey',
+    label: _l('开放接口'),
+    showSetting: false,
+    docLink: 'https://www.showdoc.com.cn/mingdao',
+    description: _l('此密钥是用于访问企业授权开放接口的凭证'),
   },
   // {
   //   key: 'integrationAuthority',
@@ -59,10 +51,6 @@ const DATA_INFO = [
   //   description: _l('启用后，只有组织的应用管理员可以访问集成中心。关闭时，所有人都可以访问'),
   // },
 ];
-const ipRegExp = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$|^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)+([A-Za-z]|[A-Za-z][A-Za-z0-9\-]*[A-Za-z0-9])$/;
-const portRegExp = new RegExp(
-  /^([1-9](\d{0,3}))$|^([1-5]\d{4})$|^(6[0-4]\d{3})$|^(65[0-4]\d{2})$|^(655[0-2]\d)$|^(6553[0-5])$/,
-);
 
 export default class OtherTool extends Component {
   constructor() {
@@ -73,7 +61,6 @@ export default class OtherTool extends Component {
       keyVisible: false,
       //ldap
       effective: false,
-      webProxy: false,
       type: 0,
       port: 389,
       serverIP: '',
@@ -92,13 +79,16 @@ export default class OtherTool extends Component {
       isSaveWebProxy: false,
       searchRange: 0,
       DNGroupList: [{ dn: '', groupName: '' }],
+      effectiveCustomName: 'LDAP',
+      ssoCustomName: 'SSO',
+      enabledMDLogin: false,
     };
   }
 
   componentDidMount() {
     this.getSettings();
-    this.getApiProxyState();
     this.getSsoSettings();
+    this.getMDLoginSetting();
   }
 
   getSettings() {
@@ -131,17 +121,23 @@ export default class OtherTool extends Component {
             departmentAttr: data.departmentAttr || '',
             jobAttr: data.jobAttr || '',
             workphoneAttr: data.workphoneAttr || '',
+            initSyncInfo: {
+              fullnameAttr: data.fullnameAttr || '',
+              departmentAttr: data.departmentAttr || '',
+              jobAttr: data.jobAttr || '',
+              workphoneAttr: data.workphoneAttr || '',
+            },
             loading: false,
+            effectiveCustomName: data.name || 'LDAP',
+            effectiveDefaultCustomName: data.name || 'LDAP',
           });
         }
       });
   }
 
-  getApiProxyState = () => {
-    const apiProxyFeatureType = getFeatureStatus(Config.projectId, VersionProductType.apiRequestProxy);
-    if (!apiProxyFeatureType) return;
-    projectSettingController.getApiProxyState({ projectId: Config.projectId }).then(res => {
-      this.setState({ webProxy: res });
+  getMDLoginSetting = () => {
+    projectSettingController.getMDLoginSetting({ projectId: Config.projectId }).then(({ enabledMDLogin }) => {
+      this.setState({ enabledMDLogin });
     });
   };
 
@@ -159,11 +155,11 @@ export default class OtherTool extends Component {
       });
   }
 
-  updateWebProxyState = () => {
+  updateSSO = () => {
     projectSettingController
-      .setApiProxyState({
+      .setSso({
         projectId: Config.projectId,
-        state: this.state.webProxy,
+        isOpenSso: this.state.sso,
       })
       .then(res => {
         if (!res) {
@@ -172,11 +168,12 @@ export default class OtherTool extends Component {
       });
   };
 
-  updateSSO = () => {
+  // 更新平台帐号登录状态
+  setMDLoginSetting = () => {
     projectSettingController
-      .setSso({
+      .setMDLoginSetting({
         projectId: Config.projectId,
-        isOpenSso: this.state.sso,
+        enabledMDLogin: this.state.enabledMDLogin,
       })
       .then(res => {
         if (!res) {
@@ -194,11 +191,11 @@ export default class OtherTool extends Component {
         if (key === 'effective') {
           this.updateLDAPState();
         }
-        if (key === 'webProxy') {
-          this.updateWebProxyState();
-        }
         if (key === 'sso') {
           this.updateSSO();
+        }
+        if (key === 'enabledMDLogin') {
+          this.setMDLoginSetting();
         }
       },
     );
@@ -223,12 +220,12 @@ export default class OtherTool extends Component {
     });
   }
 
-  handleUpdateItemCheck(e) {
+  handleUpdateItemCheck = checked => {
     this.setState({
-      enableSSL: e.target.checked,
-      port: e.target.checked ? 636 : 389,
+      enableSSL: !checked,
+      port: !checked ? 636 : 389,
     });
-  }
+  };
 
   selectTypeComp = key => {
     return (
@@ -410,12 +407,11 @@ export default class OtherTool extends Component {
                     {this.renderCompType(key, compType)}
                     {desc === 'enableSSL' ? (
                       <Checkbox
+                        text={_l('使用安全链接')}
                         className="mLeft16"
                         checked={this.state[desc]}
-                        onChange={e => this.handleUpdateItemCheck(e, key)}
-                      >
-                        {_l('使用安全链接')}
-                      </Checkbox>
+                        onClick={this.handleUpdateItemCheck}
+                      />
                     ) : (
                       <span className="formItemDesc">{desc}</span>
                     )}
@@ -434,214 +430,17 @@ export default class OtherTool extends Component {
       <div className="formBox">
         <div className="formModuleTitle">{_l('服务器设置（带*为必填项）')}</div>
         {this.renderFormCommon(formListTop)}
-        <div className="splitLine" />
+        <div className="splitLine"></div>
         <div className="formModuleTitle">{_l('用户 schema')}</div>
-        {this.renderFormCommon(formListBottom)}
+        {this.renderFormCommon(formListBottom.slice(0, 2))}
+        <div className="formModuleTitle">{_l('同步信息')}</div>
+        {this.renderFormCommon(formListBottom.slice(2))}
         <Button type="primary" onClick={() => this.handleSubmit()} disabled={this.state.saveDisabled}>
           {this.state.saveDisabled ? _l('保存中') : _l('保存')}
         </Button>
       </div>
     );
   }
-  changeValue = (val, field, type) => {
-    let value;
-    switch (type) {
-      case 'checkbox':
-        value = val.target.checked;
-        break;
-      case 'switch':
-        value = !val;
-        break;
-      case 'input':
-        value = val.target.value;
-        break;
-      default:
-    }
-    this.setState({ [field]: value });
-  };
-  handleSaveWebProxy = () => {
-    const { http, https, ip, portNumber, openIdentityValidate, userName, webProxyPassword } = this.state;
-    this.setState({ isSaveWebProxy: true });
-    if (
-      (!http && !https) ||
-      !ip ||
-      !ipRegExp.test(ip) ||
-      !portRegExp.test(portNumber) ||
-      !portNumber ||
-      (openIdentityValidate && (!userName || !webProxyPassword))
-    ) {
-      return;
-    }
-    this.setState({ saveDisabled: true });
-    projectSettingController
-      .editApiProxySettings({
-        type: http && https ? 0 : http ? 1 : https ? 2 : '',
-        ip,
-        port: portNumber,
-        openIdentityValidate,
-        username: openIdentityValidate ? userName : null,
-        password: openIdentityValidate ? encrypt(webProxyPassword) : null,
-        projectId: Config.projectId,
-      })
-      .then(res => {
-        this.setState({ isSaveWebProxy: false, saveDisabled: false });
-        if (res) {
-          alert(_l('保存成功'));
-        } else {
-          alert(_l('保存失败'), 2);
-        }
-      })
-      .fail(err => {
-        this.setState({ saveDisabled: false });
-      });
-  };
-
-  renderWebProxy = () => {
-    const {
-      http,
-      https,
-      ip,
-      portNumber,
-      openIdentityValidate,
-      userName,
-      webProxyPassword,
-      isSaveWebProxy,
-    } = this.state;
-    return (
-      <div className="formBox">
-        <div className="formModuleTitle">{_l('代理服务器设置')}</div>
-        <div className="formItem">
-          <div className="formLabel width135">
-            <span className="TxtMiddle Red">*</span>
-            {_l('接口类型')}
-          </div>
-          <div className="formRight flexRow">
-            <div className="formInput directionRow pTop8">
-              <Checkbox
-                checked={http}
-                onChange={checked => {
-                  this.changeValue(checked, 'http', 'checkbox');
-                }}
-              >
-                HTTP
-              </Checkbox>
-              <Checkbox
-                checked={https}
-                onChange={checked => {
-                  this.changeValue(checked, 'https', 'checkbox');
-                }}
-              >
-                HTTPS
-              </Checkbox>
-            </div>
-            <div className="errorMsg">{isSaveWebProxy && !http && !https ? _l('请选择接口类型') : ''}</div>
-          </div>
-        </div>
-        <div className="formItem">
-          <div className="formLabel width135">
-            <span className="TxtMiddle Red">*</span>
-            {_l('服务器地址')}
-          </div>
-          <div className="formRight">
-            <div className="formInput flexRow directionRow">
-              <Input
-                style={{ width: 180 }}
-                placeholder={_l('IP、域名')}
-                value={ip}
-                onChange={e => {
-                  this.changeValue(e, 'ip', 'input');
-                }}
-              />
-              <span className="mLeft10 mRight10 LineHeight32">:</span>
-              <Input
-                style={{ width: 100 }}
-                placeholder={_l('端口号')}
-                value={portNumber}
-                onChange={e => {
-                  this.changeValue(e, 'portNumber', 'input');
-                }}
-              />
-            </div>
-            <div className="errorMsg">
-              {isSaveWebProxy &&
-                (!ip || !portNumber
-                  ? _l('请输入服务器地址')
-                  : !ipRegExp.test(ip)
-                  ? _l('地址格式不正确')
-                  : !portRegExp.test(portNumber)
-                  ? _l('无效的端口号')
-                  : '')}
-            </div>
-          </div>
-        </div>
-        <div className="formItem">
-          <div className="formLabel width135">{_l('身份验证')}</div>
-          <div className="formRight pTop8">
-            <div className="formInput">
-              <Switch
-                size="small"
-                checked={openIdentityValidate}
-                onClick={checked => {
-                  this.changeValue(checked, 'openIdentityValidate', 'switch');
-                }}
-              />
-            </div>
-            <div className="errorMsg" />
-          </div>
-        </div>
-        {openIdentityValidate && (
-          <div className="formItem">
-            <div className="formLabel width135">
-              <span className="TxtMiddle Red">*</span>
-              {_l('用户名')}
-            </div>
-            <div className="formRight">
-              <div className="formInput">
-                <Input
-                  placeholder={_l('用户名')}
-                  style={{ width: 302 }}
-                  value={userName}
-                  onChange={e => {
-                    this.changeValue(e, 'userName', 'input');
-                  }}
-                />
-              </div>
-              <div className="errorMsg">
-                {isSaveWebProxy && openIdentityValidate && !userName ? _l('请输入用户名') : ''}
-              </div>
-            </div>
-          </div>
-        )}
-        {openIdentityValidate && (
-          <div className="formItem">
-            <div className="formLabel width135">
-              <span className="TxtMiddle Red">*</span>
-              {_l('密码')}
-            </div>
-            <div className="formRight">
-              <div className="formInput">
-                <Input.Password
-                  placeholder={_l('密码')}
-                  style={{ width: 302 }}
-                  value={webProxyPassword}
-                  autocomplete="new-password"
-                  onChange={e => {
-                    this.changeValue(e, 'webProxyPassword', 'input');
-                  }}
-                />
-              </div>
-              <div className="errorMsg">
-                {isSaveWebProxy && openIdentityValidate && !webProxyPassword ? _l('请输入密码') : ''}
-              </div>
-            </div>
-          </div>
-        )}
-        <Button type="primary" onClick={this.handleSaveWebProxy} disabled={this.state.saveDisabled}>
-          {this.state.saveDisabled ? _l('保存中') : _l('保存')}
-        </Button>
-      </div>
-    );
-  };
 
   handleSubmit() {
     const noneError = this.handleCheck();
@@ -710,41 +509,18 @@ export default class OtherTool extends Component {
             this.setState({ saveDisabled: false });
           }
         })
-        .fail(err => {
+        .catch(err => {
           this.setState({ saveDisabled: false });
         });
     }
   }
 
-  // renderLogin() {}
-
-  handleChangeVisible(value) {
+  handleChangeVisible = value => {
     this.setState({
       keyVisible: value,
     });
-  }
-
-  getApiProxySetting = () => {
-    projectSettingController
-      .getApiProxySettings({
-        projectId: Config.projectId,
-      })
-      .then(res => {
-        if (res) {
-          this.setState({
-            http: res.type === 0 || res.type === 1 ? true : false,
-            https: res.type === 0 || res.type === 2 ? true : false,
-            ip: res.ip,
-            portNumber: res.port,
-            openIdentityValidate: res.openIdentityValidate,
-            userName: res.userName,
-            webProxyPassword: res.password,
-            loading: false,
-          });
-        }
-        this.toggleComp('webProxy');
-      });
   };
+
   getSsoSettings = () => {
     projectSettingController
       .getSsoSettings({
@@ -756,19 +532,61 @@ export default class OtherTool extends Component {
             ssoWebUrl: res.ssoWebUrl,
             ssoAppUrl: res.ssoAppUrl,
             sso: res.isOpenSso,
+            ssoCustomName: res.ssoName || 'SSO',
+            ssoDefaultCustomName: res.ssoName || 'SSO',
           });
         }
       });
   };
+
+  // 检查是否有密钥
+  checkHasKey = () => {
+    VerifyPasswordConfirm.confirm({
+      onOk: () => {
+        this.handleChangeVisible(true);
+      },
+    });
+  };
+
+  // 保存自定义名称
+  saveCustomName = key => {
+    const currentName = this.state[`${key}CustomName`];
+    if (!currentName) {
+      alert(_l('名称不得为空'), 2);
+      return;
+    }
+    this.setState({ [`set${key}Name`]: false });
+
+    if (_.isEqual(currentName, this.state[`${key}DefaultCustomName`])) return;
+
+    const ajax = key === 'sso' ? projectSettingController.setSsoName : projectSettingController.updateLdapName;
+    const params = key === 'sso' ? { ssoName: currentName } : { ldapName: currentName };
+
+    ajax({ projectId: Config.projectId, ...params })
+      .then(res => {
+        if (res) {
+          alert(_l('修改成功'));
+          this.setState({ [`${key}DefaultCustomName`]: currentName });
+        } else {
+          alert(_l('修改失败'), 2);
+        }
+      })
+      .catch(err => {
+        alert(_l('修改失败'), 2);
+        this.setState({ [`${key}CustomName`]: this.state[`${key}DefaultCustomName`] });
+      });
+  };
+
   renderIndex() {
     const { licenseType } = getCurrentProject(Config.projectId, true);
 
     return (
       <Fragment>
         {DATA_INFO.map(item => {
-          const { key, featureId, docLink, showSetting, description } = item;
+          const { key, featureId, docLink, showSetting, description, showCustomName, label } = item;
           const featureType = getFeatureStatus(Config.projectId, featureId);
           if (item.featureId && !featureType) return;
+
           return (
             <div className="toolItem">
               <div className="toolItemLabel">
@@ -801,7 +619,7 @@ export default class OtherTool extends Component {
                       <button
                         type="button"
                         className="ming Button Button--link ThemeColor3 pLeft0 adminHoverColor Block"
-                        onClick={this.handleChangeVisible.bind(this, true)}
+                        onClick={this.checkHasKey}
                       >
                         {_l('查看密钥')}
                       </button>
@@ -826,8 +644,6 @@ export default class OtherTool extends Component {
                           });
                         }
                         switch (key) {
-                          case 'webProxy':
-                            return this.getApiProxySetting();
                           default:
                             this.toggleComp(key);
                         }
@@ -841,6 +657,52 @@ export default class OtherTool extends Component {
                   {description}
                   {docLink && <Support text={_l('查看文档')} type={3} href={docLink} />}
                 </div>
+                {showCustomName && (
+                  <div className="customNameWrap mTop8">
+                    <span className="Gray_9e">{_l('自定义名称：')}</span>
+                    {this.state[`set${key}Name`] ? (
+                      <input
+                        ref={node => (this.customNameInput = node)}
+                        value={this.state[`${key}CustomName`]}
+                        className="customNameInput"
+                        onChange={e => this.setState({ [`${key}CustomName`]: e.target.value })}
+                      />
+                    ) : (
+                      <span className="name">{this.state[`${key}CustomName`]}</span>
+                    )}
+                    {this.state[`set${key}Name`] ? (
+                      <Fragment>
+                        <span className="ThemeColor Hand mLeft16 mRight20" onClick={() => this.saveCustomName(key)}>
+                          {_l('保存')}
+                        </span>
+                        <span
+                          className="ThemeColor Hand"
+                          onClick={() => {
+                            this.setState({
+                              [`set${key}Name`]: false,
+                              [`${key}CustomName`]: this.state[`${key}DefaultCustomName`],
+                            });
+                          }}
+                        >
+                          {_l('取消')}
+                        </span>
+                      </Fragment>
+                    ) : this.state[key] ? (
+                      <Icon
+                        icon="edit"
+                        className="Font12 mLeft8 Gray_9e Hover_21 Hand"
+                        onClick={() => {
+                          setTimeout(() => {
+                            this.customNameInput.focus();
+                          }, 500);
+                          this.setState({ [`set${key}Name`]: true });
+                        }}
+                      />
+                    ) : (
+                      ''
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           );
@@ -855,8 +717,6 @@ export default class OtherTool extends Component {
         return this.renderIndex();
       case 'effective':
         return this.renderLdap();
-      case 'webProxy':
-        return this.renderWebProxy();
       case 'sso':
         return this.renderSSO();
       // case 'isSingleLogin':
@@ -940,7 +800,7 @@ export default class OtherTool extends Component {
           <ViewKeyDialog
             projectId={Config.projectId}
             visible={keyVisible}
-            handleChangeVisible={this.handleChangeVisible.bind(this)}
+            handleChangeVisible={this.handleChangeVisible}
           />
         )}
         <div className="orgManagementHeader">

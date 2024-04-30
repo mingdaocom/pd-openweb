@@ -1,12 +1,13 @@
 import React from 'react';
 import SubListStyle from './SubListStyle';
 import RelateStyle from './RelateStyle';
+import { isSheetDisplay } from 'src/pages/widgetConfig/util';
 
 // 高级设置
 export default function WidgetOperate(props) {
   const { data } = props;
 
-  if (data.type === 29 && _.get(data, 'advancedSetting.showtype') === '2') {
+  if (isSheetDisplay(data)) {
     return <RelateStyle {...props} />;
   }
 

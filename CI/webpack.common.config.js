@@ -4,10 +4,10 @@ module.exports = {
   entry: {
     globals: ['src/common/global'],
     vendors: [
-      'src/library/jquery/1.8.3/jquery',
-      'src/library/vm.js',
-      'src/library/jquery/1.8.3/jquery.mousewheel.min',
+      'src/library/jquery/jquery.min',
+      'src/library/jquery/jquery.mousewheel.min',
       'src/library/plupload/plupload.full.min',
+      'src/library/vm.js',
     ],
     css: [
       'src/common/mdcss/basic.css',

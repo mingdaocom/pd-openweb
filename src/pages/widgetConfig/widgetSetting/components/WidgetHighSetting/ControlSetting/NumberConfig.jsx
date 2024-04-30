@@ -52,6 +52,30 @@ export default function NumberConfig(props) {
             </div>
           </EditInfo>
         )}
+        {/* <div className="labelWrap">
+          <Checkbox
+            size="small"
+            checked={thousandth !== '1'}
+            onClick={checked => onChange(handleAdvancedSettingChange(data, { thousandth: checked ? '1' : '0' }))}
+            text={_l('显示千分位')}
+          />
+        </div> */}
+        <div className="labelWrap">
+          <Checkbox
+            size="small"
+            checked={numshow === '1'}
+            onClick={checked =>
+              onChange(
+                handleAdvancedSettingChange(data, {
+                  suffix: checked ? '' : '%',
+                  prefix: '',
+                  numshow: checked ? '0' : '1',
+                }),
+              )
+            }
+            text={_l('按百分比显示')}
+          />
+        </div>
         {nameVisible && (
           <SliderScaleConfig
             itemnames={itemnames}

@@ -4,6 +4,7 @@ import { unlockAppLockPassword, lockAppFunc, modifyAppLockPassword, closeLockFun
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
 import styled from 'styled-components';
 import { navigateTo } from 'src/router/navigateTo';
+import AppSettingHeader from '../AppSettingHeader';
 
 const Wrap = styled.div`
   .prompt {
@@ -73,12 +74,12 @@ export default function LockAppCom(props) {
 
   return (
     <Wrap>
-      <div className="Font17 bold mBottom8">{_l('锁定')}</div>
-      <div className="Gray_9e mBottom20">
-        {_l(
+      <AppSettingHeader
+        title={_l('锁定')}
+        description={_l(
           '应用锁定状态下所有用户（包括管理员）不能查看、修改应用的配置，用户验证密码后可解锁其在应用下的操作权限。锁定应用需验证身份',
         )}
-      </div>
+      />
       <div className="mBottom20">
         <Switch
           disabled={switchLock && !(isNormalApp && isOwner)}

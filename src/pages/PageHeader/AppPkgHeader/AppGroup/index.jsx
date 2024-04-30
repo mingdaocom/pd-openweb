@@ -58,19 +58,20 @@ export default class extends Component {
   componentDidMount() {
     this.getData(this.props);
     this.removeEventBind = this.bindEvent();
-    window.updateAppGroups = this.getData;
   }
 
   componentWillReceiveProps(nextProps) {
     this.ids = getIds(nextProps);
-    if (compareProps(nextProps.appPkg, this.props.appPkg, ['id'])) {
+    if (
+      compareProps(nextProps.appPkg, this.props.appPkg, ['id']) ||
+      compareProps(nextProps.appPkg, this.props.appPkg, ['needUpdate'])
+    ) {
       this.getData(nextProps);
     }
   }
 
   componentWillUnmount() {
     this.removeEventBind && this.removeEventBind();
-    delete window.updateAppGroups;
   }
   // 当前处理的分组id
   handledAppItemId = '';
@@ -88,11 +89,11 @@ export default class extends Component {
     this.props.updateAppPkgData({ appRoleType: permissionType, isLock });
     const filterSections = isCharge
       ? sections
-      : sections
+      : (sections || [])
           .map(item => {
             return {
               ...item,
-              workSheetInfo: item.workSheetInfo.filter(o => o.status === 1 && !o.navigateHide),
+              workSheetInfo: item.workSheetInfo.filter(o => [1, 4].includes(o.status) && !o.navigateHide),
             };
           })
           .filter(o => o.workSheetInfo && o.workSheetInfo.length > 0);
@@ -296,7 +297,7 @@ export default class extends Component {
         navigateTo(`/app/${appId}/${appSectionId}`, true);
         this.ensurePointerVisible();
       })
-      .fail(() => {
+      .catch(() => {
         this.setState({ focusGroupId: null });
       });
   };
@@ -457,7 +458,9 @@ export default class extends Component {
               <div className="appItemsOuterWrap"></div>
             )}
           </Fragment>
-        ) : <span className='flex'></span>}
+        ) : (
+          <span className="flex"></span>
+        )}
 
         {tr && (
           <Fragment>

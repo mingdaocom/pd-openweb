@@ -8,8 +8,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getAuthorizeVersions: function (args, options = {}) {
-     
-     return $.api('Order', 'GetAuthorizeVersions', args, options);
+
+     return mdyAPI('Order', 'GetAuthorizeVersions', args, options);
    },
   /**
   * 获取网络主授权草案订单
@@ -20,8 +20,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getAuthorizeDraftOrder: function (args, options = {}) {
-     
-     return $.api('Order', 'GetAuthorizeDraftOrder', args, options);
+
+     return mdyAPI('Order', 'GetAuthorizeDraftOrder', args, options);
    },
   /**
   * 添加主授权订单
@@ -37,8 +37,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addAuthorizeOrder: function (args, options = {}) {
-     
-     return $.api('Order', 'AddAuthorizeOrder', args, options);
+
+     return mdyAPI('Order', 'AddAuthorizeOrder', args, options);
    },
   /**
   * 获取主授权订单总价
@@ -53,8 +53,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getAuthorizeOrderPrice: function (args, options = {}) {
-     
-     return $.api('Order', 'GetAuthorizeOrderPrice', args, options);
+
+     return mdyAPI('Order', 'GetAuthorizeOrderPrice', args, options);
    },
   /**
   * 获取专属算力实例规格列表
@@ -65,8 +65,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getProjectComputingInstances: function (args, options = {}) {
-     
-     return $.api('Order', 'GetProjectComputingInstances', args, options);
+
+     return mdyAPI('Order', 'GetProjectComputingInstances', args, options);
    },
   /**
   * 获取增补用户拓展包订单总价
@@ -80,8 +80,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getPersonOrderPrice: function (args, options = {}) {
-     
-     return $.api('Order', 'GetPersonOrderPrice', args, options);
+
+     return mdyAPI('Order', 'GetPersonOrderPrice', args, options);
    },
   /**
   * 添加增补用户拓展包订单
@@ -95,8 +95,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addPersonOrder: function (args, options = {}) {
-     
-     return $.api('Order', 'AddPersonOrder', args, options);
+
+     return mdyAPI('Order', 'AddPersonOrder', args, options);
    },
   /**
   * 获取增补应用附件上传量拓展包订单总价
@@ -110,8 +110,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getApkStorageOrderPrice: function (args, options = {}) {
-     
-     return $.api('Order', 'GetApkStorageOrderPrice', args, options);
+
+     return mdyAPI('Order', 'GetApkStorageOrderPrice', args, options);
    },
   /**
   * 添加增补应用附件上传量拓展包订单
@@ -125,8 +125,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addApkStorageOrder: function (args, options = {}) {
-     
-     return $.api('Order', 'AddApkStorageOrder', args, options);
+
+     return mdyAPI('Order', 'AddApkStorageOrder', args, options);
    },
   /**
   * 获取增补工作流拓展包订单总价
@@ -140,8 +140,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getWorkflowOrderPrice: function (args, options = {}) {
-     
-     return $.api('Order', 'GetWorkflowOrderPrice', args, options);
+
+     return mdyAPI('Order', 'GetWorkflowOrderPrice', args, options);
    },
   /**
   * 添加增补工作流拓展包订单
@@ -155,8 +155,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addWorkflowOrder: function (args, options = {}) {
-     
-     return $.api('Order', 'AddWorkflowOrder', args, options);
+
+     return mdyAPI('Order', 'AddWorkflowOrder', args, options);
    },
   /**
   * 获取本月工作流拓展包订单总价
@@ -170,8 +170,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getMonthlyWorkflowOrderPrice: function (args, options = {}) {
-     
-     return $.api('Order', 'GetMonthlyWorkflowOrderPrice', args, options);
+
+     return mdyAPI('Order', 'GetMonthlyWorkflowOrderPrice', args, options);
    },
   /**
   * 添加本月增补工作流拓展包订单
@@ -185,8 +185,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addMonthlyWorkflowOrder: function (args, options = {}) {
-     
-     return $.api('Order', 'AddMonthlyWorkflowOrder', args, options);
+
+     return mdyAPI('Order', 'AddMonthlyWorkflowOrder', args, options);
    },
   /**
   * 获取增补外部用户拓展包订单总价
@@ -200,8 +200,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getExternalUserOrderPrice: function (args, options = {}) {
-     
-     return $.api('Order', 'GetExternalUserOrderPrice', args, options);
+
+     return mdyAPI('Order', 'GetExternalUserOrderPrice', args, options);
    },
   /**
   * 获取增补外部用户续费订单总价
@@ -215,8 +215,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getExternalUserExtensionOrderPrice: function (args, options = {}) {
-     
-     return $.api('Order', 'GetExternalUserExtensionOrderPrice', args, options);
+
+     return mdyAPI('Order', 'GetExternalUserExtensionOrderPrice', args, options);
    },
   /**
   * 添加增补外部用户拓展包订单
@@ -230,8 +230,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addExternalUserOrder: function (args, options = {}) {
-     
-     return $.api('Order', 'AddExternalUserOrder', args, options);
+
+     return mdyAPI('Order', 'AddExternalUserOrder', args, options);
    },
   /**
   * 外部用户续费订单
@@ -243,8 +243,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addExternalUserExtensionOrder: function (args, options = {}) {
-     
-     return $.api('Order', 'AddExternalUserExtensionOrder', args, options);
+
+     return mdyAPI('Order', 'AddExternalUserExtensionOrder', args, options);
    },
   /**
   * 获取增补数据集成运行行数拓展包订单总价
@@ -258,8 +258,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getDataPipelineOrderPrice: function (args, options = {}) {
-     
-     return $.api('Order', 'GetDataPipelineOrderPrice', args, options);
+
+     return mdyAPI('Order', 'GetDataPipelineOrderPrice', args, options);
    },
   /**
   * 添加增补数据集成运行行数拓展包订单
@@ -273,8 +273,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addDataPipelineOrder: function (args, options = {}) {
-     
-     return $.api('Order', 'AddDataPipelineOrder', args, options);
+
+     return mdyAPI('Order', 'AddDataPipelineOrder', args, options);
    },
   /**
   * 获取本月增补数据集成运行行数拓展包订单总价
@@ -288,8 +288,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getMonthlyDataPipelineOrderPrice: function (args, options = {}) {
-     
-     return $.api('Order', 'GetMonthlyDataPipelineOrderPrice', args, options);
+
+     return mdyAPI('Order', 'GetMonthlyDataPipelineOrderPrice', args, options);
    },
   /**
   * 添加本月增补数据集成运行行数拓展包订单
@@ -303,8 +303,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addMonthlyDataPipelineOrder: function (args, options = {}) {
-     
-     return $.api('Order', 'AddMonthlyDataPipelineOrder', args, options);
+
+     return mdyAPI('Order', 'AddMonthlyDataPipelineOrder', args, options);
    },
   /**
   * 获取专属算力实例订单总价
@@ -318,8 +318,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getComputingInstanceOrderPrice: function (args, options = {}) {
-     
-     return $.api('Order', 'GetComputingInstanceOrderPrice', args, options);
+
+     return mdyAPI('Order', 'GetComputingInstanceOrderPrice', args, options);
    },
   /**
   * 获取专属算力实例续费订单总价
@@ -333,8 +333,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getComputingInstanceExtensionOrderPrice: function (args, options = {}) {
-     
-     return $.api('Order', 'GetComputingInstanceExtensionOrderPrice', args, options);
+
+     return mdyAPI('Order', 'GetComputingInstanceExtensionOrderPrice', args, options);
    },
   /**
   * 添加专属算力实例订单（永久有效，非平台版）
@@ -348,8 +348,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addPermanentComputingInstanceOrder: function (args, options = {}) {
-     
-     return $.api('Order', 'AddPermanentComputingInstanceOrder', args, options);
+
+     return mdyAPI('Order', 'AddPermanentComputingInstanceOrder', args, options);
    },
   /**
   * 添加专属算力实例订单
@@ -363,8 +363,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addComputingInstanceOrder: function (args, options = {}) {
-     
-     return $.api('Order', 'AddComputingInstanceOrder', args, options);
+
+     return mdyAPI('Order', 'AddComputingInstanceOrder', args, options);
    },
   /**
   * 添加专属算力实例续费订单
@@ -378,8 +378,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addComputingInstanceExtensionOrder: function (args, options = {}) {
-     
-     return $.api('Order', 'AddComputingInstanceExtensionOrder', args, options);
+
+     return mdyAPI('Order', 'AddComputingInstanceExtensionOrder', args, options);
    },
   /**
   * 获取本月专属算力实例订单总价
@@ -393,8 +393,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getMonthlyComputingInstanceOrderPrice: function (args, options = {}) {
-     
-     return $.api('Order', 'GetMonthlyComputingInstanceOrderPrice', args, options);
+
+     return mdyAPI('Order', 'GetMonthlyComputingInstanceOrderPrice', args, options);
    },
   /**
   * 添加专属算力实例订单
@@ -408,8 +408,38 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addMonthlyComputingInstanceOrder: function (args, options = {}) {
-     
-     return $.api('Order', 'AddMonthlyComputingInstanceOrder', args, options);
+
+     return mdyAPI('Order', 'AddMonthlyComputingInstanceOrder', args, options);
+   },
+  /**
+  * 获取聚合表拓展包订单总价
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.productId 产品规格ID
+  * @param {string} args.orderId 续费订单ID
+  * @param {integer} args.num 数量
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getAggregationTableOrderPrice: function (args, options = {}) {
+
+     return mdyAPI('Order', 'GetAggregationTableOrderPrice', args, options);
+   },
+  /**
+  * 添加增补聚合表拓展包订单
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.productId 产品规格ID
+  * @param {integer} args.num 数量
+  * @param {boolean} args.needSalesAssistance 是否需要明道云顾问
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   addAggregationTableOrder: function (args, options = {}) {
+
+     return mdyAPI('Order', 'AddAggregationTableOrder', args, options);
    },
   /**
   * 其他方式付款（记录用户操作日志）
@@ -421,8 +451,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addThreePartPayOrderLog: function (args, options = {}) {
-     
-     return $.api('Order', 'AddThreePartPayOrderLog', args, options);
+
+     return mdyAPI('Order', 'AddThreePartPayOrderLog', args, options);
    },
   /**
   * 余额支付
@@ -435,8 +465,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    balancePayOrder: function (args, options = {}) {
-     
-     return $.api('Order', 'BalancePayOrder', args, options);
+
+     return mdyAPI('Order', 'BalancePayOrder', args, options);
    },
   /**
   * 获取升级版本订单价格
@@ -448,8 +478,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getUpgradeVersionOrderPrice: function (args, options = {}) {
-     
-     return $.api('Order', 'GetUpgradeVersionOrderPrice', args, options);
+
+     return mdyAPI('Order', 'GetUpgradeVersionOrderPrice', args, options);
    },
   /**
   * 添加升级版本订单
@@ -461,8 +491,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addUpgradeVersionOrder: function (args, options = {}) {
-     
-     return $.api('Order', 'AddUpgradeVersionOrder', args, options);
+
+     return mdyAPI('Order', 'AddUpgradeVersionOrder', args, options);
    },
   /**
   * 获取版本升级信息
@@ -473,8 +503,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getUpgradeVersionData: function (args, options = {}) {
-     
-     return $.api('Order', 'GetUpgradeVersionData', args, options);
+
+     return mdyAPI('Order', 'GetUpgradeVersionData', args, options);
    },
   /**
   * 添加充值订单
@@ -487,8 +517,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addRechargeOrder: function (args, options = {}) {
-     
-     return $.api('Order', 'AddRechargeOrder', args, options);
+
+     return mdyAPI('Order', 'AddRechargeOrder', args, options);
    },
   /**
   * 获取订单详情
@@ -499,8 +529,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getProjectPayResult: function (args, options = {}) {
-     
-     return $.api('Order', 'GetProjectPayResult', args, options);
+
+     return mdyAPI('Order', 'GetProjectPayResult', args, options);
    },
   /**
   * 取消升级订单
@@ -514,8 +544,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    cancelOrder: function (args, options = {}) {
-     
-     return $.api('Order', 'CancelOrder', args, options);
+
+     return mdyAPI('Order', 'CancelOrder', args, options);
    },
   /**
   * 下载银行信息
@@ -528,8 +558,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    downloadBankInfo: function (args, options = {}) {
-     
-     return $.api('Order', 'DownloadBankInfo', args, options);
+
+     return mdyAPI('Order', 'DownloadBankInfo', args, options);
    },
   /**
   * 获取交易记录
@@ -546,8 +576,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getTransactionRecordByPage: function (args, options = {}) {
-     
-     return $.api('Order', 'GetTransactionRecordByPage', args, options);
+
+     return mdyAPI('Order', 'GetTransactionRecordByPage', args, options);
    },
   /**
   * 根据orderId获取交易记录
@@ -559,8 +589,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getTransactionRecordByOrderId: function (args, options = {}) {
-     
-     return $.api('Order', 'GetTransactionRecordByOrderId', args, options);
+
+     return mdyAPI('Order', 'GetTransactionRecordByOrderId', args, options);
    },
   /**
   * 申请发票
@@ -584,7 +614,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    applyInvoice: function (args, options = {}) {
-     
-     return $.api('Order', 'ApplyInvoice', args, options);
+
+     return mdyAPI('Order', 'ApplyInvoice', args, options);
    },
 };

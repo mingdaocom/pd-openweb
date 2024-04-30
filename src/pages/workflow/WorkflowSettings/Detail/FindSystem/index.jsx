@@ -46,11 +46,18 @@ export default class FindSystem extends Component {
    * 获取节点详情
    */
   getNodeDetail(props, sId, fields) {
-    const { processId, selectNodeId, selectNodeType } = props;
+    const { processId, selectNodeId, selectNodeType, instanceId } = props;
     const { data } = this.state;
 
     flowNode
-      .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, selectNodeId: sId, fields })
+      .getNodeDetail({
+        processId,
+        nodeId: selectNodeId,
+        flowNodeType: selectNodeType,
+        selectNodeId: sId,
+        fields,
+        instanceId,
+      })
       .then(result => {
         this.setState({ data: !sId ? result : { ...result, name: data.name } });
       });

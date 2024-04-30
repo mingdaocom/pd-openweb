@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import DialogSelectGroups from 'src/components/dialogSelectDept';
+import { dialogSelectDept } from 'ming-ui/functions';
 import cx from 'classnames';
 import { Tooltip } from 'ming-ui';
 import SelectUser from 'mobile/components/SelectUser';
@@ -37,7 +37,7 @@ export default class Widgets extends Component {
     if (browserIsMobile()) {
       this.setState({ showSelectDepartment: true });
     } else {
-      new DialogSelectGroups({
+      dialogSelectDept({
         projectId,
         isIncludeRoot: false,
         unique: enumDefault === 0,

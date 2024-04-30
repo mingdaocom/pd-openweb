@@ -16,7 +16,7 @@ var activity = {
   getList: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/activity/getList';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'activitygetList', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'activitygetList', args, $.extend(base, options));
   },
   /**
    * 移除卡住的
@@ -29,7 +29,7 @@ var activity = {
   remove: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/activity/remove';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'activityremove', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'activityremove', JSON.stringify(args), $.extend(base, options));
   },
 };
 export default activity;

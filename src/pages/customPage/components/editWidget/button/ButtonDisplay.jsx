@@ -1,11 +1,10 @@
 import React from 'react';
 import { string } from 'prop-types';
-import { Button, Icon } from 'ming-ui';
+import { Button, SvgIcon } from 'ming-ui';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { computeWidth } from '../../../util';
 import tinycolor from '@ctrl/tinycolor';
-import SvgIcon from 'src/components/SvgIcon';
 import { ButtonListWrap, GraphWrap } from './styled';
 import _ from 'lodash';
 
@@ -52,10 +51,7 @@ const BtnWrap = styled.div`
     font-weight: bold;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.26);
     &:hover {
-      background-color: ${props =>
-        tinycolor(props.color)
-          .darken(20)
-          .toString()};
+      background-color: ${props => tinycolor(props.color).darken(20).toString()};
     }
     .icon {
       font-size: 20px;
@@ -67,11 +63,7 @@ const BtnWrap = styled.div`
       border: 1px dashed #ddd;
     }
     &.active {
-      border: 1px solid
-        ${props =>
-          tinycolor(props.color)
-            .darken(20)
-            .toString()};
+      border: 1px solid ${props => tinycolor(props.color).darken(20).toString()};
     }
   }
   &.adjustText {
@@ -80,9 +72,7 @@ const BtnWrap = styled.div`
       color: ${props => props.color};
       box-shadow: none;
       &:hover {
-        background-color: ${tinycolor('#f8f8f8')
-          .darken(3)
-          .toString()};
+        background-color: ${tinycolor('#f8f8f8').darken(3).toString()};
       }
     }
     .iconWrap {
@@ -124,7 +114,9 @@ export default function ButtonDisplay({
                 const { color, name, config } = item;
                 const defaultIcon = btnType === 2 ? `custom_actions` : null;
                 const icon = _.get(config, 'icon') || defaultIcon;
-                const iconUrl = icon ? `${md.global.FileStoreConfig.pubHost}/customIcon/${icon}.svg` : _.get(config, 'iconUrl');
+                const iconUrl = icon
+                  ? `${md.global.FileStoreConfig.pubHost}/customIcon/${icon}.svg`
+                  : _.get(config, 'iconUrl');
                 return (
                   <BtnWrap
                     key={i}
@@ -134,7 +126,7 @@ export default function ButtonDisplay({
                       active: activeIndex === index,
                       adjustText: style === 3,
                       noMargin: btnType === 2,
-                      flexRow: direction === 2
+                      flexRow: direction === 2,
                     })}
                     onClick={() => {
                       if (typeof onClick === 'function') {
@@ -145,7 +137,10 @@ export default function ButtonDisplay({
                     {btnType === 2 ? (
                       <GraphWrap
                         className={cx('valignWrapper', direction === 1 ? 'column' : 'row', {
-                          small: isMobile && ((direction === 1 && [3, 4].includes(mobileCount)) || (direction === 2 && [2].includes(mobileCount)))
+                          small:
+                            isMobile &&
+                            ((direction === 1 && [3, 4].includes(mobileCount)) ||
+                              (direction === 2 && [2].includes(mobileCount))),
                         })}
                         color={color}
                         radius={style === 1 ? (direction === 1 ? '16px' : '12px') : '50%'}
@@ -155,7 +150,11 @@ export default function ButtonDisplay({
                             <SvgIcon
                               url={iconUrl}
                               fill={style === 3 ? color : '#fff'}
-                              size={(direction === 2 || (isMobile && direction === 1 && [3, 4].includes(mobileCount))) ? 28 : 36}
+                              size={
+                                direction === 2 || (isMobile && direction === 1 && [3, 4].includes(mobileCount))
+                                  ? 28
+                                  : 36
+                              }
                             />
                           </div>
                         )}

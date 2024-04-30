@@ -76,14 +76,27 @@ export default function DisplayRow(props) {
       <div className="rowsWrap">
         {commonWidgets.map((row, index) => {
           const id = row.reduce((p, c) => p + c.controlId, '');
-          return !isEmpty(row) && <RowItem key={id} row={row} index={index} {...props} commonWidgets={commonWidgets} />;
+          return (
+            !isEmpty(row) && (
+              <RowItem
+                key={id}
+                row={row}
+                index={index}
+                {...props}
+                commonWidgets={commonWidgets}
+                displayItemType="common"
+              />
+            )
+          );
         })}
-        <Components.BottomDragPointer rowIndex={commonWidgets.length} showEmpty={!commonWidgets.length} />
+        <Components.BottomDragPointer
+          displayItemType="common"
+          rowIndex={commonWidgets.length}
+          showEmpty={!commonWidgets.length}
+        />
       </div>
       {isEmpty(tabWidgets) ? (
-        commonWidgets.length > 0 ? (
-          <Components.BottomDragPointer displayItemType="tab" rowIndex={widgets.length} />
-        ) : null
+        <Components.BottomDragPointer displayItemType="tab" rowIndex={widgets.length} />
       ) : (
         <DisplayTab {...props} commonLength={commonWidgets.length} tabWidgets={tabWidgets} />
       )}

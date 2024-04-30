@@ -1,13 +1,14 @@
 import React, { Fragment, useState } from 'react';
-import { Icon } from 'ming-ui';
+import { Icon, SvgIcon } from 'ming-ui';
 import { Input, Button, ConfigProvider } from 'antd';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
-import SvgIcon from 'src/components/SvgIcon';
 
 const ButtonWrap = styled.div`
-  .ant-btn, .ant-btn:hover, .ant-btn:focus {
+  .ant-btn,
+  .ant-btn:hover,
+  .ant-btn:focus {
     width: 80px;
     background: ${props => props.color};
     border-color: ${props => props.color};
@@ -43,15 +44,16 @@ const ButtonWrap = styled.div`
 export default function BtnName(props) {
   const { pageId, projectId, btnSetting, btnConfig, setBtnSetting } = props;
   const { name, color, config } = btnSetting;
-  const { btnType = 1  } = btnConfig || {};
-  const defaultConfig = btnType === 2 ? { iconUrl: `${md.global.FileStoreConfig.pubHost}/customIcon/custom_actions.svg` } : {};
+  const { btnType = 1 } = btnConfig || {};
+  const defaultConfig =
+    btnType === 2 ? { iconUrl: `${md.global.FileStoreConfig.pubHost}/customIcon/custom_actions.svg` } : {};
   const { icon, iconUrl } = config || defaultConfig;
 
   const [visible, setVisible] = useState(false);
 
   const onCancel = () => {
     setVisible(false);
-  }
+  };
 
   return (
     <div className="settingItem">
@@ -60,7 +62,7 @@ export default function BtnName(props) {
         <Input
           value={name}
           style={{ width: 'calc(100% - 80px)' }}
-          onChange={(e) => {
+          onChange={e => {
             const name = e.target.value;
             setBtnSetting({ ...btnSetting, name });
           }}
@@ -69,7 +71,7 @@ export default function BtnName(props) {
           action={['click']}
           zIndex={1000}
           popupAlign={{ points: ['tl', 'bl'], offset: [-570, 5], overflow: { adjustX: true, adjustY: true } }}
-          popup={(
+          popup={
             <SelectIcon
               hideInput={true}
               iconColor={color}
@@ -77,7 +79,7 @@ export default function BtnName(props) {
               projectId={projectId}
               icon={icon}
               className="customPageBtnSelectIcon"
-              onModify={(data) => {
+              onModify={data => {
                 const { iconColor, icon, iconUrl } = data;
                 if (iconColor) {
                   setBtnSetting({ ...btnSetting, color: iconColor });
@@ -89,30 +91,41 @@ export default function BtnName(props) {
                       ...config,
                       icon,
                       iconUrl,
-                    }
+                    },
                   });
                 }
               }}
-              onClearIcon={btnType === 1 ? () => {
-                setBtnSetting({
-                  ...btnSetting,
-                  icon: '',
-                  config: {
-                    ...config,
-                    icon: '',
-                    iconUrl: '',
-                  }
-                });
-              } : undefined}
+              onClearIcon={
+                btnType === 1
+                  ? () => {
+                      setBtnSetting({
+                        ...btnSetting,
+                        icon: '',
+                        config: {
+                          ...config,
+                          icon: '',
+                          iconUrl: '',
+                        },
+                      });
+                    }
+                  : undefined
+              }
               onClickAway={onCancel}
               onClose={onCancel}
             />
-          )}
+          }
         >
           <ButtonWrap color={color}>
-            <Button type="primary" onClick={() => { setVisible(true); }}>
+            <Button
+              type="primary"
+              onClick={() => {
+                setVisible(true);
+              }}
+            >
               <SvgIcon url={iconUrl} fill="#fff" size={22} />
-              <div className="arrowWrap valignWrapper"><Icon icon="arrow-down-border"/></div>
+              <div className="arrowWrap valignWrapper">
+                <Icon icon="arrow-down-border" />
+              </div>
             </Button>
           </ButtonWrap>
         </Trigger>

@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import * as actions from '../../../../../redux/position/action';
 import RoleUserList from './RoleUserList';
 import { dialogUserBoard } from 'src/pages/Admin/components/userBoardDialog';
-import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
+import { dialogSelectUser } from 'ming-ui/functions';
 import jobAjax from 'src/api/job';
 import cx from 'classnames';
 import _ from 'lodash';

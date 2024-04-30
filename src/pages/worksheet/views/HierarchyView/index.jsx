@@ -13,7 +13,7 @@ import { bindActionCreators } from 'redux';
 import SelectField from '../components/SelectField';
 import ViewEmpty from '../components/ViewEmpty';
 import ToolBar from './ToolBar';
-import { hierarchyViewCanSelectFields, getItem, setItem } from './util';
+import { hierarchyViewCanSelectFields } from './util';
 import TreeNode from './components/TreeNode';
 import LeftBoundary from './components/LeftBoundary';
 import LayerTitle from './components/LayerTitle';
@@ -94,7 +94,7 @@ function Hierarchy(props) {
     recordInfoId,
     ...rest
   } = props;
-  const { scale: configScale, level: configLevel = '' } = getItem(`hierarchyConfig-${viewId}`) || {};
+  const { scale: configScale, level: configLevel = '' } = safeParse(localStorage.getItem(`hierarchyConfig-${viewId}`));
   const { loading, pageIndex } = hierarchyDataStatus;
   const [{ addRecordDefaultValue, level, scale, createRecordVisible, addRecordPath }, setState] = useSetState({
     scale: (!browserIsMobile() && configScale) || 100,
@@ -135,7 +135,7 @@ function Hierarchy(props) {
 
   useEffect(() => {
     getDefaultHierarchyData();
-    const { level } = getItem(`hierarchyConfig-${viewId}`) || {};
+    const { level } = safeParse(localStorage.getItem(`hierarchyConfig-${viewId}`));
     level && setState({ level: level });
     // 多表关联把所有的关联控件获取到 以便后续展示
     const { viewType, childType } = view;

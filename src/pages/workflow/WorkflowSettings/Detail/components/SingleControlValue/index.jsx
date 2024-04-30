@@ -1,18 +1,16 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import { MultipleDropdown, Dropdown, TagTextarea, Icon, QiniuUpload, CityPicker, Input } from 'ming-ui';
 import { DateTime, DateTimeRange } from 'ming-ui/components/NewDateTimePicker';
-import DialogSelectDept from 'src/components/dialogSelectDept';
 import Tag from '../Tag';
 import SelectOtherFields from '../SelectOtherFields';
-import { getIcons, handleGlobalVariableName } from '../../../utils';
+import { getIcons, handleGlobalVariableName, handleExecReturnValue } from '../../../utils';
 import { previewQiniuUrl } from 'src/components/previewAttachments';
 import { TimePicker } from 'antd';
 import { FORMAT_TEXT } from '../../../enum';
 import { formatResponseData } from 'src/components/UploadFiles/utils';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import selectOrgRole from 'src/components/dialogSelectOrgRole';
+import { dialogSelectOrgRole, dialogSelectDept, dialogSelectUser } from 'ming-ui/functions';
 import moment from 'moment';
 
 export default class SingleControlValue extends Component {
@@ -89,7 +87,9 @@ export default class SingleControlValue extends Component {
             actionId={item.nodeActionId || item.actionId}
             nodeName={handleGlobalVariableName(item.nodeId, item.sourceType, item.nodeName)}
             controlId={item.fieldValueId}
-            controlName={item.fieldValueName}
+            controlName={
+              item.fieldValueDefault ? `${item.fieldValueName} = ${handleExecReturnValue(item)}` : item.fieldValueName
+            }
             isSourceApp={item.isSourceApp}
           />
         </span>
@@ -218,7 +218,7 @@ export default class SingleControlValue extends Component {
    * 部门选择
    */
   selectDepartment(item, i, unique) {
-    new DialogSelectDept({
+    dialogSelectDept({
       projectId: this.props.companyId,
       selectedDepartment: [],
       unique,
@@ -252,7 +252,7 @@ export default class SingleControlValue extends Component {
    * 组织角色选择
    */
   selectRole(item, i, unique) {
-    selectOrgRole({
+    dialogSelectOrgRole({
       projectId: this.props.companyId,
       unique,
       onSave: roles => {

@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSetState } from 'react-use';
-import { Icon, ScrollView, LoadDiv, Support } from 'ming-ui';
+import { Icon, ScrollView, LoadDiv, Support, SvgIcon } from 'ming-ui';
 import cx from 'classnames';
 import '../index.less';
 import _ from 'lodash';
-import SvgIcon from 'src/components/SvgIcon';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import appManagementApi from 'src/api/appManagement';
 
@@ -54,7 +53,7 @@ export default function GlobalVarLeft(props) {
     <div className="globalVarLeft">
       <div className="leftTitle">
         <div className="Bold Font17">{_l('全局变量')}</div>
-        <Support text={_l('帮助')} type={2} href="https://help.mingdao.com/flow100" />
+        <Support text={_l('帮助')} type={2} href="https://help.mingdao.com/workflow/node-update-global-variables" />
       </div>
       <div className={cx('listItem', { isActive: activeItem === 'project' })} onClick={() => onSelect('project')}>
         <Icon icon="company" />

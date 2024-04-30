@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import { CreateNode, NodeOperate } from '../components';
-import { APP_TYPE } from '../../enum';
+import { ACTION_ID, APP_TYPE } from '../../enum';
 
 export default class Write extends Component {
   constructor(props) {
@@ -13,12 +13,25 @@ export default class Write extends Component {
    */
   renderContent() {
     const { item } = this.props;
+    const isPush = item.actionId === ACTION_ID.PBC_OUT;
 
-    if (item.appType === APP_TYPE.SHEET && !item.selectNodeId) {
+    if (
+      (_.includes([APP_TYPE.SHEET, APP_TYPE.EVENT_PUSH], item.appType) && !item.selectNodeId) ||
+      (isPush && !item.webhookUrl)
+    ) {
       return <div className="pLeft8 pRight8 blue">{_l('设置此节点')}</div>;
     }
 
-    if (item.appType === APP_TYPE.SHEET && !item.selectNodeName) {
+    if (isPush) {
+      return (
+        <div className="pLeft8 pRight8 ellipsis">
+          <span className="Gray_75">{_l('推送地址：')}</span>
+          {item.webhookUrl}
+        </div>
+      );
+    }
+
+    if (_.includes([APP_TYPE.SHEET, APP_TYPE.EVENT_PUSH], item.appType) && !item.selectNodeName) {
       return (
         <div className="pLeft8 pRight8 red">
           <i className="icon-workflow_info Font18 mRight5" />
@@ -27,7 +40,7 @@ export default class Write extends Component {
       );
     }
 
-    if (item.appType === APP_TYPE.SHEET) {
+    if (_.includes([APP_TYPE.SHEET, APP_TYPE.EVENT_PUSH], item.appType)) {
       return <div className="pLeft8 pRight8 ellipsis Gray_75">{_l('发送指定数据对象')}</div>;
     }
 
@@ -45,6 +58,7 @@ export default class Write extends Component {
 
   render() {
     const { processId, item, disabled, selectNodeId, openDetail, isSimple } = this.props;
+    const isPush = item.actionId === ACTION_ID.PBC_OUT;
 
     return (
       <div className="flexColumn">
@@ -59,14 +73,20 @@ export default class Write extends Component {
             onMouseDown={() => !disabled && openDetail(processId, item.id, item.typeId)}
           >
             <div className="workflowAvatars flexRow">
-              <i className={cx('workflowAvatar icon-workflow_webhook', item.webhookUrl ? 'BGBlueAsh' : 'BGGray')} />
+              <i
+                className={cx(
+                  'workflowAvatar',
+                  isPush ? 'icon-sending' : 'icon-workflow_webhook',
+                  item.webhookUrl ? 'BGBlueAsh' : 'BGGray',
+                )}
+              />
             </div>
-            <NodeOperate nodeClassName="BGBlueAsh" {...this.props} />
+            <NodeOperate nodeClassName="BGBlueAsh" {...this.props} noDelete={isPush} noCopy={isPush} />
             <div className="workflowContent Font13">
               {isSimple ? <span className="pLeft8 pRight8 Gray_9e">{_l('加载中...')}</span> : this.renderContent()}
             </div>
           </div>
-          <CreateNode {...this.props} />
+          <CreateNode {...this.props} disabled={isPush} />
         </section>
       </div>
     );

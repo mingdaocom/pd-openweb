@@ -2,10 +2,8 @@ import React, { useRef, useState, useEffect } from 'react';
 import { func, string, bool } from 'prop-types';
 import styled from 'styled-components';
 import moment from 'moment';
-import { VerifyPasswordConfirm } from 'ming-ui';
+import { VerifyPasswordConfirm, SvgIcon, UserHead } from 'ming-ui';
 import BaseTrash from './BaseTrash';
-import UserHead from 'src/components/userHead';
-import SvgIcon from 'src/components/SvgIcon';
 import homeAppAjax from 'src/api/homeApp';
 import _ from 'lodash';
 
@@ -147,10 +145,10 @@ export default function AppTrash(props) {
                 alert(_l('恢复成功'));
                 setPendingCache(app.id, false);
               } else {
-                return $.Deferred().reject();
+                return Promise.reject();
               }
             })
-            .fail(err => {
+            .catch(err => {
               alert(_l('恢复失败'), 2);
               setPendingCache(app.id, false);
             });
@@ -181,10 +179,10 @@ export default function AppTrash(props) {
                     setApps(oldApps => oldApps.filter(a => a.id !== app.id));
                     alert(_l('彻底删除成功'));
                   } else {
-                    return $.Deferred().reject();
+                    return Promise.reject();
                   }
                 })
-                .fail(err => {
+                .catch(err => {
                   alert(_l('彻底删除失败'), 2);
                 });
             },

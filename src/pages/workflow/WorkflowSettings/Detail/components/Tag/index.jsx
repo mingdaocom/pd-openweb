@@ -14,6 +14,7 @@ export default ({
   className,
   onClick = () => {},
   isSourceApp,
+  actualityValue = '',
 }) => {
   const errorClass = !nodeName || !controlName ? 'error' : '';
 
@@ -48,6 +49,7 @@ export default ({
         <div className={cx('flowDetailMemberArrow2', errorClass)} />
         <div className={cx('flowDetailMemberFieldName ellipsis bold', errorClass)} title={controlName}>
           {controlName || '- -'}
+          {actualityValue && ` = ${actualityValue}`}
         </div>
       </div>
     </Tooltip>

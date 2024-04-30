@@ -80,7 +80,7 @@ export default function InvoiceSetting(props) {
         }
         alert(_l('申请成功'));
       })
-      .always(() => {
+      .finally(() => {
         onClose();
       });
   };

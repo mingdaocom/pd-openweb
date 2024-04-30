@@ -1,5 +1,31 @@
 export default {
   /**
+  * 修改打印模板排序
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId
+  * @param {string} args.worksheetId
+  * @param {array} args.sortItems
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editPrintTemplateSort: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'EditPrintTemplateSort', args, options);
+   },
+  /**
+  * 删除打印模板
+  * @param {Object} args 请求参数
+  * @param {string} args.id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   deletePrint: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'DeletePrint', args, options);
+   },
+  /**
   * 获取 工作表 索引字段配置
   * @param {Object} args 请求参数
   * @param {string} args.worksheetId 工作表Id
@@ -9,7 +35,7 @@ export default {
   **/
    getRowIndexes: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetRowIndexes', args, options);
+     return mdyAPI('Worksheet', 'GetRowIndexes', args, options);
    },
   /**
   * 新增 工作表行内容表索引
@@ -28,7 +54,7 @@ export default {
   **/
    addRowIndex: function (args, options = {}) {
      
-     return $.api('Worksheet', 'AddRowIndex', args, options);
+     return mdyAPI('Worksheet', 'AddRowIndex', args, options);
    },
   /**
   * 更新 工作表行内容表索引
@@ -51,7 +77,7 @@ export default {
   **/
    updateRowIndex: function (args, options = {}) {
      
-     return $.api('Worksheet', 'UpdateRowIndex', args, options);
+     return mdyAPI('Worksheet', 'UpdateRowIndex', args, options);
    },
   /**
   * 更新 工作表行内容表索引名称
@@ -66,7 +92,7 @@ export default {
   **/
    updateRowIndexCustomeIndexName: function (args, options = {}) {
      
-     return $.api('Worksheet', 'UpdateRowIndexCustomeIndexName', args, options);
+     return mdyAPI('Worksheet', 'UpdateRowIndexCustomeIndexName', args, options);
    },
   /**
   * 移除 工作表行内容表索引
@@ -82,7 +108,7 @@ export default {
   **/
    removeRowIndex: function (args, options = {}) {
      
-     return $.api('Worksheet', 'RemoveRowIndex', args, options);
+     return mdyAPI('Worksheet', 'RemoveRowIndex', args, options);
    },
   /**
   * 获取链接行记录
@@ -92,13 +118,14 @@ export default {
   * @param {} args.captchaType
   * @param {string} args.id
   * @param {string} args.password
+  * @param {} args.langType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getLinkDetail: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetLinkDetail', args, options);
+     return mdyAPI('Worksheet', 'GetLinkDetail', args, options);
    },
   /**
   * 获取工作表创建记录表单提交设置信息
@@ -111,7 +138,7 @@ export default {
   **/
    getFormSubmissionSettings: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetFormSubmissionSettings', args, options);
+     return mdyAPI('Worksheet', 'GetFormSubmissionSettings', args, options);
    },
   /**
   * 更新工作表创建记录表单设置信息
@@ -125,7 +152,7 @@ export default {
   **/
    editWorksheetSetting: function (args, options = {}) {
      
-     return $.api('Worksheet', 'EditWorksheetSetting', args, options);
+     return mdyAPI('Worksheet', 'EditWorksheetSetting', args, options);
    },
   /**
   * 获取功能系统开关配置
@@ -137,7 +164,7 @@ export default {
   **/
    getSwitch: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetSwitch', args, options);
+     return mdyAPI('Worksheet', 'GetSwitch', args, options);
    },
   /**
   * 更新系统配置开关（单个）
@@ -153,7 +180,7 @@ export default {
   **/
    editSwitch: function (args, options = {}) {
      
-     return $.api('Worksheet', 'EditSwitch', args, options);
+     return mdyAPI('Worksheet', 'EditSwitch', args, options);
    },
   /**
   * 更新系统配置开关（批量）
@@ -166,7 +193,7 @@ export default {
   **/
    batchEditSwitch: function (args, options = {}) {
      
-     return $.api('Worksheet', 'BatchEditSwitch', args, options);
+     return mdyAPI('Worksheet', 'BatchEditSwitch', args, options);
    },
   /**
   * 获取功能系统开关（包含管理员判断）
@@ -179,7 +206,7 @@ export default {
   **/
    getSwitchPermit: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetSwitchPermit', args, options);
+     return mdyAPI('Worksheet', 'GetSwitchPermit', args, options);
    },
   /**
   * 获取工作表信息
@@ -193,7 +220,7 @@ export default {
   **/
    getWorksheetApiInfo: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetWorksheetApiInfo', args, options);
+     return mdyAPI('Worksheet', 'GetWorksheetApiInfo', args, options);
    },
   /**
   * 获取应用下选项集
@@ -206,13 +233,14 @@ export default {
   * @param {string} args.name
   * @param {boolean} args.colorful
   * @param {boolean} args.enableScore
+  * @param {integer} args.status 0或者1：正常 9：停用,999：删除
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getCollectionsByAppId: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetCollectionsByAppId', args, options);
+     return mdyAPI('Worksheet', 'GetCollectionsByAppId', args, options);
    },
   /**
   * 保存选项集
@@ -225,13 +253,34 @@ export default {
   * @param {string} args.name
   * @param {boolean} args.colorful
   * @param {boolean} args.enableScore
+  * @param {integer} args.status 0或者1：正常 9：停用,999：删除
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    saveOptionsCollection: function (args, options = {}) {
      
-     return $.api('Worksheet', 'SaveOptionsCollection', args, options);
+     return mdyAPI('Worksheet', 'SaveOptionsCollection', args, options);
+   },
+  /**
+  * 更新选项集所属应用
+  * @param {Object} args 请求参数
+  * @param {string} args.collectionId
+  * @param {array} args.collectionIds
+  * @param {string} args.appId
+  * @param {string} args.worksheetId
+  * @param {array} args.options
+  * @param {string} args.name
+  * @param {boolean} args.colorful
+  * @param {boolean} args.enableScore
+  * @param {integer} args.status 0或者1：正常 9：停用,999：删除
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   updateOptionsCollectionAppId: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'UpdateOptionsCollectionAppId', args, options);
    },
   /**
   * 删除选项集
@@ -244,13 +293,34 @@ export default {
   * @param {string} args.name
   * @param {boolean} args.colorful
   * @param {boolean} args.enableScore
+  * @param {integer} args.status 0或者1：正常 9：停用,999：删除
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    deleteOptionsCollection: function (args, options = {}) {
      
-     return $.api('Worksheet', 'DeleteOptionsCollection', args, options);
+     return mdyAPI('Worksheet', 'DeleteOptionsCollection', args, options);
+   },
+  /**
+  * 获取选项集详细数据
+  * @param {Object} args 请求参数
+  * @param {string} args.collectionId
+  * @param {array} args.collectionIds
+  * @param {string} args.appId
+  * @param {string} args.worksheetId
+  * @param {array} args.options
+  * @param {string} args.name
+  * @param {boolean} args.colorful
+  * @param {boolean} args.enableScore
+  * @param {integer} args.status 0或者1：正常 9：停用,999：删除
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getCollectionByCollectId: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'GetCollectionByCollectId', args, options);
    },
   /**
   * 批量获取选项集
@@ -263,13 +333,14 @@ export default {
   * @param {string} args.name
   * @param {boolean} args.colorful
   * @param {boolean} args.enableScore
+  * @param {integer} args.status 0或者1：正常 9：停用,999：删除
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getCollectionsByCollectIds: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetCollectionsByCollectIds', args, options);
+     return mdyAPI('Worksheet', 'GetCollectionsByCollectIds', args, options);
    },
   /**
   * 获取选项集引用的控件列表
@@ -282,13 +353,14 @@ export default {
   * @param {string} args.name
   * @param {boolean} args.colorful
   * @param {boolean} args.enableScore
+  * @param {integer} args.status 0或者1：正常 9：停用,999：删除
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getQuoteControlsById: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetQuoteControlsById', args, options);
+     return mdyAPI('Worksheet', 'GetQuoteControlsById', args, options);
    },
   /**
   * 获取添加选项接集接口信息
@@ -299,7 +371,7 @@ export default {
   **/
    addOrUpdateOptionSetApiInfo: function (args, options = {}) {
      
-     return $.api('Worksheet', 'AddOrUpdateOptionSetApiInfo', args, options);
+     return mdyAPI('Worksheet', 'AddOrUpdateOptionSetApiInfo', args, options);
    },
   /**
   * 获取选项接集列表接口信息
@@ -310,7 +382,7 @@ export default {
   **/
    optionSetListApiInfo: function (args, options = {}) {
      
-     return $.api('Worksheet', 'OptionSetListApiInfo', args, options);
+     return mdyAPI('Worksheet', 'OptionSetListApiInfo', args, options);
    },
   /**
   * 工作表OCR识别
@@ -325,7 +397,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    ocr: function (args, options = {}) {
      
-     return $.api('Worksheet', 'Ocr', args, options);
+     return mdyAPI('Worksheet', 'Ocr', args, options);
    },
   /**
   * get单个工作表查询
@@ -337,7 +409,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    getQuery: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetQuery', args, options);
+     return mdyAPI('Worksheet', 'GetQuery', args, options);
    },
   /**
   * worksheetId 批量获取工作表查询
@@ -349,7 +421,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    getQueryBySheetId: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetQueryBySheetId', args, options);
+     return mdyAPI('Worksheet', 'GetQueryBySheetId', args, options);
    },
   /**
   * 保存工作表查询
@@ -370,7 +442,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    saveQuery: function (args, options = {}) {
      
-     return $.api('Worksheet', 'SaveQuery', args, options);
+     return mdyAPI('Worksheet', 'SaveQuery', args, options);
    },
   /**
   * 保存筛选组件
@@ -389,7 +461,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    saveFiltersGroup: function (args, options = {}) {
      
-     return $.api('Worksheet', 'SaveFiltersGroup', args, options);
+     return mdyAPI('Worksheet', 'SaveFiltersGroup', args, options);
    },
   /**
   * 获取筛选组件
@@ -408,7 +480,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    getFiltersGroupByIds: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetFiltersGroupByIds', args, options);
+     return mdyAPI('Worksheet', 'GetFiltersGroupByIds', args, options);
    },
   /**
   * 删除筛选组件
@@ -427,7 +499,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    deleteFiltersGroupByIds: function (args, options = {}) {
      
-     return $.api('Worksheet', 'DeleteFiltersGroupByIds', args, options);
+     return mdyAPI('Worksheet', 'DeleteFiltersGroupByIds', args, options);
    },
   /**
   * 执行api查询
@@ -445,7 +517,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    excuteApiQuery: function (args, options = {}) {
      
-     return $.api('Worksheet', 'ExcuteApiQuery', args, options);
+     return mdyAPI('Worksheet', 'ExcuteApiQuery', args, options);
    },
   /**
   * 获取api模板消息信息
@@ -458,7 +530,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    getApiControlDetail: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetApiControlDetail', args, options);
+     return mdyAPI('Worksheet', 'GetApiControlDetail', args, options);
    },
   /**
   * 更新附件排序
@@ -474,7 +546,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    sortAttachment: function (args, options = {}) {
      
-     return $.api('Worksheet', 'SortAttachment', args, options);
+     return mdyAPI('Worksheet', 'SortAttachment', args, options);
    },
   /**
   * 更新记录附件名
@@ -489,6 +561,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   * @param {boolean} args.getTemplate 是否获取模板
   * @param {string} args.shareId 分享页获取关联记录iD
   * @param {boolean} args.checkView 是否验证视图
+  * @param {string} args.relationWorksheetId 关联控件ID
   * @param {string} args.fileId
   * @param {string} args.fileName
   * @param {string} args.controlId 附件的控件id
@@ -498,7 +571,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    editAttachmentName: function (args, options = {}) {
      
-     return $.api('Worksheet', 'EditAttachmentName', args, options);
+     return mdyAPI('Worksheet', 'EditAttachmentName', args, options);
    },
   /**
   * 获取导出excel配置
@@ -511,7 +584,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    getExportConfig: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetExportConfig', args, options);
+     return mdyAPI('Worksheet', 'GetExportConfig', args, options);
    },
   /**
   * 保存导出配置
@@ -530,7 +603,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    saveExportConfig: function (args, options = {}) {
      
-     return $.api('Worksheet', 'SaveExportConfig', args, options);
+     return mdyAPI('Worksheet', 'SaveExportConfig', args, options);
    },
   /**
   * 获取视图权限
@@ -544,7 +617,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    getViewPermission: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetViewPermission', args, options);
+     return mdyAPI('Worksheet', 'GetViewPermission', args, options);
    },
   /**
   * 获取应用角色用户扩展属性
@@ -556,7 +629,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    getAppExtendAttr: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetAppExtendAttr', args, options);
+     return mdyAPI('Worksheet', 'GetAppExtendAttr', args, options);
    },
   /**
   * 获取工作表的扩展属性选项控件信息
@@ -568,7 +641,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    getExtendAttrOptionalControl: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetExtendAttrOptionalControl', args, options);
+     return mdyAPI('Worksheet', 'GetExtendAttrOptionalControl', args, options);
    },
   /**
   * 保存应用角色用户扩展属性
@@ -584,7 +657,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    saveAppExtendAttr: function (args, options = {}) {
      
-     return $.api('Worksheet', 'SaveAppExtendAttr', args, options);
+     return mdyAPI('Worksheet', 'SaveAppExtendAttr', args, options);
    },
   /**
   * 复制表格
@@ -605,7 +678,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    copyWorksheet: function (args, options = {}) {
      
-     return $.api('Worksheet', 'CopyWorksheet', args, options);
+     return mdyAPI('Worksheet', 'CopyWorksheet', args, options);
    },
   /**
   * 修改表格行记录名
@@ -619,7 +692,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    updateEntityName: function (args, options = {}) {
      
-     return $.api('Worksheet', 'UpdateEntityName', args, options);
+     return mdyAPI('Worksheet', 'UpdateEntityName', args, options);
    },
   /**
   * 更新 工作表别名
@@ -633,7 +706,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    updateWorksheetAlias: function (args, options = {}) {
      
-     return $.api('Worksheet', 'UpdateWorksheetAlias', args, options);
+     return mdyAPI('Worksheet', 'UpdateWorksheetAlias', args, options);
    },
   /**
   * 修改表格描述
@@ -646,7 +719,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    updateWorksheetDec: function (args, options = {}) {
      
-     return $.api('Worksheet', 'UpdateWorksheetDec', args, options);
+     return mdyAPI('Worksheet', 'UpdateWorksheetDec', args, options);
    },
   /**
   * 修改表格视图分享范围
@@ -663,7 +736,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    updateWorksheetShareRange: function (args, options = {}) {
      
-     return $.api('Worksheet', 'UpdateWorksheetShareRange', args, options);
+     return mdyAPI('Worksheet', 'UpdateWorksheetShareRange', args, options);
    },
   /**
   * 工作表详情
@@ -687,7 +760,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    getWorksheetInfo: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetWorksheetInfo', args, options);
+     return mdyAPI('Worksheet', 'GetWorksheetInfo', args, options);
    },
   /**
   * 审批、填写获取子表信息及控件权限
@@ -715,7 +788,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    getWorksheetInfoByWorkItem: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetWorksheetInfoByWorkItem', args, options);
+     return mdyAPI('Worksheet', 'GetWorksheetInfoByWorkItem', args, options);
    },
   /**
   * 获取工作表分享链接
@@ -734,7 +807,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    getWorksheetShareUrl: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetWorksheetShareUrl', args, options);
+     return mdyAPI('Worksheet', 'GetWorksheetShareUrl', args, options);
    },
   /**
   * 根据shareid得到worksheetid
@@ -748,13 +821,14 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   * @param {string} args.shareId 对外分享标识
   * @param {string} args.password 密码
   * @param {string} args.printId 打印模板id
+  * @param {} args.langType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getShareInfoByShareId: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetShareInfoByShareId', args, options);
+     return mdyAPI('Worksheet', 'GetShareInfoByShareId', args, options);
    },
   /**
   * 行详情
@@ -769,13 +843,14 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   * @param {boolean} args.getTemplate 是否获取模板
   * @param {string} args.shareId 分享页获取关联记录iD
   * @param {boolean} args.checkView 是否验证视图
+  * @param {string} args.relationWorksheetId 关联控件ID
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getRowByID: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetRowByID', args, options);
+     return mdyAPI('Worksheet', 'GetRowByID', args, options);
    },
   /**
   * 获取 附件详情
@@ -788,7 +863,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    getAttachmentDetail: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetAttachmentDetail', args, options);
+     return mdyAPI('Worksheet', 'GetAttachmentDetail', args, options);
    },
   /**
   * 获取 附件分享Id
@@ -805,7 +880,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    getAttachmentShareId: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetAttachmentShareId', args, options);
+     return mdyAPI('Worksheet', 'GetAttachmentShareId', args, options);
    },
   /**
   * 获取记录详情
@@ -820,13 +895,14 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   * @param {boolean} args.getTemplate 是否获取模板
   * @param {string} args.shareId 分享页获取关联记录iD
   * @param {boolean} args.checkView 是否验证视图
+  * @param {string} args.relationWorksheetId 关联控件ID
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getRowDetail: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetRowDetail', args, options);
+     return mdyAPI('Worksheet', 'GetRowDetail', args, options);
    },
   /**
   * 根据工作流实例信息获取工作表信息
@@ -839,7 +915,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    getWorkItem: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetWorkItem', args, options);
+     return mdyAPI('Worksheet', 'GetWorkItem', args, options);
    },
   /**
   * 获取记录关联记录
@@ -866,7 +942,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    getRowRelationRows: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetRowRelationRows', args, options);
+     return mdyAPI('Worksheet', 'GetRowRelationRows', args, options);
    },
   /**
   * 添加行
@@ -895,7 +971,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    addWorksheetRow: function (args, options = {}) {
      
-     return $.api('Worksheet', 'AddWorksheetRow', args, options);
+     return mdyAPI('Worksheet', 'AddWorksheetRow', args, options);
    },
   /**
   * 批量添加行
@@ -924,7 +1000,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    addWSRowsBatch: function (args, options = {}) {
      
-     return $.api('Worksheet', 'AddWSRowsBatch', args, options);
+     return mdyAPI('Worksheet', 'AddWSRowsBatch', args, options);
    },
   /**
   * 修改行
@@ -947,7 +1023,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    updateWorksheetRow: function (args, options = {}) {
      
-     return $.api('Worksheet', 'UpdateWorksheetRow', args, options);
+     return mdyAPI('Worksheet', 'UpdateWorksheetRow', args, options);
    },
   /**
   * 验证字段唯一性
@@ -962,7 +1038,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    checkFieldUnique: function (args, options = {}) {
      
-     return $.api('Worksheet', 'CheckFieldUnique', args, options);
+     return mdyAPI('Worksheet', 'CheckFieldUnique', args, options);
    },
   /**
   * 批量修改
@@ -991,7 +1067,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    updateWorksheetRows: function (args, options = {}) {
      
-     return $.api('Worksheet', 'UpdateWorksheetRows', args, options);
+     return mdyAPI('Worksheet', 'UpdateWorksheetRows', args, options);
    },
   /**
   * 编辑记录关联记录
@@ -1012,7 +1088,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    updateRowRelationRows: function (args, options = {}) {
      
-     return $.api('Worksheet', 'UpdateRowRelationRows', args, options);
+     return mdyAPI('Worksheet', 'UpdateRowRelationRows', args, options);
    },
   /**
   * 编辑
@@ -1029,7 +1105,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    replaceRowRelationRows: function (args, options = {}) {
      
-     return $.api('Worksheet', 'ReplaceRowRelationRows', args, options);
+     return mdyAPI('Worksheet', 'ReplaceRowRelationRows', args, options);
    },
   /**
   * 刷新汇总控件
@@ -1050,7 +1126,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    refreshSummary: function (args, options = {}) {
      
-     return $.api('Worksheet', 'RefreshSummary', args, options);
+     return mdyAPI('Worksheet', 'RefreshSummary', args, options);
    },
   /**
   * 批量刷新行记录
@@ -1079,7 +1155,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    refreshWorksheetRows: function (args, options = {}) {
      
-     return $.api('Worksheet', 'RefreshWorksheetRows', args, options);
+     return mdyAPI('Worksheet', 'RefreshWorksheetRows', args, options);
    },
   /**
   * 删除行
@@ -1103,7 +1179,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    deleteWorksheetRows: function (args, options = {}) {
      
-     return $.api('Worksheet', 'DeleteWorksheetRows', args, options);
+     return mdyAPI('Worksheet', 'DeleteWorksheetRows', args, options);
    },
   /**
   * 恢复行
@@ -1125,7 +1201,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    restoreWorksheetRows: function (args, options = {}) {
      
-     return $.api('Worksheet', 'RestoreWorksheetRows', args, options);
+     return mdyAPI('Worksheet', 'RestoreWorksheetRows', args, options);
    },
   /**
   * 彻底删除
@@ -1144,7 +1220,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    removeWorksheetRows: function (args, options = {}) {
      
-     return $.api('Worksheet', 'RemoveWorksheetRows', args, options);
+     return mdyAPI('Worksheet', 'RemoveWorksheetRows', args, options);
    },
   /**
   * 过滤查找
@@ -1191,7 +1267,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    getFilterRows: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetFilterRows', args, options);
+     return mdyAPI('Worksheet', 'GetFilterRows', args, options);
    },
   /**
   * 工作表查询默认值获取
@@ -1240,7 +1316,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    getFilterRowsByQueryDefault: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetFilterRowsByQueryDefault', args, options);
+     return mdyAPI('Worksheet', 'GetFilterRowsByQueryDefault', args, options);
    },
   /**
   * 获取行记录总数
@@ -1287,7 +1363,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    getFilterRowsTotalNum: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetFilterRowsTotalNum', args, options);
+     return mdyAPI('Worksheet', 'GetFilterRowsTotalNum', args, options);
    },
   /**
   * 工作表最下方统计
@@ -1310,7 +1386,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    getFilterRowsReport: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetFilterRowsReport', args, options);
+     return mdyAPI('Worksheet', 'GetFilterRowsReport', args, options);
    },
   /**
   * 获取日志
@@ -1325,7 +1401,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    getLogs: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetLogs', args, options);
+     return mdyAPI('Worksheet', 'GetLogs', args, options);
    },
   /**
   * 获取工作表操作日志
@@ -1348,7 +1424,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    getWorksheetOperationLogs: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetWorksheetOperationLogs', args, options);
+     return mdyAPI('Worksheet', 'GetWorksheetOperationLogs', args, options);
    },
   /**
   * 获取子表日志详情
@@ -1369,7 +1445,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    getDetailTableLog: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetDetailTableLog', args, options);
+     return mdyAPI('Worksheet', 'GetDetailTableLog', args, options);
    },
   /**
   * 批量获取工作表日志
@@ -1392,7 +1468,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    batchGetWorksheetOperationLogs: function (args, options = {}) {
      
-     return $.api('Worksheet', 'BatchGetWorksheetOperationLogs', args, options);
+     return mdyAPI('Worksheet', 'BatchGetWorksheetOperationLogs', args, options);
    },
   /**
   * 工作表记录分享范围修改
@@ -1409,7 +1485,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    updateWorksheetRowShareRange: function (args, options = {}) {
      
-     return $.api('Worksheet', 'UpdateWorksheetRowShareRange', args, options);
+     return mdyAPI('Worksheet', 'UpdateWorksheetRowShareRange', args, options);
    },
   /**
   * 获取记录短链
@@ -1424,7 +1500,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    getRowsShortUrl: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetRowsShortUrl', args, options);
+     return mdyAPI('Worksheet', 'GetRowsShortUrl', args, options);
    },
   /**
   * 复制行记录
@@ -1446,7 +1522,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    copyRow: function (args, options = {}) {
      
-     return $.api('Worksheet', 'CopyRow', args, options);
+     return mdyAPI('Worksheet', 'CopyRow', args, options);
    },
   /**
   * 获取分组导航
@@ -1469,7 +1545,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    getNavGroup: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetNavGroup', args, options);
+     return mdyAPI('Worksheet', 'GetNavGroup', args, options);
    },
   /**
   * 保存筛选器
@@ -1487,7 +1563,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    saveWorksheetFilter: function (args, options = {}) {
      
-     return $.api('Worksheet', 'SaveWorksheetFilter', args, options);
+     return mdyAPI('Worksheet', 'SaveWorksheetFilter', args, options);
    },
   /**
   * 获取可见筛选器
@@ -1500,7 +1576,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    getWorksheetFilters: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetWorksheetFilters', args, options);
+     return mdyAPI('Worksheet', 'GetWorksheetFilters', args, options);
    },
   /**
   * 获取筛选器详情
@@ -1515,7 +1591,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    getWorksheetFilterById: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetWorksheetFilterById', args, options);
+     return mdyAPI('Worksheet', 'GetWorksheetFilterById', args, options);
    },
   /**
   * 删除筛选器
@@ -1528,7 +1604,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    deleteWorksheetFilter: function (args, options = {}) {
      
-     return $.api('Worksheet', 'DeleteWorksheetFilter', args, options);
+     return mdyAPI('Worksheet', 'DeleteWorksheetFilter', args, options);
    },
   /**
   * 筛选器排序
@@ -1542,7 +1618,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    sortWorksheetFilters: function (args, options = {}) {
      
-     return $.api('Worksheet', 'SortWorksheetFilters', args, options);
+     return mdyAPI('Worksheet', 'SortWorksheetFilters', args, options);
    },
   /**
   * 保存视图
@@ -1587,7 +1663,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    saveWorksheetView: function (args, options = {}) {
      
-     return $.api('Worksheet', 'SaveWorksheetView', args, options);
+     return mdyAPI('Worksheet', 'SaveWorksheetView', args, options);
    },
   /**
   * 获取可见视图
@@ -1600,7 +1676,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    getWorksheetViews: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetWorksheetViews', args, options);
+     return mdyAPI('Worksheet', 'GetWorksheetViews', args, options);
    },
   /**
   * 删除视图
@@ -1613,7 +1689,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    deleteWorksheetView: function (args, options = {}) {
      
-     return $.api('Worksheet', 'DeleteWorksheetView', args, options);
+     return mdyAPI('Worksheet', 'DeleteWorksheetView', args, options);
    },
   /**
   * 获取工作表API
@@ -1626,7 +1702,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    copyWorksheetView: function (args, options = {}) {
      
-     return $.api('Worksheet', 'CopyWorksheetView', args, options);
+     return mdyAPI('Worksheet', 'CopyWorksheetView', args, options);
    },
   /**
   * 视图排序
@@ -1640,7 +1716,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    sortWorksheetViews: function (args, options = {}) {
      
-     return $.api('Worksheet', 'SortWorksheetViews', args, options);
+     return mdyAPI('Worksheet', 'SortWorksheetViews', args, options);
    },
   /**
   * 获取按钮列表
@@ -1657,7 +1733,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    getWorksheetBtns: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetWorksheetBtns', args, options);
+     return mdyAPI('Worksheet', 'GetWorksheetBtns', args, options);
    },
   /**
   * 获取按钮详情
@@ -1674,7 +1750,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    getWorksheetBtnByID: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetWorksheetBtnByID', args, options);
+     return mdyAPI('Worksheet', 'GetWorksheetBtnByID', args, options);
    },
   /**
   * 操作按钮
@@ -1690,7 +1766,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    optionWorksheetBtn: function (args, options = {}) {
      
-     return $.api('Worksheet', 'OptionWorksheetBtn', args, options);
+     return mdyAPI('Worksheet', 'OptionWorksheetBtn', args, options);
    },
   /**
   * 保存按钮
@@ -1728,7 +1804,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    saveWorksheetBtn: function (args, options = {}) {
      
-     return $.api('Worksheet', 'SaveWorksheetBtn', args, options);
+     return mdyAPI('Worksheet', 'SaveWorksheetBtn', args, options);
    },
   /**
   * 复制按钮
@@ -1744,7 +1820,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    copyWorksheetBtn: function (args, options = {}) {
      
-     return $.api('Worksheet', 'CopyWorksheetBtn', args, options);
+     return mdyAPI('Worksheet', 'CopyWorksheetBtn', args, options);
    },
   /**
   * 获取规则列表
@@ -1757,7 +1833,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    getControlRules: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetControlRules', args, options);
+     return mdyAPI('Worksheet', 'GetControlRules', args, options);
    },
   /**
   * 保存规则
@@ -1779,7 +1855,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    saveControlRule: function (args, options = {}) {
      
-     return $.api('Worksheet', 'SaveControlRule', args, options);
+     return mdyAPI('Worksheet', 'SaveControlRule', args, options);
    },
   /**
   * 
@@ -1801,7 +1877,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    sortControlRules: function (args, options = {}) {
      
-     return $.api('Worksheet', 'SortControlRules', args, options);
+     return mdyAPI('Worksheet', 'SortControlRules', args, options);
    },
   /**
   * 保存表控件
@@ -1820,7 +1896,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    saveWorksheetControls: function (args, options = {}) {
      
-     return $.api('Worksheet', 'SaveWorksheetControls', args, options);
+     return mdyAPI('Worksheet', 'SaveWorksheetControls', args, options);
    },
   /**
   * 添加表控件
@@ -1839,7 +1915,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    addWorksheetControls: function (args, options = {}) {
      
-     return $.api('Worksheet', 'AddWorksheetControls', args, options);
+     return mdyAPI('Worksheet', 'AddWorksheetControls', args, options);
    },
   /**
   * 获取表控件
@@ -1863,7 +1939,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    getWorksheetControls: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetWorksheetControls', args, options);
+     return mdyAPI('Worksheet', 'GetWorksheetControls', args, options);
    },
   /**
   * 获取工作表字段智能建议
@@ -1876,7 +1952,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    getAiFieldRecommendation: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetAiFieldRecommendation', args, options);
+     return mdyAPI('Worksheet', 'GetAiFieldRecommendation', args, options);
    },
   /**
   * 批量获取表控件
@@ -1900,7 +1976,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    getWorksheetsControls: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetWorksheetsControls', args, options);
+     return mdyAPI('Worksheet', 'GetWorksheetsControls', args, options);
    },
   /**
   * 编辑控件别名
@@ -1919,7 +1995,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    editControlsAlias: function (args, options = {}) {
      
-     return $.api('Worksheet', 'EditControlsAlias', args, options);
+     return mdyAPI('Worksheet', 'EditControlsAlias', args, options);
    },
   /**
   * 生成控件默认别名
@@ -1933,7 +2009,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    editGenerateControlsDefaultAlias: function (args, options = {}) {
      
-     return $.api('Worksheet', 'EditGenerateControlsDefaultAlias', args, options);
+     return mdyAPI('Worksheet', 'EditGenerateControlsDefaultAlias', args, options);
    },
   /**
   * 保存表控件
@@ -1952,7 +2028,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    editWorksheetControls: function (args, options = {}) {
      
-     return $.api('Worksheet', 'EditWorksheetControls', args, options);
+     return mdyAPI('Worksheet', 'EditWorksheetControls', args, options);
    },
   /**
   * 重置自动编号
@@ -1971,7 +2047,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    resetControlIncrease: function (args, options = {}) {
      
-     return $.api('Worksheet', 'ResetControlIncrease', args, options);
+     return mdyAPI('Worksheet', 'ResetControlIncrease', args, options);
    },
   /**
   * 删除autoid
@@ -1995,7 +2071,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    deleteWorksheetAutoID: function (args, options = {}) {
      
-     return $.api('Worksheet', 'DeleteWorksheetAutoID', args, options);
+     return mdyAPI('Worksheet', 'DeleteWorksheetAutoID', args, options);
    },
   /**
   * 编辑控件状态
@@ -2014,20 +2090,21 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    editControlsStatus: function (args, options = {}) {
      
-     return $.api('Worksheet', 'EditControlsStatus', args, options);
+     return mdyAPI('Worksheet', 'EditControlsStatus', args, options);
    },
   /**
   * 获取系统打印列表
   * @param {Object} args 请求参数
   * @param {string} args.worksheetId
   * @param {string} args.viewId
+  * @param {array} args.rowIds
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getPrintList: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetPrintList', args, options);
+     return mdyAPI('Worksheet', 'GetPrintList', args, options);
    },
   /**
   * 获取 表单组件
@@ -2039,7 +2116,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    getFormComponent: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetFormComponent', args, options);
+     return mdyAPI('Worksheet', 'GetFormComponent', args, options);
    },
   /**
   * 获取单个打印模板
@@ -2066,7 +2143,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    getPrint: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetPrint', args, options);
+     return mdyAPI('Worksheet', 'GetPrint', args, options);
    },
   /**
   * 获取单个打印模板
@@ -2093,7 +2170,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    getCodePrint: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetCodePrint', args, options);
+     return mdyAPI('Worksheet', 'GetCodePrint', args, options);
    },
   /**
   * 新建生成打印模板
@@ -2120,7 +2197,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    getPrintTemplate: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetPrintTemplate', args, options);
+     return mdyAPI('Worksheet', 'GetPrintTemplate', args, options);
    },
   /**
   * 保存系统打印模板
@@ -2134,7 +2211,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    editPrint: function (args, options = {}) {
      
-     return $.api('Worksheet', 'EditPrint', args, options);
+     return mdyAPI('Worksheet', 'EditPrint', args, options);
    },
   /**
   * 保存记录二维码打印模板配置
@@ -2147,13 +2224,14 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   * @param {integer} args.range 使用范围
   * @param {array} args.views 视图id
   * @param {} args.config
+  * @param {array} args.advanceSettings 额外配置
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    saveRecordCodePrintConfig: function (args, options = {}) {
      
-     return $.api('Worksheet', 'SaveRecordCodePrintConfig', args, options);
+     return mdyAPI('Worksheet', 'SaveRecordCodePrintConfig', args, options);
    },
   /**
   * 修改打印模板名称
@@ -2166,7 +2244,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    editPrintName: function (args, options = {}) {
      
-     return $.api('Worksheet', 'EditPrintName', args, options);
+     return mdyAPI('Worksheet', 'EditPrintName', args, options);
    },
   /**
   * 修改打印模板范围
@@ -2180,18 +2258,32 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   **/
    editPrintRange: function (args, options = {}) {
      
-     return $.api('Worksheet', 'EditPrintRange', args, options);
+     return mdyAPI('Worksheet', 'EditPrintRange', args, options);
    },
   /**
-  * 删除打印模板
+  * 修改打印模板筛选条件
   * @param {Object} args 请求参数
   * @param {string} args.id
+  * @param {array} args.filters 筛选条件
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
-   deletePrint: function (args, options = {}) {
+   editPrintFilter: function (args, options = {}) {
      
-     return $.api('Worksheet', 'DeletePrint', args, options);
+     return mdyAPI('Worksheet', 'EditPrintFilter', args, options);
+   },
+  /**
+  * 修改模板下载权限
+  * @param {Object} args 请求参数
+  * @param {string} args.id 打印模板id
+  * @param {} args.allowDownloadPermission
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editTemplateDownloadPermission: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'EditTemplateDownloadPermission', args, options);
    },
 };

@@ -6,7 +6,7 @@ let ajaxRequest = null;
 export const updateProjectId = projectId => dispatch => {
   dispatch({ type: 'CHANGE_PROJECT_ID', projectId });
 };
-export const getRoleList = isAdd => (dispatch, getState) => {
+export const getRoleList = (isAdd, orgRoleGroupId = '') => (dispatch, getState) => {
   const {
     rolePageInfo = {},
     projectId,
@@ -16,7 +16,7 @@ export const getRoleList = isAdd => (dispatch, getState) => {
     currentRole,
   } = getState().orgManagePage.roleManage;
   const { pageIndex } = rolePageInfo;
-  if (ajaxRequest && ajaxRequest.state() === 'pending' && ajaxRequest.abort) {
+  if (ajaxRequest && ajaxRequest.abort) {
     ajaxRequest.abort();
   }
   ajaxRequest = organizeAjax.getOrganizes({
@@ -24,6 +24,7 @@ export const getRoleList = isAdd => (dispatch, getState) => {
     pageSize: PAGE_SIZE,
     projectId,
     keywords: searchValue,
+    orgRoleGroupId,
   });
   ajaxRequest.then(res => {
     let temp =

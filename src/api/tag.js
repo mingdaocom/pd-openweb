@@ -10,7 +10,7 @@ export default {
   **/
    removeTasksTag: function (args, options = {}) {
      
-     return $.api('Tag', 'RemoveTasksTag', args, options);
+     return mdyAPI('Tag', 'RemoveTasksTag', args, options);
    },
   /**
   * 添加任务的标签
@@ -23,7 +23,7 @@ export default {
   **/
    addTaskTag: function (args, options = {}) {
      
-     return $.api('Tag', 'AddTaskTag', args, options);
+     return mdyAPI('Tag', 'AddTaskTag', args, options);
    },
   /**
   * 添加任务的标签（颜色标签逻辑）
@@ -37,6 +37,6 @@ export default {
   **/
    addTaskTag2: function (args, options = {}) {
      
-     return $.api('Tag', 'AddTaskTag2', args, options);
+     return mdyAPI('Tag', 'AddTaskTag2', args, options);
    },
 };

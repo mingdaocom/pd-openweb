@@ -92,12 +92,7 @@ function SubmitFormSetting(props) {
   };
   const renderBtnCon = i => {
     let noAction = i === 1 && advancedSetting.continuestatus === '0';
-    const defaultId =
-      (_.get(props, 'worksheetInfo.views') || []).length > 0
-        ? (_.get(props, 'worksheetInfo.views') || [])[0].viewId
-        : '';
     const btnStr = _.get(advancedSetting, btnList[i][1]) || (i === 0 ? _l('提交') : _l('继续创建'));
-
     return (
       <React.Fragment>
         <div
@@ -157,13 +152,12 @@ function SubmitFormSetting(props) {
                   return;
                 }
                 let param = {};
-                if (newValue === 3) {
-                  let viewId =
-                    (_.get(props, 'worksheetInfo.views') || []).length > 0
-                      ? (_.get(props, 'worksheetInfo.views') || [])[0].viewId
-                      : '';
+                if (newValue === '3') {
                   if (!_.get(advancedSetting, btnList[i][2])) {
-                    param = { ...param, [btnList[i][2]]: viewId };
+                    param = {
+                      ...param,
+                      [btnList[i][2]]: _.get(props, 'worksheetInfo.views[0].viewId'),
+                    };
                   }
                 }
                 onChangeSetting({
@@ -181,15 +175,7 @@ function SubmitFormSetting(props) {
                   data={(_.get(props, 'worksheetInfo.views') || []).map(item => {
                     return { text: item.name, value: item.viewId };
                   })}
-                  value={
-                    _.get(advancedSetting, btnList[i][2])
-                      ? !(_.get(props, 'worksheetInfo.views') || []).find(
-                          o => o.viewId === _.get(advancedSetting, btnList[i][2]),
-                        )
-                        ? undefined
-                        : _.get(advancedSetting, btnList[i][2])
-                      : defaultId
-                  }
+                  value={_.get(advancedSetting, btnList[i][2])}
                   placeholder={
                     _.get(advancedSetting, btnList[i][2]) ? (
                       <span className="Red">{_l('视图已删除')}</span>

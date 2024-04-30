@@ -2,16 +2,13 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import moment from 'moment';
 import { Link } from 'react-router-dom';
-import createReactClass from 'create-react-class';
 import cx from 'classnames';
-import lazyRenderMixin from 'react-lazyrender/mixin';
 import { getClassNameByExt } from 'src/util';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withHoverState from 'ming-ui/decorators/withHoverState';
 import KcAppMenu from './KcAppMenu';
 import ExtIcon from './ExtIcon';
-
-import { shallowEqual, getUrlBase64Encode, isIE, humanFileSize, humanDateTime } from '../utils';
+import { humanFileSize, humanDateTime } from '../utils';
 import { NODE_TYPE, NODE_STATUS, NODE_VIEW_TYPE } from '../constant/enum';
 import { getIconNameByExt } from 'src/util';
 
@@ -20,10 +17,8 @@ const HoverState = createDecoratedComponent(withHoverState);
 const ONE_PX_IMG =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAQSURBVHgBAQUA+v8A/////wn7A/2j0UkKAAAAAElFTkSuQmCC';
 
-export default createReactClass({
-  displayName: 'KcAppItem',
-
-  propTypes: {
+export default class KcAppItem extends React.Component {
+  static propTypes = {
     path: PropTypes.string,
     baseUrl: PropTypes.string,
     item: PropTypes.object,
@@ -42,36 +37,18 @@ export default createReactClass({
     handleAddLinkFile: PropTypes.func,
     loadListById: PropTypes.func,
     onAddLinkFile: PropTypes.func,
-  },
+  };
 
-  mixins: [
-    lazyRenderMixin({
-      distance: 1000,
-      shouldComponentUpdate(nextProps, nextState) {
-        return (
-          !shallowEqual(this.props, nextProps) ||
-          !shallowEqual(this.state, nextState) ||
-          !shallowEqual(this.props.item, nextProps.item)
-        );
-      },
-      shouldForceUpdate(nextProps, nextState) {
-        return this.props.isList !== nextProps.isList;
-      },
-    }),
-  ],
-
-  getInitialState() {
-    return {
-      clickMoreActionsBtn: false,
-      hoverMoreActionsBtn: false,
-    };
-  },
+  state = {
+    clickMoreActionsBtn: false,
+    hoverMoreActionsBtn: false,
+  };
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.selectedItems.size > 1) {
       this.setState({ clickMoreActionsBtn: false });
     }
-  },
+  }
 
   render() {
     const {
@@ -133,7 +110,7 @@ export default createReactClass({
       return (
         <li
           data-id={item.id}
-          className={cx('nodeItem noSelect flexRow', { willnotrender: isIE() }, animation, className, {
+          className={cx('nodeItem noSelect flexRow', animation, className, {
             active: selected,
           })}
         >
@@ -282,7 +259,7 @@ export default createReactClass({
       return (
         <li
           data-id={item.id}
-          className={cx('nodeItem noSelect thumbnailItem Relative', { willnotrender: isIE() }, { active: selected })}
+          className={cx('nodeItem noSelect thumbnailItem Relative', { active: selected })}
         >
           <div className="thumbnailImg">
             {item.previewUrl || (item.type !== NODE_TYPE.FOLDER && getIconNameByExt(item.ext) === 'doc') ? (
@@ -373,5 +350,5 @@ export default createReactClass({
         </li>
       );
     }
-  },
-});
+  }
+}

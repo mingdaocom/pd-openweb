@@ -5,7 +5,7 @@ import { ACTION_TO_TEXT } from '../../config';
 import cx from 'classnames';
 import _ from 'lodash';
 import { verifyPassword } from 'src/util';
-import quickSelectUser from 'ming-ui/functions/quickSelectUser';
+import { quickSelectUser } from 'ming-ui/functions';
 import styled from 'styled-components';
 import codeAuth from 'src/api/codeAuth';
 import { Tooltip } from 'antd';
@@ -123,8 +123,8 @@ export default class OtherAction extends Component {
     if (_.includes(['pass', 'overrule', 'return', 'after'], props.action)) {
       let list = (
         (_.includes(['pass', 'after'], props.action)
-          ? props.data.opinionTemplate.opinions[4]
-          : props.data.opinionTemplate.opinions[5]) || []
+          ? _.get(props, 'data.opinionTemplate.opinions[4]')
+          : _.get(props, 'data.opinionTemplate.opinions[5]')) || []
       ).filter(item => item.selected);
 
       if (list.length) {
@@ -283,7 +283,7 @@ export default class OtherAction extends Component {
 
     return (
       <div className="mBottom20">
-        <div>
+        <div className="bold">
           {_.includes(['after', 'before'], action)
             ? _l('加签给')
             : action === 'addApprove'
@@ -490,8 +490,8 @@ export default class OtherAction extends Component {
   }
 
   render() {
-    const { action, onCancel } = this.props;
-    const { callBackNodeType, opinionTemplate } = this.props.data;
+    const { action, onCancel, projectId } = this.props;
+    const { callBackNodeType, opinionTemplate, app } = this.props.data;
     const { isCallBack, auth, encrypt } = (this.props.data || {}).flowNode || {};
     const { content, backNodeId, showCode, link, resultCode, showPassword, removeNoneVerification, files } = this.state;
     const backFlowNodes = ((this.props.data || {}).backFlowNodes || []).map(item => {
@@ -636,7 +636,7 @@ export default class OtherAction extends Component {
                     onlySelectTemplate ? _l('选择预设的审批意见') : (ACTION_TO_TEXT[action] || {}).placeholder
                   }
                 />
-                {_.includes(['pass', 'overrule', 'return', 'after'], action) && (
+                {_.includes(['pass', 'overrule', 'return', 'after', 'before'], action) && (
                   <AttachmentBtn
                     className="tip-top"
                     data-tip={_l('添加附件')}
@@ -652,10 +652,12 @@ export default class OtherAction extends Component {
               {_.includes(['pass', 'overrule', 'return', 'after'], action) && this.renderTemplateList()}
             </div>
 
-            {_.includes(['pass', 'overrule', 'return', 'after'], action) && (
+            {_.includes(['pass', 'overrule', 'return', 'after', 'before'], action) && (
               <div className="mTop10">
                 <div className="customFieldsContainer InlineBlock mLeft0 pointer">
                   <Attachment
+                    projectId={projectId}
+                    appId={app.id}
                     value={files}
                     hint={_l('附件')}
                     canAddKnowledge={false}

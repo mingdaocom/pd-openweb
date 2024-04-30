@@ -10,23 +10,21 @@ const EditInputCon = styled.div`
   .backupFileName {
     display: inline-block;
     font-weight: 600;
-    max-width: 240px;
   }
   .input {
-    width: 212px;
     border: none;
     border-bottom: 2px solid #2196f3;
     padding: 4px 0;
-    margin-bottom: 10px;
   }
   .ant-input:focus,
   .ant-input-focused {
     box-shadow: unset;
   }
   .editIcon {
-    margin-left: 20;
     display: inline-block;
-    width: 100px;
+    &.hidden {
+      display: none !important;
+    }
   }
 `;
 
@@ -41,7 +39,7 @@ export default function EditInput(props) {
 
   return (
     <EditInputCon>
-      {!canEdit && <span className="backupFileName mBottom15">{value}</span>}
+      {!canEdit && <span className="backupFileName ellipsis">{value}</span>}
       {canEdit && (
         <Input
           className="input flex"

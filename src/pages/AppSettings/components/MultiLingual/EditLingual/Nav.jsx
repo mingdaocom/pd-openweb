@@ -1,15 +1,14 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import cx from 'classnames';
 import { Tree } from 'antd';
-import { Icon, ScrollView } from 'ming-ui';
-import SvgIcon from 'src/components/SvgIcon';
+import { Icon, ScrollView, SvgIcon } from 'ming-ui';
 import styled from 'styled-components';
 import { getTranslateInfo } from 'src/util';
 
 const Wrap = styled.div`
   width: 260px;
   padding: 10px;
-  border-right: 1px solid #DDDDDD;
+  border-right: 1px solid #dddddd;
 
   .normalLineHeight {
     line-height: normal;
@@ -20,11 +19,11 @@ const Wrap = styled.div`
     padding: 8px 6px;
     &.active {
       svg {
-        fill: #2196F3 !important;
+        fill: #2196f3 !important;
       }
       font-weight: bold;
-      color: #2196F3;
-      background-color: #ECF7FE;
+      color: #2196f3;
+      background-color: #ecf7fe;
     }
   }
 
@@ -41,7 +40,8 @@ const Wrap = styled.div`
     .ant-tree-treenode-leaf-last .ant-tree-switcher-leaf-line::before {
       height: 18px !important;
     }
-    .anticon-plus-square, .anticon-minus-square {
+    .anticon-plus-square,
+    .anticon-minus-square {
       svg path {
         &:first-child {
           fill: #333;
@@ -53,14 +53,14 @@ const Wrap = styled.div`
     }
     .ant-tree-node-content-wrapper.ant-tree-node-selected {
       .icon {
-        color: #2196F3 !important;
+        color: #2196f3 !important;
       }
       svg {
-        fill: #2196F3 !important;
+        fill: #2196f3 !important;
       }
       font-weight: bold;
-      color: #2196F3;
-      background-color: #ECF7FE;
+      color: #2196f3;
+      background-color: #ecf7fe;
     }
     .ant-tree-title {
       width: inherit;
@@ -68,7 +68,8 @@ const Wrap = styled.div`
       text-overflow: ellipsis;
       white-space: nowrap;
     }
-    .ant-tree-treenode, .ant-tree-node-content-wrapper {
+    .ant-tree-treenode,
+    .ant-tree-node-content-wrapper {
       width: 100%;
       border-radius: 4px;
       overflow: hidden;
@@ -84,19 +85,26 @@ const Wrap = styled.div`
       align-items: center;
       min-height: 36px;
     }
+    .ant-tree-node-content-wrapper .ant-tree-iconEle:empty {
+      display: none !important;
+    }
   }
 `;
 
-const sheetConfig = [{
-  title: _l('字段'),
-  type: 'control',
-}, {
-  title: _l('视图'),
-  type: 'view',
-}, {
-  title: _l('自定义动作'),
-  type: 'customAction',
-}];
+const sheetConfig = [
+  {
+    title: _l('字段'),
+    type: 'control',
+  },
+  {
+    title: _l('视图'),
+    type: 'view',
+  },
+  {
+    title: _l('自定义动作'),
+    type: 'customAction',
+  },
+];
 
 const getTreeData = (appId, sections, searchValue) => {
   const getChildren = (appItem, childSections = []) => {
@@ -105,48 +113,64 @@ const getTreeData = (appId, sections, searchValue) => {
         return {
           ...item,
           workSheetId: appItem.workSheetId,
-          key: `${appItem.workSheetId}-${item.type}`
-        }
+          key: `${appItem.workSheetId}-${item.type}`,
+        };
       });
       return appItem.workSheetName.toLocaleLowerCase().includes(searchValue) ? res : [];
     }
     if (appItem.type === 2) {
       const subChildren = _.get(_.find(childSections, { appSectionId: appItem.workSheetId }), 'workSheetInfo') || [];
-      return subChildren.map(subAppItem => {
-        return {
-          title: getTranslateInfo(appId, subAppItem.workSheetId).name || subAppItem.workSheetName,
-          originalTitle: subAppItem.workSheetName,
-          key: subAppItem.workSheetId,
-          type: subAppItem.type,
-          externalLinkInfo: appItem.type === 1 && appItem.externalLinkId ? { urlTemplate: appItem.urlTemplate, desc: appItem.configuration.desc } : undefined,
-          icon: <SvgIcon className="normalLineHeight" url={subAppItem.iconUrl} fill="#9e9e9e" size={17} />,
-          children: getChildren(subAppItem)
-        }
-      }).filter(n => searchValue ? (n.title.toLocaleLowerCase().includes(searchValue) ? true : n.children.length) : true);
+      return subChildren
+        .map(subAppItem => {
+          return {
+            title: getTranslateInfo(appId, subAppItem.workSheetId).name || subAppItem.workSheetName,
+            originalTitle: subAppItem.workSheetName,
+            key: subAppItem.workSheetId,
+            type: subAppItem.type,
+            externalLinkInfo:
+              appItem.type === 1 && appItem.externalLinkId
+                ? { urlTemplate: appItem.urlTemplate, desc: appItem.configuration.desc }
+                : undefined,
+            icon: <SvgIcon className="normalLineHeight" url={subAppItem.iconUrl} fill="#9e9e9e" size={17} />,
+            children: getChildren(subAppItem),
+          };
+        })
+        .filter(n =>
+          searchValue ? (n.title.toLocaleLowerCase().includes(searchValue) ? true : n.children.length) : true,
+        );
     }
     return [];
-  }
-  const result = sections.map(gourup => {
-    return {
-      title: getTranslateInfo(appId, gourup.appSectionId).name || gourup.name,
-      originalTitle: gourup.name,
-      key: gourup.appSectionId,
-      type: 2,
-      icon: <Icon className="Font17 Gray_9e" icon="gourup_default" />,
-      children: gourup.workSheetInfo.map(appItem => {
-        return {
-          title: getTranslateInfo(appId, appItem.workSheetId).name || appItem.workSheetName,
-          originalTitle: appItem.workSheetName,
-          key: appItem.workSheetId,
-          type: appItem.type,
-          externalLinkInfo: appItem.type === 1 && appItem.externalLinkId ? { urlTemplate: appItem.urlTemplate, desc: appItem.configuration.desc } : undefined,
-          parentId: gourup.appSectionId,
-          icon: <SvgIcon className="normalLineHeight" url={appItem.iconUrl} fill="#9e9e9e" size={17} />,
-          children: getChildren(appItem, gourup.childSections)
-        }
-      }).filter(n => searchValue ? (n.title.toLocaleLowerCase().includes(searchValue) ? true : n.children.length) : true)
-    }
-  }).filter(n => searchValue ? (n.title.toLocaleLowerCase().includes(searchValue) ? true : n.children.length) : true);
+  };
+  const result = sections
+    .map(gourup => {
+      return {
+        title: getTranslateInfo(appId, gourup.appSectionId).name || gourup.name,
+        originalTitle: gourup.name,
+        key: gourup.appSectionId,
+        type: 2,
+        icon: <Icon className="Font17 Gray_9e" icon="gourup_default" />,
+        children: gourup.workSheetInfo
+          .map(appItem => {
+            return {
+              title: getTranslateInfo(appId, appItem.workSheetId).name || appItem.workSheetName,
+              originalTitle: appItem.workSheetName,
+              key: appItem.workSheetId,
+              type: appItem.type,
+              externalLinkInfo:
+                appItem.type === 1 && appItem.externalLinkId
+                  ? { urlTemplate: appItem.urlTemplate, desc: appItem.configuration.desc }
+                  : undefined,
+              parentId: gourup.appSectionId,
+              icon: <SvgIcon className="normalLineHeight" url={appItem.iconUrl} fill="#9e9e9e" size={17} />,
+              children: getChildren(appItem, gourup.childSections),
+            };
+          })
+          .filter(n =>
+            searchValue ? (n.title.toLocaleLowerCase().includes(searchValue) ? true : n.children.length) : true,
+          ),
+      };
+    })
+    .filter(n => (searchValue ? (n.title.toLocaleLowerCase().includes(searchValue) ? true : n.children.length) : true));
   if (result.length === 1 && !result[0].title) {
     return result[0].children;
   } else {
@@ -154,11 +178,13 @@ const getTreeData = (appId, sections, searchValue) => {
   }
 };
 
-const getExpandedKeys = (treeData) => {
-  return _.flatten(treeData.map(item => {
-    const childrenKey = item.children.map(n => n.key);
-    return [item.key].concat(childrenKey);
-  }));
+const getExpandedKeys = treeData => {
+  return _.flatten(
+    treeData.map(item => {
+      const childrenKey = item.children.map(n => n.key);
+      return [item.key].concat(childrenKey);
+    }),
+  );
 };
 
 export default function Nav(props) {
@@ -182,7 +208,7 @@ export default function Nav(props) {
           placeholder={_l('搜索')}
           className="flex"
           value={searchValue}
-          onChange={(e) => {
+          onChange={e => {
             setSearchValue(e.target.value);
           }}
         />
@@ -205,7 +231,7 @@ export default function Nav(props) {
             showLine={{ showLeafIcon: false }}
             showIcon={true}
             expandedKeys={expandedKeys}
-            onExpand={(expandedKeys) => {
+            onExpand={expandedKeys => {
               setExpandedKeys(expandedKeys);
             }}
             selectedKeys={selectedKeys}

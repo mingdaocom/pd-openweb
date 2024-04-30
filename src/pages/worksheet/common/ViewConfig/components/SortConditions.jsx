@@ -60,7 +60,7 @@ const Item = SortableElement(props => {
                 <Support
                   className="InlineBlock"
                   type={3}
-                  href="https://help.mingdao.com/sheet43"
+                  href="https://help.mingdao.com/worksheet/batch-refresh"
                   text={_l('点击了解更多')}
                 />
               </span>

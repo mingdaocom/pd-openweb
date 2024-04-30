@@ -221,9 +221,13 @@ const BaseCard = props => {
   const [forceShowFullValue, setForceShowFullValue] = useState(_.get(titleField, 'advancedSetting.datamask') !== '1');
   let viewId, worksheetId;
   const { appId, projectId, viewType, viewControls, childType, showControlName } = para;
+  let paramForOperatePrint = {};
   if (viewParaOfRecord) {
     viewId = viewParaOfRecord.viewId;
     worksheetId = viewParaOfRecord.worksheetId;
+    paramForOperatePrint = {
+      printAppId: appId,
+    };
   } else {
     viewId = para.viewId;
     worksheetId = para.worksheetId;
@@ -507,6 +511,7 @@ const BaseCard = props => {
                 });
               });
             }}
+            {...paramForOperatePrint}
           >
             <div
               className="moreOperate"

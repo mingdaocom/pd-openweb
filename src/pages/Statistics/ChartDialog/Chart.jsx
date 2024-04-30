@@ -218,6 +218,8 @@ export default class Chart extends Component {
   render() {
     const {
       loading,
+      base,
+      isCharge,
       sheetVisible,
       settingVisible,
       worksheetInfo,
@@ -233,6 +235,9 @@ export default class Chart extends Component {
     const { dragMaskVisible, min, max, sheetSize } = this.state;
     const storeDragValue = Number(localStorage.getItem(`${direction}ChartSheetDragValue`) || 0);
     const dragValue = this.state.dragValue - (scopeVisible && storeDragValue && direction === 'horizontal' ? 320 : 0);
+    const { sourceType, permissions, report } = base;
+    const idVisible = sourceType === 1 ? isCharge : permissions;
+
     return (
       <div
         className={cx('chartBody Relative flex', {
@@ -248,9 +253,10 @@ export default class Chart extends Component {
           ) : reportData.status > 0 ? (
             <Fragment>
               {this.renderChart()}
-              <div className="flexRow mTop10 Gray_9e Font13">
+              <div className="flexRow mTop10 Gray_9e Font13 userInfo">
                 <span className="mRight25">{_l('创建人')}: {createdBy.fullName}</span>
-                <span>{_l('最后修改人')}: {lastModifiedBy.fullName}</span>
+                <span className="mRight25">{_l('最后修改人')}: {lastModifiedBy.fullName}</span>
+                {idVisible && report.id && <span>{_l('图表ID')}: {report.id}</span>}
               </div>
             </Fragment>
           ) : (

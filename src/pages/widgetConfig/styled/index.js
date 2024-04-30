@@ -99,18 +99,6 @@ export const SettingItem = styled.div`
       left: 0px !important;
     }
   }
-  .arrangeBtn {
-    cursor: pointer;
-    font-weight: bold;
-    color: #9e9e9e;
-    &:hover {
-      color: #2196f3;
-    }
-    &.disabled {
-      cursor: not-allowed;
-      color: #bdbdbd !important;
-    }
-  }
 `;
 export const RelateInfo = styled.div`
   margin-top: 12px;

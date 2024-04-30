@@ -67,7 +67,9 @@ export default class WriteFields extends Component {
     if (
       _.includes(READ_TYPE.concat(readonlyControlTypes), item.type) ||
       item.type > 10000 ||
-      (item.type === 29 && item.showType === '2' && (type === 'REQUIRED' || selectNodeType === NODE_TYPE.LINK)) ||
+      (item.type === 29 &&
+        _.includes(['2', '5', '6'], item.showType) &&
+        (type === 'REQUIRED' || selectNodeType === NODE_TYPE.LINK)) ||
       (_.includes([43, 49], item.type) && type === 'REQUIRED')
     ) {
       return true;

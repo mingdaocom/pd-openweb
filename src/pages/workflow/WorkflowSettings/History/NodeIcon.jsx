@@ -31,6 +31,11 @@ export default ({ type, appType, actionId }) => {
     bgColor = '#F15B75';
   }
 
+  // 处理特殊的webhook 事件推送
+  if (appType === APP_TYPE.EVENT_PUSH) {
+    icon = 'sending';
+  }
+
   return (
     <div className="workflowNodeIconWrap" style={{ backgroundColor: bgColor, width: 22, height: 22 }}>
       <Icon icon={icon} style={{ color: '#fff' }} />

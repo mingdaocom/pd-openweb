@@ -1,6 +1,5 @@
 import React, { Component, Fragment, useState, useEffect } from 'react';
-import SvgIcon from 'src/components/SvgIcon';
-import { Icon, MdLink, Tooltip } from 'ming-ui';
+import { Icon, MdLink, Tooltip, SvgIcon } from 'ming-ui';
 import cx from 'classnames';
 import { convertColor } from '../WorkSheetLeft/WorkSheetItem';
 import MoreOperation from '../WorkSheetLeft/MoreOperation';
@@ -45,7 +44,25 @@ const AppItem = props => {
       }
     });
     window.open(urlList.join(''));
-  }
+  };
+
+  const renderIcon = () => {
+    let icon = 'visibility_off';
+    if (status === 3 || parentStatus === 3) {
+      icon = 'desktop_off';
+    }
+    if (status === 4 || parentStatus === 4) {
+      icon = 'mobile_off';
+    }
+    return (
+      ([2, 3, 4].includes(status) || [2, 3, 4].includes(parentStatus)) && (
+        <Tooltip popupPlacement="bottom" text={<span>{_l('仅系统角色可见（包含管理员、开发者）')}</span>}>
+          <Icon className="Font16 mRight10 visibilityIcon" icon={icon} style={{ color: '#ee6f09' }} />
+        </Tooltip>
+      )
+    );
+  };
+
   const Content = (
     <Fragment>
       <div
@@ -59,27 +76,27 @@ const AppItem = props => {
       </div>
     </Fragment>
   );
+
   return (
     <Drag appItem={appItem} appPkg={appPkg} isCharge={isCharge}>
       <div className={cx('appItemWrap pointer', `workSheetItem-${workSheetId}`)}>
         {isNewOpen ? (
-          <div className="flexColumn h100" onClick={handleNewOpen}>{Content}</div>
+          <div className="flexColumn h100" onClick={handleNewOpen}>
+            {Content}
+          </div>
         ) : (
-          <MdLink className="flexColumn h100" to={url}>{Content}</MdLink>
+          <MdLink className="flexColumn h100" to={url}>
+            {Content}
+          </MdLink>
         )}
-        {(canEditApp(_.get(appPkg, ['permissionType'])) ||
-          canEditData(_.get(appPkg, ['permissionType']))) && (
+        {(canEditApp(_.get(appPkg, ['permissionType'])) || canEditData(_.get(appPkg, ['permissionType']))) && (
           <MoreOperation {...props}>
             <div className="moreIcon">
               <Icon icon="more_horiz" className="Font18 Gray_9e" />
             </div>
           </MoreOperation>
         )}
-        {(status === 2 || parentStatus === 2) && (
-          <Tooltip popupPlacement="bottom" text={<span>{_l('仅系统角色可见（包含管理员、运营者、开发者）')}</span>}>
-            <Icon className="Font16 mRight10 visibilityIcon" icon="visibility_off" style={{ color: '#ee6f09' }} />
-          </Tooltip>
-        )}
+        {renderIcon()}
       </div>
     </Drag>
   );

@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { Icon, Button } from 'ming-ui';
-import Result from 'src/components/dialogSelectUser/GeneralSelect/Result';
+import Result from 'ming-ui/functions/dialogSelectUser/GeneralSelect/Result';
 import InviteController from 'src/api/invitation';
 import { existAccountHint } from 'src/util';
-import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
+import { dialogSelectUser } from 'ming-ui/functions';
 import DialogSettingInviteRules from 'src/pages/Admin/user/membersDepartments/structure/components/dialogSettingInviteRules';
 
 export default class AddressBookInvite extends Component {
@@ -49,12 +49,12 @@ export default class AddressBookInvite extends Component {
       accountIds: selectUsers.map(i => i.accountId),
       fromType,
     })
-      .done(result => {
+      .then(result => {
         existAccountHint(result);
         onCancel();
         this.setState({ loading: false });
       })
-      .fail(() => {
+      .catch(() => {
         alert(_l('邀请失败'), 2);
         this.setState({ loading: false });
       });
@@ -67,7 +67,7 @@ export default class AddressBookInvite extends Component {
       <div className="addFriendsContent">
         <div className="Gray_75 mBottom12">{_l('从联系人中选择用户，邀请加入到当前组织')}</div>
 
-        <div className="resultContent" style={{ maxHeight: 280 }}>
+        <div className="resultContent" style={{ minHeight: 280 }}>
           {selectUsers.map(user => {
             const props = {
               avatar: <img src={user.avatar} alt="头像" className="GSelect-result-subItem__avatar" />,
@@ -77,12 +77,12 @@ export default class AddressBookInvite extends Component {
             };
             return <Result {...props} key={user.accountId} />;
           })}
-        </div>
-        <div className="addBox ThemeColor3" onClick={this.handleInviteMember}>
-          <span>
-            <Icon icon="add1" />
-            {_l('选择')}
-          </span>
+          <div className="addBox ThemeColor3" onClick={this.handleInviteMember}>
+            <span>
+              <Icon icon="add1" />
+              {_l('选择')}
+            </span>
+          </div>
         </div>
 
         <div className="footContainer">

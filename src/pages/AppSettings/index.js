@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { Icon, LoadDiv, UpgradeIcon } from 'ming-ui';
+import { Icon, LoadDiv, UpgradeIcon, Tooltip } from 'ming-ui';
 import VerifyDel from 'src/pages/AppHomepage/components/VerifyDel';
 import homeAppApi from 'api/homeApp';
 import { APP_CONFIGS } from './config';
@@ -10,7 +10,7 @@ import { getFeatureStatus, buriedUpgradeVersionDialog, setFavicon, getTranslateI
 import cx from 'classnames';
 import './index.less';
 import { navigateTo } from 'src/router/navigateTo';
-import Beta from './components/ImportUpgrade/components/Beta';
+import Beta from './components/Beta';
 
 function UpgradeCom({ projectId, featureId }) {
   return <Fragment>{buriedUpgradeVersionDialog(projectId, featureId, { dialogType: 'content' })}</Fragment>;
@@ -19,11 +19,13 @@ function UpgradeCom({ projectId, featureId }) {
 class AppSettings extends Component {
   constructor(props) {
     super(props);
+    const type = localStorage.getItem('appManageMenu');
     this.state = {
-      currentConfigType: _.get(props, 'match.params.navTab') || 'options',
+      currentConfigType: _.get(props, 'match.params.navTab') || type || 'options',
       loading: true,
       data: {},
       delAppConfirmVisible: false,
+      collapseAppManageNav: localStorage.getItem('collapseAppManageNav') === 'true' ? true : false,
     };
   }
 
@@ -68,7 +70,7 @@ class AppSettings extends Component {
         data.name = getTranslateInfo(id, id).name || data.name;
         this.setState({ data, loading: false }, this.getConfigList);
       })
-      .fail(err => {
+      .catch(err => {
         this.setState({ loading: false });
       });
   };
@@ -85,7 +87,7 @@ class AppSettings extends Component {
 
   getConfigList = () => {
     const { data } = this.state;
-    const { permissionType, isLock, isPassword, projectId, sourceType } = data;
+    const { permissionType, isLock, isPassword, projectId, sourceType, id } = data;
     const isNormalApp = sourceType === 1;
     const isOwner = permissionType === APP_ROLE_TYPE.POSSESS_ROLE; // 拥有者
     const canLock = _.includes(
@@ -106,16 +108,36 @@ class AppSettings extends Component {
         }
         return true;
       });
-    this.setState({ configList });
+
+    const type = localStorage.getItem('appManageMenu');
+    const hasMenu = _.includes(
+      configList.map(v => v.type),
+      type,
+    );
+    this.setState({
+      configList,
+      currentConfigType: type && hasMenu ? type : 'options',
+    });
+    if (type && !hasMenu) {
+      safeLocalStorageSetItem('appManageMenu', 'options');
+      location.href = `/app/${id}/settings/options`;
+    }
   };
 
   render() {
-    const { currentConfigType, data, loading, delAppConfirmVisible, configList = [] } = this.state;
+    const {
+      currentConfigType,
+      data,
+      loading,
+      delAppConfirmVisible,
+      configList = [],
+      collapseAppManageNav,
+    } = this.state;
     const { id: appId, name, permissionType, projectId, fixed } = data;
     const featureId = (_.find(configList, it => it.type === currentConfigType) || {})['featureId'];
     const featureType = featureId && getFeatureStatus(projectId, featureId);
     const Component =
-      featureType && featureType === '2' && currentConfigType !== 'variables'
+      featureType && featureType === '2' && !['variables', 'aggregation'].includes(currentConfigType)
         ? UpgradeCom
         : appConfigWidgets[currentConfigType] || appConfigWidgets['options'];
 
@@ -140,35 +162,68 @@ class AppSettings extends Component {
 
     return (
       <div className="manageAppWrap flexRow">
-        <div className="manageAppLeft">
-          {configList.map(item => {
-            const { type, icon, text } = item;
-            return (
-              <Fragment>
-                {_.includes(['publish', 'recyclebin'], type) && <div className="line"></div>}
-                <div
-                  key={type}
-                  className={cx(`configItem ${type}`, { active: type === currentConfigType })}
-                  onClick={() => {
-                    // 删除应用
-                    if (type === 'del') {
-                      this.setState({ delAppConfirmVisible: true });
-                      return;
-                    }
-                    navigateTo(`/app/${appId}/settings/${type}`);
-                    this.setState({ currentConfigType: type });
-                  }}
-                >
-                  <Icon className="appConfigItemIcon Font18 mRight10" icon={icon} />
-                  <span className="flex">{text}</span>
-                  {item.featureId &&
-                    getFeatureStatus(projectId, item.featureId) === '2' &&
-                    _.includes(['backup', 'recyclebin', 'variables', 'language', 'upgrade'], type) && <UpgradeIcon />}
-                  {['language', 'upgrade'].includes(type) && <Beta className="mRight15" />}
-                </div>
-              </Fragment>
-            );
-          })}
+        <div className={cx('manageAppLeft', { collapseManageAppLeft: collapseAppManageNav })}>
+          <div className="flex">
+            {configList.map(item => {
+              const { type, icon, text } = item;
+              return (
+                <Fragment>
+                  {_.includes(['publish', 'recyclebin'], type) && <div className="line"></div>}
+                  <div
+                    key={type}
+                    className={cx(`configItem ${type}`, {
+                      active: type === currentConfigType,
+                      collapseItem: collapseAppManageNav,
+                    })}
+                    onClick={() => {
+                      // 删除应用
+                      if (type === 'del') {
+                        this.setState({ delAppConfirmVisible: true });
+                        return;
+                      }
+                      safeLocalStorageSetItem('appManageMenu', type);
+                      navigateTo(`/app/${appId}/settings/${type}`);
+                      this.setState({ currentConfigType: type });
+                    }}
+                  >
+                    {collapseAppManageNav ? (
+                      <Tooltip popupPlacement="right" popupAlign={{ offset: [5, 0] }} text={<span>{text}</span>}>
+                        <Icon className="appConfigItemIcon Font18" icon={icon} />
+                      </Tooltip>
+                    ) : (
+                      <Icon className="appConfigItemIcon Font18 mRight10" icon={icon} />
+                    )}
+                    {!collapseAppManageNav && (
+                      <Fragment>
+                        <span className="flex">
+                          {text}
+                          {['aggregation', 'relationship'].includes(type) && <Beta className="mRight15" />}
+                        </span>
+                        {item.featureId &&
+                          getFeatureStatus(projectId, item.featureId) === '2' &&
+                          _.includes(
+                            ['backup', 'recyclebin', 'variables', 'language', 'upgrade', 'aggregation'],
+                            type,
+                          ) && <UpgradeIcon />}
+                      </Fragment>
+                    )}
+                  </div>
+                </Fragment>
+              );
+            })}
+          </div>
+          <div className={cx('collapseWrap TxtRight', { collapseHideWrap: collapseAppManageNav })}>
+            <Tooltip text={<span>{!collapseAppManageNav ? _l('收起') : _l('展开')}</span>}>
+              <Icon
+                icon={!collapseAppManageNav ? 'menu_left' : 'menu_right'}
+                className="Font20 Gray_9e pointer collapseWrapIcon"
+                onClick={() => {
+                  safeLocalStorageSetItem('collapseAppManageNav', !collapseAppManageNav);
+                  this.setState({ collapseAppManageNav: !collapseAppManageNav });
+                }}
+              />
+            </Tooltip>
+          </div>
         </div>
         <div className={cx('manageAppRight flex flexColumn', currentConfigType)}>
           {loading ? <LoadDiv /> : <Component {...componentProps} />}

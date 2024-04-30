@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import { Flex, ActivityIndicator } from 'antd-mobile';
-import { ScrollView, WaterMark } from 'ming-ui';
+import { WaterMark } from 'ming-ui';
 import Back from '../components/Back';
 import styled from 'styled-components';
 import customApi from 'statistics/api/custom';
 import homeAppApi from 'src/api/homeApp';
 import DocumentTitle from 'react-document-title';
 import GridLayout from 'react-grid-layout';
-import { getDefaultLayout, getEnumType, reorderComponents, replaceColor } from 'src/pages/customPage/util';
+import { getDefaultLayout, getEnumType, reorderComponents, replaceColor, filterSuspensionAiComponent, getSuspensionAiComponent } from 'src/pages/customPage/util';
 import { loadSDK } from 'src/components/newCustomFields/tools/utils';
 import WidgetDisplay from './WidgetDisplay';
 import AppPermissions from '../components/AppPermissions';
@@ -17,10 +17,10 @@ import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/D
 import { getEmbedValue } from 'src/components/newCustomFields/tools/utils.js';
 import store from 'redux/configureStore';
 import { updateFilterComponents } from './redux/actions';
+import AiContent from './AiContent';
+import LinkageBtn from './LinkageBtn';
 import 'react-grid-layout/css/styles.css';
 import _ from 'lodash';
-
-const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
 
 const getLayout = components =>
   components.map((item = {}, index) => {
@@ -92,7 +92,7 @@ export default class CustomPage extends Component {
   componentDidMount() {
     this.getPage(this.props);
     this.getPageInfo(this.props);
-    if (!isMingdao) {
+    if (!window.isMingDaoApp) {
       workflowPushSoket();
     }
     loadSDK();
@@ -144,7 +144,7 @@ export default class CustomPage extends Component {
                 return item.workSheetInfo;
               }),
             )
-              .filter(item => item.status === 1 && !item.navigateHide) //左侧列表状态为1 且 角色权限没有设置隐藏
+              .filter(item => [1, 3].includes(item.status) && !item.navigateHide) //左侧列表状态为1 且 角色权限没有设置隐藏
               .slice(0, 4);
             navSheetList.forEach(item => {
               if (item.workSheetId === params.worksheetId) {
@@ -202,7 +202,8 @@ export default class CustomPage extends Component {
     );
   }
   renderContent() {
-    const { apk, pageComponents, pageConfig } = this.state;
+    const { apk, pageConfig } = this.state;
+    const pageComponents = filterSuspensionAiComponent(this.state.pageComponents);
     const { params } = this.props.match;
     const layout = getLayout(pageComponents);
     return (
@@ -275,16 +276,20 @@ export default class CustomPage extends Component {
   render() {
     const { pageTitle, appNaviStyle } = this.props;
     const { pageComponents, loading, pageName, apk, urlTemplate } = this.state;
+    const suspensionAi = getSuspensionAiComponent(pageComponents);
     return (
       <WaterMark projectId={apk.projectId}>
-        <ScrollView className="h100 w100 GrayBG">
+        <div id="componentsWrap" className="h100 w100 GrayBG" style={{ overflowY: 'auto' }}>
           <DocumentTitle title={pageTitle || pageName || _l('自定义页面')} />
           {urlTemplate ? (
             this.renderUrlTemplate()
           ) : (
             loading ? this.renderLoading() : pageComponents.length ? this.renderContent() : this.renderWithoutData()
           )}
-          {!isMingdao && !(appNaviStyle === 2 && location.href.includes('mobile/app') && md.global.Account.isPortal) && (
+          {suspensionAi && (
+            <AiContent widget={suspensionAi} />
+          )}
+          {!window.isMingDaoApp && !(appNaviStyle === 2 && location.href.includes('mobile/app') && md.global.Account.isPortal) && !_.get(window, 'shareState.shareId') && (
             <Back
               style={{ bottom: appNaviStyle === 2 ? '70px' : '20px' }}
               className="low"
@@ -295,7 +300,8 @@ export default class CustomPage extends Component {
               }}
             />
           )}
-        </ScrollView>
+          <LinkageBtn isSuspensionAi={suspensionAi}/>
+        </div>
       </WaterMark>
     );
   }

@@ -51,17 +51,19 @@ module.exports = {
     ],
     splitChunks: {
       chunks: 'all',
-      minSize: 30000,
+      minSize: 2000000,
       cacheGroups: {
         common: {
           name: 'common',
           minChunks: 2,
           priority: -10,
           reuseExistingChunk: true,
+          minSize: 30000,
         },
         core: {
           name: 'core',
           minChunks: isProduction ? 2 : 1,
+          minSize: 30000,
           test(module) {
             return (
               module.resource &&
@@ -70,11 +72,13 @@ module.exports = {
           },
         },
         modules_a: {
+          minSize: 30000,
           name: 'modules_a',
           minChunks: isProduction ? 2 : 1,
           test: /[\\/]node_modules[\\/](?!hot-formula-parser|@mdfe|html5-qrcode|antd|@antv|mapbox-gl|lodash|@fullcalendar|react-dom|@sentry|codemirror|jspdf)/,
         },
         modules_b: {
+          minSize: 30000,
           name: 'modules_b',
           minChunks: isProduction ? 2 : 1,
           test: /[\\/]node_modules[\\/](hot-formula-parser|@mdfe|html5-qrcode|antd|@antv|mapbox-gl|lodash|@fullcalendar|react-dom|@sentry|codemirror|jspdf)/,

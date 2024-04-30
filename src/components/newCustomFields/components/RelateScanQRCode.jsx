@@ -34,7 +34,7 @@ export default class Widgets extends Component {
       if (row) {
         this.props.onChange(row);
       } else {
-        Toast.fail(_l('无法关联，此记录不在可关联的范围内'));
+        Toast.catch(_l('无法关联，此记录不在可关联的范围内'));
       }
     });
   };
@@ -51,7 +51,7 @@ export default class Widgets extends Component {
           if (currentWorksheetId === result.worksheetId) {
             this.getRowById(result);
           } else {
-            Toast.fail(_l('无法关联，此记录不在可关联的范围内'));
+            Toast.catch(_l('无法关联，此记录不在可关联的范围内'));
           }
         });
       return;
@@ -72,7 +72,7 @@ export default class Widgets extends Component {
               rowId,
             });
           } else {
-            Toast.fail(_l('无法关联，此记录不在可关联的范围内'));
+            Toast.catch(_l('无法关联，此记录不在可关联的范围内'));
           }
         } else {
           this.props.onOpenRecordCardListDialog(content);

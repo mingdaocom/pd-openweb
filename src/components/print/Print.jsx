@@ -125,9 +125,9 @@ export default class Print extends Component {
     const logoAjax =
       this.state.projectId && !!_.find(md.global.Account.projects, item => item.projectId === this.state.projectId)
         ? projectAjax.getSysColor({ projectId: this.state.projectId })
-        : $.Deferred().resolve({ logo: md.global.Config.Logo }).promise();
-    $.when(sheetAjax.getWorksheetInfo(sheetArgs), sheetAjax.getRowByID(rowInfoArgs), logoAjax).then(
-      (sheetInfo, rowInfo, logo) => {
+        : Promise.resolve({ logo: md.global.Config.Logo });
+    Promise.all([sheetAjax.getWorksheetInfo(sheetArgs), sheetAjax.getRowByID(rowInfoArgs), logoAjax]).then(
+      ([sheetInfo, rowInfo, logo]) => {
         const signatureControls = rowInfo.receiveControls.filter(item => item.type === 42);
         rowInfo.receiveControls = rowInfo.receiveControls.filter(item => item.type !== 42);
         const controlData = _.groupBy(rowInfo.receiveControls, item => item.row);
@@ -183,7 +183,7 @@ export default class Print extends Component {
           relateRecords: newRelateRecords,
         });
       })
-      .fail(err => {});
+      .catch(err => {});
   }
   loadWorksheetShortUrl(appId, worksheetId, viewId, rowId) {
     sheetAjax

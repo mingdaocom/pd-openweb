@@ -1,14 +1,12 @@
 import React, { Fragment, Component } from 'react';
-import Icon from 'ming-ui/components/Icon';
+import { Icon, UserHead, SvgIcon } from 'ming-ui';
 import { TABS } from '../index';
 import { Checkbox, Tooltip } from 'antd';
 import { FLOW_FAIL_REASON } from 'src/pages/workflow/WorkflowSettings/History/config';
 import { covertTime, ACTION_TYPES, TYPE_TO_STYLE, FLOW_NODE_TYPE_STATUS, INSTANCELOG_STATUS } from '../config';
 import './index.less';
-import SvgIcon from 'src/components/SvgIcon';
 import _ from 'lodash';
 import moment from 'moment';
-import UserHead from 'src/components/userHead';
 
 export default class Card extends Component {
   constructor(props) {

@@ -461,7 +461,7 @@ export const formatrChartAxisValue = (value, isPerPile, yaxisList) => {
  * 将 `控件名-控件id` 字符格式转成 { name, id }
  */
 export const formatControlInfo = value => {
-  if (_.isNumber(value)) return value;
+  if (_.isNumber(value) || _.isEmpty(value)) return value;
   let result = value.split(/-md-\w+-chart-/g);
   let name = null;
   let id = null;

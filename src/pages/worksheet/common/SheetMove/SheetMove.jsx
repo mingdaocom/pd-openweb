@@ -1,7 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { Dialog, Dropdown, Menu, MenuItem, Button, Icon, ScrollView } from 'ming-ui';
-import SvgIcon from 'src/components/SvgIcon';
+import { Dialog, Dropdown, Menu, MenuItem, Button, Icon, ScrollView, SvgIcon } from 'ming-ui';
 import { APP_ROLE_TYPE } from '../../constants/enum';
 import homeApp from 'src/api/homeApp';
 import store from 'redux/configureStore';
@@ -52,12 +51,12 @@ export default class SheetMove extends Component {
   handleChangeApp(appId) {
     this.setState({
       appValue: appId,
-      groupingValue: ''
+      groupingValue: '',
     });
     homeApp
       .getApp({
         appId,
-        getSection: true
+        getSection: true,
       })
       .then(result => {
         const { sections } = result;

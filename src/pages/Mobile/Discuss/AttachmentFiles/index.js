@@ -1,91 +1,14 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import { Flex, Toast } from 'antd-mobile';
-import { Icon, Progress } from 'ming-ui';
+import { QiniuUpload, Icon, Progress } from 'ming-ui';
 import './index.less';
 import { generateRandomPassword, getClassNameByExt, getToken, formatFileSize } from 'src/util';
 import { checkFileAvailable } from 'src/components/UploadFiles/utils.js';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import moment from 'moment';
-import MapLoader from 'src/ming-ui/components/amap/MapLoader';
-import MapHandler from 'src/ming-ui/components/amap/MapHandler';
-
-/**
- * 添加水印
- * @param {file} 上传的图片文件
- */
-async function addWaterMarker(file, textLayouts) {
-  let img = await blobToImg(file);
-  return new Promise((resolve, reject) => {
-    let canvas = document.createElement('canvas');
-    canvas.width = img.width;
-    canvas.height = img.height;
-    let ctx = canvas.getContext('2d');
-    ctx.drawImage(img, 0, 0);
-
-    const fontSize = Math.min(canvas.width, canvas.height) * 0.03;
-    const lineSpacing = 6;
-
-    // 绘制背景
-    const bgColoryOffset = fontSize * textLayouts.length + lineSpacing * textLayouts.length;
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-    ctx.fillRect(0, canvas.height - bgColoryOffset - fontSize, canvas.width, bgColoryOffset + fontSize);
-
-    // 绘制文字
-    ctx.font = `${fontSize}px 'Fira Sans'`;
-    ctx.fillStyle = '#fff';
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'bottom';
-    ctx.backgroundColor = '#ccc';
-
-    textLayouts.forEach((text, index) => {
-      const i = textLayouts.length - index;
-      const xOffset = 20;
-      const yOffset = canvas.height - fontSize * i - lineSpacing * i;
-      ctx.fillText(text, xOffset, yOffset + 10);
-    });
-
-    canvas.toBlob(blob => resolve(blob));
-  });
-}
-
-/**
- * blob转img标签
- */
-function blobToImg(blob) {
-  return new Promise((resolve, reject) => {
-    let reader = new FileReader();
-    reader.addEventListener('load', () => {
-      let img = new Image();
-      img.src = reader.result;
-      img.addEventListener('load', () => resolve(img));
-    });
-    reader.readAsDataURL(blob);
-  });
-}
-
-const formatResponseData = (file, response) => {
-  const item = {};
-  const data = JSON.parse(response);
-  item.fileID = file.id;
-  item.fileSize = file.size || 0;
-  item.url = file.url;
-  item.serverName = data.serverName;
-  item.filePath = data.filePath;
-  item.fileName = data.fileName;
-  item.fileExt = data.fileExt;
-  // item.ext = data.fileExt;
-  item.originalFileName = data.originalFileName;
-  item.key = data.key;
-  item.oldOriginalFileName = item.originalFileName;
-  if (!File.isPicture(item.fileExt)) {
-    item.allowDown = true;
-    item.docVersionID = '';
-  }
-  return item;
-};
-
-let currentLocation = null;
+import { formatResponseData } from 'src/components/UploadFiles/utils';
+import _ from 'lodash';
 
 export class UploadFileWrapper extends Component {
   constructor(props) {
@@ -96,32 +19,6 @@ export class UploadFileWrapper extends Component {
     this.currentFile = null;
     this.id = `uploadFiles-${generateRandomPassword(10)}`;
   }
-  componentDidMount() {
-    this.uploadFile();
-    const { advancedSetting = {} } = this.props;
-    const watermark = JSON.parse(advancedSetting.watermark || null) || [];
-    if (!currentLocation && watermark.length) {
-      currentLocation = {};
-      new MapLoader().loadJs().then(() => {
-        this._maphHandler = new MapHandler();
-        this._maphHandler.getCurrentPos((status, result) => {
-          if (status === 'complete') {
-            const { formattedAddress, position } = result;
-            currentLocation = {
-              formattedAddress,
-              position,
-            };
-          }
-        });
-      });
-    }
-  }
-  componentWillUnmount() {
-    if (this._maphHandler) {
-      this._maphHandler.destroyMap();
-      this._maphHandler = null;
-    }
-  }
   componentWillReceiveProps(nextProps) {
     if (nextProps.files.length !== this.props.files.length) {
       this.setState({
@@ -129,26 +26,15 @@ export class UploadFileWrapper extends Component {
       });
     }
   }
-  uploadFile() {
+  getMethod() {
     const self = this;
     const { advancedSetting = {}, projectId, appId, worksheetId } = self.props;
-
     const method = {
-      FilesAdded(uploader, files) {
-        if (
-          parseFloat(files.reduce((total, file) => total + (file.size || 0), 0) / 1024 / 1024) >
-          md.global.SysSettings.fileUploadLimitSize
-        ) {
-          Toast.info(
-            '附件总大小超过 ' +
-              formatFileSize(md.global.SysSettings.fileUploadLimitSize * 1024 * 1024) +
-              '，请您分批次上传',
-          );
-          uploader.stop();
-          uploader.splice(uploader.files.length - files.length, uploader.files.length);
-          return false;
+      onAdd(uploader, files) {
+        if (_.isEmpty(files)) {
+          self.props.onChange([]);
+          return;
         }
-
         self.uploading = true;
         const watermark = JSON.parse(advancedSetting.watermark || null) || [];
         const start = () => {
@@ -161,7 +47,6 @@ export class UploadFileWrapper extends Component {
               return;
             }
           }
-          const tokenFiles = [];
           files
             .filter(item => item.name || item.type)
             .forEach(item => {
@@ -180,84 +65,18 @@ export class UploadFileWrapper extends Component {
               self.setState({
                 files: newFiles,
               });
-              tokenFiles.push({ bucket: isPic ? 4 : 3, ext: fileExt });
               self.props.onChange(newFiles);
             });
-          getToken(tokenFiles, 0, {
-            projectId,
-            appId,
-            worksheetId,
-          }).then(res => {
-            files.forEach((item, i) => {
-              item.token = res[i].uptoken;
-              item.key = res[i].key;
-              item.serverName = res[i].serverName;
-              item.fileName = res[i].fileName;
-              item.url = res[i].url;
-            });
-            uploader.start();
-          });
         };
-
-        if (watermark.length) {
-          // 添加水印
-          Promise.all(
-            files
-              .filter(file => {
-                const ext = File.GetExt(file.name);
-                return File.isPicture(`.${ext}`);
-              })
-              .map(file => {
-                return new Promise((resolve, reject) => {
-                  const nativeFile = file.getNative();
-                  const { formattedAddress, position } = currentLocation || {};
-                  const textLayouts = [];
-                  if (md.global.Account.fullname && watermark.includes('user')) {
-                    textLayouts.push(md.global.Account.fullname);
-                  }
-                  if (watermark.includes('time')) {
-                    textLayouts.push(moment().format('YYYY-MM-DD HH:mm:ss'));
-                  }
-                  if (formattedAddress && watermark.includes('address')) {
-                    textLayouts.push(formattedAddress);
-                  }
-                  if (position && watermark.includes('xy')) {
-                    textLayouts.push(`${_l('经度')}：${position.lng}  ${_l('纬度')}：${position.lat}`);
-                  }
-                  addWaterMarker(nativeFile, textLayouts).then(blob => {
-                    const newFile = new File([blob], file.name, { type: blob.type });
-                    file.getSource().setSource(newFile);
-                    resolve();
-                  });
-                });
-              }),
-          ).then(() => {
-            start();
-          });
-        } else {
-          start();
-        }
+        start();
       },
-      BeforeUpload(uploader, file) {
+      onBeforeUpload(uploader, file) {
         self.currentFile = uploader;
-        const fileExt = `.${File.GetExt(file.name)}`;
-
-        // token
-        uploader.settings.multipart_params = {
-          token: file.token,
-        };
-
-        uploader.settings.multipart_params.key = file.key;
-        uploader.settings.multipart_params['x:serverName'] = file.serverName;
-        uploader.settings.multipart_params['x:filePath'] = file.key.replace(file.fileName, '');
-        uploader.settings.multipart_params['x:fileName'] = file.fileName.replace(/\.[^\.]*$/, '');
-        uploader.settings.multipart_params['x:originalFileName'] = encodeURIComponent(
-          file.name.indexOf('.') > -1 ? file.name.split('.').slice(0, -1).join('.') : file.name,
-        );
-        uploader.settings.multipart_params['x:fileExt'] = fileExt;
       },
-      UploadProgress(uploader, file) {
-        const uploadPercent = ((file.loaded / file.size) * 100).toFixed(1);
+      onUploadProgress(uploader, file) {
+        const loaded = file.loaded || 0;
+        const size = file.size || 0;
+        const uploadPercent = ((loaded / size) * 100).toFixed(1);
         // 给当前正在上传的文件设置进度
         const newFiles = self.state.files.map(item => {
           if (file.id === item.id && 'progress' in item) {
@@ -270,11 +89,12 @@ export class UploadFileWrapper extends Component {
         });
         self.props.onChange(newFiles);
       },
-      FileUploaded(uploader, file, response) {
+      onUploaded(uploader, file, response) {
         // 上传完成，取消进度条
         const newFiles = self.state.files.map(item => {
           if (file.id === item.id && 'progress' in item) {
-            item = formatResponseData(file, decodeURIComponent(response.response));
+            item = formatResponseData(file, response);
+            item.originalFileName = decodeURIComponent(item.originalFileName);
             delete item.progress;
             delete item.base;
           }
@@ -285,22 +105,17 @@ export class UploadFileWrapper extends Component {
         });
         self.props.onChange(newFiles, true);
       },
-      UploadComplete() {
+      onUploadComplete() {
         self.uploading = false;
       },
-      Error(uploader, error) {
+      onError(uploader, error) {
         if (error.code === window.plupload.FILE_SIZE_ERROR) {
-          Toast.info(
-            _l(
-              '单个文件大小超过%0，无法支持上传',
-              formatFileSize(md.global.SysSettings.fileUploadLimitSize * 1024 * 1024),
-            ),
-          );
+          Toast.info(_l('单个文件大小超过%0MB，无法支持上传', 1024 * 4));
         } else {
           Toast.info(_l('上传失败，请稍后再试。'));
         }
       },
-      Init() {
+      onInit() {
         const ele = self.uploadContainer && self.uploadContainer.querySelector('input');
         const { inputType, advancedSetting = {}, customUploadType } = self.props;
         const { filetype } = advancedSetting;
@@ -325,20 +140,7 @@ export class UploadFileWrapper extends Component {
         }
       },
     };
-    $(this.uploadFileEl).plupload({
-      url: md.global.FileStoreConfig.uploadHost,
-      file_data_name: 'file',
-      multi_selection: true,
-      method,
-      resize:
-        _.get(advancedSetting, 'webcompress') !== '0'
-          ? {
-              quality: 60,
-              preserve_headers: true,
-            }
-          : undefined,
-      autoUpload: false,
-    });
+    return method;
   }
   onRemoveAll(uploader) {
     uploader.files.forEach(item => {
@@ -348,12 +150,36 @@ export class UploadFileWrapper extends Component {
     });
   }
   render() {
+    const { advancedSetting = {}, appId, worksheetId, projectId } = this.props;
     const { children, className, style } = this.props;
     return (
       <div className="Relative" style={style} ref={el => (this.uploadContainer = el)}>
-        <span ref={el => (this.uploadFileEl = el)} id={this.id} className={className}>
-          {children}
-        </span>
+        <QiniuUpload
+          options={{
+            url: md.global.FileStoreConfig.uploadHost,
+            file_data_name: 'file',
+            multi_selection: true,
+            max_file_size: `${1024 * 4}m`,
+            // resize:
+            //   _.get(advancedSetting, 'webcompress') !== '0'
+            //     ? {
+            //         quality: 60,
+            //         preserve_headers: true,
+            //       }
+            //     : undefined,
+            autoUpload: false,
+            getTokenParam: {
+              appId,
+              worksheetId,
+              projectId,
+            },
+          }}
+          {...this.getMethod()}
+        >
+          <span ref={el => (this.uploadFileEl = el)} id={this.id} className={className}>
+            {children}
+          </span>
+        </QiniuUpload>
       </div>
     );
   }

@@ -1,8 +1,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import _ from 'lodash';
-import LoadDiv from 'ming-ui/components/LoadDiv';
-import UserName from 'src/components/userName';
+import { LoadDiv, UserName } from 'ming-ui';
 import postAjax from 'src/api/post';
 import { loadMoreComments } from '../../../redux/postActions';
 import { connect } from 'react-redux';
@@ -29,7 +28,8 @@ class PostCommentList extends React.Component {
     const totalCount = parseInt(postItem.commentCount, 10);
 
     this.state = {
-      isExpand: (postItem.comments && postItem.comments.length === totalCount) || (defaultCount && totalCount <= defaultCount),
+      isExpand:
+        (postItem.comments && postItem.comments.length === totalCount) || (defaultCount && totalCount <= defaultCount),
       loading: false,
     };
   }
@@ -44,11 +44,15 @@ class PostCommentList extends React.Component {
     const postItem = nextProps.postItem;
     const defaultCount = nextProps.defaultCount;
     const totalCount = parseInt(postItem.commentCount, 10);
-    const isExpand = (postItem.comments && postItem.comments.length === totalCount) || (defaultCount && totalCount <= defaultCount);
+    const isExpand =
+      (postItem.comments && postItem.comments.length === totalCount) || (defaultCount && totalCount <= defaultCount);
     this.setState({
       isExpand,
       loading: false,
-      likedUsers: postItem.postID === this.props.postItem.postID && postItem.likeCount === this.props.postItem.likeCount ? this.state.likedUsers : null,
+      likedUsers:
+        postItem.postID === this.props.postItem.postID && postItem.likeCount === this.props.postItem.likeCount
+          ? this.state.likedUsers
+          : null,
     });
   }
 
@@ -59,7 +63,7 @@ class PostCommentList extends React.Component {
   }
 
   fetchLikedUsers = () => {
-    postAjax.getLikeUsers({ postID: this.props.postItem.postID }).then((likedUsers) => {
+    postAjax.getLikeUsers({ postID: this.props.postItem.postID }).then(likedUsers => {
       this.setState({ likedUsers });
     });
   };
@@ -75,7 +79,10 @@ class PostCommentList extends React.Component {
     const postItem = this.props.postItem;
     const totalCount = parseInt(postItem.commentCount, 10);
     const comments = postItem.comments || [];
-    const count = this.state.isExpand || !this.props.defaultCount ? comments.length : _.min([this.props.defaultCount, comments.length]);
+    const count =
+      this.state.isExpand || !this.props.defaultCount
+        ? comments.length
+        : _.min([this.props.defaultCount, comments.length]);
     const commentElements = _(comments)
       .slice(0, count)
       .map((c, i) => (
@@ -98,12 +105,14 @@ class PostCommentList extends React.Component {
                 {i === this.state.likedUsers.length - 1 ? undefined : '、'}
               </span>
             ))}
-              <span>{_l('赞了此条')}</span>
+            <span>{_l('赞了此条')}</span>
           </div>
-        ) : (
-          undefined
-        )}
-          <PostCommentInput postItem={postItem} focus={this.props.focusCommentBox} isPostDetail={this.props.isPostDetail} />
+        ) : undefined}
+        <PostCommentInput
+          postItem={postItem}
+          focus={this.props.focusCommentBox}
+          isPostDetail={this.props.isPostDetail}
+        />
         {!!commentElements.length && <ul className="commentList">{commentElements}</ul>}
         {(() => {
           if (totalCount) {
@@ -115,7 +124,7 @@ class PostCommentList extends React.Component {
                 <a className="loadMoreComments" onClick={this.toggleViewAll}>
                   {_l('展开其余 %0 条回复', totalCount - count)}
                   &nbsp;
-                    <i className="icon-arrow-down-border" />
+                  <i className="icon-arrow-down-border" />
                 </a>
               );
             }

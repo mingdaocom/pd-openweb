@@ -4,8 +4,7 @@ import { PICK_TYPE, ROOT_LOG_TYPE, ROOT_PERMISSION_TYPE, PERMISSION_TYPE_NAME } 
 import { humanDateTime } from '../../utils';
 import './rootLog.less';
 import { htmlEncodeReg } from 'src/util';
-import UserCard from 'src/components/UserCard';
-import { Dialog } from 'ming-ui';
+import { Dialog, UserCard } from 'ming-ui';
 
 /*
  * 获取日志中成员名称显示@

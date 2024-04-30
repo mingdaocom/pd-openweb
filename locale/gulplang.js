@@ -12,7 +12,7 @@ const langs = eval(
     .toString()
     .replace('export default config;', 'module.exports = config;'),
 );
-const getTranslationJS = function(langPath) {
+const getTranslationJS = function (langPath) {
   let fileContent = fs.readFileSync(path.join(__dirname, langPath), 'utf-8');
   return eval(fileContent + 'module.exports = translations;');
 };
@@ -24,7 +24,7 @@ const langPackage = {
 };
 
 // " 转义处理 并不含 \"
-const escapeSymbol = function(key) {
+const escapeSymbol = function (key) {
   key = key || '';
 
   if (key.indexOf('"') > -1 && key.indexOf('\\"') === -1) {
@@ -38,13 +38,13 @@ const escapeSymbol = function(key) {
 let langKeys = [];
 
 // 动态页面
-const getDPLangKey = function(done) {
+const getDPLangKey = function (done) {
   langKeys = [];
 
   return gulp
     .src('src/**/*.{js,jsx,html,htm,tpl}')
     .pipe(
-      each(function(content, file, callback) {
+      each(function (content, file, callback) {
         content = content.replace(/_l\([\n|\r\n]\s*/g, '_l(').replace(/,[\n|\r\n]\s*\)/g, ')');
         // _l('xxxx %0 xxxx %1', p1, p2)
         // let regStr = /(\[\[\[(.+?)(?:\|\|\|(.+?))*(?:\/\/\/(.+?))?\]\]\])|(_l\(['|"](.+?)['|"](['|"]?(\s*)?,(\s*)['|"]?(.+?))*\))/;
@@ -54,7 +54,7 @@ const getDPLangKey = function(done) {
         let reg1 = new RegExp(regStr);
         let matchs = content.match(reg);
         if (matchs) {
-          matchs.forEach(function(item) {
+          matchs.forEach(function (item) {
             let groups = reg1.exec(item);
             if (groups) {
               key = groups[2] || groups[5] || groups[6] || groups[7];
@@ -78,11 +78,11 @@ const getDPLangKey = function(done) {
 };
 
 // 生成新增的 pot文件
-const buildDPPot = function(done) {
+const buildDPPot = function (done) {
   let cnContent = '';
   let otherContent = '';
 
-  _.uniq(langKeys).map(function(key) {
+  _.uniq(langKeys).map(function (key) {
     let isExist = langPackage['zh-Hans'][key];
 
     if (!isExist) {
@@ -113,7 +113,7 @@ const buildDPPot = function(done) {
   done();
 };
 
-const buildPoToJs = function(done) {
+const buildPoToJs = function (done) {
   langs.forEach(item => {
     const filePath = `locale/${item.key}/mdTranslation`;
     const poText = fs.readFileSync(filePath + '.po');
@@ -121,11 +121,11 @@ const buildPoToJs = function(done) {
     if (!poText) return;
 
     gettextToI18next(item.key, poText).then(
-      function(result) {
+      function (result) {
         fs.writeFileSync(filePath + '.js', UglifyJS.minify(`var translations=${result};`).code);
         console.log(filePath + '.js 构建成功');
       },
-      function(err) {
+      function (err) {
         console.log(filePath + '.js 构建失败');
         console.error(err);
       },
@@ -136,10 +136,10 @@ const buildPoToJs = function(done) {
 };
 
 // 清理无效的key
-const clearPoLangKey = function(done) {
+const clearPoLangKey = function (done) {
   const content = {};
 
-  _.uniq(langKeys).map(function(key) {
+  _.uniq(langKeys).map(function (key) {
     langs.forEach(item => {
       const value =
         escapeSymbol(langPackage[item.key][key]) ||
@@ -151,9 +151,6 @@ const clearPoLangKey = function(done) {
 
   langs.forEach(item => {
     const filePath = `locale/${item.key}/mdTranslation.po`;
-    const poText = fs.readFileSync(filePath);
-
-    if (!poText) return;
 
     try {
       fs.writeFileSync(

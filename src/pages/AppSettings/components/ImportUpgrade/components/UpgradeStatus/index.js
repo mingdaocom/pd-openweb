@@ -1,10 +1,9 @@
 import React, { Component, Fragment } from 'react';
 import styled from 'styled-components';
 import cx from 'classnames';
-import { Skeleton, Icon } from 'ming-ui';
+import { Skeleton, Icon, SvgIcon } from 'ming-ui';
 import UpgradeContent from 'src/components/UpgradeContent';
 import HomepageIcon from 'src/pages/PageHeader/components/HomepageIcon';
-import SvgIcon from 'src/components/SvgIcon';
 import MyProcessEntry from 'src/pages/PageHeader/components/MyProcessEntry';
 import CommonUserHandle from 'src/pages/PageHeader/components/CommonUserHandle';
 

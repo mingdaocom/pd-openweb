@@ -18,6 +18,8 @@ button {
 body {
   font-family: 'Helvetica Neue', Helvetica, Arial, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei',
     'WenQuanYi Micro Hei', sans-serif !important;
+  width: 100%;
+  height: 100%;
 }
 body#ja {
   font-family: '-apple-system', BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN',
@@ -25,6 +27,8 @@ body#ja {
 }
 html {
   -webkit-font-smoothing: antialiased;
+  width: 100%;
+  height: 100%;
 }
 html body {
   color: #333;
@@ -50,6 +54,9 @@ body ol {
   margin: 0px;
   padding: 0px;
   list-style-type: none;
+}
+li {
+  list-style: none;
 }
 a {
   text-decoration: none;
@@ -1795,10 +1802,12 @@ body > object {
   background: rgba(125, 125, 125, 0.8) !important;
 }
 
+.iti .iti__country-container .iti__selected-country,
 .iti .iti__flag-container .iti__selected-flag {
   outline: none;
 }
 
+.iti--show-selected-dial-code .iti__selected-country,
 .iti--separate-dial-code .iti__selected-flag {
   background-color: rgba(0, 0, 0, 0) !important;
 }
@@ -2566,6 +2575,11 @@ input[type='checkbox']:disabled:checked:after {
   min-width: 0;
 }
 
+.flexCenter {
+  display: flex;
+  align-items: center;
+}
+
 .inlineFlexRow {
   display: inline-flex;
   min-width: 0;
@@ -2584,6 +2598,7 @@ input[type='checkbox']:disabled:checked:after {
 .justifyContentCenter {
   justify-content: center;
 }
+
 .justifyContentLeft {
   justify-content: left !important;
 }
@@ -2706,4 +2721,30 @@ html:not(.appHomeMobile) .ant-message {
 
 .ant-tooltip .ant-tooltip-arrow-content {
   --antd-arrow-background-color: #212121;
+}
+
+.hoverText:hover {
+  cursor: pointer;
+  color: #2196f3;
+}
+
+.hoverText:hover i {
+  color: #2196f3;
+}
+
+.fixedScreen {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+#kf5-support-btn,
+.fullWrapper .appPkgHeaderWrap,
+.fullWrapper .workSheetLeft {
+  display: none !important;
+}
+
+.ant-dropdown .ming.Menu {
+  width: 100%;
 }

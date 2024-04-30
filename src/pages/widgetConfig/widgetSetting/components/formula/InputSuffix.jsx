@@ -24,7 +24,7 @@ export default function InputSuffix({ data, onChange }) {
       handleAdvancedSettingChange(
         data,
         _.includes(['3', '4', '5'], unit)
-          ? { [type]: setting[type] || initSuffix.text || '' }
+          ? { [type]: _.isUndefined(setting[type]) ? initSuffix.text : setting[type] || '' }
           : { prefix: '', suffix: '' },
       ),
     );

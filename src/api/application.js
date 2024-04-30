@@ -7,8 +7,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getAccountApps: function (args, options = {}) {
-     
-     return $.api('Application', 'GetAccountApps', args, options);
+
+     return mdyAPI('Application', 'GetAccountApps', args, options);
    },
   /**
   * 应用置顶
@@ -20,8 +20,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    updateAccountAppTop: function (args, options = {}) {
-     
-     return $.api('Application', 'UpdateAccountAppTop', args, options);
+
+     return mdyAPI('Application', 'UpdateAccountAppTop', args, options);
    },
   /**
   * 创建应用
@@ -37,8 +37,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addApplication: function (args, options = {}) {
-     
-     return $.api('Application', 'AddApplication', args, options);
+
+     return mdyAPI('Application', 'AddApplication', args, options);
    },
   /**
   * 修改应用
@@ -55,8 +55,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editApplication: function (args, options = {}) {
-     
-     return $.api('Application', 'EditApplication', args, options);
+
+     return mdyAPI('Application', 'EditApplication', args, options);
    },
   /**
   * 删除应用
@@ -68,8 +68,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    removeApplication: function (args, options = {}) {
-     
-     return $.api('Application', 'RemoveApplication', args, options);
+
+     return mdyAPI('Application', 'RemoveApplication', args, options);
    },
   /**
   * 获取网络应用列表
@@ -80,7 +80,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getProjectApplicationList: function (args, options = {}) {
-     
-     return $.api('Application', 'GetProjectApplicationList', args, options);
+
+     return mdyAPI('Application', 'GetProjectApplicationList', args, options);
    },
 };

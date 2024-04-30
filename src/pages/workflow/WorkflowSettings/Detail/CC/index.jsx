@@ -48,19 +48,21 @@ export default class CC extends Component {
    * 获取节点详情
    */
   getNodeDetail(props) {
-    const { processId, selectNodeId, selectNodeType, isApproval } = props;
+    const { processId, selectNodeId, selectNodeType, isApproval, instanceId } = props;
 
-    flowNode.getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType }).then(result => {
-      this.setState({ data: result });
+    flowNode
+      .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, instanceId })
+      .then(result => {
+        this.setState({ data: result });
 
-      if (result.appId) {
-        this.getWorksheetInfo(result.appId);
-      }
+        if (result.appId) {
+          this.getWorksheetInfo(result.appId);
+        }
 
-      if (isApproval && !result.selectNodeId) {
-        this.onChange(result.flowNodeList[0].nodeId);
-      }
-    });
+        if (isApproval && !result.selectNodeId) {
+          this.onChange(result.flowNodeList[0].nodeId);
+        }
+      });
   }
 
   /**

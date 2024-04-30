@@ -3,6 +3,7 @@ import React, { Component, Fragment } from 'react';
 import { List } from 'antd-mobile';
 import { Icon, Radio } from 'ming-ui';
 import { ModalWrap } from 'src/pages/Mobile/baseStyled.jsx';
+import { MAX_OPTIONS_COUNT } from 'src/pages/widgetConfig/config';
 import './less/MobileCheckbox.less';
 import _ from 'lodash';
 
@@ -36,15 +37,18 @@ export default class MobileRadio extends Component {
   }
 
   render() {
-    const { disabled, allowAdd, children, data, value, renderText, controlName } = this.props;
+    const { disabled, allowAdd, children, value, renderText, controlName, delOptions = [] } = this.props;
+    let { data } = this.props;
     const { visible, keywords } = this.state;
+    data = data.filter(item => !item.isDeleted && !item.hide);
+    const canAddOption = data.length < MAX_OPTIONS_COUNT;
 
     return (
       <Fragment>
         <span onClick={() => !disabled && this.setState({ visible: true })}>
           {children ||
             data
-              .filter(item => _.includes(value, item.key))
+              .filter(item => _.some(value, v => _.isEqual(v, item)))
               .map(item => {
                 return <span className="ellipsis Font15">{item.value}</span>;
               })}
@@ -93,7 +97,7 @@ export default class MobileRadio extends Component {
                     }}
                   >
                     <div className="flexRow" style={{ alignItems: 'center' }}>
-                      <Radio checked={_.includes(value, item.key)} />
+                      <Radio checked={_.some(value, v => _.isEqual(v, item))} />
                       <span className="ellipsis Font15 flex mRight15">
                         {renderText ? renderText(item) : item.value}
                       </span>
@@ -101,8 +105,15 @@ export default class MobileRadio extends Component {
                   </List.Item>
                 ))}
 
-              {!!keywords.length && allowAdd && !data.find(item => item.value === keywords) && (
-                <List.Item onClick={() => this.onChange(`add_${keywords}`)}>
+              {!!keywords.length && allowAdd && !data.find(item => item.value === keywords) && canAddOption && (
+                <List.Item
+                  onClick={() => {
+                    if (!_.trim(keywords)) return;
+                    const opt = _.find(delOptions, v => v.value === keywords);
+                    if (opt) return alert(_l('不得与已有选项（包括回收站）重复'), 2);
+                    this.onChange(`add_${keywords}`);
+                  }}
+                >
                   <span className="ellipsis ThemeColor3 Font15">{_l('添加新的选项：') + keywords}</span>
                 </List.Item>
               )}

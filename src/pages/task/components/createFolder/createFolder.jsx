@@ -114,7 +114,7 @@ export default class CreateFolder extends Component {
             },
           );
         })
-        .fail(() => {
+        .catch(() => {
           this.setState(
             {
               companyName: _l('个人'),

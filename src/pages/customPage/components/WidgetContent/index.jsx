@@ -32,9 +32,9 @@ const LayoutContent = styled.div`
     width: 100%;
     height: 100%;
     background-color: #fff;
-    border-radius: 3px;
+    border-radius: 6px;
     overflow: auto;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    // box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     &.numberChartCardHover {
       cursor: pointer;
       transition: box-shadow 0.2s;
@@ -109,6 +109,12 @@ const LayoutContent = styled.div`
         border-bottom: 2px solid #2196f3;
       }
     }
+  }
+  .titleSign {
+    width: 5px;
+    height: 24px;
+    margin: 0 10px 0 0;
+    border-radius: 3px;
   }
   .componentsWrap {
     padding: 0 0 4px 0;
@@ -215,7 +221,7 @@ function WidgetContent(props) {
                 objectId: uuidv4()
               }
             }))
-            .always(() => setLoading(false));
+            .finally(() => setLoading(false));
         } else {
           copyWidget({ ..._.omit(widget, ['id', 'uuid']), layoutType });
         }
@@ -322,7 +328,7 @@ function WidgetContent(props) {
           return (
             <LayoutContent key={`${id || index}`} className="resizableWrap">
               {titleVisible && (
-                <div className="componentTitle overflow_ellipsis disableDrag bold" title={title}>
+                <div className="componentTitle flexRow alignItemsCenter disableDrag bold" title={title}>
                   {editable || isEdit ? (
                     <input
                       ref={$input}
@@ -332,7 +338,10 @@ function WidgetContent(props) {
                       onChange={e => updateWidget({ widget, title: e.target.value, layoutType })}
                     ></input>
                   ) : (
-                    title
+                    <Fragment>
+                      {title && <div className="titleSign" style={{ backgroundColor: appPkg.iconColor || apk.iconColor }} />}
+                      <span className="flex overflow_ellipsis">{title}</span>
+                    </Fragment>
                   )}
                 </div>
               )}
@@ -351,7 +360,7 @@ function WidgetContent(props) {
                   themeColor={appPkg.iconColor || apk.iconColor}
                   isLock={appPkg.isLock}
                   permissionType={appPkg.permissionType}
-                  projectId={apk.projectId}
+                  projectId={appPkg.projectId || apk.projectId}
                   ref={el => {
                     displayRefs[index] = el;
                   }}

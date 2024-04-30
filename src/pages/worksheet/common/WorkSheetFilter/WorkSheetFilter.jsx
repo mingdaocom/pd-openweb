@@ -119,7 +119,7 @@ export default class WorkSheetFilter extends Component {
           cb,
         );
       })
-      .fail(err => {
+      .catch(err => {
         alert(_l('获取筛选列表失败'), 2);
       });
   }

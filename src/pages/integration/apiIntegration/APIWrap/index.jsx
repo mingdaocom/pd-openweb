@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import cx from 'classnames';
-import { Icon, Menu, LoadDiv, Tooltip } from 'ming-ui';
-import SvgIcon from 'src/components/SvgIcon';
+import { Icon, Menu, LoadDiv, Tooltip, SvgIcon } from 'ming-ui';
 import { useSetState } from 'react-use';
 import Trigger from 'rc-trigger';
 import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';

@@ -457,7 +457,7 @@ function User(props) {
                 .filter(o => o.value + '' !== '5')
                 .map(it => {
                   if (it.value === '1') {
-                    return { ...it, text: _l('启用') };
+                    return { ...it, text: _l('启用%15005') };
                   } else {
                     return it;
                   }
@@ -628,7 +628,7 @@ function User(props) {
                 Dialog.confirm({
                   title: <span className="">{_l('启用%0个用户', selectedIds.length || 1)}</span>,
                   buttonType: '',
-                  okText: _l('启用'),
+                  okText: _l('启用%15005'),
                   description: _l('启用只对“停用”状态的用户生效；用户被启用后可以通过外部门户链接登录此应用'),
                   onOk: () => {
                     updateListByStatus({
@@ -642,7 +642,7 @@ function User(props) {
                 });
               }}
             >
-              {_l('启用')}
+              {_l('启用%15005')}
             </span>
             <span
               className={cx('del InlineBlock Hand mLeft10')}

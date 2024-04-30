@@ -2,10 +2,23 @@ import React, { useRef, useState } from 'react';
 import update from 'immutability-helper';
 import { flatten, last, head, isEmpty } from 'lodash';
 import cx from 'classnames';
-import { SettingItem } from '../../styled';
 import { isFullLineControl, isHaveGap } from '../../util/widgets';
 import { WHOLE_SIZE } from '../../config/Drag';
 import { AnimationWrap } from '../../styled';
+import styled from 'styled-components';
+
+const ArrangeBtn = styled.div`
+  cursor: pointer;
+  font-weight: bold;
+  color: #9e9e9e;
+  &:hover {
+    color: #2196f3;
+  }
+  &.disabled {
+    cursor: not-allowed;
+    color: #bdbdbd !important;
+  }
+`;
 
 const ARRANGE_TYPE = [
   { text: _l('一列'), value: 1 },
@@ -14,7 +27,7 @@ const ARRANGE_TYPE = [
   { text: _l('四列'), value: 4 },
 ];
 
-export default function QuickArrange({ widgets, setWidgets }) {
+export default function quickArrange({ widgets, setWidgets }) {
   const $originWidgets = useRef(widgets);
   const [activeColumn, setActive] = useState(-1);
 
@@ -74,7 +87,8 @@ export default function QuickArrange({ widgets, setWidgets }) {
   };
 
   // 还原
-  const restore = () => {
+  const restore = e => {
+    e.stopPropagation();
     const controls = flatten(widgets);
     const nextWidgets = $originWidgets.current.map(row =>
       row.map(item => {
@@ -87,28 +101,33 @@ export default function QuickArrange({ widgets, setWidgets }) {
     setWidgets(nextWidgets);
   };
 
-  return (
-    <SettingItem className="settingItem withSplitLine mTop15">
-      <div className="settingItemTitle">
-        <span className="Font14">{_l('快速排列')}</span>
+  const ColumnHeader = () => {
+    return (
+      <div className="flexCenter">
+        <span className="Font14">{_l('列数')}</span>
         <div className="Absolute Right1 flexCenter">
           {activeColumn > 0 && (
-            <div className="arrangeBtn mRight16" onClick={restore}>
+            <ArrangeBtn className="mRight16" onClick={restore}>
               {_l('还原')}
-            </div>
+            </ArrangeBtn>
           )}
-          <div
-            className="arrangeBtn"
+          <ArrangeBtn
             disabled={activeColumn < 1}
-            onClick={() => {
+            onClick={e => {
+              e.stopPropagation();
               handleClose();
               $originWidgets.current = widgets;
             }}
           >
             {_l('应用%04014')}
-          </div>
+          </ArrangeBtn>
         </div>
       </div>
+    );
+  };
+
+  const ColumnContent = () => {
+    return (
       <AnimationWrap>
         {ARRANGE_TYPE.map(item => (
           <div
@@ -119,6 +138,8 @@ export default function QuickArrange({ widgets, setWidgets }) {
           </div>
         ))}
       </AnimationWrap>
-    </SettingItem>
-  );
+    );
+  };
+
+  return { ColumnHeader, ColumnContent };
 }

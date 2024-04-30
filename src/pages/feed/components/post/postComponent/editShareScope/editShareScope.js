@@ -88,10 +88,10 @@ EditShareScope.prototype = {
               ES.callback(data.scope);
             }
           })
-          .fail(function () {
+          .catch(function () {
             alert(_l('操作失败'), 2);
           })
-          .always(function () {
+          .finally(function () {
             $('.editShareScopeConfirm').parent().remove();
           });
       }

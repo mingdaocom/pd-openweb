@@ -9,7 +9,7 @@ export default {
   **/
    getFolderStatisticsNow: function (args, options = {}) {
      
-     return $.api('TaskFolderStatistics', 'GetFolderStatisticsNow', args, options);
+     return mdyAPI('TaskFolderStatistics', 'GetFolderStatisticsNow', args, options);
    },
   /**
   * 获取指定时间段日常统计数据（当天数据为即时数据）
@@ -23,7 +23,7 @@ export default {
   **/
    getDailyFolderStatistics: function (args, options = {}) {
      
-     return $.api('TaskFolderStatistics', 'GetDailyFolderStatistics', args, options);
+     return mdyAPI('TaskFolderStatistics', 'GetDailyFolderStatistics', args, options);
    },
   /**
   * 获取指定项目中的饼图控件即时数据
@@ -35,7 +35,7 @@ export default {
   **/
    getFolderControlsPieChart: function (args, options = {}) {
      
-     return $.api('TaskFolderStatistics', 'GetFolderControlsPieChart', args, options);
+     return mdyAPI('TaskFolderStatistics', 'GetFolderControlsPieChart', args, options);
    },
   /**
   * 获取指定项目中的柱状图控件数据（分日期）
@@ -49,7 +49,7 @@ export default {
   **/
    getFolderControlsBarChart: function (args, options = {}) {
      
-     return $.api('TaskFolderStatistics', 'GetFolderControlsBarChart', args, options);
+     return mdyAPI('TaskFolderStatistics', 'GetFolderControlsBarChart', args, options);
    },
   /**
   * 获取全部负责人
@@ -61,7 +61,7 @@ export default {
   **/
    getTaskCharges: function (args, options = {}) {
      
-     return $.api('TaskFolderStatistics', 'GetTaskCharges', args, options);
+     return mdyAPI('TaskFolderStatistics', 'GetTaskCharges', args, options);
    },
   /**
   * 获取为当前用户下属的项目负责人
@@ -73,7 +73,7 @@ export default {
   **/
    getSubordinate: function (args, options = {}) {
      
-     return $.api('TaskFolderStatistics', 'GetSubordinate', args, options);
+     return mdyAPI('TaskFolderStatistics', 'GetSubordinate', args, options);
    },
   /**
   * 获取负责人数据
@@ -87,7 +87,7 @@ export default {
   **/
    getTaskChargeStatistics: function (args, options = {}) {
      
-     return $.api('TaskFolderStatistics', 'GetTaskChargeStatistics', args, options);
+     return mdyAPI('TaskFolderStatistics', 'GetTaskChargeStatistics', args, options);
    },
   /**
   * 获取看板数据
@@ -99,6 +99,6 @@ export default {
   **/
    getFolderStageStatistics: function (args, options = {}) {
      
-     return $.api('TaskFolderStatistics', 'GetFolderStageStatistics', args, options);
+     return mdyAPI('TaskFolderStatistics', 'GetFolderStageStatistics', args, options);
    },
 };

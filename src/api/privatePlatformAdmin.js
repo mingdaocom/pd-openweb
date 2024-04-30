@@ -10,8 +10,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getPlatformAdmins: function (args, options = {}) {
-     
-     return $.api('PrivatePlatformAdmin', 'GetPlatformAdmins', args, options);
+
+     return mdyAPI('PrivatePlatformAdmin', 'GetPlatformAdmins', args, options);
    },
   /**
   * 添加平台管理员
@@ -22,8 +22,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addPlatformAdmins: function (args, options = {}) {
-     
-     return $.api('PrivatePlatformAdmin', 'AddPlatformAdmins', args, options);
+
+     return mdyAPI('PrivatePlatformAdmin', 'AddPlatformAdmins', args, options);
    },
   /**
   * 删除平台管理员
@@ -34,7 +34,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    removePlatformAdmins: function (args, options = {}) {
-     
-     return $.api('PrivatePlatformAdmin', 'RemovePlatformAdmins', args, options);
+
+     return mdyAPI('PrivatePlatformAdmin', 'RemovePlatformAdmins', args, options);
    },
 };

@@ -2,14 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import TransferController from 'src/api/transfer';
-import { LoadDiv, Checkbox, Button } from 'ming-ui';
-import UserHead from 'src/components/userHead';
+import { LoadDiv, Checkbox, Button, UserHead, UserCard } from 'ming-ui';
 import Empty from '../../../../common/TableEmpty';
 import { htmlEncodeReg } from 'src/util';
-import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
+import { dialogSelectUser } from 'ming-ui/functions';
 import PaginationWrap from '../../../../components/PaginationWrap';
 import _ from 'lodash';
-import UserCard from 'src/components/UserCard';
 import Trigger from 'rc-trigger';
 
 const TYPES = {
@@ -62,8 +60,7 @@ const defaultWorksheetState = {
   currentWorksheetType: 5,
 };
 
-export const callDialogSelectUser = function (projectId) {
-  var dfd = $.Deferred();
+export const callDialogSelectUser = function (projectId, callback = () => {}) {
   dialogSelectUser({
     fromAdmin: true,
     SelectUserSettings: {
@@ -73,12 +70,9 @@ export const callDialogSelectUser = function (projectId) {
       filterOtherProject: true,
       filterOthers: true,
       unique: true,
-      callback: function (users) {
-        dfd.resolve(users);
-      },
+      callback,
     },
   });
-  return dfd.promise();
 };
 
 export default class Detail extends React.Component {
@@ -145,26 +139,26 @@ export default class Detail extends React.Component {
       return;
     }
 
-    return callDialogSelectUser(projectId)
-      .then(users => {
-        if (currentType !== TYPES.OA) {
-          return TransferController.transferByType({
-            transferRecordType: this._getReqParamType(true),
-            oldAccountId: accountId,
-            toAccountId: users[0].accountId,
-            projectId,
-          });
-        } else {
-          return TransferController.oATransferAllToAccountId({
-            accountId: accountId,
-            transferAccountId: users[0].accountId,
-            sourceType: 0, // 全部
-            completeType: -1, // 全部
-            projectId,
-          });
-        }
-      })
-      .then(data => {
+    return callDialogSelectUser(projectId, users => {
+      let promise = null;
+      if (currentType !== TYPES.OA) {
+        promise = TransferController.transferByType({
+          transferRecordType: this._getReqParamType(true),
+          oldAccountId: accountId,
+          toAccountId: users[0].accountId,
+          projectId,
+        });
+      } else {
+        promise = TransferController.oATransferAllToAccountId({
+          accountId: accountId,
+          transferAccountId: users[0].accountId,
+          sourceType: 0, // 全部
+          completeType: -1, // 全部
+          projectId,
+        });
+      }
+
+      promise.then(data => {
         if (data) {
           this.setState({
             list: [],
@@ -175,6 +169,7 @@ export default class Detail extends React.Component {
           alert(_l('交接失败'), 2);
         }
       });
+    });
   }
   /**
    * 单条交接
@@ -183,27 +178,26 @@ export default class Detail extends React.Component {
   transfer(item) {
     const { projectId } = this.props;
     const { currentType, pageIndex } = this.state;
-    callDialogSelectUser(projectId)
-      .then(users => {
-        // oa 交接
-        if (currentType === TYPES.OA) {
-          return TransferController.oATransferToAccountId({
-            projectId,
-            accountId: item.originalChargeUser ? item.originalChargeUser.accountId : item.accountId,
-            transferAccountId: users[0].accountId,
-            listTranser: JSON.stringify([_.pick(item, ['sourceType', 'sourceId', 'completeType'])]),
-          });
-        } else {
-          return TransferController.transferOne({
-            oldAccountId: item.originalChargeUser.accountId,
-            toAccountId: users[0].accountId,
-            projectId,
-            transferRecordType: this._getReqParamType(),
-            sourceId: item.sourceId,
-          });
-        }
-      })
-      .then(data => {
+    callDialogSelectUser(projectId, users => {
+      let promise = null;
+      // oa 交接
+      if (currentType === TYPES.OA) {
+        promise = TransferController.oATransferToAccountId({
+          projectId,
+          accountId: item.originalChargeUser ? item.originalChargeUser.accountId : item.accountId,
+          transferAccountId: users[0].accountId,
+          listTranser: JSON.stringify([_.pick(item, ['sourceType', 'sourceId', 'completeType'])]),
+        });
+      } else {
+        promise = TransferController.transferOne({
+          oldAccountId: item.originalChargeUser.accountId,
+          toAccountId: users[0].accountId,
+          projectId,
+          transferRecordType: this._getReqParamType(),
+          sourceId: item.sourceId,
+        });
+      }
+      promise.then(data => {
         if (data) {
           const _list = _.filter(this.state.list, ({ sourceId }) => item.sourceId !== sourceId);
           this.setState({
@@ -221,6 +215,7 @@ export default class Detail extends React.Component {
           alert(_l('交接失败'), 2);
         }
       });
+    });
   }
 
   /**
@@ -236,28 +231,28 @@ export default class Detail extends React.Component {
       // 交接多个
       return alert(_l('请选择要交接的条目'), 2);
     }
-    callDialogSelectUser(projectId)
-      .then(users => {
-        if (currentType === TYPES.OA) {
-          return TransferController.oATransferToAccountId({
-            projectId,
-            accountId,
-            transferAccountId: users[0].accountId,
-            listTranser: JSON.stringify(
-              _.values(selectItems).map(item => _.pick(item, ['sourceType', 'sourceId', 'completeType'])),
-            ),
-          });
-        } else {
-          return TransferController.transferMany({
-            projectId,
-            sourceIds: _.keys(selectItems),
-            transferRecordType: this._getReqParamType(),
-            oldAccountId: accountId,
-            toAccountId: users[0].accountId,
-          });
-        }
-      })
-      .then(data => {
+    callDialogSelectUser(projectId, users => {
+      let promise = null;
+      if (currentType === TYPES.OA) {
+        promise = TransferController.oATransferToAccountId({
+          projectId,
+          accountId,
+          transferAccountId: users[0].accountId,
+          listTranser: JSON.stringify(
+            _.values(selectItems).map(item => _.pick(item, ['sourceType', 'sourceId', 'completeType'])),
+          ),
+        });
+      } else {
+        promise = TransferController.transferMany({
+          projectId,
+          sourceIds: _.keys(selectItems),
+          transferRecordType: this._getReqParamType(),
+          oldAccountId: accountId,
+          toAccountId: users[0].accountId,
+        });
+      }
+
+      promise.then(data => {
         if (data) {
           alert(_l('交接成功'));
           this.setState(
@@ -276,6 +271,7 @@ export default class Detail extends React.Component {
           alert(_l('交接失败'), 2);
         }
       });
+    });
   }
 
   fetchList() {
@@ -289,7 +285,7 @@ export default class Detail extends React.Component {
       isLoading: true,
     });
 
-    if (this.ajax && this.ajax.state() === 'pending' && this.ajax.abort) {
+    if (this.ajax && this.ajax.abort) {
       this.ajax.abort();
     }
 
@@ -319,7 +315,7 @@ export default class Detail extends React.Component {
           list,
         });
       })
-      .always(() => {
+      .finally(() => {
         this.setState({
           isLoading: false,
         });
@@ -716,8 +712,8 @@ export default class Detail extends React.Component {
               className="postBtn"
               size="medium"
               onClick={() => {
-                callDialogSelectUser(projectId).then(([user]) => {
-                  return TransferController.transferAllOneClick({
+                callDialogSelectUser(projectId, user => {
+                  TransferController.transferAllOneClick({
                     oldAccountId: this.props.user.accountId,
                     toAccountId: user.accountId,
                     projectId,
@@ -728,10 +724,10 @@ export default class Detail extends React.Component {
                         // 返回列表并重新加载
                         returnCallback(true);
                       } else {
-                        return $.Deferred().reject().promise();
+                        return Promise.reject();
                       }
                     })
-                    .fail(() => {
+                    .catch(() => {
                       alert(_l('操作失败'), 2);
                     });
                 });

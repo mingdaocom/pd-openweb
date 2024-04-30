@@ -9,7 +9,7 @@ export default {
   **/
    get: function (args, options = {}) {
      
-     return $.api('NoVerify', 'Get', args, options);
+     return mdyAPI('NoVerify', 'Get', args, options);
    },
   /**
   * 获取免审文件预览信息
@@ -21,7 +21,7 @@ export default {
   **/
    getPreview: function (args, options = {}) {
      
-     return $.api('NoVerify', 'GetPreview', args, options);
+     return mdyAPI('NoVerify', 'GetPreview', args, options);
    },
   /**
   * 更新免审信息
@@ -39,7 +39,7 @@ export default {
   **/
    update: function (args, options = {}) {
      
-     return $.api('NoVerify', 'Update', args, options);
+     return mdyAPI('NoVerify', 'Update', args, options);
    },
   /**
   * 删除免审信息
@@ -51,7 +51,7 @@ export default {
   **/
    delete: function (args, options = {}) {
      
-     return $.api('NoVerify', 'Delete', args, options);
+     return mdyAPI('NoVerify', 'Delete', args, options);
    },
   /**
   * 测试免审配置
@@ -65,6 +65,6 @@ export default {
   **/
    verify: function (args, options = {}) {
      
-     return $.api('NoVerify', 'Verify', args, options);
+     return mdyAPI('NoVerify', 'Verify', args, options);
    },
 };

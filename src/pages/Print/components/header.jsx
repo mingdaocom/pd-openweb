@@ -16,8 +16,7 @@ class Header extends React.Component {
     };
   }
 
-  componentWillMount() {
-  }
+  componentWillMount() {}
 
   richTextImgHandle = () => {
     let richTextImgList = document.querySelectorAll('#printContent .richText img');
@@ -122,12 +121,13 @@ class Header extends React.Component {
   };
 
   render() {
-    const { params, printData, handChange, saveTem, saveFn, downFn, showPdf } = this.props;
+    const { params, printData, handChange, saveTem, saveFn, downFn, showPdf, isHaveCharge } = this.props;
     const { printId, type, from, printType, isDefault, worksheetId, rowId, fileTypeNum } = params;
     const { isEdit, exportLoading, href } = this.state;
+    const allowDown = isHaveCharge || !printData.allowDownloadPermission;
 
     return (
-      <div className="headerBox Gray">
+      <div className={cx('headerBox Gray', { flexCenter: type === typeForCon.PREVIEW })}>
         <React.Fragment>
           {from === fromType.FORMSET && (
             <Icon
@@ -138,9 +138,12 @@ class Header extends React.Component {
               }}
             />
           )}
-          {type === typeForCon.PREVIEW && <span className="Font17 Bold">{_l('预览: %0', printData.name)}</span>}
-          {from === fromType.PRINT && type === typeForCon.NEW && <span className="Font17 Bold">{_l('系统打印')}</span>}
-
+          {type === typeForCon.PREVIEW && (
+            <span className="Font17 Bold flex overflow_ellipsis">{_l('预览: %0', printData.name)}</span>
+          )}
+          {from === fromType.PRINT && type === typeForCon.NEW && (
+            <span className="Font17 Bold flex">{_l('系统打印')}</span>
+          )}
           {from === fromType.FORMSET ? (
             // 字段编辑=》打印模板
             <React.Fragment>
@@ -157,7 +160,6 @@ class Header extends React.Component {
                       autoFocus
                       onChange={e => {
                         handChange({
-                          ...printData,
                           name: e.target.value,
                         });
                       }}
@@ -217,6 +219,7 @@ class Header extends React.Component {
               <div className="Right">
                 {type === typeForCon.PREVIEW &&
                   isDefault &&
+                  allowDown &&
                   (exportLoading ? (
                     <div className="InlineBlock Gray_75">
                       <LoadDiv size="small" className="mRight5 InlineBlock" />
@@ -264,8 +267,8 @@ class Header extends React.Component {
                         downFn();
                       }}
                     >
-                      <i className={` Font15 mRight10 ${fileTypeNum===5 ? 'icon-new_excel' : 'icon-new_word'}`}></i>
-                      {fileTypeNum===5 ? _l('导出为excel') : _l('导出为word')}
+                      <i className={` Font15 mRight10 ${fileTypeNum === 5 ? 'icon-new_excel' : 'icon-new_word'}`}></i>
+                      {fileTypeNum === 5 ? _l('导出为excel') : _l('导出为word')}
                     </div>
                   )
                 )}

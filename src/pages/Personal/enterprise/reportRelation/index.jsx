@@ -8,7 +8,7 @@ import cx from 'classnames';
 import './index.less';
 import { navigateTo } from 'router/navigateTo';
 import { getRequest } from 'src/util';
-import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
+import { dialogSelectUser } from 'ming-ui/functions';
 import _ from 'lodash';
 
 const barList = [
@@ -47,8 +47,8 @@ export default class ReportRelation extends Component {
       }
     });
 
-    $.when(this.fetchAdmin(), this.fetchAllow(), this.fetchSubordinates()).then(
-      (isAdmin, res, { parent = {}, mySelf = {}, subordinates = [], subTotalCount, isLimited }) => {
+    Promise.all([this.fetchAdmin(), this.fetchAllow(), this.fetchSubordinates()]).then(
+      ([isAdmin, res, { parent = {}, mySelf = {}, subordinates = [], subTotalCount, isLimited }]) => {
         if (!_.isEmpty(mySelf) && this.state.pageIndex === 1) {
           this.setState({
             companyName,
@@ -70,7 +70,7 @@ export default class ReportRelation extends Component {
   }
 
   fetchRender(pageIndex) {
-    $.when(this.fetchSubordinates(pageIndex)).then(({ parent = {}, mySelf = {}, subordinates = [], subTotalCount }) => {
+    this.fetchSubordinates(pageIndex).then(({ parent = {}, mySelf = {}, subordinates = [], subTotalCount }) => {
       if (!_.isEmpty(mySelf) && pageIndex === 1) {
         this.setState({
           parent,
@@ -132,7 +132,7 @@ export default class ReportRelation extends Component {
             type: 4,
             page: true,
             actions: {
-              getUsers: function(args) {
+              getUsers: function (args) {
                 args = $.extend({}, args, {
                   accountId,
                   projectId: projectId,
@@ -142,7 +142,7 @@ export default class ReportRelation extends Component {
             },
           },
         ],
-        callback: function(accounts) {
+        callback: function (accounts) {
           structureController
             .addStructure({
               accountIds: _.map(accounts, ({ accountId }) => accountId),
@@ -150,7 +150,7 @@ export default class ReportRelation extends Component {
               isTop: false,
               projectId: projectId,
             })
-            .then(function(res) {
+            .then(function (res) {
               if (res && res.success) {
                 _this.fetchRender(1);
               } else {
@@ -175,7 +175,7 @@ export default class ReportRelation extends Component {
             accountId,
             projectId,
           })
-          .then(function(res) {
+          .then(function (res) {
             if (res) {
               _this.setState({ pageIndex: 1 });
               _this.fetchRender(1);
@@ -192,16 +192,8 @@ export default class ReportRelation extends Component {
   }
 
   renderContent() {
-    const {
-      isAdmin,
-      parents,
-      me,
-      children,
-      allowStructureSelfEdit,
-      subTotalCount,
-      loadMoreLoading,
-      isLimited,
-    } = this.state;
+    const { isAdmin, parents, me, children, allowStructureSelfEdit, subTotalCount, loadMoreLoading, isLimited } =
+      this.state;
     return (
       <div className="layoutWrapper">
         <div>

@@ -5,6 +5,7 @@ import EmailDialog from './components/EmailDialog';
 import MessageSettings from './components/MessageSettings';
 import emailApi from 'src/api/email';
 import smsApi from 'src/api/sms';
+import { updateSysSettings } from '../common';
 import privateSysSetting from 'src/api/privateSysSetting';
 import tencentyunIcon from '../images/tencentyunIcon.png';
 import aliyunIcon from '../images/aliyunIcon.png';
@@ -26,16 +27,6 @@ const Email = props => {
   return (
     <div className="privateCardWrap flexColumn">
       <div className="Font17 bold mBottom8">{_l('邮件服务')}</div>
-      <div className="flexRow valignWrapper mBottom15">
-        <div className="Gray_9e mRight10">{_l('设置后系统内邮件相关功能均可正常使用')}</div>
-        <a
-          className="pointer"
-          target="_blank"
-          href='https://docs.pd.mingdao.com/faq/email'
-        >
-          {_l('帮助')}
-        </a>
-      </div>
       {loading ? (
         <LoadDiv />
       ) : (
@@ -88,10 +79,12 @@ const Email = props => {
 };
 
 const Message = props => {
+  const { SysSettings } = md.global;
   const [sms, setSms] = useState([]);
   const [loading, setLoading] = useState(true);
   const formContent = useRef(null);
   const [currentSms, setCurrentSms] = useState({});
+  const [enableSmsCustomContent, setEnableSmsCustomContent] = useState(SysSettings.enableSmsCustomContent);
   const style = { width: 100 };
 
   useEffect(() => {
@@ -111,6 +104,7 @@ const Message = props => {
         <div className="flexRow valignWrapper mBottom15">
           <img style={{ width: 15 }} src={icon} />
           <div className="Font14 bold mLeft5">{smsInfo.title}</div>
+          <div className="Gray_9e mLeft20 pTop2">{_l('仅支持发送登录/注册验证码')}</div>
         </div>
         <div className="flexRow valignWrapper mBottom12">
           <div style={style} className="Gray_75">{tags[0]}</div><div>{id || _l('未配置')}</div>
@@ -158,16 +152,6 @@ const Message = props => {
   return (
     <div className="privateCardWrap flexColumn">
       <div className="Font17 bold mBottom8">{_l('短信服务')}</div>
-      <div className="flexRow valignWrapper mBottom15">
-        <div className="Gray_9e mRight10">{_l('设置后可发送验证码类型短信')}</div>
-        <a
-          className="pointer"
-          target="_blank"
-          href='https://docs.pd.mingdao.com/faq/sms'
-        >
-          {_l('帮助')}
-        </a>
-      </div>
       {loading ? (
         <LoadDiv />
       ) : (
@@ -177,6 +161,35 @@ const Message = props => {
           {renderSms(_.find(sms, { name: 'Aliyun' }), aliyunInfo)}
         </Fragment>
       )}
+      <Divider className="mTop20 mBottom20" />
+      <div className="Font15 bold mBottom8">{_l('自助集成服务')}</div>
+      <div className="Gray_9e">
+        {_l('如果需要启用系统内短信服务相关的功能(如: 工作流短信通知节点、手机号邀请用户加入产品使用),需自行申请第三方短信服务商账号,然后自主集成或由官方技术团队定制开发')}
+        ，
+        <a
+          className="pointer"
+          target="_blank"
+          href="https://docs.pd.mingdao.com/faq/sms"
+        >
+          {_l('查看说明')}
+        </a>
+      </div>
+      <div className="mTop30">
+        <Checkbox
+          checked={!enableSmsCustomContent}
+          text={_l('隐藏短信服务相关的系统功能')}
+          onClick={checked => {
+            const value = checked;
+            updateSysSettings({
+              enableSmsCustomContent: value
+            }, () => {
+              setEnableSmsCustomContent(value);
+              md.global.SysSettings.enableSmsCustomContent = value;
+            });
+          }}
+        />
+        <div className="Gray_9e mTop8 mLeft25">{_l('如果你未完成自主集成,可以在系统内隐藏这些功能入口')}</div>
+      </div>
       <Dialog
         visible={!_.isEmpty(currentSms)}
         anim={false}

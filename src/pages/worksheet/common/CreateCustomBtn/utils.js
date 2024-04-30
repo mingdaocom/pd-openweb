@@ -64,3 +64,10 @@ export const getRealData = (control, controls, allControls, isAdd) => {
     }
   }
 };
+
+export const canNotForCustomWrite = o => {
+  return (
+    (o.type === 29 && !['1', '3', '5'].includes(_.get(o, 'advancedSetting.showtype'))) || //多表关联的标签页,不支持"填写指定字段"
+    (o.type === 51 && !['1', '3'].includes(_.get(o, 'advancedSetting.showtype')))
+  ); //查询记录表格类,不支持"填写指定字段"
+};

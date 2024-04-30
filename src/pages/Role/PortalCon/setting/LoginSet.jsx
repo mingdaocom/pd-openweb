@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { Icon, LoadDiv } from 'ming-ui';
+import { Icon, LoadDiv, SvgIcon } from 'ming-ui';
 import cx from 'classnames';
 import 'src/components/uploadAttachment/uploadAttachment';
 import { COLORS, BGTYPE } from 'src/pages/Role/PortalCon/tabCon/util';
@@ -8,7 +8,6 @@ import cbg from './img/center.png';
 import cCbg from './img/centerC.png';
 import rbg from './img/right.png';
 import rCbg from './img/rightC.png';
-import SvgIcon from 'src/components/SvgIcon';
 const Wrap = styled.div`
   position: relative;
   height: calc(100% - 100px);

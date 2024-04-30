@@ -39,6 +39,7 @@ function WorksheetList(props) {
     hide,
     from,
     worksheetType,
+    filterIds = [],
   } = props;
   const [searchValue, setSearchValue] = useState('');
   const filterSheets = () => worksheets.filter(item => item.workSheetName.includes(searchValue));
@@ -56,11 +57,18 @@ function WorksheetList(props) {
           <ScrollView style={{ maxHeight: 200 }}>
             {filterSheets().map(worksheet => (
               <div
-                className="worksheetItem overflow_ellipsis Hand"
+                className={cx(
+                  'worksheetItem overflow_ellipsis ',
+                  filterIds.includes(worksheet.workSheetId) ? 'disable' : 'Hand',
+                )}
                 onClick={() => {
+                  if (filterIds.includes(worksheet.workSheetId)) {
+                    return;
+                  }
                   hide();
                   handleSelect(worksheet);
-                }}>
+                }}
+              >
                 {worksheet.workSheetName}
                 {worksheet.workSheetId === currentWorksheetId && from !== 'customPage' && _l('（本表）')}
               </div>
@@ -72,7 +80,8 @@ function WorksheetList(props) {
               onClick={() => {
                 hide();
                 showSelectOther();
-              }}>
+              }}
+            >
               {_l('选择其他应用下的')}
               {worksheetType === 1 ? _l('自定义页面') : _l('工作表')}
             </div>
@@ -112,7 +121,7 @@ export default class SelectWroksheet extends React.Component {
     this.state = {
       loading: true,
       worksheets: [],
-      selectOtheVisible: false,
+      selectOtherVisible: false,
     };
   }
 
@@ -132,7 +141,8 @@ export default class SelectWroksheet extends React.Component {
   }
 
   loadWorksheets(appId, worksheetId, worksheetType) {
-    homeAppAjax.getWorksheetsByAppId({ appId, type: worksheetType })
+    homeAppAjax
+      .getWorksheetsByAppId({ appId, type: worksheetType })
       .then(data => {
         this.setState(
           {
@@ -140,8 +150,8 @@ export default class SelectWroksheet extends React.Component {
             worksheets: data.map(sheet => {
               return {
                 ...sheet,
-                workSheetName: getTranslateInfo(appId, sheet.workSheetId).name || sheet.workSheetName
-              }
+                workSheetName: getTranslateInfo(appId, sheet.workSheetId).name || sheet.workSheetName,
+              };
             }),
           },
           () => {
@@ -149,7 +159,7 @@ export default class SelectWroksheet extends React.Component {
           },
         );
       })
-      .fail(err => {
+      .catch(err => {
         alert(_l('程序发生错误'), 3);
       });
   }
@@ -172,7 +182,10 @@ export default class SelectWroksheet extends React.Component {
         },
       });
     } else {
-      (worksheetType === 1 ? homeAppAjax.getPageInfo({ id: worksheetId }) : worksheetAjax.getWorksheetInfo({ worksheetId })).then(data => {
+      (worksheetType === 1
+        ? homeAppAjax.getPageInfo({ id: worksheetId })
+        : worksheetAjax.getWorksheetInfo({ worksheetId })
+      ).then(data => {
         if (data.name) {
           this.setState({
             selectedWorksheet: {
@@ -216,8 +229,18 @@ export default class SelectWroksheet extends React.Component {
   }
 
   render() {
-    const { className, dialogClassName, projectId, appId, currentWorksheetId, hint, from, worksheetType } = this.props;
-    const { loading, worksheets, selectOtheVisible, selectedWorksheet } = this.state;
+    const {
+      className,
+      dialogClassName,
+      projectId,
+      appId,
+      currentWorksheetId,
+      hint,
+      from,
+      worksheetType,
+      dropdownElement,
+    } = this.props;
+    const { loading, worksheets, selectOtherVisible, selectedWorksheet } = this.state;
     return (
       <div className={cx('selectWorksheetCommon ming Dropdown w100')}>
         <DropdownWrapper
@@ -225,42 +248,49 @@ export default class SelectWroksheet extends React.Component {
           downElement={
             <WorksheetList
               {...{ loading, worksheets }}
-              {..._.pick(this.props, ['currentWorksheetId', 'from', 'worksheetType', 'searchable'])}
+              {..._.pick(this.props, ['currentWorksheetId', 'from', 'worksheetType', 'searchable', 'filterIds'])}
               handleSelect={this.handleSelect}
               showSelectOther={() => {
-                this.setState({ selectOtheVisible: true });
+                this.setState({ selectOtherVisible: true });
               }}
             />
-          }>
-          <div className="Dropdown--input Dropdown--border">
-            <span>
-              {!loading && !selectedWorksheet && (
-                <div className="Gray_a">
-                  {hint || worksheetType === 1 ? _l('选择您管理的自定义页面') : _l('选择您管理的工作表')}
-                </div>
-              )}
-              {loading && _l('  加载中...')}
-              {!loading && selectedWorksheet && selectedWorksheet.name}
-              {!loading &&
-                from !== 'customPage' &&
-                selectedWorksheet &&
-                selectedWorksheet.id === currentWorksheetId &&
-                worksheetType !== 1 &&
-                _l('（本表）')}
-            </span>
-            <div className="ming Icon icon icon-arrow-down-border mLeft8 Gray_9e" />
-          </div>
+          }
+        >
+          {dropdownElement ? (
+            dropdownElement
+          ) : (
+            <div className="Dropdown--input Dropdown--border">
+              <React.Fragment>
+                <span>
+                  {!loading && !selectedWorksheet && (
+                    <div className="Gray_a">
+                      {hint || (worksheetType === 1 ? _l('选择您管理的自定义页面') : _l('选择您管理的工作表'))}
+                    </div>
+                  )}
+                  {loading && _l('  加载中...')}
+                  {!loading && selectedWorksheet && selectedWorksheet.name}
+                  {!loading &&
+                    from !== 'customPage' &&
+                    selectedWorksheet &&
+                    selectedWorksheet.id === currentWorksheetId &&
+                    worksheetType !== 1 &&
+                    _l('（本表）')}
+                </span>
+                <div className="ming Icon icon icon-arrow-down-border mLeft8 Gray_9e" />
+              </React.Fragment>
+            </div>
+          )}
         </DropdownWrapper>
-        {selectOtheVisible && (
+        {selectOtherVisible && (
           <SelectOtherWorksheetDialog
             worksheetType={worksheetType}
             className={dialogClassName}
             projectId={projectId}
             selectedAppId={appId}
-            selectedWrorkesheetId={selectedWorksheet && selectedWorksheet.id}
+            selectedWorksheetId={selectedWorksheet && selectedWorksheet.id}
             visible
             onHide={() => {
-              this.setState({ selectOtheVisible: false });
+              this.setState({ selectOtherVisible: false });
             }}
             onOk={this.handleSelectOtherChange}
           />

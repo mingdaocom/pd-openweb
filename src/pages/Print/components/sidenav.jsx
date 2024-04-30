@@ -33,7 +33,7 @@ class Sidenav extends React.Component {
   }
 
   changeSysFn = (id, checked) => {
-    const { printData = [], systemControl } = this.props;
+    const { systemControl } = this.props;
     let data = systemControl.filter(control => control.controlId === id);
     let dataN = [];
     systemControl.map(it => {
@@ -48,31 +48,26 @@ class Sidenav extends React.Component {
     });
     if (id === 'ownerid') {
       return {
-        ...printData,
         ownerAccountChecked: checked,
         systemControl: dataN,
       };
     } else if (id === 'caid') {
       return {
-        ...printData,
         createAccountChecked: checked,
         systemControl: dataN,
       };
     } else if (id === 'ctime') {
       return {
-        ...printData,
         createTimeChecked: checked,
         systemControl: dataN,
       };
     } else if (id === 'utime') {
       return {
-        ...printData,
         updateTimeChecked: checked,
         systemControl: dataN,
       };
     } else if (id === 'uaid') {
       return {
-        ...printData,
         updateAccountChecked: checked,
         systemControl: dataN,
       };
@@ -273,7 +268,6 @@ class Sidenav extends React.Component {
                   }
                 });
                 handChange({
-                  ...printData,
                   receiveControls: dataOther,
                 });
               }}
@@ -295,7 +289,6 @@ class Sidenav extends React.Component {
       return item;
     });
     handChange({
-      ...printData,
       workflow: newWorkflow,
     });
   }
@@ -322,7 +315,6 @@ class Sidenav extends React.Component {
       return item;
     });
     handChange({
-      ...printData,
       approval: newApproval,
     });
   }
@@ -421,6 +413,7 @@ class Sidenav extends React.Component {
     let dataOther = [];
     let isCheck;
     let isSection = o.type === 52 && key === 'checked';
+    let sectionOrder = [];
     receiveControls.map(item => {
       if (item.controlId === o.controlId) {
         if (!isRelationControls) {
@@ -441,8 +434,13 @@ class Sidenav extends React.Component {
         }
       } else {
         let _item = { ...item };
+        let tabItemIsRelation = isRelation(item);
         if (isSection && item.sectionId === o.controlId) {
           _item.checked = !item.checked;
+          if (tabItemIsRelation) {
+            sectionOrder.push(item.controlId);
+            this.setData(item, 'checked', true);
+          }
         }
         dataOther.push(_item);
       }
@@ -456,15 +454,14 @@ class Sidenav extends React.Component {
     }
 
     let list = {
-      ...printData,
       receiveControls: dataOther,
     };
-    if (key === 'checked' && isRelationControls) {
+    if (key === 'checked' && (isRelationControls || sectionOrder.length)) {
       list = {
         ...list,
         orderNumber: orderNumber.map(it => {
-          if (it.receiveControlId === o.controlId) {
-            return { ...it, checked: !isCheck };
+          if (it.receiveControlId === o.controlId || sectionOrder.includes(it.receiveControlId)) {
+            return { ...it, checked: !it.checked };
           } else {
             return it;
           }
@@ -514,7 +511,6 @@ class Sidenav extends React.Component {
     const { receiveControls = [], workflow = [], systemControl = [], orderNumber = [] } = printData;
     if (isReceiveControls) {
       handChange({
-        ...printData,
         receiveControls: receiveControls.map(it => {
           it.checked = isVisible(it) && !receiveControlsCheckAll;
           if (isRelation(it)) {
@@ -546,7 +542,6 @@ class Sidenav extends React.Component {
       });
     } else {
       handChange({
-        ...printData,
         workflow: workflow.map(it => {
           it.checked = !workflowCheckAll;
           return it;
@@ -571,26 +566,27 @@ class Sidenav extends React.Component {
     });
   };
 
-  renderCheckboxCon = (key, text, tip) => {
+  renderCheckboxCon = (key, text, tip, negate = false, isNumber = false) => {
     const { printData, handChange } = this.props;
     return (
       <div className="mTop15">
         <Checkbox
-          checked={printData[key]}
+          checked={negate ? !printData[key] : printData[key]}
           className="InlineBlock"
           onClick={() => {
             handChange({
-              ...printData,
-              [key]: !printData[key],
+              [key]: isNumber ? Number(!printData[key]) : !printData[key],
             });
           }}
           text={text}
         />
-        <Tooltip popupPlacement="right" text={<span>{tip}</span>}>
-          <div className="Gray_9e help InlineBlock TxtTop mLeft5">
-            <Icon icon="help" className="Font14" />
-          </div>
-        </Tooltip>
+        {tip && (
+          <Tooltip popupPlacement="right" text={<span>{tip}</span>}>
+            <div className="Gray_9e help InlineBlock TxtTop mLeft5">
+              <Icon icon="help" className="Font14" />
+            </div>
+          </Tooltip>
+        )}
       </div>
     );
   };
@@ -604,6 +600,7 @@ class Sidenav extends React.Component {
           _l('开启后，平铺类型的选项字段会打印没有选中的选项'),
         )}
         {this.renderCheckboxCon('showData', _l('打印空字段'), _l('开启后，没有内容的字段会显示并可以打印'))}
+        {this.renderCheckboxCon('allowDownloadPermission', _l('允许下载打印文件'), null, true, true)}
       </React.Fragment>
     );
   };
@@ -617,7 +614,6 @@ class Sidenav extends React.Component {
           value={printData.font || DEFAULT_FONT_SIZE}
           onChange={value => {
             handChange({
-              ...printData,
               font: value,
             });
           }}
@@ -724,7 +720,6 @@ class Sidenav extends React.Component {
                     if (value === approvePosition) return;
 
                     handChange({
-                      ...printData,
                       approvePosition: value,
                     });
                   }}
@@ -767,7 +762,6 @@ class Sidenav extends React.Component {
                     if (value === approvePosition) return;
 
                     handChange({
-                      ...printData,
                       approvePosition: value,
                     });
                   }}
@@ -796,7 +790,6 @@ class Sidenav extends React.Component {
                   className="mTop12"
                   onClick={() => {
                     handChange({
-                      ...printData,
                       formNameChecked: !printData.formNameChecked,
                     });
                   }}
@@ -808,7 +801,6 @@ class Sidenav extends React.Component {
                     value={printData.formName}
                     onChange={e => {
                       handChange({
-                        ...printData,
                         formName: e.target.value,
                       });
                     }}
@@ -819,7 +811,6 @@ class Sidenav extends React.Component {
                   className="mTop12"
                   onClick={() => {
                     handChange({
-                      ...printData,
                       companyNameChecked: !printData.companyNameChecked,
                     });
                   }}
@@ -830,7 +821,6 @@ class Sidenav extends React.Component {
                   className="mTop12"
                   onClick={() => {
                     handChange({
-                      ...printData,
                       logoChecked: !printData.logoChecked,
                     });
                   }}
@@ -848,7 +838,6 @@ class Sidenav extends React.Component {
                   className="mTop12"
                   onClick={() => {
                     handChange({
-                      ...printData,
                       qrCode: !printData.qrCode,
                     });
                   }}
@@ -860,7 +849,6 @@ class Sidenav extends React.Component {
                     value={shareType}
                     onChange={value => {
                       handChange({
-                        ...printData,
                         shareType: value,
                       });
                     }}
@@ -875,7 +863,6 @@ class Sidenav extends React.Component {
                   className="mTop12"
                   onClick={() => {
                     handChange({
-                      ...printData,
                       titleChecked: !printData.titleChecked,
                     });
                   }}
@@ -883,14 +870,23 @@ class Sidenav extends React.Component {
                 />
                 <Checkbox
                   checked={printData.printTime}
-                  className="mTop12 mBottom20"
+                  className="mTop12"
                   onClick={() => {
                     handChange({
-                      ...printData,
                       printTime: !printData.printTime,
                     });
                   }}
                   text={_l('打印时间')}
+                />
+                <Checkbox
+                  checked={printData.printAccount}
+                  className="mTop12 mBottom20"
+                  onClick={() => {
+                    handChange({
+                      printAccount: !printData.printAccount,
+                    });
+                  }}
+                  text={_l('打印人')}
                 />
               </React.Fragment>
             )}

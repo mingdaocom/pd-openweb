@@ -1415,8 +1415,8 @@ export const OPTIONS_FUNCTION_LIST = [
     apiName: 'open/app/createOptionSet',
     data: [],
     requestData: {
-      appKey: 'appKey',
-      sign: 'sign',
+      appKey: 'YOUR_APP_KEY',
+      sign: 'YOUR_SIGN',
       name: _l('选项集1'),
       options: [
         {
@@ -1456,8 +1456,8 @@ export const OPTIONS_FUNCTION_LIST = [
     apiName: 'open/app/getOptionSets',
     data: [],
     requestData: {
-      appKey: 'appKey',
-      sign: 'sign',
+      appKey: 'YOUR_APP_KEY',
+      sign: 'YOUR_SIGN',
     },
     successData: {
       code: 1,
@@ -1505,8 +1505,8 @@ export const OPTIONS_FUNCTION_LIST = [
     apiName: 'open/app/editOptionSet/{id}',
     data: [],
     requestData: {
-      appKey: 'appKey',
-      sign: 'sign',
+      appKey: 'YOUR_APP_KEY',
+      sign: 'YOUR_SIGN',
       options: [
         {
           key: _l('需要编辑的选项id，如果为空则表示新增选项'),
@@ -1561,8 +1561,8 @@ export const OPTIONS_FUNCTION_LIST = [
       },
     ],
     requestData: {
-      appKey: 'appKey',
-      sign: 'sign',
+      appKey: 'YOUR_APP_KEY',
+      sign: 'YOUR_SIGN',
     },
     successData: {
       data: true,
@@ -1683,6 +1683,18 @@ export const ADD_API_CONTROLS = [
     type: 14,
     required: true,
   },
+  {
+    controlName: '日期',
+    alias: '字段别名',
+    type: 15,
+    required: true,
+  },
+  {
+    controlName: '日期时间',
+    alias: '字段别名',
+    type: 16,
+    required: true,
+  },
 ];
 
 export const ADD_WORKSHEET_SUCCESS = {
@@ -1695,7 +1707,7 @@ export const ADD_ROW_SUCCESS = {
   data: _l('rowId'),
   success: true,
   error_code: 1,
-}
+};
 
 // 获取工作表结构信息成功返回
 export const WORKSHEETINFO_SUCCESS_DATA = {

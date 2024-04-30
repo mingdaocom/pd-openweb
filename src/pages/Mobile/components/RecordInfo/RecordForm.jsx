@@ -9,7 +9,6 @@ import SheetWorkflow from 'src/pages/workflow/components/SheetWorkflow';
 import FormCover from 'worksheet/common/recordInfo/RecordForm/FormCover';
 import DocumentTitle from 'react-document-title';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
-import { commonControlsAddTab } from './utils';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
@@ -156,7 +155,7 @@ export default class RecordForm extends Component {
         className="sheetName flex bold"
         onClick={() => {
           if (location.pathname.indexOf('public') > -1) return;
-          window.mobileNavigateTo(
+          window.mobileNavigateTo && window.mobileNavigateTo(
             `/mobile/recordList/${recordBase.appId}/${recordInfo.groupId}/${recordBase.worksheetId}`,
           );
           onClose && onClose();
@@ -240,19 +239,19 @@ export default class RecordForm extends Component {
     } = this.props;
     const { from } = recordBase;
     const approveInfo = this.renderApprove();
-    const isDing = window.navigator.userAgent.toLowerCase().includes('dingtalk');
     const NOT_LOGIN_HIDDEN_TYPES = [26, 27, 21, 48];
 
     return (
       <div
         className={cx('flex customFieldsWrapper', {
           edit: isEditRecord,
-          overflowHidden: !isEditRecord && _.includes([29, 51], currentTab.type) && !isDing,
+          overflowHidden: !isEditRecord && _.includes([29, 51], currentTab.type) && !window.isDingTalk,
         })}
         ref={con => (this.con = con)}
       >
         <CustomFields
           ref={customwidget}
+          isCharge={recordBase.isCharge}
           ignoreLock={from === RECORD_INFO_FROM.WORKFLOW || from === RECORD_INFO_FROM.DRAFT}
           showError={false}
           disabled={workflow ? !recordInfo.allowEdit : !isEditRecord}
@@ -270,15 +269,12 @@ export default class RecordForm extends Component {
           registerCell={registerCell}
           isWorksheetQuery={recordInfo.isWorksheetQuery}
           recordCreateTime={recordInfo.createTime}
-          data={commonControlsAddTab(
-            formData.filter(item => {
-              return (
-                (isEditRecord ? true : item.type !== 43) &&
-                !(_.get(window, 'shareState.isPublicForm') && _.includes(NOT_LOGIN_HIDDEN_TYPES, item.type))
-              );
-            }),
-            { rules: recordInfo.rules, from: from || 6, showDetailTab: workflow ? true : !!approveInfo.length },
-          )}
+          data={formData.filter(item => {
+            return (
+              (isEditRecord ? true : item.type !== 43) &&
+              !(_.get(window, 'shareState.isPublicForm') && _.includes(NOT_LOGIN_HIDDEN_TYPES, item.type))
+            );
+          })}
           onChange={this.props.onChange}
           onSave={this.props.onSave}
           sheetSwitchPermit={recordInfo.switchPermit}
@@ -290,7 +286,7 @@ export default class RecordForm extends Component {
           }}
           mobileApprovalRecordInfo={{
             instanceId: recordBase.instanceId,
-            workId: recordBase.workId
+            workId: recordBase.workId,
           }}
         />
       </div>

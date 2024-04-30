@@ -8,12 +8,12 @@ import _ from 'lodash';
 
 let request = null;
 
-export const getTodoCount = () => {
+export const getTodoCount = archivedId => {
   return new Promise((resolve, reject) => {
-    if (request && request.state() === 'pending') {
+    if (request) {
       request.abort();
     }
-    request = instance.getTodoCount();
+    request = instance.getTodoCount({ archivedId });
     request.then(list => {
       const mySponsor = list[0]; // 我的发起
       const waitingWrite = list[3]; // 待填写

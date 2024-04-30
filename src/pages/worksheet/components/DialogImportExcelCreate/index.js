@@ -20,7 +20,11 @@ import ErrorDialog from 'src/pages/worksheet/common/WorksheetBody/ImportDataFrom
 import appManagementController from 'src/api/appManagement';
 import { DEFAULT_DATA } from 'src/pages/widgetConfig/config/widget.js';
 import { enumWidgetType } from 'src/pages/widgetConfig/util';
+import { VersionProductType } from 'src/util/enum';
 import _ from 'lodash';
+import SelectDBInstance from 'src/pages/AppHomepage/AppCenter/components/SelectDBInstance';
+import { getFeatureStatus, getCurrentProject } from 'src/util';
+import homeAppAjax from 'src/api/homeApp';
 
 export const wsexcelbatchSocketInit = () => {
   IM.socket.on('wsexcelbatch', ({ sheetCount, id, addCount, appId, appName, errorCount }) => {
@@ -44,7 +48,10 @@ class DialogImportExcelCreate extends Component {
   };
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      DBInstances: [],
+      DBInstancesDialog: false,
+    };
   }
   componentDidMount() {
     this.props.changeDialogUploadVisible(true);
@@ -307,7 +314,7 @@ class DialogImportExcelCreate extends Component {
       this.props.changeDialogCreateAppVisible(true);
     }
   };
-  createApp = () => {
+  createApp = dbInstanceId => {
     const { excelDetailData = [], selectedImportSheetIds } = this.props;
     const importSheets = excelDetailData.filter(it => _.includes(selectedImportSheetIds, it.sheetId));
     const isMore = importSheets.length > 10;
@@ -321,7 +328,10 @@ class DialogImportExcelCreate extends Component {
     $.ajax(md.global.Config.WorksheetDownUrl + '/Import/Create', {
       type: 'POST',
       contentType: 'application/json',
-      data: JSON.stringify(this.getParams()),
+      data: JSON.stringify({
+        ...this.getParams(),
+        dbInstanceId,
+      }),
       beforeSend: xhr => {
         xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
       },
@@ -356,6 +366,53 @@ class DialogImportExcelCreate extends Component {
       },
     });
   };
+
+  handleCreate = () => {
+    const { projectId } = this.props;
+
+    const currentProject = getCurrentProject(projectId);
+    const hasDataBase =
+      getFeatureStatus(projectId, VersionProductType.dataBase) === '1' && !md.global.Config.IsPlatformLocal;
+    if (hasDataBase && (currentProject.isSuperAdmin || currentProject.isProjectAppManager)) {
+      homeAppAjax
+        .getMyDbInstances({
+          projectId: this.props.projectId,
+        })
+        .then(res => {
+          if (res && res.length) {
+            this.props.changeDialogCreateAppVisible(false);
+            this.setState({ DBInstances: res, DBInstancesDialog: true });
+          } else {
+            this.createApp();
+          }
+        });
+      return;
+    }
+    this.createApp();
+  };
+
+  renderDBInstances = () => {
+    const { DBInstancesDialog, DBInstances = [] } = this.state;
+
+    const options = [{ value: '', label: _l('系统默认数据库') }].concat(
+      DBInstances.map(l => {
+        return {
+          value: l.id,
+          label: l.name,
+        };
+      }),
+    );
+
+    return (
+      <SelectDBInstance
+        visible={DBInstancesDialog}
+        options={options}
+        onOk={id => this.createApp(id)}
+        onCancel={() => this.setState({ DBInstancesDialog: false })}
+      />
+    );
+  };
+
   render() {
     const { createAppStatus, importLoading, versionLimitSheetCount, currentSheetCount, freeRowCount } = this.state;
     const {
@@ -406,7 +463,7 @@ class DialogImportExcelCreate extends Component {
             updateExcelDetailData={this.props.updateExcelDetailData}
             updateAppInfo={this.props.updateAppInfo}
             handleLast={this.handleLast}
-            createApp={this.createApp}
+            createApp={this.handleCreate}
             freeRowCount={freeRowCount}
             onCancel={() => {
               this.props.changeDialogCreateAppVisible(false);
@@ -414,6 +471,7 @@ class DialogImportExcelCreate extends Component {
             }}
           />
         )}
+        {this.renderDBInstances()}
       </Fragment>
     );
   }

@@ -31,7 +31,7 @@ export default {
   **/
    addPost: function (args, options = {}) {
      
-     return $.api('Post', 'AddPost', args, options);
+     return mdyAPI('Post', 'AddPost', args, options);
    },
   /**
   * 添加动态回复
@@ -50,7 +50,7 @@ export default {
   **/
    addPostComment: function (args, options = {}) {
      
-     return $.api('Post', 'AddPostComment', args, options);
+     return mdyAPI('Post', 'AddPostComment', args, options);
    },
   /**
   * 删除动态
@@ -62,7 +62,7 @@ export default {
   **/
    removePost: function (args, options = {}) {
      
-     return $.api('Post', 'RemovePost', args, options);
+     return mdyAPI('Post', 'RemovePost', args, options);
    },
   /**
   * 删除动态回复
@@ -75,7 +75,7 @@ export default {
   **/
    removePostComment: function (args, options = {}) {
      
-     return $.api('Post', 'RemovePostComment', args, options);
+     return mdyAPI('Post', 'RemovePostComment', args, options);
    },
   /**
   * 修改动态分享范围
@@ -88,7 +88,7 @@ export default {
   **/
    editPostShareScope: function (args, options = {}) {
      
-     return $.api('Post', 'EditPostShareScope', args, options);
+     return mdyAPI('Post', 'EditPostShareScope', args, options);
    },
   /**
   * 修改动态
@@ -106,7 +106,7 @@ export default {
   **/
    editPost: function (args, options = {}) {
      
-     return $.api('Post', 'EditPost', args, options);
+     return mdyAPI('Post', 'EditPost', args, options);
    },
   /**
   * 获取动态详情
@@ -121,7 +121,7 @@ export default {
   **/
    getPostDetail: function (args, options = {}) {
      
-     return $.api('Post', 'GetPostDetail', args, options);
+     return mdyAPI('Post', 'GetPostDetail', args, options);
    },
   /**
   * 获取动态列表
@@ -141,7 +141,7 @@ export default {
   **/
    getPostList: function (args, options = {}) {
      
-     return $.api('Post', 'GetPostList', args, options);
+     return mdyAPI('Post', 'GetPostList', args, options);
    },
   /**
   * 获取动态类型
@@ -169,7 +169,7 @@ export default {
   **/
    getPostListByLegacyPara: function (args, options = {}) {
      
-     return $.api('Post', 'GetPostListByLegacyPara', args, options);
+     return mdyAPI('Post', 'GetPostListByLegacyPara', args, options);
    },
   /**
   * 获取我回复他人的回复列表
@@ -183,7 +183,7 @@ export default {
   **/
    getIRepliedList: function (args, options = {}) {
      
-     return $.api('Post', 'GetIRepliedList', args, options);
+     return mdyAPI('Post', 'GetIRepliedList', args, options);
    },
   /**
   * 获取链接预览消息
@@ -197,7 +197,7 @@ export default {
   **/
    getLinkViewInfo: function (args, options = {}) {
      
-     return $.api('Post', 'GetLinkViewInfo', args, options);
+     return mdyAPI('Post', 'GetLinkViewInfo', args, options);
    },
   /**
   * 加载更多动态讨论
@@ -209,7 +209,7 @@ export default {
   **/
    getMorePostComments: function (args, options = {}) {
      
-     return $.api('Post', 'GetMorePostComments', args, options);
+     return mdyAPI('Post', 'GetMorePostComments', args, options);
    },
   /**
   * 获取某条动态讨论
@@ -222,7 +222,7 @@ export default {
   **/
    getReplyMessage: function (args, options = {}) {
      
-     return $.api('Post', 'GetReplyMessage', args, options);
+     return mdyAPI('Post', 'GetReplyMessage', args, options);
    },
   /**
   * 获取置顶动态
@@ -234,7 +234,7 @@ export default {
   **/
    getTopPosts: function (args, options = {}) {
      
-     return $.api('Post', 'GetTopPosts', args, options);
+     return mdyAPI('Post', 'GetTopPosts', args, options);
    },
   /**
   * 添加置顶动态
@@ -247,7 +247,7 @@ export default {
   **/
    addTopPost: function (args, options = {}) {
      
-     return $.api('Post', 'AddTopPost', args, options);
+     return mdyAPI('Post', 'AddTopPost', args, options);
    },
   /**
   * 取消动态置顶
@@ -259,7 +259,7 @@ export default {
   **/
    removeTopPost: function (args, options = {}) {
      
-     return $.api('Post', 'RemoveTopPost', args, options);
+     return mdyAPI('Post', 'RemoveTopPost', args, options);
    },
   /**
   * 给动态点赞或取消
@@ -272,7 +272,7 @@ export default {
   **/
    like: function (args, options = {}) {
      
-     return $.api('Post', 'Like', args, options);
+     return mdyAPI('Post', 'Like', args, options);
    },
   /**
   * 收藏或取消收藏动态
@@ -285,7 +285,7 @@ export default {
   **/
    favorite: function (args, options = {}) {
      
-     return $.api('Post', 'Favorite', args, options);
+     return mdyAPI('Post', 'Favorite', args, options);
    },
   /**
   * 获取[喜欢]的用户
@@ -297,7 +297,7 @@ export default {
   **/
    getLikeUsers: function (args, options = {}) {
      
-     return $.api('Post', 'GetLikeUsers', args, options);
+     return mdyAPI('Post', 'GetLikeUsers', args, options);
    },
   /**
   * 给投票类型的动态投票
@@ -310,7 +310,7 @@ export default {
   **/
    votePost: function (args, options = {}) {
      
-     return $.api('Post', 'VotePost', args, options);
+     return mdyAPI('Post', 'VotePost', args, options);
    },
   /**
   * 修改投票截止时间
@@ -323,6 +323,6 @@ export default {
   **/
    editVoteDeadline: function (args, options = {}) {
      
-     return $.api('Post', 'EditVoteDeadline', args, options);
+     return mdyAPI('Post', 'EditVoteDeadline', args, options);
    },
 };

@@ -8,7 +8,7 @@ import CreateRecordAndTask from './CreateRecordAndTask';
 import DeleteNodeObj from './DeleteNodeObj';
 import RelationFields from './RelationFields';
 import UpdateGlobalVariable from './UpdateGlobalVariable';
-import CreateCalendarOrSnapshot from './CreateCalendarOrSnapshot'
+import CreateCalendar from './CreateCalendar';
 import { checkConditionsIsNull, getIcons } from '../../utils';
 import _ from 'lodash';
 
@@ -44,20 +44,22 @@ export default class Action extends Component {
   /**
    * 获取动作详情
    */
-  getNodeDetail(props) {
-    const { processId, selectNodeId, selectNodeType } = props;
+  getNodeDetail(props, sId) {
+    const { processId, selectNodeId, selectNodeType, isApproval, instanceId } = props;
 
-    flowNode.getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType }).then(result => {
-      if (result.appType === APP_TYPE.CALENDAR) {
-        result.fields = this.handleCalendarDefault(result.fields);
-      }
+    flowNode
+      .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, selectNodeId: sId, instanceId })
+      .then(result => {
+        if (result.appType === APP_TYPE.CALENDAR) {
+          result.fields = this.handleCalendarDefault(result.fields);
+        }
 
-      if (result.appType === APP_TYPE.SNAPSHOT) {
-        result.fields = this.handleSnapshotDefault(result.fields);
-      }
+        this.setState({ data: result, cacheKey: +new Date() });
 
-      this.setState({ data: result, cacheKey: +new Date() });
-    });
+        if (isApproval && !result.selectNodeId) {
+          this.SelectNodeObjectChange(result.flowNodeList[0].nodeId);
+        }
+      });
   }
 
   /**
@@ -120,7 +122,7 @@ export default class Action extends Component {
     } else if (
       actionId !== ACTION_ID.ADD &&
       !selectNodeId &&
-      !_.includes([APP_TYPE.PROCESS, APP_TYPE.CALENDAR, APP_TYPE.SNAPSHOT], data.appType)
+      !_.includes([APP_TYPE.PROCESS, APP_TYPE.CALENDAR], data.appType)
     ) {
       alert(_l('必须先选择一个对象'), 2);
       return;
@@ -176,12 +178,7 @@ export default class Action extends Component {
         selectNodeId,
         appId,
         appType,
-        fields:
-          appType === APP_TYPE.CALENDAR
-            ? this.handleCalendarDefault(fields)
-            : appType === APP_TYPE.SNAPSHOT
-            ? this.handleSnapshotDefault(fields)
-            : fields,
+        fields: appType === APP_TYPE.CALENDAR ? this.handleCalendarDefault(fields) : fields,
         sourceAppId,
         sourceAppType,
         operateCondition: conditions,
@@ -221,37 +218,14 @@ export default class Action extends Component {
   }
 
   /**
-   * 处理快照默认值
-   */
-  handleSnapshotDefault(fields) {
-    return fields.map(item => {
-      if (!item.fieldValue && !item.fieldValueId) {
-        if (item.fieldId === 'width') {
-          item.fieldValue = '1366';
-        }
-
-        if (item.fieldId === 'height') {
-          item.fieldValue = '768';
-        }
-
-        if (item.fieldId === 'is_all_page') {
-          item.fieldValue = '1';
-        }
-      }
-
-      return item;
-    });
-  }
-
-  /**
    * 渲染内容
    */
   renderContent() {
     const { data, cacheKey } = this.state;
 
-    // 创建日程 || 创建快照
-    if (_.includes([APP_TYPE.CALENDAR, APP_TYPE.SNAPSHOT], data.appType)) {
-      return <CreateCalendarOrSnapshot key={cacheKey} {...this.props} data={data} updateSource={this.updateSource} />;
+    // 创建日程
+    if (data.appType === APP_TYPE.CALENDAR) {
+      return <CreateCalendar key={cacheKey} {...this.props} data={data} updateSource={this.updateSource} />;
     }
 
     // 新增工作表记录 || 创建任务 || 邀请外部用户
@@ -378,7 +352,7 @@ export default class Action extends Component {
   render() {
     const { selectNodeType } = this.props;
     const { data } = this.state;
-    const bgClassName = _.includes([APP_TYPE.PROCESS, APP_TYPE.GLOBAL_VARIABLE, APP_TYPE.SNAPSHOT], data.appType)
+    const bgClassName = _.includes([APP_TYPE.PROCESS, APP_TYPE.GLOBAL_VARIABLE], data.appType)
       ? 'BGBlueAsh'
       : data.appType === APP_TYPE.TASK
       ? 'BGGreen'
@@ -407,7 +381,7 @@ export default class Action extends Component {
               {((!data.selectNodeId &&
                 !data.appId &&
                 data.actionId !== ACTION_ID.DELETE &&
-                !_.includes([APP_TYPE.PROCESS, APP_TYPE.CALENDAR, APP_TYPE.SNAPSHOT], data.appType)) ||
+                !_.includes([APP_TYPE.PROCESS, APP_TYPE.CALENDAR], data.appType)) ||
                 (data.actionId === ACTION_ID.EDIT &&
                   data.selectNodeId &&
                   !data.selectNodeObj.nodeName &&
@@ -449,7 +423,7 @@ export default class Action extends Component {
               data.actionId === ACTION_ID.DELETE ||
               data.actionId === ACTION_ID.RELATION) &&
               data.selectNodeId) ||
-            _.includes([APP_TYPE.PROCESS, APP_TYPE.CALENDAR, APP_TYPE.SNAPSHOT], data.appType)
+            _.includes([APP_TYPE.PROCESS, APP_TYPE.CALENDAR], data.appType)
           }
           onSave={this.onSave}
         />

@@ -3,7 +3,8 @@ import { string } from 'prop-types';
 import styled from 'styled-components';
 import { useSetState } from 'react-use';
 import { WidgetContent } from '../components';
-import { getIconByType, getComponentTitleText } from '../util';
+import { getIconByType, getComponentTitleText, filterSuspensionAiComponent, getSuspensionAiComponent } from '../util';
+import AiDisplay from '../components/WidgetContent/AiDisplay';
 
 const MobileList = styled.div`
   box-sizing: border-box;
@@ -98,7 +99,8 @@ const dealComponents = (components = []) => {
 };
 export default function MobileLayout(props) {
   const { components, updateWidgetVisible } = props;
-  const { hidedComponents, visibleComponents } = dealComponents(components);
+  const { hidedComponents, visibleComponents } = dealComponents(filterSuspensionAiComponent(components));
+  const suspensionAi = getSuspensionAiComponent(components);
   return (
     <Fragment>
       <MobileList>
@@ -125,10 +127,17 @@ export default function MobileLayout(props) {
       </MobileList>
       <MobileConfig>
         <div className="mobileWrap">
-          <div className="mobileBox">
+          <div className="mobileBox Relative">
             <div className="mobileContent">
               <WidgetContent {...props} layoutType="mobile" components={visibleComponents} />
             </div>
+            {suspensionAi && (
+              <AiDisplay
+                editable={true}
+                widget={suspensionAi}
+                delWidget={props.delWidget}
+              />
+            )}
           </div>
         </div>
       </MobileConfig>

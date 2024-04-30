@@ -1,11 +1,13 @@
 import React from 'react';
-import { LoadDiv, Tooltip, Checkbox, RadioGroup } from 'ming-ui';
+import { LoadDiv, Dropdown, Checkbox, RadioGroup } from 'ming-ui';
 import accountSetting from 'src/api/accountSetting';
+import Beta from 'src/pages/AppSettings/components/Beta';
 import cx from 'classnames';
 import './index.less';
 import langConfig from 'src/common/langConfig';
 import common from '../common';
 import _ from 'lodash';
+import fixedDataApi from 'src/api/fixedData';
 
 const configs = [
   // {
@@ -31,6 +33,8 @@ export default class AccountChart extends React.Component {
       isPrivateEmail: false,
       loading: false,
       disabledSetLanguage: false,
+      timeZones: [],
+      currentTimeZone: md.global.Account.timeZone,
     };
   }
 
@@ -40,6 +44,7 @@ export default class AccountChart extends React.Component {
 
   getData() {
     this.setState({ loading: true });
+
     accountSetting.getAccountSettings({}).then(data => {
       this.setState({
         joinFriendMode: data.joinFriendMode,
@@ -47,8 +52,22 @@ export default class AccountChart extends React.Component {
         isPrivateEmail: data.isPrivateEmail,
         isOpenMessageSound: data.isOpenMessageSound,
         isOpenMessageTwinkle: data.isOpenMessageTwinkle,
-        backHomepageWay: data.backHomepageWay,
+        backHomepageWay: data.backHomepageWay || 1,
         loading: false,
+      });
+    });
+
+    fixedDataApi.loadTimeZones().then(res => {
+      const timeZones = [];
+
+      Object.keys(res).forEach(key => {
+        timeZones.push({ text: res[key], value: parseInt(key) });
+      });
+
+      this.setState({
+        timeZones: [{ text: _l('跟随设备时区（配置时区，依据您正在使用设备的系统时区设置）'), value: 1 }].concat(
+          timeZones.sort((a, b) => a.value - b.value),
+        ),
       });
     });
   }
@@ -61,7 +80,6 @@ export default class AccountChart extends React.Component {
         settingValue: value,
       })
       .then(data => {
-        localStorage.removeItem('accountSettings');
         if (data) {
           alert(_l('设置成功'));
           if (_.isFunction(successCallback)) {
@@ -71,7 +89,7 @@ export default class AccountChart extends React.Component {
           alert(_l('操作失败'), 2);
         }
       })
-      .fail();
+      .catch();
   }
 
   //语言设置
@@ -88,16 +106,15 @@ export default class AccountChart extends React.Component {
                 if (this.state.disabledSetLanguage) return;
                 if (!md.global.Account.isPortal) {
                   this.setState({ disabledSetLanguage: true });
-                  const settingValue = { 'zh-Hans': '0', en: '1', ja: '2', 'zh-Hant': '3' };
                   accountSetting
-                    .editAccountSetting({ settingType: '6', settingValue: settingValue[item.key] })
+                    .editAccountSetting({ settingType: '6', settingValue: getCurrentLangCode(item.key).toString() })
                     .then(res => {
                       if (res) {
                         setCookie('i18n_langtag', item.key);
                         window.location.reload();
                       }
                     })
-                    .fail(err => {
+                    .catch(err => {
                       this.setState({ disabledSetLanguage: false });
                     });
                 } else {
@@ -118,17 +135,46 @@ export default class AccountChart extends React.Component {
     if (this.state.loading) {
       return <LoadDiv className="mTop40" />;
     }
+
     return (
       <div className="systemSettingsContainer">
         <div className="mTop24 Gray Font15 Bold">{_l('偏好设置')}</div>
         {configs.map((item, index) => {
           return (
-            <div className="systemSettingItem" key={index}>
-              <div className="systemSettingsLabel Gray_75">{item.label}</div>
+            <div className="systemSettingItem borderNoe" key={index}>
+              <div className="systemSettingsLabel Gray_75 LineHeight32">{item.label}</div>
               <div className="systemSettingsRight">{this[item.component]()}</div>
             </div>
           );
         })}
+        <div className="systemSettingItem">
+          <div className="systemSettingsLabel Gray_75 LineHeight32">
+            {_l('时区')}
+            <Beta className="Right mTop8" />
+          </div>
+          <div className="systemSettingsRight">
+            <div className="Gray_75 mBottom16">
+              <Dropdown
+                className="systemSettingsZone Gray"
+                border
+                value={this.state.currentTimeZone}
+                data={this.state.timeZones}
+                openSearch
+                onChange={value => {
+                  this.sureSettings('timeZone', value, () => {
+                    this.setState({ currentTimeZone: value });
+                    md.global.Account.timeZone = value;
+                  });
+                }}
+              />
+            </div>
+            <div className="systemSettingsZoneDesc">
+              {_l(
+                '时区为beta功能，仅适用于工作表中日期时间类型的日期字段和系统字段。您可以设置个人时区，便于您录入和查看时间数据。例如，您在东京时，可以将个人时区设置为东九时区(UTC+9:00)。你输入的时间被平台视作东京时间，同时，工作表中的日期时间数据以东京时间呈现。',
+              )}
+            </div>
+          </div>
+        </div>
         <div className="systemSettingItem borderNoe">
           <div className="systemSettingsLabel Gray_75">{_l('浏览器新消息通知')}</div>
           <div className="systemSettingsRight">
@@ -180,14 +226,14 @@ export default class AccountChart extends React.Component {
                 {
                   text: _l('悬停时先侧滑打开应用列表'),
                   value: 2,
-                }
+                },
               ]}
               checkedValue={this.state.backHomepageWay}
               onChange={value => {
                 this.sureSettings('backHomepageWay', value, () => {
                   window.backHomepageWay = value;
                   this.setState({
-                    backHomepageWay: value
+                    backHomepageWay: value,
                   });
                 });
               }}

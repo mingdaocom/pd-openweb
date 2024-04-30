@@ -83,7 +83,7 @@ export default class ExcelControlSetting extends Component {
           controls: (_.get(template, 'controls') || []).map(i => ({ value: i.controlId, text: i.controlName })),
         });
       })
-      .always(() => {
+      .finally(() => {
         this.setState({ loading: false });
       });
   };

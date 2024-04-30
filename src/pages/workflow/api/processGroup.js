@@ -14,7 +14,7 @@ var processGroup = {
   addGroup: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/processGroup/addGroup';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'processGroupaddGroup', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'processGroupaddGroup', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 删除分组
@@ -27,7 +27,7 @@ var processGroup = {
   deleteGroup: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/processGroup/deleteGroup';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'processGroupdeleteGroup', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'processGroupdeleteGroup', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 获取所有的分组
@@ -40,7 +40,7 @@ var processGroup = {
   getGroupList: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/processGroup/getGroupList';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'processGroupgetGroupList', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'processGroupgetGroupList', args, $.extend(base, options));
   },
   /**
    * 分组排序
@@ -53,7 +53,7 @@ var processGroup = {
   sortGroups: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/processGroup/sortGroups';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'processGroupsortGroups', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'processGroupsortGroups', JSON.stringify(args), $.extend(base, options));
   },
 };
 export default processGroup;

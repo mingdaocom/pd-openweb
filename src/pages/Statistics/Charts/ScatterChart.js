@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 import { Dropdown, Menu } from 'antd';
 import { formatYaxisList, formatrChartValue, formatControlInfo, formatrChartAxisValue, getLegendType, getChartColors, getStyleColor } from './common';
 import { formatSummaryName, isFormatNumber } from 'statistics/common';
+import { Icon } from 'ming-ui';
 import { formatNumberFromInput } from 'src/util';
+import tinycolor from '@ctrl/tinycolor';
 
 const formatChartData = (data, splitId) => {
   if (_.isEmpty(data)) {
@@ -84,7 +86,8 @@ export default class extends Component {
       count: 0,
       dropdownVisible: false,
       offset: {},
-      match: null
+      match: null,
+      linkageMatch: null,
     }
     this.ScatterChart = null;
   }
@@ -115,49 +118,90 @@ export default class extends Component {
       !_.isEqual(style.quadrant, oldStyle.quadrant) ||
       style.tooltipValueType !== oldStyle.tooltipValueType ||
       !_.isEqual(chartColor, oldChartColor) ||
-      nextProps.themeColor !== this.props.themeColor
+      nextProps.themeColor !== this.props.themeColor ||
+      !_.isEqual(nextProps.linkageMatch, this.props.linkageMatch)
     ) {
       const config = this.getComponentConfig(nextProps);
       this.ScatterChart.update(config);
-      this.setCount(nextProps);
-      // this.ScatterChart.destroy();
-      // this.renderScatterChart(nextProps);
+    }
+    if (nextProps.isLinkageData !== this.props.isLinkageData) {
+      this.ScatterChart.destroy();
+      this.renderScatterChart(nextProps);
     }
   }
   renderScatterChart(props) {
-    const { reportData, isViewOriginalData } = props;
-    const { displaySetup } = reportData;
+    const { reportData } = props;
+    const { displaySetup, style, xaxes, split } = reportData;
     const config = this.getComponentConfig(props);
     const { Scatter } = this.g2plotComponent;
-    this.ScatterChart = new Scatter(this.chartEl, config);
-    if (displaySetup.showRowList && isViewOriginalData) {
-      this.ScatterChart.on('element:click', this.handleClick);
+    if (this.chartEl) {
+      this.ScatterChart = new Scatter(this.chartEl, config);
+      this.isViewOriginalData = displaySetup.showRowList && props.isViewOriginalData;
+      this.isLinkageData = props.isLinkageData && !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0) && (xaxes.controlId || split.controlId);
+      if (this.isViewOriginalData || this.isLinkageData) {
+        this.ScatterChart.on('element:click', this.handleClick);
+      }
+      this.ScatterChart.render();
     }
-    this.ScatterChart.render();
-    this.setCount(props);
   }
   handleClick = (event) => {
-    const { xaxes, split } = this.props.reportData;
+    const { xaxes, split, appId, reportId, name, reportType, style, map } = this.props.reportData;
     const currentData = event.data.data;
     const gEvent = event.gEvent;
     const param = {};
+    const linkageMatch = {
+      sheetId: appId,
+      reportId,
+      reportName: name,
+      reportType,
+      filters: []
+    };
     if (xaxes.cid) {
       const isNumber = isFormatNumber(xaxes.controlType);
       const value = currentData.originalId;
       param[xaxes.cid] = isNumber && value ? Number(value) : value;
+      linkageMatch.value = value;
+      linkageMatch.filters.push({
+        controlId: xaxes.controlId,
+        values: [param[xaxes.cid]],
+        controlName: xaxes.controlName,
+        controlValue: currentData.name,
+        type: xaxes.controlType,
+        control: xaxes
+      });
     }
     if (split.controlId) {
       const isNumber = isFormatNumber(split.controlType);
       const value = currentData[split.controlId];
       param[split.cid] = isNumber && value ? Number(value) : value;
+      linkageMatch.filters.push({
+        controlId: split.controlId,
+        values: [param[split.cid]],
+        controlName: split.controlName,
+        controlValue: _.get(_.find(map, { originalKey: value }), 'key'),
+        type: split.controlType,
+        control: xaxes
+      });
     }
+    if (_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length) {
+      linkageMatch.onlyChartIds = style.autoLinkageChartObjectIds;
+    }
+    const isAll = this.isViewOriginalData && this.isLinkageData;
     this.setState({
-      dropdownVisible: true,
+      dropdownVisible: isAll,
       offset: {
         x: gEvent.x,
         y: gEvent.y + 20
       },
-      match: param
+      match: param,
+      linkageMatch
+    }, () => {
+      if (!isAll && this.isViewOriginalData) {
+        this.handleRequestOriginalData();
+      }
+      if (!isAll && this.isLinkageData) {
+        this.handleAutoLinkage();
+      }
     });
   }
   handleRequestOriginalData = () => {
@@ -174,8 +218,18 @@ export default class extends Component {
       this.props.requestOriginalData(data);
     }
   }
+  handleAutoLinkage = () => {
+    const { linkageMatch } = this.state;
+    this.props.onUpdateLinkageFiltersGroup(linkageMatch);
+    this.setState({
+      dropdownVisible: false,
+    }, () => {
+      const config = this.getComponentConfig(this.props);
+      this.ScatterChart.update(config);
+    });
+  }
   getComponentConfig(props) {
-    const { themeColor, projectId, customPageConfig = {}, reportData } = props;
+    const { themeColor, projectId, customPageConfig = {}, reportData, linkageMatch } = props;
     const { chartColor, chartColorIndex = 1 } = customPageConfig;
     const { map, displaySetup, xaxes, yaxisList, split, valueMap = {} } = reportData;
     const { xdisplay, ydisplay, colorRules, showChartType } = displaySetup;
@@ -188,8 +242,7 @@ export default class extends Component {
     const rule = _.get(colorRules[0], 'dataBarRule') || {};
     const isRuleColor = _.isEmpty(split.controlId) && !_.isEmpty(rule);
     const controlMinAndMax = isRuleColor ? getControlMinAndMax(yaxisList, data) : {};
-    const getRuleColor = (data) => {
-      const value = data[_.get(yaxisList[0], 'controlId')] || 0;
+    const getRuleColor = value => {
       const color = getStyleColor({
         value,
         controlMinAndMax,
@@ -210,7 +263,27 @@ export default class extends Component {
       sizeField,
       colorField: split.controlId,
       size: [5, 20],
-      color: isRuleColor ? getRuleColor : (split.controlId ? colors : colors[0]),
+      rawFields: ['originalId', xField],
+      color: (data) => {
+        const controlId = data[split.controlId];
+        let color = colors[0];
+        if (isRuleColor) {
+          const value = data[_.get(yaxisList[0], 'controlId')] || 0;
+          color = getRuleColor(value);
+        }
+        if (split.controlId) {
+          const splitIndex = _.findIndex(map, { originalKey: controlId });
+          color = colors[splitIndex % colors.length] || colors[0];
+        }
+        if (!_.isEmpty(linkageMatch)) {
+          if (linkageMatch.value === data.originalId) {
+            return color;
+          } else {
+            return tinycolor(color).setAlpha(0.3).toRgbString();
+          }
+        }
+        return color;
+      },
       legend: displaySetup.showLegend && split.controlId ? {
         position
       } : false,
@@ -373,6 +446,7 @@ export default class extends Component {
         ],
       } : null
     }
+    this.setCount(props);
     return base;
   }
   setCount(props) {
@@ -387,8 +461,15 @@ export default class extends Component {
   renderOverlay() {
     return (
       <Menu className="chartMenu" style={{ width: 160 }}>
+        <Menu.Item onClick={this.handleAutoLinkage} key="autoLinkage">
+          <div className="flexRow valignWrapper">
+            <Icon icon="link1" className="mRight8 Gray_9e Font20 autoLinkageIcon" />
+            <span>{_l('联动')}</span>
+          </div>
+        </Menu.Item>
         <Menu.Item onClick={this.handleRequestOriginalData} key="viewOriginalData">
           <div className="flexRow valignWrapper">
+            <Icon icon="table" className="mRight8 Gray_9e Font18" />
             <span>{_l('查看原始数据')}</span>
           </div>
         </Menu.Item>

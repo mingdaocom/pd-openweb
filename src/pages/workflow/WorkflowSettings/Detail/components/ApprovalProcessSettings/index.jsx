@@ -8,7 +8,7 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { OPERATION_TYPE, USER_TYPE, NODE_TYPE } from '../../../enum';
 import Member from '../Member';
-import quickSelectUser from 'ming-ui/functions/quickSelectUser';
+import { quickSelectUser } from 'ming-ui/functions';
 import { Tooltip } from 'antd';
 
 const TABS_ITEM = styled.div`

@@ -7,7 +7,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import UserHead from 'src/components/userHead';
+import { UserHead } from 'ming-ui';
 import { FROM, RELATION_TYPE_NAME } from './enum';
 
 const Icons = {

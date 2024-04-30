@@ -1,7 +1,6 @@
 import React, { Component, Fragment } from 'react';
-import { Icon, Dialog, LoadDiv, Tooltip, UpgradeIcon } from 'ming-ui';
+import { Icon, Dialog, LoadDiv, Tooltip, UpgradeIcon, UserHead } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
-import UserHead from 'src/components/userHead/userHead';
 import { getWidgetInfo } from '../../util';
 import { isExceedMaxControlLimit } from '../../util/setting';
 import WidgetDetail from 'src/pages/widgetConfig/widgetSetting';

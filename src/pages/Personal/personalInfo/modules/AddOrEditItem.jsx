@@ -122,7 +122,7 @@ export default class AddOrEditItem extends React.Component {
                 alert(_l('操作失败'), 2);
               }
             })
-            .fail();
+            .catch();
         } else {
           alert(_l('输入内容包含敏感词，请重新填写'), 3);
         }

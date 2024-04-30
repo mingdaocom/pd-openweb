@@ -156,6 +156,6 @@ function PaySuccess(props) {
   );
 }
 
-const Comp = preall(PaySuccess, { allownotlogin: false });
+const Comp = preall(PaySuccess, { allowNotLogin: false });
 
 ReactDOM.render(<Comp />, document.querySelector('#paySuccess'));

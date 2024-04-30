@@ -29,7 +29,7 @@ export default class ReplyTo extends React.Component {
   }
 
   abortRequest() {
-    if (this.ajax && this.ajax.state() === 'pending' && this.ajax.abort) {
+    if (this.ajax && this.ajax.abort) {
       this.ajax.abort();
     }
   }
@@ -50,7 +50,7 @@ export default class ReplyTo extends React.Component {
         postID: sourceId,
       });
 
-      this.ajax.done(function(data) {
+      this.ajax.then(function(data) {
         var message = data.Message;
         if (message) {
           callback(message);
@@ -63,7 +63,7 @@ export default class ReplyTo extends React.Component {
         discussionId: replyId,
         sourceType,
       });
-      this.ajax.done(function(result) {
+      this.ajax.then(function(result) {
         if (result.code) {
           callback(result.data);
         } else {

@@ -1,14 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { LoadDiv, Checkbox, Dropdown } from 'ming-ui';
+import { LoadDiv, Checkbox, Dropdown, SvgIcon } from 'ming-ui';
 import { TableWrap } from 'src/pages/integration/apiIntegration/style';
 import { useSetState } from 'react-use';
-import SvgIcon from 'src/components/SvgIcon';
-import selectApp from 'src/components/dialogSelectApp';
+import { dialogSelectApp, dialogSelectUser } from 'ming-ui/functions';
 import { Table, ConfigProvider } from 'antd';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion.js';
 import processAjax from 'src/pages/workflow/api/process.js';
-import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import { NODE_TYPE, USER_TYPE } from 'src/pages/workflow/WorkflowSettings/enum.js';
 import Member from 'src/pages/workflow/WorkflowSettings/Detail/components/Member/index.jsx';
 const TRIGGER_TYPE = {
@@ -333,7 +331,7 @@ function AuthorizeToApp(props) {
   };
 
   const onAddApp = () => {
-    selectApp({
+    dialogSelectApp({
       projectId: projectId,
       isGetManagerApps: true,
       title: _l('选择授权应用'),

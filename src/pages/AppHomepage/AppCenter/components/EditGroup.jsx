@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Modal, RadioGroup } from 'ming-ui';
+import { Modal, RadioGroup, SvgIcon } from 'ming-ui';
 import styled from 'styled-components';
 import Trigger from 'rc-trigger';
-import SvgIcon from 'src/components/SvgIcon';
 import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
 import { string, number, func, bool } from 'prop-types';
 

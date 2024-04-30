@@ -1,6 +1,6 @@
 import React from 'react';
 import cx from 'classnames';
-import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
+import { dialogSelectUser } from 'ming-ui/functions';
 import Icon from 'ming-ui/components/Icon';
 import addFriends from 'src/components/addFriends';
 import AddFriends from 'src/components/addFriends';

@@ -57,9 +57,11 @@ export const fetchRows = () => {
   return (dispatch, getState) => {
     const { base, controls, views, filters, quickFilter = [] } = getState().sheet;
     const { access_token } = getRequest();
-    const headersConfig = {
-      Authorization: `access_token ${access_token}`,
-    };
+
+    if (access_token) {
+      window.access_token = access_token;
+    }
+
     const view = base.viewId ? _.find(views, { viewId: base.viewId }) : views[0];
     const selectControl = _.find(controls, item => item.controlId === (view || {}).viewControl);
     dispatch({ type: 'CHANGE_GUNTER_LOADINNG', data: true });
@@ -73,7 +75,6 @@ export const fetchRows = () => {
           ...filters,
           fastFilters: formatQuickFilter(quickFilter),
         }),
-        access_token ? { headersConfig } : {},
       )
       .then(({ data, count, resultCode }) => {
         const isLocalhost = location.href.includes('localhost');
@@ -393,7 +394,7 @@ export const addRecord = (cell, row) => {
     dispatch(updateGroupingRow({ [cell.controlId]: cell.value }, row.rowid));
 
     controls.forEach(c => {
-      if (c.advancedSetting && c.advancedSetting.defsource && c.type !== 30) {
+      if (c.advancedSetting && c.advancedSetting.defsource && c.type !== 30 && !_.find(receiveControls, { controlId: c.controlId })) {
         const value =  getDynamicValue(row, c);
         receiveControls.push({
           controlId: c.controlId,
@@ -748,6 +749,7 @@ export const updateEditIndex = index => {
 export const updateWithoutArrangementVisible = value => {
   return (dispatch, getState) => {
     const { gunterView } = getState().sheet;
+    localStorage.setItem('gunterViewWithoutArrangementVisible', value);
     dispatch({ type: 'CHANGE_GUNTER_WITHOUT_ARRANGEMENT_VISIBLE', data: value });
     dispatch(updateGroupingData(gunterView.grouping));
   };

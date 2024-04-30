@@ -142,11 +142,7 @@ export default function TelConfig({ data, onChange }) {
             const area =
               list.length > 0
                 ? list[0]
-                : {
-                    name: 'China (中国)',
-                    iso2: 'cn',
-                    dialCode: '86',
-                  };
+                : COMMON_DEFAULT_COUNTRY.find(o => o.iso2 === _.get(md, 'global.Config.DefaultConfig.initialCountry'));
             onChange({
               ...handleAdvancedSettingChange(data, {
                 defaultarea: JSON.stringify(area),
@@ -169,7 +165,6 @@ export default function TelConfig({ data, onChange }) {
             onChange(handleAdvancedSettingChange(data, { commcountries: JSON.stringify(list) }));
             setVisible({ commonUseVisible: false });
           }}
-          title={_l('常用的国家/地区')}
           onCancel={() => setVisible({ commonUseVisible: false })}
         />
       )}

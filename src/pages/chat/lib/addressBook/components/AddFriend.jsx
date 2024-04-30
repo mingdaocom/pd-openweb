@@ -1,7 +1,6 @@
 import React from 'react';
-import Icon from 'ming-ui/components/Icon';
-import Button from 'ming-ui/components/Button';
-import AddFriendConfirm from 'src/components/addFriendConfirm/addFriendConfirm';
+import { Icon, Button } from 'ming-ui';
+import { addFriendConfirm } from 'ming-ui/functions';
 
 export default class AddFriend extends React.Component {
   render() {
@@ -13,7 +12,7 @@ export default class AddFriend extends React.Component {
           type="primary"
           size="medium"
           onClick={() => {
-            AddFriendConfirm({
+            addFriendConfirm({
               accountId: this.props.accountId,
             });
           }}

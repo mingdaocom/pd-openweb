@@ -220,7 +220,7 @@ export default function SSHConnect(props) {
           setSubmitLoading(false);
         }
       })
-      .fail(() => setSubmitLoading(false));
+      .catch(() => setSubmitLoading(false));
   };
 
   const onDelete = (e, option) => {

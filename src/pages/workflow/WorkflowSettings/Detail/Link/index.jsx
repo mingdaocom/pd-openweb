@@ -46,10 +46,10 @@ export default class Link extends Component {
    * 获取节点详情
    */
   getNodeDetail(props, sId) {
-    const { processId, selectNodeId, selectNodeType } = props;
+    const { processId, selectNodeId, selectNodeType, instanceId } = props;
 
     flowNode
-      .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, selectNodeId: sId })
+      .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, selectNodeId: sId, instanceId })
       .then(result => {
         this.setState({ data: result });
       });

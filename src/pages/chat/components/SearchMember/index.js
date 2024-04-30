@@ -84,7 +84,7 @@ export default class SearchMember extends Component {
   handleChange(event) {
     const { value } = event.target;
     const { result } = this.state;
-    const isWindows = navigator.userAgent.toLocaleLowerCase().includes('windows');
+
     this.setState({
       value,
       flattenResult: [],
@@ -103,7 +103,7 @@ export default class SearchMember extends Component {
           contentVisible: true,
         });
       }
-    }, isWindows ? 500 : 0);
+    }, window.isWindows ? 500 : 0);
   }
   handleKeyDown(event) {
     const { flattenResult, currentIndex } = this.state;

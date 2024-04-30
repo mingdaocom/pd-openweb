@@ -28,7 +28,7 @@ export default class ValueAddService extends Component {
   componentDidMount() {
     Config.AdminController.getHidBalance({
       projectId: Config.projectId,
-    }).done(balance => {
+    }).then(balance => {
       this.setState({
         balance: parseInt(balance, 10) || 0,
       });

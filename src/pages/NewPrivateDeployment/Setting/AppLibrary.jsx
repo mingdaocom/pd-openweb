@@ -105,7 +105,7 @@ export default function AppLibrary(props) {
       {!hideTemplateLibrary && (
         <Fragment>
           <div className="flexRow">
-            {[{ text: _l('自建应用库'), value: '2' }, { text: _l('使用明道云应用库'), value: '1' }].map((item, index) => (
+            {[{ text: _l('自建应用库'), value: '2' }, { text: _l('使用官方应用库'), value: '1' }].map((item, index) => (
               <div className="mRight30">
                 <Radio
                   key={index}

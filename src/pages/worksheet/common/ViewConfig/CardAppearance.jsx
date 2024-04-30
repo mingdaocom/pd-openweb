@@ -6,10 +6,8 @@ import { getAdvanceSetting } from 'src/util';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { filterAndFormatterControls } from 'src/pages/worksheet/views/util';
 import { hierarchyViewCanSelectFields } from 'src/pages/worksheet/views/HierarchyView/util';
-import { updateViewAdvancedSetting, ViewSettingWrap } from './util';
-import Abstract from './components/Abstract';
-import CoverSetting from './components/CoverSettingCon';
-import DisplayControl from './components/DisplayControl';
+import { ViewSettingWrap } from './util';
+import { Abstract, CoverSetting, DisplayControl, NavSort } from './components';
 import NavShow from 'src/pages/worksheet/common/ViewConfig/components/navGroup/NavShow';
 import {
   NAVSHOW_TYPE,
@@ -20,7 +18,6 @@ import {
 import _ from 'lodash';
 import ChangeName from 'src/pages/integration/components/ChangeName.jsx';
 import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
-import NavSort from './components/NavSort';
 const DisplayControlOption = styled(FlexCenter)`
   .icon {
     font-size: 16px;

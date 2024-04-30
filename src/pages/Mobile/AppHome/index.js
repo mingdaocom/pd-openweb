@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import { bindActionCreators } from 'redux';
 import { Flex, ActionSheet, Modal } from 'antd-mobile';
-import { Icon, WaterMark } from 'ming-ui';
+import { Icon, WaterMark, SvgIcon } from 'ming-ui';
 import cx from 'classnames';
 import { connect } from 'react-redux';
 import * as actions from './redux/actions';
@@ -14,19 +14,18 @@ import ApplicationItem from './components/ApplicationItem';
 import ApplicationList from './components/ApplicationBox';
 import EmptyStatus from './components/EmptyStatus';
 import { RecordInfoModal } from 'mobile/Record';
+import MobileChart from 'mobile/CustomPage/ChartContent';
 import arrowRightImg from './img/arrowRight.png';
 import arrowLeftImg from './img/arrowLeft.png';
 import './index.less';
-import SvgIcon from 'src/components/SvgIcon';
 import AppGroupSkeleton from './components/AppGroupSkeleton';
 import { getCurrentProject, addBehaviorLog } from 'src/util';
 import TextScanQRCode from 'src/components/newCustomFields/components/TextScanQRCode';
 import { loadSDK } from 'src/components/newCustomFields/tools/utils';
 import RegExp from 'src/util/expression';
+import { MODULE_TYPES } from 'src/pages/AppHomepage/Dashboard/utils';
 import _ from 'lodash';
 import moment from 'moment';
-
-const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
 
 class AppHome extends React.Component {
   constructor(props) {
@@ -53,7 +52,7 @@ class AppHome extends React.Component {
     const isMaturity = moment().isBefore(maturityTime);
     $('html').addClass('appHomeMobile');
     this.getProject();
-    if (isWxWork && isAdmin && isMaturity) {
+    if (window.isWxWork && isAdmin && isMaturity) {
       this.getWebCache();
     }
     window.addEventListener('popstate', this.closePage);
@@ -76,11 +75,13 @@ class AppHome extends React.Component {
     const projectId = currentProject ? currentProject.projectId : null;
     if (projectId === 'external') {
       this.props.getMyApp();
+      this.props.clearAllCollectCharts();
       return;
     }
     this.props.myPlatform(projectId);
     this.props.getHomePlatformSetting(projectId);
     this.props.getAllFavorites(projectId);
+    this.props.getAllCollectCharts(projectId);
   };
   closePage = () => {
     window.close();
@@ -147,7 +148,7 @@ class AppHome extends React.Component {
           window.mobileNavigateTo(`/mobile/appBox`);
         }
         if (buttonIndex === 1) {
-          const title = isWxWork ? _l('创建自定义应用请前往企业微信PC桌面端') : _l('创建自定义应用请前往PC端');
+          const title = window.isWxWork ? _l('创建自定义应用请前往企业微信PC桌面端') : _l('创建自定义应用请前往PC端');
           Modal.alert(title, null, [{ text: _l('我知道了'), onPress: () => {} }]);
         }
       },
@@ -207,7 +208,7 @@ class AppHome extends React.Component {
             projectId={localStorage.getItem('currentProjectId') || (md.global.Account.projects[0] || {}).projectId}
             onChange={value => {
               if (RegExp.isURL(value)) {
-                if (/iphone/gi.test(window.navigator.userAgent)) {
+                if (window.isIphone) {
                   location.href = value;
                 } else {
                   window.open(value);
@@ -300,12 +301,20 @@ class AppHome extends React.Component {
           <div
             className="expand Hand flexRow alignItemsCenter"
             onClick={() => {
-              if (type === 'recentList') {
-                this.setState({ recentType: this.state.recentType === 'app' ? 'appItem' : 'app' });
-              } else if (type === 'collectAppList') {
-                window.mobileNavigateTo(`/mobile/appfav/${projectObj.projectId}`);
-              } else {
-                window.mobileNavigateTo(`/mobile/recordfav/${projectObj.projectId}`);
+              switch (type) {
+                case 'recentList':
+                  this.setState({ recentType: this.state.recentType === 'app' ? 'appItem' : 'app' });
+                  break;
+                case 'collectAppList':
+                  window.mobileNavigateTo(`/mobile/appfav/${projectObj.projectId}`);
+                  break;
+                case 'chartCollect':
+                  window.mobileNavigateTo(`/mobile/chartsfav/${projectObj.projectId}`);
+                  break;
+                case 'recordCollectList':
+                  window.mobileNavigateTo(`/mobile/recordfav/${projectObj.projectId}`);
+                  break;
+                default:
               }
             }}
           >
@@ -320,8 +329,8 @@ class AppHome extends React.Component {
   // 应用收藏
   renderCollectAppList = () => {
     const { myPlatformData } = this.props;
-    const { markedAppItems = [] } = myPlatformData;
-
+    let { markedAppItems = [] } = myPlatformData;
+    markedAppItems = markedAppItems.filter(o => o && !o.webMobileDisplay);
     if (_.isEmpty(markedAppItems)) return;
 
     return (
@@ -363,7 +372,7 @@ class AppHome extends React.Component {
       .filter(_.identity);
 
     if (_.isEmpty(recentAppIds) && _.isEmpty(recentAppItems)) return;
-    const list = recentType === 'app' ? recentApps : recentAppItems;
+    const list = recentType === 'app' ? recentApps.filter(o => o && !o.webMobileDisplay) : recentAppItems;
 
     return (
       <Fragment>
@@ -459,16 +468,65 @@ class AppHome extends React.Component {
     );
   };
 
+  // 图表收藏
+  renderCollectCharts = (projectId, reportAutoRefreshTimer) => {
+    const { collectCharts } = this.props;
+    if (_.isEmpty(collectCharts)) return;
+
+    return (
+      <Fragment>
+        {this.renderTitle({
+          type: 'chartCollect',
+          wrapTitle: _l('图表收藏'),
+          icon: 'navigate_next',
+          moreText: _l('更多'),
+          showMore: collectCharts.length > 3,
+        })}
+        <div className="pLeft16 pRight16">
+          {collectCharts.slice(0, 3).map((item, index) => {
+            const isLast = index === collectCharts.slice(0, 3).length - 1;
+
+            return (
+              <div
+                className={cx('chartItemWrap flexColumn', { pTop0: index === 0, Border0: isLast })}
+                key={item.favoriteId}
+              >
+                <MobileChart
+                  isHorizontal={false}
+                  reportId={item.reportId}
+                  pageId={item.pageId}
+                  viewId={item.viewId}
+                  filters={[]}
+                />
+              </div>
+            );
+          })}
+        </div>
+        <div className="spaceBottom"></div>
+      </Fragment>
+    );
+  };
+
   renderContent = () => {
     const { isHomeLoading, platformSetting = {}, myPlatformData = {} } = this.props;
     const { homeSetting = {} } = myPlatformData;
-    const { displayCommonApp, displayMark, rowCollect, todoDisplay } = homeSetting;
+    const {
+      displayCommonApp,
+      displayMark,
+      rowCollect,
+      todoDisplay,
+      reportAutoRefreshTimer,
+      displayApp,
+      sortItems = [],
+    } = homeSetting;
     const { boardSwitch } = platformSetting;
     const projectObj = getCurrentProject(
       localStorage.getItem('currentProjectId') || (md.global.Account.projects[0] || {}).projectId,
     );
     const currentProject = !_.isEmpty(projectObj) ? projectObj : { projectId: 'external', companyName: _l('外部协作') };
     const isExternal = currentProject.projectId === 'external';
+    let sortModuleTypes = sortItems.map(item => item.moduleType);
+    sortModuleTypes = _.isEmpty(sortModuleTypes) ? [0, 1, 2, 3] : sortModuleTypes;
 
     if (isHomeLoading) {
       return <AppGroupSkeleton />;
@@ -491,17 +549,31 @@ class AppHome extends React.Component {
         <Process todoDisplay={todoDisplay} projectId={currentProject.projectId} />
         <div className="spaceBottom"></div>
 
-        {/* 应用收藏 */}
-        {displayMark && !isExternal ? this.renderCollectAppList() : ''}
-
-        {/* 最近使用 */}
-        {displayCommonApp && !isExternal ? this.renderRecent() : ''}
-
-        {/* 记录收藏 */}
-        {rowCollect && !isExternal ? this.renderCollectRecords() : ''}
+        <Fragment>
+          {sortModuleTypes.map(moduleType => {
+            switch (moduleType) {
+              case MODULE_TYPES.APP_COLLECTION:
+                // 应用收藏
+                return displayMark && !isExternal ? this.renderCollectAppList() : '';
+              case MODULE_TYPES.RECENT:
+                // 最近使用
+                return displayCommonApp && !isExternal ? this.renderRecent() : '';
+              case MODULE_TYPES.ROW_COLLECTION:
+                // 记录收藏
+                return rowCollect && !isExternal ? this.renderCollectRecords() : '';
+              case MODULE_TYPES.CHART_COLLECTION:
+                // 图表收藏
+                return this.renderCollectCharts(currentProject.projectId, reportAutoRefreshTimer);
+              default:
+                return null;
+            }
+          })}
+        </Fragment>
 
         {/* 应用 */}
-        <ApplicationList myAppData={myPlatformData} projectId={currentProject.projectId} />
+        {(displayApp || isExternal) && (
+          <ApplicationList myAppData={myPlatformData} projectId={currentProject.projectId} />
+        )}
       </div>
     );
   };
@@ -531,18 +603,27 @@ class AppHome extends React.Component {
 
 export default connect(
   state => {
-    const { isHomeLoading, collectRecords, platformSetting, myPlatformData } = state.mobile;
+    const { isHomeLoading, collectRecords, platformSetting, myPlatformData, collectCharts } = state.mobile;
     return {
       isHomeLoading,
       collectRecords,
       platformSetting,
       myPlatformData,
+      collectCharts,
     };
   },
   dispatch =>
     bindActionCreators(
       {
-        ..._.pick(actions, ['markedGroup', 'getAllFavorites', 'getHomePlatformSetting', 'myPlatform', 'getMyApp']),
+        ..._.pick(actions, [
+          'markedGroup',
+          'getAllFavorites',
+          'getHomePlatformSetting',
+          'myPlatform',
+          'getMyApp',
+          'getAllCollectCharts',
+          'clearAllCollectCharts',
+        ]),
       },
       dispatch,
     ),

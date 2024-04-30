@@ -14,7 +14,7 @@ export default {
   **/
    getWorkSites: function (args, options = {}) {
      
-     return $.api('WorkSite', 'GetWorkSites', args, options);
+     return mdyAPI('WorkSite', 'GetWorkSites', args, options);
    },
   /**
   * 添加工作地点
@@ -27,7 +27,7 @@ export default {
   **/
    addWorkSite: function (args, options = {}) {
      
-     return $.api('WorkSite', 'AddWorkSite', args, options);
+     return mdyAPI('WorkSite', 'AddWorkSite', args, options);
    },
   /**
   * 修改工作地点名称
@@ -41,7 +41,7 @@ export default {
   **/
    updateWorkSiteName: function (args, options = {}) {
      
-     return $.api('WorkSite', 'UpdateWorkSiteName', args, options);
+     return mdyAPI('WorkSite', 'UpdateWorkSiteName', args, options);
    },
   /**
   * 工作地点合并
@@ -55,7 +55,7 @@ export default {
   **/
    mergeWorkSites: function (args, options = {}) {
      
-     return $.api('WorkSite', 'MergeWorkSites', args, options);
+     return mdyAPI('WorkSite', 'MergeWorkSites', args, options);
    },
   /**
   * 删除工作地点
@@ -68,7 +68,7 @@ export default {
   **/
    deleteWorkSites: function (args, options = {}) {
      
-     return $.api('WorkSite', 'DeleteWorkSites', args, options);
+     return mdyAPI('WorkSite', 'DeleteWorkSites', args, options);
    },
   /**
   * 获取用户列表
@@ -84,7 +84,7 @@ export default {
   **/
    getWorkSiteUsers: function (args, options = {}) {
      
-     return $.api('WorkSite', 'GetWorkSiteUsers', args, options);
+     return mdyAPI('WorkSite', 'GetWorkSiteUsers', args, options);
    },
   /**
   * 添加用户
@@ -98,7 +98,7 @@ export default {
   **/
    addWorkSiteUser: function (args, options = {}) {
      
-     return $.api('WorkSite', 'AddWorkSiteUser', args, options);
+     return mdyAPI('WorkSite', 'AddWorkSiteUser', args, options);
    },
   /**
   * 删除用户
@@ -111,6 +111,6 @@ export default {
   **/
    deleteWorkSiteUser: function (args, options = {}) {
      
-     return $.api('WorkSite', 'DeleteWorkSiteUser', args, options);
+     return mdyAPI('WorkSite', 'DeleteWorkSiteUser', args, options);
    },
 };

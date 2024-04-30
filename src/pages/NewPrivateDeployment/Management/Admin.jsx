@@ -1,11 +1,10 @@
 import React, { Fragment, useState, useEffect } from 'react';
-import { Icon, Dialog } from 'ming-ui';
+import { Icon, Dialog, UserHead } from 'ming-ui';
 import { Button, Table, Input } from 'antd';
 import styled from 'styled-components';
 import privatePlatformAdminApi from 'src/api/privatePlatformAdmin';
-import UserHead from 'src/components/userHead';
 import { useClientRect } from '../common';
-import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
+import { dialogSelectUser } from 'ming-ui/functions';
 import _ from 'lodash';
 
 const Wrap = styled.div`

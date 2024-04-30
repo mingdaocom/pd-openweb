@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { useDrop } from 'react-dnd-latest';
 import styled from 'styled-components';
 import cx from 'classnames';
-import { DRAG_ITEMS, DRAG_MODE } from '../../config/Drag';
+import { DRAG_ACCEPT, DRAG_MODE } from '../../config/Drag';
 
 const DragPointer = styled.div`
   flex: 1;
@@ -23,7 +23,7 @@ const DragPointer = styled.div`
 export default function RightDragPointer({ rowIndex }) {
   const ref = useRef(null);
   const [{ isOver, canDrop }, drop] = useDrop({
-    accept: [DRAG_ITEMS.LIST_TAB, DRAG_ITEMS.DISPLAY_TAB],
+    accept: DRAG_ACCEPT.tab,
     drop() {
       return { mode: DRAG_MODE.INSERT_NEW_LINE, rowIndex };
     },

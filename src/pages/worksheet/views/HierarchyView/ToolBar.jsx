@@ -1,11 +1,9 @@
 import React, { Component } from 'react';
-import { string, number, func } from 'prop-types';
 import styled, { css } from 'styled-components';
 import cx from 'classnames';
 import { Icon, Tooltip } from 'ming-ui';
 import { Select } from 'antd';
 import { FlexCenter } from 'worksheet/styled';
-import { getItem, setItem } from './util';
 import { browserIsMobile } from 'src/util';
 import SearchRecord from 'src/pages/worksheet/views/components/SearchRecord';
 import 'src/pages/worksheet/views/GunterView/Chart/components/ToolBar/index.less';
@@ -18,7 +16,7 @@ const SCALE_LIMIT = {
 const ToolBarWrap = styled(FlexCenter)`
   position: absolute;
   bottom: 32px;
-  left: 24px;
+  right: 20px;
   background-color: #fff;
   border-radius: 26px;
   height: 44px;
@@ -32,6 +30,7 @@ const ToolBarWrap = styled(FlexCenter)`
       bottom: 20px;
       margin-left: 16px;
       padding: 0 22px 0 10px;
+      right: auto;
     `};
   .adjustScale {
     display: flex;
@@ -69,7 +68,10 @@ const ToolBarWrap = styled(FlexCenter)`
 `;
 
 const SelectWrap = styled(Select)`
-  width: 96px;
+  width: 85px;
+  .ant-select-selector {
+    padding-left: 0 !important;
+  }
   .ant-select-selection-item {
     text-align: center;
   }
@@ -96,8 +98,8 @@ const DISPLAY_HIERARCHY = [
 export default class ToolBar extends Component {
   updateStorage = data => {
     const { viewId } = this.props.currentView;
-    const config = getItem(`hierarchyConfig-${viewId}`) || {};
-    setItem(`hierarchyConfig-${viewId}`, { ...config, ...data });
+    const config = safeParse(localStorage.getItem(`hierarchyConfig-${viewId}`));
+    safeLocalStorageSetItem(`hierarchyConfig-${viewId}`, JSON.stringify({ ...config, ...data }));
   };
 
   changeDisplayLevel = value => {
@@ -115,15 +117,6 @@ export default class ToolBar extends Component {
     const { scale, level, onClick, searchData, updateSearchRecord, view } = this.props;
     return (
       <ToolBarWrap browserIsMobile={browserIsMobile()} className="flexRow valignWrappe">
-        {!browserIsMobile() && (
-          <Tooltip text={<span>{_l('导出为图片')}</span>}>
-            <Icon
-              icon="download"
-              className="Gray_75 Font18 mRight14 pointer"
-              onClick={() => onClick('genScreenshot')}
-            />
-          </Tooltip>
-        )}
         <SelectWrap
           suffixIcon={<Icon className="Font12 Gray_9e" icon="arrow-down" />}
           defaultActiveFirstOption={false}
@@ -179,6 +172,11 @@ export default class ToolBar extends Component {
             </SearchRecord>
           )}
         </div>
+        {!browserIsMobile() && (
+          <Tooltip text={<span>{_l('导出为图片')}</span>}>
+            <Icon icon="download" className="Gray_75 Font18 pointer mLeft24" onClick={() => onClick('genScreenshot')} />
+          </Tooltip>
+        )}
       </ToolBarWrap>
     );
   }

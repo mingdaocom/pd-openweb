@@ -28,7 +28,7 @@ const authList = [{
 
 @connect(
   state => ({
-    ..._.pick(state.statistics, ['currentReport', 'axisControls', 'worksheetInfo'])
+    ..._.pick(state.statistics, ['currentReport', 'axisControls', 'worksheetInfo', 'base'])
   }),
   dispatch => bindActionCreators(actions, dispatch),
 )
@@ -127,9 +127,10 @@ export default class DataSource extends Component {
     }
   }
   renderSheet() {
-    const { worksheetInfo, currentReport, sourceType, axisControls, appId, projectId, ownerId } = this.props;
+    const { worksheetInfo, currentReport, base, sourceType, axisControls, appId, projectId, ownerId } = this.props;
     const { filter = {} } = currentReport;
     const view = _.find(worksheetInfo.views, { viewId: filter.viewId });
+    const { appType } = base;
     const { sheetModalVisible } = this.state;
     return (
       <Fragment>
@@ -141,23 +142,29 @@ export default class DataSource extends Component {
             }}
           >
             <span className="flex Font13 Bold">
-              {worksheetInfo.name} {view ? `(${view.name})` : filter.viewId ? <span className="removeViewId">({_l('视图已被删除')})</span> : `(${_l('所有记录')})`}
+              {worksheetInfo.name}
+              {appType === 1 && (
+                view ? `(${view.name})` : filter.viewId ? <span className="removeViewId">({_l('视图已被删除')})</span> : `(${_l('所有记录')})`
+              )}
+              {appType === 2 && (
+                `(${_l('聚合表')})`
+              )}
             </span>
             <Icon className="Gray_9e Font18" icon="swap_horiz" />
           </div>
         </div>
         <SheetModal
+          appType={appType}
           sourceType={sourceType}
           dialogVisible={sheetModalVisible}
           ownerId={ownerId}
           appId={appId}
           projectId={projectId}
-          viewId={filter.viewId}
+          viewId={filter.viewId || null}
           worksheetInfo={worksheetInfo}
-          onChange={(worksheetId, viewId) => {
-            if (worksheetId) {
-              this.props.onChangeSheetId(worksheetId);
-            } else {
+          onChange={(worksheetId, viewId, appType) => {
+            this.props.changeBase({ appType });
+            if (worksheetId === worksheetInfo.worksheetId) {
               this.props.changeCurrentReport(
                 {
                   filter: {
@@ -167,6 +174,8 @@ export default class DataSource extends Component {
                 },
                 true,
               );
+            } else {
+              this.props.onChangeSheetId(worksheetId);
             }
             this.setState({ sheetModalVisible: false });
           }}

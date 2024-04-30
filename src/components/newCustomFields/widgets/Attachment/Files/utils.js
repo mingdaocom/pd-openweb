@@ -95,7 +95,7 @@ export const handleSaveKcCloud = (data, isDownload) => {
           .save(result)
           .then(function () {
             alert(_l('保存成功'));
-          }).fail(function () {
+          }).catch(function () {
             alert(_l('保存失败'), 2);
           });
       });

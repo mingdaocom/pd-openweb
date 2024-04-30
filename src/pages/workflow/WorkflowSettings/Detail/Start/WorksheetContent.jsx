@@ -1,7 +1,8 @@
 import React, { Fragment } from 'react';
-import { TRIGGER_ID } from '../../enum';
+import { APP_TYPE, TRIGGER_ID } from '../../enum';
 import { TriggerCondition, SelectFields } from '../components';
 import { Dropdown, Radio } from 'ming-ui';
+import cx from 'classnames';
 
 export default ({
   data,
@@ -14,6 +15,7 @@ export default ({
   triggerConditionHeader,
   relationId,
 }) => {
+  const isSheet = data.appType === APP_TYPE.SHEET;
   const appList = data.appList.map(item => {
     return {
       text: item.name,
@@ -21,7 +23,6 @@ export default ({
       className: item.id === data.appId ? 'ThemeColor3' : '',
     };
   });
-
   const TYPES = [
     { text: _l('当新增或更新记录时'), value: TRIGGER_ID.EDIT, selectFields: true },
     { text: _l('仅新增记录时'), value: TRIGGER_ID.ADD, desc: _l('当新增记录时触发流程') },
@@ -31,16 +32,17 @@ export default ({
 
   return (
     <Fragment>
-      <div className="flowDetailStartHeader flexColumn BGYellow">
+      <div className={cx('flowDetailStartHeader flexColumn', isSheet ? 'BGYellow' : 'BGBlueAsh')}>
         <div className="flowDetailStartIcon flexRow">
-          <i className="icon-table Font40 yellow" />
+          <i className={cx('Font40', isSheet ? 'icon-table yellow' : 'icon-sending gray')} />
         </div>
-        <div className="Font16 mTop10">{_l('工作表')}</div>
+        <div className="Font16 mTop10">{isSheet ? _l('工作表') : _l('事件推送')}</div>
       </div>
       <div className="workflowDetailBox mTop20">
         <div className="Font13 bold">{_l('选择工作表')}</div>
         <Dropdown
           className="flowDropdown flowDropdownBorder mTop10"
+          disabled={data.appId && !isSheet}
           data={appList}
           value={data.appId || undefined}
           border
@@ -50,9 +52,9 @@ export default ({
           onChange={switchWorksheet}
         />
 
-        <div className="Font13 bold mTop20">{_l('触发方式')}</div>
+        <div className="Font13 bold mTop20">{isSheet ? _l('触发方式') : _l('订阅事件类型')}</div>
 
-        {TYPES.map(item => (
+        {TYPES.filter(o => o.value !== TRIGGER_ID.EDIT || isSheet).map(item => (
           <div className="mTop15" key={item.value}>
             <Radio
               text={item.text}

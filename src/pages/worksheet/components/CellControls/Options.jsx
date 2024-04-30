@@ -250,7 +250,7 @@ export default class Options extends React.Component {
     if (!isMultiple && noUpdateCell) {
       return;
     }
-    if (error && !this.isSubList) {
+    if (error) {
       return;
     }
     if (isMultiple && this.isSubList) {
@@ -416,7 +416,7 @@ export default class Options extends React.Component {
                 defaultOpen: true,
                 getPopupContainer,
                 onDropdownVisibleChange: visible => {
-                  if (!error && !visible && !this.isChanging) {
+                  if ((!error || this.isSubList) && !visible && !this.isChanging) {
                     this.handleExit();
                   }
                   this.isChanging = false;

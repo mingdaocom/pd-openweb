@@ -1,11 +1,11 @@
-import React, { useEffect, useState, Fragment } from 'react';
+import React, { useEffect, useState, Fragment, useCallback, useRef } from 'react';
+import { useSetState } from 'react-use';
 import styled from 'styled-components';
 import { Select, Input } from 'antd';
-import { Dialog, Icon, Checkbox, LoadDiv, ScrollView, Button, Tooltip } from 'ming-ui';
+import { Dialog, Icon, Checkbox, LoadDiv, ScrollView, Button, Tooltip, SvgIcon } from 'ming-ui';
 import _ from 'lodash';
 import Search from 'src/pages/workflow/components/Search';
 import appManagement from 'src/api/appManagement';
-import SvgIcon from 'src/components/SvgIcon';
 import resourceApi from 'src/pages/workflow/api/resource';
 import processVersion from 'src/pages/workflow/api/processVersion';
 import { START_APP_TYPE } from 'src/pages/workflow/WorkflowList/utils';
@@ -218,7 +218,6 @@ function AddWorkflowDialog(props) {
 
   const [value, setValue] = useState([]);
   const [searchApp, setSearchApp] = useState('');
-  const [appList, setAppList] = useState([]);
   const [appId, setAppId] = useState(undefined);
   const [workflowList, setWorkflowList] = useState([]);
   const [filters, setFilters] = useState({
@@ -233,6 +232,14 @@ function AddWorkflowDialog(props) {
     checked: [],
   });
 
+  const [{ appList, appLoading, appIndex }, setApp] = useSetState({
+    appList: [],
+    appLoading: false,
+    appIndex: 1,
+  });
+
+  const searchRef = useRef();
+
   useEffect(() => {
     visible && getAppList();
   }, [visible]);
@@ -245,18 +252,25 @@ function AddWorkflowDialog(props) {
     if (checkedDialog.list.length === 0) return;
   }, [checkedDialog.list]);
 
-  const getAppList = () => {
+  const getAppList = (pageIndex, keywords) => {
+    setApp({ appLoading: true });
+    const _pageIndex = pageIndex || appIndex;
+    const searchText = keywords !== undefined ? keywords : searchApp;
     appManagement
       .getAppsForProject({
         projectId,
         status: '',
         order: 3,
-        pageIndex: 1,
-        pageSize: 100000,
-        keyword: searchApp,
+        pageIndex: _pageIndex,
+        pageSize: 100,
+        keyword: searchText,
       })
       .then(({ apps }) => {
-        setAppList(apps);
+        setApp({
+          appList: apps,
+          appLoading: false,
+          appIndex: _pageIndex + 1,
+        });
       });
   };
 
@@ -450,6 +464,12 @@ function AddWorkflowDialog(props) {
     );
   };
 
+  const onSearch = _.debounce(() => {
+    const keywords = searchRef.current.input.value || '';
+    setSearchApp(keywords);
+    getAppList(1, keywords);
+  }, 500);
+
   return (
     <Fragment>
       <Dialog
@@ -486,7 +506,8 @@ function AddWorkflowDialog(props) {
             className="selectItem mTop16 mBottom32"
             size="large"
             placeholder={_l('选择应用')}
-            notFoundContent={<span className="Gray_9e">{_l('无搜索结果')}</span>}
+            notFoundContent={appLoading ? null : <span className="Gray_9e">{_l('无搜索结果')}</span>}
+            loading={appLoading}
             onChange={value => {
               setAppId(value);
             }}
@@ -503,12 +524,21 @@ function AddWorkflowDialog(props) {
                     size="large"
                     prefix={<Icon icon="search" className="Gray_bd" />}
                     placeholder={_l('搜索应用名称')}
-                    onChange={e => setSearchApp(e.target.value)}
+                    ref={searchRef}
+                    onChange={onSearch}
                   />
                 </DropDownInputWrap>
                 {menu}
+                {appLoading && <LoadDiv />}
               </Fragment>
             )}
+            onPopupScroll={e => {
+              const { scrollTop, offsetHeight, scrollHeight } = e.target;
+
+              if (scrollTop + offsetHeight === scrollHeight) {
+                getAppList();
+              }
+            }}
           >
             {appList
               .filter(l => l.appName.toLowerCase().indexOf(searchApp ? searchApp.toLowerCase() : '') > -1)

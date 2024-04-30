@@ -350,6 +350,7 @@ function ViewControl(props) {
             '.deleteHoverTips',
             '.CodeMirror-hints',
             '.Tooltip-wrapper',
+            '.selectRoleDialog',
           ]}
           onClickAway={() => setViewConfigVisible(false)}
           columns={controls.filter(item => {
@@ -426,6 +427,7 @@ function ViewControl(props) {
             '.ck',
             '.ant-picker-dropdown',
             '.Tooltip',
+            '.selectRoleDialog',
           ]}
           onClickAway={() => setCreateCustomBtnVisible(false)}
           sheetSwitchPermit={sheetSwitchPermit}

@@ -126,7 +126,7 @@ export default class ProjectContacts extends React.Component {
   }
 
   abortRequest() {
-    if (this.promise && this.promise.state() === 'pending' && this.promise.abort) {
+    if (this.promise && this.promise.abort) {
       this.promise.abort();
     }
   }

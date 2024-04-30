@@ -8,7 +8,7 @@ export default {
   **/
    getAccountSettings: function (args, options = {}) {
      
-     return $.api('AccountSetting', 'GetAccountSettings', args, options);
+     return mdyAPI('AccountSetting', 'GetAccountSettings', args, options);
    },
   /**
   * 更新个人系统设置
@@ -21,7 +21,19 @@ export default {
   **/
    editAccountSetting: function (args, options = {}) {
      
-     return $.api('AccountSetting', 'EditAccountSetting', args, options);
+     return mdyAPI('AccountSetting', 'EditAccountSetting', args, options);
+   },
+  /**
+  * 自动修改账号语言设置
+  * @param {Object} args 请求参数
+  * @param {} args.langType
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   autoEditAccountLangSetting: function (args, options = {}) {
+     
+     return mdyAPI('AccountSetting', 'AutoEditAccountLangSetting', args, options);
    },
   /**
   * 获取签名
@@ -32,7 +44,7 @@ export default {
   **/
    getSign: function (args, options = {}) {
      
-     return $.api('AccountSetting', 'GetSign', args, options);
+     return mdyAPI('AccountSetting', 'GetSign', args, options);
    },
   /**
   * 修改签名
@@ -44,6 +56,6 @@ export default {
   **/
    editSign: function (args, options = {}) {
      
-     return $.api('AccountSetting', 'EditSign', args, options);
+     return mdyAPI('AccountSetting', 'EditSign', args, options);
    },
 };

@@ -79,7 +79,7 @@ export default class NewFriendsList extends React.Component {
   }
 
   add(accountId) {
-    return editAgreeFriend(accountId).done((data) => {
+    return editAgreeFriend(accountId).then((data) => {
       if (data) {
         this.updateListData(accountId, true);
       } else {
@@ -89,7 +89,7 @@ export default class NewFriendsList extends React.Component {
   }
 
   refuse(accountId) {
-    return editRefuseFriend(accountId).done((data) => {
+    return editRefuseFriend(accountId).then((data) => {
       if (data) {
         this.updateListData(accountId, false);
       } else {

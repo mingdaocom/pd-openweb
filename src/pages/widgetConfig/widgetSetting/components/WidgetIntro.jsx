@@ -5,14 +5,19 @@ import { Dialog, Support, Icon } from 'ming-ui';
 import { DEFAULT_INTRO_LINK } from '../../config';
 import { WidgetIntroWrap, IntroMenu } from '../../styled';
 import { DEFAULT_CONFIG, DEFAULT_DATA, WIDGETS_TO_API_TYPE_ENUM } from '../../config/widget';
-import { enumWidgetType, getWidgetInfo, canSetAsTitle } from '../../util';
+import { enumWidgetType, getWidgetInfo, canSetAsTitle, supportWidgetIntroOptions } from '../../util';
 import { handleAdvancedSettingChange } from '../../util/setting';
 import { WHOLE_SIZE } from '../../config/Drag';
 import { Tooltip } from 'antd';
 import NoTitleControlDialog from './NoTitleControlDialog';
 import appManagementAjax from 'src/api/appManagement';
 import _ from 'lodash';
-import { isRelateRecordTableControl } from 'worksheet/util';
+
+const isLocalTest =
+  location.href.indexOf('localhost') > -1 ||
+  // location.href.indexOf('meihua') > -1 ||
+  location.href.indexOf('sandbox') > -1 ||
+  location.href.indexOf('web.dev') > -1;
 
 const DISPLAY_OPTIONS = [
   {
@@ -24,6 +29,11 @@ const DISPLAY_OPTIONS = [
     text: _l('样式'),
     icon: 'color_lens',
     value: 2,
+  },
+  {
+    text: _l('事件'),
+    icon: 'score-flash',
+    value: 4,
   },
   {
     text: _l('说明'),
@@ -135,11 +145,11 @@ export default function WidgetIntro(props) {
     if (_.isEmpty(newData)) return;
 
     if (_.get(advancedSetting, 'required') === '1' && data.required) {
-      newData = handleAdvancedSettingChange(data, { required: '1' });
+      newData = handleAdvancedSettingChange(newData, { required: '1' });
     }
 
     // 清空默认值
-    newData = handleAdvancedSettingChange(data, { dynamicsrc: '', defsource: '', defaultfunc: '', defaulttype: '' });
+    newData = handleAdvancedSettingChange(newData, { dynamicsrc: '', defsource: '', defaultfunc: '', defaulttype: '' });
 
     newData = _.omit(newData, ['controlName']);
     newData.type = WIDGETS_TO_API_TYPE_ENUM[info.type];
@@ -329,13 +339,9 @@ export default function WidgetIntro(props) {
       </div>
 
       <div className="introOptions">
-        {DISPLAY_OPTIONS.map(item => {
-          // 分段、他表、标签页、多条列表没有样式设置
-          if ((_.includes([22, 30, 52], type) || isRelateRecordTableControl(data)) && item.value === 2) return null;
-          // 空白子表里面字段不支持说明
-          if (from === 'subList' && item.value === 3) return null;
-          // 回收站不显示样式、说明
-          if (isRecycle && _.includes([2, 3], item.value)) return null;
+        {DISPLAY_OPTIONS.filter(i => isLocalTest || i.value !== 4).map(item => {
+          if (!supportWidgetIntroOptions(data, item.value, from, isRecycle)) return null;
+
           return (
             <div
               className={cx('optionIcon', { active: mode === item.value })}

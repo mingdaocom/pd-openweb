@@ -7,13 +7,15 @@ import { browserIsMobile } from 'src/util';
 import _ from 'lodash';
 import WidgetsDesc from './WidgetsDesc';
 import styled from 'styled-components';
+import { RELATE_RECORD_SHOW_TYPE, RELATION_SEARCH_SHOW_TYPE } from 'worksheet/constants/enum';
 import { TITLE_SIZE_OPTIONS } from 'src/pages/widgetConfig/config/setting';
 import { getTitleStyle } from 'src/pages/widgetConfig/util/setting';
+import { isSheetDisplay } from '../../../pages/widgetConfig/util';
 
 const ControlLabel = styled.div`
-  ${({ displayRow, disabled, isMobile, titlewidth_app = '100', titlewidth_pc = '100' }) => {
+  ${({ displayRow, isMobile, titlewidth_app = '100', titlewidth_pc = '100' }) => {
     if (displayRow) {
-      if (isMobile && disabled) {
+      if (isMobile) {
         return `width: ${titlewidth_app}px !important;`;
       }
       return !isMobile ? `width:${titlewidth_pc}px !important;` : '';
@@ -35,9 +37,9 @@ const ControlLabel = styled.div`
   ${({ item, isMobile }) =>
     item.type === 34 ? (isMobile ? 'margin-bottom: 6px;' : 'maxWidth: calc(100% - 140px);') : ''}
   .controlLabelName {
-    ${({ displayRow, isMobile, disabled, align_app = '1', align_pc = '1' }) => {
+    ${({ displayRow, isMobile, align_app = '1', align_pc = '1' }) => {
       if (displayRow) {
-        if (isMobile && disabled) {
+        if (isMobile) {
           return align_app === '1' ? 'text-align: left;' : 'text-align: right;flex: 1;';
         }
         return !isMobile && align_pc === '1' ? 'text-align: left;' : 'text-align: right;flex: 1;';
@@ -53,6 +55,14 @@ const ControlLabel = styled.div`
       const valueHeight = valuesize !== '0' ? (parseInt(valuesize) - 1) * 2 + 40 : 36;
       return `${valueHeight - 12}px !important`;
     }};
+  }
+  &.isRelateRecordTable,
+  &.isRelationSearchTable {
+    .controlLabelName {
+      margin: 14px 0 0;
+      font-size: 15px;
+      color: #333;
+    }
   }
 `;
 
@@ -91,6 +101,10 @@ export default ({
   const currentErrorItem = _.find(errorItems.concat(uniqueErrorItems), obj => obj.controlId === item.controlId) || {};
   const errorText = currentErrorItem.errorText || '';
   const isEditable = controlState(item, from).editable;
+  const isRelateRecordTable =
+    item.type === 29 && _.get(item, 'advancedSetting.showtype') === String(RELATE_RECORD_SHOW_TYPE.TABLE);
+  const isRelationSearchTable =
+    item.type === 51 && _.get(item, 'advancedSetting.showtype') === String(RELATION_SEARCH_SHOW_TYPE.EMBED_LIST);
   let errorMessage = '';
   const isMobile = browserIsMobile();
 
@@ -167,7 +181,10 @@ export default ({
         </div>
       )}
       <ControlLabel
-        className="customFormItemLabel"
+        className={cx('customFormItemLabel', {
+          isRelateRecordTable,
+          isRelationSearchTable,
+        })}
         disabled={disabled}
         item={item}
         showTitle={showTitle}
@@ -186,6 +203,7 @@ export default ({
         ) : (
           item.required &&
           !item.disabled &&
+          !isSheetDisplay(item) &&
           isEditable && (
             <div className="requiredBtnBox">
               <div className="requiredBtn">*</div>

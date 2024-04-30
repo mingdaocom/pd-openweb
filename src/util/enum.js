@@ -23,7 +23,7 @@ export const APPLICATION_ICON = {
   workflow: 'chat_workflow',
 };
 
-//  版本功能类型
+// 版本功能类型
 export const VersionProductType = {
   appBackupRestore: 1, // 应用备份与还原
   appImportExport: 2, // 应用导入导出
@@ -59,33 +59,44 @@ export const VersionProductType = {
   globalBehaviorLog: 32, // 全局行为日志
   globalVariable: 33, // 全局变量
   waterMark: 34, // 附件水印
+  dataBase: 36, //数据库
+  assistant: 37, //AI助手
+  aggregation: 38, //聚合表
 };
 
 export const VersionProductHelpLink = {
-  1: 'https://help.mingdao.com/backup',
-  2: 'https://help.mingdao.com/apply3',
-  3: 'https://help.mingdao.com/integration',
-  4: 'https://help.mingdao.com/flow60',
-  5: 'https://help.mingdao.com/sheet47',
-  6: 'https://help.mingdao.com/zuzhisecurity',
-  8: 'https://help.mingdao.com/flow34',
-  10: 'https://help.mingdao.com/dingding',
-  11: 'https://help.mingdao.com/external',
-  12: 'https://help.mingdao.com/feishu',
-  13: 'https://help.mingdao.com/flow30',
-  14: 'https://help.mingdao.com/flow32',
-  16: 'https://help.mingdao.com/recycle',
-  17: 'https://help.mingdao.com/apply16',
-  19: 'https://help.mingdao.com/wecom',
-  20: 'https://help.mingdao.com/operation17',
-  21: 'https://help.mingdao.com/api1',
-  22: 'https://help.mingdao.com/apiproxy',
-  23: 'https://help.mingdao.com/flow_pbp',
-  25: 'https://help.mingdao.com/sse.html',
-  26: 'https://help.mingdao.com/integration2',
-  27: 'https://help.mingdao.com/user4',
-  29: 'https://help.mingdao.com/sheet29',
-  30: 'https://help.mingdao.com/apply18',
-  31: 'https://help.mingdao.com/apply11',
+  1: 'https://help.mingdao.com/application/backup-restore',
+  2: 'https://help.mingdao.com/application/import-export',
+  3: 'https://help.mingdao.com/integration/api',
+  4: 'https://help.mingdao.com/workflow/node-call-integrated-api',
+  5: 'https://help.mingdao.com/worksheet/control-api-query',
+  6: 'https://help.mingdao.com/org/security',
+  8: 'https://help.mingdao.com/workflow/node-code-block',
+  10: 'https://help.mingdao.com/dingtalk/integration-guide',
+  11: 'https://help.mingdao.com/portal/introduction',
+  12: 'https://help.mingdao.com/feishu/integration-guide',
+  13: 'https://help.mingdao.com/workflow/node-print-record',
+  14: 'https://help.mingdao.com/workflow/node-interface-push',
+  16: 'https://help.mingdao.com/application/recycle',
+  17: 'https://help.mingdao.com/application/usage-analysis',
+  19: 'https://help.mingdao.com/wecom/integration-note',
+  20: 'https://help.mingdao.com/worksheet/word-print-template',
+  21: 'https://help.mingdao.com/api/introduction',
+  22: 'https://help.mingdao.com/org/security#apiproxy',
+  23: 'https://help.mingdao.com/workflow/pbp',
+  25: 'https://help.mingdao.com/faq/sse',
+  26: 'https://help.mingdao.com/integration/data-integration',
+  27: 'https://help.mingdao.com/role/extended-info',
+  29: 'https://help.mingdao.com/worksheet/data-encryption',
+  30: 'https://help.mingdao.com/application/exclusive-computing-power',
+  31: 'https://help.mingdao.com/application/log',
   33: '',
+};
+
+// 处理特殊多语言文本
+export const SPECIAL_LANG_TEXT = {
+  通过: _l('通过'),
+  否决: _l('否决'),
+  退回: _l('退回'),
+  提交: _l('提交'),
 };

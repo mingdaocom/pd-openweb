@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import sheetAjax from 'src/api/worksheet';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import SortList from './components/SortList';
-import quickSelectUser from 'ming-ui/functions/quickSelectUser';
+import { quickSelectUser } from 'ming-ui/functions';
 import cx from 'classnames';
 import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { isSameType } from 'src/pages/worksheet/common/ViewConfig/util.js';

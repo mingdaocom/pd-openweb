@@ -1,9 +1,8 @@
 import React, { Fragment, useEffect, useState, useRef } from 'react';
-import { Icon, LoadDiv, Dialog, ScrollView } from 'ming-ui';
+import { Icon, LoadDiv, Dialog, ScrollView, UserHead } from 'ming-ui';
 import { Modal } from 'antd-mobile';
 import { Drawer } from 'antd';
 import cx from 'classnames';
-import UserHead from 'src/components/userHead/userHead';
 import instance from 'src/pages/workflow/api/instance';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
 import StepHeader from '../ExecDialog/StepHeader';
@@ -15,7 +14,7 @@ import MobileOtherAction from 'mobile/ProcessRecord/OtherAction';
 import { ACTION_TO_METHOD } from 'src/pages/workflow/components/ExecDialog/config';
 import { covertTime, INSTANCELOG_STATUS } from 'src/pages/workflow/MyProcess/config';
 import WorkflowAction from './Action';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile, dateConvertToUserZone } from 'src/util';
 import _ from 'lodash';
 import moment from 'moment';
 import './index.less';
@@ -209,17 +208,17 @@ function WorkflowCard(props) {
             {isBranch && renderState(data)}
           </div>
         )}
-        <CurrentWorkItems data={data} formWidth={formWidth} appId={appId} projectId={projectId}/>
+        <CurrentWorkItems data={data} formWidth={formWidth} appId={appId} projectId={projectId} />
         {receiveTime && (
           <div className="flexRow valignWrapper mBottom12">
             <div className="Font13 Gray_9e label">{_l('处理开始')}</div>
-            <div>{receiveTime}</div>
+            <div>{dateConvertToUserZone(receiveTime)}</div>
           </div>
         )}
         {completeDate && (
           <div className="flexRow valignWrapper mBottom12">
             <div className="Font13 Gray_9e label">{_l('完成时间')}</div>
-            <div>{completeDate}</div>
+            <div>{dateConvertToUserZone(completeDate)}</div>
           </div>
         )}
         {completed && renderTimeConsuming(data)}
@@ -244,7 +243,7 @@ function WorkflowCard(props) {
               {_l(
                 '%0 于 %1 发起',
                 createAccount.accountId === md.global.Account.accountId ? _l('我') : createAccount.fullName,
-                createTimeSpan(createDate),
+                createTimeSpan(dateConvertToUserZone(createDate)),
               )}
             </div>
           </div>
@@ -368,7 +367,7 @@ export default function SheetWorkflow(props) {
         opinion: content,
         backNodeId,
         signature,
-        files
+        files,
       }).then(() => {
         setActionVisible(false);
         handleCloseDrawer();

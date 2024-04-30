@@ -16,7 +16,16 @@ const Con = styled.div`
 
 const MAX_COUNT = 20;
 export default function RelateRecordOptions(props) {
-  const { selected, formData = [], prefixRecords = [], staticRecords, control, multiple, onChange } = props;
+  const {
+    selected,
+    parentWorksheetId,
+    formData = [],
+    prefixRecords = [],
+    staticRecords,
+    control,
+    multiple,
+    onChange,
+  } = props;
   const [records, setRecords] = useState(staticRecords || []);
   const [loading, setLoading] = useState(true);
   async function load() {
@@ -39,6 +48,10 @@ export default function RelateRecordOptions(props) {
       isGetWorksheet: true,
       getType: 7,
     };
+    if (parentWorksheetId && control && _.get(parentWorksheetId, 'length') === 24) {
+      args.relationWorksheetId = parentWorksheetId;
+      args.controlId = control.controlId;
+    }
     const res = await worksheetAjax.getFilterRows(args);
     setLoading(false);
     setRecords(res.data);

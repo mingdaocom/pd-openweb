@@ -48,7 +48,7 @@ export default class OtherInput extends Component {
 
         // 谷歌浏览器：compositionstart onChange compositionend
         // 火狐浏览器：compositionstart compositionend onChange
-        if (navigator.userAgent.indexOf('Chrome') > -1) {
+        if (window.isChrome) {
           this.handleChange(checkIds, event.target.value.trim());
         }
       },

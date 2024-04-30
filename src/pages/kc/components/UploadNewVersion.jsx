@@ -33,11 +33,10 @@ class UploadNewVersion extends React.Component {
         }
       },
       before_upload_check: (up, files) =>
-        service.getUsage().then((usage) => {
+        service.getUsage().then(usage => {
           if (usage.used + files.reduce((total, file) => total + (file.size || 0), 0) > usage.total) {
-            return $.Deferred().reject(_l('选择的文件超过本月上传流量上限'));
+            return Promise.reject(_l('选择的文件超过本月上传流量上限'));
           }
-          return $.Deferred().resolve();
         }),
       init: {
         FilesAdded(up, files) {
@@ -63,7 +62,7 @@ class UploadNewVersion extends React.Component {
         },
         Error(up, err, errTip) {},
         UploadProgress(up, file) {
-          _this.dialog.setProcess(file.loaded / file.size * 100);
+          _this.dialog.setProcess((file.loaded / file.size) * 100);
         },
         FileUploaded(up, file, info) {
           _this.dialog.uploaded(info.response);
@@ -76,7 +75,7 @@ class UploadNewVersion extends React.Component {
     return (
       <span
         className="newVersionFile"
-        ref={(con) => {
+        ref={con => {
           this.con = con;
         }}
       />

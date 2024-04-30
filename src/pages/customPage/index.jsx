@@ -91,7 +91,7 @@ export default class CustomPage extends Component {
         this.$originAdjustScreen = adjustScreen;
         this.$originConfig = config;
       })
-      .always(() => updateLoading(false));
+      .finally(() => updateLoading(false));
   };
 
   handleBack = () => {
@@ -488,7 +488,7 @@ export default class CustomPage extends Component {
         adjustScreen,
         config
       })
-      .then(({ appId: pageId, version, components }) => {
+      .then(({ appId: pageId, version, components, apk }) => {
         if (_.isNumber(version)) {
           this.removeWorksheetBtn();
           this.removeFilterId();
@@ -501,17 +501,18 @@ export default class CustomPage extends Component {
             pageId,
             version,
             modified: false,
-            filterComponents: components.filter(item => item.value && item.type === enumWidgetType.filter)
+            filterComponents: components.filter(item => item.value && item.type === enumWidgetType.filter),
+            apk
           });
           alert(_l('保存成功'), 1);
         } else {
           alert(_l('保存失败'), 2);
         }
       })
-      .fail(() => {
+      .catch(() => {
         alert(_l('保存失败'), 2);
       })
-      .always(() => updateSaveLoading(false));
+      .finally(() => updateSaveLoading(false));
   }
 
   cancelModified = () => {

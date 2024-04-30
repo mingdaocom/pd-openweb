@@ -13,7 +13,7 @@ import { LoadDiv } from 'ming-ui';
 import { browserIsMobile } from 'src/util';
 import worksheetAjax from 'src/api/worksheet';
 import { isAllowQuickSwitch, isDisabledCreate, isTextTitle, getSearchData } from '../util';
-import { hierarchyViewCanSelectFields, getItem, setItem } from '../HierarchyView/util';
+import { hierarchyViewCanSelectFields } from '../HierarchyView/util';
 import { ITEM_TYPE, SCROLL_CONFIG } from '../HierarchyView/config';
 import * as hierarchyActions from 'worksheet/redux/actions/hierarchy';
 import * as viewActions from 'worksheet/redux/actions/index';
@@ -23,7 +23,6 @@ import ToolBar from '../HierarchyView/ToolBar';
 import SelectField from '../components/SelectField';
 import ViewEmpty from '../components/ViewEmpty';
 import VertricalTreeNode from '../HierarchyVerticalView/components/VertricalTreeNode';
-import LeftBoundary from '../HierarchyView/components/LeftBoundary';
 import DragLayer from '../HierarchyView/components/DragLayer';
 import EmptyHierarchy from '../HierarchyView/EmptyHierarchy';
 import './index.less';
@@ -95,7 +94,7 @@ function HierarchyMix(props) {
     ...rest
   } = props;
   const IS_MOBILE = browserIsMobile();
-  const { scale: configScale, level: configLevel = '' } = getItem(`hierarchyConfig-${viewId}`) || {};
+  const { scale: configScale, level: configLevel = '' } = safeParse(localStorage.getItem(`hierarchyConfig-${viewId}`));
   const { loading, pageIndex } = hierarchyDataStatus;
   const [{ addRecordDefaultValue, level, scale, createRecordVisible, addRecordPath }, setState] = useSetState({
     scale: (!IS_MOBILE && configScale) || 100,
@@ -156,7 +155,7 @@ function HierarchyMix(props) {
 
   useEffect(() => {
     getDefaultHierarchyData();
-    const { level } = getItem(`hierarchyConfig-${viewId}`) || {};
+    const { level } = safeParse(localStorage.getItem(`hierarchyConfig-${viewId}`));
     level && setState({ level: level });
     // 多表关联把所有的关联控件获取到 以便后续展示
     const { viewType, childType } = view;

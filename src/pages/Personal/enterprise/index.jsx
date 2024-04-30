@@ -37,7 +37,7 @@ export default class AccountChart extends React.Component {
   getData() {
     if (getRequest().type === 'enterprise') {
       this.setState({ loading: true });
-      $.when(this.getList(), this.getUntreatAuthList()).then((project, auth) => {
+      Promise.all([this.getList(), this.getUntreatAuthList()]).then(([project, auth]) => {
         this.setState({
           list: project.list,
           count: project.allCount,
@@ -91,7 +91,7 @@ export default class AccountChart extends React.Component {
           alert(_l('操作失败'), 2);
         }
       })
-      .fail();
+      .catch();
   }
 
   existUserNotice(status) {
@@ -134,9 +134,11 @@ export default class AccountChart extends React.Component {
                 <span className="hover_blue">{_l('我的受邀信息')}</span>
                 <span className={cx('invitationNew', { Hidden: !authCount })}>{authCount}</span>
               </div>
-              <div className="Font14 Hand mLeft40 mRight30 itemCreat" onClick={() => this.handleCreate()}>
-                {_l('创建组织')}
-              </div>
+              {((md.global.Config.IsLocal && md.global.Account.superAdmin) || !md.global.Config.IsLocal) && (
+                <div className="Font14 Hand mLeft40 mRight30 itemCreat" onClick={() => this.handleCreate()}>
+                  {_l('创建组织')}
+                </div>
+              )}
               <button type="button" className="ming Button Button--primary itemJoin" onClick={() => this.handleAdd()}>
                 {_l('加入组织')}
               </button>

@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
 import { string } from 'prop-types';
-import { Icon, LoadDiv } from 'ming-ui';
+import { Icon, LoadDiv, SvgIcon } from 'ming-ui';
 import { VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum.js';
 import styled from 'styled-components';
 import pluginAjax from 'src/api/plugin';
 import bg from './img/customview.png';
-import SvgIcon from 'src/components/SvgIcon';
 
 const Wrap = styled.div`
   background-color: #fff;
@@ -189,8 +188,13 @@ export default class AddViewDisplayMenu extends Component {
     });
   };
   render() {
-    const { onClick, canAddCustomView, ...rest } = this.props;
+    const { onClick, canAddCustomView, projectId, ...rest } = this.props;
     const { myPlugins = [], orgPlugins = [], loading } = this.state;
+    const allowPlugin = _.get(
+      _.find(md.global.Account.projects, item => item.projectId === projectId),
+      'allowPlugin',
+    );
+
     return (
       <Wrap className="flexRow">
         <div className="typeMenuWrap" {...rest}>
@@ -212,20 +216,7 @@ export default class AddViewDisplayMenu extends Component {
         {canAddCustomView && (
           <div className="customView flex flexColumn">
             <div className="">
-              {[...orgPlugins, ...myPlugins].length <= 0 ? (
-                <React.Fragment>
-                  <span className="viewName Gray Font15 Bold">{_l('插件中心')}</span>
-                  <Icon
-                    icon={'launch'}
-                    className="mLeft8 Hand toCustomLib Font16"
-                    onClick={() => {
-                      window.open('/plugin');
-                    }}
-                  />
-                </React.Fragment>
-              ) : (
-                <span className="viewName Font15 Bold">{_l('插件视图')}</span>
-              )}
+              <span className="viewName Font15 Bold">{_l('插件视图')}</span>
             </div>
             {loading ? (
               <LoadDiv className="mTop80" />
@@ -247,34 +238,36 @@ export default class AddViewDisplayMenu extends Component {
                     )}
                   </div>
                 </div>
-                <div className="mTop24">
-                  <span
-                    className="addCustomView Hand"
-                    onClick={() =>
-                      onClick({
-                        id: 'customize',
-                        name: _l('自定义视图'),
-                        pluginName: _l('自定义视图'),
-                        pluginSource: 0,
-                        pluginIcon: 'sys_12_4_puzzle',
-                        pluginIconColor: '#445A65',
-                        isNew: true,
-                      })
-                    }
-                  >
-                    <Icon icon={'plus'} />
-                    <span className="viewName mLeft6">{_l('开发插件视图')}</span>
-                  </span>
-                  <span
-                    className="mLeft40 Hand addCustomView"
-                    onClick={() => {
-                      window.open('/plugin');
-                    }}
-                  >
-                    <span className="viewName">{_l('管理插件')}</span>
-                    <Icon icon={'launch'} className="mLeft6 Hand toCustomLib Font14" />
-                  </span>
-                </div>
+                {allowPlugin && (
+                  <div className="mTop24">
+                    <span
+                      className="addCustomView Hand"
+                      onClick={() =>
+                        onClick({
+                          id: 'customize',
+                          name: _l('自定义视图'),
+                          pluginName: _l('自定义视图'),
+                          pluginSource: 0,
+                          pluginIcon: 'sys_12_4_puzzle',
+                          pluginIconColor: '#445A65',
+                          isNew: true,
+                        })
+                      }
+                    >
+                      <Icon icon={'plus'} />
+                      <span className="viewName mLeft6">{_l('开发插件视图')}</span>
+                    </span>
+                    <span
+                      className="mLeft40 Hand addCustomView"
+                      onClick={() => {
+                        window.open('/plugin');
+                      }}
+                    >
+                      <span className="viewName">{_l('管理插件')}</span>
+                      <Icon icon={'launch'} className="mLeft6 Hand toCustomLib Font14" />
+                    </span>
+                  </div>
+                )}
               </React.Fragment>
             ) : (
               <div className="emptyCon">
@@ -286,28 +279,31 @@ export default class AddViewDisplayMenu extends Component {
                   <span className="Beta mLeft8 Bold">Beta</span>
                 </div>
                 <div className="mTop16 minBold Font14 TxtCenter">{_l('通过插件开发，定制自己的视图')}</div>
-                <div className="flexRow alignItemsCenter">
-                  <span
-                    className="addCustomView Hand"
-                    onClick={() =>
-                      onClick(
-                        {
-                          id: 'customize',
-                          name: _l('自定义视图'),
-                          pluginName: _l('自定义视图'),
-                          pluginSource: 0,
-                          pluginIcon: 'sys_12_4_puzzle',
-                          pluginIconColor: '#445A65',
-                          isNew: true,
-                        },
-                        true,
-                      )
-                    }
-                  >
-                    <Icon icon={'plus'} className="Font16" />
-                    <span className="viewName mLeft8 Bold">{_l('开发插件视图')}</span>
-                  </span>
-                </div>
+
+                {allowPlugin && (
+                  <div className="flexRow alignItemsCenter">
+                    <span
+                      className="addCustomView Hand"
+                      onClick={() =>
+                        onClick(
+                          {
+                            id: 'customize',
+                            name: _l('自定义视图'),
+                            pluginName: _l('自定义视图'),
+                            pluginSource: 0,
+                            pluginIcon: 'sys_12_4_puzzle',
+                            pluginIconColor: '#445A65',
+                            isNew: true,
+                          },
+                          true,
+                        )
+                      }
+                    >
+                      <Icon icon={'plus'} className="Font16" />
+                      <span className="viewName mLeft8 Bold">{_l('开发插件视图')}</span>
+                    </span>
+                  </div>
+                )}
               </div>
             )}
           </div>

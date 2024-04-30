@@ -138,7 +138,7 @@
           border: 1px solid #f44336;
         }
         .conditionContainer {
-          margin: 32px 0;
+          margin-top: 32px;
           .ming.Radio:first-child {
             width: 30%;
           }
@@ -436,55 +436,47 @@
 
       .columnRuleTitle {
         padding: 32px 40px 10px 40px;
+        .addRules {
+          padding: 0 16px;
+          height: 36px;
+          line-height: 36px;
+          display: inline-block;
+          background: #2196f3;
+          border-radius: 32px;
+          letter-spacing: 0;
+          color: #ffffff;
+          text-align: center;
+          font-weight: bold;
+          cursor: pointer;
+          &:hover {
+            background: #1e88e5;
+          }
+        }
         .columnRuleTabs {
           margin-top: 16px;
           border-bottom: 1px solid #dddddd;
           display: flex;
-          .tabItems {
-            padding: 0 20px;
-            &:first-child {
-              padding-left: 0;
-            }
-            cursor: pointer;
-            &:hover {
-              .tabItem {
-                color: #2196f3;
-              }
-            }
-          }
           .tabItem {
+            padding: 0 40px 12px;
             padding-bottom: 7px;
             border-bottom: 3px solid transparent;
             color: #757575;
             font-size: 14px;
             font-weight: 600;
+            cursor: pointer;
             &.active {
               color: #2196f3;
               border-bottom-color: #2196f3 !important;
+            }
+            &:hover {
+              color: #2196f3;
             }
           }
         }
         .columnRuleDesc {
           margin-top: 12px;
           display: flex;
-          justify-content: space-between;
           align-items: center;
-          .addRules {
-            padding: 0 15px;
-            height: 32px;
-            line-height: 32px;
-            display: inline-block;
-            background: #2196f3;
-            border-radius: 16px;
-            letter-spacing: 0;
-            color: #ffffff;
-            text-align: center;
-            font-weight: bold;
-            cursor: pointer;
-            &:hover {
-              background: #1e88e5;
-            }
-          }
         }
       }
 

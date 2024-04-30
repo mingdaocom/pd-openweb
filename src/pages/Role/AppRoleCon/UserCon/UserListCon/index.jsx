@@ -4,14 +4,11 @@ import _ from 'lodash';
 import User from './User';
 import Apply from './Apply';
 import Outsourcing from './Outsourcing';
-import { LoadDiv, Icon, Dialog } from 'ming-ui';
-import selectOrgRole from 'src/components/dialogSelectOrgRole';
+import { LoadDiv, Icon, Dialog, UserHead } from 'ming-ui';
 import AppAjax from 'src/api/appManagement';
-import DialogSelectDept from 'src/components/dialogSelectDept';
-import selectJob from 'src/components/dialogSelectJob';
+import { dialogSelectJob, dialogSelectDept, dialogSelectUser, dialogSelectOrgRole } from 'ming-ui/functions';
 import BatchDialog from 'src/pages/Role/AppRoleCon/component/BatchDialog';
 import { getCurrentProject } from 'src/util';
-import UserHead from 'src/components/userHead';
 import { getIcon, getColor, getTxtColor, userStatusList } from 'src/pages/Role/AppRoleCon/UserCon/config';
 import cx from 'classnames';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
@@ -86,7 +83,7 @@ export default class UserListCon extends React.Component {
    */
   addJobToRole = () => {
     const { projectId = '', roleId } = this.props;
-    selectJob({
+    dialogSelectJob({
       showCompanyName: false,
       projectId,
       isAppRole: true,
@@ -104,7 +101,8 @@ export default class UserListCon extends React.Component {
     const { projectId = '', appRole = {}, roleId, isExternal } = this.props;
     const { roleInfos = [] } = appRole;
     const roleInfo = roleInfos.find(o => o.roleId === roleId);
-    new DialogSelectDept({
+
+    dialogSelectDept({
       projectId,
       selectedDepartment: [],
       unique: false,
@@ -130,18 +128,17 @@ export default class UserListCon extends React.Component {
    */
   addUserToRole = (accountIds = []) => {
     const { projectId, roleId } = this.props;
-    import('src/components/dialogSelectUser/dialogSelectUser').then(dialogSelectUser => {
-      dialogSelectUser.default({
-        showMoreInvite: false,
-        overlayClosable: false,
-        SelectUserSettings: {
-          projectId: _.isEmpty(getCurrentProject(projectId)) ? '' : projectId,
-          filterAccountIds: accountIds,
-          callback: users => {
-            this.addRoleMembers(roleId, { users });
-          },
+
+    dialogSelectUser({
+      showMoreInvite: false,
+      overlayClosable: false,
+      SelectUserSettings: {
+        projectId: _.isEmpty(getCurrentProject(projectId)) ? '' : projectId,
+        filterAccountIds: accountIds,
+        callback: users => {
+          this.addRoleMembers(roleId, { users });
         },
-      });
+      },
     });
   };
 
@@ -420,7 +417,7 @@ export default class UserListCon extends React.Component {
             addDepartmentToRole={this.addDepartmentToRole}
             addJobToRole={this.addJobToRole}
             addOrgRole={() => {
-              selectOrgRole({
+              dialogSelectOrgRole({
                 projectId,
                 showCompanyName: false,
                 overlayClosable: false,
@@ -462,15 +459,21 @@ export default class UserListCon extends React.Component {
 
   render() {
     const { show, userIds = [] } = this.state;
-    const { roleId, appRole = {}, projectId, canEditUser, isExternal } = this.props;
+    const { roleId, appRole = {}, projectId, canEditUser, isExternal, appId } = this.props;
     const { outsourcing = {}, userList = [], roleInfos = [] } = appRole;
     const { memberModels = [] } = outsourcing;
+
     return (
       <WrapTableCon className={cx('flex flexColumn Relative overflowHidden')}>
         {this.renderCon()}
         {show && (
           <BatchDialog
             show={show}
+            appId={appId}
+            member={
+              userIds.length === 1 ? [...memberModels, ...userList].find(o => o.id === userIds[0].split('_')[0]) : {}
+            }
+            showRole={userIds.length <= 1}
             renderCon={
               userIds.length === 1
                 ? () => {

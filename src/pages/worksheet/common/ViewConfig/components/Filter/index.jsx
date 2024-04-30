@@ -68,7 +68,7 @@ export default function ViewFilter(props) {
           existingFilters: existingFilters.concat(data),
         });
       })
-      .fail(err => {
+      .catch(err => {
         alert(_l('获取筛选列表失败'), 2);
       });
   }, [props.worksheetId]);

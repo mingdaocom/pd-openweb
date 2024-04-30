@@ -6,7 +6,7 @@ import ClipboardButton from 'react-clipboard.js';
 import RegExp from 'src/util/expression';
 import appManagementAjax from 'src/api/appManagement';
 import { generateRandomPassword, verifyPassword } from 'src/util';
-import captcha from 'src/components/captcha';
+import { captcha } from 'ming-ui/functions';
 import styled from 'styled-components';
 import cx from 'classnames';
 
@@ -60,6 +60,7 @@ const IconWrap = styled.div`
 `;
 
 const checkPassword = password => {
+  const { passwordRegex } = md.global.SysSettings;
   if (!password) {
     alert(_l('请输入密码'), 3);
     return true;
@@ -68,8 +69,8 @@ const checkPassword = password => {
     alert(_l('请输入8~20个字'), 3);
     return true;
   }
-  if (!RegExp.isPasswordValid(password, /^[0-9A-Za-z]{8,20}$/)) {
-    alert(_l('请输入字母数字'), 3);
+  if (!RegExp.isPasswordValid(password, passwordRegex)) {
+    alert(_l('必须含字母+数字'), 3);
     return true;
   }
 

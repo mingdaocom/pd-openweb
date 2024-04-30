@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Trigger from 'rc-trigger';
-import { Icon } from 'ming-ui';
+import { Icon, SvgIcon } from 'ming-ui';
 import { VIEW_TYPE_ICON, VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import { getTranslateInfo } from 'src/util';
 import _ from 'lodash';
 import cx from 'classnames';
-import SvgIcon from 'src/components/SvgIcon';
 import SettingMenu from './SettingMenu';
 
 export default function HideItem(props) {

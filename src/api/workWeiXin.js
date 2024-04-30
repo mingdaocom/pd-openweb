@@ -10,7 +10,7 @@ export default {
   **/
    syncWorkWXToMing: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'SyncWorkWXToMing', args, options);
+     return mdyAPI('WorkWeiXin', 'SyncWorkWXToMing', args, options);
    },
   /**
   * 获取日志列表
@@ -24,7 +24,7 @@ export default {
   **/
    getLogs: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'GetLogs', args, options);
+     return mdyAPI('WorkWeiXin', 'GetLogs', args, options);
    },
   /**
   * 获取js-sdk的签名信息
@@ -40,7 +40,7 @@ export default {
   **/
    getSignatureInfo: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'GetSignatureInfo', args, options);
+     return mdyAPI('WorkWeiXin', 'GetSignatureInfo', args, options);
    },
   /**
   * 获取网络的钉钉设置
@@ -52,7 +52,7 @@ export default {
   **/
    getDDProjectSettingInfo: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'GetDDProjectSettingInfo', args, options);
+     return mdyAPI('WorkWeiXin', 'GetDDProjectSettingInfo', args, options);
    },
   /**
   * 获取网络或者应用钉钉的配置地址
@@ -65,7 +65,7 @@ export default {
   **/
    getDDSsoUrlInfo: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'GetDDSsoUrlInfo', args, options);
+     return mdyAPI('WorkWeiXin', 'GetDDSsoUrlInfo', args, options);
    },
   /**
   * 编辑网络的钉钉设置
@@ -80,7 +80,7 @@ export default {
   **/
    editDDProjectSetting: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'EditDDProjectSetting', args, options);
+     return mdyAPI('WorkWeiXin', 'EditDDProjectSetting', args, options);
    },
   /**
   * 编辑网络的钉钉集成状态
@@ -95,7 +95,7 @@ export default {
   **/
    editDDProjectSettingStatus: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'EditDDProjectSettingStatus', args, options);
+     return mdyAPI('WorkWeiXin', 'EditDDProjectSettingStatus', args, options);
    },
   /**
   * 编辑钉钉客户端打开方式
@@ -109,7 +109,7 @@ export default {
   **/
    editDDProjectClientWorkingPattern: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'EditDDProjectClientWorkingPattern', args, options);
+     return mdyAPI('WorkWeiXin', 'EditDDProjectClientWorkingPattern', args, options);
    },
   /**
   * 编辑钉钉消息链接可配置打开方式
@@ -123,7 +123,7 @@ export default {
   **/
    editDDMessagUrlPcSlide: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'EditDDMessagUrlPcSlide', args, options);
+     return mdyAPI('WorkWeiXin', 'EditDDMessagUrlPcSlide', args, options);
    },
   /**
   * 编辑钉钉消息是否进入待办任务
@@ -136,7 +136,7 @@ export default {
   **/
    editDDProjectTodoMessageEnabled: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'EditDDProjectTodoMessageEnabled', args, options);
+     return mdyAPI('WorkWeiXin', 'EditDDProjectTodoMessageEnabled', args, options);
    },
   /**
   * 钉钉通讯录同步到明道云
@@ -149,7 +149,7 @@ export default {
   **/
    syncWorkDDToMing: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'SyncWorkDDToMing', args, options);
+     return mdyAPI('WorkWeiXin', 'SyncWorkDDToMing', args, options);
    },
   /**
   * 编辑应用钉钉消息通知
@@ -163,7 +163,7 @@ export default {
   **/
    editDDAppNoticeSetting: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'EditDDAppNoticeSetting', args, options);
+     return mdyAPI('WorkWeiXin', 'EditDDAppNoticeSetting', args, options);
    },
   /**
   * 获取钉钉 js-sdk的签名信息
@@ -176,7 +176,7 @@ export default {
   **/
    getDDSignatureInfo: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'GetDDSignatureInfo', args, options);
+     return mdyAPI('WorkWeiXin', 'GetDDSignatureInfo', args, options);
    },
   /**
   * 获取网络的企业微信自建应用集成设置
@@ -188,7 +188,7 @@ export default {
   **/
    getWXProjectSettingInfo: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'GetWXProjectSettingInfo', args, options);
+     return mdyAPI('WorkWeiXin', 'GetWXProjectSettingInfo', args, options);
    },
   /**
   * 编辑网络的企业微信自建应用集成设置
@@ -203,7 +203,7 @@ export default {
   **/
    editWXProjectSetting: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'EditWXProjectSetting', args, options);
+     return mdyAPI('WorkWeiXin', 'EditWXProjectSetting', args, options);
    },
   /**
   * 编辑企业微信自建应用集成状态
@@ -217,7 +217,7 @@ export default {
   **/
    editWXProjectSettingStatus: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'EditWXProjectSettingStatus', args, options);
+     return mdyAPI('WorkWeiXin', 'EditWXProjectSettingStatus', args, options);
    },
   /**
   * 编辑企业微信是否允许使用扫码登录
@@ -230,7 +230,7 @@ export default {
   **/
    editWXProjectScanEnabled: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'EditWXProjectScanEnabled', args, options);
+     return mdyAPI('WorkWeiXin', 'EditWXProjectScanEnabled', args, options);
    },
   /**
   * 编辑企业微信是否允许自定义字段匹配
@@ -243,7 +243,7 @@ export default {
   **/
    editWXProjectMappingFieldEnabled: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'EditWXProjectMappingFieldEnabled', args, options);
+     return mdyAPI('WorkWeiXin', 'EditWXProjectMappingFieldEnabled', args, options);
    },
   /**
   * 编辑企业微信工号自定义匹配的字段
@@ -256,7 +256,7 @@ export default {
   **/
    editWXProjectJobnumberMappingField: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'EditWXProjectJobnumberMappingField', args, options);
+     return mdyAPI('WorkWeiXin', 'EditWXProjectJobnumberMappingField', args, options);
    },
   /**
   * 编辑企业微信标签自定义匹配的字段
@@ -269,7 +269,7 @@ export default {
   **/
    editWXProjectTagMappingField: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'EditWXProjectTagMappingField', args, options);
+     return mdyAPI('WorkWeiXin', 'EditWXProjectTagMappingField', args, options);
    },
   /**
   * 编辑私有部署企业微信是否启用快速审批
@@ -282,7 +282,7 @@ export default {
   **/
    editWXIsEnableQuickApprove: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'EditWXIsEnableQuickApprove', args, options);
+     return mdyAPI('WorkWeiXin', 'EditWXIsEnableQuickApprove', args, options);
    },
   /**
   * 检测企业微信自建应用集成通讯录同步到明道云
@@ -294,7 +294,7 @@ export default {
   **/
    checkWorkWXToMingByApp: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'CheckWorkWXToMingByApp', args, options);
+     return mdyAPI('WorkWeiXin', 'CheckWorkWXToMingByApp', args, options);
    },
   /**
   * 获取企业微信通讯录
@@ -307,7 +307,7 @@ export default {
   **/
    getWorkWXStructureInfo: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'GetWorkWXStructureInfo', args, options);
+     return mdyAPI('WorkWeiXin', 'GetWorkWXStructureInfo', args, options);
    },
   /**
   * 企业微信自建应用集成通讯录同步到明道云
@@ -320,7 +320,7 @@ export default {
   **/
    syncWorkWXToMingByApp: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'SyncWorkWXToMingByApp', args, options);
+     return mdyAPI('WorkWeiXin', 'SyncWorkWXToMingByApp', args, options);
    },
   /**
   * 获取企业微信和明道云用户绑定关系列表
@@ -336,7 +336,7 @@ export default {
   **/
    getWorkWxUserRelations: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'GetWorkWxUserRelations', args, options);
+     return mdyAPI('WorkWeiXin', 'GetWorkWxUserRelations', args, options);
    },
   /**
   * 解绑企业微信用户和明道云用户关系
@@ -350,7 +350,7 @@ export default {
   **/
    unbindWorkWxUserRelation: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'UnbindWorkWxUserRelation', args, options);
+     return mdyAPI('WorkWeiXin', 'UnbindWorkWxUserRelation', args, options);
    },
   /**
   * 企业微信第三方/自建 应用SSO地址信息 公用同一个接口，后端根据集成类型判断
@@ -363,7 +363,7 @@ export default {
   **/
    getWorkWXSsoUrlInfo: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'GetWorkWXSsoUrlInfo', args, options);
+     return mdyAPI('WorkWeiXin', 'GetWorkWXSsoUrlInfo', args, options);
    },
   /**
   * 获取企业微信代开发模式授权二维码链接
@@ -375,7 +375,7 @@ export default {
   **/
    getWorkWXAlternativeAppScanCodeUrl: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'GetWorkWXAlternativeAppScanCodeUrl', args, options);
+     return mdyAPI('WorkWeiXin', 'GetWorkWXAlternativeAppScanCodeUrl', args, options);
    },
   /**
   * 提交已经申请开通企业微信代开发模式
@@ -387,7 +387,7 @@ export default {
   **/
    editWorkWXAlternativeAppStatus: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'EditWorkWXAlternativeAppStatus', args, options);
+     return mdyAPI('WorkWeiXin', 'EditWorkWXAlternativeAppStatus', args, options);
    },
   /**
   * 提交应用申请开通企业微信代开发模式
@@ -401,7 +401,7 @@ export default {
   **/
    applyWorkWXAlternativeApp: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'ApplyWorkWXAlternativeApp', args, options);
+     return mdyAPI('WorkWeiXin', 'ApplyWorkWXAlternativeApp', args, options);
    },
   /**
   * 获取网络的Welink设置
@@ -413,7 +413,7 @@ export default {
   **/
    getWelinkProjectSettingInfo: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'GetWelinkProjectSettingInfo', args, options);
+     return mdyAPI('WorkWeiXin', 'GetWelinkProjectSettingInfo', args, options);
    },
   /**
   * 编辑网络的Welink自建应用集成设置
@@ -427,7 +427,7 @@ export default {
   **/
    editWelinkProjectSetting: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'EditWelinkProjectSetting', args, options);
+     return mdyAPI('WorkWeiXin', 'EditWelinkProjectSetting', args, options);
    },
   /**
   * 编辑Welink自建应用集成状态
@@ -441,7 +441,7 @@ export default {
   **/
    editWelinkProjectSettingStatus: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'EditWelinkProjectSettingStatus', args, options);
+     return mdyAPI('WorkWeiXin', 'EditWelinkProjectSettingStatus', args, options);
    },
   /**
   * Welink自建应用集成通讯录同步到明道云
@@ -454,7 +454,7 @@ export default {
   **/
    syncWelinkToMingByApp: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'SyncWelinkToMingByApp', args, options);
+     return mdyAPI('WorkWeiXin', 'SyncWelinkToMingByApp', args, options);
    },
   /**
   * Welink 自建应用SSO地址信息
@@ -466,7 +466,7 @@ export default {
   **/
    getWelinkSsoUrlInfo: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'GetWelinkSsoUrlInfo', args, options);
+     return mdyAPI('WorkWeiXin', 'GetWelinkSsoUrlInfo', args, options);
    },
   /**
   * 获取welink js-sdk的签名信息
@@ -479,7 +479,7 @@ export default {
   **/
    getWeLinkSignatureInfo: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'GetWeLinkSignatureInfo', args, options);
+     return mdyAPI('WorkWeiXin', 'GetWeLinkSignatureInfo', args, options);
    },
   /**
   * 获取网络的飞书设置
@@ -491,7 +491,7 @@ export default {
   **/
    getFeishuProjectSettingInfo: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'GetFeishuProjectSettingInfo', args, options);
+     return mdyAPI('WorkWeiXin', 'GetFeishuProjectSettingInfo', args, options);
    },
   /**
   * 获取飞书js-sdk的签名信息
@@ -504,7 +504,7 @@ export default {
   **/
    getFeiShuSignatureInfo: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'GetFeiShuSignatureInfo', args, options);
+     return mdyAPI('WorkWeiXin', 'GetFeiShuSignatureInfo', args, options);
    },
   /**
   * 编辑网络的飞书自建应用集成设置
@@ -518,7 +518,7 @@ export default {
   **/
    editFeishuProjectSetting: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'EditFeishuProjectSetting', args, options);
+     return mdyAPI('WorkWeiXin', 'EditFeishuProjectSetting', args, options);
    },
   /**
   * 编辑飞书自建应用集成状态
@@ -532,7 +532,7 @@ export default {
   **/
    editFeishuProjectSettingStatus: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'EditFeishuProjectSettingStatus', args, options);
+     return mdyAPI('WorkWeiXin', 'EditFeishuProjectSettingStatus', args, options);
    },
   /**
   * 飞书自建应用集成通讯录同步到明道云
@@ -545,7 +545,7 @@ export default {
   **/
    syncFeishuToMingByApp: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'SyncFeishuToMingByApp', args, options);
+     return mdyAPI('WorkWeiXin', 'SyncFeishuToMingByApp', args, options);
    },
   /**
   * 飞书 自建应用SSO地址信息
@@ -557,7 +557,7 @@ export default {
   **/
    getFeishuSsoUrlInfo: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'GetFeishuSsoUrlInfo', args, options);
+     return mdyAPI('WorkWeiXin', 'GetFeishuSsoUrlInfo', args, options);
    },
   /**
   * 清理网络所有的集成关系
@@ -569,7 +569,7 @@ export default {
   **/
    removeProjectAllIntergration: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'RemoveProjectAllIntergration', args, options);
+     return mdyAPI('WorkWeiXin', 'RemoveProjectAllIntergration', args, options);
    },
   /**
   * 判断是否需要清理集成关系
@@ -581,7 +581,7 @@ export default {
   **/
    checkClearIntergrationData: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'CheckClearIntergrationData', args, options);
+     return mdyAPI('WorkWeiXin', 'CheckClearIntergrationData', args, options);
    },
   /**
   * 获取集成账号自定义初始密码值
@@ -593,7 +593,7 @@ export default {
   **/
    getIntergrationAccountInitializeInfo: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'GetIntergrationAccountInitializeInfo', args, options);
+     return mdyAPI('WorkWeiXin', 'GetIntergrationAccountInitializeInfo', args, options);
    },
   /**
   * 设置集成账号自定义初始密码值
@@ -606,7 +606,7 @@ export default {
   **/
    editIntergrationAccountInitializeInfo: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'EditIntergrationAccountInitializeInfo', args, options);
+     return mdyAPI('WorkWeiXin', 'EditIntergrationAccountInitializeInfo', args, options);
    },
   /**
   * 根据应用信息获取集成相关信息
@@ -619,7 +619,7 @@ export default {
   **/
    getIntergrationInfo: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'GetIntergrationInfo', args, options);
+     return mdyAPI('WorkWeiXin', 'GetIntergrationInfo', args, options);
    },
   /**
   * 获取明道授权许可信息详情
@@ -630,7 +630,7 @@ export default {
   **/
    getWorkWxLicenseDetailByApp: function (args, options = {}) {
      options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return $.api('WorkWeiXin', 'GetWorkWxLicenseDetailByApp', args, options);
+     return mdyAPI('WorkWeiXin', 'GetWorkWxLicenseDetailByApp', args, options);
    },
   /**
   * 获取创建订单信息提示
@@ -641,7 +641,7 @@ export default {
   **/
    getWorkWxLicenseCreateOrderDetailByApp: function (args, options = {}) {
      options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return $.api('WorkWeiXin', 'GetWorkWxLicenseCreateOrderDetailByApp', args, options);
+     return mdyAPI('WorkWeiXin', 'GetWorkWxLicenseCreateOrderDetailByApp', args, options);
    },
   /**
   * 创建订单
@@ -653,7 +653,7 @@ export default {
   **/
    createWorkWxLicenseOrder: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'CreateWorkWxLicenseOrder', args, options);
+     return mdyAPI('WorkWeiXin', 'CreateWorkWxLicenseOrder', args, options);
    },
   /**
   * 查看订单列表
@@ -669,6 +669,6 @@ export default {
   **/
    getWorkWxLicenseOrderList: function (args, options = {}) {
      
-     return $.api('WorkWeiXin', 'GetWorkWxLicenseOrderList', args, options);
+     return mdyAPI('WorkWeiXin', 'GetWorkWxLicenseOrderList', args, options);
    },
 };

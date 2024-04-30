@@ -9,7 +9,7 @@ export default {
   **/
    getProjectContractInfo: function (args, options = {}) {
      
-     return $.api('Upgrade', 'GetProjectContractInfo', args, options);
+     return mdyAPI('Upgrade', 'GetProjectContractInfo', args, options);
    },
   /**
   * 修改合同信息
@@ -29,7 +29,7 @@ export default {
   **/
    updateProjectContractInfo: function (args, options = {}) {
      
-     return $.api('Upgrade', 'UpdateProjectContractInfo', args, options);
+     return mdyAPI('Upgrade', 'UpdateProjectContractInfo', args, options);
    },
   /**
   * 获取订单合同信息
@@ -45,6 +45,6 @@ export default {
   **/
    getOrderContractInfo: function (args, options = {}) {
      
-     return $.api('Upgrade', 'GetOrderContractInfo', args, options);
+     return mdyAPI('Upgrade', 'GetOrderContractInfo', args, options);
    },
 };

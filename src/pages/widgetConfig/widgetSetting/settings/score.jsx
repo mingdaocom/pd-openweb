@@ -10,7 +10,7 @@ const { WidgetIcon, AttachmentConfig, WidgetColor } = components;
 
 const SCORE_COLOR_TYPE = [
   { text: _l('固定'), value: 1 },
-  { text: _l('动态'), value: 2 },
+  { text: _l('动态%04028'), value: 2 },
 ];
 
 export default function Score({ data, onChange }) {

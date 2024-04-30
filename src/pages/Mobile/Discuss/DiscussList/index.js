@@ -7,6 +7,7 @@ import { Icon } from 'ming-ui';
 import Message from '../Message';
 import AttachmentFiles from '../AttachmentFiles';
 import withoutDisussion from './assets/withoutDisussion.svg';
+import { dateConvertToUserZone } from 'src/util';
 import _ from 'lodash';
 
 const Item = List.Item;
@@ -97,7 +98,7 @@ class DiscussList extends Component {
         <Flex>
           <div className="name Font15">{item.createAccount.fullname}</div>
           <div className="flexRow valignWrapper Font14 Gray_9e">
-            <div>{createTimeSpan(item.createTime)}</div>
+            <div>{createTimeSpan(dateConvertToUserZone(item.createTime))}</div>
             {item.createAccount.accountId === md.global.Account.accountId && (
               <Icon className="mLeft5 Font22" icon="more_horiz" onClick={this.openActionSheet.bind(this, item.discussionId)}/>
             )}

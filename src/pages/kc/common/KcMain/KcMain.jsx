@@ -423,24 +423,23 @@ class KcMain extends Component {
                 performRemoveItems: removeNodeItem,
                 loadMoreAttachments:
                   list.size < totalCount
-                    ? () => {
-                        const promise = $.Deferred();
-                        loadMoreKcNodes(data => {
-                          if (!data.list || typeof data.list !== 'object') {
-                            promise.reject();
-                          }
-                          promise.resolve(
-                            data.list
-                              .filter(item => item.type !== 1)
-                              .map(item =>
-                                Object.assign({}, item, {
-                                  previewAttachmentType: 'KC',
-                                }),
-                              ),
-                          );
-                        });
-                        return promise;
-                      }
+                    ? () =>
+                        new Promise((resolve, reject) => {
+                          loadMoreKcNodes(data => {
+                            if (!data.list || typeof data.list !== 'object') {
+                              reject();
+                            }
+                            resolve(
+                              data.list
+                                .filter(item => item.type !== 1)
+                                .map(item =>
+                                  Object.assign({}, item, {
+                                    previewAttachmentType: 'KC',
+                                  }),
+                                ),
+                            );
+                          });
+                        })
                     : undefined,
               }}
               onClose={() => {

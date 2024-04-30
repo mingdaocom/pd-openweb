@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { Motion, spring } from 'react-motion';
+import { useKey } from 'react-use';
 import styled from 'styled-components';
+import { includes } from 'lodash';
 
 const ConBox = styled.div`
   position: absolute;
@@ -17,7 +19,6 @@ const Con = styled.div`
   height: 48px;
   border-radius: 48px;
   color: #fff;
-  background-color: #2196f3;
   line-height: 48px;
   padding: 0 10px 0 24px;
   z-index: 9;
@@ -45,12 +46,11 @@ const Button = styled.div`
   border-radius: 28px;
 `;
 const OkButton = styled(Button)`
-  color: #3ea4fc;
   background-color: #fff;
   font-weight: 600;
   user-select: none;
   &:not(.disabled):hover {
-    background-color: #e2f1fe;
+    background-color: rgba(255, 255, 255, 0.9);
   }
   &.disabled {
     color: #ddd;
@@ -68,6 +68,8 @@ const CancelButton = styled(Button)`
 export default function EditingBar(props) {
   const {
     style = {},
+    isBlack = false,
+    saveShortCut,
     loading,
     visible,
     defaultTop,
@@ -80,7 +82,25 @@ export default function EditingBar(props) {
     onCancel = () => {},
     onOkMouseDown = () => {},
   } = props;
-
+  const cache = useRef({ saveShortCut, okDisabled });
+  useKey('s', e => {
+    if (!cache.current.saveShortCut || !(window.isMacOs ? e.metaKey : e.ctrlKey)) return;
+    e.stopPropagation();
+    e.preventDefault();
+    if (cache.current.okDisabled) return;
+    let delayTime = 0;
+    if (includes(['input', 'textarea'], document.activeElement.tagName.toLowerCase())) {
+      document.activeElement.blur();
+      document.querySelector('.recordInfoForm').dispatchEvent(new MouseEvent('mousedown'));
+      delayTime = 100;
+    }
+    setTimeout(() => {
+      onUpdate();
+    }, delayTime);
+  });
+  useEffect(() => {
+    cache.current = { saveShortCut, okDisabled };
+  }, [saveShortCut, okDisabled]);
   return (
     <Motion
       defaultStyle={{ top: defaultTop }}
@@ -104,19 +124,20 @@ export default function EditingBar(props) {
           onClick={e => e.stopPropagation()}
           className="editingBar"
         >
-          <Con>
+          <Con style={{ background: isBlack ? '#333' : '#2196f3' }}>
             <span className="flex bold">{title}</span>
             {loading && <Loading className="icon icon-loading_button" />}
-            {!loading && (
+            {!loading && cancelText && (
               <CancelButton className="mLeft30  mRight10" onClick={onCancel}>
                 {cancelText}
               </CancelButton>
             )}
             {!loading && (
               <OkButton
-                className={cx({ disabled: okDisabled })}
+                className={cx({ disabled: okDisabled }, isBlack ? 'Gray' : 'ThemeColor3')}
                 onMouseDown={onOkMouseDown}
                 onClick={okDisabled ? () => {} : onUpdate}
+                {...(saveShortCut && !okDisabled ? { 'data-tip': window.isMacOs ? '⌘ + S' : 'Ctrl + S' } : {})}
               >
                 {updateText}
               </OkButton>
@@ -129,11 +150,12 @@ export default function EditingBar(props) {
 }
 
 EditingBar.propTypes = {
+  saveShortCut: PropTypes.bool,
   style: PropTypes.shape({}),
   visible: PropTypes.bool,
   okDisabled: PropTypes.bool,
   loading: PropTypes.bool,
-  title: PropTypes.string,
+  title: PropTypes.any,
   defaultTop: PropTypes.number,
   visibleTop: PropTypes.number,
   updateText: PropTypes.string,

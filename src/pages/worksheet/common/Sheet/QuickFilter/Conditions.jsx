@@ -4,6 +4,7 @@ import cx from 'classnames';
 import { Motion, spring } from 'react-motion';
 import { Button } from 'ming-ui';
 import styled from 'styled-components';
+import { DATE_OPTIONS, FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import FilterInput, { validate, TextTypes, NumberTypes } from './Inputs';
 import { formatFilterValuesToServer } from './';
@@ -153,6 +154,7 @@ function getDefaultValues(items) {
 export default function Conditions(props) {
   const {
     from,
+    worksheetId,
     isConfigMode,
     isFilterComp,
     activeFilterId,
@@ -184,6 +186,7 @@ export default function Conditions(props) {
   const debounceUpdateQuickFilter = useRef(_.debounce(updateQuickFilter, 500));
   const items = useMemo(
     () => {
+      setValues({});
       return filters
         .map(filter => {
           const controlObj = filter.control || _.find(controls, c => c.controlId === filter.controlId);
@@ -199,7 +202,8 @@ export default function Conditions(props) {
     }, // 分享状态快速筛选不应该显示 成员 部门 角色
     [
       JSON.stringify(filters),
-      JSON.stringify(controls.map(c => _.pick(c, ['controlName', 'options', 'relationControls']))),
+      JSON.stringify(controls.map(c => _.pick(c, ['controlName', 'options']))),
+      JSON.stringify(controls.filter(c => c.relationControls).map(c => _.map(c.relationControls, rc => rc.controlId))),
     ],
   );
   function update(newValues) {
@@ -220,6 +224,9 @@ export default function Conditions(props) {
         if (values[0] === 'isEmpty') {
           c.filterType = 7;
           values = [];
+        }
+        if (c.filterType === FILTER_CONDITION_TYPE.DATE_BETWEEN && c.dateRange !== 18) {
+          c.filterType = FILTER_CONDITION_TYPE.DATEENUM;
         }
         return {
           ...c,
@@ -316,6 +323,7 @@ export default function Conditions(props) {
               from={from}
               appendToBody={isFilterComp}
               projectId={projectId}
+              worksheetId={worksheetId}
               appId={appId}
               {...item}
               {...values[`${item.control.controlId}-${i}`]}

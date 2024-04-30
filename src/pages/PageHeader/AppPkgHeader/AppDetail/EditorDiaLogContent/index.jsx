@@ -2,9 +2,7 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { Divider, Button, Tooltip } from 'antd';
-import { Icon, RichText } from 'ming-ui';
-import SvgIcon from 'src/components/SvgIcon';
-import UserHead from 'src/components/userHead';
+import { Icon, RichText, SvgIcon, UserHead } from 'ming-ui';
 import styled from 'styled-components';
 import './index.less';
 import { canEditData, canEditApp } from 'src/pages/worksheet/redux/actions/util.js';
@@ -12,7 +10,7 @@ import appManagementApi from 'src/api/appManagement';
 
 const Wrap = styled.div`
   .ck-editor__main {
-    max-height: ${props => props.richTextHeight ? `${props.richTextHeight}px` : `100%`};
+    max-height: ${props => (props.richTextHeight ? `${props.richTextHeight}px` : `100%`)};
   }
   .flexShrink0 {
     flex-shrink: 0;
@@ -51,7 +49,7 @@ export default class Editor extends Component {
     this.state = {
       showCache: false,
       bindCreateUpload: false,
-      clearCacheLoading: false
+      clearCacheLoading: false,
     };
   }
 
@@ -88,12 +86,14 @@ export default class Editor extends Component {
     const { data } = this.props;
     if (this.state.clearCacheLoading) return;
     this.setState({ clearCacheLoading: true });
-    appManagementApi.refresh({
-      appId: data.id
-    }).then(data => {
-      this.setState({ clearCacheLoading: false });
-    });
-  }
+    appManagementApi
+      .refresh({
+        appId: data.id,
+      })
+      .then(data => {
+        this.setState({ clearCacheLoading: false });
+      });
+  };
 
   /**
    * 缓存内容
@@ -181,13 +181,13 @@ export default class Editor extends Component {
       minHeight,
       cacheKey,
       data = {},
-      renderLeftContent
+      renderLeftContent,
     } = this.props;
 
     const isAppIntroDescription = cacheKey === 'appIntroDescription';
     const clientHeight = document.body.clientHeight;
     const distance = isEditing ? 198 : 135;
-    const richTextHeight = (isAppIntroDescription && !isEditing) ? 0 : clientHeight - distance;
+    const richTextHeight = isAppIntroDescription && !isEditing ? 0 : clientHeight - distance;
 
     if (!isEditing) {
       const { name, iconUrl, iconColor, projectId, managers } = data;
@@ -232,10 +232,7 @@ export default class Editor extends Component {
               )}
               {isEditAppDescription && (
                 <Divider className="mBottom5">
-                  <Button
-                    size="small"
-                    onClick={() => changeEditState(true)}
-                  >
+                  <Button size="small" onClick={() => changeEditState(true)}>
                     <Icon className="mRight2" icon="edit" />
                     <span className="Font13">{_l('编辑')}</span>
                   </Button>
@@ -244,7 +241,9 @@ export default class Editor extends Component {
               {isEditAppDescription && (
                 <Tooltip title={_l('当应用权限异常时，可尝试清除缓存的权限数据')} placement="bottom">
                   <div
-                    className={cx('flexRow alignItemsCenter Gray_9e pointer clearCache', { isLoading: this.state.clearCacheLoading })}
+                    className={cx('flexRow alignItemsCenter Gray_9e pointer clearCache', {
+                      isLoading: this.state.clearCacheLoading,
+                    })}
                     onClick={this.handleClearCache}
                   >
                     <Icon className="Font18" icon="task-later" />
@@ -324,11 +323,7 @@ export default class Editor extends Component {
           </div>
         </div>
         <div className="flexRow">
-          {renderLeftContent && (
-            <div className="leftContent flex">
-              {renderLeftContent()}
-            </div>
-          )}
+          {renderLeftContent && <div className="leftContent flex">{renderLeftContent()}</div>}
           {!toorIsBottom && (
             <div className="flex flexShrink0">
               <RichText

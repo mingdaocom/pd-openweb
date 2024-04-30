@@ -10,7 +10,7 @@ export default {
   **/
    addAuthorization: function (args, options = {}) {
      
-     return $.api('Authorization', 'AddAuthorization', args, options);
+     return mdyAPI('Authorization', 'AddAuthorization', args, options);
    },
   /**
   * 获取令牌列表
@@ -23,6 +23,6 @@ export default {
   **/
    getAuthorizationByType: function (args, options = {}) {
      
-     return $.api('Authorization', 'GetAuthorizationByType', args, options);
+     return mdyAPI('Authorization', 'GetAuthorizationByType', args, options);
    },
 };

@@ -9,7 +9,7 @@ export default {
   **/
    getByUser: function (args, options = {}) {
      
-     return $.api('Evaluate', 'GetByUser', args, options);
+     return mdyAPI('Evaluate', 'GetByUser', args, options);
    },
   /**
   * 获取应用库评价
@@ -23,7 +23,7 @@ export default {
   **/
    gets: function (args, options = {}) {
      
-     return $.api('Evaluate', 'Gets', args, options);
+     return mdyAPI('Evaluate', 'Gets', args, options);
    },
   /**
   * 获取单个评价
@@ -35,7 +35,7 @@ export default {
   **/
    get: function (args, options = {}) {
      
-     return $.api('Evaluate', 'Get', args, options);
+     return mdyAPI('Evaluate', 'Get', args, options);
    },
   /**
   * 新增评价
@@ -50,7 +50,7 @@ export default {
   **/
    add: function (args, options = {}) {
      
-     return $.api('Evaluate', 'Add', args, options);
+     return mdyAPI('Evaluate', 'Add', args, options);
    },
   /**
   * 编辑评价
@@ -66,7 +66,7 @@ export default {
   **/
    edit: function (args, options = {}) {
      
-     return $.api('Evaluate', 'Edit', args, options);
+     return mdyAPI('Evaluate', 'Edit', args, options);
    },
   /**
   * 新增评价回复
@@ -83,7 +83,7 @@ export default {
   **/
    addTopic: function (args, options = {}) {
      
-     return $.api('Evaluate', 'AddTopic', args, options);
+     return mdyAPI('Evaluate', 'AddTopic', args, options);
    },
   /**
   * 删除评价回复
@@ -97,6 +97,6 @@ export default {
   **/
    deleteTopic: function (args, options = {}) {
      
-     return $.api('Evaluate', 'DeleteTopic', args, options);
+     return mdyAPI('Evaluate', 'DeleteTopic', args, options);
    },
 };

@@ -2,8 +2,6 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Dropdown, Icon, Checkbox, CityPicker, Input } from 'ming-ui';
 import { DateTime } from 'ming-ui/components/NewDateTimePicker';
-import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
-import DialogSelectDept from 'src/components/dialogSelectDept';
 import cx from 'classnames';
 import TagInput from '../TagInput';
 import { CONTROLS_NAME, CONDITION_TYPE, DATE_LIST, FORMAT_TEXT } from '../../../enum';
@@ -18,7 +16,7 @@ import ActionFields from '../ActionFields';
 import Tag from '../Tag';
 import SelectOtherFields from '../SelectOtherFields';
 import { Tooltip, TimePicker } from 'antd';
-import selectOrgRole from 'src/components/dialogSelectOrgRole';
+import { dialogSelectOrgRole, dialogSelectDept, dialogSelectUser } from 'ming-ui/functions';
 import moment from 'moment';
 import _ from 'lodash';
 
@@ -346,6 +344,7 @@ export default class TriggerCondition extends Component {
                     nodeName={handleGlobalVariableName(item.nodeId, item.sourceType, item.nodeName)}
                     controlId={item.filedId}
                     controlName={item.filedValue}
+                    actualityValue={item.fromValue}
                   />
                 ) : (
                   <div className="Gray_9e">{_l('请选择')}</div>
@@ -1068,7 +1067,7 @@ export default class TriggerCondition extends Component {
    * 部门选择
    */
   selectDepartment(oldDepartments, i, j, unique) {
-    new DialogSelectDept({
+    dialogSelectDept({
       projectId: this.props.projectId,
       selectedDepartment: [],
       unique,
@@ -1088,7 +1087,7 @@ export default class TriggerCondition extends Component {
    * 组织角色选择
    */
   selectRole(oldRoles, i, j, unique) {
-    selectOrgRole({
+    dialogSelectOrgRole({
       projectId: this.props.projectId,
       unique,
       onSave: roles => {
@@ -1323,6 +1322,8 @@ export default class TriggerCondition extends Component {
    * 渲染选中的单个值
    */
   renderSelectFieldsValue(item, i, j, second) {
+    const { data } = this.props;
+
     return (
       <div
         className={cx('actionControlBox flex ThemeBorderColor3 clearBorderRadius ellipsis actionCustomBox', {
@@ -1337,6 +1338,7 @@ export default class TriggerCondition extends Component {
             nodeName={handleGlobalVariableName(item.nodeId, item.sourceType, item.nodeName)}
             controlId={item.controlId}
             controlName={item.controlName}
+            actualityValue={(data[i][j].toValue || []).join(', ')}
           />
         </span>
         <i

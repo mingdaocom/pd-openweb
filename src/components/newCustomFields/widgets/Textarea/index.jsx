@@ -59,7 +59,7 @@ export default class Widgets extends Component {
     const { originValue } = this.state;
 
     this.setState({ isEditing: false });
-    if (navigator.userAgent.toLowerCase().indexOf('micromessenger') >= 0) {
+    if (window.isWeiXin) {
       // 处理微信webview键盘收起 网页未撑开
       window.scrollTo(0, 0);
     }
@@ -133,7 +133,7 @@ export default class Widgets extends Component {
 
         // 谷歌浏览器：compositionstart onChange compositionend
         // 火狐浏览器：compositionstart compositionend onChange
-        if (navigator.userAgent.indexOf('Chrome') > -1) {
+        if (window.isChrome) {
           this.onChange(event.target.value);
         }
       },

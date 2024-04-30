@@ -124,7 +124,8 @@ export default class SelectFields extends Component {
     return { sheetList, filteredList };
   };
   isMultiUser = data => {
-    return _.includes([26, 27], data.type) && data.enumDefault === 1;
+    // dynamicMultiple其他字段值多选
+    return (_.includes([26, 27], data.type) && data.enumDefault === 1) || this.props.dynamicMultiple;
   };
   handleMultiUserClick = para => {
     const { checked, relateSheetControlId, fieldId } = para;

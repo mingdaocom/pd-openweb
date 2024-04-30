@@ -57,6 +57,7 @@ class Commenter extends React.Component {
     appId: PropTypes.string,
     remark: PropTypes.string,
     accountId: PropTypes.string,
+    fromAppId: PropTypes.string,
 
     submitButtonText: PropTypes.string, // 按钮文本
     onSubmit: PropTypes.func.isRequired, // 提交回调方法
@@ -107,7 +108,7 @@ class Commenter extends React.Component {
       .height(textareaMinHeight);
     // 缓存未发送成功的讨论
     if (this.props.storageId) {
-      $textarea.on('keyup', function() {
+      $textarea.on('keyup', function () {
         const text = $.trim($(this).val());
         if (!text) {
           window.localStorage.removeItem('commenter-' + comp.props.storageId);
@@ -144,7 +145,7 @@ class Commenter extends React.Component {
       relatedLeftSpace: -38 + (this.props.relatedLeftSpace || 0),
       relatedTopSpace: 5,
       offset: this.props.offset,
-      popupContainer: this.props.popupContainer
+      popupContainer: this.props.popupContainer,
     });
 
     // 发布到动态
@@ -175,11 +176,7 @@ class Commenter extends React.Component {
     if (nextProps.storageId && nextProps.storageId !== this.props.storageId) {
       this.textarea.value = window.localStorage.getItem('commenter-' + nextProps.storageId) || '';
     }
-    if (
-      !nextProps.disableMentions &&
-      !_.isEqual(this.props.atData, nextProps.atData) &&
-      nextProps.forReacordDiscussion
-    ) {
+    if (!nextProps.disableMentions && nextProps.forReacordDiscussion) {
       sessionStorage.setItem('atData', JSON.stringify(nextProps.atData || []));
     }
   }
@@ -199,7 +196,7 @@ class Commenter extends React.Component {
           })
           .height(height);
       } else {
-        setTimeout(function() {
+        setTimeout(function () {
           $textarea.height(height);
         }, 0);
       }
@@ -272,12 +269,9 @@ class Commenter extends React.Component {
 
       const { sourceId, sourceType, replyId, appId, remark, extendsId, entityType, forReacordDiscussion } = this.props;
 
-      let promise = null;
-
       if (sourceType === SOURCE_TYPE.POST) {
-        const dfd = $.Deferred();
         const { accountId } = this.props;
-        promise = postAjax
+        postAjax
           .addPostComment({
             uType: 'AddComment',
             postID: sourceId,
@@ -289,35 +283,18 @@ class Commenter extends React.Component {
             attachments: JSON.stringify(attachments),
             knowledgeAttach: JSON.stringify(kcAttachmentData),
           })
-          .then(
-            function(result) {
-              if (result.success === 'True') {
-                dfd.resolve(result);
-              } else {
-                dfd.reject(result.error);
-              }
-              return dfd.promise();
-            },
-            function(xhr) {
-              var text;
-              try {
-                var resObject = JSON.parse(xhr.responseText);
-                text = resObject.error;
-              } catch (e) {
-                text = xhr.errorMessage;
-              }
-              dfd.reject(text);
-              return dfd.promise();
-            },
-          )
-          .done(resData => {
-            this.props.onSubmit(resData.comment);
+          .then(function (result) {
+            if (result.success === 'True') {
+              this.props.onSubmit(result.comment);
+            } else {
+              Promise.reject(result.error);
+            }
           })
-          .fail(function(text) {
+          .catch(function (text) {
             alert(text || _l('操作失败'), 2);
           });
       } else {
-        promise = discussionAjax
+        discussionAjax
           .addDiscussion({
             sourceId,
             sourceType,
@@ -329,32 +306,26 @@ class Commenter extends React.Component {
             extendsId,
             entityType: forReacordDiscussion && entityType === 2 ? 2 : 0, //后端接口只区分0 2
           })
-          .then(
-            res => {
-              if (res && res.code === 1) {
-                return res.data;
+          .then(res => {
+            if (res && res.code === 1) {
+              this.props.onSubmit(res.data);
+              this.clearLocalStorage();
+            } else {
+              if (res && res.code === 3) {
+                alert(_l('该讨论不存在或已被删除'), 3);
+              } else if (res && res.code === 7) {
+                alert(_l('没有权限操作'), 3);
               } else {
-                if (res && res.code === 3) {
-                  alert(_l('该讨论不存在或已被删除'), 3);
-                } else if (res && res.code === 7) {
-                  alert(_l('没有权限操作'), 3);
-                } else {
-                  alert(_l('操作失败，请稍后重试'), 2);
-                }
-                return $.Deferred()
-                  .reject()
-                  .promise();
+                alert(_l('操作失败，请稍后重试'), 2);
               }
-            },
-            () => {
-              return $.Deferred()
-                .reject()
-                .promise();
-            },
-          )
-          .done(resData => {
-            this.props.onSubmit(resData);
+
+              this.clearLocalStorage(false);
+            }
+          })
+          .catch(() => {
+            this.clearLocalStorage(false);
           });
+
         // 分享到动态更新
         if (groups && this.props.sendPost) {
           message = message.replace(/\[all\]atAll\[\/all\]/gi, '@' + AT_ALL_TEXT[sourceType]);
@@ -369,45 +340,47 @@ class Commenter extends React.Component {
           });
         }
       }
-      promise.then(
-        () => {
-          // 清除缓存的storage
-          window.localStorage.removeItem('commenter-' + this.props.storageId);
-          // 隐藏上传附件
-          this.setState({
-            showAttachment: false,
-            isReshare: false,
-            isEditing: !this.props.shrinkAfterSubmit,
-            disabled: false,
-            attachmentData: [],
-            kcAttachmentData: [],
-          });
-          // 处理mentionsInput初始化
-          $textarea.mentionsInput('reset');
-          $textarea.val('');
-          if (!this.props.shrinkAfterSubmit) {
-            $textarea.focus();
-          }
-          if (this.props.onFocusStateChange) {
-            const isFocus = !this.props.shrinkAfterSubmit;
-            this.props.onFocusStateChange.call(null, isFocus);
-          }
-          this.props.onSubmitCallback();
-        },
-        () => {
-          this.setState({
-            disabled: false,
-          });
-          if (!this.props.shrinkAfterSubmit) {
-            $textarea.focus();
-          }
-        },
-      );
     });
   }
 
+  clearLocalStorage = (status = true) => {
+    const textarea = this.textarea;
+    const $textarea = $(textarea);
+
+    if (status) {
+      window.localStorage.removeItem('commenter-' + this.props.storageId);
+      // 隐藏上传附件
+      this.setState({
+        showAttachment: false,
+        isReshare: false,
+        isEditing: !this.props.shrinkAfterSubmit,
+        disabled: false,
+        attachmentData: [],
+        kcAttachmentData: [],
+      });
+      // 处理mentionsInput初始化
+      $textarea.mentionsInput('reset');
+      $textarea.val('');
+      if (!this.props.shrinkAfterSubmit) {
+        $textarea.focus();
+      }
+      if (this.props.onFocusStateChange) {
+        const isFocus = !this.props.shrinkAfterSubmit;
+        this.props.onFocusStateChange.call(null, isFocus);
+      }
+      this.props.onSubmitCallback();
+    } else {
+      this.setState({
+        disabled: false,
+      });
+      if (!this.props.shrinkAfterSubmit) {
+        $textarea.focus();
+      }
+    }
+  };
+
   render() {
-    const { canAddLink, appId, projectId, sourceId, placeholder, activePlaceholder } = this.props;
+    const { canAddLink, appId, projectId, sourceId, placeholder, activePlaceholder, fromAppId } = this.props;
     const { isEditing, attachmentData, kcAttachmentData } = this.state;
     const [worksheetId, recordId] = sourceId.split('|');
     const hasAttachment = attachmentData.length || kcAttachmentData.length;
@@ -495,7 +468,7 @@ class Commenter extends React.Component {
         <div className={cx('commentAttachmentsBox', { Hidden: !this.state.showAttachment || !isEditing })}>
           <UploadFiles
             projectId={projectId}
-            appId={appId}
+            appId={fromAppId}
             worksheetId={worksheetId}
             rowDisplay={true}
             canAddLink={canAddLink}

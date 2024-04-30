@@ -14,7 +14,7 @@ var process = {
   addProcess: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/process/add';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'processadd', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'processadd', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 关闭流程触发历史推送
@@ -27,7 +27,7 @@ var process = {
   closeStorePush: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/process/closeStorePush';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'processcloseStorePush', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'processcloseStorePush', args, $.extend(base, options));
   },
   /**
    * 复制工作流
@@ -42,7 +42,7 @@ var process = {
   copyProcess: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/process/copyProcess';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'processcopyProcess', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'processcopyProcess', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 删除流程
@@ -55,7 +55,7 @@ var process = {
   deleteProcess: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/process/deleteProcess';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'processdeleteProcess', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'processdeleteProcess', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 工作流历史版本
@@ -70,7 +70,7 @@ var process = {
   getHistory: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/process/getHistory';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'processgetHistory', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'processgetHistory', args, $.extend(base, options));
   },
   /**
    * PBC流程api
@@ -83,7 +83,7 @@ var process = {
   getProcessApiInfo: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/process/getProcessApiInfo';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'processgetProcessApiInfo', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'processgetProcessApiInfo', args, $.extend(base, options));
   },
   /**
    * 根据工作表控件获取流程
@@ -98,7 +98,7 @@ var process = {
   getProcessByControlId: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/process/getProcessByControlId';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'processgetProcessByControlId', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'processgetProcessByControlId', args, $.extend(base, options));
   },
   /**
    * 根据流程id查询流程
@@ -111,7 +111,7 @@ var process = {
   getProcessById: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/process/getProcessById';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'processgetProcessById', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'processgetProcessById', args, $.extend(base, options));
   },
   /**
    * 根据按钮获取流程
@@ -125,7 +125,7 @@ var process = {
   getProcessByTriggerId: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/process/getProcessByTriggerId';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'processgetProcessByTriggerId', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'processgetProcessByTriggerId', args, $.extend(base, options));
   },
   /**
    * 流程全局配置
@@ -138,7 +138,7 @@ var process = {
   getProcessConfig: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/process/getProcessConfig';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'processgetProcessConfig', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'processgetProcessConfig', args, $.extend(base, options));
   },
   /**
    * 发布版开启过api的PBC流程列表
@@ -151,7 +151,7 @@ var process = {
   getProcessListApi: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/process/getProcessListApi';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'processgetProcessListApi', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'processgetProcessListApi', args, $.extend(base, options));
   },
   /**
    * 获取版本发布的信息
@@ -165,7 +165,7 @@ var process = {
   getProcessPublish: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/process/getProcessPublish';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'processgetProcessPublish', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'processgetProcessPublish', args, $.extend(base, options));
   },
   /**
    * 流程触发历史
@@ -178,7 +178,7 @@ var process = {
   getStore: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/process/getStore';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'processgetStore', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'processgetStore', args, $.extend(base, options));
   },
   /**
    * 工作流配置 选择部分触发工作流的列表
@@ -191,7 +191,7 @@ var process = {
   getTriggerProcessList: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/process/getTriggerProcessList';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'processgetTriggerProcessList', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'processgetTriggerProcessList', args, $.extend(base, options));
   },
   /**
    * 返回上一个版本
@@ -204,7 +204,7 @@ var process = {
   goBack: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/process/goBack';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'processgoBack', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'processgoBack', args, $.extend(base, options));
   },
   /**
    * 流程移到到其他应用下
@@ -217,7 +217,7 @@ var process = {
   move: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/process/move';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'processmove', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'processmove', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 发布工作流
@@ -231,20 +231,20 @@ var process = {
   publish: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/process/publish';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'processpublish', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'processpublish', args, $.extend(base, options));
   },
   /**
    * 保存流程全局配置
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {保存流程配置} {agents:代理人(array),allowRevoke:允许触发者撤回(boolean),allowUrge:允许触发者催办(boolean),dateShowType:日期数据格式1:yyyy-MM-dd HH:mm 6：yyyy-MM-dd HH:mm:ss(integer),defaultAgent:null(string),defaultErrorCandidateUsers:null(string),errorInterval:错误通知间隔时间(integer),errorNotifiers:错误消息通知人(array),executeType:运行方式: 1 并行，2：逐条执行(integer),initiatorMaps:审批人为空处理(object),isSaveVariables:是否只保存流程参数(boolean),pbcConfig:PBC高级设置(ref),processId:流程ID(string),processIds:编辑版的流程id(array),processVariables:流程参数(array),required:验证必填字段(boolean),requiredIds:必须审批的节点(array),responseContentType:返回的contentType(integer),revokeNodeIds:通过指定的节点不允许撤回(array),sendTaskPass:触发者不发送通知(boolean),startEventPass:工作流触发者自动通过(boolean),triggerType:触发其他工作流 0 ：允许触发，1：只能触发指定工作流 2：不允许触发(integer),triggerView:触发者查看(boolean),userTaskNullMaps:审批人为空处理(object),userTaskNullPass:审批人为空自动通过(boolean),userTaskPass:审批人自动通过(boolean),value:返回的配置(string),}*saveProcessConfigRequest
+   * @param {保存流程配置} {agents:代理人(array),allowRevoke:允许触发者撤回(boolean),allowUrge:允许触发者催办(boolean),dateShowType:日期数据格式1:yyyy-MM-dd HH:mm 6：yyyy-MM-dd HH:mm:ss(integer),debugEvents:调试事件 0开启调试(array),defaultAgent:null(string),defaultErrorCandidateUsers:null(string),errorInterval:错误通知间隔时间(integer),errorNotifiers:错误消息通知人(array),executeType:运行方式: 1 并行，2：顺序，3：串行(integer),initiatorMaps:审批人为空处理(object),isSaveVariables:是否只保存流程参数(boolean),pbcConfig:PBC高级设置(ref),processId:流程ID(string),processIds:编辑版的流程id(array),processVariables:流程参数(array),required:验证必填字段(boolean),requiredIds:必须审批的节点(array),responseContentType:返回的contentType(integer),revokeNodeIds:通过指定的节点不允许撤回(array),sendTaskPass:触发者不发送通知(boolean),startEventPass:工作流触发者自动通过(boolean),triggerType:触发其他工作流 0 ：允许触发，1：只能触发指定工作流 2：不允许触发(integer),triggerView:触发者查看(boolean),userTaskNullMaps:审批人为空处理(object),userTaskNullPass:审批人为空自动通过(boolean),userTaskPass:审批人自动通过(boolean),value:返回的配置(string),}*saveProcessConfigRequest
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   saveProcessConfig: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/process/saveProcessConfig';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'processsaveProcessConfig', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'processsaveProcessConfig', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 工作表按钮触发流程
@@ -257,7 +257,7 @@ var process = {
   startProcess: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/process/startProcess';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'processstartProcess', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'processstartProcess', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 根据流程id手动触发流程
@@ -270,7 +270,7 @@ var process = {
   startProcessById: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/process/startProcessById';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'processstartProcessById', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'processstartProcessById', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 根据流程id手动触发PBC流程
@@ -283,7 +283,7 @@ var process = {
   startProcessByPBC: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/process/startProcessByPBC';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'processstartProcessByPBC', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'processstartProcessByPBC', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 修改流程基本信息
@@ -296,7 +296,7 @@ var process = {
   updateProcess: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/process/update';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'processupdate', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'processupdate', JSON.stringify(args), $.extend(base, options));
   },
   /**
    *  转交流程
@@ -312,7 +312,7 @@ var process = {
   updateOwner: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/process/updateOwner';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'processupdateOwner', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'processupdateOwner', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 启用流程或禁用流程
@@ -325,7 +325,7 @@ var process = {
   updateUseStatus: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/process/updateUseStatus';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'processupdateUseStatus', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'processupdateUseStatus', JSON.stringify(args), $.extend(base, options));
   },
 };
 export default process;

@@ -7,7 +7,7 @@ import '@mdfe/intl-tel-input/build/css/intlTelInput.min.css';
 import utils from '@mdfe/intl-tel-input/build/js/utils';
 import { encrypt } from 'src/util';
 import accountController from 'src/api/account';
-import captcha from 'src/components/captcha';
+import { captcha } from 'ming-ui/functions';
 import { Input } from 'antd';
 import './index.less';
 import RegExp from 'src/util/expression';
@@ -64,20 +64,20 @@ export default class InitBindAccountDialog extends Component {
     this.iti = intlTelInput(this.mobile, {
       customPlaceholder: '',
       autoPlaceholder: 'off',
-      initialCountry: 'cn',
       loadUtils: '',
-      preferredCountries: ['cn'],
+      initialCountry: _.get(md, 'global.Config.DefaultConfig.initialCountry') || 'cn',
+      preferredCountries: _.get(md, 'global.Config.DefaultConfig.preferredCountries') || ['cn'],
       utilsScript: utils,
       separateDialCode: true,
+      showSelectedDialCode: true,
     });
   };
 
-  handleFieldInput(field) {
-    return e => {
-      this.setState({
-        [field]: e.target.value,
-      });
-    };
+  handleFieldInput(e, field) {
+    const val = field === 'account' ? e.target.value.replace(/ +/g, '') : e.target.value;
+    this.setState({
+      [field]: val,
+    });
   }
 
   handleFieldBlur(field) {
@@ -142,7 +142,7 @@ export default class InitBindAccountDialog extends Component {
                 }
               }
             })
-            .fail();
+            .catch();
         }
       },
       10000,
@@ -212,7 +212,7 @@ export default class InitBindAccountDialog extends Component {
               placeholder={_l('请输入手机号')}
               value={account}
               maxLength="11"
-              onChange={this.handleFieldInput('account')}
+              onInput={e => this.handleFieldInput(e, 'account')}
               onBlur={this.handleFieldBlur('account')}
               onFocus={this.clearError('account')}
             />
@@ -225,7 +225,7 @@ export default class InitBindAccountDialog extends Component {
               placeholder={_l('请输入验证码')}
               maxLength="6"
               value={verifyCode}
-              onChange={this.handleFieldInput('verifyCode')}
+              onChange={e => this.handleFieldInput(e, 'verifyCode')}
               onFocus={this.clearError('verifyCode')}
             />
             <button
@@ -247,7 +247,7 @@ export default class InitBindAccountDialog extends Component {
               placeholder={_l('请输入密码')}
               maxLength="20"
               value={newPwd}
-              onChange={this.handleFieldInput('newPwd')}
+              onChange={e => this.handleFieldInput(e, 'newPwd')}
               onBlur={this.handleFieldBlur('newPwd')}
               onFocus={this.clearError('newPwd')}
               autocomplete="new-password"

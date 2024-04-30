@@ -36,7 +36,7 @@ export default class EditInfo extends React.Component {
             alert(_l('编辑失败'), 2);
           }
         })
-        .fail();
+        .catch();
     }
   }
 

@@ -15,6 +15,7 @@ export const FLOW_TYPE = {
   USER: '9',
   PBC: '10',
   APPROVAL: '11',
+  EVENT_PUSH: '12',
 };
 
 export const FLOW_TYPE_NULL = {
@@ -61,6 +62,10 @@ export const FLOW_TYPE_NULL = {
   11: {
     icon: 'approval',
     text: _l('对业务数据发起审批流程，实现自动化和人工审批的打通'),
+  },
+  12: {
+    icon: 'sheet',
+    text: _l('当满足条件事件触发时，进行数据推送'),
   },
 };
 
@@ -120,6 +125,11 @@ export const START_APP_TYPE = {
     iconColor: '#01ca83',
     text: _l('人员事件'),
   },
+  25: {
+    iconName: 'sending',
+    iconColor: '#4C7D9E',
+    text: _l('事件推送'),
+  },
   28: {
     iconName: 'custom_actions',
     iconColor: '#4C7D9E',
@@ -137,6 +147,7 @@ export const TYPES = [
   { text: _l('审批流程%03007'), value: FLOW_TYPE.APPROVAL, icon: 'icon-approval' },
   { text: _l('外部流程修改本应用%03008'), value: FLOW_TYPE.OTHER_APP, icon: 'icon-public' },
   { text: _l('封装业务流程%03009'), value: FLOW_TYPE.PBC, icon: 'icon-pbc' },
+  { text: _l('事件推送'), value: FLOW_TYPE.EVENT_PUSH, icon: 'icon-sending' },
 ];
 
 export const getActionTypeContent = (type, item, disable) => {
@@ -164,8 +175,8 @@ export const getActionTypeContent = (type, item, disable) => {
     },
   };
 
-  // 工作表触发
-  if (type === FLOW_TYPE.APP) {
+  // 工作表触发 || 事件推送
+  if (_.includes([FLOW_TYPE.APP, FLOW_TYPE.EVENT_PUSH], type)) {
     return triggerText[item.triggerId];
   }
 

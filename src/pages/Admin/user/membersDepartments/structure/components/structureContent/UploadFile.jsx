@@ -55,7 +55,7 @@ export default class UploadFile extends Component {
         },
         Error(up, error) {
           if (error.code === window.plupload.FILE_SIZE_ERROR) {
-            alert(_l('单个文件大小超过4mb，无法支持上传'), 2);
+            alert(_l('单个文件大小超过4MB，无法支持上传'), 2);
           } else {
             alert(_l('上传失败，请稍后再试。'), 2);
           }

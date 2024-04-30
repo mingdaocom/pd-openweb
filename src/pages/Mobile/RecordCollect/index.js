@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import { Icon, LoadDiv } from 'ming-ui';
-import SvgIcon from 'src/components/SvgIcon';
+import { Icon, LoadDiv, SvgIcon } from 'ming-ui';
 import SearchResultEmpty from '../components/SearchResultEmpty';
 import SearchWrap from './SearchWrap';
 import Back from '../components/Back';
@@ -76,7 +75,7 @@ export default class RecordCollect extends Component {
         }, []);
         this.setState({ collectRecords: res, loading: false, apps });
       })
-      .fail(err => {
+      .catch(err => {
         this.setState({ collectRecords: [], loading: false });
       });
   };

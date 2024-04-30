@@ -7,12 +7,10 @@ import './createRoot.css';
 import htmlTpl from './tpl/createRoot.html';
 import addMemberTpl from './tpl/addMember.html';
 import { expireDialogAsync, existAccountHint } from 'src/util';
-import quickSelectUser from 'ming-ui/functions/quickSelectUser';
-import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
+import { quickSelectUser, dialogSelectUser } from 'ming-ui/functions';
 import kcAjax from 'src/api/kc';
 import _ from 'lodash';
-import UserHead from 'src/components/userHead';
-import Dialog from 'ming-ui/components/Dialog';
+import { Dialog, UserHead } from 'ming-ui';
 
 var PERMISSION_TYPE = {
   NONE: -1,
@@ -52,7 +50,6 @@ function RootSettings(settings) {
 $.extend(RootSettings.prototype, {
   init: function () {
     var _this = this,
-      rootSettingsDf = _this.settings.deferred,
       isEdit = _this.settings.isEdit,
       rootId = _this.settings.id,
       originalName = _this.settings.name;
@@ -60,7 +57,7 @@ $.extend(RootSettings.prototype, {
     if (isEdit) {
       rootPromise = kcAjax.getRootDetail({ id: rootId });
     } else {
-      rootPromise = $.when({
+      rootPromise = Promise.resolve({
         members: this.settings.members,
         isStared: this.settings.isStared,
         name: this.settings.name,
@@ -71,7 +68,7 @@ $.extend(RootSettings.prototype, {
     rootPromise.then(function (root) {
       if (!root) {
         alert('共享文件夹不存在或已被删除', 3);
-        return rootSettingsDf.reject();
+        return _this.settings.reject();
       }
 
       // 成员排序 ：  待审核、拥有者、管理员、可编辑、只读
@@ -173,12 +170,12 @@ $.extend(RootSettings.prototype, {
                   if (projectId) {
                     safeLocalStorageSetItem('createRoot.projectId', projectId);
                   }
-                  rootSettingsDf.resolve(res);
+                  _this.settings.resolve(res);
                 } else {
-                  rootSettingsDf.reject();
+                  _this.settings.reject();
                 }
               })
-              .fail(rootSettingsDf.reject);
+              .catch(_this.settings.reject);
           }
         },
       });
@@ -410,7 +407,7 @@ $.extend(RootSettings.prototype, {
                 })
                 .then(function (result) {
                   if (!result) {
-                    return $.Deferred().reject();
+                    return Promise.reject();
                   }
                   alert('操作成功');
                   var $changedMember = $('.folderMemberBox .memberItem[data-account-id="' + accountId + '"]');
@@ -437,7 +434,7 @@ $.extend(RootSettings.prototype, {
                     $('.createFolderBox').parent().remove();
                   }
                 })
-                .fail(function () {
+                .catch(function () {
                   alert('操作失败，请稍后重试!', 3);
                 });
             }
@@ -468,7 +465,7 @@ $.extend(RootSettings.prototype, {
           })
           .then(function (result) {
             if (!result) {
-              return $.Deferred().reject();
+              return Promise.reject();
             }
             alert('操作成功');
             $checkMemberLi
@@ -485,7 +482,7 @@ $.extend(RootSettings.prototype, {
               .find('i')
               .data('memberStatus', MEMBER_STATUS.NORMAL);
           })
-          .fail(function () {
+          .catch(function () {
             alert('操作失败，请稍后重试!', 3);
           });
       } else {
@@ -495,30 +492,30 @@ $.extend(RootSettings.prototype, {
           children: <div class="Font14">{_l('拒绝后将移除该用户')}</div>,
           onOk: () => {
             kcAjax
-            .removeRootMember({ id: rootId, memberId: memberId })
-            .then(function (data) {
-              if (data && data.result) {
-                $checkMemberLi.slideUp(function () {
-                  $(this).remove();
-                  _this.nanoScroller();
-                });
-                var newMembers = root.members.filter(function (m) {
-                  return m.accountId !== memberId.toLowerCase();
-                });
-                _this.settings.deferred.notify(
-                  $.extend({}, root, {
-                    members: newMembers,
-                  }),
-                );
-              } else {
-                return $.Deferred().reject(data.message);
-              }
-            })
-            .fail(function (err) {
-              alert(err || _l('操作失败, 请稍后重试'), 3);
-            });
+              .removeRootMember({ id: rootId, memberId: memberId })
+              .then(function (data) {
+                if (data && data.result) {
+                  $checkMemberLi.slideUp(function () {
+                    $(this).remove();
+                    _this.nanoScroller();
+                  });
+                  var newMembers = root.members.filter(function (m) {
+                    return m.accountId !== memberId.toLowerCase();
+                  });
+                  _this.settings.deferred.notify(
+                    $.extend({}, root, {
+                      members: newMembers,
+                    }),
+                  );
+                } else {
+                  return Promise.reject(data.message);
+                }
+              })
+              .catch(function (err) {
+                alert(err || _l('操作失败, 请稍后重试'), 3);
+              });
           },
-        })
+        });
       }
     });
 
@@ -532,7 +529,7 @@ $.extend(RootSettings.prototype, {
             .starRoot({ id: root.id, star: star })
             .then(function (res) {
               if (!res) {
-                return $.Deferred().reject();
+                return Promise.reject();
               }
               alert('操作成功');
               $this
@@ -550,7 +547,7 @@ $.extend(RootSettings.prototype, {
               );
               _this.settings.deferred.notify(newRoot);
             })
-            .fail(function () {
+            .catch(function () {
               alert('操作失败,请稍后重试', 3);
             });
         } else {
@@ -580,7 +577,7 @@ $.extend(RootSettings.prototype, {
             .updateRootName({ id: root.id, name: name })
             .then(function (result) {
               if (!result) {
-                return $.Deferred().reject();
+                return Promise.reject();
               }
 
               alert('操作成功');
@@ -591,7 +588,7 @@ $.extend(RootSettings.prototype, {
                 }),
               );
             })
-            .fail(function () {
+            .catch(function () {
               alert('操作失败，请稍后重试', 3);
             });
         },
@@ -662,10 +659,10 @@ $.extend(RootSettings.prototype, {
                 },
                 cancelText: _l('保留'),
                 zIndex: 1003,
-              })
+              });
             }
           })
-          .fail(function () {
+          .catch(function () {
             return false;
           });
       });
@@ -720,37 +717,37 @@ $.extend(RootSettings.prototype, {
             children: <div class="Font14">{conFirmStr}</div>,
             onOk: () => {
               kcAjax
-              .removeRootMember({ id: rootId, memberID: removeMemberId })
-              .then(function (data) {
-                if (data && data.result) {
-                  // 成员自己退出root
-                  var newMembers = root.members.filter(function (m) {
-                    return m.accountId !== removeMemberId.toLowerCase();
-                  });
-                  if (isExit) {
-                    _this.settings.deferred.resolve(null);
-                    $('.createFolderBox').parent().remove();
-                  } else {
-                    $this.closest('.memberItem').slideUp(function () {
-                      _this.nanoScroller();
-                      $(this).remove();
+                .removeRootMember({ id: rootId, memberID: removeMemberId })
+                .then(function (data) {
+                  if (data && data.result) {
+                    // 成员自己退出root
+                    var newMembers = root.members.filter(function (m) {
+                      return m.accountId !== removeMemberId.toLowerCase();
                     });
+                    if (isExit) {
+                      _this.settings.deferred.resolve(null);
+                      $('.createFolderBox').parent().remove();
+                    } else {
+                      $this.closest('.memberItem').slideUp(function () {
+                        _this.nanoScroller();
+                        $(this).remove();
+                      });
 
-                    _this.settings.deferred.notify(
-                      $.extend({}, root, {
-                        members: newMembers,
-                      }),
-                    );
+                      _this.settings.deferred.notify(
+                        $.extend({}, root, {
+                          members: newMembers,
+                        }),
+                      );
+                    }
+                  } else {
+                    return Promise.reject(data.message);
                   }
-                } else {
-                  return $.Deferred().reject(data.message);
-                }
-              })
-              .fail(function (err) {
-                alert(err || _l('操作失败, 请稍后重试'), 3);
-              });
+                })
+                .catch(function (err) {
+                  alert(err || _l('操作失败, 请稍后重试'), 3);
+                });
             },
-          })
+          });
         } else {
           $this.closest('.memberItem').slideUp(function () {
             _this.nanoScroller();
@@ -777,7 +774,7 @@ $.extend(RootSettings.prototype, {
                 .updateRootOwner({ id: root.id, memberId: newOwner.accountId })
                 .then(function (result) {
                   if (!result) {
-                    return $.Deferred().reject();
+                    return Promise.reject();
                   }
                   alert('托付成功');
                   var members = root.members.slice(0);
@@ -809,7 +806,7 @@ $.extend(RootSettings.prototype, {
                   root.members = members;
                   _this.settings.deferred.notify(root);
                 })
-                .fail(function () {
+                .catch(function () {
                   if (root.project && root.project.projectId) {
                     alert('操作失败, 只能托付给本组织的成员', 2);
                   } else {
@@ -827,11 +824,11 @@ $.extend(RootSettings.prototype, {
           .resendInvite({ id: rootId, memberId: inviterId })
           .then(function (result) {
             if (!result) {
-              return $.Deferred().reject();
+              return Promise.reject();
             }
             alert('邀请成功');
           })
-          .fail(function () {
+          .catch(function () {
             alert('邀请失败, 请勿多次发送邀请', 3);
           });
       });
@@ -923,7 +920,7 @@ $.extend(RootSettings.prototype, {
         })
         .then(function (res) {
           if (!res) {
-            return $.Deferred().reject();
+            return Promise.reject();
           }
 
           var successMembers = res.successMembers;
@@ -936,7 +933,7 @@ $.extend(RootSettings.prototype, {
             !(existAccountInfos && existAccountInfos.length) &&
             !(res.successAccountInfos && res.successAccountInfos.length)
           ) {
-            return $.Deferred().reject();
+            return Promise.reject();
           }
           if (callbackInviteResult && $.isFunction(callbackInviteResult)) {
             callbackInviteResult({ status: 1 });
@@ -988,7 +985,7 @@ $.extend(RootSettings.prototype, {
             ],
           });
         })
-        .fail(function () {
+        .catch(function () {
           alert('邀请失败，请稍后重试', 2);
           if (callbackInviteResult && $.isFunction(callbackInviteResult)) {
             callbackInviteResult({ status: 1 });
@@ -1045,18 +1042,18 @@ $.extend(RootSettings.prototype, {
 });
 
 export default function (param) {
-  var deferred = $.Deferred();
-  param = $.extend({ deferred: deferred }, param);
-  /**
-   * 创建或编辑共享文件夹的方法
-   * @function external:
-   * @param {object} param 初始化数据
-   * @param {boolean} param.isEdit 是否是编辑共享文件夹
-   * @param {string} param.id     root.id
-   * @param {boolean}  param.isStared 共享文件夹是否标星
-   * @param {string}   param.name  共享文件夹名称
-   * @param {array}  param.members  共享文件夹成员列表
-   */
-  new RootSettings(param);
-  return deferred.promise();
+  return new Promise((resolve, reject) => {
+    param = $.extend({ resolve, reject }, param);
+    /**
+     * 创建或编辑共享文件夹的方法
+     * @function external:
+     * @param {object} param 初始化数据
+     * @param {boolean} param.isEdit 是否是编辑共享文件夹
+     * @param {string} param.id     root.id
+     * @param {boolean}  param.isStared 共享文件夹是否标星
+     * @param {string}   param.name  共享文件夹名称
+     * @param {array}  param.members  共享文件夹成员列表
+     */
+    new RootSettings(param);
+  });
 }

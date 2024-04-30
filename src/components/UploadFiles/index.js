@@ -25,7 +25,7 @@ import { openControlAttachmentInNewTab } from 'worksheet/controllers/record';
 import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import plupload from '@mdfe/jquery-plupload';
 import { navigateTo } from 'src/router/navigateTo';
-import addLinkFile from 'src/components/addLinkFile/addLinkFile.jsx';
+import { addLinkFile } from 'ming-ui/functions';
 import _ from 'lodash';
 
 export const errorCode = {
@@ -370,13 +370,25 @@ export default class UploadFiles extends Component {
             appId,
             worksheetId,
           }).then(res => {
+            const exceedFiles = [];
+
             files.forEach((item, i) => {
-              item.token = res[i].uptoken;
-              item.key = res[i].key;
-              item.serverName = res[i].serverName;
-              item.fileName = res[i].fileName;
-              item.url = res[i].url;
+              if (res[i].size && item.size > res[i].size * 1024 * 1024) {
+                exceedFiles.push(item);
+                uploader.removeFile(item);
+              } else {
+                item.token = res[i].uptoken;
+                item.key = res[i].key;
+                item.serverName = res[i].serverName;
+                item.fileName = res[i].fileName;
+                item.url = res[i].url;
+              }
             });
+
+            if (exceedFiles.length) {
+              _this.setState({ temporaryData: [] });
+              alert(_l('%0个文件无法上传：单个文件大小超过%1MB', exceedFiles.length, res[0].size), 2);
+            }
 
             uploader.start();
           });
@@ -458,7 +470,7 @@ export default class UploadFiles extends Component {
             } catch (error) { }
           }
           if (error.code === window.plupload.FILE_SIZE_ERROR) {
-            alert(_l('单个文件大小超过%0mb，无法支持上传', maxTotalSize), 2);
+            alert(_l('单个文件大小超过%0MB，无法支持上传', maxTotalSize), 2);
           } else {
             alert(_l('上传失败，请稍后再试。'), 2);
           }
@@ -599,7 +611,7 @@ export default class UploadFiles extends Component {
         .then(result => {
           alert(_l('删除成功'));
         })
-        .fail(() => {
+        .catch(() => {
           alert(_l('删除文件失败'), 3);
         });
     }

@@ -103,7 +103,13 @@ export default function HierarchyRelateMultiSheet({ worksheetInfo, viewControls,
   const getSelectableControls = sheetInfo => {
     const { controls = [] } = _.get(sheetInfo, 'template') || {};
     const existSheet = viewControls.map(item => item.worksheetId);
-    return _.filter(controls, item => item.type === 29 && !_.includes(existSheet, item.dataSource));
+    return _.filter(
+      controls,
+      item =>
+        (item.type === 29 ||
+          (item.type === 34 && _.includes(['0', '1'], _.get(item, 'advancedSetting.detailworksheettype')))) &&
+        !_.includes(existSheet, item.dataSource),
+    );
   };
 
   const [{ availableControls, controlLoading }, setControls] = useSetState({
@@ -116,17 +122,22 @@ export default function HierarchyRelateMultiSheet({ worksheetInfo, viewControls,
 
   const getAvailableControls = () => {
     const { worksheetId } = _.last(viewControls);
+    const prevViewControl = _.last(viewControls.slice(0, -1));
     if (controlLoading) return;
     setValue('');
     setControls({ controlLoading: true });
     worksheetAjax
-      .getWorksheetInfo({ worksheetId, getTemplate: true })
+      .getWorksheetInfo({
+        worksheetId,
+        getTemplate: true,
+        relationWorksheetId: prevViewControl ? prevViewControl.worksheetId : worksheetInfo.worksheetId,
+      })
       .then(data => {
         setControls({
           availableControls: getSelectableControls(data),
         });
       })
-      .always(() => {
+      .finally(() => {
         setControls({ controlLoading: false });
       });
   };

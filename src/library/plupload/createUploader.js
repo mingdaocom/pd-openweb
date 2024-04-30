@@ -152,22 +152,38 @@ export default option => {
     if (option.before_upload_check) {
       beforeUploadCheck = option.before_upload_check(up, validFiles);
       if (beforeUploadCheck === false) {
-        beforeUploadCheck = $.Deferred().reject();
+        beforeUploadCheck = Promise.reject();
       }
     }
-    getToken(tokenFiles, option.type).then(res => {
+    getToken(tokenFiles, option.type, option.getTokenParam).then(res => {
+      const exceedFiles = [];
+
       files.forEach((item, i) => {
-        item.token = res[i].uptoken;
-        item.key = res[i].key;
-        item.serverName = res[i].serverName;
-        item.fileName = res[i].fileName;
-        item.url = res[i].url;
+        if (res[i].size && item.size > res[i].size * 1024 * 1024) {
+          exceedFiles.push(item);
+          up.removeFile(item);
+        } else {
+          item.token = res[i].uptoken;
+          item.key = res[i].key;
+          item.serverName = res[i].serverName;
+          item.fileName = res[i].fileName;
+          item.url = res[i].url;
+        }
       });
+
+      if (exceedFiles.length) {
+        if (initFunc.FilesAdded) {
+          initFunc.FilesAdded(up, []);
+        }
+        option.remove_files_callback && option.remove_files_callback(up);
+        alert(_l('%0个文件无法上传：单个文件大小超过%1MB', exceedFiles.length, res[0].size), 2);
+      }
+
       if (autoStart) {
         plupload.each(validFiles, file => {
-          $.when(beforeUploadCheck)
+          Promise.all([beforeUploadCheck])
             .then(() => up.start())
-            .fail(failResult => {
+            .catch(failResult => {
               file.status = window.plupload.FAILED;
               up.trigger('Error', {
                 file,
@@ -205,7 +221,7 @@ export default option => {
 
     const token = file.token;
 
-    const directUpload = function(up, file) {
+    const directUpload = function (up, file) {
       /* eslint no-shadow:0*/
       let multipartParamsObj;
       if (option.save_key) {
@@ -223,12 +239,7 @@ export default option => {
         multipartParamsObj['x:filePath'] = file.key.replace(file.fileName, '');
         multipartParamsObj['x:fileName'] = file.fileName.replace(/\.[^\.]*$/, '');
         multipartParamsObj['x:originalFileName'] = encodeURIComponent(
-          file.name.indexOf('.') > -1
-            ? file.name
-                .split('.')
-                .slice(0, -1)
-                .join('.')
-            : file.name,
+          file.name.indexOf('.') > -1 ? file.name.split('.').slice(0, -1).join('.') : file.name,
         );
         multipartParamsObj['x:fileExt'] = fileExt;
       }
@@ -404,39 +415,73 @@ export default option => {
     up.refresh(); // Reposition Flash/Silverlight
   });
 
-  uploader.bind('FileUploaded', function(up, file, info) {
+  uploader.bind('FileUploaded', function (up, file, info) {
     info.response = JSON.parse(info.response);
     if (!info.response.ctx) {
       if (initFunc.FileUploaded) {
+        info.originalFileName = decodeURIComponent(info.originalFileName);
         initFunc.FileUploaded(up, file, info);
       }
     } else {
       let fileExt = `.${File.GetExt(file.name)}`;
       let isPic = File.isPicture(fileExt);
-      getToken([{ bucket: option.bucket || (isPic ? 4 : 3), ext: fileExt }], option.type).then(res => {
-        $.ajax({
-          url:
-            option.url.replace(/(\/)$/, '') +
-            '/mkfile/' +
-            (file.size ? file.size : 0) +
-            '/key/' +
-            Base64.encode(res[0].key),
-          type: 'POST',
-          beforeSend: request => {
-            request.setRequestHeader('Content-Type', 'text/plain;charset=UTF-8');
-            request.setRequestHeader('Authorization', 'UpToken ' + res[0].uptoken);
-          },
-          data: file.ctx,
-          processData: false,
-        }).then(response => {
-          if (typeof response === 'string') {
-            response = JSON.parse(response);
+      getToken([{ bucket: option.bucket || (isPic ? 4 : 3), ext: fileExt }], option.type, option.getTokenParam).then(
+        res => {
+          $.ajax({
+            url:
+              option.url.replace(/(\/)$/, '') +
+              '/mkfile/' +
+              (file.size ? file.size : 0) +
+              '/key/' +
+              Base64.encode(res[0].key),
+            type: 'POST',
+            beforeSend: request => {
+              request.setRequestHeader('Content-Type', 'text/plain;charset=UTF-8');
+              request.setRequestHeader('Authorization', 'UpToken ' + res[0].uptoken);
+            },
+            data: file.ctx,
+            processData: false,
+          }).then(response => {
+            if (typeof response === 'string') {
+              response = JSON.parse(response);
+            }
+
+            response.fileExt = fileExt;
+            response.fileName = File.GetName(res[0].fileName);
+            response.filePath = file.key.replace(new RegExp(file.fileName), '');
+            response.originalFileName = encodeURIComponent(File.GetName(file.name));
+            response.serverName = file.serverName;
+            file.url = res[0].url;
+
+            if (initFunc.FileUploaded) {
+              initFunc.FileUploaded(up, file, { response });
+            }
+          });
+        },
+      );
+    }
+  });
+
+  uploader.bind('PostInit', function bindPluploadPaste(up) {
+    var paste = document.getElementById(option.paste_element);
+    if (paste) {
+      const onPaste = _.throttle(e => {
+        var items = e.originalEvent.clipboardData && e.originalEvent.clipboardData.items;
+        var data = { files: [] };
+        if (items && items.length) {
+          $.each(items, function (index, item) {
+            var file = item.getAsFile && item.getAsFile();
+            if (file) {
+              file.isFromClipBoard = true;
+              data.files.push(file);
+            }
+          });
+          if (data.files.length > 0) {
+            up.addFile(data.files);
           }
-          if (initFunc.FileUploaded) {
-            initFunc.FileUploaded(up, file, { response });
-          }
-        });
-      });
+        }
+      }, 500);
+      $(paste).on('paste', onPaste);
     }
   });
 

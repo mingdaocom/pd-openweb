@@ -9,6 +9,6 @@ export default {
   **/
    getAccessToken: function (args, options = {}) {
      
-     return $.api('Plus', 'GetAccessToken', args, options);
+     return mdyAPI('Plus', 'GetAccessToken', args, options);
    },
 };

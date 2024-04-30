@@ -134,7 +134,7 @@ export default class Signature extends React.Component {
         onlySignature
         isEdit
         advancedSetting={cell.advancedSetting}
-        destroyPopupOnHide={!(navigator.userAgent.match(/[Ss]afari/) && !navigator.userAgent.match(/[Cc]hrome/))} // 不是 Safari
+        destroyPopupOnHide={!window.isSafari} // 不是 Safari
         popupAlign={{
           offset: [1, 2],
           points: ['tl', 'bl'],

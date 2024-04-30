@@ -24,8 +24,6 @@ const Content = styled(Flex)`
   }
 `;
 
-const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
-
 export default class Back extends Component {
   constructor(props) {
     super(props);
@@ -39,6 +37,6 @@ export default class Back extends Component {
     );
   }
   render() {
-    return isWxWork ? null : this.renderContent();
+    return window.isWxWork ? null : this.renderContent();
   }
 }

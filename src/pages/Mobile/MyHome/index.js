@@ -8,8 +8,6 @@ import { getCurrentProject } from 'src/util';
 // import './index.less';
 
 const { Item } = List;
-const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
-const isDingTalk = window.navigator.userAgent.toLowerCase().includes('dingtalk');
 
 class MyHome extends Component {
   constructor(props) {
@@ -58,7 +56,7 @@ class MyHome extends Component {
             >
               {_l('切换组织')}
             </Item>
-            {md.global.Config.IsLocal || isWxWork || isDingTalk ? null : (
+            {md.global.Config.IsLocal || window.isWxWork || window.isDingTalk ? null : (
               <Fragment>
                 <Item
                   thumb={<Icon icon="workflow_help" className="Font26" />}

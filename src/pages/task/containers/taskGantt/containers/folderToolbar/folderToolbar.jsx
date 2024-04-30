@@ -113,11 +113,6 @@ class FolderToolbar extends Component {
    * 打开关闭静态甘特图
    */
   switchGanttDialogVisible = (visible = true) => {
-    if (navigator.userAgent.indexOf('Trident') > -1) {
-      alert(_l('暂不支持ie10及ie11，请使用其他浏览器打开'), 2)
-      return;
-    }
-
     this.setState({
       ganttDialogVisible: visible,
     });

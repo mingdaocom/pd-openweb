@@ -3,7 +3,6 @@ import update from 'immutability-helper';
 import { dealData, getParaIds, getHierarchyViewIds, getItemByRowId } from './util';
 import _, { get, filter, flatten, isEmpty, isFunction } from 'lodash';
 import { getCurrentView } from '../util';
-import { getItem } from '../../views/util';
 import { getFilledRequestParams } from 'worksheet/util';
 
 const MULTI_RELATE_MAX_PAGE_SIZE = 500;
@@ -651,14 +650,14 @@ export function getDefaultHierarchyData(view) {
       data: { loading: true, pageSize: pageSize },
     });
     if (_.includes(['1', '0'], String(childType))) {
-      const { level } = getItem(`hierarchyConfig-${viewId}`) || {};
+      const { level } = safeParse(localStorage.getItem(`hierarchyConfig-${viewId}`))
       dispatch(
         expandedMultiLevelHierarchyData({
           layer: level || (pageSize === 1000 ? '5' : '1'),
         }),
       );
     } else {
-      const { level } = getItem(`hierarchyConfig-${viewId}`) || {};
+      const { level } = safeParse(localStorage.getItem(`hierarchyConfig-${viewId}`))
       // 多表关联层级视图获取多级数据 默认加载3级
       dispatch(expandMultiLevelHierarchyDataOfMultiRelate(level || 3));
     }

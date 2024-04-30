@@ -7,7 +7,7 @@ import _ from 'lodash';
 export default ({ companyId, processId, relationId, selectNodeId, data, updateSource }) => {
   return data.fields.map((item, i) => {
     const singleObj = _.find(data.subProcessVariables, obj => obj.controlId === item.fieldId) || {};
-    const { controlName, sourceEntityName } = singleObj;
+    const { controlName, sourceEntityName, alias } = singleObj;
     const parentNode = singleObj.dataSource ? _.find(data.fields, o => o.fieldId === singleObj.dataSource) || {} : {};
 
     if (
@@ -23,6 +23,7 @@ export default ({ companyId, processId, relationId, selectNodeId, data, updateSo
           {controlName}
           {singleObj.required && <span className="mLeft5 red">*</span>}
           {singleObj.type === 29 && <span className="Gray_9e">{`（${_l('工作表')}“${sourceEntityName}”）`}</span>}
+          {alias && <span className="Gray_9e">（{alias}）</span>}
         </div>
         <SingleControlValue
           companyId={companyId}

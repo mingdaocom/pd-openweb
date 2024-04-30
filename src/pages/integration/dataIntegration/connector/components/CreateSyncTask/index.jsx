@@ -7,6 +7,8 @@ import OnlySyncStep from '../OnlySyncStep';
 import { v4 as uuidv4 } from 'uuid';
 import taskFlowApi from 'src/pages/integration/api/taskFlow';
 import { navigateTo } from 'src/router/navigateTo';
+import onlySyncBg from 'staticfiles/images/onlySync.png';
+import syncWithDealBg from 'staticfiles/images/syncWithDeal.png';
 
 const SyncTaskWrapper = styled.div`
   display: flex;
@@ -164,14 +166,14 @@ export default function CreateSyncTask(props) {
                 {_l('批量创建同步任务，(后续可在任务列表中添加数据处理步骤）')}
               </div>
             </div>
-            <img src="/staticfiles/images/list.png" width={330} />
+            <img src={onlySyncBg} width={330} />
           </CardWrapper>
           <CardWrapper onClick={() => onInitTaskFlow()}>
             <div>
               <Radio text={_l('同步时需要对数据进行处理')} checked={syncType === SYNC_TYPE.SYNC_WITH_DEAL} />
               <div className="Gray_9e mTop8 mLeft30">{_l('创建单个同步任务，并立即对其添加数据处理步骤')}</div>
             </div>
-            <img src="/staticfiles/images/step.png" width={330} />
+            <img src={syncWithDealBg} width={330} />
           </CardWrapper>
         </div>
       )}

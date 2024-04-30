@@ -8,7 +8,7 @@ export default {
   **/
    loadProvince: function (args, options = {}) {
      
-     return $.api('FixedData', 'LoadProvince', args, options);
+     return mdyAPI('FixedData', 'LoadProvince', args, options);
    },
   /**
   * 加载城市或地区
@@ -21,7 +21,7 @@ export default {
   **/
    loadCityCountyById: function (args, options = {}) {
      
-     return $.api('FixedData', 'LoadCityCountyById', args, options);
+     return mdyAPI('FixedData', 'LoadCityCountyById', args, options);
    },
   /**
   * 加载城市
@@ -37,7 +37,7 @@ export default {
   **/
    getCitysByParentID: function (args, options = {}) {
      
-     return $.api('FixedData', 'GetCitysByParentID', args, options);
+     return mdyAPI('FixedData', 'GetCitysByParentID', args, options);
    },
   /**
   * 加载行业信息
@@ -48,7 +48,7 @@ export default {
   **/
    loadIndustry: function (args, options = {}) {
      
-     return $.api('FixedData', 'LoadIndustry', args, options);
+     return mdyAPI('FixedData', 'LoadIndustry', args, options);
    },
   /**
   * 校验敏感词
@@ -59,6 +59,19 @@ export default {
   **/
    checkSensitive: function (args, options = {}) {
      options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return $.api('FixedData', 'CheckSensitive', args, options);
+     return mdyAPI('FixedData', 'CheckSensitive', args, options);
+   },
+  /**
+  * 加载系统时区列表
+注意前端默认会填充1，代表跟随设备的时区
+后端如果读取到1 则需要走服务器默认时区逻辑
+  * @param {Object} args 请求参数
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   loadTimeZones: function (args, options = {}) {
+     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
+     return mdyAPI('FixedData', 'LoadTimeZones', args, options);
    },
 };

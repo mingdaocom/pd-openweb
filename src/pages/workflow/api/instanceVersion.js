@@ -15,7 +15,7 @@ var instanceVersion = {
   get2: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v2/instance/get';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'v2instanceget', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'v2instanceget', args, $.extend(base, options));
   },
   /**
    * 获取未完成数量
@@ -41,7 +41,7 @@ var instanceVersion = {
   getTodoCount2: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v2/instance/getTodoCount';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'v2instancegetTodoCount', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'v2instancegetTodoCount', args, $.extend(base, options));
   },
   /**
    * 根据表id行id获取审批流程执行列表
@@ -54,7 +54,7 @@ var instanceVersion = {
   getTodoList2: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v2/instance/getTodoList';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v2instancegetTodoList', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v2instancegetTodoList', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 批量操作
@@ -67,7 +67,7 @@ var instanceVersion = {
   batch: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/instance/batch';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1instancebatch', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v1instancebatch', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 中止执行
@@ -80,7 +80,7 @@ var instanceVersion = {
   endInstance: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/instance/endInstance';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'v1instanceendInstance', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'v1instanceendInstance', args, $.extend(base, options));
   },
   /**
    * 中止执行批量
@@ -93,7 +93,7 @@ var instanceVersion = {
   endInstanceList: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/instance/endInstanceList';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1instanceendInstanceList', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v1instanceendInstanceList', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 获取流程实例详情
@@ -107,7 +107,7 @@ var instanceVersion = {
   get: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/instance/get';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'v1instanceget', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'v1instanceget', args, $.extend(base, options));
   },
   /**
    * 获取待处理数量
@@ -119,7 +119,7 @@ var instanceVersion = {
   getTodoCount: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/instance/getTodoCount';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'v1instancegetTodoCount', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'v1instancegetTodoCount', args, $.extend(base, options));
   },
   /**
    * 获取待处理列表
@@ -132,7 +132,7 @@ var instanceVersion = {
   getTodoList: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/instance/getTodoList';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1instancegetTodoList', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v1instancegetTodoList', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 待处理筛选器
@@ -145,7 +145,7 @@ var instanceVersion = {
   getTodoListFilter: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/instance/getTodoListFilter';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1instancegetTodoListFilter', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v1instancegetTodoListFilter', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 获取流程实例对应实体
@@ -159,7 +159,7 @@ var instanceVersion = {
   getWorkItem: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/instance/getWorkItem';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'v1instancegetWorkItem', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'v1instancegetWorkItem', args, $.extend(base, options));
   },
   /**
    * 执行历史重试
@@ -172,7 +172,7 @@ var instanceVersion = {
   resetInstance: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/instance/resetInstance';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'v1instanceresetInstance', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'v1instanceresetInstance', args, $.extend(base, options));
   },
   /**
    * 执行历史重试批量
@@ -185,7 +185,7 @@ var instanceVersion = {
   resetInstanceList: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/instance/resetInstanceList';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1instanceresetInstanceList', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v1instanceresetInstanceList', JSON.stringify(args), $.extend(base, options));
   },
 };
 export default instanceVersion;

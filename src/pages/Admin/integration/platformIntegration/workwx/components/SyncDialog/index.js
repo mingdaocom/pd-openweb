@@ -42,7 +42,7 @@ export default class SyncDialog extends Component {
 
   getBindList = params => {
     const { pageIndex = 1, pageSize = 20, platformKeyword, workwxKeyword } = params || {};
-    if (this.ajaxPromise && this.ajaxPromise.state() === 'pending' && this.ajaxPromise.abort) {
+    if (this.ajaxPromise && this.ajaxPromise.abort) {
       this.ajaxPromise.abort();
     }
     this.ajaxPromise = workWeiXinAjax.getWorkWxUserRelations({
@@ -239,7 +239,7 @@ export default class SyncDialog extends Component {
   // 获取微信用户列表
   getWorkWXUsers = () => {
     const { bindQWUserIds = [], keywords } = this.state;
-    if (this.ajaxWorkWXUsers && this.ajaxWorkWXUsers.state() === 'pending' && this.ajaxWorkWXUsers.abort) {
+    if (this.ajaxWorkWXUsers && this.ajaxWorkWXUsers.abort) {
       this.ajaxWorkWXUsers.abort();
     }
     this.setState({ searchLoading: true });

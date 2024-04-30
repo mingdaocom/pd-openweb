@@ -1,8 +1,8 @@
-import { isEmpty, last, filter, includes } from 'lodash';
+import { isEmpty } from 'lodash';
 import update from 'immutability-helper';
 import { WHOLE_SIZE } from '../config/Drag';
 import { FULL_LINE_CONTROL } from '../config';
-import { getAdvanceSetting } from './index';
+import { isSheetDisplay } from './index';
 
 export const getCurrentRowSize = row => {
   return row.reduce((p, c) => p + c.size, 0);
@@ -35,15 +35,13 @@ export const getPathById = (widgets, id) => {
 // 判断是否是需要独占一行的控件
 export const isFullLineControl = data => {
   if (!data) return false;
-  const { type, enumDefault, sourceControl } = data;
-  const { showtype } = getAdvanceSetting(data);
+  const { type, sourceControl } = data;
   if (FULL_LINE_CONTROL.includes(type)) return true;
   // 成员、部门多选 为整行控件
   // if ([26, 27].includes(type) && enumDefault === 1) return true;
 
   // 关联多条 列表和卡片形式为整行
-  if (type === 29 && showtype === '2') return true;
-  if (type === 51 && showtype === '2') return true;
+  if (isSheetDisplay(data)) return true;
   // 他表字段使用关联控件
   if (type === 30) {
     return isFullLineControl(sourceControl);

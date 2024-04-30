@@ -81,7 +81,7 @@ const Drag = props => {
   const [activeGroup, setActiveGroup] = useState(false);
   const [activeFirst, setActiveFirst] = useState(false);
   const [active, setActive] = useState(false);
-  const dropColor = currentPcNaviStyle === 1 && themeType === 'theme' ? '#00000052' : iconColor;
+  const dropColor = [1, 3].includes(currentPcNaviStyle) && themeType === 'theme' ? '#00000052' : iconColor;
   const [collectProps, drop] = useDrop({
     accept: dndAccept,
     drop(item, monitor) {
@@ -182,7 +182,7 @@ const Drag = props => {
   drag(drop(ref));
 
   const onMoveGroup = (dragData, targetData, pushGroup) => {
-    const sheetList = currentPcNaviStyle === 1 ? props.appSectionDetail.map(data => {
+    const sheetList = [1, 3].includes(currentPcNaviStyle) ? props.appSectionDetail.map(data => {
       return {
         ...data,
         items: getAppSectionData(data.workSheetId)
@@ -210,7 +210,7 @@ const Drag = props => {
         }
       });
       const res = pushTarget(groups, targetData, dragData);
-      if (currentPcNaviStyle === 1) {
+      if ([1, 3].includes(currentPcNaviStyle)) {
         configureStore.dispatch(sheetListActions.updateALLSheetList(res));
       } else {
         props.updateSheetList(res);
@@ -219,7 +219,7 @@ const Drag = props => {
       const dragDataParentId = dragData.parentId;
       const targetDataParentId = targetData.parentId;
       const res = spliceTarget(groups, targetData, dragData);
-      if (currentPcNaviStyle === 1) {
+      if ([1, 3].includes(currentPcNaviStyle)) {
         configureStore.dispatch(sheetListActions.updateALLSheetList(res));
       } else {
         props.updateSheetList(res);
@@ -284,7 +284,7 @@ const Drag = props => {
       // 二级分组排序
       if (dragData.layerIndex === 1 && dragData.parentId === targetData.parentId) {
         let workSheetIds = [];
-        if (currentPcNaviStyle === 1) {
+        if ([1, 3].includes(currentPcNaviStyle)) {
           const { items } = _.find(res, { workSheetId: dragData.parentId }) || {};
           workSheetIds = items.map(data => data.workSheetId);
         } else {
@@ -303,7 +303,7 @@ const Drag = props => {
       // 三级排序
       if (dragData.layerIndex === 2 && dragData.parentId === targetData.parentId) {
         let workSheetIds = [];
-        if (currentPcNaviStyle === 1) {
+        if ([1, 3].includes(currentPcNaviStyle)) {
           const childrenRes = res.filter(data => _.find(data.items, { workSheetId: dragData.parentId }))[0];
           workSheetIds = _.find(childrenRes.items, { workSheetId: dragData.parentId }).items.map(data => data.workSheetId);
         } else {

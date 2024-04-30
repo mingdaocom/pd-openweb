@@ -68,6 +68,6 @@ class MobileLog extends React.Component {
   }
 }
 
-const Comp = preall(MobileLog, { allownotlogin: false });
+const Comp = preall(MobileLog, { allowNotLogin: false });
 
 ReactDOM.render(<Comp />, document.querySelector('#mobileLog'));

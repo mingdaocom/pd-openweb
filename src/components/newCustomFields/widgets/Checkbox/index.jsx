@@ -10,6 +10,7 @@ import _ from 'lodash';
 import OtherInput from './OtherInput';
 import { getCheckAndOther } from '../../tools/utils';
 import autoSize from 'ming-ui/decorators/autoSize';
+import { MAX_OPTIONS_COUNT } from 'src/pages/widgetConfig/config';
 
 class Widgets extends Component {
   static propTypes = {
@@ -98,7 +99,7 @@ class Widgets extends Component {
     const { direction = '2', width = '200' } = advancedSetting || {};
 
     const displayOptions = options.filter(
-      item => !item.isDeleted && ((disabled && _.includes(checkIds, item.key)) || !disabled),
+      item => !item.isDeleted && (_.includes(checkIds, item.key) || (!item.hide && !disabled)),
     );
     const noMaxWidth = direction === '0' && !browserIsMobile() && width;
     return displayOptions.map(item => {
@@ -184,7 +185,8 @@ class Widgets extends Component {
       selectProps,
       onChange,
     } = this.props;
-    let noDelOptions = options.filter(item => !item.isDeleted);
+    let noDelOptions = options.filter(item => !item.isDeleted && !item.hide);
+    const canAddOption = noDelOptions.length < MAX_OPTIONS_COUNT;
     const { keywords } = this.state;
 
     checkIds.forEach(item => {
@@ -222,7 +224,7 @@ class Widgets extends Component {
           suffixIcon={<Icon icon="arrow-down-border Font14" />}
           filterOption={() => true}
           notFoundContent={<span className="Gray_9e">{_l('无搜索结果')}</span>}
-          onSearch={keywords => this.setState({ keywords })}
+          onSearch={keywords => this.setState({ keywords: keywords.trim() })}
           onDropdownVisibleChange={open => {
             this.setState({ keywords: '', isFocus: open });
             !open && this.select.blur();
@@ -241,7 +243,7 @@ class Widgets extends Component {
           }}
           {...selectProps}
         >
-          {!keywords.length && advancedSetting.allowadd === '1' && (
+          {!keywords.length && advancedSetting.allowadd === '1' && canAddOption && (
             <Select.Option disabled className="cursorDefault">
               <span className="ellipsis customRadioItem Gray_9e">{_l('或直接输入添加新选项')}</span>
             </Select.Option>
@@ -257,7 +259,8 @@ class Widgets extends Component {
 
           {!!keywords.length &&
             !noDelOptions.find(item => item.value === keywords) &&
-            advancedSetting.allowadd === '1' && (
+            advancedSetting.allowadd === '1' &&
+            canAddOption && (
               <Select.Option value={`add_${keywords}`}>
                 <span className="ellipsis customRadioItem ThemeColor3">{_l('添加新的选项：') + keywords}</span>
               </Select.Option>
@@ -326,7 +329,8 @@ class Widgets extends Component {
         <Comp
           disabled={disabled}
           allowAdd={checktype === '1' && allowadd === '1'}
-          data={options.filter(item => !item.isDeleted)}
+          data={options.filter(item => !item.isDeleted && !item.hide)}
+          delOptions={options.filter(item => item.isDeleted || item.hide)}
           checked={checkIds}
           callback={this.onSave}
           renderText={this.renderList}

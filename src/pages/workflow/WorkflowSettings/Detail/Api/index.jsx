@@ -1,10 +1,9 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv, Icon, Tooltip } from 'ming-ui';
+import { ScrollView, LoadDiv, Icon, Tooltip, SvgIcon } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
 import { DetailHeader, DetailFooter, ProcessParameters } from '../components';
 import cx from 'classnames';
-import selectIntegrationApi from 'src/components/dialogSelectIntegrationApi';
-import SvgIcon from 'src/components/SvgIcon';
+import { dialogSelectIntegrationApi } from 'ming-ui/functions';
 import { getRgbaByColor } from 'src/pages/widgetConfig/util';
 import _ from 'lodash';
 
@@ -40,28 +39,30 @@ export default class Api extends Component {
    * 获取节点详情
    */
   getNodeDetail(props, appId) {
-    const { processId, selectNodeId, selectNodeType } = props;
+    const { processId, selectNodeId, selectNodeType, instanceId } = props;
     const { data } = this.state;
 
-    flowNode.getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, appId }).then(result => {
-      if (result.subProcessVariables.length) {
-        result.subProcessVariables
-          .filter(item => item.dataSource)
-          .forEach(item => {
-            const parentNode = _.find(result.subProcessVariables, o => o.controlId === item.dataSource);
+    flowNode
+      .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, appId, instanceId })
+      .then(result => {
+        if (result.subProcessVariables.length) {
+          result.subProcessVariables
+            .filter(item => item.dataSource)
+            .forEach(item => {
+              const parentNode = _.find(result.subProcessVariables, o => o.controlId === item.dataSource);
 
-            if (parentNode && _.includes([10000007, 10000008], parentNode.type)) {
-              result.fields.forEach(o => {
-                if (o.fieldId === item.controlId) {
-                  o.dataSource = parentNode.controlId;
-                }
-              });
-            }
-          });
-      }
+              if (parentNode && _.includes([10000007, 10000008], parentNode.type)) {
+                result.fields.forEach(o => {
+                  if (o.fieldId === item.controlId) {
+                    o.dataSource = parentNode.controlId;
+                  }
+                });
+              }
+            });
+        }
 
-      this.setState({ data: !appId ? result : { ...result, name: data.name } });
-    });
+        this.setState({ data: !appId ? result : { ...result, name: data.name } });
+      });
   }
 
   /**
@@ -214,7 +215,7 @@ export default class Api extends Component {
   selectIntegrationApi = () => {
     const { companyId, relationId } = this.props;
 
-    selectIntegrationApi({
+    dialogSelectIntegrationApi({
       projectId: companyId,
       appId: relationId,
       onOk: id => this.getNodeDetail(this.props, id),

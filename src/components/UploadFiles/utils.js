@@ -178,7 +178,7 @@ export const formatResponseData = (file, response) => {
   */
 
   const item = {};
-  const data = JSON.parse(response);
+  const data = _.isString(response) ? JSON.parse(response) : response;
 
   item.fileID = file.id;
   item.fileSize = file.size || 0;

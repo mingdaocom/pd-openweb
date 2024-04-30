@@ -128,6 +128,23 @@ export default class LineChart extends React.Component {
           itemHeight: 30,
         },
         tooltip: {
+          title: date => {
+            const currentDate = moment(date).format('YYYY/MM/DD');
+            const isWeek = currentDimension === '1w';
+            const isMonth = currentDimension === '1M';
+            let nextDate = isWeek
+              ? moment(date).endOf('week').format('YYYY/MM/DD')
+              : isMonth
+              ? moment(date).endOf('month').format('YYYY/MM/DD')
+              : '';
+            if (nextDate && moment().isBefore(nextDate)) {
+              nextDate = moment().format('YYYY/MM/DD');
+            }
+
+            return nextDate
+              ? `${currentDate}-${nextDate}${isWeek ? '(' + _l('第%0周', moment(date).week()) + ')' : ''}`
+              : currentDate;
+          },
           formatter: datum => {
             let unit = datum.value1 ? _l('次') : _l('人');
             let name =
@@ -199,6 +216,23 @@ export default class LineChart extends React.Component {
         },
         color: ['#2196F3', '#61DDAA'],
         tooltip: {
+          title: date => {
+            const currentDate = moment(date).format('YYYY/MM/DD');
+            const isWeek = currentDimension === '1w';
+            const isMonth = currentDimension === '1M';
+            let nextDate = isWeek
+              ? moment(date).endOf('week').format('YYYY/MM/DD')
+              : isMonth
+              ? moment(date).endOf('month').format('YYYY/MM/DD')
+              : '';
+            if (nextDate && moment().isBefore(nextDate)) {
+              nextDate = moment().format('YYYY/MM/DD');
+            }
+
+            return nextDate
+              ? `${currentDate}-${nextDate}${isWeek ? '(' + _l('第%0周', moment(date).week()) + ')' : ''}`
+              : currentDate;
+          },
           formatter: datum => {
             let unit = type === 'attachment' && total ? total.slice(total.length - 2) : _l('次');
             return {
@@ -210,14 +244,14 @@ export default class LineChart extends React.Component {
         ...configObj,
       });
     }
-    if (currentDimension === '1w') {
+    if (_.includes(['1w', '1M'], currentDimension)) {
+      const isWeek = currentDimension === '1w';
+
       this.workflowChart.update({
         xAxis: {
           label: {
             formatter: text => {
-              return currentDimension === '1w' || moment(text).date() === 1
-                ? moment(text).format('MM月DD日')
-                : moment(text).format('DD');
+              return isWeek ? `${moment(text).year()} w${moment(text).week()}` : _l('%0月', moment(text).month() + 1);
             },
           },
         },

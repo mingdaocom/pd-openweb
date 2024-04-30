@@ -43,10 +43,11 @@ export default function Embed(props) {
     isChartDelete: false,
     loading: false,
   });
-  const [{ sheetId, reportId, pageName, reportName }, setChartInfo] = useSetState({
+  const [{ appId, sheetId, reportId, sheetName, reportName }, setChartInfo] = useSetState({
+    appId: '',
     sheetId: '',
     reportId: '',
-    pageName: '',
+    sheetName: '',
     reportName: '',
   });
   const [{ worksheetId, worksheetName, controls }, setWorksheetInfo] = useSetState({
@@ -70,7 +71,7 @@ export default function Embed(props) {
 
   const handleClear = () => {
     setCommonState({ visible: false, filterVisible: false, isChartDelete: false, loading: false });
-    setChartInfo({ sheetId: '', reportId: '', pageName: '', reportName: '' });
+    setChartInfo({ appId: '', sheetId: '', reportId: '', sheetName: '', reportName: '' });
     setWorksheetInfo({
       worksheetId: '',
       worksheetName: '',
@@ -83,7 +84,7 @@ export default function Embed(props) {
     if (dataSource && enumDefault === 2) {
       setCommonState({ loading: true });
       // type  自定义页面：1，工作表：0
-      const { wsid, reportid, type } = JSON.parse(dataSource || '{}');
+      const { appid, wsid, reportid, type } = JSON.parse(dataSource || '{}');
 
       let requestApi;
       if (type === 1) {
@@ -106,38 +107,35 @@ export default function Embed(props) {
             setCommonState({ isChartDelete: true, loading: false });
           } else {
             setChartInfo({
+              appId: appid,
               sheetId: wsid,
               reportId: reportid,
-              pageName: currentReport.pageName || '',
+              sheetName: currentReport.pageName || '',
               reportName: currentReport.name,
             });
             setWorksheetInfo({ worksheetId: type === 1 ? currentReport.appId : wsid });
-
-            if (worksheetId) setCommonState({ loading: false });
+            setCommonState({ loading: false });
           }
         })
-        .fail(() => {
+        .catch(() => {
           setCommonState({ isChartDelete: true, loading: false });
         });
     }
-  }, [controlId]);
+  }, [dataSource]);
 
   useEffect(() => {
     if (!worksheetId) return;
-    if (!loading) setCommonState({ loading: true });
 
-    worksheetAjax.getWorksheetInfo({
-      worksheetId: worksheetId,
-      getTemplate: true,
-      getViews: false,
-    })
+    worksheetAjax
+      .getWorksheetInfo({
+        worksheetId: worksheetId,
+        getTemplate: true,
+        getViews: false,
+      })
       .then(({ template = {}, name }) => {
-        if (!pageName) setChartInfo({ pageName: name });
+        if (!sheetName) setChartInfo({ sheetName: name });
         setWorksheetInfo({ controls: template.controls || [], worksheetName: name });
         setCommonState({ isChartDelete: !reportName || !name, loading: false });
-      })
-      .always(() => {
-        setCommonState({ loading: false });
       });
   }, [worksheetId]);
 
@@ -193,8 +191,8 @@ export default function Embed(props) {
                 <div className="overflow_ellipsis">
                   {isChartDelete ? (
                     <span className="Red">{_l('图表已删除')}</span>
-                  ) : pageName ? (
-                    <span className="Gray">{_l('%0 - %1', pageName, reportName)}</span>
+                  ) : sheetName ? (
+                    <span className="Gray">{_l('%0 - %1', sheetName, reportName)}</span>
                   ) : (
                     <span className="Gray_9e">{_l('选择统计图表')}</span>
                   )}
@@ -313,14 +311,20 @@ export default function Embed(props) {
 
       {visible && (
         <SelectStaticChartFromSheet
-          sheetId={pageName ? sheetId : ''}
-          reportId={reportName ? reportId : ''}
-          globalSheetInfo={globalSheetInfo}
-          onOk={(ids, worksheetId) => {
+          currentAppId={globalSheetInfo.appId}
+          projectId={globalSheetInfo.projectId}
+          appId={appId || globalSheetInfo.appId}
+          sheetId={sheetId}
+          reportId={reportId}
+          onOk={ids => {
             setChartInfo(ids);
-            setWorksheetInfo({ worksheetId });
             onChange({
-              dataSource: JSON.stringify({ wsid: ids.sheetId, reportid: ids.reportId, type: ids.type }),
+              dataSource: JSON.stringify({
+                appid: ids.appId,
+                wsid: ids.sheetId,
+                reportid: ids.reportId,
+                type: ids.type,
+              }),
             });
             setCommonState({ visible: false });
           }}

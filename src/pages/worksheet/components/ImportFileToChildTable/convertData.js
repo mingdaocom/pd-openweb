@@ -81,7 +81,7 @@ async function convert({ projectId, worksheetId, controlId, mapConfig = [], cont
                 break;
               case WIDGETS_TO_API_TYPE_ENUM.MONEY:
               case WIDGETS_TO_API_TYPE_ENUM.NUMBER:
-                temp = parseFloat(item[key]);
+                temp = parseFloat((item[key] || '').replace(/,/g, ''));
                 if (!_.isNaN(temp)) {
                   value = temp;
                 }

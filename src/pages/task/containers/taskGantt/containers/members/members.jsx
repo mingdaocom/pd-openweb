@@ -1,13 +1,12 @@
 ﻿import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import './members.less';
-import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
+import { dialogSelectUser } from 'ming-ui/functions';
 import config from '../../config/config';
 import { addMembers } from '../../redux/actions';
-import UserHead from 'src/components/userHead';
 import ajaxRequest from 'src/api/taskCenter';
 import _ from 'lodash';
-import { Dialog } from 'ming-ui';
+import { Dialog, UserHead } from 'ming-ui';
 
 class Members extends Component {
   constructor(props) {
@@ -101,7 +100,7 @@ class Members extends Component {
           folderID: config.folderId,
           memberIDs: _.map(users, user => user.accountId).join(','),
         });
-      }
+      },
     });
   }
 

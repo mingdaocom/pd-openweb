@@ -20,7 +20,7 @@ import {
   clearFolderSettings,
 } from '../../redux/actions';
 import config from '../../config/config';
-import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
+import { dialogSelectUser } from 'ming-ui/functions';
 import 'src/components/createTask/createTask';
 import {
   checkTaskSubTask,

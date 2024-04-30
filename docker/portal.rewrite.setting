@@ -9,6 +9,7 @@ rewrite ^/districtDataConfigFile/(.*) /staticfiles/districtDataConfigFile/$1 bre
 
 # 纯静态页面
 rewrite (?i)^/browserupgrade /staticfiles/html/browserupgrade.html break;
+rewrite (?i)^/filedownloaddenied /staticfiles/html/downloadDenied.html break;
 
 # 主站 独立入口
 rewrite (?i)^(/|/portal/)mobileChart /mobileChart.html break;
@@ -26,6 +27,7 @@ rewrite (?i)^(/|/portal/)excelfile /excelfile.html break;
 rewrite (?i)^(/|/portal/)privacy /privacyOrAgreen.html break;
 rewrite (?i)^(/|/portal/)agreen /privacyOrAgreen.html break;
 
+# 登录注册相关
 rewrite (?i)^(/|/portal/)login /portalLogin.html break;
 rewrite (?i)^(/|/portal/)network /portalLogin.html break;
 rewrite (?i)^(/|/portal/)findPwd /portalFindPassWord.html break;

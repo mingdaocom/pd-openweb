@@ -1,12 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import UserHead from 'src/components/userHead';
-import UserName from 'src/components/userName';
 import { SOURCE_TYPE } from './config';
-import { createLinksForMessage, getCurrentProject } from 'src/util';
+import { createLinksForMessage, dateConvertToUserZone } from 'src/util';
 import UploadFiles from 'src/components/UploadFiles';
-import ToolTip from 'ming-ui/components/Tooltip';
-import LoadDiv from 'ming-ui/components/LoadDiv';
+import { Tooltip, UserHead, LoadDiv, UserName } from 'ming-ui';
 import confirm from 'ming-ui/components/Dialog/Confirm';
 import filterXSS from 'xss';
 import { whiteList } from 'xss/lib/default';
@@ -48,11 +45,7 @@ export default class CommentListItem extends React.Component {
   }
 
   componentWillUnmount() {
-    this.abortRequest();
-  }
-
-  abortRequest() {
-    if (this.ajax && this.ajax.state() === 'pending' && this.ajax.abort) {
+    if (this.ajax && this.ajax.abort) {
       this.ajax.abort();
     }
   }
@@ -77,7 +70,7 @@ export default class CommentListItem extends React.Component {
               removeComment(discussionId);
             } else {
               alert(_l('删除讨论失败'), 2);
-              return $.Deferred().reject().promise();
+              return Promise.reject();
             }
           });
       },
@@ -91,8 +84,6 @@ export default class CommentListItem extends React.Component {
     } = this.props;
 
     if (this.state.replayMsg) return false;
-
-    this.abortRequest();
 
     this.ajax = discussionAjax.getDiscussionMsg({
       discussionId: replyId,
@@ -167,15 +158,15 @@ export default class CommentListItem extends React.Component {
                   }}
                   projectId={comment.projectId}
                 />
-                <ToolTip
+                <Tooltip
                   text={this.state.replayMsg ? <span>{this.state.replayMsg}</span> : <LoadDiv />}
                   themeColor={'white'}
                 >
                   <span
                     className="msgTip icon-task-reply-msg ThemeColor3 pLeft5"
-                    onMouseOver={() => this.fetchReplyMsg()}
+                    onMouseOver={() => !this.ajax && this.fetchReplyMsg()}
                   />
-                </ToolTip>
+                </Tooltip>
               </span>
             ) : undefined}
             <div className="Right">
@@ -195,7 +186,7 @@ export default class CommentListItem extends React.Component {
               >
                 {_l('回复')}
               </a>
-              <span className="commentDate">{createTimeSpan(comment.createTime)}</span>
+              <span className="commentDate">{createTimeSpan(dateConvertToUserZone(comment.createTime))}</span>
             </div>
           </div>
           <div

@@ -49,7 +49,7 @@ export default ({
     confirmValue = value;
     if (_.find(data, item => item.value === value)) {
       $('.deleteReconfirmFooter .deleteReconfirmOkBtn')
-        .removeProp('disabled')
+        .removeAttr('disabled')
         .removeClass('Button--disabled')
         .on('click', () => {
           handleClick('ok');

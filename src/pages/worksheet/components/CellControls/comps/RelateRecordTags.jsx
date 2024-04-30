@@ -197,6 +197,7 @@ export default forwardRef(function RelateRecordTags(props, ref) {
       worksheetId: worksheetId,
       recordId,
       viewId,
+      relationWorksheetId: props.worksheetId,
       onClose: closeDialogCallback,
     });
   }

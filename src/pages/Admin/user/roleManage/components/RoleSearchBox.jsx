@@ -13,22 +13,22 @@ export default class RoleSearchBox extends Component {
   }
   handleFocus = () => {};
   handleBlur = () => {};
-  handChange = _.throttle(value => {
+  handChange = _.debounce(value => {
     this.props.updateSearchValue(value);
     if (!value) {
       this.handleClear();
     } else {
       this.props.updateIsRequestList(true);
-      this.props.getRoleList();
+      this.props.handleSearch(value)
     }
-  }, 200);
+  }, 500);
   handleClear = () => {
     this.setState({ searchValue: '' });
     this.props.updateSearchValue('');
-    this.props.updateRolePageInfo({ pageIndex: 1, isMore: false });
     this.props.updateIsRequestList(true);
-    this.props.getRoleList();
+    this.props.handleClear();
   };
+
   render() {
     const { searchValue } = this.state;
     return (
@@ -40,7 +40,7 @@ export default class RoleSearchBox extends Component {
           onChange={e => {
             this.props.updateIsRequestList(false);
             this.setState({ searchValue: e.target.value.trim() });
-            if (this.ajaxObj && this.ajaxObj.state() === 'pending' && this.ajaxObj.abort) {
+            if (this.ajaxObj && this.ajaxObj.abort) {
               this.ajaxObj.abort();
               this.ajaxObj = null;
             }

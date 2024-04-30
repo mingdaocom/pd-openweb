@@ -22,10 +22,9 @@ export default ({ projectId }) => {
   const [taskNum, setTaskNum] = useState({ currentTaskNum: 0, maxTaskNum: 0 });
 
   const getAutoPurchaseDataPipelineExtPack = () => {
-    ajaxPromise.getAutoPurchaseDataPipelineExtPack = projectSettingAjax.getAutoPurchaseDataPipelineExtPack(
-      { projectId },
-      { fireImmediately: true },
-    );
+    ajaxPromise.getAutoPurchaseDataPipelineExtPack = projectSettingAjax.getAutoPurchaseDataPipelineExtPack({
+      projectId,
+    });
     ajaxPromise.getAutoPurchaseDataPipelineExtPack.then(res => {
       const { autoPurchaseDataPipelineExtPack = false, balance } = res;
       setAutoOrder(autoPurchaseDataPipelineExtPack);
@@ -44,13 +43,10 @@ export default ({ projectId }) => {
   };
 
   const setAutoPurchaseDataPipelineExtPack = checked => {
-    ajaxPromise.setAutoPurchaseDataPipelineExtPack = projectSettingAjax.setAutoPurchaseDataPipelineExtPack(
-      {
-        projectId: projectId,
-        autoPurchaseDataPipelineExtPack: checked,
-      },
-      { fireImmediately: true },
-    );
+    ajaxPromise.setAutoPurchaseDataPipelineExtPack = projectSettingAjax.setAutoPurchaseDataPipelineExtPack({
+      projectId: projectId,
+      autoPurchaseDataPipelineExtPack: checked,
+    });
     ajaxPromise.setAutoPurchaseDataPipelineExtPack.then(res => {
       if (res) {
         setAutoOrder(checked);

@@ -1,8 +1,6 @@
 import React, { Component, createRef } from 'react';
-import { string } from 'prop-types';
 import SideAppItem from './SideAppItem';
 import cx from 'classnames';
-import { getItem, setItem } from '../../util';
 import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
 
 const TYPE_TO_TITLE = {
@@ -19,7 +17,7 @@ export default class SideAppGroup extends Component {
     super(props);
     const { type, projectId = '@INIT' } = props;
     this.$appGroupWrap = createRef();
-    const isShow = getItem(`${type}/${projectId}`);
+    const isShow = safeParse(localStorage.getItem(`${type}/${projectId}`));
     this.state = {
       isShow: isShow === null ? true : isShow,
     };
@@ -56,7 +54,7 @@ export default class SideAppGroup extends Component {
   switchState = () => {
     const { type, projectId = '@INIT' } = this.props;
     this.setState(({ isShow }) => {
-      setItem(`${type}/${projectId}`, !isShow);
+      safeLocalStorageSetItem(`${type}/${projectId}`, !isShow);
       this.computeMaxHeight(!isShow);
       return {
         isShow: !isShow,

@@ -3,6 +3,7 @@ import RoleController from 'src/api/role';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
 import Config from '../../config';
+import { dateConvertToUserZone } from 'src/util';
 import './style.less';
 import _ from 'lodash';
 import cx from 'classnames';
@@ -35,14 +36,14 @@ export default class orgLog extends React.Component {
       pageIndex,
       pageSize,
     })
-      .done(({ allCount, list } = {}) => {
+      .then(({ allCount, list } = {}) => {
         this.setState({
           isLoading: false,
           allCount: allCount || 0,
           list: list,
         });
       })
-      .fail(() => {
+      .catch(() => {
         this.setState({
           isLoading: false,
         });
@@ -58,7 +59,7 @@ export default class orgLog extends React.Component {
             return (
               <div className={cx('logItem Font13 clearfix ThemeColor3', { mTop0: index === 0 })} key={index}>
                 <span className="Gray" dangerouslySetInnerHTML={{ __html: log.msg }} />{' '}
-                <span className="mLeft24 Gray_9e">{log.createTime}</span>
+                <span className="mLeft24 Gray_9e">{dateConvertToUserZone(log.createTime)}</span>
               </div>
             );
           })}

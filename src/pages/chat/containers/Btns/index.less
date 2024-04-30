@@ -35,7 +35,7 @@
   }
   .ChatList-column-btns {
     flex-direction: column;
-    .search-btn {
+    .search-btn, .chat-btn {
       display: none;
     }
   }
@@ -57,7 +57,7 @@
     display: flex !important;
   }
   &.visible {
-    height: 125px;
+    height: 85px;
     flex-direction: column;
     .ChatList-btn {
       width: 100%;
@@ -94,3 +94,15 @@
     margin-left: 15px;
   }
 }
+
+.chatAiList {
+  margin-right: 10px;
+  .circle {
+    width: 32px;
+    height: 32px;
+  }
+  .ant-dropdown-menu-title-content {
+    overflow: hidden;
+  }
+}
+

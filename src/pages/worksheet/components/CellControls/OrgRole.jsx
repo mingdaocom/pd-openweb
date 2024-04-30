@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import Trigger from 'rc-trigger';
 import cx from 'classnames';
-import selectOrgRole from 'src/components/dialogSelectOrgRole';
+import { quickSelectRole } from 'ming-ui/functions';
+import { dealUserRange } from 'src/components/newCustomFields/tools/utils';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 const ClickAwayable = createDecoratedComponent(withClickAway);
@@ -44,7 +45,7 @@ export default class Text extends React.Component {
       this.handleSelect();
     }
   }
-
+  cell = React.createRef();
   @autobind
   handleTableKeyDown(e) {
     const { updateEditingStatus } = this.props;
@@ -72,19 +73,29 @@ export default class Text extends React.Component {
   }
 
   @autobind
-  handleSelect() {
-    const { projectId, cell } = this.props;
+  handleSelect(e) {
+    const { projectId, cell, rowFormData, masterData = () => {} } = this.props;
+    const target = (this.cell && this.cell.current) || (event || {}).target;
+    if (!target || this.isSelecting) {
+      return;
+    }
     const single = cell.enumDefault === 0;
     this.isSelecting = true;
     if (!_.find(md.global.Account.projects, item => item.projectId === projectId)) {
       alert(_l('您不是该组织成员，无法获取其组织角色列表，请联系组织管理员'), 3);
       return;
     }
+    const orgRange = dealUserRange(cell, _.isFunction(rowFormData) ? rowFormData() : rowFormData, masterData());
 
-    selectOrgRole({
+    quickSelectRole(target, {
       projectId,
       unique: single,
+      offset: {
+        top: 10,
+        left: 0,
+      },
       onSave: this.onSave,
+      appointedOrganizeIds: _.get(orgRange, 'appointedOrganizeIds'),
       onClose: () => {
         this.isSelecting = false;
       },
@@ -93,6 +104,7 @@ export default class Text extends React.Component {
 
   @autobind
   onSave(data) {
+    if (_.isEmpty(data)) return;
     this.isSelecting = false;
     const { cell, updateEditingStatus } = this.props;
     const { value } = this.state;
@@ -163,6 +175,7 @@ export default class Text extends React.Component {
       >
         <div
           className="cellDepartments cellControl cellControlDepartmentPopup cellControlEdittingStatus"
+          ref={isediting && !single ? this.cell : () => {}}
           style={{
             width: style.width,
             minHeight: rowHeight,
@@ -211,6 +224,7 @@ export default class Text extends React.Component {
           }}
         >
           <EditableCellCon
+            conRef={single ? this.cell : () => {}}
             hideOutline={!single}
             onClick={onClick}
             className={cx(className, { canedit: editable })}

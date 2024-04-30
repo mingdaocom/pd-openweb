@@ -2,6 +2,7 @@ import _ from 'lodash';
 import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting.js';
 import { isEmptyValue } from 'src/components/newCustomFields/tools/filterFn.js';
 import moment from 'moment';
+import { v4 as uuidv4 } from 'uuid';
 
 const getAttachmentData = (control = {}) => {
   let fileData;
@@ -143,7 +144,7 @@ const getDynamicValue = (item, formData, keywords) => {
   return _.isEmpty(dealValue) ? '' : dealValue;
 };
 
-export const getParamsByConfigs = (requestMap = [], formData = [], keywords = '', getControlRef = () => {}) => {
+export const getParamsByConfigs = (requestMap = [], formData = [], keywords = '') => {
   let params = {};
   requestMap.forEach(item => {
     if (item.pid) return;
@@ -154,9 +155,7 @@ export const getParamsByConfigs = (requestMap = [], formData = [], keywords = ''
         _.find(formData, i => i.controlId === _.get(safeParse(item.defsource || '[]')[0], 'cid')) || {};
       // 对象数组或子表值
       const rows =
-        curControl.type === 29
-          ? safeParse(curControl.value || '[]')
-          : _.get(getControlRef(curControl.controlId), ['props', 'rows']) || [];
+        curControl.type === 29 ? safeParse(curControl.value || '[]') : _.get(curControl.value, ['rows']) || [];
 
       params[item.id] = '';
 
@@ -228,4 +227,45 @@ export const clearValue = (value = '') => {
     curValue = '';
   }
   return curValue;
+};
+
+// api查询数据处理
+export const handleUpdateApi = (props, itemData = {}, isDefault = false, callback) => {
+  const { advancedSetting: { responsemap } = {}, formData, onChange } = props;
+  const responseMap = safeParse(responsemap || '[]');
+  responseMap.map(item => {
+    const control = _.find(formData, i => i.controlId === item.cid);
+    if (control && !_.isUndefined(itemData[item.cid])) {
+      // 子表直接赋值
+      if (control.type === 34 && _.includes([10000007, 10000008], item.type)) {
+        onChange(
+          {
+            action: 'clearAndSet',
+            isDefault,
+            rows: safeParse(itemData[item.cid] || '[]').map(i => {
+              return {
+                ...i,
+                rowid: `temprowid-${uuidv4()}`,
+                allowedit: true,
+                addTime: new Date().getTime(),
+              };
+            }),
+          },
+          control.controlId,
+        );
+      } else if (!item.subid) {
+        // 普通数组特殊处理
+        let itemVal = itemData[item.cid];
+        if (item.type === 10000007 && itemData[item.cid] && _.isArray(safeParse(itemData[item.cid]))) {
+          if (!_.includes([26], control.type)) {
+            itemVal = safeParse(itemData[item.cid]).join(',');
+          }
+        }
+        onChange(itemVal, control.controlId, false);
+      }
+      if (_.isFunction(callback)) {
+        callback();
+      }
+    }
+  });
 };

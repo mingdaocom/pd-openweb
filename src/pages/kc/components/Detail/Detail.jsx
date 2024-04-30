@@ -4,9 +4,7 @@ import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import UserHead from 'src/components/userHead';
-import UserName from 'src/components/userName';
-import { Switch, Checkbox } from 'ming-ui';
+import { Switch, Checkbox, UserHead, UserName } from 'ming-ui';
 import AttachmentsPreview from '../../common/AttachmentsPreview';
 import service from '../../api/service';
 import { NODE_TYPE, NODE_VISIBLE_TYPE, LOG_TYPE } from '../../constant/enum';
@@ -39,7 +37,7 @@ class Detail extends React.Component {
     service
       .getReadablePosition(this.props.data.position)
       .then(readablePosition => this._isMounted && this.setState({ readablePosition }))
-      .fail((err) => {
+      .catch(err => {
         if (err.errorMessage === '无法获取共享文件夹信息，可能已被删除或没有权限') {
           if (this._isMounted) {
             this.setState({ readablePosition: '位置不可见' });
@@ -60,7 +58,7 @@ class Detail extends React.Component {
           $(this).addClass('notHover');
         },
       },
-      '#detailLog li'
+      '#detailLog li',
     );
   }
 
@@ -71,7 +69,11 @@ class Detail extends React.Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState) || !shallowEqual(this.props.data, nextProps.data);
+    return (
+      !shallowEqual(this.props, nextProps) ||
+      !shallowEqual(this.state, nextState) ||
+      !shallowEqual(this.props.data, nextProps.data)
+    );
   }
 
   componentDidUpdate(prevProps) {
@@ -88,7 +90,7 @@ class Detail extends React.Component {
         service
           .getReadablePosition(this.props.data.position)
           .then(readablePosition => this._isMounted && this.setState({ readablePosition }))
-          .fail((err) => {
+          .catch(err => {
             if (err.errorMessage === '无法获取共享文件夹信息，可能已被删除或没有权限') {
               if (this._isMounted) {
                 this.setState({ readablePosition: '位置不可见' });
@@ -111,25 +113,28 @@ class Detail extends React.Component {
       service
         .getNodeById(this.props.data.id)
         .then(node => this._isMounted && this.setState({ shareUrl: node.shareUrl }))
-        .fail((err) => {
+        .catch(err => {
           alert('获取分享链接失败');
         });
     }
   };
 
   /* 生成文件数*/
-  getNodesTotalFolderCountAndFileSize = (nextProps) => {
+  getNodesTotalFolderCountAndFileSize = nextProps => {
     if (nextProps.selectAllSize) {
       const { totalFolderCount, totalFileSize } = this.state;
       let { folderCount, fileSize } = this.state;
       // 全选状态下  有不选中的项处理
       if (typeof totalFileSize === 'number' && nextProps.selectAllUnchecked) {
-        folderCount = totalFolderCount - nextProps.selectAllUnchecked.filter(item => item.type == NODE_TYPE.FOLDER).size;
+        folderCount =
+          totalFolderCount - nextProps.selectAllUnchecked.filter(item => item.type == NODE_TYPE.FOLDER).size;
         fileSize =
           totalFileSize -
-          nextProps.selectAllUnchecked.filter(item => item.type == NODE_TYPE.FILE).reduce((sum, n) => {
-            return sum + n.size;
-          }, 0);
+          nextProps.selectAllUnchecked
+            .filter(item => item.type == NODE_TYPE.FILE)
+            .reduce((sum, n) => {
+              return sum + n.size;
+            }, 0);
         this.setState({ folderCount, fileSize });
         return;
       }
@@ -140,7 +145,7 @@ class Detail extends React.Component {
           parentId: this.props.parentId || this.props.rootId,
           status: this.props.status,
         })
-        .then((result) => {
+        .then(result => {
           if (this._isMounted) {
             this.setState({
               folderCount: result.totalFolderCount,
@@ -150,7 +155,7 @@ class Detail extends React.Component {
             });
           }
         })
-        .fail(() => alert(_l('操作失败，请稍后重试！'), 2));
+        .catch(() => alert(_l('操作失败，请稍后重试！'), 2));
     } else {
       let folderCount = 0;
       let fileSize = 0;
@@ -166,66 +171,78 @@ class Detail extends React.Component {
   /**
    * 是否允许下载
    */
-  editDownloadable = (evt) => {
+  editDownloadable = evt => {
     const isDownloadable = evt.target.checked;
     let item = this.props.data;
-    if (isDownloadable !== item.isDownloadable && (!this.editDownloadablePromise || this.editDownloadablePromise.state() !== 'pending')) {
+    if (isDownloadable !== item.isDownloadable && !this.editDownloadablePromise) {
       this.editDownloadablePromise = service
         .updateNode({ id: item.id, isDownloadable })
-        .then((result) => {
+        .then(result => {
           if (!result) {
-            return $.Deferred().reject();
+            return Promise.reject();
           }
           alert(_l('修改成功'));
           item = _.assign({}, item, { isDownloadable });
           this.props.performUpdateItem(item);
+          this.editDownloadablePromise = '';
         })
-        .fail(() => alert(_l('修改失败'), 2));
+        .catch(() => {
+          this.editDownloadablePromise = '';
+          alert(_l('修改失败'), 2);
+        });
     }
   };
 
   /**
    * 是否允许编辑
    */
-  editEditable = (evt) => {
+  editEditable = evt => {
     const isEditable = evt.target.checked;
     let item = this.props.data;
-    if (isEditable !== item.isEditable && (!this.editEditablePromise || this.editEditablePromise.state() !== 'pending')) {
+    if (isEditable !== item.isEditable && !this.editEditablePromise) {
       this.editEditablePromise = service
         .updateNode({ id: item.id, isEditable })
-        .then((result) => {
+        .then(result => {
           if (!result) {
-            return $.Deferred().reject();
+            return Promise.reject();
           }
           alert(_l('修改成功'));
           item = _.assign({}, item, { isEditable });
           this.props.performUpdateItem(item);
+          this.editEditablePromise = '';
         })
-        .fail(() => alert(_l('修改失败'), 2));
+        .catch(() => {
+          this.editEditablePromise = '';
+          alert(_l('修改失败'), 2);
+        });
     }
   };
 
-  editNodeAttribute = (attrubuteObj) => {
+  editNodeAttribute = attrubuteObj => {
     // attrubuteObj = $.extend({}, { isDownloadable , isEditable , visibleType });
     let item = this.props.data;
     if (!_.some(attrubuteObj, key => attrubuteObj[key] === item[key])) {
       return;
     }
-    if (!this.editNodePrimise || this.editNodePrimise.state() !== 'pending') {
+    if (!this.editNodePrimise) {
       this.editNodePrimise = service
         .updateNode(_.assign({ id: item.id }, attrubuteObj))
-        .then((result) => {
+        .then(result => {
           if (!result) {
-            return $.Deferred().reject();
+            return Promise.reject();
           }
           alert(_l('修改成功'));
           item = _.extend({}, item, attrubuteObj);
           this.props.performUpdateItem(item);
-          return service.getNodeById(item.id).then((node) => {
+          return service.getNodeById(item.id).then(node => {
+            this.editNodePrimise = '';
             this.props.performUpdateItem(node);
           });
         })
-        .fail(() => alert(_l('修改失败'), 2));
+        .catch(() => {
+          this.editNodePrimise = '';
+          alert(_l('修改失败'), 2);
+        });
     }
   };
 
@@ -233,12 +250,12 @@ class Detail extends React.Component {
    * 获取node日志详情
    */
   getNodeLogDetail = () => {
-    service.getNodeLogDetail({ id: this.props.data.id }).then((result) => {
+    service.getNodeLogDetail({ id: this.props.data.id }).then(result => {
       const detailLog =
         result.logCount > 0
           ? result.logContent.map((log, i) => (
-            <li key={i} className="notHover">
-              <i
+              <li key={i} className="notHover">
+                <i
                   className={cx(
                     'detailLogType',
                     log.type === LOG_TYPE.CREATE || log.type === LOG_TYPE.CHILDADD
@@ -247,17 +264,20 @@ class Detail extends React.Component {
                         log.type === LOG_TYPE.DELETED ||
                         log.type === LOG_TYPE.CHILDRECYCLED ||
                         log.type === LOG_TYPE.CHILDDELETED
-                        ? 'icon-task-new-delete'
-                        : 'icon-edit'
+                      ? 'icon-task-new-delete'
+                      : 'icon-edit',
                   )}
                 />
-              <div className="detailLogTitle">
-                <UserName user={{ userName: log.handleUser.fullname, accountId: log.handleUser.accountId }} className="bold" />
+                <div className="detailLogTitle">
+                  <UserName
+                    user={{ userName: log.handleUser.fullname, accountId: log.handleUser.accountId }}
+                    className="bold"
+                  />
                   &nbsp;
-                {this.logDesc(log)}
-              </div>
-              <div className="detailLogTime">{humanDateTime(log.time)}</div>
-            </li>
+                  {this.logDesc(log)}
+                </div>
+                <div className="detailLogTime">{humanDateTime(log.time)}</div>
+              </li>
             ))
           : undefined;
       if (this._isMounted) {
@@ -270,20 +290,20 @@ class Detail extends React.Component {
    * 分享浏览权限
    * @param  {Boolean} isVisibleType
    */
-  editVisibleType = (visibleType) => {
+  editVisibleType = visibleType => {
     let item = this.props.data;
     if (visibleType !== item.visibleType) {
       service
         .updateNode({ id: item.id, visibleType })
-        .then((result) => {
+        .then(result => {
           if (!result) {
-            return $.Deferred().reject();
+            return Promise.reject();
           }
           alert(_l('修改成功'));
           item = _.assign({}, item, { visibleType });
           this.props.performUpdateItem(item);
         })
-        .fail(() => alert(_l('修改失败'), 2));
+        .catch(() => alert(_l('修改失败'), 2));
     }
   };
 
@@ -291,14 +311,16 @@ class Detail extends React.Component {
    * 日志描述
    * @param  {[object]} log
    */
-  logDesc = (log) => {
+  logDesc = log => {
     const typeName = this.props.data.type === NODE_TYPE.FILE ? _l('文件') : _l('文件夹');
     const childType = log.content.childType === 2 ? _l('文件') : _l('文件夹');
     const nodeName = log.content.name ? ' ' + log.content.name + ' ' : '';
     const childName = log.content.childName ? ' ' + log.content.childName + ' ' : '';
     const targetName = log.content.targetName
       ? ' ' + log.content.targetName + ' '
-      : !log.content.targetRootId && !log.content.targetId ? ' ' + _l('我的文件根目录') + ' ' : '';
+      : !log.content.targetRootId && !log.content.targetId
+      ? ' ' + _l('我的文件根目录') + ' '
+      : '';
 
     /**
      * 链接浏览限制title
@@ -322,7 +344,9 @@ class Detail extends React.Component {
         return (
           <span>
             {_l('创建了 %0', typeName)}
-            {this.props.data.type === NODE_TYPE.FILE ? this.genPreviewLink(nodeName, 'oldest', this.props.data.id) : nodeName}
+            {this.props.data.type === NODE_TYPE.FILE
+              ? this.genPreviewLink(nodeName, 'oldest', this.props.data.id)
+              : nodeName}
             {log.content.des ? ' ' + _l('说明：') + log.content.des : ''}
           </span>
         );
@@ -398,7 +422,7 @@ class Detail extends React.Component {
               versionId,
               isOldest,
             })
-            .then((node) => {
+            .then(node => {
               if (node) {
                 this.preview(node);
               } else {
@@ -412,7 +436,7 @@ class Detail extends React.Component {
     );
   };
 
-  preview = (item) => {
+  preview = item => {
     this.setState({
       previewFile: item,
     });
@@ -428,18 +452,20 @@ class Detail extends React.Component {
     return selectedOneItem ? (
       <div style={{ height: '100%' }}>
         <div className="previewFileMain">
-          { previewFile && <AttachmentsPreview
-            options={{
-              attachments: [previewFile],
-              callFrom: 'kc',
-              hideFunctions: ['showKcVersionPanel', 'saveToKnowlege', 'share', 'rename'],
-              fromType: 7,
-              index: 0,
-            }}
-            onClose={() => {
-              this.preview(undefined);
-            }}
-          /> }
+          {previewFile && (
+            <AttachmentsPreview
+              options={{
+                attachments: [previewFile],
+                callFrom: 'kc',
+                hideFunctions: ['showKcVersionPanel', 'saveToKnowlege', 'share', 'rename'],
+                fromType: 7,
+                index: 0,
+              }}
+              onClose={() => {
+                this.preview(undefined);
+              }}
+            />
+          )}
         </div>
         <div className="slideDetail flexColumn">
           <div className="slideDetailTitle boxSizing">
@@ -491,14 +517,24 @@ class Detail extends React.Component {
                   }
                 />
                 <AttributePair name={_l('类型')} value={data.ext ? data.ext : '文件夹'} />
-                <AttributePair name={_l('存储位置')} value={<span title={this.state.readablePosition}>{this.state.readablePosition}</span>} />
+                <AttributePair
+                  name={_l('存储位置')}
+                  value={<span title={this.state.readablePosition}>{this.state.readablePosition}</span>}
+                />
                 <AttributePair name={_l('创建时间')} value={moment(data.createTime).format('YYYY-MM-DD HH:mm:ss')} />
                 <AttributePair name={_l('最近修改')} value={moment(data.updateTime).format('YYYY-MM-DD HH:mm:ss')} />
                 <AttributePair name={_l('浏览数')} value={data.viewCount} hide={isFolder} />
                 <AttributePair name={_l('下载数')} value={data.downloadCount} hide={isFolder} />
                 <AttributePair
                   name={_l('分享链接')}
-                  value={<input type="text" readOnly className="copyLink boderRadAll_3 boxSizing" value={this.state.shareUrl} />}
+                  value={
+                    <input
+                      type="text"
+                      readOnly
+                      className="copyLink boderRadAll_3 boxSizing"
+                      value={this.state.shareUrl}
+                    />
+                  }
                 />
               </ul>
               <div>
@@ -569,8 +605,14 @@ class Detail extends React.Component {
                       type="radio"
                       name="shareAuth"
                       disabled={!data.canChangeSharable}
-                      className={cx({ checked: data.visibleType === NODE_VISIBLE_TYPE.PUBLIC || data.visibleType === NODE_VISIBLE_TYPE.MDUSER })}
-                      checked={data.visibleType == NODE_VISIBLE_TYPE.PUBLIC || data.visibleType == NODE_VISIBLE_TYPE.MDUSER}
+                      className={cx({
+                        checked:
+                          data.visibleType === NODE_VISIBLE_TYPE.PUBLIC ||
+                          data.visibleType === NODE_VISIBLE_TYPE.MDUSER,
+                      })}
+                      checked={
+                        data.visibleType == NODE_VISIBLE_TYPE.PUBLIC || data.visibleType == NODE_VISIBLE_TYPE.MDUSER
+                      }
                       onChange={() => {
                         this.editNodeAttribute({ visibleType: NODE_VISIBLE_TYPE.PUBLIC });
                       }}
@@ -588,14 +630,24 @@ class Detail extends React.Component {
             )}
           </div>
           <span className="pinDetailCon">
-            <Checkbox text={_l('保持展开')} size="middle" checked={this.props.isPinned} onClick={this.props.togglePinned} />
+            <Checkbox
+              text={_l('保持展开')}
+              size="middle"
+              checked={this.props.isPinned}
+              onClick={this.props.togglePinned}
+            />
           </span>
         </div>
       </div>
     ) : (
       <div className="slideDetail flexColumn">
         <span className="pinDetailCon abs">
-          <Checkbox text={_l('保持展开')} size="middle" checked={this.props.isPinned} onClick={this.props.togglePinned} />
+          <Checkbox
+            text={_l('保持展开')}
+            size="middle"
+            checked={this.props.isPinned}
+            onClick={this.props.togglePinned}
+          />
         </span>
         {!this.props.data.size ? (
           <div className="slideDetailNoItem Font14">
@@ -606,10 +658,8 @@ class Detail extends React.Component {
         ) : (
           <div className="slideDetailItem Font14">
             <div className="slideDetailItemPic" />
-            {_l('当前选中了 %0 个文件夹', this.state.folderCount)}，{_l(
-              '%0个文件',
-              (this.props.selectAllSize || this.props.data.size) - this.state.folderCount
-            )}
+            {_l('当前选中了 %0 个文件夹', this.state.folderCount)}，
+            {_l('%0个文件', (this.props.selectAllSize || this.props.data.size) - this.state.folderCount)}
             <br />
             <span>{_l('文件共 %0', humanFileSize(this.state.fileSize))}</span>
           </div>
@@ -629,7 +679,11 @@ class AttributePair extends React.Component {
   render() {
     return (
       <li className={cx('boxSizing ellipsis', { hide: this.props.hide })}>
-        <span className="attributeLeft">{this.props.name.split('').map((char, i) => <span key={i}>{char}</span>)}</span>
+        <span className="attributeLeft">
+          {this.props.name.split('').map((char, i) => (
+            <span key={i}>{char}</span>
+          ))}
+        </span>
         {this.props.value}
       </li>
     );

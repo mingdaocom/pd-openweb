@@ -13,7 +13,7 @@ export default {
   **/
    getGroupsSearch: function (args, options = {}) {
      
-     return $.api('Group', 'GetGroupsSearch', args, options);
+     return mdyAPI('Group', 'GetGroupsSearch', args, options);
    },
   /**
   * 获取群组列表，包括名称和是否官方
@@ -26,7 +26,7 @@ export default {
   **/
    getGroupsNameAndIsVerified: function (args, options = {}) {
      
-     return $.api('Group', 'GetGroupsNameAndIsVerified', args, options);
+     return mdyAPI('Group', 'GetGroupsNameAndIsVerified', args, options);
    },
   /**
   * 获取最常使用的群组
@@ -38,7 +38,7 @@ export default {
   **/
    selectGroupMostFrequent: function (args, options = {}) {
      
-     return $.api('Group', 'SelectGroupMostFrequent', args, options);
+     return mdyAPI('Group', 'SelectGroupMostFrequent', args, options);
    },
   /**
   * 群组选择组件后台方法
@@ -51,7 +51,7 @@ export default {
   **/
    selectGroup: function (args, options = {}) {
      
-     return $.api('Group', 'SelectGroup', args, options);
+     return mdyAPI('Group', 'SelectGroup', args, options);
    },
   /**
   * 获取群组列表
@@ -75,7 +75,7 @@ export default {
   **/
    getGroups: function (args, options = {}) {
      
-     return $.api('Group', 'GetGroups', args, options);
+     return mdyAPI('Group', 'GetGroups', args, options);
    },
   /**
   * 获取通讯录群组
@@ -92,7 +92,7 @@ export default {
   **/
    getContactGroups: function (args, options = {}) {
      
-     return $.api('Group', 'GetContactGroups', args, options);
+     return mdyAPI('Group', 'GetContactGroups', args, options);
    },
   /**
   * 加载群组成员（用户已加入此群组）
@@ -108,7 +108,7 @@ export default {
   **/
    getGroupUsers: function (args, options = {}) {
      
-     return $.api('Group', 'GetGroupUsers', args, options);
+     return mdyAPI('Group', 'GetGroupUsers', args, options);
    },
   /**
   * 关键词搜索群组内有效成员
@@ -123,7 +123,7 @@ export default {
   **/
    getGroupEffectUsers: function (args, options = {}) {
      
-     return $.api('Group', 'GetGroupEffectUsers', args, options);
+     return mdyAPI('Group', 'GetGroupEffectUsers', args, options);
    },
   /**
   * 加载群组默认头像
@@ -134,7 +134,7 @@ export default {
   **/
    getGroupAvatarSelectList: function (args, options = {}) {
      
-     return $.api('Group', 'GetGroupAvatarSelectList', args, options);
+     return mdyAPI('Group', 'GetGroupAvatarSelectList', args, options);
    },
   /**
   * 获取群组信息
@@ -147,7 +147,7 @@ export default {
   **/
    getGroupInfo: function (args, options = {}) {
      
-     return $.api('Group', 'GetGroupInfo', args, options);
+     return mdyAPI('Group', 'GetGroupInfo', args, options);
    },
   /**
   * 群组名片
@@ -159,7 +159,7 @@ export default {
   **/
    getGroupCardInfo: function (args, options = {}) {
      
-     return $.api('Group', 'GetGroupCardInfo', args, options);
+     return mdyAPI('Group', 'GetGroupCardInfo', args, options);
    },
   /**
   * 添加群组
@@ -176,7 +176,7 @@ export default {
   **/
    addGroup: function (args, options = {}) {
      
-     return $.api('Group', 'AddGroup', args, options);
+     return mdyAPI('Group', 'AddGroup', args, options);
    },
   /**
   * 添加讨论组
@@ -188,7 +188,7 @@ export default {
   **/
    addDiscussionGroup: function (args, options = {}) {
      
-     return $.api('Group', 'AddDiscussionGroup', args, options);
+     return mdyAPI('Group', 'AddDiscussionGroup', args, options);
    },
   /**
   * 设置管理员
@@ -201,7 +201,7 @@ export default {
   **/
    addAdmin: function (args, options = {}) {
      
-     return $.api('Group', 'AddAdmin', args, options);
+     return mdyAPI('Group', 'AddAdmin', args, options);
    },
   /**
   * 申请加入群组
@@ -213,7 +213,7 @@ export default {
   **/
    applyJoinGroup: function (args, options = {}) {
      
-     return $.api('Group', 'ApplyJoinGroup', args, options);
+     return mdyAPI('Group', 'ApplyJoinGroup', args, options);
    },
   /**
   * 审批通过
@@ -226,7 +226,7 @@ export default {
   **/
    passJoinGroup: function (args, options = {}) {
      
-     return $.api('Group', 'PassJoinGroup', args, options);
+     return mdyAPI('Group', 'PassJoinGroup', args, options);
    },
   /**
   * 退出群组
@@ -238,7 +238,7 @@ export default {
   **/
    exitGroup: function (args, options = {}) {
      
-     return $.api('Group', 'ExitGroup', args, options);
+     return mdyAPI('Group', 'ExitGroup', args, options);
    },
   /**
   * 开启群组
@@ -250,7 +250,7 @@ export default {
   **/
    openGroup: function (args, options = {}) {
      
-     return $.api('Group', 'OpenGroup', args, options);
+     return mdyAPI('Group', 'OpenGroup', args, options);
    },
   /**
   * 关闭群组
@@ -262,7 +262,7 @@ export default {
   **/
    closeGroup: function (args, options = {}) {
      
-     return $.api('Group', 'CloseGroup', args, options);
+     return mdyAPI('Group', 'CloseGroup', args, options);
    },
   /**
   * 更新群组push消息
@@ -275,7 +275,7 @@ export default {
   **/
    updateGroupPushNotice: function (args, options = {}) {
      
-     return $.api('Group', 'UpdateGroupPushNotice', args, options);
+     return mdyAPI('Group', 'UpdateGroupPushNotice', args, options);
    },
   /**
   * 更改群头像
@@ -288,7 +288,7 @@ export default {
   **/
    updateGroupAvatar: function (args, options = {}) {
      
-     return $.api('Group', 'UpdateGroupAvatar', args, options);
+     return mdyAPI('Group', 'UpdateGroupAvatar', args, options);
    },
   /**
   * 修改群名称
@@ -301,7 +301,7 @@ export default {
   **/
    updateGroupName: function (args, options = {}) {
      
-     return $.api('Group', 'UpdateGroupName', args, options);
+     return mdyAPI('Group', 'UpdateGroupName', args, options);
    },
   /**
   * 修改群公告
@@ -314,7 +314,7 @@ export default {
   **/
    updateGroupAbout: function (args, options = {}) {
      
-     return $.api('Group', 'UpdateGroupAbout', args, options);
+     return mdyAPI('Group', 'UpdateGroupAbout', args, options);
    },
   /**
   * 修改群审批
@@ -327,7 +327,7 @@ export default {
   **/
    updateGroupApproval: function (args, options = {}) {
      
-     return $.api('Group', 'UpdateGroupApproval', args, options);
+     return mdyAPI('Group', 'UpdateGroupApproval', args, options);
    },
   /**
   * 修改群是否隐藏
@@ -340,7 +340,7 @@ export default {
   **/
    updateGroupHidden: function (args, options = {}) {
      
-     return $.api('Group', 'UpdateGroupHidden', args, options);
+     return mdyAPI('Group', 'UpdateGroupHidden', args, options);
    },
   /**
   * 群组转换
@@ -353,7 +353,7 @@ export default {
   **/
    updateGroupToPost: function (args, options = {}) {
      
-     return $.api('Group', 'UpdateGroupToPost', args, options);
+     return mdyAPI('Group', 'UpdateGroupToPost', args, options);
    },
   /**
   * 修改官方群
@@ -367,7 +367,7 @@ export default {
   **/
    updateGroupVerified: function (args, options = {}) {
      
-     return $.api('Group', 'UpdateGroupVerified', args, options);
+     return mdyAPI('Group', 'UpdateGroupVerified', args, options);
    },
   /**
   * 禁言
@@ -380,7 +380,7 @@ export default {
   **/
    updateGroupForbidSpeak: function (args, options = {}) {
      
-     return $.api('Group', 'UpdateGroupForbidSpeak', args, options);
+     return mdyAPI('Group', 'UpdateGroupForbidSpeak', args, options);
    },
   /**
   * 禁止邀请
@@ -393,7 +393,7 @@ export default {
   **/
    updateGroupForbidInvite: function (args, options = {}) {
      
-     return $.api('Group', 'UpdateGroupForbidInvite', args, options);
+     return mdyAPI('Group', 'UpdateGroupForbidInvite', args, options);
    },
   /**
   * 删除群组（解散）
@@ -405,7 +405,7 @@ export default {
   **/
    removeGroup: function (args, options = {}) {
      
-     return $.api('Group', 'RemoveGroup', args, options);
+     return mdyAPI('Group', 'RemoveGroup', args, options);
    },
   /**
   * 移除管理员
@@ -418,7 +418,7 @@ export default {
   **/
    removeAdmin: function (args, options = {}) {
      
-     return $.api('Group', 'RemoveAdmin', args, options);
+     return mdyAPI('Group', 'RemoveAdmin', args, options);
    },
   /**
   * 移除群组用户
@@ -431,7 +431,7 @@ export default {
   **/
    removeUser: function (args, options = {}) {
      
-     return $.api('Group', 'RemoveUser', args, options);
+     return mdyAPI('Group', 'RemoveUser', args, options);
    },
   /**
   * 拒绝用户加入
@@ -444,7 +444,7 @@ export default {
   **/
    refuseUser: function (args, options = {}) {
      
-     return $.api('Group', 'RefuseUser', args, options);
+     return mdyAPI('Group', 'RefuseUser', args, options);
    },
   /**
   * 取消邀请
@@ -457,7 +457,7 @@ export default {
   **/
    cancelInviteUser: function (args, options = {}) {
      
-     return $.api('Group', 'CancelInviteUser', args, options);
+     return mdyAPI('Group', 'CancelInviteUser', args, options);
    },
   /**
   * 验证用户是否加入群组
@@ -469,6 +469,6 @@ export default {
   **/
    valideUserJoinGroup: function (args, options = {}) {
      
-     return $.api('Group', 'ValideUserJoinGroup', args, options);
+     return mdyAPI('Group', 'ValideUserJoinGroup', args, options);
    },
 };

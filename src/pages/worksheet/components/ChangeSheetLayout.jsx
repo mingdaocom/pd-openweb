@@ -77,6 +77,7 @@ export default function LayoutChangedIcon(props) {
         popupAlign={{
           points: ['tl', 'bl'],
           offset: [-13, 8],
+          overflow: { adjustX: true, adjustY: true },
         }}
       >
         <i className="icon icon-save1"></i>

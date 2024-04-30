@@ -1,7 +1,7 @@
 ﻿import cx from 'classnames';
 import PropTypes from 'prop-types';
 import React from 'react';
-import UserName from 'src/components/userName';
+import { UserName } from 'ming-ui';
 import postAjax from 'src/api/post';
 import PostMessage from './postMessage';
 import PostComponent from '../postComponent';
@@ -76,12 +76,8 @@ class PostMain extends React.Component {
       const sh = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
       const eLeft = e.clientX - 40 < 0 ? e.clientX : e.clientX;
       const eTop = e.clientY < 0 ? e.clientY + sh : e.clientY + sh;
-      const pLeft = $(even)
-        .closest('.postContent')
-        .offset().left;
-      const pTop = $(even)
-        .closest('.postContent')
-        .offset().top;
+      const pLeft = $(even).closest('.postContent').offset().left;
+      const pTop = $(even).closest('.postContent').offset().top;
       if (txt) {
         this.setState({
           isFastCreate: true,
@@ -136,19 +132,13 @@ class PostMain extends React.Component {
                       <i className="ThemeColor4 icon-replyto replyMessage" />
                     </Tooltip>
                   </span>
-                ) : (
-                  undefined
-                )}
+                ) : undefined}
                 <span key={1}> : </span>
               </span>
-            ) : (
-              undefined
-            )}
+            ) : undefined}
             <PostMessage postItem={postItem} keywords={this.props.keywords} inline={this.props.inlineMessage} />
           </div>
-          {this.state.isFullHeight ? (
-            undefined
-          ) : (
+          {this.state.isFullHeight ? undefined : (
             <a className={cx('Hand showMore', { hide: this.state.isFullHeight })} onClick={this.showMore}>
               {_l('更多...')}
             </a>

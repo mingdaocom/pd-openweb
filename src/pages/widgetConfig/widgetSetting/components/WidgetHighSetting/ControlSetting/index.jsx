@@ -1,7 +1,6 @@
 import React, { Fragment } from 'react';
 import { Checkbox } from 'ming-ui';
 import { Tooltip } from 'antd';
-import { SettingItem } from '../../../../styled';
 import { getAdvanceSetting, handleAdvancedSettingChange, updateConfig } from '../../../../util/setting';
 import TelConfig from './TelConfig';
 import UserConfig from './UserConfig';
@@ -13,6 +12,8 @@ import NumberConfig from './NumberConfig';
 import AttachmentConfig from './AttachmentConfig';
 import FormulaDateConfig from './FormulaDateConfig';
 import RelateConfig from './RelateConfig';
+import CascaderConfig from './CascaderConfig';
+import RoleConfig from './RoleConfig';
 import _ from 'lodash';
 
 const TYPE_TO_COMP = {
@@ -25,36 +26,17 @@ const TYPE_TO_COMP = {
   28: ScoreConfig,
   29: RelateConfig,
   31: NumberConfig,
+  35: CascaderConfig,
   37: NumberConfig,
   38: FormulaDateConfig,
   46: TimeConfig,
+  48: RoleConfig,
 };
-
-const CASCADER_CONFIG = [
-  {
-    text: _l('必须选择到最后一级'),
-    key: 'anylevel',
-  },
-  {
-    text: _l('选择结果显示层级路径'),
-    tip: _l('勾选后，将呈现选项路径。例：上海市/徐汇区/漕河泾'),
-    key: 'allpath',
-  },
-];
 
 export default function WidgetConfig(props) {
   const { data, onChange } = props;
-  const { type, enumDefault, advancedSetting = {}, strDefault } = data;
-  const {
-    showxy,
-    showtype,
-    analysislink,
-    uselast,
-    sorttype = 'zh',
-    anylevel,
-    allpath,
-    showdelete,
-  } = getAdvanceSetting(data);
+  const { type, enumDefault, strDefault } = data;
+  const { showxy, analysislink, uselast, sorttype = 'zh', anylevel, allpath, showdelete } = getAdvanceSetting(data);
 
   // 文本、文本组合
   if (_.includes([2, 30, 32, 33], type)) {
@@ -120,25 +102,6 @@ export default function WidgetConfig(props) {
         </div>
       </Fragment>
     );
-  }
-  // 级联
-  if (type === 35) {
-    return (String(showtype) === '4' ? CASCADER_CONFIG.slice(1) : CASCADER_CONFIG).map(({ text, tip, key }) => (
-      <div key={key} className="labelWrap">
-        <Checkbox
-          size="small"
-          checked={String(advancedSetting[key]) === '1'}
-          onClick={checked => onChange(handleAdvancedSettingChange(data, { [key]: +!checked }))}
-        >
-          <span>{text}</span>
-          {tip && (
-            <Tooltip placement="topLeft" title={tip} arrowPointAtCenter>
-              <i className="icon-help Gray_9e Font16"></i>
-            </Tooltip>
-          )}
-        </Checkbox>
-      </div>
-    ));
   }
   // 地区
   if (_.includes([23, 24], type)) {

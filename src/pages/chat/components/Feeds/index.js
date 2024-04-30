@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import './index.less';
 import * as ajax from '../../utils/ajax';
-import { getClassNameByExt, createLinksForMessage } from 'src/util';
+import { getClassNameByExt, createLinksForMessage, dateConvertToUserZone } from 'src/util';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import postAjax from 'src/api/post';
 import PostDetails from 'src/pages/feed/components/post/postDetails/postDetails';
@@ -143,7 +143,7 @@ export class FeesItem extends Component {
           {filelist && filelist.length ? this.renderFile(filelist) : undefined}
         </div>
         <div className="feed-metadata">
-          <span className="feed-ctime pull-left">{createTimeSpan(item.createTime)}</span>
+          <span className="feed-ctime pull-left">{createTimeSpan(dateConvertToUserZone(item.createTime))}</span>
           <span className="feed-comment icon-task-reply-msg">{item.commentCount}</span>
         </div>
       </div>

@@ -1,13 +1,15 @@
 import React from 'react';
 import * as actions from '../redux/actions';
-import mdNotification from 'ming-ui/functions/notify';
+import { mdNotification } from 'ming-ui/functions';
 import renderLogout from '../components/Logout';
 import { getPssId } from 'src/util/pssId';
 import { removeFlashTitle } from './index';
-import newMsgAudio from 'src/pages/chat/lib/mp3player/newMsgAudio.html';
+import sessionNewMsgAudio from 'src/pages/chat/lib/mp3player/sessionNewMsgAudio.html';
+import systemNewMsgAudio from 'src/pages/chat/lib/mp3player/systemNewMsgAudio.html';
 
 export const socketInitEvent = function () {
-  $(newMsgAudio).appendTo('body');
+  $(sessionNewMsgAudio).appendTo('html > body');
+  $(systemNewMsgAudio).appendTo('html > body');
 
   stateInit.call(this);
 
@@ -187,7 +189,7 @@ export const stateInit = function () {
   };
   let reconnectTime = null;
 
-  IM.socket.on('error', (error) => {
+  IM.socket.on('error', error => {
     if (error && error.code === 'parser error') {
       return;
     }

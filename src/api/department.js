@@ -11,7 +11,7 @@ export default {
   **/
    addDepartment: function (args, options = {}) {
      
-     return $.api('Department', 'AddDepartment', args, options);
+     return mdyAPI('Department', 'AddDepartment', args, options);
    },
   /**
   * 编辑部门（Admin）
@@ -28,7 +28,7 @@ export default {
   **/
    editDepartment: function (args, options = {}) {
      
-     return $.api('Department', 'EditDepartment', args, options);
+     return mdyAPI('Department', 'EditDepartment', args, options);
    },
   /**
   * 新增或移除单个部门负责人（Admin）
@@ -42,7 +42,7 @@ export default {
   **/
    editDepartmentSingleChargeUser: function (args, options = {}) {
      
-     return $.api('Department', 'EditDepartmentSingleChargeUser', args, options);
+     return mdyAPI('Department', 'EditDepartmentSingleChargeUser', args, options);
    },
   /**
   * 删除部门（Admin）
@@ -55,7 +55,7 @@ export default {
   **/
    deleteDepartments: function (args, options = {}) {
      
-     return $.api('Department', 'DeleteDepartments', args, options);
+     return mdyAPI('Department', 'DeleteDepartments', args, options);
    },
   /**
   * 网络管理 - 根据部门父Id获取子部门,departmentId为null表示父部门是网络（Admin）
@@ -70,7 +70,7 @@ export default {
   **/
    pagedSubDepartments: function (args, options = {}) {
      
-     return $.api('Department', 'PagedSubDepartments', args, options);
+     return mdyAPI('Department', 'PagedSubDepartments', args, options);
    },
   /**
   * 网络管理 - 根据部门父Id获取子部门,departmentId为null表示父部门是网络（Admin）
@@ -84,7 +84,7 @@ export default {
   **/
    getProjectSubDepartment: function (args, options = {}) {
      
-     return $.api('Department', 'GetProjectSubDepartment', args, options);
+     return mdyAPI('Department', 'GetProjectSubDepartment', args, options);
    },
   /**
   * 网络管理 - 搜索(人和部门)（Admin）
@@ -97,7 +97,7 @@ export default {
   **/
    searchDeptAndUsers: function (args, options = {}) {
      
-     return $.api('Department', 'SearchDeptAndUsers', args, options);
+     return mdyAPI('Department', 'SearchDeptAndUsers', args, options);
    },
   /**
   * （Admin）指定departmentId，查询整个树状结构（Admin）
@@ -110,7 +110,7 @@ export default {
   **/
    getProjectDepartmentFullTreeByDepartmentId: function (args, options = {}) {
      
-     return $.api('Department', 'GetProjectDepartmentFullTreeByDepartmentId', args, options);
+     return mdyAPI('Department', 'GetProjectDepartmentFullTreeByDepartmentId', args, options);
    },
   /**
   * （Admin）获取 指定（单个）部门 至顶而下的树状结构（含该部门所有上级 和 所有下级）
@@ -123,7 +123,7 @@ export default {
   **/
    getOneDepartmentFullTree: function (args, options = {}) {
      
-     return $.api('Department', 'GetOneDepartmentFullTree', args, options);
+     return mdyAPI('Department', 'GetOneDepartmentFullTree', args, options);
    },
   /**
   * 网络管理 - 按关键词搜索部门（仅搜部门），通用邀请层使用（Admin）
@@ -139,7 +139,7 @@ export default {
   **/
    getProjectContactDepartments: function (args, options = {}) {
      
-     return $.api('Department', 'GetProjectContactDepartments', args, options);
+     return mdyAPI('Department', 'GetProjectContactDepartments', args, options);
    },
   /**
   * （Admin） 获取部门详细信息
@@ -152,7 +152,7 @@ export default {
   **/
    getDepartmentInfo: function (args, options = {}) {
      
-     return $.api('Department', 'GetDepartmentInfo', args, options);
+     return mdyAPI('Department', 'GetDepartmentInfo', args, options);
    },
   /**
   * 网络管理 - 查询部门并且没有关键字
@@ -169,7 +169,7 @@ export default {
   **/
    searchProjectDepartment2: function (args, options = {}) {
      
-     return $.api('Department', 'SearchProjectDepartment2', args, options);
+     return mdyAPI('Department', 'SearchProjectDepartment2', args, options);
    },
   /**
   * 网络管理 - 查询部门并且没有关键字
@@ -184,7 +184,7 @@ export default {
   **/
    searchProjectDepartment: function (args, options = {}) {
      
-     return $.api('Department', 'SearchProjectDepartment', args, options);
+     return mdyAPI('Department', 'SearchProjectDepartment', args, options);
    },
   /**
   * 导入部门
@@ -200,7 +200,7 @@ export default {
   **/
    importDepartmentList: function (args, options = {}) {
      
-     return $.api('Department', 'ImportDepartmentList', args, options);
+     return mdyAPI('Department', 'ImportDepartmentList', args, options);
    },
   /**
   * 网络管理 - 分页获取部门成员简要信息
@@ -217,7 +217,7 @@ export default {
   **/
    pagedDeptAccountShrotInfos: function (args, options = {}) {
      
-     return $.api('Department', 'PagedDeptAccountShrotInfos', args, options);
+     return mdyAPI('Department', 'PagedDeptAccountShrotInfos', args, options);
    },
   /**
   * 网络管理 - 获取部门的总人数，以及成员详情
@@ -234,7 +234,7 @@ export default {
   **/
    getProjectDepartmentUsers: function (args, options = {}) {
      
-     return $.api('Department', 'GetProjectDepartmentUsers', args, options);
+     return mdyAPI('Department', 'GetProjectDepartmentUsers', args, options);
    },
   /**
   * 网络管理 - 获取网络的总人数以及未加入任何部门成员详情
@@ -249,7 +249,7 @@ export default {
   **/
    getNoDepartmentUsers: function (args, options = {}) {
      
-     return $.api('Department', 'GetNoDepartmentUsers', args, options);
+     return mdyAPI('Department', 'GetNoDepartmentUsers', args, options);
    },
   /**
   * 网络管理 - 部门拖拽
@@ -264,7 +264,7 @@ export default {
   **/
    moveDepartment: function (args, options = {}) {
      
-     return $.api('Department', 'MoveDepartment', args, options);
+     return mdyAPI('Department', 'MoveDepartment', args, options);
    },
   /**
   * 根据部门Id 获取完整的部门路径
@@ -275,7 +275,7 @@ export default {
   **/
    getDepartmentFullNameById: function (args, options = {}) {
      options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return $.api('Department', 'GetDepartmentFullNameById', args, options);
+     return mdyAPI('Department', 'GetDepartmentFullNameById', args, options);
    },
   /**
   * 根据部门Ids 获取完整的部门路径
@@ -288,7 +288,7 @@ export default {
   **/
    getDepartmentFullNameByIds: function (args, options = {}) {
      
-     return $.api('Department', 'GetDepartmentFullNameByIds', args, options);
+     return mdyAPI('Department', 'GetDepartmentFullNameByIds', args, options);
    },
   /**
   * 根据部门父Id获取子部门,departmentId为null表示父部门是网络
@@ -304,7 +304,7 @@ export default {
   **/
    getProjectSubDepartmentByDepartmentId: function (args, options = {}) {
      
-     return $.api('Department', 'GetProjectSubDepartmentByDepartmentId', args, options);
+     return mdyAPI('Department', 'GetProjectSubDepartmentByDepartmentId', args, options);
    },
   /**
   * 获取 成员及下级部门
@@ -321,7 +321,7 @@ export default {
   **/
    getMembersAndSubs: function (args, options = {}) {
      
-     return $.api('Department', 'GetMembersAndSubs', args, options);
+     return mdyAPI('Department', 'GetMembersAndSubs', args, options);
    },
   /**
   * 分页获取部门列表
@@ -339,7 +339,7 @@ export default {
   **/
    getProjectDepartmentByPage: function (args, options = {}) {
      
-     return $.api('Department', 'GetProjectDepartmentByPage', args, options);
+     return mdyAPI('Department', 'GetProjectDepartmentByPage', args, options);
    },
   /**
   * 获取 部门所有下级（树结构，可取全网络）
@@ -356,7 +356,7 @@ export default {
   **/
    pagedDepartmentTrees: function (args, options = {}) {
      
-     return $.api('Department', 'PagedDepartmentTrees', args, options);
+     return mdyAPI('Department', 'PagedDepartmentTrees', args, options);
    },
   /**
   * 获取 部门所有下级（树结构，可取全网络）
@@ -373,7 +373,7 @@ export default {
   **/
    pagedProjectDepartmentTrees: function (args, options = {}) {
      
-     return $.api('Department', 'PagedProjectDepartmentTrees', args, options);
+     return mdyAPI('Department', 'PagedProjectDepartmentTrees', args, options);
    },
   /**
   * 按关键词搜索部门（仅搜部门），通用邀请层使用
@@ -389,7 +389,7 @@ export default {
   **/
    getContactProjectDepartments: function (args, options = {}) {
      
-     return $.api('Department', 'GetContactProjectDepartments', args, options);
+     return mdyAPI('Department', 'GetContactProjectDepartments', args, options);
    },
   /**
   * 获取部门的总人数以及成员详情
@@ -407,7 +407,7 @@ export default {
   **/
    getDepartmentUsers: function (args, options = {}) {
      
-     return $.api('Department', 'GetDepartmentUsers', args, options);
+     return mdyAPI('Department', 'GetDepartmentUsers', args, options);
    },
   /**
   * 网络管理 - 用户下的部门ids
@@ -420,7 +420,7 @@ export default {
   **/
    getDepartmentsByAccountId: function (args, options = {}) {
      
-     return $.api('Department', 'GetDepartmentsByAccountId', args, options);
+     return mdyAPI('Department', 'GetDepartmentsByAccountId', args, options);
    },
   /**
   * 网络管理 - 获取网络的 未加入任何部门成员 详情
@@ -436,7 +436,7 @@ export default {
   **/
    getNotInDepartmentUsers: function (args, options = {}) {
      
-     return $.api('Department', 'GetNotInDepartmentUsers', args, options);
+     return mdyAPI('Department', 'GetNotInDepartmentUsers', args, options);
    },
   /**
   * 查询部门
@@ -451,7 +451,7 @@ export default {
   **/
    searchDepartment: function (args, options = {}) {
      
-     return $.api('Department', 'SearchDepartment', args, options);
+     return mdyAPI('Department', 'SearchDepartment', args, options);
    },
   /**
   * 通过组织code加入组织验证Token 获取部门架构
@@ -469,7 +469,7 @@ export default {
   **/
    getDepartmentByJoinProject: function (args, options = {}) {
      
-     return $.api('Department', 'GetDepartmentByJoinProject', args, options);
+     return mdyAPI('Department', 'GetDepartmentByJoinProject', args, options);
    },
   /**
   * 查询部门（分页）
@@ -486,6 +486,6 @@ export default {
   **/
    searchDepartment2: function (args, options = {}) {
      
-     return $.api('Department', 'SearchDepartment2', args, options);
+     return mdyAPI('Department', 'SearchDepartment2', args, options);
    },
 };

@@ -1,10 +1,11 @@
 import React, { Component, Fragment } from 'react';
 import { Dropdown, Menu } from 'antd';
-import { ScrollView } from 'ming-ui';
+import { ScrollView, Icon } from 'ming-ui';
 import { formatYaxisList, formatrChartValue, formatControlInfo, getChartColors } from './common';
 import { formatSummaryName, isFormatNumber } from 'statistics/common';
 import styled from 'styled-components';
 import cx from 'classnames';
+import tinycolor from '@ctrl/tinycolor';
 import gold_medal from 'statistics/assets/topChart/gold_medal.png';
 import silver_medal from 'statistics/assets/topChart/silver_medal.png';
 import copper_medal from 'statistics/assets/topChart/copper_medal.png';
@@ -48,7 +49,7 @@ const TopChartContent = styled.div`
     width: 50px;
   }
   .value {
-    width: 110px;
+    width: 20%;
     margin-left: 8px;
     text-align: right;
   }
@@ -61,7 +62,6 @@ const TopChartContent = styled.div`
     .progress {
       width: 0;
       height: 100%;
-      background: ${props => props.progressBgColor};
     }
   }
   &.noneValueProportion {
@@ -120,6 +120,7 @@ export default class extends Component {
       dropdownVisible: false,
       offset: {},
       match: null,
+      linkageMatch: null,
       newYaxisList: []
     }
   }
@@ -144,21 +145,49 @@ export default class extends Component {
     });
   }
   handleClick = (event, data) => {
-    const { xaxes, split } = this.props.reportData;
+    const { xaxes, split, appId, reportId, name, reportType, style } = this.props.reportData;
     const param = {};
+    const linkageMatch = {
+      sheetId: appId,
+      reportId,
+      reportName: name,
+      reportType,
+      filters: []
+    };
     if (xaxes.cid) {
       const isNumber = isFormatNumber(xaxes.controlType);
       const value = data.originalX;
       param[xaxes.cid] = isNumber && value ? Number(value) : value;
+      linkageMatch.value = value;
+      linkageMatch.filters.push({
+        controlId: xaxes.controlId,
+        values: [param[xaxes.cid]],
+        controlName: xaxes.controlName,
+        controlValue: data.name,
+        type: xaxes.controlType,
+        control: xaxes
+      });
     }
+    if (_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length) {
+      linkageMatch.onlyChartIds = style.autoLinkageChartObjectIds;
+    }
+    const isAll = this.isViewOriginalData && this.isLinkageData;
     const { left, top } = this.chartWrapEl.getBoundingClientRect();
     this.setState({
-      dropdownVisible: true,
+      dropdownVisible: isAll,
       offset: {
         x: event.clientX - left,
         y: event.clientY - top
       },
-      match: param
+      match: param,
+      linkageMatch
+    }, () => {
+      if (!isAll && this.isViewOriginalData) {
+        this.handleRequestOriginalData();
+      }
+      if (!isAll && this.isLinkageData) {
+        this.handleAutoLinkage();
+      }
     });
   }
   handleRequestOriginalData = () => {
@@ -175,6 +204,27 @@ export default class extends Component {
       this.props.requestOriginalData(data);
     }
   }
+  handleAutoLinkage = () => {
+    const { linkageMatch } = this.state;
+    this.props.onUpdateLinkageFiltersGroup(linkageMatch);
+    this.setState({
+      dropdownVisible: false,
+    });
+  }
+  getBgColor = (data) => {
+    const { themeColor, projectId, reportData, linkageMatch } = this.props;
+    const { style = {} } = reportData;
+    const colors = getChartColors(style, themeColor, projectId);
+    let color = colors[0];
+    if (!_.isEmpty(linkageMatch)) {
+      if (linkageMatch.value === data.originalX) {
+        return color;
+      } else {
+        return tinycolor(color).setAlpha(0.3).toRgbString();
+      }
+    }
+    return color;
+  }
   renderIndex(index) {
     const { style } = this.props.reportData;
     const { topStyle } = style;
@@ -186,8 +236,15 @@ export default class extends Component {
   renderOverlay() {
     return (
       <Menu className="chartMenu" style={{ width: 160 }}>
+        <Menu.Item onClick={this.handleAutoLinkage} key="autoLinkage">
+          <div className="flexRow valignWrapper">
+            <Icon icon="link1" className="mRight8 Gray_9e Font20 autoLinkageIcon" />
+            <span>{_l('联动')}</span>
+          </div>
+        </Menu.Item>
         <Menu.Item onClick={this.handleRequestOriginalData} key="viewOriginalData">
           <div className="flexRow valignWrapper">
+            <Icon icon="table" className="mRight8 Gray_9e Font18" />
             <span>{_l('查看原始数据')}</span>
           </div>
         </Menu.Item>
@@ -209,7 +266,7 @@ export default class extends Component {
     );
   }
   renderItem(data, index, maxValue) {
-    const { reportData, isViewOriginalData } = this.props;
+    const { reportData, isViewOriginalData, isLinkageData } = this.props;
     const { style = {}, yaxisList, displaySetup, sorts } = reportData;
     const sortId = sorts[0] ? Object.keys(sorts[0])[0] : null;
     const { valueProgressVisible } = style;
@@ -218,7 +275,9 @@ export default class extends Component {
         className="flexRow valignWrapper item"
         key={index}
         onClick={(event) => {
-          if (displaySetup.showRowList && isViewOriginalData) {
+          this.isViewOriginalData = displaySetup.showRowList && isViewOriginalData;
+          this.isLinkageData = isLinkageData && !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0);
+          if (this.isViewOriginalData || this.isLinkageData) {
             this.handleClick(event, data);
           }
         }}
@@ -227,7 +286,13 @@ export default class extends Component {
         <div className="name ellipsis mRight8" style={valueProgressVisible ? { width: '30%' } : { flex: 1 }} title={data.name}>{data.name}</div>
         {valueProgressVisible && (
           <div className="valueProgressWrap">
-            <div className="progress" style={{ width: `${data[_.find(yaxisList, { controlId: sortId }) ? sortId : _.get(yaxisList[0], 'controlId')] / maxValue * 100}%` }}></div>
+            <div
+              className="progress"
+              style={{
+                width: `${data[_.find(yaxisList, { controlId: sortId }) ? sortId : _.get(yaxisList[0], 'controlId')] / maxValue * 100}%`,
+                backgroundColor: this.getBgColor(data)
+              }}
+            />
           </div>
         )}
         {yaxisList.map(item => (
@@ -239,16 +304,15 @@ export default class extends Component {
     );
   }
   renderTopChart() {
-    const { themeColor, projectId, customPageConfig = {}, reportData } = this.props;
+    const { customPageConfig = {}, reportData } = this.props;
     const { chartColor, chartColorIndex = 1 } = customPageConfig;
     const { map, yaxisList } = reportData;
     const styleConfig = reportData.style || {};
     const style = chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0) ? { ...styleConfig, ...chartColor } : styleConfig;
     const data = formatTopChartData(map);
     const maxValue = _.max(data.map(data => data[_.get(yaxisList[0], 'controlId')]));
-    const colors = getChartColors(style, themeColor, projectId);
     return (
-      <TopChartContent className="h100 topChart noneValueProportion" progressBgColor={colors[0]}>
+      <TopChartContent className="h100 topChart noneValueProportion">
         <ScrollView>
           <Fragment>
             {yaxisList.length > 1 && this.renderHeader()}

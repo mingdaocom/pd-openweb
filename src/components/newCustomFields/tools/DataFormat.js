@@ -29,11 +29,14 @@ import MapLoader from 'ming-ui/components/amap/MapLoader';
 import MapHandler from 'ming-ui/components/amap/MapHandler';
 import departmentAjax from 'src/api/department';
 import organizeAjax from 'src/api/organize';
-import { browserIsMobile, getCurrentProject, toFixed } from 'src/util';
+import { browserIsMobile, getCurrentProject, toFixed, dateConvertToServerZone } from 'src/util';
 import { checkRuleLocked } from './filterFn';
-import _ from 'lodash';
+import _, { find, get, includes } from 'lodash';
 import { createRequestPool } from 'worksheet/api/standard';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
+import generateSubListStore from 'worksheet/components/ChildTable/redux/store';
+import generateRelateRecordTableStore from 'worksheet/components/RelateRecordTable/redux/store.js';
+import { setRowsFromStaticRows } from 'worksheet/components/ChildTable/redux/actions';
 
 export const initIntlTelInput = () => {
   if (window.initIntlTelInput) {
@@ -48,7 +51,7 @@ export const initIntlTelInput = () => {
   document.body.appendChild($con);
 
   window.initIntlTelInput = intlTelInput($input, {
-    initialCountry: 'cn',
+    initialCountry: _.get(md, 'global.Config.DefaultConfig.initialCountry') || 'cn',
     utilsScript: utils,
   });
 
@@ -81,7 +84,9 @@ const parseStaticValue = (item, staticValue) => {
   if (item.type === 15 || item.type === 16) {
     const unit = TIME_UNIT[item.unit] || 'd';
     if (staticValue === '2') {
-      return moment().format(item.type === 15 ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm:ss');
+      return item.type === 15
+        ? moment().format('YYYY-MM-DD')
+        : dateConvertToServerZone(moment().format('YYYY-MM-DD HH:mm:ss'));
     } else if (staticValue === '3') {
       return moment()
         .add(1, unit)
@@ -334,6 +339,11 @@ export const getDynamicValue = (data, currentItem, masterData, embedData) => {
       source = source.map(r => ({ ...r, isNew: true, isFromDefault: true }));
     } else {
       source = _.uniqBy(source);
+    }
+
+    // 选项已删除的校验
+    if (_.includes([9, 10, 11], currentItem.type)) {
+      source = source.filter(s => _.find(currentItem.options, c => c.key === s && !c.isDeleted));
     }
 
     value = JSON.stringify(source);
@@ -661,7 +671,7 @@ const parseDateFormula = (data, currentItem, recordCreateTime) => {
         try {
           formatMode = getShowFormat(column);
         } catch (err) {}
-        date = formatColumnToText(column, true, true);
+        date = formatColumnToText(column, true, true, { doNotHandleTimeZone: true });
       }
     } else if (currentItem.sourceControlId === '$ctime$') {
       date = recordCreateTime || new Date();
@@ -784,7 +794,9 @@ export const checkRequired = item => {
       (_.includes([21, 26, 27, 29, 35, 48], item.type) &&
         _.isArray(safeParse(item.value)) &&
         !safeParse(item.value).length) ||
-      (item.type === 29 && typeof item.value === 'string' && item.value.startsWith('deleteRowIds')) ||
+      (item.type === 29 &&
+        typeof item.value === 'string' &&
+        (item.value.startsWith('deleteRowIds') || item.value === '0')) ||
       (item.type === 34 &&
         ((item.value.rows && !filterEmptyChildTableRows(item.value.rows).length) || item.value === '0')) ||
       (item.type === 36 && item.value === '0'))
@@ -949,7 +961,7 @@ export const onValidator = ({ item, data, masterData, ignoreRequired, verifyAllC
       }
     }
 
-    if (isRelateRecordTableControl(item)) {
+    if (isRelateRecordTableControl(item, { ignoreInFormTable: true })) {
       errorType = '';
     }
 
@@ -1005,6 +1017,13 @@ export const onValidator = ({ item, data, masterData, ignoreRequired, verifyAllC
 export default class DataFormat {
   constructor({
     projectId = '',
+    isCharge,
+    appId,
+    worksheetId,
+    recordId,
+    instanceId,
+    workId,
+    setSubListStore,
     requestPool,
     abortController,
     data = [],
@@ -1018,6 +1037,7 @@ export default class DataFormat {
     masterRecordRowId = '',
     masterData,
     from = FROM.DEFAULT,
+    storeCenter,
     searchConfig = [],
     embedData = {},
     onAsyncChange = () => {},
@@ -1025,7 +1045,14 @@ export default class DataFormat {
     activeTrigger = () => {},
   }) {
     this.abortController = abortController;
+    this.disabled = disabled;
+    this.isCharge = isCharge;
+    this.appId = appId;
     this.projectId = projectId;
+    this.worksheetId = worksheetId;
+    this.recordId = recordId;
+    this.instanceId = instanceId;
+    this.workId = workId;
     this.masterRecordRowId = masterRecordRowId;
     this.data = _.cloneDeep(data);
     this.masterData = masterData;
@@ -1041,6 +1068,7 @@ export default class DataFormat {
     this.updateLoadingItems = updateLoadingItems;
     this.activeTrigger = activeTrigger;
     this.loopList = [];
+    this.isMobile = browserIsMobile();
 
     this.requestPool = requestPool || createRequestPool({ abortController });
 
@@ -1048,6 +1076,22 @@ export default class DataFormat {
     const locationIds = [];
     const organizeIds = [];
     const isInit = true;
+    this.storeCenter = storeCenter || {};
+
+    // store 挂载
+    this.data.forEach(item => {
+      if (item.hidden) return;
+      if (item.type === 34 && setSubListStore && !item.store) {
+        item.store = this.getControlStore(item);
+      } else if (
+        !this.isMobile &&
+        item.type === 29 &&
+        includes(['2', '5', '6'], get(item, 'advancedSetting.showtype')) &&
+        !item.store
+      ) {
+        item.store = this.getControlStore(item);
+      }
+    });
 
     // 新建初始化
     if (isCreate) {
@@ -1215,6 +1259,54 @@ export default class DataFormat {
     }
   }
 
+  getControlStore(control) {
+    const { appId, recordId, instanceId, workId, worksheetId, from } = this;
+    let store = this.storeCenter[control.controlId];
+    if (store) {
+      return store;
+    }
+    if (control.type === 34) {
+      store = generateSubListStore(control, {
+        from,
+        isCharge: this.isCharge,
+        appId,
+        relationWorksheetId: worksheetId,
+        recordId,
+        instanceId,
+        workId,
+      });
+    } else if (control.type === 29) {
+      store = generateRelateRecordTableStore(control, {
+        appId,
+        from,
+        isCharge: this.isCharge,
+        recordId,
+        allowEdit: !this.disabled,
+        worksheetId,
+        formData: this.data,
+        instanceId,
+        workId,
+      });
+    }
+    // generateRelateRecordTableStore
+    if (!store) {
+      console.error('create store fail!');
+      return;
+    }
+    this.storeCenter[control.controlId] = store;
+    return store;
+  }
+
+  /**
+   * 直接更新字段值，不触发任何其他逻辑
+   */
+  setControlItemValue(controlId, value) {
+    const targetControl = find(this.data, { controlId });
+    if (targetControl) {
+      targetControl.value = value;
+    }
+  }
+
   /**
    * 更新数据
    */
@@ -1226,13 +1318,99 @@ export default class DataFormat {
     data,
     isInit = false,
     searchByChange = false,
+    ignoreSearch = false, // 禁止触发查询工作表
   }) {
     this.asyncControls = {};
 
     try {
-      const updateSource = (controlId, value, currentSearchByChange) => {
+      const updateSource = (controlId, value, currentSearchByChange, currentIgnoreSearch) => {
         this.data.forEach(item => {
           if (item.controlId === controlId) {
+            // 子表被动赋值
+            if (item.type === 34 && !item.isSubList) {
+              let loading = true;
+              try {
+                loading = item.store.getState().baseLoading;
+              } catch (err) {}
+              const params = {
+                recordId: this.recordId,
+                masterData: {
+                  worksheetId: this.worksheetId,
+                  formData: this.data,
+                },
+                abortController: this.abortController,
+              };
+              if (_.get(value, 'action') === 'append') {
+                params.staticRows = value.rows;
+                params.type = 'append';
+              } else if (_.get(value, 'action') === 'clearAndSet') {
+                params.staticRows = value.rows;
+              } else if (typeof value === 'string' && !_.isEmpty(safeParse(value))) {
+                const parsedRows = safeParse(value);
+                params.staticRows = parsedRows;
+              }
+              if (params.staticRows) {
+                if (loading) {
+                  item.store.waitList.push(() => {
+                    setRowsFromStaticRows({
+                      ...params,
+                      triggerSubListControlValueChange: controlValue => {
+                        this.updateDataSource({
+                          controlId: item.controlId,
+                          value: controlValue,
+                        });
+                        this.onAsyncChange({
+                          controlId: item.controlId,
+                          value: controlValue,
+                        });
+                      },
+                    })(item.store.getState, item.store.dispatch);
+                  });
+                  if (!item.store.initialized) {
+                    item.store.init();
+                  }
+                } else {
+                  setRowsFromStaticRows(params)(item.store.getState, item.store.dispatch);
+                }
+                this.controlIds.push(controlId);
+                return;
+              }
+            }
+            // 表单内关联表格组件被动赋值
+            if (
+              !this.isMobile &&
+              !this.recordId &&
+              item.type === 29 &&
+              !item.isSubList &&
+              includes(
+                [
+                  String(RELATE_RECORD_SHOW_TYPE.TABLE),
+                  String(RELATE_RECORD_SHOW_TYPE.TAB_TABLE),
+                  String(RELATE_RECORD_SHOW_TYPE.LIST),
+                ],
+                item.advancedSetting.showtype,
+              )
+            ) {
+              if (String(value || '').startsWith('[')) {
+                try {
+                  const records = safeParse(value, 'array').filter(r => r.sid || r.sourcevalue);
+                  item.store.dispatch({
+                    type: 'UPDATE_RECORDS',
+                    records: records.map(r => r.row || safeParse(r.sourcevalue)),
+                  });
+                  value = records.length || '';
+                } catch (err) {
+                  value = '';
+                }
+              } else if (value === 'deleteRowIds: all') {
+                item.store.dispatch({
+                  type: 'UPDATE_RECORDS',
+                  records: [],
+                });
+                value = '';
+              }
+            }
+
             item.value = value;
 
             // 等级控件
@@ -1254,7 +1432,7 @@ export default class DataFormat {
 
             // 工作表查询
             const needSearch = this.getFilterConfigs(item, 'onBlur');
-            if (currentSearchByChange ? unTextSearch(item) : needSearch.length > 0) {
+            if (!currentIgnoreSearch && (currentSearchByChange ? unTextSearch(item) : needSearch.length > 0)) {
               this.updateDataBySearchConfigs({ control: item, searchType: 'onBlur' });
             }
 
@@ -1265,7 +1443,7 @@ export default class DataFormat {
               item,
               data: this.data,
               masterData: this.masterData,
-              verifyAllControls: this.from === 21 && browserIsMobile() ? true : undefined,
+              verifyAllControls: this.from === 21 && !this.isMobile ? true : undefined,
             });
 
             if (errorType) {
@@ -1304,6 +1482,7 @@ export default class DataFormat {
       const depthUpdateData = (controlId, depth, value) => {
         const currentItem = _.find(this.data, item => item.controlId === controlId);
         let currentSearchByChange = depth === 0 ? searchByChange : false;
+        let currentIgnoreSearch = depth === 0 ? ignoreSearch : false;
         // onChange主动更新，清空循环列表
         if (currentSearchByChange) {
           this.loopList = [];
@@ -1319,6 +1498,7 @@ export default class DataFormat {
         if (value === undefined) {
           //由默认值等引起的更新
           currentSearchByChange = false;
+          currentIgnoreSearch = false;
           // 大写金额控件
           if (currentItem.type === 25) {
             value = nzh.cn
@@ -1370,7 +1550,7 @@ export default class DataFormat {
                   : `${formulaResult.result.toFixed(singleControl.dot)}${singleControl.unit}`;
               }
 
-              return formatColumnToText(singleControl, true, true);
+              return formatColumnToText(singleControl, true, true, { doNotHandleTimeZone: true });
             });
           }
 
@@ -1437,22 +1617,33 @@ export default class DataFormat {
             let records = [];
             try {
               if (sourceSheetControl.type === 29) {
-                if (_.isArray(sourceSheetControl.value)) {
-                  records = sourceSheetControl.value;
-                } else if (sourceSheetControl.data) {
-                  records = sourceSheetControl.data;
-                } else {
-                  try {
+                try {
+                  if (sourceSheetControl.store) {
+                    const state = sourceSheetControl.store.getState();
+                    records = this.recordId
+                      ? state.records.concat(get(state, 'changes.addedRecords') || [])
+                      : state.records;
+                  } else if (_.isArray(sourceSheetControl.value)) {
+                    records = sourceSheetControl.value;
+                  } else if (sourceSheetControl.data) {
+                    records = sourceSheetControl.data;
+                  } else {
                     let parsedValue = safeParse(sourceSheetControl.value);
                     if (_.isArray(parsedValue)) {
                       records = parsedValue;
                     }
-                  } catch (err) {}
-                }
+                  }
+                } catch (err) {}
               } else if (sourceSheetControl.type === 34) {
-                records = sourceSheetControl.value.rows || [];
+                if (sourceSheetControl.store) {
+                  records = sourceSheetControl.store.getState().rows || [];
+                } else {
+                  records = sourceSheetControl.value.rows || [];
+                }
               }
-            } catch (err) {}
+            } catch (err) {
+              console.error(err);
+            }
             if (!currentItem.sourceControlId) {
               // 记录数量
               value = records.length;
@@ -1554,14 +1745,14 @@ export default class DataFormat {
           }
         }
 
-        updateSource(controlId, value, currentSearchByChange);
+        updateSource(controlId, value, currentSearchByChange, currentIgnoreSearch);
 
         // 受影响的控件集合
         const effectControls = _.filter(
           this.data,
           item =>
             (item.dataSource || '').indexOf(controlId) > -1 ||
-            (item.type === 38 && item.sourceControlId.indexOf(controlId) > -1) ||
+            (item.type === 38 && (item.sourceControlId || '').indexOf(controlId) > -1) ||
             (item.advancedSetting &&
               item.advancedSetting.defsource &&
               safeParse(item.advancedSetting.defsource).filter(
@@ -1849,10 +2040,12 @@ export default class DataFormat {
    */
   getCurrentRelateData({ controlId, dataSource: worksheetId, value }) {
     const control = _.isArray(value) ? value[0] : safeParse(value || '[]')[0];
-    const { isGet, sid } = control || {};
+    const { isGet, sid, sourcevalue } = control || {};
+    const relateValue = safeParse(sourcevalue || '{}');
     const hasRelate = _.find(this.data, ({ advancedSetting: { defsource } = {}, dataSource, type }) => {
       return (
-        (safeParse(defsource || '[]').some(i => controlId === i.rcid) ||
+        // 关联记录被设为默认值的字段没找到值才拉取数据
+        (safeParse(defsource || '[]').some(i => controlId === i.rcid && i.cid && _.isUndefined(relateValue[i.cid])) ||
           (type === 30 && dataSource.slice(1, -1) === controlId)) &&
         sid !== this.masterRecordRowId
       );
@@ -1893,6 +2086,7 @@ export default class DataFormat {
           this.updateDataSource({
             controlId,
             value: formatValue,
+            ignoreSearch: true,
           });
 
           this.onAsyncChange({
@@ -2240,7 +2434,7 @@ export default class DataFormat {
                     const currentId = _.get(canMapConfigs[0] || {}, 'subCid');
                     //取该控件值去填充
                     const item = _.find(controls, c => c.controlId === currentId);
-                    const itemData = _.includes([9, 10, 11], item.type)
+                    const itemData = _.includes([9, 10, 11], _.get(item, 'type'))
                       ? getControlValue(controls, currentControl, currentId, (filterData[0] || {})[currentId])
                       : (filterData[0] || {})[currentId];
                     const value = getCurrentValue(item, itemData, currentControl);
@@ -2256,4 +2450,18 @@ export default class DataFormat {
       }
     });
   };
+
+  /**
+   * 操作字段的 store
+   */
+  callStore(fn, ...args) {
+    let fnName = _.isObject(fn) ? fn.fnName : fn;
+    Object.keys(this.storeCenter).forEach(key => {
+      const store = this.storeCenter[key];
+      if (_.isObject(fn) && fn.controlId && fn.controlId !== get(store.getState(), 'base.control.controlId')) return;
+      if (store && _.isFunction(store[fnName])) {
+        store[fnName](...args);
+      }
+    });
+  }
 }

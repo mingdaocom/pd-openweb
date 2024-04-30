@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import { Dialog, Icon, Input, RadioGroup } from 'ming-ui';
-import { Select } from 'antd';
-import DialogSelectDept from 'src/components/dialogSelectDept';
-import selectJob from 'src/components/dialogSelectJob';
+import { Select, Checkbox } from 'antd';
+import { dialogSelectJob, dialogSelectDept } from 'ming-ui/functions';
 import userAjax from 'src/api/user';
 import workSiteAjax from 'src/api/workSite';
 import { encrypt } from 'src/util';
@@ -54,7 +53,8 @@ export default class DialogBatchEdit extends Component {
     const { projectId } = this.props;
     const { departmentInfos } = this.state;
     const _this = this;
-    new DialogSelectDept({
+
+    dialogSelectDept({
       projectId,
       unique: false,
       fromAdmin: true,
@@ -70,7 +70,7 @@ export default class DialogBatchEdit extends Component {
   dialogSelectJobFn = e => {
     const { projectId } = this.props;
     const { jobInfos } = this.state;
-    selectJob({
+    dialogSelectJob({
       projectId,
       onSave: data => {
         const jobIds = jobInfos.map(job => job.jobId);

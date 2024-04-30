@@ -5,7 +5,7 @@ import HistoryChart from './HistoryChart';
 import ExecutionDetails from './ExecutionDetails';
 import RealTimeData from './RealTimeData';
 import styled from 'styled-components';
-import { checkIsAppAdmin } from 'src/components/checkIsAppAdmin';
+import { checkIsAppAdmin } from 'ming-ui/functions';
 import './index.less';
 import _ from 'lodash';
 

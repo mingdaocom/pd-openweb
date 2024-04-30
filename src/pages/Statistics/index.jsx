@@ -42,6 +42,7 @@ const exceptions = [
   '.ant-picker-dropdown',
   '.rc-trigger-popup',
   '#attachemntsPreviewContainer',
+  '.selectRoleDialog',
 ];
 
 const SortableItem = SortableElement(({ item, ...other }) => {
@@ -117,18 +118,15 @@ export default class Statistics extends Component {
     this.setState({
       [loadingKey]: true,
     });
-    if (this.request && this.request.state() === 'pending') {
+    if (this.request) {
       this.request.abort();
     }
-    this.request = report.list(
-      {
-        appId: worksheetId,
-        isOwner: !!ownerId,
-        pageIndex,
-        pageSize: isFullScreen ? 20 : 10,
-      },
-      { fireImmediately: false },
-    );
+    this.request = report.list({
+      appId: worksheetId,
+      isOwner: !!ownerId,
+      pageIndex,
+      pageSize: isFullScreen ? 20 : 10,
+    });
     this.request.then(result => {
       this.setState({
         pageIndex: result.reports.length >= 10 ? pageIndex + 1 : 0,
@@ -343,6 +341,7 @@ export default class Statistics extends Component {
           )}
           {dialogVisible ? (
             <ChartDialog
+              appType={1}
               worksheetId={worksheetId}
               viewId={ownerId ? viewId : null}
               appId={appId}

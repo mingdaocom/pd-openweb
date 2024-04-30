@@ -97,7 +97,7 @@ export default class Dectypt extends Component {
           file: _.includes([0, 2, 3], resultCode) ? {} : file,
         });
       })
-      .fail(err => {
+      .catch(err => {
         this.setState({
           importPassword: '',
           lockPassword: '',

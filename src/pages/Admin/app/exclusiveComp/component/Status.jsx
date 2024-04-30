@@ -93,12 +93,12 @@ const STATUS_CONFIG = {
 };
 
 function Status(props) {
-  const { text = '', className = '', textColor = '', value = null } = props;
+  const { text = '', className = '', textColor = '', value = null, statusConfig } = props;
 
-  const [config, setConfig] = useState(STATUS_CONFIG[value]);
+  const [config, setConfig] = useState(statusConfig ? statusConfig[value] : STATUS_CONFIG[value]);
 
   useEffect(() => {
-    setConfig(STATUS_CONFIG[value]);
+    setConfig(statusConfig ? statusConfig[value] : STATUS_CONFIG[value]);
   }, [value]);
 
   if (!config) return null;

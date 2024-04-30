@@ -10,7 +10,7 @@ const Con = styled.div`
   align-items: center;
   .next,
   .prev {
-    width: 30px;
+    width: 24px;
     height: 24px;
     display: inline-flex;
     justify-content: center;
@@ -28,11 +28,11 @@ const Con = styled.div`
       cursor: not-allowed;
     }
   }
-  input {
-    margin: 0 12px;
-    padding: 0 10px;
-    height: 24px !important;
-    width: 44px !important;
+  input.ming {
+    margin: 0 6px;
+    padding: 0 6px;
+    height: 24px;
+    width: 32px;
     text-align: center;
     font-size: 13px !important;
     &:focus {
@@ -40,7 +40,7 @@ const Con = styled.div`
     }
   }
   .pageNumber {
-    margin: 0 12px;
+    margin: 0 8px;
   }
 `;
 

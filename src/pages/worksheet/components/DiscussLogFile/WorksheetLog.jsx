@@ -6,6 +6,7 @@ import sheetAjax from 'src/api/worksheet';
 import { createLinksForMessage } from 'src/util';
 import { filterXSS } from 'xss';
 import _ from 'lodash';
+import moment from 'moment';
 
 const PAGE_SIZE = 30;
 
@@ -22,6 +23,7 @@ export default class Discuss extends Component {
       loadouted: false,
       loading: true,
       discussList: [],
+      isSimplify: (localStorage.getItem('mdTimeFormat') || 'simplify') === 'simplify',
     };
   }
 
@@ -85,9 +87,16 @@ export default class Discuss extends Component {
     }
   }
 
+  handleTimeFormat = () => {
+    const { isSimplify } = this.state;
+    const timeFormat = isSimplify ? 'whole' : 'simplify';
+    this.setState({ isSimplify: !isSimplify });
+    localStorage.setItem('mdTimeFormat', timeFormat);
+  };
+
   render() {
     const { disableScroll } = this.props;
-    const { loading, discussList } = this.state;
+    const { loading, discussList, isSimplify } = this.state;
     const children = (
       <div className="logBox">
         {discussList.map((item, index) => {
@@ -96,11 +105,26 @@ export default class Discuss extends Component {
             accountId: item.accountId,
             accountName: item.accountName,
           });
+          const wholeTime = moment(item.createTime);
+          const showWholeTime = `${_l(
+            '%0年%1月%2日',
+            wholeTime.format('YYYY'),
+            wholeTime.format('MM'),
+            wholeTime.format('DD'),
+          )} ${wholeTime.format('HH:mm:ss')}`;
           return (
             <div className="logItem" key={index}>
               <Icon icon={[undefined, 'plus', 'edit', 'task-new-delete', 'restart', 'download', 'reply'][item.type]} />
               <span className="logContent" dangerouslySetInnerHTML={{ __html: filterXSS(message) }} />
-              <span className="logTime">{createTimeSpan(item.createTime)}</span>
+              <span className="logTime">
+                <strong
+                  className="Normal Hand Hover_21 logTimeTip"
+                  onClick={this.handleTimeFormat}
+                  data-tip={isSimplify ? showWholeTime : ''}
+                >
+                  {isSimplify ? createTimeSpan(item.createTime) : showWholeTime}
+                </strong>
+              </span>
             </div>
           );
         })}

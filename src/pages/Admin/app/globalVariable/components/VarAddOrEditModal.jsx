@@ -2,14 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
 import { Drawer, Select, Tooltip } from 'antd';
 import styled from 'styled-components';
-import { Icon, Input, Checkbox, Textarea, Radio, Button, ScrollView } from 'ming-ui';
+import { Icon, Input, Checkbox, Textarea, Radio, Button, ScrollView, SvgIcon } from 'ming-ui';
 import { ALLOW_UPDATE_RADIOS, AUTH_SCOPE_RADIOS, REFRESH_TYPE } from '../constant';
-import SvgIcon from 'src/components/SvgIcon';
 import moment from 'moment';
 import variableApi from 'src/api/variable';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import _ from 'lodash';
-import dialogSelectApp from 'src/components/dialogSelectApp';
+import { dialogSelectApp } from 'ming-ui/functions';
 
 const VarDrawer = styled(Drawer)`
   color: #333;

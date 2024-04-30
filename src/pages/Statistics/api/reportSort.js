@@ -13,7 +13,7 @@ var reportSort = {
   updateReportSort: function(args, options) {
     base.ajaxOptions.url = base.server() + '/reportSort/updateReportSort';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'reportSortupdateReportSort', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'reportSortupdateReportSort', JSON.stringify(args), $.extend(base, options));
   },
 };
 export default reportSort;

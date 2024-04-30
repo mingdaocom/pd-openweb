@@ -4,12 +4,11 @@ import './style.less';
 import Ajax from 'src/api/workWeiXin';
 import projectAjax from 'src/api/project';
 import Api from 'api/homeApp';
-import { Icon, LoadDiv, Button, Input } from 'ming-ui';
+import { Icon, LoadDiv, Button, SvgIcon } from 'ming-ui';
 import cx from 'classnames';
 import html2canvas from 'html2canvas';
 import { navigateTo } from '../../../../../../router/navigateTo';
 import { compareProps } from 'pages/PageHeader/util.js';
-import SvgIcon from 'src/components/SvgIcon';
 import CreateLinkDialog from './CreateLinkDialog';
 import wx1Png from './img/wx/1.png';
 import wx2Png from './img/wx/2.png';
@@ -476,39 +475,41 @@ export default class DingSyncCourse extends React.Component {
       );
     }
     return (
-      <div className="courseBox card">
-        <h1 className="Gray">
-          {this.state.addApp
-            ? _l('将此应用安装到钉钉工作台')
-            : this.state.isWX
-            ? _l('将此应用安装到企业微信')
-            : _l('获取对接信息')}
-        </h1>
-        {this.state.isWX ? this.renderWX() : this.renderDing()}
-        {(this.state.addApp || this.state.isWX) && (
-          <div className="boxForDown">
-            <div
-              className={cx('appIconForDown', { isWXIcon: this.state.isWX })}
-              style={{
-                backgroundColor: this.state.iconColor,
-              }}
-              ref={el => {
-                this.appIconForDown = el;
-              }}
-            >
-              <SvgIcon url={this.state.iconUrl} fill="#fff" size={this.state.isWX ? 750 : 200} />
+      <div className="dingSyncCourseWrap">
+        <div className="courseBox card">
+          <h1 className="Gray">
+            {this.state.addApp
+              ? _l('将此应用安装到钉钉工作台')
+              : this.state.isWX
+              ? _l('将此应用安装到企业微信')
+              : _l('获取对接信息')}
+          </h1>
+          {this.state.isWX ? this.renderWX() : this.renderDing()}
+          {(this.state.addApp || this.state.isWX) && (
+            <div className="boxForDown">
+              <div
+                className={cx('appIconForDown', { isWXIcon: this.state.isWX })}
+                style={{
+                  backgroundColor: this.state.iconColor,
+                }}
+                ref={el => {
+                  this.appIconForDown = el;
+                }}
+              >
+                <SvgIcon url={this.state.iconUrl} fill="#fff" size={this.state.isWX ? 750 : 200} />
+              </div>
             </div>
-          </div>
-        )}
-        <CreateLinkDialog
-          visible={this.state.createLinkVisible}
-          isWX={this.state.isWX}
-          baseUrl={this.state.baseUrl}
-          projectId={this.state.projectId}
-          onCancel={() => {
-            this.setState({ createLinkVisible: false });
-          }}
-        />
+          )}
+          <CreateLinkDialog
+            visible={this.state.createLinkVisible}
+            isWX={this.state.isWX}
+            baseUrl={this.state.baseUrl}
+            projectId={this.state.projectId}
+            onCancel={() => {
+              this.setState({ createLinkVisible: false });
+            }}
+          />
+        </div>
       </div>
     );
   }

@@ -39,6 +39,7 @@ const ConfirmCon = styled.div`
 export default function MdModal(props) {
   const {
     allowScale,
+    fullScreen,
     visible,
     dislocate,
     closeSize = 40,
@@ -156,6 +157,14 @@ export default function MdModal(props) {
       </ConfirmCon>
     );
   }
+  if (fullScreen) {
+    modalProps.className = modalProps.className + ' fullScreen';
+    modalProps.style.height = window.innerHeight;
+    modalProps.style.width = window.innerWidth;
+    modalProps.style.maxWidth = 'unset';
+    modalProps.style.verticalAlign = 'middle';
+    modalProps.width = window.innerWidth;
+  }
   return (
     <Modal
       {...modalProps}
@@ -192,6 +201,7 @@ export default function MdModal(props) {
 
 MdModal.propTypes = {
   allowScale: PropTypes.bool,
+  fullScreen: PropTypes.bool,
   verticalAlign: PropTypes.string,
   visible: PropTypes.bool,
   okDisabled: PropTypes.bool,

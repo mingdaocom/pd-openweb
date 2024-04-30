@@ -86,6 +86,7 @@ function WorksheetRecordLogSubTable(props) {
         getRules: true,
         getTemplate: true,
         worksheetId: control.dataSource,
+        relationWorksheetId: recordInfo.worksheetId,
       })
       .then(res => {
         let _column = showControls.map(key => {

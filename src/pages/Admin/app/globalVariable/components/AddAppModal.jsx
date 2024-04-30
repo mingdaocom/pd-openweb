@@ -3,8 +3,7 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import styled from 'styled-components';
 import _ from 'lodash';
-import { Dialog, ScrollView, LoadDiv, Checkbox } from 'ming-ui';
-import SvgIcon from 'src/components/SvgIcon';
+import { Dialog, ScrollView, LoadDiv, Checkbox, SvgIcon } from 'ming-ui';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import appManagementApi from 'src/api/appManagement';
 

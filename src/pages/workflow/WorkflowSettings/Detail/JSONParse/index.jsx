@@ -161,12 +161,12 @@ export default class JSONParse extends Component {
    * 获取节点详情
    */
   getNodeDetail(props, sId) {
-    const { processId, selectNodeId, selectNodeType, isIntegration } = props;
+    const { processId, selectNodeId, selectNodeType, isIntegration, instanceId } = props;
     const { data } = this.state;
 
     flowNode
       .getNodeDetail(
-        { processId, nodeId: selectNodeId, flowNodeType: selectNodeType, selectNodeId: sId },
+        { processId, nodeId: selectNodeId, flowNodeType: selectNodeType, selectNodeId: sId, instanceId },
         { isIntegration },
       )
       .then(result => {
@@ -541,7 +541,7 @@ export default class JSONParse extends Component {
           <Support
             type={3}
             className="workflowDialogSupport"
-            href="https://help.mingdao.com/flow75"
+            href="https://help.mingdao.com/workflow/node-json-parsing"
             text={_l('了解 JSON Path')}
           />
         </span>

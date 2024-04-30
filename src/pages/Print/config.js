@@ -54,6 +54,14 @@ export const PRINT_TYPE = {
   BAR_CODE_PRINT: 4, // 条码打印
 };
 
+export const PRINT_TEMP = {
+  SYS_PRINT: 0,
+  WORD_PRINT: 0,
+  EXCEL_PRINT: 0,
+  QR_CODE_PRINT: 1,
+  BAR_CODE_PRINT: 2,
+};
+
 export const SYSTOPRINT = {
   ownerid: 'ownerAccountChecked',
   caid: 'createAccountChecked',

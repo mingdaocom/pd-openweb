@@ -1,13 +1,13 @@
 import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import UserHead from 'src/components/userHead';
+import { UserHead } from 'ming-ui';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { handleChangeOwner, updateRecordOwner } from '../crtl';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
-import { getTranslateInfo } from 'src/util';
+import { getTranslateInfo, dateConvertToUserZone } from 'src/util';
 import _ from 'lodash';
 export default function FormHeader(props) {
   const {
@@ -34,7 +34,10 @@ export default function FormHeader(props) {
     formData,
     appId,
   } = recordinfo;
-  const isPublicShare = _.get(window, 'shareState.isPublicRecord') || _.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage');
+  const isPublicShare =
+    _.get(window, 'shareState.isPublicRecord') ||
+    _.get(window, 'shareState.isPublicView') ||
+    _.get(window, 'shareState.isPublicPage');
   const { forceShowFullValue, maskPermissions, handleUnMask } = maskinfo;
   const ownerRef = useRef();
   const ownerControl = _.find(formData, c => c.controlId === 'ownerid');
@@ -65,14 +68,16 @@ export default function FormHeader(props) {
               {getTranslateInfo(appId, worksheetId).name || worksheetName}
             </a>
           ) : (
-            <span className="worksheetName Gray_9e InlineBlock">{getTranslateInfo(appId, worksheetId).name || worksheetName}</span>
+            <span className="worksheetName Gray_9e InlineBlock">
+              {getTranslateInfo(appId, worksheetId).name || worksheetName}
+            </span>
           )}
           <div className="Right">
             {createTime && isOpenLogs && (
               <span className="lastLog InlineBlock Font12 Gray_9e">
                 {createTime === updateTime ? createAccount.fullname : editAccount.fullname}
                 {createTime === updateTime ? _l(' 创建于 ') : _l(' 更新于 ')}
-                {createTimeSpan(createTime === updateTime ? createTime : updateTime)}
+                {createTimeSpan(dateConvertToUserZone(createTime === updateTime ? createTime : updateTime))}
               </span>
             )}
             {showOwner && (

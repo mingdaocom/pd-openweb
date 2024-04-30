@@ -1,9 +1,8 @@
 import React, { Component, Fragment } from 'react';
-import ClipboardButton from 'react-clipboard.js';
-import LoadDiv from 'ming-ui/components/LoadDiv';
+import { LoadDiv, Dialog } from 'ming-ui';
 import ReactDom from 'react-dom';
+import ClipboardButton from 'react-clipboard.js';
 import { Button, Input, Form, Modal } from 'antd';
-import { Dialog } from 'ming-ui';
 import projectAjax from 'src/api/project';
 import { getRequest } from 'src/util';
 import Config from '../../config';

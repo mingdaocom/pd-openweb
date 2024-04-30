@@ -122,7 +122,7 @@ export default store => next => action => {
   prePromiseType = requestType;
   promise.then(
     response => {
-      if (promise && promise.state() === 'abort') {
+      if (promise && promise.state && promise.state() === 'abort') {
         return false;
       }
       next(

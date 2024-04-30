@@ -1,12 +1,11 @@
 import React, { Fragment, Component } from 'react';
-import { Icon, Button } from 'ming-ui';
+import { Icon, Button, SvgIcon } from 'ming-ui';
 import cx from 'classnames';
 import { Checkbox } from 'antd-mobile';
 import { FLOW_FAIL_REASON } from 'src/pages/workflow/WorkflowSettings/History/config';
 import { covertTime, FLOW_NODE_TYPE_STATUS, INSTANCELOG_STATUS } from 'src/pages/workflow/MyProcess/config';
 import { ACTION_TO_METHOD } from 'src/pages/workflow/components/ExecDialog/config';
 import './index.less';
-import SvgIcon from 'src/components/SvgIcon';
 import OtherAction from 'mobile/ProcessRecord/OtherAction';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
 import instance from 'src/pages/workflow/api/instance';
@@ -27,24 +26,26 @@ export default class Card extends Component {
     this.state = {
       otherActionVisible: false,
       action: '',
-      instance: null
-    }
+      instance: null,
+    };
   }
-  processInformTabs = processInformTabs.map(item => item.id)
+  processInformTabs = processInformTabs.map(item => item.id);
   handleApprove = (event, action) => {
     const { item } = this.props;
     event.stopPropagation();
-    instanceVersion.get({
-      id: item.id,
-      workId: item.workId,
-    }).then(data => {
-      this.setState({
-        action,
-        instance: data,
-        otherActionVisible: true
+    instanceVersion
+      .get({
+        id: item.id,
+        workId: item.workId,
+      })
+      .then(data => {
+        this.setState({
+          action,
+          instance: data,
+          otherActionVisible: true,
+        });
       });
-    });
-  }
+  };
   handleAction = ({ action, content, forwardAccountId, backNodeId, signature, files }) => {
     this.setState({ submitLoading: true, otherActionVisible: false });
     if (_.includes(['pass', 'overrule'], action)) {
@@ -54,7 +55,7 @@ export default class Card extends Component {
         id: item.id,
         workId: item.workId,
         ...data,
-      }).then((data) => {
+      }).then(data => {
         if (data) {
           alert(_l('操作成功'));
           onApproveDone(item);
@@ -69,7 +70,7 @@ export default class Card extends Component {
         }
       });
     }
-  }
+  };
   renderTimeConsuming() {
     const { workItem = {} } = this.props.item;
 
@@ -109,7 +110,7 @@ export default class Card extends Component {
       <span
         className="stepTimeConsuming flexRow"
         style={{
-          color: maxEndTimeConsuming > 0 ? '#F44336' : '#4CAF50'
+          color: maxEndTimeConsuming > 0 ? '#F44336' : '#4CAF50',
         }}
       >
         <Icon icon={maxEndTimeConsuming > 0 ? 'overdue_network' : 'task'} className="Font14 mRight2" />
@@ -161,7 +162,7 @@ export default class Card extends Component {
       return this.renderSurplusTime();
     }
 
-    return <div className="Gray_9e ellipsis time">{this.props.time}</div>
+    return <div className="Gray_9e ellipsis time">{this.props.time}</div>;
   }
   renderHeader() {
     const { currentTab, item, time } = this.props;
@@ -183,9 +184,7 @@ export default class Card extends Component {
 
     return (
       <div className="mobileProcessCardHeader valignWrapper overflow_ellipsis">
-        <div className="stateWrapper valignWrapper flex">
-          {RenderState}
-        </div>
+        <div className="stateWrapper valignWrapper flex">{RenderState}</div>
         {this.renderTime()}
       </div>
     );
@@ -202,11 +201,7 @@ export default class Card extends Component {
       return (
         <div className="valignWrapper mLeft10 approveBtnWrapper">
           {!batch && (
-            <Button
-              className="backlog"
-              type="ghostgray"
-              size="small"
-            >
+            <Button className="backlog" type="ghostgray" size="small">
               {_l('办理')}
             </Button>
           )}
@@ -215,7 +210,7 @@ export default class Card extends Component {
               className="ellipsis pass mRight5"
               type="ghostgray"
               size="small"
-              onClick={(event) => {
+              onClick={event => {
                 this.handleApprove(event, 'pass');
               }}
             >
@@ -227,7 +222,7 @@ export default class Card extends Component {
               className="ellipsis overrule"
               type="ghostgray"
               size="small"
-              onClick={(event) => {
+              onClick={event => {
                 this.handleApprove(event, 'overrule');
               }}
             >
@@ -243,7 +238,11 @@ export default class Card extends Component {
     if (['all', 'already', 'unread'].includes(currentTab)) {
       const { text, color } = FLOW_NODE_TYPE_STATUS[flowNodeType][operationType];
       const isAlready = flowNodeType === 5 && operationType === 1;
-      return <div className="Font13 mLeft10 bold" style={{ color: isAlready ? '#9e9e9e' : color }}>{text}</div>;
+      return (
+        <div className="Font13 mLeft10 bold" style={{ color: isAlready ? '#9e9e9e' : color }}>
+          {text}
+        </div>
+      );
     }
     return null;
   }
@@ -258,7 +257,7 @@ export default class Card extends Component {
         <div className="nodeState bold valignWrapper" style={{ color, backgroundColor: shallowBg, borderRadius: 3 }}>
           {text}
         </div>
-      )
+      );
     } else {
       return null;
     }
@@ -287,9 +286,7 @@ export default class Card extends Component {
             <SvgIcon url={app.iconUrl} fill="#fff" size={16} addClassName="mTop4" />
           </div>
           <div className="flexRow Gray_75 flex valignWrapper">
-            <span className="appName overflow_ellipsis">
-              {app.name}
-            </span>
+            <span className="appName overflow_ellipsis">{app.name}</span>
             <span className="processName overflow_ellipsis">
               <span className="dot"></span>
               {process.name}
@@ -325,7 +322,14 @@ export default class Card extends Component {
   }
   render() {
     const { otherActionVisible, action, instance } = this.state;
-    const { item, approveChecked, onClick, onChangeApproveCards = _.noop, batchApproval, showApproveChecked = true } = this.props;
+    const {
+      item,
+      approveChecked,
+      onClick,
+      onChangeApproveCards = _.noop,
+      batchApproval,
+      showApproveChecked = true,
+    } = this.props;
     const { batch } = item.flowNode || {};
     const disabled = !batch;
     return (

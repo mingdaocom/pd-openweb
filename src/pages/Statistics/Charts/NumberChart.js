@@ -1,12 +1,11 @@
 import React, { Fragment, Component } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
-import Icon from 'ming-ui/components/Icon';
-import { Tooltip, Row, Col } from 'antd';
+import { Tooltip, Row, Col, Dropdown, Menu } from 'antd';
 import { formatContrastTypes, isFormatNumber, isTimeControl } from '../common';
 import { defaultNumberChartStyle, sizeTypes } from 'statistics/components/ChartStyle/components/NumberStyle';
 import { formatrChartValue, getStyleColor } from './common';
-import SvgIcon from 'src/components/SvgIcon';
+import { SvgIcon, Icon } from 'ming-ui';
 import { toFixed, browserIsMobile } from 'src/util';
 import { generate } from '@ant-design/colors';
 import _ from 'lodash';
@@ -275,50 +274,118 @@ export const replaceColor = (data, customPageConfig = {}, themeColor) => {
 export default class extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      dropdownVisible: false,
+      offset: {},
+      param: null,
+      linkageMatch: null,
+      isLinkageMatch: false
+    }
   }
   componentDidMount() {
     const { sourceType, isThumbnail } = this.props;
-    const { reportId, xaxes, yaxisList, style, displaySetup } = this.props.reportData;
+    const { reportId, xaxes, yaxisList, displaySetup } = this.props.reportData;
     const el = document.querySelector(`.statisticsCard-${reportId}`);
     const parentElement = _.get(el, 'parentElement.parentElement');
+    const filterCriteriaIcon = el && el.querySelector('.filterCriteriaIcon');
     if (yaxisList.length === 1 && !xaxes.controlId && sourceType && isThumbnail && !isMobile) {
       if (parentElement) {
         el.classList.add('hideNumberChartName');
         el.classList.add('hideChartHeader');
+        filterCriteriaIcon && filterCriteriaIcon.classList.add('tip-bottom-right');
         parentElement.classList.add('numberChartCardHover');
       }
     } else {
       if (parentElement && displaySetup.showTitle) {
         el.classList.remove('hideNumberChartName');
         el.classList.remove('hideChartHeader');
+        filterCriteriaIcon && filterCriteriaIcon.classList.remove('tip-bottom-right');
         parentElement.classList.remove('numberChartCardHover');
       }
     }
+  }
+  getParentNode() {
+    const { isThumbnail, reportData } = this.props;
+    const { reportId } = reportData;
+    return isThumbnail ? document.querySelector(isMobile ? `.statisticsCard-${reportId}` : `.statisticsCard-${reportId} .content`) : document.querySelector(`.ChartDialog .chart .flex`);
   }
   getControlName = id => {
     const { yaxisList } = this.props.reportData;
     const control = _.find(yaxisList, { controlId: id }) || {};
     return control.rename || control.controlName;
   }
-  handleOpenSheet = ({ originalId }) => {
-    const { reportData, isViewOriginalData, isThumbnail } = this.props;
-    const { xaxes, displaySetup } = reportData;
-    if (displaySetup.showRowList && isViewOriginalData) {
-      const param = {};
-      if (xaxes.cid) {
-        const isNumber = isFormatNumber(xaxes.controlType);
-        param[xaxes.cid] = isNumber && originalId ? Number(originalId) : originalId;
-      }
-      const data = {
-        isPersonal: false,
-        match: param
-      }
-      if (isThumbnail) {
-        this.props.onOpenChartDialog(data);
-      } else {
-        this.props.requestOriginalData(data);
-      }
+  handleClick = (event, data = {}) => {
+    const { xaxes, appId, reportId, name, reportType, style, displaySetup, map } = this.props.reportData;
+    const param = {};
+    const linkageMatch = {
+      sheetId: appId,
+      reportId,
+      reportName: name,
+      reportType,
+      filters: []
+    };
+    this.isViewOriginalData = displaySetup.showRowList && this.props.isViewOriginalData;
+    this.isLinkageData = this.props.isLinkageData && !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0) && xaxes.controlId;
+    if (data.isTotal || _.isEmpty(map)) {
+      return;
     }
+    if (xaxes.cid) {
+      const { originalId } = data;
+      const isNumber = isFormatNumber(xaxes.controlType);
+      param[xaxes.cid] = isNumber && originalId ? Number(originalId) : originalId;
+      linkageMatch.value = originalId;
+      linkageMatch.filters.push({
+        controlId: xaxes.controlId,
+        values: [param[xaxes.cid]],
+        controlName: xaxes.controlName,
+        controlValue: data.name,
+        type: xaxes.controlType,
+        control: xaxes
+      });
+    }
+    if (_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length) {
+      linkageMatch.onlyChartIds = style.autoLinkageChartObjectIds;
+    }
+    const isAll = this.isViewOriginalData && this.isLinkageData;
+    const { x, y } = this.getParentNode().getBoundingClientRect();
+    this.setState({
+      dropdownVisible: isAll,
+      offset: {
+        x: event.pageX - x + 20,
+        y: event.pageY - y
+      },
+      match: param,
+      linkageMatch
+    }, () => {
+      if (!isAll && this.isViewOriginalData) {
+        this.handleRequestOriginalData();
+      }
+      if (!isAll && this.isLinkageData) {
+        this.handleAutoLinkage();
+      }
+    });
+  }
+  handleRequestOriginalData = () => {
+    const { isThumbnail } = this.props;
+    const { match } = this.state;
+    const data = {
+      isPersonal: false,
+      match
+    }
+    this.setState({ dropdownVisible: false });
+    if (isThumbnail) {
+      this.props.onOpenChartDialog(data);
+    } else {
+      this.props.requestOriginalData(data);
+    }
+  }
+  handleAutoLinkage = () => {
+    const { linkageMatch } = this.state;
+    this.props.onUpdateLinkageFiltersGroup(linkageMatch);
+    this.setState({
+      dropdownVisible: false,
+      isLinkageMatch: true
+    });
   }
   renderContrast(value, contrastValue, name, isContrastValue) {
     const { filter, displaySetup = {}, style } = this.props.reportData;
@@ -360,7 +427,8 @@ export default class extends Component {
     );
   }
   renderMapItem(data, controlMinAndMax, span) {
-    const { isViewOriginalData, reportData, themeColor, customPageConfig = {}, layoutType } = this.props;
+    const { isLinkageMatch } = this.state;
+    const { linkageMatch, isViewOriginalData, reportData, themeColor, customPageConfig = {}, layoutType } = this.props;
     const mobileFontSize = (isMobile || layoutType === 'mobile') ? this.props.mobileFontSize : 0;
     const { xaxes, yaxisList, style, filter, displaySetup, desc } = reportData;
     const { controlId, name, value, lastContrastValue, contrastValue, minorList = [], descVisible } = data;
@@ -385,9 +453,10 @@ export default class extends Component {
       rule,
       controlId: yaxisList[0].controlId
     }) : fontColor;
+    const isOpacity = !_.isEmpty(linkageMatch) && isLinkageMatch ? linkageMatch.value !== data.originalId : false;
     return (
-      <Col span={span} onClick={() => !oneNumber ? this.handleOpenSheet(data) : _.noop()}>
-        <div className={cx(`wrap-${textAlign}`, { oneNumber, hover: !oneNumber && displaySetup.showRowList && isViewOriginalData })}>
+      <Col span={span} onClick={event => !oneNumber ? this.handleClick(event, data) : _.noop()}>
+        <div style={{ opacity: isOpacity ? 0.3 : undefined }} className={cx(`wrap-${textAlign}`, { oneNumber, hover: !oneNumber && displaySetup.showRowList && isViewOriginalData })}>
           {iconVisible && oneNumber && (
             <div className={cx('svgIconWrap valignWrapper justifyContentCenter', shape, `svgIconSize${newFontSize}`)} style={{ backgroundColor: iconColor }}>
               <SvgIcon url={`${md.global.FileStoreConfig.pubHost}/customIcon/${icon}.svg`} fill="#fff" size={32} />
@@ -437,10 +506,29 @@ export default class extends Component {
       </Col>
     );
   }
+  renderOverlay() {
+    return (
+      <Menu className="chartMenu" style={{ width: 160 }}>
+        <Menu.Item onClick={this.handleAutoLinkage} key="autoLinkage">
+          <div className="flexRow valignWrapper">
+            <Icon icon="link1" className="mRight8 Gray_9e Font20 autoLinkageIcon" />
+            <span>{_l('联动')}</span>
+          </div>
+        </Menu.Item>
+        <Menu.Item onClick={this.handleRequestOriginalData} key="viewOriginalData">
+          <div className="flexRow valignWrapper">
+            <Icon icon="table" className="mRight8 Gray_9e Font18" />
+            <span>{_l('查看原始数据')}</span>
+          </div>
+        </Menu.Item>
+      </Menu>
+    );
+  }
   render() {
     const { mobileCount = 1, layoutType, reportData, sourceType, isThumbnail } = this.props;
     const { name, xaxes, map, contrast = [], contrastMap = [], displaySetup = {}, summary, yaxisList, style } = reportData;
     const { numberChartStyle = {} } = style;
+    const { dropdownVisible, offset } = this.state;
     const isTime = isTimeControl(xaxes.controlType);
     const list = xaxes.controlId ? formatData({ map, contrast, contrastMap, displaySetup, yaxisList, isTime }) : fillMap(map, contrast, contrastMap);
     const totalIsHide = yaxisList.length === 1 && yaxisList[0].emptyShowType === 0 && !summary.sum;
@@ -455,7 +543,7 @@ export default class extends Component {
       <Wrap
         className={cx('flexRow h100', `verticalAlign-${numberChartStyle.allowScroll ? 'top' : 'center'}`)}
         columnCount={columnCount}
-        onClick={() => oneNumber ? this.handleOpenSheet({}) : _.noop()}
+        onClick={(event) => oneNumber ? this.handleClick(event, list[0]) : _.noop()}
       >
         <Row gutter={[8, 0]}>
           {showTotal && !!list.length && !totalIsHide && (
@@ -463,7 +551,8 @@ export default class extends Component {
               value: summary.sum,
               name: summary.name,
               lastContrastValue: displaySetup.contrast ? summary.contrastSum || 0 : null,
-              contrastValue: displaySetup.contrastType ? summary.contrastMapSum || 0 : null
+              contrastValue: displaySetup.contrastType ? summary.contrastMapSum || 0 : null,
+              isTotal: true
             }, controlMinAndMax, span)
           )}
           {xaxes.controlId ? (
@@ -490,6 +579,17 @@ export default class extends Component {
             contrastValue: displaySetup.contrastType ? 0 : null
           }, controlMinAndMax, 24)}
         </Row>
+        <Dropdown
+          visible={dropdownVisible}
+          onVisibleChange={(dropdownVisible) => {
+            this.setState({ dropdownVisible });
+          }}
+          trigger={['click']}
+          placement="bottomLeft"
+          overlay={this.renderOverlay()}
+        >
+          <div className="Absolute" style={{ left: offset.x, top: offset.y }}></div>
+        </Dropdown>
       </Wrap>
     );
   }

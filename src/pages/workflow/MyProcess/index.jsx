@@ -12,6 +12,7 @@ import './index.less';
 import _ from 'lodash';
 import TodoEntrust from './TodoEntrust';
 import { verifyPassword } from 'src/util';
+import ArchivedList from '../components/ArchivedList';
 
 const dateScope = getDateScope();
 
@@ -199,6 +200,7 @@ export default class MyProcess extends Component {
       encryptType: null,
       rejectVisible: false,
       passVisible: false,
+      archivedId: '',
     };
   }
   componentDidMount() {
@@ -228,7 +230,7 @@ export default class MyProcess extends Component {
     }
   };
   getTodoList = () => {
-    const { loading, isMore } = this.state;
+    const { loading, isMore, archivedId } = this.state;
 
     if (loading || !isMore) {
       return;
@@ -238,7 +240,7 @@ export default class MyProcess extends Component {
       loading: true,
     });
 
-    if (this.request && this.request.state() === 'pending') {
+    if (this.request) {
       this.request.abort();
     }
 
@@ -246,6 +248,7 @@ export default class MyProcess extends Component {
     const param = {
       pageSize,
       pageIndex,
+      archivedId,
       ...getStateParam(stateTab),
       ...filter,
     };
@@ -279,7 +282,7 @@ export default class MyProcess extends Component {
     });
   };
   handleChangeTab = tab => {
-    const { filter } = this.state;
+    const { archivedId } = this.state;
     this.setState(
       {
         stateTab: tab,
@@ -293,7 +296,7 @@ export default class MyProcess extends Component {
       },
       this.getTodoList,
     );
-    getTodoCount().then(countData => {
+    getTodoCount(archivedId).then(countData => {
       this.updateCountData(countData);
     });
   };
@@ -312,27 +315,27 @@ export default class MyProcess extends Component {
       })
       .then(result => {
         if (result) {
-          alert('操作成功');
+          alert(_l('操作成功'));
           this.handleRead(item);
         }
       });
   };
   handleAllRead = () => {
-    const { filter } = this.state;
+    const { filter, archivedId } = this.state;
     const param = { type: 5 };
     if (filter) {
       Object.assign(param, filter);
     }
     instanceVersion.batch(param).then(result => {
       if (result) {
-        alert('操作成功');
+        alert(_l('操作成功'));
         this.setState({
           list: [],
           isMore: false,
           isResetFilter: true,
           visible: false,
         });
-        getTodoCount().then(countData => {
+        getTodoCount(archivedId).then(countData => {
           this.updateCountData(countData);
         });
       }
@@ -372,7 +375,7 @@ export default class MyProcess extends Component {
   };
   handleBatchApprove = (signature, approveType) => {
     const batchType = approveType === 4 ? 'auth.passTypeList' : 'auth.overruleTypeList';
-    const { approveCards } = this.state;
+    const { approveCards, archivedId } = this.state;
     const rejectCards = approveCards.filter(c => _.get(c, 'flowNode.btnMap')[5]);
     const cards = approveType === 5 ? rejectCards : approveCards;
     const selects = cards.map(({ id, workId, flowNode }) => {
@@ -394,10 +397,10 @@ export default class MyProcess extends Component {
       })
       .then(result => {
         if (result) {
-          alert('操作成功');
+          alert(_l('操作成功'));
           this.setState({ approveCards: [] });
           this.handleChangeTab(TABS.WAITING_APPROVE);
-          getTodoCount().then(countData => {
+          getTodoCount(archivedId).then(countData => {
             this.updateCountData(countData);
           });
         }
@@ -494,6 +497,17 @@ export default class MyProcess extends Component {
           </div>
         </div>
         <div className="flex close">
+          <ArchivedList
+            className="mRight15"
+            onChange={archivedId =>
+              this.setState({ archivedId, pageIndex: 1, list: [] }, () => {
+                this.getTodoList();
+                getTodoCount(archivedId).then(countData => {
+                  this.updateCountData(countData);
+                });
+              })
+            }
+          />
           <TodoEntrust />
 
           {location.href.indexOf('myprocess') === -1 ? (

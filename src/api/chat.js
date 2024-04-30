@@ -11,7 +11,7 @@ export default {
   **/
    getPreviewLink: function (args, options = {}) {
      
-     return $.api('Chat', 'GetPreviewLink', args, options);
+     return mdyAPI('Chat', 'GetPreviewLink', args, options);
    },
   /**
   * 获取卡片详情
@@ -28,7 +28,7 @@ export default {
   **/
    getCardDetails: function (args, options = {}) {
      
-     return $.api('Chat', 'GetCardDetails', args, options);
+     return mdyAPI('Chat', 'GetCardDetails', args, options);
    },
   /**
   * 专供聊天服务接口
@@ -41,7 +41,7 @@ export default {
   **/
    getGroupInfo: function (args, options = {}) {
      
-     return $.api('Chat', 'GetGroupInfo', args, options);
+     return mdyAPI('Chat', 'GetGroupInfo', args, options);
    },
   /**
   * 获取群文件列表
@@ -60,7 +60,7 @@ export default {
   **/
    getGroupFileList: function (args, options = {}) {
      
-     return $.api('Chat', 'GetGroupFileList', args, options);
+     return mdyAPI('Chat', 'GetGroupFileList', args, options);
    },
   /**
   * 获取用户聊天文件列表
@@ -80,7 +80,7 @@ export default {
   **/
    getUserFileList: function (args, options = {}) {
      
-     return $.api('Chat', 'GetUserFileList', args, options);
+     return mdyAPI('Chat', 'GetUserFileList', args, options);
    },
   /**
   * 获取群组详情中tab计数
@@ -94,7 +94,7 @@ export default {
   **/
    getGroupCountByTabName: function (args, options = {}) {
      
-     return $.api('Chat', 'GetGroupCountByTabName', args, options);
+     return mdyAPI('Chat', 'GetGroupCountByTabName', args, options);
    },
   /**
   * 获取用户侧边栏数据
@@ -108,7 +108,7 @@ export default {
   **/
    getUserCountByTabName: function (args, options = {}) {
      
-     return $.api('Chat', 'GetUserCountByTabName', args, options);
+     return mdyAPI('Chat', 'GetUserCountByTabName', args, options);
    },
   /**
   * 发送文件到消息
@@ -123,7 +123,7 @@ export default {
   **/
    sendFileToChat: function (args, options = {}) {
      
-     return $.api('Chat', 'SendFileToChat', args, options);
+     return mdyAPI('Chat', 'SendFileToChat', args, options);
    },
   /**
   * 发送卡片到消息
@@ -138,7 +138,7 @@ export default {
   **/
    sendCardToChat: function (args, options = {}) {
      
-     return $.api('Chat', 'SendCardToChat', args, options);
+     return mdyAPI('Chat', 'SendCardToChat', args, options);
    },
   /**
   * 获取聊天Session列表
@@ -151,7 +151,7 @@ export default {
   **/
    getChatList: function (args, options = {}) {
      
-     return $.api('Chat', 'GetChatList', args, options);
+     return mdyAPI('Chat', 'GetChatList', args, options);
    },
   /**
   * 将chat附件转换为其他模块的附件
@@ -163,6 +163,6 @@ export default {
   **/
    convertToOtherAttachment: function (args, options = {}) {
      
-     return $.api('Chat', 'ConvertToOtherAttachment', args, options);
+     return mdyAPI('Chat', 'ConvertToOtherAttachment', args, options);
    },
 };

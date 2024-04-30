@@ -2,8 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import userController from 'src/api/user';
-import { LoadDiv, Checkbox, Dialog, VerifyPasswordConfirm } from 'ming-ui';
-import UserHead from 'src/components/userHead';
+import { LoadDiv, Checkbox, Dialog, VerifyPasswordConfirm, UserHead } from 'ming-ui';
 import PaginationWrap from '../../../../components/PaginationWrap';
 import './style.less';
 import Empty from '../../../../common/TableEmpty';
@@ -56,7 +55,7 @@ export default class ResignList extends React.Component {
   }
 
   abortRequest() {
-    if (this.ajax && this.ajax.state() === 'pending' && this.ajax.abort) {
+    if (this.ajax && this.ajax.abort) {
       this.ajax.abort();
     }
   }

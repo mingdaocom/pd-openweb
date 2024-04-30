@@ -15,6 +15,7 @@ export const getAppDetail = (appId, cb) => (dispatch, getState) => {
         appId,
         getSection: true,
         getLang: true,
+        isMobile: true
       })
       .then(),
     homeAppApi.checkApp({ appId }, { silent: true }).then(),
@@ -56,7 +57,7 @@ export const getAppDetail = (appId, cb) => (dispatch, getState) => {
             appLangId: langInfo.appLangId,
           })
           .then(lang => {
-            window[`langData-${appId}`] = lang;
+            window[`langData-${appId}`] = lang.items;
             window[`langVersion-${appId}`] = langInfo.version;
             run();
           });

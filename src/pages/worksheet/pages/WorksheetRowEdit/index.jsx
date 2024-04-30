@@ -3,6 +3,7 @@ import ReactDom from 'react-dom';
 import preall from 'src/common/preall';
 import { LoadDiv, ScrollView } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
+import appManagementApi from 'src/api/appManagement';
 import './index.less';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import { VerificationPass, SHARE_STATE } from 'worksheet/components/ShareState';
@@ -11,7 +12,7 @@ import DocumentTitle from 'react-document-title';
 import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
 import { RecordInfoModal } from 'mobile/Record';
 import 'mobile/index.less';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile, getTranslateInfo } from 'src/util';
 
 const Header = ({ data, callback, onSubmit }) => {
   return (
@@ -43,35 +44,51 @@ class WorksheetRowEdit extends Component {
   getLinkDetail = param => {
     return new Promise((resolve, reject) => {
       const shareId = location.pathname.match(/.*\/public\/workflow\/(.*)/)[1];
-      worksheetAjax.getLinkDetail({ id: shareId, ...param }).then(data => {
-        const getGlobalMeta = () => {
-          preall(
-            { type: 'function' },
-            {
-              allownotlogin: true,
-              requestParams: { projectId: data.projectId },
-            },
-          );
-        };
+      worksheetAjax
+        .getLinkDetail({
+          id: shareId,
+          langType: getCurrentLangCode(),
+          ...param,
+        })
+        .then(async data => {
+          const getGlobalMeta = () => {
+            preall(
+              { type: 'function' },
+              {
+                allowNotLogin: true,
+                requestParams: { projectId: data.projectId },
+              },
+            );
+          };
 
-        if (data.resultCode === 1) {
-          localStorage.setItem('currentProjectId', data.projectId);
-          data.shareAuthor && (window.shareAuthor = data.shareAuthor);
+          if (data.resultCode === 1) {
+            localStorage.setItem('currentProjectId', data.projectId);
+            data.shareAuthor && (window.shareAuthor = data.shareAuthor);
 
-          if (data.clientId) {
-            window.clientId = data.clientId;
-            !sessionStorage.getItem('clientId') && sessionStorage.setItem('clientId', data.clientId);
+            if (data.clientId) {
+              window.clientId = data.clientId;
+              !sessionStorage.getItem('clientId') && sessionStorage.setItem('clientId', data.clientId);
+            }
+
+            const { langInfo, projectId, appId } = data;
+            if (langInfo && langInfo.appLangId && !window[`langData-${appId}`]) {
+              const lang = await appManagementApi.getAppLangDetail({
+                projectId,
+                appId,
+                appLangId: langInfo.appLangId,
+              });
+              window[`langData-${appId}`] = lang.items;
+              data.appName = getTranslateInfo(appId, appId).name || data.appName;
+            }
+            getGlobalMeta();
+            this.setState({ loading: false, data, isError: false });
+            resolve(data);
+          } else {
+            getGlobalMeta();
+            this.setState({ loading: false, data, isError: true });
+            reject(data);
           }
-
-          getGlobalMeta();
-          this.setState({ loading: false, data, isError: false });
-          resolve(data);
-        } else {
-          getGlobalMeta();
-          this.setState({ loading: false, data, isError: true });
-          reject(data);
-        }
-      });
+        });
     });
   };
 

@@ -18,7 +18,6 @@ class Detail extends Component {
     selectNodeId: PropTypes.string.isRequired,
     selectNodeType: PropTypes.any.isRequired,
     selectNodeName: PropTypes.string,
-    isCopy: PropTypes.bool,
     closeDetail: PropTypes.func.isRequired,
     haveChange: PropTypes.func,
     isIntegration: PropTypes.bool,
@@ -60,7 +59,7 @@ class Detail extends Component {
   };
 
   render() {
-    const { selectNodeId, selectNodeType, isCopy, flowInfo } = this.props;
+    const { selectNodeId, selectNodeType, flowInfo, instanceId } = this.props;
     const NodeComponent = nodeModules[selectNodeType];
 
     // 分支
@@ -76,11 +75,7 @@ class Detail extends Component {
       >
         {!!selectNodeId && (
           <div
-            className={cx(
-              'workflowDetail flexColumn',
-              { workflowDetailDisabled: isCopy },
-              { 'workflowDetailRelease pBottom20': !!flowInfo.parentId },
-            )}
+            className={cx('workflowDetail flexColumn', { workflowDetailRelease: !!flowInfo.parentId || instanceId })}
           >
             {this.renderContent()}
           </div>

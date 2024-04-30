@@ -1,6 +1,5 @@
 ﻿import React from 'react';
 import cx from 'classnames';
-import UserHead from 'src/components/userHead';
 import roleController from 'src/api/role';
 import { removeComment } from '../../../redux/postActions';
 import PropTypes from 'prop-types';
@@ -9,7 +8,7 @@ import PostMain from '../post/postMain';
 import PostFooter from '../post/postFooter';
 import PostCommentInput from './postCommentInput';
 import UploadFiles from 'src/components/UploadFiles';
-import { Dialog } from 'ming-ui';
+import { Dialog, UserHead } from 'ming-ui';
 
 /**
  * 动态的单条回复
@@ -72,7 +71,7 @@ class PostComment extends React.Component {
       width: 420,
       title: _l('确认删除此条回复') + '?',
       buttonType: 'primary',
-      onOk:() => {
+      onOk: () => {
         const deleteAttachment = $(`#isDeleteAttachmentOf${commentItem.commentID}`).prop('checked');
         this.clearCommentBox();
         dispatch(removeComment(commentItem.postID, commentItem.commentID));
@@ -104,7 +103,11 @@ class PostComment extends React.Component {
         )}
         onMouseEnter={() => this.handleMouseEnter()}
       >
-        <UserHead className="userHead left" user={{ ...commentItem.user, userHead: commentItem.user.userMiddleHead }} size={28} />
+        <UserHead
+          className="userHead left"
+          user={{ ...commentItem.user, userHead: commentItem.user.userMiddleHead }}
+          size={28}
+        />
 
         <PostMain postItem={commentItem} inlineMessage minHeight={0} />
 

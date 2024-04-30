@@ -79,6 +79,11 @@ const ConfigHeader = styled(FlexCenter)`
       }
     }
   }
+  .pageSetting {
+    &:hover *{
+      color: #2196f3 !important;
+    }
+  }
   .close {
     background-color: #f5f5f5;
     color: #9e9e9e;
@@ -101,6 +106,7 @@ export default (props) => {
     pageName,
     displayType,
     currentSheet,
+    apk = {},
     saveLoading = false,
     cancelModified = _.noop,
     modified,
@@ -121,7 +127,7 @@ export default (props) => {
         if (res) {
           updatePageInfo({ pageName: newName });
           const { currentPcNaviStyle } = store.getState().appPkg;
-          if (currentPcNaviStyle === 1) {
+          if ([1, 3].includes(currentPcNaviStyle)) {
             const singleRef = getAppSectionRef(groupId);
             singleRef.dispatch(updateSheetListAppItem(pageId, {
               workSheetName: newName,
@@ -151,9 +157,11 @@ export default (props) => {
   };
   return (
     <ConfigHeader>
-      <div className="iconWrap" onClick={handleClose}>
-        <i className="back icon-backspace Font24"></i>
-      </div>
+      {apk.appId && (
+        <div className="iconWrap" onClick={handleClose}>
+          <i className="back icon-backspace Font24"></i>
+        </div>
+      )}
       <div className="pageName">
         <span className="Bold mRight10">{_l('编辑自定义页面:  ')}</span>
         {isEdit ? (
@@ -191,13 +199,15 @@ export default (props) => {
         ))}
       </ul>
       <div className="flex"></div>
-      <div className="flexRow alignItemsCenter pointer mRight20" onClick={() => setConfigVisible(true)}>
-        <Icon className="Gray_9e Font20" icon="tune" />
+      <div className="flexRow alignItemsCenter pointer mRight20 pageSetting" onClick={() => setConfigVisible(true)}>
+        <Icon className="Font20 Gray_9e" icon="tune" />
         <div className="mLeft5 Font13">{_l('页面配置')}</div>
       </div>
-      <Button type="link" className="close" onClick={handleClose}>
-        {_l('关闭')}
-      </Button>
+      {apk.appId && (
+        <Button type="link" className="close" onClick={handleClose}>
+          {_l('关闭')}
+        </Button>
+      )}
       <Button onClick={save} loading={saveLoading}>{_l('保存')}</Button>
       {configVisible && (
         <ConfigSideWrap

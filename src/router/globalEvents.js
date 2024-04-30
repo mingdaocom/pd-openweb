@@ -5,7 +5,6 @@ import _ from 'lodash';
 export default () => {
   window.closeindex = 0;
   window.closeFns = {};
-  const isMDClient = window.navigator.userAgent.indexOf('MDClient') > -1;
 
   const parseUrl = url => {
     var a = document.createElement('a');
@@ -45,7 +44,7 @@ export default () => {
     if ($(e.target).closest('.mdEditorContent').length) return;
     if ($(e.target).closest('.stopPropagation').length) return;
     const $a = $(this);
-    if ($a.attr('download') || $a.attr('rel') === 'external' || (!isMDClient && $a.attr('target'))) {
+    if ($a.attr('download') || $a.attr('rel') === 'external' || (!window.isMDClient && $a.attr('target'))) {
       return;
     }
     const link = $a.attr('href');
@@ -80,7 +79,7 @@ export default () => {
       return;
     }
 
-    if (isMDClient && checkClientOpenWindow(url)) {
+    if (window.isMDClient && checkClientOpenWindow(url)) {
       window.open(url);
     } else {
       navigateTo(url);

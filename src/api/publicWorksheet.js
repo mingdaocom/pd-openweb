@@ -20,7 +20,7 @@ export default {
   **/
    saveWorksheet: function (args, options = {}) {
      
-     return $.api('PublicWorksheet', 'SaveWorksheet', args, options);
+     return mdyAPI('PublicWorksheet', 'SaveWorksheet', args, options);
    },
   /**
   * 保存设置
@@ -54,7 +54,7 @@ export default {
   **/
    saveSetting: function (args, options = {}) {
      
-     return $.api('PublicWorksheet', 'SaveSetting', args, options);
+     return mdyAPI('PublicWorksheet', 'SaveSetting', args, options);
    },
   /**
   * 刷新链接
@@ -66,7 +66,7 @@ export default {
   **/
    refreshPublicWorksheetUrl: function (args, options = {}) {
      
-     return $.api('PublicWorksheet', 'RefreshPublicWorksheetUrl', args, options);
+     return mdyAPI('PublicWorksheet', 'RefreshPublicWorksheetUrl', args, options);
    },
   /**
   * 变更公开表单分享链接状态
@@ -79,7 +79,7 @@ export default {
   **/
    updatePublicWorksheetState: function (args, options = {}) {
      
-     return $.api('PublicWorksheet', 'UpdatePublicWorksheetState', args, options);
+     return mdyAPI('PublicWorksheet', 'UpdatePublicWorksheetState', args, options);
    },
   /**
   * 重置
@@ -91,7 +91,7 @@ export default {
   **/
    reset: function (args, options = {}) {
      
-     return $.api('PublicWorksheet', 'Reset', args, options);
+     return mdyAPI('PublicWorksheet', 'Reset', args, options);
    },
   /**
   * 获取表单信息
@@ -103,7 +103,7 @@ export default {
   **/
    getPublicWorksheetInfo: function (args, options = {}) {
      
-     return $.api('PublicWorksheet', 'GetPublicWorksheetInfo', args, options);
+     return mdyAPI('PublicWorksheet', 'GetPublicWorksheetInfo', args, options);
    },
   /**
   * 根据工作表ID获取公开查询
@@ -115,7 +115,7 @@ export default {
   **/
    getPublicQuery: function (args, options = {}) {
      
-     return $.api('PublicWorksheet', 'GetPublicQuery', args, options);
+     return mdyAPI('PublicWorksheet', 'GetPublicQuery', args, options);
    },
   /**
   * 编辑公开查询状态
@@ -128,7 +128,7 @@ export default {
   **/
    editPublicQueryState: function (args, options = {}) {
      
-     return $.api('PublicWorksheet', 'EditPublicQueryState', args, options);
+     return mdyAPI('PublicWorksheet', 'EditPublicQueryState', args, options);
    },
   /**
   * 编辑公开查询配置
@@ -144,7 +144,7 @@ export default {
   **/
    editPublicQuery: function (args, options = {}) {
      
-     return $.api('PublicWorksheet', 'EditPublicQuery', args, options);
+     return mdyAPI('PublicWorksheet', 'EditPublicQuery', args, options);
    },
   /**
   * 获取公开表单信息
@@ -159,13 +159,14 @@ export default {
   * @param {string} args.shareId 对外分享标识
   * @param {string} args.password 密码
   * @param {string} args.printId 打印模板id
+  * @param {} args.langType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getPublicWorksheet: function (args, options = {}) {
      
-     return $.api('PublicWorksheet', 'GetPublicWorksheet', args, options);
+     return mdyAPI('PublicWorksheet', 'GetPublicWorksheet', args, options);
    },
   /**
   * 获取公开表单微信登录登录信息
@@ -179,7 +180,7 @@ export default {
   **/
    getUserInfo: function (args, options = {}) {
      
-     return $.api('PublicWorksheet', 'GetUserInfo', args, options);
+     return mdyAPI('PublicWorksheet', 'GetUserInfo', args, options);
    },
   /**
   * 获取工作表详情
@@ -203,7 +204,7 @@ export default {
   **/
    getWorksheetInfo: function (args, options = {}) {
      
-     return $.api('PublicWorksheet', 'GetWorksheetInfo', args, options);
+     return mdyAPI('PublicWorksheet', 'GetWorksheetInfo', args, options);
    },
   /**
   * 获取公开表单导入子表功能模块token
@@ -218,7 +219,7 @@ export default {
   **/
    getToken: function (args, options = {}) {
      
-     return $.api('PublicWorksheet', 'GetToken', args, options);
+     return mdyAPI('PublicWorksheet', 'GetToken', args, options);
    },
   /**
   * 获取记录详情
@@ -233,13 +234,14 @@ export default {
   * @param {boolean} args.getTemplate 是否获取模板
   * @param {string} args.shareId 分享页获取关联记录iD
   * @param {boolean} args.checkView 是否验证视图
+  * @param {string} args.relationWorksheetId 关联控件ID
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getRowDetail: function (args, options = {}) {
      
-     return $.api('PublicWorksheet', 'GetRowDetail', args, options);
+     return mdyAPI('PublicWorksheet', 'GetRowDetail', args, options);
    },
   /**
   * 获取关联记录
@@ -286,7 +288,7 @@ export default {
   **/
    getRelationRows: function (args, options = {}) {
      
-     return $.api('PublicWorksheet', 'GetRelationRows', args, options);
+     return mdyAPI('PublicWorksheet', 'GetRelationRows', args, options);
    },
   /**
   * 获取上次填写内容
@@ -333,7 +335,7 @@ export default {
   **/
    getLastFillData: function (args, options = {}) {
      
-     return $.api('PublicWorksheet', 'GetLastFillData', args, options);
+     return mdyAPI('PublicWorksheet', 'GetLastFillData', args, options);
    },
   /**
   * 查看已填写记录（行记录）
@@ -380,7 +382,7 @@ export default {
   **/
    queryHistoryRows: function (args, options = {}) {
      
-     return $.api('PublicWorksheet', 'QueryHistoryRows', args, options);
+     return mdyAPI('PublicWorksheet', 'QueryHistoryRows', args, options);
    },
   /**
   * 公开表单修改记录
@@ -401,7 +403,7 @@ export default {
   **/
    updateWorksheetRow: function (args, options = {}) {
      
-     return $.api('PublicWorksheet', 'UpdateWorksheetRow', args, options);
+     return mdyAPI('PublicWorksheet', 'UpdateWorksheetRow', args, options);
    },
   /**
   * 提交公开表单信息（行记录）
@@ -430,7 +432,7 @@ export default {
   **/
    addRow: function (args, options = {}) {
      
-     return $.api('PublicWorksheet', 'AddRow', args, options);
+     return mdyAPI('PublicWorksheet', 'AddRow', args, options);
    },
   /**
   * 公开表单发送验证码短信（配置了手机号短信验证）
@@ -446,7 +448,7 @@ export default {
   **/
    sendVerifyCode: function (args, options = {}) {
      
-     return $.api('PublicWorksheet', 'SendVerifyCode', args, options);
+     return mdyAPI('PublicWorksheet', 'SendVerifyCode', args, options);
    },
   /**
   * 公开表单删除记录
@@ -466,19 +468,20 @@ export default {
   **/
    deleteWorksheetRows: function (args, options = {}) {
      
-     return $.api('PublicWorksheet', 'DeleteWorksheetRows', args, options);
+     return mdyAPI('PublicWorksheet', 'DeleteWorksheetRows', args, options);
    },
   /**
   * 获取公开查询信息
   * @param {Object} args 请求参数
   * @param {string} args.queryId 公开查询对外分享标识
+  * @param {} args.langType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getPublicQueryById: function (args, options = {}) {
      
-     return $.api('PublicWorksheet', 'GetPublicQueryById', args, options);
+     return mdyAPI('PublicWorksheet', 'GetPublicQueryById', args, options);
    },
   /**
   * 公开查询
@@ -525,6 +528,6 @@ export default {
   **/
    query: function (args, options = {}) {
      
-     return $.api('PublicWorksheet', 'Query', args, options);
+     return mdyAPI('PublicWorksheet', 'Query', args, options);
    },
 };

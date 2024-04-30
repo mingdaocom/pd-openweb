@@ -16,7 +16,7 @@ var datasource = {
   getTypes: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'datasource/getTypes';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'datasourcegetTypes', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'datasourcegetTypes', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -32,7 +32,7 @@ var datasource = {
   getDatasource: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'datasource/getDatasource';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'datasourcegetDatasource', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'datasourcegetDatasource', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -53,7 +53,7 @@ var datasource = {
   getTables: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'datasource/getTables';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'datasourcegetTables', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'datasourcegetTables', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -70,7 +70,7 @@ var datasource = {
   getSchemas: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'datasource/getSchemas';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'datasourcegetSchemas', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'datasourcegetSchemas', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -97,7 +97,7 @@ var datasource = {
   test: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'datasource/test';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'datasourcetest', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'datasourcetest', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -114,7 +114,7 @@ var datasource = {
   fieldsDataTypeMatch: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'datasource/fieldsDataTypeMatch';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'datasourcefieldsDataTypeMatch', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'datasourcefieldsDataTypeMatch', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -136,7 +136,7 @@ var datasource = {
   list: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'datasource/list';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'datasourcelist', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'datasourcelist', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -164,7 +164,7 @@ var datasource = {
   addDatasource: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'datasource/addDatasource';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'datasourceaddDatasource', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'datasourceaddDatasource', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -180,7 +180,7 @@ var datasource = {
   deleteDatasource: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'datasource/deleteDatasource';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'datasourcedeleteDatasource', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'datasourcedeleteDatasource', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -209,7 +209,7 @@ var datasource = {
   updateDatasource: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'datasource/updateDatasource';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'datasourceupdateDatasource', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'datasourceupdateDatasource', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -230,7 +230,7 @@ var datasource = {
   getTablePages: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'datasource/getTablePages';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'datasourcegetTablePages', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'datasourcegetTablePages', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -244,7 +244,7 @@ var datasource = {
   sshServerEnable: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'datasource/sshServerEnable';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'datasourcesshServerEnable', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'datasourcesshServerEnable', args, $.extend(base, options));
   },
 
   /**
@@ -260,7 +260,7 @@ var datasource = {
   getDatabases: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'datasource/getDatabases';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'datasourcegetDatabases', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'datasourcegetDatabases', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -276,7 +276,7 @@ var datasource = {
   dataTypeMatch: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'datasource/dataTypeMatch';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'datasourcedataTypeMatch', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'datasourcedataTypeMatch', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -290,7 +290,7 @@ var datasource = {
   whitelistIp: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'datasource/whitelistIp';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'datasourcewhitelistIp', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'datasourcewhitelistIp', args, $.extend(base, options));
   },
 
   /**
@@ -302,6 +302,7 @@ var datasource = {
    * @param {string} args.dbName 数据库名称
    * @param {string} args.schema schema名称
    * @param {string} args.tableName 数据表名称
+   * @param {string} args.destType 目的地类型(See: 已支持的数据源类型)
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -309,7 +310,7 @@ var datasource = {
   getTableFields: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'datasource/getTableFields';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'datasourcegetTableFields', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'datasourcegetTableFields', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -325,7 +326,7 @@ var datasource = {
   getDatasources: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'datasource/getDatasources';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'datasourcegetDatasources', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'datasourcegetDatasources', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -341,7 +342,7 @@ var datasource = {
   fillJdbcType: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'datasource/fillJdbcType';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'datasourcefillJdbcType', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'datasourcefillJdbcType', JSON.stringify(args), $.extend(base, options));
   }
 };
 

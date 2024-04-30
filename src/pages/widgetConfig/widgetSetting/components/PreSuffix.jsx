@@ -37,10 +37,10 @@ export default function PreSuffix({ data, value, onChange }) {
     const type = types.find(item => setting[item]);
     return type || 'suffix';
   };
-  const [type, setType] = useState(getDefaultType);
+  const [type, setType] = useState(getDefaultType());
 
   useEffect(() => {
-    setType(getDefaultType);
+    setType(getDefaultType());
   }, [data.controlId]);
 
   return (

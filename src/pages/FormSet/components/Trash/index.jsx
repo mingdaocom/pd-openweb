@@ -1,12 +1,11 @@
 import React, { useRef, useEffect } from 'react';
 import styled from 'styled-components';
-import { LoadDiv, Dialog, Icon, ScrollView, Tooltip, DeleteReconfirm } from 'ming-ui';
+import { LoadDiv, Dialog, Icon, ScrollView, Tooltip, DeleteReconfirm, UserHead } from 'ming-ui';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import sheetAjax from 'src/api/worksheet';
 import Search from 'src/pages/workflow/components/Search';
 import './index.less';
-import UserHead from 'src/components/userHead/userHead';
 
 const WrapHeader = styled.div`
   height: 53px;

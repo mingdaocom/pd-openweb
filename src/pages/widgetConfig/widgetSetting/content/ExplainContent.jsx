@@ -9,7 +9,7 @@ import { SettingItem, AnimationWrap } from '../../styled';
 import cx from 'classnames';
 import { SettingCollapseWrap } from './styled';
 import { handleAdvancedSettingChange } from '../../util/setting';
-import { relateOrSectionTab } from '../../util';
+import { notExplainDisplay } from '../../util';
 import { SectionItem } from '../components/SplitLineConfig/style';
 
 const { Panel } = Collapse;
@@ -42,7 +42,7 @@ const UserContent = props => {
       {!NO_DES_WIDGET.includes(type) && (
         <Fragment>
           <WidgetDes {...props} />
-          {!relateOrSectionTab(data) && (
+          {!notExplainDisplay(data) && (
             <SectionItem>
               <div className="label Width90">{_l('显示方式')}</div>
               <AnimationWrap className="flex">

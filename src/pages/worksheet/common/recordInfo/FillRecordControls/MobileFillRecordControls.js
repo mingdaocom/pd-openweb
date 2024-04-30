@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import update from 'immutability-helper';
 import CustomFields from 'src/components/newCustomFields';
 import { LoadDiv } from 'ming-ui';
-import { getSubListError, filterHidedSubList } from 'worksheet/util';
+import { filterHidedSubList } from 'worksheet/util';
 import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils';
 import useWorksheetRowProvider from 'src/pages/worksheet/common/recordInfo/WorksheetRecordProvider';
@@ -63,6 +63,7 @@ class FillRecordControls extends React.Component {
   constructor(props) {
     super(props);
     const { projectId } = props;
+    this.hasDefaultRelateRecordTableControls = [];
     const controls = update(props.formData, {
       $apply: formData => {
         const formDataForDataFormat = formData.map(c => {
@@ -119,9 +120,22 @@ class FillRecordControls extends React.Component {
               c.controlPermissions[0] + (writeControl.type === 1 ? '0' : '1') + c.controlPermissions[2];
             c.required = writeControl.type === 3;
             c.fieldPermission = '111';
-            const defultFormControl = _.find(defaultFormData, dfc => dfc.controlId === c.controlId);
-            if (defultFormControl) {
-              c.value = defultFormControl.value;
+            const defaultFormControl = _.find(defaultFormData, dfc => dfc.controlId === c.controlId);
+            if (defaultFormControl) {
+              if (c.type === 29) {
+                const defaultRecords = _.filter(
+                  safeParse(defaultFormControl.value, 'array'),
+                  r => r.sid || r.sourcevalue,
+                );
+                if (!_.isEmpty(defaultRecords)) {
+                  c.value = JSON.stringify(defaultRecords);
+                  c.count = undefined;
+                  c.hasDefaultValue = true;
+                  this.hasDefaultRelateRecordTableControls.push(defaultFormControl.controlId);
+                }
+              } else {
+                c.value = defaultFormControl.value;
+              }
             }
             return c;
           })
@@ -155,52 +169,6 @@ class FillRecordControls extends React.Component {
     const newData = data.filter(item =>
       _.find(writeControls, writeControl => writeControl.controlId === item.controlId),
     );
-    const subListControls = filterHidedSubList(data, 3);
-    if (subListControls.length) {
-      const errors = subListControls
-        .map(control => ({
-          id: control.controlId,
-          value:
-            control.value &&
-            control.value.rows &&
-            control.value.rows.length &&
-            getSubListError(
-              {
-                ...control.value,
-                rules: _.get(this.cellObjs || {}, `${control.controlId}.cell.props.rules`),
-              },
-              _.get(this.cellObjs || {}, `${control.controlId}.cell.state.controls`) || control.relationControls,
-              control.showControls,
-              3,
-            ),
-        }))
-        .filter(c => !_.isEmpty(c.value));
-      if (errors.length) {
-        hasError = true;
-        errors.forEach(error => {
-          const errorSublist = (this.cellObjs || {})[error.id];
-          if (errorSublist) {
-            errorSublist.cell.setState({
-              error: !_.isEmpty(error.value),
-              cellErrors: error.value,
-            });
-          }
-        });
-      } else {
-        subListControls.forEach(control => {
-          const errorSublist = (this.cellObjs || {})[control.controlId];
-          if (errorSublist) {
-            errorSublist.cell.setState({
-              error: false,
-              cellErrors: {},
-            });
-          }
-        });
-      }
-      if (this.formcon.current.querySelector('.cellControlErrorTip')) {
-        hasError = true;
-      }
-    }
 
     if (hasError) {
       alert(_l('请正确填写记录'), 3);
@@ -223,7 +191,11 @@ class FillRecordControls extends React.Component {
     this.setState({ isSubmitting: true, submitLoading: false });
     updateControlIds = _.uniq(updateControlIds.concat(writeControls.filter(c => c.defsource).map(c => c.controlId)));
     onSubmit(
-      newData.filter(c => _.find(updateControlIds, controlId => controlId === c.controlId)).map(formatControlToServer),
+      newData
+        .filter(c => _.find(updateControlIds, controlId => controlId === c.controlId))
+        .map(c =>
+          formatControlToServer(c, { hasDefaultRelateRecordTableControls: this.hasDefaultRelateRecordTableControls }),
+        ),
       {
         ..._.pick(this.props, ['appId', 'projectId', 'worksheetId', 'viewId', 'recordId']),
       },

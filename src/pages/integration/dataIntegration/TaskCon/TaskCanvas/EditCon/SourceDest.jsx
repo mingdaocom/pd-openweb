@@ -192,13 +192,10 @@ export default class SourceDest extends Component {
   //应用信息
   getAppInfo = appId => {
     homeAppAjax
-      .getApp(
-        {
-          appId,
-          getSection: true,
-        },
-        { fireImmediately: true },
-      )
+      .getApp({
+        appId,
+        getSection: true,
+      })
       .then(res => {
         const { sections } = res;
         let childSections = [];
@@ -226,13 +223,10 @@ export default class SourceDest extends Component {
         });
         return;
       }
-      Datasource.getDatabases(
-        {
-          projectId,
-          datasourceId,
-        },
-        { fireImmediately: true },
-      ).then(res => {
+      Datasource.getDatabases({
+        projectId,
+        datasourceId,
+      }).then(res => {
         this.setState({
           dbList: res.map(a => {
             return { text: a, value: a };

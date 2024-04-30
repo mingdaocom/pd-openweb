@@ -1,4 +1,4 @@
-import quickSelectUser from 'ming-ui/functions/quickSelectUser';
+import { quickSelectUser } from 'ming-ui/functions';
 import worksheetAjax from 'src/api/worksheet';
 import publicWorksheetApi from 'src/api/publicWorksheet';
 import { getRowDetail } from 'worksheet/api';
@@ -6,7 +6,7 @@ import { getCustomWidgetUri } from 'src/pages/worksheet/constants/common';
 import { formatControlToServer, getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils.js';
 import { openShareDialog } from 'src/pages/worksheet/components/Share';
 import { getAppFeaturesPath } from 'src/util';
-import { replacePorTalUrl } from 'src/pages/PortalAccount/util';
+import { replacePorTalUrl } from 'src/pages/accountLogin/portalAccount/util';
 import createTask from 'src/components/createTask/createTask';
 import _ from 'lodash';
 import { handleRecordError, postWithToken, replaceBtnsTranslateInfo } from 'worksheet/util';
@@ -22,6 +22,7 @@ export function loadRecord({
   appId,
   viewId,
   worksheetId,
+  relationWorksheetId,
   recordId,
   getType = 1,
   instanceId,
@@ -36,6 +37,7 @@ export function loadRecord({
       getType,
       appId,
       viewId,
+      relationWorksheetId,
       checkView: !!viewId,
     };
     if (instanceId && workId) {
@@ -50,7 +52,7 @@ export function loadRecord({
 
     let promise;
     if (!getRules) {
-      promise = Promise.all([(promise = getRowDetail(apiargs, controls, { fireImmediately: true }))]);
+      promise = Promise.all([(promise = getRowDetail(apiargs, controls))]);
     } else {
       promise = Promise.all([
         getRowDetail(apiargs, controls),
@@ -88,7 +90,7 @@ export function updateRecord(
     triggerUniqueError,
     updateSuccess,
     allowEmptySubmit,
-    setSublistUniqueError = () => {},
+    setSubListUniqueError = () => {},
     setRuleError = () => {},
   },
   callback = () => {},
@@ -146,7 +148,7 @@ export function updateRecord(
         if (res.resultCode === 11) {
           triggerUniqueError(res.badData);
         } else if (res.resultCode === 22) {
-          setSublistUniqueError(res.badData);
+          setSubListUniqueError(res.badData);
           handleRecordError(res.resultCode);
         } else if (res.resultCode === 32) {
           setRuleError(res.badData);
@@ -156,7 +158,8 @@ export function updateRecord(
         callback(true);
       }
     })
-    .fail(err => {
+    .catch(err => {
+      console.error(err);
       callback(err);
       alert(_l('保存失败，请稍后重试'), 2);
     });
@@ -211,7 +214,7 @@ export function deleteRecord({ worksheetId, recordIds, recordId, viewId, appId, 
           reject();
         }
       })
-      .fail(reject);
+      .catch(reject);
   });
 }
 
@@ -232,7 +235,7 @@ export class RecordApi {
         .then(data => {
           resolve(replaceBtnsTranslateInfo(this.baseArgs.appId, data));
         })
-        .fail(err => {
+        .catch(err => {
           reject(err);
         });
     });
@@ -275,7 +278,7 @@ export function updateRelateRecords({
           reject();
         }
       })
-      .fail(reject);
+      .catch(reject);
   });
 }
 
@@ -321,7 +324,7 @@ export function updateRecordOwner({ worksheetId, recordId, accountId }) {
           reject();
         }
       })
-      .fail(reject);
+      .catch(reject);
   });
 }
 

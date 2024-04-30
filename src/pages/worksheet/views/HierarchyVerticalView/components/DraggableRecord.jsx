@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { isDisabledCreate, dropItem, setItem, getItem, isTextTitle } from '../../util';
+import { isDisabledCreate, isTextTitle } from '../../util';
 import cx from 'classnames';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import styled from 'styled-components';
@@ -86,7 +86,7 @@ export default function DraggableRecord(props) {
   const [{ isOver, canDrop }, drop] = useDrop({
     accept: ITEM_TYPE.ITEM,
     canDrop() {
-      const draggingItem = getItem('draggingHierarchyItem') || '';
+      const draggingItem = safeParse(localStorage.getItem('draggingHierarchyItem'));
       if (data.rowId === draggingItem.rowId) return false;
       if (String(view.childType) === '2') {
         return isParentSibling(draggingItem.path, data.path);
@@ -107,7 +107,7 @@ export default function DraggableRecord(props) {
       return allowedit;
     },
     begin(props) {
-      setItem('draggingHierarchyItem', data);
+      safeLocalStorageSetItem('draggingHierarchyItem', JSON.stringify(data));
       // 拖拽时折叠所有子记录
       toggleChildren({ visible: false, ..._.pick(data, ['path', 'pathId', 'rowId']) });
       return data;
@@ -116,7 +116,7 @@ export default function DraggableRecord(props) {
     end(item, monitor) {
       const dropResult = monitor.getDropResult();
       if (!dropResult) return;
-      const draggingItem = getItem('draggingHierarchyItem') || '';
+      const draggingItem = safeParse(localStorage.getItem('draggingHierarchyItem'));
       const { data } = dropResult;
       if (!data) return;
       if (String(view.childType) === '2') {
@@ -125,7 +125,7 @@ export default function DraggableRecord(props) {
       } else {
         updateMovedRecord({ src: draggingItem, target: data });
       }
-      dropItem('draggingHierarchyItem');
+      localStorage.removeItem('draggingHierarchyItem');
     },
     collect(monitor) {
       return { isDragging: monitor.isDragging() };

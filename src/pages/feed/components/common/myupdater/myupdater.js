@@ -41,28 +41,6 @@ var MyUpdater = {
 
     this.BindEvent();
   },
-  getKcProject: function () {
-    var projectIds;
-    projectIds = md.global.Account.projects.map(function (project) {
-      return project.projectId;
-    });
-    var kcPromise = $.Deferred();
-    applicationAjax
-      .isProjectsInstall({
-        projectIds: projectIds.join(),
-        appId: 'knowledgePortal',
-      })
-      .then(function (kcStatus) {
-        var result = [];
-        for (var key in kcStatus) {
-          if (kcStatus[key]) {
-            result.push(key);
-          }
-        }
-        kcPromise.resolve(result);
-      });
-    return kcPromise;
-  },
   formatNumber: function (src, pos) {
     return Math.round(src * Math.pow(10, pos)) / Math.pow(10, pos);
   },
@@ -161,7 +139,7 @@ var MyUpdater = {
       })
         .then(function (result) {
           if (!result || !result.node) {
-            return $.Deferred().reject();
+            return Promise.reject();
           }
           $this.data('type', result.type);
           $this.data('node', result.node);
@@ -190,10 +168,10 @@ var MyUpdater = {
           ); // TODO: position
           $('#addAttachmentToKcToggle').prop('checked', true);
         })
-        .fail(function () {
+        .catch(function () {
           // alert("选择路径失败，请重新选择", 2);
         })
-        .always(function () {
+        .finally(function () {
           if (!$this.data('type')) {
             $('#addAttachmentToKcToggle').prop('checked', false);
           }
@@ -316,8 +294,8 @@ var MyUpdater = {
   BindEvent: function () {
     // 用于动态更新框 Updater切换Type
     $('.myUpdateItem_Content a[targetDiv]')
-      .die()
-      .live('click', function () {
+      .off()
+      .on('click', function () {
         var targetDivID = $(this).attr('targetDiv');
         // $('#Div_JoinKnowledge').hide();
         // 附件
@@ -418,7 +396,7 @@ var MyUpdater = {
             // MyUpdater.options.uploadObj.getPluploadObj().refresh();
           });
           // 处理Edge 上传按钮大小没有撑开
-          if (targetDivID === '#Attachment_updater' && window.navigator.userAgent.indexOf('Edge') > -1) {
+          if (targetDivID === '#Attachment_updater' && window.isEdge) {
             $(targetDivID)
               .find('.moxie-shim.moxie-shim-html5')
               .css({
@@ -431,8 +409,8 @@ var MyUpdater = {
       });
     // 右上角关闭
     $('#updateCloseContainer span.update_close')
-      .die()
-      .live('click', function () {
+      .off()
+      .on('click', function () {
         MyUpdater.ResetUpdaterDiv();
         if (!$('#textarea_Updater').val().trim()) {
           $('#textarea_Updater')
@@ -813,24 +791,25 @@ var MyUpdater = {
           .reduce(function (a, b) {
             return a + b;
           }, 0);
-        var flowValidPromise = $.Deferred();
-        kcAjax
-          .getUsage()
-          .then(function (result) {
-            if (result && result.total - result.used >= addToKcSize) {
-              flowValidPromise.resolve();
-            } else {
-              alert(_l('已超出知识中心每月流量限制，无法加入知识中心'), 3);
-              return $.Deferred().reject();
-            }
-          })
-          .fail(function () {
-            flowValidPromise.reject();
-          });
-        checkValidPromises.push(flowValidPromise.promise());
+        var flowValidPromise = new Promise((resolve, reject) => {
+          kcAjax
+            .getUsage()
+            .then(function (result) {
+              if (result && result.total - result.used >= addToKcSize) {
+                resolve();
+              } else {
+                alert(_l('已超出知识中心每月流量限制，无法加入知识中心'), 3);
+                reject();
+              }
+            })
+            .catch(function () {
+              reject();
+            });
+        });
+        checkValidPromises.push(flowValidPromise);
       }
 
-      $.when.apply($, checkValidPromises).then(
+      Promise.all(checkValidPromises).then(
         function () {
           if (MyUpdater.addPost) return;
           MyUpdater.addPost = true;
@@ -854,7 +833,7 @@ var MyUpdater = {
                 successCallback(result);
               }
             })
-            .always(function () {
+            .finally(function () {
               $(obj).removeAttr('disabled').removeClass('Disabled');
               MyUpdater.addPost = false;
             });

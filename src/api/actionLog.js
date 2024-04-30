@@ -17,7 +17,7 @@ export default {
   **/
    getActionLogs: function (args, options = {}) {
      
-     return $.api('ActionLog', 'GetActionLogs', args, options);
+     return mdyAPI('ActionLog', 'GetActionLogs', args, options);
    },
   /**
   * 获取登录设备列表
@@ -28,7 +28,7 @@ export default {
   **/
    getAccountDevices: function (args, options = {}) {
      
-     return $.api('ActionLog', 'GetAccountDevices', args, options);
+     return mdyAPI('ActionLog', 'GetAccountDevices', args, options);
    },
   /**
   * 添加行为日志
@@ -43,6 +43,6 @@ export default {
   **/
    addLog: function (args, options = {}) {
      
-     return $.api('ActionLog', 'AddLog', args, options);
+     return mdyAPI('ActionLog', 'AddLog', args, options);
    },
 };

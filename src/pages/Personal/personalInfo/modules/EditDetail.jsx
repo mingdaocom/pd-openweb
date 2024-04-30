@@ -48,7 +48,7 @@ export default class EditDetail extends React.Component {
                 alert(_l('编辑失败'), 2);
               }
             })
-            .fail();
+            .catch();
         } else {
           alert(_l('输入内容包含敏感词，请重新填写'), 3);
         }

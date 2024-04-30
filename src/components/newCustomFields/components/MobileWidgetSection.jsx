@@ -1,7 +1,6 @@
 import React, { Fragment, useEffect } from 'react';
 import { Tabs } from 'antd-mobile';
-import { Icon } from 'ming-ui';
-import SvgIcon from 'src/components/SvgIcon';
+import { Icon, SvgIcon } from 'ming-ui';
 import RelateRecord from 'src/components/newCustomFields/widgets/RelateRecord';
 import RelationSearch from 'src/components/newCustomFields/widgets/RelationSearch';
 import RelationList from 'mobile/RelationRow/RelationList';
@@ -81,13 +80,26 @@ const IconCon = styled.span`
   margin-right: 6px;
 `;
 
+const RelateTabCon = styled.div`
+  height: calc(100% - 44px);
+`;
+
 function TabIcon({ control = {}, widgetStyle = {}, activeTabControlId }) {
   let iconUrl = control.iconUrl;
   const showIcon = _.get(widgetStyle, 'showicon') || '1';
   const isActiveCurrentTab = control.controlId === activeTabControlId;
+  const icon = _.get(control, 'advancedSetting.icon');
+  const showType = _.get(control, 'advancedSetting.showtype');
 
-  if (control.type === 52 && showIcon === '1' && control.controlId !== 'detail') {
-    const icon = _.get(control, 'advancedSetting.icon');
+  if (_.includes([29, 51], control.type) && showType === '2') {
+    return showIcon === '1' && icon ? (
+      <IconCon>
+        <Icon icon={icon} className="Font14" style={{ color: isActiveCurrentTab ? '#108ee9' : '#757575' }} />
+      </IconCon>
+    ) : null;
+  }
+
+  if (control.type === 52 && showIcon === '1') {
     if (!icon) {
       return (
         <IconCon>
@@ -130,6 +142,16 @@ export default function MobileWidgetSection(props) {
     changeMobileTab(_.get(tabControls[0], 'controlId'));
   }, [flag]);
 
+  const getCount = (control = {}) => {
+    const { value } = control;
+
+    if (!value || (_.isString(value) && value.startsWith('deleteRowIds'))) return '';
+    if (_.isNumber(value)) return value;
+
+    const data = JSON.parse(value);
+    if (_.isArray(data) && data.length) return data.length;
+  };
+
   const TabsContent = () => {
     const tabs = tabControls.concat(otherTabs).filter(v => v);
 
@@ -145,6 +167,7 @@ export default function MobileWidgetSection(props) {
         tabs={tabs}
         activeTab={activeTabControlId}
         renderTab={tab => {
+          const count = getCount(tab);
           return (
             <Fragment>
               {tab.showTabLine && <i className="tabLine" />}
@@ -152,8 +175,8 @@ export default function MobileWidgetSection(props) {
                 <TabIcon control={tab} widgetStyle={widgetStyle} activeTabControlId={activeTabControlId} />
                 {tab.controlName}
               </span>
-              {_.get(tab, 'advancedSetting.showcount') !== '1' && tab.type === 29 && disabled && tab.value ? (
-                <span>{`(${tab.value})`}</span>
+              {_.get(tab, 'advancedSetting.showcount') !== '1' && tab.type === 29 && tab.value && count ? (
+                <span>{`(${count})`}</span>
               ) : (
                 ''
               )}
@@ -228,9 +251,8 @@ export default function MobileWidgetSection(props) {
     if (activeControl.type === 29) {
       const initC = _.find(props.tabControls, v => v.controlId === activeControl.controlId);
       const c = { ...activeControl, disabled: initC.disabled, value: initC.value };
-
       return (
-        <div className="mTop10">
+        <RelateTabCon className="pTop10">
           <RelateRecord
             {...c}
             worksheetId={worksheetId}
@@ -240,9 +262,10 @@ export default function MobileWidgetSection(props) {
             recordId={recordId}
             widgetStyle={widgetStyle}
             formData={data}
+            showRelateRecordEmpty={true}
             onChange={(value, cid = activeControl.controlId) => onChange(value, cid, activeControl)}
           />
-        </div>
+        </RelateTabCon>
       );
     }
 

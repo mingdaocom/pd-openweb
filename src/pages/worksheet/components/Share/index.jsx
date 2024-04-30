@@ -50,7 +50,7 @@ export default function Share(props) {
   const [isPublic, setIsPublic] = useState(props.isPublic);
   const [publicUrl, setPublicUrl] = useState(isPublic && props.publicUrl);
   const [shareData, setShareData] = useState({});
-  const privateVisible = !_.includes(['report'], from);
+  const privateVisible = !_.includes(['report', 'worksheetApi'], from);
   const isEmbed = _.includes(['view', 'customPage'], from);
   const privateTitle = isEmbed ? _l('嵌入链接') : _l('内部成员访问');
   let disabledTip;
@@ -139,8 +139,14 @@ export default function Share(props) {
       )}
       {!hidePublicShare && (
         <React.Fragment>
-          <Bold600 className="Font15">{_l('对外公开分享')}</Bold600>
-          <Tip99 className="mTop10">{_l('获得链接的所有人都可以查看')}</Tip99>
+          {from === 'worksheetApi' ? (
+            <Tip99 className="">{_l('启用后，将 API 文档公开发布给应用外的用户查看使用')}</Tip99>
+          ) : (
+            <React.Fragment>
+              <Bold600 className="Font15">{_l('对外公开分享')}</Bold600>
+              <Tip99 className="mTop10">{_l('获得链接的所有人都可以查看')}</Tip99>
+            </React.Fragment>
+          )}
           <span data-tip={disabledTip} className="InlineBlock mTop15 tip-right">
             <Switch disabled={!isCharge} checked={!!publicUrl} onClick={() => updatePublicShare(!publicUrl)} />
           </span>
@@ -151,7 +157,8 @@ export default function Share(props) {
                 className="mTop20"
                 theme="light"
                 copyShowText
-                allowSendToChat
+                allowSendToChat={from !== 'worksheetApi'}
+                qrVisible={from !== 'worksheetApi'}
                 inputBtns={[
                   {
                     tip: _l('新窗口打开'),
@@ -162,11 +169,7 @@ export default function Share(props) {
                 url={publicUrl}
                 {...(_.isFunction(getCopyContent)
                   ? {
-                      getCopyContent: urlForCopy =>
-                        getCopyContent(
-                          'public',
-                          urlForCopy + '?',
-                        ),
+                      getCopyContent: urlForCopy => getCopyContent('public', urlForCopy + '?'),
                     }
                   : {})}
               />
@@ -179,7 +182,7 @@ export default function Share(props) {
                   {_l('编辑公开表单')}
                 </a>
               )}
-              {_.includes(['view', 'recordInfo', 'customPage'], from) && (
+              {_.includes(['view', 'recordInfo', 'customPage', 'worksheetApi'], from) && (
                 <Validity
                   data={shareData}
                   onChange={data => {
@@ -194,7 +197,7 @@ export default function Share(props) {
                         ...data,
                       });
                     }
-                    if (_.includes(['customPage'], from)) {
+                    if (_.includes(['customPage', 'worksheetApi'], from)) {
                       editEntityShare(data);
                     }
                   }}

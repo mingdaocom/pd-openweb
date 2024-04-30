@@ -220,7 +220,6 @@ export default class MobilePhone extends React.Component {
       onClick,
     } = this.props;
     const { value, forceShowFullValue } = this.state;
-    const isSafari = /^((?!chrome).)*safari.*$/.test(navigator.userAgent.toLowerCase());
     const isCard = from === FROM.CARD;
     const editProps = {
       ref: this.input,
@@ -258,10 +257,10 @@ export default class MobilePhone extends React.Component {
     );
     return (
       <Trigger
-        destroyPopupOnHide={!(navigator.userAgent.match(/[Ss]afari/) && !navigator.userAgent.match(/[Cc]hrome/))} // 不是 Safari
+        destroyPopupOnHide={!window.isSafari} // 不是 Safari
         action={['click']}
         popup={editcontent}
-        getPopupContainer={isSafari ? undefined : cell.enumDefault === 0 ? () => document.body : popupContainer}
+        getPopupContainer={window.isSafari ? undefined : cell.enumDefault === 0 ? () => document.body : popupContainer}
         popupClassName={cx('filterTrigger cellControlMobilePhoneEdit scrollInTable', {
           cellControlEdittingStatus: tableType !== 'classic',
           cellControlErrorStatus: error,

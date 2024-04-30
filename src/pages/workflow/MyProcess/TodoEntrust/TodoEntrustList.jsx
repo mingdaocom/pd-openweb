@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
 import './index.less';
 import withClickAway from 'ming-ui/decorators/withClickAway';
-import { Icon, Dialog } from 'ming-ui';
+import { Icon, Dialog, UserHead, UserName } from 'ming-ui';
 import { Modal } from 'antd-mobile';
 import styled from 'styled-components';
 import moment from 'moment';
 import delegationApi from '../../api/delegation';
 import TodoEntrustModal from './TodoEntrustModal';
-import UserHead from 'src/components/userHead';
-import UserName from 'src/components/userName';
 import DelegationConfigModal from 'mobile/Process/ProcessDelegation/DelegationConfigModal';
 import { browserIsMobile } from 'src/util';
 import cx from 'classnames';

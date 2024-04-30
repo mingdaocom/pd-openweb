@@ -2,7 +2,7 @@ import React from 'react';
 import user from 'src/api/user';
 import ScrollView from 'ming-ui/components/ScrollView';
 import UserProfile from './components/Profile';
-import addFriendConfirm from 'src/components/addFriendConfirm/addFriendConfirm';
+import { addFriendConfirm } from 'ming-ui/functions';
 import { getAppFeaturesVisible } from 'src/util';
 
 export default class UserEntryPoint extends React.PureComponent {
@@ -23,7 +23,7 @@ export default class UserEntryPoint extends React.PureComponent {
 
   componentWillUnmount() {
     $('html').removeClass('AppUser');
-    if (this.request && this.request.state() === 'pending' && this.request.abort) {
+    if (this.request && this.request.abort) {
       this.request.abort();
     }
   }
@@ -79,7 +79,7 @@ export default class UserEntryPoint extends React.PureComponent {
           isTask: true,
         });
       })
-      .fail();
+      .catch();
   };
 
   render() {

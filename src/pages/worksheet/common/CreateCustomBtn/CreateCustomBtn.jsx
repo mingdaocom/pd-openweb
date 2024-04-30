@@ -163,6 +163,7 @@ class CreateCustomBtnCon extends React.Component {
   };
 
   getRelationControl = id => {
+    const { worksheetId } = this.props;
     const { dataSource = '' } =
       _.find(this.props.currentSheetInfo.template.controls, item => item.controlId === id) || {};
     if (id && dataSource) {
@@ -171,6 +172,7 @@ class CreateCustomBtnCon extends React.Component {
           worksheetId: dataSource,
           getTemplate: true,
           getViews: true,
+          relationWorksheetId: worksheetId,
         })
         .then(data => {
           this.setState({

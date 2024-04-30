@@ -64,7 +64,7 @@ const BulletinDialog = styled(Dialog)`
           padding: 6px 8px;
           border-radius: 4px;
           color: #fff;
-          font-size: 16px;
+          font-size: 14px;
           cursor: pointer;
           &:hover {
             background-color: rgba(0, 0, 0, 0.3);
@@ -82,17 +82,24 @@ const BulletinDialog = styled(Dialog)`
         height: 40px;
         border-radius: 3px;
         background-size: cover !important;
+        position: relative;
         cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
         &.isActive {
           box-shadow: rgba(33, 150, 243) 0px 0px 0px 2px;
         }
-        .icon-done {
-          color: #fff;
-          font-size: 40px;
-          text-shadow: 0px 0px 4px rgba(0, 0, 0, 0.4);
+        .activeMaskWrapper {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background-color: rgba(0, 0, 0, 0.5);
+          .icon-done {
+            color: #fff;
+            font-size: 40px;
+            text-shadow: 0px 0px 4px rgba(0, 0, 0, 0.4);
+          }
         }
       }
     }
@@ -315,14 +322,17 @@ export default function BulletinSetting(props) {
   };
 
   const onSave = () => {
-    if (!!bulletins.filter(item => item.link && !RegExp.isURL(item.link)).length) {
+    if (!!bulletins.filter(item => item.link.trim() && !RegExp.isURL(item.link.trim())).length) {
       alert(_l('链接格式不正确'), 3);
       return;
     }
-    updatePlatformSetting({ bulletinBoards: bulletins }, () => {
-      alert('保存成功');
-      setEditStatus({ editing: false, saved: true });
-    });
+    updatePlatformSetting(
+      { bulletinBoards: bulletins.map(item => ({ ...item, link: item.link.trim(), title: item.title.trim() })) },
+      () => {
+        alert('保存成功');
+        setEditStatus({ editing: false, saved: true });
+      },
+    );
   };
 
   return (
@@ -407,7 +417,11 @@ export default function BulletinSetting(props) {
                 style={{ background: `url(${url}) no-repeat center` }}
                 onClick={() => onChangeData({ url, key: item })}
               >
-                {isActive && <Icon icon="done" />}
+                {isActive && (
+                  <div className="activeMaskWrapper">
+                    <Icon icon="done" />
+                  </div>
+                )}
               </div>
             );
           })}
@@ -419,7 +433,6 @@ export default function BulletinSetting(props) {
           placeholder={_l('例如：') + location.origin}
           value={bulletins[activeIndex].link}
           onChange={value => onChangeData({ link: value })}
-          onBlur={e => onChangeData({ link: e.target.value.trim() })}
         />
         <div className="bold">{_l('标题')}</div>
         <div className="mTop8 mBottom20">
@@ -428,7 +441,6 @@ export default function BulletinSetting(props) {
             maxLength={30}
             value={bulletins[activeIndex].title}
             onChange={e => onChangeData({ title: e.target.value })}
-            onBlur={e => onChangeData({ title: e.target.value.trim() })}
           />
         </div>
 

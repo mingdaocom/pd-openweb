@@ -133,7 +133,12 @@ class TableView extends React.Component {
       o => o.controlId === _.get(view, 'navGroup[0].controlId'),
     );
     //设置了筛选列表，且未显示全部，需选择分组后显示
-    return !!navGroupData && _.get(view, 'advancedSetting.showallitem') === '1' && _.get(view, 'navGroup').length > 0;
+    return (
+      !!navGroupData &&
+      _.get(view, 'advancedSetting.showallitem') === '1' &&
+      !_.get(view, 'navGroup[0].viewId') &&
+      _.get(view, 'navGroup').length > 0
+    );
   };
 
   shouldComponentUpdate(nextProps, nextState) {

@@ -1,15 +1,39 @@
+import { v4 as uuidv4 } from 'uuid';
 import { handleSortRows, postWithToken, download } from 'worksheet/util';
 import worksheetAjax from 'src/api/worksheet';
-import _ from 'lodash';
+import _, { get } from 'lodash';
+import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
+import { createRequestPool } from 'worksheet/api/standard';
 
 const PAGE_SIZE = 200;
+
+export function updateBase(changes = {}) {
+  return (dispatch, getState) => {
+    const { base = {} } = getState();
+    dispatch({
+      type: 'UPDATE_BASE',
+      value: { ...base, ...changes },
+    });
+  };
+}
 
 export const initRows = rows => ({ type: 'INIT_ROWS', rows });
 
 export const resetRows = () => {
   return (dispatch, getState) => {
+    const { base = {} } = getState();
     dispatch(initRows(getState().originRows));
+    if (base.reset && !base.loaded) {
+      dispatch({ type: 'RESET' });
+    }
     return Promise.resolve();
+  };
+};
+
+export const updateCellErrors = errors => {
+  return {
+    type: 'UPDATE_CELL_ERRORS',
+    value: errors || {},
   };
 };
 
@@ -75,15 +99,19 @@ export const loadRows = ({
       pageSize: PAGE_SIZE,
       getType: from === 21 ? from : undefined,
     };
-    batchLoadRows(args).then(batchRes => {
-      const { res, rows } = batchRes;
-      dispatch({ type: 'LOAD_ROWS', rows });
-      dispatch(initRows(rows));
-      if (isCustomButtonFillRecord && rows.length) {
-        dispatch(updateRow(rows[0].rowid, rows[0]));
-      }
-      callback(res);
-    });
+    batchLoadRows(args)
+      .then(batchRes => {
+        const { res, rows } = batchRes;
+        dispatch({ type: 'LOAD_ROWS', rows });
+        dispatch(initRows(rows));
+        if (isCustomButtonFillRecord && rows.length) {
+          dispatch(updateRow(rows[0].rowid, rows[0]));
+        }
+        callback(res);
+      })
+      .catch(err => {
+        callback(null);
+      });
   };
 };
 
@@ -120,3 +148,137 @@ export const exportSheet = ({ worksheetId, rowId, controlId, fileName, onDownloa
     }
   };
 };
+
+class RowData {
+  constructor(args = {}, options = {}) {
+    this.args = args;
+    this.init();
+  }
+  init() {
+    const {
+      requestPool,
+      recordId,
+      projectId,
+      row,
+      abortController,
+      masterData,
+      controls = [],
+      searchConfig,
+      isCreate = false,
+      isQueryWorksheetFill = false,
+    } = this.args;
+    if (get(row, 'updatedControlIds')) {
+      this.updatedControlIds = get(row, 'updatedControlIds');
+    }
+    this.handleAsyncChange = this.handleAsyncChange.bind(this);
+    this.formData = new DataFormat({
+      requestPool,
+      data: controls.map(c => {
+        let controlValue = (row || {})[c.controlId];
+        if (_.isUndefined(controlValue) && (isCreate || !row)) {
+          controlValue = c.value;
+        }
+        return {
+          ...c,
+          isSubList: true,
+          isQueryWorksheetFill,
+          value: controlValue,
+        };
+      }),
+      isCreate: isCreate || !row,
+      from: 2,
+      // rules, // 批量赋值不需要业务规则
+      searchConfig,
+      projectId,
+      masterData,
+      abortController,
+      masterRecordRowId: recordId,
+      onAsyncChange: this.handleAsyncChange,
+    });
+    this.addTime = new Date().getTime();
+  }
+  handleAsyncChange(changes) {
+    const { updateRow } = this.args;
+    const { controlId, value } = changes;
+    this.formData.updateDataSource({ controlId, value });
+    updateRow(this.getRow());
+  }
+  getRow() {
+    const { rowId, allowEdit } = this.args;
+    const rowOfFormData = [
+      {
+        updatedControlIds: _.uniqBy(this.updatedControlIds || []).concat(this.formData.getUpdateControlIds()),
+      },
+      ...this.formData.getDataSource(),
+    ].reduce((a = {}, b = {}) => Object.assign(a, { [b.controlId]: b.value }));
+    return {
+      ...rowOfFormData,
+      rowid: rowId,
+      allowedit: allowEdit,
+      addTime: this.addTime,
+    };
+  }
+}
+
+export function setRowsFromStaticRows({
+  recordId,
+  masterData,
+  staticRows = [],
+  abortController,
+  type,
+  isCreate,
+  isDefaultValue = true,
+  isQueryWorksheetFill = true,
+  triggerSubListControlValueChange = () => {},
+} = {}) {
+  return (getState, dispatch) => {
+    const { base = {} } = getState();
+    const { controls, projectId, searchConfig, initRowIsCreate, max } = base;
+    const requestPool = createRequestPool({
+      abortController: abortController || (typeof AbortController !== 'undefined' && new AbortController()),
+      maxConcurrentRequests: 6,
+    });
+    const rows = (!max ? staticRows : staticRows.slice(0, max)).map(staticRow => {
+      const tempRowId = !isDefaultValue ? `temp-${uuidv4()}` : `default-${uuidv4()}`;
+      const createRowArgs = {
+        requestPool,
+        recordId,
+        projectId,
+        abortController,
+        row: staticRow,
+        masterData,
+        rowId: tempRowId,
+        controls,
+        searchConfig,
+        isDefaultValue,
+        isQueryWorksheetFill,
+        isCreate:
+          !!recordId ||
+          (!_.isUndefined(staticRow.initRowIsCreate)
+            ? staticRow.initRowIsCreate
+            : !_.isUndefined(initRowIsCreate)
+            ? initRowIsCreate
+            : true),
+        updateRow: row => {
+          dispatch({
+            type: 'UPDATE_ROW',
+            rowid: row.rowid,
+            value: row,
+          });
+          // setTimeout(() => {
+          //   triggerSubListControlValueChange();
+          // }, 100);
+        },
+      };
+      const rowData = new RowData(createRowArgs);
+      return rowData.getRow();
+    });
+    if (type === 'append') {
+      dispatch(addRows(rows));
+      triggerSubListControlValueChange({ action: 'append', isDefault: true, rows: getState().rows });
+    } else {
+      dispatch(clearAndSetRows(rows));
+      triggerSubListControlValueChange({ action: 'clearAndSet', isDefault: true, rows: getState().rows });
+    }
+  };
+}

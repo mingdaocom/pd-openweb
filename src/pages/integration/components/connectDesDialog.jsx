@@ -144,13 +144,13 @@ function ConnectDesDia(props) {
           className="Block mTop8"
           onChange={e => {
             let str = e.target.value;
-            if (e.target.value.trim().length > 200) {
-              str = e.target.value.trim().slice(0, 200);
+            if (e.target.value.trim().length > 600) {
+              str = e.target.value.trim().slice(0, 600);
             }
             setState({ explain: str });
           }}
         />
-        <span className="num">{(explain || '').length}/200</span>
+        <span className="num">{(explain || '').length}/600</span>
       </div>
       <div
         className="btn Bold Right"

@@ -93,6 +93,7 @@ export default class Pagination extends React.Component {
     pageIndex: PropTypes.number,
     pageSize: PropTypes.number,
     allCount: PropTypes.number,
+    countForShow: PropTypes.number,
     onPrev: PropTypes.func,
     onNext: PropTypes.func,
     changePageIndex: PropTypes.func,
@@ -202,6 +203,7 @@ export default class Pagination extends React.Component {
           <Input
             manualRef={this.jumpInputRef}
             valueFilter={v => v.replace(/[^0-9]/g, '')}
+            defaultValue={pageIndex}
             onKeyDown={e => {
               if (e.keyCode === 13 && this.jumpInputRef.current && this.jumpInputRef.current.value) {
                 const jumpPage = parseInt(this.jumpInputRef.current.value, 10);
@@ -222,7 +224,17 @@ export default class Pagination extends React.Component {
   }
 
   render() {
-    const { disabled, abnormalMode, className = '', pageIndex, maxCount, allCount, onPrev, onNext } = this.props;
+    const {
+      disabled,
+      abnormalMode,
+      className = '',
+      pageIndex,
+      maxCount,
+      allCount,
+      countForShow,
+      onPrev,
+      onNext,
+    } = this.props;
     const { popupVisible } = this.state;
     if (maxCount) {
       return (
@@ -252,7 +264,14 @@ export default class Pagination extends React.Component {
           getPopupContainer={() => this.conRef.current || document.body}
         >
           <PageNum>
-            {abnormalMode ? _l('第%0页', pageIndex) : _l('共%0行，%1/%2页', allCount, pageIndex, this.pageNum)}
+            {abnormalMode
+              ? _l('第%0页', pageIndex)
+              : _l(
+                  '共%0行，%1/%2页',
+                  typeof countForShow !== 'undefined' ? countForShow : allCount,
+                  pageIndex,
+                  this.pageNum,
+                )}
           </PageNum>
         </Trigger>
         <Btn className={pageIndex === 1 && 'disabled'} onClick={pageIndex === 1 ? () => {} : onPrev}>

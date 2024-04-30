@@ -245,7 +245,7 @@ export default class AliasDialog extends React.Component {
                               });
                             }
                           })
-                          .fail(err => {
+                          .catch(err => {
                             alert(_l('修改失败'), 2);
                           });
                       }}

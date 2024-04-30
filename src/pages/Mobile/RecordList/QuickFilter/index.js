@@ -6,6 +6,7 @@ import { bindActionCreators } from 'redux';
 import { Icon } from 'ming-ui';
 import FilterInput, { validate, conditionAdapter, turnControl, formatQuickFilter, NumberTypes } from './Inputs';
 import { formatFilterValuesToServer } from 'src/pages/worksheet/common/Sheet/QuickFilter/utils';
+import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
 import _ from 'lodash';
 
 const Con = styled.div`
@@ -34,6 +35,8 @@ const Con = styled.div`
   }
   .footer {
     border-top: 1px solid #eaeaea;
+    z-index: 0;
+    background-color: #fff;
     .flex {
       padding: 10px;
     }
@@ -90,6 +93,9 @@ export function QuickFilter(props) {
         }
         if (it.type === 2) {
           return { ...it, values: !_.isEmpty(values) ? [values.join('').trim()] : values };
+        }
+        if (it.filterType === FILTER_CONDITION_TYPE.DATE_BETWEEN && it.dateRange !== 18) {
+          it.filterType = FILTER_CONDITION_TYPE.DATEENUM;
         }
         return { ...it, values };
       });

@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { areEqual, VariableSizeGrid } from 'react-window';
-import _ from 'lodash';
+import _, { includes } from 'lodash';
 
 function sum(array = []) {
   return array.reduce((a, b) => a + b, 0);
@@ -39,11 +39,19 @@ export default function Grid(props) {
   const rightFixedWidth = rightFixedCount ? sum([...new Array(rightFixedCount)].map((n, i) => getColumnWidth(i))) : 0;
   let topFixedHeight = topFixedCount ? topFixedCount * columnHeadHeight : 0;
   let bottomFixedHeight = bottomFixedCount ? bottomFixedCount * 28 : 0;
+  let gridHeight = topFixed
+    ? topFixedHeight
+    : bottomFixed
+    ? bottomFixedHeight
+    : height - topFixedHeight - bottomFixedHeight;
+  if (includes(id, 'main') && gridHeight < 60) {
+    gridHeight = 60;
+  }
   const config = {
     left: leftFixed ? 0 : rightFixed ? width - rightFixedWidth : leftFixedWidth,
     top: topFixed ? 0 : bottomFixed ? height - bottomFixedHeight : topFixedHeight,
     width: leftFixed ? leftFixedWidth : rightFixed ? rightFixedWidth : width - leftFixedWidth - rightFixedWidth,
-    height: topFixed ? topFixedHeight : bottomFixed ? bottomFixedHeight : height - topFixedHeight - bottomFixedHeight,
+    height: gridHeight,
     columnCount: leftFixed
       ? leftFixedCount
       : rightFixed

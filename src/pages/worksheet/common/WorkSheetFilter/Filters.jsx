@@ -11,7 +11,7 @@ import Empty from './components/Empty';
 import { redefineComplexControl, getDefaultCondition } from './util';
 import { formatForSave } from './model';
 import { CONTROL_FILTER_WHITELIST } from './enum';
-import _ from 'lodash';
+import _, { get, includes } from 'lodash';
 
 const Con = styled.div`
   width: 480px;
@@ -159,6 +159,17 @@ function Filters(props, ref) {
       filterWorksheet(state.editingFilter);
     }
   }, [state.editingFilterVersion]);
+  useEffect(() => {
+    if (
+      isNewEditing &&
+      !get(cache, 'current.editingFilter') &&
+      state.editingFilter &&
+      includes([14, 36], _.get(state, 'editingFilter.conditionsGroups.0.conditions.0.control.type'))
+    ) {
+      filterWorksheet(state.editingFilter);
+    }
+    cache.current.editingFilter = state.editingFilter;
+  }, [state.editingFilter]);
   useImperativeHandle(ref, () => ({
     addFilterByControl: control => {
       cache.current.callFromColumn = true;

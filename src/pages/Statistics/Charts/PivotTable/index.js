@@ -2,7 +2,8 @@ import React, { Component, Fragment, createRef } from 'react';
 import cx from 'classnames';
 import { formatrChartValue, getStyleColor } from '../common';
 import { isFormatNumber, relevanceImageSize } from 'statistics/common';
-import { Table } from 'antd';
+import { Table, Dropdown, Menu } from 'antd';
+import { Icon } from 'ming-ui';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import { browserIsMobile, getClassNameByExt } from 'src/util';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
@@ -12,49 +13,67 @@ import { isLightColor } from 'src/pages/customPage/util';
 import _ from 'lodash';
 const isMobile = browserIsMobile();
 const isPrintPivotTable = location.href.includes('printPivotTable');
-const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
-import { generate } from '@ant-design/colors';
 
-export const replaceColor = (data, customPageConfig, themeColor) => {
+import { generate } from '@ant-design/colors';
+import tinycolor from '@ctrl/tinycolor';
+
+export const replaceColor = ({ pivotTableStyle, customPageConfig, themeColor, sourceType, linkageMatch = {} }) => {
+  const data = _.clone(pivotTableStyle);
   const { columnBgColor, lineBgColor } = data;
   const { pivoTableColor, pivoTableColorIndex = 1 } = customPageConfig || {};
+  const { lineValue, columnValue } = linkageMatch;
   if (pivoTableColor && pivoTableColorIndex >= (data.pivoTableColorIndex || 0)) {
     const isLight = isLightColor(pivoTableColor);
-    return {
-      ...data,
-      columnBgColor: pivoTableColor,
-      lineBgColor: pivoTableColor,
-      columnTextColor: isLight ? '#757575' : '#fff',
-      lineTextColor: isLight ? '#333' : '#fff',
+    data.columnBgColor = pivoTableColor;
+    data.lineBgColor = pivoTableColor;
+    data.columnTextColor = isLight ? '#757575' : '#fff';
+    data.lineTextColor = isLight ? '#333' : '#fff';
+  } else if ([2, 3].includes(sourceType)) {
+    if (data.columnBgColor === 'themeColor') {
+      data.columnBgColor = '#fafafa';
+      data.columnTextColor = '#757575';
+    }
+    if (data.lineBgColor === 'themeColor') {
+      data.columnBgColor = '#fff';
+      data.lineTextColor = '#333';
+    }
+  } else {
+    const { columnTextColor, lineTextColor } = data;
+    const lightColor = themeColor && generate(themeColor)[0];
+    if (columnBgColor === 'themeColor' || columnBgColor === 'DARK_COLOR') {
+      data.columnBgColor = themeColor;
+    }
+    if (lineBgColor === 'themeColor' || lineBgColor === 'DARK_COLOR') {
+      data.lineBgColor = themeColor;
+    }
+    if (columnBgColor === 'LIGHT_COLOR') {
+      data.columnBgColor = lightColor;
+    }
+    if (lineBgColor === 'LIGHT_COLOR') {
+      data.lineBgColor = lightColor;
+    }
+    if (columnTextColor === 'DARK_COLOR') {
+      data.columnTextColor = themeColor;
+    }
+    if (lineTextColor === 'DARK_COLOR') {
+      data.lineTextColor = themeColor;
+    }
+    if (columnTextColor === 'LIGHT_COLOR') {
+      data.columnTextColor = lightColor;
+    }
+    if (lineTextColor === 'LIGHT_COLOR') {
+      data.lineTextColor = lightColor;
     }
   }
-  data = _.clone(data);
-  const { columnTextColor, lineTextColor } = data;
-  const lightColor = themeColor && generate(themeColor)[0];
-  if (columnBgColor === 'themeColor' || columnBgColor === 'DARK_COLOR') {
-    data.columnBgColor = themeColor;
-  }
-  if (lineBgColor === 'themeColor' || lineBgColor === 'DARK_COLOR') {
-    data.lineBgColor = themeColor;
-  }
-  if (columnBgColor === 'LIGHT_COLOR') {
-    data.columnBgColor = lightColor;
-  }
-  if (lineBgColor === 'LIGHT_COLOR') {
-    data.lineBgColor = lightColor;
-  }
-  if (columnTextColor === 'DARK_COLOR') {
-    data.columnTextColor = themeColor;
-  }
-  if (lineTextColor === 'DARK_COLOR') {
-    data.lineTextColor = themeColor;
-  }
-  if (columnTextColor === 'LIGHT_COLOR') {
-    data.columnTextColor = lightColor;
-  }
-  if (lineTextColor === 'LIGHT_COLOR') {
-    data.lineTextColor = lightColor;
-  }
+  // if (!_.isEmpty(linkageMatch)) {
+  //   const { columnBgColor, lineBgColor } = data;
+  //   const lowAlphaColumnBgColor = tinycolor(columnBgColor).setAlpha(0.3).toRgbString();
+  //   const lowAlphaLineBgColor = tinycolor(lineBgColor).setAlpha(0.3).toRgbString();
+  //   data.originalColumnBgColor = columnBgColor;
+  //   data.originalLineBgColor = lineBgColor;
+  //   data.columnBgColor = lowAlphaColumnBgColor;
+  //   data.lineBgColor = lowAlphaLineBgColor;
+  // }
   return data;
 }
 
@@ -66,7 +85,11 @@ export default class extends Component {
     const { paginationSize = 20 } = style || {};
     this.state = {
       dragValue: 0,
-      pageSize: paginationSize
+      pageSize: paginationSize,
+      dropdownVisible: false,
+      offset: {},
+      match: null,
+      linkageMatch: null
     }
     this.$ref = createRef(null);
   }
@@ -201,24 +224,97 @@ export default class extends Component {
       }
     }
   }
-  handleOpenSheet = (data) => {
-    const { reportData, isViewOriginalData, isThumbnail } = this.props;
-    const { displaySetup } = reportData;
-    if (displaySetup.showRowList && isViewOriginalData && !isPrintPivotTable) {
-      if (isThumbnail) {
-        this.props.onOpenChartDialog({
-          isPersonal: false,
-          match: data
-        });
-      } else {
-        this.props.requestOriginalData({
-          isPersonal: false,
-          match: data
-        });
+  handleClick = ({ event, index, record }) => {
+    const { columns, lines, data, appId, reportId, name, reportType, displaySetup, style, valueMap } = this.props.reportData;
+    const param = {};
+    const linkageMatch = {
+      sheetId: appId,
+      reportId,
+      reportName: name,
+      reportType,
+      filters: []
+    };
+    this.isViewOriginalData = displaySetup.showRowList && this.props.isViewOriginalData && !isPrintPivotTable;
+    this.isLinkageData = this.props.isLinkageData && !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0) && !isPrintPivotTable && (columns.length || lines.length);
+    data.x.forEach(item => {
+      const key = _.findKey(item);
+      const control = _.find(lines, { cid: key }) || {};
+      const { controlId, controlType, controlName } = control;
+      const isNumber = isFormatNumber(controlType);
+      const value = item[key][record.key];
+      const controlValue = valueMap[key] ? valueMap[key][value] : value;
+      param[key] = isNumber && value ? Number(value) : value;
+      linkageMatch.lineValue = value;
+      linkageMatch.filters.push({
+        controlId: controlId,
+        values: [param[key]],
+        controlName,
+        controlValue: controlType === 29 ? _l('关联表') : controlValue || '--',
+        type: controlType,
+        control
+      });
+    });
+    columns.forEach((item, i) => {
+      const isNumber = isFormatNumber(item.controlType);
+      const value = data.data[index].y[i];
+      const controlValue = valueMap[item.cid] ? valueMap[item.cid][value] : value;
+      param[item.cid] = isNumber && value ? Number(value) : value;
+      linkageMatch.columnValue = value;
+      linkageMatch.filters.push({
+        controlId: item.controlId,
+        values: [param[item.cid]],
+        controlName: item.controlName,
+        controlValue: controlValue || '--',
+        type: item.controlType,
+        control: item
+      });
+    });
+    if (_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length) {
+      linkageMatch.onlyChartIds = style.autoLinkageChartObjectIds;
+    }
+    const isAll = this.isViewOriginalData && this.isLinkageData;
+    const { x, y } = this.getParentNode().getBoundingClientRect();
+    this.setState({
+      dropdownVisible: isAll,
+      offset: {
+        x: event.pageX - x + 20,
+        y: event.pageY - y
+      },
+      match: param,
+      linkageMatch
+    }, () => {
+      if (!isAll && this.isViewOriginalData) {
+        this.handleRequestOriginalData();
       }
+      if (!isAll && this.isLinkageData) {
+        this.handleAutoLinkage();
+      }
+    });
+  }
+  handleAutoLinkage = () => {
+    const { linkageMatch } = this.state;
+    this.props.onUpdateLinkageFiltersGroup(linkageMatch);
+    this.setState({ dropdownVisible: false });
+  }
+  handleRequestOriginalData = () => {
+    const { isThumbnail } = this.props;
+    const { match } = this.state;
+    const data = {
+      isPersonal: false,
+      match
+    }
+    this.setState({ dropdownVisible: false });
+    if (isThumbnail) {
+      this.props.onOpenChartDialog(data);
+    } else {
+      this.props.requestOriginalData(data);
     }
   }
   handleFilePreview = (res, file) => {
+    if (_.get(window.shareState, 'isPublicChart') && ['.docx', '.xlsx'].includes(file.ext)) {
+      alert(_l('暂不支持预览'), 3);
+      return;
+    }
     const index = _.findIndex(res, { fileID: file.fileID });
     previewAttachments({
       attachments: res,
@@ -416,20 +512,7 @@ export default class extends Component {
                 if (record.key === 'sum' || record.isSubTotal) {
                   return;
                 }
-                const param = {};
-                data.x.forEach(item => {
-                  const key = _.findKey(item);
-                  const { controlType } = _.find(lines, { controlId: key }) || {};
-                  const isNumber = isFormatNumber(controlType);
-                  const value = item[key][record.key];
-                  param[key] = isNumber && value ? Number(value) : value;
-                });
-                columns.forEach((item, i) => {
-                  const isNumber = isFormatNumber(item.controlType);
-                  const value = data.data[index].y[i];
-                  param[item.cid] = isNumber && value ? Number(value) : value;
-                });
-                this.handleOpenSheet(param);
+                this.handleClick({ event, index, record });
               }
             };
           },
@@ -888,7 +971,7 @@ export default class extends Component {
       sumSuffix = value.sumSuffix;
       value = value.value;
     }
-    
+
     if (_.isNumber(value) || _.isEmpty(value) || emptyShowType === 1) {
       const colorRule = _.find(colorRules, { controlId: controlId }) || {};
       const textColorRule = colorRule.textColorRule || {};
@@ -947,9 +1030,27 @@ export default class extends Component {
       </Fragment>
     );
   }
+  renderOverlay() {
+    return (
+      <Menu className="chartMenu" style={{ width: 160 }}>
+        <Menu.Item onClick={this.handleAutoLinkage} key="autoLinkage">
+          <div className="flexRow valignWrapper">
+            <Icon icon="link1" className="mRight8 Gray_9e Font20 autoLinkageIcon" />
+            <span>{_l('联动')}</span>
+          </div>
+        </Menu.Item>
+        <Menu.Item onClick={this.handleRequestOriginalData} key="viewOriginalData">
+          <div className="flexRow valignWrapper">
+            <Icon icon="table" className="mRight8 Gray_9e Font18" />
+            <span>{_l('查看原始数据')}</span>
+          </div>
+        </Menu.Item>
+      </Menu>
+    );
+  }
   render() {
-    const { dragValue, pageSize } = this.state;
-    const { themeColor, customPageConfig, reportData } = this.props;
+    const { dragValue, pageSize, dropdownVisible, offset } = this.state;
+    const { themeColor, customPageConfig, reportData, linkageMatch = {}, sourceType } = this.props;
     const { reportId, data, yaxisList, columns, lines, valueMap, style, pivotTable } = reportData;
     const showLineTotal = pivotTable ? pivotTable.showLineTotal : reportData.showLineTotal;
     const {
@@ -980,50 +1081,63 @@ export default class extends Component {
     const widthConfig = sessionStorage.getItem(`pivotTableColumnWidthConfig-${reportId}`) || pivotTableColumnWidthConfig || [2, 3].includes(widthModel);
 
     return (
-      <PivotTableContent
-        ref={this.$ref}
-        isMobile={isMobile}
-        pivotTableStyle={replaceColor(pivotTableStyle, customPageConfig, themeColor)}
-        isFreeze={columnFreeze || lineFreeze}
-        paginationVisible={paginationVisible && dataSource.length > pageSize}
-        className={
-          cx('flex flexColumn chartWrapper Relative', {
-            contentXAuto: _.isUndefined(scrollConfig.x),
-            contentYAuto: _.isUndefined(scrollConfig.y),
-            contentAutoHeight: scrollConfig.x && _.isUndefined(scrollConfig.y),
-            contentScroll: scrollConfig.y,
-            hideHeaderLastTr: columns.length && yaxisList.length === 1,
-            hideBody: _.isEmpty(lines) && _.isEmpty(yaxisList),
-            hideDrag: widthModel === 3,
-            noSelect: dragValue,
-            safariScroll: scrollConfig.y
-          })
-        }
-      >
-        <Table
-          bordered
-          size="small"
-          tableLayout={widthConfig ? 'fixed' : undefined}
-          rowClassName={(record, index) => {
-            return record.key === 'sum' || record.isSubTotal ? 'sum-content' : undefined;
+      <Fragment>
+        <PivotTableContent
+          ref={this.$ref}
+          isMobile={isMobile}
+          pivotTableStyle={replaceColor({ pivotTableStyle, customPageConfig, themeColor, sourceType, linkageMatch })}
+          isFreeze={columnFreeze || lineFreeze}
+          paginationVisible={paginationVisible && dataSource.length > pageSize}
+          className={
+            cx('flex flexColumn chartWrapper Relative', {
+              contentXAuto: _.isUndefined(scrollConfig.x),
+              contentYAuto: _.isUndefined(scrollConfig.y),
+              contentAutoHeight: scrollConfig.x && _.isUndefined(scrollConfig.y),
+              contentScroll: scrollConfig.y,
+              hideHeaderLastTr: columns.length && yaxisList.length === 1,
+              hideBody: _.isEmpty(lines) && _.isEmpty(yaxisList),
+              hideDrag: widthModel === 3,
+              noSelect: dragValue,
+              safariScroll: scrollConfig.y
+            })
+          }
+        >
+          <Table
+            bordered
+            size="small"
+            tableLayout={widthConfig ? 'fixed' : undefined}
+            rowClassName={(record, index) => {
+              return record.key === 'sum' || record.isSubTotal ? 'sum-content' : undefined;
+            }}
+            pagination={paginationVisible ? {
+              showTotal: total => _l('共 %0 条', showLineTotal ? total - 1 : total),
+              hideOnSinglePage: true,
+              showSizeChanger: true,
+              pageSize,
+              pageSizeOptions: [20, 25, 30, 50, 100],
+              onShowSizeChange: (current, size) => {
+                this.setState({ pageSize: size });
+              },
+              locale: { items_per_page: _l('条/页') }
+            } : false}
+            columns={tableColumns}
+            dataSource={dataSource}
+            scroll={scrollConfig}
+          />
+          {!!dragValue && <div style={{ left: dragValue }} className="dragLine" />}
+        </PivotTableContent>
+        <Dropdown
+          visible={dropdownVisible}
+          onVisibleChange={(dropdownVisible) => {
+            this.setState({ dropdownVisible });
           }}
-          pagination={paginationVisible ? {
-            showTotal: total => _l('共 %0 条', showLineTotal ? total - 1 : total),
-            hideOnSinglePage: true,
-            showSizeChanger: true,
-            pageSize,
-            pageSizeOptions: [20, 25, 30, 50, 100],
-            onShowSizeChange: (current, size) => {
-              this.setState({ pageSize: size });
-            },
-            locale: { items_per_page: _l('条/页') }
-          } : false}
-          columns={tableColumns}
-          dataSource={dataSource}
-          scroll={scrollConfig}
-        />
-        {!!dragValue && <div style={{ left: dragValue }} className="dragLine" />}
-      </PivotTableContent>
+          trigger={['click']}
+          placement="bottomLeft"
+          overlay={this.renderOverlay()}
+        >
+          <div className="Absolute" style={{ left: offset.x, top: offset.y }}></div>
+        </Dropdown>
+      </Fragment>
     );
   }
 }

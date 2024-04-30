@@ -33,7 +33,7 @@ export default class ColorEntrance extends Component {
   }
   getRuleVisible() {
     const { currentReport } = this.props;
-    const { reportType, yaxisList, split, yreportType } = currentReport;
+    const { reportType, yaxisList, split, yreportType, displaySetup } = currentReport;
     if ([reportTypes.BarChart].includes(reportType)) {
       return yaxisList.length === 1 && _.isEmpty(split.controlId);
     }
@@ -42,6 +42,9 @@ export default class ColorEntrance extends Component {
     }
     if ([reportTypes.ScatterChart].includes(reportType)) {
       return _.isEmpty(split.controlId);
+    }
+    if ([reportTypes.CountryLayer].includes(reportType)) {
+      return displaySetup.showChartType !== 2;
     }
     return [reportTypes.FunnelChart, reportTypes.GaugeChart, reportTypes.ProgressChart].includes(reportType);
   }

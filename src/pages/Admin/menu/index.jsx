@@ -61,7 +61,7 @@ export default class AdminLeftMenu extends Component {
     }
   }
 
-  renderLinkItem = ({ icon, name, menuPath, routes, featureId, key, hasBeta = false }, index) => {
+  renderLinkItem = ({ icon, name, menuPath, routes, featureId, key, hasBeta = false, featureIds }, index) => {
     const { subListVisible, isExtend } = this.state;
     const {
       location: { pathname },
@@ -83,13 +83,23 @@ export default class AdminLeftMenu extends Component {
     const isActive = () => {
       return _.some(routes, route => pathToRegexp(route.path).test(pathname));
     };
-    const route = routes[0] || {};
+    let routeIndex = undefined;
+    let featureType = getFeatureStatus(projectId, featureId);
+    if (featureIds) {
+      featureIds.forEach((l, i) => {
+        let itemFeatureType = getFeatureStatus(projectId, l);
+        if (itemFeatureType) {
+          routeIndex === undefined && (routeIndex = i);
+          featureType = featureType ? Math.min(itemFeatureType, featureType).toString() : itemFeatureType;
+        }
+      });
+    }
+    const route = routes[routeIndex || 0] || {};
     const compile = pathToRegexp.compile(menuPath || route.path);
     const path =
       route.path && route.path.indexOf(':projectId') === -1 ? compile({ 0: projectId }) : compile({ projectId });
-    let featureType = getFeatureStatus(projectId, featureId);
     const isHome = key === 'home';
-    if (_.includes(['analytics', 'applog', 'computing'], key) && !featureType) return;
+    if (_.includes(['analytics', 'applog', 'computing', 'aggregationTable'], key) && !featureType) return;
 
     const platIntegrationUpgrade = _.every(
       [
@@ -176,7 +186,12 @@ export default class AdminLeftMenu extends Component {
               ? menuList
                   .filter(it => (isSuperAdmin ? true : !_.includes(['logs'], it.key)))
                   .map((item, index) => {
-                    const { key, title, icon, subMenuList = [] } = item;
+                    const { key, title, icon } = item;
+                    let { subMenuList = [] } = item;
+                    subMenuList = _.filter(
+                      subMenuList,
+                      ({ featureId }) => !featureId || (featureId && getFeatureStatus(params.projectId, featureId)),
+                    );
 
                     return (
                       <div key={index} className={cx({ Hidden: !subMenuList.length })}>

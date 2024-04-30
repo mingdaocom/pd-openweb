@@ -134,7 +134,7 @@ export default function RelationSearch(props) {
           controls: _.get(template, 'controls') || [],
         });
       })
-      .always(() => {
+      .finally(() => {
         setLoading(false);
       });
   }, [controlId, dataSource, saveIndex]);
@@ -334,7 +334,13 @@ export default function RelationSearch(props) {
         <Dropdown
           border
           value={showtype}
-          data={RELATION_SEARCH_DISPLAY}
+          data={RELATION_SEARCH_DISPLAY.filter(i => !i.disabled)}
+          renderTitle={() =>
+            _.get(
+              _.find(RELATION_SEARCH_DISPLAY, r => r.value === showtype),
+              'text',
+            )
+          }
           onChange={value => {
             onChange({
               ...handleAdvancedSettingChange(data, {

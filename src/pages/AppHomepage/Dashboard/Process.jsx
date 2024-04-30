@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Icon, ScrollView, LoadDiv } from 'ming-ui';
+import { Icon, LoadDiv } from 'ming-ui';
 import MyProcess, { TABS } from 'src/pages/workflow/MyProcess';
 import cx from 'classnames';
 import { getStateParam } from 'src/pages/workflow/MyProcess';
@@ -118,6 +118,13 @@ const TodoTabList = styled.div`
 
 const DataListWrapper = styled.div`
   padding: 0 20px;
+  overflow: auto;
+  height: 180px;
+  &.displayComplete {
+    min-height: 36px;
+    max-height: 180px;
+    height: auto;
+  }
   .listItem {
     display: flex;
     align-items: center;
@@ -196,7 +203,17 @@ const ProcessSkeleton = styled.div`
 `;
 
 export default function Process(props) {
-  const { displayComplete, countData, updateCountData, dashboardColor, todoDisplay, loading, flag, setFlag } = props;
+  const {
+    displayComplete,
+    countData,
+    updateCountData,
+    dashboardColor,
+    todoDisplay,
+    loading,
+    flag,
+    setFlag,
+    currentTheme,
+  } = props;
   const [myProcess, setMyProcess] = useState({ visible: false });
   const [currentTab, setCurrentTab] = useState(0);
   const [todoLoading, setTodoLoading] = useState(true);
@@ -320,7 +337,7 @@ export default function Process(props) {
         {todoLoading && <LoadDiv className="mTop10" />}
 
         {!todoLoading && !todoList.length && (
-          <div className="flex flexColumn alignItemsCenter justifyContentCenter">
+          <div className="flex flexColumn alignItemsCenter justifyContentCenter mTop32 mBottom32">
             <img src={todoEmpty} width={80} />
             <div className="Font14">
               <span className="Gray_75">{currentTab === TABS.MY_SPONSOR ? _l('暂无流程') : _l('没有待办')}</span>
@@ -329,39 +346,38 @@ export default function Process(props) {
         )}
 
         {!todoLoading && !!todoList.length && (
-          <ScrollView className="flex">
-            <DataListWrapper
-              themeColor={dashboardColor.themeColor}
-              btnColor={dashboardColor.activeColor}
-              hoverColor={dashboardColor.hoverColor}
-            >
-              {todoList.map((item, index) => {
-                return (
-                  <div key={index} className="listItem" onClick={() => setSelectProcess(item)}>
-                    <img src={_.get(item, 'createAccount.avatar')} />
-                    <div className="bold mLeft8 overflow_ellipsis" title={item.title || _l('未命名')}>
-                      {item.title || _l('未命名')}
-                    </div>
-                    <div className="flex"></div>
-                    <div
-                      className="rightText overflow_ellipsis"
-                      title={`${_.get(item, 'app.name')} · ${_.get(item, 'process.name')}`}
-                    >
-                      {`${_.get(item, 'app.name')} · ${_.get(item, 'process.name')}`}
-                    </div>
-                    <div className="dateText">
-                      <span>{createTimeSpan(item.createDate)}</span>
-                    </div>
+          <DataListWrapper
+            themeColor={dashboardColor.themeColor}
+            btnColor={dashboardColor.activeColor}
+            hoverColor={dashboardColor.hoverColor}
+            className={cx({ displayComplete })}
+          >
+            {todoList.map((item, index) => {
+              return (
+                <div key={index} className="listItem" onClick={() => setSelectProcess(item)}>
+                  <img src={_.get(item, 'createAccount.avatar')} />
+                  <div className="bold mLeft8 overflow_ellipsis" title={item.title || _l('未命名')}>
+                    {item.title || _l('未命名')}
                   </div>
-                );
-              })}
-              {showViewAll && (
-                <div className="allBtn" onClick={() => setMyProcess({ visible: true, activeTab: currentTab })}>
-                  {_l('查看全部')}
+                  <div className="flex"></div>
+                  <div
+                    className="rightText overflow_ellipsis"
+                    title={`${_.get(item, 'app.name')} · ${_.get(item, 'process.name')}`}
+                  >
+                    {`${_.get(item, 'app.name')} · ${_.get(item, 'process.name')}`}
+                  </div>
+                  <div className="dateText">
+                    <span>{createTimeSpan(item.createDate)}</span>
+                  </div>
                 </div>
-              )}
-            </DataListWrapper>
-          </ScrollView>
+              );
+            })}
+            {showViewAll && (
+              <div className="allBtn" onClick={() => setMyProcess({ visible: true, activeTab: currentTab })}>
+                {_l('查看全部')}
+              </div>
+            )}
+          </DataListWrapper>
         )}
 
         {selectProcess ? (
@@ -402,7 +418,7 @@ export default function Process(props) {
   if (loading) {
     return (
       <ProcessSkeleton>
-        <div className="skeletonBlock"></div>
+        <div className="skeletonBlock" style={{ height: todoDisplay === 1 ? 192 : 152 }}></div>
       </ProcessSkeleton>
     );
   }
@@ -414,7 +430,10 @@ export default function Process(props) {
       {todoDisplay !== 1 && (
         <React.Fragment>
           <div className="cardTitle">
-            <div className="titleText">{_l('流程待办')}</div>
+            <div className="titleText">
+              {currentTheme.processIcon && <img src={currentTheme.processIcon} />}
+              {_l('流程待办')}
+            </div>
             <div className="flex"></div>
             {!displayComplete && (
               <div

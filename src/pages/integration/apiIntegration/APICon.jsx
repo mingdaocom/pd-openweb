@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
-import { Icon, ScrollView, Support, LoadDiv, Dialog, Tooltip } from 'ming-ui';
+import { Icon, ScrollView, Support, LoadDiv, Dialog, Tooltip, SvgIcon, Dropdown } from 'ming-ui';
 import styled from 'styled-components';
 import { Switch } from 'antd';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
@@ -8,13 +8,11 @@ import { TableWrap, LogoWrap } from './style';
 import { PageSize, publishStatus2Text, formatDate } from '../config';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
 import APISetting from 'src/pages/integration/apiIntegration/APIWrap/index.jsx';
-import SvgIcon from 'src/components/SvgIcon';
 import processAjax from 'src/pages/workflow/api/process.js';
 import cx from 'classnames';
 import { Link } from 'react-router-dom';
 import ConnectAvator from '../components/ConnectAvator';
 import _ from 'lodash';
-import { Dropdown } from 'ming-ui';
 
 const Wrap = styled.div`
   .mLeft18 {
@@ -533,7 +531,7 @@ function APICon(props) {
           <p className="Font15 mBottom4 mTop8 flexRow alignItemsCenter">
             <span className="flex">
               <span className="TxtMiddle">{_l('管理第三方 API ，在工作表或工作流中调用')}</span>
-              <Support type={3} href="https://help.mingdao.com/integration#api管理" text={_l('使用帮助')} />
+              <Support type={3} href="https://help.mingdao.com/integration/api#connectlist" text={_l('使用帮助')} />
             </span>
             <Dropdown
               value={searchType}

@@ -28,6 +28,7 @@ export default connect(
     // worksheet
     controls: state.sheet.controls.map(c => ({ ...c })),
     navGroupFilters: state.sheet.navGroupFilters,
+    base: state.sheet.base,
   }),
   dispatch =>
     bindActionCreators(

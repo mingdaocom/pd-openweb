@@ -74,7 +74,7 @@ export default class Widgets extends Component {
       value = '';
     }
     value = this.formatValueToMoment(value);
-    const timeinterval = advancedSetting.timeinterval || '1';
+    const timeInterval = parseInt(advancedSetting.timeinterval || '1');
     const lang = getCookie('i18n_langtag') || md.global.Config.DefaultLang;
     let minDate;
     let maxDate;
@@ -99,17 +99,14 @@ export default class Widgets extends Component {
 
     if (browserIsMobile()) {
       let formatMode = unit === '6' ? 'HH:mm:ss' : 'HH:mm';
+
       return (
         <Fragment>
           <div
             className={cx('customFormControlBox customFormButton flexRow', { controlDisabled: disabled })}
-            onClick={
-              disabled
-                ? () => {}
-                : () => {
-                    this.setState({ showobileDatePicker: true });
-                  }
-            }
+            onClick={() => {
+              !disabled && this.setState({ showobileDatePicker: true });
+            }}
           >
             <span className={cx('flex mRight20 ellipsis', { Gray_bd: !value })}>
               {value ? value.format(formatMode) : _l('请选择日期')}
@@ -123,9 +120,10 @@ export default class Widgets extends Component {
           </div>
           {showobileDatePicker && (
             <MobileDatePicker
+              minuteStep={timeInterval}
               customHeader={controlName}
               isOpen={showobileDatePicker}
-              value={value ? new Date(value) : new Date()}
+              value={value}
               min={minDate ? new Date(moment(minDate)) : new Date(1900, 1, 1, 0, 0, 0)}
               max={maxDate ? new Date(moment(maxDate)) : new Date(2100, 12, 31, 23, 59, 59)}
               disabled={disabled}
@@ -148,7 +146,7 @@ export default class Widgets extends Component {
                       minute: {
                         format: _l('mm分'),
                         caption: 'Min',
-                        step: 1,
+                        step: timeInterval,
                       },
                       second: {
                         format: _l('ss秒'),
@@ -165,7 +163,7 @@ export default class Widgets extends Component {
                       minute: {
                         format: _l('mm分'),
                         caption: 'Min',
-                        step: 1,
+                        step: timeInterval,
                       },
                     }
               }
@@ -192,7 +190,7 @@ export default class Widgets extends Component {
           ) : null
         }
         hideDisabledOptions
-        minuteStep={parseInt(timeinterval)}
+        minuteStep={timeInterval}
         disabledTime={current => {
           return {
             disabledHours: () => {

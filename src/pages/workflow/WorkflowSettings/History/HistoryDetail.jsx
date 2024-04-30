@@ -18,16 +18,18 @@ import instanceVersion from '../../api/instanceVersion';
 import process from '../../api/process';
 import _ from 'lodash';
 import moment from 'moment';
-import { OPERATION_TYPE } from '../enum';
+import { APP_TYPE, OPERATION_TYPE } from '../enum';
 
 export default class HistoryDetail extends Component {
   static propTypes = {
     id: string,
     onClick: func,
+    openNodeDetail: func,
   };
 
   static defaultProps = {
     onClick: () => {},
+    openNodeDetail: () => {},
   };
 
   state = {
@@ -205,7 +207,11 @@ export default class HistoryDetail extends Component {
     return (
       <span
         className="ThemeColor3 ThemeHoverColor2 pointer"
-        onClick={() => window.open(`/workflowedit/${item.flowNode.subProcessId}/2/${item.workId}_${item.instanceId}`)}
+        onClick={() =>
+          window.open(
+            `/workflowedit/${item.flowNode.subProcessId}/2/subprocessHistory/${item.workId}_${item.instanceId}`,
+          )
+        }
       >
         {_l('查看详情')}
       </span>
@@ -270,15 +276,49 @@ export default class HistoryDetail extends Component {
     return <div className="info">{item.workItems.map(o => o.opinion).join('、')}</div>;
   };
 
+  /**
+   * 缩减层级
+   */
+  indentLevel(prveId) {
+    const { data } = this.state;
+    const { works } = data;
+    let level = 0;
+
+    while (true) {
+      const branchItem = works.find(item => _.includes(item.flowNode.flowIds || [], prveId));
+      const parentItem = works.find(item => item.flowNode.id === prveId);
+
+      if (branchItem) {
+        level++;
+        prveId = _.get(branchItem, 'flowNode.prveId');
+      } else {
+        prveId = _.get(parentItem, 'flowNode.prveId');
+      }
+
+      if (!prveId) {
+        break;
+      }
+    }
+
+    return level;
+  }
+
   render() {
+    const { onClick, id, openNodeDetail } = this.props;
     const { data, isRetry, processInfo } = this.state;
+
     if (_.isEmpty(data)) return <LoadDiv />;
 
-    const { onClick } = this.props;
     const { works, title, createDate, instanceLog, completeType } = data;
     const { cause, nodeName, causeMsg } = instanceLog;
     const { status } = FLOW_STATUS[data.status];
     const { color, bgColor } = STATUS2COLOR[status];
+    const resultTypeText = {
+      1: _l('通过'),
+      2: _l('否决'),
+      3: _l('有数据'),
+      4: _l('无数据'),
+    };
 
     return (
       <div className="historyDetailWrap">
@@ -321,7 +361,7 @@ export default class HistoryDetail extends Component {
                   <span
                     className="mLeft5 ThemeColor3 ThemeHoverColor2 pointer"
                     onClick={() => {
-                      location.href = `/workflowedit/${processInfo.id}`;
+                      location.href = `/workflowedit/${processInfo.id}/1/execHistory/${id}`;
                     }}
                   >
                     {_l('详情')}
@@ -332,7 +372,7 @@ export default class HistoryDetail extends Component {
             <ul className="logList">
               {works.map((item, index) => {
                 const { flowNode, startDate, endDate, status, logs, multipleLevelType, sort, app } = item;
-                const { name, alias } = flowNode;
+                const { name, alias, resultTypeId, appType } = flowNode;
                 const { type } = NODE_TYPE[flowNode.child && flowNode.type === 0 ? 16 : flowNode.type] || {};
 
                 return (
@@ -352,14 +392,34 @@ export default class HistoryDetail extends Component {
                     </div>
 
                     <div className="originNode">
-                      <NodeIcon type={type} appType={flowNode.appType} actionId={flowNode.actionId} />
+                      <div style={{ marginLeft: this.indentLevel(flowNode.prveId) * 20 }}></div>
+                      <NodeIcon type={type} appType={appType} actionId={flowNode.actionId} />
                       <div className="nodeName Font15 overflow_ellipsis flexColumn">
-                        <div title={name}>
-                          {name}
+                        <div
+                          title={name}
+                          className="pointer ThemeHoverColor3"
+                          onClick={() =>
+                            (flowNode.type !== 1 || !resultTypeId) &&
+                            openNodeDetail({
+                              processId: processInfo.id,
+                              selectNodeId: flowNode.type === 1 ? flowNode.flowIds[0] : flowNode.id,
+                              selectNodeType: flowNode.type === 1 ? 2 : flowNode.type,
+                              debugEvents: processInfo.debugEvents,
+                            })
+                          }
+                        >
+                          {flowNode.type !== 1
+                            ? name
+                            : resultTypeId
+                            ? resultTypeText[_.find(flowNode.flows, o => o.id === flowNode.flowIds[0]).resultTypeId]
+                            : (_.find(flowNode.flows, o => flowNode.type === 1 && o.id === flowNode.flowIds[0]) || {})
+                                .name || _l('分支')}
                           {multipleLevelType !== 0 && sort && _l('（第%0级）', sort)}
                         </div>
                         {alias && <div className="Gray_75 Font13 ellipsis">{_l('别名：%0', alias)}</div>}
-                        {app && <div className="Gray_75 Font13 ellipsis">{_l('工作表 “%0”', app.name)}</div>}
+                        {app && appType !== APP_TYPE.EVENT_PUSH && (
+                          <div className="Gray_75 Font13 ellipsis">{_l('工作表 “%0”', app.name)}</div>
+                        )}
                       </div>
                     </div>
 

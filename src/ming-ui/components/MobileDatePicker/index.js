@@ -1,7 +1,22 @@
 import React, { useState } from 'react';
 import DatePicker from 'react-mobile-datepicker';
 import PropTypes from 'prop-types';
+import moment from 'moment';
 import './index.less';
+
+const getDate = (date, minuteStep) => {
+  if (date) {
+    date = new Date(moment(date));
+  } else if (minuteStep) {
+    date = new Date(moment().set({ m: 0, s: 0 }));
+  } else {
+    date = new Date();
+  }
+  return date;
+};
+
+const getMInute = date => moment(date).minute();
+const getSecond = date => moment(date).second();
 
 export default function MobileDatePicker(props) {
   const {
@@ -13,8 +28,10 @@ export default function MobileDatePicker(props) {
     precision = 'second',
     confirmText,
     cancelText,
+    minuteStep,
     ...rest
   } = props;
+  const [dateTime, setDateTime] = useState(getDate(value, minuteStep));
   const year = {
     format: 'YYYY ' + _l('年'),
     caption: 'Year',
@@ -38,7 +55,7 @@ export default function MobileDatePicker(props) {
   const minute = {
     format: 'mm ' + _l('分'),
     caption: 'Min',
-    step: 1,
+    step: minuteStep || 1,
   };
   const second = {
     format: 'ss' + _l('秒'),
@@ -53,17 +70,41 @@ export default function MobileDatePicker(props) {
     minite: { year, month, date, hour, minute },
     second: { year, month, date, hour, minute, second },
   };
+
   return (
     <DatePicker
       customHeader={customHeader}
       isOpen={isOpen}
       dateConfig={dateConfig[precision]}
       theme={'ios'}
-      value={value}
+      value={dateTime}
       onSelect={onSelect}
       onCancel={onCancel}
       confirmText={confirmText || _l('确认')}
       cancelText={cancelText || _l('移除')}
+      onChange={date => {
+        if (minuteStep === 1) return;
+        const currentMinute = moment(date).minute();
+        if (moment(date).isBefore(moment(dateTime)) && currentMinute % minuteStep) {
+          setDateTime(
+            new Date(
+              moment(date).set({
+                m: currentMinute - (currentMinute % minuteStep),
+              }),
+            ),
+          );
+        } else if (moment(dateTime).isBefore(moment(date)) && currentMinute % minuteStep) {
+          setDateTime(
+            new Date(
+              moment(date).set({
+                m: currentMinute - (currentMinute % minuteStep) + minuteStep,
+              }),
+            ),
+          );
+        } else {
+          setDateTime(date);
+        }
+      }}
       {...rest}
     ></DatePicker>
   );

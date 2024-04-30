@@ -2,8 +2,7 @@ import './css/quickCreateTask.less';
 import doT from 'dot';
 import ajaxRequest from 'src/api/taskCenter';
 import 'src/components/mdDatePicker/mdDatePicker';
-import quickSelectUser from 'ming-ui/functions/quickSelectUser';
-import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
+import { quickSelectUser, dialogSelectUser } from 'ming-ui/functions';
 import { expireDialogAsync } from 'src/util';
 import quickCreateTask from './tpl/quickCreateTask.html';
 import { errorMessage, checkIsProject } from '../../utils/utils';
@@ -12,7 +11,7 @@ import { addTask } from 'src/pages/task/redux/actions';
 import { DateTimeRange } from 'ming-ui/components/NewDateTimePicker';
 import React from 'react';
 import ReactDom from 'react-dom';
-import UserHead from 'src/components/userHead';
+import { UserHead } from 'ming-ui';
 
 class QuickCreateTask {
   init(settings) {
@@ -37,7 +36,6 @@ class QuickCreateTask {
       } else {
         $('#taskList').append(doT.template(quickCreateTask)());
       }
-
 
       // 事件绑定
       this.bindCreateSinlgeTaskEvent();

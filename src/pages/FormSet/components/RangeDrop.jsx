@@ -71,6 +71,9 @@ const RangeBox = styled.div`
     padding: 24px;
     max-height: 260px;
     overflow: auto;
+    .viewName {
+      word-break: break-all;
+    }
   }
 `;
 @withClickAway
@@ -96,10 +99,10 @@ export class RangeDrop extends React.Component {
     }
   }
   render() {
-    const { printData, views, setData } = this.props;
+    const { printData, views, setData, className } = this.props;
     const { allView } = this.state;
     return (
-      <RangeBox>
+      <RangeBox className={className}>
         <HeaderRange className="headerRange Font14 Gray">
           {_l('使用范围')}
           <Icon
@@ -180,7 +183,7 @@ export class RangeDrop extends React.Component {
                         className="viewInput TxtMiddle"
                         checked={printData.views.map(o => o.viewId).includes(it.viewId)}
                       />
-                      <span className="TxtMiddle">{it.name}</span>
+                      <span className="TxtMiddle viewName">{it.name}</span>
                     </div>
                   );
                 })}

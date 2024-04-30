@@ -131,20 +131,23 @@ export async function handleRowData(props) {
     _.forIn(defaultData, (value, key) => {
       let control = columns.find(l => l.controlId === key);
       if (!control) return;
-      else if ([38, 32, 33].includes(control.type)) {
+      else if ([38, 32, 33].includes(control.type) || (control.fieldPermission || '111').split('')[2] === '0') {
         defaultData[key] = null;
       } else if (control.type === 14) {
         defaultData[key] = formatAttachmentValue(value, true);
       } else if (control.type === 34) {
         subTablePromise.push(fillRowRelationRows(control, rowId, worksheetId, true));
       } else if (control.type === 29) {
-        defaultData[key] =
-          control.advancedSetting.showtype !== '2' ? JSON.stringify(JSON.parse(value || '[]').slice(0, 5)) : 0;
+        defaultData[key] = !['2', '5', '6'].includes(control.advancedSetting.showtype)
+          ? JSON.stringify(JSON.parse(value || '[]').slice(0, 5))
+          : 0;
       } else if (control.type === 37 && control.dataSource) {
         const sourceId = control.dataSource.substring(1, control.dataSource.length - 1);
         const sourceControl = columns.find(l => l.controlId === sourceId);
         defaultData[key] =
-          sourceControl.type === 29 && sourceControl.advancedSetting.showtype === '2' ? undefined : value;
+          sourceControl.type === 29 && ['2', '5', '6'].includes(sourceControl.advancedSetting.showtype)
+            ? undefined
+            : value;
       } else {
         defaultData[key] = value;
       }

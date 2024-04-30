@@ -1,10 +1,9 @@
 import React, { Component, Fragment } from 'react';
-import { Checkbox, Tooltip, Icon } from 'ming-ui';
+import { Checkbox, Tooltip, Icon, UserHead } from 'ming-ui';
 import EmptyStatus from './EmptyStatus';
-import UserHead from 'src/components/userHead';
 import cx from 'classnames';
 import _ from 'lodash';
-import DialogSelectDept from 'src/components/dialogSelectDept';
+import { dialogSelectDept } from 'ming-ui/functions';
 import OrganizeAjax from 'src/api/organize';
 import styled from 'styled-components';
 import departmentController from 'src/api/department';
@@ -38,7 +37,7 @@ class RoleUserList extends Component {
   setDeptRange = item => {
     const { projectId, roleId } = this.props;
 
-    new DialogSelectDept({
+    dialogSelectDept({
       projectId,
       className: 'roleSetDeptRangeDialog',
       title: _l('设置分管部门'),

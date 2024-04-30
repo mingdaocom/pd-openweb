@@ -3,11 +3,10 @@ import { HomePageWrap, FreeTrialWrap } from './styled';
 import cx from 'classnames';
 import projectAjax from 'src/api/project';
 import processVersionAjax from 'src/pages/workflow/api/processVersion';
-import axios from 'axios';
 import { Modal, Button, Progress } from 'antd';
 import { QUICK_ENTRY_CONFIG, USER_COUNT, ITEM_COUNT, UPLOAD_COUNT, formatFileSize, formatValue } from './config';
 import moment from 'moment';
-import { getCurrentProject } from 'src/util';
+import { getCurrentProject, getFeatureStatus } from 'src/util';
 import { navigateTo } from 'src/router/navigateTo';
 import InstallDialog from './installDialog';
 import { Support, Tooltip, Icon } from 'ming-ui';
@@ -71,6 +70,7 @@ export default function HomePage({ match, location: routerLocation }) {
         effectiveWorksheetRowCount,
         effectiveDataPipelineJobCount,
         effectiveDataPipelineRowCount,
+        effectiveAggregationTableCount,
       } = res;
       setData({
         effectiveApkCount,
@@ -80,6 +80,7 @@ export default function HomePage({ match, location: routerLocation }) {
         effectiveWorksheetRowCount,
         effectiveDataPipelineJobCount,
         effectiveDataPipelineRowCount,
+        effectiveAggregationTableCount,
       });
     });
   };
@@ -224,17 +225,7 @@ export default function HomePage({ match, location: routerLocation }) {
       </div>
     );
   };
-  const getTotalCount = value => {
-    const denominator = 10000;
-    return value >= 10000 && !isEnLang ? (
-      <span>
-        {parseFloat(value / denominator)}
-        <span className="Gray_9e Font16">{_l('万')}</span>
-      </span>
-    ) : (
-      formatValue(value)
-    );
-  };
+
   const isShowInviteUser = (md.global.Account.projects || []).some(it => it.licenseType === 1);
 
   return (
@@ -357,41 +348,60 @@ export default function HomePage({ match, location: routerLocation }) {
             </div>
             <div className="content">
               <ul>
-                {ITEM_COUNT.map(({ key, text, link }) => (
-                  <li
-                    key={key}
-                    className={cx('useAnalysis', {
-                      useAnalysisHover: _.includes(
-                        ['effectiveApkCount', 'useProcessCount', 'effectiveDataPipelineJobCount'],
-                        key,
-                      ),
-                    })}
-                    onClick={() => {
-                      if (key === 'effectiveDataPipelineJobCount') {
-                        localStorage.setItem('currentProjectId', projectId);
-                        return location.assign('/integration/task');
-                      } else if (key === 'effectiveApkCount' || key === 'useProcessCount') {
-                        linkHref(link);
-                      }
-                    }}
-                  >
-                    <div className="name">
-                      {text}
-                      {key === 'effectiveWorksheetRowCount' && (
-                        <Tooltip popupPlacement="top" text={<span>{_l('所有工作表行记录总数（包含关闭应用）')}</span>}>
-                          <span className="icon-help1 Font13 mLeft8 Gray_9e" />
-                        </Tooltip>
+                {ITEM_COUNT.map(({ key, text, link, featureId }) => {
+                  if (featureId && !getFeatureStatus(projectId, featureId)) return;
+
+                  return (
+                    <li
+                      key={key}
+                      className={cx('useAnalysis', {
+                        useAnalysisHover: _.includes(
+                          [
+                            'effectiveApkCount',
+                            'useProcessCount',
+                            'effectiveDataPipelineJobCount',
+                            'effectiveAggregationTableCount',
+                          ],
+                          key,
+                        ),
+                      })}
+                      onClick={() => {
+                        if (key === 'effectiveDataPipelineJobCount') {
+                          localStorage.setItem('currentProjectId', projectId);
+                          return location.assign('/integration/task');
+                        } else if (
+                          _.includes(['effectiveApkCount', 'useProcessCount', 'effectiveAggregationTableCount'], key)
+                        ) {
+                          linkHref(link);
+                        }
+                      }}
+                    >
+                      <div className="name">
+                        {text}
+                        {key === 'effectiveWorksheetRowCount' && (
+                          <Tooltip
+                            popupPlacement="top"
+                            text={<span>{_l('所有工作表行记录总数（包含关闭应用）')}</span>}
+                          >
+                            <span className="icon-help1 Font13 mLeft8 Gray_9e" />
+                          </Tooltip>
+                        )}
+                      </div>
+                      <div className="count">{formatValue(getValue(data[key] || 0))}</div>
+                      {key === 'effectiveWorksheetCount' && isFree && (
+                        <div className="limitUser">{_l('上限 100 个')}</div>
                       )}
-                    </div>
-                    <div className="count">{getTotalCount(getValue(data[key] || 0))}</div>
-                    {key === 'effectiveWorksheetCount' && isFree && (
-                      <div className="limitUser">{_l('上限 100 个')}</div>
-                    )}
-                    {key === 'effectiveWorksheetRowCount' && isFree && (
-                      <div className="limitUser">{_l('上限 5 万行')}</div>
-                    )}
-                  </li>
-                ))}
+                      {key === 'effectiveWorksheetRowCount' && isFree && (
+                        <div className="limitUser">{_l('上限 5 万行')}</div>
+                      )}
+                      {key === 'effectiveAggregationTableCount' && data.limitAggregationTableCount ? (
+                        <div className="limitUser">{_l('上限 %0', data.limitAggregationTableCount)}</div>
+                      ) : (
+                        ''
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           </div>

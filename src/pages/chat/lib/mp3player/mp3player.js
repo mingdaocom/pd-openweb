@@ -33,12 +33,15 @@ function MP3Player(_options) {
       onStop() {},
       onPause() {},
     },
-    _options
+    _options,
   );
   if ($('#' + this.options.id).length == 0) {
     this.object = '';
     if (typeof Worker === 'undefined') {
-      this.object += '<OBJECT name="' + this.options.mp3_url + '" classid="CLSID:6BF52A52-394A-11d3-B153-00C04F79FAA6" height="0" width="0" border="0">';
+      this.object +=
+        '<OBJECT name="' +
+        this.options.mp3_url +
+        '" classid="CLSID:6BF52A52-394A-11d3-B153-00C04F79FAA6" height="0" width="0" border="0">';
       this.object += '<param name="URL" value="' + this.options.mp3_url + '">';
       this.object += '<PARAM NAME="playCount" VALUE="1">';
       this.object += '<param name="autoStart" value="0">';
@@ -55,46 +58,24 @@ function MP3Player(_options) {
     $('body').append(this.object);
     this.video = $("[name='" + this.options.mp3_url + "']")[0];
 
-    if ($.browser.msie) {
-      if (typeof Worker === 'undefined') {
-        this.video.attachEvent('PlayStateChange', (state) => {
-          switch (state) {
-            case 1:
-              _this.options.onStop();
-              break;
-            case 2:
-              _this.options.onPause();
-              break;
-          }
-        });
-      } else {
-        this.video.attachEvent('ended', () => {
-          _this.options.onStop();
-        });
-        this.video.attachEvent('pause', () => {
-          _this.options.onPause();
-        });
-      }
+    if (typeof Worker === 'undefined') {
+      this.video.addEventListener('PlayStatusChange', state => {
+        switch (state) {
+          case 1:
+            _this.options.onStop();
+            break;
+          case 2:
+            _this.options.onPause();
+            break;
+        }
+      });
     } else {
-      if (typeof Worker === 'undefined') {
-        this.video.addEventListener('PlayStatusChange', (state) => {
-          switch (state) {
-            case 1:
-              _this.options.onStop();
-              break;
-            case 2:
-              _this.options.onPause();
-              break;
-          }
-        });
-      } else {
-        this.video.addEventListener('ended', () => {
-          _this.options.onStop();
-        });
-        this.video.addEventListener('pause', () => {
-          _this.options.onPause();
-        });
-      }
+      this.video.addEventListener('ended', () => {
+        _this.options.onStop();
+      });
+      this.video.addEventListener('pause', () => {
+        _this.options.onPause();
+      });
     }
   } else {
     this.video = $('#' + this.options.mp3_url);

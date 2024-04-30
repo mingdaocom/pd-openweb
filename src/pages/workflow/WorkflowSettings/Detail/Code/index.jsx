@@ -74,10 +74,10 @@ export default class Code extends Component {
    * 获取节点详情
    */
   getNodeDetail(props) {
-    const { processId, selectNodeId, selectNodeType, isIntegration } = props;
+    const { processId, selectNodeId, selectNodeType, isIntegration, instanceId } = props;
 
     flowNode
-      .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType }, { isIntegration })
+      .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, instanceId }, { isIntegration })
       .then(result => {
         if (!result.inputDatas.length) {
           result.inputDatas.push({
@@ -122,7 +122,7 @@ export default class Code extends Component {
           actionId,
           name: name.trim(),
           inputDatas: inputDatas.filter(item => item.name),
-          code: Base64.encode(code),
+          code: Base64.encode(code.replace(/\t/g, '    ')),
           testMap,
           version,
           maxRetries,
@@ -207,7 +207,7 @@ export default class Code extends Component {
           <CodeSnippetEdit
             projectId={companyId}
             codeName={_.includes(['JavaScript', 'Python'], data.name) ? '' : data.name}
-            code={Base64.encode(data.code)}
+            code={Base64.encode(data.code.replace(/\t/g, '    '))}
             inputDatas={data.inputDatas}
             type={data.actionId}
             onSave={() => {
@@ -239,7 +239,7 @@ export default class Code extends Component {
           processId,
           nodeId: selectNodeId,
           actionId,
-          code: Base64.encode(code),
+          code: Base64.encode(code.replace(/\t/g, '    ')),
           inputDatas: inputDatas
             .filter(item => item.name)
             .map(item => {
@@ -262,7 +262,7 @@ export default class Code extends Component {
 
         this.setState({ sendRequest: false });
       })
-      .fail(() => {
+      .catch(() => {
         this.setState({ sendRequest: false });
       });
 
@@ -285,7 +285,7 @@ export default class Code extends Component {
         className="workflowCodeMirrorBox"
         height={isFullCode ? '100%' : 0}
         defaultValue={data.code}
-        codeMirrorMode={data.actionId === ACTION_ID.JAVASCRIPT ? 'javascript' : 'python'}
+        codeMirrorMode="javascript"
         getRef={tag => {
           this[isFullCode ? 'fullCodeTagtextarea' : 'tagtextarea'] = tag;
         }}

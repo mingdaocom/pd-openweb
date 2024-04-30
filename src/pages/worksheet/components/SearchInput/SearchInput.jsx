@@ -40,7 +40,7 @@ export default class SearchInput extends Component {
     }
   }
   render() {
-    const { focusedClass, style, searchIcon } = this.props;
+    const { inputWidth, focusedClass, style, searchIcon } = this.props;
     const { value, isFocus } = this.state;
     const { className, keyWords, onOk, onClear, onFocus, onBlur, placeholder } = this.props;
     return (
@@ -93,6 +93,7 @@ export default class SearchInput extends Component {
             placeholder={placeholder || _l('搜索')}
             type={browserIsMobile() ? 'search' : 'text'}
             value={value}
+            style={isFocus && inputWidth ? { width: inputWidth } : {}}
             onKeyUp={e => {
               if (e.keyCode === 13) {
                 onOk(e.target.value);

@@ -4,9 +4,9 @@ import cx from 'classnames';
 import _, { head, isEmpty, get, some } from 'lodash';
 import { useDrop } from 'react-dnd-latest';
 import DisplayItem from './displayItem';
-import { DRAG_ITEMS, DRAG_MODE } from '../config/Drag';
+import { DRAG_ACCEPT, DRAG_MODE } from '../config/Drag';
 import { isFullLineDragItem } from '../util/drag';
-import { relateOrSectionTab } from '../util';
+import { notInsetSectionTab } from '../util';
 import { isFullLineControl } from '../util/widgets';
 
 const DisplayRowWrap = styled.div`
@@ -16,22 +16,17 @@ const DisplayRowWrap = styled.div`
   margin: 0;
 `;
 
-export default function RowItem({ row, sectionId, index, ...rest }) {
+export default function RowItem({ row, displayItemType, sectionId, index, ...rest }) {
   const [pointerDir, setPointerDir] = useState('');
   const $ref = useRef(null);
   const [{ isOver }, drop] = useDrop({
-    accept: [DRAG_ITEMS.LIST_ITEM, DRAG_ITEMS.DISPLAY_ITEM],
+    accept: DRAG_ACCEPT[displayItemType],
     canDrop(item) {
       const { path } = item;
       // 同一行的不能拖拽
       if (!isEmpty(path) && head(path) === index) return false;
-      // 标签页内不允子表、标签页、多条列表等拖拽
-      if (
-        sectionId &&
-        (_.includes(['SUB_LIST', 'SECTION', 'RELATION_SEARCH'], item.enumType) ||
-          relateOrSectionTab(item.data) ||
-          _.get(item, 'data.type') === 34)
-      ) {
+      // 标签页内不允许标签页、多条列表(旧)等拖拽
+      if (sectionId && (_.includes(['SECTION'], item.enumType) || notInsetSectionTab(item.data))) {
         return false;
       }
       // 批量拖拽，当前拖拽物在批量选中区域内
@@ -72,6 +67,7 @@ export default function RowItem({ row, sectionId, index, ...rest }) {
           rowIndex: pointerDir === 'top' ? index : index + 1,
           sectionId,
           activePath: [pointerDir === 'top' ? index - 1 : index, 0],
+          displayItemType,
         };
       }
     },
@@ -85,7 +81,15 @@ export default function RowItem({ row, sectionId, index, ...rest }) {
     <div ref={$ref} className="displayRow">
       <DisplayRowWrap>
         {row.map((data, columnIndex) => {
-          return <DisplayItem key={data.controlId} data={data} path={[index, columnIndex]} {...rest} />;
+          return (
+            <DisplayItem
+              key={data.controlId}
+              displayItemType={displayItemType}
+              data={data}
+              path={[index, columnIndex]}
+              {...rest}
+            />
+          );
         })}
       </DisplayRowWrap>
       {isOver && pointerDir && <div className={cx('insertPointer', pointerDir)}></div>}

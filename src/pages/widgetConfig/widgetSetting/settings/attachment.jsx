@@ -1,10 +1,49 @@
 import React, { Fragment } from 'react';
-import { Dropdown, Icon } from 'ming-ui';
+import { Dropdown, Icon, Checkbox } from 'ming-ui';
 import { Input } from 'antd';
-import { SettingItem } from '../../styled';
+import { SettingItem, AnimationWrap } from '../../styled';
 import WidgetVerify from '../components/WidgetVerify';
 import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
 import _ from 'lodash';
+import styled from 'styled-components';
+import cx from 'classnames';
+import { SectionItem } from '../components/SplitLineConfig/style';
+
+const DisplayMode = styled.div`
+  display: flex;
+  padding: 8px 12px;
+  justify-content: space-between;
+  .displayItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    div {
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 3px 3px 3px 3px;
+      border: 2px solid transparent;
+    }
+    i {
+      font-size: 32px;
+      color: #9e9e9e;
+    }
+    &.active {
+      div {
+        background: rgba(33, 150, 243, 0.1);
+        border-color: #2196f3;
+      }
+    }
+    &:hover {
+      div {
+        background: rgba(0, 0, 0, 0.05);
+      }
+    }
+  }
+`;
 
 const SORT_TYPE = [
   { value: 1, text: _l('新的在前') },
@@ -47,60 +86,74 @@ const FILE_TYPE = [
 
 export default function Attachment({ from, data, onChange }) {
   const { enumDefault, advancedSetting = {} } = data;
-  const { covertype = '0', showtype = '1', showwatermark } = getAdvanceSetting(data);
+  const { covertype = '0', showtype = '1' } = getAdvanceSetting(data);
   const { type = '', values = [] } = JSON.parse(advancedSetting.filetype || '{}');
   const desc = _.get(
     _.find(FILE_TYPE, i => i.value === type),
     'desc',
   );
+  const showfilename = _.isUndefined(advancedSetting.showfilename)
+    ? _.includes(['2', '3'], showtype)
+      ? '1'
+      : '0'
+    : advancedSetting.showfilename;
 
   return (
     <Fragment>
-      <SettingItem className="settingItem flexCenter">
-        <div className="mRight10 flex">
-          <div className="settingItemTitle">{_l('显示方式')}</div>
-          <Dropdown
-            border
-            data={DISPLAY_TYPE}
-            value={showtype}
-            menuClass="attachmentDisplayType"
-            renderItem={item => {
-              return (
-                <div className="flexCenter pTop10 pBottom10">
-                  <Icon icon={item.img} className="Font28 mRight16" />
-                  <span className="flex ellipsis flexColumn">
-                    <span className="Bold mBottom5">{item.text}</span>
-                    <span>{item.subText}</span>
-                  </span>
+      <SettingItem>
+        <div className="settingItemTitle">{_l('显示方式')}</div>
+        <DisplayMode>
+          {DISPLAY_TYPE.map(item => {
+            return (
+              <div
+                className={cx('displayItem', { active: showtype === item.value })}
+                onClick={() => {
+                  let resProps = {};
+                  if (item.value === '2') {
+                    resProps.covertype = '1';
+                  } else if (item.value === '4') {
+                    resProps.covertype = '1';
+                    resProps.filetype = JSON.stringify({ type: '1', values: [] });
+                  } else {
+                    resProps.covertype = '0';
+                  }
+                  onChange(handleAdvancedSettingChange(data, { showtype: item.value, ...resProps }));
+                }}
+              >
+                <div className="mBottom4">
+                  <Icon icon={item.img} />
                 </div>
-              );
-            }}
-            onChange={value => {
-              let resProps = {};
-              if (value === '2') {
-                resProps.covertype = '1';
-              } else if (value === '4') {
-                resProps.covertype = '1';
-                resProps.filetype = JSON.stringify({ type: '1', values: [] });
-              } else {
-                resProps.covertype = '0';
-              }
-              onChange(handleAdvancedSettingChange(data, { showtype: value, ...resProps }));
-            }}
-          />
-        </div>
-        {showtype === '1' && (
-          <div className="flex">
-            <div className="settingItemTitle">{_l('填充方式')}</div>
-            <Dropdown
-              border
-              data={FILL_TYPE}
-              value={covertype}
-              onChange={value => onChange(handleAdvancedSettingChange(data, { covertype: value }))}
-            />
-          </div>
-        )}
+                <span className="Gray_9e">{item.text}</span>
+              </div>
+            );
+          })}
+        </DisplayMode>
       </SettingItem>
+      {showtype === '1' && (
+        <SectionItem>
+          <div className="label Width100">{_l('填充方式')}</div>
+          <AnimationWrap className="flex">
+            {FILL_TYPE.map(item => (
+              <div
+                className={cx('animaItem', { active: covertype === item.value })}
+                onClick={() => {
+                  onChange(handleAdvancedSettingChange(data, { covertype: item.value }));
+                }}
+              >
+                {item.text}
+              </div>
+            ))}
+          </AnimationWrap>
+        </SectionItem>
+      )}
+      <Checkbox
+        size="small"
+        className="mTop16"
+        checked={showfilename === '1'}
+        text={_l('在单元格中显示文件名')}
+        onClick={checked => onChange(handleAdvancedSettingChange(data, { showfilename: String(+!checked) }))}
+      />
+
       <SettingItem>
         <div className="settingItemTitle">{_l('文件类型')}</div>
         <Dropdown

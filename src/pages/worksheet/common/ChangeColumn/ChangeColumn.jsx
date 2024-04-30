@@ -120,6 +120,7 @@ const SortableList = SortableContainer(
   }) => {
     let filteredShowColumns = filteredColumns.filter(l => selected.indexOf(l.controlId) > -1);
     let filteredHideColumns = filteredColumns.filter(l => selected.indexOf(l.controlId) < 0);
+
     return (
       <div className="columnCheckList" style={{ overflow: 'auto', maxHeight }}>
         {!filteredColumns.length && <div className="emptyTip TxtCenter">{_l('没有搜索结果')}</div>}
@@ -256,6 +257,7 @@ export default class ChangeColumn extends Component {
   @autobind
   handleItemClick(column, hideFocus) {
     const { noempty, min1msg, maxSelectedNum, selected, columns } = this.props;
+
     if (selected.indexOf(column.controlId) > -1) {
       if (noempty && selected.length === 1) {
         alert(min1msg || _l('至少显示一个字段'), 3);
@@ -291,7 +293,11 @@ export default class ChangeColumn extends Component {
           selected.concat(
             column.controlId,
             column.type === 52 ? columns.filter(l => l.sectionId === column.controlId).map(l => l.controlId) : [],
-            column.sectionId && !selected.includes(column.sectionId) ? [column.sectionId] : [],
+            column.sectionId &&
+              columns.find(l => l.controlId === column.sectionId) &&
+              !selected.includes(column.sectionId)
+              ? [column.sectionId]
+              : [],
           ),
         ),
       });

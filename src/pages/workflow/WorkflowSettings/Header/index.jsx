@@ -113,7 +113,7 @@ class Header extends Component {
           }
         }
       })
-      .fail(state => {
+      .catch(state => {
         this.props.dispatch(updatePublishState({ state, pending: false }));
       });
   };
@@ -219,7 +219,14 @@ class Header extends Component {
       flowInfo.publishStatus === 2 &&
       flowInfo.enabled &&
       _.includes(
-        [APP_TYPE.SHEET, APP_TYPE.LOOP, APP_TYPE.DATE, APP_TYPE.CUSTOM_ACTION, APP_TYPE.APPROVAL_START],
+        [
+          APP_TYPE.SHEET,
+          APP_TYPE.LOOP,
+          APP_TYPE.DATE,
+          APP_TYPE.CUSTOM_ACTION,
+          APP_TYPE.APPROVAL_START,
+          APP_TYPE.EVENT_PUSH,
+        ],
         flowInfo.startAppType,
       )
     ) {
@@ -318,7 +325,7 @@ class Header extends Component {
 
     if (
       _.includes(
-        [APP_TYPE.SHEET, APP_TYPE.DATE, APP_TYPE.CUSTOM_ACTION, APP_TYPE.APPROVAL_START],
+        [APP_TYPE.SHEET, APP_TYPE.DATE, APP_TYPE.CUSTOM_ACTION, APP_TYPE.APPROVAL_START, APP_TYPE.EVENT_PUSH],
         flowInfo.startAppType,
       )
     ) {

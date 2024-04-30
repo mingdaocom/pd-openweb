@@ -89,15 +89,44 @@ const PasteHeader = styled.div`
   }
 `;
 
+function splitCsvRows(csvData) {
+  let rows = [];
+  let currentRow = '';
+  let inQuotes = false;
+  let newlineRegex = /\r\n|\n|\r/;
+
+  for (let i = 0; i < csvData.length; i++) {
+    let char = csvData[i];
+
+    if (char === '"') {
+      inQuotes = !inQuotes;
+    }
+
+    if (newlineRegex.test(char) && !inQuotes) {
+      if (currentRow.trim() !== '') {
+        rows.push(currentRow.trim());
+      }
+      currentRow = '';
+    } else {
+      currentRow += char;
+    }
+  }
+
+  if (currentRow.trim() !== '') {
+    rows.push(currentRow.trim());
+  }
+
+  return rows;
+}
+
 function parseText(text, splitCharType = 1) {
   const splitter = ['\t', ':', '|', ',', ' '][splitCharType - 1];
-  return text
-    .split(/\r\n|\n/)
+  return splitCsvRows(text)
     .map(line =>
       (line || '')
         .split(splitter)
         .map(cellValue =>
-          splitCharType === 1 && cellValue.indexOf('\n') > -1 && /^"(.|\n)*"$/.test(cellValue)
+          splitCharType === 1 && cellValue.indexOf('\n') > -1 && /^"|"$/.test(cellValue)
             ? cellValue.replace(/^"/, '').replace(/"$/, '')
             : cellValue,
         ),
@@ -162,8 +191,7 @@ function PasteEdit(props) {
   const cacheStoreStack = useRef([[]]);
   const [data, setData] = useState(new Array(11).fill(undefined).map(() => new Array(controls.length).fill(undefined)));
   const valuedData = data.filter(row => !_.isEmpty(row.filter(_.identity)));
-  const isMac = navigator.userAgent.indexOf('Mac OS') > 0;
-  const ctrlChar = isMac ? 'Command' : 'Ctrl';
+  const ctrlChar = window.isMacOs ? 'Command' : 'Ctrl';
   const updateCellDataByIndex = useCallback(
     (index, value) => {
       const rowIndex = Math.floor(index / controls.length);

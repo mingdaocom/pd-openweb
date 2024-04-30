@@ -1,10 +1,9 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
 import styled from 'styled-components';
-import { Support, ScrollView } from 'ming-ui';
 import autoSize from 'ming-ui/decorators/autoSize';
-import bg from 'staticfiles/images/banner.png';
-import { Button, Icon } from 'ming-ui';
+import bg from 'staticfiles/images/connectorBg.png';
+import { Button, Icon, Support, ScrollView } from 'ming-ui';
 import { Select } from 'antd';
 import cx from 'classnames';
 import { AddConnector } from './components';
@@ -205,7 +204,10 @@ function Connector(props) {
   ];
 
   useEffect(() => {
-    dataConnectorApi.getCommonTypes({ projectId: props.currentProjectId }).then(res => res && setConnectorList(res));
+    dataConnectorApi.getCommonTypes({ projectId: props.currentProjectId }).then(res => {
+      res && _.isArray(res) && setConnectorList(res);
+      res.errorMsgList && !!res.errorMsgList.length && alert(res.errorMsgList[0], 2);
+    });
     dataSourceApi
       .getTypes({
         projectId: props.currentProjectId,
@@ -213,7 +215,8 @@ function Connector(props) {
         onlyCreated: false,
       })
       .then(res => {
-        res && setSourceOptionsData(res);
+        res && _.isArray(res) && setSourceOptionsData(res);
+        res.errorMsgList && !!res.errorMsgList.length && alert(res.errorMsgList[0], 2);
       });
   }, []);
 
@@ -257,7 +260,7 @@ function Connector(props) {
             <h3 className="Bold Font24">{_l('创建连接器')}</h3>
             <p className="Font15 flexRow alignItemsCenter">
               {_l('连接到外部数据源进行数据实时同步')}{' '}
-              <Support type={3} href="https://help.mingdao.com/integration2" text={_l('使用帮助')} />
+              <Support type={3} href="https://help.mingdao.com/integration/data-integration" text={_l('使用帮助')} />
             </p>
           </div>
         </div>

@@ -9,7 +9,7 @@ import { formatTaskTime, errorMessage, formatStatus, checkIsProject, returnCusto
 import config from '../../config/config';
 import 'src/components/autoTextarea/autoTextarea';
 import 'src/components/mdDatePicker/mdDatePicker';
-import quickSelectUser from 'ming-ui/functions/quickSelectUser';
+import { quickSelectUser, dialogSelectUser } from 'ming-ui/functions';
 import nodeLiComm from './tpl/nodeLiComm.html';
 import stageList from './tpl/stageList.html';
 import addList from './tpl/addList.html';
@@ -19,10 +19,8 @@ import { expireDialogAsync } from 'src/util';
 import TaskDetail from '../taskDetail/taskDetail';
 import _ from 'lodash';
 import { DateTimeRange } from 'ming-ui/components/NewDateTimePicker';
-import UserHead from 'src/components/userHead';
 import { updateTaskCharge } from '../../redux/actions';
-import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
-import { Dialog, Score } from 'ming-ui';
+import { Dialog, Score, UserHead } from 'ming-ui';
 
 const taskStageSettings = {
   timer: null, // 计时器

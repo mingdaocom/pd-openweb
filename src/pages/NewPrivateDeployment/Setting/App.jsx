@@ -1,5 +1,5 @@
 import React, { Fragment, useState } from 'react';
-import { Switch, Icon } from 'ming-ui';
+import { Switch, Icon, Input, Checkbox } from 'ming-ui';
 import { Button, Tooltip } from 'antd';
 import DataRestrictionDialog from './components/DataRestrictionDialog';
 import RecycleBinDialog from './components/RecycleBinDialog';
@@ -105,12 +105,12 @@ const RecycleBin = props => {
   const style = { width: 120 }
   return (
     <div className="privateCardWrap flexColumn">
-      <div className="Font17 bold mBottom8">{_l('数据回收站/备份文件保留时长')}</div>
+      <div className="Font17 bold mBottom8">{_l('数据回收站保留时长')}</div>
       <div className="flexRow valignWrapper mBottom15">
-        <div style={style} className="Gray_75">{_l('应用')}</div><div>{_l('%0天', sysSettings.appRecycleDays)}</div>
-      </div>
-      <div className="flexRow valignWrapper mBottom15">
-        <div style={style} className="Gray_75">{_l('应用项')}</div><div>{_l('%0天', sysSettings.appItemRecycleDays)}</div>
+        <div style={style} className="Gray_75">
+          {_l('应用')}
+        </div>
+        <div>{_l('%0天', sysSettings.appRecycleDays)}</div>
       </div>
       <div className="flexRow valignWrapper mBottom15">
         <div style={style} className="Gray_75">{_l('工作表数据')}</div><div>{_l('%0天', sysSettings.worksheetRowRecycleDays)}</div>
@@ -140,7 +140,52 @@ const RecycleBin = props => {
       )}
     </div>
   );
-}
+};
+const AppBackup = props => {
+  const { SysSettings } = md.global;
+  const [appBackupRecycleDays, setAppBackupRecycleDays] = useState(SysSettings.appBackupRecycleDays);
+  const [enableBackupWorksheetData, setEnableBackupWorksheetData] = useState(SysSettings.enableBackupWorksheetData);
+
+  const style = { width: 120 };
+
+  return (
+    <div className="privateCardWrap flexColumn">
+      <div className="Font17 bold mBottom8">{_l('应用备份')}</div>
+      <div className="flexRow valignWrapper mBottom15">
+        <div className="mBottom5 Font14" style={style}>
+          {_l('应用备份文件')}
+        </div>
+        <Input
+          className="Width120 mRight10"
+          value={appBackupRecycleDays}
+          onChange={value => {
+            let val = value.replace(/\D/g, '');
+            val = parseInt(val);
+            val = isNaN(val) ? '' : val > 1000 ? 1000 : val;
+            setAppBackupRecycleDays(val);
+          }}
+          onBlur={val => {
+            if (!appBackupRecycleDays || appBackupRecycleDays === SysSettings.appBackupRecycleDays) return;
+            updateSysSettings({ appBackupRecycleDays: appBackupRecycleDays });
+          }}
+        />
+        <span>{_l('天')}</span>
+      </div>
+      {/*<div className="flexRow valignWrapper">
+        <Checkbox
+          text={_l('允许数据备份')}
+          checked={enableBackupWorksheetData}
+          onClick={checked =>
+            updateSysSettings({ enableBackupWorksheetData: !checked }, () => setEnableBackupWorksheetData(!checked))
+          }
+        />
+        <Tooltip title={_l('允许后，可选择在备份应用的同时备份数据')} placement="bottom">
+          <Icon className="Font16 Gray_bd pointer mLeft3" icon="info_outline" />
+        </Tooltip>
+        </div>*/}
+    </div>
+  );
+};
 
 const HideWorksheetControl = props => {
   const { SysSettings } = md.global;
@@ -196,7 +241,8 @@ export default props => {
       {!IsPlatformLocal && <AppCreate {...props} />}
       <DataRestriction {...props} />
       <RecycleBin {...props} />
+      <AppBackup {...props} />
       <HideWorksheetControl {...props} />
     </Fragment>
   );
-}
+};

@@ -1,15 +1,12 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import './index.less';
-import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
-import DialogSelectDept from 'src/components/dialogSelectDept';
 import { MenuItem } from 'ming-ui';
 import ActionFields from '../ActionFields';
 import SelectUsersFromApp from '../../../../components/SelectUsersFromApp';
 import { USER_TYPE, CONTROLS_NAME } from '../../../enum';
 import flowNode from '../../../../api/flowNode';
-import selectJob from 'src/components/dialogSelectJob';
-import selectOrgRole from 'src/components/dialogSelectOrgRole';
+import { dialogSelectOrgRole, dialogSelectJob, dialogSelectDept, dialogSelectUser } from 'ming-ui/functions';
 
 export default class SelectUserDropDown extends Component {
   constructor(props) {
@@ -186,7 +183,7 @@ export default class SelectUserDropDown extends Component {
     evt.stopPropagation();
     onClose();
 
-    new DialogSelectDept({
+    dialogSelectDept({
       projectId: companyId,
       returnCount: true,
       selectedDepartment: [],
@@ -220,7 +217,7 @@ export default class SelectUserDropDown extends Component {
 
     e.stopPropagation();
 
-    selectOrgRole({
+    dialogSelectOrgRole({
       projectId: companyId,
       unique,
       onSave: this.selectRole,
@@ -238,7 +235,7 @@ export default class SelectUserDropDown extends Component {
     evt.stopPropagation();
     onClose();
 
-    selectJob({
+    dialogSelectJob({
       projectId: companyId,
       unique,
       onSave: jobs => {

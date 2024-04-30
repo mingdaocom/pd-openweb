@@ -60,7 +60,7 @@ export default class Application extends Component {
         this.setState({ status });
         this.props.setAppStatus(status);
       })
-      .fail(() => {
+      .catch(() => {
         this.setState({ status: 3 });
         this.props.setAppStatus({ status: 3 });
       });
@@ -79,7 +79,7 @@ export default class Application extends Component {
           this.setState({ status: 3 });
         }
       })
-      .fail(() => {
+      .catch(() => {
         this.setState({ status: 6 });
       });
   }
@@ -101,7 +101,7 @@ export default class Application extends Component {
       return <LoadDiv />;
     }
 
-    if (appStatus === 10) {
+    if (_.includes([10, 11], appStatus)) {
       return <UpgradeContent appPkg={appPkg} />;
     }
 

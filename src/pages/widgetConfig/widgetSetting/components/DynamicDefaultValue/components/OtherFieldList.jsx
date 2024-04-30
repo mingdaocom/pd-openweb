@@ -46,11 +46,21 @@ const getPlaceHolder = data => {
   return text[data.type];
 };
 
-export default ({ dynamicValue = [], onClick, data, removeItem, removeRelateSheet, titleControl, ...rest }) => (
+export default ({
+  dynamicValue = [],
+  onClick,
+  data,
+  removeItem,
+  removeRelateSheet,
+  titleControl,
+  totalWidth,
+  ...rest
+}) => (
   <OtherFieldList
     isHaveField={isOnlySelect(dynamicValue, data)}
     onClick={onClick}
     isHaveClear={showClear(data, dynamicValue)}
+    totalWidth={totalWidth}
   >
     <Fragment>
       {_.isEmpty(dynamicValue) ? (

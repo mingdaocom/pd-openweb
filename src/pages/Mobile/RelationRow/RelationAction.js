@@ -16,7 +16,6 @@ import styled from 'styled-components';
 import _ from 'lodash';
 
 const BtnsWrapper = styled(Flex)`
-  height: 50px;
   background-color: #fff;
   a {
     text-decoration: none;
@@ -27,6 +26,7 @@ const BtnsWrapper = styled(Flex)`
     display: flex;
     align-items: center;
     justify-content: center;
+    margin: 7px 0;
     &,
     &::before,
     &-active::before {
@@ -99,7 +99,7 @@ class RelationAction extends Component {
             alert(_l('取消关联失败！'), 2);
           }
         })
-        .fail(err => {
+        .catch(err => {
           alert(_l('取消关联失败！'), 2);
         });
     }
@@ -141,7 +141,7 @@ class RelationAction extends Component {
           alert(_l('添加记录失败！'), 2);
         }
       })
-      .fail(err => {
+      .catch(err => {
         alert(_l('添加记录失败！'), 2);
       });
   }
@@ -326,7 +326,7 @@ class RelationAction extends Component {
     );
   }
   renderContent() {
-    const { relationRows, permissionInfo, relationRow, rowInfo = {}, controlId, base } = this.props;
+    const { relationRows, permissionInfo, relationRow, rowInfo = {}, controlId, base, rulesLocked } = this.props;
     const { isCreate, isRelevance, allowRemoveRelation, onlyRelateByScanCode, activeRelateSheetControl, hasEdit } =
       permissionInfo;
     const disabledManualWrite =
@@ -345,7 +345,7 @@ class RelationAction extends Component {
         : isRelevance || isCreate;
     return (
       <Fragment>
-        {control.type !== 51 && allowRemoveRelation && hasEdit && (
+        {control.type !== 51 && allowRemoveRelation && hasEdit && !rulesLocked && (
           <WingBlank size="sm" className="flex">
             <Button
               disabled={!relationRows.length}
@@ -358,7 +358,7 @@ class RelationAction extends Component {
             </Button>
           </WingBlank>
         )}
-        {allowNewRecord && (
+        {allowNewRecord && !rulesLocked && (
           <Fragment>
             {onlyRelateByScanCode && (
               <WingBlank size="sm" className="flex">

@@ -169,18 +169,18 @@ export function registerNodeItemEvent(element, args) {
             .updateNode({ id: item.id, name })
             .then((result) => {
               if (!result) {
-                return $.Deferred().reject();
+                return Promise.reject();
               }
               alert(_l('修改成功'));
               kcService.getNodeById(item.id).then((node) => {
                 updateNodeItem(node);
               });
             })
-            .fail(() => {
+            .catch(() => {
               updateNodeItem(item);
               alert(_l('操作失败，请核实您的权限稍后重试'), 3);
             })
-            .always(() => {
+            .finally(() => {
               showListName();
               updating = false;
             });

@@ -72,7 +72,7 @@ var LinkView = function(el, param) {
           options.callback(options.linkViewData);
         }
       })
-      .fail(function() {
+      .catch(function() {
         if (options.callback) {
           options.callback(options.linkViewData);
         }

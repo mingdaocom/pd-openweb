@@ -3,7 +3,6 @@ import React, { Component, Fragment } from 'react';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
-import UploadFiles from 'src/components/UploadFiles';
 import UploadFilesTrigger from 'src/components/UploadFilesTrigger';
 import cx from 'classnames';
 import { UploadFileWrapper } from 'mobile/Discuss/AttachmentFiles';
@@ -121,7 +120,7 @@ export default class Widgets extends Component {
       .then(data => {
         this.setState({ loading: false, value: JSON.stringify(data) });
       })
-      .fail(err => {
+      .catch(err => {
         this.setState({ loading: false, value: '' });
       });
   }
@@ -329,7 +328,7 @@ export default class Widgets extends Component {
         checkView: true,
         getType: from === 21 ? from : 1,
       })
-      .always(() => {
+      .finally(() => {
         this.setState({ downloadAllLoading: false });
       });
   };
@@ -560,6 +559,7 @@ export default class Widgets extends Component {
         <div className="flexRow valignWrapper spaceBetween">
           {!pcDisabled ? (
             <UploadFilesTrigger
+              isQiniuUpload={true}
               noTotal={!!(md.global.Account.projects && md.global.Account.projects.length)}
               id={this.id}
               from={from}

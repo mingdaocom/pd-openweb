@@ -13,7 +13,7 @@ export default {
   **/
    importUserList: function (args, options = {}) {
      
-     return $.api('ImportUser', 'ImportUserList', args, options);
+     return mdyAPI('ImportUser', 'ImportUserList', args, options);
    },
   /**
   * 导入编辑用户
@@ -29,7 +29,7 @@ export default {
   **/
    importEditUserList: function (args, options = {}) {
      
-     return $.api('ImportUser', 'ImportEditUserList', args, options);
+     return mdyAPI('ImportUser', 'ImportEditUserList', args, options);
    },
   /**
   * 邀请单个用户
@@ -51,7 +51,7 @@ export default {
   **/
    inviteUser: function (args, options = {}) {
      
-     return $.api('ImportUser', 'InviteUser', args, options);
+     return mdyAPI('ImportUser', 'InviteUser', args, options);
    },
   /**
   * 重新邀请导入未响应的用户
@@ -64,7 +64,7 @@ export default {
   **/
    reInviteImportUser: function (args, options = {}) {
      
-     return $.api('ImportUser', 'ReInviteImportUser', args, options);
+     return mdyAPI('ImportUser', 'ReInviteImportUser', args, options);
    },
   /**
   * 取消邀请导入的用户
@@ -77,7 +77,7 @@ export default {
   **/
    cancelImportUser: function (args, options = {}) {
      
-     return $.api('ImportUser', 'CancelImportUser', args, options);
+     return mdyAPI('ImportUser', 'CancelImportUser', args, options);
    },
   /**
   * 查找整个网络的导入用户，未被使用的列表
@@ -91,7 +91,7 @@ export default {
   **/
    getImportUserDetails: function (args, options = {}) {
      
-     return $.api('ImportUser', 'GetImportUserDetails', args, options);
+     return mdyAPI('ImportUser', 'GetImportUserDetails', args, options);
    },
   /**
   * 整个网络的导入用户，未被使用的总数
@@ -103,6 +103,6 @@ export default {
   **/
    getUnusedInfosByProjectIdCount: function (args, options = {}) {
      
-     return $.api('ImportUser', 'GetUnusedInfosByProjectIdCount', args, options);
+     return mdyAPI('ImportUser', 'GetUnusedInfosByProjectIdCount', args, options);
    },
 };

@@ -9,8 +9,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getQrCode: function (args, options = {}) {
-     
-     return $.api('CodeAuth', 'GetQrCode', args, options);
+
+     return mdyAPI('CodeAuth', 'GetQrCode', args, options);
    },
   /**
   * 获取扫码结果
@@ -21,8 +21,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getQrCodeResult: function (args, options = {}) {
-     
-     return $.api('CodeAuth', 'GetQrCodeResult', args, options);
+
+     return mdyAPI('CodeAuth', 'GetQrCodeResult', args, options);
    },
   /**
   * 获取默认图片
@@ -33,7 +33,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getDefaultPicUrl: function (args, options = {}) {
-     
-     return $.api('CodeAuth', 'GetDefaultPicUrl', args, options);
+
+     return mdyAPI('CodeAuth', 'GetDefaultPicUrl', args, options);
    },
 };

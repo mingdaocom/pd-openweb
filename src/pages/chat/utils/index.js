@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import Constant from './constant';
-import { htmlDecodeReg } from 'src/util';
+import { htmlDecodeReg, dateConvertToUserZone } from 'src/util';
 import moment from 'moment';
 import Emotion from 'src/components/emotion/emotion';
 
@@ -267,7 +267,7 @@ const formatSession = item => {
   }
 
   item._time = item.time;
-  item.time = formatMsgDate(item.time);
+  item.time = formatMsgDate(dateConvertToUserZone(item.time));
   item.type = Number(item.type);
   item.messageAtlist = item.atlist;
   item.sendMsg = localStorage.getItem(`textareaValue${item.value}`);
@@ -301,7 +301,7 @@ export const formatMessages = messages => {
 };
 
 export const formatMessage = (message, prevMessage) => {
-  message.timestamp = createTimeSpan(message.time);
+  message.timestamp = createTimeSpan(dateConvertToUserZone(message.time));
   message.isMine = message.from === md.global.Account.accountId;
   // 连续消息
   if (
@@ -555,7 +555,7 @@ export const highlightMessage = id => {
  * @param {*} el
  */
 const highlight = el => {
-  const className = navigator.userAgent.indexOf('Firefox') > 0 ? 'highlight' : 'highlight';
+  const className = window.isFirefox ? 'highlight' : 'highlight';
   el.addClass(className).on('webkitAnimationEnd oAnimationEnd MSAnimationEnd animationend', function () {
     $(this).removeClass(className);
   });
@@ -621,12 +621,37 @@ export const removeFlashTitle = (value, sessionList) => {
   }
 };
 
+const tabId = Date.now().toString();
+const tabIds = JSON.parse(localStorage.getItem('tabIds')) || [];
+
+localStorage.setItem('tabIds', JSON.stringify(tabIds.concat(tabId)));
+
+const isNewTab = () => {
+  const tabIds = JSON.parse(localStorage.getItem('tabIds')) || [];
+  const maxId = _.max(tabIds);
+  return maxId === tabId;
+}
+
+window.addEventListener('beforeunload', () => {
+  const tabIds = JSON.parse(localStorage.getItem('tabIds')) || [];
+  const newTabIds = tabIds.filter(id => id !== tabId);
+  localStorage.setItem('tabIds', JSON.stringify(newTabIds));
+});
+
 /**
- * 新消息的语音提示
+ * 聊天新消息的语音提示
  */
-export const playReceiveAudio = () => {
-  if (!window.isOpenMessageSound) return;
-  document.getElementById('wcSound').play();
+export const playSessionNewMsgAudio = () => {
+  if (!window.isOpenMessageSound || !isNewTab()) return;
+  document.getElementById('sessionNewMsgAudio').play();
+};
+
+/**
+ * 系统新消息的语音提示
+ */
+export const playSystemNewMsgAudio = () => {
+  if (!window.isOpenMessageSound || !isNewTab()) return;
+  document.getElementById('systemNewMsgAudio').play();
 };
 
 /**

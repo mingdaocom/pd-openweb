@@ -24,10 +24,11 @@ import {
 } from '../config';
 import { RELATION_OPTIONS, DEFAULT_TEXT } from '../config/setting';
 import { compose } from 'redux';
-import { DEFAULT_CONFIG, DEFAULT_DATA, WIDGETS_TO_API_TYPE_ENUM, SYS_CONTROLS } from '../config/widget';
+import { DEFAULT_CONFIG, DEFAULT_DATA, WIDGETS_TO_API_TYPE_ENUM, SYS_CONTROLS, ALL_SYS } from '../config/widget';
 import { getCurrentRowSize } from './widgets';
 import { browserIsMobile } from 'src/util';
 import { parseDataSource } from './setting';
+import { COMMON_DEFAULT_COUNTRY } from 'src/pages/widgetConfig/widgetSetting/components/WidgetHighSetting/ControlSetting/telData.js';
 
 const FORMULA_FN_LIST = [
   'SUM',
@@ -217,7 +218,7 @@ const replaceRowWithControls = widgets => {
   const flattenTabs = [];
   tabWidgets.map(item => {
     flattenTabs.push([item]);
-    const childWidgets = putControlByOrder(item.relationControls || []);
+    const childWidgets = _.get(item, 'type') === 52 ? putControlByOrder(item.relationControls || []) : [];
     if (childWidgets.length > 0) {
       flattenTabs.push(...childWidgets);
     }
@@ -425,7 +426,7 @@ export const getRgbaByColor = (color, alpha) => {
 
 // 支持左右布局的控件
 export const supportDisplayRow = item => {
-  // 附件、单条关联记录、多条关联记录（列表、卡片）、子表、分割线、备注、分段
+  // 附件、单条关联记录、多条关联记录（卡片）、子表、分割线、备注、分段
   if (browserIsMobile()) {
     return (
       !includes([14, 29, 34, 22, 51, 52], item.type) ||
@@ -433,10 +434,7 @@ export const supportDisplayRow = item => {
     );
   }
   // 多条关联记录（列表）、查询记录列表、子表、分割线、备注
-  return (
-    ((item.type === 29 || item.type === 51) && _.get(item, 'advancedSetting.showtype') !== '2') ||
-    !includes([29, 34, 22, 51, 52], item.type)
-  );
+  return !(isSheetDisplay(item) || includes([34, 22, 51, 52], item.type));
 };
 
 // 关联记录、关联查询须过滤的字段
@@ -455,14 +453,32 @@ export const getFilterRelateControls = (controls = [], showControls = []) => {
   return _.filter(controls, item => !_.includes(filterIds, item.type) || _.includes(showControls, item.controlId));
 };
 
-// 按标签页显示的控件
-export const relateOrSectionTab = (data = {}) => {
-  return (includes([29, 51], data.type) && get(data, 'advancedSetting.showtype') === '2') || data.type === 52;
+// 标签页内不支持的控件
+export const notInsetSectionTab = (data = {}) => {
+  return (
+    (includes([29, 51], data.type) && _.includes(['2', '6'], get(data, 'advancedSetting.showtype'))) || data.type === 52
+  );
+};
+
+// 不支持字段说明----显示方式的控件
+export const notExplainDisplay = (data = {}) => {
+  return (
+    (includes([29, 51], data.type) && _.includes(['2', '5', '6'], get(data, 'advancedSetting.showtype'))) ||
+    _.includes([22, 52], data.type)
+  );
 };
 
 // 需要固定在底部的控件
 export const fixedBottomWidgets = data => {
-  return data.type === 52;
+  return data.type === 52 || (_.includes([29, 51], data.type) && get(data, 'advancedSetting.showtype') === '6');
+};
+
+export const isTabSheetList = data => {
+  return _.includes([29, 51], data.type) && get(data, 'advancedSetting.showtype') === '6';
+};
+
+export const isOldSheetList = data => {
+  return _.includes([29, 51], data.type) && get(data, 'advancedSetting.showtype') === '2';
 };
 
 // 获取标签页等控件与普通控件的分界位置
@@ -486,7 +502,7 @@ export const getSectionWidgets = widgets => {
   let tabWidgets = [];
 
   flattenWidgets.map(i => {
-    if (_.get(i, 'type') === 52) {
+    if (fixedBottomWidgets(i)) {
       tabWidgets.push(i);
     } else {
       commonWidgets.push(i);
@@ -516,6 +532,12 @@ export const isShowUnitConfig = (data = {}, selectedControl = {}) => {
   return true;
 };
 
+// 关联多条列表显示的控件
+export const isSheetDisplay = (data = {}) => {
+  return includes([29, 51], data.type) && _.includes(['2', '5', '6'], get(data, 'advancedSetting.showtype'));
+};
+
+// 基础设置各控件分别支持哪些模块
 export const supportSettingCollapse = (props, key) => {
   const { data = {}, allControls = [], isRecycle, from } = props;
   const {
@@ -528,8 +550,6 @@ export const supportSettingCollapse = (props, key) => {
     globalSheetInfo = {},
   } = data;
 
-  const isDisplayList = type === 29 && advancedSetting.showtype === '2';
-
   // 回收站只显示基础设置
   if (isRecycle) {
     return _.includes(['base'], key);
@@ -541,11 +561,14 @@ export const supportSettingCollapse = (props, key) => {
     case 'option':
       return _.includes(HAVE_OPTION_WIDGET, type);
     case 'style':
-      return _.includes(HAVE_TABLE_STYLE_WIDGET, type) || isDisplayList;
+      return (
+        _.includes(HAVE_TABLE_STYLE_WIDGET, type) ||
+        (includes([29], type) && _.includes(['2', '5', '6'], get(data, 'advancedSetting.showtype')))
+      );
     case 'highsetting':
       switch (type) {
         case 10:
-          return !(dataSource && advancedSetting.checktype === '0');
+          return !(dataSource && advancedSetting.checktype !== '1');
         case 9:
         case 11:
           return !(dataSource && _.includes(['1', '2'], advancedSetting.showtype));
@@ -580,4 +603,25 @@ export const supportSettingCollapse = (props, key) => {
         from !== 'subList'
       );
   }
+};
+
+// 各控件分别支持哪些配置
+// 设置、样式、说明、事件
+export const supportWidgetIntroOptions = (data = {}, introType, from, isRecycle = false) => {
+  // 分段、他表、标签页、多条列表没有样式设置
+  if ((_.includes([22, 30, 52], data.type) || isSheetDisplay(data)) && introType === 2) return false;
+  // 空白子表里面字段不支持说明
+  if (from === 'subList' && introType === 3) return false;
+  // 回收站不显示样式、说明
+  if (isRecycle && _.includes([2, 3], introType)) return false;
+  return true;
+};
+
+// 过滤系统字段专用
+export const filterSysControls = (controls = []) => {
+  return controls.filter(c => !_.includes(ALL_SYS, c.controlId));
+};
+
+export const getDefaultarea = () => {
+  return JSON.stringify(COMMON_DEFAULT_COUNTRY.find(o => o.iso2 === _.get(md, 'global.Config.DefaultConfig.initialCountry')));
 };

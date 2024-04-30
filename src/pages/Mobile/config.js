@@ -144,6 +144,11 @@ export const ROUTE_CONFIG = addSubPathOfRoutes(
       component: () => import('mobile/AppCollect'),
       title: _l('应用收藏'),
     },
+    collectCharts: {
+      path: '/mobile/chartsfav/:projectId',
+      component: () => import('mobile/ChartsCollect'),
+      title: _l('图表收藏'),
+    },
   },
   window.subPath,
 );
@@ -160,4 +165,5 @@ export const PORTAL = [
   'discuss',
   'recordCollection',
   'appCollection',
+  'collectCharts',
 ];

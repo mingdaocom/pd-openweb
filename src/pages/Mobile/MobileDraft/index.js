@@ -90,6 +90,21 @@ function MobileDraftList(props) {
   } = props;
   const [currentRowId, setCurrentRowId] = useState('');
 
+  // 将关联列表表格、标签页表格转换为卡片形式
+  const updateMobileControls = (control = {}) => {
+    if (_.includes([29, 51], control.type)) {
+      const showType = _.get(control, 'advancedSetting.showtype');
+      return {
+        ...control,
+        advancedSetting: {
+          ...control.advancedSetting,
+          showtype: _.includes(['5', '6'], showType) ? '2' : showType,
+        },
+      };
+    }
+    return control;
+  };
+
   const renderRow = data => {
     const titleText = getTitleTextFromControls(controls, data);
     const displayControls = controls.filter(
@@ -119,7 +134,9 @@ function MobileDraftList(props) {
       .filter(it => !it.attribute)
       .filter(it => !_.includes(['utime'], it.controlId))
       .slice(0, 2)
-      .concat(utimeControl ? utimeControl : []);
+      .concat(utimeControl ? utimeControl : [])
+      .map(control => updateMobileControls(control));
+
 
     return (
       <div
@@ -146,8 +163,6 @@ function MobileDraftList(props) {
                     from={21}
                     className={'w100'}
                     appId={appId}
-                    worksheetId={worksheetId}
-                    row={{ rowid: data.rowid }}
                     disableDownload={true}
                   />
                 ) : (
@@ -210,28 +225,30 @@ function MobileDraftList(props) {
           worksheetId={worksheetId}
           rowId={currentRowId}
           sheetSwitchPermit={sheetSwitchPermit}
-          draftFormControls={controls.filter(
-            item =>
-              !_.includes([...SHEET_VIEW_HIDDEN_TYPES, 33], item.type) &&
-              !_.includes(
-                [
-                  'wfname',
-                  'wfcuaids',
-                  'wfcaid',
-                  'wfctime',
-                  'wfrtime',
-                  'wfftime',
-                  'wfstatus',
-                  'rowid',
-                  'ownerid',
-                  'caid',
-                  'uaid',
-                  'ctime',
-                  'utime',
-                ],
-                item.controlId,
-              ),
-          )}
+          draftFormControls={controls
+            .filter(
+              item =>
+                !_.includes([...SHEET_VIEW_HIDDEN_TYPES, 33], item.type) &&
+                !_.includes(
+                  [
+                    'wfname',
+                    'wfcuaids',
+                    'wfcaid',
+                    'wfctime',
+                    'wfrtime',
+                    'wfftime',
+                    'wfstatus',
+                    'rowid',
+                    'ownerid',
+                    'caid',
+                    'uaid',
+                    'ctime',
+                    'utime',
+                  ],
+                  item.controlId,
+                ),
+            )
+            .map(control => updateMobileControls(control))}
           getDataType={21}
           from={21}
           onClose={() => {

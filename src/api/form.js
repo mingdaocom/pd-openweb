@@ -18,7 +18,7 @@ export default {
   **/
    saveTemplateWithControls: function (args, options = {}) {
      
-     return $.api('Form', 'SaveTemplateWithControls', args, options);
+     return mdyAPI('Form', 'SaveTemplateWithControls', args, options);
    },
   /**
   * 新增文本控件
@@ -31,7 +31,7 @@ export default {
   **/
    addTextControl: function (args, options = {}) {
      
-     return $.api('Form', 'AddTextControl', args, options);
+     return mdyAPI('Form', 'AddTextControl', args, options);
    },
   /**
   * 添加模板控件
@@ -46,7 +46,7 @@ export default {
   **/
    addTemplateControls: function (args, options = {}) {
      
-     return $.api('Form', 'AddTemplateControls', args, options);
+     return mdyAPI('Form', 'AddTemplateControls', args, options);
    },
   /**
   * 编辑保存模板及其所属控件
@@ -67,7 +67,7 @@ export default {
   **/
    saveTemplateWithControlsGrpc: function (args, options = {}) {
      
-     return $.api('Form', 'SaveTemplateWithControlsGrpc', args, options);
+     return mdyAPI('Form', 'SaveTemplateWithControlsGrpc', args, options);
    },
   /**
   * 获取控件修改引起的公式值变更
@@ -81,7 +81,7 @@ export default {
   **/
    getFormulaControlValue: function (args, options = {}) {
      
-     return $.api('Form', 'GetFormulaControlValue', args, options);
+     return mdyAPI('Form', 'GetFormulaControlValue', args, options);
    },
   /**
   * 获取源对应的模板（含表单明细）
@@ -93,7 +93,7 @@ export default {
   **/
    getTemplateWithControlsOld: function (args, options = {}) {
      
-     return $.api('Form', 'GetTemplateWithControlsOld', args, options);
+     return mdyAPI('Form', 'GetTemplateWithControlsOld', args, options);
    },
   /**
   * 获取源对应的模板（含表单明细）
@@ -105,7 +105,7 @@ export default {
   **/
    getTemplateWithControls: function (args, options = {}) {
      
-     return $.api('Form', 'GetTemplateWithControls', args, options);
+     return mdyAPI('Form', 'GetTemplateWithControls', args, options);
    },
   /**
   * 按照type获取relation的列表
@@ -123,7 +123,7 @@ export default {
   **/
    getRelationSources: function (args, options = {}) {
      
-     return $.api('Form', 'GetRelationSources', args, options);
+     return mdyAPI('Form', 'GetRelationSources', args, options);
    },
   /**
   * 鉴定权限
@@ -136,6 +136,6 @@ export default {
   **/
    checkEditAuth: function (args, options = {}) {
      
-     return $.api('Form', 'CheckEditAuth', args, options);
+     return mdyAPI('Form', 'CheckEditAuth', args, options);
    },
 };

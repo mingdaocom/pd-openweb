@@ -31,16 +31,29 @@
       }
     }
   }
+  .telDialogCon {
+    overflow: initial !important;
+  }
 }
-
+.uploadAvatorDialogId {
+  .reviewBox {
+    margin-left: 40px;
+  }
+  .flexEnd {
+    text-align: right;
+  }
+}
 @media screen and (max-width: 600px) {
-  #uploadAvatorDialogId {
+  .uploadAvatorDialogId {
     top: 30px !important;
     min-height: calc(~'100% - 30px') !important;
     padding-bottom: 50px !important;
     overflow: hidden;
     bottom: 0px !important;
     margin: 0px !important;
+    .reviewBox {
+      margin-left: 16px !important;
+    }
     .konvajs-content {
       width: 200px;
       height: 200px;

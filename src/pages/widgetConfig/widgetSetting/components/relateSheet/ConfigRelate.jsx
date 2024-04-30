@@ -2,8 +2,7 @@ import React, { useState, useEffect, Fragment } from 'react';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { useSetState } from 'react-use';
-import SvgIcon from 'src/components/SvgIcon';
-import { LoadDiv, Dialog, Button, Support, Switch, Dropdown } from 'ming-ui';
+import { LoadDiv, Dialog, Button, Support, Switch, Dropdown, SvgIcon } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
 import SelectSheetFromApp from '../SelectSheetFromApp';
 import { enumWidgetType } from 'src/pages/widgetConfig/util';
@@ -82,7 +81,7 @@ export default function ConfigRelate(props) {
           handleSetSource({ newControls: filterControls });
         }
       })
-      .always(() => setControls({ loading: false }));
+      .finally(() => setControls({ loading: false }));
   }, [relateType, sheetId]);
 
   const handleSetSource = ({ newControls, open } = {}) => {
@@ -112,7 +111,7 @@ export default function ConfigRelate(props) {
             <Fragment>
               <div className={cx('relateWarning', { active: open })}>
                 {_l('检测到所选表已关联 %0，是否建立', sourceName)}
-                <Support type={3} text={_l('双向关联')} href="https://help.mingdao.com/sheet12" />
+                <Support type={3} text={_l('双向关联')} href="https://help.mingdao.com/worksheet/associations" />
                 {_l('同步数据？')}
                 <Switch
                   checked={open}
@@ -163,7 +162,7 @@ export default function ConfigRelate(props) {
               {_l('的')}
               <span className="Gray_9e">
                 （{_l('建立')}
-                <Support type={3} text={_l('双向关联')} href="https://help.mingdao.com/sheet12" />
+                <Support type={3} text={_l('双向关联')} href="https://help.mingdao.com/worksheet/associations" />
                 {_l('同步数据')}）
               </span>
             </div>
@@ -224,7 +223,7 @@ export default function ConfigRelate(props) {
       <AddRelate>
         <div className="intro">
           {_l('在表单中显示关联的记录。如：订单关联客户')}
-          <Support type={3} href="https://help.mingdao.com/sheet2" text={_l('帮助')} />
+          <Support type={3} href="https://help.mingdao.com/worksheet/controls" text={_l('帮助')} />
         </div>
         <div className="relateWrap">
           <ul className="relateTypeTab">

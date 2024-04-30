@@ -170,7 +170,12 @@ export default function RecordOperate(props) {
   const DeleteItemWrap = isRelateRecordTable ? MenuItemWrap : RedMenuItemWrap;
   const isExternal = _.isEmpty(getCurrentProject(projectId));
   const canFav =
-    !hideFav && !window.shareState.shareId && !md.global.Account.isPortal && !isExternal && _.includes(shows, 'fav');
+    !hideFav &&
+    !window.shareState.shareId &&
+    !window.isPublicApp &&
+    !md.global.Account.isPortal &&
+    !isExternal &&
+    _.includes(shows, 'fav');
   function changePopupVisible(value) {
     if (customButtonActive.current) {
       return;
@@ -437,7 +442,7 @@ export default function RecordOperate(props) {
             <PrintList
               isCharge={isCharge}
               controls={formdata || []}
-              {...{ appId, viewId, worksheetId, projectId, workId, instanceId }}
+              {...{ appId: appId || props.printAppId, viewId, worksheetId, projectId, workId, instanceId }}
               sheetSwitchPermit={sheetSwitchPermit}
               recordId={recordId}
               onItemClick={() => setPopupVisible(false)}

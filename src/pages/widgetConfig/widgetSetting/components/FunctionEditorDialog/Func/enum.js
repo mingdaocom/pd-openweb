@@ -6,6 +6,7 @@ dayjs.extend(isBetween);
 import _ from 'lodash';
 import { calcDate, countChar } from 'worksheet/util-purejs';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'pages/widgetConfig/config/widget';
+import { isSheetDisplay } from 'src/pages/widgetConfig/util';
 
 function newDate(dateStr) {
   return new Date(dayjs(dateStr).valueOf());
@@ -1269,6 +1270,6 @@ export function checkTypeSupportForFunction(control) {
     return true;
   } else if (control.type === WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET) {
     // 关联记录 29
-    return String(_.get(control, 'advancedSetting.showtype')) !== '2';
+    return !isSheetDisplay(control);
   }
 }

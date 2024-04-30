@@ -45,7 +45,7 @@ class DialogCreateAndEditPosition extends React.Component {
             this.props.onCancel();
             this.setState({ submitLoading: false });
           })
-          .fail(err => {
+          .catch(err => {
             this.setState({ submitLoading: false });
           });
       } else {
@@ -63,7 +63,7 @@ class DialogCreateAndEditPosition extends React.Component {
             this.props.onCancel();
             this.setState({ submitLoading: false });
           })
-          .fail(err => {
+          .catch(err => {
             this.setState({ submitLoading: false });
           });
       }

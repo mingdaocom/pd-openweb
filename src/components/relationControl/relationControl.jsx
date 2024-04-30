@@ -3,12 +3,10 @@ import React, { Component } from 'react';
 import DialogBase from 'ming-ui/components/Dialog/DialogBase';
 import './less/relationControl.less';
 import cx from 'classnames';
-import UserHead from 'src/components/userHead';
 import ajaxRequest from 'src/api/form';
 import 'src/components/createTask/createTask';
 import createCalendar from 'src/components/createCalendar/createCalendar';
-import LoadDiv from 'ming-ui/components/LoadDiv';
-import DatePicker from 'ming-ui/components/DatePicker';
+import { LoadDiv, DatePicker, UserHead } from 'ming-ui';
 import { getClassNameByExt } from 'src/util';
 import _ from 'lodash';
 import moment from 'moment';
@@ -317,7 +315,7 @@ export default class RelationControl extends Component {
    * render item
    */
   renderItem(item, i) {
-    const currentType = _.find(defaultArr, { value: this.state.selectIndex });
+    const currentType = _.find(defaultArr, { value: this.state.selectIndex }) || {};
 
     return (
       <li
@@ -399,7 +397,7 @@ export default class RelationControl extends Component {
       width: 600,
       type: 'fixed',
     };
-    const currentType = _.find(defaultArr, { value: this.state.selectIndex });
+    const currentType = _.find(defaultArr, { value: this.state.selectIndex }) || {};
     const treeLeftArr = this.state.treeLeft.split('|');
 
     return (
@@ -494,9 +492,7 @@ export default class RelationControl extends Component {
                     {_l('查看更多')}
                   </span>
                 </div>
-              ) : (
-                undefined
-              )}
+              ) : undefined}
               {this.state.list.map((item, i) => this.renderItem(item, i))}
 
               {this.state.ajaxRequestComplete && this.state.selectIndex === 3 && this.state.listMore ? (

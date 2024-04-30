@@ -82,7 +82,7 @@ function FiltersGroupPreview(props) {
           }),
           loadFilterComponentCount: loadFilterComponentCount + 1
         });
-      }).fail(error => {
+      }).catch(error => {
         const customPage = store.getState().customPage;
         const { loadFilterComponentCount } = customPage;
         updatePageInfo({ loadFilterComponentCount: loadFilterComponentCount + 1 });

@@ -6,7 +6,7 @@ import api from 'api/homeApp';
 import cx from 'classnames';
 import 'rc-trigger/assets/index.css';
 import './index.less';
-import SvgIcon from 'src/components/SvgIcon';
+import { SvgIcon } from 'ming-ui';
 import _ from 'lodash';
 
 export default class AppFilter extends Component {

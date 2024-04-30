@@ -100,7 +100,7 @@ export function editIndex(state = null, action) {
   }
 }
 
-export function withoutArrangementVisible(state = false, action) {
+export function withoutArrangementVisible(state = (localStorage.getItem('gunterViewWithoutArrangementVisible') === 'true' ? true : false), action) {
   switch (action.type) {
     case 'CHANGE_GUNTER_WITHOUT_ARRANGEMENT_VISIBLE':
       return action.data;

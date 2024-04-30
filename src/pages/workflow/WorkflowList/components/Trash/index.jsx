@@ -1,12 +1,11 @@
 import React, { useRef, useEffect } from 'react';
 import styled from 'styled-components';
-import { LoadDiv, Dialog, Icon, ScrollView, Tooltip, DeleteReconfirm } from 'ming-ui';
+import { LoadDiv, Dialog, Icon, ScrollView, Tooltip, DeleteReconfirm, UserHead } from 'ming-ui';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import processAjax from 'src/pages/workflow/api/processVersion';
 import Search from 'src/pages/workflow/components/Search';
 import './index.less';
-import UserHead from 'src/components/userHead/userHead';
 import { TYPES, START_APP_TYPE } from 'src/pages/workflow/WorkflowList/utils/index.js';
 
 const WrapHeader = styled.div`
@@ -207,7 +206,9 @@ export default function TrashDialog(props) {
       sorter: true,
       render: (data, index) => {
         return (
-          <div className="ellipsis Font14">{(TYPES.find(o => o.value === data.processListType + '') || {}).text}</div>
+          <div className="ellipsis Font14">
+            {(TYPES.find(o => o.value === String(data.processListType)) || {}).text}
+          </div>
         );
       },
     },

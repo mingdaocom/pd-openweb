@@ -13,7 +13,19 @@ var custom = {
   getPage: function(args, options) {
     base.ajaxOptions.url = base.server() + '/custom/getPage';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'customgetPage', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'customgetPage', args, $.extend(base, options));
+  },
+  /**
+   * 根据表id获取自定义页面配置的统计图
+   * @param {Object} args 请求参数
+   * @param {string} [args.worksheetId] 表id
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   */
+  getReportsByWorksheetId: function(args, options) {
+    base.ajaxOptions.url = base.server() + '/custom/getReportsByWorksheetId';
+    base.ajaxOptions.type = 'GET';
+    return mdyAPI(controllerName, 'customgetReportsByWorksheetId', args, $.extend(base, options));
   },
   /**
    * 保存自定义页面
@@ -25,7 +37,7 @@ var custom = {
   savePage: function(args, options) {
     base.ajaxOptions.url = base.server() + '/custom/savePage';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'customsavePage', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'customsavePage', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 保存自定义页面配置说明和强转适应屏幕
@@ -37,7 +49,7 @@ var custom = {
   updatePage: function(args, options) {
     base.ajaxOptions.url = base.server() + '/custom/updatePage';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'customupdatePage', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'customupdatePage', JSON.stringify(args), $.extend(base, options));
   },
 };
 export default custom;

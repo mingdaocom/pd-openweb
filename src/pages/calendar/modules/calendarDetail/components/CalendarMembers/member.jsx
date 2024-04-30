@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { MEMBER_STATUS } from '../../constant';
-import UserCard from 'src/components/UserCard';
+import { UserCard } from 'ming-ui';
+
 export default class Member extends Component {
   render() {
     const {

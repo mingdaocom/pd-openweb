@@ -135,7 +135,7 @@ export default function RelateConfig(props) {
           }}
         />
       )}
-      {showtype === '2' && (
+      {_.includes(['2', '5', '6'], showtype) && (
         <Fragment>
           <div className="labelWrap">
             <Checkbox
@@ -263,16 +263,7 @@ export default function RelateConfig(props) {
                 )
               }
             >
-              <Tooltip
-                popupPlacement="bottom"
-                title={
-                  <span>
-                    {_l(
-                      '在表单中显示关联记录的数量。当设置了[过滤关联结果]、[按用户权限查看]后可见数量会少于计数，建议关闭此配置。',
-                    )}
-                  </span>
-                }
-              >
+              <Tooltip popupPlacement="bottom" title={<span>{_l('在表单中显示关联记录的数量')}</span>}>
                 <i className="icon icon-help Gray_bd Font15 mLeft5 pointer" />
               </Tooltip>
             </Checkbox>

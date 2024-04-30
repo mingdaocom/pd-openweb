@@ -5,7 +5,7 @@ import * as utils from '../../utils';
 import * as ajax from '../../utils/ajax';
 import Constant from '../../utils/constant';
 import LoadDiv from 'ming-ui/components/LoadDiv';
-import { getClassNameByExt } from 'src/util';
+import { getClassNameByExt, dateConvertToUserZone } from 'src/util';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import moment from 'moment';
 
@@ -19,7 +19,7 @@ export const splitFiles = list => {
     if (file.type === 2) {
       file.previewUrl = `${file.url}&imageView2/0/w/100/h/100/q/90`;
     }
-    file.$date = createTimeSpan(file.time);
+    file.$date = createTimeSpan(dateConvertToUserZone(file.time));
     file.$size = utils.formatFileSize(file.size);
     file.iconClass = getClassNameByExt(`.${File.GetExt(file.name)}`);
     const fileTime = moment(file.time);

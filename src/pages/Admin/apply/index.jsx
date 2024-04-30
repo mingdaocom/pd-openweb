@@ -92,7 +92,7 @@ export default class ApplyRole extends React.Component {
         }
         this.setState({ loading: false });
       })
-      .fail(err => {
+      .catch(err => {
         this.setState({ loading: false, canApply: false });
       });
   };
@@ -115,7 +115,7 @@ export default class ApplyRole extends React.Component {
               </div>
             </div>
             <div className="roleAuthContent pLeft24 pRight24">
-              <RoleList isApply projectId={Config.projectId} />
+              <RoleList entry="apply" projectId={Config.projectId} />
             </div>
           </Fragment>
         )}

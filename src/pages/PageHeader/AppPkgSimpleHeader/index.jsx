@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Tooltip } from 'ming-ui';
+import { Tooltip, SvgIcon } from 'ming-ui';
 import { navigateTo } from 'router/navigateTo';
-import SvgIcon from 'src/components/SvgIcon';
 import styled from 'styled-components';
 import DocumentTitle from 'react-document-title';
 import homeApp from 'src/api/homeApp';
@@ -51,15 +50,17 @@ export default function AppPkgSimpleHeader(props) {
     homeApp.getApp({ appId, getLang: true }).then(appDetail => {
       const { langInfo } = appDetail;
       if (langInfo && langInfo.appLangId && langInfo.version !== window[`langVersion-${appId}`]) {
-        appManagementApi.getAppLangDetail({
-          projectId: appDetail.projectId,
-          appId,
-          appLangId: langInfo.appLangId
-        }).then(lang => {
-          window[`langData-${appId}`] = lang;
-          window[`langVersion-${appId}`] = langInfo.version;
-          setAppDetail(appDetail);
-        });
+        appManagementApi
+          .getAppLangDetail({
+            projectId: appDetail.projectId,
+            appId,
+            appLangId: langInfo.appLangId,
+          })
+          .then(lang => {
+            window[`langData-${appId}`] = lang.items;
+            window[`langVersion-${appId}`] = langInfo.version;
+            setAppDetail(appDetail);
+          });
       } else {
         setAppDetail(appDetail);
       }
@@ -75,9 +76,7 @@ export default function AppPkgSimpleHeader(props) {
   return (
     <HeaderWrap className="flexRow alignItemsCenter">
       <DocumentTitle
-        title={`${name ? name + ' - ' : ''}${text}${
-          routerInfo === 'settings' ? ' - ' + currentSettingMenu : ''
-        }`}
+        title={`${name ? name + ' - ' : ''}${text}${routerInfo === 'settings' ? ' - ' + currentSettingMenu : ''}`}
       />
 
       <Tooltip popupPlacement="bottomLeft" text={<span>{_l('应用：%0', name)}</span>}>

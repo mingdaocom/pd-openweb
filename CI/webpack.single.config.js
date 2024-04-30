@@ -19,8 +19,8 @@ module.exports = function(entryType) {
         'src/common/mdcss/Themes/theme.less',
       ],
       vendors: [
-        'src/library/jquery/1.8.3/jquery',
-        'src/library/jquery/1.8.3/jquery.mousewheel.min',
+        'src/library/jquery/jquery.min',
+        'src/library/jquery/jquery.mousewheel.min',
         'src/library/plupload/plupload.full.min',
       ],
       globals: ['src/common/global'],

@@ -1,13 +1,13 @@
 import React, { Fragment, useState } from 'react';
-import { Icon, Dialog } from 'ming-ui';
+import { Icon, Dialog, UserHead } from 'ming-ui';
 import { Dropdown, Menu, Checkbox } from 'antd';
 import { ActionSheet, Modal, Button, WingBlank } from 'antd-mobile';
-import UserHead from 'src/components/userHead/userHead';
 import SelectUser from 'mobile/components/SelectUser';
 import cx from 'classnames';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { browserIsMobile, getCurrentProject } from 'src/util';
+import { browserIsMobile } from 'src/util';
+import { dialogSelectUser } from 'ming-ui/functions';
+
 const isMobile = browserIsMobile();
 
 const MenuItem = Menu.Item;
@@ -103,18 +103,16 @@ function UpdateUserDialog(props) {
   const [newAccounts, setNewAccounts] = useState([]);
 
   const handleAddAccount = () => {
-    import('src/components/dialogSelectUser/dialogSelectUser').then(dialogSelectUser => {
-      dialogSelectUser.default({
-        showMoreInvite: false,
-        overlayClosable: false,
-        SelectUserSettings: {
-          projectId,
-          filterAccountIds: currentWorkItems.map(data => data.workItemAccount.accountId),
-          callback: users => {
-            setNewAccounts(users);
-          },
+    dialogSelectUser({
+      showMoreInvite: false,
+      overlayClosable: false,
+      SelectUserSettings: {
+        projectId,
+        filterAccountIds: currentWorkItems.map(data => data.workItemAccount.accountId),
+        callback: users => {
+          setNewAccounts(users);
         },
-      });
+      },
     });
   };
 
@@ -458,7 +456,7 @@ export default function WorkflowAction(props) {
     if (!urgeDisable) {
       onUrge(data);
     }
-  }
+  };
 
   const renderDropdownOverlay = ({ width }) => {
     return (

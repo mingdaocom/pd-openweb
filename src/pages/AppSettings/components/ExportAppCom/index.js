@@ -1,8 +1,7 @@
 import React, { Component, Fragment } from 'react';
-import { Support, Button, Tooltip, ScrollView, LoadDiv } from 'ming-ui';
+import { Tooltip, ScrollView, LoadDiv, UserHead, UserName, Icon } from 'ming-ui';
 import ExportApp from 'src/pages/Admin/app/appManagement/modules/ExportApp';
-import UserHead from 'src/components/userHead';
-import UserName from 'src/components/userName';
+import AppSettingHeader from '../AppSettingHeader';
 import EmptyStatus from '../EmptyStatus';
 import appManagementAjax from 'src/api/appManagement';
 import cx from 'classnames';
@@ -140,27 +139,27 @@ export default class ExportAppCom extends Component {
 
     return (
       <Fragment>
-        <div className="exportAppHeader">
-          <div className="flex">
-            <div className="Font17 bold mBottom8">{_l('导出')}</div>
-            <div className="Gray_9e mBottom20">
-              <span className="Gray_9e">
-                {_l('将应用配置导出为文件，之后可以将此文件导入其他组织以实现应用迁移，可选择同时导出部分示例数据')}
-              </span>
-              <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/apply3" />
+        <AppSettingHeader
+          title={_l('导出')}
+          addBtnName={_l('导出应用')}
+          link="https://help.mingdao.com/application/import-export"
+          description={_l(
+            '将应用配置导出为文件，之后可以将此文件导入其他组织以实现应用迁移，可选择同时导出部分示例数据',
+          )}
+          extraElement={
+            <div
+              className="refresh"
+              onClick={() => {
+                this.setState({ pageIndex: 1 }, () => {
+                  this.getExportLogs();
+                });
+              }}
+            >
+              <Icon icon="refresh1" className="Font18" />
             </div>
-          </div>
-          <Button
-            className="pLeft20 pRight20 Font14"
-            style={{ height: 36 }}
-            type="primary"
-            radius
-            onClick={() => this.setState({ exportAppVisible: true })}
-          >
-            <i className="icon icon-import mRight5" />
-            {_l('导出应用')}
-          </Button>
-        </div>
+          }
+          handleAdd={() => this.setState({ exportAppVisible: true })}
+        />
 
         {loading ? (
           <div className="exportAppListWrap flexColumn flex">

@@ -73,12 +73,13 @@ export default function UserMenu(props) {
         <ul className="languageSetTooltip Normal">
           {langConfig.map(item => (
             <li
-              className={cx('ThemeBGColor3', { active: (getCookie('i18n_langtag') || md.global.Config.DefaultLang) === item.key })}
+              className={cx('ThemeBGColor3', {
+                active: (getCookie('i18n_langtag') || md.global.Config.DefaultLang) === item.key,
+              })}
               key={item.key}
               onClick={() => {
-                const settingValue = { 'zh-Hans': '0', en: '1', ja: '2', 'zh-Hant': '3' };
                 accountSetting
-                  .editAccountSetting({ settingType: '6', settingValue: settingValue[item.key] })
+                  .editAccountSetting({ settingType: '6', settingValue: getCurrentLangCode(item.key).toString() })
                   .then(res => {
                     if (res) {
                       setCookie('i18n_langtag', item.key);
@@ -95,7 +96,7 @@ export default function UserMenu(props) {
         </ul>
       </div>
     );
-  }
+  };
 
   const projectLength = md.global.Account.projects.length;
   const isAccount = md.global.Account.guideSettings.accountMobilePhone || md.global.Account.guideSettings.accountEmail;
@@ -103,7 +104,7 @@ export default function UserMenu(props) {
   useEffect(() => {
     if (!showDialog || code) return;
 
-    weixin.getWeiXinServiceNumberQRCode().then(function(data) {
+    weixin.getWeiXinServiceNumberQRCode().then(function (data) {
       setCode(data);
     });
   }, [showDialog]);
@@ -164,12 +165,7 @@ export default function UserMenu(props) {
           </li>
         )}
 
-        <li
-          className="ThemeBGColor3"
-          id="languageSetItem"
-          onClick={() => {
-          }}
-        >
+        <li className="ThemeBGColor3" id="languageSetItem" onClick={() => {}}>
           <Tooltip
             popupAlign={{
               points: ['tr', 'tl'],
@@ -190,7 +186,6 @@ export default function UserMenu(props) {
             </a>
           </Tooltip>
         </li>
-
       </ul>
 
       {md.global.Config.IsLocal && !md.global.SysSettings.hideDownloadApp && (
@@ -216,7 +211,7 @@ export default function UserMenu(props) {
       {showDialog && (
         <Dialog
           visible
-          title={_l('关注明道云服务号')}
+          title={_l('关注服务号')}
           width={400}
           footer={null}
           handleClose={() => setShowDialog(false)}

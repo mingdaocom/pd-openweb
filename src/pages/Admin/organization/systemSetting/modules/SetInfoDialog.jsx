@@ -10,9 +10,9 @@ import './common.less';
 import _ from 'lodash';
 
 const dialogTitle = {
-  1: '修改组织名称',
-  2: '所在地',
-  3: '设置所在行业',
+  1: _l('修改组织名称'),
+  2: _l('所在地'),
+  3: _l('设置所在行业'),
 };
 
 const checkFuncs = {

@@ -5,8 +5,8 @@ import DatePicker from 'src/components/newCustomFields/widgets/Date';
 import cx from 'classnames';
 import { func, shape, string } from 'prop-types';
 import { getShowFormat, getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting.js';
-import { DATE_OPTIONS } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
-import _ from 'lodash';
+import { DATE_OPTIONS, FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
+import _, { includes } from 'lodash';
 import moment from 'moment';
 
 function getPicker(type) {
@@ -84,7 +84,7 @@ const Content = styled.div`
   }
 `;
 
-const RangePickerCon = styled.div`
+const PickerCon = styled.div`
   .ant-picker-input > input {
     font-size: 13px !important;
   }
@@ -111,29 +111,46 @@ const Icon = styled.i`
   }
 `;
 
+function removeDateLimit(control) {
+  control.advancedSetting.min = undefined;
+  control.advancedSetting.max = undefined;
+  control.advancedSetting.allowweek = undefined;
+  control.advancedSetting.allowtime = undefined;
+  control.advancedSetting.timeinterval = undefined;
+}
 export default function DateTime(props) {
   const {
-    appendToBody,
     control,
     dateRange,
+    dateRangeType,
     value,
     minValue,
     maxValue,
     advancedSetting = {},
     onChange = () => {},
   } = props;
+  const filterType = props.filterType || FILTER_CONDITION_TYPE.DATE_BETWEEN;
   let dateOptions = DATE_OPTIONS;
   const [active, setActive] = useState();
+  if (dateRangeType) {
+    control.advancedSetting.showtype = String(dateRangeType);
+    if (includes(['3', '4', '5'], String(dateRangeType))) {
+      control.type = 15;
+    }
+  }
+  removeDateLimit(control);
   const showType = _.get(control, 'advancedSetting.showtype');
   let allowedDateRange = [];
   try {
     allowedDateRange = JSON.parse(advancedSetting.daterange);
   } catch (err) {}
   const showDatePicker = dateRange === 18 || _.isEmpty(allowedDateRange);
-  const isEmpty = dateRange === 18 ? !(minValue && maxValue) : !dateRange;
-  if (_.includes(['ctime', 'utime'], control.controlId)) {
-    control.advancedSetting = { showtype: '6' };
-  }
+  const isEmpty =
+    dateRange === 18
+      ? filterType === FILTER_CONDITION_TYPE.DATE_BETWEEN
+        ? !(minValue && maxValue)
+        : !value
+      : !dateRange;
   const showValueFormat = getShowFormat(control);
   const valueFormat = getDatePickerConfigs(control).formatMode;
   const timeFormat = showValueFormat.split(' ')[1];
@@ -146,45 +163,73 @@ export default function DateTime(props) {
       )
       .filter(options => options.length);
   }
+  let pickerComp = null;
+  if (showDatePicker) {
+    if (filterType === FILTER_CONDITION_TYPE.DATE_BETWEEN) {
+      pickerComp = (
+        <PickerCon>
+          <MdAntDateRangePicker
+            className="customAntPicker"
+            value={minValue && maxValue ? [moment(minValue), moment(maxValue)] : []}
+            showTime={timeFormat ? { format: timeFormat } : false}
+            picker={getPicker(showType)}
+            format={showValueFormat}
+            onChange={moments => {
+              if (!moments || !_.isArray(moments)) {
+                moments = [];
+              }
+              onChange({
+                dateRange: 18,
+                filterType: 31,
+                minValue: moments[0] && moments[0].format(valueFormat === 'YYYY-MM-DD HH' ? undefined : valueFormat),
+                maxValue: moments[1] && moments[1].format(valueFormat === 'YYYY-MM-DD HH' ? undefined : valueFormat),
+              });
+            }}
+          />
+        </PickerCon>
+      );
+    } else {
+      pickerComp = (
+        <PickerCon>
+          <DatePicker
+            {...control}
+            showTime={!!timeFormat}
+            value={value && moment(value)}
+            dropdownClassName="scrollInTable"
+            onChange={date => {
+              onChange({
+                dateRange: 18,
+                filterType: filterType || FILTER_CONDITION_TYPE.DATEENUM,
+                value: moment(date).format(valueFormat === 'YYYY-MM-DD HH' ? undefined : valueFormat),
+              });
+            }}
+          />
+        </PickerCon>
+      );
+    }
+  }
   return (
     <Con className={cx({ active })}>
       <Content className={cx({ isEmpty })}>
-        {showDatePicker ? (
-          <RangePickerCon>
-            <MdAntDateRangePicker
-              className="customAntPicker"
-              value={minValue && maxValue ? [moment(minValue), moment(maxValue)] : []}
-              showTime={timeFormat ? { format: timeFormat } : false}
-              picker={getPicker(showType)}
-              format={showValueFormat}
-              onChange={moments => {
-                if (!moments || !_.isArray(moments)) {
-                  moments = [];
-                }
-                onChange({
-                  dateRange: 18,
-                  filterType: 31,
-                  minValue: moments[0] && moments[0].format(valueFormat),
-                  maxValue: moments[1] && moments[1].format(valueFormat),
-                });
-              }}
-            />
-          </RangePickerCon>
-        ) : (
+        {pickerComp || (
           <Dropdown
-            isAppendToBody={appendToBody}
+            isAppendToBody
             value={dateRange}
             data={dateOptions.map(os => os.filter(o => _.includes(allowedDateRange.concat(18), o.value)))}
-            menuStyle={appendToBody ? {} : { width: '100%' }}
             onChange={newValue => {
-              const change = { filterType: 17, dateRange: newValue, minValue: undefined, maxValue: undefined };
+              const change = {
+                filterType: filterType || FILTER_CONDITION_TYPE.DATEENUM,
+                dateRange: newValue,
+                minValue: undefined,
+                maxValue: undefined,
+              };
               onChange(change);
             }}
             onVisibleChange={setActive}
           />
         )}
       </Content>
-      {showDatePicker && (
+      {pickerComp && (
         <Icon
           className={cx('icon', minValue || maxValue ? 'icon-cancel' : 'icon-event')}
           onClick={() => {
@@ -196,7 +241,7 @@ export default function DateTime(props) {
         <Icon
           className="icon icon-arrow-down-border backIcon"
           onClick={() => {
-            onChange({ dateRange: 0, minValue: undefined, maxValue: undefined, filterType: 0 });
+            onChange({ dateRange: 0, minValue: undefined, maxValue: undefined, value: undefined });
           }}
         />
       )}
@@ -204,7 +249,7 @@ export default function DateTime(props) {
         <Icon
           className="icon icon-cancel clearIcon"
           onClick={() => {
-            onChange({ dateRange: 0, minValue: undefined, maxValue: undefined, filterType: 0 });
+            onChange({ dateRange: 0, minValue: undefined, maxValue: undefined, value: undefined });
           }}
         />
       )}

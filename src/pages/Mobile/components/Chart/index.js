@@ -20,24 +20,19 @@ const Content = styled.div`
   }
 `;
 
-function Chart({ data, mobileCount, mobileFontSize, isHorizontal, projectId, themeColor, pageConfig = {} }) {
+function Chart({ data, mobileCount, mobileFontSize, isHorizontal, projectId, themeColor, pageConfig = {}, linkageMatch, onUpdateLinkageFiltersGroup }) {
   if (data.status <= 0) {
     return <Abnormal status={data.status} />;
   }
 
-  const isMingdao = navigator.userAgent.toLowerCase().includes('mingdao application');
-  const isIOS = navigator.userAgent.toLowerCase().includes('iphone');
-  const isWeixin = isIOS && navigator.userAgent.toLowerCase().includes('micromessenger');
-  const isSafari = isIOS && navigator.userAgent.toLowerCase().includes('safari');
   const isMapEmpty = _.isEmpty(data.map);
   const isContrastMapEmpty = _.isEmpty(data.contrastMap);
-  const isContrastEmpty = _.isEmpty(data.contrast);
   const Charts = charts[data.reportType];
   const WithoutDataComponent = <WithoutData />;
   const { drillParticleSizeType } = data.country || {};
   const filter = data.filter || {};
   const { filterRangeId, rangeType, rangeValue, dynamicFilter, today = false, customRangeValue } = filter;
-  const { filters, filtersGroup } = pageConfig;
+  const { filters, filtersGroup, autoLinkage } = pageConfig;
   const viewOriginalSheet = (params) => {
     reportApi.getReportSingleCacheId({
       ...params,
@@ -55,7 +50,7 @@ function Chart({ data, mobileCount, mobileFontSize, isHorizontal, projectId, the
     }).then(result => {
       if (result.id) {
         const workSheetId = data.appId;
-        if (isMingdao) {
+        if (window.isMingDaoApp) {
           const url = `/worksheet/${workSheetId}/view/${filter.viewId}?chartId=${result.id}&${getAppFeaturesPath()}`;
           window.location.href = url;
         } else {
@@ -75,7 +70,10 @@ function Chart({ data, mobileCount, mobileFontSize, isHorizontal, projectId, the
       reportData={data}
       isThumbnail={true}
       isViewOriginalData={isViewOriginalData}
+      isLinkageData={autoLinkage}
       onOpenChartDialog={viewOriginalSheet}
+      onUpdateLinkageFiltersGroup={onUpdateLinkageFiltersGroup}
+      linkageMatch={linkageMatch}
       mobileCount={mobileCount}
       mobileFontSize={mobileFontSize}
       isHorizontal={isHorizontal}
@@ -115,21 +113,9 @@ function Chart({ data, mobileCount, mobileFontSize, isHorizontal, projectId, the
   }
 }
 
-function ChartWrapper({
-  data,
-  loading,
-  mobileCount,
-  mobileFontSize,
-  pageComponents = [],
-  projectId,
-  themeColor,
-  pageConfig,
-  isHorizontal,
-  onOpenFilterModal,
-  onOpenZoomModal,
-  onLoadBeforeData,
-  onLoadNextData
-}) {
+function ChartWrapper(props) {
+  const { loading, pageComponents = [], onOpenFilterModal, onOpenZoomModal, onLoadBeforeData, onLoadNextData, ...chartProps } = props;
+  const { data, isHorizontal } = chartProps;
   const isVertical = window.orientation === 0;
   const isMobileChartPage = location.href.includes('mobileChart');
   const index = _.findIndex(pageComponents, { value: data.reportId });
@@ -139,25 +125,29 @@ function ChartWrapper({
     <Fragment>
       <div className={cx('mBottom10 flexRow valignWrapper', { mRight20: isHorizontal })}>
         <div className="Font17 Gray ellipsis name flex">{data.name}</div>
-        {isHorizontal && (
+        {data.status > 0 && (
           <Fragment>
-            <Icon
-              icon="navigate_before"
-              className={cx('Font24 Gray_9e mRight10', { allow: beforeAllow })}
-              onClick={beforeAllow && onLoadBeforeData.bind(this, index - 1)}
-            />
-            <Icon
-              icon="navigate_next"
-              className={cx('Font24 Gray_9e mRight20', { allow: nextAllow })}
-              onClick={nextAllow && onLoadNextData.bind(this, index + 1)}
-            />
+            {isHorizontal && (
+              <Fragment>
+                <Icon
+                  icon="navigate_before"
+                  className={cx('Font24 Gray_9e mRight10', { allow: beforeAllow })}
+                  onClick={beforeAllow && onLoadBeforeData.bind(this, index - 1)}
+                />
+                <Icon
+                  icon="navigate_next"
+                  className={cx('Font24 Gray_9e mRight20', { allow: nextAllow })}
+                  onClick={nextAllow && onLoadNextData.bind(this, index + 1)}
+                />
+              </Fragment>
+            )}
+            <Icon className="Font20 Gray_9e mRight10" icon="swap_vert" onClick={onOpenFilterModal} />
+            {isHorizontal ? (
+              <Icon className="Font20 Gray_9e" icon="close" onClick={onOpenZoomModal} />
+            ) : (
+              isVertical && <Icon className={cx('Font18 Gray_9e', { Visibility: isMobileChartPage })} icon="task-new-fullscreen" onClick={onOpenZoomModal} />
+            )}
           </Fragment>
-        )}
-        <Icon className="Font20 Gray_9e mRight10" icon="swap_vert" onClick={onOpenFilterModal} />
-        {isHorizontal ? (
-          <Icon className="Font20 Gray_9e" icon="close" onClick={onOpenZoomModal} />
-        ) : (
-          isVertical && <Icon className={cx('Font18 Gray_9e', { Visibility: isMobileChartPage })} icon="task-new-fullscreen" onClick={onOpenZoomModal} />
         )}
       </div>
       <Content className={cx('flexColumn overflowHidden', `statisticsCard-${data.reportId}`)}>
@@ -167,13 +157,7 @@ function ChartWrapper({
           </Flex>
         ) : (
           <Chart
-            data={data}
-            mobileCount={mobileCount}
-            mobileFontSize={mobileFontSize}
-            isHorizontal={isHorizontal}
-            projectId={projectId}
-            themeColor={themeColor}
-            pageConfig={pageConfig}
+            {...chartProps}
           />
         )}
       </Content>

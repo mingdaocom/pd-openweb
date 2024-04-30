@@ -1,9 +1,8 @@
 import React, { Component, Fragment } from 'react';
-import { Dialog } from 'ming-ui';
-import FunctionWrap from 'ming-ui/components/FunctionWrap';
+import { Dialog, FunctionWrap } from 'ming-ui';
 import departmentController from 'src/api/department';
 import fixedDataAjax from 'src/api/fixedData.js';
-import DialogSelectDept from 'src/components/dialogSelectDept';
+import { dialogSelectDept } from 'ming-ui/functions';
 import { dialogSelectDeptUser } from '../DialogSelectDeptUser';
 import { updateTreeData } from 'src/pages/Admin/user/membersDepartments/structure/modules/util';
 import './index.less';
@@ -95,7 +94,7 @@ export default class CreateEditDeptDialog extends Component {
             }
             this.setState({ submitLoading: false });
           })
-          .fail(err => {
+          .catch(err => {
             alert(_l('创建失败'), 2);
             this.setState({ submitLoading: false });
           });
@@ -136,7 +135,7 @@ export default class CreateEditDeptDialog extends Component {
             }
             this.setState({ submitLoading: false });
           })
-          .fail(err => {
+          .catch(err => {
             alert(_l('编辑失败'), 2);
             this.setState({ submitLoading: false });
           });
@@ -147,7 +146,8 @@ export default class CreateEditDeptDialog extends Component {
   changeParent = () => {
     const { projectId } = this.props;
     const { parentDepartment } = this.state;
-    new DialogSelectDept({
+
+    dialogSelectDept({
       projectId,
       selectedDepartment: _.isEmpty(parentDepartment) ? [] : [parentDepartment],
       includeProject: true,
@@ -195,7 +195,7 @@ export default class CreateEditDeptDialog extends Component {
                 type="text"
                 value={departmentInfo.departmentName}
                 maxlength="64"
-                className="deptName TxtBottom"
+                className="deptName TxtBottom w100"
                 onChange={e => {
                   let val = e.target.value;
                   this.setState({ departmentInfo: { ...departmentInfo, departmentName: val } });

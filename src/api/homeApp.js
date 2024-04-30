@@ -16,13 +16,14 @@ export default {
   * @param {boolean} args.pcDisplay Pc端显示,
   * @param {boolean} args.webMobileDisplay web移动端显示
   * @param {boolean} args.appDisplay app端显示
+  * @param {string} args.dbInstanceId 数据库实例id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    createApp: function (args, options = {}) {
      
-     return $.api('HomeApp', 'CreateApp', args, options);
+     return mdyAPI('HomeApp', 'CreateApp', args, options);
    },
   /**
   * 首页删除应用(删除之后进入回收站)
@@ -36,7 +37,7 @@ export default {
   **/
    deleteApp: function (args, options = {}) {
      
-     return $.api('HomeApp', 'DeleteApp', args, options);
+     return mdyAPI('HomeApp', 'DeleteApp', args, options);
    },
   /**
   * 分页获取应用回收站
@@ -52,7 +53,7 @@ export default {
   **/
    getAppRecoveryRecordList: function (args, options = {}) {
      
-     return $.api('HomeApp', 'GetAppRecoveryRecordList', args, options);
+     return mdyAPI('HomeApp', 'GetAppRecoveryRecordList', args, options);
    },
   /**
   * 首页应用回收站彻底删除
@@ -66,7 +67,7 @@ export default {
   **/
    appRecycleBinDelete: function (args, options = {}) {
      
-     return $.api('HomeApp', 'AppRecycleBinDelete', args, options);
+     return mdyAPI('HomeApp', 'AppRecycleBinDelete', args, options);
    },
   /**
   * 恢复应用
@@ -80,7 +81,7 @@ export default {
   **/
    restoreApp: function (args, options = {}) {
      
-     return $.api('HomeApp', 'RestoreApp', args, options);
+     return mdyAPI('HomeApp', 'RestoreApp', args, options);
    },
   /**
   * 标星应用或应用项
@@ -96,7 +97,7 @@ export default {
   **/
    markApp: function (args, options = {}) {
      
-     return $.api('HomeApp', 'MarkApp', args, options);
+     return mdyAPI('HomeApp', 'MarkApp', args, options);
    },
   /**
   * 编辑应用
@@ -108,26 +109,29 @@ export default {
   * @param {string} args.icon 图标
   * @param {string} args.iconColor 图标颜色
   * @param {integer} args.appNaviStyle 移动端:0 = 列表 ，1= 九宫格，2= 导航
-  * @param {integer} args.pcNavistyle PC端:0-经典 1-左侧列表 2-卡片模式
+  * @param {integer} args.pcNavistyle PC端:0-经典 1-左侧列表 2-卡片模式，3 = 树形
   * @param {boolean} args.viewHideNavi 查看影藏导航项
   * @param {string} args.navColor 导航栏颜色
   * @param {string} args.lightColor 淡色色值
   * @param {integer} args.gridDisplayMode 宫格显示模式
-  * @param {integer} args.appNaviDisplayType 导航列表显示类型
+  * @param {integer} args.appNaviDisplayType 移动端导航列表显示类型
   * @param {string} args.urlTemplate 外部链接url
   * @param {object} args.configuration 链接配置
   * @param {boolean} args.pcDisplay Pc端显示,
   * @param {boolean} args.webMobileDisplay web移动端显示
   * @param {boolean} args.appDisplay app端显示
-  * @param {integer} args.selectAppItmeType 导航应用项默认是否选中
-  * @param {integer} args.pcNaviDisplayType 导航分组展开样式
+  * @param {integer} args.selectAppItmeType 记住上次使用（2 = 是，1 = 老配置，始终第一个）
+  * @param {integer} args.pcNaviDisplayType 导航分组展开样式（10.2去掉了）
+  * @param {string} args.displayIcon 显示图标,目前只有三级（000，111，，0=不勾选，1=勾选）
+  * @param {integer} args.expandType 展开方式  0 = 默认，1 = 手风琴
+  * @param {boolean} args.hideFirstSection 隐藏首个分组
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editAppInfo: function (args, options = {}) {
      
-     return $.api('HomeApp', 'EditAppInfo', args, options);
+     return mdyAPI('HomeApp', 'EditAppInfo', args, options);
    },
   /**
   * 更新首页应用排序
@@ -142,7 +146,7 @@ export default {
   **/
    updateAppSort: function (args, options = {}) {
      
-     return $.api('HomeApp', 'UpdateAppSort', args, options);
+     return mdyAPI('HomeApp', 'UpdateAppSort', args, options);
    },
   /**
   * 复制应用
@@ -151,13 +155,14 @@ export default {
   * @param {string} args.appName 新的应用名称
   * @param {string} args.groupId 分组id
   * @param {} args.groupType
+  * @param {string} args.dbInstanceId 数据库实例id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    copyApp: function (args, options = {}) {
      
-     return $.api('HomeApp', 'CopyApp', args, options);
+     return mdyAPI('HomeApp', 'CopyApp', args, options);
    },
   /**
   * 应用发布设置
@@ -173,7 +178,7 @@ export default {
   **/
    publishSettings: function (args, options = {}) {
      
-     return $.api('HomeApp', 'PublishSettings', args, options);
+     return mdyAPI('HomeApp', 'PublishSettings', args, options);
    },
   /**
   * 编辑开放接口的白名单
@@ -187,7 +192,7 @@ export default {
   **/
    editWhiteList: function (args, options = {}) {
      
-     return $.api('HomeApp', 'EditWhiteList', args, options);
+     return mdyAPI('HomeApp', 'EditWhiteList', args, options);
    },
   /**
   * 更新维护状态
@@ -202,7 +207,7 @@ export default {
   **/
    editFix: function (args, options = {}) {
      
-     return $.api('HomeApp', 'EditFix', args, options);
+     return mdyAPI('HomeApp', 'EditFix', args, options);
    },
   /**
   * 获取首页所有应用信息
@@ -214,7 +219,7 @@ export default {
   **/
    getAllHomeApp: function (args, options = {}) {
      
-     return $.api('HomeApp', 'GetAllHomeApp', args, options);
+     return mdyAPI('HomeApp', 'GetAllHomeApp', args, options);
    },
   /**
   * 获取应用下所有工作表信息
@@ -227,7 +232,7 @@ export default {
   **/
    getWorksheetsByAppId: function (args, options = {}) {
      
-     return $.api('HomeApp', 'GetWorksheetsByAppId', args, options);
+     return mdyAPI('HomeApp', 'GetWorksheetsByAppId', args, options);
    },
   /**
   * 获取附件图片列表
@@ -244,7 +249,7 @@ export default {
   **/
    getAttachementImages: function (args, options = {}) {
      
-     return $.api('HomeApp', 'GetAttachementImages', args, options);
+     return mdyAPI('HomeApp', 'GetAttachementImages', args, options);
    },
   /**
   * 进入应用刷新页面，前端路由匹配接口
@@ -257,7 +262,7 @@ export default {
   **/
    getPageInfo: function (args, options = {}) {
      
-     return $.api('HomeApp', 'GetPageInfo', args, options);
+     return mdyAPI('HomeApp', 'GetPageInfo', args, options);
    },
   /**
   * 批量获取应用项信息
@@ -268,7 +273,7 @@ export default {
   **/
    getAppItemDetail: function (args, options = {}) {
      
-     return $.api('HomeApp', 'GetAppItemDetail', args, options);
+     return mdyAPI('HomeApp', 'GetAppItemDetail', args, options);
    },
   /**
   * 获取应用详情（包含分组信息，请求参数可选）
@@ -284,13 +289,14 @@ export default {
   * @param {boolean} args.getManager 是否获取管理员列表信息
   * @param {boolean} args.getProject 获取组织信息
   * @param {boolean} args.getLang 是否获取应用语种信息
+  * @param {boolean} args.isMobile 是否是移动端
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getApp: function (args, options = {}) {
      
-     return $.api('HomeApp', 'GetApp', args, options);
+     return mdyAPI('HomeApp', 'GetApp', args, options);
    },
   /**
   * 验证应用有效性
@@ -302,7 +308,7 @@ export default {
   **/
    checkApp: function (args, options = {}) {
      
-     return $.api('HomeApp', 'CheckApp', args, options);
+     return mdyAPI('HomeApp', 'CheckApp', args, options);
    },
   /**
   * 获取应用下分组和第一个工作表信息
@@ -315,7 +321,7 @@ export default {
   **/
    getAppFirstInfo: function (args, options = {}) {
      
-     return $.api('HomeApp', 'GetAppFirstInfo', args, options);
+     return mdyAPI('HomeApp', 'GetAppFirstInfo', args, options);
    },
   /**
   * 获取简单应用id及分组id
@@ -327,7 +333,7 @@ export default {
   **/
    getAppSimpleInfo: function (args, options = {}) {
      
-     return $.api('HomeApp', 'GetAppSimpleInfo', args, options);
+     return mdyAPI('HomeApp', 'GetAppSimpleInfo', args, options);
    },
   /**
   * 根据应用分组id获取详情
@@ -340,7 +346,7 @@ export default {
   **/
    getAppSectionDetail: function (args, options = {}) {
      
-     return $.api('HomeApp', 'GetAppSectionDetail', args, options);
+     return mdyAPI('HomeApp', 'GetAppSectionDetail', args, options);
    },
   /**
   * 添加应用分组
@@ -358,7 +364,7 @@ export default {
   **/
    addAppSection: function (args, options = {}) {
      
-     return $.api('HomeApp', 'AddAppSection', args, options);
+     return mdyAPI('HomeApp', 'AddAppSection', args, options);
    },
   /**
   * 修改应用分组名称
@@ -372,7 +378,7 @@ export default {
   **/
    updateAppSectionName: function (args, options = {}) {
      
-     return $.api('HomeApp', 'UpdateAppSectionName', args, options);
+     return mdyAPI('HomeApp', 'UpdateAppSectionName', args, options);
    },
   /**
   * 修改分组基础信息信息
@@ -388,7 +394,7 @@ export default {
   **/
    updateAppSection: function (args, options = {}) {
      
-     return $.api('HomeApp', 'UpdateAppSection', args, options);
+     return mdyAPI('HomeApp', 'UpdateAppSection', args, options);
    },
   /**
   * 删除应用分组（并移动该项下工作表到其他应用分组）
@@ -402,7 +408,7 @@ export default {
   **/
    deleteAppSection: function (args, options = {}) {
      
-     return $.api('HomeApp', 'DeleteAppSection', args, options);
+     return mdyAPI('HomeApp', 'DeleteAppSection', args, options);
    },
   /**
   * 更新应用分组排序信息
@@ -415,7 +421,7 @@ export default {
   **/
    updateAppSectionSort: function (args, options = {}) {
      
-     return $.api('HomeApp', 'UpdateAppSectionSort', args, options);
+     return mdyAPI('HomeApp', 'UpdateAppSectionSort', args, options);
    },
   /**
   * 更新应用分组下工作表排序信息
@@ -429,21 +435,21 @@ export default {
   **/
    updateSectionChildSort: function (args, options = {}) {
      
-     return $.api('HomeApp', 'UpdateSectionChildSort', args, options);
+     return mdyAPI('HomeApp', 'UpdateSectionChildSort', args, options);
    },
   /**
-  * 设置工作表显示隐藏
+  * 设置应用项显示隐藏
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用id
   * @param {string} args.worksheetId 工作表id
-  * @param {integer} args.status 状态
+  * @param {integer} args.status 状态(1= 显示，2 = 全隐藏，3 = PC隐藏，4 = 移动端隐藏)
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    setWorksheetStatus: function (args, options = {}) {
      
-     return $.api('HomeApp', 'SetWorksheetStatus', args, options);
+     return mdyAPI('HomeApp', 'SetWorksheetStatus', args, options);
    },
   /**
   * 获取应用open api文档
@@ -456,7 +462,7 @@ export default {
   **/
    getApiInfo: function (args, options = {}) {
      
-     return $.api('HomeApp', 'GetApiInfo', args, options);
+     return mdyAPI('HomeApp', 'GetApiInfo', args, options);
    },
   /**
   * 获取我的应用
@@ -470,7 +476,7 @@ export default {
   **/
    getMyApp: function (args, options = {}) {
      
-     return $.api('HomeApp', 'GetMyApp', args, options);
+     return mdyAPI('HomeApp', 'GetMyApp', args, options);
    },
   /**
   * 获取首页分组详情
@@ -486,7 +492,7 @@ export default {
   **/
    getGroup: function (args, options = {}) {
      
-     return $.api('HomeApp', 'GetGroup', args, options);
+     return mdyAPI('HomeApp', 'GetGroup', args, options);
    },
   /**
   * 添加应用到分组下
@@ -500,7 +506,7 @@ export default {
   **/
    addToGroup: function (args, options = {}) {
      
-     return $.api('HomeApp', 'AddToGroup', args, options);
+     return mdyAPI('HomeApp', 'AddToGroup', args, options);
    },
   /**
   * 应用从分组下移除
@@ -514,7 +520,7 @@ export default {
   **/
    removeToGroup: function (args, options = {}) {
      
-     return $.api('HomeApp', 'RemoveToGroup', args, options);
+     return mdyAPI('HomeApp', 'RemoveToGroup', args, options);
    },
   /**
   * 标星分组
@@ -529,7 +535,7 @@ export default {
   **/
    markedGroup: function (args, options = {}) {
      
-     return $.api('HomeApp', 'MarkedGroup', args, options);
+     return mdyAPI('HomeApp', 'MarkedGroup', args, options);
    },
   /**
   * 新增首页分组
@@ -544,7 +550,7 @@ export default {
   **/
    addGroup: function (args, options = {}) {
      
-     return $.api('HomeApp', 'AddGroup', args, options);
+     return mdyAPI('HomeApp', 'AddGroup', args, options);
    },
   /**
   * 编辑分组信息
@@ -561,7 +567,7 @@ export default {
   **/
    editGroup: function (args, options = {}) {
      
-     return $.api('HomeApp', 'EditGroup', args, options);
+     return mdyAPI('HomeApp', 'EditGroup', args, options);
    },
   /**
   * 删除分组
@@ -575,7 +581,7 @@ export default {
   **/
    deleteGroup: function (args, options = {}) {
      
-     return $.api('HomeApp', 'DeleteGroup', args, options);
+     return mdyAPI('HomeApp', 'DeleteGroup', args, options);
    },
   /**
   * 分组排序
@@ -589,7 +595,7 @@ export default {
   **/
    editGroupSort: function (args, options = {}) {
      
-     return $.api('HomeApp', 'EditGroupSort', args, options);
+     return mdyAPI('HomeApp', 'EditGroupSort', args, options);
    },
   /**
   * 修改首页自定义显示设置
@@ -603,13 +609,16 @@ export default {
   * @param {boolean} args.isAllAndProject 是否开启全部和组织分组
   * @param {boolean} args.displayMark 是否显示星标应用
   * @param {boolean} args.rowCollect 记录收藏
+  * @param {boolean} args.displayApp 工作台左侧菜单是否显示app
+  * @param {boolean} args.displayChart 图表收藏开关
+  * @param {array} args.sortItems 排序
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editHomeSetting: function (args, options = {}) {
      
-     return $.api('HomeApp', 'EditHomeSetting', args, options);
+     return mdyAPI('HomeApp', 'EditHomeSetting', args, options);
    },
   /**
   * 批量标记应用和应用项目
@@ -622,7 +631,7 @@ export default {
   **/
    markApps: function (args, options = {}) {
      
-     return $.api('HomeApp', 'MarkApps', args, options);
+     return mdyAPI('HomeApp', 'MarkApps', args, options);
    },
   /**
   * 编辑平台设置
@@ -635,13 +644,14 @@ export default {
   * @param {boolean} args.logoSwitch logo开关
   * @param {boolean} args.boardSwitch 宣传栏目开关
   * @param {integer} args.logoHeight logo高度
+  * @param {object} args.advancedSetting
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editPlatformSetting: function (args, options = {}) {
      
-     return $.api('HomeApp', 'EditPlatformSetting', args, options);
+     return mdyAPI('HomeApp', 'EditPlatformSetting', args, options);
    },
   /**
   * 工作台
@@ -653,7 +663,7 @@ export default {
   **/
    myPlatform: function (args, options = {}) {
      
-     return $.api('HomeApp', 'MyPlatform', args, options);
+     return mdyAPI('HomeApp', 'MyPlatform', args, options);
    },
   /**
   * 获取应用下应用项
@@ -665,7 +675,7 @@ export default {
   **/
    getAppItems: function (args, options = {}) {
      
-     return $.api('HomeApp', 'GetAppItems', args, options);
+     return mdyAPI('HomeApp', 'GetAppItems', args, options);
    },
   /**
   * 获取平台设置
@@ -677,6 +687,19 @@ export default {
   **/
    getHomePlatformSetting: function (args, options = {}) {
      
-     return $.api('HomeApp', 'GetHomePlatformSetting', args, options);
+     return mdyAPI('HomeApp', 'GetHomePlatformSetting', args, options);
+   },
+  /**
+  * 获取可用的专属数据库列表
+注意 受限于版本 应用/组织管理员
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getMyDbInstances: function (args, options = {}) {
+     
+     return mdyAPI('HomeApp', 'GetMyDbInstances', args, options);
    },
 };

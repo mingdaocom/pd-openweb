@@ -42,7 +42,7 @@ class ChatPanel extends Component {
     const { currentSession: newCurrentSession } = nextProps;
     const { currentSession, currentSessionList } = this.props;
     const superfluous = currentSessionList.filter(item => (item.groupId || item.accountId) === newCurrentSession.value);
-    if (superfluous.length && 'isContact' in newCurrentSession && !newCurrentSession.isContact) {
+    if (superfluous.length && 'isContact' in newCurrentSession && !newCurrentSession.isContact && newCurrentSession.value !== currentSession.value) {
       this.props.dispatch(actions.removeCurrentSession(newCurrentSession.value));
       this.props.dispatch(actions.removeMessages(newCurrentSession.value));
       this.chatSessionItem(newCurrentSession);
@@ -56,12 +56,12 @@ class ChatPanel extends Component {
   }
   chatSessionItem(session) {
     this.setState({ isError: false, loading: true });
-    if (this.ajax && this.ajax.state() === 'pending') {
+    if (this.ajax && this.ajax.abort) {
       this.ajax.abort();
     }
     this.ajax = ajax
       .chatSessionItem(session)
-      .done(result => {
+      .then(result => {
         this.setState({ loading: false });
         if (result.groupId) {
           if (result.groupId && !result.isMember) {
@@ -90,7 +90,7 @@ class ChatPanel extends Component {
           }
         }
       })
-      .fail(error => {
+      .catch(error => {
         this.setState({
           isError: true,
         });

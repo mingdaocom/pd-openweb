@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Dialog, LoadDiv, ScrollView } from 'ming-ui';
 import workSiteController from 'src/api/workSite';
-import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
+import { dialogSelectUser } from 'ming-ui/functions';
 import _ from 'lodash';
 
 export default class EditMemberDialog extends Component {

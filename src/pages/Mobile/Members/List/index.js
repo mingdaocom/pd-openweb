@@ -470,7 +470,7 @@ class MemberList extends Component {
             <img src={noMmberImg} alt={_l('暂无成员')} width="110" />
             <br />
             <p className="mTop0 Gray_bd Font17">{_l('暂无成员')}</p>
-            {canEditUser && (
+            {canEditUser && !window.isPublicApp && (
               <Button
                 className="addUserButton"
                 type="primary"

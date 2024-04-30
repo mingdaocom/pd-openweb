@@ -93,6 +93,7 @@ export default function Cascader(props) {
         getViews: true,
         getTemplate: true,
         appId,
+        relationWorksheetId: globalSheetInfo.worksheetId,
       })
       .then(res => {
         const viewInfo = _.find(res.views, item => item.viewId === viewId);
@@ -100,12 +101,10 @@ export default function Cascader(props) {
           setInfo({ sheetInfo: res, hasError: true });
           return;
         }
-        if (_.isEmpty(data.relationControls)) {
-          onChange({ relationControls: _.get(res, 'template.controls') });
-        }
+        onChange({ relationControls: _.get(res, 'template.controls') });
         setInfo({ sheetInfo: res, viewInfo });
       })
-      .fail(() => {
+      .catch(() => {
         setInfo({ hasError: true });
       });
   }, [dataSource, controlId]);
@@ -128,21 +127,18 @@ export default function Cascader(props) {
       );
     }
     return (
-      <Fragment>
-        <div className="info view">
-          <div className="viewInfo">
-            {_l('层级视图: ')}
-            <div
-              className="viewName overflow_ellipsis pointer Bold"
-              onClick={() => window.open(`/app/${appId}/${groupId}/${dataSource}/${viewId}`)}
-            >
-              {(viewInfo || {}).name}
-            </div>
+      <div className="info view">
+        <div className="viewInfo">
+          {_l('层级视图: ')}
+          <div
+            className="viewName overflow_ellipsis pointer Bold"
+            onClick={() => window.open(`/app/${appId}/${groupId}/${dataSource}/${viewId}`)}
+          >
+            {(viewInfo || {}).name}
           </div>
-          <i className="icon-edit_17 Gray_9e pointer" onClick={() => setEdit({ editVisible: true, editType: 3 })}></i>
         </div>
-        <RelateDetailInfo {...props} sheetInfo={sheetInfo} />
-      </Fragment>
+        <i className="icon-edit_17 Gray_9e pointer" onClick={() => setEdit({ editVisible: true, editType: 3 })}></i>
+      </div>
     );
   };
   return (
@@ -163,12 +159,14 @@ export default function Cascader(props) {
           }}
         />
       )}
+
+      <RelateDetailInfo {...props} sheetInfo={sheetInfo} />
       <SettingItem>
         <div className="settingItemTitle">{_l('数据源')}</div>
         <DataSourceWrap>{renderDataSourceInfo()}</DataSourceWrap>
       </SettingItem>
       <SettingItem>
-        <div className="settingItemTitle">{_l('下拉菜单样式')}</div>
+        <div className="settingItemTitle">{_l('选择方式')}</div>
         <RadioGroup
           className="singleLineRadio"
           size="middle"

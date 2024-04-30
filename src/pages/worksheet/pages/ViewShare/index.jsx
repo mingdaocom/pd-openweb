@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import ReactDom from 'react-dom';
-import { LoadDiv } from 'ming-ui';
+import { LoadDiv, SvgIcon } from 'ming-ui';
 import preall from 'src/common/preall';
 import sheetApi from 'src/api/worksheet';
-import SvgIcon from 'src/components/SvgIcon';
+import appManagementApi from 'src/api/appManagement';
 import { ShareState, VerificationPass, SHARE_STATE } from 'worksheet/components/ShareState';
 import ViewSahre from './ViewSahre';
 import DocumentTitle from 'react-document-title';
 import styled from 'styled-components';
 import _ from 'lodash';
+import { getTranslateInfo } from 'src/util';
 
 const Wrap = styled.div`
   .header {
@@ -57,15 +58,33 @@ const Entry = props => {
   useEffect(() => {
     const clientId = sessionStorage.getItem(shareId);
     window.clientId = clientId;
-    getShareInfoByShareId({ clientId }).then(({ data }) => {
-      localStorage.setItem('currentProjectId', data.projectId);
+    getShareInfoByShareId({
+      clientId,
+      langType: getCurrentLangCode(),
+    }).then(async result => {
+      const { data } = result;
+      const { appId, projectId, langInfo } = data;
+      localStorage.setItem('currentProjectId', projectId);
       preall(
         { type: 'function' },
         {
-          allownotlogin: true,
-          requestParams: { projectId: data.projectId },
+          allowNotLogin: true,
+          requestParams: { projectId },
         },
       );
+      if (langInfo && langInfo.appLangId) {
+        const lang = await appManagementApi.getAppLangDetail({
+          projectId,
+          appId,
+          appLangId: langInfo.appLangId,
+        });
+        window[`langData-${appId}`] = lang.items;
+        window.appInfo = { id: appId };
+        data.appName = getTranslateInfo(appId, appId).name || data.appName;
+        data.worksheetName = getTranslateInfo(appId, data.worksheetId).name || data.worksheetName;
+        data.viewName = getTranslateInfo(appId, data.viewId).name || data.viewName;
+      }
+      setShare(result);
       setLoading(false);
     });
   }, []);
@@ -77,7 +96,6 @@ const Entry = props => {
       const clientId = _.get(result, 'data.clientId');
       window.clientId = clientId;
       clientId && sessionStorage.setItem(shareId, clientId);
-      setShare(result);
       resolve(result);
     });
   };
@@ -103,6 +121,7 @@ const Entry = props => {
                 }).then(data => {
                   if (data.resultCode === 1) {
                     resolve(data);
+                    setShare(data);
                   } else {
                     reject(SHARE_STATE[data.resultCode]);
                   }

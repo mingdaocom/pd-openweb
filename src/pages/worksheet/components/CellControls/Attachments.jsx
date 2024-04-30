@@ -13,6 +13,7 @@ import { getClassNameByExt, formatFileSize, addBehaviorLog } from 'src/util';
 import { bool, func, number, shape, string } from 'prop-types';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import _ from 'lodash';
+import { FROM } from './enum';
 
 const Con = styled.div`
   &:hover {
@@ -43,34 +44,52 @@ const EditingCon = styled.div`
   padding: 5px 6px 0px;
   box-shadow: inset 0 0 0 2px #2d7ff9 !important;
   background-color: #fff;
-  font-size: 0px;
-  .AttachmentCon {
-    margin-bottom: 5px;
-  }
 `;
 
 const AttachmentCon = styled.div`
   position: relative;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   margin-right: 4px;
+  vertical-align: middle;
   border-radius: 2px;
   overflow: hidden;
   cursor: pointer;
+  margin-bottom: 5px;
   &:hover {
     .hoverMask {
       display: inline-block;
     }
+    background-color: rgba(0, 0, 0, 0.05);
   }
 `;
 
-const AttachmentImage = styled.img`
-  vertical-align: middle;
-  min-width: 21px;
-  object-fit: cover;
+const AttachmentImageCon = styled.div`
+  position: relative;
+  img {
+    border-radius: 2px;
+    vertical-align: middle;
+    min-width: 21px;
+    object-fit: cover;
+  }
 `;
 
 const AttachmentDoc = styled.span`
   vertical-align: middle;
+  flex-shrink: 0;
+`;
+
+const AttachmentDocFileName = styled.span`
+  padding: 0 6px;
+  .ellipsis {
+    display: inline-block;
+  }
+  .name {
+    max-width: 200px;
+  }
+  .ext {
+    max-width: 100px;
+  }
 `;
 
 const ShadowInset = styled.span`
@@ -86,7 +105,7 @@ const ImageHoverMask = styled.span`
   border-radius: 2px;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: rgba(0, 0, 0, 0.05);
   display: none;
 `;
 
@@ -162,14 +181,15 @@ const ImageCover = styled.img`
 
 const Add = styled.div`
   cursor: pointer;
-  display: inline-block;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
   position: relative;
   margin-right: 4px;
   margin-bottom: 5px;
   border-radius: 2px;
   overflow: hidden;
   border: 1px solid #ddd;
-  text-align: center;
   .icon {
     font-size: 16px;
     color: #ccc;
@@ -387,8 +407,19 @@ function HoverPreviewPanel(props, cb = () => {}) {
   );
 }
 
+function AttachmentImage(props) {
+  return (
+    <AttachmentImageCon>
+      <ImageHoverMask className="hoverMask" />
+      <ShadowInset />
+      <img {...props} />
+    </AttachmentImageCon>
+  );
+}
+
 function Attachment(props) {
   const {
+    showFileName,
     isTrash,
     isSubList,
     editable,
@@ -478,8 +509,6 @@ function Attachment(props) {
           e.stopPropagation();
         }}
       >
-        {isPicture && <ShadowInset />}
-        {isPicture && <ImageHoverMask className="hoverMask" />}
         {isPicture ? (
           <AttachmentImage
             crossOrigin="anonymous"
@@ -494,6 +523,12 @@ function Attachment(props) {
             title={attachment.originalFilename + (attachment.ext || '')}
             style={{ width: fileWidth, height: fileHeight }}
           />
+        )}
+        {showFileName && (
+          <AttachmentDocFileName className="ellipsis" title={attachment.originalFilename + (attachment.ext || '')}>
+            <span className="name ellipsis">{attachment.originalFilename}</span>
+            <span className="ext ellipsis">{attachment.ext || ''}</span>
+          </AttachmentDocFileName>
         )}
       </AttachmentCon>
     </Trigger>
@@ -524,7 +559,7 @@ function cellAttachments(props, sourceRef) {
     ...rest
   } = props;
   let { editable } = props;
-  const { value, strDefault = '', advancedSetting, enumDefault } = cell;
+  const { value, strDefault = '', advancedSetting = {}, enumDefault } = cell;
   const [, onlyAllowMobileInput] = strDefault.split('');
   if (cell.type === 14 && onlyAllowMobileInput === '1') {
     editable = false;
@@ -533,7 +568,15 @@ function cellAttachments(props, sourceRef) {
   const [attachments, setAttachments] = useState(parseValue(value));
   const [temporaryAttachments, setTemporaryAttachments] = useState([]);
   const [temporaryKnowledgeAtts, setTemporaryKnowledgeAtts] = useState([]);
-  const fileHeight = rowHeight - 10;
+  const showFileValue = _.isUndefined(advancedSetting.showfilename)
+    ? _.includes(['2', '3'], advancedSetting.showtype)
+      ? '1'
+      : '0'
+    : advancedSetting.showfilename;
+  const showFileName =
+    (from === FROM.COMMON && showFileValue === '1') ||
+    (from === FROM.CARD && attachments.length === 1 && !File.isPicture(attachments[0].ext));
+  const fileHeight = showFileValue === '1' ? 24 : rowHeight - 10;
   const fileWidth = (fileHeight * 21) / 24;
   useImperativeHandle(sourceRef, () => ({
     handleTableKeyDown(e) {
@@ -556,6 +599,7 @@ function cellAttachments(props, sourceRef) {
           '.UploadFilesTriggerPanel',
           '.triggerTraget',
           '.folderSelectDialog',
+          '.fileDetail',
         ].join(','),
       )
     ) {
@@ -610,6 +654,7 @@ function cellAttachments(props, sourceRef) {
   }
   const attachmentsComp = attachments.map((attachment, index) => (
     <Attachment
+      showFileName={showFileName}
       isTrash={isTrash}
       isSubList={isSubList}
       editable={editable}
@@ -642,9 +687,10 @@ function cellAttachments(props, sourceRef) {
         id={cell.controlId + rest.recordId}
         projectId={projectId}
         noWrap
-        destroyPopupOnHide={!(navigator.userAgent.match(/[Ss]afari/) && !navigator.userAgent.match(/[Cc]hrome/))} // 不是 Safari
+        destroyPopupOnHide={!window.isSafari} // 不是 Safari
         popupVisible={editable && (uploadFileVisible || !attachments.length)}
         from={from}
+        isQiniuUpload={true}
         canAddLink={false}
         minWidth={130}
         showAttInfo={false}
@@ -698,7 +744,7 @@ function cellAttachments(props, sourceRef) {
   }
   return (
     <Con className={cx(className, { canedit: editable })} tableType={tableType} style={style} onClick={onClick}>
-      <CutCon className="CutCon">{attachmentsComp}</CutCon>
+      {rowHeight === 34 ? <CutCon className="CutCon">{attachmentsComp}</CutCon> : attachmentsComp}
       {editable && (
         <OperateIcon className="OperateIcon">
           <i

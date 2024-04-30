@@ -18,7 +18,8 @@ const ToolBarWrap = styled.div(
   ({ isMobile }) => `
   position: absolute;
   bottom: ${isMobile ? 20 : 32}px;
-  left: 24px;
+  left: ${isMobile ? '24px' : 'auto'};
+  right:  ${isMobile ? 'auto' : '20px'};
   background-color: #fff;
   border-radius: 26px;
   height: 44px;
@@ -28,11 +29,14 @@ const ToolBarWrap = styled.div(
   .icon-download:hover {
     color: #2196f3 !important;
   }
-`
+`,
 );
 
 const SelectWrap = styled(Select)`
-  width: 96px;
+  width: 85px;
+  .ant-select-selector {
+    padding-left: 0 !important;
+  }
   .ant-select-selection-item {
     text-align: center;
     padding-right: 11px !important;
@@ -73,9 +77,7 @@ export default class ToolBar extends Component {
     return (
       <SelectWrap
         className={cx({ mobile: isMobile })}
-        suffixIcon={(
-          <Icon className="Font12 Gray_9e" icon="arrow-down" />
-        )}
+        suffixIcon={<Icon className="Font12 Gray_9e" icon="arrow-down" />}
         defaultActiveFirstOption={false}
         defaultOpen={false}
         dropdownClassName="gunterToolBarSelectWrapper"
@@ -96,18 +98,6 @@ export default class ToolBar extends Component {
     const { searchData, isMobile } = this.props;
     return (
       <ToolBarWrap isMobile={isMobile} className="flexRow valignWrapper">
-        {!isMobile && (
-          <Tooltip text={<span>{_l('导出为图片')}</span>}>
-            <Icon
-              icon="download"
-              className="Gray_75 Font18 mRight14 pointer"
-              onClick={() => {
-                const { base } = this.props;
-                window.open(`/app/${base.appId}/${base.worksheetId}/${base.viewId}/gunterExport`);
-              }}
-            />
-          </Tooltip>
-        )}
         {this.renderPeriodSelect()}
         <Zoom />
         {isMobile && (
@@ -124,6 +114,18 @@ export default class ToolBar extends Component {
           >
             <Icon className="Gray_75 Font18 pLeft2 mLeft16" icon="search" />
           </SearchRecord>
+        )}
+        {!isMobile && (
+          <Tooltip text={<span>{_l('导出为图片')}</span>}>
+            <Icon
+              icon="download"
+              className="Gray_75 Font18 mRight14 pointer mLeft24"
+              onClick={() => {
+                const { base } = this.props;
+                window.open(`/app/${base.appId}/${base.worksheetId}/${base.viewId}/gunterExport`);
+              }}
+            />
+          </Tooltip>
         )}
       </ToolBarWrap>
     );

@@ -31,6 +31,7 @@ export const orderRecordType = enumObj({
   ComputingInstance: 25,
   MonthlyComputingInstance: 26,
   FileTransferPDF: 27,
+  AggregationTable: 28,
 });
 
 export const orderTypeText = {
@@ -61,6 +62,7 @@ export const orderTypeText = {
   ComputingInstance: _l('专属算力组织到期时长包'),
   MonthlyComputingInstance: _l('专属算力单月包'),
   FileTransferPDF: _l('获取打印记录文件生成PDF文件'),
+  AggregationTable: _l('聚合表数量购买'),
 };
 
 export const enumInvoiceStatus = enumObj({
@@ -101,7 +103,7 @@ export const orderRecordStatusDropdownData = [{ value: 0, text: _l('全部') }].
 
 export const enumOrderRecordStatus = enumObj(orderRecordStatus);
 
-export const PAID_RECORD_TYPE = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 21, 22, 23, 25, 26];
+export const PAID_RECORD_TYPE = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 21, 22, 23, 25, 26, 28];
 export const RECHARGE_RECORD_TYPE = [1, 15, 20, 24, 27];
 
 export const invoiceConfig = [

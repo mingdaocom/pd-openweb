@@ -88,9 +88,8 @@ export default function FilledRecord(props) {
   const titleControl = formData.filter(c => c.attribute === 1)[0] || {};
 
   useEffect(() => {
-    const isWeChatEnv = navigator.userAgent.toLowerCase().indexOf('micromessenger') !== -1;
     !!_.get(abilityExpand, 'allowViewChange.isAllowViewChange') &&
-      (writeScope !== 1 || isWeChatEnv) &&
+      (writeScope !== 1 || window.isWeiXin) &&
       onFetchFilledRecordList();
   }, [fetchState.loading, fetchState.pageIndex]);
 

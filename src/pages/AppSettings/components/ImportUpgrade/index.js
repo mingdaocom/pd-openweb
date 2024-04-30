@@ -1,22 +1,13 @@
 import React, { Component, Fragment } from 'react';
 import styled from 'styled-components';
-import { Button, Support } from 'ming-ui';
 import EmptyStatus from '../EmptyStatus';
 import UpgradeProcess from './components/UpgradeProcess';
+import AppSettingHeader from '../AppSettingHeader';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
 import appManagementAjax from 'src/api/appManagement';
-import Beta from './components/Beta';
 import _ from 'lodash';
 
-const Header = styled.div`
-  display: flex;
-  padding-bottom: 25px;
-  border-bottom: 1px solid #eaeaea;
-  .ming.Button {
-    height: 36px;
-  }
-`;
 const LogsWrap = styled.div`
   overflow: auto;
   .logsItem {
@@ -69,7 +60,7 @@ export default class AppImportUpgrade extends Component {
       .then(data => {
         this.setState({ loading: false, logList: data });
       })
-      .fail(err => {
+      .catch(err => {
         this.setState({ loading: false });
       });
   };
@@ -89,27 +80,13 @@ export default class AppImportUpgrade extends Component {
 
     return (
       <Fragment>
-        <Header>
-          <div className="flex">
-            <div className="Font17 bold">
-              {_l('导入升级')} <Beta />
-            </div>
-            <div className="Font13 Gray_9e mTop8">
-              {_l('导入单个应用文件，实现对当前应用快速升级，升级中的应用将为不可用状态')}
-              <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/apply19" />
-            </div>
-          </div>
-          <Button
-            className="pLeft20 pRight20 Font14"
-            style={{ height: 36 }}
-            type="primary"
-            radius
-            onClick={this.clickImportUpgrade}
-          >
-            <i className="icon-file_upload mRight3" />
-            {_l('导入升级')}
-          </Button>
-        </Header>
+        <AppSettingHeader
+          title={_l('导入升级')}
+          addBtnName={_l('导入升级')}
+          description={_l('导入单个应用文件，实现对当前应用快速升级，升级中的应用将为不可用状态')}
+          link="https://help.mingdao.com/application/import-export"
+          handleAdd={this.clickImportUpgrade}
+        />
         {!loading && !_.isEmpty(logList) ? (
           <LogsWrap>
             {logList.map(item => {

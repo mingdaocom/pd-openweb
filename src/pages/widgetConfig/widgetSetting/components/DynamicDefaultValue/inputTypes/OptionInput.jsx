@@ -9,7 +9,6 @@ import { SelectOtherField, OtherField, DynamicInput } from '../components';
 import { getOptions, handleAdvancedSettingChange } from '../../../../util/setting';
 
 export const DefaultOptionSetting = styled(SettingItem)`
-  margin-top: 12px !important;
   .holder {
     height: 34px;
   }
@@ -18,6 +17,7 @@ export const DefaultOptionSetting = styled(SettingItem)`
     height: 16px;
     border-radius: 50%;
     margin-right: 6px;
+    flex-shrink: 0;
   }
   .content {
     display: flex;
@@ -31,6 +31,7 @@ export const DefaultOptionSetting = styled(SettingItem)`
     min-height: 36px;
     flex: 1;
     margin-right: 36px;
+    width: 264px;
     .option {
       display: flex;
       align-items: center;
@@ -55,6 +56,7 @@ export const DefaultOptionSetting = styled(SettingItem)`
 export const DefaultOptionsMenu = styled(DropdownContent)`
   max-height: 500px;
   overflow: auto;
+  width: 300px;
   .clearDefault {
     line-height: 36px;
     padding: 0 12px;
@@ -158,7 +160,7 @@ export default function DefaultOptions(props) {
   };
 
   return (
-    <DefaultOptionSetting>
+    <DefaultOptionSetting className='mTop0'>
       {defaultType ? (
         <DynamicInput {...props} onTriggerClick={onTriggerClick} />
       ) : (
@@ -185,7 +187,7 @@ export default function DefaultOptions(props) {
                   return (
                     <div className={cx('optionItem', { checked })} key={key} onClick={() => switchChecked(key)}>
                       {colorful && color && <div className="colorWrap" style={{ backgroundColor: color }}></div>}
-                      <div className="text">{value}</div>
+                      <div className="text overflow_ellipsis">{value}</div>
                       {checked && <i className="icon-done"></i>}
                     </div>
                   );
@@ -207,11 +209,11 @@ export default function DefaultOptions(props) {
                 if (staticValue) {
                   const option = find(options, item => item.key === staticValue) || {};
                   return (
-                    <div className={cx('option pointer', { isDeleted: isEmpty(option) })}>
+                    <div className={cx('option pointer overflow_ellipsis', { isDeleted: isEmpty(option) })}>
                       {colorful && option.color && (
                         <div className="colorWrap" style={{ backgroundColor: option.color }}></div>
                       )}
-                      <div className="text">{option.value || _l('已删除')}</div>
+                      <div className="text overflow_ellipsis">{option.value || _l('已删除')}</div>
                       <i
                         className="icon-close"
                         onClick={e => {

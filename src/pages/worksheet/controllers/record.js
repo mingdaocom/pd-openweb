@@ -149,7 +149,7 @@ export function getFormDataForNewRecord({
               defaultFormData[control.controlId] = JSON.stringify(value);
               handle();
             })
-            .fail(err => {
+            .catch(err => {
               handle();
             });
           return;
@@ -176,7 +176,7 @@ export function submitNewRecord(props) {
     customwidget,
     setRequesting,
     rowStatus,
-    setSublistUniqueError,
+    setSubListUniqueError,
     setRuleError,
   } = props;
   const receiveControls = formdata
@@ -237,7 +237,7 @@ export function submitNewRecord(props) {
           customwidget.current.uniqueErrorUpdate(res.badData);
         }
       } else if (res.resultCode === 22) {
-        setSublistUniqueError(res.badData);
+        setSubListUniqueError(res.badData);
         handleRecordError(res.resultCode);
       } else if (res.resultCode === 32) {
         setRuleError(res.badData);
@@ -247,7 +247,7 @@ export function submitNewRecord(props) {
       onSubmitEnd();
       setRequesting(false);
     })
-    .fail(err => {
+    .catch(err => {
       onSubmitEnd();
       if (_.isObject(err)) {
         alert(err.errorMessage || _l('记录添加失败'), 3);
@@ -286,7 +286,7 @@ export function copyRow({ worksheetId, viewId, rowIds, relateRecordControlId }, 
         );
       }
     })
-    .fail(err => {
+    .catch(err => {
       console.log(err);
       alert(_l('复制失败！'), 3);
     });

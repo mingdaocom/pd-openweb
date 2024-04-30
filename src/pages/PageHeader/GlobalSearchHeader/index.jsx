@@ -4,7 +4,7 @@ import CommonUserHandle from '../components/CommonUserHandle';
 import styled from 'styled-components';
 import { Icon, Input } from 'ming-ui';
 import { navigateTo } from 'src/router/navigateTo';
-import { getRequest } from 'src/util'
+import { getRequest } from 'src/util';
 import './index.less';
 import _ from 'lodash';
 
@@ -69,32 +69,34 @@ export default class GlobalSearchHeader extends Component {
     return '';
   };
 
-  onSearchChange = value => this.setState({searchValue: value});
+  onSearchChange = value => this.setState({ searchValue: value });
 
   onSearch = () => {
-    const {searchValue, searchKey} = this.state;
-    if(searchValue===searchKey) return;
+    const { searchValue, searchKey } = this.state;
+    if (searchValue === searchKey) return;
     const urlParam = getRequest(this.props.search);
-    this.setState({searchKey: searchValue});
-    navigateTo(`/search?search_key=${searchValue || ''}&search_type=${urlParam.search_type || ''}`)
-  }
+    this.setState({ searchKey: searchValue });
+    navigateTo(`/search?search_key=${searchValue || ''}&search_type=${urlParam.search_type || ''}`);
+  };
 
-  onClearSearch = () => this.setState({searchValue: ''});
+  onClearSearch = () => this.setState({ searchValue: '' });
 
   render() {
     const text = MODULE_TO_TEXT[this.getModule()];
-    const {searchValue} = this.state;
+    const { searchValue } = this.state;
     return (
       <div className="globalSearchHeaderWrap">
         <div className="netManageLogo">
-          <HomeEntry data-tip={_l('主页')} onClick={() => navigateTo('/dashboard')}>
+          <HomeEntry data-tip={_l('首页')} onClick={() => navigateTo('/dashboard')}>
             <i className="icon-home_page Font18"></i>
           </HomeEntry>
           {text && <div className="netManageTitle">{text}</div>}
         </div>
         <div className="searchCon">
           <div className="search">
-            <span className='searchIconCon' onClick={this.onSearch}><Icon icon="search" className="Font20" style={{ color: '#4a4a4a'}} /></span>
+            <span className="searchIconCon" onClick={this.onSearch}>
+              <Icon icon="search" className="Font20" style={{ color: '#4a4a4a' }} />
+            </span>
             <Input
               className="flex borderNone"
               value={searchValue}

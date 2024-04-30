@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import ReactDom from 'react-dom';
 import preall from 'src/common/preall';
+import cx from 'classnames';
 import { Provider } from 'react-redux';
 import store from 'src/redux/configureStore';
-import SvgIcon from 'src/components/SvgIcon';
-import appManagement from 'src/api/appManagement';
+import { SvgIcon, LoadDiv } from 'ming-ui';
+import appManagementApi from 'src/api/appManagement';
 import CustomPageContent from 'src/pages/customPage/pageContent';
+import MobileCustomPage from 'src/pages/Mobile/CustomPage';
 import { ShareState, VerificationPass, SHARE_STATE } from 'worksheet/components/ShareState';
 import DocumentTitle from 'react-document-title';
-import { LoadDiv } from 'ming-ui';
+import CreateByMingDaoYun from 'src/components/CreateByMingDaoYun';
 import styled from 'styled-components';
+import { getRequest, getTranslateInfo, browserIsMobile } from 'src/util';
 import _ from 'lodash';
 import './index.less';
 
@@ -24,7 +27,10 @@ const Wrap = styled.div`
   }
 `;
 
+const isMobile = browserIsMobile();
+
 const Entry = props => {
+  const { hideHeader } = getRequest();
   const pathname = location.pathname.split('/');
   const id = pathname[pathname.length - 1];
   const [loading, setLoading] = useState(true);
@@ -33,26 +39,46 @@ const Entry = props => {
   useEffect(() => {
     const clientId = sessionStorage.getItem(id);
     window.clientId = clientId;
-    getEntityShareById({ clientId }).then(({ data }) => {
-      localStorage.setItem('currentProjectId', data.projectId);
+    getEntityShareById({
+      clientId,
+      langType: getCurrentLangCode(),
+    }).then(async result => {
+      const { data } = result;
+      const { appId, projectId, langInfo } = data;
+      localStorage.setItem('currentProjectId', projectId);
       preall(
         { type: 'function' },
         {
-          allownotlogin: true,
-          requestParams: { projectId: data.projectId },
+          allowNotLogin: true,
+          requestParams: { projectId },
         },
       );
+      if (langInfo && langInfo.appLangId) {
+        const lang = await appManagementApi.getAppLangDetail({
+          projectId,
+          appId,
+          appLangId: langInfo.appLangId,
+        });
+        window.appInfo = { id: appId };
+        window[`langData-${appId}`] = lang.items;
+        data.appName = getTranslateInfo(appId, appId).name || data.appName;
+        data.customerPageName = getTranslateInfo(appId, data.sourceId).name || data.customerPageName;
+      }
+      setShare(result);
       setLoading(false);
     });
+    if (hideHeader === 'true') {
+      document.body.classList.add('bodyScroll');
+      setCookie('i18n_langtag', 'zh-Hans');
+    }
   }, []);
 
   const getEntityShareById = data => {
     return new Promise(async (resolve, reject) => {
-      const result = await appManagement.getEntityShareById({ id, sourceType: 21, ...data });
+      const result = await appManagementApi.getEntityShareById({ id, sourceType: 21, ...data });
       const clientId = _.get(result, 'data.clientId');
       window.clientId = clientId;
       clientId && sessionStorage.setItem(id, clientId);
-      setShare(result);
       resolve(result);
     });
   };
@@ -77,6 +103,7 @@ const Entry = props => {
                   ...captchaResult,
                 }).then(data => {
                   if (data.resultCode === 1) {
+                    setShare(data);
                     resolve(data);
                   } else {
                     reject(SHARE_STATE[data.resultCode]);
@@ -96,7 +123,23 @@ const Entry = props => {
   if (share.resultCode === 1) {
     return (
       <Provider store={store}>
-        <CustomPageContent id={share.data.sourceId} ids={{ worksheetId: share.data.sourceId }} />
+        {isMobile ? (
+          <MobileCustomPage
+            match={{
+              params: {
+                worksheetId: share.data.sourceId,
+                appId: share.data.appId
+              },
+              path: ''
+            }}
+          />
+        ) : (
+          <CustomPageContent
+            id={share.data.sourceId}
+            ids={{ worksheetId: share.data.sourceId }}
+            className={cx({ hideHeader: hideHeader === 'true' })}
+          />
+        )}
       </Provider>
     );
   }
@@ -104,7 +147,7 @@ const Entry = props => {
   const { appName, customerPageName, appIcon, appIconColor } = share.data || {};
 
   return (
-    <Wrap className="flexColumn h100">
+    <Wrap className={cx('flexColumn h100')}>
       <div className="header flexRow alignItemsCenter">
         <div className="Font16 bold flexRow alignItemsCenter">
           {appIcon && (

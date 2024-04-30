@@ -20,6 +20,10 @@ const NUMBER_TYPES = [
     value: '2',
     text: _l('进度'),
   },
+  {
+    value: '3',
+    text: _l('计步器'),
+  },
 ];
 
 const NUMBER_COLOR_TYPE = [
@@ -39,8 +43,8 @@ export default function Number(props) {
   const [numValue, setNumValue] = useState();
   const { numshow, thousandth, showtype = '0', numinterval, min, max } = getAdvanceSetting(data);
   const itemcolor = getAdvanceSetting(data, 'itemcolor') || {};
-  const isNumber = showtype === '0';
-  const FILTER_NUMBER_TYPES = fromPortal ? NUMBER_TYPES.filter(i => i.value !== '2') : NUMBER_TYPES;
+  const isSlider = showtype === '2';
+  const FILTER_NUMBER_TYPES = fromPortal ? NUMBER_TYPES.filter(i => !_.includes(['2', '3'], i.value)) : NUMBER_TYPES;
 
   useEffect(() => {
     // 初始化用老数据unit覆盖suffix
@@ -76,45 +80,9 @@ export default function Number(props) {
     }
   };
 
-  return (
-    <Fragment>
-      <SettingItem>
-        <div className="settingItemTitle">{_l('输入方式')}</div>
-        <Dropdown
-          border
-          isAppendToBody
-          data={FILTER_NUMBER_TYPES}
-          value={showtype}
-          onChange={type => {
-            let newOptions = { showtype: type };
-            if (type === '2') {
-              newOptions.numinterval = '1';
-              newOptions.min = '0';
-              newOptions.max = '100';
-              newOptions.itemcolor = JSON.stringify(_.isEmpty(itemcolor) ? defaultItemColor : itemcolor);
-              newOptions.showinput = '1';
-              newOptions.datamask = '';
-              newOptions.checkrange = '0';
-              setNumValue(newOptions.numinterval);
-              onChange({ ...handleAdvancedSettingChange(data, newOptions), dot: 0 });
-              return;
-            }
-            onChange(handleAdvancedSettingChange(data, newOptions));
-          }}
-        />
-      </SettingItem>
-
-      {isNumber ? (
-        <Fragment>
-          <PointerConfig {...props} />
-          {numshow !== '1' && (
-            <SettingItem>
-              <div className="settingItemTitle">{_l('单位')}</div>
-              <PreSuffix data={data} onChange={onChange} />
-            </SettingItem>
-          )}
-        </Fragment>
-      ) : (
+  const renderContent = () => {
+    if (showtype === '2') {
+      return (
         <Fragment>
           <SettingItem>
             <div className="settingItemTitle">{_l('区间')}</div>
@@ -141,8 +109,9 @@ export default function Number(props) {
             </NumberRange>
           </SettingItem>
           <SettingItem>
-            <div className="settingItemTitle">{_l('间隔')}</div>
+            <div className="settingItemTitle">{_l('步长')}</div>
             <InputValue
+              className="w100"
               type={data.type}
               value={numValue}
               onChange={value => {
@@ -161,7 +130,7 @@ export default function Number(props) {
                 });
               }}
             />
-            <div className="labelWrap mTop12">
+            {/* <div className="labelWrap mTop12">
               <Checkbox
                 size="small"
                 checked={numshow === '1'}
@@ -171,17 +140,91 @@ export default function Number(props) {
                 }}
                 text={_l('按百分比显示')}
               />
-            </div>
+            </div> */}
           </SettingItem>
+          {/* {numshow !== '1' && (
+            <SettingItem>
+              <div className="settingItemTitle">{_l('单位')}</div>
+              <PreSuffix data={data} onChange={onChange} />
+            </SettingItem>
+          )} */}
         </Fragment>
-      )}
+      );
+    }
+
+    return (
+      <Fragment>
+        {showtype === '3' && (
+          <SettingItem>
+            <div className="settingItemTitle">{_l('步长')}</div>
+            <InputValue
+              className="w100"
+              value={numinterval}
+              type={data.type}
+              placeholder={_l('请输入步长')}
+              onChange={value => {
+                onChange(handleAdvancedSettingChange(data, { numinterval: value }));
+              }}
+              onBlur={value => {
+                const tempValue = (value || '1').toString().substring(0, 10);
+                onChange(handleAdvancedSettingChange(data, { numinterval: tempValue }));
+              }}
+            />
+          </SettingItem>
+        )}
+        <PointerConfig {...props} />
+        {numshow !== '1' && (
+          <SettingItem>
+            <div className="settingItemTitle">{_l('单位')}</div>
+            <PreSuffix data={data} onChange={onChange} />
+          </SettingItem>
+        )}
+      </Fragment>
+    );
+  };
+
+  return (
+    <Fragment>
+      <SettingItem>
+        <div className="settingItemTitle">{_l('输入方式')}</div>
+        <Dropdown
+          border
+          isAppendToBody
+          data={FILTER_NUMBER_TYPES}
+          value={showtype}
+          onChange={type => {
+            let newOptions = { showtype: type };
+            if (type === '2') {
+              newOptions.numinterval = '1';
+              newOptions.min = min || '0';
+              newOptions.max = max || '100';
+              newOptions.itemcolor = JSON.stringify(_.isEmpty(itemcolor) ? defaultItemColor : itemcolor);
+              newOptions.showinput = '1';
+              newOptions.datamask = '';
+              newOptions.checkrange = '0';
+              setNumValue(newOptions.numinterval);
+              onChange({ ...handleAdvancedSettingChange(data, newOptions), dot: 0 });
+              return;
+            }
+            if (type === '3') {
+              newOptions.numinterval = '1';
+              newOptions.min = '';
+              newOptions.max = '';
+              setNumValue(newOptions.numinterval);
+            }
+            onChange(handleAdvancedSettingChange(data, newOptions));
+          }}
+        />
+      </SettingItem>
+
+      {renderContent()}
 
       {fromExcel ? null : (
         <Fragment>
           <DynamicDefaultValue {...props} />
           <WidgetVerify {...props} />
 
-          {!isNumber && (
+          {isSlider && (
             <Fragment>
               <SettingItem>
                 <div className="settingItemTitle">{_l('颜色')}</div>

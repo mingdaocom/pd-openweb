@@ -1,25 +1,30 @@
 import React, { useState, useRef } from 'react';
 import { Dialog } from 'ming-ui';
-import { Input, Switch } from 'antd';
+import { Input, Tooltip } from 'antd';
 import Components from '../../../components';
-import { isEmpty } from 'lodash';
-import update from 'immutability-helper';
-import { v4 as uuidv4 } from 'uuid';
+import _ from 'lodash';
+import ClipboardButton from 'react-clipboard.js';
 import worksheetAjax from 'src/api/worksheet';
 import Options from './Options';
 import { SettingItem } from '../../../styled';
 import { getDefaultOptions } from '../../../util/setting';
+import DeleteDialog from './DelateDialog';
+import DeleteOptionList from 'src/pages/AppSettings/components/AllOptionList/DeleteOptionList';
 
 const Icon = Components.Icon;
 
 export default function EditOptionList(props) {
-  const { onOk, options, globalSheetInfo = {}, onCancel, ...rest } = props;
+  const { onOk, options = [], globalSheetInfo = {}, onCancel, worksheetIds = [], ...rest } = props;
   const appId = props.appId || globalSheetInfo.appId;
   const $ref = useRef(null);
   const [name, setName] = useState(props.name);
-  const [data, setData] = useState(isEmpty(options) ? getDefaultOptions() : options);
+  const [data, setData] = useState(_.isEmpty(options) ? getDefaultOptions() : options);
   const [colorful, setColorful] = useState(props.colorful);
   const [enableScore, setEnableScore] = useState(props.enableScore);
+  const [quoteVisible, setQuoteVisible] = useState(false);
+  const [deleteVisible, setDeleteVisible] = useState(false);
+
+  const deleteOptions = (data || []).filter(i => i.isDeleted);
 
   const handleOk = () => {
     if (!name) {
@@ -29,7 +34,7 @@ export default function EditOptionList(props) {
     const nextData = { ...rest, name, colorful, enableScore, options: data };
     worksheetAjax.saveOptionsCollection({ appId, ...nextData }).then(({ code, data, msg }) => {
       if (code === 1) {
-        onOk(isEmpty(data) ? nextData : data);
+        onOk(_.isEmpty(data) ? nextData : data);
       } else {
         alert(msg);
       }
@@ -40,23 +45,13 @@ export default function EditOptionList(props) {
     return data.filter(item => !item.isDeleted).length;
   };
 
-  const handleCopy = () => {
-    const copyOptions = data
-      .filter(i => !i.isDeleted)
-      .map((item, index) => ({
-        key: uuidv4(),
-        value: item.value,
-        checked: false,
-        isDeleted: false,
-        index: data.length + index + 1,
-        color: item.color,
-      }));
-    const findOther = _.findIndex(data, i => i.key === 'other');
-    const newOptions = update(data, {
-      $splice: [[findOther > -1 ? findOther : data.length, 0, ...copyOptions]],
-    });
-    setData(newOptions.map((item, idx) => ({ ...item, index: idx + 1 })));
-    alert(_l('已复制'));
+  const getCopyValue = () => {
+    const copyOptions = data.filter(i => !i.isDeleted);
+    return copyOptions.reduce((p, c, i) => (i === data.length - 1 ? `${p}${c.value}` : `${p}${c.value}\n`), '');
+  };
+
+  const checkQuote = () => {
+    setQuoteVisible(true);
   };
 
   return (
@@ -64,13 +59,21 @@ export default function EditOptionList(props) {
       ref={$ref}
       visible
       bodyClass="editOptionDialog"
-      title={isEmpty(options) ? _l('新建选项集') : _l('编辑选项集')}
+      title={_.isEmpty(options) ? _l('新建选项集') : _l('编辑选项集')}
       okText={_l('保存')}
+      overlayClosable={false}
       onCancel={onCancel}
       onOk={handleOk}
     >
       <SettingItem style={{ marginTop: '0px' }}>
-        <div className="settingItemTitle">{_l('名称')}</div>
+        <div className="settingItemTitle flexRow">
+          <div className="flex">{_l('名称')}</div>
+          {!_.isEmpty(options) && (
+            <div className="ThemeColor bold Hand" onClick={checkQuote}>
+              {_l('查看引用')}
+            </div>
+          )}
+        </div>
         <Input value={name} placeholder={_l('选项集')} onChange={e => setName(e.target.value)} />
       </SettingItem>
       <SettingItem>
@@ -84,9 +87,23 @@ export default function EditOptionList(props) {
             ></i>
             <span style={{ marginLeft: '8px' }}>{_l('彩色')}</span>
           </div>
-          <div className="flexCenter hoverText" onClick={handleCopy}>
-            <Icon icon="content-copy" className="Font13" />
-            <span style={{ marginLeft: '6px' }}>{_l('复制')}</span>
+          <div className="flexCenter">
+            <ClipboardButton
+              component="span"
+              data-clipboard-text={getCopyValue()}
+              onSuccess={() => alert(_l('复制成功，请去批量添加选项'))}
+              data-tip={_l('复制')}
+            >
+              <Icon icon="content-copy" className="Font16 hoverText" />
+            </ClipboardButton>
+            {deleteOptions.length > 0 && (
+              <Tooltip title={_l('已删除选项')} placement="bottom">
+                <span className="mLeft15 hoverText flexCenter pointer" onClick={() => setDeleteVisible(true)}>
+                  <Icon icon="trash" className="Font16" />
+                  <span className="mLeft5">{deleteOptions.length}</span>
+                </span>
+              </Tooltip>
+            )}
           </div>
         </div>
       </SettingItem>
@@ -103,6 +120,27 @@ export default function EditOptionList(props) {
           }
         }}
       />
+
+      {quoteVisible && (
+        <DeleteOptionList
+          type="checkQuote"
+          collectionId={props.collectionId}
+          name={props.name}
+          title={_l('查看引用')}
+          onOk={() => setQuoteVisible(false)}
+          onCancel={() => setQuoteVisible(false)}
+        />
+      )}
+      {deleteVisible && (
+        <DeleteDialog
+          options={data}
+          colorful={colorful}
+          onCancel={() => setDeleteVisible(false)}
+          onOk={newOptions => {
+            setData(newOptions);
+          }}
+        />
+      )}
     </Dialog>
   );
 }

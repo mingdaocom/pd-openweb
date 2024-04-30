@@ -9,7 +9,7 @@ export default {
   **/
    getProjectEncryptRules: function (args, options = {}) {
      
-     return $.api('ProjectEncrypt', 'GetProjectEncryptRules', args, options);
+     return mdyAPI('ProjectEncrypt', 'GetProjectEncryptRules', args, options);
    },
   /**
   * 分页面询加密字段 加密规则
@@ -27,7 +27,7 @@ export default {
   **/
    pagedEncryptFields: function (args, options = {}) {
      
-     return $.api('ProjectEncrypt', 'PagedEncryptFields', args, options);
+     return mdyAPI('ProjectEncrypt', 'PagedEncryptFields', args, options);
    },
   /**
   * 分页面询 加密规则
@@ -44,7 +44,7 @@ export default {
   **/
    pagedEncryptRules: function (args, options = {}) {
      
-     return $.api('ProjectEncrypt', 'PagedEncryptRules', args, options);
+     return mdyAPI('ProjectEncrypt', 'PagedEncryptRules', args, options);
    },
   /**
   * 获取加密规则
@@ -57,7 +57,7 @@ export default {
   **/
    getEncryptRule: function (args, options = {}) {
      
-     return $.api('ProjectEncrypt', 'GetEncryptRule', args, options);
+     return mdyAPI('ProjectEncrypt', 'GetEncryptRule', args, options);
    },
   /**
   * 添加加密规则
@@ -70,7 +70,7 @@ export default {
   **/
    addEncryptRule: function (args, options = {}) {
      
-     return $.api('ProjectEncrypt', 'AddEncryptRule', args, options);
+     return mdyAPI('ProjectEncrypt', 'AddEncryptRule', args, options);
    },
   /**
   * 编辑加密规则
@@ -84,7 +84,7 @@ export default {
   **/
    editEncryptRule: function (args, options = {}) {
      
-     return $.api('ProjectEncrypt', 'EditEncryptRule', args, options);
+     return mdyAPI('ProjectEncrypt', 'EditEncryptRule', args, options);
    },
   /**
   * 设置默认加密规则
@@ -98,7 +98,7 @@ export default {
   **/
    setEncryptRuleState: function (args, options = {}) {
      
-     return $.api('ProjectEncrypt', 'SetEncryptRuleState', args, options);
+     return mdyAPI('ProjectEncrypt', 'SetEncryptRuleState', args, options);
    },
   /**
   * 设置默认加密规则
@@ -111,7 +111,7 @@ export default {
   **/
    setDefaultEncryptRule: function (args, options = {}) {
      
-     return $.api('ProjectEncrypt', 'SetDefaultEncryptRule', args, options);
+     return mdyAPI('ProjectEncrypt', 'SetDefaultEncryptRule', args, options);
    },
   /**
   * 移除加密规则
@@ -124,6 +124,6 @@ export default {
   **/
    removeEncryptRule: function (args, options = {}) {
      
-     return $.api('ProjectEncrypt', 'RemoveEncryptRule', args, options);
+     return mdyAPI('ProjectEncrypt', 'RemoveEncryptRule', args, options);
    },
 };

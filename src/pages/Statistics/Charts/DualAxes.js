@@ -12,10 +12,12 @@ import {
   getControlMinAndMax,
   getStyleColor
 } from './common';
+import { Icon } from 'ming-ui';
 import { formatChartData as formatLineChartData } from './LineChart';
 import { formatChartData as formatBarChartData, formatDataCount } from './BarChart';
 import { formatSummaryName, isFormatNumber } from 'statistics/common';
 import { Dropdown, Menu } from 'antd';
+import tinycolor from '@ctrl/tinycolor';
 import _ from 'lodash';
 
 const getLineChartXAxis = (controlId, data) => {
@@ -51,14 +53,15 @@ export default class extends Component {
       newRightYaxisList: [],
       dropdownVisible: false,
       offset: {},
-      match: null
+      match: null,
+      linkageMatch: null,
     }
     this.DualAxes = null;
   }
   componentDidMount() {
     import('@antv/g2plot').then(data => {
       this.DualAxesComponent = data.DualAxes;
-      this.renderDualAxesChart();
+      this.renderDualAxesChart(this.props);
     });
   }
   componentWillUnmount() {
@@ -105,7 +108,8 @@ export default class extends Component {
       style.showXAxisSlider !== oldStyle.showXAxisSlider ||
       style.tooltipValueType !== oldStyle.tooltipValueType ||
       !_.isEqual(chartColor, oldChartColor) ||
-      nextProps.themeColor !== this.props.themeColor
+      nextProps.themeColor !== this.props.themeColor ||
+      !_.isEqual(nextProps.linkageMatch, this.props.linkageMatch)
     ) {
       const config = this.getComponentConfig(nextProps);
       this.DualAxes.update(config);
@@ -115,26 +119,29 @@ export default class extends Component {
       displaySetup.isPile !== oldDisplaySetup.isPile ||
       displaySetup.isAccumulate !== oldDisplaySetup.isAccumulate ||
       rightY.display.isAccumulate !== oldRightY.display.isAccumulate ||
-      rightY.display.isPile !== oldRightY.display.isPile
+      rightY.display.isPile !== oldRightY.display.isPile ||
+      nextProps.isLinkageData !== this.props.isLinkageData
     ) {
       this.DualAxes.destroy();
-      const config = this.getComponentConfig(nextProps);
+      this.renderDualAxesChart(nextProps);
+    }
+  }
+  renderDualAxesChart(props) {
+    const { reportData } = props;
+    const { displaySetup, style, xaxes, split } = reportData;
+    const config = this.getComponentConfig(props);
+    if (this.chartEl) {
       this.DualAxes = new this.DualAxesComponent(this.chartEl, config);
+      this.isViewOriginalData = displaySetup.showRowList && props.isViewOriginalData;
+      this.isLinkageData = props.isLinkageData && !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0) && (xaxes.controlId || split.controlId);
+      if (this.isViewOriginalData || this.isLinkageData) {
+        this.DualAxes.on('element:click', this.handleClick);
+      }
       this.DualAxes.render();
     }
   }
-  renderDualAxesChart() {
-    const { reportData, isViewOriginalData } = this.props;
-    const { displaySetup } = reportData;
-    const config = this.getComponentConfig(this.props);
-    this.DualAxes = new this.DualAxesComponent(this.chartEl, config);
-    if (displaySetup.showRowList && isViewOriginalData) {
-      this.DualAxes.on('element:click', this.handleClick);
-    }
-    this.DualAxes.render();
-  }
   getComponentConfig(props) {
-    const { themeColor, projectId, customPageConfig = {}, reportData } = props;
+    const { themeColor, projectId, customPageConfig = {}, reportData, linkageMatch } = props;
     const { chartColor, chartColorIndex = 1 } = customPageConfig;
     const { map, contrastMap, displaySetup, yaxisList, rightY, yreportType, xaxes, split, sorts } = reportData;
     const styleConfig = reportData.style || {};
@@ -203,13 +210,8 @@ export default class extends Component {
     const rule = _.get(colorRules[0], 'dataBarRule') || {};
     const isRuleColor = yaxisList.length === 1 && _.isEmpty(split.controlId) && !_.isEmpty(rule);
     const controlMinAndMax = isRuleColor ? getControlMinAndMax(yaxisList, data) : {};
-    let index = -1;
-    const getRuleColor = () => {
-      if (index >= data.length - 1) {
-        index = -1;
-      }
-      index = index + 1;
-      const { value } = data[index] || {};
+
+    const getRuleColor = value => {
       const color = getStyleColor({
         value,
         controlMinAndMax,
@@ -224,7 +226,34 @@ export default class extends Component {
       isGroup: !displaySetup.isPile,
       isStack: displaySetup.isPile,
       seriesField: 'groupName',
-      color: isRuleColor ? getRuleColor : colors,
+      rawFields: ['groupName', 'controlId', 'originalId'].concat(split.controlId ? undefined : 'value'),
+      color: data => {
+        const controlId = formatControlInfo(data.groupName).id;
+        const controlIndex = _.findIndex(yaxisList, { controlId });
+        let color = colors[controlIndex % colors.length];
+        if (isRuleColor) {
+          color = getRuleColor(data.value);
+        }
+        if (split.controlId) {
+          const splitIndex = _.findIndex(map, { originalKey: controlId });
+          color = colors[splitIndex % colors.length] || colors[0];
+        }
+        if (split.controlId && style.colorType === 0 && _.get(split, 'options.length')) {
+          const optionsColors = split.options.map(c => c.color).filter(c => c);
+          if (optionsColors.length) {
+            const option = _.find(split.options, { key: controlId }) || {};
+            color = option.color;
+          }
+        }
+        if (!_.isEmpty(linkageMatch)) {
+          if (linkageMatch.value === data.originalId) {
+            return color;
+          } else {
+            return tinycolor(color).setAlpha(0.3).toRgbString();
+          }
+        }
+        return color;
+      },
       label: displaySetup.showNumber
         ? {
             position: displaySetup.isPile ? 'middle' : 'top',
@@ -420,34 +449,84 @@ export default class extends Component {
     return baseConfig;
   }
   handleClick = (data) => {
-    const { xaxes, split, rightY } = this.props.reportData;
+    const { xaxes, split, rightY, appId, reportId, name, reportType, style } = this.props.reportData;
     const rightYSplit = rightY.split;
     const event = data.gEvent;
     const currentData = data.data;
     const isRight = 'rightValue' in currentData.data;
     const param = {};
+    const linkageMatch = {
+      sheetId: appId,
+      reportId,
+      reportName: name,
+      reportType,
+      filters: []
+    };
     if (xaxes.cid) {
       const isNumber = isFormatNumber(xaxes.controlType);
       const value = currentData.data.originalId;
       param[xaxes.cid] = isNumber && value ? Number(value) : value;
+      linkageMatch.value = value;
+      linkageMatch.filters.push({
+        controlId: xaxes.controlId,
+        values: [param[xaxes.cid]],
+        controlName: xaxes.controlName,
+        controlValue: currentData.data.name,
+        type: xaxes.controlType,
+        control: xaxes
+      });
     }
     if (split.controlId && !isRight) {
       const isNumber = isFormatNumber(split.controlType);
       const value = currentData.data.groupKey;
       param[split.cid] = isNumber && value ? Number(value) : value;
+      if (!xaxes.cid) {
+        linkageMatch.value = currentData.data.originalId;
+      }
+      linkageMatch.filters.push({
+        controlId: split.controlId,
+        values: [param[split.cid]],
+        controlName: split.controlName,
+        controlValue: formatControlInfo(currentData.data.groupName).name,
+        type: split.controlType,
+        control: split
+      });
     }
     if (rightYSplit.controlId && isRight) {
       const isNumber = isFormatNumber(rightYSplit.controlType);
       const value = currentData.data.groupKey;
       param[rightYSplit.cid] = isNumber && value ? Number(value) : value;
+      if (!xaxes.cid) {
+        linkageMatch.value = currentData.data.originalId;
+      }
+      linkageMatch.filters.push({
+        controlId: rightYSplit.controlId,
+        values: [param[rightYSplit.cid]],
+        controlName: rightYSplit.controlName,
+        controlValue: formatControlInfo(currentData.data.groupName).name,
+        type: rightYSplit.controlType,
+        control: rightYSplit
+      });
     }
+    if (_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length) {
+      linkageMatch.onlyChartIds = style.autoLinkageChartObjectIds;
+    }
+    const isAll = this.isViewOriginalData && this.isLinkageData;
     this.setState({
-      dropdownVisible: true,
+      dropdownVisible: isAll,
       offset: {
         x: event.x + 20,
         y: event.y
       },
-      match: param
+      match: param,
+      linkageMatch
+    }, () => {
+      if (!isAll && this.isViewOriginalData) {
+        this.handleRequestOriginalData();
+      }
+      if (!isAll && this.isLinkageData) {
+        this.handleAutoLinkage();
+      }
     });
   }
   handleRequestOriginalData = () => {
@@ -464,11 +543,28 @@ export default class extends Component {
       this.props.requestOriginalData(data);
     }
   }
+  handleAutoLinkage = () => {
+    const { linkageMatch } = this.state;
+    this.props.onUpdateLinkageFiltersGroup(linkageMatch);
+    this.setState({
+      dropdownVisible: false,
+    }, () => {
+      const config = this.getComponentConfig(this.props);
+      this.DualAxes.update(config);
+    });
+  }
   renderOverlay() {
     return (
       <Menu className="chartMenu" style={{ width: 160 }}>
+        <Menu.Item onClick={this.handleAutoLinkage} key="autoLinkage">
+          <div className="flexRow valignWrapper">
+            <Icon icon="link1" className="mRight8 Gray_9e Font20 autoLinkageIcon" />
+            <span>{_l('联动')}</span>
+          </div>
+        </Menu.Item>
         <Menu.Item onClick={this.handleRequestOriginalData} key="viewOriginalData">
           <div className="flexRow valignWrapper">
+            <Icon icon="table" className="mRight8 Gray_9e Font18" />
             <span>{_l('查看原始数据')}</span>
           </div>
         </Menu.Item>

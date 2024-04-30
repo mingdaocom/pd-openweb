@@ -1,7 +1,6 @@
-﻿import cx from 'classnames';
-import React from 'react';
+﻿import React from 'react';
+import { autobind } from 'core-decorators';
 import createTask from 'src/components/createTask/createTask';
-import createReactClass from 'create-react-class';
 import createCalendar from 'src/components/createCalendar/createCalendar';
 import PropTypes from 'prop-types';
 import withClickAway from 'ming-ui/decorators/withClickAway';
@@ -11,22 +10,23 @@ import Menu from 'ming-ui/components/Menu';
 import MenuItem from 'ming-ui/components/MenuItem';
 import './postOperateList.css';
 import _ from 'lodash';
+import cx from 'classnames';
 
-const FastCreateTaskSchedule = createReactClass({
-  displayName: 'FastCreateTaskSchedule',
-
-  propTypes: {
+class FastCreateTaskSchedule extends React.Component {
+  static propTypes = {
     selectText: PropTypes.any.isRequired,
     handFastCreate: PropTypes.func,
     style: PropTypes.any,
-  },
+  };
 
+  @autobind
   componentClickAway() {
     if (this.props.handFastCreate) {
       this.props.handFastCreate();
     }
-  },
+  }
 
+  @autobind
   toggleCreateNewCalender() {
     const selectText = _.clone(this.props.selectText);
     createCalendar({
@@ -35,8 +35,9 @@ const FastCreateTaskSchedule = createReactClass({
     if (this.props.handFastCreate) {
       this.props.handFastCreate();
     }
-  },
+  }
 
+  @autobind
   toggleCreateNewTask() {
     const selectText = _.clone(this.props.selectText);
 
@@ -47,7 +48,7 @@ const FastCreateTaskSchedule = createReactClass({
     if (this.props.handFastCreate) {
       this.props.handFastCreate();
     }
-  },
+  }
 
   render() {
     return (
@@ -71,7 +72,7 @@ const FastCreateTaskSchedule = createReactClass({
         </Menu>
       </ClickAway>
     );
-  },
-});
+  }
+}
 
 export default FastCreateTaskSchedule;

@@ -113,6 +113,7 @@ Common.settingOptions = {
   isOpenMessageTwinkle: 15,
   allowMultipleDevicesUse: 16,
   backHomepageWay: 17,
+  timeZone: 18,
 };
 
 export default Common;

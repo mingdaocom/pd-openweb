@@ -76,36 +76,36 @@ export const handleMessageFilePreview = function () {
         },
         {
           preLoadMoreAttachments() {
-            const promise = $.Deferred();
-            ajax
-              .getImageContext({
-                ...params,
-                msgid: originalRes[0].id,
-                type: 1,
-              })
-              .then(prevRes => {
-                prevRes.pop();
-                const { res } = formatMessage(id, prevRes);
-                prevRes.reverse();
-                prevRes.forEach(item => originalRes.unshift(item));
-                promise.resolve(res);
-              });
-            return promise;
+            return new Promise((resolve, reject) => {
+              ajax
+                .getImageContext({
+                  ...params,
+                  msgid: originalRes[0].id,
+                  type: 1,
+                })
+                .then(prevRes => {
+                  prevRes.pop();
+                  const { res } = formatMessage(id, prevRes);
+                  prevRes.reverse();
+                  prevRes.forEach(item => originalRes.unshift(item));
+                  resolve(res);
+                });
+            });
           },
           loadMoreAttachments() {
-            const promise = $.Deferred();
-            ajax
-              .getImageContext({
-                ...params,
-                msgid: originalRes[originalRes.length - 1].id,
-                type: 2,
-              })
-              .then(nextRes => {
-                nextRes.forEach(item => originalRes.push(item));
-                const { res } = formatMessage(id, nextRes);
-                promise.resolve(res);
-              });
-            return promise;
+            return new Promise((resolve, reject) => {
+              ajax
+                .getImageContext({
+                  ...params,
+                  msgid: originalRes[originalRes.length - 1].id,
+                  type: 2,
+                })
+                .then(nextRes => {
+                  nextRes.forEach(item => originalRes.push(item));
+                  const { res } = formatMessage(id, nextRes);
+                  resolve(res);
+                });
+            });
           },
         },
       );
@@ -355,11 +355,11 @@ export default class MessageToolbar extends Component {
               .then(() => {
                 alert(_l('保存成功'));
               })
-              .fail(() => {
+              .catch(() => {
                 alert(_l('保存失败'), 2);
               });
           })
-          .fail(() => {
+          .catch(() => {
             // alert('保存失败，未能成功调出知识文件选择层');
           });
       });

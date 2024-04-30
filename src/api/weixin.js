@@ -8,7 +8,7 @@ export default {
   **/
    getWeiXinServiceNumberQRCode: function (args, options = {}) {
      
-     return $.api('Weixin', 'GetWeiXinServiceNumberQRCode', args, options);
+     return mdyAPI('Weixin', 'GetWeiXinServiceNumberQRCode', args, options);
    },
   /**
   * 检查是否绑定微信服务号
@@ -19,7 +19,7 @@ export default {
   **/
    checkWeiXinServiceNumberBind: function (args, options = {}) {
      
-     return $.api('Weixin', 'CheckWeiXinServiceNumberBind', args, options);
+     return mdyAPI('Weixin', 'CheckWeiXinServiceNumberBind', args, options);
    },
   /**
   * 返回微信JS-SDK配置
@@ -32,6 +32,6 @@ export default {
   **/
    getWeiXinConfig: function (args, options = {}) {
      
-     return $.api('Weixin', 'GetWeiXinConfig', args, options);
+     return mdyAPI('Weixin', 'GetWeiXinConfig', args, options);
    },
 };

@@ -1,7 +1,7 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import cx from 'classnames';
 import { Dialog, FunctionWrap } from 'ming-ui';
-import mdNotification from 'ming-ui/functions/notify';
+import { mdNotification } from 'ming-ui/functions';
 import { htmlEncodeReg } from 'src/util';
 import moment from 'moment';
 import copy from 'copy-to-clipboard';
@@ -32,7 +32,7 @@ function createShare(props) {
 
   const [visible, setVisible] = useState(false);
   const [setting, setSetting] = useState(calendarOpt);
-  const [data, setData] = useState({url:'', copy: ''});
+  const [data, setData] = useState({ url: '', copy: '' });
 
   useEffect(() => {
     if (isCreate) {
@@ -54,8 +54,8 @@ function createShare(props) {
     setData({
       url,
       copy: html,
-    })
-  }
+    });
+  };
 
   const createDialog = () => {
     const btnList = [];
@@ -130,7 +130,7 @@ function createShare(props) {
   const handleCopy = () => {
     copy($('.createShareCopy span').attr('data-clipboard-text'));
     alert(_l('已经复制到粘贴板，你可以使用Ctrl+V 贴到需要的地方去了哦'));
-  }
+  };
 
   if (!visible) return null;
 
@@ -157,11 +157,7 @@ function createShare(props) {
             </div>
             {setting.isAdmin && (
               <div className="shareOperator">
-                <span
-                  className="shareBtn shareBtnClose ThemeColor3"
-                  data-tip={_l('取消分享')}
-                  onClick={handleShareBtn}
-                >
+                <span className="shareBtn shareBtnClose ThemeColor3" data-tip={_l('取消分享')} onClick={handleShareBtn}>
                   {_l('取消分享')}
                 </span>
               </div>

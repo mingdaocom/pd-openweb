@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import FunctionWrap from 'ming-ui/components/FunctionWrap';
-import { Dialog, Button } from 'ming-ui';
+import { Dialog, Button, UserHead } from 'ming-ui';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
 import { refuseUserJoinFunc } from '../refuseUserJoinDia';
-import UserHead from 'src/components/userHead';
 import userController from 'src/api/user';
 import { feedbackTypes } from '../../constant';
 import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';

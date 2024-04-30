@@ -8,10 +8,19 @@ import _ from 'lodash';
 
 function FilterDefaultValue(props) {
   const { appPkg, filter, setFilter, firstControlData } = props;
-  const { filterType, advancedSetting = {} } = filter;
+  const { filterType, dateRangeType, advancedSetting = {} } = filter;
   const { projectId, id } = appPkg;
   const { direction } = advancedSetting;
-  const defsource = _.pick(filter, 'dateRange', 'value', 'values', 'minValue', 'maxValue');
+  const defsource = _.pick(
+    filter,
+    'dateRange',
+    'dateRangeType',
+    'filterType',
+    'value',
+    'values',
+    'minValue',
+    'maxValue',
+  );
 
   return (
     <Fragment>
@@ -26,6 +35,7 @@ function FilterDefaultValue(props) {
           }}
           control={firstControlData}
           filterType={filterType}
+          dateRangeType={dateRangeType}
           {...defsource}
           onChange={(change = {}, { forceUpdate } = {}) => {
             const data = {
@@ -33,7 +43,7 @@ function FilterDefaultValue(props) {
               ...change,
             };
             setFilter({
-              ..._.pick(data, 'dateRange', 'filterType', 'value', 'values', 'minValue', 'maxValue'),
+              ..._.pick(data, 'dateRange', 'value', 'values', 'minValue', 'maxValue', 'filterType'),
             });
           }}
         />

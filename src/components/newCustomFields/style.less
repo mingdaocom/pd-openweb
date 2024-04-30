@@ -44,6 +44,12 @@
           }
         }
       }
+      .mobileCreateRelateBtn {
+        padding: 0 !important;
+      }
+      .recordsCon {
+        padding: 0 !important;
+      }
     }
   }
 
@@ -211,6 +217,43 @@
         &.isLoading {
           animation: rotate 2s linear infinite;
           color: #2196f3;
+        }
+      }
+    }
+
+    .numberControlBox {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      width: 36px;
+      &.disabled {
+        .iconWrap {
+          cursor: not-allowed;
+          color: #bdbdbd !important;
+        }
+      }
+      .iconWrap {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-left: 1px solid #dddddd;
+        border-top: 1px solid #dddddd;
+        flex: auto;
+        background: #f7f7f7;
+        cursor: pointer;
+        overflow: hidden;
+        transition: all 0.2s linear;
+        &:hover {
+          i {
+            color: #2196f3;
+          }
+        }
+        &:first-child {
+          border-top: none;
+        }
+        i {
+          font-size: 13px;
+          color: #757575;
         }
       }
     }
@@ -982,7 +1025,7 @@
     }
 
     .customFormControlTel {
-      .iti__flag-container {
+      .iti__selected-country {
         display: none;
       }
       .customFormControlBox {
@@ -1007,6 +1050,8 @@
   background: #f44336;
   font-size: 12px;
   margin: 0 12px;
+  right: 0;
+  max-width: fit-content;
 
   &.isChildTable {
     transform: translateY(15px);

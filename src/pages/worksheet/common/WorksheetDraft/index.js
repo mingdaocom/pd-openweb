@@ -107,8 +107,8 @@ function DraftModal(props) {
         controlState(item, 2).visible,
     )
     .concat([
-      { controlId: 'ctime', controlName: '创建时间', type: 16 },
-      { controlId: 'utime', controlName: '最近修改时间', type: 16 },
+      { controlId: 'ctime', controlName: _l('创建时间'), type: 16 },
+      { controlId: 'utime', controlName: _l('最近修改时间'), type: 16 },
     ])
     .map(c =>
       disableMaskDataControls[c.controlId]
@@ -345,7 +345,7 @@ function DraftModal(props) {
             isCharge={isCharge}
             allowAdd={allowAdd || advancedSetting.closedrafts !== '1'}
             appId={appId}
-            view={view}
+            view={{ ...view, controls: [] }}
             from={21}
             visible={recordInfoVisible}
             hideRecordInfo={closeId => {

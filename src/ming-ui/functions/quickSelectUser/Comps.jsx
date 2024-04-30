@@ -1,8 +1,7 @@
 import React, { useState, useRef, useEffect, Fragment } from 'react';
 import styled from 'styled-components';
-import { Tooltip } from 'ming-ui';
-import UserHead from 'src/components/userHead';
-import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
+import { Tooltip, UserHead } from 'ming-ui';
+import { dialogSelectUser } from 'ming-ui/functions';
 import _ from 'lodash';
 
 export const Con = styled.div`
@@ -160,7 +159,7 @@ export function UserList(props) {
     onSelect,
     onShowMore = () => {},
     appId,
-    projectId
+    projectId,
   } = props;
   const [isShowMore, setIsShowMore] = useState(false);
   return (

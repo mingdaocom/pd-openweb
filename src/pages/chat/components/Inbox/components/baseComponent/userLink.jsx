@@ -1,5 +1,5 @@
 import React from 'react';
-import UserCard from 'src/components/UserCard';
+import { UserCard } from 'ming-ui';
 
 export default class UserLink extends React.Component {
   constructor(props) {

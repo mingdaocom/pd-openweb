@@ -4,7 +4,7 @@ import { autobind } from 'core-decorators';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { Button, MenuItem, Icon, Tooltip, Dialog, VerifyPasswordConfirm } from 'ming-ui';
-import mdNotification from 'ming-ui/functions/notify';
+import { mdNotification } from 'ming-ui/functions';
 import { verifyPassword } from 'src/util';
 import IconText from 'worksheet/components/IconText';
 import NewRecord from 'src/pages/worksheet/common/newRecord/NewRecord';
@@ -302,17 +302,7 @@ export default class CustomButtons extends React.Component {
           alert(_l('操作成功'));
         }
         if (targetOptions.recordId === recordId) {
-          onUpdate(
-            _.pick(
-              res.data,
-              (_.find(newControls, { type: 34 })
-                ? Object.keys(res.data).filter(key => key.length === 24)
-                : newControls.map(c => c.controlId)
-              ).concat('isviewdata'),
-            ),
-            res.data,
-            newControls,
-          );
+          onUpdate(_.pick(res.data, newControls.map(c => c.controlId).concat('isviewdata')), res.data, newControls);
         }
         if (this.activeBtn.writeObject === 1 && !res.data.isviewdata) {
           hideRecordInfo();

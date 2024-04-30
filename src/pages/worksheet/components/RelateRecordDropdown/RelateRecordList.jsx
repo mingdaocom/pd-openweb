@@ -260,6 +260,13 @@ export default class RelateRecordList extends React.PureComponent {
 
   @autobind
   handleSearch(value) {
+    const { staticRecords } = this.props;
+    if (!_.isEmpty(staticRecords)) {
+      this.setState({
+        keyWords: value.trim(),
+      });
+      return;
+    }
     this.setState(
       {
         keyWords: value.trim(),
@@ -299,7 +306,10 @@ export default class RelateRecordList extends React.PureComponent {
       onNewRecord,
     } = this.props;
     const { error, loading, worksheet = {}, keyWords, controls, loadouted, allowAdd, activeId } = this.state;
-    const records = (loading ? [] : prefixRecords).concat(this.state.records);
+    let records = (loading ? [] : prefixRecords).concat(this.state.records);
+    if (!_.isEmpty(staticRecords) && keyWords) {
+      records = _.filter(staticRecords, row => new RegExp(keyWords, 'i').test(row.name));
+    }
     if (_.get(control, 'advancedSetting.clicksearch') === '1' && !keyWords) {
       return null;
     }

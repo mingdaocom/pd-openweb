@@ -1,12 +1,11 @@
 import React, { PureComponent } from 'react';
 import cx from 'classnames';
-import { Icon } from 'ming-ui';
+import { Icon, SvgIcon } from 'ming-ui';
 import CSSTransitionGroup from 'react-addons-css-transition-group';
 import styled from 'styled-components';
 import SheetSet from './sheetSet';
 import OptionSet from './optionSet';
 import ControlSet from './controlSet';
-import SvgIcon from 'src/components/SvgIcon';
 import { getCustomWidgetUri } from 'src/pages/worksheet/constants/common';
 import worksheetApi from 'src/api/worksheet';
 
@@ -75,8 +74,8 @@ export default class Con extends PureComponent {
     const { sheet } = this.props;
     worksheetApi.getExtendAttrOptionalControl({ worksheetId: sheet.sheetId }).then(res => {
       this.setState({
-        extendAttrList: res
-      })
+        extendAttrList: res,
+      });
     });
   }
 

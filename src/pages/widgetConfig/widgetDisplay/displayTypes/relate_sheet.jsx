@@ -4,8 +4,9 @@ import { CommonDisplay, EditModelWrap, EmptySheetPlaceHolder } from '../../style
 import { getAdvanceSetting, getShowControls } from '../../util/setting';
 import { SYSTEM_FIELD_TO_TEXT } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
 import { SYSTEM_CONTROL } from '../../config/widget';
+import { isSheetDisplay } from '../../util';
 
-export default function RelateSheet({ data }) {
+export default function RelateSheet({ data = {} }) {
   const { enumDefault, hint = '', relationControls = [] } = data;
   const { showtype = String(enumDefault) } = getAdvanceSetting(data);
 
@@ -47,7 +48,7 @@ export default function RelateSheet({ data }) {
         </CommonDisplay>
       );
     }
-    if (showtype === '2') {
+    if (isSheetDisplay(data)) {
       return (
         <EditModelWrap isTab={true}>
           {showControls.length > 0 ? (

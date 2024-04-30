@@ -7,6 +7,7 @@ import {
   timeFormats,
   timeParticleSizeDropdownData,
   areaParticleSizeDropdownData,
+  cascadeParticleSizeDropdownData,
   timeDataParticle,
   timeGatherParticle,
   filterTimeData,
@@ -250,6 +251,22 @@ export default class XAxis extends Component {
             {areaParticleSizeDropdownData.map(item => (
               <Menu.Item
                 disabled={item.value === xaxes.particleSizeType ? true : disableParticleSizeTypes.includes(item.value)}
+                style={{ width: 120, color: item.value === (xaxes.particleSizeType || 1) ? '#1e88e5' : null }}
+                key={item.value}
+                onClick={() => {
+                  this.handleUpdateTimeParticleSizeType(item.value);
+                }}
+              >
+                {item.text}
+              </Menu.Item>
+            ))}
+          </Menu.SubMenu>
+        )}
+        {xaxes.controlType === 35 && (
+          <Menu.SubMenu popupClassName="chartMenu" title={_l('归组')} popupOffset={[0, -15]}>
+            {cascadeParticleSizeDropdownData.map(item => (
+              <Menu.Item
+                disabled={item.value === xaxes.particleSizeType}
                 style={{ width: 120, color: item.value === (xaxes.particleSizeType || 1) ? '#1e88e5' : null }}
                 key={item.value}
                 onClick={() => {

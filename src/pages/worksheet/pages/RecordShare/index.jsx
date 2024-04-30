@@ -3,6 +3,7 @@ import ReactDom from 'react-dom';
 import { LoadDiv } from 'ming-ui';
 import preall from 'src/common/preall';
 import sheetApi from 'src/api/worksheet';
+import appManagementApi from 'src/api/appManagement';
 import { ShareState, VerificationPass, SHARE_STATE } from 'worksheet/components/ShareState';
 import RecordShare from './RecordShare';
 import _ from 'lodash';
@@ -24,19 +25,35 @@ const Entry = props => {
   useEffect(() => {
     const clientId = sessionStorage.getItem(shareId);
     window.clientId = clientId;
-    getShareInfoByShareId({ clientId, printId }).then(({ data }) => {
+    getShareInfoByShareId({
+      clientId,
+      printId,
+      langType: getCurrentLangCode(),
+    }).then(async result => {
+      const { data } = result;
+      const { appId, projectId, langInfo } = data;
       if (!data.rowId) {
         location.href = `/public/view/${shareId}`;
         return;
       }
-      localStorage.setItem('currentProjectId', data.projectId);
+      localStorage.setItem('currentProjectId', projectId);
       preall(
         { type: 'function' },
         {
-          allownotlogin: true,
-          requestParams: { projectId: data.projectId },
+          allowNotLogin: true,
+          requestParams: { projectId },
         },
       );
+      if (langInfo && langInfo.appLangId) {
+        const lang = await appManagementApi.getAppLangDetail({
+          projectId,
+          appId,
+          appLangId: langInfo.appLangId,
+        });
+        window[`langData-${data.appId}`] = lang.items;
+        window.appInfo = { id: appId };
+      }
+      setShare(result);
       setLoading(false);
     });
   }, []);
@@ -54,7 +71,6 @@ const Entry = props => {
         !sessionStorage.getItem('clientId') && sessionStorage.setItem('clientId', printClientId);
       }
 
-      setShare(result);
       resolve(result);
     });
   };
@@ -78,6 +94,7 @@ const Entry = props => {
                 ...captchaResult,
               }).then(data => {
                 if (data.resultCode === 1) {
+                  setShare(data);
                   resolve(data);
                 } else {
                   reject(SHARE_STATE[data.resultCode]);

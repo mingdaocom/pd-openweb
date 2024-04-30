@@ -2,9 +2,7 @@ import React, { useState } from 'react';
 import { Dialog } from 'ming-ui';
 import styled from 'styled-components';
 import { Dropdown } from 'antd';
-import { lowerCase } from 'lodash';
 import update from 'immutability-helper';
-import List from 'react-tiny-virtual-list';
 import '@mdfe/intl-tel-input/build/css/intlTelInput.min.css';
 import allData from './telData';
 import { DropdownContent } from '../../../../styled';
@@ -32,9 +30,15 @@ const Wrap = styled(DropdownContent)`
     font-size: 13px;
     text-align: center;
   }
+  .countryContent {
+    width: 100%;
+    max-height: 260px;
+    overflow-x: hidden;
+  }
   .item {
     display: flex;
     align-items: center;
+    line-height: 36px;
     &:not(disabled):hover {
       background-color: #f5f5f5;
       color: #333;
@@ -105,17 +109,11 @@ export const SelectCountryDropdown = ({ unique, data, setData, selectableData })
         />
       </div>
       {filteredData.length > 0 ? (
-        <List
-          width="100%"
-          height={Math.min(260, filteredData.length * 36)}
-          itemCount={filteredData.length}
-          itemSize={36}
-          renderItem={({ index, style }) => {
-            const item = filteredData[index] || {};
+        <div className="countryContent">
+          {filteredData.map(item => {
             return (
               <div
                 key={item.iso2}
-                style={style}
                 className="item"
                 onClick={e => {
                   if (unique) {
@@ -133,8 +131,8 @@ export const SelectCountryDropdown = ({ unique, data, setData, selectableData })
                 <span className="Gray_75">{`(+${item.dialCode})`}</span>
               </div>
             );
-          }}
-        />
+          })}
+        </div>
       ) : (
         <div className="emptyText">{_l(value ? '暂无搜索结果' : _l('暂无可选项'))}</div>
       )}

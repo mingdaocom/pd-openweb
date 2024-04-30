@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import styled from 'styled-components';
 import CheckBox from 'ming-ui/components/Checkbox';
-import SvgIcon from 'src/components/SvgIcon';
+import { SvgIcon } from 'ming-ui';
 import cx from 'classnames';
 
 const UpgradeContentItem = styled.div`

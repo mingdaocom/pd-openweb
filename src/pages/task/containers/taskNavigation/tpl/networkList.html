@@ -1,5 +1,5 @@
 ﻿{{~it:list:i}}
-<div class="networkFolderList {{=it.length === 1 ? 'networkOnly' : ''}} {{=list.licenseType || !list.projectId ? '' : 'networkFolderOpacity'}}" data-projectid="{{=list.projectId}}">
+<div class="networkFolderList {{=it.length === 1 ? 'networkOnly' : ''}} {{=list.licenseType || !list.projectId ? '' : 'networkFolderOpacity'}}" data-projectid="{{=list.projectId}}" data-null="{{=list.projectId || 'null'}}">
   <div class="allFolders relative ThemeColor9">
     <span class="overflow_ellipsis">{{!list.companyName}}</span>{{=list.licenseType || !list.projectId ? '' : '（到期）'}}
     <i class="folderNewTip circle Hidden"></i>

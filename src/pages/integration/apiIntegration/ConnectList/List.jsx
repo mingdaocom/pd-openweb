@@ -428,7 +428,7 @@ function List(props) {
           <p className="Gray_9e mTop20 mBottom0">
             {props.keywords ? _l('无匹配的结果，换一个关键词试试吧') : _l('暂无可用连接，请先创建 API 连接')}
           </p>
-          {!props.keywords && props.featureType && (
+          {!props.keywords && props.featureType && props.allowAPIIntegration && (
             <span className="addConnect Bold Hand mTop24" onClick={() => props.onCreate()}>
               {_l('创建自定义连接')}
             </span>

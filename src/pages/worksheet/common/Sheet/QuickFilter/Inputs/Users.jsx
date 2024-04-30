@@ -1,10 +1,9 @@
 import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
-import { arrayOf, func, number, string } from 'prop-types';
-import UserHead from 'src/components/userHead';
+import { arrayOf, func, string } from 'prop-types';
+import { UserHead } from 'ming-ui';
 import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import quickSelectUser from 'ming-ui/functions/quickSelectUser';
-import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
+import { quickSelectUser, dialogSelectUser } from 'ming-ui/functions';
 import _ from 'lodash';
 
 const Con = styled.div`

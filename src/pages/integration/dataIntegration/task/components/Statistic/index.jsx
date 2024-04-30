@@ -56,7 +56,7 @@ export default ({ projectId, flag }) => {
 
   useEffect(() => {
     if (ajaxPromise) ajaxPromise.abort();
-    ajaxPromise = syncTaskApi.getStatistics({ projectId: projectId }, { fireImmediately: true });
+    ajaxPromise = syncTaskApi.getStatistics({ projectId: projectId });
     ajaxPromise.then(res => {
       if (res) {
         setStatisticData(res);

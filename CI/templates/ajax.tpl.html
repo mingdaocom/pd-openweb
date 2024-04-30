@@ -9,6 +9,6 @@ export default {<% for(var i = 0; i < fns.length; i++) {%>
   **/
    <%= fns[i].fnname %>: function (args, options = {}) {
      <% if(fns[i].type === 'GET') { %>options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); <% } %>
-     return $.api('<%= fns[i].controllerName %>', '<%= fns[i].actionName %>', args, options);
+     return mdyAPI('<%= fns[i].controllerName %>', '<%= fns[i].actionName %>', args, options);
    },<%}%>
 };

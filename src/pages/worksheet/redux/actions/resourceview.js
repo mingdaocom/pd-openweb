@@ -31,9 +31,11 @@ export const fetchRows = (refresh = true) => {
   return (dispatch, getState) => {
     const { base, controls, views, filters, quickFilter = [], resourceview } = getState().sheet;
     const { access_token } = getRequest();
-    const headersConfig = {
-      Authorization: `access_token ${access_token}`,
-    };
+
+    if (access_token) {
+      window.access_token = access_token;
+    }
+
     const view = (base.viewId ? _.find(views, { viewId: base.viewId }) : views[0]) || {};
     const selectControl = _.find(controls, item => item.controlId === (view || {}).viewControl);
     const { gridTimes = [], currentTime, keywords } = resourceview;
@@ -72,7 +74,6 @@ export const fetchRows = (refresh = true) => {
           kanbanIndex: 1,
           kanbanSize: 50,
         }),
-        access_token ? { headersConfig } : {},
       )
       .then(({ data, count, resultCode }) => {
         const resourceData = formatByGroup(
@@ -95,9 +96,11 @@ export const fetchRowsByGroupId = (kanbanKey, kanbanIndex) => {
     const { base, controls, views, filters, quickFilter = [], resourceview } = getState().sheet;
     const { resourceData = [] } = resourceview;
     const { access_token } = getRequest();
-    const headersConfig = {
-      Authorization: `access_token ${access_token}`,
-    };
+
+    if (access_token) {
+      window.access_token = access_token;
+    }
+
     const view = base.viewId ? _.find(views, { viewId: base.viewId }) : views[0];
     const selectControl = _.find(controls, item => item.controlId === (view || {}).viewControl);
     const { gridTimes = [], currentTime, keywords } = resourceview;
@@ -139,7 +142,6 @@ export const fetchRowsByGroupId = (kanbanKey, kanbanIndex) => {
           kanbanKey,
           pageIndex: kanbanIndex,
         }),
-        access_token ? { headersConfig } : {},
       )
       .then(({ data, count, resultCode }) => {
         console.log(data);
@@ -213,7 +215,7 @@ const formatRows = (item, view, controls, gridTimes, mustParse = true, currentTi
     let colorData = controls.find(it => it.controlId === _.get(view, 'advancedSetting.colorid')) || {};
     data = fillRecordTimeBlockColor(data, colorData);
     const hoverColor = getHoverColor(data.color);
-    const fontColor = !isLightColor(hoverColor) ? '#fff' : '#333';
+    const fontColor = isLightColor(data.color) ? '#333' : '#fff';
     data = {
       ...data, // color
       ...formatRecordPoint(data, view, gridTimes, controls, currentTime),

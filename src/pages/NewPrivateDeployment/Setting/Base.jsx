@@ -65,7 +65,7 @@ const Base = (props) => {
                   });
                 }}
               />
-              <div className="mLeft8">{_l('显示明道云API库')}</div>
+              <div className="mLeft8">{_l('显示官方API库')}</div>
             </div>
           )}
         </div>

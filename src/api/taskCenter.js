@@ -21,7 +21,7 @@ export default {
   **/
    getFolderTaskListByStageID: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetFolderTaskListByStageID', args, options);
+     return mdyAPI('TaskCenter', 'GetFolderTaskListByStageID', args, options);
    },
   /**
   * 设置 看板负责人
@@ -35,7 +35,7 @@ export default {
   **/
    setStageOwner: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'SetStageOwner', args, options);
+     return mdyAPI('TaskCenter', 'SetStageOwner', args, options);
    },
   /**
   * 获取项目下所有任务负责人
@@ -47,7 +47,7 @@ export default {
   **/
    getFolderTaskCharges: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetFolderTaskCharges', args, options);
+     return mdyAPI('TaskCenter', 'GetFolderTaskCharges', args, options);
    },
   /**
   * 获取项目配置（之后配置面板的东西在这边加）
@@ -59,7 +59,7 @@ export default {
   **/
    getFolderConfig: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetFolderConfig', args, options);
+     return mdyAPI('TaskCenter', 'GetFolderConfig', args, options);
    },
   /**
   * 查询关联项目用项目列表
@@ -75,7 +75,7 @@ export default {
   **/
    getFolderListForUpdateFolderID: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetFolderListForUpdateFolderID', args, options);
+     return mdyAPI('TaskCenter', 'GetFolderListForUpdateFolderID', args, options);
    },
   /**
   * 查询创建任务用项目列表
@@ -90,7 +90,7 @@ export default {
   **/
    getFolderListForCreateTask: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetFolderListForCreateTask', args, options);
+     return mdyAPI('TaskCenter', 'GetFolderListForCreateTask', args, options);
    },
   /**
   * 获取项目描述和是否有编辑权限
@@ -102,7 +102,7 @@ export default {
   **/
    getFolderDetail: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetFolderDetail', args, options);
+     return mdyAPI('TaskCenter', 'GetFolderDetail', args, options);
    },
   /**
   * 获取项目日志 ok
@@ -116,7 +116,7 @@ export default {
   **/
    getFolderLog: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetFolderLog', args, options);
+     return mdyAPI('TaskCenter', 'GetFolderLog', args, options);
    },
   /**
   * 创建项目 OK
@@ -134,7 +134,7 @@ export default {
   **/
    addFolder: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'AddFolder', args, options);
+     return mdyAPI('TaskCenter', 'AddFolder', args, options);
    },
   /**
   * 移除项目
@@ -147,7 +147,7 @@ export default {
   **/
    removeFolder: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'RemoveFolder', args, options);
+     return mdyAPI('TaskCenter', 'RemoveFolder', args, options);
    },
   /**
   * 修改项目看板配置
@@ -160,7 +160,7 @@ export default {
   **/
    updateStageConfig: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'UpdateStageConfig', args, options);
+     return mdyAPI('TaskCenter', 'UpdateStageConfig', args, options);
    },
   /**
   * 修改项目归档状态
@@ -173,7 +173,7 @@ export default {
   **/
    updateFolderArchived: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'UpdateFolderArchived', args, options);
+     return mdyAPI('TaskCenter', 'UpdateFolderArchived', args, options);
    },
   /**
   * 修改项目下任务可见性权限
@@ -186,7 +186,7 @@ export default {
   **/
    updateFolderAuthVisible: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'UpdateFolderAuthVisible', args, options);
+     return mdyAPI('TaskCenter', 'UpdateFolderAuthVisible', args, options);
    },
   /**
   * 项目修改可见性 OK
@@ -200,7 +200,7 @@ export default {
   **/
    updateFolderVisibility: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'UpdateFolderVisibility', args, options);
+     return mdyAPI('TaskCenter', 'UpdateFolderVisibility', args, options);
    },
   /**
   * 修改项目负责人
@@ -213,7 +213,7 @@ export default {
   **/
    updateFolderCharge: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'UpdateFolderCharge', args, options);
+     return mdyAPI('TaskCenter', 'UpdateFolderCharge', args, options);
    },
   /**
   * 修改项目名称 OK
@@ -226,7 +226,7 @@ export default {
   **/
    updateFolderName: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'UpdateFolderName', args, options);
+     return mdyAPI('TaskCenter', 'UpdateFolderName', args, options);
    },
   /**
   * 修改项目描述 OK
@@ -239,7 +239,7 @@ export default {
   **/
    updateFolderDes: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'UpdateFolderDes', args, options);
+     return mdyAPI('TaskCenter', 'UpdateFolderDes', args, options);
    },
   /**
   * 修改项目成员的消息提醒机制
@@ -253,7 +253,7 @@ adder: suncheng date: 2017年11月24日
   **/
    updateFolderMemberNotice: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'UpdateFolderMemberNotice', args, options);
+     return mdyAPI('TaskCenter', 'UpdateFolderMemberNotice', args, options);
    },
   /**
   * 复制项目
@@ -280,7 +280,7 @@ adder: suncheng date: 2017年11月24日
   **/
    duplicateFolder: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'DuplicateFolder', args, options);
+     return mdyAPI('TaskCenter', 'DuplicateFolder', args, options);
    },
   /**
   * 项目看板查询
@@ -292,7 +292,7 @@ adder: suncheng date: 2017年11月24日
   **/
    getFolderStage: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetFolderStage', args, options);
+     return mdyAPI('TaskCenter', 'GetFolderStage', args, options);
    },
   /**
   * 项目看板新增 OK
@@ -306,7 +306,7 @@ adder: suncheng date: 2017年11月24日
   **/
    addFolderStage: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'AddFolderStage', args, options);
+     return mdyAPI('TaskCenter', 'AddFolderStage', args, options);
    },
   /**
   * 修改项目看板
@@ -321,7 +321,7 @@ adder: suncheng date: 2017年11月24日
   **/
    updateFolderStage: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'UpdateFolderStage', args, options);
+     return mdyAPI('TaskCenter', 'UpdateFolderStage', args, options);
    },
   /**
   * 删除项目看板
@@ -334,7 +334,7 @@ adder: suncheng date: 2017年11月24日
   **/
    deleteFolderStage: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'DeleteFolderStage', args, options);
+     return mdyAPI('TaskCenter', 'DeleteFolderStage', args, options);
    },
   /**
   * 获取不在项目公开范围及非项目有效成员的人
@@ -347,7 +347,7 @@ adder: suncheng date: 2017年11月24日
   **/
    checkAccountNeedAddIntoFolder: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'CheckAccountNeedAddIntoFolder', args, options);
+     return mdyAPI('TaskCenter', 'CheckAccountNeedAddIntoFolder', args, options);
    },
   /**
   * 获取项目成员 和公开范围（项目设置接口用）
@@ -359,7 +359,7 @@ adder: suncheng date: 2017年11月24日
   **/
    getFolderSettingsForCurrentUser: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetFolderSettingsForCurrentUser', args, options);
+     return mdyAPI('TaskCenter', 'GetFolderSettingsForCurrentUser', args, options);
    },
   /**
   * 申请加入项目成为项目成员
@@ -372,7 +372,7 @@ adder: suncheng date: 2017年11月24日
   **/
    applyFolderMember: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'ApplyFolderMember', args, options);
+     return mdyAPI('TaskCenter', 'ApplyFolderMember', args, options);
    },
   /**
   * 拒绝外人成为项目成员
@@ -385,7 +385,7 @@ adder: suncheng date: 2017年11月24日
   **/
    refuseFolderMember: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'RefuseFolderMember', args, options);
+     return mdyAPI('TaskCenter', 'RefuseFolderMember', args, options);
    },
   /**
   * 项目成员新增 OK
@@ -400,7 +400,7 @@ adder: suncheng date: 2017年11月24日
   **/
    addFolderMembers: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'AddFolderMembers', args, options);
+     return mdyAPI('TaskCenter', 'AddFolderMembers', args, options);
    },
   /**
   * 项目成员新增 OK
@@ -414,7 +414,7 @@ adder: suncheng date: 2017年11月24日
   **/
    updateFolderMemberStatusAndAuth: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'UpdateFolderMemberStatusAndAuth', args, options);
+     return mdyAPI('TaskCenter', 'UpdateFolderMemberStatusAndAuth', args, options);
    },
   /**
   * 移除项目成员 OK
@@ -428,7 +428,7 @@ adder: suncheng date: 2017年11月24日
   **/
    removeFolderMember: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'RemoveFolderMember', args, options);
+     return mdyAPI('TaskCenter', 'RemoveFolderMember', args, options);
    },
   /**
   * 修改项目关于用户置顶 OK
@@ -441,7 +441,7 @@ adder: suncheng date: 2017年11月24日
   **/
    updateFolderTop: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'UpdateFolderTop', args, options);
+     return mdyAPI('TaskCenter', 'UpdateFolderTop', args, options);
    },
   /**
   * 修改项目显示状态
@@ -454,7 +454,7 @@ adder: suncheng date: 2017年11月24日
   **/
    updateFolderDisplay: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'UpdateFolderDisplay', args, options);
+     return mdyAPI('TaskCenter', 'UpdateFolderDisplay', args, options);
    },
   /**
   * 移动项目至指定文件夹(fileID空为移出)
@@ -467,7 +467,7 @@ adder: suncheng date: 2017年11月24日
   **/
    updateFolderIntoFile: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'UpdateFolderIntoFile', args, options);
+     return mdyAPI('TaskCenter', 'UpdateFolderIntoFile', args, options);
    },
   /**
   * 修改项目成员权限 ok
@@ -481,7 +481,7 @@ adder: suncheng date: 2017年11月24日
   **/
    updateFolderMemberAuth: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'UpdateFolderMemberAuth', args, options);
+     return mdyAPI('TaskCenter', 'UpdateFolderMemberAuth', args, options);
    },
   /**
   * 获取项目文件列表 OK
@@ -495,7 +495,7 @@ adder: suncheng date: 2017年11月24日
   **/
    getFolderFiles: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetFolderFiles', args, options);
+     return mdyAPI('TaskCenter', 'GetFolderFiles', args, options);
    },
   /**
   * 项目文件夹添加
@@ -508,7 +508,7 @@ adder: suncheng date: 2017年11月24日
   **/
    addUserFolderFile: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'AddUserFolderFile', args, options);
+     return mdyAPI('TaskCenter', 'AddUserFolderFile', args, options);
    },
   /**
   * 项目文件修改
@@ -521,7 +521,7 @@ adder: suncheng date: 2017年11月24日
   **/
    updateUserFolderFile: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'UpdateUserFolderFile', args, options);
+     return mdyAPI('TaskCenter', 'UpdateUserFolderFile', args, options);
    },
   /**
   * 删除项目文件夹
@@ -533,7 +533,7 @@ adder: suncheng date: 2017年11月24日
   **/
    deleteUserFolderFile: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'DeleteUserFolderFile', args, options);
+     return mdyAPI('TaskCenter', 'DeleteUserFolderFile', args, options);
    },
   /**
   * 获取标签
@@ -548,7 +548,7 @@ adder: suncheng date: 2017年11月24日
   **/
    getTags: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetTags', args, options);
+     return mdyAPI('TaskCenter', 'GetTags', args, options);
    },
   /**
   * 获取默认配置网络
@@ -559,7 +559,7 @@ adder: suncheng date: 2017年11月24日
   **/
    getSettingDefualtProjectId: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetSettingDefualtProjectId', args, options);
+     return mdyAPI('TaskCenter', 'GetSettingDefualtProjectId', args, options);
    },
   /**
   * 获取配置
@@ -571,7 +571,7 @@ adder: suncheng date: 2017年11月24日
   **/
    getSetting: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetSetting', args, options);
+     return mdyAPI('TaskCenter', 'GetSetting', args, options);
    },
   /**
   * 关注用户
@@ -584,7 +584,7 @@ adder: suncheng date: 2017年11月24日
   **/
    followUserOfSetting: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'FollowUserOfSetting', args, options);
+     return mdyAPI('TaskCenter', 'FollowUserOfSetting', args, options);
    },
   /**
   * 取消关注用户
@@ -597,7 +597,7 @@ adder: suncheng date: 2017年11月24日
   **/
    unfollowUserOfSetting: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'UnfollowUserOfSetting', args, options);
+     return mdyAPI('TaskCenter', 'UnfollowUserOfSetting', args, options);
    },
   /**
   * 修改用户配置展开状态
@@ -611,7 +611,7 @@ adder: suncheng date: 2017年11月24日
   **/
    updateUserStatusOfSetting: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'UpdateUserStatusOfSetting', args, options);
+     return mdyAPI('TaskCenter', 'UpdateUserStatusOfSetting', args, options);
    },
   /**
   * 下属甘特图
@@ -626,7 +626,7 @@ adder: suncheng date: 2017年11月24日
   **/
    getSubordinateTaskGantt: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetSubordinateTaskGantt', args, options);
+     return mdyAPI('TaskCenter', 'GetSubordinateTaskGantt', args, options);
    },
   /**
   * 获取任务甘特图视图
@@ -640,7 +640,7 @@ adder: suncheng date: 2017年11月24日
   **/
    getFolderTaskGantt: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetFolderTaskGantt', args, options);
+     return mdyAPI('TaskCenter', 'GetFolderTaskGantt', args, options);
    },
   /**
   * 获取任务静态甘特图
@@ -652,7 +652,7 @@ adder: suncheng date: 2017年11月24日
   **/
    getTaskStaticGanttChart: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetTaskStaticGanttChart', args, options);
+     return mdyAPI('TaskCenter', 'GetTaskStaticGanttChart', args, options);
    },
   /**
   * 修改单个任务的实际开始时间
@@ -665,7 +665,7 @@ adder: suncheng date: 2017年11月24日
   **/
    updateTaskActualStartTime: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'UpdateTaskActualStartTime', args, options);
+     return mdyAPI('TaskCenter', 'UpdateTaskActualStartTime', args, options);
    },
   /**
   * 修改多个任务的实际开始时间
@@ -678,7 +678,7 @@ adder: suncheng date: 2017年11月24日
   **/
    updateTasksActualStartTime: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'UpdateTasksActualStartTime', args, options);
+     return mdyAPI('TaskCenter', 'UpdateTasksActualStartTime', args, options);
    },
   /**
   * 修改完成时间
@@ -691,7 +691,7 @@ adder: suncheng date: 2017年11月24日
   **/
    updateCompletedTime: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'UpdateCompletedTime', args, options);
+     return mdyAPI('TaskCenter', 'UpdateCompletedTime', args, options);
    },
   /**
   * 修改任务起止时间
@@ -708,7 +708,7 @@ adder: suncheng date: 2017年11月24日
   **/
    updateTaskStartTimeAndDeadline: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'UpdateTaskStartTimeAndDeadline', args, options);
+     return mdyAPI('TaskCenter', 'UpdateTaskStartTimeAndDeadline', args, options);
    },
   /**
   * 获取打印任务详情
@@ -720,7 +720,7 @@ adder: suncheng date: 2017年11月24日
   **/
    getTaskDetail4Print: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetTaskDetail4Print', args, options);
+     return mdyAPI('TaskCenter', 'GetTaskDetail4Print', args, options);
    },
   /**
   * 获取item转task的projectid和folderid
@@ -732,7 +732,7 @@ adder: suncheng date: 2017年11月24日
   **/
    getProjectIdAndFolderIdForItemConvertTask: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetProjectIdAndFolderIdForItemConvertTask', args, options);
+     return mdyAPI('TaskCenter', 'GetProjectIdAndFolderIdForItemConvertTask', args, options);
    },
   /**
   * 创建清单 no.1
@@ -746,7 +746,7 @@ adder: suncheng date: 2017年11月24日
   **/
    addCheckList: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'AddCheckList', args, options);
+     return mdyAPI('TaskCenter', 'AddCheckList', args, options);
    },
   /**
   * 获取任务下清单详情 no.2
@@ -758,7 +758,7 @@ adder: suncheng date: 2017年11月24日
   **/
    getCheckListsWithItemsInTask: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetCheckListsWithItemsInTask', args, options);
+     return mdyAPI('TaskCenter', 'GetCheckListsWithItemsInTask', args, options);
    },
   /**
   * 修改清单排序 no.3
@@ -771,7 +771,7 @@ adder: suncheng date: 2017年11月24日
   **/
    updateCheckListIndex: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'UpdateCheckListIndex', args, options);
+     return mdyAPI('TaskCenter', 'UpdateCheckListIndex', args, options);
    },
   /**
   * 修改清单名
@@ -784,7 +784,7 @@ adder: suncheng date: 2017年11月24日
   **/
    updateCheckListName: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'UpdateCheckListName', args, options);
+     return mdyAPI('TaskCenter', 'UpdateCheckListName', args, options);
    },
   /**
   * 移除清单
@@ -796,7 +796,7 @@ adder: suncheng date: 2017年11月24日
   **/
    removeCheckList: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'RemoveCheckList', args, options);
+     return mdyAPI('TaskCenter', 'RemoveCheckList', args, options);
    },
   /**
   * 添加检查项
@@ -810,7 +810,7 @@ adder: suncheng date: 2017年11月24日
   **/
    addItems: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'AddItems', args, options);
+     return mdyAPI('TaskCenter', 'AddItems', args, options);
    },
   /**
   * 修改检查项排序
@@ -824,7 +824,7 @@ adder: suncheng date: 2017年11月24日
   **/
    updateItemIndex: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'UpdateItemIndex', args, options);
+     return mdyAPI('TaskCenter', 'UpdateItemIndex', args, options);
    },
   /**
   * 修改检查项名称
@@ -838,7 +838,7 @@ adder: suncheng date: 2017年11月24日
   **/
    updateItemName: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'UpdateItemName', args, options);
+     return mdyAPI('TaskCenter', 'UpdateItemName', args, options);
    },
   /**
   * 修改检查项状态
@@ -852,7 +852,7 @@ adder: suncheng date: 2017年11月24日
   **/
    updateItemStatus: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'UpdateItemStatus', args, options);
+     return mdyAPI('TaskCenter', 'UpdateItemStatus', args, options);
    },
   /**
   * 移除检查项
@@ -864,7 +864,7 @@ adder: suncheng date: 2017年11月24日
   **/
    removeItem: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'RemoveItem', args, options);
+     return mdyAPI('TaskCenter', 'RemoveItem', args, options);
    },
   /**
   * 保存项目为我的模板
@@ -876,7 +876,7 @@ adder: suncheng date: 2017年11月24日
   **/
    saveAsMyFolderTemplate: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'SaveAsMyFolderTemplate', args, options);
+     return mdyAPI('TaskCenter', 'SaveAsMyFolderTemplate', args, options);
    },
   /**
   * 删除我的模板
@@ -888,7 +888,7 @@ adder: suncheng date: 2017年11月24日
   **/
    removeMyFolderTemplateOne: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'RemoveMyFolderTemplateOne', args, options);
+     return mdyAPI('TaskCenter', 'RemoveMyFolderTemplateOne', args, options);
    },
   /**
   * 获取所有模板分类
@@ -900,7 +900,7 @@ adder: suncheng date: 2017年11月24日
   **/
    getTemplateTypes: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetTemplateTypes', args, options);
+     return mdyAPI('TaskCenter', 'GetTemplateTypes', args, options);
    },
   /**
   * 获取指定模板分类的模板列表
@@ -912,7 +912,7 @@ adder: suncheng date: 2017年11月24日
   **/
    getTemplatesByTemplateTypeId: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetTemplatesByTemplateTypeId', args, options);
+     return mdyAPI('TaskCenter', 'GetTemplatesByTemplateTypeId', args, options);
    },
   /**
   * 获取项目下的任务自定义筛选列表
@@ -924,7 +924,7 @@ adder: suncheng date: 2017年11月24日
   **/
    getTaskOptionsInFolder: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetTaskOptionsInFolder', args, options);
+     return mdyAPI('TaskCenter', 'GetTaskOptionsInFolder', args, options);
    },
   /**
   * 编辑任务下单个控件值
@@ -939,7 +939,7 @@ adder: suncheng date: 2017年11月24日
   **/
    updateControlValue: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'UpdateControlValue', args, options);
+     return mdyAPI('TaskCenter', 'UpdateControlValue', args, options);
    },
   /**
   * 修改项目的模板作用域
@@ -952,7 +952,7 @@ adder: suncheng date: 2017年11月24日
   **/
    updateFolderTemplateScope: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'UpdateFolderTemplateScope', args, options);
+     return mdyAPI('TaskCenter', 'UpdateFolderTemplateScope', args, options);
    },
   /**
   * 获取左侧菜单栏
@@ -965,7 +965,7 @@ adder: suncheng date: 2017年11月24日
   **/
    getLeftMenu: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetLeftMenu', args, options);
+     return mdyAPI('TaskCenter', 'GetLeftMenu', args, options);
    },
   /**
   * 获取未完成未开始任务计数
@@ -980,7 +980,7 @@ adder: suncheng date: 2017年11月24日
   **/
    getTwoTypeTaskCount: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetTwoTypeTaskCount', args, options);
+     return mdyAPI('TaskCenter', 'GetTwoTypeTaskCount', args, options);
    },
   /**
   * 获取任务日志
@@ -994,7 +994,7 @@ adder: suncheng date: 2017年11月24日
   **/
    getTaskLog: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetTaskLog', args, options);
+     return mdyAPI('TaskCenter', 'GetTaskLog', args, options);
    },
   /**
   * 任务标签联想
@@ -1009,7 +1009,7 @@ adder: suncheng date: 2017年11月24日
   **/
    getTagsByTaskID: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetTagsByTaskID', args, options);
+     return mdyAPI('TaskCenter', 'GetTagsByTaskID', args, options);
    },
   /**
   * 获取任务列表
@@ -1037,7 +1037,7 @@ adder: suncheng date: 2017年11月24日
   **/
    getTaskList: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetTaskList', args, options);
+     return mdyAPI('TaskCenter', 'GetTaskList', args, options);
    },
   /**
   * 获取星标任务
@@ -1053,7 +1053,7 @@ adder: suncheng date: 2017年11月24日
   **/
    getTaskListWithStar: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetTaskListWithStar', args, options);
+     return mdyAPI('TaskCenter', 'GetTaskListWithStar', args, options);
    },
   /**
   * 获取指定任务的 子任务列表
@@ -1066,7 +1066,7 @@ adder: suncheng date: 2017年11月24日
   **/
    getSubTask: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetSubTask', args, options);
+     return mdyAPI('TaskCenter', 'GetSubTask', args, options);
    },
   /**
   * 获取网络下的未关联项目的任务列表
@@ -1087,7 +1087,7 @@ adder: suncheng date: 2017年11月24日
   **/
    getTaskListInProjectWithOutFolder: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetTaskListInProjectWithOutFolder', args, options);
+     return mdyAPI('TaskCenter', 'GetTaskListInProjectWithOutFolder', args, options);
    },
   /**
   * 获取项目下的任务列表
@@ -1110,7 +1110,7 @@ adder: suncheng date: 2017年11月24日
   **/
    getFolderTaskList: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetFolderTaskList', args, options);
+     return mdyAPI('TaskCenter', 'GetFolderTaskList', args, options);
    },
   /**
   * 获取与我有关的任务列表简单信息
@@ -1125,7 +1125,7 @@ adder: suncheng date: 2017年11月24日
   **/
    getMyTaskList: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetMyTaskList', args, options);
+     return mdyAPI('TaskCenter', 'GetMyTaskList', args, options);
    },
   /**
   * 获取任务详情
@@ -1139,7 +1139,7 @@ adder: suncheng date: 2017年11月24日
   **/
    getTaskDetail: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetTaskDetail', args, options);
+     return mdyAPI('TaskCenter', 'GetTaskDetail', args, options);
    },
   /**
   * 获取任务控件
@@ -1151,7 +1151,7 @@ adder: suncheng date: 2017年11月24日
   **/
    getTaskControls: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetTaskControls', args, options);
+     return mdyAPI('TaskCenter', 'GetTaskControls', args, options);
    },
   /**
   * 获取指定任务可以关联的全部任务
@@ -1164,7 +1164,7 @@ adder: suncheng date: 2017年11月24日
   **/
    getTaskList_RelationParent: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetTaskList_RelationParent', args, options);
+     return mdyAPI('TaskCenter', 'GetTaskList_RelationParent', args, options);
    },
   /**
   * 获取与我协作的任务, 个人详情页使用
@@ -1178,7 +1178,7 @@ adder: suncheng date: 2017年11月24日
   **/
    getTaskWithMe: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetTaskWithMe', args, options);
+     return mdyAPI('TaskCenter', 'GetTaskWithMe', args, options);
    },
   /**
   * 添加任务（指定项目不存在时创建项目）
@@ -1208,7 +1208,7 @@ adder: suncheng date: 2017年11月24日
   **/
    addTask: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'AddTask', args, options);
+     return mdyAPI('TaskCenter', 'AddTask', args, options);
    },
   /**
   * 复制任务
@@ -1233,7 +1233,7 @@ adder: suncheng date: 2017年11月24日
   **/
    duplicateTask: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'DuplicateTask', args, options);
+     return mdyAPI('TaskCenter', 'DuplicateTask', args, options);
    },
   /**
   * 删除任务（单个）
@@ -1246,7 +1246,7 @@ adder: suncheng date: 2017年11月24日
   **/
    deleteTask: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'DeleteTask', args, options);
+     return mdyAPI('TaskCenter', 'DeleteTask', args, options);
    },
   /**
   * 删除任务(批量)
@@ -1259,7 +1259,7 @@ adder: suncheng date: 2017年11月24日
   **/
    batchDeleteTask: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'BatchDeleteTask', args, options);
+     return mdyAPI('TaskCenter', 'BatchDeleteTask', args, options);
    },
   /**
   * 修改任务负责人
@@ -1272,7 +1272,7 @@ adder: suncheng date: 2017年11月24日
   **/
    updateTaskCharge: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'UpdateTaskCharge', args, options);
+     return mdyAPI('TaskCenter', 'UpdateTaskCharge', args, options);
    },
   /**
   * 修改任务负责人 （多个）
@@ -1285,7 +1285,7 @@ adder: suncheng date: 2017年11月24日
   **/
    batchUpdateTaskCharge: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'BatchUpdateTaskCharge', args, options);
+     return mdyAPI('TaskCenter', 'BatchUpdateTaskCharge', args, options);
    },
   /**
   * 修改任务名称
@@ -1298,7 +1298,7 @@ adder: suncheng date: 2017年11月24日
   **/
    updateTaskName: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'UpdateTaskName', args, options);
+     return mdyAPI('TaskCenter', 'UpdateTaskName', args, options);
    },
   /**
   * 修改任务描述
@@ -1311,7 +1311,7 @@ adder: suncheng date: 2017年11月24日
   **/
    updateTaskSummary: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'UpdateTaskSummary', args, options);
+     return mdyAPI('TaskCenter', 'UpdateTaskSummary', args, options);
    },
   /**
   * 修改任务锁定状态（单个）
@@ -1324,7 +1324,7 @@ adder: suncheng date: 2017年11月24日
   **/
    updateTaskLocked: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'UpdateTaskLocked', args, options);
+     return mdyAPI('TaskCenter', 'UpdateTaskLocked', args, options);
    },
   /**
   * 修改任务锁定状态（多个）
@@ -1337,7 +1337,7 @@ adder: suncheng date: 2017年11月24日
   **/
    batchUpdateTaskLocked: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'BatchUpdateTaskLocked', args, options);
+     return mdyAPI('TaskCenter', 'BatchUpdateTaskLocked', args, options);
    },
   /**
   * 修改任务看板ID （单个）
@@ -1350,7 +1350,7 @@ adder: suncheng date: 2017年11月24日
   **/
    updateTaskStageID: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'UpdateTaskStageID', args, options);
+     return mdyAPI('TaskCenter', 'UpdateTaskStageID', args, options);
    },
   /**
   * 修改任务完成状态 （单个）
@@ -1365,7 +1365,7 @@ adder: suncheng date: 2017年11月24日
   **/
    updateTaskStatus: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'UpdateTaskStatus', args, options);
+     return mdyAPI('TaskCenter', 'UpdateTaskStatus', args, options);
    },
   /**
   * 修改任务完成状态 （多个）
@@ -1379,7 +1379,7 @@ adder: suncheng date: 2017年11月24日
   **/
    batchUpdateTaskStatus: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'BatchUpdateTaskStatus', args, options);
+     return mdyAPI('TaskCenter', 'BatchUpdateTaskStatus', args, options);
    },
   /**
   * 修改任务母任务ID （单个）
@@ -1392,7 +1392,7 @@ adder: suncheng date: 2017年11月24日
   **/
    updateTaskParentID: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'UpdateTaskParentID', args, options);
+     return mdyAPI('TaskCenter', 'UpdateTaskParentID', args, options);
    },
   /**
   * 修改任务母任务ID （单个）
@@ -1405,7 +1405,7 @@ adder: suncheng date: 2017年11月24日
   **/
    updateTaskFolderID: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'UpdateTaskFolderID', args, options);
+     return mdyAPI('TaskCenter', 'UpdateTaskFolderID', args, options);
    },
   /**
   * 修改任务母任务ID（多个）
@@ -1418,7 +1418,7 @@ adder: suncheng date: 2017年11月24日
   **/
    batchUpdateTaskFolderID: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'BatchUpdateTaskFolderID', args, options);
+     return mdyAPI('TaskCenter', 'BatchUpdateTaskFolderID', args, options);
    },
   /**
   * 添加任务成员 多个
@@ -1433,7 +1433,7 @@ adder: suncheng date: 2017年11月24日
   **/
    batchAddTaskMember: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'BatchAddTaskMember', args, options);
+     return mdyAPI('TaskCenter', 'BatchAddTaskMember', args, options);
    },
   /**
   * 添加任务成员 单个
@@ -1447,7 +1447,7 @@ adder: suncheng date: 2017年11月24日
   **/
    addTaskMember: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'AddTaskMember', args, options);
+     return mdyAPI('TaskCenter', 'AddTaskMember', args, options);
    },
   /**
   * 申请加入任务
@@ -1459,7 +1459,7 @@ adder: suncheng date: 2017年11月24日
   **/
    applyJoinTask: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'ApplyJoinTask', args, options);
+     return mdyAPI('TaskCenter', 'ApplyJoinTask', args, options);
    },
   /**
   * 删除任务成员
@@ -1472,7 +1472,7 @@ adder: suncheng date: 2017年11月24日
   **/
    deleteTaskMember: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'DeleteTaskMember', args, options);
+     return mdyAPI('TaskCenter', 'DeleteTaskMember', args, options);
    },
   /**
   * 删除任务成员
@@ -1485,7 +1485,7 @@ adder: suncheng date: 2017年11月24日
   **/
    batchDeleteTaskMember: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'BatchDeleteTaskMember', args, options);
+     return mdyAPI('TaskCenter', 'BatchDeleteTaskMember', args, options);
    },
   /**
   * 同意申请加入任务
@@ -1498,7 +1498,7 @@ adder: suncheng date: 2017年11月24日
   **/
    agreeApplyJoinTask: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'AgreeApplyJoinTask', args, options);
+     return mdyAPI('TaskCenter', 'AgreeApplyJoinTask', args, options);
    },
   /**
   * 拒绝加入任务
@@ -1511,7 +1511,7 @@ adder: suncheng date: 2017年11月24日
   **/
    refuseJoinTask: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'RefuseJoinTask', args, options);
+     return mdyAPI('TaskCenter', 'RefuseJoinTask', args, options);
    },
   /**
   * 修改任务成员星标状态（单个）
@@ -1524,7 +1524,7 @@ adder: suncheng date: 2017年11月24日
   **/
    updateTaskMemberStar: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'UpdateTaskMemberStar', args, options);
+     return mdyAPI('TaskCenter', 'UpdateTaskMemberStar', args, options);
    },
   /**
   * 修改任务成员星标状态（多个）
@@ -1537,7 +1537,7 @@ adder: suncheng date: 2017年11月24日
   **/
    batchUpdateTaskMemberStar: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'BatchUpdateTaskMemberStar', args, options);
+     return mdyAPI('TaskCenter', 'BatchUpdateTaskMemberStar', args, options);
    },
   /**
   * 修改任务成员提醒状态（单个）
@@ -1550,7 +1550,7 @@ adder: suncheng date: 2017年11月24日
   **/
    updateTaskMemberNotice: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'UpdateTaskMemberNotice', args, options);
+     return mdyAPI('TaskCenter', 'UpdateTaskMemberNotice', args, options);
    },
   /**
   * 修改任务成员提醒状态（多个）
@@ -1563,7 +1563,7 @@ adder: suncheng date: 2017年11月24日
   **/
    batchUpdateTaskMemberNotice: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'BatchUpdateTaskMemberNotice', args, options);
+     return mdyAPI('TaskCenter', 'BatchUpdateTaskMemberNotice', args, options);
    },
   /**
   * 修改任务成员 的分类  单个和多个
@@ -1576,7 +1576,7 @@ adder: suncheng date: 2017年11月24日
   **/
    updateTaskMemberClassify: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'UpdateTaskMemberClassify', args, options);
+     return mdyAPI('TaskCenter', 'UpdateTaskMemberClassify', args, options);
    },
   /**
   * 添加动态回复到讨论
@@ -1589,7 +1589,7 @@ adder: suncheng date: 2017年11月24日
   **/
    addTaskTopicFromPost: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'AddTaskTopicFromPost', args, options);
+     return mdyAPI('TaskCenter', 'AddTaskTopicFromPost', args, options);
    },
   /**
   * 任务添加附件
@@ -1604,7 +1604,7 @@ adder: suncheng date: 2017年11月29日
   **/
    addTaskAttachments: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'AddTaskAttachments', args, options);
+     return mdyAPI('TaskCenter', 'AddTaskAttachments', args, options);
    },
   /**
   * 搜索项目 OK
@@ -1617,7 +1617,7 @@ adder: suncheng date: 2017年11月29日
   **/
    searchFolderList: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'SearchFolderList', args, options);
+     return mdyAPI('TaskCenter', 'SearchFolderList', args, options);
    },
   /**
   * 获取项目计数
@@ -1628,7 +1628,7 @@ adder: suncheng date: 2017年11月29日
   **/
    getProjectsFolderNotice: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetProjectsFolderNotice', args, options);
+     return mdyAPI('TaskCenter', 'GetProjectsFolderNotice', args, options);
    },
   /**
   * 查询指定网络下文件夹和初层项目列表
@@ -1643,7 +1643,7 @@ adder: suncheng date: 2017年11月29日
   **/
    getMainFolderList: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetMainFolderList', args, options);
+     return mdyAPI('TaskCenter', 'GetMainFolderList', args, options);
    },
   /**
   * 获取指定文件下下的所有项目
@@ -1656,7 +1656,7 @@ adder: suncheng date: 2017年11月29日
   **/
    getMainFolderListInFile: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetMainFolderListInFile', args, options);
+     return mdyAPI('TaskCenter', 'GetMainFolderListInFile', args, options);
    },
   /**
   * 获取指定网络下的隐藏项目
@@ -1669,7 +1669,7 @@ adder: suncheng date: 2017年11月29日
   **/
    getHiddenFolderList: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetHiddenFolderList', args, options);
+     return mdyAPI('TaskCenter', 'GetHiddenFolderList', args, options);
    },
   /**
   * 获取指定网络ID下已归档的项目
@@ -1682,7 +1682,7 @@ adder: suncheng date: 2017年11月29日
   **/
    getArchiveFolderList: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetArchiveFolderList', args, options);
+     return mdyAPI('TaskCenter', 'GetArchiveFolderList', args, options);
    },
   /**
   * 获取置顶项目
@@ -1694,7 +1694,7 @@ adder: suncheng date: 2017年11月29日
   **/
    getTopFolderList: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetTopFolderList', args, options);
+     return mdyAPI('TaskCenter', 'GetTopFolderList', args, options);
    },
   /**
   * 获取项目下属
@@ -1707,7 +1707,7 @@ adder: suncheng date: 2017年11月29日
   **/
    getSubordinate: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetSubordinate', args, options);
+     return mdyAPI('TaskCenter', 'GetSubordinate', args, options);
    },
   /**
   * 获取指定项目的普通看板视图（默认只有第一页获取，
@@ -1730,6 +1730,6 @@ adder: suncheng date: 2017年11月29日
   **/
    getTaskListWithStageView: function (args, options = {}) {
      
-     return $.api('TaskCenter', 'GetTaskListWithStageView', args, options);
+     return mdyAPI('TaskCenter', 'GetTaskListWithStageView', args, options);
    },
 };

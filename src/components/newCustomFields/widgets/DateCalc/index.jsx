@@ -4,6 +4,7 @@ import cx from 'classnames';
 import { toFixed, formatStrZero } from 'src/util';
 import { formatFormulaDate } from 'src/pages/worksheet/util';
 import { getShowFormat } from 'src/pages/widgetConfig/util/setting';
+import { dateConvertToUserZone } from 'src/util';
 import _ from 'lodash';
 import moment from 'moment';
 
@@ -47,8 +48,8 @@ export default class Widgets extends Component {
     } else {
       const showFormat = getShowFormat({ advancedSetting: { ...advancedSetting, showtype: unit || '1' } });
       content = moment(value).year()
-        ? moment(moment(value), showFormat).format(showFormat)
-        : moment(value, showFormat).format(showFormat);
+        ? moment(dateConvertToUserZone(moment(moment(value), showFormat))).format(showFormat)
+        : moment(dateConvertToUserZone(moment(value, showFormat))).format(showFormat);
     }
 
     return <div className={cx('customFormControlBox customFormReadonly customFormTextareaBox')}>{content}</div>;

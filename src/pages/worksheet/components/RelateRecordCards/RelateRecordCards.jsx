@@ -18,10 +18,11 @@ import { getTitleTextFromRelateControl, controlState } from 'src/components/newC
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import RecordCoverCard from './RecordCoverCard';
 import RecordTag from './RecordTag';
+import { WithoutRows } from 'mobile/RecordList/SheetRows';
 import { getIsScanQR } from 'src/components/newCustomFields/components/ScanQRCode';
 import { FROM } from 'src/components/newCustomFields/tools/config';
 import { Icon } from 'ming-ui';
-import { completeControls } from 'worksheet/util';
+import { completeControls, replaceControlsTranslateInfo } from 'worksheet/util';
 import { browserIsMobile, addBehaviorLog } from 'src/util';
 import _ from 'lodash';
 
@@ -118,6 +119,10 @@ const SearchRecordsButton = styled(Icon)`
   }
 `;
 
+const WithoutRowsWrap = styled.div`
+  background-color: #f8f8f8;
+`;
+
 export function getCardWidth({ width, isMobile, enumDefault, records }) {
   let cardWidth;
   let colNum = 1;
@@ -193,7 +198,7 @@ export default class RelateRecordCards extends Component {
     }
     this.state = {
       sheetTemplateLoading: hasRelateControl,
-      controls: hasRelateControl ? [] : completeControls(relationControls),
+      controls: hasRelateControl ? [] : replaceControlsTranslateInfo(props.appId, completeControls(relationControls)),
       previewRecord: null,
       showNewRecord: false,
       mobileRecordkeyWords: '',
@@ -220,10 +225,11 @@ export default class RelateRecordCards extends Component {
     }
     if (
       (_.get(window, 'shareState.isPublicForm') &&
-        _.get(this, 'props.control.advancedSetting.originShowType') === '2') ||
+        _.includes(['2', '5', '6'], _.get(this, 'props.control.advancedSetting.originShowType'))) ||
       (browserIsMobile() &&
-        _.get(control, 'advancedSetting.showtype') === '2' &&
-        _.includes([FROM.H5_EDIT, FROM.RECORDINFO], control.from))
+        _.includes(['2', '5'], _.get(control, 'advancedSetting.showtype')) &&
+        _.includes([FROM.H5_EDIT, FROM.RECORDINFO], control.from) &&
+        !_.get(this, 'props.control.hasDefaultValue'))
     ) {
       this.loadMoreRecords(1);
     }
@@ -233,6 +239,7 @@ export default class RelateRecordCards extends Component {
     const {
       control: { relationControls = [], showControls = [], value, from, disabled },
     } = nextProps;
+    const control = nextProps.control || {};
     if (this.props.control.dataSource !== nextProps.control.dataSource) {
       const hasRelateControl = this.hasRelateControl(relationControls, showControls);
 
@@ -268,10 +275,11 @@ export default class RelateRecordCards extends Component {
     if (nextProps.flag !== this.props.flag) {
       if (
         (_.get(window, 'shareState.isPublicForm') &&
-          _.get(this, 'props.control.advancedSetting.originShowType') === '2') ||
+          _.includes(['2', '5', '6'], _.get(this, 'props.control.advancedSetting.originShowType'))) ||
         (browserIsMobile() &&
-          _.get(this, 'props.control.advancedSetting.showtype') === '2' &&
-          _.includes([FROM.H5_EDIT, FROM.RECORDINFO], nextProps.control.from))
+          _.includes(['2', '5'], _.get(control, 'advancedSetting.showtype')) &&
+          _.includes([FROM.H5_EDIT, FROM.RECORDINFO], control.from) &&
+          !_.get(this, 'props.control.hasDefaultValue'))
       ) {
         this.loadMoreRecords(1);
       } else {
@@ -304,7 +312,8 @@ export default class RelateRecordCards extends Component {
     const advancedSetting = control.advancedSetting || {};
     return (
       parseInt(advancedSetting.showtype, 10) === 1 ||
-      (_.includes([FROM.H5_ADD, FROM.H5_EDIT, FROM.RECORDINFO], from) && parseInt(advancedSetting.showtype, 10) === 2)
+      (_.includes([FROM.H5_ADD, FROM.H5_EDIT, FROM.RECORDINFO, FROM.DRAFT], from) &&
+        parseInt(advancedSetting.showtype, 10) === 2)
     );
   }
 
@@ -353,8 +362,8 @@ export default class RelateRecordCards extends Component {
       const coverFile = _.find(JSON.parse(record[coverId]), file => File.isPicture(file.ext));
       const { previewUrl = '' } = coverFile;
       return previewUrl.indexOf('imageView2') > -1
-        ? previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/200/h/140')
-        : `${previewUrl}&imageView2/1/w/200/h/140`;
+        ? previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/2/w/200')
+        : `${previewUrl}&imageView2/2/w/200`;
     } catch (err) {}
     return;
   }
@@ -372,7 +381,7 @@ export default class RelateRecordCards extends Component {
       .getWorksheetInfo({ worksheetId: dataSource, getTemplate: true, relationWorksheetId: worksheetId })
       .then(data => {
         this.setState({
-          controls: data.template.controls,
+          controls: replaceControlsTranslateInfo((nextProps || this.props).appId, data.template.controls),
           sheetTemplateLoading: false,
         });
       });
@@ -380,7 +389,7 @@ export default class RelateRecordCards extends Component {
 
   @autobind
   loadMoreRecords(pageIndex = 2, nextProps) {
-    const { controlId, recordId, worksheetId } = (nextProps || this.props).control;
+    const { from, controlId, recordId, worksheetId, advancedSetting } = (nextProps || this.props).control;
     this.setState({
       isLoadingMore: true,
     });
@@ -395,12 +404,20 @@ export default class RelateRecordCards extends Component {
       .then(res => {
         this.setState(state => {
           const newRecords = _.uniqBy([...state.records, ...res.data], 'rowid');
-          return {
+          const newState = {
             records: newRecords,
             pageIndex,
             isLoadingMore: false,
             showLoadMore: newRecords.length < res.count && res.data.length > 0,
           };
+          if (
+            browserIsMobile() &&
+            _.includes(['2', '5'], _.get(advancedSetting, 'showtype')) &&
+            _.includes([FROM.H5_EDIT, FROM.RECORDINFO], from)
+          ) {
+            newState.count = res.count;
+          }
+          return newState;
         });
       });
   }
@@ -425,7 +442,9 @@ export default class RelateRecordCards extends Component {
     const { count, records, addedIds, deletedIds } = this.state;
     this.setState(
       {
-        deletedIds: _.uniq(deletedIds.concat(deletedRecord.rowid)),
+        deletedIds: _.includes(addedIds, deletedRecord.rowid)
+          ? deletedIds
+          : _.uniq(deletedIds.concat(deletedRecord.rowid)),
         records: records.filter(r => r.rowid !== deletedRecord.rowid),
         addedIds: addedIds.filter(id => id !== deletedRecord.rowid),
         count: count - 1,
@@ -752,6 +771,7 @@ export default class RelateRecordCards extends Component {
       isCharge,
       hint,
       openRelateSheet,
+      showRelateRecordEmpty,
     } = control;
     const { records, previewRecord, showNewRecord, sheetTemplateLoading } = this.state;
     const { onlyRelateByScanCode, disabledManualWrite, addRelationButtonVisible, isCard, allowNewRecord } = this;
@@ -764,13 +784,36 @@ export default class RelateRecordCards extends Component {
     const filterControls = getFilter({ control, formData });
     const NewRecordComponent = isMobile ? MobileNewRecord : NewRecord;
     const allowRemove = control.advancedSetting.allowcancel !== '0' || enumDefault === 1;
+    const { searchcontrol } = advancedSetting;
+    const renderHint = () => {
+      if (disabledManualWrite) {
+        return _l('扫码添加%0', sourceEntityName);
+      } else if (isMobile && hint) {
+        return hint;
+      } else if (searchcontrol) {
+        const searchControl = _.find(control.relationControls, { controlId: searchcontrol }) || {};
+        return _l('搜索%0', searchControl.controlName || sourceEntityName);
+      } else {
+        return _l('选择%0', sourceEntityName);
+      }
+    };
+
+    if (showRelateRecordEmpty && !addRelationButtonVisible && _.isEmpty(records)) {
+      return (
+        <WithoutRowsWrap className="withoutRowsWrapper flexColumn valignWrapper h100">
+          <WithoutRows text={_l('暂无记录')} />
+        </WithoutRowsWrap>
+      );
+    }
 
     return (
       <Fragment>
         <OperateCon
           className={cx('flexRow valignWrapper mBottom10', {
-            'pLeft20 pRight20':
-              isMobile && _.includes([FROM.H5_EDIT, FROM.RECORDINFO], from) && advancedSetting.showtype === '2',
+            'pLeft20 pRight20 mobileCreateRelateBtn':
+              isMobile &&
+              _.includes([FROM.H5_EDIT, FROM.RECORDINFO, FROM.DRAFT], from) &&
+              advancedSetting.showtype === '2',
           })}
           isMobile={isMobile}
         >
@@ -797,13 +840,7 @@ export default class RelateRecordCards extends Component {
                       {sourceEntityName || ''}
                     </Button>
                   ) : !records.length ? (
-                    <span className="Gray_bd">
-                      {disabledManualWrite
-                        ? _l('扫码添加%0', sourceEntityName)
-                        : isMobile && hint
-                        ? hint
-                        : _l('选择%0', sourceEntityName)}
-                    </span>
+                    <span className="Gray_bd">{renderHint()}</span>
                   ) : null}
                 </Fragment>
               )}
@@ -844,6 +881,7 @@ export default class RelateRecordCards extends Component {
                     projectId={projectId}
                     recordId={previewRecord && previewRecord.recordId}
                     worksheetId={dataSource}
+                    relationWorksheetId={worksheetId}
                     currentSheetRows={records}
                     showPrevNext
                   />

@@ -79,7 +79,7 @@ export default function ({ createUser, members, address, description, allDay, st
                 $('.postMessageDialog').parent().remove();
                 alert(_l('发送成功'), 1);
               })
-              .fail(() => {
+              .catch(() => {
                 alert(_l('发送失败'), 3);
               });
           }}

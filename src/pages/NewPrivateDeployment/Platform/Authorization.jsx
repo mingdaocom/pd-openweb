@@ -1,6 +1,6 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import { Icon, LoadDiv, Dialog } from 'ming-ui';
-import { Button, Table } from 'antd';
+import { Button, Table, Tooltip } from 'antd';
 import styled from 'styled-components';
 import copy from 'copy-to-clipboard';
 import cx from 'classnames';
@@ -29,6 +29,7 @@ const Wrap = styled.div`
     }
   }
   .appreciationServer {
+    flex: 3;
     .dpWrap, .diciWrap, .sseWrap {
       height: 100%;
       padding: 10px 20px;
@@ -57,9 +58,10 @@ const Wrap = styled.div`
     min-width: 0;
   }
   .versionsInfo {
-    width: 360px;
+    flex: 1;
     .label {
       margin-right: 10px;
+      white-space: nowrap;
     }
   }
   .ant-table-thead th {
@@ -295,6 +297,23 @@ const AppreciationServer = props => {
       </div>
     );
   }
+  const renderDidbState = () => {
+    if (platformLicenseInfo.didb) {
+      return null;
+    }
+
+    return (
+      <div
+        className="ThemeColor pointer"
+        onClick={(e) => {
+          e.stopPropagation();
+          setTrialServer(4);
+        }}
+      >
+        {_l('绑定密钥')}
+      </div>
+    );
+  }
   const renderSseState = () => {
     if (platformLicenseInfo.sse && platformLicenseInfo.sse.isTrial) {
       const current = moment().format('YYYY-MM-DD');
@@ -345,9 +364,9 @@ const AppreciationServer = props => {
             <div className="valignWrapper flex">
               <Icon className="Font30 ThemeColor" icon={serverInfo.icon} />
               <div className="Font17 Gray bold mLeft5">{serverInfo.title}</div>
-              {(serverInfo.isTrial && serverInfo.type !== 'dici') && <Trial className="Font12 mLeft10">{_l('试用中')}</Trial>}
+              {serverInfo.isTrial && <Trial className="Font12 mLeft10">{_l('试用中')}</Trial>}
             </div>
-            {(serverInfo.isTrial || serverInfo.type === 'dici') && <div className="Font12 ThemeColor pointer mTop20" onClick={() => setTrialServer(serverInfo.extendFunType)}>{_l('更新密钥')}</div>}
+            {(serverInfo.isTrial || serverInfo.type === 'dici' || serverInfo.type === 'didb') && <div className="Font12 ThemeColor pointer mTop20" onClick={() => setTrialServer(serverInfo.extendFunType)}>{_l('更新密钥')}</div>}
           </div>
         )}
         onCancel={() => {
@@ -383,7 +402,7 @@ const AppreciationServer = props => {
             <div className="Gray">{serverInfo.dataPipelineRowNum.toLocaleString()}</div>
           </div>
         )}
-        {serverInfo.type === 'dici' && (
+        {['dici', 'didb'].includes(serverInfo.type) && (
           <div className="flexColumn flex mTop20">
             <div className="Gray_9e mBottom2">{_l('服务实例数')}</div>
             <div className="flexRow">
@@ -438,6 +457,24 @@ const AppreciationServer = props => {
             <div className="Font14 mTop2">{_l('专属算力')}</div>
             {renderDiCiState()}
           </div>
+          {!md.global.Config.IsPlatformLocal && (<div
+            className="diciWrap flex flexColumn alignItemsCenter pointer"
+            onClick={() => {
+              platformLicenseInfo.didb && setServerInfo({
+                ...platformLicenseInfo.didb,
+                title: _l('专属数据库'),
+                icon: 'database',
+                type: 'didb',
+                extendFunType: 4
+              });
+            }}
+          >
+            <div className={cx('iconWrap valignWrapper justifyContentCenter', { active: platformLicenseInfo.didb })}>
+              <Icon className={cx('Font40', platformLicenseInfo.didb ? 'ThemeColor' : 'Gray_bd')} icon="database" />
+            </div>
+            <div className="Font14 mTop2">{_l('专属数据库')}</div>
+            {renderDidbState()}
+          </div>)}
           <div
             className="sseWrap flex flexColumn alignItemsCenter pointer"
             onClick={() => {
@@ -483,6 +520,11 @@ const AppreciationServer = props => {
               platformLicenseInfo.dici.usedInstanceNum = 0;
               platformLicenseInfo.dici.instanceNum = result.trialInfo.dici;
             }
+            if (result.extendFunType === 4) {
+              platformLicenseInfo.didb = data;
+              platformLicenseInfo.didb.usedInstanceNum = 0;
+              platformLicenseInfo.didb.instanceNum = result.trialInfo.didb;
+            }
             if (serverInfo) {
               setServerInfo({
                 ...serverInfo,
@@ -526,12 +568,12 @@ const VersionsInfo = props => {
             </div>
             <div className="flexRow valignWrapper mBottom15">
               <div className="Gray_75 Font13 label">{_l('服务器ID')}</div>
-              <div data-tip={serverInfo.serverId}>
-                <div style={{ maxWidth: 300 }} className="ellipsis">{serverInfo.serverId}</div>
-              </div>
+              <Tooltip title={serverInfo.serverId} placement="bottom">
+                <div className="ellipsis">{serverInfo.serverId}</div>
+              </Tooltip>
               <Icon
                 icon="copy"
-                className="Gray_9e Font17 pointer"
+                className="Gray_9e Font17 pointer mLeft5"
                 onClick={() => {
                   copy(serverInfo.serverId);
                   alert(_l('复制成功'));

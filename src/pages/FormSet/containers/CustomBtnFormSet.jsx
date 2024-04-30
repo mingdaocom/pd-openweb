@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
+import cx from 'classnames';
 import { Icon, UpgradeIcon } from 'ming-ui';
 import CSSTransitionGroup from 'react-addons-css-transition-group';
 import { CreateCustomBtn } from 'worksheet/common';
@@ -12,7 +13,7 @@ import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
 import TrashDialog from '../components/Trash';
 import { useSetState } from 'react-use';
-import BtnCard from '../components/BtnCard';
+import BtnTd from '../components/BtnTd';
 
 const Con = styled.div`
   width: 100%;
@@ -68,14 +69,39 @@ const Con = styled.div`
     margin-top: 8px;
   }
 `;
+
+const ArrowUp = styled.span`
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent #9e9e9e transparent;
+  cursor: pointer;
+  &:hover,
+  &.active {
+    border-color: transparent transparent #2196f3 transparent;
+  }
+`;
+
+const ArrowDown = styled.span`
+  border-width: 5px;
+  border-style: solid;
+  border-color: #9e9e9e transparent transparent transparent;
+  cursor: pointer;
+  margin-top: 2px;
+  &:hover,
+  &.active {
+    border-color: #2196f3 transparent transparent transparent;
+  }
+`;
+
 function CustomBtnFormSet(props) {
   const { worksheetId, worksheetControls, worksheetInfo } = props;
-  const [{ showCreateCustomBtn, btnId, showTrash, isEdit, btnList }, setState] = useSetState({
+  const [{ showCreateCustomBtn, btnId, showTrash, isEdit, btnList, sortDirection }, setState] = useSetState({
     showCreateCustomBtn: false,
     btnId: '',
     showTrash: false,
     isEdit: false,
     btnList: [],
+    sortDirection: '',
   });
   useEffect(() => {
     if (!worksheetId) return;
@@ -115,24 +141,77 @@ function CustomBtnFormSet(props) {
         </p>
       );
     }
+    let singleBtns = list.filter(o => !o.isBatch);
+    let batchBtns = list.filter(o => o.isBatch);
+
+    if (sortDirection !== '') {
+      singleBtns = singleBtns.sort((a, b) => {
+        return sortDirection === 'ASC'
+          ? a.name.charCodeAt(0) - b.name.charCodeAt(0)
+          : b.name.charCodeAt(0) - a.name.charCodeAt(0);
+      });
+      batchBtns = batchBtns.sort((a, b) => {
+        return sortDirection === 'ASC'
+          ? a.name.charCodeAt(0) - b.name.charCodeAt(0)
+          : b.name.charCodeAt(0) - a.name.charCodeAt(0);
+      });
+    }
+
     return (
-      <div className="printTemplatesList">
-        {list.map(it => {
-          return (
-            <BtnCard
-              appId={worksheetInfo.appId}
-              views={worksheetInfo.views}
-              getSheetBtns={getSheetBtns}
-              key={it.btnId}
-              it={it}
-              worksheetId={worksheetId}
-              btnList={btnList}
-              onChange={state => {
-                setState({ ...state });
-              }}
-            />
-          );
-        })}
+      <div className="printTemplatesList flex overflowHidden flexColumn">
+        <div className="printTemplatesList-header">
+          <div className="name flex mRight20 valignWrapper">
+            <div className="flex">{_l('名称')}</div>
+            <div className="flexColumn">
+              <ArrowUp
+                className={cx({ active: sortDirection === 'ASC' })}
+                onClick={() => setState({ sortDirection: 'ASC' })}
+              />
+              <ArrowDown
+                className={cx({ active: sortDirection === 'DESC' })}
+                onClick={() => setState({ sortDirection: 'DESC' })}
+              />
+            </div>
+          </div>
+          <div className="views flex mRight20">{_l('使用范围')}</div>
+          <div className="action mRight8 w120px">{_l('操作')}</div>
+          <div className="more w80px"></div>
+        </div>
+        <div className="printTemplatesList-box flex">
+          {singleBtns.map(it => {
+            return (
+              <BtnTd
+                appId={worksheetInfo.appId}
+                views={worksheetInfo.views}
+                getSheetBtns={getSheetBtns}
+                key={it.btnId}
+                it={it}
+                worksheetId={worksheetId}
+                btnList={btnList}
+                onChange={state => {
+                  setState({ ...state });
+                }}
+              />
+            );
+          })}
+          {!!batchBtns.length && <p className="Gray_9e Font15 mTop12 pLeft11">{_l('批量数据源')}</p>}
+          {batchBtns.map(it => {
+            return (
+              <BtnTd
+                appId={worksheetInfo.appId}
+                views={worksheetInfo.views}
+                getSheetBtns={getSheetBtns}
+                key={it.btnId}
+                it={it}
+                worksheetId={worksheetId}
+                btnList={btnList}
+                onChange={state => {
+                  setState({ ...state });
+                }}
+              />
+            );
+          })}
+        </div>
       </div>
     );
   };
@@ -141,7 +220,7 @@ function CustomBtnFormSet(props) {
     <React.Fragment>
       <Con className="printBox Relative">
         <div className="printBoxList">
-          <div className="">
+          <div className="flexColumn h100">
             <div className="topBoxText flexRow alignItemsCenter">
               <div className="textCon flex">
                 <h5 className="formName Gray Font17 Bold">{_l('自定义动作')}</h5>
@@ -181,16 +260,7 @@ function CustomBtnFormSet(props) {
                 {_l('添加按钮')}
               </span>
             </div>
-            {renderBtns(btnList.filter(o => !o.isBatch))}
-            {btnList.filter(o => o.isBatch).length > 0 && (
-              <React.Fragment>
-                <p className="desc mTop8">
-                  <div className="Font13 Gray_75 Bold mTop25">{_l('批量数据源')}</div>
-                  <div className="line"></div>
-                </p>
-                {renderBtns(btnList.filter(o => o.isBatch))}
-              </React.Fragment>
-            )}
+            {renderBtns(btnList)}
           </div>
         </div>
         <CSSTransitionGroup

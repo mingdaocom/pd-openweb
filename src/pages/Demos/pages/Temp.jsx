@@ -1,17 +1,40 @@
 import React, { useEffect } from 'react';
-import { showFilteredRecords } from 'worksheet/components/SearchRecordResult';
+import { useSetState } from 'react-use';
+import ControlsDataTable from 'src/pages/worksheet/components/ControlsDataTable';
 
-export default function Temp() {
+export default function Temp(props) {
+  const [{ loading, data, controls }, setState] = useSetState({ loading: true });
   useEffect(() => {
-    showFilteredRecords({
-      appId: 'c4f258cb-3c94-4ba8-97ec-48cb69e7e003',
-      // viewId: '659dfb5e964008d0d0a176a8',
-      worksheetId: '659dfb5e964008d0d0a176a4',
-      filterId: '659e312a0314804a514a9861',
-      searchId: '659dfb5e964008d0d0a176a6',
-      // keyWords: '333',
-      keyWords: '000',
+    mdyAPI(
+      'worksheet',
+      'GetFilterRows',
+      {
+        worksheetId: '65d86fcb495ae75cd55071a9',
+        appId: '21db7238-3dff-4881-9744-a80e0c0c6d62',
+        viewId: '65d86fcb495ae75cd55071ad',
+        isGetWorksheet: true,
+      },
+      {},
+    ).then(res => {
+      setState({
+        loading: false,
+        controls: res.template.controls,
+        data: res.data,
+      });
     });
   }, []);
-  return <div className="pAll10">Temp</div>;
+  return (
+    <div className="pAll10" style={{ height: 500 }}>
+      {
+        <ControlsDataTable
+          loading={loading}
+          controls={controls}
+          data={data}
+          onCellClick={(control, row) => {
+            alert(control.controlName);
+          }}
+        />
+      }
+    </div>
+  );
 }

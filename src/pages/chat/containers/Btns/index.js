@@ -13,6 +13,10 @@ import AddressBook from '../../lib/addressBook';
 import Tooltip from 'ming-ui/components/Tooltip';
 import CreateGroup from 'src/components/group/create/creatGroup';
 import addFriends from 'src/components/addFriends';
+import { Dropdown, Menu } from 'antd';
+import assistantApi from 'src/api/assistant';
+import { SvgIcon } from 'ming-ui';
+import AssistantChatBox from 'src/pages/plugin/assistant/chatBox/AssistantChatBox';
 
 class Btns extends Component {
   constructor(props) {
@@ -22,7 +26,14 @@ class Btns extends Component {
       menuVisible: false,
       tooltipVisible: true,
       dark: !this.props.visible,
+      aiList: []
     };
+  }
+  componentDidMount() {
+    if (!md.global.Config.IsLocal) {
+      this.getAssistantApiList();
+      window.updateAssistantApiList = this.getAssistantApiList;
+    }
   }
   componentWillReceiveProps(nextProps) {
     this.setState({
@@ -31,6 +42,20 @@ class Btns extends Component {
     if (nextProps.showNewFriends !== this.props.showNewFriends && nextProps.showNewFriends) {
       this.props.dispatch(actions.setShowAddressBook(true));
     }
+  }
+  getAssistantApiList = () => {
+    const { projects = [] } = md.global.Account;
+    const currentProjectId = localStorage.getItem('currentProjectId');
+    const projectId = currentProjectId || _.get(projects[0], 'projectId');
+    if (!_.find(projects, { projectId })) {
+      return;
+    }
+    assistantApi.getList({
+      projectId,
+      status: 2
+    }).then(data => {
+      this.setState({ aiList: data });
+    });
   }
   handleOpenChatList() {
     const { visible } = this.props;
@@ -192,6 +217,38 @@ class Btns extends Component {
   handleMouseLeave() {
     $('body,html').removeClass('overflowHidden');
   }
+  renderOverlay() {
+    const { aiList } = this.state;
+    if (!aiList.length) {
+      return (
+        <div
+          className="pTop10 pBottom10 pLeft10 boderRadAll_4 Gray_bd card"
+          style={{ width: 160 }}
+        >
+          {_l('暂无可对话AI插件')}
+        </div>
+      );
+    }
+    return (
+      <Menu className="pTop10 pBottom10 boderRadAll_4 chatAiList" style={{ width: 240 }}>
+        {aiList.map(item => (
+          <Menu.Item
+            key={item.id}
+            onClick={() => {
+              AssistantChatBox({ assistantId: item.id, name: item.name });
+            }}
+          >
+            <div className="flexRow valignWrapper pTop3 pBottom3">
+              <div className="circle pAll3 flexRow alignItemsCenter justifyContentCenter" style={{ background: item.iconColor || '#2196f3' }}>
+                <SvgIcon size="20" url={item.iconUrl} fill="#fff" />
+              </div>
+              <div className="mLeft10 Font14 flex bold ellipsis">{item.name}</div>
+            </div>
+          </Menu.Item>
+        ))}
+      </Menu>
+    );
+  }
   renderMenu() {
     return (
       <div className="ChatPanel-addToolbar-menu">
@@ -256,6 +313,26 @@ class Btns extends Component {
             <i className="ThemeColor3 icon-topbar-addressList" />
           </div>
         </Tooltip>
+        {!md.global.Config.IsLocal && (
+          <Dropdown
+            trigger={['click']}
+            placement="topRight"
+            overlay={this.renderOverlay()}
+          >
+            <Tooltip
+              popupPlacement={direction}
+              text={
+                <span>
+                  {_l('AI助手')}
+                </span>
+              }
+            >
+              <div className="ChatList-btn ai-btn">
+                <i className="ThemeColor3 icon-ai1" />
+              </div>
+            </Tooltip>
+          </Dropdown>
+        )}
         <Tooltip
           popupPlacement={direction}
           text={

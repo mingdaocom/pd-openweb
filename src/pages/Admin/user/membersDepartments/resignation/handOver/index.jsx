@@ -2,9 +2,7 @@ import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import transferController from 'src/api/transfer';
-import { LoadDiv, Dialog } from 'ming-ui';
-import UserHead from 'src/components/userHead';
-import UserCard from 'src/components/UserCard';
+import { LoadDiv, Dialog, UserHead, UserCard } from 'ming-ui';
 import Empty from '../../../../common/TableEmpty';
 import PaginationWrap from '../../../../components/PaginationWrap';
 import SearchInput from '../SearchInput';
@@ -58,7 +56,7 @@ export default class HandOver extends React.Component {
   }
 
   abortRequest() {
-    if (this.ajax && this.ajax.state() === 'pending' && this.ajax.abort) {
+    if (this.ajax && this.ajax.abort) {
       this.ajax.abort();
     }
   }
@@ -107,7 +105,7 @@ export default class HandOver extends React.Component {
         />
 
         {user.accountId ? (
-          <span className="flexColumn TxtLeft personBox">
+          <span className="flexColumn TxtLeft personBox ellipsis pRight10">
             <UserCard sourceId={user.accountId}>
               <a className="Bold overflow_ellipsis" href={`/user_${user.accountId}`} title={user.fullname}>
                 {user.fullname}

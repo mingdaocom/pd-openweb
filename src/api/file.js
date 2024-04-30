@@ -7,8 +7,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    oWA: function (args, options = {}) {
-     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return $.api('File', 'OWA', args, options);
+     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' });
+     return mdyAPI('File', 'OWA', args, options);
    },
   /**
   * 文件预览
@@ -18,8 +18,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    docView: function (args, options = {}) {
-     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return $.api('File', 'DocView', args, options);
+     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' });
+     return mdyAPI('File', 'DocView', args, options);
    },
   /**
   * Chat 文件消息
@@ -29,8 +29,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    downChatFile: function (args, options = {}) {
-     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return $.api('File', 'DownChatFile', args, options);
+     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' });
+     return mdyAPI('File', 'DownChatFile', args, options);
    },
   /**
   * 获取chat 文件链接
@@ -40,8 +40,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getChatFileUrl: function (args, options = {}) {
-     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return $.api('File', 'GetChatFileUrl', args, options);
+     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' });
+     return mdyAPI('File', 'GetChatFileUrl', args, options);
    },
   /**
   * 下载链接文件
@@ -51,8 +51,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    downLinkFile: function (args, options = {}) {
-     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return $.api('File', 'DownLinkFile', args, options);
+     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' });
+     return mdyAPI('File', 'DownLinkFile', args, options);
    },
   /**
   * 下载知识中心文件
@@ -62,8 +62,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    downKcFile: function (args, options = {}) {
-     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return $.api('File', 'DownKcFile', args, options);
+     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' });
+     return mdyAPI('File', 'DownKcFile', args, options);
    },
   /**
   * 批量下载行记录附件
@@ -115,8 +115,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    downloadRowsBatchFile: function (args, options = {}) {
-     
-     return $.api('File', 'DownloadRowsBatchFile', args, options);
+
+     return mdyAPI('File', 'DownloadRowsBatchFile', args, options);
    },
   /**
   * 文件下载
@@ -126,18 +126,34 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    downDocument: function (args, options = {}) {
-     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return $.api('File', 'DownDocument', args, options);
+     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' });
+     return mdyAPI('File', 'DownDocument', args, options);
    },
   /**
-  * 
+  *
   * @param {Object} args 请求参数
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    excelFile: function (args, options = {}) {
-     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return $.api('File', 'ExcelFile', args, options);
+     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' });
+     return mdyAPI('File', 'ExcelFile', args, options);
+   },
+  /**
+  * 文件校验
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId
+  * @param {string} args.url
+  * @param {} args.source
+  * @param {string} args.password
+  * @param {string} args.pluginId
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   check: function (args, options = {}) {
+
+     return mdyAPI('File', 'Check', args, options);
    },
 };

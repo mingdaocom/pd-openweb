@@ -47,8 +47,8 @@ export default class PersonalInfo extends React.Component {
 
   getData() {
     this.setState({ loading: true });
-    $.when(this.getUserInfo(), this.getConcatInfo(), this.getEducation(), this.getWorkList()).then(
-      (user, concatInfo, education, work) => {
+    Promise.all([this.getUserInfo(), this.getConcatInfo(), this.getEducation(), this.getWorkList()]).then(
+      ([user, concatInfo, education, work]) => {
         this.setState({
           accountInfo: user.accountInfo,
           dataPlan: user.dataPlan,
@@ -166,9 +166,7 @@ export default class PersonalInfo extends React.Component {
         <EditDetail
           baseInfo={this.state.baseDetail}
           closeDialog={() => {
-            $('.editDetailDialog.mui-dialog-container')
-              .parent()
-              .remove();
+            $('.editDetailDialog.mui-dialog-container').parent().remove();
           }}
           updateValue={baseDetail => {
             this.setState({ baseDetail });
@@ -210,9 +208,7 @@ export default class PersonalInfo extends React.Component {
         <EditInfo
           baseInfo={this.state.concatInfo}
           closeDialog={() => {
-            $('.editInfoDialog.mui-dialog-container')
-              .parent()
-              .remove();
+            $('.editInfoDialog.mui-dialog-container').parent().remove();
           }}
           updateValue={concatInfo => {
             this.setState({ concatInfo });
@@ -284,14 +280,13 @@ export default class PersonalInfo extends React.Component {
           item={data}
           type={type}
           closeDialog={() => {
-            $('.addOrEditItemDialog.mui-dialog-container')
-              .parent()
-              .remove();
+            $('.addOrEditItemDialog.mui-dialog-container').parent().remove();
           }}
           updateValue={() => {
             const actionType = type === 1 ? 'getWorkList' : 'getEducation';
             const key = type === 1 ? 'workList' : 'educationList';
-            $.when(this[actionType]()).then(user => {
+
+            this[actionType]().then(user => {
               this.setState({ [key]: user.list });
             });
           }}
@@ -319,7 +314,7 @@ export default class PersonalInfo extends React.Component {
             alert(_l('删除失败'), 2);
           }
         })
-        .fail();
+        .catch();
     }
   }
 
@@ -333,12 +328,10 @@ export default class PersonalInfo extends React.Component {
         <AvatorInfo
           avatar={this.state.accountInfo.avatarBig}
           closeDialog={() => {
-            $('.uploadAvatorDialog.mui-dialog-container')
-              .parent()
-              .remove();
+            $('.uploadAvatorDialog.mui-dialog-container').parent().remove();
           }}
           updateAvator={() => {
-            $.when(this.getUserInfo()).then(user => {
+            this.getUserInfo().then(user => {
               this.setState({ accountInfo: user.accountInfo });
             });
           }}
@@ -369,7 +362,7 @@ export default class PersonalInfo extends React.Component {
               this.setState({ editFullName: false });
             }
           })
-          .fail();
+          .catch();
       }
     });
   }
@@ -407,16 +400,18 @@ export default class PersonalInfo extends React.Component {
                 ) : (
                   <span>
                     {baseDetail.fullname}
-                    <Tooltip popupPlacement="top" text={<span>{_l('编辑姓名')}</span>}>
-                      <span
-                        className="Font15 Hand Hover_49 Gray_bd mLeft10 icon-create"
-                        onClick={() =>
-                          this.setState({ editFullName: true }, () => {
-                            $('.editfullNameInput').focus();
-                          })
-                        }
-                      />
-                    </Tooltip>
+                    {md.global.SysSettings.enableEditAccountInfo && (
+                      <Tooltip popupPlacement="top" text={<span>{_l('编辑姓名')}</span>}>
+                        <span
+                          className="Font15 Hand Hover_49 Gray_bd mLeft10 icon-create"
+                          onClick={() =>
+                            this.setState({ editFullName: true }, () => {
+                              $('.editfullNameInput').focus();
+                            })
+                          }
+                        />
+                      </Tooltip>
+                    )}
                   </span>
                 )}
               </div>

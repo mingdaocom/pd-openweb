@@ -133,7 +133,7 @@ export default function ConfigForm(props) {
 
   // 获取白名单
   useEffect(() => {
-    dataSourceApi.whitelistIp().then(res => res && setWhitelistIp(res));
+    dataSourceApi.whitelistIp().then(res => res && _.isArray(res) && setWhitelistIp(res));
     dataSourceApi.sshServerEnable().then(res => setSshEnable(!!res));
   }, []);
 

@@ -2,15 +2,15 @@ import React, { useRef } from 'react';
 import { useDrop } from 'react-dnd-latest';
 import styled from 'styled-components';
 import cx from 'classnames';
-import { DRAG_ITEMS, DRAG_MODE } from '../../config/Drag';
-import { relateOrSectionTab } from '../../util';
+import { DRAG_MODE, DRAG_ACCEPT } from '../../config/Drag';
+import { notInsetSectionTab } from '../../util';
 import { EmptyControl } from 'src/pages/widgetConfig/widgetSetting/components/SplitLineConfig/style';
 
 const DragPointer = styled.div`
   flex: 1;
   width: 100%;
   overflow: hidden;
-  min-height: 80px;
+  min-height: 40px;
   min-width: 20px;
   .line {
     margin-top: 0px;
@@ -26,24 +26,21 @@ const DragPointer = styled.div`
 export default function BottomDragPointer({ rowIndex, displayItemType, showEmpty, sectionId }) {
   const ref = useRef(null);
   const [{ isOver, canDrop }, drop] = useDrop({
-    accept:
-      displayItemType === 'tab'
-        ? [DRAG_ITEMS.LIST_TAB, DRAG_ITEMS.DISPLAY_TAB]
-        : [DRAG_ITEMS.LIST_ITEM, DRAG_ITEMS.DISPLAY_ITEM],
+    accept: DRAG_ACCEPT[displayItemType],
     canDrop(item, monitor) {
-      // 标签页内不允许子表、标签页、多条列表等拖拽
-      if (
-        sectionId &&
-        (_.includes(['SUB_LIST', 'SECTION', 'RELATION_SEARCH'], item.enumType) ||
-          relateOrSectionTab(item.data) ||
-          _.get(item, 'data.type') === 34)
-      )
-        return false;
+      // 标签页内不允许标签页、多条列表(旧)等拖拽
+      if (sectionId && (_.includes(['SECTION'], item.enumType) || notInsetSectionTab(item.data))) return false;
 
       return true;
     },
     drop(item) {
-      return { mode: DRAG_MODE.INSERT_NEW_LINE, rowIndex, sectionId: sectionId || '', activePath: [rowIndex - 1, 0] };
+      return {
+        mode: DRAG_MODE.INSERT_NEW_LINE,
+        displayItemType,
+        rowIndex,
+        sectionId: sectionId || '',
+        activePath: [rowIndex - 1, 0],
+      };
     },
     collect(monitor) {
       return { isOver: monitor.canDrop() && monitor.isOver({ shallow: true }) };

@@ -95,10 +95,6 @@ export default class RelateRecord extends React.Component {
         this.tempRecord = selected;
       }
     }
-    this.isChange = true;
-    setTimeout(() => {
-      this.isChange = false;
-    }, 10);
   }
 
   render() {
@@ -158,9 +154,7 @@ export default class RelateRecord extends React.Component {
                 advancedSetting={_.assign({}, control.advancedSetting, this.isFuzzy ? { anylevel: '0' } : {})}
                 onPopupVisibleChange={visible => {
                   if (!visible && !isTree && this.isAnyLevel) {
-                    if (this.isChange) {
-                      return;
-                    } else if (this.tempRecord) {
+                    if (this.tempRecord) {
                       this.addRecord(this.tempRecord, () => {
                         this.setState({
                           tempRecord: undefined,

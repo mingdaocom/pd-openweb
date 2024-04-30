@@ -69,7 +69,7 @@ export default class Widgets extends Component {
                 <Support
                   className="customSubtotalMessage"
                   type={3}
-                  href="https://help.mingdao.com/sheet20"
+                  href="https://help.mingdao.com/worksheet/control-rollup-application"
                   text={_l('【点击查看帮助】')}
                 />
               </Tips>

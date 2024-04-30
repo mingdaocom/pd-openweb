@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
-import { string } from 'prop-types';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
 import { navigateTo } from 'src/router/navigateTo';
-import { getItem, setItem } from '../../util';
 import _ from 'lodash';
 
 const NATIVE_MODULES = [
@@ -20,12 +18,12 @@ export default class NativeModule extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isShow: getItem('sideNativeModule'),
+      isShow: safeParse(localStorage.getItem('sideNativeModule')),
     };
   }
   switchState = () => {
     this.setState(({ isShow }) => {
-      setItem('sideNativeModule', !isShow);
+      safeLocalStorageSetItem('sideNativeModule', !isShow);
       return {
         isShow: !isShow,
       };
@@ -36,24 +34,24 @@ export default class NativeModule extends Component {
     let { isShow } = this.state;
     isShow = isShow === null ? true : isShow;
 
-    _.remove(NATIVE_MODULES, item => item.id === 'hr' && !md.global.Account.hrVisible);
-
-    const list = NATIVE_MODULES.filter(item => !_.includes(md.global.Config.ForbidSuites || [], item.key));
+    _.remove(
+      NATIVE_MODULES,
+      item =>
+        (item.id === 'hr' && !md.global.Account.hrVisible) || md.global.SysSettings.forbidSuites.indexOf(item.key) > -1,
+    );
 
     return (
       <div className="sideAppGroupWrap">
-        {
-          list.length ? (
-            <div className="sideAppGroupTitleWrap">
-              <div className="sideAppGroupTitle">{_l('协作套件')}</div>
-              <div className="displayState pointer" onClick={this.switchState}>
-                {isShow ? _l('隐藏') : _l('展开')}
-              </div>
+        {NATIVE_MODULES.length ? (
+          <div className="sideAppGroupTitleWrap">
+            <div className="sideAppGroupTitle">{_l('协作套件')}</div>
+            <div className="displayState pointer" onClick={this.switchState}>
+              {isShow ? _l('隐藏') : _l('展开')}
             </div>
-          ) : null
-        }
+          </div>
+        ) : null}
         <ul className={cx('nativeModuleWrap', { hideGroup: !isShow })}>
-          {list.map(({ id, icon, href, text, color }) => (
+          {NATIVE_MODULES.map(({ id, icon, href, text, color }) => (
             <li key={id} onClick={() => navigateTo(href)}>
               <div className="iconWrap" style={{ backgroundColor: color || '#2196f3' }}>
                 <Icon icon={icon} className="Font18 White" />

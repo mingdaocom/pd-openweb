@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDom from 'react-dom';
 import WorksheetShareHeader from './header';
 import sheetAjax from 'src/api/worksheet';
+import appManagementApi from 'src/api/appManagement';
 import preall from 'src/common/preall';
 import { SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
 import LoadDiv from 'ming-ui/components/LoadDiv';
@@ -10,6 +11,7 @@ import publicWorksheetAjax from 'src/api/publicWorksheet';
 import PublicQuery from './publicquery';
 import './index.less';
 import { SYS } from 'src/pages/widgetConfig/config/widget.js';
+import { replaceControlsTranslateInfo } from 'worksheet/util';
 import _ from 'lodash';
 
 class WorksheetSahre extends React.Component {
@@ -47,38 +49,55 @@ class WorksheetSahre extends React.Component {
   }
 
   getShareInfo = id => {
-    publicWorksheetAjax.getPublicQueryById({ queryId: id }).then(async (res = {}) => {
-      const { appId = '', worksheetId = '', projectId } = res.worksheet || {};
-      const { viewId = '', rowId = '', exported = false, shareAuthor, clientId } = res;
-      shareAuthor && (window.shareAuthor = shareAuthor);
+    publicWorksheetAjax
+      .getPublicQueryById({
+        queryId: id,
+        langType: getCurrentLangCode(),
+      })
+      .then(async (res = {}) => {
+        const { appId = '', worksheetId = '', projectId, template } = res.worksheet || {};
+        const { viewId = '', rowId = '', exported = false, shareAuthor, clientId, langInfo = {} } = res;
+        shareAuthor && (window.shareAuthor = shareAuthor);
 
-      if (clientId) {
-        window.clientId = clientId;
-        !sessionStorage.getItem('clientId') && sessionStorage.setItem('clientId', clientId);
-      }
+        if (clientId) {
+          window.clientId = clientId;
+          !sessionStorage.getItem('clientId') && sessionStorage.setItem('clientId', clientId);
+        }
 
-      preall({ type: 'function' }, { allownotlogin: true, requestParams: { projectId } });
+        preall({ type: 'function' }, { allowNotLogin: true, requestParams: { projectId } });
 
-      shareAuthor && (window.shareAuthor = shareAuthor);
-      localStorage.setItem('currentProjectId', projectId);
+        shareAuthor && (window.shareAuthor = shareAuthor);
+        localStorage.setItem('currentProjectId', projectId);
 
-      let sheetSwitchPermit = await sheetAjax.getSwitchPermit({ worksheetId: worksheetId });
+        if (langInfo.appLangId) {
+          const lang = await appManagementApi.getAppLangDetail({
+            projectId,
+            appId,
+            appLangId: langInfo.appLangId,
+          });
+          window[`langData-${appId}`] = lang.items;
+        }
+        if (template.controls) {
+          res.worksheet.template.controls = replaceControlsTranslateInfo(appId, template.controls);
+        }
 
-      this.setState(
-        {
-          appId,
-          worksheetId,
-          rowId,
-          viewId,
-          publicqueryRes: res,
-          exported,
-          sheetSwitchPermit,
-        },
-        () => {
-          this.setState({ loading: false, error: !viewId && !appId });
-        },
-      );
-    });
+        let sheetSwitchPermit = await sheetAjax.getSwitchPermit({ worksheetId: worksheetId });
+
+        this.setState(
+          {
+            appId,
+            worksheetId,
+            rowId,
+            viewId,
+            publicqueryRes: res,
+            exported,
+            sheetSwitchPermit,
+          },
+          () => {
+            this.setState({ loading: false, error: !viewId && !appId });
+          },
+        );
+      });
   };
 
   loadSheet = (querydata = {}) => {
@@ -142,6 +161,9 @@ class WorksheetSahre extends React.Component {
       controls = controls.filter(o => !SYS.includes(o.controlId));
       let sys = controls.filter(o => SYS.includes(o.controlId));
       const viewSet = data.worksheet.views.find(o => o.viewId === viewId);
+      if (controls.length) {
+        controls = replaceControlsTranslateInfo(data.worksheet.appId, controls);
+      }
 
       this.setState({
         error: false,

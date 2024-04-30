@@ -139,7 +139,7 @@ class SessionList extends Component {
         pageIndex,
         pageSize: 30,
       })
-      .done(sessionList => {
+      .then(sessionList => {
         if (_.isEmpty(sessionList)) {
           this.setState({
             isMore: false,

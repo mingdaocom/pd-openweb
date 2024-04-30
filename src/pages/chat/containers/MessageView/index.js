@@ -153,7 +153,7 @@ class MessageView extends Component {
       direction,
     });
     return new Promise((resolve, reject) => {
-      ajax.getMessage(param).done((res) => {
+      ajax.getMessage(param).then((res) => {
         this.setState({
           loading: false,
           isMore: !(res.length < config.MSG_LENGTH_MORE),

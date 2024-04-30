@@ -118,8 +118,7 @@ function SortableRecordItem(props) {
 
   // 展示记录信息
   const showRecordInfo = obj => {
-    const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
-    if (isMingdao) {
+    if (window.isMingDaoApp) {
       const { appId, worksheetId, viewId } = props;
       const rowId = obj.type === RELATION_SHEET_TYPE ? obj.rowId : obj.recordInfoRowId;
       window.location.href = `/mobile/record/${appId}/${worksheetId}/${viewId}/${rowId}`;

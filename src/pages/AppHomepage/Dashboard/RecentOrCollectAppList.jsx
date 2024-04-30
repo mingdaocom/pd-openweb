@@ -1,9 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import cx from 'classnames';
-import { Icon, Tooltip } from 'ming-ui';
+import { Icon, Tooltip, SvgIcon } from 'ming-ui';
 import autoSize from 'ming-ui/decorators/autoSize';
-import SvgIcon from 'src/components/SvgIcon';
 import AppStatusComp from '../AppCenter/components/AppStatus';
 import { getAppNavigateUrl, transferExternalLinkUrl } from '../AppCenter/utils';
 import { addBehaviorLog } from 'src/util';
@@ -14,7 +13,7 @@ import _ from 'lodash';
 import { navigateTo } from 'src/router/navigateTo';
 import { navigateToAppItem } from 'src/pages/widgetConfig/util/data';
 import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
-import './RecentOrCollectAppList.less';
+import './style.less';
 
 const Wrapper = styled.div`
   display: flex;
@@ -265,7 +264,7 @@ function RecentOrCollectAppList(props) {
 
   const renderEmpty = () => {
     return (
-      <div className={`emptyWrapper ${!isCollect ? 'mTop36' : ''}`}>
+      <div className="emptyWrapper">
         <img src={isCollect ? collectAppEmptyPng : recentEmptyPng} />
         {isCollect ? <span>{_l('没有收藏')}</span> : <span>{_l('没有最近使用')}</span>}
       </div>

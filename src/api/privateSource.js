@@ -8,8 +8,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getSources: function (args, options = {}) {
-     
-     return $.api('PrivateSource', 'GetSources', args, options);
+
+     return mdyAPI('PrivateSource', 'GetSources', args, options);
    },
   /**
   * 添加资源
@@ -23,8 +23,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addSource: function (args, options = {}) {
-     
-     return $.api('PrivateSource', 'AddSource', args, options);
+
+     return mdyAPI('PrivateSource', 'AddSource', args, options);
    },
   /**
   * 修改资源
@@ -39,8 +39,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editSource: function (args, options = {}) {
-     
-     return $.api('PrivateSource', 'EditSource', args, options);
+
+     return mdyAPI('PrivateSource', 'EditSource', args, options);
    },
   /**
   * 修改资源状态
@@ -52,8 +52,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editSourceStatus: function (args, options = {}) {
-     
-     return $.api('PrivateSource', 'EditSourceStatus', args, options);
+
+     return mdyAPI('PrivateSource', 'EditSourceStatus', args, options);
    },
   /**
   * 修改资源排序，全量提交
@@ -64,8 +64,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editSourceSort: function (args, options = {}) {
-     
-     return $.api('PrivateSource', 'EditSourceSort', args, options);
+
+     return mdyAPI('PrivateSource', 'EditSourceSort', args, options);
    },
   /**
   * 删除资源
@@ -76,7 +76,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    removeSource: function (args, options = {}) {
-     
-     return $.api('PrivateSource', 'RemoveSource', args, options);
+
+     return mdyAPI('PrivateSource', 'RemoveSource', args, options);
    },
 };

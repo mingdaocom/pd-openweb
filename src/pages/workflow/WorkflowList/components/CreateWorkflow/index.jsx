@@ -108,7 +108,7 @@ export default class CreateFlow extends Component {
         appManagement.addWorkflow({ projectId: res.companyId });
         navigateTo(`/workflowedit/${res.id}`);
       })
-      .always(() => {
+      .finally(() => {
         this.requestPending = false;
       });
   };
@@ -139,7 +139,7 @@ export default class CreateFlow extends Component {
             />
           </div>
           <div>
-            <Support type={2} text={_l('使用帮助')} href="https://help.mingdao.com/flow51" />
+            <Support type={2} text={_l('使用帮助')} href="https://help.mingdao.com/workflow/introduction" />
           </div>
         </header>
         <div className="createWorkflowBox">

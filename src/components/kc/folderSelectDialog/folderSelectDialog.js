@@ -93,7 +93,6 @@ $.extend(FolderSelect.prototype, {
   init: function () {
     var folderSelect = this;
     var settings = folderSelect.settings;
-    var deferred = settings.deferred;
 
     settings.dialog = null;
     Dialog.confirm({
@@ -115,7 +114,7 @@ $.extend(FolderSelect.prototype, {
               <span className="createFolder icon-createFolder"></span>
             </div>
           </div>
-          <div className="folderNode">{LoadDiv()}</div>
+          <div className="folderNode" dangerouslySetInnerHTML={{ __html: LoadDiv() }}></div>
           <div className="selectedHint">
             <div className="selectedItem Hidden">
               已选中<span className="selectedNum"></span>个文件
@@ -161,7 +160,7 @@ $.extend(FolderSelect.prototype, {
               } else {
                 resultType = PICK_TYPE.ROOT;
                 resultNode = selectedNode[0];
-                expireDialogAsync(resultNode.projectId).fail(function () {
+                expireDialogAsync(resultNode.projectId).catch(function () {
                   var msg = '网络已过期';
                   throw msg;
                 });
@@ -215,7 +214,7 @@ $.extend(FolderSelect.prototype, {
             }
             folderSelect.savePos(resObj);
             folderSelect.savePos(resObj, true);
-            deferred.resolve(resObj);
+            settings.resolve(resObj);
             return false;
           } else {
             var num = 0;
@@ -244,7 +243,7 @@ $.extend(FolderSelect.prototype, {
               getNodeAjax = true;
               var nodeData = await ajax.getNodeDetail({ path: $lastNode.data('path') });
               if (!nodeData) {
-                return $.Deferred().reject();
+                return Promise.reject();
               }
               var resObj = { type: parseInt(resultType), node: nodeData };
               if (resultType === PICK_TYPE.CHILDNODE && settings.reRootName) {
@@ -254,14 +253,14 @@ $.extend(FolderSelect.prototype, {
               }
               folderSelect.savePos(resObj);
               folderSelect.savePos(resObj, true);
-              deferred.resolve(resObj);
+              settings.resolve(resObj);
               return false;
             } else {
               resultType = settings.rootType;
               resultNode = $lastNode.hasClass('myRoot') ? { id: null, name: _l('我的文件') } : $lastNode.data('root');
               folderSelect.savePos(resObj);
               folderSelect.savePos(resObj, true);
-              deferred.resolve({ type: parseInt(resultType), node: resultNode });
+              settings.resolve({ type: parseInt(resultType), node: resultNode });
               return false;
             }
           } else {
@@ -278,7 +277,7 @@ $.extend(FolderSelect.prototype, {
         }
       },
       onCancel: () => {
-        deferred.reject();
+        settings.reject();
         return true;
       },
       handleClose: () => {
@@ -414,7 +413,7 @@ $.extend(FolderSelect.prototype, {
               .updateNode({ id: nodeData.id, visibleType: visibleId })
               .then(function (result) {
                 if (!result) {
-                  return $.Deferred().reject();
+                  return Promise.reject();
                 }
                 alert(_l('修改成功'));
                 nodeData.visibleType = visibleId;
@@ -434,7 +433,7 @@ $.extend(FolderSelect.prototype, {
                   );
                 $nodeVisibleType.html(folderSelect.renderNodeVisibleType(nodeData, $this)).fadeIn();
               })
-              .fail(function () {
+              .catch(function () {
                 alert(_l('操作失败, 请稍后重试'), 3);
               });
           },
@@ -538,7 +537,7 @@ $.extend(FolderSelect.prototype, {
         folderSelect.bindNodeUrlEvent();
         callback && callback();
       })
-      .fail(function () {
+      .catch(function () {
         $folderContent.find('.folderNode').html($rootHtml);
         folderSelect.bindNodeEvent(true);
       });
@@ -547,7 +546,7 @@ $.extend(FolderSelect.prototype, {
   getNodeList: function (type, rootNode, isClickPath, isScroll, extra) {
     // 判断付费版是否到期
     if (this.settings.isFolderNode == SELECT_TYPE.FOLDER && type === PICK_TYPE.ROOT && !isScroll) {
-      expireDialogAsync(rootNode.projectId || '').fail(function () {
+      expireDialogAsync(rootNode.projectId || '').catch(function () {
         var msg = '网络已过期';
         throw msg;
       });
@@ -874,7 +873,7 @@ $.extend(FolderSelect.prototype, {
           $folderPath.find('.startTag').removeClass('ThemeColor3');
         }
       })
-      .fail(function (err) {
+      .catch(function (err) {
         localStorage.removeItem('last_select_folder_pos_' + md.global.Account.accountId);
         localStorage.removeItem('last_select_pos_' + md.global.Account.accountId);
         if (settings.appointFolder) {
@@ -1021,7 +1020,7 @@ $.extend(FolderSelect.prototype, {
               var rootData = $this.data('node');
               //如果选择的是文件
               if (rootData && rootData.type == NODE_TYPE.FILE && settings.isFolderNode == SELECT_TYPE.FILE) {
-                settings.deferred.resolve({ type: parseInt(PICK_TYPE.CHILDNODE), node: [rootData] });
+                settings.resolve({ type: parseInt(PICK_TYPE.CHILDNODE), node: [rootData] });
                 folderSelect.savePos();
                 $('.folderSelectDialog').parent().remove();
               } else {
@@ -1114,10 +1113,6 @@ $.extend(FolderSelect.prototype, {
             listCount < settings.parentCount &&
             $nodeList[0].scrollTop + $nodeList.height() + 20 > $nodeList[0].scrollHeight
           ) {
-            if (folderSelect.getNodesListAjax.state() === 'pending') {
-              return false;
-            }
-
             folderSelect.settings.skip = folderSelect.settings.skip + folderSelect.settings.limit;
             folderSelect.getNodeList(settings.rootType, null, true, true);
           }
@@ -1135,7 +1130,7 @@ $.extend(FolderSelect.prototype, {
       })
       .then(function (result) {
         if (!result) {
-          return $.Deferred().reject();
+          return Promise.reject();
         }
         $this
           .closest('li.addNewFolder')
@@ -1147,7 +1142,7 @@ $.extend(FolderSelect.prototype, {
           .show();
         $this.remove();
       })
-      .fail(function () {
+      .catch(function () {
         alert(_l('创建失败'), 2);
         $this.closest('li.addNewFolder').fadeOut();
       });
@@ -1332,22 +1327,22 @@ $.extend(FolderSelect.prototype, {
 });
 
 function select(param) {
-  var deferred = $.Deferred();
-  param = $.extend({ deferred: deferred }, param);
-  /**
-   * 文件或路径选择层
-   * @function external:
-   * @param {object} param 初始化数据
-   * @param {string} param.dialogTitle 弹层title
-   * @param {btnName} param.btnName 弹层确定按钮的文字
-   * @param {number}  param.isFolderNode 操作类型 0--所有 1--选择文件夹路径  2--选择文件
-   * @param {array}   param.selectedItems  被选择的节点ID数组
-   * @param {object}  param.appointRoot  指定的Root
-   * @param {boolean} param.reRootName  当返回子节点时 是否返回根节点名称
-   * @param {function} param.callback 确定选择的文件的回调
-   */
-  new FolderSelect(param);
-  return deferred.promise();
+  return new Promise((resolve, reject) => {
+    param = $.extend({ resolve, reject }, param);
+    /**
+     * 文件或路径选择层
+     * @function external:
+     * @param {object} param 初始化数据
+     * @param {string} param.dialogTitle 弹层title
+     * @param {btnName} param.btnName 弹层确定按钮的文字
+     * @param {number}  param.isFolderNode 操作类型 0--所有 1--选择文件夹路径  2--选择文件
+     * @param {array}   param.selectedItems  被选择的节点ID数组
+     * @param {object}  param.appointRoot  指定的Root
+     * @param {boolean} param.reRootName  当返回子节点时 是否返回根节点名称
+     * @param {function} param.callback 确定选择的文件的回调
+     */
+    new FolderSelect(param);
+  });
 }
 
 export default select;

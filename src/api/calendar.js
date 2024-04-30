@@ -8,7 +8,7 @@ export default {
   **/
    getUserInvitedCalendarsCount: function (args, options = {}) {
      
-     return $.api('Calendar', 'GetUserInvitedCalendarsCount', args, options);
+     return mdyAPI('Calendar', 'GetUserInvitedCalendarsCount', args, options);
    },
   /**
   * 获取用户信息
@@ -20,7 +20,7 @@ export default {
   **/
    getUserInfo: function (args, options = {}) {
      
-     return $.api('Calendar', 'GetUserInfo', args, options);
+     return mdyAPI('Calendar', 'GetUserInfo', args, options);
    },
   /**
   * 获取IcsUrl
@@ -31,7 +31,7 @@ export default {
   **/
    getIcsUrl: function (args, options = {}) {
      
-     return $.api('Calendar', 'GetIcsUrl', args, options);
+     return mdyAPI('Calendar', 'GetIcsUrl', args, options);
    },
   /**
   * 获取冲突日程(查看忙碌状态不管网络只要有但是不包含就是忙碌)
@@ -45,7 +45,7 @@ export default {
   **/
    getUserBusyStatus: function (args, options = {}) {
      
-     return $.api('Calendar', 'GetUserBusyStatus', args, options);
+     return mdyAPI('Calendar', 'GetUserBusyStatus', args, options);
    },
   /**
   * 待确定日程
@@ -56,7 +56,7 @@ export default {
   **/
    invitedCalendars: function (args, options = {}) {
      
-     return $.api('Calendar', 'InvitedCalendars', args, options);
+     return mdyAPI('Calendar', 'InvitedCalendars', args, options);
    },
   /**
   * 获取左侧列表:今天:Today;明天:Tomorrow;本周:Week;本月:Month;更晚:Later
@@ -74,7 +74,7 @@ export default {
   **/
    getCalendarList2: function (args, options = {}) {
      
-     return $.api('Calendar', 'GetCalendarList2', args, options);
+     return mdyAPI('Calendar', 'GetCalendarList2', args, options);
    },
   /**
   * 获取日程列表
@@ -92,7 +92,7 @@ export default {
   **/
    getCalendars: function (args, options = {}) {
      
-     return $.api('Calendar', 'GetCalendars', args, options);
+     return mdyAPI('Calendar', 'GetCalendars', args, options);
    },
   /**
   * 获取日程详情
@@ -105,7 +105,7 @@ export default {
   **/
    getCalendarDetail: function (args, options = {}) {
      
-     return $.api('Calendar', 'GetCalendarDetail', args, options);
+     return mdyAPI('Calendar', 'GetCalendarDetail', args, options);
    },
   /**
   * 获取日程详情
@@ -118,7 +118,7 @@ export default {
   **/
    getCalendarDetail2: function (args, options = {}) {
      
-     return $.api('Calendar', 'GetCalendarDetail2', args, options);
+     return mdyAPI('Calendar', 'GetCalendarDetail2', args, options);
    },
   /**
   * 获取日程分享详情（日程详情）
@@ -131,7 +131,7 @@ export default {
   **/
    getCalendarShareDetail: function (args, options = {}) {
      
-     return $.api('Calendar', 'GetCalendarShareDetail', args, options);
+     return mdyAPI('Calendar', 'GetCalendarShareDetail', args, options);
    },
   /**
   * 修改日程分享状态或KEY
@@ -145,7 +145,7 @@ export default {
   **/
    updateCalednarShare: function (args, options = {}) {
      
-     return $.api('Calendar', 'UpdateCalednarShare', args, options);
+     return mdyAPI('Calendar', 'UpdateCalednarShare', args, options);
    },
   /**
   * 新增日程微信成员
@@ -158,7 +158,7 @@ export default {
   **/
    insertCalendarWeChatMember: function (args, options = {}) {
      
-     return $.api('Calendar', 'InsertCalendarWeChatMember', args, options);
+     return mdyAPI('Calendar', 'InsertCalendarWeChatMember', args, options);
    },
   /**
   * 移除日程中的微信成员
@@ -174,7 +174,7 @@ export default {
   **/
    removeCalendarWeChatMember: function (args, options = {}) {
      
-     return $.api('Calendar', 'RemoveCalendarWeChatMember', args, options);
+     return mdyAPI('Calendar', 'RemoveCalendarWeChatMember', args, options);
    },
   /**
   * 获取日程分享微信配置信息
@@ -187,7 +187,7 @@ export default {
   **/
    getShareConfig: function (args, options = {}) {
      
-     return $.api('Calendar', 'GetShareConfig', args, options);
+     return mdyAPI('Calendar', 'GetShareConfig', args, options);
    },
   /**
   * 新增日程
@@ -220,7 +220,7 @@ export default {
   **/
    insertCalendar: function (args, options = {}) {
      
-     return $.api('Calendar', 'InsertCalendar', args, options);
+     return mdyAPI('Calendar', 'InsertCalendar', args, options);
    },
   /**
   * 删除日程
@@ -234,7 +234,7 @@ export default {
   **/
    deleteCalendar: function (args, options = {}) {
      
-     return $.api('Calendar', 'DeleteCalendar', args, options);
+     return mdyAPI('Calendar', 'DeleteCalendar', args, options);
    },
   /**
   * 修改日程私密状态
@@ -247,7 +247,7 @@ export default {
   **/
    updateCalendarIsPrivate: function (args, options = {}) {
      
-     return $.api('Calendar', 'UpdateCalendarIsPrivate', args, options);
+     return mdyAPI('Calendar', 'UpdateCalendarIsPrivate', args, options);
    },
   /**
   * 修改日程颜色分类
@@ -260,7 +260,7 @@ export default {
   **/
    updateCalendarCatId: function (args, options = {}) {
      
-     return $.api('Calendar', 'UpdateCalendarCatId', args, options);
+     return mdyAPI('Calendar', 'UpdateCalendarCatId', args, options);
    },
   /**
   * 修改日程提醒
@@ -274,7 +274,7 @@ export default {
   **/
    updateMemberRemind: function (args, options = {}) {
      
-     return $.api('Calendar', 'UpdateMemberRemind', args, options);
+     return mdyAPI('Calendar', 'UpdateMemberRemind', args, options);
    },
   /**
   * 修改日程语音提醒
@@ -287,7 +287,7 @@ export default {
   **/
    updateVoiceRemind: function (args, options = {}) {
      
-     return $.api('Calendar', 'UpdateVoiceRemind', args, options);
+     return mdyAPI('Calendar', 'UpdateVoiceRemind', args, options);
    },
   /**
   * 编辑日程
@@ -317,7 +317,7 @@ export default {
   **/
    editCalendar: function (args, options = {}) {
      
-     return $.api('Calendar', 'EditCalendar', args, options);
+     return mdyAPI('Calendar', 'EditCalendar', args, options);
    },
   /**
   * 编辑日程时间
@@ -336,7 +336,7 @@ export default {
   **/
    editCalendarTime: function (args, options = {}) {
      
-     return $.api('Calendar', 'EditCalendarTime', args, options);
+     return mdyAPI('Calendar', 'EditCalendarTime', args, options);
    },
   /**
   * 添加日程成员
@@ -352,7 +352,7 @@ export default {
   **/
    addMembers: function (args, options = {}) {
      
-     return $.api('Calendar', 'AddMembers', args, options);
+     return mdyAPI('Calendar', 'AddMembers', args, options);
    },
   /**
   * 重新邀请（未定）
@@ -368,7 +368,7 @@ export default {
   **/
    reInvite: function (args, options = {}) {
      
-     return $.api('Calendar', 'ReInvite', args, options);
+     return mdyAPI('Calendar', 'ReInvite', args, options);
    },
   /**
   * 编辑日程成员状态(同意加入或拒绝)
@@ -384,7 +384,7 @@ export default {
   **/
    changeMember: function (args, options = {}) {
      
-     return $.api('Calendar', 'ChangeMember', args, options);
+     return mdyAPI('Calendar', 'ChangeMember', args, options);
    },
   /**
   * 移除日程成员
@@ -399,7 +399,7 @@ export default {
   **/
    removeMember: function (args, options = {}) {
      
-     return $.api('Calendar', 'RemoveMember', args, options);
+     return mdyAPI('Calendar', 'RemoveMember', args, options);
    },
   /**
   * 转换日程到任务
@@ -425,7 +425,7 @@ export default {
   **/
    convertCalendarToTask: function (args, options = {}) {
      
-     return $.api('Calendar', 'ConvertCalendarToTask', args, options);
+     return mdyAPI('Calendar', 'ConvertCalendarToTask', args, options);
    },
   /**
   * 删除日程分类
@@ -437,7 +437,7 @@ export default {
   **/
    deleteUserCalCategory: function (args, options = {}) {
      
-     return $.api('Calendar', 'DeleteUserCalCategory', args, options);
+     return mdyAPI('Calendar', 'DeleteUserCalCategory', args, options);
    },
   /**
   * 修改日程分类
@@ -449,7 +449,7 @@ export default {
   **/
    updateUserCalCategoryInfo: function (args, options = {}) {
      
-     return $.api('Calendar', 'UpdateUserCalCategoryInfo', args, options);
+     return mdyAPI('Calendar', 'UpdateUserCalCategoryInfo', args, options);
    },
   /**
   * 查找用户所有分类
@@ -460,6 +460,6 @@ export default {
   **/
    getUserAllCalCategories: function (args, options = {}) {
      
-     return $.api('Calendar', 'GetUserAllCalCategories', args, options);
+     return mdyAPI('Calendar', 'GetUserAllCalCategories', args, options);
    },
 };

@@ -1,11 +1,10 @@
 import React, { createRef, useState, useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import styled from 'styled-components';
-import { Icon, ScrollView, Dialog, Radio, LoadDiv } from 'ming-ui';
+import { Icon, ScrollView, Dialog, Radio, LoadDiv, UserHead } from 'ming-ui';
 import _ from 'lodash';
 import cx from 'classnames';
 import copy from 'copy-to-clipboard';
-import UserHead from 'src/components/userHead/userHead';
 import Trigger from 'rc-trigger';
 import pluginAjax from 'src/api/plugin';
 import PublishVersion from 'src/pages/plugin/viewPlugin/PublishVersion.jsx';
@@ -121,9 +120,10 @@ function AcitonCon(props) {
         <WrapPopup>
           {actionTypes
             .filter(o =>
-              projectInfo.isSuperAdmin ||
-              projectInfo.isProjectAppManager ||
-              _.get(view, 'pluginInfo.creator.accountId') === md.global.Account.accountId
+              (projectInfo.isSuperAdmin ||
+                projectInfo.isProjectAppManager ||
+                _.get(view, 'pluginInfo.creator.accountId') === md.global.Account.accountId) &&
+              projectInfo.allowPlugin
                 ? true
                 : o.key !== 'publish',
             )

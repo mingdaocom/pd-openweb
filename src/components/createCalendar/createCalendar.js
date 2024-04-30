@@ -2,7 +2,7 @@ import UploadFiles from 'src/components/UploadFiles';
 import React from 'react';
 import ReactDom from 'react-dom';
 import './css/createCalendar.less';
-import quickSelectUser from 'ming-ui/functions/quickSelectUser';
+import { quickSelectUser } from 'ming-ui/functions';
 import ajaxRequest from 'src/api/calendar';
 import timezone from './timezone';
 import SelectTimezone from './component/SelectTimezone';
@@ -16,8 +16,7 @@ import '@mdfe/jquery-plupload';
 import createShare from 'src/components/createShare/createShare';
 import moment from 'moment';
 import _ from 'lodash';
-import UserCard from 'src/components/UserCard';
-import { Dialog, Dropdown, Tooltip } from 'ming-ui';
+import { Dialog, Dropdown, Tooltip, UserCard } from 'ming-ui';
 
 var CreateCalendar = function (opts) {
   var _this = this;
@@ -1170,7 +1169,7 @@ CreateCalendar.methods = {
           $('#calendarColorMain').html(listHtml).show();
         }
       })
-      .fail(function () {
+      .catch(function () {
         alert(_l('操作失败，请稍后再试'), 3);
       });
   },
@@ -1589,7 +1588,7 @@ CreateCalendar.methods = {
           alert(_l('邀请短信发送数量已达最大限制，请移除外部用户创建日程'));
         }
       })
-      .fail(function () {
+      .catch(function () {
         alert(_l('操作失败，请稍后再试'), 2);
       });
   },

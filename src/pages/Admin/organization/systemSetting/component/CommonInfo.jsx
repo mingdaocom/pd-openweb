@@ -13,6 +13,7 @@ import DialogSettingInviteRules from 'src/pages/Admin/user/membersDepartments/st
 
 import 'src/components/uploadAttachment/uploadAttachment';
 import _ from 'lodash';
+import { getCurrentProject } from 'src/util';
 
 export default class CommonInfo extends Component {
   constructor(props) {
@@ -52,13 +53,13 @@ export default class CommonInfo extends Component {
 
   getAllData() {
     this.setState({ isLoading: true });
-    $.when(this.getSysColor(), this.getSubDomainInfo(), this.getCommonInfo(), this.getIndustryList()).then(
-      (
+    Promise.all([this.getSysColor(), this.getSubDomainInfo(), this.getCommonInfo(), this.getIndustryList()]).then(
+      ([
         { homeImage, logo },
         res,
         { companyDisplayName, companyName, companyNameEnglish, geographyId, industryId },
         { industries = [] },
-      ) => {
+      ]) => {
         this.industries = industries;
         const current_industry = _.find(industries, item => item.id === industryId.toString()) || {};
         const industryName = current_industry.name;
@@ -238,6 +239,7 @@ export default class CommonInfo extends Component {
       showDialogSettingInviteRules,
     } = this.state;
     const showInfo = [1, 2, 3].indexOf(visibleType) > -1;
+    const { isSuperAdmin } = getCurrentProject(Config.projectId);
     return (
       <div className="orgManagementWrap">
         <div className="orgManagementHeader">
@@ -419,14 +421,16 @@ export default class CommonInfo extends Component {
                 </button>
               </div>
 
-              {/*<div className="split-line" />
+              {/* <div className="split-line" />
 
-              <div className="common-info-row">
-                <div className="common-info-row-label">{_l('注销组织')}</div>
-                <span className="Hand adminHoverDeleteColor" onClick={() => this.props.setLevel(4)}>
-                  {_l('注销')}
-                </span>
-              </div>*/}
+              {isSuperAdmin && (
+                <div className="common-info-row">
+                  <div className="common-info-row-label">{_l('注销组织')}</div>
+                  <span className="Hand adminHoverDeleteColor" onClick={() => this.props.setLevel(4)}>
+                    {_l('注销')}
+                  </span>
+                </div>
+              )} */}
             </div>
           )}
         </div>

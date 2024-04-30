@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Icon } from 'ming-ui';
 import { ConfigProvider, Form, Input, Button } from 'antd';
 import styled from 'styled-components';
-import captcha from 'src/components/captcha';
+import { captcha } from 'ming-ui/functions';
 import _ from 'lodash';
 
 const VerificationPassWrap = styled.div`

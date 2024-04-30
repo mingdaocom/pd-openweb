@@ -63,6 +63,7 @@ export const ITEM_COUNT = [
   { key: 'effectiveWorksheetRowCount', text: _l('行记录总数'), link: 'app' },
   { key: 'useProcessCount', text: _l('工作流总数'), link: 'workflows' },
   { key: 'effectiveDataPipelineJobCount', text: _l('同步任务总数'), link: '' },
+  { key: 'effectiveAggregationTableCount', text: _l('聚合表数'), link: 'aggregationtable', featureId: 38 },
 ];
 
 export const UPLOAD_COUNT = [

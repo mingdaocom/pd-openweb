@@ -13,7 +13,7 @@ export default {
   **/
    getRoots: function (args, options = {}) {
      
-     return $.api('Kc', 'GetRoots', args, options);
+     return mdyAPI('Kc', 'GetRoots', args, options);
    },
   /**
   * 获取根目录详情
@@ -25,7 +25,7 @@ export default {
   **/
    getRootDetail: function (args, options = {}) {
      
-     return $.api('Kc', 'GetRootDetail', args, options);
+     return mdyAPI('Kc', 'GetRootDetail', args, options);
    },
   /**
   * 添加根目录(共享文件夹)
@@ -42,7 +42,7 @@ export default {
   **/
    addRoot: function (args, options = {}) {
      
-     return $.api('Kc', 'AddRoot', args, options);
+     return mdyAPI('Kc', 'AddRoot', args, options);
    },
   /**
   * 根目录标星
@@ -55,7 +55,7 @@ export default {
   **/
    starRoot: function (args, options = {}) {
      
-     return $.api('Kc', 'StarRoot', args, options);
+     return mdyAPI('Kc', 'StarRoot', args, options);
    },
   /**
   * 删除根目录(共享文件夹)
@@ -67,7 +67,7 @@ export default {
   **/
    removeRoot: function (args, options = {}) {
      
-     return $.api('Kc', 'RemoveRoot', args, options);
+     return mdyAPI('Kc', 'RemoveRoot', args, options);
    },
   /**
   * 退出/移除根目录成员
@@ -80,7 +80,7 @@ export default {
   **/
    removeRootMember: function (args, options = {}) {
      
-     return $.api('Kc', 'RemoveRootMember', args, options);
+     return mdyAPI('Kc', 'RemoveRootMember', args, options);
    },
   /**
   * 添加根目录成员
@@ -95,7 +95,7 @@ export default {
   **/
    addRootMembers: function (args, options = {}) {
      
-     return $.api('Kc', 'AddRootMembers', args, options);
+     return mdyAPI('Kc', 'AddRootMembers', args, options);
    },
   /**
   * 更新根目录的成员的权限
@@ -109,7 +109,7 @@ export default {
   **/
    updateMemberPermission: function (args, options = {}) {
      
-     return $.api('Kc', 'UpdateMemberPermission', args, options);
+     return mdyAPI('Kc', 'UpdateMemberPermission', args, options);
    },
   /**
   * 托付根目录的拥有者
@@ -122,7 +122,7 @@ export default {
   **/
    updateRootOwner: function (args, options = {}) {
      
-     return $.api('Kc', 'UpdateRootOwner', args, options);
+     return mdyAPI('Kc', 'UpdateRootOwner', args, options);
    },
   /**
   * 更改根目录的名称
@@ -135,7 +135,7 @@ export default {
   **/
    updateRootName: function (args, options = {}) {
      
-     return $.api('Kc', 'UpdateRootName', args, options);
+     return mdyAPI('Kc', 'UpdateRootName', args, options);
    },
   /**
   * 更改被邀请的状态
@@ -149,7 +149,7 @@ export default {
   **/
    updateMemberStatus: function (args, options = {}) {
      
-     return $.api('Kc', 'UpdateMemberStatus', args, options);
+     return mdyAPI('Kc', 'UpdateMemberStatus', args, options);
    },
   /**
   * 重发邀请
@@ -162,7 +162,7 @@ export default {
   **/
    resendInvite: function (args, options = {}) {
      
-     return $.api('Kc', 'ResendInvite', args, options);
+     return mdyAPI('Kc', 'ResendInvite', args, options);
    },
   /**
   * 获取共享文件夹下节点列表
@@ -184,7 +184,7 @@ export default {
   **/
    getNodes: function (args, options = {}) {
      
-     return $.api('Kc', 'GetNodes', args, options);
+     return mdyAPI('Kc', 'GetNodes', args, options);
    },
   /**
   * 全局搜索，包括我的文件和所有根目录
@@ -200,7 +200,7 @@ export default {
   **/
    globalSearch: function (args, options = {}) {
      
-     return $.api('Kc', 'GlobalSearch', args, options);
+     return mdyAPI('Kc', 'GlobalSearch', args, options);
    },
   /**
   * 获取列表中文件夹总数和其中的文件总大小
@@ -220,7 +220,7 @@ export default {
   **/
    getNodesTotalFolderCountAndFileSize: function (args, options = {}) {
      
-     return $.api('Kc', 'GetNodesTotalFolderCountAndFileSize', args, options);
+     return mdyAPI('Kc', 'GetNodesTotalFolderCountAndFileSize', args, options);
    },
   /**
   * 获取节点详情
@@ -237,7 +237,7 @@ export default {
   **/
    getNodeDetail: function (args, options = {}) {
      
-     return $.api('Kc', 'GetNodeDetail', args, options);
+     return mdyAPI('Kc', 'GetNodeDetail', args, options);
    },
   /**
   * 添加节点
@@ -258,7 +258,7 @@ export default {
   **/
    addNode: function (args, options = {}) {
      
-     return $.api('Kc', 'AddNode', args, options);
+     return mdyAPI('Kc', 'AddNode', args, options);
    },
   /**
   * 上传新版本
@@ -275,7 +275,7 @@ export default {
   **/
    addMultiVersionFile: function (args, options = {}) {
      
-     return $.api('Kc', 'AddMultiVersionFile', args, options);
+     return mdyAPI('Kc', 'AddMultiVersionFile', args, options);
    },
   /**
   * 删除多版本文件
@@ -288,7 +288,7 @@ export default {
   **/
    deleteVersionFile: function (args, options = {}) {
      
-     return $.api('Kc', 'DeleteVersionFile', args, options);
+     return mdyAPI('Kc', 'DeleteVersionFile', args, options);
    },
   /**
   * 获取多版本文件
@@ -300,7 +300,7 @@ export default {
   **/
    getMultiVersionFile: function (args, options = {}) {
      
-     return $.api('Kc', 'GetMultiVersionFile', args, options);
+     return mdyAPI('Kc', 'GetMultiVersionFile', args, options);
    },
   /**
   * 获取node节点详情url
@@ -312,7 +312,7 @@ export default {
   **/
    getDetailUrl: function (args, options = {}) {
      
-     return $.api('Kc', 'GetDetailUrl', args, options);
+     return mdyAPI('Kc', 'GetDetailUrl', args, options);
    },
   /**
   * 更新节点
@@ -329,7 +329,7 @@ export default {
   **/
    updateNode: function (args, options = {}) {
      
-     return $.api('Kc', 'UpdateNode', args, options);
+     return mdyAPI('Kc', 'UpdateNode', args, options);
    },
   /**
   * 节点标星
@@ -342,7 +342,7 @@ export default {
   **/
    starNode: function (args, options = {}) {
      
-     return $.api('Kc', 'StarNode', args, options);
+     return mdyAPI('Kc', 'StarNode', args, options);
    },
   /**
   * 根据 Id 列表删除或彻底删除节点
@@ -355,7 +355,7 @@ export default {
   **/
    removeNode: function (args, options = {}) {
      
-     return $.api('Kc', 'RemoveNode', args, options);
+     return mdyAPI('Kc', 'RemoveNode', args, options);
    },
   /**
   * 根据父节点 Id 和搜索条件删除或彻底删除节点
@@ -371,7 +371,7 @@ export default {
   **/
    removeNodeByParentId: function (args, options = {}) {
      
-     return $.api('Kc', 'RemoveNodeByParentId', args, options);
+     return mdyAPI('Kc', 'RemoveNodeByParentId', args, options);
    },
   /**
   * 还原回收站中的节点
@@ -383,7 +383,7 @@ export default {
   **/
    restoreNode: function (args, options = {}) {
      
-     return $.api('Kc', 'RestoreNode', args, options);
+     return mdyAPI('Kc', 'RestoreNode', args, options);
    },
   /**
   * 根据父节点 Id 和搜索条件还原回收站中的节点
@@ -398,7 +398,7 @@ export default {
   **/
    restoreNodeByParentId: function (args, options = {}) {
      
-     return $.api('Kc', 'RestoreNodeByParentId', args, options);
+     return mdyAPI('Kc', 'RestoreNodeByParentId', args, options);
    },
   /**
   * 根据节点 Id 移动节点
@@ -413,7 +413,7 @@ export default {
   **/
    moveNode: function (args, options = {}) {
      
-     return $.api('Kc', 'MoveNode', args, options);
+     return mdyAPI('Kc', 'MoveNode', args, options);
    },
   /**
   * 全选移动节点
@@ -431,7 +431,7 @@ export default {
   **/
    moveNodeByParentId: function (args, options = {}) {
      
-     return $.api('Kc', 'MoveNodeByParentId', args, options);
+     return mdyAPI('Kc', 'MoveNodeByParentId', args, options);
    },
   /**
   * 根据节点 Id 复制节点
@@ -449,7 +449,7 @@ export default {
   **/
    copyNode: function (args, options = {}) {
      
-     return $.api('Kc', 'CopyNode', args, options);
+     return mdyAPI('Kc', 'CopyNode', args, options);
    },
   /**
   * 全选复制节点
@@ -467,7 +467,7 @@ export default {
   **/
    copyNodeByParentId: function (args, options = {}) {
      
-     return $.api('Kc', 'CopyNodeByParentId', args, options);
+     return mdyAPI('Kc', 'CopyNodeByParentId', args, options);
    },
   /**
   * 获取节点日志
@@ -479,7 +479,7 @@ export default {
   **/
    getNodeLogDetail: function (args, options = {}) {
      
-     return $.api('Kc', 'GetNodeLogDetail', args, options);
+     return mdyAPI('Kc', 'GetNodeLogDetail', args, options);
    },
   /**
   * 获取根节点日志
@@ -491,7 +491,7 @@ export default {
   **/
    getRootLogDetail: function (args, options = {}) {
      
-     return $.api('Kc', 'GetRootLogDetail', args, options);
+     return mdyAPI('Kc', 'GetRootLogDetail', args, options);
    },
   /**
   * 获取“我的文件”日志
@@ -502,7 +502,7 @@ export default {
   **/
    getMyLogDetail: function (args, options = {}) {
      
-     return $.api('Kc', 'GetMyLogDetail', args, options);
+     return mdyAPI('Kc', 'GetMyLogDetail', args, options);
    },
   /**
   * 增加阅读数
@@ -515,7 +515,7 @@ export default {
   **/
    addNodeViewCount: function (args, options = {}) {
      
-     return $.api('Kc', 'AddNodeViewCount', args, options);
+     return mdyAPI('Kc', 'AddNodeViewCount', args, options);
    },
   /**
   * 获取当前使用的流量和可用流量总数
@@ -528,7 +528,7 @@ export default {
   **/
    getUsage: function (args, options = {}) {
      
-     return $.api('Kc', 'GetUsage', args, options);
+     return mdyAPI('Kc', 'GetUsage', args, options);
    },
   /**
   * 获取当前用户使用的总空间，已用存储空间 = “我的文件”+拥有者为该用户的共享文件夹（包括企业和个人）。
@@ -539,6 +539,6 @@ export default {
   **/
    getTotalUsedSize: function (args, options = {}) {
      
-     return $.api('Kc', 'GetTotalUsedSize', args, options);
+     return mdyAPI('Kc', 'GetTotalUsedSize', args, options);
    },
 };

@@ -7,8 +7,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getDeclare: function (args, options = {}) {
-     
-     return $.api('PrivateDeclare', 'GetDeclare', args, options);
+
+     return mdyAPI('PrivateDeclare', 'GetDeclare', args, options);
    },
   /**
   * 修改申明
@@ -21,8 +21,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editDeclare: function (args, options = {}) {
-     
-     return $.api('PrivateDeclare', 'EditDeclare', args, options);
+
+     return mdyAPI('PrivateDeclare', 'EditDeclare', args, options);
    },
   /**
   * 获取用户需要同意的申明
@@ -32,8 +32,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getDeclareByAcountId: function (args, options = {}) {
-     
-     return $.api('PrivateDeclare', 'GetDeclareByAcountId', args, options);
+
+     return mdyAPI('PrivateDeclare', 'GetDeclareByAcountId', args, options);
    },
   /**
   * 添加同意记录
@@ -44,7 +44,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addDeclareAgreeLog: function (args, options = {}) {
-     
-     return $.api('PrivateDeclare', 'AddDeclareAgreeLog', args, options);
+
+     return mdyAPI('PrivateDeclare', 'AddDeclareAgreeLog', args, options);
    },
 };

@@ -9,7 +9,7 @@ export default {
   **/
    getRulesWithMainTarget: function (args, options = {}) {
      
-     return $.api('ProjectUserRule', 'GetRulesWithMainTarget', args, options);
+     return mdyAPI('ProjectUserRule', 'GetRulesWithMainTarget', args, options);
    },
   /**
   * 获取单条规则
@@ -22,7 +22,7 @@ export default {
   **/
    getRule: function (args, options = {}) {
      
-     return $.api('ProjectUserRule', 'GetRule', args, options);
+     return mdyAPI('ProjectUserRule', 'GetRule', args, options);
    },
   /**
   * 添加 限制查看外部门规则（返回 规则Id）
@@ -36,7 +36,7 @@ export default {
   **/
    addRule: function (args, options = {}) {
      
-     return $.api('ProjectUserRule', 'AddRule', args, options);
+     return mdyAPI('ProjectUserRule', 'AddRule', args, options);
    },
   /**
   * 重置 限制查看外部门规则
@@ -50,7 +50,7 @@ export default {
   **/
    resetRule: function (args, options = {}) {
      
-     return $.api('ProjectUserRule', 'ResetRule', args, options);
+     return mdyAPI('ProjectUserRule', 'ResetRule', args, options);
    },
   /**
   * 删除 限制查看外部门规则
@@ -63,6 +63,6 @@ export default {
   **/
    removeRule: function (args, options = {}) {
      
-     return $.api('ProjectUserRule', 'RemoveRule', args, options);
+     return mdyAPI('ProjectUserRule', 'RemoveRule', args, options);
    },
 };

@@ -9,9 +9,9 @@ import Star from './star';
 import ReplyTo from './replyTo';
 import CommentArea from './commentArea';
 import { SOURCE_TYPE } from '../../constants';
-import { addBehaviorLog, cutStringWithHtml } from 'src/util';
+import { addBehaviorLog, cutStringWithHtml, dateConvertToUserZone } from 'src/util';
 import xss from 'xss';
-import UserCard from 'src/components/UserCard';
+import { UserCard } from 'ming-ui';
 
 export default class BaseMessageComponent extends React.Component {
   static propTypes = {
@@ -189,10 +189,10 @@ export default class BaseMessageComponent extends React.Component {
       <div className="mTop10 pBottom10">
         {sourceId ? (
           <a href={fromLink} target="_blank" className="Gray_a NoUnderline">
-            {createTimeSpan(createTime)}
+            {createTimeSpan(dateConvertToUserZone(createTime))}
           </a>
         ) : (
-          <span className="Gray_a">{createTimeSpan(createTime)}</span>
+          <span className="Gray_a">{createTimeSpan(dateConvertToUserZone(createTime))}</span>
         )}
       </div>
     );
@@ -200,7 +200,8 @@ export default class BaseMessageComponent extends React.Component {
 
   renderCommentArea() {
     const { isDeleted, canReply, fromLink } = this.props;
-    const { sourceId, sourceType, discussionId, extendsId, name, projectId, accountId, fullname, avatar } = this.props;
+    const { sourceId, sourceType, discussionId, extendsId, name, projectId, accountId, fullname, avatar, appId } =
+      this.props;
     if (isDeleted) return null;
     if (canReply) {
       const { comments, commentsCount } = this.props;
@@ -215,6 +216,7 @@ export default class BaseMessageComponent extends React.Component {
           discussionId,
           extendsId,
           name,
+          appId,
           projectId: projectId || '',
           createAccount: {
             avatar,

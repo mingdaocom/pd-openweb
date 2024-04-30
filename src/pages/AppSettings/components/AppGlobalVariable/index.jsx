@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Support, Icon, Button, UpgradeIcon } from 'ming-ui';
 import cx from 'classnames';
 import './index.less';
 import GlobalVarTable from 'src/pages/Admin/app/globalVariable/components/GlobalVarTable';
 import VarAddOrEditModal from 'src/pages/Admin/app/globalVariable/components/VarAddOrEditModal';
 import { REFRESH_TYPE } from 'src/pages/Admin/app/globalVariable/constant';
-import Search from 'src/pages/workflow/components/Search';
+import AppSettingHeader from '../AppSettingHeader';
 import variableApi from 'src/api/variable';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
@@ -56,41 +55,22 @@ export default function AppGlobalVariable(props) {
 
   return (
     <div className="appGlobalVarWrapper">
-      <div className="appGlobalVarHeader">
-        <div>
-          <span className="Font17 bold">{_l('全局变量')}</span>
-          <div className="mTop8">
-            <span className="Gray_9e TxtMiddle"> {_l('使用全局变量实现组织内数据的共享与传递')}</span>
-            <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/flow100/" />
-          </div>
-        </div>
-        <div className="flexRow">
-          <Search
-            className="varSearch"
-            placeholder={_l('搜索变量名称')}
-            handleChange={_.debounce(value => {
-              setKeyWord(value);
-            }, 500)}
-          />
-          {currentTab === 'app' && (
-            <Button
-              type="primary"
-              style={{ height: 36 }}
-              className={cx('pLeft20 pRight20', { needUpgrade: featureType === '2' })}
-              radius
-              onClick={() => {
-                featureType === '2'
-                  ? buriedUpgradeVersionDialog(projectId, VersionProductType.globalVariable)
-                  : setAddOrEditVar({ visible: true, isEdit: false });
-              }}
-            >
-              <Icon icon="plus" />
-              <span>{_l('应用变量')}</span>
-              {featureType === '2' && <UpgradeIcon />}
-            </Button>
-          )}
-        </div>
-      </div>
+      <AppSettingHeader
+        title={_l('全局变量')}
+        showSearch={true}
+        addBtnName={_l('应用变量')}
+        needUpgrade={featureType === '2'}
+        link="https://help.mingdao.com/workflow/node-update-global-variables"
+        description={_l('使用全局变量实现组织内数据的共享与传递')}
+        handleSearch={_.debounce(value => {
+          setKeyWord(value);
+        }, 500)}
+        handleAdd={() => {
+          featureType === '2'
+            ? buriedUpgradeVersionDialog(projectId, VersionProductType.globalVariable)
+            : setAddOrEditVar({ visible: true, isEdit: false });
+        }}
+      />
       <div className="tabWrap">
         {tabInfos.map(item => (
           <div

@@ -1,22 +1,13 @@
 import React, { Fragment, useState, useEffect, useRef, useCallback } from 'react';
-import { ScrollView, LoadDiv } from 'ming-ui';
+import { ScrollView, LoadDiv, Dialog, SvgIcon, UserHead } from 'ming-ui';
 import cx from 'classnames';
 import styled from 'styled-components';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
+import AppSettingHeader from 'src/pages/AppSettings/components/AppSettingHeader';
 import { string } from 'prop-types';
-import { Dialog } from 'ming-ui';
-import UserHead from 'src/components/userHead';
-import SvgIcon from 'src/components/SvgIcon';
 import appManagementAjax from 'src/api/appManagement';
 import moment from 'moment';
 import _ from 'lodash';
-
-const Header = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-`;
 
 const Content = styled.div`
   height: calc(100% - 53px);
@@ -197,10 +188,10 @@ export default function AppItemTrash(props) {
             window.__worksheetLeftReLoad();
           }
         } else {
-          return $.Deferred().reject();
+          return Promise.reject();
         }
       })
-      .fail(err => {
+      .catch(err => {
         alert(_l('恢复失败'), 3);
         setPendingCache(appItem.id, false);
       });
@@ -227,10 +218,10 @@ export default function AppItemTrash(props) {
               setAppItems(items => items.filter(t => t.id !== appItems[itemIndex].id));
               alert(_l('彻底删除成功'));
             } else {
-              return $.Deferred().reject();
+              return Promise.reject();
             }
           })
-          .fail(err => {
+          .catch(err => {
             alert(_l('彻底删除失败'), 3);
           });
       },
@@ -252,27 +243,18 @@ export default function AppItemTrash(props) {
 
   return (
     <Fragment>
-      <Header>
-        <div className="title Font17 Gray">
-          <span className="bold mBottom8">{_l('回收站（应用项）')}</span>
-          <div className="desc flex Font13 Gray_9e mTop8">
-            {_l('可恢复%0天内删除的应用项', md.global.SysSettings.appItemRecycleDays)}
-          </div>
-        </div>
-        <div className="search">
-          <SearchInput
-            placeholder={_l('应用项名称')}
-            value={keyword}
-            onChange={_.debounce(v => {
-              if (!v) {
-                onKeyWordChange(v);
-              } else {
-                debounceOnKeyWordChange(v);
-              }
-            }, 500)}
-          />
-        </div>
-      </Header>
+      <AppSettingHeader
+        title={_l('回收站（应用项）')}
+        description={_l('可恢复%0天内删除的应用项', md.global.SysSettings.appItemRecycleDays)}
+        showSearch={true}
+        handleSearch={_.debounce(v => {
+          if (!v) {
+            onKeyWordChange(v);
+          } else {
+            debounceOnKeyWordChange(v);
+          }
+        }, 500)}
+      />
       {loading && !data.length && <LoadDiv className="mTop80" />}
       {!loading && !data.length && (
         <EmptyCon>

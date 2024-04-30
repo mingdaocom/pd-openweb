@@ -11,12 +11,13 @@ import { getPssId } from 'src/util/pssId';
 import qs from 'query-string';
 import qiniuAjax from 'src/api/qiniu';
 import projectAjax from 'src/api/project';
-import captcha from 'src/components/captcha';
+import { captcha } from 'ming-ui/functions';
 import accountAjax from 'src/api/account';
 import actionLogAjax from 'src/api/actionLog';
 import { SYS_COLOR, SYS_CHART_COLORS } from 'src/pages/Admin/settings/config';
 import { AT_ALL_TEXT } from 'src/components/comment/config';
 import Emotion from 'src/components/emotion/emotion';
+import moment from 'moment';
 
 export const emitter = new EventEmitter();
 
@@ -84,20 +85,6 @@ export const exportAll = r => {
     }
   });
   return componentConfig;
-};
-
-export const setItem = (key, value) => {
-  if (!key || !value) return;
-  safeLocalStorageSetItem(key, JSON.stringify(value));
-};
-
-export const getItem = key => {
-  try {
-    const str = localStorage.getItem(key);
-    return JSON.parse(str);
-  } catch (error) {
-    console.log(error);
-  }
 };
 
 export const formatNumberFromInput = (value, pointReturnEmpty = true) => {
@@ -720,8 +707,6 @@ export function getColorCountByBg(backgroundColor) {
  * 调用 app 内的方式
  */
 export function mdAppResponse(param) {
-  const ua = navigator.userAgent;
-  const isIOS = !!ua.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/);
   return new Promise((resolve, reject) => {
     // 注册监听
     window.MD_APP_RESPONSE = base64 => {
@@ -731,7 +716,7 @@ export function mdAppResponse(param) {
     // 触发监听的回调函数
     const string = JSON.stringify(param);
     const base64 = window.btoa(string);
-    if (isIOS) {
+    if (window.isMacOs) {
       window.webkit.messageHandlers.MD_APP_REQUEST.postMessage(base64);
     } else {
       window.Android.MD_APP_REQUEST(base64);
@@ -748,6 +733,7 @@ export const upgradeVersionDialog = options => {
   const versionType = options.versionType ? options.versionType : undefined;
   const isExternal = _.isEmpty(getCurrentProject(options.projectId)); // 是否为外协人员
   const helpLink = VersionProductHelpLink[options.featureId] || options.helpLink; // 帮助链接
+  const removeFooter = options.removeFooter;
 
   if (options.dialogType === 'content') {
     return (
@@ -786,10 +772,13 @@ const getSyncLicenseInfo = projectId => {
   let projectInfo = _.find(projects.concat(externalProjects), o => o.projectId === projectId) || {};
 
   if (_.isEmpty(projectInfo)) {
-    projectAjax.getProjectLicenseInfo({ projectId }, { ajaxOptions: { async: false } }).then(res => {
-      projectInfo = { ...res, projectId };
-      md.global.Account.externalProjects = (md.global.Account.externalProjects || []).concat(projectInfo);
-    });
+    if (window.isPublicApp) {
+      return {};
+    }
+    const info = projectAjax.getProjectLicenseInfo({ projectId }, { ajaxOptions: { sync: true } });
+
+    projectInfo = { ...info, projectId };
+    md.global.Account.externalProjects = (md.global.Account.externalProjects || []).concat(projectInfo);
   }
 
   return projectInfo;
@@ -811,7 +800,7 @@ export function getFeatureStatus(projectId, featureId) {
 /**
  * 功能埋点授权显示升级版本内容dialogType： dialog弹层（默认） content 页面
  */
-export function buriedUpgradeVersionDialog(projectId, featureId, extra) {
+export function buriedUpgradeVersionDialog(projectId, featureId, extra, onOk) {
   const { Versions = [] } = md.global || {};
   const { licenseType } = getSyncLicenseInfo(projectId);
   const { explainText = '', dialogType } = extra || {};
@@ -847,6 +836,7 @@ export function buriedUpgradeVersionDialog(projectId, featureId, extra) {
         : _l('请升级至%0解锁开启', upgradeName),
     versionType,
     dialogType,
+    onOk,
   });
 }
 
@@ -866,20 +856,20 @@ export function toFixed(num, dot = 0) {
   }
   const strOfNum = String(num);
   if (!/\./.test(strOfNum)) {
-    return strOfNum + '.' + ''.padEnd(dot, '0');
+    return strOfNum + '.' + _.padEnd('', dot, '0');
   }
   const decimal = ((strOfNum.match(/\.(\d+)/) || '')[1] || '').length;
   if (decimal === dot) {
     return strOfNum;
   } else if (decimal < dot) {
-    return strOfNum + ''.padEnd(dot - decimal, '0');
+    return strOfNum + _.padEnd('', dot - decimal, '0');
   } else {
     const isNegative = num < 0;
     if (isNegative) {
       num = Math.abs(num);
     }
     let data = String(Math.round(num * Math.pow(10, dot)));
-    data = data.padStart(dot, '0');
+    data = _.padStart(data, dot, '0');
     return (isNegative ? '-' : '') + Math.floor(data / Math.pow(10, dot)) + '.' + data.slice(-1 * dot);
   }
 }
@@ -989,12 +979,13 @@ export const getUnUniqName = (data, name = '', key = 'name') => {
   const nameExists = _.some(data, [key, name]);
 
   if (nameExists) {
-    const maxNumber = _.maxBy(
-      _.filter(data, item => _.startsWith(item[key], String(name))),
-      item => parseInt(item[key].replace(/^.*?(\d+)$/, '$1')),
+    const maxNumber = _.max(
+      _.filter(data, item => _.startsWith(item[key], String(name).replace(/\d*$/, ''))).map(item =>
+        parseInt(item[key].replace(/^.*?(\d+)$/, '$1')),
+      ),
     );
 
-    name = `${name}${parseInt(_.get(maxNumber, [key], 0)) + 1}`;
+    name = String(name).replace(/\d*$/, maxNumber + 1);
   }
 
   return name;
@@ -1145,7 +1136,12 @@ export const setFavicon = (iconUrl, iconColor) => {
   fetch(iconUrl)
     .then(res => res.text())
     .then(data => {
-      data = btoa(data.replace(/fill=\".*?\"/g, '').replace(/\<svg/, `<svg fill="${iconColor}"`));
+      if (iconUrl.indexOf('_preserve.svg') === -1) {
+        data = btoa(data.replace(/fill=\".*?\"/g, '').replace(/\<svg/, `<svg fill="${iconColor}"`));
+      } else {
+        data = btoa(data.replace(/\<svg/, `<svg fill="${iconColor}"`));
+      }
+
       $('[rel="icon"]').attr('href', `data:image/svg+xml;base64,${data}`);
     });
 };
@@ -1373,24 +1369,23 @@ export const createLinksForMessage = function (args) {
 
 // 验证网络是否到期异步
 export const expireDialogAsync = function (projectId) {
-  let def = $.Deferred();
-  // 个人
-  if (!projectId) {
-    def.resolve();
-  } else {
-    if (getCurrentProject(projectId, true).licenseType === 0) {
-      upgradeVersionDialog({
-        projectId,
-        explainText: _l('请升级至付费版解锁开启'),
-        isFree: true,
-      });
-      def.reject();
+  return new Promise((resolve, reject) => {
+    // 个人
+    if (!projectId) {
+      resolve();
     } else {
-      def.resolve();
+      if (getCurrentProject(projectId, true).licenseType === 0) {
+        upgradeVersionDialog({
+          projectId,
+          explainText: _l('请升级至付费版解锁开启'),
+          isFree: true,
+        });
+        reject();
+      } else {
+        resolve();
+      }
     }
-  }
-
-  return def.promise();
+  });
 };
 
 // 提示邀请结果
@@ -1443,7 +1438,7 @@ export const existAccountHint = function (result) {
   let limitAccountInfos = []; // 邀请限制
   let forbidAccountInfos = []; // 账号来源类型受限
 
-  result.results.forEach(singleResult => {
+  (result.results || []).forEach(singleResult => {
     // 成功
     if (singleResult.accountInfos) {
       accountInfos = accountInfos.concat(singleResult.accountInfos);
@@ -1532,4 +1527,40 @@ export const getTranslateInfo = (appId, id, data) => {
   const langData = data || window[`langData-${appId}`] || [];
   const info = _.find(langData, { correlationId: id });
   return info ? info.data || {} : {};
+};
+
+/**
+ * 获取时区
+ */
+const getTimeZone = () => {
+  const serverZone = md.global.Config.DefaultTimeZone; // 服务器时区
+  const userZone = md.global.Account.timeZone === 1 ? new Date().getTimezoneOffset() * -1 : md.global.Account.timeZone; // 用户时区
+
+  return { serverZone, userZone };
+};
+
+/**
+ * 日期时间转为用户时区时间
+ */
+export const dateConvertToUserZone = date => {
+  if (!date) return '';
+
+  const { serverZone, userZone } = getTimeZone();
+
+  return moment(date)
+    .add(userZone - serverZone, 'm')
+    .format('YYYY-MM-DD HH:mm:ss');
+};
+
+/**
+ * 日期时间转为服务器时区时间
+ */
+export const dateConvertToServerZone = date => {
+  if (!date) return '';
+
+  const { serverZone, userZone } = getTimeZone();
+
+  return moment(date)
+    .add(serverZone - userZone, 'm')
+    .format('YYYY-MM-DD HH:mm:ss');
 };

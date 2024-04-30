@@ -13,6 +13,9 @@ const Wrap = styled.div`
     border-top: 1px solid #f5f5f5;
     max-height: 300px;
     overflow: auto;
+    .viewName {
+      word-break: break-all;
+    }
   }
   .pAll16 {
     padding: 16px;
@@ -155,7 +158,7 @@ export default function BtnRangeDrop(props) {
                 let isList = safeParse(_.get(data, 'advancedSetting.listviews'), 'array').includes(it.viewId);
                 return (
                   <div className="flexRow alignItemsCenter mTop10">
-                    <span className="flex">{it.name}</span>
+                    <span className="flex viewName">{it.name}</span>
                     <span
                       className="flex Hand"
                       onClick={() => {

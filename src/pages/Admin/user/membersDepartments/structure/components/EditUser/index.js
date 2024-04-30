@@ -60,11 +60,12 @@ export default class EditUser extends Component {
       this.iti = intlTelInput(this.mobilePhone, {
         customPlaceholder: '',
         autoPlaceholder: 'off',
-        initialCountry: 'cn',
         loadUtils: '',
-        preferredCountries: ['cn'],
+        initialCountry: _.get(md, 'global.Config.DefaultConfig.initialCountry') || 'cn',
+        preferredCountries: _.get(md, 'global.Config.DefaultConfig.preferredCountries') || ['cn'],
         utilsScript: utils,
         separateDialCode: true,
+        showSelectedDialCode: true,
       });
     }
   };
@@ -93,13 +94,14 @@ export default class EditUser extends Component {
             jobIds: typeCursor === 3 ? this.state.jobIds : (user.jobInfos || []).map(item => item.jobId),
             jobList: jobs,
             worksiteList: workSites,
+            orgRoles: user.orgRoles || [],
           },
         });
       });
   };
   changeFormInfo = (e, field) => {
     this.setState({
-      [field]: field === 'mobilePhone' ? this.iti.getNumber() : e.target.value,
+      [field]: field === 'mobilePhone' ? e.target.value.replace(/ +/g, '') : e.target.value,
       isClickSubmit: false,
     });
   };
@@ -119,7 +121,14 @@ export default class EditUser extends Component {
   };
   agreeJoin = () => {
     const { projectId, accountId, onClose = () => {} } = this.props;
-    const { jobIds = [], departmentInfos = [], jobNumber, workSiteId, contactPhone } = this.baseFormInfo.state;
+    const {
+      jobIds = [],
+      departmentInfos = [],
+      jobNumber,
+      workSiteId,
+      contactPhone,
+      orgRoles = [],
+    } = this.baseFormInfo.state;
 
     userController
       .agreeUserJoin({
@@ -130,6 +139,7 @@ export default class EditUser extends Component {
         workSiteId,
         jobNumber,
         contactPhone,
+        orgRoleIds: orgRoles.map(l => l.id),
       })
       .then(
         result => {
@@ -151,7 +161,14 @@ export default class EditUser extends Component {
   };
   saveFn = () => {
     const { projectId, accountId } = this.props;
-    const { jobIds = [], departmentInfos = [], jobNumber, workSiteId, contactPhone } = this.baseFormInfo.state;
+    const {
+      jobIds = [],
+      departmentInfos = [],
+      jobNumber,
+      workSiteId,
+      contactPhone,
+      orgRoles,
+    } = this.baseFormInfo.state;
 
     if (!md.global.Config.IsLocal || md.global.Config.IsPlatformLocal) {
       userController
@@ -163,6 +180,7 @@ export default class EditUser extends Component {
           jobNumber,
           contactPhone,
           workSiteId,
+          orgRoleIds: orgRoles.map(l => l.id),
         })
         .then(
           result => {
@@ -210,6 +228,7 @@ export default class EditUser extends Component {
         projectId,
         workSiteId,
         contactPhone,
+        orgRoleIds: orgRoles.map(l => l.id),
       };
 
       this.setState({ isUploading: true });
@@ -229,7 +248,7 @@ export default class EditUser extends Component {
               }
               this.setState({ isUploading: false });
             })
-            .fail(err => {
+            .catch(err => {
               this.setState({ isUploading: false });
               this.itiFn();
             });
@@ -273,7 +292,7 @@ export default class EditUser extends Component {
                 })}
                 value={this.fromatMobilePhoe(mobilePhone)}
                 manualRef={ele => (this.mobilePhone = ele)}
-                onChange={e => this.changeFormInfo(e, 'mobilePhone')}
+                onInput={e => this.changeFormInfo(e, 'mobilePhone')}
                 placeholder={_l('请输入')}
                 onFocus={() => {
                   this.clearError('mobilePhone');

@@ -4,12 +4,11 @@ import { Motion, spring } from 'react-motion';
 import { generate } from '@ant-design/colors';
 import cx from 'classnames';
 import DocumentTitle from 'react-document-title';
-import { Icon, Menu, MenuItem, Skeleton, UpgradeIcon } from 'ming-ui';
+import { Icon, Menu, MenuItem, Skeleton, UpgradeIcon, SvgIcon } from 'ming-ui';
 import { connect } from 'react-redux';
 import { navigateTo } from 'src/router/navigateTo';
 import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
 import CopyApp from 'src/pages/AppHomepage/components/CopyApp';
-import SvgIcon from 'src/components/SvgIcon';
 import { changeAppColor, changeNavColor, setAppStatus, syncAppDetail } from 'src/pages/PageHeader/redux/action';
 import { refreshSheetList } from 'worksheet/redux/actions/sheetList';
 import api from 'api/homeApp';
@@ -20,7 +19,7 @@ import CommonUserHandle, { LeftCommonUserHandle } from '../../components/CommonU
 import PortalUserSet from 'src/pages/PageHeader/components/PortalUserSet';
 import MyProcessEntry from '../../components/MyProcessEntry';
 import { DROPDOWN_APP_CONFIG } from '../config';
-import { getIds, compareProps, getItem, setItem, getAppConfig } from '../../util';
+import { getIds, compareProps, getAppConfig } from '../../util';
 import EditAppIntro from './EditIntro';
 import AppGroup from '../AppGroup';
 import LeftAppGroup from '../LeftAppGroup';
@@ -69,7 +68,7 @@ export default class AppInfo extends Component {
   constructor(props) {
     super(props);
     const { appId } = getIds(props);
-    const openedApps = getItem('openedApps');
+    const openedApps = safeParse(localStorage.getItem('openedApps'), 'array');
     this.state = {
       indexSideVisible: false,
       appConfigVisible: false,
@@ -93,18 +92,17 @@ export default class AppInfo extends Component {
   componentDidMount() {
     this.ids = getIds(this.props);
     this.getData();
-    const openedApps = getItem('openedApps') || [];
+    window.updateAppGroups = this.getData;
+    const openedApps = safeParse(localStorage.getItem('openedApps'), 'array');
     const { appId } = this.ids;
     if (!_.includes(openedApps, appId)) {
-      setItem('openedApps', openedApps.concat(appId));
+      safeLocalStorageSetItem('openedApps', JSON.stringify(openedApps.concat(appId)));
     }
   }
 
   componentWillReceiveProps(nextProps) {
     this.ids = getIds(nextProps);
-    if (
-      compareProps(nextProps.match.params, this.props.match.params, ['appId'])
-    ) {
+    if (compareProps(nextProps.match.params, this.props.match.params, ['appId'])) {
       this.getData(nextProps);
     }
     if (
@@ -138,6 +136,7 @@ export default class AppInfo extends Component {
     clearTimeout(this.clickTimer);
     $('[rel="icon"]').attr('href', '/favicon.png');
     document.querySelector('body').classList.remove('leftNavigationStyleWrap');
+    delete window.updateAppGroups;
   }
 
   checkIsFull = worksheetId => {
@@ -149,7 +148,7 @@ export default class AppInfo extends Component {
   };
 
   checkNavigationStyle = currentPcNaviStyle => {
-    if (currentPcNaviStyle === 1) {
+    if ([1, 3].includes(currentPcNaviStyle)) {
       document.querySelector('body').classList.add('leftNavigationStyleWrap');
     } else {
       document.querySelector('body').classList.remove('leftNavigationStyleWrap');
@@ -179,7 +178,7 @@ export default class AppInfo extends Component {
         appId,
         getSection: true,
         getManager: window.isPublicApp ? false : true,
-        getLang: true
+        getLang: true,
       },
       { silent: true },
     );
@@ -189,14 +188,20 @@ export default class AppInfo extends Component {
       const lang = await appManagementApi.getAppLangDetail({
         projectId: data.projectId,
         appId,
-        appLangId: langInfo.appLangId
+        appLangId: langInfo.appLangId,
       });
-      window[`langData-${appId}`] = lang;
+      window[`langData-${appId}`] = lang.items;
       window[`langVersion-${appId}`] = langInfo.version;
     }
+    if (_.isEmpty(langInfo)) {
+      window[`langData-${appId}`] = undefined;
+      window[`langVersion-${appId}`] = undefined;
+    }
 
-    data.currentPcNaviStyle = checkRecordInfo(location.pathname) || !_.find(pcNavList, { value: data.pcNaviStyle }) ? 0 : data.pcNaviStyle;
+    data.currentPcNaviStyle =
+      checkRecordInfo(location.pathname) || !_.find(pcNavList, { value: data.pcNaviStyle }) ? 0 : data.pcNaviStyle;
     data.themeType = this.getThemeType(data.iconColor, data.navColor);
+    data.needUpdate = Date.now();
 
     this.setState({ data });
     // 同步应用信息至工作表
@@ -223,6 +228,7 @@ export default class AppInfo extends Component {
       'managers',
       'selectAppItmeType',
       'debugRole',
+      'displayIcon',
     ]);
     syncAppDetail(appDetail);
     this.checkNavigationStyle(data.currentPcNaviStyle);
@@ -311,7 +317,7 @@ export default class AppInfo extends Component {
     const firstSheetId =
       currentPcNaviStyle === 2
         ? ''
-        : getSheetListFirstId(currentPcNaviStyle === 1 ? appSectionDetail : data, isCharge) || '';
+        : getSheetListFirstId([1, 3].includes(currentPcNaviStyle) ? appSectionDetail : data, isCharge) || '';
 
     if (appId && worksheetId !== firstSheetId) {
       navigateTo(`/app/${appId}/${groupId}/${firstSheetId}`);
@@ -422,7 +428,8 @@ export default class AppInfo extends Component {
             return;
           }
           if (type === 'appManageMenu') {
-            navigateTo(`/app/${appId}/settings/options`);
+            const appManageMenuType = localStorage.getItem('appManageMenu');
+            navigateTo(`/app/${appId}/settings/${appManageMenuType ? appManageMenuType : 'options'}`);
             return;
           }
 
@@ -451,7 +458,7 @@ export default class AppInfo extends Component {
     this.props.refreshSheetList();
   };
 
-  renderAppInfoWrap = (showName) => {
+  renderAppInfoWrap = showName => {
     const { appStatus, ...props } = this.props;
     const { appConfigVisible, modifyAppIconAndNameVisible, data } = this.state;
     const {
@@ -470,7 +477,7 @@ export default class AppInfo extends Component {
       themeType,
       sourceType,
     } = data;
-    const isUpgrade = appStatus === 10;
+    const isUpgrade = _.includes([10, 11], appStatus);
     const isNormalApp = _.includes([1, 5], appStatus);
     const { s, tb, tr } = getAppFeaturesVisible();
     let list = getAppConfig(DROPDOWN_APP_CONFIG, permissionType) || [];
@@ -549,7 +556,7 @@ export default class AppInfo extends Component {
                   <SvgIcon
                     url={iconUrl}
                     fill={['black', 'light'].includes(themeType) ? iconColor : '#FFF'}
-                    size={currentPcNaviStyle === 1 ? 28 : 24}
+                    size={[1, 3].includes(currentPcNaviStyle) ? 28 : 24}
                   />
                 </div>
                 <span className="appName overflow_ellipsis">{showName}</span>
@@ -558,7 +565,7 @@ export default class AppInfo extends Component {
           )}
           {!(pcDisplay && !isAuthorityApp) && (fixed || isUpgrade) && (
             <div className={cx({ appFixed: fixed, appUpgrade: isUpgrade })}>
-              {isUpgrade ? _l('升级中') : _l('维护中')}
+              {isUpgrade ? (appStatus === 11 ? _l('还原中') : _l('升级中')) : _l('维护中')}
             </div>
           )}
 
@@ -620,7 +627,7 @@ export default class AppInfo extends Component {
       );
     };
 
-    if (currentPcNaviStyle === 1) {
+    if ([1, 3].includes(currentPcNaviStyle)) {
       const renderContent = (count, onClick) => {
         return (
           <div className="flexRow alignItemsCenter pointer White backlogWrap" onClick={onClick}>
@@ -691,7 +698,7 @@ export default class AppInfo extends Component {
     const isNormalApp = _.includes([1, 5], appStatus);
     const isAuthorityApp = canEditApp(permissionType, isLock);
     const hasCharge = canEditApp(permissionType) || canEditData(permissionType);
-    const AppGroupComponent = currentPcNaviStyle === 1 ? LeftAppGroup : AppGroup;
+    const AppGroupComponent = [1, 3].includes(currentPcNaviStyle) ? LeftAppGroup : AppGroup;
     const showName = getTranslateInfo(appId, appId).name || data.name;
     const canDebug = (debugRole || {}).canDebug || false;
     // loading 不展示导航
@@ -703,12 +710,12 @@ export default class AppInfo extends Component {
         className={cx('appPkgHeaderWrap', themeType)}
         style={{
           backgroundColor: navColor,
-          width: currentPcNaviStyle === 1 ? 240 : undefined,
+          width: [1, 3].includes(currentPcNaviStyle) ? 240 : undefined,
         }}
       >
         <DocumentTitle title={showName} />
         {this.renderAppInfoWrap(showName)}
-        {currentPcNaviStyle === 1 && (((pcDisplay || fixed) && !isAuthorityApp) || isUpgrade) && (
+        {[1, 3].includes(currentPcNaviStyle) && (((pcDisplay || fixed) && !isAuthorityApp) || isUpgrade) && (
           <div className="LeftAppGroupWrap w100 h100">
             <Skeleton active={false} />
           </div>
@@ -728,7 +735,7 @@ export default class AppInfo extends Component {
             otherAllShow={!(fixed && !hasCharge) && !(pcDisplay && !hasCharge)}
           />
         )}
-        {currentPcNaviStyle === 1 && (
+        {[1, 3].includes(currentPcNaviStyle) && (
           <Fragment>
             <div className="topRadius" style={{ color: navColor }} />
             <div className="bottomRadius" style={{ color: navColor }} />
@@ -776,7 +783,7 @@ export default class AppInfo extends Component {
           <EditAppIntro
             cacheKey="appIntroDescription"
             data={data}
-            description={isEditing ? description : (getTranslateInfo(appId, appId).description || description)}
+            description={isEditing ? description : getTranslateInfo(appId, appId).description || description}
             permissionType={permissionType}
             isLock={isLock}
             // isEditing={!description && isAuthorityApp}
@@ -846,7 +853,7 @@ export default class AppInfo extends Component {
             iconColor={data.iconColor}
             currentPcNaviStyle={currentPcNaviStyle}
           />
-        ) : currentPcNaviStyle === 1 ? (
+        ) : [1, 3].includes(currentPcNaviStyle) ? (
           <LeftCommonUserHandle type="appPkg" isAuthorityApp={isAuthorityApp} data={data} {...props} />
         ) : (
           <CommonUserHandle type="appPkg" {...props} />

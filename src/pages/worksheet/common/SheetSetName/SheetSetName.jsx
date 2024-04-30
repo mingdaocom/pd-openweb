@@ -37,7 +37,7 @@ export default class SheetSetName extends Component {
           this.props.updateSheetInfo(this.props.worksheetId, args);
           alert(_l('修改成功'));
         })
-        .fail((err) => {
+        .catch((err) => {
           alert(_l('修改失败'), 2);
         });
     }

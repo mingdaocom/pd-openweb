@@ -1,20 +1,21 @@
-import React from 'react';
+import React, { Fragment } from 'react';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 import ResourceView from 'src/pages/worksheet/views/ResourceView';
 import ViewErrorPage from '../components/ViewErrorPage';
 import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
+import QuickFilterSearch from 'mobile/RecordList/QuickFilter/QuickFilterSearch';
+import * as actions from 'mobile/RecordList/redux/actions';
 import styled from 'styled-components';
 
-export default function MobileResourceView(props) {
-  
-  // return (
-  //   <div className="h100 flexColumn justifyContentCenter alignItemsCenter Gray_bd">
-  //     <i className="icon-computer mBottom32" style={{ fontSize: 100 }} />
-  //     <div className="Font17">{_l('移动端暂不支持此视图')}</div>
-  //     <div className="Font17">{_l('请前往电脑端进行查看')}</div>
-  //   </div>
-  // );
+const ResourceViewWrap = styled.div`
+  flex: 1;
+  margin-top: 10px;
+  background-color: #fff;
+`;
 
-  const { view, controls, sheetSwitchPermit } = props;
+function MobileResourceView(props) {
+  const { view, controls, sheetSwitchPermit, quickFilter, appDetail, worksheetInfo, updateFilters = () => {} } = props;
   const viewControlInfo =
     (
       setSysWorkflowTimeControlFormat(
@@ -27,5 +28,40 @@ export default function MobileResourceView(props) {
     return <ViewErrorPage icon="arrows_square" viewName={view.name + _l('视图')} color="#4caf50" />;
   }
 
-  return <ResourceView {...props} />;
+  const { detail } = appDetail;
+  const filters = view.fastFilters
+    .map(filter => ({
+      ...filter,
+      control: _.find(controls, c => c.controlId === filter.controlId),
+    }))
+    .filter(c => c.control);
+  const isFilter = quickFilter.length;
+
+  return (
+    <Fragment>
+      <QuickFilterSearch
+        excludeTextFilter={filters}
+        isFilter={isFilter}
+        filters={props.filters}
+        detail={detail}
+        view={view}
+        worksheetInfo={worksheetInfo}
+        sheetControls={controls}
+        updateFilters={updateFilters}
+      />
+      <ResourceViewWrap>
+        <ResourceView {...props} />;
+      </ResourceViewWrap>
+    </Fragment>
+  );
 }
+
+export default connect(
+  state => ({
+    quickFilter: state.mobile.quickFilter,
+    worksheetInfo: state.mobile.worksheetInfo,
+    filters: state.mobile.filters,
+    appDetail: state.mobile.appDetail,
+  }),
+  dispatch => bindActionCreators(_.pick({ ...actions }, ['updateFilters']), dispatch),
+)(MobileResourceView);

@@ -1,9 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
 import cx from 'classnames';
-import { Icon, ScrollView, QiniuUpload } from 'ming-ui';
+import { Icon, ScrollView, QiniuUpload, SvgIcon, Checkbox } from 'ming-ui';
 import ajaxRequest from 'src/api/appManagement';
-import SvgIcon from 'src/components/SvgIcon';
 import './index.less';
 import _ from 'lodash';
 
@@ -11,6 +10,8 @@ export default class CustomIcon extends Component {
   state = {
     selected: [],
     data: null,
+    preserveColor: false,
+    cacheKey: +new Date(),
   };
 
   cacheData = [];
@@ -85,7 +86,7 @@ export default class CustomIcon extends Component {
 
   render() {
     const { onClose, projectId } = this.props;
-    const { selected, data } = this.state;
+    const { selected, data, preserveColor, cacheKey } = this.state;
 
     return (
       <div className="orgManagementWrap flex flexColumn">
@@ -96,42 +97,53 @@ export default class CustomIcon extends Component {
             <Icon icon="backspace" className="Font22 ThemeHoverColor3 pointer" onClick={onClose} />
             <div className="Font17 bold flex mLeft10">{_l('自定义图标')}</div>
           </div>
-
-          <QiniuUpload
-            options={{
-              filters: {
-                mime_types: [{ extensions: 'svg' }],
-              },
-              ext_blacklist: [],
-              bucket: 2,
-              type: 5,
-            }}
-            onUploaded={(up, files) => {
-              this.cacheData.push(files);
-            }}
-            onUploadComplete={res => {
-              if (res) {
-                const data = this.cacheData.map(file => ({
-                  fileName: file.fileName.replace(/\.[^\.]*$/, ''),
-                  originalFileName: file.originalFileName,
-                  serverName: file.serverName,
-                  key: file.key,
-                }));
-                ajaxRequest.addCustomIcon({ projectId, data }).then(() => {
-                  this.cacheData = [];
-                  this.getList();
-                });
-              }
-            }}
-            onError={(up, err, errTip) => {
-              alert(errTip, 2);
-            }}
-          >
-            <div className="ThemeBGColor3 ThemeHoverBGColor2 pointer White appManagementUploadBtn" id="customIconBtn">
-              <Icon icon="add" className="Font18 mRight2" />
-              {_l('上传图标')}
-            </div>
-          </QiniuUpload>
+          <div className="flexRow alignItemsCenter">
+            <Checkbox
+              className="InlineBlock mRight15"
+              text={_l('上传图标保留颜色')}
+              checked={preserveColor}
+              onClick={() => this.setState({ preserveColor: !preserveColor, cacheKey: +new Date() })}
+            />
+            <QiniuUpload
+              key={cacheKey}
+              options={{
+                filters: {
+                  mime_types: [{ extensions: 'svg' }],
+                },
+                ext_blacklist: [],
+                bucket: 2,
+                type: 5,
+              }}
+              getTokenParam={{
+                extend: preserveColor ? 'preserve' : '',
+              }}
+              onUploaded={(up, files) => {
+                this.cacheData.push(files);
+              }}
+              onUploadComplete={res => {
+                if (res) {
+                  const data = this.cacheData.map(file => ({
+                    fileName: file.fileName.replace(/\.[^\.]*$/, ''),
+                    originalFileName: file.originalFileName,
+                    serverName: file.serverName,
+                    key: file.key,
+                  }));
+                  ajaxRequest.addCustomIcon({ projectId, data }).then(() => {
+                    this.cacheData = [];
+                    this.getList();
+                  });
+                }
+              }}
+              onError={(up, err, errTip) => {
+                alert(errTip, 2);
+              }}
+            >
+              <div className="ThemeBGColor3 ThemeHoverBGColor2 pointer White appManagementUploadBtn" id="customIconBtn">
+                <Icon icon="add" className="Font18 mRight2" />
+                {_l('上传图标')}
+              </div>
+            </QiniuUpload>
+          </div>
         </div>
         <div className="mTop16 mLeft24 mRight24">
           {!selected.length ? (

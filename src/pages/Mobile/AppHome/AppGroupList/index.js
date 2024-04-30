@@ -1,9 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import * as actions from '../redux/actions';
-import { Icon } from 'ming-ui';
+import { Icon, SvgIcon } from 'ming-ui';
 import cx from 'classnames';
-import SvgIcon from 'src/components/SvgIcon';
 import { getCurrentProject } from 'src/util';
 import Back from '../../components/Back';
 

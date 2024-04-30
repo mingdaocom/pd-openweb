@@ -190,7 +190,6 @@ export default function CarouselPreview(props) {
   const [code, setCode] = useState(0);
   const contentRef = useRef();
   const isMobile = browserIsMobile();
-  const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
 
   const { worksheetId, viewId, image, count, title, subTitle, url } = componentConfig;
   const imageControl = _.find(controls, { controlId: image }) || {};
@@ -276,7 +275,7 @@ export default function CarouselPreview(props) {
       const { appId } = await homeAppAjax.getAppSimpleInfo({ workSheetId: worksheetId });
       addBehaviorLog('worksheetRecord', worksheetId, { rowId: rowid }); // 埋点
 
-      if (isMingdao) {
+      if (window.isMingDaoApp) {
         location.href = `/app/${appId}/${worksheetId}/${viewId}/row/${rowid}`;
         return;
       }

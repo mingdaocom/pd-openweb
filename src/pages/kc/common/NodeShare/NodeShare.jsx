@@ -78,4 +78,4 @@ class NodeShare extends React.Component {
   }
 }
 
-export default preall(NodeShare, { allownotlogin: true });
+export default preall(NodeShare, { allowNotLogin: true });

@@ -9,6 +9,6 @@ export default {
   **/
    autoCompleteCategory: function (args, options = {}) {
      
-     return $.api('Category', 'AutoCompleteCategory', args, options);
+     return mdyAPI('Category', 'AutoCompleteCategory', args, options);
    },
 };

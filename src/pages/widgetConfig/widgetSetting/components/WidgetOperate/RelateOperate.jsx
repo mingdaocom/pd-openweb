@@ -30,7 +30,7 @@ export default function RelateOperate(props) {
   const { loading, views = [], controls = [] } = window.subListSheetConfig[controlId] || {};
   const selectedViewIsDeleted = !loading && viewId && !_.find(views, sheet => sheet.viewId === viewId);
   const selectedOpenViewIsDelete = !loading && openview && !_.find(views, sheet => sheet.viewId === openview);
-  const isList = enumDefault === 2 && showtype === '2';
+  const isList = enumDefault === 2 && _.includes(['2', '5', '6'], showtype);
 
   const [{ filterVisible }, setState] = useSetState({
     filterVisible: false,

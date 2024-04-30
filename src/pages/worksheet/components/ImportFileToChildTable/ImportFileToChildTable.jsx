@@ -26,7 +26,6 @@ export default function ImportFileToChildTable(props) {
   return (
     <Modal
       visible
-      maskClosable
       verticalAlign="bottom"
       width={1000}
       closeSize={50}

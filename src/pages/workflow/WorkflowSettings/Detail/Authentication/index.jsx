@@ -71,10 +71,10 @@ export default class Authentication extends Component {
    * 获取节点详情
    */
   getNodeDetail(props) {
-    const { processId, selectNodeId, selectNodeType, isIntegration } = props;
+    const { processId, selectNodeId, selectNodeType, isIntegration, instanceId } = props;
 
     flowNode
-      .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType }, { isIntegration })
+      .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, instanceId }, { isIntegration })
       .then(result => {
         if (result.appType === APP_TYPE.OAUTH2 && !result.webHookNodes.length) {
           result.webHookNodes = [
@@ -328,7 +328,7 @@ export default class Authentication extends Component {
                       <RadioGroup
                         className="Font12"
                         data={[
-                          { text: 'none', value: 0, checked: item.contentType === 0 },
+                          // { text: 'none', value: 0, checked: item.contentType === 0 },
                           { text: 'x-www-form-urlencoded', value: 1, checked: item.contentType === 1 },
                           { text: 'raw(JSON)', value: 2, checked: item.contentType === 2 },
                         ]}

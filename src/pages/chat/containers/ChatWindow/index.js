@@ -33,7 +33,7 @@ class ChatWindow extends Component {
         type,
         value: id,
       })
-      .done(result => {
+      .then(result => {
         let data = {};
         if (type == Constant.SESSIONTYPE_USER) {
           data = {

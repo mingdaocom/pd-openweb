@@ -12,12 +12,11 @@ import {
   DEFAULT_COLUMNS,
   getControlSelectType,
 } from 'src/pages/worksheet/common/WorkSheetFilter/enum.js';
-import { getIconByType, getSwitchItemNames } from 'src/pages/widgetConfig/util';
-import { WIDGETS_TO_API_TYPE_ENUM, SYS_CONTROLS } from 'pages/widgetConfig/config/widget';
+import { getIconByType, getSwitchItemNames, isSheetDisplay } from 'src/pages/widgetConfig/util';
+import { WIDGETS_TO_API_TYPE_ENUM, SYS_CONTROLS, SYS } from 'pages/widgetConfig/config/widget';
 import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting';
 import _ from 'lodash';
 import moment from 'moment';
-import { isRelateRecordTableControl } from 'worksheet/util';
 import { getUnUniqName } from 'src/util';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -146,40 +145,49 @@ function filterDropDown(controls = [], actionType) {
     }
   }
 
-  controls.forEach(item => {
-    if (_.includes([29, 34, 52], item.type)) {
-      if (item.type !== 52) {
-        item.relationControls = (item.relationControls || [])
+  return controls
+    .filter(item => !_.includes(filterControls, item.type))
+    .map(item => {
+      if (_.includes([29, 34], item.type)) {
+        const relationControls = (item.relationControls || [])
           .filter(re => _.includes(item.showControls || [], re.controlId))
           .filter(re => !_.includes(SYS_CONTROLS, re.controlId))
-          .filter(re => re.type !== 52);
+          .filter(re => re.type !== 52)
+          .filter(re => !_.includes(filterControls, re.type));
         // 关联卡片、下拉框在以下情况下不支持配置内部控件
-        if (item.type === 29 && _.get(item, 'advancedSetting.showtype') !== '2' && _.includes([3, 4, 5], actionType)) {
-          item.relationControls = [];
-        }
+        const needClear =
+          item.type === 29 &&
+          !_.includes(['2', '5', '6'], _.get(item, 'advancedSetting.showtype')) &&
+          _.includes([3, 4, 5], actionType);
+        return { ...item, relationControls: needClear ? [] : relationControls };
+      } else if (item.type === 52) {
+        return { ...item, relationControls: filterDropDown(item.relationControls, actionType) };
       } else {
-        item.relationControls = filterDropDown(item.relationControls, actionType);
+        // 防止关联单挑等渲染出子集情况
+        return { ...item, relationControls: [] };
       }
-    } else {
-      // 防止关联单挑等渲染出子集情况
-      if (item.relationControls) item.relationControls = [];
-    }
-  });
-  return controls.filter(item => !_.includes(filterControls, item.type));
+    });
 }
 
 //过滤隐藏的子表字段
 export function getNewDropDownData(dropDownData = [], actionType) {
-  const deepData = dropDownData.concat([]);
-  const newData = formatSectionData(deepData);
+  const newData = formatSectionData(dropDownData);
   let filterData = filterDropDown(newData, actionType);
+  // 必填过滤关联多条列表
+  if (_.includes([5], actionType)) {
+    filterData = filterData
+      .filter(i => !isSheetDisplay(i))
+      .map(i => {
+        if (i.relationControls) {
+          return { ...i, relationControls: (i.relationControls || []).filter(r => !isSheetDisplay(r)) };
+        } else {
+          return i;
+        }
+      });
+  }
   // 空标签页在以下情况下过滤，
   if (_.includes([3, 4, 5], actionType)) {
     filterData = filterData.filter(i => !(i.type === 52 && _.isEmpty(i.relationControls)));
-  }
-  // 必填过滤关联多条列表
-  if (_.includes([5], actionType)) {
-    filterData = filterData.filter(i => !isRelateRecordTableControl(i));
   }
   return filterData;
 }
@@ -198,14 +206,7 @@ export const filterUnAvailable = (controlConfig = {}, worksheetControls = [], ty
         newItem.childControlIds = item.childControlIds.filter(i => _.find(relationControls, re => re.controlId === i));
       }
       // 已选的必填关联多条列表字段过滤
-      if (
-        !(
-          type === 5 &&
-          curItem.type === 29 &&
-          _.get(curItem.advancedSetting || {}, 'showtype') === '2' &&
-          !_.get(item, 'childControlIds.length')
-        )
-      ) {
+      if (!(type === 5 && isSheetDisplay(curItem) && !_.get(item, 'childControlIds.length'))) {
         newControls.push(item);
       }
     }
@@ -597,3 +598,26 @@ export function hasRuleChanged(data = [], selectRule = {}) {
   }
   return false;
 }
+
+// 符合错误提示配置的指定字段
+export const getErrorControls = (controls = []) => {
+  const filterControl = i => {
+    if (_.includes(SYS_CONTROLS.concat(SYS), i.controlId)) return false;
+    if (_.includes([29, 51], i.type) && _.includes(['2', '5', '6'], _.get(i, 'advancedSetting.showtype'))) return false;
+    if (_.includes([22, 43, 45, 47, 49, 10010], i.type)) return false;
+    return true;
+  };
+
+  const newData = [];
+  controls
+    .map(i => (i.type === 52 ? i : { ...i, relationControls: [] }))
+    .map(i => {
+      if (i.type === 52) {
+        newData.push({ ...i, relationControls: (i.relationControls || []).filter(r => filterControl(r)) });
+      } else if (filterControl(i)) {
+        newData.push(i);
+      }
+    });
+
+  return newData.filter(i => !(i.type === 52 && _.isEmpty(i.relationControls)));
+};

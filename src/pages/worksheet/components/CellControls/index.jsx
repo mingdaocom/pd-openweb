@@ -170,8 +170,10 @@ export default class CellControl extends React.Component {
       cell.type === 33 ||
       cell.type === 21 ||
       cell.type === 28 ||
+      cell.type === 31 ||
       cell.type === 34 ||
       cell.type === 36 ||
+      cell.type === 38 ||
       cell.type === 47 ||
       (cell.type === 29 && parseInt(cell.advancedSetting.showtype, 10) === RELATE_RECORD_SHOW_TYPE.LIST)
     );
@@ -454,7 +456,7 @@ export default class CellControl extends React.Component {
     onMouseDown();
     const haveEditingStatus = this.haveEditingStatus(cell);
     if (tableType === 'classic') {
-      if (!_.isUndefined(cache.focusIndex) && cache.focusIndex === cellIndex) {
+      if (!_.isUndefined(cache.focusIndex) && cache.focusIndex === cellIndex && haveEditingStatus) {
         this.handleUpdateEditing(true);
         return;
       }

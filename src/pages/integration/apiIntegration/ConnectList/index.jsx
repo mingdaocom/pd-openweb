@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import autoSize from 'ming-ui/decorators/autoSize';
-import { Support, ScrollView } from 'ming-ui';
+import { Support, ScrollView, Dropdown } from 'ming-ui';
 import styled from 'styled-components';
 import cx from 'classnames';
 import List from './List';
@@ -15,7 +15,6 @@ import { VersionProductType } from 'src/util/enum';
 import _ from 'lodash';
 import loadScript from 'load-script';
 import moment from 'moment';
-import { Dropdown } from 'ming-ui';
 const Wrap = styled.div`
   .mLeft18 {
     margin-left: 18px;
@@ -116,6 +115,11 @@ function Con(props) {
     setState,
   ] = useSetState({ ...initData, listCount: 0 });
   const featureType = getFeatureStatus(props.currentProjectId, VersionProductType.apiIntergration);
+  const allowAPIIntegration = _.get(
+    _.find(md.global.Account.projects, item => item.projectId === props.currentProjectId),
+    'allowAPIIntegration',
+  );
+
   const fetchData = () => {
     if (!props.currentProjectId) {
       return;
@@ -255,7 +259,7 @@ function Con(props) {
                 />
               )}
             </div>
-            {featureType && (
+            {featureType && allowAPIIntegration && (
               <span
                 className="addConnect Bold Hand"
                 onClick={() => {
@@ -337,6 +341,7 @@ function Con(props) {
               listData: list,
             });
           }}
+          allowAPIIntegration={allowAPIIntegration}
         />
       </React.Fragment>
     );
@@ -349,7 +354,7 @@ function Con(props) {
             <h3 className="Bold Font24">{_l('我的连接')}</h3>
             <p className="Font15">
               {_l('连接第三方 API 并保存鉴权认证，在工作表或工作流中调用')}
-              <Support type={3} href="https://help.mingdao.com/integration#第一步、连接与认证" text={_l('使用帮助')} />
+              <Support type={3} href="https://help.mingdao.com/integration/api#connection-certification" text={_l('使用帮助')} />
             </p>
           </div>
         </div>

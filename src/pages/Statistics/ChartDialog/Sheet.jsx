@@ -75,7 +75,7 @@ export default class ChartSheet extends Component {
   }
   get isRequestTableData() {
     const { currentReport } = this.props;
-    return ![reportTypes.NumberChart, reportTypes.PivotTable].includes(currentReport.reportType);
+    return ![reportTypes.PivotTable].includes(currentReport.reportType);
   }
   componentDidMount() {
     const { base, getTableData, tableData } = this.props;

@@ -102,6 +102,8 @@ export function UserSelector(props) {
   if (!(type === 'external' && md.global.Account.isPortal)) {
     users = staticAccounts.concat(users);
   }
+  const usersForUserList =
+    isStatic && keywords ? users.filter(u => u.fullname.toLowerCase().indexOf(keywords.toLowerCase()) > -1) : users;
   function handleSelect(user) {
     const res = [_.pick(user, ['accountId', 'avatar', 'fullname', 'job'])];
     onSelect(res);
@@ -110,6 +112,9 @@ export function UserSelector(props) {
     onClose();
   }
   useClickAway(conRef, e => {
+    if (e.target.closest('.cellUsers')) {
+      return;
+    }
     onClose(true);
   });
   useEffect(() => {
@@ -164,7 +169,7 @@ export function UserSelector(props) {
             case 'Enter':
               selected = prefixUsers
                 .slice(0, hadShowMore ? prefixUsers.length : prefixUsers.length < 2 ? prefixUsers.length : 2)
-                .concat(users)[activeIndex];
+                .concat(usersForUserList)[activeIndex];
               if (selected) {
                 handleSelect(selected);
               }
@@ -250,11 +255,7 @@ export function UserSelector(props) {
               activeIndex - (hadShowMore ? prefixUsers.length : prefixUsers.length < 2 ? prefixUsers.length : 2)
             }
             type={type}
-            list={
-              isStatic && keywords
-                ? users.filter(u => u.fullname.toLowerCase().indexOf(keywords.toLowerCase()) > -1)
-                : users
-            }
+            list={usersForUserList}
             onSelect={handleSelect}
             appId={appId}
             projectId={baseArgs.projectId}

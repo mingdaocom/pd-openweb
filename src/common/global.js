@@ -1,8 +1,54 @@
 import { getPssId } from 'src/util/pssId';
 import langConfig from './langConfig';
 import { antAlert, destroyAlert } from 'src/util/antdWrapper';
-import _ from 'lodash';
+import _, { get } from 'lodash';
 import moment from 'moment';
+import axios from 'axios';
+import qs from 'query-string';
+import localForage from 'localforage';
+import versionApi from 'src/api/version';
+
+/**
+ * 获取当前语言
+ */
+window.getCurrentLang = () => {
+  const currentLang = getCookie('i18n_langtag');
+  const lang = navigator.language;
+  let langKey = 'zh-Hans';
+
+  if (currentLang) {
+    return currentLang;
+  }
+
+  if (lang.substr(0, 2) === 'en') {
+    langKey = 'en';
+  } else {
+    switch (lang) {
+      case 'zh-TW':
+      case 'zh-HK':
+      case 'zh-Hant':
+        langKey = 'zh-Hant';
+        break;
+      case 'ja':
+        langKey = 'ja';
+    }
+  }
+
+  setCookie('i18n_langtag', langKey);
+
+  return langKey;
+};
+
+/**
+ * 获取当前语言code
+ */
+window.getCurrentLangCode = lang => {
+  if (!lang) {
+    lang = getCurrentLang();
+  }
+
+  return _.find(langConfig, o => o.key === lang).code;
+};
 
 /**
  * Cookies 写入
@@ -90,10 +136,25 @@ window._l = function (key, ...args) {
   return content;
 };
 
-/**
- * 是否是钉钉环境下
- */
-window.isDingTalk = window.navigator.userAgent.toLowerCase().includes('dingtalk');
+const ua = window.navigator.userAgent.toLowerCase();
+
+window.isDingTalk = ua.includes('dingtalk'); // 是否是钉钉环境下
+window.isMacOs = ua.includes('mac os'); // 是否是mac os环境下
+window.isMingDaoApp = ua.includes('mingdao application'); //是否是明道app环境下
+window.isMiniProgram = ua.includes('miniprogram'); //是否是小程序环境下
+window.isWxWork = ua.includes('wxwork'); // 是否是企业微信环境下
+window.isWeLink = ua.includes('huawei-anyoffice'); // 是否是WeLink环境下
+window.isFeiShu = ua.includes('feishu'); // 是否是飞书环境下
+window.isWeiXin = ua.includes('micromessenger'); // 是否是微信环境下
+window.isIphone = ua.includes('iphone'); // 是否是iphone环境下
+window.isAndroid = ua.includes('android'); // 是否是android环境下
+window.isChrome = ua.includes('chrome'); // 是否chrome环境下
+window.isFirefox = ua.includes('firefox'); // 是否firefox环境下
+window.isEdge = ua.includes('edge'); // 是否edge环境下
+window.isSafari = /^((?!chrome|android).)*safari/i.test(ua); // 是否safari环境下
+window.isMDClient = ua.includes('mdclient'); // 是否是明道云客户端
+window.isWindows = ua.includes('windows'); // 是否是windows环境下
+window.isIPad = ua.includes('ipad'); // 是否是ipad环境下
 
 /**
  * 全局变量
@@ -107,11 +168,17 @@ window.md = {
     Config: {
       DefaultLang: 'zh-Hans',
       IsLocal: true,
+      ServiceTel: '400-665-6655',
+      DefaultConfig: {
+        initialCountry: 'cn',
+        preferredCountries: ['cn'],
+        onlyCountries: [],
+      },
     },
     getCaptchaType: () => {
       return window.localStorage.getItem('captchaType')
         ? parseInt(window.localStorage.getItem('captchaType'))
-        : navigator.userAgent.toLowerCase().match(/miniprogram|wechatdevtools|wxwork/) || !window.TencentCaptcha
+        : ua.match(/miniprogram|wechatdevtools|wxwork/) || !window.TencentCaptcha
         ? 1
         : md.global.Config.CaptchaType || 0;
     },
@@ -119,6 +186,14 @@ window.md = {
       passwordRegex: /^(?=.*\d)(?=.*[a-zA-Z]).{8,20}$/,
       passwordRegexTip: '',
       hideHelpTip: true,
+      enableMobilePhoneRegister: true,
+      enableEmailRegister: false,
+      hideRegister: false,
+      hideBrandLogo: false,
+      brandLogoHeight: 40,
+      brandLogoUrl: '',
+      hideBrandName: false,
+      forbidSuites: '',
     },
   },
 };
@@ -134,14 +209,11 @@ function customAlert() {
 
 customAlert();
 
-if (navigator.userAgent.toLowerCase().indexOf('micromessenger')) {
+if (window.isWeiXin) {
   document.addEventListener('WeixinJSBridgeReady', () => {
     customAlert();
   });
 }
-
-// import mdNotification from 'ming-ui/functions/notify';
-// window.mdNotification = mdNotification; // TODO 测试用
 
 window.File = typeof File === 'undefined' ? {} : File;
 
@@ -201,33 +273,14 @@ File.isPicture = function (fileExt) {
 };
 
 /**
- * 返回表示“加载中”的 HTML 字符串
- * @deprecated 使用 utils 模块中的方法
- * @param {string} modifier - 加载圈圈的大小，可选值为 'big'、'small' 或 'middle'，默认为 'middle'
- * @returns {string} - 表示“加载中”的 HTML 字符串
+ * 返回loading动画
  */
-window.LoadDiv = function (modifier = 'middle') {
-  let size, strokeWidth, r, cx, cy;
-
-  if (modifier === 'big') {
-    size = 36;
-  } else if (modifier === 'small') {
-    size = 16;
-  } else {
-    modifier = 'middle';
-    size = 24;
-  }
-
-  strokeWidth = Math.floor(size / 8);
-  r = Math.floor(size / 2);
-  cx = r + strokeWidth;
-  cy = cx;
-
+window.LoadDiv = () => {
   return `
     <div class="TxtCenter TxtMiddle mTop10 mBottom10 w100">
-      <div class="divCenter MdLoader MdLoader--${modifier}">
+      <div class="divCenter MdLoader MdLoader--middle">
         <svg class="MdLoader-circular">
-          <circle class="MdLoader-path" stroke-width="${strokeWidth}" cx="${cx}" cy="${cy}" r="${r}"></circle>
+          <circle class="MdLoader-path" stroke-width="3" cx="6" cy="6" r="12"></circle>
         </svg>
       </div>
     </div>
@@ -247,7 +300,7 @@ window.safeParse = (str, type) => {
   try {
     return JSON.parse(str);
   } catch (err) {
-    if (str && !str.startsWith('deleteRowIds')) {
+    if (str && !(typeof str === 'string' && str.startsWith('deleteRowIds'))) {
       console.error(err);
     }
     return type === 'array' ? [] : {};
@@ -280,353 +333,317 @@ window.safeParseArray = str => {
  * @param {string} dateStr 具体的日期字符串，格式为 yyyy-MM-dd HH:mm:ss
  * @returns {string} 相对的时间，如15分钟前
  */
-window.createTimeSpan = dateStr => {
+window.createTimeSpan = (dateStr, needSecond = false) => {
   const dateTime = moment(dateStr);
   const now = moment();
   const diff = now.diff(dateTime);
-
-  // 处理未来时间的情况
-  if (diff < 0) return '';
-
   const milliseconds = diff;
   const seconds = Math.floor(milliseconds / 1000);
   const minutes = Math.floor(seconds / 60);
-
   const year = dateTime.format('YYYY');
   const month = dateTime.format('MM');
   const day = dateTime.format('DD');
   const hour = dateTime.format('HH');
   const minute = dateTime.format('mm');
+  const second = needSecond ? ':' + dateTime.format('ss') : '';
+
+  // 处理未来时间的情况
+  if (diff < 0) return `${hour}:${minute}`;
 
   if (seconds < 60) {
     return _l('刚刚');
   } else if (minutes < 60) {
     return `${minutes}${_l('分钟前')}`;
   } else if (dateTime.isSame(now, 'd')) {
-    return `${_l('今天')} ${hour}:${minute}`;
+    return `${_l('今天')} ${hour}:${minute}${second}`;
   } else if (dateTime.isSame(now.subtract(1, 'd'), 'd')) {
-    return `${_l('昨天')} ${hour}:${minute}`;
+    return `${_l('昨天')} ${hour}:${minute}${second}`;
   } else if (dateTime.format('YYYY') === now.format('YYYY')) {
-    return `${_l('%0月%1日', month, day)} ${hour}:${minute}`;
+    return `${_l('%0月%1日', month, day)} ${hour}:${minute}${second}`;
   }
 
-  return `${_l('%0年%1月%2日', year, month, day)} ${hour}:${minute}`;
+  return `${_l('%0年%1月%2日', year, month, day)} ${hour}:${minute}${second}`;
 };
 
-/** 通用请求 */
-(function ($) {
-  /**
-   * 根据错误码 / HTTP状态码获取错误信息
-   * @param  {Number} statusCode 错误码或 HTTP 状态码
-   * @return {String}            错误信息
-   */
-  function getErrorMessageByCode(statusCode) {
-    if (statusCode >= 400 && statusCode < 500) {
-      if (statusCode === 401) {
-        return '您可能未登录或登录超时，请先登录';
-      } else if (statusCode === 403) {
-        return '您的帐号没有足够的权限';
-      } else if (statusCode === 404) {
-        return '您请求的页面不存在';
-      } else if (statusCode === 405) {
-        return '您发起的请求方法不能被用于请求相应的资源';
-      } else if (statusCode === 413) {
-        return '您的请求因数据量过大而不被支持';
-      } else if (statusCode === 414) {
-        return '您的请求因 URL 过长而不被支持';
-      } else if (statusCode === 421) {
-        return '您发起的请求过于频繁，请稍后再试';
-      }
-      return '服务器无法理解该请求';
-    }
-    if (statusCode >= 500) {
-      if (statusCode === 501) {
-        return '服务端不支持此方法';
-      } else if (statusCode === 502) {
-        return '上游服务器发生异常，请稍候再试';
-      } else if (statusCode === 503) {
-        return '服务临时不可用，请稍后重试';
-      } else if (statusCode === 504) {
-        return '服务超时，请稍后重试';
-      } else if (statusCode === 505) {
-        return '服务器不支持您的 HTTP 版本';
-      }
-      return '服务端发生错误';
-    }
-  }
-
-  function alertError(jqXHR, textStatus) {
-    let errorCode, errorMessage;
-    if (textStatus === 'abort') {
-      errorCode = 1;
-      errorMessage = '请求被取消';
-    } else if (jqXHR.status === 0) {
-      errorCode = 0;
-      errorMessage = '请求服务器失败，请检查您的网络';
-    } else if (jqXHR.status < 200 || jqXHR.status > 299) {
-      errorCode = jqXHR.status;
-      errorMessage = getErrorMessageByCode(jqXHR.status) || '发生未知错误';
-      if (errorMessage && textStatus !== 'abort') {
-        // 火狐在用户跳走时会弹 “请求服务器失败”
-        if (errorCode !== 0 && !$.browser.mozilla) alert(errorMessage, 2);
-      }
-
-      return $.Deferred().reject({
-        errorCode: errorCode,
-        errorMessage: errorMessage,
-      });
-    }
-  }
-
-  window.needSetClientId = ({ clientId, controllerName } = {}) =>
+/**
+ * 是否需要设置clientId
+ * @returns {boolean}
+ */
+window.needSetClientId = ({ clientId, controllerName } = {}) => {
+  return (
     location.href.indexOf('/public/') > -1 &&
     clientId &&
-    _.includes(['AppManagement', 'Worksheet', 'PublicWorksheet', 'report_api', 'HomeApp', 'Attachment', 'Kc'], controllerName);
+    _.includes(
+      ['AppManagement', 'Worksheet', 'PublicWorksheet', 'report_api', 'HomeApp', 'Attachment', 'Kc', 'Workflow'],
+      controllerName,
+    )
+  );
+};
 
-  /** ajax 请求队列 */
-  let ajaxQueue = $({});
-  /** 正在请求中的 queueName */
-  let requesting = {};
+/**
+ * 获取错误信息
+ * @returns {Object}
+ */
+const getErrorMessage = (jqXHR = {}, textStatus) => {
+  let errorMessage;
 
-  /**
-   * 请求 Ajax API 接口
-   * @alias external:$.api
-   * @param  {String} controllerName 模块名称
-   * @param  {String} actionName     操作名称
-   * @param  {Object} paramObj       请求参数
-   * @param  {Object} options        额外配置
-   * @param  {Boolean} options.silent 发生错误时不弹出提示
-   * @param  {String} options.method HTTP 请求方法，默认为 POST
-   * * @param  {String} options.fireImmediately 是否立即发送请求。默认走队列
-   * @return {Promise}               返回结果的 promise
-   */
-  function requestApi(controllerName, actionName, paramObj, options) {
-    options = options || {};
-    let ajaxOptions = options.ajaxOptions || {};
-    if (options && options.method) {
-      ajaxOptions.type = options.method;
-    }
-    paramObj = paramObj || {};
-
-    if (typeof paramObj !== 'string') {
-      if ((ajaxOptions.type || '').toUpperCase() === 'GET') {
-        Object.keys(paramObj).forEach(function (key, i) {
-          let val = paramObj[key];
-          if (typeof val === 'function') {
-            val = val();
-          }
-          if (val && typeof val === 'object') {
-            val = JSON.stringify(val);
-          }
-          paramObj[key] = val;
-        });
-      } else {
-        // 如果参数值有方法，先执行方法
-        Object.keys(paramObj).forEach(function (key, i) {
-          let val = paramObj[key];
-          if (typeof val === 'function') {
-            val = val();
-          }
-          paramObj[key] = val;
-        });
-        paramObj = JSON.stringify(paramObj);
-      }
-    }
-
-    let alert = options.silent
-      ? function () {}
-      : function (msg, level) {
-          level = level || 3;
-          window.alert({
-            type: level,
-            msg,
-            key: 'server',
-          });
-        };
-
-    let ajax;
-    let dfd = $.Deferred();
-    let promise = dfd.promise();
-    let queue;
-    let queueIndex;
-    let queueName = controllerName + '.' + actionName;
-    let fireImmediately = options.fireImmediately;
-    let pssId = getPssId();
-    let headers = {
-      ...(!ajaxOptions.url ? { 'X-Requested-With': 'XMLHttpRequest' } : {}),
-      Authorization: pssId ? `md_pss_id ${pssId}` : '',
-      AccountId: md.global.Account && md.global.Account.accountId ? md.global.Account.accountId : '',
-    };
-    let serverPath = __api_server__.main;
-    const clientId = window.clientId || sessionStorage.getItem('clientId');
-
-    if (window.needSetClientId({ clientId, controllerName })) {
-      headers.clientId = clientId;
-    }
-
-    if (window.publicAppAuthorization) {
-      headers.shareAuthor = window.publicAppAuthorization;
-      headers.clientId = undefined;
-      const { global = {} } = md;
-      const { Config = {}, SysSettings = {} } = global;
-      const { IsLocal } = Config;
-      const { templateLibraryTypes } = SysSettings;
-      if (IsLocal && !/#isPrivateBuild/.test(location.hash) && templateLibraryTypes !== '2') {
-        serverPath = 'https://www.mingdao.com/api/';
-      }
-    }
-
-    if (window.access_token) {
-      // 工作流&统计服务
-      headers.access_token = access_token;
-      // 主站服务
-      headers.Authorization = `access_token ${access_token}`;
-    }
-
-    if (ajaxOptions.url) {
-      delete headers.AccountId;
-    }
-
-    if (options.headersConfig) {
-      $.extend(headers, options.headersConfig);
-    }
-
-    function doRequest(next) {
-      if (!fireImmediately) {
-        requesting[queueName] = true;
-      }
-
-      ajax = $.ajax(
-        $.extend(
-          {
-            url: serverPath + encodeURIComponent(controllerName) + '/' + encodeURIComponent(actionName),
-            type: 'POST',
-            cache: false,
-            data: paramObj,
-            dataType: 'json',
-            headers,
-            contentType: 'application/json',
-            xhrFields: !ajaxOptions.url
-              ? {
-                  withCredentials: true,
-                }
-              : null,
-          },
-          ajaxOptions,
-        ),
-      );
-
-      let ajaxPromise = ajax
-        .then(undefined, function (jqXHR, textStatus) {
-          if (!jqXHR.responseText) {
-            return alertError(jqXHR, textStatus);
-          } else {
-            try {
-              const res = JSON.parse(jqXHR.responseText);
-              if (jqXHR.status === 402 && res.state === 13 && res.data) {
-                if (md.global.Account.accountId && location.href.indexOf('mobile') === -1) {
-                  import('../pages/PageHeader/components/NetState').then(netState => {
-                    netState.default(res.data);
-                  });
-                }
-                return dfd.reject(_.pick(res, ['state', 'exception']));
-              } else if (res.exception) {
-                return $.Deferred().resolve(res);
-              } else {
-                return alertError(jqXHR, textStatus);
-              }
-            } catch (error) {
-              try {
-                let textErrorMessage = $(jqXHR.responseText).find('#textErrorMessage').val();
-                if (textErrorMessage) {
-                  /* TODO: 处理服务端返回的错误信息*/
-                }
-              } catch (htmlError) {}
-            }
-          }
-        })
-        .then(function (res) {
-          let errorCode, errorMessage;
-          if (typeof res !== 'object') {
-            errorCode = -1;
-            errorMessage = '解析返回结果错误';
-          } else if (res.exception) {
-            errorCode = res.state;
-            errorMessage = res.exception;
-          } else {
-            return res.data;
-          }
-          alert(errorMessage || '未知错误', 2);
-          return $.Deferred().reject({
-            errorCode: errorCode,
-            errorMessage: errorMessage,
-          });
-        })
-        .then(function () {
-          try {
-            dfd.resolve.apply(this, arguments);
-          } catch (err) {
-            if (!ajaxQueue.queue(controllerName).length) {
-              requesting[queueName] = false;
-            }
-            console.error(err);
-          }
-        }, dfd.reject);
-
-      if (fireImmediately) {
-        ajaxPromise.abort = function () {
-          ajax.abort.apply(ajax, arguments);
-        };
-      } else {
-        ajaxPromise = ajaxPromise.always(function () {
-          if (next) {
-            next();
-          }
-          if (!ajaxQueue.queue(controllerName).length) {
-            requesting[queueName] = false;
-          }
-        });
-      }
-
-      return ajaxPromise;
-    }
-
-    if (options.fireImmediately) {
-      promise.abort = doRequest().abort;
-    } else {
-      ajaxQueue.queue(queueName, doRequest);
-
-      promise.abort = function (statusText) {
-        // proxy abort to the ajax if it is active
-        if (ajax) {
-          return ajax.abort(statusText);
-        }
-        // if there wasn't already a ajax we need to remove from queue
-        queue = ajaxQueue.queue(queueName);
-        queueIndex = $.inArray(doRequest, queue);
-        if (queueIndex > -1) {
-          queue.splice(queueIndex, 1);
-        }
-        // and then reject the deferred
-        dfd.reject(1);
-        return promise;
-      };
-
-      if (!requesting[queueName]) {
-        ajaxQueue.dequeue(queueName);
-      }
-    }
-
-    return promise;
+  switch (jqXHR.status) {
+    case 0:
+      errorMessage = _l('网络异常，请检查您的网络');
+      break;
+    case 401:
+      errorMessage = _l('帐号已退出，请重新登录');
+      break;
+    case 403:
+      errorMessage = _l('403 权限不足');
+      break;
+    case 404:
+      errorMessage = _l('404 页面不存在');
+      break;
+    case 405:
+      errorMessage = _l('405 请求方法错误');
+      break;
+    case 413:
+      errorMessage = _l('413 请求数据量过大');
+      break;
+    case 414:
+      errorMessage = _l('414 请求URL过长');
+      break;
+    case 421:
+      errorMessage = _l('421 请求过于频繁');
+      break;
+    case 501:
+      errorMessage = _l('501 请求方法不存在');
+      break;
+    case 502:
+      errorMessage = _l('502 上游服务器发生异常，请稍候再试');
+      break;
+    case 503:
+      errorMessage = _l('503 服务临时不可用，请稍后重试');
+      break;
+    case 504:
+      errorMessage = _l('504 服务超时，请稍后重试');
+      break;
+    case 505:
+      errorMessage = _l('505 服务器不支持您的HTTP版本');
+      break;
   }
 
-  requestApi.abortAll = function () {
-    ajaxQueue.clearQueue();
-    requesting = {};
+  if (!errorMessage && jqXHR.status >= 400 && jqXHR.status < 500) {
+    errorMessage = _l('请求失败，请稍后重试');
+  } else if (!errorMessage && jqXHR.status >= 500) {
+    errorMessage = _l('服务异常，请稍后重试');
+  }
+
+  // 火狐在用户跳走时会弹 “请求服务器失败”
+  if (errorMessage && textStatus !== 'abort' && jqXHR.status !== 0 && !window.isFirefox) {
+    alert(errorMessage, 2);
+  }
+
+  return {
+    errorCode: textStatus === 'abort' ? 1 : jqXHR.status,
+    errorMessage: textStatus === 'abort' ? _l('请求被取消') : errorMessage,
+  };
+};
+
+/**
+ * 处理请求参数
+ */
+const disposeRequestParams = (controllerName, actionName, data, ajaxOptions) => {
+  let serverPath = __api_server__.main;
+  let headers = {
+    Authorization: getPssId() ? `md_pss_id ${getPssId()}` : '',
+    AccountId: !ajaxOptions.url && _.get(md.global.Account, 'accountId') ? md.global.Account.accountId : undefined,
+    'X-Requested-With': !ajaxOptions.url ? 'XMLHttpRequest' : undefined,
+  };
+  const clientId = window.clientId || sessionStorage.getItem('clientId');
+
+  if (window.needSetClientId({ clientId, controllerName })) {
+    headers.clientId = clientId;
+  }
+
+  // 应用库
+  if (window.publicAppAuthorization) {
+    if (
+      _.get(md.global.Config, 'IsLocal') &&
+      !/#isPrivateBuild/.test(location.hash) &&
+      _.get(md.global.SysSettings, 'templateLibraryTypes') !== '2'
+    ) {
+      serverPath = 'https://www.mingdao.com/api/';
+    }
+
+    headers.shareAuthor = window.publicAppAuthorization;
+    headers.clientId = undefined;
+  }
+
+  // 工作流&统计服务
+  if (window.access_token) {
+    headers.access_token = access_token;
+    headers.Authorization = `access_token ${access_token}`;
+  }
+
+  if ((ajaxOptions.type || '').toUpperCase() === 'GET') {
+    let value;
+    Object.keys(data).forEach(key => {
+      value = data[key];
+      data[key] = value && typeof value === 'object' ? JSON.stringify(value) : value;
+    });
+  }
+
+  if (typeof data === 'string') {
+    data = JSON.parse(data);
+  }
+
+  return {
+    url: ajaxOptions.url || serverPath + encodeURIComponent(controllerName) + '/' + encodeURIComponent(actionName),
+    headers,
+    data,
+  };
+};
+
+/**
+ * 获取本地化存储Key
+ * @param {String} controllerName 模块名称
+ * @param {String} actionName     操作名称
+ * @param {Object} requestData    请求参数
+ * @returns
+ */
+const getLocalizationKey = (controllerName, actionName, requestData = {}) => {
+  const key = `${controllerName}_${actionName}`;
+  const CACHE_PARAMS = {
+    AppManagement_GetAppLangDetail: {
+      moduleType: 1,
+      sourceId: requestData.appId,
+      extraKey: `_${requestData.appLangId}`,
+    },
   };
 
-  $.api = requestApi;
-})(jQuery);
+  return CACHE_PARAMS[key] ? { key, ...CACHE_PARAMS[key] } : {};
+};
+
+/**
+ * 插入本地化存储数据
+ */
+const insertLocalData = ({ key, moduleType, sourceId, extraKey, version, data }) => {
+  if (!key) return;
+
+  if (version) {
+    localForage.setItem(`${key}_${sourceId}${extraKey || ''}`, { version, data });
+  } else {
+    versionApi.getVersion({ moduleType, sourceId }).then(({ version }) => {
+      localForage.setItem(`${key}_${sourceId}${extraKey || ''}`, { version, data });
+    });
+  }
+};
+
+/**
+ * 请求 API 接口
+ * @param  {String} controllerName 模块名称
+ * @param  {String} actionName     操作名称
+ * @param  {Object} requestData    请求参数
+ * @param  {Object} options        额外配置
+ * @param  {Boolean} options.silent 发生错误时不弹出提示
+ * @return {Promise}               返回结果的 promise
+ */
+window.mdyAPI = (controllerName, actionName, requestData, options = {}) => {
+  const controller = new AbortController();
+  const ajaxOptions = options.ajaxOptions || {};
+  const method = ajaxOptions.type || 'POST';
+  const isSync = ajaxOptions.sync;
+  const { url, headers, data } = disposeRequestParams(controllerName, actionName, requestData || {}, ajaxOptions);
+
+  if (isSync) {
+    const xhr = new XMLHttpRequest();
+
+    xhr.open(method, url + (method === 'GET' ? `?${qs.stringify(data)}` : ''), false);
+    xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+
+    Object.keys(headers).forEach(key => {
+      xhr.setRequestHeader(key, headers[key]);
+    });
+
+    xhr.withCredentials = !ajaxOptions.url;
+    xhr.send(method === 'GET' ? '' : JSON.stringify(data));
+
+    const responseData = JSON.parse(xhr.responseText);
+
+    if (xhr.status === 200) {
+      if (responseData.exception) {
+        !options.silent && alert(responseData.exception, 2);
+      } else {
+        return responseData.data;
+      }
+    } else {
+      !options.silent && alert(responseData.exception, 2);
+    }
+  }
+
+  const promise = new Promise(async (resolve, reject) => {
+    const { key, moduleType, sourceId, extraKey } = getLocalizationKey(controllerName, actionName, requestData);
+    let version;
+
+    if (key) {
+      const localSource = await localForage.getItem(`${key}_${sourceId}${extraKey || ''}`);
+      if (localSource) {
+        const versionData = await versionApi.getVersion({ moduleType, sourceId });
+
+        version = versionData.version;
+
+        if (version === localSource.version) {
+          resolve(localSource.data);
+          return;
+        }
+      }
+    }
+
+    axios({
+      method,
+      url,
+      headers,
+      params: method === 'GET' ? data : {},
+      data: method === 'POST' ? data : {},
+      withCredentials: !ajaxOptions.url,
+      signal: controller.signal,
+    })
+      .then(response => {
+        const responseData = response.data || { state: -1, exception: _l('解析返回结果错误') };
+
+        if (responseData.exception) {
+          !options.silent && alert(responseData.exception, 2);
+          reject({ errorCode: responseData.state, errorMessage: responseData.exception, errorData: responseData });
+        } else {
+          insertLocalData({ key, moduleType, sourceId, extraKey, version, data: responseData.data });
+          resolve(responseData.data);
+        }
+      })
+      .catch(error => {
+        if (
+          error.response &&
+          error.response.status === 402 &&
+          error.response.data &&
+          error.response.data.state === 13 &&
+          error.response.data.data
+        ) {
+          if (_.get(md, 'global.Account.accountId') && location.href.indexOf('mobile') === -1) {
+            import('../pages/PageHeader/components/NetState').then(netState => {
+              netState.default(error.response.data.data);
+            });
+          }
+        }
+
+        reject({
+          ...getErrorMessage(error.response, axios.isCancel(error) ? 'abort' : ''),
+          errorData: axios.isCancel(error) ? {} : get(error, 'response.data'),
+        });
+      });
+  });
+
+  promise.abort = () => {
+    controller.abort();
+  };
+
+  return promise;
+};
 
 /**
  * 加载多语言文件
@@ -646,8 +663,7 @@ window.createTimeSpan = dateStr => {
     return;
   }
 
-  const lang = getCookie('i18n_langtag') || md.global.Config.DefaultLang;
-  const currentLang = langConfig.find(item => item.key === lang);
+  const currentLang = langConfig.find(item => item.key === getCurrentLang());
 
   if (!!currentLang) {
     const xhrObj = new XMLHttpRequest();

@@ -18,9 +18,9 @@ export default function Analysis(props) {
   const [report, setReport] = useSetState({ name: widget.name || _l('未命名'), id: widget.value || '' });
 
   // 图表数据源 工作表和相应视图
-  const [dataSource, setDataSource] = useSetState({ worksheetId: '', worksheetName: '', viewId: '', views: [] });
+  const [dataSource, setDataSource] = useSetState({ worksheetId: '', worksheetName: '', viewId: '', views: [], appType: 1 });
 
-  const { worksheetId, worksheetName, viewId, views } = dataSource;
+  const { worksheetId, worksheetName, viewId, views, appType } = dataSource;
 
   const handleCreate = () => {
     setVisible(true);
@@ -39,6 +39,7 @@ export default function Analysis(props) {
       {visible && (
         <ChartDialog
           sourceType={1}
+          appType={appType}
           worksheetName={worksheetName}
           appId={appId}
           projectId={projectId}

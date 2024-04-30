@@ -1,8 +1,6 @@
 import React, { Component, Fragment } from 'react';
-import { Icon, Button, Tooltip } from 'ming-ui';
+import { Icon, Button, Tooltip, UserHead, UserName } from 'ming-ui';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
-import UserHead from 'src/components/userHead';
-import UserName from 'src/components/userName';
 import SearchWrap from '../../../components/SearchWrap';
 import PageTableCon from '../../../components/PageTableCon';
 import IsAppAdmin from 'src/pages/Admin/components/IsAppAdmin';
@@ -17,7 +15,7 @@ import {
 import appManagementAjax from 'src/api/appManagement';
 import { navigateTo } from 'src/router/navigateTo';
 import downloadAjax from 'src/api/download';
-import { getFeatureStatus, buriedUpgradeVersionDialog, createLinksForMessage } from 'src/util';
+import { getFeatureStatus, buriedUpgradeVersionDialog, createLinksForMessage, dateConvertToUserZone } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
 import unauthorizedPic from 'src/components/UnusualContent/unauthorized.png';
 import styled from 'styled-components';
@@ -137,6 +135,7 @@ export default class AppAndWorksheetLog extends Component {
               companyName,
               module,
               operationType,
+              operationDatetime,
               application = {},
               appItem = {},
               operator = {},
@@ -233,6 +232,8 @@ export default class AppAndWorksheetLog extends Component {
                 return (
                   <span>{_.get(_.find(OPERATE_LIST, it => it.value === operationType) || {}, 'label') || '-'}</span>
                 );
+              case 'operationDatetime':
+                return <span>{dateConvertToUserZone(operationDatetime)}</span>;
               default:
                 return <span>{text}</span>;
             }
@@ -284,7 +285,7 @@ export default class AppAndWorksheetLog extends Component {
           appPageIndex: appPageIndex + 1,
         });
       })
-      .fail(err => {
+      .catch(err => {
         this.setState({ loadingApp: false });
       });
   };
@@ -455,15 +456,8 @@ export default class AppAndWorksheetLog extends Component {
         operationTypes: _.includes(operationTypes, 'all') ? [] : operationTypes,
         startDateTime: startDate
           ? startDate
-          : moment()
-              .subtract(29, 'days')
-              .startOf('day')
-              .format('YYYY-MM-DD HH:mm:ss'),
-        endDateTime: endDate
-          ? endDate
-          : moment()
-              .endOf('day')
-              .format('YYYY-MM-DD HH:mm:ss'),
+          : moment().subtract(29, 'days').startOf('day').format('YYYY-MM-DD HH:mm:ss'),
+        endDateTime: endDate ? endDate : moment().endOf('day').format('YYYY-MM-DD HH:mm:ss'),
         isSingle: appId ? true : false,
       })
       .then(res => {
@@ -481,7 +475,7 @@ export default class AppAndWorksheetLog extends Component {
           disabledExportBtn: _.isEmpty(res.list),
         });
       })
-      .fail(err => {
+      .catch(err => {
         this.setState({ loading: false, dataSource: [], disabledExportBtn: true });
       });
   };
@@ -512,12 +506,7 @@ export default class AppAndWorksheetLog extends Component {
       worksheetIds: _.includes(worksheetIds, 'all') || !worksheetIds.length ? undefined : worksheetIds,
       modules: _.includes(modules, 'all') || !modules.length ? undefined : modules,
       operationTypes: _.includes(operationTypes, 'all') || !operationTypes.length ? undefined : operationTypes,
-      startDateTime: startDate
-        ? startDate
-        : moment()
-            .subtract(29, 'days')
-            .startOf('day')
-            .format('YYYY-MM-DD HH:mm:ss'),
+      startDateTime: startDate ? startDate : moment().subtract(29, 'days').startOf('day').format('YYYY-MM-DD HH:mm:ss'),
       endDateTime: endDate ? endDate : moment().format('YYYY-MM-DD HH:mm:ss'),
       columnNames: this.columns.map(it => it.title),
       menuName: _.get(_.find(TAB_LIST, v => v.tab === logType) || {}, 'tabName'),
@@ -538,7 +527,7 @@ export default class AppAndWorksheetLog extends Component {
           });
         }
       })
-      .fail(err => {
+      .catch(err => {
         this.setState({ disabledExportBtn: false });
       });
   };

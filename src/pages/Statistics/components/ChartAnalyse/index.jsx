@@ -6,6 +6,7 @@ import OriginalData from './components/OriginalData';
 import DataContrast from './components/DataContrast';
 import PeriodTarget from './components/PeriodTarget';
 import AuxiliaryLine from './components/AuxiliaryLine';
+import AutoLinkage from './components/AutoLinkage';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actions from 'statistics/redux/actions';
@@ -16,7 +17,7 @@ import _ from 'lodash';
 
 @connect(
   state => ({
-    ..._.pick(state.statistics, ['currentReport', 'worksheetInfo', 'reportData'])
+    ..._.pick(state.statistics, ['currentReport', 'worksheetInfo', 'reportData']),
   }),
   dispatch => bindActionCreators(actions, dispatch),
 )
@@ -46,6 +47,22 @@ export default class ChartAnalyse extends Component {
         }
       },
       isRequest
+    );
+  }
+  renderAutoLinkage() {
+    const { reportId, worksheetInfo, currentReport } = this.props;
+    return (
+      <Collapse.Panel
+        key="autoLinkage"
+        header={_l('联动筛选')}
+      >
+        <AutoLinkage
+          reportId={reportId}
+          worksheetInfo={worksheetInfo}
+          currentReport={currentReport}
+          onChangeStyle={this.handleChangeStyle}
+        />
+      </Collapse.Panel>
     );
   }
   renderOriginalData() {
@@ -190,11 +207,12 @@ export default class ChartAnalyse extends Component {
     );
   }
   render() {
-    const { currentReport } = this.props;
+    const { sourceType, currentReport } = this.props;
     const { reportType, xaxes } = currentReport;
     return (
       <div className="chartAdvanced">
         <Collapse className="chartCollapse" expandIcon={this.renderExpandIcon} ghost>
+          {sourceType === 1 && this.renderAutoLinkage()}
           {[reportTypes.LineChart, reportTypes.NumberChart, reportTypes.FunnelChart].includes(reportType) &&
             this.renderDataContrast()}
           {reportType === reportTypes.LineChart && this.renderPeriodTarget()}

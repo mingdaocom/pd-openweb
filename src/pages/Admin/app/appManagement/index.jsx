@@ -2,23 +2,32 @@ import React, { Component } from 'react';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
 import './index.less';
 import { Link } from 'react-router-dom';
-import { LoadDiv, Dropdown, Switch, Icon, ScrollView, DeleteReconfirm, Dialog, Checkbox, Tooltip } from 'ming-ui';
+import {
+  LoadDiv,
+  Dropdown,
+  Switch,
+  Icon,
+  ScrollView,
+  DeleteReconfirm,
+  Dialog,
+  SvgIcon,
+  Tooltip,
+  UserHead,
+} from 'ming-ui';
 import cx from 'classnames';
 import AppTrash from 'src/pages/worksheet/common/Trash/AppTrash';
 import Search from 'src/pages/workflow/components/Search';
-import UserHead from 'src/components/userHead/userHead';
 import ajaxRequest from 'src/api/appManagement';
 import homeAppAjax from 'src/api/homeApp';
 import projectSettingAjaxRequest from 'src/api/projectSetting';
-import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
-import SvgIcon from 'src/components/SvgIcon';
+import { dialogSelectUser, checkIsAppAdmin } from 'ming-ui/functions';
 import Trigger from 'rc-trigger';
 import ReactDom from 'react-dom';
 import ExportApp from './modules/ExportApp';
 import ImportApp from './modules/ImportApp';
 import SelectApp from './modules/SelectApp';
 import AppLog from './modules/AppLog';
-import { Drawer } from 'antd';
+import { Drawer, Select } from 'antd';
 import EventEmitter from 'events';
 import { getFeatureStatus, buriedUpgradeVersionDialog, addBehaviorLog, getCurrentProject } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
@@ -27,8 +36,10 @@ import _ from 'lodash';
 import moment from 'moment';
 import { transferExternalLinkUrl } from 'src/pages/AppHomepage/AppCenter/utils';
 import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
-import { checkIsAppAdmin } from 'src/components/checkIsAppAdmin';
 import { decryptFunc } from './modules/Dectypt';
+import projectAjax from 'src/api/project';
+import qs from 'query-string';
+import SelectDBInstance from 'src/pages/AppHomepage/AppCenter/components/SelectDBInstance';
 
 export const emitter = new EventEmitter();
 
@@ -69,13 +80,17 @@ const dialogHeader = {
   uploadVisible: _l('导入应用'),
 };
 
+const DataDBInstances = [
+  { label: _l('全部数据库'), value: 'all', status: 1 },
+  { label: _l('系统默认数据库'), value: '', status: 1 },
+];
+
 export default class AppManagement extends Component {
   constructor(props) {
     super(props);
     this.state = {
       hiddenIds: [],
 
-      onlyManagerCreateApp: false,
       list: null,
       total: 0,
       count: 0,
@@ -94,6 +109,10 @@ export default class AppManagement extends Component {
 
       //单个导出弹层ids
       exportIds: [],
+      hasDataBase: false,
+      dbInstanceId: 'all',
+      dataDBInstances: DataDBInstances,
+      requested: false,
     };
     //推送完刷新列表
     emitter.addListener('updateState', this.updateState);
@@ -103,15 +122,30 @@ export default class AppManagement extends Component {
 
   componentDidMount() {
     const { projectId } = this.props.match.params;
-    this.getAppList();
+    const queryString = this.props.location.search && this.props.location.search.slice(1);
+    const query = qs.parse(queryString);
+    let _hasDataBase =
+      getFeatureStatus(projectId, VersionProductType.dataBase) === '1' && !md.global.Config.IsPlatformLocal;
+
+    this.setState(
+      {
+        hasDataBase: _hasDataBase,
+        dbInstanceId: query.dbInstanceId || 'all',
+      },
+      () => {
+        this.getAppList();
+      },
+    );
+
     this.checkExportOrImportAuth(projectId);
-    this.getOnlyManagerCreateApp(projectId);
+    if (query.dbInstanceId && _hasDataBase) {
+      this.getDBInstances();
+    }
   }
 
   componentWillReceiveProps(nextProps, nextState) {
     if (!_.isEqual(nextProps, this.props)) {
       this.setState({
-        onlyManagerCreateApp: false,
         list: null,
         status: '',
         order: 3,
@@ -124,7 +158,31 @@ export default class AppManagement extends Component {
       const { projectId } = nextProps.match.params;
       this.getAppList();
       this.checkExportOrImportAuth(projectId);
-      this.getOnlyManagerCreateApp(projectId);
+    }
+  }
+
+  async getDBInstances(importApp) {
+    const { requested, dataDBInstances } = this.state;
+    const { projectId } = this.props.match.params;
+    let res = dataDBInstances;
+    if (!requested) {
+      res = await projectAjax.getDBInstances({ projectId });
+      let list = res.map(l => {
+        return {
+          label: l.name,
+          value: l.id,
+          status: l.status,
+        };
+      });
+      this.setState({
+        dataDBInstances: DataDBInstances.concat(list),
+        requested: true,
+      });
+    }
+
+    if (importApp && res && res.length > 1) {
+      this.setState({ DBInstancesDialog: true });
+      return true;
     }
   }
 
@@ -137,19 +195,10 @@ export default class AppManagement extends Component {
   }
 
   /**
-   * 获取是否只允许管理员创建应用
-   */
-  getOnlyManagerCreateApp(projectId) {
-    projectSettingAjaxRequest.getOnlyManagerCreateApp({ projectId }).then(result => {
-      this.setState({ onlyManagerCreateApp: result.onlyManagerCreateApp });
-    });
-  }
-
-  /**
    * 获取应用列表
    */
   getAppList() {
-    const { status, order, pageIndex, keyword } = this.state;
+    const { status, order, pageIndex, keyword, dbInstanceId } = this.state;
     const { projectId } = this.props.match.params;
 
     this.setState({ loading: true });
@@ -166,6 +215,8 @@ export default class AppManagement extends Component {
       pageSize: 50,
       keyword: keyword.trim(),
       containsLink: true,
+      dbInstanceId,
+      filterDBType: dbInstanceId === 'all' ? 0 : dbInstanceId === '' ? 1 : 2,
     });
     this.postList.then(({ apps, maxCount, total, count }) => {
       this.setState({
@@ -177,6 +228,20 @@ export default class AppManagement extends Component {
       });
     });
   }
+
+  handleImportApp = dbInstanceId => {
+    const { importAppParams } = this.state;
+    $.ajax({
+      type: 'POST',
+      url: `${md.global.Config.AppFileServer}AppFile/Import`,
+      data: JSON.stringify({
+        ...importAppParams,
+        dbInstanceId,
+      }),
+      dataType: 'JSON',
+      contentType: 'application/json',
+    });
+  };
 
   /**
    * 渲染列表
@@ -210,39 +275,44 @@ export default class AppManagement extends Component {
    */
   renderListItem(item) {
     const { projectId } = this.props.match.params;
-    const { list, hiddenIds } = this.state;
+    const { list, hiddenIds, hasDataBase } = this.state;
     const featureType = getFeatureStatus(projectId, VersionProductType.appImportExport);
     return (
-      <div className="flexRow manageList" key={item.appId}>
-        <div className={cx('iconWrap mLeft10', { unable: !item.status })} style={{ backgroundColor: item.iconColor }}>
-          <SvgIcon url={item.iconUrl} fill="#fff" size={24} />
-          {item.createType === 1 && (
-            <div className="linkIcon">
-              <Tooltip text={_l('外部链接')}>
-                <Icon icon="link1" />
-              </Tooltip>
+      <div className="flexRow manageList overflowHidden" key={item.appId}>
+        <div className="flex flexRow">
+          <div className={cx('iconWrap mLeft10', { unable: !item.status })} style={{ backgroundColor: item.iconColor }}>
+            <SvgIcon url={item.iconUrl} fill="#fff" size={24} />
+            {item.createType === 1 && (
+              <div className="linkIcon">
+                <Tooltip text={_l('外部链接')}>
+                  <Icon icon="link1" />
+                </Tooltip>
+              </div>
+            )}
+          </div>
+          <div className="flex name mLeft10 overflowHidden">
+            <div
+              className={cx('flexRow nameBox ThemeColor3', { unable: !item.status })}
+              onClick={() => {
+                if (item.createType === 1) {
+                  window.open(transferExternalLinkUrl(item.urlTemplate, projectId, item.appId));
+                  addBehaviorLog('app', item.appId); // 埋点
+                } else {
+                  checkIsAppAdmin({
+                    appId: item.appId,
+                    appName: item.appName,
+                  });
+                }
+              }}
+            >
+              <div className="ellipsis Font14" title={item.appName}>
+                {item.appName}
+              </div>
+              {item.isLock && <Icon icon="lock" className="Gray_bd mLeft20 Font16" />}
             </div>
-          )}
-        </div>
-        <div className="flex name mLeft10 mRight40 overflowHidden">
-          <div
-            className={cx('flexRow nameBox ThemeColor3', { unable: !item.status })}
-            onClick={() => {
-              if (item.createType === 1) {
-                window.open(transferExternalLinkUrl(item.urlTemplate, projectId, item.appId));
-                addBehaviorLog('app', item.appId); // 埋点
-              } else {
-                checkIsAppAdmin({
-                  appId: item.appId,
-                  appName: item.appName,
-                });
-              }
-            }}
-          >
-            <div className="ellipsis Font14">{item.appName}</div>
-            {item.isLock && <Icon icon="lock" className="Gray_bd mLeft20 Font16" />}
           </div>
         </div>
+        {hasDataBase && <div className="columnWidth dataBase">{item.dbInstance || _l('系统默认数据库')}</div>}
         <div className="columnWidth">
           {item.createType !== 1 ? item.sheetCount.toString().replace(/(\d)(?=(\d{3})+$)/g, '$1,') : '-'}
         </div>
@@ -285,6 +355,7 @@ export default class AppManagement extends Component {
             </Tooltip>
           )}
           <Trigger
+            popupClassName="actionAppTrigger"
             popupVisible={this.state.rowVisible === item.appId}
             onPopupVisibleChange={() => this.handleChangeVisible('rowVisible', item.appId)}
             action={['click']}
@@ -333,10 +404,10 @@ export default class AppManagement extends Component {
                                 });
                                 this.updateState({});
                               } else {
-                                return $.Deferred().reject();
+                                return Promise.reject();
                               }
                             })
-                            .fail(() => {
+                            .catch(() => {
                               this.setState({
                                 hiddenIds: hiddenIds.filter(id => id !== item.appId),
                                 total: oldTotal,
@@ -355,8 +426,9 @@ export default class AppManagement extends Component {
               );
             }}
             popupAlign={{
-              offset: [-100, 3],
-              points: ['tr', 'tl'],
+              offset: [-100, -20],
+              points: ['tl', 'bl'],
+              overflow: { adjustX: true, adjustY: true },
             }}
           >
             <span className="Gray_9e Hand Font18 icon-moreop Hover_49"></span>
@@ -402,6 +474,9 @@ export default class AppManagement extends Component {
    * 应用导入
    */
   handleImport() {
+    const { hasDataBase, requested, dataDBInstances } = this.state;
+    const { projectId } = this.props.match.params;
+
     const options = {
       title: this.renderHeader('uploadVisible'),
       visible: true,
@@ -413,7 +488,16 @@ export default class AppManagement extends Component {
     };
     ReactDom.render(
       <Dialog {...options}>
-        <ImportApp closeDialog={() => this.closeDialog('importSingleAppDialog')} />
+        <ImportApp
+          closeDialog={params => {
+            this.closeDialog('importSingleAppDialog');
+            const currentProject = getCurrentProject(projectId);
+            if (hasDataBase && (currentProject.isSuperAdmin || currentProject.isProjectAppManager)) {
+              this.setState({ importAppParams: params });
+              return this.getDBInstances(true);
+            }
+          }}
+        />
       </Dialog>,
       document.createElement('div'),
     );
@@ -587,17 +671,6 @@ export default class AppManagement extends Component {
   }, 200);
 
   /**
-   * 只允许管理员创建应用
-   */
-  setOnlyManagerCreateApp(checked) {
-    const { projectId } = this.props.match.params;
-
-    projectSettingAjaxRequest.setOnlyManagerCreateApp({ projectId, onlyManagerCreateApp: checked }).then(() => {
-      this.setState({ onlyManagerCreateApp: checked });
-    });
-  }
-
-  /**
    * 更多操作项
    */
   renderMore = list => {
@@ -623,11 +696,14 @@ export default class AppManagement extends Component {
       loading,
       pageIndex,
       order,
-      onlyManagerCreateApp,
       moreVisible,
       drawerVisible,
       exportIds,
       appTrashVisible,
+      hasDataBase,
+      dbInstanceId,
+      dataDBInstances,
+      DBInstancesDialog = false,
     } = this.state;
     const projectId = this.props.match.params.projectId;
     const { version = {}, licenseType } = getCurrentProject(projectId, true);
@@ -648,19 +724,6 @@ export default class AppManagement extends Component {
             {_l('应用')}
             {total ? `（${total}）` : ''}
           </div>
-          {md.global.Config.IsPlatformLocal && (
-            <span
-              data-tip={_l('勾选后，只允许组织后台的超级管理员和应用管理员创建应用')}
-              className="appManagementTips pTop5"
-            >
-              <Checkbox
-                className="InlineBlock mLeft25 ThemeHoverColor3"
-                text={_l('只允许应用管理员创建应用')}
-                checked={onlyManagerCreateApp}
-                onClick={checked => this.setOnlyManagerCreateApp(!checked)}
-              />
-            </span>
-          )}
           <Trigger
             popupVisible={moreVisible}
             onPopupVisibleChange={visible => this.setState({ moreVisible: visible })}
@@ -742,6 +805,24 @@ export default class AppManagement extends Component {
             border
             onChange={value => this.updateState({ status: value })}
           />
+          {hasDataBase && (
+            <Select
+              className="w180 mdAntSelect mLeft15 Hand"
+              showSearch
+              defaultValue={dbInstanceId}
+              options={dataDBInstances}
+              onFocus={() => dataDBInstances.length === 2 && this.getDBInstances()}
+              filterOption={(inputValue, option) =>
+                dataDBInstances
+                  .find(item => item.value === option.value)
+                  .label.toLowerCase()
+                  .indexOf(inputValue.toLowerCase()) > -1
+              }
+              suffixIcon={<Icon icon="arrow-down-border Font14" />}
+              notFoundContent={<span className="Gray_9e">{_l('无搜索结果')}</span>}
+              onChange={value => this.updateState({ dbInstanceId: value })}
+            />
+          )}
           <div className="flex" />
           <Search
             placeholder={_l('应用名称')}
@@ -751,6 +832,7 @@ export default class AppManagement extends Component {
 
         <div className="flexRow manageList manageListHeader bold mTop16">
           <div className="flex mLeft10">{_l('应用名称')}</div>
+          {hasDataBase && <div className="columnWidth dataBase">{_l('所属数据库')}</div>}
           <div className="columnWidth flexRow">
             <div className="pointer ThemeHoverColor3 pRight12" style={{ zIndex: 1 }}>
               {_l('工作表数')}
@@ -820,6 +902,12 @@ export default class AppManagement extends Component {
             }}
           />
         )}
+        <SelectDBInstance
+          visible={DBInstancesDialog}
+          options={dataDBInstances.filter(l => l.status === 1 && l.value !== 'all')}
+          onOk={id => this.handleImportApp(id)}
+          onCancel={() => this.setState({ DBInstancesDialog: false })}
+        />
       </div>
     );
   }

@@ -31,6 +31,7 @@ class ShowBtnFilterDialog extends React.Component {
             filters: this.props.filters || [],
             isShowBtnFilterDialog: false,
             showType: this.state.filters.length <= 0 ? 1 : this.props.showType,
+            isOk: false,
           });
         }}
         onOk={() => {
@@ -39,6 +40,7 @@ class ShowBtnFilterDialog extends React.Component {
             filters: this.state.filters,
             isShowBtnFilterDialog: false,
             showType: this.state.filters.length <= 0 ? 1 : this.props.showType,
+            isOk: true,
           });
         }}
         visible={isShowBtnFilterDialog}

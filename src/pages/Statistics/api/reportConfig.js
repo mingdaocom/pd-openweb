@@ -13,19 +13,19 @@ var reportConfig = {
   copyReport: function(args, options) {
     base.ajaxOptions.url = base.server() + '/reportConfig/copy';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'reportConfigcopy', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'reportConfigcopy', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 获取字段自定义排序的的顺序
    * @param {Object} args 请求参数
-   * @param {CustomSortRequest} {appId:工作表id(string),auth:自定义页面图表权限(integer),controlId:控件id(string),customSort:自定义的顺序(array),filter:筛选(ref),owner:拥有者(string),sort:自定义排序的数组(object),sourceType:来源(integer),}*customSortRequest
+   * @param {CustomSortRequest} {appId:工作表id(string),auth:自定义页面图表权限(integer),controlId:控件id(string),customSort:自定义的顺序(array),filter:筛选(ref),owner:拥有者(string),pageId:自定义页面id(string),reportId:图表ID(string),sort:自定义排序的数组(object),sourceType:来源(integer),}*customSortRequest
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
   customSort: function(args, options) {
     base.ajaxOptions.url = base.server() + '/reportConfig/customSort';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'reportConfigcustomSort', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'reportConfigcustomSort', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 删除图表
@@ -37,7 +37,7 @@ var reportConfig = {
   deleteReport: function(args, options) {
     base.ajaxOptions.url = base.server() + '/reportConfig/deleteReport';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'reportConfigdeleteReport', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'reportConfigdeleteReport', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 获取图表的数据
@@ -49,12 +49,13 @@ var reportConfig = {
   getData: function(args, options) {
     base.ajaxOptions.url = base.server() + '/reportConfig/getData';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'reportConfiggetData', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'reportConfiggetData', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 获取图表详情
    * @param {Object} args 请求参数
    * @param {string} [args.appId] 工作表ID
+   * @param {string} [args.pageId] pageId
    * @param {string} [args.reportId] *报表ID
    * @param {string} [args.reportType] 图表类型
    * @param {Object} options 配置参数
@@ -63,7 +64,7 @@ var reportConfig = {
   getReportConfigDetail: function(args, options) {
     base.ajaxOptions.url = base.server() + '/reportConfig/getReportConfigDetail';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'reportConfiggetReportConfigDetail', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'reportConfiggetReportConfigDetail', args, $.extend(base, options));
   },
   /**
    * 获取图表的数据
@@ -75,7 +76,7 @@ var reportConfig = {
   getTableData: function(args, options) {
     base.ajaxOptions.url = base.server() + '/reportConfig/getTableData';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'reportConfiggetTableData', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'reportConfiggetTableData', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 保存图表配置
@@ -87,7 +88,7 @@ var reportConfig = {
   saveReportConfig: function(args, options) {
     base.ajaxOptions.url = base.server() + '/reportConfig/saveReportConfig';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'reportConfigsaveReportConfig', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'reportConfigsaveReportConfig', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 更新图表权限
@@ -99,7 +100,7 @@ var reportConfig = {
   updateOwnerId: function(args, options) {
     base.ajaxOptions.url = base.server() + '/reportConfig/updateOwnerId';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'reportConfigupdateOwnerId', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'reportConfigupdateOwnerId', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 保存图表说明
@@ -111,7 +112,7 @@ var reportConfig = {
   updateReportDesc: function(args, options) {
     base.ajaxOptions.url = base.server() + '/reportConfig/updateReportDesc';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'reportConfigupdateReportDesc', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'reportConfigupdateReportDesc', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 更新图表名称
@@ -123,7 +124,7 @@ var reportConfig = {
   updateReportName: function(args, options) {
     base.ajaxOptions.url = base.server() + '/reportConfig/updateReportName';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'reportConfigupdateReportName', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'reportConfigupdateReportName', JSON.stringify(args), $.extend(base, options));
   },
 };
 export default reportConfig;

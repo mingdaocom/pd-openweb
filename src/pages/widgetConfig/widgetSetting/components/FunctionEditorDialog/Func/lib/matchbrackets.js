@@ -2,8 +2,6 @@
 // Distributed under an MIT license: https://codemirror.net/LICENSE
 
 export default function (CodeMirror) {
-  var ie_lt8 = /MSIE \d/.test(navigator.userAgent) && (document.documentMode == null || document.documentMode < 8);
-
   var Pos = CodeMirror.Pos;
 
   var matching = { '(': ')>', ')': '(<', '[': ']>', ']': '[<', '{': '}>', '}': '{<', '<': '>>', '>': '<<' };
@@ -101,7 +99,6 @@ export default function (CodeMirror) {
     if (marks.length) {
       // Kludge to work around the IE bug from issue #1193, where text
       // input stops going to the textarea whenever this fires.
-      if (ie_lt8 && cm.state.focused) cm.focus();
 
       var clear = function () {
         cm.operation(function () {

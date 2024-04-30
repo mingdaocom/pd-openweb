@@ -428,7 +428,6 @@ export default function WidgetAiRecommend({ worksheetName, ...rest }) {
         offset: [225, 5],
         overflow: { adjustX: true, adjustY: true },
       }}
-      zIndex={800}
     >
       <AiBtnWrap>
         <span className="aiIcon icon-ai"></span>

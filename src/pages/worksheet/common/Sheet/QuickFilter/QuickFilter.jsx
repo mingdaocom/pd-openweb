@@ -32,6 +32,7 @@ function isFullLine(filter) {
 function QuickFilter(props) {
   const {
     mode,
+    base = {},
     from,
     noExpand,
     activeFilterId,
@@ -48,6 +49,7 @@ function QuickFilter(props) {
     resetQuickFilter = () => {},
     onFilterClick = () => {},
   } = props;
+  const { worksheetId } = base;
   const isConfigMode = mode === 'config';
   const filtersLength = useRef(filters.length);
   const needClickSearch = useRef(_.get(view, 'advancedSetting.clicksearch'));
@@ -118,6 +120,7 @@ function QuickFilter(props) {
     <Con isConfigMode={isConfigMode} className="quickFilterWrap">
       <Conditions
         from={from}
+        worksheetId={worksheetId}
         isFilterComp={from === 'filterComp'}
         isConfigMode={isConfigMode}
         activeFilterId={activeFilterId}

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { Dialog, Icon } from 'ming-ui';
-import cx from 'classnames';
+import { Dialog, LoadDiv } from 'ming-ui';
 import { Select } from 'antd';
-const { Option } = Select;
+import AjaxApi from 'src/api/appManagement.js';
+import { useSetState } from 'react-use';
+
 const Wrap = styled.div`
   .iconBG {
     width: 40px;
@@ -46,8 +47,29 @@ const Wrap = styled.div`
 `;
 
 export default function BatchDialog(props) {
-  const { show, roleInfos, okText, onOk, isMulti, onCancel } = props;
-  const [roles, setRoles] = useState([]);
+  const { show, roleInfos, okText, onOk, isMulti, onCancel, member, appId, showRole } = props;
+  const [{ roles, defaultRoles, loading }, setState] = useSetState({
+    roles: [],
+    defaultRoles: [],
+    loading: showRole,
+  });
+  useEffect(() => {
+    showRole && getRole();
+  }, []);
+  const getRole = () => {
+    AjaxApi.getRolesByMemberId({
+      memberId: member.accountId || member.id,
+      appId,
+      memberType: member.memberType,
+    }).then(res => {
+      const { roles = [] } = res;
+      setState({
+        loading: false,
+        defaultRoles:
+          roles.length <= 0 ? [] : roles.map(o => o.id).filter(o => !!roleInfos.find(it => it.roleId === o)),
+      });
+    });
+  };
   return (
     <Dialog
       className="BatchDialog"
@@ -64,22 +86,29 @@ export default function BatchDialog(props) {
         {props.txt && <p>{props.txt}</p>}
         {props.renderCon && props.renderCon()}
         <h3 className="Bold mTop20">{_l('选择角色')}</h3>
-        <Select
-          mode={isMulti ? '' : 'multiple'}
-          size={'middle'}
-          placeholder={_l('选择角色')}
-          onChange={value => {
-            setRoles(isMulti ? [value] : value);
-          }}
-          style={{
-            width: '100%',
-          }}
-          notFoundContent={_l('无相关角色')}
-          filterOption={(input, option) => option.label.includes(input)}
-          options={roleInfos.map((o, i) => {
-            return { label: o.name, value: o.roleId };
-          })}
-        ></Select>
+        {loading ? (
+          <LoadDiv />
+        ) : (
+          <Select
+            mode={isMulti ? '' : 'multiple'}
+            size={'middle'}
+            placeholder={_l('选择角色')}
+            onChange={value => {
+              setState({
+                roles: isMulti ? [value] : value,
+              });
+            }}
+            style={{
+              width: '100%',
+            }}
+            defaultValue={defaultRoles}
+            notFoundContent={_l('无相关角色')}
+            filterOption={(input, option) => option.label.includes(input)}
+            options={roleInfos.map((o, i) => {
+              return { label: o.name, value: o.roleId };
+            })}
+          ></Select>
+        )}
       </Wrap>
     </Dialog>
   );

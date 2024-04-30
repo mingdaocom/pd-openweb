@@ -372,10 +372,10 @@ export default class CreateNodeDialog extends Component {
               iconName: 'icon-print',
             },
             {
-              type: 6,
+              type: 28,
+              featureId: VersionProductType.getPrintFileNode,
               name: _l('获取页面快照'),
               appType: 44,
-              actionId: '4',
               iconColor: '#4C7D9E',
               iconName: 'icon-camera_alt',
             },
@@ -746,11 +746,17 @@ export default class CreateNodeDialog extends Component {
       });
     }
 
-    // 埋点授权过滤： API集成工作流节点、代码块节点、获取打印文件节点、界面推送、全局变量
+    if (!md.global.SysSettings.enableSmsCustomContent) {
+      this.state.list.forEach(o => {
+        _.remove(o.items, item => item.type === NODE_TYPE.MESSAGE);
+      });
+    }
+
+    // 埋点授权过滤： API集成工作流节点、代码块节点、获取打印文件节点、获取页面快照、界面推送、全局变量
     [
       { featureId: VersionProductType.apiIntergrationNode, type: [NODE_TYPE.API_PACKAGE, NODE_TYPE.API] },
       { featureId: VersionProductType.codeBlockNode, type: [NODE_TYPE.CODE] },
-      { featureId: VersionProductType.getPrintFileNode, type: [NODE_TYPE.FILE] },
+      { featureId: VersionProductType.getPrintFileNode, type: [NODE_TYPE.FILE, NODE_TYPE.SNAPSHOT] },
       { featureId: VersionProductType.interfacePush, type: [NODE_TYPE.PUSH] },
       { featureId: VersionProductType.globalVariable, type: [NODE_TYPE.ACTION], appType: APP_TYPE.GLOBAL_VARIABLE },
     ].forEach(obj => {
@@ -768,7 +774,7 @@ export default class CreateNodeDialog extends Component {
     // 非批量自定义动作数据源去除按钮汇总
     if (
       props.flowInfo.startAppType !== APP_TYPE.CUSTOM_ACTION ||
-      props.flowNodeMap[props.flowInfo.startNodeId].actionId !== ACTION_ID.BATCH_ACTION
+      _.get(props, 'flowNodeMap[props.flowInfo.startNodeId].actionId') !== ACTION_ID.BATCH_ACTION
     ) {
       this.state.list.forEach(o => {
         o.items.forEach(obj => {
@@ -777,22 +783,13 @@ export default class CreateNodeDialog extends Component {
       });
     }
 
-    // 公网不可用功能
-    if (
-      !['localhost', 'web.dev.mingdao.net', 'sandbox.mingdao.com', 'meihua.mingdao.com'].includes(location.hostname)
-    ) {
-      this.state.list.forEach(o => {
-        _.remove(o.items, item => item.appType === APP_TYPE.SNAPSHOT);
-      });
-    }
-
     // 移除任务、日程
     this.state.list.forEach(o => {
       _.remove(
         o.items,
         o =>
-          (o.appType === APP_TYPE.TASK && _.includes(md.global.Config.ForbidSuites, 2)) ||
-          (o.appType === APP_TYPE.CALENDAR && _.includes(md.global.Config.ForbidSuites, 3)),
+          (o.appType === APP_TYPE.TASK && md.global.SysSettings.forbidSuites.indexOf('2') > -1) ||
+          (o.appType === APP_TYPE.CALENDAR && md.global.SysSettings.forbidSuites.indexOf('3') > -1),
       );
     });
 
@@ -819,25 +816,28 @@ export default class CreateNodeDialog extends Component {
         _.remove(
           o.items,
           item =>
-            !_.includes(
-              [
-                NODE_TYPE.SEARCH,
-                NODE_TYPE.WEBHOOK,
-                NODE_TYPE.FORMULA,
-                NODE_TYPE.MESSAGE,
-                NODE_TYPE.EMAIL,
-                NODE_TYPE.DELAY,
-                NODE_TYPE.GET_MORE_RECORD,
-                NODE_TYPE.CODE,
-                NODE_TYPE.TEMPLATE,
-                NODE_TYPE.JSON_PARSE,
-                NODE_TYPE.API_PACKAGE,
-                NODE_TYPE.API,
-                NODE_TYPE.NOTICE,
-                NODE_TYPE.FIND_SINGLE_MESSAGE,
-                NODE_TYPE.FIND_MORE_MESSAGE,
-              ],
-              item.type,
+            !(
+              _.includes(
+                [
+                  NODE_TYPE.SEARCH,
+                  NODE_TYPE.WEBHOOK,
+                  NODE_TYPE.FORMULA,
+                  NODE_TYPE.MESSAGE,
+                  NODE_TYPE.EMAIL,
+                  NODE_TYPE.DELAY,
+                  NODE_TYPE.GET_MORE_RECORD,
+                  NODE_TYPE.CODE,
+                  NODE_TYPE.TEMPLATE,
+                  NODE_TYPE.JSON_PARSE,
+                  NODE_TYPE.API_PACKAGE,
+                  NODE_TYPE.API,
+                  NODE_TYPE.NOTICE,
+                  NODE_TYPE.FIND_SINGLE_MESSAGE,
+                  NODE_TYPE.FIND_MORE_MESSAGE,
+                ],
+                item.type,
+              ) ||
+              (item.type === NODE_TYPE.ACTION && item.actionId === ACTION_ID.EDIT && item.appType !== APP_TYPE.PROCESS)
             ),
         );
 
@@ -872,7 +872,7 @@ export default class CreateNodeDialog extends Component {
                 type={3}
                 text={_l('运行版本')}
                 className="ThemeColor3 ThemeHoverColor2"
-                href="https://help.mingdao.com/flow34#%E4%BB%A3%E7%A0%81%E8%84%9A%E6%9C%AC%E8%BF%90%E8%A1%8C%E7%8E%AF%E5%A2%83"
+                href="workflow/node-code-block#runtime-environment"
               />
             </div>
           )}
@@ -932,7 +932,7 @@ export default class CreateNodeDialog extends Component {
             <Support
               type={3}
               text={_l('如何设置？')}
-              href="https://help.mingdao.com/flow19/#112%E6%95%B0%E6%8D%AE%E6%9B%B4%E6%96%B0"
+              href="https://help.mingdao.com/workflow/node-approve#update"
             />
             ）
           </div>
@@ -1036,11 +1036,14 @@ export default class CreateNodeDialog extends Component {
     ) {
       this.setState({ selectItem: item, branchDialogModel: 1 });
     } else if (
-      (_.includes([NODE_TYPE.CODE, NODE_TYPE.PUSH, NODE_TYPE.FILE, NODE_TYPE.API_PACKAGE, NODE_TYPE.API], item.type) ||
+      (_.includes(
+        [NODE_TYPE.CODE, NODE_TYPE.PUSH, NODE_TYPE.FILE, NODE_TYPE.API_PACKAGE, NODE_TYPE.API, NODE_TYPE.SNAPSHOT],
+        item.type,
+      ) ||
         (item.type === NODE_TYPE.ACTION && item.appType === APP_TYPE.GLOBAL_VARIABLE)) &&
       featureType === '2'
     ) {
-      // 代码块、界面推送、Word打印模板、API连接与认证、调用已集成的API、更新全局变量
+      // 代码块、界面推送、Word打印模板、API连接与认证、调用已集成的API、获取页面快照、更新全局变量
       buriedUpgradeVersionDialog(flowInfo.companyId, featureId);
     } else if (item.type === NODE_TYPE.APPROVAL_PROCESS && !item.isNew) {
       this.setState({ showApprovalDialog: true });
@@ -1134,7 +1137,7 @@ export default class CreateNodeDialog extends Component {
                     className="createNodeExplain mLeft5"
                     type={1}
                     text={_l('了解这些动作')}
-                    href="https://help.mingdao.com/flow51"
+                    href="https://help.mingdao.com/workflow/introduction"
                   />
                   <div className="flex" />
                   {!(

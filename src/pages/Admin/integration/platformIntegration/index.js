@@ -72,7 +72,7 @@ export default class PlatformIntegration extends Component {
           this.setState({ loading: false });
         }
       })
-      .fail(err => {
+      .catch(err => {
         this.setState({ loading: false });
       });
   }

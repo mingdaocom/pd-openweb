@@ -53,7 +53,7 @@ class RefuseUserJoinDia extends React.Component {
         }
         onCancel();
       })
-      .fail(err => {
+      .catch(err => {
         alert(_l('拒绝失败'), 2);
         callback();
       });

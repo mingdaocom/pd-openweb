@@ -2,73 +2,75 @@
 import taskCenterController from 'src/api/taskCenter';
 import groupController from 'src/api/group';
 import 'src/components/createTask/createTask';
+import { dialogSelectUser } from 'ming-ui/functions';
 
 export function _getMyTaskList(params) {
-  var promise = $.Deferred();
-  taskCenterController.getMyTaskList(params)
-    .then(function (res) {
-      if (!res.status) {
-        promise.reject(_l('获取数据失败'));
-      } else {
-        var data = res.data;
-        promise.resolve(data);
-      }
-    })
-    .fail(function (err) {
-      promise.reject(err);
-    });
-  return promise;
+  return new Promise((resolve, reject) => {
+    taskCenterController
+      .getMyTaskList(params)
+      .then(function (res) {
+        if (!res.status) {
+          reject(_l('获取数据失败'));
+        } else {
+          var data = res.data;
+          resolve(data);
+        }
+      })
+      .catch(function (err) {
+        reject(err);
+      });
+  });
 }
 
 export function _getChatList(params) {
-  var promise = $.Deferred();
-  chatController.getChatList(params)
-    .then(function (res) {
-      promise.resolve(res);
-    })
-    .fail(function (err) {
-      promise.reject(_l('获取数据失败'));
-    });
-  return promise;
+  return new Promise((resolve, reject) => {
+    chatController
+      .getChatList(params)
+      .then(function (res) {
+        resolve(res);
+      })
+      .catch(function (err) {
+        reject(_l('获取数据失败'));
+      });
+  });
 }
 
 export function _convertToOtherAttachment(params) {
-  var promise = $.Deferred();
-  if (params.qiniuUrl && params.qiniuUrl.indexOf(md.global.FileStoreConfig.pictureHost) > -1) {
-    promise.resolve({
-      data: params.qiniuUrl,
-    });
-    return promise;
-  }
+  return new Promise((resolve, reject) => {
+    if (params.qiniuUrl && params.qiniuUrl.indexOf(md.global.FileStoreConfig.pictureHost) > -1) {
+      resolve({
+        data: params.qiniuUrl,
+      });
+      return;
+    }
 
-  chatController.convertToOtherAttachment(params)
-    .then(function (res) {
-      promise.resolve({ data: res });
-    })
-    .fail(function (err) {
-      promise.reject(_l('获取数据失败'));
-    });
-
-  return promise;
+    chatController
+      .convertToOtherAttachment(params)
+      .then(function (res) {
+        resolve({ data: res });
+      })
+      .catch(function (err) {
+        reject(_l('获取数据失败'));
+      });
+  });
 }
 
 export function createNewTask() {
-  var promise = $.Deferred();
-  $.CreateTask({
-    relationCallback: function (result) {
-      promise.resolve({
-        taskID: result.taskID,
-        taskName: result.taskName,
-      });
-    },
+  return new Promise((resolve, reject) => {
+    $.CreateTask({
+      relationCallback: function (result) {
+        resolve({
+          taskID: result.taskID,
+          taskName: result.taskName,
+        });
+      },
+    });
   });
-  return promise;
 }
 
 export function createNewChat() {
-  var promise = $.Deferred();
-  import('src/components/dialogSelectUser/dialogSelectUser').then(function (dialogSelectUser) {
-    dialogSelectUser.default({
+  return new Promise((resolve, reject) => {
+    dialogSelectUser({
       sourceId: 0,
       fromType: 0,
       showMoreInvite: false,
@@ -76,24 +78,25 @@ export function createNewChat() {
         filterAccountIds: [md.global.Account.accountId],
         callback: function (data) {
           if (data.length > 1) {
-            groupController.addDiscussionGroup({
-              accountIds: data.map(function (account) {
-                return account.accountId;
-              }),
-            })
+            groupController
+              .addDiscussionGroup({
+                accountIds: data.map(function (account) {
+                  return account.accountId;
+                }),
+              })
               .then(function (result) {
-                promise.resolve({
+                resolve({
                   type: 2,
                   logo: result.avatar,
                   name: result.name,
                   value: result.groupId,
                 });
               })
-              .fail(function () {
-                promise.reject(_l('创建新聊天失败'));
+              .catch(function () {
+                reject(_l('创建新聊天失败'));
               });
           } else {
-            promise.resolve({
+            resolve({
               type: 1,
               logo: data[0].avatar,
               name: data[0].fullname,
@@ -104,5 +107,4 @@ export function createNewChat() {
       },
     });
   });
-  return promise;
 }

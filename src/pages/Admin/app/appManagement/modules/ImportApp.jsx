@@ -1,7 +1,6 @@
 import React, { Fragment } from 'react';
 import { Progress } from 'antd';
-import SvgIcon from 'src/components/SvgIcon';
-import { Checkbox, Tooltip, Support } from 'ming-ui';
+import { Checkbox, Tooltip, Support, SvgIcon } from 'ming-ui';
 import createUploader from 'src/library/plupload/createUploader';
 import Config from '../../../config';
 import importActivePng from '../img/import_active.png';
@@ -106,7 +105,7 @@ export default class ImportApp extends React.Component {
       data: JSON.stringify(params),
       dataType: 'JSON',
       contentType: 'application/json',
-    }).done(({ data: { errorCode, apps = [], isHighVersions } }) => {
+    }).then(({ data: { errorCode, apps = [], isHighVersions } }) => {
       if (errorCode === 5) {
         this.setState({ errTip: _l('解析失败，不是有效的应用文件') });
       } else if (ERRORMSG[errorCode]) {
@@ -126,7 +125,7 @@ export default class ImportApp extends React.Component {
   }
 
   //app导入
-  importApp() {
+  async importApp() {
     if (this.state.appBeyond) {
       alert(ALERTMSG[this.state.appBeyond], 3);
       return;
@@ -140,7 +139,8 @@ export default class ImportApp extends React.Component {
       groupId: this.props.groupId,
       groupType: this.props.groupType,
     };
-    this.props.closeDialog();
+    const res = await this.props.closeDialog(params);
+    if (res) return;
     $.ajax({
       type: 'POST',
       url: `${md.global.Config.AppFileServer}AppFile/Import`,
@@ -274,7 +274,7 @@ export default class ImportApp extends React.Component {
               '将应用文件导入组织生成一个新的应用，以实现应用快速迁移或创建。在导入私有部署环境前，请确认私有部署的版本，高版本向低版本导入，可能会导入失败。',
             )}
           </span>
-          <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/apply3" />
+          <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/application/import-export" />
         </div>
         {this.renderStepContent()}
         {step === 3 && (

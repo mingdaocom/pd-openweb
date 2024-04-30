@@ -167,9 +167,16 @@ export default function NavShow(props) {
       if (relateControls) {
         setState({ relateControls });
       } else {
-        sheetAjax.getWorksheetInfo({ worksheetId: data.dataSource, getViews: true, getTemplate: true }).then(res => {
-          setState({ relateControls: _.get(res, ['template', 'controls']) || [], loading: false });
-        });
+        sheetAjax
+          .getWorksheetInfo({
+            worksheetId: data.dataSource,
+            getViews: true,
+            getTemplate: true,
+            relationWorksheetId: _.get(props, 'filterInfo.globalSheetInfo.worksheetId'),
+          })
+          .then(res => {
+            setState({ relateControls: _.get(res, ['template', 'controls']) || [], loading: false });
+          });
       }
     }
   }, [value, filterInfo, data]);

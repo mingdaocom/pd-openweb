@@ -6,6 +6,7 @@ import CarouselPreview from 'src/pages/customPage/components/editWidget/carousel
 import { StateChartContent } from './ChartContent';
 import ViewContent from './ViewContent';
 import Filter from './FilterContent';
+import Ai from './AiContent';
 import { RichText } from 'ming-ui';
 
 const WidgetContent = styled.div`
@@ -39,7 +40,7 @@ const WidgetContent = styled.div`
 const fistLetterUpper = str => str.charAt(0).toUpperCase() + str.slice(1);
 
 function WidgetDisplay(props) {
-  const { ids, widget, apk, pageComponents, pageConfig, themeColor, componentType,  } = props;
+  const { ids, widget, apk, pageComponents, pageConfig, themeColor, componentType } = props;
   const { type, value, name, button, param = [], config = {} } = widget;
 
   const renderContent = () => {
@@ -89,10 +90,15 @@ function WidgetDisplay(props) {
         <CarouselPreview config={config} componentConfig={componentConfig} />
       );
     }
+    if (componentType === 'ai') {
+      return (
+        <Ai widget={widget}/>
+      );
+    }
   };
 
   return (
-    <WidgetContent className={`mobile${fistLetterUpper(componentType)} flexColumn`}>
+    <WidgetContent className={`mobile${fistLetterUpper(componentType)} ${componentType}-${widget.id} flexColumn `}>
       {renderContent()}
     </WidgetContent>
   );

@@ -122,17 +122,6 @@ function FilterContent(props) {
     }
   }, [otherFiltersGroup]);
 
-  useEffect(() => {
-    const { updateFiltersGroup } = props;
-    const quickFilter = filters.map((filter, i) => ({
-      ...filter,
-      filterType: filter.filterType || 1,
-      spliceType: filter.spliceType || 1,
-    })).filter(validate).map(conditionAdapter);
-    const filtersGroup = formatQuickFilter(quickFilter);
-    setOtherFiltersGroup(filtersGroup);
-  }, [filtersGroup]);
-
   if (loading) {
     return (
       <Flex justify="center" align="center" className="h100">
@@ -157,6 +146,7 @@ function FilterContent(props) {
         </div>
       </FilterEntry>
       <DrawerWrap
+        forceRender={true}
         placement="right"
         visible={visible}
         closable={false}

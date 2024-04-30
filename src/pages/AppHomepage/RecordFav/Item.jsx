@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Tooltip, Icon } from 'ming-ui';
+import { Tooltip, Icon, SvgIcon } from 'ming-ui';
 import styled from 'styled-components';
-import SvgIcon from 'src/components/SvgIcon';
 import { addBehaviorLog } from 'src/util';
 
 const RecordItem = styled.div`
@@ -24,7 +23,7 @@ const RecordItem = styled.div`
     flex: 8;
     flex-shrink: 0;
     min-width: 0;
-    padding: ${({ forCard }) => (!forCard ? '16px' : '10px 16px')};
+    padding: ${({ forCard }) => (!forCard ? '16px' : '8px 16px')};
     .itemIcon {
       width: 24px;
       min-width: 24px;

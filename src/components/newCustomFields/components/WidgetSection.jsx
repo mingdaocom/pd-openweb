@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
 import SectionTableNav from './SectionTableNav';
-import RelateRecordTable from 'worksheet/common/recordInfo/RecordForm/RelateRecordTable';
+import RelateRecordTable from 'worksheet/components/RelateRecordTable';
 import _ from 'lodash';
 
 const Con = styled.div`
@@ -40,41 +40,54 @@ function TableContainer(props) {
     relateRecordData,
     formdata,
     recordbase = {},
-    updateRelateRecordNum,
     setRelateNumOfControl,
     onRelateRecordsChange,
     updateWorksheetControls,
+    onCountChange,
   } = props;
-  const [loading, setLoading] = useState(true);
   return (
     <RelateRecordTable
-      formWidth={formWidth}
-      sideVisible={sideVisible}
+      appId={appId}
       isSplit={isSplit}
-      recordbase={recordbase}
-      formdata={formdata} // 用来给关联查询去筛选动态值
-      sheetSwitchPermit={sheetSwitchPermit}
       control={control}
-      loading={loading}
-      setLoading={setLoading}
-      controls={control.relationControls}
-      addRefreshEvents={addRefreshEvents}
-      from={from}
-      relateRecordData={relateRecordData} // 新建记录关联数据
-      setRelateNumOfControl={num => {
-        if (!recordId) {
-          return;
-        }
-        setRelateNumOfControl(num, control.controlId, control);
-      }} // 新建记录 更新计数
-      onRelateRecordsChange={records => {
-        if (control) {
-          onRelateRecordsChange(control, records);
-        }
-      }}
+      allowEdit={!disabled}
+      recordId={recordId}
+      worksheetId={worksheetId}
+      formData={formdata}
+      setRelateNumOfControl={setRelateNumOfControl}
       updateWorksheetControls={updateWorksheetControls}
+      onCountChange={onCountChange}
     />
   );
+  // return (
+  //   <RelateRecordTable
+  //     formWidth={formWidth}
+  //     sideVisible={sideVisible}
+  //     isSplit={isSplit}
+  //     recordbase={recordbase}
+  //     formdata={formdata} // 用来给关联查询去筛选动态值
+  //     sheetSwitchPermit={sheetSwitchPermit}
+  //     control={control}
+  //     loading={loading}
+  //     setLoading={setLoading}
+  //     controls={control.relationControls}
+  //     addRefreshEvents={addRefreshEvents}
+  //     from={from}
+  //     relateRecordData={relateRecordData} // 新建记录关联数据
+  //     setRelateNumOfControl={num => {
+  //       if (!recordId) {
+  //         return;
+  //       }
+  //       setRelateNumOfControl(num, control.controlId, control);
+  //     }} // 新建记录 更新计数
+  //     onRelateRecordsChange={records => {
+  //       if (control) {
+  //         onRelateRecordsChange(control, records);
+  //       }
+  //     }}
+  //     updateWorksheetControls={updateWorksheetControls}
+  //   />
+  // );
 }
 
 export default function WidgetSection(props) {
@@ -101,7 +114,7 @@ export default function WidgetSection(props) {
     scrollToTable,
     beginDrag,
     formWidth,
-    updateRelateRecordNum,
+    updateRelateRecordTableCount = () => {},
     formdata,
     recordbase,
     updateWorksheetControls,
@@ -111,7 +124,7 @@ export default function WidgetSection(props) {
     onRelateRecordsChange,
   } = tabControlProp;
   const activeControl = _.find(tabControls, i => i.controlId === activeTabControlId) || tabControls[0];
-
+  const [version, setVersion] = useState(Math.random());
   if (!activeControl) {
     return null;
   }
@@ -141,7 +154,6 @@ export default function WidgetSection(props) {
             sideVisible: controlProps.sideVisible,
             sheetSwitchPermit,
             addRefreshEvents: controlProps.addRefreshEvents,
-            updateRelateRecordNum,
             formdata,
             recordbase,
             // 新建记录专用
@@ -149,6 +161,10 @@ export default function WidgetSection(props) {
             setRelateNumOfControl,
             onRelateRecordsChange,
             updateWorksheetControls,
+          }}
+          onCountChange={(newCount, changed) => {
+            updateRelateRecordTableCount(activeControl.controlId, newCount, { changed });
+            setVersion(Math.random());
           }}
         />
       );
@@ -169,6 +185,7 @@ export default function WidgetSection(props) {
       >
         {isSplit && <Drag onMouseDown={beginDrag} />}
         <SectionTableNav
+          version={version}
           style={isSplit ? {} : { borderBottom: '3px solid #ddd' }}
           formWidth={formWidth}
           sideVisible={controlProps.sideVisible}

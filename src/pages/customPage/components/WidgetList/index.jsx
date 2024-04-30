@@ -55,7 +55,7 @@ function WidgetList({ components, addWidget = _.noop, ...rest }) {
         </div> */}
       </div>
       <ul className="widgetList">
-        {_.keys(widgets).map(key => {
+        {_.keys(widgets).filter(n => n === 'ai' ? !md.global.Config.IsLocal : true).map(key => {
           const { icon, name } = widgets[key];
           return (
             <li

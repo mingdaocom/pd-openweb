@@ -13,7 +13,7 @@ export default {
   **/
    getUploadToken: function (args, options = {}) {
      
-     return $.api('Qiniu', 'GetUploadToken', args, options);
+     return mdyAPI('Qiniu', 'GetUploadToken', args, options);
    },
   /**
   * 获取七牛上传 token
@@ -29,6 +29,6 @@ export default {
   **/
    getFileUploadToken: function (args, options = {}) {
      
-     return $.api('Qiniu', 'GetFileUploadToken', args, options);
+     return mdyAPI('Qiniu', 'GetFileUploadToken', args, options);
    },
 };

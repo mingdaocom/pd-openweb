@@ -1,8 +1,8 @@
 @font-face {
   font-family: "MD_Icon"; /* Project id 2032949 */
-  src: url('iconfont.woff2?t=1706760574990') format('woff2'),
-       url('iconfont.woff?t=1706760574990') format('woff'),
-       url('iconfont.ttf?t=1706760574990') format('truetype');
+  src: url('iconfont.woff2?t=1713174116881') format('woff2'),
+       url('iconfont.woff?t=1713174116881') format('woff'),
+       url('iconfont.ttf?t=1713174116881') format('truetype');
 }
 
 .MD_Icon {
@@ -11,6 +11,58 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-database:before {
+  content: "\e9ba";
+}
+
+.icon-a-1V1:before {
+  content: "\e67e";
+}
+
+.icon-drill_down:before {
+  content: "\ec3f";
+}
+
+.icon-circle_three:before {
+  content: "\e67d";
+}
+
+.icon-hap:before {
+  content: "\eb0f";
+}
+
+.icon-layers_clear:before {
+  content: "\eaff";
+}
+
+.icon-file_save:before {
+  content: "\eb01";
+}
+
+.icon-file_up:before {
+  content: "\eb06";
+}
+
+.icon-antenna:before {
+  content: "\eb0d";
+}
+
+.icon-aggregate_table:before {
+  content: "\ec36";
+}
+
+.icon-filter_criteria:before {
+  content: "\ec3d";
+}
+
+.icon-linkage_filter:before {
+  content: "\ec2d";
+}
+
+.icon-person_new:before {
+  content: "\eaea";
 }
 
 .icon-person_three:before {
@@ -1761,10 +1813,6 @@
   content: "\e9ae";
 }
 
-.icon-to1:before {
-  content: "\ebae";
-}
-
 .icon-circle:before {
   content: "\e8af";
 }
@@ -1923,10 +1971,6 @@
 
 .icon-custom_package:before {
   content: "\e8ba";
-}
-
-.icon-new_mail:before {
-  content: "\e9ba";
 }
 
 .icon-rotate:before {
@@ -3867,6 +3911,10 @@
 
 .icon-uploadFlat:before {
   content: "\eb44";
+}
+
+.icon-new_mail-copy:before {
+  content: "\ecc8";
 }
 
 .icon-bookmark:before {

@@ -423,7 +423,11 @@ export default class AuxiliaryLine extends Component {
             </DeleteWrap>
           </div>
         ))}
-        <Dropdown trigger={['click']} overlay={this.renderMenu}>
+        <Dropdown
+          trigger={['click']}
+          overlay={this.renderMenu}
+          getPopupContainer={() => document.querySelector('.ChartDialogSetting .chartTabs')}
+        >
           <AddLine className="Font13 valignWrapper pointer" onClick={e => e.preventDefault()}>
             <Icon icon="add" />
             {_l('添加辅助线')}

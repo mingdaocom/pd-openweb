@@ -4,14 +4,14 @@ import { Checkbox } from 'ming-ui';
 import { SettingItem } from '../../styled';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 import _ from 'lodash';
-import { relateOrSectionTab } from '../../util';
+import { isSheetDisplay } from '../../util';
 
 export default function WidgetName(props) {
   const { title = _l('字段名称'), data = {}, onChange, isRecycle } = props;
   const { type, controlName, controlId = '' } = data;
   const hidetitle = getAdvanceSetting(data, 'hidetitle');
   const $ref = useRef(null);
-  const showHiden = !relateOrSectionTab(data);
+  const showHiden = !(isSheetDisplay(data) || type === 52);
 
   useEffect(() => {
     if ($ref.current && !isRecycle) {
@@ -47,7 +47,7 @@ export default function WidgetName(props) {
         value={controlName}
         onBlur={() => {
           if (!controlName && !_.includes([22, 10010], type)) {
-            onChange({ controlName: '字段名称' });
+            onChange({ controlName: _l('字段名称') });
           }
         }}
         onChange={e => onChange({ controlName: e.target.value })}

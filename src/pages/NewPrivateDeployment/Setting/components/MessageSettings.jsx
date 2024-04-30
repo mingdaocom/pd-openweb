@@ -118,7 +118,7 @@ export default class MessageSettings extends Component {
         alert(_l('设置完成'));
         this.props.onSave(data);
       })
-      .fail(() => {
+      .catch(() => {
         alert(_l('修改失败'), 2);
       });
   };

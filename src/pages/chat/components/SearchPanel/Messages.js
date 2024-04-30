@@ -72,7 +72,7 @@ export default class Messages extends Component {
         page: pageIndex,
         keyword: searchText,
       })
-      .done((res) => {
+      .then((res) => {
         // res = res.reverse();
         this.setState({
           pageIndex: res && res.length >= 10 ? pageIndex + 1 : 0,

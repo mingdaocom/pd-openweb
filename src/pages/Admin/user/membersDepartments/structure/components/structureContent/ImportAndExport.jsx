@@ -3,11 +3,10 @@ import { Icon, VerifyPasswordConfirm } from 'ming-ui';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actions from '../../actions/entities';
-import DialogSelectDept from 'src/components/dialogSelectDept';
 import cx from 'classnames';
 import Config from '../../../../../config';
 import importUser from 'src/api/importUser';
-import captcha from 'src/components/captcha';
+import { captcha, dialogSelectDept } from 'ming-ui/functions';
 import UploadFile from './UploadFile';
 import ImportResulFailtDetail from './ImportResulFailtDetail';
 import { getCurrentProject } from 'src/util';
@@ -67,7 +66,8 @@ class ImportAndExport extends Component {
   exportFile = () => {
     const { projectId } = this.props;
     const _this = this;
-    new DialogSelectDept({
+
+    dialogSelectDept({
       projectId,
       unique: false,
       showCreateBtn: false,
@@ -173,7 +173,7 @@ class ImportAndExport extends Component {
             });
           }
         })
-        .fail(res => {
+        .catch(res => {
           _this.setState({ resultDetail: res, importError: true, isShowFailList: false, importFileLoading: false });
         });
     };

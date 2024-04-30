@@ -6,8 +6,14 @@
   .manageAppLeft {
     width: 240px;
     border-right: 1px solid #dddddd;
-    padding: 8px 10px 0;
+    padding: 8px 8px 0;
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    transition: width 0.2s;
+    &.collapseManageAppLeft {
+      width: 60px;
+    }
     .line {
       width: 100%;
       border-top: 1px solid #eaeaea;
@@ -51,11 +57,38 @@
           color: #f51744 !important;
         }
       }
+      &.collapseItem {
+        padding: 0;
+        justify-content: center;
+        &::before {
+          width: 0 !important;
+        }
+      }
+    }
+    .collapseWrap {
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: end;
+      .collapseWrapIcon {
+        padding: 8px;
+        border-radius: 50%;
+        margin-right: 4px;
+        &:hover {
+          background-color: rgba(0, 0, 0, 0.05);
+        }
+      }
+      &.collapseHideWrap {
+        justify-content: center;
+        .collapseWrapIcon {
+          margin: 0;
+        }
+      }
     }
   }
   .manageAppRight {
     overflow: auto;
-    padding: 32px 40px;
+    padding: 20px 40px;
     &.language {
       padding: 0;
     }

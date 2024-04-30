@@ -1,17 +1,16 @@
 import React, { Component, Fragment } from 'react';
 import { string, func } from 'prop-types';
-import Icon from 'ming-ui/components/Icon';
-import Menu from 'ming-ui/components/Menu';
-import MenuItem from 'ming-ui/components/MenuItem';
-import Dialog from 'ming-ui/components/Dialog';
+import { Icon, Menu, MenuItem, Dialog } from 'ming-ui';
 import DialogImportExcelCreate from 'src/pages/worksheet/components/DialogImportExcelCreate';
 import ImportApp from 'src/pages/Admin/app/appManagement/modules/ImportApp.jsx';
 import { navigateTo } from 'src/router/navigateTo';
 import { generate } from '@ant-design/colors';
-import { getFeatureStatus, buriedUpgradeVersionDialog, getThemeColors } from 'src/util';
+import { getFeatureStatus, buriedUpgradeVersionDialog, getThemeColors, getCurrentProject } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
 import _ from 'lodash';
 import ExternalLinkDialog from './ExternalLinkDialog';
+import homeAppAjax from 'src/api/homeApp';
+import SelectDBInstance from './SelectDBInstance';
 
 const ADD_APP_MODE = [
   { id: 'createFromEmpty', icon: 'plus', text: _l('从空白创建%01003'), href: '/app/lib' },
@@ -41,6 +40,7 @@ export default class AddAppItem extends Component {
     createAppFromEmpty: func,
     projectId: string,
     type: string,
+    DBInstances: [],
   };
 
   static defaultProps = {
@@ -49,9 +49,10 @@ export default class AddAppItem extends Component {
 
   state = { addTypeVisible: false, externalLinkDialogVisible: false };
 
-  handleClick = ({ id, href }) => {
+  handleClick = ({ id, href, dbInstanceId }) => {
     const { projectId, type } = this.props;
     const { groupId } = this.props;
+
     switch (id) {
       case 'installFromLib':
         if (!groupId) {
@@ -73,6 +74,7 @@ export default class AddAppItem extends Component {
           navColor: iconColor,
           lightColor,
           permissionType: 200,
+          dbInstanceId,
         });
         break;
       case 'buildService':
@@ -98,8 +100,14 @@ export default class AddAppItem extends Component {
         onCancel={() => this.setState({ importAppDialog: false })}
       >
         <ImportApp
-          closeDialog={() => {
-            this.setState({ importAppDialog: false });
+          closeDialog={params => {
+            this.setState({ importAppDialog: false, importAppParams: params });
+            const currentProject = getCurrentProject(projectId);
+            const hasDataBase =
+              getFeatureStatus(projectId, VersionProductType.dataBase) === '1' && !md.global.Config.IsPlatformLocal;
+            if (hasDataBase && (currentProject.isSuperAdmin || currentProject.isProjectAppManager)) {
+              return this.getMyDbInstances({}, 'importApp');
+            }
           }}
           projectId={projectId}
           groupId={groupId}
@@ -109,9 +117,68 @@ export default class AddAppItem extends Component {
     );
   };
 
+  handleSelectedDB = dbInstanceId => {
+    const { openDBInstanceFrom, importAppParams } = this.state;
+    const { id, href } = ADD_APP_MODE[0];
+    this.setState({ DBInstancesDialog: false, openDBInstanceFrom: undefined });
+
+    if (openDBInstanceFrom === 'createFromEmpty') {
+      this.handleClick({ id, href, dbInstanceId });
+    } else if (openDBInstanceFrom === 'importApp') {
+      $.ajax({
+        type: 'POST',
+        url: `${md.global.Config.AppFileServer}AppFile/Import`,
+        data: JSON.stringify({
+          ...importAppParams,
+          dbInstanceId,
+        }),
+        dataType: 'JSON',
+        contentType: 'application/json',
+      });
+    }
+  };
+
+  renderDBInstances = () => {
+    const { DBInstancesDialog, DBInstances = [] } = this.state;
+
+    const options = [{ value: '', label: _l('系统默认数据库') }].concat(
+      DBInstances.map(l => {
+        return {
+          value: l.id,
+          label: l.name,
+        };
+      }),
+    );
+
+    return (
+      <SelectDBInstance
+        visible={DBInstancesDialog}
+        options={options}
+        onOk={this.handleSelectedDB}
+        onCancel={() => this.setState({ DBInstancesDialog: false, openDBInstanceFrom: undefined })}
+      />
+    );
+  };
+
   handleAddAppItemClick = e => {
     e.stopPropagation();
     this.setState({ addTypeVisible: true });
+  };
+
+  getMyDbInstances = async ({ id, href }, from) => {
+    const res = await homeAppAjax.getMyDbInstances({
+      projectId: this.props.projectId,
+    });
+    if (res && res.length) {
+      this.setState({
+        DBInstances: res,
+        DBInstancesDialog: true,
+        openDBInstanceFrom: from,
+      });
+      if (from === 'importApp') return true;
+    } else {
+      from === 'createFromEmpty' && this.handleClick({ id, href });
+    }
   };
 
   render() {
@@ -148,6 +215,14 @@ export default class AddAppItem extends Component {
                         buriedUpgradeVersionDialog(projectId, VersionProductType.appImportExport);
                         return;
                       }
+                      if (id === 'createFromEmpty') {
+                        const currentProject = getCurrentProject(projectId);
+                      const hasDataBase = getFeatureStatus(projectId, VersionProductType.dataBase) === '1' && !md.global.Config.IsPlatformLocal;
+                        if (hasDataBase && (currentProject.isSuperAdmin || currentProject.isProjectAppManager)) {
+                          this.getMyDbInstances({ id, href }, 'createFromEmpty');
+                          return;
+                        }
+                      }
                       if (id === 'importExcelCreateApp') {
                         this.setState({ dialogImportExcel: true });
                       }
@@ -179,6 +254,7 @@ export default class AddAppItem extends Component {
           />
         )}
         {this.renderImportApp()}
+        {this.renderDBInstances()}
         {externalLinkDialogVisible && (
           <ExternalLinkDialog
             projectId={projectId}

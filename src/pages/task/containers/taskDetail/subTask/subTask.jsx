@@ -7,11 +7,10 @@ import Textarea from 'ming-ui/components/Textarea';
 import config, { OPEN_TYPE } from '../../../config/config';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import quickSelectUser from 'ming-ui/functions/quickSelectUser';
+import { quickSelectUser, dialogSelectUser } from 'ming-ui/functions';
 import { addSubTask, editTaskStatus, updateTaskName, updateTaskCharge, taskFoldStatus } from '../../../redux/actions';
 import { expireDialogAsync } from 'src/util';
-import UserHead from 'src/components/userHead';
-import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
+import { UserHead } from 'ming-ui';
 import {
   afterUpdateTaskName,
   afterUpdateTaskStatus,
@@ -66,18 +65,7 @@ class SingleItem extends Component {
 
   render() {
     const { item } = this.props;
-    const {
-      charge,
-      status,
-      startTime,
-      deadline,
-      actualStartTime,
-      completeTime,
-      taskName,
-      auth,
-      locked,
-      taskID,
-    } = item;
+    const { charge, status, startTime, deadline, actualStartTime, completeTime, taskName, auth, locked, taskID } = item;
     const hasAuth = auth === config.auth.Charger || auth === config.auth.Member;
     let subTaskStatus = '';
     let tipMessage = '';

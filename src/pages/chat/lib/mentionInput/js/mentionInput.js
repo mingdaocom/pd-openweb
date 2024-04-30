@@ -605,10 +605,6 @@ const Request = getRequest();
       if (e.keyCode == KEY.LEFT || e.keyCode == KEY.RIGHT || e.keyCode == KEY.HOME || e.keyCode == KEY.END) {
         _.defer(resetBuffer);
 
-        if (navigator.userAgent.indexOf('MSIE 9') > -1) {
-          _.defer(updateValues);
-        }
-
         return;
       }
 
@@ -672,7 +668,7 @@ const Request = getRequest();
       }
       const paras = settings.remoteURLParas;
       paras.pageIndex = settings.pageIndex;
-      settings.ajaxController.getGroupUsers(paras).done(data => {
+      settings.ajaxController.getGroupUsers(paras).then(data => {
         let result = null;
         const users = settings.format(data.groupUsers);
         settings.pageIndex += 1;
@@ -936,7 +932,7 @@ const Request = getRequest();
         if (!query) {
           paras.pageIndex = settings.pageIndex;
           delete paras.keywords;
-          settings.ajaxController.getGroupUsers(paras).done(data => {
+          settings.ajaxController.getGroupUsers(paras).then(data => {
             let users = settings.format(data.groupUsers);
             users = settings.addAtAll(query).concat(users);
             settings.pageIndex = 2;
@@ -950,7 +946,7 @@ const Request = getRequest();
             settings.$deferred.abort();
           }
           settings.$deferred = settings.ajaxController.getGroupUsers(paras);
-          settings.$deferred.done(data => {
+          settings.$deferred.then(data => {
             // 个人化
             let users = settings.format(data.groupUsers);
             users = settings.addAtAll(query).concat(users);

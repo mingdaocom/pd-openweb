@@ -1,4 +1,5 @@
 .exclusiveComp {
+  overflow-y: scroll;
   > div {
     background: #fff;
   }
@@ -33,14 +34,20 @@
   }
   .exclusiveCompContent {
     padding: 0 20px;
+    overflow-y: scroll;
     .exclusiveCompExplan {
       background: #f2fafe;
       border-radius: 3px;
       line-height: 40px;
       font-size: 13px;
-      padding: 0 12px;
+      padding: 0 22px 0 12px;
       margin-top: 20px;
       margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      .createComputingButton {
+        color: #2196F3;
+      }
     }
     .exclusiveCompList {
       li {
@@ -190,6 +197,38 @@
               color: #fff;
               font-size: 24px;
             }
+          }
+        }
+      }
+    }
+  }
+
+  .exclusiveHeader {
+    border-bottom: 1px solid #e0e0e0;
+    color: #212121;
+    height: 56px;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    .exclusiveHeaderTextCon {
+      flex: 1;
+      span {
+        display: inline-block;
+        color: #212121;
+        font-size: 16px;
+        font-weight: 600;
+        padding: 0 20px;
+        position: relative;
+        &.active {
+          color: #2196f3;
+          &::after {
+            content: '';
+            width: 100%;
+            height: 3px;
+            position: absolute;
+            bottom: -17px;
+            left: 0;
+            background: #2196f3;
           }
         }
       }

@@ -8,13 +8,14 @@ import { LoadDiv } from 'ming-ui';
 import { useToggle, useFullscreen } from 'react-use';
 import 'rc-trigger/assets/index.css';
 import WebLayout from 'src/pages/customPage/webLayout';
-import { updatePageInfo, updateLoading, updateEditPageVisible } from 'src/pages/customPage/redux/action';
-import { copyCustomPage } from 'src/pages/worksheet/redux/actions/sheetList';
 import {
-  updateSheetList,
-  deleteSheet,
-  updateSheetListAppItem
-} from 'src/pages/worksheet/redux/actions/sheetList';
+  updatePageInfo,
+  updateLoading,
+  updateEditPageVisible,
+  deleteLinkageFiltersGroup,
+} from 'src/pages/customPage/redux/action';
+import { copyCustomPage } from 'src/pages/worksheet/redux/actions/sheetList';
+import { updateSheetList, deleteSheet, updateSheetListAppItem } from 'src/pages/worksheet/redux/actions/sheetList';
 import customApi from 'statistics/api/custom.js';
 import CustomPageHeader from './CustomPageHeader';
 import CustomPage from 'src/pages/customPage';
@@ -106,7 +107,12 @@ const CustomPageContentWrap = styled.div`
     left: 10px;
   }
   .darkTheme {
-    .pageName, .moreOperateIcon, .iconWrap .icon, .componentTitle, .createSource a, .customPageDesc {
+    .pageName,
+    .moreOperateIcon,
+    .iconWrap .icon,
+    .componentTitle,
+    .createSource a,
+    .customPageDesc {
       color: rgba(255, 255, 255, 1) !important;
     }
     .createSource {
@@ -128,6 +134,7 @@ function CustomPageContent(props) {
     apk,
     id,
     groupId,
+    className,
     ids = {},
   } = props;
   const pageId = id;
@@ -145,7 +152,7 @@ function CustomPageContent(props) {
   };
   const isFullscreen = useFullscreen(ref, show, { onClose: closeFullscreen });
   const isMobile = browserIsMobile();
-  const sheetList = appPkg.currentPcNaviStyle === 1 ? getAppSectionData(groupId) : props.sheetList;
+  const sheetList = [1, 3].includes(appPkg.currentPcNaviStyle) ? getAppSectionData(groupId) : props.sheetList;
   const currentSheet = findSheet(id, sheetList) || props.currentSheet || {};
   const pageName = getTranslateInfo(appPkg.id, pageId).name || props.pageName || currentSheet.workSheetName || '';
   const { urlTemplate, configuration } = currentSheet;
@@ -171,31 +178,32 @@ function CustomPageContent(props) {
   }, []);
 
   const getPage = () => {
-    customApi.getPage({
-      appId: pageId
-    }, {
-      fireImmediately: true
-    }).then(({ components, desc, apk, adjustScreen, name, config, version }) => {
-      const componentsData = isMobile ? components.filter(item => item.mobile.visible) : components;
-      updatePageInfo({
-        components: componentsData,
-        desc,
-        adjustScreen,
-        pageId,
-        apk: apk || {},
-        config: config || defaultConfig,
-        pageName: name,
-        filterComponents: componentsData.filter(item => item.value && item.type === enumWidgetType.filter),
-        version,
-      });
-    }).always(() => updateLoading(false));
-  }
+    customApi
+      .getPage({
+        appId: pageId,
+      })
+      .then(({ components, desc, apk, adjustScreen, name, config, version }) => {
+        const componentsData = isMobile ? components.filter(item => item.mobile.visible) : components;
+        updatePageInfo({
+          components: componentsData,
+          desc,
+          adjustScreen,
+          pageId,
+          apk: apk || {},
+          config: config || defaultConfig,
+          pageName: name,
+          filterComponents: componentsData.filter(item => item.value && item.type === enumWidgetType.filter),
+          version,
+        });
+      })
+      .finally(() => updateLoading(false));
+  };
 
   const resetPage = () => {
     updatePageInfo({ loadFilterComponentCount: 0 });
     updateLoading(true);
     getPage();
-  }
+  };
 
   const renderContent = () => {
     if (urlTemplate) {
@@ -205,17 +213,16 @@ function CustomPageContent(props) {
         if (!!o.staticValue) {
           urlList.push(o.staticValue);
         } else {
-          urlList.push(
-            getEmbedValue(
-              {
-                projectId: appPkg.projectId,
-                appId: ids.appId,
-                groupId: ids.groupId,
-                worksheetId: ids.worksheetId,
-              },
-              o.cid,
-            ),
+          const embedValue = getEmbedValue(
+            {
+              projectId: appPkg.projectId,
+              appId: ids.appId,
+              groupId: ids.groupId,
+              worksheetId: ids.worksheetId,
+            },
+            o.cid,
           );
+          urlList.push(encodeURIComponent(embedValue));
         }
       });
       return (
@@ -244,7 +251,7 @@ function CustomPageContent(props) {
             <div className="iconWrap">
               <i className="icon-custom_widgets"></i>
             </div>
-            <p className='mTop16'>{_l('没有内容')}</p>
+            <p className="mTop16">{_l('没有内容')}</p>
           </div>
         }
       />
@@ -253,31 +260,38 @@ function CustomPageContent(props) {
 
   return (
     <Fragment>
-      <CustomPageContentWrap className="CustomPageContentWrap flexColumn">
+      <CustomPageContentWrap className={cx('CustomPageContentWrap flexColumn', className)}>
         {(appName || pageName) && <DocumentTitle title={`${pageName} - ${appName}`} />}
         {!loading && (
           <CustomPageHeader {...props} currentSheet={currentSheet} toggle={showFullscreen} resetPage={resetPage} />
         )}
-        <div className="content">
-          {renderContent()}
-        </div>
+        <div className="content">{renderContent()}</div>
       </CustomPageContentWrap>
-      {visible && !urlTemplate && (
-        <CustomPage name={pageName} ids={ids} currentSheet={currentSheet} />
-      )}
+      {visible && !urlTemplate && <CustomPage name={pageName} ids={ids} currentSheet={currentSheet} />}
     </Fragment>
   );
 }
 
 export default connect(
   ({ appPkg, customPage, sheet: { isCharge, base }, sheetList: { data, appSectionDetail } }) => ({
-    ...pick(customPage, ['loading', 'visible', 'desc', 'adjustScreen', 'apk', 'pageName', 'flag', 'config', 'version']),
+    ...pick(customPage, [
+      'loading',
+      'visible',
+      'desc',
+      'adjustScreen',
+      'apk',
+      'pageName',
+      'flag',
+      'config',
+      'version',
+      'linkageFiltersGroup',
+    ]),
     isCharge,
     appName: appPkg.name,
     sheetList: data,
     appPkg,
     activeSheetId: base.workSheetId,
-    groupId: base.groupId
+    groupId: base.groupId,
   }),
   dispatch =>
     bindActionCreators(
@@ -289,6 +303,7 @@ export default connect(
         updateSheetList,
         updateSheetListAppItem,
         updateEditPageVisible,
+        deleteLinkageFiltersGroup,
       },
       dispatch,
     ),

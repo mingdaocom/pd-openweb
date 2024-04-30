@@ -3,6 +3,7 @@ import { Dialog, Support } from 'ming-ui';
 import { TriggerCondition } from '../components';
 import flowNode from '../../../api/flowNode';
 import { checkConditionsIsNull } from '../../utils';
+import cx from 'classnames';
 
 export default class Branch extends Component {
   constructor(props) {
@@ -15,15 +16,32 @@ export default class Branch extends Component {
   }
 
   componentDidMount() {
-    const { processId, selectNodeId, selectNodeType } = this.props;
+    const { processId, selectNodeId, selectNodeType, instanceId } = this.props;
 
-    flowNode.getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType }).then(result => {
-      this.setState({
-        name: result.name,
-        data: result.conditions.length ? result.conditions : this.state.data,
-        controls: result.flowNodeAppDtos,
+    flowNode
+      .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, instanceId })
+      .then(result => {
+        // 兼容空值情况
+        if (instanceId) {
+          result.conditions.forEach(list => {
+            list.forEach(item => {
+              if (!item.fromValue) {
+                item.fromValue = _l('空');
+              }
+
+              if (!item.toValue) {
+                item.toValue = [_l('空')];
+              }
+            });
+          });
+        }
+
+        this.setState({
+          name: result.name,
+          data: result.conditions.length ? result.conditions : this.state.data,
+          controls: result.flowNodeAppDtos,
+        });
       });
-    });
   }
 
   /**
@@ -67,19 +85,19 @@ export default class Branch extends Component {
   };
 
   render() {
-    const { closeDetail } = this.props;
+    const { flowInfo, closeDetail, instanceId } = this.props;
     const { data, controls, name } = this.state;
 
     return (
       <Dialog
-        className="workflowDialogBox"
+        className={cx('workflowDialogBox', { workflowDetailRelease: !!flowInfo.parentId || instanceId })}
         overlayClosable={false}
         visible
         title={
           <div className="flexRow" style={{ height: 24 }}>
             <span className="ellipsis">{name || _l('分支')}</span>
             <span className="mLeft10">
-              <Support type={1} className="workflowDialogSupport" href="https://help.mingdao.com/flow41" />
+              <Support type={1} className="workflowDialogSupport" href="https://help.mingdao.com/worksheet/field-filter" />
             </span>
             <span className="flex" />
           </div>

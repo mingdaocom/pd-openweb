@@ -6,10 +6,9 @@ import processVersion from '../api/processVersion';
 import flowNode from '../api/flowNode';
 import { Link } from 'react-router-dom';
 import cx from 'classnames';
-import { Icon, ScrollView, LoadDiv, Dialog, Switch, Tooltip } from 'ming-ui';
+import { Icon, ScrollView, LoadDiv, Dialog, Switch, Tooltip, UserHead } from 'ming-ui';
 import MsgTemplate from './components/MsgTemplate';
 import Search from '../components/Search';
-import UserHead from 'src/components/userHead/userHead';
 import PublishBtn from './components/PublishBtn';
 import { START_APP_TYPE } from './utils/index';
 import appManagement from 'src/api/appManagement';
@@ -18,7 +17,7 @@ import { Select } from 'antd';
 import WorkflowMonitor from './components/WorkflowMonitor';
 import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
 import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
-import { checkIsAppAdmin } from 'src/components/checkIsAppAdmin';
+import { checkIsAppAdmin } from 'ming-ui/functions';
 import Config from 'src/pages/Admin/config';
 import _ from 'lodash';
 import moment from 'moment';
@@ -38,6 +37,7 @@ const typeList = [
   { label: _l('自定义动作'), value: 7 },
   { label: _l('审批流程'), value: 11 },
   { label: _l('封装业务流程'), value: 10 },
+  { label: _l('事件推送'), value: 12 },
 ];
 
 @errorBoundary
@@ -225,7 +225,7 @@ export default class AdminWorkflowList extends Component {
 
     if (list === null) return;
 
-    if (!list.length) {
+    if (!list || !list.length) {
       return (
         <div className="manageListNull flex flexColumn">
           <div className="iconWrap">

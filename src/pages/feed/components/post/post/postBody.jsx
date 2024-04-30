@@ -3,7 +3,7 @@ import React from 'react';
 import ReactDom from 'react-dom';
 import _ from 'lodash';
 import cx from 'classnames';
-import UserHead from 'src/components/userHead';
+import { UserHead } from 'ming-ui';
 import postEnum from '../../../constants/postEnum';
 import { addFavorite, removeFavorite, addLike, removeLike } from '../../../redux/postActions';
 import { connect } from 'react-redux';

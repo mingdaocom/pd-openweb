@@ -28,7 +28,7 @@ const WithoutFidldItem = (props) => {
   const handleSave = e => {
     let { value } = e.target;
     if (value !== '') {
-      value = parseInt(value);
+      value = Number(value);
       value = isNaN(value) ? 0 : value;
     } else {
       value = '';

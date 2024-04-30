@@ -1,9 +1,7 @@
 ﻿import React, { Fragment } from 'react';
 import moment from 'moment';
 import Trigger from 'rc-trigger';
-import { Tooltip, Icon, Dialog, Menu, MenuItem } from 'ming-ui';
-import UserHead from 'src/components/userHead';
-import UserName from 'src/components/userName';
+import { Tooltip, Icon, Dialog, Menu, MenuItem, UserHead, UserName } from 'ming-ui';
 import PageTableCon from '../../../components/PageTableCon';
 import userAjax from 'src/api/user';
 import HandOver from './handOver';
@@ -132,6 +130,7 @@ export default class extends React.Component {
         },
       ].map(item => ({
         ...item,
+        width: item.width || 150,
         onCell: () => {
           return {
             style: {
@@ -170,7 +169,7 @@ export default class extends React.Component {
           loading: false,
         });
       })
-      .fail(err => {
+      .catch(err => {
         this.setState({
           dataSource: [],
           count: 0,
@@ -247,7 +246,7 @@ export default class extends React.Component {
     } = this.state;
 
     return (
-      <div className="flexColumn flex minHeight0">
+      <div className="flexColumn flex minHeight0 h100">
         <Wrap className="flexRow">
           <SearchInput placeholder={_l('搜索成员')} onSearch={val => this.setState({ keywords: val }, this.getData)} />
           <span className="ThemeColor Hand Font13 Normal" onClick={() => this.setState({ handoverVisible: true })}>

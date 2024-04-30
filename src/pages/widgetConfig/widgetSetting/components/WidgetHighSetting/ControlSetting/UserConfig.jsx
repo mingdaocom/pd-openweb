@@ -4,15 +4,13 @@ import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util
 import { Checkbox } from 'ming-ui';
 import update from 'immutability-helper';
 import Components from '../../../../components';
-import DialogSelectGroups from 'src/components/dialogSelectDept';
-import selectOrgRole from 'src/components/dialogSelectOrgRole';
+import { dialogSelectOrgRole, dialogSelectDept, dialogSelectUser } from 'ming-ui/functions';
 import { Dropdown, Tooltip } from 'antd';
-import cx from 'classnames';
 import { DropdownContent } from '../../../../styled';
 import { SelectOtherField, OtherField } from '../../DynamicDefaultValue/components';
 import { DefaultOptionSetting } from '../../DynamicDefaultValue/inputTypes/OptionInput';
 import { FieldInfo } from '../../DynamicDefaultValue/styled';
-import { head, isEqual } from 'lodash';
+import { isEqual } from 'lodash';
 
 const Icon = Components.Icon;
 
@@ -40,7 +38,7 @@ export default function UserConfig(props) {
       onChange(handleAdvancedSettingChange(data, { userrange: JSON.stringify(nextValue) }));
     }
     if (item.id === 'assignGroup') {
-      new DialogSelectGroups({
+      dialogSelectDept({
         projectId: globalSheetInfo.projectId,
         isIncludeRoot: false,
         unique: false,
@@ -63,24 +61,22 @@ export default function UserConfig(props) {
         onChange(handleAdvancedSettingChange(data, { userrange: JSON.stringify(nextValue) }));
       };
 
-      import('src/components/dialogSelectUser/dialogSelectUser').then(dialogSelectUser => {
-        dialogSelectUser.default({
-          showMoreInvite: false,
-          SelectUserSettings: {
-            unique: false,
-            filterAll: true,
-            filterFriend: true,
-            filterOthers: true,
-            filterOtherProject: true,
-            projectId: globalSheetInfo.projectId,
-            callback: handleUserChange,
-            showTabs: ['conactUser', 'department', 'subordinateUser'],
-          },
-        });
+      dialogSelectUser({
+        showMoreInvite: false,
+        SelectUserSettings: {
+          unique: false,
+          filterAll: true,
+          filterFriend: true,
+          filterOthers: true,
+          filterOtherProject: true,
+          projectId: globalSheetInfo.projectId,
+          callback: handleUserChange,
+          showTabs: ['conactUser', 'department', 'subordinateUser'],
+        },
       });
     }
     if (item.id === 'assignOrg') {
-      selectOrgRole({
+      dialogSelectOrgRole({
         projectId: globalSheetInfo.projectId,
         unique: data.enumDefault === 0,
         onSave: orgArr => {

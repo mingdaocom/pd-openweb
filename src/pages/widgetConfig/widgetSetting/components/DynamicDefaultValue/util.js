@@ -26,6 +26,7 @@ import {
 } from './config';
 import { SYS } from 'src/pages/widgetConfig/config/widget';
 import _ from 'lodash';
+import { isSheetDisplay } from 'src/pages/widgetConfig/util';
 
 // 新建子表并配置成员、部门等默认值，后端relationControls不处理，没有补全配置返回
 export const dealIds = (type, dynamicValue) => {
@@ -80,7 +81,7 @@ const isSingleRelate = control => control.type === 29 && control.enumDefault ===
 const isRelateMore = control => control.type === 29 && control.enumDefault === 2;
 
 //关联多条卡片、下拉框
-const isResultAsRelateMore = control => control.type === 29 && _.get(control.advancedSetting || {}, 'showtype') !== '2';
+const isResultAsRelateMore = control => !isSheetDisplay(control);
 
 // 汇总计算为数值的
 const isFormulaResultAsSubtotal = item => {
@@ -199,7 +200,7 @@ export const getControls = ({ data = {}, controls, isCurrent, needFilter = false
   if (_.includes([2], type) && isCurrent) {
     controls = controls.filter(con => con.type !== 33);
   }
-  if (_.includes([2, 3, 4, 5, 6, 8, 14, 15, 16, 19, 23, 24, 28, 36, 41, 45, 46, 48, 10000007, 10000008], type))
+  if (_.includes([2, 3, 4, 5, 6, 8, 14, 15, 16, 19, 23, 24, 28, 36, 41, 45, 46, 10000007, 10000008], type))
     return _.filter(controls, filterFn);
 
   if (_.includes([7], type)) {
@@ -220,6 +221,10 @@ export const getControls = ({ data = {}, controls, isCurrent, needFilter = false
   // 默认值部门可选成员字段、查询配置中不可选成员字段
   if (_.includes([27], type)) {
     return needFilter ? _.filter(controls, item => _.includes([27], item.type)) : _.filter(controls, filterFn);
+  }
+  // 默认值支持成员，选择范围不支持成员
+  if (_.includes([48], type)) {
+    return needFilter ? _.filter(controls, item => _.includes([48], item.type)) : _.filter(controls, filterFn);
   }
   if (_.includes([29], type)) {
     const newControls = filterControls(data, controls);

@@ -95,7 +95,6 @@ function ViewComp(props) {
 
   const addRecord = () => {
     const { appId, worksheetId } = worksheetInfo;
-    const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
     const addRecord = data => {
       if (view.viewType) {
         props.addNewRecord(data, view);
@@ -103,7 +102,7 @@ function ViewComp(props) {
         props.unshiftSheetRow(data);
       }
     };
-    if (isMingdao) {
+    if (window.isMingDaoApp) {
       mdAppResponse({
         type: 'native',
         settings: {

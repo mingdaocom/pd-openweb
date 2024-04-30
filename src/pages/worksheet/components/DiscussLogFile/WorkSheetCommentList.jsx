@@ -45,7 +45,7 @@ export default class WorkSheetCommentList extends Component {
 
   render() {
     const {
-      worksheet: { worksheetId, rowId, appId, appName, appSectionId, viewId, title, doNotLoadAtDidMount },
+      worksheet: { projectId, worksheetId, rowId, appId, appName, appSectionId, viewId, title, doNotLoadAtDidMount },
       change,
       discussions,
       addCallback,
@@ -65,6 +65,8 @@ export default class WorkSheetCommentList extends Component {
       sourceId: id,
       sourceType: rowId ? Commenter.TYPES.WORKSHEETROW : Commenter.TYPES.WORKSHEET,
       appId: rowId ? md.global.APPInfo.worksheetRowAppID : md.global.APPInfo.worksheetAppID,
+      fromAppId: appId,
+      projectId,
       remark: JSON.stringify({
         type: 'worksheet',
         appId,

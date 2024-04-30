@@ -113,7 +113,7 @@ export default class RoleAuth extends React.Component {
         <Checkbox className="LineHeight36" checked={allowApplyManage} onClick={this.allowApplyAdmin}>
           {_l('允许申请管理员')}
         </Checkbox>
-        <div className="Hand Gray_9e bold mRight32 mLeft32" onClick={() => this.setState({ showApplyForRole: true })}>
+        <div className="Hand Gray_75 bold mRight32 mLeft32" onClick={() => this.setState({ showApplyForRole: true })}>
           {_l('申请角色请求')}
           {count ? <span className="applyRecordCount">{count}</span> : null}
         </div>
@@ -126,7 +126,7 @@ export default class RoleAuth extends React.Component {
               this.setState({ showCreateRole: true });
             }}
           >
-            {_l('创建角色权限')}
+            {_l('角色')}
           </Button>
         )}
 
@@ -174,11 +174,12 @@ export default class RoleAuth extends React.Component {
       match: { params },
     } = this.props;
     const { roleId } = params || {};
+    const { isSuperAdmin } = this.state;
 
     return (
       <div className="orgManagementWrap">
         <div className="orgManagementHeader">
-          {!roleId && <div>{_l('管理配置角色')}</div>}
+          {!roleId && <div>{isSuperAdmin ? _l('配置管理角色') : _l('我的角色')}</div>}
           {this.renderMenu()}
         </div>
         <div className="orgManagementContent">

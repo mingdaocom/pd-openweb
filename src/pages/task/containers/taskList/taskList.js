@@ -16,9 +16,9 @@ import taskClassify from './tpl/taskClassify.html';
 import singleNewTask from './tpl/singleNewTask.html';
 import { updateMyTaskDataSource, updateSearchTaskCount } from '../../redux/actions';
 import TaskDetail from '../taskDetail/taskDetail';
-import UserHead from 'src/components/userHead';
+import { UserHead } from 'ming-ui';
 import { updateTaskCharge } from '../../redux/actions';
-import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
+import { dialogSelectUser } from 'ming-ui/functions';
 
 const taskListSettings = {
   pageIndex: 1,
@@ -900,7 +900,7 @@ class TaskList extends Component {
       );
     });
 
-    $.when($animatedFarFast.promise(), $trs.promise()).done(() => {
+    Promise.all([$animatedFarFast.promise(), $trs.promise()]).then(() => {
       $('#taskList tr.animatedFarFast').remove();
     });
   }
@@ -1139,7 +1139,7 @@ class TaskList extends Component {
           isForceUpdate={isForceUpdate}
           closeForceUpdate={() => this.setState({ isForceUpdate: false })}
           openType={1}
-          hasNotice={!!$('#taskList tr[data-taskid=' + taskId + '] .newTopic').length}
+          hasNotice={taskId && !!$('#taskList tr[data-taskid=' + taskId + '] .newTopic').length}
           openCallback={this.openTaskDetailCallback}
           closeCallback={() => this.setState({ taskId: '' })}
           animationEndRemoveDetail={() => this.mounted && this.setState({ openTaskDetail: false })}

@@ -2,23 +2,13 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { fieldCanSort, getSortData, filterHidedControls } from 'src/pages/worksheet/util';
-import { Icon, Tooltip, ScrollView, CheckBlock, Radio, Dropdown } from 'ming-ui';
+import { Icon, Tooltip, ScrollView, CheckBlock, Radio, Dropdown, SvgIcon } from 'ming-ui';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum';
 import { formatValuesOfOriginConditions } from '../../common/WorkSheetFilter/util';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import CardAppearance from './CardAppearance';
-import ActionSet from './components/customBtn/ActionSet';
 import HierarchyViewSetting from './hierarchyViewSetting';
-import SortConditions from './components/SortConditions';
-import MobileSet from './components/mobileSet/MobileSet';
-import CalendarSet from './components/calendarSet/index';
-import GunterSet from './components/gunterSet/index';
-import FastFilter from './components/fastFilter';
-import RecordColor from './components/recordColor';
-import NavGroup from './components/navGroup';
-import Show from './components/Show';
-import Controls from './components/Controls';
 import './ViewConfig.less';
 import { getAdvanceSetting } from 'src/util';
 import { permitList } from 'src/pages/FormSet/config.js';
@@ -34,17 +24,28 @@ import { ALL_SYS } from 'src/pages/widgetConfig/config/widget.js';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import _ from 'lodash';
 import { viewTypeConfig, setList } from './config';
-import UrlParams from './components/urlParams';
-import DebugConfig from './components/DebugConfig';
-import PluginSettings from './components/PluginSettings';
-import SubmitConfig from './components/Submit';
-import ParameterSet from './components/ParameterSet';
-import ResourceSet from './components/ResourceSet';
-import SideNav from './components/SideNav';
 import pluginAjax from 'src/api/plugin.js';
-import SvgIcon from 'src/components/SvgIcon';
-import ViewFilter from './components/Filter';
-import MapSetting from './components/MapSetting';
+import {
+  ActionSet,
+  SortConditions,
+  MobileSet,
+  CalendarSet,
+  GunterSet,
+  FastFilter,
+  RecordColor,
+  NavGroup,
+  Show,
+  Controls,
+  UrlParams,
+  DebugConfig,
+  PluginSettings,
+  SubmitConfig,
+  ParameterSet,
+  ResourceSet,
+  SideNav,
+  ViewFilter,
+  MapSetting,
+} from './components';
 
 const SwitchStyle = styled.div`
   .switchText {

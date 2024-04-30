@@ -63,6 +63,11 @@ export const RecordWrapper = styled.div`
     line-height: normal;
     display: flex;
   }
+  .otherField29 {
+    >div>div {
+      width: max-content;
+    }
+  }
   .edit {
     transform: translateX(-5px);
   }
@@ -385,7 +390,7 @@ export default class Record extends Component {
     const rowFormData = controls.map(c => ({ ...c, value: row[c.controlId] }));
     return (
       <div
-        className="field otherField valignWrapper Relative overflowHidden"
+        className={cx('field otherField valignWrapper Relative overflowHidden', `otherField${cell.type}`)}
         key={data.controlId}
         style={{ width: widthConfig[index] }}
       >

@@ -80,7 +80,7 @@ export default class GroupingAxis extends Component {
       return _l('分组(数值1)');
     }
     if (reportType === reportTypes.ScatterChart) {
-      return _l('颜色(维度/数值)');
+      return _l('颜色(维度)');
     }
     return _l('分组');
   }

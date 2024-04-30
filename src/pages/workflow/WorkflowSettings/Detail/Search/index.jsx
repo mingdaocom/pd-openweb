@@ -51,7 +51,7 @@ export default class Search extends Component {
    * 获取节点详情
    */
   getNodeDetail(props, obj = {}) {
-    const { processId, selectNodeId, selectNodeType } = props;
+    const { processId, selectNodeId, selectNodeType, instanceId } = props;
     const { data } = this.state;
 
     flowNode
@@ -61,6 +61,7 @@ export default class Search extends Component {
         flowNodeType: selectNodeType,
         appId: obj.appId,
         selectNodeId: obj.selectNodeId,
+        instanceId,
       })
       .then(result => {
         result.fields = _.filter(
@@ -669,21 +670,21 @@ export default class Search extends Component {
             projectId={this.props.companyId}
             worksheetType={0}
             selectedAppId={this.props.relationId}
-            selectedWrorkesheetId={data.appId}
+            selectedWorksheetId={data.appId}
             visible
-            onOk={(selectedAppId, selectedWrorkesheetId, { workSheetName, appName }) => {
+            onOk={(selectedAppId, worksheetId, { workSheetName, appName }) => {
               const isCurrentApp = this.props.relationId === selectedAppId;
 
               if (
                 _.includes([ACTION_ID.WORKSHEET_FIND, ACTION_ID.RECORD_UPDATE, ACTION_ID.RECORD_DELETE], data.actionId)
               ) {
-                this.getNodeDetail(this.props, { appId: selectedWrorkesheetId });
+                this.getNodeDetail(this.props, { appId: worksheetId });
               } else {
                 this.updateSource({
                   appList: _.uniqBy(
                     data.appList.concat([
                       {
-                        id: selectedWrorkesheetId,
+                        id: worksheetId,
                         name: workSheetName,
                         otherApkId: isCurrentApp ? '' : selectedAppId,
                         otherApkName: isCurrentApp ? '' : appName,
@@ -691,7 +692,7 @@ export default class Search extends Component {
                     ]),
                     'id',
                   ),
-                  appId: selectedWrorkesheetId,
+                  appId: worksheetId,
                 });
               }
             }}

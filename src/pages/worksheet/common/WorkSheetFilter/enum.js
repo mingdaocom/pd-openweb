@@ -189,6 +189,15 @@ export const API_ENUM_TO_TYPE = {
   SECTION: 52, // 标签页
 };
 
+export const DATE_RANGE_TYPE = {
+  MINUTE: 1,
+  HOUR: 2,
+  DAY: 3,
+  MONTH: 4,
+  YEAR: 5,
+  SECOND: 6,
+};
+
 export function getControlSelectType(control) {
   const isOptionsSingle = control && (control.type === 9 || control.type === 11);
   const isOptionsMultiple = control && control.type === 10;

@@ -82,12 +82,15 @@ export const SectionItem = styled.div`
     display: inline-block;
     width: 60px;
     text-align: left;
+    &.Width100 {
+      width: 100px;
+    }
   }
   .selectWrap {
     flex: 1;
     display: flex;
     padding: 2px;
-    background: #f8f8f8;
+    background: #f5f6f7;
     border-radius: 3px;
     .animaItem {
       height: 32px;

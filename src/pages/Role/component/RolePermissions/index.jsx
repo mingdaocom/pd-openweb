@@ -54,7 +54,7 @@ export default class Con extends React.Component {
       this.setState({
         roleList: nextProps.roleList,
         dataList: nextProps.dataList,
-        roleListClone: nextProps.dataList,
+        roleListClone: nextProps.roleList,
       });
       if (nextProps.roleList.length < roleList.length) {
         this.setState({

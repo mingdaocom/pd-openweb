@@ -67,7 +67,6 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
   const [previewRecord, setPreviewRecord] = useState({});
   const isPublicShare = location.href.includes('public/page');
   const includeScanQRCode = _.find(button.buttonList, { action: 5 });
-  const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
   const projectId = info.projectId || _.get(info, 'apk.projectId');
 
   useEffect(() => {
@@ -89,7 +88,7 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
     }
     processAjax
       .startProcessByPBC({
-        pushUniqueId: isMingdao ? pushUniqueId || md.global.Config.pushUniqueId : md.global.Config.pushUniqueId,
+        pushUniqueId: window.isMingDaoApp ? pushUniqueId || md.global.Config.pushUniqueId : md.global.Config.pushUniqueId,
         appId,
         triggerId: id,
         title: name,
@@ -144,7 +143,7 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
       const sheetSwitchPermit = await worksheetAjax.getSwitchPermit({ appId, worksheetId: value });
       isMobile && Toast.hide();
       const param = { visible: true, value, viewId, appId, name, sheetSwitchPermit };
-      if (isMingdao) {
+      if (window.isMingDaoApp) {
         const url = `/mobile/addRecord/${appId}/${value}/${viewId}`;
         window.location.href = btnId ? `${url}?btnId=${btnId}` : url;
         return;
@@ -174,7 +173,7 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
         return url;
       };
       const url = getUrl();
-      if (isMingdao) {
+      if (window.isMingDaoApp) {
         window.location.href = url;
       } else if (openMode === 2) {
         window.open(url);
@@ -199,7 +198,7 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
       window.open(url, '_blank', 'width=800px,height=600px,left=200px,top=200px');
     }
     if (action === 5) {
-      if (isMingdao) {
+      if (window.isMingDaoApp) {
         mdAppResponse({ type: 'scan' }).then(data => {
           const { value } = data;
           if (value) {
@@ -292,7 +291,7 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
       if (config.recordLink) {
         const run = (shareData = {}) => {
           if (shareData.rowId) {
-            if (isMingdao) {
+            if (window.isMingDaoApp) {
               window.location.href = `/mobile/record/${shareData.appId}/${shareData.worksheetId}/${shareData.viewId}/${shareData.rowId}`;
             } else {
               setPreviewRecord(shareData);
@@ -325,7 +324,7 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
         return;
       }
       if (config.otherLink) {
-        if (isMingdao) {
+        if (window.isMingDaoApp) {
           window.location.href = result;
         } else {
           window.open(result);

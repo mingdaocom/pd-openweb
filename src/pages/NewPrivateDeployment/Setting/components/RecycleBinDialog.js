@@ -16,40 +16,23 @@ const formattingValue = (value = 1, maxValue) => {
 export default class RecycleBinDialog extends Component {
   constructor(props) {
     super(props);
-    const {
-      appRecycleDays,
-      appItemRecycleDays,
-      worksheetRowRecycleDays,
-      appBackupRecycleDays,
-    } = md.global.SysSettings;
+    const { appRecycleDays, appItemRecycleDays, worksheetRowRecycleDays } = md.global.SysSettings;
     this.state = {
       appRecycleDays,
       appItemRecycleDays,
       worksheetRowRecycleDays,
-      appBackupRecycleDays,
     };
   }
   handleSave = () => {
-    const {
-      appRecycleDays,
-      appItemRecycleDays,
-      worksheetRowRecycleDays,
-      appBackupRecycleDays,
-    } = this.state;
+    const { appRecycleDays, appItemRecycleDays, worksheetRowRecycleDays } = this.state;
 
-    if (
-      appRecycleDays &&
-      appItemRecycleDays &&
-      worksheetRowRecycleDays &&
-      appBackupRecycleDays
-    ) {
+    if (appRecycleDays && appItemRecycleDays && worksheetRowRecycleDays) {
       privateSysSetting
         .editSysSettings({
           settings: {
             appRecycleDays,
             appItemRecycleDays,
             worksheetRowRecycleDays,
-            appBackupRecycleDays,
           },
         })
         .then(result => {
@@ -57,7 +40,6 @@ export default class RecycleBinDialog extends Component {
             md.global.SysSettings.appRecycleDays = appRecycleDays;
             md.global.SysSettings.appItemRecycleDays = appItemRecycleDays;
             md.global.SysSettings.worksheetRowRecycleDays = worksheetRowRecycleDays;
-            md.global.SysSettings.appBackupRecycleDays = appBackupRecycleDays;
             this.props.onCancel();
             this.props.onChange(md.global.SysSettings);
             alert(_l('修改成功'), 1);
@@ -69,18 +51,13 @@ export default class RecycleBinDialog extends Component {
   };
   render() {
     const { visible } = this.props;
-    const {
-      appRecycleDays,
-      appItemRecycleDays,
-      worksheetRowRecycleDays,
-      appBackupRecycleDays,
-    } = this.state;
-    const style = { width: 120 }
+    const { appRecycleDays, appItemRecycleDays, worksheetRowRecycleDays } = this.state;
+    const style = { width: 120 };
     return (
       <Dialog
         visible={visible}
         anim={false}
-        title={_l('数据回收站/备份文件保留时长')}
+        title={_l('数据回收站保留时长')}
         width={560}
         onOk={this.handleSave}
         onCancel={this.props.onCancel}
@@ -114,17 +91,6 @@ export default class RecycleBinDialog extends Component {
             value={worksheetRowRecycleDays}
             onChange={value => {
               this.setState({ worksheetRowRecycleDays: formattingValue(value, 1000) });
-            }}
-          />
-          <span>{_l('天')}</span>
-        </div>
-        <div className="flexRow valignWrapper">
-          <div className="mBottom5 Font14" style={style}>{_l('应用备份文件')}</div>
-          <Input
-            className="Width120 mRight10"
-            value={appBackupRecycleDays}
-            onChange={value => {
-              this.setState({ appBackupRecycleDays: formattingValue(value, 1000) });
             }}
           />
           <span>{_l('天')}</span>

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import Trigger from 'rc-trigger';
 import cx from 'classnames';
-import DialogSelectGroups from 'src/components/dialogSelectDept';
+import { dialogSelectDept } from 'ming-ui/functions';
 import { Tooltip } from 'ming-ui';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
@@ -80,7 +80,7 @@ export default class Text extends React.Component {
       alert(_l('您不是该组织成员，无法获取其部门列表，请联系组织管理员'), 3);
       return;
     }
-    return new DialogSelectGroups({
+    dialogSelectDept({
       projectId,
       isIncludeRoot: false,
       unique: cell.enumDefault === 0,

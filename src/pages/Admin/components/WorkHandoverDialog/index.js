@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
-import { Dialog, LoadDiv, Checkbox, Button } from 'ming-ui';
-import SvgIcon from 'src/components/SvgIcon';
+import { Dialog, LoadDiv, Checkbox, Button, SvgIcon } from 'ming-ui';
 import transferAjax from 'src/pages/workflow/api/transfer';
-import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
+import { dialogSelectUser } from 'ming-ui/functions';
 import cx from 'classnames';
 import './index.less';
 import _ from 'lodash';
@@ -80,7 +79,7 @@ export default class WorkHandoverDialog extends Component {
       .then(res => {
         this.setState({ countInfo: res });
       })
-      .fail(err => {
+      .catch(err => {
         this.setState({ countInfo: {} });
       });
   };
@@ -118,7 +117,7 @@ export default class WorkHandoverDialog extends Component {
           workflowList: getData(2),
         });
       })
-      .fail(err => {
+      .catch(err => {
         this.setState({
           loading: false,
           currentAppId: '',

@@ -39,40 +39,6 @@ export const getDepartmentById = (node, filter, matcher = defaultMatcher) => {
   return runner(null, node);
 };
 
-export const getRenderInfo = (projectId, departmentId) => {
-  var project = getCurrentProject(projectId, true);
-  var dfd = $.Deferred();
-  if (departmentId) {
-    //获取部门详细信息
-    departmentController
-      .getDepartmentInfo({
-        projectId: projectId,
-        departmentId: departmentId,
-      })
-      .then(function (data) {
-        dfd.resolve(
-          _.merge(
-            {},
-            {
-              parentDepartment: {
-                departmentId: '',
-                departmentName: project.companyName,
-              },
-            },
-            data,
-          ),
-        );
-      });
-  } else {
-    dfd.resolve({
-      departmentId: '',
-      departmentName: project.companyName,
-    });
-  }
-
-  return dfd.promise();
-};
-
 export const convertDepartmentToDict = tree => {
   let data = {};
   const runner = node => {

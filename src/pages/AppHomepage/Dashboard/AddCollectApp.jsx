@@ -1,10 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
-import { Dialog, Icon, Checkbox } from 'ming-ui';
+import { Dialog, Icon, Checkbox, SvgIcon, FunctionWrap } from 'ming-ui';
 import styled from 'styled-components';
 import _ from 'lodash';
-import FunctionWrap from 'ming-ui/components/FunctionWrap';
-import SvgIcon from 'src/components/SvgIcon';
 import { getAppOrItemColor } from './utils';
 import { getFilterApps } from '../AppCenter/utils';
 import homeAppAjax from 'src/api/homeApp';

@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import UploadFile from 'src/components/UploadFiles';
 import Commenter from 'src/components/comment/commenter';
-import { htmlDecodeReg, createLinksForMessage } from 'src/util';
+import { htmlDecodeReg, createLinksForMessage, dateConvertToUserZone } from 'src/util';
 import Avatar from './avatar';
 import UserLink from './userLink';
 import ReplyTo from './replyTo';
@@ -14,25 +14,7 @@ import postAjax from 'src/api/post';
 import confirm from 'ming-ui/components/Dialog/Confirm';
 import _ from 'lodash';
 import moment from 'moment';
-import UserCard from 'src/components/UserCard';
-
-const loadAllComment = function(postId) {
-  var _this = this;
-  var dfd = $.Deferred();
-  postAjax
-    .getMorePostComments({
-      postID: postId,
-    })
-    .done(function(data) {
-      if (data === 'error') {
-        alert(_l('操作失败'), 2);
-        dfd.reject();
-      } else {
-        dfd.resolve(data);
-      }
-    });
-  return dfd.promise();
-};
+import { UserCard } from 'ming-ui';
 
 const removeTopicConfirm = props => {
   const { replyId, isDeleteAttachment } = props;
@@ -48,17 +30,17 @@ const removeTopicConfirm = props => {
   });
 };
 
-const removeTopic = function(props) {
+const removeTopic = function (props) {
   const { sourceType, sourceId, discussionId, isDeleteAttachment } = props;
 
   if (sourceType === SOURCE_TYPE.POST) {
-    return postAjax
+    postAjax
       .removePostComment({
         deleteAttachment: 1,
         postID: sourceId,
         commentID: discussionId,
       })
-      .done(function(data) {
+      .then(function (data) {
         const { success } = data;
         if (success) {
           alert(_l('删除成功'));
@@ -73,31 +55,25 @@ const removeTopic = function(props) {
       discussionId,
       sourceType,
     };
-    return DiscussionController.removeDiscussion(params)
-      .then(function(result) {
-        var dfd = $.Deferred();
+
+    DiscussionController.removeDiscussion(params)
+      .then(function (result) {
         if (result.code === 1) {
-          dfd.resolve();
-        } else {
-          dfd.reject();
-        }
-        return dfd.promise();
-      })
-      .then(
-        function() {
           alert(_l('删除成功'));
           props.removeCallback(props.discussionId);
-        },
-        function() {
-          alert(_l('操作失败'), 2);
-        },
-      );
+        } else {
+          Promise.reject();
+        }
+      })
+      .catch(() => {
+        alert(_l('操作失败'), 2);
+      });
   }
 };
 
-const getComponentProps = function(props) {
+const getComponentProps = function (props) {
   const {
-    params: { sourceType, discussionId, extendsId, name, projectId, createAccount },
+    params: { sourceType, discussionId, extendsId, name, projectId, createAccount, appId },
   } = props;
   var commonProps = {
     placeholder: _l('请输入回复内容'),
@@ -248,17 +224,18 @@ class CommentItem extends React.Component {
   }
 
   renderAttachment() {
-    const { attachment } = this.props;
+    const { attachment, projectId, appId } = this.props;
     return (
       <div className="mTop5">
-        <UploadFile isUpload={false} attachmentData={attachment} />
+        <UploadFile isUpload={false} attachmentData={attachment} projectId={projectId} appId={appId} />
       </div>
     );
   }
 
   renderBottomBar() {
-    const { canDelete, sourceId, sourceType, createTime } = this.props;
+    const { canDelete, sourceId, sourceType } = this.props;
     const { showCommenter } = this.state;
+    const createTime = dateConvertToUserZone(this.props.createTime);
     const buildLink = () => {
       switch (sourceType) {
         case SOURCE_TYPE.POST:
@@ -430,12 +407,21 @@ export default class CommentArea extends React.Component {
     const {
       params: { sourceId, type },
     } = this.props;
-    loadAllComment(sourceId).then(comments => {
-      this.setState({
-        loadAllComments: true,
-        comments: _.map(comments, comment => formatTopic(comment, type)),
+
+    postAjax
+      .getMorePostComments({
+        postID: sourceId,
+      })
+      .then(data => {
+        if (data === 'error') {
+          alert(_l('操作失败'), 2);
+        } else {
+          this.setState({
+            loadAllComments: true,
+            comments: _.map(data, comment => formatTopic(comment, type)),
+          });
+        }
       });
-    });
   }
 
   renderCommenter() {
@@ -443,6 +429,8 @@ export default class CommentArea extends React.Component {
       ...getComponentProps({
         params: this.props.params,
       }),
+      projectId: this.props.params.projectId,
+      fromAppId: this.props.params.appId,
       autoFocus: this.state.commenterIsFocus,
       onSubmit: this.addCommentCallback.bind(this),
     };

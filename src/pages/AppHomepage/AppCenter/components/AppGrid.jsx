@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { string, bool, shape, arrayOf, func } from 'prop-types';
 import styled from 'styled-components';
-import { ScrollView, Icon } from 'ming-ui';
-import SvgIcon from 'src/components/SvgIcon';
+import { ScrollView, Icon, SvgIcon } from 'ming-ui';
 import { Tooltip } from 'antd';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
@@ -553,6 +552,7 @@ export default function AppGrid(props) {
     dashboardColor,
     hideExternalTitle,
     isAdmin,
+    currentTheme,
     ...rest
   } = props;
   const { actions } = rest;
@@ -921,6 +921,7 @@ export default function AppGrid(props) {
         {isDashboard && (
           <React.Fragment>
             <div className="dashboardTitle">
+              {currentTheme.appIcon && <img src={currentTheme.appIcon} />}
               {_l('应用')}
               {notDisplayMyAppTitle && !!myApps.length && (
                 <span className="Gray_bd mLeft6 Bold Font15">{myApps.length}</span>
@@ -931,7 +932,10 @@ export default function AppGrid(props) {
         )}
         <SearchInput placeholder={_l('搜索应用')} value={keywords} onChange={v => actions.updateKeywords(v)} />
         {!isExternal && projectId && !isDashboard && (
-          <HomeSetting setting={setting} onUpdate={value => actions.editHomeSetting({ projectId, ...value })} />
+          <HomeSetting
+            setting={setting}
+            onUpdate={(setting, editingKey) => actions.editHomeSetting({ projectId, setting, editingKey })}
+          />
         )}
         {!isDashboard && <div className="flex" />}
         {((allowCreate &&
@@ -944,11 +948,11 @@ export default function AppGrid(props) {
           <AddAppItemBtn
             themeColor={dashboardColor.themeColor}
             projectId={projectId}
-            createAppFromEmpty={(...args) =>
+            createAppFromEmpty={(...args) => {
               actions.createAppFromEmpty(...args, id => {
                 args[0].createType !== 1 ? navigateTo('/app/' + id) : alert(_l('添加外部链接成功'));
-              })
-            }
+              });
+            }}
           >
             <span className="newAppBtn">
               <i className="Icon icon icon-plus Font13 mRight5 White" />

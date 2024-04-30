@@ -29,7 +29,7 @@ export function addNewRoot(args, cb) {
       }
     })
     .then(() => alert('创建成功'))
-    .fail(() => alert('创建失败，请稍后再试', 3));
+    .catch(() => alert('创建失败，请稍后再试', 3));
 }
 
 /**
@@ -42,7 +42,7 @@ export function editRoot(rootId, successCb, progressCb) {
     id: rootId,
   })
     .then(successCb, () => alert(_l('操作失败, 请稍后重试'), 3), progressCb)
-    .fail(() => alert(_l('操作失败, 请稍后重试'), 3));
+    .catch(() => alert(_l('操作失败, 请稍后重试'), 3));
 }
 
 /**
@@ -79,10 +79,10 @@ export function removeRoot(item, isCreator, isPermanent, cb) {
                 cb(rootId);
               }
             } else {
-              return $.Deferred().reject(data.message);
+              return Promise.reject(data.message);
             }
           })
-          .fail(err => alert(err || _l('%0失败，请稍后重试', messageTitle), 3));
+          .catch(err => alert(err || _l('%0失败，请稍后重试', messageTitle), 3));
       } else {
         service
           .removeRoot({ isPermanent, id: rootId })
@@ -93,10 +93,10 @@ export function removeRoot(item, isCreator, isPermanent, cb) {
                 cb(rootId);
               }
             } else {
-              return $.Deferred().reject(data.message);
+              return Promise.reject(data.message);
             }
           })
-          .fail(err => alert(err || _l('删除失败，请稍后重试'), 3));
+          .catch(err => alert(err || _l('删除失败，请稍后重试'), 3));
       }
     },
   });

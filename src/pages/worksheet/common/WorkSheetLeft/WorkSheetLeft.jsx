@@ -76,16 +76,17 @@ class WorkSheetLeft extends Component {
       isCharge || isOperation ? item => true : item => !(item.type === 2 && _.isEmpty(item.items));
     return (isCharge || isOperation) && appPkg.viewHideNavi
       ? data
-      : data.filter(item => item.status === 1 && !item.navigateHide).filter(filterEmptyAppItem);
+      : data.filter(item => [1, 4].includes(item.status) && !item.navigateHide).filter(filterEmptyAppItem);
   }
   renderSheetAppItem(item, workSheetItemProps, index) {
-    const { groupId } = this.props;
+    const { groupId, firstGroupIndex } = this.props;
     const isAppItem = item.type !== 2;
     const Wrap = isAppItem ? WorkSheetItem : WorkSheetGroup;
     item.layerIndex = 1;
     item.isAppItem = isAppItem;
     item.parentId = groupId;
     item.index = index;
+    item.firstGroupIndex = firstGroupIndex;
     return <Wrap key={item.workSheetId} appItem={item} {...workSheetItemProps} />;
   }
   renderContent(data) {

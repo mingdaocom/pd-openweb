@@ -21,7 +21,7 @@ var previewAttachments = function(options, extra) {
   if ($el.length) {
     ReactDOM.render(attachments, $el[0]);
   } else {
-    ReactDOM.render(attachments, $('<div id="attachemntsPreviewContainer"></div>').appendTo('body')[0]);
+    ReactDOM.render(attachments, $('<div id="attachemntsPreviewContainer"></div>').appendTo('html > body')[0]);
   }
 
   $(document).on('click', '#attachemntsPreviewContainer', function(e) {

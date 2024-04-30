@@ -199,7 +199,7 @@ export default class App extends Component {
       return (
         <div id="wrapper" className="flexColumn">
           <PortalPageHeaderRoute />
-          <section id="containerWrapper" className="flex flexRow">
+          <section id="containerWrapper" className="flex flexRow minHeight0">
             <section id="container">
               <Switch>{this.genRouteComponent(ROUTE_CONFIG_PORTAL)}</Switch>
             </section>
@@ -211,22 +211,14 @@ export default class App extends Component {
     return (
       <div id="wrapper" className="flexColumn">
         <PageHeaderRoute />
-        <section id="containerWrapper" className="flex flexRow">
+        <section id="containerWrapper" className="flex flexRow minHeight0">
           <section id="container">
             <Switch>
               {this.genRouteComponent(ROUTE_CONFIG)}
               <Route
                 path="*"
-                render={({ location }) => {
-                  if (
-                    /(\/upgrade\/choose|\/admin\/expansionservice|\/admin\/upgradeservice|\/upgrade\/upgrade|\/upgrade\/temp).*/.test(
-                      location.pathname,
-                    )
-                  ) {
-                    window.location.reload();
-                  } else {
-                    window.location.goto('/dashboard');
-                  }
+                render={() => {
+                  window.location.goto('/dashboard');
                   return null;
                 }}
               />

@@ -1,14 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
-import captcha from 'src/components/captcha';
+import { captcha } from 'ming-ui/functions';
 import styled from 'styled-components';
 import { Icon, Button, Dialog } from 'ming-ui';
 import { browserIsMobile, encrypt } from 'src/util';
 import cx from 'classnames';
-import Config from 'src/pages/account/config';
-const { ActionResult } = Config;
+import { ActionResult, CodeTypeEnum } from 'src/pages/accountLogin/config';
 import externalPortalAjax from 'src/api/externalPortal';
-import { setAutoLoginKey, toApp } from 'src/pages/PortalAccount/util';
+import { setAutoLoginKey, toApp } from 'src/pages/accountLogin/portalAccount/util';
 import RegExp from 'src/util/expression';
 
 const AccountWrap = styled.div`
@@ -372,7 +371,7 @@ export default function TelDialog(props) {
                 id="btnSendVerifyCode"
                 value={verifyCodeText || (verifyCodeLoading ? _l('发送中...') : _l('获取验证码'))}
                 onClick={e => {
-                  handleSendVerifyCode(Config.CodeTypeEnum.message);
+                  handleSendVerifyCode(CodeTypeEnum.message);
                 }}
               />
             </div>

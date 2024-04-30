@@ -100,6 +100,7 @@ class PublicConfig extends React.Component {
       ]),
       smsSignature: settings.smsSignature || '',
       timeRange: this.getTimeRange(settings),
+      settingChanged: false,
     };
   }
 
@@ -159,27 +160,6 @@ class PublicConfig extends React.Component {
       smsSignature: settings.smsSignature || '',
       timeRange: this.getTimeRange(settings),
     });
-  }
-
-  @autobind
-  isSettingChanged() {
-    const settingData = [
-      'limitWriteFrequencySetting',
-      'receipt',
-      'needCaptcha',
-      'smsVerificationFiled',
-      'smsVerification',
-      'writeScope',
-      'linkSwitchTime',
-      'limitWriteTime',
-      'limitWriteCount',
-      'limitPasswordWrite',
-      'cacheDraft',
-      'cacheFieldData',
-      'weChatSetting',
-      'abilityExpand',
-    ];
-    return !_.isEqual(_.pick(this.state, settingData), _.pick(this.cacheSettings, settingData));
   }
 
   getChangedIds() {
@@ -409,6 +389,11 @@ class PublicConfig extends React.Component {
   }
 
   @autobind
+  handleLinkSettingChange(stateObj) {
+    this.setState({ ...stateObj, settingChanged: true });
+  }
+
+  @autobind
   handleGenUrl() {
     const { sourceKeys } = this.state;
     if (this.keyinput.value.trim() === '') {
@@ -510,6 +495,7 @@ class PublicConfig extends React.Component {
       abilityExpand = {},
       confirmDialog,
       titleFolded,
+      settingChanged,
     } = this.state;
 
     return (
@@ -521,7 +507,7 @@ class PublicConfig extends React.Component {
         visible
         closeIcon={<i className="icon-close Font18" />}
         onClose={() => {
-          this.isSettingChanged() ? this.setState({ confirmDialog: { visible: true, isOnClose: true } }) : onClose();
+          settingChanged ? this.setState({ confirmDialog: { visible: true, isOnClose: true } }) : onClose();
         }}
       >
         <Tabs
@@ -530,7 +516,7 @@ class PublicConfig extends React.Component {
           active={activeTab}
           tabStyle={{ lineHeight: '34px' }}
           onChange={tab => {
-            activeTab === 1 && this.isSettingChanged()
+            activeTab === 1 && settingChanged
               ? this.setState({ confirmDialog: { visible: true, tabValue: tab.value } })
               : this.setState({ activeTab: tab.value });
           }}
@@ -542,7 +528,7 @@ class PublicConfig extends React.Component {
                 title={_l('填写人群')}
                 isFolded={titleFolded.writeScope}
                 onClick={() => {
-                  this.setState({
+                  this.handleLinkSettingChange({
                     titleFolded: Object.assign({}, titleFolded, { writeScope: !titleFolded.writeScope }),
                   });
                 }}
@@ -555,7 +541,7 @@ class PublicConfig extends React.Component {
                       {...item}
                       disableTitle
                       checked={item.value === writeScope}
-                      onClick={() => this.setState({ writeScope: item.value })}
+                      onClick={() => this.handleLinkSettingChange({ writeScope: item.value })}
                     />
                   ))}
                 </div>
@@ -571,7 +557,7 @@ class PublicConfig extends React.Component {
                   'timeRange',
                   'titleFolded',
                 ])}
-                setState={stateObj => this.setState(stateObj)}
+                setState={this.handleLinkSettingChange}
               />
 
               <FillSettings
@@ -590,7 +576,7 @@ class PublicConfig extends React.Component {
                   originalControls,
                   controls,
                 }}
-                setState={stateObj => this.setState(stateObj)}
+                setState={this.handleLinkSettingChange}
               />
 
               {!md.global.SysSettings.hideWeixin && (
@@ -608,7 +594,7 @@ class PublicConfig extends React.Component {
                     titleFolded,
                   }}
                   weChatBind={this.state.weChatBind}
-                  setState={stateObj => this.setState(stateObj)}
+                  setState={this.handleLinkSettingChange}
                   addWorksheetControl={addWorksheetControl}
                 />
               )}
@@ -624,15 +610,18 @@ class PublicConfig extends React.Component {
                     controls,
                     titleFolded,
                   }}
-                  setState={stateObj => this.setState(stateObj)}
+                  setState={this.handleLinkSettingChange}
                 />
               )}
+
               <SectionTitle
                 className="mBottom16"
                 title={_l('表单填写成功回执')}
                 isFolded={titleFolded.receipt}
                 onClick={() => {
-                  this.setState({ titleFolded: Object.assign({}, titleFolded, { receipt: !titleFolded.receipt }) });
+                  this.handleLinkSettingChange({
+                    titleFolded: Object.assign({}, titleFolded, { receipt: !titleFolded.receipt }),
+                  });
                 }}
               />
               {!titleFolded.receipt && (

@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Icon, Menu, MenuItem } from 'ming-ui';
+import { Icon, Menu, MenuItem, LoadDiv } from 'ming-ui';
 import { getPrintCardInfoOfTemplate } from 'worksheet/common/PrintQrBarCode/enum';
 import worksheetAjax from 'src/api/worksheet';
 import webCacheAjax from 'src/api/webCache';
@@ -8,7 +8,7 @@ import IconText from 'worksheet/components/IconText';
 import { printQrBarCode, generatePdf } from 'worksheet/common/PrintQrBarCode';
 import { getFeatureStatus, buriedUpgradeVersionDialog, addBehaviorLog } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
-import { PRINT_TYPE_STYLE, PRINT_TYPE } from 'src/pages/Print/config';
+import { PRINT_TYPE_STYLE, PRINT_TYPE, PRINT_TEMP } from 'src/pages/Print/config';
 import _ from 'lodash';
 
 const Con = styled.div`
@@ -95,39 +95,57 @@ export default function PrintList(props) {
     fastFilters,
     navGroupFilters,
   } = props;
+  const [loading, setLoading] = useState(true);
   const [menuVisible, setMenuVisible] = useState(false);
   const [templateList, setTemplateList] = useState(props.templateList || []);
   const featureType = getFeatureStatus(projectId, VersionProductType.wordPrintTemplate);
-  const values = _.values(PRINT_TYPE);
+
   function loadPrintList() {
+    setLoading(true);
     worksheetAjax
       .getPrintList({
         worksheetId,
         viewId,
+        rowIds: selectedRowIds,
       })
       .then(data => {
-        setTemplateList(data.filter(d => d.type >= 2).sort((a, b) => values.indexOf(a.type) - values.indexOf(b.type)));
+        setLoading(false);
+        setTemplateList(
+          allowLoadMore
+            ? data
+                .filter(d => d.type > 2 && d.type !== 5 && !d.disabled)
+                .sort(
+                  (a, b) =>
+                    PRINT_TEMP[_.findKey(PRINT_TYPE, l => l === a.type)] -
+                    PRINT_TEMP[_.findKey(PRINT_TYPE, l => l === b.type)],
+                )
+            : data
+                .filter(d => d.type >= 2 && !d.disabled)
+                .sort((a, b) => {
+                  console.log(_.findKey(PRINT_TYPE, l => l === a.type));
+                  return (
+                    PRINT_TEMP[_.findKey(PRINT_TYPE, l => l === a.type)] -
+                    PRINT_TEMP[_.findKey(PRINT_TYPE, l => l === b.type)]
+                  );
+                }),
+        );
       });
   }
   useEffect(() => {
-    setTemplateList(props.templateList);
+    props.templateList && setTemplateList(props.templateList);
   }, [props.templateList]);
   useEffect(() => {
-    if (!props.templateList) {
+    if (menuVisible && !props.templateList) {
       loadPrintList();
     }
-  }, []);
+  }, [menuVisible]);
   function handlePrintQrCode({ id, printType = 1 } = {}) {
     if (window.isPublicApp) {
       alert(_l('预览模式下，不能操作'), 3);
       return;
     }
-    const isMDClient = window.navigator.userAgent.indexOf('MDClient') > -1;
-    const disablePrint =
-      window.navigator.userAgent.indexOf('Chrome') < 0 &&
-      navigator.userAgent.indexOf('Firefox') < 0 &&
-      navigator.userAgent.indexOf('Safari') < 0;
-    if (isMDClient) {
+    const disablePrint = !window.isChrome && !window.isFirefox && !window.isSafari;
+    if (window.isMDClient) {
       alert('客户端不支持此功能，请使用Chrome、Firefox或其他国产浏览器', 3);
       return;
     }
@@ -174,6 +192,7 @@ export default function PrintList(props) {
       });
     }
   }
+
   return (
     <Con>
       <IconText
@@ -195,7 +214,12 @@ export default function PrintList(props) {
           onClickAway={() => setMenuVisible(false)}
         >
           <TemplateList>
-            {!!featureType &&
+            {loading && <LoadDiv size="small" />}
+            {!loading && !!featureType && templateList.length === 0 && !showCodePrint && (
+              <div className="Gray_bd Font13 LineHeight36 pLeft16">{_l('暂无可用模版')}</div>
+            )}
+            {!loading &&
+              !!featureType &&
               templateList.map((template, i) => (
                 <MenuItem
                   key={i}
@@ -232,6 +256,7 @@ export default function PrintList(props) {
                         name: template.name,
                         isBatch: true,
                         fileTypeNum: template.type,
+                        allowDownloadPermission: template.allowDownloadPermission,
                       };
                       let printKey = Math.random().toString(36).substring(2);
                       webCacheAjax.add({

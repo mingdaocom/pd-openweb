@@ -87,7 +87,7 @@ export default class Footer extends Component {
         this.writeVerifyPassword(result === 'showPassword');
       },
     });
-  }
+  };
   handleClick = id => {
     const { onSubmit, instance } = this.props;
     const { ignoreRequired, encrypt, auth } = (instance || {}).flowNode || {};
@@ -122,14 +122,6 @@ export default class Footer extends Component {
     }
 
     /**
-     * 加签
-     */
-    if (id === 'sign') {
-      this.setState({ action: id, addApproveWayVisible: true });
-      return;
-    }
-
-    /**
      * 暂存
      */
     if (id === 'stash') {
@@ -152,7 +144,7 @@ export default class Footer extends Component {
       } else {
         this.setState({ action: id, otherActionVisible: true });
       }
-    }
+    };
 
     if (ignoreRequired || _.includes(['transferApprove', 'transfer'], id)) {
       openOperatorDialog();
@@ -258,37 +250,45 @@ export default class Footer extends Component {
     this.setState({ otherActionVisible: false });
   };
   handleOperation = id => {
+    const { instance } = this.props;
     const run = action => {
       this.setState({
         action,
         otherActionVisible: true,
       });
     };
+
     if (id === 'sign') {
-      ActionSheet.showActionSheetWithOptions(
-        {
-          options: [
-            <div className="Gray bold">{_l('通过申请后增加一位审批人')}</div>,
-            <div className="Gray bold">{_l('在我审批前增加一位审批人')}</div>,
-          ],
-          message: (
-            <div className="flexRow header">
-              <span className="Font13">{_l('加签')}</span>
-              <div className="closeIcon" onClick={() => ActionSheet.close()}>
-                <Icon icon="close" />
+      if (instance.signOperationType === 1) {
+        run('before');
+      } else if (instance.signOperationType === 2) {
+        run('after');
+      } else {
+        ActionSheet.showActionSheetWithOptions(
+          {
+            options: [
+              <div className="Gray bold">{_l('通过申请后增加一位审批人')}</div>,
+              <div className="Gray bold">{_l('在我审批前增加一位审批人')}</div>,
+            ],
+            message: (
+              <div className="flexRow header">
+                <span className="Font13">{_l('加签')}</span>
+                <div className="closeIcon" onClick={() => ActionSheet.close()}>
+                  <Icon icon="close" />
+                </div>
               </div>
-            </div>
-          ),
-        },
-        buttonIndex => {
-          if (buttonIndex === 0) {
-            run('after');
-          }
-          if (buttonIndex === 1) {
-            run('before');
-          }
-        },
-      );
+            ),
+          },
+          buttonIndex => {
+            if (buttonIndex === 0) {
+              run('after');
+            }
+            if (buttonIndex === 1) {
+              run('before');
+            }
+          },
+        );
+      }
       return;
     }
 

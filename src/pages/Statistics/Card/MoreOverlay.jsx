@@ -9,6 +9,7 @@ import reportConfig from '../api/reportConfig';
 import { Dropdown, Menu, Divider } from 'antd';
 import reportApi from 'statistics/api/report';
 import sheetApi from 'src/api/worksheet';
+import favoriteApi from 'src/api/favorite';
 import _ from 'lodash';
 
 const confirm = Dialog.confirm;
@@ -19,10 +20,16 @@ export default class MoreOverlay extends Component {
     this.state = {
       shareVisible: false,
       showPageMove: false,
+      favorite: props.favorite,
     };
   }
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.favorite !== this.props.favorite) {
+      this.setState({ favorite: nextProps.favorite });
+    }
+  }
   handleExportExcel = exportType => {
-    const { report, worksheetId, exportData, filter } = this.props;
+    const { report, pageId, exportData, filter, sourceType } = this.props;
     const {
       filters = [],
       filtersGroup = [],
@@ -37,7 +44,7 @@ export default class MoreOverlay extends Component {
       .export({
         exportType,
         reportId: report.id,
-        pageId: worksheetId,
+        pageId: sourceType === 2 ? undefined : pageId,
         particleSizeType,
         filterRangeId,
         rangeType,
@@ -47,10 +54,10 @@ export default class MoreOverlay extends Component {
         filters: [filters, filtersGroup, filterControls].filter(n => !_.isEmpty(n)),
       })
       .then(result => {})
-      .fail(error => {
+      .catch(error => {
         alert(error, 2);
       });
-  }
+  };
   handleDelete = () => {
     const { report, filter, appId } = this.props;
     const { id, name } = report;
@@ -75,21 +82,23 @@ export default class MoreOverlay extends Component {
           });
       },
     });
-  }
+  };
   handleCopy = () => {
     const { report } = this.props;
     const el = document.querySelector('.panelTab.active');
-    reportConfig.copyReport({
-      move: false,
-      reportId: report.id,
-      current: true,
-    }).then(data => {
-      if (data.reportId) {
-        alert(_l('复制成功'));
-        el && el.click();
-      }
-    });
-  }
+    reportConfig
+      .copyReport({
+        move: false,
+        reportId: report.id,
+        current: true,
+      })
+      .then(data => {
+        if (data.reportId) {
+          alert(_l('复制成功'));
+          el && el.click();
+        }
+      });
+  };
   handleUpdateOwnerId = () => {
     const { ownerId, report } = this.props;
     reportConfig
@@ -100,10 +109,46 @@ export default class MoreOverlay extends Component {
       .then(result => {
         if (result) {
           alert(_l('移出成功'));
+          !ownerId && this.removeReportFavoritesExcludeAccountId();
           this.props.onRemove(report.id);
         }
       });
+  };
+  removeReportFavoritesExcludeAccountId = () => {
+    const { projectId, report, reportData } = this.props;
+    const createdAccountId = _.get(reportData, 'createdBy.accountId') || md.global.Account.accountId;
+    favoriteApi.removeReportFavoritesExcludeAccountId({
+      projectId,
+      reportId: report.id,
+      accountId: createdAccountId
+    });
   }
+  handleChangeFavorite = favorite => {
+    const { report, worksheetId, projectId, pageId, onCancelFavorite } = this.props;
+    const params = {
+      type: 2,
+      projectId,
+      worksheetId,
+      pageId,
+      reportId: report.id,
+    };
+    if (favorite) {
+      favoriteApi.addFavorite(params).then(data => {
+        if (data) {
+          alert(_l('收藏成功'));
+          this.setState({ favorite });
+        }
+      });
+    } else {
+      favoriteApi.removeFavorite(params).then(data => {
+        if (data) {
+          alert(_l('已取消收藏'));
+          this.setState({ favorite });
+          onCancelFavorite && onCancelFavorite();
+        }
+      });
+    }
+  };
   handleUpdateDropdownVisible = dropdownVisible => {
     const { report } = this.props;
     this.setState({ dropdownVisible });
@@ -113,28 +158,33 @@ export default class MoreOverlay extends Component {
     } else {
       card.classList.remove('active');
     }
-  }
+  };
   renderOverlay() {
     const {
       themeColor,
       reportType,
       report,
+      sourceType,
       ownerId,
       reportStatus,
       isMove,
       isCharge,
       permissionType,
+      projectId,
       onSheetView,
       onOpenSetting,
-      onRemove,
+      onRemove
     } = this.props;
-    const isSheetView = ![reportTypes.PivotTable, reportTypes.NumberChart].includes(reportType);
+    const { favorite } = this.state;
+    const isSheetView = ![reportTypes.PivotTable].includes(reportType);
+    const isFavorite =
+      _.find(md.global.Account.projects, { projectId }) &&
+      !window.isPublicApp &&
+      !window.shareState.id &&
+      !md.global.Account.isPortal &&
+      sourceType !== 2;
     return (
-      <Menu
-        className="chartMenu"
-        expandIcon={<Icon icon="arrow-right-tip" />}
-        style={{ width: 180 }}
-      >
+      <Menu className="chartMenu" expandIcon={<Icon icon="arrow-right-tip" />} style={{ width: 180 }}>
         {onOpenSetting && (
           <Menu.Item
             className="pLeft10"
@@ -149,7 +199,25 @@ export default class MoreOverlay extends Component {
             </div>
           </Menu.Item>
         )}
-        {onSheetView && !!reportStatus && (
+        {isFavorite && (
+          <Menu.Item
+            className="pLeft10"
+            onClick={() => {
+              this.handleChangeFavorite(!favorite);
+              this.handleUpdateDropdownVisible(false);
+            }}
+          >
+            <div className="flexRow valignWrapper">
+              <Icon
+                className="Font18 mLeft5 mRight5"
+                icon={favorite ? 'task-star' : 'star-hollow'}
+                style={{ color: favorite ? '#ffc402' : '#9e9e9e' }}
+              />
+              <span>{favorite ? _l('取消收藏') : _l('收藏')}</span>
+            </div>
+          </Menu.Item>
+        )}
+        {onSheetView && reportStatus > 0 && (
           <Menu.Item
             className="pLeft10"
             onClick={() => {
@@ -163,7 +231,7 @@ export default class MoreOverlay extends Component {
             </div>
           </Menu.Item>
         )}
-        {!md.global.Account.isPortal && !location.href.includes('embed/page') && (
+        {!md.global.Account.isPortal && !location.href.includes('embed/page') && reportStatus > 0 && sourceType !== 3 && (
           <Menu.Item
             className="pLeft10"
             onClick={() => {
@@ -177,7 +245,7 @@ export default class MoreOverlay extends Component {
             </div>
           </Menu.Item>
         )}
-        {!window.isPublicApp && (
+        {!window.isPublicApp && reportStatus > 0 && (
           <Menu.SubMenu
             popupClassName="chartMenu"
             title={_l('导出Excel%06002')}
@@ -236,11 +304,7 @@ export default class MoreOverlay extends Component {
               icon={<Icon className="Gray_9e Font18 mRight5" icon="content-copy" />}
               popupOffset={[0, 0]}
             >
-              <Menu.Item
-                style={{ width: 180 }}
-                className="pLeft20"
-                onClick={this.handleCopy}
-              >
+              <Menu.Item style={{ width: 180 }} className="pLeft20" onClick={this.handleCopy}>
                 <div className="flexRow valignWrapper">{_l('当前统计')}</div>
               </Menu.Item>
               {permissionType !== 2 && (
@@ -274,7 +338,8 @@ export default class MoreOverlay extends Component {
   }
   render() {
     const { shareVisible, showPageMove, dropdownVisible } = this.state;
-    const { appId, worksheetId, report, className, permissions, isCharge, isLock, sheetVisible, permissionType } = this.props;
+    const { appId, worksheetId, report, className, permissions, isCharge, isLock, sheetVisible, permissionType } =
+      this.props;
     return (
       <Fragment>
         <Dropdown
@@ -290,7 +355,10 @@ export default class MoreOverlay extends Component {
           <Share
             title={_l('分享统计图: %0', report.name)}
             from="report"
-            isCharge={permissions || (isLock ? [100, 200, 1, 2, 3].includes(permissionType) : isCharge || [2].includes(permissionType))}
+            isCharge={
+              permissions ||
+              (isLock ? [100, 200, 1, 2, 3].includes(permissionType) : isCharge || [2].includes(permissionType))
+            }
             params={{
               appId,
               sourceId: report.id,

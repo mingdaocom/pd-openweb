@@ -3,9 +3,12 @@
   .operates {
     position: absolute;
     right: 0px;
-    top: -30px;
+    top: 8px;
     display: flex;
     align-items: center;
+    &.isMobile {
+      top: -34px;
+    }
   }
   .selectedTip {
     position: absolute;
@@ -54,7 +57,7 @@
     }
   }
   .operate {
-    margin: 24px 0 0;
+    margin: 0 0 12px;
     display: flex;
     align-items: center;
     .operateButton,
@@ -97,7 +100,9 @@
       display: inline-flex;
       justify-content: center;
     }
-    .addRowByLine:not(.disabled):hover, .importFromFile:not(.disabled):hover {
+    .addRowByLine:not(.disabled):hover,
+    .importFromFile:not(.disabled):hover,
+    .exitBatch:not(.disabled):hover {
       background-color: #f5f5f5;
     }
     .addRowByDialog {

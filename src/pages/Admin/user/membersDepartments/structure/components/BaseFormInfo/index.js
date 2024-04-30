@@ -5,16 +5,31 @@ import Trigger from 'rc-trigger';
 import departmentController from 'src/api/department';
 import jobAjax from 'src/api/job';
 import workSiteController from 'src/api/workSite';
-import DialogSelectDept from 'src/components/dialogSelectDept';
 import { getEllipsisDep, checkForm } from '../../constant';
 import TextInput from '../TextInput';
 import cx from 'classnames';
 import styled from 'styled-components';
 import _ from 'lodash';
+import { quickSelectRole, dialogSelectDept } from 'ming-ui/functions';
 
 const SelectWrap = styled(Select)`
   &:not(.ant-select-customize-input) .ant-select-selector {
     height: unset !important;
+  }
+`;
+
+const RoleTagsWrap = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  .roleTag {
+    background: #eaeaea;
+    border-radius: 12px 12px 12px 12px;
+    padding: 0 8px;
+    height: 24px;
+    line-height: 24px;
+    display: inline-block;
   }
 `;
 
@@ -25,6 +40,7 @@ export default class BaseFormInfo extends Component {
     this.state = {
       jobIds: [],
       worksiteList: [],
+      orgRoles: [],
     };
   }
   componentDidMount() {
@@ -49,7 +65,16 @@ export default class BaseFormInfo extends Component {
   updateBaseInfo = props => {
     const { typeCursor, editCurrentUser = {}, actType } = props;
     const { departmentInfos = [], jobInfos = [] } = editCurrentUser;
-    const { jobNumber, contactPhone, workSiteId, departmentIds, jobIds = [], jobList, worksiteList } = props.baseInfo;
+    const {
+      jobNumber,
+      contactPhone,
+      workSiteId,
+      departmentIds,
+      jobIds = [],
+      jobList,
+      worksiteList,
+      orgRoles = [],
+    } = props.baseInfo;
     const depIds =
       typeCursor === 2 || typeCursor === 3 ? departmentInfos.map(it => it.id || it.departmentId) : departmentIds;
     this.getDepartmentFullName(depIds, 'all');
@@ -63,6 +88,7 @@ export default class BaseFormInfo extends Component {
       jobIds: typeCursor === 2 || typeCursor === 3 ? jobInfos.map(it => it.id || it.jobId) : jobIds,
       departmentInfos,
       jobInfos,
+      orgRoles,
     });
   };
 
@@ -72,7 +98,7 @@ export default class BaseFormInfo extends Component {
     const { departmentInfos } = this.state;
     const _this = this;
 
-    new DialogSelectDept({
+    dialogSelectDept({
       projectId,
       unique: false,
       fromAdmin: true,
@@ -87,6 +113,34 @@ export default class BaseFormInfo extends Component {
       },
     });
   };
+
+  //添加角色
+  dialogSelectRoleFn = e => {
+    const { projectId } = this.props;
+    const { orgRoles } = this.state;
+
+    quickSelectRole(e.target, {
+      projectId,
+      unique: false,
+      offset: {
+        left: -167,
+      },
+      onSave: data => {
+        if (!data.length) return;
+
+        let roles = data.map(l => {
+          return {
+            id: l.organizeId,
+            name: l.organizeName,
+          };
+        });
+        this.setState({
+          orgRoles: _.uniqBy(orgRoles.concat(roles), 'id'),
+        });
+      },
+    });
+  };
+
   getDepartmentFullName = (ids = [], field, departments = []) => {
     let { projectId } = this.props;
     let { fullDepartmentInfo = {} } = this.state;
@@ -222,8 +276,14 @@ export default class BaseFormInfo extends Component {
       });
   };
 
+  deleteOrgRoles = item => {
+    const { orgRoles } = this.state;
+
+    this.setState({ orgRoles: orgRoles.filter(l => l.id !== item.id) });
+  };
+
   render() {
-    const { typeCursor, errors = {}, projectId } = this.props;
+    const { typeCursor, errors = {}, projectId, hideRole } = this.props;
     const {
       departmentInfos = [],
       fullDepartmentInfo = {},
@@ -238,6 +298,7 @@ export default class BaseFormInfo extends Component {
       jobNumber,
       contactPhone,
       currentDepartmentId,
+      orgRoles = [],
     } = this.state;
     let jobResult = [...jobList];
     if (keywords) {
@@ -264,6 +325,7 @@ export default class BaseFormInfo extends Component {
                 className={cx('itemSpan mAll5', { disabledDepartment: typeCursor === 2 })}
                 onMouseEnter={() => this.getDepartmentFullName([item.departmentId])}
               >
+                <Icon className="departmentIcon Font14 TxtMiddle mRight6" icon="department1" />
                 {
                   <Tooltip
                     tooltipClass="departmentFullNametip"
@@ -285,7 +347,7 @@ export default class BaseFormInfo extends Component {
                 }
                 {i === 0 && <span className="isTopIcon">{_l('主')}</span>}
                 {typeCursor !== 2 && (
-                  <div className="moreOption mLeft3">
+                  <div className="moreOption mLeft8">
                     <Trigger
                       popupClassName="moreActionTrigger"
                       action={['click']}
@@ -326,7 +388,7 @@ export default class BaseFormInfo extends Component {
                       }
                     >
                       <Icon
-                        className="Font14 Hand Gray_bd"
+                        className="Font14 Hand Gray_bd TxtMiddle"
                         icon="moreop"
                         onClick={e => {
                           e.stopPropagation();
@@ -347,6 +409,28 @@ export default class BaseFormInfo extends Component {
             />
           )}
         </div>
+        {!hideRole && typeCursor !== 2 && (
+          <div className="formGroup">
+            <div className="formLabel">{_l('角色')}</div>
+            <RoleTagsWrap className="formRolesValue">
+              {orgRoles.map(item => {
+                return (
+                  <span className="roleTag" key={item.id}>
+                    <Icon icon="person_new" className="Gray_9e Font18 mRight8 TxtMiddle" />
+                    <span>{item.name}</span>
+                    <Icon icon="clear" className="mLeft8 Hand" onClick={() => this.deleteOrgRoles(item)} />
+                  </span>
+                );
+              })}
+              <Icon
+                className="Font26 Hand Gray_9e mAll5 TxtMiddle"
+                icon="task_add-02"
+                onClick={e => this.dialogSelectRoleFn(e)}
+              />
+            </RoleTagsWrap>
+          </div>
+        )}
+
         <div className="formGroup">
           <div className="formLabel">
             <span>{_l('职位')}</span>

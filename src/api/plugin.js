@@ -15,7 +15,7 @@ export default {
   **/
    create: function (args, options = {}) {
      
-     return $.api('Plugin', 'Create', args, options);
+     return mdyAPI('Plugin', 'Create', args, options);
    },
   /**
   * 编辑
@@ -42,7 +42,7 @@ export default {
   **/
    edit: function (args, options = {}) {
      
-     return $.api('Plugin', 'Edit', args, options);
+     return mdyAPI('Plugin', 'Edit', args, options);
    },
   /**
   * 获取单个插件详情
@@ -57,7 +57,7 @@ export default {
   **/
    getDetail: function (args, options = {}) {
      
-     return $.api('Plugin', 'GetDetail', args, options);
+     return mdyAPI('Plugin', 'GetDetail', args, options);
    },
   /**
   * 获取插件列表
@@ -69,14 +69,14 @@ export default {
   * @param {} args.pluginType
   * @param {integer} args.pageIndex 当前页
   * @param {integer} args.pageSize 页大小
-  * @param {} args.source
+  * @param {} args.type
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getList: function (args, options = {}) {
      
-     return $.api('Plugin', 'GetList', args, options);
+     return mdyAPI('Plugin', 'GetList', args, options);
    },
   /**
   * 获取所有插件
@@ -92,7 +92,7 @@ export default {
   **/
    getAll: function (args, options = {}) {
      
-     return $.api('Plugin', 'GetAll', args, options);
+     return mdyAPI('Plugin', 'GetAll', args, options);
    },
   /**
   * 删除
@@ -105,7 +105,7 @@ export default {
   **/
    remove: function (args, options = {}) {
      
-     return $.api('Plugin', 'Remove', args, options);
+     return mdyAPI('Plugin', 'Remove', args, options);
    },
   /**
   * 发布插件的新版本
@@ -122,7 +122,7 @@ export default {
   **/
    release: function (args, options = {}) {
      
-     return $.api('Plugin', 'Release', args, options);
+     return mdyAPI('Plugin', 'Release', args, options);
    },
   /**
   * 回滚到某一个版本
@@ -136,7 +136,7 @@ export default {
   **/
    rollback: function (args, options = {}) {
      
-     return $.api('Plugin', 'Rollback', args, options);
+     return mdyAPI('Plugin', 'Rollback', args, options);
    },
   /**
   * 获取版本历史
@@ -151,7 +151,7 @@ export default {
   **/
    getReleaseHistory: function (args, options = {}) {
      
-     return $.api('Plugin', 'GetReleaseHistory', args, options);
+     return mdyAPI('Plugin', 'GetReleaseHistory', args, options);
    },
   /**
   * 删除版本
@@ -165,7 +165,7 @@ export default {
   **/
    removeRelease: function (args, options = {}) {
      
-     return $.api('Plugin', 'RemoveRelease', args, options);
+     return mdyAPI('Plugin', 'RemoveRelease', args, options);
    },
   /**
   * 创建提交历史记录
@@ -180,7 +180,7 @@ export default {
   **/
    commit: function (args, options = {}) {
      
-     return $.api('Plugin', 'Commit', args, options);
+     return mdyAPI('Plugin', 'Commit', args, options);
    },
   /**
   * 删除提交历史记录
@@ -193,7 +193,7 @@ export default {
   **/
    removeCommit: function (args, options = {}) {
      
-     return $.api('Plugin', 'RemoveCommit', args, options);
+     return mdyAPI('Plugin', 'RemoveCommit', args, options);
    },
   /**
   * 获取提交历史列表
@@ -209,7 +209,7 @@ export default {
   **/
    getCommitHistory: function (args, options = {}) {
      
-     return $.api('Plugin', 'GetCommitHistory', args, options);
+     return mdyAPI('Plugin', 'GetCommitHistory', args, options);
    },
   /**
   * 获取插件使用明细
@@ -224,6 +224,63 @@ export default {
   **/
    getUseDetail: function (args, options = {}) {
      
-     return $.api('Plugin', 'GetUseDetail', args, options);
+     return mdyAPI('Plugin', 'GetUseDetail', args, options);
+   },
+  /**
+  * 插件导入
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId
+  * @param {string} args.url
+  * @param {string} args.pluginId
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   import: function (args, options = {}) {
+     
+     return mdyAPI('Plugin', 'Import', args, options);
+   },
+  /**
+  * 插件导出
+  * @param {Object} args 请求参数
+  * @param {string} args.id
+  * @param {} args.source
+  * @param {string} args.releaseId
+  * @param {} args.profile
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   export: function (args, options = {}) {
+     
+     return mdyAPI('Plugin', 'Export', args, options);
+   },
+  /**
+  * 插件导出历史
+  * @param {Object} args 请求参数
+  * @param {string} args.id
+  * @param {} args.source
+  * @param {integer} args.pageIndex
+  * @param {integer} args.pageSize
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getExportHistory: function (args, options = {}) {
+     
+     return mdyAPI('Plugin', 'GetExportHistory', args, options);
+   },
+  /**
+  * 根据来源获取插件
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {string} args.sourceId 应用id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getPluginListBySourece: function (args, options = {}) {
+     
+     return mdyAPI('Plugin', 'GetPluginListBySourece', args, options);
    },
 };

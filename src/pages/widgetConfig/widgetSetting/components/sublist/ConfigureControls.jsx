@@ -204,7 +204,7 @@ export default function ConfigureControl({ data, globalSheetInfo, controls, onCh
                             <Fragment>
                               <div className="intro" style={{ color: '#9e9e9e' }}>
                                 {_l('在表单中显示关联的记录。如：订单关联客户')}
-                                <Support type={3} text={_l('帮助')} href={'https://help.mingdao.com/sheet11'} />
+                                <Support type={3} text={_l('帮助')} href={'https://help.mingdao.com/worksheet/control-relationship'} />
                               </div>
                               <SelectSheetFromApp
                                 globalSheetInfo={globalSheetInfo}
@@ -219,7 +219,10 @@ export default function ConfigureControl({ data, globalSheetInfo, controls, onCh
                           onOk: () => {
                             if (dataSource) {
                               worksheetAjax
-                                .getWorksheetInfo({ worksheetId: dataSource, getTemplate: true })
+                                .getWorksheetInfo({
+                                  worksheetId: dataSource,
+                                  getTemplate: true,
+                                })
                                 .then(res => {
                                   addControl({
                                     ...data,

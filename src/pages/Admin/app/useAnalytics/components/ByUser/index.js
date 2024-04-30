@@ -1,11 +1,10 @@
 import React, { Component, Fragment } from 'react';
-import { Icon, Tooltip } from 'ming-ui';
+import { Icon, Tooltip, UserHead } from 'ming-ui';
 import { Select } from 'antd';
 import TableCom from '../TableCom';
-import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
+import { dialogSelectUser } from 'ming-ui/functions';
 import appManagementAjax from 'src/api/appManagement';
 import departmentAjax from 'src/api/department';
-import UserHead from 'src/components/userHead';
 import styled from 'styled-components';
 import { selectDateList, formatter } from '../../util';
 import { formatFileSize } from 'src/util';
@@ -252,7 +251,7 @@ export default class ByUser extends Component {
           loading: false,
         });
       })
-      .fail(err => {
+      .catch(err => {
         this.setState({
           loading: false,
         });

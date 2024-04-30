@@ -172,7 +172,7 @@ export function getBoardViewPageData({ alwaysCallback = noop }) {
         if (data.length < 20) nextState = { ...nextState, hasMoreData: false };
         dispatch({ type: 'CHANGE_BOARD_VIEW_STATE', payload: nextState });
       })
-      .always(() => {
+      .finally(() => {
         alwaysCallback();
       });
   };
@@ -218,7 +218,7 @@ export function getSingleBoardPageData({ pageIndex, kanbanKey, alwaysCallback, c
         dispatch(initBoardViewRecordCount(dealBoardViewRecordCount(data)));
         checkIsMore((nextData || []).length >= para.kanbanSize);
       })
-      .always(() => {
+      .finally(() => {
         alwaysCallback();
       });
   };

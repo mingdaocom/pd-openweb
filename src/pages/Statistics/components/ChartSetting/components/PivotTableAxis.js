@@ -13,6 +13,7 @@ import {
   textNormTypes,
   timeParticleSizeDropdownData,
   areaParticleSizeDropdownData,
+  cascadeParticleSizeDropdownData,
   timeDataParticle,
   timeGatherParticle,
   filterTimeData,
@@ -248,6 +249,22 @@ const renderOverlay = ({
             <Menu.Item
               disabled={item.value === particleSizeType ? true : newDisableParticleSizeTypes.includes(item.value)}
               style={{ width: 120, color: item.value === particleSizeType ? '#1e88e5' : null }}
+              key={item.value}
+              onClick={() => {
+                onUpdateParticleSizeType(axis.controlId, particleSizeType, item.value);
+              }}
+            >
+              {item.text}
+            </Menu.Item>
+          ))}
+        </Menu.SubMenu>
+      )}
+      {axis.type === 35 && (
+        <Menu.SubMenu popupClassName="chartMenu" title={_l('归组')} popupOffset={[0, -15]}>
+          {cascadeParticleSizeDropdownData.map(item => (
+            <Menu.Item
+              disabled={item.value === particleSizeType}
+              style={{ width: 120, color: item.value === (particleSizeType || 1) ? '#1e88e5' : null }}
               key={item.value}
               onClick={() => {
                 onUpdateParticleSizeType(axis.controlId, particleSizeType, item.value);

@@ -56,7 +56,7 @@ export default {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    height: 64,
+    minHeight: 64,
     whiteSpace: 'break-spaces',
   },
   createBy_h6: {

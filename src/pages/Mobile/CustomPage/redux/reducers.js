@@ -8,6 +8,20 @@ export const filtersGroup = (state = {}, action) => {
   }
 };
 
+export const linkageFiltersGroup = (state = {}, action) => {
+  switch (action.type) {
+    case 'MOBILE_UPDATE_LINKAGE_FILTERS_GROUP':
+      return { ...state, [action.id]: action.filters };
+    case 'MOBILE_DELETE_LINKAGE_FILTERS_GROUP':
+      delete state[action.id];
+      return { ...state };
+    case 'MOBILE_DELETE_ALL_LINKAGE_FILTERS_GROUP':
+      return {};
+    default:
+      return state;
+  }
+};
+
 
 export const filterComponents = (state = [], action) => {
   switch (action.type) {

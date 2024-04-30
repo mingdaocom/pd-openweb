@@ -227,6 +227,7 @@ export default function FilterControl(props) {
       {!!dataType && (
         <Fragment>
           <FilterSetting
+            firstControlData={firstControlData}
             dataType={dataType}
             filter={filter}
             setFilter={setFilter}

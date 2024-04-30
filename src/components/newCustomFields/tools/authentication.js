@@ -3,9 +3,8 @@ import workWeiXinApi from 'src/api/workWeiXin';
 
 export const bindWeiXin = () => {
   return new Promise((reslove, reject) => {
-    const isIphone = window.navigator.userAgent.toLowerCase().includes('iphone');
     const entryUrl = sessionStorage.getItem('entryUrl');
-    const url = (isIphone ? entryUrl || location.href : location.href).split('#')[0];
+    const url = (window.isIphone ? entryUrl || location.href : location.href).split('#')[0];
     weixinApi.getWeiXinConfig({
       url: encodeURI(url),
     }).then(({ data, code }) => {
@@ -101,9 +100,8 @@ export const bindFeishu = projectId => {
 
 export const bindDing = projectId => {
   return new Promise((reslove, reject) => {
-    const isIphone = window.navigator.userAgent.toLowerCase().includes('iphone');
     const entryUrl = sessionStorage.getItem('entryUrl') || location.href;
-    const url = (isIphone ? location.href : entryUrl).split('#')[0];
+    const url = (window.isIphone ? location.href : entryUrl).split('#')[0];
     workWeiXinApi.getDDSignatureInfo({
       projectId,
       url,

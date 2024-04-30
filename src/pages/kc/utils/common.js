@@ -13,8 +13,8 @@ import {
   NODE_STATUS,
   PICK_TYPE,
 } from '../constant/enum';
-import { confirm, getParentId, getLocationType, getPermission, getParentName, isIE } from './index';
-import addLinkFile from 'src/components/addLinkFile/addLinkFile.jsx';
+import { confirm, getParentId, getLocationType, getPermission, getParentName } from './index';
+import { addLinkFile } from 'ming-ui/functions';
 import folderDg from 'src/components/kc/folderSelectDialog/folderSelectDialog';
 import createShare from 'src/components/createShare/createShare';
 
@@ -73,10 +73,10 @@ export function handleOpenUploadAssistant(args) {
   }
   if (!window.uploadAssistantWindow || window.uploadAssistantWindow.closed) {
     let url = '/apps/kcupload';
-    if (window.navigator.userAgent.indexOf('MDClient') > -1 || window.navigator.userAgent.indexOf('Edge') > -1) {
+    if (window.isMDClient || window.isEdge) {
       url = url + '?uploadLocation=' + encodeURIComponent(JSON.stringify(uploadLocation));
     }
-    if (window.navigator.userAgent.indexOf('MDClient') > -1) {
+    if (window.isMDClient) {
       url = url + '&isMDClient=true';
     }
     const name = 'uploadAssistant';
@@ -90,24 +90,8 @@ export function handleOpenUploadAssistant(args) {
   if (window.uploadAssistantWindow) {
     if (window.uploadAssistantWindow.setUploadLocation) {
       window.uploadAssistantWindow.setUploadLocation(uploadLocation);
-    } else if (!isIE()) {
-      window.uploadAssistantWindow.uploadLocation = uploadLocation;
     } else {
-      window.clearTimeout(window.callSetUploadLocationTimeout);
-      let callSetUploadLocationAcc = 0;
-      const callSetUploadLocation = () => {
-        window.callSetUploadLocationTimeout = setTimeout(() => {
-          if (window.uploadAssistantWindow.setUploadLocation) {
-            window.uploadAssistantWindow.setUploadLocation(uploadLocation);
-            return;
-          } else if (callSetUploadLocationAcc > 50) {
-            return;
-          }
-          callSetUploadLocationAcc += 1;
-          callSetUploadLocation();
-        }, 100);
-      };
-      callSetUploadLocation();
+      window.uploadAssistantWindow.uploadLocation = uploadLocation;
     }
   }
   window.reloadNodeList = debounce((uploadRootId, uploadParentId, fsize) => {
@@ -150,7 +134,7 @@ export function handleAddLinkFile(args) {
           newLinkUrl: linkContent,
         });
       }
-      $.when(savePromise)
+      savePromise
         .then(data => {
           alert(execTypeName + _l('成功'));
           if (isEdit && typeof data === 'object') {
@@ -159,7 +143,7 @@ export function handleAddLinkFile(args) {
           }
           reloadList();
         })
-        .fail(() => {
+        .catch(() => {
           alert(execTypeName + _l('失败'), 3);
         });
     },
@@ -172,7 +156,7 @@ export function handleAddLinkFile(args) {
           originLinkUrl: item.originLinkUrl,
         }
       : undefined,
-  })
+  });
 }
 
 /** 批量下载 */
@@ -402,7 +386,7 @@ export function handleRemoveNode(args) {
         /* 清空选中*/
         clearSelect();
       })
-      .fail(() => alert('操作失败，请稍后重试'), 3);
+      .catch(() => alert('操作失败，请稍后重试'), 3);
   });
 }
 
@@ -427,10 +411,10 @@ export function handleMoveOrCopyClick(args, cb = () => {}) {
     if (rootId) {
       getAppointRootPromise = kcService.getRootDetail(rootId);
     } else {
-      getAppointRootPromise = $.when(fromRoot);
+      getAppointRootPromise = Promise.resolve(fromRoot);
     }
   } else {
-    getAppointRootPromise = $.Deferred().resolve();
+    getAppointRootPromise = Promise.resolve();
   }
 
   getAppointRootPromise.then(root => {
@@ -581,7 +565,7 @@ export function handleMoveOrCopy(options) {
       /* 清空选中*/
       clearSelect();
     })
-    .fail(() => alert(_l('操作失败，请稍后重试'), 3));
+    .catch(() => alert(_l('操作失败，请稍后重试'), 3));
 }
 
 /* 批量操作提示*/
@@ -684,6 +668,6 @@ export function handleRestoreNode(args) {
         /* 清空选中*/
         clearSelect();
       })
-      .fail(() => alert(_l('操作失败，请稍后重试'), 3));
+      .catch(() => alert(_l('操作失败，请稍后重试'), 3));
   });
 }

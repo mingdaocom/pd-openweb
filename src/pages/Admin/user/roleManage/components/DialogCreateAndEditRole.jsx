@@ -1,17 +1,18 @@
 import React from 'react';
-import { Dialog } from 'ming-ui';
-import './dialogCreateAndEditRole.less';
-import fixedDataAjax from 'src/api/fixedData.js';
-import organizeAjax from 'src/api/organize.js';
 import cx from 'classnames';
 import _ from 'lodash';
-
+import { Select } from 'antd';
+import { Dialog, Icon } from 'ming-ui';
+import fixedDataAjax from 'src/api/fixedData.js';
+import organizeAjax from 'src/api/organize.js';
+import './dialogCreateAndEditRole.less';
 class DialogCreateAndEditRole extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       roleName: props.filed === 'edit' ? props.currentRole.organizeName : '',
       remark: props.filed === 'edit' ? props.currentRole.remark : '',
+      orgRoleGroupId: props.currentRole.orgRoleGroupId || '',
       submitLoading: false,
     };
   }
@@ -20,76 +21,75 @@ class DialogCreateAndEditRole extends React.Component {
     this.input.focus();
   }
 
-  handleSubmit = () => {
-    const { filed, roleList, projectId, currentRole, searchValue } = this.props;
+  handleSubmit = async () => {
+    const { filed, projectId, currentRole, searchValue, treeData } = this.props;
+    const { orgRoleGroupId } = this.state;
     let roleName = this.state.roleName.trim();
     let remark = this.state.remark.trim();
 
-    fixedDataAjax.checkSensitive({ content: roleName }).then(res => {
-      if (res) {
-        this.setState({ submitLoading: false });
-        return alert(_l('输入内容包含敏感词，请重新填写'), 3);
-      }
-      if (filed === 'edit') {
-        organizeAjax
-          .editOrganizeName({
-            organizeName: roleName,
-            projectId,
-            remark,
-            organizeId: currentRole.organizeId,
-          })
-          .then(res => {
-            if (!res) {
-              alert(_l('修改失败'), 2);
-            } else if (res === 1) {
-              alert(_l('修改成功'));
-              let list = roleList.map(it => {
-                if (it.organizeId === currentRole.organizeId) {
-                  return { ...it, organizeName: roleName, organizeId: currentRole.organizeId, remark };
-                }
-                return it;
-              });
-              this.props.updateCurrentRole({
-                organizeName: roleName,
-                organizeId: currentRole.organizeId,
-                remark,
-              });
-              this.props.updateRoleList(list);
-            } else if (res === 2) {
-              alert(_l('该角色名称已存在'), 3);
-            }
+    const checkSensitive = await fixedDataAjax.checkSensitive({ content: roleName });
+    if (checkSensitive) {
+      this.setState({ submitLoading: false });
+      return alert(_l('输入内容包含敏感词，请重新填写'), 3);
+    }
+
+    if (filed === 'edit') {
+      organizeAjax
+        .editOrganizeName({
+          organizeName: roleName,
+          projectId,
+          remark,
+          organizeId: currentRole.organizeId,
+          orgRoleGroupId,
+        })
+        .then(res => {
+          if (!res) {
+            alert(_l('修改失败'), 2);
+          } else if (res === 1) {
+            alert(_l('修改成功'));
+            this.props.updateChildren(
+              treeData,
+              currentRole.orgRoleGroupId === orgRoleGroupId
+                ? [orgRoleGroupId]
+                : [currentRole.orgRoleGroupId, orgRoleGroupId],
+            );
+            this.props.updateCurrentRole({
+              organizeName: roleName,
+              organizeId: currentRole.organizeId,
+              remark,
+              orgRoleGroupId,
+            });
+          } else if (res === 2) {
+            alert(_l('该角色名称已存在'), 3);
+          }
+          this.props.onCancel();
+          this.setState({ submitLoading: false });
+        })
+        .catch(err => {
+          this.setState({ submitLoading: false });
+        });
+    } else {
+      organizeAjax
+        .addOrganize({ organizeName: roleName, projectId, remark, orgRoleGroupId })
+        .then(res => {
+          if (!res) {
+            alert(_l('创建失败'), 2);
             this.props.onCancel();
-            this.setState({ submitLoading: false });
-          })
-          .fail(err => {
-            this.setState({ submitLoading: false });
-          });
-      } else {
-        organizeAjax
-          .addOrganize({ organizeName: roleName, projectId, remark })
-          .then(res => {
-            if (!res) {
-              alert(_l('创建失败'), 2);
-              this.props.onCancel();
-            } else if (res === 1) {
-              alert(_l('创建成功'));
-              this.props.updateIsRequestList(false);
-              if (!searchValue || roleName.indexOf(searchValue) > -1) {
-                this.props.updateCurrentRole({ organizeName: roleName, remark });
-              }
-              this.props.getRoleList(true);
-              this.props.onCancel();
-            } else if (res === 2) {
-              alert(_l('该角色名称已存在'), 3);
-              this.setState({ exsistCurrentName: true });
-            }
-            this.setState({ submitLoading: false });
-          })
-          .fail(err => {
-            this.setState({ submitLoading: false });
-          });
-      }
-    });
+          } else if (res === 1) {
+            alert(_l('创建成功'));
+            this.props.updateIsRequestList(false);
+            this.props.updateChildren(treeData, [orgRoleGroupId], 'add');
+            this.props.onCancel();
+          } else if (res === 2) {
+            alert(_l('该角色名称已存在'), 3);
+            this.setState({ exsistCurrentName: true });
+          }
+          this.setState({ submitLoading: false });
+        })
+        .catch(err => {
+          this.setState({ submitLoading: false });
+        });
+    }
   };
 
   footer = () => {
@@ -123,27 +123,34 @@ class DialogCreateAndEditRole extends React.Component {
             this.setState({ submitLoading: true }, this.handleSubmit);
           }}
         >
-          {filed === 'edit' ? _l('保存') : _l('创建')}
+          {filed === 'edit' ? _l('保存') : _l('添加')}
         </span>
       </div>
     );
   };
 
   render() {
-    const { filed, showRoleDialog } = this.props;
-    const { roleName, remark } = this.state;
+    const { filed, showRoleDialog, treeData } = this.props;
+    const { roleName, remark, orgRoleGroupId } = this.state;
+    const groupOptions = treeData.map(l => {
+      return {
+        ...l,
+        label: l.title,
+        value: l.orgRoleGroupId,
+      };
+    });
     return (
       <Dialog
-        title={filed === 'create' ? _l('新建角色') : _l('编辑角色')}
+        title={filed === 'create' ? _l('添加角色') : _l('编辑角色')}
         footer={this.footer()}
         className="createPositionDialog"
         onCancel={() => this.props.onCancel()}
         visible={showRoleDialog}
       >
         <div>
-          <div className="mTop5 mBottom12 Font14">{_l('角色名称')}</div>
+          <div className="mTop5 mBottom12 Font14 require">{_l('名称')}</div>
           <input
-            class="inputBox"
+            class="inputBox mBottom32"
             maxLength={32}
             value={roleName}
             placeholder={_l('请填写角色名称')}
@@ -155,6 +162,14 @@ class DialogCreateAndEditRole extends React.Component {
               });
             }}
           />
+          <div className="mBottom12 Font14 require">{_l('角色组')}</div>
+          <Select
+            value={orgRoleGroupId}
+            className="selectWrapper w100 mBottom32"
+            options={groupOptions}
+            suffixIcon={<Icon icon="arrow-down-border Font14" />}
+            onChange={value => this.setState({ orgRoleGroupId: value })}
+          ></Select>
           <div className="Font14 mBottom12">{_l('备注')}</div>
           <textarea
             value={remark}

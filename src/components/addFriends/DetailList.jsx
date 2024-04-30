@@ -57,7 +57,7 @@ export default class DetailList extends Component {
           pageIndex: pageIndex + 1,
         });
       })
-      .always(() => {
+      .finally(() => {
         this.setState({ loading: false });
       });
   };
@@ -99,7 +99,7 @@ export default class DetailList extends Component {
           alert(_l('操作失败'), 2);
         }
       })
-      .always(() => {
+      .finally(() => {
         this.setState({ subLoading: false });
       });
   };
@@ -148,10 +148,10 @@ export default class DetailList extends Component {
       sourceId: this.props.projectId,
       fromType: this.props.fromType,
     })
-      .done(result => {
+      .then(result => {
         existAccountHint(result);
       })
-      .always(() => {
+      .finally(() => {
         this.setState({ subLoading: false });
       });
   };
@@ -176,7 +176,7 @@ export default class DetailList extends Component {
     const { detailMode } = this.props;
 
     if (!loading && _.isEmpty(list)) {
-      return <div className="addFriendsContent crossCenter">{Tips[this.props.detailMode]}</div>;
+      return <div className="addFriendsContent flexRow alignItemsCenter justifyContentCenter">{Tips[this.props.detailMode]}</div>;
     }
 
     return (
@@ -184,7 +184,7 @@ export default class DetailList extends Component {
         <ScrollView className="flex ViewDeatil" onScrollEnd={this.searchDataList}>
           {list.map(item => (detailMode === 1 ? this.renderLinkList(item) : this.renderInviteList(item)))}
           {loading && (
-            <div className="crossCenter">
+            <div className="flexRow alignItemsCenter justifyContentCenter">
               <LoadDiv />
             </div>
           )}

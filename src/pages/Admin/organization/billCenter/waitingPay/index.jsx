@@ -56,7 +56,7 @@ export default class WaitingPay extends Component {
       return false;
     }
     const _this = this;
-    $.when(
+    Promise.all([
       Config.AdminController.getHidBalance({
         projectId: Config.projectId,
       }),
@@ -64,7 +64,7 @@ export default class WaitingPay extends Component {
         projectId: Config.projectId,
         orderId: orderId,
       }),
-    ).done(function (balance, data) {
+    ]).then(function ([balance, data]) {
       _this.setState(
         {
           balance: parseFloat(balance) || 0,

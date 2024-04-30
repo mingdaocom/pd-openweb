@@ -121,6 +121,7 @@ export default class RowDetail extends React.Component {
       isMobile,
       isWorkflow,
       from,
+      masterData,
     } = this.props;
     const { flag } = this.state;
     const formdata = _.isEmpty(data)
@@ -159,6 +160,7 @@ export default class RowDetail extends React.Component {
             isCreate={false}
             recordId={recordId}
             ref={this.customwidget}
+            masterData={masterData}
             data={formdata
               .map(c => ({
                 ...c,
@@ -174,6 +176,7 @@ export default class RowDetail extends React.Component {
             checkCellUnique={(...args) => handleUniqueValidate(...args, data.rowid)}
             onChange={this.handleChange}
             onRulesLoad={onRulesLoad}
+            ignoreSection
           />
         </div>
       </RecordInfoContext.Provider>

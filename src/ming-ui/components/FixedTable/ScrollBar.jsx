@@ -1,4 +1,12 @@
 import React from 'react';
+import styled from 'styled-components';
+
+const Con = styled.div`
+  // background: #fff;
+  &.scroll-x:hover::-webkit-scrollbar-thumb {
+    border: 1px solid transparent;
+  }
+`;
 
 export default function ScrollBar(props) {
   const { type = 'y', barWidth, setRef, setScrollY = () => {}, setScrollX = () => {} } = props;
@@ -16,7 +24,7 @@ export default function ScrollBar(props) {
     contentStyle.height = barWidth;
   }
   return (
-    <div
+    <Con
       className={'scroll-' + type}
       style={style}
       ref={setRef}
@@ -29,6 +37,6 @@ export default function ScrollBar(props) {
       }}
     >
       <div className="content" style={contentStyle}></div>
-    </div>
+    </Con>
   );
 }

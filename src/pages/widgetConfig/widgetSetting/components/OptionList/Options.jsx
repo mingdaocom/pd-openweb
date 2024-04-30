@@ -1,4 +1,4 @@
-import React, { useState, Fragment } from 'react';
+import React, { useState, Fragment, useEffect } from 'react';
 import { SortableContainer, SortableElement, SortableHandle, arrayMove } from 'react-sortable-hoc';
 import { Checkbox, Radio, ColorPicker } from 'ming-ui';
 import { v4 as uuidv4 } from 'uuid';
@@ -11,10 +11,10 @@ import { useSetState } from 'react-use';
 import { every, includes, pull } from 'lodash';
 import { isLightColor, getUnUniqName } from 'src/util';
 import { getAdvanceSetting, parseOptionValue } from '../../../util/setting';
-import { OPTION_COLORS_LIST } from '../../../config';
+import { OPTION_COLORS_LIST, MAX_OPTIONS_COUNT } from '../../../config';
 import BatchAdd from './BatchAdd';
 import AssignValue from './AssignValue';
-import 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/inputTypes/SubSheet/style.less';
+import 'src/pages/widgetConfig/styled/style.less';
 
 const OptionsWrap = styled.div`
   margin-top: 8px;
@@ -143,22 +143,31 @@ const DragHandle = SortableHandle(() => (
 ));
 
 const OptionItem = SortableElement(
-  ({
-    checkedValue = [],
-    addOption,
-    item,
-    focusIndex,
-    options,
-    idx: index,
-    colorful,
-    updateOption,
-    setIndex,
-  }) => {
-    const [visible, setVisible] = useState(false);
+  ({ checkedValue = [], addOption, item, focusIndex, options, idx: index, colorful, updateOption, setIndex }) => {
     const isFocus = index === focusIndex;
+    const [originValue, setValue] = useState('');
     const { key, value, isDeleted, color } = item;
-    const checked = includes(checkedValue, key);
     const isOther = key === 'other' && !isDeleted;
+
+    useEffect(() => {
+      setValue(isFocus ? value : '');
+    }, [isFocus]);
+
+    const handleBlurCheck = () => {
+      if (!value.trim()) {
+        alert(_l('选项不得为空'), 3);
+        updateOption(index, { value: originValue });
+        setIndex(-1);
+        return false;
+      }
+      const exitsOptions = options.filter(o => o.key !== key && o.value === value);
+      if (!!exitsOptions.length) {
+        alert(_l('不得与已有选项（包括回收站）重复'), 3);
+        return false;
+      }
+      return true;
+    };
+
     return (
       <DragItem isOther={isOther} isFocus={isFocus}>
         {!isDeleted && (
@@ -186,29 +195,33 @@ const OptionItem = SortableElement(
                   onFocus={() => setIndex(index)}
                   onKeyDown={e => {
                     if (e.key === 'Enter' && !isOther) {
-                      addOption(false, index + 1);
+                      if (handleBlurCheck()) {
+                        addOption(false, index + 1);
+                      }
                     }
                     // focus上、下
                     if (e.which === 38 || e.which === 40) {
-                      let nextIndex =
-                        e.which === 38
-                          ? focusIndex === 0
-                            ? options.length - 1
-                            : focusIndex - 1
-                          : focusIndex === options.length - 1
-                          ? 0
-                          : focusIndex + 1;
-                      setIndex(nextIndex);
-                      setTimeout(() => {
-                        const optionEl = document.getElementById(_.get(options[nextIndex], 'key'));
-                        optionEl && optionEl.select();
-                      }, 50);
+                      if (handleBlurCheck()) {
+                        let nextIndex =
+                          e.which === 38
+                            ? focusIndex === 0
+                              ? options.length - 1
+                              : focusIndex - 1
+                            : focusIndex === options.length - 1
+                            ? 0
+                            : focusIndex + 1;
+                        setIndex(nextIndex);
+                        const timer = setTimeout(() => {
+                          const optionEl = document.getElementById(_.get(options[nextIndex], 'key'));
+                          optionEl && optionEl.select();
+                          clearTimeout(timer);
+                        }, 50);
+                      }
                     }
                   }}
                   onChange={e => updateOption(index, { value: e.target.value })}
-                  onBlur={e => {
-                    updateOption(index, { value: e.target.value.trim() });
-                    setIndex(-1);
+                  onBlur={() => {
+                    if (handleBlurCheck()) setIndex(-1);
                   }}
                 />
               </div>
@@ -255,6 +268,8 @@ export default function SelectOptions(props) {
 
   const hasOther = _.find(options, i => i.key === 'other' && !i.isDeleted);
   const findOther = _.findIndex(options, i => i.key === 'other');
+  const noDelOptions = options.filter(i => !i.isDeleted);
+  const notAdd = noDelOptions.length >= MAX_OPTIONS_COUNT;
 
   const [{ assignValueVisible, batchAddVisible }, setVisible] = useSetState({
     assignValueVisible: false,
@@ -262,6 +277,16 @@ export default function SelectOptions(props) {
   });
 
   const addOption = (isOther, nextIndex) => {
+    if (notAdd) {
+      alert(_l('选项不得超过%0个', MAX_OPTIONS_COUNT), 3);
+      return;
+    }
+
+    if (isOther && _.find(options, o => o.key !== 'other' && o.value === _l('其他'))) {
+      alert(_l('不得与已有选项（包括回收站）重复'), 3);
+      return;
+    }
+
     const colorIndex = options.filter(i => i.key !== 'other').length - 1;
     const nextKey = isOther ? 'other' : uuidv4();
 
@@ -340,7 +365,16 @@ export default function SelectOptions(props) {
           <i className="icon-add Font18"></i>
           <span>{_l('添加选项')}</span>
         </div>
-        <div className="batchAdd hoverText mLeft24" onClick={() => updateVisible('batchAdd')}>
+        <div
+          className="batchAdd hoverText mLeft24"
+          onClick={() => {
+            if (notAdd) {
+              alert(_l('选项不得超过%0个', MAX_OPTIONS_COUNT), 3);
+              return;
+            }
+            updateVisible('batchAdd');
+          }}
+        >
           {_l('批量添加')}
         </div>
         <div className="mLeft12 Gray_d">|</div>
@@ -372,15 +406,8 @@ export default function SelectOptions(props) {
       )}
       {batchAddVisible && (
         <BatchAdd
-          options={mode === 'edit' ? options.filter(i => i.key !== 'other' && !i.isDeleted) : []}
+          options={options}
           onOk={value => {
-            const textArr = _.uniqBy(
-              value
-                .split(/\n/)
-                .filter(v => !!v)
-                .map(v => v.trim()),
-            );
-            const texts = options.map(item => item.value);
             const getNewItems = () => {
               const formatOptions = arr =>
                 arr.map((value, index) => ({
@@ -391,17 +418,8 @@ export default function SelectOptions(props) {
                   index: (mode === 'edit' ? 0 : options.length) + index + 1,
                   color: OPTION_COLORS_LIST[(index + 1) % OPTION_COLORS_LIST.length],
                 }));
-              if (mode === 'edit') {
-                return formatOptions(textArr);
-              }
               const newOptions = update(options, {
-                $splice: [
-                  [
-                    findOther > -1 ? findOther : options.length,
-                    0,
-                    ...formatOptions(textArr.filter(v => !texts.includes(v))),
-                  ],
-                ],
+                $splice: [[findOther > -1 ? findOther : options.length, 0, ...formatOptions(value)]],
               });
               return newOptions.map((item, idx) => ({ ...item, index: idx + 1 }));
             };

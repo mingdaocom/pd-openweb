@@ -96,29 +96,28 @@ class RuleItems extends React.Component {
     }
   }
 
-  renderActionItem = (actionItem, disabled, fromCheck) => {
+  renderActionItem = (actionItem, disabled) => {
     const { worksheetControls } = this.props;
     let leftText = _.includes([7], actionItem.type) ? '' : getActionLabelByType(actionItem.type);
-    if (fromCheck) {
-      leftText = _l('对字段');
-    }
 
     let text = '';
     if (_.includes([7], actionItem.type)) {
       text = getActionLabelByType(actionItem.type);
-    } else if (actionItem.type === 6 && !fromCheck) {
-      text = actionItem.message;
     } else {
       const currentArr = getTextById(worksheetControls, actionItem.controls, actionItem.type) || [];
-      text = currentArr.map(cur => cur.name).join(', ');
+      if (actionItem.type === 6) {
+        text = _.isEmpty(currentArr)
+          ? actionItem.message
+          : `${currentArr.map(cur => cur.name).join('、')}：${actionItem.message}`;
+      } else {
+        text = currentArr.map(cur => cur.name).join(', ');
+      }
     }
-
-    if (fromCheck && leftText && !text) return null;
 
     return (
       <span className="ruleItemTextRow mTop10">
         <span className={cx('leftLabel', { Gray_bd: disabled })}>{leftText}</span>
-        <span className={cx('rightLabel', { Gray_bd: disabled })}>{text}</span>
+        <span className={cx('rightLabel WordBreak', { Gray_bd: disabled })}>{text}</span>
       </span>
     );
   };
@@ -167,14 +166,7 @@ class RuleItems extends React.Component {
             <span className="mLeft20 gray_9e">{_l('时')}</span>
           </span>
         </span>
-        {ruleItems.map(actionItem => {
-          return (
-            <Fragment>
-              {type === 1 && actionItem.type === 6 ? this.renderActionItem(actionItem, disabled, true) : null}
-              {this.renderActionItem(actionItem, disabled)}
-            </Fragment>
-          );
-        })}
+        {ruleItems.map(actionItem => this.renderActionItem(actionItem, disabled))}
 
         <div className="ruleItemOptions" onClick={e => e.stopPropagation()}>
           <Tooltip popupPlacement="bottom" text={<span>{disabled ? _l('停用') : _l('开启')}</span>}>

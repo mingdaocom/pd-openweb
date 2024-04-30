@@ -28,6 +28,7 @@ const {
   ArrayInput,
   ObjectInput,
   AttachmentInput,
+  CascaderSheet,
 } = Components;
 
 const TYPE_TO_COMP = {
@@ -47,7 +48,7 @@ const TYPE_TO_COMP = {
   switch: SwitchInput,
   time: TimeInput,
   role: RoleInput,
-  cascader: RelateSheet,
+  cascader: CascaderSheet,
   richtext: RichInput,
   array: ArrayInput,
   array_object: ObjectInput,
@@ -55,7 +56,7 @@ const TYPE_TO_COMP = {
 };
 
 export default function DynamicDefaultValue(props) {
-  const { data, allControls, onChange, queryConfig = {}, from, updateQueryConfigs, hideTitle } = props;
+  const { data, allControls, onChange, from, hideTitle } = props;
   const { enumDefault, advancedSetting = {} } = data;
   const type = getControlType(data);
   const showtype = advancedSetting.showtype || String(enumDefault);
@@ -88,13 +89,6 @@ export default function DynamicDefaultValue(props) {
   const clearOldDefault = (para = { default: '' }) => {
     onChange(para);
   };
-
-  useEffect(() => {
-    //清空查询配置
-    if (!_.get(dynamicData, 'id') && queryConfig.id) {
-      updateQueryConfigs(queryConfig, 'delete');
-    }
-  }, [defaultType]);
 
   return (
     <SettingItem className={cx({ mTop0: hideTitle })}>

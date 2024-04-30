@@ -206,12 +206,16 @@ export default (props) => {
 
   const handleChangeConfig = data => {
     updateModified(true);
-    updatePageInfo({
+    const params = {
       config: {
         ...config,
         ...data
       }
-    });
+    };
+    if (data.autoLinkage === false) {
+      params.linkageFiltersGroup = {};
+    }
+    updatePageInfo(params);
   }
 
   const themeColors = [{
@@ -532,9 +536,9 @@ export default (props) => {
         <div className="flexRow alignItemsCenter">
           <div className="Gray_75 Font13 label">{_l('页面布局')}</div>
           <div className="flex">
-            <div class="typeSelect flexRow valignWrapper">
-              <div class={cx('centerAlign pointer Gray_75', { active: !adjustScreen })} onClick={() => updatePageInfo({ adjustScreen: false })}>{_l('滚动')}</div>
-              <div class={cx('centerAlign pointer Gray_75', { active: adjustScreen })} onClick={() => updatePageInfo({ adjustScreen: true })}>{_l('适应屏幕高度')}</div>
+            <div className="typeSelect flexRow valignWrapper">
+              <div className={cx('centerAlign pointer Gray_75', { active: !adjustScreen })} onClick={() => updatePageInfo({ adjustScreen: false })}>{_l('滚动')}</div>
+              <div className={cx('centerAlign pointer Gray_75', { active: adjustScreen })} onClick={() => updatePageInfo({ adjustScreen: true })}>{_l('适应屏幕高度')}</div>
             </div>
           </div>
         </div>
@@ -619,6 +623,24 @@ export default (props) => {
             </div>
           </div>
         )}
+        <div className="flexRow mTop15 mBottom20">
+          <div className="Gray_75 Font13 label">{_l('联动筛选')}</div>
+          <div className="flex">
+            <label className="flexRow alignItemsCenter pointer">
+              <Switch
+                className="mRight5"
+                size="small"
+                checked={config.autoLinkage}
+                onChange={checked => {
+                  handleChangeConfig({
+                    autoLinkage: checked,
+                  });
+                }}
+              />
+              {_l('同数据源组件自动关联')}
+            </label>
+          </div>
+        </div>
       </Fragment>
     );
   };

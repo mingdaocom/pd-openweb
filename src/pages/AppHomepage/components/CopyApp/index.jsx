@@ -1,32 +1,43 @@
 import React, { Component, Fragment } from 'react';
 import styled from 'styled-components';
+import _ from 'lodash';
 import { Dialog } from 'ming-ui';
 import homeApp from 'src/api/homeApp';
-import _ from 'lodash';
+import SelectDBInstance from 'src/pages/AppHomepage/AppCenter/components/SelectDBInstance';
+import { VersionProductType } from 'src/util/enum';
+import { getFeatureStatus, getCurrentProject } from 'src/util';
 
 const Title = styled.span`
   display: inline-block;
   max-width: 100%;
 `;
 
+const DataDBInstances = [{ label: _l('系统默认数据库'), value: '' }];
+
 export default class CopyApp extends Component {
   static propTypes = {};
   static defaultProps = {};
   state = {
     pending: false,
+    DBInstancesDialog: false,
+    dataDBInstances: [],
+    visible: true,
   };
 
   shouldComponentUpdate(nextProps, nextState) {
-    return !_.isEqual(nextState.pending, this.state.pending);
+    return (
+      !_.isEqual(nextState.pending, this.state.pending) ||
+      !_.isEqual(nextState.DBInstancesDialog, this.state.DBInstancesDialog)
+    );
   }
 
-  copyApp = () => {
+  copyApp = (dbInstanceId = undefined) => {
     const { para, onCopy, onCancel, title } = this.props;
     const { pending } = this.state;
     if (pending) return;
     this.setState({ pending: true });
     homeApp
-      .copyApp({ appName: `${title}-复制`, ...para })
+      .copyApp({ appName: `${title}-复制`, ...para, dbInstanceId })
       .then(result => {
         onCancel();
         if (result && typeof result === 'string') {
@@ -51,23 +62,65 @@ export default class CopyApp extends Component {
           });
         }
       })
-      .always(() => {
+      .finally(() => {
         this.setState({ pending: false });
       });
   };
+
+  handleCopy = () => {
+    const { projectId } = this.props;
+
+    const currentProject = getCurrentProject(projectId);
+    const hasDataBase = getFeatureStatus(projectId, VersionProductType.dataBase) === '1' && !md.global.Config.IsPlatformLocal;
+    if (hasDataBase && (currentProject.isSuperAdmin || currentProject.isProjectAppManager)) {
+      homeApp.getMyDbInstances({ projectId }).then(res => {
+        const list = res.map(l => {
+          return {
+            label: l.name,
+            value: l.id,
+          };
+        });
+        if (res && res.length) {
+          this.setState({
+            dataDBInstances: DataDBInstances.concat(list),
+            DBInstancesDialog: true,
+            visible: false,
+          });
+        } else {
+          this.copyApp();
+        }
+      });
+    } else {
+      this.copyApp();
+    }
+  };
+
   render() {
     const { title, ...rest } = this.props;
-    const { pending } = this.state;
+    const { pending, visible, DBInstancesDialog, dataDBInstances } = this.state;
     return (
-      <Dialog
-        visible
-        title={<Title className="overflow_ellipsis">{_l('复制应用 “%0”', title)}</Title>}
-        okText={pending ? _l('复制中...') : _l('复制')}
-        onOk={this.copyApp}
-        {...rest}
-      >
-        <div className="Gray_75">{_l('将复制目标应用的应用结构、流程和角色。应用下的数据和成员不会被复制')}</div>
-      </Dialog>
+      <Fragment>
+        <Dialog
+          visible={visible}
+          title={<Title className="overflow_ellipsis">{_l('复制应用 “%0”', title)}</Title>}
+          okText={pending ? _l('复制中...') : _l('复制')}
+          onOk={this.handleCopy}
+          {...rest}
+        >
+          <div className="Gray_75">{_l('将复制目标应用的应用结构、流程和角色。应用下的数据和成员不会被复制')}</div>
+        </Dialog>
+        <SelectDBInstance
+          visible={DBInstancesDialog}
+          options={dataDBInstances}
+          onOk={id => {
+            this.copyApp(id);
+          }}
+          onCancel={() => {
+            this.setState({ DBInstancesDialog: false });
+            this.props.onCancel();
+          }}
+        />
+      </Fragment>
     );
   }
 }

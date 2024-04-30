@@ -1,13 +1,12 @@
 import React, { createRef, useState, useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import styled from 'styled-components';
-import { Icon, Input, Tooltip } from 'ming-ui';
+import { Icon, Input, Tooltip, SvgIcon } from 'ming-ui';
 import { SwitchStyle } from 'src/pages/worksheet/common/ViewConfig/style.jsx';
 import { PARAM_TYPES, controlTypeList, defaultData } from './config';
 import Trigger from 'rc-trigger';
 import './index.less';
 import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
-import SvgIcon from 'src/components/SvgIcon';
 import CSSTransitionGroup from 'react-addons-css-transition-group';
 import Edit from './Edit';
 import AddDialog from './AddDialog';
@@ -411,6 +410,7 @@ function PluginSettings(params) {
               '.selectize-dropdown',
               '.selectUserBox',
               '.ant-picker-dropdown',
+              '.selectRoleDialog',
             ]}
             onClickAway={() => setState({ editInfo: null, showEdit: false })}
             onClose={() => {

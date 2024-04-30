@@ -1,8 +1,7 @@
 import React, { Fragment, useState } from 'react';
-import { Checkbox } from 'ming-ui';
 import styled from 'styled-components';
 import { Dropdown, Tooltip, Input } from 'antd';
-import { Dropdown as MingDropdown, Support, Dialog } from 'ming-ui';
+import { Dropdown as MingDropdown, Support, Dialog, Checkbox } from 'ming-ui';
 import cx from 'classnames';
 import { useSetState } from 'react-use';
 import { DATE_SHOW_TYPES } from '../../../../config/setting';
@@ -92,7 +91,7 @@ function ShowFormatDialog(props) {
         <div className="formatList">
           <div className="title Gray_75">
             {_l('选择下方日期格式或自定义输入')}
-            <Support href="https://help.mingdao.com/sheet16" type={3} text={_l('帮助')} />
+            <Support href="https://help.mingdao.com//worksheet/date-format" type={3} text={_l('帮助')} />
           </div>
           <ul className="list">
             {CUSTOM_SHOW_FORMAT.map(item => (
@@ -128,7 +127,7 @@ export function ShowFormat(props) {
 
   return (
     <SettingItem>
-      <div className="settingItemTitle">{_l('显示格式')}</div>
+      <div className="settingItemTitle">{_l('显示格式%04027')}</div>
       {isCustom ? (
         <EditInfo className="pointer" onClick={() => setVisible(true)}>
           <div className="overflow_ellipsis Gray">{_l('自定义格式')}</div>

@@ -16,7 +16,7 @@ export default {
   **/
    search: function (args, options = {}) {
      
-     return $.api('SmartSearch', 'Search', args, options);
+     return mdyAPI('SmartSearch', 'Search', args, options);
    },
   /**
   * 智能搜索（根据多个 SearchType）
@@ -35,7 +35,7 @@ export default {
   **/
    searchByTypes: function (args, options = {}) {
      
-     return $.api('SmartSearch', 'SearchByTypes', args, options);
+     return mdyAPI('SmartSearch', 'SearchByTypes', args, options);
    },
   /**
   * 搜索应用范围数据
@@ -56,7 +56,7 @@ export default {
   **/
    searchApp: function (args, options = {}) {
      
-     return $.api('SmartSearch', 'SearchApp', args, options);
+     return mdyAPI('SmartSearch', 'SearchApp', args, options);
    },
   /**
   * 获取过滤总数
@@ -68,7 +68,7 @@ export default {
   **/
    getFilterCount: function (args, options = {}) {
      
-     return $.api('SmartSearch', 'GetFilterCount', args, options);
+     return mdyAPI('SmartSearch', 'GetFilterCount', args, options);
    },
   /**
   * 获取过滤列表
@@ -80,7 +80,7 @@ export default {
   **/
    getFilters: function (args, options = {}) {
      
-     return $.api('SmartSearch', 'GetFilters', args, options);
+     return mdyAPI('SmartSearch', 'GetFilters', args, options);
    },
   /**
   * 设置过滤项目
@@ -95,7 +95,7 @@ export default {
   **/
    setFilter: function (args, options = {}) {
      
-     return $.api('SmartSearch', 'SetFilter', args, options);
+     return mdyAPI('SmartSearch', 'SetFilter', args, options);
    },
   /**
   * 删除过滤项目
@@ -107,6 +107,6 @@ export default {
   **/
    removeFilter: function (args, options = {}) {
      
-     return $.api('SmartSearch', 'RemoveFilter', args, options);
+     return mdyAPI('SmartSearch', 'RemoveFilter', args, options);
    },
 };

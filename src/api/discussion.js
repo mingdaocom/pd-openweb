@@ -18,7 +18,7 @@ export default {
   **/
    addDiscussion: function (args, options = {}) {
      
-     return $.api('Discussion', 'AddDiscussion', args, options);
+     return mdyAPI('Discussion', 'AddDiscussion', args, options);
    },
   /**
   * 获取指定源讨论
@@ -35,7 +35,7 @@ export default {
   **/
    getDiscussions: function (args, options = {}) {
      
-     return $.api('Discussion', 'GetDiscussions', args, options);
+     return mdyAPI('Discussion', 'GetDiscussions', args, options);
    },
   /**
   * 获取讨论数量
@@ -52,7 +52,7 @@ export default {
   **/
    getDiscussionsCount: function (args, options = {}) {
      
-     return $.api('Discussion', 'GetDiscussionsCount', args, options);
+     return mdyAPI('Discussion', 'GetDiscussionsCount', args, options);
    },
   /**
   * 删除讨论
@@ -65,7 +65,7 @@ export default {
   **/
    removeDiscussion: function (args, options = {}) {
      
-     return $.api('Discussion', 'RemoveDiscussion', args, options);
+     return mdyAPI('Discussion', 'RemoveDiscussion', args, options);
    },
   /**
   * 获取单条讨论的msg
@@ -78,7 +78,7 @@ export default {
   **/
    getDiscussionMsg: function (args, options = {}) {
      
-     return $.api('Discussion', 'GetDiscussionMsg', args, options);
+     return mdyAPI('Discussion', 'GetDiscussionMsg', args, options);
    },
   /**
   * 获取源附件（不分页）
@@ -91,6 +91,6 @@ export default {
   **/
    getSourceAtts: function (args, options = {}) {
      
-     return $.api('Discussion', 'GetSourceAtts', args, options);
+     return mdyAPI('Discussion', 'GetSourceAtts', args, options);
    },
 };

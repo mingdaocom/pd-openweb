@@ -14,7 +14,7 @@ export default {
   **/
    getJobs: function (args, options = {}) {
      
-     return $.api('Job', 'GetJobs', args, options);
+     return mdyAPI('Job', 'GetJobs', args, options);
    },
   /**
   * 添加职位
@@ -27,7 +27,7 @@ export default {
   **/
    addJob: function (args, options = {}) {
      
-     return $.api('Job', 'AddJob', args, options);
+     return mdyAPI('Job', 'AddJob', args, options);
    },
   /**
   * 修改职位名称
@@ -41,7 +41,7 @@ export default {
   **/
    editJobName: function (args, options = {}) {
      
-     return $.api('Job', 'EditJobName', args, options);
+     return mdyAPI('Job', 'EditJobName', args, options);
    },
   /**
   * 删除职位
@@ -54,7 +54,7 @@ export default {
   **/
    deleteJobs: function (args, options = {}) {
      
-     return $.api('Job', 'DeleteJobs', args, options);
+     return mdyAPI('Job', 'DeleteJobs', args, options);
    },
   /**
   * 导入职位
@@ -70,7 +70,7 @@ export default {
   **/
    importJobList: function (args, options = {}) {
      
-     return $.api('Job', 'ImportJobList', args, options);
+     return mdyAPI('Job', 'ImportJobList', args, options);
    },
   /**
   * 获取 职位成员列表
@@ -86,7 +86,7 @@ export default {
   **/
    pagedJobAccounts: function (args, options = {}) {
      
-     return $.api('Job', 'PagedJobAccounts', args, options);
+     return mdyAPI('Job', 'PagedJobAccounts', args, options);
    },
   /**
   * 添加用户
@@ -100,7 +100,7 @@ export default {
   **/
    addJobUser: function (args, options = {}) {
      
-     return $.api('Job', 'AddJobUser', args, options);
+     return mdyAPI('Job', 'AddJobUser', args, options);
    },
   /**
   * 删除用户
@@ -114,7 +114,7 @@ export default {
   **/
    deleteJobUser: function (args, options = {}) {
      
-     return $.api('Job', 'DeleteJobUser', args, options);
+     return mdyAPI('Job', 'DeleteJobUser', args, options);
    },
   /**
   * 删除用户
@@ -128,6 +128,6 @@ export default {
   **/
    deleteJobUsers: function (args, options = {}) {
      
-     return $.api('Job', 'DeleteJobUsers', args, options);
+     return mdyAPI('Job', 'DeleteJobUsers', args, options);
    },
 };

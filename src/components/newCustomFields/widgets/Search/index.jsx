@@ -4,9 +4,8 @@ import { Select } from 'antd';
 import { LoadDiv, Icon } from 'ming-ui';
 import { browserIsMobile, upgradeVersionDialog } from 'src/util';
 import MobileSearch from './MobileSearch';
-import { getParamsByConfigs, getShowValue, clearValue } from './util';
+import { getParamsByConfigs, getShowValue, clearValue, handleUpdateApi } from './util';
 import worksheetAjax from 'src/api/worksheet';
-import { v4 as uuidv4 } from 'uuid';
 import cx from 'classnames';
 import './index.less';
 import _ from 'lodash';
@@ -81,7 +80,6 @@ export default class Widgets extends Component {
       projectId,
       appId,
       type,
-      getControlRef,
     } = this.props;
     const { keywords } = this.state;
 
@@ -96,7 +94,7 @@ export default class Widgets extends Component {
     }
 
     this.setState({ loading: true, open: true });
-    const paramsData = getParamsByConfigs(requestMap, formData, keywords, getControlRef);
+    const paramsData = getParamsByConfigs(requestMap, formData, keywords);
 
     let params = {
       data: !requestMap.length || _.isEmpty(paramsData) ? '' : paramsData,
@@ -144,38 +142,8 @@ export default class Widgets extends Component {
   };
 
   handleUpdate = (itemData = {}) => {
-    const { advancedSetting: { responsemap } = {}, formData } = this.props;
-    const responseMap = safeParse(responsemap || '[]');
-    responseMap.map(item => {
-      const control = _.find(formData, i => i.controlId === item.cid);
-      if (control && !_.isUndefined(itemData[item.cid])) {
-        // 子表直接赋值
-        if (control.type === 34 && _.includes([10000007, 10000008], item.type)) {
-          this.props.onChange(
-            {
-              action: 'clearAndSet',
-              isDefault: true,
-              rows: safeParse(itemData[item.cid] || '[]').map(i => {
-                return {
-                  ...i,
-                  rowid: `temprowid-${uuidv4()}`,
-                  allowedit: true,
-                  addTime: new Date().getTime(),
-                };
-              }),
-            },
-            control.controlId,
-          );
-        } else if (!item.subid) {
-          // 普通数组特殊处理
-          const itemVal =
-            item.type === 10000007 && itemData[item.cid] && _.isArray(safeParse(itemData[item.cid]))
-              ? safeParse(itemData[item.cid]).join(',')
-              : itemData[item.cid];
-          this.props.onChange(itemVal, control.controlId, false);
-        }
-        this.setState({ data: null, open: false, keywords: '' });
-      }
+    handleUpdateApi(this.props, itemData, true, () => {
+      this.setState({ data: null, open: false, keywords: '' });
     });
   };
 

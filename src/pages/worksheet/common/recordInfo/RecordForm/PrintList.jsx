@@ -13,7 +13,7 @@ import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
-import { PRINT_TYPE_STYLE, PRINT_TYPE } from 'src/pages/Print/config';
+import { PRINT_TYPE_STYLE, PRINT_TYPE, PRINT_TEMP } from 'src/pages/Print/config';
 import _ from 'lodash';
 const MenuItemWrap = styled(MenuItem)`
   &.active,
@@ -58,16 +58,24 @@ export default class PrintList extends Component {
   }
 
   componentDidMount() {
-    const { viewId, worksheetId } = this.props;
+    const { viewId, worksheetId, recordId } = this.props;
     if (worksheetId) {
-      worksheetAjax.getPrintList({
-        worksheetId,
-        viewId,
-      }).then(tempList => {
-        let list = !viewId ? tempList.filter(o => o.range === 1) : tempList;
-        const values = _.values(PRINT_TYPE);
-        this.setState({ tempList: list.sort((a, b) => values.indexOf(a.type) - values.indexOf(b.type)), tempListLoaded: true });
-      });
+      worksheetAjax
+        .getPrintList({
+          worksheetId,
+          viewId,
+          rowIds: [recordId],
+        })
+        .then(tempList => {
+          let list = !viewId ? tempList.filter(o => o.range === 1) : tempList;
+          const values = _.values(PRINT_TYPE);
+          this.setState({
+            tempList: list
+              .filter(l => !l.disabled)
+              .sort((a, b) => PRINT_TEMP[_.findKey(PRINT_TYPE, l => l === a.type)] - PRINT_TEMP[_.findKey(PRINT_TYPE, l => l === b.type)]),
+            tempListLoaded: true,
+          });
+        });
     }
   }
 
@@ -154,7 +162,13 @@ export default class PrintList extends Component {
                     return (
                       <MenuItemWrap
                         className=""
-                        icon={isCustom ? <span className={`${PRINT_TYPE_STYLE[it.type].fileIcon} fileIcon`}></span> : <Icon icon={getPrintCardInfoOfTemplate(it).icon} className="Font18" />}
+                        icon={
+                          isCustom ? (
+                            <span className={`${PRINT_TYPE_STYLE[it.type].fileIcon} fileIcon`}></span>
+                          ) : (
+                            <Icon icon={getPrintCardInfoOfTemplate(it).icon} className="Font18" />
+                          )
+                        }
                         onClick={async () => {
                           onItemClick();
                           if (window.isPublicApp) {
@@ -198,6 +212,7 @@ export default class PrintList extends Component {
                               name: it.name,
                               attriData: attriData[0],
                               fileTypeNum: it.type,
+                              allowDownloadPermission: it.allowDownloadPermission,
                             };
                             let printKey = Math.random().toString(36).substring(2);
                             webCacheAjax.add({

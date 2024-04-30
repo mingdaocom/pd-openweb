@@ -5,6 +5,7 @@ const config = [
     languageTeam: 'Chinese Simplified',
     language: 'zh_CN',
     path: '/staticfiles/lang/zh-Hans/mdTranslation.js',
+    code: 0,
   },
   {
     key: 'zh-Hant',
@@ -12,6 +13,7 @@ const config = [
     languageTeam: 'Chinese Traditional',
     language: 'zh_TW',
     path: '/staticfiles/lang/zh-Hant/mdTranslation.js',
+    code: 3,
   },
   {
     key: 'en',
@@ -19,6 +21,7 @@ const config = [
     languageTeam: 'English',
     language: 'en_US',
     path: '/staticfiles/lang/en/mdTranslation.js',
+    code: 1,
   },
   {
     key: 'ja',
@@ -26,6 +29,7 @@ const config = [
     languageTeam: 'Japanese',
     language: 'ja',
     path: '/staticfiles/lang/ja/mdTranslation.js',
+    code: 2,
   },
 ];
 

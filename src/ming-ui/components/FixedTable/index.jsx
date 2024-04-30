@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useMemo, useImperativeHandle, forwardRef, useCallback } from 'react';
 import { bool, func, number } from 'prop-types';
 import styled from 'styled-components';
-import _ from 'lodash';
+import _, { get, includes } from 'lodash';
 import Hammer from 'hammerjs';
 import { useRefStore } from 'worksheet/hooks';
 import Skeleton from '../Skeleton';
@@ -51,7 +51,6 @@ function FixedTable(props, ref) {
     showHead,
     showFoot,
     width,
-    height,
     columnHeadHeight = 34,
     setHeightAsRowCount,
     rowCount,
@@ -69,7 +68,14 @@ function FixedTable(props, ref) {
     tableData,
     renderEmpty, // 渲染空状态
     disablePanVertical,
+    tableFooter,
   } = props;
+  let height = props.height;
+  let withFooterHeight = props.height;
+  const hasFooter = tableFooter && tableFooter.height;
+  if (hasFooter) {
+    withFooterHeight += tableFooter.height;
+  }
   const bottomFixedCount = showFoot ? 1 : 0;
   const topFixedCount = showHead ? 1 : 0;
   const conRef = useRef();
@@ -150,7 +156,7 @@ function FixedTable(props, ref) {
       });
   }, [rowCount]);
   const tables = tableConfigs
-    .filter(item => item.visible)
+    .filter(item => item.visible && (!loading || includes(item.id, 'top')))
     .map(t => (
       <Grid
         {...Object.assign(t, {
@@ -183,7 +189,7 @@ function FixedTable(props, ref) {
           style: {
             right: 0,
             top: topFixedCount * columnHeadHeight,
-            bottom: bottomFixedCount * 28,
+            bottom: bottomFixedCount * 28 + (hasFooter ? tableFooter.height : 0),
           },
           contentStyle: {
             height: tableSize.height + (XIsScroll ? 10 : 0),
@@ -246,12 +252,7 @@ function FixedTable(props, ref) {
         $scrollY.scrollTop = newTop;
       }
     }
-    if (
-      !$scrollY ||
-      ($scrollY &&
-        ((e.deltaY < 0 && $scrollY.scrollTop === 0) ||
-          (e.deltaY > 0 && $scrollY.scrollTop + $scrollY.clientHeight === $scrollY.scrollHeight)))
-    ) {
+    if (!$scrollY) {
       return;
     }
     e.preventDefault();
@@ -301,6 +302,11 @@ function FixedTable(props, ref) {
     },
   }));
   useEffect(() => {
+    if (get(cache, 'scrollX.scrollLeft')) {
+      setScrollX(cache, get(cache, 'scrollX.scrollLeft'));
+    }
+  }, [loading]);
+  useEffect(() => {
     cache.didMount = true;
     document.body.style.overscrollBehaviorX = 'none';
     conRef.current.addEventListener('wheel', handleMouseWheel);
@@ -331,9 +337,22 @@ function FixedTable(props, ref) {
     };
   }, []);
   return (
-    <Con ref={conRef} className={className} style={{ width, height }}>
+    <Con ref={conRef} className={className} style={{ width, height: hasFooter ? withFooterHeight : height }}>
       {/* 表格 */}
       {tables}
+      {tableFooter && tableFooter.comp && (
+        <div
+          style={{
+            position: 'absolute',
+            left: 0,
+            width: width,
+            height: tableFooter.height - 2,
+            bottom: XIsScroll ? barWidth : 0,
+          }}
+        >
+          {tableFooter.comp}
+        </div>
+      )}
       {/* 滚动条 */}
       {YIsScroll && verticalScroll}
       {XIsScroll && horizontalScroll}
@@ -344,7 +363,8 @@ function FixedTable(props, ref) {
             position: 'absolute',
             top: columnHeadHeight,
             width: '100%',
-            height: '100%',
+            height: `calc(100% - ${columnHeadHeight}px)`,
+            overflow: 'hidden',
             backgroundColor: '#fff',
           }}
         >

@@ -16,6 +16,6 @@ export default function NativeEMbedCustomWidgetView(props) {
   );
 }
 
-const Comp = preall(NativeEMbedCustomWidgetView, { allownotlogin: false });
+const Comp = preall(NativeEMbedCustomWidgetView, { allowNotLogin: false });
 
 ReactDOM.render(<Comp />, document.querySelector('#app'));

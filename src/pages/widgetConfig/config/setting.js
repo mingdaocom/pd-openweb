@@ -22,6 +22,8 @@ export const DISPLAY_TYPE_TEXT = {
   1: _l('卡片'),
   2: _l('列表'),
   3: _l('下拉框'),
+  5: _l('表格'),
+  6: _l('标签页表格'),
 };
 
 export const FORMULA_DATE_DISPLAY_TYPE = [
@@ -150,10 +152,21 @@ export const RELATION_SEARCH_DISPLAY = [
   },
   {
     key: 'list',
-    text: _l('列表'),
+    text: _l('表格（旧）'),
     value: '2',
+    disabled: true,
   },
   { key: 'text', text: _l('文本'), value: '3' },
+  {
+    key: 'embed_list',
+    text: _l('表格'),
+    value: '5',
+  },
+  {
+    key: 'tab_list',
+    text: _l('标签页表格'),
+    value: '6',
+  },
 ];
 
 // 标题字号映射关系

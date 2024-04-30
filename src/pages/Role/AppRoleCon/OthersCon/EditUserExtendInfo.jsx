@@ -93,7 +93,7 @@ export default function EditUserExtendInfo(props) {
         setWorksheetList(data);
         setLoading(false);
       })
-      .fail(err => setLoading(false));
+      .catch(err => setLoading(false));
   }, [data.appId]);
 
   useEffect(() => {
@@ -109,7 +109,7 @@ export default function EditUserExtendInfo(props) {
           ),
         );
       })
-      .fail(err => setLoading(false));
+      .catch(err => setLoading(false));
   }, [data.worksheetId]);
 
   const saveFn = statusFlag => {
@@ -142,7 +142,7 @@ export default function EditUserExtendInfo(props) {
           alert(_l('保存失败'), 2);
         }
       })
-      .fail(err => alert(err));
+      .catch(err => alert(err));
   };
 
   return (
@@ -152,7 +152,7 @@ export default function EditUserExtendInfo(props) {
         {_l(
           '通过工作表管理应用成员额外的扩展信息字段，在角色权限、筛选器中可以使用用户的扩展信息字段来作为动态筛选条件',
         )}
-        <Support className="help" type={3} href="https://help.mingdao.com/user4" text={_l('帮助')} />
+        <Support className="help" type={3} href="https://help.mingdao.com/role/extended-info" text={_l('帮助')} />
       </div>
       <div className="selectTitle Bold valignWrapper mTop30">{_l('选择应用')}</div>
       <Select

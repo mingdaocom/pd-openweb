@@ -49,8 +49,23 @@ const IconWrap = styled.div`
   border-radius: 50%;
 `;
 
+const STATUS_INFO = {
+  4: {
+    text: _l('应用正在升级中...'),
+    color: '#4caf50',
+  },
+  10: {
+    text: _l('应用正在升级中...'),
+    color: '#4caf50',
+  },
+  11: {
+    text: _l('应用正在还原中...'),
+    color: '#4caf50',
+  },
+};
+
 export default function UpgradeContent({ appPkg, showLeftSkeleton = true, isMobile }) {
-  const { currentPcNaviStyle } = appPkg;
+  const { currentPcNaviStyle, appStatus } = appPkg;
 
   if (isMobile) {
     return (
@@ -58,7 +73,7 @@ export default function UpgradeContent({ appPkg, showLeftSkeleton = true, isMobi
         <IconWrap>
           <i className="icon-unarchive Gray_9e Font48" />
         </IconWrap>
-        <div className="Gray_bd Font17 mTop20">{_l('应用正在升级中…')}</div>
+        <div className="Gray_bd Font17 mTop20">{STATUS_INFO[appStatus].text}</div>
       </MobileWrap>
     );
   }
@@ -72,9 +87,9 @@ export default function UpgradeContent({ appPkg, showLeftSkeleton = true, isMobi
       )}
       <div className="unusualContent">
         <div className="imgWrap mBottom14">
-          <i className="icon-unarchive Font56" style={{ color: '#4caf50' }} />
+          <i className="icon-unarchive Font56" style={{ color: STATUS_INFO[appStatus].color }} />
         </div>
-        <div className="Font17 bold">{_l('应用正在升级中...')}</div>
+        <div className="Font17 bold">{STATUS_INFO[appStatus].text}</div>
       </div>
     </UpgradeContentWrap>
   );

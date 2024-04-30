@@ -170,8 +170,10 @@ export default class extends Component {
       isInitRegisterShape = true;
       initRegisterShape(G2);
     }
-    this.GaugeChart = new Gauge(this.chartEl, GaugeChartConfig);
-    this.GaugeChart.render();
+    if (this.chartEl) {
+      this.GaugeChart = new Gauge(this.chartEl, GaugeChartConfig);
+      this.GaugeChart.render();
+    }
   }
   getComponentConfig(props) {
     const { themeColor, projectId, customPageConfig = {}, reportData, isThumbnail } = props;

@@ -1,5 +1,5 @@
 import './css/batchTask.less';
-import quickSelectUser from 'ming-ui/functions/quickSelectUser';
+import { quickSelectUser, dialogSelectUser } from 'ming-ui/functions';
 import '@mdfe/selectize';
 import doT from 'dot';
 import config from '../../config/config';
@@ -10,14 +10,12 @@ import Store from 'redux/configureStore';
 import { errorMessage, checkIsProject, taskStatusDialog } from '../../utils/utils';
 import { afterDeleteTask, afterUpdateTaskDate } from '../../utils/taskComm';
 import tagController from 'src/api/tag';
-import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import _ from 'lodash';
 import moment from 'moment';
-import { Dialog, Checkbox } from 'ming-ui';
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
-import { LoadDiv as MingUiLoadDiv } from 'ming-ui';
+import { LoadDiv as MingUiLoadDiv, Dialog, Checkbox } from 'ming-ui';
 
 const SearchFolderCon = styled.ul`
   width: 438px;
@@ -444,7 +442,7 @@ BatchTask.loadBatchData = function (auth) {
 // 显示弹出层
 BatchTask.bindDialog = function () {
   const { projectId } = Store.getState().task.taskConfig;
-  $('#batchTask').addClass('slideLeft').html(LoadDiv('big'));
+  $('#batchTask').addClass('slideLeft').html(LoadDiv());
 
   let lockedSize = 0;
   $.map($('.selectTask'), (_this, i) => {

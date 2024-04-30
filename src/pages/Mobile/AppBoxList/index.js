@@ -3,7 +3,7 @@ import { Flex, ActivityIndicator, List, Toast } from 'antd-mobile';
 import Back from '../components/Back';
 import AddDialog from 'mobile/AppBoxInfo/AppDetails/AddDialog';
 import './index.less';
-import SvgIcon from 'src/components/SvgIcon';
+import { SvgIcon } from 'ming-ui';
 import axios from 'axios';
 import _ from 'lodash';
 const { Item } = List;
@@ -39,8 +39,7 @@ export default class AddBoxList extends Component {
     });
   }
   handleAddProject = item => {
-    const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
-    if (isWxWork) {
+    if (window.isWxWork) {
       const { projects } = md.global.Account;
       if (projects.length) {
         this.addDialogEl.installApp(projects[0].projectId, item.libraryId);

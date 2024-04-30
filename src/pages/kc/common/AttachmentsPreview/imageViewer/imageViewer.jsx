@@ -1,11 +1,11 @@
 ﻿import PropTypes from 'prop-types';
 import React from 'react';
-import createReactClass from 'create-react-class';
 import ReactDOM from 'react-dom';
 import { min, assign } from 'lodash';
 import cx from 'classnames';
 import LoadDiv from 'ming-ui/components/LoadDiv';
-import tweenState from 'react-tween-state';
+import { autobind } from 'core-decorators';
+import { Motion, spring } from 'react-motion';
 import './imageViewer.css';
 
 function getClientX(evt) {
@@ -15,10 +15,22 @@ function getClientY(evt) {
   return evt.clientY || _.get(evt, 'touches[0].clientY');
 }
 
-const ImageViewer = createReactClass({
-  displayName: 'ImageViewer',
+const initialState = {
+  src: '',
+  loading: true,
+  dragStart: null,
+  mouseDownPos: null,
+  left: 0,
+  top: 0,
+  scale: 1,
+  rotate: 0, // 旋转度数
+  isThumbnail: false,
+  originSize: null,
+  ctrlIsdDown: false,
+};
 
-  propTypes: {
+class ImageViewer extends React.Component {
+  static propTypes = {
     src: PropTypes.string,
     onError: PropTypes.func,
     con: PropTypes.object,
@@ -30,43 +42,25 @@ const ImageViewer = createReactClass({
     onClose: PropTypes.func,
     fullscreen: PropTypes.bool,
     showThumbnail: PropTypes.bool,
-  },
+  };
 
-  mixins: [tweenState.Mixin],
+  static defaultProps = {
+    size: 0, // 图片大小
+    getResizedSrc: (src, width, height) => {
+      if (!src) {
+        return '';
+      }
+      const imageView2 = 'imageView2/0/w/' + width + '/h/' + height + '/q/90';
+      return src.indexOf('?') > 0
+        ? src.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, imageView2)
+        : src + '?' + imageView2;
+    },
+    quotiety: 0.2, // 放大、缩小系数
+  };
 
-  getDefaultProps() {
-    return {
-      size: 0, // 图片大小
-      getResizedSrc: (src, width, height) => {
-        if (!src) {
-          return '';
-        }
-        const imageView2 = 'imageView2/0/w/' + width + '/h/' + height + '/q/90';
-        return src.indexOf('?') > 0
-          ? src.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, imageView2)
-          : src + '?' + imageView2;
-      },
-      quotiety: 0.2, // 放大、缩小系数
-    };
-  },
+  state = { ...initialState };
 
-  getInitialState() {
-    return {
-      src: '',
-      loading: true,
-      dragStart: null,
-      mouseDownPos: null,
-      left: 0,
-      top: 0,
-      scale: 1,
-      rotate: 0, // 旋转度数
-      isThumbnail: false,
-      originSize: null,
-      ctrlIsdDown: false,
-    };
-  },
-
-  _isMounted: false,
+  _isMounted = false;
 
   componentDidMount() {
     this._isMounted = true;
@@ -84,7 +78,7 @@ const ImageViewer = createReactClass({
     document.addEventListener('touchmove', this.mouseMove);
     document.addEventListener('keydown', this.ctrlDown);
     document.addEventListener('keyup', this.ctrlUp);
-  },
+  }
 
   componentDidUpdate(prevProps) {
     if (prevProps.src !== this.props.src) {
@@ -95,12 +89,12 @@ const ImageViewer = createReactClass({
       } else {
         src = this.props.src;
       }
-      this.setState(assign(this.getInitialState(), { isThumbnail: src !== this.props.src }), this.loadImage(src));
+      this.setState(assign(initialState, { isThumbnail: src !== this.props.src }), this.loadImage(src));
     }
     if (!this.outViewerArea() && prevProps.showThumbnail !== this.props.showThumbnail) {
       this.reSize(this.props.showThumbnail);
     }
-  },
+  }
 
   componentWillUnmount() {
     document.removeEventListener('mouseup', this.stopDrag);
@@ -110,8 +104,9 @@ const ImageViewer = createReactClass({
     document.removeEventListener('keydown', this.ctrlDown);
     document.removeEventListener('keyup', this.ctrlUp);
     this._isMounted = false;
-  },
+  }
 
+  @autobind
   onWheel(evt) {
     if (this.state.ctrlIsdDown) {
       this.updateScale(evt.deltaY < 0);
@@ -125,7 +120,7 @@ const ImageViewer = createReactClass({
       evt.stopPropagation();
       return;
     }
-  },
+  }
 
   loadImage(src, cb) {
     const img = new Image();
@@ -161,8 +156,9 @@ const ImageViewer = createReactClass({
     this.setState({ loading: true }, () => {
       img.src = src;
     });
-  },
+  }
 
+  @autobind
   mouseMove(evt) {
     if (this.props.fullscreen) {
       evt.preventDefault();
@@ -176,7 +172,7 @@ const ImageViewer = createReactClass({
       this.move(deltaX, deltaY);
       evt.preventDefault();
     }
-  },
+  }
 
   move(deltaX, deltaY) {
     let { left, top } = this.state;
@@ -186,7 +182,7 @@ const ImageViewer = createReactClass({
     left = left + deltaLeft;
     top = top + deltaTop;
     this.setState({ left, top }, this.positionCenter);
-  },
+  }
 
   positionCenter() {
     if (this.state.loading || (!this.state.left && !this.state.right)) {
@@ -195,10 +191,9 @@ const ImageViewer = createReactClass({
     const rect = ReactDOM.findDOMNode(this).getBoundingClientRect();
     const { width, height } = this.imageEle.getBoundingClientRect();
     if (width < rect.width && height < rect.height) {
-      this.tweenState('left', { endValue: 0 });
-      this.tweenState('top', { endValue: 0 });
+      this.setState({ left: 0, top: 0 });
     }
-  },
+  }
 
   /**
    * [updateScale 放大缩小]
@@ -213,7 +208,7 @@ const ImageViewer = createReactClass({
     if (scale > 1.2 && this.state.isThumbnail) {
       this.loadImage(this.props.src, () => this._isMounted && this.setState({ isThumbnail: false }));
     }
-  },
+  }
 
   reSize(showThumbnail) {
     if (!this.imageEle) {
@@ -235,8 +230,9 @@ const ImageViewer = createReactClass({
         this.positionCenter();
       },
     );
-  },
+  }
 
+  @autobind
   initDrag(evt) {
     evt.preventDefault();
     evt.stopPropagation();
@@ -253,8 +249,9 @@ const ImageViewer = createReactClass({
         y: getClientY(evt),
       },
     });
-  },
+  }
 
+  @autobind
   stopDrag(evt) {
     if (
       this.state.mouseDownPos &&
@@ -267,17 +264,17 @@ const ImageViewer = createReactClass({
       dragStart: null,
       mouseDownPos: null,
     });
-  },
+  }
 
   /* 缩小*/
   smallit() {
     this.updateScale(false);
-  },
+  }
 
   /* 放大*/
   bigit() {
     this.updateScale(true);
-  },
+  }
 
   /* 在 100% 和适应屏幕之间切换 */
   fitit() {
@@ -290,32 +287,36 @@ const ImageViewer = createReactClass({
       const scale = min([(rect.width * 0.95) / width, (rect.height * 0.95) / height]);
       this.setState({ scale }, this.positionCenter);
     }
-  },
+  }
 
   /* 旋转*/
   rotate(deg) {
     const current = this.state.rotate;
-    const beginValue = current <= -360 ? (current % 360) + 360 : current;
-    const endValue = beginValue + (typeof deg === 'undefined' ? -90 : deg);
-    this.tweenState('rotate', { beginValue, endValue });
-  },
+    const endValue = current + (typeof deg === 'undefined' ? -90 : deg);
+    this.setState({
+      rotate: endValue,
+    });
+  }
 
+  @autobind
   ctrlDown(evt) {
     if (evt.keyCode === 90) {
       this.setState({
         ctrlIsdDown: true,
       });
     }
-  },
+  }
 
+  @autobind
   ctrlUp(evt) {
     if (evt.keyCode === 90) {
       this.setState({
         ctrlIsdDown: false,
       });
     }
-  },
+  }
 
+  @autobind
   onConClose(evt) {
     // 当预览层在修改name时点击预览区域图片外区域不关闭弹层  --这样写太恶心了
     if (this.props.onClose) {
@@ -324,11 +325,11 @@ const ImageViewer = createReactClass({
       }
       this.props.onClose();
     }
-  },
+  }
 
   onImgClose(evt) {
     evt.stopPropagation();
-  },
+  }
 
   outViewerArea() {
     if (!this.state.originSize) return false;
@@ -336,49 +337,44 @@ const ImageViewer = createReactClass({
     const { width, height } = this.state.originSize;
     const scale = this.state.scale;
     return height * scale > rect.height || width * scale > rect.width;
-  },
+  }
 
   render() {
-    const transform =
-      'rotate(' +
-      this.getTweeningValue('rotate') +
-      'deg) scale(' +
-      this.state.scale +
-      ') translate(' +
-      this.getTweeningValue('left') +
-      'px,' +
-      this.getTweeningValue('top') +
-      'px)';
     const width = this.state.originSize ? this.state.originSize.width : 0;
-
+    const { scale, left, top, rotate, dragStart } = this.state;
     return (
-      <div
-        className={cx('dragAbleContainer', this.props.className)}
-        onWheel={this.onWheel}
-        onMouseDown={this.onConClose}
+      <Motion
+        defaultStyle={{ left: 0, top: 0, rotate: 0 }}
+        style={{ left: dragStart ? left : spring(left), top: dragStart ? top : spring(top), rotate: spring(rotate) }}
       >
-        {this.state.loading && <LoadDiv size="big" className="dragAbleLoadDiv" />}
-        {this.state.src && (
-          <img
-            src={this.state.src}
-            style={{
-              width,
-              WebkitTransform: transform,
-              MsTransform: transform,
-              transform,
-            }}
-            alt=""
-            ref={ele => {
-              this.imageEle = ele;
-            }}
-            className={cx('dragAbleImg noSelect', this.state.dragStart ? 'grabbing' : 'grab')}
-            onMouseDown={this.initDrag}
-            onTouchStart={this.initDrag}
-          />
+        {motionState => (
+          <div
+            className={cx('dragAbleContainer', this.props.className)}
+            onWheel={this.onWheel}
+            onMouseDown={this.onConClose}
+          >
+            {this.state.loading && <LoadDiv size="big" className="dragAbleLoadDiv" />}
+            {this.state.src && (
+              <img
+                src={this.state.src}
+                style={{
+                  width,
+                  transform: `rotate(${motionState.rotate}deg) scale(${scale}) translate(${motionState.left}px, ${motionState.top}px)`,
+                }}
+                alt=""
+                ref={ele => {
+                  this.imageEle = ele;
+                }}
+                className={cx('dragAbleImg noSelect', this.state.dragStart ? 'grabbing' : 'grab')}
+                onMouseDown={this.initDrag}
+                onTouchStart={this.initDrag}
+              />
+            )}
+          </div>
         )}
-      </div>
+      </Motion>
     );
-  },
-});
+  }
+}
 
 export default ImageViewer;

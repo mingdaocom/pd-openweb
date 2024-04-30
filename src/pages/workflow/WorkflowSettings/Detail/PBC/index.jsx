@@ -49,38 +49,40 @@ export default class PBC extends Component {
    * 获取节点详情
    */
   getNodeDetail(props, { appId } = {}) {
-    const { processId, selectNodeId, selectNodeType } = props;
+    const { processId, selectNodeId, selectNodeType, instanceId } = props;
     const { data } = this.state;
 
-    flowNode.getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, appId }).then(result => {
-      if (result.actionId === ACTION_ID.PBC_OUT && !result.fields.length) {
-        result.fields = [{ fieldName: '', desc: '', type: 2, fieldId: uuidv4() }];
-      }
+    flowNode
+      .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, appId, instanceId })
+      .then(result => {
+        if (result.actionId === ACTION_ID.PBC_OUT && !result.fields.length) {
+          result.fields = [{ fieldName: '', desc: '', type: 2, fieldId: uuidv4() }];
+        }
 
-      if (appId && result.name === _l('调用封装业务流程')) {
-        result.name = result.appList.find(item => item.id === appId).name;
-      } else if (appId) {
-        result.name = data.name;
-      }
+        if (appId && result.name === _l('调用封装业务流程')) {
+          result.name = result.appList.find(item => item.id === appId).name;
+        } else if (appId) {
+          result.name = data.name;
+        }
 
-      if (result.subProcessVariables.length) {
-        result.subProcessVariables
-          .filter(item => item.dataSource)
-          .forEach(item => {
-            const parentNode = _.find(result.subProcessVariables, o => o.controlId === item.dataSource);
+        if (result.subProcessVariables.length) {
+          result.subProcessVariables
+            .filter(item => item.dataSource)
+            .forEach(item => {
+              const parentNode = _.find(result.subProcessVariables, o => o.controlId === item.dataSource);
 
-            if (parentNode && _.includes([10000007, 10000008], parentNode.type)) {
-              result.fields.forEach(o => {
-                if (o.fieldId === item.controlId) {
-                  o.dataSource = parentNode.controlId;
-                }
-              });
-            }
-          });
-      }
+              if (parentNode && _.includes([10000007, 10000008], parentNode.type)) {
+                result.fields.forEach(o => {
+                  if (o.fieldId === item.controlId) {
+                    o.dataSource = parentNode.controlId;
+                  }
+                });
+              }
+            });
+        }
 
-      this.setState({ data: result, execCountType: result.selectNodeId ? 2 : 1 });
-    });
+        this.setState({ data: result, execCountType: result.selectNodeId ? 2 : 1 });
+      });
   }
 
   /**

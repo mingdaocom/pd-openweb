@@ -102,34 +102,34 @@ class ColumnRulesCon extends React.Component {
     return (
       <Fragment>
         <div className="columnRuleTitle">
-          <div className="Font17 Bold">{_l('业务规则')}</div>
+          <div className="flexCenter">
+            <span className="Font17 Bold flex">{_l('业务规则')}</span>
+            <div className="addRules" onClick={() => addColumnRules()}>
+              <Icon icon="plus" className="mRight3" />
+              {_l('添加规则')}
+            </div>
+          </div>
           <div className="columnRuleTabs">
             {TABS_DISPLAY.map(item => (
               <div
-                className="tabItems"
+                className={cx('tabItem', { active: activeTab === item.value })}
                 onClick={() => {
                   if (hasRuleChanged(columnRulesListData, selectRules)) return;
                   selectRules.ruleId && clearColumnRules();
                   updateActiveTab(item.value);
                 }}
               >
-                <div className={cx('tabItem', { active: activeTab === item.value })}>{item.text}</div>
+                {item.text}
               </div>
             ))}
           </div>
           <div className="columnRuleDesc">
-            <span className="flex">
-              <span className="Gray_9e">
-                {activeTab === 0
-                  ? _l('交互规则可以根据条件实时控制指定字段的显隐、是否可编辑、是否必填等属性。')
-                  : _l('验证规则可以规范数据的录入。当满足条件时，禁止保存记录并对指定字段提示错误。')}
-              </span>
-              <Support type={3} text={_l('帮助')} href="https://help.mingdao.com/sheet6" />
+            <span className="Gray_9e">
+              {activeTab === 0
+                ? _l('交互规则可以根据条件实时控制指定字段的显隐、是否可编辑、是否必填等属性。')
+                : _l('验证规则可以规范数据的录入。当满足条件时，禁止保存记录并对指定字段提示错误。')}
             </span>
-            <div className="addRules" onClick={() => addColumnRules()}>
-              <Icon icon="plus" className="mRight3" />
-              {_l('添加规则')}
-            </div>
+            <Support type={3} text={_l('帮助')} href="https://help.mingdao.com/worksheet/business-rule" />
           </div>
         </div>
 

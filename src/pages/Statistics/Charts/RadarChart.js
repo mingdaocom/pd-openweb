@@ -8,6 +8,7 @@ import {
   formatYaxisList,
   getChartColors
 } from './common';
+import { Icon } from 'ming-ui';
 import { Dropdown, Menu } from 'antd';
 import { formatSummaryName, isFormatNumber } from 'statistics/common';
 import _ from 'lodash';
@@ -74,20 +75,20 @@ export default class extends Component {
       originalCount: 0,
       count: 0,
       dropdownVisible: false,
-      dropdownMenu: [],
       offset: {},
-      match: null
+      match: null,
+      linkageMatch: null,
     }
     this.RadarChart = null;
   }
   componentDidMount() {
     import('@antv/g2plot').then(data => {
       this.RadarComponent = data.Radar;
-      this.renderRadarChart();
+      this.renderRadarChart(this.props);
     });
   }
   componentWillUnmount() {
-    this.RadarChart.destroy();
+    this.RadarChart && this.RadarChart.destroy();
   }
   componentWillReceiveProps(nextProps) {
     const { displaySetup, style } = nextProps.reportData;
@@ -104,44 +105,94 @@ export default class extends Component {
       displaySetup.ydisplay.maxValue !== oldDisplaySetup.ydisplay.maxValue ||
       style.tooltipValueType !== oldStyle.tooltipValueType ||
       !_.isEqual(chartColor, oldChartColor) ||
-      nextProps.themeColor !== this.props.themeColor
+      nextProps.themeColor !== this.props.themeColor ||
+      !_.isEqual(nextProps.linkageMatch, this.props.linkageMatch)
     ) {
       const config = this.getComponentConfig(nextProps);
       this.RadarChart.update(config);
     }
-  }
-  renderRadarChart() {
-    const { reportData, isViewOriginalData } = this.props;
-    const { displaySetup } = reportData;
-    const config = this.getComponentConfig(this.props);
-    this.RadarChart = new this.RadarComponent(this.chartEl, config);
-    if (displaySetup.showRowList && isViewOriginalData) {
-      this.RadarChart.on('element:click', this.handleClick);
+    if (nextProps.isLinkageData !== this.props.isLinkageData) {
+      this.RadarChart.destroy();
+      this.renderRadarChart(nextProps);
     }
-    this.RadarChart.render();
+  }
+  renderRadarChart(props) {
+    const { reportData } = props;
+    const { displaySetup, style, xaxes, split } = reportData;
+    const config = this.getComponentConfig(props);
+    if (this.chartEl) {
+      this.RadarChart = new this.RadarComponent(this.chartEl, config);
+      this.isViewOriginalData = displaySetup.showRowList && props.isViewOriginalData;
+      this.isLinkageData = props.isLinkageData && !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0) && (xaxes.controlId || split.controlId);
+      if (this.isViewOriginalData || this.isLinkageData) {
+        this.RadarChart.on('element:click', this.handleClick);
+      }
+      this.RadarChart.render();
+    }
   }
   handleClick = ({ data, gEvent }) => {
-    const { xaxes, split } = this.props.reportData;
+    const { xaxes, split, appId, reportId, name, reportType, style, map } = this.props.reportData;
     const currentData = data.data;
     const param = {};
+    const linkageMatch = {
+      sheetId: appId,
+      reportId,
+      reportName: name,
+      reportType,
+      filters: []
+    };
+    if (_.isArray(currentData)) {
+      return;
+    }
     if (xaxes.cid) {
       const isNumber = isFormatNumber(xaxes.controlType);
       const value = currentData.originalId;
       param[xaxes.cid] = isNumber && value ? Number(value) : value;
+      linkageMatch.value = value;
+      linkageMatch.filters.push({
+        controlId: xaxes.controlId,
+        values: [param[xaxes.cid]],
+        controlName: xaxes.controlName,
+        controlValue: currentData.name,
+        type: xaxes.controlType,
+        control: xaxes
+      });
     }
     if (split.controlId) {
       const isNumber = isFormatNumber(split.controlType);
       const value = currentData.groupKey;
       param[split.cid] = isNumber && value ? Number(value) : value;
+      if (!xaxes.cid) {
+        linkageMatch.value = currentData.originalId;
+      }
+      linkageMatch.filters.push({
+        controlId: split.controlId,
+        values: [param[split.cid]],
+        controlName: split.controlName,
+        controlValue: formatControlInfo(currentData.groupName).name,
+        type: split.controlType,
+        control: split
+      });
     }
+    if (_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length) {
+      linkageMatch.onlyChartIds = style.autoLinkageChartObjectIds;
+    }
+    const isAll = this.isViewOriginalData && this.isLinkageData;
     this.setState({
-      dropdownVisible: true,
+      dropdownVisible: isAll,
       offset: {
         x: gEvent.x + 20,
         y: gEvent.y
       },
       match: param,
-      dropdownMenu: _.isArray(currentData) ? currentData : []
+      linkageMatch
+    }, () => {
+      if (!isAll && this.isViewOriginalData) {
+        this.handleRequestOriginalData();
+      }
+      if (!isAll && this.isLinkageData) {
+        this.handleAutoLinkage();
+      }
     });
   }
   handleRequestOriginalData = () => {
@@ -157,6 +208,16 @@ export default class extends Component {
     } else {
       this.props.requestOriginalData(data);
     }
+  }
+  handleAutoLinkage = () => {
+    const { linkageMatch } = this.state;
+    this.props.onUpdateLinkageFiltersGroup(linkageMatch);
+    this.setState({
+      dropdownVisible: false,
+    }, () => {
+      const config = this.getComponentConfig(this.props);
+      this.RadarChart.update(config);
+    });
   }
   getComponentConfig(props) {
     const { themeColor, projectId, customPageConfig = {}, reportData } = props;
@@ -205,7 +266,7 @@ export default class extends Component {
           autoHide: false,
           autoEllipsis: true,
         },
-        verticalLimitLength: 100
+        verticalLimitLength: 120
       },
       yAxis: {
         line: null,
@@ -283,41 +344,20 @@ export default class extends Component {
     });
   }
   renderOverlay() {
-    const { dropdownMenu } = this.state;
     return (
       <Menu className="chartMenu" style={{ width: 160 }}>
-        {dropdownMenu.length ? (
-          <Fragment>
-            <div className="Gray_75 pLeft15 pRight15 pTop10 pBottom10">{_l('查看原始数据')}</div>
-            {dropdownMenu.map((item, index) => (
-              <Menu.Item
-                key={index}
-                onClick={() => {
-                  const { xaxes, split } = this.props.reportData;
-                  const isNumber = isFormatNumber(xaxes.controlType);
-                  const param = {};
-                  if (xaxes.cid) {
-                    param[xaxes.cid] = isNumber ? Number(item.originalId) : item.originalId;
-                  }
-                  if (split.controlId) {
-                    param[split.controlId] = item.groupKey;
-                  }
-                  this.setState({ match: param }, this.handleRequestOriginalData);
-                }}
-              >
-                <div className="flexRow valignWrapper">
-                  <span>{item.name}</span>
-                </div>
-              </Menu.Item>
-            ))}
-          </Fragment>
-        ) : (
-          <Menu.Item onClick={this.handleRequestOriginalData} key="viewOriginalData">
-            <div className="flexRow valignWrapper">
-              <span>{_l('查看原始数据')}</span>
-            </div>
-          </Menu.Item>
-        )}
+        <Menu.Item onClick={this.handleAutoLinkage} key="autoLinkage">
+          <div className="flexRow valignWrapper">
+            <Icon icon="link1" className="mRight8 Gray_9e Font20 autoLinkageIcon" />
+            <span>{_l('联动')}</span>
+          </div>
+        </Menu.Item>
+        <Menu.Item onClick={this.handleRequestOriginalData} key="viewOriginalData">
+          <div className="flexRow valignWrapper">
+            <Icon icon="table" className="mRight8 Gray_9e Font18" />
+            <span>{_l('查看原始数据')}</span>
+          </div>
+        </Menu.Item>
       </Menu>
     );
   }

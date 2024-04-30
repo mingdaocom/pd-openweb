@@ -65,8 +65,20 @@ export default class Cascader extends React.Component {
   }
 
   render() {
-    const { from, className, style, error, cell, editable, isediting, updateEditingStatus, updateCell, onClick } =
-      this.props;
+    const {
+      from,
+      className,
+      style,
+      error,
+      cell,
+      editable,
+      isediting,
+      updateEditingStatus,
+      updateCell,
+      onClick,
+      worksheetId,
+      rowFormData = () => {},
+    } = this.props;
     const { value } = this.state;
     return (
       <EditableCellCon
@@ -90,12 +102,12 @@ export default class Cascader extends React.Component {
             <CascaderDropdown
               value={value}
               from={from}
+              {...cell}
               visible={isediting}
               disabled={!editable}
               onChange={this.handleChange}
-              dataSource={cell.dataSource}
-              viewId={cell.viewId}
-              advancedSetting={cell.advancedSetting}
+              worksheetId={worksheetId}
+              formData={_.isFunction(rowFormData) ? rowFormData() : rowFormData}
               onPopupVisibleChange={visible => {
                 if (!visible) {
                   if (!_.isUndefined(this.value)) {

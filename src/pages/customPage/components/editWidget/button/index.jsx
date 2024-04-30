@@ -37,7 +37,7 @@ const DefaultItem = styled.div`
   justify-content: center;
   background-color: #fff;
   margin-top: 15px;
-  border-radius: 3px;
+  border-radius: 6px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
   cursor: pointer;
   &:hover {

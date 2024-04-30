@@ -3,8 +3,7 @@ import { connect } from 'react-redux';
 import { errorMessage, checkIsProject } from '../../utils/utils';
 import { clearFolderTip } from '../../redux/actions';
 import './folderDetail.less';
-import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
-import quickSelectUser from 'ming-ui/functions/quickSelectUser';
+import { dialogSelectUser, quickSelectUser } from 'ming-ui/functions';
 import cx from 'classnames';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import Icon from 'ming-ui/components/Icon';
@@ -12,11 +11,8 @@ import ajaxRequest from 'src/api/taskCenter';
 import editFolder from '../../components/editFolder/editFolder';
 import Commenter from 'src/components/comment/commenter';
 import CommentList from 'src/components/comment/commentList';
-import ScrollView from 'ming-ui/components/ScrollView';
-import UserHead from 'src/components/userHead';
-import RichText from 'ming-ui/components/RichText';
 import Editor from 'src/pages/PageHeader/AppPkgHeader/AppDetail/EditorDiaLogContent';
-import Dialog from 'ming-ui/components/Dialog/Dialog';
+import { Dialog, UserHead, ScrollView, RichText } from 'ming-ui';
 import _ from 'lodash';
 import { Tooltip } from 'antd';
 
@@ -123,6 +119,9 @@ class FolderDetail extends Component {
           });
 
           projectId = !isExist ? '' : projectId;
+
+          if (!projectId) return;
+
           $networkFolderList = $('.networkFolderList[data-projectid=' + projectId + ']');
           count = parseInt($networkFolderList.attr('data-count'), 10) - 1;
           $networkFolderList.attr('data-count', count);
@@ -376,7 +375,9 @@ class FolderDetail extends Component {
                 }}
                 size={28}
                 secretType={1}
-                operation={data.isAdmin || item.accountID === md.global.Account.accountId ? getOpHtml(item, false) : null}
+                operation={
+                  data.isAdmin || item.accountID === md.global.Account.accountId ? getOpHtml(item, false) : null
+                }
               />
             </div>
           );
@@ -524,8 +525,12 @@ class FolderDetail extends Component {
     Dialog.confirm({
       dialogClasses: 'updateFolderCharge',
       closable: false,
-      title: <div style={{color: '#f44336'}}>{_l('将项目负责人移交给“%0”', fullname)}</div>,
-      children: <div className="Font14" style={{color: '#9e9e9e'}}>{_l('如果您移交后，将无法把自己重新设为该项目的负责人')}</div>,
+      title: <div style={{ color: '#f44336' }}>{_l('将项目负责人移交给“%0”', fullname)}</div>,
+      children: (
+        <div className="Font14" style={{ color: '#9e9e9e' }}>
+          {_l('如果您移交后，将无法把自己重新设为该项目的负责人')}
+        </div>
+      ),
       okText: _l('确定'),
       onOk: () => {
         ajaxRequest
@@ -564,7 +569,7 @@ class FolderDetail extends Component {
             }
           });
       },
-    })
+    });
   }
 
   /**

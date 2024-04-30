@@ -272,7 +272,7 @@ export default class RecordCardListDialog extends Component {
           });
         }
       })
-      .fail(() => {
+      .catch(() => {
         alert(_l('获取列表失败'), 3);
       });
   }
@@ -403,6 +403,18 @@ export default class RecordCardListDialog extends Component {
     }
     return cardControls.filter(c => !!c);
   }
+  get title() {
+    const { control = {} } = this.props;
+    const { worksheet, worksheetInfo } = this.state;
+    const title = worksheet.entityName || _.get(worksheetInfo, 'entityName') || _l('记录');
+    const { searchcontrol } = control.advancedSetting || {};
+    if (searchcontrol) {
+      const searchControl = _.find(control.relationControls, { controlId: searchcontrol }) || {};
+      return searchControl.controlName || title;
+    } else {
+      return title;
+    }
+  }
   renderSearchWrapper() {
     const isScanQR = getIsScanQR();
     const { relateSheetId, onOk, onClose, control, formData, parentWorksheetId } = this.props;
@@ -411,7 +423,6 @@ export default class RecordCardListDialog extends Component {
     const { searchfilters = '[]' } = _.get(control, 'advancedSetting') || {};
     const searchFilters = safeParse(searchfilters, 'array');
     const controls = _.get(worksheetInfo, 'template.controls');
-    const title = worksheet.entityName || _.get(worksheetInfo, 'entityName');
 
     return (
       <div className="flexRow alignItemsCenter justifyContentCenter mTop10 pLeft10 pRight10">
@@ -419,7 +430,7 @@ export default class RecordCardListDialog extends Component {
           <Icon icon="h5_search" />
           <input
             type="text"
-            placeholder={_l('搜索%0', title) || _l('搜索记录')}
+            placeholder={_l('搜索%0', this.title)}
             value={keyWords}
             onChange={e => {
               this.handleSearch(e.target.value);
@@ -533,7 +544,7 @@ export default class RecordCardListDialog extends Component {
       }),
     };
     const coverCid = this.props.coverCid || (control && control.coverCid);
-    const title = worksheet.entityName || _.get(worksheetInfo, 'entityName') || _l('记录');
+    const entityName = worksheet.entityName || _.get(worksheetInfo, 'entityName') || _l('记录');
 
     return (
       <ScrollView
@@ -553,7 +564,7 @@ export default class RecordCardListDialog extends Component {
               }}
             >
               <Icon icon="add" className="Font24" />
-              <span className="bold">{_l('新建%0', worksheet.entityName || '')}</span>
+              <span className="bold">{_l('新建%0', entityName)}</span>
             </div>
           </WingBlank>
         ) : null}
@@ -632,8 +643,8 @@ export default class RecordCardListDialog extends Component {
                       {keyWords
                         ? _l('无匹配的结果')
                         : this.clickSearch
-                        ? _l('输入%0后，显示可选择的记录', title)
-                        : _l('暂无%0', title)}
+                        ? _l('输入%0后，显示可选择的记录', this.title)
+                        : _l('暂无%0', entityName)}
                     </p>
                   )}
                 </div>

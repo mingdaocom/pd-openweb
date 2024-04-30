@@ -274,7 +274,7 @@ ShareFolder.prototype = {
         SF.data.isLoadingMore = false;
         SF.data.page = page;
       })
-      .fail(function () {});
+      .catch(function () {});
   },
   renderFrame() {
     var SF = this;
@@ -359,7 +359,7 @@ ShareFolder.prototype = {
         SF.renderList(SF.data.list);
         SF.renderPath(data.position);
       })
-      .fail(function () {});
+      .catch(function () {});
   },
   getNodes: function (id, page, pageNum) {
     var SF = this;
@@ -430,7 +430,7 @@ ShareFolder.prototype = {
           SF.alert(message || _l('已存入 知识“我的文件” 中'));
         }
       })
-      .fail(function (message) {
+      .catch(function (message) {
         SF.alert(message || _l('保存失败'));
       });
   },
@@ -479,6 +479,6 @@ ShareFolder.prototype = {
   },
 };
 
-preall({ type: 'function' }, { allownotlogin: true });
+preall({ type: 'function' }, { allowNotLogin: true });
 window.hello = new ShareFolder();
 md.global.Config.disableKf5 = true;

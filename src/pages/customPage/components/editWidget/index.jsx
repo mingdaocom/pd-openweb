@@ -2,50 +2,31 @@ import React, { Fragment, useState } from 'react';
 import { string } from 'prop-types';
 import { Icon } from 'ming-ui';
 import { Modal } from 'antd';
-import styled from 'styled-components';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import { connect } from 'react-redux';
 import EmbedUrl from './EmbedUrl';
 import { FlexCenter, getEnumType, reportCountLimit } from '../../util';
-import { widgets } from '../../enum';
 import Analysis from './analysis';
 import ButtonComp from './button';
 import View from './view';
+import RichText from './richText';
 import Filter from './filter';
 import Carousel from './carousel';
-import Editor from 'src/pages/PageHeader/AppPkgHeader/AppDetail/EditorDiaLogContent';
+import Ai from './ai';
 import _ from 'lodash';
 
-const Header = styled(FlexCenter)`
-  position: absolute;
-  left: 0;
-  right: 0;
-  padding: 0 24px;
-  height: 54px;
-  justify-content: space-between;
-  background-color: #fff;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.24);
-  border-radius: 5px 5px 0 0;
-  font-size: 17px;
-`;
-const EditWidgetContent = styled.div`
-  box-sizing: border-box;
-  padding-top: 54px;
-  height: 100%;
-`;
 const TYPE_TO_COMPONENTS = {
   embedUrl: EmbedUrl,
   analysis: Analysis,
   button: ButtonComp,
   view: View,
+  richText: RichText,
   filter: Filter,
-  carousel: Carousel
+  carousel: Carousel,
+  ai: Ai
 };
 
 function EditWidget(props) {
-  const [show, setShow] = useState(true);
-  const [top, setTop] = useState(0);
-  const [left, setLeft] = useState(300);
   const { components, widget, onClose, mode, addWidget, updateWidget } = props;
   const type = getEnumType(widget.type);
   const Comp = TYPE_TO_COMPONENTS[type];
@@ -63,38 +44,7 @@ function EditWidget(props) {
   const handleUpdate = obj => {
     updateWidget({ widget, ...obj });
   };
-  return _.includes(['richText'], type) ? (
-    <Modal
-      className="appIntroDialog editWidgetDialogWrap"
-      wrapClassName="appIntroDialogWrapCenter"
-      maskClosable={false}
-      visible={show}
-      onCancel={onClose}
-      width={800}
-      transitionName=""
-      maskTransitionName=""
-      footer={null}
-      centered={true}
-      maskStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }}
-      bodyStyle={{ minHeight: '680px', padding: 0 }}
-      closeIcon={<Icon icon="close" />}
-    >
-      <Editor
-        className="appIntroDescriptionEditor "
-        summary={widget.value}
-        isEditing={true}
-        permissionType={100} //可编辑的权限
-        onSave={value => {
-          handleEdit({ value });
-        }}
-        onCancel={onClose}
-        cacheKey="customPageEditWidget"
-        title={widgets[type].name}
-      />
-    </Modal>
-  ) : (
-    <Comp {...props} onEdit={handleEdit} onUpdate={handleUpdate} />
-  );
+  return <Comp {...props} onEdit={handleEdit} onUpdate={handleUpdate} updateWidget={updateWidget} />;
 }
 
 export default errorBoundary(

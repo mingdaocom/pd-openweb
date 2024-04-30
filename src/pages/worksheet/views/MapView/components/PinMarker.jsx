@@ -250,8 +250,7 @@ export default function MarkerCard(props) {
             onTouchStartCapture={e => {
               e.stopPropagation();
               handleRecordClick(view, marker.record, () => {
-                const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
-                if (isMingdao) {
+                if (window.isMingDaoApp) {
                   window.location.href = `/mobile/record/${appId}/${worksheetInfo.worksheetId}/${viewId}/${record.rowid}`;
                   return;
                 }

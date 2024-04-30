@@ -46,7 +46,7 @@ export function refreshRecord({
   }
   worksheetAjax.refreshWorksheetRows(args)
     .then(cb)
-    .fail(err => {
+    .catch(err => {
       alert(_l('修改失败'), 2);
     });
 }

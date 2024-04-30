@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import worksheetAjax from 'src/api/worksheet';
-import Abstract from './components/Abstract';
-import CoverSetting from './components/CoverSettingCon';
-import DisplayControl from './components/DisplayControl';
+import { Abstract, CoverSetting, DisplayControl } from './components';
 import _ from 'lodash';
 
 const isVisible = control => {

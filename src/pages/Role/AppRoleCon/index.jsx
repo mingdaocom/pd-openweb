@@ -16,6 +16,7 @@ import OthersCon from './OthersCon';
 import { navigateTo } from 'src/router/navigateTo';
 import { getFeatureStatus } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
+import { dialogSelectUser } from 'ming-ui/functions';
 
 const conList = [
   {
@@ -144,30 +145,29 @@ class Con extends React.Component {
         params: { appId },
       },
     } = this.props;
-    import('src/components/dialogSelectUser/dialogSelectUser').then(dialogSelectUser => {
-      dialogSelectUser.default({
-        showMoreInvite: false,
-        SelectUserSettings: {
-          projectId,
-          filterAll: true,
-          filterFriend: true,
-          filterOthers: true,
-          filterOtherProject: true,
-          unique: true,
-          callback: users => {
-            AppAjax.updateAppOwner({
-              appId,
-              memberId: users[0].accountId,
-            }).then(res => {
-              if (res) {
-                location.reload();
-              } else {
-                alert(_l('托付失败'), 2);
-              }
-            });
-          },
+
+    dialogSelectUser({
+      showMoreInvite: false,
+      SelectUserSettings: {
+        projectId,
+        filterAll: true,
+        filterFriend: true,
+        filterOthers: true,
+        filterOtherProject: true,
+        unique: true,
+        callback: users => {
+          AppAjax.updateAppOwner({
+            appId,
+            memberId: users[0].accountId,
+          }).then(res => {
+            if (res) {
+              location.reload();
+            } else {
+              alert(_l('托付失败'), 2);
+            }
+          });
         },
-      });
+      },
     });
   };
   render() {

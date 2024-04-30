@@ -44,7 +44,7 @@ export default props => {
         setLicenseCode('');
         setVerifyLicenseCode('');
       }
-    }).fail(error => {
+    }).catch(error => {
       setLoading(false);
       setPrompt(error.errorMessage);
     });

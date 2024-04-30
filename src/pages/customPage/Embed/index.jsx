@@ -33,7 +33,7 @@ export default class EmbedPage extends Component {
       .then(status => {
         this.setState({ loading: false, status });
       })
-      .fail(() => {
+      .catch(() => {
         location.href = '/login';
       });
     if (isMobile) {

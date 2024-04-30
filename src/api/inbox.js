@@ -10,7 +10,7 @@ export default {
   **/
    setInboxFavorite: function (args, options = {}) {
      
-     return $.api('Inbox', 'SetInboxFavorite', args, options);
+     return mdyAPI('Inbox', 'SetInboxFavorite', args, options);
    },
   /**
   * 获取消息
@@ -33,6 +33,6 @@ export default {
   **/
    getInboxMessage: function (args, options = {}) {
      
-     return $.api('Inbox', 'GetInboxMessage', args, options);
+     return mdyAPI('Inbox', 'GetInboxMessage', args, options);
    },
 };

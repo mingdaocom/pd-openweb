@@ -14,7 +14,7 @@ import _ from 'lodash';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
 import { APP_TYPE, USER_TYPE } from '../enum';
-import quickSelectUser from 'ming-ui/functions/quickSelectUser';
+import { quickSelectUser } from 'ming-ui/functions';
 
 const TRIGGER_TYPE = {
   ALLOW: 0,
@@ -230,6 +230,7 @@ class ProcessConfig extends Component {
         value: 6,
       },
     ];
+    const openDebug = _.includes(data.debugEvents, 0);
 
     return (
       <Fragment>
@@ -319,6 +320,19 @@ class ProcessConfig extends Component {
             />
           </div>
         ))}
+
+        <div className="processConfigLine" />
+        <div className="bold Font16 mTop28">{_l('节点日志')}</div>
+        <div className="Gray_75 mTop5">
+          {_l('启用后，可以在历史日志中查看单个节点在流程执行时的输入、输出数据。日志保留最近90天的数据')}
+        </div>
+        <div className="mTop10">
+          <Switch
+            checked={openDebug}
+            text={openDebug ? _l('开启') : _l('关闭%03087')}
+            onClick={() => this.updateSource({ debugEvents: openDebug ? [] : [0] })}
+          />
+        </div>
 
         {_.includes([APP_TYPE.SHEET, APP_TYPE.CUSTOM_ACTION], flowInfo.startAppType) && (
           <Fragment>
@@ -662,20 +676,20 @@ class ProcessConfig extends Component {
         text: _l('直接返回流程节点数据对象给请求地址'),
         value: 4,
         desc: _l(
-          '选择一个代码块、发送API请求、JSON解析或调用已集成API节点，把它的返回数据对象立即返回给请求方；请控制请求频率在100次/小时以内，流程执行时间30s以内，私有部署不限',
+          '选择一个代码块、发送API请求、JSON解析或调用已集成API节点，把它的返回数据对象立即返回给请求方；请控制请求频率在500次/小时以内，流程执行时间30s以内，私有部署不限',
         ),
       },
       {
         text: _l('直接返回流程节点的字段值给请求地址'),
         value: 5,
         desc: _l(
-          '将所选节点的字段值结果立即返回给请求方，支持选择返回格式;请控制请求频率在100次/小时以内，流程执行时间30s以内，私有部署不限直接返回输出参数给请求地址',
+          '将所选节点的字段值结果立即返回给请求方，支持选择返回格式;请控制请求频率在500次/小时以内，流程执行时间30s以内，私有部署不限直接返回输出参数给请求地址',
         ),
       },
       {
         text: _l('直接返回输出参数给请求地址'),
         value: 2,
-        desc: _l('请控制请求频率在100次/小时以内，流程执行时间30s以内，私有部署不限'),
+        desc: _l('请控制请求频率在500次/小时以内，流程执行时间30s以内，私有部署不限'),
       },
     ];
     const featureType = getFeatureStatus(flowInfo.companyId, VersionProductType.encapsulatingBusinessProcess);
@@ -876,7 +890,7 @@ class ProcessConfig extends Component {
             </span>
             <Support
               className="pointer Gray_9e mLeft32"
-              href="https://help.mingdao.com/flow5"
+              href="https://help.mingdao.com/workflow/configuration"
               type={2}
               text={_l('帮助')}
             />

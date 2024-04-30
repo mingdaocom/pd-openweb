@@ -5,7 +5,7 @@ import { formatQuickFilter } from 'worksheet/util';
 import styled from 'styled-components';
 import { get, pick } from 'lodash';
 import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
-import { emitter } from 'src/util';
+import { emitter } from 'worksheet/util';
 import WidgetBridge from './bridge';
 
 const Con = styled.div`
@@ -63,6 +63,7 @@ export default function WidgetContainer(props) {
     isServerUrl,
     paramsMap,
     config: {
+      customWidgetViewVersion: 1,
       appId,
       projectId: worksheetInfo.projectId,
       themeColor: appPkg.iconColor,
@@ -76,6 +77,12 @@ export default function WidgetContainer(props) {
       currentAccount: pick(get(md, 'global.Account') || {}, ['fullname', 'avatar', 'lang', 'accountId']),
     },
   };
+  const emitWidgetDataUpdate = useCallback(
+    value => {
+      bridge.current.sendWidgetBridge(Object.assign(value, { type: 'data-update' }));
+    },
+    [bridge.current],
+  );
   useEffect(() => {
     if (reloadFlag && iframeRef.current) {
       bridge.current.sendWidgetBridge({
@@ -95,12 +102,13 @@ export default function WidgetContainer(props) {
   }, [flag, viewId]);
   useEffect(() => {
     // 筛选条件更新，发送更新消息到插件
-    bridge.current.sendWidgetBridge({
+    emitWidgetDataUpdate({
       action: 'filters-update',
       value: getFilters(filters, quickFilter, navGroupFilters),
     });
   }, [filters, quickFilter, navGroupFilters]);
   useEffect(() => {
+    window.customWidgetViewIsActive = true;
     bridge.current.targetWindow = get(iframeRef, 'current.contentWindow');
     bridge.current.init(
       () => {
@@ -111,15 +119,17 @@ export default function WidgetContainer(props) {
       },
       () => onLoadScript(true),
     );
-    emitter.addListener('POST_MESSAGE_TO_CUSTOM_WIDGET', bridge.current.sendWidgetBridge);
+    emitter.addListener('POST_MESSAGE_TO_CUSTOM_WIDGET', emitWidgetDataUpdate);
     return () => {
+      window.customWidgetViewIsActive = false;
       bridge.current.destroy();
-      emitter.removeListener('POST_MESSAGE_TO_CUSTOM_WIDGET', bridge.current.sendWidgetBridge);
+      emitter.removeListener('POST_MESSAGE_TO_CUSTOM_WIDGET', emitWidgetDataUpdate);
     };
   }, []);
   return (
     <Con>
       <CustomWidget
+        allow="geolocation; microphone; camera;"
         ref={iframeRef}
         src={`${(get(md, 'global.Config.PluginRuntimeUrl') || '').replace(/\/$/, '')}/widgetview`}
       />

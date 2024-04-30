@@ -5,7 +5,7 @@ import utils from '@mdfe/intl-tel-input/build/js/utils';
 import { Dialog, VerifyPasswordInput } from 'ming-ui';
 import FunctionWrap from 'ming-ui/components/FunctionWrap';
 import accountController from 'src/api/account';
-import captcha from 'src/components/captcha';
+import { captcha } from 'ming-ui/functions';
 import RegExp from 'src/util/expression';
 import { verifyPassword } from 'src/util';
 import styled from 'styled-components';
@@ -74,7 +74,6 @@ export default class ValidateInfoCon extends Component {
     this.state = {
       password: '',
       email: '',
-      mobile: '',
       verifyCode: '', // 验证码
       nextBtnDisabled: '',
       sendCodeLoading: '',
@@ -88,7 +87,7 @@ export default class ValidateInfoCon extends Component {
 
   changeValue = (e, filed) => {
     let val = e.target.value;
-    this.setState({ [filed]: filed === 'mobile' ? this.iti.getNumber() : val.trim() });
+    this.setState({ [filed]: val.trim() });
   };
 
   clickNext = () => {
@@ -127,16 +126,17 @@ export default class ValidateInfoCon extends Component {
     this.iti && this.iti.destroy();
 
     this.iti = intlTelInput(this.mobile, {
-      initialCountry: 'cn',
       loadUtils: '',
-      preferredCountries: ['cn'],
+      initialCountry: _.get(md, 'global.Config.DefaultConfig.initialCountry') || 'cn',
+      preferredCountries: _.get(md, 'global.Config.DefaultConfig.preferredCountries') || ['cn'],
       utilsScript: utils,
       separateDialCode: true,
+      showSelectedDialCode: true,
     });
   };
 
   validate = () => {
-    const { email, mobile } = this.state;
+    const { email } = this.state;
     const { type } = this.props;
 
     if (type === 'email') {
@@ -147,7 +147,7 @@ export default class ValidateInfoCon extends Component {
       }
       if (!RegExp.isEmail(email)) {
         alert(_l('请输入正确的邮箱'), 3);
-        this.email.focus().select();
+        this.email.focus();
         return;
       }
     } else {
@@ -166,7 +166,7 @@ export default class ValidateInfoCon extends Component {
     if (!this.validate()) return;
 
     const { type } = this.props;
-    const { mobile, email } = this.state;
+    const { email } = this.state;
     const _this = this;
 
     var callback = function (res) {
@@ -178,7 +178,7 @@ export default class ValidateInfoCon extends Component {
 
       accountController
         .sendVerifyCode({
-          account: type === 'email' ? email : mobile,
+          account: type === 'email' ? email : _this.iti.getNumber(),
           ticket: res.ticket,
           randStr: res.randstr,
           captchaType: md.global.getCaptchaType(),
@@ -228,7 +228,7 @@ export default class ValidateInfoCon extends Component {
     if (!this.validate()) return;
 
     const { type, callback = () => {} } = this.props;
-    const { verifyCode, email, mobile } = this.state;
+    const { verifyCode, email } = this.state;
 
     if (!verifyCode) {
       alert(_l('请输入验证码'), 3);
@@ -240,7 +240,7 @@ export default class ValidateInfoCon extends Component {
 
     accountController
       .editAccount({
-        account: type === 'email' ? email : mobile,
+        account: type === 'email' ? email : this.iti.getNumber(),
         verifyCode,
       })
       .then(data => {
@@ -314,7 +314,6 @@ export default class ValidateInfoCon extends Component {
                   placeholder={_l('请输入手机号')}
                   className="inputBox txtMobilePhone w100 box-sizing"
                   maxlength={64}
-                  onChange={e => this.changeValue(e, 'mobile')}
                 />
               </MobileInputWrap>
             )}
@@ -351,6 +350,7 @@ export default class ValidateInfoCon extends Component {
         ) : (
           <Fragment>
             <VerifyPasswordInput
+              showAccountEmail={type === 'email'}
               className="mBottom10"
               showSubTitle={false}
               onChange={({ password }) => this.setState({ password })}

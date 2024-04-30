@@ -51,7 +51,7 @@ export default class PrintTask extends Component {
     });
 
     let printWindow = '';
-    if (navigator.userAgent.indexOf('MDClient') === -1) {
+    if (!window.isMDClient) {
       printWindow = window.open();
     }
 

@@ -1,6 +1,6 @@
 import { formatFormulaDate, domFilterHtmlScript, getSelectedOptions, checkIsTextControl } from '../../util';
 import { RELATION_TYPE_NAME } from './enum';
-import { accMul, formatStrZero, toFixed } from 'src/util';
+import { accMul, formatStrZero, toFixed, dateConvertToUserZone } from 'src/util';
 import { getSwitchItemNames } from 'src/pages/widgetConfig/util';
 import { getShowFormat } from 'src/pages/widgetConfig/util/setting.js';
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
@@ -112,9 +112,10 @@ export default function renderText(cell, options = {}) {
           value = '';
         }
         const showFormat = getShowFormat(cell);
-        value = moment(moment(cell.value), showFormat).format(
-          _.includes(['ctime', 'utime', 'dtime'], cell.controlId) ? 'YYYY-MM-DD HH:mm:ss' : showFormat,
-        );
+        value = moment(
+          moment(type === 16 && !options.doNotHandleTimeZone ? dateConvertToUserZone(cell.value) : cell.value),
+          showFormat,
+        ).format(_.includes(['ctime', 'utime', 'dtime'], cell.controlId) ? 'YYYY-MM-DD HH:mm:ss' : showFormat);
         break;
       case 46: // TIME 时间
         if (_.isEmpty(value)) {
@@ -128,7 +129,10 @@ export default function renderText(cell, options = {}) {
         }
         if (cell.enumDefault === 2) {
           const showFormat = getShowFormat({ advancedSetting: { ...advancedSetting, showtype: cell.unit || '1' } });
-          value = moment(cell.value, value.indexOf('-') > -1 ? undefined : showFormat).format(showFormat);
+          const convertedTime = dateConvertToUserZone(
+            moment(cell.value, value.indexOf('-') > -1 ? undefined : showFormat),
+          );
+          value = moment(convertedTime).format(showFormat);
         } else {
           if (cell.advancedSetting.autocarry === '1') {
             value = (prefix || '') + formatFormulaDate({ value: cell.value, unit, dot: cell.dot });

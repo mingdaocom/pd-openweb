@@ -167,8 +167,8 @@ export default class PublicLink extends Component {
           <div className="footContainer">
             <div className="addBox Gray_9e">
               <span onClick={() => this.setState({ showDialogSettingInviteRules: true })}>
-                <Icon icon="settings1" />
-                {_l('邀请设置')}
+                <Icon icon="manage_accounts" />
+                {_l('用户加入规则')}
               </span>
             </div>
           </div>

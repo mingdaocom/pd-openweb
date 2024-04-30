@@ -7,7 +7,7 @@ import styled from 'styled-components';
 import { updateShowExport, updateImportExportResult, updateImportType, loadDepartments } from '../../actions/entities';
 import departmentController from 'src/api/department';
 import Config from '../../../../../config';
-import captcha from 'src/components/captcha';
+import { captcha } from 'ming-ui/functions';
 import { IMPORT_EXPORT_SHOWLIST } from 'src/pages/Admin/user/membersDepartments/structure/constant';
 import { Table } from 'antd';
 import _ from 'lodash';
@@ -417,7 +417,7 @@ class ImportDepAndPosition extends Component {
             });
           }
         })
-        .fail(res => {
+        .catch(res => {
           _this.setState({ importError: true, importFileLoading: false });
         });
     };

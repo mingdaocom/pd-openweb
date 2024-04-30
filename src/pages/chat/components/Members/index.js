@@ -2,9 +2,8 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import './index.less';
 import GroupController from 'src/api/group';
-import LoadDiv from 'ming-ui/components/LoadDiv';
+import { LoadDiv, UserCard } from 'ming-ui';
 import InviteOrAddUsers from './InviteOrAddUsers';
-import UserCard from 'src/components/UserCard';
 
 class Avatar extends Component {
   constructor(props) {

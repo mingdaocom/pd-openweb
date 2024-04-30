@@ -10,7 +10,7 @@ import createGroup from 'src/components/group/create/creatGroup';
 import _ from 'lodash';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import UserCard from 'src/components/UserCard';
+import { UserCard } from 'ming-ui';
 
 var tpl = doT.template(selectGroupTpl);
 function SelectGroup(el, setting) {
@@ -621,15 +621,15 @@ SelectGroup.prototype = {
   defaultSlide: function () {
     var SG = this;
     var $mostUsed = SG.$viewTo.find('.projectItem.mostUsed');
-    $.when(
+    Promise.all([
       !md.global.Account.projects.length
         ? groupController.selectGroup({
             projectId: '',
           })
         : true,
       groupController.selectGroupMostFrequent(),
-    )
-      .done(function (personal, mostUsed) {
+    ])
+      .then(function ([personal, mostUsed]) {
         var $groupList = SG.$viewTo.find('.SelectAllGroup-groupListDiv');
         if (_.isArray(personal) && !personal.length && !md.global.Account.projects.length) {
           $groupList.addClass('isNew');
@@ -686,7 +686,7 @@ SelectGroup.prototype = {
         }
         SG.loaded = true;
       })
-      .fail(function () {
+      .catch(function () {
         alert(_l('获取群组失败'), 3);
       });
   },
@@ -788,13 +788,10 @@ SelectGroup.prototype = {
   bindBusinessCard: function ($target) {
     $target.find('.groupItem:not(.personal,.everybody) .groupInfoWrap').each((i, ele) => {
       var groupId = $(ele).data('groupid');
-      if($(ele).data('bindUserCard')) return;
-      $(ele).data('bindUserCard', true)
+      if ($(ele).data('bindUserCard')) return;
+      $(ele).data('bindUserCard', true);
       ReactDOM.render(
-        <UserCard
-          type={2}
-          sourceId={groupId}
-        >
+        <UserCard type={2} sourceId={groupId}>
           <span className="groupInfo"></span>
         </UserCard>,
         ele,

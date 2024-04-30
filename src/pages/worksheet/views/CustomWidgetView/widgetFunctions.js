@@ -8,15 +8,12 @@ import { openMobileRecordInfo } from 'src/pages/Mobile/Record';
 import { selectUser } from 'mobile/components/SelectUser';
 import { mobileSelectRecord } from 'src/components/recordCardListDialog/mobile';
 import { selectOrgRole as mobileSelectOrgRole } from 'mobile/components/SelectOrgRole';
-import { antAlert } from 'src/util/antdWrapper';
-import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
-import selectOrgRole from 'src/components/dialogSelectOrgRole';
-import DialogSelectGroups from 'src/components/dialogSelectDept';
+import { dialogSelectOrgRole, dialogSelectDept, dialogSelectUser } from 'ming-ui/functions';
 import { selectRecord } from 'src/components/recordCardListDialog';
 import renderText from 'worksheet/components/CellControls/renderText';
 import selectLocation from './selectLocation';
 import { browserIsMobile, addBehaviorLog, mdAppResponse } from 'src/util';
-import { getFilledRequestParams } from '../../util';
+import { getFilledRequestParams, emitter } from '../../util';
 
 function mdPost(controller, action, data) {
   let pssId = getPssId();
@@ -58,13 +55,19 @@ export const api = {
 };
 
 const isMobile = browserIsMobile();
-const isMingDaoMobileClient = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
+
+function emitWidgetAction(action, value) {
+  emitter.emit('POST_MESSAGE_TO_CUSTOM_WIDGET', {
+    action,
+    value,
+  });
+}
 
 export const utils = {
   alert: window.alert,
   openRecordInfo: args => {
     addBehaviorLog('worksheetRecord', args.worksheetId, { rowId: args.recordId }); // 浏览记录埋点
-    if (isMingDaoMobileClient) {
+    if (window.isMingDaoApp) {
       const sessionId = Math.random().toString(32).slice(2);
       return mdAppResponse({
         sessionId,
@@ -106,7 +109,7 @@ export const utils = {
     });
   },
   openNewRecord: args => {
-    if (isMingDaoMobileClient) {
+    if (window.isMingDaoApp) {
       const sessionId = Math.random().toString(32).slice(2);
       return mdAppResponse({
         sessionId,
@@ -133,7 +136,7 @@ export const utils = {
     });
   },
   selectUsers: ({ unique, onClose = () => {}, onSelect = () => {}, ...rest } = {}) => {
-    if (isMingDaoMobileClient) {
+    if (window.isMingDaoApp) {
       const sessionId = Math.random().toString(32).slice(2);
       return mdAppResponse({
         sessionId,
@@ -147,28 +150,34 @@ export const utils = {
         if (res.action === 'close') {
           return [];
         } else if (res.action === 'selectUsers') {
-          return safeParse(res.value, 'array').map(user => ({
+          const users = safeParse(res.value, 'array').map(user => ({
             accountId: user.account_id,
             avatar: user.avatar,
             fullname: user.full_name || user.fullname,
           }));
+          emitWidgetAction('select-users', users);
+          return users;
         }
       });
     }
     return new Promise((resolve, reject) => {
+      function handleSelect(users) {
+        emitWidgetAction('select-users', users);
+        resolve(users);
+      }
       if (isMobile) {
         selectUser({
           type: 'user',
           projectId: rest.projectId,
           onlyOne: unique,
-          onSave: resolve,
+          onSave: handleSelect,
           ...rest,
         });
       } else {
         dialogSelectUser({
           SelectUserSettings: {
             projectId: rest.projectId,
-            callback: resolve,
+            callback: handleSelect,
             ...rest,
           },
         });
@@ -176,7 +185,7 @@ export const utils = {
     });
   },
   selectDepartments: ({ unique, onClose = () => {}, onSelect = () => {}, ...rest } = {}) => {
-    if (isMingDaoMobileClient) {
+    if (window.isMingDaoApp) {
       const sessionId = Math.random().toString(32).slice(2);
       return mdAppResponse({
         sessionId,
@@ -190,30 +199,36 @@ export const utils = {
         if (res.action === 'close') {
           return;
         } else if (res.action === 'selectDepartments') {
-          return safeParse(res.value, 'array').map(department => ({
+          const departments = safeParse(res.value, 'array').map(department => ({
             departmentId: department.department_id,
             departmentName: department.department_name,
           }));
+          emitWidgetAction('select-departments', departments);
+          return departments;
         }
       });
     }
     return new Promise((resolve, reject) => {
+      function handleSelect(departments) {
+        emitWidgetAction('select-departments', departments);
+        resolve(departments);
+      }
       if (isMobile) {
         selectUser({
           type: 'department',
           projectId: rest.projectId,
           onlyOne: unique,
-          onSave: resolve,
+          onSave: handleSelect,
           ...rest,
         });
       } else {
-        return new DialogSelectGroups({
+        dialogSelectDept({
           projectId: rest.projectId,
           isIncludeRoot: rest.isIncludeRoot,
           unique: unique,
           showCreateBtn: rest.showCreateBtn,
           allPath: rest.allPath,
-          selectFn: resolve,
+          selectFn: handleSelect,
           onClose: () => resolve(),
           ...rest,
         });
@@ -221,7 +236,7 @@ export const utils = {
     });
   },
   selectOrgRole: ({ unique, onClose = () => {}, onSelect = () => {}, ...rest } = {}) => {
-    if (isMingDaoMobileClient) {
+    if (window.isMingDaoApp) {
       const sessionId = Math.random().toString(32).slice(2);
       return mdAppResponse({
         sessionId,
@@ -235,33 +250,39 @@ export const utils = {
         if (res.action === 'close') {
           return;
         } else if (res.action === 'selectOrgRole') {
-          return safeParse(res.value, 'array').map(orgRole => ({
+          const orgs = safeParse(res.value, 'array').map(orgRole => ({
             organizeId: orgRole.organizeId,
             organizeName: orgRole.organizeName,
           }));
+          emitWidgetAction('select-org-roles', orgs);
+          return orgs;
         }
       });
     }
     return new Promise((resolve, reject) => {
+      function handleSelect(orgs) {
+        emitWidgetAction('select-org-roles', orgs);
+        resolve(orgs);
+      }
       if (isMobile) {
         mobileSelectOrgRole({
           projectId: rest.projectId,
           onlyOne: unique,
-          onSave: resolve,
+          onSave: handleSelect,
           ...rest,
         });
       } else {
-        return selectOrgRole({
+        return dialogSelectOrgRole({
           projectId: rest.projectId,
           unique: unique,
-          onSave: resolve,
+          onSave: handleSelect,
           ...rest,
         });
       }
     });
   },
   selectRecord: ({ relateSheetId, multiple, onClose = () => {}, onSelect = () => {}, ...rest } = {}) => {
-    if (isMingDaoMobileClient) {
+    if (window.isMingDaoApp) {
       const sessionId = Math.random().toString(32).slice(2);
       return mdAppResponse({
         sessionId,
@@ -276,7 +297,9 @@ export const utils = {
         if (res.action === 'close') {
           return;
         } else if (res.action === 'selectRecord') {
-          return safeParse(res.value, 'array');
+          const records = safeParse(res.value, 'array');
+          emitWidgetAction('select-records', records);
+          return records;
         }
       });
     }
@@ -288,14 +311,17 @@ export const utils = {
         multiple: multiple,
         singleConfirm: true,
         relateSheetId,
-        onOk: resolve,
+        onOk: records => {
+          emitWidgetAction('select-records', records);
+          resolve(records);
+        },
         ...rest,
       });
     });
   },
   selectLocation: (options = {}) => {
     const { distance, onClose = () => {}, onSelect = () => {} } = options;
-    if (isMingDaoMobileClient) {
+    if (window.isMingDaoApp) {
       const sessionId = Math.random().toString(32).slice(2);
       return mdAppResponse({
         sessionId,
@@ -309,7 +335,7 @@ export const utils = {
           return;
         } else if (res.action === 'map') {
           const value = safeParse(res.value);
-          return !isEmpty(value)
+          const location = !isEmpty(value)
             ? {
                 address: value.address,
                 lat: value.lat,
@@ -317,11 +343,19 @@ export const utils = {
                 name: value.title,
               }
             : undefined;
+          emitWidgetAction('select-location', [location]);
+          return location;
         }
       });
     }
     return new Promise((resolve, reject) => {
-      selectLocation({ ...options, onSelect: resolve });
+      selectLocation({
+        ...options,
+        onSelect: location => {
+          resolve(location);
+          emitWidgetAction('select-location', [location]);
+        },
+      });
     });
   },
   renderText,

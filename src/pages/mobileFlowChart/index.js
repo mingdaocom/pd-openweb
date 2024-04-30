@@ -25,6 +25,6 @@ class MobileFlowChart extends React.Component {
   }
 }
 
-const Comp = preall(MobileFlowChart, { allownotlogin: false });
+const Comp = preall(MobileFlowChart, { allowNotLogin: false });
 
 ReactDOM.render(<Comp />, document.querySelector('#mobileFlowChart'));

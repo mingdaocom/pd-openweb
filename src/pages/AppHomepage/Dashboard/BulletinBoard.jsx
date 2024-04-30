@@ -79,7 +79,7 @@ export default function BulletinBoard(props) {
   if (loading) {
     return (
       <BulletinSkeleton>
-        <div className="skeletonBlock"></div>
+        <div className="skeletonBlock" style={{ height: height - 48 }}></div>
       </BulletinSkeleton>
     );
   }

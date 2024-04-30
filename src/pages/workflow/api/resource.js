@@ -14,7 +14,7 @@ var resource = {
   addProcess: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/resource/addProcess';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'resourceaddProcess', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'resourceaddProcess', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 资源配置获取流程数量
@@ -27,7 +27,7 @@ var resource = {
   getCountByResourceId: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/resource/getProcessCount';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'resourcegetProcessCount', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'resourcegetProcessCount', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 资源配置获取流程
@@ -40,7 +40,7 @@ var resource = {
   getProcessList: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/resource/getProcessList';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'resourcegetProcessList', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'resourcegetProcessList', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 资源配置移动流程
@@ -53,7 +53,7 @@ var resource = {
   moveProcess: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/resource/moveProcess';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'resourcemoveProcess', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'resourcemoveProcess', JSON.stringify(args), $.extend(base, options));
   },
 };
 export default resource;

@@ -73,7 +73,6 @@ MobileSharePreview.prototype = {
   init: function () {
     var MSP = this;
     MSP.isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    MSP.isWeiXin = /micromessenger/i.test(navigator.userAgent);
     MSP.sourceData = MSP.nodeData && MSP.nodeData.data ? MSP.nodeData.data : MSP.nodeData;
     this.setAttachmentType();
     if (MSP.attachmentType === ATTACHMENT_TYPE.COMMON) {
@@ -86,7 +85,7 @@ MobileSharePreview.prototype = {
       return;
     }
     this.file = this.formatToFile();
-    if (MSP.isWeiXin) {
+    if (window.isWeiXin) {
       MSP.loadWeiXinShare();
     }
     if (MSP.nodeData && MSP.nodeData.name) {
@@ -207,8 +206,7 @@ MobileSharePreview.prototype = {
       if (!md.global.Account || !md.global.Account.accountId) {
         MSP.alert(_l('请先登录'));
         setTimeout(function () {
-          window.location =
-            '/login?ReturnUrl=' + encodeURIComponent(window.location.href.replace('checked=login', ''));
+          window.location = '/login?ReturnUrl=' + encodeURIComponent(window.location.href.replace('checked=login', ''));
         }, 1000);
       } else if (!MSP.file.canDownload) {
         MSP.alert(_l('您权限不足，无法保存。请联系文件夹管理员或文件上传者'));
@@ -219,7 +217,7 @@ MobileSharePreview.prototype = {
     MSP.$downloadBtn.on('click', function () {
       var attachmentType = MSP.attachmentType;
       var canDownload = MSP.file.canDownload || File.isPicture('.' + MSP.file.ext);
-      if (MSP.isWeiXin) {
+      if (window.isWeiXin) {
         MSP.openMask();
       } else if (!canDownload) {
         MSP.alert(_l('您权限不足，无法下载。请联系文件夹管理员或文件上传者'));
@@ -236,7 +234,7 @@ MobileSharePreview.prototype = {
     });
     if (MSP.$filePreview[0] && RENDER_BY_SERVICE_TYPE.indexOf(MSP.file.ext) > -1) {
       MSP.$filePreview.on('click', function () {
-        if (MSP.isIOS && MSP.isWeiXin) {
+        if (MSP.isIOS && window.isWeiXin) {
           MSP.openMask();
           return;
         }
@@ -245,14 +243,14 @@ MobileSharePreview.prototype = {
     }
     MSP.$openIniOS.on('click', function () {
       var needService = RENDER_BY_SERVICE_TYPE.indexOf(MSP.file.ext.toLowerCase()) > -1;
-      if (!needService && MSP.isIOS && MSP.isWeiXin) {
+      if (!needService && MSP.isIOS && window.isWeiXin) {
         MSP.openMask();
         return;
       }
       MSP.previewFile();
     });
     MSP.$openAPP.on('click', function () {
-      if (MSP.isWeiXin) {
+      if (window.isWeiXin) {
         MSP.openMask();
         return;
       }
@@ -267,8 +265,8 @@ MobileSharePreview.prototype = {
     a.href = url;
     a.click();
   },
-  previewFile: function () {
-    var promise = $.Deferred();
+  previewFile: async function () {
+    var promise;
     var MSP = this;
     var needService = RENDER_BY_SERVICE_TYPE.indexOf(MSP.file.ext.toLowerCase()) > -1;
     var file = MSP.file;
@@ -277,7 +275,7 @@ MobileSharePreview.prototype = {
       promise = needService ? MSP.getCommonPreviewLink(file) : file.downloadUrl;
     } else if (attachmentType === ATTACHMENT_TYPE.KC) {
       promise = MSP.isIOS
-        ? file.ext === 'txt' || !file.canDownload || MSP.isWeiXin
+        ? file.ext === 'txt' || !file.canDownload || window.isWeiXin
           ? file.viewUrl
           : file.downloadUrl
         : file.viewUrl;
@@ -287,12 +285,12 @@ MobileSharePreview.prototype = {
         path: file.qiniuPath,
       });
       promise = needService
-        ? MSP.isIOS && !MSP.isWeiXin
+        ? MSP.isIOS && !window.isWeiXin
           ? { viewUrl: file.downloadUrl }
           : fetchPromise
         : { viewUrl: file.downloadUrl };
     }
-    $.when(promise).then(function (data) {
+    Promise.all([promise]).then(function ([data]) {
       var viewUrl = attachmentType === ATTACHMENT_TYPE.QINIU ? data.viewUrl : data;
       if (!viewUrl) {
         MSP.alert(_l('获取预览链接失败'));
@@ -340,7 +338,7 @@ MobileSharePreview.prototype = {
       .then(function () {
         MSP.alert(_l('已存入 知识“我的文件” 中'));
       })
-      .fail(function () {
+      .catch(function () {
         MSP.alert(_l('保存失败'));
       });
   },
@@ -401,38 +399,40 @@ MobileSharePreview.prototype = {
   },
   loadWeiXinShare: function () {
     var MSP = this;
-    weixinAjax.getWeiXinConfig({
-      url: encodeURI(location.href),
-    }).then(function (data) {
-      if (data.code === 1) {
-        wx.config({
-          debug: false,
-          appId: 'wx26fcef87aadb6001',
-          timestamp: data.data.timestamp,
-          nonceStr: data.data.nonceStr,
-          signature: data.data.signature,
-          jsApiList: ['onMenuShareAppMessage', 'onMenuShareTimeline'],
-        });
-        var imgUrl =
-          md.global.Config.WebUrl +
-          'src/components/images/fileIcons/' +
-          getClassNameByExt('.' + MSP.file.ext).slice(9) +
-          '.png';
-        wx.onMenuShareAppMessage({
-          title: MSP.file.name,
-          link: location.href,
-          desc: location.href,
-          imgUrl: imgUrl,
-          success: function () {},
-        });
-        wx.onMenuShareTimeline({
-          title: MSP.file.name,
-          link: location.href,
-          imgUrl: imgUrl,
-          success: function () {},
-        });
-      }
-    });
+    weixinAjax
+      .getWeiXinConfig({
+        url: encodeURI(location.href),
+      })
+      .then(function (data) {
+        if (data.code === 1) {
+          wx.config({
+            debug: false,
+            appId: 'wx26fcef87aadb6001',
+            timestamp: data.data.timestamp,
+            nonceStr: data.data.nonceStr,
+            signature: data.data.signature,
+            jsApiList: ['onMenuShareAppMessage', 'onMenuShareTimeline'],
+          });
+          var imgUrl =
+            md.global.Config.WebUrl +
+            'src/components/images/fileIcons/' +
+            getClassNameByExt('.' + MSP.file.ext).slice(9) +
+            '.png';
+          wx.onMenuShareAppMessage({
+            title: MSP.file.name,
+            link: location.href,
+            desc: location.href,
+            imgUrl: imgUrl,
+            success: function () {},
+          });
+          wx.onMenuShareTimeline({
+            title: MSP.file.name,
+            link: location.href,
+            imgUrl: imgUrl,
+            success: function () {},
+          });
+        }
+      });
   },
 };
 

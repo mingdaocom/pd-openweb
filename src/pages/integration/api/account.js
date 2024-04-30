@@ -16,7 +16,7 @@ var account = {
   getAccount: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'account/getAccount';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'accountgetAccount', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'accountgetAccount', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -33,7 +33,7 @@ var account = {
   getAccounts: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'account/getAccounts';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'accountgetAccounts', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'accountgetAccounts', JSON.stringify(args), $.extend(base, options));
   }
 };
 

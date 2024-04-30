@@ -10,11 +10,17 @@ import {
   RELA_FILTER_TYPE,
   GROUP_FILTER_TYPE,
   NUMBER_FILTER_TYPE,
+  DATE_FILTER_TYPE,
   OPTIONS_ALLOWITEM,
   DIRECTION_TYPE,
   SHOW_RELATE_TYPE,
   DATE_RANGE,
+  DATE_GRANULARITY_TYPE,
+  DATE_TYPE_M,
+  DATE_TYPE_Y,
+  getDefaultDateRangeType
 } from 'worksheet/common/ViewConfig/components/fastFilter/util';
+import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
 
 const RadioWrap = styled.div`
   border-radius: 3px;
@@ -37,7 +43,7 @@ const RadioWrap = styled.div`
 `;
 
 const TimeWrap = styled.div`
-  height: 325px;
+  height: auto;
   overflow-y: auto;
   .ant-checkbox-input {
     position: absolute;
@@ -56,13 +62,36 @@ const TimeInputWrap = styled.div`
   &.active {
     border-color: #40a9ff;
   }
+  &:hover {
+    .moreTime {
+      display: none;
+    }
+    .clearTimeRange {
+      display: block;
+    }
+  }
+  .clearTimeRange {
+    display: none;
+  }
 `;
 
 export default function FilterSetting(props) {
-  const { filter, setFilter } = props;
+  const { filter, setFilter, firstControlData } = props;
   const { advancedSetting = {} } = filter;
   const { dataType } = props;
   const [timeVisible, setTimeVisible] = useState(false);
+
+  const getDaterange = () => {
+    let daterange = advancedSetting.daterange || '[1,2,3,4,5,6,7,8,9,12,13,14,15,16,17,21,22,23,31,32,33]';
+    try {
+      daterange = JSON.parse(daterange);
+    } catch (error) {
+      daterange = [];
+    }
+    return daterange;
+  };
+
+  let daterange = getDaterange();
 
   const changeAdvancedSetting = (data, otherData = {}) => {
     setFilter({
@@ -76,16 +105,34 @@ export default function FilterSetting(props) {
 
   const renderDrop = data => {
     const { filterType } = filter;
+    const value = filter[data.key];
+    let types = data.types;
+    if (['dateRangeType'].includes(data.key)) {
+      types = _.get(firstControlData, 'advancedSetting.showtype') === '5' ? types.filter(o => o.value === 5) : _.get(firstControlData, 'advancedSetting.showtype') === '4' ? types.filter(o => o.value !== 3) : types;
+    }
     return (
       <Fragment>
         <div className="Gray Font13 mBottom8 Font13">{data.txt}</div>
         <RadioWrap className="valignWrapper mBottom12">
-          {data.types.map((item, index) => (
+          {types.map((item, index) => (
             <div
               key={item.value}
-              className={cx('valignWrapper flex', { active: item.value == (filterType || data.default) })}
+              className={cx('valignWrapper flex', { active: item.value == (value || data.default) })}
               onClick={() => {
-                setFilter({ filterType: item.value });
+                const param = { [data.key]: item.value };
+                if (data.key === 'filterType') {
+                  param.dateRangeType = item.value !== FILTER_CONDITION_TYPE.DATEENUM ? undefined : getDefaultDateRangeType(firstControlData);
+                }
+                if (data.key === 'dateRangeType') {
+                  changeAdvancedSetting({
+                    [DATE_RANGE.key]: JSON.stringify(
+                      daterange.filter(o =>
+                        item.value == 5 ? DATE_TYPE_Y.includes(o) : item.value == 4 ? DATE_TYPE_M.includes(o) : true,
+                      ),
+                    )
+                  });
+                }
+                setFilter(param);
               }}
             >
               {item.text}
@@ -134,18 +181,6 @@ export default function FilterSetting(props) {
     );
   };
 
-  const getDaterange = () => {
-    let daterange = advancedSetting.daterange || '[1,2,3,4,5,6,7,8,9,12,13,14,15,16,17,21,22,23,31,32,33]';
-    try {
-      daterange = JSON.parse(daterange);
-    } catch (error) {
-      daterange = [];
-    }
-    return daterange;
-  };
-
-  let daterange = getDaterange();
-
   const renderOverlay = data => {
     let isAllRange = daterange.length >= DATE_RANGE.default.length;
     return (
@@ -189,7 +224,20 @@ export default function FilterSetting(props) {
   };
 
   const renderTimeType = () => {
+    const dateRangeType = (_.get(filter, 'dateRangeType') || '').toString();
+    const showType = (_.get(firstControlData, 'advancedSetting.showtype') || '').toString();
+    let dateRanges = DATE_RANGE.types;
     let isAllRange = daterange.length >= DATE_RANGE.default.length;
+    if (_.includes(['4', '5'], showType) || _.includes(['4', '5'], dateRangeType)) {
+      dateRanges = dateRanges
+        .map(options =>
+          options.filter(o => _.includes([dateRangeType, showType].includes('5') ? DATE_TYPE_Y : DATE_TYPE_M, o.value)),
+        )
+        .filter(options => options.length);
+      isAllRange = [dateRangeType, showType].includes('5')
+        ? daterange.length >= DATE_TYPE_Y.length
+        : daterange.length >= DATE_TYPE_M.length;
+    }
     return (
       <Fragment>
         <div className="Gray Font13 mBottom8 Font13">{DATE_RANGE.txt}</div>
@@ -200,13 +248,21 @@ export default function FilterSetting(props) {
             setTimeVisible(visible);
           }}
           getPopupContainer={() => document.querySelector('.customPageFilterWrap .setting')}
-          overlay={<TimeWrap className="WhiteBG card pTop10">{renderOverlay(DATE_RANGE.types)}</TimeWrap>}
+          overlay={<TimeWrap className="WhiteBG card pTop10">{renderOverlay(dateRanges)}</TimeWrap>}
         >
           <TimeInputWrap className={cx('w100 valignWrapper WhiteBG pointer mBottom10', { active: timeVisible })}>
             <div className={cx('flex', { Gray_bd: daterange.length <= 0 })}>
               {isAllRange ? _l('全选') : daterange.length <= 0 ? _l('请选择') : _l('选了 %0 个', daterange.length)}
             </div>
-            <Icon icon="expand_more" className="Gray_9e Font20" />
+            <Icon icon="expand_more moreTime" className="Gray_9e Font20" />
+            <Icon
+              icon="cancel1"
+              className="Font14 Gray_9e clearTimeRange"
+              onClick={e => {
+                e.stopPropagation();
+                changeAdvancedSetting({ daterange: '[]' });
+              }}
+            />
           </TimeInputWrap>
         </Dropdown>
       </Fragment>
@@ -218,11 +274,12 @@ export default function FilterSetting(props) {
       <div className="valignWrapper mBottom10">
         <div className="flex Font13 bold">{_l('筛选设置')}</div>
       </div>
-      {[TEXT_FILTER_TYPE, RELA_FILTER_TYPE, GROUP_FILTER_TYPE, NUMBER_FILTER_TYPE].map(o => {
+      {[TEXT_FILTER_TYPE, RELA_FILTER_TYPE, GROUP_FILTER_TYPE, NUMBER_FILTER_TYPE, DATE_FILTER_TYPE].map(o => {
         if (o.keys.includes(dataType)) {
           return renderDrop(o);
         }
       })}
+      {DATE_GRANULARITY_TYPE.keys.includes(dataType) && [FILTER_CONDITION_TYPE.DATEENUM].includes(filter.filterType) && renderDrop(DATE_GRANULARITY_TYPE)}
       {[OPTIONS_ALLOWITEM, DIRECTION_TYPE, SHOW_RELATE_TYPE].map(o => {
         if (o.keys.includes(dataType)) {
           return renderShowType(o);

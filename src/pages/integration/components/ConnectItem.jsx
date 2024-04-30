@@ -118,7 +118,7 @@ function ConnectItem(props) {
         canEdit={props.canEdit}
         title={_l('代码块')}
         icon={'worksheet_API'}
-        support={'https://help.mingdao.com/integration#输入参数'}
+        support={'https://help.mingdao.com/integration/api#enter-parameters'}
       />
     </Wrap>
   );

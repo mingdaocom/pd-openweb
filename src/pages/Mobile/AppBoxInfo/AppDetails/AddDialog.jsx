@@ -22,7 +22,7 @@ class AddDialog extends Component {
 
   installApp = (projectId, libraryId) => {
     if ((_.find(md.global.Account.projects, item => item.projectId === projectId) || {}).cannotCreateApp) {
-      Toast.fail(_l('您没有权限安装应用'), 2);
+      Toast.catch(_l('您没有权限安装应用'), 2);
       return;
     }
 
@@ -37,7 +37,7 @@ class AddDialog extends Component {
       .then(result => {
         const { data } = result.data;
         if (!data) {
-          Toast.fail(_l('安装失败，请稍后重试'), 2);
+          Toast.catch(_l('安装失败，请稍后重试'), 2);
           return;
         }
         axios
@@ -51,7 +51,7 @@ class AddDialog extends Component {
             result => {
               const { appId } = result.data;
               if (!appId) {
-                Toast.fail(_l('安装失败，请稍后重试'), 2);
+                Toast.catch(_l('安装失败，请稍后重试'), 2);
                 return;
               }
               Toast.success(_l('添加成功'), 2, () => {

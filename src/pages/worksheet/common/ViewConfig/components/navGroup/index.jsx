@@ -296,7 +296,7 @@ export default function NavGroup(params) {
     updateView(d, {
       navshow: !['0', '1'].includes(navshow + '') ? '0' : navshow, //新配置需要前端把这个值设为1
       navfilters: JSON.stringify([]),
-      usenav: '1', //新配置需要前端把这个值设为1
+      usenav: '0', //新配置 默认不勾选
       ...info,
     });
     setShowAddCondition(false);
@@ -305,7 +305,12 @@ export default function NavGroup(params) {
 
   const getRelate = worksheetId => {
     ajaxInfoFn && ajaxInfoFn.abort();
-    ajaxInfoFn = sheetAjax.getWorksheetInfo({ worksheetId, getViews: true, getTemplate: true });
+    ajaxInfoFn = sheetAjax.getWorksheetInfo({
+      worksheetId,
+      getViews: true,
+      getTemplate: true,
+      relationWorksheetId: worksheetId,
+    });
     ajaxInfoFn.then(data => {
       ajaxInfoFn = '';
       const fieldList = data.views
@@ -430,7 +435,6 @@ export default function NavGroup(params) {
               );
             }}
             border
-            cancelAble={[29, 35].includes(data.type)}
             renderError={() => {
               if (data.type === 29 && relateSheetInfo.length > 0 && o.key === 'viewId') {
                 return (

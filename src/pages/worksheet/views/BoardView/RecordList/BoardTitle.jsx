@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import { Icon } from 'ming-ui';
+import { Icon, UserHead } from 'ming-ui';
 import styled from 'styled-components';
 import { FlexCenter } from 'worksheet/styled';
 import { isLightColor } from 'src/util';
-import UserHead from 'src/components/userHead';
 import { CAN_AS_BOARD_OPTION } from '../config';
 import _ from 'lodash';
 
@@ -113,14 +112,18 @@ export default class BoardTitle extends Component {
       const { accountId, avatar: userHead, fullname } = JSON.parse(name) || {};
       return (
         <div className="avatarWrap">
-          <UserHead className="mRight5" user={{ userHead, accountId }} size={24} appId={appId} projectId={projectId}/>
+          <UserHead className="mRight5" user={{ userHead, accountId }} size={24} appId={appId} projectId={projectId} />
           <span className="Font14 Bold">{fullname}</span>
         </div>
       );
     }
     if (_.includes([28], type)) {
       const itemnames = JSON.parse(advancedSetting.itemnames || '[]');
-      const currentName = _.get(_.find(itemnames, i => i.key === keyType), 'value') || name;
+      const currentName =
+        _.get(
+          _.find(itemnames, i => i.key === keyType),
+          'value',
+        ) || name;
       return <div className="gradeType">{currentName}</div>;
     }
     return (

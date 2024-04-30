@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import RoleController from 'src/api/role';
+import roleController from 'src/api/role';
+import projectSettingAjax from 'src/api/projectSetting';
 import PaginationWrap from '../../../components/PaginationWrap';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import RoleItem from './roleItem';
 import RoleAuthCommon from '../common/common';
 import { getCurrentProject } from 'src/util';
+import { Icon } from 'ming-ui';
 
 import './style.less';
 import _ from 'lodash';
@@ -13,12 +15,7 @@ import _ from 'lodash';
 class RoleList extends React.Component {
   static propTypes = {
     projectId: PropTypes.string.isRequired,
-    isApply: PropTypes.bool,
     manualRef: PropTypes.func,
-  };
-
-  static defaultProps = {
-    isApply: false,
   };
 
   constructor(props) {
@@ -29,6 +26,7 @@ class RoleList extends React.Component {
       pageSize: 500,
       totalCount: null,
       list: null,
+      applyList: [],
     };
 
     this.fetchRoles = this.fetchRoles.bind(this);
@@ -43,20 +41,22 @@ class RoleList extends React.Component {
 
   componentWillMount() {
     this.fetchRoles();
+    this.getCanApplyRoles();
   }
 
   fetchRoles(isReload) {
-    const { projectId, isApply } = this.props;
+    const { projectId, entry } = this.props;
     const { isLoading, pageIndex, pageSize } = this.state;
     if (isLoading) return false;
+    if (entry === 'apply') return;
 
     this.setState({
       isLoading: true,
     });
 
-    this.promise = RoleController.getSummaryRole({
+    this.promise = roleController.getSummaryRole({
       projectId,
-      isJoined: !isApply,
+      isJoined: true,
       pageIndex: isReload ? 1 : pageIndex,
       pageSize,
     });
@@ -76,10 +76,10 @@ class RoleList extends React.Component {
             };
           });
         } else {
-          return $.Deferred().reject().promise();
+          return Promise.reject();
         }
       })
-      .fail(errors => {
+      .catch(errors => {
         this.setState({
           isLoading: false,
         });
@@ -87,25 +87,69 @@ class RoleList extends React.Component {
       });
   }
 
+  getCanApplyRoles = async () => {
+    const { projectId } = this.props;
+    const { pageSize } = this.state;
+    const { isSuperAdmin } = getCurrentProject(projectId);
+
+    if (isSuperAdmin) return;
+
+    const allowApplyManage = await projectSettingAjax.getAllowApplyManageRole({ projectId });
+
+    if (!allowApplyManage) return;
+
+    const res = await roleController.getSummaryRole({
+      projectId,
+      isJoined: false,
+      pageIndex: 1,
+      pageSize,
+    });
+
+    const { listSumaryRole: listSummaryRole } = res;
+
+    this.setState({
+      applyList: listSummaryRole.filter(r => !r.isJoined),
+    });
+  };
+
   renderList() {
     const { list } = this.state;
-    const { projectId, isApply } = this.props;
+    const { projectId, entry } = this.props;
     const { isHrVisible } = getCurrentProject(projectId, true);
 
     return _.map(list, role => (
       <RoleItem
         isHrVisible={isHrVisible}
-        isApply={isApply}
         role={role}
         projectId={projectId}
         callback={this.fetchRoles}
         key={role.roleId}
+        entry={entry}
       />
     ));
   }
 
+  renderApplyList = () => {
+    const { applyList } = this.state;
+    const { projectId, entry } = this.props;
+    const { isHrVisible } = getCurrentProject(projectId, true);
+
+    return _.map(applyList, role => (
+      <RoleItem
+        isHrVisible={isHrVisible}
+        isApply={true}
+        role={role}
+        projectId={projectId}
+        key={role.roleId}
+        entry={entry}
+      />
+    ));
+  };
+
   render() {
-    const { isLoading, list, totalCount, pageSize, pageIndex } = this.state;
+    const { entry } = this.props;
+    const { isLoading, list, totalCount, pageSize, pageIndex, applyList, showApplyRole } = this.state;
+
     return (
       <div className="roleAuthTable">
         <table className="w100 verticalTop">
@@ -128,7 +172,25 @@ class RoleList extends React.Component {
                   </td>
                 </tr>
               ) : (
-                this.renderList()
+                <Fragment>
+                  {this.renderList()}
+                  {_.isEmpty(applyList) ? (
+                    ''
+                  ) : entry === 'apply' ? (
+                    this.renderApplyList()
+                  ) : (
+                    <Fragment>
+                      <div
+                        className="ThemeColor mTop16 InlineBlock Hand"
+                        onClick={() => this.setState({ showApplyRole: !showApplyRole })}
+                      >
+                        {_l('申请角色权限')}
+                        <Icon className="mLeft6 Font16" icon={showApplyRole ? 'arrow-up' : 'arrow-down'} />
+                      </div>
+                      {showApplyRole && this.renderApplyList()}
+                    </Fragment>
+                  )}
+                </Fragment>
               )}
             </tbody>
           </table>

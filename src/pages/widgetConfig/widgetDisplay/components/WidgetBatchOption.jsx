@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment } from 'react';
 import { createPortal } from 'react-dom';
 import { Checkbox, Dialog, Icon } from 'ming-ui';
 import { Tooltip, Dropdown } from 'antd';
@@ -7,8 +7,8 @@ import { SettingItem, DropdownOverlay } from '../../styled';
 import { updateConfig } from '../../util/setting';
 import { batchRemoveItems } from '../../util/drag';
 import { batchCopyWidgets, handleMoveWidgets, batchResetWidgets } from '../../util/data';
-import { putControlByOrder, relateOrSectionTab } from '../../util';
-import { isEmpty, find, uniqBy, flatten } from 'lodash';
+import { putControlByOrder, notInsetSectionTab, isSheetDisplay } from '../../util';
+import { find, flatten } from 'lodash';
 
 const WidgetBatchWrap = styled.div`
   position: absolute;
@@ -89,8 +89,8 @@ function WidgetBatch(props) {
       return batchActive.some(i => _.includes(unReadOnly, i.type));
     }
     if (mode === 'required') {
-      const unRequired = [31, 38, 33, 25, 32, 43, 47, 45, 49, 30, 21, 37, 22, 52, 10010];
-      return batchActive.some(i => _.includes(unRequired, i.type));
+      const unRequired = [31, 38, 33, 25, 32, 43, 47, 45, 49, 30, 21, 37, 22, 51, 52, 10010];
+      return batchActive.some(i => _.includes(unRequired, i.type) || isSheetDisplay(i));
     }
     return false;
   };
@@ -193,8 +193,6 @@ export default function WidgetBatchOption(props) {
     batchActive,
     setBatchActive,
     setWidgets,
-    queryConfigs,
-    updateQueryConfigs,
   } = props;
   const { worksheetId } = globalSheetInfo;
 
@@ -204,7 +202,7 @@ export default function WidgetBatchOption(props) {
     });
 
     if (mode === 'move') {
-      const filterSelectWidgets = selectWidgets.filter(i => !(relateOrSectionTab(i) || i.type === 34));
+      const filterSelectWidgets = selectWidgets.filter(i => !notInsetSectionTab(i));
       // 按原有展示顺序添加，不按批量选中顺序
       const orderWidgets = flatten(putControlByOrder(filterSelectWidgets));
       // 先删除原有控件
@@ -243,10 +241,6 @@ export default function WidgetBatchOption(props) {
             }
           });
           setWidgets(batchRemoveItems(widgets, deleteWidgets));
-          updateQueryConfigs(
-            queryConfigs.filter(i => !find(deleteWidgets, d => d.controlId === i.controlId)),
-            'cover',
-          );
           setBatchActive([]);
         },
       });

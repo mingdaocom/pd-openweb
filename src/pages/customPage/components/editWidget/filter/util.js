@@ -76,7 +76,7 @@ export const formatFilters = filters => {
       },
       className: isDisable ? 'disable' : '',
       objectControls: data.objectControls,
-      ..._.pick(data, ['value', 'minValue', 'maxValue', 'dateRange', 'filterType']),
+      ..._.pick(data, ['value', 'minValue', 'maxValue', 'dateRange', 'filterType', 'dateRangeType']),
       values: isDisable ? [] : data.values
     }
   });

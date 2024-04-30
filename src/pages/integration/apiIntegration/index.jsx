@@ -71,9 +71,15 @@ const list = [
 ];
 
 function APILibraryCon(props) {
-  // 是否启用API库，默认开启
-  const hideIntegrationLibrary = md.global.Config.IsLocal && md.global.SysSettings.hideIntegrationLibrary;
+  // 是否启用明道云API库，默认开启
   const { currentProjectId, match = { params: {} } } = props;
+  const allowAPIIntegration = _.get(
+    _.find(md.global.Account.projects, item => item.projectId === currentProjectId),
+    'allowAPIIntegration',
+  );
+  const hideIntegrationLibrary =
+    (md.global.Config.IsLocal && md.global.SysSettings.hideIntegrationLibrary) || !allowAPIIntegration;
+
   const [tab, setTab] = useState(
     hideIntegrationLibrary
       ? 'projectLib'
@@ -81,6 +87,7 @@ function APILibraryCon(props) {
   );
   const [loadMore, setLoadMore] = useState('');
   const [hasMore, setHasMore] = useState(false);
+
   const renderLibCon = () => {
     window.MDAPILibrary &&
       window.MDAPILibrary({
@@ -126,7 +133,7 @@ function APILibraryCon(props) {
             <h3 className="Bold Font24">{_l('API库')}</h3>
             <p className="Font15">
               {_l('连接第三方 API 并保存鉴权认证，在工作表或工作流中调用')}{' '}
-              <Support type={3} href="https://help.mingdao.com/integration#第一步、连接与认证" text={_l('使用帮助')} />
+              <Support type={3} href="https://help.mingdao.com/integration/api#connection-certification" text={_l('使用帮助')} />
             </p>
           </div>
         </div>

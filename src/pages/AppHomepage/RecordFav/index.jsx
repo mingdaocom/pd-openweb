@@ -2,16 +2,14 @@ import React, { useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
-import { Icon } from 'ming-ui';
+import { Icon, SvgIcon, ScrollView } from 'ming-ui';
 import cx from 'classnames';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import Item from './Item';
-import SvgIcon from 'src/components/SvgIcon';
 import favoriteApi from 'src/api/favorite.js';
 import { openRecordInfo } from 'worksheet/common/recordInfo';
 import { addBehaviorLog } from 'src/util';
 import collectRecordEmptyPng from 'staticfiles/images/collect_list.png';
-import { ScrollView } from 'ming-ui';
 const BaseBtnCon = styled.div`
   display: flex;
   align-items: center;
@@ -46,7 +44,7 @@ const Con = styled.div`
     }
   }
   .content {
-    overflow: hidden;
+    overflow: auto;
     min-width: 0;
     .con {
       .scrollList {
@@ -128,7 +126,7 @@ const Cell = styled.div`
   height:   ${({ height }) => (height ? `${height}px;` : '17px')};
   border-radius: ${({ height }) => (!height ? `17px;` : '3px')};
   background-color: #f5f5f5;
-  margin-top: 25px;
+  margin: ${({ forCard }) => (forCard ? `16px 0` : '25px 0 0 0')};
 `;
 let request;
 let currentProjectId;
@@ -211,11 +209,11 @@ function RecordFav(props) {
   };
   const renderSkeleton = height => {
     return (
-      <React.Fragment>
-        <Cell height={height} />
-        <Cell height={height} />
-        <Cell height={height} />
-      </React.Fragment>
+      <div className={cx({ 'pLeft16 pRight16': props.forCard })}>
+        {Array.from({ length: 3 }).map((_, index) => (
+          <Cell key={index} height={height} forCard={props.forCard} />
+        ))}
+      </div>
     );
   };
   const renderNav = () => {
@@ -303,7 +301,7 @@ function RecordFav(props) {
       return <div className="nullCon mTop40">{_l('无搜索结果')}</div>;
     }
     return (
-      <div className={!props.forCard ? 'nullCon empty' : 'emptyWrapper mTop36'}>
+      <div className={!props.forCard ? 'nullCon empty' : 'emptyWrapper'}>
         <img src={collectRecordEmptyPng} />
         <span className={!props.forCard ? 'mTop30 Gary Font15 Block' : ''}>{_l('没有收藏')}</span>
       </div>
@@ -356,54 +354,56 @@ function RecordFav(props) {
     });
   };
   const renderCon = () => {
+    const list = (
+      <React.Fragment>
+        {recordList.length <= 0 ? (
+          nullCon()
+        ) : (
+          <React.Fragment>
+            {recordList.map(o => {
+              return (
+                <Item
+                  {...o}
+                  forCard={props.forCard}
+                  remove={() => onDel(o)}
+                  onShowRecord={() => {
+                    getRowInfo(o);
+                  }}
+                />
+              );
+            })}
+          </React.Fragment>
+        )}
+      </React.Fragment>
+    );
+
     return (
-      <div className="content flex">
+      <div className={cx('content flex', { overflowHidden: !props.forCard })}>
         <div className="con flexColumn h100">
           {!props.forCard && (
-            <div className="flexRow alignItemsCenter hed">
-              <SearchInput
-                className="searchCon mRight10"
-                placeholder={_l('搜索')}
-                value={keywords}
-                onChange={onSearch}
-              />
-              <BaseBtnCon
-                onClick={() => {
-                  onRefresh();
-                }}
-              >
-                <Icon className="Font20 Gray_9e Hand" icon="refresh1" />
-              </BaseBtnCon>
-            </div>
+            <React.Fragment>
+              <div className="flexRow alignItemsCenter hed">
+                <SearchInput
+                  className="searchCon mRight10"
+                  placeholder={_l('搜索')}
+                  value={keywords}
+                  onChange={onSearch}
+                />
+                <BaseBtnCon
+                  onClick={() => {
+                    onRefresh();
+                  }}
+                >
+                  <Icon className="Font20 Gray_9e Hand" icon="refresh1" />
+                </BaseBtnCon>
+              </div>
+              <div className="scrollList flex">
+                <ScrollView className="scrollListCon">{loading ? renderSkeleton(50) : list}</ScrollView>
+              </div>
+            </React.Fragment>
           )}
-          <div className="scrollList flex">
-            <ScrollView className="scrollListCon">
-              {loading ? (
-                renderSkeleton(props.forCard ? 20 : 50)
-              ) : (
-                <React.Fragment>
-                  {recordList.length <= 0 ? (
-                    nullCon()
-                  ) : (
-                    <React.Fragment>
-                      {recordList.map(o => {
-                        return (
-                          <Item
-                            {...o}
-                            forCard={props.forCard}
-                            remove={() => onDel(o)}
-                            onShowRecord={() => {
-                              getRowInfo(o);
-                            }}
-                          />
-                        );
-                      })}
-                    </React.Fragment>
-                  )}
-                </React.Fragment>
-              )}
-            </ScrollView>
-          </div>
+
+          {props.forCard && (loading ? renderSkeleton(24) : list)}
         </div>
       </div>
     );

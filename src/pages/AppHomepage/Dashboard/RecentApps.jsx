@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import RecentOrCollectAppList from './RecentOrCollectAppList';
-import { ScrollView } from 'ming-ui';
 import cx from 'classnames';
-import zjImg from './image/zj.png';
 
 const Wrapper = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
+  height: 100%;
 
   .tabList {
     display: flex;
@@ -46,10 +45,13 @@ const Wrapper = styled.div`
       }
     }
   }
+  .overflowAuto {
+    overflow: auto;
+  }
 `;
 
 export default function RecentApps(props) {
-  const { projectId, onMarkApp, recentApps, recentAppItems, dashboardColor, loading } = props;
+  const { projectId, onMarkApp, recentApps, recentAppItems, dashboardColor, loading, currentTheme } = props;
   const [currentTab, setCurrentTab] = useState('app');
 
   const tabs = [
@@ -60,7 +62,10 @@ export default function RecentApps(props) {
   return (
     <Wrapper themeColor={dashboardColor.themeColor}>
       <div className="cardTitle">
-        <div className="titleText">{_l('最近使用')}</div>
+        <div className="titleText">
+          {currentTheme.recentIcon && <img src={currentTheme.recentIcon} />}
+          {_l('最近使用')}
+        </div>
         <div className="tabList">
           {tabs.map(item => {
             return (
@@ -76,14 +81,14 @@ export default function RecentApps(props) {
         </div>
       </div>
 
-      <ScrollView className="flex">
+      <div className="flex overflowAuto">
         <RecentOrCollectAppList
           projectId={projectId}
           apps={currentTab === 'app' ? recentApps : recentAppItems}
           onMarkApp={onMarkApp}
           loading={loading}
         />
-      </ScrollView>
+      </div>
     </Wrapper>
   );
 }

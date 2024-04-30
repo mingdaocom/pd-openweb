@@ -1,8 +1,8 @@
 import React, { Component, Fragment } from 'react';
-import { Icon, Tooltip, RadioGroup, Input, LoadDiv, Radio } from 'ming-ui';
+import { Icon, Tooltip, RadioGroup, Input, LoadDiv } from 'ming-ui';
 import importUserController from 'src/api/importUser';
 import userAjax from 'src/api/user';
-import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
+import { dialogSelectUser } from 'ming-ui/functions';
 import intlTelInput from '@mdfe/intl-tel-input';
 import '@mdfe/intl-tel-input/build/css/intlTelInput.min.css';
 import utils from '@mdfe/intl-tel-input/build/js/utils';
@@ -16,6 +16,7 @@ import { addUserFeedbackFunc } from '../AddUserFeedback';
 import EditUser from '../EditUser';
 import cx from 'classnames';
 import './index.less';
+import _ from 'lodash';
 
 export default class AddUser extends Component {
   constructor(props) {
@@ -24,7 +25,7 @@ export default class AddUser extends Component {
       departmentIds: [],
       errors: {},
       baseInfo: {},
-      inviteType: md.global.Config.IsLocal ? 'invite' : 'mobile',
+      inviteType: !md.global.SysSettings.enableSmsCustomContent ? 'email' : 'mobile',
     };
     this.it = null;
     this.itiInvite = null;
@@ -32,7 +33,6 @@ export default class AddUser extends Component {
   }
   componentDidMount() {
     this.itiFn();
-    this.itiInviteFn();
   }
   componentWillUnmount() {
     this.iti && this.iti.destroy();
@@ -45,42 +45,31 @@ export default class AddUser extends Component {
       this.iti = intlTelInput(this.mobile, {
         customPlaceholder: '',
         autoPlaceholder: 'off',
-        initialCountry: 'cn',
         loadUtils: '',
-        preferredCountries: ['cn'],
+        initialCountry: _.get(md, 'global.Config.DefaultConfig.initialCountry') || 'cn',
+        preferredCountries: _.get(md, 'global.Config.DefaultConfig.preferredCountries') || ['cn'],
         utilsScript: utils,
         separateDialCode: true,
+        showSelectedDialCode: true,
       });
     }
   };
-  itiInviteFn = () => {
-    if (this.invite) {
-      this.itiInvite = intlTelInput(this.invite, {
-        customPlaceholder: '',
-        autoPlaceholder: 'off',
-        initialCountry: 'cn',
-        loadUtils: '',
-        preferredCountries: ['cn'],
-        utilsScript: utils,
-        separateDialCode: true,
-      });
-      $('.iti__flag-container').hide();
-      $(this.invite).css({ 'padding-left': '15px' });
-    }
-  };
-  itiAutonomouslyFn = () => {
+
+  itiAutonomouslyFn = val => {
     this.itiAutonomously && this.itiAutonomously.destroy();
     this.itiAutonomously = intlTelInput(this.autonomously, {
       customPlaceholder: '',
       autoPlaceholder: 'off',
-      initialCountry: 'cn',
       loadUtils: '',
-      preferredCountries: ['cn'],
+      initialCountry: _.get(md, 'global.Config.DefaultConfig.initialCountry') || 'cn',
+      preferredCountries: _.get(md, 'global.Config.DefaultConfig.preferredCountries') || ['cn'],
       utilsScript: utils,
       separateDialCode: true,
+      showSelectedDialCode: true,
     });
-    $('.iti__flag-container').hide();
     $(this.autonomously).css({ 'padding-left': '15px' });
+    this.autonomously.focus();
+    this.itiAutonomously.setNumber(val);
   };
 
   // 通讯录添加人员
@@ -103,7 +92,6 @@ export default class AddUser extends Component {
   clearSelectUser = () => {
     setTimeout(() => {
       this.itiFn();
-      this.itiInviteFn();
     }, 200);
 
     this.clearError('mobile');
@@ -111,45 +99,23 @@ export default class AddUser extends Component {
     this.setState({
       user: {},
       errors: {},
-      inviteType: md.global.Config.IsLocal ? 'invite' : 'mobile',
+      inviteType: 'mobile',
       mobile: '',
       email: '',
     });
   };
 
   changeFormInfo = (e, field) => {
-    if (!md.global.Config.IsLocal) {
-      this.setState({
-        [field]: field === 'mobile' ? this.iti.getNumber() : field === 'email' ? e : e.target.value,
-        isClickSubmit: false,
-      });
-    } else {
-      const isInvite = field === 'invite';
-      const currentEl = isInvite ? this.invite : this.autonomously;
-      const isMobile = e > 3 && !isNaN(Number(e));
-      this.setState({
-        [field]:
-          field === 'userName' || field === 'autonomouslyPasswrod'
-            ? e.target.value
-            : isMobile
-            ? isInvite
-              ? this.itiInvite.getNumber()
-              : this.itiAutonomously.getNumber()
-            : e,
-        isClickSubmit: false,
-      });
-      if (isInvite || field === 'autonomously') {
-        if (e.length > 3 && !isNaN(Number(e))) {
-          $(currentEl).parent().removeClass('phoneWrapper');
-          $('.iti__flag-container').show();
-          $(currentEl).css({ 'padding-left': '80px' });
-        } else {
-          $('.iti__flag-container').hide();
-          $(currentEl).parent().addClass('phoneWrapper');
-        }
-      }
-      this.clearError(field);
+    const isMobile = field === 'autonomously' && e.length > 3 && !isNaN(Number(e));
+
+    if (isMobile && !this.itiAutonomously) {
+      this.itiAutonomouslyFn(e);
     }
+
+    this.setState({
+      [field]: _.includes(['mobile', 'email', 'autonomously'], field) ? e : e.target.value,
+      isClickSubmit: false,
+    });
   };
   clearError = field => {
     const { errors = {} } = this.state;
@@ -159,22 +125,24 @@ export default class AddUser extends Component {
   // check当前组织是否存在该人员
   checkedUser = (e, type) => {
     const { projectId, typeCursor, departmentId } = this.props;
-    const { mobile, email, inviteType, invite, autonomously } = this.state;
+    const { email, inviteType, autonomously } = this.state;
     let val = e.target.value;
     if (
       (type === 'mobile' && !!checkForm['mobile'](val, this.iti)) ||
-      (type === 'email' && !!checkForm['email'](val))
+      (type === 'email' && !!checkForm['email'](val)) ||
+      (type === 'autonomously' && !!checkForm['autonomously'](val, this.itiAutonomously))
     ) {
       this.setState({ showMask: false });
       return;
     }
-    const userContact = !md.global.Config.IsLocal
-      ? inviteType === 'mobile'
-        ? mobile
-        : email
-      : inviteType === 'invite'
-      ? invite
-      : autonomously;
+    const userContact =
+      inviteType === 'mobile'
+        ? this.iti.getNumber()
+        : inviteType === 'email'
+        ? email
+        : type === 'autonomously' && this.itiAutonomously
+        ? this.itiAutonomously.getNumber()
+        : autonomously;
 
     if (!userContact) {
       this.setState({ showMask: false });
@@ -224,17 +192,8 @@ export default class AddUser extends Component {
   };
   handleSubmit = isClear => {
     const _this = this;
-    const {
-      isUploading,
-      inviteType,
-      userName,
-      mobile,
-      email,
-      user = {},
-      autonomouslyPasswrod,
-      invite,
-      autonomously,
-    } = this.state;
+    const { isUploading, inviteType, userName, email, user = {}, autonomouslyPasswrod, autonomously } = this.state;
+    const mobile = this.iti && this.iti.getNumber();
     const {
       jobIds = [],
       departmentInfos = [],
@@ -249,9 +208,8 @@ export default class AddUser extends Component {
       mobile: inviteType === 'mobile' && !!checkForm['mobile'](mobile, this.iti),
       email: inviteType === 'email' && !!checkForm['email'](email),
       contactPhone: !!checkForm['contactPhone'](contactPhone),
-      invite: this.itiInvite && !!checkForm['invite'](invite, this.itiInvite),
       autonomously: this.itiAutonomously && !!checkForm['autonomously'](autonomously, this.itiAutonomously),
-      autonomouslyPasswrod: !!checkForm['autonomouslyPasswrod'](autonomouslyPasswrod),
+      autonomouslyPasswrod: inviteType === 'autonomously' && !!checkForm['autonomouslyPasswrod'](autonomouslyPasswrod),
     };
 
     this.setState({ isClickSubmit: true, errors });
@@ -264,12 +222,13 @@ export default class AddUser extends Component {
         !!checkForm['contactPhone'](contactPhone)
       : !!checkForm['userName'](userName) || !!checkForm['email'](email) || !!checkForm['contactPhone'](contactPhone);
     if (md.global.Config.IsLocal) {
-      check = !_.isEmpty(user)
-        ? !!checkForm['contactPhone'](contactPhone)
-        : inviteType === 'invite'
-        ? !!checkForm['invite'](invite, this.itiInvite)
-        : !!checkForm['autonomously'](autonomously, this.itiAutonomously) ||
-          !!checkForm['autonomouslyPasswrod'](autonomouslyPasswrod);
+      check =
+        inviteType === 'autonomously' &&
+        (!!checkForm['autonomously'](
+          this.itiAutonomously ? this.itiAutonomously.getNumber() : autonomously,
+          this.itiAutonomously,
+        ) ||
+          !!checkForm['autonomouslyPasswrod'](autonomouslyPasswrod));
     }
     if (check) {
       return false;
@@ -286,11 +245,15 @@ export default class AddUser extends Component {
         accountId: !md.global.Config.IsLocal || !_.isEmpty(user) ? user.accountId : '',
       };
       if (md.global.Config.IsLocal) {
-        params.verifyType = inviteType === 'invite' ? 0 : 1;
+        params.verifyType = _.includes(['mobile', 'email'], inviteType) ? 0 : 1;
         if (inviteType === 'autonomously') {
+          params.account = _.isEmpty(user)
+            ? this.itiAutonomously
+              ? this.itiAutonomously.getNumber()
+              : autonomously
+            : '';
           params.password = encrypt(autonomouslyPasswrod);
         }
-        if (_.isEmpty(user)) params.account = inviteType === 'invite' ? invite : autonomously;
       }
       this.setState({
         isUploading: true,
@@ -319,13 +282,11 @@ export default class AddUser extends Component {
         }
         setTimeout(() => {
           this.itiFn();
-          this.itiInviteFn();
         }, 200);
         this.clearError('mobile');
         this.clearError('email');
-        this.clearError('invite');
         this.setState({
-          inviteType: md.global.Config.IsLocal ? 'invite' : 'mobile',
+          inviteType: 'mobile',
           user: {},
           userName: '',
           mobile: '',
@@ -337,7 +298,6 @@ export default class AddUser extends Component {
           contactPhone: '',
           errors: {},
           isUploading: false,
-          invite: '',
           autonomously: '',
         });
         if (this.mobile) {
@@ -347,153 +307,18 @@ export default class AddUser extends Component {
     }
   };
 
-  renderPrivate = () => {
-    const { userName, inviteType, errors = {}, user = {}, invite, autonomously, autonomouslyPasswrod } = this.state;
-    const { passwordRegexTip } = _.get(md, 'global.SysSettings') || {};
-    return (
-      <Fragment>
-        {_.isEmpty(user) ? (
-          <TextInput
-            ref={ele => (this.userNameInput = ele)}
-            label={_l('姓名')}
-            field={'userName'}
-            value={userName}
-            isRequired={true}
-            placeholder={_l('')}
-            error={errors['userName'] && !!checkForm['userName'](userName)}
-            onChange={e => this.changeFormInfo(e, 'userName')}
-            onFocus={() => {
-              this.clearError('userName');
-            }}
-          >
-            <Tooltip
-              tooltipClass="addUserDressbook"
-              text={<span>{_l('从通讯录添加')}</span>}
-              offset={[-20, 0]}
-              popupPlacement="bottom"
-            >
-              <span
-                className="icon-topbar-addressList Font16 selectUser ThemeHoverColor3"
-                onClick={this.dialogSelectUserHandler}
-              />
-            </Tooltip>
-          </TextInput>
-        ) : (
-          <div className="formGroup">
-            <div className="formLabel">{_l('姓名')}</div>
-            <div>
-              <span className="userLabel">
-                <img src={user.avatar} />
-                <span className="userLabelName">{user.fullname}</span>
-                <span
-                  className="mLeft5 icon-closeelement-bg-circle Font14 Gray_c Hand"
-                  onClick={this.clearSelectUser}
-                />
-              </span>
-              <Tooltip text={_l('从通讯录添加')}>
-                <span
-                  className="icon-topbar-addressList Font16 selectUser ThemeHoverColor3"
-                  onClick={this.dialogSelectUserHandler}
-                />
-              </Tooltip>
-            </div>
-          </div>
-        )}
-        {_.isEmpty(user) && (
-          <div className="formGroup">
-            <div className="formLabel">{_l('添加方式')}</div>
-            <div>
-              <Radio
-                className="mRight25"
-                checked={inviteType === 'invite'}
-                onClick={() => {
-                  this.clearError('invite');
-                  this.clearError('autonomously');
-                  this.setState({ inviteType: 'invite', invite: '', autonomously: '' }, () => {
-                    this.itiInviteFn();
-                  });
-                }}
-                text={_l('邀请加入')}
-              />
-              {!md.global.Config.IsPlatformLocal && (
-                <Radio
-                  checked={inviteType === 'autonomously'}
-                  onClick={() => {
-                    this.clearError('invite');
-                    this.clearError('autonomously');
-                    this.setState({ inviteType: 'autonomously', invite: '', autonomously: '' }, () => {
-                      this.itiAutonomouslyFn();
-                    });
-                  }}
-                  text={_l('自主创建')}
-                />
-              )}
-            </div>
-          </div>
-        )}
-        {inviteType === 'invite' && _.isEmpty(user) && (
-          <div className="formGroup">
-            <div className="formLabel">
-              {_l('手机或邮箱')}
-              <span className="TxtMiddle mLeft5 Gray_9d">( {_l('需已配置对应服务')} )</span>
-            </div>
-            <Input
-              className={cx('formControl input', {
-                error: errors['invite'] && !!checkForm['invite'](invite, this.itiInvite),
-              })}
-              manualRef={ele => (this.invite = ele)}
-              onChange={e => this.changeFormInfo(e, 'invite')}
-              placeholder={_l('请输入')}
-              onFocus={() => {
-                this.clearError('invite');
-              }}
-              onBlur={e => {
-                this.setState({ showMask: true });
-                this.checkedUser(e, 'mobileOrEmail');
-              }}
-            />
-            {errors['invite'] && !!checkForm['invite'](invite, this.itiInvite) && (
-              <div className="Block Red LineHeight25 Hidden">{checkForm['invite'](invite, this.itiInvite)}</div>
-            )}
-          </div>
-        )}
-        {inviteType === 'autonomously' && _.isEmpty(user) && (
-          <div className="formGroup">
-            <div className="formLabel">{_l('登录账号')}</div>
-            <Input
-              className={cx('formControl input', {
-                error: errors['autonomously'] && checkForm['autonomously'](autonomously),
-              })}
-              manualRef={ele => (this.autonomously = ele)}
-              onChange={e => this.changeFormInfo(e, 'autonomously')}
-              placeholder={_l('请输入')}
-              onFocus={() => {
-                this.clearError('autonomously');
-              }}
-            />
-            {errors['autonomously'] && checkForm['autonomously'](autonomously) && (
-              <div className="Block Red LineHeight25 Hidden">{checkForm['autonomously'](autonomously)}</div>
-            )}
-          </div>
-        )}
-        {inviteType === 'autonomously' && _.isEmpty(user) && (
-          <TextInput
-            type="password"
-            field={'autonomouslyPasswrod'}
-            value={autonomouslyPasswrod}
-            placeholder={passwordRegexTip || _l('密码，8-20位，必须含字母+数字')}
-            label={<span>{_l('初始密码')}</span>}
-            onFocus={() => this.clearError('autonomouslyPasswrod')}
-            onChange={e => this.changeFormInfo(e, 'autonomouslyPasswrod')}
-            error={errors.autonomouslyPasswrod}
-          />
-        )}
-      </Fragment>
-    );
-  };
-
   renderBase = () => {
-    const { userName, mobile, email, inviteType, errors = {}, user = {} } = this.state;
+    const {
+      userName,
+      mobile,
+      email,
+      inviteType,
+      errors = {},
+      user = {},
+      autonomously,
+      autonomouslyPasswrod,
+    } = this.state;
+    const { passwordRegexTip } = _.get(md, 'global.SysSettings') || {};
     return (
       <Fragment>
         {_.isEmpty(user) ? (
@@ -550,16 +375,24 @@ export default class AddUser extends Component {
               <RadioGroup
                 checkedValue={inviteType}
                 data={[
-                  { text: _l('手机'), value: 'mobile' },
-                  { text: _l('邮箱'), value: 'email' },
-                ]}
+                  { text: md.global.Config.IsLocal ? _l('手机号邀请') : _l('手机'), value: 'mobile' },
+                  { text: md.global.Config.IsLocal ? _l('邮箱邀请') : _l('邮箱'), value: 'email' },
+                  { text: _l('自主创建'), value: 'autonomously' },
+                ].filter(item => {
+                  if (!md.global.Config.IsLocal || md.global.Config.IsPlatformLocal)
+                    return item.value !== 'autonomously';
+                  if(!md.global.SysSettings.enableSmsCustomContent)
+                    return item.value !== 'mobile';
+                  return true;
+                })}
                 onChange={val => {
                   setTimeout(() => {
                     this.itiFn();
                   }, 200);
                   this.clearError('mobile');
                   this.clearError('email');
-                  this.setState({ inviteType: val, mobile: '', email: '' });
+                  this.clearError('autonomously');
+                  this.setState({ inviteType: val, mobile: '', email: '', autonomously: '', autonomouslyPasswrod: '' });
                 }}
               ></RadioGroup>
             </div>
@@ -572,14 +405,18 @@ export default class AddUser extends Component {
               <span className="TxtMiddle Red">*</span>
             </div>
             <Input
+              value={mobile}
               className={cx('formControl', {
                 error: errors['mobile'] && !!checkForm['mobile'](mobile, this.iti),
               })}
               manualRef={ele => (this.mobile = ele)}
-              onChange={e => this.changeFormInfo(e, 'mobile')}
               placeholder={_l('成员会收到邀请链接，验证后可加入组织')}
               onFocus={() => {
                 this.clearError('mobile');
+              }}
+              onInput={e => {
+                const val = e.target.value.replace(/ +/g, '');
+                this.changeFormInfo(val, 'mobile');
               }}
               onBlur={e => {
                 this.setState({ showMask: true });
@@ -614,6 +451,52 @@ export default class AddUser extends Component {
               <div className="Block Red LineHeight25 Hidden">{checkForm['email'](email)}</div>
             )}
           </div>
+        )}
+        {inviteType === 'autonomously' && _.isEmpty(user) && (
+          <div className="formGroup">
+            <div className="formLabel">{_l('登录账号')}</div>
+            <Input
+              value={autonomously}
+              className={cx('formControl input', {
+                error: errors['autonomously'] && checkForm['autonomously'](autonomously),
+              })}
+              manualRef={ele => (this.autonomously = ele)}
+              onChange={e => this.changeFormInfo(e, 'autonomously')}
+              onInput={e => {
+                const val = e.target.value.replace(/ +/g, '');
+                if ((val.length <= 3 || isNaN(Number(val))) && this.itiAutonomously) {
+                  this.itiAutonomously.destroy();
+                  this.itiAutonomously = null;
+                  this.autonomously.focus();
+                  $(this.autonomously).css({ 'padding-left': '12px' });
+                }
+                this.changeFormInfo(val, 'autonomously');
+              }}
+              placeholder={_l('请输入')}
+              onFocus={() => {
+                this.clearError('autonomously');
+              }}
+              onBlur={e => {
+                this.setState({ showMask: true });
+                this.checkedUser(e, 'autonomously');
+              }}
+            />
+            {errors['autonomously'] && checkForm['autonomously'](autonomously) && (
+              <div className="Block Red LineHeight25 Hidden">{checkForm['autonomously'](autonomously)}</div>
+            )}
+          </div>
+        )}
+        {inviteType === 'autonomously' && _.isEmpty(user) && (
+          <TextInput
+            type="password"
+            field={'autonomouslyPasswrod'}
+            value={autonomouslyPasswrod}
+            placeholder={passwordRegexTip || _l('密码，8-20位，必须含字母+数字')}
+            label={<span>{_l('初始密码')}</span>}
+            onFocus={() => this.clearError('autonomouslyPasswrod')}
+            onChange={e => this.changeFormInfo(e, 'autonomouslyPasswrod')}
+            error={errors.autonomouslyPasswrod}
+          />
         )}
       </Fragment>
     );
@@ -667,7 +550,7 @@ export default class AddUser extends Component {
             ) : (
               <Fragment>
                 <div className="formInfoWrap flex">
-                  {md.global.Config.IsLocal ? this.renderPrivate() : this.renderBase()}
+                  {this.renderBase()}
                   <BaseFormInfo
                     ref={ele => (this.baseFormInfo = ele)}
                     typeCursor={typeCursor}
@@ -679,6 +562,7 @@ export default class AddUser extends Component {
                     jobList={jobList}
                     worksiteList={worksiteList}
                     baseInfo={{ ...baseInfo, departmentIds: departmentId ? [departmentId] : [] }}
+                    hideRole
                   />
                 </div>
                 <DrawerFooterOption

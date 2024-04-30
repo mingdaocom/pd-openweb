@@ -96,8 +96,8 @@ class PreviewHeader extends React.Component {
       okText: _l('登录'),
       onOk: () => {
         window.location = '/login?ReturnUrl=' + encodeURIComponent(window.location.href);
-      }
-    })
+      },
+    });
   };
 
   downloadAttachment = () => {
@@ -346,14 +346,11 @@ class PreviewHeader extends React.Component {
                 </span>
               </div>
             )}
-          {!deleted &&
-            showDownload &&
-            !window.navigator.userAgent.toLowerCase().includes('miniprogram') &&
-            !_.get(window, 'shareState.isPublicForm') && (
-              <div className="download relative Hand" onClick={this.downloadAttachment} data-tip={_l('下载')}>
-                <Icon icon="download" className="valignWrapper mTop1" />
-              </div>
-            )}
+          {!deleted && showDownload && !window.isMiniProgram && !_.get(window, 'shareState.isPublicForm') && (
+            <div className="download relative Hand" onClick={this.downloadAttachment} data-tip={_l('下载')}>
+              <Icon icon="download" className="valignWrapper mTop1" />
+            </div>
+          )}
           {this.props.onClose && (
             <div
               className="close Hand"

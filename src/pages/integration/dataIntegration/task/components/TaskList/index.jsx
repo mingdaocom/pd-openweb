@@ -315,7 +315,7 @@ export default function TaskList({ projectId, onRefreshComponents }) {
       onlyCreated: false,
     };
 
-    dataSourceApi.getTypes(getTypeParams, { fireImmediately: true }).then(res => {
+    dataSourceApi.getTypes(getTypeParams).then(res => {
       if (res) {
         const list = res.map(item => {
           return { key: item.type, text: item.name };
@@ -341,7 +341,7 @@ export default function TaskList({ projectId, onRefreshComponents }) {
       sort: fetchState.sort,
     };
     //获取同步任务列表;
-    ajaxPromise = syncTaskApi.list(fetchListParams, { fireImmediately: true });
+    ajaxPromise = syncTaskApi.list(fetchListParams);
     ajaxPromise.then(result => {
       if (result) {
         setTaskList(fetchState.pageNo > 0 ? taskList.concat(result.content) : result.content);
@@ -384,7 +384,7 @@ export default function TaskList({ projectId, onRefreshComponents }) {
           alert(checked ? res.errorMsg : _l('停止同步任务失败'), 2);
         }
       })
-      .fail(() => {
+      .catch(() => {
         statusAjaxPromise = null;
         setSwitchLoading({ [record.id]: false });
       });

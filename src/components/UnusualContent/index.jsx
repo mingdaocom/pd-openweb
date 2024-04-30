@@ -1,9 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { oneOf } from 'prop-types';
-import { Button, Dialog, Textarea, Skeleton } from 'ming-ui';
+import { Button, Dialog, Textarea, Skeleton, SvgIcon, UserHead } from 'ming-ui';
 import api from 'src/api/appManagement';
-import SvgIcon from 'src/components/SvgIcon';
-import UserHead from 'src/components/userHead';
 import unauthorizedPic from './unauthorized.png';
 import turnoffPic from './turnoff.png';
 import _ from 'lodash';

@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Icon, Dialog } from 'ming-ui';
+import { Tooltip } from 'antd';
 import { pluginConfigType } from '../config';
 import PublishVersion from './PublishVersion';
 import pluginApi from 'src/api/plugin';
 import moment from 'moment';
 import { navigateToView } from 'src/pages/widgetConfig/util/data';
+import _ from 'lodash';
+import ExportPlugin from './ExportPlugin';
+import ClipboardButton from 'react-clipboard.js';
+import { downloadFile } from 'src/util';
 
 const ListWrapper = styled.div`
   .headTr,
@@ -50,9 +55,7 @@ const ListWrapper = styled.div`
     }
     .operateCon {
       display: none;
-      .publishBtn {
-        color: #2196f3;
-      }
+
       .redBtn {
         color: #f44336;
         margin-left: 12px;
@@ -90,17 +93,20 @@ const ListWrapper = styled.div`
   .publishHistoryList {
     .version,
     .operate {
-      flex: 3;
-      width: 0;
+      width: 116px;
     }
+
     .publisher,
     .pubTime {
       flex: 4;
     }
     .description {
       flex: 6;
+    }
+    .publisher,
+    .description {
       width: 0;
-      padding-right: 8px;
+      padding-right: 5px;
     }
   }
 
@@ -128,6 +134,21 @@ const ListWrapper = styled.div`
       }
     }
   }
+
+  .exportHistoryList {
+    .versionCode,
+    .operator,
+    .secretKey,
+    .exportFile {
+      flex: 2;
+    }
+    .createTime {
+      flex: 3;
+    }
+    .operate {
+      flex: 1;
+    }
+  }
 `;
 
 const NoDataWrapper = styled.div`
@@ -143,6 +164,84 @@ const NoDataWrapper = styled.div`
   }
 `;
 
+const SecretDetailItem = styled.div`
+  display: flex;
+  margin-bottom: 16px;
+  .labelText {
+    width: 140px;
+    color: #757575;
+  }
+  .passwordBox {
+    width: 180px;
+    height: 36px;
+    line-height: 36px;
+    padding: 0 12px;
+    border-radius: 3px;
+    background: #f5f5f5;
+  }
+  .expired {
+    color: #f44336;
+  }
+`;
+
+function SecretKeyDialog(props) {
+  const { data, onClose } = props;
+  const { password, projects, servers, validityPeriod } = data;
+  const nowDate = moment().format('YYYY-MM-DD');
+  const expireDays = validityPeriod && moment(validityPeriod).diff(moment(nowDate), 'days');
+
+  return (
+    <Dialog visible title={_l('授权密钥')} width={480} onCancel={onClose} showFooter={false}>
+      <SecretDetailItem className="alignItemsCenter">
+        <div className="labelText">{_l('密码')}</div>
+        <div className="flex flexRow alignItemsCenter">
+          <div className="passwordBox">{password}</div>
+          <ClipboardButton
+            className="pointer Gray_9e ThemeHoverColor3 mLeft16"
+            component="span"
+            data-clipboard-text={password}
+            onSuccess={() => alert(_l('复制成功'))}
+          >
+            <Tooltip title={_l('复制')} placement="bottom">
+              <Icon icon="content-copy" />
+            </Tooltip>
+          </ClipboardButton>
+        </div>
+      </SecretDetailItem>
+
+      {validityPeriod && (
+        <SecretDetailItem>
+          <div className="labelText">{_l('授权到期时间')}</div>
+          <div className="flex">
+            <span>{moment(validityPeriod).format('YYYY-MM-DD 00:00')}</span>
+            <span className={`mLeft8 ${expireDays > 0 ? 'Gray_75' : 'expired'}`}>
+              {expireDays > 0 ? _l('(剩余') + expireDays + _l('天)') : _l('(已过期)')}
+            </span>
+          </div>
+        </SecretDetailItem>
+      )}
+
+      {!!projects.length && (
+        <SecretDetailItem>
+          <div className="labelText">{_l('授权给指定组织')}</div>
+          <div className="flex">
+            {projects.map(item => (
+              <div>{item}</div>
+            ))}
+          </div>
+        </SecretDetailItem>
+      )}
+
+      {!!servers.length && (
+        <SecretDetailItem>
+          <div className="labelText">{_l('授权给指定服务器')}</div>
+          <div className="flex">{servers[0]}</div>
+        </SecretDetailItem>
+      )}
+    </Dialog>
+  );
+}
+
 export default function DetailList(props) {
   const {
     belongType,
@@ -157,10 +256,14 @@ export default function DetailList(props) {
     keywords,
     hasOperateAuth,
     onDelete,
+    projectId,
     isAdmin,
+    onExportSuccess,
+    publishType,
   } = props;
   const source = belongType === 'myPlugin' ? 0 : 1;
   const [publishDialog, setPublishDialog] = useState({ visible: false });
+  const [secretKeyDetail, setSecretKeyDetail] = useState({ visible: false });
 
   const onDel = (type, id) => {
     Dialog.confirm({
@@ -227,7 +330,7 @@ export default function DetailList(props) {
         ),
         render: item => (
           <div className="operateCon">
-            <span className="publishBtn" onClick={() => setPublishDialog({ visible: true, commitId: item.id })}>
+            <span className="ThemeColor" onClick={() => setPublishDialog({ visible: true, commitId: item.id })}>
               {_l('发布')}
             </span>
             <span className="redBtn" onClick={() => onDel(pluginConfigType.commit, item.id)}>
@@ -252,23 +355,28 @@ export default function DetailList(props) {
       },
       {
         dataIndex: 'publisher',
-        title: _l('发布人'),
+        title: source === 0 ? _l('发布人') : _l('操作人'),
         render: item => (
           <div className="flexRow alignItemsCenter">
             <img src={item.publisher.avatar} />
-            <span>{item.publisher.fullname}</span>
+            <span title={item.publisher.fullname} className="overflow_ellipsis">
+              {item.publisher.fullname}
+            </span>
+            {source === 1 && (
+              <span className="mLeft4 mRight5 nowrap">{publishType === 2 ? _l('(导入)') : _l('(发布)')}</span>
+            )}
           </div>
         ),
       },
 
       {
         dataIndex: 'pubTime',
-        title: _l('发布时间'),
+        title: source === 0 ? _l('发布时间') : _l('操作时间'),
         render: item => <div>{item.pubTime ? createTimeSpan(item.pubTime) : ''}</div>,
       },
       {
         dataIndex: 'description',
-        title: _l('说明'),
+        title: _l('版本说明'),
         render: item => (
           <div className="overflow_ellipsis" title={item.description}>
             {item.description}
@@ -282,10 +390,29 @@ export default function DetailList(props) {
         ),
         render: item => (
           <div className="operateCon">
-            {item.versionCode !== currentVersion.versionCode && (
-              <React.Fragment>
+            {source === 0 && (
+              <span
+                className="mRight12 ThemeColor"
+                onClick={() => ExportPlugin({ pluginId, releaseId: item.id, source, onExportSuccess })}
+              >
+                {_l('导出')}
+              </span>
+            )}
+
+            {item.versionCode === currentVersion.versionCode &&
+              item.expireDays >= 0 &&
+              (item.expireDays === 0 ? (
+                <span className="redBtn">{_l('(已过期)')}</span>
+              ) : (
+                <span className="Gray_75">{_l('(剩余') + item.expireDays + _l('天)')}</span>
+              ))}
+
+            {item.versionCode !== currentVersion.versionCode &&
+              (item.expireDays === 0 ? (
+                <span className="redBtn">{_l('(已过期)')}</span>
+              ) : (
                 <span
-                  className="redBtn"
+                  className="ThemeColor"
                   onClick={() => {
                     Dialog.confirm({
                       title: _l(`切换到当前版本 （${item.versionCode}）`),
@@ -301,15 +428,9 @@ export default function DetailList(props) {
                     });
                   }}
                 >
-                  {_l('切换版本')}
+                  {_l('设为当前版本')}
                 </span>
-                {isAdmin && (
-                  <span className="redBtn" onClick={() => onDel(pluginConfigType.publishHistory, item.id)}>
-                    {_l('删除')}
-                  </span>
-                )}
-              </React.Fragment>
-            )}
+              ))}
           </div>
         ),
       },
@@ -354,12 +475,71 @@ export default function DetailList(props) {
         render: item => moment(item.createTime).format('YYYY-MM-DD HH:mm'),
       },
     ],
+    [pluginConfigType.exportHistory]: [
+      { dataIndex: 'versionCode', title: _l('版本') },
+      {
+        dataIndex: 'operator',
+        title: _l('导出人'),
+        render: item => (
+          <div className="flexRow alignItemsCenter">
+            <img src={item.operator.avatar} />
+            <span>{item.operator.fullname}</span>
+          </div>
+        ),
+      },
+      {
+        dataIndex: 'createTime',
+        title: _l('导出时间'),
+        render: item => moment(item.createTime).format('YYYY-MM-DD HH:mm'),
+      },
+      {
+        dataIndex: 'exportFile',
+        title: _l('导出文件'),
+        render: item =>
+          item.url ? (
+            <span
+              className="ThemeColor pointer ThemeHoverColor2"
+              onClick={() =>
+                window.open(
+                  downloadFile(`${md.global.Config.AjaxApiUrl}Download/Plugin?projectId=${projectId}&id=${item.id}`),
+                )
+              }
+            >
+              {_l('下载')}
+            </span>
+          ) : (
+            <span className="Gray_9e">{_l('下载')}</span>
+          ),
+      },
+      {
+        dataIndex: 'secretKey',
+        title: _l('授权密钥'),
+        render: item =>
+          item.profile ? (
+            <span
+              className="ThemeColor pointer ThemeHoverColor2"
+              onClick={() => setSecretKeyDetail({ visible: true, data: item.profile })}
+            >
+              {_l('查看')}
+            </span>
+          ) : (
+            <span className="Gray_9e">{_l('无')}</span>
+          ),
+      },
+      {
+        dataIndex: 'operate',
+        renderTitle: () => (
+          <Icon icon="refresh1" className="Font18 pointer Gray_9e Hover_21" onClick={() => onRefreshList()} />
+        ),
+      },
+    ],
   };
 
   const emptyInfo = {
     [pluginConfigType.commit]: { icon: 'code', text: _l('暂无提交的代码') },
     [pluginConfigType.publishHistory]: { icon: 'extension', text: _l('暂无发布历史') },
     [pluginConfigType.usageDetail]: { icon: 'extension', text: _l('暂无使用') },
+    [pluginConfigType.exportHistory]: { icon: 'extension', text: _l('暂无导出历史') },
   };
 
   return (
@@ -426,6 +606,10 @@ export default function DetailList(props) {
           onClose={() => setPublishDialog({ visible: false })}
           onRefreshDetail={onRefreshDetail}
         />
+      )}
+
+      {secretKeyDetail.visible && (
+        <SecretKeyDialog data={secretKeyDetail.data} onClose={() => setSecretKeyDetail({ visible: false })} />
       )}
     </ListWrapper>
   );

@@ -65,7 +65,7 @@ export const insertNewLine = ({ widgets, srcPath, srcItem, targetIndex }) => {
   );
 };
 
-// 单多条列表切换时，重新布局
+// 列表类型切换时，重新布局
 export const resetDisplay = ({ widgets, srcPath, srcItem, targetIndex }) => {
   const removedSrcItem = removeSrcItem(widgets, srcPath);
   return removeEmptyRow(
@@ -131,7 +131,7 @@ export const insertToCol = ({ widgets, srcPath, ...rest }) => {
 
 export const isFullLineDragItem = item => {
   const { type, data, enumType } = item;
-  if (includes([DRAG_ITEMS.DISPLAY_ITEM, DRAG_ITEMS.DISPLAY_TAB], type)) {
+  if (includes([DRAG_ITEMS.DISPLAY_ITEM, DRAG_ITEMS.DISPLAY_TAB, DRAG_ITEMS.DISPLAY_LIST_TAB], type)) {
     return isFullLineControl(data);
   }
   if (includes([DRAG_ITEMS.LIST_ITEM, DRAG_ITEMS.LIST_TAB], type)) {

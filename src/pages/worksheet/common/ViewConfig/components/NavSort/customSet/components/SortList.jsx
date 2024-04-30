@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Icon } from 'ming-ui';
+import { Icon, UserHead } from 'ming-ui';
 import styled from 'styled-components';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import { SortableContainer, SortableElement, SortableHandle, arrayMove } from 'react-sortable-hoc';
@@ -8,8 +8,7 @@ import Option from './Options';
 import cx from 'classnames';
 import './index.less';
 import { isArray } from 'lodash';
-import UserHead from 'src/components/userHead';
-import quickSelectUser from 'ming-ui/functions/quickSelectUser';
+import { quickSelectUser } from 'ming-ui/functions';
 import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { isSameType } from 'src/pages/worksheet/common/ViewConfig/util.js';
 

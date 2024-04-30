@@ -8,7 +8,7 @@ export default {
   **/
    getAPIUrl: function (args, options = {}) {
      
-     return $.api('Private', 'GetAPIUrl', args, options);
+     return mdyAPI('Private', 'GetAPIUrl', args, options);
    },
   /**
   * 获取API相关参数
@@ -19,6 +19,6 @@ export default {
   **/
    getAPIInfo: function (args, options = {}) {
      options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return $.api('Private', 'GetAPIInfo', args, options);
+     return mdyAPI('Private', 'GetAPIInfo', args, options);
    },
 };

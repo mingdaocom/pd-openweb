@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import intlTelInput from '@mdfe/intl-tel-input';
 import '@mdfe/intl-tel-input/build/css/intlTelInput.min.css';
 import utils from '@mdfe/intl-tel-input/build/js/utils';
@@ -28,6 +28,10 @@ const PhoneWrap = styled.div`
       : ''};
   input {
     padding-right: ${props => (props.showCountry && !props.isEditing && props.itiWidth ? '0px !important' : '12px')};
+  }
+  .iti__dropdown-content {
+    max-width: 390px !important;
+    width: ${props => `${props.mobileWidth || 100}px !important`};
   }
 `;
 
@@ -72,6 +76,8 @@ export default class Widgets extends Component {
       loadUtils: '',
       utilsScript: utils,
       separateDialCode: true,
+      showSelectedDialCode: true,
+      countrySearch: this.getSearchResult(advancedSetting.commcountries),
     });
 
     this.setValue(value);
@@ -101,12 +107,23 @@ export default class Widgets extends Component {
 
   initialCountry() {
     const { enumDefault = 0, advancedSetting } = this.props;
-    return enumDefault === 1 ? 'cn' : advancedSetting.defaultarea ? JSON.parse(advancedSetting.defaultarea).iso2 : 'cn';
+    const initialCountry = _.get(md, 'global.Config.DefaultConfig.initialCountry') || 'cn';
+    return enumDefault === 1
+      ? initialCountry
+      : advancedSetting.defaultarea
+      ? JSON.parse(advancedSetting.defaultarea).iso2
+      : initialCountry;
   }
 
   getCountries(countries = '[]') {
     const { enumDefault = 0 } = this.props;
-    return enumDefault === 1 ? ['cn'] : JSON.parse(countries).map(o => o.iso2);
+    const preferredCountries = _.get(md, 'global.Config.DefaultConfig.preferredCountries') || ['cn'];
+    return enumDefault === 1 ? preferredCountries : JSON.parse(countries).map(o => o.iso2);
+  }
+
+  getSearchResult(commcountries = '[]') {
+    const countries = safeParse(commcountries, 'array');
+    return _.isEmpty(countries);
   }
 
   setValue(value) {
@@ -168,7 +185,10 @@ export default class Widgets extends Component {
     const itiWidth = $(this.input).css('padding-left');
 
     return (
-      <div className={cx({ customFormControlTel: hiddenCountry, customFormControlMobileHover: !disabled })}>
+      <div
+        className={cx({ customFormControlTel: hiddenCountry, customFormControlMobileHover: !disabled })}
+        ref={con => (this.box = con)}
+      >
         <MobilePhoneBox
           showCountry={!hiddenCountry}
           isEditing={isEditing}
@@ -203,6 +223,7 @@ export default class Widgets extends Component {
           isCell={isCell}
           isMobile={browserIsMobile()}
           disabled={disabled}
+          mobileWidth={_.get(this.box, 'offsetWidth')}
         >
           <ClickAwayable onClickAway={() => this.setState({ isEditing: false })}>
             <input

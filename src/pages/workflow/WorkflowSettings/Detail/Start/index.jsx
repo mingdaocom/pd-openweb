@@ -49,11 +49,11 @@ export default class Start extends Component {
    * 获取动作详情
    */
   getNodeDetail = ({ appId = undefined, fields = undefined } = {}) => {
-    const { processId, selectNodeId, selectNodeType, flowInfo, isIntegration } = this.props;
+    const { processId, selectNodeId, selectNodeType, flowInfo, isIntegration, instanceId } = this.props;
 
     flowNode
       .getNodeDetail(
-        { processId, nodeId: selectNodeId, flowNodeType: selectNodeType, appId, fields },
+        { processId, nodeId: selectNodeId, flowNodeType: selectNodeType, appId, fields, instanceId },
         { isIntegration },
       )
       .then(result => {
@@ -369,7 +369,7 @@ export default class Start extends Component {
               <SubProcess data={data} />
             ) : (
               <Fragment>
-                {data.appType === APP_TYPE.SHEET && (
+                {_.includes([APP_TYPE.SHEET, APP_TYPE.EVENT_PUSH], data.appType) && (
                   <WorksheetContent
                     {...this.props}
                     data={data}
@@ -437,7 +437,7 @@ export default class Start extends Component {
           {...this.props}
           isCorrect={
             flowInfo.child ||
-            (_.includes([APP_TYPE.SHEET, APP_TYPE.DATE], data.appType) && data.appId) ||
+            (_.includes([APP_TYPE.SHEET, APP_TYPE.DATE, APP_TYPE.EVENT_PUSH], data.appType) && data.appId) ||
             (data.appType === APP_TYPE.WEBHOOK && data.controls.length) ||
             _.includes(
               [

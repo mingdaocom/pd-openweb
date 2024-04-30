@@ -140,7 +140,7 @@ class PositionInfo extends Component {
                   ref={input => (this.input = input)}
                   onChange={e => {
                     this.props.updateSearchValue(e.target.value);
-                    if (this.ajaxObj && this.ajaxObj.state() === 'pending' && this.ajaxObj.abort) {
+                    if (this.ajaxObj && this.ajaxObj.abort) {
                       this.ajaxObj.abort();
                       this.ajaxObj = null;
                     }

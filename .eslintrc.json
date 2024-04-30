@@ -77,7 +77,6 @@
           "Immutable.Set",
           "Immutable.Map",
           "Immutable.OrderedMap",
-          "$.Deferred",
           "ActiveXObject",
           "GetThumbHtml",
           "SelectGroup",

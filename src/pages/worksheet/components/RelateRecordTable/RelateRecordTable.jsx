@@ -1,0 +1,188 @@
+import React, { Fragment, useCallback, useEffect, useRef, useContext } from 'react';
+import { Skeleton } from 'antd';
+import cx from 'classnames';
+import { connect } from 'react-redux';
+import { arrayOf, bool, func, shape, string } from 'prop-types';
+import { useKey } from 'react-use';
+import { openRecordInfo } from 'worksheet/common/recordInfo';
+import { RecordFormContext } from 'worksheet/common/recordInfo/RecordForm';
+import TableComp from './TableComp';
+import Operate from './Operate';
+import * as actions from './redux/action';
+import { get, isFunction, isUndefined, pick } from 'lodash';
+import { bindActionCreators } from 'redux';
+import styled from 'styled-components';
+
+const TableCon = styled.div`
+  &.userSelectNone {
+    * {
+      user-select: none !important;
+    }
+  }
+`;
+
+function RelateRecordTable(props) {
+  const {
+    mode = 'recordForm',
+    saveSync,
+    isSplit,
+    base = {},
+    tableState = {},
+    loading,
+    control,
+    records,
+    useHeight,
+  } = props;
+  const { updateWorksheetControls } = props;
+  const { updateRecord, deleteRecords, refresh, updateBase, updateTableConfigByControl } = props;
+  const { isTab, isInForm, allowEdit, controlPermission, relateWorksheetInfo } = base;
+  if (loading) {
+    return tableState.error ? (
+      <div className="center Gray_9e pTop100">{tableState.error}</div>
+    ) : (
+      <Skeleton
+        style={{
+          ...(isSplit && { overflow: 'auto', padding: '0 24px' }),
+        }}
+      />
+    );
+  }
+  const tableCache = useRef({});
+  const tableConRef = useRef();
+  const { width } = useContext(RecordFormContext) || {};
+  const smallMode = width < 500;
+  const handleOpenRecordInfo = useCallback(
+    args => {
+      const { recordId, activeRelateTableControlId } = args;
+      openRecordInfo({
+        showPrevNext: true,
+        currentSheetRows: records.filter(r => r.rowid),
+        from: 2,
+        visible: true,
+        appId: relateWorksheetInfo.appId,
+        viewId: get(control, 'advancedSetting.openview') || control.viewId,
+        recordId: recordId,
+        activeRelateTableControlId: activeRelateTableControlId,
+        worksheetId: relateWorksheetInfo.worksheetId,
+        relationWorksheetId: base.worksheetId,
+        rules: relateWorksheetInfo.rules,
+        updateRows: ([rowid], newRecord) => {
+          updateRecord(newRecord);
+        },
+        projectId: relateWorksheetInfo.projectId,
+        onDeleteSuccess: () => {
+          if (!control.disabled && allowEdit && controlPermission.editable) {
+            deleteRecords([recordId]);
+          }
+        },
+      });
+    },
+    [control.controlId, records],
+  );
+  useEffect(() => {
+    if (isUndefined(saveSync)) {
+      return;
+    }
+    updateBase({
+      saveSync,
+    });
+  }, [saveSync]);
+  useEffect(() => {
+    updateTableConfigByControl(control);
+  }, [
+    control.fieldPermission,
+    control.controlPermissions,
+    control.advancedSetting,
+    control.disabled,
+    control.enumDefault,
+    control.enumDefault2,
+  ]);
+  useKey(
+    'Shift',
+    () => {
+      tableCache.current.shiftActive = false;
+      setTimeout(() => {
+        if (!tableConRef.current) return;
+        tableConRef.current.className = tableConRef.current.className.replace(' userSelectNone', '');
+      }, 500);
+    },
+    { event: 'keyup' },
+    [],
+  );
+  useKey(
+    'Shift',
+    () => {
+      tableCache.current.shiftActive = true;
+      if (!tableConRef.current) return;
+      tableConRef.current.className = tableConRef.current.className + ' userSelectNone';
+    },
+    { event: 'keydown' },
+    [],
+  );
+  useEffect(() => {
+    if (isFunction(control.addRefreshEvents)) {
+      control.addRefreshEvents(control.controlId, refresh);
+    }
+  }, []);
+  return (
+    <Fragment>
+      {
+        <Operate
+          mode={mode}
+          smallMode={smallMode}
+          className={cx('mBottom10', { mTop10: !isSplit && isTab })}
+          style={{
+            ...(isSplit && { padding: '10px 24px' }),
+          }}
+          cache={tableCache}
+          handleOpenRecordInfo={handleOpenRecordInfo}
+        />
+      }
+      <TableCon
+        className={cx({ flex: isSplit || useHeight, mTop30: smallMode && isInForm })}
+        style={{
+          ...(isSplit && { overflow: 'auto', padding: '0 24px' }),
+        }}
+        ref={tableConRef}
+      >
+        <TableComp
+          useHeight={useHeight}
+          handleOpenRecordInfo={handleOpenRecordInfo}
+          updateWorksheetControls={updateWorksheetControls}
+          cache={tableCache}
+        />
+      </TableCon>
+      {isSplit && <div style={{ height: 30 }} />}
+    </Fragment>
+  );
+}
+
+RelateRecordTable.propTypes = {
+  mode: string,
+  base: shape({}),
+  saveSync: bool,
+  isSplit: bool,
+  loading: bool,
+  control: shape({}),
+  records: arrayOf(shape({})),
+  useHeight: bool,
+  updateWorksheetControls: func,
+  updateRecord: func,
+  deleteRecords: func,
+  updateBase: func,
+  refresh: func,
+  updateTableConfigByControl: func,
+};
+
+const mapStateToProps = state => ({
+  ...state,
+});
+const mapDispatchToProps = dispatch => ({
+  refresh: bindActionCreators(actions.refresh, dispatch),
+  updateBase: bindActionCreators(actions.updateBase, dispatch),
+  updateRecord: bindActionCreators(actions.updateRecord, dispatch),
+  deleteRecords: bindActionCreators(actions.deleteRecords, dispatch),
+  updateTableConfigByControl: bindActionCreators(actions.updateTableConfigByControl, dispatch),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(RelateRecordTable);

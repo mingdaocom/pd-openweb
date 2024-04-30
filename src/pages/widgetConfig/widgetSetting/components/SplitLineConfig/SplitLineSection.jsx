@@ -1,28 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Icon } from 'ming-ui';
+import { Icon, SvgIcon } from 'ming-ui';
 import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting';
 import { SectionItemWrap } from './style';
-import SvgIcon from 'src/components/SvgIcon';
 import WidgetStatus from 'src/pages/widgetConfig/widgetDisplay/components/WidgetStatus.jsx';
 import { browserIsMobile } from 'src/util';
 import { getExpandWidgetIds } from './config';
-import { controlState } from 'src/components/newCustomFields/tools/utils.js';
 import cx from 'classnames';
 import _ from 'lodash';
 
 export default function SplitLineSection(props) {
   // fromType = 'display' 表单详情
-  const {
-    data,
-    sectionstyle,
-    widgets = [],
-    activeWidget = {},
-    totalErrors = [],
-    from,
-    fromType,
-    renderData = [],
-    setNavVisible,
-  } = props;
+  const { data, sectionstyle, widgets = [], activeWidget = {}, from, fromType, renderData = [], setNavVisible } = props;
   const { enumDefault2 = 0, controlName, controlId } = data;
   const { theme = '#2196f3', color = '#333', icon = '', hidetitle } = getAdvanceSetting(data);
   const isMobile = browserIsMobile();
@@ -35,26 +23,17 @@ export default function SplitLineSection(props) {
   useEffect(() => {
     handleExpand(enumDefault2 !== 2);
     $originIds.current = expandWidgetIds;
+
+    if (_.isFunction(props.registerCell)) {
+      props.registerCell({ handleExpand: value => handleExpand(value) });
+    }
   }, [controlId]);
 
   useEffect(() => {
-    if (totalErrors.length > 0) {
-      const visibleErrors = totalErrors
-        .filter(i => _.includes(expandWidgetIds, i.controlId) && i.showError)
-        .filter(i => {
-          const currentControl = _.find(renderData, da => da.controlId === i.controlId);
-          return controlState(currentControl, from).visible && controlState(currentControl, from).editable;
-        });
-      if (visibleErrors.length > 0 && !visible) {
-        handleExpand(true);
-      }
+    if (!_.isEqual($originIds.current, expandWidgetIds)) {
+      $originIds.current = expandWidgetIds;
+      handleExpand(visible);
     }
-  }, [totalErrors]);
-
-  useEffect(() => {
-    if (_.isEqual($originIds.current, expandWidgetIds)) return;
-    $originIds.current = expandWidgetIds;
-    handleExpand(visible);
   }, [expandWidgetIds]);
 
   const handleExpand = tempVisible => {

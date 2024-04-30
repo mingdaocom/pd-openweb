@@ -1,8 +1,7 @@
 import React, { useState, useCallback, Fragment } from 'react';
 import styled from 'styled-components';
 import Trigger from 'rc-trigger';
-import UserHead from 'src/components/userHead';
-import { Button, LoadDiv, ScrollView } from 'ming-ui';
+import { Button, LoadDiv, ScrollView, UserHead } from 'ming-ui';
 import chatAjax from 'src/api/chat';
 import addressBookAjax from 'src/api/addressBook';
 import groupAjax from 'src/api/group';

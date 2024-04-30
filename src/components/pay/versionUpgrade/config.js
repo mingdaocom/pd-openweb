@@ -236,7 +236,22 @@ const featureData = [
   },
   {
     className: 'appBackupRestore',
-    name: _l('应用备份/还原/升级'),
+    name: _l('应用备份/还原'),
+    dataTip: '',
+    value0: 'basicNo',
+    value1: 'basicNo',
+    value2: {
+      row1: _l('每个应用%0个', 10),
+      row2: _l('有效期%0天', 60),
+    },
+    value3: {
+      row1: _l('不限'),
+      row2: _l('有效期一年'),
+    },
+  },
+  {
+    className: 'appUpgrade',
+    name: _l('应用升级'),
     dataTip: '',
     value0: 'basicNo',
     value1: 'basicNo',
@@ -287,6 +302,15 @@ const featureData = [
     dataTip: _l(
       '可根据配置的打印模板将记录转为PDF、Word或Excel文件，可以通过新增记录、更新记录或发送邮件节点将文件写入附件',
     ),
+    value0: 'basicNo',
+    value1: 'basicPng',
+    value2: 'basicPng',
+    value3: 'basicPng',
+  },
+  {
+    className: 'pageQuickPhoto',
+    name: _l('获取页面快照'),
+    dataTip: '',
     value0: 'basicNo',
     value1: 'basicPng',
     value2: 'basicPng',

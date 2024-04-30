@@ -10,12 +10,27 @@ import AuthorizationList from './AuthorizationList';
 
 const minWidth = 325;
 
-const ApplyNumber = styled.div`
-  width: 20px;
-  height: 20px;
-  background: #f8d4d3;
-  color: #f44336;
-  border-radius: 50%;
+const ApplyBtn = styled.div`
+  height: 36px;
+  padding: 0 10px;
+  border-radius: 36px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  &:hover {
+    background: #f5f5f5;
+  }
+  .applyNumber {
+    width: 20px;
+    height: 20px;
+    background: #f8d4d3;
+    color: #f44336;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 5px;
+  }
 `;
 
 const SearchBox = styled.div`
@@ -250,16 +265,19 @@ export default function CustomLibrary(props) {
           {_l('组织')}({list.length})
         </div>
 
-        <div className="Font14 Gray_75 ThemeHoverColor3 pointer" onClick={() => setAuthListVisible(true)}>
-          {_l('申请使用')}
-        </div>
-        {!!applyCount && (
-          <ApplyNumber className="mLeft5 flexRow alignItemsCenter justifyContentCenter">{applyCount}</ApplyNumber>
-        )}
+        <ApplyBtn onClick={() => setAuthListVisible(true)}>
+          <span className="Font14 Gray_75">{_l('申请使用')}</span>
+          {!!applyCount && <div className="applyNumber">{applyCount}</div>}
+        </ApplyBtn>
 
         <SearchBox className="flexRow alignItemsCenter mLeft20">
           <Icon type="search" className="Font18 Gray_9d" />
-          <input type="text" ref={keywordsRef} placeholder={_l('搜索连接')} onChange={e => onChange(e.target.value.trim())} />
+          <input
+            type="text"
+            ref={keywordsRef}
+            placeholder={_l('搜索连接')}
+            onChange={e => onChange(e.target.value.trim())}
+          />
           {keywords && (
             <div
               className="searchClear flexRow alignItemsCenter justifyContentCenter"

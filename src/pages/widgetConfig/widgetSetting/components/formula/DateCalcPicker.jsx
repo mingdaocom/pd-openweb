@@ -36,11 +36,6 @@ export default class DateCalcPicker extends Component {
     let type = control.type;
     if (type === 15 || type === 16) {
       dateStr = worksheetData[control.controlId];
-    } else {
-      dateStr = formatColumnToText(_.assign({}, control, { value: worksheetData[control.controlId] }), true);
-      if (type === 29) {
-        type = control.sourceControlType;
-      }
     }
     if (!dateStr) {
       return _l('空');
@@ -88,9 +83,9 @@ export default class DateCalcPicker extends Component {
         w =>
           w &&
           (w.data.type === 15 || // 日期
-          w.data.type === 16 || // 日期和时间
-          w.data.enumDefault2 === 15 || // 汇总日期
-          w.data.enumDefault2 === 16 || // 汇总日期和时间
+            w.data.type === 16 || // 日期和时间
+            w.data.enumDefault2 === 15 || // 汇总日期
+            w.data.enumDefault2 === 16 || // 汇总日期和时间
             (w.data.type === 29 &&
               w.data.sourceControl &&
               (w.data.sourceControl.type === 15 || w.data.sourceControl.type === 16)) ||

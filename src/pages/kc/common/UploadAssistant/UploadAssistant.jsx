@@ -6,7 +6,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import Immutable from 'immutable';
 import Icon from 'ming-ui/components/Icon';
-import mdNotification from 'ming-ui/functions/notify';
+import { mdNotification } from 'ming-ui/functions';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withHoverState from 'ming-ui/decorators/withHoverState';
 import folderDg from 'src/components/kc/folderSelectDialog/folderSelectDialog';
@@ -143,9 +143,8 @@ class UploadAssistant extends React.Component {
       before_upload_check: (up, files) =>
         service.getUsage().then(usage => {
           if (usage.used + files.reduce((total, file) => total + (file.size || 0), 0) > usage.total) {
-            return $.Deferred().reject(_l('选择的文件超过本月上传流量上限'));
+            return Promise.reject(_l('选择的文件超过本月上传流量上限'));
           }
-          return $.Deferred().resolve();
         }),
       init: {
         PostInit() {
@@ -172,20 +171,20 @@ class UploadAssistant extends React.Component {
         },
         FilesAdded(up, files) {
           function testFolder(nativeFile) {
-            const folderTestDfd = $.Deferred();
-            if (nativeFile && nativeFile.size % 4096 == 0 && nativeFile.size <= 102400) {
-              const reader = new FileReader();
-              reader.onload = function () {
-                folderTestDfd.resolve();
-              };
-              reader.onerror = function () {
-                folderTestDfd.reject();
-              };
-              reader.readAsText(nativeFile);
-            } else {
-              folderTestDfd.resolve();
-            }
-            return folderTestDfd.promise();
+            return new Promise((resolve, reject) => {
+              if (nativeFile && nativeFile.size % 4096 == 0 && nativeFile.size <= 102400) {
+                const reader = new FileReader();
+                reader.onload = function () {
+                  resolve();
+                };
+                reader.onerror = function () {
+                  reject();
+                };
+                reader.readAsText(nativeFile);
+              } else {
+                resolve();
+              }
+            });
           }
 
           let { fileList } = comp.state;
@@ -200,7 +199,7 @@ class UploadAssistant extends React.Component {
             }
 
             const nativeFile = file.getNative();
-            testFolder(nativeFile).fail(() => {
+            testFolder(nativeFile).catch(() => {
               alert(_l('此浏览器不支持上传文件夹'), 3);
               up.removeFile(file);
             });
@@ -287,7 +286,7 @@ class UploadAssistant extends React.Component {
                 window.opener.reloadNodeList(item.rootId, item.parentId, parseInt(fsize, 10));
               }
             })
-            .fail(() => {
+            .catch(() => {
               const fileList = comp.state.fileList.update(file.id, fileItem => {
                 fileItem.status = UPLOAD_STATUS.ERROR;
                 return fileItem;
@@ -300,7 +299,7 @@ class UploadAssistant extends React.Component {
 
     window.setUploadLocation = ({ position, parentId, rootId }) => {
       const uploadPathPromise = position ? service.getReadablePosition(position) : _l('我的文件');
-      $.when(uploadPathPromise).then(uploadPath => {
+      Promise.all([uploadPathPromise]).then(([uploadPath]) => {
         this._isMounted && this.setState({ uploadPath, parentId, rootId });
       });
       return true;
@@ -349,7 +348,7 @@ class UploadAssistant extends React.Component {
     let rightM = 0;
     /* 存在滚动条*/
     if (domHeight < elementHeight) {
-      rightM = $.browser.chrome ? 5 : 17;
+      rightM = window.isChrome ? 5 : 17;
     }
 
     $('.fileListHeader .fileListAction').css('marginRight', rightM);
@@ -403,7 +402,7 @@ class UploadAssistant extends React.Component {
           rootId = parentId = '';
           break;
       }
-      $.when(uploadPathPromise).then(uploadPath => {
+      Promise.all([uploadPathPromise]).then(([uploadPath]) => {
         this._isMounted && this.setState({ uploadPath, rootId, parentId });
       });
     });
@@ -462,7 +461,7 @@ class UploadAssistant extends React.Component {
               <span className="chooseBtnText">{_l('选择文件')}</span>
             </HoverState>
 
-            {window.navigator.userAgent.indexOf('MDClient') === -1 && (
+            {!window.isMDClient && (
               <HoverState
                 thisArg={this}
                 onClick={this.selectDirectory}

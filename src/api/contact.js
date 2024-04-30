@@ -8,6 +8,6 @@ export default {
   **/
    getContactInfo: function (args, options = {}) {
      
-     return $.api('Contact', 'GetContactInfo', args, options);
+     return mdyAPI('Contact', 'GetContactInfo', args, options);
    },
 };

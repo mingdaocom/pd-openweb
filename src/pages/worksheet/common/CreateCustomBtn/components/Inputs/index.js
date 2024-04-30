@@ -5,6 +5,8 @@ import DynamicDefaultValue from 'src/pages/widgetConfig/widgetSetting/components
 import cx from 'classnames';
 import styled from 'styled-components';
 import _ from 'lodash';
+import './style.less';
+
 const WrpCheck = styled.div`
   .Icon {
     left: 0 !important;
@@ -84,7 +86,7 @@ export default function Input(props) {
               })}
             </Menu>
           }
-          popupClassName={cx('dropdownTrigger')}
+          popupClassName={cx('dropdownTrigger optionsConDropdownTrigger')}
           popupVisible={visible}
           onPopupVisibleChange={visible => {
             setVisible(visible);
@@ -97,7 +99,7 @@ export default function Input(props) {
             },
           }}
         >
-          <span className="txt Hand" onClick={() => setVisible(true)}>
+          <span className="txt Hand ellipsis" onClick={() => setVisible(true)}>
             {staticValue
               .filter(it => options.map(item => item.key).includes(it))
               .map(o => {

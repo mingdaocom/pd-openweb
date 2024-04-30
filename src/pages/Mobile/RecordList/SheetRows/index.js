@@ -86,8 +86,8 @@ class SheetRows extends Component {
               }
               return;
             }
-            const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
-            if (isMingdao) {
+
+            if (window.isMingDaoApp) {
               const { appId, worksheetId, viewId } = this.props;
               window.location.href = `/mobile/record/${base.appId}/${base.worksheetId}/${base.viewId || view.viewId}/${
                 item.rowid

@@ -169,7 +169,7 @@ export default function RecordCoverCard(props) {
           }}
           onClick={e => {
             e.stopPropagation();
-            previewQiniuUrl(cover.replace(/\|imageView2\/1\/w\/\d+\/h\/\d+/, ''), {
+            previewQiniuUrl(cover.replace(/imageView2.+/, ''), {
               disableDownload: true,
               ext: (cover.match(/\.(jpg|jpeg|png|gif|bmp)(\?|$)/i) || '')[1] || 'png',
             });

@@ -247,11 +247,11 @@ export default ({ data, updateSource, isIntegration }) => {
           </div>
           {item.type === 10000003 && (
             <Textarea
-              className="mTop10"
+              className="mTop10 Font13"
               maxHeight={250}
               minHeight={0}
               disabled={!validate(item.controlId)}
-              style={{ paddingTop: 6, paddingBottom: 6 }}
+              style={{ paddingTop: 7, paddingBottom: 7 }}
               placeholder={_l('数组结构（请给出一个范例）')}
               value={item.value}
               onChange={value => {

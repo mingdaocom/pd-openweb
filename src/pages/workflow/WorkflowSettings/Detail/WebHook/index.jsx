@@ -12,7 +12,7 @@ import {
   SpecificFieldsValue,
   FindResult,
 } from '../components';
-import { APP_TYPE, METHODS_TYPE } from '../../enum';
+import { ACTION_ID, APP_TYPE, METHODS_TYPE } from '../../enum';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { checkJSON } from '../../utils';
@@ -67,10 +67,10 @@ export default class WebHook extends Component {
    * 获取节点详情
    */
   getNodeDetail(props) {
-    const { processId, selectNodeId, selectNodeType, isIntegration } = props;
+    const { processId, selectNodeId, selectNodeType, isIntegration, instanceId } = props;
 
     flowNode
-      .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType }, { isIntegration })
+      .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, instanceId }, { isIntegration })
       .then(result => {
         if (!result.headers.length) {
           result.headers.push({
@@ -236,7 +236,7 @@ export default class WebHook extends Component {
         <div className="mTop20">{this.renderUrl()}</div>
         {this.renderHeaders()}
 
-        <div className="Gray_75 mTop15">
+        <div className="Gray_75 mTop15 flexRow alignItemsCenter">
           <i className="icon-workflow_error mRight5 Font16" />
           {_l('查看发送数据的')}
           <a className="mLeft5" onClick={this.openChecksheet}>
@@ -768,7 +768,7 @@ export default class WebHook extends Component {
 
           if (!json.trim() || checkJSON(json)) {
             this.updateSource({ json });
-            this.send({}, json);
+            this.send(data.testMap, json);
             resolve();
           } else {
             alert(_l('JSON格式有错误'), 2);
@@ -778,6 +778,34 @@ export default class WebHook extends Component {
       },
     });
   };
+
+  /**
+   * 渲染推送数据
+   */
+  renderPushSource() {
+    const { data } = this.state;
+
+    return (
+      <Fragment>
+        <div className="Font13">
+          <span className="Gray_9e">
+            {_l('用于接收事件推送消息，格式如下：必须为HTTP/HTTPS支持POST请求的公网可访问的地址，不能携带任何参数。')}
+          </span>
+          <a onClick={this.openChecksheet}>{_l('查看推送数据结构')}</a>
+        </div>
+
+        <div className="flexRow mTop10">
+          <input
+            type="text"
+            className="flex ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10"
+            placeholder={_l('推送地址')}
+            value={data.sendContent}
+            onChange={e => this.updateSource({ sendContent: e.target.value.trim() })}
+          />
+        </div>
+      </Fragment>
+    );
+  }
 
   render() {
     const { data } = this.state;
@@ -791,22 +819,27 @@ export default class WebHook extends Component {
         <DetailHeader
           {...this.props}
           data={{ ...data }}
-          icon="icon-workflow_webhook"
+          icon={data.actionId === ACTION_ID.PBC_OUT ? 'icon-sending' : 'icon-workflow_webhook'}
           bg="BGBlueAsh"
           updateSource={this.updateSource}
         />
         <div className="flex">
           <ScrollView>
             <div className="workflowDetailBox">
-              {_.includes([APP_TYPE.SHEET, APP_TYPE.CUSTOM_ACTION], data.appType) && this.renderDefaultSource()}
+              {_.includes([APP_TYPE.SHEET, APP_TYPE.CUSTOM_ACTION, APP_TYPE.EVENT_PUSH], data.appType) &&
+                data.actionId !== ACTION_ID.PBC_OUT &&
+                this.renderDefaultSource()}
               {data.appType === APP_TYPE.WEBHOOK && this.renderCustomSource()}
+              {data.actionId === ACTION_ID.PBC_OUT && this.renderPushSource()}
             </div>
           </ScrollView>
         </div>
         <DetailFooter
           {...this.props}
           isCorrect={
-            ((data.appType === APP_TYPE.SHEET && data.selectNodeId) || data.appType === APP_TYPE.WEBHOOK) &&
+            ((_.includes([APP_TYPE.SHEET, APP_TYPE.EVENT_PUSH], data.appType) && data.selectNodeId) ||
+              data.appType === APP_TYPE.WEBHOOK ||
+              data.actionId === ACTION_ID.PBC_OUT) &&
             data.sendContent
           }
           onSave={this.onSave}

@@ -1,8 +1,7 @@
 ﻿import React from 'react';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
-import UserHead from 'src/components/userHead';
-import UserName from 'src/components/userName';
+import { UserHead, UserName } from 'ming-ui';
 import PostMain from './postMain';
 import PostMessage from './postMessage';
 import PostFooter from './postFooter';
@@ -45,7 +44,11 @@ class PostIReply extends React.Component {
 
     return (
       <div className={cx('postContainer', this.props.className)}>
-        <UserHead className="userHead left" user={{...postItem.user, userHead: postItem.user.userMiddleHead}} size={48} />
+        <UserHead
+          className="userHead left"
+          user={{ ...postItem.user, userHead: postItem.user.userMiddleHead }}
+          size={48}
+        />
         <div className="userMain">
           <PostMain postItem={postItem} isSummary={this.props.isSummary} />
           <div className="postContent mTop10" style={{ minHeight: 0 }}>

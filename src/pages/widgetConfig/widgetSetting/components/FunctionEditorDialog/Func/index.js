@@ -84,6 +84,7 @@ function Func(props, ref) {
     onSave,
     className,
     onChange,
+    customTitle,
   } = props;
   const [type, setType] = useState(value.type || 'mdfunction');
   const [codeEditorLoading, setCodeEditorLoading] = useState(false);
@@ -134,7 +135,7 @@ function Func(props, ref) {
   return (
     <Con className={cx('functionEditor', className)}>
       <Header>
-        {_l('编辑函数')}
+        {customTitle || _l('编辑函数')}
         {supportJavaScript && (
           <ActiveJsSwitchCon>
             <Switch

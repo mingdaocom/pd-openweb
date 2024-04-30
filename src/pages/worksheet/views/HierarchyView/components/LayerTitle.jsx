@@ -40,7 +40,13 @@ const ItemTitle = styled.ul`
   }
 `;
 
-export default function LayerTitle({ layerLength = 1, layersName = [], updateLayersName, scale, isStraightLine=false }) {
+export default function LayerTitle({
+  layerLength = 1,
+  layersName = [],
+  updateLayersName,
+  scale,
+  isStraightLine = false,
+}) {
   const [activeIndex, setIndex] = useState(-1);
   const [{ titles }, setNames] = useSetState({ titles: layersName });
   return (
@@ -74,7 +80,13 @@ export default function LayerTitle({ layerLength = 1, layersName = [], updateLay
                 }}
               />
             ) : (
-              <span className={cx('overflow_ellipsis', value ? 'Gray_75 Bold' : 'Gray_bd Bold')} onClick={() => setIndex(index)}>
+              <span
+                className={cx('overflow_ellipsis', value ? 'Gray_75 Bold' : 'Gray_bd Bold')}
+                onClick={() => {
+                  if (_.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage')) return;
+                  setIndex(index);
+                }}
+              >
                 {value || _l('%0级', nzh.cn.encodeS(index + 1))}
               </span>
             )}

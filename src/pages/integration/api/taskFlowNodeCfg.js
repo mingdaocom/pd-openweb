@@ -14,7 +14,7 @@ var taskFlowNodeCfg = {
   agg: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'taskFlowNodeCfg/agg';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'taskFlowNodeCfgagg', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'taskFlowNodeCfgagg', args, $.extend(base, options));
   },
 
   /**
@@ -29,7 +29,7 @@ var taskFlowNodeCfg = {
   dest: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'taskFlowNodeCfg/dest';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'taskFlowNodeCfgdest', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'taskFlowNodeCfgdest', args, $.extend(base, options));
   },
 
   /**
@@ -44,7 +44,7 @@ var taskFlowNodeCfg = {
   union: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'taskFlowNodeCfg/union';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'taskFlowNodeCfgunion', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'taskFlowNodeCfgunion', args, $.extend(base, options));
   },
 
   /**
@@ -59,7 +59,7 @@ var taskFlowNodeCfg = {
   filter: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'taskFlowNodeCfg/filter';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'taskFlowNodeCfgfilter', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'taskFlowNodeCfgfilter', args, $.extend(base, options));
   },
 
   /**
@@ -74,7 +74,7 @@ var taskFlowNodeCfg = {
   join: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'taskFlowNodeCfg/join';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'taskFlowNodeCfgjoin', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'taskFlowNodeCfgjoin', args, $.extend(base, options));
   },
 
   /**
@@ -89,7 +89,7 @@ var taskFlowNodeCfg = {
   src: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'taskFlowNodeCfg/src';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'taskFlowNodeCfgsrc', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'taskFlowNodeCfgsrc', args, $.extend(base, options));
   }
 };
 

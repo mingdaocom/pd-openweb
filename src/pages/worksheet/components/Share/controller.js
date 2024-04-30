@@ -15,6 +15,12 @@ import _ from 'lodash';
 
 // TODO 更新回调
 
+const SHARE_SOURCE_TYPE = {
+  worksheetApi: 45,
+  customPage: 21,
+  report: 31,
+}
+
 export async function getUrl(args) {
   const { from } = args;
   let url;
@@ -70,12 +76,13 @@ export async function getPublicShare(args) {
         isEdit,
       });
       break;
+    case 'worksheetApi':
     case 'customPage':
     case 'report':
       res = await appManagementAjax.getEntityShare({
         appId: args.appId,
         sourceId: args.sourceId,
-        sourceType: from === 'report' ? 31 : 21,
+        sourceType: SHARE_SOURCE_TYPE[from],
       });
       res.shareLink = res.url;
       break;
@@ -134,12 +141,13 @@ export async function updatePublicShareStatus(args) {
       }
       onUpdate({ shareRange: isPublic ? 2 : 1 });
       break;
+    case 'worksheetApi':
     case 'customPage':
     case 'report':
       res = await appManagementAjax.editEntityShareStatus({
         appId: args.appId,
         sourceId: args.sourceId,
-        sourceType: from === 'report' ? 31 : 21,
+        sourceType: SHARE_SOURCE_TYPE[from],
         status: isPublic ? 1 : 0,
         validTime,
         password

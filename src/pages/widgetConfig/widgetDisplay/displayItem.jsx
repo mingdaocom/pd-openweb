@@ -4,11 +4,18 @@ import update from 'immutability-helper';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { includes, head, some, pick, get, last, isEmpty, find, flatten } from 'lodash';
-import { DRAG_ITEMS, WHOLE_SIZE, DRAG_MODE, DRAG_DISTANCE } from '../config/Drag';
-import { resetWidgets, getDefaultSizeByData, relateOrSectionTab, putControlByOrder, genWidgetRowAndCol } from '../util';
+import { DRAG_ITEMS, WHOLE_SIZE, DRAG_MODE, DRAG_DISTANCE, DRAG_ACCEPT } from '../config/Drag';
+import {
+  resetWidgets,
+  getDefaultSizeByData,
+  notInsetSectionTab,
+  putControlByOrder,
+  genWidgetRowAndCol,
+  isTabSheetList,
+} from '../util';
 import { insertNewLine, insertToCol, insertToRowEnd, isFullLineDragItem, batchRemoveItems } from '../util/drag';
 import { getPathById, isFullLineControl } from '../util/widgets';
-import { getVerifyInfo } from '../util/setting';
+import { getVerifyInfo, handleAdvancedSettingChange } from '../util/setting';
 import { batchCopyWidgets, deleteSection, batchShiftWidgets, handleAddWidgets } from '../util/data';
 import Components from './components';
 import WidgetDisplay from './widgetDisplay';
@@ -91,8 +98,7 @@ export default function DisplayItem(props) {
     globalSheetInfo = {},
     path,
     handleHide,
-    updateQueryConfigs,
-    displayItemType = 'common',
+    displayItemType,
     batchActive = [],
     setBatchActive = () => {},
     setStyleInfo = () => {},
@@ -134,7 +140,7 @@ export default function DisplayItem(props) {
 
   const [dragCollectProps, drag] = useDrag({
     item: {
-      type: isTab ? DRAG_ITEMS.DISPLAY_TAB : DRAG_ITEMS.DISPLAY_ITEM,
+      type: isTab ? (data.type === 52 ? DRAG_ITEMS.DISPLAY_TAB : DRAG_ITEMS.DISPLAY_LIST_TAB) : DRAG_ITEMS.DISPLAY_ITEM,
       id: controlId,
       path,
       data,
@@ -148,10 +154,14 @@ export default function DisplayItem(props) {
 
       // 批量拖拽
       if (batchActive.length > 0 && batchDrag) {
-        // 标签页过滤掉关联多条列表和子表
         const filterBatchWidgets = batchActive
-          .map(i => ({ ...i, sectionId }))
-          .filter(i => !((relateOrSectionTab(i) || i.type === 34) && i.sectionId));
+          .filter(i => !(notInsetSectionTab(i) && sectionId))
+          .map(i => {
+            const tempData = { ...i, sectionId };
+            return isTabSheetList(tempData) && dropResult.displayItemType === 'common'
+              ? handleAdvancedSettingChange(tempData, { showtype: '5' })
+              : tempData;
+          });
         // 先移除需要批量拖拽到元素
         const filterOldWidgets = batchRemoveItems(widgets, filterBatchWidgets);
         // 批量拖拽走批量新增逻辑，定位新的activeWidget进行批量操作
@@ -182,8 +192,14 @@ export default function DisplayItem(props) {
       const newData = { ...data, sectionId };
       // 插入新行
       if (mode === DRAG_MODE.INSERT_NEW_LINE) {
-        setWidgets(insertNewLine({ widgets, srcItem: newData, srcPath: path, targetIndex: rowIndex }));
-        setActiveWidget(newData);
+        // 标签页表格拖拽到普通控件中，更改showtype
+        const formatData =
+          isTabSheetList(newData) && dropResult.displayItemType === 'common'
+            ? handleAdvancedSettingChange(newData, { showtype: '5' })
+            : newData;
+
+        setWidgets(insertNewLine({ widgets, srcItem: formatData, srcPath: path, targetIndex: rowIndex }));
+        setActiveWidget(formatData);
       }
 
       // 拖到行的末尾
@@ -203,15 +219,10 @@ export default function DisplayItem(props) {
     },
   });
   const [{ isOver }, drop] = useDrop({
-    accept: isTab ? [DRAG_ITEMS.DISPLAY_TAB, DRAG_ITEMS.LIST_TAB] : [DRAG_ITEMS.DISPLAY_ITEM, DRAG_ITEMS.LIST_ITEM],
+    accept: DRAG_ACCEPT[displayItemType],
     canDrop(item) {
-      // 标签页内不允许子表、标签页、多条列表等拖拽
-      if (
-        data.sectionId &&
-        (_.includes(['SUB_LIST', 'SECTION', 'RELATION_SEARCH'], item.enumType) ||
-          relateOrSectionTab(item.data) ||
-          _.get(item, 'data.type') === 34)
-      ) {
+      // 标签页内不允许标签页、多条列表(旧)、标签页表格等拖拽
+      if (data.sectionId && (_.includes(['SECTION'], item.enumType) || notInsetSectionTab(item.data))) {
         return false;
       }
       // 批量拖拽，当前拖拽物在批量选中区域内
@@ -288,6 +299,7 @@ export default function DisplayItem(props) {
         activePath: [_.includes(['view_top', 'top'], location) ? path[0] - 1 : path[0], path[1]],
         rowIndex: _.includes(['view_top', 'top'], location) ? path[0] : path[0] + 1,
         sectionId,
+        displayItemType,
       };
     },
     collect(monitor) {
@@ -415,7 +427,6 @@ export default function DisplayItem(props) {
         return;
       }
       setWidgets(deleteWidgetById({ widgets, controlId, path }));
-      updateQueryConfigs({ controlId }, 'delete');
       return;
     }
     if (mode === 'hide') {

@@ -8,7 +8,7 @@ export default {
   **/
    getAccountListInfo: function (args, options = {}) {
      
-     return $.api('Account', 'GetAccountListInfo', args, options);
+     return mdyAPI('Account', 'GetAccountListInfo', args, options);
    },
   /**
   * 获取个人账户的联系方式
@@ -19,7 +19,7 @@ export default {
   **/
    getContactInfo: function (args, options = {}) {
      
-     return $.api('Account', 'GetContactInfo', args, options);
+     return mdyAPI('Account', 'GetContactInfo', args, options);
    },
   /**
   * 获取个人账户的工作/教育履历
@@ -31,7 +31,7 @@ export default {
   **/
    getAccountDetail: function (args, options = {}) {
      
-     return $.api('Account', 'GetAccountDetail', args, options);
+     return mdyAPI('Account', 'GetAccountDetail', args, options);
    },
   /**
   * 删除履历
@@ -44,7 +44,7 @@ export default {
   **/
    delAccountDetail: function (args, options = {}) {
      
-     return $.api('Account', 'DelAccountDetail', args, options);
+     return mdyAPI('Account', 'DelAccountDetail', args, options);
    },
   /**
   * 保存个人账户基本信息
@@ -61,7 +61,7 @@ export default {
   **/
    editAccountBasicInfo: function (args, options = {}) {
      
-     return $.api('Account', 'EditAccountBasicInfo', args, options);
+     return mdyAPI('Account', 'EditAccountBasicInfo', args, options);
    },
   /**
   * 保存个人账户的联系方式
@@ -77,7 +77,7 @@ export default {
   **/
    editContactInfo: function (args, options = {}) {
      
-     return $.api('Account', 'EditContactInfo', args, options);
+     return mdyAPI('Account', 'EditContactInfo', args, options);
    },
   /**
   * 保存个人账户的工作/教育履历
@@ -96,7 +96,7 @@ export default {
   **/
    editAccountDetail: function (args, options = {}) {
      
-     return $.api('Account', 'EditAccountDetail', args, options);
+     return mdyAPI('Account', 'EditAccountDetail', args, options);
    },
   /**
   * 修改头像
@@ -110,7 +110,7 @@ export default {
   **/
    editAccountAvatar: function (args, options = {}) {
      
-     return $.api('Account', 'EditAccountAvatar', args, options);
+     return mdyAPI('Account', 'EditAccountAvatar', args, options);
    },
   /**
   * 获取账户信息（手机/邮箱）
@@ -121,7 +121,7 @@ export default {
   **/
    getAccountInfo: function (args, options = {}) {
      
-     return $.api('Account', 'GetAccountInfo', args, options);
+     return mdyAPI('Account', 'GetAccountInfo', args, options);
    },
   /**
   * 发送网络邮箱绑定的验证邮件
@@ -135,7 +135,7 @@ export default {
   **/
    sendProjectBindEmail: function (args, options = {}) {
      
-     return $.api('Account', 'SendProjectBindEmail', args, options);
+     return mdyAPI('Account', 'SendProjectBindEmail', args, options);
    },
   /**
   * 邮箱验证
@@ -147,7 +147,7 @@ export default {
   **/
    emailValidate: function (args, options = {}) {
      
-     return $.api('Account', 'EmailValidate', args, options);
+     return mdyAPI('Account', 'EmailValidate', args, options);
    },
   /**
   * 修改账户密码
@@ -161,7 +161,7 @@ export default {
   **/
    editPwd: function (args, options = {}) {
      
-     return $.api('Account', 'EditPwd', args, options);
+     return mdyAPI('Account', 'EditPwd', args, options);
    },
   /**
   * 修改集成账号信息
@@ -175,7 +175,7 @@ export default {
   **/
    editIntergrationAccount: function (args, options = {}) {
      
-     return $.api('Account', 'EditIntergrationAccount', args, options);
+     return mdyAPI('Account', 'EditIntergrationAccount', args, options);
    },
   /**
   * 发送修改帐号验证码
@@ -191,7 +191,7 @@ export default {
   **/
    sendVerifyCode: function (args, options = {}) {
      
-     return $.api('Account', 'SendVerifyCode', args, options);
+     return mdyAPI('Account', 'SendVerifyCode', args, options);
    },
   /**
   * 验证登录密码
@@ -206,7 +206,7 @@ export default {
   **/
    checkAccount: function (args, options = {}) {
      
-     return $.api('Account', 'CheckAccount', args, options);
+     return mdyAPI('Account', 'CheckAccount', args, options);
    },
   /**
   * 验证登录密码
@@ -224,7 +224,7 @@ export default {
   **/
    checkAccountIdentity: function (args, options = {}) {
      
-     return $.api('Account', 'CheckAccountIdentity', args, options);
+     return mdyAPI('Account', 'CheckAccountIdentity', args, options);
    },
   /**
   * 修改账号
@@ -237,7 +237,7 @@ export default {
   **/
    editAccount: function (args, options = {}) {
      
-     return $.api('Account', 'EditAccount', args, options);
+     return mdyAPI('Account', 'EditAccount', args, options);
    },
   /**
   * 取消绑定明道云账号
@@ -250,7 +250,7 @@ export default {
   **/
    unBindAccount: function (args, options = {}) {
      
-     return $.api('Account', 'UnBindAccount', args, options);
+     return mdyAPI('Account', 'UnBindAccount', args, options);
    },
   /**
   * 退出指定设备已经登录的账号
@@ -263,7 +263,7 @@ export default {
   **/
    exitAccount: function (args, options = {}) {
      
-     return $.api('Account', 'ExitAccount', args, options);
+     return mdyAPI('Account', 'ExitAccount', args, options);
    },
   /**
   * 获取我加入的网络
@@ -276,7 +276,7 @@ export default {
   **/
    getProjectList: function (args, options = {}) {
      
-     return $.api('Account', 'GetProjectList', args, options);
+     return mdyAPI('Account', 'GetProjectList', args, options);
    },
   /**
   * 按token的方式加入网络
@@ -294,7 +294,7 @@ export default {
   **/
    joinProjectByToken: function (args, options = {}) {
      
-     return $.api('Account', 'JoinProjectByToken', args, options);
+     return mdyAPI('Account', 'JoinProjectByToken', args, options);
    },
   /**
   * 按企业号加入网络
@@ -312,7 +312,7 @@ export default {
   **/
    joinProjectByCode: function (args, options = {}) {
      
-     return $.api('Account', 'JoinProjectByCode', args, options);
+     return mdyAPI('Account', 'JoinProjectByCode', args, options);
    },
   /**
   * 取消加入网络
@@ -324,7 +324,7 @@ export default {
   **/
    revokedJoinProject: function (args, options = {}) {
      
-     return $.api('Account', 'RevokedJoinProject', args, options);
+     return mdyAPI('Account', 'RevokedJoinProject', args, options);
    },
   /**
   * 同意邀请
@@ -337,7 +337,7 @@ export default {
   **/
    checkJoinProjectByTokenWithCard: function (args, options = {}) {
      
-     return $.api('Account', 'CheckJoinProjectByTokenWithCard', args, options);
+     return mdyAPI('Account', 'CheckJoinProjectByTokenWithCard', args, options);
    },
   /**
   * 拒绝加入邀请
@@ -350,7 +350,7 @@ export default {
   **/
    refuseJoin: function (args, options = {}) {
      
-     return $.api('Account', 'RefuseJoin', args, options);
+     return mdyAPI('Account', 'RefuseJoin', args, options);
    },
   /**
   * 修改企业名片联系电话
@@ -363,7 +363,7 @@ export default {
   **/
    editUserCardContactPhone: function (args, options = {}) {
      
-     return $.api('Account', 'EditUserCardContactPhone', args, options);
+     return mdyAPI('Account', 'EditUserCardContactPhone', args, options);
    },
   /**
   * 获取网络名片
@@ -375,7 +375,7 @@ export default {
   **/
    getUserCard: function (args, options = {}) {
      
-     return $.api('Account', 'GetUserCard', args, options);
+     return mdyAPI('Account', 'GetUserCard', args, options);
    },
   /**
   * 提醒管理员审核
@@ -389,7 +389,7 @@ export default {
   **/
    sendSystemMessageToAdmin: function (args, options = {}) {
      
-     return $.api('Account', 'SendSystemMessageToAdmin', args, options);
+     return mdyAPI('Account', 'SendSystemMessageToAdmin', args, options);
    },
   /**
   * 退出网络（密码验证）
@@ -405,7 +405,7 @@ export default {
   **/
    validateExitProject: function (args, options = {}) {
      
-     return $.api('Account', 'ValidateExitProject', args, options);
+     return mdyAPI('Account', 'ValidateExitProject', args, options);
    },
   /**
   * 退出网络（全部交接给小秘书）
@@ -418,7 +418,7 @@ export default {
   **/
    exitProject: function (args, options = {}) {
      
-     return $.api('Account', 'ExitProject', args, options);
+     return mdyAPI('Account', 'ExitProject', args, options);
    },
   /**
   * 获取我的邀请信息
@@ -429,7 +429,7 @@ export default {
   **/
    getMyAuthList: function (args, options = {}) {
      
-     return $.api('Account', 'GetMyAuthList', args, options);
+     return mdyAPI('Account', 'GetMyAuthList', args, options);
    },
   /**
   * 获取我的未处理的邀请信息
@@ -440,7 +440,7 @@ export default {
   **/
    getUntreatAuthList: function (args, options = {}) {
      
-     return $.api('Account', 'GetUntreatAuthList', args, options);
+     return mdyAPI('Account', 'GetUntreatAuthList', args, options);
    },
   /**
   * 解绑邮件
@@ -452,7 +452,7 @@ export default {
   **/
    unbindEmail: function (args, options = {}) {
      
-     return $.api('Account', 'UnbindEmail', args, options);
+     return mdyAPI('Account', 'UnbindEmail', args, options);
    },
   /**
   * 解绑手机
@@ -464,7 +464,7 @@ export default {
   **/
    unbindMobile: function (args, options = {}) {
      
-     return $.api('Account', 'UnbindMobile', args, options);
+     return mdyAPI('Account', 'UnbindMobile', args, options);
    },
   /**
   * 验证是否 可以注销账户
@@ -475,7 +475,7 @@ export default {
   **/
    validateLogoffAccount: function (args, options = {}) {
      options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return $.api('Account', 'ValidateLogoffAccount', args, options);
+     return mdyAPI('Account', 'ValidateLogoffAccount', args, options);
    },
   /**
   * 申请注销账户
@@ -486,7 +486,7 @@ export default {
   **/
    applyLogOffAccount: function (args, options = {}) {
      
-     return $.api('Account', 'ApplyLogOffAccount', args, options);
+     return mdyAPI('Account', 'ApplyLogOffAccount', args, options);
    },
   /**
   * 查询注销状态
@@ -497,7 +497,7 @@ export default {
   **/
    getApplyLogOffAccount: function (args, options = {}) {
      options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return $.api('Account', 'GetApplyLogOffAccount', args, options);
+     return mdyAPI('Account', 'GetApplyLogOffAccount', args, options);
    },
   /**
   * 取消申请注销
@@ -508,6 +508,6 @@ export default {
   **/
    cancelLogOffAccount: function (args, options = {}) {
      
-     return $.api('Account', 'CancelLogOffAccount', args, options);
+     return mdyAPI('Account', 'CancelLogOffAccount', args, options);
    },
 };

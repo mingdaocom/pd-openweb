@@ -496,7 +496,7 @@ export function getFilterTypes(control = {}, conditionType, from) {
       break;
     case 29: // 关联
       typeEnums =
-        advancedSetting.showtype === '2' && from === 'rule'
+        _.includes(['2', '5', '6'], advancedSetting.showtype) && from === 'rule'
           ? [FILTER_CONDITION_TYPE.ISNULL, FILTER_CONDITION_TYPE.HASVALUE]
           : conditionType &&
             (conditionType === FILTER_CONDITION_TYPE.LIKE || conditionType === FILTER_CONDITION_TYPE.NCONTAIN) // 兼容老数据
@@ -546,11 +546,6 @@ export function getFilterTypes(control = {}, conditionType, from) {
   if (from === 'subTotal') {
     typeEnums = typeEnums.filter(type => type !== FILTER_CONDITION_TYPE.ALLCONTAIN);
   }
-  if (from === 'rule') {
-    typeEnums = typeEnums.filter(
-      type => !_.includes([FILTER_CONDITION_TYPE.EQ_FOR_SINGLE, FILTER_CONDITION_TYPE.TEXT_ALLCONTAIN], type),
-    );
-  }
   if (control.encryId) {
     typeEnums = [
       FILTER_CONDITION_TYPE.EQ,
@@ -565,7 +560,7 @@ export function getFilterTypes(control = {}, conditionType, from) {
   }));
 }
 
-function getDefaultFilterType(control) {
+function getDefaultFilterType(control, from) {
   const { isMultiple } = getControlSelectType(control);
   // 文本类
   if (_.includes([2, 3, 4, 5, 7, 32, 33], control.type)) {
@@ -585,7 +580,7 @@ function getDefaultFilterType(control) {
     return FILTER_CONDITION_TYPE.DATEENUM;
   }
   // 29 关联、35 级联、9 10 11 选项、26 人员、27 部门、48 角色
-  if (control.type === 29 && isMultiple) {
+  if (control.type === 29 && isMultiple && from !== 'rule') {
     return FILTER_CONDITION_TYPE.RCEQ;
   }
   if (_.includes([29, 35, 9, 10, 11, 19, 23, 24, 26, 27, 48], control.type)) {
@@ -596,12 +591,13 @@ function getDefaultFilterType(control) {
   }
 }
 
-export function getDefaultCondition(control) {
+export function getDefaultCondition(control, from) {
   const conditionGroupKey = getTypeKey(control.type);
   const conditionGroupType =
     CONTROL_FILTER_WHITELIST[conditionGroupKey] && CONTROL_FILTER_WHITELIST[conditionGroupKey].value;
   const filterTypesOfControl = getFilterTypes(control);
-  let defaultFilterType = getDefaultFilterType(control) || FILTER_CONDITION_TYPE.EQ || filterTypesOfControl[0].value;
+  let defaultFilterType =
+    getDefaultFilterType(control, from) || FILTER_CONDITION_TYPE.EQ || filterTypesOfControl[0].value;
   if (_.isUndefined(defaultFilterType) || !_.find(filterTypesOfControl, c => c.value === defaultFilterType)) {
     defaultFilterType = filterTypesOfControl[0].value;
   }
@@ -853,7 +849,7 @@ export function relateDy(conditionType, controls, control, defaultValue) {
         items =>
           _.includes(typeList, items.type) &&
           items.dataSource === control.dataSource &&
-          !(items.type === 29 && _.get(items, 'advancedSetting.showtype') === '2'),
+          !(items.type === 29 && _.includes(['2', '5', '6'], _.get(items, 'advancedSetting.showtype'))),
       );
     // 人员单选 人员多选
     case API_ENUM_TO_TYPE.USER_PICKER:
@@ -909,7 +905,12 @@ export function getFilter({ control, formData = [], filterKey = 'filters' }) {
         values: formatValues(condition.dataType, condition.filterType, condition.values),
       });
     } else {
-      if (_.includes([WIDGETS_TO_API_TYPE_ENUM.DATE, WIDGETS_TO_API_TYPE_ENUM.DATE_TIME], condition.dataType)) {
+      if (
+        _.includes(
+          [WIDGETS_TO_API_TYPE_ENUM.DATE, WIDGETS_TO_API_TYPE_ENUM.DATE_TIME, WIDGETS_TO_API_TYPE_ENUM.TIME],
+          condition.dataType,
+        )
+      ) {
         condition.dateRange = 18;
       } else {
         condition.dateRange = 0;
@@ -1057,7 +1058,8 @@ export function fillConditionValue({ condition, formData, relateControl, ignoreF
   } else if (
     dataType === 6 ||
     dataType === 8 ||
-    dataType === 31
+    dataType === 31 ||
+    dataType === 46
     // TODO 汇总数值类
   ) {
     condition.value = value;

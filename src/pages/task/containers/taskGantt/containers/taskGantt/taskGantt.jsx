@@ -72,7 +72,7 @@ class TaskGantt extends Component {
     } else {
       // 下属
       // 获取网络配置
-      ajaxRequest.getSettingDefualtProjectId().then((source) => {
+      ajaxRequest.getSettingDefualtProjectId().then(source => {
         if (source.status) {
           this.getSetting(source.data);
         }
@@ -92,12 +92,15 @@ class TaskGantt extends Component {
    */
   socketMonitor() {
     IM.socket.removeAllListeners('subscribe message');
-    IM.socket.on('subscribe message', (data) => {
+    IM.socket.on('subscribe message', data => {
       // 推回来的项目id就是当前项目并且当前视图还是甘特图  或  推回来的项目id包含当前网络id并且在我的下属时间tab
-      if (config.folderId === data.fid || (data.id.indexOf(config.projectId) >= 0 && $('.subordinateTabs .active').index() === 0)) {
+      if (
+        config.folderId === data.fid ||
+        (data.id.indexOf(config.projectId) >= 0 && $('.subordinateTabs .active').index() === 0)
+      ) {
         let isDateUpdate = false;
 
-        data.data.forEach((item) => {
+        data.data.forEach(item => {
           if (item.eventType === 'U_time' || item.eventType === 'U_parent' || item.eventType === 'A_task') {
             // 开始时间小于最小时间
             if (item.startTime && moment(item.startTime) < moment(config.minStartTime)) {
@@ -132,8 +135,11 @@ class TaskGantt extends Component {
    * @param {array} members
    */
   subordinateSocketSubscribe(members) {
-    members.forEach((accountId) => {
-      IM.socket.emit('subscribe', { type: 'subordinate', sourceId: `${config.projectId}|${md.global.Account.accountId}|${accountId}` });
+    members.forEach(accountId => {
+      IM.socket.emit('subscribe', {
+        type: 'subordinate',
+        sourceId: `${config.projectId}|${md.global.Account.accountId}|${accountId}`,
+      });
     });
   }
 
@@ -141,12 +147,10 @@ class TaskGantt extends Component {
    * 获取项目下的任务
    */
   getFolderTaskGantt() {
-    ajaxRequest.getFolderTaskGantt({ folderId: config.folderId }, { fireImmediately: true }).then((source) => {
+    ajaxRequest.getFolderTaskGantt({ folderId: config.folderId }).then(source => {
       if (source.status) {
         // 服务器时间向上取整 + 1小时
-        config.timeStamp = moment(source.data.timeStamp)
-          .add(1, 'h')
-          .format('YYYY-MM-DD HH:00');
+        config.timeStamp = moment(source.data.timeStamp).add(1, 'h').format('YYYY-MM-DD HH:00');
         config.minStartTime = source.data.minTime;
         config.maxEndTime = source.data.maxTime;
         config.isRequestComplete = true;
@@ -166,21 +170,15 @@ class TaskGantt extends Component {
   getSetting(projectId) {
     config.projectId = projectId;
 
-    ajaxRequest.getSetting({ projectId }).then((source) => {
+    ajaxRequest.getSetting({ projectId }).then(source => {
       if (source.status) {
         // 默认最小时间
         if (this.props.stateConfig.currentView === config.VIEWTYPE.DAY) {
-          config.minStartTime = moment()
-            .add(-6, 'w')
-            .format('YYYY-MM-DD HH:00');
+          config.minStartTime = moment().add(-6, 'w').format('YYYY-MM-DD HH:00');
         } else if (this.props.stateConfig.currentView === config.VIEWTYPE.WEEK) {
-          config.minStartTime = moment()
-            .add(-12, 'w')
-            .format('YYYY-MM-DD HH:00');
+          config.minStartTime = moment().add(-12, 'w').format('YYYY-MM-DD HH:00');
         } else if (this.props.stateConfig.currentView === config.VIEWTYPE.MONTH) {
-          config.minStartTime = moment()
-            .add(-24, 'w')
-            .format('YYYY-MM-DD HH:00');
+          config.minStartTime = moment().add(-24, 'w').format('YYYY-MM-DD HH:00');
         }
 
         // 默认最大时间
@@ -198,12 +196,12 @@ class TaskGantt extends Component {
    */
   getFirstSubordinateTasks(members) {
     const accountIds = [];
-    members.forEach((item) => {
+    members.forEach(item => {
       if (!item.hidden) {
         accountIds.push(item.accountId);
       }
     });
-    const subordinateTasksKV = members.map((item) => {
+    const subordinateTasksKV = members.map(item => {
       return {
         account: item,
         tasks: [],
@@ -217,14 +215,12 @@ class TaskGantt extends Component {
         startTime: config.minStartTime,
         endTime: config.maxEndTime,
       })
-      .then((source) => {
+      .then(source => {
         if (source.status) {
           // 加载完成
           config.isRequestComplete = true;
           // 服务器时间
-          config.timeStamp = moment(source.data.timeStamp)
-            .add(1, 'h')
-            .format('YYYY-MM-DD HH:00');
+          config.timeStamp = moment(source.data.timeStamp).add(1, 'h').format('YYYY-MM-DD HH:00');
 
           // 更新最大截止时间
           if (!config.maxEndTime || moment(config.maxEndTime) < moment(source.data.maxTime)) {
@@ -233,8 +229,8 @@ class TaskGantt extends Component {
           }
 
           // 数据填充
-          source.data.accountTasksKV.forEach((item) => {
-            subordinateTasksKV.forEach((subordinate) => {
+          source.data.accountTasksKV.forEach(item => {
+            subordinateTasksKV.forEach(subordinate => {
               if (item.account.accountId === subordinate.account.accountId) {
                 subordinate.tasks = item.tasks;
               }
@@ -266,7 +262,7 @@ class TaskGantt extends Component {
         startTime,
         endTime,
       })
-      .then((source) => {
+      .then(source => {
         if (source.status) {
           // 更新最大截止时间
           if (!config.maxEndTime || moment(config.maxEndTime) < moment(source.data.maxTime)) {
@@ -310,7 +306,7 @@ class TaskGantt extends Component {
           </div>
         ) : (
           <div id="taskFilterLoading">
-            <div className="loadingCenter" dangerouslySetInnerHTML={{ __html: LoadDiv('big') }} />
+            <div className="loadingCenter" dangerouslySetInnerHTML={{ __html: LoadDiv() }} />
           </div>
         )}
       </div>
@@ -319,7 +315,7 @@ class TaskGantt extends Component {
 }
 
 const DragTaskGantt = DragDropContext(MouseBackEnd)(
-  connect((state) => {
+  connect(state => {
     const { accountTasksKV, stateConfig, taskConfig } = state.task;
 
     return {
@@ -327,7 +323,7 @@ const DragTaskGantt = DragDropContext(MouseBackEnd)(
       stateConfig,
       taskConfig,
     };
-  })(TaskGantt)
+  })(TaskGantt),
 );
 
 export default DragTaskGantt;

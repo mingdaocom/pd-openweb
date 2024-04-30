@@ -390,7 +390,8 @@ export default class extends Component {
   render() {
     const { dropdownScopeValue, dropdownDayValue, currentRangeType } = this.state;
     const { projectId, worksheetInfo, currentReport } = this.props;
-    const { filter = {}, xaxes = {} } = currentReport || {};
+    const xaxes = _.get(currentReport, 'xaxes') || {};
+    const filter = _.get(currentReport, 'filter') || {};
     const xAxisisTime = isTimeControl(xaxes.controlType);
     const sysControlSwitch = isOpenPermit(permitList.sysControlSwitch, worksheetInfo.switches, filter.viewId);
     const filterWhiteKeys = _.flatten(

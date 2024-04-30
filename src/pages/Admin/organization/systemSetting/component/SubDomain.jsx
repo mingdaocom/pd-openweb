@@ -26,7 +26,7 @@ export default class SubDomain extends Component {
 
   componentDidMount() {
     this.setState({ isLoading: true });
-    $.when(this.getSubDomainInfo(), this.getSysColor()).then((res, { homeImage }) => {
+    Promise.all([this.getSubDomainInfo(), this.getSysColor()]).then(([res, { homeImage }]) => {
       const attUrl = `${md.global.FileStoreConfig.pictureHost}ProjectLogo/`;
       this.images = new Array(5).fill(1).map(function(item, index) {
         return `${attUrl}HomeImage_1${index + 1}.jpg?imageView2/2/w/194/h/52/q/90`;
@@ -137,7 +137,18 @@ export default class SubDomain extends Component {
   }
 
   handleSubmit() {
-    $.when(this.handleHomeImageSubmit(), this.handleSubDomainSubmit()).then((images, name) => {
+    if (this.state.subDomain) {
+      this.handleHomeImageSubmit().then(images => {
+        if (images) {
+          alert(_l('设置成功'));
+          this.props.setLevel(1);
+        } else {
+          alert(_l('设置失败'), 2);
+        }
+      });
+      return;
+    }
+    Promise.all([this.handleHomeImageSubmit(), this.handleSubDomainSubmit()]).then(([images, name]) => {
       if (images && name === 1) {
         alert(_l('设置成功'));
         this.props.setLevel(1);

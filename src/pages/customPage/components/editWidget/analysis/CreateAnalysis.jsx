@@ -23,11 +23,11 @@ function CreateAnalysis(props) {
       dialogVisible={true}
       appId={appId}
       projectId={projectId}
-      viewId={null}
+      viewId={''}
       worksheetInfo={dataSource}
-      onChange={(worksheetId, viewId) => {
+      onChange={(worksheetId, viewId, appType) => {
         if (worksheetId) {
-          setDataSource({ worksheetId, viewId });
+          setDataSource({ worksheetId, viewId, appType });
           onCreate();
         } else {
           alert(_l('请选择一个工作表来创建图表'), 3);

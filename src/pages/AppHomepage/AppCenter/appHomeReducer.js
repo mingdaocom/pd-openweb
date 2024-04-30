@@ -467,7 +467,7 @@ export class CreateActions {
           cb(status);
         }
       })
-      .fail(cb);
+      .catch(cb);
   }
   editGroup({ id, projectId, name, icon, groupType, cb = () => {} }) {
     homeAppAjax
@@ -487,7 +487,7 @@ export class CreateActions {
           });
         }
       })
-      .fail(cb);
+      .catch(cb);
   }
   deleteGroup({ id, projectId, groupType, cb = () => {} }) {
     homeAppAjax
@@ -499,7 +499,7 @@ export class CreateActions {
           groupId: id,
         });
       })
-      .fail(cb);
+      .catch(cb);
   }
   markGroup({ id, isMarked, groupType, projectId, cb = () => {} }) {
     homeAppAjax
@@ -517,7 +517,7 @@ export class CreateActions {
           isMarked,
         });
       })
-      .fail(cb);
+      .catch(cb);
   }
   updateAppBelongGroups({ appId, editingGroup, isRemove }) {
     const args = {
@@ -537,7 +537,7 @@ export class CreateActions {
           groupId: editingGroup.id,
         });
       })
-      .fail(() => {
+      .catch(() => {
         alert(_l('更新分组失败'), 2);
       });
   }
@@ -557,7 +557,7 @@ export class CreateActions {
           res.data ? alert(_l('设置链接成功')) : alert(_l('设置链接失败!'), 2);
         }
       })
-      .fail(() => {
+      .catch(() => {
         alert(isUpdateExternalLink ? _l('设置链接失败！') : _l('更新应用失败！'), 2);
       });
   }
@@ -574,10 +574,10 @@ export class CreateActions {
       })
       .then(res => {
         if (!res.data) {
-          return $.Deferred().reject();
+          return Promise.reject();
         }
       })
-      .fail(() => {
+      .catch(() => {
         this.dispatch({
           type: 'RESET_STATE',
           value: oldState,
@@ -620,7 +620,7 @@ export class CreateActions {
         });
         alert(para.isMark ? _l('收藏成功') : _l('已取消收藏'));
       })
-      .fail(() => {
+      .catch(() => {
         alert(para.isMark ? _l('收藏失败！') : _l('取消收藏失败！'), 2);
       });
   }
@@ -635,7 +635,7 @@ export class CreateActions {
         });
         alert(_l('设置成功'));
       })
-      .fail(() => {
+      .catch(() => {
         alert(_l('设置失败！'), 2);
       });
   }
@@ -677,7 +677,7 @@ export class CreateActions {
             break;
         }
       })
-      .fail(err => {
+      .catch(err => {
         !md.global.Config.IsLocal && alert(_l('新建应用失败！'), 2);
       });
   }
@@ -702,65 +702,29 @@ export class CreateActions {
             });
           }
         } else {
-          return $.Deferred().reject();
+          return Promise.reject();
         }
       })
-      .fail(() => {
+      .catch(() => {
         alert(_l('更新应用排序失败！'), 2);
       });
   }
-  editHomeSetting({
-    projectId,
-    displayType,
-    exDisplay,
-    markedAppDisplay,
-    editingKey,
-    displayCommonApp,
-    isAllAndProject,
-    displayMark,
-    rowCollect,
-    todoDisplay,
-  }) {
+  editHomeSetting({ projectId, setting = {}, editingKey }) {
     const oldValue = _.get(this.state, 'origin.homeSetting');
-    this.dispatch({
-      type: 'UPDATE_SETTING',
-      value: {
-        displayType,
-        exDisplay,
-        markedAppDisplay,
-        displayCommonApp,
-        isAllAndProject,
-        displayMark,
-        rowCollect,
-        todoDisplay,
-      },
-    });
+    this.dispatch({ type: 'UPDATE_SETTING', value: setting });
     homeAppAjax
-      .editHomeSetting({
-        projectId,
-        displayType,
-        exDisplay,
-        markedAppDisplay,
-        displayCommonApp,
-        isAllAndProject,
-        displayMark,
-        rowCollect,
-        todoDisplay,
-      })
+      .editHomeSetting({ projectId, ...setting })
       .then(data => {
         if (data) {
           if (editingKey === 'markedAppDisplay') {
             this.loadDashboardInfo({ projectId });
           }
         } else {
-          return $.Deferred().reject();
+          return Promise.reject();
         }
       })
-      .fail(() => {
-        this.dispatch({
-          type: 'UPDATE_SETTING',
-          value: oldValue,
-        });
+      .catch(() => {
+        this.dispatch({ type: 'UPDATE_SETTING', value: oldValue });
         alert(_l('更新首页配置失败！'), 2);
       });
   }

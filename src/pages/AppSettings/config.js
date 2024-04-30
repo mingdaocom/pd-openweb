@@ -6,6 +6,12 @@ export const APP_CONFIGS = [
     text: _l('选项集%02047'),
   },
   {
+    type: 'aggregation',
+    icon: 'aggregate_table',
+    text: _l('聚合表'),
+    featureId: 38,
+  },
+  {
     type: 'variables',
     icon: 'global_variable',
     featureId: 33,
@@ -16,6 +22,11 @@ export const APP_CONFIGS = [
     icon: 'language',
     featureId: 35,
     text: _l('多语言'),
+  },
+  {
+    type: 'relationship',
+    icon: 'circle_three',
+    text: _l('关系图'),
   },
   {
     type: 'publish',

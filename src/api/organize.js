@@ -1,18 +1,74 @@
 export default {
   /**
+  * 获取角色分组列表
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getOrgRoleGroupsByProjectId: function (args, options = {}) {
+     
+     return mdyAPI('Organize', 'GetOrgRoleGroupsByProjectId', args, options);
+   },
+  /**
+  * 添加角色分组
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络Id
+  * @param {string} args.orgRoleGroupId 角色分组Id
+  * @param {string} args.orgRoleGroupName 角色名称
+  * @param {integer} args.sortIndex 排序
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   upsertOrgRoleGroup: function (args, options = {}) {
+     
+     return mdyAPI('Organize', 'UpsertOrgRoleGroup', args, options);
+   },
+  /**
+  * 设置组织角色分组排序
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络Id
+  * @param {string} args.orgRoleGroupId 角色分组Id
+  * @param {string} args.previousOrgRoleGroupId 上一个排序id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   setSortOrgRoleGroup: function (args, options = {}) {
+     
+     return mdyAPI('Organize', 'SetSortOrgRoleGroup', args, options);
+   },
+  /**
+  * 删除角色分组
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络Id
+  * @param {string} args.orgRoleGroupId 角色分组Id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   removeOrgRoleGroup: function (args, options = {}) {
+     
+     return mdyAPI('Organize', 'RemoveOrgRoleGroup', args, options);
+   },
+  /**
   * 获取角色列表
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络Id
   * @param {integer} args.pageIndex 页码
   * @param {integer} args.pageSize 页大小
   * @param {string} args.keywords 关键词
+  * @param {string} args.orgRoleGroupId 角色分组ID
+  * @param {array} args.appointedOrganizeIds 指定的组织角色列表
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getOrganizes: function (args, options = {}) {
      
-     return $.api('Organize', 'GetOrganizes', args, options);
+     return mdyAPI('Organize', 'GetOrganizes', args, options);
    },
   /**
   * 添加角色
@@ -20,13 +76,14 @@ export default {
   * @param {string} args.projectId 网络Id
   * @param {string} args.organizeName 角色名称
   * @param {string} args.remark 备注
+  * @param {string} args.orgRoleGroupId 角色分组id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addOrganize: function (args, options = {}) {
      
-     return $.api('Organize', 'AddOrganize', args, options);
+     return mdyAPI('Organize', 'AddOrganize', args, options);
    },
   /**
   * 修改角色名称
@@ -35,13 +92,29 @@ export default {
   * @param {string} args.organizeId 角色id
   * @param {string} args.organizeName 角色名称
   * @param {string} args.remark 角色名称
+  * @param {string} args.orgRoleGroupId 角色分组id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editOrganizeName: function (args, options = {}) {
      
-     return $.api('Organize', 'EditOrganizeName', args, options);
+     return mdyAPI('Organize', 'EditOrganizeName', args, options);
+   },
+  /**
+  * 设置组织角色排序
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络Id
+  * @param {string} args.organizeId 角色Id
+  * @param {string} args.previousOrgRoleId 上一个排序id
+  * @param {string} args.moveOrgRoleGroupId 移动的角色Id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   setSortOrgRole: function (args, options = {}) {
+     
+     return mdyAPI('Organize', 'SetSortOrgRole', args, options);
    },
   /**
   * 删除角色
@@ -54,7 +127,7 @@ export default {
   **/
    deleteOrganizes: function (args, options = {}) {
      
-     return $.api('Organize', 'DeleteOrganizes', args, options);
+     return mdyAPI('Organize', 'DeleteOrganizes', args, options);
    },
   /**
   * 根据账号id获取角色列表
@@ -67,7 +140,7 @@ export default {
   **/
    getOrganizesByAccountId: function (args, options = {}) {
      
-     return $.api('Organize', 'GetOrganizesByAccountId', args, options);
+     return mdyAPI('Organize', 'GetOrganizesByAccountId', args, options);
    },
   /**
   * 获取 角色成员列表
@@ -83,7 +156,7 @@ export default {
   **/
    pagedOrganizeAccounts: function (args, options = {}) {
      
-     return $.api('Organize', 'PagedOrganizeAccounts', args, options);
+     return mdyAPI('Organize', 'PagedOrganizeAccounts', args, options);
    },
   /**
   * 组织角色用户设置分管部门
@@ -98,7 +171,7 @@ export default {
   **/
    setOrgRoleChargeDepartment: function (args, options = {}) {
      
-     return $.api('Organize', 'SetOrgRoleChargeDepartment', args, options);
+     return mdyAPI('Organize', 'SetOrgRoleChargeDepartment', args, options);
    },
   /**
   * 添加用户
@@ -112,7 +185,7 @@ export default {
   **/
    addOrganizeUsers: function (args, options = {}) {
      
-     return $.api('Organize', 'AddOrganizeUsers', args, options);
+     return mdyAPI('Organize', 'AddOrganizeUsers', args, options);
    },
   /**
   * 删除用户
@@ -126,6 +199,6 @@ export default {
   **/
    deleteOrganizeUsers: function (args, options = {}) {
      
-     return $.api('Organize', 'DeleteOrganizeUsers', args, options);
+     return mdyAPI('Organize', 'DeleteOrganizeUsers', args, options);
    },
 };

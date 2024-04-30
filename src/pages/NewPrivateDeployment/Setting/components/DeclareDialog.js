@@ -32,6 +32,9 @@ const DialogWrap = styled(Dialog)`
     width: 100px !important;
     margin-left: 170px;
   }
+  .autosize {
+    height: 100% !important;
+  }
   .ant-tabs-content-holder,
   .ant-tabs-content,
   .enableDeclareRichText,
@@ -41,9 +44,11 @@ const DialogWrap = styled(Dialog)`
   .ck-content {
     height: 100% !important;
   }
+  .enableDeclareRichText.showTool .ck-editor__main {
+    height: calc(100% - 70px) !important;
+  }
   .ck-editor__main {
     box-sizing: border-box;
-    height: calc(100% - 70px) !important;
     overflow: auto;
   }
   .ck .ck-content {

@@ -22,7 +22,7 @@ import ChangeAccountDialog from './ChangeAccountDialog';
 import DelDialog from './DelDialog';
 import FindPwdDialog from './FindPwdDialog';
 import PortalMessage from './PortalMessage';
-import { getAppId } from 'src/pages/PortalAccount/util.js';
+import { getAppId } from 'src/pages/accountLogin/portalAccount/util.js';
 import _ from 'lodash';
 import { WrapHeader, Wrap, ModalWrap, RedMenuItemWrap } from './style';
 import Trigger from 'rc-trigger';
@@ -130,7 +130,7 @@ export default class PortalUserSet extends Component {
 
     Dialog.confirm({
       dialogClasses: 'uploadAvatorDialogId',
-      width: browserIsMobile() ? '100%' : '460px',
+      width: browserIsMobile() ? '335px' : '460px',
       title: _l('上传头像'),
       noFooter: true,
       children: (
@@ -249,7 +249,7 @@ export default class PortalUserSet extends Component {
               transitionLeaveTimeout={500}
             >
               {
-                <Wrap className={cx({ isMobile, leftNaviStyle: currentPcNaviStyle === 1 })}>
+                <Wrap className={cx({ isMobile, leftNaviStyle: [1, 3].includes(currentPcNaviStyle) })}>
                   {isMobile && (
                     <React.Fragment>
                       <span
@@ -349,9 +349,11 @@ export default class PortalUserSet extends Component {
                                 active: (getCookie('i18n_langtag') || md.global.Config.DefaultLang) === item.key,
                               })}
                               onClick={() => {
-                                const settingValue = { 'zh-Hans': '0', en: '1', ja: '2', 'zh-Hant': '3' };
                                 accountSetting
-                                  .editAccountSetting({ settingType: '6', settingValue: settingValue[item.key] })
+                                  .editAccountSetting({
+                                    settingType: '6',
+                                    settingValue: getCurrentLangCode(item.key).toString(),
+                                  })
                                   .then(res => {
                                     if (res) {
                                       setCookie('i18n_langtag', item.key);

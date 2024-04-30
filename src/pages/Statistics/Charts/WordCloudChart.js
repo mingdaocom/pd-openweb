@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { formatChartData } from './BarChart';
 import { Dropdown, Menu } from 'antd';
+import { Icon } from 'ming-ui';
 import { formatYaxisList, formatrChartValue, formatControlInfo, getChartColors } from './common';
 import { formatSummaryName, isFormatNumber } from 'statistics/common';
 
@@ -12,7 +13,8 @@ export default class extends Component {
       count: 0,
       dropdownVisible: false,
       offset: {},
-      match: null
+      match: null,
+      linkageMatch: null,
     }
     this.WordCloudChart = null;
   }
@@ -35,40 +37,77 @@ export default class extends Component {
       displaySetup.ydisplay.minValue !== oldDisplaySetup.ydisplay.minValue ||
       displaySetup.ydisplay.maxValue !== oldDisplaySetup.ydisplay.maxValue ||
       !_.isEqual(chartColor, oldChartColor) ||
-      nextProps.themeColor !== this.props.themeColor
+      nextProps.themeColor !== this.props.themeColor ||
+      !_.isEqual(nextProps.linkageMatch, this.props.linkageMatch)
     ) {
       const WordCloudChartConfig = this.getComponentConfig(nextProps);
       this.WordCloudChart.update(WordCloudChartConfig);
     }
+    if (nextProps.isLinkageData !== this.props.isLinkageData) {
+      this.WordCloudChart.destroy();
+      this.renderWordCloudChart(nextProps);
+    }
   }
   renderWordCloudChart(props) {
-    const { reportData, isViewOriginalData } = props;
-    const { displaySetup } = reportData;
+    const { reportData } = props;
+    const { displaySetup, style } = reportData;
     const WordCloudChartConfig = this.getComponentConfig(props);
     const { WordCloud } = this.g2plotComponent;
-    this.WordCloudChart = new WordCloud(this.chartEl, WordCloudChartConfig);
-    if (displaySetup.showRowList && isViewOriginalData) {
-      this.WordCloudChart.on('element:click', this.handleClick);
+    if (this.chartEl) {
+      this.WordCloudChart = new WordCloud(this.chartEl, WordCloudChartConfig);
+      this.isViewOriginalData = displaySetup.showRowList && props.isViewOriginalData;
+      this.isLinkageData = props.isLinkageData && !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0);
+      if (this.isViewOriginalData || this.isLinkageData) {
+        this.WordCloudChart.on('element:click', this.handleClick);
+      }
+      this.WordCloudChart.render();
     }
-    this.WordCloudChart.render();
   }
   handleClick = (data) => {
-    const { xaxes } = this.props.reportData;
+    const { xaxes, appId, reportId, name, reportType, style } = this.props.reportData;
     const event = data.gEvent;
     const currentData = data.data.data;
     const param = {};
+    const linkageMatch = {
+      sheetId: appId,
+      reportId,
+      reportName: name,
+      reportType,
+      filters: []
+    };
     if (xaxes.cid) {
       const isNumber = isFormatNumber(xaxes.controlType);
       const value = currentData.datum.originalId;
       param[xaxes.cid] = isNumber && value ? Number(value) : value;
+      linkageMatch.value = value;
+      linkageMatch.filters.push({
+        controlId: xaxes.controlId,
+        values: [param[xaxes.cid]],
+        controlName: xaxes.controlName,
+        controlValue: currentData.datum.name,
+        type: xaxes.controlType,
+        control: xaxes
+      });
     }
+    if (_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length) {
+      linkageMatch.onlyChartIds = style.autoLinkageChartObjectIds;
+    }
+    const isAll = this.isViewOriginalData && this.isLinkageData;
     this.setState({
-      dropdownVisible: true,
+      dropdownVisible: isAll,
       offset: {
         x: event.x + 20,
         y: event.y
       },
-      match: param
+      match: param,
+      linkageMatch
+    }, () => {
+      if (!isAll && this.isViewOriginalData) {
+        this.handleRequestOriginalData();
+      }
+      if (!isAll && this.isLinkageData) {
+        this.handleAutoLinkage();
+      }
     });
   }
   handleRequestOriginalData = () => {
@@ -85,8 +124,18 @@ export default class extends Component {
       this.props.requestOriginalData(data);
     }
   }
+  handleAutoLinkage = () => {
+    const { linkageMatch } = this.state;
+    this.props.onUpdateLinkageFiltersGroup(linkageMatch);
+    this.setState({
+      dropdownVisible: false,
+    }, () => {
+      const WordCloudChartConfig = this.getComponentConfig(this.props);
+      this.WordCloudChart.update(WordCloudChartConfig);
+    });
+  }
   getComponentConfig(props) {
-    const { themeColor, projectId, customPageConfig = {}, reportData } = props;
+    const { themeColor, projectId, customPageConfig = {}, reportData, linkageMatch } = props;
     const { chartColor, chartColorIndex = 1 } = customPageConfig;
     const { map, displaySetup, xaxes, yaxisList, reportId } = reportData;
     const styleConfig = reportData.style || {};
@@ -97,17 +146,6 @@ export default class extends Component {
     const colors = getChartColors(style, themeColor, projectId);
     const baseConfig = {
       data,
-      // meta: {
-      //   originalId: {
-      //     formatter: value => {
-      //       const item = _.find(data, { originalId: value });
-      //       return item ? item.name || _l('空') : value;
-      //     }
-      //   },
-      //   groupName: {
-      //     formatter: value => formatControlInfo(value).name,
-      //   },
-      // },
       wordField: 'name',
       weightField: 'value',
       colorField: 'name',
@@ -115,7 +153,15 @@ export default class extends Component {
       wordStyle: {
         fontSize: [ydisplay.minValue || 20, ydisplay.maxValue || 60],
       },
-      color: colors
+      color: ({ datum }) => {
+        if (datum) {
+          const index = _.findIndex(data, { originalId: datum.originalId });
+          let color = colors[index % colors.length];
+          return color;
+        } else {
+          return colors[0];
+        }
+      }
     }
 
     this.setCount(newYaxisList);
@@ -134,8 +180,15 @@ export default class extends Component {
   renderOverlay() {
     return (
       <Menu className="chartMenu" style={{ width: 160 }}>
+        <Menu.Item onClick={this.handleAutoLinkage} key="autoLinkage">
+          <div className="flexRow valignWrapper">
+            <Icon icon="link1" className="mRight8 Gray_9e Font20 autoLinkageIcon" />
+            <span>{_l('联动')}</span>
+          </div>
+        </Menu.Item>
         <Menu.Item onClick={this.handleRequestOriginalData} key="viewOriginalData">
           <div className="flexRow valignWrapper">
+            <Icon icon="table" className="mRight8 Gray_9e Font18" />
             <span>{_l('查看原始数据')}</span>
           </div>
         </Menu.Item>

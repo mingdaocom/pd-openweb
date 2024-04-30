@@ -10,6 +10,6 @@ export default {
   **/
    getGlobalMeta: function (args, options = {}) {
      
-     return $.api('Global', 'GetGlobalMeta', args, options);
+     return mdyAPI('Global', 'GetGlobalMeta', args, options);
    },
 };

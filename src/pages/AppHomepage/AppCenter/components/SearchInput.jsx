@@ -38,6 +38,8 @@ const FocusBtn = styled.div`
   font-size: 0px;
   cursor: pointer;
 `;
+
+let isOnComposition = false;
 export default function SearchInput(props) {
   const { clickShowInput, placeholder, value, onChange } = props;
   const inputRef = useRef();
@@ -67,7 +69,16 @@ export default function SearchInput(props) {
             setIsFocus(false);
           }
         }}
-        onChange={e => onChange(e.target.value)}
+        onChange={e => {
+          !isOnComposition && onChange(e.target.value);
+        }}
+        onCompositionStart={() => (isOnComposition = true)}
+        onCompositionEnd={e => {
+          if (e.type === 'compositionend') {
+            isOnComposition = false;
+          }
+          onChange(e.target.value);
+        }}
       />
       {value && (
         <BaseBtnCon

@@ -116,7 +116,7 @@ export default function FilterObject(props) {
     setLoading(true);
     reportApi.listByPageId({ appId: pageId }).then(data => {
       setFilterObject(getFilterObject(components, data));
-    }).always(() => setLoading(false));
+    }).finally(() => setLoading(false));
   }, []);
 
   const addFilterObject = id => {

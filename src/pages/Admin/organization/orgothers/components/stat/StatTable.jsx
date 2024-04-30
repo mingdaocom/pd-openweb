@@ -2,9 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import statisticController from 'src/api/statistic';
 import PaginationWrap from '../../../../components/PaginationWrap';
-import LoadDiv from 'ming-ui/components/LoadDiv';
-import Icon from 'ming-ui/components/Icon';
-import UserName from 'src/components/userName/userName';
+import { LoadDiv, Icon, UserName } from 'ming-ui';
 import _ from 'lodash';
 
 const PAGE_SIZES = {
@@ -249,7 +247,7 @@ export default class StatTable extends React.Component {
   }
 
   abortRequest() {
-    if (this.promise && this.promise.state() === 'pending' && this.promise.abort) {
+    if (this.promise && this.promise.abort) {
       this.promise.abort();
     }
   }
@@ -297,10 +295,10 @@ export default class StatTable extends React.Component {
             isLoading: false,
           });
         } else {
-          return $.Deferred().reject().promise();
+          return Promise.reject();
         }
       })
-      .fail(({ errorCode } = {}) => {
+      .catch(({ errorCode } = {}) => {
         if (errorCode !== 1) {
           alert(_l('获取列表失败'), 2);
           this.setState({

@@ -19,7 +19,7 @@ const NATIVE_MODULES_LIST = [
   { id: 'knowledge', href: '/apps/kc/my', urlMatch: knowledgeRegExp, text: _l('文件'), key: 4 },
   { id: 'hr', href: '/hr', urlMatch: hrRegExp, text: _l('人事'), key: 5 },
 ];
-_.remove(NATIVE_MODULES_LIST, item => _.includes(md.global.Config.ForbidSuites || [], item.key));
+_.remove(NATIVE_MODULES_LIST, item => md.global.SysSettings.forbidSuites.indexOf(item.key) > -1);
 
 export const NATIVE_MODULES = NATIVE_MODULES_LIST;
 export const APP_GROUP_TYPE = {

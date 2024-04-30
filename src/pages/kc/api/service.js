@@ -26,9 +26,9 @@ function getRoots(args) {
   return kc
     .getRoots(args)
     .then(assignHashFunc)
-    .then((roots) => {
+    .then(roots => {
       if (roots && roots.length) {
-        roots.forEach((root) => {
+        roots.forEach(root => {
           if (root) {
             rootCache[root.id] = assignHashFunc(assign({}, rootCache[root.id], root));
           }
@@ -43,7 +43,7 @@ function getRootDetail(rootId, options) {
   return kc
     .getRootDetail({ id: rootId }, options || {})
     .then(assignHashFunc)
-    .then((root) => {
+    .then(root => {
       if (root) {
         rootCache[root.id] = assignHashFunc(assign({}, rootCache[root.id], root));
       }
@@ -54,11 +54,11 @@ function getRootDetail(rootId, options) {
 /** 根据 id 获取根目录名称 */
 function getRootName(rootId, options) {
   if (!rootId || rootId === 'my') {
-    return $.when(_l('我的文件'));
+    return Promise.resolve(_l('我的文件'));
   }
   const root = rootCache[rootId];
   if (root) {
-    return $.when(root.name);
+    return Promise.resolve(root.name);
   }
   return getRootDetail(rootId, options || {}).then(r => (r ? r.name : _l('位置不存在')));
 }
@@ -88,11 +88,11 @@ function getReadablePosition(position) {
   const rootId = arr[0];
   let rootName;
   if (rootId === 'my' || rootId === md.global.Account.accountId) {
-    rootName = $.when(_l('我的文件'));
+    rootName = Promise.resolve(_l('我的文件'));
   } else {
     rootName = getRootName(rootId, { silent: true });
   }
-  return rootName.then((name) => {
+  return rootName.then(name => {
     arr = arr.slice(1, arr.length);
     arr.unshift(name);
     return arr.join('/');

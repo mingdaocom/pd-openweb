@@ -1,8 +1,7 @@
 import React from 'react';
-import { Icon } from 'ming-ui';
-import SvgIcon from 'src/components/SvgIcon';
+import { Icon, SvgIcon } from 'ming-ui';
 import { transferExternalLinkUrl } from 'src/pages/AppHomepage/AppCenter/utils';
-import { checkIsAppAdmin } from 'src/components/checkIsAppAdmin';
+import { checkIsAppAdmin } from 'ming-ui/functions';
 import styled from 'styled-components';
 import cx from 'classnames';
 

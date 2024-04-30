@@ -3,8 +3,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import EmptyStatus from './EmptyStatus';
 import * as actions from '../../../../../redux/position/action';
-import UserHead from 'src/components/userHead';
-import { Checkbox } from 'ming-ui';
+import { Checkbox, UserHead } from 'ming-ui';
 import _ from 'lodash';
 
 class RoleUserList extends Component {

@@ -400,7 +400,7 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
                 <Support
                   type={2}
                   text={_l('帮助')}
-                  href="https://help.mingdao.com/sheet50"
+                  href="https://help.mingdao.com/worksheet/import-excel-create"
                   className="Gray_bd mRight30"
                 />
                 <Button type="link" className="mRight15 cancelBtn" onClick={this.props.onCancel}>

@@ -51,6 +51,7 @@ export default class BaseColumnHead extends React.Component {
   @autobind
   handleMouseDown(e) {
     const { control, columnIndex, updateSheetColumnWidths } = this.props;
+
     function getColumnTextMaxWidth() {
       const texts = [...document.querySelectorAll('.col-' + columnIndex)].slice(1).map(a => a.innerText);
       const con = document.createElement('div');
@@ -77,10 +78,14 @@ export default class BaseColumnHead extends React.Component {
       }
       updateSheetColumnWidths({ controlId: control.controlId, value: width });
     } else {
-      window.dragclicktimer = setTimeout(() => {
-        window.dragclicktimer = undefined;
+      if (window.isFirefox) {
         this.resizeColumn(e);
-      }, 200);
+      } else {
+        window.dragclicktimer = setTimeout(() => {
+          window.dragclicktimer = undefined;
+          this.resizeColumn(e);
+        }, 200);
+      }
     }
   }
 

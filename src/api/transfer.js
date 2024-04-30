@@ -12,7 +12,7 @@ export default {
   **/
    getTransferRecordByProject: function (args, options = {}) {
      
-     return $.api('Transfer', 'GetTransferRecordByProject', args, options);
+     return mdyAPI('Transfer', 'GetTransferRecordByProject', args, options);
    },
   /**
   * 按类型获取交接记录
@@ -28,7 +28,7 @@ export default {
   **/
    getTransferRecordByType: function (args, options = {}) {
      
-     return $.api('Transfer', 'GetTransferRecordByType', args, options);
+     return mdyAPI('Transfer', 'GetTransferRecordByType', args, options);
    },
   /**
   * 执行交接
@@ -42,7 +42,7 @@ export default {
   **/
    transferAll: function (args, options = {}) {
      
-     return $.api('Transfer', 'TransferAll', args, options);
+     return mdyAPI('Transfer', 'TransferAll', args, options);
    },
   /**
   * 一键交接
@@ -56,7 +56,7 @@ export default {
   **/
    transferAllOneClick: function (args, options = {}) {
      
-     return $.api('Transfer', 'TransferAllOneClick', args, options);
+     return mdyAPI('Transfer', 'TransferAllOneClick', args, options);
    },
   /**
   * 单个交接
@@ -72,7 +72,7 @@ export default {
   **/
    transferOne: function (args, options = {}) {
      
-     return $.api('Transfer', 'TransferOne', args, options);
+     return mdyAPI('Transfer', 'TransferOne', args, options);
    },
   /**
   * 多个交接
@@ -88,7 +88,7 @@ export default {
   **/
    transferMany: function (args, options = {}) {
      
-     return $.api('Transfer', 'TransferMany', args, options);
+     return mdyAPI('Transfer', 'TransferMany', args, options);
    },
   /**
   * 按照类型进行交接
@@ -103,7 +103,7 @@ export default {
   **/
    transferByType: function (args, options = {}) {
      
-     return $.api('Transfer', 'TransferByType', args, options);
+     return mdyAPI('Transfer', 'TransferByType', args, options);
    },
   /**
   * 获取用户外部协作详情
@@ -119,7 +119,7 @@ export default {
   **/
    getRelationDetailByAid: function (args, options = {}) {
      
-     return $.api('Transfer', 'GetRelationDetailByAid', args, options);
+     return mdyAPI('Transfer', 'GetRelationDetailByAid', args, options);
    },
   /**
   * 外部用户协作统计
@@ -134,7 +134,7 @@ export default {
   **/
    getRelationStatistics: function (args, options = {}) {
      
-     return $.api('Transfer', 'GetRelationStatistics', args, options);
+     return mdyAPI('Transfer', 'GetRelationStatistics', args, options);
    },
   /**
   * 退出网络协作群组
@@ -147,7 +147,7 @@ export default {
   **/
    exitAllRelation: function (args, options = {}) {
      
-     return $.api('Transfer', 'ExitAllRelation', args, options);
+     return mdyAPI('Transfer', 'ExitAllRelation', args, options);
    },
   /**
   * 按类型获取交接记录
@@ -164,7 +164,7 @@ export default {
   **/
    getOATransferRecordByType: function (args, options = {}) {
      
-     return $.api('Transfer', 'GetOATransferRecordByType', args, options);
+     return mdyAPI('Transfer', 'GetOATransferRecordByType', args, options);
    },
   /**
   * 交接部分，按照sourceId
@@ -179,7 +179,7 @@ export default {
   **/
    oATransferToAccountId: function (args, options = {}) {
      
-     return $.api('Transfer', 'OATransferToAccountId', args, options);
+     return mdyAPI('Transfer', 'OATransferToAccountId', args, options);
    },
   /**
   * 交接全部
@@ -195,6 +195,6 @@ export default {
   **/
    oATransferAllToAccountId: function (args, options = {}) {
      
-     return $.api('Transfer', 'OATransferAllToAccountId', args, options);
+     return mdyAPI('Transfer', 'OATransferAllToAccountId', args, options);
    },
 };

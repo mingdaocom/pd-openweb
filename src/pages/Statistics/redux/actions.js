@@ -1,4 +1,3 @@
-
 import worksheetAjax from 'src/api/worksheet';
 import reportConfigAjax from '../api/reportConfig';
 import reportRequestAjax from '../api/report';
@@ -15,27 +14,24 @@ import {
   isXAxisControl,
   areaParticleSizeDropdownData,
   filterDisableParticleSizeTypes,
-  filterTimeParticleSizeDropdownData
+  filterTimeParticleSizeDropdownData,
 } from '../common';
 import { reportTypes } from 'statistics/Charts/common';
 import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
-import {
-  formatValuesOfOriginConditions,
-  redefineComplexControl,
-} from 'worksheet/common/WorkSheetFilter/util';
+import { formatValuesOfOriginConditions, redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
 import { getAppFeaturesPath, getTranslateInfo } from 'src/util';
 import { replaceControlsTranslateInfo } from 'src/pages/worksheet/util';
 import { fillUrl } from 'src/router/navigateTo';
 import _ from 'lodash';
 
-export const changeBase = (data) => {
+export const changeBase = data => {
   return (dispatch, getState) => {
     dispatch({
       type: 'CHANGE_STATISTICS_BASE',
-      data: data
+      data: data,
     });
-  }
-}
+  };
+};
 
 let reportConfigDetailRequest = null;
 export const getReportConfigDetail = (data, callBack) => {
@@ -43,18 +39,18 @@ export const getReportConfigDetail = (data, callBack) => {
     const { reportId, reportType, appId, customPageConfig = {} } = data;
     const appPkg = getState().appPkg;
     const { currentReport: oldReport, base } = getState().statistics;
-    const { viewId, permissions, pageId } = base;
-    const isPublicShare = _.get(window, 'shareState.isPublicChart') || _.get(window, 'shareState.isPublicPage') || _.get(window, 'shareState.isPublicView') || window.shareAuthor;
+    const { viewId, permissions, pageId, appType } = base;
+    const isPublicShare = _.get(window, 'shareState.shareId') || window.shareAuthor;
 
     if (reportType) {
       dispatch({
         type: 'CHANGE_STATISTICS_LOADING',
-        data: true
+        data: true,
       });
     } else {
       dispatch({
         type: 'CHANGE_STATISTICS_DETAIL_LOADING',
-        data: false
+        data: false,
       });
     }
 
@@ -67,10 +63,16 @@ export const getReportConfigDetail = (data, callBack) => {
       return;
     }
 
-    if (reportConfigDetailRequest && reportConfigDetailRequest.state() === 'pending') {
+    if (reportConfigDetailRequest) {
       reportConfigDetailRequest.abort();
     }
-    reportConfigDetailRequest = reportConfigAjax.getReportConfigDetail({ reportId, reportType, appId, pageId });
+    reportConfigDetailRequest = reportConfigAjax.getReportConfigDetail({
+      reportId,
+      reportType,
+      appId,
+      pageId,
+      appType: appId ? appType : undefined
+    });
     reportConfigDetailRequest.then(result => {
       const { id } = window.appInfo || {};
       const { currentReport, axisControls } = initConfigDetail(reportId, result, oldReport, customPageConfig);
@@ -78,24 +80,34 @@ export const getReportConfigDetail = (data, callBack) => {
         currentReport.filter.viewId = viewId;
       }
       if (currentReport.reportType === reportTypes.BarChart) {
-        currentReport.displaySetup.showChartType = _.get(oldReport, 'displaySetup.showChartType') || currentReport.displaySetup.showChartType;
+        currentReport.displaySetup.showChartType =
+          _.get(oldReport, 'displaySetup.showChartType') || currentReport.displaySetup.showChartType;
+      }
+      if (reportId) {
+        dispatch({
+          type: 'CHANGE_STATISTICS_BASE',
+          data: {
+            ...base,
+            appType: result.appType
+          },
+        });
       }
       dispatch({
         type: 'CHANGE_STATISTICS_CURRENT_REPORT',
-        data: currentReport
+        data: currentReport,
       });
       dispatch({
         type: 'CHANGE_STATISTICS_AXIS_CONTROLS',
         data: axisControls.map(item => {
           return {
             ...item,
-            controlName: getTranslateInfo(id, item.controlId).name || item.controlName
-          }
-        })
+            controlName: getTranslateInfo(id, item.controlId).name || item.controlName,
+          };
+        }),
       });
       if (callBack) {
         callBack();
-        return
+        return;
       }
       if (reportType) {
         dispatch(getReportData());
@@ -104,17 +116,18 @@ export const getReportConfigDetail = (data, callBack) => {
         dispatch(getWorksheetInfo(worksheetId));
       }
     });
-  }
-}
+  };
+};
 
 let reportConfigRequest = null;
 let reportRequest = null;
 export const getReportData = () => {
   return (dispatch, getState) => {
     const { base, currentReport, reportData } = getState().statistics;
-    const { permissions, report, pageId, settingVisible, sheetVisible, filters, filtersGroup } = base;
+    const { permissions, report, pageId, settingVisible, sheetVisible, filters, filtersGroup, linkageFiltersGroup } =
+      base;
     const data = getNewReport(getState().statistics);
-    const success = (result) => {
+    const success = result => {
       const data = fillValueMap(result);
       const { id } = window.appInfo || {};
       if (data.xaxes && data.xaxes.controlId) {
@@ -124,8 +137,8 @@ export const getReportData = () => {
         data.yaxisList = data.yaxisList.map(data => {
           return {
             ...data,
-            controlName: getTranslateInfo(id, data.controlId).name || data.controlName
-          }
+            controlName: getTranslateInfo(id, data.controlId).name || data.controlName,
+          };
         });
       }
       if (permissions) {
@@ -134,8 +147,8 @@ export const getReportData = () => {
           type: 'CHANGE_STATISTICS_CURRENT_REPORT',
           data: {
             ...currentReport,
-            ...param
-          }
+            ...param,
+          },
         });
       } else {
         if (data.reportType === reportTypes.PivotTable) {
@@ -145,52 +158,54 @@ export const getReportData = () => {
             columns: data.columns,
             lines: data.lines,
             showColumnTotal: data.showColumnTotal,
-            showLineTotal: data.showLineTotal
-          }
+            showLineTotal: data.showLineTotal,
+          };
         }
         dispatch({
           type: 'CHANGE_STATISTICS_CURRENT_REPORT',
-          data: _.isEmpty(currentReport) ? data : currentReport
+          data: _.isEmpty(currentReport) ? data : currentReport,
         });
       }
       dispatch({
         type: 'CHANGE_STATISTICS_REPORT_DATA',
-        data: data
+        data: data,
       });
       dispatch({
         type: 'CHANGE_STATISTICS_LOADING',
-        data: false
+        data: false,
       });
-    }
+    };
     const fail = () => {
       dispatch({
         type: 'CHANGE_STATISTICS_REPORT_DATA',
-        data: { status: 0 }
+        data: { status: 0 },
       });
       dispatch({
         type: 'CHANGE_STATISTICS_LOADING',
-        data: false
+        data: false,
       });
-    }
+    };
     dispatch({
       type: 'CHANGE_STATISTICS_LOADING',
-      data: true
+      data: true,
     });
     if (settingVisible) {
       if (!data.reportType) {
         fail();
         return;
       }
-      if (reportConfigRequest && reportConfigRequest.state() === 'pending') {
+      if (reportConfigRequest) {
         reportConfigRequest.abort();
       }
       data.filter.filterId = null;
-      reportConfigRequest = reportConfigAjax.getData(data, { fireImmediately: false });
-      reportConfigRequest.then(result => {
-        success(result);
-      }).fail(fail);
+      reportConfigRequest = reportConfigAjax.getData(data);
+      reportConfigRequest
+        .then(result => {
+          success(result);
+        })
+        .catch(fail);
     } else {
-      if (reportRequest && reportRequest.state() === 'pending') {
+      if (reportRequest) {
         reportRequest.abort();
       }
       const { filter = {}, sorts, version, particleSizeType } = data;
@@ -199,8 +214,8 @@ export const getReportData = () => {
         pageId,
         version,
         reload: true,
-        filters: []
-      }
+        filters: [],
+      };
       if (!_.isEmpty(filters)) {
         params.filters.push(filters);
       }
@@ -209,6 +224,9 @@ export const getReportData = () => {
       }
       if (!_.isEmpty(filtersGroup)) {
         params.filters.push(filtersGroup);
+      }
+      if (!_.isEmpty(linkageFiltersGroup)) {
+        params.filters.push(linkageFiltersGroup);
       }
       if (!_.isEmpty(reportData)) {
         Object.assign(params, {
@@ -219,35 +237,39 @@ export const getReportData = () => {
           today: filter.today,
           dynamicFilter: filter.dynamicFilter,
           sorts,
-        })
+        });
       }
-      reportRequest = reportRequestAjax.getData(params, { fireImmediately: false });
-      reportRequest.then(result => {
-        success(result);
-      }).fail(fail);
+      reportRequest = reportRequestAjax.getData(params);
+      reportRequest
+        .then(result => {
+          success(result);
+        })
+        .catch(fail);
     }
     if (sheetVisible && settingVisible) {
-      dispatch(changeBase({
-        reportSingleCacheId: null,
-        apkId: null
-      }));
+      dispatch(
+        changeBase({
+          reportSingleCacheId: null,
+          apkId: null,
+        }),
+      );
       dispatch(getTableData());
     }
-  }
-}
+  };
+};
 
 export const getTableData = () => {
   return (dispatch, getState) => {
     const { base, reportData } = getState().statistics;
-    const { report, pageId, match, settingVisible, activeData, filters, filtersGroup } = base;
+    const { report, pageId, match, settingVisible, activeData, filters, filtersGroup, linkageFiltersGroup } = base;
     const data = getNewReport(getState().statistics);
 
     dispatch({
       type: 'CHANGE_STATISTICS_TABLE_DATA',
-      data: {}
+      data: {},
     });
 
-    const formatYaxisList = (data) => {
+    const formatYaxisList = data => {
       const { yaxisList = [] } = data;
       const leftYaxisList = reportData.yaxisList || [];
       const rightYaxisList = _.get(reportData, ['rightY', 'yaxisList']) || [];
@@ -262,16 +284,16 @@ export const getTableData = () => {
         });
       }
       return data;
-    }
+    };
 
     if (settingVisible) {
-      reportConfigAjax.getTableData(data, { fireImmediately: true }).then(result => {
+      reportConfigAjax.getTableData(data).then(result => {
         if (!result.style) {
           result.style = {};
         }
         dispatch({
           type: 'CHANGE_STATISTICS_TABLE_DATA',
-          data: formatYaxisList(result)
+          data: formatYaxisList(result),
         });
       });
     } else {
@@ -281,8 +303,8 @@ export const getTableData = () => {
         pageId,
         version: data.version,
         reload: true,
-        filters: []
-      }
+        filters: [],
+      };
       if (!_.isEmpty(filters)) {
         params.filters.push(filters);
       }
@@ -291,6 +313,9 @@ export const getTableData = () => {
       }
       if (!_.isEmpty(filtersGroup)) {
         params.filters.push(filtersGroup);
+      }
+      if (!_.isEmpty(linkageFiltersGroup)) {
+        params.filters.push(linkageFiltersGroup);
       }
       if (!_.isEmpty(reportData)) {
         Object.assign(params, {
@@ -306,74 +331,89 @@ export const getTableData = () => {
       if (!_.isEmpty(country)) {
         Object.assign(params, {
           filterCode: country.drillFilterCode,
-          particleSizeType: country.drillParticleSizeType
+          particleSizeType: country.drillParticleSizeType,
         });
       }
-      reportRequestAjax.getTableData(params, { fireImmediately: true }).then(result => {
+      reportRequestAjax.getTableData(params).then(result => {
         if (!result.style) {
           result.style = {};
         }
         dispatch({
           type: 'CHANGE_STATISTICS_TABLE_DATA',
-          data: formatYaxisList(result)
+          data: formatYaxisList(result),
         });
       });
     }
-  }
-}
+  };
+};
 
-export const getReportSingleCacheId = (data) => {
+export const getReportSingleCacheId = data => {
   return (dispatch, getState) => {
     const { base, worksheetInfo, currentReport } = getState().statistics;
-    const { report, sheetId, filters = [], filtersGroup = [] } = base;
-    const { viewId, filterControls = [], filterRangeId, rangeType, rangeValue, dynamicFilter, today = false, customRangeValue } = currentReport.filter || {};
+    const { report, sheetId, filters = [], filtersGroup = [], linkageFiltersGroup = [] } = base;
+    const {
+      viewId,
+      filterControls = [],
+      filterRangeId,
+      rangeType,
+      rangeValue,
+      dynamicFilter,
+      today = false,
+      customRangeValue,
+    } = currentReport.filter || {};
     const { drillParticleSizeType } = currentReport.country || {};
     const { isPersonal, match, contrastType } = data;
 
     if (!isPersonal) {
       dispatch({
         type: 'CHANGE_STATISTICS_REPORTSINGLECACHE_LOADING',
-        data: true
+        data: true,
       });
     }
 
-    reportRequestAjax.getReportSingleCacheId({
-      isPersonal,
-      match,
-      contrastType,
-      reportId: report.id,
-      particleSizeType: drillParticleSizeType,
-      appId: sheetId,
-      filters: [[...filters], [...filterControls], [...filtersGroup]].filter(_ => _.length),
-      filterRangeId,
-      rangeType,
-      rangeValue,
-      dynamicFilter,
-      today,
-      customRangeValue
-    }, {
-      fireImmediately: true
-    }).then(result => {
-      if (!result.id) return;
-      if (isPersonal) {
-        window.open(fillUrl(`/worksheet/${worksheetInfo.worksheetId}/view/${viewId}?chartId=${result.id}&${getAppFeaturesPath()}`));
-      } else {
-        dispatch(changeBase({
-          reportSingleCacheId: result.id,
-          apkId: result.apkId
-        }));
-        if (!isPersonal) {
-          dispatch({
-            type: 'CHANGE_STATISTICS_REPORTSINGLECACHE_LOADING',
-            data: false
-          });
+    reportRequestAjax
+      .getReportSingleCacheId({
+        isPersonal,
+        match,
+        contrastType,
+        reportId: report.id,
+        particleSizeType: drillParticleSizeType,
+        appId: sheetId,
+        filters: [[...filters], [...filterControls], [...filtersGroup], [...linkageFiltersGroup]].filter(_ => _.length),
+        filterRangeId,
+        rangeType,
+        rangeValue,
+        dynamicFilter,
+        today,
+        customRangeValue,
+      })
+      .then(result => {
+        if (!result.id) return;
+        if (isPersonal) {
+          window.open(
+            fillUrl(
+              `/worksheet/${worksheetInfo.worksheetId}/view/${viewId}?chartId=${result.id}&${getAppFeaturesPath()}`,
+            ),
+          );
+        } else {
+          dispatch(
+            changeBase({
+              reportSingleCacheId: result.id,
+              apkId: result.apkId,
+            }),
+          );
+          if (!isPersonal) {
+            dispatch({
+              type: 'CHANGE_STATISTICS_REPORTSINGLECACHE_LOADING',
+              data: false,
+            });
+          }
         }
-      }
-    });
-  }
-}
+      });
+  };
+};
 
-export const requestOriginalData = (data) => {
+export const requestOriginalData = data => {
   return (dispatch, getState) => {
     const { base, worksheetInfo, currentReport } = getState().statistics;
     const { filter = {} } = currentReport;
@@ -384,27 +424,29 @@ export const requestOriginalData = (data) => {
     if (viewDataType === 2 && view && [VIEW_DISPLAY_TYPE.sheet].includes(view.viewType.toString())) {
       data.isPersonal = true;
     } else {
-      dispatch(changeBase({
-        sheetVisible: true,
-        match: data.match
-      }));
+      dispatch(
+        changeBase({
+          sheetVisible: true,
+          match: data.match,
+        }),
+      );
     }
     dispatch(getReportSingleCacheId(data));
-  }
-}
+  };
+};
 
 let worksheetInfoRequest = null;
 let worksheetFilterByIdRequest = null;
-export const getWorksheetInfo = (worksheetId) => {
+export const getWorksheetInfo = worksheetId => {
   return (dispatch, getState) => {
     const { currentReport } = getState().statistics;
     const { filter } = currentReport;
     const filterId = _.get(filter, 'filterId');
 
-    if (worksheetInfoRequest && worksheetInfoRequest.state() === 'pending') {
+    if (worksheetInfoRequest) {
       worksheetInfoRequest.abort();
     }
-    if (worksheetFilterByIdRequest && worksheetFilterByIdRequest.state() === 'pending') {
+    if (worksheetFilterByIdRequest) {
       worksheetFilterByIdRequest.abort();
     }
     worksheetInfoRequest = worksheetAjax.getWorksheetInfo({
@@ -416,13 +458,16 @@ export const getWorksheetInfo = (worksheetId) => {
     worksheetFilterByIdRequest = filterId ? worksheetAjax.getWorksheetFilterById({ filterId }) : null;
 
     Promise.all([worksheetInfoRequest, worksheetFilterByIdRequest]).then(result => {
-      const [ worksheetResult, filterResult ] = result;
+      const [worksheetResult, filterResult] = result;
       dispatch({
         type: 'CHANGE_STATISTICS_DETAIL_LOADING',
-        data: false
+        data: false,
       });
       if (_.get(worksheetResult, ['template', 'controls'])) {
-        worksheetResult.template.controls = replaceControlsTranslateInfo(worksheetResult.appId, _.get(worksheetResult, ['template', 'controls']));
+        worksheetResult.template.controls = replaceControlsTranslateInfo(
+          worksheetResult.appId,
+          _.get(worksheetResult, ['template', 'controls']),
+        );
       }
       dispatch({
         type: 'CHANGE_STATISTICS_WORKSHEET_INFO',
@@ -433,43 +478,43 @@ export const getWorksheetInfo = (worksheetId) => {
           views: (worksheetResult.views || []).map(item => {
             return {
               ...item,
-              name: getTranslateInfo(worksheetResult.appId, item.viewId).name || item.name
-            }
+              name: getTranslateInfo(worksheetResult.appId, item.viewId).name || item.name,
+            };
           }),
           switches: worksheetResult.switches,
-          columns: (_.get(worksheetResult, ['template', 'controls']) || []).map(item => redefineComplexControl(item))
-        }
+          columns: (_.get(worksheetResult, ['template', 'controls']) || []).map(item => redefineComplexControl(item)),
+        },
       });
       if (filterResult) {
         const newCurrentReport = {
           ...currentReport,
           filter: {
             ...filter,
-            filterControls: formatValuesOfOriginConditions(filterResult.items)
-          }
-        }
+            filterControls: formatValuesOfOriginConditions(filterResult.items),
+          },
+        };
         dispatch({
           type: 'CHANGE_STATISTICS_CURRENT_REPORT',
-          data: newCurrentReport
+          data: newCurrentReport,
         });
         dispatch({
           type: 'CHANGE_STATISTICS_FILTER_ITEM',
-          data: filterResult.items
+          data: filterResult.items,
         });
       }
       dispatch(getReportData());
     });
-  }
-}
+  };
+};
 
-export const changeFilterItem = (data) => {
+export const changeFilterItem = data => {
   return (dispatch, getState) => {
     dispatch({
       type: 'CHANGE_STATISTICS_FILTER_ITEM',
-      data
+      data,
     });
-  }
-}
+  };
+};
 
 export const changeCurrentReport = (data, isRequest) => {
   return (dispatch, getState) => {
@@ -479,45 +524,47 @@ export const changeCurrentReport = (data, isRequest) => {
       data: {
         ...currentReport,
         ...data,
-      }
+      },
     });
     if (isRequest) {
       dispatch(getReportData());
     }
-  }
-}
+  };
+};
 
 export const closeCurrentReport = () => {
   return (dispatch, getState) => {
     dispatch({
       type: 'CHANGE_STATISTICS_CURRENT_REPORT',
-      data: {}
+      data: {},
     });
-  }
-}
+  };
+};
 
-export const changeSheetId = (activeSheetId) => {
+export const changeSheetId = activeSheetId => {
   return (dispatch, getState) => {
     const { currentReport, base } = getState().statistics;
     dispatch({
       type: 'CHANGE_STATISTICS_CURRENT_REPORT',
-      data: {}
+      data: {},
     });
     dispatch({
       type: 'CHANGE_STATISTICS_REPORT_DATA',
-      data: {}
+      data: {},
     });
     dispatch({
       type: 'CHANGE_STATISTICS_FILTER_ITEM',
-      data: []
+      data: [],
     });
-    dispatch(getReportConfigDetail({
-      appId: activeSheetId,
-      reportType: null,
-      reportId: null
-    }));
-  }
-}
+    dispatch(
+      getReportConfigDetail({
+        appId: activeSheetId,
+        reportType: null,
+        reportId: null,
+      }),
+    );
+  };
+};
 
 export const changeControlCheckbox = (event, item) => {
   return (dispatch, getState) => {
@@ -542,13 +589,13 @@ export const changeControlCheckbox = (event, item) => {
         } else {
           dispatch(addColumns(item));
         }
-        return
+        return;
       }
       if (reportType === reportTypes.DualAxes) {
         if (isNumber) {
           if (yaxisList.length && split.controlId && rightSplit && _.isEmpty(rightSplit.controlId)) {
             dispatch(addRightYaxisList(item));
-            return
+            return;
           }
           if (_.isEmpty(split.controlId)) {
             if (yaxisList.length <= rightYaxisList.length) {
@@ -556,70 +603,89 @@ export const changeControlCheckbox = (event, item) => {
             } else {
               dispatch(addRightYaxisList(item));
             }
-            return
+            return;
           }
         }
         if (yaxisList.length === 1) {
           if (isSplit && _.isEmpty(split.controlId)) {
             dispatch(changeSplit(item));
-            return
+            return;
           }
         }
         if (rightYaxisList.length === 1) {
           if (isSplit && rightSplit && _.isEmpty(rightSplit.controlId)) {
             dispatch(changeRightSplit(item));
-            return
+            return;
           }
         }
-        dispatch(getReportConfigDetail({
-          reportId: base.report.id,
-          appId: base.sheetId,
-          reportType: reportTypes.PivotTable
-        }, () => {
-          if (split.controlId) {
-            dispatch(addLines(split, false));
-          }
-          if (rightSplit && rightSplit.controlId) {
-            dispatch(addColumns(rightSplit));
-          }
-          rightYaxisList.forEach(item => {
-            dispatch(addYaxisList(item));
-          });
-          if (isNumber) {
-            dispatch(addYaxisList(item));
-          } else {
-            dispatch(addColumns(item));
-          }
-        }));
+        dispatch(
+          getReportConfigDetail(
+            {
+              reportId: base.report.id,
+              appId: base.sheetId,
+              reportType: reportTypes.PivotTable,
+            },
+            () => {
+              if (split.controlId) {
+                dispatch(addLines(split, false));
+              }
+              if (rightSplit && rightSplit.controlId) {
+                dispatch(addColumns(rightSplit));
+              }
+              rightYaxisList.forEach(item => {
+                dispatch(addYaxisList(item));
+              });
+              if (isNumber) {
+                dispatch(addYaxisList(item));
+              } else {
+                dispatch(addColumns(item));
+              }
+            },
+          ),
+        );
         return;
       }
       if (reportType === reportTypes.NumberChart && yaxisList.length) {
-        dispatch(getReportConfigDetail({
-          reportId: base.report.id,
-          appId: base.sheetId,
-          reportType: reportTypes.BarChart
-        }, () => {
-          if (isNumber) {
-            dispatch(addYaxisList(item));
-          } else {
-            dispatch(addXaxes(item));
-          }
-        }));
-        return
+        dispatch(
+          getReportConfigDetail(
+            {
+              reportId: base.report.id,
+              appId: base.sheetId,
+              reportType: reportTypes.BarChart,
+            },
+            () => {
+              if (isNumber) {
+                dispatch(addYaxisList(item));
+              } else {
+                dispatch(addXaxes(item));
+              }
+            },
+          ),
+        );
+        return;
       }
-      if ([reportTypes.PieChart, reportTypes.FunnelChart, reportTypes.WordCloudChart, reportTypes.CountryLayer].includes(reportType)) {
+      if (
+        [reportTypes.PieChart, reportTypes.FunnelChart, reportTypes.WordCloudChart, reportTypes.CountryLayer].includes(
+          reportType,
+        )
+      ) {
         if (_.isEmpty(xaxes.controlId) && !isNumber) {
           dispatch(addXaxes(item));
           return;
         }
         if ((yaxisList.length && xaxes.controlId) || yaxisList.length >= 1) {
-          dispatch(getReportConfigDetail({
-            reportId: base.report.id,
-            appId: base.sheetId,
-            reportType: reportTypes.PivotTable
-          }, () => {
-            dispatch(addColumns(item));
-          }));
+          dispatch(
+            getReportConfigDetail(
+              {
+                reportId: base.report.id,
+                appId: base.sheetId,
+                reportType: reportTypes.PivotTable,
+              },
+              () => {
+                dispatch(addColumns(item));
+              },
+            ),
+          );
           return;
         }
       }
@@ -629,73 +695,97 @@ export const changeControlCheckbox = (event, item) => {
           ([reportTypes.RadarChart, reportTypes.FunnelChart].includes(reportType) && isTimeControl(item.type)) ||
           !isXAxisControl(item.type)
         ) {
-          dispatch(getReportConfigDetail({
-            reportId: base.report.id,
-            appId: base.sheetId,
-            reportType: reportTypes.BarChart
-          }, () => {
-            dispatch(addXaxes(item));
-          }));
+          dispatch(
+            getReportConfigDetail(
+              {
+                reportId: base.report.id,
+                appId: base.sheetId,
+                reportType: reportTypes.BarChart,
+              },
+              () => {
+                dispatch(addXaxes(item));
+              },
+            ),
+          );
         } else {
           dispatch(addXaxes(item));
         }
         if (!reportType) {
-          dispatch(getReportConfigDetail({
-            reportId: base.report.id,
-            appId: base.sheetId,
-            reportType: reportTypes.BarChart
-          }));
+          dispatch(
+            getReportConfigDetail({
+              reportId: base.report.id,
+              appId: base.sheetId,
+              reportType: reportTypes.BarChart,
+            }),
+          );
         }
       }
       if (xaxes.controlId && !isNumber) {
         if (yaxisList.length > 1) {
-          dispatch(getReportConfigDetail({
-            reportId: base.report.id,
-            appId: base.sheetId,
-            reportType: reportTypes.DualAxes
-          }, () => {
-            dispatch(changeSplit(item, false));
-            dispatch(changeYaxisList({ yaxisList: [yaxisList[0]] }, false));
-            dispatch(changeRightYaxisList({ yaxisList: [yaxisList[1]] }));
-          }));
-          return
+          dispatch(
+            getReportConfigDetail(
+              {
+                reportId: base.report.id,
+                appId: base.sheetId,
+                reportType: reportTypes.DualAxes,
+              },
+              () => {
+                dispatch(changeSplit(item, false));
+                dispatch(changeYaxisList({ yaxisList: [yaxisList[0]] }, false));
+                dispatch(changeRightYaxisList({ yaxisList: [yaxisList[1]] }));
+              },
+            ),
+          );
+          return;
         }
         if (yaxisList.length) {
           if (isSplit && _.isEmpty(split.controlId)) {
             dispatch(changeSplit(item));
-            return
+            return;
           }
         }
-        dispatch(getReportConfigDetail({
-          reportId: base.report.id,
-          appId: base.sheetId,
-          reportType: reportTypes.PivotTable
-        }, () => {
-          if (split.controlId) {
-            dispatch(addLines(split, false));
-          }
-          dispatch(addColumns(item));
-        }));
+        dispatch(
+          getReportConfigDetail(
+            {
+              reportId: base.report.id,
+              appId: base.sheetId,
+              reportType: reportTypes.PivotTable,
+            },
+            () => {
+              if (split.controlId) {
+                dispatch(addLines(split, false));
+              }
+              dispatch(addColumns(item));
+            },
+          ),
+        );
       }
       if (isNumber) {
         if (split.controlId) {
-          dispatch(getReportConfigDetail({
-            reportId: base.report.id,
-            appId: base.sheetId,
-            reportType: reportTypes.DualAxes
-          }, () => {
-            dispatch(changeSplit(split, false));
-            dispatch(addRightYaxisList(item));
-          }));
+          dispatch(
+            getReportConfigDetail(
+              {
+                reportId: base.report.id,
+                appId: base.sheetId,
+                reportType: reportTypes.DualAxes,
+              },
+              () => {
+                dispatch(changeSplit(split, false));
+                dispatch(addRightYaxisList(item));
+              },
+            ),
+          );
           return;
         }
         dispatch(addYaxisList(item));
         if (!reportType) {
-          dispatch(getReportConfigDetail({
-            reportId: base.report.id,
-            appId: base.sheetId,
-            reportType: reportTypes.NumberChart
-          }));
+          dispatch(
+            getReportConfigDetail({
+              reportId: base.report.id,
+              appId: base.sheetId,
+              reportType: reportTypes.NumberChart,
+            }),
+          );
         }
       }
     } else {
@@ -733,8 +823,8 @@ export const changeControlCheckbox = (event, item) => {
         dispatch(removeColumns(columnItem));
       }
     }
-  }
-}
+  };
+};
 
 export const removeXaxes = () => {
   return (dispatch, getState) => {
@@ -751,17 +841,17 @@ export const removeXaxes = () => {
         particleSizeType: 0,
         xaxisEmpty: false,
       },
-      sorts: sorts.filter(item => _.findKey(item) !== id)
-    }
+      sorts: sorts.filter(item => _.findKey(item) !== id),
+    };
     if (reportType === reportTypes.FunnelChart) {
       data.displaySetup = {
         ...currentReport.displaySetup,
-        showOptionIds: []
-      }
+        showOptionIds: [],
+      };
     }
     dispatch(changeCurrentReport(data, true));
-  }
-}
+  };
+};
 
 export const addXaxes = (control, isRequest = true) => {
   return (dispatch, getState) => {
@@ -786,9 +876,9 @@ export const addXaxes = (control, isRequest = true) => {
         xdisplay: {
           ...displaySetup.xdisplay,
           title: reportType === reportTypes.ScatterChart ? displaySetup.xdisplay.title : control.controlName,
-        }
-      }
-    }
+        },
+      },
+    };
     if (isTime && showtype === '4') {
       data.xaxes.particleSizeType = 3;
     }
@@ -800,15 +890,15 @@ export const addXaxes = (control, isRequest = true) => {
     }
     if (isArea) {
       data.country = {
-        filterCode: "",
-        filterCodeName: "",
+        filterCode: '',
+        filterCodeName: '',
         municipality: false,
-        particleSizeType: 1
-      }
+        particleSizeType: 1,
+      };
     }
     dispatch(changeCurrentReport(data, isRequest));
-  }
-}
+  };
+};
 
 export const addValueAxis = (key, control, isRequest = true) => {
   return (dispatch, getState) => {
@@ -831,14 +921,13 @@ export const addValueAxis = (key, control, isRequest = true) => {
           emptyShowType: 0,
           dot: control.dot,
           rename: '',
-          value: undefined
-        }
-      }
-    }
+          value: undefined,
+        },
+      },
+    };
     dispatch(changeCurrentReport(data, isRequest));
-  }
-}
-
+  };
+};
 
 export const addTargetValueAxis = (index, control) => {
   return (dispatch, getState) => {
@@ -859,24 +948,28 @@ export const addTargetValueAxis = (index, control) => {
       emptyShowType: 0,
       dot: control.dot,
       rename: '',
-    }
+    };
     targetList[index] = data;
-    dispatch(changeConfig({
-      targetList
-    }));
-  }
-}
+    dispatch(
+      changeConfig({
+        targetList,
+      }),
+    );
+  };
+};
 
 export const removeTargetValueAxis = (index, control) => {
   return (dispatch, getState) => {
     const { currentReport } = getState().statistics;
     const { targetList = [] } = currentReport.config || {};
     targetList[index] = null;
-    dispatch(changeConfig({
-      targetList
-    }));
-  }
-}
+    dispatch(
+      changeConfig({
+        targetList,
+      }),
+    );
+  };
+};
 
 export const changeConfig = (data, isRequest = true) => {
   return (dispatch, getState) => {
@@ -884,10 +977,10 @@ export const changeConfig = (data, isRequest = true) => {
     const config = {
       ...currentReport.config,
       ...data,
-    }
+    };
     dispatch(changeCurrentReport({ config }, isRequest));
-  }
-}
+  };
+};
 
 export const addYaxisList = (data, isRequest = true) => {
   return (dispatch, getState) => {
@@ -901,16 +994,16 @@ export const addYaxisList = (data, isRequest = true) => {
       controlId: data.controlId,
       controlName: data.controlName,
       controlType: data.type,
-      magnitude: firstYAxis ? firstYAxis.magnitude : (isPercent ? 7 : 0),
-      suffix: firstYAxis ? firstYAxis.suffix : (isPercent ? '%' : ''),
-      ydot: firstYAxis ? firstYAxis.ydot : (isPercent ? 0 : 2),
+      magnitude: firstYAxis ? firstYAxis.magnitude : isPercent ? 7 : 0,
+      suffix: firstYAxis ? firstYAxis.suffix : isPercent ? '%' : '',
+      ydot: firstYAxis ? firstYAxis.ydot : isPercent ? 0 : 2,
       fixType: firstYAxis ? firstYAxis.fixType : 0,
       normType: isNumber ? 1 : 5,
       emptyShowType: 0,
       dot: data.dot,
       rename: '',
-      advancedSetting
-    }
+      advancedSetting,
+    };
     const newYaxisList = yaxisList.concat(axis);
     if (reportType === reportTypes.PivotTable) {
       const { lineSummary, columnSummary } = pivotTable;
@@ -918,29 +1011,34 @@ export const addYaxisList = (data, isRequest = true) => {
         controlId: data.controlId,
         name: '',
         sum: 0,
-        type: 1
-      }
+        type: 1,
+      };
       const columnControlList = columnSummary.controlList || [];
       const lineControlList = lineSummary.controlList || [];
-      dispatch(changeYaxisList({
-        pivotTable: {
-          ...pivotTable,
-          columnSummary: {
-            ...columnSummary,
-            controlList: columnControlList.concat(sumData)
+      dispatch(
+        changeYaxisList(
+          {
+            pivotTable: {
+              ...pivotTable,
+              columnSummary: {
+                ...columnSummary,
+                controlList: columnControlList.concat(sumData),
+              },
+              lineSummary: {
+                ...lineSummary,
+                controlList: lineControlList.concat(sumData),
+              },
+            },
+            yaxisList: newYaxisList,
           },
-          lineSummary: {
-            ...lineSummary,
-            controlList: lineControlList.concat(sumData)
-          }
-        },
-        yaxisList: newYaxisList
-      }, isRequest));
+          isRequest,
+        ),
+      );
     } else {
       dispatch(changeYaxisList({ yaxisList: newYaxisList }, isRequest));
     }
-  }
-}
+  };
+};
 
 export const addIndexYaxisList = (data, index, isRequest = true) => {
   return (dispatch, getState) => {
@@ -954,16 +1052,16 @@ export const addIndexYaxisList = (data, index, isRequest = true) => {
       controlId: data.controlId,
       controlName: data.controlName,
       controlType: data.type,
-      magnitude: firstYAxis ? firstYAxis.magnitude : (isPercent ? 7 : 0),
-      suffix: firstYAxis ? firstYAxis.suffix : (isPercent ? '%' : ''),
-      ydot: firstYAxis ? firstYAxis.ydot : (isPercent ? 0 : 2),
+      magnitude: firstYAxis ? firstYAxis.magnitude : isPercent ? 7 : 0,
+      suffix: firstYAxis ? firstYAxis.suffix : isPercent ? '%' : '',
+      ydot: firstYAxis ? firstYAxis.ydot : isPercent ? 0 : 2,
       fixType: firstYAxis ? firstYAxis.fixType : 0,
       normType: isNumber ? 1 : 5,
       emptyShowType: 0,
       dot: data.dot,
       rename: '',
       advancedSetting,
-    }
+    };
     if (index === 0) {
       displaySetup.xdisplay.title = data.controlName;
     }
@@ -971,13 +1069,17 @@ export const addIndexYaxisList = (data, index, isRequest = true) => {
       displaySetup.ydisplay.title = data.controlName;
     }
     yaxisList[index] = axis;
-    dispatch(changeYaxisList({
-      yaxisList,
-      displaySetup
-    }, isRequest));
-  }
-}
-
+    dispatch(
+      changeYaxisList(
+        {
+          yaxisList,
+          displaySetup,
+        },
+        isRequest,
+      ),
+    );
+  };
+};
 
 export const changeYaxisList = (data, isRequest = true) => {
   return (dispatch, getState) => {
@@ -989,22 +1091,27 @@ export const changeYaxisList = (data, isRequest = true) => {
       const defaultSorts = yaxisList.length ? [{ [yaxisList[0].controlId]: 2 }] : [];
       data.sorts = sorts.length ? sorts : defaultSorts;
     }
-    dispatch(changeCurrentReport({
-      ...data,
-      displaySetup: {
-        ...displaySetup,
-        ydisplay: {
-          ...displaySetup.ydisplay,
-          title: reportType === reportTypes.ScatterChart ? displaySetup.ydisplay.title : title,
+    dispatch(
+      changeCurrentReport(
+        {
+          ...data,
+          displaySetup: {
+            ...displaySetup,
+            ydisplay: {
+              ...displaySetup.ydisplay,
+              title: reportType === reportTypes.ScatterChart ? displaySetup.ydisplay.title : title,
+            },
+            isPerPile: yaxisList.length <= 1 ? false : displaySetup.isPerPile,
+            isPile: yaxisList.length <= 1 ? false : displaySetup.isPile,
+          },
         },
-        isPerPile: yaxisList.length <= 1 ? false : displaySetup.isPerPile,
-        isPile: yaxisList.length <= 1 ? false : displaySetup.isPile
-      }
-    }, isRequest));
-  }
-}
+        isRequest,
+      ),
+    );
+  };
+};
 
-export const removeYaxisList = (id) => {
+export const removeYaxisList = id => {
   return (dispatch, getState) => {
     const { currentReport } = getState().statistics;
     const { yaxisList, split, sorts, reportType, pivotTable, summary, config = {} } = currentReport;
@@ -1013,10 +1120,10 @@ export const removeYaxisList = (id) => {
       yaxisList: newYaxisList,
       split: {
         ...split,
-        controlId: newYaxisList.length ? split.controlId : ''
+        controlId: newYaxisList.length ? split.controlId : '',
       },
-      sorts: sorts.filter(item => _.findKey(item) !== id)
-    }
+      sorts: sorts.filter(item => _.findKey(item) !== id),
+    };
     if (reportType === reportTypes.PivotTable) {
       const { lineSummary, columnSummary } = pivotTable;
       const columnControlList = columnSummary.controlList || [];
@@ -1025,52 +1132,56 @@ export const removeYaxisList = (id) => {
         ...pivotTable,
         columnSummary: {
           ...columnSummary,
-          controlList: columnControlList.filter(item => item.controlId !== id)
+          controlList: columnControlList.filter(item => item.controlId !== id),
         },
         lineSummary: {
           ...lineSummary,
-          controlList: lineControlList.filter(item => item.controlId !== id)
-        }
-      }
+          controlList: lineControlList.filter(item => item.controlId !== id),
+        },
+      };
     }
     if (id === summary.controlId) {
       data.summary = {
         ...summary,
-        controlId: ''
-      }
+        controlId: '',
+      };
     }
     if (reportType === reportTypes.ProgressChart) {
       const targetList = config.targetList || [];
       const index = _.findIndex(yaxisList, { controlId: id });
       data.config = {
         ...config,
-        targetList: targetList.filter((_, i) => i !== index)
-      }
+        targetList: targetList.filter((_, i) => i !== index),
+      };
     }
     if ([reportTypes.BarChart, reportTypes.LineChart, reportTypes.DualAxes].includes(reportType)) {
       const { controlList = [] } = summary;
       data.summary = {
         ...summary,
-        controlList: controlList.filter(item => item.controlId !== id)
-      }
+        controlList: controlList.filter(item => item.controlId !== id),
+      };
     }
     dispatch(changeYaxisList(data));
-  }
-}
+  };
+};
 
 export const changeSplit = (data, isRequest = true) => {
   return (dispatch, getState) => {
     const { currentReport } = getState().statistics;
     const { sorts, split } = currentReport;
     const showtype = _.get(split, 'advancedSetting.showtype');
-    const deleteId = split.controlId ? (split.particleSizeType ? `${split.controlId}-${split.particleSizeType}` : split.controlId) : null;
+    const deleteId = split.controlId
+      ? split.particleSizeType
+        ? `${split.controlId}-${split.particleSizeType}`
+        : split.controlId
+      : null;
     const param = {
       splitId: null,
       split: {
         ...split,
-        ...data
-      }
-    }
+        ...data,
+      },
+    };
     if (data.controlId) {
       param.split.controlId = data.controlId;
       param.split.controlName = data.controlName;
@@ -1092,8 +1203,8 @@ export const changeSplit = (data, isRequest = true) => {
       param.sorts = sorts.filter(item => _.findKey(item) !== deleteId);
     }
     dispatch(changeCurrentReport(param, isRequest));
-  }
-}
+  };
+};
 
 export const addRightYaxisList = (data, isRequest = true) => {
   return (dispatch, getState) => {
@@ -1112,12 +1223,12 @@ export const addRightYaxisList = (data, isRequest = true) => {
       emptyShowType: 0,
       dot: data.dot,
       rename: '',
-      advancedSetting: data.advancedSetting
-    }
+      advancedSetting: data.advancedSetting,
+    };
     const newYaxisList = yaxisList.concat(axis);
     dispatch(changeRightYaxisList({ yaxisList: newYaxisList }, isRequest));
-  }
-}
+  };
+};
 
 export const changeRightYaxisList = (data, isRequest = true) => {
   return (dispatch, getState) => {
@@ -1125,25 +1236,30 @@ export const changeRightYaxisList = (data, isRequest = true) => {
     const { rightY } = currentReport;
     const { yaxisList, split, sorts } = data;
     const title = yaxisList.length ? yaxisList[0].controlName : null;
-    dispatch(changeCurrentReport({
-      sorts: sorts ? sorts : currentReport.sorts,
-      rightY: {
-        ...rightY,
-        yaxisList,
-        split: split ? split : rightY.split,
-        display: {
-          ...rightY.display,
-          ydisplay: {
-            ...rightY.display.ydisplay,
-            title
-          }
-        }
-      }
-    }, isRequest));
-  }
-}
+    dispatch(
+      changeCurrentReport(
+        {
+          sorts: sorts ? sorts : currentReport.sorts,
+          rightY: {
+            ...rightY,
+            yaxisList,
+            split: split ? split : rightY.split,
+            display: {
+              ...rightY.display,
+              ydisplay: {
+                ...rightY.display.ydisplay,
+                title,
+              },
+            },
+          },
+        },
+        isRequest,
+      ),
+    );
+  };
+};
 
-export const removeRightYaxisList = (id) => {
+export const removeRightYaxisList = id => {
   return (dispatch, getState) => {
     const { currentReport } = getState().statistics;
     const { sorts, rightY, reportType } = currentReport;
@@ -1153,43 +1269,47 @@ export const removeRightYaxisList = (id) => {
       yaxisList: newYaxisList,
       split: {
         ...split,
-        controlId: newYaxisList.length ? split.controlId : ''
+        controlId: newYaxisList.length ? split.controlId : '',
       },
-      sorts: sorts.filter(item => _.findKey(item) !== id)
-    }
+      sorts: sorts.filter(item => _.findKey(item) !== id),
+    };
     if ([reportTypes.BarChart, reportTypes.LineChart, reportTypes.DualAxes].includes(reportType)) {
       const { controlList = [] } = summary;
       data.summary = {
         ...summary,
-        controlList: controlList.filter(item => item.controlId !== id)
-      }
+        controlList: controlList.filter(item => item.controlId !== id),
+      };
     }
     dispatch(changeRightYaxisList(data));
-  }
-}
+  };
+};
 
 export const changeRightSplit = (data, isRequest = true) => {
   return (dispatch, getState) => {
     const { currentReport } = getState().statistics;
     const { sorts, rightY } = currentReport;
     const split = rightY.split;
-    const deleteId = split.controlId ? (split.particleSizeType ? `${split.controlId}-${split.particleSizeType}` : split.controlId) : null;
+    const deleteId = split.controlId
+      ? split.particleSizeType
+        ? `${split.controlId}-${split.particleSizeType}`
+        : split.controlId
+      : null;
     const param = {
       rightY: {
         ...rightY,
         splitId: null,
         split: {
           ...split,
-          ...data
-        }
-      }
-    }
+          ...data,
+        },
+      },
+    };
     if (deleteId) {
       param.sorts = sorts.filter(item => _.findKey(item) !== deleteId);
     }
     dispatch(changeCurrentReport(param, isRequest));
-  }
-}
+  };
+};
 
 export const addLines = (data, isRequest = true) => {
   return (dispatch, getState) => {
@@ -1203,12 +1323,18 @@ export const addLines = (data, isRequest = true) => {
       controlId: data.controlId,
       controlName: data.controlName,
       controlType: data.type,
-    }
+    };
     if (isTime || isArea) {
-      const disableParticleSizeTypes = [...lines, ...columns].filter(item => item.particleSizeType).map(item => `${item.controlId}-${item.particleSizeType}`);
-      const dropdownData = isTime ? filterTimeParticleSizeDropdownData(showtype, data.type) : areaParticleSizeDropdownData;
+      const disableParticleSizeTypes = [...lines, ...columns]
+        .filter(item => item.particleSizeType)
+        .map(item => `${item.controlId}-${item.particleSizeType}`);
+      const dropdownData = isTime
+        ? filterTimeParticleSizeDropdownData(showtype, data.type)
+        : areaParticleSizeDropdownData;
       const newDisableParticleSizeTypes = filterDisableParticleSizeTypes(data.controlId, disableParticleSizeTypes);
-      const allowTypes = dropdownData.map(item => item.value).filter(item => !newDisableParticleSizeTypes.includes(item));
+      const allowTypes = dropdownData
+        .map(item => item.value)
+        .filter(item => !newDisableParticleSizeTypes.includes(item));
       if (allowTypes.length) {
         axis.particleSizeType = allowTypes[0];
       } else {
@@ -1216,14 +1342,19 @@ export const addLines = (data, isRequest = true) => {
         return;
       }
     }
-    dispatch(changeCurrentReport({
-      pivotTable: {
-        ...currentReport.pivotTable,
-        lines: lines.concat(axis),
-      }
-    }, isRequest));
-  }
-}
+    dispatch(
+      changeCurrentReport(
+        {
+          pivotTable: {
+            ...currentReport.pivotTable,
+            lines: lines.concat(axis),
+          },
+        },
+        isRequest,
+      ),
+    );
+  };
+};
 
 export const removeLines = ({ controlId, particleSizeType }) => {
   return (dispatch, getState) => {
@@ -1238,15 +1369,20 @@ export const removeLines = ({ controlId, particleSizeType }) => {
         return item.controlId !== controlId;
       }
     });
-    dispatch(changeCurrentReport({
-      pivotTable: {
-        ...pivotTable,
-        lines: list
-      },
-      sorts: sorts.filter(item => _.findKey(item) !== id)
-    }, true));
-  }
-}
+    dispatch(
+      changeCurrentReport(
+        {
+          pivotTable: {
+            ...pivotTable,
+            lines: list,
+          },
+          sorts: sorts.filter(item => _.findKey(item) !== id),
+        },
+        true,
+      ),
+    );
+  };
+};
 
 export const addColumns = (data, isRequest = true) => {
   return (dispatch, getState) => {
@@ -1260,12 +1396,18 @@ export const addColumns = (data, isRequest = true) => {
       controlId: data.controlId,
       controlName: data.controlName,
       controlType: data.type,
-    }
+    };
     if (isTime || isArea) {
-      const disableParticleSizeTypes = [...lines, ...columns].filter(item => item.particleSizeType).map(item => `${item.controlId}-${item.particleSizeType}`);
-      const dropdownData = isTime ? filterTimeParticleSizeDropdownData(showtype, data.type) : areaParticleSizeDropdownData;
+      const disableParticleSizeTypes = [...lines, ...columns]
+        .filter(item => item.particleSizeType)
+        .map(item => `${item.controlId}-${item.particleSizeType}`);
+      const dropdownData = isTime
+        ? filterTimeParticleSizeDropdownData(showtype, data.type)
+        : areaParticleSizeDropdownData;
       const newDisableParticleSizeTypes = filterDisableParticleSizeTypes(data.controlId, disableParticleSizeTypes);
-      const allowTypes = dropdownData.map(item => item.value).filter(item => !newDisableParticleSizeTypes.includes(item));
+      const allowTypes = dropdownData
+        .map(item => item.value)
+        .filter(item => !newDisableParticleSizeTypes.includes(item));
       if (allowTypes.length) {
         axis.particleSizeType = allowTypes[0];
       } else {
@@ -1273,14 +1415,19 @@ export const addColumns = (data, isRequest = true) => {
         return;
       }
     }
-    dispatch(changeCurrentReport({
-      pivotTable: {
-        ...currentReport.pivotTable,
-        columns: columns.concat(axis),
-      }
-    }, isRequest));
-  }
-}
+    dispatch(
+      changeCurrentReport(
+        {
+          pivotTable: {
+            ...currentReport.pivotTable,
+            columns: columns.concat(axis),
+          },
+        },
+        isRequest,
+      ),
+    );
+  };
+};
 
 export const removeColumns = ({ controlId, particleSizeType }) => {
   return (dispatch, getState) => {
@@ -1295,54 +1442,57 @@ export const removeColumns = ({ controlId, particleSizeType }) => {
         return item.controlId !== controlId;
       }
     });
-    dispatch(changeCurrentReport({
-      pivotTable: {
-        ...pivotTable,
-        columns: list
-      },
-      sorts: sorts.filter(item => _.findKey(item) !== id)
-    }, true));
-  }
-}
+    dispatch(
+      changeCurrentReport(
+        {
+          pivotTable: {
+            ...pivotTable,
+            columns: list,
+          },
+          sorts: sorts.filter(item => _.findKey(item) !== id),
+        },
+        true,
+      ),
+    );
+  };
+};
 
-export const changeDirection = (value) => {
+export const changeDirection = value => {
   return (dispatch, getState) => {
     const { direction, reportData } = getState().statistics;
     const style = reportData.style || {};
-    const newDirection = value ? value : (direction === 'vertical' ? 'horizontal' : 'vertical');
+    const newDirection = value ? value : direction === 'vertical' ? 'horizontal' : 'vertical';
     sessionStorage.setItem('chartSheetDirection', newDirection);
     dispatch({
       type: 'CHANGE_STATISTICS_DIRECTION',
-      data: newDirection
+      data: newDirection,
     });
     if (newDirection === 'vertical' && style.pivotTableColumnFreeze) {
       dispatch(getReportData());
     }
-  }
-}
+  };
+};
 
 export const destroy = () => {
-  if (reportConfigDetailRequest && reportConfigDetailRequest.state() === 'pending') {
+  if (reportConfigDetailRequest) {
     reportConfigDetailRequest.abort();
   }
-  if (reportConfigRequest && reportConfigRequest.state() === 'pending') {
+  if (reportConfigRequest) {
     reportConfigRequest.abort();
   }
-  if (reportRequest && reportRequest.state() === 'pending') {
+  if (reportRequest) {
     reportRequest.abort();
   }
-  if (worksheetInfoRequest && worksheetInfoRequest.state() === 'pending') {
+  if (worksheetInfoRequest) {
     worksheetInfoRequest.abort();
   }
-  if (worksheetFilterByIdRequest && worksheetFilterByIdRequest.state() === 'pending') {
+  if (worksheetFilterByIdRequest) {
     worksheetFilterByIdRequest.abort();
   }
   return (dispatch, getState) => {
     dispatch({
       type: 'CHANGE_STATISTICS_RESET',
-      data: null
+      data: null,
     });
-  }
-}
-
-
+  };
+};

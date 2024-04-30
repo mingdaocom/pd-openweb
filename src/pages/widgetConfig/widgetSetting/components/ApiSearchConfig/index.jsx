@@ -1,9 +1,8 @@
 import React, { useState, useEffect, Fragment } from 'react';
 import styled from 'styled-components';
-import { LoadDiv } from 'ming-ui';
+import { LoadDiv, SvgIcon } from 'ming-ui';
 import { Tooltip } from 'antd';
-import SvgIcon from 'src/components/SvgIcon';
-import selectIntegrationApi from 'src/components/dialogSelectIntegrationApi';
+import { dialogSelectIntegrationApi } from 'ming-ui/functions';
 import worksheetAjax from 'src/api/worksheet';
 import { SettingItem } from '../../../styled';
 import { getRgbaByColor } from 'src/pages/widgetConfig/util';
@@ -11,6 +10,7 @@ import { dealRequestControls } from '../../../util/data';
 import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
 import SearchParams from './SearchParams';
 import SearchMapping from './SearchMapping';
+import SearchMappingFilter from './SearchMappingFilter';
 import _ from 'lodash';
 
 const SearchMode = styled.div`
@@ -127,7 +127,7 @@ function BasicInfo(props) {
 }
 
 export default function ApiSearchConfig(props) {
-  const { data = {}, globalSheetInfo = {}, onChange, status: { saveIndex } = {} } = props;
+  const { data = {}, globalSheetInfo = {}, onChange, status: { saveIndex } = {}, fromCustomFilter } = props;
   const requestmap = getAdvanceSetting(data, 'requestmap') || [];
   const responsemap = getAdvanceSetting(data, 'responsemap') || [];
   const [loading, setLoading] = useState(false);
@@ -142,10 +142,12 @@ export default function ApiSearchConfig(props) {
 
     worksheetAjax.getApiControlDetail({ apiTemplateId: data.dataSource }).then(res => {
       const { basicInfo = {}, requestControls = [], responseControls = [] } = res || {};
+      if (_.isFunction(props.setControls)) {
+        props.setControls(requestControls);
+      }
       setApiInfo(basicInfo);
-      dealResult(requestControls, responseControls);
+      dealResult(requestControls, responseControls, basicInfo);
       setOriginResponseControls(responseControls);
-
       setLoading(false);
     });
   }, [data.dataSource]);
@@ -167,7 +169,7 @@ export default function ApiSearchConfig(props) {
   }, [saveIndex]);
 
   // 输入参数 | 输出参数
-  const dealResult = (requestControls = [], responseControls = []) => {
+  const dealResult = (requestControls = [], responseControls = [], basicInfo) => {
     setRequestControls(dealRequestControls(requestControls, true));
     setResponseControls(dealRequestControls(responseControls));
 
@@ -202,7 +204,7 @@ export default function ApiSearchConfig(props) {
 
   // 选择已集成的api
   const integrationApi = () => {
-    selectIntegrationApi({
+    dialogSelectIntegrationApi({
       projectId: globalSheetInfo.projectId,
       appId: globalSheetInfo.appId,
       onOk: id => {
@@ -243,7 +245,11 @@ export default function ApiSearchConfig(props) {
       )}
 
       {/** 返回数据映射 */}
-      <SearchMapping responseControls={responseControls} originResponseControls={originResponseControls} {...props} />
+      {fromCustomFilter ? (
+        <SearchMappingFilter originResponseControls={originResponseControls} {...props} />
+      ) : (
+        <SearchMapping {...props} originResponseControls={originResponseControls} responseControls={responseControls} />
+      )}
     </Fragment>
   );
 }

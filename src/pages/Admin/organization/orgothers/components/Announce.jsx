@@ -4,7 +4,7 @@ import { Checkbox } from 'ming-ui';
 import { Input } from 'antd';
 import cx from 'classnames';
 import messageController from 'src/api/message';
-import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
+import { dialogSelectUser } from 'ming-ui/functions';
 import 'src/components/uploadAttachment/uploadAttachment';
 import styled from 'styled-components';
 const { TextArea } = Input;

@@ -66,7 +66,7 @@ class Widgets extends Component {
     const { direction = '2', width = '200' } = advancedSetting || {};
     const { checkIds } = getCheckAndOther(value);
     const displayOptions = options.filter(
-      item => !item.isDeleted && ((disabled && _.includes(checkIds, item.key)) || !disabled),
+      item => !item.isDeleted && (_.includes(checkIds, item.key) || (!item.hide && !disabled)),
     );
     return (
       <div

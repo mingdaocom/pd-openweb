@@ -3,7 +3,7 @@ import { useSetState } from 'react-use';
 import _ from 'lodash';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Support, ScrollView, Dropdown, LoadDiv, Icon } from 'ming-ui';
+import { Support, ScrollView, Dropdown, LoadDiv, Icon, SvgIcon } from 'ming-ui';
 import { Switch, Tooltip } from 'antd';
 import bg from 'staticfiles/images/plugin_bg.png';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
@@ -11,7 +11,8 @@ import { enableOptionList, tabList, pluginConfigType } from '../config';
 import OperateColumn from './OperateColumn';
 import ViewPluginConfig from './ViewPluginConfig';
 import pluginApi from 'src/api/plugin';
-import SvgIcon from 'src/components/SvgIcon';
+import ImportPlugin from './ImportPlugin';
+import { getPluginOperateText } from '../util';
 
 const Wrapper = styled.div`
   background: #fff;
@@ -76,7 +77,7 @@ const Wrapper = styled.div`
           padding: 4px 8px 4px 12px;
         }
       }
-      .addPluginBtn {
+      .headerBtn {
         padding: 8px 24px;
         background: #2196f3;
         border-radius: 18px;
@@ -197,7 +198,7 @@ export default function ViewPlugin(props) {
         pageIndex: fetchState.pageIndex,
         keyWords: fetchState.keyWords,
         state: fetchState.state !== 2 ? fetchState.state : undefined,
-        source: currentTab === 'myPlugin' ? 0 : 1,
+        type: currentTab === 'myPlugin' ? 0 : 1,
       })
       .then(res => {
         if (res) {
@@ -205,7 +206,7 @@ export default function ViewPlugin(props) {
           setFetchState({ loading: false, noMore: res.plugins.length < 50 });
         }
       })
-      .fail(error => {
+      .catch(error => {
         setFetchState({ loading: false });
         setPluginList([]);
       });
@@ -300,16 +301,13 @@ export default function ViewPlugin(props) {
       {
         dataIndex: currentTab === 'myPlugin' ? 'createTime' : 'operateTime',
         title: currentTab === 'myPlugin' ? _l('创建时间') : _l('最近操作'),
-        render: item =>
-          currentTab === 'myPlugin' ? (
+        render: item => {
+          return currentTab === 'myPlugin' ? (
             <div>{item.createTime ? createTimeSpan(item.createTime) : ''}</div>
           ) : (
-            <div>
-              {_.get(item, ['currentVersion', 'publisher', 'fullname']) +
-                _l(' 发布于 ') +
-                createTimeSpan((item.currentVersion || {}).releaseTime)}
-            </div>
-          ),
+            <div>{getPluginOperateText(item.recentOperation)}</div>
+          );
+        },
       },
       {
         dataIndex: 'operate',
@@ -397,12 +395,20 @@ export default function ViewPlugin(props) {
                 />
               )}
             </div>
-            {currentTab === 'myPlugin' && (
+
+            {!(currentTab === 'project' && !isAdmin) && (
               <div
-                className="addPluginBtn"
-                onClick={() => setPluginConfig({ visible: true, configType: pluginConfigType.create })}
+                className="headerBtn"
+                onClick={() =>
+                  currentTab === 'myPlugin'
+                    ? setPluginConfig({ visible: true, configType: pluginConfigType.create })
+                    : ImportPlugin({
+                        projectId: currentProjectId,
+                        onImportCreateSuccess: () => setFetchState({ loading: true, pageIndex: 1 }),
+                      })
+                }
               >
-                <span className="bold">{_l('制作插件')}</span>
+                <span className="bold">{currentTab === 'myPlugin' ? _l('制作插件') : _l('+ 导入')}</span>
               </div>
             )}
           </div>
@@ -479,6 +485,7 @@ export default function ViewPlugin(props) {
                 '.dropdownTrigger',
                 '.ant-select-dropdown',
                 '.selectIconWrap',
+                '.ant-picker-dropdown',
               ]}
             />
           )}

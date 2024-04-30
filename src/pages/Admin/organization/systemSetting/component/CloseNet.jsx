@@ -44,21 +44,23 @@ export default class CloseNet extends Component {
 
   getData() {
     this.setState({ isLoading: true });
-    $.when(this.getLicenseType(), this.getExpireDays()).then(({ licenseType, logoffs }, { expireDays, isTrial }) => {
-      const firstItem = logoffs[0] || {};
-      this.setState({
-        expireDays: isTrial ? expireDays : 0,
-        licenseType,
-        logoffs,
-        password: '',
-        disabled: false,
-        reasonNumber: -1,
-        reason: '',
-        step: firstItem.type === 1 ? 3 : 1,
-        postDate: firstItem.createTime,
-        isLoading: false,
-      });
-    });
+    Promise.all([this.getLicenseType(), this.getExpireDays()]).then(
+      ([{ licenseType, logoffs }, { expireDays, isTrial }]) => {
+        const firstItem = logoffs[0] || {};
+        this.setState({
+          expireDays: isTrial ? expireDays : 0,
+          licenseType,
+          logoffs,
+          password: '',
+          disabled: false,
+          reasonNumber: -1,
+          reason: '',
+          step: firstItem.type === 1 ? 3 : 1,
+          postDate: firstItem.createTime,
+          isLoading: false,
+        });
+      },
+    );
   }
 
   getExpireDays() {
@@ -288,7 +290,7 @@ export default class CloseNet extends Component {
                 </div>
               </div>
               <div id="stepThree" className={`${step === 3 ? '' : 'Hidden'}`}>
-                <div className="Bold Font24 title">{_l('已提交退出付费版申请')}</div>
+                <div className="Bold Font24 title">{_l('已提交注销组织申请')}</div>
                 <div className="mTop20 Font13 subTitle">{_l('部署顾问将尽快与您联系办理退出手续')}</div>
                 <div className="mTop32 ">
                   <div className="rowDetail">

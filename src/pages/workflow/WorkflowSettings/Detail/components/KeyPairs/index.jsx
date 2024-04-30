@@ -30,8 +30,9 @@ const SelectNodeBox = styled.div`
 `;
 
 const TextareaBox = styled(Textarea)`
-  padding-top: 9px !important;
-  padding-bottom: 9px !important;
+  padding-top: 7px !important;
+  padding-bottom: 7px !important;
+  vertical-align: top;
   &:not(:hover):not(:focus) {
     border-color: #ddd !important;
   }
@@ -250,7 +251,7 @@ export default ({
             <div className={cx('flex mRight8 relative', { hasNodeList: flowNodeList.length })} style={{ minWidth: 0 }}>
               {pairsOnlyText ? (
                 <TextareaBox
-                  className="mTop10 ThemeBorderColor3"
+                  className="mTop10 ThemeBorderColor3 Font13"
                   maxHeight={250}
                   minHeight={0}
                   placeholder={pairsPlaceholder}

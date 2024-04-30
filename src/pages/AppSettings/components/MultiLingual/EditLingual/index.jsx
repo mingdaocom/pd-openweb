@@ -6,7 +6,6 @@ import DragMask from 'worksheet/common/DragMask';
 import Nav from './Nav';
 import Content from './Content';
 import langConfig from 'src/common/langConfig';
-import { LANG_TYPE } from '../config';
 import appManagementApi from 'src/api/appManagement';
 
 const Wrap = styled.div`
@@ -114,6 +113,7 @@ export default function Edit(props) {
   const [selectedKeys, setSelectedKeys] = useState(['app']);
   const [loading, setLoading] = useState(true);
   const [translateData, setTranslateData] = useState([]);
+  const [translateStatus, setTranslateStatus] = useState(false);
   const [comparisonLangData, setComparisonLangData] = useState([]);
   const [fillType, setFillType] = useState(1);
   const [comparisonLangId, setComparisonLangId] = useState('');
@@ -125,13 +125,20 @@ export default function Edit(props) {
       appId: app.id,
       appLangId: langInfo.id
     }).then(data => {
-      window[`langData-${app.id}`] = data;
-      setTranslateData(data);
+      window[`langData-${app.id}`] = data.items;
+      setTranslateStatus(data.status);
+      setTranslateData(data.items);
       setLoading(false);
     });
+    const { socket } = window.IM || {};
+    const checkStatus = data => {
+      setTranslateStatus(data.status === 1);
+    }
+    socket.on('custom', checkStatus);
     return () => {
       delete window[`langData-${app.id}`];
       delete window[`langVersion-${app.id}`];
+      socket.off('custom', checkStatus);
     }
   }, []);
 
@@ -152,7 +159,7 @@ export default function Edit(props) {
         appId: app.id,
         appLangId: id,
       }).then(data => {
-        setComparisonLangData(data);
+        setComparisonLangData(data.items);
       });
     } else {
       setComparisonLangData([]);
@@ -196,23 +203,24 @@ export default function Edit(props) {
   const renderHeader = () => {
     const originalText = _l('原始文本');
     const comparisonLang = _.find(langs, { id: comparisonLangId });
-    const original = comparisonLangId ? _.find(langConfig, { key: LANG_TYPE[comparisonLang.type] }).value : originalText;
+    const original = comparisonLangId ? _.find(langConfig, { code: comparisonLang.type }).value : originalText;
     return (
       <div className="header flexRow">
         <div className="flexRow alignItemsCenter Font15">
           <span className="bold mRight5 pointer ThemeColor backHome" onClick={onBack}>{_l('多语言')}</span>/
-          <span className="bold mLeft5">{_.find(langConfig, { key: LANG_TYPE[langInfo.type] }).value}</span>
+          <span className="bold mLeft5">{_.find(langConfig, { code: langInfo.type }).value}</span>
         </div>
         <div className="flexRow alignItemsCenter">
           {!md.global.Config.IsLocal && (
             <Popover
+              disabled={true}
               trigger="click"
               placement="bottomLeft"
               content={(
                 <PopoverWrap>
                   <div className="flexRow alignItemsCenter">
                     <Icon className="Font26 ThemeColor mRight5" icon="translate_language" />
-                    <div className="Font17 bold">{_l('将本应用的%0翻译为 %1', original, _.find(langConfig, { key: LANG_TYPE[langInfo.type] }).value)}</div>
+                    <div className="Font17 bold">{_l('将本应用的%0翻译为 %1', original, _.find(langConfig, { code: langInfo.type }).value)}</div>
                   </div>
                   <div className="mTop40 mBottom40">
                     <div className="mBottom10">{_l('译文填充方式')}</div>
@@ -245,9 +253,9 @@ export default function Edit(props) {
                 </PopoverWrap>
               )}
             >
-              <div className="flexRow alignItemsCenter mRight20 pointer translateWrap">
+              <div className="flexRow alignItemsCenter mRight20 pointer translateWrap" style={{ pointerEvents: translateStatus ? 'none' : undefined }}>
                 <Icon className="Font20 ThemeColor mRight5" icon="translate_language" />
-                <div className="Font13">{_l('智能翻译')}</div>
+                <div className="Font13">{translateStatus ? _l('翻译中...') : _l('智能翻译')}</div>
               </div>
             </Popover>
           )}
@@ -265,7 +273,7 @@ export default function Edit(props) {
             </Select.Option>
             {langs.filter(data => data.type !== langInfo.type).map(data => (
               <Select.Option key={data.id} value={data.id}>
-                {_.find(langConfig, { key: LANG_TYPE[data.type] }).value}
+                {_.find(langConfig, { code: data.type }).value}
               </Select.Option>
             ))}
           </Select>

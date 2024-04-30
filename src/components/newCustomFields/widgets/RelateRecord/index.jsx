@@ -5,6 +5,7 @@ import { formatRecordToRelateRecord, getRelateRecordCountFromValue } from 'works
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
 import RelateRecordDropdown from 'worksheet/components/RelateRecordDropdown';
+import RelateRecordTable from 'worksheet/components/RelateRecordTable';
 import RelateRecordCards from 'worksheet/components/RelateRecordCards';
 import { browserIsMobile } from 'src/util';
 import _ from 'lodash';
@@ -12,7 +13,7 @@ import _ from 'lodash';
 export default class Widgets extends Component {
   static propTypes = {
     // disabled: PropTypes.bool,
-    // appId: PropTypes.string, // 他表字段被关联表所在应用 id
+    appId: PropTypes.string, // 他表字段被关联表所在应用 id
     viewId: PropTypes.string, // 他表字段被关联表所在应用所在视图 id
     worksheetId: PropTypes.string, // 他表字段所在表 id
     sourceEntityName: PropTypes.string,
@@ -124,11 +125,15 @@ export default class Widgets extends Component {
 
   render() {
     const {
+      appId,
       flag,
+      customFields,
       viewId,
       worksheetId,
       from,
       disabled,
+      instanceId,
+      workId,
       recordId,
       controlId,
       dataSource,
@@ -140,15 +145,52 @@ export default class Widgets extends Component {
       relationControls,
       sourceEntityName,
       advancedSetting,
+      updateWorksheetControls,
+      updateRelateRecordTableCount,
+      onChange,
     } = this.props;
     let { showtype = RELATE_RECORD_SHOW_TYPE.LIST } = advancedSetting; // 1 卡片 2 列表 3 下拉
     showtype = parseInt(showtype, 10);
     const controlPermission = controlState({ ...this.props }, from);
     const records = this.getRecordsData();
+    if (showtype === RELATE_RECORD_SHOW_TYPE.TABLE) {
+      return (
+        <RelateRecordTable
+          saveSync={false}
+          instanceId={instanceId}
+          workId={workId}
+          control={{ ...this.props }}
+          recordId={recordId}
+          worksheetId={worksheetId}
+          formData={formData}
+          updateWorksheetControls={updateWorksheetControls}
+          onCountChange={(count, changed) => {
+            if (changed) {
+              onChange({
+                isFormTable: true,
+                value: count,
+              });
+            } else {
+              if (_.isFunction(updateRelateRecordTableCount)) {
+                updateRelateRecordTableCount(controlId, count);
+              } else if (customFields) {
+                try {
+                  customFields.dataFormat.setControlItemValue(controlId, String(count));
+                  customFields.updateRenderData();
+                } catch (err) {
+                  console.error(err);
+                }
+              }
+            }
+          }}
+        />
+      );
+    }
     return (
       <React.Fragment>
         {showtype !== RELATE_RECORD_SHOW_TYPE.DROPDOWN || browserIsMobile() ? (
           <RelateRecordCards
+            appId={appId}
             ref={this.cardsComp}
             flag={flag}
             recordId={recordId}
@@ -168,6 +210,7 @@ export default class Widgets extends Component {
           />
         ) : (
           <RelateRecordDropdown
+            appId={appId}
             control={{ ...this.props }}
             formData={formData}
             disabled={disabled || !controlPermission.editable}

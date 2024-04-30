@@ -185,7 +185,7 @@ class TaskControl extends Component {
         alert(_l('删除成功'));
         this.props.dispatch(updateTaskControlFiles(taskId, controlId, newFiles));
       })
-      .fail(() => {
+      .catch(() => {
         alert(_l('删除文件失败'), 3);
       });
   }

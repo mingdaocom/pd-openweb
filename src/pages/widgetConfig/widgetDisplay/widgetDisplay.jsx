@@ -2,7 +2,14 @@ import React, { Fragment } from 'react';
 import cx from 'classnames';
 import { includes } from 'lodash';
 import { NEED_SPECIAL_DISPLAY_CONTROLS } from '../config';
-import { enumWidgetType, getAdvanceSetting, getIconByType, supportDisplayRow } from '../util';
+import {
+  enumWidgetType,
+  fixedBottomWidgets,
+  getAdvanceSetting,
+  getIconByType,
+  isSheetDisplay,
+  supportDisplayRow,
+} from '../util';
 import displayTypes from './displayTypes';
 import { CommonDisplay, TitleContentWrap } from '../styled';
 import Components from './components';
@@ -93,8 +100,8 @@ export default function WidgetDisplay(props) {
     );
   }
 
-  // 标签页，关联多条列表单独展示(前期标签页单独展示)
-  if (type === 52) {
+  // 标签页，标签页表格单独展示
+  if (fixedBottomWidgets(data)) {
     return (
       <TitleContentWrap>
         <div className="tabHeaderTileWrap">
@@ -116,7 +123,7 @@ export default function WidgetDisplay(props) {
       readOnly={readOnly}
     >
       <div className={cx('nameAndStatus', { minHeight18: !isSpecialControl && hidetitle === '1' })}>
-        {required && <div className={cx({ required })}>*</div>}
+        {required && !isSheetDisplay(data) && <div className={cx({ required })}>*</div>}
         <i className={cx(`typeIcon icon-${getIconByType(type)}`)}></i>
 
         {getTitleContent()}

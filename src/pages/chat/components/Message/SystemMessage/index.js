@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import './index.less';
 import Constant from '../../../utils/constant';
-import dialog from 'src/components/addFriendConfirm/addFriendConfirm';
+import { addFriendConfirm } from 'ming-ui/functions';
 import addFriends from 'src/components/addFriends';
 
 export default class SystemMessage extends Component {
@@ -11,7 +11,7 @@ export default class SystemMessage extends Component {
   }
   addFriend() {
     const { session } = this.props;
-    dialog({
+    addFriendConfirm({
       accountId: session.id,
     });
   }

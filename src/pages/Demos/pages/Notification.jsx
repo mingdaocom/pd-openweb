@@ -1,5 +1,5 @@
 import React from 'react';
-import mdNotification from 'ming-ui/functions/notify';
+import { mdNotification } from 'ming-ui/functions';
 
 export default function Notification() {
   return (

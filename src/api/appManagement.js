@@ -1,5 +1,83 @@
 export default {
   /**
+  * 应用汇总概览
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {string} args.keyWord 关键字搜索
+  * @param {integer} args.pageIndex 当前页
+  * @param {integer} args.pageSize 页大小
+  * @param {string} args.sortFiled 排序字段
+  * @param {boolean} args.sorted 排序方式 true--asc false--desc
+  * @param {string} args.appId 应用id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   appUsageOverviewStatistics: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'AppUsageOverviewStatistics', args, options);
+   },
+  /**
+  * 不同维度使用情况统计(按应用，按成员)
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {integer} args.dayRange 天数范围 0 = 最近7天，1 = 最近一个月，2=最近一个季度，3=最近半年，4=最近一年
+  * @param {integer} args.pageIndex 当前页
+  * @param {integer} args.pageSize 页大小
+  * @param {integer} args.dimension 维度 1-应用 2-用户
+  * @param {string} args.sortFiled 排序字段（返回结果的列名，例如:appAccess）
+  * @param {boolean} args.sorted 排序方式
+  * @param {string} args.keyword 关键词查询
+  * @param {string} args.appId 应用id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   usageStatisticsForDimension: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'UsageStatisticsForDimension', args, options);
+   },
+  /**
+  * 获取应用日志
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {} args.queryType
+  * @param {array} args.operators 操作人id数组
+  * @param {array} args.appIds 应用id数组
+  * @param {array} args.worksheetIds 工作表id数组
+  * @param {array} args.modules 所属日志模块
+  * @param {array} args.operationTypes 操作类型
+  * @param {integer} args.pageIndex 当前页
+  * @param {integer} args.pageSize 页大小
+  * @param {array} args.columnNames 列名称
+  * @param {string} args.menuName 菜单名称
+  * @param {string} args.startDateTime 开始时间
+  * @param {string} args.endDateTime 结束时间
+  * @param {boolean} args.confirmExport 是否确认导出(超量的情况下传)
+  * @param {boolean} args.isSingle 是否是单个应用
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getGlobalLogs: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'GetGlobalLogs', args, options);
+   },
+  /**
+  * 获取应用下工作表信息
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {array} args.appIds 应用ids
+  * @param {boolean} args.isFilterCustomPage 是否过滤自定义页面
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getWorksheetsUnderTheApp: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'GetWorksheetsUnderTheApp', args, options);
+   },
+  /**
   * 开启密码锁
   * @param {Object} args 请求参数
   * @param {string} args.ticket 验证码返票据
@@ -16,7 +94,7 @@ export default {
   **/
    addLock: function (args, options = {}) {
      
-     return $.api('AppManagement', 'AddLock', args, options);
+     return mdyAPI('AppManagement', 'AddLock', args, options);
    },
   /**
   * map解锁
@@ -35,7 +113,7 @@ export default {
   **/
    unlock: function (args, options = {}) {
      
-     return $.api('AppManagement', 'Unlock', args, options);
+     return mdyAPI('AppManagement', 'Unlock', args, options);
    },
   /**
   * 修改锁定密码
@@ -55,7 +133,7 @@ export default {
   **/
    editLockPassword: function (args, options = {}) {
      
-     return $.api('AppManagement', 'EditLockPassword', args, options);
+     return mdyAPI('AppManagement', 'EditLockPassword', args, options);
    },
   /**
   * 重新锁定
@@ -71,13 +149,14 @@ export default {
   * @param {boolean} args.getManager 是否获取管理员列表信息
   * @param {boolean} args.getProject 获取组织信息
   * @param {boolean} args.getLang 是否获取应用语种信息
+  * @param {boolean} args.isMobile 是否是移动端
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    resetLock: function (args, options = {}) {
      
-     return $.api('AppManagement', 'ResetLock', args, options);
+     return mdyAPI('AppManagement', 'ResetLock', args, options);
    },
   /**
   * 关闭应用锁
@@ -93,13 +172,14 @@ export default {
   * @param {boolean} args.getManager 是否获取管理员列表信息
   * @param {boolean} args.getProject 获取组织信息
   * @param {boolean} args.getLang 是否获取应用语种信息
+  * @param {boolean} args.isMobile 是否是移动端
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    closeLock: function (args, options = {}) {
      
-     return $.api('AppManagement', 'CloseLock', args, options);
+     return mdyAPI('AppManagement', 'CloseLock', args, options);
    },
   /**
   * 校验升级文件
@@ -114,7 +194,7 @@ export default {
   **/
    checkUpgrade: function (args, options = {}) {
      
-     return $.api('AppManagement', 'CheckUpgrade', args, options);
+     return mdyAPI('AppManagement', 'CheckUpgrade', args, options);
    },
   /**
   * 获取表升级详情
@@ -128,7 +208,7 @@ export default {
   **/
    getWorksheetUpgrade: function (args, options = {}) {
      
-     return $.api('AppManagement', 'GetWorksheetUpgrade', args, options);
+     return mdyAPI('AppManagement', 'GetWorksheetUpgrade', args, options);
    },
   /**
   * 升级
@@ -148,7 +228,7 @@ export default {
   **/
    upgrade: function (args, options = {}) {
      
-     return $.api('AppManagement', 'Upgrade', args, options);
+     return mdyAPI('AppManagement', 'Upgrade', args, options);
    },
   /**
   * 获取应用升级记录
@@ -160,7 +240,7 @@ export default {
   **/
    getUpgradeLogs: function (args, options = {}) {
      
-     return $.api('AppManagement', 'GetUpgradeLogs', args, options);
+     return mdyAPI('AppManagement', 'GetUpgradeLogs', args, options);
    },
   /**
   * 获取mdy密码
@@ -173,7 +253,7 @@ export default {
   **/
    getMdyInfo: function (args, options = {}) {
      
-     return $.api('AppManagement', 'GetMdyInfo', args, options);
+     return mdyAPI('AppManagement', 'GetMdyInfo', args, options);
    },
   /**
   * 获取应用语种列表
@@ -186,7 +266,7 @@ export default {
   **/
    getAppLangs: function (args, options = {}) {
      
-     return $.api('AppManagement', 'GetAppLangs', args, options);
+     return mdyAPI('AppManagement', 'GetAppLangs', args, options);
    },
   /**
   * 创建应用语言
@@ -200,7 +280,7 @@ export default {
   **/
    createAppLang: function (args, options = {}) {
      
-     return $.api('AppManagement', 'CreateAppLang', args, options);
+     return mdyAPI('AppManagement', 'CreateAppLang', args, options);
    },
   /**
   * 删除应用语言
@@ -214,21 +294,20 @@ export default {
   **/
    deleteAppLang: function (args, options = {}) {
      
-     return $.api('AppManagement', 'DeleteAppLang', args, options);
+     return mdyAPI('AppManagement', 'DeleteAppLang', args, options);
    },
   /**
   * 获取应用语言详情
   * @param {Object} args 请求参数
   * @param {string} args.appId
   * @param {string} args.appLangId
-  * @param {string} args.projectId
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getAppLangDetail: function (args, options = {}) {
      
-     return $.api('AppManagement', 'GetAppLangDetail', args, options);
+     return mdyAPI('AppManagement', 'GetAppLangDetail', args, options);
    },
   /**
   * 编辑应用语言详情
@@ -247,7 +326,7 @@ export default {
   **/
    editAppLang: function (args, options = {}) {
      
-     return $.api('AppManagement', 'EditAppLang', args, options);
+     return mdyAPI('AppManagement', 'EditAppLang', args, options);
    },
   /**
   * 机器翻译
@@ -263,7 +342,19 @@ export default {
   **/
    machineTranslation: function (args, options = {}) {
      
-     return $.api('AppManagement', 'MachineTranslation', args, options);
+     return mdyAPI('AppManagement', 'MachineTranslation', args, options);
+   },
+  /**
+  * 
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getAppStructureForER: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'GetAppStructureForER', args, options);
    },
   /**
   * 添加角色
@@ -292,7 +383,7 @@ export default {
   **/
    addRole: function (args, options = {}) {
      
-     return $.api('AppManagement', 'AddRole', args, options);
+     return mdyAPI('AppManagement', 'AddRole', args, options);
    },
   /**
   * 删除角色(并把人员移动到其他角色)
@@ -307,7 +398,7 @@ export default {
   **/
    removeRole: function (args, options = {}) {
      
-     return $.api('AppManagement', 'RemoveRole', args, options);
+     return mdyAPI('AppManagement', 'RemoveRole', args, options);
    },
   /**
   * 添加角色成员
@@ -334,7 +425,7 @@ export default {
   **/
    addRoleMembers: function (args, options = {}) {
      
-     return $.api('AppManagement', 'AddRoleMembers', args, options);
+     return mdyAPI('AppManagement', 'AddRoleMembers', args, options);
    },
   /**
   * 移除角色成员
@@ -354,7 +445,7 @@ export default {
   **/
    removeRoleMembers: function (args, options = {}) {
      
-     return $.api('AppManagement', 'RemoveRoleMembers', args, options);
+     return mdyAPI('AppManagement', 'RemoveRoleMembers', args, options);
    },
   /**
   * 设置 角色负责人
@@ -370,7 +461,7 @@ export default {
   **/
    setRoleCharger: function (args, options = {}) {
      
-     return $.api('AppManagement', 'SetRoleCharger', args, options);
+     return mdyAPI('AppManagement', 'SetRoleCharger', args, options);
    },
   /**
   * 取消设置 角色负责人
@@ -386,7 +477,7 @@ export default {
   **/
    cancelRoleCharger: function (args, options = {}) {
      
-     return $.api('AppManagement', 'CancelRoleCharger', args, options);
+     return mdyAPI('AppManagement', 'CancelRoleCharger', args, options);
    },
   /**
   * 退出应用单个角色
@@ -399,7 +490,7 @@ export default {
   **/
    quitAppForRole: function (args, options = {}) {
      
-     return $.api('AppManagement', 'QuitAppForRole', args, options);
+     return mdyAPI('AppManagement', 'QuitAppForRole', args, options);
    },
   /**
   * 退出应用下所有角色
@@ -412,7 +503,7 @@ export default {
   **/
    quitRole: function (args, options = {}) {
      
-     return $.api('AppManagement', 'QuitRole', args, options);
+     return mdyAPI('AppManagement', 'QuitRole', args, options);
    },
   /**
   * 配置角色权限
@@ -427,7 +518,7 @@ export default {
   **/
    editAppRole: function (args, options = {}) {
      
-     return $.api('AppManagement', 'EditAppRole', args, options);
+     return mdyAPI('AppManagement', 'EditAppRole', args, options);
    },
   /**
   * 把人员移动到其他角色
@@ -448,7 +539,7 @@ export default {
   **/
    removeUserToRole: function (args, options = {}) {
      
-     return $.api('AppManagement', 'RemoveUserToRole', args, options);
+     return mdyAPI('AppManagement', 'RemoveUserToRole', args, options);
    },
   /**
   * 设置 开启/关闭 普通成员 是否可见角色列表
@@ -461,7 +552,7 @@ export default {
   **/
    updateMemberStatus: function (args, options = {}) {
      
-     return $.api('AppManagement', 'UpdateMemberStatus', args, options);
+     return mdyAPI('AppManagement', 'UpdateMemberStatus', args, options);
    },
   /**
   * 设置 开启/关闭 应用角色通知
@@ -474,7 +565,7 @@ export default {
   **/
    updateAppRoleNotify: function (args, options = {}) {
      
-     return $.api('AppManagement', 'UpdateAppRoleNotify', args, options);
+     return mdyAPI('AppManagement', 'UpdateAppRoleNotify', args, options);
    },
   /**
   * 设置 开启/关闭 Debug模式
@@ -487,7 +578,7 @@ export default {
   **/
    updateAppDebugModel: function (args, options = {}) {
      
-     return $.api('AppManagement', 'UpdateAppDebugModel', args, options);
+     return mdyAPI('AppManagement', 'UpdateAppDebugModel', args, options);
    },
   /**
   * 当前用户 设置调试的 角色
@@ -500,7 +591,7 @@ export default {
   **/
    setDebugRoles: function (args, options = {}) {
      
-     return $.api('AppManagement', 'SetDebugRoles', args, options);
+     return mdyAPI('AppManagement', 'SetDebugRoles', args, options);
    },
   /**
   * 复制角色
@@ -515,7 +606,7 @@ export default {
   **/
    copyRole: function (args, options = {}) {
      
-     return $.api('AppManagement', 'CopyRole', args, options);
+     return mdyAPI('AppManagement', 'CopyRole', args, options);
    },
   /**
   * 复制角色到外部门户
@@ -529,7 +620,7 @@ export default {
   **/
    copyRoleToExternalPortal: function (args, options = {}) {
      
-     return $.api('AppManagement', 'CopyRoleToExternalPortal', args, options);
+     return mdyAPI('AppManagement', 'CopyRoleToExternalPortal', args, options);
    },
   /**
   * 复制外部门户角色到内部
@@ -543,7 +634,7 @@ export default {
   **/
    copyExternalRolesToInternal: function (args, options = {}) {
      
-     return $.api('AppManagement', 'CopyExternalRolesToInternal', args, options);
+     return mdyAPI('AppManagement', 'CopyExternalRolesToInternal', args, options);
    },
   /**
   * 角色排序
@@ -556,7 +647,7 @@ export default {
   **/
    sortRoles: function (args, options = {}) {
      
-     return $.api('AppManagement', 'SortRoles', args, options);
+     return mdyAPI('AppManagement', 'SortRoles', args, options);
    },
   /**
   * 获取 应用角色设置
@@ -569,7 +660,7 @@ export default {
   **/
    getAppRoleSetting: function (args, options = {}) {
      
-     return $.api('AppManagement', 'GetAppRoleSetting', args, options);
+     return mdyAPI('AppManagement', 'GetAppRoleSetting', args, options);
    },
   /**
   * 获取应用下所用角色基本信息（不含具体权限）
@@ -581,7 +672,7 @@ export default {
   **/
    getRolesWithUsers: function (args, options = {}) {
      
-     return $.api('AppManagement', 'GetRolesWithUsers', args, options);
+     return mdyAPI('AppManagement', 'GetRolesWithUsers', args, options);
    },
   /**
   * 分页获取 全部成员
@@ -598,7 +689,21 @@ export default {
   **/
    getTotalMember: function (args, options = {}) {
      
-     return $.api('AppManagement', 'GetTotalMember', args, options);
+     return mdyAPI('AppManagement', 'GetTotalMember', args, options);
+   },
+  /**
+  * 获取 成员的 角色Id和名称
+  * @param {Object} args 请求参数
+  * @param {string} args.appId
+  * @param {string} args.memberId
+  * @param {} args.memberType
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getRolesByMemberId: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'GetRolesByMemberId', args, options);
    },
   /**
   * 分页获取 外协成员
@@ -612,7 +717,7 @@ export default {
   **/
    getOutsourcingMembers: function (args, options = {}) {
      
-     return $.api('AppManagement', 'GetOutsourcingMembers', args, options);
+     return mdyAPI('AppManagement', 'GetOutsourcingMembers', args, options);
    },
   /**
   * 获取 角色列表（包含 我加入的角色标识）
@@ -625,7 +730,7 @@ export default {
   **/
    getAppRoleSummary: function (args, options = {}) {
      
-     return $.api('AppManagement', 'GetAppRoleSummary', args, options);
+     return mdyAPI('AppManagement', 'GetAppRoleSummary', args, options);
    },
   /**
   * 获取 调试模式 的可选角色
@@ -637,7 +742,7 @@ export default {
   **/
    getDebugRoles: function (args, options = {}) {
      
-     return $.api('AppManagement', 'GetDebugRoles', args, options);
+     return mdyAPI('AppManagement', 'GetDebugRoles', args, options);
    },
   /**
   * 根据角色 分页获取 角色下的用户集
@@ -655,7 +760,7 @@ export default {
   **/
    getMembersByRole: function (args, options = {}) {
      
-     return $.api('AppManagement', 'GetMembersByRole', args, options);
+     return mdyAPI('AppManagement', 'GetMembersByRole', args, options);
    },
   /**
   * 批量编辑用户角色
@@ -671,7 +776,7 @@ export default {
   **/
    batchEditMemberRole: function (args, options = {}) {
      
-     return $.api('AppManagement', 'BatchEditMemberRole', args, options);
+     return mdyAPI('AppManagement', 'BatchEditMemberRole', args, options);
    },
   /**
   * 批量成员退出应用
@@ -684,7 +789,7 @@ export default {
   **/
    batchMemberQuitApp: function (args, options = {}) {
      
-     return $.api('AppManagement', 'BatchMemberQuitApp', args, options);
+     return mdyAPI('AppManagement', 'BatchMemberQuitApp', args, options);
    },
   /**
   * 获取应用下某个角色的具体权限信息
@@ -697,7 +802,7 @@ export default {
   **/
    getRoleDetail: function (args, options = {}) {
      
-     return $.api('AppManagement', 'GetRoleDetail', args, options);
+     return mdyAPI('AppManagement', 'GetRoleDetail', args, options);
    },
   /**
   * 获取应用下所有工作表信息生成添加角色模板
@@ -709,7 +814,7 @@ export default {
   **/
    getAddRoleTemplate: function (args, options = {}) {
      
-     return $.api('AppManagement', 'GetAddRoleTemplate', args, options);
+     return mdyAPI('AppManagement', 'GetAddRoleTemplate', args, options);
    },
   /**
   * 获取网络下用户为应用管理员的应用信息
@@ -724,7 +829,7 @@ export default {
   **/
    getAppForManager: function (args, options = {}) {
      
-     return $.api('AppManagement', 'GetAppForManager', args, options);
+     return mdyAPI('AppManagement', 'GetAppForManager', args, options);
    },
   /**
   * 网络下用户为管理员的应用集合
@@ -737,7 +842,7 @@ export default {
   **/
    getManagerApps: function (args, options = {}) {
      
-     return $.api('AppManagement', 'GetManagerApps', args, options);
+     return mdyAPI('AppManagement', 'GetManagerApps', args, options);
    },
   /**
   * 刷新权限缓存
@@ -749,7 +854,7 @@ export default {
   **/
    refresh: function (args, options = {}) {
      
-     return $.api('AppManagement', 'Refresh', args, options);
+     return mdyAPI('AppManagement', 'Refresh', args, options);
    },
   /**
   * 获取网络下应用
@@ -763,13 +868,15 @@ export default {
   * @param {integer} args.sourceType 来源 默认0=全部，2=过滤分发平台
   * @param {} args.filterType
   * @param {boolean} args.containsLinks 是否包含链接类型
+  * @param {integer} args.filterDBType 数据筛选类型（0：全部，1= 默认数据库，2 =专属数据库，DbInstanceId传具体id）
+  * @param {string} args.dbInstanceId 数据库实例id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getAppsForProject: function (args, options = {}) {
      
-     return $.api('AppManagement', 'GetAppsForProject', args, options);
+     return mdyAPI('AppManagement', 'GetAppsForProject', args, options);
    },
   /**
   * 分页获取网络下应用信息
@@ -783,13 +890,15 @@ export default {
   * @param {integer} args.sourceType 来源 默认0=全部，2=过滤分发平台
   * @param {} args.filterType
   * @param {boolean} args.containsLinks 是否包含链接类型
+  * @param {integer} args.filterDBType 数据筛选类型（0：全部，1= 默认数据库，2 =专属数据库，DbInstanceId传具体id）
+  * @param {string} args.dbInstanceId 数据库实例id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getAppsByProject: function (args, options = {}) {
      
-     return $.api('AppManagement', 'GetAppsByProject', args, options);
+     return mdyAPI('AppManagement', 'GetAppsByProject', args, options);
    },
   /**
   * 获取应用信息（批量）
@@ -801,7 +910,7 @@ export default {
   **/
    getApps: function (args, options = {}) {
      
-     return $.api('AppManagement', 'GetApps', args, options);
+     return mdyAPI('AppManagement', 'GetApps', args, options);
    },
   /**
   * 获取导出相关功能模块token
@@ -816,7 +925,7 @@ export default {
   **/
    getToken: function (args, options = {}) {
      
-     return $.api('AppManagement', 'GetToken', args, options);
+     return mdyAPI('AppManagement', 'GetToken', args, options);
    },
   /**
   * 更新应用状态
@@ -830,7 +939,7 @@ export default {
   **/
    editAppStatus: function (args, options = {}) {
      
-     return $.api('AppManagement', 'EditAppStatus', args, options);
+     return mdyAPI('AppManagement', 'EditAppStatus', args, options);
    },
   /**
   * 检测是否是网络后台应用管理员
@@ -842,7 +951,7 @@ export default {
   **/
    checkIsAppAdmin: function (args, options = {}) {
      
-     return $.api('AppManagement', 'CheckIsAppAdmin', args, options);
+     return mdyAPI('AppManagement', 'CheckIsAppAdmin', args, options);
    },
   /**
   * 验证用户是否在应用管理员中
@@ -854,7 +963,7 @@ export default {
   **/
    checkAppAdminForUser: function (args, options = {}) {
      
-     return $.api('AppManagement', 'CheckAppAdminForUser', args, options);
+     return mdyAPI('AppManagement', 'CheckAppAdminForUser', args, options);
    },
   /**
   * 把自己加入应用管理员(后台)
@@ -866,7 +975,7 @@ export default {
   **/
    addRoleMemberForAppAdmin: function (args, options = {}) {
      
-     return $.api('AppManagement', 'AddRoleMemberForAppAdmin', args, options);
+     return mdyAPI('AppManagement', 'AddRoleMemberForAppAdmin', args, options);
    },
   /**
   * 移动分组下项到另外一个分组（如果是同一应用下应用id相同即可）
@@ -882,7 +991,7 @@ export default {
   **/
    removeWorkSheetAscription: function (args, options = {}) {
      
-     return $.api('AppManagement', 'RemoveWorkSheetAscription', args, options);
+     return mdyAPI('AppManagement', 'RemoveWorkSheetAscription', args, options);
    },
   /**
   * 删除应用分组下项(工作表，自定义页面)
@@ -899,7 +1008,7 @@ export default {
   **/
    removeWorkSheetForApp: function (args, options = {}) {
      
-     return $.api('AppManagement', 'RemoveWorkSheetForApp', args, options);
+     return mdyAPI('AppManagement', 'RemoveWorkSheetForApp', args, options);
    },
   /**
   * 分页获取应用项回收站列表
@@ -915,7 +1024,7 @@ export default {
   **/
    getAppItemRecoveryList: function (args, options = {}) {
      
-     return $.api('AppManagement', 'GetAppItemRecoveryList', args, options);
+     return mdyAPI('AppManagement', 'GetAppItemRecoveryList', args, options);
    },
   /**
   * 
@@ -929,7 +1038,7 @@ export default {
   **/
    appItemRecovery: function (args, options = {}) {
      
-     return $.api('AppManagement', 'AppItemRecovery', args, options);
+     return mdyAPI('AppManagement', 'AppItemRecovery', args, options);
    },
   /**
   * 修改分组下实体名称和图标
@@ -948,7 +1057,7 @@ export default {
   **/
    editWorkSheetInfoForApp: function (args, options = {}) {
      
-     return $.api('AppManagement', 'EditWorkSheetInfoForApp', args, options);
+     return mdyAPI('AppManagement', 'EditWorkSheetInfoForApp', args, options);
    },
   /**
   * 变更应用拥有者
@@ -961,7 +1070,7 @@ export default {
   **/
    updateAppOwner: function (args, options = {}) {
      
-     return $.api('AppManagement', 'UpdateAppOwner', args, options);
+     return mdyAPI('AppManagement', 'UpdateAppOwner', args, options);
    },
   /**
   * 应用分组下新增项
@@ -980,7 +1089,7 @@ export default {
   **/
    addWorkSheet: function (args, options = {}) {
      
-     return $.api('AppManagement', 'AddWorkSheet', args, options);
+     return mdyAPI('AppManagement', 'AddWorkSheet', args, options);
    },
   /**
   * 新增工作表（级联数据源及子表）
@@ -995,7 +1104,7 @@ export default {
   **/
    addSheet: function (args, options = {}) {
      
-     return $.api('AppManagement', 'AddSheet', args, options);
+     return mdyAPI('AppManagement', 'AddSheet', args, options);
    },
   /**
   * 转换工作表
@@ -1009,7 +1118,7 @@ export default {
   **/
    changeSheet: function (args, options = {}) {
      
-     return $.api('AppManagement', 'ChangeSheet', args, options);
+     return mdyAPI('AppManagement', 'ChangeSheet', args, options);
    },
   /**
   * 复制自定义页面
@@ -1024,7 +1133,7 @@ export default {
   **/
    copyCustomPage: function (args, options = {}) {
      
-     return $.api('AppManagement', 'CopyCustomPage', args, options);
+     return mdyAPI('AppManagement', 'CopyCustomPage', args, options);
    },
   /**
   * 新增应用授权
@@ -1038,7 +1147,7 @@ export default {
   **/
    addAuthorize: function (args, options = {}) {
      
-     return $.api('AppManagement', 'AddAuthorize', args, options);
+     return mdyAPI('AppManagement', 'AddAuthorize', args, options);
    },
   /**
   * 获取应用授权
@@ -1050,7 +1159,7 @@ export default {
   **/
    getAuthorizes: function (args, options = {}) {
      
-     return $.api('AppManagement', 'GetAuthorizes', args, options);
+     return mdyAPI('AppManagement', 'GetAuthorizes', args, options);
    },
   /**
   * 编辑应用授权类型
@@ -1066,7 +1175,7 @@ export default {
   **/
    editAuthorizeStatus: function (args, options = {}) {
      
-     return $.api('AppManagement', 'EditAuthorizeStatus', args, options);
+     return mdyAPI('AppManagement', 'EditAuthorizeStatus', args, options);
    },
   /**
   * 删除应用授权类型
@@ -1079,7 +1188,7 @@ export default {
   **/
    deleteAuthorizeStatus: function (args, options = {}) {
      
-     return $.api('AppManagement', 'DeleteAuthorizeStatus', args, options);
+     return mdyAPI('AppManagement', 'DeleteAuthorizeStatus', args, options);
    },
   /**
   * 编辑备注
@@ -1093,7 +1202,7 @@ export default {
   **/
    editAuthorizeRemark: function (args, options = {}) {
      
-     return $.api('AppManagement', 'EditAuthorizeRemark', args, options);
+     return mdyAPI('AppManagement', 'EditAuthorizeRemark', args, options);
    },
   /**
   * 获取当前应用的的申请信息
@@ -1107,7 +1216,7 @@ export default {
   **/
    getAppApplyInfo: function (args, options = {}) {
      
-     return $.api('AppManagement', 'GetAppApplyInfo', args, options);
+     return mdyAPI('AppManagement', 'GetAppApplyInfo', args, options);
    },
   /**
   * 申请加入应用
@@ -1120,7 +1229,7 @@ export default {
   **/
    addAppApply: function (args, options = {}) {
      
-     return $.api('AppManagement', 'AddAppApply', args, options);
+     return mdyAPI('AppManagement', 'AddAppApply', args, options);
    },
   /**
   * 更新应用申请状态
@@ -1136,7 +1245,7 @@ export default {
   **/
    editAppApplyStatus: function (args, options = {}) {
      
-     return $.api('AppManagement', 'EditAppApplyStatus', args, options);
+     return mdyAPI('AppManagement', 'EditAppApplyStatus', args, options);
    },
   /**
   * 获取icon（包含系统和自定义）
@@ -1152,7 +1261,7 @@ export default {
   **/
    getIcon: function (args, options = {}) {
      
-     return $.api('AppManagement', 'GetIcon', args, options);
+     return mdyAPI('AppManagement', 'GetIcon', args, options);
    },
   /**
   * 添加自定义图标
@@ -1165,7 +1274,7 @@ export default {
   **/
    addCustomIcon: function (args, options = {}) {
      
-     return $.api('AppManagement', 'AddCustomIcon', args, options);
+     return mdyAPI('AppManagement', 'AddCustomIcon', args, options);
    },
   /**
   * 删除自定义图标
@@ -1181,7 +1290,7 @@ export default {
   **/
    deleteCustomIcon: function (args, options = {}) {
      
-     return $.api('AppManagement', 'DeleteCustomIcon', args, options);
+     return mdyAPI('AppManagement', 'DeleteCustomIcon', args, options);
    },
   /**
   * 获取自定义图标
@@ -1197,7 +1306,7 @@ export default {
   **/
    getCustomIconByProject: function (args, options = {}) {
      
-     return $.api('AppManagement', 'GetCustomIconByProject', args, options);
+     return mdyAPI('AppManagement', 'GetCustomIconByProject', args, options);
    },
   /**
   * 获取分类和首页信息
@@ -1209,7 +1318,7 @@ export default {
   **/
    getAppsCategoryInfo: function (args, options = {}) {
      
-     return $.api('AppManagement', 'GetAppsCategoryInfo', args, options);
+     return mdyAPI('AppManagement', 'GetAppsCategoryInfo', args, options);
    },
   /**
   * 获取分类下应用库模板列表
@@ -1221,7 +1330,7 @@ export default {
   **/
    getAppsLibraryInfo: function (args, options = {}) {
      
-     return $.api('AppManagement', 'GetAppsLibraryInfo', args, options);
+     return mdyAPI('AppManagement', 'GetAppsLibraryInfo', args, options);
    },
   /**
   * 安装应用
@@ -1234,7 +1343,7 @@ export default {
   **/
    installApp: function (args, options = {}) {
      
-     return $.api('AppManagement', 'InstallApp', args, options);
+     return mdyAPI('AppManagement', 'InstallApp', args, options);
    },
   /**
   * 获取单个应用库模板详情
@@ -1247,7 +1356,7 @@ export default {
   **/
    getAppLibraryDetail: function (args, options = {}) {
      
-     return $.api('AppManagement', 'GetAppLibraryDetail', args, options);
+     return mdyAPI('AppManagement', 'GetAppLibraryDetail', args, options);
    },
   /**
   * 获取应用库FileUrl Token
@@ -1260,7 +1369,7 @@ export default {
   **/
    getLibraryToken: function (args, options = {}) {
      
-     return $.api('AppManagement', 'GetLibraryToken', args, options);
+     return mdyAPI('AppManagement', 'GetLibraryToken', args, options);
    },
   /**
   * 获取日志
@@ -1278,7 +1387,7 @@ export default {
   **/
    getLogs: function (args, options = {}) {
      
-     return $.api('AppManagement', 'GetLogs', args, options);
+     return mdyAPI('AppManagement', 'GetLogs', args, options);
    },
   /**
   * 获取导出记录
@@ -1292,7 +1401,7 @@ export default {
   **/
    getExportsByApp: function (args, options = {}) {
      
-     return $.api('AppManagement', 'GetExportsByApp', args, options);
+     return mdyAPI('AppManagement', 'GetExportsByApp', args, options);
    },
   /**
   * 导出密码
@@ -1306,7 +1415,7 @@ export default {
   **/
    getExportPassword: function (args, options = {}) {
      
-     return $.api('AppManagement', 'GetExportPassword', args, options);
+     return mdyAPI('AppManagement', 'GetExportPassword', args, options);
    },
   /**
   * 创建工作流CSM
@@ -1318,13 +1427,13 @@ export default {
   **/
    addWorkflow: function (args, options = {}) {
      
-     return $.api('AppManagement', 'AddWorkflow', args, options);
+     return mdyAPI('AppManagement', 'AddWorkflow', args, options);
    },
   /**
   * 获取应用实体分享信息
   * @param {Object} args 请求参数
   * @param {string} args.sourceId 分享来源id （页面id，图标id等）
-  * @param {integer} args.sourceType 分享类型  21 =自定义页面，31 = 图表
+  * @param {} args.sourceType
   * @param {string} args.appId 应用id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -1332,7 +1441,7 @@ export default {
   **/
    getEntityShare: function (args, options = {}) {
      
-     return $.api('AppManagement', 'GetEntityShare', args, options);
+     return mdyAPI('AppManagement', 'GetEntityShare', args, options);
    },
   /**
   * 修改应用实体分享信息
@@ -1348,7 +1457,7 @@ export default {
   **/
    editEntityShareStatus: function (args, options = {}) {
      
-     return $.api('AppManagement', 'EditEntityShareStatus', args, options);
+     return mdyAPI('AppManagement', 'EditEntityShareStatus', args, options);
    },
   /**
   * 获取分享基础信息
@@ -1359,13 +1468,14 @@ export default {
   * @param {string} args.id 分享id
   * @param {string} args.password 密码
   * @param {string} args.clientId 客户端id
+  * @param {} args.langType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getEntityShareById: function (args, options = {}) {
      
-     return $.api('AppManagement', 'GetEntityShareById', args, options);
+     return mdyAPI('AppManagement', 'GetEntityShareById', args, options);
    },
   /**
   * 删除应用备份文件
@@ -1380,7 +1490,7 @@ export default {
   **/
    deleteBackupFile: function (args, options = {}) {
      
-     return $.api('AppManagement', 'DeleteBackupFile', args, options);
+     return mdyAPI('AppManagement', 'DeleteBackupFile', args, options);
    },
   /**
   * 分页获取应用备份还原操作日志
@@ -1390,13 +1500,29 @@ export default {
   * @param {string} args.projectId 组织id
   * @param {string} args.appId 应用Id
   * @param {boolean} args.isBackup 是否为获取备份文件列表，true表示获取备份文件列表，false表示获取操作日志列表
+  * @param {string} args.accountId 操作人
+  * @param {string} args.startTime 开始时间
+  * @param {string} args.endTime 结束时间
+  * @param {} args.orderType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    pageGetBackupRestoreOperationLog: function (args, options = {}) {
      
-     return $.api('AppManagement', 'PageGetBackupRestoreOperationLog', args, options);
+     return mdyAPI('AppManagement', 'PageGetBackupRestoreOperationLog', args, options);
+   },
+  /**
+  * 获取应用数量信息
+  * @param {Object} args 请求参数
+  * @param {string} args.appId AppId
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getAppSupportInfo: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'GetAppSupportInfo', args, options);
    },
   /**
   * 重命名应用备份文件
@@ -1412,7 +1538,7 @@ export default {
   **/
    renameBackupFileName: function (args, options = {}) {
      
-     return $.api('AppManagement', 'RenameBackupFileName', args, options);
+     return mdyAPI('AppManagement', 'RenameBackupFileName', args, options);
    },
   /**
   * 获取有效备份文件信息
@@ -1425,7 +1551,7 @@ export default {
   **/
    getValidBackupFileInfo: function (args, options = {}) {
      
-     return $.api('AppManagement', 'GetValidBackupFileInfo', args, options);
+     return mdyAPI('AppManagement', 'GetValidBackupFileInfo', args, options);
    },
   /**
   * 还原应用
@@ -1436,13 +1562,43 @@ export default {
   * @param {boolean} args.autoEndMaintain 是否自动结束应用维护状态
   * @param {boolean} args.backupCurrentVersion 备份当前版本
   * @param {boolean} args.isRestoreNew 是否还原为新应用
+  * @param {boolean} args.containData 是否还原数据
+  * @param {string} args.fileUrl 文件链接
+  * @param {string} args.fileName 文件名称
+  * @param {string} args.dbInstanceId 数据库实例id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    restore: function (args, options = {}) {
      
-     return $.api('AppManagement', 'Restore', args, options);
+     return mdyAPI('AppManagement', 'Restore', args, options);
+   },
+  /**
+  * 备份应用
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用Id
+  * @param {boolean} args.containData 是否备份数据
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   backup: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'Backup', args, options);
+   },
+  /**
+  * 校验还原文件
+  * @param {Object} args 请求参数
+  * @param {string} args.appId
+  * @param {string} args.fileUrl
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   checkRestoreFile: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'CheckRestoreFile', args, options);
    },
   /**
   * 使用情况统计分析
@@ -1460,84 +1616,6 @@ export default {
   **/
    allUsageOverviewStatistics: function (args, options = {}) {
      
-     return $.api('AppManagement', 'AllUsageOverviewStatistics', args, options);
-   },
-  /**
-  * 应用汇总概览
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 组织id
-  * @param {string} args.keyWord 关键字搜索
-  * @param {integer} args.pageIndex 当前页
-  * @param {integer} args.pageSize 页大小
-  * @param {string} args.sortFiled 排序字段
-  * @param {boolean} args.sorted 排序方式 true--asc false--desc
-  * @param {string} args.appId 应用id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   appUsageOverviewStatistics: function (args, options = {}) {
-     
-     return $.api('AppManagement', 'AppUsageOverviewStatistics', args, options);
-   },
-  /**
-  * 不同维度使用情况统计(按应用，按成员)
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 组织id
-  * @param {integer} args.dayRange 天数范围 0 = 最近7天，1 = 最近一个月，2=最近一个季度，3=最近半年，4=最近一年
-  * @param {integer} args.pageIndex 当前页
-  * @param {integer} args.pageSize 页大小
-  * @param {integer} args.dimension 维度 1-应用 2-用户
-  * @param {string} args.sortFiled 排序字段（返回结果的列名，例如:appAccess）
-  * @param {boolean} args.sorted 排序方式
-  * @param {string} args.keyword 关键词查询
-  * @param {string} args.appId 应用id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   usageStatisticsForDimension: function (args, options = {}) {
-     
-     return $.api('AppManagement', 'UsageStatisticsForDimension', args, options);
-   },
-  /**
-  * 获取应用日志
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 组织id
-  * @param {} args.queryType
-  * @param {array} args.operators 操作人id数组
-  * @param {array} args.appIds 应用id数组
-  * @param {array} args.worksheetIds 工作表id数组
-  * @param {array} args.modules 所属日志模块
-  * @param {array} args.operationTypes 操作类型
-  * @param {integer} args.pageIndex 当前页
-  * @param {integer} args.pageSize 页大小
-  * @param {array} args.columnNames 列名称
-  * @param {string} args.menuName 菜单名称
-  * @param {string} args.startDateTime 开始时间
-  * @param {string} args.endDateTime 结束时间
-  * @param {boolean} args.confirmExport 是否确认导出(超量的情况下传)
-  * @param {boolean} args.isSingle 是否是单个应用
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getGlobalLogs: function (args, options = {}) {
-     
-     return $.api('AppManagement', 'GetGlobalLogs', args, options);
-   },
-  /**
-  * 获取应用下工作表信息
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 组织id
-  * @param {array} args.appIds 应用ids
-  * @param {boolean} args.isFilterCustomPage 是否过滤自定义页面
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getWorksheetsUnderTheApp: function (args, options = {}) {
-     
-     return $.api('AppManagement', 'GetWorksheetsUnderTheApp', args, options);
+     return mdyAPI('AppManagement', 'AllUsageOverviewStatistics', args, options);
    },
 };

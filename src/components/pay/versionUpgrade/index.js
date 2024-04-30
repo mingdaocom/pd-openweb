@@ -26,6 +26,7 @@ export default class VersionUpgrade extends Component {
       orderId: null,
       bugMethod: 'alipayPay',
     };
+    this.timer = null;
   }
   componentDidMount() {
     this.getUnPaidOrder();
@@ -98,8 +99,10 @@ export default class VersionUpgrade extends Component {
       projectId,
       orderId: orderId,
     });
-
-    payDialogFunc({ url: '/personal?type=enterprise' });
+    clearTimeout(this.timer);
+    this.timer = setTimeout(() => {
+      payDialogFunc({ url: '/personal?type=enterprise' });
+    }, 1000);
   };
 
   // 支付已有订单
@@ -143,6 +146,7 @@ export default class VersionUpgrade extends Component {
       address && companyName && email && geographyId && mobilePhone && postcode && recipientName;
     if (!isContractInfoIntact) {
       alert('请完善合同信息', 3);
+      return;
     }
     if (!orderId) {
       this.addOrderPay();
@@ -553,6 +557,6 @@ export default class VersionUpgrade extends Component {
   }
 }
 
-const WrappedComp = preall(VersionUpgrade, { allownotlogin: false });
+const WrappedComp = preall(VersionUpgrade, { allowNotLogin: false });
 
 ReactDOM.render(<WrappedComp />, document.querySelector('#app'));

@@ -11,7 +11,7 @@ import folderDg from 'src/components/kc/folderSelectDialog/folderSelectDialog';
 import { getFileExtends, isDocument, formatTime } from './utils';
 import { formatFileSize, downloadFile, getClassNameByExt } from 'src/util';
 import saveToKnowledge from 'src/components/saveToKnowledge/saveToKnowledge';
-import addLinkFile from 'src/components/addLinkFile/addLinkFile.jsx';
+import { addLinkFile } from 'ming-ui/functions';
 import _ from 'lodash';
 import RegExp from 'src/util/expression';
 
@@ -199,11 +199,11 @@ export default class FileComponent extends Component {
           .then(function () {
             alert(_l('保存成功'));
           })
-          .fail(function () {
+          .catch(function () {
             alert(_l('保存失败'), 2);
           });
       })
-      .fail(() => {});
+      .catch(() => {});
   };
   handleEditLink = () => {
     const _this = this;
@@ -231,7 +231,7 @@ export default class FileComponent extends Component {
             originLinkUrl: linkContent,
           });
         }
-        $.when(updatePromise)
+        updatePromise
           .then(() => {
             alert(_l('修改成功'));
             data.originalFilename = linkName;
@@ -239,7 +239,7 @@ export default class FileComponent extends Component {
             data.originLinkUrl = linkContent;
             _this.props.onReplaceAttachment(data);
           })
-          .fail(err => {
+          .catch(err => {
             alert(_l('修改失败'), 3);
           });
       },
@@ -802,7 +802,8 @@ export default class FileComponent extends Component {
               {((!isMDLink && !hideDownload) ||
                 !hideDownload ||
                 (isMDLink && fileResponse.accountId === md.global.Account.accountId)) &&
-                !md.global.Account.isPortal && !_.get(window, 'shareState.shareId') && (
+                !md.global.Account.isPortal &&
+                !_.get(window, 'shareState.shareId') && (
                   <div
                     className="UploadFiles-panelBtn"
                     onClick={event => {
@@ -907,10 +908,9 @@ export default class FileComponent extends Component {
                   isAnimation={false}
                   isRound={false}
                   strokeWidth={3}
-                  diameter={47}
+                  diameter={58}
                   foregroundColor="#BDBDBD"
                   backgroundColor="#fff"
-                  format={percent => ''}
                   percent={parseInt(progress)}
                 />
               </div>

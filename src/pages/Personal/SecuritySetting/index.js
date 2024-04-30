@@ -79,7 +79,7 @@ export default class SecuritySetting extends Component {
           alert(_l('操作失败'), 2);
         }
       })
-      .fail();
+      .catch();
   }
   renderTips = key => {
     return (
@@ -110,7 +110,7 @@ export default class SecuritySetting extends Component {
         .then(res => {
           this.setState({ openWXRemindDialog: true, wxQRCode: res, wxQRCodeLoading: false });
         })
-        .fail(err => {
+        .catch(err => {
           this.setState({ openWXRemindDialog: true });
         });
     } else {

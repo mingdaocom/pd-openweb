@@ -14,8 +14,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editSmtpSecret: function (args, options = {}) {
-     
-     return $.api('Email', 'EditSmtpSecret', args, options);
+
+     return mdyAPI('Email', 'EditSmtpSecret', args, options);
    },
   /**
   * 获取 smtp 配置
@@ -25,8 +25,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getSmtpSecret: function (args, options = {}) {
-     
-     return $.api('Email', 'GetSmtpSecret', args, options);
+
+     return mdyAPI('Email', 'GetSmtpSecret', args, options);
    },
   /**
   * 发送测试邮件
@@ -44,7 +44,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    sendTest: function (args, options = {}) {
-     
-     return $.api('Email', 'SendTest', args, options);
+
+     return mdyAPI('Email', 'SendTest', args, options);
    },
 };

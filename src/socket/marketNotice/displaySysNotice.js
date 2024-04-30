@@ -1,5 +1,5 @@
 import moment from 'moment';
-import mdNotification from 'ming-ui/functions/notify';
+import { mdNotification } from 'ming-ui/functions';
 
 export default function sysNotice(data) {
   if (!md.global.Config.MdNoticeServer) return;
@@ -7,7 +7,7 @@ export default function sysNotice(data) {
   if (data) {
     if (data.type === 1) {
       if (data.createTime && moment(data.createTime).toDate() < moment(md.global.Account.createTime).toDate()) return;
-      const { title, desc, link, noticeId } = data;
+      const { title, desc, link, linkText, noticeId } = data;
       mdNotification.success({
         key: 'systemNotice',
         title: title,
@@ -16,12 +16,12 @@ export default function sysNotice(data) {
         btnList: link
           ? [
               {
-                text: _l('查看详情'),
+                text: linkText || _l('查看详情'),
                 onClick: () => window.open(link),
               },
             ]
           : [],
-        onClose: function() {
+        onClose: function () {
           $.ajax({
             dataType: 'jsonp',
             url: `${md.global.Config.MdNoticeServer}/notice/read`,
@@ -30,7 +30,7 @@ export default function sysNotice(data) {
               noticeId,
             },
             jsonp: 'jsoncallback',
-            success: function(data) {},
+            success: function (data) {},
           });
         },
       });
@@ -48,7 +48,7 @@ export default function sysNotice(data) {
             onClick: () => location.reload(),
           },
         ],
-        onClose: function() {
+        onClose: function () {
           $.ajax({
             dataType: 'jsonp',
             url: `${md.global.Config.MdNoticeServer}/notice/read`,
@@ -57,7 +57,7 @@ export default function sysNotice(data) {
               noticeId,
             },
             jsonp: 'jsoncallback',
-            success: function(data) {},
+            success: function (data) {},
           });
         },
       });

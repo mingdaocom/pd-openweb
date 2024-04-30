@@ -48,12 +48,13 @@ class AddFriends extends Component {
 
   get DEFAULT_TABS() {
     const { projectId } = this.props;
-    const { Account: { projects = [] } = {} } = md.global;
+    const { Account: { projects = [] } = {}, SysSettings } = md.global;
+    const { enableSmsCustomContent } = SysSettings;
     const project = _.find(projects, { projectId }) || {};
     const { isProjectAdmin, isProjectAppManager } = project;
     return [
       isProjectAdmin && isProjectAppManager ? { text: _l('公开邀请'), value: 1, subText: _l('链接添加') } : null,
-      { text: _l('手机/邮箱邀请'), value: 2, subText: _l('搜索用户') },
+      { text: !enableSmsCustomContent ?  _l('邮箱邀请') : _l('手机/邮箱邀请'), value: 2, subText: _l('搜索用户') },
       { text: _l('从通讯录邀请'), value: 3 },
     ].filter(_ => _);
   }

@@ -19,7 +19,7 @@ export default {
   **/
    getNodesByShareFolderId: function (args, options = {}) {
      
-     return $.api('ShareFolder', 'GetNodesByShareFolderId', args, options);
+     return mdyAPI('ShareFolder', 'GetNodesByShareFolderId', args, options);
    },
   /**
   * 递归获取路径的id
@@ -32,6 +32,6 @@ export default {
   **/
    getParentNode: function (args, options = {}) {
      
-     return $.api('ShareFolder', 'GetParentNode', args, options);
+     return mdyAPI('ShareFolder', 'GetParentNode', args, options);
    },
 };

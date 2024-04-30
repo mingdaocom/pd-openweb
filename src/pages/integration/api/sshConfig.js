@@ -22,7 +22,7 @@ var sshConfig = {
   addSshConfig: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'sshConfig/addSshConfig';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'sshConfigaddSshConfig', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'sshConfigaddSshConfig', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -41,7 +41,7 @@ var sshConfig = {
   list: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'sshConfig/list';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'sshConfiglist', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'sshConfiglist', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -64,7 +64,7 @@ var sshConfig = {
   test: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'sshConfig/test';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'sshConfigtest', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'sshConfigtest', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -79,7 +79,7 @@ var sshConfig = {
   genKeyPair: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'sshConfig/genKeyPair';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'sshConfiggenKeyPair', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'sshConfiggenKeyPair', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -95,7 +95,7 @@ var sshConfig = {
   getSshConfig: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'sshConfig/getSshConfig';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'sshConfiggetSshConfig', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'sshConfiggetSshConfig', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -117,7 +117,7 @@ var sshConfig = {
   updateSshConfig: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'sshConfig/updateSshConfig';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'sshConfigupdateSshConfig', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'sshConfigupdateSshConfig', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -133,7 +133,7 @@ var sshConfig = {
   deleteSshConfig: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'sshConfig/deleteSshConfig';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'sshConfigdeleteSshConfig', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'sshConfigdeleteSshConfig', JSON.stringify(args), $.extend(base, options));
   }
 };
 

@@ -12,7 +12,7 @@ export default {
   **/
    sendMessageToAccountIds: function (args, options = {}) {
      
-     return $.api('Message', 'SendMessageToAccountIds', args, options);
+     return mdyAPI('Message', 'SendMessageToAccountIds', args, options);
    },
   /**
   * 发送邮件消息
@@ -25,7 +25,7 @@ export default {
   **/
    sendEmailMessageToAccountIds: function (args, options = {}) {
      
-     return $.api('Message', 'SendEmailMessageToAccountIds', args, options);
+     return mdyAPI('Message', 'SendEmailMessageToAccountIds', args, options);
    },
   /**
   * 发通告
@@ -47,6 +47,6 @@ export default {
   **/
    sendNotice: function (args, options = {}) {
      
-     return $.api('Message', 'SendNotice', args, options);
+     return mdyAPI('Message', 'SendNotice', args, options);
    },
 };

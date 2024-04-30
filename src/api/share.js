@@ -10,7 +10,7 @@ export default {
   **/
    getShareNode: function (args, options = {}) {
      
-     return $.api('Share', 'GetShareNode', args, options);
+     return mdyAPI('Share', 'GetShareNode', args, options);
    },
   /**
   * 获取文件夹分享信息
@@ -23,7 +23,7 @@ export default {
   **/
    getShareFolder: function (args, options = {}) {
      
-     return $.api('Share', 'GetShareFolder', args, options);
+     return mdyAPI('Share', 'GetShareFolder', args, options);
    },
   /**
   * 获取本地文件分享信息
@@ -37,7 +37,7 @@ export default {
   **/
    getShareLocalAttachment: function (args, options = {}) {
      
-     return $.api('Share', 'GetShareLocalAttachment', args, options);
+     return mdyAPI('Share', 'GetShareLocalAttachment', args, options);
    },
   /**
   * 对外分享跳转地址检测
@@ -48,6 +48,6 @@ export default {
   **/
    shareCheckLogin: function (args, options = {}) {
      options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return $.api('Share', 'ShareCheckLogin', args, options);
+     return mdyAPI('Share', 'ShareCheckLogin', args, options);
    },
 };

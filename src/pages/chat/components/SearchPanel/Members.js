@@ -46,7 +46,7 @@ export default class Members extends Component {
       pageIndex,
       keywords: searchText,
       pageSize: 18,
-    }).done((result) => {
+    }).then((result) => {
       const { groupUsers } = result;
       this.setState({
         pageIndex: groupUsers && groupUsers.length >= 18 ? pageIndex + 1 : 0,

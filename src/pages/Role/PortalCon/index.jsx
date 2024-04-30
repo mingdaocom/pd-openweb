@@ -93,8 +93,8 @@ class PortalCon extends React.Component {
     setDefaultFastFilters();
   }
   componentDidMount() {
-    const { getControls, appId } = this.props;
-    this.props.getControls(appId);
+    const { getControls, appId, projectId } = this.props;
+    this.props.getControls(appId, projectId);
     this.props.getPortalRoleList(appId);
     this.fetchPorBaseInfo();
   }

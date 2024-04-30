@@ -60,10 +60,11 @@ class WorkflowSettings extends Component {
 
   render() {
     const { tabIndex, noAuth } = this.state;
-    const { flowInfo, onBack } = this.props;
+    const { flowInfo, onBack, match } = this.props;
+    const { operator, operatorId } = match.params;
 
     const INDEX2COMPONENT = {
-      1: <EditFlow />,
+      1: <EditFlow instanceId={operator === 'execHistory' && operatorId ? operatorId : ''} />,
       2: <History />,
       3: <ProcessConfig />,
     };

@@ -49,7 +49,7 @@ const AuthorizationIntercept = () => {
           location.reload();
         }, 1000);
       }
-    }).fail(error => {
+    }).catch(error => {
       setLoading(false);
       setPrompt(error.errorMessage);
     });

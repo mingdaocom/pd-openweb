@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { Dialog } from 'ming-ui';
 import account from 'src/api/account';
 import { htmlEncodeReg } from 'src/util';
-import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
+import { dialogSelectUser } from 'ming-ui/functions';
 import './index.less';
 
 export default class ExitDialog extends Component {
@@ -58,7 +58,7 @@ export default class ExitDialog extends Component {
         projectId: this.props.projectId,
         newAdminAccountId: accountId,
       })
-      .done(result => {
+      .then(result => {
         switch (result) {
           case 1:
             alert(_l('退出成功'));
@@ -77,7 +77,7 @@ export default class ExitDialog extends Component {
             break;
         }
       })
-      .always(function () {
+      .finally(function () {
         $btn.addClass('Button--primary').removeClass('Button--disabled').prop('disabled', false);
       });
   }

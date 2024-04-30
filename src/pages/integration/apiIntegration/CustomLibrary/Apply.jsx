@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Dialog, Icon, LoadDiv } from 'ming-ui';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
-import dialogSelectApp from 'src/components/dialogSelectApp';
+import { dialogSelectApp } from 'ming-ui/functions';
 
 const ApplyBtn = styled.div`
   padding: 0 32px;

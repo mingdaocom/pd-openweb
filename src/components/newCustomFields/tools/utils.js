@@ -6,15 +6,16 @@ import { isEnableScoreOption } from 'src/pages/widgetConfig/widgetSetting/compon
 import { getStringBytes, accMul, browserIsMobile, formatStrZero } from 'src/util';
 import { getStrBytesLength } from 'src/pages/Role/PortalCon/tabCon/util-pure.js';
 import { getShowFormat, getDatePickerConfigs, getTitleStyle } from 'src/pages/widgetConfig/util/setting';
-import { filterEmptyChildTableRows, getRelateRecordCountFromValue, isRelateRecordTableControl } from 'worksheet/util';
+import { filterEmptyChildTableRows, getRelateRecordCountFromValue } from 'worksheet/util';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
-import { getSwitchItemNames, supportDisplayRow } from 'src/pages/widgetConfig/util';
-import _ from 'lodash';
+import { getSwitchItemNames, isOldSheetList, isTabSheetList, supportDisplayRow } from 'src/pages/widgetConfig/util';
+import _, { countBy, get, includes, isEmpty } from 'lodash';
 import moment from 'moment';
 import renderText from 'src/pages/worksheet/components/CellControls/renderText';
 import { WFSTATUS_OPTIONS } from 'src/pages/worksheet/components/WorksheetRecordLog/enum.js';
 import { TITLE_SIZE_OPTIONS } from 'src/pages/widgetConfig/config/setting';
 import { HAVE_VALUE_STYLE_WIDGET } from 'src/pages/widgetConfig/config/index.js';
+import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
 
 export const convertControl = type => {
   switch (type) {
@@ -219,7 +220,14 @@ function formatRowToServer(row, controls = [], { isDraft } = {}) {
  */
 export function formatControlToServer(
   control,
-  { isSubListCopy, isDraft, isNewRecord, needSourceValue, needFullUpdate } = {},
+  {
+    isSubListCopy,
+    isDraft,
+    isNewRecord,
+    needSourceValue,
+    needFullUpdate,
+    hasDefaultRelateRecordTableControls = [],
+  } = {},
 ) {
   let result = {
     controlId: control.controlId,
@@ -228,10 +236,10 @@ export function formatControlToServer(
     controlName: control.controlName,
     dot: control.dot,
   };
-  if (_.isUndefined(control.value)) {
+  if (_.isUndefined(control.value) && !control.store) {
     return result;
   }
-  let parsedValue, childTableControls, isFromDefault;
+  let parsedValue, childTableControls, isFromDefault, state, rows;
   const isRelateRecordDropdown =
     control.type === 29 &&
     String(_.get(control, 'advancedSetting.showtype')) === String(RELATE_RECORD_SHOW_TYPE.DROPDOWN);
@@ -293,66 +301,128 @@ export function formatControlToServer(
       } catch (err) {}
       break;
     case 29:
-      parsedValue = safeParse(control.value);
-      isFromDefault = !!_.find(parsedValue, { isFromDefault: true });
-      if (_.isArray(parsedValue)) {
-        if (
-          isDraft ||
-          isNewRecord ||
-          needFullUpdate ||
-          isRelateRecordDropdown ||
-          isSingleRelateRecord ||
-          isFromDefault
-        ) {
-          result.value = _.isArray(parsedValue)
-            ? JSON.stringify(
-                parsedValue
-                  .map(item => ({
-                    name: item.name,
-                    sid: item.sid,
-                    sourcevalue: needSourceValue && item.sourcevalue,
-                  }))
-                  .filter(item => !_.isEmpty(item.sid) && validate(item.sid)),
-              )
-            : '';
-        } else {
-          result.editType = 9;
-          const addedIds = parsedValue.filter(r => r.isNew).map(r => r.sid);
-          const deletedIds = (_.get(parsedValue, '0.deletedIds') || []).filter(
-            id => !_.find(parsedValue, r => r.sid === id),
-          );
-          result.value = JSON.stringify(
-            addedIds.map(id => ({ editType: 1, rowid: id })).concat(deletedIds.map(id => ({ editType: 2, rowid: id }))),
-          );
-        }
-      } else if (
-        typeof control.value === 'string' &&
-        control.value.startsWith('deleteRowIds') &&
-        control.value !== 'deleteRowIds: all'
+      if (
+        _.includes(
+          [
+            String(RELATE_RECORD_SHOW_TYPE.LIST),
+            String(RELATE_RECORD_SHOW_TYPE.TAB_TABLE),
+            String(RELATE_RECORD_SHOW_TYPE.TABLE),
+          ],
+          control.advancedSetting.showtype,
+        ) &&
+        control.store
       ) {
-        let deletedIds = [];
-        try {
-          deletedIds = control.value.replace('deleteRowIds: ', '').split(',').filter(_.identity);
-        } catch (err) {
+        state = control.store.getState();
+        if (isNewRecord || _.includes(hasDefaultRelateRecordTableControls, control.controlId)) {
+          result.value = JSON.stringify(state.records.map(record => ({ sid: record.rowid })));
+        } else if (
+          !isEmpty(state.changes) &&
+          control.advancedSetting.showtype === String(RELATE_RECORD_SHOW_TYPE.TABLE)
+        ) {
+          result.editType = 9;
+          result.value = JSON.stringify(
+            state.changes.addedRecordIds
+              .map(id => ({ editType: 1, rowid: id }))
+              .concat(state.changes.deletedRecordIds.map(id => ({ editType: 2, rowid: id }))),
+          );
+        } else {
           result.value = undefined;
         }
-        result.editType = 9;
-        result.value = JSON.stringify(deletedIds.map(id => ({ editType: 2, rowid: id })));
       } else {
-        result.value = undefined;
+        parsedValue = safeParse(control.value);
+        isFromDefault = !!_.find(parsedValue, { isFromDefault: true });
+        if (_.isArray(parsedValue)) {
+          if (
+            isDraft ||
+            isNewRecord ||
+            needFullUpdate ||
+            (browserIsMobile() && _.includes(hasDefaultRelateRecordTableControls, control.controlId)) ||
+            isRelateRecordDropdown ||
+            isSingleRelateRecord ||
+            isFromDefault
+          ) {
+            result.value = _.isArray(parsedValue)
+              ? JSON.stringify(
+                  parsedValue
+                    .map(item => ({
+                      name: item.name,
+                      sid: item.sid,
+                      sourcevalue: needSourceValue && item.sourcevalue,
+                    }))
+                    .filter(item => !_.isEmpty(item.sid) && validate(item.sid)),
+                )
+              : '';
+          } else {
+            result.editType = 9;
+            const addedIds = parsedValue.filter(r => r.isNew).map(r => r.sid);
+            const deletedIds = (_.get(parsedValue, '0.deletedIds') || []).filter(
+              id => !_.find(parsedValue, r => r.sid === id),
+            );
+            result.value = JSON.stringify(
+              addedIds
+                .map(id => ({ editType: 1, rowid: id }))
+                .concat(deletedIds.map(id => ({ editType: 2, rowid: id }))),
+            );
+          }
+        } else if (
+          typeof control.value === 'string' &&
+          control.value.startsWith('deleteRowIds') &&
+          control.value !== 'deleteRowIds: all'
+        ) {
+          let deletedIds = [];
+          try {
+            deletedIds = control.value.replace('deleteRowIds: ', '').split(',').filter(_.identity);
+          } catch (err) {
+            result.value = undefined;
+          }
+          result.editType = 9;
+          result.value = JSON.stringify(deletedIds.map(id => ({ editType: 2, rowid: id })));
+        } else {
+          result.value = undefined;
+        }
       }
       break;
     case 34: // 子表
-      childTableControls = !_.isEmpty(control.relationControls)
-        ? control.relationControls
-        : _.get(result, 'value.controls');
+      state = control.store.getState();
+      childTableControls = get(state, 'base.controls') || [];
       if (_.isEmpty(childTableControls)) {
         console.log('childTableControls is empty');
       }
-      childTableControls = childTableControls.filter(
-        c => !_.includes(_.get(window, 'shareState.isPublicForm') ? [48] : [], c.type),
-      );
-      if (result.value.isAdd) {
+      childTableControls = childTableControls
+        .filter(c => !_.includes(_.get(window, 'shareState.isPublicForm') ? [48] : [], c.type))
+        .filter(v => (isDraft ? v.controlId !== 'ownerid' : true));
+
+      if (
+        (!result.value || (_.isNumber(Number(result.value)) && !_.isNaN(Number(result.value)))) &&
+        !_.isEmpty(filterEmptyChildTableRows(control.store.getState().rows))
+      ) {
+        result.editType = 9;
+        if (isNewRecord) {
+          result.value = JSON.stringify(
+            filterEmptyChildTableRows(control.store.getState().rows).map(row =>
+              formatRowToServer(row, childTableControls || [], { isDraft }),
+            ),
+          );
+        } else {
+          rows = filterEmptyChildTableRows(control.store.getState().rows).map(row => ({
+            editType: 0,
+            newOldControl: formatRowToServer(row, childTableControls || [], { isDraft }),
+          }));
+          if (!_.isEmpty(rows)) {
+            result.value = JSON.stringify([
+              {
+                rowid: 'all',
+                editType: 2,
+              },
+              ...rows,
+            ]);
+          } else {
+            result.value = '';
+          }
+        }
+      } else if (_.isUndefined(control.value)) {
+        return result;
+      } else if (result.value.isAdd) {
         result.value = JSON.stringify(
           filterEmptyChildTableRows(control.value.rows).map(row =>
             formatRowToServer(row, childTableControls || [], { isDraft }),
@@ -864,10 +934,19 @@ export const renderCount = item => {
   // 人员多选、部门多选、多条卡片
   if (
     (_.includes([26, 27], type) && enumDefault === 1) ||
-    (type === 29 && enumDefault === 2 && advancedSetting.showtype === '1')
+    (type === 29 && enumDefault === 2 && _.includes(['1', '2'], advancedSetting.showtype))
   ) {
     const recordsCount = getRelateRecordCountFromValue(value, item.count);
     count = _.isUndefined(recordsCount) ? item.count : recordsCount;
+  }
+
+  if (type === 29 && advancedSetting.showtype === String(RELATE_RECORD_SHOW_TYPE.TABLE)) {
+    const state = item.store.getState();
+    count = state.loading
+      ? item.value
+      : typeof state.tableState.countForShow !== 'undefined'
+      ? state.tableState.countForShow
+      : state.tableState.count;
   }
 
   // 附件
@@ -888,6 +967,10 @@ export const renderCount = item => {
         count = value.num || filterEmptyChildTableRows(value.rows || []).length;
       } else if (!_.isNaN(parseInt(item.value, 10))) {
         count = parseInt(item.value, 10);
+      } else if (item.store) {
+        try {
+          count = filterEmptyChildTableRows(item.store.getState().rows).length;
+        } catch (err) {}
       }
       if (count > 1000) {
         count = 1000;
@@ -897,7 +980,7 @@ export const renderCount = item => {
     }
   }
 
-  return count ? `(${count})` : null;
+  return count && count !== '0' ? `(${count})` : null;
 };
 
 //控件切换成size情况，兼容老数据
@@ -915,7 +998,7 @@ export const halfSwitchSize = (item, from) => {
 };
 
 // 人员控件选择范围处理
-export const dealUserRange = (control = {}, data = []) => {
+export const dealUserRange = (control = {}, data = [], masterData = {}) => {
   if (!JSON.parse(_.get(control, 'advancedSetting.userrange') || '[]').length) return false;
 
   let ranges = {};
@@ -937,7 +1020,7 @@ export const dealUserRange = (control = {}, data = []) => {
 
   JSON.parse(_.get(control, 'advancedSetting.userrange') || '[]').map(item => {
     if (item.type === 4) {
-      if (item.rcid) {
+      if (item.rcid && item.rcid !== masterData.worksheetId) {
         const parentControl = _.find(data, i => i.controlId === item.rcid) || {};
         const control = safeParse(parentControl.value || '[]', 'array')[0];
         const sourcevalue = control && JSON.parse(control.sourcevalue)[item.cid];
@@ -948,7 +1031,9 @@ export const dealUserRange = (control = {}, data = []) => {
           ranges[arrKey] = _.uniq((ranges[arrKey] || []).concat(sourceVal.map(s => s[FILTER_TYPE[currentItem.type]])));
         }
       } else {
-        const currentItem = _.find(data || [], d => d.controlId === item.cid);
+        const currentItem =
+          _.find(data || [], d => d.controlId === item.cid) ||
+          _.find(masterData.formData || [], d => d.controlId === item.cid);
         if (currentItem) {
           const arrKey = getArrKey(currentItem);
           ranges[arrKey] = _.uniq(
@@ -969,69 +1054,112 @@ export const dealUserRange = (control = {}, data = []) => {
 // 加载第三方集成 SDK
 export function loadSDK() {
   const { IsLocal } = md.global.Config;
-  const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
-  const isWx = window.navigator.userAgent.toLowerCase().includes('micromessenger') && !IsLocal && !isWxWork;
-  const isWeLink = window.navigator.userAgent.toLowerCase().includes('huawei-anyoffice');
-  const isDing = window.navigator.userAgent.toLowerCase().includes('dingtalk');
-  const isFeishu = window.navigator.userAgent.toLowerCase().includes('feishu');
+  const isWx = window.isWeiXin && !IsLocal && !window.isWxWork;
 
-  if (isDing && !window.dd) {
+  if (window.isDingTalk && !window.dd) {
     $.getScript('https://g.alicdn.com/dingding/dingtalk-jsapi/2.6.41/dingtalk.open.js');
   }
-  if (isWeLink && !window.HWH5) {
+  if (window.isWeLink && !window.HWH5) {
     $.getScript('https://open-doc.welink.huaweicloud.com/docs/jsapi/2.0.4/hwh5-cloudonline.js');
   }
   if (isWx && !window.wx) {
     $.getScript('https://res2.wx.qq.com/open/js/jweixin-1.6.0.js');
   }
-  if (isWxWork && !window.wx) {
+  if (window.isWxWork && !window.wx) {
     $.getScript('https://res.wx.qq.com/open/js/jweixin-1.2.0.js');
   }
-  if (isFeishu && !window.h5sdk) {
+  if (window.isFeiShu && !window.h5sdk) {
     $.getScript('https://lf1-cdn-tos.bytegoofy.com/goofy/lark/op/h5-js-sdk-1.5.19.js');
   }
 }
 
-export const getControlsByTab = (controls = []) => {
+export const getControlsByTab = (controls = [], widgetStyle = {}, from, ignoreSection = false, otherTabs = []) => {
   // 基础控件
   let commonData = [];
   // 特殊控件
   let tabData = [];
+  // 老的关联列表
+  let oldRelateList = [];
+  const tabPosition = widgetStyle.tabposition || '1';
+  const isMobile = browserIsMobile();
 
-  controls.forEach(item => {
-    if (item.type === 52) {
-      item.child = controls.filter(i => i.sectionId === item.controlId);
-      tabData.push(item);
-    } else if (isRelateRecordTableControl(item)) {
-      tabData.push(item);
-    } else if (
-      !item.sectionId &&
-      !_.includes(
-        [
-          'rowid',
-          'ownerid',
-          'caid',
-          'ctime',
-          'utime',
-          'uaid',
-          'wfname',
-          'wfcuaids',
-          'wfcaid',
-          'wfctime',
-          'wfrtime',
-          'wfftime',
-          'wfstatus',
-        ],
-        item.controlId,
-      )
-    ) {
-      commonData.push(item);
+  if (ignoreSection) {
+    return { commonData: controls, tabData: [] };
+  }
+
+  controls
+    .filter(c => !_.includes(ALL_SYS, c.controlId))
+    .forEach(item => {
+      if (item.type === 52) {
+        item.child = controls.filter(i => i.sectionId === item.controlId);
+        tabData.push(item);
+      } else if (isTabSheetList(item)) {
+        tabData.push(item);
+      } else if (isOldSheetList(item)) {
+        oldRelateList.push(item);
+      } else if (!item.sectionId) {
+        commonData.push(item);
+      }
+    });
+
+  function sortList(list = []) {
+    return list.sort((a, b) => a.row - b.row);
+  }
+
+  commonData = sortList(commonData);
+  tabData = sortList(tabData).concat(sortList(oldRelateList));
+
+  // h5或者配置在顶部的
+  if (isMobile || (isMobile && !_.isEmpty(otherTabs)) || (tabPosition === '2' && !ignoreSection)) {
+    const defaultTab = [
+      {
+        controlId: 'detail',
+        controlName: widgetStyle.deftabname || _l('详情'),
+        type: 52,
+        sectionId: '',
+        child: commonData,
+        advancedSetting: { icon: widgetStyle.tabicon },
+      },
+    ];
+    const allCommonHide = _.every(commonData, c => !(controlState(c, from).visible && !c.hidden));
+    tabData = allCommonHide
+      ? isMobile && !_.isEmpty(otherTabs)
+        ? defaultTab.concat(tabData)
+        : tabData
+      : defaultTab.concat(tabData);
+    commonData = [];
+  }
+
+  tabData = tabData.filter(v => (v.type == 52 ? v.child.length : true));
+
+  if (isMobile) {
+    // 将关联列表表格、标签页表格转换为卡片形式
+    const updateMobileControls = (control = {}) => {
+      if (_.includes([29, 51], control.type)) {
+        const showType = _.get(control, 'advancedSetting.showtype');
+        return {
+          ...control,
+          advancedSetting: {
+            ...control.advancedSetting,
+            showtype: control.type === 51 && showType === '5' ? '1' : _.includes(['5', '6'], showType) ? '2' : showType,
+            icon: control.type === 29 && _.includes(['2', '6'], showType) ? 'link_record' : 'Worksheet_query',
+          },
+        };
+      }
+      return control;
+    };
+    tabData = tabData.map(item => {
+      return {
+        ...updateMobileControls(item),
+        child: (item.child || []).map(v => updateMobileControls(v)),
+      };
+    });
+    commonData = commonData.map(v => updateMobileControls(v));
+    if (_.isEmpty(commonData) && _.isEmpty(otherTabs) && tabData.length === 1) {
+      commonData = tabData[0].child;
+      tabData = [];
     }
-  });
-
-  // 标签页始终排在前面
-  tabData.sort((a, b) => a.row - b.row);
-  tabData = tabData.filter(v => v.type === 52).concat(tabData.filter(v => v.type !== 52));
+  }
 
   return { commonData, tabData };
 };

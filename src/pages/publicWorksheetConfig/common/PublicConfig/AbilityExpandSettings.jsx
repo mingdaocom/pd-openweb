@@ -12,6 +12,8 @@ const CustomTimeInput = styled(Input)`
   height: 32px !important;
 `;
 
+let isFirstLoad = true;
+
 export default function AbilityExpandSettings(props) {
   const { data, setState } = props;
   const { abilityExpand, originalControls, writeScope, weChatSetting, extendSourceId, controls, titleFolded } = data;
@@ -23,9 +25,16 @@ export default function AbilityExpandSettings(props) {
         autoFillField: { isAutoFillField: false, autoFillFields: [] },
         allowViewChange: { isAllowViewChange: false, switchViewChange: 1 },
       };
-      setState({ abilityExpand: newAbilityExpand });
+      !isFirstLoad && setState({ abilityExpand: newAbilityExpand });
     }
   }, [writeScope, weChatSetting.isCollectWxInfo]);
+
+  useEffect(() => {
+    isFirstLoad && (isFirstLoad = false);
+    return () => {
+      isFirstLoad = true;
+    };
+  }, []);
 
   return (
     <React.Fragment>

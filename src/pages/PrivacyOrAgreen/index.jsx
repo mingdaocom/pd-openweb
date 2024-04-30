@@ -5,9 +5,8 @@ import styled from 'styled-components';
 import { browserIsMobile } from 'src/util';
 import cx from 'classnames';
 import { getRequest } from 'src/util/sso';
-import { RichText, LoadDiv } from 'ming-ui';
+import { RichText, LoadDiv, SvgIcon } from 'ming-ui';
 import externalPortalAjax from 'src/api/externalPortal';
-import SvgIcon from 'src/components/SvgIcon';
 
 const Wrap = styled.div`
   background: #f5f5f5;
@@ -145,6 +144,6 @@ class PrivacyOrAgreen extends React.Component {
   }
 }
 
-const Comp = preall(PrivacyOrAgreen, { allownotlogin: true });
+const Comp = preall(PrivacyOrAgreen, { allowNotLogin: true });
 
 ReactDom.render(<Comp />, document.getElementById('app'));

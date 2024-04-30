@@ -4,11 +4,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
 import { RecordInfoModal } from 'mobile/Record';
-import SVG from 'svg.js';
 import { browserIsMobile } from 'src/util';
 import DraggableRecord from './DraggableRecord';
-import { getItem } from '../../util';
-import { getPosition } from '../util';
 import styled from 'styled-components';
 
 const isMobile = browserIsMobile();
@@ -78,8 +75,7 @@ export default class VerticalSortableRecordItem extends Component {
   };
 
   handleRecordVisible = rowId => {
-    const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
-    if (isMingdao) {
+    if (window.isMingDaoApp) {
       const { appId, treeData } = this.props;
       const curInfo = treeData[rowId];
       window.location.href = `/mobile/record/${appId}/${curInfo.wsid}/${rowId}`;
@@ -153,7 +149,7 @@ export default class VerticalSortableRecordItem extends Component {
     } = this.props;
     const { recordInfoRowId, recordInfoVisible } = this.state;
     const { rowId, path = [], pathId = [] } = data;
-    const { rowId: draggingId } = getItem('draggingHierarchyItem') || '';
+    const { rowId: draggingId } = safeParse(localStorage.getItem('draggingHierarchyItem'));
     const recordInfoPara = this.getRecordInfoPara();
     if (recordInfoPara.worksheetId === worksheetInfo.worksheetId) {
       recordInfoPara.rules = worksheetInfo.rules;

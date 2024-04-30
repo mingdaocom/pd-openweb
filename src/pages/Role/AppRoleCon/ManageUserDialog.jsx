@@ -10,6 +10,7 @@ import HomeAjax from 'src/api/homeApp';
 import AppAjax from 'src/api/appManagement';
 import { getUserRole, canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util';
 import 'src/pages/Role/style.less';
+import { dialogSelectUser } from 'ming-ui/functions';
 
 const Wrapper = styled.div`
   min-height: 640px; //最小高度
@@ -110,31 +111,30 @@ function ManageUserDialog(props) {
    */
   const transferApp = () => {
     const { projectId, appId, onCancel } = props;
-    import('src/components/dialogSelectUser/dialogSelectUser').then(dialogSelectUser => {
-      dialogSelectUser.default({
-        showMoreInvite: false,
-        SelectUserSettings: {
-          projectId,
-          filterAll: true,
-          filterFriend: true,
-          filterOthers: true,
-          filterOtherProject: true,
-          unique: true,
-          callback: users => {
-            AppAjax.updateAppOwner({
-              appId,
-              memberId: users[0].accountId,
-            }).then(res => {
-              if (res) {
-                onCancel();
-                // location.reload();
-              } else {
-                alert(_l('托付失败'), 2);
-              }
-            });
-          },
+
+    dialogSelectUser({
+      showMoreInvite: false,
+      SelectUserSettings: {
+        projectId,
+        filterAll: true,
+        filterFriend: true,
+        filterOthers: true,
+        filterOtherProject: true,
+        unique: true,
+        callback: users => {
+          AppAjax.updateAppOwner({
+            appId,
+            memberId: users[0].accountId,
+          }).then(res => {
+            if (res) {
+              onCancel();
+              // location.reload();
+            } else {
+              alert(_l('托付失败'), 2);
+            }
+          });
         },
-      });
+      },
     });
   };
 

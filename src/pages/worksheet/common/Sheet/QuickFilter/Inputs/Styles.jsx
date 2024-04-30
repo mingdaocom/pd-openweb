@@ -9,6 +9,7 @@ export const BaseSelectedItem = styled.div`
   border-radius: 24px;
   background: #e5e5e5;
   max-width: 100%;
+  font-size: 13px;
   .name {
     display: inline-block;
     width: calc(100% - 17px);

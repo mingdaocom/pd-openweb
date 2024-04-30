@@ -22,6 +22,7 @@ const EXPAND_TYPE = {
   DATASYNC: 'dataSync',
   COMPUTING: 'computing',
   RENEWCOMPUTING: 'renewcomputing',
+  AGGREGATIONTABLE: 'aggregationtable',
 };
 
 const PAGE_TITLE = {
@@ -33,6 +34,7 @@ const PAGE_TITLE = {
   dataSync: _l('用户自助购买数据同步算力升级包'),
   computing: md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal ? _l('创建专属算力') : _l('购买专属算力'),
   renewcomputing: _l('续费专属算力'),
+  aggregationtable: _l('扩充聚合表数量'),
 };
 
 //主操作标题名称
@@ -45,6 +47,7 @@ const HeaderTitle = {
   dataSync: _l('购买数据同步算力升级包'),
   computing: md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal ? _l('创建专属算力') : _l('购买专属算力'),
   renewcomputing: _l('续费专属算力'),
+  aggregationtable: _l('扩充聚合表数量'),
 };
 
 //第一步标题名称
@@ -57,6 +60,7 @@ const HeaderSubTitle = {
   dataSync: _l('选择类型'),
   computing: _l('选择规格'),
   renewcomputing: _l('确认续费信息'),
+  aggregationtable: _l('扩充聚合表数量'),
 };
 
 //总计接口
@@ -72,6 +76,7 @@ const GET_ORDER_PRICE = {
   computing: orderController.getComputingInstanceOrderPrice,
   computingMonthly: orderController.getMonthlyComputingInstanceOrderPrice,
   renewcomputing: orderController.getComputingInstanceExtensionOrderPrice,
+  aggregationtable: orderController.getAggregationTableOrderPrice,
 };
 
 //下单接口
@@ -87,7 +92,7 @@ const ADD_ORDER_PRICE = {
   computing: orderController.addComputingInstanceOrder,
   computingMonthly: orderController.addMonthlyComputingInstanceOrder,
   renewcomputing: orderController.addComputingInstanceExtensionOrder,
-  computingPermanent: orderController.addPermanentComputingInstanceOrder,
+  aggregationtable: orderController.addAggregationTableOrder,
 };
 
 const WORKFLOW_TYPE_LIST = [
@@ -205,7 +210,7 @@ export default class ExpansionService extends Component {
     } else if (expandType === EXPAND_TYPE.USER) {
       Config.AdminController.expansionInfos({
         projectId: Config.projectId,
-      }).done(data => {
+      }).then(data => {
         const limitNumber =
           parseInt(
             expandType === EXPAND_TYPE.USER
@@ -284,6 +289,8 @@ export default class ExpansionService extends Component {
           () => this.computePrince(),
         );
       });
+    } else if (expandType === EXPAND_TYPE.AGGREGATIONTABLE) {
+      this.setState({ addUserCount: 5, addUserStep: 5, maxUserCount: 1000000, loading: false }, this.computePrince);
     } else if (this.isPortalUser) {
       projectAjax.getProjectLicenseSupportInfo({ projectId: Config.projectId }).then(res => {
         this.setState(
@@ -297,6 +304,8 @@ export default class ExpansionService extends Component {
           () => this.computePrince(),
         );
       });
+    } else if (expandType === EXPAND_TYPE.AGGREGATIONTABLE) {
+      this.setState({ addUserCount: 5, addUserStep: 5, loading: false });
     } else {
       this.setState(
         {
@@ -486,46 +495,49 @@ export default class ExpansionService extends Component {
   }
 
   // input加减框
-  renderPlusInput(hasUnit = false, disabled = false) {
+  renderPlusInput({ hasUnit = false, disabled = false, desc = '' } = {}) {
     const { addUserCount, addUserStep, maxUserCount } = this.state;
     const value = addUserCount.toString().replace(/(\d)(?=(\d{3})+$)/g, '$1,');
     return (
-      <div className={cx('addUserBox', { disabled: disabled })}>
-        <span
-          className={cx('minus', { unClick: addUserCount <= addUserStep })}
-          onClick={() => {
-            if (disabled) return;
-            this.handleMinus();
-          }}
-        >
-          －
-        </span>
-        <input
-          type="text"
-          className="ThemeColor3 bagNum"
-          value={hasUnit ? value + 'GB' : value}
-          disabled={disabled}
-          onChange={e => {
-            if (disabled) return;
-            this.handleInputChange(e);
-          }}
-          onBlur={e => {
-            if (disabled) return;
-            this.handleInputBlur(e);
-          }}
-          onPaste={() => {
-            return false;
-          }}
-        />
-        <span
-          className={cx('plus', { unClick: addUserCount >= maxUserCount })}
-          onClick={() => {
-            if (disabled) return;
-            this.handlePlus();
-          }}
-        >
-          ＋
-        </span>
+      <div className="mTop40 mBottom40">
+        <div className={cx('addUserBox', { disabled: disabled })}>
+          <span
+            className={cx('minus', { unClick: addUserCount <= addUserStep })}
+            onClick={() => {
+              if (disabled) return;
+              this.handleMinus();
+            }}
+          >
+            －
+          </span>
+          <input
+            type="text"
+            className="ThemeColor3 bagNum"
+            value={hasUnit ? value + 'GB' : value}
+            disabled={disabled}
+            onChange={e => {
+              if (disabled) return;
+              this.handleInputChange(e);
+            }}
+            onBlur={e => {
+              if (disabled) return;
+              this.handleInputBlur(e);
+            }}
+            onPaste={() => {
+              return false;
+            }}
+          />
+          <span
+            className={cx('plus', { unClick: addUserCount >= maxUserCount })}
+            onClick={() => {
+              if (disabled) return;
+              this.handlePlus();
+            }}
+          >
+            ＋
+          </span>
+        </div>
+        {desc && <div className="Gray_75 mTop8">{desc}</div>}
       </div>
     );
   }
@@ -600,14 +612,12 @@ export default class ExpansionService extends Component {
         <div className="workflowTypeContent">
           <div className="workflowTypeItem active">
             <div className="Font15 Gray Bold">{_l('本年用量扩充包')}</div>
-            <div className="Gray_9e mTop6">
-              {_l('200 元')} / 10 GB
-            </div>
+            <div className="Gray_9e mTop6">{_l('200 元')} / 10 GB</div>
           </div>
         </div>
         <div className="addWorkFlowBox">
           <div className="addUserLabl">{_l('购买数量')}</div>
-          {this.renderPlusInput(true)}
+          {this.renderPlusInput({ hasUnit: true })}
           <div className="mLeft15 Gray_75">{_l('仅本年内使用有效，次年1月1日清零')}</div>
         </div>
       </Fragment>
@@ -767,7 +777,7 @@ export default class ExpansionService extends Component {
   renderOptionStyle() {
     switch (this.expandType) {
       case EXPAND_TYPE.USER:
-        return this.renderPlusInput();
+        return this.renderPlusInput({ desc: _l('300 元/人/年*版本剩余时间（5人起购）') });
       case EXPAND_TYPE.WORKFLOW:
         return this.renderWorkFlowContent();
       case EXPAND_TYPE.DATASYNC:
@@ -793,6 +803,8 @@ export default class ExpansionService extends Component {
         return this.renderExclusiveContent();
       case EXPAND_TYPE.RENEWCOMPUTING:
         return this.renderRenewExclusiveContent();
+      case EXPAND_TYPE.AGGREGATIONTABLE:
+        return this.renderPlusInput({ desc: _l('100元/个/年*版本剩余时间（5个起购）') });
     }
   }
 
@@ -901,6 +913,13 @@ export default class ExpansionService extends Component {
               </div>
             )}
           </Fragment>
+        );
+      case EXPAND_TYPE.AGGREGATIONTABLE:
+        return (
+          <div className="flexRow">
+            <div className="mRight24">{_l('购买数量')}</div>
+            <div className="flex">{_l('%0个', addUserCount)}</div>
+          </div>
         );
     }
   }
@@ -1045,7 +1064,7 @@ export default class ExpansionService extends Component {
                       <span className="Font20 color_b Bold">{totalPrince}</span>
                       {![EXPAND_TYPE.COMPUTING, EXPAND_TYPE.RENEWCOMPUTING].includes(expandType) &&
                         (this.isPortalUser ? (
-                          <a target="blank" className="mLeft20" href="https://help.mingdao.com/prices8">
+                          <a target="blank" className="mLeft20" href="https://help.mingdao.com/purchase/external-user-billing">
                             {_l('计费方式')}
                           </a>
                         ) : (
@@ -1083,14 +1102,18 @@ export default class ExpansionService extends Component {
                   <div className="mTop16 mBottom20 Font13 Gray_9">
                     <span
                       className={`${
-                        [EXPAND_TYPE.COMPUTING, EXPAND_TYPE.RENEWCOMPUTING].includes(expandType)
+                        [EXPAND_TYPE.COMPUTING, EXPAND_TYPE.RENEWCOMPUTING, EXPAND_TYPE.AGGREGATIONTABLE].includes(
+                          expandType,
+                        )
                           ? 'mRight40'
                           : 'mRight8'
                       }`}
                     >
                       {_l('总计')}
                     </span>
-                    <span>￥{totalPrince}</span>
+                    <span className={cx({ mLeft7: _.includes([EXPAND_TYPE.AGGREGATIONTABLE], expandType) })}>
+                      ￥{totalPrince}
+                    </span>
                   </div>
                   <button
                     type="button"

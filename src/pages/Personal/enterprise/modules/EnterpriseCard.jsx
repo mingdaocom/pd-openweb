@@ -110,6 +110,7 @@ export default class EnterpriseCard extends Component {
       children: (
         <EditCardInfo
           userInfo={item}
+          updateData={data => this.setState({ userInfo: data })}
           closeDialog={() => {
             $('.editInfoEnterprise.mui-dialog-container').parent().remove();
           }}
@@ -251,7 +252,7 @@ export default class EnterpriseCard extends Component {
           alert(_l('操作失败'), 2);
         }
       })
-      .fail();
+      .catch();
   }
 
   render() {

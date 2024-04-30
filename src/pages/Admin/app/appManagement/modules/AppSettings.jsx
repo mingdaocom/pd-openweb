@@ -1,7 +1,6 @@
 import React, { Fragment } from 'react';
-import SvgIcon from 'src/components/SvgIcon';
 import { Select, InputNumber } from 'antd';
-import { LoadDiv, ScrollView } from 'ming-ui';
+import { LoadDiv, ScrollView, SvgIcon } from 'ming-ui';
 import cx from 'classnames';
 import './index.less';
 import _ from 'lodash';

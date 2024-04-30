@@ -5,7 +5,7 @@ import DraggableItem from './draggableItem';
 import { WIDGET_GROUP_TYPE } from '../config/widget';
 import ListItemLayer from './ListItemLayer';
 import { getFeatureStatus } from 'src/util';
-import { relateOrSectionTab } from '../util';
+import { notInsetSectionTab } from '../util';
 import { handleAddWidgets } from 'src/pages/widgetConfig/util/data';
 
 const WidgetList = styled.div`
@@ -78,7 +78,7 @@ export default function List(props) {
   const { globalSheetInfo = {}, activeWidget = {} } = props;
   const { hideWorksheetControl = '' } = md.global.SysSettings;
 
-  const handleAdd = (data, para = {}) => {
+  const handleAdd = (data, para = {}, callback) => {
     let sectionId = '';
     if (para.type === 'click') {
       sectionId = activeWidget.type === 52 ? activeWidget.controlId : activeWidget.sectionId;
@@ -86,8 +86,8 @@ export default function List(props) {
       sectionId = para.sectionId || '';
     }
 
-    // 子表、标签页、关联多条列表等不能嵌套
-    if (relateOrSectionTab(data) || data.type === 34) {
+    // 标签页、关联多条列表(旧)等不能嵌套
+    if (notInsetSectionTab(data)) {
       sectionId = '';
     }
 
@@ -96,7 +96,7 @@ export default function List(props) {
       sectionId: sectionId,
     };
 
-    handleAddWidgets([newData], para, props);
+    handleAddWidgets([newData], para, props, callback);
   };
 
   return (

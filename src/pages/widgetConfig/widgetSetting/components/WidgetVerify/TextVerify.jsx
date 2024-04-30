@@ -161,7 +161,7 @@ export default function InputFormatConfig({ data, onChange }) {
           <div className="formatList">
             <div className="title Gray_75">
               {_l('选择下方常用表达式或自定义输入')}
-              <Support href="https://help.mingdao.com/sheet31" type={3} text={_l('帮助')} />
+              <Support href="https://help.mingdao.com/worksheet/regular-expression" type={3} text={_l('帮助')} />
             </div>
             <ul className="list">
               {FORMAT_CONFIG.map(item => (

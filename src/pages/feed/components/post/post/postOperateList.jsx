@@ -1,7 +1,6 @@
 ﻿import _ from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
-import createReactClass from 'create-react-class';
 import { createLinksForMessage } from 'src/util';
 import { Menu, MenuItem, Dialog } from 'ming-ui';
 import withClickAway from 'ming-ui/decorators/withClickAway';
@@ -29,34 +28,30 @@ import editShareScope from '../postComponent/editShareScope/editShareScope';
 /**
  * 动态的操作列表
  */
-const PostOperateList = createReactClass({
-  displayName: 'PostOperateList',
-
-  propTypes: {
+class PostOperateList extends React.Component {
+  static propTypes = {
     dispatch: PropTypes.func,
     options: PropTypes.object,
     postItem: PropTypes.any.isRequired,
     handleHide: PropTypes.func,
-  },
+  };
 
-  getInitialState() {
-    return {
-      index: 0,
-      taskEvent: 0,
-    };
-  },
+  state = {
+    index: 0,
+    taskEvent: 0,
+  };
 
   componentClickAway(e) {
     if (this.props.handleHide) {
       this.props.handleHide(e);
     }
-  },
+  }
 
-  handleEdit() {
+  handleEdit = () => {
     this.componentClickAway();
     EditPostDialog.show(this.props.postItem, this.props.dispatch);
     return;
-  },
+  };
 
   handleRemove() {
     const { dispatch } = this.props;
@@ -85,9 +80,9 @@ const PostOperateList = createReactClass({
         }
       },
     });
-  },
+  }
 
-  handleTop() {
+  handleTop = () => {
     const { postItem, dispatch } = this.props;
     this.componentClickAway();
     Dialog.confirm({
@@ -101,11 +96,11 @@ const PostOperateList = createReactClass({
               24{_l('小时')}
             </label>
             <label className="mLeft20 mRight20">
-              <input type="radio" name="feedTopTime"  value="48" />
+              <input type="radio" name="feedTopTime" value="48" />
               48{_l('小时')}
             </label>
             <label>
-              <input type="radio" name="feedTopTime"  value="72" /> 72
+              <input type="radio" name="feedTopTime" value="72" /> 72
               {_l('小时')}
             </label>
             <label className="mLeft20">
@@ -122,15 +117,15 @@ const PostOperateList = createReactClass({
         dispatch(addTop({ postId: postItem.postID, hours }));
       },
     });
-  },
+  };
 
-  handleRemoveTop() {
+  handleRemoveTop = () => {
     const { postItem, dispatch } = this.props;
     dispatch(removeTop({ postId: postItem.postID }));
     this.componentClickAway();
-  },
+  };
 
-  handleCreateNewCalender() {
+  handleCreateNewCalender = () => {
     const postItem = this.props.postItem;
     this.componentClickAway();
     const message = createLinksForMessage({
@@ -167,7 +162,7 @@ const PostOperateList = createReactClass({
         .value(),
       Message: message.replace(/<[^>]+>/g, ''),
     });
-  },
+  };
 
   handleCreateNewTask(param) {
     const postItem = _.clone(this.props.postItem);
@@ -200,16 +195,16 @@ const PostOperateList = createReactClass({
         PostID: postItem.postID,
       });
     }
-  },
+  }
 
-  handleEditVoteEndTime() {
+  handleEditVoteEndTime = () => {
     const { dispatch } = this.props;
     this.componentClickAway();
     const postItem = _.clone(this.props.postItem);
     EditVoteEndTimeDialog.show(postItem, deadline => {
       dispatch(editVoteEndTimeSuccess({ postId: postItem.postID, deadline }));
     });
-  },
+  };
 
   handleEditScope() {
     const { dispatch } = this.props;
@@ -218,7 +213,7 @@ const PostOperateList = createReactClass({
     editShareScope(postItem, scope => {
       dispatch(editShareScopeSuccess({ postId: postItem.postID, scope }));
     });
-  },
+  }
 
   render() {
     const postItem = this.props.postItem;
@@ -330,8 +325,8 @@ const PostOperateList = createReactClass({
         </Menu>
       </ClickAway>
     );
-  },
-});
+  }
+}
 
 export default connect(state => {
   const { options } = state.post;

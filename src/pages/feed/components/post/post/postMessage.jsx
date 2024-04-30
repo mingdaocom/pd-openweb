@@ -4,7 +4,7 @@ import { createLinksForMessage } from 'src/util';
 import PropTypes from 'prop-types';
 import qs from 'query-string';
 import CreateGroup from 'src/components/group/create/creatGroup';
-import UserCard from 'src/components/UserCard';
+import { UserCard } from 'ming-ui';
 
 /**
  * 动态内容

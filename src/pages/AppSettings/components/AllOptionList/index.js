@@ -1,15 +1,16 @@
 import React, { Fragment, useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { LoadDiv, Dialog, Button, Icon } from 'ming-ui';
+import { LoadDiv, Icon, Dropdown } from 'ming-ui';
 import cx from 'classnames';
 import { Tooltip } from 'antd';
 import update from 'immutability-helper';
 import { groupBy, maxBy, head, keys, sortBy, isEmpty } from 'lodash';
 import worksheetAjax from 'src/api/worksheet';
 import EditOptionList from 'src/pages/widgetConfig/widgetSetting/components/OptionList/EditOptionList';
+import AppSettingHeader from '../AppSettingHeader';
 import { getOptions } from '../../../widgetConfig/util/setting';
 import { useSetState } from 'react-use';
-import DeleteOptionList from './DeleteOptionList';
+import OperateList from './OperateList';
 
 const MAX_HEIGHT = 530;
 const LINE_HEIGHT = 30;
@@ -17,15 +18,6 @@ const ITEM_WIDTH = 243;
 const MARGIN = 20;
 // 标题高度和列表上下padding
 const TITLE_AND_PADDING = 45 + 16;
-
-const AllOptionHeader = styled.header`
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
-  p {
-    margin: 0;
-  }
-`;
 
 const OptionListWrap = styled.div`
   position: relative;
@@ -49,8 +41,9 @@ const ListItem = styled.div`
   transition: all 0.25s;
   border: 1px solid #eaeaea;
   border-radius: 8px;
+  cursor: pointer;
   .operate {
-    visibility: hidden;
+    /* visibility: hidden; */
   }
   &:hover {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
@@ -71,9 +64,6 @@ const ListItem = styled.div`
     border-bottom: 1px solid #ddd;
     line-height: 24px;
     padding: 10px 0;
-    .delete {
-      margin-left: 8px;
-    }
   }
   ul {
     padding: 8px 0;
@@ -102,14 +92,14 @@ const ListItem = styled.div`
 `;
 
 const OptionItem = props => {
-  const { name, colorful, handleClick, pos } = props;
+  const { name, colorful, handleClick, pos, status, onClick = () => {} } = props;
   const options = getOptions({ options: props.options });
   const getPos = () => {
     if (!pos) return {};
     return { transform: `translate(${pos.left}px,${pos.top}px)` };
   };
   return (
-    <ListItem style={{ ...getPos() }}>
+    <ListItem style={{ ...getPos() }} status={status} onClick={onClick}>
       <div className="title Bold">
         <div className="name ellipsis">
           {name}
@@ -119,9 +109,7 @@ const OptionItem = props => {
           <Tooltip placement="bottom" title={_l('编辑')}>
             <Icon icon="edit" className="Gray_9e ThemeHoverColor3 Font16 pointer" onClick={() => handleClick('edit')} />
           </Tooltip>
-          <Tooltip placement="bottom" title={_l('删除')} className="mLeft8">
-            <Icon icon="trash" className="Gray_9e Font16 pointer" onClick={() => handleClick('delete')} />
-          </Tooltip>
+          <OperateList {...props} status={status} />
         </div>
       </div>
       <ul>
@@ -142,14 +130,16 @@ const OptionItem = props => {
 export default function AllOptionList(props) {
   const { projectId, appId } = props;
   const $ref = useRef(null);
-  const [{ createVisible, deleteConfirmVisible }, setVisible] = useSetState({
+  const [{ createVisible }, setVisible] = useSetState({
     createVisible: false,
-    deleteConfirmVisible: false,
   });
-  const [{ editIndex, deleteIndex }, setIndex] = useSetState({ editIndex: -1, deleteIndex: -1 });
+  const [{ editIndex }, setIndex] = useSetState({ editIndex: -1 });
   const [loading, setLoading] = useState(false);
   const [posList, setPos] = useState([]);
+  const [originalItems, setOriginalItems] = useState([]);
   const [items, setItems] = useState([]);
+  const [status, setStatus] = useState(1);
+  const [searchValue, setSearchValue] = useState();
 
   // 计算单个高度
   const computeHeight = item => {
@@ -185,61 +175,30 @@ export default function AllOptionList(props) {
     setPos(pos);
   };
   useEffect(() => {
+    getOptionList({ status: 1 });
+  }, []);
+
+  const getOptionList = ({ status } = {}) => {
     setLoading(true);
     worksheetAjax
-      .getCollectionsByAppId({ appId })
-      .then(({ data }) => {
+      .getCollectionsByAppId({ appId, status })
+      .then(({ data = [] }) => {
+        setOriginalItems(data);
         setItems(data);
         waterfallList(data);
       })
-      .always(() => {
+      .finally(() => {
         setLoading(false);
       });
-  }, []);
-  const deleteOptions = () => {
-    const { collectionId } = items[deleteIndex] || {};
-    worksheetAjax.deleteOptionsCollection({ appId, collectionId }).then(({ data }) => {
-      if (data) {
-        const nextItems = update(items, { $splice: [[deleteIndex, 1]] });
-        setItems(nextItems);
-        waterfallList(nextItems);
-      } else {
-        alert(_l('删除失败'), 2);
-      }
-    });
-  };
-  const onDelete = index => {
-    const { name, collectionId, worksheetIds } = items[index] || {};
-
-    // 没有字段引用的选项集直接删,否则需要二次确认
-    if (isEmpty(worksheetIds)) {
-      Dialog.confirm({
-        title: (
-          <span className="Bold" style={{ color: '#f44336' }}>
-            {_l('删除选项集 “%0”', name)}
-          </span>
-        ),
-        buttonType: 'danger',
-        description: _l('此选项集未被任何选项使用'),
-        onOk: () => {
-          worksheetAjax.deleteOptionsCollection({ appId, collectionId }).then(({ data }) => {
-            if (data) {
-              const nextItems = update(items, { $splice: [[index, 1]] });
-              setItems(nextItems);
-              waterfallList(nextItems);
-            } else {
-              alert(_l('删除失败'), 2);
-            }
-          });
-        },
-      });
-    } else {
-      setVisible({ deleteConfirmVisible: true });
-    }
   };
 
   const handleCreateOption = item => {
     const nextList = items.concat(item);
+    if (status === 9) {
+      setVisible({ createVisible: false });
+      return;
+    }
+    setOriginalItems(nextList);
     setItems(nextList);
     waterfallList(nextList);
     setVisible({ createVisible: false });
@@ -248,10 +207,15 @@ export default function AllOptionList(props) {
   const handleEdit = data => {
     const nextData = { ...items[editIndex], ...data };
     const nextList = update(items, { [editIndex]: { $set: nextData } });
+    setOriginalItems(nextList);
     setItems(nextList);
     waterfallList(nextList);
     setIndex({ editIndex: -1 });
   };
+
+  const getSearchList = _.throttle(value => {
+    getOptionList({ name: value, status });
+  }, 200);
 
   const renderContent = () => {
     if (loading) return <LoadDiv />;
@@ -259,16 +223,22 @@ export default function AllOptionList(props) {
     return items.map((item, index) => (
       <OptionItem
         {...item}
+        status={status}
+        index={index}
+        projectId={projectId}
+        appId={appId}
         pos={posList[index]}
+        items={items}
+        onClick={() => setIndex({ editIndex: index })}
         handleClick={type => {
-          if (type === 'delete') {
-            onDelete(index);
-            setIndex({ deleteIndex: index });
-            return;
-          }
           if (type === 'edit') {
             setIndex({ editIndex: index });
           }
+        }}
+        updateList={data => {
+          setOriginalItems(data);
+          setItems(data);
+          waterfallList(data);
         }}
       />
     ));
@@ -276,12 +246,39 @@ export default function AllOptionList(props) {
 
   return (
     <Fragment>
-      <AllOptionHeader>
-        <p className="Font17 Bold">{_l('选项集')}</p>
-        <Button className="pLeft20 pRight20" type="primary" radius onClick={() => setVisible({ createVisible: true })}>
-          {_l('+ 新增选项集')}
-        </Button>
-      </AllOptionHeader>
+      <AppSettingHeader
+        title={_l('选项集')}
+        showSearch={true}
+        addBtnName={_l('新增选项集')}
+        extraElement={
+          <Dropdown
+            border={true}
+            style={{ width: 160 }}
+            menuStyle={{ width: 160 }}
+            value={status}
+            data={[
+              { text: _l('启用'), value: 1 },
+              { text: _l('停用'), value: 9 },
+            ]}
+            onChange={value => {
+              setStatus(value);
+              getOptionList({ status: value });
+            }}
+          />
+        }
+        handleSearch={value => {
+          setSearchValue(value);
+          if (!!_.trim(value)) {
+            const temp = _.filter(originalItems, v => v.name.indexOf(_.trim(value)) > -1);
+            setItems(temp);
+            waterfallList(temp);
+          } else {
+            setItems(originalItems);
+            waterfallList(originalItems);
+          }
+        }}
+        handleAdd={() => setVisible({ createVisible: true })}
+      />
       <OptionListWrap className={cx({ emptyWrap: isEmpty(items) })} ref={$ref}>
         {renderContent()}
       </OptionListWrap>
@@ -293,16 +290,7 @@ export default function AllOptionList(props) {
           onCancel={() => setVisible({ createVisible: false })}
         />
       )}
-      {deleteConfirmVisible && (
-        <DeleteOptionList
-          {...items[deleteIndex]}
-          onOk={() => {
-            deleteOptions();
-            setVisible({ deleteConfirmVisible: false });
-          }}
-          onCancel={() => setVisible({ deleteConfirmVisible: false })}
-        />
-      )}
+
       {editIndex > -1 && (
         <EditOptionList
           {...items[editIndex]}

@@ -1,10 +1,9 @@
 import React, { Component, Fragment } from 'react';
 import { number, string, arrayOf, shape } from 'prop-types';
 import cx from 'classnames';
-import { Icon, Button, Menu, MenuItem, Dialog, VerifyPasswordInput } from 'ming-ui';
+import { Icon, Button, Menu, MenuItem, Dialog, VerifyPasswordInput, SvgIcon } from 'ming-ui';
 import { FLOW_NODE_TYPE_STATUS } from 'src/pages/workflow/MyProcess/config';
 import { ACTION_LIST, OPERATION_LIST, ACTION_TO_METHOD } from './config';
-import SvgIcon from 'src/components/SvgIcon';
 import OtherAction from './components/OtherAction';
 import AddApproveWay from './components/AddApproveWay';
 import instance from '../../api/instance';
@@ -14,6 +13,7 @@ import { permitList } from 'src/pages/FormSet/config.js';
 import _ from 'lodash';
 import moment from 'moment';
 import { verifyPassword } from 'src/util';
+import { SPECIAL_LANG_TEXT } from 'src/util/enum';
 
 export default class Header extends Component {
   static propTypes = {
@@ -83,6 +83,16 @@ export default class Header extends Component {
   handleClick = id => {
     const { onSubmit, data } = this.props;
     const { ignoreRequired, encrypt, auth } = (data || {}).flowNode || {};
+
+    // 加签方式特殊处理
+    if (id === 'sign') {
+      if (data.signOperationType === 1) {
+        id = 'before';
+      } else if (data.signOperationType === 2) {
+        id = 'after';
+      }
+    }
+
     /**
      * 填写
      */
@@ -100,7 +110,7 @@ export default class Header extends Component {
      * 撤回
      */
     if (id === 'revoke') {
-      this.request('revoke');
+      this.request('revoke', {}, true);
       return;
     }
 
@@ -399,7 +409,7 @@ export default class Header extends Component {
                           ? _l('处理中...')
                           : isUrged && id === 'urge'
                           ? _l('已催办')
-                          : btnMap[key] || text}
+                          : SPECIAL_LANG_TEXT[btnMap[key]] || btnMap[key] || text}
                       </Button>
                     );
                   })}

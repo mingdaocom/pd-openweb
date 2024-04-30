@@ -13,11 +13,15 @@ import { FILL_STATUS, SYSTEM_FIELD_IDS } from './enum';
 import moment from 'moment';
 import { themes } from 'src/pages/publicWorksheetConfig/enum';
 import globalApi from 'src/api/global';
+import appManagementApi from 'src/api/appManagement';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { v4 as uuidv4 } from 'uuid';
 import { setPssId } from 'src/util/pssId';
 import { formatAttachmentValue } from 'src/util/transControlDefaultValue';
 import preall from 'src/common/preall';
+import { getTranslateInfo } from 'src/util';
+import { replaceControlsTranslateInfo } from 'worksheet/util';
+import { isSheetDisplay } from '../widgetConfig/util';
 
 function getVisibleControls(data) {
   const disabledControlIds = getDisabledControls(
@@ -33,16 +37,18 @@ function getVisibleControls(data) {
     ]),
   );
   const needHidedControlIds = data.hidedControlIds.concat(disabledControlIds);
-  return overridePos(
-    data.originalControls.filter(
-      control => !(control.type === 51 && _.get(control, 'advancedSetting.showtype') === '2'),
-    ),
-    data.controls,
-  ).map(c => ({
+  return overridePos(data.originalControls, data.controls).map(c => ({
     ...c,
     advancedSetting: {
       ...(c.advancedSetting || {}),
-      showtype: c.type === 29 && (c.advancedSetting || {}).showtype === '2' ? '1' : (c.advancedSetting || {}).showtype,
+      showtype:
+        browserIsMobile() && isSheetDisplay(c)
+          ? '1'
+          : c.type === 29 && _.includes(['2', '6'], _.get(c, 'advancedSetting.showtype'))
+          ? '5'
+          : _.get(c, 'advancedSetting.showtype'),
+      allowlink: c.type === 29 ? '0' : _.get(c, 'advancedSetting.allowlink'),
+      allowedit: c.type === 29 ? '0' : _.get(c, 'advancedSetting.allowedit'),
     },
     controlPermissions:
       _.find(needHidedControlIds, hcid => c.controlId === hcid) ||
@@ -100,7 +106,6 @@ async function getStatus(data, shareId) {
     projectId,
     returnUrl,
   } = data;
-  const isWeChatEnv = navigator.userAgent.toLowerCase().indexOf('micromessenger') !== -1;
 
   //需要填写密码
   if (limitPasswordWrite.isEnable) {
@@ -112,7 +117,7 @@ async function getStatus(data, shareId) {
   }
 
   //只允许在微信中填写
-  if (weChatSetting.onlyWxCollect && !isWeChatEnv) {
+  if (weChatSetting.onlyWxCollect && !window.isWeiXin) {
     return FILL_STATUS.ONLY_WECHAT_FILL;
   }
 
@@ -134,7 +139,7 @@ async function getStatus(data, shareId) {
   }
 
   // 微信打开
-  if (isWeChatEnv && returnUrl) {
+  if (window.isWeiXin && returnUrl) {
     if (weChatSetting.isCollectWxInfo || writeScope !== 1) {
       // 记录初始的 url 地址，用于微信鉴权
       sessionStorage.setItem('entryUrl', location.href);
@@ -311,7 +316,6 @@ export async function getFormData(data, status) {
     writeScope,
   } = data;
   const controls = getVisibleControls(data);
-  const isWeChatEnv = navigator.userAgent.toLowerCase().indexOf('micromessenger') !== -1;
 
   if (status === FILL_STATUS.NOT_IN_FILL_TIME) {
     return controls.map(c => {
@@ -336,7 +340,7 @@ export async function getFormData(data, status) {
   }
 
   //自动填充填写者上次提交内容
-  if (abilityExpand.autoFillField.isAutoFillField && (writeScope !== 1 || isWeChatEnv)) {
+  if (abilityExpand.autoFillField.isAutoFillField && (writeScope !== 1 || window.isWeiXin)) {
     let formData = controls;
     const queryParams = {
       appId,
@@ -420,7 +424,18 @@ export function getPublicWorksheet(params, cb = info => {}) {
       }
 
       localStorage.setItem('currentProjectId', data.projectId);
-      preall({ type: 'function' }, { allownotlogin: true, requestParams: { projectId: data.projectId } });
+      preall({ type: 'function' }, { allowNotLogin: true, requestParams: { projectId: data.projectId } });
+
+      if (data.langInfo && data.langInfo.appLangId) {
+        const lang = await appManagementApi.getAppLangDetail({
+          projectId: data.projectId,
+          appId: data.appId,
+          appLangId: data.langInfo.appLangId,
+        });
+        window[`langData-${data.appId}`] = lang.items;
+      }
+      data.name = getTranslateInfo(data.appId, data.worksheetId).name || data.name;
+      data.originalControls = replaceControlsTranslateInfo(data.appId, data.originalControls);
 
       const status = await getStatus(data, params.shareId);
 
@@ -489,7 +504,7 @@ export function getPublicWorksheet(params, cb = info => {}) {
           });
         });
     })
-    .fail(err => {
+    .catch(err => {
       cb(false);
     });
 }
@@ -542,7 +557,7 @@ function fillReportSource(receiveControls, publicWorksheetInfo) {
 }
 
 function formatFileControls(controls) {
-  return _.cloneDeep(controls).map(control => {
+  return controls.map(control => {
     if (control.type === 14 && control.value) {
       const parsed = JSON.parse(control.value);
       parsed.attachmentData = parsed.attachmentData.filter(item => {
@@ -551,7 +566,10 @@ function formatFileControls(controls) {
       parsed.attachments = parsed.attachments.filter(item => {
         return item.key;
       });
-      control.value = JSON.stringify(parsed);
+      return {
+        ...control,
+        value: JSON.stringify(parsed),
+      };
     }
     return control;
   });
@@ -565,7 +583,7 @@ export function addWorksheetRow(
     params = {},
     publicWorksheetInfo,
     triggerUniqueError = () => {},
-    setSublistUniqueError = () => {},
+    setSubListUniqueError = () => {},
     setRuleError = () => {},
   },
   cb = () => {},
@@ -586,7 +604,7 @@ export function addWorksheetRow(
     .addRow({
       worksheetId,
       receiveControls: receiveControls.map(c => {
-        return formatControlToServer(c, { needFullUpdate: true });
+        return formatControlToServer(c, { needFullUpdate: true, isNewRecord: true });
       }),
       ...params,
     })
@@ -604,7 +622,7 @@ export function addWorksheetRow(
               triggerUniqueError(data.badData);
               break;
             case 22:
-              setSublistUniqueError(data.badData);
+              setSubListUniqueError(data.badData);
               break;
             case 32:
               setRuleError(data.badData);
@@ -638,7 +656,7 @@ export function addWorksheetRow(
         }
       }
     })
-    .fail(error => {
+    .catch(error => {
       cb(error);
       if (error && error.errorCode === 4017) {
         alert(_l('应用附件上传流量不足，请联系表单发布者'), 3);

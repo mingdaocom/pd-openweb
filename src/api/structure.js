@@ -14,7 +14,7 @@ export default {
   **/
    getAllowChooseUsers: function (args, options = {}) {
      
-     return $.api('Structure', 'GetAllowChooseUsers', args, options);
+     return mdyAPI('Structure', 'GetAllowChooseUsers', args, options);
    },
   /**
   * 获取组织结构人员
@@ -29,7 +29,7 @@ export default {
   **/
    getStructureUsers: function (args, options = {}) {
      
-     return $.api('Structure', 'GetStructureUsers', args, options);
+     return mdyAPI('Structure', 'GetStructureUsers', args, options);
    },
   /**
   * 我的下属
@@ -45,7 +45,7 @@ export default {
   **/
    getSubordinateUsers: function (args, options = {}) {
      
-     return $.api('Structure', 'GetSubordinateUsers', args, options);
+     return mdyAPI('Structure', 'GetSubordinateUsers', args, options);
    },
   /**
   * 分页获取最顶层员工
@@ -60,7 +60,7 @@ export default {
   **/
    pagedGetAccountList: function (args, options = {}) {
      
-     return $.api('Structure', 'PagedGetAccountList', args, options);
+     return mdyAPI('Structure', 'PagedGetAccountList', args, options);
    },
   /**
   * 获取员工上级用户信息
@@ -73,7 +73,7 @@ export default {
   **/
    getTreesByAccountId: function (args, options = {}) {
      
-     return $.api('Structure', 'GetTreesByAccountId', args, options);
+     return mdyAPI('Structure', 'GetTreesByAccountId', args, options);
    },
   /**
   * 获取员工下属
@@ -88,7 +88,7 @@ export default {
   **/
    myStructures: function (args, options = {}) {
      
-     return $.api('Structure', 'MyStructures', args, options);
+     return mdyAPI('Structure', 'MyStructures', args, options);
    },
   /**
   * 获取员工上级
@@ -102,7 +102,7 @@ export default {
   **/
    getParentsByAccountId: function (args, options = {}) {
      
-     return $.api('Structure', 'GetParentsByAccountId', args, options);
+     return mdyAPI('Structure', 'GetParentsByAccountId', args, options);
    },
   /**
   * 添加下属
@@ -117,7 +117,7 @@ export default {
   **/
    addStructure: function (args, options = {}) {
      
-     return $.api('Structure', 'AddStructure', args, options);
+     return mdyAPI('Structure', 'AddStructure', args, options);
    },
   /**
   * 替换节点
@@ -131,7 +131,7 @@ export default {
   **/
    replaceUserStructure: function (args, options = {}) {
      
-     return $.api('Structure', 'ReplaceUserStructure', args, options);
+     return mdyAPI('Structure', 'ReplaceUserStructure', args, options);
    },
   /**
   * 移除上级
@@ -144,6 +144,6 @@ export default {
   **/
    removeParentID: function (args, options = {}) {
      
-     return $.api('Structure', 'RemoveParentID', args, options);
+     return mdyAPI('Structure', 'RemoveParentID', args, options);
    },
 };

@@ -4,8 +4,7 @@ import { Icon, Button, Dialog } from 'ming-ui';
 import externalPortalAjax from 'src/api/externalPortal';
 import AccountCon from './AccountCon';
 import cx from 'classnames';
-import Config from 'src/pages/account/config';
-const { ActionResult } = Config;
+import { ActionResult } from 'src/pages/accountLogin/config';
 
 const AccountDialogWrap = styled.div``;
 export default function TelDialog(props) {
@@ -14,33 +13,36 @@ export default function TelDialog(props) {
   const [newAccount, setNewAccount] = useState('');
   const [code, setCode] = useState('');
   const [isValidNumber, setIsValidNumber] = useState(false);
+  const [country, setCountry] = useState('');
 
   //验证老的号码
   const verificationOld = () => {
     if (!code) {
       alert(_l('请输入验证码'), 3);
     } else {
-      externalPortalAjax.checkExAccountVerifyCode({
-        handleType: 2, //检查类型 1: 注销  2：绑定
-        appId,
-        verifyCode: code,
-        account: props.account,
-      }).then(data => {
-        if (data.actionResult === 1) {
-          setHasVerification(true);
-          setCode('');
-        } else {
-          if (data.actionResult == ActionResult.noEfficacyVerifyCode) {
-            alert(_l('验证码已经失效，请重新发送'), 3);
-          } else if (data.actionResult == ActionResult.accountFrequentLoginError) {
-            //15
-            alert(_l('操作过于频繁，请稍后再试'), 3);
+      externalPortalAjax
+        .checkExAccountVerifyCode({
+          handleType: 2, //检查类型 1: 注销  2：绑定
+          appId,
+          verifyCode: code,
+          account: props.account,
+        })
+        .then(data => {
+          if (data.actionResult === 1) {
+            setHasVerification(true);
+            setCode('');
           } else {
-            alert(_l('验证码错误'), 3);
+            if (data.actionResult == ActionResult.noEfficacyVerifyCode) {
+              alert(_l('验证码已经失效，请重新发送'), 3);
+            } else if (data.actionResult == ActionResult.accountFrequentLoginError) {
+              //15
+              alert(_l('操作过于频繁，请稍后再试'), 3);
+            } else {
+              alert(_l('验证码错误'), 3);
+            }
+            return;
           }
-          return;
-        }
-      });
+        });
     }
   };
 
@@ -59,13 +61,13 @@ export default function TelDialog(props) {
         Ajax = externalPortalAjax.bindExAccount({
           appId,
           verifyCode: code,
-          account: newAccount,
+          account: country + newAccount,
         });
       } else {
         Ajax = externalPortalAjax.editExAccount({
           appId,
           verifyCode: code,
-          account: newAccount,
+          account: country + newAccount,
         });
       }
       Ajax.then(data => {
@@ -149,6 +151,7 @@ export default function TelDialog(props) {
           appId={appId}
           type={hasVerification ? 3 : 2}
           setIsValidNumber={setIsValidNumber}
+          setCountry={setCountry}
         />
       </AccountDialogWrap>
     </Dialog>

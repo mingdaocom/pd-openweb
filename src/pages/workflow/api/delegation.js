@@ -14,7 +14,7 @@ var delegation = {
   add: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/delegation/add';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'delegationadd', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'delegationadd', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 获取委托列表
@@ -26,7 +26,7 @@ var delegation = {
   getList: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/delegation/getList';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'delegationgetList', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'delegationgetList', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 根据委托人获取委托列表
@@ -39,7 +39,7 @@ var delegation = {
   getListByPrincipals: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/delegation/getListByPrincipals';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'delegationgetListByPrincipals', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'delegationgetListByPrincipals', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 编辑委托
@@ -52,7 +52,7 @@ var delegation = {
   update: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/delegation/update';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'delegationupdate', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'delegationupdate', JSON.stringify(args), $.extend(base, options));
   },
 };
 export default delegation;

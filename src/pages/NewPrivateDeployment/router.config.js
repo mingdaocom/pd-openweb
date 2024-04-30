@@ -33,7 +33,7 @@ const settingMenus = [
     ],
   },
   {
-    title: _l('登录'),
+    title: _l('账号与注册'),
     icon: 'account_circle',
     type: 'login',
     routes: [

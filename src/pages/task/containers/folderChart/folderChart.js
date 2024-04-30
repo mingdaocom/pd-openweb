@@ -417,7 +417,7 @@ class FolderChart extends Component {
       endDate: folderChartSettings.endDate,
     });
 
-    $.when(getFolderControlsPieChart, getFolderControlsBarChart).then((pieData, barData) => {
+    Promise.all([getFolderControlsPieChart, getFolderControlsBarChart]).then(([pieData, barData]) => {
       if (pieData.code === 1 && barData.code === 1) {
         folderChartSettings.data = pieData.data.concat(barData.data);
         // 排序
@@ -464,14 +464,11 @@ class FolderChart extends Component {
       handleClose: () => {
         unmountComponentAtNode(document.querySelector('#maxViewUpdateTime'));
         $('.folderChartMaxView').parent().remove();
-      }
-    })
+      },
+    });
     if (folderChartSettings.type === 4) {
       const type = $('.folderChartModel[data-id=' + folderChartSettings.chartView + ']').data('type');
-      const source = _.find(
-        folderChartSettings.data,
-        ({ controlId }) => controlId === folderChartSettings.chartView,
-      );
+      const source = _.find(folderChartSettings.data, ({ controlId }) => controlId === folderChartSettings.chartView);
 
       if (type === 9 || type === 10 || type === 11) {
         $('#maxViewUpdateTime').addClass('Hidden');

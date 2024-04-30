@@ -4,7 +4,7 @@ import { SelectNodeObject, UpdateFields } from '../components';
 
 export default class UpdateSheetRecord extends Component {
   render() {
-    const { data, SelectNodeObjectChange } = this.props;
+    const { data, SelectNodeObjectChange, isApproval } = this.props;
 
     return (
       <Fragment>
@@ -18,6 +18,7 @@ export default class UpdateSheetRecord extends Component {
             </div>
 
             <SelectNodeObject
+              disabled={isApproval}
               appList={data.flowNodeList}
               selectNodeId={data.selectNodeId}
               selectNodeObj={data.selectNodeObj}

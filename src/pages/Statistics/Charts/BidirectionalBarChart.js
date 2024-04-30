@@ -10,9 +10,11 @@ import {
   getChartColors,
   getAuxiliaryLineConfig
 } from './common';
+import { Icon } from 'ming-ui';
 import { formatChartData as formatBarChartData, formatDataCount } from './BarChart';
 import { formatSummaryName, isFormatNumber } from 'statistics/common';
 import { Dropdown, Menu } from 'antd';
+import tinycolor from '@ctrl/tinycolor';
 import _ from 'lodash';
 
 const mergeChartData = (data, contrastData) => {
@@ -39,7 +41,8 @@ export default class extends Component {
       rightCount: 0,
       dropdownVisible: false,
       offset: {},
-      match: null
+      match: null,
+      linkageMatch: null,
     }
     this.BidirectionalBarChart = null;
   }
@@ -80,25 +83,37 @@ export default class extends Component {
       style.showLabelPercent !== oldStyle.showLabelPercent ||
       style.tooltipValueType !== oldStyle.tooltipValueType ||
       !_.isEqual(chartColor, oldChartColor) ||
-      nextProps.themeColor !== this.props.themeColor
+      nextProps.themeColor !== this.props.themeColor ||
+      !_.isEqual(nextProps.linkageMatch, this.props.linkageMatch)
     ) {
       const config = this.getComponentConfig(nextProps);
       this.BidirectionalBarChart.update(config);
     }
+
+    if (
+      nextProps.isLinkageData !== this.props.isLinkageData
+    ) {
+      this.BidirectionalBarChart.destroy();
+      this.renderBidirectionalBarChart(nextProps);
+    }
   }
   renderBidirectionalBarChart(props) {
-    const { reportData, isViewOriginalData } = props;
-    const { displaySetup } = reportData;
+    const { reportData } = props;
+    const { displaySetup, style, xaxes } = reportData;
     const config = this.getComponentConfig(props);
     const { BidirectionalBar } = this.g2plotComponent;
-    this.BidirectionalBarChart = new BidirectionalBar(this.chartEl, config);
-    if (displaySetup.showRowList && isViewOriginalData) {
-      this.BidirectionalBarChart.on('element:click', this.handleClick);
+    if (this.chartEl) {
+      this.BidirectionalBarChart = new BidirectionalBar(this.chartEl, config);
+      this.isViewOriginalData = displaySetup.showRowList && props.isViewOriginalData;
+      this.isLinkageData = props.isLinkageData && !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0) && xaxes.controlId;
+      if (this.isViewOriginalData || this.isLinkageData) {
+        this.BidirectionalBarChart.on('element:click', this.handleClick);
+      }
+      this.BidirectionalBarChart.render();
     }
-    this.BidirectionalBarChart.render();
   }
   getComponentConfig(props) {
-    const { themeColor, projectId, customPageConfig = {}, reportData } = props;
+    const { themeColor, projectId, customPageConfig = {}, reportData, linkageMatch } = props;
     const { chartColor, chartColorIndex = 1 } = customPageConfig;
     const { map, contrastMap, displaySetup, yaxisList, summary, rightY, yreportType, xaxes, split, sorts } = reportData;
     const { xdisplay, ydisplay, showPileTotal, isPile, legendType, auxiliaryLines, showLegend, showChartType } = displaySetup;
@@ -212,7 +227,25 @@ export default class extends Component {
           }
         },
       },
-      color: colors,
+      rawFields: ['originalId'],
+      color: (data) => {
+        const id = data['series-field-key'];
+        let color = colors[0];
+        if (id === control.controlId) {
+          color = colors[0];
+        }
+        if (id === contrastControl.controlId) {
+          color = colors[1];
+        }
+        if (!_.isEmpty(linkageMatch)) {
+          if (linkageMatch.value === data.originalId) {
+            return color;
+          } else {
+            return tinycolor(color).setAlpha(0.3).toRgbString();
+          }
+        }
+        return color;
+      },
       legend: showLegend
         ? {
             position,
@@ -264,22 +297,51 @@ export default class extends Component {
     return base;
   }
   handleClick = (event) => {
-    const { xaxes } = this.props.reportData;
+    const { xaxes, split, appId, reportId, name, reportType, style } = this.props.reportData;
     const currentData = event.data.data;
     const gEvent = event.gEvent;
     const param = {};
+    const linkageMatch = {
+      sheetId: appId,
+      reportId,
+      reportName: name,
+      reportType,
+      filters: []
+    };
+    const { data = [] } = this.BidirectionalBarChart.options;
     if (xaxes.cid) {
       const isNumber = isFormatNumber(xaxes.controlType);
       const value = currentData.originalId;
       param[xaxes.cid] = isNumber && value ? Number(value) : value;
+      linkageMatch.value = value;
+      linkageMatch.filters.push({
+        controlId: xaxes.controlId,
+        values: [param[xaxes.cid]],
+        controlName: xaxes.controlName,
+        controlValue: _.get(_.find(data, { originalId: value }), 'name') || value,
+        type: xaxes.controlType,
+        control: xaxes
+      });
     }
+    if (_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length) {
+      linkageMatch.onlyChartIds = style.autoLinkageChartObjectIds;
+    }
+    const isAll = this.isViewOriginalData && this.isLinkageData;
     this.setState({
-      dropdownVisible: true,
+      dropdownVisible: isAll,
       offset: {
         x: gEvent.x,
         y: gEvent.y + 20
       },
-      match: param
+      match: param,
+      linkageMatch
+    }, () => {
+      if (!isAll && this.isViewOriginalData) {
+        this.handleRequestOriginalData();
+      }
+      if (!isAll && this.isLinkageData) {
+        this.handleAutoLinkage();
+      }
     });
   }
   handleRequestOriginalData = () => {
@@ -295,6 +357,16 @@ export default class extends Component {
     } else {
       this.props.requestOriginalData(data);
     }
+  }
+  handleAutoLinkage = () => {
+    const { linkageMatch } = this.state;
+    this.props.onUpdateLinkageFiltersGroup(linkageMatch);
+    this.setState({
+      dropdownVisible: false,
+    }, () => {
+      const config = this.getComponentConfig(this.props);
+      this.BidirectionalBarChart.update(config);
+    });
   }
   setCount(yaxisList, rightYaxisList) {
     const { summary, rightY } = this.props.reportData;
@@ -312,8 +384,15 @@ export default class extends Component {
   renderOverlay() {
     return (
       <Menu className="chartMenu" style={{ width: 160 }}>
+        <Menu.Item onClick={this.handleAutoLinkage} key="autoLinkage">
+          <div className="flexRow valignWrapper">
+            <Icon icon="link1" className="mRight8 Gray_9e Font20 autoLinkageIcon" />
+            <span>{_l('联动')}</span>
+          </div>
+        </Menu.Item>
         <Menu.Item onClick={this.handleRequestOriginalData} key="viewOriginalData">
           <div className="flexRow valignWrapper">
+            <Icon icon="table" className="mRight8 Gray_9e Font18" />
             <span>{_l('查看原始数据')}</span>
           </div>
         </Menu.Item>

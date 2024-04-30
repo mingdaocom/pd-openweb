@@ -1,11 +1,12 @@
 import React from 'react';
-import { Icon } from 'ming-ui';
+import { Icon, Checkbox } from 'ming-ui';
 import cx from 'classnames';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import './editPrint.less';
 import createUploader from 'src/library/plupload/createUploader';
 import { getUrlByBucketName } from 'src/util';
 import appManagementAjax from 'src/api/appManagement';
+import sheetAjax from 'src/api/worksheet';
 
 const SUFFIX = {
   Word: 'docx',
@@ -15,7 +16,7 @@ const SUFFIX = {
 const AJAXURL = {
   Word: 'Word',
   Excel: 'Xlsx',
-}
+};
 
 @withClickAway
 class EditPrint extends React.Component {
@@ -32,6 +33,8 @@ class EditPrint extends React.Component {
       templateName: '',
       file: {},
       hasChange: false,
+      allowDownloadPermission: 0,
+      allowDownloadChange: false,
     };
     this.con = React.createRef();
   }
@@ -53,6 +56,7 @@ class EditPrint extends React.Component {
   componentWillUnmount() {
     this.uploaderDestroy();
   }
+
   setData = nextProps => {
     const { printData = [], templateId } = nextProps || this.props;
     let templatedata = printData.find(it => it.id === templateId) || [];
@@ -60,6 +64,7 @@ class EditPrint extends React.Component {
       templateName: templatedata.name,
       fileName: templatedata.formName,
       hasChange: false,
+      allowDownloadPermission: templatedata.allowDownloadPermission || 0,
     });
     this.createUploader();
     this.con.addEventListener('dragover', e => {
@@ -141,12 +146,95 @@ class EditPrint extends React.Component {
     this.setState({ bindCreateUpload: true });
   }
 
+  editDownload = () => {
+    const { allowDownloadPermission } = this.state;
+    this.setState({
+      allowDownloadPermission: !allowDownloadPermission,
+      allowDownloadChange: true,
+    });
+  };
+
+  onOk = async () => {
+    const { fileName, hasChange, allowDownloadPermission, allowDownloadChange } = this.state;
+    const { onClose, worksheetId, downLoadUrl, templateId, refreshFn, fileType = 'Word', updatePrint } = this.props;
+    if (allowDownloadChange && templateId) {
+      sheetAjax
+        .editTemplateDownloadPermission({
+          id: templateId,
+          allowDownloadPermission,
+        })
+        .then(res => {
+          if (!hasChange) {
+            onClose();
+            updatePrint(templateId, { allowDownloadPermission: allowDownloadPermission });
+          }
+        });
+    }
+    if (!hasChange) {
+      return;
+    }
+    let ajaxUrl;
+    let option;
+    //功能模块 token枚举，3 = 导出excel，4 = 导入excel生成表，5= word打印
+    const token = await appManagementAjax.getToken({
+      worksheetId: worksheetId || templateId,
+      tokenType: 5,
+    });
+    if (templateId) {
+      ajaxUrl = downLoadUrl + `/Export${AJAXURL[fileType]}/Upload${AJAXURL[fileType]}`;
+      option = {
+        id: templateId,
+        accountId: md.global.Account.accountId,
+        doc: this.state.key,
+        name: fileName,
+        token,
+      };
+    } else {
+      ajaxUrl = downLoadUrl + `/Export${AJAXURL[fileType]}/Create${AJAXURL[fileType]}`;
+      option = {
+        worksheetId: worksheetId,
+        accountId: md.global.Account.accountId,
+        doc: this.state.key,
+        name: fileName,
+        token,
+      };
+    }
+    $.ajax({
+      type: 'POST',
+      url: ajaxUrl,
+      data: option,
+    }).then(res => {
+      if (res.status !== 1) {
+        alert(res.message, 2);
+      } else {
+        if (!templateId && res.data) {
+          sheetAjax
+            .editTemplateDownloadPermission({
+              id: res.data,
+              allowDownloadPermission,
+            })
+            .then(res => {
+              if (res) {
+                refreshFn();
+                alert(_l('添加成功'));
+                return;
+              }
+            });
+        } else {
+          refreshFn();
+          alert(templateId ? _l('修改成功') : _l('添加成功'));
+        }
+      }
+    });
+  };
+
   render() {
-    const { loading, suc, loadPer, fileName, file, url, templateName, hasChange } = this.state;
-    const { onClose, worksheetId, downLoadUrl, templateId, refreshFn, fileType = 'Word' } = this.props;
+    const { loading, loadPer, fileName, file, templateName, hasChange, allowDownloadPermission } = this.state;
+    const { onClose, worksheetId, downLoadUrl, templateId, fileType = 'Word' } = this.props;
+
     return (
       <div className="editPrint upload">
-        <h5 className="title">
+        <h5 className="title overflow_ellipsis">
           {templateId ? _l('编辑模板: %0', templateName) : _l('新建模板')}
           <Icon
             icon="clear_1"
@@ -179,17 +267,27 @@ class EditPrint extends React.Component {
               {_l('开始制作')}
               <Icon icon="navigate_next" className="mLeft8" />
             </p>
-            <p className="tiTop mTop50">
-              <span className="num">2</span>
-              {_l('上传制作好的模板')}
-            </p>
+            <div className="tiTop mTop50 valignWrapper">
+              <div>
+                <span className="num">2</span>
+                {_l('上传制作好的模板')}
+              </div>
+              <div className="flex"></div>
+              <Checkbox className="Font14" onClick={this.editDownload} checked={!allowDownloadPermission}>
+                {_l('允许下载打印文件')}
+              </Checkbox>
+            </div>
             <p
               className={cx('uploadBtn mTop20', { loading: loading })}
               ref={con => {
                 this.con = con;
               }}
             >
-              {fileName ? <span className={fileType==='Excel' ? 'icon-new_excel Font50 excelIcon' : 'wordIcon'}></span> : <Icon icon="file" className="LightGray" />}
+              {fileName ? (
+                <span className={fileType === 'Excel' ? 'icon-new_excel Font50 excelIcon' : 'wordIcon'}></span>
+              ) : (
+                <Icon icon="file" className="LightGray" />
+              )}
               <p className="mTop15 TxtCenter">
                 {fileName ? (
                   <React.Fragment>
@@ -268,50 +366,10 @@ class EditPrint extends React.Component {
         </div>
         <div className="activeBox">
           <span
-            className={cx('sure', { disa: !this.state.hasChange })}
-            onClick={async () => {
-              if (!this.state.hasChange) {
-                return;
-              }
-              let ajaxUrl;
-              let option;
-              //功能模块 token枚举，3 = 导出excel，4 = 导入excel生成表，5= word打印
-              const token = await appManagementAjax.getToken({
-                worksheetId: worksheetId || templateId,
-                tokenType: 5,
-              });
-              if (templateId) {
-                ajaxUrl = downLoadUrl + `/Export${AJAXURL[fileType]}/Upload${AJAXURL[fileType]}`;
-                option = {
-                  id: templateId,
-                  accountId: md.global.Account.accountId,
-                  doc: this.state.key,
-                  name: fileName,
-                  token,
-                };
-              } else {
-                ajaxUrl = downLoadUrl + `/Export${AJAXURL[fileType]}/Create${AJAXURL[fileType]}`;
-                option = {
-                  worksheetId: worksheetId,
-                  accountId: md.global.Account.accountId,
-                  doc: this.state.key,
-                  name: fileName,
-                  token,
-                };
-              }
-              $.ajax({
-                type: 'POST',
-                url: ajaxUrl,
-                data: option,
-              }).done(res => {
-                if (res.status !== 1) {
-                  alert(res.message, 2);
-                } else {
-                  refreshFn();
-                  alert(templateId ? _l('修改成功') : _l('添加成功'));
-                }
-              });
-            }}
+            className={cx('sure', {
+              disa: templateId ? !this.state.hasChange && !this.state.allowDownloadChange : !this.state.hasChange,
+            })}
+            onClick={this.onOk}
           >
             {_l('确定')}
           </span>

@@ -15,7 +15,7 @@ export default {
   **/
    getUserReport: function (args, options = {}) {
      
-     return $.api('Statistic', 'GetUserReport', args, options);
+     return mdyAPI('Statistic', 'GetUserReport', args, options);
    },
   /**
   * 动态统计
@@ -34,7 +34,7 @@ export default {
   **/
    getPostReportByType: function (args, options = {}) {
      
-     return $.api('Statistic', 'GetPostReportByType', args, options);
+     return mdyAPI('Statistic', 'GetPostReportByType', args, options);
    },
   /**
   * 群组统计
@@ -52,6 +52,6 @@ export default {
   **/
    getGroupReport: function (args, options = {}) {
      
-     return $.api('Statistic', 'GetGroupReport', args, options);
+     return mdyAPI('Statistic', 'GetGroupReport', args, options);
    },
 };

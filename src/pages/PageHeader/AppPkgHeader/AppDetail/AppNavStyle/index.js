@@ -26,16 +26,25 @@ export const pcNavList = [{
   value: 0,
   style: 'classic',
   activeStyle: 'classic_active',
+  defaultDisplayIcon: '011'
 }, {
-  name: _l('左侧列表'),
+  name: _l('分组列表'),
   value: 1,
-  style: 'left',
-  activeStyle: 'left_active',
+  style: 'left_group',
+  activeStyle: 'left_group_active',
+  defaultDisplayIcon: '011'
+}, {
+  name: _l('树形列表'),
+  value: 3,
+  style: 'left_tree',
+  activeStyle: 'left_tree_active',
+  defaultDisplayIcon: '100'
 }, {
   name: _l('卡片'),
   value: 2,
   style: 'card',
   activeStyle: 'card_active',
+  defaultDisplayIcon: '011'
 }];
 
 export default function AppNavStyle(props) {
@@ -44,8 +53,12 @@ export default function AppNavStyle(props) {
   const navList = type === 'pcNaviStyle' ? pcNavList : mobileNavList;
   const naviStyle = data[type];
 
-  const handleEditAppINfo = value => {
-    onChangeApp({ [type]: value });
+  const handleEditAppINfo = item => {
+    const data = { [type]: item.value }
+    if (item.defaultDisplayIcon) {
+      data.displayIcon = item.defaultDisplayIcon;
+    }
+    onChangeApp(data);
     // homeApp.editAppInfo({
     //   projectId,
     //   appId: id,
@@ -63,7 +76,7 @@ export default function AppNavStyle(props) {
               key={item.value}
               className="flexColumn valignWrapper Relative pointer iconWrap"
               onClick={() => {
-                handleEditAppINfo(item.value);
+                handleEditAppINfo(item);
               }}
             >
               {naviStyle === item.value && (

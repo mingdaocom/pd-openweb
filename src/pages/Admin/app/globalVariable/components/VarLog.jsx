@@ -2,15 +2,14 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
 import { Drawer } from 'antd';
 import styled from 'styled-components';
-import { Icon, ScrollView, LoadDiv } from 'ming-ui';
+import { Icon, ScrollView, LoadDiv, UserHead } from 'ming-ui';
 import Trigger from 'rc-trigger';
 import moment from 'moment';
 import cx from 'classnames';
-import quickSelectUser from 'ming-ui/functions/quickSelectUser';
+import { quickSelectUser } from 'ming-ui/functions';
 import DatePickSelect from 'worksheet/components/DatePickerSelect';
 import filterXSS from 'xss';
 import variableApi from 'src/api/variable';
-import UserHead from 'src/components/userHead';
 
 const LogDrawer = styled(Drawer)`
   color: #333;

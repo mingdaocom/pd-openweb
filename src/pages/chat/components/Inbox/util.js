@@ -1,6 +1,6 @@
 import { MSGTYPES, APPID, SOURCE_TYPE } from './constants';
 import { browserIsMobile } from 'src/util';
-import { replacePorTalUrl } from 'src/pages/PortalAccount/util'
+import { replacePorTalUrl } from 'src/pages/accountLogin/portalAccount/util'
 import moment from 'moment';
 export const formatInboxItem = function (inboxItem) {
   const createUser = inboxItem.CreateUser || {};

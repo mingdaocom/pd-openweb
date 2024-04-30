@@ -66,7 +66,7 @@ class PortalMessage extends Component {
         pageIndex: 1,
         pageSize: 100,
       })
-      .done(sessionList => {
+      .then(sessionList => {
         const count = (sessionList.find(o => o && o.value === 'worksheet') || {}).count;
         if (count > 0) {
           this.setState({

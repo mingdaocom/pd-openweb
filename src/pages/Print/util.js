@@ -78,7 +78,7 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
           ) || _l('%0 级', value)
         : '';
     case 51:
-      if (item.advancedSetting && item.advancedSetting.showtype !== '2') {
+      if (item.advancedSetting && !['2', '5', '6'].includes(item.advancedSetting.showtype) !== '2') {
         let records = [];
         try {
           records = JSON.parse(value);
@@ -98,7 +98,18 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
 
           let titleControl = item.relationControls.find(l => l.attribute === 1) || item.relationControls[0] || {};
 
-          return <span className="relaList">{records.map(l => renderCellText({...titleControl, value: l[titleControl.controlId]}) || l[titleControl.controlId] || _l('未命名')).join(', ')}</span>;
+          return (
+            <span className="relaList">
+              {records
+                .map(
+                  l =>
+                    renderCellText({ ...titleControl, value: l[titleControl.controlId] }) ||
+                    l[titleControl.controlId] ||
+                    _l('未命名'),
+                )
+                .join(', ')}
+            </span>
+          );
         }
         //关联表内除标题字段外的其他字段
         let showControlsList = [];
@@ -169,7 +180,7 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
                         );
                       })}
                     </td>
-                    {coverData && coverData.previewUrl && (
+                    {coverData && coverData.previewUrl && File.isPicture(coverData.ext) && (
                       <td width="100px">
                         <img
                           style={{
@@ -202,7 +213,7 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
         return value;
       }
     case 29:
-      if (item.advancedSetting && item.advancedSetting.showtype !== '2') {
+      if (item.advancedSetting && !['2', '5', '6'].includes(item.advancedSetting.showtype)) {
         //非列表
         let records = [];
         try {
@@ -402,6 +413,8 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
         } catch (err) {}
         return dataItem.options.map(o => {
           let str = '';
+          if (type === 10 && o.hide && !selectedKeys.includes(o.key)) return null;
+
           if (selectedKeys.includes(o.key)) {
             str = type === 10 ? <i className={cx('InlineBlock', { zoomIcon: type === 10 })}>{'☑'}</i> : '■';
           } else {
@@ -426,6 +439,14 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
         return pathValue.concat([item.departmentName]).join('/');
       });
       return textList.join('，');
+    case 35:
+      return typeof dataItem.value === 'undefined' ||
+        dataItem.value === '' ||
+        dataItem.value === '[]' ||
+        dataItem.value === '["",""]' ||
+        dataItem.value === null
+        ? ''
+        : renderCellText(dataItem) || _l('未命名');
     default:
       return renderCellText(dataItem);
   }
@@ -639,8 +660,8 @@ export const sysToPrintData = data => {
 
 export const isRelation = control => {
   return (
-    (control.type === 29 && control.advancedSetting && control.advancedSetting.showtype === '2') ||
+    (control.type === 29 && control.advancedSetting && ['2', '5', '6'].includes(control.advancedSetting.showtype)) ||
     control.type === 34 ||
-    (control.type === 51 && control.advancedSetting && control.advancedSetting.showtype === '2')
+    (control.type === 51 && control.advancedSetting && ['2', '5', '6'].includes(control.advancedSetting.showtype))
   );
 };

@@ -60,7 +60,7 @@ export default class KcListHeader extends Component {
         .then(() => {
           this.setState({ showAddNodeBtnMenu: true });
         })
-        .fail(() => this.setState({ showAddNodeBtnMenu: false }));
+        .catch(() => this.setState({ showAddNodeBtnMenu: false }));
     } else {
       this.setState({ showAddNodeBtnMenu: true });
     }

@@ -6,6 +6,7 @@ import cx from 'classnames';
 import styled from 'styled-components';
 import { includes } from 'lodash';
 import abnormal from 'src/pages/worksheet/assets/abnormal.png';
+import { CUSTOM_WIDGET_VIEW_STATUS } from 'worksheet/constants/enum';
 
 const Con = styled.div`
   width: 100%;
@@ -59,55 +60,57 @@ const Con = styled.div`
   }
 `;
 
-const compMap = {
-  3: {
-    icon: <i className={`icon icon-setting`}></i>,
-    tip: _l('插件开发中'),
-  },
-  5: {
-    icon: <img src={abnormal} />,
-    tip: _l('插件加载出错，请检查项目URL'),
-  },
-  6: {
-    icon: <i className={`icon icon-setting`}></i>,
-    tip: _l('插件已删除，请重新创建'),
-  },
+const statusIcons = {
+  [CUSTOM_WIDGET_VIEW_STATUS.NOT_PUBLISH]: <i className={`icon icon-setting`}></i>,
+  [CUSTOM_WIDGET_VIEW_STATUS.LOAD_SCRIPT_ERROR]: <img src={abnormal} />,
+  [CUSTOM_WIDGET_VIEW_STATUS.DELETED]: <i className={`icon icon-setting`}></i>,
+};
+
+const statusTexts = {
+  [CUSTOM_WIDGET_VIEW_STATUS.NOT_PUBLISH]: _l('插件未发布'),
+  [CUSTOM_WIDGET_VIEW_STATUS.DEVELOPING]: _l('插件开发中'),
+  [CUSTOM_WIDGET_VIEW_STATUS.DELETED]: _l('插件已删除，请重新创建'),
+  [CUSTOM_WIDGET_VIEW_STATUS.EXPIRED]: _l('插件已过期'),
+  [CUSTOM_WIDGET_VIEW_STATUS.LOAD_SCRIPT_ERROR]: _l('插件加载出错，请检查项目URL'),
 };
 
 export default function Abnormal(props) {
-  const { showDebugButton, status = 3 } = props;
-  const comp = compMap[status] || compMap[3];
-  const isDark = status === 3;
-  const isSafari = /^((?!chrome).)*safari.*$/.test(navigator.userAgent.toLowerCase());
-  const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
+  const { showDebugButton, status = CUSTOM_WIDGET_VIEW_STATUS.NOT_PUBLISH } = props;
+  const isDark = status === CUSTOM_WIDGET_VIEW_STATUS.NOT_PUBLISH;
+
   return (
     <Con className={cx('absCenter', { isDark })}>
-      <div className="iconCon absCenter">{comp.icon}</div>
-      <div className="tip">{comp.tip}</div>
-      {isSafari && status === 5 && (
+      <div className="iconCon absCenter">
+        {statusIcons[status] || statusIcons[CUSTOM_WIDGET_VIEW_STATUS.NOT_PUBLISH]}
+      </div>
+      <div className="tip">
+        {props.text || statusTexts[status] || statusTexts[CUSTOM_WIDGET_VIEW_STATUS.NOT_PUBLISH]}
+      </div>
+      {window.isSafari && status === CUSTOM_WIDGET_VIEW_STATUS.LOAD_SCRIPT_ERROR && (
         <div className="tip-sec">
           {_l('由于插件运行的机制，开发模式下 Safari 无法正常运行插件，请使用 Chrome 或 Firefox 开发插件。')}
         </div>
       )}
-      {status === 5 &&
+      {status === CUSTOM_WIDGET_VIEW_STATUS.LOAD_SCRIPT_ERROR &&
         md.global.Config.IsLocal &&
-        !isFirefox &&
+        !window.isFirefox &&
         location.protocol === 'http:' &&
         !(location.host || '').startsWith('localhost') && (
           <div className="tip-sec">{_l('非 https 下 Chrome 无法加载本地脚本，请使用 Firefox 开发插件。')}</div>
         )}
-      {showDebugButton && includes([3, 5], status) && (
-        <Button
-          className="continueDevelop"
-          onClick={() => {
-            if (isFunction(window.openViewConfig)) {
-              window.openViewConfig();
-            }
-          }}
-        >
-          {_l('继续开发')}
-        </Button>
-      )}
+      {showDebugButton &&
+        includes([CUSTOM_WIDGET_VIEW_STATUS.DEVELOPING, CUSTOM_WIDGET_VIEW_STATUS.LOAD_SCRIPT_ERROR], status) && (
+          <Button
+            className="continueDevelop"
+            onClick={() => {
+              if (isFunction(window.openViewConfig)) {
+                window.openViewConfig();
+              }
+            }}
+          >
+            {_l('继续开发')}
+          </Button>
+        )}
     </Con>
   );
 }
@@ -115,4 +118,5 @@ export default function Abnormal(props) {
 Abnormal.propTypes = {
   showDebugButton: bool,
   status: number,
+  text: string,
 };

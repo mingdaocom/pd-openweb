@@ -1,7 +1,7 @@
 import React from 'react';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import SvgIcon from 'src/components/SvgIcon';
+import { SvgIcon } from 'ming-ui';
 import cx from 'classnames';
 import IconTabs from 'src/pages/AppHomepage/components/SelectIcon/IconTabs';
 

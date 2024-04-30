@@ -45,7 +45,7 @@ export const themeColors = [
 
 export const getDashboardColor = color => {
   //默认主题
-  if (!color || !_.includes(themeColors, color)) {
+  if (!color || (!_.includes(themeColors, color) && !color.startsWith('#'))) {
     return {
       bgColor: '#f7f8fc',
       themeColor: '#2196f3',
@@ -72,3 +72,20 @@ export const coverUrls = [
   'ProjectLogo/bulletin_7.jpg',
   'ProjectLogo/bulletin_8.jpg',
 ];
+
+export const chartRefreshOptions = [
+  { text: _l('关闭'), value: 0 },
+  { text: _l('30秒'), value: 30 },
+  { text: _l('1分钟'), value: 60 },
+  { text: _l('2分钟'), value: 120 },
+  { text: _l('3分钟'), value: 180 },
+  { text: _l('4分钟'), value: 240 },
+  { text: _l('5分钟'), value: 300 },
+];
+
+export const MODULE_TYPES = {
+  APP_COLLECTION: 0,
+  RECENT: 1,
+  ROW_COLLECTION: 2,
+  CHART_COLLECTION: 3,
+};

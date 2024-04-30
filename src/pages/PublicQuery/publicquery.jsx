@@ -2,7 +2,7 @@ import React from 'react';
 import cx from 'classnames';
 import CustomFields from 'src/components/newCustomFields';
 import styled from 'styled-components';
-import captcha from 'src/components/captcha';
+import { captcha } from 'ming-ui/functions';
 import DocumentTitle from 'react-document-title';
 import CreateByMingDaoYun from 'src/components/CreateByMingDaoYun';
 

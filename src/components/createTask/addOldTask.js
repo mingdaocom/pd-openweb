@@ -173,7 +173,7 @@ $.extend(AddOldTask.prototype, {
           window.location = 'apps/task/task_' + taskID;
         }
       })
-      .fail(function () {
+      .catch(function () {
         alert(_l('操作失败，请稍后再试'), 2);
       });
   },

@@ -14,7 +14,7 @@ var processVersion = {
   batch: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/process/batch';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1processbatch', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v1processbatch', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 按网络获取流程堆积量
@@ -27,7 +27,7 @@ var processVersion = {
   getDifferenceByCompanyId: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/process/getDifferenceByCompanyId';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'v1processgetDifferenceByCompanyId', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'v1processgetDifferenceByCompanyId', args, $.extend(base, options));
   },
   /**
    * 获取流程堆积量
@@ -40,7 +40,7 @@ var processVersion = {
   getDifferenceByProcessId: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/process/getDifferenceByProcessId';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'v1processgetDifferenceByProcessId', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'v1processgetDifferenceByProcessId', args, $.extend(base, options));
   },
   /**
    * 按网络获取堆积流程总数
@@ -53,7 +53,7 @@ var processVersion = {
   getDifferenceProcessCount: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/process/getDifferenceProcessCount';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1processgetDifferenceProcessCount', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v1processgetDifferenceProcessCount', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 按网络获取堆积流程列表
@@ -66,7 +66,7 @@ var processVersion = {
   getDifferenceProcessList: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/process/getDifferenceProcessList';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1processgetDifferenceProcessList', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v1processgetDifferenceProcessList', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 按历史id获取堆积流程列表
@@ -79,7 +79,7 @@ var processVersion = {
   getDifferenceProcessListByIds: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/process/getDifferenceProcessListByIds';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1processgetDifferenceProcessListByIds', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v1processgetDifferenceProcessListByIds', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 按网络获取流程堆积量历史
@@ -92,7 +92,7 @@ var processVersion = {
   getHistoryDifferenceByCompanyId: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/process/getHistoryDifferenceByCompanyId';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1processgetHistoryDifferenceByCompanyId', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v1processgetHistoryDifferenceByCompanyId', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 按流程id获取有堆积的历史
@@ -105,7 +105,7 @@ var processVersion = {
   getHistoryDifferenceByProcessId: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/process/getHistoryDifferenceByProcessId';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'v1processgetHistoryDifferenceByProcessId', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'v1processgetHistoryDifferenceByProcessId', args, $.extend(base, options));
   },
   /**
    * 获取已有通道
@@ -118,7 +118,7 @@ var processVersion = {
   getRouterList: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/process/getRouterList';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'v1processgetRouterList', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'v1processgetRouterList', args, $.extend(base, options));
   },
   /**
    * 获取预警配置
@@ -131,7 +131,7 @@ var processVersion = {
   getWarning: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/process/getWarning';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'v1processgetWarning', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'v1processgetWarning', args, $.extend(base, options));
   },
   /**
    * 同步所有应用 所有执行数
@@ -144,7 +144,7 @@ var processVersion = {
   init: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/process/init';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1processinit', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v1processinit', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 丢弃排队
@@ -157,7 +157,7 @@ var processVersion = {
   remove: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/process/remove';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1processremove', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v1processremove', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 重置排队计数
@@ -170,7 +170,7 @@ var processVersion = {
   reset: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/process/reset';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1processreset', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v1processreset', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 修改选择的通道
@@ -183,7 +183,7 @@ var processVersion = {
   updateRouterIndex: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/process/updateRouterIndex';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1processupdateRouterIndex', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v1processupdateRouterIndex', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 设置暂停流程
@@ -196,7 +196,7 @@ var processVersion = {
   updateWaiting: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/process/updateWaiting';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1processupdateWaiting', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v1processupdateWaiting', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 修改预警配置
@@ -209,7 +209,7 @@ var processVersion = {
   updateWarning: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/process/updateWarning';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1processupdateWarning', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v1processupdateWarning', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 流程列表数量
@@ -223,7 +223,7 @@ var processVersion = {
   count: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/process/count';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'v1processcount', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'v1processcount', args, $.extend(base, options));
   },
   /**
    * 网络流程列表
@@ -244,7 +244,7 @@ var processVersion = {
   getProcessByCompanyId: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/process/getProcessByCompanyId';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'v1processgetProcessByCompanyId', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'v1processgetProcessByCompanyId', args, $.extend(base, options));
   },
   /**
    * 流程操作权限
@@ -258,7 +258,7 @@ var processVersion = {
   getProcessRole: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/process/getProcessRole';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'v1processgetProcessRole', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'v1processgetProcessRole', args, $.extend(base, options));
   },
   /**
    * 获取流程使用数量和执行次数
@@ -271,7 +271,7 @@ var processVersion = {
   getProcessUseCount: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/process/getProcessUseCount';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'v1processgetProcessUseCount', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'v1processgetProcessUseCount', args, $.extend(base, options));
   },
   /**
    * 流程列表接口
@@ -288,7 +288,7 @@ var processVersion = {
   list: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/process/list';
     base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'v1processlist', args, $.extend(base, options));
+    return mdyAPI(controllerName, 'v1processlist', args, $.extend(base, options));
   },
   /**
    * 切底删除流程
@@ -301,7 +301,7 @@ var processVersion = {
   removeProcess: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/process/removeProcess';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1processremoveProcess', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v1processremoveProcess', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 恢复流程
@@ -314,7 +314,7 @@ var processVersion = {
   restoreProcess: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/process/restoreProcess';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1processrestoreProcess', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'v1processrestoreProcess', JSON.stringify(args), $.extend(base, options));
   },
 };
 export default processVersion;

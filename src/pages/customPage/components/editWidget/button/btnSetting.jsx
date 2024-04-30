@@ -283,7 +283,7 @@ function BtnSetting(props) {
 
   useEffect(() => {
     if (value && _.includes([1, 2, 5], action)) {
-      if (sheetRequest && sheetRequest.state() === 'pending' && sheetRequest.abort) {
+      if (sheetRequest && sheetRequest.abort) {
         sheetRequest.abort();
       }
       setSheetLoading(true);

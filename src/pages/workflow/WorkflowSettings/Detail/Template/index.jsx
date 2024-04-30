@@ -45,17 +45,19 @@ export default class Template extends Component {
    * 获取节点详情
    */
   getNodeDetail(props, appId) {
-    const { processId, selectNodeId, selectNodeType } = props;
+    const { processId, selectNodeId, selectNodeType, instanceId } = props;
 
-    flowNode.getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, appId }).then(result => {
-      this.setState({
-        data: appId
-          ? Object.assign({}, this.state.data, { appId, controls: result.controls, fields: result.fields })
-          : result,
-        cacheKey: +new Date(),
-        detailType: result.templateNode.appId || result.templateNode.pagePath ? 1 : 0,
+    flowNode
+      .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, appId, instanceId })
+      .then(result => {
+        this.setState({
+          data: appId
+            ? Object.assign({}, this.state.data, { appId, controls: result.controls, fields: result.fields })
+            : result,
+          cacheKey: +new Date(),
+          detailType: result.templateNode.appId || result.templateNode.pagePath ? 1 : 0,
+        });
       });
-    });
   }
 
   /**

@@ -1,16 +1,20 @@
-import React, { useState, Fragment, useEffect } from 'react';
-import { ScrollView, Icon, Dialog, Button } from 'ming-ui';
-import { Dropdown, Menu } from 'antd';
+import React, { Fragment, useEffect } from 'react';
+import { ScrollView, Icon, Dialog, Button, Tooltip, LoadDiv, Menu, MenuItem, Support } from 'ming-ui';
+import { Dropdown } from 'antd';
+import { useSetState } from 'react-use';
 import RestoreAppDialog from './RestoreAppDialog';
 import EditInput from './EditInput.jsx';
-import CreateAppBackupDialog from '../CreateAppBackupDialog';
 import HomeApiController from 'api/homeApp';
 import appManagementAjax from 'src/api/appManagement';
 import styled from 'styled-components';
-import { downloadFile, getCurrentProject } from 'src/util';
+import { downloadFile, getCurrentProject, getFeatureStatus } from 'src/util';
 import _ from 'lodash';
+import cx from 'classnames';
 import moment from 'moment';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
+import SelectDBInstance from 'src/pages/AppHomepage/AppCenter/components/SelectDBInstance';
+import { VersionProductType } from 'src/util/enum';
+
 const EmptyStatusWrap = styled.div`
   width: 100%;
   height: 100%;
@@ -36,44 +40,113 @@ const EmptyStatusWrap = styled.div`
     color: #bdbdbd;
   }
 `;
+
+const ListWrap = styled.div`
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  .name,
+  .backupType,
+  .backupTime,
+  .operator,
+  .size,
+  .status,
+  .action {
+    padding-left: 10px;
+  }
+  .backupType,
+  .operator,
+  .status {
+    width: 90px;
+  }
+  .size,
+  .action {
+    width: 130px;
+  }
+  .backupTime {
+    width: 160px;
+  }
+  .header,
+  .row {
+    border-bottom: 1px solid #dddddd;
+    .actionContent {
+      display: none;
+    }
+    .icon-edit {
+      display: none !important;
+    }
+    .order {
+      transform: scale(0.8);
+      margin-left: 4px;
+    }
+  }
+  .header {
+    height: 40px;
+  }
+  .row {
+    height: 60px;
+    &:hover {
+      background: #f5f5f5;
+      .actionContent {
+        display: block;
+      }
+      .icon-edit {
+        display: inline-block !important;
+      }
+    }
+    .warningColor {
+      color: #ff9a2d;
+    }
+  }
+`;
+
+const DataDBInstances = [{ label: _l('系统默认数据库'), value: '' }];
+
 export default function BackupFiles(props) {
-  const {
-    fixed,
-    fixRemark,
-    appId,
-    projectId,
-    getList = () => {},
-    pageIndex,
-    isMore,
-    currentValid,
-    validLimit,
-    appName,
-    permissionType,
-  } = props;
-  const [actCurrentFileInfo, setActCurrentFileInfo] = useState({});
-  const [restoreAppVisible, setRestoreAppVisible] = useState(false);
-  const [appDetail, setAppDetail] = useState({});
-  const [createBackupVisible, setCreateBackupVisible] = useState(false);
-  const [fileList, setFileList] = useState(props.fileList);
+  const { appId, projectId, currentValid, validLimit, permissionType, backupInfo = {}, getList = () => {} } = props;
+
+  const [
+    {
+      isLoading,
+      fileList,
+      pageIndex,
+      total,
+      orderType,
+      actCurrentFileInfo,
+      restoreAppVisible,
+      appDetail,
+      token,
+      DBInstancesDialog,
+      dataDBInstances,
+      restoreItem,
+      dbInstanceId,
+    },
+    setData,
+  ] = useSetState({
+    isLoading: true,
+    fileList: [],
+    pageIndex: 1,
+    total: 0,
+    orderType: 0,
+    actCurrentFileInfo,
+    restoreAppVisible,
+    appDetail,
+    token,
+    DBInstancesDialog,
+    dataDBInstances,
+    restoreItem,
+    dbInstanceId: undefined,
+  });
+
   useEffect(() => {
-    setFileList(props.fileList);
-  }, [props.fileList]);
-  const [token, setToken] = useState('');
-  const noDueList =
-    fileList.filter(
-      item =>
-        moment(item.operationDateTime).add(60, 'days').format('YYYYMMDDHHmmss') > moment().format('YYYYMMDDHHmmss'),
-    ) || []; // 未过期
-  const alreadyDueList =
-    fileList.filter(
-      item =>
-        moment(item.operationDateTime).add(60, 'days').format('YYYYMMDDHHmmss') < moment().format('YYYYMMDDHHmmss'),
-    ) || []; // 已过期
+    setData(backupInfo);
+  }, [backupInfo]);
 
   // 获取token
   const getToken = () => {
     appManagementAjax.getApps({ appIds: [appId] }).then(({ token }) => {
-      setToken(token);
+      setData({ token });
     });
   };
   // 还原应用
@@ -82,29 +155,72 @@ export default function BackupFiles(props) {
     HomeApiController.getApp({
       appId,
     }).then(res => {
-      setAppDetail(res);
+      setData({ appDetail: res });
     });
-    setActCurrentFileInfo(item);
-    setRestoreAppVisible(true);
+    setData({
+      actCurrentFileInfo: item,
+      restoreAppVisible: true,
+    });
   };
+
+  const onRestore = (it, dbInstanceId) => {
+    const item = it || restoreItem;
+
+    let params = {
+      projectId,
+      appId,
+      id: item.id,
+      autoEndMaintain: false,
+      backupCurrentVersion: false,
+      isRestoreNew: true,
+      dbInstanceId,
+    };
+    appManagementAjax.restore(params).then(res => {
+      if (res) {
+        getList({ pageIndex: 1 });
+      } else {
+        alert(_l('还原失败'), 2);
+      }
+    });
+  };
+
   // 还原为新应用
   const restoreNewApp = item => {
     Dialog.confirm({
+      width: 500,
       className: 'restoreNewAppDialog',
       title: _l('还原为新应用'),
-      description: _l('确定将备份文件“%0”还原为一个新的应用吗？', item.backupFileName),
+      description: (
+        <Fragment>
+          <div className="mBottom10">{_l('确定将备份文件“%0”还原为一个新的应用吗？', item.backupFileName)}</div>
+          <div className="Red">{_l('注意：还原为新应用并不会还原数据')}</div>
+        </Fragment>
+      ),
       onOk: () => {
-        let params = {
-          projectId,
-          appId,
-          id: item.id,
-          autoEndMaintain: false,
-          backupCurrentVersion: false,
-          isRestoreNew: true,
-        };
-        appManagementAjax.restore(params).then(res => {
-          getList(1);
-        });
+        const currentProject = getCurrentProject(projectId);
+        const hasDataBase =
+          getFeatureStatus(projectId, VersionProductType.dataBase) === '1' && !md.global.Config.IsPlatformLocal;
+        if (hasDataBase && (currentProject.isSuperAdmin || currentProject.isProjectAppManager)) {
+          HomeApiController.getMyDbInstances({ projectId }).then(res => {
+            const list = res.map(l => {
+              return {
+                label: l.name,
+                value: l.id,
+              };
+            });
+            if (res && res.length) {
+              setData({
+                dataDBInstances: DataDBInstances.concat(list),
+                DBInstancesDialog: true,
+                restoreItem: item,
+              });
+            } else {
+              onRestore(item);
+            }
+          });
+          return;
+        }
+        onRestore(item);
       },
     });
   };
@@ -133,8 +249,7 @@ export default function BackupFiles(props) {
           .then(res => {
             if (res) {
               alert(_l('删除成功 '));
-              getList(1);
-              getBackupCount();
+              getList({ pageIndex: 1 });
             } else {
               alert(_l('删除失败 '), 2);
             }
@@ -144,11 +259,11 @@ export default function BackupFiles(props) {
   };
 
   // 下拉加载分页
-  const onScrollEnd = _.throttle(() => {
-    if (isMore) {
-      getList(pageIndex + 1);
+  const onScrollEnd = () => {
+    if (!isLoading && fileList.length < total) {
+      getList({ pageIndex: pageIndex + 1 });
     }
-  }, 200);
+  };
 
   const updateFileList = obj => {
     let temp = fileList.map(item => {
@@ -157,10 +272,14 @@ export default function BackupFiles(props) {
       }
       return item;
     });
-    setFileList(temp);
+    setData({ fileList: temp });
   };
 
   const canCreateApp = !Object.assign({ cannotCreateApp: true }, getCurrentProject(projectId)).cannotCreateApp;
+
+  if (isLoading && pageIndex === 1) {
+    return <LoadDiv className="mTop15" />;
+  }
 
   return (
     <Fragment>
@@ -170,123 +289,204 @@ export default function BackupFiles(props) {
             <Icon icon="refresh" />
           </div>
           <div className="emptyTxt mTop12">{_l(' 暂无备份文件')}</div>
-          <Button radius className="mTop24" onClick={() => setCreateBackupVisible(true)}>
+          <Button radius className="mTop24" onClick={props.handleCreateBackup}>
             {_l('创建备份')}
           </Button>
         </EmptyStatusWrap>
       ) : (
-        <ScrollView onScrollEnd={onScrollEnd} className="backupFilesWrap">
-          {noDueList.map((item, index) => {
-            return (
-              <div className="filesCard">
-                <div className="flexRow row">
-                  <EditInput
-                    actCurrentFileInfo={item}
-                    projectId={projectId}
-                    appId={appId}
-                    updateFileList={updateFileList}
-                  />
-                  <Dropdown
-                    trigger={['click']}
-                    placement={['bottomRight']}
-                    overlayClassName="moreActionDropdown"
-                    overlay={
-                      <Menu>
-                        <Menu.Item
-                          onClick={() => {
-                            restoreApp(item);
-                          }}
+        <ListWrap>
+          <div className="header Gray_9e flexRow alignItemsCenter">
+            <div className="name flex">{_l('备份文件名称')}</div>
+            <div className="backupType">{_l('备份类型')}</div>
+            <div className="backupTime flexRow alignItemsCenter">
+              {_l('备份时间')}
+              <div
+                className="flexColumn order Hand"
+                onClick={() => {
+                  setData({ orderType: orderType === 0 ? 1 : 0 });
+                  getList({ pageIndex: 1, orderType: orderType === 0 ? 1 : 0 });
+                }}
+              >
+                <Icon icon="arrow-up" className={cx({ ThemeColor3: orderType === 1 })} />
+                <Icon icon="arrow-down" className={cx({ ThemeColor3: orderType === 0 })} />
+              </div>
+            </div>
+            <div className="size flexRow alignItemsCenter">
+              {_l('数据文件大小')}
+              <div
+                className="flexColumn order Hand"
+                onClick={() => {
+                  setData({ orderType: orderType === 2 ? 3 : 2 });
+                  getList({ pageIndex: 1, orderType: orderType === 2 ? 3 : 2 });
+                }}
+              >
+                <Icon icon="arrow-up" className={cx({ ThemeColor3: orderType === 3 })} />
+                <Icon icon="arrow-down" className={cx({ ThemeColor3: orderType === 2 })} />
+              </div>
+            </div>
+            <div className="operator">{_l('操作人')}</div>
+            <div className="status">{_l('备份状态')}</div>
+            <div className="action"></div>
+          </div>
+          <div className="flex">
+            <ScrollView onScrollEnd={onScrollEnd}>
+              {fileList.map(item => {
+                const { id, operator, operationDateTime, status, containData, usage } = item;
+                const size = (usage / (1024 * 1024)).toFixed(2) + 'MB';
+
+                // 已过期
+                const expired =
+                  (validLimit === -1
+                    ? moment(item.operationDateTime).add(1, 'year').format('YYYYMMDDHHmmss')
+                    : moment(item.operationDateTime).add(60, 'days').format('YYYYMMDDHHmmss')) <
+                  moment().format('YYYYMMDDHHmmss');
+                // 即将过期
+                const expiredSoon =
+                  (validLimit === -1
+                    ? moment(item.operationDateTime).add(1, 'year').subtract(10, 'days').format('YYYYMMDDHHmmss')
+                    : moment(item.operationDateTime).add(50, 'days').format('YYYYMMDDHHmmss')) <
+                  moment().format('YYYYMMDDHHmmss');
+
+                return (
+                  <div key={id} className="row flexRow alignItemsCenter">
+                    <div className="backupFileName pLeft10 flex ellipsis">
+                      <EditInput
+                        actCurrentFileInfo={item}
+                        projectId={projectId}
+                        appId={appId}
+                        updateFileList={updateFileList}
+                      />
+                    </div>
+                    <div className="backupType">{containData ? _l('应用、数据') : _l('应用')}</div>
+                    <div className="backupTime">{moment(operationDateTime).format('YYYY-MM-DD HH:mm:ss')}</div>
+                    <div className="size">{containData ? size : '-'}</div>
+                    <div className="operator">{operator.fullname}</div>
+                    <div
+                      className={cx('status', {
+                        ThemeColor: _.includes([1, 2], status),
+                        Gray_75: expired,
+                        warningColor: expiredSoon && status === 0,
+                      })}
+                    >
+                      {status === 1
+                        ? _l('排队中...')
+                        : status === 2
+                        ? _l('备份中...')
+                        : status === 10
+                        ? _l('失败')
+                        : expired
+                        ? _l('已过期')
+                        : expiredSoon
+                        ? _l('即将过期')
+                        : _l('完成')}
+
+                      {validLimit !== -1 && (expired || expiredSoon) ? (
+                        <Tooltip
+                          text={
+                            expired ? (
+                              <span>
+                                {_l('备份文件已过期，升级旗舰版后可恢复下载')}
+                                <Support
+                                  text={_l('了解更多')}
+                                  type={3}
+                                  href={`/upgrade/choose?projectId=${projectId}&goToPost=true&select=3`}
+                                />
+                              </span>
+                            ) : (
+                              <span>
+                                {_l('备份文件即将到期，升级旗舰版延长有效期')}
+                                <Support
+                                  text={_l('了解更多')}
+                                  type={3}
+                                  href={`/upgrade/choose?projectId=${projectId}&goToPost=true&select=3`}
+                                />
+                              </span>
+                            )
+                          }
                         >
-                          <Icon icon="update" className="mRight13" />
-                          <span>{_l('还原应用')}</span>
-                        </Menu.Item>
-                        {/* 备份文件列表中，开发者无“下载备份和还原为新应用”权限 */}
-                        {permissionType !== APP_ROLE_TYPE.DEVELOPERS_ROLE && (
-                          <React.Fragment>
-                            {canCreateApp && (
-                              <Menu.Item onClick={() => restoreNewApp(item)}>
-                                <Icon icon="update" className="mRight13" />
-                                <span>{_l('还原为新应用')}</span>
-                              </Menu.Item>
-                            )}
-                            <Menu.Item onClick={() => downloadBackup(item)}>
-                              <Icon icon="file_download" className="mRight13" />
-                              <span>{_l('下载备份')}</span>
-                            </Menu.Item>
-                          </React.Fragment>
-                        )}
-                        <Menu.Item onClick={() => deleteBackup(item)}>
-                          <Icon icon="delete2" className="mRight13" />
-                          <span>{_l('删除备份')}</span>
-                        </Menu.Item>
-                      </Menu>
-                    }
-                  >
-                    <Icon icon="more_horiz" className="Gray_9e Hand Font18 more_horiz" />
-                  </Dropdown>
-                </div>
-                <div className="flexRow row">
-                  <div className="name Gray_9e">
-                    {item.operatorName} | <span>{moment(item.operationDateTime).format('YYYY-MM-DD HH:mm:ss')}</span>{' '}
+                          <Icon icon="info_outline" className="Gray_bd mLeft4" />
+                        </Tooltip>
+                      ) : (
+                        ''
+                      )}
+                    </div>
+                    {_.includes([0, 10], status) ? (
+                      <div className="action">
+                        <div className="actionContent pRight10 TxtRight">
+                          {!expired && status === 0 && (
+                            <span className="ThemeColor Hand mRight20" onClick={() => restoreApp(item)}>
+                              {_l('还原')}
+                            </span>
+                          )}
+                          {!expired && permissionType !== APP_ROLE_TYPE.DEVELOPERS_ROLE && status === 0 && (
+                            <Dropdown
+                              trigger={['click']}
+                              placement={['bottomRight']}
+                              overlayClassName="moreActionDropdown"
+                              overlay={
+                                <Menu>
+                                  <MenuItem onClick={() => downloadBackup(item)}>{_l('下载应用')}</MenuItem>
+                                  <MenuItem disabled={true}>{_l('下载数据')}</MenuItem>
+                                </Menu>
+                              }
+                            >
+                              <span className="ThemeColor Hand mRight20">{_l('下载')}</span>
+                            </Dropdown>
+                          )}
+                          <Dropdown
+                            trigger={['click']}
+                            placement={['bottomRight']}
+                            overlayClassName="moreActionDropdown"
+                            overlay={
+                              <Menu>
+                                {/* 备份文件列表中，开发者无“下载备份和还原为新应用”权限 */}
+                                {!expired &&
+                                  permissionType !== APP_ROLE_TYPE.DEVELOPERS_ROLE &&
+                                  canCreateApp &&
+                                  status === 0 && (
+                                    <MenuItem onClick={() => restoreNewApp(item)}>
+                                      <span>{_l('还原为新应用')}</span>
+                                    </MenuItem>
+                                  )}
+                                <MenuItem onClick={() => deleteBackup(item)}>
+                                  <span>{_l('删除')}</span>
+                                </MenuItem>
+                              </Menu>
+                            }
+                          >
+                            <Icon icon="more_horiz" className="Gray_9e Hand Font18 more_horiz" />
+                          </Dropdown>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="action"></div>
+                    )}
                   </div>
-                </div>
-              </div>
-            );
-          })}
-          {alreadyDueList.map(item => {
-            return (
-              <div className="dueCard">
-                <div className="flexRow row">
-                  <div className="flex">{item.backupFileName}</div>
-                  <div className="dueTxt">{_l('已过期')}</div>
-                  <div className="deleteIcon">
-                    <Icon
-                      icon="delete2"
-                      className="Hand"
-                      onClick={() => {
-                        deleteBackup(item);
-                      }}
-                    />
-                  </div>
-                </div>
-                <div className="flexRow row">
-                  <div className="name Gray_9e">
-                    {item.operatorName} | <span>{moment(item.operationDateTime).format('YYYY-MM-DD HH:mm:ss')}</span>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </ScrollView>
+                );
+              })}
+              {isLoading && pageIndex > 1 && <LoadDiv className="mTop15" />}
+            </ScrollView>
+          </div>
+        </ListWrap>
       )}
       <RestoreAppDialog
-        fixed={fixed}
-        fixRemark={fixRemark}
-        appDetail={appDetail}
         visible={restoreAppVisible}
         actCurrentFileInfo={actCurrentFileInfo}
         projectId={projectId}
         appId={appId}
         token={token}
-        changeRestoreAppVisible={() => {
-          setRestoreAppVisible(false);
-        }}
+        changeRestoreAppVisible={() => setData({ restoreAppVisible: false })}
         getList={getList}
         getBackupCount={props.getBackupCount}
         currentValid={currentValid}
         validLimit={validLimit}
       />
-      {createBackupVisible && (
-        <CreateAppBackupDialog
-          appId={appId}
-          projectId={projectId}
-          appName={appName}
-          getList={getList}
-          closeDialog={() => {
-            setCreateBackupVisible(false);
-          }}
-        />
-      )}
+      <SelectDBInstance
+        visible={DBInstancesDialog}
+        options={dataDBInstances}
+        onOk={id => onRestore(undefined, id)}
+        onCancel={() => setData({ DBInstancesDialog: false, restoreItem: undefined })}
+      />
     </Fragment>
   );
 }

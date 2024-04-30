@@ -1,13 +1,12 @@
 import React, { Component, Fragment } from 'react';
 import { Select } from 'antd';
-import { Tooltip, Icon, Dialog } from 'ming-ui';
+import { Tooltip, Icon, SvgIcon } from 'ming-ui';
 import appManagementAjax from 'src/api/appManagement';
 import Search from 'src/pages/workflow/components/Search';
-import SvgIcon from 'src/components/SvgIcon';
 import TableCom from '../TableCom';
 import { selectDateList, formatter } from '../../util';
 import { formatFileSize } from 'src/util';
-import { checkIsAppAdmin } from 'src/components/checkIsAppAdmin';
+import { checkIsAppAdmin } from 'ming-ui/functions';
 import cx from 'classnames';
 import styled from 'styled-components';
 import _ from 'lodash';
@@ -402,7 +401,7 @@ export default class ByApp extends Component {
           loading: false,
         });
       })
-      .fail(err => {
+      .catch(err => {
         this.setState({
           pageIndex: 1,
           loading: false,
@@ -440,7 +439,7 @@ export default class ByApp extends Component {
           useageLoading: false,
         });
       })
-      .fail(err => {
+      .catch(err => {
         this.setState({
           useageLoading: false,
         });

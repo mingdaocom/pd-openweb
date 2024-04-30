@@ -5,8 +5,7 @@ import AddDialog from './AddDialog';
 import './index.less';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import { pick, isEqual, map } from 'lodash';
-import { Linkify } from 'ming-ui';
-import SvgIcon from 'src/components/SvgIcon';
+import { Linkify, SvgIcon } from 'ming-ui';
 import axios from 'axios';
 import { browserIsMobile } from 'src/util';
 
@@ -70,8 +69,7 @@ class AppDetails extends React.Component {
   };
 
   appDone = () => {
-    const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
-    if (isWxWork) {
+    if (window.isWxWork) {
       const { projects } = md.global.Account;
       if (projects.length) {
         this.addDialogEl.installApp(projects[0].projectId, this.props.libraryId);

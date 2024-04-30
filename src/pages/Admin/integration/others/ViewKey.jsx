@@ -1,8 +1,17 @@
 import React, { Component, Fragment } from 'react';
-import { Dialog } from 'ming-ui';
+import { Dialog, Button, VerifyPasswordConfirm } from 'ming-ui';
 import AuthorizationController from 'src/api/authorization';
 import copy from 'copy-to-clipboard';
 import cx from 'classnames';
+import styled from 'styled-components';
+
+const EmptyWrap = styled.div`
+  height: 232px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+`;
 
 export default class ViewKey extends Component {
   constructor(props) {
@@ -40,25 +49,26 @@ export default class ViewKey extends Component {
     });
   }
 
-  updateKey() {
+  updateKey = () => {
     AuthorizationController.addAuthorization({
       projectId: this.props.projectId,
       type: this.state.type,
-    }).then(res => {
-      if (res) {
+    }).then(({ appKey, secretKey, sign, type }) => {
+      if (appKey && secretKey && sign) {
         alert(_l('操作成功'));
         this.setState({
-          appKey: res.appKey,
-          secretKey: res.secretKey,
-          sign: res.sign,
-          type: res.type,
           visible: false,
+          appKey,
+          secretKey,
+          sign,
+          type,
         });
+        this.props.handleChangeVisible(true);
       } else {
         alert(_l('操作失败'), 2);
       }
     });
-  }
+  };
 
   render() {
     const { visible } = this.state;
@@ -76,7 +86,7 @@ export default class ViewKey extends Component {
             onCancel={() => {
               this.handleChangeVisible(false);
             }}
-            onOk={() => this.updateKey()}
+            onOk={() => VerifyPasswordConfirm.confirm({ onOk: this.updateKey })}
           >
             <div className="subLabel">{_l('重新生成将会影响到已经使用该密钥信息的服务，请确认操作')}</div>
           </Dialog>
@@ -95,7 +105,7 @@ export default class ViewKey extends Component {
               {[
                 { text: 'AppKey', key: 'appKey' },
                 { text: 'SecretKey', key: 'secretKey' },
-                { text: _l('Sign（注：只针对应用下的接口生效，其余还走企业授权模式）'), key: 'sign' },
+                { text: _l('Sign（注：只针对应用下的接口生效，其他依然使用企业授权模式）'), key: 'sign' },
               ].map((item, index) => {
                 return (
                   <Fragment key={index}>

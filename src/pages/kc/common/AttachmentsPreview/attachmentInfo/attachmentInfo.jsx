@@ -80,7 +80,7 @@ class attachmentInfo extends React.Component {
           postDetails,
         });
       })
-      .fail(() => {});
+      .catch(() => {});
   };
 
   toggleInfo = () => {

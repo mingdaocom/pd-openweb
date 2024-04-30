@@ -65,7 +65,7 @@ export default function Cite(props) {
         id: props.processId,
         isPublic: true,
       },
-      { fireImmediately: true, isIntegration: true },
+      { isIntegration: true },
     );
     Ajax.then(data => {
       setState({

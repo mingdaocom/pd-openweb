@@ -27,8 +27,8 @@ const Operation = ({
   getTableData,
 }) => {
   const { report = {}, pageId } = base;
-  const isPublicShare = _.get(window, 'shareState.isPublicChart') || _.get(window, 'shareState.isPublicPage') || _.get(window, 'shareState.isPublicView') || window.shareAuthor;
-  const isSheetView = ![reportTypes.PivotTable, reportTypes.NumberChart].includes(reportData.reportType);
+  const isPublicShare = _.get(window, 'shareState.shareId') || window.shareAuthor;
+  const isSheetView = ![reportTypes.PivotTable].includes(reportData.reportType);
   const { style } = currentReport;
   const { pivotTableColumnWidthConfig } = style || {};
   return (

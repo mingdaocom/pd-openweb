@@ -11,6 +11,7 @@ import {
   getChartColors,
   getAuxiliaryLineConfig
 } from './common';
+import { Icon } from 'ming-ui';
 import { Dropdown, Menu } from 'antd';
 import { formatSummaryName, isFormatNumber, isTimeControl } from 'statistics/common';
 import _ from 'lodash';
@@ -135,7 +136,8 @@ export default class extends Component {
       dropdownVisible: false,
       offset: {},
       contrastType: false,
-      match: null
+      match: null,
+      linkageMatch: null,
     }
     this.LineChart = null;
   }
@@ -176,7 +178,8 @@ export default class extends Component {
       style.tooltipValueType !== oldStyle.tooltipValueType ||
       !_.isEqual(style.chartShowLabelIds, oldStyle.chartShowLabelIds) ||
       !_.isEqual(chartColor, oldChartColor) ||
-      nextProps.themeColor !== this.props.themeColor
+      nextProps.themeColor !== this.props.themeColor ||
+      !_.isEqual(nextProps.linkageMatch, this.props.linkageMatch)
     ) {
       const { LineChartConfig } = this.getComponentConfig(nextProps);
       this.LineChart.update(LineChartConfig);
@@ -187,45 +190,89 @@ export default class extends Component {
       displaySetup.showChartType !== oldDisplaySetup.showChartType ||
       displaySetup.isPile !== oldDisplaySetup.isPile ||
       displaySetup.isAccumulate !== oldDisplaySetup.isAccumulate ||
-      displaySetup.isPerPile !== oldDisplaySetup.isPerPile
+      displaySetup.isPerPile !== oldDisplaySetup.isPerPile ||
+      nextProps.isLinkageData !== this.props.isLinkageData
     ) {
       this.LineChart.destroy();
       this.renderLineChart(nextProps);
     }
   }
   renderLineChart(props) {
-    const { reportData, isViewOriginalData } = props;
-    const { displaySetup } = reportData;
+    const { reportData } = props;
+    const { displaySetup, style, xaxes, split } = reportData;
     const { LineChartComponent, LineChartConfig } = this.getComponentConfig(props);
-    this.LineChart = new LineChartComponent(this.chartEl, LineChartConfig);
-    if (displaySetup.showRowList && isViewOriginalData) {
-      this.LineChart.on('element:click', this.handleClick);
+    if (this.chartEl) {
+      this.LineChart = new LineChartComponent(this.chartEl, LineChartConfig);
+      this.isViewOriginalData = displaySetup.showRowList && props.isViewOriginalData;
+      this.isLinkageData = props.isLinkageData && !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0) && (xaxes.controlId || split.controlId);;
+      if (this.isViewOriginalData || this.isLinkageData) {
+        this.LineChart.on('element:click', this.handleClick);
+      }
+      this.LineChart.render();
     }
-    this.LineChart.render();
   }
   handleClick = ({ data, gEvent }) => {
-    const { xaxes, split, displaySetup } = this.props.reportData;
+    const { xaxes, split, displaySetup, appId, reportId, name, reportType, style } = this.props.reportData;
     const { contrastType } = displaySetup;
     const currentData = data.data;
     const param = {};
+    const linkageMatch = {
+      sheetId: appId,
+      reportId,
+      reportName: name,
+      reportType,
+      filters: []
+    };
     if (xaxes.cid) {
       const isNumber = isFormatNumber(xaxes.controlType);
       const value = currentData.originalId;
       param[xaxes.cid] = contrastType ? currentData.name : (isNumber && value ? Number(value) : value);
+      linkageMatch.value = value;
+      linkageMatch.filters.push({
+        controlId: xaxes.controlId,
+        values: [param[xaxes.cid]],
+        controlName: xaxes.controlName,
+        controlValue: currentData.name,
+        type: xaxes.controlType,
+        control: xaxes
+      });
     }
     if (split.controlId) {
       const isNumber = isFormatNumber(split.controlType);
       const value = currentData.groupKey;
       param[split.cid] = isNumber && value ? Number(value) : value;
+      if (!xaxes.cid) {
+        linkageMatch.value = currentData.originalId;
+      }
+      linkageMatch.filters.push({
+        controlId: split.controlId,
+        values: [param[split.cid]],
+        controlName: split.controlName,
+        controlValue: formatControlInfo(currentData.groupName).name,
+        type: split.controlType,
+        control: split
+      });
     }
+    if (_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length) {
+      linkageMatch.onlyChartIds = style.autoLinkageChartObjectIds;
+    }
+    const isAll = this.isViewOriginalData && this.isLinkageData;
     this.setState({
-      dropdownVisible: true,
+      dropdownVisible: isAll,
       offset: {
         x: gEvent.x + 20,
         y: gEvent.y
       },
       contrastType: currentData.isContrast ? contrastType : undefined,
-      match: param
+      match: param,
+      linkageMatch
+    }, () => {
+      if (!isAll && this.isViewOriginalData) {
+        this.handleRequestOriginalData();
+      }
+      if (!isAll && this.isLinkageData) {
+        this.handleAutoLinkage();
+      }
     });
   }
   handleRequestOriginalData = () => {
@@ -242,6 +289,16 @@ export default class extends Component {
     } else {
       this.props.requestOriginalData(data);
     }
+  }
+  handleAutoLinkage = () => {
+    const { linkageMatch } = this.state;
+    this.props.onUpdateLinkageFiltersGroup(linkageMatch);
+    this.setState({
+      dropdownVisible: false,
+    }, () => {
+      const { LineChartConfig } = this.getComponentConfig(this.props);
+      this.LineChart.update(LineChartConfig);
+    });
   }
   getComponentConfig(props) {
     const { themeColor, projectId, customPageConfig = {}, reportData } = props;
@@ -471,8 +528,15 @@ export default class extends Component {
   renderOverlay() {
     return (
       <Menu className="chartMenu" style={{ width: 160 }}>
+        <Menu.Item onClick={this.handleAutoLinkage} key="autoLinkage">
+          <div className="flexRow valignWrapper">
+            <Icon icon="link1" className="mRight8 Gray_9e Font20 autoLinkageIcon" />
+            <span>{_l('联动')}</span>
+          </div>
+        </Menu.Item>
         <Menu.Item onClick={this.handleRequestOriginalData} key="viewOriginalData">
           <div className="flexRow valignWrapper">
+            <Icon icon="table" className="mRight8 Gray_9e Font18" />
             <span>{_l('查看原始数据')}</span>
           </div>
         </Menu.Item>

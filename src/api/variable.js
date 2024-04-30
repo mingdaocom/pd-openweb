@@ -9,7 +9,7 @@ export default {
   **/
    get: function (args, options = {}) {
      
-     return $.api('Variable', 'Get', args, options);
+     return mdyAPI('Variable', 'Get', args, options);
    },
   /**
   * 批量获取变量
@@ -22,7 +22,7 @@ export default {
   **/
    gets: function (args, options = {}) {
      
-     return $.api('Variable', 'Gets', args, options);
+     return mdyAPI('Variable', 'Gets', args, options);
    },
   /**
   * 创建变量
@@ -43,7 +43,7 @@ export default {
   **/
    create: function (args, options = {}) {
      
-     return $.api('Variable', 'Create', args, options);
+     return mdyAPI('Variable', 'Create', args, options);
    },
   /**
   * 编辑变量
@@ -65,7 +65,7 @@ export default {
   **/
    edit: function (args, options = {}) {
      
-     return $.api('Variable', 'Edit', args, options);
+     return mdyAPI('Variable', 'Edit', args, options);
    },
   /**
   * 删除变量
@@ -77,7 +77,7 @@ export default {
   **/
    remove: function (args, options = {}) {
      
-     return $.api('Variable', 'Remove', args, options);
+     return mdyAPI('Variable', 'Remove', args, options);
    },
   /**
   * 获取日志
@@ -94,6 +94,6 @@ export default {
   **/
    getLogs: function (args, options = {}) {
      
-     return $.api('Variable', 'GetLogs', args, options);
+     return mdyAPI('Variable', 'GetLogs', args, options);
    },
 };

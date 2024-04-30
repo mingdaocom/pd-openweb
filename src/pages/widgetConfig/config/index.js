@@ -1,4 +1,4 @@
-export const DEFAULT_INTRO_LINK = 'https://help.mingdao.com/sheet2';
+export const DEFAULT_INTRO_LINK = 'https://help.mingdao.com/worksheet/controls';
 export const OPTION_COLORS_LIST = [
   '#2196F3',
   '#08C9C9',
@@ -131,6 +131,7 @@ export const NOT_NEED_DELETE_CONFIRM = [22, 25, 30, 31, 32, 37, 38, 43, 52, 1001
 export const NOT_HAVE_WIDTH_CONFIG = [43, 49, 52];
 
 export const MAX_CONTROLS_COUNT = 2000;
+export const MAX_OPTIONS_COUNT = 1000;
 
 export const HAVE_CONFIG_SUB_LIST = [2, 3, 10, 15, 16, 28, 32, 35, 46];
 
@@ -145,7 +146,7 @@ export const HAVE_TABLE_STYLE_WIDGET = [34];
 
 // 有高级设置的控件
 export const HAVE_HIGH_SETTING_WIDGET = [
-  2, 3, 6, 14, 15, 16, 23, 24, 26, 27, 28, 29, 31, 32, 33, 35, 38, 40, 42, 46, 51,
+  2, 3, 6, 14, 15, 16, 23, 24, 26, 27, 28, 29, 31, 32, 33, 35, 38, 40, 42, 46, 48, 51,
 ];
 
 // 有移动端设置的控件

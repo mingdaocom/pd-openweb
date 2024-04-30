@@ -113,6 +113,10 @@ export default class GlobalSearch extends Component {
       return;
     }
 
+    if(!proId) {
+      alert(_l('请先加入组织'), 2)
+      return;
+    }
 
     smartSearchAjax
       .getFilterCount({

@@ -233,28 +233,28 @@ export function confirm(
   noText = undefined,
   className = '',
 ) {
-  const dfd = $.Deferred();
-  const container = {};
-  if (yesText === false) {
-    container.removeOkBtn = true;
-  } else {
-    container.onOk = checked => dfd.resolve(checked);
-    container.okText = yesText;
-  }
-  if (noText === false) {
-    container.removeCancelBtn = true;
-  } else {
-    container.onCancel = () => dfd.reject();
-    container.cancelText = noText;
-  }
+  return new Promise((resolve, reject) => {
+    const container = {};
+    if (yesText === false) {
+      container.removeOkBtn = true;
+    } else {
+      container.onOk = checked => resolve(checked);
+      container.okText = yesText;
+    }
+    if (noText === false) {
+      container.removeCancelBtn = true;
+    } else {
+      container.onCancel = () => reject();
+      container.cancelText = noText;
+    }
 
-  Dialog.confirm({
-    dialogClasses: Math.random(),
-    title: header,
-    children: <div dangerouslySetInnerHTML={{ __html: content }}></div>,
-    ...container,
+    Dialog.confirm({
+      dialogClasses: Math.random(),
+      title: header,
+      children: <div dangerouslySetInnerHTML={{ __html: content }}></div>,
+      ...container,
+    });
   });
-  return dfd.promise();
 }
 
 /**
@@ -279,31 +279,6 @@ export function humanDateTime(time) {
  **/
 export function getUrlBase64Encode(str) {
   return base64encode(str).replace(/\//g, '_').replace(/\+/g, '-');
-}
-
-let isIe;
-export function isIE() {
-  isIe =
-    isIe ||
-    (function () {
-      let undef;
-      let rv = -1; // Return value assumes failure.
-      const ua = window.navigator.userAgent;
-      const msie = ua.indexOf('MSIE ');
-      const trident = ua.indexOf('Trident/');
-
-      if (msie > 0) {
-        // IE 10 or older => return version number
-        rv = parseInt(ua.substring(msie + 5, ua.indexOf('.', msie)), 10);
-      } else if (trident > 0) {
-        // IE 11 (or newer) => return version number
-        const rvNum = ua.indexOf('rv:');
-        rv = parseInt(ua.substring(rvNum + 3, ua.indexOf('.', rvNum)), 10);
-      }
-
-      return rv > -1 ? rv : undef;
-    })();
-  return isIe;
 }
 
 /**
@@ -368,12 +343,6 @@ export function getFileIconNameByExt(ext) {
     default:
       return 'doc';
   }
-}
-
-export function wait(ms) {
-  const dfd = $.Deferred();
-  setTimeout(() => dfd.resolve(), ms);
-  return dfd.promise();
 }
 
 export function isOffice(fileExt) {

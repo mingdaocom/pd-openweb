@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import { getLegendType, formatrChartValue, formatYaxisList, getChartColors, getStyleColor } from './common';
 import { formatSummaryName, isFormatNumber } from 'statistics/common';
+import { Icon } from 'ming-ui';
 import { Dropdown, Menu } from 'antd';
 import { toFixed } from 'src/util';
+import tinycolor from '@ctrl/tinycolor';
 import _ from 'lodash';
 
 const mergeDataTime = (data, contrastData) => {
@@ -155,7 +157,8 @@ export default class extends Component {
       count: 0,
       dropdownVisible: false,
       offset: {},
-      match: null
+      match: null,
+      linkageMatch: null,
     }
     this.contrastData = null;
     this.FunnelChart = null;
@@ -163,7 +166,7 @@ export default class extends Component {
   componentDidMount() {
     import('@antv/g2plot').then(data => {
       this.FunnelComponent = data.Funnel;
-      this.renderFunnelChart();
+      this.renderFunnelChart(this.props);
     });
   }
   componentWillUnmount() {
@@ -185,7 +188,8 @@ export default class extends Component {
       style.funnelCurvature !== oldStyle.funnelCurvature ||
       style.tooltipValueType !== oldStyle.tooltipValueType ||
       !_.isEqual(chartColor, oldChartColor) ||
-      nextProps.themeColor !== this.props.themeColor
+      nextProps.themeColor !== this.props.themeColor ||
+      !_.isEqual(nextProps.linkageMatch, this.props.linkageMatch)
     ) {
       const config = this.getComponentConfig(nextProps);
       this.FunnelChart.update(config);
@@ -193,42 +197,73 @@ export default class extends Component {
     // 切换图表类型 & 累计
     if (
       displaySetup.showChartType !== oldDisplaySetup.showChartType ||
-      displaySetup.isAccumulate !== oldDisplaySetup.isAccumulate
+      displaySetup.isAccumulate !== oldDisplaySetup.isAccumulate ||
+      nextProps.isLinkageData !== this.props.isLinkageData
     ) {
       this.FunnelChart.destroy();
-      const config = this.getComponentConfig(nextProps);
+      this.renderFunnelChart(nextProps);
+    }
+  }
+  renderFunnelChart(props) {
+    const { reportData } = props;
+    const { displaySetup, style, xaxes } = reportData;
+    const config = this.getComponentConfig(props);
+    if (this.chartEl) {
       this.FunnelChart = new this.FunnelComponent(this.chartEl, config);
+      this.isViewOriginalData = displaySetup.showRowList && props.isViewOriginalData;
+      this.isLinkageData = props.isLinkageData && !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0) && xaxes.controlId;
+      if (this.isViewOriginalData || this.isLinkageData) {
+        this.FunnelChart.on('element:click', this.handleClick);
+      }
       this.FunnelChart.render();
     }
   }
-  renderFunnelChart() {
-    const { reportData, isViewOriginalData } = this.props;
-    const { displaySetup } = reportData;
-    const config = this.getComponentConfig(this.props);
-    this.FunnelChart = new this.FunnelComponent(this.chartEl, config);
-    if (displaySetup.showRowList && isViewOriginalData) {
-      this.FunnelChart.on('element:click', this.handleClick);
-    }
-    this.FunnelChart.render();
-  }
   handleClick = ({ data, gEvent }) => {
-    const { xaxes, split, displaySetup } = this.props.reportData;
+    const { xaxes, split, displaySetup, appId, reportId, name, reportType, style } = this.props.reportData;
     const { contrastType } = displaySetup;
     const currentData = data.data;
-    const param = {}
+    const param = {};
+    const linkageMatch = {
+      sheetId: appId,
+      reportId,
+      reportName: name,
+      reportType,
+      filters: []
+    };
     if (xaxes.cid) {
       const isNumber = isFormatNumber(xaxes.controlType);
       const value = currentData.id;
       param[xaxes.cid] = isNumber && value ? Number(value) : value;
+      linkageMatch.value = value;
+      linkageMatch.filters.push({
+        controlId: xaxes.controlId,
+        values: [param[xaxes.cid]],
+        controlName: xaxes.controlName,
+        controlValue: currentData.name,
+        type: xaxes.controlType,
+        control: xaxes
+      });
     }
+    if (_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length) {
+      linkageMatch.onlyChartIds = style.autoLinkageChartObjectIds;
+    }
+    const isAll = this.isViewOriginalData && this.isLinkageData;
     this.setState({
-      dropdownVisible: true,
+      dropdownVisible: isAll,
       offset: {
         x: gEvent.x + 20,
         y: gEvent.y
       },
       contrastType: currentData.isContrast ? contrastType : undefined,
-      match: param
+      match: param,
+      linkageMatch
+    }, () => {
+      if (!isAll && this.isViewOriginalData) {
+        this.handleRequestOriginalData();
+      }
+      if (!isAll && this.isLinkageData) {
+        this.handleAutoLinkage();
+      }
     });
   }
   handleRequestOriginalData = () => {
@@ -246,8 +281,18 @@ export default class extends Component {
       this.props.requestOriginalData(data);
     }
   }
+  handleAutoLinkage = () => {
+    const { linkageMatch } = this.state;
+    this.props.onUpdateLinkageFiltersGroup(linkageMatch);
+    this.setState({
+      dropdownVisible: false,
+    }, () => {
+      const config = this.getComponentConfig(this.props);
+      this.FunnelChart.update(config);
+    });
+  }
   getComponentConfig(props) {
-    const { themeColor, projectId, customPageConfig = {}, reportData } = props;
+    const { themeColor, projectId, customPageConfig = {}, reportData, linkageMatch } = props;
     const { chartColor, chartColorIndex = 1 } = customPageConfig;
     const { map, contrastMap, displaySetup, yaxisList, xaxes } = reportData;
     const styleConfig = reportData.style || {};
@@ -259,8 +304,7 @@ export default class extends Component {
     const rule = _.get(displaySetup.colorRules[0], 'dataBarRule') || {};
     const isRuleColor = !_.isEmpty(rule);
     const controlMinAndMax = isRuleColor ? getControlMinAndMax(yaxisList, data) : {};
-    const getRuleColor = ({ name }) => {
-      const { value } = _.find(data, { name }) || {};
+    const getRuleColor = value => {
       const color = getStyleColor({
         value,
         controlMinAndMax,
@@ -297,7 +341,22 @@ export default class extends Component {
       },
       isTransposed: displaySetup.showChartType === 2,
       shape: style.funnelShape,
-      color: isRuleColor ? getRuleColor : colors,
+      color: ({ name }) => {
+        const index = _.findIndex(data, { name });
+        const { id, value } = _.find(data, { name }) || {};
+        let color = colors[index % colors.length];;
+        if (isRuleColor) {
+          color = getRuleColor(value);
+        }
+        if (!_.isEmpty(linkageMatch)) {
+          if (linkageMatch.value === id) {
+            return color;
+          } else {
+            return tinycolor(color).setAlpha(0.3).toRgbString();
+          }
+        }
+        return color;
+      },
       legend: displaySetup.showLegend
         ? {
             position: position == 'top-left' ? 'top' : position,
@@ -309,7 +368,14 @@ export default class extends Component {
       conversionTag: displaySetup.showNumber && style.funnelCurvature !== 1
         ? {
             formatter: data => {
-              return _l('转化率%0', `${toFixed(data.$$percentage$$ * 100, 2)}%`);
+              const { CONVERSATION_FIELD, PERCENT_FIELD } = this.FunnelComponent;
+              let percentage = 0;
+              if (displaySetup.isAccumulate) {
+                percentage = data[PERCENT_FIELD] * 100
+              } else {
+                percentage = (data[CONVERSATION_FIELD][1] / data[CONVERSATION_FIELD][0]) * 100;
+              }
+              return _l('转化率%0', `${toFixed(percentage, 2)}%`);
             },
           }
         : false,
@@ -351,8 +417,15 @@ export default class extends Component {
   renderOverlay() {
     return (
       <Menu className="chartMenu" style={{ width: 160 }}>
+        <Menu.Item onClick={this.handleAutoLinkage} key="autoLinkage">
+          <div className="flexRow valignWrapper">
+            <Icon icon="link1" className="mRight8 Gray_9e Font20 autoLinkageIcon" />
+            <span>{_l('联动')}</span>
+          </div>
+        </Menu.Item>
         <Menu.Item onClick={this.handleRequestOriginalData} key="viewOriginalData">
           <div className="flexRow valignWrapper">
+            <Icon icon="table" className="mRight8 Gray_9e Font18" />
             <span>{_l('查看原始数据')}</span>
           </div>
         </Menu.Item>

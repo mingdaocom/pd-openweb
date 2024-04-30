@@ -2,8 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Icon, Input, LoadDiv, TagTextarea, ScrollView } from 'ming-ui';
-import SvgIcon from 'src/components/SvgIcon';
+import { Icon, Input, LoadDiv, TagTextarea, ScrollView, SvgIcon } from 'ming-ui';
 import { useSetState } from 'react-use';
 import Trigger from 'rc-trigger';
 import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
@@ -17,6 +16,9 @@ import appManagementApi from 'src/api/appManagement';
 import Search from 'src/pages/workflow/components/Search';
 import { navigateToView } from 'src/pages/widgetConfig/util/data';
 import withClickAway from 'ming-ui/decorators/withClickAway';
+import { getPluginOperateText } from '../util';
+import ImportPlugin from './ImportPlugin';
+import moment from 'moment';
 
 const ConfigWrapper = styled.div`
   display: flex;
@@ -195,6 +197,7 @@ function ViewPluginConfig(props) {
     debugEnvironments: [],
     currentVersion: {},
     configuration: '',
+    recentOperation: {},
   });
   const [defaultEnvList, setDefaultEnvList] = useState([{ isEdit: true }]);
   const [defaultConfiguration, setDefaultConfiguration] = useSetState({ debugConfiguration: {}, configuration: {} });
@@ -205,7 +208,12 @@ function ViewPluginConfig(props) {
     keywords: '',
     noMore: false,
   });
-  const [detailList, setDetailList] = useSetState({ usageList: [], publishHistoryList: [], commitList: [] });
+  const [detailList, setDetailList] = useSetState({
+    usageList: [],
+    publishHistoryList: [],
+    commitList: [],
+    exportHistoryList: [],
+  });
   const [appList, setAppList] = useState();
   const [editingName, setEditingName] = useState(false);
   const [currentTab, setCurrentTab] = useState(
@@ -255,7 +263,7 @@ function ViewPluginConfig(props) {
               });
             }
           })
-          .fail(error => setFetchListState({ loading: false }));
+          .catch(error => setFetchListState({ loading: false }));
         break;
       case pluginConfigType.publishHistory:
         pluginApi
@@ -268,7 +276,7 @@ function ViewPluginConfig(props) {
               });
             }
           })
-          .fail(error => setFetchListState({ loading: false }));
+          .catch(error => setFetchListState({ loading: false }));
         break;
       case pluginConfigType.usageDetail:
         pluginApi
@@ -281,10 +289,23 @@ function ViewPluginConfig(props) {
               });
             }
           })
-          .fail(error => setFetchListState({ loading: false }));
+          .catch(error => setFetchListState({ loading: false }));
         break;
       case pluginConfigType.debugEnv:
         setDetailData({ debugEnvironments: defaultEnvList });
+        break;
+      case pluginConfigType.exportHistory:
+        pluginApi
+          .getExportHistory({ id: pluginId, pageSize: 50, pageIndex, source })
+          .then(res => {
+            if (res) {
+              setFetchListState({ loading: false, noMore: res.length < 50 });
+              setDetailList({
+                exportHistoryList: pageIndex > 1 ? detailList.exportHistoryList.concat(res) : res,
+              });
+            }
+          })
+          .catch(error => setFetchListState({ loading: false }));
         break;
       default:
         break;
@@ -376,7 +397,7 @@ function ViewPluginConfig(props) {
           <SelectIcon
             hideInput
             iconColor={detailData.iconColor}
-            name={detailData.iconUrl}
+            icon={detailData.icon}
             projectId={projectId}
             onModify={({ iconColor, icon, iconUrl }) => {
               let updateObj = {};
@@ -509,6 +530,8 @@ function ViewPluginConfig(props) {
             onDelete={id =>
               setDetailList({ publishHistoryList: detailList.publishHistoryList.filter(item => id !== item.id) })
             }
+            onExportSuccess={() => setCurrentTab(pluginConfigType.exportHistory)}
+            publishType={detailData.source}
           />
         );
       case pluginConfigType.usageDetail:
@@ -519,6 +542,18 @@ function ViewPluginConfig(props) {
             list={detailList.usageList}
             onRefreshList={() => fetchList(1)}
             keywords={fetchListState.keywords}
+          />
+        );
+      case pluginConfigType.exportHistory:
+        return (
+          <DetailList
+            {...props}
+            configType={currentTab}
+            list={detailList.exportHistoryList}
+            onRefreshList={() => fetchList(1)}
+            onDelete={id =>
+              setDetailList({ exportHistoryList: detailList.exportHistoryList.filter(item => id !== item.id) })
+            }
           />
         );
       default:
@@ -590,8 +625,11 @@ function ViewPluginConfig(props) {
                     <span className="Font24 bold">{detailData.currentVersion.versionCode}</span>
                     <span className="Gray_75 mLeft12 flexColumn minWidth0">
                       <div>
-                        {_.get(detailData, ['currentVersion', 'publisher', 'fullname'])} {_l('发布于')}
-                        {createTimeSpan(detailData.currentVersion.releaseTime)}
+                        {source === 0
+                          ? `${detailData.creator.fullname} 发布于 ${moment(
+                              detailData.currentVersion.releaseTime,
+                            ).format('YYYY年MM月DD日 HH:mm')}`
+                          : getPluginOperateText(detailData.recentOperation)}
                       </div>
                       <div className="ellipsis">{detailData.currentVersion.versionDescription}</div>
                     </span>
@@ -603,9 +641,23 @@ function ViewPluginConfig(props) {
                 {(isAdmin ||
                   md.global.Account.accountId === _.get(detailData, 'creator.accountId') ||
                   belongType === 'myPlugin') && (
-                  <div className="versionPublishBtn" onClick={() => setPublishVisible(true)}>
+                  <div
+                    className="versionPublishBtn"
+                    onClick={() =>
+                      detailData.source === 2
+                        ? ImportPlugin({
+                            projectId,
+                            pluginId,
+                            onImportCreateSuccess: () => {
+                              fetchDetail();
+                              fetchList(1);
+                            },
+                          })
+                        : setPublishVisible(true)
+                    }
+                  >
                     <Icon icon="publish" />
-                    <span>{_l('发布新版本')}</span>
+                    <span>{detailData.source === 2 ? _l('导入升级') : _l('发布新版本')}</span>
                   </div>
                 )}
 

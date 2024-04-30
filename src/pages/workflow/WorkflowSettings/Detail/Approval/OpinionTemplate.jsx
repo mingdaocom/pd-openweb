@@ -45,8 +45,8 @@ const SortableItem = SortableElement(({ data, items, sourceKey, item, currentInd
     <SortableItemBox className="flexRow mTop12 alignItemsCenter">
       <DragHandle />
       <Textarea
-        className="flex mLeft10"
-        style={{ paddingTop: 9, paddingBottom: 9 }}
+        className="flex mLeft10 Font13"
+        style={{ paddingTop: 7, paddingBottom: 7 }}
         minHeight={0}
         maxHeight={120}
         value={item.value}

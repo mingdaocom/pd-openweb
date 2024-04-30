@@ -18,7 +18,7 @@ var taskFlow = {
   addTaskFlow: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'taskFlow/addTaskFlow';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'taskFlowaddTaskFlow', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'taskFlowaddTaskFlow', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -35,7 +35,7 @@ var taskFlow = {
   getNodeInfo: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'taskFlow/getNodeInfo';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'taskFlowgetNodeInfo', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'taskFlowgetNodeInfo', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -55,7 +55,7 @@ var taskFlow = {
   saveConfig: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'taskFlow/saveConfig';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'taskFlowsaveConfig', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'taskFlowsaveConfig', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -69,7 +69,7 @@ var taskFlow = {
   upgradeTaskFlow: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'taskFlow/upgradeTaskFlow';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'taskFlowupgradeTaskFlow', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'taskFlowupgradeTaskFlow', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -88,7 +88,7 @@ var taskFlow = {
   updateTaskFlow: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'taskFlow/updateTaskFlow';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'taskFlowupdateTaskFlow', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'taskFlowupdateTaskFlow', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -105,7 +105,7 @@ var taskFlow = {
   deleteNode: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'taskFlow/deleteNode';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'taskFlowdeleteNode', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'taskFlowdeleteNode', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -121,7 +121,22 @@ var taskFlow = {
   deleteTaskFlow: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'taskFlow/deleteTaskFlow';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'taskFlowdeleteTaskFlow', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'taskFlowdeleteTaskFlow', JSON.stringify(args), $.extend(base, options));
+  },
+
+  /**
+   * 获取任务流信息ForTest
+   *
+   * @param {Object} args 请求参数
+   * @param {string} args.flowId flowId
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getTaskFlowForTest: function (args, options) {
+    base.ajaxOptions.url = base.server(options) + 'taskFlow/getTaskFlowForTest';
+    base.ajaxOptions.type = 'GET';
+    return mdyAPI(controllerName, 'taskFlowgetTaskFlowForTest', args, $.extend(base, options));
   },
 
   /**
@@ -138,7 +153,7 @@ var taskFlow = {
   nodeDataPreview: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'taskFlow/nodeDataPreview';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'taskFlownodeDataPreview', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'taskFlownodeDataPreview', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -160,7 +175,7 @@ var taskFlow = {
   updateNode: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'taskFlow/updateNode';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'taskFlowupdateNode', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'taskFlowupdateNode', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -174,7 +189,7 @@ var taskFlow = {
   recoverTaskFlow: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'taskFlow/recoverTaskFlow';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'taskFlowrecoverTaskFlow', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'taskFlowrecoverTaskFlow', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -186,6 +201,7 @@ var taskFlow = {
    * @param {object} args.fieldForIdentifyDuplicate 用于工作表识别重复的字段信息(object)
    * @param {string} args.writeMode 工作表写入模式(See: 写入模式)
    * @param {boolean} args.isCleanDestTableData 是否清空目标表数据
+   * @param {boolean} args.preview 是否预览
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -193,7 +209,7 @@ var taskFlow = {
   publishTask: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'taskFlow/publishTask';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'taskFlowpublishTask', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'taskFlowpublishTask', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -205,6 +221,7 @@ var taskFlow = {
    * @param {object} args.sourceNode 源表节点(object)
    * @param {object} args.destNode 目的地节点(object)
    * @param {object} args.workflowConfig 工作流配置(object)
+   * @param {boolean} args.comment 是否同步注释信息(新建表)
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -212,7 +229,7 @@ var taskFlow = {
   initEmpty: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'taskFlow/initEmpty';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'taskFlowinitEmpty', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'taskFlowinitEmpty', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -228,7 +245,7 @@ var taskFlow = {
   list: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'taskFlow/list';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'taskFlowlist', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'taskFlowlist', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -240,6 +257,7 @@ var taskFlow = {
    * @param {object} args.sourceNode 源表节点(object)
    * @param {object} args.destNode 目的地节点(object)
    * @param {object} args.workflowConfig 工作流配置(object)
+   * @param {boolean} args.comment 是否同步注释信息(新建表)
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -247,7 +265,7 @@ var taskFlow = {
   init: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'taskFlow/init';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'taskFlowinit', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'taskFlowinit', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -259,6 +277,7 @@ var taskFlow = {
    * @param {object} args.sourceNode 源表节点(object)
    * @param {object} args.destNode 目的地节点(object)
    * @param {object} args.workflowConfig 工作流配置(object)
+   * @param {boolean} args.comment 是否同步注释信息(新建表)
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -266,7 +285,7 @@ var taskFlow = {
   createSyncTasks: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'taskFlow/createSyncTasks';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'taskFlowcreateSyncTasks', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'taskFlowcreateSyncTasks', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -282,7 +301,7 @@ var taskFlow = {
   getTaskFlow: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'taskFlow/getTaskFlow';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'taskFlowgetTaskFlow', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'taskFlowgetTaskFlow', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -301,7 +320,24 @@ var taskFlow = {
   renameNode: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'taskFlow/renameNode';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'taskFlowrenameNode', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'taskFlowrenameNode', JSON.stringify(args), $.extend(base, options));
+  },
+
+  /**
+   * 拷贝配置
+   *
+   * @param {Object} args 请求参数
+   * @param {string} args.flowId 画布id
+   * @param {integer} args.num 拷贝的数量
+   * @param {boolean} args.publish 是否发布
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  copy: function (args, options) {
+    base.ajaxOptions.url = base.server(options) + 'taskFlow/copy';
+    base.ajaxOptions.type = 'POST';
+    return mdyAPI(controllerName, 'taskFlowcopy', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -322,7 +358,7 @@ var taskFlow = {
   addNode: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'taskFlow/addNode';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'taskFlowaddNode', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'taskFlowaddNode', JSON.stringify(args), $.extend(base, options));
   }
 };
 

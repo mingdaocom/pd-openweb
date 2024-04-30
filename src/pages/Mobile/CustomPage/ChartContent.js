@@ -1,5 +1,7 @@
 import React, { useEffect, useState, Fragment, useRef } from 'react';
 import { useDeepCompareEffect } from 'react-use';
+import { bindActionCreators } from 'redux';
+import * as actions from './redux/actions';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
@@ -12,6 +14,8 @@ import { fillValueMap, version } from 'statistics/common';
 import { reportTypes } from 'statistics/Charts/common';
 import { connect } from 'react-redux';
 import { formatFiltersGroup } from 'src/pages/customPage/components/editWidget/filter/util';
+import { updateLinkageFiltersGroup } from 'src/pages/customPage/redux/action.js';
+import { formatLinkageFiltersGroup } from 'src/pages/customPage/util';
 import _ from 'lodash';
 
 const ModalContent = styled.div`
@@ -58,8 +62,8 @@ const HorizontalChartContent = styled.div`
     color: #333;
     font-weight: 500;
     font-size: 20px;
-    font-family: system-ui, BlinkMacSystemFont, segoe ui, Roboto, Helvetica, Arial, sans-serif,
-      apple color emoji, segoe ui emoji, segoe ui symbol;
+    font-family: system-ui, BlinkMacSystemFont, segoe ui, Roboto, Helvetica, Arial, sans-serif, apple color emoji,
+      segoe ui emoji, segoe ui symbol;
   }
   .allow {
     border-radius: 50%;
@@ -68,7 +72,20 @@ const HorizontalChartContent = styled.div`
 `;
 
 function ChartComponent(props) {
-  const { widget, reportId, name, accessToken, filters = [], pageComponents, projectId, themeColor, filtersGroup = [] } = props;
+  const { linkageFiltersGroup = [], linkageMatch = {}, onUpdateLinkageFiltersGroup = _.noop } = props;
+  const {
+    widget,
+    reportId,
+    name,
+    accessToken,
+    filters = [],
+    pageComponents,
+    projectId,
+    themeColor,
+    filtersGroup = [],
+    onLoad,
+    isHorizontal,
+  } = props;
   const mobileCount = _.get(widget, 'config.mobileCount');
   const mobileFontSize = _.get(widget, 'config.mobileFontSize');
   const [loading, setLoading] = useState(true);
@@ -77,22 +94,21 @@ function ChartComponent(props) {
   const [data, setData] = useState({ name });
   const [zoomData, setZoomData] = useState({ name });
   const [defaultData, setDefaultData] = useState();
-  const shareAuthor = window.shareAuthor;
-  const headersConfig = {
-    share: shareAuthor,
-    access_token: accessToken,
-  };
   const pageConfig = {
     ...props.pageConfig,
     filters: filters.length ? filters : undefined,
-    filtersGroup: filtersGroup.length ? filtersGroup : undefined
+    filtersGroup: filtersGroup.length ? filtersGroup : undefined,
   };
-  
+
+  if (accessToken) {
+    window.access_token = accessToken;
+  }
+
   const request = useRef(null);
 
   useDeepCompareEffect(() => {
     handleReportRequest();
-  }, [reportId, filtersGroup]);
+  }, [reportId, filtersGroup, linkageFiltersGroup]);
 
   const handleReportRequest = param => {
     let requestParam = {
@@ -100,8 +116,9 @@ function ChartComponent(props) {
       version,
       filters: [
         filters.length ? filters : undefined,
-        filtersGroup.length ? filtersGroup : undefined
-      ].filter(_ => _)
+        filtersGroup.length ? filtersGroup : undefined,
+        linkageFiltersGroup.length ? linkageFiltersGroup : undefined,
+      ].filter(_ => _),
     };
     if (param) {
       Object.assign(
@@ -117,29 +134,24 @@ function ChartComponent(props) {
       );
     }
     setLoading(true);
-    // if (request.current && request.current.state() === 'pending' && request.current.abort) {
-    //   request.current.abort();
-    // }
-    // if (request.current && request.current.state() === 'resolved') {
-    //   setData({ ...data, map: [] });
-    // }
-    request.current = report.getData(requestParam, (shareAuthor || accessToken) ? { headersConfig } : { fireImmediately: true });
+    request.current = report.getData(requestParam);
     request.current.then(data => {
-        data.reportId = reportId;
-        const result = fillValueMap(data);
-        setData(result);
-        setZoomData(result);
-        if (_.isEmpty(defaultData)) {
-          setDefaultData(data);
-        }
-        setLoading(false);
-      });
-  }
+      data.reportId = reportId;
+      const result = fillValueMap(data);
+      setData(result);
+      setZoomData(result);
+      if (_.isEmpty(defaultData)) {
+        setDefaultData(data);
+      }
+      setLoading(false);
+      onLoad && onLoad(data);
+    });
+  };
 
   const handleNextReportRequest = (reportId, param) => {
     let requestParam = {
       reportId,
-      version
+      version,
     };
     if (param) {
       Object.assign(
@@ -156,14 +168,14 @@ function ChartComponent(props) {
     }
     setLoading(true);
     report
-      .getData(requestParam, accessToken ? { headersConfig } : {})
+      .getData(requestParam)
       .then(data => {
         data.reportId = reportId;
         const result = fillValueMap(data);
         setZoomData(result);
       })
-      .always(() => setLoading(false));
-  }
+      .finally(() => setLoading(false));
+  };
 
   const handleOpenFilterModal = () => {
     const newFilterVisible = !filterVisible;
@@ -185,7 +197,7 @@ function ChartComponent(props) {
           <ChartFilter
             data={zoomVisible ? zoomData : data}
             defaultData={defaultData}
-            onChange={(data) => {
+            onChange={data => {
               if (zoomVisible) {
                 handleNextReportRequest(zoomData.reportId, data);
               } else {
@@ -197,7 +209,7 @@ function ChartComponent(props) {
             <Fragment>
               <ChartSort
                 currentReport={zoomVisible ? zoomData : data}
-                onChangeCurrentReport={(data) => {
+                onChangeCurrentReport={data => {
                   if (zoomVisible) {
                     handleNextReportRequest(zoomData.reportId, data);
                   } else {
@@ -213,20 +225,21 @@ function ChartComponent(props) {
   };
 
   const isMobileChartPage = location.href.includes('mobileChart');
+  const chartProps = {
+    projectId,
+    linkageMatch,
+    onUpdateLinkageFiltersGroup,
+    loading,
+    pageConfig,
+    themeColor,
+    mobileFontSize,
+    onOpenFilterModal: handleOpenFilterModal,
+    onOpenZoomModal: handleOpenZoomModal,
+  };
 
   return (
     <Fragment>
-      <Chart
-        data={data}
-        loading={loading}
-        mobileFontSize={mobileFontSize}
-        projectId={projectId}
-        mobileCount={mobileCount}
-        themeColor={themeColor}
-        pageConfig={pageConfig}
-        onOpenFilterModal={handleOpenFilterModal}
-        onOpenZoomModal={handleOpenZoomModal}
-      />
+      <Chart data={data} mobileCount={mobileCount} onOpenFilterModal={handleOpenFilterModal} {...chartProps} />
       <Modal
         popup
         style={{ height: isMobileChartPage ? '80%' : null }}
@@ -261,21 +274,15 @@ function ChartComponent(props) {
         >
           {zoomVisible && (
             <Chart
-              isHorizontal={true}
-              projectId={projectId}
-              themeColor={themeColor}
-              pageConfig={pageConfig}
+              isHorizontal={!_.isUndefined(isHorizontal) ? isHorizontal : true}
               pageComponents={pageComponents}
               data={zoomData}
-              loading={loading}
-              mobileFontSize={mobileFontSize}
-              onOpenFilterModal={handleOpenFilterModal}
-              onOpenZoomModal={handleOpenZoomModal}
-              onLoadBeforeData={(index) => {
+              {...chartProps}
+              onLoadBeforeData={index => {
                 const data = pageComponents[index];
                 handleNextReportRequest(data.value);
               }}
-              onLoadNextData={(index) => {
+              onLoadNextData={index => {
                 const data = pageComponents[index];
                 handleNextReportRequest(data.value);
               }}
@@ -293,15 +300,43 @@ function ChartContent(props) {
   const { widget, filterComponents, loadFilterComponentCount } = props;
   const columnWidthConfig = _.get(widget, 'config.columnWidthConfig');
   const objectId = _.get(widget, 'config.objectId');
+  const [visible, setVisible] = useState(false);
+  const [sheetId, setSheetId] = useState(null);
   const filtersGroup = formatFiltersGroup(objectId, props.filtersGroup);
+  const { linkageFiltersGroup = [], initiateChartIds = [] } = sheetId
+    ? formatLinkageFiltersGroup({ sheetId, reportId: widget.value, objectId }, props.linkageFiltersGroup)
+    : {};
 
   useEffect(() => {
+    const customPageContent = document.querySelector('#componentsWrap');
+    if (!customPageContent) {
+      setVisible(true);
+      return;
+    }
+    const chat = customPageContent.querySelector(`.widgetContent .analysis-${widget.id}`);
+    const checkVisible = () => {
+      if (!visible) {
+        const pageRect = customPageContent.getBoundingClientRect();
+        const rect = chat.getBoundingClientRect();
+        const value = rect.top <= pageRect.bottom;
+        value && setVisible(value);
+      }
+    };
+    customPageContent.addEventListener('scroll', checkVisible, false);
+    checkVisible();
     if (columnWidthConfig) {
       sessionStorage.setItem(`pivotTableColumnWidthConfig-${widget.value}`, columnWidthConfig);
     }
+    return () => {
+      customPageContent.removeEventListener('scroll', checkVisible, false);
+    };
   }, []);
 
-  if (!_.get(window, 'shareState.shareId') && filterComponents.length && loadFilterComponentCount < filterComponents.length) {
+  if (
+    !_.get(window, 'shareState.shareId') &&
+    filterComponents.length &&
+    loadFilterComponentCount < filterComponents.length
+  ) {
     return (
       <Flex justify="center" align="center" className="h100 w100">
         <ActivityIndicator size="large" />
@@ -309,11 +344,13 @@ function ChartContent(props) {
     );
   }
 
-  const isClickSearch = !!filterComponents.map(data => {
-    const { filters, advancedSetting } = data;
-    const result = _.find(filters, { objectId });
-    return result && advancedSetting.clicksearch === '1';
-  }).filter(n => n).length;
+  const isClickSearch = !!filterComponents
+    .map(data => {
+      const { filters, advancedSetting } = data;
+      const result = _.find(filters, { objectId });
+      return result && advancedSetting.clicksearch === '1';
+    })
+    .filter(n => n).length;
 
   if (isClickSearch && !filtersGroup.length) {
     return (
@@ -323,18 +360,39 @@ function ChartContent(props) {
     );
   }
 
+  if (!visible) {
+    return (
+      <Flex justify="center" align="center" className="h100 w100">
+        <ActivityIndicator size="large" />
+      </Flex>
+    );
+  }
+
   return (
-    <ChartComponent {...props} filtersGroup={filtersGroup.length ? filtersGroup : emptyArray} />
+    <ChartComponent
+      {...props}
+      linkageMatch={props.linkageFiltersGroup[widget.id]}
+      filtersGroup={filtersGroup.length ? filtersGroup : emptyArray}
+      linkageFiltersGroup={linkageFiltersGroup.length ? linkageFiltersGroup : undefined}
+      initiateChartInfo={initiateChartIds.map(id => props.linkageFiltersGroup[id])}
+      onUpdateLinkageFiltersGroup={data => {
+        data.objectId = objectId;
+        data.widgetId = widget.id;
+        props.updateLinkageFiltersGroup(widget.id, data);
+      }}
+      onLoad={result => setSheetId(result.appId)}
+    />
   );
 }
 
 export const StateChartContent = connect(
   state => ({
     filtersGroup: state.mobile.filtersGroup,
+    linkageFiltersGroup: state.mobile.linkageFiltersGroup,
     filterComponents: state.mobile.filterComponents,
     loadFilterComponentCount: state.mobile.loadFilterComponentCount,
-  })
+  }),
+  dispatch => bindActionCreators(_.pick(actions, ['updateLinkageFiltersGroup']), dispatch),
 )(ChartContent);
 
 export default ChartComponent;
-

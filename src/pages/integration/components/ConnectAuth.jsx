@@ -283,8 +283,8 @@ function ConnectAuth(props) {
             <Support
               href={
                 node.appType === 31
-                  ? 'https://help.mingdao.com/integration#basic-auth-认证'
-                  : 'https://help.mingdao.com/integration#oauth-鉴权认证'
+                  ? 'https://help.mingdao.com/integration/api#basic-auth'
+                  : 'https://help.mingdao.com/integration/api#oauth'
               }
               type={3}
               text={_l('使用帮助')}

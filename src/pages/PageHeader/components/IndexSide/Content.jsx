@@ -20,7 +20,7 @@ export default function SideContent(props) {
       .then(res => {
         setData(res);
       })
-      .always(() => {
+      .finally(() => {
         setLoading(false);
       });
   };

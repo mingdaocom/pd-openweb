@@ -6,19 +6,10 @@ import moment from 'moment';
  */
 export const setPssId = (id, verification = false) => {
   if (id) {
-    const userAgent = window.navigator.userAgent.toLowerCase();
-
     if (md.global.Config.IsLocal && md.global.Config.SessionCookieExpireMinutes) {
-      const expireDate = moment()
-        .add(md.global.Config.SessionCookieExpireMinutes, 'm')
-        .toDate();
+      const expireDate = moment().add(md.global.Config.SessionCookieExpireMinutes, 'm').toDate();
       window.setCookie('md_pss_id', id, expireDate);
-    } else if (
-      verification ||
-      userAgent.includes('dingtalk') ||
-      userAgent.includes('miniprogram') ||
-      location.href.indexOf('localhost') > -1
-    ) {
+    } else if (verification || window.isDingTalk || window.isMiniProgram || location.href.indexOf('localhost') > -1) {
       window.setCookie('md_pss_id', id);
     }
 

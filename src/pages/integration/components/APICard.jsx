@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import cx from 'classnames';
-import { Icon } from 'ming-ui';
+import { Icon, SvgIcon } from 'ming-ui';
 import { publishStatus2Text, formatDate } from 'src/pages/integration/config';
 import { Switch } from 'antd';
-import SvgIcon from 'src/components/SvgIcon';
 import { LogoWrap } from 'src/pages/integration/apiIntegration/style';
 const Wrap = styled.div`
   z-index: 11111;

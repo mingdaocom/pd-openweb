@@ -115,7 +115,7 @@ export default function ControlMask(props) {
               title={
                 <span>
                   {_l('对字段数据进行加密存储，保护重要信息。注意：字段加密后。一些使用将会受限。')}
-                  <Support type={3} text={_l('了解详情')} href="https://help.mingdao.com/sheet29" />
+                  <Support type={3} text={_l('了解详情')} href="https://help.mingdao.com/worksheet/data-encryption" />
                 </span>
               }
             >

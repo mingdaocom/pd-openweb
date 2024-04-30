@@ -8,6 +8,6 @@ export default {
   **/
    check: function (args, options = {}) {
      options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return $.api('Health', 'Check', args, options);
+     return mdyAPI('Health', 'Check', args, options);
    },
 };

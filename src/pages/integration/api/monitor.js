@@ -17,7 +17,7 @@ var monitor = {
   getRunTime: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'monitor/getRunTime';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'monitorgetRunTime', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'monitorgetRunTime', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -35,7 +35,7 @@ var monitor = {
   getTasksTotal: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'monitor/getTasksTotal';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'monitorgetTasksTotal', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'monitorgetTasksTotal', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -49,7 +49,7 @@ var monitor = {
   getTestCount2: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'monitor/getTestCount2';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'monitorgetTestCount2', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'monitorgetTestCount2', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -67,7 +67,7 @@ var monitor = {
   getHistoricalData: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'monitor/getHistoricalData';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'monitorgetHistoricalData', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'monitorgetHistoricalData', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -85,7 +85,7 @@ var monitor = {
   getArithmetic: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'monitor/getArithmetic';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'monitorgetArithmetic', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'monitorgetArithmetic', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -103,7 +103,7 @@ var monitor = {
   getToDayTotal: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'monitor/getToDayTotal';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'monitorgetToDayTotal', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'monitorgetToDayTotal', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -121,7 +121,7 @@ var monitor = {
   getTaskCount: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'monitor/getTaskCount';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'monitorgetTaskCount', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'monitorgetTaskCount', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -135,7 +135,7 @@ var monitor = {
   getTestCount: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'monitor/getTestCount';
     base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'monitorgetTestCount', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(controllerName, 'monitorgetTestCount', JSON.stringify(args), $.extend(base, options));
   }
 };
 

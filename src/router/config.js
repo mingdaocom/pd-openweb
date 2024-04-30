@@ -1,9 +1,4 @@
 export const ROUTE_CONFIG = {
-  chat: {
-    path: '/chat',
-    redirect: '/app',
-  },
-
   chatWindow: {
     path: '/chat_window',
     component: () => import('src/pages/chat/detail'),
@@ -94,7 +89,7 @@ export const ROUTE_CONFIG = {
     component: () => import('src/pages/worksheet/pages/WorksheetRowLand'),
   },
   viewDetail: {
-    path: '/embed/view/:appId/:worksheetId/:viewId',
+    path: '/embed/view/:appId/:worksheetId/:viewId?',
     component: () => import('src/pages/ViewLand'),
   },
   workflowRecordLand: {
@@ -199,7 +194,7 @@ export const ROUTE_CONFIG = {
     component: () => import('src/components/print'),
   },
   workflowEdit: {
-    path: '/workflowedit/:flowId/:type?/:actionId?',
+    path: '/workflowedit/:flowId/:type?/:operator?/:operatorId?',
     component: () => import('src/pages/workflow/WorkflowSettings'),
     title: _l('编辑工作流'),
   },
@@ -232,6 +227,11 @@ export const ROUTE_CONFIG = {
     path: '/favorite',
     component: () => import('src/pages/AppHomepage/AppCenter'),
     title: _l('收藏'),
+  },
+  aggregationInfo: {
+    path: '/aggregationTable/:id?/:name?',
+    component: () => import('src/pages/AppSettings/components/Aggregation/components/PreviewData'),
+    title: _l('聚合表'),
   },
   lib: {
     path: '/app/lib/',
@@ -292,7 +292,6 @@ export const ROUTE_CONFIG = {
 
 const withoutHeaderPathList = [
   'demo',
-  'chat',
   'apps/kcupload',
   'apps/kcshare',
   'apps/kc/shareFolder',
@@ -315,10 +314,10 @@ const withoutHeaderPathList = [
   'integrationConnect',
   'role',
   'portaluser',
+  'aggregationTable',
 ];
 const withoutChatPathList = [
   'demo',
-  'chat',
   'apps/kcupload',
   'apps/kcshare',
   'apps/kc/shareFolder',
@@ -346,6 +345,7 @@ const withoutChatPathList = [
   'portaluser',
   'wechatPay',
   'embed/view',
+  'aggregationTable',
 ];
 export const withoutHeaderUrl = `/(.*)(${withoutHeaderPathList.join('|')})`;
 export const withoutChatUrl = `/(.*)(${withoutChatPathList.join('|')})`;

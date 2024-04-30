@@ -4,7 +4,7 @@ import cx from 'classnames';
 import '@mdfe/nanoscroller';
 import './style.less';
 import { FREQUENCY, RECURTYPE, MEMBER_STATUS } from './constant';
-import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
+import { dialogSelectUser } from 'ming-ui/functions';
 import { Config } from './index';
 import * as Common from './common';
 import Comm from '../comm/comm';
@@ -510,7 +510,7 @@ export default class CalendarDetail extends Component {
 
     const changeRemind = ({ remindType, remindTime }) => {
       const { id } = this.state;
-      return Common.updateRemind({ id, remindType, remindTime });
+      Common.updateRemind({ id, remindType, remindTime });
     };
 
     const props = {

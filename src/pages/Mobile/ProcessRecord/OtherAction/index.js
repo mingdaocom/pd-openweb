@@ -425,10 +425,10 @@ export default class extends Component {
     }
   }
   renderContent() {
-    const { action, instance } = this.props;
+    const { action, instance, projectId } = this.props;
     const { content, backFlowNode, customApproveContent, files } = this.state;
     const currentAction = ACTION_TO_TEXT[action] || {};
-    const { opinionTemplate, flowNode } = instance || {};
+    const { opinionTemplate, flowNode, app = {} } = instance || {};
     const { inputType } = opinionTemplate;
     const { auth, isCallBack } = flowNode || {};
     const passContent = action === 'pass' && _.includes(auth.passTypeList, 100);
@@ -439,8 +439,7 @@ export default class extends Component {
       (action === 'pass' && _.includes(auth.passTypeList, 101)) ||
       (action === 'overrule' && _.includes(auth.overruleTypeList, 101));
     const isSignature = passSignature || overruleSignature;
-    const isAndroid = navigator.userAgent.toLowerCase().includes('android');
-    const isAttachment = _.includes(['pass', 'overrule', 'return', 'after'], action);
+    const isAttachment = _.includes(['pass', 'overrule', 'return', 'after', 'before'], action);
     let opinions = [];
     if (_.includes(['after', 'pass'], action)) {
       opinions = opinionTemplate.opinions[4];
@@ -496,12 +495,12 @@ export default class extends Component {
                         });
                       }}
                       onFocus={() => {
-                        if (isAndroid && isSignature) {
+                        if (window.isAndroid && isSignature) {
                           this.setState({ edit: true });
                         }
                       }}
                       onBlur={() => {
-                        if (isAndroid && isSignature) {
+                        if (window.isAndroid && isSignature) {
                           this.setState({ edit: false });
                         }
                       }}
@@ -512,7 +511,14 @@ export default class extends Component {
                   )}
                   {isAttachment && (
                     <UploadFileWrapper
-                      style={{ top: selectTemplateVisible ? 0 : 2 }}
+                      className="selectTemplate flexRow valignWrapper justifyContentCenter mLeft6"
+                      style={{
+                        top: selectTemplateVisible ? 0 : 2,
+                        minHeight: selectTemplateVisible ? 35 : 40,
+                        width: selectTemplateVisible ? 35 : 40,
+                      }}
+                      projectId={projectId}
+                      appId={app.id}
                       files={files}
                       onChange={files => {
                         this.setState({
@@ -520,17 +526,12 @@ export default class extends Component {
                         });
                       }}
                     >
-                      <div
-                        className="selectTemplate flexRow valignWrapper justifyContentCenter mLeft6"
-                        style={{ minHeight: selectTemplateVisible ? 35 : 40, width: selectTemplateVisible ? 35 : 40 }}
-                      >
-                        <Icon icon="attachment" />
-                      </div>
+                      <Icon icon="attachment" />
                     </UploadFileWrapper>
                   )}
                 </div>
               </div>
-              {_.includes(['pass', 'overrule', 'return', 'after'], action) && this.renderAttachment()}
+              {isAttachment && this.renderAttachment()}
             </Fragment>
           )}
           {isSignature && this.renderSignature()}

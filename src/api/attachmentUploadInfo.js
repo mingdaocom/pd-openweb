@@ -22,7 +22,7 @@ export default {
   **/
    getAttachmentUploadInfos: function (args, options = {}) {
      
-     return $.api('AttachmentUploadInfo', 'GetAttachmentUploadInfos', args, options);
+     return mdyAPI('AttachmentUploadInfo', 'GetAttachmentUploadInfos', args, options);
    },
   /**
   * 获取附件上传记录总数
@@ -47,6 +47,6 @@ export default {
   **/
    getAttachmentUploadInfoCount: function (args, options = {}) {
      
-     return $.api('AttachmentUploadInfo', 'GetAttachmentUploadInfoCount', args, options);
+     return mdyAPI('AttachmentUploadInfo', 'GetAttachmentUploadInfoCount', args, options);
    },
 };

@@ -25,17 +25,24 @@ export const permissionObj = {
     'orglog',
     'platformintegration',
     'thirdapp',
+    'account',
+    'data',
+    'securityOthers',
   ],
+  // 有角色（显示管理员菜单）
+  SHOW_MANAGER: ['sysroles'],
   // 应用管理('应用‘，’工作流‘，‘使用分析’)
-  APK_ADMIN: ['app', 'workflows', 'analytics', 'computing', 'variables', 'applog', 'settings'],
-  // 钉钉
-  HAS_DING: ['ding'],
-  // 微信集成
-  HAS_WORKWX: ['workwxapp'],
-  // welink集成
-  HAS_WELINK: ['welink'],
-  // 飞书集成
-  HAS_FEISHU: ['feishu'],
+  APK_ADMIN: [
+    'app',
+    'workflows',
+    'analytics',
+    'computing',
+    'variables',
+    'applog',
+    'database',
+    'settings',
+    'aggregationTable',
+  ],
 };
 
 export const menuList = [
@@ -176,17 +183,6 @@ export const menuList = [
         ],
       },
       {
-        name: _l('安全'),
-        key: 'security',
-        menuPath: '/admin/security/:projectId',
-        routes: [
-          {
-            path: '/admin/security/:projectId/:roleId?',
-            component: () => import('./organization/security'),
-          },
-        ],
-      },
-      {
         name: _l('其他'),
         key: 'orgothers',
         routes: [
@@ -203,17 +199,6 @@ export const menuList = [
     key: 'apps',
     icon: 'icon-now_widgets',
     subMenuList: [
-      {
-        name: _l('使用分析%15003'),
-        featureId: 17,
-        key: 'analytics',
-        routes: [
-          {
-            path: '/admin/analytics/:projectId',
-            component: () => import('./app/useAnalytics/index.js'),
-          },
-        ],
-      },
       {
         name: _l('应用管理'),
         key: 'app',
@@ -241,6 +226,21 @@ export const menuList = [
         ],
       },
       {
+        name: _l('聚合表'),
+        key: 'aggregationTable',
+        featureId: VersionProductType.aggregation,
+        routes: [
+          {
+            path: '/admin/aggregationtable/:projectId',
+            component: () => import('./app/aggregationTable'),
+          },
+          {
+            path: '/admin/exaggregationtable/(.*)',
+            component: () => import('./organization/billCenter/expansionService'),
+          },
+        ],
+      },
+      {
         name: _l('全局变量'),
         key: 'variables',
         featureId: VersionProductType.globalVariable,
@@ -254,7 +254,7 @@ export const menuList = [
       },
       {
         name: _l('专属资源'),
-        featureId: 30,
+        featureIds: [30, 36],
         key: 'computing',
         hasBeta: false,
         routes: [
@@ -263,8 +263,23 @@ export const menuList = [
             component: () => import('./app/exclusiveComp/index.jsx'),
           },
           {
+            path: '/admin/database/:projectId/:explanId?',
+            component: () => import('./app/exclusiveComp/index.jsx'),
+          },
+          {
             path: '/admin/expansionserviceComputing/(.*)',
             component: () => import('./organization/billCenter/expansionService'),
+          },
+        ],
+      },
+      {
+        name: _l('使用分析%15003'),
+        featureId: 17,
+        key: 'analytics',
+        routes: [
+          {
+            path: '/admin/analytics/:projectId',
+            component: () => import('./app/useAnalytics/index.js'),
           },
         ],
       },
@@ -275,6 +290,45 @@ export const menuList = [
           {
             path: '/admin/settings/:projectId',
             component: () => import('./settings'),
+          },
+        ],
+      },
+    ],
+  },
+  {
+    title: _l('安全'),
+    key: 'security',
+    icon: 'icon-security',
+    subMenuList: [
+      {
+        name: _l('帐号'),
+        key: 'account',
+        routes: [
+          {
+            path: '/admin/account/:projectId',
+            component: () => import('./security/account'),
+          },
+        ],
+      },
+      {
+        name: _l('数据'),
+        key: 'data',
+        routes: [
+          {
+            path: '/admin/data/:projectId',
+            exact: true,
+            component: () => import('./security/data'),
+          },
+        ],
+      },
+      {
+        name: _l('其他'),
+        key: 'securityOthers',
+        routes: [
+          {
+            path: '/admin/securityothers/:projectId',
+            exact: true,
+            component: () => import('./security/securityOthers'),
           },
         ],
       },

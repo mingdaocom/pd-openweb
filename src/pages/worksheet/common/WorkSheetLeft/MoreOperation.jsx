@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect, useRef } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
 import { Icon, Menu, MenuItem, Tooltip, Dialog, DeleteReconfirm, LoadDiv, Checkbox, Input } from 'ming-ui';
 import ConfirmButton from 'ming-ui/components/Dialog/ConfirmButton';
 import SelectIcon from 'worksheet/common/SelectIcon/SelectIcon';
@@ -230,6 +230,7 @@ const handleCopyWorkSheet = props => {
   };
   const dialogConfirm = Dialog.confirm({
     width: 480,
+    className: 'copySheetDialog',
     title: (
       <span className="bold">
         {type ? _l('复制自定义页面 “%0”', workSheetName) : _l('复制工作表 “%0”', workSheetName)}
@@ -269,9 +270,8 @@ const handleCopyWorkSheet = props => {
   });
 };
 
-const handleUpdateWorksheetStatus = props => {
+const handleUpdateWorksheetStatus = (status, props) => {
   const { appId, appItem, sheetListActions } = props;
-  const status = appItem.status === 1 ? 2 : 1;
   homeAppApi
     .setWorksheetStatus({
       appId,
@@ -331,7 +331,7 @@ export default function MoreOperation(props) {
           sheetListActions.updateSheetListAppItem(appItem.workSheetId, { isMarked: !appItem.isMarked });
         }
       })
-      .fail(() => {
+      .catch(() => {
         alert(!appItem.isMarked ? _l('收藏失败！') : _l('取消收藏失败！'), 2);
       });
   };
@@ -339,7 +339,7 @@ export default function MoreOperation(props) {
   const renderMenu = () => {
     if (!(canEditApp(_.get(appPkg, ['permissionType'])) || canEditData(_.get(appPkg, ['permissionType'])))) {
       return (
-        <Menu className="worksheetItemOperate">
+        <Menu className={`worksheetItemOperate worksheetItemOperate-${appItem.workSheetId}`}>
           <MenuItem
             icon={
               <Icon
@@ -359,7 +359,7 @@ export default function MoreOperation(props) {
     const showDivider = !isGroup || (isEditApp && appItem.type === 1 && (appItem.urlTemplate ? true : isActive));
 
     return (
-      <Menu className="worksheetItemOperate">
+      <Menu className={`worksheetItemOperate worksheetItemOperate-${appItem.workSheetId}`}>
         {!isGroup && (
           <MenuItem
             icon={
@@ -425,32 +425,77 @@ export default function MoreOperation(props) {
             >
               <span className="text">{_l('移动到%02021')}</span>
             </MenuItem>
-            <MenuItem
-              icon={<Icon icon="visibility_off" className="Font16" />}
-              onClick={() => {
-                setPopupVisible(false);
-                if (appItem.parentStatus === 2) {
-                  return;
-                }
-                handleUpdateWorksheetStatus(props);
+
+            <Trigger
+              // popupVisible={exportVisible}
+              // onPopupVisibleChange={visible => setExportVisible(visible)}
+              getPopupContainer={() => document.querySelector(`.worksheetItemOperate-${appItem.workSheetId}`)}
+              action={['hover', 'click']}
+              popupPlacement="right"
+              builtinPlacements={{
+                right: { points: ['cl', 'cr'] },
               }}
+              popup={
+                <Menu className="hideItemOperate" style={{ width: 180 }}>
+                  <MenuItem
+                    onClick={() => {
+                      setPopupVisible(false);
+                      handleUpdateWorksheetStatus(appItem.status === 2 ? 1 : 2, props);
+                    }}
+                  >
+                    <span className="text flexRow">{_l('全隐藏')}</span>
+                    {appItem.status === 2 && (
+                      <Icon icon="done" className="Font18" style={{ right: 20, top: 0, left: 'initial' }} />
+                    )}
+                  </MenuItem>
+                  <MenuItem
+                    onClick={() => {
+                      setPopupVisible(false);
+                      handleUpdateWorksheetStatus(appItem.status === 3 ? 1 : 3, props);
+                    }}
+                  >
+                    <span className="text flexRow">{_l('仅在PC端隐藏')}</span>
+                    {appItem.status === 3 && (
+                      <Icon icon="done" className="Font18" style={{ right: 20, top: 0, left: 'initial' }} />
+                    )}
+                  </MenuItem>
+                  <MenuItem
+                    onClick={() => {
+                      setPopupVisible(false);
+                      handleUpdateWorksheetStatus(appItem.status === 4 ? 1 : 4, props);
+                    }}
+                  >
+                    <span className="text flexRow">{_l('仅在移动端隐藏')}</span>
+                    {appItem.status === 4 && (
+                      <Icon icon="done" className="Font18" style={{ right: 20, top: 0, left: 'initial' }} />
+                    )}
+                  </MenuItem>
+                </Menu>
+              }
+              popupAlign={{ offset: [0, -20] }}
             >
-              <span className="text flexRow">
-                <span className="flex">{appItem.status === 1 ? _l('从导航中隐藏%02020') : _l('取消隐藏')}</span>
-                <Tooltip
-                  popupPlacement="right"
-                  text={
-                    <span>
-                      {_l(
-                        '设为隐藏后，普通用户在导航中将看不到此应用项入口，仅系统角色在导航中可见（包含管理员、运营者、开发者），应用项权限依然遵循角色权限原则。此配置通常用于不需要用户直接访问，仅作为配置用途的应用项，如：关联的明细表、参数表等。',
-                      )}
-                    </span>
-                  }
-                >
-                  <Icon className="Font14" icon={'help'} style={{ position: 'relative', left: 5 }} />
-                </Tooltip>
-              </span>
-            </MenuItem>
+              <MenuItem
+                icon={<Icon icon="visibility_off" className="Font16" />}
+              >
+                <span className="text flexRow">
+                  <span>{_l('从导航中隐藏%02020')}</span>
+                  <Tooltip
+                    popupPlacement="top"
+                    text={
+                      <span>
+                        {_l(
+                          '设为隐藏后，普通用户在导航中将看不到此应用项入口，仅系统角色在导航中可见（包含管理员、开发者），应用项权限依然遵循角色权限原则。此配置通常用于不需要用户直接访问，仅作为配置用途的应用项，如：关联的明细表、参数表等。',
+                        )}
+                      </span>
+                    }
+                  >
+                    <Icon className="Font14" icon={'help'} style={{ position: 'relative', left: 5 }} />
+                  </Tooltip>
+                  <Icon icon="arrow-right-tip Font15" style={{ fontSize: '16px', right: '10px', left: 'initial' }} />
+                </span>
+              </MenuItem>
+            </Trigger>
+
             {isGroup && (
               <Fragment>
                 <hr className="splitter" />

@@ -43,3 +43,12 @@ export const collectRecords = (state = [], action) => {
       return state;
   }
 };
+
+export const collectCharts = (state = [], action) => {
+  switch (action.type) {
+    case 'COLLECT_CHARTS':
+      return action.data;
+    default:
+      return state;
+  }
+};

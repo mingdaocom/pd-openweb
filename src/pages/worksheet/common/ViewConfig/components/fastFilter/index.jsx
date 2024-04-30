@@ -5,10 +5,9 @@ import {
   formatObjWithNavfilters,
   formatAdvancedSettingByNavfilters,
 } from 'src/pages/worksheet/common/ViewConfig/util';
-import { Icon, Tooltip } from 'ming-ui';
+import { Icon, Tooltip, Checkbox } from 'ming-ui';
 import './index.less';
 import { getSetDefault } from './util';
-import { Checkbox } from 'ming-ui';
 import bgFastFilters from './img/bgFastFilters.png';
 import FastFilterCon from './fastFilterCon';
 import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';

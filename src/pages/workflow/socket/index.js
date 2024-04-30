@@ -4,7 +4,7 @@ import homeAppAjax from 'src/api/homeApp';
 import addRecord from 'worksheet/common/newRecord/addRecord';
 import { openRecordInfo } from 'worksheet/common/recordInfo';
 import _ from 'lodash';
-import mdNotification from 'ming-ui/functions/notify';
+import { mdNotification } from 'ming-ui/functions';
 import { emitter } from 'worksheet/util';
 
 const getWorksheetInfo = worksheetId => {

@@ -384,7 +384,7 @@ export default function OnlySyncStep(props) {
           });
         }
       })
-      .fail(() => setLoading(false));
+      .catch(() => setLoading(false));
   };
 
   const onSetDefaultSheetData = () => {

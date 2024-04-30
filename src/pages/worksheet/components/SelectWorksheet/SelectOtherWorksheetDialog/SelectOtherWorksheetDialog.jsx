@@ -12,12 +12,14 @@ export default class extends Component {
     projectId: PropTypes.string,
     worksheetType: PropTypes.number, // 工作表类型 0: 工作表 1: 自定义页面
     selectedAppId: PropTypes.string, // 已选中的应用id
-    selectedWrorkesheetId: PropTypes.string, // 已选中的工作表id
+    selectedWorksheetId: PropTypes.string, // 已选中的工作表id
     visible: PropTypes.bool,
     onOk: PropTypes.func,
     onHide: PropTypes.func,
     onlyApp: PropTypes.bool, // 仅选择应用
     title: PropTypes.string, // 标题
+    description: PropTypes.string, // 描述
+    hideAppLabel: PropTypes.bool, // 隐藏应用标题
   };
   constructor(props) {
     super(props);
@@ -25,24 +27,28 @@ export default class extends Component {
       myApps: [],
       selectedAppId: props.selectedAppId,
       worksheetsOfSelectedApp: [],
-      selectedWrorkesheetId: props.selectedWrorkesheetId,
+      selectedWorksheetId: props.selectedWorksheetId,
     };
   }
   componentDidMount() {
-    const { projectId } = this.props;
+    const { projectId, currentAppId } = this.props;
     homeAppAjax.getAllHomeApp().then(data => {
       let apps = [];
       if (projectId) {
         apps = _.flatten(
           data.validProject.filter(project => project.projectId === projectId).map(project => project.projectApps),
-        );
+        ).concat(data.externalApps.filter(app => app.projectId === projectId));
       } else {
         apps = data.aloneApps;
       }
       this.setState({
         myApps: apps
           .filter(app => canEditApp(app.permissionType) && !app.isLock)
-          .map(app => ({ text: app.name, value: app.id })),
+          .map(app =>
+            app.id === currentAppId
+              ? { text: _l('%0  (本应用)', app.name), value: app.id }
+              : { text: app.name, value: app.id },
+          ),
       });
     });
     if (this.props.selectedAppId) {
@@ -53,13 +59,16 @@ export default class extends Component {
     const { worksheetType } = this.props;
     homeAppAjax.getWorksheetsByAppId({ appId, type: worksheetType }).then(data => {
       this.setState({
-        worksheetsOfSelectedApp: data.map(sheet => ({ text: sheet.workSheetName, value: sheet.workSheetId })),
+        worksheetsOfSelectedApp: data
+          .filter(o => o.createType !== 1)
+          .map(sheet => ({ text: sheet.workSheetName, value: sheet.workSheetId })),
       });
     });
   }
   render() {
-    const { visible, onHide, worksheetType, onOk, className, onlyApp, title } = this.props;
-    const { myApps, worksheetsOfSelectedApp, selectedAppId, selectedWrorkesheetId } = this.state;
+    const { visible, onHide, worksheetType, onOk, className, onlyApp, title, description, hideAppLabel, disabled } =
+      this.props;
+    const { myApps, worksheetsOfSelectedApp, selectedAppId, selectedWorksheetId } = this.state;
     const worksheetTypeName = worksheetType === 1 ? _l('自定义页面') : _l('工作表');
     return (
       <Dialog
@@ -68,26 +77,28 @@ export default class extends Component {
         visible={visible}
         anim={false}
         title={title || _l('选择其他应用下的') + worksheetTypeName}
+        description={description}
         footer={null}
         width={480}
         onCancel={onHide}
         onOk={() => {}}
       >
         <div className="formItem">
-          <div className="label">{_l('应用')}</div>
+          {!hideAppLabel && <div className="label">{_l('应用')}</div>}
           <div className="content">
             <Dropdown
               isAppendToBody
               border
               openSearch
               className="w100"
+              disabled={disabled}
               menuClass="selectWorksheetDropdownMenu"
               placeholder={_l('请选择你作为管理员或开发者的应用')}
               noData={_l('没有可选的应用')}
               defaultValue={selectedAppId}
               data={myApps}
               onChange={value => {
-                this.setState({ selectedAppId: value, selectedWrorkesheetId: undefined });
+                this.setState({ selectedAppId: value, selectedWorksheetId: undefined });
                 !onlyApp && this.loadWorksheetsOfApp(value);
               }}
             />
@@ -106,10 +117,14 @@ export default class extends Component {
                 menuClass="selectWorksheetDropdownMenu"
                 placeholder={_l('选择') + worksheetTypeName}
                 noData={_l('没有可选的') + worksheetTypeName}
-                value={selectedWrorkesheetId}
+                value={
+                  selectedWorksheetId && _.find(worksheetsOfSelectedApp, w => w.value === selectedWorksheetId)
+                    ? selectedWorksheetId
+                    : undefined
+                }
                 data={worksheetsOfSelectedApp}
                 onChange={value => {
-                  this.setState({ selectedWrorkesheetId: value });
+                  this.setState({ selectedWorksheetId: value });
                 }}
               />
             </div>
@@ -126,12 +141,12 @@ export default class extends Component {
             {_l('取消')}
           </Button>
           <Button
-            disabled={!selectedAppId || (!selectedWrorkesheetId && !onlyApp)}
+            disabled={!selectedAppId || (!selectedWorksheetId && !onlyApp)}
             onClick={() => {
-              const selectedWrorkesheet = _.find(worksheetsOfSelectedApp, w => w.value === selectedWrorkesheetId);
+              const selectedWrorkesheet = _.find(worksheetsOfSelectedApp, w => w.value === selectedWorksheetId);
               onOk(
                 selectedAppId,
-                selectedWrorkesheetId,
+                selectedWorksheetId,
                 selectedWrorkesheet && {
                   workSheetName: selectedWrorkesheet.text,
                   workSheetId: selectedWrorkesheet.value,

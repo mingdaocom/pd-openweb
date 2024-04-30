@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import createReactClass from 'create-react-class';
 import cx from 'classnames';
+import { autobind } from 'core-decorators';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 const ClickAway = createDecoratedComponent(withClickAway);
@@ -14,7 +14,7 @@ import 'src/components/mentioninput/mentionsInput';
 import 'src/components/autoTextarea/autoTextarea';
 import 'src/components/uploadAttachment/uploadAttachment';
 import Emotion from 'src/components/emotion/emotion';
-import _ from 'lodash';
+import _, { bind } from 'lodash';
 
 const LET_ME_REPLY = _l('我来回复');
 const TEXT_AREA_MIN_HEIGHT_COLLAPSE = 22;
@@ -24,37 +24,33 @@ const TEXT_AREA_MAX_HEIGHT = 180;
 /**
  * 动态回复输入框
  */
-const PostCommentInput = createReactClass({
-  displayName: 'PostCommentInput',
-
-  propTypes: {
+class PostCommentInput extends React.Component {
+  static propTypes = {
     postItem: PropTypes.object,
     onPublished: PropTypes.func,
     focus: PropTypes.bool,
     isPostDetail: PropTypes.bool,
-  },
+  };
 
-  getInitialState() {
-    return {
-      isEditing: false,
-      isReshare: false,
-      uploadAttachmentObj: undefined,
-      showAttachment: false,
-      attachments: [],
-      kcAttachments: [],
-      isUploadComplete: true,
-    };
-  },
+  state = {
+    isEditing: false,
+    isReshare: false,
+    uploadAttachmentObj: undefined,
+    showAttachment: false,
+    attachments: [],
+    kcAttachments: [],
+    isUploadComplete: true,
+  };
 
   componentDidMount() {
     this.initTextarea();
-  },
+  }
 
   componentWillUpdate(nextProps, nextState) {
     if (nextState.isReshare !== this.state.isReshare) {
       this.resetSelectGroup(nextState.isReshare);
     }
-  },
+  }
 
   componentDidUpdate(prevProps, prevState) {
     const postItem = this.props.postItem;
@@ -76,23 +72,21 @@ const PostCommentInput = createReactClass({
     if (prevProps.postItem.postID !== postItem.postID) {
       this.initTextarea();
     }
-  },
+  }
 
   componentWillUnmount() {
     const textarea = this.textarea;
     const button = this.button;
     $(textarea).off();
     $(button).off();
-  },
+  }
 
-  // TODO
-  manuallyBindClickAway: false,
-
+  @autobind
   componentClickAway(e) {
     if ($(e.target).attr('type') !== 'file' && this.state.isUploadComplete) {
       this.setState({ isEditing: false });
     }
-  },
+  }
 
   initTextarea() {
     const comp = this;
@@ -151,9 +145,7 @@ const PostCommentInput = createReactClass({
                 }
               }
 
-              $(button)
-                .addClass('Disabled')
-                .prop('disabled', true);
+              $(button).addClass('Disabled').prop('disabled', true);
               dispatch(
                 addComment(
                   {
@@ -185,9 +177,7 @@ const PostCommentInput = createReactClass({
                       kcAttachments: [],
                     });
                     $(textarea).blur();
-                    $(button)
-                      .removeClass('Disabled')
-                      .prop('disabled', false);
+                    $(button).removeClass('Disabled').prop('disabled', false);
                     if (comp.props.onPublished) {
                       comp.props.onPublished();
                     }
@@ -195,14 +185,10 @@ const PostCommentInput = createReactClass({
                       isEditing: false,
                       hasAttachment: false,
                     });
-                    $(button)
-                      .removeClass('Disabled')
-                      .prop('disabled', false);
+                    $(button).removeClass('Disabled').prop('disabled', false);
                   },
                   () => {
-                    $(button)
-                      .removeClass('Disabled')
-                      .prop('disabled', false);
+                    $(button).removeClass('Disabled').prop('disabled', false);
                   },
                 ),
               );
@@ -239,49 +225,43 @@ const PostCommentInput = createReactClass({
       relatedTopSpace: 5,
       mdBear: false,
     });
-  },
+  }
 
-  handleReshareToggle(evt) {
+  handleReshareToggle = evt => {
     const { isReshare } = this.state;
     this.setState({
       isReshare: !isReshare,
     });
-  },
+  };
 
   resetSelectGroup(isReshare) {
     const selectGroup = this.selectGroup;
     if (!isReshare) {
-      $(selectGroup)
-        .next('.viewTo')
-        .remove();
+      $(selectGroup).next('.viewTo').remove();
       return;
     }
     const selectGroupOptions = { defaultValue: { group: [], project: [] }, groupLink: true };
     $(selectGroup).SelectGroup(selectGroupOptions);
-  },
+  }
 
-  handleMouseover() {
-    $(this.faceBtn)
-      .removeClass('icon-smile')
-      .addClass('icon-smilingFace ThemeColor3');
-  },
+  handleMouseover = () => {
+    $(this.faceBtn).removeClass('icon-smile').addClass('icon-smilingFace ThemeColor3');
+  };
 
-  handleMouseout() {
-    $(this.faceBtn)
-      .addClass('icon-smile')
-      .removeClass('icon-smilingFace ThemeColor3');
-  },
+  handleMouseout = () => {
+    $(this.faceBtn).addClass('icon-smile').removeClass('icon-smilingFace ThemeColor3');
+  };
 
   handleOpenUploadFiles() {
     const { showAttachment } = this.state;
     this.setState({
       showAttachment: !showAttachment,
     });
-  },
+  }
 
   textareaFocus() {
     $(this.textarea).focus();
-  },
+  }
 
   handleOpen(result) {
     const postItem = this.props.postItem;
@@ -294,7 +274,7 @@ const PostCommentInput = createReactClass({
       attachments: result,
       hasAttachment: !!result.length,
     });
-  },
+  }
 
   handleUploadComplete(bool) {
     this.setState({ isUploadComplete: bool });
@@ -315,7 +295,7 @@ const PostCommentInput = createReactClass({
       );
       $textarea.focus();
     }
-  },
+  }
 
   render() {
     const postItem = this.props.postItem;
@@ -427,7 +407,7 @@ const PostCommentInput = createReactClass({
         </div>
       </ClickAway>
     );
-  },
-});
+  }
+}
 
 export default connect(state => ({}))(PostCommentInput);

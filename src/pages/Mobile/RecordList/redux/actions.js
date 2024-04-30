@@ -1,6 +1,7 @@
 import sheetAjax from 'src/api/worksheet';
 import homeAppAjax from 'src/api/homeApp';
 import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
+import { refreshSheet } from 'src/pages/worksheet/redux/actions/index.js';
 import { getRequest, getTranslateInfo } from 'src/util';
 import { getFilledRequestParams, replaceControlsTranslateInfo } from 'worksheet/util';
 import _ from 'lodash';
@@ -54,7 +55,7 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
             return item.workSheetInfo;
           }),
         )
-          .filter(item => item.status === 1 && !item.navigateHide) //左侧列表状态为1 且 角色权限没有设置隐藏
+          .filter(item => [1, 3].includes(item.status) && !item.navigateHide) //左侧列表状态为1 且 角色权限没有设置隐藏
           .slice(0, 4);
         navSheetList.forEach(item => {
           if (item.workSheetId === workSheetInfo.worksheetId) {
@@ -157,7 +158,7 @@ export const fetchSheetRows = params => (dispatch, getState) => {
     pageSize = maxCount;
   }
   const promiseRequest = promiseRequests[viewId || defaultViewId];
-  if (promiseRequest && promiseRequest.state() === 'pending' && promiseRequest.abort) {
+  if (promiseRequest && promiseRequest.abort) {
     promiseRequest.abort();
   }
   const params = getFilledRequestParams({
@@ -242,6 +243,9 @@ export const changePageIndex = pageIndex => (dispatch, getState) => {
 export const updateQuickFilter =
   (filter = []) =>
   (dispatch, getState) => {
+    const { base = {}, worksheetInfo = {} } = getState().mobile;
+    const view = _.find(worksheetInfo.views || [], item => base.viewId === item.viewId) || {};
+
     dispatch({
       type: 'MOBILE_UPDATE_QUICK_FILTER',
       filter: filter,
@@ -250,14 +254,32 @@ export const updateQuickFilter =
       type: 'MOBILE_UPDATE_SHEET_VIEW',
       sheetView: { pageIndex: 1 },
     });
-    dispatch(fetchSheetRows());
+    if (view.viewType === 7) {
+      dispatch({
+        type: 'WORKSHEET_UPDATE_QUICK_FILTER',
+        filter: filter,
+      });
+      dispatch(refreshSheet(view, { resetPageIndex: true }));
+    } else {
+      dispatch(fetchSheetRows());
+    }
   };
 
 export const updateFilters = filters => (dispatch, getState) => {
+  const { base = {}, worksheetInfo = {} } = getState().mobile;
+  const view = _.find(worksheetInfo.views || [], item => base.viewId === item.viewId) || {};
+
   dispatch({
     type: 'MOBILE_UPDATE_FILTERS',
     filters,
   });
+  if (view.viewType === 7) {
+    dispatch({
+      type: 'WORKSHEET_UPDATE_FILTERS',
+      filters,
+    });
+    dispatch(refreshSheet(view, { changeFilters: true }));
+  }
 };
 
 export const updateFiltersGroup = filter => (dispatch, getState) => {

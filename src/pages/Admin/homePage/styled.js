@@ -53,6 +53,22 @@ export const HomePageWrap = styled.div`
         }
       }
     }
+    @media screen and (max-width: 1367px) {
+      .content {
+        height: unset !important;
+        padding: 30px 20px !important;
+        ul {
+          flex-wrap: wrap;
+          li {
+            width: calc((100% - 40px) / 3);
+            flex: unset !important;
+            padding: 30px 0 30px 30px !important;
+            text-align: left !important;
+            margin-bottom: 8px;
+          }
+        }
+      }
+    }
   }
   .infoWrap,
   .analysis {
@@ -65,7 +81,7 @@ export const HomePageWrap = styled.div`
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
       border-radius: 3px;
       .count {
-        font-size: 30px;
+        font-size: 28px;
       }
       .name {
         color: #757575;
@@ -85,6 +101,14 @@ export const HomePageWrap = styled.div`
       margin-top: 4px;
       text-align: left;
       font-weight: 600;
+    }
+  }
+  .analysis {
+    .content {
+      height: 180px;
+    }
+    .limitUser {
+      color: #7d7d7d;
     }
   }
   .infoBox {
@@ -122,7 +146,7 @@ export const HomePageWrap = styled.div`
     }
     .name {
       font-size: 14px;
-      color: #757575;
+      color: #7d7d7d;
       font-weight: 600;
     }
     ul {
@@ -150,8 +174,11 @@ export const HomePageWrap = styled.div`
           cursor: pointer;
         }
         &.useAnalysisHover:hover {
-          border-radius: 15px;
+          border-radius: 16px;
           background-color: #f5f5f5;
+          .limitUser {
+            color: #9e9e9e;
+          }
         }
         &.effectiveDataPipelineRowCount {
           &:hover {

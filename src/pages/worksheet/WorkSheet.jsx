@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { withRouter } from 'react-router';
+import UseKey from 'react-use/lib/component/UseKey';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import qs from 'query-string';
 import tinycolor from '@ctrl/tinycolor';
@@ -32,7 +33,7 @@ const WorkSheetContainer = props => {
     setLoading(true);
     if (_.isUndefined(type)) {
       if (id) {
-        if (request && request.state() === 'pending' && request.abort) {
+        if (request && request.abort) {
           request.abort();
         }
         request = homeAppApi.getPageInfo({
@@ -173,7 +174,6 @@ class WorkSheet extends Component {
     this.setCache(this.props.match.params);
     // 禁止浏览器触摸板触发的前进后退
     document.body.style.overscrollBehaviorX = 'none';
-    document.addEventListener('keydown', this.changeFull);
   }
   componentWillReceiveProps(nextProps) {
     const { updateBase, worksheetId, updateWorksheetLoading, updateSheetListLoading } = nextProps;
@@ -222,7 +222,6 @@ class WorkSheet extends Component {
     $(document.body).removeClass('fixedScreen');
     // 取消禁止浏览器触摸板触发的前进后退
     document.body.style.overscrollBehaviorX = null;
-    document.removeEventListener('keydown', this.changeFull);
     this.removeAppThemeColor();
     updateWorksheetLoading(true);
   }
@@ -242,13 +241,6 @@ class WorkSheet extends Component {
   removeAppThemeColor() {
     if (this.appThemeColorStyle) {
       document.head.removeChild(this.appThemeColorStyle);
-    }
-  }
-  changeFull(e) {
-    const isMacOs = navigator.userAgent.toLocaleLowerCase().includes('mac os');
-    if ((isMacOs ? e.metaKey : e.shiftKey) && e.keyCode === 69) {
-      const fullEl = document.querySelector('.icon.fullRotate');
-      fullEl && fullEl.click();
     }
   }
   /**
@@ -310,6 +302,18 @@ class WorkSheet extends Component {
     const currentSheet = findSheet(worksheetId, sheetList) || {};
     return (
       <WaterMark projectId={projectId}>
+        <UseKey
+          filter={e => _.includes(['e', 'E'], e.key)}
+          fn={e => {
+            if (document.querySelector('.mdModalWrap')) {
+              return;
+            }
+            if ((window.isMacOs ? e.metaKey : e.shiftKey) && e.keyCode === 69) {
+              const fullEl = document.querySelector('.icon.fullRotate');
+              fullEl && fullEl.click();
+            }
+          }}
+        />
         <div className="worksheet flexRow">
           {currentPcNaviStyle === 0 && (
             <WorkSheetLeft
@@ -364,7 +368,9 @@ export default withRouter(
   connect(
     state => ({
       sheetListLoading: state.sheetList.loading,
-      sheetList: state.appPkg.currentPcNaviStyle === 1 ? state.sheetList.appSectionDetail : state.sheetList.data,
+      sheetList: [1, 3].includes(state.appPkg.currentPcNaviStyle)
+        ? state.sheetList.appSectionDetail
+        : state.sheetList.data,
       worksheetId: state.sheet.base.worksheetId,
       isCharge: state.sheet.isCharge,
       appPkg: state.appPkg,

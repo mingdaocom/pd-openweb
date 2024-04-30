@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { autobind } from 'core-decorators';
 import cx from 'classnames';
-import mdNotification from 'ming-ui/functions/notify';
+import { mdNotification } from 'ming-ui/functions';
 import DeleteConfirm from 'ming-ui/components/DeleteReconfirm';
 import { Tooltip, Dialog } from 'ming-ui';
 import processAjax from 'src/pages/workflow/api/process';
@@ -89,8 +89,8 @@ class BatchOperate extends React.Component {
       needReloadButtons = true;
     }
     if (nextProps.viewId === this.props.viewId && nextProps.selectedLength && !this.props.selectedLength) {
-      this.loadPrintList();
       needReloadButtons = true;
+      this.setState({ loading: false });
       if (_.isEmpty(permission)) {
         updateViewPermission({ appId, worksheetId, viewId });
       }
@@ -98,22 +98,6 @@ class BatchOperate extends React.Component {
     if (needReloadButtons) {
       this.loadCustomButtons(updateRowId);
     }
-  }
-
-  loadPrintList() {
-    const { worksheetId, viewId } = this.props;
-    worksheetAjax
-      .getPrintList({
-        worksheetId,
-        viewId,
-      })
-      .then(data => {
-        const values = _.values(PRINT_TYPE);
-        this.setState({
-          templateList: data.filter(d => d.type >= 2).sort((a, b) => values.indexOf(a.type) - values.indexOf(b.type)),
-          loading: false,
-        });
-      });
   }
 
   loadCustomButtons(rowId) {
@@ -285,7 +269,7 @@ class BatchOperate extends React.Component {
       } else if (isEditSingle && data.resultCode !== 1) {
         handleRecordError(data.resultCode);
       }
-      if (data.resultCode !== 1) return;
+      if (data.resultCode !== 1 && !data.isSuccess) return;
       if (_.find(controls, item => _.includes([10, 11], item.type) && /color/.test(item.value))) {
         refreshWorksheetControls();
       }
@@ -310,12 +294,8 @@ class BatchOperate extends React.Component {
     }
     const { appId, viewId, controls, selectedRows, worksheetInfo } = this.props;
     const { projectId, worksheetId, name } = worksheetInfo;
-    const isMDClient = window.navigator.userAgent.indexOf('MDClient') > -1;
-    const disablePrint =
-      window.navigator.userAgent.indexOf('Chrome') < 0 &&
-      navigator.userAgent.indexOf('Firefox') < 0 &&
-      navigator.userAgent.indexOf('Safari') < 0;
-    if (isMDClient) {
+    const disablePrint = !window.isChrome && !window.isFirefox && !window.isSafari;
+    if (window.isMDClient) {
       alert('客户端不支持此功能，请使用Chrome、Firefox或其他国产浏览器', 3);
       return;
     }
@@ -512,27 +492,22 @@ class BatchOperate extends React.Component {
                   }}
                 />
               )}
-              {(showCodePrint || !_.isEmpty(templateList)) && (
-                <PrintList
-                  {...{
-                    isCharge,
-                    showCodePrint,
-                    appId,
-                    worksheetId,
-                    projectId,
-                    viewId,
-                    controls,
-                    selectedRows,
-                    selectedRowIds: selectedRows.map(r => r.rowid),
-                    templateList: allWorksheetIsSelected
-                      ? templateList.filter(d => d.type > 2 && d.type !== 5)
-                      : templateList,
-                    count: count,
-                    allowLoadMore: allWorksheetIsSelected,
-                  }}
-                  {...this.getFilterArgs()}
-                />
-              )}
+              <PrintList
+                {...{
+                  isCharge,
+                  showCodePrint,
+                  appId,
+                  worksheetId,
+                  projectId,
+                  viewId,
+                  controls,
+                  selectedRows,
+                  selectedRowIds: selectedRows.map(r => r.rowid),
+                  count: count,
+                  allowLoadMore: allWorksheetIsSelected,
+                }}
+                {...this.getFilterArgs()}
+              />
               {showExport && <ExportList {...this.props} />}
               {canDelete && (
                 <IconText
@@ -600,7 +575,7 @@ class BatchOperate extends React.Component {
                               }
                             }
                           })
-                          .fail(err => {
+                          .catch(err => {
                             alert(_l('批量删除失败'), 3);
                           });
                       }

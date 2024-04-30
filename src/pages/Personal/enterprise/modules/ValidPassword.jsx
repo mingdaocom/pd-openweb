@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import account from 'src/api/account';
 import { Dialog, VerifyPasswordInput } from 'ming-ui';
 import { encrypt } from 'src/util';
-import captcha from 'src/components/captcha';
+import { captcha } from 'ming-ui/functions';
 import { navigateTo } from 'router/navigateTo';
 import cx from 'classnames';
 import './index.less';
@@ -32,7 +32,7 @@ export default class ValidPassWord extends Component {
               randStr: res.randstr,
               captchaType: md.global.getCaptchaType(),
             })
-            .done(result => {
+            .then(result => {
               if (result === 2) {
                 alert(_l('密码错误'), 3);
                 $('inputBox').val('').focus();
@@ -56,7 +56,7 @@ export default class ValidPassWord extends Component {
                 this.props.transferAdminProject(projectId, companyName, this.state.password, result);
               }
             })
-            .always(() => {
+            .finally(() => {
               this.setState({ disabled: false });
             });
         }

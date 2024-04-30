@@ -1,13 +1,12 @@
 import React, { Component, Fragment } from 'react';
 import { object, number, string, bool, array, func } from 'prop-types';
 import cx from 'classnames';
-import UserHead from 'src/components/userHead/userHead';
-import { Tooltip, Icon, Linkify } from 'ming-ui';
+import { Tooltip, Icon, Linkify, UserHead } from 'ming-ui';
 import moment from 'moment';
 import { renderToString } from 'react-dom/server';
 import _ from 'lodash';
 import './index.less';
-import { browserIsMobile, getIconNameByExt } from 'src/util';
+import { browserIsMobile, getIconNameByExt, dateConvertToUserZone } from 'src/util';
 import WorksheetRecordLogDialog from 'src/pages/worksheet/components/WorksheetRecordLog/WorksheetRecordLogDialog';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 
@@ -60,7 +59,7 @@ const START_TYPE_TEXT = {
 /**
  * 格式化时间
  */
-const formatTime = time => moment(time).format('YYYY.MM.DD HH:mm');
+const formatTime = time => moment(dateConvertToUserZone(time)).format('YYYY.MM.DD HH:mm');
 
 export default class StepItem extends Component {
   static propTypes = {
@@ -399,11 +398,14 @@ export default class StepItem extends Component {
    */
   renderTimeConsuming() {
     const { data } = this.props;
-    const workItems = ((data || {}).workItems || []).filter(item => _.includes([3, 4], item.type));
+    const workItems = ((data || {}).workItems || []).filter(
+      item =>
+        _.includes([3, 4], item.type) && !_.includes([2, 8, 9, 10, 16, 17, 22], _.get(item, 'workItemLog.action')),
+    );
     const timeConsuming = [];
     const endTimeConsuming = [];
 
-    if (!workItems.length || workItems.filter(item => !item.operationTime).length) return null;
+    if (!workItems.length) return null;
 
     workItems.forEach(item => {
       // 截止时间
@@ -411,7 +413,9 @@ export default class StepItem extends Component {
         endTimeConsuming.push(moment(item.operationTime) - moment(item.dueTime));
       }
 
-      timeConsuming.push(moment(item.operationTime) - moment(item.receiveTime));
+      timeConsuming.push(
+        (item.operationTime || item.dueTime ? moment(item.operationTime) : moment()) - moment(item.receiveTime),
+      );
     });
 
     const maxTimeConsuming = _.max(timeConsuming) || 0;
@@ -428,7 +432,7 @@ export default class StepItem extends Component {
     }
 
     if (!maxEndTimeConsuming) {
-      const time = this.covertTime(maxTimeConsuming);
+      const time = this.covertTime(maxTimeConsuming, true);
       return time ? <span className="Gray_9e">{_l('耗时：%0', time)}</span> : null;
     }
 
@@ -460,7 +464,7 @@ export default class StepItem extends Component {
   /**
    * 转换输出时间
    */
-  covertTime(time) {
+  covertTime(time, isUp = false) {
     if (time < 0) time = time * -1;
 
     const day = Math.floor(time / 24 / 60 / 60 / 1000);
@@ -468,7 +472,7 @@ export default class StepItem extends Component {
     const min = (time - day * 24 * 60 * 60 * 1000 - hour * 60 * 60 * 1000) / 60 / 1000;
 
     return `${day ? _l('%0天', day) : ''}${hour ? _l('%0小时', hour) : ''}${
-      min ? _l('%0分钟', Math.floor(min) || 1) : ''
+      min ? _l('%0分钟', isUp ? Math.ceil(min) : Math.floor(min) || 1) : ''
     }`;
   }
 
@@ -478,16 +482,23 @@ export default class StepItem extends Component {
   renderSurplusTime() {
     const { data } = this.props;
     let currentAccountNotified = false;
-    const workItems = ((data || {}).workItems || []).filter(item => {
+    let workItems = (data || {}).workItems || [];
+    const dueTime = _.get(workItems, '[0].dueTime');
+
+    // 无截止时间
+    if (!dueTime) return null;
+
+    workItems = workItems.filter(item => {
       if (item.executeTime && item.workItemAccount.accountId === md.global.Account.accountId) {
         currentAccountNotified = true;
       }
-      return _.includes([3, 4], item.type) && !item.operationTime && item.dueTime;
+      return _.includes([3, 4], item.type) && !item.operationTime;
     });
 
+    // 无未操作的
     if (!workItems.length) return null;
 
-    const time = moment() - moment(workItems[0].dueTime) || 0;
+    const time = moment() - moment(dueTime) || 0;
 
     return (
       <span
@@ -527,7 +538,8 @@ export default class StepItem extends Component {
   }
 
   render() {
-    const { data, currentWork, currentType, isLast, status, currents, onChangeCurrentWork, appId, projectId } = this.props;
+    const { data, currentWork, currentType, isLast, status, currents, onChangeCurrentWork, appId, projectId } =
+      this.props;
     const { showMore } = this.state;
     const {
       workId,
@@ -557,7 +569,7 @@ export default class StepItem extends Component {
         <div className="stepItem flex flexColumn">
           <div className="flexRow alignItemsCenter">
             <div className="stepItemTime Font15 flex ellipsis Gray_75 bold">
-              {workItems[0] && moment(workItems[0].receiveTime).format('MM-DD HH:mm')}
+              {workItems[0] && moment(dateConvertToUserZone(workItems[0].receiveTime)).format('MM-DD HH:mm')}
             </div>
             {this.renderTimeConsuming()}
             {this.renderSurplusTime()}
@@ -604,7 +616,7 @@ export default class StepItem extends Component {
                   className={cx('stepContent flexRow', { Border0: showMore && index === workItems.length - 1 })}
                 >
                   <div className="avatarBoxCon">
-                    <UserHead size={36} user={{ userHead: avatar, accountId }} appId={appId} projectId={projectId}/>
+                    <UserHead size={36} user={{ userHead: avatar, accountId }} appId={appId} projectId={projectId} />
                   </div>
                   <div className="stepDetail flex flexColumn">{this.renderDetail(item)}</div>
                 </div>
@@ -626,7 +638,7 @@ export default class StepItem extends Component {
                     </div>
                     {debugEventDump[key].map(({ avatar, accountId, fullName }) => (
                       <div className="flexRow alignItemsCenter mTop8" key={accountId}>
-                        <UserHead size={24} user={{ userHead: avatar, accountId }} projectId={projectId}/>
+                        <UserHead size={24} user={{ userHead: avatar, accountId }} projectId={projectId} />
                         <span className="flex ellipsis mLeft12">{fullName}</span>
                       </div>
                     ))}

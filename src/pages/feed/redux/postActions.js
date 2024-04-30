@@ -576,7 +576,7 @@ export function edit(args, successCallback, failCallback) {
           successCallback(result);
         }
       })
-      .fail((result) => {
+      .catch((result) => {
         dispatch({ type: 'POST_EDIT_FAIL', args });
         if (failCallback) {
           failCallback(result);

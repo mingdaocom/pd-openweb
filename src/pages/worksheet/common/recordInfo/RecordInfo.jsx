@@ -8,10 +8,8 @@ import worksheetAjax from 'src/api/worksheet';
 import DragMask from 'worksheet/common/DragMask';
 import {
   emitter,
-  getSubListError,
   updateOptionsOfControls,
   isRelateRecordTableControl,
-  replaceByIndex,
   filterHidedSubList,
   checkCellIsEmpty,
   getRowGetType,
@@ -20,13 +18,13 @@ import {
   saveTempRecordValueToLocal,
   removeTempRecordValueFromLocal,
   KVGet,
-  handleChildTableUniqueError,
 } from 'worksheet/util';
 import { checkRuleLocked, updateRulesData } from 'src/components/newCustomFields/tools/filterFn';
 import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
+import { getShowFormat } from 'src/pages/widgetConfig/util/setting.js';
 import RecordInfoContext from './RecordInfoContext';
 import { loadRecord, updateRecord, deleteRecord, RecordApi } from './crtl';
-import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
+import { RECORD_INFO_FROM, RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import RecordForm from './RecordForm';
@@ -36,9 +34,9 @@ import SheetWorkflow from 'src/pages/workflow/components/SheetWorkflow';
 import './RecordInfo.less';
 import { controlState, formatControlToServer } from 'src/components/newCustomFields/tools/utils';
 import externalPortalAjax from 'src/api/externalPortal';
-import { addBehaviorLog } from 'src/util';
-import _ from 'lodash';
-import { FORM_ERROR_TYPE_TEXT } from 'src/components/newCustomFields/tools/config';
+import { addBehaviorLog, getTranslateInfo } from 'src/util';
+import _, { get } from 'lodash';
+import moment from 'moment';
 
 const Drag = styled.div(
   ({ left }) => `
@@ -64,8 +62,6 @@ const LoadMask = styled.div`
   background: rgba(255, 255, 255, 0.8);
   z-index: 2;
 `;
-
-const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
 
 export default class RecordInfo extends Component {
   static propTypes = {
@@ -250,7 +246,7 @@ export default class RecordInfo extends Component {
         }
       }
     };
-    if (isWxWork) {
+    if (window.isWxWork) {
       KVGet(`${md.global.Account.accountId}${viewId}-${recordId}-recordInfo`).then(data => {
         tempData = data;
         handleFillValue();
@@ -306,6 +302,7 @@ export default class RecordInfo extends Component {
       appId,
       viewId,
       worksheetId,
+      relationWorksheetId,
       instanceId,
       workId,
       rules,
@@ -329,6 +326,7 @@ export default class RecordInfo extends Component {
         getType: getRowGetType(from),
         getRules: !rules,
         controls,
+        relationWorksheetId,
       });
       let portalConfigSet = {};
       if (
@@ -345,11 +343,29 @@ export default class RecordInfo extends Component {
               : await this.getPortalConfigSet(data);
         } catch (e) {}
       }
+      data.worksheetName = getTranslateInfo(appId, worksheetId).name || data.worksheetName;
       // 设置隐藏字段的 hidden 属性
-      data.formData = data.formData.map(c => ({
-        ...c,
-        hidden: c.hidden || (view.controls || _.get(data, 'view.controls') || []).includes(c.controlId),
-      }));
+      data.formData = data.formData.map(c => {
+        const newControl = {
+          ...c,
+          hidden: c.hidden || (view.controls || _.get(data, 'view.controls') || []).includes(c.controlId),
+        };
+        if (c.type === 29 && get(c, 'advancedSetting.showtype') === String(RELATE_RECORD_SHOW_TYPE.TABLE)) {
+          // 关联表格配置了过滤结果后，需要不显示实际关联数量，显示过滤后数量
+          const strDefault = c.strDefault || '';
+          const [isHiddenOtherViewRecord] = strDefault.split('');
+          const resultfilters = safeParse(get(c, 'advancedSetting.resultfilters'));
+          const filterResult = (resultfilters && resultfilters.length > 0) || !!+isHiddenOtherViewRecord;
+          return filterResult
+            ? {
+                ...newControl,
+                value: undefined,
+              }
+            : newControl;
+        } else {
+          return newControl;
+        }
+      });
       if ((isWorksheetRowLand && (!viewId || (viewId && !data.isViewData))) || isPublicShare) {
         data.allowEdit = false;
       }
@@ -439,6 +455,12 @@ export default class RecordInfo extends Component {
       await deleteRecord({ worksheetId, recordId });
       hideRecordInfo();
       onDeleteSuccess();
+      if (window.customWidgetViewIsActive) {
+        emitter.emit('POST_MESSAGE_TO_CUSTOM_WIDGET', {
+          action: 'delete-record',
+          value: recordId,
+        });
+      }
       alert(_l('删除成功'));
     } catch (err) {
       alert(_l('删除失败'), 2);
@@ -648,7 +670,6 @@ export default class RecordInfo extends Component {
     let paramControls = draftFormControls
       .filter(it => !_.includes(formDataIds, it.controlId))
       .concat(formData)
-      .filter(v => !isRelateRecordTableControl(v))
       .concat(
         _.keys(relateRecordData)
           .map(key => ({
@@ -677,16 +698,18 @@ export default class RecordInfo extends Component {
 
   @autobind
   onSave(error, { data, updateControlIds, handleRuleError }) {
-    const { setHighLightOfRows = () => {} } = this.props;
+    const { setHighLightOfRows = () => {}, from } = this.props;
     const { callback = () => {}, noSave, ignoreError } = this.submitOptions || {};
-    data = data.filter(c => !isRelateRecordTableControl(c));
+    data =
+      from === RECORD_INFO_FROM.DRAFT
+        ? data
+        : data.filter(c => !isRelateRecordTableControl(c, { ignoreInFormTable: true }));
     if (error && !ignoreError) {
       callback({ error: true });
       this.setState({ submitLoading: false });
       return;
     }
     const {
-      from,
       projectId,
       instanceId,
       workId,
@@ -713,47 +736,6 @@ export default class RecordInfo extends Component {
         return _.get(cellObjs, controlId + '.cell.state.controls') || cellObjs[controlId].cell.controls;
       } catch (err) {
         return;
-      }
-    }
-    if (subListControls.length) {
-      const errors = subListControls
-        .map(control => ({
-          id: control.controlId,
-          value: getSubListError(
-            {
-              rows: getRows(control.controlId),
-              rules: _.get(cellObjs || {}, `${control.controlId}.cell.worksheettable.current.table.rules`),
-            },
-            getControls(control.controlId) || control.relationControls,
-            control.showControls,
-            3,
-          ),
-        }))
-        .filter(c => !_.isEmpty(c.value));
-      if (errors.length) {
-        hasError = true;
-        errors.forEach(error => {
-          const errorSublist = cellObjs[error.id];
-          if (errorSublist) {
-            errorSublist.cell.setState({
-              error: !_.isEmpty(error.value),
-              cellErrors: error.value,
-            });
-          }
-        });
-      } else {
-        subListControls.forEach(control => {
-          const errorSublist = cellObjs[control.controlId];
-          if (errorSublist) {
-            errorSublist.cell.setState({
-              error: false,
-              cellErrors: {},
-            });
-          }
-        });
-      }
-      if (this.con.querySelector('.cellControlErrorTip')) {
-        hasError = true;
       }
     }
 
@@ -804,6 +786,8 @@ export default class RecordInfo extends Component {
             if (this.recordform.current && _.isFunction(this.recordform.current.uniqueErrorUpdate)) {
               this.recordform.current.uniqueErrorUpdate(res.badData);
             }
+          } else if (res.resultCode === 2) {
+            alert(_l('当前草稿已保存，请勿重复提交'), 2);
           } else {
             alert(_l('记录添加失败'), 2);
           }
@@ -813,7 +797,7 @@ export default class RecordInfo extends Component {
             });
           }
         })
-        .fail(err => {
+        .catch(err => {
           this.setState({
             submitLoading: false,
           });
@@ -846,8 +830,8 @@ export default class RecordInfo extends Component {
             this.recordform.current.uniqueErrorUpdate(badData);
           }
         },
-        setSublistUniqueError: badData => {
-          handleChildTableUniqueError({ badData, data, cellObjs });
+        setSubListUniqueError: badData => {
+          this.recordform.current.dataFormat.callStore('setUniqueError', { badData });
         },
         setRuleError: badData => {
           handleRuleError(badData, cellObjs);
@@ -860,11 +844,19 @@ export default class RecordInfo extends Component {
           });
         }, 600);
         if (!err) {
-          let newFormData = recordinfo.formData.map(c =>
-            _.assign({}, c, { value: resdata[c.controlId], count: resdata[`rq${c.controlId}`] }),
-          );
+          let newFormData = recordinfo.formData.map(c => {
+            let value = resdata[c.controlId];
+            return _.assign({}, c, { value, count: resdata[`rq${c.controlId}`] });
+          });
           updateRows([recordId], _.omit(resdata, ['allowedit', 'allowdelete']), _.pick(resdata, updateControlIds));
-          this.refreshSubList();
+          if (window.customWidgetViewIsActive) {
+            emitter.emit('POST_MESSAGE_TO_CUSTOM_WIDGET', {
+              action: 'update-record',
+              value: resdata,
+            });
+          }
+          this.refreshAsyncLoadControl();
+          this.recordform.current.dataFormat.callStore('reset');
           if (viewId && !resdata.isviewdata) {
             hideRows([recordId]);
             if (from !== RECORD_INFO_FROM.WORKSHEET_ROW_LAND) {
@@ -950,7 +942,7 @@ export default class RecordInfo extends Component {
           alert(_l('记录保存失败'), 2);
         }
       })
-      .fail(err => {
+      .catch(err => {
         if (_.isObject(err)) {
           alert(err.errorMessage || _l('记录添加失败'), 2);
         } else {
@@ -984,23 +976,12 @@ export default class RecordInfo extends Component {
     const { viewId, recordinfo, updateControlIds } = this.state;
     removeTempRecordValueFromLocal('recordInfo', viewId + '-' + this.state.recordId);
     emitter.emit('SAVE_CANCEL_RECORD');
-    // 清除子表错误状态
-    Object.keys(this.cellObjs).forEach(key => {
-      if (this.cellObjs[key].cell && !_.isEmpty(this.cellObjs[key].cell.state.cellErrors)) {
-        this.cellObjs[key].cell.setState({ cellErrors: {}, error: false });
-      }
-    });
     this.setState({
-      tempFormData: (recordinfo.formData || []).map(c => {
-        if (c.type === 34 && _.includes(updateControlIds, c.controlId)) {
-          return { ...c, value: { num: c.value, action: 'reset' } };
-        } else {
-          return c;
-        }
-      }),
+      tempFormData: recordinfo.formData || [],
       iseditting: false,
       formFlag: Math.random().toString(),
     });
+    this.recordform.current.dataFormat.callStore('cancelChange');
     this.abortChildTable();
   }
 
@@ -1008,12 +989,12 @@ export default class RecordInfo extends Component {
   refreshEvent({ worksheetId, recordId, closeWhenNotViewData }) {
     const { iseditting } = this.state;
     if (!iseditting && worksheetId === this.state.worksheetId && recordId === this.state.recordId) {
-      this.handleRefresh(closeWhenNotViewData);
+      this.handleRefresh({ closeWhenNotViewData });
     }
   }
 
   @autobind
-  handleRefresh(closeWhenNotViewData) {
+  handleRefresh({ closeWhenNotViewData, doNotResetPageIndex } = {}) {
     if (this.state.iseditting) {
       return;
     }
@@ -1022,7 +1003,7 @@ export default class RecordInfo extends Component {
     });
     _.each(this.refreshEvents || {}, fn => {
       if (_.isFunction(fn)) {
-        fn();
+        fn({ doNotResetPageIndex });
       }
     });
     const { recordId, worksheetId, appId, viewId } = this.state;
@@ -1032,15 +1013,13 @@ export default class RecordInfo extends Component {
   }
 
   @autobind
-  refreshSubList() {
+  refreshAsyncLoadControl() {
     const { tempFormData } = this.state;
-    tempFormData
-      .filter(c => c.type === 34)
-      .forEach(c => {
-        if (_.isFunction(this.refreshEvents[c.controlId])) {
-          this.refreshEvents[c.controlId](null, { noLoading: true });
-        }
-      });
+    tempFormData.forEach(c => {
+      if (_.isFunction(this.refreshEvents[c.controlId])) {
+        this.refreshEvents[c.controlId]({ noLoading: true });
+      }
+    });
   }
 
   @autobind
@@ -1172,6 +1151,7 @@ export default class RecordInfo extends Component {
               defaultTop={-50}
               visibleTop={8}
               title={_l('正在修改表单数据 ···')}
+              saveShortCut
               onOkMouseDown={() => {
                 // hasFocusingRelateRecordTags 点击保存是不是有正在编辑的关联记录卡片字段 TODO: 后面从relateRecordTags组件交互方面解决这个问题
                 this.hasFocusingRelateRecordTags = !!this.con.querySelector(
@@ -1253,7 +1233,7 @@ export default class RecordInfo extends Component {
                   onSubmit={this.onSubmit}
                   refreshRotating={refreshBtnNeedLoading}
                   hideRecordInfo={hideRecordInfo}
-                  reloadRecord={this.handleRefresh}
+                  reloadRecord={() => this.handleRefresh({ doNotResetPageIndex: true })}
                   onSideIconClick={() => {
                     if (from !== RECORD_INFO_FROM.WORKFLOW) {
                       safeLocalStorageSetItem('recordInfoSideVisible', sideVisible ? '' : 'true');
@@ -1263,8 +1243,14 @@ export default class RecordInfo extends Component {
                   onCancel={this.handleCancel}
                   onUpdate={(changedValue, record) => {
                     updateRows([recordId], _.omit(record, ['allowedit', 'allowdelete']), changedValue);
+                    let newValue = { ...changedValue };
+                    if (_.filter(recordinfo.formData, c => c.type === 34 && changedValue[c.controlId]).length) {
+                      newValue = _.omit(record, ['allowedit', 'allowdelete']);
+                    }
                     const newFormData = recordinfo.formData.map(c =>
-                      _.assign({}, c, { value: changedValue[c.controlId] || c.value }),
+                      _.assign({}, c, {
+                        value: !_.isUndefined(newValue[c.controlId]) ? newValue[c.controlId] : c.value,
+                      }),
                     );
                     Object.keys(changedValue).forEach(key => {
                       if (_.isFunction(this.refreshEvents[key])) {
@@ -1350,30 +1336,27 @@ export default class RecordInfo extends Component {
                 updateRecordDialogOwner={this.updateRecordOwner}
                 updateRows={updateRows}
                 onChange={this.handleFormChange}
-                updateRelateRecordNum={(controlId, num) => {
-                  if (!this.recordform) {
+                updateRelateRecordTableCount={(controlId, num, { changed } = {}) => {
+                  if (!get(this, 'recordform.current')) {
                     return;
                   }
+                  updateRows([recordId], { [controlId]: String(num) }, { [controlId]: String(num) });
                   const tempFormData = this.state.tempFormData;
                   const needUpdateControl = _.find(tempFormData, { controlId });
-                  if (needUpdateControl && needUpdateControl.value == num) {
-                    return;
-                  }
                   if (typeof num === 'number' && num >= 0 && _.get(this, 'recordform.current.dataFormat')) {
-                    this.recordform.current.dataFormat.updateDataSource({
-                      controlId,
-                      value: String(num),
-                      notInsertControlIds: true,
-                    });
+                    this.recordform.current.dataFormat.setControlItemValue(controlId, String(num));
                     this.recordform.current.updateRenderData({ noRule: true });
                     this.setState({
                       tempFormData: tempFormData.map(item =>
                         item.controlId === controlId ? { ...item, value: String(num) } : item,
                       ),
                     });
-                    if (_.isFunction(this.refreshEvents.loadcustombtns)) {
+                    if (changed && _.isFunction(this.refreshEvents.loadcustombtns)) {
                       this.refreshEvents.loadcustombtns();
                     }
+                  }
+                  if (!changed) {
+                    return;
                   }
                   tempFormData
                     .filter(c => c.type === 37 && _.includes(c.dataSource, controlId))
@@ -1394,7 +1377,6 @@ export default class RecordInfo extends Component {
                           this.recordform.current.dataFormat.updateDataSource({
                             controlId: c.controlId,
                             value: controlValue,
-                            // notInsertControlIds: true,
                           });
                           this.recordform.current.updateRenderData();
                         }

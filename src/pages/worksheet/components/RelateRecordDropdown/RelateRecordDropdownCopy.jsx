@@ -117,12 +117,14 @@ export default class RelateRecordDropdown extends React.Component {
     }
     if (
       _.get(nextProps, 'control.advancedSetting.searchcontrol') !==
-      _.get(this.props, 'control.advancedSetting.searchcontrol')
+        _.get(this.props, 'control.advancedSetting.searchcontrol') ||
+      !_.isEqual(_.get(this.props, 'control.relationControls'), _.get(nextProps, 'control.relationControls'))
     ) {
       this.initSearchControl(nextProps);
     }
   }
 
+  inputForIOSKeyboardRef = React.createRef();
   cell = React.createRef();
   list = React.createRef();
 
@@ -148,6 +150,11 @@ export default class RelateRecordDropdown extends React.Component {
     } else {
       return width;
     }
+  }
+
+  get allowRemove() {
+    const { multiple } = this.props;
+    return !multiple || _.get(this.props, 'control.advancedSetting.allowcancel') !== '0';
   }
 
   initSearchControl(props) {
@@ -279,10 +286,13 @@ export default class RelateRecordDropdown extends React.Component {
     const { multiple, onVisibleChange } = this.props;
     const { selected } = this.state;
     if (multiple && record.rowid !== 'isEmpty') {
-      if (_.find(selected, r => record.rowid === r.rowid)) {
-        this.handleDelete(record);
+      const selectedRecord = _.find(selected, r => record.rowid === r.rowid);
+      if (selectedRecord) {
+        if (this.allowRemove || selectedRecord.isNewAdd) {
+          this.handleDelete(record);
+        }
       } else {
-        this.handleAdd(record);
+        this.handleAdd(_.assign({}, record, { isNewAdd: true }));
       }
       return;
     } else {
@@ -415,7 +425,6 @@ export default class RelateRecordDropdown extends React.Component {
       isCharge,
     } = this.props;
     const { selected, keywords, activeIndex } = this.state;
-    const allowRemove = control.advancedSetting.allowcancel !== '0';
     const { active } = this;
     const length = selected.length;
     return (
@@ -427,7 +436,7 @@ export default class RelateRecordDropdown extends React.Component {
           active || insheet ? (
             <div
               key={i}
-              className={cx('activeSelectedItem', { active, allowRemove })}
+              className={cx('activeSelectedItem', { active, allowRemove: this.allowRemove || record.isNewAdd })}
               style={_.assign({}, i === 0 ? (cellFrom === 4 ? { margin: 0 } : { marginTop: 6 }) : {})}
               onClick={e => {
                 if (!allowOpenRecord || active) {
@@ -440,7 +449,7 @@ export default class RelateRecordDropdown extends React.Component {
               <span className="name InlineBlock ellipsis">
                 {record.rowid ? getTitleTextFromRelateControl(control, record) : _l('关联当前%0', entityName)}
               </span>
-              {active && allowRemove && (
+              {active && (this.allowRemove || record.isNewAdd) && (
                 <i
                   className="icon icon-close"
                   onClick={e => {
@@ -627,7 +636,7 @@ export default class RelateRecordDropdown extends React.Component {
         {!disabled && !(this.active && keywords) && (
           <i className={`icon ${this.isMobile ? 'icon-arrow-right-border' : 'icon-arrow-down-border'} dropIcon`}></i>
         )}
-        {!disabled && (!!selected.length || keywords) && (!insheet || this.active) && (
+        {!disabled && this.allowRemove && (!!selected.length || keywords) && (!insheet || this.active) && (
           <i
             className="icon icon-closeelement-bg-circle Hand clearIcon"
             onClick={e => {
@@ -658,6 +667,7 @@ export default class RelateRecordDropdown extends React.Component {
       control = {},
       selectedStyle,
       className,
+      popupClassName,
       disabled,
       dataSource,
       enumDefault2,
@@ -671,19 +681,30 @@ export default class RelateRecordDropdown extends React.Component {
     const popup = this.renderPopup({ disabledManualWrite });
     const popupVisible = insheet ? isediting : listvisible;
     return (
-      <div className={cx('RelateRecordDropdown', className)}>
+      <div
+        className={cx('RelateRecordDropdown', className)}
+        onClick={e => {
+          if (isediting) {
+            e.stopPropagation();
+          }
+        }}
+      >
         <Trigger
           action={insheet ? [] : ['click']}
           popupVisible={popupVisible}
           onPopupVisibleChange={visilbe => {
             if (!disabled && visilbe) {
               this.openPopup();
+              // 处理iOS下无法自动激活键盘
+              if (this.inputForIOSKeyboardRef.current) {
+                this.inputForIOSKeyboardRef.current.focus();
+              }
             } else {
               this.setState({ listvisible: false });
             }
             onVisibleChange(visilbe);
           }}
-          popupClassName={cx('relateRecordDropdownPopup filterTrigger', { isQuickFilter })}
+          popupClassName={cx('relateRecordDropdownPopup filterTrigger', popupClassName, { isQuickFilter })}
           getPopupContainer={popupContainer || (() => document.body)}
           popupAlign={{
             points: insheet || isTop ? ['tl', 'tl'] : ['tl', 'bl'],
@@ -702,6 +723,11 @@ export default class RelateRecordDropdown extends React.Component {
             <div style={selectedStyle} ref={this.cell} />
           )}
         </Trigger>
+        <input
+          type="text"
+          style={{ width: 0, opacity: 0, height: 0, position: 'absolute', padding: 0, margin: 0 }}
+          ref={this.inputForIOSKeyboardRef}
+        />
         {newrecordVisible && !disabledManualWrite && (
           <NewRecord
             showFillNext
@@ -735,6 +761,7 @@ export default class RelateRecordDropdown extends React.Component {
             }}
             recordId={previewRecord.recordId}
             worksheetId={dataSource}
+            relationWorksheetId={this.props.parentWorksheetId}
             currentSheetRows={selected}
             showPrevNext
             updateRows={(rowIds = [], updatedRow = {}) => {

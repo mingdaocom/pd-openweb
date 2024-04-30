@@ -4,7 +4,9 @@ import cx from 'classnames';
 import { ConfigProvider, Input, Modal, Button, Dropdown, Menu } from 'antd';
 import { getRePosFromStr } from 'ming-ui/components/TagTextarea';
 import { TagTextarea, Icon } from 'ming-ui';
-import { isNumberControl, normTypes } from 'statistics/common';
+import { isNumberControl, normTypes, textNormTypes } from 'statistics/common';
+import SelectControls from 'worksheet/common/WorkSheetFilter/components/SelectControls';
+import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import _ from 'lodash';
 
@@ -22,12 +24,14 @@ const ControlTag = styled.div`
   }
 `;
 
-const calculateControlNormTypes = _.cloneDeep(normTypes).map(item => {
+const calculateControlNormTypes = normTypes.map(item => {
   return {
     ...item,
     text: item.alias || item.text,
   };
 });
+
+const textControlNormTypes = textNormTypes.filter(n => n.value !== 7);
 
 class CalculateControl extends Component {
   constructor(props) {
@@ -125,10 +129,11 @@ class CalculateControl extends Component {
     }
     this.setState({ dot: count });
   }
-  renderControlTypeOverlay(controlId, norm) {
+  renderControlTypeOverlay({ controlId, type }, norm) {
+    const isNumber = isNumberControl(type);
     return (
       <Menu className="chartMenu" style={{ width: 140 }}>
-        {calculateControlNormTypes.map(item => (
+        {(isNumber ? calculateControlNormTypes : textControlNormTypes).map(item => (
           <Menu.Item
             key={item.value}
             style={{ color: norm.value === item.value ? '#2196f3' : null }}
@@ -148,10 +153,11 @@ class CalculateControl extends Component {
     );
   }
   genControlTag(allControls, id) {
-    const control = _.find(allControls, { controlId: id.replace(/-\w/, '') });
+    const control = _.find(allControls, { controlId: id.replace(/-\w/, '') }) || {};
     const invalid = _.isEmpty(control);
     const type = id.replace(/\w+-/, '');
-    const norm = _.find(calculateControlNormTypes, { value: Number(type) });
+    const isNumber = isNumberControl(control.type);
+    const norm = _.find(isNumber ? calculateControlNormTypes : textControlNormTypes, { value: Number(type) });
     return (
       <ControlTag className={cx('flexRow valignWrapper', { invalid })}>
         <span className="Font12">{invalid ? _l('字段已删除') : control.controlName}</span>
@@ -161,7 +167,7 @@ class CalculateControl extends Component {
           </span>
         )}
         {!invalid && (
-          <Dropdown trigger={['click']} overlay={this.renderControlTypeOverlay(control.controlId, norm)}>
+          <Dropdown trigger={['click']} overlay={this.renderControlTypeOverlay(control, norm)}>
             <Icon className="Font14 mLeft5 pointer" icon="arrow-down-border" />
           </Dropdown>
         )}
@@ -170,23 +176,26 @@ class CalculateControl extends Component {
   }
   renderControlOverlay = () => {
     const { axisControls } = this.props;
-    const numberControls = axisControls.filter(item => isNumberControl(item.type));
+    const allControls = axisControls.map(n => {
+      if (n.type === 10000000) {
+        return {
+          ...n,
+          type: 6
+        }
+      }
+      return n;
+    })
     return (
-      <Menu
-        className="chartMenu"
-        style={{ minWidth: 130, maxHeight: 300, overflowY: 'auto', backgroundClip: 'border-box' }}
-      >
-        {numberControls.map(item => (
-          <Menu.Item
-            key={item.controlId}
-            onClick={() => {
-              this.tagtextarea.insertColumnTag(`${item.controlId}-${1}`);
-            }}
-          >
-            {item.controlName}
-          </Menu.Item>
-        ))}
-      </Menu>
+      <SelectControls
+        controls={allControls}
+        onAdd={control => {
+          this.tagtextarea.insertColumnTag(`${control.controlId}-${isNumberControl(control.type) ? 1 : 5}`);
+          this.setState({ dropdownVisible: false });
+        }}
+        onClose={() => {
+          this.setState({ dropdownVisible: false });
+        }}
+      />
     );
   };
   render() {
@@ -207,20 +216,24 @@ class CalculateControl extends Component {
         />
         <div className="flexRow valignWrapper mTop16 mBottom10">
           <div className="flex Font14">{_l('计算')}</div>
-          <Dropdown
-            trigger={['click']}
-            placement="bottomRight"
-            visible={dropdownVisible}
-            onVisibleChange={(value, e) => {
-              this.setState({ dropdownVisible: value });
+          <Trigger
+            action={['click']}
+            popupVisible={dropdownVisible}
+            onPopupVisibleChange={dropdownVisible => this.setState({ dropdownVisible })}
+            popup={this.renderControlOverlay()}
+            popupAlign={{
+              points: ['tl', 'bl'],
+              overflow: {
+                adjustX: true,
+                adjustY: true,
+              }
             }}
-            overlay={this.renderControlOverlay()}
           >
             <div className="flexRow valignWrapper pointer" style={{ color: '#2196F3' }}>
               <Icon className="Font20" icon="add" />
               <span className="Font13">{_l('选择字段')}</span>
             </div>
-          </Dropdown>
+          </Trigger>
         </div>
         <TagTextarea
           mode={2}

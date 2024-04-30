@@ -1,5 +1,5 @@
 import { emitter } from 'worksheet/util';
-import _ from 'lodash';
+import _, { get } from 'lodash';
 import { updateRulesData, checkRuleLocked } from 'src/components/newCustomFields/tools/filterFn';
 
 const KEY_MAP = {
@@ -13,7 +13,7 @@ const KEY_MAP = {
   ESC: 27,
 };
 
-function checkCellFullVisible(element) {
+export function checkCellFullVisible(element) {
   const left = element.offsetLeft;
   const top = element.offsetTop;
   const width = element.offsetWidth;
@@ -98,8 +98,8 @@ export function handleLifeEffect(
     if (_.isUndefined(cache.focusIndex)) {
       return;
     }
-    const isMac = /Mac/.test(navigator.userAgent);
-    const fastSwitch = (isMac && e.metaKey) || (!isMac && e.ctrlKey);
+
+    const fastSwitch = (window.isMacOs && e.metaKey) || (!window.isMacOs && e.ctrlKey);
     if (fastSwitch) {
       e.stopPropagation();
       e.preventDefault();
@@ -227,13 +227,15 @@ export function handleLifeEffect(
   }
   function handleOuterClick(e) {
     removeReadOnlyTip();
+    const forceOutClick = _.includes(get(e, 'target.className') || '', 'allowOutClick');
     if (
-      e.target.closest('.cellNeedFocus,.mui-dialog-container,.UploadFilesTriggerWrap,.rc-trigger-popup') ||
-      (!isSubList && e.target.closest('.recordInfoCon'))
+      (e.target.closest('.cellNeedFocus,.mui-dialog-container,.UploadFilesTriggerWrap,.rc-trigger-popup') ||
+        (!isSubList && e.target.closest('.recordInfoCon'))) &&
+      !forceOutClick
     ) {
       return;
     }
-    if (!e.target.closest(`.sheetViewTable.id-${tableId}-id`)) {
+    if (!e.target.closest(`.sheetViewTable.id-${tableId}-id`) || forceOutClick) {
       try {
         if (_.get(safeParse(window.tempCopyForSheetView), 'tableId') === tableId) {
           window.tempCopyForSheetView = undefined;

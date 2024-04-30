@@ -12,7 +12,8 @@ function SinglelLeftGroup(props, ref) {
     worksheetId,
     isCharge,
     appPkg,
-    groupData
+    groupData,
+    firstGroupIndex
   } = props;
 
   const store = useMemo(configureStore, []);
@@ -34,6 +35,7 @@ function SinglelLeftGroup(props, ref) {
         isCharge={isCharge}
         appPkg={appPkg}
         groupData={groupData}
+        firstGroupIndex={firstGroupIndex}
         secondLevelGroup={true}
       />
     </Provider>

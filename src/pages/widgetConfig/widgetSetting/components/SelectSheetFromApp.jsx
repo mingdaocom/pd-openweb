@@ -6,6 +6,7 @@ import homeAppAjax from 'src/api/homeApp';
 import appManagementAjax from 'src/api/appManagement';
 import { useSetState } from 'react-use';
 import update from 'immutability-helper';
+import cx from 'classnames';
 import _ from 'lodash';
 
 const SelectItem = styled.div`
@@ -47,7 +48,7 @@ const idContrast = {
 };
 
 export default function SelectSheetFromApp(props) {
-  const { config = initialConfig, onChange, globalSheetInfo = {} } = props;
+  const { config = initialConfig, onChange, globalSheetInfo = {}, fromCustomEvent } = props;
   const { appId: currentAppId, projectId, worksheetId: sourceId } = globalSheetInfo;
   const [data, setData] = useSetState({ app: [], sheet: [], view: [] });
   const [ids, setIds] = useSetState({
@@ -117,9 +118,9 @@ export default function SelectSheetFromApp(props) {
     });
   }, [sheetId]);
 
-  return config.map(({ text, key, disabled, filter = item => item }) => (
+  return config.map(({ text, key, disabled, filter = item => item }, index) => (
     <SelectItem key={key}>
-      <div className="title Bold">{text}</div>
+      <div className={cx('title Bold', { mTop0: index === 0 && fromCustomEvent })}>{text}</div>
       <Dropdown
         value={ids[idContrast[key]] || undefined}
         border

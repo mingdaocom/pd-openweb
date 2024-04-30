@@ -1,13 +1,12 @@
 import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
-import { Icon } from 'ming-ui';
+import { Icon, SvgIcon } from 'ming-ui';
 import { Dropdown } from 'antd';
 import { useDrag, useDrop } from 'react-dnd-latest';
 import { getAdvanceSetting } from '../../util/setting';
-import { DRAG_ITEMS, DRAG_MODE } from '../../config/Drag';
-import SvgIcon from 'src/components/SvgIcon';
-import { insertNewLine } from '../../util/drag';
-import { putControlByOrder } from '../../util';
+import { DRAG_ACCEPT, DRAG_ITEMS, DRAG_MODE } from '../../config/Drag';
+import { insertNewLine, batchRemoveItems } from '../../util/drag';
+import { putControlByOrder, fixedBottomWidgets } from '../../util';
 import { deleteSection } from '../../util/data';
 import { DropdownOverlay } from '../../styled';
 import cx from 'classnames';
@@ -68,7 +67,7 @@ const DragItemWrap = styled.div`
 `;
 
 export function TabHeaderItem(props) {
-  const { data, styleInfo } = props;
+  const { data, styleInfo, setWidgets } = props;
   const [visible, setVisible] = useState(false);
   const isCollapse = _.get(styleInfo, 'info.sectionshow') === '2';
 
@@ -78,6 +77,10 @@ export function TabHeaderItem(props) {
 
     if (data.type === 29) {
       return <Icon icon="link_record" className="Font16 mRight8 Gray_9e" />;
+    }
+
+    if (data.type === 51) {
+      return <Icon icon="Worksheet_query" className="Font16 mRight8 Gray_9e" />;
     }
 
     const { iconUrl } = getAdvanceSetting(data, 'icon');
@@ -105,8 +108,12 @@ export function TabHeaderItem(props) {
                 className="dropdownContent"
                 onClick={e => {
                   e.stopPropagation();
-                  if (data.type === 52) {
-                    deleteSection({ widgets: props.widgets, data }, props);
+                  if (fixedBottomWidgets(data)) {
+                    if (data.type === 52) {
+                      deleteSection({ widgets: props.widgets, data }, props);
+                    } else {
+                      setWidgets(batchRemoveItems(props.widgets, [data]));
+                    }
                     setVisible(false);
                   }
                 }}
@@ -137,7 +144,7 @@ export function DragHeaderItem(props) {
 
   const [collectDrag, drag] = useDrag({
     item: {
-      type: DRAG_ITEMS.DISPLAY_TAB,
+      type: data.type === 52 ? DRAG_ITEMS.DISPLAY_TAB : DRAG_ITEMS.DISPLAY_LIST_TAB,
       widgetType: data.type,
       id: data.controlId,
     },
@@ -152,7 +159,7 @@ export function DragHeaderItem(props) {
   });
 
   const [{ isOver }, drop] = useDrop({
-    accept: [DRAG_ITEMS.DISPLAY_TAB, DRAG_ITEMS.LIST_TAB],
+    accept: DRAG_ACCEPT.tab,
     hover(item, monitor) {
       if (item.id === data.controlId || !$ref.current) return;
       if (monitor.isOver({ shallow: true })) {

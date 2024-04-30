@@ -10,8 +10,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getUserOrgState: function (args, options = {}) {
-     
-     return $.api('User', 'GetUserOrgState', args, options);
+
+     return mdyAPI('User', 'GetUserOrgState', args, options);
    },
   /**
   * 分页 获取一般用户列表
@@ -26,8 +26,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    pagedNormalUserList: function (args, options = {}) {
-     
-     return $.api('User', 'PagedNormalUserList', args, options);
+
+     return mdyAPI('User', 'PagedNormalUserList', args, options);
    },
   /**
   * 获取用户列表
@@ -44,8 +44,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getUserList: function (args, options = {}) {
-     
-     return $.api('User', 'GetUserList', args, options);
+
+     return mdyAPI('User', 'GetUserList', args, options);
    },
   /**
   * 获取 已删除的用户列表
@@ -60,8 +60,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    pagedRemovedUsers: function (args, options = {}) {
-     
-     return $.api('User', 'PagedRemovedUsers', args, options);
+
+     return mdyAPI('User', 'PagedRemovedUsers', args, options);
    },
   /**
   * 获取 待审批 或 已拒绝 的用户
@@ -78,8 +78,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getApprovalUser: function (args, options = {}) {
-     
-     return $.api('User', 'GetApprovalUser', args, options);
+
+     return mdyAPI('User', 'GetApprovalUser', args, options);
    },
   /**
   * 根据AccountId获取用户
@@ -91,8 +91,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getUserListByAccountId: function (args, options = {}) {
-     
-     return $.api('User', 'GetUserListByAccountId', args, options);
+
+     return mdyAPI('User', 'GetUserListByAccountId', args, options);
    },
   /**
   * 获取网络内用户信息
@@ -105,8 +105,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getUserCard: function (args, options = {}) {
-     
-     return $.api('User', 'GetUserCard', args, options);
+
+     return mdyAPI('User', 'GetUserCard', args, options);
    },
   /**
   * 获取用户名片层账号基本信息
@@ -122,8 +122,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getAccountBaseInfo: function (args, options = {}) {
-     
-     return $.api('User', 'GetAccountBaseInfo', args, options);
+
+     return mdyAPI('User', 'GetAccountBaseInfo', args, options);
    },
   /**
   * 获取用户详细信息
@@ -134,8 +134,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getAccountDetail: function (args, options = {}) {
-     
-     return $.api('User', 'GetAccountDetail', args, options);
+
+     return mdyAPI('User', 'GetAccountDetail', args, options);
    },
   /**
   * mentionsInput 使用，@出来的用户和群组
@@ -149,8 +149,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getUsersByKeywords: function (args, options = {}) {
-     
-     return $.api('User', 'GetUsersByKeywords', args, options);
+
+     return mdyAPI('User', 'GetUsersByKeywords', args, options);
    },
   /**
   * 获取当前用户经常协作的用户
@@ -168,8 +168,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getOftenMetionedUser: function (args, options = {}) {
-     
-     return $.api('User', 'GetOftenMetionedUser', args, options);
+
+     return mdyAPI('User', 'GetOftenMetionedUser', args, options);
    },
   /**
   * 获取用户列表（projectId不存在加载好友，projectId存在加载公司通讯录）
@@ -197,8 +197,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getContactUserList: function (args, options = {}) {
-     
-     return $.api('User', 'GetContactUserList', args, options);
+
+     return mdyAPI('User', 'GetContactUserList', args, options);
    },
   /**
   * 获取网络下已离职的用户信息
@@ -212,8 +212,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getProjectResignedUserList: function (args, options = {}) {
-     
-     return $.api('User', 'GetProjectResignedUserList', args, options);
+
+     return mdyAPI('User', 'GetProjectResignedUserList', args, options);
    },
   /**
   * 网络管理 - 获取网络下用户列表（projectId不存在加载好友，projectId存在加载公司通讯录）
@@ -241,8 +241,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getProjectContactUserList: function (args, options = {}) {
-     
-     return $.api('User', 'GetProjectContactUserList', args, options);
+
+     return mdyAPI('User', 'GetProjectContactUserList', args, options);
    },
   /**
   * 根据人员筛选条件获取人员列表
@@ -269,8 +269,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getProjectContactUserListByApp: function (args, options = {}) {
-     
-     return $.api('User', 'GetProjectContactUserListByApp', args, options);
+
+     return mdyAPI('User', 'GetProjectContactUserListByApp', args, options);
    },
   /**
   * 获取已离职的用户
@@ -286,8 +286,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getLeaveUserList: function (args, options = {}) {
-     
-     return $.api('User', 'GetLeaveUserList', args, options);
+
+     return mdyAPI('User', 'GetLeaveUserList', args, options);
    },
   /**
   * 设置用户信息
@@ -308,8 +308,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    updateUser: function (args, options = {}) {
-     
-     return $.api('User', 'UpdateUser', args, options);
+
+     return mdyAPI('User', 'UpdateUser', args, options);
    },
   /**
   * 设置用户信息
@@ -322,13 +322,14 @@ export default {
   * @param {string} args.workSiteId 工作地点
   * @param {array} args.departmentIds 部门（第一个为主部门）
   * @param {array} args.jobIds 职位ids
+  * @param {array} args.orgRoleIds 组织角色ids
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    updateUserCard: function (args, options = {}) {
-     
-     return $.api('User', 'UpdateUserCard', args, options);
+
+     return mdyAPI('User', 'UpdateUserCard', args, options);
    },
   /**
   * 移除用户
@@ -340,8 +341,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    removeUser: function (args, options = {}) {
-     
-     return $.api('User', 'RemoveUser', args, options);
+
+     return mdyAPI('User', 'RemoveUser', args, options);
    },
   /**
   * 移除用户
@@ -353,8 +354,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    removeUsers: function (args, options = {}) {
-     
-     return $.api('User', 'RemoveUsers', args, options);
+
+     return mdyAPI('User', 'RemoveUsers', args, options);
    },
   /**
   * 恢复用户
@@ -366,8 +367,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    recoveryUser: function (args, options = {}) {
-     
-     return $.api('User', 'RecoveryUser', args, options);
+
+     return mdyAPI('User', 'RecoveryUser', args, options);
    },
   /**
   * 审批同意用户加入公司
@@ -379,6 +380,7 @@ export default {
   * @param {string} args.workSiteId 工作地点
   * @param {string} args.jobId 职位
   * @param {array} args.jobIds 职位Ids
+  * @param {array} args.orgRoleIds 组织角色Id
   * @param {string} args.jobNumber 工号
   * @param {string} args.contactPhone 联系号码
   * @param {Object} options 配置参数
@@ -386,8 +388,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    agreeUserJoin: function (args, options = {}) {
-     
-     return $.api('User', 'AgreeUserJoin', args, options);
+
+     return mdyAPI('User', 'AgreeUserJoin', args, options);
    },
   /**
   * 审批同意用户加入公司
@@ -399,8 +401,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    agreeUsersJoin: function (args, options = {}) {
-     
-     return $.api('User', 'AgreeUsersJoin', args, options);
+
+     return mdyAPI('User', 'AgreeUsersJoin', args, options);
    },
   /**
   * 审批拒绝用户加入公司
@@ -413,8 +415,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    refuseUserJoin: function (args, options = {}) {
-     
-     return $.api('User', 'RefuseUserJoin', args, options);
+
+     return mdyAPI('User', 'RefuseUserJoin', args, options);
    },
   /**
   * 批量 审批拒绝用户加入公司
@@ -427,8 +429,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    refuseUsersJoin: function (args, options = {}) {
-     
-     return $.api('User', 'RefuseUsersJoin', args, options);
+
+     return mdyAPI('User', 'RefuseUsersJoin', args, options);
    },
   /**
   * 提醒填写工作电话
@@ -441,8 +443,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    sendNotice: function (args, options = {}) {
-     
-     return $.api('User', 'SendNotice', args, options);
+
+     return mdyAPI('User', 'SendNotice', args, options);
    },
   /**
   * 重置员工密码
@@ -455,8 +457,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    resetPassword: function (args, options = {}) {
-     
-     return $.api('User', 'ResetPassword', args, options);
+
+     return mdyAPI('User', 'ResetPassword', args, options);
    },
   /**
   * 批量重置员工密码
@@ -469,8 +471,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    batchResetPassword: function (args, options = {}) {
-     
-     return $.api('User', 'BatchResetPassword', args, options);
+
+     return mdyAPI('User', 'BatchResetPassword', args, options);
    },
   /**
   * 批量更新用户所在部门
@@ -483,8 +485,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    updateDepartmentForUsers: function (args, options = {}) {
-     
-     return $.api('User', 'UpdateDepartmentForUsers', args, options);
+
+     return mdyAPI('User', 'UpdateDepartmentForUsers', args, options);
    },
   /**
   * 批量更新用户职位
@@ -497,8 +499,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    updateJobForUsers: function (args, options = {}) {
-     
-     return $.api('User', 'UpdateJobForUsers', args, options);
+
+     return mdyAPI('User', 'UpdateJobForUsers', args, options);
    },
   /**
   * 批量更新用户工作地点
@@ -511,8 +513,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    updateWorkSiteForUsers: function (args, options = {}) {
-     
-     return $.api('User', 'UpdateWorkSiteForUsers', args, options);
+
+     return mdyAPI('User', 'UpdateWorkSiteForUsers', args, options);
    },
   /**
   * 根据ProjectId检测当前用户是不是网络管理员
@@ -523,8 +525,8 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    validateUserIsProjectAdmin: function (args, options = {}) {
-     
-     return $.api('User', 'ValidateUserIsProjectAdmin', args, options);
+
+     return mdyAPI('User', 'ValidateUserIsProjectAdmin', args, options);
    },
   /**
   * 检查当前用户是否有好友
@@ -534,7 +536,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    validateUserHaveFriend: function (args, options = {}) {
-     
-     return $.api('User', 'ValidateUserHaveFriend', args, options);
+
+     return mdyAPI('User', 'ValidateUserHaveFriend', args, options);
    },
 };

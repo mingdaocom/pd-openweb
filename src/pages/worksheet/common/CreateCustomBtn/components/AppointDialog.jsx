@@ -11,7 +11,10 @@ import {
   formatControlsBySectionId,
   getSectionId,
   getRealData,
+  canNotForCustomWrite,
 } from 'src/pages/worksheet/common/CreateCustomBtn/utils.js';
+import { noWriteTypes } from '../config';
+import { isRelateRecordTableControl } from 'worksheet/util';
 
 const Wrap = styled.div`
   .controlname {
@@ -110,29 +113,12 @@ class AppointDialog extends React.Component {
     $(document).find('.iconErr').click();
   }
 
-  isDisable = type => {
-    return (
-      [
-        20, // 20: _l('公式'),
-        22, // 分段
-        25, // _l('大写金额'),
-        30, // _l('他表字段'),
-        31, // 31: _l('公式'),
-        32, // 32: _l('文本组合'),
-        33, // 33: _l('自动编号'),
-        37, // 37: _l('汇总'),
-        38, // 38: _l('日前公式'),
-        10010, // 备注
-        45, // 嵌入
-        47, //条码
-        51, //查询记录
-        52, //分段
-      ].indexOf(type) >= 0
-    );
+  isOnlyRead = type => {
+    return noWriteTypes.indexOf(type) >= 0;
   };
 
   getControlEffect = it => {
-    return this.isDisable(it.type) ? 1 : it.required ? 3 : 2;
+    return this.isOnlyRead(it.type) ? 1 : it.required ? 3 : 2;
   };
 
   handDel = item => {
@@ -259,7 +245,7 @@ class AppointDialog extends React.Component {
               }
               const type = writeControlsData.type;
               const controlName = writeControlsData.controlName;
-              let isList = [29, 51].includes(type) && writeControlsData.advancedSetting.showtype === '2';
+              let canNotForWrite = canNotForCustomWrite(writeControlsData);
               if (sectionIds.includes(item.controlId)) {
                 return (
                   <div className="itemBox mTop10">
@@ -272,19 +258,19 @@ class AppointDialog extends React.Component {
                 <div className="itemBox mTop10">
                   <span
                     className={cx('widget controlname Gray Font13 WordBreak overflow_ellipsis Relative', {
-                      isErr: isList,
+                      isErr: canNotForWrite,
                       isChild: !!writeControlsData.sectionId,
                     })}
                   >
                     <Icon icon={getIconByType(type)} className={cx('Font14 Gray_9e mRight15')} />
                     <span className="">{controlName || (type === 22 ? _l('分段') : _l('备注'))}</span>
-                    {isList && (
+                    {canNotForWrite && (
                       <Tooltip
                         tooltipClass="pointTooltip"
                         action={['click']}
                         popupPlacement="bottomRight"
                         offset={[14, 0]}
-                        text={<span style={{ color: '#fff' }}>{_l('关联多条列表不支持自定义填写')}</span>}
+                        text={<span style={{ color: '#fff' }}>{_l('该字段不支持自定义填写')}</span>}
                       >
                         <Icon icon="error_outline" className={cx('Font14 Red mRight15 iconErr')} />
                       </Tooltip>
@@ -303,14 +289,14 @@ class AppointDialog extends React.Component {
                         text: o,
                         value: i + 1,
                         disabled:
-                          (this.isDisable(type) && i > 0) ||
-                          ([29, 51].includes(type) && writeControlsData.advancedSetting.showtype === '2') ||
-                          ([49, 21, 43].includes(type) && i > 1), //api查询,自由连接,文本识别 屏蔽必填
+                          (this.isOnlyRead(type) && i > 0) ||
+                          canNotForWrite ||
+                          (([49, 21, 43].includes(type) || isRelateRecordTableControl(writeControlsData)) && i > 1), //api查询,自由连接,文本识别 屏蔽必填
                       };
                     })}
                     onChange={newValue => {
                       //OCR 只读 编辑
-                      if (this.isDisable(type) || ([43].includes(type) && [3].includes(newValue))) {
+                      if (this.isOnlyRead(type) || ([43].includes(type) && [3].includes(newValue))) {
                         return;
                       }
                       const newCopyCells = writeControls;
@@ -522,7 +508,7 @@ class AppointDialog extends React.Component {
               <ChooseWidget
                 {...this.props}
                 {...this.state}
-                isDisable={this.isDisable}
+                isOnlyRead={this.isOnlyRead}
                 hideFn={() => {
                   this.setState({
                     showChooseWidgetDialog: false,

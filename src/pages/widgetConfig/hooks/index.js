@@ -18,11 +18,11 @@ export const useSheetInfo = ({ worksheetId, saveIndex = 0, ...rest }) => {
         setData({
           info: res,
           views,
-          noAuth: res.resultCode === 1 && res.roleType === 0,
+          noAuth: res.resultCode === 1 && ![2, 4].includes(res.roleType),
           controls: _.get(template, 'controls') || [],
         });
       })
-      .always(() => {
+      .finally(() => {
         setLoading(false);
       });
   }, [worksheetId, saveIndex]);
@@ -69,25 +69,4 @@ export const useGetOptionList = (para, dep = []) => {
     });
   }, dep);
   return list;
-};
-
-export const useFetchData = (method, para, { deps, format } = { deps: [] }) => {
-  const [loading, setLoading] = useState(false);
-  const [data, setData] = useState(null);
-  useEffect(() => {
-    setLoading(true);
-    method(para)
-      .then(({ code, msg, data }) => {
-        if (code === 1) {
-          setData(data);
-        } else {
-          alert(msg);
-        }
-      })
-      .then()
-      .always(() => {
-        setLoading(false);
-      });
-  }, deps);
-  return [loading, data];
 };

@@ -9,7 +9,7 @@ export default {
   **/
    aliPay: function (args, options = {}) {
      options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return $.api('Pay', 'AliPay', args, options);
+     return mdyAPI('Pay', 'AliPay', args, options);
    },
   /**
   * Alipay Return Url
@@ -20,7 +20,7 @@ export default {
   **/
    alipayReturn: function (args, options = {}) {
      options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return $.api('Pay', 'AlipayReturn', args, options);
+     return mdyAPI('Pay', 'AlipayReturn', args, options);
    },
   /**
   * Alipay Notify Url
@@ -31,7 +31,7 @@ export default {
   **/
    alipayNotify: function (args, options = {}) {
      
-     return $.api('Pay', 'AlipayNotify', args, options);
+     return mdyAPI('Pay', 'AlipayNotify', args, options);
    },
   /**
   * 微信支付
@@ -43,7 +43,7 @@ export default {
   **/
    weChatPay: function (args, options = {}) {
      options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return $.api('Pay', 'WeChatPay', args, options);
+     return mdyAPI('Pay', 'WeChatPay', args, options);
    },
   /**
   * 微信支付回调通知
@@ -54,7 +54,7 @@ export default {
   **/
    weChatNotify: function (args, options = {}) {
      
-     return $.api('Pay', 'WeChatNotify', args, options);
+     return mdyAPI('Pay', 'WeChatNotify', args, options);
    },
   /**
   * 查询订单状态
@@ -66,6 +66,6 @@ export default {
   **/
    weChatQueryOrder: function (args, options = {}) {
      options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return $.api('Pay', 'WeChatQueryOrder', args, options);
+     return mdyAPI('Pay', 'WeChatQueryOrder', args, options);
    },
 };

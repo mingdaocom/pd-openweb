@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { formatrChartValue, formatYaxisList, getChartColors } from './common';
+import { formatrChartValue, formatYaxisList, getChartColors, getControlMinAndMax, getStyleColor } from './common';
 import { formatSummaryName } from 'statistics/common';
 import { Dropdown, Menu, Tooltip } from 'antd';
 import { LoadDiv, Icon } from 'ming-ui';
@@ -45,11 +45,10 @@ const ZoomWrapper = styled.div`
   }
 `;
 
-
 const municipality = ['110000', '310000', '120000', '500000'];
 const colorsLength = 6;
 
-const setColorLavel = (data) => {
+const setColorLavel = data => {
   let res = data.filter(item => item.value).sort((a, b) => a.value - b.value);
   let max = Math.ceil(res.length / colorsLength);
   let currentIndex = max;
@@ -69,7 +68,10 @@ const setColorLavel = (data) => {
 };
 
 const getColorValues = (data, colors) => {
-  const maxLength = Math.max.apply(null, data.map(item => item.colorLavel));
+  const maxLength = Math.max.apply(
+    null,
+    data.map(item => item.colorLavel),
+  );
   if (maxLength === 1) {
     return [colors[0], colors[0]];
   } else if (maxLength < colors.length) {
@@ -96,6 +98,7 @@ export default class extends Component {
       dropdownVisible: false,
       offset: {},
       match: null,
+      linkageMatch: null,
       path: [],
       drillDownLoading: false,
     };
@@ -115,91 +118,95 @@ export default class extends Component {
               1: {
                 fill: {
                   type: 'pbf',
-                  url: `${url}districtDataConfigFile/71ac4de3-bb14-449d-a97d-2b98e25ec8df.bin`
+                  url: `${url}districtDataConfigFile/71ac4de3-bb14-449d-a97d-2b98e25ec8df.bin`,
                 },
                 line: {
                   type: 'pbf',
-                  url: `${url}districtDataConfigFile/70ec087e-c48a-4b76-8825-6452f17bae7a.bin`
+                  url: `${url}districtDataConfigFile/70ec087e-c48a-4b76-8825-6452f17bae7a.bin`,
                 },
                 provinceLine: {
                   type: 'pbf',
-                  url: `${url}districtDataConfigFile/0024caaf-86b2-4e75-a3d1-6d2146490b67.bin`
+                  url: `${url}districtDataConfigFile/0024caaf-86b2-4e75-a3d1-6d2146490b67.bin`,
                 },
                 label: {
                   type: 'json',
-                  url: `${url}districtDataConfigFile/36832a45-68f8-4b51-b006-9dec71f92a23.json`
-                }
+                  url: `${url}districtDataConfigFile/36832a45-68f8-4b51-b006-9dec71f92a23.json`,
+                },
               },
               2: {
                 fill: {
                   type: 'pbf',
-                  url: `${url}districtDataConfigFile/522c6496-c711-4581-88db-c3741cd39abd.bin`
+                  url: `${url}districtDataConfigFile/522c6496-c711-4581-88db-c3741cd39abd.bin`,
                 },
                 line: {
                   type: 'pbf',
-                  url: `${url}districtDataConfigFile/f6a4e2b1-359b-43a6-921c-39d2088d1dab.bin`
+                  url: `${url}districtDataConfigFile/f6a4e2b1-359b-43a6-921c-39d2088d1dab.bin`,
                 },
                 cityLine: {
                   type: 'pbf',
-                  url: `${url}districtDataConfigFile/f6a4e2b1-359b-43a6-921c-39d2088d1dab.bin`
+                  url: `${url}districtDataConfigFile/f6a4e2b1-359b-43a6-921c-39d2088d1dab.bin`,
                 },
                 provinceLine: {
                   type: 'pbf',
-                  url: `${url}districtDataConfigFile/0024caaf-86b2-4e75-a3d1-6d2146490b67.bin`
-                }
+                  url: `${url}districtDataConfigFile/0024caaf-86b2-4e75-a3d1-6d2146490b67.bin`,
+                },
               },
               3: {
                 fill: {
                   type: 'pbf',
-                  url: `${url}districtDataConfigFile/524f7de2-7d69-4fa7-8da3-7ff42fa69ee4.bin`
+                  url: `${url}districtDataConfigFile/524f7de2-7d69-4fa7-8da3-7ff42fa69ee4.bin`,
                 },
                 line: {
                   type: 'pbf',
-                  url: `${url}districtDataConfigFile/bc97875a-90f2-42c0-a62c-43d2efd7460d.bin`
+                  url: `${url}districtDataConfigFile/bc97875a-90f2-42c0-a62c-43d2efd7460d.bin`,
                 },
                 countryLine: {
                   type: 'pbf',
-                  url: `${url}districtDataConfigFile/bc97875a-90f2-42c0-a62c-43d2efd7460d.bin`
+                  url: `${url}districtDataConfigFile/bc97875a-90f2-42c0-a62c-43d2efd7460d.bin`,
                 },
                 cityLine: {
                   type: 'pbf',
-                  url: `${url}districtDataConfigFile/8bfbfe7e-bd0e-4bbe-84d8-629f4dc7abc4.bin`
+                  url: `${url}districtDataConfigFile/8bfbfe7e-bd0e-4bbe-84d8-629f4dc7abc4.bin`,
                 },
                 provinceLine: {
                   type: 'pbf',
-                  url: `${url}districtDataConfigFile/778ad7ba-5a3f-4ed6-a94a-b8ab8acae9d6.bin`
-                }
+                  url: `${url}districtDataConfigFile/778ad7ba-5a3f-4ed6-a94a-b8ab8acae9d6.bin`,
+                },
               },
               nationalBoundaries: {
                 type: 'json',
-                url: `${url}districtDataConfigFile/ee493a41-0558-4c0e-bee6-520276c4f1a8.json`
+                url: `${url}districtDataConfigFile/ee493a41-0558-4c0e-bee6-520276c4f1a8.json`,
               },
               nationalBoundaries2: {
                 type: 'json',
-                url: `${url}districtDataConfigFile/f2189cc4-662b-4358-8573-36f0f918b7ca.json`
+                url: `${url}districtDataConfigFile/f2189cc4-662b-4358-8573-36f0f918b7ca.json`,
               },
               island: {
                 type: 'json',
-                url: `${url}districtDataConfigFile/fe49b393-1147-4769-94ed-70471f4ff15d.json`
-              }
-            }
-          }
+                url: `${url}districtDataConfigFile/fe49b393-1147-4769-94ed-70471f4ff15d.json`,
+              },
+            },
+          },
         });
 
         this.asyncComponents = { Scene, Mapbox, CountryLayer, ProvinceLayer, CityLayer, DrillDownLayer };
 
-        const { isThumbnail, reportData, isViewOriginalData } = this.props;
+        const { isThumbnail, reportData, isViewOriginalData, isLinkageData } = this.props;
         const { displaySetup, country } = reportData;
         const style = reportData.style || {};
         const { scene, config, ChartComponent } = this.getChartConfig(this.props);
 
         scene.on('loaded', () => {
+          this.isViewOriginalData = displaySetup.showRowList && isViewOriginalData;
+          this.isLinkageData =
+            isLinkageData &&
+            !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0);
           this.CountryLayerChart = new ChartComponent(scene, config);
           if (country.municipality) return;
-          if (displaySetup.showRowList && isViewOriginalData && !style.isDrillDownLayer) {
+          if ((this.isViewOriginalData || this.isLinkageData) && !style.isDrillDownLayer) {
             this.CountryLayerChart.on('click', this.handleClick);
           }
-          if (isViewOriginalData && style.isDrillDownLayer) {
+          if ((this.isViewOriginalData || this.isLinkageData) && style.isDrillDownLayer) {
             if (country.particleSizeType === 1) {
               this.CountryLayerChart.provinceLayer.on('click', this.handleClick);
               this.CountryLayerChart.cityLayer.on('click', this.handleClick);
@@ -231,9 +238,9 @@ export default class extends Component {
     const chartColor = _.get(nextProps, 'customPageConfig.chartColor');
     const oldChartColor = _.get(this.props, 'customPageConfig.chartColor');
     if (
-      !_.isEmpty(displaySetup) &&
-      displaySetup.showChartType !== oldDisplaySetup.showChartType ||
+      (!_.isEmpty(displaySetup) && displaySetup.showChartType !== oldDisplaySetup.showChartType) ||
       displaySetup.magnitudeUpdateFlag !== oldDisplaySetup.magnitudeUpdateFlag ||
+      !_.isEqual(displaySetup.colorRules, oldDisplaySetup.colorRules) ||
       !_.isEqual(chartColor, oldChartColor) ||
       !_.isEqual(style, oldStyle) ||
       nextProps.themeColor !== this.props.themeColor
@@ -245,14 +252,23 @@ export default class extends Component {
         this.CountryLayerChart = new ChartComponent(scene, config);
       });
     }
+    if (nextProps.isLinkageData !== this.props.isLinkageData) {
+      this.isLinkageData =
+        nextProps.isLinkageData &&
+        !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0);
+    }
     if (!nextProps.loading && this.props.loading) {
-      const { map, yaxisList, summary, style } = nextProps.reportData;
+      const { map, yaxisList, summary, style, country } = nextProps.reportData;
       const data = setColorLavel(map);
       const { CountryLayerChart } = this;
       if (CountryLayerChart && typeof CountryLayerChart.updateData === 'function') {
         this.setCount(formatYaxisList(data, yaxisList), summary);
         if (_.get(style, 'isDrillDownLayer')) {
-          CountryLayerChart.updateData(CountryLayerChart.drillState, data);
+          if (country.particleSizeType === 3) {
+            CountryLayerChart.updateData(data);
+          } else {
+            CountryLayerChart.updateData(CountryLayerChart.drillState, data);
+          }
         } else {
           CountryLayerChart.updateData(data);
         }
@@ -261,12 +277,19 @@ export default class extends Component {
   }
   handleClick = ({ feature, x, y }) => {
     const { path } = this.state;
-    const { xaxes, country } = this.props.reportData;
+    const { xaxes, country, appId, reportId, name, reportType, style } = this.props.reportData;
     const { code, value } = feature.properties;
 
     if (!value) return;
 
     const param = {};
+    const linkageMatch = {
+      sheetId: appId,
+      reportId,
+      reportName: name,
+      reportType,
+      filters: [],
+    };
     if (path.length) {
       // 省
       if (country.particleSizeType === 1) {
@@ -277,7 +300,19 @@ export default class extends Component {
         param[`${xaxes.controlId}-${path.length + 1}`] = code;
       }
     } else {
+      const { name } = feature.properties;
       param[xaxes.cid] = code;
+      linkageMatch.value = param[xaxes.cid];
+      linkageMatch.filters.push({
+        controlId: xaxes.controlId,
+        values: [param[xaxes.cid]],
+        controlName: xaxes.controlName,
+        controlValue: name,
+        type: xaxes.controlType,
+      });
+    }
+    if (_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length) {
+      linkageMatch.onlyChartIds = style.autoLinkageChartObjectIds;
     }
 
     this.setState({
@@ -286,6 +321,7 @@ export default class extends Component {
         y,
       },
       match: param,
+      linkageMatch,
     });
 
     setTimeout(() => {
@@ -305,6 +341,13 @@ export default class extends Component {
       this.props.requestOriginalData(data);
     }
     this.setState({ dropdownVisible: false });
+  };
+  handleAutoLinkage = () => {
+    const { linkageMatch } = this.state;
+    this.props.onUpdateLinkageFiltersGroup(linkageMatch);
+    this.setState({
+      dropdownVisible: false,
+    });
   };
   handleDrillDownTriggerData = () => {
     const { base, reportData } = this.props;
@@ -356,7 +399,7 @@ export default class extends Component {
           this.CountryLayerChart.drillState = 'City';
           this.CountryLayerChart.drillDown(code, data);
           return;
-        } 
+        }
 
         if (path.length) {
           const last = _.find(this.CountryLayerChart.cityLayer.options.data, { code: code });
@@ -458,15 +501,29 @@ export default class extends Component {
   getChartConfig(props) {
     const { themeColor, projectId, customPageConfig = {}, reportData } = props;
     const { country, displaySetup, map, yaxisList, summary, sorts } = reportData;
+    const { colorRules } = displaySetup;
     const { chartColor, chartColorIndex = 1 } = customPageConfig;
     const sort = _.get(sorts[0], yaxisList[0].controlId);
     const styleConfig = reportData.style || {};
-    const style = chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0) ? { ...styleConfig, ...chartColor } : styleConfig;
+    const style =
+      chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0)
+        ? { ...styleConfig, ...chartColor }
+        : styleConfig;
     const data = setColorLavel(map);
     const maxColorLavel = _.max(data.map(n => n.colorLavel));
     const colors = getChartColors(style, themeColor, projectId);
-    const generateColors = generate(colors[0]).filter((_, index) => [0, 2, 4, 6, 7, 9].includes(index)).filter((_, index) => maxColorLavel > index);
+    const generateColors = generate(colors[0])
+      .filter((_, index) => [0, 2, 4, 6, 7, 9].includes(index))
+      .filter((_, index) => maxColorLavel > index);
     const colorLavels = sort === 2 ? generateColors.reverse() : generateColors;
+    const rule = _.get(colorRules[0], 'dataBarRule') || {};
+    const isRuleColor = !_.isEmpty(rule);
+    const controlMinAndMax = isRuleColor
+      ? getControlMinAndMax(
+          yaxisList,
+          data.map(n => Object.assign({}, n, { controlId: yaxisList[0].controlId })),
+        )
+      : {};
     const newYaxisList = formatYaxisList(data, yaxisList);
     const { Scene, Mapbox, CountryLayer, ProvinceLayer, CityLayer, DrillDownLayer } = this.asyncComponents;
 
@@ -523,14 +580,31 @@ export default class extends Component {
     } else {
       config.provinceStroke = '#BBDEFB';
       config.cityStroke = '#BBDEFB';
-      config.fill = {
-        color: {
-          field: 'colorLavel',
-          values: value => {
-            return colorLavels[value - 1];
+      if (isRuleColor) {
+        config.fill = {
+          color: {
+            field: 'value',
+            values: value => {
+              const color = getStyleColor({
+                value,
+                controlMinAndMax,
+                rule,
+                controlId: yaxisList[0].controlId,
+              });
+              return color;
+            },
           },
-        },
-      };
+        };
+      } else {
+        config.fill = {
+          color: {
+            field: 'colorLavel',
+            values: value => {
+              return colorLavels[value - 1];
+            },
+          },
+        };
+      }
     }
 
     // 钻取地图
@@ -613,19 +687,30 @@ export default class extends Component {
     const { displaySetup = {}, style, country } = reportData || {};
     return (
       <Menu className="chartMenu" style={{ width: 160 }}>
-        {displaySetup.showRowList && (isThumbnail ? _.isEmpty(path) : true) && (
-          <Menu.Item onClick={this.handleRequestOriginalData} key="viewOriginalData">
-            <div className="flexRow valignWrapper">
-              <span>{_l('查看原始数据')}</span>
-            </div>
-          </Menu.Item>
-        )}
-        {style &&
-          style.isDrillDownLayer &&
+        <Fragment>
+          {this.isLinkageData && _.isEmpty(path) && (
+            <Menu.Item onClick={this.handleAutoLinkage} key="autoLinkage">
+              <div className="flexRow valignWrapper">
+                <Icon icon="link1" className="mRight8 Gray_9e Font20 autoLinkageIcon" />
+                <span>{_l('联动')}</span>
+              </div>
+            </Menu.Item>
+          )}
+          {this.isViewOriginalData && (isThumbnail ? _.isEmpty(path) : true) && (
+            <Menu.Item onClick={this.handleRequestOriginalData} key="viewOriginalData">
+              <div className="flexRow valignWrapper">
+                <Icon icon="table" className="mRight8 Gray_9e Font18" />
+                <span>{_l('查看原始数据')}</span>
+              </div>
+            </Menu.Item>
+          )}
+        </Fragment>
+        {_.get(style, 'isDrillDownLayer') &&
           [1, 2].includes(country.particleSizeType) &&
           path.length < (country.particleSizeType === 1 ? 3 : 2) && (
             <Menu.Item onClick={this.handleDrillDownTriggerData} key="dataDrill">
               <div className="flexRow valignWrapper">
+                <Icon icon="drill_down" className="mRight8 Gray_9e Font20" />
                 <span>{_l('数据钻取')}</span>
                 {drillDownLoading && <LoadDiv size="small" />}
               </div>
@@ -693,7 +778,11 @@ export default class extends Component {
                 <Icon className="pointer Font20 Gray_75 mTop2" icon="add" onClick={() => this.scene.map.zoomIn()} />
               </Tooltip>
               <Tooltip title={_l('完整显示')}>
-                <Icon className="pointer Font17 Gray_75 mTop10 mBottom10" icon="gps_fixed" onClick={() => this.scene.map.zoomTo(2)} />
+                <Icon
+                  className="pointer Font17 Gray_75 mTop10 mBottom10"
+                  icon="gps_fixed"
+                  onClick={() => this.scene.map.zoomTo(2)}
+                />
               </Tooltip>
               <Tooltip title={_l('缩小')}>
                 <Icon className="pointer Font20 Gray_75" icon="minus" onClick={() => this.scene.map.zoomOut()} />

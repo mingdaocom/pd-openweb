@@ -216,7 +216,7 @@ export default function FilterDetail(props) {
               conditionProps={conditionProps}
               conditionsGroupsLength={conditionsGroups.length}
               onAdd={control => {
-                actions.addCondition(control, groupIndex);
+                actions.addCondition(control, groupIndex, from);
               }}
               onChange={(value = {}, conditionIndex) => {
                 actions.updateCondition(value, groupIndex, conditionIndex);
@@ -254,9 +254,9 @@ export default function FilterDetail(props) {
             columns={filterAddConditionControls(controls)}
             onAdd={control => {
               if (filter.isGroup) {
-                actions.addCondition(control);
+                actions.addCondition(control, undefined, from);
               } else {
-                actions.addCondition(control, 0);
+                actions.addCondition(control, 0, from);
               }
               onAddCondition();
               scrollToEnd();

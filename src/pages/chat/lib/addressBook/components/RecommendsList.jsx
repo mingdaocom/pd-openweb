@@ -2,7 +2,7 @@ import React from 'react';
 import Button from 'ming-ui/components/Button';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import API, { editIgnoreRecommends } from '../api';
-import addFriendConfirm from 'src/components/addFriendConfirm/addFriendConfirm';
+import { addFriendConfirm } from 'ming-ui/functions';
 import _ from 'lodash';
 
 export default class RecommendsList extends React.Component {
@@ -59,7 +59,7 @@ export default class RecommendsList extends React.Component {
   }
 
   ignore(accountId) {
-    return editIgnoreRecommends(accountId).done((data) => {
+    return editIgnoreRecommends(accountId).then((data) => {
       if (data) {
         this.updateListData(accountId, false);
       } else {

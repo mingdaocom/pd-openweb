@@ -25,6 +25,7 @@ const OPTIONS_DISPLAY = [
 
 export default function FlatMenu(props) {
   const { data, onChange, globalSheetInfo, fromPortal, fromExcel } = props;
+  const FILTER_OPTIONS_DISPLAY = fromPortal ? OPTIONS_DISPLAY.filter(i => i.value !== '2') : OPTIONS_DISPLAY;
   const { showtype = '0' } = getAdvanceSetting(data);
   return (
     <Fragment>
@@ -33,7 +34,7 @@ export default function FlatMenu(props) {
         <div className="labelWrap">
           <Dropdown
             border
-            data={OPTIONS_DISPLAY}
+            data={FILTER_OPTIONS_DISPLAY}
             value={showtype}
             onChange={value => {
               onChange({

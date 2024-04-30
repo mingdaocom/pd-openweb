@@ -291,6 +291,9 @@ function RecordColor(params) {
               {...{
                 ...selectedControl,
                 advancedSetting: { ...selectedControl.advancedSetting, allowadd: '0', checktype: '1' },
+                options: selectedControl.options.map(o => {
+                  return { ...o, hide: false }; //视图 记录显示项配置不隐藏选项
+                }),
               }}
               default={undefined}
               fromFilter

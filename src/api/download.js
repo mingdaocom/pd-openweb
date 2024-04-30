@@ -8,7 +8,7 @@ export default {
   **/
    getExAccountImportTemplate: function (args, options = {}) {
      options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return $.api('Download', 'GetExAccountImportTemplate', args, options);
+     return mdyAPI('Download', 'GetExAccountImportTemplate', args, options);
    },
   /**
   * 下载免审文件
@@ -19,7 +19,7 @@ export default {
   **/
    verify: function (args, options = {}) {
      options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return $.api('Download', 'Verify', args, options);
+     return mdyAPI('Download', 'Verify', args, options);
    },
   /**
   * 导出项目
@@ -30,7 +30,7 @@ export default {
   **/
    exportFolderToExcel: function (args, options = {}) {
      options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return $.api('Download', 'ExportFolderToExcel', args, options);
+     return mdyAPI('Download', 'ExportFolderToExcel', args, options);
    },
   /**
   * 导出单个日程
@@ -41,7 +41,7 @@ export default {
   **/
    exportCalendarByCalendarId: function (args, options = {}) {
      options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return $.api('Download', 'ExportCalendarByCalendarId', args, options);
+     return mdyAPI('Download', 'ExportCalendarByCalendarId', args, options);
    },
   /**
   * 根据 token 导出个人日程
@@ -52,7 +52,7 @@ export default {
   **/
    exportCalendarByToken: function (args, options = {}) {
      options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return $.api('Download', 'ExportCalendarByToken', args, options);
+     return mdyAPI('Download', 'ExportCalendarByToken', args, options);
    },
   /**
   * 导出分享的日程
@@ -63,7 +63,7 @@ export default {
   **/
    exportSharedCalendar: function (args, options = {}) {
      options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return $.api('Download', 'ExportSharedCalendar', args, options);
+     return mdyAPI('Download', 'ExportSharedCalendar', args, options);
    },
   /**
   * 网络管理导出各实体数据
@@ -74,7 +74,7 @@ export default {
   **/
    exportProjectEntityToExcel: function (args, options = {}) {
      options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return $.api('Download', 'ExportProjectEntityToExcel', args, options);
+     return mdyAPI('Download', 'ExportProjectEntityToExcel', args, options);
    },
   /**
   * 导出公司员工列表
@@ -89,7 +89,7 @@ export default {
   **/
    exportProjectUserList: function (args, options = {}) {
      
-     return $.api('Download', 'ExportProjectUserList', args, options);
+     return mdyAPI('Download', 'ExportProjectUserList', args, options);
    },
   /**
   * 导出导入用户错误列表
@@ -103,7 +103,7 @@ export default {
   **/
    exportImportUserFailList: function (args, options = {}) {
      
-     return $.api('Download', 'ExportImportUserFailList', args, options);
+     return mdyAPI('Download', 'ExportImportUserFailList', args, options);
    },
   /**
   * 编辑导入用户错误列表
@@ -117,7 +117,7 @@ export default {
   **/
    exportImportEditUserFailList: function (args, options = {}) {
      
-     return $.api('Download', 'ExportImportEditUserFailList', args, options);
+     return mdyAPI('Download', 'ExportImportEditUserFailList', args, options);
    },
   /**
   * 导入职位或者部门错误列表
@@ -131,7 +131,7 @@ export default {
   **/
    exportFailJobOrDepartmentErrorList: function (args, options = {}) {
      
-     return $.api('Download', 'ExportFailJobOrDepartmentErrorList', args, options);
+     return mdyAPI('Download', 'ExportFailJobOrDepartmentErrorList', args, options);
    },
   /**
   * 导出公司职位列表
@@ -143,7 +143,7 @@ export default {
   **/
    exportProjectJobList: function (args, options = {}) {
      
-     return $.api('Download', 'ExportProjectJobList', args, options);
+     return mdyAPI('Download', 'ExportProjectJobList', args, options);
    },
   /**
   * 导出公司部门列表
@@ -155,7 +155,7 @@ export default {
   **/
    exportProjectDepartmentList: function (args, options = {}) {
      
-     return $.api('Download', 'ExportProjectDepartmentList', args, options);
+     return mdyAPI('Download', 'ExportProjectDepartmentList', args, options);
    },
   /**
   * 下载银行信息
@@ -166,7 +166,7 @@ export default {
   **/
    downloadBankInfo: function (args, options = {}) {
      options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return $.api('Download', 'DownloadBankInfo', args, options);
+     return mdyAPI('Download', 'DownloadBankInfo', args, options);
    },
   /**
   * 下载自定义图标
@@ -182,7 +182,7 @@ export default {
   **/
    customIcon: function (args, options = {}) {
      
-     return $.api('Download', 'CustomIcon', args, options);
+     return mdyAPI('Download', 'CustomIcon', args, options);
    },
   /**
   * 下载应用包
@@ -193,7 +193,7 @@ export default {
   **/
    appFile: function (args, options = {}) {
      options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return $.api('Download', 'AppFile', args, options);
+     return mdyAPI('Download', 'AppFile', args, options);
    },
   /**
   * 下载导出的工作表附件跳转
@@ -204,7 +204,7 @@ export default {
   **/
    worksheetExcel: function (args, options = {}) {
      options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return $.api('Download', 'WorksheetExcel', args, options);
+     return mdyAPI('Download', 'WorksheetExcel', args, options);
    },
   /**
   * 导出登录日志
@@ -224,7 +224,7 @@ export default {
   **/
    exportLoginLog: function (args, options = {}) {
      
-     return $.api('Download', 'ExportLoginLog', args, options);
+     return mdyAPI('Download', 'ExportLoginLog', args, options);
    },
   /**
   * 导出应用全局日志
@@ -250,7 +250,7 @@ export default {
   **/
    exportGlobalLogs: function (args, options = {}) {
      
-     return $.api('Download', 'ExportGlobalLogs', args, options);
+     return mdyAPI('Download', 'ExportGlobalLogs', args, options);
    },
   /**
   * 批量下载行记录附件
@@ -265,6 +265,7 @@ export default {
   * @param {boolean} args.getTemplate 是否获取模板
   * @param {string} args.shareId 分享页获取关联记录iD
   * @param {boolean} args.checkView 是否验证视图
+  * @param {string} args.relationWorksheetId 关联控件ID
   * @param {string} args.controlId 附件控件id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -272,7 +273,7 @@ export default {
   **/
    rowAttachments: function (args, options = {}) {
      
-     return $.api('Download', 'RowAttachments', args, options);
+     return mdyAPI('Download', 'RowAttachments', args, options);
    },
   /**
   * 下载应用备份文件
@@ -283,7 +284,7 @@ export default {
   **/
    downloadBackupFile: function (args, options = {}) {
      options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return $.api('Download', 'DownloadBackupFile', args, options);
+     return mdyAPI('Download', 'DownloadBackupFile', args, options);
    },
   /**
   * 下载应用库模板文件
@@ -294,6 +295,17 @@ export default {
   **/
    appLibrary: function (args, options = {}) {
      options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return $.api('Download', 'AppLibrary', args, options);
+     return mdyAPI('Download', 'AppLibrary', args, options);
+   },
+  /**
+  * 下载插件导出文件
+  * @param {Object} args 请求参数
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   plugin: function (args, options = {}) {
+     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
+     return mdyAPI('Download', 'Plugin', args, options);
    },
 };

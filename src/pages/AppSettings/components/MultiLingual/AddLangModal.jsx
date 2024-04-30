@@ -2,17 +2,16 @@ import React, { Fragment, useState } from 'react';
 import { Dialog } from 'ming-ui';
 import { Checkbox } from 'antd';
 import langConfig from 'src/common/langConfig';
-import { LANG_TYPE } from './config';
 import appManagementApi from 'src/api/appManagement';
 
 const AddLangModal = props => {
   const { app, langs = [], visible, onCancel, onSave } = props;
-  const [selectKey, setSelectKey] = useState(langs.map(n => LANG_TYPE[n.type]));
+  const [selectKey, setSelectKey] = useState(langs.map(n => _.find(langConfig, { code: n.type }).key));
   const handleSave = () => {
     appManagementApi.createAppLang({
       projectId: app.projectId,
       appId: app.id,
-      langTypes: selectKey.map(n => LANG_TYPE[n]),
+      langTypes: selectKey.map(n => _.find(langConfig, { key: n }).code),
     }).then(data => {
       const { suc } = data;
       if (suc.length) {
@@ -21,6 +20,7 @@ const AddLangModal = props => {
       }
     });
   };
+
   return (
     <Dialog
       centered={true}
@@ -34,7 +34,7 @@ const AddLangModal = props => {
           <Checkbox
             className="mLeft0 mBottom10"
             key={data.key}
-            disabled={_.find(langs, { type: LANG_TYPE[data.key] })}
+            disabled={_.find(langs, { type: data.code })}
             checked={selectKey.includes(data.key)}
             onChange={(e) => {
               if (e.target.checked) {

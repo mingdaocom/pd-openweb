@@ -9,7 +9,7 @@ import _ from 'lodash';
 import { navigateToView } from 'src/pages/widgetConfig/util/data';
 import { Tooltip } from 'antd';
 import { addBehaviorLog } from 'src/util';
-import { checkIsAppAdmin } from 'src/components/checkIsAppAdmin';
+import { checkIsAppAdmin } from 'ming-ui/functions';
 
 const Wrapper = styled.div`
   .envList {

@@ -3,9 +3,10 @@ import { string } from 'prop-types';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { EditWidget, WidgetList, WidgetContent } from '../components';
+import AiDisplay from '../components/WidgetContent/AiDisplay';
 import cx from 'classnames';
 import _ from 'lodash';
-import { replaceColor, isLightColor } from 'src/pages/customPage/util';
+import { replaceColor, isLightColor, filterSuspensionAiComponent, getSuspensionAiComponent } from 'src/pages/customPage/util';
 
 const ContentWrap = styled.div`
   box-sizing: border-box;
@@ -52,11 +53,14 @@ const ContentWrap = styled.div`
 `;
 
 function webLayout(props) {
-  const { editable = true, components = [], updateWidget = _.noop, className = '', emptyPlaceholder, config, appPkg, ...rest } = props;
+  const { editable = true, updateWidget = _.noop, className = '', emptyPlaceholder, config, appPkg, delWidget, ...rest } = props;
   const [editingWidget, setWidget] = useState({});
   const $ref = useRef(null);
+  const { adjustScreen } = rest;
   const { iconColor } = rest.apk;
   const pageConfig = replaceColor(config || {}, appPkg.iconColor || rest.apk.iconColor);
+  const components = filterSuspensionAiComponent(props.components || []);
+  const suspensionAi = getSuspensionAiComponent(props.components || []);
   return (
     <Fragment>
       {editable && <WidgetList {...props} />}
@@ -64,14 +68,21 @@ function webLayout(props) {
         ref={$ref}
         className={cx(className, {
           componentsEmpty: components <= 0,
-          darkTheme: pageConfig.pageBgColor && !isLightColor(pageConfig.pageBgColor)
+          darkTheme: pageConfig.pageBgColor && !isLightColor(pageConfig.pageBgColor),
+          adjustScreen
         })}
         id="componentsWrap"
         style={{ backgroundColor: appPkg.pcNaviStyle === 1 ? pageConfig.darkenPageBgColor || pageConfig.pageBgColor : pageConfig.pageBgColor }}
       >
         {components.length > 0 ? (
           <div className="componentsWrap">
-            <WidgetContent {...props} editingWidget={editingWidget} setWidget={setWidget} config={pageConfig} />
+            <WidgetContent
+              {...props}
+              components={components}
+              editingWidget={editingWidget}
+              setWidget={setWidget}
+              config={pageConfig}
+            />
           </div>
         ) : (
           emptyPlaceholder || (
@@ -80,6 +91,13 @@ function webLayout(props) {
               <p>{_l('从左侧添加组件，开始创建页面')}</p>
             </div>
           )
+        )}
+        {suspensionAi && (
+          <AiDisplay
+            editable={editable}
+            widget={suspensionAi}
+            delWidget={delWidget}
+          />
         )}
         {!_.isEmpty(editingWidget) && (
           <EditWidget

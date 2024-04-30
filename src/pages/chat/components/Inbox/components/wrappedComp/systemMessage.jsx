@@ -14,8 +14,8 @@ import xss from 'xss';
 import ErrorDialog from 'src/pages/worksheet/common/WorksheetBody/ImportDataFromExcel/ErrorDialog';
 import TaskCenterController from 'src/api/taskCenter';
 import worksheetAjax from 'src/api/worksheet';
-import { addBehaviorLog } from 'src/util';
-import SvgIcon from 'src/components/SvgIcon';
+import { addBehaviorLog, dateConvertToUserZone } from 'src/util';
+import { SvgIcon } from 'ming-ui';
 import { MSGTYPES } from '../../constants';
 import processAjax from 'src/pages/workflow/api/process';
 import Emotion from 'src/components/emotion/emotion';
@@ -61,7 +61,7 @@ export default class SystemMessage extends PureComponent {
           TaskCenterController[func]({
             taskID: taskId,
             accountID: opUser,
-          }).done(function(data) {
+          }).then(function(data) {
             if (data.status) {
               alert(_l('操作成功'));
             } else if (data.error) {
@@ -181,7 +181,7 @@ export default class SystemMessage extends PureComponent {
           },
         });
       })
-      .fail(error => {
+      .catch(error => {
         this.setState({
           processInfo: {
             name: '',
@@ -272,7 +272,7 @@ export default class SystemMessage extends PureComponent {
               />
             </div>
             <div className="Gray_9 mTop10">
-              {createTimeSpan(createTime)}
+              {createTimeSpan(dateConvertToUserZone(createTime))}
               {hasApp && (
                 <Fragment>
                   <Dot></Dot>

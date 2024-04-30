@@ -8,6 +8,7 @@ import { browserIsMobile } from 'src/util';
 import _ from 'lodash';
 import { getCheckAndOther } from '../../tools/utils';
 import OtherInput from '../Checkbox/OtherInput';
+import { MAX_OPTIONS_COUNT } from 'src/pages/widgetConfig/config';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -99,16 +100,18 @@ export default class Widgets extends Component {
       disableCustom,
       hint,
     } = this.props;
-    let noDelOptions = options.filter(item => !item.isDeleted);
-    const delOptions = options.filter(item => item.isDeleted);
+    let noDelOptions = options.filter(item => !item.isDeleted && !item.hide);
+    const delOptions = options.filter(item => item.isDeleted || item.hide);
     const { keywords } = this.state;
     const { checkIds } = getCheckAndOther(value);
+    const canAddOption = noDelOptions.length < MAX_OPTIONS_COUNT;
 
     checkIds.forEach(item => {
       if ((item || '').toString().indexOf('add_') > -1 && !selectProps.noPushAdd_) {
         noDelOptions.push({ key: item, color: '#2196F3', value: item.split('add_')[1] });
       }
     });
+    const mobileCheckItems = noDelOptions.concat(delOptions).filter(i => _.includes(checkIds, i.key));
 
     if (browserIsMobile()) {
       return (
@@ -117,16 +120,18 @@ export default class Widgets extends Component {
             disabled={disabled}
             allowAdd={advancedSetting.allowadd === '1'}
             data={noDelOptions}
-            value={checkIds}
+            delOptions={delOptions}
             callback={this.onChange}
             renderText={this.renderList}
             {...this.props}
+            value={mobileCheckItems}
           >
             <div className={cx('w100 customFormControlBox', { controlDisabled: disabled })} style={{ height: 'auto' }}>
               <div className="flexRow h100" style={{ alignItems: 'center', minHeight: 34 }}>
                 <div className="flex minWidth0">
                   {checkIds.length ? (
                     noDelOptions
+                      .concat(delOptions)
                       .filter(item => _.includes(checkIds, item.key))
                       .map(item => {
                         return (
@@ -180,7 +185,7 @@ export default class Widgets extends Component {
           optionFilterProp="children"
           filterOption={() => true}
           notFoundContent={<span className="Gray_9e">{_l('无搜索结果')}</span>}
-          onSearch={keywords => this.setState({ keywords })}
+          onSearch={keywords => this.setState({ keywords: keywords.trim() })}
           onDropdownVisibleChange={open => {
             this.setState({ keywords: '' });
             !open && this.select.blur();
@@ -197,7 +202,7 @@ export default class Widgets extends Component {
           }}
           {...selectProps}
         >
-          {!keywords.length && advancedSetting.allowadd === '1' && (
+          {!keywords.length && advancedSetting.allowadd === '1' && canAddOption && (
             <Select.Option disabled className="cursorDefault">
               <span className="ellipsis customRadioItem Gray_9e">{_l('或直接输入添加新选项')}</span>
             </Select.Option>
@@ -221,8 +226,9 @@ export default class Widgets extends Component {
 
           {!disableCustom &&
             !!keywords.length &&
-            !noDelOptions.find(item => item.value === keywords) &&
-            advancedSetting.allowadd === '1' && (
+            !options.find(item => item.value === keywords) &&
+            advancedSetting.allowadd === '1' &&
+            canAddOption && (
               <Select.Option value={`add_${keywords}`}>
                 <span className="ellipsis customRadioItem ThemeColor3">{_l('添加新的选项：') + keywords}</span>
               </Select.Option>

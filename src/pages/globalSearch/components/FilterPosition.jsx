@@ -1,11 +1,10 @@
 import React, { Fragment, useEffect } from 'react';
 import { useState } from 'react';
 import styled from 'styled-components';
-import { Tooltip, Icon, Dialog, ScrollView, LoadDiv } from 'ming-ui';
+import { Tooltip, Icon, Dialog, ScrollView, LoadDiv, SvgIcon } from 'ming-ui';
 import { getFeatureStatus } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
 import smartSearchAjax from 'src/api/smartSearch';
-import SvgIcon from 'src/components/SvgIcon';
 import OrgSelect from './OrgSelect';
 import { getCurrentProjectId } from '../utils';
 
@@ -169,7 +168,9 @@ export default function FilterPosition(props) {
             currentProjectId={dialogProjectId || getCurrentProjectId()}
             needAll={false}
             onChange={projectId => setDialogProjectId(projectId)}
-            filterFucntion={l => getFeatureStatus(l.projectId, VersionProductType.globalSearch) === '1' && l.licenseType !== 2}
+            filterFucntion={l =>
+              getFeatureStatus(l.projectId, VersionProductType.globalSearch) === '1' && l.licenseType !== 2
+            }
           />
           <span className="Gray_9e">{_l('标记应用和工作表，不再搜索它们的记录')}</span>
         </div>
@@ -197,8 +198,14 @@ export default function FilterPosition(props) {
                               <SvgIcon url={item.iconUrl} fill={listKey === 'app' ? '#fff' : '#757575'} size={12} />
                             </span>
                             <span className="itemName overflow_ellipsis">{item.name}</span>
-                            {listKey !== 'app' && (<span className='Gray_9e overLimi_130 overflow_ellipsis'>{item.appName || ''}</span>)}
-                            <Icon icon="clear" className="delete Font14 Gray_9d mLeft7" onClick={() => removeFilter(item)} />
+                            {listKey !== 'app' && (
+                              <span className="Gray_9e overLimi_130 overflow_ellipsis">{item.appName || ''}</span>
+                            )}
+                            <Icon
+                              icon="clear"
+                              className="delete Font14 Gray_9d mLeft7"
+                              onClick={() => removeFilter(item)}
+                            />
                           </div>
                         ))}
                       </Fragment>

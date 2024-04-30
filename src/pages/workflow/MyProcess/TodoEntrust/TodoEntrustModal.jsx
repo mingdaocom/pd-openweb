@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
-import { Modal, Dropdown, Icon } from 'ming-ui';
+import { Modal, Dropdown, Icon, UserHead, UserName } from 'ming-ui';
 import styled from 'styled-components';
 import { DatePicker } from 'antd';
 import zhCN from 'antd/es/date-picker/locale/zh_CN';
 import moment from 'moment';
-import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
-import UserHead from 'src/components/userHead';
-import UserName from 'src/components/userName';
+import { dialogSelectUser } from 'ming-ui/functions';
 import delegationApi from 'src/pages/workflow/api/delegation';
 import _ from 'lodash';
 
@@ -77,7 +75,7 @@ export default function TodoEntrustModal(props) {
   });
   const isEdit = !_.isEmpty(editEntrustData);
   const [formData, setFormData] = useState(
-    isEdit ? editEntrustData : { companyId: projectOptions.filter(item => !item.disabled)[0].value },
+    isEdit ? editEntrustData : { companyId: (projectOptions.filter(item => !item.disabled)[0] || {}).value },
   );
   const updateDataSource = options => {
     setFormData(Object.assign({}, formData, options));

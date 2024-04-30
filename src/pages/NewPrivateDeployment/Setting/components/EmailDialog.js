@@ -100,7 +100,7 @@ export default class EmailDialog extends Component {
           toEmailLoading: false,
           toEmailResult: data
         });
-      }).fail(() => {
+      }).catch(() => {
         this.setState({
           toEmailLoading: false,
           toEmailResult: null

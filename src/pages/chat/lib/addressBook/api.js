@@ -170,35 +170,17 @@ export default {
   /**
    * Users
    */
-  fetchUserDetail: (accountId) => {
-    const params = {
-      accountId,
-    };
-    return UserController.getAccountDetail(params).then((data) => {
-      if (data) {
-        return data;
-      } else {
-        return $
-          .Deferred()
-          .reject()
-          .promise();
-      }
-    });
-  },
-
-  fetchGroupDetail: (groupId) => {
-    const params = {
-      groupId,
-    };
-    return GroupController.getGroupInfo(params).then((data) => {
-      if (data) {
-        return data;
-      } else {
-        return $
-          .Deferred()
-          .reject()
-          .promise();
-      }
+  fetchUserDetail: accountId => {
+    return new Promise((resolve, reject) => {
+      UserController.getAccountDetail({
+        accountId,
+      }).then(data => {
+        if (data) {
+          resolve(data);
+        } else {
+          reject();
+        }
+      });
     });
   },
 
@@ -214,55 +196,40 @@ export default {
   },
 };
 
-export const editAgreeFriend = (accountId) => {
+export const editAgreeFriend = accountId => {
   return AddressListController.editAgreeFriend({
     accountId,
   });
 };
 
-export const editRefuseFriend = (accountId) => {
+export const editRefuseFriend = accountId => {
   return AddressListController.editRefuseFriend({
     accountId,
   });
 };
 
-export const editIgnoreFriend = (accountId) => {
+export const editIgnoreFriend = accountId => {
   return AddressListController.editIgnoreFriend({
     accountId,
   });
 };
 
-export const editIgnoreRecommends = (recomendId) => {
+export const editIgnoreRecommends = recomendId => {
   return AddressListController.addIgnoreMobileAddress({
     recomendId,
   });
 };
 
-export const removeFriend = (accountId) => {
+export const removeFriend = accountId => {
   return AddressListController.removeFriend({
     accountId,
-  }).then(
-    (data) => {
-      if (data) {
-        return data;
-      } else {
-        alert(_l('操作失败，请重新尝试'), 2);
-        return $
-          .Deferred()
-          .reject()
-          .promise();
-      }
-    },
-    () => {
-      alert(_l('操作失败，请重新尝试'), 2);
-    }
-  );
+  });
 };
 
-export const openGroup = (groupId) => {
+export const openGroup = groupId => {
   return GroupController.openGroup({
     groupIds: [groupId],
-  }).then((result) => {
+  }).then(result => {
     if (result) {
       return result;
     } else {
@@ -271,10 +238,10 @@ export const openGroup = (groupId) => {
   });
 };
 
-export const closeGroup = (groupId) => {
+export const closeGroup = groupId => {
   return GroupController.closeGroup({
     groupIds: [groupId],
-  }).then((result) => {
+  }).then(result => {
     if (result) {
       return result;
     } else {
@@ -283,10 +250,10 @@ export const closeGroup = (groupId) => {
   });
 };
 
-export const joinGroup = (groupId) => {
+export const joinGroup = groupId => {
   return GroupController.applyJoinGroup({
     groupId,
-  }).done((result) => {
+  }).then(result => {
     if (result.isApply) {
       alert(_l('该群组需要管理员审批才能加入，已向管理员发出提醒'), 3);
     } else if (result.isMember) {

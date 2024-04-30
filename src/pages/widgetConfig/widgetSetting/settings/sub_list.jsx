@@ -20,6 +20,7 @@ import {
   dealControlData,
   formatSearchConfigs,
   toEditWidgetPage,
+  isSheetDisplay,
 } from '../../util';
 import subListComponents from '../components/sublist';
 import _, { isEmpty, find, filter, findIndex } from 'lodash';
@@ -55,7 +56,7 @@ const SettingModelWrap = styled.div`
 `;
 
 export default function SubListSetting(props) {
-  const { status, allControls, data, onChange } = props;
+  const { status, allControls, data, globalSheetInfo = {}, onChange } = props;
   const { controlId, dataSource, relationControls = [], showControls = [], needUpdate } = data;
   const [sheetInfo, setInfo] = useState({});
   const [subQueryConfigs, setSubQueryConfigs] = useState([]);
@@ -98,7 +99,12 @@ export default function SubListSetting(props) {
     if (saveIndex && dataSource && !dataSource.includes('-')) {
       setLoading(true);
       worksheetAjax
-        .getWorksheetInfo({ worksheetId: dataSource, getTemplate: true, getControlType: 11 })
+        .getWorksheetInfo({
+          worksheetId: dataSource,
+          getTemplate: true,
+          getControlType: 11,
+          relationWorksheetId: globalSheetInfo.worksheetId,
+        })
         .then(res => {
           if (res.resultCode === 4) return;
           const controls = _.get(res, ['template', 'controls']);
@@ -122,7 +128,7 @@ export default function SubListSetting(props) {
           };
           getQueryConfigs(res);
         })
-        .always(() => {
+        .finally(() => {
           setLoading(false);
         });
     }
@@ -156,18 +162,12 @@ export default function SubListSetting(props) {
     const reControls = _.get(info, ['template', 'controls']) || _.get(info, 'relationControls') || [];
     const needShow = (showControls || []).some(i => {
       const c = _.find(reControls || [], a => a.controlId === i) || {};
-      return (
-        c.type === 34 ||
-        (c.type === 29 && String(c.enumDefault) === '2' && _.get(c, 'advancedSetting.showtype') === '2')
-      );
+      return c.type === 34 || isSheetDisplay(c);
     });
     return reControls.filter(item =>
       needShow
-        ? !_.includes([43, 45, 47, 49, 51, 52, 10010], item.type)
-        : !(
-            _.includes([34, 43, 45, 47, 49, 51, 52, 10010], item.type) ||
-            (item.type === 29 && String(item.enumDefault) === '2' && _.get(item, 'advancedSetting.showtype') === '2')
-          ),
+        ? !_.includes([22, 43, 45, 47, 49, 51, 52, 10010], item.type)
+        : !(_.includes([22, 34, 43, 45, 47, 49, 51, 52, 10010], item.type) || isSheetDisplay(item)),
     );
   };
 
@@ -184,7 +184,12 @@ export default function SubListSetting(props) {
     }
     setLoading(true);
     worksheetAjax
-      .getWorksheetInfo({ worksheetId: dataSource, getTemplate: true, getControlType: 11 })
+      .getWorksheetInfo({
+        worksheetId: dataSource,
+        getTemplate: true,
+        getControlType: 11,
+        relationWorksheetId: globalSheetInfo.worksheetId,
+      })
       .then(res => {
         if (res.resultCode === 4) return;
         const controls = filterRelationControls(res);
@@ -212,7 +217,7 @@ export default function SubListSetting(props) {
         getQueryConfigs(res);
         onChange(nextData);
       })
-      .always(() => {
+      .finally(() => {
         setLoading(false);
       });
   }, [dataSource, needUpdate]);

@@ -312,7 +312,7 @@ export default function(options) {
 
             $('#MDUpdaterhidden_GroupID_All').SelectGroup(MDUpdater.options.selectGroupOptions);
           })
-          .always(function() {
+          .finally(function() {
             $(obj)
               .removeAttr('disabled')
               .removeClass('Disabled');

@@ -67,7 +67,7 @@ export default class InboxList extends React.Component {
       endTime
     });
     this.ajaxRequest
-      .done(({ inboxList }) => {
+      .then(({ inboxList }) => {
         if (pageIndex === 1) {
           this.setState({
             hasMoreData: inboxList.length > 0,
@@ -82,7 +82,7 @@ export default class InboxList extends React.Component {
           });
         }
       })
-      .fail((jqXHR, textStatus) => {
+      .catch((jqXHR, textStatus) => {
         if (textStatus !== 'abort') {
           alert(_l('加载失败，点击重试'), 2);
           this.setState({

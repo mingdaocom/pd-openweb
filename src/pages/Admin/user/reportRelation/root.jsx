@@ -1,12 +1,13 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { ScrollView, Tooltip } from 'ming-ui';
+import { Tooltip } from 'ming-ui';
+import Config from '../../config';
 import Checkbox from 'ming-ui/components/Checkbox';
 import Node from './components/node';
 import SearchInput from './components/searchBox';
-
+import projectSettingController from 'src/api/projectSetting';
 import { initRoot, fetchRootSubordinates, updateCollapse } from './actions';
-import { getAuth, setStructureForAll, setStructureSelfEdit } from './common';
+import { setStructureForAll, setStructureSelfEdit } from './common';
 import cx from 'classnames';
 
 import NodeDialog from './components/NodeDialog';
@@ -31,18 +32,22 @@ class Root extends Component {
     dispatch(fetchRootSubordinates(''));
     dispatch(updateCollapse());
 
-    getAuth().done(auth => {
-      this.setState({
-        authForAll: auth.allowStructureForAll,
-        allowStructureSelfEdit: auth.allowStructureSelfEdit,
+    projectSettingController
+      .getStructureForAll({
+        projectId: Config.projectId,
+      })
+      .then(auth => {
+        this.setState({
+          authForAll: auth.allowStructureForAll,
+          allowStructureSelfEdit: auth.allowStructureSelfEdit,
+        });
       });
-    });
   }
 
   changeSubordinate = checked => {
     setStructureSelfEdit({
       isAllowStructureSelfEdit: !checked,
-    }).done(() => {
+    }).then(() => {
       this.setState({
         allowStructureSelfEdit: !checked,
       });
@@ -52,7 +57,7 @@ class Root extends Component {
   changeReporting = checked => {
     setStructureForAll({
       forAll: !checked,
-    }).done(() => {
+    }).then(() => {
       this.setState({
         authForAll: !checked,
       });

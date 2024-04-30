@@ -7,12 +7,11 @@ import update from 'immutability-helper';
 import styled from 'styled-components';
 import { Dialog } from 'ming-ui';
 import { flatten, isFunction, pick, head, isEmpty, get, find, isEqual, findIndex } from 'lodash';
-import { getItem, setItem } from 'src/util';
 import { useSheetInfo } from './hooks';
 import Header from './Header';
 import Content from './content';
 import { getCurrentRowSize, getPathById } from './util/widgets';
-import { formatControlsData, getMsgByCode, scrollToVisibleRange } from './util/data';
+import { formatControlsData, getMsgByCode, scrollToVisibleRange, getChildWidgetsBySection } from './util/data';
 import {
   getUrlPara,
   genWidgetsByControls,
@@ -20,6 +19,7 @@ import {
   returnMasterPage,
   formatSearchConfigs,
   getBoundRowByTab,
+  fixedBottomWidgets,
 } from './util';
 import { resetDisplay } from './util/drag';
 import Components from './widgetSetting/components';
@@ -28,7 +28,6 @@ import './index.less';
 import { WHOLE_SIZE } from './config/Drag';
 import ErrorState from 'src/components/errorPage/errorState';
 import { navigateTo } from 'src/router/navigateTo';
-import { isRelateRecordTableControl } from 'src/pages/worksheet/util.js';
 
 const WidgetConfig = styled.div`
   height: 100%;
@@ -73,7 +72,7 @@ export default function Container(props) {
 
   const [status, setStatus] = useSetState({ saved: false, saveIndex: 0, modify: false, noTitleControl: false });
 
-  const { sourceId } = getUrlPara();
+  const sourceId = props.worksheetId || _.get(getUrlPara(), 'sourceId');
   const [{ getLoading, saveLoading }, setLoading] = useSetState({ getLoading: false, saveLoading: false });
 
   let $originControls = useRef([]);
@@ -81,7 +80,7 @@ export default function Container(props) {
 
   const {
     data: { info: globalInfo, noAuth },
-  } = useSheetInfo({ worksheetId: sourceId });
+  } = useSheetInfo({ worksheetId: sourceId, getSwitchPermit: true });
 
   useTitle(_l('编辑字段 - %0', get(globalInfo, 'name') || ''));
 
@@ -91,15 +90,23 @@ export default function Container(props) {
     if (isEmpty(path)) return widgets;
     const [row, col] = path;
 
-    // 在标签页内的关联记录切成列表或列表切成其他形态，关联记录切换成子表，布局更新
-    if (_.includes([29, 34, 51], data.type) && data.sectionId) {
+    // 以下为布局更新情况
+    if (_.includes([29, 51], data.type)) {
       const preData = widgets[row][col];
-      const unListToList = !isRelateRecordTableControl(preData) && isRelateRecordTableControl(data);
-      const recordToSub = preData.type === 29 && data.type === 34;
-      if (unListToList || recordToSub) {
-        const newData = { ...data, sectionId: '', size: 12 };
+      // 1、标签页内关联记录切换成标签页表格
+      const relateToTabList = data.sectionId && !fixedBottomWidgets(preData) && fixedBottomWidgets(data);
+      // 2、关联记录标签页表格切换成其他形态
+      const tabListToRelate = fixedBottomWidgets(preData) && !fixedBottomWidgets(data);
+
+      if (relateToTabList || tabListToRelate) {
+        let targetIndex = getBoundRowByTab(widgets);
+        let newData = { ...data, size: 12 };
+        if (relateToTabList) {
+          const childrenList = getChildWidgetsBySection(genControlsByWidgets(widgets), newData.sectionId);
+          targetIndex = _.head(getPathById(widgets, newData.sectionId)) + childrenList.length + 1;
+          newData.sectionId = '';
+        }
         setActiveWidget(newData);
-        const targetIndex = getBoundRowByTab(widgets);
         setTimeout(() => {
           scrollToVisibleRange(newData, { activeWidget: newData });
         }, 100);
@@ -130,7 +137,10 @@ export default function Container(props) {
     setWidgets(nextWidgets);
 
     try {
-      setItem(`worksheetConfig-${sourceId}`, { widgets: nextWidgets, time: Date.now(), version });
+      safeLocalStorageSetItem(
+        `worksheetConfig-${sourceId}`,
+        JSON.stringify({ widgets: nextWidgets, time: Date.now(), version }),
+      );
     } catch (error) {
       console.log(error);
     }
@@ -192,6 +202,8 @@ export default function Container(props) {
   useEffect(() => {
     // 子表配置,防止激活子表掉接口冲掉临时变更
     window.subListSheetConfig = {};
+    // 自定义事件集成api数据缓存
+    window.IntegratedApi = {};
     setLoading({ getLoading: true });
     worksheetAjax
       .getWorksheetControls({
@@ -204,7 +216,7 @@ export default function Container(props) {
 
           let widgets = genWidgetsByControls(controls);
 
-          const savedWidgets = getItem(`worksheetConfig-${sourceId}`);
+          const savedWidgets = safeParse(localStorage.getItem(`worksheetConfig-${sourceId}`));
           if (savedWidgets) {
             // 未被保存过的更改 可以恢复
             if (savedWidgets.version === version) {
@@ -229,7 +241,7 @@ export default function Container(props) {
         }
         alert(_l('获取控件错误'));
       })
-      .always(() => {
+      .finally(() => {
         setLoading({ getLoading: false });
       });
   }, []);
@@ -254,6 +266,9 @@ export default function Container(props) {
         let error = getMsgByCode({ code, data, controls: saveControls });
         if (error) return;
         const { controls, version } = data;
+
+        // 子表重新拉缓存数据，保存后，relationControls不处理，防止一些隐藏问题
+        window.subListSheetConfig = {};
 
         const nextWidgets = genWidgetsByControls(controls);
         const flattenControls = flatten(nextWidgets);
@@ -281,7 +296,7 @@ export default function Container(props) {
         const needGetQuery = newQueryConfigs.length;
         getQueryConfigs(needGetQuery);
       })
-      .always(() => {
+      .finally(() => {
         setLoading({ saveLoading: false });
       });
   };
@@ -323,19 +338,9 @@ export default function Container(props) {
     });
   };
 
-  const updateQueryConfigs = (value = {}, mode) => {
-    if (mode === 'cover') {
-      setQueryConfigs(value);
-      return;
-    }
-
-    const index = findIndex(queryConfigs, item => item.controlId === value.controlId);
-    let newQueryConfigs = queryConfigs.slice();
-    if (mode) {
-      index > -1 && newQueryConfigs.splice(index, 1);
-    } else {
-      index > -1 ? newQueryConfigs.splice(index, 1, value) : newQueryConfigs.push(value);
-    }
+  const updateQueryConfigs = (value = {}) => {
+    const index = findIndex(queryConfigs, item => item.id === value.id);
+    const newQueryConfigs = index > -1 ? queryConfigs.splice(index, 1) : queryConfigs.concat([value]);
     setQueryConfigs(newQueryConfigs);
   };
 
@@ -383,10 +388,15 @@ export default function Container(props) {
     batchDrag,
     setBatchDrag,
     // 全局表信息
-    globalSheetInfo: pick(globalInfo, ['appId', 'projectId', 'worksheetId', 'name', 'groupId', 'roleType']),
+    globalSheetInfo: pick(globalInfo, ['appId', 'projectId', 'worksheetId', 'name', 'groupId', 'roleType', 'appName']),
   };
 
   const cancelSubmit = ({ redirectfn, desp } = {}) => {
+    if (_.isFunction(props.handleClose)) {
+      props.handleClose();
+      return;
+    }
+
     if (redirectfn) {
       redirectfn();
     } else {
@@ -400,6 +410,7 @@ export default function Container(props) {
       if (!isEmpty(args)) $switchArgs.current = args;
       return;
     }
+
     cancelSubmit(args);
     localStorage.removeItem(`worksheetConfig-${sourceId}`);
   };

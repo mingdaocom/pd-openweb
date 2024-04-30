@@ -3,6 +3,7 @@ import { EditModelWrap, EmptySheetPlaceHolder } from '../../styled';
 import { getAdvanceSetting, getShowControls } from '../../util/setting';
 import { SYSTEM_FIELD_TO_TEXT } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
 import { isEmpty } from 'lodash';
+import { isSheetDisplay } from '../../util';
 
 export default function SubList({ data }) {
   const { relationControls = [], desc = '' } = data;
@@ -52,20 +53,17 @@ export default function SubList({ data }) {
                 <tbody>
                   <tr>
                     {showControls.map((controlId, index) => {
-                      const {
-                        enumDefault,
-                        type,
-                        advancedSetting = {},
-                      } = _.find(relationControls, item => item.controlId === controlId) || {};
+                      const currentControl = _.find(relationControls, item => item.controlId === controlId) || {};
+                      const { enumDefault, type, advancedSetting = {} } = currentControl;
                       return (
                         <td key={controlId} style={{ width: `${widths[index]}px` }}>
-                          {(type === 34 ||
+                          {type === 34 ||
                             type === 45 ||
                             type === 49 ||
                             type === 51 ||
-                            (type === 29 && String(enumDefault) === '2' && advancedSetting.showtype === '2')) && (
-                            <span className="Gray_75 unSupport">{_l('不支持此类型字段')}</span>
-                          )}
+                            (isSheetDisplay(currentControl) && (
+                              <span className="Gray_75 unSupport">{_l('不支持此类型字段')}</span>
+                            ))}
                         </td>
                       );
                     })}

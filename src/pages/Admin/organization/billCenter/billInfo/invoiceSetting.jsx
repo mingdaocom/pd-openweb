@@ -60,7 +60,7 @@ export default function InvoiceSetting(props) {
         .then(() => {
           alert(_l('保存成功'));
         })
-        .always(() => {
+        .finally(() => {
           onClose();
         });
     };

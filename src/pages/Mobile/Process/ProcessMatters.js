@@ -153,7 +153,7 @@ export default class ProcessMatters extends Component {
       loading: true,
     });
 
-    if (this.request && this.request.state() === 'pending') {
+    if (this.request) {
       this.request.abort();
     }
     if (searchValue) {

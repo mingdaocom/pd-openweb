@@ -15,7 +15,7 @@ import GroupFilter from './GroupFilter';
 import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import DragMask from 'worksheet/common/DragMask';
 import { Skeleton } from 'ming-ui';
-const { sheet, gallery, board, calendar, gunter, detail, customize, map } = VIEW_DISPLAY_TYPE;
+const { sheet, gallery, board, calendar, gunter, detail, customize, map, resource } = VIEW_DISPLAY_TYPE;
 import './style.less';
 import _ from 'lodash';
 import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
@@ -123,7 +123,7 @@ function Sheet(props) {
     navData;
   const showQuickFilter =
     !_.isEmpty(view.fastFilters) &&
-    _.includes([sheet, gallery, board, calendar, gunter, detail, customize], String(view.viewType)) &&
+    _.includes([sheet, gallery, board, calendar, gunter, detail, customize, resource], String(view.viewType)) &&
     !chartId;
   const needClickToSearch =
     showQuickFilter &&
@@ -134,7 +134,8 @@ function Sheet(props) {
     hasGroupFilter &&
     !_.includes([sheet], String(view.viewType)) &&
     !chartId &&
-    _.get(view, 'advancedSetting.showallitem') === '1';
+    _.get(view, 'advancedSetting.showallitem') === '1' &&
+    !_.get(view, 'navGroup[0].viewId');
   const basePara = {
     type,
     loading,
@@ -243,10 +244,16 @@ function Sheet(props) {
             <Con id="worksheetRightContentBox">
               {showQuickFilter && (
                 <QuickFilterCon>
-                  <QuickFilter
-                    {...basePara}
-                    filters={setSysWorkflowTimeControlFormat(view.fastFilters, worksheetInfo.switches)}
-                  />
+                  {worksheetInfo.isRequestingRelationControls ? (
+                    <div style={{ height: 52 }}>
+                      <Skeleton direction="row" widths={['140px']} active itemStyle={{ margin: '20px 0' }} />
+                    </div>
+                  ) : (
+                    <QuickFilter
+                      {...basePara}
+                      filters={setSysWorkflowTimeControlFormat(view.fastFilters, worksheetInfo.switches)}
+                    />
+                  )}
                 </QuickFilterCon>
               )}
               {hasGroupFilter && !chartId ? (
