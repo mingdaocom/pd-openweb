@@ -45,7 +45,7 @@ function getParams() {
 export function getAttachment() {
   const { type, id, getType } = getParams();
   if (!id) {
-    return;
+    return Promise.reject();
   }
   switch (type) {
     case 'kc_share':
@@ -89,6 +89,6 @@ export function getAttachment() {
           alert(_l('获取附件详情失败'), 2);
         });
     default:
-      return;
+      return Promise.reject();
   }
 }

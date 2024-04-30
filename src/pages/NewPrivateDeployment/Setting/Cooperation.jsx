@@ -5,7 +5,7 @@ import _ from 'lodash';
 
 const Cooperation = props => {
   const { SysSettings } = md.global;
-  const [forbidSuites, setForbidSuites] = useState(_.uniq(SysSettings.forbidSuites.split('|')).filter(item => item !== '5'));
+  const [forbidSuites, setForbidSuites] = useState(_.uniq(SysSettings.forbidSuites.split('|')));
 
   const handleChangeForbidSuites = value => {
     const isExist = forbidSuites.filter(item => item === value).length;

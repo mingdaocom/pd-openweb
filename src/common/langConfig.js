@@ -1,5 +1,13 @@
 const config = [
   {
+    key: 'en',
+    value: 'English',
+    languageTeam: 'English',
+    language: 'en_US',
+    path: '/staticfiles/lang/en/mdTranslation.js',
+    code: 1,
+  },
+  {
     key: 'zh-Hans',
     value: '简体中文',
     languageTeam: 'Chinese Simplified',
@@ -14,14 +22,6 @@ const config = [
     language: 'zh_TW',
     path: '/staticfiles/lang/zh-Hant/mdTranslation.js',
     code: 3,
-  },
-  {
-    key: 'en',
-    value: 'English',
-    languageTeam: 'English',
-    language: 'en_US',
-    path: '/staticfiles/lang/en/mdTranslation.js',
-    code: 1,
   },
   {
     key: 'ja',

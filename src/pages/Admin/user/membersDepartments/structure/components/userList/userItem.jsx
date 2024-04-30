@@ -300,9 +300,7 @@ class UserItem extends Component {
   };
 
   renderAction = () => {
-    const { user, isChargeUser, typeCursor, departmentId, projectId } = this.props;
-    const { isSuperAdmin, isProjectAppManager } =
-      _.find(md.global.Account.projects, v => v.projectId === projectId) || {};
+    const { user, isChargeUser, typeCursor, departmentId } = this.props;
 
     return _.includes([0, 1], typeCursor) ? (
       <Menu className="userOptList">
@@ -312,7 +310,7 @@ class UserItem extends Component {
         )}
         {departmentId && !isChargeUser && <MenuItem onClick={this.setAndCancelCharge}>{_l('设为部门负责人')}</MenuItem>}
         {departmentId && isChargeUser && <MenuItem onClick={this.setAndCancelCharge}>{_l('取消部门负责人')}</MenuItem>}
-        {(isSuperAdmin || isProjectAppManager) && <MenuItem onClick={this.handleTransfer}> {_l('交接工作')}</MenuItem>}
+        <MenuItem onClick={this.handleTransfer}> {_l('交接工作')}</MenuItem>
         {user.accountId !== md.global.Account.accountId && (
           <MenuItem className="leaveText" onClick={this.handleRemoveUserClick}>
             {_l('离职')}

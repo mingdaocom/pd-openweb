@@ -378,12 +378,7 @@ export default class ViewItems extends Component {
       searchWorksheetListValue &&
       _.isEmpty(
         viewList
-          .filter(
-            l =>
-              isCharge ||
-              (!(_.get(l, 'advancedSetting.showhide') || '').includes('hpc') &&
-                !(_.get(l, 'advancedSetting.showhide') || '').includes('hide')),
-          )
+          .filter(l => isCharge || (_.get(l, 'advancedSetting.showhide') || '').search(/hide|hpc/g) < 0)
           .filter(l => l.name.includes(_.trim(searchWorksheetListValue))),
       );
     const currentViewHideValue = _.get(
@@ -421,9 +416,13 @@ export default class ViewItems extends Component {
               <Input
                 value={searchWorksheetListValue}
                 onChange={value => this.setState({ searchWorksheetListValue: value })}
-                placeholder={_l('%0个视图', viewList.length)}
+                placeholder={_l(
+                  '%0个视图',
+                  viewList.filter(l => isCharge || (_.get(l, 'advancedSetting.showhide') || '').search(/hide|hpc/g) < 0)
+                    .length,
+                )}
                 type="text"
-                className="drawerWorksheetHiddenSearch flex a"
+                className="drawerWorksheetHiddenSearch flex"
                 manualRef={this.searchRef}
               />
               {!!searchWorksheetListValue && (

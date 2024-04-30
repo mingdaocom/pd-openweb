@@ -127,13 +127,16 @@ export default class RecordInfo extends Component {
         }));
 
       const childTableControlIds = updateRulesData({ rules: data.rules, data: data.formData })
-        .filter(
-          v =>
-            v.type === 34 &&
-            !v.hidden &&
-            controlState(v, from).visible &&
-            !_.includes(['110', '010', '000', '011'], v.fieldPermission),
-        )
+        .filter(v => {
+          if (v.type === 34) {
+            const tab = _.find(tempControls, c => v.sectionId == c.controlId);
+            return (
+              (tab ? !v.hidden && controlState(v, from).visible : !tab.hidden && controlState(tab, from)) &&
+              !_.includes(['110', '010', '000', '011'], v.fieldPermission)
+            );
+          }
+          return;
+        })
         .map(it => it.controlId);
 
       // 封面配置

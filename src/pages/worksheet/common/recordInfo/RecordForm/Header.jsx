@@ -55,6 +55,7 @@ export default function InfoHeader(props) {
     view,
     from,
     isOpenNewAddedRecord,
+    customBtnTriggerCb,
     // allowExAccountDiscuss = false, //允许外部用户讨论
     // exAccountDiscussEnum = 0, //外部用户的讨论类型 0：所有讨论 1：不可见内部讨论
     // approved: false, //允许外部用户允许查看审批流转详情
@@ -264,6 +265,7 @@ export default function InfoHeader(props) {
               onUpdate={onUpdate}
               sheetSwitchPermit={sheetSwitchPermit}
               handleAddSheetRow={handleAddSheetRow}
+              customBtnTriggerCb={customBtnTriggerCb}
             />
           ) : (
             <div className="flex" />

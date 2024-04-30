@@ -86,6 +86,7 @@ export default function RecordCoverCard(props) {
     sourceEntityName = '',
     parentControl,
     isCharge,
+    sheetSwitchPermit = [],
     onReplaceRecord = () => {},
   } = props;
   const coverSize = 50 + 28 * controls.slice(0, 3).length;
@@ -153,6 +154,7 @@ export default function RecordCoverCard(props) {
           projectId={projectId}
           viewId={viewId}
           isCharge={isCharge}
+          sheetSwitchPermit={sheetSwitchPermit}
         />
       </ControlCon>
       {cover && !!controls.length && (

@@ -347,6 +347,11 @@ function DetailView(props) {
                 }, 100);
               }}
               isCharge={isCharge}
+              customBtnTriggerCb={() => {
+                setTimeout(() => {
+                  fetchRows(1, detailKeyWords);
+                }, 100);
+              }}
             />
           )}
       </div>

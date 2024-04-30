@@ -48,7 +48,7 @@ export default class Header extends Component {
    * 头部更多操作的处理逻辑
    */
   handleMoreOperation = action => {
-    const { projectId, id, workId, data } = this.props;
+    const { projectId, id, workId, data, worksheetId } = this.props;
     const { app } = data;
 
     if (action === 'print') {
@@ -58,7 +58,7 @@ export default class Header extends Component {
       let printData = {
         printId,
         isDefault, // 系统打印模板
-        worksheetId: '',
+        worksheetId,
         projectId,
         id,
         rowId: '',

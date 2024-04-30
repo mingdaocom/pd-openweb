@@ -408,11 +408,17 @@ function HoverPreviewPanel(props, cb = () => {}) {
 }
 
 function AttachmentImage(props) {
+  const imgRef = useRef();
+  useEffect(() => {
+    return () => {
+      if (imgRef.current) imgRef.current.src = '';
+    };
+  }, []);
   return (
     <AttachmentImageCon>
       <ImageHoverMask className="hoverMask" />
       <ShadowInset />
-      <img {...props} />
+      <img {...props} ref={imgRef} />
     </AttachmentImageCon>
   );
 }

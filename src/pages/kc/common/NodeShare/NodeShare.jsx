@@ -32,18 +32,22 @@ class NodeShare extends React.Component {
 
   componentDidMount() {
     this._isMounted = true;
-    getAttachment().then(({ node, allowDownload = true } = {}) => {
-      if (!node) {
+    getAttachment()
+      .then(({ node, allowDownload = true } = {}) => {
+        if (!node) {
+          this.setState({ loading: false });
+          return;
+        }
+        if (node.type === NODE_TYPE.FOLDER) {
+          node = null;
+        }
+        if (this._isMounted) {
+          this.setState({ node, allowDownload, loading: false });
+        }
+      })
+      .catch(err => {
         this.setState({ loading: false });
-        return;
-      }
-      if (node.type === NODE_TYPE.FOLDER) {
-        node = null;
-      }
-      if (this._isMounted) {
-        this.setState({ node, allowDownload, loading: false });
-      }
-    });
+      });
   }
 
   componentWillUnmount() {

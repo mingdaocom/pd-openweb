@@ -62,6 +62,7 @@ const WrapSorh = styled.div`
     }
   }
 `;
+const { hideWorksheetControl = '' } = md.global.SysSettings;
 //支持的字段：文本、数值、电话、邮箱、日期、单选、多选、附件、地区、身份证、检查框；字段的属性是工作表字段的部分属性
 const WIDGETS_TO_API_TYPE = [
   'TEXT',
@@ -77,10 +78,10 @@ const WIDGETS_TO_API_TYPE = [
   'DATE',
   // 'DATE_TIME',
   // 'AREA_PROVINCE',
-  'AREA_CITY',
-  // 'AREA_COUNTY',
+  // 'AREA_CITY',
+  'AREA_COUNTY',
   'SWITCH',
-];
+].filter(key => !hideWorksheetControl.includes(key));
 export const WIDGETS_TO_API_TYPE_ENUM_N = {
   2: 'TEXT',
   3: 'MOBILE_PHONE',

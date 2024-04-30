@@ -47,7 +47,7 @@ const Control = styled.div`
 `;
 
 export default function CardCellControls(props) {
-  const { width, controls, data, parentControl, projectId, worksheetId, viewId, isCharge } = props;
+  const { width, controls, data, parentControl, projectId, worksheetId, viewId, isCharge, sheetSwitchPermit } = props;
   let showColNum = 1;
   if (width > 950 && controls.length > 6) {
     showColNum = 3;
@@ -77,8 +77,8 @@ export default function CardCellControls(props) {
                     rowFormData={() => _.get(parentControl, 'formData') || []}
                     projectId={projectId}
                     viewId={viewId}
-                    disableDownload
                     isCharge={isCharge}
+                    sheetSwitchPermit={sheetSwitchPermit}
                   />
                 ) : (
                   <Empty />

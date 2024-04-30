@@ -148,6 +148,7 @@ export default class Operates extends Component {
       onDelete,
       handleAddSheetRow,
       hideFav,
+      customBtnTriggerCb,
     } = this.props;
     const { customBtns, buttonShowNum, btnDisable } = this.state;
     const { viewId, worksheetId, recordId, appId } = recordbase;
@@ -172,6 +173,7 @@ export default class Operates extends Component {
               hideRecordInfo={hideRecordInfo}
               onHideMoreBtn={() => {}}
               onButtonClick={this.disableCustomButton}
+              triggerCallback={customBtnTriggerCb}
             />
           </div>
         </div>

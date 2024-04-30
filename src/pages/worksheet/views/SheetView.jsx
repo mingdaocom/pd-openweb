@@ -29,7 +29,7 @@ import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { NORMAL_SYSTEM_FIELDS_SORT, WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/util';
 
-import _ from 'lodash';
+import _, { get } from 'lodash';
 
 @autoSize
 class TableView extends React.Component {
@@ -899,7 +899,14 @@ class TableView extends React.Component {
             rowHeight={ROW_HEIGHT[view.rowHeight] || 34}
             rowHeightEnum={view.rowHeight}
             keyWords={filters.keyWords}
-            sheetIsFiltered={!!(filters.keyWords || filters.filterControls.length || !_.isEmpty(quickFilter))}
+            sheetIsFiltered={
+              !!(
+                filters.keyWords ||
+                get(filters, 'filterControls.length') ||
+                get(filters, 'filtersGroup.length') ||
+                !_.isEmpty(quickFilter)
+              )
+            }
             showNewRecord={openNewRecord}
             defaultScrollLeft={defaultScrollLeft}
             sheetSwitchPermit={sheetSwitchPermit}

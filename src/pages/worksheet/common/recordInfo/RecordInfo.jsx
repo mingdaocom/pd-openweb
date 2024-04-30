@@ -95,7 +95,8 @@ export default class RecordInfo extends Component {
     header: PropTypes.element, // 放到头部的组件
     workflow: PropTypes.element,
     hideEditingBar: PropTypes.bool, // 隐藏编辑提示层
-    switchRecordSuccess: PropTypes.func, //
+    switchRecordSuccess: PropTypes.func, //切换记录回调
+    customBtnTriggerCb: PropTypes.func, //自定义按钮回调
   };
   static defaultProps = {
     showPrevNext: false,
@@ -376,15 +377,25 @@ export default class RecordInfo extends Component {
           return;
         }
       }
+      const tempControls = needUpdateControlIds
+        ? tempFormData
+            .filter(c => !_.find(needUpdateControlIds, id => c.controlId === id))
+            .concat(needUpdateControlIds.map(id => _.find(data.formData, c => c.controlId === id)).filter(_.identity))
+        : data.formData;
+
       const childTableControlIds = updateRulesData({
         rules,
-        data: needUpdateControlIds
-          ? tempFormData
-              .filter(c => !_.find(needUpdateControlIds, id => c.controlId === id))
-              .concat(needUpdateControlIds.map(id => _.find(data.formData, c => c.controlId === id)).filter(_.identity))
-          : data.formData,
+        data: tempControls,
       })
-        .filter(item => item.type === 34 && !item.hidden && controlState(item, from).visible)
+        .filter(item => {
+          if (item.type === 34) {
+            const tab = _.find(tempControls, v => item.sectionId == v.controlId);
+            return tab
+              ? !item.hidden && controlState(item, from).visible && !tab.hidden && controlState(tab, from).visible
+              : !item.hidden && controlState(item, from).visible;
+          }
+          return false;
+        })
         .map(it => it.controlId);
 
       this.setState({
@@ -1052,6 +1063,7 @@ export default class RecordInfo extends Component {
       rowStatus,
       hideEditingBar,
       workflowStatus,
+      customBtnTriggerCb = () => {},
     } = this.props;
     let { isCharge } = this.props;
     if (_.isUndefined(isCharge) && appId) {
@@ -1274,6 +1286,7 @@ export default class RecordInfo extends Component {
                       handleAddSheetRow(row, afterRowId);
                     }
                   }}
+                  customBtnTriggerCb={customBtnTriggerCb}
                 />
               )}
             <div className="recordBody flex flexRow">

@@ -636,6 +636,7 @@ export default class RelateRecordCards extends Component {
       sourceEntityName,
       advancedSetting,
       isCharge,
+      sheetSwitchPermit,
     } = control;
     const { allowReplaceRecord, isCard } = this;
     const { records, showAll, showLoadMore, isLoadingMore, pageIndex } = this.state;
@@ -671,6 +672,7 @@ export default class RelateRecordCards extends Component {
                 isCharge={isCharge}
                 key={i}
                 controls={this.controls}
+                sheetSwitchPermit={sheetSwitchPermit}
                 data={record}
                 cover={this.getCoverUrl(coverCid, record)}
                 allowlink={allowlink}

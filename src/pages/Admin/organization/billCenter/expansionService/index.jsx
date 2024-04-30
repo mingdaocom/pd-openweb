@@ -137,8 +137,6 @@ export default class ExpansionService extends Component {
       addUserStep: 5,
       maxUserCount: 500,
       limitNumber: 0,
-      counsellorName: '',
-      counsellorAccountId: '',
       totalPrince: 0,
       needSalesAssistance: true,
       totalNum: 0,
@@ -226,8 +224,6 @@ export default class ExpansionService extends Component {
             addUserStep: 5,
             maxUserCount: 500,
             limitNumber,
-            counsellorName: data.counsellorName,
-            counsellorAccountId: data.counsellorAccountId,
             loading: false,
           },
           () => this.computePrince(),
@@ -626,24 +622,12 @@ export default class ExpansionService extends Component {
 
   //step1说明文案
   renderSubTitleSummary() {
-    const { maxUserCount, counsellorName, counsellorAccountId } = this.state;
+    const { maxUserCount } = this.state;
     const expandType = this.expandType;
     switch (expandType) {
       case EXPAND_TYPE.USER:
         return (
-          <span>
-            <span>{_l('单个增量用户包最多只能扩充 %0 人，如需特别定制，', maxUserCount)}</span>
-            {counsellorName ? (
-              <span>
-                {_l('请联系部署顾问')}
-                <a target="_blank" href={`/user_${counsellorAccountId}`} className="mLeft5">
-                  {counsellorName}
-                </a>
-              </span>
-            ) : (
-              _l('请联系电话 400-665-6655')
-            )}
-          </span>
+          <span>{_l('单个增量用户包最多只能扩充 %0 人，如需特别定制，请联系电话 400-665-6655', maxUserCount)}</span>
         );
       case EXPAND_TYPE.WORKFLOW:
         return _l('每月执行数免费额度不足时可购买使用，即时生效。');
@@ -1064,7 +1048,11 @@ export default class ExpansionService extends Component {
                       <span className="Font20 color_b Bold">{totalPrince}</span>
                       {![EXPAND_TYPE.COMPUTING, EXPAND_TYPE.RENEWCOMPUTING].includes(expandType) &&
                         (this.isPortalUser ? (
-                          <a target="blank" className="mLeft20" href="https://help.mingdao.com/purchase/external-user-billing">
+                        <a
+                          target="blank"
+                          className="mLeft20"
+                          href="https://help.mingdao.com/purchase/external-user-billing"
+                        >
                             {_l('计费方式')}
                           </a>
                         ) : (
