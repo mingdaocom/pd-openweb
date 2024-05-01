@@ -100,7 +100,7 @@ export default class RecordInfo extends Component {
     }
   }
   loadRecord = async () => {
-    const { from, view = {}, controls, appId, viewId, worksheetId, instanceId, workId, isWorksheetQuery } = this.props;
+    const { from, view = {}, controls, appId, viewId, worksheetId, instanceId, workId, isWorksheetQuery, needUpdateControlIds } = this.props;
     const { recordId, tempFormData } = this.state;
     try {
       const data = await loadRecord({
@@ -126,12 +126,18 @@ export default class RecordInfo extends Component {
           hidden: c.hidden || (view.controls || _.get(data, 'view.controls') || []).includes(c.controlId),
         }));
 
+      const tempControls = needUpdateControlIds
+              ? tempFormData
+                  .filter(c => !_.find(needUpdateControlIds, id => c.controlId === id))
+                  .concat(needUpdateControlIds.map(id => _.find(data.formData, c => c.controlId === id)).filter(_.identity))
+              : data.formData;
+
       const childTableControlIds = updateRulesData({ rules: data.rules, data: data.formData })
         .filter(v => {
           if (v.type === 34) {
             const tab = _.find(tempControls, c => v.sectionId == c.controlId);
             return (
-              (tab ? !v.hidden && controlState(v, from).visible : !tab.hidden && controlState(tab, from)) &&
+              (tab ? !v.hidden && controlState(v, from).visible : !_.get(tab, 'hidden') && controlState(tab, from)) &&
               !_.includes(['110', '010', '000', '011'], v.fieldPermission)
             );
           }
