@@ -34,7 +34,7 @@ export default function CreateByMingDaoYun(props) {
       className={className}
       style={{ fontSize }}
       dangerouslySetInnerHTML={{
-        __html: html,
+        __html: "",
       }}
     />
   );
