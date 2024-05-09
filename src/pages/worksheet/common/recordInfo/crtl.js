@@ -95,6 +95,13 @@ export function updateRecord(
   },
   callback = () => {},
 ) {
+  const handleCallback = (...args) => {
+    try {
+      callback(...args);
+    } catch (err) {
+      console.error(err);
+    }
+  };
   const updatedControls = data
     .filter(control => updateControlIds.indexOf(control.controlId) > -1 && control.type !== 30)
     .map(control => formatControlToServer(control, { isDraft }));
@@ -128,7 +135,7 @@ export function updateRecord(
     if (!(instanceId && workId)) {
       alert(_l('没有需要保存的字段'), 2);
     }
-    callback('empty');
+    handleCallback('empty');
     return;
   }
 
@@ -136,7 +143,7 @@ export function updateRecord(
     .updateWorksheetRow(apiargs)
     .then(res => {
       if (res && res.data) {
-        callback(null, res.data, res.requestLogId);
+        handleCallback(null, res.data, res.requestLogId);
         if (typeof updateSuccess === 'function') {
           updateSuccess(
             [recordId],
@@ -155,12 +162,12 @@ export function updateRecord(
         } else {
           handleRecordError(res.resultCode);
         }
-        callback(true);
+        handleCallback(true);
       }
     })
     .catch(err => {
       console.error(err);
-      callback(err);
+      handleCallback(err);
       alert(_l('保存失败，请稍后重试'), 2);
     });
 }

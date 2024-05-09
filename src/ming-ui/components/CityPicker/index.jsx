@@ -204,7 +204,7 @@ export default function CityPicker(props) {
           </CascaderSearchSelectWrap>
         ) : (
           <CascaderSelectWrap className="CascaderSelectWrap flexRow">
-            {data.map((list, index) => {
+            {data && data.map((list, index) => {
               if (list.length === 0 || !_.isArray(list)) return null;
               let levelIndex = index + 1;
 

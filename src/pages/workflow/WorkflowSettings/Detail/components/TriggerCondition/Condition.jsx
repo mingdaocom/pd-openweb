@@ -1293,12 +1293,9 @@ export default class TriggerCondition extends Component {
     const data = _.cloneDeep(this.props.data);
     const { updateSource } = this.props;
 
-    // 先清除固定值的项
-    _.remove(data[i][j].conditionValues, obj => obj && !obj.controlId);
-
     if (isDel) {
       if (data[i][j].conditionValues.length > 1) {
-        delete data[i][j].conditionValues[!second ? 0 : 1];
+        data[i][j].conditionValues[!second ? 0 : 1] = '';
       } else {
         data[i][j].conditionValues = [];
       }

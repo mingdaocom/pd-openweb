@@ -255,7 +255,7 @@ export default class ValidateInfoCon extends Component {
             loginName &&
             ((RegExp.isEmail(loginName) && type === 'email') || (!RegExp.isEmail(loginName) && type !== 'email'))
           ) {
-            safeLocalStorageSetItem('LoginName', type === 'email' ? email : mobile);
+            safeLocalStorageSetItem('LoginName', type === 'email' ? email : this.iti.getNumber());
           }
           setTimeout(function () {
             callback();

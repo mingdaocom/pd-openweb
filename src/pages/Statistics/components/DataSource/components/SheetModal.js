@@ -82,7 +82,7 @@ export default class SheetModal extends Component {
     const { appId } = this.props;
     this.getMyApps();
     this.getSheets(appId);
-    this.getAggregationSheetList(appId);
+    // this.getAggregationSheetList(appId);
   }
   componentWillReceiveProps(nextProps) {}
   getMyApps() {

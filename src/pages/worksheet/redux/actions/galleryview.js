@@ -17,7 +17,7 @@ export const fetch = index => {
     }
     const args = {
       worksheetId,
-      pageSize: isMobile ? 20 : 50,
+      pageSize: isMobile ? 20 : 100,
       pageIndex: index,
       status: 1,
       appId,

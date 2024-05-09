@@ -442,6 +442,7 @@ export default {
   * @param {} args.captchaType
   * @param {string} args.account 账号手机号
   * @param {string} args.worksheetId 工作表ID
+  * @param {} args.lang
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

@@ -58,6 +58,13 @@ const Wrap = styled.div`
       -ms-overflow-style: none; /* Internet Explorer和Edge */
       scrollbar-width: none; /* Firefox */
     }
+    .groupTableCon {
+      &::after {
+        height: 50px;
+        content: ' ';
+        display: block;
+      }
+    }
   }
   .dragLine {
     position: absolute;

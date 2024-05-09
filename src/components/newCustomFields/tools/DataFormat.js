@@ -1942,6 +1942,9 @@ export default class DataFormat {
             value,
           });
         });
+      })
+      .finally(() => {
+        this.setLoadingInfo(ids, false);
       });
   }
 
@@ -1991,6 +1994,9 @@ export default class DataFormat {
             value,
           });
         });
+      })
+      .finally(() => {
+        this.setLoadingInfo(ids, false);
       });
   }
 
@@ -2142,37 +2148,42 @@ export default class DataFormat {
 
             const infoObj = INFO_OPTIONS[item.type];
 
-            infoObj.api({ projectId: this.projectId, accountIds: accounts.map(o => o.accountId) }).then(result => {
-              let departments = [];
-              this.setLoadingInfo(item.controlId, false);
+            infoObj
+              .api({ projectId: this.projectId, accountIds: accounts.map(o => o.accountId) })
+              .then(result => {
+                let departments = [];
+                this.setLoadingInfo(item.controlId, false);
 
-              result.maps.forEach(item => {
-                item[infoObj.ids].forEach(obj => {
-                  departments.push({
-                    [infoObj.id]: obj.id,
-                    [infoObj.name]: obj.name,
+                result.maps.forEach(item => {
+                  item[infoObj.ids].forEach(obj => {
+                    departments.push({
+                      [infoObj.id]: obj.id,
+                      [infoObj.name]: obj.name,
+                    });
                   });
                 });
-              });
 
-              departments = JSON.stringify(
-                item.enumDefault === 0
-                  ? _.uniqBy(departments, infoObj.id).slice(0, 1)
-                  : _.uniqBy(departments, infoObj.id),
-              );
+                departments = JSON.stringify(
+                  item.enumDefault === 0
+                    ? _.uniqBy(departments, infoObj.id).slice(0, 1)
+                    : _.uniqBy(departments, infoObj.id),
+                );
 
-              // 多部门只获取第一个
-              this.updateDataSource({
-                controlId: item.controlId,
-                value: departments,
-                isInit,
-              });
+                // 多部门只获取第一个
+                this.updateDataSource({
+                  controlId: item.controlId,
+                  value: departments,
+                  isInit,
+                });
 
-              this.onAsyncChange({
-                controlId: item.controlId,
-                value: departments,
+                this.onAsyncChange({
+                  controlId: item.controlId,
+                  value: departments,
+                });
+              })
+              .finally(() => {
+                this.setLoadingInfo(item.controlId, false);
               });
-            });
           }
         }
       });

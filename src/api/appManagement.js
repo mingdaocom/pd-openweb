@@ -1,5 +1,23 @@
 export default {
   /**
+  * 使用情况统计分析
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {string} args.departmentId 部门id
+  * @param {boolean} args.depFlag true表示仅当强部门，false表示部门树
+  * @param {string} args.appId 应用id
+  * @param {integer} args.dayRange 天数范围 0 = 最近7天，1 = 最近一个月，2=最近一个季度，3=最近半年，4=最近一年
+  * @param {string} args.dateDemension &#34;1h&#34;:1小时 &#34;1d&#34;:1天 &#34;1w&#34;:1周 &#34;1M&#34;:1月 &#34;1q&#34;:1季度 &#34;1y&#34;:1年
+  * @param {boolean} args.isApp 表示是否是应用的使用分析
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   allUsageOverviewStatistics: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'AllUsageOverviewStatistics', args, options);
+   },
+  /**
   * 应用汇总概览
   * @param {Object} args 请求参数
   * @param {string} args.projectId 组织id
@@ -1205,6 +1223,18 @@ export default {
      return mdyAPI('AppManagement', 'EditAuthorizeRemark', args, options);
    },
   /**
+  * 获取绑定的微信公众号信息
+  * @param {Object} args 请求参数
+  * @param {string} args.appId AppId
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getWeiXinBindingInfo: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'GetWeiXinBindingInfo', args, options);
+   },
+  /**
   * 获取当前应用的的申请信息
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用id
@@ -1599,23 +1629,5 @@ export default {
    checkRestoreFile: function (args, options = {}) {
      
      return mdyAPI('AppManagement', 'CheckRestoreFile', args, options);
-   },
-  /**
-  * 使用情况统计分析
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 组织id
-  * @param {string} args.departmentId 部门id
-  * @param {boolean} args.depFlag true表示仅当强部门，false表示部门树
-  * @param {string} args.appId 应用id
-  * @param {integer} args.dayRange 天数范围 0 = 最近7天，1 = 最近一个月，2=最近一个季度，3=最近半年，4=最近一年
-  * @param {string} args.dateDemension &#34;1h&#34;:1小时 &#34;1d&#34;:1天 &#34;1w&#34;:1周 &#34;1M&#34;:1月 &#34;1q&#34;:1季度 &#34;1y&#34;:1年
-  * @param {boolean} args.isApp 表示是否是应用的使用分析
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   allUsageOverviewStatistics: function (args, options = {}) {
-     
-     return mdyAPI('AppManagement', 'AllUsageOverviewStatistics', args, options);
    },
 };

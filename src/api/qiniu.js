@@ -7,6 +7,7 @@ export default {
   * @param {string} args.worksheetId 默认为工作表ID，注：插件使用此ID
   * @param {string} args.appId
   * @param {string} args.projectId
+  * @param {string} args.extend 扩展参数
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -23,6 +24,7 @@ export default {
   * @param {string} args.worksheetId 默认为工作表ID，注：插件使用此ID
   * @param {string} args.appId
   * @param {string} args.projectId
+  * @param {string} args.extend 扩展参数
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

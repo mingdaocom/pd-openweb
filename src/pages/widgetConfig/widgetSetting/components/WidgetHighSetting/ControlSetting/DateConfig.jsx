@@ -59,7 +59,7 @@ const CUSTOM_SHOW_FORMAT = [
   'DD/MM/YYYY',
 ];
 
-const ERROR_OPTIONS = ['*不支持自定义时间格式！', '*无效的格式化规则'];
+const ERROR_OPTIONS = [_l('*不支持自定义时间格式！'), _l('*无效的格式化规则')];
 
 function ShowFormatDialog(props) {
   const { showformat, onClose, onOk } = props;

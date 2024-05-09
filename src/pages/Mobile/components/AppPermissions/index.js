@@ -108,7 +108,7 @@ const appPermissions = (Component) => {
         }).then(data => {
           const { wsType } = data;
           if (wsType === 1) {
-            window.mobileNavigateTo(`/mobile/customPage/${appId}/${params.groupId}/${params.worksheetId}`);
+            window.mobileNavigateTo(`/mobile/customPage/${appId}/${params.groupId}/${params.worksheetId}`, true);
           }
         });
       }

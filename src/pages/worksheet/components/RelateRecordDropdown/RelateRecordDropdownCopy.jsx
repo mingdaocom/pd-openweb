@@ -12,7 +12,7 @@ import RelateRecordList from './RelateRecordList';
 import NewRecord from 'src/pages/worksheet/common/newRecord/NewRecord';
 import AutoWidthInput from './AutoWidthInput';
 import './style.less';
-import _ from 'lodash';
+import _, { get } from 'lodash';
 import { checkIsTextControl } from 'worksheet/util';
 
 const OnlyScanTip = styled.div`
@@ -308,6 +308,7 @@ export default class RelateRecordDropdown extends React.Component {
   handleInputKeyDown(e) {
     const { control } = this.props;
     const { selected } = this.state;
+    if (!get(this, 'list.current')) return;
     if (e.key === 'ArrowUp') {
       this.list.current.updateActiveId(-1);
     } else if (e.key === 'ArrowDown') {

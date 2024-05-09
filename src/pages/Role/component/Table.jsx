@@ -201,29 +201,10 @@ export default function PorTalTable(props) {
   }, [props.list, props.columns]);
 
   const onScroll = _.debounce(() => {
-    if (window.innerHeight + 40 > $(bottomRef.current).offset().top) {
+    if (bottomRef.current && window.innerHeight + 40 > $(bottomRef.current).offset().top) {
       !props.loading && props.total > listCell.length && props.onScrollEnd();
     }
   }, 500);
-
-  // const setMinW = () => {
-  //   let minW = 0;
-  //   props.columns
-  //     .filter(o => o.id !== 'option')
-  //     .map(o => {
-  //       minW = minW + (o.minW ? o.minW : 126);
-  //     });
-  //   if (props.showCheck) {
-  //     minW = minW + 38;
-  //   }
-  //   if (props.columns.filter(o => o.id === 'option') >= 1) {
-  //     minW = minW + 70;
-  //   }
-  //   console.log(minW, $(comRef.current).width());
-  //   if (minW > $(comRef.current).width()) {
-  //     setMW(minW);
-  //   }
-  // };
 
   useEffect(() => {
     scorllRef.current && $(scorllRef.current).off('scroll');
@@ -285,7 +266,6 @@ export default function PorTalTable(props) {
                 isSort: isSort,
                 Hand: isSort,
               })}
-              // handleChangeSortHeader={isSort ? props.handleChangeSortHeader : null}
             >
               {isSort ? (
                 <SortToll

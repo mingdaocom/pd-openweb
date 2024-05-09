@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Icon, Radio, Checkbox, Tooltip, Dialog } from 'ming-ui';
 import cx from 'classnames';
 import externalPortalAjax from 'src/api/externalPortal';
-import projectAjax from 'src/api/project';
+import AppManagement from 'src/api/appManagement';
 import EditAgreementOrPrivacy from 'src/pages/Role/PortalCon/components/EditAgreementOrPrivacy';
 import WorkflowDialog from 'src/pages/workflow/components/WorkflowDialog';
 import { LOGIN_WAY, REJISTER_WAY } from 'src/pages/Role/config.js';
@@ -177,7 +177,7 @@ export default function BaseSet(props) {
 
   useEffect(() => {
     if (_.get(props, ['portalSet', 'portalSetModel', 'loginMode', 'weChat']) && !isWXExist && !authorizerInfo.appId) {
-      projectAjax.getWeiXinBindingInfo({ projectId: projectId }).then(res => {
+      AppManagement.getWeiXinBindingInfo({ appId: props.appId }).then(res => {
         setIsWXExist(res && res.length > 0);
         setAuthorizerInfo(res && res.length > 0 ? res[0] : {});
         setCommonState({ loading: false });

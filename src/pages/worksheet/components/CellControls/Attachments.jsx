@@ -154,8 +154,11 @@ const HoverPreviewPanelCon = styled.div`
     float: right;
     color: #9e9e9e;
     font-size: 18px;
-    &:hover {
+    &:not(.disabled):hover {
       color: #f44336;
+    }
+    &.disabled {
+      cursor: not-allowed;
     }
   }
 `;
@@ -380,11 +383,12 @@ function HoverPreviewPanel(props, cb = () => {}) {
         <div className="fileName">{originalFilename + ext}</div>
         <div className="panelFooter">
           <span className="fileSize">{formatFileSize(filesize)}</span>
-          {editable && (
-            <Tooltip text={<span>{_l('删除')}</span>} popupPlacement="top">
-              <i className="icon icon-trash deleteBtn" onClick={handleDelete}></i>
-            </Tooltip>
-          )}
+          <Tooltip text={<span>{_l('删除')}</span>} popupPlacement="top">
+            <i
+              className={cx('icon icon-trash deleteBtn', { disabled: !editable })}
+              onClick={editable ? handleDelete : () => {}}
+            ></i>
+          </Tooltip>
           {downloadable && (
             <Tooltip text={<span>{_l('下载')}</span>} popupPlacement="top">
               <i
@@ -458,7 +462,7 @@ function Attachment(props) {
         <HoverPreviewPanel
           isPicture={isPicture}
           isSubList={isSubList}
-          editable={editable && !(cell.required && attachments.length === 1)}
+          editable={editable && !(cell.required && attachments.length === 1 && !isSubList)}
           sheetSwitchPermit={sheetSwitchPermit}
           attachment={attachment}
           smallThumbnailUrl={smallThumbnailUrl}

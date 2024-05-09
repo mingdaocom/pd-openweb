@@ -414,11 +414,11 @@ export function saveSheetLayout({ closePopup = () => {} }) {
       }
     }
     updates.advancedSetting = {
-      ...view.advancedSetting,
       fixedcolumncount: fixedColumnCount,
       sheetcolumnwidths: JSON.stringify(sheetColumnWidths),
       layoutupdatetime: new Date().getTime(),
     };
+    updates.editAdKeys = Object.keys(updates.advancedSetting);
     delete updates.advancedSetting.fixedColumnCount;
     delete updates.advancedSetting.layoutUpdateTime;
     delete updates.advancedSetting.sheetColumnWidths;

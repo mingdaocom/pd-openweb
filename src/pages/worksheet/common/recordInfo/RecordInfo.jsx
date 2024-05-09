@@ -867,7 +867,9 @@ export default class RecordInfo extends Component {
             });
           }
           this.refreshAsyncLoadControl();
-          this.recordform.current.dataFormat.callStore('reset');
+          if (get(this, 'recordform.current.dataFormat.callStore')) {
+            this.recordform.current.dataFormat.callStore('reset');
+          }
           if (viewId && !resdata.isviewdata) {
             hideRows([recordId]);
             if (from !== RECORD_INFO_FROM.WORKSHEET_ROW_LAND) {

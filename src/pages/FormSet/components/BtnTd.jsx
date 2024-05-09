@@ -82,8 +82,9 @@ export default function BtnTd(props) {
       let str = data
         .map(item => {
           let view = views.find(o => o.viewId === item) || {};
-          return view.name || _l('该视图已删除');
+          return view.name;
         })
+        .filter(l => l)
         .join(',');
       return str;
     }

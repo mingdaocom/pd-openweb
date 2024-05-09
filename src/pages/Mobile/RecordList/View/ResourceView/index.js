@@ -12,6 +12,7 @@ const ResourceViewWrap = styled.div`
   flex: 1;
   margin-top: 10px;
   background-color: #fff;
+  min-height: 0;
 `;
 
 function MobileResourceView(props) {

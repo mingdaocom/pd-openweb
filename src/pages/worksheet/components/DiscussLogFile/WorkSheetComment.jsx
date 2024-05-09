@@ -169,7 +169,7 @@ export default class WorkSheetComment extends React.Component {
       entityType,
     };
     const commentListProps = {
-      worksheet: this.props,
+      worksheet: Object.assign({}, this.props, worksheetInfo),
       listRef: el => {
         this.commentList = el;
       },

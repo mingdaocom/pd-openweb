@@ -3,6 +3,8 @@ import React, { useState, useEffect, useRef, Fragment } from 'react';
 import styled from 'styled-components';
 import { minHeightObj, lineBottomHeight } from '../config';
 import RecordBlock from './RecordBlock';
+import { browserIsMobile } from 'src/util';
+import cx from 'classnames';
 
 const Wrap = styled.div`
   z-index: 1;
@@ -22,6 +24,13 @@ const Wrap = styled.div`
     .lineTimeHr {
       min-height: ${props => `${props.minHeight}px`};
       height: auto;
+    }
+  }
+  &.isMobile {
+    &::after {
+      height: 50px;
+      content: ' ';
+      display: block;
     }
   }
 `;
@@ -117,7 +126,7 @@ export default function RecordWrap(props) {
 
   return (
     <Wrap
-      className="flex"
+      className={cx('flex', { isMobile: browserIsMobile() })}
       id={`rightCon_${view.viewId}`}
       onScroll={bodyScroll}
       ref={tbodyContainer}

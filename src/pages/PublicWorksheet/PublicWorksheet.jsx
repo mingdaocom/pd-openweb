@@ -170,23 +170,6 @@ export default class PublicWorksheet extends React.Component {
                 />
               ))}
           </div>
-          {worksheetId && footer !== 'no' && (
-            <div className="mingdaoCon">
-              {_l('由 %0 创建的表单 ', projectName || '')}
-              {/* a7f10198e9d84702b68ba35f73c94cac 是写死的举报表单的shareId  */}
-              {this.shareId && this.shareId !== 'a7f10198e9d84702b68ba35f73c94cac' && (
-                <a
-                  target="_blank"
-                  href={`/form/a7f10198e9d84702b68ba35f73c94cac?from=${encodeURIComponent(location.href)}`}
-                >
-                  {_l('举报')}
-                </a>
-              )}
-              <div className="Right">
-                <CreateByMingDaoYun mode={2} />
-              </div>
-            </div>
-          )}
         </React.Fragment>
       );
     };
