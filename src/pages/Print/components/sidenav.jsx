@@ -1,6 +1,6 @@
 import React from 'react';
 import cx from 'classnames';
-import { Icon, Dropdown, Tooltip, Checkbox } from 'ming-ui';
+import { Icon, Dropdown, Tooltip, Checkbox, Slider } from 'ming-ui';
 import { sortByShowControls, getVisibleControls, isVisible, isRelation } from '../util';
 import {
   fromType,
@@ -11,6 +11,7 @@ import {
   MAX_FONT_SIZE,
   UNPRINTCONTROL,
   APPROVAL_POSITION_OPTION,
+  DefaultNameWidth,
 } from '../config';
 
 import './sidenav.less';
@@ -592,36 +593,83 @@ class Sidenav extends React.Component {
   };
 
   renderBtnSetting = () => {
+    const type = _.get(this.props, 'params.type');
+    const from = _.get(this.props, 'params.from');
+
     return (
       <React.Fragment>
         {this.renderCheckboxCon(
           'printOption',
-          _l('打印未选中的项'),
+          _l('选项字段平铺打印'),
           _l('开启后，平铺类型的选项字段会打印没有选中的选项'),
         )}
-        {this.renderCheckboxCon('showData', _l('打印空字段'), _l('开启后，没有内容的字段会显示并可以打印'))}
-        {this.renderCheckboxCon('allowDownloadPermission', _l('允许下载打印文件'), null, true, true)}
+        {this.renderCheckboxCon('showData', _l('打印值为空的字段'), _l('开启后，没有内容的字段会显示并可以打印'))}
+        {from === fromType.FORMSET &&
+          type === typeForCon.EDIT &&
+          this.renderCheckboxCon('allowDownloadPermission', _l('允许下载打印文件'), null, true, true)}
       </React.Fragment>
     );
   };
   renderDrop = () => {
     const { printData, handChange } = this.props;
+    const printFont = printData.font || DEFAULT_FONT_SIZE;
     return (
-      <div className="TxtTop">
+      <div className="TxtTop valignWrapper">
         <span className="TxtMiddle">{_l('文字大小')}</span>
-        <Dropdown
-          className="forSizeText mLeft12"
-          value={printData.font || DEFAULT_FONT_SIZE}
-          onChange={value => {
-            handChange({
-              font: value,
-            });
-          }}
-          data={[
-            { text: _l('标准'), value: DEFAULT_FONT_SIZE },
-            { text: _l('中'), value: MIDDLE_FONT_SIZE },
-            { text: _l('大'), value: MAX_FONT_SIZE },
-          ]}
+        <div className="mLeft12 forSizeBox">
+          <span
+            onClick={() => handChange({ font: DEFAULT_FONT_SIZE })}
+            className={cx({ current: printFont === DEFAULT_FONT_SIZE })}
+          >
+            {_l('标准')}
+          </span>
+          <span
+            onClick={() => handChange({ font: MIDDLE_FONT_SIZE })}
+            className={cx({ current: printFont === MIDDLE_FONT_SIZE })}
+          >
+            {_l('中')}
+          </span>
+          <span
+            onClick={() => handChange({ font: MAX_FONT_SIZE })}
+            className={cx({ current: printFont === MAX_FONT_SIZE })}
+          >
+            {_l('大')}
+          </span>
+        </div>
+      </div>
+    );
+  };
+
+  changeAdvanceSettings = value => {
+    const { printData, handChange } = this.props;
+    let newValue = _.cloneDeep(printData.advanceSettings);
+    const keyIndex = _.findIndex(newValue, l => l.key === value.key);
+    if (keyIndex > -1) {
+      newValue[keyIndex] = value;
+    } else {
+      newValue.push(value);
+    }
+    handChange({
+      advanceSettings: newValue,
+    });
+  };
+
+  renderNameWidth = () => {
+    const { printData } = this.props;
+    const value = (printData.advanceSettings.find(l => l.key === 'nameWidth') || {}).value;
+
+    return (
+      <div className="valignWrapper mTop15">
+        <span>{_l('名称宽度')}</span>
+        <Slider
+          className="flex mLeft12 nameSlider"
+          itemcolor="#2196F3"
+          showInput={false}
+          min={50}
+          max={100}
+          value={value || DefaultNameWidth}
+          step={1}
+          onChange={nameWidth => this.changeAdvanceSettings({ key: 'nameWidth', value: nameWidth })}
         />
       </div>
     );
@@ -639,8 +687,16 @@ class Sidenav extends React.Component {
       sheetSwitchPermit,
     } = this.props;
     const { printId, type, from, printType, isDefault, viewId } = params;
-    const { receiveControls = [], workflow = [], shareType = 0, approval = [], approvePosition = 0 } = printData;
+    const {
+      receiveControls = [],
+      workflow = [],
+      shareType = 0,
+      approval = [],
+      approvePosition = 0,
+      advanceSettings,
+    } = printData;
     const { receiveControlsCheckAll, workflowCheckAll, closeList = [] } = this.state;
+    const formNameSite = (advanceSettings.find(l => l.key === 'formNameSite') || {}).value || '0';
     return (
       <div className="sidenavBox flexRow">
         <div className="conBox">
@@ -650,7 +706,7 @@ class Sidenav extends React.Component {
               <div className="plate">
                 <div className="plate controlPlate">
                   <div className="caption">
-                    <span className="headline">{_l('设置')}</span>
+                    <span className="headline">{_l('字段设置')}</span>
                     <span className="iconBox">
                       <Icon
                         icon={closeList.includes('setting') ? 'expand_less' : 'expand_more'}
@@ -664,6 +720,7 @@ class Sidenav extends React.Component {
                   {!closeList.includes('setting') && (
                     <div className="mTop20">
                       {this.renderDrop()}
+                      {this.renderNameWidth()}
                       {this.renderBtnSetting()}
                     </div>
                   )}
@@ -674,7 +731,7 @@ class Sidenav extends React.Component {
           )}
           <div className="plate controlPlate">
             <div className="caption">
-              <span className="headline">{_l('字段')}</span>
+              <span className="headline">{_l('选择打印字段')}</span>
               <span
                 className="Right Hand Gray_9e chooseBtn"
                 onClick={() => {
@@ -785,26 +842,44 @@ class Sidenav extends React.Component {
             </div>
             {!closeList.includes('addition') && (
               <React.Fragment>
-                <Checkbox
-                  checked={printData.formNameChecked}
-                  className="mTop12"
-                  onClick={() => {
-                    handChange({
-                      formNameChecked: !printData.formNameChecked,
-                    });
-                  }}
-                  text={_l('表单名称')}
-                />
+                <div className="mTop12 valignWrapper">
+                  <Checkbox
+                    checked={printData.formNameChecked}
+                    className="flex"
+                    onClick={() => {
+                      handChange({
+                        formNameChecked: !printData.formNameChecked,
+                      });
+                    }}
+                    text={_l('表单标题')}
+                  />
+                  <span className="Gray_9">{_l('位置')}</span>
+                  <div className="forSizeBox mLeft12 namePositionBox">
+                    <span
+                      className={cx({ current: formNameSite === '1' })}
+                      onClick={() => this.changeAdvanceSettings({ key: 'formNameSite', value: '1' })}
+                    >
+                      {_l('左')}
+                    </span>
+                    <span
+                      className={cx({ current: formNameSite === '0' })}
+                      onClick={() => this.changeAdvanceSettings({ key: 'formNameSite', value: '0' })}
+                    >
+                      {_l('中')}
+                    </span>
+                  </div>
+                </div>
                 {printData.formNameChecked && (
-                  <input
-                    type="text"
-                    value={printData.formName}
+                  <textarea
+                    className=""
                     onChange={e => {
                       handChange({
                         formName: e.target.value,
                       });
                     }}
-                  />
+                  >
+                    {printData.formName}
+                  </textarea>
                 )}
                 <Checkbox
                   checked={printData.companyNameChecked}

@@ -201,7 +201,12 @@ export default function CustomButtonConfirm(props) {
           return;
         }
         if (verifyPwd && needPassWord) {
+          if (!password || !password.trim()) {
+            alert(_l('请输入密码'), 3);
+            return;
+          }
           verifyPassword({
+            projectId,
             password,
             isNoneVerification: noVerify,
             closeImageValidation: true,
@@ -221,7 +226,7 @@ export default function CustomButtonConfirm(props) {
         <VerifyPasswordInput
           isRequired={true}
           allowNoVerify={!removeNoneVerification}
-          onChange={({ password }) => setState({ password })}
+          onChange={({ password, isNoneVerification }) => setState({ password, noVerify: isNoneVerification })}
         />
       )}
 

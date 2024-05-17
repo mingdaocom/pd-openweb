@@ -75,7 +75,7 @@ export const SYSTOPRINTTXT = {
   createAccount: _l('创建人：'),
   createTime: _l('创建时间：'),
   updateTime: _l('最近修改时间：'),
-  updateAccount: _l('最近修改人：')
+  updateAccount: _l('最近修改人：'),
 };
 
 export const UNPRINTCONTROL = [43]; //不支持打印的type 文本识别 43
@@ -122,7 +122,7 @@ export const APPROVAL_SYS = [
     name: _l('签名'),
     key: 'signature',
   },
-]
+];
 
 export const PRINT_TYPE_STYLE = {
   [PRINT_TYPE.WORD_PRINT]: {
@@ -132,7 +132,7 @@ export const PRINT_TYPE_STYLE = {
     fileIcon: 'fileIcon-word',
   }, // word模版打印
   [PRINT_TYPE.EXCEL_PRINT]: {
-    icon:'new_excel',
+    icon: 'new_excel',
     background: '#4CAF50',
     text: _l('Excel 模板'),
     fileIcon: 'fileIcon-excel',
@@ -142,10 +142,18 @@ export const PRINT_TYPE_STYLE = {
 export const APPROVAL_POSITION_OPTION = [
   {
     value: 0,
-    text:  _l('在明细内显示'),
+    text: _l('在明细内显示'),
   },
   {
     value: 1,
-    text: _l('在明细表下方显示')
-  }
+    text: _l('在明细表下方显示'),
+  },
 ];
+
+export const TitleFont = {
+  12: { fontSize: 15 },
+  16: { fontSize: 18 },
+  18: { fontSize: 21 },
+};
+
+export const DefaultNameWidth = 80;

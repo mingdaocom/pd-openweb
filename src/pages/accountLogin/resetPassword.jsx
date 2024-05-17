@@ -11,6 +11,7 @@ import { Wrap } from './style';
 import { navigateTo } from 'src/router/navigateTo';
 import DocumentTitle from 'react-document-title';
 import styled from 'styled-components';
+import Footer from './components/Footer';
 
 let request = getRequest();
 
@@ -272,10 +273,10 @@ class ResetPassword extends React.Component {
     const { loading } = this.state;
     const { SysSettings } = md.global;
     return (
-      <Wrap>
+      <Wrap className='flexColumn'>
         <DocumentTitle title={_l('修改密码')} />
         {!loading && (
-          <div className="loginBox">
+          <div className="loginBox flex">
             <div className="loginContainer">
               {!SysSettings.hideBrandLogo && (
                 <div className="titleHeader">
@@ -287,6 +288,7 @@ class ResetPassword extends React.Component {
             </div>
           </div>
         )}
+        {_.get(md, 'global.SysSettings.enableFooterInfo') && <Footer />}
       </Wrap>
     );
   }

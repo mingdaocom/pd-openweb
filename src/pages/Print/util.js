@@ -573,7 +573,7 @@ export const renderRecordAttachments = (value, isRelateMultipleSheet) => {
           ))}
         </div>
       ) : (
-        <p style={{ ...STYLE_PRINT.tag, marginTop: 4, marginBottom: 0 }}>
+        <p style={{ ...STYLE_PRINT.p, marginTop: 4, marginBottom: 0 }}>
           {otherAttachments.map(item => item.originalFilename + item.ext).join(', ')}
         </p>
       )}

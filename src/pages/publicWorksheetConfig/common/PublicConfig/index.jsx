@@ -18,7 +18,7 @@ import DataCollectionSettings from './DataCollectionSettings';
 import FillSettings from './FillSettings';
 import WeChatSettings from './WeChatSettings';
 import AbilityExpandSettings from './AbilityExpandSettings';
-import projectApi from 'src/api/project';
+import appManagementApi from 'src/api/appManagement';
 import SectionTitle from './SectionTitle';
 
 const NewDropdown = styled(Dropdown)`
@@ -106,8 +106,8 @@ class PublicConfig extends React.Component {
 
   componentDidMount() {
     const { worksheetInfo = {} } = this.props;
-    projectApi
-      .getWeiXinBindingInfo({ projectId: worksheetInfo.projectId })
+    appManagementApi
+      .getWeiXinBindingInfo({ appId: worksheetInfo.appId })
       .then(res => this.setState({ weChatBind: { isBind: res && res.length, name: (res[0] || {}).nickName } }));
   }
 

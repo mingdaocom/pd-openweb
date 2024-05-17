@@ -1,0 +1,33 @@
+
+.legalItemStyle() {
+  width: 100%;
+  padding-bottom: 25px;
+  .icon-drag {
+    margin-right: 5px;
+    margin-top: -2px;
+  }
+  .title {
+    color: #000;
+    font-size: 14px;
+  }
+  & > div {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.legalListWrap {
+  .titleWrapper {
+    font-size: 14px;
+    margin: 20px 0;
+    padding-bottom: 10px !important;
+    border-bottom: 1px solid #eaeaea;
+  }
+  .titleWrapper, .legalItem {
+    .legalItemStyle;
+  }
+}
+
+.legalSortableCard {
+  .legalItemStyle;
+}

@@ -195,6 +195,66 @@
     z-index: 1;
   }
 
+  .customFormItemControlCreate.customFormItemControl {
+    .customFormControlBox,
+    .RelateRecordDropdown .RelateRecordDropdown-selected:not(.readonly) {
+      border: 1px solid #ddd;
+      background-color: transparent;
+      &:not(.controlDisabled):hover {
+        border-color: #ccc;
+        background-color: transparent;
+      }
+      &.active,
+      &:focus {
+        border-color: #2196f3 !important;
+        background: #fff !important;
+        box-shadow: none !important;
+      }
+    }
+
+    .customFormControlMobileHover {
+      &:hover .customFormControlBox {
+        border-color: #ccc;
+        background-color: transparent;
+      }
+      input.customFormControlBox {
+        border: 1px solid #ddd;
+        background: transparent;
+        &.customFormPhoneBox {
+          border: none;
+          background: transparent;
+        }
+        &:not(.controlDisabled):hover {
+          border-color: #ccc;
+          background-color: transparent;
+        }
+      }
+    }
+
+    .customCascader,
+    .customAntSelect {
+      &.ant-select-open {
+        .ant-select-selector {
+          border-color: #2196f3 !important;
+          background-color: #fff !important;
+        }
+      }
+
+      &:not(.ant-select-open):not(.ant-select-disabled) {
+        .ant-select-selector {
+          border: 1px solid #ddd !important;
+          background-color: transparent !important;
+        }
+        .ant-select-selector {
+          &:hover {
+            border-color: #ccc !important;
+            background-color: transparent !important;
+          }
+        }
+      }
+    }
+  }
+
   .customFormItemControl {
     width: 100%;
     box-sizing: border-box;

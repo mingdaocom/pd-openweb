@@ -1,16 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, Input, CityPicker, Icon } from 'ming-ui';
+import { Dialog, Input } from 'ming-ui';
 import filterXSS from 'xss';
 import { whiteList } from 'xss/lib/default';
-import cx from 'classnames';
 import styled from 'styled-components';
 import upgradeAjax from 'src/api/upgrade';
-import fixedDataAjax from 'src/api/fixedData';
 import RegExp from 'src/util/expression';
 
 const formData = [
   { key: 'companyName', label: _l('组织全称'), type: 'input', placeholder: _l('组织名称'), isRequired: true },
-  { key: 'geographyId', label: _l('组织所在城市'), type: 'area', isRequired: true, placeholder: _l('请选择') },
   { key: 'address', label: _l('具体地址'), type: 'input', placeholder: _l('街道、楼栋、门牌号码'), isRequired: true },
   { key: 'postcode', label: _l('邮政编码'), type: 'input', isRequired: true },
   { key: 'email', label: _l('电子邮箱'), type: 'input', isRequired: true },
@@ -54,58 +51,14 @@ const FormGroup = styled.div`
         border: 1px solid #2196f3;
       }
     }
-    .cityPickerBox {
-      width: 100%;
-      border: none;
-      text-align: left;
-      outline: none;
-      align-items: center;
-      background: #f7f7f7;
-      cursor: pointer;
-      &:focus {
-        border-color: #f2f2f2 !important;
-        background: #f2f2f2 !important;
-      }
-
-      &:not(.controlDisabled):hover {
-        > .ming.Icon:not(.customFormButtoDel) {
-          color: #2196f3 !important;
-        }
-        .customFormButtoDel {
-          display: block;
-          &:hover {
-            color: rgba(0, 0, 0, 0.45) !important;
-          }
-          & ~ i {
-            display: none;
-          }
-        }
-      }
-
-      .customFormButtoDel {
-        display: none;
-      }
-      input {
-        padding: 0;
-        background: transparent;
-        border: 1px solid transparent;
-      }
-      input:focus {
-        border: 1px solid transparent;
-      }
-    }
   }
 `;
 
 export default function EditContractDialog(props) {
   const { visible, projectId, onCancel = () => {}, updateContractInfo = () => {} } = props;
-  const [keywords, setKeywords] = useState('');
-  const [cityPickVisible, setCityPickerVisible] = useState(false);
-  const [cityPath, setCityPath] = useState('');
   const [contractInfo, setContractInfo] = useState({});
   const {
     companyName = '',
-    geographyId = '',
     address = '',
     postcode = '',
     email = '',
@@ -122,23 +75,12 @@ export default function EditContractDialog(props) {
       .then(res => {
         if (res) {
           setContractInfo(res);
-          if (res.geographyId) {
-            getCityPath(res.geographyId);
-          }
         }
       });
   };
 
-  const getCityPath = id => {
-    fixedDataAjax.loadCityCountyById({ id }).then(res => {
-      if (res && res.values) {
-        setCityPath(_.get(res, 'values.displayText'));
-      }
-    });
-  };
-
   const validate = () => {
-    if (!address || !geographyId || !companyName || !email || !mobilePhone || !postcode || !recipientName) {
+    if (!address || !companyName || !email || !mobilePhone || !postcode || !recipientName) {
       alert(_l('* 号标识的为必填项'), 3);
       return true;
     }
@@ -162,16 +104,6 @@ export default function EditContractDialog(props) {
     return false;
   };
 
-  const changeCity = data => {
-    const last = _.last(data);
-    if (keywords) {
-      setKeywords('');
-    }
-
-    setCityPath(last.path);
-    setContractInfo({ ...contractInfo, geographyId: last.id });
-  };
-
   const onOk = () => {
     if (validate()) return;
 
@@ -179,7 +111,6 @@ export default function EditContractDialog(props) {
       .updateProjectContractInfo({
         projectId,
         companyName: getDataFilterXSS(companyName),
-        geographyId,
         address: getDataFilterXSS(address),
         postcode: getDataFilterXSS(postcode),
         email,
@@ -213,51 +144,12 @@ export default function EditContractDialog(props) {
               {label}
             </div>
             <div className="formBox">
-              {type === 'area' ? (
-                <CityPicker
-                  className="w100"
-                  search={keywords}
-                  level={3}
-                  mustLast={false}
-                  callback={changeCity}
-                  destroyPopupOnHide={true}
-                  showConfirmBtn={false}
-                  onClear={() => setKeywords('')}
-                  handleVisible={value => setCityPickerVisible(value)}
-                >
-                  <button type="button" className="cityPickerBox flexRow">
-                    <Input
-                      className="flex mRight20 ellipsis CityPicker-input-textCon"
-                      placeholder={placeholder}
-                      value={!!keywords ? keywords : cityPath}
-                      onChange={value => {
-                        setKeywords(value);
-                        if (!value) {
-                          setCityPath('');
-                        }
-                      }}
-                    />
-                    {!!cityPath && (
-                      <Icon
-                        icon="workflow_cancel"
-                        className="Font12 Gray_9e customFormButtoDel"
-                        onClick={e => {
-                          setCityPath('');
-                          e.stopPropagation();
-                        }}
-                      />
-                    )}
-                    <Icon icon="text_map" className="Font16 Gray_bd" />
-                  </button>
-                </CityPicker>
-              ) : (
-                <Input
-                  className="w100"
-                  placeholder={placeholder}
-                  value={contractInfo[key]}
-                  onChange={val => setContractInfo({ ...contractInfo, [key]: val })}
-                />
-              )}
+              <Input
+                className="w100"
+                placeholder={placeholder}
+                value={contractInfo[key]}
+                onChange={val => setContractInfo({ ...contractInfo, [key]: val })}
+              />
             </div>
           </FormGroup>
         );

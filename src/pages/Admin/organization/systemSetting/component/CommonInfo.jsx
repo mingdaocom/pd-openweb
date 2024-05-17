@@ -6,7 +6,6 @@ import './index.less';
 import { UpgradeIcon } from 'ming-ui';
 import projectController from 'src/api/project';
 import projectSettingController from 'src/api/projectSetting';
-import fixeddataController from 'src/api/fixedData';
 import ClipboardButton from 'react-clipboard.js';
 import AdminCommon from 'src/pages/Admin/common/common';
 import DialogSettingInviteRules from 'src/pages/Admin/user/membersDepartments/structure/components/dialogSettingInviteRules/index.jsx';
@@ -18,7 +17,6 @@ import { getCurrentProject } from 'src/util';
 export default class CommonInfo extends Component {
   constructor(props) {
     super(props);
-    this.industries = [];
     this.state = {
       logo: '', //logo图片
       code: '', // 组织门牌号
@@ -28,8 +26,6 @@ export default class CommonInfo extends Component {
       companyName: '', //全称
       companyNameEnglish: '', //英文名称
       industryId: '', //行业
-      industryName: '',
-      geographyName: '',
       geographyId: '', //所在地
       visibleType: 0,
       isUploading: false,
@@ -53,24 +49,12 @@ export default class CommonInfo extends Component {
 
   getAllData() {
     this.setState({ isLoading: true });
-    Promise.all([this.getSysColor(), this.getSubDomainInfo(), this.getCommonInfo(), this.getIndustryList()]).then(
+    Promise.all([this.getSysColor(), this.getSubDomainInfo(), this.getCommonInfo()]).then(
       ([
         { homeImage, logo },
         res,
         { companyDisplayName, companyName, companyNameEnglish, geographyId, industryId },
-        { industries = [] },
       ]) => {
-        this.industries = industries;
-        const current_industry = _.find(industries, item => item.id === industryId.toString()) || {};
-        const industryName = current_industry.name;
-        //获取地址
-        if (geographyId) {
-          fixeddataController.getCitysByParentID({ parentId: geographyId }).then(res => {
-            this.setState({
-              geographyName: _.get(res.values, 'displayText'),
-            });
-          });
-        }
         this.setState(
           {
             homeImage: `${homeImage}?imageView2/2/w/194/h/52/q/90`,
@@ -81,7 +65,6 @@ export default class CommonInfo extends Component {
             companyNameEnglish,
             geographyId,
             industryId,
-            industryName,
             isLoading: false,
           },
           () => {
@@ -121,11 +104,6 @@ export default class CommonInfo extends Component {
     return projectController.getProjectInfo({
       projectId: Config.projectId,
     });
-  }
-
-  //获取行业列表
-  getIndustryList() {
-    return fixeddataController.loadIndustry({});
   }
 
   // 获取加入人员规则
@@ -228,8 +206,6 @@ export default class CommonInfo extends Component {
       companyNameEnglish,
       geographyId,
       industryId,
-      industryName,
-      geographyName,
       visibleType,
       subDomain,
       homeImage,
@@ -258,10 +234,7 @@ export default class CommonInfo extends Component {
                   companyName={companyName}
                   companyNameEnglish={companyNameEnglish}
                   geographyId={geographyId}
-                  geographyName={geographyName}
-                  industryName={industryName}
                   industryId={industryId}
-                  industries={this.industries}
                   updateValue={this.updateValue.bind(this)}
                 />
               )}
@@ -352,28 +325,6 @@ export default class CommonInfo extends Component {
 
               <div className="split-line" />
 
-              <div className="common-info-row">
-                <div className="common-info-row-label">{_l('所在地')}</div>
-                {geographyName && <span className="mRight16">{geographyName}</span>}
-                <button
-                  type="button"
-                  className="ming Button Button--link ThemeColor3 adminHoverColor"
-                  onClick={this.updateVisible.bind(this, 2)}
-                >
-                  {geographyId ? _l('修改') : _l('设置')}
-                </button>
-              </div>
-              <div className="common-info-row mTop24">
-                <div className="common-info-row-label">{_l('所在行业')}</div>
-                {industryName && <span className="mRight16">{industryName}</span>}
-                <button
-                  type="button"
-                  className="ming Button Button--link ThemeColor3 adminHoverColor"
-                  onClick={this.updateVisible.bind(this, 3)}
-                >
-                  {industryId ? _l('修改') : _l('设置')}
-                </button>
-              </div>
               <div className="common-info-row mTop24">
                 <div className="common-info-row-label">{_l('扩展信息')}</div>
                 <div className="common-info-row-content">

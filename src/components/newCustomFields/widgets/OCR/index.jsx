@@ -37,7 +37,7 @@ export default class Widgets extends Component {
   handleUploaded = (up, file, info) => {
     const { worksheetId, controlId, advancedSetting, formData, onChange } = this.props;
     const newVal = formatResponseData(file, JSON.stringify(info));
-    this.cacheFile.push(newVal);
+    this.cacheFile.push({ ...newVal, originalFileName: decodeURIComponent(newVal.originalFileName) });
 
     // api集成
     if (advancedSetting.ocrapitype === '1') {
@@ -156,6 +156,7 @@ export default class Widgets extends Component {
       controlId,
       projectId,
       appId,
+      getControlRef,
     } = this.props;
 
     if (!dataSource) {
@@ -170,7 +171,7 @@ export default class Widgets extends Component {
       this.postList.abort();
     }
 
-    const paramsData = getParamsByConfigs(requestMap, formData, file);
+    const paramsData = getParamsByConfigs(requestMap, formData, file, getControlRef);
 
     let params = {
       data: !requestMap.length || _.isEmpty(paramsData) ? '' : paramsData,

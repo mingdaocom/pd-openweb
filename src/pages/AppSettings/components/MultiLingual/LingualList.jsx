@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import langConfig from 'src/common/langConfig';
 import AddLangModal from './AddLangModal';
 import AppSettingHeader from '../AppSettingHeader';
+import EmptyStatus from '../EmptyStatus';
 import appManagementApi from 'src/api/appManagement';
 
 const Wrap = styled.div`
@@ -59,7 +60,7 @@ export default function LingualList(props) {
     });
   };
   return (
-    <div className="h100" style={{ padding: '20px 40px' }}>
+    <div className="h100 flexColumn" style={{ padding: '20px 40px' }}>
       <AppSettingHeader
         title={_l('多语言')}
         addBtnName={_l('添加语言')}
@@ -75,7 +76,7 @@ export default function LingualList(props) {
           onCancel={() => setVisible(false)}
         />
       )}
-      <Wrap>
+      <Wrap className="flex flexColumn">
         <div className="header flexRow Font14 Gray_9e">
           <div className="flex pLeft10">{_l('语言')}</div>
           <div className="flex">{_l('创建人')}</div>
@@ -83,34 +84,44 @@ export default function LingualList(props) {
           <div className="flex">{_l('最后更新时间')}</div>
           <div className="operate"></div>
         </div>
-        <div className="content Font14">
-          {langs.map(data => (
-            <div className="flexRow item" key={data.id}>
-              <div className="flex pLeft10 bold langName" onClick={() => onChangeLangInfo(data)}>
-                {_.find(langConfig, { code: data.type }).value}
+        <div className="content Font14 flex">
+          {langs.length ? (
+            langs.map(data => (
+              <div className="flexRow item" key={data.id}>
+                <div className="flex pLeft10 bold langName" onClick={() => onChangeLangInfo(data)}>
+                  {_.find(langConfig, { code: data.type }).value}
+                </div>
+                <div className="flex">{data.creator.fullname}</div>
+                <div className="flex">{window.createTimeSpan(data.createTime)}</div>
+                <div className="flex">{window.createTimeSpan(data.lastModifyTime)}</div>
+                <div className="operate">
+                  <Dropdown
+                    trigger={['click']}
+                    overlay={
+                      <Menu style={{ width: 100 }}>
+                        <Menu.Item key="edit" onClick={() => onChangeLangInfo(data)}>
+                          {_l('编辑')}
+                        </Menu.Item>
+                        <Menu.Item key="delete" danger onClick={() => handleDelete(data)}>
+                          {_l('删除')}
+                        </Menu.Item>
+                      </Menu>
+                    }
+                  >
+                    <Icon className="Gray_75 Font20" icon="more_horiz" />
+                  </Dropdown>
+                </div>
               </div>
-              <div className="flex">{data.creator.fullname}</div>
-              <div className="flex">{window.createTimeSpan(data.createTime)}</div>
-              <div className="flex">{window.createTimeSpan(data.lastModifyTime)}</div>
-              <div className="operate">
-                <Dropdown
-                  trigger={['click']}
-                  overlay={
-                    <Menu style={{ width: 100 }}>
-                      <Menu.Item key="edit" onClick={() => onChangeLangInfo(data)}>
-                        {_l('编辑')}
-                      </Menu.Item>
-                      <Menu.Item key="delete" danger onClick={() => handleDelete(data)}>
-                        {_l('删除')}
-                      </Menu.Item>
-                    </Menu>
-                  }
-                >
-                  <Icon className="Gray_75 Font20" icon="more_horiz" />
-                </Dropdown>
-              </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <EmptyStatus
+              icon="language"
+              radiusSize={130}
+              iconClassName="Font50"
+              emptyTxt={_l('暂无其他语言')}
+              emptyTxtClassName="Gray_9e Font17 mTop20"
+            />
+          )}
         </div>
       </Wrap>
     </div>

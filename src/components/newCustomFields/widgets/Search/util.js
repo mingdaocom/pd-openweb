@@ -144,7 +144,7 @@ const getDynamicValue = (item, formData, keywords) => {
   return _.isEmpty(dealValue) ? '' : dealValue;
 };
 
-export const getParamsByConfigs = (requestMap = [], formData = [], keywords = '') => {
+export const getParamsByConfigs = (requestMap = [], formData = [], keywords = '', getControlRef = () => {}) => {
   let params = {};
   requestMap.forEach(item => {
     if (item.pid) return;
@@ -155,7 +155,9 @@ export const getParamsByConfigs = (requestMap = [], formData = [], keywords = ''
         _.find(formData, i => i.controlId === _.get(safeParse(item.defsource || '[]')[0], 'cid')) || {};
       // 对象数组或子表值
       const rows =
-        curControl.type === 29 ? safeParse(curControl.value || '[]') : _.get(curControl.value, ['rows']) || [];
+        curControl.type === 29
+          ? safeParse(curControl.value || '[]')
+          : _.get(getControlRef(curControl.controlId), ['props', 'rows']) || [];
 
       params[item.id] = '';
 

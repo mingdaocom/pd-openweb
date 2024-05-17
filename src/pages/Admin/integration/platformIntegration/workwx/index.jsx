@@ -628,7 +628,7 @@ export default class Workwx extends React.Component {
     if (currentTab === 'base') {
       return (
         <Fragment>
-          {!CorpId && !md.global.Config.IsLocal && (status === 0 || !status) ? (
+          {!CorpId && (!md.global.Config.IsLocal || md.global.Config.IsPlatformLocal) && (status === 0 || !status) ? (
             <BuildAppNewRules
               projectId={projectId}
               editWXProjectSettingStatus={this.editWXProjectSettingStatus}

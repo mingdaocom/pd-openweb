@@ -425,7 +425,13 @@ export function saveSheetLayout({ closePopup = () => {} }) {
     dispatch(clearHiddenColumn());
     dispatch({
       type: 'WORKSHEET_UPDATE_VIEW',
-      view: { ...view, ...updates },
+      view: {
+        ...view,
+        advancedSetting: {
+          ...view.advancedSetting,
+          ...updates.advancedSetting,
+        },
+      },
     });
     closePopup();
     worksheetAjax

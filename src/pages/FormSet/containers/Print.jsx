@@ -118,7 +118,7 @@ const SortableItem = SortableElement(props => {
           {isRename && templateId === it.id ? (
             <input
               type="text"
-              className='Font13'
+              className="Font13"
               ref={inputRef}
               value={inputName}
               onChange={e => {
@@ -210,11 +210,13 @@ const SortableItem = SortableElement(props => {
             });
           }}
         >
-          {_l('过滤条件')}
+          {_l('筛选条件')}
           {getFiltersLength()}
         </span>
         {showFilters && templateId === it.id && (
           <ShowBtnFilterDialog
+            title={_l('筛选条件')}
+            description={_l('设置筛选条件，当满足条件时才显示打印模板。未设置条件始终显示')}
             sheetSwitchPermit={worksheetInfo.switches}
             projectId={worksheetInfo.projectId}
             appId={worksheetInfo.appId}

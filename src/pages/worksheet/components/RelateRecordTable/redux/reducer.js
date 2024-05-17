@@ -52,6 +52,7 @@ function tableState(
     case 'RESET':
       return {
         ...initialTableState,
+        ...(action.doNotClearKeywords ? { keywords: state.keywords } : {}),
       };
     default:
       return state;
@@ -125,6 +126,8 @@ function records(state = [], action) {
       }
     case 'DELETE_RECORDS':
       return state.filter(record => !includes(action.recordIds, record.rowid));
+    case 'CLEAR_RECORDS':
+      return [];
     default:
       return state;
   }

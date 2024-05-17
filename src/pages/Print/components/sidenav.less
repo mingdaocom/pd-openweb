@@ -7,7 +7,40 @@
     box-shadow: 0px 3px 6px #00000029;
     overflow-y: auto;
     overflow-x: hidden;
-    width: 240px;
+    width: 320px;
+    .forSizeBox {
+      flex: 1;
+      height: 36px;
+      background: #f5f5f5;
+      border-radius: 5px 5px 5px 5px;
+      font-size: 13px;
+      color: #757575;
+      padding: 4px;
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      text-align: center;
+      &.namePositionBox {
+        max-width: 64px;
+      }
+      span {
+        flex: 1;
+        height: 100%;
+        line-height: 28px;
+        border-radius: 5px;
+        cursor: pointer;
+        &.current {
+          background: #fff;
+          color: #2196f3;
+        }
+      }
+    }
+    .nameSlider {
+      .tip-top {
+        box-shadow: 0px 1px 4px 1px rgba(0, 0, 0, 0.1608);
+        border: 1px solid #d5d5d5;
+      }
+    }
     .forSizeText {
       width: 90px;
       border: 1px solid rgb(204, 204, 204);
@@ -42,7 +75,7 @@
           }
           .headline {
             flex: 1;
-            font-size: 13px;
+            font-size: 14px;
             font-weight: bold;
           }
           .chooseBtn {
@@ -72,8 +105,8 @@
           width: 9px;
           height: 100%;
           border: none;
-          border-left: 1px solid #EAEAEA;
-          border-bottom: 1px solid #EAEAEA;
+          border-left: 1px solid #eaeaea;
+          border-bottom: 1px solid #eaeaea;
           position: absolute;
           display: inline-block;
           left: 7px;
@@ -98,8 +131,21 @@
           border: 1px solid #2196f3;
         }
       }
+      textarea {
+        margin-top: 10px;
+        width: 100%;
+        background: #ffffff 0% 0% no-repeat padding-box;
+        border: 1px solid #dddddd;
+        border-radius: 4px;
+        color: #333;
+        padding: 12px 10px;
+        box-sizing: border-box;
+        resize:none;
+        &:focus {
+          border: 1px solid #2196f3;
+        }
+      }
       .ming.Checkbox {
-        max-width: 165px;
         vertical-align: middle;
       }
       .moreList {
@@ -117,7 +163,7 @@
     }
     .lineBox {
       border-top: 1px solid #dddddd;
-      margin: 24px -20px;
+      margin: 24px 0;
     }
     .ming.Checkbox.clearselected .Checkbox-box {
       background-color: #1e88e5 !important;

@@ -1,6 +1,6 @@
-import React, { Fragment, useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { LoadDiv, Icon, Dropdown } from 'ming-ui';
+import { LoadDiv, Icon } from 'ming-ui';
 import cx from 'classnames';
 import { Tooltip } from 'antd';
 import update from 'immutability-helper';
@@ -8,6 +8,7 @@ import { groupBy, maxBy, head, keys, sortBy, isEmpty } from 'lodash';
 import worksheetAjax from 'src/api/worksheet';
 import EditOptionList from 'src/pages/widgetConfig/widgetSetting/components/OptionList/EditOptionList';
 import AppSettingHeader from '../AppSettingHeader';
+import EmptyStatus from '../EmptyStatus';
 import { getOptions } from '../../../widgetConfig/util/setting';
 import { useSetState } from 'react-use';
 import OperateList from './OperateList';
@@ -138,8 +139,8 @@ export default function AllOptionList(props) {
   const [posList, setPos] = useState([]);
   const [originalItems, setOriginalItems] = useState([]);
   const [items, setItems] = useState([]);
-  const [status, setStatus] = useState(1);
   const [searchValue, setSearchValue] = useState();
+  const [currentTab, setCurrentTab] = useState(1);
 
   // 计算单个高度
   const computeHeight = item => {
@@ -186,6 +187,7 @@ export default function AllOptionList(props) {
         setOriginalItems(data);
         setItems(data);
         waterfallList(data);
+        handleSearch(searchValue, data);
       })
       .finally(() => {
         setLoading(false);
@@ -194,7 +196,7 @@ export default function AllOptionList(props) {
 
   const handleCreateOption = item => {
     const nextList = items.concat(item);
-    if (status === 9) {
+    if (currentTab === 9) {
       setVisible({ createVisible: false });
       return;
     }
@@ -213,17 +215,36 @@ export default function AllOptionList(props) {
     setIndex({ editIndex: -1 });
   };
 
-  const getSearchList = _.throttle(value => {
-    getOptionList({ name: value, status });
-  }, 200);
+  const handleSearch = (value, data = []) => {
+    data = !_.isEmpty(data) ? data : originalItems;
+    if (!!_.trim(value)) {
+      const temp = _.filter(data, v => v.name.indexOf(_.trim(value)) > -1);
+      setItems(temp);
+      waterfallList(temp);
+    } else {
+      setItems(data);
+      waterfallList(data);
+    }
+  };
 
   const renderContent = () => {
     if (loading) return <LoadDiv />;
-    if (isEmpty(items)) return <div className="emptyHint Gray_9e Font14">{_l('此应用下还没有添加选项集')}</div>;
+    if (isEmpty(items)) {
+      return (
+        <EmptyStatus
+          icon="dropdown"
+          radiusSize={130}
+          iconClassName="Font50"
+          emptyTxt={_l('暂无选项集')}
+          emptyTxtClassName="Gray_9e Font17 mTop20"
+        />
+      );
+    }
+
     return items.map((item, index) => (
       <OptionItem
         {...item}
-        status={status}
+        status={currentTab}
         index={index}
         projectId={projectId}
         appId={appId}
@@ -245,41 +266,36 @@ export default function AllOptionList(props) {
   };
 
   return (
-    <Fragment>
+    <div className="h100 flexColumn">
       <AppSettingHeader
         title={_l('选项集')}
         showSearch={true}
         addBtnName={_l('新增选项集')}
-        extraElement={
-          <Dropdown
-            border={true}
-            style={{ width: 160 }}
-            menuStyle={{ width: 160 }}
-            value={status}
-            data={[
-              { text: _l('启用'), value: 1 },
-              { text: _l('停用'), value: 9 },
-            ]}
-            onChange={value => {
-              setStatus(value);
-              getOptionList({ status: value });
-            }}
-          />
-        }
+        description={_l('将需要在不同工作表间共用的选项创建为选项集，维护选项的一致性')}
         handleSearch={value => {
           setSearchValue(value);
-          if (!!_.trim(value)) {
-            const temp = _.filter(originalItems, v => v.name.indexOf(_.trim(value)) > -1);
-            setItems(temp);
-            waterfallList(temp);
-          } else {
-            setItems(originalItems);
-            waterfallList(originalItems);
-          }
+          handleSearch(value);
         }}
         handleAdd={() => setVisible({ createVisible: true })}
+        link="https://help.mingdao.com/worksheet/option-set"
       />
-      <OptionListWrap className={cx({ emptyWrap: isEmpty(items) })} ref={$ref}>
+      <div className="tabWrap mBottom15">
+        {[
+          { label: _l('启用'), value: 1 },
+          { label: _l('停用'), value: 9 },
+        ].map(item => (
+          <div
+            className={cx('tabItem Hand', { active: item.value === currentTab })}
+            onClick={() => {
+              setCurrentTab(item.value);
+              getOptionList({ status: item.value });
+            }}
+          >
+            {item.label}
+          </div>
+        ))}
+      </div>
+      <OptionListWrap className={cx('flex', { emptyWrap: isEmpty(items) })} ref={$ref}>
         {renderContent()}
       </OptionListWrap>
       {createVisible && (
@@ -290,7 +306,6 @@ export default function AllOptionList(props) {
           onCancel={() => setVisible({ createVisible: false })}
         />
       )}
-
       {editIndex > -1 && (
         <EditOptionList
           {...items[editIndex]}
@@ -300,6 +315,6 @@ export default function AllOptionList(props) {
           onCancel={() => setIndex({ editIndex: -1 })}
         />
       )}
-    </Fragment>
+    </div>
   );
 }

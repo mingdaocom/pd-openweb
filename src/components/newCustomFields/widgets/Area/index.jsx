@@ -52,7 +52,7 @@ export default class Widgets extends Component {
   }, 500);
 
   render() {
-    const { disabled, type, from, value, onChange, advancedSetting } = this.props;
+    const { disabled, type, from, value, onChange, advancedSetting, recordId } = this.props;
     const { anylevel } = advancedSetting || {};
     const { search, keywords, visible } = this.state;
 
@@ -77,14 +77,16 @@ export default class Widgets extends Component {
           onChange('');
           search && this.setState({ search: '', keywords: '' });
         }}
-        handleVisible={(value) => {this.setState({visible: value})}}
+        handleVisible={value => {
+          this.setState({ visible: value });
+        }}
       >
         <button
           type="button"
           className={cx('customFormControlBox customFormButton flexRow', {
             controlDisabled: disabled,
             mobileCustomFormButton: isMobile,
-            Border0: !isMobile,
+            Border0: !isMobile && recordId,
           })}
           disabled={disabled}
         >

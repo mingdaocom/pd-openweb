@@ -1,12 +1,11 @@
 import React, { useState, useRef } from 'react';
-import { Dialog } from 'ming-ui';
 import { Input, Tooltip } from 'antd';
 import Components from '../../../components';
 import _ from 'lodash';
 import ClipboardButton from 'react-clipboard.js';
 import worksheetAjax from 'src/api/worksheet';
 import Options from './Options';
-import { SettingItem } from '../../../styled';
+import { SettingItem, EditOptionDialog } from '../../../styled';
 import { getDefaultOptions } from '../../../util/setting';
 import DeleteDialog from './DelateDialog';
 import DeleteOptionList from 'src/pages/AppSettings/components/AllOptionList/DeleteOptionList';
@@ -55,7 +54,7 @@ export default function EditOptionList(props) {
   };
 
   return (
-    <Dialog
+    <EditOptionDialog
       ref={$ref}
       visible
       bodyClass="editOptionDialog"
@@ -141,6 +140,6 @@ export default function EditOptionList(props) {
           }}
         />
       )}
-    </Dialog>
+    </EditOptionDialog>
   );
 }

@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { handleSortRows, postWithToken, download } from 'worksheet/util';
 import worksheetAjax from 'src/api/worksheet';
-import _, { get } from 'lodash';
+import _, { get, includes, pick } from 'lodash';
 import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
 import { createRequestPool } from 'worksheet/api/standard';
 
@@ -104,9 +104,6 @@ export const loadRows = ({
         const { res, rows } = batchRes;
         dispatch({ type: 'LOAD_ROWS', rows });
         dispatch(initRows(rows));
-        if (isCustomButtonFillRecord && rows.length) {
-          dispatch(updateRow(rows[0].rowid, rows[0]));
-        }
         callback(res);
       })
       .catch(err => {
@@ -198,10 +195,14 @@ class RowData {
     this.addTime = new Date().getTime();
   }
   handleAsyncChange(changes) {
-    const { updateRow } = this.args;
+    const { controls, updateRow } = this.args;
     const { controlId, value } = changes;
     this.formData.updateDataSource({ controlId, value });
-    updateRow(this.getRow());
+    let updatedControlIds = this.formData.controlIds.concat('rowid');
+    updatedControlIds = updatedControlIds.concat(
+      controls.filter(c => c.type === 30 && includes(c.dataSource, controlId)).map(c => c.controlId),
+    );
+    updateRow(pick(this.getRow(), updatedControlIds));
   }
   getRow() {
     const { rowId, allowEdit } = this.args;

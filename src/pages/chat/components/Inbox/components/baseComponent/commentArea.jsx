@@ -387,7 +387,7 @@ export default class CommentArea extends React.Component {
     };
   }
 
-  addCommentCallback(comment) {
+  addCommentCallback = comment => {
     const {
       params: { sourceType },
     } = this.props;
@@ -395,7 +395,7 @@ export default class CommentArea extends React.Component {
     this.setState({
       comments: [formatTopic(comment, sourceType)].concat(comments),
     });
-  }
+  };
 
   removeCommentCallback(id) {
     this.setState({
@@ -432,7 +432,7 @@ export default class CommentArea extends React.Component {
       projectId: this.props.params.projectId,
       fromAppId: this.props.params.appId,
       autoFocus: this.state.commenterIsFocus,
-      onSubmit: this.addCommentCallback.bind(this),
+      onSubmit: this.addCommentCallback,
     };
     return <Commenter {...props} />;
   }
@@ -447,7 +447,7 @@ export default class CommentArea extends React.Component {
             return _.map(this.state.comments, comment => {
               const props = {
                 ...comment,
-                addCallback: this.addCommentCallback.bind(this),
+                addCallback: this.addCommentCallback,
                 removeCallback: this.removeCommentCallback.bind(this),
               };
               const commenterProps = {

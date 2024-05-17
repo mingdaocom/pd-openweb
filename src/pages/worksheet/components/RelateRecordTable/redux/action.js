@@ -248,13 +248,13 @@ export function init() {
   };
 }
 
-export function refresh({ doNotResetPageIndex } = {}) {
+export function refresh({ doNotResetPageIndex, doNotClearKeywords } = {}) {
   return (dispatch, getState) => {
     const state = getState();
     const { base = {}, tableState = {} } = state;
     const { control = {} } = base;
     const { pageIndex, filterControls } = tableState;
-    dispatch({ type: 'RESET' });
+    dispatch({ type: 'RESET', doNotClearKeywords });
     if (control.type === 51) {
       dispatch({
         type: 'UPDATE_TABLE_STATE',
@@ -548,7 +548,7 @@ export function handleRemoveRelation(recordIds) {
           updateType: from,
         });
         dispatch(deleteRecords(recordIds));
-        dispatch(refresh({ doNotResetPageIndex: true }));
+        dispatch(refresh({ doNotResetPageIndex: true, doNotClearKeywords: true }));
       } catch (err) {
         alert(_l('取消关联失败！'), 2);
       }

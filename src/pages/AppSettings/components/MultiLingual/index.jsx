@@ -81,25 +81,15 @@ export default function MultiLingual(props) {
     );
   }
 
-  if (langs.length) {
-    return (
-      <LingualList
-        app={data}
-        langs={langs}
-        onGetAppLangs={handleGetAppLangs}
-        onChangeLangInfo={(data) => {
-          navigateTo(`?langId=${data.id}`);
-          setLangInfo(data);
-        }}
-      />
-    );
-  } else {
-    return (
-      <Entrance
-        app={data}
-        onGetAppLangs={handleGetAppLangs}
-      />
-    );
-  }
+  return (
+    <LingualList
+      app={data}
+      langs={langs}
+      onGetAppLangs={handleGetAppLangs}
+      onChangeLangInfo={data => {
+        navigateTo(`?langId=${data.id}`);
+        setLangInfo(data);
+      }}
+    />
+  );
 }
-

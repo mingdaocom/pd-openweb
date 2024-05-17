@@ -774,7 +774,21 @@ export default class ExportSheet extends Component {
 
             {/** 在其他sheet导出关联表 */}
             <Checkbox
-              text={_l('在其他sheet导出关联表')}
+              text={
+                <span>
+                  {_l('在其他sheet导出关联表')}
+                  <Tooltip
+                    overlayStyle={{ maxWidth: 350 }}
+                    title={
+                      <div>
+                        {_l('关联记录超过1000行时，可能影响数据准确性。建议在“主记录-关联表-导出Excel”导出数据。')}
+                      </div>
+                    }
+                  >
+                    <i className="icon-info mLeft5 Font16 Gray_9e"></i>
+                  </Tooltip>
+                </span>
+              }
               checked={exportRelationalSheet && type !== 1}
               disabled={type === 1 || edited}
               size="small"

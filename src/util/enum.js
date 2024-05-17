@@ -92,11 +92,3 @@ export const VersionProductHelpLink = {
   31: 'https://help.mingdao.com/application/log',
   33: '',
 };
-
-// 处理特殊多语言文本
-export const SPECIAL_LANG_TEXT = {
-  通过: _l('通过'),
-  否决: _l('否决'),
-  退回: _l('退回'),
-  提交: _l('提交'),
-};

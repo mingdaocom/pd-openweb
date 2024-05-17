@@ -298,6 +298,9 @@ function CustomBtnFormSet(props) {
                 '.ck',
                 '.ant-picker-dropdown',
                 '.Tooltip',
+                '.selectRoleDialog',
+                '.dialogSelectOrgRole',
+                '#quickSelectDept',
               ]}
               onClickAway={() =>
                 setState({

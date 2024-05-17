@@ -112,6 +112,10 @@ export default class LoginContainer extends React.Component {
         projectId: request.projectId || '',
       })
       .then(res => {
+        if (!res || !res.companyName) {
+          location.replace('/privateImageInstall');
+          return;
+        }
         this.setState({
           ...res,
           //request.loginMode == 1 =>进入默认的平台登陆

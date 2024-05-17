@@ -159,6 +159,7 @@ export default function ConditionsGroup(props) {
     from,
     isSingleFilter,
     appId,
+    worksheetId,
     projectId,
     isGroup,
     conditionsGroupsLength,
@@ -220,6 +221,7 @@ export default function ConditionsGroup(props) {
               canEdit
               projectId={projectId}
               appId={appId}
+              worksheetId={worksheetId}
               key={condition.keyStr}
               showCustom={showCustom}
               index={i}

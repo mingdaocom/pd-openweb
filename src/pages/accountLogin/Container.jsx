@@ -11,6 +11,7 @@ import Header from './components/Header';
 import { setHistoryObject } from 'src/router/navigateTo';
 import { Wrap } from './style';
 import WrapBg from './components/Bg';
+import Footer from './components/Footer';
 
 function LoginContain(props) {
   useEffect(() => {
@@ -19,9 +20,9 @@ function LoginContain(props) {
 
   return (
     <ErrorBoundary>
-      <Wrap>
+      <Wrap className="flexColumn">
         <WrapBg />
-        <div className="loginBox">
+        <div className="loginBox flex">
           <div className="loginContainer">
             <Header />
             <Switch>
@@ -36,6 +37,7 @@ function LoginContain(props) {
             </Switch>
           </div>
         </div>
+        {_.get(md, 'global.SysSettings.enableFooterInfo') && <Footer />}
       </Wrap>
     </ErrorBoundary>
   );

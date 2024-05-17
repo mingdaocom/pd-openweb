@@ -459,7 +459,14 @@ export const parameterNameValidation = ({ list, key, value, uniqueKey, uniqueVal
  */
 export const getFilterText = (item, conditionId) => {
   if (_.includes(['29', '30'], conditionId)) {
-    return CONDITION_TYPE[conditionId][_.get(item || {}, 'advancedSetting.showtype')];
+    const { showtype, itemnames } = _.get(item || {}, 'advancedSetting') || {};
+    const names = safeParse(itemnames || '[]', 'array');
+    const conditionText = _.get(
+      _.find(names, o => o.key === (conditionId === '29' ? '1' : '0')),
+      'value',
+    );
+
+    return showtype === '0' || !conditionText ? CONDITION_TYPE[conditionId][showtype] : conditionText;
   }
 
   if (_.includes(['3', '4'], conditionId) && _.includes([19, 23, 24], item.type)) {

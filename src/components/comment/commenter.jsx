@@ -267,7 +267,8 @@ class Commenter extends React.Component {
 
       this.setState({ disabled: true });
 
-      const { sourceId, sourceType, replyId, appId, remark, extendsId, entityType, forReacordDiscussion } = this.props;
+      const { sourceId, sourceType, replyId, appId, remark, extendsId, entityType, forReacordDiscussion, onSubmit } =
+        this.props;
 
       if (sourceType === SOURCE_TYPE.POST) {
         const { accountId } = this.props;
@@ -283,9 +284,10 @@ class Commenter extends React.Component {
             attachments: JSON.stringify(attachments),
             knowledgeAttach: JSON.stringify(kcAttachmentData),
           })
-          .then(function (result) {
+          .then(result => {
             if (result.success === 'True') {
-              this.props.onSubmit(result.comment);
+              onSubmit(result.comment);
+              this.clearLocalStorage();
             } else {
               Promise.reject(result.error);
             }
@@ -308,7 +310,7 @@ class Commenter extends React.Component {
           })
           .then(res => {
             if (res && res.code === 1) {
-              this.props.onSubmit(res.data);
+              onSubmit(res.data);
               this.clearLocalStorage();
             } else {
               if (res && res.code === 3) {

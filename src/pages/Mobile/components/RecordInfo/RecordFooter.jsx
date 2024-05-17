@@ -250,6 +250,7 @@ export default class RecordFooter extends Component {
   };
   renderContent() {
     const {
+      formChanged,
       editable,
       isSubList,
       getDataType,
@@ -282,6 +283,7 @@ export default class RecordFooter extends Component {
         {recordBase.workId && recordBase.from === 6 && (
           <WingBlank className="flex" size="sm">
             <Button
+              disabled={!formChanged}
               className="Font13 bold"
               type="primary"
               onClick={onSaveRecord}

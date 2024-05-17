@@ -8,8 +8,16 @@ export const Wrap = styled.div`
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
+  /* 隐藏Chrome、Safari和Opera的滚动条 */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  /* 隐藏Internet Explorer和Edge的滚动条 */
+  -ms-overflow-style: none; /* Internet Explorer和Edge */
+  scrollbar-width: none; /* Firefox */
   .loginBox {
     padding-top: 80px;
+    z-index: 1;
     .loginContainer {
       max-width: 420px;
       padding: 48px 48px 23px;

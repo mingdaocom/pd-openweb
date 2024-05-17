@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { Tabs } from 'antd-mobile';
 import { Icon, SvgIcon } from 'ming-ui';
 import RelateRecord from 'src/components/newCustomFields/widgets/RelateRecord';
@@ -136,6 +136,7 @@ export default function MobileWidgetSection(props) {
     tabControls,
   } = props;
   const { otherTabs = [], changeMobileTab = () => {} } = tabControlProp;
+  const [newFlag, setNewFlag] = useState(flag);
 
   useEffect(() => {
     setActiveTabControlId(_.get(tabControls[0], 'controlId'));
@@ -184,6 +185,7 @@ export default function MobileWidgetSection(props) {
           );
         }}
         onChange={tab => {
+          setNewFlag(Date.now());
           setActiveTabControlId(tab.controlId);
           changeMobileTab(tab);
         }}
@@ -258,7 +260,7 @@ export default function MobileWidgetSection(props) {
             worksheetId={worksheetId}
             appId={appId}
             from={from}
-            flag={flag}
+            flag={newFlag}
             recordId={recordId}
             widgetStyle={widgetStyle}
             formData={data}

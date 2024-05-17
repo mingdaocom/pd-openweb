@@ -141,9 +141,8 @@ export default class VersionUpgrade extends Component {
   handlePay = () => {
     const { projectId } = getRequest(location.search);
     const { orderId, bugMethod, contractInfo = {} } = this.state;
-    const { address, companyName, email, geographyId, mobilePhone, postcode, recipientName } = contractInfo;
-    const isContractInfoIntact =
-      address && companyName && email && geographyId && mobilePhone && postcode && recipientName;
+    const { address, companyName, email, mobilePhone, postcode, recipientName } = contractInfo;
+    const isContractInfoIntact = address && companyName && email && mobilePhone && postcode && recipientName;
     if (!isContractInfoIntact) {
       alert('请完善合同信息', 3);
       return;
@@ -364,15 +363,13 @@ export default class VersionUpgrade extends Component {
     const averageMonthPrice = (totalPrice / 12 / selectYear).toFixed(0);
     const {
       companyName = '',
-      geographyId = '',
       address = '',
       postcode = '',
       email = '',
       recipientName = '',
       mobilePhone = '',
     } = contractInfo;
-    const isContractInfoIntact =
-      companyName && geographyId && address && postcode && email && recipientName && mobilePhone;
+    const isContractInfoIntact = companyName && address && postcode && email && recipientName && mobilePhone;
     const selectVersionName = _.find(featureDataList, v => v.version === activeVersion).versionName;
 
     return (

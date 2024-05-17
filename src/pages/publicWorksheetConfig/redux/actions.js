@@ -152,6 +152,7 @@ export function loadPublicWorksheet({ worksheetId }) {
               'projectId',
               'visibleType',
               'submitBtnName',
+              'appId',
             ]),
           },
           worksheetSettings: {
@@ -286,6 +287,7 @@ export function resetControls() {
                 'projectId',
                 'visibleType',
                 'submitBtnName',
+                'appId',
               ]),
             },
             worksheetSettings: {

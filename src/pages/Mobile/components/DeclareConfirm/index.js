@@ -3,7 +3,7 @@ import { Flex, Button, Modal, ActivityIndicator } from 'antd-mobile';
 import { RichText } from 'ming-ui';
 import DocumentTitle from 'react-document-title';
 import styled from 'styled-components';
-import privateDeclare from 'src/api/privateDeclare';
+import privateLegalApi from 'src/api/privateLegal';
 
 const Con = styled.div`
   text-align: left;
@@ -42,7 +42,10 @@ const Con = styled.div`
 `;
 
 const DeclareModal = styled(Modal)`
-  width: 90% !important;
+  width: 90%!important;
+  .am-modal-content {
+    text-align: unset!important;
+  }
 `
 
 const declareConfirm = (Component) => {
@@ -54,7 +57,7 @@ const declareConfirm = (Component) => {
         loading: enableDeclareConfirm,
         confirm: enableDeclareConfirm,
         reject: false,
-        declareData: null,
+        declareId: null,
         type: null,
         declareModal: false
       }
@@ -62,10 +65,10 @@ const declareConfirm = (Component) => {
     componentDidMount() {
       const { confirm } = this.state;
       if (confirm) {
-        privateDeclare.getDeclareByAcountId().then(data => {
-          if (data && data.declareId) {
+        privateLegalApi.getDeclareByAcountId().then(declareId => {
+          if (declareId) {
             this.setState({
-              declareData: data
+              declareId: declareId
             });
           } else {
             this.setState({ confirm: false });
@@ -84,9 +87,9 @@ const declareConfirm = (Component) => {
       }
     }
     handleAgree = () => {
-      const { declareData } = this.state;
-      privateDeclare.addDeclareAgreeLog({
-        declareId: declareData.declareId
+      const { declareId } = this.state;
+      privateLegalApi.addDeclareAgreeLog({
+        declareId
       }).then(data => {
         if (data) {
           this.setState({ confirm: false });
@@ -94,10 +97,14 @@ const declareConfirm = (Component) => {
       });
     }
     renderDeclare() {
-      const { type, declareModal, declareData } = this.state;
+      const { type, declareModal, declareId } = this.state;
       const title = {
         agreement: _l('服务协议'),
         privacy: _l('隐私政策')
+      }
+      const url = {
+        agreement: 'terms',
+        privacy: 'privacy',
       }
       return (
         <DeclareModal
@@ -109,14 +116,8 @@ const declareConfirm = (Component) => {
           title={title[type]}
           footer={[{ text: _l('关闭'), onPress: () => { this.setState({ declareModal: false }); } }]}
         >
-          <div style={{ height: document.body.clientHeight - 200, overflowY: 'auto', color: 'initial' }}>
-            {declareData && (
-              <RichText
-                data={declareData[type]}
-                disabled={true}
-                showTool={false}
-              />
-            )}
+          <div style={{ height: document.body.clientHeight - 200, color: 'initial' }}>
+            <iframe className="w100 h100" style={{ border: 'none' }} src={`${md.global.Config.WebUrl}legalportal/${url[type]}?hideHeader=1`} />
           </div>
         </DeclareModal>
       );

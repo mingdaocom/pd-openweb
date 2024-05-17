@@ -360,7 +360,7 @@ export default function SelectOptions(props) {
         checkedValue={checkedValue}
         helperClass="selectOptionSortableList"
       />
-      <HandleOption>
+      <HandleOption className='handleOption'>
         <div className="addOptions" onClick={() => addOption()}>
           <i className="icon-add Font18"></i>
           <span>{_l('添加选项')}</span>

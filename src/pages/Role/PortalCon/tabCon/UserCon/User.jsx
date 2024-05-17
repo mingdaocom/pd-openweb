@@ -351,7 +351,7 @@ function User(props) {
             render: (text, data, index) => {
               let role = '';
               try {
-                let d = safeParseArray(data['portal_role']);
+                let d = safeParse(data['portal_role'], 'array');
                 role = d[0] || '';
               } catch (error) {
                 role = '';
@@ -391,7 +391,7 @@ function User(props) {
               );
             },
             render: (text, data, index) => {
-              let portal_status = safeParseArray(data.portal_status)[0];
+              let portal_status = safeParse(data.portal_status, 'array')[0];
               //正常、未激活（添加用户后用户未注册）停用
               if (portal_status === '5') {
                 return <span className="Gray_9e">{_l('未激活')}</span>;
@@ -429,7 +429,7 @@ function User(props) {
           name: '',
           render: (text, data, index) => {
             let dataList = [];
-            let portal_status = safeParseArray(data.portal_status)[0];
+            let portal_status = safeParse(data.portal_status, 'array')[0];
             //正常、未激活（添加用户后用户未注册）停用
             if (portal_status === '5') {
               dataList = [
@@ -621,7 +621,7 @@ function User(props) {
             <span
               className={cx('download InlineBlock Hand mLeft10')}
               onClick={() => {
-                let NoList = list.filter(o => safeParseArray(o.portal_status)[0] === '5').map(o => o.rowid);
+                let NoList = list.filter(o => safeParse(o.portal_status, 'array')[0] === '5').map(o => o.rowid);
                 if (_.intersection(NoList, selectedIds).length > 0) {
                   return alert(_l('未激活的用户不能启用'), 2);
                 }
@@ -647,7 +647,7 @@ function User(props) {
             <span
               className={cx('del InlineBlock Hand mLeft10')}
               onClick={() => {
-                let NoList = list.filter(o => safeParseArray(o.portal_status)[0] === '5').map(o => o.rowid);
+                let NoList = list.filter(o => safeParse(o.portal_status, 'array')[0] === '5').map(o => o.rowid);
                 if (_.intersection(NoList, selectedIds).length > 0) {
                   return alert(_l('未激活的用户不能停用'), 2);
                 }

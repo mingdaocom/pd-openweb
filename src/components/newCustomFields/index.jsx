@@ -385,6 +385,7 @@ export default class CustomFields extends Component {
     let preIsSection;
     let data = [].concat(renderData).filter(item => !item.hidden && controlState(item, from).visible);
     const richTextControlCount = data.filter(c => c.type === 41).length;
+    const isPcCreated = !isMobile && !recordId;
 
     data.sort((a, b) => {
       if (a.row === b.row) {
@@ -395,7 +396,12 @@ export default class CustomFields extends Component {
 
     data.forEach(item => {
       if ((item.row !== prevRow || isMobile || forceFull) && !preIsSection && prevRow > -1) {
-        formList.push(<div className="customFormLine" key={`clearfix-${item.row}-${item.col}`} />);
+        formList.push(
+          <div
+            className={cx('customFormLine', { Visibility: isPcCreated })}
+            key={`clearfix-${item.row}-${item.col}`}
+          />,
+        );
       }
 
       // 兼容老数据没有size的情况
@@ -456,7 +462,7 @@ export default class CustomFields extends Component {
           )}
 
           <CustomFormItemControlWrap
-            className="customFormItemControl"
+            className={cx('customFormItemControl', { customFormItemControlCreate: isPcCreated })}
             showRefreshBtn={showRefreshBtn}
             isMobile={isMobile}
             {...getValueStyle(item)}

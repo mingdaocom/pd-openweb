@@ -129,7 +129,7 @@ export default class Container extends React.Component {
           : [getAccountTypes(true), 'code', 'setPassword']
         : [itiType, 'code', 'setPassword']),
       ,
-      isLink && loginForAdd ? '' : 'privacy',
+      (isLink && loginForAdd) || !_.get(md, 'global.SysSettings.enableDeclareRegisterConfirm') ? '' : 'privacy',
     ];
     let isV = await isValid(false, keys);
 
@@ -185,11 +185,11 @@ export default class Container extends React.Component {
                 ? [getAccountTypes(true), !loginForAdd ? 'setPassword' : 'password']
                 : [getAccountTypes(true), 'code', 'setPassword']
               : [itiType, 'code', 'setPassword']),
-            isLink && loginForAdd ? '' : 'privacy',
+            (isLink && loginForAdd) || !_.get(md, 'global.SysSettings.enableDeclareRegisterConfirm') ? '' : 'privacy',
           ]}
           key={version}
         />
-        {!(isLink && loginForAdd) && (
+        {!(isLink && loginForAdd) && _.get(md, 'global.SysSettings.enableDeclareRegisterConfirm') && (
           <div className="messageBox">
             <div
               className={cx('termsText Gray_75 privacyText mesDiv', {

@@ -1,40 +1,23 @@
 {
   "env": {
-    "amd": true,
     "browser": true,
-    "commonjs": true,
     "es6": true,
-    "jasmine": true,
     "jquery": true,
-    "mocha": true,
     "node": true,
     "worker": true
   },
-  "extends": [
-    "airbnb/legacy"
-  ],
   "globals": {
     "File": false,
     "LoadDiv": false,
-    "Modernizr": false,
-    "Windows": false,
-    "Zepto": false,
     "__webpack_public_path__": true,
     "_l": true,
     "delCookie": false,
     "getCookie": false,
-    "im": false,
-    "mOxie": false,
     "md": false,
-    "moxie": false,
     "plupload": false,
     "setCookie": false,
-    "stringToolMethod": false,
     "wx": false,
-    "System": true,
     "safeParse": true,
-    "safeParseArray": true,
-    "vm": true,
     "safeLocalStorageSetItem": true
   },
   "parser": "babel-eslint",

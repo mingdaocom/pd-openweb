@@ -75,16 +75,21 @@ export function getReTree(tree) {
 
 //根据controlId找到node
 function deepSearch(tree = [], controlId) {
-  for (let i = 0; i < tree.length; i++) {
-    const item = tree[i];
-    if (item.controlId === controlId) {
-      return item;
-    } else if (!_.isEmpty(item.relationControls)) {
-      const result = deepSearch(item.relationControls, controlId);
-      if (result) return result;
-    }
+  let results = null;
+
+  function recurse(nodes) {
+    nodes.forEach(node => {
+      if (node.controlId === controlId) {
+        results = node;
+      }
+      if (!_.isEmpty(node.relationControls)) {
+        recurse(node.relationControls);
+      }
+    });
   }
-  return null;
+
+  recurse(tree);
+  return results;
 }
 
 //根据controls获取controlName
@@ -93,7 +98,7 @@ export function getTextById(data, controls = [], actionType) {
   let currentArr = [];
   if (_.find(tree, i => i.sectionId)) return;
 
-  controls.map(controlsItem => {
+  controls.forEach(controlsItem => {
     const { childControlIds = [], controlId = '' } = controlsItem;
     const parentNode = deepSearch(tree, controlId);
     // 由于标签页内控件按普通字段存，父级名称得在查，特殊处理兼容

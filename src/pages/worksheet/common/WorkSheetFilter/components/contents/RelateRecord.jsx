@@ -72,7 +72,7 @@ export default class RelateRecord extends React.Component {
   }
 
   render() {
-    const { type, control, disabled } = this.props;
+    const { type, control, worksheetId, disabled } = this.props;
     const { records, selectRecordVisible } = this.state;
     return (
       <div className="worksheetFilterRelateRecordCondition">
@@ -89,6 +89,8 @@ export default class RelateRecord extends React.Component {
                 appId: control.appId,
                 viewId: control.viewId,
                 relateSheetId: control.dataSource,
+                controlId: control.controlId,
+                parentWorksheetId: worksheetId,
                 visible: true,
                 onOk: this.addRecord,
               });

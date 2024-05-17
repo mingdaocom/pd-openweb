@@ -77,8 +77,7 @@ rewrite (?i)^/auth/feishu /auth-feishu.html break;
 rewrite (?i)^/sso/dingding  /sso-dingding.html break;
 rewrite (?i)^/sso/sso  /sso-sso.html break;
 rewrite (?i)^/sso/workweixin  /sso-workweixin.html break;
-rewrite (?i)^/terms /agreenOrPrivacy.html break;
-rewrite (?i)^/privacy /agreenOrPrivacy.html break;
+rewrite (?i)^/legalportal /legalportal.html break;
 
 # 主站
 rewrite (?i)^/custom /index.html break;

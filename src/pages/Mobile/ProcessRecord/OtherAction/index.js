@@ -95,10 +95,10 @@ export default class extends Component {
     const submitFun = () => {
       if (this.signature) {
         this.signature.saveSignature(signature => {
-          this.props.onAction({ action, content, forwardAccountId, backFlowNode, signature, files: attachments });
+          this.props.onAction({ action, content, forwardAccountId, backNodeId: backFlowNode, signature, files: attachments });
         });
       } else {
-        this.props.onAction({ action, content, forwardAccountId, backFlowNode, signature: undefined, files: attachments });
+        this.props.onAction({ action, content, forwardAccountId, backNodeId: backFlowNode, signature: undefined, files: attachments });
       }
       if (this.isNoneVerification) {
         this.setState({ showPassword: false });

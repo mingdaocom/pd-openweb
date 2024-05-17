@@ -67,7 +67,6 @@ export default function Areas(props) {
 
   return (
     <CityPicker
-      popupClassName="as"
       search={keywords}
       destroyPopupOnHide
       defaultValue={undefined}

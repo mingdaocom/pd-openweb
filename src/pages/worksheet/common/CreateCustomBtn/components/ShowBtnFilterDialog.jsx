@@ -18,12 +18,22 @@ class ShowBtnFilterDialog extends React.Component {
   };
 
   render() {
-    const { setValue, isShowBtnFilterDialog, projectId, columns, sheetSwitchPermit, appId } = this.props;
+    const {
+      setValue,
+      isShowBtnFilterDialog,
+      projectId,
+      columns,
+      sheetSwitchPermit,
+      appId,
+      description = null,
+      title,
+    } = this.props;
     return (
       <Dialog
-        title={_l('筛选')}
+        title={title || _l('筛选')}
         okText={_l('确定')}
         cancelText={_l('取消')}
+        description={description}
         className="showBtnFilterDialog"
         onCancel={() => {
           setValue({

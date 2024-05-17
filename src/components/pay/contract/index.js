@@ -13,7 +13,6 @@ import './index.less';
 const contactInfo = [
   [
     { key: 'companyName', text: _l('组织全称') },
-    { key: 'city', text: _l('城市') },
   ],
   [
     { key: 'recipientName', text: _l('联系人姓名') },

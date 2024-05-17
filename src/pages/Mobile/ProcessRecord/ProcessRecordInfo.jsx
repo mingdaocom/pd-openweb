@@ -1,11 +1,13 @@
 import React, { Fragment, Component } from 'react';
 import { Icon } from 'ming-ui';
 import cx from 'classnames';
+import homeAppApi from 'src/api/homeApp';
 import worksheetApi from 'src/api/worksheet';
 import instanceVersionApi from 'src/pages/workflow/api/instanceVersion';
 import RecordInfo from 'mobile/components/RecordInfo/RecordInfo';
 import { Loading, Abnormal } from 'mobile/components/RecordInfo/RecordState';
 import WorkflowStepItem from 'mobile/ProcessRecord/WorkflowStepItem';
+import FixedPage from 'src/pages/Mobile/App/FixedPage';
 import Footer from './Footer';
 import {
   ACTION_TYPES,
@@ -19,7 +21,8 @@ export default class ProcessRecordInfo extends Component {
       error: false,
       errorMsg: '',
       workItem: {},
-      instance: {}
+      instance: {},
+      appInfo: {}
     }
   }
   processFooter = React.createRef();
@@ -27,7 +30,7 @@ export default class ProcessRecordInfo extends Component {
     this.getWorkItem();
   }
   getWorkItem() {
-    const { instanceId, workId } = this.props;
+    const { instanceId, workId, isModal } = this.props;
     Promise.all([
       worksheetApi.getWorkItem({
         instanceId,
@@ -39,11 +42,25 @@ export default class ProcessRecordInfo extends Component {
       })
     ]).then(data => {
       const [workItem, instance] = data;
-      this.setState({
-        loading: false,
-        workItem,
-        instance,
-      });
+      // 落地页，调用 app 接口获取状态
+      if (!isModal && _.get(instance, 'app.id')) {
+        homeAppApi.getApp({
+          appId: _.get(instance, 'app.id')
+        }).then(data => {
+          this.setState({
+            loading: false,
+            appInfo: data,
+            workItem,
+            instance,
+          });
+        });
+      } else {
+        this.setState({
+          loading: false,
+          workItem,
+          instance,
+        });
+      }
     }).catch(err => {
       this.setState({
         loading: false,
@@ -90,10 +107,16 @@ export default class ProcessRecordInfo extends Component {
   }
   render() {
     const { workId, instanceId, onClose } = this.props;
-    const { loading, workItem, instance, error, errorMsg } = this.state;
+    const { loading, workItem, instance, error, errorMsg, appInfo } = this.state;
 
     if (loading) {
       return <Loading />;
+    }
+
+    if (appInfo.webMobileDisplay) {
+      return (
+        <FixedPage isNoPublish={true} backVisible={false} />
+      );
     }
 
     if (error) {

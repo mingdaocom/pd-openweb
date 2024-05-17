@@ -483,9 +483,10 @@ export default class RecordInfo extends Component {
   };
   renderRecordBtns() {
     const { getDataType } = this.props;
-    const { isEditRecord, recordInfo, recordBase } = this.state;
+    const { formChanged, isEditRecord, recordInfo, recordBase } = this.state;
     return (
       <RecordFooter
+        formChanged={formChanged}
         isEditRecord={isEditRecord}
         isPublicShare={this.isPublicShare}
         recordBase={recordBase}

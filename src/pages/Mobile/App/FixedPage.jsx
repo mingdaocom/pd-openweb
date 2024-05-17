@@ -41,7 +41,7 @@ const FixedContent = styled.div`
 
 export default class FixedPage extends Component {
   render() {
-    const { fixAccount = {}, fixRemark, isNoPublish } = this.props;
+    const { fixAccount = {}, fixRemark, isNoPublish, backVisible = true } = this.props;
     const { fullName } = fixAccount;
     if (isNoPublish) {
       return (
@@ -53,13 +53,15 @@ export default class FixedPage extends Component {
             <div>{_l('应用未在此平台发布')}</div>
             <div>{_l('请至PC端使用')}</div>
           </div>
-          <Back
-            icon="home"
-            style={{ bottom: '20px' }}
-            onClick={() => {
-              window.mobileNavigateTo('/mobile/dashboard');
-            }}
-          />
+          {backVisible && (
+            <Back
+              icon="home"
+              style={{ bottom: '20px' }}
+              onClick={() => {
+                window.mobileNavigateTo('/mobile/dashboard');
+              }}
+            />
+          )}
         </FixedContent>
       );
     }
@@ -71,13 +73,15 @@ export default class FixedPage extends Component {
         <div className="Font18 mBottom20 fixeding">{_l('应用维护中...')}</div>
         <div className="fixedInfo mBottom20">{_l('该应用被%0设置为维护中状态,暂停访问', fullName)}</div>
         <div className="fixRemark">{fixRemark}</div>
-        <Back
-          icon="home"
-          style={{ bottom: '20px' }}
-          onClick={() => {
-            window.mobileNavigateTo('/mobile/dashboard');
-          }}
-        />
+        {backVisible && (
+          <Back
+            icon="home"
+            style={{ bottom: '20px' }}
+            onClick={() => {
+              window.mobileNavigateTo('/mobile/dashboard');
+            }}
+          />
+        )}
       </FixedContent>
     );
   }

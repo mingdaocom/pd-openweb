@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useState, useRef } from 'react';
 import { Checkbox, Tooltip } from 'ming-ui';
 import { Input } from 'antd';
 import styled from 'styled-components';
@@ -48,6 +48,8 @@ export default function VerifyPasswordInput(props) {
   } = props;
   const mobilePhone = md.global.Account.mobilePhone.replace(/((\+86)?\d{3})\d*(\d{4})/, '$1****$3');
   const email = md.global.Account.email.replace(/(.{3}).*(@.*)/, '$1***$2');
+  const [isNoneVerification, setIsNoneVerification] = useState(false);
+  const passWordRef = useRef(null);
 
   const settingBtns = () => {
     return (
@@ -68,7 +70,11 @@ export default function VerifyPasswordInput(props) {
         <Checkbox
           className="InlineBlock TxtTop Gray"
           text={_l('一小时内免验证')}
-          onClick={checked => onChange({ isNoneVerification: checked })}
+          checked={isNoneVerification}
+          onClick={checked => {
+            setIsNoneVerification(!checked);
+            onChange({ isNoneVerification: !checked, password: passWordRef.current.input.value });
+          }}
         />
       </span>
     );
@@ -122,10 +128,11 @@ export default function VerifyPasswordInput(props) {
         <input type="text" />
       </div>
       <Password
+        ref={passWordRef}
         autoFocus={autoFocus}
         autoComplete="new-password"
         placeholder={_l('请输入当前用户的密码')}
-        onChange={e => onChange({ password: e.target.value })}
+        onChange={e => onChange({ password: e.target.value, isNoneVerification })}
       />
 
       {/* 一小时免验证 */}

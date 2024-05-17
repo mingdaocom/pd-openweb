@@ -1,40 +1,97 @@
 import { getPssId } from 'src/util/pssId';
 import langConfig from './langConfig';
 import { antAlert, destroyAlert } from 'src/util/antdWrapper';
-import _, { get } from 'lodash';
+import _, { get, isFunction, isObject, some } from 'lodash';
 import moment from 'moment';
-import axios from 'axios';
+import baseAxios from 'axios';
 import qs from 'query-string';
 import localForage from 'localforage';
 import versionApi from 'src/api/version';
+import CryptoJS from 'crypto-js';
+import { PUBLIC_KEY } from 'src/util/enum';
+
+const axios = baseAxios.create();
+
+function testApiPath(apiPath, url) {
+  const apiPathOfRequest = new URL(location.origin + url).pathname;
+  return new RegExp(apiPath + '$').test(apiPathOfRequest);
+}
+
+function changeRequestData(config, apiPath, changes = {}) {
+  const needChange = isFunction(apiPath) ? apiPath() : testApiPath(apiPath, config.url);
+  if (needChange) {
+    if (isFunction(changes)) {
+      config.data = changes(config.data);
+    } else if (isObject(changes)) {
+      config.data = {
+        ...config.data,
+        ...changes,
+      };
+    }
+  }
+}
+
+axios.interceptors.request.use(
+  config => {
+    try {
+      changeRequestData(
+        config,
+        () =>
+          some(
+            [
+              'Worksheet/AddWorksheetRow',
+              'Worksheet/UpdateWorksheetRow',
+              'process/startProcessByPBC',
+              'process/startProcess',
+            ].map(apiPath => testApiPath(apiPath, config.url)),
+          ),
+        {
+          pushUniqueId: get(md, 'global.Config.pushUniqueId'),
+        },
+      );
+    } catch (err) {
+      console.error(err);
+    }
+    return config;
+  },
+  error => {
+    return Promise.reject(error);
+  },
+);
 
 /**
  * 获取当前语言
  */
-window.getCurrentLang = () => {
+window.getCurrentLang = (hasDefault = true) => {
   const currentLang = getCookie('i18n_langtag');
-  const lang = navigator.language;
-  let langKey = 'zh-Hans';
 
   if (currentLang) {
     return currentLang;
   }
 
-  if (lang.substr(0, 2) === 'en') {
-    langKey = 'en';
-  } else {
-    switch (lang) {
-      case 'zh-TW':
-      case 'zh-HK':
-      case 'zh-Hant':
-        langKey = 'zh-Hant';
-        break;
-      case 'ja':
-        langKey = 'ja';
-    }
+  let langKey;
+
+  switch (navigator.language) {
+    case 'zh-CN':
+    case 'zh_cn':
+    case 'zh-CN':
+    case 'zh-SG':
+    case 'zh_sg':
+      langKey = 'zh-Hans';
+      break;
+    case 'zh-TW':
+    case 'zh-HK':
+    case 'zh-Hant':
+      langKey = 'zh-Hant';
+      break;
+    case 'ja':
+      langKey = 'ja';
+      break;
+    default:
+      langKey = hasDefault ? 'en' : '';
   }
 
-  setCookie('i18n_langtag', langKey);
+  langKey && setCookie('i18n_langtag', langKey);
 
   return langKey;
 };
@@ -44,10 +101,10 @@ window.getCurrentLang = () => {
  */
 window.getCurrentLangCode = lang => {
   if (!lang) {
-    lang = getCurrentLang();
+    lang = getCurrentLang(false);
   }
 
-  return _.find(langConfig, o => o.key === lang).code;
+  return (_.find(langConfig, o => o.key === lang) || {}).code;
 };
 
 /**
@@ -194,6 +251,8 @@ window.md = {
       brandLogoUrl: '',
       hideBrandName: false,
       forbidSuites: '',
+      enableFooterInfo: false, //登录页底部信息
+      footerThemeColor: '', //登录页底部颜色
     },
   },
 };
@@ -317,15 +376,6 @@ window.safeLocalStorageSetItem = (...args) => {
   } catch (err) {
     console.log(err);
   }
-};
-
-/**
- * 安全地解析字符串为数组
- * @param {string} str - 要解析的字符串
- * @returns {Array} - 解析结果或空数组
- */
-window.safeParseArray = str => {
-  return window.safeParse(str, 'array');
 };
 
 /**
@@ -537,6 +587,26 @@ const insertLocalData = ({ key, moduleType, sourceId, extraKey, version, data })
 };
 
 /**
+ * 接口数据解密
+ */
+const interfaceDataDecryption = source => {
+  const { data, key, encrypted } = source || {};
+
+  if (encrypted) {
+    const decrypted = CryptoJS.AES.decrypt(data, CryptoJS.enc.Utf8.parse(key), {
+      iv: CryptoJS.enc.Utf8.parse(PUBLIC_KEY.replace(/\r|\n/, '').slice(26, 42)),
+    });
+
+    // 返回解密后的数据
+    return {
+      data: JSON.parse(decrypted.toString(CryptoJS.enc.Utf8)),
+    };
+  }
+
+  return source;
+};
+
+/**
  * 请求 API 接口
  * @param  {String} controllerName 模块名称
  * @param  {String} actionName     操作名称
@@ -571,7 +641,7 @@ window.mdyAPI = (controllerName, actionName, requestData, options = {}) => {
       if (responseData.exception) {
         !options.silent && alert(responseData.exception, 2);
       } else {
-        return responseData.data;
+        return interfaceDataDecryption(responseData).data;
       }
     } else {
       !options.silent && alert(responseData.exception, 2);
@@ -612,8 +682,10 @@ window.mdyAPI = (controllerName, actionName, requestData, options = {}) => {
           !options.silent && alert(responseData.exception, 2);
           reject({ errorCode: responseData.state, errorMessage: responseData.exception, errorData: responseData });
         } else {
-          insertLocalData({ key, moduleType, sourceId, extraKey, version, data: responseData.data });
-          resolve(responseData.data);
+          const { data } = interfaceDataDecryption(responseData);
+
+          insertLocalData({ key, moduleType, sourceId, extraKey, version, data });
+          resolve(data);
         }
       })
       .catch(error => {
@@ -626,7 +698,7 @@ window.mdyAPI = (controllerName, actionName, requestData, options = {}) => {
         ) {
           if (_.get(md, 'global.Account.accountId') && location.href.indexOf('mobile') === -1) {
             import('../pages/PageHeader/components/NetState').then(netState => {
-              netState.default(error.response.data.data);
+              netState.default(interfaceDataDecryption(error.response.data).data);
             });
           }
         }
@@ -668,10 +740,11 @@ window.mdyAPI = (controllerName, actionName, requestData, options = {}) => {
   if (!!currentLang) {
     const xhrObj = new XMLHttpRequest();
     const script = document.createElement('script');
-    const path = !location.href.match(/mingdao\.com|share\.mingdao\.net/)
-      ? currentLang.path
-      : currentLang.path.replace('/staticfiles/lang', '/locale') +
-        `?${moment().format('YYYY_MM_DD_') + Math.floor(moment().hour() / 6)}`;
+    const path =
+      (!location.href.match(/mingdao\.com|share\.mingdao\.net/)
+        ? currentLang.path
+        : currentLang.path.replace('/staticfiles/lang', '/locale')) +
+      `?${moment().format('YYYY_MM_DD_') + Math.floor(moment().hour() / 6)}`;
 
     xhrObj.open('GET', path, false);
     xhrObj.send('');

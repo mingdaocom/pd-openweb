@@ -12,6 +12,9 @@ const portRegExp = new RegExp(
 );
 
 const FormBox = styled.div`
+  flex: 1;
+  min-height: 0;
+  padding: 0 32px;
   .formModuleTitle {
     color: #333333;
     font-size: 15px;

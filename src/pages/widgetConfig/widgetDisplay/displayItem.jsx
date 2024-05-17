@@ -3,7 +3,7 @@ import { useDrop, useDrag } from 'react-dnd-latest';
 import update from 'immutability-helper';
 import styled from 'styled-components';
 import cx from 'classnames';
-import { includes, head, some, pick, get, last, isEmpty, find, flatten } from 'lodash';
+import _, { includes, head, some, pick, get, last, isEmpty, find, flatten } from 'lodash';
 import { DRAG_ITEMS, WHOLE_SIZE, DRAG_MODE, DRAG_DISTANCE, DRAG_ACCEPT } from '../config/Drag';
 import {
   resetWidgets,
@@ -373,7 +373,7 @@ export default function DisplayItem(props) {
       }
 
       // 如果当前行只有一个控件 直接删掉当前行
-      if (widgets[row].length < 2) {
+      if (_.get(widgets[row], 'length') < 2) {
         return update(widgets, { $splice: [[row, 1]] });
       }
       // 删掉当前控件 并重新设置其他控件size

@@ -548,7 +548,6 @@ class PrintForm extends React.Component {
   handChange = changeData => {
     this.setState({
       printData: Object.assign(this.state.printData, changeData),
-      // printData: printData,
       isChange: true,
     });
   };
@@ -567,12 +566,12 @@ class PrintForm extends React.Component {
     this.setState({
       saveLoading: true,
     });
-    const { name, views, orderNumber, titleChecked, receiveControls } = printData;
+    const { name, views, orderNumber, titleChecked, receiveControls, approval = [] } = printData;
     if (!_.trim(name)) {
       alert(_l('请输入模板名称'), 3);
       return;
     }
-    const { printId, projectId, worksheetId } = params;
+    const { printId, projectId, worksheetId, type } = params;
     let controls = [];
     receiveControls.map(o => {
       if (o.checked) {
@@ -595,8 +594,8 @@ class PrintForm extends React.Component {
       }
     });
     let approvalIds = [];
-    if (printData.approval.length) {
-      printData.approval.forEach(item => {
+    if (approval.length) {
+      approval.forEach(item => {
         if (item.checked) {
           approvalIds.push(item.processId);
         } else if (item.child.some(l => l.checked)) {
@@ -641,8 +640,9 @@ class PrintForm extends React.Component {
             'approvePosition',
             'allowDownloadPermission',
             'filters',
+            'advanceSettings',
           ]),
-          approvalIds: approvalIds,
+          approvalIds: type === 'edit' && !approval.length ? printData.approvalIds : approvalIds,
           projectId,
           worksheetId,
           views: typeof views[0] === 'string' ? views : views.map(it => it.viewId), // string??

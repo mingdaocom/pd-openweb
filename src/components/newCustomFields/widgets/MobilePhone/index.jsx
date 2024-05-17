@@ -141,7 +141,7 @@ export default class Widgets extends Component {
     } else {
       value = this.iti.getNumber();
     }
-    this.setState({ originValue: value });
+    this.setState({ originValue: value, isEditing: true });
   };
 
   onChange = () => {
@@ -228,7 +228,10 @@ export default class Widgets extends Component {
           <ClickAwayable onClickAway={() => this.setState({ isEditing: false })}>
             <input
               type="tel"
-              className={cx(inputClassName || 'customFormControlBox', { controlDisabled: disabled })}
+              className={cx(inputClassName || 'customFormControlBox', {
+                controlDisabled: disabled,
+                customFormPhoneBox: !isEditing && itiWidth && !browserIsMobile(),
+              })}
               ref={input => {
                 this.input = input;
               }}
@@ -243,12 +246,11 @@ export default class Widgets extends Component {
           </ClickAwayable>
         </PhoneWrap>
 
-        {(_.get(this.props, 'advancedSetting.datamask') === '1' ? maskPermissions && value : !!value) &&
-          (_.includes([FROM.H5_ADD, FROM.H5_EDIT], from) || (browserIsMobile() && disabled)) && (
-            <a href={`tel:${value}`} className="Absolute customFormControlTelBtn" style={{ right: 0, top: 10 }}>
-              <Icon icon="phone22" className="Font16 ThemeColor3" />
-            </a>
-          )}
+        {maskPermissions && value && browserIsMobile() && (
+          <a href={`tel:${value}`} className="Absolute customFormControlTelBtn" style={{ right: 0, top: 10 }}>
+            <Icon icon="phone22" className="Font16 ThemeColor3" />
+          </a>
+        )}
       </div>
     );
   }

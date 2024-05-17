@@ -6,6 +6,12 @@ export default {
     color: '#333',
     lineHeight: 1.5,
   },
+  p: {
+    fontFamily:
+      '"Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif',
+    color: '#333',
+    lineHeight: 1.5,
+  },
   img: {
     border: 'none',
   },
@@ -63,7 +69,7 @@ export default {
     fontSize: 18,
     fontWeight: 'bold',
     margin: 0,
-    marginTop: 25,
+    marginTop: 20,
   },
   sysBox_span: {
     display: 'inline-block',
@@ -107,17 +113,14 @@ export default {
     verticalAlign: 'top',
   },
   controlDiv_span_value: {
-    paddingLeft: 24,
-    paddingRight: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
     boxSizing: 'border-box',
-    width: 650,
     whiteSpace: 'pre-wrap',
   },
   controlDiv_span_title: {
     paddingLeft: 5,
-    width: 78,
-    minWidth: 78,
-    maxWidth: 78,
+    // width: 78,
     boxSizing: 'border-box',
     verticalAlign: 'top',
   },
@@ -165,8 +168,8 @@ export default {
   },
   relationsListLi_value: {
     display: 'inline-block',
-    paddingLeft: 24,
-    paddingRight: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
     boxSizing: 'border-box',
     width: 650,
     whiteSpace: 'pre-wrap',
@@ -240,5 +243,16 @@ export default {
     fontWeight: 400,
     whiteSpace: 'pre-wrap',
     background: '#fafafa',
+  },
+  fromName: {
+    fontSize: 24,
+    color: '#333',
+    fontWeight: 'bold',
+    margin: '10px 0 0 0',
+  },
+  sysField: {
+    margin: '16px 0 0 0',
+    padding: 0,
+    lineHeight: 1.5,
   },
 };

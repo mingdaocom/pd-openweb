@@ -58,7 +58,7 @@ export default class ApplyPrivateKey extends Component {
           alert(_l('密钥申请失败'), 2);
         }
       })
-      .fail(({ errorMessage }) => {
+      .catch(({ errorMessage }) => {
         if (errorMessage === 'community exists' || errorMessage === 'professional trial exists') {
           alert(_l('密钥申请失败，该服务器ID已申请过密钥'), 2);
         } else {

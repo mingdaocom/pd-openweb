@@ -23,6 +23,8 @@ export default function RowDetailModal(props) {
   const rowId = data.rowid || '';
   const type = mobileIsEdit ? (rowId.includes('temp') || rowId.includes('default')) ? 'new' : 'edit' : 'edit';
   const disabled = mobileIsEdit ? props.disabled : true;
+  const isFormChanged = _.get(formContent.current || {}, 'state.formChanged');
+
   const content = (
     <div className="rowDetailCon flexColumn" style={{ height: '100%' }}>
       <div className={cx('header flexRow valignWrapper', type)}>
@@ -30,12 +32,16 @@ export default function RowDetailModal(props) {
         {['edit', 'new'].includes(type) && (
           <div className="pRight10">
             <i
-              className={cx('headerBtn icon icon-arrow-up-border mRight8 Font18', { Gray_df: switchDisabled.prev })}
-              onClick={() => !switchDisabled.prev && onSwitch({ prev: true })}
+              className={cx('headerBtn icon icon-arrow-up-border mRight8 Font18', {
+                Gray_df: switchDisabled.prev && !isFormChanged,
+              })}
+              onClick={() => !switchDisabled.prev && !isFormChanged && onSwitch({ prev: true })}
             ></i>
             <i
-              className={cx('headerBtn icon icon-arrow-down-border Font18', { Gray_df: switchDisabled.next })}
-              onClick={() => !switchDisabled.next && onSwitch({ next: true })}
+              className={cx('headerBtn icon icon-arrow-down-border Font18', {
+                Gray_df: switchDisabled.next && !isFormChanged,
+              })}
+              onClick={() => !switchDisabled.next && !isFormChanged && onSwitch({ next: true })}
             ></i>
           </div>
         )}

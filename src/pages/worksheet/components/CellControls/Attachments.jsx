@@ -9,7 +9,7 @@ import { permitList } from 'src/pages/FormSet/config.js';
 import UploadFilesTrigger from 'src/components/UploadFilesTrigger';
 import { deleteAttachmentOfControl } from 'worksheet/api';
 import { openControlAttachmentInNewTab, downloadAttachmentById } from 'worksheet/controllers/record';
-import { getClassNameByExt, formatFileSize, addBehaviorLog } from 'src/util';
+import { getClassNameByExt, formatFileSize, addBehaviorLog, browserIsMobile } from 'src/util';
 import { bool, func, number, shape, string } from 'prop-types';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import _ from 'lodash';
@@ -457,7 +457,7 @@ function Attachment(props) {
   }, [attachment.ext]);
   return (
     <Trigger
-      action={['hover']}
+      action={browserIsMobile() ? [] : ['hover']}
       popup={
         <HoverPreviewPanel
           isPicture={isPicture}

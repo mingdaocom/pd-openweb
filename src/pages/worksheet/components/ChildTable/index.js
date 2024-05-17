@@ -1,6 +1,6 @@
 import React from 'react';
 import { Provider, connect } from 'react-redux';
-import _ from 'lodash';
+import _, { isFunction } from 'lodash';
 import ChildTable from './ChildTable';
 import generateStore from './redux/store';
 import './style.less';
@@ -58,9 +58,15 @@ export default class extends React.Component {
     }
   }
 
+  componentWillUnmount() {
+    if (isFunction(this.unsubscribe)) {
+      this.unsubscribe();
+    }
+  }
+
   bindSubscribe() {
     const { onChange } = this.props;
-    this.store.subscribe(() => {
+    this.unsubscribe = this.store.subscribe(() => {
       const state = this.store.getState();
       onChange({
         rows: state.rows,

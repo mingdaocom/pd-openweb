@@ -1,8 +1,8 @@
 @font-face {
   font-family: "MD_Icon"; /* Project id 2032949 */
-  src: url('iconfont.woff2?t=1713174116881') format('woff2'),
-       url('iconfont.woff?t=1713174116881') format('woff'),
-       url('iconfont.ttf?t=1713174116881') format('truetype');
+  src: url('iconfont.woff2?t=1715264726683') format('woff2'),
+       url('iconfont.woff?t=1715264726683') format('woff'),
+       url('iconfont.ttf?t=1715264726683') format('truetype');
 }
 
 .MD_Icon {
@@ -13,12 +13,40 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-database:before {
-  content: "\e9ba";
+.icon-menu_book:before {
+  content: "\eb33";
 }
 
-.icon-a-1V1:before {
-  content: "\e67e";
+.icon-network_disconnection:before {
+  content: "\e64d";
+}
+
+.icon-preview_unsuccessful:before {
+  content: "\ebae";
+}
+
+.icon-pause:before {
+  content: "\ec9d";
+}
+
+.icon-AI_image:before {
+  content: "\ec8a";
+}
+
+.icon-zhifubao:before {
+  content: "\e64b";
+}
+
+.icon-arrow_loop:before {
+  content: "\eb16";
+}
+
+.icon-text_ai:before {
+  content: "\eb32";
+}
+
+.icon-database:before {
+  content: "\e9ba";
 }
 
 .icon-drill_down:before {
@@ -3913,7 +3941,7 @@
   content: "\eb44";
 }
 
-.icon-new_mail-copy:before {
+.icon-new_mail:before {
   content: "\ecc8";
 }
 

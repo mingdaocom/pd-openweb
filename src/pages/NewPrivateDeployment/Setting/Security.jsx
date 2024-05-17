@@ -339,7 +339,47 @@ const UserPassword = props => {
       {passwordRule()}
       <Divider className="mTop20 mBottom20" />
       {renderAllowLoginSameTime()}
-      <Divider className="mTop20 mBottom20" />
+    </div>
+  );
+};
+
+const RequiredStrictVerification = props => {
+  const { SysSettings } = md.global;
+  const [enableRequiredStrictVerification = false, setEnableRequiredStrictVerification] = useState(
+    SysSettings.enableRequiredStrictVerification,
+  );
+  return (
+    <div className="privateCardWrap flexColumn">
+      <div className="flexRow valignWrapper">
+        <div className="flex flexColumn mRight60">
+          <div className="Font17 bold mBottom10">{_l('平台内接口严格鉴权')}</div>
+          <div className="Gray_9e">
+            {_l(
+              '平台中部分功能需要在未鉴权的情况下获取接口信息。包含：显示关联表的字段结构；对外公开分享、查询和填写。这些请求只在使用对应功能时发生，不会影响数据安全。',
+            )}
+          </div>
+          <div className="Gray_9e">
+            {_l(
+              '如果你需要所有接口严格鉴权，可以启用此配置。启用后，在无关联表权限时将无法显示关联表字段；对外公开分享、查询和填写功能都仅支持平台内用户登录后使用。',
+            )}
+          </div>
+        </div>
+        <Switch
+          checked={enableRequiredStrictVerification}
+          onClick={value => {
+            value = !value;
+            updateSysSettings(
+              {
+                enableRequiredStrictVerification: value,
+              },
+              () => {
+                setEnableRequiredStrictVerification(value);
+                md.global.SysSettings.enableRequiredStrictVerification = value;
+              },
+            );
+          }}
+        />
+      </div>
     </div>
   );
 };
@@ -349,6 +389,7 @@ export default props => {
     <Fragment>
       <Register {...props} />
       <UserPassword {...props} />
+      <RequiredStrictVerification {...props} />
     </Fragment>
   );
 };

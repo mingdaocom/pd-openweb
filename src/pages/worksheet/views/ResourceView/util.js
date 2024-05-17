@@ -210,7 +210,7 @@ export const formatRecordPoint = (row, view, list = [], controls, currentTime) =
   const right = Math.floor((end > 0 ? end : 0) * W);
   width = right - left;
   let text = renderTitle(row, controls);
-  if (!isDateStart) {
+  if (!isDateStart && type === 'Month') {
     const isHour24 = _.get(view, 'advancedSetting.hour24') === '1';
     const startT = moment(row.startTime).format(isHour24 ? 'H:mm' : 'h:mm');
     const h = moment(row.startTime).format('H');

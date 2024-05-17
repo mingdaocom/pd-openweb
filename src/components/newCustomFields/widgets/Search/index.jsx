@@ -80,6 +80,7 @@ export default class Widgets extends Component {
       projectId,
       appId,
       type,
+      getControlRef,
     } = this.props;
     const { keywords } = this.state;
 
@@ -94,7 +95,7 @@ export default class Widgets extends Component {
     }
 
     this.setState({ loading: true, open: true });
-    const paramsData = getParamsByConfigs(requestMap, formData, keywords);
+    const paramsData = getParamsByConfigs(requestMap, formData, keywords, getControlRef);
 
     let params = {
       data: !requestMap.length || _.isEmpty(paramsData) ? '' : paramsData,

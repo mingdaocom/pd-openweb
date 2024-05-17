@@ -81,10 +81,10 @@ export const formatPortalData = (currentData) => {
         if ('portal_status' === o.controlId) {
           return {
             ...da,
-            options: !safeParseArray(o.value).includes('5')
+            options: !safeParse(o.value, 'array').includes('5')
               ? o.options.filter(it => it.key !== '5')
               : o.options,
-            disabled: safeParseArray(o.value).includes('5'),
+            disabled: safeParse(o.value, 'array').includes('5'),
           };
         } else {
           return da;

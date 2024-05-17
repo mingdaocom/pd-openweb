@@ -197,9 +197,10 @@ export default {
   * @param {string} args.jobType 职级类型
   * @param {string} args.code 授权code方式
   * @param {string} args.unionId 第3方
-  * @param {string} args.state 第3方
+  * @param {string} args.state 第3方传递值
   * @param {} args.tpType
   * @param {integer} args.isInterested 是否对伙伴计划感兴趣
+  * @param {string} args.extraDatas 组织额外注册信息
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

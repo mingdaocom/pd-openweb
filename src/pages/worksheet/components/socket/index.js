@@ -52,7 +52,12 @@ export default function initWorksheetSocket() {
 
   if (!socket) return;
   socket.on('workflow', data => {
-    const { status, type, worksheetId, rowId, storeId, total, finished, title, executeType, close } = data;
+    const { pushUniqueId, status, type, worksheetId, rowId, storeId, total, finished, title, executeType, close } =
+      data;
+
+    if (pushUniqueId && pushUniqueId !== md.global.Config.pushUniqueId) {
+      return;
+    }
 
     if (status === 2 || ((type === 4 || type === 3) && status === 1)) {
       emitter.emit('RELOAD_RECORD_INFO', {

@@ -201,6 +201,7 @@ export default function FilterDetail(props) {
               isSingleFilter={isSingleFilter}
               canEdit={isNew ? true : canEdit}
               appId={appId}
+              worksheetId={worksheetId}
               showCustom={showCustom}
               projectId={projectId}
               isGroup={filter.isGroup}

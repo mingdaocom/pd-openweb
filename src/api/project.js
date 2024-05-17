@@ -31,8 +31,10 @@ export default {
   * @param {string} args.companyName 公司名称
   * @param {string} args.companyDisplayName 公司显示名称
   * @param {string} args.companyNameEnglish 公司英文名称
-  * @param {integer} args.geographyId 地理位置id
-  * @param {integer} args.industryId 行业id
+  * @param {integer} args.geographyId 组织所属区域
+非必选
+  * @param {integer} args.industryId 组织所属行业
+非必选
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

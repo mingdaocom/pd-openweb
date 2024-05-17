@@ -13,7 +13,14 @@ import { permitList } from 'src/pages/FormSet/config.js';
 import _ from 'lodash';
 import moment from 'moment';
 import { verifyPassword } from 'src/util';
-import { SPECIAL_LANG_TEXT } from 'src/util/enum';
+
+// 处理特殊多语言文本
+const SPECIAL_LANG_TEXT = {
+  通过: _l('通过'),
+  否决: _l('否决'),
+  退回: _l('退回'),
+  提交: _l('提交'),
+};
 
 export default class Header extends Component {
   static propTypes = {

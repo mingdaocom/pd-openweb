@@ -130,16 +130,25 @@ export default class AccountChart extends React.Component {
           <div className="enterpriseHeader">
             <div className="Gray Font17 Bold">{_l('我的组织')}</div>
             <div className="flexRow">
-              <div className="Gray_75 Font14 Hand Relative LineHeight32" onClick={() => this.handleInvitation()}>
+              <div
+                className="Gray_75 Font14 Hand Relative LineHeight32 mRight40"
+                onClick={() => this.handleInvitation()}
+              >
                 <span className="hover_blue">{_l('我的受邀信息')}</span>
                 <span className={cx('invitationNew', { Hidden: !authCount })}>{authCount}</span>
               </div>
-              {((md.global.Config.IsLocal && md.global.Account.superAdmin) || !md.global.Config.IsLocal) && (
-                <div className="Font14 Hand mLeft40 mRight30 itemCreat" onClick={() => this.handleCreate()}>
+              {(!md.global.Config.IsLocal ||
+                md.global.Account.superAdmin ||
+                md.global.SysSettings.enableCreateProject) && (
+                <div className="Font14 Hand itemCreat" onClick={() => this.handleCreate()}>
                   {_l('创建组织')}
                 </div>
               )}
-              <button type="button" className="ming Button Button--primary itemJoin" onClick={() => this.handleAdd()}>
+              <button
+                type="button"
+                className="ming Button Button--primary itemJoin mLeft30"
+                onClick={() => this.handleAdd()}
+              >
                 {_l('加入组织')}
               </button>
             </div>

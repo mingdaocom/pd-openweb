@@ -1,18 +1,13 @@
 import React, { Component } from 'react';
 import Dialog from 'ming-ui/components/Dialog/Dialog';
-import CityPicker from 'ming-ui/components/CityPicker';
-import { Select } from 'antd';
 import classNames from 'classnames';
 import projectController from 'src/api/project';
 import fixedDataAjax from 'src/api/fixedData.js';
-
 import './common.less';
 import _ from 'lodash';
 
 const dialogTitle = {
   1: _l('修改组织名称'),
-  2: _l('所在地'),
-  3: _l('设置所在行业'),
 };
 
 const checkFuncs = {
@@ -44,8 +39,6 @@ export default class SetInfoDialog extends Component {
       errors: {},
       industryId: this.props.industryId,
       geographyId: this.props.geographyId,
-      geographyName: this.props.geographyName,
-      industryName: this.props.industryName,
     };
   }
 
@@ -148,79 +141,12 @@ export default class SetInfoDialog extends Component {
     );
   };
 
-  // 地址设置
-  valueUpdate(data) {
-    if (data && data.length) {
-      this.setState({
-        geographyName: data.map(item => item.name).join('/'),
-        geographyId: _.get(data[data.length - 1], 'id'),
-      });
-    }
-  }
-
-  renderOrgGeography() {
-    const { geographyName } = this.state;
-    return (
-      <CityPicker
-        callback={data => {
-          this.valueUpdate(data);
-        }}
-      >
-        <input
-          type="text"
-          placeholder={_l('请选择所在地')}
-          value={geographyName}
-          className="ming Input w100"
-          readOnly
-        />
-      </CityPicker>
-    );
-  }
-
-  //行业
-  handleIndustryChange(value, item) {
-    this.setState({
-      industryId: value,
-      industryName: item.children,
-    });
-  }
-
-  renderOrgIndustry() {
-    const industryId = this.state.industryId ? this.state.industryId + '' : undefined;
-    const { industries } = this.props;
-    return (
-      <Select
-        className="w100"
-        placeholder={_l('请选择所在行业')}
-        value={industryId}
-        onChange={this.handleIndustryChange.bind(this)}
-      >
-        {industries &&
-          industries.map(item => {
-            return (
-              <Select.Option value={item.id} key={item.id}>
-                {item.name}
-              </Select.Option>
-            );
-          })}
-      </Select>
-    );
-  }
-
   // 公共
   handleFieldSubmit() {
     if (this.state.errors && _.keys(this.state.errors).length) {
       return;
     }
-    const {
-      companyDisplayName,
-      companyNameEnglish,
-      companyName,
-      industryName,
-      industryId,
-      geographyName,
-      geographyId,
-    } = this.state;
+    const { companyDisplayName, companyNameEnglish, companyName, industryId, geographyId } = this.state;
     Promise.all([
       fixedDataAjax.checkSensitive({ content: companyDisplayName }),
       fixedDataAjax.checkSensitive({ content: companyName }),
@@ -244,9 +170,7 @@ export default class SetInfoDialog extends Component {
                 companyNameEnglish,
                 companyName,
                 industryId,
-                industryName,
                 geographyId,
-                geographyName,
               });
               alert(_l('设置成功'));
             } else if (data == 3) {
@@ -263,10 +187,6 @@ export default class SetInfoDialog extends Component {
     switch (this.props.visibleType) {
       case 1:
         return this.renderOrgName();
-      case 2:
-        return this.renderOrgGeography();
-      case 3:
-        return this.renderOrgIndustry();
     }
   }
 

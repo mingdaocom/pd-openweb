@@ -113,10 +113,10 @@ const RecycleBin = props => {
         <div>{_l('%0天', sysSettings.appRecycleDays)}</div>
       </div>
       <div className="flexRow valignWrapper mBottom15">
-        <div style={style} className="Gray_75">{_l('工作表数据')}</div><div>{_l('%0天', sysSettings.worksheetRowRecycleDays)}</div>
+        <div style={style} className="Gray_75">{_l('应用项')}</div><div>{_l('%0天', sysSettings.appItemRecycleDays)}</div>
       </div>
       <div className="flexRow valignWrapper mBottom15">
-        <div style={style} className="Gray_75">{_l('应用备份文件')}</div><div>{_l('%0天', sysSettings.appBackupRecycleDays)}</div>
+        <div style={style} className="Gray_75">{_l('工作表数据')}</div><div>{_l('%0天', sysSettings.worksheetRowRecycleDays)}</div>
       </div>
       <div className="mTop5">
         <Button
@@ -144,7 +144,7 @@ const RecycleBin = props => {
 const AppBackup = props => {
   const { SysSettings } = md.global;
   const [appBackupRecycleDays, setAppBackupRecycleDays] = useState(SysSettings.appBackupRecycleDays);
-  const [enableBackupWorksheetData, setEnableBackupWorksheetData] = useState(SysSettings.enableBackupWorksheetData);
+  const [enableBackupWorksheetData = false, setEnableBackupWorksheetData] = useState(SysSettings.enableBackupWorksheetData);
 
   const style = { width: 120 };
 
@@ -171,7 +171,7 @@ const AppBackup = props => {
         />
         <span>{_l('天')}</span>
       </div>
-      {/*<div className="flexRow valignWrapper">
+      {<div className="flexRow valignWrapper">
         <Checkbox
           text={_l('允许数据备份')}
           checked={enableBackupWorksheetData}
@@ -182,7 +182,7 @@ const AppBackup = props => {
         <Tooltip title={_l('允许后，可选择在备份应用的同时备份数据')} placement="bottom">
           <Icon className="Font16 Gray_bd pointer mLeft3" icon="info_outline" />
         </Tooltip>
-        </div>*/}
+        </div>}
     </div>
   );
 };

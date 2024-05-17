@@ -344,7 +344,12 @@ function DoubleConfirm(props) {
               return;
             }
             if (verifyPwd && needPassWord) {
+              if (!password || !password.trim()) {
+                alert(_l('请输入密码'), 3);
+                return;
+              }
               verifyPassword({
+                projectId,
                 password,
                 isNoneVerification,
                 closeImageValidation: true,

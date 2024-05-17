@@ -236,42 +236,17 @@ export default class RelateRecordCards extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const {
-      control: { relationControls = [], showControls = [], value, from, disabled },
-    } = nextProps;
     const control = nextProps.control || {};
     if (this.props.control.dataSource !== nextProps.control.dataSource) {
+      const {
+        control: { relationControls = [], showControls = [] },
+      } = nextProps;
       const hasRelateControl = this.hasRelateControl(relationControls, showControls);
-
-      if (browserIsMobile() && _.includes([FROM.H5_EDIT, FROM.H5_ADD, FROM.RECORDINFO], from) && !disabled) {
-        if (!value || _.isNumber(value)) {
-          this.setState({ records: [], count: 0, addedIds: [], deletedIds: [] }, () => {
-            this.loadControls(nextProps);
-            this.loadMoreRecords(1, nextProps);
-          });
-        } else {
-          this.loadControls(nextProps);
-          this.setState({ records: nextProps.records, count: nextProps.records.length });
-        }
-        return;
-      }
-
-      if (hasRelateControl) {
+      if (hasRelateControl || (browserIsMobile() && _.includes([FROM.H5_EDIT, FROM.RECORDINFO], control.from))) {
         this.setState({ sheetTemplateLoading: true });
-      }
-    } else if (browserIsMobile() && _.includes([FROM.H5_EDIT, FROM.H5_ADD, FROM.RECORDINFO], from) && !disabled) {
-      if (!value || _.isNumber(value)) {
-        this.setState({ records: [], count: 0, addedIds: [], deletedIds: [] }, () => {
-          this.loadControls(nextProps);
-          this.loadMoreRecords(1, nextProps);
-        });
-      } else {
         this.loadControls(nextProps);
-        this.setState({ records: nextProps.records, count: nextProps.records.length });
       }
-      return;
     }
-
     if (nextProps.flag !== this.props.flag) {
       if (
         (_.get(window, 'shareState.isPublicForm') &&
@@ -281,7 +256,9 @@ export default class RelateRecordCards extends Component {
           _.includes([FROM.H5_EDIT, FROM.RECORDINFO], control.from) &&
           !_.get(this, 'props.control.hasDefaultValue'))
       ) {
-        this.loadMoreRecords(1);
+        this.setState({ records: [], count: 0, addedIds: [], deletedIds: [] }, () =>
+          this.loadMoreRecords(1, nextProps),
+        );
       } else {
         this.setState({ records: nextProps.records, count: nextProps.count, addedIds: [], deletedIds: [] });
       }

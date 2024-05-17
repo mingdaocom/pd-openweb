@@ -33,7 +33,7 @@ const settingMenus = [
     ],
   },
   {
-    title: _l('账号与注册'),
+    title: _l('登录与注册'),
     icon: 'account_circle',
     type: 'login',
     routes: [
@@ -148,6 +148,28 @@ const platformMenus = [
       },
     ],
   },
+  {
+    title: _l('运营'),
+    icon: 'custom_assessment',
+    type: 'operation',
+    routes: [
+      {
+        path: '/privateDeployment/operation',
+        component: () => import('./Platform/Operation'),
+      },
+    ],
+  },
+  {
+    title: _l('法律门户'),
+    icon: 'menu_book',
+    type: 'lawPortal',
+    routes: [
+      {
+        path: '/privateDeployment/lawPortal',
+        component: () => import('./Platform/LawPortal'),
+      },
+    ],
+  },
 ];
 
 export const menuGroup = [
@@ -169,6 +191,11 @@ export const menuGroup = [
   {
     title: _l('平台'),
     type: 'platform',
-    menus: platformMenus,
+    menus: platformMenus.filter(data => {
+      if (data.type === 'operation') {
+        return md.global.Config.IsPlatformLocal;
+      }
+      return true;
+    }),
   },
 ];

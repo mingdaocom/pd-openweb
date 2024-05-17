@@ -14,7 +14,6 @@ import processAjax from 'src/pages/workflow/api/process';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { RecordInfoModal } from 'mobile/Record';
-import workflowPushSoket from 'mobile/components/socket/workflowPushSoket';
 import customBtnWorkflow from 'mobile/components/socket/customBtnWorkflow';
 import CustomButtons from './CustomButtons';
 import { handleRecordError } from 'worksheet/util';
@@ -45,12 +44,10 @@ class RecordAction extends Component {
   }
   componentDidMount() {
     if (this.props.isBatchOperate && !this.props.recordActionVisible) return;
-    workflowPushSoket({ viewId: this.props.viewId });
     customBtnWorkflow();
   }
   componentWillReceiveProps(nextProps) {
     if (nextProps.recordActionVisible !== this.props.recordActionVisible && this.props.isBatchOperate) {
-      workflowPushSoket({ viewId: this.props.viewId });
       customBtnWorkflow();
     }
   }
@@ -102,19 +99,15 @@ class RecordAction extends Component {
           });
           return;
         }
-        worksheetAjax
-          .updateWorksheetRow({
-            worksheetId,
-            rowId: rowId,
-            newOldControl: [],
-            btnRemark: remark,
-            btnId: btn.btnId,
-            btnWorksheetId: worksheetId,
-            btnRowId: rowId,
-          })
-          .then(() => {
-            trigger(btn);
-          });
+        worksheetAjax.updateWorksheetRow({
+          worksheetId,
+          rowId: rowId,
+          newOldControl: [],
+          btnRemark: remark,
+          btnId: btn.btnId,
+          btnWorksheetId: worksheetId,
+          btnRowId: rowId,
+        });
       } else {
         trigger(btn);
       }

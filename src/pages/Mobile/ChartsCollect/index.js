@@ -55,7 +55,7 @@ export default class ChartCollect extends Component {
       .then(collectCharts => {
         this.setState({ collectCharts, loading: false });
       })
-      .fail(err => {
+      .catch(err => {
         this.setState({ collectCharts: [], loading: false });
       });
   };

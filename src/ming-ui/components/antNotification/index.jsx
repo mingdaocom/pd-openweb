@@ -70,6 +70,21 @@ const getProps = (props, type = 'success') => {
     ),
     className: cx(defaultClass, type, className),
     closeIcon: <i className="closeNotice icon-close"></i>,
+    onClose: () => {
+      // 多窗口关闭
+      if (props.key) {
+        $.ajax({
+          dataType: 'jsonp',
+          url: `${md.global.Config.MdNoticeServer}/notice/read`,
+          data: {
+            accountId: md.global.Account.accountId,
+            noticeId: props.key,
+            type: 3,
+          },
+          jsonp: 'jsoncallback',
+        });
+      }
+    },
   };
 };
 

@@ -1,8 +1,9 @@
 import React, { Fragment, useEffect } from 'react';
-import { ScrollView, Icon, Dialog, Button, Tooltip, LoadDiv, Menu, MenuItem, Support } from 'ming-ui';
+import { ScrollView, Icon, Dialog, Tooltip, LoadDiv, Menu, MenuItem, Support } from 'ming-ui';
 import { Dropdown } from 'antd';
 import { useSetState } from 'react-use';
 import RestoreAppDialog from './RestoreAppDialog';
+import EmptyStatus from '../../EmptyStatus';
 import EditInput from './EditInput.jsx';
 import HomeApiController from 'api/homeApp';
 import appManagementAjax from 'src/api/appManagement';
@@ -14,32 +15,6 @@ import moment from 'moment';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
 import SelectDBInstance from 'src/pages/AppHomepage/AppCenter/components/SelectDBInstance';
 import { VersionProductType } from 'src/util/enum';
-
-const EmptyStatusWrap = styled.div`
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  .con {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    background: #f5f5f5;
-    text-align: center;
-    .icon {
-      font-size: 36px;
-      color: #bdbdbd;
-      line-height: 100px;
-    }
-  }
-  .emptyTxt {
-    margin-top: 12px;
-    font-size: 15px;
-    color: #bdbdbd;
-  }
-`;
 
 const ListWrap = styled.div`
   flex: 1;
@@ -284,15 +259,13 @@ export default function BackupFiles(props) {
   return (
     <Fragment>
       {_.isEmpty(fileList) ? (
-        <EmptyStatusWrap>
-          <div className="con">
-            <Icon icon="refresh" />
-          </div>
-          <div className="emptyTxt mTop12">{_l(' 暂无备份文件')}</div>
-          <Button radius className="mTop24" onClick={props.handleCreateBackup}>
-            {_l('创建备份')}
-          </Button>
-        </EmptyStatusWrap>
+        <EmptyStatus
+          icon="cloud_sync"
+          radiusSize={130}
+          iconClassName="Font50"
+          emptyTxt={_l('暂无备份文件')}
+          emptyTxtClassName="Gray_9e Font17 mTop20"
+        />
       ) : (
         <ListWrap>
           <div className="header Gray_9e flexRow alignItemsCenter">

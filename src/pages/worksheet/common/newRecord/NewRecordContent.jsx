@@ -23,7 +23,7 @@ import { openWorkSheetDraft } from '/src/pages/worksheet/common/WorksheetDraft';
 import { browserIsMobile } from 'src/util';
 import './NewRecord.less';
 import { BUTTON_ACTION_TYPE } from './NewRecord';
-import _, { isEmpty } from 'lodash';
+import _, { get, isEmpty } from 'lodash';
 import { canEditData } from 'worksheet/redux/actions/util';
 import { emitter, KVGet } from 'worksheet/util';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
@@ -269,11 +269,12 @@ function NewRecordForm(props) {
             }
             if (!autoFill) {
               setFormdata(originFormdata);
-              setRelateRecordData({});
+              if (get(customwidget, 'current.dataFormat.callStore')) {
+                customwidget.current.dataFormat.callStore('setEmpty');
+              }
             } else {
               if (advancedSetting.reservecontrols) {
                 setFormdata(dataForAutoFill);
-                setRelateRecordData(relateRecordDataForAutoFill);
               }
             }
             if (newControls) {

@@ -115,7 +115,7 @@ export default class Text extends React.Component {
       this.setState({ value: formatStrZero(nextProps.cell.value) });
     }
     if (!isEqual(get(nextProps, 'row.rowid'), get(this.props, 'row.rowid'))) {
-      this.setState({ oldValue: undefined });
+      this.setState({ oldValue: nextProps.cell.value });
     }
   }
 
@@ -557,6 +557,7 @@ export default class Text extends React.Component {
                     className={cx({
                       linelimit: needLineLimit,
                       ellipsis: isMobile,
+                      'worksheetCellPureString nowrap': cell.type === 2 && cell.enumDefault === 1,
                     })}
                     title={text}
                     onClick={this.handleUnMask}

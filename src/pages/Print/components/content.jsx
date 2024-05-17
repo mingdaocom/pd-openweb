@@ -1,4 +1,5 @@
 import React, { Fragment } from 'react';
+import cx from 'classnames';
 import sheetAjax from 'src/api/worksheet';
 import './content.less';
 import { getPrintContent, sortByShowControls, getVisibleControls, isRelation } from '../util';
@@ -11,6 +12,8 @@ import {
   typeForCon,
   DEFAULT_FONT_SIZE,
   UNPRINTCONTROL,
+  TitleFont,
+  DefaultNameWidth,
 } from '../config';
 import { putControlByOrder, replaceHalfWithSizeControls } from 'src/pages/widgetConfig/util';
 import { SYSTOPRINTTXT } from '../config';
@@ -80,7 +83,8 @@ export default class Con extends React.Component {
   renderControls() {
     const { printData, controls = [] } = this.props;
     let { appId, worksheetId, viewId, rowId, type, from } = this.props.params;
-    const { showData, printOption, rowIdForQr } = printData;
+    const { showData, printOption, rowIdForQr, advanceSettings } = printData;
+    const nameWidth = (advanceSettings.find(l => l.key === 'nameWidth') || {}).value || DefaultNameWidth;
     let dataInfo = {
       recordId: rowId || rowIdForQr,
       appId,
@@ -116,6 +120,8 @@ export default class Con extends React.Component {
         preRelationControls = false;
       }
     });
+
+    const valueWidth = _.floor((728 - nameWidth * 6) / 6);
 
     return (
       <React.Fragment>
@@ -163,8 +169,7 @@ export default class Con extends React.Component {
                   lineHeight: 1.5,
                   verticalAlign: top,
                   width: '100%',
-                  borderBottom: type === 52 ? 'none' : '0.1px solid rgb(117, 117, 117)',
-                  fontSize: 15,
+                  fontSize: TitleFont[printData.font].fontSize,
                   fontWeight: 'bold',
                   margin: '24px 0 5px',
                   textAlign: type === 52 ? 'center' : 'left',
@@ -179,7 +184,7 @@ export default class Con extends React.Component {
               style={{
                 ...STYLE_PRINT.table,
                 fontSize: printData.font || DEFAULT_FONT_SIZE,
-                marginTop: tableIndex === 0 ? 18 : 0,
+                marginTop: tableIndex === 0 ? 16 : 0,
               }}
               border="0"
               cellPadding="0"
@@ -187,11 +192,14 @@ export default class Con extends React.Component {
             >
               {Array(6)
                 .fill(6)
-                .map(() => {
+                .map((l, i) => {
                   return (
                     <React.Fragment>
-                      <col />
-                      <col />
+                      <col key={2 * i} width={(2 * i) % 3 === 0 || (2 * i) % 4 === 0 ? nameWidth : valueWidth} />
+                      <col
+                        key={2 * i + 1}
+                        width={(2 * i + 1) % 3 === 0 || (2 * i + 1) % 4 === 0 ? nameWidth : valueWidth}
+                      />
                     </React.Fragment>
                   );
                 })}
@@ -260,6 +268,7 @@ export default class Con extends React.Component {
                               ...STYLE_PRINT.controlDiv_span,
                               ...STYLE_PRINT.controlDiv_span_value,
                               ...expStyle,
+                              width: 728 - nameWidth,
                             }}
                             width={'100%'}
                             colSpan={12}
@@ -280,7 +289,7 @@ export default class Con extends React.Component {
                   return item[0].type !== 10010 ? (
                     <tr style={STYLE_PRINT.controlDiv}>
                       <td
-                        width="78"
+                        width={nameWidth}
                         style={{
                           ...STYLE_PRINT.controlDiv_span,
                           ...STYLE_PRINT.controlDiv_span_title,
@@ -295,8 +304,9 @@ export default class Con extends React.Component {
                           ...STYLE_PRINT.controlDiv_span,
                           ...STYLE_PRINT.controlDiv_span_value,
                           ...expStyle,
+                          width: 728 - nameWidth,
                         }}
-                        width={650}
+                        width={728 - nameWidth}
                         colSpan={11}
                       >
                         {getPrintContent({
@@ -323,19 +333,19 @@ export default class Con extends React.Component {
                   if (data.length > 0) {
                     return (
                       <React.Fragment>
-                        <tr style={STYLE_PRINT.controlDiv}>
+                        <tr style={STYLE_PRINT.controlDiv} className="trFlex">
                           {data.map((it, i) => {
                             let span = 12 * (it.size / allCountSize);
                             const hideTitle = _.get(it, 'advancedSetting.hidetitle') === '1';
                             return (
                               <React.Fragment>
                                 <td
-                                  width="78"
+                                  width={nameWidth}
                                   style={{
                                     ...STYLE_PRINT.controlDiv_span,
                                     ...STYLE_PRINT.controlDiv_span_title,
                                     borderLeft: i === 0 ? 'none' : '0.1px solid rgb(221, 221, 221)',
-                                    width: '78px',
+                                    width: `${nameWidth}px`,
                                     borderBottom: '0.1px solid #ddd',
                                     borderTop: itemIndex === hideNum ? '0.1px solid #ddd' : 'none',
                                   }}
@@ -347,11 +357,18 @@ export default class Con extends React.Component {
                                     ...STYLE_PRINT.controlDiv_span,
                                     ...STYLE_PRINT.controlDiv_span_value,
                                     overflow: 'hidden',
-                                    width: data.length !== 1 ? `${728 * (it.size / allCountSize) - 78}px` : '650px',
+                                    width:
+                                      data.length !== 1
+                                        ? `${728 * (it.size / allCountSize) - nameWidth}px`
+                                        : `${728 - nameWidth}px`,
                                     borderBottom: '0.1px solid #ddd',
                                     borderTop: itemIndex === hideNum ? '0.1px solid #ddd' : 'none',
                                   }}
-                                  width={data.length !== 1 ? `${728 * (it.size / allCountSize) - 78}` : '650'}
+                                  width={
+                                    data.length !== 1
+                                      ? `${728 * (it.size / allCountSize) - nameWidth}`
+                                      : 728 - nameWidth
+                                  }
                                   colSpan={span - 1}
                                 >
                                   {getPrintContent({ ...it, showUnit: true, printOption, ...dataInfo })}
@@ -452,7 +469,10 @@ export default class Con extends React.Component {
     return (
       <React.Fragment>
         <p
-          style={_.assign(STYLE_PRINT.relationsTitle, STYLE_PRINT.Font15, sign ? STYLE_PRINT.pRelations : {})}
+          style={{
+            ..._.assign(STYLE_PRINT.relationsTitle, sign ? STYLE_PRINT.pRelations : {}),
+            ...TitleFont[printData.font],
+          }}
           className="relationsTitle"
         >
           {hideTitle ? '' : tableList.controlName || _l('未命名')}
@@ -678,7 +698,9 @@ export default class Con extends React.Component {
       <div style={{ marginTop: 24 }}>
         {visibleItemLength > 0 && (
           <React.Fragment>
-            <div style={{ fontSize: 15, fontWeight: 'bold', marginBottom: 12 }}>{name}</div>
+            <div style={{ fontSize: TitleFont[printData.font].fontSize, fontWeight: 'bold', marginBottom: 12 }}>
+              {name}
+            </div>
             <div className="clearfix" style={{ fontSize: printData.font || DEFAULT_FONT_SIZE }}>
               <div>
                 <table
@@ -849,7 +871,9 @@ export default class Con extends React.Component {
             </div>
             {!!signatures.length && approvePosition > 0 && (
               <React.Fragment>
-                <p style={{ marginTop: 20, marginBottom: 10, fontSize: 12 }}>{_l('签名')}</p>
+                <p style={{ marginTop: 20, marginBottom: 10, fontSize: TitleFont[printData.font].fontSize }}>
+                  {_l('签名')}
+                </p>
                 <table
                   className="approvalSignatureTable"
                   style={{
@@ -981,68 +1005,36 @@ export default class Con extends React.Component {
 
   renderSysTable = () => {
     const { printData } = this.props;
-    let sysFeild = ['ownerAccount', 'createAccount', 'createTime', 'updateAccount', 'updateTime'].filter(o =>
+    let sysFeild = ['ownerAccount', 'createAccount', 'updateAccount', 'createTime', 'updateTime'].filter(o =>
       this.isShow(printData[o], printData[o + 'Checked']),
-    );
-    let hasCreateGroup = sysFeild.includes('createAccount') && sysFeild.includes('createTime');
-    let hasUpdateGroup = sysFeild.includes('updateAccount') && sysFeild.includes('updateTime');
-    let trGroup = _.chunk(
-      _.flatMap(sysFeild, (item, index) => {
-        if (
-          index === 0 &&
-          ((sysFeild[index + 1] === 'createAccount' && hasCreateGroup) ||
-            (sysFeild[index + 1] === 'updateAccount' && hasUpdateGroup))
-        ) {
-          return [item, undefined];
-        } else {
-          return item;
-        }
-      }),
-      2,
     );
 
     return (
-      <table
+      <p
+        className="sysField"
         style={{
-          ...STYLE_PRINT.table,
-          marginTop: 10,
-          fontSize: 13,
+          ...STYLE_PRINT.sysField,
+          fontSize: printData.font || DEFAULT_FONT_SIZE,
         }}
-        border="0"
-        cellPadding="0"
-        cellSpacing="0"
       >
-        {trGroup.map(trList => {
+        {sysFeild.map(it => {
+          if (!it) return null;
           return (
-            <tr>
-              {trList.map(it => {
-                return (
-                  <td style={{ width: '50%' }}>
-                    {it ? (
-                      <span
-                        style={{
-                          display: 'inline-block',
-                          paddingBottom: '10px',
-                        }}
-                      >
-                        {SYSTOPRINTTXT[it]}
-                        {printData[it]}
-                      </span>
-                    ) : null}
-                  </td>
-                );
-              })}
-            </tr>
+            <span>
+              {SYSTOPRINTTXT[it]}
+              {printData[it]}&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>
           );
         })}
-      </table>
+      </p>
     );
   };
 
   render() {
     const { loading, shareUrl } = this.state;
     const { printData, controls, signature } = this.props;
-    const { workflow = [], approval = [], attributeName } = printData;
+    const { workflow = [], approval = [], attributeName, advanceSettings } = printData;
+    const formNameSite = (advanceSettings.find(l => l.key === 'formNameSite') || {}).value || '0';
     return (
       <div className="flex">
         {loading ? (
@@ -1072,8 +1064,10 @@ export default class Con extends React.Component {
                       </span>
                     </td>
                     <td style={{ width: '33.3%', textAlign: 'center' }}>
-                      <span style={STYLE_PRINT.reqTitle}>
-                        {this.isShow(printData.formName, printData.formNameChecked) ? printData.formName : ''}
+                      <span className="WordBreak" style={STYLE_PRINT.reqTitle}>
+                        {this.isShow(printData.formName, printData.formNameChecked && formNameSite === '0')
+                          ? printData.formName
+                          : ''}
                       </span>
                     </td>
                     <td style={{ width: '33.3%', textAlign: 'right' }}>
@@ -1083,6 +1077,11 @@ export default class Con extends React.Component {
                     </td>
                   </tr>
                 </table>
+              )}
+              {this.isShow(printData.formName, printData.formNameChecked && formNameSite === '1') && (
+                <div style={STYLE_PRINT.fromName} className="generalTitle printFormName">
+                  {printData.formName}
+                </div>
               )}
               {/* 标题 */}
               <p style={STYLE_PRINT.createBy_h6} className="generalTitle">
@@ -1124,7 +1123,13 @@ export default class Con extends React.Component {
                           >
                             {tdList[tdIndex] ? (
                               <React.Fragment>
-                                <div style={{ fontWeight: 'bold', height: 20 }}>
+                                <div
+                                  style={{
+                                    fontWeight: 'bold',
+                                    height: 20,
+                                    fontSize: TitleFont[printData.font].fontSize,
+                                  }}
+                                >
                                   {_.get(tdList[tdIndex], 'advancedSetting.hidetitle') === '1'
                                     ? ''
                                     : tdList[tdIndex].controlName}

@@ -1154,7 +1154,7 @@ export function parseAdvancedSetting(setting = {}) {
     allowcancel: setting.allowcancel === '1', // 子表允许删除
     allowedit: setting.allowedit === '1', // 子表允许编辑
     allowsingle: setting.allowsingle === '1', // 子表允许单条添加
-    batchcids: safeParseArray(setting.batchcids), // 子表从指定字段添加记录
+    batchcids: safeParse(setting.batchcids, 'array'), // 子表从指定字段添加记录
     hidenumber: setting.hidenumber === '1', // 隐藏序号
     rowheight: Number(setting.rowheight || 0), // 行高
     blankrow: Number(setting.blankrow || 1),

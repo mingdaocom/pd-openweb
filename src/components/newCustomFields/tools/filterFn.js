@@ -1406,7 +1406,7 @@ export const getRuleErrorInfo = (rules = [], badData = []) => {
         if (rule.ruleId === ruleId && _.find(_.get(rule, 'ruleItems') || [], r => r.type === 6)) {
           _.get(rule, 'ruleItems').map(item => {
             const errorIds = (_.get(item, 'controls') || []).map(c => c.controlId);
-            const curErrorIds = errorIds.length > 0 ? errorIds : (rule.filters || []).map(i => getIds(i));
+            const curErrorIds = errorIds.length > 0 ? errorIds : _.flatten((rule.filters || []).map(i => getIds(i)));
             curErrorIds.map(c => {
               errorInfo.push({
                 controlId: c,

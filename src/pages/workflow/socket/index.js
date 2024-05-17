@@ -6,6 +6,7 @@ import { openRecordInfo } from 'worksheet/common/recordInfo';
 import _ from 'lodash';
 import { mdNotification } from 'ming-ui/functions';
 import { emitter } from 'worksheet/util';
+import CryptoJS from 'crypto-js';
 
 const getWorksheetInfo = worksheetId => {
   return new Promise((resolve, reject) => {
@@ -48,7 +49,6 @@ export default () => {
 
       if (pushType === PUSH_TYPE.CREATE) {
         addRecord({
-          showContinueAdd: false,
           worksheetId: worksheetId,
           onAdd: data => {
             alert(data ? _l('添加成功') : _l('添加失败'));
@@ -120,6 +120,7 @@ export default () => {
       const functionName = { 1: 'success', 2: 'error', 3: 'warning', 4: 'info' };
 
       mdNotification[functionName[promptType]]({
+        key: CryptoJS.SHA1(JSON.stringify(result[pushType])).toString(),
         title,
         description: content,
         duration: duration || null,

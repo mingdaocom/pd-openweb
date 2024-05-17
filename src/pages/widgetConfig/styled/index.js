@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { Dialog } from 'ming-ui';
 
 export const SettingItem = styled.div`
   margin-top: 20px;
@@ -829,6 +830,20 @@ export const BothRelateInfo = styled.div`
   }
   .sourceName {
     color: #2196f3;
+  }
+`;
+
+export const EditOptionDialog = styled(Dialog)`
+  .editOptionDialog {
+    padding-bottom: 30px !important;
+  }
+  .handleOption {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 58px;
+    background: #fff;
+    padding: 12px 36px;
   }
 `;
 

@@ -178,13 +178,14 @@ class TableView extends React.Component {
   bindShift() {
     window.addEventListener('keydown', this.activeShift);
     window.addEventListener('keyup', this.deActiveShift);
+    window.addEventListener('blur', this.handleWindowBlur);
   }
 
   unbindShift() {
     window.removeEventListener('keydown', this.activeShift);
     window.removeEventListener('keyup', this.deActiveShift);
+    window.removeEventListener('blur', this.handleWindowBlur);
   }
-
   @autobind
   activeShift(e) {
     if (e.keyCode === 16) {
@@ -198,6 +199,11 @@ class TableView extends React.Component {
       this.shiftActive = false;
       // console.log({ shiftActive: this.shiftActive });
     }
+  }
+
+  @autobind
+  handleWindowBlur() {
+    this.shiftActive = false;
   }
 
   handleSetAutoRefresh(props) {

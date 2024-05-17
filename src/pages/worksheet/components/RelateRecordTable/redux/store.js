@@ -49,5 +49,9 @@ export default function generateStore(
     store.dispatch(refresh());
   };
   store.init = () => store.dispatch(init());
+  store.setEmpty = () => {
+    store.dispatch({ type: 'RESET' });
+    store.dispatch({ type: 'CLEAR_RECORDS' });
+  };
   return store;
 }

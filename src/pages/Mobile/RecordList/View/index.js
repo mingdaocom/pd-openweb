@@ -17,6 +17,7 @@ import ResourceView from './ResourceView';
 import MobileMapView from './MapView';
 import State from '../State';
 import worksheetAjax from 'src/api/worksheet';
+import workflowPushSoket from 'mobile/components/socket/workflowPushSoket';
 import { VIEW_TYPE_ICON, VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
 import { emitter } from 'worksheet/util';
 import _ from 'lodash';
@@ -47,11 +48,16 @@ class View extends Component {
       this.props.fetchSheetRows();
     }
     emitter.addListener('MOBILE_RELOAD_SHEETVIVELIST', this.refreshList);
+    workflowPushSoket();
   }
   componentWillReceiveProps(nextProps) {
     if (!_.isEqual(this.props.mobileNavGroupFilters, nextProps.mobileNavGroupFilters)) {
       this.props.fetchSheetRows({ navGroupFilters: nextProps.mobileNavGroupFilters });
     }
+  }
+  componentWillUnmount() {
+    if (!window.IM) return;
+    IM.socket.off('workflow_push');
   }
   refreshList = ({ worksheetId, recordId }) => {
     const { view, base = {}, currentSheetRows = [] } = this.props;
