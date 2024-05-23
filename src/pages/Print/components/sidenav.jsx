@@ -666,7 +666,7 @@ class Sidenav extends React.Component {
           itemcolor="#2196F3"
           showInput={false}
           min={50}
-          max={100}
+          max={150}
           value={value || DefaultNameWidth}
           step={1}
           onChange={nameWidth => this.changeAdvanceSettings({ key: 'nameWidth', value: nameWidth })}

@@ -194,24 +194,33 @@ class PrivateImageInstall extends Component {
       moreQueryParams += '&ltv=' + stepResult.licenseTemplateVersion;
     }
 
-    const url1 = `<a href="https://www.mingdao.com/register?ReturnUrl=${encodeURIComponent(`/personal?type=privatekey${moreQueryParams}&serverId=${stepResult.serverId}#apply`)}" target="_blank" class="applyPrivatekey">${_l('注册并申请密钥')}</a>`;
-    const url2 = `<a href="https://www.mingdao.com/personal?type=privatekey${moreQueryParams}&serverId=${stepResult.serverId}#apply" target="_blank" class="genNewKey">${_l('登录并申请密钥')}</a>`;
+    const url = `<a href="https://www.mingdao.com/register?ReturnUrl=${encodeURIComponent(`/personal?type=privatekey${moreQueryParams}&serverId=${stepResult.serverId}#apply`)}" target="_blank" class="applyPrivatekey">${_l('立即注册')}</a>`;
 
     return (
       <div className="body yourprivatekeyBody">
         <div className="title">{_l('请输入您的密钥')}</div>
+        <div className="flexRow alignItemsCenter Font17 Gray_9e mBottom30">
+          <div>{_l('服务器 ID')}：</div>
+          <div className="value">{stepResult.serverId}</div>
+        </div>
+        <Button
+          className="applyKey mBottom10"
+          type="ghostgray"
+          size="large"
+          onClick={() => {
+            window.open(`https://www.mingdao.com/personal?type=privatekey${moreQueryParams}&serverId=${stepResult.serverId}#apply`);
+          }}
+        >
+          {_l('申请密钥')}
+        </Button>
         <div
           className="info"
           dangerouslySetInnerHTML={{
-            __html: _l('如果您未有 HAP 账号，请 %0 ； 如果您已有 HAP 账号，请 %1', url1, url2),
+            __html: _l('申请时需要登录您的 HAP 账号。还没有账号 %0', url),
           }}
         ></div>
-        <div className="server">
-          <div>{_l('服务器 ID')}</div>
-          <div className="value">{stepResult.serverId}</div>
-        </div>
         <div className="formItem">
-          <div className="label">{_l('请输入您的密钥')}</div>
+          <div className="label">{_l('请输入密钥')}</div>
           <Textarea
             value={licenseCode}
             onChange={value => {
@@ -229,7 +238,7 @@ class PrivateImageInstall extends Component {
             <div className="error">{_l('密钥验证失败, 请重新填写')}</div>
           ))}
         {prompt ? <div className="error">{prompt}</div> : null}
-        <Button className="btn" type="primary" size="large" onClick={this.handleBindLicenseCode}>
+        <Button className="btn mTop45" type="primary" size="large" onClick={this.handleBindLicenseCode}>
           {_l('下一步')}
         </Button>
       </div>
@@ -284,7 +293,7 @@ class PrivateImageInstall extends Component {
           </div>
         </div>
         {passwordPrompt ? <div className="error">{passwordPrompt}</div> : null}
-        <Button className="btn" type="primary" size="large" onClick={this.handleCreateAdmin}>
+        <Button className="btn mTop45" type="primary" size="large" onClick={this.handleCreateAdmin}>
           {loading ? <LoadDiv className="whiteLoad" size="small" /> : _l('下一步')}
         </Button>
       </div>
@@ -306,7 +315,7 @@ class PrivateImageInstall extends Component {
           />
         </div>
         {projectNamePrompt ? <div className="error">{projectNamePrompt}</div> : null}
-        <Button className="btn" type="primary" size="large" onClick={this.handleCreatedProject}>
+        <Button className="btn mTop45" type="primary" size="large" onClick={this.handleCreatedProject}>
           {loading ? <LoadDiv className="whiteLoad" size="small" /> : _l('下一步')}
         </Button>
       </div>
@@ -319,7 +328,7 @@ class PrivateImageInstall extends Component {
         <div className="title">{_l('太棒了！ 您完成了安装')}</div>
         <div className="info">{_l('建议您扫码注册并收藏工单系统，获得各类支持与问题解答')}</div>
         <Button
-          className="btn"
+          className="btn mTop45"
           type="primary"
           size="large"
           onClick={() => {

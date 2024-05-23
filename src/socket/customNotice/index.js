@@ -25,9 +25,17 @@ export default function customNotice() {
           const id = href.slice(href.indexOf('excelerrorpage') + 15).split('/');
           new ErrorDialog({ fileKey: id[0] });
         }
-        if (href.indexOf('excelerrorpage') > -1) {
+
+        if (href.indexOf('excelbatcherrorpage') > -1) {
           const id = href.slice(href.indexOf('excelbatcherrorpage') + 15).split('/');
           new ErrorDialog({ fileKey: id[1], isBatch: true });
+        }
+
+        const appSettingsUrl = href.match(/\/app\/.*?\/settings.*/);
+
+        if (appSettingsUrl) {
+          navigateTo(`/app${appSettingsUrl[0]}`.replace('app/', ''));
+          return;
         }
       }
     });

@@ -1083,7 +1083,7 @@ export function fillConditionValue({ condition, formData, relateControl, ignoreF
   } else if (dataType === 9 || dataType === 11 || dataType === 10) {
     if (type === 9 || type === 11) {
       // 单选
-      const selectedOption = getSelectedOptions(dynamicControl.options, value)[0];
+      const selectedOption = getSelectedOptions(dynamicControl.options, value, dynamicControl)[0];
       if (!selectedOption) {
         condition.values = [];
       } else {
@@ -1098,7 +1098,7 @@ export function fillConditionValue({ condition, formData, relateControl, ignoreF
       }
     } else if (type === 10) {
       // 多选
-      const selectedOptions = getSelectedOptions(dynamicControl.options, value);
+      const selectedOptions = getSelectedOptions(dynamicControl.options, value, dynamicControl);
       if (!selectedOptions.length) {
         condition.values = [];
       } else {

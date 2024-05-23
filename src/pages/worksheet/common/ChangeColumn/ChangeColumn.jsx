@@ -51,7 +51,7 @@ const SortableItem = SortableElement(
     const isRetract = retractTabControlIds.includes(column.controlId);
 
     return (
-      <div className={cx('showControlsColumnDrageble', { tabColumn: column.type === 52 })}>
+      <div className={cx('showControlsColumnDrageble noSelect', { tabColumn: column.type === 52 })}>
         <div
           className={cx('showControlsColumnCheckItem flexRow', {
             focusColumnItem: focusControlId === column.controlId,

@@ -139,8 +139,8 @@ export default class ApplyPrivateKey extends Component {
                 radioItemClassName="mBottom10"
                 checkedValue={licenseVersion}
                 data={[
-                  { text: _l('社区版'), value: 0 },
-                  { text: _l('专业版试用（有效期30天，每个服务器ID可申请1次）'), value: 5 },
+                  { text: _l('社区版（私有部署免费版）'), value: 0 },
+                  { text: _l('专业版试用（有效期30天，每个服务器ID仅可申请1次）'), value: 5 },
                 ]}
                 vertical
                 onChange={value => {
@@ -152,12 +152,6 @@ export default class ApplyPrivateKey extends Component {
           <Button className="generateKey" type="primary" size="large" onClick={this.handleGenerateKey}>
             {_l('生成密钥')}
           </Button>
-          <div className="mTop16 Gray_75">
-            {_l('点击生成即代表您同意')}
-            <a href="https://docs.pd.mingdao.com/agreement" target="_blank">
-              {_l('《使用协议》')}
-            </a>
-          </div>
         </div>
       </Fragment>
     );

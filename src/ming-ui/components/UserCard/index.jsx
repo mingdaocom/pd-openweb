@@ -380,6 +380,7 @@ class UserCard extends React.Component {
       ].filter(l => l.value);
       const portalValues = (data.portalValues || []).filter(l => l.value);
       const flag = isPortal || data.status === USER_STATUS.INACTIVE || type !== 1 || md.global.Account.isPortal;
+      const hideChat = md.global.SysSettings.forbidSuites.includes('6');
 
       return (
         <BusinessCardWrap className="cardHeader BusinessCard">
@@ -442,7 +443,7 @@ class UserCard extends React.Component {
                 ![md.global.Account.accountId, 'user-workflow'].includes(data.accountId) &&
                 !md.global.Account.isPortal &&
                 !isPortal &&
-                chatButton && (
+                chatButton && !hideChat && (
                   <span className="Hand" data-tip={_l('发消息')} onClick={this.openChat}>
                     <span className="actionButton icon-chat-session ThemeColor3" />
                   </span>

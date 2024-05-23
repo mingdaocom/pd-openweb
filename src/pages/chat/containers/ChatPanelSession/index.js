@@ -335,8 +335,10 @@ class ChatPanelSession extends Component {
     }
   }
   render() {
-    const { value, infoVisible, searchText, isOpenFile, isContact } = this.state;
+    const { value, infoVisible, searchText, isOpenFile } = this.state;
     const { session, referMessage } = this.props;
+    const hideChat = md.global.SysSettings.forbidSuites.includes('6');
+    const isContact = this.state.isContact && !hideChat;
     const { id } = session;
     return (
       <div>
@@ -360,7 +362,7 @@ class ChatPanelSession extends Component {
                   disabled={!isContact}
                   value={value}
                   session={session}
-                  placeholder={isContact ? _l('说点什么…') : ''}
+                  placeholder={isContact ? _l('说点什么…') : hideChat ? _l('聊天功能已关闭') : ''}
                   referMessage={referMessage[id]}
                   onSendMsg={this.handleSendMsg.bind(this)}
                   onBlur={this.handleBlur.bind(this)}

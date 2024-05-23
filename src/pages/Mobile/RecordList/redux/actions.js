@@ -40,6 +40,7 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
       worksheetId: base.worksheetId,
       getTemplate: true,
       getViews: true,
+      getRules: true,
       getSwitchPermit: true,
     })
     .then(workSheetInfo => {

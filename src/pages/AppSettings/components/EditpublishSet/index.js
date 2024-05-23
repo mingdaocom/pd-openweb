@@ -254,7 +254,7 @@ class EditPublishSetDialog extends React.Component {
         <WrapCon>
           <AppSettingHeader title={_l('发布')} />
           <h6 className="Font15 Bold pTop0">{_l('发布到组织工作台')}</h6>
-          <p className="Gray_9 mTop12">{_l('设置用户在哪些设备环境下可见此应用，管理员和开发者在PC端始终可见')}</p>
+          <p className="Gray_75 mTop12">{_l('设置用户在哪些设备环境下可见此应用，管理员和开发者在PC端始终可见')}</p>
           <div className="con">
             <ul>
               {[1, 2, 3].map(o => {
@@ -328,7 +328,7 @@ class EditPublishSetDialog extends React.Component {
             </div>
           )}
           <h6 className="Font15 Bold borTopLine">{_l('应用维护')}</h6>
-          <p className="Gray_9 mTop12 mBottom20">
+          <p className="Gray_75 mTop12 mBottom20">
             {_l('应用开启维护状态后，只有管理员和开发者可以访问应用进行更新维护，其他成员无法使用应用')}
           </p>
           <React.Fragment>

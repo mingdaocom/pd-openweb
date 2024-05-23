@@ -59,6 +59,19 @@ axios.interceptors.request.use(
   },
 );
 
+axios.interceptors.response.use(
+  function (response) {
+    return response;
+  },
+  function (error) {
+    if (get(error, 'response.status') === 401 && isFunction(window.navigateToLogin)) {
+      window.navigateToLogin();
+      return;
+    }
+    return Promise.reject(error);
+  },
+);
+
 /**
  * 获取当前语言
  */
@@ -114,7 +127,7 @@ window.getCurrentLangCode = lang => {
  * @param {Date} expire - 过期时间
  */
 window.setCookie = function setCookie(name, value, expire) {
-  if (_.get(window, 'md.global.Config.HttpOnly')) {
+  if (_.get(window, 'md.global.Config.HttpOnly') && name === 'md_pss_id') {
     safeLocalStorageSetItem(name, value);
     return;
   }
@@ -139,7 +152,7 @@ window.setCookie = function setCookie(name, value, expire) {
  * @returns {string|null} - Cookie值
  */
 window.getCookie = function getCookie(name) {
-  if (_.get(window, 'md.global.Config.HttpOnly')) {
+  if (_.get(window, 'md.global.Config.HttpOnly') && name === 'md_pss_id') {
     return localStorage.getItem(name) || null;
   }
 
@@ -704,8 +717,8 @@ window.mdyAPI = (controllerName, actionName, requestData, options = {}) => {
         }
 
         reject({
-          ...getErrorMessage(error.response, axios.isCancel(error) ? 'abort' : ''),
-          errorData: axios.isCancel(error) ? {} : get(error, 'response.data'),
+          ...getErrorMessage(error.response, baseAxios.isCancel(error) ? 'abort' : ''),
+          errorData: baseAxios.isCancel(error) ? {} : get(error, 'response.data'),
         });
       });
   });

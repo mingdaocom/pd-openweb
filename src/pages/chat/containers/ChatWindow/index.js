@@ -80,7 +80,7 @@ class ChatWindow extends Component {
     });
 
     utils.chatWindow.set(id);
-    $(window).unload(() => {
+    window.addEventListener('beforeunload', () => {
       utils.chatWindow.remove(id);
       socket.Contact.setCurrentChat({});
     });

@@ -150,6 +150,15 @@ export default class WebHook extends Component {
       errorMsg,
       executeType,
     } = data;
+    const handleFormControls = formControls
+      .filter(item => item.name)
+      .map(item => {
+        if (!item.type) {
+          item.type = 2;
+        }
+
+        return item;
+      });
 
     if (data.appType === APP_TYPE.SHEET && !selectNodeId) {
       alert(_l('必须先选择一个对象'), 2);
@@ -197,7 +206,7 @@ export default class WebHook extends Component {
           headers: headers.filter(item => item.name),
           method,
           contentType,
-          formControls: formControls.filter(item => item.name),
+          formControls: handleFormControls,
           settings,
           testMap,
           successCode,

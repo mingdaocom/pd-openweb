@@ -63,8 +63,14 @@ export default class LoginContainer extends React.Component {
       account = '',
       projectId = '',
       loginType = 0,
+      time,
     } = JSON.parse(window.localStorage.getItem('LoginCheckList') || '{}');
-    if (!(request.unionId || !accountId || !encryptPassword || (loginType === 1 && (!projectId || !account)))) {
+
+    const toAutoLogin =
+      !(request.unionId || !accountId || !encryptPassword || (loginType === 1 && (!projectId || !account))) &&
+      (!time || Math.ceil((new Date() - new Date(time)) / (1000 * 60 * 60 * 24)) <= 14);
+
+    if (toAutoLogin) {
       //自动登录
       let param = { loginType, accountId, encryptPassword };
       if (loginType === 1) {

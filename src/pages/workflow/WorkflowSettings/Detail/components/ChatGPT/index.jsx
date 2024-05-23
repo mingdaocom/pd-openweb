@@ -264,7 +264,14 @@ export default ({ processId, nodeId, codeType = 1, onSave = () => {}, onClose = 
 
         if (done) break;
 
-        parser.feed(new TextDecoder().decode(value));
+        const result = new TextDecoder().decode(value);
+
+        if ((safeParse(result) || {}).error) {
+          alert(result, 2);
+          break;
+        }
+
+        parser.feed(result);
       }
     } finally {
       setController(null);
@@ -278,7 +285,7 @@ export default ({ processId, nodeId, codeType = 1, onSave = () => {}, onClose = 
       },
     });
 
-    md.renderer.rules.link_open = function(tokens, idx) {
+    md.renderer.rules.link_open = function (tokens, idx) {
       const title = tokens[idx].title ? ' title="' + escapeHtml(replaceEntities(tokens[idx].title)) + '"' : '';
       return '<a target="_blank" href="' + escapeHtml(tokens[idx].href) + '"' + title + '>';
     };

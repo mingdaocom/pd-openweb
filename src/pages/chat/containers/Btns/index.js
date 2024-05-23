@@ -17,20 +17,34 @@ import { Dropdown, Menu } from 'antd';
 import assistantApi from 'src/api/assistant';
 import { SvgIcon } from 'ming-ui';
 import AssistantChatBox from 'src/pages/plugin/assistant/chatBox/AssistantChatBox';
+import { getFeatureStatus, upgradeVersionDialog, getCurrentProject } from 'src/util';
+import { VersionProductType } from 'src/util/enum';
+
+const getProjectInfo = () => {
+  const projectInfo = !_.isEmpty(getCurrentProject(localStorage.getItem('currentProjectId')))
+    ? getCurrentProject(localStorage.getItem('currentProjectId'))
+    : _.get(md, 'global.Account.projects.0');
+  return projectInfo || {};
+}
 
 class Btns extends Component {
   constructor(props) {
     super(props);
+    const { projectId } = getProjectInfo();
+    const featureType = getFeatureStatus(projectId, VersionProductType.assistant);
+    const hideAssistant = !featureType || featureType === '2' || md.global.Config.IsLocal;
     this.state = {
       searchVisible: false,
       menuVisible: false,
       tooltipVisible: true,
       dark: !this.props.visible,
-      aiList: []
+      aiList: [],
+      projectId,
+      hideAssistant
     };
   }
   componentDidMount() {
-    if (!md.global.Config.IsLocal) {
+    if (!this.state.hideAssistant) {
       this.getAssistantApiList();
       window.updateAssistantApiList = this.getAssistantApiList;
     }
@@ -45,8 +59,7 @@ class Btns extends Component {
   }
   getAssistantApiList = () => {
     const { projects = [] } = md.global.Account;
-    const currentProjectId = localStorage.getItem('currentProjectId');
-    const projectId = currentProjectId || _.get(projects[0], 'projectId');
+    const { projectId } = this.state;
     if (!_.find(projects, { projectId })) {
       return;
     }
@@ -283,6 +296,7 @@ class Btns extends Component {
     const { menuVisible, tooltipVisible, dark } = this.state;
     const direction = visible ? 'top' : 'left';
     const isEn = (getCookie('i18n_langtag') || md.global.Config.DefaultLang) == 'en';
+    const hideChat = md.global.SysSettings.forbidSuites.includes('6');
     return (
       <div className={name}>
         <Tooltip popupPlacement={direction} text={<span>{_l('搜索')}</span>}>
@@ -295,25 +309,27 @@ class Btns extends Component {
             <i className="ThemeColor3 icon-search" />
           </div>
         </Tooltip>
-        <Tooltip
-          popupPlacement={direction}
-          text={
-            <span>
-              {_l('通讯录')}
-              {' ( E )'}
-            </span>
-          }
-        >
-          <div
-            className="ChatList-btn addressBook-btn"
-            onClick={() => {
-              this.props.dispatch(actions.setShowAddressBook(true));
-            }}
+        {!hideChat && (
+          <Tooltip
+            popupPlacement={direction}
+            text={
+              <span>
+                {_l('通讯录')}
+                {' ( E )'}
+              </span>
+            }
           >
-            <i className="ThemeColor3 icon-topbar-addressList" />
-          </div>
-        </Tooltip>
-        {!md.global.Config.IsLocal && (
+            <div
+              className="ChatList-btn addressBook-btn"
+              onClick={() => {
+                this.props.dispatch(actions.setShowAddressBook(true));
+              }}
+            >
+              <i className="ThemeColor3 icon-topbar-addressList" />
+            </div>
+          </Tooltip>
+        )}
+        {!this.state.hideAssistant && (
           <Dropdown
             trigger={['click']}
             placement="topRight"
@@ -333,19 +349,21 @@ class Btns extends Component {
             </Tooltip>
           </Dropdown>
         )}
-        <Tooltip
-          popupPlacement={direction}
-          text={
-            <span>
-              {_l('发起聊天')}
-              {' ( Q )'}
-            </span>
-          }
-        >
-          <div className="ChatList-btn chat-btn" onClick={this.handleMenuChange.bind(this)}>
-            <i className="ThemeColor3 icon-initiate_chat" />
-          </div>
-        </Tooltip>
+        {!hideChat && (
+          <Tooltip
+            popupPlacement={direction}
+            text={
+              <span>
+                {_l('发起聊天')}
+                {' ( Q )'}
+              </span>
+            }
+          >
+            <div className="ChatList-btn chat-btn" onClick={this.handleMenuChange.bind(this)}>
+              <i className="ThemeColor3 icon-initiate_chat" />
+            </div>
+          </Tooltip>
+        )}
         <Tooltip
           popupPlacement={direction}
           text={

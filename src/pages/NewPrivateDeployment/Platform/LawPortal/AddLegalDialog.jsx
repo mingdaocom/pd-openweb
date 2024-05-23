@@ -61,12 +61,16 @@ const AddLegalDialog = props => {
       });
     }
   }
+
+  const wdith = document.body.clientWidth - 160;
+
   return (
     <Dialog
       visible
       anim={false}
+      overlayClosable={false}
       title={legal.legalId ? _l('编辑') : _l('添加')}
-      width={880}
+      width={wdith > 1600 ? 1600 : wdith}
       onOk={onSave}
       onCancel={onCancel}
     >

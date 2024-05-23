@@ -248,7 +248,7 @@ export default class Con extends React.Component {
                     return (
                       <Fragment>
                         {!hideTitle && (
-                          <tr style={STYLE_PRINT.controlDiv}>
+                          <tr style={STYLE_PRINT.controlDiv} className="trFlex">
                             <td
                               style={{
                                 ...STYLE_PRINT.controlDiv_span,
@@ -262,13 +262,12 @@ export default class Con extends React.Component {
                             </td>
                           </tr>
                         )}
-                        <tr style={STYLE_PRINT.controlDiv}>
+                        <tr style={STYLE_PRINT.controlDiv} className="trFlex">
                           <td
                             style={{
                               ...STYLE_PRINT.controlDiv_span,
                               ...STYLE_PRINT.controlDiv_span_value,
                               ...expStyle,
-                              width: 728 - nameWidth,
                             }}
                             width={'100%'}
                             colSpan={12}
@@ -287,7 +286,7 @@ export default class Con extends React.Component {
                   }
 
                   return item[0].type !== 10010 ? (
-                    <tr style={STYLE_PRINT.controlDiv}>
+                    <tr style={STYLE_PRINT.controlDiv} className="trFlex">
                       <td
                         width={nameWidth}
                         style={{
@@ -599,7 +598,7 @@ export default class Con extends React.Component {
                                   paddingTop: 5,
                                 };
                           return (
-                            <tr>
+                            <tr className="trFlex">
                               <td
                                 style={{
                                   ...STYLE_PRINT.controlDiv_span_title,

@@ -321,7 +321,7 @@ export default class ShareUrl extends React.Component {
                 )}
               </Tooltip>
             )}
-            {allowSendToChat && (
+            {allowSendToChat && !md.global.SysSettings.forbidSuites.includes('6') && (
               <Tooltip popupPlacement="bottom" text={<span>{_l('发消息')}</span>}>
                 <Icon
                   style={chatVisible ? { borderColor: '#2196f3' } : {}}

@@ -152,10 +152,16 @@ export default function HomePage({ match, location: routerLocation }) {
       : data[key] / data[limit] > 0 && (data[key] / data[limit]) * 10000 <= 1
       ? 0.01
       : ((data[key] / data[limit]) * 100).toFixed(2);
-    let isBreak = false;
-    if (wrap.current) {
-      isBreak = content1.current.clientWidth + content2.current.clientWidth + 20 >= wrap.current.clientWidth;
-    }
+
+    const getUsage = key => {
+      return isAttchmentUpload
+        ? formatFileSize(data[key])
+        : isEnLang
+        ? `${formatValue(data[key])} ${numUnit}`
+        : data[key] >= 10000
+        ? _l('%0 万', getValue(data[key] / 10000)) + numUnit
+        : `${getValue(data[key])} ${numUnit}`;
+    };
 
     return (
       <div className="useCount">
@@ -163,27 +169,10 @@ export default function HomePage({ match, location: routerLocation }) {
           {_l('已用')}
           <span className="Gray mLeft4">{`${percent === 'NaN' ? '-' : percent}%`}</span>
         </dov>
-        <div className="flex TxtRight" ref={wrap}>
-          <span ref={content1}>
-            {isAttchmentUpload
-              ? formatFileSize(data[key])
-              : isEnLang
-              ? formatValue(data[key]) + numUnit
-              : data[key] >= 10000
-              ? getValue(data[key] / 10000) + ' ' + _l('万') + numUnit
-              : getValue(data[key]) + ' ' + numUnit}
-          </span>
+        <div className="flex TxtRight">
+          <span>{getUsage(key)}</span>
           <span className="mLeft4">/</span>
-          {isBreak && <br />}
-          <span className="mLeft4" ref={content2}>
-            {isAttchmentUpload
-              ? `${getValue(data[limit])}GB`
-              : isEnLang
-              ? formatValue(data[limit]) + numUnit
-              : data[limit] >= 10000
-              ? getValue(data[limit] / 10000) + ' ' + _l('万') + numUnit
-              : getValue(data[limit] || 0) + ' ' + numUnit}
-          </span>
+          <span className="mLeft4">{getUsage(limit)}</span>
         </div>
       </div>
     );
@@ -293,9 +282,7 @@ export default function HomePage({ match, location: routerLocation }) {
                         <span>{getValue(expireDays || 0)}</span>
                         {_l('天')}
                       </div>
-                      <div className="expireDate">
-                        {_l('%0到期', getValue(moment(endDate).format('YYYY年MM月DD日')))}
-                      </div>
+                      <div className="expireDate">{_l('%0到期', getValue(moment(endDate).format('YYYY-MM-DD')))}</div>
                       {/* {getLicenseOperation()} */}
                     </Fragment>
                   )}
@@ -389,10 +376,10 @@ export default function HomePage({ match, location: routerLocation }) {
                       </div>
                       <div className="count">{formatValue(getValue(data[key] || 0))}</div>
                       {key === 'effectiveWorksheetCount' && isFree && (
-                        <div className="limitUser">{_l('上限 100 个')}</div>
+                        <div className="limitUser">{_l('上限 %0 个', data.limitWorksheetCount)}</div>
                       )}
                       {key === 'effectiveWorksheetRowCount' && isFree && (
-                        <div className="limitUser">{_l('上限 5 万行')}</div>
+                        <div className="limitUser">{_l('上限 %0 万行', data.limitAllWorksheetRowCount / 10000)}</div>
                       )}
                       {key === 'effectiveAggregationTableCount' && data.limitAggregationTableCount ? (
                         <div className="limitUser">{_l('上限 %0', data.limitAggregationTableCount)}</div>

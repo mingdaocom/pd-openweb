@@ -224,7 +224,7 @@ export default function Subtotal(props) {
                 const controlName = value === 'count' ? _l('记录数量') : get(originControl, 'controlName');
                 const invalidError =
                   originControl && originControl.type === 30 && (originControl.strDefault || '')[0] === '1';
-                  // 数据没回不显示已删除
+                // 数据没回不显示已删除
                 if (loading || (sheetData.info || {}).worksheetId !== worksheetId) return <div className="text"></div>;
                 return (
                   <div className={cx('text', { Red: !controlName || invalidError })}>
@@ -318,7 +318,8 @@ export default function Subtotal(props) {
             {visible && (
               <FilterDialog
                 {...props}
-                relationControls={availableControls}
+                // 汇总筛选不支持日期字段
+                relationControls={availableControls.filter(i => !_.includes([15, 16], i.type))}
                 fromCondition={'subTotal'}
                 helpHref="https://help.mingdao.com/worksheet/control-rollup"
                 onChange={({ filters }) => {

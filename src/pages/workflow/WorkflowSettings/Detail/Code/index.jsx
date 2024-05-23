@@ -397,7 +397,7 @@ export default class Code extends Component {
                   <i className="icon-custom-description Font16" />
                   {_l('代码片段库')}
                 </CodeSnippetButton>
-                {!md.global.Config.IsLocal && (
+                {md.global.Config.EnableAI && (
                   <CodeSnippetButton
                     className="flexRow alignItemsCenter mLeft15"
                     onClick={() => this.setState({ showChatGPTDialog: true })}

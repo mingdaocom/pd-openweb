@@ -26,6 +26,7 @@ function RelateRecordTable(props) {
     mode = 'recordForm',
     saveSync,
     isSplit,
+    formData,
     base = {},
     tableState = {},
     loading,
@@ -129,6 +130,7 @@ function RelateRecordTable(props) {
       {
         <Operate
           mode={mode}
+          formData={formData}
           smallMode={smallMode}
           className={cx('mBottom10', { mTop10: !isSplit && isTab })}
           style={{

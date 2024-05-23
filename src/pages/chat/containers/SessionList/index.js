@@ -237,6 +237,7 @@ class SessionList extends Component {
     // if (utils.chatWindow.is(item.value)) {
     //   return;
     // }
+    utils.chatWindow.remove(item.value);
     socket.Contact.remove({
       id: item.value,
       type: item.type,

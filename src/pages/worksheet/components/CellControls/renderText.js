@@ -182,7 +182,7 @@ export default function renderText(cell, options = {}) {
       case 9: // OPTIONS 单选 平铺
       case 10: // MULTI_SELECT 多选
       case 11: // OPTIONS 单选 下拉
-        selectedOptions = getSelectedOptions(cell.options, cell.value);
+        selectedOptions = getSelectedOptions(cell.options, cell.value, cell);
         value = selectedOptions
           .map((option, index) => {
             if (option.key === 'other') {
@@ -253,7 +253,7 @@ export default function renderText(cell, options = {}) {
         if (!_.isArray(parsedData)) {
           parsedData = [];
         }
-        if (cell.enumDefault === 1) {
+        if (cell.enumDefault === 1 || _.get(cell, 'sourceControl.controlId')) {
           value = parsedData
             .map(
               record =>

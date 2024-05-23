@@ -258,6 +258,7 @@ class ChatPanelHeader extends Component {
     const name = session.name || session.fullname;
     const isFileTrsnsfer = session.id === Constant.FILE_TRANSFER.id;
     const isSet = 'isSession' in session ? (session.groupId ? true : false) : true;
+    const hideChat = md.global.SysSettings.forbidSuites.includes('6');
     // const isSet = session.groupId ? true : false;
     return (
       <div className="ChatPanel-header">
@@ -303,7 +304,7 @@ class ChatPanelHeader extends Component {
               <i onClick={this.handleSearchHidden.bind(this)} className="icon-delete ThemeColor3 iconHover" />
             </div>
           )}
-          {session.isGroup || isFileTrsnsfer ? (
+          {session.isGroup || isFileTrsnsfer || hideChat ? (
             undefined
           ) : (
             <Tooltip text={<span>{_l('发起聊天')}</span>}>

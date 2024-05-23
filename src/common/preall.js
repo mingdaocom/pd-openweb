@@ -68,6 +68,21 @@ const clearLocalStorage = () => {
   } catch (err) {}
 };
 
+function navigateToLogin() {
+  const host = location.host;
+  const link = `?ReturnUrl=${encodeURIComponent(location.href)}`;
+  let isSubDomain = false;
+
+  if (!_.includes(['meihua.mingdao.com', 'www.mingdao.com'], host)) {
+    isSubDomain = project.checkSubDomain({ host }, { ajaxOptions: { sync: true } });
+  }
+
+  location.href = isSubDomain ? `${window.subPath || ''}/network${link}` : `${window.subPath || ''}/login${link}`;
+  window.isWaiting = true;
+}
+
+window.navigateToLogin = navigateToLogin;
+
 const getGlobalMeta = ({ allowNotLogin, requestParams } = {}) => {
   const lang = getCurrentLang();
 
@@ -112,16 +127,7 @@ const getGlobalMeta = ({ allowNotLogin, requestParams } = {}) => {
   if (allowNotLogin || window.isPublicApp) return;
 
   if (!md.global.Account.accountId) {
-    const host = location.host;
-    const link = `?ReturnUrl=${encodeURIComponent(location.href)}`;
-    let isSubDomain = false;
-
-    if (!_.includes(['meihua.mingdao.com', 'www.mingdao.com'], host)) {
-      isSubDomain = project.checkSubDomain({ host }, { ajaxOptions: { sync: true } });
-    }
-
-    location.href = isSubDomain ? `${window.subPath || ''}/network${link}` : `${window.subPath || ''}/login${link}`;
-    window.isWaiting = true;
+    navigateToLogin();
     return;
   }
 

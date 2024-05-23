@@ -7,6 +7,7 @@ import * as actions from 'src/pages/chat/redux/actions';
 class InfoTop extends React.PureComponent {
   render() {
     const { userInfo, isMe, dispatch } = this.props;
+    const hideChat = md.global.SysSettings.forbidSuites.includes('6');
 
     const sendMessage = () => {
       dispatch(actions.addUserSession(userInfo.accountId));
@@ -79,14 +80,16 @@ class InfoTop extends React.PureComponent {
           <div className="TxtMiddle pLeft5">
             {!isMe && (
               <React.Fragment>
-                <div className="Left">
-                  <a href="javascript:void(0);" className="NoUnderline">
-                    <span className="mLeft10 TxtMiddle icon-replyto Font18 ThemeColor4" title={_l('发送私信')} />
-                    <span className="TxtMiddle Font12 ThemeColor4 pLeft5" onClick={sendMessage}>
-                      {_l('发送私信')}
-                    </span>
-                  </a>
-                </div>
+                {!hideChat && (
+                  <div className="Left">
+                    <a href="javascript:void(0);" className="NoUnderline">
+                      <span className="mLeft10 TxtMiddle icon-replyto Font18 ThemeColor4" title={_l('发送私信')} />
+                      <span className="TxtMiddle Font12 ThemeColor4 pLeft5" onClick={sendMessage}>
+                        {_l('发送私信')}
+                      </span>
+                    </a>
+                  </div>
+                )}
                 <div className="Left">
                   <a href={`mailto:${userInfo.email}`} className="NoUnderline">
                     <span className="mLeft30 TxtMiddle icon-message Font18 ThemeColor4" title={_l('发送 E-mail')} />

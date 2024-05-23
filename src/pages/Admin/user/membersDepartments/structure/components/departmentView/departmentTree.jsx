@@ -333,8 +333,10 @@ class DepartmentTree extends React.Component {
   };
 
   renderTreeNodes = (data, hasMore, parentData) => {
+    const { expandedKeys } = this.props;
     let htmlDiv = () => {
       return data.map(item => {
+        const subDepartments = item.subDepartments || [];
         return (
           <TreeNode
             {...item}
@@ -377,7 +379,11 @@ class DepartmentTree extends React.Component {
               </React.Fragment>
             }
             dataRef={item}
-            isLeaf={!item.haveSubDepartment && !(item.subDepartments && item.subDepartments.length > 0)}
+            isLeaf={
+              _.includes(expandedKeys, item.departmentId)
+                ? !subDepartments.length
+                : !item.haveSubDepartment && !subDepartments.length
+            }
           >
             {item.subDepartments && item.subDepartments.length
               ? this.renderTreeNodes(

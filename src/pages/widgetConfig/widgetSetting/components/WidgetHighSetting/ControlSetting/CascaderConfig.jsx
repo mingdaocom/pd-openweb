@@ -249,7 +249,12 @@ export default function CascaderConfig(props) {
             onClick={checked => onChange(handleAdvancedSettingChange(data, { allpath: String(+!checked) }))}
           >
             <span>{_l('选择结果显示层级路径')}</span>
-            <Tooltip placement="bottom" title={_l('勾选后，将呈现选项路径。例：上海市/徐汇区/漕河泾')}>
+            <Tooltip
+              placement="bottom"
+              title={_l(
+                '勾选后，将完整展示选项的层级路径，如：上海市/徐汇区/漕河泾。注意，当数据源表记录数大于10000条时，不显示路径。',
+              )}
+            >
               <i className="icon-help Gray_9e Font16"></i>
             </Tooltip>
           </Checkbox>

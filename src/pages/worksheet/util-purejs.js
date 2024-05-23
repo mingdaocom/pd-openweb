@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import _ from 'lodash';
+import _, { filter, get, includes } from 'lodash';
 
 export function countChar(str = '', char) {
   if (!str || !char) {
@@ -96,7 +96,7 @@ export function formatControlValue(cell) {
       case 9: // OPTIONS 单选 平铺
       case 10: // MULTI_SELECT 多选
       case 11: // OPTIONS 单选 下拉
-        selectedOptions = getSelectedOptions(cell.options, cell.value);
+        selectedOptions = getSelectedOptions(cell.options, cell.value, cell);
         return selectedOptions.map((option, index) => option.value);
       case 26: // USER_PICKER 成员
         parsedData = JSON.parse(value);
@@ -167,14 +167,18 @@ export function formatControlValue(cell) {
 }
 
 /** 获取选项 */
-export function getSelectedOptions(options, value) {
+export function getSelectedOptions(options, value, control) {
   if (!value || value === '[]') {
     return [];
   }
   let selectedKeys = [];
   try {
     selectedKeys = JSON.parse(value);
-    return selectedKeys
+    return (
+      get(control, 'advancedSetting.checktype') === '0'
+        ? filter(options, option => includes(selectedKeys, option.key) && !option.isDeleted).map(option => option.key)
+        : selectedKeys
+    )
       .map(key =>
         _.find(options, option => {
           if (key.indexOf('other') > -1 || key.indexOf('add_') > -1) {

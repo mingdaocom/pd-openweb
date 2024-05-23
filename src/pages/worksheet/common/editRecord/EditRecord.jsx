@@ -138,6 +138,7 @@ export default class EditRecord extends Component {
       searchArgs,
       quickFilter,
       navGroupFilters,
+      filtersGroup,
       allWorksheetIsSelected,
       clearSelect = () => {},
       hideEditRecord,
@@ -237,6 +238,7 @@ export default class EditRecord extends Component {
         ]),
       );
       args.navGroupFilters = navGroupFilters;
+      args.filtersGroup = filtersGroup;
       args.keyWords = searchArgs.keyWords;
       args.searchType = searchArgs.searchType;
     }

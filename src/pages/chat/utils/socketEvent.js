@@ -1,7 +1,6 @@
 import React from 'react';
 import * as actions from '../redux/actions';
 import { mdNotification } from 'ming-ui/functions';
-import renderLogout from '../components/Logout';
 import { getPssId } from 'src/util/pssId';
 import { removeFlashTitle } from './index';
 import sessionNewMsgAudio from 'src/pages/chat/lib/mp3player/sessionNewMsgAudio.html';
@@ -26,7 +25,7 @@ export const socketInitEvent = function () {
       $('.mdAlertDialog').remove();
       setTimeout(() => {
         if (!window.currentLeave) {
-          renderLogout();
+          window.navigateToLogin();
         }
       }, 200);
     }

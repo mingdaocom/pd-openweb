@@ -334,7 +334,7 @@ export default class Options extends React.Component {
       onClick,
     } = this.props;
     const { value, verticalPlace } = this.state;
-    const selectedOptions = value ? getSelectedOptions(cell.options, value) : [];
+    const selectedOptions = value ? getSelectedOptions(cell.options, value, cell) : [];
     const isMultiple = cell.type === 10;
     const isOther = selectedOptions[0] && selectedOptions[0].key === 'other';
     let getPopupContainer =

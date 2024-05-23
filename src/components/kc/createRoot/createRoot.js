@@ -426,7 +426,7 @@ $.extend(RootSettings.prototype, {
                       .append($('<span class="remove" style="display: none;">移除</span>'));
                   }
                   if (accountId === md.global.Account.accountId) {
-                    _this.settings.deferred.notify(
+                    _this.settings.resolve(
                       $.extend({}, root, {
                         permission: changePermision,
                       }),
@@ -502,7 +502,7 @@ $.extend(RootSettings.prototype, {
                   var newMembers = root.members.filter(function (m) {
                     return m.accountId !== memberId.toLowerCase();
                   });
-                  _this.settings.deferred.notify(
+                  _this.settings.resolve(
                     $.extend({}, root, {
                       members: newMembers,
                     }),
@@ -545,7 +545,7 @@ $.extend(RootSettings.prototype, {
                       staredTime: star ? new Date().toISOString() : null,
                     },
               );
-              _this.settings.deferred.notify(newRoot);
+              _this.settings.resolve(newRoot);
             })
             .catch(function () {
               alert('操作失败,请稍后重试', 3);
@@ -582,7 +582,7 @@ $.extend(RootSettings.prototype, {
 
               alert('操作成功');
               _this.settings.name = root.name = name;
-              _this.settings.deferred.notify(
+              _this.settings.resolve(
                 $.extend({}, root, {
                   name: name,
                 }),
@@ -725,7 +725,7 @@ $.extend(RootSettings.prototype, {
                       return m.accountId !== removeMemberId.toLowerCase();
                     });
                     if (isExit) {
-                      _this.settings.deferred.resolve(null);
+                      _this.settings.resolve(null);
                       $('.createFolderBox').parent().remove();
                     } else {
                       $this.closest('.memberItem').slideUp(function () {
@@ -733,7 +733,7 @@ $.extend(RootSettings.prototype, {
                         $(this).remove();
                       });
 
-                      _this.settings.deferred.notify(
+                      _this.settings.resolve(
                         $.extend({}, root, {
                           members: newMembers,
                         }),
@@ -804,7 +804,7 @@ $.extend(RootSettings.prototype, {
                   var newOwnerHtml = doT.template(addMemberTpl)({ members: members, myPermis: root.permission });
                   $folderMemberBox.find('ul').html(newOwnerHtml).find('>li.Hidden').removeClass('Hidden');
                   root.members = members;
-                  _this.settings.deferred.notify(root);
+                  _this.settings.resolve(root);
                 })
                 .catch(function () {
                   if (root.project && root.project.projectId) {
@@ -970,7 +970,7 @@ $.extend(RootSettings.prototype, {
 
               $('.folderMembers .folderMemberBox ul li.Hidden').slideDown(_this.nanoScroller);
 
-              createRoot.settings.deferred.notify($.extend({}, root, { members: root.members }));
+              createRoot.settings.resolve($.extend({}, root, { members: root.members }));
             }
           }
 

@@ -23,7 +23,7 @@ const handleDialogCallback = (dispatch, payload) => {
       //跟部门不可删除
       if (parentDepartmentId === '') {
         dispatch(removeCursor());
-        dispatch(deleteDepartment({ departmentId, parentId: parentDepartmentId }));
+        dispatch(deleteDepartment({ departmentId, parentId: parentDepartmentId, expandedKeys }));
         // dispatch(loadDepartments(''));
         dispatch(updateTypeCursor(0));
         dispatch(loadAllUsers(projectId, 1));

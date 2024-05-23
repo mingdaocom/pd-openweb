@@ -162,7 +162,7 @@ export default function SourceSelectModal({ projectId, isCreateConnector, onChan
                           return;
                         }
                         setCurrentTab(item.key);
-                        document.getElementById(item.key).scrollIntoView();
+                        document.getElementById(item.key) && document.getElementById(item.key).scrollIntoView();
                       }}
                     >
                       <a className="pLeft18">{item.text}</a>

@@ -189,8 +189,7 @@ export default class GroupsList extends Component {
     }
     groupController.getGroups(reqData).then(data => {
       this.setState({
-        // count: data.allCount,
-        count: 49,
+        count: data.allCount,
         list: data.list,
         loading: false,
       });

@@ -551,6 +551,7 @@ export const loginCallback = data => {
             loginType: data.loginType,
             account,
             projectId,
+            time: new Date(),
           }),
         );
       }

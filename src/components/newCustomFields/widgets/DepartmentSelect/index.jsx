@@ -68,7 +68,7 @@ export default class Widgets extends Component {
   }
 
   render() {
-    const { projectId, disabled, enumDefault, appId, advancedSetting = {} } = this.props;
+    const { projectId, disabled, enumDefault, appId, advancedSetting = {}, recordId } = this.props;
     const { allpath } = advancedSetting;
     const value = dealRenderValue(this.props.value, advancedSetting);
     const { showSelectDepartment } = this.state;
@@ -78,6 +78,7 @@ export default class Widgets extends Component {
         {value.map((item, index) => {
           return (
             <Tooltip
+              key={item.departmentId}
               mouseEnterDelay={0.6}
               disable={!projectId}
               text={

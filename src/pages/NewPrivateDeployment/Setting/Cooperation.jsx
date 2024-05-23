@@ -27,6 +27,7 @@ const Cooperation = props => {
         <Checkbox className="mRight15" checked={!forbidSuites.includes('2')} onChange={() => handleChangeForbidSuites('2')}>{_l('任务')}</Checkbox>
         <Checkbox className="mRight15" checked={!forbidSuites.includes('3')} onChange={() => handleChangeForbidSuites('3')}>{_l('日程')}</Checkbox>
         <Checkbox className="mRight15" checked={!forbidSuites.includes('4')} onChange={() => handleChangeForbidSuites('4')}>{_l('文件')}</Checkbox>
+        <Checkbox className="mRight15" checked={!forbidSuites.includes('6')} onChange={() => handleChangeForbidSuites('6')}>{_l('聊天')}</Checkbox>
       </div>
     </div>
   );

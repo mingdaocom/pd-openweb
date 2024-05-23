@@ -171,6 +171,11 @@ export default class Message extends Component {
                 '短信0.05元/条，自动从企业账务中心扣费。70字计一条短信，超过70字以67字每条计费。每个标点、空格、英文字母都算一个字。短信实际发送可能有10-20分钟的延时。暂不支持海外手机号。',
               )}
             </span>
+            <Support
+              type={3}
+              href="https://help.mingdao.com/workflow/sms-failure"
+              text={<span className="ThemeColor3 ThemeHoverColor2">{_l('收不到短信？')}</span>}
+            />
           </div>
         )}
         <div className="mTop20 bold">{_l('发送给')}</div>

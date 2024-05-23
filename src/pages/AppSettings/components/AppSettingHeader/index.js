@@ -76,7 +76,7 @@ export default function AppSettingHeader(props) {
       </div>
       {description && (
         <div>
-          <span className="Gray_9e TxtMiddle">{description}</span>
+          <span className="Gray_75 TxtMiddle">{description}</span>
           {link && <Support text={_l('帮助')} type={3} href={link} />}
         </div>
       )}

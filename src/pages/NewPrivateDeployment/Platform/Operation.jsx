@@ -55,7 +55,7 @@ const EventSubscription = props => {
       </div>
       <ConfigProvider autoInsertSpaceInButton={false}>
         <Button
-          style={{ width: 120 }}
+          style={{ width: 'max-content' }}
           type="primary"
           onClick={handleSendCsmWebhookTest}
         >
