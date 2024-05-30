@@ -528,8 +528,7 @@ export function handleSaveSheetLayout({ updateWorksheetControls, columns, column
 export function handleRemoveRelation(recordIds) {
   return async (dispatch, getState) => {
     const { base = {}, tableState = {} } = getState();
-    const { from, saveSync, recordId, appId, viewId, worksheetId, control } = base;
-    const { count, pageSize, allIsSelected, instanceId, workId } = tableState;
+    const { from, saveSync, recordId, appId, viewId, worksheetId, control, instanceId, workId } = base;
     if (recordIds && !isArray(recordIds)) {
       recordIds = [recordIds];
     }

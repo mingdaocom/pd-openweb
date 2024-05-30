@@ -300,6 +300,7 @@ class History extends Component {
       requestPending,
       batchIds,
       selectNodeObj,
+      archivedId,
     } = this.state;
     const { lastPublishDate, parentId, enabled } = flowInfo;
     const isMoreHistory = !_.isEmpty(filters) && !showFilter;
@@ -381,6 +382,7 @@ class History extends Component {
                 <ArchivedList
                   className="mLeft10 ThemeColor3 ThemeHoverColor2"
                   hideIcon
+                  archivedId={archivedId}
                   onChange={archivedId => this.setState({ archivedId, pageIndex: 1 }, this.getData)}
                 />
               </Fragment>

@@ -257,6 +257,7 @@ export default class Con extends React.Component {
                               }}
                               width={'100%'}
                               colSpan={12}
+                              className='printTd'
                             >
                               {item[0].controlName}
                             </td>
@@ -271,6 +272,7 @@ export default class Con extends React.Component {
                             }}
                             width={'100%'}
                             colSpan={12}
+                            className='printTd'
                           >
                             {getPrintContent({
                               ...item[0],
@@ -307,6 +309,7 @@ export default class Con extends React.Component {
                         }}
                         width={728 - nameWidth}
                         colSpan={11}
+                        className='printTd'
                       >
                         {getPrintContent({
                           ...item[0],
@@ -369,6 +372,7 @@ export default class Con extends React.Component {
                                       : 728 - nameWidth
                                   }
                                   colSpan={span - 1}
+                                  className={`printTd${it.size}`}
                                 >
                                   {getPrintContent({ ...it, showUnit: true, printOption, ...dataInfo })}
                                 </td>

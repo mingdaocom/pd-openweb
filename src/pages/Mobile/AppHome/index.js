@@ -156,9 +156,8 @@ class AppHome extends React.Component {
   };
   filterSearchResult = (apps = [], keyWords) => {
     return apps.filter(
-      item =>
-        new RegExp((keyWords || '').trim().toUpperCase()).test(item.name) ||
-        new RegExp((keyWords || '').trim().toUpperCase()).test((item.enName || '').toUpperCase()),
+      app =>
+        [app.enName, app.name].filter(_.identity).join('').toLowerCase().indexOf(keyWords.trim().toLowerCase()) > -1,
     );
   };
   renderSearchApp = () => {

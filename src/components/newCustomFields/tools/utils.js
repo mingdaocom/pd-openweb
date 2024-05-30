@@ -16,6 +16,7 @@ import { WFSTATUS_OPTIONS } from 'src/pages/worksheet/components/WorksheetRecord
 import { TITLE_SIZE_OPTIONS } from 'src/pages/widgetConfig/config/setting';
 import { HAVE_VALUE_STYLE_WIDGET } from 'src/pages/widgetConfig/config/index.js';
 import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
+import { isEmptyValue } from './filterFn';
 
 export const convertControl = type => {
   switch (type) {
@@ -313,7 +314,13 @@ export function formatControlToServer(
         control.store
       ) {
         state = control.store.getState();
-        if (isNewRecord || _.includes(hasDefaultRelateRecordTableControls, control.controlId)) {
+        if (isDraft && control.advancedSetting.showtype === String(RELATE_RECORD_SHOW_TYPE.TABLE)) {
+          result.value = JSON.stringify(
+            state.records
+              .map(record => ({ sid: record.rowid }))
+              .concat(state.changes.addedRecordIds.map(id => ({ sid: id }))),
+          );
+        } else if (isNewRecord || _.includes(hasDefaultRelateRecordTableControls, control.controlId)) {
           result.value = JSON.stringify(state.records.map(record => ({ sid: record.rowid })));
         } else if (
           !isEmpty(state.changes) &&
@@ -1180,7 +1187,7 @@ export const getValueStyle = data => {
         isTextArea: item.type === 2 && item.enumDefault === 1,
         height: valuesize !== '0' ? (parseInt(valuesize) - 1) * 2 + 40 : 36,
         size: TITLE_SIZE_OPTIONS[valuesize],
-        valueStyle: item.value ? `color: ${valuecolor} !important;${getTitleStyle(valuestyle)}` : '',
+        valueStyle: isEmptyValue(item.value) ? '' : `color: ${valuecolor} !important;${getTitleStyle(valuestyle)}`,
       }
     : { type };
 };

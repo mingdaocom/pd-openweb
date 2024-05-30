@@ -200,7 +200,7 @@ class RowData {
     this.formData.updateDataSource({ controlId, value });
     let updatedControlIds = this.formData.controlIds.concat('rowid');
     updatedControlIds = updatedControlIds.concat(
-      controls.filter(c => c.type === 30 && includes(c.dataSource, controlId)).map(c => c.controlId),
+      controls.filter(c => includes([30, 31, 32], c.type) && includes(c.dataSource, controlId)).map(c => c.controlId),
     );
     updateRow(pick(this.getRow(), updatedControlIds));
   }

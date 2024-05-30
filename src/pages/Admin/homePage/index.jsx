@@ -146,15 +146,15 @@ export default function HomePage({ match, location: routerLocation }) {
   const getValue = value => (_.isUndefined(value) || _.isNaN(value) ? '-' : value);
 
   const getCountText = (key, limit, numUnit) => {
-    const isAttchmentUpload = key === 'effectiveApkStorageCount'; // 附件上传量
-    let percent = isAttchmentUpload
+    const isAttachmentUpload = key === 'effectiveApkStorageCount'; // 附件上传量
+    let percent = isAttachmentUpload
       ? ((data[key] / (getValue(data[limit]) * Math.pow(1024, 3))) * 100).toFixed(2)
       : data[key] / data[limit] > 0 && (data[key] / data[limit]) * 10000 <= 1
       ? 0.01
       : ((data[key] / data[limit]) * 100).toFixed(2);
 
     const getUsage = key => {
-      return isAttchmentUpload
+      return isAttachmentUpload
         ? formatFileSize(data[key])
         : isEnLang
         ? `${formatValue(data[key])} ${numUnit}`
@@ -172,7 +172,7 @@ export default function HomePage({ match, location: routerLocation }) {
         <div className="flex TxtRight">
           <span>{getUsage(key)}</span>
           <span className="mLeft4">/</span>
-          <span className="mLeft4">{getUsage(limit)}</span>
+          <span className="mLeft4">{isAttachmentUpload ? `${data[limit]}GB` : getUsage(limit)}</span>
         </div>
       </div>
     );

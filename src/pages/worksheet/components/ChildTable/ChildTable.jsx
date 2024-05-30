@@ -769,13 +769,12 @@ class ChildTable extends React.Component {
         key: _.last(JSON.parse(value)),
         ...JSON.parse(_.last(JSON.parse(value))),
       };
-      const newControl = { ...control, options: _.uniqBy([...control.options, newOption], 'key') };
-      this.setState(
-        {
-          controls: controls.map(c => (c.controlId === control.controlId ? newControl : c)),
-        },
-        update,
-      );
+      controls.forEach(c => {
+        if (c.controlId === control.controlId) {
+          c.options = _.uniqBy([...control.options, newOption], 'key');
+        }
+      });
+      update();
       return;
     }
     update.apply(this);

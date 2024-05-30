@@ -31,7 +31,6 @@ export default class SubDomain extends Component {
       this.images = new Array(5).fill(1).map(function(item, index) {
         return `${attUrl}HomeImage_1${index + 1}.jpg?imageView2/2/w/194/h/52/q/90`;
       });
-      console.log(this.images);
       const splitHome = homeImage.split('/') || [];
       this.setState(
         {
@@ -137,17 +136,6 @@ export default class SubDomain extends Component {
   }
 
   handleSubmit() {
-    if (this.state.subDomain) {
-      this.handleHomeImageSubmit().then(images => {
-        if (images) {
-          alert(_l('设置成功'));
-          this.props.setLevel(1);
-        } else {
-          alert(_l('设置失败'), 2);
-        }
-      });
-      return;
-    }
     Promise.all([this.handleHomeImageSubmit(), this.handleSubDomainSubmit()]).then(([images, name]) => {
       if (images && name === 1) {
         alert(_l('设置成功'));
@@ -169,7 +157,7 @@ export default class SubDomain extends Component {
 
   handleSubDomainSubmit() {
     return projectSettingController.setSubDomin({
-      subDomain: this.state.domainName,
+      subDomain: _.trim(this.state.domainName),
       projectId: Config.projectId,
     });
   }

@@ -4,10 +4,10 @@ import { Icon, Menu, MenuItem } from 'ming-ui';
 import instance from 'src/pages/workflow/api/instance';
 import cx from 'classnames';
 
-export default ({ className, hideIcon = false, onChange = () => {} }) => {
+export default ({ className, hideIcon = false, archivedId = '', onChange = () => {} }) => {
   const [showList, setShowList] = useState(false);
   const [list, setList] = useState([]);
-  const [selectId, setSelectId] = useState('');
+  const [selectId, setSelectId] = useState(archivedId);
   const onSelect = (item = {}) => {
     setSelectId(item.id);
     onChange(item.id);

@@ -13,6 +13,7 @@ export default class WidgetsVerifyCode extends Component {
       isSubmit: false,
       count: 0,
     };
+    this.inputRef = React.createRef();
   }
 
   componentDidMount() {
@@ -41,9 +42,10 @@ export default class WidgetsVerifyCode extends Component {
       return;
     }
 
+    this.inputRef.current && this.inputRef.current.focus();
     this.setState({ isSubmit: true });
 
-    const cb = function(res) {
+    const cb = function (res) {
       if (res.ret !== 0) {
         _this.setState({ isSubmit: false });
         return;
@@ -121,6 +123,7 @@ export default class WidgetsVerifyCode extends Component {
     return (
       <div className="customFormControlVerify">
         <input
+          ref={this.inputRef}
           className={cx('customFormControlBox', { verifyCodeStyle: size === 4 })}
           value={verifyCode}
           maxLength={4}

@@ -21,6 +21,7 @@ const { Step } = Steps;
 const items = [{ title: _l('上传文件') }, { title: _l('升级范围') }, { title: _l('开始导入') }];
 const detailTypeList = UPGRADE_DETAIL_TYPE_LIST.map(v => v.type);
 const upgradeTypeList = UPGARADE_TYPE_LIST.map(v => v.type);
+
 export default class UpgradeProcess extends Component {
   constructor(props) {
     super(props);

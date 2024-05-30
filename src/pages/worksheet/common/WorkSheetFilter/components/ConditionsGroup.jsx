@@ -243,7 +243,7 @@ export default function ConditionsGroup(props) {
         <ConditionCon isSingleFilter={isSingleFilter}>
           <ConditionHeader />
           <div className="flex">
-            <AddCondition columns={filterAddConditionControls(controls)} onAdd={onAdd}>
+            <AddCondition columns={filterAddConditionControls(controls)} onAdd={onAdd} from={from}>
               <AddButton
                 className="mRight30 ThemeHoverColor3"
                 icon="add"

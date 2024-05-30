@@ -65,7 +65,7 @@ axios.interceptors.response.use(
   },
   function (error) {
     if (get(error, 'response.status') === 401 && isFunction(window.navigateToLogin)) {
-      window.navigateToLogin();
+      window.navigateToLogin({ needSecondCheck: true });
       return;
     }
     return Promise.reject(error);

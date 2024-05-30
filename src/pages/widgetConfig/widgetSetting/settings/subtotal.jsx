@@ -318,8 +318,7 @@ export default function Subtotal(props) {
             {visible && (
               <FilterDialog
                 {...props}
-                // 汇总筛选不支持日期字段
-                relationControls={availableControls.filter(i => !_.includes([15, 16], i.type))}
+                relationControls={availableControls}
                 fromCondition={'subTotal'}
                 helpHref="https://help.mingdao.com/worksheet/control-rollup"
                 onChange={({ filters }) => {

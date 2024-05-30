@@ -2,7 +2,7 @@ import React, { Fragment, useState, useEffect } from 'react';
 import { useSetState } from 'react-use';
 import PrivateLinkDialog from './components/PrivateLinkDialog';
 import { Switch, Checkbox, Radio, Icon } from 'ming-ui';
-import { Button, Divider } from 'antd';
+import { Button, Divider, Input } from 'antd';
 import { updateSysSettings } from '../common';
 import { BrandHomeImage } from '../Platform/Brand';
 import _ from 'lodash';
@@ -185,4 +185,123 @@ const Login = props => {
   );
 };
 
-export default Login;
+const Sso = prosp => {
+  const { SysSettings } = md.global;
+  const [edit, setEdit] = useState(false);
+  const [ssoWebUrl, setSsoWebUrl] = useState(SysSettings.ssoWebUrl);
+  const [ssoAppUrl, setSsoAppUrl] = useState(SysSettings.ssoAppUrl);
+  const [ssoName, setSsoName] = useState(SysSettings.ssoName);
+  const [enableSso, setEnableSso] = useState(SysSettings.enableSso || false);
+  const handleSave = () => {
+    updateSysSettings({
+      ssoWebUrl,
+      ssoAppUrl,
+      ssoName,
+    }, () => {
+      md.global.SysSettings.ssoWebUrl = ssoWebUrl;
+      md.global.SysSettings.ssoAppUrl = ssoAppUrl;
+      md.global.SysSettings.ssoName = ssoName;
+      setEdit(false);
+    });
+  };
+  const handleReset = () => {
+    setSsoWebUrl(SysSettings.ssoWebUrl);
+    setSsoAppUrl(SysSettings.ssoAppUrl);
+    setSsoName(SysSettings.ssoName);
+    setEdit(false);
+  };
+  return (
+    <div className="privateCardWrap flexColumn">
+      <div className="flexRow">
+        <div className="flex Font17 bold mBottom5">
+          {_l('SSO')}
+        </div>
+        <Switch
+          checked={!enableSso}
+          onClick={value => {
+            updateSysSettings({
+              enableSso: value
+            }, () => {
+              setEnableSso(value);
+              md.global.SysSettings.enableSso = value;
+            });
+          }}
+        />
+      </div>
+      <div className="mBottom15 Gray_9e">{_l('设置SSO登录页地址，可以在登录页显示按钮')}</div>
+
+      {edit ? (
+        <Fragment>
+          <div className="flexColumn mBottom20">
+            <div className="mBottom5">{'PC'}</div>
+            <Input
+              className="flex"
+              value={ssoWebUrl}
+              onChange={event => {
+                setSsoWebUrl(event.target.value.replace(/\s/g, ''));
+              }}
+            />
+          </div>
+          <div className="flexColumn mBottom20">
+            <div className="mBottom5">{'H5'}</div>
+            <Input
+              className="flex"
+              value={ssoAppUrl}
+              onChange={event => {
+                setSsoAppUrl(event.target.value.replace(/\s/g, ''));
+              }}
+            />
+          </div>
+          <div className="flexColumn mBottom20">
+            <div className="mBottom5">{_l('按钮名称')}</div>
+            <Input
+              className="flex"
+              value={ssoName}
+              onChange={event => {
+                setSsoName(event.target.value.replace(/\s/g, ''));
+              }}
+            />
+          </div>
+          <div className="flexRow valignWrapper">
+            <Button className="mRight10" type="primary" onClick={handleSave}>{_l('保存')}</Button>
+            <Button onClick={handleReset}>{_l('取消')}</Button>
+          </div>
+        </Fragment>
+      ) : (
+        <Fragment>
+          {ssoWebUrl && (
+            <div className="flexRow mBottom20">
+              <div className="mRight25 Gray_9e">{'PC'}</div>
+              <div>{ssoWebUrl}</div>
+            </div>
+          )}
+          {ssoAppUrl && (
+            <div className="flexRow mBottom20">
+              <div className="mRight25 Gray_9e">{'H5'}</div>
+              <div>{ssoAppUrl}</div>
+            </div>
+          )}
+          {ssoName && (
+            <div className="flexRow mBottom20">
+              <div className="mRight25 Gray_9e">{_l('按钮名称')}</div>
+              <div>{ssoName}</div>
+            </div>
+          )}
+          <Button ghost type="primary" style={{ width: 'max-content' }} onClick={() => setEdit(true)}>
+            {_l('设置')}
+          </Button>
+        </Fragment>
+      )}
+
+    </div>
+  );
+}
+
+export default props => {
+  return (
+    <Fragment>
+      <Login {...props } />
+      <Sso {...props } />
+    </Fragment>
+  );
+};

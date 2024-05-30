@@ -362,6 +362,7 @@ export default class Condition extends Component {
                 <span className="relation">
                   <Dropdown
                     dropIcon="task_custom_btn_unfold"
+                    key={`${control.controlId}-${condition.type}`}
                     defaultValue={
                       getControlSelectType(control).isMultiple && condition.type === FILTER_CONDITION_TYPE.EQ_FOR_SINGLE
                         ? control.type === 29

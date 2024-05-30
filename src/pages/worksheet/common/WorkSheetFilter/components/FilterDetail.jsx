@@ -253,6 +253,7 @@ export default function FilterDetail(props) {
         {(!filter.isGroup || (filter.isGroup && conditionsGroups.length === 1)) && (
           <AddCondition
             columns={filterAddConditionControls(controls)}
+            from={from}
             onAdd={control => {
               if (filter.isGroup) {
                 actions.addCondition(control, undefined, from);

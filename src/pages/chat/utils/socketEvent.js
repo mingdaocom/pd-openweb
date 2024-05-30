@@ -25,7 +25,7 @@ export const socketInitEvent = function () {
       $('.mdAlertDialog').remove();
       setTimeout(() => {
         if (!window.currentLeave) {
-          window.navigateToLogin();
+          window.navigateToLogin({ needSecondCheck: true });
         }
       }, 200);
     }

@@ -233,10 +233,11 @@ function AddWorkflowDialog(props) {
     checked: [],
   });
 
-  const [{ appList, appLoading, appIndex }, setApp] = useSetState({
+  const [{ appList, appLoading, appIndex, total }, setApp] = useSetState({
     appList: [],
     appLoading: false,
     appIndex: 1,
+    total: 0,
   });
 
   const searchRef = useRef();
@@ -254,9 +255,13 @@ function AddWorkflowDialog(props) {
   }, [checkedDialog.list]);
 
   const getAppList = (pageIndex, keywords) => {
-    setApp({ appLoading: true });
     const _pageIndex = pageIndex || appIndex;
+
+    if (_pageIndex > 1 && appList.length >= total || appLoading) return;
+
+    setApp({ appLoading: true });
     const searchText = keywords !== undefined ? keywords : searchApp;
+
     appManagement
       .getAppsForProject({
         projectId,
@@ -266,11 +271,12 @@ function AddWorkflowDialog(props) {
         pageSize: 100,
         keyword: searchText,
       })
-      .then(({ apps }) => {
+      .then(({ apps, total }) => {
         setApp({
-          appList: apps,
+          appList: _pageIndex > 1 ? appList.concat(apps) : apps,
           appLoading: false,
           appIndex: _pageIndex + 1,
+          total,
         });
       });
   };

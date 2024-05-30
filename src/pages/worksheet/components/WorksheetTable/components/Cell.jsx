@@ -49,6 +49,7 @@ export function getIndex({
 
 const MemorizedDataCell = memo(DataCell, (prevProps, nextProps) => {
   const compareKeys = [
+    'lineEditable',
     'style',
     'className',
     'row.rowid',

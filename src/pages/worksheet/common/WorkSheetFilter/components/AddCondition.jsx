@@ -57,6 +57,12 @@ export default class AddCondition extends Component {
     if (from === 'rule') {
       columns = columns.filter(item => !_.includes(SYS, item.controlId));
     }
+    // 汇总不支持日期控件
+    if (from === 'subTotal') {
+      columns = columns.filter(
+        item => !(_.includes([15, 16], item.type) || (item.type === 38 && item.enumDefault === 2)),
+      );
+    }
     if (md.global.Account.isPortal) {
       columns = columns.filter(item => !_.includes(['ownerid', 'caid', 'uaid'], item.controlId));
     }

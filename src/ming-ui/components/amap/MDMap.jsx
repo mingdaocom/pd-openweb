@@ -175,12 +175,14 @@ export default class MDMap extends Component {
     return false;
   }
 
-  handleChange = event => {
+  handleChange = () => {
     const { distance } = this.props;
     const { lat, lng } = this._maphHandler.map && this._maphHandler.map.getCenter();
 
+    const keywords = _.get(this.searchRef, 'value') || '';
+
     if (!distance) {
-      new AMap.PlaceSearch().search(event.currentTarget.value.trim(), (status, result) => {
+      new AMap.PlaceSearch().search(keywords.trim(), (status, result) => {
         this.setState({
           list:
             status === 'complete'
@@ -192,7 +194,7 @@ export default class MDMap extends Component {
     }
 
     new AMap.PlaceSearch({ citylimit: true, pageSize: 50 }).searchNearBy(
-      event.currentTarget.value.trim(),
+      keywords.trim(),
       [lng, lat],
       distance,
       (status, result) => {
@@ -278,10 +280,11 @@ export default class MDMap extends Component {
           <Icon icon="search" className="Gray_9e Font16 Absolute" style={{ left: 12, top: 10 }} />
           <input
             type="text"
+            ref={con => (this.searchRef = con)}
             placeholder={_l('搜索地点')}
             className="MDMapInput Gray"
-            onKeyUp={e => e.keyCode === 13 && this.handleChange(e)}
-            onChange={this.handleChange}
+            onKeyUp={e => e.keyCode === 13 && this.handleChange()}
+            onChange={_.debounce(e => this.handleChange(), 500)}
           />
         </div>
         {!!distance && (

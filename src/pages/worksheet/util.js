@@ -1710,7 +1710,7 @@ export function clearSelection() {
 export function getControlStyles(controls) {
   return controls
     .filter(c => _.includes(HAVE_VALUE_STYLE_WIDGET, c.type === 30 ? c.sourceControlType : c.type))
-    .map(c => ({ controlId: c.controlId, valueStyle: getValueStyle({ ...c, value: ' ' }).valueStyle }))
+    .map(c => ({ controlId: c.controlId, valueStyle: getValueStyle({ ...c, value: '_' }).valueStyle }))
     .filter(c => c.valueStyle)
     .map(
       item => `

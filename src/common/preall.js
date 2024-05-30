@@ -1,4 +1,5 @@
 import React from 'react';
+import login from 'src/api/login';
 import global from 'src/api/global';
 import project from 'src/api/project';
 import { redirect } from 'src/router/navigateTo';
@@ -68,17 +69,30 @@ const clearLocalStorage = () => {
   } catch (err) {}
 };
 
-function navigateToLogin() {
-  const host = location.host;
-  const link = `?ReturnUrl=${encodeURIComponent(location.href)}`;
-  let isSubDomain = false;
+function navigateToLogin({ needSecondCheck } = {}) {
+  function handleNavigate() {
+    const host = location.host;
+    const link = `?ReturnUrl=${encodeURIComponent(location.href)}`;
+    let isSubDomain = false;
 
-  if (!_.includes(['meihua.mingdao.com', 'www.mingdao.com'], host)) {
-    isSubDomain = project.checkSubDomain({ host }, { ajaxOptions: { sync: true } });
+    if (!_.includes(['meihua.mingdao.com', 'www.mingdao.com'], host)) {
+      isSubDomain = project.checkSubDomain({ host }, { ajaxOptions: { sync: true } });
+    }
+
+    location.href = isSubDomain ? `${window.subPath || ''}/network${link}` : `${window.subPath || ''}/login${link}`;
+    window.isWaiting = true;
   }
-
-  location.href = isSubDomain ? `${window.subPath || ''}/network${link}` : `${window.subPath || ''}/login${link}`;
-  window.isWaiting = true;
+  if (needSecondCheck) {
+    setTimeout(() => {
+      login.checkLogin().then(isLogin => {
+        if (!isLogin) {
+          handleNavigate();
+        }
+      });
+    }, 2000);
+  } else {
+    handleNavigate();
+  }
 }
 
 window.navigateToLogin = navigateToLogin;

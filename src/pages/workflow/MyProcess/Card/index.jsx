@@ -12,7 +12,11 @@ export default class Card extends Component {
   constructor(props) {
     super(props);
   }
-
+  shouldComponentUpdate(nextProps, nextState) {
+    return !_.isEqual(this.props.item.id, nextProps.item.id) ||
+      this.props.approveChecked !== nextProps.approveChecked ||
+      this.props.type !== nextProps.type;
+  }
   renderHeader() {
     const { stateTab, item, showApproveChecked = true } = this.props;
     const { flowNode, workItem, flowNodeType, currentWorkFlowNodes, completeDate, instanceLog, status } = item;

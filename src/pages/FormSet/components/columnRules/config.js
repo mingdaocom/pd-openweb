@@ -82,7 +82,7 @@ function deepSearch(tree = [], controlId) {
       if (node.controlId === controlId) {
         results = node;
       }
-      if (!_.isEmpty(node.relationControls)) {
+      if (!_.isEmpty(node.relationControls) && !results) {
         recurse(node.relationControls);
       }
     });

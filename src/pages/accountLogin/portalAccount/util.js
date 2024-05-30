@@ -16,14 +16,18 @@ export const urlList = [
 ];
 
 export const getSuffix = url => {
-  let addressSuffix = decodeURIComponent(url)
-    .replace(/http(s)?:\/\/([^/]+)\//i, '')
-    .split(/portal\/(.*)/)
-    .filter(o => o)[0].split(/\/(.*)/)[0].split('?')[0];
+  let addressSuffix = (
+    (
+      decodeURIComponent(url)
+        .replace(/http(s)?:\/\/([^/]+)\//i, '')
+        .split(/portal\/(.*)/)
+        .filter(o => o)[0] || ''
+    ).split(/\/(.*)/)[0] || ''
+  ).split('?')[0];
   return addressSuffix;
 };
 
-export const replacePorTalUrl = (url) => {
+export const replacePorTalUrl = url => {
   //是外部门户 当前环境以自定义后缀访问
   if (
     md.global.Account.isPortal &&
@@ -34,8 +38,8 @@ export const replacePorTalUrl = (url) => {
   ) {
     url = url.replace('app/' + md.global.Account.appId, md.global.Account.addressSuffix);
   }
-  return url
-}
+  return url;
+};
 
 export const getAppId = params => {
   let { appId } = params;
@@ -54,16 +58,15 @@ export const toApp = appId => {
   }
 };
 
-
-export const getCurrentId = (cb) => {
+export const getCurrentId = cb => {
   const request = getRequest();
   const { ReturnUrl = '', mdAppId = '' } = request;
   if (!!mdAppId) {
-    cb(mdAppId)
-    return
+    cb(mdAppId);
+    return;
   }
   let href = decodeURIComponent(!!ReturnUrl ? ReturnUrl : location.href);
-  let currentAppId = ''
+  let currentAppId = '';
   urlList.map(o => {
     if (href.indexOf(o) >= 0) {
       currentAppId = href.substr(href.indexOf(o) + o.length, 36);
@@ -71,10 +74,10 @@ export const getCurrentId = (cb) => {
   });
   if (!currentAppId) {
     externalPortalAjax.getAppIdByAddressSuffix({ customeAddressSuffix: getSuffix(href) }).then(res => {
-      cb(res)
-    })
+      cb(res);
+    });
   } else {
-    cb(currentAppId)
+    cb(currentAppId);
   }
 };
 
@@ -83,9 +86,7 @@ export const goApp = (sessionId, appId) => {
   const request = getRequest();
   const { ReturnUrl = '' } = request;
   if (ReturnUrl) {
-
     window.location.replace(ReturnUrl);
-
   } else {
     //h5暂不处理后缀
     toApp(appId);
