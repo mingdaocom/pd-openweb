@@ -171,7 +171,7 @@ export default class Filter extends Component {
     let param = {
       resultType: newType,
       operationType: newOperationType,
-      keyword: searchValue,
+      keyword: searchValue.trim(),
       createAccountId: createAccount.accountId,
       status: status.value,
       apkId,
@@ -249,7 +249,7 @@ export default class Filter extends Component {
             onChange={event => {
               this.setState(
                 {
-                  searchValue: event.target.value.trim(),
+                  searchValue: event.target.value,
                 },
                 this.handleChange,
               );

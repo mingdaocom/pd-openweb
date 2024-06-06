@@ -119,7 +119,7 @@ export default class ProcessMatters extends Component {
       loading: false,
       isMore: true,
       bottomTab: bottomTab ? bottomTab : tabs[0],
-      topTab: _.find(tabs[0].tabs, { id: data.tab }) || tabs[0].tabs[0],
+      topTab: data.tab ? _.find(tabs[0].tabs, { id: data.tab }) : tabs[0].tabs[0],
       searchValue: '',
       countData: {},
       appCount: {},

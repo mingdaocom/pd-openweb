@@ -50,8 +50,6 @@ export function formatPortalHref(props) {
   }
   //h5打开外部门户自定义后缀地址访问 地址处理
   if (md.global.Account.isPortal && browserIsMobile() && getSuffix(location.href) === md.global.Account.addressSuffix) {
-    let url = location.href;
-    url = url.replace('/' + md.global.Account.addressSuffix, '/app/' + md.global.Account.appId);
-    location.href = url;
+    location.href = (window.subPath || '') + '/' + 'app/' + md.global.Account.appId + location.search;
   }
 }

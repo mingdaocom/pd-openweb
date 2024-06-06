@@ -16,14 +16,9 @@ export const urlList = [
 ];
 
 export const getSuffix = url => {
-  let addressSuffix = (
-    (
-      decodeURIComponent(url)
-        .replace(/http(s)?:\/\/([^/]+)\//i, '')
-        .split(/portal\/(.*)/)
-        .filter(o => o)[0] || ''
-    ).split(/\/(.*)/)[0] || ''
-  ).split('?')[0];
+  const urlPathname = new URL(decodeURIComponent(url));
+  const pathname = urlPathname.pathname;
+  const addressSuffix = pathname.replace(window.subPath, '').split('/')[1] || '';
   return addressSuffix;
 };
 
