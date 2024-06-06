@@ -433,8 +433,7 @@ export default class ByApp extends Component {
     this.useageRequest
       .then(({ list, allCount }) => {
         this.setState({
-          useageList: useagePageIndex === 1 ? list : this.state.useageList.concat(list),
-          useagePageIndex: useagePageIndex + 1,
+          useageList: list,
           total: allCount,
           useageLoading: false,
         });
@@ -490,6 +489,7 @@ export default class ByApp extends Component {
       selectedDate,
       total,
     } = this.state;
+
     return (
       <ByAppWrap>
         <div className="byAppHeader">
@@ -555,7 +555,7 @@ export default class ByApp extends Component {
               dealSorter={this.dealSorter}
               total={total}
               pageIndex={useagePageIndex}
-              changePage={useagePageIndex => this.setState({ useagePageIndex }, this.getList)}
+              changePage={useagePageIndex => this.setState({ useagePageIndex }, this.getUseageList)}
             />
           </div>
         )}

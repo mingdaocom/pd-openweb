@@ -40,7 +40,10 @@ const SortableList = SortableContainer(({ linkList, ...other }) => {
       {!!linkList.length && (
         <div className="flexRow valignWrapper mBottom10">
           <div className="flex" style={{ marginLeft: 27 }}>{_l('名称')}</div>
-          <div className="flex" style={{ marginLeft: -27 }}>{_l('链接')}</div>
+          <div className="flex" style={{ marginLeft: -27 }}>
+            {_l('链接')}
+            <span className="Gray_9e">{` (${_l('请输入完整链接，以http://或https://开头')})`}</span>
+          </div>
         </div>
       )}
       {linkList.map((item, index) => (
@@ -137,6 +140,7 @@ export default class PrivateLinkDialog extends Component {
       links: linkList
     }).then(data => {
       if (data) {
+        this.props.onSave(linkList);
         alert(_l('保存成功'));
       }
     });

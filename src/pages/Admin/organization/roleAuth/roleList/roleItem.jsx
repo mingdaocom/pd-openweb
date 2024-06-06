@@ -136,7 +136,7 @@ class RoleItem extends React.Component {
             <span className="adminHoverColor" onClick={e => this.clickHandler(e, 'addmember')}>
               {role.noAuth ? '' : _l('添加成员')}
             </span>
-            {isHrVisible && (auth.edit || (auth.delete && role.userCount === 0)) && (
+            {!md.global.Config.IsLocal && isHrVisible && (auth.edit || (auth.delete && role.userCount === 0)) && (
               <Trigger
                 popupVisible={role.entityId === popupVisibleId}
                 onPopupVisibleChange={visible => this.setState({ popupVisibleId: visible ? role.entityId : undefined })}

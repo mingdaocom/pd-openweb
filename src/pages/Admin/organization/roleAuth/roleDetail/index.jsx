@@ -172,7 +172,7 @@ class RoleDetail extends React.Component {
                   {_l('删除')}
                 </Button>
               ) : null}
-              {isHrVisible && editOpAuth ? (
+              {!md.global.Config.IsLocal && isHrVisible && editOpAuth ? (
                 <Button
                   type="ghost"
                   size="small"

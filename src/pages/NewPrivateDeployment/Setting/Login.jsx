@@ -1,8 +1,9 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import { useSetState } from 'react-use';
 import PrivateLinkDialog from './components/PrivateLinkDialog';
-import { Switch, Checkbox, Radio, Icon } from 'ming-ui';
-import { Button, Divider, Input } from 'antd';
+import privateLinkApi from 'src/api/privateLink';
+import { Switch, Checkbox, Radio, Icon, LoadDiv } from 'ming-ui';
+import { Button, Divider, Input, Tooltip } from 'antd';
 import { updateSysSettings } from '../common';
 import { BrandHomeImage } from '../Platform/Brand';
 import _ from 'lodash';
@@ -11,6 +12,8 @@ const Login = props => {
   const { IsPlatformLocal } = md.global.Config;
   const { SysSettings } = md.global;
   const [privateLinkDialogVisible, setPrivateLinkDialogVisible] = useState(false);
+  const [linkList, setLinkList] = useState([]);
+  const [linkListLoading, setLinkListLoading] = useState(true);
 
   const [
     { hideRegister, enableMobilePhoneRegister, enableEmailRegister, enableEditAccountInfo, enableDeclareRegisterConfirm, enableDeclareConfirm, enableFooterInfo, footerThemeColor },
@@ -25,6 +28,13 @@ const Login = props => {
     enableFooterInfo: SysSettings.enableFooterInfo,
     footerThemeColor: SysSettings.footerThemeColor,
   });
+
+  useEffect(() => {
+    privateLinkApi.getLinkList().then(data => {
+      setLinkList(data);
+      setLinkListLoading(false);
+    });
+  }, []);
 
   const changeSysSettings = (key, value) => {
     if (
@@ -125,7 +135,7 @@ const Login = props => {
   const renderFooterInfo = () => {
     return (
       <Fragment>
-        <div className="flexRow mBottom20">
+        <div className="flexRow mBottom15">
           <div className="flex flexColumn">
             <div className="Font14 bold mBottom7">{_l('底部信息栏')}</div>
             <div className="Gray_9e">{_l('在登录、注册页底部显示自定义链接如：法律条款、备案号等信息')}</div>
@@ -154,6 +164,29 @@ const Login = props => {
             onClick={value => changeSysSettings('enableFooterInfo', value)}
           />
         </div>
+        <div className="mBottom15">
+          {linkListLoading ? (
+            <LoadDiv size="small" className="mAll0" style={{ width: 100 }} />
+          ) : (
+            linkList.map(item => (
+              <div className="flexRow valignWrapper mBottom10">
+                <div className="Gray mRight10">{item.name}</div>
+                <Tooltip title={item.href} placement="top">
+                  <div className="Gray_9e ellipsis" style={{ maxWidth: 400 }}>{item.href}</div>
+                </Tooltip>
+                <div className="Gray_9e">
+                  <Icon
+                    className="hoverText Font12 mLeft5"
+                    icon="task-new-detail"
+                    onClick={() => {
+                      window.open(item.href);
+                    }}
+                  />
+                </div>
+              </div>
+            ))
+          )}
+        </div>
         <Button ghost type="primary" style={{ width: 'max-content' }} onClick={() => setPrivateLinkDialogVisible(true)}>
           {_l('设置链接')}
         </Button>
@@ -162,6 +195,9 @@ const Login = props => {
             visible={privateLinkDialogVisible}
             onCancel={() => {
               setPrivateLinkDialogVisible(false);
+            }}
+            onSave={list => {
+              setLinkList(list);
             }}
           />
         )}
@@ -229,7 +265,6 @@ const Sso = prosp => {
         />
       </div>
       <div className="mBottom15 Gray_9e">{_l('设置SSO登录页地址，可以在登录页显示按钮')}</div>
-
       {edit ? (
         <Fragment>
           <div className="flexColumn mBottom20">

@@ -713,6 +713,14 @@ export const RelateDetail = styled.div`
   display: flex;
   align-items: center;
   margin-top: 12px;
+  .flexWidth {
+    flex: 1;
+    max-width: max-content;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
   .text {
     margin: 0 6px;
   }

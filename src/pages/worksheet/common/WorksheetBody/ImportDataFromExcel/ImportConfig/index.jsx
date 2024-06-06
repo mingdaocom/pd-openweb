@@ -68,7 +68,7 @@ export default class ImportConfig extends Component {
       selectRow.cells = _.slice(
         selectRow.cells,
         0,
-        _.findIndex(this.props.fileList[0].rows[maxColumnNumber].cells, item => !item.value),
+        _.findIndex(this.props.fileList[defaultSelectImportSheetIndex].rows[maxColumnNumber].cells, item => !item.value),
       ).filter(item => item.value);
     }
     this.state = {

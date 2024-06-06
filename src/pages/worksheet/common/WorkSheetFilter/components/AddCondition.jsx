@@ -3,7 +3,6 @@ import Trigger from 'rc-trigger';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import _ from 'lodash';
-import { SYS } from 'src/pages/widgetConfig/config/widget.js';
 import SelectControls from './SelectControls';
 
 export default class AddCondition extends Component {
@@ -54,9 +53,6 @@ export default class AddCondition extends Component {
       popupContainer,
     } = this.props;
     const { columnListVisible } = this.state;
-    if (from === 'rule') {
-      columns = columns.filter(item => !_.includes(SYS, item.controlId));
-    }
     // 汇总不支持日期控件
     if (from === 'subTotal') {
       columns = columns.filter(

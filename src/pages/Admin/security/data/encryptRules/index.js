@@ -12,6 +12,7 @@ import { VersionProductType } from 'src/util/enum';
 import Trigger from 'rc-trigger';
 import './index.less';
 import _ from 'lodash';
+import moment from 'moment';
 
 const { Option } = Select;
 export const encryptList = [
@@ -227,7 +228,7 @@ export default class EncryptRules extends Component {
                     <div className="w150">
                       {_.get(_.find(encryptList, it => it.value === item.type) || {}, 'label')}
                     </div>
-                    <div className="w150">{item.createTime}</div>
+                    <div className="w150">{moment(item.createTime).format('YYYY-MM-DD HH:mm:ss')}</div>
                     <div className="w150 flexRow">
                       <UserHead
                         className="circle mRight6"

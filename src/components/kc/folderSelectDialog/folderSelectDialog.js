@@ -809,7 +809,7 @@ $.extend(FolderSelect.prototype, {
                   if (!path) {
                     path = $pathItem;
                   } else {
-                    path.after($pathItem);
+                    path = path.add($pathItem);
                   }
                 } else {
                   if (!isOmit) {
@@ -819,7 +819,7 @@ $.extend(FolderSelect.prototype, {
                     if (!path) {
                       path = $pathBefor;
                     } else {
-                      path.after($pathBefor);
+                      path = path.add($pathBefor);
                     }
                     isOmit = true;
                   }

@@ -451,7 +451,7 @@ const parseNewFormula = (data, currentItem = {}) => {
                     ...currentItem,
                     dot: isPercent ? dot + 2 : dot,
                   },
-                  result.result,
+                  toFixed(result.result, dot + 4),
                   false,
                 ),
               )

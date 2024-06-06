@@ -243,7 +243,7 @@ export default class ChartSetting extends Component {
   }
   renderChartAxis(x, y) {
     const { currentReport, axisControls, worksheetInfo, changeCurrentReport } = this.props;
-    const { reportType, displaySetup, xaxes, yaxisList, split, rightY, formulas = [] } = currentReport;
+    const { reportType, displaySetup, xaxes = {}, yaxisList, split = {}, rightY, formulas = [] } = currentReport;
     const isMultiaxis = [reportTypes.DualAxes, reportTypes.BidirectionalBarChart].includes(reportType);
     const isDualAxes = reportTypes.DualAxes === reportType;
     const xAxisVisible = reportType && ![reportTypes.GaugeChart, reportTypes.ProgressChart].includes(reportType);

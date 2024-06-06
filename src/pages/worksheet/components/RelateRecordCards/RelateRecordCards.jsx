@@ -266,6 +266,11 @@ export default class RelateRecordCards extends Component {
     if (!_.isEqual(nextProps.records, this.props.records)) {
       this.setState({ records: nextProps.records, count: nextProps.count });
     }
+
+    const { pageIndex, showLoadMore, isLoadingMore } = this.state;
+    if (nextProps.loadMoreRelateCards && !isLoadingMore && showLoadMore) {
+      this.loadMoreRecords(pageIndex + 1);
+    }
   }
 
   get controls() {
@@ -870,6 +875,7 @@ export default class RelateRecordCards extends Component {
                   showFillNext
                   directAdd
                   className="worksheetRelateNewRecord"
+                  needCache={recordId || worksheetId !== dataSource}
                   appId={appId}
                   worksheetId={dataSource}
                   addType={2}

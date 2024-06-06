@@ -13,6 +13,7 @@ import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import * as actions from 'mobile/RelationRow/redux/actions';
+import _ from 'lodash';
 
 @connect(
   state => ({ ..._.pick(state.mobile, ['relationRow', 'loadParams']) }),
@@ -35,6 +36,11 @@ export default class RecordForm extends Component {
       this.getApproveTodoList();
     }
   }
+  componentWillReceiveProps(nextProps) {
+    if (!_.isEqual(this.props.currentTab, nextProps.currentTab)) {
+      this.setState({ loadMoreRelateCards: false });
+    }
+  }
   getApproveTodoList() {
     const { recordInfo, recordBase } = this.props;
     instanceVersion
@@ -55,16 +61,18 @@ export default class RecordForm extends Component {
       loadParams,
       updatePageIndex = () => {},
       view = {},
+      workflow,
     } = this.props;
     if (isEditRecord || !this.formWrap) {
       return;
     }
-
     const { scrollTop, scrollHeight, clientHeight } = this.formWrap;
     const targetVlaue = scrollHeight - clientHeight - 30;
     const { loading, isMore, pageIndex } = loadParams;
     const isLoadMore = _.includes([29, 51], currentTab.type) ? relationRow.count : currentTab.value;
-    if (targetVlaue <= scrollTop && isLoadMore && !loading && isMore) {
+    if (workflow && currentTab.type === 29 && targetVlaue <= scrollTop) {
+      this.setState({ loadMoreRelateCards: true });
+    } else if (targetVlaue <= scrollTop && isLoadMore && !loading && isMore) {
       updatePageIndex(pageIndex + 1);
     }
     const wrapEl = document.querySelector(`.mobileSheetRowRecord-${recordBase.recordId}`);
@@ -288,6 +296,7 @@ export default class RecordForm extends Component {
             instanceId: recordBase.instanceId,
             workId: recordBase.workId,
           }}
+          loadMoreRelateCards={this.state.loadMoreRelateCards}
         />
       </div>
     );

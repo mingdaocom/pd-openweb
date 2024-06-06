@@ -24,6 +24,7 @@ import { addBehaviorLog, getTranslateInfo } from 'src/util';
 import { replaceControlsTranslateInfo } from 'worksheet/util';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { canEditApp, isHaveCharge } from 'src/pages/worksheet/redux/actions/util.js';
+import { handleCondition } from 'src/pages/widgetConfig/util/data';
 
 class PrintForm extends React.Component {
   constructor(props) {
@@ -639,7 +640,6 @@ class PrintForm extends React.Component {
             'font',
             'approvePosition',
             'allowDownloadPermission',
-            'filters',
             'advanceSettings',
           ]),
           approvalIds: type === 'edit' && !approval.length ? printData.approvalIds : approvalIds,
@@ -651,6 +651,7 @@ class PrintForm extends React.Component {
             .map(it => {
               return it.receiveControlId;
             }),
+          filters: (_.get(printData, 'filters') || []).map(handleCondition)
         },
         saveControls: controls,
       })

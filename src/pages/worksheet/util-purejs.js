@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import _, { filter, get, includes } from 'lodash';
+import _, { filter, get, find } from 'lodash';
 
 export function countChar(str = '', char) {
   if (!str || !char) {
@@ -176,7 +176,10 @@ export function getSelectedOptions(options, value, control) {
     selectedKeys = JSON.parse(value);
     return (
       get(control, 'advancedSetting.checktype') === '0'
-        ? filter(options, option => includes(selectedKeys, option.key) && !option.isDeleted).map(option => option.key)
+        ? filter(
+            options,
+            option => find(selectedKeys, selectedKey => selectedKey.indexOf(option.key) > -1) && !option.isDeleted,
+          ).map(option => option.key)
         : selectedKeys
     )
       .map(key =>

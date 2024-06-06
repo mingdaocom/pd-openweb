@@ -235,6 +235,7 @@ function Operate(props) {
                 relateSheetControlId: control.controlId,
                 value: actions.getDefaultRelatedSheetValue(formData, recordId),
               },
+              needCache: recordId || worksheetId !== control.dataSource,
               directAdd: true,
               showFillNext: true,
               onAdd: record => {

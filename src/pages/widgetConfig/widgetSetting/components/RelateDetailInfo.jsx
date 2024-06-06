@@ -11,10 +11,13 @@ export default function RelateDetailInfo(props) {
 
   return (
     <RelateDetail>
-      <div className="text">{name}</div>
+      <div className="text flexWidth" title={name}>
+        {name}
+      </div>
       <i className={cx('Font16 Gray_9e mRight6', !sourceControlId ? 'icon-trending' : 'icon-sync1')} />
-      <div
-        className="name flexCenter overflow_ellipsis"
+      <span
+        className="pointer ThemeColor3 Bold flexWidth"
+        title={sheetInfo.name}
         onClick={() => {
           const toPage = () =>
             toEditWidgetPage({
@@ -25,11 +28,13 @@ export default function RelateDetailInfo(props) {
           props.relateToNewPage(toPage);
         }}
       >
-        <span className="overflow_ellipsis pointer ThemeColor3 Bold" title={sheetInfo.name}>
-          {sheetInfo.name}
+        {sheetInfo.name}
+      </span>
+      {!_.isEmpty(sheetInfo) && appId !== sheetInfo.appId && (
+        <span className="mLeft6 flexWidth" title={sheetInfo.appName}>
+          ({sheetInfo.appName})
         </span>
-        {!_.isEmpty(sheetInfo) && appId !== sheetInfo.appId && <span className="mLeft6">({sheetInfo.appName})</span>}
-      </div>
+      )}
     </RelateDetail>
   );
 }

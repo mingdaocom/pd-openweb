@@ -207,6 +207,7 @@ export default class Widgets extends Component {
             showCoverAndControls={advancedSetting.ddset === '1'}
             onChange={this.handleChange}
             from={from}
+            loadMoreRelateCards={this.props.loadMoreRelateCards}
           />
         ) : (
           <RelateRecordDropdown

@@ -127,7 +127,7 @@ const WorkSheetPortal = props => {
                   <SvgIcon
                     size={20}
                     url={
-                      item.iconUrl ? item.iconUrl : `${md.global.FileStoreConfig.pubHost}/customIcon/${item.icon}.svg`
+                      item.iconUrl ? item.iconUrl : `${md.global.FileStoreConfig.pubHost}customIcon/${item.icon}.svg`
                     }
                     fill={'#333'}
                     className="mRight5"

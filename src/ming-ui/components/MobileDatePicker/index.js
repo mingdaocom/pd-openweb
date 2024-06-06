@@ -43,7 +43,7 @@ export default function MobileDatePicker(props) {
     step: 1,
   };
   const date = {
-    format: 'DD ' + _l('日'),
+    format: 'DD ' + _l('日%04035'),
     caption: 'Day',
     step: 1,
   };

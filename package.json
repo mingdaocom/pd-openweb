@@ -155,7 +155,7 @@
     "i18next-conv": "^3.0.3",
     "less": "^2.6.0",
     "less-loader": "^4.0.5",
-    "mini-css-extract-plugin": "^2.4.5",
+    "mini-css-extract-plugin": "2.4.5",
     "minimist": "^1.2.0",
     "moment-locales-webpack-plugin": "^1.2.0",
     "node-notifier": "^4.5.0",

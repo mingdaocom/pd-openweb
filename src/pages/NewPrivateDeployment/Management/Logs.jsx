@@ -5,7 +5,10 @@ import styled from 'styled-components';
 import privateHkLog from 'src/api/privateHkLog';
 import { htmlEncodeReg, htmlDecodeReg } from 'src/util';
 import moment from 'moment';
-import locale from 'antd/es/date-picker/locale/zh_CN';
+import zh_CN from 'antd/es/date-picker/locale/zh_CN';
+import zh_TW from 'antd/es/date-picker/locale/zh_TW';
+import en_US from 'antd/es/date-picker/locale/en_US';
+import ja_JP from 'antd/es/date-picker/locale/ja_JP';
 import _ from 'lodash';
 
 const { RangePicker } = DatePicker;
@@ -152,6 +155,7 @@ export default class Logs extends Component {
   }
   renderFilter() {
     const { date, serverName, keywords } = this.state;
+    const lang = getCookie('i18n_langtag') || md.global.Config.DefaultLang;
     return (
       <Header className="valignWrapper mTop20">
         <div className="valignWrapper serverName">
@@ -190,7 +194,7 @@ export default class Logs extends Component {
           <div className="Gray_75 Bold nowrap mRight5">{_l('时间')}</div>
           <RangePicker
             className="input"
-            locale={locale}
+            locale={lang === 'en' ? en_US : lang === 'ja' ? ja_JP : lang === 'zh-Hant' ? zh_TW : zh_CN}
             value={date}
             showTime={{ format: 'HH:mm:ss' }}
             onChange={(date) => {

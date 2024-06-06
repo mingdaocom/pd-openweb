@@ -145,7 +145,7 @@ export default function WorkSheetGroup(props) {
             {showIcon && (
               <div className="iconWrap mRight10">
                 <SvgIcon
-                  url={iconUrl ? iconUrl : `${md.global.FileStoreConfig.pubHost}/customIcon/${icon}.svg`}
+                  url={iconUrl ? iconUrl : `${md.global.FileStoreConfig.pubHost}customIcon/${icon}.svg`}
                   fill={svgColor()}
                   size={22}
                 />

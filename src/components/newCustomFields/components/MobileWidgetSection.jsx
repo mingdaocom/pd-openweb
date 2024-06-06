@@ -134,6 +134,7 @@ export default function MobileWidgetSection(props) {
     onChange = () => {},
     data = [],
     tabControls,
+    loadMoreRelateCards,
   } = props;
   const { otherTabs = [], changeMobileTab = () => {} } = tabControlProp;
   const [newFlag, setNewFlag] = useState(flag);
@@ -266,6 +267,7 @@ export default function MobileWidgetSection(props) {
             formData={data}
             showRelateRecordEmpty={true}
             onChange={(value, cid = activeControl.controlId) => onChange(value, cid, activeControl)}
+            loadMoreRelateCards={loadMoreRelateCards}
           />
         </RelateTabCon>
       );

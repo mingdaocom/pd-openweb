@@ -245,8 +245,9 @@ export default class Widgets extends Component {
             />
           </ClickAwayable>
         </PhoneWrap>
-
-        {maskPermissions && value && browserIsMobile() && (
+        
+        {/* 有掩码并有解码权限 || 无掩码时可拨打电话 */}
+        {(maskPermissions || (!isMask && !maskStatus)) && value && browserIsMobile() && (
           <a href={`tel:${value}`} className="Absolute customFormControlTelBtn" style={{ right: 0, top: 10 }}>
             <Icon icon="phone22" className="Font16 ThemeColor3" />
           </a>
