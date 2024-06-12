@@ -253,13 +253,13 @@ const Sso = prosp => {
           {_l('SSO')}
         </div>
         <Switch
-          checked={!enableSso}
+          checked={enableSso}
           onClick={value => {
             updateSysSettings({
-              enableSso: value
+              enableSso: !value
             }, () => {
-              setEnableSso(value);
-              md.global.SysSettings.enableSso = value;
+              setEnableSso(!value);
+              md.global.SysSettings.enableSso = !value;
             });
           }}
         />

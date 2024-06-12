@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { useSetState } from 'react-use';
 import { captcha } from 'ming-ui/functions';
 import styled from 'styled-components';
-import { Icon, Button, Dialog } from 'ming-ui';
+import { Button, Dialog } from 'ming-ui';
 import { browserIsMobile, encrypt } from 'src/util';
 import cx from 'classnames';
 import { ActionResult, CodeTypeEnum } from 'src/pages/accountLogin/config';
 import externalPortalAjax from 'src/api/externalPortal';
-import { setAutoLoginKey, toApp } from 'src/pages/accountLogin/portalAccount/util';
+import { setAutoLoginKey } from 'src/pages/accountLogin/portalAccount/util';
 import RegExp from 'src/util/expression';
 
 const AccountWrap = styled.div`
@@ -117,7 +117,6 @@ export default function TelDialog(props) {
     switch (accountResult) {
       case 1:
         alert(_l('密码重置成功！'), '1', 3000, () => {
-          // toApp(appId);
           onOk();
         });
         setState({
@@ -291,7 +290,7 @@ export default function TelDialog(props) {
       if (res.ret !== 0) {
         return;
       }
-      doFindPwd(
+      changePwd(
         Object.assign({}, res, {
           captchaType: md.global.getCaptchaType(),
         }),

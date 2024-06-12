@@ -2,14 +2,16 @@ import worksheetApi from 'src/api/worksheet';
 import { formatQuickFilter, getFilledRequestParams } from 'worksheet/util';
 import _ from 'lodash';
 
+let detailRowsRequest = null;
+
 export const fetchRows = (pageIndex, keyWords) => {
   return (dispatch, getState) => {
     const { base, filters, detailView, quickFilter, navGroupFilters } = getState().sheet;
     const { appId, viewId, worksheetId } = base;
     let { detailViewRows, detailViewLoading } = detailView;
 
-    if (detailViewLoading) {
-      return;
+    if (detailRowsRequest && detailRowsRequest.abort) {
+      detailRowsRequest.abort();
     }
 
     dispatch({ type: 'CHANGE_DETAIL_VIEW_PAGE_INDEX', pageIndex });
@@ -27,7 +29,8 @@ export const fetchRows = (pageIndex, keyWords) => {
       fastFilters: formatQuickFilter(quickFilter),
       navGroupFilters,
     };
-    worksheetApi.getFilterRows(getFilledRequestParams(args)).then(res => {
+    detailRowsRequest = worksheetApi.getFilterRows(getFilledRequestParams(args));
+    detailRowsRequest.then(res => {
       dispatch({
         type: 'CHANGE_DETAIL_VIEW_ROWS',
         list: pageIndex > 1 ? detailViewRows.concat(res.data) : res.data,
