@@ -234,9 +234,11 @@ export default class WorkwxSyncCourse extends React.Component {
       );
     }
     return (
-      <div className="workwxSyncBox card">
-        <h1 className="Gray">{_l('获取对接信息')}</h1>
-        {this.renderDing()}
+      <div className="dingSyncCourseWrap">
+        <div className="workwxSyncBox card">
+          <h1 className="Gray">{_l('获取对接信息')}</h1>
+          {this.renderDing()}
+        </div>
       </div>
     );
   }

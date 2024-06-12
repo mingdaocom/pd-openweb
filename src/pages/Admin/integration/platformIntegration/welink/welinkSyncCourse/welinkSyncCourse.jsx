@@ -116,9 +116,11 @@ export default class WelinkSyncCourse extends React.Component {
       );
     }
     return (
-      <div className="welinkSyncCourse card">
-        <h1 className="Gray">{_l('获取对接信息')}</h1>
-        {this.renderDing()}
+      <div className="dingSyncCourseWrap">
+        <div className="welinkSyncCourse card">
+          <h1 className="Gray">{_l('获取对接信息')}</h1>
+          {this.renderDing()}
+        </div>
       </div>
     );
   }

@@ -221,14 +221,16 @@ export default class AddUser extends Component {
         !!checkForm['mobile'](mobile, this.iti) ||
         !!checkForm['contactPhone'](contactPhone)
       : !!checkForm['userName'](userName) || !!checkForm['email'](email) || !!checkForm['contactPhone'](contactPhone);
+
     if (md.global.Config.IsLocal) {
       check =
-        inviteType === 'autonomously' &&
-        (!!checkForm['autonomously'](
-          this.itiAutonomously ? this.itiAutonomously.getNumber() : autonomously,
-          this.itiAutonomously,
-        ) ||
-          !!checkForm['autonomouslyPasswrod'](autonomouslyPasswrod));
+        check ||
+        (inviteType === 'autonomously' &&
+          (!!checkForm['autonomously'](
+            this.itiAutonomously ? this.itiAutonomously.getNumber() : autonomously,
+            this.itiAutonomously,
+          ) ||
+            !!checkForm['autonomouslyPasswrod'](autonomouslyPasswrod)));
     }
     if (check) {
       return false;

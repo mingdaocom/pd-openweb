@@ -57,6 +57,7 @@ export default class EditUser extends Component {
   }
   itiFn = () => {
     if (this.mobilePhone) {
+      this.iti && this.iti.destroy();
       this.iti = intlTelInput(this.mobilePhone, {
         customPlaceholder: '',
         autoPlaceholder: 'off',
@@ -66,6 +67,13 @@ export default class EditUser extends Component {
         utilsScript: utils,
         separateDialCode: true,
         showSelectedDialCode: true,
+      });
+
+      this.mobilePhone.addEventListener('countrychange', () => {
+        const { dialCode } = (this.iti && this.iti.getSelectedCountryData()) || {};
+        if (!this.state.mobilePhone.includes(`+${dialCode}`)) {
+          this.setState({ mobilePhone: this.state.mobilePhone.replace('+', '') });
+        }
       });
     }
   };
@@ -224,7 +232,7 @@ export default class EditUser extends Component {
         fullname: userName,
         jobIds,
         jobNumber,
-        mobilePhone,
+        mobilePhone: this.iti && this.iti.getNumber(),
         projectId,
         workSiteId,
         contactPhone,
