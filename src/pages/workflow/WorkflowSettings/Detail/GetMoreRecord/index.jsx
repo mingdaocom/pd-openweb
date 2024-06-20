@@ -267,7 +267,8 @@ export default class GetMoreRecord extends Component {
       [ACTION_ID.FROM_ADD]: _l('从新增节点获取记录'),
       [ACTION_ID.FROM_ARTIFICIAL]: _l('从人工节点获取操作明细'),
     };
-    const { workflowBatchGetDataLimitCount, workflowSubProcessDataLimitCount } = md.global.SysSettings;
+    const { workflowBatchGetDataLimitCount, workflowSubProcessDataLimitCount, worktableBatchOperateDataLimitCount } =
+      md.global.SysSettings;
     const isSelect =
       (_.includes([ACTION_ID.FROM_WORKSHEET, ACTION_ID.BATCH_UPDATE, ACTION_ID.BATCH_DELETE], data.actionId) &&
         data.appId) ||
@@ -300,15 +301,19 @@ export default class GetMoreRecord extends Component {
             )}
 
           {data.actionId === ACTION_ID.FROM_RECORD &&
-            _l('注：此方式最多获取1000条关联记录，如果需要获取更多数据，请使用“从工作表获取记录”的方式。')}
+            _l(
+              '注：此方式最多获取%0条关联记录，如果需要获取更多数据，请使用“从工作表获取记录”的方式。',
+              worktableBatchOperateDataLimitCount,
+            )}
 
           {data.actionId === ACTION_ID.BATCH_UPDATE &&
             _l(
-              '在本节点内更新最大支持1000行。更新后数据可供流程中其他数据处理节点或子流程节点继续使用。被数据处理节点（新增、更新、删除）使用，最多支持100条。',
+              '在本节点内更新最大支持%0行。更新后数据可供流程中其他数据处理节点或子流程节点继续使用。被数据处理节点（新增、更新、删除）使用，最多支持100条。',
+              worktableBatchOperateDataLimitCount,
             )}
 
           {data.actionId === ACTION_ID.BATCH_DELETE &&
-            _l('在本节点内删除，最大支持1000行。此节点对象不能被流程中其他节点使用')}
+            _l('在本节点内删除，最大支持%0行。此节点对象不能被流程中其他节点使用', worktableBatchOperateDataLimitCount)}
         </div>
 
         {(!data.actionId ||

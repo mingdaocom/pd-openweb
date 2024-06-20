@@ -273,7 +273,7 @@ export const BrandHomeImage = () => {
   return (
     <Wrap>
       <div className="Font14 bold mBottom8">{_l('背景图')}</div>
-      <div className="Font13 Gray_9e mBottom8">{_l('在登录、注册页的背景图，推荐尺寸 1920*900，2 M以内')}</div>
+      <div className="Font13 Gray_9e mBottom8">{_l('登录页背景图，推荐尺寸 1920*900，2 M以内')}</div>
       <div id="uploadBrandHomeImage" className={cx('uploadingImageWrap flexRow valignWrapper pointer', { noBorder: brandHomeImageUrl, justifyContentCenter: !brandHomeImageUrl })}>
         <input id="hideUploadBrandHomeImage" type="file" className="Hidden" />
         {brandHomeImageUrl ? (

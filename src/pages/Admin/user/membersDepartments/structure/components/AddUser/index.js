@@ -220,17 +220,19 @@ export default class AddUser extends Component {
       ? !!checkForm['userName'](userName) ||
         !!checkForm['mobile'](mobile, this.iti) ||
         !!checkForm['contactPhone'](contactPhone)
-      : !!checkForm['userName'](userName) || !!checkForm['email'](email) || !!checkForm['contactPhone'](contactPhone);
+      : inviteType === 'email'
+      ? !!checkForm['userName'](userName) || !!checkForm['email'](email) || !!checkForm['contactPhone'](contactPhone)
+      : '';
 
-    if (md.global.Config.IsLocal) {
-      check =
-        check ||
-        (inviteType === 'autonomously' &&
+    if (md.global.Config.IsLocal && !_.isEmpty(user)) {
+      check = _.includes(['mobile', 'email'], inviteType)
+        ? check
+        : inviteType === 'autonomously' &&
           (!!checkForm['autonomously'](
             this.itiAutonomously ? this.itiAutonomously.getNumber() : autonomously,
             this.itiAutonomously,
           ) ||
-            !!checkForm['autonomouslyPasswrod'](autonomouslyPasswrod)));
+            !!checkForm['autonomouslyPasswrod'](autonomouslyPasswrod));
     }
     if (check) {
       return false;
@@ -383,8 +385,7 @@ export default class AddUser extends Component {
                 ].filter(item => {
                   if (!md.global.Config.IsLocal || md.global.Config.IsPlatformLocal)
                     return item.value !== 'autonomously';
-                  if(!md.global.SysSettings.enableSmsCustomContent)
-                    return item.value !== 'mobile';
+                  if (!md.global.SysSettings.enableSmsCustomContent) return item.value !== 'mobile';
                   return true;
                 })}
                 onChange={val => {

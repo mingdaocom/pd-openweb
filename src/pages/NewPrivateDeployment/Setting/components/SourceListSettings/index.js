@@ -22,7 +22,7 @@ const SortableItem = SortableElement(({ item, ...other }) => {
       <div>
         <SvgIcon size="22" fill={item.color} url={item.iconUrl}/>
       </div>
-      <div>{item.name}</div>
+      <div>{(item.eventParams && item.eventParams.name == 'tpapp') ? _l('第三方应用') : item.name}</div>
       <div className="url ellipsis">{item.linkParams ? item.linkParams.url : '-'}</div>
       <div>
         <span className={item.predefined ? 'Gray_9e' : 'edit pointer'} onClick={() => { onEdit(item.id) }}>{_l('编辑')}</span>

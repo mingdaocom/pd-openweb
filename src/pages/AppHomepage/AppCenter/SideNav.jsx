@@ -217,7 +217,7 @@ export default function SideNav(props) {
         return {
           color: item.color,
           iconUrl: item.iconUrl,
-          name: item.name,
+          name: (item.eventParams && item.eventParams.name == 'tpapp') ? _l('第三方应用') : item.name,
           id: item.eventParams ? 'thirdPartyApp' : item.id,
           href: item.linkParams ? item.linkParams.url : null,
         };
