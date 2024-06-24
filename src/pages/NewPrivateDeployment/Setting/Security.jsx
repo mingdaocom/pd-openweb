@@ -352,15 +352,15 @@ const RequiredStrictVerification = props => {
     <div className="privateCardWrap flexColumn">
       <div className="flexRow valignWrapper">
         <div className="flex flexColumn mRight60">
-          <div className="Font17 bold mBottom10">{_l('平台内接口严格鉴权')}</div>
+          <div className="Font17 bold mBottom10">{_l('接口防护')}</div>
           <div className="Gray_9e">
             {_l(
-              '平台中部分功能需要在未鉴权的情况下获取接口信息。包含：显示关联表的字段结构；对外公开分享、查询和填写。这些请求只在使用对应功能时发生，不会影响数据安全。',
+              '平台中部分接口需在未鉴权的情况下被调用，如：全局固定的配置信息；关联表字段结构；对外公开分享、查询和填写等。如果需要接口严格鉴权或响应体加密返回，可开启此配置。',
             )}
           </div>
-          <div className="Gray_9e">
+          <div className="mTop5">
             {_l(
-              '如果你需要所有接口严格鉴权，可以启用此配置。启用后，在无关联表权限时将无法显示关联表字段；对外公开分享、查询和填写功能都仅支持平台内用户登录后使用。',
+              '注意：存在多访问地址时禁止开启',
             )}
           </div>
         </div>
